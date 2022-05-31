@@ -1,6 +1,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable camelcase */
 import difference from 'lodash/difference';
+import cloneDeep from 'lodash/cloneDeep';
 import packageJson from '../../package.json';
 import { getNextScope } from '../utils';
 import {
@@ -192,6 +193,30 @@ export function checkTypes(config) {
 }
 
 /**
+ * Assign unique ids for view definitions where
+ * they are missing a value for the uid property
+ * in layout[].uid.
+ * @param {object} config The view config
+ * @returns The updated view config.
+ */
+function assignViewUids(config) {
+  const { layout } = config;
+  const usedIds = layout.map(view => view.uid);
+  layout.forEach((view, i) => {
+    // Assign uids for views where they are not present.
+    if (!view.uid) {
+      const nextUid = getNextScope(usedIds);
+      layout[i].uid = nextUid;
+      usedIds.push(nextUid);
+    }
+  });
+  return {
+    ...config,
+    layout,
+  };
+}
+
+/**
  * Initialize the view config:
  * - Fill in missing coordination objects with default values.
  * - Fill in missing component coordination scope mappings.
@@ -199,12 +224,14 @@ export function checkTypes(config) {
  * Should be "stable": if run on the same view config twice, the return value the second
  * time should be identical to the return value the first time.
  * @param {object} config The view config prop.
+ * @returns The initialized view config.
  */
 export function initialize(config) {
-  if (config.initStrategy === 'auto') {
-    return initializeAuto(config);
+  let newConfig = cloneDeep(config);
+  if (newConfig.initStrategy === 'auto') {
+    newConfig = initializeAuto(config);
   }
-  return config;
+  return assignViewUids(newConfig);
 }
 
 export function upgradeAndValidate(oldConfig) {

@@ -51,22 +51,19 @@
                   { "type": "array", "items": {"type": "string"} }
                 ]
               },
-              "obsType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "featureType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "featureValueType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingZoom": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingRotation": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingTargetZ": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "embeddingObsSetPolygonsVisible": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "embeddingObsSetLabelsVisible": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "embeddingObsSetLabelSize": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "embeddingObsRadius": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "embeddingObsOpacity": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "embeddingObsRadiusMode": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "embeddingObsOpacityMode": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "embeddingCellSetPolygonsVisible": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "embeddingCellSetLabelsVisible": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "embeddingCellSetLabelSize": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "embeddingCellRadius": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "embeddingCellOpacity": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "embeddingCellRadiusMode": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "embeddingCellOpacityMode": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "spatialZoom": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "spatialRotation": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "spatialTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
@@ -82,27 +79,27 @@
               "heatmapZoomY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "heatmapTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "heatmapTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "obsFilter": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "obsHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "obsSetSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "obsSetHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "obsSetColor": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "featureFilter": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "featureHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "featureSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "featureValueTransform": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "featureValueColormap": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "featureValueColormapRange": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "obsColorEncoding": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "spatialImageLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "spatialSegmentationLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "spatialPointLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "spatialNeighborhoodLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "cellFilter": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "cellHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "cellSetSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "cellSetHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "cellSetColor": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "geneFilter": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "geneHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "geneSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "geneExpressionTransform": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "geneExpressionColormap": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "geneExpressionColormapRange": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "cellColorEncoding": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "spatialRasterLayers": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "spatialCellsLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "spatialMoleculesLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "spatialNeighborhoodsLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "genomicZoomX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "genomicZoomY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "genomicTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "genomicTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "additionalObsSets": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "additionalCellSets": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "moleculeHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" }
             }
           }
@@ -451,7 +448,7 @@
         }
       }
     },
-    "spatialImageLayer": {
+    "spatialRasterLayers": {
       "type": "array",
       "description": "Array of Spatial Layers",
       "items": {
@@ -502,24 +499,6 @@
       "required": [],
       "properties": {
         "dataset": {
-          "type": "object",
-          "patternProperties": {
-            ".": { "type": "string" }
-          }
-        },
-        "obsType": {
-          "type": "object",
-          "patternProperties": {
-            ".": { "type": "string" }
-          }
-        },
-        "featureType": {
-          "type": "object",
-          "patternProperties": {
-            ".": { "type": "string" }
-          }
-        },
-        "featureValueType": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "string" }
@@ -582,25 +561,25 @@
             ".": { "type": "string" }
           }
         },
-        "embeddingObsSetPolygonsVisible": {
+        "embeddingCellSetPolygonsVisible": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "boolean" }
           }
         },
-        "embeddingObsSetLabelsVisible": {
+        "embeddingCellSetLabelsVisible": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "boolean" }
           }
         },
-        "embeddingObsSetLabelSize": {
+        "embeddingCellSetLabelSize": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "number" }
           }
         },
-        "embeddingObsRadius": {
+        "embeddingCellRadius": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -609,7 +588,7 @@
             }
           }
         },
-        "embeddingObsOpacity": {
+        "embeddingCellOpacity": {
           "type": "object",
           "patternProperties": {
               ".": {
@@ -618,7 +597,7 @@
               }
           }
         },
-        "embeddingObsRadiusMode": {
+        "embeddingCellRadiusMode": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -628,7 +607,7 @@
             }
           }
         },
-        "embeddingObsOpacityMode": {
+        "embeddingCellOpacityMode": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -780,7 +759,7 @@
             }
           }
         },
-        "spatialImageLayer": {
+        "spatialRasterLayers": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -789,12 +768,12 @@
                   "type": "null",
                   "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
                 },
-                { "$ref": "#/definitions/spatialImageLayer" }
+                { "$ref": "#/definitions/spatialRasterLayers" }
               ]
             }
           }
         },
-        "spatialSegmentationLayer": {
+        "spatialCellsLayer": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -808,7 +787,7 @@
             }
           }
         },
-        "spatialNeighborhoodLayer": {
+        "spatialNeighborhoodsLayer": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -822,7 +801,7 @@
             }
           }
         },
-        "spatialPointLayer": {
+        "spatialMoleculesLayer": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -860,7 +839,7 @@
             ".": { "type": "number" }
           }
         },
-        "obsFilter": {
+        "cellFilter": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -874,7 +853,7 @@
             }
           }
         },
-        "obsHighlight": {
+        "cellHighlight": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -888,7 +867,7 @@
             }
           }
         },
-        "obsSetSelection": {
+        "cellSetSelection": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -902,7 +881,7 @@
             }
           }
         },
-        "obsSetHighlight": {
+        "cellSetHighlight": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -916,7 +895,7 @@
             }
           }
         },
-        "obsSetColor": {
+        "cellSetColor": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -947,7 +926,7 @@
             }
           }
         },
-        "obsColorEncoding": {
+        "cellColorEncoding": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -957,7 +936,7 @@
             }
           }
         },
-        "featureFilter": {
+        "geneFilter": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -971,7 +950,7 @@
             }
           }
         },
-        "featureHighlight": {
+        "geneHighlight": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -985,7 +964,7 @@
             }
           }
         },
-        "featureSelection": {
+        "geneSelection": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -998,7 +977,7 @@
             }
           }
         },
-        "featureValueTransform": {
+        "geneExpressionTransform": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -1011,13 +990,13 @@
             }
           }
         },
-        "featureValueColormap": {
+        "geneExpressionColormap": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "string" }
           }
         },
-        "featureValueColormapRange": {
+        "geneExpressionColormapRange": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "array", "items": { "type": "number" } }
@@ -1047,7 +1026,7 @@
             ".": { "type": "number" }
           }
         },
-        "additionalObsSets": {
+        "additionalCellSets": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -1087,7 +1066,7 @@
     },
     "version": {
       "type": "string",
-      "enum": ["1.0.11"],
+      "enum": ["1.0.10"],
       "description": "The schema version for the view config."
     }
   }

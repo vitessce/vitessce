@@ -74,7 +74,7 @@ export default function SpatialSubscriber(props) {
     spatialRotationZ: rotationZ,
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
-    spatialRasterLayer: rasterLayers,
+    spatialImageLayer: rasterLayers,
     spatialSegmentationLayer: cellsLayer,
     spatialPointLayer: moleculesLayer,
     spatialNeighborhoodLayer: neighborhoodsLayer,
@@ -96,7 +96,7 @@ export default function SpatialSubscriber(props) {
     setSpatialRotationX: setRotationX,
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialOrbitAxis: setOrbitAxis,
-    setSpatialRasterLayer: setRasterLayers,
+    setSpatialImageLayer: setRasterLayers,
     setSpatialSegmentationLayer: setCellsLayer,
     setSpatialPointLayer: setMoleculesLayer,
     setSpatialNeighborhoodLayer: setNeighborhoodsLayer,
@@ -172,8 +172,8 @@ export default function SpatialSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setSpatialRasterLayer: setRasterLayers },
-    { spatialRasterLayer: rasterLayers },
+    { setSpatialImageLayer: setRasterLayers },
+    { spatialImageLayer: rasterLayers },
   );
 
   const layers = useMemo(() => {

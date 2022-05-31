@@ -1,17 +1,20 @@
 
 ### Added
 - Added warning log messages when outdated constant values have been accessed (via JS Proxy).
+- Added the optional `uid` property for view definitions in the view config.
 - Added coordination types for entity types.
   - `obsType`
   - `featureType`
   - `featureValueType`
 
 ### Changed
-- Changed spatial layer coordination type names.
-  - `spatialRasterLayers`` -> ``spatialRasterLayer`
-  - `spatialCellsLayer`` -> ``spatialSegmentationLayer`
-  - `spatialMoleculesLayer`` -> ``spatialPointLayer`
-  - `spatialNeighborhoodsLayer`` -> ``spatialNeighborhoodLayer`
+- Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
+- Update code to reflect renaming of the default branch from `master` to `main`.
+- Change spatial layer coordination type names.
+  - `spatialRasterLayers` -> `spatialImageLayer`
+  - `spatialCellsLayer` -> `spatialSegmentationLayer`
+  - `spatialMoleculesLayer` -> `spatialPointLayer`
+  - `spatialNeighborhoodsLayer` -> `spatialNeighborhoodLayer`
 - Changed cell- and gene-related coordination type names.
   - `cellFilter` -> `obsFilter`
   - `cellHighlight` -> `obsHighlight`
@@ -25,10 +28,6 @@
   - `geneExpressionColormap` -> `featureValueColormap`
   - `geneExpressionColormapRange` -> `featureValueColormapRange`
   - `cellColorEncoding` -> `obsColorEncoding`
-  - `spatialRasterLayers` -> `spatialRasterLayer`
-  - `spatialCellsLayer` -> `spatialSegmentationLayer`
-  - `spatialMoleculesLayer` -> `spatialPointLayer`
-  - `spatialNeighborhoodsLayer` -> `spatialNeighborhoodLayer`
   - `additionalCellSets` -> `additionalObsSets`
   - `embeddingCellSetPolygonsVisible` -> `embeddingObsSetPolygonsVisible`
   - `embeddingCellSetLabelsVisible` -> `embeddingObsSetLabelsVisible`
@@ -803,7 +802,7 @@ and we have a sort-of schema for the schema to make sure these checks are in pla
 - Flexible configuration: load components by name, or have multiple instances
 of the same type of component.
 - Half-baked proof-of-concept integration with HiGlass.
-- Separate registry that holds Name` -> `Component mappings.
+- Separate registry that holds Name -> Component mappings.
 - Easy deployment to vitessce.io.
 - Friendlier error page on AWS deployment.
 - Display current version info in deployed demo.
