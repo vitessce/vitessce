@@ -50,6 +50,8 @@ The view config schema version.
 | `1.0.8`| Support for multi-dataset views and dataset-specific coordination scope mappings was added in this version. |
 | `1.0.9`| Support for plugin coordination types was added in this version. |
 | `1.0.10`| Support for the optional `layout[].uid` field. |
+// TODO
+| `1.0.15`| Made the `datasets[].files[].type` field optional. |
 
 ### `initStrategy`
 - Type: `string`

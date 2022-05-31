@@ -1,6 +1,7 @@
 
 ### Added
 - Added the optional `uid` property for view definitions in the view config.
+- Added a mapping from file types to data types, making the `datasets[].files[].type` property no longer required.
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.

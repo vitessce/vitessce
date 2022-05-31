@@ -345,3 +345,17 @@ export function upgradeFrom1_0_9(config) {
     version: '1.0.10',
   };
 }
+
+// TODO
+
+// Added in version 1.0.15:
+// - Added a fileType-to-dataType mapping
+// so that datasets[].files[].type is no longer required.
+export function upgradeFrom1_0_14(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.15',
+  };
+}
