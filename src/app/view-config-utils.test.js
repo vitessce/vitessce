@@ -66,7 +66,7 @@ describe('src/app/view-config-utils.js', () => {
       expect(secondResult).toEqual(initializedViewConfig);
     });
 
-    it.only('generates unique ids for the view uid property when missing', () => {
+    it('generates unique ids for the view uid property when missing', () => {
       const withUids = initialize(missingViewUids);
       expect(withUids.layout[0].uid).toEqual('A');
       // Should not overwrite uid when present:
