@@ -1,8 +1,11 @@
 
 ### Added
 - Added warning log messages when outdated constant values have been accessed (via JS Proxy).
+- Added the optional `uid` property for view definitions in the view config.
 
 ### Changed
+- Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
+- Update code to reflect renaming of the default branch from `master` to `main`.
 - Change spatial layer coordination type names.
   - `spatialRasterLayers` -> `spatialRasterLayer`
   - `spatialCellsLayer` -> `spatialSegmentationLayer`
