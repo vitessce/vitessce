@@ -57,9 +57,8 @@ export const createViewConfigStore = () => create(set => ({
       },
     },
   })),
-  removeComponent: i => set((state) => {
-    const newLayout = state.viewConfig.layout.slice();
-    newLayout.splice(i, 1);
+  removeComponent: uid => set((state) => {
+    const newLayout = state.viewConfig.layout.filter(c => c.uid !== uid);
     return {
       viewConfig: {
         ...state.viewConfig,

@@ -22,7 +22,7 @@ The Vitessce view config defines the datasets (and the URLs to the files they co
 
 :::note
 
-The full view config JSON schema can be found [here](https://github.com/vitessce/vitessce/tree/master/src/schemas/).
+The full view config JSON schema can be found [here](https://github.com/vitessce/vitessce/tree/main/src/schemas/).
 
 :::
 
@@ -49,7 +49,7 @@ The view config schema version.
 | `1.0.7`| The `geneAlias` option for the `anndata-expression-matrix.zarr` file type was added in this version. |
 | `1.0.8`| Support for multi-dataset views and dataset-specific coordination scope mappings was added in this version. |
 | `1.0.9`| Support for plugin coordination types was added in this version. |
-// TODO
+| `1.0.10`| Support for the optional `layout[].uid` field. |
 | `1.0.11`| Spatial layer coordination type names were changed in this version. |
 
 ### `initStrategy`
@@ -121,7 +121,7 @@ For more information about data types and file types, please visit our [Data Typ
 ### `layout`
 - Type: `object[]`
 
-The layout property defines which visualization (and controller) components will be rendered, how they will be arranged on the screen, and optionally how they will map onto coordination scopes. Each layout object represents one "component" or "view", and must contain a component name `component`, width `w` and height `h`, and horizontal position `x` and vertical position `y`. Components are arranged in a grid with 12 columns and a dynamic number of rows. Optionally, each component may contain the properties `coordinationScopes` and `props`.
+The layout property defines which visualization (and controller) components will be rendered, how they will be arranged on the screen, and optionally how they will map onto coordination scopes. Each layout object represents one "component" or "view", and must contain a component name `component`, width `w` and height `h`, and horizontal position `x` and vertical position `y`. Components are arranged in a grid with 12 columns and a dynamic number of rows. Optionally, each component may contain the properties `uid`, `coordinationScopes`, and `props`.
 
 For more information about the components that are available, please visit the [Visualization Components](/docs/components/) documentation page.
 

@@ -335,7 +335,16 @@ export function upgradeFrom1_0_8(config) {
   };
 }
 
-// TODO: merge with v1.0.10
+// Added in version 1.0.10:
+// - Support for the optional 'uid' property for views.
+export function upgradeFrom1_0_9(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.10',
+  };
+}
 
 // Added in version 1.0.11:
 // - Changes to spatial layer coordination type names.
