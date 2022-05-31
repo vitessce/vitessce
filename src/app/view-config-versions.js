@@ -53,5 +53,4 @@ export const SCHEMA_HANDLERS = {
   '1.0.10': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_10), upgradeFrom1_0_14], // TODO
   // TODO
   '1.0.15': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_15), null],
-
 };
