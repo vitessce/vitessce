@@ -14,6 +14,7 @@ import {
   legacyViewConfig1_0_0,
   upgradedLegacyViewConfig1_0_0,
   initializedViewConfig,
+  missingViewUids,
 } from './view-config-utils.test.fixtures';
 
 describe('src/app/view-config-utils.js', () => {
@@ -63,6 +64,18 @@ describe('src/app/view-config-utils.js', () => {
       expect(firstResult).toEqual(initializedViewConfig);
       const secondResult = initialize(firstResult);
       expect(secondResult).toEqual(initializedViewConfig);
+    });
+
+    it.only('generates unique ids for the view uid property when missing', () => {
+      const withUids = initialize(missingViewUids);
+      expect(withUids.layout[0].uid).toBeTruthy();
+      expect(withUids.layout[0].uid.length).toEqual(36);
+      // Should not overwrite uid when present:
+      expect(withUids.layout[1].uid).toEqual('some-umap');
+      expect(withUids.layout[2].uid).toBeTruthy();
+      expect(withUids.layout[2].uid.length).toEqual(36);
+      expect(withUids.layout[3].uid).toBeTruthy();
+      expect(withUids.layout[3].uid.length).toEqual(36);
     });
 
     it('does not initialize when initStrategy is none', () => {
