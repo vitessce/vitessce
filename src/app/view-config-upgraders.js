@@ -334,3 +334,14 @@ export function upgradeFrom1_0_8(config) {
     version: '1.0.9',
   };
 }
+
+// Added in version 1.0.10:
+// - Support for the optional 'uid' property for views.
+export function upgradeFrom1_0_9(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.10',
+  };
+}
