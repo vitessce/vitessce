@@ -4,6 +4,7 @@
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
+- Update code to reflect renaming of the default branch from `master` to `main`.
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
 
