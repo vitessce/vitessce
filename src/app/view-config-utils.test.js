@@ -68,14 +68,11 @@ describe('src/app/view-config-utils.js', () => {
 
     it.only('generates unique ids for the view uid property when missing', () => {
       const withUids = initialize(missingViewUids);
-      expect(withUids.layout[0].uid).toBeTruthy();
-      expect(withUids.layout[0].uid.length).toEqual(36);
+      expect(withUids.layout[0].uid).toEqual('A');
       // Should not overwrite uid when present:
       expect(withUids.layout[1].uid).toEqual('some-umap');
-      expect(withUids.layout[2].uid).toBeTruthy();
-      expect(withUids.layout[2].uid.length).toEqual(36);
-      expect(withUids.layout[3].uid).toBeTruthy();
-      expect(withUids.layout[3].uid.length).toEqual(36);
+      expect(withUids.layout[2].uid).toEqual('B');
+      expect(withUids.layout[3].uid).toEqual('C');
     });
 
     it('does not initialize when initStrategy is none', () => {
