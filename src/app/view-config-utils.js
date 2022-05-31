@@ -2,7 +2,6 @@
 /* eslint-disable camelcase */
 import difference from 'lodash/difference';
 import cloneDeep from 'lodash/cloneDeep';
-import uuidv4 from 'uuid/v4';
 import packageJson from '../../package.json';
 import { getNextScope } from '../utils';
 import {
