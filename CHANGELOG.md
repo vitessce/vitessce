@@ -1,5 +1,76 @@
 
 ### Added
+- Added the optional `uid` property for view definitions in the view config.
+
+### Changed
+- Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
+- Update code to reflect renaming of the default branch from `master` to `main`.
+
+## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
+
+
+
+### Added
+- Adds new view config schema version `1.0.8` to support multiple `dataset` coordination scopes and dataset-specific coordination scope mappings for all other coordination types
+  ```js
+  datasets: [
+    { uid: 'my-query', ... },
+    { uid: 'some-atlas', ... },
+  ],
+  coordinationSpace: {
+    dataset: {
+      REFERENCE: 'some-atlas',
+      QUERY: 'my-query',
+    },
+    embeddingType: {
+      common: 'UMAP',
+    },
+    embeddingZoom: {
+      refZoom: 2,
+      qryZoom: 4,
+    },
+    ...,
+  },
+  layout: [
+    {
+      component: 'qrComparisonScatterplot',
+      coordinationScopes: {
+        dataset: ['REFERENCE', 'QUERY'],
+        embeddingType: 'common',
+        embeddingZoom: { REFERENCE: 'refZoom', QUERY: 'qryZoom' },
+      },
+      x: 0, y: 0, w: 5, h: 12,
+    },
+    ...,
+  ],
+  ...
+  ```
+- Add support for plugin view types, coordination types, and file types.
+- Added more exports in `src/index.js` to better support plugin development.
+- Added data troubleshooting documentation page.
+- Added more old presentation links to the README.
+
+### Changed
+- Merged dependabot PRs.
+- Allow `Description` component to render without a dataset.
+
+
+## [1.1.20](https://www.npmjs.com/package/vitessce/v/1.1.20) - 2022-04-21
+
+
+
+### Added
+- Add a tutorial that describes how to deploy a Vitessce web app to GitHub pages.
+- Support `var` alias for AnnData to display altenrative gene names via new `geneAlias` field.
+
+### Changed
+- Use a hash table lookup instead of calling `indexOf` repeatedly for the heatmap component tiling.
+- Fix `molecules` layer sizing
+
+
+## [1.1.19](https://www.npmjs.com/package/vitessce/v/1.1.19) - 2022-03-30
+
+### Added
 - Added a roadmap page to the documentation.
 
 ### Changed
@@ -7,6 +78,7 @@
 - Upgrade Viv to 0.12.6 to fix shader compilation issue with interleaved RGB images
 - Fixed layer controller raster channel slider bug, related to [MUI slider issue](https://github.com/mui/material-ui/issues/20896).
 - Started to update the documentation to use the term "view" rather than "component".
+
 
 ## [1.1.18](https://www.npmjs.com/package/vitessce/v/1.1.18) - 2022-02-14
 

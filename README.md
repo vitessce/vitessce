@@ -143,6 +143,32 @@ module.exports = {
 
 This fix is temporary and will no longer be necessary after the [next release of Viv](https://github.com/vitessce/vitessce/pull/1049#issuecomment-939520471).
 
+
+## Version bumps
+
+In this project we try to follow semantic versioning.
+The following are examples of things that would require a major, minor, or patch type of bump.
+
+### Patch version bumps
+
+Bug fixes, minor feature improvements, additional view types, additional coordination types, and additional file type implementations are possible in a patch version bump.
+
+When a coordination type is added, it must be reflected by a new view config JSON schema with an incremented `version` property, and a new view config upgrade function to enable previous view config versions to remain compatible.
+The default schema version parameter of the `VitessceConfig` constructor may also change to reflect the new schema version.
+
+### Minor version bumps
+
+An exported helper function or React component for plugin views had a change in props or function signature.
+Major feature improvements or additions.
+
+### Major version bumps
+
+The exported constant values changed, such as view types and coordination types, such that previous code using these values may no longer run successfully.
+React props of the main `<Vitessce />` component changed.
+Major behavior changes or interface updates.
+Changes to the directory structure or filenames in the `dist/` directory that could result in broken import statements.
+
+
 ## Related repositories
 
 - [Viv](https://github.com/hms-dbmi/viv): A library for multiscale visualization of high-resolution multiplexed tissue data on the web.
@@ -153,6 +179,12 @@ This fix is temporary and will no longer be necessary after the [next release of
 
 ## Old presentations
 
+- [May 2022: Mark Keller's lab meeting update](https://docs.google.com/presentation/d/1qfd0rc6bF9nFIvOMp2YacpbJ7F8_UYhSYjLn26AlH7k/edit?usp=sharing)
+- [February 2022: Mark Keller's lab meeting update](https://docs.google.com/presentation/d/1J4lcWxD1GRGLBm0RLkGmEGcuQvXX9yBVBsQo2rXPTVM/edit?usp=sharing)
+- [October 2021: Mark Keller's lab meeting update](https://docs.google.com/presentation/d/1bibMLiR5aW_MgXn6ydhXWJsEN3tG5gJSw9xuYa49x5U/edit?usp=sharing)
+- [September 2021: HuBMAP Consortium Sci-Tech Webinar (Mark)](https://docs.google.com/presentation/d/1iPXSGEGT9HNNSrXT5uu0x_9Jq6L3cnhrpaz1Pge5O50/edit?usp=sharing)
+- [June 2021: Mark Keller's lab meeting update](https://docs.google.com/presentation/d/1P--F_MLeWK2n3JrY21mGn9FBgI2u60nQGN_XZtniSnc/edit?usp=sharing)
+- [April 2021: Spatial Biology Europe (Mark)](https://docs.google.com/presentation/d/1s33dKMCdE3LtC43IWBw48ZDmmtYJarDPtUOhH9T3D6Q/edit?usp=sharing)
 - [January 2021: Ilan Gold's lab meeting update](https://docs.google.com/presentation/d/10kmjLxQh5ji-4TVMq06KRpXek3uje_fQpTXBqjFj0p4/edit?usp=sharing)
 - [December 2020: Mark Keller's lab meeting update](https://docs.google.com/presentation/d/1rG0s5eH_NrFSk3_7lpmc9dsaUPFvnakYD59ff9D-G1M/edit?usp=sharing)
 - [November 2020: Ilan Gold's lab meeting update](https://docs.google.com/presentation/d/1egAwCR8UwdRCWiGYVRelebwNDH9boBX1nJIX5auvf1w/edit?usp=sharing)

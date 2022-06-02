@@ -298,3 +298,50 @@ export function upgradeFrom1_0_5(config) {
     version: '1.0.6',
   };
 }
+
+// Added in version 1.0.7:
+// - Support for aliasing the gene identifiers using a different var dataframe column
+// via a new `geneAlias` option for the `anndata-expression-matrix.zarr` fileType.
+export function upgradeFrom1_0_6(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.7',
+  };
+}
+
+// Added in version 1.0.8:
+// - Support for multiple `dataset` coordination scopes and
+// dataset-specific coordination scope mappings for all
+// other coordination types.
+export function upgradeFrom1_0_7(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.8',
+  };
+}
+
+// Added in version 1.0.9:
+// - Support for plugin coordination types.
+export function upgradeFrom1_0_8(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.9',
+  };
+}
+
+// Added in version 1.0.10:
+// - Support for the optional 'uid' property for views.
+export function upgradeFrom1_0_9(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.10',
+  };
+}

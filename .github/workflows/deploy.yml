@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
@@ -19,7 +19,9 @@ jobs:
           node-version: 14
           registry-url: https://registry.npmjs.org/
       - name: Install NPM dependencies
-        run: npm ci
+        run: |
+          npm install -g npm@6.14.16
+          npm ci
       - name: Run tests
         run: ./test.sh
       - name: Deploy to NPM
@@ -31,6 +33,13 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
+      - name: Setup Node 14
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+      - name: Install NPM
+        run: npm install -g npm@6.14.16
       - uses: cypress-io/github-action@v2
         with:
           start: npm start, npm run start:fixtures
