@@ -13,7 +13,7 @@ Use the tabs on the page to toggle between code snippets for [JSON-](/docs/view-
 
 ## Native File Types
 
-Native file types are those which Vitessce can read directly from a static web server via a [loader class](https://github.com/vitessce/vitessce/tree/master/src/loaders).
+Native file types are those which Vitessce can read directly from a static web server via a [loader class](https://github.com/vitessce/vitessce/tree/main/src/loaders).
 We welcome pull requests which implement loader classes to support additional file types natively.
 
 
@@ -204,7 +204,10 @@ json={`
     // All of the genes in \`var\` will display in the \`Genes\` component though.
     // Use \`geneFilter\` instead if you only want to show a subset of the genes there
     // (this must be defined if the matrix is a subset of AnnData.X).
-    "matrixGeneFilter": "var/highly_variable"
+    "matrixGeneFilter": "var/highly_variable",
+    // The gene alias property supports specifying a column containing
+    // alternative gene identifiers.
+    "geneAlias": "var/hugo_symbol"
   }
 }
 `}
@@ -218,7 +221,10 @@ const options = {
   // All of the genes in \`var\` will display in the \`Genes\` component though.
   // Use \`geneFilter\` instead if you only want to show a subset of the genes there
   // (this must be defined if the matrix is a subset of AnnData.X).
-  "matrixGeneFilter": "var/highly_variable"
+  "matrixGeneFilter": "var/highly_variable",
+  // The gene alias property supports specifying a column containing
+  // alternative gene identifiers.
+  "geneAlias": "var/hugo_symbol"
 };
 const dataset = vc
   .addDataset("My dataset")
@@ -233,8 +239,8 @@ const dataset = vc
 
 ### `cells.json`
 
-- [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/cells.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/cells.good.json)
+- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/cells.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/cells.good.json)
 - [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json)
 - View config file definition snippet:
 
@@ -260,8 +266,8 @@ const dataset = vc
 
 ### `cell-sets.json`
 
-- [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/cell-sets.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/cell-sets.good.json)
+- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/cell-sets.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/cell-sets.good.json)
 - [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json)
 - View config file definition snippet:
 
@@ -287,8 +293,8 @@ const dataset = vc
 
 ### `molecules.json`
 
-- [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/molecules.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/molecules.good.json)
+- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/molecules.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/molecules.good.json)
 - [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.molecules.json)
 - View config file definition snippet:
 
@@ -318,8 +324,8 @@ The `genes.json` format is not very efficient from a file size perspective.
 For large expression matrices, we recommend using the more compact Zarr `expression-matrix.zarr` or `anndata-expression-matrix.zarr` formats.
 :::
 
-- [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/genes.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/genes.good.json)
+- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/genes.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/genes.good.json)
 - [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.genes.json)
 - View config file definition snippet:
 
@@ -354,8 +360,8 @@ The `clusters.json` format is not very efficient from a file size perspective.
 For large expression matrices, we recommend using the more compact Zarr `expression-matrix.zarr` or `anndata-expression-matrix.zarr` formats.
 :::
 
-- [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/clusters.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/clusters.good.json)
+- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/clusters.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/clusters.good.json)
 - [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.clusters.json)
 - View config file definition snippet:
 
@@ -404,7 +410,7 @@ const dataset = vc
 
 ### `raster.json`
 
-- [JSON schema for options](https://github.com/vitessce/vitessce/blob/master/src/schemas/raster.schema.json)
+- [JSON schema for options](https://github.com/vitessce/vitessce/blob/main/src/schemas/raster.schema.json)
 
   :::note
 
@@ -646,8 +652,8 @@ const dataset = vc
 
 ### `neighborhoods.json`
 
-- [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/neighborhoods.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/neighborhoods.good.json)
+- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/neighborhoods.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/neighborhoods.good.json)
 - [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.neighborhoods.json)
 - View config file definition snippet:
 

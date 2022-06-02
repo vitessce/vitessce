@@ -7,6 +7,9 @@ import {
   Vitessce,
   encodeConfInUrl,
   decodeURLParamsToConf,
+  registerPluginViewType,
+  registerPluginCoordinationType,
+  registerPluginFileType,
 } from './app';
 import {
   VitessceConfig,
@@ -19,6 +22,48 @@ import {
   FileType,
   CoordinationType,
 } from './app/constants';
+// For plugin view types:
+import TitleInfo from './components/TitleInfo';
+import { useReady, useUrls } from './components/hooks';
+import {
+  useDescription,
+  useCellsData,
+  useCellSetsData,
+  useExpressionMatrixData,
+  useGeneSelection,
+  useExpressionAttrs,
+  useMoleculesData,
+  useNeighborhoodsData,
+  useRasterData,
+  useGenomicProfilesData,
+} from './components/data-hooks';
+import {
+  useCoordination,
+  useMultiDatasetCoordination,
+  useDatasetUids,
+  useLoaders,
+  useViewConfigStore,
+  useViewConfigStoreApi,
+  useComponentHover,
+  useSetComponentHover,
+  useComponentViewInfo,
+  useSetComponentViewInfo,
+  useWarning,
+  useSetWarning,
+} from './app/state/hooks';
+// For plugin file type:
+import {
+  JsonLoader,
+  LoaderResult,
+  AbstractTwoStepLoader,
+  AnnDataLoaders,
+} from './loaders';
+import {
+  JsonSource,
+  ZarrDataSource,
+  AnnDataSource,
+} from './loaders/data-sources';
+
 
 export {
   Heatmap,
@@ -36,4 +81,42 @@ export {
   DataType,
   FileType,
   CoordinationType,
+  // Plugin registration functions
+  registerPluginCoordinationType,
+  registerPluginViewType,
+  registerPluginFileType,
+  // Exports for plugins
+  // (not guaranteed to be compatible across different Vitessce versions)
+  TitleInfo,
+  useReady,
+  useUrls,
+  useCoordination,
+  useMultiDatasetCoordination,
+  useDatasetUids,
+  useLoaders,
+  useViewConfigStore,
+  useViewConfigStoreApi,
+  useComponentHover,
+  useSetComponentHover,
+  useComponentViewInfo,
+  useSetComponentViewInfo,
+  useWarning,
+  useSetWarning,
+  useDescription,
+  useCellsData,
+  useCellSetsData,
+  useExpressionMatrixData,
+  useGeneSelection,
+  useExpressionAttrs,
+  useMoleculesData,
+  useNeighborhoodsData,
+  useRasterData,
+  useGenomicProfilesData,
+  JsonLoader,
+  LoaderResult,
+  AbstractTwoStepLoader,
+  AnnDataLoaders,
+  JsonSource,
+  ZarrDataSource,
+  AnnDataSource,
 };

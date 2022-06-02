@@ -305,6 +305,68 @@ export const upgradedLegacyViewConfig1_0_0 = {
 };
 
 
+export const missingViewUids = {
+  version: '1.0.9',
+  name: 'My config name',
+  description: 'My config description',
+  initStrategy: 'auto',
+  coordinationSpace: {
+    dataset: {
+      A: 'A',
+    },
+  },
+  datasets: [
+    {
+      files: [],
+      name: 'A',
+      uid: 'A',
+    },
+  ],
+  layout: [
+    {
+      component: 'description',
+      coordinationScopes: {
+        dataset: 'A',
+      },
+      h: 2,
+      w: 3,
+      x: 9,
+      y: 0,
+    },
+    {
+      component: 'scatterplot',
+      uid: 'some-umap',
+      coordinationScopes: {
+        dataset: 'A',
+      },
+      h: 4,
+      w: 5,
+      x: 0,
+      y: 2,
+    },
+    {
+      component: 'scatterplot',
+      coordinationScopes: {
+        dataset: 'A',
+      },
+      h: 4,
+      w: 5,
+      x: 0,
+      y: 2,
+    },
+    {
+      component: 'spatial',
+      coordinationScopes: {
+        dataset: 'A',
+      },
+      h: 4,
+      w: 4,
+      x: 5,
+      y: 0,
+    },
+  ],
+};
+
 export const initializedViewConfig = {
   version: '1.0.1',
   public: true,

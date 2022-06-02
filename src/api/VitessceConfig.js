@@ -232,7 +232,7 @@ export class VitessceConfig {
    */
   constructor(name = undefined, description = undefined) {
     this.config = {
-      version: '1.0.4',
+      version: '1.0.7',
       name,
       description,
       datasets: [],
