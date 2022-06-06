@@ -8,11 +8,11 @@ import {
   AUTO_INDEPENDENT_COORDINATION_TYPES,
 } from './state/coordination';
 import { getViewTypes } from './component-registry';
-import { getFileTypes } from '../loaders/types';
 import {
   getComponentCoordinationTypes,
   getDefaultCoordinationValues,
   getCoordinationTypes,
+  getFileTypes,
 } from './plugins';
 import { SCHEMA_HANDLERS } from './view-config-versions';
 
