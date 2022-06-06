@@ -1,4 +1,5 @@
 import Ajv from 'ajv';
+import { FileType } from '../app/constants';
 import AbstractTwoStepLoader from './AbstractTwoStepLoader';
 import { LoaderValidationError, AbstractLoaderError } from './errors/index';
 import LoaderResult from './LoaderResult';
@@ -9,20 +10,20 @@ import neighborhoodsSchema from '../schemas/neighborhoods.schema.json';
 import rasterSchema from '../schemas/raster.schema.json';
 import cellSetsSchema from '../schemas/cell-sets.schema.json';
 
-const typeToSchema = {
-  cells: cellsSchema,
-  molecules: moleculesSchema,
-  neighborhoods: neighborhoodsSchema,
-  raster: rasterSchema,
-  'cell-sets': cellSetsSchema,
+const fileTypeToSchema = {
+  [FileType.CELLS_JSON]: cellsSchema,
+  [FileType.MOLECULES_JSON]: moleculesSchema,
+  [FileType.NEIGHBORHOODS_JSON]: neighborhoodsSchema,
+  [FileType.RASTER_JSON]: rasterSchema,
+  [FileType.CELL_SETS_JSON]: cellSetsSchema,
 };
 
 export default class JsonLoader extends AbstractTwoStepLoader {
   constructor(dataSource, params) {
     super(dataSource, params);
 
-    const { type } = params;
-    this.schema = typeToSchema[type];
+    const { fileType } = params;
+    this.schema = fileTypeToSchema[fileType];
   }
 
   load() {
@@ -47,9 +48,9 @@ export default class JsonLoader extends AbstractTwoStepLoader {
   }
 
   validate(data) {
-    const { schema, type } = this;
+    const { schema, fileType } = this;
     if (!schema) {
-      throw Error(`No schema for ${type}`);
+      throw Error(`No schema for ${fileType}`);
     }
     const validate = new Ajv().compile(schema);
     const valid = validate(data);
