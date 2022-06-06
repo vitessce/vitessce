@@ -1,7 +1,10 @@
 
 ### Added
+- Added the optional `uid` property for view definitions in the view config.
 
 ### Changed
+- Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
+- Update code to reflect renaming of the default branch from `master` to `main`.
 - Added the required `schemaVersion` parameter in the `VitessceConfig` constructor. (Breaking change for the `VitessceConfig` API.)
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
