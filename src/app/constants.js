@@ -1,98 +1,44 @@
-export const Component = {
-  DESCRIPTION: 'description',
-  STATUS: 'status',
-  GENES: 'genes',
-  CELL_SETS: 'cellSets',
-  SCATTERPLOT: 'scatterplot',
-  SPATIAL: 'spatial',
-  HEATMAP: 'heatmap',
-  LAYER_CONTROLLER: 'layerController',
-  CELL_SET_SIZES: 'cellSetSizes',
-  GENOMIC_PROFILES: 'genomicProfiles',
-  CELL_SET_EXPRESSION: 'cellSetExpression',
-  EXPRESSION_HISTOGRAM: 'expressionHistogram',
-};
+import {
+  Component as ComponentCurr,
+  DataType as DataTypeCurr,
+  FileType as FileTypeCurr,
+  CoordinationType as CoordinationTypeCurr,
+} from './constants-current';
+import {
+  Component as ComponentOld,
+  DataType as DataTypeOld,
+  FileType as FileTypeOld,
+  CoordinationType as CoordinationTypeOld,
+} from './constants-old';
 
-export const DataType = {
-  CELLS: 'cells',
-  CELL_SETS: 'cell-sets',
-  EXPRESSION_MATRIX: 'expression-matrix',
-  GENOMIC_PROFILES: 'genomic-profiles',
-  MOLECULES: 'molecules',
-  NEIGHBORHOODS: 'neighborhoods',
-  RASTER: 'raster',
-};
+function makeConstantWithDeprecationMessage(currObj, oldObj) {
+  const handler = {
+    get(obj, prop) {
+      const oldKeys = Object.keys(oldObj);
+      if (oldKeys.includes(prop)) {
+        console.warn(`Notice about the constant mapping ${prop}: '${oldObj[prop][0]}':\n${oldObj[prop][1]}`);
+        return oldObj[prop];
+      }
+      return obj[prop];
+    },
+  };
+  const objWithMessage = new Proxy(currObj, handler);
+  return objWithMessage;
+}
 
-export const FileType = {
-  CELLS_JSON: 'cells.json',
-  CELL_SETS_JSON: 'cell-sets.json',
-  EXPRESSION_MATRIX_ZARR: 'expression-matrix.zarr',
-  GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
-  MOLECULES_JSON: 'molecules.json',
-  NEIGHBORHOODS_JSON: 'neighborhoods.json',
-  RASTER_JSON: 'raster.json',
-  RASTER_OME_ZARR: 'raster.ome-zarr',
-  CLUSTERS_JSON: 'clusters.json',
-  GENES_JSON: 'genes.json',
-  ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
-  ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
-  ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
-};
-
-/**
- * Constants representing names of coordination types,
- * to help prevent typos.
- */
-export const CoordinationType = {
-  DATASET: 'dataset',
-  EMBEDDING_TYPE: 'embeddingType',
-  EMBEDDING_ZOOM: 'embeddingZoom',
-  EMBEDDING_ROTATION: 'embeddingRotation',
-  EMBEDDING_TARGET_X: 'embeddingTargetX',
-  EMBEDDING_TARGET_Y: 'embeddingTargetY',
-  EMBEDDING_TARGET_Z: 'embeddingTargetZ',
-  EMBEDDING_CELL_SET_POLYGONS_VISIBLE: 'embeddingCellSetPolygonsVisible',
-  EMBEDDING_CELL_SET_LABELS_VISIBLE: 'embeddingCellSetLabelsVisible',
-  EMBEDDING_CELL_SET_LABEL_SIZE: 'embeddingCellSetLabelSize',
-  EMBEDDING_CELL_RADIUS: 'embeddingCellRadius',
-  EMBEDDING_CELL_RADIUS_MODE: 'embeddingCellRadiusMode',
-  EMBEDDING_CELL_OPACITY: 'embeddingCellOpacity',
-  EMBEDDING_CELL_OPACITY_MODE: 'embeddingCellOpacityMode',
-  SPATIAL_ZOOM: 'spatialZoom',
-  SPATIAL_ROTATION: 'spatialRotation',
-  SPATIAL_TARGET_X: 'spatialTargetX',
-  SPATIAL_TARGET_Y: 'spatialTargetY',
-  SPATIAL_TARGET_Z: 'spatialTargetZ',
-  SPATIAL_ROTATION_X: 'spatialRotationX',
-  SPATIAL_ROTATION_Y: 'spatialRotationY',
-  SPATIAL_ROTATION_Z: 'spatialRotationZ',
-  SPATIAL_ROTATION_ORBIT: 'spatialRotationOrbit',
-  SPATIAL_ORBIT_AXIS: 'spatialOrbitAxis',
-  SPATIAL_AXIS_FIXED: 'spatialAxisFixed',
-  HEATMAP_ZOOM_X: 'heatmapZoomX',
-  HEATMAP_ZOOM_Y: 'heatmapZoomY',
-  HEATMAP_TARGET_X: 'heatmapTargetX',
-  HEATMAP_TARGET_Y: 'heatmapTargetY',
-  CELL_FILTER: 'cellFilter',
-  CELL_HIGHLIGHT: 'cellHighlight',
-  CELL_SET_SELECTION: 'cellSetSelection',
-  CELL_SET_HIGHLIGHT: 'cellSetHighlight',
-  CELL_SET_COLOR: 'cellSetColor',
-  GENE_FILTER: 'geneFilter',
-  GENE_HIGHLIGHT: 'geneHighlight',
-  GENE_SELECTION: 'geneSelection',
-  GENE_EXPRESSION_COLORMAP: 'geneExpressionColormap',
-  GENE_EXPRESSION_TRANSFORM: 'geneExpressionTransform',
-  GENE_EXPRESSION_COLORMAP_RANGE: 'geneExpressionColormapRange',
-  CELL_COLOR_ENCODING: 'cellColorEncoding',
-  SPATIAL_RASTER_LAYERS: 'spatialRasterLayers',
-  SPATIAL_CELLS_LAYER: 'spatialCellsLayer',
-  SPATIAL_MOLECULES_LAYER: 'spatialMoleculesLayer',
-  SPATIAL_NEIGHBORHOODS_LAYER: 'spatialNeighborhoodsLayer',
-  GENOMIC_ZOOM_X: 'genomicZoomX',
-  GENOMIC_ZOOM_Y: 'genomicZoomY',
-  GENOMIC_TARGET_X: 'genomicTargetX',
-  GENOMIC_TARGET_Y: 'genomicTargetY',
-  ADDITIONAL_CELL_SETS: 'additionalCellSets',
-  MOLECULE_HIGHLIGHT: 'moleculeHighlight',
-};
+export const Component = makeConstantWithDeprecationMessage(
+  ComponentCurr,
+  ComponentOld,
+);
+export const DataType = makeConstantWithDeprecationMessage(
+  DataTypeCurr,
+  DataTypeOld,
+);
+export const FileType = makeConstantWithDeprecationMessage(
+  FileTypeCurr,
+  FileTypeOld,
+);
+export const CoordinationType = makeConstantWithDeprecationMessage(
+  CoordinationTypeCurr,
+  CoordinationTypeOld,
+);

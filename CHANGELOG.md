@@ -1,5 +1,6 @@
 
 ### Added
+- Added warning log messages when outdated constant values have been accessed (via JS Proxy).
 - Added the optional `uid` property for view definitions in the view config.
 
 ### Changed
