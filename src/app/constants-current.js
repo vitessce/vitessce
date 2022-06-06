@@ -1,8 +1,3 @@
-/**
- * This file defines the current constant values.
- * To deprecate a value, add it to ./constants-old.js
- * with a corresponding log message.
- */
 export const Component = {
   DESCRIPTION: 'description',
   STATUS: 'status',
@@ -16,6 +11,16 @@ export const Component = {
   GENOMIC_PROFILES: 'genomicProfiles',
   CELL_SET_EXPRESSION: 'cellSetExpression',
   EXPRESSION_HISTOGRAM: 'expressionHistogram',
+};
+
+export const DataType = {
+  CELLS: 'cells',
+  CELL_SETS: 'cell-sets',
+  EXPRESSION_MATRIX: 'expression-matrix',
+  GENOMIC_PROFILES: 'genomic-profiles',
+  MOLECULES: 'molecules',
+  NEIGHBORHOODS: 'neighborhoods',
+  RASTER: 'raster',
 };
 
 export const FileType = {
@@ -80,10 +85,10 @@ export const CoordinationType = {
   GENE_EXPRESSION_TRANSFORM: 'geneExpressionTransform',
   GENE_EXPRESSION_COLORMAP_RANGE: 'geneExpressionColormapRange',
   CELL_COLOR_ENCODING: 'cellColorEncoding',
-  SPATIAL_RASTER_LAYER: 'spatialRasterLayer',
-  SPATIAL_SEGMENTATION_LAYER: 'spatialSegmentationLayer',
-  SPATIAL_POINT_LAYER: 'spatialPointLayer',
-  SPATIAL_NEIGHBORHOOD_LAYER: 'spatialNeighborhoodLayer',
+  SPATIAL_RASTER_LAYERS: 'spatialRasterLayers',
+  SPATIAL_CELLS_LAYER: 'spatialCellsLayer',
+  SPATIAL_MOLECULES_LAYER: 'spatialMoleculesLayer',
+  SPATIAL_NEIGHBORHOODS_LAYER: 'spatialNeighborhoodsLayer',
   GENOMIC_ZOOM_X: 'genomicZoomX',
   GENOMIC_ZOOM_Y: 'genomicZoomY',
   GENOMIC_TARGET_X: 'genomicTargetX',
