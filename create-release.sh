@@ -24,8 +24,8 @@ if [[ "$AWS_ACCT" != "gehlenborglab" ]]; then
 fi
 
 BRANCH=`git rev-parse --abbrev-ref HEAD`
-if [[ "$BRANCH" != "master" ]]; then
-    read -p "You are not on the master branch. Are you sure you want to make a release from this branch? [y/n]" -n 1 -r
+if [[ "$BRANCH" != "main" ]]; then
+    read -p "You are not on the main branch. Are you sure you want to make a release from this branch? [y/n]" -n 1 -r
     echo # move to a new line
     if [[ $REPLY =~ ^[Yy]$ ]]
     then
@@ -64,4 +64,4 @@ git add src/version.json DEMOS.md DOCS.md
 git commit -m "Demo for $NEXT_VERSION_WITH_V. Commit by create-release.sh"
 
 # Make a pull request.
-gh pr create --draft --base master --title "Release $NEXT_VERSION_WITH_V"
+gh pr create --draft --base main --title "Release $NEXT_VERSION_WITH_V"
