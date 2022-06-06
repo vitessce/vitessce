@@ -1,6 +1,7 @@
 import {
   useState, useEffect, useRef,
 } from 'react';
+import { InternMap } from 'internmap';
 import { getSourceAndLoaderFromFileType } from '../loaders/types';
 import { getFileTypeDataTypeMapping } from './plugins';
 
@@ -108,6 +109,7 @@ export function createLoaders(datasets, configDescription) {
         options,
         requestInit,
         fileType,
+        coordinationValues = {},
       } = file;
       const dataType = fileTypeDataTypeMapping[fileType];
       const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(fileType);
@@ -117,7 +119,13 @@ export function createLoaders(datasets, configDescription) {
         dataSources[fileId] = new DataSourceClass({ url, requestInit });
       }
       const loader = new LoaderClass(dataSources[fileId], file);
-      datasetLoaders.loaders[dataType] = loader;
+      if (datasetLoaders.loaders[dataType]) {
+        datasetLoaders.loaders[dataType].set(coordinationValues, loader);
+      } else {
+        datasetLoaders.loaders[dataType] = new InternMap([
+          [coordinationValues, loader],
+        ], JSON.stringify);
+      }
     });
     result[dataset.uid] = datasetLoaders;
   });

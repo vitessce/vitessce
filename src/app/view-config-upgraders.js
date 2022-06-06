@@ -335,6 +335,7 @@ export function upgradeFrom1_0_8(config) {
   };
 }
 
+
 // Added in version 1.0.10:
 // - Support for the optional 'uid' property for views.
 export function upgradeFrom1_0_9(config) {
@@ -422,5 +423,18 @@ export function upgradeFrom1_0_11(config) {
   return {
     ...newConfig,
     version: '1.0.12',
+  };
+}
+
+// Added in version 1.0.13:
+// - Adds the property `coordinationValues` for
+// view config file definitions but is not yet
+// used to do file matching/lookups.
+export function upgradeFrom1_0_12(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.13',
   };
 }

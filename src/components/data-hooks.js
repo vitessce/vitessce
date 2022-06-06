@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import equal from 'fast-deep-equal';
 import { capitalize } from '../utils';
-import { useSetWarning } from '../app/state/hooks';
+import { useMatchingLoader, useSetWarning } from '../app/state/hooks';
 import {
   AbstractLoaderError,
   LoaderNotFoundError,
@@ -115,14 +115,11 @@ export function useCellsData(
   const [cellsCount, setCellsCount] = useState(0);
 
   const setWarning = useSetWarning();
+  const loader = useMatchingLoader(loaders, dataset, 'cells', {});
 
   useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-
-    if (loaders[dataset].loaders.cells) {
-      loaders[dataset].loaders.cells.load().catch(e => warn(e, setWarning)).then((payload) => {
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url, coordinationValues } = payload;
         setCells(data);
@@ -151,7 +148,7 @@ export function useCellsData(
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }, [loader]);
 
   return [cells, cellsCount];
 }
@@ -186,15 +183,12 @@ export function useCellSetsData(
   const [cellSets, setCellSets] = useState();
 
   const setWarning = useSetWarning();
+  const loader = useMatchingLoader(loaders, dataset, 'cell-sets', {});
 
   useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-
-    if (loaders[dataset].loaders['cell-sets']) {
+    if (loader) {
       // Load the data initially.
-      loaders[dataset].loaders['cell-sets'].load().catch(e => warn(e, setWarning)).then((payload) => {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url, coordinationValues } = payload;
         setCellSets(data);
@@ -215,7 +209,7 @@ export function useCellSetsData(
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }, [loader]);
 
   return [cellSets];
 }
@@ -254,14 +248,11 @@ export function useExpressionMatrixData(
   const [expressionMatrix, setExpressionMatrix] = useState();
 
   const setWarning = useSetWarning();
+  const loader = useMatchingLoader(loaders, dataset, 'expression-matrix', {});
 
   useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-
-    if (loaders[dataset].loaders['expression-matrix']) {
-      loaders[dataset].loaders['expression-matrix'].load().catch(e => warn(e, setWarning)).then((payload) => {
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url, coordinationValues } = payload;
         const [attrs, arr] = data;
@@ -287,7 +278,7 @@ export function useExpressionMatrixData(
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }, [loader]);
 
   return [expressionMatrix];
 }
@@ -319,16 +310,13 @@ export function useGeneSelection(
   const [geneData, setGeneData] = useState();
 
   const setWarning = useSetWarning();
+  const loader = useMatchingLoader(loaders, dataset, 'expression-matrix', {});
 
   useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
     if (!selection) {
       setItemIsReady('expression-matrix');
       return;
     }
-    const loader = loaders[dataset].loaders['expression-matrix'];
     if (loader) {
       setItemIsNotReady('expression-matrix');
       const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
@@ -370,7 +358,7 @@ export function useGeneSelection(
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset, selection]);
+  }, [loader, selection]);
 
   return [geneData];
 }
@@ -397,12 +385,9 @@ export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isR
   const [attrs, setAttrs] = useState();
 
   const setWarning = useSetWarning();
+  const loader = useMatchingLoader(loaders, dataset, 'expression-matrix', {});
 
   useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-    const loader = loaders[dataset].loaders['expression-matrix'];
     if (loader) {
       const implementsLoadAttrs = typeof loader.loadAttrs === 'function';
       if (implementsLoadAttrs) {
@@ -431,7 +416,7 @@ export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isR
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }, [loader]);
 
   return [attrs];
 }
@@ -471,14 +456,11 @@ export function useMoleculesData(
   const [locationsCount, setLocationsCount] = useState(0);
 
   const setWarning = useSetWarning();
+  const loader = useMatchingLoader(loaders, dataset, 'molecules', {});
 
   useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-
-    if (loaders[dataset].loaders.molecules) {
-      loaders[dataset].loaders.molecules.load().catch(e => warn(e, setWarning)).then((payload) => {
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url, coordinationValues } = payload;
         setMolecules(data);
@@ -509,7 +491,7 @@ export function useMoleculesData(
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }, [loader]);
 
   return [molecules, moleculesCount, locationsCount];
 }
@@ -545,14 +527,11 @@ export function useNeighborhoodsData(
   const [neighborhoods, setNeighborhoods] = useState();
 
   const setWarning = useSetWarning();
+  const loader = useMatchingLoader(loaders, dataset, 'neighborhoods', {});
 
   useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-
-    if (loaders[dataset].loaders.neighborhoods) {
-      loaders[dataset].loaders.neighborhoods.load().catch(e => warn(e, setWarning))
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning))
         .then((payload) => {
           if (!payload) return;
           const { data, url, coordinationValues } = payload;
@@ -578,7 +557,7 @@ export function useNeighborhoodsData(
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }, [loader]);
 
   return [neighborhoods];
 }
@@ -622,19 +601,11 @@ export function useRasterData(
   const [imageLayerMeta, setImageLayerMeta] = useState([]);
 
   const setWarning = useSetWarning();
+  const loader = useMatchingLoader(loaders, dataset, 'raster', {});
 
   useEffect(() => {
-    if (!loaders[dataset]) {
-      if (isRequired) {
-        warn(new DatasetNotFoundError(dataset), setWarning);
-      } else {
-        setItemIsReady('raster');
-      }
-      return;
-    }
-
-    if (loaders[dataset].loaders.raster) {
-      loaders[dataset].loaders.raster.load().catch(e => warn(e, setWarning)).then((payload) => {
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url: urls, coordinationValues } = payload;
         setRaster(data);
@@ -657,13 +628,17 @@ export function useRasterData(
       setImageLayerLoaders([]);
       setImageLayerMeta([]);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'raster', null, null), setWarning);
+        if (dataset) {
+          warn(new LoaderNotFoundError(dataset, 'raster', null, null), setWarning);
+        } else {
+          warn(new DatasetNotFoundError(dataset), setWarning);
+        }
       } else {
         setItemIsReady('raster');
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }, [loader]);
   return [raster, imageLayerLoaders, imageLayerMeta];
 }
 
@@ -698,14 +673,11 @@ export function useGenomicProfilesData(
   const [genomicProfilesAttrs, setGenomicProfilesAttrs] = useState();
 
   const setWarning = useSetWarning();
+  const loader = useMatchingLoader(loaders, dataset, 'genomic-profiles', {});
 
   useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-
-    if (loaders[dataset].loaders['genomic-profiles']) {
-      loaders[dataset].loaders['genomic-profiles'].load().catch(e => warn(e, setWarning))
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning))
         .then((payload) => {
           if (!payload) return;
           const { data, url, coordinationValues } = payload;
@@ -727,7 +699,7 @@ export function useGenomicProfilesData(
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }, [loader]);
 
   return [genomicProfilesAttrs];
 }

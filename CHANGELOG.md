@@ -1,5 +1,8 @@
 
 ### Added
+- Added the property `coordinationValues` for view config file definitions.
+- Added the `useMatchingLoader` hook.
+- Added the property `coordinationValues` for view config file definitions but is not yet used to do file matching/lookups.
 - Added warning log messages when outdated constant values have been accessed (via JS Proxy).
 - Added the optional `uid` property for view definitions in the view config.
 - Added `enableMultiSelect` prop for `GenesSubscriber`. Current built-in views do not display multiple gene selections but plugin views could use this functionality.
@@ -38,6 +41,10 @@
   - `embeddingCellRadiusMode` -> `embeddingObsRadiusMode`
   - `embeddingCellOpacity` -> `embeddingObsOpacity`
   - `embeddingCellOpacityMode` -> `embeddingObsOpacityMode`
+- Added the required `schemaVersion` parameter in the `VitessceConfig` constructor. (Breaking change for the `VitessceConfig` API.)
+- Improved documentation.
+  - More consistently using the term "view type" rather than "component".
+  - Added a config schema version diff tool to the view config JSON documentation page.
 
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
