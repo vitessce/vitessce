@@ -13,7 +13,8 @@ import configSchema1_0_8 from '../schemas/config-1.0.8.schema.json';
 import configSchema1_0_9 from '../schemas/config-1.0.9.schema.json';
 import configSchema1_0_10 from '../schemas/config-1.0.10.schema.json';
 import configSchema1_0_11 from '../schemas/config-1.0.11.schema.json';
-import configSchema1_0_12 from '../schemas/config-1.0.12.schema.json';
+// TODO
+import configSchema1_0_14 from '../schemas/config-1.0.14.schema.json';
 import cellSetsSchema from '../schemas/cell-sets.schema.json';
 import rasterSchema from '../schemas/raster.schema.json';
 import {
@@ -29,7 +30,8 @@ import {
   upgradeFrom1_0_8,
   upgradeFrom1_0_9,
   upgradeFrom1_0_10,
-  upgradeFrom1_0_11,
+  // TODO
+  upgradeFrom1_0_13,
 } from './view-config-upgraders';
 
 /**
@@ -37,7 +39,7 @@ import {
  * Add a new schema and upgrade function here when bumping the view config version.
  * The latest view config version should always have a null value instead of an upgrade function.
  */
-export const LATEST_VERSION = '1.0.12';
+export const LATEST_VERSION = '1.0.14';
 export const SCHEMA_HANDLERS = {
   '0.1.0': [new Ajv().compile(configSchema0_1_0), upgradeFrom0_1_0],
   '1.0.0': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_0), upgradeFrom1_0_0],
@@ -51,6 +53,7 @@ export const SCHEMA_HANDLERS = {
   '1.0.8': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_8), upgradeFrom1_0_8],
   '1.0.9': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_9), upgradeFrom1_0_9],
   '1.0.10': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_10), upgradeFrom1_0_10],
-  '1.0.11': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_11), upgradeFrom1_0_11],
-  '1.0.12': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_12), null],
+  '1.0.11': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_11), upgradeFrom1_0_13], // TODO
+  // TODO
+  '1.0.14': [new Ajv().addSchema(cellSetsSchema).addSchema(rasterSchema).compile(configSchema1_0_14), null],
 };

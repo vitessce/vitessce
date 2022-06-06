@@ -390,11 +390,13 @@ export function upgradeFrom1_0_10(config) {
   };
 }
 
-// Added in version 1.0.12:
+// TODO
+
+// Added in version 1.0.14:
 // - Explict coordinationScopesBy property for view definitions,
 // to replace the previous implicit mapping of per-dataset coordination
 // scopes.
-export function upgradeFrom1_0_11(config) {
+export function upgradeFrom1_0_13(config) {
   const newConfig = cloneDeep(config);
 
   const { layout } = newConfig;
@@ -422,6 +424,6 @@ export function upgradeFrom1_0_11(config) {
   return {
     ...newConfig,
     layout: newLayout,
-    version: '1.0.12',
+    version: '1.0.14',
   };
 }
