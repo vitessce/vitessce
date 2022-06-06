@@ -4,19 +4,14 @@ title: View Configs via JSON
 sidebar_label: View Configs via JSON
 slug: /view-config-json
 ---
-
-:::tip
-
-While Vitessce always uses a JSON-based view configuration internally, an object-oriented view config API may be easier to use:
-- [JavaScript View Config API](/docs/view-config-js/)
-- [Python View Config API](https://vitessce.github.io/vitessce-python/api_config.html)
-- [R View Config API](https://vitessce.github.io/vitessceR/reference/VitessceConfig.html#examples)
-
-:::
+import {
+  DiffViewConfigSchema,
+} from '../src/pages/_DiffViewConfigSchema';
 
 ## Overview
 
-The Vitessce view config defines the datasets (and the URLs to the files they contain) and the individual visualization components that the data will be mapped onto. The view config also stores the [coordination space](/docs/coordination/#coordination-space) and defines whether multiple views are linked to each other (and on which properties they are linked, if any).
+The Vitessce __view config__ defines datasets (and the URLs to their associated data files) and views that will be used to visualize and interact with the data.
+The view config also stores the [coordination space](/docs/coordination/) (i.e., the state of the views) and defines which views and properties are coordinated.
 
 ## Required properties
 
@@ -35,7 +30,7 @@ A name for the view config. Although this field is required, you are welcome to 
 
 - Type: `string`
 
-The view config schema version.
+The view config schema version. The documentation pages here are based on the latest version.
 
 |Value|Notes|
 |-------|-----|
@@ -51,6 +46,8 @@ The view config schema version.
 | `1.0.9`| Support for plugin coordination types was added in this version. |
 | `1.0.10`| Support for the optional `layout[].uid` field. |
 | `1.0.11`| Spatial layer coordination type names were changed in this version. |
+
+<DiffViewConfigSchema />
 
 ### `initStrategy`
 - Type: `string`
@@ -123,10 +120,7 @@ For more information about data types and file types, please visit our [Data Typ
 
 The layout property defines which visualization (and controller) components will be rendered, how they will be arranged on the screen, and optionally how they will map onto coordination scopes. Each layout object represents one "component" or "view", and must contain a component name `component`, width `w` and height `h`, and horizontal position `x` and vertical position `y`. Components are arranged in a grid with 12 columns and a dynamic number of rows. Optionally, each component may contain the properties `uid`, `coordinationScopes`, and `props`.
 
-For more information about the components that are available, please visit the [Visualization Components](/docs/components/) documentation page.
-
-For more information about the coordination types that are available, please visit the [Coordination Types](/docs/coordination-types/) documentation page.
-
+For more information about the available view types and coordination types, please visit the [View Types](/docs/components/) and [Coordination Types](/docs/coordination-types/) documentation pages.
 ```json
 ...,
 "layout": [
@@ -188,3 +182,14 @@ When the coordination space is entirely or partially omitted from the view confi
 - Type: `string`
 
 An optional description for the view config.
+
+
+:::tip
+
+Vitessce uses a JSON-based view configuration internally.
+However, we provide language-specific object-oriented view config APIs as alternative ways to construct configurations:
+- [JavaScript View Config API](/docs/view-config-js/)
+- [Python View Config API](https://vitessce.github.io/vitessce-python/api_config.html)
+- [R View Config API](https://vitessce.github.io/vitessceR/reference/VitessceConfig.html#examples)
+
+:::
