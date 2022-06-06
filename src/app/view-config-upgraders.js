@@ -346,16 +346,58 @@ export function upgradeFrom1_0_9(config) {
   };
 }
 
-// TODO
+// Added in version 1.0.11:
+// - Changes to spatial layer coordination type names.
+export function upgradeFrom1_0_10(config) {
+  const coordinationSpace = { ...config.coordinationSpace };
 
-// Added in version 1.0.15:
+  const scopeAnalogies = {
+    spatialRasterLayers: 'spatialRasterLayer',
+    spatialCellsLayer: 'spatialSegmentationLayer',
+    spatialMoleculesLayer: 'spatialPointLayer',
+    spatialNeighborhoodsLayer: 'spatialNeighborhoodLayer',
+  };
+
+  Object.entries(scopeAnalogies).forEach(([oldKey, newKey]) => {
+    if (coordinationSpace[oldKey]) {
+      coordinationSpace[newKey] = coordinationSpace[oldKey];
+      delete coordinationSpace[oldKey];
+    }
+  });
+
+  const layout = config.layout.map((component) => {
+    const newComponent = { ...component };
+    const { coordinationScopes = {} } = newComponent;
+
+    Object.entries(scopeAnalogies).forEach(([oldKey, newKey]) => {
+      if (coordinationScopes[oldKey]) {
+        coordinationScopes[newKey] = coordinationScopes[oldKey];
+        delete coordinationScopes[oldKey];
+      }
+    });
+
+    return {
+      ...newComponent,
+      coordinationScopes,
+    };
+  });
+
+  return {
+    ...config,
+    coordinationSpace,
+    layout,
+    version: '1.0.11',
+  };
+}
+
+// Added in version 1.0.12:
 // - Added a fileType-to-dataType mapping
 // so that datasets[].files[].type is no longer required.
-export function upgradeFrom1_0_14(config) {
+export function upgradeFrom1_0_11(config) {
   const newConfig = cloneDeep(config);
 
   return {
     ...newConfig,
-    version: '1.0.15',
+    version: '1.0.12',
   };
 }

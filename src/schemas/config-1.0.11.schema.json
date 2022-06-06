@@ -91,10 +91,10 @@
               "geneExpressionColormap": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "geneExpressionColormapRange": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "cellColorEncoding": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "spatialRasterLayers": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "spatialCellsLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "spatialMoleculesLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "spatialNeighborhoodsLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "spatialRasterLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "spatialSegmentationLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "spatialPointLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "spatialNeighborhoodLayer": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "genomicZoomX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "genomicZoomY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "genomicTargetX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
@@ -448,7 +448,7 @@
         }
       }
     },
-    "spatialRasterLayers": {
+    "spatialRasterLayer": {
       "type": "array",
       "description": "Array of Spatial Layers",
       "items": {
@@ -478,7 +478,7 @@
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["fileType"],
+              "required": ["type", "fileType"],
               "properties": {
                 "name": { "type": "string" },
                 "type": { "type": "string" },
@@ -759,7 +759,7 @@
             }
           }
         },
-        "spatialRasterLayers": {
+        "spatialRasterLayer": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -768,12 +768,12 @@
                   "type": "null",
                   "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
                 },
-                { "$ref": "#/definitions/spatialRasterLayers" }
+                { "$ref": "#/definitions/spatialRasterLayer" }
               ]
             }
           }
         },
-        "spatialCellsLayer": {
+        "spatialSegmentationLayer": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -787,7 +787,7 @@
             }
           }
         },
-        "spatialNeighborhoodsLayer": {
+        "spatialNeighborhoodLayer": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -801,7 +801,7 @@
             }
           }
         },
-        "spatialMoleculesLayer": {
+        "spatialPointLayer": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -1066,7 +1066,7 @@
     },
     "version": {
       "type": "string",
-      "enum": ["1.0.15"],
+      "enum": ["1.0.11"],
       "description": "The schema version for the view config."
     }
   }
