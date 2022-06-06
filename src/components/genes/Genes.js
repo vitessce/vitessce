@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import every from 'lodash/every';
 import { SelectableTable } from '../selectable-table/index';
 
 export default function Genes(props) {
@@ -23,7 +24,7 @@ export default function Genes(props) {
   function onChange(selection) {
     if (setGeneSelection && selection) {
       if (Array.isArray(selection)) {
-        if (selection.length > 0) {
+        if (selection.length > 0 && every(selection, s => s.name)) {
           setGeneSelection(selection.map(s => s.name));
         } else {
           setGeneSelection(null);
