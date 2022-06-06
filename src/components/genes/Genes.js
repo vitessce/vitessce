@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import every from 'lodash/every';
 import { SelectableTable } from '../selectable-table/index';
 
 export default function Genes(props) {
@@ -8,6 +9,7 @@ export default function Genes(props) {
     geneSelection = [],
     geneFilter = null,
     setGeneSelection,
+    enableMultiSelect,
   } = props;
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,8 +22,16 @@ export default function Genes(props) {
   }, [searchTerm, geneList]);
 
   function onChange(selection) {
-    if (setGeneSelection && selection && selection.name) {
-      setGeneSelection([selection.name]);
+    if (setGeneSelection && selection) {
+      if (Array.isArray(selection)) {
+        if (selection.length > 0 && every(selection, s => s.name)) {
+          setGeneSelection(selection.map(s => s.name));
+        } else {
+          setGeneSelection(null);
+        }
+      } else if (selection.name) {
+        setGeneSelection([selection.name]);
+      }
     }
   }
 
@@ -52,7 +62,8 @@ export default function Genes(props) {
         idKey="name"
         valueKey="value"
         onChange={onChange}
-        allowUncheck={false}
+        allowMultiple={enableMultiSelect}
+        allowUncheck={enableMultiSelect}
         showTableHead={false}
       />
     </>

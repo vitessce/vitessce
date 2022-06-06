@@ -2,6 +2,8 @@
 ### Added
 - Added warning log messages when outdated constant values have been accessed (via JS Proxy).
 - Added the optional `uid` property for view definitions in the view config.
+- Added `enableMultiSelect` prop for `GenesSubscriber`. Current built-in views do not display multiple gene selections but plugin views could use this functionality.
+- Added a mapping from file types to data types, making the `datasets[].files[].type` property no longer required.
 - Added coordination types for entity types.
   - `obsType`
   - `featureType`
@@ -37,9 +39,8 @@
   - `embeddingCellOpacity` -> `embeddingObsOpacity`
   - `embeddingCellOpacityMode` -> `embeddingObsOpacityMode`
 
+
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
-
-
 
 ### Added
 - Adds new view config schema version `1.0.8` to support multiple `dataset` coordination scopes and dataset-specific coordination scope mappings for all other coordination types

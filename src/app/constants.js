@@ -28,6 +28,7 @@ export const DataType = {
   RASTER: 'raster',
 };
 
+
 export const FileType = {
   CELLS_JSON: 'cells.json',
   CELL_SETS_JSON: 'cell-sets.json',
