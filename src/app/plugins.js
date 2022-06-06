@@ -70,10 +70,8 @@ export function registerPluginFileType(
   // eslint-disable-next-line no-unused-vars
   fileTypeName, dataTypeName, dataLoaderClass, dataSourceClass,
 ) {
-  PLUGINS[PLUGIN_FILE_TYPES_KEY][fileTypeName] = {
-    dataType: dataTypeName,
-    loaderClasses: [dataSourceClass, dataLoaderClass],
-  };
+  PLUGINS[PLUGIN_FILE_TYPES_KEY][fileTypeName] = [dataSourceClass, dataLoaderClass];
+  PLUGINS[PLUGIN_FILE_TYPE_DATA_TYPE_MAPPING_KEY][fileTypeName] = dataTypeName;
 }
 
 /**
