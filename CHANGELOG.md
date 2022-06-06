@@ -6,6 +6,11 @@
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
 - Update code to reflect renaming of the default branch from `master` to `main`.
+- Change spatial layer coordination type names.
+  - `spatialRasterLayers` -> `spatialRasterLayer`
+  - `spatialCellsLayer` -> `spatialSegmentationLayer`
+  - `spatialMoleculesLayer` -> `spatialPointLayer`
+  - `spatialNeighborhoodsLayer` -> `spatialNeighborhoodLayer`
 - Added the required `schemaVersion` parameter in the `VitessceConfig` constructor. (Breaking change for the `VitessceConfig` API.)
 - Improved documentation.
   - More consistently using the term "view type" rather than "component".
