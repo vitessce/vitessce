@@ -18,6 +18,17 @@ export const Component = {
   EXPRESSION_HISTOGRAM: 'expressionHistogram',
 };
 
+export const DataType = {
+  CELLS: 'cells',
+  CELL_SETS: 'cell-sets',
+  EXPRESSION_MATRIX: 'expression-matrix',
+  GENOMIC_PROFILES: 'genomic-profiles',
+  MOLECULES: 'molecules',
+  NEIGHBORHOODS: 'neighborhoods',
+  RASTER: 'raster',
+};
+
+
 export const FileType = {
   CELLS_JSON: 'cells.json',
   CELL_SETS_JSON: 'cell-sets.json',
