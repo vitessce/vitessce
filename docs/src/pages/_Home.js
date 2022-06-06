@@ -12,9 +12,9 @@ const features = [
     title: 'Interactive',
     description: (
       <>
-        Vitessce consists of reusable interactive components including a scatterplot,
+        Vitessce consists of reusable interactive views including a scatterplot,
         spatial+imaging plot, genome browser tracks, statistical plots,
-        and controller components, built on web technologies such as WebGL.
+        and control views, built on web technologies such as WebGL.
       </>
     ),
   },
