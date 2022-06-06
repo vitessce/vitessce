@@ -118,7 +118,7 @@ export default class RasterLoader extends JsonLoader {
       const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = autoImages;
 
       const coordinationValues = {
-        spatialRasterLayers: autoImageLayers,
+        spatialRasterLayer: autoImageLayers,
       };
       return new LoaderResult(
         { loaders: imageLayerLoaders, meta: imageLayerMeta },

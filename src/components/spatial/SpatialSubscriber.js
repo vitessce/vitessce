@@ -74,10 +74,10 @@ export default function SpatialSubscriber(props) {
     spatialRotationZ: rotationZ,
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
-    spatialRasterLayers: rasterLayers,
-    spatialCellsLayer: cellsLayer,
-    spatialMoleculesLayer: moleculesLayer,
-    spatialNeighborhoodsLayer: neighborhoodsLayer,
+    spatialRasterLayer: rasterLayers,
+    spatialSegmentationLayer: cellsLayer,
+    spatialPointLayer: moleculesLayer,
+    spatialNeighborhoodLayer: neighborhoodsLayer,
     cellFilter,
     cellHighlight,
     geneSelection,
@@ -96,10 +96,10 @@ export default function SpatialSubscriber(props) {
     setSpatialRotationX: setRotationX,
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialOrbitAxis: setOrbitAxis,
-    setSpatialRasterLayers: setRasterLayers,
-    setSpatialCellsLayer: setCellsLayer,
-    setSpatialMoleculesLayer: setMoleculesLayer,
-    setSpatialNeighborhoodsLayer: setNeighborhoodsLayer,
+    setSpatialRasterLayer: setRasterLayers,
+    setSpatialSegmentationLayer: setCellsLayer,
+    setSpatialPointLayer: setMoleculesLayer,
+    setSpatialNeighborhoodLayer: setNeighborhoodsLayer,
     setCellFilter,
     setCellSetSelection,
     setCellHighlight,
@@ -145,18 +145,18 @@ export default function SpatialSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [cells, cellsCount] = useCellsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setSpatialCellsLayer: setCellsLayer },
-    { spatialCellsLayer: cellsLayer },
+    { setSpatialSegmentationLayer: setCellsLayer },
+    { spatialSegmentationLayer: cellsLayer },
   );
   const [molecules, moleculesCount, locationsCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setSpatialMoleculesLayer: setMoleculesLayer },
-    { spatialMoleculesLayer: moleculesLayer },
+    { setSpatialPointLayer: setMoleculesLayer },
+    { spatialPointLayer: moleculesLayer },
   );
   const [neighborhoods] = useNeighborhoodsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setSpatialNeighborhoodsLayer: setNeighborhoodsLayer },
-    { spatialNeighborhoodsLayer: neighborhoodsLayer },
+    { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
+    { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
@@ -172,8 +172,8 @@ export default function SpatialSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setSpatialRasterLayers: setRasterLayers },
-    { spatialRasterLayers: rasterLayers },
+    { setSpatialRasterLayer: setRasterLayers },
+    { spatialRasterLayer: rasterLayers },
   );
 
   const layers = useMemo(() => {

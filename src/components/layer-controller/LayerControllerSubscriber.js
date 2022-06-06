@@ -228,14 +228,14 @@ function LayerControllerSubscriber(props) {
   const [
     {
       dataset,
-      spatialRasterLayers: rasterLayers,
-      spatialCellsLayer: cellsLayer,
-      spatialMoleculesLayer: moleculesLayer,
+      spatialRasterLayer: rasterLayers,
+      spatialSegmentationLayer: cellsLayer,
+      spatialPointLayer: moleculesLayer,
     },
     {
-      setSpatialRasterLayers: setRasterLayers,
-      setSpatialCellsLayer: setCellsLayer,
-      setSpatialMoleculesLayer: setMoleculesLayer,
+      setSpatialRasterLayer: setRasterLayers,
+      setSpatialSegmentationLayer: setCellsLayer,
+      setSpatialPointLayer: setMoleculesLayer,
       setSpatialTargetX: setTargetX,
       setSpatialTargetY: setTargetY,
       setSpatialTargetZ: setTargetZ,
@@ -264,7 +264,7 @@ function LayerControllerSubscriber(props) {
   // Spatial layout + window size is needed for the "re-center" button to work properly.
   // Dimensions of the Spatial component can be inferred and used for resetting view state to
   // a nice, centered view.
-  const [spatialLayout] = useComponentLayout('spatial', ['spatialRasterLayers'], coordinationScopes);
+  const [spatialLayout] = useComponentLayout('spatial', ['spatialRasterLayer'], coordinationScopes);
   const layerControllerRef = useRef();
   const [componentWidth, componentHeight] = useClosestVitessceContainerSize(layerControllerRef);
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
@@ -288,19 +288,19 @@ function LayerControllerSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
     loaders, dataset, setItemIsReady, () => { }, false,
-    { setSpatialRasterLayers: setRasterLayers },
-    { spatialRasterLayers: rasterLayers },
+    { setSpatialRasterLayer: setRasterLayers },
+    { spatialRasterLayer: rasterLayers },
   );
 
   useCellsData(
     loaders, dataset, setItemIsReady, () => {}, false,
-    { setSpatialCellsLayer: setCellsLayer },
-    { spatialCellsLayer: cellsLayer },
+    { setSpatialSegmentationLayer: setCellsLayer },
+    { spatialSegmentationLayer: cellsLayer },
   );
   useMoleculesData(
     loaders, dataset, setItemIsReady, () => {}, false,
-    { setSpatialMoleculesLayer: setMoleculesLayer },
-    { spatialMoleculesLayer: moleculesLayer },
+    { setSpatialPointLayer: setMoleculesLayer },
+    { spatialPointLayer: moleculesLayer },
   );
 
   // useCallback prevents new functions from propogating
