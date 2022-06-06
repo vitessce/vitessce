@@ -1,6 +1,6 @@
 
 export const baseJson = `{
-  "version": "1.0.4",
+  "version": "1.0.9",
   "name": "My config",
   "description": "Test",
   "datasets": [],
@@ -9,13 +9,13 @@ export const baseJson = `{
   "initStrategy": "auto"
 }`;
 
-export const baseJs = `const vc = new VitessceConfig("My config");
+export const baseJs = `const vc = new VitessceConfig("1.0.9", "My config");
 
 // Return the view config as JSON.
 return vc.toJSON();`;
 
 export const exampleJs = `// Instantiate a view config object.
-const vc = new VitessceConfig("My example config", "This demonstrates the JavaScript API");
+const vc = new VitessceConfig("1.0.9", "My example config", "This demonstrates the JavaScript API");
 // Add a dataset and its files.
 const baseUrl = "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries";
 const dataset = vc
@@ -46,7 +46,7 @@ vc.layout(
 return vc.toJSON();`;
 
 export const exampleJson = `{
-  "version": "1.0.4",
+  "version": "1.0.9",
   "name": "My example config",
   "description": "This demonstrates the JSON schema",
   "datasets": [

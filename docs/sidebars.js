@@ -2,7 +2,7 @@ module.exports = {
   docs: [
     {
       type: 'doc',
-      id: 'introduction'
+      id: 'introduction',
     },
     {
       type: 'category',
@@ -13,25 +13,20 @@ module.exports = {
         'data-types-file-types',
         'coordination',
         'coordination-types',
-        'platforms'
+        'platforms',
       ],
     },
     {
-      type: 'category',
-      label: 'View Configs',
-      items: [
-        'view-config-json',
-        'view-config-js',
-        'constants',
-        'troubleshooting'
-      ],
+      type: 'doc',
+      id: 'view-config-json',
     },
     {
       type: 'category',
       label: 'Data Preparation',
       items: [
         'data-file-types',
-        'data-hosting'
+        'data-hosting',
+        'data-troubleshooting',
       ],
     },
     {
@@ -39,6 +34,8 @@ module.exports = {
       label: 'JavaScript API',
       items: [
         'js-overview',
+        'view-config-js',
+        'constants',
         'js-react-vitessce',
       ],
     },
@@ -48,17 +45,18 @@ module.exports = {
       items: [
         'dev-overview',
         'dev-add-component',
-        'dev-plugins'
+        'dev-plugins',
+        'troubleshooting',
       ],
     },
     {
       type: 'doc',
-      id: 'roadmap'
+      id: 'roadmap',
     },
     {
       type: 'doc',
-      id: 'about'
-    } 
+      id: 'about',
+    },
   ],
   tutorials: [
     {
