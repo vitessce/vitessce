@@ -228,20 +228,12 @@ function LayerControllerSubscriber(props) {
   const [
     {
       dataset,
-<<<<<<< HEAD
       spatialImageLayer: rasterLayers,
-=======
-      spatialRasterLayer: rasterLayers,
->>>>>>> 42b759c4e96b7815002e45536b4c4f33f9d8703f
       spatialSegmentationLayer: cellsLayer,
       spatialPointLayer: moleculesLayer,
     },
     {
-<<<<<<< HEAD
       setSpatialImageLayer: setRasterLayers,
-=======
-      setSpatialRasterLayer: setRasterLayers,
->>>>>>> 42b759c4e96b7815002e45536b4c4f33f9d8703f
       setSpatialSegmentationLayer: setCellsLayer,
       setSpatialPointLayer: setMoleculesLayer,
       setSpatialTargetX: setTargetX,
