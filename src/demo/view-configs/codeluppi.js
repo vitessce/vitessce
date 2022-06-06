@@ -54,7 +54,7 @@ const linnarssonBaseNoMolecules = {
 };
 
 export const justScatter = {
-  version: '1.0.0',
+  version: '1.0.12',
   name: 'Codeluppi, just scatterplot',
   public: false,
   initStrategy: 'auto',

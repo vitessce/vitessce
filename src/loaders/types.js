@@ -13,12 +13,17 @@ import CellSetsJsonLoader from './CellSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
+import CellsJsonAsObsIndexLoader from './CellsJsonAsObsIndex';
+import CellsJsonAsObsEmbeddingLoader from './CellsJsonAsObsEmbedding';
 
 export const fileTypeToLoaderAndSource = {
+  // Minimal file types
+  [FileType.OBS_INDEX_CELLS_JSON]: [JsonSource, CellsJsonAsObsIndexLoader],
+  [FileType.OBS_EMBEDDING_CELLS_JSON]: [JsonSource, CellsJsonAsObsEmbeddingLoader],
+  // Existing file types
   [FileType.EXPRESSION_MATRIX_ZARR]: [ZarrDataSource, MatrixZarrLoader],
   [FileType.CLUSTERS_JSON]: [JsonSource, ClustersJsonAsMatrixZarrLoader],
   [FileType.GENES_JSON]: [JsonSource, GenesJsonAsMatrixZarrLoader],
-  [FileType.CELLS_JSON]: [JsonSource, JsonLoader],
   [FileType.MOLECULES_JSON]: [JsonSource, JsonLoader],
   [FileType.NEIGHBORHOODS_JSON]: [JsonSource, JsonLoader],
   [FileType.RASTER_JSON]: [JsonSource, RasterJsonLoader],

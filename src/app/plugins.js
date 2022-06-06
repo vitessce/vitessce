@@ -1,6 +1,7 @@
 import { fromEntries } from '../utils';
 import { FILE_TYPE_DATA_TYPE_MAPPING } from './constant-relationships';
 import { FileType, CoordinationType } from './constants';
+import { CONVENIENCE_FILE_TYPES } from './convenience-file-types';
 import {
   COMPONENT_COORDINATION_TYPES,
   DEFAULT_COORDINATION_VALUES,
@@ -179,7 +180,7 @@ export function getFileTypeDataTypeMapping() {
 
 export function getConvenienceFileTypes() {
   return {
-    // TODO: import built-in convenience file types and include them here.
+    ...CONVENIENCE_FILE_TYPES,
     ...PLUGINS[PLUGIN_CONVENIENCE_FILE_TYPES_KEY],
   };
 }

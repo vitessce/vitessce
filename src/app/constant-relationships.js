@@ -6,6 +6,10 @@ import { FileType, DataType } from './constants';
  * can map onto the same data type.
  */
 export const FILE_TYPE_DATA_TYPE_MAPPING = {
+  // New mappings
+  [FileType.OBS_INDEX_CELLS_JSON]: DataType.OBS_INDEX,
+  [FileType.OBS_EMBEDDING_CELLS_JSON]: DataType.OBS_EMBEDDING,
+  // Existing mappings
   [FileType.CELLS_JSON]: DataType.CELLS,
   [FileType.CELL_SETS_JSON]: DataType.CELL_SETS,
   [FileType.EXPRESSION_MATRIX_ZARR]: DataType.EXPRESSION_MATRIX,

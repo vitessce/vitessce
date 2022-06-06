@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
@@ -11,6 +12,10 @@ import {
 import { setCellSelection, mergeCellSets } from '../utils';
 import { getCellSetPolygons } from '../sets/cell-set-utils';
 import {
+  // New loaders
+  useObsIndexData,
+  useObsEmbeddingData,
+  // Existing loaders
   useCellsData,
   useCellSetsData,
   useGeneSelection,
@@ -69,6 +74,7 @@ export default function ScatterplotSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
     embeddingZoom: zoom,
     embeddingTargetX: targetX,
     embeddingTargetY: targetY,
@@ -133,6 +139,26 @@ export default function ScatterplotSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
+  // New data hooks
+  const [indexData] = useObsIndexData(
+    loaders, dataset,
+    setItemIsReady, addUrl, true, {}, {},
+    {
+      obsType,
+    },
+  );
+  const [embeddingData] = useObsEmbeddingData(
+    loaders, dataset,
+    setItemIsReady, addUrl, true, {}, {},
+    {
+      obsType,
+      embeddingType: mapping,
+    },
+  );
+
+  console.log(indexData, embeddingData);
+
+  // Existing data hooks
   const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
   const [cellSets] = useCellSetsData(
     loaders,

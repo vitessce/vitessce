@@ -19,6 +19,10 @@ export const Component = {
 };
 
 export const DataType = {
+  // New data types
+  OBS_INDEX: 'obsIndex',
+  OBS_EMBEDDING: 'obsEmbedding',
+  // Existing data types
   CELLS: 'cells',
   CELL_SETS: 'cell-sets',
   EXPRESSION_MATRIX: 'expression-matrix',
@@ -30,7 +34,14 @@ export const DataType = {
 
 
 export const FileType = {
+  // Convenience file types
   CELLS_JSON: 'cells.json',
+  // Minimal file types
+  OBS_INDEX_CELLS_JSON: 'obsIndex.cells.json',
+  OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
+  OBS_LOCATIONS_CELLS_JSON: 'obsLocations.cells.json',
+  OBS_SEGMENTATIONS_CELLS_JSON: 'obsSegmentations.cells.json',
+  // Existing file types
   CELL_SETS_JSON: 'cell-sets.json',
   EXPRESSION_MATRIX_ZARR: 'expression-matrix.zarr',
   GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',

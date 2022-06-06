@@ -433,8 +433,27 @@ export function upgradeFrom1_0_11(config) {
 export function upgradeFrom1_0_12(config) {
   const newConfig = cloneDeep(config);
 
+  const {
+    datasets,
+    coordinationSpace,
+  } = newConfig;
+  // TODO: be more precise when more than one dataset.
+  const embeddingTypes = Object.values(coordinationSpace.embeddingType);
+  datasets.forEach((dataset, i) => {
+    const { files } = dataset;
+    files.forEach((fileDef, j) => {
+      const { fileType } = fileDef;
+      if (fileType === 'cells.json') {
+        datasets[i].files[j].options = {
+          embeddingTypes,
+        };
+      }
+    });
+  });
+
   return {
     ...newConfig,
+    datasets,
     version: '1.0.13',
   };
 }
