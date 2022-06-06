@@ -1102,7 +1102,7 @@
     },
     "version": {
       "type": "string",
-      "enum": ["1.0.14"],
+      "enum": ["1.0.15"],
       "description": "The schema version for the view config."
     }
   }

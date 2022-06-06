@@ -348,13 +348,13 @@ export function upgradeFrom1_0_9(config) {
 
 // TODO
 
-// Added in version 1.0.14:
+// Added in version 1.0.15:
 // - Support for the optional 'coordinationValues' property for views.
-export function upgradeFrom1_0_13(config) {
+export function upgradeFrom1_0_14(config) {
   const newConfig = cloneDeep(config);
 
   return {
     ...newConfig,
-    version: '1.0.14',
+    version: '1.0.15',
   };
 }
