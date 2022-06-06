@@ -11,6 +11,7 @@
   - `obsType`
   - `featureType`
   - `featureValueType`
+- Added a registration function for plugin convenience file types.
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
