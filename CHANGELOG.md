@@ -1,7 +1,12 @@
 
 ### Added
+- Added warning log messages when outdated constant values have been accessed (via JS Proxy).
+- Added the optional `uid` property for view definitions in the view config.
 
 ### Changed
+- Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
+- Update code to reflect renaming of the default branch from `master` to `main`.
+- Added the required `schemaVersion` parameter in the `VitessceConfig` constructor. (Breaking change for the `VitessceConfig` API.)
 - Improved documentation.
   - More consistently using the term "view type" rather than "component".
   - Added a config schema version diff tool to the view config JSON documentation page.

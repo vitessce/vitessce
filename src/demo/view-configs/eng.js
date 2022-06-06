@@ -134,7 +134,7 @@ export const eng2019 = {
 };
 
 export function getEngViewConfig(name, description) {
-  const vc = new vapi.VitessceConfig(name, description);
+  const vc = new vapi.VitessceConfig('1.0.0', name, description);
   const dataset = vc.addDataset(driesName, driesDescription)
     .addFile(getS3Url('dries', 'cells'), vapi.dt.CELLS, vapi.ft.CELLS_JSON)
     .addFile(getS3Url('dries', 'cell-sets'), vapi.dt.CELL_SETS, vapi.ft.CELL_SETS_JSON);

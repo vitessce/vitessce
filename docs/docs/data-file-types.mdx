@@ -26,6 +26,7 @@ In the `options` property for file definitions in the Vitessce view config, you 
 :::caution
 Vitessce uses [Zarr.js](https://github.com/gzuidhof/zarr.js) to load Zarr data.
 Zarr.js currently supports a __[subset](https://github.com/gzuidhof/zarr.js/blob/61d9cdb56ce6f8eaf97d213bcaa5b4ea8d01f5d1/src/nestedArray/types.ts#L32)__ of NumPy data types, so ensure that the types used in the arrays and data frames of your AnnData store are supported (otherwise cast using [np.astype](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.astype.html) or [pd.astype](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.astype.html)).
+In addition to the Zarr.js data types, Vitessce supports loading AnnData [string columns](https://github.com/vitessce/vitessce/blob/3615b55/src/loaders/data-sources/AnnDataSource.js#L102) with `vlen-utf8` or `|O` types.
 :::
 
 :::note
@@ -245,8 +246,8 @@ const dataset = vc
 
 ### `cells.json`
 
-- [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/cells.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/cells.good.json)
+- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/cells.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/cells.good.json)
 - [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json)
 - View config file definition snippet:
 
@@ -272,8 +273,8 @@ const dataset = vc
 
 ### `cell-sets.json`
 
-- [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/cell-sets.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/cell-sets.good.json)
+- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/cell-sets.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/cell-sets.good.json)
 - [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json)
 - View config file definition snippet:
 
@@ -299,8 +300,8 @@ const dataset = vc
 
 ### `molecules.json`
 
-- [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/molecules.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/molecules.good.json)
+- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/molecules.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/molecules.good.json)
 - [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.molecules.json)
 - View config file definition snippet:
 
@@ -330,8 +331,8 @@ The `genes.json` format is not very efficient from a file size perspective.
 For large expression matrices, we recommend using the more compact Zarr `expression-matrix.zarr` or `anndata-expression-matrix.zarr` formats.
 :::
 
-- [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/genes.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/genes.good.json)
+- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/genes.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/genes.good.json)
 - [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.genes.json)
 - View config file definition snippet:
 
@@ -366,8 +367,8 @@ The `clusters.json` format is not very efficient from a file size perspective.
 For large expression matrices, we recommend using the more compact Zarr `expression-matrix.zarr` or `anndata-expression-matrix.zarr` formats.
 :::
 
-- [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/clusters.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/clusters.good.json)
+- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/clusters.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/clusters.good.json)
 - [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.clusters.json)
 - View config file definition snippet:
 
@@ -416,7 +417,7 @@ const dataset = vc
 
 ### `raster.json`
 
-- [JSON schema for options](https://github.com/vitessce/vitessce/blob/master/src/schemas/raster.schema.json)
+- [JSON schema for options](https://github.com/vitessce/vitessce/blob/main/src/schemas/raster.schema.json)
 
   :::note
 
@@ -658,8 +659,8 @@ const dataset = vc
 
 ### `neighborhoods.json`
 
-- [JSON schema](https://github.com/vitessce/vitessce/blob/master/src/schemas/neighborhoods.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/master/src/schemas/fixtures/neighborhoods.good.json)
+- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/neighborhoods.schema.json)
+- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/neighborhoods.good.json)
 - [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.neighborhoods.json)
 - View config file definition snippet:
 

@@ -20,6 +20,7 @@ describe('VitessceGridLayout.js', () => {
       },
       components: [
         { component: 'FakeComponent',
+          uid: 'fake',
           props: { text: 'Hello World' },
           x: 0, y: 0, w: 2 },
       ],

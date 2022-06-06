@@ -28,7 +28,7 @@ import { Component as cm } from 'vitessce';
 ```js {5}
 import { VitessceConfig, Component as cm } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig("1.0.9", "My config");
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, cm.SPATIAL);
 ```
@@ -50,7 +50,7 @@ import { DataType as dt } from 'vitessce';
 ```js {7}
 import { VitessceConfig, DataType as dt, FileType as ft } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig("1.0.9", "My config");
 const dataset = vc.addDataset("My dataset")
     .addFile(
         "http://example.com/my-cells-data.json",
@@ -72,7 +72,7 @@ import { FileType as ft } from 'vitessce';
 ```js {8}
 import { VitessceConfig, DataType as dt, FileType as ft } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig("1.0.9", "My config");
 const dataset = vc.addDataset("My dataset")
     .addFile(
         "http://example.com/my-cells-data.json",
@@ -98,7 +98,7 @@ import { CoordinationType as ct } from 'vitessce';
 ```js {9}
 import { VitessceConfig, Component as cm, CoordinationType as ct } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig("1.0.9", "My config");
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, cm.SPATIAL);
 const v2 = vc.addView(dataset, cm.SPATIAL);
