@@ -8,7 +8,7 @@ const driesDescription = 'Transcriptome-scale super-resolved imaging in tissues 
 
 export const eng2019 = {
   name: driesName,
-  version: '1.0.0',
+  version: '1.0.14',
   description: driesDescription,
   public: true,
   datasets: [
@@ -23,10 +23,6 @@ export const eng2019 = {
   ],
   initStrategy: 'auto',
   coordinationSpace: {
-    embeddingType: {
-      TSNE: 't-SNE',
-      UMAP: 'UMAP',
-    },
     embeddingCellSetPolygonsVisible: {
       A: false,
     },
@@ -88,12 +84,14 @@ export const eng2019 = {
     {
       component: 'scatterplot',
       coordinationScopes: {
-        embeddingType: 'TSNE',
         embeddingZoom: 'TSNE',
         embeddingCellSetLabelsVisible: 'A',
         embeddingCellSetLabelSize: 'A',
         embeddingCellSetPolygonsVisible: 'A',
         embeddingCellRadius: 'A',
+      },
+      coordinationValues: {
+        embeddingType: 't-SNE',
       },
       x: 0,
       y: 2,
@@ -118,12 +116,14 @@ export const eng2019 = {
     {
       component: 'scatterplot',
       coordinationScopes: {
-        embeddingType: 'UMAP',
         embeddingZoom: 'UMAP',
         embeddingCellSetLabelsVisible: 'A',
         embeddingCellSetLabelSize: 'A',
         embeddingCellSetPolygonsVisible: 'A',
         embeddingCellRadius: 'A',
+      },
+      coordinationValues: {
+        embeddingType: 'UMAP',
       },
       x: 0,
       y: 0,

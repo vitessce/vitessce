@@ -2,6 +2,7 @@
 ### Added
 - Added warning log messages when outdated constant values have been accessed (via JS Proxy).
 - Added the optional `uid` property for view definitions in the view config.
+- Added the optional `coordinationValues` property for view definitions in the view config, as a shortcut to set coordination values for independent views. Used during the `initStrategy: 'auto'` initialization process.
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.

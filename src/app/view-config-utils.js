@@ -120,13 +120,57 @@ function coordinateComponentsIndependent(config, coordinationType, scopeValue) {
   return newConfig;
 }
 
+function coordinateComponentsShortcut(config, coordinationType) {
+  const componentCoordinationTypes = getComponentCoordinationTypes();
+  const newConfig = {
+    ...config,
+    layout: [...config.layout],
+  };
+  const newScopes = {};
+  newConfig.layout.forEach((component, i) => {
+    // Only set the coordination scope if this component uses this coordination type,
+    // and the component is missing a coordination scope for this coordination type.
+    if (componentCoordinationTypes[component.component].includes(coordinationType)
+      && component.coordinationValues?.[coordinationType]
+    ) {
+      const scopeValue = component.coordinationValues[coordinationType];
+      const scopeName = getNextScope([
+        ...getExistingScopesForCoordinationType(config, coordinationType),
+        ...Object.keys(newScopes),
+      ]);
+      newScopes[scopeName] = scopeValue;
+      newConfig.layout[i] = {
+        ...component,
+        coordinationScopes: {
+          ...component.coordinationScopes,
+          [coordinationType]: scopeName,
+        },
+      };
+      delete newConfig.layout[i].coordinationValues[coordinationType];
+    }
+  });
+  newConfig.coordinationSpace = {
+    ...newConfig.coordinationSpace,
+    [coordinationType]: {
+      ...newConfig.coordinationSpace[coordinationType],
+      // Add the new scope name and value to the coordination space.
+      ...newScopes,
+    },
+  };
+  return newConfig;
+}
+
 function initializeAuto(config) {
   let newConfig = config;
-  const { layout, datasets } = newConfig;
 
   const componentCoordinationTypes = getComponentCoordinationTypes();
   const defaultCoordinationValues = getDefaultCoordinationValues();
   const coordinationTypes = getCoordinationTypes();
+
+  coordinationTypes.forEach((coordinationType) => {
+    newConfig = coordinateComponentsShortcut(newConfig, coordinationType);
+  });
+  const { layout, datasets } = newConfig;
 
   // For each coordination type, check whether it requires initialization.
   coordinationTypes.forEach((coordinationType) => {
@@ -139,6 +183,7 @@ function initializeAuto(config) {
                 || c.coordinationScopes?.[coordinationType]
       ));
     if (requiresCoordination) {
+      // Components may only use a subset of all coordination types.
       // Note that the default value may be undefined.
       let defaultValue = defaultCoordinationValues[coordinationType];
       // Check whether this is the special 'dataset' coordination type.
