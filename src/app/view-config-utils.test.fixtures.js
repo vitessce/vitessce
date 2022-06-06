@@ -690,7 +690,7 @@ export const implicitPerDatasetCoordinations = {
 
 
 export const explicitPerDatasetCoordinations = {
-  version: '1.0.12',
+  version: '1.0.14',
   name: 'Per-dataset coordinations',
   description: 'My config description',
   initStrategy: 'auto',
