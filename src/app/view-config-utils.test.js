@@ -17,6 +17,7 @@ import {
   initializedViewConfig,
   implicitPerDatasetCoordinations,
   explicitPerDatasetCoordinations,
+  missingViewUids,
 } from './view-config-utils.test.fixtures';
 
 describe('src/app/view-config-utils.js', () => {
@@ -71,6 +72,15 @@ describe('src/app/view-config-utils.js', () => {
       expect(firstResult).toEqual(initializedViewConfig);
       const secondResult = initialize(firstResult);
       expect(secondResult).toEqual(initializedViewConfig);
+    });
+
+    it('generates unique ids for the view uid property when missing', () => {
+      const withUids = initialize(missingViewUids);
+      expect(withUids.layout[0].uid).toEqual('A');
+      // Should not overwrite uid when present:
+      expect(withUids.layout[1].uid).toEqual('some-umap');
+      expect(withUids.layout[2].uid).toEqual('B');
+      expect(withUids.layout[3].uid).toEqual('C');
     });
 
     it('does not initialize when initStrategy is none', () => {

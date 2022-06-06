@@ -7,8 +7,10 @@ slug: /view-config-js
 
 ## Overview
 
-The Vitessce view config defines how data is retrieved, which visualization components are rendered, and how different components are coordinated. Ultimately, this configuration must be a JSON object when it is passed to the `<Vitessce/>` React component's `config` prop. Writing large JSON objects by hand can be difficult and prevents from using variables for more easily maintainable string constants, so we have developed object-oriented APIs to simplify this process. There are corresponding APIs in [Python](https://vitessce.github.io/vitessce-python/) and [R](https://vitessce.github.io/vitessceR/) if one of those languages is more familiar to you.
+The Vitessce view config defines how data is retrieved, which views are rendered, and how different views are coordinated.
+Ultimately, this configuration must be a JSON object when it is passed to the `<Vitessce/>` React component's [`config`](/docs/js-react-vitessce/#config) prop.
 
+Writing large JSON objects by hand can be difficult and prevents from using variables for more easily maintainable string constants, so we have developed object-oriented APIs to simplify this process. There are corresponding APIs in [Python](https://vitessce.github.io/vitessce-python/) and [R](https://vitessce.github.io/vitessceR/) if one of those languages is more familiar to you.
 
 ## `VitessceConfig`
 
@@ -17,19 +19,20 @@ The methods of this object (and the objects its methods return) allow you to man
 When you are ready to render the Vitessce component, you can use the `.toJSON()` method to translate the `VitessceConfig` object to a plain JSON object.
 
 
-### `constructor(name, description)`
+### `constructor(schemaVersion, name, description)`
 
 Construct a Vitessce view config object.
 
 
 #### Parameters:
+- `schemaVersion` (`string`) - The JSON schema version. Required.
 - `name` (`string`) - A name for the view config.
 - `description` (`string`) - A description for the view config. Optional.
 
 ```js {3}
 import { VitessceConfig } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig("1.0.9", "My config");
 ```
 
 
@@ -49,7 +52,7 @@ Returns the instance for the new dataset.
 ```js {4}
 import { VitessceConfig, DataType as dt, FileType as ft } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig("1.0.9", "My config");
 const dataset = vc.addDataset("My dataset")
     .addFile(
         "http://example.com/my-cells-data.json",
@@ -59,15 +62,15 @@ const dataset = vc.addDataset("My dataset")
 ```
 
 
-### `addView(dataset, component, extra)`
+### `addView(dataset, viewType, extra)`
 
 Add a view to the config.
 
 #### Parameters:
 - `dataset` (`VitessceConfigDataset`) - A dataset instance to be used for the data visualized in this view.
-- `component` (`string`) - A component name. A full list of components can be found on the [components](/docs/components/) documentation page. We recommend using the [`Component`](/docs/components/#constants) constant values rather than writing strings directly.
+- `viewType` (`string`) - A view type name. A full list of view types can be found on the [view types](/docs/components/) documentation page. We recommend using the [`Component`](/docs/constants/#view-types) constant values rather than writing strings directly.
 - `extra` (`object`) - An optional object with extra parameters.
-    - `mapping` (`string`) - A convenience parameter for setting the `embeddingType` coordination scope value. This parameter is only applicable when adding the `scatterplot` component. Optional.
+    - `mapping` (`string`) - A convenience parameter for setting the `embeddingType` coordination scope value. This parameter is only applicable when adding the `scatterplot` view. Optional.
     - `x` (`number`) - The horizontal position of the view. Must be an integer between 0 and 11. Optional.
     - `y` (`number`) - The vertical position of the view. Must be an integer between 0 and 11. Optional.
     - `w` (`number`) - The width of the view. Must be an integer between 1 and 12. Optional.
@@ -81,7 +84,7 @@ Returns the instance for the new view.
 ```js {5-6}
 import { VitessceConfig, Component as cm } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig("1.0.9", "My config");
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, cm.SPATIAL);
 const v2 = vc.addView(dataset, cm.SCATTERPLOT, { mapping: "X_umap" });
@@ -105,7 +108,7 @@ Returns `this` to allow chaining.
 ```js {7-11}
 import { VitessceConfig, Component as cm, CoordinationType as ct } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig("1.0.9", "My config");
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, cm.SPATIAL);
 const v2 = vc.addView(dataset, cm.SPATIAL);
@@ -132,7 +135,7 @@ Returns `this` to allow chaining.
 ```js {8}
 import { VitessceConfig, Component as cm, hconcat, vconcat } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig("1.0.9", "My config");
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, cm.SPATIAL);
 const v2 = vc.addView(dataset, cm.SPATIAL);
@@ -156,7 +159,7 @@ Returns the instances for the new scope objects corresponding to each coordinati
 ```js {7-11}
 import { VitessceConfig, Component as cm, CoordinationType as ct } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig("1.0.9", "My config");
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, cm.SPATIAL);
 const v2 = vc.addView(dataset, cm.SPATIAL);
@@ -185,7 +188,7 @@ Returns the config instance as a JSON object.
 ```js {6}
 import { VitessceConfig, Component as cm } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig("1.0.9", "My config");
 const dataset = vc.addDataset("My dataset");
 vc.layout(vc.addView(dataset, cm.SPATIAL));
 const vcJson = vc.toJSON();
@@ -219,7 +222,7 @@ Helper function to allow horizontal concatenation of views in the Vitessce grid 
 ```js {7}
 import { VitessceConfig, Component as cm, hconcat } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig("1.0.9", "My config");
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, cm.SPATIAL);
 const v2 = vc.addView(dataset, cm.SPATIAL);
@@ -302,7 +305,7 @@ Helper function to allow vertical concatenation of views in the Vitessce grid la
 ```js {7}
 import { VitessceConfig, Component as cm, vconcat } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig("1.0.9", "My config");
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, cm.SPATIAL);
 const v2 = vc.addView(dataset, cm.SPATIAL);
@@ -410,7 +413,7 @@ Returns `this` to allow chaining.
 ```js {5-9}
 import { VitessceConfig, DataType as dt, FileType as ft } from 'vitessce';
 
-const vc = new VitessceConfig("My config");
+const vc = new VitessceConfig("1.0.9", "My config");
 const dataset = vc.addDataset("My dataset")
     .addFile(
         "http://example.com/my-cells-data.json",
@@ -421,7 +424,7 @@ const dataset = vc.addDataset("My dataset")
 
 ## `VitessceConfigView`
 
-`VitessceConfigView` is a class used to represent a view (i.e. visualization or controller component) in the Vitessce view config layout.
+`VitessceConfigView` is a class used to represent a view in the Vitessce view config layout.
 
 This class is not meant to be instantiated directly, but instances will be created and returned by the `VitessceConfig.addView()` method.
 

@@ -68,18 +68,18 @@ export default function VitessceGridLayout(props) {
     }
   };
 
-  const layoutChildren = Object.entries(gridComponents).map(([k, v], i) => {
+  const layoutChildren = Object.values(gridComponents).map((v) => {
     const Component = getComponent(v.component);
 
     const removeGridComponent = () => {
-      onRemoveComponent(i);
+      onRemoveComponent(v.uid);
     };
 
     return (
-      <div key={k}>
+      <div key={v.uid}>
         <Component
           {... v.props}
-          uuid={i}
+          uuid={v.uid}
           coordinationScopes={v.coordinationScopes}
           coordinationScopesBy={v.coordinationScopesBy}
           theme={theme}

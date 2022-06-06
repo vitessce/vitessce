@@ -201,7 +201,7 @@ We begin with a skeleton of a view config which lacks any visualizations or data
 }
   `}
   js={`
-const vc = new VitessceConfig("10x visium human lymph node");
+const vc = new VitessceConfig("1.0.9", "10x visium human lymph node");
   `}
 />
 
@@ -380,7 +380,7 @@ Putting this all together:
 }
   `}
   js={`
-const vc = new VitessceConfig("10x visium human lymph node");
+const vc = new VitessceConfig("1.0.9", "10x visium human lymph node");
 const dataset = vc
   .addDataset("my-visium-dataset")
   .addFile(
