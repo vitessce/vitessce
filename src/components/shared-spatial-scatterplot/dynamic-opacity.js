@@ -5,7 +5,7 @@ import clamp from 'lodash/clamp';
 // Reference: https://observablehq.com/@bmschmidt/dot-density-election-maps-with-webgl
 export function getPointSizeDevicePixels(devicePixelRatio, zoom, xRange, yRange, width, height) {
   // Size of a point, in units of the diagonal axis.
-  const pointSize = 0.001;
+  const pointSize = 0.005;
   // Point size maximum, in screen pixels.
   const pointScreenSizeMax = 10;
 

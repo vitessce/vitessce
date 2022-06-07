@@ -140,14 +140,14 @@ export default function ScatterplotSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   // New data hooks
-  const [indexData] = useObsIndexData(
+  const [obsIndex] = useObsIndexData(
     loaders, dataset,
     setItemIsReady, addUrl, true, {}, {},
     {
       obsType,
     },
   );
-  const [embeddingData] = useObsEmbeddingData(
+  const [obsEmbedding] = useObsEmbeddingData(
     loaders, dataset,
     setItemIsReady, addUrl, true, {}, {},
     {
@@ -156,10 +156,10 @@ export default function ScatterplotSubscriber(props) {
     },
   );
 
-  console.log(indexData, embeddingData);
+  console.log(obsIndex, obsEmbedding);
 
   // Existing data hooks
-  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, false);
   const [cellSets] = useCellSetsData(
     loaders,
     dataset,
@@ -234,18 +234,16 @@ export default function ScatterplotSubscriber(props) {
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
-    const cellValues = cells && Object.values(cells);
-    if (cellValues?.length) {
-      const cellCoordinates = Object.values(cells)
-        .map(c => c.mappings[mapping]);
-      const xE = extent(cellCoordinates, c => c[0]);
-      const yE = extent(cellCoordinates, c => c[1]);
+    if (Array.isArray(obsEmbedding) && obsEmbedding.length == 2) {
+      const cellCount = obsEmbedding[0].length;
+      const xE = extent(obsEmbedding[0]);
+      const yE = extent(obsEmbedding[1]);
       const xR = xE[1] - xE[0];
       const yR = yE[1] - yE[0];
-      return [xR, yR, xE, yE, cellValues.length];
+      return [xR, yR, xE, yE, cellCount];
     }
     return [null, null, null, null, null];
-  }, [cells, mapping]);
+  }, [obsEmbedding]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the
@@ -273,7 +271,7 @@ export default function ScatterplotSubscriber(props) {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [xRange, yRange, xExtent, yExtent, numCells, cells, mapping,
+  }, [xRange, yRange, xExtent, yExtent, numCells,
     width, height, zoom, averageFillDensity]);
 
   const getCellInfo = useCallback((cellId) => {
@@ -298,7 +296,7 @@ export default function ScatterplotSubscriber(props) {
   return (
     <TitleInfo
       title={title}
-      info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
+      info={`${numCells} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
@@ -340,8 +338,8 @@ export default function ScatterplotSubscriber(props) {
           setTargetY(target[1]);
           setTargetZ(target[2] || 0);
         }}
-        cells={cells}
-        mapping={mapping}
+        obsIndex={obsIndex}
+        obsEmbedding={obsEmbedding}
         cellFilter={cellFilter}
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}
