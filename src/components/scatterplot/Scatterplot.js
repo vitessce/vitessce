@@ -231,20 +231,22 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   createSelectionLayers() {
+    const { obsIndex, obsEmbedding } = this;
     const {
       viewState,
       mapping,
-      getCellCoords = makeDefaultGetCellCoords(mapping),
       setCellSelection,
     } = this.props;
     const { tool } = this.state;
     const { cellsQuadTree } = this;
     const flipYTooltip = true;
+    const getCellCoords = (i) => ([obsEmbedding[0][i], obsEmbedding[1][i], 0]);
     return getSelectionLayers(
       tool,
       viewState.zoom,
       CELLS_LAYER_ID,
       getCellCoords,
+      obsIndex,
       setCellSelection,
       cellsQuadTree,
       flipYTooltip,
