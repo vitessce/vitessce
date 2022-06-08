@@ -1,3 +1,5 @@
+import { FileType } from './constants';
+
 export function expandCellsJson(fileDef) {
   const {
     url,
@@ -11,7 +13,7 @@ export function expandCellsJson(fileDef) {
   };
   return [
     {
-      fileType: 'obsIndex.cells.json',
+      fileType: FileType.OBS_INDEX_CELLS_JSON,
       url,
       requestInit,
       coordinationValues: baseCoordinationValues,
@@ -29,7 +31,7 @@ export function expandCellsJson(fileDef) {
       coordinationValues: baseCoordinationValues,
     },
     ...(options && options.embeddingTypes ? options.embeddingTypes.map(et => ({
-      fileType: 'obsEmbedding.cells.json',
+      fileType: FileType.OBS_EMBEDDING_CELLS_JSON,
       url,
       requestInit,
       coordinationValues: {
@@ -41,10 +43,30 @@ export function expandCellsJson(fileDef) {
   ];
 }
 
+export function expandCellSetsJson(fileDef) {
+  const {
+    url,
+    requestInit,
+    coordinationValues = {},
+  } = fileDef;
+  const baseCoordinationValues = {
+    obsType: coordinationValues.obsType || 'cell',
+  };
+  return [
+    {
+      fileType: FileType.OBS_SETS_CELL_SETS_JSON,
+      url,
+      requestInit,
+      coordinationValues: baseCoordinationValues,
+    },
+  ];
+}
+
 /**
  * Built-in convenience file type
  * expansion functions.
  */
 export const CONVENIENCE_FILE_TYPES = {
-  'cells.json': expandCellsJson,
+  [FileType.CELLS_JSON]: expandCellsJson,
+  [FileType.CELL_SETS_JSON]: expandCellSetsJson,
 };

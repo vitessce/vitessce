@@ -22,6 +22,7 @@ export const DataType = {
   // New data types
   OBS_INDEX: 'obsIndex',
   OBS_EMBEDDING: 'obsEmbedding',
+  OBS_SETS: 'obsSets',
   // Existing data types
   CELLS: 'cells',
   CELL_SETS: 'cell-sets',
@@ -41,6 +42,7 @@ export const FileType = {
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
   OBS_LOCATIONS_CELLS_JSON: 'obsLocations.cells.json',
   OBS_SEGMENTATIONS_CELLS_JSON: 'obsSegmentations.cells.json',
+  OBS_SETS_CELL_SETS_JSON: 'obsSets.cell-sets.json',
   // Existing file types
   CELL_SETS_JSON: 'cell-sets.json',
   EXPRESSION_MATRIX_ZARR: 'expression-matrix.zarr',

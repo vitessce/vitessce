@@ -15,9 +15,9 @@ import {
   // New loaders
   useObsIndexData,
   useObsEmbeddingData,
+  useObsSetsData,
   // Existing loaders
   useCellsData,
-  useCellSetsData,
   useGeneSelection,
   useExpressionAttrs,
 } from '../data-hooks';
@@ -36,8 +36,9 @@ import {
   getPointOpacity,
 } from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import { DataType } from '../../app/constants';
 
-const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
+const SCATTERPLOT_DATA_TYPES = [DataType.OBS_INDEX, DataType.OBS_SETS, 'expression-matrix'];
 
 /**
  * A subscriber component for the scatterplot.
@@ -141,34 +142,26 @@ export default function ScatterplotSubscriber(props) {
   // Get data from loaders using the data hooks.
   // New data hooks
   const [obsIndex] = useObsIndexData(
-    loaders, dataset,
-    setItemIsReady, addUrl, true, {}, {},
-    {
-      obsType,
-    },
+    loaders, dataset, setItemIsReady, addUrl, true, {}, {},
+    { obsType },
   );
   const [obsEmbedding] = useObsEmbeddingData(
-    loaders, dataset,
-    setItemIsReady, addUrl, true, {}, {},
+    loaders, dataset, setItemIsReady, addUrl, true, {}, {},
     {
       obsType,
       embeddingType: mapping,
     },
   );
-
-  console.log(obsIndex, obsEmbedding);
+  const [cellSets] = useObsSetsData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
+    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
+    { obsType },
+  );
+  
 
   // Existing data hooks
   const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, false);
-  const [cellSets] = useCellSetsData(
-    loaders,
-    dataset,
-    setItemIsReady,
-    addUrl,
-    false,
-    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
-    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
-  );
   const [expressionData] = useGeneSelection(
     loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
   );

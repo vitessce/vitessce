@@ -9,6 +9,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   // New mappings
   [FileType.OBS_INDEX_CELLS_JSON]: DataType.OBS_INDEX,
   [FileType.OBS_EMBEDDING_CELLS_JSON]: DataType.OBS_EMBEDDING,
+  [FileType.OBS_SETS_CELL_SETS_JSON]: DataType.OBS_SETS,
   // Existing mappings
   [FileType.CELLS_JSON]: DataType.CELLS,
   [FileType.CELL_SETS_JSON]: DataType.CELL_SETS,

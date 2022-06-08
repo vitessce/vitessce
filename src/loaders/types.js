@@ -20,6 +20,7 @@ export const fileTypeToLoaderAndSource = {
   // Minimal file types
   [FileType.OBS_INDEX_CELLS_JSON]: [JsonSource, CellsJsonAsObsIndexLoader],
   [FileType.OBS_EMBEDDING_CELLS_JSON]: [JsonSource, CellsJsonAsObsEmbeddingLoader],
+  [FileType.OBS_SETS_CELL_SETS_JSON]: [JsonSource, CellSetsJsonLoader],
   // Existing file types
   [FileType.EXPRESSION_MATRIX_ZARR]: [ZarrDataSource, MatrixZarrLoader],
   [FileType.CLUSTERS_JSON]: [JsonSource, ClustersJsonAsMatrixZarrLoader],
@@ -28,7 +29,6 @@ export const fileTypeToLoaderAndSource = {
   [FileType.NEIGHBORHOODS_JSON]: [JsonSource, JsonLoader],
   [FileType.RASTER_JSON]: [JsonSource, RasterJsonLoader],
   [FileType.RASTER_OME_ZARR]: [ZarrDataSource, OmeZarrLoader],
-  [FileType.CELL_SETS_JSON]: [JsonSource, CellSetsJsonLoader],
   [FileType.ANNDATA_CELL_SETS_ZARR]: [AnnDataSource, AnnDataLoaders.CellSetsZarrLoader],
   [FileType.ANNDATA_CELLS_ZARR]: [AnnDataSource, AnnDataLoaders.CellsZarrLoader],
   [FileType.ANNDATA_EXPRESSION_MATRIX_ZARR]: [AnnDataSource, AnnDataLoaders.MatrixZarrLoader],

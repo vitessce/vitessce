@@ -74,7 +74,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     // All instance variables used in this class:
     this.obsIndex = null;
     this.obsEmbedding = null;
-    this.cellsEntries = [];
     this.cellsQuadTree = null;
     this.cellsLayer = null;
     this.cellSetsForceSimulation = forceCollideRects();
@@ -109,7 +108,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       geneExpressionColormapRange = [0.0, 1.0],
       cellColorEncoding,
     } = this.props;
-    console.log(obsIndex, obsEmbedding);
     return new ScatterplotLayer({
       id: CELLS_LAYER_ID,
       data: {
@@ -234,7 +232,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const { obsIndex, obsEmbedding } = this;
     const {
       viewState,
-      mapping,
       setCellSelection,
     } = this.props;
     const { tool } = this.state;
@@ -270,9 +267,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       obsIndex,
       obsEmbedding,
     } = this.props;
-    this.obsIndex = obsIndex;
-    this.obsEmbedding = obsEmbedding;
-    this.cellsQuadTree = createCellsQuadTree(obsEmbedding);
+    if(obsIndex && obsEmbedding) {
+      this.obsIndex = obsIndex;
+      this.obsEmbedding = obsEmbedding;
+      this.cellsQuadTree = createCellsQuadTree(obsEmbedding);
+    }
   }
 
   onUpdateCellsLayer() {
@@ -312,10 +311,25 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
   viewInfoDidUpdate() {
     const {
-      mapping,
-      getCellPosition = makeDefaultGetCellPosition(mapping),
+      updateViewInfo,
+      uuid,
     } = this.props;
-    super.viewInfoDidUpdate(cell => getCellPosition([null, cell]));
+    const { viewport, obsEmbedding } = this;
+
+    if (updateViewInfo && viewport) {
+      updateViewInfo({
+        uuid,
+        project: (cellIndex) => {
+          try {
+            const positionX = obsEmbedding[0][cellIndex];
+            const positionY = -obsEmbedding[1][cellIndex];
+            return viewport.project([positionX, positionY]);
+          } catch (e) {
+            return [null, null];
+          }
+        },
+      });
+    }
   }
 
   /**
