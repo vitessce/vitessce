@@ -1,12 +1,10 @@
-/* eslint-disable */
-function expandCellsJson(fileDef) {
+export function expandCellsJson(fileDef) {
   const {
     url,
     requestInit,
     options,
     coordinationValues = {},
   } = fileDef;
-  console.log("running expand function");
   const baseCoordinationValues = {
     obsType: coordinationValues.obsType || 'cell',
     featureType: coordinationValues.featureType || 'gene',
@@ -18,15 +16,6 @@ function expandCellsJson(fileDef) {
       requestInit,
       coordinationValues: baseCoordinationValues,
     },
-    ...options.embeddingTypes.map(et => ({
-      fileType: 'obsEmbedding.cells.json',
-      url,
-      requestInit,
-      coordinationValues: {
-        ...baseCoordinationValues,
-        embeddingType: et,
-      },
-    })),
     {
       fileType: 'obsLocations.cells.json',
       url,
@@ -39,6 +28,15 @@ function expandCellsJson(fileDef) {
       requestInit,
       coordinationValues: baseCoordinationValues,
     },
+    ...(options && options.embeddingTypes ? options.embeddingTypes.map(et => ({
+      fileType: 'obsEmbedding.cells.json',
+      url,
+      requestInit,
+      coordinationValues: {
+        ...baseCoordinationValues,
+        embeddingType: et,
+      },
+    })) : []),
     // TODO: obsAnnotations for factors.json
   ];
 }
