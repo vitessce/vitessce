@@ -4,6 +4,10 @@
 - Added the optional `uid` property for view definitions in the view config.
 - Added `enableMultiSelect` prop for `GenesSubscriber`. Current built-in views do not display multiple gene selections but plugin views could use this functionality.
 - Added a mapping from file types to data types, making the `datasets[].files[].type` property no longer required.
+- Added coordination types for entity types.
+  - `obsType`
+  - `featureType`
+  - `featureValueType`
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.

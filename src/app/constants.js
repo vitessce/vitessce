@@ -51,6 +51,11 @@ export const FileType = {
  */
 export const CoordinationType = {
   DATASET: 'dataset',
+  // Entity types
+  OBS_TYPE: 'obsType',
+  FEATURE_TYPE: 'featureType',
+  FEATURE_VALUE_TYPE: 'featureValueType',
+  // Other types
   EMBEDDING_TYPE: 'embeddingType',
   EMBEDDING_ZOOM: 'embeddingZoom',
   EMBEDDING_ROTATION: 'embeddingRotation',

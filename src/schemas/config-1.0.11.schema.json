@@ -51,6 +51,9 @@
                   { "type": "array", "items": {"type": "string"} }
                 ]
               },
+              "obsType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "featureType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "featureValueType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingZoom": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingRotation": { "$ref": "#/definitions/componentCoordinationScopeValue" },
@@ -499,6 +502,24 @@
       "required": [],
       "properties": {
         "dataset": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "string" }
+          }
+        },
+        "obsType": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "string" }
+          }
+        },
+        "featureType": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "string" }
+          }
+        },
+        "featureValueType": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "string" }

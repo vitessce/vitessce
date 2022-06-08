@@ -6,6 +6,9 @@ import { CoordinationType, Component } from '../constants';
  * auto initialization strategy.
  */
 export const DEFAULT_COORDINATION_VALUES = {
+  [CoordinationType.OBS_TYPE]: 'cell',
+  [CoordinationType.FEATURE_TYPE]: 'gene',
+  [CoordinationType.FEATURE_VALUE_TYPE]: 'expression',
   [CoordinationType.EMBEDDING_ZOOM]: null,
   [CoordinationType.EMBEDDING_ROTATION]: 0,
   [CoordinationType.EMBEDDING_TARGET_X]: null,
@@ -90,6 +93,9 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
 export const COMPONENT_COORDINATION_TYPES = {
   [Component.SCATTERPLOT]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.EMBEDDING_TYPE,
     CoordinationType.EMBEDDING_ZOOM,
     CoordinationType.EMBEDDING_ROTATION,
@@ -117,6 +123,9 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.SPATIAL]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.SPATIAL_ZOOM,
     CoordinationType.SPATIAL_ROTATION,
     CoordinationType.SPATIAL_IMAGE_LAYER,
@@ -147,6 +156,9 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.HEATMAP]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.HEATMAP_ZOOM_X,
     CoordinationType.HEATMAP_ZOOM_Y,
     CoordinationType.HEATMAP_TARGET_X,
@@ -166,6 +178,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.CELL_SETS]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,
@@ -175,6 +188,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.CELL_SET_SIZES]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,
@@ -189,6 +203,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.GENES]: [
     CoordinationType.DATASET,
+    CoordinationType.FEATURE_TYPE,
     CoordinationType.FEATURE_FILTER,
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.FEATURE_SELECTION,
@@ -197,6 +212,9 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.CELL_SET_EXPRESSION]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.FEATURE_SELECTION,
     CoordinationType.FEATURE_VALUE_TRANSFORM,
     CoordinationType.OBS_SET_SELECTION,
@@ -206,10 +224,16 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.EXPRESSION_HISTOGRAM]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.FEATURE_SELECTION,
   ],
   [Component.LAYER_CONTROLLER]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.SPATIAL_IMAGE_LAYER,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
     CoordinationType.SPATIAL_POINT_LAYER,
@@ -226,6 +250,9 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.GENOMIC_ZOOM_X,
     CoordinationType.GENOMIC_ZOOM_Y,
     CoordinationType.GENOMIC_TARGET_X,
