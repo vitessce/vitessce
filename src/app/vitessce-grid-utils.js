@@ -3,6 +3,7 @@ import {
 } from 'react';
 import { InternMap } from 'internmap';
 import { getSourceAndLoaderFromFileType } from '../loaders/types';
+import { getFileTypeDataTypeMapping } from './plugins';
 
 /**
  * Return the bottom coordinate of the layout.
@@ -95,6 +96,7 @@ export function useRowHeight(config, initialRowHeight, height, margin, padding) 
 export function createLoaders(datasets, configDescription) {
   const result = {};
   const dataSources = {};
+  const fileTypeDataTypeMapping = getFileTypeDataTypeMapping();
   datasets.forEach((dataset) => {
     const datasetLoaders = {
       name: dataset.name,
@@ -103,10 +105,13 @@ export function createLoaders(datasets, configDescription) {
     };
     dataset.files.forEach((file) => {
       const {
-        url, options, requestInit,
-        type: dataType, fileType,
+        url,
+        options,
+        requestInit,
+        fileType,
         coordinationValues = {},
       } = file;
+      const dataType = fileTypeDataTypeMapping[fileType];
       const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(fileType);
       // Create _one_ DataSourceClass instance per URL. Derived loaders share this object.
       const fileId = url || JSON.stringify(options);

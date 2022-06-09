@@ -32,7 +32,7 @@ export default function ExpressionHistogramSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    geneSelection,
+    featureSelection: geneSelection,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.expressionHistogram, coordinationScopes);
 
   const [width, height, containerRef] = useGridItemSize();
