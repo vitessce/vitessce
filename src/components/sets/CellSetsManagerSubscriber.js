@@ -82,15 +82,15 @@ export default function CellSetsManagerSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    cellSetSelection,
-    cellSetColor,
-    additionalCellSets,
-    cellColorEncoding,
+    obsSetSelection: cellSetSelection,
+    obsSetColor: cellSetColor,
+    additionalObsSets: additionalCellSets,
+    obsColorEncoding: cellColorEncoding,
   }, {
-    setCellSetSelection,
-    setCellColorEncoding,
-    setCellSetColor,
-    setAdditionalCellSets,
+    setObsSetSelection: setCellSetSelection,
+    setObsColorEncoding: setCellColorEncoding,
+    setObsSetColor: setCellSetColor,
+    setAdditionalObsSets: setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSets, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -117,8 +117,8 @@ export default function CellSetsManagerSubscriber(props) {
   const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, true,
-    { setCellSetSelection, setCellSetColor },
-    { cellSetSelection, cellSetColor },
+    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
+    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
   );
 
   // Validate and upgrade the additionalCellSets.
