@@ -103,7 +103,7 @@ export const useComponentLayout = (component, scopes, coordinationScopes) => use
  * It is meant to be used for non-viewconfig-based coordination between components.
  * For example, as currently happens, the layer controller can coordinate
  * on-load callbacks with spatial view based on whether or not they are
- * coordinated via `spatialRasterLayer` - the callbacks are not part of the view config
+ * coordinated via `spatialImageLayer` - the callbacks are not part of the view config
  * though so they live here.
  * @returns {function} The useStore hook.
  */
@@ -346,7 +346,7 @@ export function useMultiDatasetCoordination(parameters, coordinationScopes, coor
 }
 
 const AUXILIARY_COORDINATION_TYPES_MAP = {
-  spatialRasterLayer: ['rasterLayersCallbacks', 'areLoadingRasterChannnels'],
+  spatialImageLayer: ['rasterLayersCallbacks', 'areLoadingRasterChannnels'],
 };
 
 /**

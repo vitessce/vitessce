@@ -348,14 +348,37 @@ export function upgradeFrom1_0_9(config) {
 
 // Added in version 1.0.11:
 // - Changes to spatial layer coordination type names.
+// - Cell -> Obs, Gene -> Feature in coordination type names.
 export function upgradeFrom1_0_10(config) {
   const coordinationSpace = { ...config.coordinationSpace };
 
   const scopeAnalogies = {
-    spatialRasterLayers: 'spatialRasterLayer',
+    // Spatial layer types
+    spatialRasterLayers: 'spatialImageLayer',
     spatialCellsLayer: 'spatialSegmentationLayer',
     spatialMoleculesLayer: 'spatialPointLayer',
     spatialNeighborhoodsLayer: 'spatialNeighborhoodLayer',
+    // Other types
+    cellFilter: 'obsFilter',
+    cellHighlight: 'obsHighlight',
+    cellSelection: 'obsSelection',
+    cellSetSelection: 'obsSetSelection',
+    cellSetHighlight: 'obsSetHighlight',
+    cellSetColor: 'obsSetColor',
+    geneFilter: 'featureFilter',
+    geneHighlight: 'featureHighlight',
+    geneSelection: 'featureSelection',
+    geneExpressionColormap: 'featureValueColormap',
+    geneExpressionColormapRange: 'featureValueColormapRange',
+    cellColorEncoding: 'obsColorEncoding',
+    additionalCellSets: 'additionalObsSets',
+    embeddingCellSetPolygonsVisible: 'embeddingObsSetPolygonsVisible',
+    embeddingCellSetLabelsVisible: 'embeddingObsSetLabelsVisible',
+    embeddingCellSetLabelSize: 'embeddingObsSetLabelSize',
+    embeddingCellRadius: 'embeddingObsRadius',
+    embeddingCellRadiusMode: 'embeddingObsRadiusMode',
+    embeddingCellOpacity: 'embeddingObsOpacity',
+    embeddingCellOpacityMode: 'embeddingObsOpacityMode',
   };
 
   Object.entries(scopeAnalogies).forEach(([oldKey, newKey]) => {
@@ -387,6 +410,18 @@ export function upgradeFrom1_0_10(config) {
     coordinationSpace,
     layout,
     version: '1.0.11',
+  };
+}
+
+// Added in version 1.0.12:
+// - Added a fileType-to-dataType mapping
+// so that datasets[].files[].type is no longer required.
+export function upgradeFrom1_0_11(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.12',
   };
 }
 
