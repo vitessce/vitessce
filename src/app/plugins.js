@@ -1,5 +1,6 @@
 import { fromEntries } from '../utils';
-import { CoordinationType } from './constants';
+import { FILE_TYPE_DATA_TYPE_MAPPING } from './constant-relationships';
+import { FileType, CoordinationType } from './constants';
 import {
   COMPONENT_COORDINATION_TYPES,
   DEFAULT_COORDINATION_VALUES,
@@ -59,7 +60,10 @@ export function registerPluginFileType(
   // eslint-disable-next-line no-unused-vars
   fileTypeName, dataTypeName, dataLoaderClass, dataSourceClass,
 ) {
-  window[PLUGIN_FILE_TYPES_KEY][fileTypeName] = [dataSourceClass, dataLoaderClass];
+  window[PLUGIN_FILE_TYPES_KEY][fileTypeName] = {
+    dataType: dataTypeName,
+    loaderClasses: [dataSourceClass, dataLoaderClass],
+  };
 }
 
 
@@ -92,11 +96,20 @@ export function getPluginFileTypes() {
   return Object.keys(window[PLUGIN_FILE_TYPES_KEY]);
 }
 
-export function getPluginFileType(fileType) {
-  return window[PLUGIN_FILE_TYPES_KEY][fileType];
+export function getDataTypeForPluginFileType(fileType) {
+  return window[PLUGIN_FILE_TYPES_KEY][fileType].dataType;
+}
+export function getLoaderClassesForPluginFileType(fileType) {
+  return window[PLUGIN_FILE_TYPES_KEY][fileType].loaderClasses;
 }
 
 // Getters that depend on plugins.
+export function getFileTypes() {
+  return [
+    ...Object.values(FileType),
+    ...getPluginFileTypes(),
+  ];
+}
 
 export function getCoordinationTypes() {
   return [
@@ -122,6 +135,16 @@ export function getComponentCoordinationTypes() {
     ...fromEntries(getPluginViewTypes().map(viewType => ([
       viewType,
       getPluginCoordinationTypesForViewType(viewType),
+    ]))),
+  };
+}
+
+export function getFileTypeDataTypeMapping() {
+  return {
+    ...FILE_TYPE_DATA_TYPE_MAPPING,
+    ...fromEntries(getPluginFileTypes().map(fileType => ([
+      fileType,
+      getDataTypeForPluginFileType(fileType),
     ]))),
   };
 }

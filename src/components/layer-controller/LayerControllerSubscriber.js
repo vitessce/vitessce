@@ -228,12 +228,12 @@ function LayerControllerSubscriber(props) {
   const [
     {
       dataset,
-      spatialRasterLayer: rasterLayers,
+      spatialImageLayer: rasterLayers,
       spatialSegmentationLayer: cellsLayer,
       spatialPointLayer: moleculesLayer,
     },
     {
-      setSpatialRasterLayer: setRasterLayers,
+      setSpatialImageLayer: setRasterLayers,
       setSpatialSegmentationLayer: setCellsLayer,
       setSpatialPointLayer: setMoleculesLayer,
       setSpatialTargetX: setTargetX,
@@ -264,7 +264,7 @@ function LayerControllerSubscriber(props) {
   // Spatial layout + window size is needed for the "re-center" button to work properly.
   // Dimensions of the Spatial component can be inferred and used for resetting view state to
   // a nice, centered view.
-  const [spatialLayout] = useComponentLayout('spatial', ['spatialRasterLayer'], coordinationScopes);
+  const [spatialLayout] = useComponentLayout('spatial', ['spatialImageLayer'], coordinationScopes);
   const layerControllerRef = useRef();
   const [componentWidth, componentHeight] = useClosestVitessceContainerSize(layerControllerRef);
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
@@ -288,8 +288,8 @@ function LayerControllerSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
     loaders, dataset, setItemIsReady, () => { }, false,
-    { setSpatialRasterLayer: setRasterLayers },
-    { spatialRasterLayer: rasterLayers },
+    { setSpatialImageLayer: setRasterLayers },
+    { spatialImageLayer: rasterLayers },
   );
 
   useCellsData(
