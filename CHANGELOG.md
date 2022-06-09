@@ -45,6 +45,7 @@
   - `embeddingCellRadiusMode` -> `embeddingObsRadiusMode`
   - `embeddingCellOpacity` -> `embeddingObsOpacity`
   - `embeddingCellOpacityMode` -> `embeddingObsOpacityMode`
+- Fixed schema v1.0.12
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
 
