@@ -467,7 +467,7 @@
         }
       }
     },
-    "spatialRasterLayer": {
+    "spatialImageLayer": {
       "type": "array",
       "description": "Array of Spatial Layers",
       "items": {
