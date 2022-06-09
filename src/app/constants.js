@@ -75,6 +75,8 @@ export const FileType = {
   ANNDATA_OBS_EMBEDDING_CELLS_ZARR: 'anndataObsEmbedding.anndata-cells.zarr',
   ANNDATA_OBS_LOCATIONS_CELLS_ZARR: 'anndataObsLocations.anndata-cells.zarr',
   // For expression-matrix.zarr
+  OBS_INDEX_EXPRESSION_MATRIX_ZARR: 'obsIndex.expression-matrix.zarr',
+  FEATURE_INDEX_EXPRESSION_MATRIX_ZARR: 'featureIndex.expression-matrix.zarr',
   OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR: 'obsFeatureMatrix.expression-matrix.zarr',
   // For raster.json
   IMAGE_RASTER_JSON: 'image.raster.json',
