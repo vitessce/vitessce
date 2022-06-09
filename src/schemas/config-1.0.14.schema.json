@@ -48,19 +48,22 @@
             "required": [],
             "properties": {
               "dataset": { "$ref": "#/definitions/stringOrStringArray" },
+              "obsType": { "type": "string" },
+              "featureType": { "type": "string" },
+              "featureValueType": { "type": "string" },
               "embeddingType": { "type": "string" },
               "embeddingZoom": { "type": "string" },
               "embeddingRotation": { "type": "string" },
               "embeddingTargetX": { "type": "string" },
               "embeddingTargetY": { "type": "string" },
               "embeddingTargetZ": { "type": "string" },
-              "embeddingCellSetPolygonsVisible": { "type": "string" },
-              "embeddingCellSetLabelsVisible": { "type": "string" },
-              "embeddingCellSetLabelSize": { "type": "string" },
-              "embeddingCellRadius": { "type": "string" },
-              "embeddingCellOpacity": { "type": "string" },
-              "embeddingCellRadiusMode": { "type": "string" },
-              "embeddingCellOpacityMode": { "type": "string" },
+              "embeddingObsSetPolygonsVisible": { "type": "string" },
+              "embeddingObsSetLabelsVisible": { "type": "string" },
+              "embeddingObsSetLabelSize": { "type": "string" },
+              "embeddingObsRadius": { "type": "string" },
+              "embeddingObsOpacity": { "type": "string" },
+              "embeddingObsRadiusMode": { "type": "string" },
+              "embeddingObsOpacityMode": { "type": "string" },
               "spatialZoom": { "type": "string" },
               "spatialRotation": { "type": "string" },
               "spatialTargetX": { "type": "string" },
@@ -76,19 +79,19 @@
               "heatmapZoomY": { "type": "string" },
               "heatmapTargetX": { "type": "string" },
               "heatmapTargetY": { "type": "string" },
-              "cellFilter": { "type": "string" },
-              "cellHighlight": { "type": "string" },
-              "cellSetSelection": { "type": "string" },
-              "cellSetHighlight": { "type": "string" },
-              "cellSetColor": { "type": "string" },
-              "geneFilter": { "type": "string" },
-              "geneHighlight": { "type": "string" },
-              "geneSelection": { "type": "string" },
-              "geneExpressionTransform": { "type": "string" },
-              "geneExpressionColormap": { "type": "string" },
-              "geneExpressionColormapRange": { "type": "string" },
-              "cellColorEncoding": { "type": "string" },
-              "spatialRasterLayer": { "type": "string" },
+              "obsFilter": { "type": "string" },
+              "obsHighlight": { "type": "string" },
+              "obsSetSelection": { "type": "string" },
+              "obsSetHighlight": { "type": "string" },
+              "obsSetColor": { "type": "string" },
+              "featureFilter": { "type": "string" },
+              "featureHighlight": { "type": "string" },
+              "featureSelection": { "type": "string" },
+              "featureValueTransform": { "type": "string" },
+              "featureValueColormap": { "type": "string" },
+              "featureValueColormapRange": { "type": "string" },
+              "obsColorEncoding": { "type": "string" },
+              "spatialImageLayer": { "type": "string" },
               "spatialSegmentationLayer": { "type": "string" },
               "spatialPointLayer": { "type": "string" },
               "spatialNeighborhoodLayer": { "type": "string" },
@@ -96,7 +99,7 @@
               "genomicZoomY": { "type": "string" },
               "genomicTargetX": { "type": "string" },
               "genomicTargetY": { "type": "string" },
-              "additionalCellSets": { "type": "string" },
+              "additionalObsSets": { "type": "string" },
               "moleculeHighlight": { "type": "string" }
             }
           },
@@ -494,7 +497,7 @@
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["type", "fileType"],
+              "required": ["fileType"],
               "properties": {
                 "name": { "type": "string" },
                 "type": { "type": "string" },
@@ -515,6 +518,24 @@
       "required": [],
       "properties": {
         "dataset": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "string" }
+          }
+        },
+        "obsType": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "string" }
+          }
+        },
+        "featureType": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "string" }
+          }
+        },
+        "featureValueType": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "string" }
@@ -577,25 +598,25 @@
             ".": { "type": "string" }
           }
         },
-        "embeddingCellSetPolygonsVisible": {
+        "embeddingObsSetPolygonsVisible": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "boolean" }
           }
         },
-        "embeddingCellSetLabelsVisible": {
+        "embeddingObsSetLabelsVisible": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "boolean" }
           }
         },
-        "embeddingCellSetLabelSize": {
+        "embeddingObsSetLabelSize": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "number" }
           }
         },
-        "embeddingCellRadius": {
+        "embeddingObsRadius": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -604,7 +625,7 @@
             }
           }
         },
-        "embeddingCellOpacity": {
+        "embeddingObsOpacity": {
           "type": "object",
           "patternProperties": {
               ".": {
@@ -613,7 +634,7 @@
               }
           }
         },
-        "embeddingCellRadiusMode": {
+        "embeddingObsRadiusMode": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -623,7 +644,7 @@
             }
           }
         },
-        "embeddingCellOpacityMode": {
+        "embeddingObsOpacityMode": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -775,7 +796,7 @@
             }
           }
         },
-        "spatialRasterLayer": {
+        "spatialImageLayer": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -784,7 +805,7 @@
                   "type": "null",
                   "description": "If null is provided and auto layer initialization is enabled, layers will be automatically initialized."
                 },
-                { "$ref": "#/definitions/spatialRasterLayer" }
+                { "$ref": "#/definitions/spatialImageLayer" }
               ]
             }
           }
@@ -855,7 +876,7 @@
             ".": { "type": "number" }
           }
         },
-        "cellFilter": {
+        "obsFilter": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -869,7 +890,7 @@
             }
           }
         },
-        "cellHighlight": {
+        "obsHighlight": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -883,7 +904,7 @@
             }
           }
         },
-        "cellSetSelection": {
+        "obsSetSelection": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -897,7 +918,7 @@
             }
           }
         },
-        "cellSetHighlight": {
+        "obsSetHighlight": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -911,7 +932,7 @@
             }
           }
         },
-        "cellSetColor": {
+        "obsSetColor": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -942,7 +963,7 @@
             }
           }
         },
-        "cellColorEncoding": {
+        "obsColorEncoding": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -952,7 +973,7 @@
             }
           }
         },
-        "geneFilter": {
+        "featureFilter": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -966,7 +987,7 @@
             }
           }
         },
-        "geneHighlight": {
+        "featureHighlight": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -980,7 +1001,7 @@
             }
           }
         },
-        "geneSelection": {
+        "featureSelection": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -993,7 +1014,7 @@
             }
           }
         },
-        "geneExpressionTransform": {
+        "featureValueTransform": {
           "type": "object",
           "patternProperties": {
             ".": {
@@ -1006,13 +1027,13 @@
             }
           }
         },
-        "geneExpressionColormap": {
+        "featureValueColormap": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "string" }
           }
         },
-        "geneExpressionColormapRange": {
+        "featureValueColormapRange": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "array", "items": { "type": "number" } }
@@ -1042,7 +1063,7 @@
             ".": { "type": "number" }
           }
         },
-        "additionalCellSets": {
+        "additionalObsSets": {
           "type": "object",
           "patternProperties": {
             ".": {
