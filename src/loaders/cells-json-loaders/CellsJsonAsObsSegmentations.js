@@ -1,7 +1,7 @@
-import cellsSchema from '../schemas/cells.schema.json';
-import JsonLoader from './JsonLoader';
-import { AbstractLoaderError } from './errors';
-import LoaderResult from './LoaderResult';
+import cellsSchema from '../../schemas/cells.schema.json';
+import JsonLoader from '../JsonLoader';
+import { AbstractLoaderError } from '../errors';
+import LoaderResult from '../LoaderResult';
 
 export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
   constructor(dataSource, params) {
