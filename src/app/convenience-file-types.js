@@ -1,45 +1,36 @@
 import { FileType } from './constants';
 
 export function expandCellsJson(fileDef) {
-  const {
-    url,
-    requestInit,
-    options,
-    coordinationValues = {},
-  } = fileDef;
-  const baseCoordinationValues = {
-    obsType: coordinationValues.obsType || 'cell',
-    featureType: coordinationValues.featureType || 'gene',
+  const baseFileDef = {
+    ...fileDef,
+    coordinationValues: {
+      ...fileDef.coordinationValues,
+      obsType: fileDef.coordinationValues?.obsType || 'cell',
+      featureType: fileDef.coordinationValues?.featureType || 'gene',
+    },
   };
+  delete baseFileDef.type;
   return [
     {
+      ...baseFileDef,
       fileType: FileType.OBS_INDEX_CELLS_JSON,
-      url,
-      requestInit,
-      coordinationValues: baseCoordinationValues,
     },
     {
-      fileType: 'obsLocations.cells.json',
-      url,
-      requestInit,
-      coordinationValues: baseCoordinationValues,
+      ...baseFileDef,
+      fileType: FileType.OBS_LOCATIONS_CELLS_JSON,
     },
     {
-      fileType: 'obsSegmentations.cells.json',
-      url,
-      requestInit,
-      coordinationValues: baseCoordinationValues,
+      ...baseFileDef,
+      fileType: FileType.OBS_SEGMENTATIONS_CELLS_JSON,
     },
-    ...(options && options.embeddingTypes ? options.embeddingTypes.map(et => ({
+    ...(fileDef.options?.embeddingTypes ? fileDef.options.embeddingTypes.map(et => ({
+      ...baseFileDef,
       fileType: FileType.OBS_EMBEDDING_CELLS_JSON,
-      url,
-      requestInit,
       coordinationValues: {
-        ...baseCoordinationValues,
+        ...baseFileDef.coordinationValues,
         embeddingType: et,
       },
     })) : []),
-    // TODO: obsAnnotations for factors.json
   ];
 }
 
