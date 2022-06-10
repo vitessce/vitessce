@@ -9,7 +9,7 @@
   - `featureType`
   - `featureValueType`
 - Added new file type and data type constants.
-- Added loader for `obsIndex.clusters.json`
+- Added loaders for `obsIndex.clusters.json`, `featureIndex.clusters.json`, `obsFeatureMatrix.clusters.json`
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
