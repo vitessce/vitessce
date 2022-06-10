@@ -145,6 +145,118 @@
         }
       }
     },
+    "annDataObsIndex": {
+      "type": "object",
+      "description": "Options for the obsIndex.anndata.zarr file type.",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "path": { "type": "string" }
+      }
+    },
+    "annDataFeatureIndex": {
+      "type": "object",
+      "description": "Options for the featureIndex.anndata.zarr file type.",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "path": { "type": "string" },
+        "filterPath": {
+          "type": "string",
+          "description": "If the feature index should be filtered, put a boolean column here (analogous to the previous geneFilter option). e.g., var/in_obsm_X_small_matrix"
+        }
+      }
+    },
+    "annDataObsFeatureMatrix": {
+      "type": "object",
+      "description": "Options for the obsFeatureMatrix.anndata.zarr file type.",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "path": { "type": "string" },
+        "initialFeatureFilterPath": {
+          "type": "string",
+          "description": "If only a subset of the matrix should be loaded initially, put a boolean column along the feature axis here (analogous to the previous matrixGeneFilter option). e.g., var/highly_variable"
+        }
+      }
+    },
+    "annDataObsSets": {
+      "type": "array",
+      "description": "Options for the obsSets.anndata.zarr file type.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "path"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The display name for the set, like 'Cell Type' or 'Louvain.'"
+          },
+          "path": {
+            "oneOf": [
+              {
+                "type": "string",
+                "description": "The location in the AnnData store for the set, like 'obs/louvain' or 'obs/celltype.'"
+              },
+              {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "An array of locations in the AnnData store for a hierarchy of set names, from coarse to fine levels."
+              }
+            ]
+          },
+          "scorePath": {
+            "oneOf": [
+              {
+                "type": "string",
+                "description": "The location in the AnnData store for the set confidence scores, like 'obs/celltype_prediction_score.'"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "annDataObsLocations": {
+      "type": "object",
+      "description": "Options for the obsLocations.anndata.zarr file type.",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "path": { "type": "string" },
+        "dims": {
+          "type": "array",
+          "description": "Which indices of the obsm object to take for a scatterplot, allowing for, for example, different PCs from obsm/X_pca",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "type": "number" }
+        }
+      }
+    },
+    "annDataObsEmbedding": {
+      "type": "object",
+      "description": "Options for the obsEmbedding.anndata.zarr file type.",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "path": { "type": "string" },
+        "dims": {
+          "type": "array",
+          "description": "Which indices of the obsm object to take for a scatterplot, allowing for, for example, different PCs from obsm/X_pca",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "type": "number" }
+        }
+      }
+    },
+    "annDataObsSegmentations": {
+      "type": "object",
+      "description": "Options for the obsSegmentations.anndata.zarr file type.",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "path": { "type": "string" }
+      }
+    },
     "annDataCells": {
       "type": "object",
       "description": "The properties of this object are the configuration for how to layout scatterplots and spatial information",
@@ -491,7 +603,14 @@
                   { "$ref": "#/definitions/annDataCellSets" },
                   { "$ref": "https://github.com/vitessce/vitessce/#raster" },
                   { "$ref": "#/definitions/annDataCells" },
-                  { "$ref": "#/definitions/annDataExpressionMatrix" }
+                  { "$ref": "#/definitions/annDataExpressionMatrix" },
+                  { "$ref": "#/definitions/annDataObsIndex"},
+                  { "$ref": "#/definitions/annDataFeatureIndex"},
+                  { "$ref": "#/definitions/annDataObsFeatureMatrix"},
+                  { "$ref": "#/definitions/annDataObsSets"},
+                  { "$ref": "#/definitions/annDataObsLocations"},
+                  { "$ref": "#/definitions/annDataObsEmbedding"},
+                  { "$ref": "#/definitions/annDataObsSegmentations"}
                 ] },
                 "requestInit": { "$ref": "#/definitions/requestInit" }
               }
