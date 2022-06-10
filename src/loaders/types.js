@@ -33,6 +33,9 @@ export const fileTypeToLoaderAndSource = {
   [FileType.OBS_LOCATIONS_ANNDATA_ZARR]: [
     AnnDataSource, AnnDataLoaders.ObsLocationsAnndataLoader,
   ],
+  [FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR]: [
+    AnnDataSource, AnnDataLoaders.ObsSegmentationsAnndataLoader,
+  ],
   [FileType.EXPRESSION_MATRIX_ZARR]: [ZarrDataSource, MatrixZarrLoader],
   [FileType.CLUSTERS_JSON]: [JsonSource, ClustersJsonAsMatrixZarrLoader],
   [FileType.GENES_JSON]: [JsonSource, GenesJsonAsMatrixZarrLoader],
