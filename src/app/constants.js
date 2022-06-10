@@ -52,6 +52,7 @@ export const FileType = {
   // Also for anndata-cells.zarr
   OBS_EMBEDDING_ANNDATA_ZARR: 'obsEmbedding.anndata.zarr',
   OBS_LOCATIONS_ANNDATA_ZARR: 'obsLocations.anndata.zarr',
+  OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
   // New file types to support old file types:
   // For cells.json
   OBS_INDEX_CELLS_JSON: 'obsIndex.cells.json',
