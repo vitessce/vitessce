@@ -24,6 +24,15 @@ export const fileTypeToLoaderAndSource = {
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: [
     AnnDataSource, AnnDataLoaders.ObsFeatureMatrixAnndataLoader,
   ],
+  [FileType.OBS_SETS_ANNDATA_ZARR]: [
+    AnnDataSource, AnnDataLoaders.CellSetsZarrLoader,
+  ],
+  [FileType.OBS_EMBEDDING_ANNDATA_ZARR]: [
+    AnnDataSource, AnnDataLoaders.ObsEmbeddingAnndataLoader,
+  ],
+  [FileType.OBS_LOCATIONS_ANNDATA_ZARR]: [
+    AnnDataSource, AnnDataLoaders.ObsLocationsAnndataLoader,
+  ],
   [FileType.EXPRESSION_MATRIX_ZARR]: [ZarrDataSource, MatrixZarrLoader],
   [FileType.CLUSTERS_JSON]: [JsonSource, ClustersJsonAsMatrixZarrLoader],
   [FileType.GENES_JSON]: [JsonSource, GenesJsonAsMatrixZarrLoader],
