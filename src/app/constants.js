@@ -44,14 +44,14 @@ export const FileType = {
   OBS_SETS_JSON: 'obsSets.json',
   IMAGE_OME_ZARR: 'image.ome-zarr',
   // Also for anndata-expression-matrix.zarr
-  ANNDATA_OBS_INDEX_ZARR: 'obsIndex.anndata.zarr',
-  ANNDATA_FEATURE_INDEX_ZARR: 'featureIndex.anndata.zarr',
-  ANNDATA_OBS_FEATURE_MATRIX_ZARR: 'obsFeatureMatrix.anndata.zarr',
+  OBS_INDEX_ANNDATA_ZARR: 'obsIndex.anndata.zarr',
+  FEATURE_INDEX_ANNDATA_ZARR: 'featureIndex.anndata.zarr',
+  OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
   // Also for anndata-cell-sets.zarr
-  ANNDATA_OBS_SETS_ZARR: 'obsSets.anndata.zarr',
+  OBS_SETS_ANNDATA_ZARR: 'obsSets.anndata.zarr',
   // Also for anndata-cells.zarr
-  ANNDATA_OBS_EMBEDDING_ZARR: 'obsEmbedding.anndata.zarr',
-  ANNDATA_OBS_LOCATIONS_ZARR: 'obsLocations.anndata.zarr',
+  OBS_EMBEDDING_ANNDATA_ZARR: 'obsEmbedding.anndata.zarr',
+  OBS_LOCATIONS_ANNDATA_ZARR: 'obsLocations.anndata.zarr',
   // New file types to support old file types:
   // For cells.json
   OBS_INDEX_CELLS_JSON: 'obsIndex.cells.json',
