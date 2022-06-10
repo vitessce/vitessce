@@ -43,12 +43,16 @@ export const FileType = {
   // New file types
   OBS_SETS_JSON: 'obsSets.json',
   IMAGE_OME_ZARR: 'image.ome-zarr',
-  ANNDATA_OBS_INDEX_ZARR: 'anndataObsIndex.zarr',
-  ANNDATA_FEATURE_INDEX_ZARR: 'anndataFeatureIndex.zarr',
-  ANNDATA_OBS_FEATURE_MATRIX_ZARR: 'anndataObsFeatureMatrix.zarr',
-  ANNDATA_OBS_SETS_ZARR: 'anndataObsSets.zarr',
-  ANNDATA_OBS_EMBEDDING_ZARR: 'anndataObsEmbedding.zarr',
-  ANNDATA_OBS_LOCATIONS_ZARR: 'anndataObsLocations.zarr',
+  // Also for anndata-expression-matrix.zarr
+  OBS_INDEX_ANNDATA_ZARR: 'obsIndex.anndata.zarr',
+  FEATURE_INDEX_ANNDATA_ZARR: 'featureIndex.anndata.zarr',
+  OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
+  // Also for anndata-cell-sets.zarr
+  OBS_SETS_ANNDATA_ZARR: 'obsSets.anndata.zarr',
+  // Also for anndata-cells.zarr
+  OBS_EMBEDDING_ANNDATA_ZARR: 'obsEmbedding.anndata.zarr',
+  OBS_LOCATIONS_ANNDATA_ZARR: 'obsLocations.anndata.zarr',
+  OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
   // New file types to support old file types:
   // For cells.json
   OBS_INDEX_CELLS_JSON: 'obsIndex.cells.json',
@@ -65,15 +69,6 @@ export const FileType = {
   OBS_INDEX_CLUSTERS_JSON: 'obsIndex.clusters.json',
   FEATURE_INDEX_CLUSTERS_JSON: 'featureIndex.clusters.json',
   OBS_FEATURE_MATRIX_CLUSTERS_JSON: 'obsFeatureMatrix.clusters.json',
-  // For anndata-expression-matrix.zarr
-  ANNDATA_OBS_INDEX_EXPRESSION_MATRIX_ZARR: 'anndataObsIndex.anndata-expression-matrix.zarr',
-  ANNDATA_FEATURE_INDEX_EXPRESSION_MATRIX_ZARR: 'anndataFeatureIndex.anndata-expression-matrix.zarr',
-  ANNDATA_OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR: 'anndataObsFeatureMatrix.anndata-expression-matrix.zarr',
-  // For anndata-cell-sets.zarr
-  ANNDATA_OBS_SETS_CELL_SETS_ZARR: 'anndataObsSets.anndata-cell-sets.zarr',
-  // For anndata-cells.zarr
-  ANNDATA_OBS_EMBEDDING_CELLS_ZARR: 'anndataObsEmbedding.anndata-cells.zarr',
-  ANNDATA_OBS_LOCATIONS_CELLS_ZARR: 'anndataObsLocations.anndata-cells.zarr',
   // For expression-matrix.zarr
   OBS_INDEX_EXPRESSION_MATRIX_ZARR: 'obsIndex.expression-matrix.zarr',
   FEATURE_INDEX_EXPRESSION_MATRIX_ZARR: 'featureIndex.expression-matrix.zarr',
