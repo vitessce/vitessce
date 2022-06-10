@@ -12,8 +12,8 @@ describe('schemas', () => {
     'genes',
     'molecules',
     'neighborhoods',
-    'cell-sets',
-    'cell-sets-tabular',
+    'obsSets',
+    'obsSetsTabular',
     'raster',
   ].forEach((type) => {
     const schemaFile = `${type}.schema.json`;
@@ -21,10 +21,10 @@ describe('schemas', () => {
       const schema = require(`./${schemaFile}`);
       let validate;
       if (type === 'config-1.0.1') {
-        const cellSets = require('./cell-sets.schema.json');
+        const obsSets = require('./obsSets.schema.json');
         const raster = require('./raster.schema.json');
         validate = new Ajv()
-          .addSchema(cellSets)
+          .addSchema(obsSets)
           .addSchema(raster)
           .compile(schema);
       } else {

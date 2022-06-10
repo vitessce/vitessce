@@ -6,14 +6,14 @@ import {
   initializeCellSetColor,
 } from '../../components/sets/cell-set-utils';
 import {
-  SETS_DATATYPE_CELL,
+  SETS_DATATYPE_OBS,
 } from '../../components/sets/constants';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
 import LoaderResult from '../LoaderResult';
 
 export function dataToCellSetsTree(data, options) {
   const [cellNames, cellSets, cellSetScores] = data;
-  const cellSetsTree = treeInitialize(SETS_DATATYPE_CELL);
+  const cellSetsTree = treeInitialize(SETS_DATATYPE_OBS);
   cellSets.forEach((cellSetIds, j) => {
     const name = options[j].groupName;
     let levelZeroNode = {

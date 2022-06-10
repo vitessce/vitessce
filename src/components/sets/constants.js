@@ -1,5 +1,5 @@
-import cellSetsSchema from '../../schemas/cell-sets.schema.json';
-import cellSetsTabularSchema from '../../schemas/cell-sets-tabular.schema.json';
+import obsSetsSchema from '../../schemas/obsSets.schema.json';
+import obsSetsTabularSchema from '../../schemas/obsSetsTabular.schema.json';
 
 export const FILE_EXTENSION_JSON = 'json';
 export const MIME_TYPE_JSON = 'application/json';
@@ -11,16 +11,23 @@ export const SEPARATOR_TABULAR = ',';
 // value "NA" in the cell-sets-tabular JSON schema.
 export const NA_VALUE_TABULAR = 'NA';
 
-export const SETS_DATATYPE_CELL = 'cell';
+export const SETS_DATATYPE_OBS = 'obs';
 export const HIERARCHICAL_SCHEMAS = {
   cell: {
     latestVersion: '0.1.3',
-    schema: cellSetsSchema,
+    schema: obsSetsSchema,
+  },
+  obs: {
+    latestVersion: '0.1.3',
+    schema: obsSetsSchema,
   },
 };
 
 export const TABULAR_SCHEMAS = {
   cell: {
-    schema: cellSetsTabularSchema,
+    schema: obsSetsTabularSchema,
+  },
+  obs: {
+    schema: obsSetsTabularSchema,
   },
 };

@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://github.com/vitessce/vitessce/#cell-sets",
-    "title": "Vitessce cell sets data",
+    "title": "Vitessce obs sets data",
     "type": "object",
     "definitions": {
         "stringArray": {
@@ -103,7 +103,7 @@
                 },
                 "datatype": {
                     "type": "string",
-                    "enum": ["cell"]
+                    "enum": ["cell", "obs"]
                 },
                 "tree": {
                     "type": "array",
@@ -172,7 +172,7 @@
                 },
                 "datatype": {
                     "type": "string",
-                    "enum": ["cell"]
+                    "enum": ["cell", "obs"]
                 },
                 "tree": {
                     "type": "array",

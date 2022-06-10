@@ -45,7 +45,7 @@ import {
 import {
   FILE_EXTENSION_JSON,
   FILE_EXTENSION_TABULAR,
-  SETS_DATATYPE_CELL,
+  SETS_DATATYPE_OBS,
 } from './constants';
 import { useUrls, useReady } from '../hooks';
 import {
@@ -126,7 +126,7 @@ export default function CellSetsManagerSubscriber(props) {
     if (additionalCellSets) {
       let upgradedCellSets;
       try {
-        upgradedCellSets = tryUpgradeTreeToLatestSchema(additionalCellSets, SETS_DATATYPE_CELL);
+        upgradedCellSets = tryUpgradeTreeToLatestSchema(additionalCellSets, SETS_DATATYPE_OBS);
       } catch (e) {
         setWarning(e.message);
         return;
@@ -481,7 +481,7 @@ export default function CellSetsManagerSubscriber(props) {
   function onCreateLevelZeroNode() {
     const nextName = getNextNumberedNodeName(additionalCellSets?.tree, 'My hierarchy ');
     setAdditionalCellSets({
-      ...(additionalCellSets || treeInitialize(SETS_DATATYPE_CELL)),
+      ...(additionalCellSets || treeInitialize(SETS_DATATYPE_OBS)),
       tree: [
         ...(additionalCellSets ? additionalCellSets.tree : []),
         {
@@ -536,7 +536,7 @@ export default function CellSetsManagerSubscriber(props) {
     const hasConflict = treesConflict(mergedCellSets, treeToImport);
     if (!hasConflict) {
       setAdditionalCellSets({
-        ...(additionalCellSets || treeInitialize(SETS_DATATYPE_CELL)),
+        ...(additionalCellSets || treeInitialize(SETS_DATATYPE_OBS)),
         tree: [
           ...(additionalCellSets ? additionalCellSets.tree : []),
           ...treeToImport.tree,
@@ -555,10 +555,10 @@ export default function CellSetsManagerSubscriber(props) {
   function onExportLevelZeroNodeJSON(nodePath) {
     const {
       treeToExport, nodeName,
-    } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_CELL, cellSetColor, theme);
+    } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_OBS, cellSetColor, theme);
     downloadForUser(
       handleExportJSON(treeToExport),
-      `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_JSON}`,
+      `${nodeName}_${packageJson.name}-${SETS_DATATYPE_OBS}-hierarchy.${FILE_EXTENSION_JSON}`,
     );
   }
 
@@ -566,10 +566,10 @@ export default function CellSetsManagerSubscriber(props) {
   function onExportLevelZeroNodeTabular(nodePath) {
     const {
       treeToExport, nodeName,
-    } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_CELL, cellSetColor, theme);
+    } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_OBS, cellSetColor, theme);
     downloadForUser(
       handleExportTabular(treeToExport),
-      `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-hierarchy.${FILE_EXTENSION_TABULAR}`,
+      `${nodeName}_${packageJson.name}-${SETS_DATATYPE_OBS}-hierarchy.${FILE_EXTENSION_TABULAR}`,
     );
   }
 
@@ -578,7 +578,7 @@ export default function CellSetsManagerSubscriber(props) {
     const { setToExport, nodeName } = treeExportSet(mergedCellSets, nodePath);
     downloadForUser(
       handleExportJSON(setToExport),
-      `${nodeName}_${packageJson.name}-${SETS_DATATYPE_CELL}-set.${FILE_EXTENSION_JSON}`,
+      `${nodeName}_${packageJson.name}-${SETS_DATATYPE_OBS}-set.${FILE_EXTENSION_JSON}`,
       FILE_EXTENSION_JSON,
     );
   }
@@ -600,7 +600,7 @@ export default function CellSetsManagerSubscriber(props) {
         setExpansion={cellSetExpansion}
         hasColorEncoding={cellColorEncoding === 'cellSetSelection'}
         draggable
-        datatype={SETS_DATATYPE_CELL}
+        datatype={SETS_DATATYPE_OBS}
         onError={setWarning}
         onCheckNode={onCheckNode}
         onExpandNode={onExpandNode}
