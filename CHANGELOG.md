@@ -9,6 +9,7 @@
   - `featureType`
   - `featureValueType`
 - Added new file type and data type constants.
+- Added loader for `obsSegmentations.cells.json`.
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.

@@ -13,8 +13,10 @@ import CellSetsJsonLoader from './CellSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
+import CellsJsonAsObsSegmentationsLoader from './CellsJsonAsObsSegmentations';
 
 export const fileTypeToLoaderAndSource = {
+  [FileType.OBS_SEGMENTATIONS_CELLS_JSON]: [JsonSource, CellsJsonAsObsSegmentationsLoader],
   [FileType.EXPRESSION_MATRIX_ZARR]: [ZarrDataSource, MatrixZarrLoader],
   [FileType.CLUSTERS_JSON]: [JsonSource, ClustersJsonAsMatrixZarrLoader],
   [FileType.GENES_JSON]: [JsonSource, GenesJsonAsMatrixZarrLoader],
