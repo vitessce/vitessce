@@ -15,10 +15,12 @@ import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
 import CellsJsonAsObsIndexLoader from './CellsJsonAsObsIndex';
 import CellsJsonAsObsEmbeddingLoader from './CellsJsonAsObsEmbedding';
+import CellsJsonAsObsLocationsLoader from './CellsJsonAsObsLocations';
 
 export const fileTypeToLoaderAndSource = {
   [FileType.OBS_INDEX_CELLS_JSON]: [JsonSource, CellsJsonAsObsIndexLoader],
   [FileType.OBS_EMBEDDING_CELLS_JSON]: [JsonSource, CellsJsonAsObsEmbeddingLoader],
+  [FileType.OBS_LOCATIONS_CELLS_JSON]: [JsonSource, CellsJsonAsObsLocationsLoader],
   [FileType.EXPRESSION_MATRIX_ZARR]: [ZarrDataSource, MatrixZarrLoader],
   [FileType.CLUSTERS_JSON]: [JsonSource, ClustersJsonAsMatrixZarrLoader],
   [FileType.GENES_JSON]: [JsonSource, GenesJsonAsMatrixZarrLoader],
