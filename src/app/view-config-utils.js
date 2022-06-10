@@ -13,6 +13,7 @@ import {
   getDefaultCoordinationValues,
   getCoordinationTypes,
   getFileTypes,
+  getConvenienceFileTypes,
 } from './plugins';
 import { SCHEMA_HANDLERS } from './view-config-versions';
 
@@ -217,10 +218,48 @@ function assignViewUids(config) {
 }
 
 /**
+ * Expand convenience file definitions. Each convenience file
+ * definition expansion function takes in one file definition and
+ * returns an array of file definitions. Not performed recursively.
+ * @param {object} config The view config containing collapsed
+ * convenience file types.
+ * @returns The view config containing expanded minimal file types.
+ */
+function expandConvenienceFileDefs(config) {
+  const convenienceFileTypes = getConvenienceFileTypes();
+  const { datasets: currDatasets } = config;
+  const datasets = cloneDeep(currDatasets);
+  currDatasets.forEach((dataset, i) => {
+    const { files = [] } = dataset;
+    let newFiles = [];
+    files.forEach((fileDef) => {
+      const { fileType } = fileDef;
+      const expansionFunc = convenienceFileTypes[fileType];
+      if (expansionFunc && typeof expansionFunc === 'function') {
+        // This was a convenience file type, so expand it.
+        const expandedFileDefs = expansionFunc(fileDef);
+        newFiles = newFiles.concat(expandedFileDefs);
+      } else {
+        // This was not a convenience file type,
+        // so keep it in the files array as-is.
+        newFiles.push(fileDef);
+      }
+    });
+    datasets[i].files = newFiles;
+  });
+  return {
+    ...config,
+    datasets,
+  };
+}
+
+/**
  * Initialize the view config:
  * - Fill in missing coordination objects with default values.
  * - Fill in missing component coordination scope mappings.
  *   based on the `initStrategy` specified in the view config.
+ * - Fill in missing view uid values.
+ * - Expand convenience file types.
  * Should be "stable": if run on the same view config twice, the return value the second
  * time should be identical to the return value the first time.
  * @param {object} config The view config prop.
@@ -231,6 +270,7 @@ export function initialize(config) {
   if (newConfig.initStrategy === 'auto') {
     newConfig = initializeAuto(config);
   }
+  newConfig = expandConvenienceFileDefs(newConfig);
   return assignViewUids(newConfig);
 }
 
