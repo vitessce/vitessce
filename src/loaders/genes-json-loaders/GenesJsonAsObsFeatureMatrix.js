@@ -1,9 +1,9 @@
-import genesSchema from '../schemas/genes.schema.json';
-import JsonLoader from './JsonLoader';
-import { AbstractLoaderError } from './errors';
-import LoaderResult from './LoaderResult';
+import genesSchema from '../../schemas/genes.schema.json';
+import JsonLoader from '../JsonLoader';
+import { AbstractLoaderError } from '../errors';
+import LoaderResult from '../LoaderResult';
 
-export default class GenesJsonAsMatrixZarrLoader extends JsonLoader {
+export default class GenesJsonAsObsFeatureMatrixLoader extends JsonLoader {
   constructor(dataSource, params) {
     super(dataSource, params);
 
@@ -18,7 +18,6 @@ export default class GenesJsonAsMatrixZarrLoader extends JsonLoader {
     const { data, url } = payload;
     const cols = Object.keys(data);
     const rows = (cols.length > 0 ? Object.keys(data[cols[0]].cells) : []);
-    const attrs = { rows, cols };
 
     const normalizedFlatMatrix = rows
       .flatMap(cellId => cols.map(
@@ -27,6 +26,6 @@ export default class GenesJsonAsMatrixZarrLoader extends JsonLoader {
     // Need to wrap the NestedArray to mock the HTTPStore-based array
     // which returns promises.
     const arr = { data: Uint8Array.from(normalizedFlatMatrix) };
-    return Promise.resolve(new LoaderResult([attrs, arr], url));
+    return Promise.resolve(new LoaderResult(arr, url));
   }
 }

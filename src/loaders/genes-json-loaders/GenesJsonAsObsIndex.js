@@ -1,7 +1,7 @@
-import genesSchema from '../schemas/genes.schema.json';
-import JsonLoader from './JsonLoader';
-import { AbstractLoaderError } from './errors';
-import LoaderResult from './LoaderResult';
+import genesSchema from '../../schemas/genes.schema.json';
+import JsonLoader from '../JsonLoader';
+import { AbstractLoaderError } from '../errors';
+import LoaderResult from '../LoaderResult';
 
 export default class GenesJsonAsObsIndexLoader extends JsonLoader {
   constructor(dataSource, params) {
