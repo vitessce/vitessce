@@ -1,9 +1,9 @@
 import { extent } from 'd3-array';
 import range from 'lodash/range';
-import clustersSchema from '../schemas/clusters.schema.json';
-import JsonLoader from './JsonLoader';
-import { AbstractLoaderError } from './errors';
-import LoaderResult from './LoaderResult';
+import clustersSchema from '../../schemas/clusters.schema.json';
+import JsonLoader from '../JsonLoader';
+import { AbstractLoaderError } from '../errors';
+import LoaderResult from '../LoaderResult';
 
 export default class ClustersJsonAsMatrixZarrLoader extends JsonLoader {
   constructor(dataSource, params) {

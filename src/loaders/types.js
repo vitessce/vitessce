@@ -6,15 +6,17 @@ import {
 import JsonLoader from './JsonLoader';
 import MatrixZarrLoader from './MatrixZarrLoader';
 import GenesJsonAsMatrixZarrLoader from './GenesJsonAsMatrixZarrLoader';
-import ClustersJsonAsMatrixZarrLoader from './ClustersJsonAsMatrixZarrLoader';
+import ClustersJsonAsMatrixZarrLoader from './clusters-json-loaders/ClustersJsonAsMatrixZarrLoader';
 import RasterJsonLoader from './RasterJsonLoader';
 import OmeZarrLoader from './OmeZarrLoader';
 import CellSetsJsonLoader from './CellSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
+import ClustersJsonAsObsIndexLoader from './clusters-json-loaders/ClustersJsonAsObsIndex';
 
 export const fileTypeToLoaderAndSource = {
+  [FileType.OBS_INDEX_CLUSTERS_JSON]: [JsonSource, ClustersJsonAsObsIndexLoader],
   [FileType.EXPRESSION_MATRIX_ZARR]: [ZarrDataSource, MatrixZarrLoader],
   [FileType.CLUSTERS_JSON]: [JsonSource, ClustersJsonAsMatrixZarrLoader],
   [FileType.GENES_JSON]: [JsonSource, GenesJsonAsMatrixZarrLoader],
