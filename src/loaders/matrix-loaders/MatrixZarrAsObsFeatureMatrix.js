@@ -3,8 +3,8 @@ import LoaderResult from '../LoaderResult';
 
 export default class MatrixZarrAsObsFeatureMatrixLoader extends MatrixZarrLoader {
   load() {
-    return this.loadCellXGene().then(
-      async arr => Promise.resolve(new LoaderResult(arr, null)),
+    return this.loadArr().then(
+      arr => Promise.resolve(new LoaderResult(arr, null)),
     );
   }
 }

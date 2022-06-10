@@ -4,7 +4,7 @@ import {
 } from '../app/plugins';
 
 import JsonLoader from './JsonLoader';
-import MatrixZarrLoader from './MatrixZarrLoader';
+import MatrixZarrLoader from './matrix-loaders/MatrixZarrLoader';
 import GenesJsonAsMatrixZarrLoader from './GenesJsonAsMatrixZarrLoader';
 import ClustersJsonAsMatrixZarrLoader from './ClustersJsonAsMatrixZarrLoader';
 import RasterJsonLoader from './RasterJsonLoader';
@@ -13,9 +13,9 @@ import CellSetsJsonLoader from './CellSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
-import MatrixZarrAsFeatureIndexLoader from './anndata-loaders/MatrixZarrAsFeatureIndex';
-import MatrixZarrAsObsIndexLoader from './anndata-loaders/MatrixZarrAsObsIndex';
-import MatrixZarrAsObsFeatureMatrixLoader from './anndata-loaders/MatrixZarrAsObsFeatureMatrix';
+import MatrixZarrAsFeatureIndexLoader from './matrix-loaders/MatrixZarrAsFeatureIndex';
+import MatrixZarrAsObsIndexLoader from './matrix-loaders/MatrixZarrAsObsIndex';
+import MatrixZarrAsObsFeatureMatrixLoader from './matrix-loaders/MatrixZarrAsObsFeatureMatrix';
 
 export const fileTypeToLoaderAndSource = {
   [FileType.OBS_INDEX_EXPRESSION_MATRIX_ZARR]: [ZarrDataSource, MatrixZarrAsObsIndexLoader],
