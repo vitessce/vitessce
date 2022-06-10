@@ -73,7 +73,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     );
 
     const coordinationValues = {
-      spatialRasterLayer: autoImageLayers,
+      spatialImageLayer: autoImageLayers,
     };
     return Promise.resolve(new LoaderResult(
       { loaders: imageLayerLoaders, meta: imageLayerMeta },
