@@ -33,7 +33,7 @@ export default function DescriptionSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    spatialRasterLayer: rasterLayers,
+    spatialImageLayer: rasterLayers,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.description, coordinationScopes);
 
   const [
