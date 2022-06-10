@@ -25,7 +25,7 @@ export const fileTypeToLoaderAndSource = {
     AnnDataSource, AnnDataLoaders.ObsFeatureMatrixAnndataLoader,
   ],
   [FileType.OBS_SETS_ANNDATA_ZARR]: [
-    AnnDataSource, AnnDataLoaders.CellSetsZarrLoader,
+    AnnDataSource, AnnDataLoaders.ObsSetsAnndataLoader,
   ],
   [FileType.OBS_EMBEDDING_ANNDATA_ZARR]: [
     AnnDataSource, AnnDataLoaders.ObsEmbeddingAnndataLoader,

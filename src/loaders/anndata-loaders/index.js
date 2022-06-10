@@ -8,6 +8,7 @@ import ObsFeatureMatrixAnndataLoader from './ObsFeatureMatrixAnndataLoader';
 import ObsEmbeddingAnndataLoader from './ObsEmbeddingAnndataLoader';
 import ObsLocationsAnndataLoader from './ObsLocationsAnndataLoader';
 import ObsSegmentationsAnndataLoader from './ObsSegmentationsAnndataLoader';
+import ObsSetsAnndataLoader from './ObsSetsAnndataLoader';
 
 export default {
   CellSetsZarrLoader,
@@ -19,4 +20,5 @@ export default {
   ObsEmbeddingAnndataLoader,
   ObsLocationsAnndataLoader,
   ObsSegmentationsAnndataLoader,
+  ObsSetsAnndataLoader,
 };
