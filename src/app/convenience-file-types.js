@@ -48,5 +48,5 @@ export function expandCellsJson(fileDef) {
  * expansion functions.
  */
 export const CONVENIENCE_FILE_TYPES = {
-  [FileType.CELLS_JSON]: expandCellsJson,
+  // [FileType.CELLS_JSON]: expandCellsJson,
 };
