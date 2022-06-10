@@ -9,7 +9,8 @@
   - `featureType`
   - `featureValueType`
 - Added new file type and data type constants.
-- Added loader mapping for `obsSets.cell-sets.json`.
+- Added loaders for `obsSets.json` and `obsSets.cell-sets.json`.
+- Added support for `datatype: 'obs'` in `obsSets.schema.json`
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
