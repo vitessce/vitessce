@@ -66,14 +66,15 @@ export const FileType = {
   FEATURE_INDEX_CLUSTERS_JSON: 'featureIndex.clusters.json',
   OBS_FEATURE_MATRIX_CLUSTERS_JSON: 'obsFeatureMatrix.clusters.json',
   // For anndata-expression-matrix.zarr
-  ANNDATA_OBS_INDEX_EXPRESSION_MATRIX_ZARR: 'anndataObsIndex.anndata-expression-matrix.zarr',
-  ANNDATA_FEATURE_INDEX_EXPRESSION_MATRIX_ZARR: 'anndataFeatureIndex.anndata-expression-matrix.zarr',
-  ANNDATA_OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR: 'anndataObsFeatureMatrix.anndata-expression-matrix.zarr',
+  ANNDATA_OBS_INDEX_EXPRESSION_MATRIX_ZARR: 'obsIndex.anndata-expression-matrix.zarr',
+  ANNDATA_FEATURE_INDEX_EXPRESSION_MATRIX_ZARR: 'featureIndex.anndata-expression-matrix.zarr',
+  ANNDATA_OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR: 'obsFeatureMatrix.anndata-expression-matrix.zarr',
   // For anndata-cell-sets.zarr
-  ANNDATA_OBS_SETS_CELL_SETS_ZARR: 'anndataObsSets.anndata-cell-sets.zarr',
+  ANNDATA_OBS_SETS_CELL_SETS_ZARR: 'obsSets.anndata-cell-sets.zarr',
   // For anndata-cells.zarr
-  ANNDATA_OBS_EMBEDDING_CELLS_ZARR: 'anndataObsEmbedding.anndata-cells.zarr',
-  ANNDATA_OBS_LOCATIONS_CELLS_ZARR: 'anndataObsLocations.anndata-cells.zarr',
+  // No obsIndex.anndata-cells.zarr; Use obsIndex.anndata-expression-matrix.zarr
+  ANNDATA_OBS_EMBEDDING_CELLS_ZARR: 'obsEmbedding.anndata-cells.zarr',
+  ANNDATA_OBS_LOCATIONS_CELLS_ZARR: 'obsLocations.anndata-cells.zarr',
   // For expression-matrix.zarr
   OBS_INDEX_EXPRESSION_MATRIX_ZARR: 'obsIndex.expression-matrix.zarr',
   FEATURE_INDEX_EXPRESSION_MATRIX_ZARR: 'featureIndex.expression-matrix.zarr',
