@@ -7,6 +7,7 @@ import { FileType, DataType } from './constants';
  */
 export const FILE_TYPE_DATA_TYPE_MAPPING = {
   // For new file types
+  [FileType.OBS_SETS_JSON]: DataType.OBS_SETS,
   [FileType.IMAGE_OME_ZARR]: DataType.IMAGE,
   [FileType.ANNDATA_OBS_INDEX_ZARR]: DataType.OBS_INDEX,
   [FileType.ANNDATA_FEATURE_INDEX_ZARR]: DataType.FEATURE_INDEX,
