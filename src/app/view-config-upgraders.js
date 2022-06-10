@@ -423,7 +423,11 @@ export function upgradeFrom1_0_11(config) {
     datasets,
     coordinationSpace,
   } = newConfig;
-  // TODO: be more precise when more than one dataset.
+  // This array may contain more embedding types than
+  // the cells.json file actually contains, but the tradeoff is that
+  // we do not have to load the cells.json file to double check what
+  // embedding types are actually present. CellsJsonAsObsEmbedding
+  // will just load the embedding as null if it is not present.
   const embeddingTypes = Object.values(coordinationSpace.embeddingType);
   datasets.forEach((dataset, i) => {
     const { files } = dataset;
