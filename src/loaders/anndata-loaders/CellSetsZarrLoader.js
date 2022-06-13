@@ -145,8 +145,8 @@ export default class CellSetsZarrLoader extends AbstractTwoStepLoader {
     ]);
     // Create a list of cell set objects with color mappings.
     const newAutoSetColors = initializeCellSetColor(cellSetsTree, []);
-    coordinationValues.cellSetSelection = newAutoSetSelections;
-    coordinationValues.cellSetColor = newAutoSetColors;
+    coordinationValues.obsSetSelection = newAutoSetSelections;
+    coordinationValues.obsSetColor = newAutoSetColors;
     return Promise.resolve(
       new LoaderResult(cellSetsTree, null, coordinationValues),
     );

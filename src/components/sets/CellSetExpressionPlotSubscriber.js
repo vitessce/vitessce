@@ -33,13 +33,13 @@ export default function CellSetExpressionPlotSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    geneSelection,
-    geneExpressionTransform,
-    cellSetSelection,
-    cellSetColor,
-    additionalCellSets,
+    featureSelection: geneSelection,
+    featureValueTransform: geneExpressionTransform,
+    obsSetSelection: cellSetSelection,
+    obsSetColor: cellSetColor,
+    additionalObsSets: additionalCellSets,
   }, {
-    setGeneExpressionTransform,
+    setFeatureValueTransform: setGeneExpressionTransform,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetExpression, coordinationScopes);
 
   const [width, height, containerRef] = useGridItemSize();
