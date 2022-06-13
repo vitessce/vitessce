@@ -109,6 +109,35 @@
         }
       }
     },
+    "annDataObsm": {
+      "type": "object",
+      "description": "Options for an anndata.obsm array.",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "path": { "type": "string" },
+        "dims": {
+          "type": "array",
+          "description": "Which indices of the obsm object to take for a scatterplot, allowing for, for example, different PCs from obsm/X_pca",
+          "items": { "type": "number" }
+        }
+      }
+    },
+    "annDataConvenienceEmbeddingItem": {
+      "type": "object",
+      "description": "Options for an anndata.obsm array.",
+      "additionalProperties": false,
+      "required": ["path", "embeddingType"],
+      "properties": {
+        "path": { "type": "string" },
+        "dims": {
+          "type": "array",
+          "description": "Which indices of the obsm object to take for a scatterplot, allowing for, for example, different PCs from obsm/X_pca",
+          "items": { "type": "number" }
+        },
+        "embeddingType": { "type": "string" }
+      }
+    },
     "annDataCellSets": {
       "type": "array",
       "description": "Array of cell set configuration, following closely the conventions of the tabular schema",
@@ -216,38 +245,8 @@
         }
       }
     },
-    "annDataObsLocations": {
-      "type": "object",
-      "description": "Options for the obsLocations.anndata.zarr file type.",
-      "additionalProperties": false,
-      "required": ["path"],
-      "properties": {
-        "path": { "type": "string" },
-        "dims": {
-          "type": "array",
-          "description": "Which indices of the obsm object to take for a scatterplot, allowing for, for example, different PCs from obsm/X_pca",
-          "minItems": 2,
-          "maxItems": 2,
-          "items": { "type": "number" }
-        }
-      }
-    },
-    "annDataObsEmbedding": {
-      "type": "object",
-      "description": "Options for the obsEmbedding.anndata.zarr file type.",
-      "additionalProperties": false,
-      "required": ["path"],
-      "properties": {
-        "path": { "type": "string" },
-        "dims": {
-          "type": "array",
-          "description": "Which indices of the obsm object to take for a scatterplot, allowing for, for example, different PCs from obsm/X_pca",
-          "minItems": 2,
-          "maxItems": 2,
-          "items": { "type": "number" }
-        }
-      }
-    },
+    "annDataObsLocations": { "$ref": "#/definitions/annDataObsm" },
+    "annDataObsEmbedding": { "$ref": "#/definitions/annDataObsm" },
     "annDataObsSegmentations": {
       "type": "object",
       "description": "Options for the obsSegmentations.anndata.zarr file type.",
@@ -255,6 +254,24 @@
       "required": ["path"],
       "properties": {
         "path": { "type": "string" }
+      }
+    },
+    "annDataConvenience": {
+      "type": "object",
+      "description": "Options for all anndata file types.",
+      "additionalProperties": false,
+      "required": ["obsFeatureMatrixPath"],
+      "properties": {
+        "obsIndex": { "$ref": "#/definitions/annDataObsIndex" },
+        "featureIndex": { "$ref": "#/definitions/annDataFeatureIndex" },
+        "obsFeatureMatrix": { "$ref": "#/definitions/annDataObsFeatureMatrix" },
+        "obsSets": { "$ref": "#/definitions/annDataObsSets" },
+        "obsLocations": { "$ref": "#/definitions/annDataObsLocations" },
+        "obsSegmentations": { "$ref": "#/definitions/annDataObsSegmentations" },
+        "obsEmbedding": { "oneOf": [
+          { "$ref": "#/definitions/annDataObsEmbedding" },
+          { "type": "array", "items": { "$ref": "#/definitions/annDataConvenienceEmbeddingItem" } }
+        ]}
       }
     },
     "annDataCells": {

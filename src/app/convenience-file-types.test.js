@@ -248,4 +248,133 @@ describe('src/app/convenience-file-types.js', () => {
       });
     });
   });
+  // cells
+  describe('expandAnndataZarr', () => {
+    it('expands to empty array when there are no options', () => {
+      expect(expandAnndataZarr({
+        fileType: 'anndata.zarr',
+        url: 'http://localhost:8000/anndata.zarr',
+      })).toEqual([]);
+    });
+    it('expands when there is an obsEmbedding object', () => {
+      expect(expandAnndataZarr({
+        fileType: 'anndata.zarr',
+        url: 'http://localhost:8000/anndata.zarr',
+        options: {
+          obsIndex: { path: 'obs/spot_name' },
+          featureIndex: {
+            path: 'var/gene_symbol',
+            filter: 'var/in_hvg_subset',
+          },
+          obsEmbedding: {
+            path: 'obsm/pca',
+            dims: [2, 4],
+          },
+        },
+        coordinationValues: {
+          obsType: 'spot',
+          featureType: 'transcript',
+          embeddingType: 'PCA',
+        }
+      })).toEqual([
+        {
+          fileType: 'obsIndex.anndata.zarr',
+          url: 'http://localhost:8000/anndata.zarr',
+          options: {
+            path: 'obs/spot_name',
+          },
+          coordinationValues: {
+            obsType: 'spot',
+            featureType: 'transcript',
+            embeddingType: 'PCA',
+          },
+        },
+        {
+          fileType: 'featureIndex.anndata.zarr',
+          url: 'http://localhost:8000/anndata.zarr',
+          options: {
+            path: 'var/gene_symbol',
+            filterPath: 'var/in_hvg_subset',
+          },
+          coordinationValues: {
+            obsType: 'spot',
+            featureType: 'transcript',
+            embeddingType: 'PCA',
+          },
+        },
+        {
+          fileType: 'obsEmbedding.anndata.zarr',
+          url: 'http://localhost:8000/anndata.zarr',
+          options: {
+            path: 'obsm/pca',
+            dims: [2, 4]
+          },
+          coordinationValues: {
+            obsType: 'spot',
+            featureType: 'transcript',
+            embeddingType: 'PCA',
+          },
+        },
+      ]);
+    });
+    it('expands when there is an obsEmbedding array of objects', () => {
+      expect(expandAnndataZarr({
+        fileType: 'anndata.zarr',
+        url: 'http://localhost:8000/anndata.zarr',
+        options: {
+          obsLocations: {
+            path: 'obsm/xy',
+          },
+          obsEmbedding: [
+            {
+              path: 'obsm/pca',
+              dims: [2, 4],
+              embeddingType: 'PCA',
+            },
+            {
+              path: 'obsm/umap',
+              embeddingType: 'UMAP',
+            },
+          ],
+        },
+      })).toEqual([
+        {
+          fileType: 'obsLocations.anndata.zarr',
+          url: 'http://localhost:8000/anndata.zarr',
+          options: {
+            path: 'obsm/xy',
+          },
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+          },
+        },
+        {
+          fileType: 'obsEmbedding.anndata.zarr',
+          url: 'http://localhost:8000/anndata.zarr',
+          options: {
+            path: 'obsm/pca',
+            dims: [2, 4],
+          },
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+            embeddingType: 'PCA',
+          },
+        },
+        {
+          fileType: 'obsEmbedding.anndata.zarr',
+          url: 'http://localhost:8000/anndata.zarr',
+          options: {
+            path: 'obsm/umap',
+          },
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+            embeddingType: 'UMAP',
+          },
+        },
+      ]);
+    });
+  });
 });
