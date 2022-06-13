@@ -45,6 +45,10 @@ export function expandAnndataCellsZarr(fileDef) {
         path: options.mappings[et].key,
         dims: options.mappings[et].dims,
       },
+      coordinationValues: {
+        ...baseFileDef.coordinationValues,
+        embeddingType: et,
+      },
     })),
   ];
 }
