@@ -27,7 +27,7 @@ export function expandCellsJson(fileDef) {
         embeddingType: et,
       },
     })) : []),
-    ...(fileDef.options?.obsLabelsKeys ? fileDef.options.obsLabelsKeys.map(key => ({
+    ...(fileDef.options?.obsLabelsTypes ? fileDef.options.obsLabelsTypes.map(key => ({
       ...baseFileDef,
       fileType: FileType.OBS_LABELS_CELLS_JSON,
       coordinationValues: {

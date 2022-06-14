@@ -34,7 +34,7 @@ describe('src/app/convenience-file-types.js', () => {
         url: 'http://localhost:8000/cells.json',
         options: {
           embeddingTypes: ['UMAP', 't-SNE'],
-          obsLabelsKeys: ['cluster', 'subcluster'],
+          obsLabelsTypes: ['cluster', 'subcluster'],
         },
       })).toEqual([
         {
@@ -83,9 +83,6 @@ describe('src/app/convenience-file-types.js', () => {
         {
           fileType: 'obsLabels.cells.json',
           url: 'http://localhost:8000/cells.json',
-          options: {
-            key: 'subcluster',
-          },
           coordinationValues: {
             obsType: 'cell',
             featureType: 'gene',
