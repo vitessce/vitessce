@@ -19,10 +19,12 @@ export const Component = {
 };
 
 export const DataType = {
+  OBS_LABELS: 'obsLabels',
   OBS_EMBEDDING: 'obsEmbedding',
   OBS_LOCATIONS: 'obsLocations',
   OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
   OBS_SETS: 'obsSets',
+  FEATURE_LABELS: 'featureLabels',
   IMAGE: 'image',
   OBS_SEGMENTATIONS: 'obsSegmentations',
   NEIGHBORHOODS: 'neighborhoods',
@@ -49,11 +51,14 @@ export const FileType = {
   OBS_EMBEDDING_ANNDATA_ZARR: 'obsEmbedding.anndata.zarr',
   OBS_LOCATIONS_ANNDATA_ZARR: 'obsLocations.anndata.zarr',
   OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
+  OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
+  FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
   // New file types to support old file types:
   // For cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
   OBS_LOCATIONS_CELLS_JSON: 'obsLocations.cells.json',
   OBS_SEGMENTATIONS_CELLS_JSON: 'obsSegmentations.cells.json',
+  OBS_LABELS_CELLS_JSON: 'obsLabels.cells.json',
   // For cell-sets.json
   OBS_SETS_CELL_SETS_JSON: 'obsSets.cell-sets.json',
   // For genes.json
