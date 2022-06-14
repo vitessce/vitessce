@@ -151,10 +151,23 @@
       "additionalProperties": false,
       "required": [],
       "properties": {
+        "obsLabelsKeys": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "embeddingTypes": {
           "type": "array",
           "items": { "type": "string" }
         }
+      }
+    },
+    "cellsJsonObsLabels": {
+      "type": "object",
+      "description": "Options for the obsLabels.cells.json file type.",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "key": { "type": "string" }
       }
     },
     "annDataCells": {
@@ -504,7 +517,8 @@
                   { "$ref": "https://github.com/vitessce/vitessce/#raster" },
                   { "$ref": "#/definitions/annDataCells" },
                   { "$ref": "#/definitions/annDataExpressionMatrix" },
-                  { "$ref": "#/definitions/convenienceCellsJson" }
+                  { "$ref": "#/definitions/convenienceCellsJson" },
+                  { "$ref": "#/definitions/cellsJsonObsLabels"}
                 ] },
                 "requestInit": { "$ref": "#/definitions/requestInit" }
               }
