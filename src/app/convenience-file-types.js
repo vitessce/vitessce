@@ -30,7 +30,10 @@ export function expandCellsJson(fileDef) {
     ...(fileDef.options?.obsLabelsKeys ? fileDef.options.obsLabelsKeys.map(key => ({
       ...baseFileDef,
       fileType: FileType.OBS_LABELS_CELLS_JSON,
-      options: { key },
+      coordinationValues: {
+        ...baseFileDef.coordinationValues,
+        obsLabelsType: key,
+      },
     })) : []),
   ];
 }

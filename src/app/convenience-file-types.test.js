@@ -11,14 +11,6 @@ describe('src/app/convenience-file-types.js', () => {
         url: 'http://localhost:8000/cells.json',
       })).toEqual([
         {
-          fileType: 'obsIndex.cells.json',
-          url: 'http://localhost:8000/cells.json',
-          coordinationValues: {
-            obsType: 'cell',
-            featureType: 'gene',
-          },
-        },
-        {
           fileType: 'obsLocations.cells.json',
           url: 'http://localhost:8000/cells.json',
           coordinationValues: {
@@ -42,16 +34,9 @@ describe('src/app/convenience-file-types.js', () => {
         url: 'http://localhost:8000/cells.json',
         options: {
           embeddingTypes: ['UMAP', 't-SNE'],
+          obsLabelsKeys: ['cluster', 'subcluster'],
         },
       })).toEqual([
-        {
-          fileType: 'obsIndex.cells.json',
-          url: 'http://localhost:8000/cells.json',
-          coordinationValues: {
-            obsType: 'cell',
-            featureType: 'gene',
-          },
-        },
         {
           fileType: 'obsLocations.cells.json',
           url: 'http://localhost:8000/cells.json',
@@ -84,6 +69,27 @@ describe('src/app/convenience-file-types.js', () => {
             obsType: 'cell',
             featureType: 'gene',
             embeddingType: 't-SNE',
+          },
+        },
+        {
+          fileType: 'obsLabels.cells.json',
+          url: 'http://localhost:8000/cells.json',
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+            obsLabelsType: 'cluster',
+          },
+        },
+        {
+          fileType: 'obsLabels.cells.json',
+          url: 'http://localhost:8000/cells.json',
+          options: {
+            key: 'subcluster',
+          },
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+            obsLabelsType: 'subcluster',
           },
         },
       ]);
