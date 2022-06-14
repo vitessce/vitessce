@@ -25,8 +25,12 @@ export default class CellsJsonAsObsEmbeddingLoader extends JsonLoader {
       // The cells file does not contain this embedding.
       return Promise.resolve(new LoaderResult(null, url));
     }
+    const obsIndex = Object.keys(data);
     const obsEmbeddingX = cellObjs.map(cellObj => cellObj.mappings[embeddingType][0]);
     const obsEmbeddingY = cellObjs.map(cellObj => cellObj.mappings[embeddingType][1]);
-    return Promise.resolve(new LoaderResult([obsEmbeddingX, obsEmbeddingY], url));
+    return Promise.resolve(new LoaderResult(
+      { obsIndex, obsEmbedding: [obsEmbeddingX, obsEmbeddingY] },
+      url,
+    ));
   }
 }

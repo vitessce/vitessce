@@ -13,13 +13,13 @@ import CellSetsJsonLoader from './CellSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
-import CellsJsonAsObsIndexLoader from './cells-json-loaders/CellsJsonAsObsIndex';
+import CellsJsonAsObsLabelsLoader from './cells-json-loaders/CellsJsonAsObsLabels';
 import CellsJsonAsObsEmbeddingLoader from './cells-json-loaders/CellsJsonAsObsEmbedding';
 import CellsJsonAsObsLocationsLoader from './cells-json-loaders/CellsJsonAsObsLocations';
 import CellsJsonAsObsSegmentationsLoader from './cells-json-loaders/CellsJsonAsObsSegmentations';
 
 export const fileTypeToLoaderAndSource = {
-  [FileType.OBS_INDEX_CELLS_JSON]: [JsonSource, CellsJsonAsObsIndexLoader],
+  [FileType.OBS_LABELS_CELLS_JSON]: [JsonSource, CellsJsonAsObsLabelsLoader],
   [FileType.OBS_EMBEDDING_CELLS_JSON]: [JsonSource, CellsJsonAsObsEmbeddingLoader],
   [FileType.OBS_LOCATIONS_CELLS_JSON]: [JsonSource, CellsJsonAsObsLocationsLoader],
   [FileType.OBS_SEGMENTATIONS_CELLS_JSON]: [JsonSource, CellsJsonAsObsSegmentationsLoader],

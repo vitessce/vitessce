@@ -22,8 +22,12 @@ export default class CellsJsonAsObsLocationsLoader extends JsonLoader {
       // This cells file does not contain xy coordinates.
       return Promise.resolve(new LoaderResult(null, url));
     }
+    const obsIndex = Object.keys(data);
     const obsLocationsX = cellObjs.map(cellObj => cellObj.xy[0]);
     const obsLocationsY = cellObjs.map(cellObj => cellObj.xy[1]);
-    return Promise.resolve(new LoaderResult([obsLocationsX, obsLocationsY], url));
+    return Promise.resolve(new LoaderResult(
+      { obsIndex, obsLocations: [obsLocationsX, obsLocationsY] },
+      url,
+    ));
   }
 }

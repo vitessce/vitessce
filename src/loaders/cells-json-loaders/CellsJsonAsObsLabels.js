@@ -3,7 +3,7 @@ import JsonLoader from '../JsonLoader';
 import { AbstractLoaderError } from '../errors';
 import LoaderResult from '../LoaderResult';
 
-export default class CellsJsonAsObsIndexLoader extends JsonLoader {
+export default class CellsJsonAsObsLabelsLoader extends JsonLoader {
   constructor(dataSource, params) {
     super(dataSource, params);
 
@@ -16,7 +16,9 @@ export default class CellsJsonAsObsIndexLoader extends JsonLoader {
       return Promise.reject(payload);
     }
     const { data, url } = payload;
+    const { key } = this.options;
     const obsIndex = Object.keys(data);
-    return Promise.resolve(new LoaderResult(obsIndex, url));
+    const obsLabels = Object.values(data).map(cellObj => cellObj.factors[key]);
+    return Promise.resolve(new LoaderResult({ obsIndex, obsLabels }, url));
   }
 }

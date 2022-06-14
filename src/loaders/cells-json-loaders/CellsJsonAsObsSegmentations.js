@@ -21,10 +21,12 @@ export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
       // This cells.json file does not have segmentations.
       return Promise.resolve(new LoaderResult(null, url));
     }
+    const obsIndex = Object.keys(data);
     const cellPolygons = cellObjs.map(cellObj => cellObj.poly);
     return Promise.resolve(new LoaderResult({
-      segmentationType: 'polygon',
-      segmentations: cellPolygons,
+      obsIndex,
+      obsSegmentationType: 'polygon',
+      obsSegmentations: cellPolygons,
     }, url));
   }
 }
