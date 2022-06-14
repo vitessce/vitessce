@@ -13,10 +13,6 @@ export function expandCellsJson(fileDef) {
   return [
     {
       ...baseFileDef,
-      fileType: FileType.OBS_INDEX_CELLS_JSON,
-    },
-    {
-      ...baseFileDef,
       fileType: FileType.OBS_LOCATIONS_CELLS_JSON,
     },
     {
@@ -30,6 +26,11 @@ export function expandCellsJson(fileDef) {
         ...baseFileDef.coordinationValues,
         embeddingType: et,
       },
+    })) : []),
+    ...(fileDef.options?.obsLabelsKeys ? fileDef.options.obsLabelsKeys.map(key => ({
+      ...baseFileDef,
+      fileType: FileType.OBS_LABELS_CELLS_JSON,
+      options: { key },
     })) : []),
   ];
 }
