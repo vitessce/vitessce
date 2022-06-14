@@ -13,14 +13,6 @@ export function expandClustersJson(fileDef) {
   return [
     {
       ...baseFileDef,
-      fileType: FileType.OBS_INDEX_CLUSTERS_JSON,
-    },
-    {
-      ...baseFileDef,
-      fileType: FileType.FEATURE_INDEX_CLUSTERS_JSON,
-    },
-    {
-      ...baseFileDef,
       fileType: FileType.OBS_FEATURE_MATRIX_CLUSTERS_JSON,
     },
   ];

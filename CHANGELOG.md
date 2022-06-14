@@ -12,7 +12,7 @@
   - `featureValueType`
 - Add more usage examples to the `about` documentation page.
 - Added new file type and data type constants.
-- Added loaders for `obsIndex.clusters.json`, `featureIndex.clusters.json`, `obsFeatureMatrix.clusters.json`
+- Added loaders for `obsFeatureMatrix.clusters.json`
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.

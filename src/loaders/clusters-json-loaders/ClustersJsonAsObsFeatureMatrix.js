@@ -18,10 +18,10 @@ export default class ClustersJsonAsObsFeatureMatrixLoader extends JsonLoader {
       return Promise.reject(payload);
     }
     const { data, url } = payload;
-    const { rows, cols, matrix } = data;
+    const { rows: featureIndex, cols: obsIndex, matrix } = data;
     const attrs = {
-      rows: cols,
-      cols: rows,
+      rows: obsIndex,
+      cols: featureIndex,
     };
     const shape = [attrs.rows.length, attrs.cols.length];
     // Normalize values by converting to one-byte integers.
@@ -38,7 +38,10 @@ export default class ClustersJsonAsObsFeatureMatrixLoader extends JsonLoader {
     const normalizedFlatMatrix = tNormalizedMatrix.flat();
     // Need to wrap the NestedArray to mock the HTTPStore-based array
     // which returns promises.
-    const arr = { data: Uint8Array.from(normalizedFlatMatrix) };
-    return Promise.resolve(new LoaderResult(arr, url));
+    const obsFeatureMatrix = { data: Uint8Array.from(normalizedFlatMatrix) };
+    return Promise.resolve(new LoaderResult(
+      { obsIndex, featureIndex, obsFeatureMatrix },
+      url,
+    ));
   }
 }
