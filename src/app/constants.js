@@ -96,6 +96,7 @@ export const CoordinationType = {
   OBS_TYPE: 'obsType',
   FEATURE_TYPE: 'featureType',
   FEATURE_VALUE_TYPE: 'featureValueType',
+  OBS_LABELS_TYPE: 'obsLabelsType',
   // Other types
   EMBEDDING_TYPE: 'embeddingType',
   EMBEDDING_ZOOM: 'embeddingZoom',
