@@ -13,14 +13,6 @@ export function expandGenesJson(fileDef) {
   return [
     {
       ...baseFileDef,
-      fileType: FileType.OBS_INDEX_GENES_JSON,
-    },
-    {
-      ...baseFileDef,
-      fileType: FileType.FEATURE_INDEX_GENES_JSON,
-    },
-    {
-      ...baseFileDef,
       fileType: FileType.OBS_FEATURE_MATRIX_GENES_JSON,
     },
   ];

@@ -25,7 +25,12 @@ export default class GenesJsonAsObsFeatureMatrixLoader extends JsonLoader {
       ));
     // Need to wrap the NestedArray to mock the HTTPStore-based array
     // which returns promises.
-    const arr = { data: Uint8Array.from(normalizedFlatMatrix) };
-    return Promise.resolve(new LoaderResult(arr, url));
+    const featureIndex = cols;
+    const obsIndex = rows;
+    const obsFeatureMatrix = { data: Uint8Array.from(normalizedFlatMatrix) };
+    return Promise.resolve(new LoaderResult(
+      { obsIndex, featureIndex, obsFeatureMatrix },
+      url,
+    ));
   }
 }

@@ -11,22 +11,6 @@ describe('src/app/convenience-file-types.js', () => {
         url: 'http://localhost:8000/genes.json',
       })).toEqual([
         {
-          fileType: 'obsIndex.genes.json',
-          url: 'http://localhost:8000/genes.json',
-          coordinationValues: {
-            obsType: 'cell',
-            featureType: 'gene',
-          },
-        },
-        {
-          fileType: 'featureIndex.genes.json',
-          url: 'http://localhost:8000/genes.json',
-          coordinationValues: {
-            obsType: 'cell',
-            featureType: 'gene',
-          },
-        },
-        {
           fileType: 'obsFeatureMatrix.genes.json',
           url: 'http://localhost:8000/genes.json',
           coordinationValues: {

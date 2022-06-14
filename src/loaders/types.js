@@ -13,13 +13,9 @@ import CellSetsJsonLoader from './CellSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
-import GenesJsonAsObsIndexLoader from './genes-json-loaders/GenesJsonAsObsIndex';
-import GenesJsonAsFeatureIndexLoader from './genes-json-loaders/GenesJsonAsFeatureIndex';
 import GenesJsonAsObsFeatureMatrixLoader from './genes-json-loaders/GenesJsonAsObsFeatureMatrix';
 
 export const fileTypeToLoaderAndSource = {
-  [FileType.OBS_INDEX_GENES_JSON]: [JsonSource, GenesJsonAsObsIndexLoader],
-  [FileType.FEATURE_INDEX_GENES_JSON]: [JsonSource, GenesJsonAsFeatureIndexLoader],
   [FileType.OBS_FEATURE_MATRIX_GENES_JSON]: [JsonSource, GenesJsonAsObsFeatureMatrixLoader],
   [FileType.EXPRESSION_MATRIX_ZARR]: [ZarrDataSource, MatrixZarrLoader],
   [FileType.CLUSTERS_JSON]: [JsonSource, ClustersJsonAsMatrixZarrLoader],
