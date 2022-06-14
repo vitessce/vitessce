@@ -12,7 +12,7 @@
   - `featureValueType`
 - Add more usage examples to the `about` documentation page.
 - Added new file type and data type constants.
-- Added loaders for `obsIndex.cells.json`, `obsEmbedding.cells.json`, `obsLocations.cells.json`, `obsSegmentations.cells.json`
+- Added loaders for `obsLabels.cells.json`, `obsEmbedding.cells.json`, `obsLocations.cells.json`, `obsSegmentations.cells.json`
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
