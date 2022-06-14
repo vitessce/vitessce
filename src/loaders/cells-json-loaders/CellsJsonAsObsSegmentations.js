@@ -25,7 +25,7 @@ export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
     const cellPolygons = cellObjs.map(cellObj => cellObj.poly);
     return Promise.resolve(new LoaderResult({
       obsIndex,
-      obsSegmentationType: 'polygon',
+      obsSegmentationsType: 'polygon',
       obsSegmentations: cellPolygons,
     }, url));
   }
