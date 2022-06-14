@@ -1,16 +1,18 @@
 
 ### Added
-- Added the property `coordinationValues` for view config file definitions.
-- Added the `useMatchingLoader` hook.
 - Added the property `coordinationValues` for view config file definitions but is not yet used to do file matching/lookups.
 - Added warning log messages when outdated constant values have been accessed (via JS Proxy).
 - Added the optional `uid` property for view definitions in the view config.
 - Added `enableMultiSelect` prop for `GenesSubscriber`. Current built-in views do not display multiple gene selections but plugin views could use this functionality.
 - Added a mapping from file types to data types, making the `datasets[].files[].type` property no longer required.
+- Added a registration function for plugin convenience file types.
 - Added coordination types for entity types.
   - `obsType`
   - `featureType`
   - `featureValueType`
+- Add more usage examples to the `about` documentation page.
+- Added the property `coordinationValues` for view config file definitions.
+- Added the `useMatchingLoader` hook.
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
