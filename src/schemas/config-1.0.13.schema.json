@@ -54,6 +54,7 @@
               "obsType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "featureType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "featureValueType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "obsLabelsType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingZoom": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingRotation": { "$ref": "#/definitions/componentCoordinationScopeValue" },
@@ -487,7 +488,12 @@
                 "type": { "type": "string" },
                 "fileType": { "type": "string" },
                 "url": { "type": "string" },
-                "options": { "oneOf": [{ "$ref": "#/definitions/annDataCellSets" }, { "$ref": "https://github.com/vitessce/vitessce/#raster" }, { "$ref": "#/definitions/annDataCells" }, { "$ref": "#/definitions/annDataExpressionMatrix" }] },
+                "options": { "oneOf": [
+                  { "$ref": "#/definitions/annDataCellSets" },
+                  { "$ref": "https://github.com/vitessce/vitessce/#raster" },
+                  { "$ref": "#/definitions/annDataCells" },
+                  { "$ref": "#/definitions/annDataExpressionMatrix" }
+                ] },
                 "requestInit": { "$ref": "#/definitions/requestInit" },
                 "coordinationValues": {
                   "type": "object",
@@ -531,6 +537,12 @@
           }
         },
         "featureValueType": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "string" }
+          }
+        },
+        "obsLabelsType": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "string" }
