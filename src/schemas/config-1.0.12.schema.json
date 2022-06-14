@@ -54,6 +54,7 @@
               "obsType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "featureType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "featureValueType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "obsLabelsType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingZoom": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingRotation": { "$ref": "#/definitions/componentCoordinationScopeValue" },
@@ -542,6 +543,12 @@
           }
         },
         "featureValueType": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "string" }
+          }
+        },
+        "obsLabelsType": {
           "type": "object",
           "patternProperties": {
             ".": { "type": "string" }
