@@ -110,35 +110,6 @@
         }
       }
     },
-    "annDataObsm": {
-      "type": "object",
-      "description": "Options for an anndata.obsm array.",
-      "additionalProperties": false,
-      "required": ["path"],
-      "properties": {
-        "path": { "type": "string" },
-        "dims": {
-          "type": "array",
-          "description": "Which indices of the obsm object to take for a scatterplot, allowing for, for example, different PCs from obsm/X_pca",
-          "items": { "type": "number" }
-        }
-      }
-    },
-    "annDataConvenienceEmbeddingItem": {
-      "type": "object",
-      "description": "Options for an anndata.obsm array.",
-      "additionalProperties": false,
-      "required": ["path", "embeddingType"],
-      "properties": {
-        "path": { "type": "string" },
-        "dims": {
-          "type": "array",
-          "description": "Which indices of the obsm object to take for a scatterplot, allowing for, for example, different PCs from obsm/X_pca",
-          "items": { "type": "number" }
-        },
-        "embeddingType": { "type": "string" }
-      }
-    },
     "annDataCellSets": {
       "type": "array",
       "description": "Array of cell set configuration, following closely the conventions of the tabular schema",
@@ -173,106 +144,6 @@
             ]
           }
         }
-      }
-    },
-    "annDataObsIndex": {
-      "type": "object",
-      "description": "Options for the obsIndex.anndata.zarr file type.",
-      "additionalProperties": false,
-      "required": ["path"],
-      "properties": {
-        "path": { "type": "string" }
-      }
-    },
-    "annDataFeatureIndex": {
-      "type": "object",
-      "description": "Options for the featureIndex.anndata.zarr file type.",
-      "additionalProperties": false,
-      "required": ["path"],
-      "properties": {
-        "path": { "type": "string" },
-        "filterPath": {
-          "type": "string",
-          "description": "If the feature index should be filtered, put a boolean column here (analogous to the previous geneFilter option). e.g., var/in_obsm_X_small_matrix"
-        }
-      }
-    },
-    "annDataObsFeatureMatrix": {
-      "type": "object",
-      "description": "Options for the obsFeatureMatrix.anndata.zarr file type.",
-      "additionalProperties": false,
-      "required": ["path"],
-      "properties": {
-        "path": { "type": "string" },
-        "initialFeatureFilterPath": {
-          "type": "string",
-          "description": "If only a subset of the matrix should be loaded initially, put a boolean column along the feature axis here (analogous to the previous matrixGeneFilter option). e.g., var/highly_variable"
-        }
-      }
-    },
-    "annDataObsSets": {
-      "type": "array",
-      "description": "Options for the obsSets.anndata.zarr file type.",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["name", "path"],
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "The display name for the set, like 'Cell Type' or 'Louvain.'"
-          },
-          "path": {
-            "oneOf": [
-              {
-                "type": "string",
-                "description": "The location in the AnnData store for the set, like 'obs/louvain' or 'obs/celltype.'"
-              },
-              {
-                "type": "array",
-                "items": { "type": "string" },
-                "description": "An array of locations in the AnnData store for a hierarchy of set names, from coarse to fine levels."
-              }
-            ]
-          },
-          "scorePath": {
-            "oneOf": [
-              {
-                "type": "string",
-                "description": "The location in the AnnData store for the set confidence scores, like 'obs/celltype_prediction_score.'"
-              }
-            ]
-          }
-        }
-      }
-    },
-    "annDataObsLocations": { "$ref": "#/definitions/annDataObsm" },
-    "annDataObsEmbedding": { "$ref": "#/definitions/annDataObsm" },
-    "annDataObsSegmentations": {
-      "type": "object",
-      "description": "Options for the obsSegmentations.anndata.zarr file type.",
-      "additionalProperties": false,
-      "required": ["path"],
-      "properties": {
-        "path": { "type": "string" }
-      }
-    },
-    "annDataConvenience": {
-      "type": "object",
-      "description": "Options for all anndata file types.",
-      "additionalProperties": false,
-      "required": ["obsFeatureMatrixPath"],
-      "properties": {
-        "obsIndex": { "$ref": "#/definitions/annDataObsIndex" },
-        "featureIndex": { "$ref": "#/definitions/annDataFeatureIndex" },
-        "obsFeatureMatrix": { "$ref": "#/definitions/annDataObsFeatureMatrix" },
-        "obsSets": { "$ref": "#/definitions/annDataObsSets" },
-        "obsLocations": { "$ref": "#/definitions/annDataObsLocations" },
-        "obsSegmentations": { "$ref": "#/definitions/annDataObsSegmentations" },
-        "obsEmbedding": { "oneOf": [
-          { "$ref": "#/definitions/annDataObsEmbedding" },
-          { "type": "array", "items": { "$ref": "#/definitions/annDataConvenienceEmbeddingItem" } }
-        ]}
       }
     },
     "annDataCells": {
@@ -621,16 +492,20 @@
                   { "$ref": "#/definitions/annDataCellSets" },
                   { "$ref": "https://github.com/vitessce/vitessce/#raster" },
                   { "$ref": "#/definitions/annDataCells" },
-                  { "$ref": "#/definitions/annDataExpressionMatrix" },
-                  { "$ref": "#/definitions/annDataObsIndex"},
-                  { "$ref": "#/definitions/annDataFeatureIndex"},
-                  { "$ref": "#/definitions/annDataObsFeatureMatrix"},
-                  { "$ref": "#/definitions/annDataObsSets"},
-                  { "$ref": "#/definitions/annDataObsLocations"},
-                  { "$ref": "#/definitions/annDataObsEmbedding"},
-                  { "$ref": "#/definitions/annDataObsSegmentations"}
+                  { "$ref": "#/definitions/annDataExpressionMatrix" }
                 ] },
-                "requestInit": { "$ref": "#/definitions/requestInit" }
+                "requestInit": { "$ref": "#/definitions/requestInit" },
+                "coordinationValues": {
+                  "type": "object",
+                  "description": "Keys are coordination types. Values are coordination values. Used for matching views to files.",
+                  "patternProperties": {
+                    ".": {
+                      "oneOf": [
+                        { "type": "string" }
+                      ]
+                    }
+                  }
+                }
               }
             }
           }
@@ -1235,7 +1110,7 @@
     },
     "version": {
       "type": "string",
-      "enum": ["1.0.12"],
+      "enum": ["1.0.13"],
       "description": "The schema version for the view config."
     }
   }
