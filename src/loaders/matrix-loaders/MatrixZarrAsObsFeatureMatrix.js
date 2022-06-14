@@ -3,8 +3,11 @@ import LoaderResult from '../LoaderResult';
 
 export default class MatrixZarrAsObsFeatureMatrixLoader extends MatrixZarrLoader {
   load() {
-    return this.loadArr().then(
-      arr => Promise.resolve(new LoaderResult(arr, null)),
-    );
+    return Promise
+      .all([this.loadAttrs(), this.loadArr()])
+      .then(([attrs, arr]) => Promise.resolve(new LoaderResult(
+        { obsIndex: attrs.rows, featureIndex: attrs.cols, obsFeatureMatrix: arr },
+        null,
+      )));
   }
 }

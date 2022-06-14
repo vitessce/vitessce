@@ -11,22 +11,6 @@ describe('src/app/convenience-file-types.js', () => {
         url: 'http://localhost:8000/expression-matrix.zarr',
       })).toEqual([
         {
-          fileType: 'obsIndex.expression-matrix.zarr',
-          url: 'http://localhost:8000/expression-matrix.zarr',
-          coordinationValues: {
-            obsType: 'cell',
-            featureType: 'gene',
-          },
-        },
-        {
-          fileType: 'featureIndex.expression-matrix.zarr',
-          url: 'http://localhost:8000/expression-matrix.zarr',
-          coordinationValues: {
-            obsType: 'cell',
-            featureType: 'gene',
-          },
-        },
-        {
           fileType: 'obsFeatureMatrix.expression-matrix.zarr',
           url: 'http://localhost:8000/expression-matrix.zarr',
           coordinationValues: {

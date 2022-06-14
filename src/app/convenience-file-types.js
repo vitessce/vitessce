@@ -14,14 +14,6 @@ export function expandExpressionMatrixZarr(fileDef) {
   return [
     {
       ...baseFileDef,
-      fileType: FileType.OBS_INDEX_EXPRESSION_MATRIX_ZARR,
-    },
-    {
-      ...baseFileDef,
-      fileType: FileType.FEATURE_INDEX_EXPRESSION_MATRIX_ZARR,
-    },
-    {
-      ...baseFileDef,
       fileType: FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR,
     },
   ];
