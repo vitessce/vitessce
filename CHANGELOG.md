@@ -1,16 +1,23 @@
 
 ### Added
+- Added the property `coordinationValues` for view config file definitions but is not yet used to do file matching/lookups.
 - Added warning log messages when outdated constant values have been accessed (via JS Proxy).
 - Added the optional `uid` property for view definitions in the view config.
 - Added `enableMultiSelect` prop for `GenesSubscriber`. Current built-in views do not display multiple gene selections but plugin views could use this functionality.
 - Added a mapping from file types to data types, making the `datasets[].files[].type` property no longer required.
+- Added a registration function for plugin convenience file types.
+- Added coordination types for entity types.
+  - `obsType`
+  - `featureType`
+  - `featureValueType`
+- Add more usage examples to the `about` documentation page.
 - Added tests for checking that FileType constants have been mapped to corresponding data types and loader classes.
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
 - Update code to reflect renaming of the default branch from `master` to `main`.
 - Change spatial layer coordination type names.
-  - `spatialRasterLayers` -> `spatialRasterLayer`
+  - `spatialRasterLayers` -> `spatialImageLayer`
   - `spatialCellsLayer` -> `spatialSegmentationLayer`
   - `spatialMoleculesLayer` -> `spatialPointLayer`
   - `spatialNeighborhoodsLayer` -> `spatialNeighborhoodLayer`
@@ -18,7 +25,28 @@
 - Improved documentation.
   - More consistently using the term "view type" rather than "component".
   - Added a config schema version diff tool to the view config JSON documentation page.
-
+- Changed cell- and gene-related coordination type names.
+  - `cellFilter` -> `obsFilter`
+  - `cellHighlight` -> `obsHighlight`
+  - `cellSelection` -> `obsSelection`
+  - `cellSetSelection` -> `obsSetSelection`
+  - `cellSetHighlight` -> `obsSetHighlight`
+  - `cellSetColor` -> `obsSetColor`
+  - `geneFilter` -> `featureFilter`
+  - `geneHighlight` -> `featureHighlight`
+  - `geneSelection` -> `featureSelection`
+  - `geneExpressionColormap` -> `featureValueColormap`
+  - `geneExpressionColormapRange` -> `featureValueColormapRange`
+  - `cellColorEncoding` -> `obsColorEncoding`
+  - `additionalCellSets` -> `additionalObsSets`
+  - `embeddingCellSetPolygonsVisible` -> `embeddingObsSetPolygonsVisible`
+  - `embeddingCellSetLabelsVisible` -> `embeddingObsSetLabelsVisible`
+  - `embeddingCellSetLabelSize` -> `embeddingObsSetLabelSize`
+  - `embeddingCellRadius` -> `embeddingObsRadius`
+  - `embeddingCellRadiusMode` -> `embeddingObsRadiusMode`
+  - `embeddingCellOpacity` -> `embeddingObsOpacity`
+  - `embeddingCellOpacityMode` -> `embeddingObsOpacityMode`
+- Fixed schema v1.0.12
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
 

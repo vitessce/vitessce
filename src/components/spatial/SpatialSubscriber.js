@@ -74,20 +74,20 @@ export default function SpatialSubscriber(props) {
     spatialRotationZ: rotationZ,
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
-    spatialRasterLayer: rasterLayers,
+    spatialImageLayer: rasterLayers,
     spatialSegmentationLayer: cellsLayer,
     spatialPointLayer: moleculesLayer,
     spatialNeighborhoodLayer: neighborhoodsLayer,
-    cellFilter,
-    cellHighlight,
-    geneSelection,
-    cellSetSelection,
-    cellSetColor,
-    cellColorEncoding,
-    additionalCellSets,
+    obsFilter: cellFilter,
+    obsHighlight: cellHighlight,
+    featureSelection: geneSelection,
+    obsSetSelection: cellSetSelection,
+    obsSetColor: cellSetColor,
+    obsColorEncoding: cellColorEncoding,
+    additionalObsSets: additionalCellSets,
     spatialAxisFixed,
-    geneExpressionColormap,
-    geneExpressionColormapRange,
+    featureValueColormap: geneExpressionColormap,
+    featureValueColormapRange: geneExpressionColormapRange,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -96,20 +96,20 @@ export default function SpatialSubscriber(props) {
     setSpatialRotationX: setRotationX,
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialOrbitAxis: setOrbitAxis,
-    setSpatialRasterLayer: setRasterLayers,
+    setSpatialImageLayer: setRasterLayers,
     setSpatialSegmentationLayer: setCellsLayer,
     setSpatialPointLayer: setMoleculesLayer,
     setSpatialNeighborhoodLayer: setNeighborhoodsLayer,
-    setCellFilter,
-    setCellSetSelection,
-    setCellHighlight,
-    setCellSetColor,
-    setCellColorEncoding,
-    setAdditionalCellSets,
+    setObsFilter: setCellFilter,
+    setObsSetSelection: setCellSetSelection,
+    setObsHighlight: setCellHighlight,
+    setObsSetColor: setCellSetColor,
+    setObsColorEncoding: setCellColorEncoding,
+    setAdditionalObsSets: setAdditionalCellSets,
     setMoleculeHighlight,
     setSpatialAxisFixed,
-    setGeneExpressionColormap,
-    setGeneExpressionColormapRange,
+    setFeatureValueColormap: setGeneExpressionColormap,
+    setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
 
   const [
@@ -160,8 +160,8 @@ export default function SpatialSubscriber(props) {
   );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setCellSetSelection, setCellSetColor },
-    { cellSetSelection, cellSetColor },
+    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
+    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
   );
   const [expressionData] = useGeneSelection(
     loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
@@ -172,8 +172,8 @@ export default function SpatialSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setSpatialRasterLayer: setRasterLayers },
-    { spatialRasterLayer: rasterLayers },
+    { setSpatialImageLayer: setRasterLayers },
+    { spatialImageLayer: rasterLayers },
   );
 
   const layers = useMemo(() => {

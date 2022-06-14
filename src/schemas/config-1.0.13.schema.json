@@ -488,7 +488,18 @@
                 "fileType": { "type": "string" },
                 "url": { "type": "string" },
                 "options": { "oneOf": [{ "$ref": "#/definitions/annDataCellSets" }, { "$ref": "https://github.com/vitessce/vitessce/#raster" }, { "$ref": "#/definitions/annDataCells" }, { "$ref": "#/definitions/annDataExpressionMatrix" }] },
-                "requestInit": { "$ref": "#/definitions/requestInit" }
+                "requestInit": { "$ref": "#/definitions/requestInit" },
+                "coordinationValues": {
+                  "type": "object",
+                  "description": "Keys are coordination types. Values are coordination values. Used for matching views to files.",
+                  "patternProperties": {
+                    ".": {
+                      "oneOf": [
+                        { "type": "string" }
+                      ]
+                    }
+                  }
+                }
               }
             }
           }
@@ -1087,7 +1098,7 @@
     },
     "version": {
       "type": "string",
-      "enum": ["1.0.12"],
+      "enum": ["1.0.13"],
       "description": "The schema version for the view config."
     }
   }
