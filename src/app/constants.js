@@ -19,12 +19,12 @@ export const Component = {
 };
 
 export const DataType = {
-  OBS_INDEX: 'obsIndex',
+  OBS_LABELS: 'obsLabels',
   OBS_EMBEDDING: 'obsEmbedding',
   OBS_LOCATIONS: 'obsLocations',
   OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
-  FEATURE_INDEX: 'featureIndex',
   OBS_SETS: 'obsSets',
+  FEATURE_LABELS: 'featureLabels',
   IMAGE: 'image',
   OBS_SEGMENTATIONS: 'obsSegmentations',
   NEIGHBORHOODS: 'neighborhoods',
@@ -44,8 +44,6 @@ export const FileType = {
   OBS_SETS_JSON: 'obsSets.json',
   IMAGE_OME_ZARR: 'image.ome-zarr',
   // Also for anndata-expression-matrix.zarr
-  OBS_INDEX_ANNDATA_ZARR: 'obsIndex.anndata.zarr',
-  FEATURE_INDEX_ANNDATA_ZARR: 'featureIndex.anndata.zarr',
   OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
   // Also for anndata-cell-sets.zarr
   OBS_SETS_ANNDATA_ZARR: 'obsSets.anndata.zarr',
@@ -53,25 +51,21 @@ export const FileType = {
   OBS_EMBEDDING_ANNDATA_ZARR: 'obsEmbedding.anndata.zarr',
   OBS_LOCATIONS_ANNDATA_ZARR: 'obsLocations.anndata.zarr',
   OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
+  OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
+  FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
   // New file types to support old file types:
   // For cells.json
-  OBS_INDEX_CELLS_JSON: 'obsIndex.cells.json',
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
   OBS_LOCATIONS_CELLS_JSON: 'obsLocations.cells.json',
   OBS_SEGMENTATIONS_CELLS_JSON: 'obsSegmentations.cells.json',
+  OBS_LABELS_CELLS_JSON: 'obsLabels.cells.json',
   // For cell-sets.json
   OBS_SETS_CELL_SETS_JSON: 'obsSets.cell-sets.json',
   // For genes.json
-  OBS_INDEX_GENES_JSON: 'obsIndex.genes.json',
-  FEATURE_INDEX_GENES_JSON: 'featureIndex.genes.json',
   OBS_FEATURE_MATRIX_GENES_JSON: 'obsFeatureMatrix.genes.json',
   // For clusters.json
-  OBS_INDEX_CLUSTERS_JSON: 'obsIndex.clusters.json',
-  FEATURE_INDEX_CLUSTERS_JSON: 'featureIndex.clusters.json',
   OBS_FEATURE_MATRIX_CLUSTERS_JSON: 'obsFeatureMatrix.clusters.json',
   // For expression-matrix.zarr
-  OBS_INDEX_EXPRESSION_MATRIX_ZARR: 'obsIndex.expression-matrix.zarr',
-  FEATURE_INDEX_EXPRESSION_MATRIX_ZARR: 'featureIndex.expression-matrix.zarr',
   OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR: 'obsFeatureMatrix.expression-matrix.zarr',
   // For raster.json
   IMAGE_RASTER_JSON: 'image.raster.json',
@@ -102,6 +96,7 @@ export const CoordinationType = {
   OBS_TYPE: 'obsType',
   FEATURE_TYPE: 'featureType',
   FEATURE_VALUE_TYPE: 'featureValueType',
+  OBS_LABELS_TYPE: 'obsLabelsType',
   // Other types
   EMBEDDING_TYPE: 'embeddingType',
   EMBEDDING_ZOOM: 'embeddingZoom',
