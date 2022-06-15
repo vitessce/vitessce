@@ -12,7 +12,7 @@
   - `featureValueType`
 - Add more usage examples to the `about` documentation page.
 - Added new file type and data type constants.
-- Added loaders for `obsIndex.anndata-expression-matrix.zarr`, `featureIndex.anndata-expression-matrix.zarr`, `obsFeatureMatrix.anndata-expression-matrix.zarr`
+- Added loaders for `obsLabels.anndata-expression-matrix.zarr`, `featureLabels.anndata-expression-matrix.zarr`, `obsFeatureMatrix.anndata-expression-matrix.zarr`
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
