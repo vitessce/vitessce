@@ -11,7 +11,7 @@
   ],
   "files": [
     "dist",
-    "src2"
+    "src"
   ],
   "main": "dist/umd/production/index.min.js",
   "module": "dist/esm/index.js",
