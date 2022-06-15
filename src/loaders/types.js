@@ -15,12 +15,6 @@ import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
 
 export const fileTypeToLoaderAndSource = {
-  [FileType.OBS_INDEX_ANNDATA_ZARR]: [
-    AnnDataSource, AnnDataLoaders.ObsIndexAnndataLoader,
-  ],
-  [FileType.FEATURE_INDEX_ANNDATA_ZARR]: [
-    AnnDataSource, AnnDataLoaders.FeatureIndexAnndataLoader,
-  ],
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: [
     AnnDataSource, AnnDataLoaders.ObsFeatureMatrixAnndataLoader,
   ],

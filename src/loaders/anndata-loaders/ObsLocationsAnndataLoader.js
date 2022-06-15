@@ -23,8 +23,12 @@ export default class ObsLocationsAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    return this.loadLocations().then(
-      locations => Promise.resolve(new LoaderResult(locations, null)),
-    );
+    return Promise.all([
+      this.dataSource.loadObsIndex(),
+      this.loadLocations(),
+    ]).then(([obsIndex, obsLocations]) => Promise.resolve(new LoaderResult(
+      { obsIndex, obsLocations },
+      null,
+    )));
   }
 }

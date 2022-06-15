@@ -13,19 +13,7 @@ describe('src/app/convenience-file-types.js', () => {
       expect(expandAnndataCellsZarr({
         fileType: 'anndata-cells.zarr',
         url: 'http://localhost:8000/anndata.zarr',
-      })).toEqual([
-        {
-          fileType: 'obsIndex.anndata.zarr',
-          url: 'http://localhost:8000/anndata.zarr',
-          options: {
-            path: 'obs/index',
-          },
-          coordinationValues: {
-            obsType: 'cell',
-            featureType: 'gene',
-          },
-        },
-      ]);
+      })).toEqual([]);
     });
     it('expands when there are lots of options', () => {
       expect(expandAnndataCellsZarr({
@@ -43,19 +31,12 @@ describe('src/app/convenience-file-types.js', () => {
           },
           xy: 'obsm/locations',
           poly: 'obsm/segmentations',
+          factors: [
+            'obs/cluster',
+            'obs/subcluster',
+          ],
         },
       })).toEqual([
-        {
-          fileType: 'obsIndex.anndata.zarr',
-          url: 'http://localhost:8000/anndata.zarr',
-          options: {
-            path: 'obs/index',
-          },
-          coordinationValues: {
-            obsType: 'cell',
-            featureType: 'gene',
-          },
-        },
         {
           fileType: 'obsLocations.anndata.zarr',
           url: 'http://localhost:8000/anndata.zarr',
@@ -101,6 +82,30 @@ describe('src/app/convenience-file-types.js', () => {
             obsType: 'cell',
             featureType: 'gene',
             embeddingType: 'PCA',
+          },
+        },
+        {
+          fileType: 'obsLabels.anndata.zarr',
+          url: 'http://localhost:8000/anndata.zarr',
+          options: {
+            path: 'obs/cluster',
+          },
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+            obsLabelsType: 'cluster',
+          },
+        },
+        {
+          fileType: 'obsLabels.anndata.zarr',
+          url: 'http://localhost:8000/anndata.zarr',
+          options: {
+            path: 'obs/subcluster',
+          },
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+            obsLabelsType: 'subcluster',
           },
         },
       ]);
@@ -164,28 +169,6 @@ describe('src/app/convenience-file-types.js', () => {
           },
         })).toEqual([
           {
-            fileType: 'obsIndex.anndata.zarr',
-            url: 'http://localhost:8000/anndata.zarr',
-            options: {
-              path: 'obs/index',
-            },
-            coordinationValues: {
-              obsType: 'cell',
-              featureType: 'gene',
-            },
-          },
-          {
-            fileType: 'featureIndex.anndata.zarr',
-            url: 'http://localhost:8000/anndata.zarr',
-            options: {
-              path: 'var/index',
-            },
-            coordinationValues: {
-              obsType: 'cell',
-              featureType: 'gene',
-            },
-          },
-          {
             fileType: 'obsFeatureMatrix.anndata.zarr',
             url: 'http://localhost:8000/anndata.zarr',
             options: {
@@ -210,26 +193,15 @@ describe('src/app/convenience-file-types.js', () => {
           },
         })).toEqual([
           {
-            fileType: 'obsIndex.anndata.zarr',
-            url: 'http://localhost:8000/anndata.zarr',
-            options: {
-              path: 'obs/index',
-            },
-            coordinationValues: {
-              obsType: 'cell',
-              featureType: 'gene',
-            },
-          },
-          {
-            fileType: 'featureIndex.anndata.zarr',
+            fileType: 'featureLabels.anndata.zarr',
             url: 'http://localhost:8000/anndata.zarr',
             options: {
               path: 'var/gene_symbol',
-              filterPath: 'var/in_hvg_subset',
             },
             coordinationValues: {
               obsType: 'cell',
               featureType: 'gene',
+              featureLabelsType: 'geneAlias',
             },
           },
           {
@@ -237,6 +209,7 @@ describe('src/app/convenience-file-types.js', () => {
             url: 'http://localhost:8000/anndata.zarr',
             options: {
               path: 'X',
+              featureFilterPath: 'var/in_hvg_subset',
               initialFeatureFilterPath: 'var/highly_variable',
             },
             coordinationValues: {
@@ -261,10 +234,11 @@ describe('src/app/convenience-file-types.js', () => {
         fileType: 'anndata.zarr',
         url: 'http://localhost:8000/anndata.zarr',
         options: {
-          obsIndex: { path: 'obs/spot_name' },
-          featureIndex: {
+          obsLabels: {
+            path: 'obs/spot_name',
+          },
+          featureLabels: {
             path: 'var/gene_symbol',
-            filter: 'var/in_hvg_subset',
           },
           obsEmbedding: {
             path: 'obsm/pca',
@@ -274,11 +248,13 @@ describe('src/app/convenience-file-types.js', () => {
         coordinationValues: {
           obsType: 'spot',
           featureType: 'transcript',
+          obsLabelsType: 'spotName',
+          featureLabelsType: 'geneSymbol',
           embeddingType: 'PCA',
         }
       })).toEqual([
         {
-          fileType: 'obsIndex.anndata.zarr',
+          fileType: 'obsLabels.anndata.zarr',
           url: 'http://localhost:8000/anndata.zarr',
           options: {
             path: 'obs/spot_name',
@@ -286,19 +262,22 @@ describe('src/app/convenience-file-types.js', () => {
           coordinationValues: {
             obsType: 'spot',
             featureType: 'transcript',
+            obsLabelsType: 'spotName',
+            featureLabelsType: 'geneSymbol',
             embeddingType: 'PCA',
           },
         },
         {
-          fileType: 'featureIndex.anndata.zarr',
+          fileType: 'featureLabels.anndata.zarr',
           url: 'http://localhost:8000/anndata.zarr',
           options: {
             path: 'var/gene_symbol',
-            filterPath: 'var/in_hvg_subset',
           },
           coordinationValues: {
             obsType: 'spot',
             featureType: 'transcript',
+            obsLabelsType: 'spotName',
+            featureLabelsType: 'geneSymbol',
             embeddingType: 'PCA',
           },
         },

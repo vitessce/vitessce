@@ -23,8 +23,12 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
   }
 
   async load() {
-    return this.loadSegmentations().then(
-      segmentations => Promise.resolve(new LoaderResult(segmentations, null)),
-    );
+    return Promise.all([
+      this.dataSource.loadObsIndex(),
+      this.loadSegmentations(),
+    ]).then(([obsIndex, obsSegmentations]) => Promise.resolve(new LoaderResult(
+      { obsIndex, obsSegmentations },
+      null,
+    )));
   }
 }

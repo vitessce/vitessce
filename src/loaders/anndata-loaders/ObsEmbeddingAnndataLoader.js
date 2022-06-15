@@ -24,8 +24,12 @@ export default class ObsEmbeddingAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    return this.loadEmbedding().then(
-      embedding => Promise.resolve(new LoaderResult(embedding, null)),
-    );
+    return Promise.all([
+      this.dataSource.loadObsIndex(),
+      this.loadEmbedding(),
+    ]).then(([obsIndex, obsEmbedding]) => Promise.resolve(new LoaderResult(
+      { obsIndex, obsEmbedding },
+      null,
+    )));
   }
 }

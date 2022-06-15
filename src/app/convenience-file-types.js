@@ -16,14 +16,8 @@ export function expandAnndataCellsZarr(fileDef) {
   const baseFileDef = getAnndataBaseFileDef(fileDef);
   const { options = {} } = fileDef;
   const embeddingTypes = options.mappings ? Object.keys(options.mappings) : [];
+  const obsLabelsTypes = options.factors ? options.factors : [];
   return [
-    {
-      ...baseFileDef,
-      fileType: FileType.OBS_INDEX_ANNDATA_ZARR,
-      options: {
-        path: 'obs/index',
-      },
-    },
     ...(options.xy ? [{
       ...baseFileDef,
       fileType: FileType.OBS_LOCATIONS_ANNDATA_ZARR,
@@ -50,6 +44,17 @@ export function expandAnndataCellsZarr(fileDef) {
         embeddingType: et,
       },
     })),
+    ...obsLabelsTypes.map(olt => ({
+      ...baseFileDef,
+      fileType: FileType.OBS_LABELS_ANNDATA_ZARR,
+      options: {
+        path: olt,
+      },
+      coordinationValues: {
+        ...baseFileDef.coordinationValues,
+        obsLabelsType: olt.split('/').at(-1),
+      },
+    })),
   ];
 }
 
@@ -73,26 +78,23 @@ export function expandAnndataExpressionMatrixZarr(fileDef) {
   const baseFileDef = getAnndataBaseFileDef(fileDef);
   const { options = {} } = fileDef;
   return [
-    {
+    ...(options.geneAlias ? [{
       ...baseFileDef,
-      fileType: FileType.OBS_INDEX_ANNDATA_ZARR,
+      fileType: FileType.FEATURE_LABELS_ANNDATA_ZARR,
       options: {
-        path: 'obs/index',
+        path: options.geneAlias,
       },
-    },
-    {
-      ...baseFileDef,
-      fileType: FileType.FEATURE_INDEX_ANNDATA_ZARR,
-      options: {
-        path: options.geneAlias || 'var/index',
-        filterPath: options.geneFilter,
+      coordinationValues: {
+        ...baseFileDef.coordinationValues,
+        featureLabelsType: 'geneAlias',
       },
-    },
+    }] : []),
     {
       ...baseFileDef,
       fileType: FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR,
       options: {
         path: options.matrix,
+        featureFilterPath: options.geneFilter,
         initialFeatureFilterPath: options.matrixGeneFilter,
       },
     },
@@ -104,16 +106,6 @@ export function expandAnndataZarr(fileDef) {
   const { options = {} } = fileDef;
   return [
     // obsFeatureMatrix
-    ...(options.obsIndex ? [{
-      ...baseFileDef,
-      fileType: FileType.OBS_INDEX_ANNDATA_ZARR,
-      options: options.obsIndex,
-    }] : []),
-    ...(options.featureIndex ? [{
-      ...baseFileDef,
-      fileType: FileType.FEATURE_INDEX_ANNDATA_ZARR,
-      options: options.featureIndex,
-    }] : []),
     ...(options.obsFeatureMatrix ? [{
       ...baseFileDef,
       fileType: FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR,
@@ -158,6 +150,50 @@ export function expandAnndataZarr(fileDef) {
         ...baseFileDef,
         fileType: FileType.OBS_EMBEDDING_ANNDATA_ZARR,
         options: options.obsEmbedding,
+      }]
+    ) : []),
+    // obsLabels
+    // eslint-disable-next-line no-nested-ternary
+    ...(options.obsLabels ? (
+      Array.isArray(options.obsLabels) ? options.obsLabels.map(ol => ({
+        // obsLabels was an array, process each element.
+        ...baseFileDef,
+        fileType: FileType.OBS_LABELS_ANNDATA_ZARR,
+        options: {
+          path: ol.path,
+        },
+        coordinationValues: {
+          ...baseFileDef.coordinationValues,
+          // Move obsLabels type property out of options and into coordinationValues.
+          obsLabelsType: ol.obsLabelsType,
+        },
+      })) : [{
+        // obsLabels was an object.
+        ...baseFileDef,
+        fileType: FileType.OBS_LABELS_ANNDATA_ZARR,
+        options: options.obsLabels,
+      }]
+    ) : []),
+    // featureLabels
+    // eslint-disable-next-line no-nested-ternary
+    ...(options.featureLabels ? (
+      Array.isArray(options.featureLabels) ? options.featureLabels.map(fl => ({
+        // featureLabels was an array, process each element.
+        ...baseFileDef,
+        fileType: FileType.FEATURE_LABELS_ANNDATA_ZARR,
+        options: {
+          path: fl.path,
+        },
+        coordinationValues: {
+          ...baseFileDef.coordinationValues,
+          // Move featureLabels type property out of options and into coordinationValues.
+          obsLabelsType: fl.featureLabelsType,
+        },
+      })) : [{
+        // featureLabels was an object.
+        ...baseFileDef,
+        fileType: FileType.FEATURE_LABELS_ANNDATA_ZARR,
+        options: options.featureLabels,
       }]
     ) : []),
   ];
