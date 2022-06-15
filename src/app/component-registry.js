@@ -14,6 +14,8 @@ import CellSetSizesPlotSubscriber from '../components/sets/CellSetSizesPlotSubsc
 import GenomicProfilesSubscriber from '../components/higlass/GenomicProfilesSubscriber';
 import ExpressionHistogramSubscriber from '../components/genes/ExpressionHistogramSubscriber';
 import CellSetExpressionPlotSubscriber from '../components/sets/CellSetExpressionPlotSubscriber';
+import BarPlotSubscriber from '../components/BarPlot/BarPlotSubscriber';
+
 
 const registry = {
   [Component.DESCRIPTION]: DescriptionSubscriber,
@@ -28,6 +30,7 @@ const registry = {
   [Component.GENOMIC_PROFILES]: GenomicProfilesSubscriber,
   [Component.EXPRESSION_HISTOGRAM]: ExpressionHistogramSubscriber,
   [Component.CELL_SET_EXPRESSION]: CellSetExpressionPlotSubscriber,
+  "barplot": BarPlotSubscriber,
   // The plain higlass component does not abstract away the HiGlass view config,
   // so we probably want to avoid documenting it, only use it for development purposes.
   higlass: HiGlassSubscriber,
