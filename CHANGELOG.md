@@ -12,6 +12,7 @@
   - `featureValueType`
 - Add more usage examples to the `about` documentation page.
 - Added new file type and data type constants.
+- Added loaders for `image.raster.json`,`obsSegmentations.raster.json`, `image.ome-zarr`, 
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.

@@ -7,14 +7,19 @@ import JsonLoader from './JsonLoader';
 import MatrixZarrLoader from './MatrixZarrLoader';
 import GenesJsonAsMatrixZarrLoader from './GenesJsonAsMatrixZarrLoader';
 import ClustersJsonAsMatrixZarrLoader from './ClustersJsonAsMatrixZarrLoader';
-import RasterJsonLoader from './RasterJsonLoader';
+import RasterJsonLoader from './raster-json-loaders/RasterJsonLoader';
 import OmeZarrLoader from './OmeZarrLoader';
 import CellSetsJsonLoader from './CellSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
+import RasterJsonAsImageLoader from './raster-json-loaders/RasterJsonAsImageLoader';
+import RasterJsonAsObsSegmentationsLoader from './raster-json-loaders/RasterJsonAsObsSegmentationsLoader';
 
 export const fileTypeToLoaderAndSource = {
+  [FileType.IMAGE_OME_ZARR]: [ZarrDataSource, OmeZarrLoader],
+  [FileType.IMAGE_RASTER_JSON]: [JsonSource, RasterJsonAsImageLoader],
+  [FileType.OBS_SEGMENTATIONS_RASTER_JSON]: [JsonSource, RasterJsonAsObsSegmentationsLoader],
   [FileType.EXPRESSION_MATRIX_ZARR]: [ZarrDataSource, MatrixZarrLoader],
   [FileType.CLUSTERS_JSON]: [JsonSource, ClustersJsonAsMatrixZarrLoader],
   [FileType.GENES_JSON]: [JsonSource, GenesJsonAsMatrixZarrLoader],

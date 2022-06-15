@@ -1,11 +1,11 @@
 import { ZarrPixelSource, loadOmeTiff } from '@hms-dbmi/viv';
 import { openArray } from 'zarr';
-import rasterSchema from '../schemas/raster.schema.json';
-import JsonLoader from './JsonLoader';
-import { AbstractLoaderError } from './errors';
-import LoaderResult from './LoaderResult';
+import rasterSchema from '../../schemas/raster.schema.json';
+import JsonLoader from '../JsonLoader';
+import { AbstractLoaderError } from '../errors';
+import LoaderResult from '../LoaderResult';
 
-import { initializeRasterLayersAndChannels } from '../components/spatial/utils';
+import { initializeRasterLayersAndChannels } from '../../components/spatial/utils';
 
 async function initLoader(imageData) {
   const {
