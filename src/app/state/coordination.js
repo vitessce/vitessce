@@ -279,5 +279,4 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.FEATURE_SELECTION,
   ],
-  barplot: []
 };
