@@ -32,6 +32,8 @@ const createDevServerConfig = require('./webpackDevServer.config');
 utils.scriptInit();
 utils.checkRequiredFilesForTarget(paths, true);
 
+const isLintingDisabled = process.argv[2] == "--disable-linting";
+
 const isEnvDevelopment = true;
 const publicUrlOrPath = getPublicUrlOrPath(isEnvDevelopment, ".", process.env.PUBLIC_URL);
 
@@ -58,7 +60,7 @@ checkBrowsers(paths.appPath, isInteractive)
       return;
     }
     
-    const config = configFactory(paths, process.env.NODE_ENV);
+    const config = configFactory(paths, process.env.NODE_ENV, isLintingDisabled);
     const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
     const appName = require(paths.appPackageJson).name;
     const useTypeScript = false;

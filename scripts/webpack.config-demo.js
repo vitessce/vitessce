@@ -37,7 +37,7 @@ const useTypeScript = false;
  * {object} paths Paths object (such as the one exported from ./paths)
  * {string} environment One of "development", "production"
  */
-module.exports = function(paths, environment) {
+module.exports = function(paths, environment, isLintingDisabled) {
     process.env.BABEL_ENV = environment;
     process.env.PUBLIC_URL = '';
 
@@ -55,7 +55,7 @@ module.exports = function(paths, environment) {
     const devtoolInfo = getDevtoolInfo(environment, shouldUseSourceMap);
     const resolveInfo = getResolveInfo(paths, additionalModulePaths, useTypeScript, shouldDoProfiling, webpackAliases);
     const resolveLoaderInfo = getResolveLoaderInfo();
-    const moduleInfo = getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap);
+    const moduleInfo = getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap, isLintingDisabled);
     const nodeInfo = getNodeInfo();
     const performanceInfo = getPerformanceInfo();
 
