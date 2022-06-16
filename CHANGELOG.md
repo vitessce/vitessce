@@ -11,6 +11,7 @@
   - `featureType`
   - `featureValueType`
 - Add more usage examples to the `about` documentation page.
+- Added support for multiple `cellColor` tracks in the Heatmap component.
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.

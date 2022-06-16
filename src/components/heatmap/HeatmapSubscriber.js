@@ -156,6 +156,10 @@ export default function HeatmapSubscriber(props) {
     return null;
   }, [variablesLabel]);
 
+  const setTrackHighlight = useCallback(() => {
+    // No-op
+  }, []);
+
   const cellsCount = expressionMatrix && expressionMatrix.rows
     ? expressionMatrix.rows.length : 0;
   const genesCount = expressionMatrix && expressionMatrix.cols
@@ -201,6 +205,7 @@ export default function HeatmapSubscriber(props) {
         setIsRendering={setIsRendering}
         setCellHighlight={setCellHighlight}
         setGeneHighlight={setGeneHighlight}
+        setTrackHighlight={setTrackHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);
         }}
