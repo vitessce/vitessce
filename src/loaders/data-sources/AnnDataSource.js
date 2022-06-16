@@ -1,7 +1,10 @@
+/* eslint-disable */
 /* eslint-disable no-underscore-dangle */
+/* eslint-disable camelcase */
 import { openArray } from 'zarr';
 import range from 'lodash/range';
 import ZarrDataSource from './ZarrDataSource';
+import UnsupportedEncodingError from '../errors/UnsupportedEncodingError';
 
 const readFloat32FromUint8 = (bytes) => {
   if (bytes.length !== 4) {
@@ -99,23 +102,114 @@ export default class AnnDataSource extends ZarrDataSource {
     return Promise.all(promises);
   }
 
-  async _loadColumn(path) {
+  async getEncodingInfo(path) {
+    const {
+      'encoding-version': encodingVersion = null,
+      'encoding-type': encodingType = null,
+      ...other
+    } = await this.getJson(`${path}/.zattrs`);
+    return {
+      encodingType,
+      encodingVersion,
+      ...other,
+    };
+  }
+
+  async _openSparseArray(path) {
+    const { store } = this;
+    return Promise.all(
+      ['indptr', 'indices', 'data'].map(name => openArray({
+        store,
+        path: `${path}/${name}`,
+        mode: 'r',
+      })),
+    );
+  }
+
+  async loadCSRMatrix_0_1_0(path) {
+    return this._openSparseArray(path).then(async (sparseArrays) => {
+      const { shape } = await this.getJson(`${path}/.zattrs`);
+      const [rows, cols, cellXGene] = await Promise.all(
+        sparseArrays.map(async (arr) => {
+          const { data } = await arr.getRaw(null);
+          return data;
+        }),
+      );
+      const cellXGeneMatrix = new Float32Array(shape[0] * shape[1]).fill(0);
+      let row = 0;
+      rows.forEach((_, index) => {
+        const rowStart = rows[index];
+        const rowEnd = rows[index + 1];
+        for (let i = rowStart; i < rowEnd; i += 1) {
+          const val = cellXGene[i];
+          const col = cols[i];
+          cellXGeneMatrix[row * shape[1] + col] = val;
+        }
+        row += 1;
+      });
+      return cellXGeneMatrix;
+    });
+  }
+
+  async loadCSCMatrix_0_1_0(path) {
+    return this._openSparseArray(path).then(async (sparseArrays) => {
+      const { shape } = await this.getJson(`${path}/.zattrs`);
+      const [cols, rows, cellXGene] = await Promise.all(
+        sparseArrays.map(async (arr) => {
+          const { data } = await arr.getRaw(null);
+          return data;
+        }),
+      );
+      const cellXGeneMatrix = new Float32Array(shape[0] * shape[1]).fill(0);
+      let col = 0;
+      cols.forEach((_, index) => {
+        const colStart = cols[index];
+        const colEnd = cols[index + 1];
+        for (let i = colStart; i < colEnd; i += 1) {
+          const val = cellXGene[i];
+          const row = rows[i];
+          cellXGeneMatrix[row * shape[1] + col] = val;
+        }
+        col += 1;
+      });
+      return cellXGeneMatrix;
+    });
+  }
+
+  async loadArray_0_2_0(path) {
+    const arr = await openArray({ store, path, mode: 'r' });
+    const values = await arr.get();
+    const { data } = values;
+    // TODO: should Array.from be used here? Or instead just return `values`?
+    return Array.from(data);
+  }
+
+  async loadStringArray_0_2_0(path) {
+    return this.loadStringArrayLegacy(path);
+  }
+
+  // Load a column from encoding-type: dataframe
+  // with encoding-version: 0.1.0.
+  async loadStringArrayLegacy(path) {
+    const { store } = this;
+    const { dtype } = await this.getJson(`/${path}/.zarray`);
+    if (dtype === '|O') {
+      return this.getFlatArrDecompressed(path);
+    }
+    const arr = await openArray({ store, path, mode: 'r' });
+    const values = await arr.get();
+    const { data } = values;
+    const mappedValues = Array.from(data).map(i => String(i));
+    return mappedValues;
+  }
+
+  async loadCategorical_0_1_0(path) {
     const { store } = this;
     const prefix = dirname(path);
     const { categories } = await this.getJson(`${path}/.zattrs`);
     let categoriesValues;
     if (categories) {
-      const { dtype } = await this.getJson(`/${prefix}/${categories}/.zarray`);
-      if (dtype === '|O') {
-        categoriesValues = await this.getFlatArrDecompressed(
-          `/${prefix}/${categories}`,
-        );
-      }
-    } else {
-      const { dtype } = await this.getJson(`/${path}/.zarray`);
-      if (dtype === '|O') {
-        return this.getFlatArrDecompressed(path);
-      }
+      categoriesValues = this.loadStringArrayLegacy(`${prefix}/${categories}`);
     }
     const arr = await openArray({ store, path, mode: 'r' });
     const values = await arr.get();
@@ -124,6 +218,70 @@ export default class AnnDataSource extends ZarrDataSource {
       i => (!categoriesValues ? String(i) : categoriesValues[i]),
     );
     return mappedValues;
+  }
+
+  // Load a column from encoding-type: categorical
+  // with encoding-version: 0.2.0.
+  async loadCategorical_0_2_0(path) {
+    const { store } = this;
+    const { encodingType } = await this.getEncodingInfo(path);
+    if (encodingType === 'categorical') {
+      const codesPath = `${path}/codes`;
+      const categoriesPath = `${path}/categories`;
+      const categories = await this.loadElement(categoriesPath);
+      const codes = await this.loadElement(codesPath);
+
+      const categoriesInfo = await this.getEncodingInfo(categoriesPath);
+      const codesInfo = await this.getEncodingInfo(codesPath);
+      console.assert(categoriesInfo.encodingType === 'string-array');
+      const categoriesValues = await this.getFlatArrDecompressed(categoriesPath);
+      console.assert(codesInfo.encodingType === 'array');
+      const arr = await openArray({
+        store,
+        path: codesPath,
+        mode: 'r',
+      });
+      const values = await arr.get();
+      const { data } = values;
+      const mappedValues = Array.from(data).map(
+        i => (!categoriesValues ? String(i) : categoriesValues[i]),
+      );
+      return mappedValues;
+    }
+  }
+
+  async loadElement(path) {
+    const {
+      encodingType,
+      encodingVersion,
+      ...other
+    } = await this.getEncodingInfo(path);
+    if (encodingType === 'categorical' && encodingVersion === '0.2.0') {
+      return this.loadCategorical_0_2_0(path);
+    }
+    if (encodingType === 'string-array' && encodingVersion === '0.2.0') {
+      return this.loadStringArray_0_2_0(path);
+    }
+    if (encodingType === 'array' && encodingVersion === '0.2.0') {
+      return this.loadArray_0_2_0(path);
+    }
+    if (encodingType === 'csr_matrix' && encodingVersion === '0.1.0') {
+      return this.loadCSRMatrix_0_1_0(path);
+    }
+    if (encodingType === 'csc_matrix' && encodingVersion === '0.1.0') {
+      return this.loadCSCMatrix_0_1_0(path);
+    }
+    if (encodingVersion === null) {
+      if(other.categories) {
+        // Categorical columns for anndata v0.7.0
+        // do not have an encoding-version attribute.
+        return this.loadCategorical_0_1_0(path);
+      } else {
+        return this.loadStringArrayLegacy(path);
+      }
+      
+    }
+    throw new UnsupportedEncodingError(encodingType, encodingVersion);
   }
 
   /**

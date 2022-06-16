@@ -11,6 +11,7 @@
   - `featureType`
   - `featureValueType`
 - Add more usage examples to the `about` documentation page.
+- Updated the anndata loaders to support anndata v0.8 data structures.
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
