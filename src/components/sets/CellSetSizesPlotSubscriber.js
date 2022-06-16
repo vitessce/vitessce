@@ -34,12 +34,12 @@ export default function CellSetSizesPlotSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    cellSetSelection,
-    cellSetColor,
-    additionalCellSets,
+    obsSetSelection: cellSetSelection,
+    obsSetColor: cellSetColor,
+    additionalObsSets: additionalCellSets,
   }, {
-    setCellSetSelection,
-    setCellSetColor,
+    setObsSetSelection: setCellSetSelection,
+    setObsSetColor: setCellSetColor,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetSizes, coordinationScopes);
 
   const [width, height, containerRef] = useGridItemSize();
@@ -63,8 +63,8 @@ export default function CellSetSizesPlotSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, true,
-    { setCellSetSelection, setCellSetColor },
-    { cellSetSelection, cellSetColor },
+    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
+    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
   );
 
   const mergedCellSets = useMemo(

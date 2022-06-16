@@ -23,6 +23,8 @@ const GENES_DATA_TYPES = ['expression-matrix'];
  * of the name of the variable.
  * @param {string} props.variablesPluralLabelOverride The plural
  * form of the name of the variable.
+ * @param {boolean} props.enableMultiSelect If true, allow
+ * shift-clicking to select multiple genes.
  */
 export default function GenesSubscriber(props) {
   const {
@@ -32,6 +34,7 @@ export default function GenesSubscriber(props) {
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     theme,
     title = 'Expression Levels',
+    enableMultiSelect = false,
   } = props;
 
   const loaders = useLoaders();
@@ -39,14 +42,14 @@ export default function GenesSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    geneSelection,
-    geneFilter,
-    cellColorEncoding,
+    featureSelection: geneSelection,
+    featureFilter: geneFilter,
+    obsColorEncoding: cellColorEncoding,
   }, {
-    setGeneSelection,
-    setGeneFilter,
-    setGeneHighlight,
-    setCellColorEncoding,
+    setFeatureSelection: setGeneSelection,
+    setFeatureFilter: setGeneFilter,
+    setFeatureHighlight: setGeneHighlight,
+    setObsColorEncoding: setCellColorEncoding,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
 
   const [urls, addUrl, resetUrls] = useUrls();
@@ -99,6 +102,7 @@ export default function GenesSubscriber(props) {
         setGeneSelection={setGeneSelectionAndColorEncoding}
         setGeneFilter={setGeneFilter}
         setGeneHighlight={setGeneHighlight}
+        enableMultiSelect={enableMultiSelect}
       />
     </TitleInfo>
   );

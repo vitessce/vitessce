@@ -2,6 +2,7 @@ import {
   useState, useEffect, useRef,
 } from 'react';
 import { getSourceAndLoaderFromFileType } from '../loaders/types';
+import { getFileTypeDataTypeMapping } from './plugins';
 
 /**
  * Return the bottom coordinate of the layout.
@@ -94,6 +95,7 @@ export function useRowHeight(config, initialRowHeight, height, margin, padding) 
 export function createLoaders(datasets, configDescription) {
   const result = {};
   const dataSources = {};
+  const fileTypeDataTypeMapping = getFileTypeDataTypeMapping();
   datasets.forEach((dataset) => {
     const datasetLoaders = {
       name: dataset.name,
@@ -101,15 +103,21 @@ export function createLoaders(datasets, configDescription) {
       loaders: {},
     };
     dataset.files.forEach((file) => {
-      const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(file.fileType);
+      const {
+        url,
+        options,
+        requestInit,
+        fileType,
+      } = file;
+      const dataType = fileTypeDataTypeMapping[fileType];
+      const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(fileType);
       // Create _one_ DataSourceClass instance per URL. Derived loaders share this object.
-      const { url, options, requestInit } = file;
       const fileId = url || JSON.stringify(options);
       if (!(fileId in dataSources)) {
         dataSources[fileId] = new DataSourceClass({ url, requestInit });
       }
       const loader = new LoaderClass(dataSources[fileId], file);
-      datasetLoaders.loaders[file.type] = loader;
+      datasetLoaders.loaders[dataType] = loader;
     });
     result[dataset.uid] = datasetLoaders;
   });

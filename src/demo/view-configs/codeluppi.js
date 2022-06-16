@@ -406,7 +406,7 @@ export const linnarssonWithRorb = {
 };
 
 export function getCodeluppiViewConfig(name, description) {
-  const vc = new vapi.VitessceConfig(name, description);
+  const vc = new vapi.VitessceConfig('1.0.0', name, description);
   const dataset = vc.addDataset(linnarssonName, linnarssonDescription)
     .addFile(getS3Url('linnarsson', 'cells'), vapi.dt.CELLS, vapi.ft.CELLS_JSON)
     .addFile(getS3Url('linnarsson', 'cell-sets'), vapi.dt.CELL_SETS, vapi.ft.CELL_SETS_JSON)

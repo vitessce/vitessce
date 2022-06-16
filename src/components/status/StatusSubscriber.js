@@ -26,8 +26,8 @@ export default function StatusSubscriber(props) {
 
   // Get "props" from the coordination space.
   const [{
-    cellHighlight,
-    geneHighlight,
+    obsHighlight: cellHighlight,
+    featureHighlight: geneHighlight,
     moleculeHighlight,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.status, coordinationScopes);
 
