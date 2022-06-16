@@ -31,7 +31,7 @@ module.exports = config => {
       '**/*.js': ['webpack', 'sourcemap']
     },
 
-    webpack: configFactory(paths, process.env.NODE_ENV),
+    webpack: configFactory(paths, process.env.NODE_ENV, false),
     webpackServer: {
       noInfo: true // please don't spam the console when running in karma!
     },
