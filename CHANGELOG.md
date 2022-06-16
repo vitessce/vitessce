@@ -46,6 +46,7 @@
   - `embeddingCellOpacity` -> `embeddingObsOpacity`
   - `embeddingCellOpacityMode` -> `embeddingObsOpacityMode`
 - Fixed schema v1.0.12
+- Removed the requirement for `cellSets` data in the CellSetsManagerSubscriber component to support the use case where all cell sets are provided via `additionalCellSets` / the coordination space.
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
 
