@@ -17,6 +17,6 @@ const target = 'demo';
 const environment = process.argv[2];
 // Build demo output files.
 (async () => {
-    const config = configFactory(paths, environment, false);
+    const config = configFactory(paths, environment, true);
     await utils.build(config, paths, environment, target);
 })();

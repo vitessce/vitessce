@@ -55,7 +55,7 @@ module.exports = function(paths, environment, target) {
     const devtoolInfo = getDevtoolInfo(environment, shouldUseSourceMap);
     const resolveInfo = getResolveInfo(paths, additionalModulePaths, useTypeScript, shouldDoProfiling, webpackAliases);
     const resolveLoaderInfo = getResolveLoaderInfo();
-    const moduleInfo = getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap, false);
+    const moduleInfo = getModuleInfo(paths, environment, publicUrlOrPath, shouldUseSourceMap, true);
     const nodeInfo = getNodeInfo();
     const performanceInfo = getPerformanceInfo();
 
