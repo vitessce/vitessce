@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect , useState } from 'react';
 import TitleInfo from '../TitleInfo';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
 /* import { useCoordination, useLoaders } from '../../app/state/hooks';
@@ -10,6 +10,7 @@ import BarPlot from './BarPlot';
 import clamp from 'lodash/clamp';
 import { VegaPlot, VEGA_THEMES } from '../vega';
 import { csvParse } from 'd3-dsv';
+import { sum } from 'lodash';
 
 const CELL_SET_SIZES_DATA_TYPES = ['cell-sets'];
 
@@ -84,15 +85,36 @@ export default function BarPlotEverything(props) {
     : []
   ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
 */
+
+const [name, setName] = useState('sum');
+
+
   const spec = {"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   "description": "Punchcard Visualization like on Github. The day on y-axis uses a custom order from Monday to Sunday.  The sort property supports both full day names (e.g., 'Monday') and their three letter initials (e.g., 'mon') -- both of which are case insensitive.",
   "width": 500,
   "height": 290,
+  "padding": 50,
   "params": [{"name": "highlight", "select": {
     "type": "point",
     "on": "mouseover",
     "nearest": true
-  }}],
+  }}, 
+  
+  {"name": "Expression", "value": 0,
+  "select": {"type": "point", "fields": ["Percent Expressed (%)"]},
+  "bind": {"input": "range", "min": 0, "max": 100, "step": 1, "name": "Percent Expressed"}},
+
+
+
+
+
+{"name": "Gradient",
+"select": {"type": "point", "fields": ["Expression"]},
+"bind": {"input": "select", "options": ["sum", "mean", "stdev"], "name": "Select Function of Expression", "value": "sum"}}]
+
+,
+
+
   "transform": [{
     "window": [{
       "op": "sum",
@@ -106,9 +128,12 @@ export default function BarPlotEverything(props) {
     "calculate": "datum.Expression/datum.TotalTime * 100",
     "as": "Percent Expressed (%)"
 
-  }],
+  },
+
+  {}
 
 
+],
 
   "mark": {"type": "circle", "strokeWidth": 2},
   "encoding": {
@@ -123,13 +148,31 @@ export default function BarPlotEverything(props) {
     "color": {
       "field": "Expression",
       "type": "quantitative",
-      "aggregate": "sum",
+      
+      "aggregate": name,
+      "condition": {"param": "Gradient"},
+
+      
+      /*"scale": {"range": "viridis"]}, */
+      
+    
     },
+
+    "tooltip": [
+      {"field": "Expression", "aggregate": name, "type": "nominal", "title": `${name.substring(0, 1).toUpperCase()} of Expression`},
+      {"field": "Percent Expressed (%)", "type": "nominal", "title": "Percent Expressed (%)"}],
+
+
+    
+
+
     "size": {
       "field": "Percent Expressed (%)",
       "type": "nominal",
-      //"aggregate": "sum"
+      "condition": {"param": "Expression", "field": "Expression", "value": 100},
     },
+
+
     "stroke": {
       "condition": {
         "param": "highlight",
@@ -145,7 +188,7 @@ export default function BarPlotEverything(props) {
 
       }
 
-}
+    }
 
   
   
@@ -170,6 +213,13 @@ dend, act1,1
 dend, act2,3
 t-cell, act3,3`);
 
+function aggregate_function(p)
+{console.log('Parameter Name', p.target.value)
+aggregate_variable = p.target.value
+this.setState({p})
+
+
+}
   return (
     <TitleInfo
       title={title}
@@ -194,12 +244,13 @@ t-cell, act3,3`);
           spec={spec}
         />
       </div>
-      <select id = "myList" onchange = "favTutorial()" >  
-      <option> ---Choose tutorial--- </option>  
-      <option> w3schools </option>  
-      <option> Javatpoint </option>  
-      <option> tutorialspoint </option>  
-      <option> geeksforgeeks </option>  
+      <select
+        value={name}
+        onChange={e => setName(e.target.value)}
+      > 
+      <option> mean </option>  
+      <option> sum </option>  
+      <option> stdev </option>  
       </select>  
     </TitleInfo>
   );
