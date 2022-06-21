@@ -11,6 +11,7 @@
   - `featureType`
   - `featureValueType`
 - Add more usage examples to the `about` documentation page.
+- Added `npm run start:nolint` script to disable linting for quickly prototyping code.
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
