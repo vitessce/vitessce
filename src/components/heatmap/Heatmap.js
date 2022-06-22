@@ -96,6 +96,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     observationsDashes = true,
     useDevicePixels = 1,
     hideObservationLabels = false,
+    hideVariableLabels = false,
   } = props;
 
   const viewState = {
@@ -209,7 +210,8 @@ const Heatmap = forwardRef((props, deckRef) => {
   const height = axisLeftLabels.length;
 
   const [axisOffsetLeft, axisOffsetTop] = getAxisSizes(
-    transpose, longestGeneLabel, longestCellLabel, hideObservationLabels,
+    transpose, longestGeneLabel, longestCellLabel,
+    hideObservationLabels, hideVariableLabels,
   );
 
   const offsetTop = axisOffsetTop + COLOR_BAR_SIZE * (transpose ? numCellColorTracks : 0);
@@ -400,6 +402,9 @@ const Heatmap = forwardRef((props, deckRef) => {
   const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, (axisLeftDashes ? `${d} -` : d)]), [axisLeftLabels, axisLeftDashes]);
   const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d && (transpose ? `${d} -` : `- ${d}`)]), [cellColorLabels, transpose]);
 
+  const hideTopLabels = (transpose ? hideObservationLabels : hideVariableLabels);
+  const hideLeftLabels = (transpose ? hideVariableLabels : hideObservationLabels);
+
   // Generate the axis label, axis title, and loading indicator text layers.
   const textLayers = [
     new HeatmapCompositeTextLayer({
@@ -425,6 +430,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       axisTopTitle,
       axisOffsetLeft,
       axisOffsetTop,
+      hideTopLabels,
+      hideLeftLabels,
       transpose,
     }),
     new HeatmapCompositeTextLayer({
@@ -451,7 +458,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       axisOffsetLeft,
       axisOffsetTop,
       cellColorLabelsData,
-      hideObservationLabels,
+      hideTopLabels,
+      hideLeftLabels,
       transpose,
     }),
     new HeatmapCompositeTextLayer({
@@ -478,7 +486,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       axisOffsetLeft,
       axisOffsetTop,
       cellColorLabelsData,
-      hideObservationLabels,
+      hideTopLabels,
+      hideLeftLabels,
       transpose,
     }),
   ];

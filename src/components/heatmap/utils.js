@@ -141,9 +141,13 @@ function getTextWidth(text, font) {
  * Increases vertical space for heatmap
  * @returns {number[]} [axisOffsetLeft, axisOffsetTop]
  */
-export function getAxisSizes(transpose, longestGeneLabel, longestCellLabel, hideObservationLabels) {
+export function getAxisSizes(
+  transpose, longestGeneLabel, longestCellLabel,
+  hideObservationLabels, hideVariableLabels,
+) {
   const font = `${AXIS_LABEL_TEXT_SIZE}pt ${AXIS_FONT_FAMILY}`;
-  const geneLabelMaxWidth = getTextWidth(longestGeneLabel, font) + AXIS_PADDING;
+  const geneLabelMaxWidth = hideVariableLabels
+    ? 0 : getTextWidth(longestGeneLabel, font) + AXIS_PADDING;
   const cellLabelMaxWidth = hideObservationLabels
     ? 0 : getTextWidth(longestCellLabel, font) + AXIS_PADDING;
 
