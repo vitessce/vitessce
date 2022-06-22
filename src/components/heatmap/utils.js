@@ -138,6 +138,7 @@ function getTextWidth(text, font) {
  * @param {String} longestGeneLabel longest gene label
  * @param {String} longestCellLabel longest cell label
  * @param {boolean} hideObservationLabels are cell labels hidden?
+ * @param {boolean} hideVariableLabels are gene labels hidden?
  * Increases vertical space for heatmap
  * @returns {number[]} [axisOffsetLeft, axisOffsetTop]
  */

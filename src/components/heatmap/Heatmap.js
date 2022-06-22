@@ -39,8 +39,10 @@ import HeatmapWorkerPool from './HeatmapWorkerPool';
  * used by tooltips to determine whether to render a tooltip or
  * a crosshair.
  * @param {string} props.theme The current theme name.
- * @param {object} props.initialViewState The initial viewState for
+ * @param {object} props.viewState The viewState for
  * DeckGL.
+ * @param {function} props.setViewState The viewState setter
+ * for DeckGL.
  * @param {number} props.width The width of the canvas.
  * @param {number} props.height The height of the canvas.
  * @param {object} props.expressionMatrix An object { rows, cols, matrix },
@@ -65,6 +67,7 @@ import HeatmapWorkerPool from './HeatmapWorkerPool';
  * @param {number} props.useDevicePixels By default, 1. Higher values
  * e.g. 2 increase text sharpness.
  * @param {boolean} props.hideObservationLabels By default false.
+ * @param {boolean} props.hideVariableLabels By default false.
  * @param {string} props.colormap The name of the colormap function to use.
  * @param {array} props.colormapRange A tuple [lower, upper] to adjust the color scale.
  * @param {function} props.setColormapRange The setter function for colormapRange.
