@@ -15,11 +15,10 @@ export default class HeatmapCompositeTextLayer extends CompositeLayer {
     const {
       axisTopLabelData, matrixLeft, width, matrixWidth, viewWidth, theme,
       targetX, targetY, axisTopTitle, cellWidth, axisOffsetTop, scaleFactor,
-      hideObservationLabels,
     } = this.props;
     const showAxisTopLabels = cellWidth >= AXIS_LABEL_TEXT_SIZE;
     const axisLabelTop = targetY + (axisOffsetTop - AXIS_MARGIN) / 2 / scaleFactor;
-    const topTextLayers = hideObservationLabels ? [] : [
+    return [
       new TextLayer({
         id: 'axisTopLabels',
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
@@ -54,7 +53,6 @@ export default class HeatmapCompositeTextLayer extends CompositeLayer {
         },
       }),
     ];
-    return topTextLayers;
   }
 
   _renderCornerLayers() {
@@ -147,7 +145,10 @@ export default class HeatmapCompositeTextLayer extends CompositeLayer {
     if (axis === 'corner') {
       return this._renderCornerLayers();
     }
-    return this._renderAxisTopLayers();
+    if (axis === 'top') {
+      return this._renderAxisTopLayers();
+    }
+    return [];
   }
 }
 
