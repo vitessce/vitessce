@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, {
   useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
 } from 'react';
@@ -717,8 +716,8 @@ const Heatmap = forwardRef((props, deckRef) => {
           controller: false,
           x: (transpose ? 0 : axisOffsetLeft),
           y: (transpose ? axisOffsetTop : 0),
-          width: (transpose ? axisOffsetLeft : COLOR_BAR_SIZE*numCellColorTracks),
-          height: (transpose ? COLOR_BAR_SIZE*numCellColorTracks : axisOffsetTop),
+          width: (transpose ? axisOffsetLeft : COLOR_BAR_SIZE * numCellColorTracks),
+          height: (transpose ? COLOR_BAR_SIZE * numCellColorTracks : axisOffsetTop),
         }),
         ...cellColorsViews,
       ]}

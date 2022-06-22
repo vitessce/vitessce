@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable no-underscore-dangle */
 import { COORDINATE_SYSTEM, CompositeLayer } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { TextLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import {
@@ -59,9 +59,8 @@ export default class HeatmapCompositeTextLayer extends CompositeLayer {
 
   _renderCornerLayers() {
     const {
-      axisTopLabelData, matrixLeft, width, matrixWidth, viewWidth, theme,
-      targetX, targetY, axisTopTitle, cellWidth, axisOffsetTop, scaleFactor,
-      cellColorLabelsData, axisOffsetLeft, hideObservationLabels, transpose,
+      theme, targetX, targetY, axisOffsetTop, scaleFactor,
+      cellColorLabelsData, axisOffsetLeft, transpose,
     } = this.props;
     const axisLabelTop = targetY + (axisOffsetTop - AXIS_MARGIN) / 2 / scaleFactor;
     const axisLabelLeft = targetX + (axisOffsetLeft - AXIS_MARGIN) / 2 / scaleFactor;
@@ -75,9 +74,19 @@ export default class HeatmapCompositeTextLayer extends CompositeLayer {
         getAlignmentBaseline: 'top',
         getColor: () => THEME_TO_TEXT_COLOR[theme],
         getSize: AXIS_LABEL_TEXT_SIZE,
-        getPosition: (d) => [
-          (transpose ? axisLabelLeft : targetX + ((-cellColorLabelsData.length + d[0]*2)*COLOR_BAR_SIZE + AXIS_MARGIN)/2/scaleFactor),
-          (transpose ? targetY + ((-cellColorLabelsData.length + d[0]*2)*COLOR_BAR_SIZE + AXIS_MARGIN)/2/scaleFactor : axisLabelTop),
+        getPosition: d => [
+          (transpose
+            ? axisLabelLeft
+            : targetX
+              + ((-cellColorLabelsData.length + d[0] * 2) * COLOR_BAR_SIZE + AXIS_MARGIN)
+              / 2 / scaleFactor
+          ),
+          (transpose
+            ? targetY
+              + ((-cellColorLabelsData.length + d[0] * 2) * COLOR_BAR_SIZE + AXIS_MARGIN)
+              / 2 / scaleFactor
+            : axisLabelTop
+          ),
         ],
         getAngle: (transpose ? 0 : 90),
         fontFamily: AXIS_FONT_FAMILY,
