@@ -212,6 +212,10 @@ export default function HeatmapSubscriber(props) {
         updateViewInfo={setComponentViewInfo}
         observationsTitle={observationsTitle}
         variablesTitle={variablesTitle}
+        variablesDashes={false}
+        observationsDashes={false}
+        cellColorLabels={['Cell Set']}
+        useDevicePixels
       />
       {!disableTooltip && (
       <HeatmapTooltipSubscriber

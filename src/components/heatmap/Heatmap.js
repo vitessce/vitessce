@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
 } from 'react';
@@ -92,6 +93,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     transpose = false,
     variablesTitle = 'Genes',
     observationsTitle = 'Cells',
+    variablesDashes = true,
+    observationsDashes = true,
     useDevicePixels = 1,
     hideObservationLabels = false,
   } = props;
@@ -389,12 +392,14 @@ const Heatmap = forwardRef((props, deckRef) => {
     aggSizeX, aggSizeY, colormap, colormapRange,
     axisLeftLabels, axisTopLabels, xTiles]);
 
+  const axisLeftDashes = (transpose ? variablesDashes : observationsDashes);
+  const axisTopDashes = (transpose ? observationsDashes : variablesDashes);
 
   // Map cell and gene names to arrays with indices,
   // to prepare to render the names in TextLayers.
-  const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, `- ${d}`]), [axisTopLabels]);
-  const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, `${d} -`]), [axisLeftLabels]);
-  const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d && `${d} -`]), [cellColorLabels]);
+  const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, (axisTopDashes ? `- ${d}` : d)]), [axisTopLabels, axisTopDashes]);
+  const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, (axisLeftDashes ? `${d} -` : d)]), [axisLeftLabels, axisLeftDashes]);
+  const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d && (transpose ? `${d} -` : `- ${d}`)]), [cellColorLabels, transpose]);
 
   // Generate the axis label, axis title, and loading indicator text layers.
   const textLayers = [
@@ -421,6 +426,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       axisTopTitle,
       axisOffsetLeft,
       axisOffsetTop,
+      transpose,
     }),
     new HeatmapCompositeTextLayer({
       axis: 'top',
@@ -447,6 +453,34 @@ const Heatmap = forwardRef((props, deckRef) => {
       axisOffsetTop,
       cellColorLabelsData,
       hideObservationLabels,
+      transpose,
+    }),
+    new HeatmapCompositeTextLayer({
+      axis: 'corner',
+      id: 'cellColorLabelCompositeTextLayer',
+      targetX,
+      targetY,
+      scaleFactor,
+      axisLeftLabelData,
+      matrixTop,
+      height,
+      matrixHeight,
+      cellHeight,
+      cellWidth,
+      axisTopLabelData,
+      matrixLeft,
+      width,
+      matrixWidth,
+      viewHeight,
+      viewWidth,
+      theme,
+      axisLeftTitle,
+      axisTopTitle,
+      axisOffsetLeft,
+      axisOffsetTop,
+      cellColorLabelsData,
+      hideObservationLabels,
+      transpose,
     }),
   ];
 
@@ -640,26 +674,12 @@ const Heatmap = forwardRef((props, deckRef) => {
           height: matrixHeight,
         });
       }
-
       return view;
     });
 
     return result;
   }, [numCellColorTracks, transpose, offsetLeft, axisOffsetTop,
     offsetTop, axisOffsetLeft, matrixHeight, matrixWidth]);
-
-  const cellColorsLabelsViews = useMemo(() => {
-    const result = range(numCellColorTracks).map(track => new OrthographicView({
-      id: `cellColorLabel-${track}`,
-      controller: false,
-      x: 0,
-      y: axisOffsetTop + track * COLOR_BAR_SIZE,
-      width: axisOffsetLeft,
-      height: COLOR_BAR_SIZE,
-    }));
-
-    return result;
-  }, [numCellColorTracks, axisOffsetTop, axisOffsetLeft]);
 
   return (
     <DeckGL
@@ -676,7 +696,6 @@ const Heatmap = forwardRef((props, deckRef) => {
           width: matrixWidth,
           height: matrixHeight,
         }),
-
         new OrthographicView({
           id: 'axisLeft',
           controller: false,
@@ -693,7 +712,14 @@ const Heatmap = forwardRef((props, deckRef) => {
           width: matrixWidth,
           height: axisOffsetTop,
         }),
-        ...cellColorsLabelsViews,
+        new OrthographicView({
+          id: 'cellColorLabel',
+          controller: false,
+          x: (transpose ? 0 : axisOffsetLeft),
+          y: (transpose ? axisOffsetTop : 0),
+          width: (transpose ? axisOffsetLeft : COLOR_BAR_SIZE*numCellColorTracks),
+          height: (transpose ? COLOR_BAR_SIZE*numCellColorTracks : axisOffsetTop),
+        }),
         ...cellColorsViews,
       ]}
       layers={layers}

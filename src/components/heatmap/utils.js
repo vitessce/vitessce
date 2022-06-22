@@ -91,9 +91,8 @@ export function layerFilter({ layer, viewport }) {
     return layer.id.startsWith('axisTop');
   }
 
-  if (viewport.id.startsWith('cellColorLabel')) {
-    const matches = viewport.id.match(/-(\d)/);
-    if (matches) return layer.id.startsWith(`cellColorLabelLayer-${matches[1]}`);
+  if (viewport.id === 'cellColorLabel') {
+    return layer.id.startsWith('cellColorLabel');
   }
 
   if (viewport.id === 'heatmap') {
