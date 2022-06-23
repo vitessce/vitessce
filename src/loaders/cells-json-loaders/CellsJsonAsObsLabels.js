@@ -16,9 +16,9 @@ export default class CellsJsonAsObsLabelsLoader extends JsonLoader {
       return Promise.reject(payload);
     }
     const { data, url } = payload;
-    const { key } = this.options;
+    const { obsLabelsType } = this.coordinationValues;
     const obsIndex = Object.keys(data);
-    const obsLabels = Object.values(data).map(cellObj => cellObj.factors[key]);
+    const obsLabels = Object.values(data).map(cellObj => cellObj.factors[obsLabelsType]);
     return Promise.resolve(new LoaderResult({ obsIndex, obsLabels }, url));
   }
 }
