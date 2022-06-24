@@ -19,6 +19,7 @@
 - Added loaders for `obsFeatureMatrix.genes.json`
 - Added loaders for `obsLabels.cells.json`, `obsEmbedding.cells.json`, `obsLocations.cells.json`, `obsSegmentations.cells.json`
 - Added loaders for `image.raster.json`,`obsSegmentations.raster.json`, `image.ome-zarr`
+- Added loaders for `obsFeatureMatrix.expression-matrix.zarr`
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
