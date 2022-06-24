@@ -5,9 +5,9 @@ import {
 
 import JsonLoader from './JsonLoader';
 import MatrixZarrLoader from './MatrixZarrLoader';
+import RasterJsonLoader from './raster-json-loaders/RasterJsonLoader';
 import ClustersJsonAsMatrixZarrLoader from './clusters-json-loaders/ClustersJsonAsMatrixZarrLoader';
 import GenesJsonAsMatrixZarrLoader from './genes-json-loaders/GenesJsonAsMatrixZarrLoader';
-import RasterJsonLoader from './RasterJsonLoader';
 import OmeZarrLoader from './OmeZarrLoader';
 import ObsSetsJsonLoader from './ObsSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
@@ -19,8 +19,13 @@ import CellsJsonAsObsLocationsLoader from './cells-json-loaders/CellsJsonAsObsLo
 import CellsJsonAsObsSegmentationsLoader from './cells-json-loaders/CellsJsonAsObsSegmentations';
 import ClustersJsonAsObsFeatureMatrixLoader from './clusters-json-loaders/ClustersJsonAsObsFeatureMatrix';
 import GenesJsonAsObsFeatureMatrixLoader from './genes-json-loaders/GenesJsonAsObsFeatureMatrix';
+import RasterJsonAsImageLoader from './raster-json-loaders/RasterJsonAsImageLoader';
+import RasterJsonAsObsSegmentationsLoader from './raster-json-loaders/RasterJsonAsObsSegmentationsLoader';
 
 export const fileTypeToLoaderAndSource = {
+  [FileType.IMAGE_OME_ZARR]: [ZarrDataSource, OmeZarrLoader],
+  [FileType.IMAGE_RASTER_JSON]: [JsonSource, RasterJsonAsImageLoader],
+  [FileType.OBS_SEGMENTATIONS_RASTER_JSON]: [JsonSource, RasterJsonAsObsSegmentationsLoader],
   [FileType.OBS_SETS_JSON]: [JsonSource, ObsSetsJsonLoader],
   [FileType.OBS_SETS_CELL_SETS_JSON]: [JsonSource, ObsSetsJsonLoader],
   [FileType.OBS_FEATURE_MATRIX_CLUSTERS_JSON]: [JsonSource, ClustersJsonAsObsFeatureMatrixLoader],
