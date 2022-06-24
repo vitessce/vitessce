@@ -15,6 +15,7 @@
 - Added new file type and data type constants.
 - Added support for `datatype: 'obs'` in `obsSets.schema.json`
 - Added loaders for `obsSets.json` and `obsSets.cell-sets.json`.
+- Added loaders for `obsFeatureMatrix.clusters.json`
 - Added loaders for `obsFeatureMatrix.genes.json`
 - Added loaders for `obsLabels.cells.json`, `obsEmbedding.cells.json`, `obsLocations.cells.json`, `obsSegmentations.cells.json`
 
