@@ -1,5 +1,6 @@
 
 ### Added
+- Added the property `coordinationValues` for view config file definitions but is not yet used to do file matching/lookups.
 - Added warning log messages when outdated constant values have been accessed (via JS Proxy).
 - Added the optional `uid` property for view definitions in the view config.
 - Added `enableMultiSelect` prop for `GenesSubscriber`. Current built-in views do not display multiple gene selections but plugin views could use this functionality.
@@ -9,6 +10,8 @@
   - `obsType`
   - `featureType`
   - `featureValueType`
+- Add more usage examples to the `about` documentation page.
+- Added `npm run start:nolint` script to disable linting for quickly prototyping code.
 - Added new file type and data type constants.
 - Added loaders for `obsSets.json` and `obsSets.cell-sets.json`.
 - Added support for `datatype: 'obs'` in `obsSets.schema.json`
@@ -21,6 +24,10 @@
   - `spatialCellsLayer` -> `spatialSegmentationLayer`
   - `spatialMoleculesLayer` -> `spatialPointLayer`
   - `spatialNeighborhoodsLayer` -> `spatialNeighborhoodLayer`
+- Added the required `schemaVersion` parameter in the `VitessceConfig` constructor. (Breaking change for the `VitessceConfig` API.)
+- Improved documentation.
+  - More consistently using the term "view type" rather than "component".
+  - Added a config schema version diff tool to the view config JSON documentation page.
 - Changed cell- and gene-related coordination type names.
   - `cellFilter` -> `obsFilter`
   - `cellHighlight` -> `obsHighlight`
@@ -43,7 +50,7 @@
   - `embeddingCellOpacity` -> `embeddingObsOpacity`
   - `embeddingCellOpacityMode` -> `embeddingObsOpacityMode`
 - Fixed schema v1.0.12
-
+- Removed the requirement for `cellSets` data in the CellSetsManagerSubscriber component to support the use case where all cell sets are provided via `additionalCellSets` / the coordination space.
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
 
