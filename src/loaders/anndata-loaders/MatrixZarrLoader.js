@@ -35,7 +35,9 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
   getOptions() {
     const { options, fileType } = this;
     const newOptions = {
-      ...options,
+      path: options.path,
+      featureFilterPath: options.featureFilterPath,
+      initialFeatureFilterPath: options.initialFeatureFilterPath,
       geneAlias: options.geneAlias, // TODO: use featureLabels.anndata.zarr instead
     };
     if (fileType !== 'obsFeatureMatrix.anndata.zarr') {
