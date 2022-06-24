@@ -38,6 +38,7 @@ export const fileTypeToLoaderAndSource = {
   ],
   [FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR]: [
     AnnDataSource, AnnDataLoaders.ObsSegmentationsAnndataLoader,
+  ],
   [FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR]: [
     ZarrDataSource, MatrixZarrAsObsFeatureMatrixLoader,
   ],
