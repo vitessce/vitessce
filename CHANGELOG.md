@@ -11,8 +11,10 @@
   - `featureType`
   - `featureValueType`
 - Add more usage examples to the `about` documentation page.
+- Added `npm run start:nolint` script to disable linting for quickly prototyping code.
 - Added new file type and data type constants.
 - Added loaders for `obsFeatureMatrix.genes.json`
+- Added loaders for `obsLabels.cells.json`, `obsEmbedding.cells.json`, `obsLocations.cells.json`, `obsSegmentations.cells.json`
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
@@ -48,6 +50,7 @@
   - `embeddingCellOpacity` -> `embeddingObsOpacity`
   - `embeddingCellOpacityMode` -> `embeddingObsOpacityMode`
 - Fixed schema v1.0.12
+- Removed the requirement for `cellSets` data in the CellSetsManagerSubscriber component to support the use case where all cell sets are provided via `additionalCellSets` / the coordination space.
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
 

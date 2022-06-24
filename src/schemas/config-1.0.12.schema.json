@@ -146,6 +146,22 @@
         }
       }
     },
+    "convenienceCellsJson": {
+      "type": "object",
+      "description": "Options for the cells.json convenience file type.",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "obsLabelsTypes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "embeddingTypes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
     "annDataCells": {
       "type": "object",
       "description": "The properties of this object are the configuration for how to layout scatterplots and spatial information",
@@ -492,7 +508,8 @@
                   { "$ref": "#/definitions/annDataCellSets" },
                   { "$ref": "https://github.com/vitessce/vitessce/#raster" },
                   { "$ref": "#/definitions/annDataCells" },
-                  { "$ref": "#/definitions/annDataExpressionMatrix" }
+                  { "$ref": "#/definitions/annDataExpressionMatrix" },
+                  { "$ref": "#/definitions/convenienceCellsJson" }
                 ] },
                 "requestInit": { "$ref": "#/definitions/requestInit" }
               }
