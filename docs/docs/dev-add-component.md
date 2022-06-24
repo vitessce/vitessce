@@ -1,23 +1,22 @@
 ---
 id: dev-add-component
-title: Internal components
+title: View type implementation
 ---
 
 This page walks through the steps required to create a new visualization component.
 Vitessce components are React components which conform to certain conventions, and may be implemented with libraries such as Vega-Lite, D3, DeckGL or plain JavaScript code.
 
-## The Subscriber component
+## The parent component
 
-All Vitessce components should consist of at least two React components: an outer "subscriber" component and an inner "plain" component.
-By convention, we add the suffix `Subscriber` to the name of the subscriber component.
+All of the core Vitessce components consist of at least two React components: an outer "parent" component and an inner "child" component.
+By convention, we add the suffix `Subscriber` to the name of the parent component.
 
+The parent ("subscriber") component typically carries out the following:
+- get and set values from the coordination space with the [`useCoordination`](https://github.com/vitessce/vitessce/blob/main/src/app/state/hooks.js#L196) hook function.
+- should render the [`TitleInfo`](https://github.com/vitessce/vitessce/blob/main/src/components/TitleInfo.js) component as a parent of its "plain" component.
+- load data from files specified in the view config with [data hook](https://github.com/vitessce/vitessce/blob/main/src/components/data-hooks.js) functions.
 
-The subscriber component carries out several functions:
-- the subscriber component may get and set values from the coordination space with the `useCoordination` hook function.
-- the subscriber component should render the `<TitleInfo />` component as a parent of its "plain" component.
-- the subscriber component may load data from files specified in the view config with React hook functions.
-
-The nodes of the React subtree for a component called `Genes` should ultimately look like:
+A React subtree for a component called `GenesSubscriber` would look like:
 
 ```jsx
 <GenesSubscriber>
@@ -27,19 +26,37 @@ The nodes of the React subtree for a component called `Genes` should ultimately 
 </GenesSubscriber>
 ```
 
-A full example of a subscriber component can be found [here](https://github.com/vitessce/vitessce/blob/main/src/components/genes/GenesSubscriber.js).
+A full example of a parent component can be found in [GenesSubscriber](https://github.com/vitessce/vitessce/blob/main/src/components/genes/GenesSubscriber.js).
 
-## The plain component
+:::note
+The usage of the term "subscriber" here comes from prior usage of a pub-sub pattern in Vitessce. Now we use the `[values, setters]` returned by the custom `useCoordination` hook to manage state in a more `React.useState`-like pattern (instead of pub-sub).
+:::
 
-The plain component may take data and callback functions as props from its parent subscriber function, and should use its props to render a visualization or controller component. The plain component should not use the `useCoordination` hook or any of the `use___Data` hook functions.
+## The child component
 
-A full example of a plain component can be found [here](https://github.com/vitessce/vitessce/blob/main/src/components/genes/Genes.js).
+The child component may take data and callback functions as props from its parent subscriber function, and should use its props to render a visualization or controller component. The plain component should not use the `useCoordination` hook or any of the `use___Data` hook functions.
 
-## The coordination constants
+A full example of a child component can be found in [Genes](https://github.com/vitessce/vitessce/blob/main/src/components/genes/Genes.js).
 
-In order for a component to access or change values in the coordination space, the mapping from components to coordination types must be defined [here](https://github.com/vitessce/vitessce/blob/main/src/app/state/coordination.js).
-For each component, a subset of coordination types may be specified. This helps to avoid unnecessary component re-rendering events (i.e. we know that the heatmap does not depend on the `spatialZoom` coordination type, so we omit this from the list of coordination types used by the heatmap component).
+:::note
+In theory, we could perform both the parent- and child-component tasks in one component.
+However, using two components helps us to separate concerns and split up code.
+Making the child component agnostic to the state management and data loading implementations helps facilitate usage of child components in [other projects](https://github.com/vitessce/vitessce/discussions/1232).
+:::
 
-## The component registry
+## The view type registry
 
-Once the component has been developed, add a key for the component in the component registry [here](https://github.com/vitessce/vitessce/blob/main/src/app/component-registry.js). This key is the string that will be used to specify the component in the `component` property of the [layout](/docs/view-config-json/#layout) array in JSON view configurations.
+There must be a mapping between a **view type** name and the actual React component function to facilitate usage of the view type as a string ([`layout[].component`](/docs/view-config-json/#layout)) in the JSON view config. The [view type registry](https://github.com/vitessce/vitessce/blob/main/src/app/component-registry.js) maps view types to JavaScript functions.
+
+:::tip
+The plugin analog of the view type registry is the [`registerPluginViewType`](/docs/dev-plugins/#plugin-view-types) function.
+:::
+
+## Component coordination types
+
+In order for a component to access or change values in the coordination space, the mapping from the view type name to a subset of coordination types must be defined in [`COMPONENT_COORDINATION_TYPES`](https://github.com/vitessce/vitessce/blob/main/src/app/state/coordination.js).
+This helps to avoid unnecessary component re-rendering events (i.e., if we know that the heatmap does not depend on the `spatialZoom` coordination type, we can omit this from the list of coordination types used by the heatmap component, and the heatmap will not re-render upon `spatialZoom` updates).
+
+:::tip
+The plugin analog of `COMPONENT_COORDINATION_TYPES` is the `coordinationTypes` parameter of the [`registerPluginViewType`](/docs/dev-plugins/#plugin-view-types) function.
+:::

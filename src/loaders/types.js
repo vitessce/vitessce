@@ -13,10 +13,18 @@ import CellSetsJsonLoader from './CellSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
+import CellsJsonAsObsLabelsLoader from './cells-json-loaders/CellsJsonAsObsLabels';
+import CellsJsonAsObsEmbeddingLoader from './cells-json-loaders/CellsJsonAsObsEmbedding';
+import CellsJsonAsObsLocationsLoader from './cells-json-loaders/CellsJsonAsObsLocations';
+import CellsJsonAsObsSegmentationsLoader from './cells-json-loaders/CellsJsonAsObsSegmentations';
 import ClustersJsonAsObsFeatureMatrixLoader from './clusters-json-loaders/ClustersJsonAsObsFeatureMatrix';
 
 export const fileTypeToLoaderAndSource = {
   [FileType.OBS_FEATURE_MATRIX_CLUSTERS_JSON]: [JsonSource, ClustersJsonAsObsFeatureMatrixLoader],
+  [FileType.OBS_LABELS_CELLS_JSON]: [JsonSource, CellsJsonAsObsLabelsLoader],
+  [FileType.OBS_EMBEDDING_CELLS_JSON]: [JsonSource, CellsJsonAsObsEmbeddingLoader],
+  [FileType.OBS_LOCATIONS_CELLS_JSON]: [JsonSource, CellsJsonAsObsLocationsLoader],
+  [FileType.OBS_SEGMENTATIONS_CELLS_JSON]: [JsonSource, CellsJsonAsObsSegmentationsLoader],
   [FileType.EXPRESSION_MATRIX_ZARR]: [ZarrDataSource, MatrixZarrLoader],
   [FileType.CLUSTERS_JSON]: [JsonSource, ClustersJsonAsMatrixZarrLoader],
   [FileType.GENES_JSON]: [JsonSource, GenesJsonAsMatrixZarrLoader],
