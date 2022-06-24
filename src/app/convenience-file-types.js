@@ -38,6 +38,24 @@ export function expandCellsJson(fileDef) {
   ];
 }
 
+export function expandClustersJson(fileDef) {
+  const baseFileDef = {
+    ...fileDef,
+    coordinationValues: {
+      ...fileDef.coordinationValues,
+      obsType: fileDef.coordinationValues?.obsType || 'cell',
+      featureType: fileDef.coordinationValues?.featureType || 'gene',
+    },
+  };
+  delete baseFileDef.type;
+  return [
+    {
+      ...baseFileDef,
+      fileType: FileType.OBS_FEATURE_MATRIX_CLUSTERS_JSON,
+    },
+  ];
+}
+
 export function expandGenesJson(fileDef) {
   const baseFileDef = {
     ...fileDef,
@@ -61,6 +79,7 @@ export function expandGenesJson(fileDef) {
  * expansion functions.
  */
 export const CONVENIENCE_FILE_TYPES = {
+  // [FileType.CLUSTERS_JSON]: expandClustersJson,
   // [FileType.GENES_JSON]: expandGenesJson,
   // [FileType.CELLS_JSON]: expandCellsJson,
 };
