@@ -1,7 +1,7 @@
 import { FileType } from './constants';
 
 export function expandRasterJson(fileDef) {
-    const {
+  const {
     url,
     requestInit,
     coordinationValues = {},
