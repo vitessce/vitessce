@@ -15,6 +15,7 @@
 - Added new file type and data type constants.
 - Added loaders for `obsSets.json` and `obsSets.cell-sets.json`.
 - Added support for `datatype: 'obs'` in `obsSets.schema.json`
+- Added loaders for `obsLabels.cells.json`, `obsEmbedding.cells.json`, `obsLocations.cells.json`, `obsSegmentations.cells.json`
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
