@@ -27,7 +27,11 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
       this.dataSource.loadObsIndex(),
       this.loadSegmentations(),
     ]).then(([obsIndex, obsSegmentations]) => Promise.resolve(new LoaderResult(
-      { obsIndex, obsSegmentations },
+      {
+        obsIndex,
+        obsSegmentations,
+        obsSegmentationsType: 'polygon',
+      },
       null,
     )));
   }

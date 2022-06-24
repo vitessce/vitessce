@@ -23,10 +23,13 @@ export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
     }
     const obsIndex = Object.keys(data);
     const cellPolygons = cellObjs.map(cellObj => cellObj.poly);
+    const obsSegmentations = {
+      data: cellPolygons,
+    };
     return Promise.resolve(new LoaderResult({
       obsIndex,
       obsSegmentationsType: 'polygon',
-      obsSegmentations: cellPolygons,
+      obsSegmentations,
     }, url));
   }
 }

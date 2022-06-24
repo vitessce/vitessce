@@ -75,7 +75,7 @@ describe('loaders/cells-json-loaders', () => {
       expect(Object.keys(payload)).toEqual(['obsIndex', 'obsSegmentationsType', 'obsSegmentations']);
       expect(payload.obsIndex).toEqual(['778']);
       expect(payload.obsSegmentationsType).toEqual('polygon');
-      expect(payload.obsSegmentations[0]).toEqual([
+      expect(payload.obsSegmentations.data[0]).toEqual([
         [1, 2],
         [3, 4],
         [5, 6],
