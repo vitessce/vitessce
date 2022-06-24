@@ -197,7 +197,7 @@ export function useCellSetsData(
       loaders[dataset].loaders['cell-sets'].load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url, coordinationValues } = payload;
-        setCellSets(data);
+        setCellSets(data.obsSets);
         addUrl(url, 'Cell Sets');
         initCoordinationSpace(
           coordinationValues,

@@ -13,8 +13,13 @@
 - Add more usage examples to the `about` documentation page.
 - Added `npm run start:nolint` script to disable linting for quickly prototyping code.
 - Added new file type and data type constants.
-- Added loaders for `obsLabels.anndata-expression-matrix.zarr`, `featureLabels.anndata-expression-matrix.zarr`, `obsFeatureMatrix.anndata-expression-matrix.zarr`
+
+- Added support for `datatype: 'obs'` in `obsSets.schema.json`
+- Added loaders for `obsSets.json` and `obsSets.cell-sets.json`.
+- Added loaders for `obsFeatureMatrix.clusters.json`
+- Added loaders for `obsFeatureMatrix.genes.json`
 - Added loaders for `obsLabels.cells.json`, `obsEmbedding.cells.json`, `obsLocations.cells.json`, `obsSegmentations.cells.json`
+- Added loaders for `obsLabels.anndata-expression-matrix.zarr`, `featureLabels.anndata-expression-matrix.zarr`, `obsFeatureMatrix.anndata-expression-matrix.zarr`
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.

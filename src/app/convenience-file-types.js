@@ -1,5 +1,24 @@
 import { FileType } from './constants';
 
+export function expandCellSetsJson(fileDef) {
+  const {
+    url,
+    requestInit,
+    coordinationValues = {},
+  } = fileDef;
+  const baseCoordinationValues = {
+    obsType: coordinationValues.obsType || 'cell',
+  };
+  return [
+    {
+      fileType: FileType.OBS_SETS_CELL_SETS_JSON,
+      url,
+      requestInit,
+      coordinationValues: baseCoordinationValues,
+    },
+  ];
+}
+
 export function expandCellsJson(fileDef) {
   const baseFileDef = {
     ...fileDef,
@@ -35,6 +54,43 @@ export function expandCellsJson(fileDef) {
         obsLabelsType: key,
       },
     })) : []),
+  ];
+}
+
+
+export function expandClustersJson(fileDef) {
+  const baseFileDef = {
+    ...fileDef,
+    coordinationValues: {
+      ...fileDef.coordinationValues,
+      obsType: fileDef.coordinationValues?.obsType || 'cell',
+      featureType: fileDef.coordinationValues?.featureType || 'gene',
+    },
+  };
+  delete baseFileDef.type;
+  return [
+    {
+      ...baseFileDef,
+      fileType: FileType.OBS_FEATURE_MATRIX_CLUSTERS_JSON,
+    },
+  ];
+}
+
+export function expandGenesJson(fileDef) {
+  const baseFileDef = {
+    ...fileDef,
+    coordinationValues: {
+      ...fileDef.coordinationValues,
+      obsType: fileDef.coordinationValues?.obsType || 'cell',
+      featureType: fileDef.coordinationValues?.featureType || 'gene',
+    },
+  };
+  delete baseFileDef.type;
+  return [
+    {
+      ...baseFileDef,
+      fileType: FileType.OBS_FEATURE_MATRIX_GENES_JSON,
+    },
   ];
 }
 
@@ -237,6 +293,7 @@ export function expandAnndataZarr(fileDef) {
   ];
 }
 
+
 /**
  * Built-in convenience file type
  * expansion functions.
@@ -246,5 +303,8 @@ export const CONVENIENCE_FILE_TYPES = {
   // [FileType.ANNDATA_CELLS_ZARR]: expandAnndataCellsZarr,
   // [FileType.ANNDATA_CELL_SETS_ZARR]: expandAnndataCellSetsZarr,
   // [FileType.ANNDATA_EXPRESSION_MATRIX_ZARR]: expandAnndataExpressionMatrixZarr,
+  // [FileType.CELL_SETS_JSON]: expandCellSetsJson,
+  // [FileType.CLUSTERS_JSON]: expandClustersJson,
+  // [FileType.GENES_JSON]: expandGenesJson,
   // [FileType.CELLS_JSON]: expandCellsJson,
 };
