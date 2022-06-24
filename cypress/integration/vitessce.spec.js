@@ -21,7 +21,7 @@ describe('Vitessce Mocked Routes', () => {
       (type) => {
         cy.route(
           `${urlPrefix}/linnarsson/linnarsson.${type}.json`,
-          `fixture:../../src/schemas/fixtures/${(type === 'cell-sets' ? 'obsSets' : type)}.good.json`,
+          `fixture:../../src/schemas/fixtures/${(type === 'cell-sets' ? 'cellSets' : type)}.good.json`,
         );
       },
     );

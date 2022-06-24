@@ -39,6 +39,8 @@ export default class ObsSetsJsonLoader extends JsonLoader {
       coordinationValues.obsSetSelection = newAutoSetSelections;
       coordinationValues.obsSetColor = newAutoSetColors;
     }
-    return Promise.resolve(new LoaderResult(upgradedData, url, coordinationValues));
+    return Promise.resolve(new LoaderResult({
+      obsSets: upgradedData,
+    }, url, coordinationValues));
   }
 }

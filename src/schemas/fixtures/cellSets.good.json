@@ -1,6 +1,6 @@
 {
     "version": "0.1.2",
-    "datatype": "obs",
+    "datatype": "cell",
     "tree": [
         {
             "name": "Clustering Algorithm",
