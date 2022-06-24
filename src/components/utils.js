@@ -1,7 +1,7 @@
 import React from 'react';
 import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import {
-  SETS_DATATYPE_CELL,
+  SETS_DATATYPE_OBS,
   HIERARCHICAL_SCHEMAS,
 } from './sets/constants';
 import { PRIMARY_CARD } from './classNames';
@@ -153,8 +153,8 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
     n => n.name === CELL_SELECTIONS_LEVEL_ZERO_NAME,
   );
   const nextAdditionalCellSets = {
-    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_CELL].latestVersion,
-    datatype: SETS_DATATYPE_CELL,
+    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_OBS].latestVersion,
+    datatype: SETS_DATATYPE_OBS,
     tree: [...(additionalCellSets ? additionalCellSets.tree : [])],
   };
 
@@ -192,8 +192,8 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
 
 export function mergeCellSets(cellSets, additionalCellSets) {
   return {
-    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_CELL].latestVersion,
-    datatype: SETS_DATATYPE_CELL,
+    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_OBS].latestVersion,
+    datatype: SETS_DATATYPE_OBS,
     tree: [
       ...(cellSets ? cellSets.tree : []),
       ...(additionalCellSets ? additionalCellSets.tree : []),
