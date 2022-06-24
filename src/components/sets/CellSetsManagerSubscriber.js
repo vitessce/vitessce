@@ -114,7 +114,7 @@ export default function CellSetsManagerSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, false);
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, true,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },

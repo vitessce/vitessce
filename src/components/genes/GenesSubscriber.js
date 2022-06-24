@@ -76,6 +76,8 @@ export default function GenesSubscriber(props) {
   const geneList = attrs ? attrs.cols : [];
   const numGenes = geneList.length;
 
+  console.log("genes", attrs);
+
   function setGeneSelectionAndColorEncoding(newSelection) {
     setGeneSelection(newSelection);
     setCellColorEncoding('geneSelection');
