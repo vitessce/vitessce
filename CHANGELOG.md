@@ -13,7 +13,6 @@
 - Add more usage examples to the `about` documentation page.
 - Added `npm run start:nolint` script to disable linting for quickly prototyping code.
 - Added new file type and data type constants.
-
 - Added support for `datatype: 'obs'` in `obsSets.schema.json`
 - Added loaders for `obsSets.json` and `obsSets.cell-sets.json`.
 - Added loaders for `obsFeatureMatrix.clusters.json`

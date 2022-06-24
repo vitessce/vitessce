@@ -98,7 +98,6 @@ export function expandCellsJson(fileDef) {
   ];
 }
 
-
 export function expandClustersJson(fileDef) {
   const baseFileDef = {
     ...fileDef,

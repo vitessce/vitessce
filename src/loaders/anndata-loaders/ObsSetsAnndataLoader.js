@@ -45,7 +45,7 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
     coordinationValues.obsSetSelection = newAutoSetSelections;
     coordinationValues.obsSetColor = newAutoSetColors;
     return Promise.resolve(
-      new LoaderResult(cellSetsTree, null, coordinationValues),
+      new LoaderResult({ obsSets: cellSetsTree }, null, coordinationValues),
     );
   }
 }
