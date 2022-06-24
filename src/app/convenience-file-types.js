@@ -1,5 +1,46 @@
 import { FileType } from './constants';
 
+export function expandRasterJson(fileDef) {
+  const {
+    url,
+    requestInit,
+    coordinationValues = {},
+  } = fileDef;
+  const baseCoordinationValues = {
+    obsType: coordinationValues.obsType || 'cell',
+  };
+  return [
+    {
+      fileType: FileType.IMAGE_RASTER_JSON,
+      url,
+      requestInit,
+      coordinationValues,
+    },
+    {
+      fileType: FileType.OBS_SEGMENTATIONS_RASTER_JSON,
+      url,
+      requestInit,
+      coordinationValues: baseCoordinationValues,
+    },
+  ];
+}
+
+export function expandRasterOmeZarr(fileDef) {
+  const {
+    url,
+    requestInit,
+    coordinationValues = {},
+  } = fileDef;
+  return [
+    {
+      fileType: FileType.IMAGE_OME_ZARR,
+      url,
+      requestInit,
+      coordinationValues,
+    },
+  ];
+}
+
 export function expandCellSetsJson(fileDef) {
   const {
     url,
@@ -303,6 +344,8 @@ export const CONVENIENCE_FILE_TYPES = {
   // [FileType.ANNDATA_CELLS_ZARR]: expandAnndataCellsZarr,
   // [FileType.ANNDATA_CELL_SETS_ZARR]: expandAnndataCellSetsZarr,
   // [FileType.ANNDATA_EXPRESSION_MATRIX_ZARR]: expandAnndataExpressionMatrixZarr,
+  // [FileType.RASTER_JSON]: expandRasterJson,
+  // [FileType.RASTER_OME_ZARR]: expandRasterOmeZarr,
   // [FileType.CELL_SETS_JSON]: expandCellSetsJson,
   // [FileType.CLUSTERS_JSON]: expandClustersJson,
   // [FileType.GENES_JSON]: expandGenesJson,
