@@ -6,9 +6,11 @@ import uuidv4 from 'uuid/v4';
  */
 export default class AbstractLoader {
   constructor({
-    type, url, requestInit,
+    type, fileType,
+    url, requestInit,
     options, coordinationValues,
   }) {
+    this.fileType = fileType;
     this.type = type;
     this.url = url;
     this.requestInit = requestInit;

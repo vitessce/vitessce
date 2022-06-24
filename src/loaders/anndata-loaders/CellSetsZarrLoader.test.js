@@ -22,7 +22,7 @@ describe('loaders/CellSetsZarrLoader', () => {
 
     expect(tree).toEqual({
       version: '0.1.3',
-      datatype: 'cell',
+      datatype: 'obs',
       tree: [
         {
           name: 'Subclass Levels',
@@ -88,7 +88,7 @@ describe('loaders/CellSetsZarrLoader', () => {
 
     expect(tree).toEqual({
       version: '0.1.3',
-      datatype: 'cell',
+      datatype: 'obs',
       tree: [
         {
           name: 'Subclass Level 1',
@@ -131,7 +131,7 @@ describe('loaders/CellSetsZarrLoader', () => {
 
     expect(tree).toEqual({
       version: '0.1.3',
-      datatype: 'cell',
+      datatype: 'obs',
       tree: [
         {
           name: 'Subclass Level 1',

@@ -1,5 +1,24 @@
 import { FileType } from './constants';
 
+export function expandCellSetsJson(fileDef) {
+  const {
+    url,
+    requestInit,
+    coordinationValues = {},
+  } = fileDef;
+  const baseCoordinationValues = {
+    obsType: coordinationValues.obsType || 'cell',
+  };
+  return [
+    {
+      fileType: FileType.OBS_SETS_CELL_SETS_JSON,
+      url,
+      requestInit,
+      coordinationValues: baseCoordinationValues,
+    },
+  ];
+}
+
 export function expandCellsJson(fileDef) {
   const baseFileDef = {
     ...fileDef,
@@ -79,6 +98,7 @@ export function expandGenesJson(fileDef) {
  * expansion functions.
  */
 export const CONVENIENCE_FILE_TYPES = {
+  // [FileType.CELL_SETS_JSON]: expandCellSetsJson,
   // [FileType.CLUSTERS_JSON]: expandClustersJson,
   // [FileType.GENES_JSON]: expandGenesJson,
   // [FileType.CELLS_JSON]: expandCellsJson,
