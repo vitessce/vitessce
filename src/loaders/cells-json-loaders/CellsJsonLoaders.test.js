@@ -16,7 +16,7 @@ const createLoader = (ClassDef, config, data) => {
   return new ClassDef(source, configWithUrl);
 };
 
-describe.only('loaders/cells-json-loaders', () => {
+describe('loaders/cells-json-loaders', () => {
   describe('CellsJsonAsObsEmbeddingLoader', () => {
     it('can load obsEmbedding', async () => {
       const loader = createLoader(CellsJsonAsObsEmbeddingLoader, {
