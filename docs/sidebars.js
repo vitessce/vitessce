@@ -45,6 +45,7 @@ module.exports = {
       items: [
         'dev-overview',
         'dev-add-component',
+        'dev-add-loader',
         'dev-plugins',
         'troubleshooting',
       ],
