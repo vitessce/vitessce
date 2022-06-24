@@ -28,8 +28,12 @@ export default class CellsJsonAsObsEmbeddingLoader extends JsonLoader {
     const obsIndex = Object.keys(data);
     const obsEmbeddingX = cellObjs.map(cellObj => cellObj.mappings[embeddingType][0]);
     const obsEmbeddingY = cellObjs.map(cellObj => cellObj.mappings[embeddingType][1]);
+    const obsEmbedding = {
+      data: [obsEmbeddingX, obsEmbeddingY],
+      shape: [2, obsEmbeddingX.length],
+    };
     return Promise.resolve(new LoaderResult(
-      { obsIndex, obsEmbedding: [obsEmbeddingX, obsEmbeddingY] },
+      { obsIndex, obsEmbedding },
       url,
     ));
   }

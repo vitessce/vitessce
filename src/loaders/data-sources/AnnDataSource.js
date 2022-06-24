@@ -146,7 +146,7 @@ export default class AnnDataSource extends ZarrDataSource {
    * @param {number[]} dims The column indices to load.
    * @returns {Promise} A promise for a zarr array containing the data.
    */
-  async loadNumericForDims(path, dims) {
+  loadNumericForDims(path, dims) {
     const { store } = this;
     const arr = openArray({
       store,

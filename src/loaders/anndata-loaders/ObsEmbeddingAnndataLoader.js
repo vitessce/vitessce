@@ -9,14 +9,13 @@ export default class ObsEmbeddingAnndataLoader extends AbstractTwoStepLoader {
    * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
    * @returns {Promise} A promise for an array of columns.
    */
-  loadEmbedding() {
+  async loadEmbedding() {
     const { path, dims = [0, 1] } = this.options;
-    const { embeddingType } = this.coordinationValues;
     if (this.embedding) {
       return this.embedding;
     }
-    if (!this.embedding && embeddingType) {
-      this.embedding = this.dataSource.loadNumericForDims(path, dims);
+    if (!this.embedding) {
+      this.embedding = await this.dataSource.loadNumericForDims(path, dims);
       return this.embedding;
     }
     this.embedding = Promise.resolve(null);

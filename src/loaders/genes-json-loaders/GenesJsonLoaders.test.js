@@ -25,13 +25,11 @@ describe('loaders/genes-json-loaders', () => {
       expect(Object.keys(payload)).toEqual(['obsIndex', 'featureIndex', 'obsFeatureMatrix']);
       expect(payload.obsIndex).toEqual(['778', '1409', '3642']);
       expect(payload.featureIndex).toEqual(['Gad2', 'Slc32a1']);
-      expect(payload.obsFeatureMatrix).toEqual({
-        data: Uint8Array.from([
-          93, 213,
-          42, 135,
-          255, 255,
-        ]),
-      });
+      expect(Array.from(payload.obsFeatureMatrix.data)).toEqual([
+        93, 213,
+        42, 135,
+        255, 255,
+      ]);
     });
   });
 });
