@@ -1,5 +1,23 @@
 import { FileType } from './constants';
 
+export function expandExpressionMatrixZarr(fileDef) {
+  const baseFileDef = {
+    ...fileDef,
+    coordinationValues: {
+      ...fileDef.coordinationValues,
+      obsType: fileDef.coordinationValues?.obsType || 'cell',
+      featureType: fileDef.coordinationValues?.featureType || 'gene',
+    },
+  };
+  delete baseFileDef.type;
+  return [
+    {
+      ...baseFileDef,
+      fileType: FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR,
+    },
+  ];
+}
+
 export function expandRasterJson(fileDef) {
   const {
     url,
@@ -343,6 +361,7 @@ export const CONVENIENCE_FILE_TYPES = {
   // [FileType.ANNDATA_CELLS_ZARR]: expandAnndataCellsZarr,
   // [FileType.ANNDATA_CELL_SETS_ZARR]: expandAnndataCellSetsZarr,
   // [FileType.ANNDATA_EXPRESSION_MATRIX_ZARR]: expandAnndataExpressionMatrixZarr,
+  // [FileType.EXPRESSION_MATRIX_ZARR]: expandExpressionMatrixZarr,
   // [FileType.RASTER_JSON]: expandRasterJson,
   // [FileType.RASTER_OME_ZARR]: expandRasterOmeZarr,
   // [FileType.CELL_SETS_JSON]: expandCellSetsJson,

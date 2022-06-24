@@ -4,7 +4,7 @@ import {
 } from '../app/plugins';
 
 import JsonLoader from './JsonLoader';
-import MatrixZarrLoader from './MatrixZarrLoader';
+import MatrixZarrLoader from './matrix-loaders/MatrixZarrLoader';
 import RasterJsonLoader from './raster-json-loaders/RasterJsonLoader';
 import ClustersJsonAsMatrixZarrLoader from './clusters-json-loaders/ClustersJsonAsMatrixZarrLoader';
 import GenesJsonAsMatrixZarrLoader from './genes-json-loaders/GenesJsonAsMatrixZarrLoader';
@@ -21,6 +21,7 @@ import ClustersJsonAsObsFeatureMatrixLoader from './clusters-json-loaders/Cluste
 import GenesJsonAsObsFeatureMatrixLoader from './genes-json-loaders/GenesJsonAsObsFeatureMatrix';
 import RasterJsonAsImageLoader from './raster-json-loaders/RasterJsonAsImageLoader';
 import RasterJsonAsObsSegmentationsLoader from './raster-json-loaders/RasterJsonAsObsSegmentationsLoader';
+import MatrixZarrAsObsFeatureMatrixLoader from './matrix-loaders/MatrixZarrAsObsFeatureMatrix';
 
 export const fileTypeToLoaderAndSource = {
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: [
@@ -37,6 +38,8 @@ export const fileTypeToLoaderAndSource = {
   ],
   [FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR]: [
     AnnDataSource, AnnDataLoaders.ObsSegmentationsAnndataLoader,
+  [FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR]: [
+    ZarrDataSource, MatrixZarrAsObsFeatureMatrixLoader,
   ],
   [FileType.IMAGE_OME_ZARR]: [ZarrDataSource, OmeZarrLoader],
   [FileType.IMAGE_RASTER_JSON]: [JsonSource, RasterJsonAsImageLoader],
