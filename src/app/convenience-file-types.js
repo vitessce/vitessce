@@ -52,7 +52,6 @@ export function expandClustersJson(fileDef) {
     {
       ...baseFileDef,
       fileType: FileType.OBS_FEATURE_MATRIX_CLUSTERS_JSON,
-      fileType: FileType.OBS_FEATURE_MATRIX_GENES_JSON,
     },
   ];
 }
