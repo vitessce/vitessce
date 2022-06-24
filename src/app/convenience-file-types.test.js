@@ -1,6 +1,7 @@
 import expect from 'expect';
 import {
   expandCellsJson,
+  expandAnndataZarr,
   expandAnndataCellsZarr,
   expandAnndataCellSetsZarr,
   expandAnndataExpressionMatrixZarr,
@@ -95,7 +96,6 @@ describe('src/app/convenience-file-types.js', () => {
       ]);
     });
   });
-  
   // cells
   describe('expandAnndataCellsZarr', () => {
     it('expands when there are no options', () => {
@@ -116,7 +116,7 @@ describe('src/app/convenience-file-types.js', () => {
             PCA: {
               dims: [2, 3],
               key: 'obsm/pca',
-            }
+            },
           },
           xy: 'obsm/locations',
           poly: 'obsm/segmentations',
@@ -340,7 +340,7 @@ describe('src/app/convenience-file-types.js', () => {
           obsLabelsType: 'spotName',
           featureLabelsType: 'geneSymbol',
           embeddingType: 'PCA',
-        }
+        },
       })).toEqual([
         {
           fileType: 'obsLabels.anndata.zarr',
@@ -375,7 +375,7 @@ describe('src/app/convenience-file-types.js', () => {
           url: 'http://localhost:8000/anndata.zarr',
           options: {
             path: 'obsm/pca',
-            dims: [2, 4]
+            dims: [2, 4],
           },
           coordinationValues: {
             obsType: 'spot',
@@ -446,4 +446,3 @@ describe('src/app/convenience-file-types.js', () => {
     });
   });
 });
-
