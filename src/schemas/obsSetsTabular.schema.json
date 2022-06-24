@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "https://github.com/vitessce/vitessce/#cell-sets-tabular",
-    "title": "Vitessce cell sets data, tabular format",
+    "$id": "https://github.com/vitessce/vitessce/#obsSetsTabular",
+    "title": "Vitessce obs sets data, tabular format",
     "definitions": {
         "colorArray": {
             "type": "array",

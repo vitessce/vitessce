@@ -1,7 +1,7 @@
 import { FileType } from './constants';
 
 export function expandRasterJson(fileDef) {
-  const {
+    const {
     url,
     requestInit,
     coordinationValues = {},
@@ -37,6 +37,25 @@ export function expandRasterOmeZarr(fileDef) {
       url,
       requestInit,
       coordinationValues,
+    },
+  ];
+}
+
+export function expandCellSetsJson(fileDef) {
+  const {
+    url,
+    requestInit,
+    coordinationValues = {},
+  } = fileDef;
+  const baseCoordinationValues = {
+    obsType: coordinationValues.obsType || 'cell',
+  };
+  return [
+    {
+      fileType: FileType.OBS_SETS_CELL_SETS_JSON,
+      url,
+      requestInit,
+      coordinationValues: baseCoordinationValues,
     },
   ];
 }
@@ -122,6 +141,7 @@ export function expandGenesJson(fileDef) {
 export const CONVENIENCE_FILE_TYPES = {
   // [FileType.RASTER_JSON]: expandRasterJson,
   // [FileType.RASTER_OME_ZARR]: expandRasterOmeZarr,
+  // [FileType.CELL_SETS_JSON]: expandCellSetsJson,
   // [FileType.CLUSTERS_JSON]: expandClustersJson,
   // [FileType.GENES_JSON]: expandGenesJson,
   // [FileType.CELLS_JSON]: expandCellsJson,
