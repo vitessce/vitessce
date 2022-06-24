@@ -16,7 +16,6 @@ import configSchema1_0_11 from '../schemas/config-1.0.11.schema.json';
 import configSchema1_0_12 from '../schemas/config-1.0.12.schema.json';
 import configSchema1_0_13 from '../schemas/config-1.0.13.schema.json';
 import obsSetsSchema from '../schemas/obsSets.schema.json';
-import cellSetsSchema from '../schemas/cell-sets.schema.json';
 import rasterSchema from '../schemas/raster.schema.json';
 import {
   upgradeFrom0_1_0,
