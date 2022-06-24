@@ -1,12 +1,101 @@
-/* eslint-disable */
 import expect from 'expect';
 import {
+  expandCellsJson,
   expandAnndataCellsZarr,
   expandAnndataCellSetsZarr,
   expandAnndataExpressionMatrixZarr,
 } from './convenience-file-types';
 
 describe('src/app/convenience-file-types.js', () => {
+  describe('expandCellsJson', () => {
+    it('expands when there are no options', () => {
+      expect(expandCellsJson({
+        fileType: 'cells.json',
+        url: 'http://localhost:8000/cells.json',
+      })).toEqual([
+        {
+          fileType: 'obsLocations.cells.json',
+          url: 'http://localhost:8000/cells.json',
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+          },
+        },
+        {
+          fileType: 'obsSegmentations.cells.json',
+          url: 'http://localhost:8000/cells.json',
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+          },
+        },
+      ]);
+    });
+    it('expands when there is an array of embedding types', () => {
+      expect(expandCellsJson({
+        fileType: 'cells.json',
+        url: 'http://localhost:8000/cells.json',
+        options: {
+          embeddingTypes: ['UMAP', 't-SNE'],
+          obsLabelsTypes: ['cluster', 'subcluster'],
+        },
+      })).toEqual([
+        {
+          fileType: 'obsLocations.cells.json',
+          url: 'http://localhost:8000/cells.json',
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+          },
+        },
+        {
+          fileType: 'obsSegmentations.cells.json',
+          url: 'http://localhost:8000/cells.json',
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+          },
+        },
+        {
+          fileType: 'obsEmbedding.cells.json',
+          url: 'http://localhost:8000/cells.json',
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+            embeddingType: 'UMAP',
+          },
+        },
+        {
+          fileType: 'obsEmbedding.cells.json',
+          url: 'http://localhost:8000/cells.json',
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+            embeddingType: 't-SNE',
+          },
+        },
+        {
+          fileType: 'obsLabels.cells.json',
+          url: 'http://localhost:8000/cells.json',
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+            obsLabelsType: 'cluster',
+          },
+        },
+        {
+          fileType: 'obsLabels.cells.json',
+          url: 'http://localhost:8000/cells.json',
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+            obsLabelsType: 'subcluster',
+          },
+        },
+      ]);
+    });
+  });
+  
   // cells
   describe('expandAnndataCellsZarr', () => {
     it('expands when there are no options', () => {
@@ -357,3 +446,4 @@ describe('src/app/convenience-file-types.js', () => {
     });
   });
 });
+

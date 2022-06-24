@@ -419,8 +419,34 @@ export function upgradeFrom1_0_10(config) {
 export function upgradeFrom1_0_11(config) {
   const newConfig = cloneDeep(config);
 
+  const {
+    datasets,
+    coordinationSpace,
+  } = newConfig;
+
+  if (coordinationSpace.embeddingType) {
+    // This array may contain more embedding types than
+    // the cells.json file actually contains, but the tradeoff is that
+    // we do not have to load the cells.json file to double check what
+    // embedding types are actually present. CellsJsonAsObsEmbedding
+    // will just load the embedding as null if it is not present.
+    const embeddingTypes = Object.values(coordinationSpace.embeddingType);
+    datasets.forEach((dataset, i) => {
+      const { files } = dataset;
+      files.forEach((fileDef, j) => {
+        const { fileType } = fileDef;
+        if (fileType === 'cells.json') {
+          datasets[i].files[j].options = {
+            embeddingTypes,
+          };
+        }
+      });
+    });
+  }
+
   return {
     ...newConfig,
+    datasets,
     version: '1.0.12',
   };
 }
