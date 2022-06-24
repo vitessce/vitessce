@@ -5,7 +5,7 @@ import {
 
 import JsonLoader from './JsonLoader';
 import MatrixZarrLoader from './MatrixZarrLoader';
-import GenesJsonAsMatrixZarrLoader from './GenesJsonAsMatrixZarrLoader';
+import GenesJsonAsMatrixZarrLoader from './genes-json-loaders/GenesJsonAsMatrixZarrLoader';
 import ClustersJsonAsMatrixZarrLoader from './ClustersJsonAsMatrixZarrLoader';
 import RasterJsonLoader from './RasterJsonLoader';
 import OmeZarrLoader from './OmeZarrLoader';
@@ -17,10 +17,12 @@ import CellsJsonAsObsLabelsLoader from './cells-json-loaders/CellsJsonAsObsLabel
 import CellsJsonAsObsEmbeddingLoader from './cells-json-loaders/CellsJsonAsObsEmbedding';
 import CellsJsonAsObsLocationsLoader from './cells-json-loaders/CellsJsonAsObsLocations';
 import CellsJsonAsObsSegmentationsLoader from './cells-json-loaders/CellsJsonAsObsSegmentations';
+import GenesJsonAsObsFeatureMatrixLoader from './genes-json-loaders/GenesJsonAsObsFeatureMatrix';
 
 export const fileTypeToLoaderAndSource = {
   [FileType.OBS_SETS_JSON]: [JsonSource, ObsSetsJsonLoader],
   [FileType.OBS_SETS_CELL_SETS_JSON]: [JsonSource, ObsSetsJsonLoader],
+  [FileType.OBS_FEATURE_MATRIX_GENES_JSON]: [JsonSource, GenesJsonAsObsFeatureMatrixLoader],
   [FileType.OBS_LABELS_CELLS_JSON]: [JsonSource, CellsJsonAsObsLabelsLoader],
   [FileType.OBS_EMBEDDING_CELLS_JSON]: [JsonSource, CellsJsonAsObsEmbeddingLoader],
   [FileType.OBS_LOCATIONS_CELLS_JSON]: [JsonSource, CellsJsonAsObsLocationsLoader],
