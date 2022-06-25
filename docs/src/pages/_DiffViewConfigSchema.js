@@ -4,7 +4,7 @@ import { SCHEMA_HANDLERS, LATEST_VERSION } from '../../../src/app/view-config-ve
 const viewConfigVersions = Object.keys(SCHEMA_HANDLERS);
 const defaultPrev = viewConfigVersions[viewConfigVersions.indexOf(LATEST_VERSION) - 1];
 const defaultNext = LATEST_VERSION;
-const defaultRef = 'master';
+const defaultRef = 'main';
 
 function getCompareUrl(prevVersion, nextVersion) {
   return `https://observablehq.com/@keller-mark/vitessce-config-version-diff?ref=${defaultRef}&prev=${prevVersion}&next=${nextVersion}`;

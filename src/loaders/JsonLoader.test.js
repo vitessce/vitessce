@@ -9,6 +9,7 @@ describe('loaders/JsonLoader', () => {
     it('can validate against a schema when data looks good', () => {
       const loader = new JsonLoader(null, {
         type: 'cells',
+        fileType: 'cells.json',
       });
       expect(loader.schema).toBeDefined();
       const [valid, reason] = loader.validate(cellsGoodFixture);
@@ -19,6 +20,7 @@ describe('loaders/JsonLoader', () => {
     it('can validate against a schema when data looks bad', () => {
       const loader = new JsonLoader(null, {
         type: 'cells',
+        fileType: 'cells.json',
       });
       expect(loader.schema).toBeDefined();
       const [valid, reason] = loader.validate(cellsBadFixture);
