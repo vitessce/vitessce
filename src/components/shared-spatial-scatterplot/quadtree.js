@@ -9,7 +9,7 @@ import range from 'lodash/range';
  * spatial/scatterplot coordinates [x, y].
  * @returns {object} Quadtree instance.
  */
-export function createCellsQuadTree(obsEmbedding) {
+export function createEmbeddingQuadTree(obsEmbedding) {
   // Use the cellsEntries variable since it is already
   // an array, converted by Object.entries().
   // Only use cellsEntries in quadtree calculation if there is
@@ -23,5 +23,23 @@ export function createCellsQuadTree(obsEmbedding) {
     .x(i => obsEmbedding.data[0][i])
     .y(i => obsEmbedding.data[1][i])
     .addAll(range(obsEmbedding.shape[1]));
+  return tree;
+}
+
+export function createSegmentationsQuadTree(obsSegmentations) {
+  // Use the cellsEntries variable since it is already
+  // an array, converted by Object.entries().
+  // Only use cellsEntries in quadtree calculation if there is
+  // centroid data in the cells (i.e not just ids).
+  // eslint-disable-next-line no-unused-vars
+  if (!obsSegmentations) {
+    // Abort if the cells data is not yet available.
+    return null;
+  }
+  const tree = quadtree()
+    // TODO: find center of polygon
+    .x(i => obsSegmentations.data[i][0][0])
+    .y(i => obsSegmentations.data[i][0][1])
+    .addAll(range(obsSegmentations.data.length));
   return tree;
 }

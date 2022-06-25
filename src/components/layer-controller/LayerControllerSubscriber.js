@@ -10,7 +10,7 @@ import VectorLayerController from './VectorLayerController';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
 import { useReady, useClosestVitessceContainerSize, useWindowDimensions } from '../hooks';
-import { useCellsData, useMoleculesData, useRasterData } from '../data-hooks';
+import { useCellsData, useMoleculesData, useImageData } from '../data-hooks';
 import {
   useCoordination,
   useLoaders,
@@ -20,8 +20,13 @@ import {
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { initializeLayerChannels } from '../spatial/utils';
 import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
+import { DataType } from '../../app/constants';
 
-const LAYER_CONTROLLER_DATA_TYPES = ['raster'];
+const LAYER_CONTROLLER_DATA_TYPES = [
+  DataType.IMAGE,
+  DataType.OBS_LOCATIONS,
+  DataType.OBS_SEGMENTATIONS,
+];
 
 // LayerController is memoized to prevent updates from prop changes that
 // are caused by view state updates i.e zooming and panning within
@@ -286,10 +291,11 @@ function LayerControllerSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
-  const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
+  const [raster, imageLayerLoaders, imageLayerMeta] = useImageData(
     loaders, dataset, setItemIsReady, () => { }, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: rasterLayers },
+    {}, // TODO: which values to match on
   );
 
   useCellsData(

@@ -92,10 +92,6 @@ export function expandCellsJson(fileDef) {
   return [
     {
       ...baseFileDef,
-      fileType: FileType.OBS_LOCATIONS_CELLS_JSON,
-    },
-    {
-      ...baseFileDef,
       fileType: FileType.OBS_SEGMENTATIONS_CELLS_JSON,
     },
     ...(fileDef.options?.embeddingTypes ? fileDef.options.embeddingTypes.map(et => ({

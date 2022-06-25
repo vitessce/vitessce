@@ -14,7 +14,7 @@ import { cellLayerDefaultProps, PALETTE, getDefaultColor } from '../utils';
 import { getSourceFromLoader } from '../../utils';
 import { square, getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
-import { createCellsQuadTree } from '../shared-spatial-scatterplot/quadtree';
+import { createCellsQuadTree, createSegmentationsQuadTree } from '../shared-spatial-scatterplot/quadtree';
 import { ScaledExpressionExtension } from '../../layer-extensions';
 
 const CELLS_LAYER_ID = 'cells-layer';
@@ -27,8 +27,8 @@ const makeDefaultGetCellPolygon = radius => (cellEntry) => {
   const cell = cellEntry[1];
   return cell.poly?.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
 };
-const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
-  const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || getDefaultColor(theme);
+const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { index }) => {
+  const [r, g, b, a] = (cellColors && obsIndex && cellColors.get(obsIndex[index])) || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
 const makeDefaultGetCellIsSelected = (cellSelection) => {
@@ -82,7 +82,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // in React state, this component
     // uses instance variables.
     // All instance variables used in this class:
-    this.cellsEntries = [];
+    this.obsLocationsIndex = null;
+    this.obsLocations = null;
+    this.obsSegmentationsIndex = null;
+    this.obsSegmentations = null;
+    this.cellsEntries = []; // TODO: remove
     this.moleculesEntries = [];
     this.cellsQuadTree = null;
     this.cellsLayer = null;
@@ -119,9 +123,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createCellsLayer(layerDef) {
     const {
+      obsSegmentationsIndex,
+      obsSegmentations,
+    } = this;
+    const {
       radius, stroked, visible, opacity,
     } = layerDef;
-    const { cellsEntries } = this;
     const {
       theme,
       cellFilter,
@@ -129,11 +136,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
       setCellHighlight,
       setComponentHover,
       getCellIsSelected = makeDefaultGetCellIsSelected(
-        cellsEntries.length === cellSelection.length ? null : cellSelection,
+        obsSegmentationsIndex.length === cellSelection.length ? null : cellSelection,
       ),
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, theme),
-      getCellPolygon = makeDefaultGetCellPolygon(radius),
+      getCellColor = makeDefaultGetCellColors(cellColors, obsSegmentationsIndex, theme),
       onCellClick,
       lineWidthScale = 10,
       lineWidthMaxPixels = 2,
@@ -142,33 +148,44 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getExpressionValue,
       geneExpressionColormap,
     } = this.props;
-    const filteredCellsEntries = cellFilter
-      ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
-      : cellsEntries;
-
-    // Graphics rendering has the y-axis positive going south,
-    // so we need to flip it for rendering tooltips.
-    const flipYTooltip = true;
+    // const filteredCellsEntries = cellFilter
+    //   ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
+    //   : cellsEntries;
 
     return new PolygonLayer({
       id: CELLS_LAYER_ID,
+      data: {
+        src: {
+          obsIndex: obsSegmentationsIndex,
+          obsSegmentations,
+        },
+        length: obsSegmentationsIndex.length,
+      },
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      pickable: true,
+      autoHighlight: true,
+      filled: true,
+      stroked: true,
       backgroundColor: [0, 0, 0],
       isSelected: getCellIsSelected,
-      getPolygon: getCellPolygon,
+      getPolygon: (object, { index, data }) => {
+        return data.src.obsSegmentations.data[index];
+      },
       updateTriggers: {
         getLineWidth: [stroked],
         isSelected: cellSelection,
         getExpressionValue,
         getFillColor: [opacity, cellColorEncoding, cellSelection, cellColors],
         getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        getPolygon: [obsSegmentations],
       },
-      getFillColor: (cellEntry) => {
-        const color = getCellColor(cellEntry);
+      getFillColor: (object, { index }) => {
+        const color = getCellColor(object, { index });
         color[3] = opacity * 255;
         return color;
       },
-      getLineColor: (cellEntry) => {
-        const color = getCellColor(cellEntry);
+      getLineColor: (object, { index }) => {
+        const color = getCellColor(object, { index });
         color[3] = 255;
         return color;
       },
@@ -187,13 +204,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       colorScaleHi: geneExpressionColormapRange[1],
       isExpressionMode: cellColorEncoding === 'geneSelection',
       colormap: geneExpressionColormap,
-      ...cellLayerDefaultProps(
-        filteredCellsEntries,
-        undefined,
-        setCellHighlight,
-        setComponentHover,
-        flipYTooltip,
-      ),
     });
   }
 
@@ -255,18 +265,25 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   createSelectionLayers() {
+    const { obsSegmentationsIndex, obsSegmentations } = this;
     const {
       viewState,
-      getCellCoords = defaultGetCellCoords,
       setCellSelection,
     } = this.props;
     const { tool } = this.state;
     const { cellsQuadTree } = this;
+    // TODO: find the center of the polygon.
+    const getCellCoords = i => ([
+      obsSegmentations.data[i][0][0],
+      obsSegmentations.data[i][0][1],
+      0,
+    ]);
     return getSelectionLayers(
       tool,
       viewState.zoom,
       CELLS_LAYER_ID,
       getCellCoords,
+      obsSegmentationsIndex,
       setCellSelection,
       cellsQuadTree,
     );
@@ -463,16 +480,27 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateCellsData() {
-    const { cells = {}, getCellCoords = defaultGetCellCoords } = this.props;
-    const cellsEntries = Object.entries(cells);
-    this.cellsEntries = cellsEntries;
-    this.cellsQuadTree = createCellsQuadTree(cellsEntries, getCellCoords);
+    const {
+      obsSegmentationsIndex,
+      obsSegmentations,
+      obsSegmentationsType,
+    } = this.props;
+    if (obsSegmentationsIndex && obsSegmentations
+      && obsSegmentationsType === 'polygon'
+    ) {
+      console.log("set cells data");
+      this.obsSegmentationsIndex = obsSegmentationsIndex;
+      this.obsSegmentations = obsSegmentations;
+      this.cellsQuadTree = createSegmentationsQuadTree(obsSegmentations);
+    }
   }
 
   onUpdateCellsLayer() {
     const { layers } = this.props;
+    console.log(layers);
     const layerDef = (layers || []).find(layer => layer.type === 'cells');
     if (layerDef) {
+      console.log("made cells layer")
       this.cellsLayer = this.createCellsLayer(layerDef);
     } else {
       this.cellsLayer = null;
@@ -572,7 +600,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.viewInfoDidUpdate();
 
     const shallowDiff = propName => prevProps[propName] !== this.props[propName];
-    if (['cells'].some(shallowDiff)) {
+    if (
+      [
+        'obsSegmentations',
+        'obsSegmentationsIndex',
+        'obsSegmentationsType',
+      ].some(shallowDiff)
+    ) {
       // Cells data changed.
       this.onUpdateCellsData();
       this.forceUpdate();
@@ -581,7 +615,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (
       [
         'layers',
-        'cells',
+        'obsSegmentations',
+        'obsSegmentationsIndex',
+        'obsSegmentationsType',
         'cellFilter',
         'cellSelection',
         'cellColors',

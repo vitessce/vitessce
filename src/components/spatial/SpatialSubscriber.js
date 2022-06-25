@@ -6,13 +6,15 @@ import {
 } from '../hooks';
 import { setCellSelection, mergeCellSets, canLoadResolution } from '../utils';
 import {
+  useObsLocationsData,
+  useObsSegmentationsData,
   useCellsData,
   useObsSetsData,
   useFeatureSelection,
-  useMoleculesData,
-  useNeighborhoodsData,
-  useRasterData,
+  useImageData,
   useObsFeatureMatrixIndices,
+  useNeighborhoodsData,
+  useMoleculesData, // TODO: remove
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
@@ -31,7 +33,9 @@ import { DataType } from '../../app/constants';
 import { useHasLoader } from '../data-hook-utils';
 
 const SPATIAL_DATA_TYPES = [
-  'cells', 'molecules', 'raster',
+  'cells', 'molecules', // TODO: remove
+  DataType.IMAGE,
+  DataType.OBS_LOCATIONS, DataType.OBS_SEGMENTATIONS,
   DataType.OBS_SETS, DataType.OBS_FEATURE_MATRIX,
 ];
 
@@ -149,21 +153,26 @@ export default function SpatialSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [cells, cellsCount] = useCellsData(
-    loaders, dataset, setItemIsReady, addUrl, false,
-    { setSpatialSegmentationLayer: setCellsLayer },
-    { spatialSegmentationLayer: cellsLayer },
-  );
-  const [molecules, moleculesCount, locationsCount] = useMoleculesData(
+  const {
+    obsIndex: obsLocationsIndex,
+    obsLocations,
+  } = useObsLocationsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
+    {}, // TODO: use obsType once #1240 is merged.
   );
-  const [neighborhoods] = useNeighborhoodsData(
+  const {
+    obsIndex: obsSegmentationsIndex,
+    obsSegmentations,
+    obsSegmentationsType,
+  } = useObsSegmentationsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
-    { spatialNeighborhoodLayer: neighborhoodsLayer },
+    { setSpatialSegmentationLayer: setCellsLayer },
+    { spatialSegmentationLayer: cellsLayer },
+    {}, // TODO: use obsType once #1240 is merged.
   );
+  console.log(obsSegmentations, obsSegmentationsType)
   const { obsSets: cellSets } = useObsSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
@@ -179,24 +188,38 @@ export default function SpatialSubscriber(props) {
     { obsType, featureType, featureValueType },
   );
   // eslint-disable-next-line no-unused-vars
-  const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
+  const [raster, imageLayerLoaders, imageLayerMeta] = useImageData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: rasterLayers },
+    {}, // TODO: which properties to match on
+  );
+  const [neighborhoods] = useNeighborhoodsData(
+    loaders, dataset, setItemIsReady, addUrl, false,
+    { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
+    { spatialNeighborhoodLayer: neighborhoodsLayer },
+  );
+
+  // TODO: remove useCellsData and useMoleculesData
+  const [cells, cellsCount] = useCellsData(
+    loaders, dataset, setItemIsReady, addUrl, false, {}, {},
+  );
+  const [molecules, moleculesCount, locationsCount] = useMoleculesData(
+    loaders, dataset, setItemIsReady, addUrl, false, {}, {},
   );
 
   const layers = useMemo(() => {
     // Only want to pass in cells layer once if there is not `bitmask`.
     // We pass in the cells data regardless because it is needed for selection,
     // but the rendering layer itself is not needed.
-    const canPassInCellsLayer = !imageLayerMeta.some(l => l?.metadata?.isBitmask);
+    const canPassInCellsLayer = obsSegmentationsType === 'polygon';
     return [
       ...(moleculesLayer ? [{ ...moleculesLayer, type: 'molecules' }] : []),
       ...((cellsLayer && canPassInCellsLayer) ? [{ ...cellsLayer, type: 'cells' }] : []),
       ...(neighborhoodsLayer ? [{ ...neighborhoodsLayer, type: 'neighborhoods' }] : []),
       ...(rasterLayers ? rasterLayers.map(l => ({ ...l, type: (l.type && ['raster', 'bitmask'].includes(l.type) ? l.type : 'raster') })) : []),
     ];
-  }, [cellsLayer, moleculesLayer, neighborhoodsLayer, rasterLayers, imageLayerMeta]);
+  }, [cellsLayer, moleculesLayer, neighborhoodsLayer, rasterLayers, obsSegmentationsType]);
 
   useEffect(() => {
     if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
@@ -361,6 +384,11 @@ export default function SpatialSubscriber(props) {
         }}
         setViewState={setViewState}
         layers={layers}
+        obsLocationsIndex={obsLocationsIndex} // TODO: use
+        obsSegmentationsIndex={obsSegmentationsIndex}
+        obsLocations={obsLocations} // TODO: use
+        obsSegmentations={obsSegmentations}
+        obsSegmentationsType={obsSegmentationsType}
         cells={cells}
         cellFilter={cellFilter}
         cellSelection={cellSelection}

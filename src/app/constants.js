@@ -57,7 +57,6 @@ export const FileType = {
   // New file types to support old file types:
   // For cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
-  OBS_LOCATIONS_CELLS_JSON: 'obsLocations.cells.json',
   OBS_SEGMENTATIONS_CELLS_JSON: 'obsSegmentations.cells.json',
   OBS_LABELS_CELLS_JSON: 'obsLabels.cells.json',
   // For cell-sets.json

@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo } from 'react';
 import { useReady } from '../hooks';
-import { useDescription, useRasterData } from '../data-hooks';
+import { useDescription, useImageData } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
 import Description from './Description';
+import { DataType } from '../../app/constants';
 
-const DESCRIPTION_DATA_TYPES = ['raster'];
+const DESCRIPTION_DATA_TYPES = [DataType.IMAGE];
 
 /**
  * A subscriber component for a text description component.
@@ -53,8 +54,9 @@ export default function DescriptionSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [description] = useDescription(loaders, dataset);
-  const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
-    loaders, dataset, setItemIsReady, () => {}, false,
+  const [raster, imageLayerLoaders, imageLayerMeta] = useImageData(
+    loaders, dataset, setItemIsReady, () => {}, false, {}, {},
+    {}, // TODO: which properties to match on
   );
 
   const metadata = useMemo(() => {

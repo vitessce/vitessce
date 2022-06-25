@@ -80,6 +80,28 @@ export function useObsEmbeddingData(
   );
 }
 
+export function useObsLocationsData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_LOCATIONS,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+export function useObsSegmentationsData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_SEGMENTATIONS,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
 /**
  * Get data from a cells data type loader,
  * updating "ready" and URL state appropriately.
@@ -512,9 +534,10 @@ export function useNeighborhoodsData(
  * imageLayerLoaders is an object, and
  * imageLayerMeta is an object.
  */
-export function useRasterData(
+export function useImageData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues,
+  matchOn,
 ) {
   const [raster, setRaster] = useState();
   // Since we want the image layer / channel definitions to come from the
@@ -525,18 +548,18 @@ export function useRasterData(
   const [imageLayerMeta, setImageLayerMeta] = useState([]);
 
   const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, 'raster', {});
+  const loader = useMatchingLoader(loaders, dataset, DataType.IMAGE, matchOn);
 
   useEffect(() => {
     if (loader) {
       loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data, url: urls, coordinationValues } = payload;
-        setRaster(data);
+        setRaster(data.image);
         urls.forEach(([url, name]) => {
           addUrl(url, name);
         });
-        const { loaders: nextImageLoaders, meta: nextImageMeta } = data;
+        const { loaders: nextImageLoaders, meta: nextImageMeta } = data.image;
         setImageLayerLoaders(nextImageLoaders);
         setImageLayerMeta(nextImageMeta);
         initCoordinationSpace(
@@ -544,7 +567,7 @@ export function useRasterData(
           coordinationSetters,
           initialCoordinationValues,
         );
-        setItemIsReady('raster');
+        setItemIsReady(DataType.IMAGE);
       });
     } else {
       // There was no raster loader for this dataset,
@@ -553,12 +576,12 @@ export function useRasterData(
       setImageLayerMeta([]);
       if (isRequired) {
         if (dataset) {
-          warn(new LoaderNotFoundError(dataset, 'raster', null, null), setWarning);
+          warn(new LoaderNotFoundError(dataset, DataType.IMAGE, null, null), setWarning);
         } else {
           warn(new DatasetNotFoundError(dataset), setWarning);
         }
       } else {
-        setItemIsReady('raster');
+        setItemIsReady(DataType.IMAGE);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

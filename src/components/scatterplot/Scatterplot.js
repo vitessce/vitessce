@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import React, { forwardRef } from 'react';
 import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { PolygonLayer, TextLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
@@ -5,7 +6,7 @@ import { forceSimulation } from 'd3-force';
 import { getSelectionLayers } from '../../layers';
 import { getDefaultColor } from '../utils';
 import {
-  createCellsQuadTree,
+  createEmbeddingQuadTree,
 } from '../shared-spatial-scatterplot/quadtree';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import { forceCollideRects } from '../shared-spatial-scatterplot/force-collide-rects';
@@ -17,20 +18,9 @@ const NUM_FORCE_SIMULATION_TICKS = 100;
 const LABEL_UPDATE_ZOOM_DELTA = 0.25;
 
 // Default getter function props.
-const makeDefaultGetCellPosition = mapping => (cellEntry) => {
-  const { mappings } = cellEntry[1];
-  if (!(mapping in mappings)) {
-    const available = Object.keys(mappings).map(s => `"${s}"`).join(', ');
-    throw new Error(`Expected to find "${mapping}", but available mappings are: ${available}`);
-  }
-  const mappedCell = mappings[mapping];
-  // The negative applied to the y-axis is because
-  // graphics rendering has the y-axis positive going south.
-  return [mappedCell[0], -mappedCell[1], 0];
-};
-const makeDefaultGetCellCoords = mapping => cell => cell.mappings[mapping];
 const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { index }) => {
-  const [r, g, b, a] = (cellColors && obsIndex && cellColors.get(obsIndex[index])) || getDefaultColor(theme);
+  const [r, g, b, a] = (cellColors && obsIndex && cellColors.get(obsIndex[index]))
+    || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
 
@@ -92,8 +82,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     } = this;
     const {
       theme,
-      mapping,
-      getCellPosition = makeDefaultGetCellPosition(mapping),
       cellRadius = 1.0,
       cellOpacity = 1.0,
       cellFilter,
@@ -274,7 +262,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     if (obsIndex && obsEmbedding) {
       this.obsIndex = obsIndex;
       this.obsEmbedding = obsEmbedding;
-      this.cellsQuadTree = createCellsQuadTree(obsEmbedding);
+      this.cellsQuadTree = createEmbeddingQuadTree(obsEmbedding);
     }
   }
 

@@ -34,7 +34,7 @@ import {
   useFeatureSelection,
   useMoleculesData,
   useNeighborhoodsData,
-  useRasterData,
+  useImageData,
   useGenomicProfilesData,
 } from './components/data-hooks';
 import {
@@ -112,7 +112,7 @@ export {
   useFeatureSelection,
   useMoleculesData,
   useNeighborhoodsData,
-  useRasterData,
+  useImageData,
   useGenomicProfilesData,
   JsonLoader,
   LoaderResult,

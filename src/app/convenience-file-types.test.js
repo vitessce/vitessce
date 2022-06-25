@@ -101,14 +101,6 @@ describe('src/app/convenience-file-types.js', () => {
         url: 'http://localhost:8000/cells.json',
       })).toEqual([
         {
-          fileType: 'obsLocations.cells.json',
-          url: 'http://localhost:8000/cells.json',
-          coordinationValues: {
-            obsType: 'cell',
-            featureType: 'gene',
-          },
-        },
-        {
           fileType: 'obsSegmentations.cells.json',
           url: 'http://localhost:8000/cells.json',
           coordinationValues: {
@@ -127,14 +119,6 @@ describe('src/app/convenience-file-types.js', () => {
           obsLabelsTypes: ['cluster', 'subcluster'],
         },
       })).toEqual([
-        {
-          fileType: 'obsLocations.cells.json',
-          url: 'http://localhost:8000/cells.json',
-          coordinationValues: {
-            obsType: 'cell',
-            featureType: 'gene',
-          },
-        },
         {
           fileType: 'obsSegmentations.cells.json',
           url: 'http://localhost:8000/cells.json',
