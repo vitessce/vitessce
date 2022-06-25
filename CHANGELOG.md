@@ -21,6 +21,8 @@
 - Added loaders for `image.raster.json`,`obsSegmentations.raster.json`, `image.ome-zarr`
 - Added loaders for `obsLabels.anndata-expression-matrix.zarr`, `featureLabels.anndata-expression-matrix.zarr`, `obsFeatureMatrix.anndata-expression-matrix.zarr`
 - Added loaders for `obsFeatureMatrix.expression-matrix.zarr`
+- Added the property `coordinationValues` for view config file definitions.
+- Added the `useMatchingLoader` hook.
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
