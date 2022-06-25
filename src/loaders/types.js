@@ -24,6 +24,21 @@ import RasterJsonAsObsSegmentationsLoader from './raster-json-loaders/RasterJson
 import MatrixZarrAsObsFeatureMatrixLoader from './matrix-loaders/MatrixZarrAsObsFeatureMatrix';
 
 export const fileTypeToLoaderAndSource = {
+  [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: [
+    AnnDataSource, AnnDataLoaders.ObsFeatureMatrixAnndataLoader,
+  ],
+  [FileType.OBS_SETS_ANNDATA_ZARR]: [
+    AnnDataSource, AnnDataLoaders.ObsSetsAnndataLoader,
+  ],
+  [FileType.OBS_EMBEDDING_ANNDATA_ZARR]: [
+    AnnDataSource, AnnDataLoaders.ObsEmbeddingAnndataLoader,
+  ],
+  [FileType.OBS_LOCATIONS_ANNDATA_ZARR]: [
+    AnnDataSource, AnnDataLoaders.ObsLocationsAnndataLoader,
+  ],
+  [FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR]: [
+    AnnDataSource, AnnDataLoaders.ObsSegmentationsAnndataLoader,
+  ],
   [FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR]: [
     ZarrDataSource, MatrixZarrAsObsFeatureMatrixLoader,
   ],

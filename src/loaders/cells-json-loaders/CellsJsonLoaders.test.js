@@ -30,8 +30,8 @@ describe('loaders/cells-json-loaders', () => {
       const payload = result.data;
       expect(Object.keys(payload)).toEqual(['obsIndex', 'obsEmbedding']);
       expect(payload.obsIndex).toEqual(['778']);
-      expect(payload.obsEmbedding[0]).toEqual([1]);
-      expect(payload.obsEmbedding[1]).toEqual([2]);
+      expect(Array.from(payload.obsEmbedding.data[0])).toEqual([1]);
+      expect(Array.from(payload.obsEmbedding.data[1])).toEqual([2]);
     });
   });
   describe('CellsJsonAsObsLabelsLoader', () => {
@@ -60,8 +60,8 @@ describe('loaders/cells-json-loaders', () => {
       const payload = result.data;
       expect(Object.keys(payload)).toEqual(['obsIndex', 'obsLocations']);
       expect(payload.obsIndex).toEqual(['778']);
-      expect(payload.obsLocations[0]).toEqual([18171.230942376023]);
-      expect(payload.obsLocations[1]).toEqual([24590.795274569497]);
+      expect(Array.from(payload.obsLocations.data[0])).toEqual([18171.230942376023]);
+      expect(Array.from(payload.obsLocations.data[1])).toEqual([24590.795274569497]);
     });
   });
   describe('CellsJsonAsObsSegmentationsLoader', () => {
@@ -75,7 +75,7 @@ describe('loaders/cells-json-loaders', () => {
       expect(Object.keys(payload)).toEqual(['obsIndex', 'obsSegmentationsType', 'obsSegmentations']);
       expect(payload.obsIndex).toEqual(['778']);
       expect(payload.obsSegmentationsType).toEqual('polygon');
-      expect(payload.obsSegmentations[0]).toEqual([
+      expect(payload.obsSegmentations.data[0]).toEqual([
         [1, 2],
         [3, 4],
         [5, 6],

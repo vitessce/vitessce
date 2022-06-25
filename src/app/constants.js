@@ -43,6 +43,7 @@ export const FileType = {
   // New file types
   OBS_SETS_JSON: 'obsSets.json',
   IMAGE_OME_ZARR: 'image.ome-zarr',
+  ANNDATA_ZARR: 'anndata.zarr',
   // Also for anndata-expression-matrix.zarr
   OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
   // Also for anndata-cell-sets.zarr

@@ -25,13 +25,11 @@ describe('loaders/clusters-json-loaders', () => {
       expect(Object.keys(payload)).toEqual(['obsIndex', 'featureIndex', 'obsFeatureMatrix']);
       expect(payload.obsIndex).toEqual(['3572', '1904', '1670']);
       expect(payload.featureIndex).toEqual(['Lamp5', 'Sox10', 'Crhbp']);
-      expect(payload.obsFeatureMatrix).toEqual({
-        data: Uint8Array.from([
-          0, 0, 0,
-          127, 127, 127,
-          255, 255, 255,
-        ]),
-      });
+      expect(Array.from(payload.obsFeatureMatrix.data)).toEqual([
+        0, 0, 0,
+        127, 127, 127,
+        255, 255, 255,
+      ]);
     });
   });
 });

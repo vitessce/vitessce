@@ -25,8 +25,12 @@ export default class CellsJsonAsObsLocationsLoader extends JsonLoader {
     const obsIndex = Object.keys(data);
     const obsLocationsX = cellObjs.map(cellObj => cellObj.xy[0]);
     const obsLocationsY = cellObjs.map(cellObj => cellObj.xy[1]);
+    const obsLocations = {
+      data: [obsLocationsX, obsLocationsY],
+      shape: [2, obsLocationsX.length],
+    };
     return Promise.resolve(new LoaderResult(
-      { obsIndex, obsLocations: [obsLocationsX, obsLocationsY] },
+      { obsIndex, obsLocations },
       url,
     ));
   }
