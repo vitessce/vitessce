@@ -28,11 +28,11 @@ Depending on the **data type** of the **file type**, the `data` parameter of the
 
 | Data Type | `data` object |
 |-----|-----|
-| `obsEmbedding` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsEmbedding`: `[ number[], number[] ]` <br/> } |
+| `obsEmbedding` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsEmbedding`: `{ data: array<number[]>, shape: number[] }` <br/> } |
 | `obsLabels` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsLabels`: `string[]`  <br/> } |
-| `obsLocations` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsLocations`: `[ number[], number[] ]` <br/> } |
+| `obsLocations` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsLocations`: `{ data: array<number[]>, shape: number[] }` <br/> } |
 | `obsSegmentations` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsSegmentations`: `Array<number[]>`, <br/> &nbsp;&nbsp; `obsSegmentationsType`: `string` <br/> } |
-| `obsSets` | { <br/> &nbsp;&nbsp; `obsSets`: `object` <br/> } |
+| `obsSets` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsSets`: `object` <br/> } |
 | `obsFeatureMatrix` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `featureIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsFeatureMatrix`: `number[]` <br/> } |
 | `image` | { <br/> &nbsp;&nbsp; `image`: `object` <br/> } |
 

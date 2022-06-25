@@ -1,8 +1,9 @@
 import React, { forwardRef } from 'react';
+import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { PolygonLayer, TextLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { forceSimulation } from 'd3-force';
 import { getSelectionLayers } from '../../layers';
-import { cellLayerDefaultProps, getDefaultColor } from '../utils';
+import { getDefaultColor } from '../utils';
 import {
   createCellsQuadTree,
 } from '../shared-spatial-scatterplot/quadtree';
@@ -28,8 +29,8 @@ const makeDefaultGetCellPosition = mapping => (cellEntry) => {
   return [mappedCell[0], -mappedCell[1], 0];
 };
 const makeDefaultGetCellCoords = mapping => cell => cell.mappings[mapping];
-const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
-  const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || getDefaultColor(theme);
+const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { index }) => {
+  const [r, g, b, a] = (cellColors && obsIndex && cellColors.get(obsIndex[index])) || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
 
@@ -70,7 +71,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     // in React state, this component
     // uses instance variables.
     // All instance variables used in this class:
-    this.cellsEntries = [];
+    this.obsIndex = null;
+    this.obsEmbedding = null;
     this.cellsQuadTree = null;
     this.cellsLayer = null;
     this.cellSetsForceSimulation = forceCollideRects();
@@ -84,7 +86,10 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   createCellsLayer() {
-    const { cellsEntries } = this;
+    const {
+      obsIndex,
+      obsEmbedding,
+    } = this;
     const {
       theme,
       mapping,
@@ -97,18 +102,31 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       setComponentHover,
       getCellIsSelected,
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, theme),
+      getCellColor = makeDefaultGetCellColors(cellColors, obsIndex, theme),
       getExpressionValue,
       onCellClick,
       geneExpressionColormap,
       geneExpressionColormapRange = [0.0, 1.0],
       cellColorEncoding,
     } = this.props;
-    const filteredCellsEntries = (cellFilter
-      ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
-      : cellsEntries);
+    // const filteredCellsEntries = (cellFilter
+    //   ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
+    //   : cellsEntries);
     return new ScatterplotLayer({
       id: CELLS_LAYER_ID,
+      data: {
+        src: {
+          obsIndex,
+          obsEmbedding,
+        },
+        length: obsIndex.length,
+      },
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      visible: true,
+      pickable: true,
+      autoHighlight: true,
+      filled: true,
+      stroked: true,
       backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
       getCellIsSelected,
       opacity: cellOpacity,
@@ -118,7 +136,12 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       // Our radius pixel setters measure in pixels.
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
-      getPosition: getCellPosition,
+      getPosition: (object, { index, data, target }) => {
+        target[0] = data.src.obsEmbedding.data[0][index];
+        target[1] = -data.src.obsEmbedding.data[1][index];
+        target[2] = 0;
+        return target;
+      },
       getFillColor: getCellColor,
       getLineColor: getCellColor,
       getRadius: 1,
@@ -126,7 +149,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       getLineWidth: 0,
       extensions: [
         new ScaledExpressionExtension(),
-        new SelectionExtension({ instanced: true }),
+        // new SelectionExtension({ instanced: true }),
       ],
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
@@ -143,10 +166,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         getLineColor: [cellColorEncoding, cellSelection, cellColors],
         getCellIsSelected,
       },
-      ...cellLayerDefaultProps(
-        filteredCellsEntries, undefined, setCellHighlight, setComponentHover,
-      ),
-      stroked: 0,
     });
   }
 
@@ -214,20 +233,21 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   createSelectionLayers() {
+    const { obsIndex, obsEmbedding } = this;
     const {
       viewState,
-      mapping,
-      getCellCoords = makeDefaultGetCellCoords(mapping),
       setCellSelection,
     } = this.props;
     const { tool } = this.state;
     const { cellsQuadTree } = this;
     const flipYTooltip = true;
+    const getCellCoords = i => ([obsEmbedding.data[0][i], obsEmbedding.data[1][i], 0]);
     return getSelectionLayers(
       tool,
       viewState.zoom,
       CELLS_LAYER_ID,
       getCellCoords,
+      obsIndex,
       setCellSelection,
       cellsQuadTree,
       flipYTooltip,
@@ -248,17 +268,20 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
   onUpdateCellsData() {
     const {
-      cells = {},
-      mapping,
-      getCellCoords = makeDefaultGetCellCoords(mapping),
+      obsIndex,
+      obsEmbedding,
     } = this.props;
-    const cellsEntries = Object.entries(cells);
-    this.cellsEntries = cellsEntries;
-    this.cellsQuadTree = createCellsQuadTree(cellsEntries, getCellCoords);
+    if (obsIndex && obsEmbedding) {
+      this.obsIndex = obsIndex;
+      this.obsEmbedding = obsEmbedding;
+      this.cellsQuadTree = createCellsQuadTree(obsEmbedding);
+    }
   }
 
   onUpdateCellsLayer() {
-    this.cellsLayer = this.createCellsLayer();
+    if (this.obsIndex && this.obsEmbedding) {
+      this.cellsLayer = this.createCellsLayer();
+    }
   }
 
   onUpdateCellSetsLayers(onlyViewStateChange) {
@@ -292,10 +315,24 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
   viewInfoDidUpdate() {
     const {
-      mapping,
-      getCellPosition = makeDefaultGetCellPosition(mapping),
+      updateViewInfo,
+      uuid,
     } = this.props;
-    super.viewInfoDidUpdate(cell => getCellPosition([null, cell]));
+    const { viewport, obsEmbedding } = this;
+    if (updateViewInfo && viewport) {
+      updateViewInfo({
+        uuid,
+        project: (cellIndex) => {
+          try {
+            const positionX = obsEmbedding.data[0][cellIndex];
+            const positionY = -obsEmbedding.data[1][cellIndex];
+            return viewport.project([positionX, positionY]);
+          } catch (e) {
+            return [null, null];
+          }
+        },
+      });
+    }
   }
 
   /**
@@ -311,14 +348,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.viewInfoDidUpdate();
 
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
-    if (['cells'].some(shallowDiff)) {
+    if (['obsIndex', 'obsEmbedding'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateCellsData();
       this.forceUpdate();
     }
 
     if ([
-      'cells', 'cellFilter', 'cellSelection', 'cellColors',
+      'obsIndex', 'obsEmbedding', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
     ].some(shallowDiff)) {

@@ -7,12 +7,12 @@ import {
 import { setCellSelection, mergeCellSets, canLoadResolution } from '../utils';
 import {
   useCellsData,
-  useCellSetsData,
-  useGeneSelection,
+  useObsSetsData,
+  useFeatureSelection,
   useMoleculesData,
   useNeighborhoodsData,
   useRasterData,
-  useExpressionAttrs,
+  useObsFeatureMatrixIndices,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
@@ -27,9 +27,12 @@ import {
   useAuxiliaryCoordination,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import { DataType } from '../../app/constants';
+import { useHasLoader } from '../data-hook-utils';
 
 const SPATIAL_DATA_TYPES = [
-  'cells', 'molecules', 'raster', 'cell-sets', 'expression-matrix',
+  'cells', 'molecules', 'raster',
+  DataType.OBS_SETS, DataType.OBS_FEATURE_MATRIX,
 ];
 
 /**
@@ -65,6 +68,9 @@ export default function SpatialSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
+    featureType,
+    featureValueType,
     spatialZoom: zoom,
     spatialTargetX: targetX,
     spatialTargetY: targetY,
@@ -158,16 +164,19 @@ export default function SpatialSubscriber(props) {
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
-  const [cellSets] = useCellSetsData(
+  const { obsSets: cellSets } = useObsSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
+    { obsType },
   );
-  const [expressionData] = useGeneSelection(
+  const [expressionData] = useFeatureSelection(
     loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
+    { obsType, featureType, featureValueType },
   );
-  const [attrs] = useExpressionAttrs(
+  const { obsIndex } = useObsFeatureMatrixIndices(
     loaders, dataset, setItemIsReady, addUrl, false,
+    { obsType, featureType, featureValueType },
   );
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
@@ -229,10 +238,10 @@ export default function SpatialSubscriber(props) {
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-    expressionDataAttrs: attrs,
+    obsIndex,
     theme,
   }), [cellColorEncoding, geneSelection, mergedCellSets, theme,
-    cellSetColor, cellSetSelection, expressionData, attrs]);
+    cellSetColor, cellSetSelection, expressionData, obsIndex]);
 
   // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
   // where each cell id indexes into the array.
@@ -240,26 +249,26 @@ export default function SpatialSubscriber(props) {
   // so we create a "shifted" array where this is the case.
   const shiftedExpressionDataForBitmask = useMemo(() => {
     const hasBitmask = imageLayerMeta.some(l => l?.metadata?.isBitmask);
-    if (attrs?.rows && expressionData && hasBitmask) {
-      const maxId = attrs.rows.reduce((max, curr) => Math.max(max, Number(curr)));
+    if (obsIndex && expressionData && hasBitmask) {
+      const maxId = obsIndex.reduce((max, curr) => Math.max(max, Number(curr)));
       const result = new Uint8Array(maxId + 1);
       // eslint-disable-next-line no-plusplus
-      for (let i = 0; i < attrs.rows.length; i++) {
-        const id = attrs.rows[i];
+      for (let i = 0; i < obsIndex.length; i++) {
+        const id = obsIndex[i];
         result.set(expressionData[0].slice(i, i + 1), Number(id));
       }
       return [result];
     } return [new Uint8Array()];
-  }, [attrs, expressionData, imageLayerMeta]);
+  }, [obsIndex, expressionData, imageLayerMeta]);
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   const getCellInfo = (cellId) => {
-    const cell = cells[cellId];
+    const cell = cells[cellId]; // TODO: use obsIndex
     if (cell) {
       return {
         [`${capitalize(observationsLabel)} ID`]: cellId,
-        ...cell.factors,
+        ...cell.factors, // TODO: no longer use factors
       };
     }
     return null;
@@ -293,10 +302,9 @@ export default function SpatialSubscriber(props) {
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
-  const getExpressionValue = useExpressionValueGetter({ attrs, expressionData });
-  const hasExpressionData = loaders[dataset].loaders['expression-matrix'];
-  const hasCellsData = loaders[dataset].loaders.cells
-    || imageLayerMeta.some(l => l?.metadata?.isBitmask);
+  const getExpressionValue = useExpressionValueGetter({ obsIndex, expressionData });
+  const hasExpressionData = useHasLoader(DataType.OBS_FEATURE_MATRIX);
+  const hasCellsData = useHasLoader(DataType.OBS_SEGMENTATIONS);
   const canLoad3DLayers = imageLayerLoaders.some(loader => Boolean(
     Array.from({
       length: loader.data.length,

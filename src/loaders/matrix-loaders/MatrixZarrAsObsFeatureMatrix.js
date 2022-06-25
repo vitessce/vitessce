@@ -6,7 +6,7 @@ export default class MatrixZarrAsObsFeatureMatrixLoader extends MatrixZarrLoader
     return Promise
       .all([this.loadAttrs(), this.loadArr()])
       .then(([attrs, arr]) => Promise.resolve(new LoaderResult(
-        { obsIndex: attrs.rows, featureIndex: attrs.cols, obsFeatureMatrix: arr },
+        { obsIndex: attrs.data.rows, featureIndex: attrs.data.cols, obsFeatureMatrix: arr },
         null,
       )));
   }

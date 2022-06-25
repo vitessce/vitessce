@@ -71,9 +71,12 @@ export const FileType = {
   // For raster.json
   IMAGE_RASTER_JSON: 'image.raster.json',
   OBS_SEGMENTATIONS_RASTER_JSON: 'obsSegmentations.raster.json',
-  // Old file types
+  // Convenience file types
   CELLS_JSON: 'cells.json',
   CELL_SETS_JSON: 'cell-sets.json',
+  ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
+  ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
+  // Old file types
   EXPRESSION_MATRIX_ZARR: 'expression-matrix.zarr',
   GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
   MOLECULES_JSON: 'molecules.json',
@@ -82,8 +85,6 @@ export const FileType = {
   RASTER_OME_ZARR: 'raster.ome-zarr',
   CLUSTERS_JSON: 'clusters.json',
   GENES_JSON: 'genes.json',
-  ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
-  ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
   ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
 };
 

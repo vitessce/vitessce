@@ -3,13 +3,13 @@ import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
-import { useGeneSelection, useExpressionAttrs, useCellSetsData } from '../data-hooks';
+import { useFeatureSelection, useObsSetsData, useObsFeatureMatrixIndices } from '../data-hooks';
 import { useExpressionByCellSet } from './hooks';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
-
 import CellSetExpressionPlot from './CellSetExpressionPlot';
+import { DataType } from '../../app/constants';
 
-const CELL_SET_EXPRESSION_DATA_TYPES = ['cell-sets', 'expression-matrix'];
+const CELL_SET_EXPRESSION_DATA_TYPES = [DataType.OBS_SETS, DataType.OBS_FEATURE_MATRIX];
 
 /**
  * A subscriber component for `CellSetExpressionPlot`,
@@ -33,6 +33,9 @@ export default function CellSetExpressionPlotSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
+    featureType,
+    featureValueType,
     featureSelection: geneSelection,
     featureValueTransform: geneExpressionTransform,
     obsSetSelection: cellSetSelection,
@@ -67,18 +70,21 @@ export default function CellSetExpressionPlotSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [expressionData] = useGeneSelection(
+  const [expressionData] = useFeatureSelection(
     loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
+    { obsType, featureType, featureValueType },
   );
-  const [attrs] = useExpressionAttrs(
+  const { obsIndex } = useObsFeatureMatrixIndices(
     loaders, dataset, setItemIsReady, addUrl, false,
+    { obsType, featureType, featureValueType },
   );
-  const [cellSets] = useCellSetsData(
-    loaders, dataset, setItemIsReady, addUrl, true,
+  const { obsSets: cellSets } = useObsSetsData(
+    loaders, dataset, setItemIsReady, addUrl, true, {}, {},
+    { obsType },
   );
 
   const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
-    expressionData, attrs, cellSets, additionalCellSets,
+    expressionData, obsIndex, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor, useGeneExpressionTransform,
     theme,
   );

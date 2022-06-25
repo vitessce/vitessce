@@ -7,6 +7,7 @@ export function expandExpressionMatrixZarr(fileDef) {
       ...fileDef.coordinationValues,
       obsType: fileDef.coordinationValues?.obsType || 'cell',
       featureType: fileDef.coordinationValues?.featureType || 'gene',
+      featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
     },
   };
   delete baseFileDef.type;
@@ -123,6 +124,7 @@ export function expandClustersJson(fileDef) {
       ...fileDef.coordinationValues,
       obsType: fileDef.coordinationValues?.obsType || 'cell',
       featureType: fileDef.coordinationValues?.featureType || 'gene',
+      featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
     },
   };
   delete baseFileDef.type;
@@ -141,6 +143,7 @@ export function expandGenesJson(fileDef) {
       ...fileDef.coordinationValues,
       obsType: fileDef.coordinationValues?.obsType || 'cell',
       featureType: fileDef.coordinationValues?.featureType || 'gene',
+      featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
     },
   };
   delete baseFileDef.type;
@@ -160,6 +163,7 @@ function getAnndataBaseFileDef(fileDef) {
       ...fileDef.coordinationValues,
       obsType: fileDef.coordinationValues?.obsType || 'cell',
       featureType: fileDef.coordinationValues?.featureType || 'gene',
+      featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
     },
   };
 }
@@ -358,14 +362,14 @@ export function expandAnndataZarr(fileDef) {
  */
 export const CONVENIENCE_FILE_TYPES = {
   // [FileType.ANNDATA_ZARR]: expandAnndataZarr,
-  // [FileType.ANNDATA_CELLS_ZARR]: expandAnndataCellsZarr,
-  // [FileType.ANNDATA_CELL_SETS_ZARR]: expandAnndataCellSetsZarr,
-  // [FileType.ANNDATA_EXPRESSION_MATRIX_ZARR]: expandAnndataExpressionMatrixZarr,
-  // [FileType.EXPRESSION_MATRIX_ZARR]: expandExpressionMatrixZarr,
+  [FileType.ANNDATA_CELLS_ZARR]: expandAnndataCellsZarr,
+  [FileType.ANNDATA_CELL_SETS_ZARR]: expandAnndataCellSetsZarr,
+  [FileType.ANNDATA_EXPRESSION_MATRIX_ZARR]: expandAnndataExpressionMatrixZarr,
+  [FileType.EXPRESSION_MATRIX_ZARR]: expandExpressionMatrixZarr,
   // [FileType.RASTER_JSON]: expandRasterJson,
   // [FileType.RASTER_OME_ZARR]: expandRasterOmeZarr,
-  // [FileType.CELL_SETS_JSON]: expandCellSetsJson,
-  // [FileType.CLUSTERS_JSON]: expandClustersJson,
-  // [FileType.GENES_JSON]: expandGenesJson,
-  // [FileType.CELLS_JSON]: expandCellsJson,
+  [FileType.CELL_SETS_JSON]: expandCellSetsJson,
+  [FileType.CLUSTERS_JSON]: expandClustersJson,
+  [FileType.GENES_JSON]: expandGenesJson,
+  [FileType.CELLS_JSON]: expandCellsJson,
 };

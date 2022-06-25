@@ -20,7 +20,7 @@ import { treeToObjectsBySetNames, treeToSetSizesBySetNames } from './cell-set-ut
  * `path` and `color`.
  */
 export function useExpressionByCellSet(
-  expressionData, expressionDataAttrs, cellSets, additionalCellSets,
+  expressionData, obsIndex, cellSets, additionalCellSets,
   geneSelection, cellSetSelection, cellSetColor, useGeneExpressionTransform,
   theme,
 ) {
@@ -44,8 +44,8 @@ export function useExpressionByCellSet(
       // Create new cellColors map based on the selected gene.
       let exprMax = -Infinity;
       const cellIndices = {};
-      for (let i = 0; i < expressionDataAttrs.rows.length; i += 1) {
-        cellIndices[expressionDataAttrs.rows[i]] = i;
+      for (let i = 0; i < obsIndex.length; i += 1) {
+        cellIndices[obsIndex[i]] = i;
       }
       const exprValues = cellObjects.map((cell) => {
         const cellIndex = cellIndices[cell.obsId];
@@ -58,7 +58,7 @@ export function useExpressionByCellSet(
       return [exprValues, exprMax];
     }
     return [null, null];
-  }, [expressionData, expressionDataAttrs, geneSelection, theme,
+  }, [expressionData, obsIndex, geneSelection, theme,
     mergedCellSets, cellSetSelection, cellSetColor, useGeneExpressionTransform]);
 
   // From the cell sets hierarchy and the list of selected cell sets,

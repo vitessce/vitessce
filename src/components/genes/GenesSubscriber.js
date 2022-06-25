@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../hooks';
-import { useExpressionAttrs } from '../data-hooks';
+import { useObsFeatureMatrixIndices } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-
 import TitleInfo from '../TitleInfo';
 import Genes from './Genes';
+import { DataType } from '../../app/constants';
 
-const GENES_DATA_TYPES = ['expression-matrix'];
+const GENES_DATA_TYPES = [DataType.OBS_FEATURE_MATRIX];
 
 /**
  * A subscriber component for a gene listing component.
@@ -42,6 +42,7 @@ export default function GenesSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    featureType,
     featureSelection: geneSelection,
     featureFilter: geneFilter,
     obsColorEncoding: cellColorEncoding,
@@ -70,10 +71,11 @@ export default function GenesSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [attrs] = useExpressionAttrs(
+  const { featureIndex } = useObsFeatureMatrixIndices(
     loaders, dataset, setItemIsReady, addUrl, true,
+    { featureType },
   );
-  const geneList = attrs ? attrs.cols : [];
+  const geneList = featureIndex || [];
   const numGenes = geneList.length;
 
   function setGeneSelectionAndColorEncoding(newSelection) {

@@ -4,11 +4,12 @@ import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
 import { mergeCellSets } from '../utils';
-import { useCellSetsData } from '../data-hooks';
+import { useObsSetsData } from '../data-hooks';
 import { treeToSetSizesBySetNames } from './cell-set-utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
+import { DataType } from '../../app/constants';
 
-const CELL_SET_SIZES_DATA_TYPES = ['cell-sets'];
+const CELL_SET_SIZES_DATA_TYPES = [DataType.OBS_SETS];
 
 /**
  * A subscriber component for `CellSetSizePlot`,
@@ -34,6 +35,7 @@ export default function CellSetSizesPlotSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
@@ -61,10 +63,11 @@ export default function CellSetSizesPlotSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [cellSets] = useCellSetsData(
+  const { obsSets: cellSets } = useObsSetsData(
     loaders, dataset, setItemIsReady, addUrl, true,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
+    { obsType },
   );
 
   const mergedCellSets = useMemo(

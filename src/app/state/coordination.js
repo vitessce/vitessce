@@ -203,7 +203,9 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.GENES]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.FEATURE_FILTER,
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.FEATURE_SELECTION,

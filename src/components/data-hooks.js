@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
-import equal from 'fast-deep-equal';
-import { capitalize } from '../utils';
 import { useMatchingLoader, useSetWarning } from '../app/state/hooks';
 import {
-  AbstractLoaderError,
   LoaderNotFoundError,
   DatasetNotFoundError,
 } from '../loaders/errors/index';
@@ -12,47 +9,12 @@ import {
   DEFAULT_CELLS_LAYER,
   DEFAULT_NEIGHBORHOODS_LAYER,
 } from './spatial/constants';
-import { getDefaultCoordinationValues } from '../app/plugins';
-
-/**
- * Warn via publishing to the console
- * and to the global warning store.
- * @param {AbstractLoaderError} error An error instance.
- */
-function warn(error, setWarning) {
-  setWarning(error.message);
-  console.warn(error.message);
-  if (error instanceof AbstractLoaderError) {
-    error.warnInConsole();
-  }
-}
-
-/**
- * Initialize values in the coordination space.
- * @param {object} values Object where
- * keys are coordination type names,
- * values are initial coordination values.
- * @param {object} setters Object where
- * keys are coordination type names with the prefix 'set',
- * values are coordination setter functions.
- * @param {object} initialValues Object where
- * keys are coordination type names and keys are values.
- */
-function initCoordinationSpace(values, setters, initialValues) {
-  if (!values || !setters) {
-    return;
-  }
-  const defaultCoordinationValues = getDefaultCoordinationValues();
-  Object.entries(values).forEach(([coordinationType, value]) => {
-    const setterName = `set${capitalize(coordinationType)}`;
-    const setterFunc = setters[setterName];
-    const initialValue = initialValues && initialValues[coordinationType];
-    const shouldInit = equal(initialValue, defaultCoordinationValues[coordinationType]);
-    if (shouldInit && setterFunc) {
-      setterFunc(value);
-    }
-  });
-}
+import { DataType } from '../app/constants';
+import {
+  warn,
+  initCoordinationSpace,
+  useDataType,
+} from './data-hook-utils';
 
 /**
  * Get the dataset description string.
@@ -80,6 +42,89 @@ export function useDescription(loaders, dataset) {
   }, [loaders, dataset]);
 
   return [description];
+}
+
+/**
+ * Get data from a cells data type loader,
+ * updating "ready" and URL state appropriately.
+ * Throw warnings if the data is marked as required.
+ * Subscribe to loader updates.
+ * @param {object} loaders The object mapping
+ * datasets and data types to loader instances.
+ * @param {string} dataset The key for a dataset,
+ * used to identify which loader to use.
+ * @param {function} setItemIsReady A function to call
+ * when done loading.
+ * @param {function} addUrl A function to call to update
+ * the URL list.
+ * @param {boolean} isRequired Should a warning be thrown if
+ * loading is unsuccessful?
+ * @param {object} coordinationSetters Object where
+ * keys are coordination type names with the prefix 'set',
+ * values are coordination setter functions.
+ * @param {object} initialCoordinationValues Object where
+ * keys are coordination type names with the prefix 'initialize',
+ * values are initialization preferences as boolean values.
+ * @returns {array} [cells, cellsCount] where
+ * cells is an object and cellsCount is the
+ * number of items in the cells object.
+ */
+export function useObsEmbeddingData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_EMBEDDING,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+/**
+ * Get data from a cells data type loader,
+ * updating "ready" and URL state appropriately.
+ * Throw warnings if the data is marked as required.
+ * Subscribe to loader updates.
+ * @param {object} loaders The object mapping
+ * datasets and data types to loader instances.
+ * @param {string} dataset The key for a dataset,
+ * used to identify which loader to use.
+ * @param {function} setItemIsReady A function to call
+ * when done loading.
+ * @param {function} addUrl A function to call to update
+ * the URL list.
+ * @param {boolean} isRequired Should a warning be thrown if
+ * loading is unsuccessful?
+ * @param {object} coordinationSetters Object where
+ * keys are coordination type names with the prefix 'set',
+ * values are coordination setter functions.
+ * @param {object} initialCoordinationValues Object where
+ * keys are coordination type names with the prefix 'initialize',
+ * values are initialization preferences as boolean values.
+ * @returns {array} [cells, cellsCount] where
+ * cells is an object and cellsCount is the
+ * number of items in the cells object.
+ */
+export function useObsSetsData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_SETS,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+export function useObsFeatureMatrixData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_FEATURE_MATRIX,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
 }
 
 /**
@@ -154,136 +199,6 @@ export function useCellsData(
 }
 
 /**
- * Get data from a cell sets data type loader,
- * updating "ready" and URL state appropriately.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
- * @param {function} addUrl A function to call to update
- * the URL list.
- * @param {boolean} isRequired Should a warning be thrown if
- * loading is unsuccessful?
- * @param {object} coordinationSetters Object where
- * keys are coordination type names with the prefix 'set',
- * values are coordination setter functions.
- * @param {object} initialCoordinationValues Object where
- * keys are coordination type names and values are the current values.
- * @returns {array} [cellSets] where
- * cellSets is a sets tree object.
- */
-export function useCellSetsData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, initialCoordinationValues,
-) {
-  const [cellSets, setCellSets] = useState();
-
-  const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, 'cell-sets', {});
-
-  useEffect(() => {
-    if (loader) {
-      // Load the data initially.
-      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data, url, coordinationValues } = payload;
-        setCellSets(data.obsSets);
-        addUrl(url, 'Cell Sets');
-        initCoordinationSpace(
-          coordinationValues,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
-        setItemIsReady('cell-sets');
-      });
-    } else {
-      setCellSets(null);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'cell-sets', null, null), setWarning);
-      } else {
-        setItemIsReady('cell-sets');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loader]);
-
-  return [cellSets];
-}
-
-/**
- * Get (potentially filtered) data from an expression matrix data type loader,
- * updating "ready" and URL state appropriately.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.  Should not be used in conjunction (called in the same component)
- * with useExpressionAttrs as this returns a potentially filtered set of attributes
- * specifically for the returned expression data.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
- * @param {function} addUrl A function to call to update
- * the URL list.
- * @param {boolean} isRequired Should a warning be thrown if
- * loading is unsuccessful?
- * @param {object} coordinationSetters Object where
- * keys are coordination type names with the prefix 'set',
- * values are coordination setter functions.
- * @param {object} initialCoordinationValues Object where
- * keys are coordination type names with the prefix 'initialize',
- * values are initialization preferences as boolean values.
- * @returns {array} [expressionMatrix] where
- * expressionMatrix is an object with
- * shape { cols, rows, matrix }.
- */
-export function useExpressionMatrixData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, initialCoordinationValues,
-) {
-  const [expressionMatrix, setExpressionMatrix] = useState();
-
-  const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, 'expression-matrix', {});
-
-  useEffect(() => {
-    if (loader) {
-      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data, url, coordinationValues } = payload;
-        const [attrs, arr] = data;
-        setExpressionMatrix({
-          cols: attrs.cols,
-          rows: attrs.rows,
-          matrix: arr.data,
-        });
-        addUrl(url, 'Expression Matrix');
-        initCoordinationSpace(
-          coordinationValues,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
-        setItemIsReady('expression-matrix');
-      });
-    } else {
-      setExpressionMatrix(null);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null), setWarning);
-      } else {
-        setItemIsReady('expression-matrix');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loader]);
-
-  return [expressionMatrix];
-}
-
-/**
  * Get data from the expression matrix data type loader for a given gene selection.
  * Throw warnings if the data is marked as required.
  * Subscribe to loader updates.
@@ -299,62 +214,63 @@ export function useExpressionMatrixData(
  * @returns {array} [geneData] where geneData is an array [Uint8Array, ..., Uint8Array]
  * for however many genes are in the selection.
  */
-export function useGeneSelection(
+export function useFeatureSelection(
   loaders,
   dataset,
   setItemIsReady,
   isRequired,
   selection,
   setItemIsNotReady,
+  matchOn,
 ) {
   const [geneData, setGeneData] = useState();
 
   const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, 'expression-matrix', {});
+  const loader = useMatchingLoader(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
 
   useEffect(() => {
     if (!selection) {
-      setItemIsReady('expression-matrix');
+      setItemIsReady(DataType.OBS_FEATURE_MATRIX);
       return;
     }
     if (loader) {
-      setItemIsNotReady('expression-matrix');
+      setItemIsNotReady(DataType.OBS_FEATURE_MATRIX);
       const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
       if (implementsGeneSelection) {
-        loaders[dataset].loaders['expression-matrix']
+        loader
           .loadGeneSelection({ selection })
           .catch(e => warn(e, setWarning))
           .then((payload) => {
             if (!payload) return;
             const { data } = payload;
             setGeneData(data);
-            setItemIsReady('expression-matrix');
+            setItemIsReady(DataType.OBS_FEATURE_MATRIX);
           });
       } else {
         loader.load().catch(e => warn(e, setWarning)).then((payload) => {
           if (!payload) return;
           const { data } = payload;
-          const [attrs, { data: matrix }] = data;
+          const { obsIndex, featureIndex, obsFeatureMatrix } = data;
           const expressionDataForSelection = selection.map((sel) => {
-            const geneIndex = attrs.cols.indexOf(sel);
-            const numGenes = attrs.cols.length;
-            const numCells = attrs.rows.length;
+            const geneIndex = featureIndex.indexOf(sel);
+            const numGenes = featureIndex.length;
+            const numCells = obsIndex.length;
             const expressionData = new Uint8Array(numCells);
             for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
-              expressionData[cellIndex] = matrix[cellIndex * numGenes + geneIndex];
+              expressionData[cellIndex] = obsFeatureMatrix.data[cellIndex * numGenes + geneIndex];
             }
             return expressionData;
           });
           setGeneData(expressionDataForSelection);
-          setItemIsReady('expression-matrix');
+          setItemIsReady(DataType.OBS_FEATURE_MATRIX);
         });
       }
     } else {
       setGeneData(null);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.OBS_FEATURE_MATRIX, null, null), setWarning);
       } else {
-        setItemIsReady('expression-matrix');
+        setItemIsReady(DataType.OBS_FEATURE_MATRIX);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -381,11 +297,13 @@ export function useGeneSelection(
  * loading is unsuccessful?
  * @returns {object} [attrs] { rows, cols } object containing cell and gene names.
  */
-export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isRequired) {
-  const [attrs, setAttrs] = useState();
+export function useObsFeatureMatrixIndices(
+  loaders, dataset, setItemIsReady, addUrl, isRequired, matchOn,
+) {
+  const [data, setData] = useState({});
 
   const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, 'expression-matrix', {});
+  const loader = useMatchingLoader(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
 
   useEffect(() => {
     if (loader) {
@@ -393,32 +311,38 @@ export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isR
       if (implementsLoadAttrs) {
         loader.loadAttrs().catch(e => warn(e, setWarning)).then((payload) => {
           if (!payload) return;
-          const { data, url } = payload;
-          setAttrs(data);
-          addUrl(url, 'Expression Matrix');
-          setItemIsReady('expression-matrix');
+          const { data: payloadData, url } = payload;
+          setData({
+            obsIndex: payloadData.rows,
+            featureIndex: payloadData.cols,
+          });
+          addUrl(url, 'Observation-by-Feature Matrix');
+          setItemIsReady(DataType.OBS_FEATURE_MATRIX);
         });
       } else {
         loader.load().catch(e => warn(e, setWarning)).then((payload) => {
           if (!payload) return;
-          const { data, url } = payload;
-          setAttrs(data[0]);
-          addUrl(url, 'Expression Matrix');
-          setItemIsReady('expression-matrix');
+          const { data: payloadData, url } = payload;
+          setData({
+            obsIndex: payloadData.obsIndex,
+            featureIndex: payloadData.featureIndex,
+          });
+          addUrl(url, 'Observation-by-Feature Matrix');
+          setItemIsReady(DataType.OBS_FEATURE_MATRIX);
         });
       }
     } else {
-      setAttrs(null);
+      setData({});
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.OBS_FEATURE_MATRIX, null, null), setWarning);
       } else {
-        setItemIsReady('expression-matrix');
+        setItemIsReady(DataType.OBS_FEATURE_MATRIX);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loader]);
 
-  return [attrs];
+  return data;
 }
 
 /**

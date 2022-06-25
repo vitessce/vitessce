@@ -4,7 +4,7 @@ import { tryUpgradeTreeToLatestSchema } from '../components/sets/io';
 import { AbstractLoaderError } from './errors';
 import LoaderResult from './LoaderResult';
 
-import { initializeCellSetColor } from '../components/sets/cell-set-utils';
+import { initializeCellSetColor, nodeToSet } from '../components/sets/cell-set-utils';
 
 export default class ObsSetsJsonLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -21,7 +21,7 @@ export default class ObsSetsJsonLoader extends JsonLoader {
     const { data: rawData, url } = payload;
     const datatype = this.fileType.endsWith('cell-sets.json') ? 'cell' : 'obs';
     const upgradedData = tryUpgradeTreeToLatestSchema(rawData, datatype);
-
+    let obsIndex = [];
     const coordinationValues = {
       obsSetSelection: [],
       obsSetColor: [],
@@ -38,8 +38,11 @@ export default class ObsSetsJsonLoader extends JsonLoader {
       const newAutoSetColors = initializeCellSetColor(upgradedData, []);
       coordinationValues.obsSetSelection = newAutoSetSelections;
       coordinationValues.obsSetColor = newAutoSetColors;
+
+      obsIndex = nodeToSet(tree[0]).map(d => d[0]);
     }
     return Promise.resolve(new LoaderResult({
+      obsIndex,
       obsSets: upgradedData,
     }, url, coordinationValues));
   }

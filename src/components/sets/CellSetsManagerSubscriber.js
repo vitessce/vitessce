@@ -53,9 +53,10 @@ import {
   mergeCellSets,
   getNextNumberedNodeName,
 } from '../utils';
-import { useCellsData, useCellSetsData } from '../data-hooks';
+import { useObsSetsData } from '../data-hooks';
+import { DataType } from '../../app/constants';
 
-const CELL_SETS_DATA_TYPES = ['cells', 'cell-sets'];
+const CELL_SETS_DATA_TYPES = [DataType.OBS_SETS];
 
 /**
  * A subscriber wrapper around the SetsManager component
@@ -82,6 +83,7 @@ export default function CellSetsManagerSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
@@ -114,11 +116,12 @@ export default function CellSetsManagerSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
-  const [cellSets] = useCellSetsData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  // TODO: return obsIndex from obsSets loaders.
+  const { obsIndex, obsSets: cellSets } = useObsSetsData(
+    loaders, dataset, setItemIsReady, addUrl, true,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
+    { obsType },
   );
 
   // Validate and upgrade the additionalCellSets.
@@ -136,7 +139,7 @@ export default function CellSetsManagerSubscriber(props) {
   }, [additionalCellSets, setAdditionalCellSets, setWarning]);
 
   // Get an array of all cell IDs to use for set complement operations.
-  const allCellIds = useMemo(() => (cells ? Object.keys(cells) : []), [cells]);
+  const allCellIds = useMemo(() => (obsIndex || []), [obsIndex]);
 
   // A helper function for updating the encoding for cell colors,
   // which may have previously been set to 'geneSelection'.

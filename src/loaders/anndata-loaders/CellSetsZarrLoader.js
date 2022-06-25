@@ -132,11 +132,11 @@ export default class CellSetsZarrLoader extends AbstractTwoStepLoader {
         this.dataSource.loadObsIndex(),
         this.loadCellSetIds(),
         this.loadCellSetScores(),
-      ]).then(data => dataToCellSetsTree(data, options));
+      ]).then(data => [dataToCellSetsTree(data, options), data[0]]);
     }
-    const cellSetsTree = await this.cellSetsTree;
+    const [obsSets, obsIndex] = await this.cellSetsTree;
     const coordinationValues = {};
-    const { tree } = cellSetsTree;
+    const { tree } = obsSets;
     const newAutoSetSelectionParentName = tree[0].name;
     // Create a list of set paths to initally select.
     const newAutoSetSelections = tree[0].children.map(node => [
@@ -144,11 +144,11 @@ export default class CellSetsZarrLoader extends AbstractTwoStepLoader {
       node.name,
     ]);
     // Create a list of cell set objects with color mappings.
-    const newAutoSetColors = initializeCellSetColor(cellSetsTree, []);
+    const newAutoSetColors = initializeCellSetColor(obsSets, []);
     coordinationValues.obsSetSelection = newAutoSetSelections;
     coordinationValues.obsSetColor = newAutoSetColors;
     return Promise.resolve(
-      new LoaderResult({ obsSets: cellSetsTree }, null, coordinationValues),
+      new LoaderResult({ obsIndex, obsSets }, null, coordinationValues),
     );
   }
 }

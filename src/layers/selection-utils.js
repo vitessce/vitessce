@@ -34,6 +34,7 @@ export function getSelectionLayers(
   zoom,
   layerId,
   getCellCoords,
+  obsIndex,
   updateCellsSelection,
   cellsQuadTree,
   flipY = false,
@@ -53,7 +54,7 @@ export function getSelectionLayers(
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     selectionType: tool,
     onSelect: ({ pickingInfos }) => {
-      const cellIds = pickingInfos.map(cellObj => cellObj[0]);
+      const cellIds = pickingInfos.map(i => obsIndex[i]);
       if (updateCellsSelection) {
         updateCellsSelection(cellIds);
       }

@@ -231,26 +231,24 @@ export function useClosestVitessceContainerSize(ref) {
   return [width, height];
 }
 
-export function useExpressionValueGetter({ attrs, expressionData }) {
+export function useExpressionValueGetter({ obsIndex, expressionData }) {
   // Get a mapping from cell ID to row index in the gene expression matrix.
   const cellIdMap = useMemo(() => {
     const result = {};
-    if (attrs && attrs.rows) {
+    if (obsIndex) {
       // eslint-disable-next-line no-plusplus
-      for (let i = 0; i < attrs.rows.length; i++) {
-        result[attrs.rows[i]] = i;
+      for (let i = 0; i < obsIndex.length; i++) {
+        result[obsIndex[i]] = i;
       }
     }
     return result;
-  }, [attrs]);
+  }, [obsIndex]);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
-  const getExpressionValue = useCallback((entry) => {
-    const cellId = entry[0];
+  const getExpressionValue = useCallback((entry, { index }) => {
     if (cellIdMap && expressionData && expressionData[0]) {
-      const cellIndex = cellIdMap[cellId];
-      const val = expressionData[0][cellIndex];
+      const val = expressionData.data[0][index];
       return val;
     }
     return 0;
