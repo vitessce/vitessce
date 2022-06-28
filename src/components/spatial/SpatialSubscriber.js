@@ -172,7 +172,6 @@ export default function SpatialSubscriber(props) {
     { spatialSegmentationLayer: cellsLayer },
     {}, // TODO: use obsType once #1240 is merged.
   );
-  console.log(obsSegmentations, obsSegmentationsType)
   const { obsSets: cellSets } = useObsSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },

@@ -357,13 +357,13 @@ export function expandAnndataZarr(fileDef) {
  * expansion functions.
  */
 export const CONVENIENCE_FILE_TYPES = {
-  // [FileType.ANNDATA_ZARR]: expandAnndataZarr,
+  [FileType.ANNDATA_ZARR]: expandAnndataZarr,
   [FileType.ANNDATA_CELLS_ZARR]: expandAnndataCellsZarr,
   [FileType.ANNDATA_CELL_SETS_ZARR]: expandAnndataCellSetsZarr,
   [FileType.ANNDATA_EXPRESSION_MATRIX_ZARR]: expandAnndataExpressionMatrixZarr,
   [FileType.EXPRESSION_MATRIX_ZARR]: expandExpressionMatrixZarr,
-  // [FileType.RASTER_JSON]: expandRasterJson,
-  // [FileType.RASTER_OME_ZARR]: expandRasterOmeZarr,
+  [FileType.RASTER_JSON]: expandRasterJson,
+  [FileType.RASTER_OME_ZARR]: expandRasterOmeZarr,
   [FileType.CELL_SETS_JSON]: expandCellSetsJson,
   [FileType.CLUSTERS_JSON]: expandClustersJson,
   [FileType.GENES_JSON]: expandGenesJson,

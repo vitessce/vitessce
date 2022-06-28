@@ -10,7 +10,13 @@ import VectorLayerController from './VectorLayerController';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
 import { useReady, useClosestVitessceContainerSize, useWindowDimensions } from '../hooks';
-import { useCellsData, useMoleculesData, useImageData } from '../data-hooks';
+import {
+  useCellsData,
+  useMoleculesData,
+  useImageData,
+  useObsLocationsData,
+  useObsSegmentationsData,
+} from '../data-hooks';
 import {
   useCoordination,
   useLoaders,
@@ -290,24 +296,39 @@ function LayerControllerSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
+  const {
+    obsIndex: obsLocationsIndex,
+    obsLocations,
+  } = useObsLocationsData(
+    loaders, dataset, setItemIsReady, () => {}, false,
+    { setSpatialPointLayer: setMoleculesLayer },
+    { spatialPointLayer: moleculesLayer },
+    {}, // TODO: use obsType once #1240 is merged.
+  );
+  const {
+    obsIndex: obsSegmentationsIndex,
+    obsSegmentations,
+    obsSegmentationsType,
+  } = useObsSegmentationsData(
+    loaders, dataset, setItemIsReady, () => {}, false,
+    { setSpatialSegmentationLayer: setCellsLayer },
+    { spatialSegmentationLayer: cellsLayer },
+    {}, // TODO: use obsType once #1240 is merged.
+  );
   // eslint-disable-next-line no-unused-vars
   const [raster, imageLayerLoaders, imageLayerMeta] = useImageData(
-    loaders, dataset, setItemIsReady, () => { }, false,
+    loaders, dataset, setItemIsReady, () => {}, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: rasterLayers },
     {}, // TODO: which values to match on
   );
 
   useCellsData(
-    loaders, dataset, setItemIsReady, () => {}, false,
-    { setSpatialSegmentationLayer: setCellsLayer },
-    { spatialSegmentationLayer: cellsLayer },
-  );
+    loaders, dataset, setItemIsReady, () => {}, false, {}, {},
+  ); // TODO: remove
   useMoleculesData(
-    loaders, dataset, setItemIsReady, () => {}, false,
-    { setSpatialPointLayer: setMoleculesLayer },
-    { spatialPointLayer: moleculesLayer },
-  );
+    loaders, dataset, setItemIsReady, () => {}, false, {}, {},
+  ); // TODO: remove
 
   // useCallback prevents new functions from propogating
   // changes to the underlying component.
