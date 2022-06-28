@@ -270,7 +270,6 @@ const Heatmap = forwardRef((props, deckRef) => {
         for (let geneIndex = 0; geneIndex < expression.cols.length; geneIndex += 1) {
           const index = cellIndex * expression.cols.length + geneIndex;
           const container = Math.floor(newIndex / (DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE));
-          newIndex === DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE * 2 && console.log(transpose, index, cellIndex, geneIndex, newIndex, container); // eslint-disable-line
           paddedExpressionContainers[container][
             newIndex % (DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE)
           ] = expression.matrix[index];

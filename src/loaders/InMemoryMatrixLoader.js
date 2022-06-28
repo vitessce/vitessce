@@ -1,14 +1,14 @@
 /* eslint-disable */
 import { extent } from "d3-array";
 import range from "lodash/range";
-import { DATA_TEXTURE_SIZE } from "../layers/heatmap-constants";
+import { TILE_SIZE } from "../layers/heatmap-constants";
 import JsonLoader from "./JsonLoader";
 import LoaderResult from "./LoaderResult";
 
 export default class InMemoryMatrixLoader extends JsonLoader {
   async load() {
-    const numRows = Math.ceil(DATA_TEXTURE_SIZE * 2.5)
-    const numCols = Math.ceil(DATA_TEXTURE_SIZE * 1.5)
+    const numRows = Math.ceil(TILE_SIZE * 2.5)
+    const numCols = Math.ceil(TILE_SIZE * 1.5)
     const data = {
       rows: Array.from({ length: numRows }, (i, j) => `gene_${j}`),
       cols: Array.from({ length: numCols }, (i, j) => `cell_${j}`),
@@ -16,8 +16,10 @@ export default class InMemoryMatrixLoader extends JsonLoader {
         Array.from(
           { length: numCols },
           (l, k) =>
-            ((Math.floor(k / DATA_TEXTURE_SIZE) * (Math.ceil(numRows / DATA_TEXTURE_SIZE))) +
-              Math.floor(j / DATA_TEXTURE_SIZE)) / ((Math.ceil(numRows / DATA_TEXTURE_SIZE) * Math.ceil(numCols / DATA_TEXTURE_SIZE)) - 1)
+            (Math.floor(k / TILE_SIZE) * Math.ceil(numRows / TILE_SIZE) +
+              Math.floor(j / TILE_SIZE)) /
+            (Math.ceil(numRows / TILE_SIZE) * Math.ceil(numCols / TILE_SIZE) -
+              1)
         )
       ),
     };

@@ -119,11 +119,6 @@ void main(void) {
   vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
   vec2 vTexCoordOffset = offsetvTexcoord(vTexCoord);
   vec2 viewCoordTransformed = dataCoordinateFromvTexCoordOffset(vTexCoordOffset);
-  float indexFull = getIndexFromViewCoord(viewCoordTransformed);
-  float index = indexFull - (floor(indexFull / (uReshapedDataSize.x * uReshapedDataSize.y)) * (uReshapedDataSize.x * uReshapedDataSize.y));
-  float container = floor(indexFull / (uReshapedDataSize.x * uReshapedDataSize.y));
-  vec2 vTexCoordTransformed = transformDataCoordinate(index);
-  
   // Compute (x % aggSizeX, y % aggSizeY).
   // These values will be the number of values to the left / above the current position to consider.
   vec2 modAggSize = vec2(-1.0 * mod(viewCoordTransformed.x, uAggSize.x), -1.0 * mod(viewCoordTransformed.y, uAggSize.y));
@@ -138,7 +133,7 @@ void main(void) {
       break;
     }
 
-    offsetPixels = vec2(offsetPixels.x, (modAggSize.y + float(i)) * onePixel.y);
+    offsetPixels = vec2(offsetPixels.x, (modAggSize.y + float(i)));
 
     for(int j = 0; j < 16; j++) {
       // Check to break inner loop early.
@@ -147,11 +142,15 @@ void main(void) {
         // Done in the x direction.
         break;
       }
-      offsetPixels = vec2((modAggSize.x + float(j)) * onePixel.x, offsetPixels.y);
-      intensitySum += float(abs(container - 0.) < .1) * texture2D(uBitmapTexture0, vTexCoordTransformed + offsetPixels).r;
-      intensitySum += float(abs(container - 1.) < .1) * texture2D(uBitmapTexture1, vTexCoordTransformed + offsetPixels).r;
-      intensitySum += float(abs(container - 2.) < .1) * texture2D(uBitmapTexture2, vTexCoordTransformed + offsetPixels).r;
-      intensitySum += float(abs(container - 3.) < .1) * texture2D(uBitmapTexture3, vTexCoordTransformed + offsetPixels).r;
+      offsetPixels = vec2((modAggSize.x + float(j)), offsetPixels.y);
+      float indexFull = getIndexFromViewCoord(viewCoordTransformed + offsetPixels);
+      float index = indexFull - (floor(indexFull / (uReshapedDataSize.x * uReshapedDataSize.y)) * (uReshapedDataSize.x * uReshapedDataSize.y));
+      float container = floor(indexFull / (uReshapedDataSize.x * uReshapedDataSize.y));
+      vec2 vTexCoordTransformed = transformDataCoordinate(index);
+      intensitySum += float(abs(container - 0.) < .1) * texture2D(uBitmapTexture0, vTexCoordTransformed).r;
+      intensitySum += float(abs(container - 1.) < .1) * texture2D(uBitmapTexture1, vTexCoordTransformed).r;
+      intensitySum += float(abs(container - 2.) < .1) * texture2D(uBitmapTexture2, vTexCoordTransformed).r;
+      intensitySum += float(abs(container - 3.) < .1) * texture2D(uBitmapTexture3, vTexCoordTransformed).r;
     }
   }
   
