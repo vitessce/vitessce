@@ -89,24 +89,6 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
     } = this.props;
     // Render the image
     if (bitmapTextures && model) {
-      // eslint-disable-next-line no-console
-      console.log(
-        Object.assign({}, uniforms, {
-          uBitmapTexture0: bitmapTextures[0],
-          uBitmapTexture1: bitmapTextures[1],
-          uBitmapTexture2: bitmapTextures[2],
-          uBitmapTexture3: bitmapTextures[3],
-          uOrigDataSize: origDataSize,
-          uReshapedDataSize: [DATA_TEXTURE_SIZE, DATA_TEXTURE_SIZE],
-          uTextureSize: [TILE_SIZE, TILE_SIZE],
-          uAggSize: [aggSizeX, aggSizeY],
-          uColorScaleRange: [colorScaleLo, colorScaleHi],
-          tileIJ: [tileI, tileJ],
-          dataIJ: [0, 0],
-          numTiles: [numXTiles, numYTiles],
-          numData: [1, 1],
-        }),
-      );
       model
         .setUniforms(
           Object.assign({}, uniforms, {
