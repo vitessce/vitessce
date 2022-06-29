@@ -11,6 +11,7 @@ export const Component = {
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
   HEATMAP: 'heatmap',
+  DOTPLOT: 'dotplot',
   LAYER_CONTROLLER: 'layerController',
   CELL_SET_SIZES: 'cellSetSizes',
   GENOMIC_PROFILES: 'genomicProfiles',

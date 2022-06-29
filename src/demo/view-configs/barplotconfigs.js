@@ -2,7 +2,7 @@ export const barplots = {
     'version': "1.0.4",
     public: true,
     initStrategy: 'auto',
-    'name': 'MyBarPlot Config',
+    'name': 'Immunology Plot',
     'description': '',
     'datasets': [{"uid": "codeluppi",
     "name": "Codeluppi",
@@ -26,14 +26,14 @@ export const barplots = {
         }
     },
     'layout': [{
-        'component': 'barplot',
+        'component': 'dotplot',
         coordinationScopes: {
-            dataset: 'A'
+            /*dataset: 'A'*/
         },
         'x': 0,
         'y': 0,
-        'w': 6,
-        'h': 10,
+        'w': 8,
+        'h': 9,
     },
 {'component': 'genes',
 props: {
@@ -42,20 +42,22 @@ props: {
   coordinationScopes: {
     dataset: 'A'
 },
-'x': 6,
+'x': 8,
 'y': 0,
-'w': 3,
-'h':10,
+'w': 2,
+'h':9,
 },
+
+
 {
     'component': 'cellSets',
     coordinationScopes: {
-        dataset: 'A'
+        
     },
-    x: 9,
+    x: 10,
       y: 0,
-      w: 3,
-      h: 10,
+      w: 2,
+      h: 9,
     }
     ]
 

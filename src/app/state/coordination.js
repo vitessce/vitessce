@@ -279,5 +279,22 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.FEATURE_SELECTION,
   ],
-  barplot: []
+  [Component.DOTPLOT]: [
+    CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
+    CoordinationType.OBS_FILTER,
+    CoordinationType.OBS_HIGHLIGHT,
+    CoordinationType.OBS_SET_SELECTION,
+    CoordinationType.OBS_SET_HIGHLIGHT,
+    CoordinationType.OBS_SET_COLOR,
+    CoordinationType.FEATURE_FILTER,
+    CoordinationType.FEATURE_HIGHLIGHT,
+    CoordinationType.FEATURE_SELECTION,
+    CoordinationType.FEATURE_VALUE_COLORMAP,
+    CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+    CoordinationType.OBS_COLOR_ENCODING,
+    CoordinationType.ADDITIONAL_OBS_SETS,
+  ],
 };

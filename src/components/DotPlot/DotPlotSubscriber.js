@@ -7,15 +7,12 @@ import { mergeCellSets } from '../utils';
 import { useCellSetsData, useExpressionMatrixData } from '../data-hooks';
 import { useExpressionAttrs } from '../data-hooks';
 //import { treeToSetSizesBySetNames } from './cell-set-utils'; 
-import BarPlot from './BarPlot';
 import clamp from 'lodash/clamp';
 import { VegaPlot, VEGA_THEMES } from '../vega';
 import { csvParse } from 'd3-dsv';
 import { sum } from 'lodash';
 import { treeFindNodeByNamePath, nodeToSet } from '../sets/cell-set-utils';
-
-
-
+import { Component } from '../../app/constants';
 
 
 
@@ -44,18 +41,25 @@ export default function BarPlotEverything(props) {
 
 
 
+
   const loaders = useLoaders();
+
   const [width, height, containerRef] = useGridItemSize();
   // Get "props" from the coordination space.
   const [{
     dataset,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
+    featureSelection: geneSelection,
+    featureHighlight: geneHighlight,
+    featureFilter: geneFilter,
     additionalObsSets: additionalCellSets,
   }, {
     setObsSetSelection: setCellSetSelection,
     setObsSetColor: setCellSetColor,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetSizes, coordinationScopes);
+    setFeatureHighlight: setGeneHighlight,
+    setFeatureSelection: setGeneSelection,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.DOTPLOT], coordinationScopes);
 
   
   const [urls, addUrl, resetUrls] = useUrls();
@@ -100,52 +104,18 @@ export default function BarPlotEverything(props) {
   const numGenes = geneList.length;
 
 
-  console.log('dotPlot', attrs, expressionMatrix, mergedCellSets)
+  console.log('dotPlot', attrs, expressionMatrix, mergedCellSets);
+
+
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
-  const data = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
+  /*const data = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
     ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme)
     : []
-  ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
+  ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);*/
 
 
 const [name, setName] = useState('mean');
-
-console.log('yup', mergeCellSets(
-  cellSets, additionalCellSets,
-), [cellSets, additionalCellSets]);
-
-const aa = [["Cell Type Annotations", "Astrocyte", 'Astrocyte Gfap'], 
-["Cell Type Annotations", "Astrocyte", 'Astrocyte Mfge8'],
-["Cell Type Annotations", 'Brain immune', 'Microglia'],
-["Cell Type Annotations",'Brain immune', 'Perivascular Macrophages'],
-["Cell Type Annotations",'Excitatory neurons','Hippocampus'],
-["Cell Type Annotations", 'Excitatory neurons', 'Pyramidal Cpne5'],
-["Cell Type Annotations", 'Excitatory neurons', 'Pyramidal Kcnip2'],
-["Cell Type Annotations", 'Excitatory neurons', 'Pyramidal L2-3'],
-["Cell Type Annotations",'Excitatory neurons', 'Pyramidal L2-3 L5'],
-["Cell Type Annotations", 'Excitatory neurons', 'Pyramidal L3-4'],
-["Cell Type Annotations", 'Excitatory neurons', 'Pyramidal L5'],
-["Cell Type Annotations", 'Excitatory neurons', 'Pyramidal L6'],
-["Cell Type Annotations", 'Excitatory neurons', 'pyramidal L4'],
-["Cell Type Annotations", 'Inhibitory neurons', 'Inhibitory CP'],
-["Cell Type Annotations", 'Inhibitory neurons', 'Inhibitory Cnr1'],
-["Cell Type Annotations", 'Inhibitory neurons', 'Inhibitory Crhbp'],
-["Cell Type Annotations", 'Inhibitory neurons', 'Inhibitory IC'],
-["Cell Type Annotations", 'Inhibitory neurons', 'Inhibitory Kcnip2'],
-["Cell Type Annotations", 'Inhibitory neurons', 'Inhibitory Pthlh'],
-["Cell Type Annotations",'Inhibitory neurons','Inhibitory Vip'],
-["Cell Type Annotations",'Oligodendrocytes','Oligodendrocyte COP'],
-["Cell Type Annotations",'Oligodendrocytes','Oligodendrocyte MF'],
-["Cell Type Annotations",'Oligodendrocytes','Oligodendrocyte Mature'],
-["Cell Type Annotations", 'Oligodendrocytes', 'Oligodendrocyte NF'],
-["Cell Type Annotations",'Oligodendrocytes', 'Oligodendrocyte Precursor cells'],
-["Cell Type Annotations", 'Vasculature', 'Endothelial'], 
-["Cell Type Annotations", 'Vasculature', 'Endothelial 1'],
-["Cell Type Annotations", 'Vasculature', 'Pericytes'],
-["Cell Type Annotations", 'Vasculature', 'Vascular Smooth Muscle'],
-["Cell Type Annotations", 'Ventricle', 'C. Plexus'],
-["Cell Type Annotations", 'Ventricle', 'Ependymal']];
 
 //This code can help to map between cell IDs and cell types
 /**
@@ -194,15 +164,10 @@ function cellSetsToCellTypeMapping(currTree, selectedNamePaths) {
   return new Map(cellTypes);
 }
 
-var x = cellSetsToCellTypeMapping(mergedCellSets, cellSetSelection); //change to cellSetSelection
+var x = cellSetsToCellTypeMapping(mergedCellSets, cellSetSelection); 
 
-console.log('p',cellSetSelection)
-
-console.log('p', mergedCellSets, aa);
 
 const data1 = [];
- 
-
 
 if (attrs != undefined){
 
@@ -211,26 +176,41 @@ if (attrs != undefined){
       return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
     }, []);
   }
- //check that expressionMatrix is undefined later and check that identity, features, expression are matched correctly
 
 
   var counter = -1;
 
-for(let i=0; i<100; i++){
+for(let i=0; i<attrs.rows.length; i++){
   for(let a=0;a<attrs.cols.length;a++){
     counter++;
 
-    data1.push(Object.fromEntries([["Identity", x.get(attrs.rows[i])], ["Features",attrs.cols[a]], ["Expression",expressionMatrix.matrix[counter]]]))}
-  }
+    if (geneSelection === null){
+      data1.push(Object.fromEntries([["Identity", x.get(attrs.rows[i])], ["Features",attrs.cols[a]], ["Expression",expressionMatrix.matrix[counter]]]))
+    }
+    
+    else if (geneSelection.includes(attrs.cols[a])){
+        data1.push(Object.fromEntries([["Identity", x.get(attrs.rows[i])], ["Features",attrs.cols[a]], ["Expression",expressionMatrix.matrix[counter]]]))}
+     }
 
-}
+}}
+
+//This code allows you to deselect an Item on Cell Sets, and have it disappear. If not it shows up as undefined (i.e. if you deselect Astrocyte, it can disappear instead of changing label to Undefined).
+let result = data1.map(a => a.Identity); //First finds all Identities
+
+const filteredArray = [];
+
+for (let i = 0; i < result.length; i++) { //Checks if any of them are undefined, and gets their index
+  if (result[i] === undefined) filteredArray.push(i);}
+
+for (var i = filteredArray.length -1; i >= 0; i--)  //Removes all undefined from data (i.e. it was not selected in cell sets), so it does not show up
+   data1.splice(filteredArray[i],1);
 
 
   const spec = {"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   "description": "Punchcard Visualization like on Github. The day on y-axis uses a custom order from Monday to Sunday.  The sort property supports both full day names (e.g., 'Monday') and their three letter initials (e.g., 'mon') -- both of which are case insensitive.",
-  "width": 380,
-  "height": 180,
-  "padding": 50,
+  "width": 535,
+  "height": 320,
+  "padding": 5,
   "params": [{"name": "highlight", "select": {
     "type": "point",
     "on": "mouseover",
@@ -330,8 +310,6 @@ for(let i=0; i<100; i++){
 
     }
 
-  
-  
  // ,
  //   width: clamp(width - marginRight, 10, Infinity),
 //    height: clamp(height - marginBottom, 10, Infinity),
@@ -340,21 +318,6 @@ for(let i=0; i<100; i++){
 
 
  
-
- /* const data = csvParse(`Identity,Features,Expression
-ast, act1,2
-ast, act2,3
-ast, act3,1
-ast, act4,1
-ast, act5,3
-ast, act6,1
-ast, act5,3
-ast, act4,1
-ast, act3,1
-dend, act2,2
-dend, act1,1
-dend, act2,3
-t-cell, act3,3`);*/
 
 function aggregate_function(p)
 {console.log('Parameter Name', p.target.value)
