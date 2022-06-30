@@ -23,7 +23,9 @@ const NEIGHBORHOODS_LAYER_ID = 'neighborhoods-layer';
 
 // Default getter function props.
 const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { index }) => {
-  const [r, g, b, a] = (cellColors && obsIndex && cellColors.get(obsIndex[index])) || getDefaultColor(theme);
+  const [r, g, b, a] = (
+    cellColors && obsIndex && cellColors.get(obsIndex[index])
+  ) || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
 const makeDefaultGetCellIsSelected = (cellSelection) => {
