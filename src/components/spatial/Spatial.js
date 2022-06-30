@@ -201,7 +201,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsLocationsFeatureIndex: obsLabelsTypes,
       setMoleculeHighlight,
     } = this.props;
-
     const getMoleculeColor = (object, { data, index }) => {
       const i = data.src.obsLabelsTypes.indexOf(data.src.obsLabels[index]);
       return data.src.PALETTE[i % data.src.PALETTE.length];
@@ -241,6 +240,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
             setMoleculeHighlight(null);
           }
         }
+      },
+      updateTriggers: {
+        getRadius: [layerDef],
+        getPosition: [obsLocations],
+        getLineColor: [obsLabelsTypes],
+        getFillColor: [obsLabelsTypes],
       },
     });
   }

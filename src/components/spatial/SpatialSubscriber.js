@@ -237,7 +237,6 @@ export default function SpatialSubscriber(props) {
       ...(rasterLayers ? rasterLayers.map(l => ({ ...l, type: (l.type && ['raster', 'bitmask'].includes(l.type) ? l.type : 'raster') })) : []),
     ];
   }, [cellsLayer, moleculesLayer, neighborhoodsLayer, rasterLayers, obsSegmentationsType]);
-
   useEffect(() => {
     if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
       const {

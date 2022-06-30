@@ -50,6 +50,7 @@ export default function Vitessce(props) {
     onConfigChange,
     onLoaderChange,
     validateOnConfigChange = false,
+    onConfigUpgrade,
   } = props;
 
   // Process the view config and memoize the result:
@@ -73,7 +74,7 @@ export default function Vitessce(props) {
       }, false];
     }
     // Check if this is a "legacy" view config.
-    const [upgradedConfig, upgradeSuccess] = upgradeAndValidate(config);
+    const [upgradedConfig, upgradeSuccess] = upgradeAndValidate(config, onConfigUpgrade);
     if (upgradeSuccess) {
       // Initialize the view config according to the initStrategy.
       const [typeCheckSuccess, typeCheckMessage] = checkTypes(upgradedConfig);

@@ -180,9 +180,7 @@ export function upgradeFrom1_0_0(config) {
 
     function replaceCoordinationScope(layerType) {
       const isRaster = layerType === 'raster';
-      if (COMPONENT_COORDINATION_TYPES[newComponent.component].includes(`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`)) {
-        newComponent.coordinationScopes[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`] = newComponent.coordinationScopes.spatialLayers;
-      }
+      newComponent.coordinationScopes[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`] = newComponent.coordinationScopes.spatialLayers;
     }
 
     if (newComponent.coordinationScopes && newComponent.coordinationScopes.spatialLayers) {

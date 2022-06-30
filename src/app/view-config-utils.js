@@ -274,7 +274,7 @@ export function initialize(config) {
   return assignViewUids(newConfig);
 }
 
-export function upgradeAndValidate(oldConfig) {
+export function upgradeAndValidate(oldConfig, onConfigUpgrade = null) {
   // oldConfig object must have a `version` property.
   let nextConfig = oldConfig;
   let fromVersion;
@@ -304,7 +304,11 @@ export function upgradeAndValidate(oldConfig) {
     }
 
     if (upgradeFunction) {
+      const prevConfig = nextConfig;
       nextConfig = upgradeFunction(nextConfig);
+      if (onConfigUpgrade) {
+        onConfigUpgrade(prevConfig, nextConfig);
+      }
     }
   } while (upgradeFunction);
 

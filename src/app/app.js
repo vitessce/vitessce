@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useEffect, useRef, useState } from 'react';
 import { getConfig, listConfigs } from './api';
 import Welcome from './Welcome';
@@ -34,6 +35,14 @@ function preformattedDetails(response) {
     url: ${response.url}`; // TODO: headers
 }
 
+function logConfigUpgrade(prevConfig, nextConfig) {
+  // eslint-disable-next-line no-console
+  console.log(`Upgrade view config schema from ${prevConfig.version} to ${nextConfig.version}`);
+  // eslint-disable-next-line no-console
+  console.log(prevConfig);
+  // eslint-disable-next-line no-console
+  console.log(nextConfig);
+}
 
 function checkResponse(response, theme, debug) {
   if (!response.ok) {
@@ -54,8 +63,8 @@ function checkResponse(response, theme, debug) {
         <Vitessce
           config={config}
           theme={theme}
-          // eslint-disable-next-line no-console
           onConfigChange={debug ? console.log : undefined}
+          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
           validateOnConfigChange={debug}
         />
       ));
@@ -105,8 +114,8 @@ export function createApp(params) {
         config={config}
         rowHeight={rowHeight}
         theme={theme}
-        // eslint-disable-next-line no-console
-        onConfigChange={(debug ? console.log : undefined)}
+        onConfigChange={debug ? console.log : undefined}
+        onConfigUpgrade={debug ? logConfigUpgrade : undefined}
         validateOnConfigChange={debug}
       />
     );
