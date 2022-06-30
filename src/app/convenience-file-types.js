@@ -1,6 +1,5 @@
 import { FileType } from './constants';
 
-
 export function expandMoleculesJson(fileDef) {
   const baseFileDef = {
     ...fileDef,
@@ -20,7 +19,8 @@ export function expandMoleculesJson(fileDef) {
       ...baseFileDef,
       fileType: FileType.OBS_LABELS_MOLECULES_JSON,
       coordinationValues: {
-        obsLabelsType: 'gene',
+        ...baseFileDef.coordinationValues,
+        obsLabelsType: 'feature',
       },
     },
   ];
@@ -377,7 +377,6 @@ export function expandAnndataZarr(fileDef) {
   ];
 }
 
-
 /**
  * Built-in convenience file type
  * expansion functions.
@@ -394,5 +393,5 @@ export const CONVENIENCE_FILE_TYPES = {
   [FileType.CLUSTERS_JSON]: expandClustersJson,
   [FileType.GENES_JSON]: expandGenesJson,
   [FileType.CELLS_JSON]: expandCellsJson,
-  // [FileType.MOLECULES_JSON]: expandMoleculesJson,
+  [FileType.MOLECULES_JSON]: expandMoleculesJson,
 };

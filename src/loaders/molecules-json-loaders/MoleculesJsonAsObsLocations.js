@@ -4,6 +4,7 @@ import moleculesSchema from '../../schemas/molecules.schema.json';
 import JsonLoader from '../JsonLoader';
 import { AbstractLoaderError } from '../errors';
 import LoaderResult from '../LoaderResult';
+import { DEFAULT_MOLECULES_LAYER } from '../../components/spatial/constants';
 
 export default class MoleculesJsonAsObsLocationsLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -36,6 +37,10 @@ export default class MoleculesJsonAsObsLocationsLoader extends JsonLoader {
       data: [obsLocationsX, obsLocationsY],
       shape: [2, obsLocationsX.length],
     };
-    return Promise.resolve(new LoaderResult({ obsIndex, obsLocations }, url));
+    const coordinationValues = {
+      // TODO: do this for anndata segmentation loader
+      spatialPointLayer: DEFAULT_MOLECULES_LAYER,
+    };
+    return Promise.resolve(new LoaderResult({ obsIndex, obsLocations }, url, coordinationValues));
   }
 }

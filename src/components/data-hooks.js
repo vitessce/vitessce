@@ -91,6 +91,17 @@ export function useObsLocationsData(
   );
 }
 
+export function useObsLabelsData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_LABELS,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
 export function useObsSegmentationsData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,

@@ -79,12 +79,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // in React state, this component
     // uses instance variables.
     // All instance variables used in this class:
-    this.obsLocationsIndex = null;
-    this.obsLocations = null;
-    this.obsSegmentationsIndex = null;
-    this.obsSegmentations = null;
-    this.cellsEntries = []; // TODO: remove
-    this.moleculesEntries = [];
     this.cellsQuadTree = null;
     this.cellsLayer = null;
     this.moleculesLayer = null;
@@ -120,23 +114,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createCellsLayer(layerDef) {
     const {
-      obsSegmentationsIndex,
-      obsSegmentations,
-    } = this;
-    const {
       radius, stroked, visible, opacity,
     } = layerDef;
     const {
+      obsSegmentationsIndex: obsIndex,
+      obsSegmentations,
       theme,
       cellFilter,
       cellSelection,
       setCellHighlight,
       setComponentHover,
       getCellIsSelected = makeDefaultGetCellIsSelected(
-        obsSegmentationsIndex.length === cellSelection.length ? null : cellSelection,
+        obsIndex.length === cellSelection.length ? null : cellSelection,
       ),
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, obsSegmentationsIndex, theme),
+      getCellColor = makeDefaultGetCellColors(cellColors, obsIndex, theme),
       onCellClick,
       lineWidthScale = 10,
       lineWidthMaxPixels = 2,
@@ -152,10 +144,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       id: CELLS_LAYER_ID,
       data: {
         src: {
-          obsIndex: obsSegmentationsIndex,
           obsSegmentations,
         },
-        length: obsSegmentationsIndex.length,
+        length: obsIndex.length,
       },
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
@@ -204,23 +195,42 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createMoleculesLayer(layerDef) {
     const {
+      obsLocations,
+      obsLocationsIndex: obsIndex,
+      obsLocationsLabels: obsLabels,
+      obsLocationsFeatureIndex: obsLabelsTypes,
       setMoleculeHighlight,
-      getMoleculeColor = d => PALETTE[d[2] % PALETTE.length],
-      getMoleculePosition = d => [d[0], d[1], 0],
     } = this.props;
-    const { moleculesEntries } = this;
+
+    const getMoleculeColor = (object, { data, index }) => {
+      const i = data.src.obsLabelsTypes.indexOf(data.src.obsLabels[index]);
+      return data.src.PALETTE[i % data.src.PALETTE.length];
+    };
 
     return new ScatterplotLayer({
       id: MOLECULES_LAYER_ID,
+      data: {
+        src: {
+          obsLabels,
+          obsLocations,
+          obsLabelsTypes,
+          PALETTE,
+        },
+        length: obsIndex.length,
+      },
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      data: moleculesEntries,
       pickable: true,
       autoHighlight: true,
       radiusMaxPixels: 3,
       opacity: layerDef.opacity,
       visible: layerDef.visible,
       getRadius: layerDef.radius,
-      getPosition: getMoleculePosition,
+      getPosition: (object, { data, index, target }) => {
+        target[0] = data.src.obsLocations.data[0][index];
+        target[1] = data.src.obsLocations.data[1][index];
+        target[2] = 0;
+        return target;
+      },
       getLineColor: getMoleculeColor,
       getFillColor: getMoleculeColor,
       onHover: (info) => {
@@ -260,7 +270,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   createSelectionLayers() {
-    const { obsSegmentationsIndex, obsSegmentations } = this;
+    const { obsSegmentationsIndex, obsSegmentations } = this.props;
     const {
       viewState,
       setCellSelection,
@@ -480,19 +490,23 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsSegmentations,
       obsSegmentationsType,
     } = this.props;
-    if (obsSegmentationsIndex && obsSegmentations
+    if (obsSegmentationsIndex
+      && obsSegmentations
       && obsSegmentationsType === 'polygon'
     ) {
-      this.obsSegmentationsIndex = obsSegmentationsIndex;
-      this.obsSegmentations = obsSegmentations;
       this.cellsQuadTree = createSegmentationsQuadTree(obsSegmentations);
     }
   }
 
   onUpdateCellsLayer() {
-    const { layers } = this.props;
+    const {
+      layers,
+      obsSegmentationsIndex,
+      obsSegmentations,
+      obsSegmentationsType,
+    } = this.props;
     const layerDef = (layers || []).find(layer => layer.type === 'cells');
-    if (layerDef) {
+    if (layerDef && obsSegmentationsIndex && obsSegmentations && obsSegmentationsType === 'polygon') {
       this.cellsLayer = this.createCellsLayer(layerDef);
     } else {
       this.cellsLayer = null;
@@ -535,17 +549,23 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateMoleculesData() {
-    const { molecules = {} } = this.props;
-    const moleculesEntries = Object.entries(molecules).flatMap(
-      ([molecule, coords], index) => coords.map(([x, y]) => [x, y, index, molecule]),
-    );
-    this.moleculesEntries = moleculesEntries;
+    // TODO: remove
   }
 
   onUpdateMoleculesLayer() {
-    const { layers } = this.props;
+    const {
+      layers,
+      obsLocations,
+      obsLocationsIndex,
+      obsLocationsLabels,
+      obsLocationsFeatureIndex,
+    } = this.props;
     const layerDef = (layers || []).find(layer => layer.type === 'molecules');
-    if (layerDef) {
+    if (
+      layerDef
+      && obsLocations?.data && obsLocationsIndex
+      && obsLocationsLabels && obsLocationsFeatureIndex
+    ) {
       this.moleculesLayer = this.createMoleculesLayer(layerDef);
     } else {
       this.moleculesLayer = null;
@@ -576,18 +596,23 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   viewInfoDidUpdate() {
     const {
+      obsSegmentations,
+      obsSegmentationsType,
       updateViewInfo,
       uuid,
     } = this.props;
-    const { viewport, obsSegmentations } = this;
+    const { viewport } = this;
     if (updateViewInfo && viewport) {
       updateViewInfo({
         uuid,
         project: (cellIndex) => {
           try {
-            const positionX = obsSegmentations.data[cellIndex][0][0];
-            const positionY = -obsSegmentations.data[cellIndex][0][1];
-            return viewport.project([positionX, positionY]);
+            if (obsSegmentationsType === 'polygon') {
+              const positionX = obsSegmentations.data[cellIndex][0][0];
+              const positionY = -obsSegmentations.data[cellIndex][0][1];
+              return viewport.project([positionX, positionY]);
+            }
+            return [null, null];
           } catch (e) {
             return [null, null];
           }
@@ -618,6 +643,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ) {
       // Cells data changed.
       this.onUpdateCellsData();
+      this.forceUpdate();
+    }
+    if (
+      [
+        'obsLocations',
+        'obsLocationsIndex',
+        'obsLocationsLabels',
+        'obsLocationsFeatureIndex',
+      ].some(shallowDiff)
+    ) {
+      // Cells data changed.
+      this.onUpdateMoleculesData();
       this.forceUpdate();
     }
 
@@ -652,13 +689,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['molecules'].some(shallowDiff)) {
-      // Molecules data changed.
-      this.onUpdateMoleculesData();
-      this.forceUpdate();
-    }
-
-    if (['layers', 'molecules'].some(shallowDiff)) {
+    if (
+      [
+        'layers',
+        'obsLocations',
+        'obsLocationsIndex',
+        'obsLocationsLabels',
+        'obsLocationsFeatureIndex',
+      ].some(shallowDiff)
+    ) {
       // Molecules layer props changed.
       this.onUpdateMoleculesLayer();
       this.forceUpdate();

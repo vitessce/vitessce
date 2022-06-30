@@ -52,7 +52,6 @@ export const fileTypeToLoaderAndSource = {
   [FileType.OBS_LOCATIONS_MOLECULES_JSON]: [JsonSource, MoleculesJsonAsObsLocationsLoader],
   [FileType.OBS_LABELS_MOLECULES_JSON]: [JsonSource, MoleculesJsonAsObsLabelsLoader],
   // Old mappings:
-  [FileType.MOLECULES_JSON]: [JsonSource, JsonLoader],
   [FileType.NEIGHBORHOODS_JSON]: [JsonSource, JsonLoader],
   [FileType.GENOMIC_PROFILES_ZARR]: [ZarrDataSource, GenomicProfilesZarrLoader],
 };

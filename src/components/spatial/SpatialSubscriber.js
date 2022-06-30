@@ -13,7 +13,7 @@ import {
   useImageData,
   useObsFeatureMatrixIndices,
   useNeighborhoodsData,
-  useMoleculesData, // TODO: remove
+  useObsLabelsData,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
@@ -32,9 +32,9 @@ import { DataType } from '../../app/constants';
 import { useHasLoader } from '../data-hook-utils';
 
 const SPATIAL_DATA_TYPES = [
-  'molecules', // TODO: remove
   DataType.IMAGE,
   DataType.OBS_LOCATIONS, DataType.OBS_SEGMENTATIONS,
+  DataType.OBS_LABELS,
   DataType.OBS_SETS, DataType.OBS_FEATURE_MATRIX,
 ];
 
@@ -151,9 +151,18 @@ export default function SpatialSubscriber(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
-  const hasExpressionData = useHasLoader(loaders, dataset, DataType.OBS_FEATURE_MATRIX, { obsType, featureType, featureValueType });
-  const hasCellsData = useHasLoader(loaders, dataset, DataType.OBS_SEGMENTATIONS, { obsType });
-  const hasImageData = useHasLoader(loaders, dataset, DataType.IMAGE, {});
+  const hasExpressionData = useHasLoader(
+    loaders, dataset, DataType.OBS_FEATURE_MATRIX,
+    { obsType, featureType, featureValueType },
+  );
+  const hasCellsData = useHasLoader(
+    loaders, dataset, DataType.OBS_SEGMENTATIONS,
+    {},
+  ); // TODO: use obsType in matchOn once #1240 is merged.
+  const hasImageData = useHasLoader(
+    loaders, dataset, DataType.IMAGE,
+    {}, // TODO: which properties to match on
+  );
   // Get data from loaders using the data hooks.
   const {
     obsIndex: obsLocationsIndex,
@@ -162,7 +171,13 @@ export default function SpatialSubscriber(props) {
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
-    {}, // TODO: use obsType once #1240 is merged.
+    {}, // TODO: use obsType in matchOn once #1240 is merged.
+  );
+  const {
+    obsLabels: obsLocationsLabels,
+  } = useObsLabelsData(
+    loaders, dataset, setItemIsReady, addUrl, false, {}, {},
+    { obsLabelsType: 'feature' }, // TODO: use obsType in matchOn once #1240 is merged.
   );
   const {
     obsIndex: obsSegmentationsIndex,
@@ -172,7 +187,7 @@ export default function SpatialSubscriber(props) {
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
-    {}, // TODO: use obsType once #1240 is merged.
+    {}, // TODO: use obsType in matchOn once #1240 is merged.
   );
   const { obsSets: cellSets } = useObsSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
@@ -201,10 +216,14 @@ export default function SpatialSubscriber(props) {
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
 
-  // TODO: remove useMoleculesData
-  const [molecules, moleculesCount, locationsCount] = useMoleculesData(
-    loaders, dataset, setItemIsReady, addUrl, false, {}, {},
-  );
+  const obsLocationsFeatureIndex = useMemo(() => {
+    if (obsLocationsLabels) {
+      return Array.from(new Set(obsLocationsLabels));
+    }
+    return null;
+  }, [obsLocationsLabels]);
+  const moleculesCount = obsLocationsFeatureIndex?.length || 0;
+  const locationsCount = obsLocationsIndex?.length || 0;
 
   const layers = useMemo(() => {
     // Only want to pass in cells layer once if there is not `bitmask`.
@@ -228,6 +247,7 @@ export default function SpatialSubscriber(props) {
         height,
         obsSegmentations,
         obsSegmentationsType,
+        // TODO: use obsLocations here too.
         imageLayerLoaders,
         useRaster: Boolean(hasImageData),
         use3d,
@@ -382,16 +402,17 @@ export default function SpatialSubscriber(props) {
         }}
         setViewState={setViewState}
         layers={layers}
-        obsLocationsIndex={obsLocationsIndex} // TODO: use
+        obsLocationsIndex={obsLocationsIndex}
         obsSegmentationsIndex={obsSegmentationsIndex}
-        obsLocations={obsLocations} // TODO: use
+        obsLocations={obsLocations}
+        obsLocationsLabels={obsLocationsLabels}
+        obsLocationsFeatureIndex={obsLocationsFeatureIndex}
         obsSegmentations={obsSegmentations}
         obsSegmentationsType={obsSegmentationsType}
         cellFilter={cellFilter}
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}
         cellColors={cellColors}
-        molecules={molecules}
         neighborhoods={neighborhoods}
         imageLayerLoaders={imageLayerLoaders}
         setCellFilter={setCellFilter}
