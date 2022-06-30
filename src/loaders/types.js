@@ -17,6 +17,8 @@ import GenesJsonAsObsFeatureMatrixLoader from './genes-json-loaders/GenesJsonAsO
 import RasterJsonAsImageLoader from './raster-json-loaders/RasterJsonAsImageLoader';
 import RasterJsonAsObsSegmentationsLoader from './raster-json-loaders/RasterJsonAsObsSegmentationsLoader';
 import MatrixZarrAsObsFeatureMatrixLoader from './matrix-loaders/MatrixZarrAsObsFeatureMatrix';
+import MoleculesJsonAsObsLocationsLoader from './molecules-json-loaders/MoleculesJsonAsObsLocations';
+import MoleculesJsonAsObsLabelsLoader from './molecules-json-loaders/MoleculesJsonAsObsLabels';
 
 export const fileTypeToLoaderAndSource = {
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: [
@@ -47,6 +49,8 @@ export const fileTypeToLoaderAndSource = {
   [FileType.OBS_LABELS_CELLS_JSON]: [JsonSource, CellsJsonAsObsLabelsLoader],
   [FileType.OBS_EMBEDDING_CELLS_JSON]: [JsonSource, CellsJsonAsObsEmbeddingLoader],
   [FileType.OBS_SEGMENTATIONS_CELLS_JSON]: [JsonSource, CellsJsonAsObsSegmentationsLoader],
+  [FileType.OBS_LOCATIONS_MOLECULES_JSON]: [JsonSource, MoleculesJsonAsObsLocationsLoader],
+  [FileType.OBS_LABELS_MOLECULES_JSON]: [JsonSource, MoleculesJsonAsObsLabelsLoader],
   // Old mappings:
   [FileType.MOLECULES_JSON]: [JsonSource, JsonLoader],
   [FileType.NEIGHBORHOODS_JSON]: [JsonSource, JsonLoader],

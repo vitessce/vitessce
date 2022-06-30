@@ -70,6 +70,9 @@ export const FileType = {
   // For raster.json
   IMAGE_RASTER_JSON: 'image.raster.json',
   OBS_SEGMENTATIONS_RASTER_JSON: 'obsSegmentations.raster.json',
+  // For molecules.json
+  OBS_LOCATIONS_MOLECULES_JSON: 'obsLocations.molecules.json',
+  OBS_LABELS_MOLECULES_JSON: 'obsLabels.molecules.json',
   // Convenience file types
   CELLS_JSON: 'cells.json',
   CELL_SETS_JSON: 'cell-sets.json',

@@ -23,6 +23,7 @@
 - Added loaders for `obsFeatureMatrix.expression-matrix.zarr`
 - Added the property `coordinationValues` for view config file definitions.
 - Added the `useMatchingLoader` hook.
+- Added loaders for `obsLabels.molecules.json` and `obsLocations.molecules.json`
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
