@@ -1,6 +1,7 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
 import { treeToCellColorsBySetNames } from './sets/cell-set-utils';
+import { getDefaultColor } from './utils';
 
 // The functions defined here have been adapted from d3-interpolate,
 // d3-color, and d3-scale-chromatic.
@@ -103,12 +104,16 @@ export function getCellColors(params) {
       colors.set(obsIndex[i], cellColor);
     }
     return colors;
-  } if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {
+  }
+  if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {
     // Cell sets can potentially lack set colors since the color property
     // is not a required part of the schema.
     // The `initializeSets` function fills in any empty colors
     // with defaults and returns the processed tree object.
     return treeToCellColorsBySetNames(cellSets, cellSetSelection, cellSetColor, theme);
+  }
+  if (obsIndex && theme) {
+    return new Map(obsIndex.map(o => ([o, getDefaultColor(theme)])));
   }
   return new Map();
 }

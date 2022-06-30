@@ -248,7 +248,7 @@ export function useExpressionValueGetter({ obsIndex, expressionData }) {
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useCallback((entry, { index }) => {
     if (cellIdMap && expressionData && expressionData[0]) {
-      const val = expressionData.data[0][index];
+      const val = expressionData[0][index];
       return val;
     }
     return 0;

@@ -31,9 +31,10 @@ import {
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { DataType } from '../../app/constants';
 import { useHasLoader } from '../data-hook-utils';
+import { extent } from 'd3-array';
 
 const SPATIAL_DATA_TYPES = [
-  'cells', 'molecules', // TODO: remove
+  'molecules', // TODO: remove
   DataType.IMAGE,
   DataType.OBS_LOCATIONS, DataType.OBS_SEGMENTATIONS,
   DataType.OBS_SETS, DataType.OBS_FEATURE_MATRIX,
@@ -199,10 +200,7 @@ export default function SpatialSubscriber(props) {
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
 
-  // TODO: remove useCellsData and useMoleculesData
-  const [cells, cellsCount] = useCellsData(
-    loaders, dataset, setItemIsReady, addUrl, false, {}, {},
-  );
+  // TODO: remove useMoleculesData
   const [molecules, moleculesCount, locationsCount] = useMoleculesData(
     loaders, dataset, setItemIsReady, addUrl, false, {}, {},
   );
@@ -227,7 +225,7 @@ export default function SpatialSubscriber(props) {
       } = getInitialSpatialTargets({
         width,
         height,
-        cells,
+        cells: {}, // TODO: use polygons
         imageLayerLoaders,
         useRaster: Boolean(loaders[dataset].loaders.raster),
         use3d,
@@ -238,7 +236,7 @@ export default function SpatialSubscriber(props) {
       setZoom(initialZoom);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageLayerLoaders, cells, targetX, targetY, setTargetX, setTargetY, setZoom, use3d]);
+  }, [imageLayerLoaders, targetX, targetY, setTargetX, setTargetY, setZoom, use3d]);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
@@ -285,8 +283,41 @@ export default function SpatialSubscriber(props) {
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
+  // Prepare to set targetX and targetY if null.
+  const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
+    // TODO: use image
+    // TODO: use bitmask segmentations
+    if (obsSegmentationsType === 'polygon' && obsSegmentations?.data && obsSegmentationsIndex) {
+      const cellCount = obsSegmentationsIndex.length;
+      const xE = extent(obsSegmentations.data.map(poly => poly[0][0]));
+      const yE = extent(obsSegmentations.data.map(poly => poly[0][1]));
+      const xR = xE[1] - xE[0];
+      const yR = yE[1] - yE[0];
+      return [xR, yR, xE, yE, cellCount];
+    }
+    // TODO: use obsLocations if obsSegmentations is not present
+    return [null, null, null, null, null];
+  }, [obsSegmentations, obsSegmentationsType, obsSegmentationsIndex]);
+
+  // Set targetX and targetY if null.
+  useEffect(() => {
+    if (xRange && yRange) {
+      if (typeof targetX !== 'number' || typeof targetY !== 'number') {
+        const newTargetX = xExtent[0] + xRange / 2;
+        const newTargetY = yExtent[0] + yRange / 2;
+        const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
+        setTargetX(newTargetX);
+        // Graphics rendering has the y-axis going south so we need to multiply by negative one.
+        setTargetY(-newTargetY);
+        setZoom(newZoom);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [xRange, yRange, xExtent, yExtent, numCells,
+    width, height, zoom]);
+
   const getCellInfo = (cellId) => {
-    const cell = cells[cellId]; // TODO: use obsIndex
+    const cell = obsIndex[cellId]; // TODO: use obsIndex
     if (cell) {
       return {
         [`${capitalize(observationsLabel)} ID`]: cellId,
@@ -313,7 +344,7 @@ export default function SpatialSubscriber(props) {
   };
 
   const subtitle = makeSpatialSubtitle({
-    observationsCount: cellsCount,
+    observationsCount: obsIndex?.length,
     observationsLabel,
     observationsPluralLabel,
     subobservationsCount: moleculesCount,
@@ -325,8 +356,8 @@ export default function SpatialSubscriber(props) {
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useExpressionValueGetter({ obsIndex, expressionData });
-  const hasExpressionData = useHasLoader(DataType.OBS_FEATURE_MATRIX);
-  const hasCellsData = useHasLoader(DataType.OBS_SEGMENTATIONS);
+  const hasExpressionData = useHasLoader(loaders, dataset, DataType.OBS_FEATURE_MATRIX, { obsType, featureType, featureValueType });
+  const hasCellsData = useHasLoader(loaders, dataset, DataType.OBS_SEGMENTATIONS, { obsType });
   const canLoad3DLayers = imageLayerLoaders.some(loader => Boolean(
     Array.from({
       length: loader.data.length,
@@ -388,7 +419,6 @@ export default function SpatialSubscriber(props) {
         obsLocations={obsLocations} // TODO: use
         obsSegmentations={obsSegmentations}
         obsSegmentationsType={obsSegmentationsType}
-        cells={cells}
         cellFilter={cellFilter}
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}
