@@ -1,5 +1,31 @@
 import { FileType } from './constants';
 
+
+export function expandMoleculesJson(fileDef) {
+  const baseFileDef = {
+    ...fileDef,
+    coordinationValues: {
+      ...fileDef.coordinationValues,
+      obsType: fileDef.coordinationValues?.obsType || 'molecule',
+      featureType: fileDef.coordinationValues?.featureType || 'gene',
+    },
+  };
+  delete baseFileDef.type;
+  return [
+    {
+      ...baseFileDef,
+      fileType: FileType.OBS_LOCATIONS_MOLECULES_JSON,
+    },
+    {
+      ...baseFileDef,
+      fileType: FileType.OBS_LABELS_MOLECULES_JSON,
+      coordinationValues: {
+        obsLabelsType: 'gene',
+      },
+    },
+  ];
+}
+
 export function expandExpressionMatrixZarr(fileDef) {
   const baseFileDef = {
     ...fileDef,
@@ -368,4 +394,5 @@ export const CONVENIENCE_FILE_TYPES = {
   [FileType.CLUSTERS_JSON]: expandClustersJson,
   [FileType.GENES_JSON]: expandGenesJson,
   [FileType.CELLS_JSON]: expandCellsJson,
+  // [FileType.MOLECULES_JSON]: expandMoleculesJson,
 };
