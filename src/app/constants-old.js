@@ -4,7 +4,28 @@
  */
 export const Component = {};
 
-export const DataType = {};
+export const DataType = {
+  CELLS: [
+    'cells',
+    'This data type was removed. Associated file types were re-implemented as convenience file types. See obsEmbedding instead.',
+  ],
+  CELL_SETS: [
+    'cell-sets',
+    'This data type was removed. Associated file types were re-implemented as convenience file types. See obsSets instead.',
+  ],
+  EXPRESSION_MATRIX: [
+    'expression-matrix',
+    'This data type was removed. Associated file types were re-implemented as convenience file types. See obsFeatureMatrix instead.',
+  ],
+  MOLECULES: [
+    'molecules',
+    'This data type was removed. Associated file types were re-implemented as convenience file types. See obsLocations instead.',
+  ],
+  RASTER: [
+    'raster',
+    'This data type was removed. Associated file types were re-implemented as convenience file types. See image and obsSegmentations instead.',
+  ],
+};
 
 export const FileType = {};
 

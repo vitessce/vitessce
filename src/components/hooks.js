@@ -231,27 +231,28 @@ export function useClosestVitessceContainerSize(ref) {
   return [width, height];
 }
 
-export function useExpressionValueGetter({ obsIndex, expressionData }) {
+export function useExpressionValueGetter({ instanceObsIndex, matrixObsIndex, expressionData }) {
   // Get a mapping from cell ID to row index in the gene expression matrix.
-  const cellIdMap = useMemo(() => {
-    const result = {};
-    if (obsIndex) {
-      // eslint-disable-next-line no-plusplus
-      for (let i = 0; i < obsIndex.length; i++) {
-        result[obsIndex[i]] = i;
-      }
+  // Since the two obsIndices (instanceObsIndex = the obsIndex from obsEmbedding)
+  // may be ordered differently (matrixObsIndex = the obsIndex from obsFeatureMatrix),
+  // we need a way to look up anobsFeatureMatrix obsIndex index
+  // given an obsEmbedding obsIndex index.
+  const matrixIndexMap = useMemo(() => {
+    if (instanceObsIndex && matrixObsIndex) {
+      return instanceObsIndex.map(i => matrixObsIndex.indexOf(i));
     }
-    return result;
-  }, [obsIndex]);
+    return null;
+  }, [instanceObsIndex, matrixObsIndex]);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
-  const getExpressionValue = useCallback((entry, { index }) => {
-    if (cellIdMap && expressionData && expressionData[0]) {
-      const val = expressionData[0][index];
+  const getExpressionValue = useCallback((entry, { index: instanceIndex }) => {
+    if (matrixIndexMap && expressionData && expressionData[0]) {
+      const rowIndex = matrixIndexMap[instanceIndex];
+      const val = expressionData[0][rowIndex];
       return val;
     }
     return 0;
-  }, [cellIdMap, expressionData]);
+  }, [matrixIndexMap, expressionData]);
   return getExpressionValue;
 }

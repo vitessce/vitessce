@@ -142,7 +142,7 @@ export default function ScatterplotSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const { obsIndex, obsEmbedding } = useObsEmbeddingData(
+  const { obsIndex: obsEmbeddingIndex, obsEmbedding } = useObsEmbeddingData(
     loaders, dataset, setItemIsReady, addUrl, true, {}, {},
     { obsType, embeddingType: mapping },
   );
@@ -278,7 +278,11 @@ export default function ScatterplotSubscriber(props) {
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
-  const getExpressionValue = useExpressionValueGetter({ obsIndex: matrixObsIndex, expressionData });
+  const getExpressionValue = useExpressionValueGetter({
+    instanceObsIndex: obsEmbeddingIndex,
+    matrixObsIndex,
+    expressionData,
+  });
 
   return (
     <TitleInfo
@@ -325,7 +329,7 @@ export default function ScatterplotSubscriber(props) {
           setTargetY(target[1]);
           setTargetZ(target[2] || 0);
         }}
-        obsIndex={obsIndex}
+        obsEmbeddingIndex={obsEmbeddingIndex}
         obsEmbedding={obsEmbedding}
         cellFilter={cellFilter}
         cellSelection={cellSelection}

@@ -28,14 +28,7 @@ export const DataType = {
   IMAGE: 'image',
   OBS_SEGMENTATIONS: 'obsSegmentations',
   NEIGHBORHOODS: 'neighborhoods',
-  OBS_SET_GENOMIC_PROFILES: 'obsSetGenomicProfiles',
-  // Old data types
-  CELLS: 'cells',
-  CELL_SETS: 'cell-sets',
-  EXPRESSION_MATRIX: 'expression-matrix',
   GENOMIC_PROFILES: 'genomic-profiles',
-  MOLECULES: 'molecules',
-  RASTER: 'raster',
 };
 
 
@@ -73,16 +66,16 @@ export const FileType = {
   // For molecules.json
   OBS_LOCATIONS_MOLECULES_JSON: 'obsLocations.molecules.json',
   OBS_LABELS_MOLECULES_JSON: 'obsLabels.molecules.json',
+  // Old file types
+  GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
+  NEIGHBORHOODS_JSON: 'neighborhoods.json',
   // Convenience file types
   CELLS_JSON: 'cells.json',
   CELL_SETS_JSON: 'cell-sets.json',
   ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
   ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
-  // Old file types
   EXPRESSION_MATRIX_ZARR: 'expression-matrix.zarr',
-  GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
   MOLECULES_JSON: 'molecules.json',
-  NEIGHBORHOODS_JSON: 'neighborhoods.json',
   RASTER_JSON: 'raster.json',
   RASTER_OME_ZARR: 'raster.ome-zarr',
   CLUSTERS_JSON: 'clusters.json',

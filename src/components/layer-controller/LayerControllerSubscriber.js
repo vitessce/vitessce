@@ -11,8 +11,6 @@ import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
 import { useReady, useClosestVitessceContainerSize, useWindowDimensions } from '../hooks';
 import {
-  useCellsData,
-  useMoleculesData,
   useImageData,
   useObsLocationsData,
   useObsSegmentationsData,
@@ -296,20 +294,13 @@ function LayerControllerSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const {
-    obsIndex: obsLocationsIndex,
-    obsLocations,
-  } = useObsLocationsData(
+  useObsLocationsData(
     loaders, dataset, setItemIsReady, () => {}, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
     {}, // TODO: use obsType once #1240 is merged.
   );
-  const {
-    obsIndex: obsSegmentationsIndex,
-    obsSegmentations,
-    obsSegmentationsType,
-  } = useObsSegmentationsData(
+  useObsSegmentationsData(
     loaders, dataset, setItemIsReady, () => {}, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
@@ -322,13 +313,6 @@ function LayerControllerSubscriber(props) {
     { spatialImageLayer: rasterLayers },
     {}, // TODO: which values to match on
   );
-
-  useCellsData(
-    loaders, dataset, setItemIsReady, () => {}, false, {}, {},
-  ); // TODO: remove
-  useMoleculesData(
-    loaders, dataset, setItemIsReady, () => {}, false, {}, {},
-  ); // TODO: remove
 
   // useCallback prevents new functions from propogating
   // changes to the underlying component.

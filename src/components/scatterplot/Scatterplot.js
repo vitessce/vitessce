@@ -61,8 +61,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     // in React state, this component
     // uses instance variables.
     // All instance variables used in this class:
-    this.obsIndex = null;
-    this.obsEmbedding = null;
     this.cellsQuadTree = null;
     this.cellsLayer = null;
     this.cellSetsForceSimulation = forceCollideRects();
@@ -77,10 +75,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
   createCellsLayer() {
     const {
-      obsIndex,
+      obsEmbeddingIndex: obsIndex,
       obsEmbedding,
-    } = this;
-    const {
       theme,
       cellRadius = 1.0,
       cellOpacity = 1.0,
@@ -104,7 +100,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       id: CELLS_LAYER_ID,
       data: {
         src: {
-          obsIndex,
           obsEmbedding,
         },
         length: obsIndex.length,
@@ -221,8 +216,9 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   createSelectionLayers() {
-    const { obsIndex, obsEmbedding } = this;
     const {
+      obsEmbeddingIndex: obsIndex,
+      obsEmbedding,
       viewState,
       setCellSelection,
     } = this.props;
@@ -255,19 +251,15 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateCellsData() {
-    const {
-      obsIndex,
-      obsEmbedding,
-    } = this.props;
-    if (obsIndex && obsEmbedding) {
-      this.obsIndex = obsIndex;
-      this.obsEmbedding = obsEmbedding;
+    const { obsEmbedding } = this.props;
+    if (obsEmbedding) {
       this.cellsQuadTree = createEmbeddingQuadTree(obsEmbedding);
     }
   }
 
   onUpdateCellsLayer() {
-    if (this.obsIndex && this.obsEmbedding) {
+    const { obsEmbeddingIndex, obsEmbedding } = this.props;
+    if (obsEmbeddingIndex && obsEmbedding) {
       this.cellsLayer = this.createCellsLayer();
     }
   }
@@ -336,14 +328,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.viewInfoDidUpdate();
 
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
-    if (['obsIndex', 'obsEmbedding'].some(shallowDiff)) {
+    if (['obsEmbeddingIndex', 'obsEmbedding'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateCellsData();
       this.forceUpdate();
     }
 
     if ([
-      'obsIndex', 'obsEmbedding', 'cellFilter', 'cellSelection', 'cellColors',
+      'obsEmbeddingIndex', 'obsEmbedding', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
     ].some(shallowDiff)) {

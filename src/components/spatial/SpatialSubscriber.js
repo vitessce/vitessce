@@ -199,7 +199,7 @@ export default function SpatialSubscriber(props) {
     loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
     { obsType, featureType, featureValueType },
   );
-  const { obsIndex } = useObsFeatureMatrixIndices(
+  const { obsIndex: matrixObsIndex } = useObsFeatureMatrixIndices(
     loaders, dataset, setItemIsReady, addUrl, false,
     { obsType, featureType, featureValueType },
   );
@@ -280,10 +280,10 @@ export default function SpatialSubscriber(props) {
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-    obsIndex,
+    obsIndex: matrixObsIndex,
     theme,
   }), [cellColorEncoding, geneSelection, mergedCellSets, theme,
-    cellSetColor, cellSetSelection, expressionData, obsIndex]);
+    cellSetColor, cellSetSelection, expressionData, matrixObsIndex]);
 
   // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
   // where each cell id indexes into the array.
@@ -291,22 +291,22 @@ export default function SpatialSubscriber(props) {
   // so we create a "shifted" array where this is the case.
   const shiftedExpressionDataForBitmask = useMemo(() => {
     const hasBitmask = imageLayerMeta.some(l => l?.metadata?.isBitmask);
-    if (obsIndex && expressionData && hasBitmask) {
-      const maxId = obsIndex.reduce((max, curr) => Math.max(max, Number(curr)));
+    if (matrixObsIndex && expressionData && hasBitmask) {
+      const maxId = matrixObsIndex.reduce((max, curr) => Math.max(max, Number(curr)));
       const result = new Uint8Array(maxId + 1);
       // eslint-disable-next-line no-plusplus
-      for (let i = 0; i < obsIndex.length; i++) {
-        const id = obsIndex[i];
+      for (let i = 0; i < matrixObsIndex.length; i++) {
+        const id = matrixObsIndex[i];
         result.set(expressionData[0].slice(i, i + 1), Number(id));
       }
       return [result];
     } return [new Uint8Array()];
-  }, [obsIndex, expressionData, imageLayerMeta]);
+  }, [matrixObsIndex, expressionData, imageLayerMeta]);
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   const getCellInfo = (cellId) => {
-    const cell = obsIndex[cellId]; // TODO: use obsIndex
+    const cell = obsSegmentationsIndex[cellId];
     if (cell) {
       return {
         [`${capitalize(observationsLabel)} ID`]: cellId,
@@ -333,7 +333,7 @@ export default function SpatialSubscriber(props) {
   };
 
   const subtitle = makeSpatialSubtitle({
-    observationsCount: obsIndex?.length,
+    observationsCount: obsSegmentationsIndex?.length,
     observationsLabel,
     observationsPluralLabel,
     subobservationsCount: moleculesCount,
@@ -344,7 +344,11 @@ export default function SpatialSubscriber(props) {
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
-  const getExpressionValue = useExpressionValueGetter({ obsIndex, expressionData });
+  const getExpressionValue = useExpressionValueGetter({
+    instanceObsIndex: obsSegmentationsIndex,
+    matrixObsIndex,
+    expressionData,
+  });
   const canLoad3DLayers = imageLayerLoaders.some(loader => Boolean(
     Array.from({
       length: loader.data.length,
