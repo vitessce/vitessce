@@ -13,6 +13,7 @@ import { GLSL_COLORMAPS } from '../../layers/constants';
 
 export default function ScatterplotOptions(props) {
   const {
+    customOptions,
     observationsLabel,
     cellRadius,
     setCellRadius,
@@ -80,8 +81,20 @@ export default function ScatterplotOptions(props) {
     [handleColormapRangeChange],
   );
 
+  const customRows = customOptions ? customOptions.map(option => (
+    <TableRow key={`${option.label}-option-row`}>
+      <TableCell className={classes.labelCell}>
+        {option.label}
+      </TableCell>
+      <TableCell className={classes.inputCell}>
+        {option.input}
+      </TableCell>
+    </TableRow>
+  )) : [];
+
   return (
     <OptionsContainer>
+      {customRows}
       <CellColorEncodingOption
         observationsLabel={observationsLabel}
         cellColorEncoding={cellColorEncoding}
