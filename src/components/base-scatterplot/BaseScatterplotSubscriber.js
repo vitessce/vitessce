@@ -37,10 +37,21 @@ export const BASE_SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-
    * @param {string} props.theme The current theme name.
    * @param {object} props.coordinationScopes The mapping from coordination types to coordination
    * scopes.
+   * @param {object} props.loaders The return values from loaders to keep the hooks from the parent
+   * subscriber component and this subscriber in sync.
+   * @param {object} props.useReadyData The return values from useReadyData to keep the hooks from
+   * the parent subscriber component and this subscriber in sync.
+   * @param {object} props.urlsData The return values from useUrls to keep the hooks from the parent
+   * subscriber component and this subscriber in sync.
+   * @param {object} props.cellsData [cells, cellsCount] either from useCellsData or another source.
+   * @param {string} props.mapping The name of the mapping to plot from the cells data.
+   * @param {object} props.customOptions Custom options to be rendered in the component's options.
+   * @param {object} props.hideTools Should the DeckGL tools be hidden?
+   * @param {object} props.cellsEmptyMessage Message to display if no cells are present.
    * @param {boolean} props.disableTooltip Should the tooltip be disabled?
    * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
    * to call when the component has been removed from the grid.
-   * @param {string} props.title An override value for the component title.
+   * @param {string} props.title The component title.
    * @param {number} props.averageFillDensity Override the average fill density calculation
    * when using dynamic opacity mode.
    */
