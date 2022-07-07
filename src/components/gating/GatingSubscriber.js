@@ -19,8 +19,6 @@ import OptionSelect from '../shared-plot-options/OptionSelect';
 import { useStyles } from '../shared-plot-options/styles';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
-const GATING_MAPPING_NAME = 'GATING';
-
 export default function GatingSubscriber(props) {
   const {
     coordinationScopes,
@@ -46,7 +44,7 @@ export default function GatingSubscriber(props) {
   }, [loaders, dataset]);
 
   const [selectedGenes, setSelectedGenes] = React.useState([]);
-  const TRANSFORM_OPTIONS = ['', 'Log', 'ArcSinh'];
+  const TRANSFORM_OPTIONS = ['None', 'Log', 'ArcSinh'];
   const [transformType, setTransformType] = React.useState('');
 
   const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
@@ -119,6 +117,8 @@ export default function GatingSubscriber(props) {
     },
   ];
 
+  const mapping = `MAPPING_${selectedGenes[0]}_${selectedGenes[1]})`;
+
   const cellsWithGenes = useMemo(
     () => {
       if (selectedGenes.length < 2) {
@@ -145,7 +145,7 @@ export default function GatingSubscriber(props) {
       expressionMatrix.rows.forEach((cellId, index) => {
         const curCell = cells[cellId];
         const cellMatrixRowOffset = expressionMatrix.cols.length * index;
-        curCell.mappings[GATING_MAPPING_NAME] = [
+        curCell.mappings[mapping] = [
           transformFunction(expressionMatrix.matrix[cellMatrixRowOffset + selectedGeneCols[0]]),
           transformFunction(expressionMatrix.matrix[cellMatrixRowOffset + selectedGeneCols[1]]),
         ];
@@ -153,7 +153,7 @@ export default function GatingSubscriber(props) {
       });
       return updatedCells;
     },
-    [cells, expressionMatrix, selectedGenes, transformType],
+    [cells, expressionMatrix, selectedGenes, transformType, mapping],
   );
 
   const title = useMemo(
@@ -172,7 +172,7 @@ export default function GatingSubscriber(props) {
       cellsData={[cellsWithGenes, cellsCount]}
       useReadyData={[isReady, setItemIsReady, setItemIsNotReady, resetReadyItems]}
       urlsData={[urls, addUrl, resetUrls]}
-      mapping={GATING_MAPPING_NAME}
+      mapping={mapping}
       title={title}
       customOptions={customOptions}
     />

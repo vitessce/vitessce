@@ -205,6 +205,23 @@ export default function BaseScatterplotSubscriber(props) {
     return [null, null, null, null, null];
   }, [cells, mapping]);
 
+  // Reset the zoom and recenter the view with the new extent and range.
+  // Makes sense to do this if the data set or the mapping has changed
+  // as the new zoom and center could be very different.
+  useEffect(() => {
+    if (xRange && yRange) {
+      const newTargetX = xExtent[0] + xRange / 2;
+      const newTargetY = yExtent[0] + yRange / 2;
+      const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
+      setTargetX(newTargetX);
+      // Graphics rendering has the y-axis going south so we need to multiply by negative one.
+      setTargetY(-newTargetY);
+      setZoom(newZoom);
+    }
+  },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [cells, mapping]);
+
   // After cells have loaded or changed,
   // compute the cell radius scale based on the
   // extents of the cell coordinates on the x/y axes.
@@ -219,16 +236,6 @@ export default function BaseScatterplotSubscriber(props) {
         zoom, xRange, yRange, width, height, numCells, averageFillDensity,
       );
       setDynamicCellOpacity(nextCellOpacityScale);
-
-      if (typeof targetX !== 'number' || typeof targetY !== 'number') {
-        const newTargetX = xExtent[0] + xRange / 2;
-        const newTargetY = yExtent[0] + yRange / 2;
-        const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
-        setTargetX(newTargetX);
-        // Graphics rendering has the y-axis going south so we need to multiply by negative one.
-        setTargetY(-newTargetY);
-        setZoom(newZoom);
-      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [xRange, yRange, xExtent, yExtent, numCells, cells, mapping,
