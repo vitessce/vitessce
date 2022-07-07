@@ -6,13 +6,8 @@ import {
   useLoaders,
   useCoordination,
 } from '../../app/state/hooks';
-import {
-  useReady, useUrls,
-} from '../hooks';
-import {
-  useCellsData,
-  useExpressionAttrs,
-} from '../data-hooks';
+import { useReady, useUrls } from '../hooks';
+import { useCellsData } from '../data-hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 export default function ScatterplotSubscriber(props) {
@@ -43,16 +38,12 @@ export default function ScatterplotSubscriber(props) {
   }, [loaders, dataset]);
 
   const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
-  const [attrs] = useExpressionAttrs(
-    loaders, dataset, setItemIsReady, addUrl, false,
-  );
 
   return (
     <BaseScatterplotSubscriber
       {...props}
       loaders={loaders}
       cellsData={[cells, cellsCount]}
-      expressionMatrixOrAttrs={attrs}
       useReadyData={[isReady, setItemIsReady, setItemIsNotReady, resetReadyItems]}
       urlsData={[urls, addUrl, resetUrls]}
       title={title}

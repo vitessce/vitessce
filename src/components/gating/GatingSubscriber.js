@@ -170,7 +170,6 @@ export default function GatingSubscriber(props) {
       {...props}
       loaders={loaders}
       cellsData={[cellsWithGenes, cellsCount]}
-      expressionMatrixOrAttrs={expressionMatrix}
       useReadyData={[isReady, setItemIsReady, setItemIsNotReady, resetReadyItems]}
       urlsData={[urls, addUrl, resetUrls]}
       mapping={GATING_MAPPING_NAME}

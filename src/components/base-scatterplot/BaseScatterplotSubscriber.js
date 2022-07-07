@@ -5,14 +5,13 @@ import { extent } from 'd3-array';
 import isEqual from 'lodash/isEqual';
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
-import {
-  useDeckCanvasSize, useExpressionValueGetter,
-} from '../hooks';
+import { useDeckCanvasSize, useExpressionValueGetter } from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
 import { getCellSetPolygons } from '../sets/cell-set-utils';
 import {
   useCellSetsData,
   useGeneSelection,
+  useExpressionAttrs,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
@@ -61,7 +60,6 @@ export default function BaseScatterplotSubscriber(props) {
     cellsData,
     useReadyData,
     urlsData,
-    expressionMatrixOrAttrs,
     mapping,
     customOptions,
   } = props;
@@ -132,6 +130,9 @@ export default function BaseScatterplotSubscriber(props) {
   const [expressionData] = useGeneSelection(
     loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
   );
+  const [attrs] = useExpressionAttrs(
+    loaders, dataset, setItemIsReady, addUrl, false,
+  );
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
@@ -156,10 +157,10 @@ export default function BaseScatterplotSubscriber(props) {
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-    expressionDataAttrs: expressionMatrixOrAttrs,
+    expressionDataAttrs: attrs,
     theme,
   }), [cellColorEncoding, geneSelection, mergedCellSets, theme,
-    cellSetSelection, cellSetColor, expressionData, expressionMatrixOrAttrs]);
+    cellSetSelection, cellSetColor, expressionData, attrs]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
@@ -250,7 +251,7 @@ export default function BaseScatterplotSubscriber(props) {
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
-  const getExpressionValue = useExpressionValueGetter({ expressionMatrixOrAttrs, expressionData });
+  const getExpressionValue = useExpressionValueGetter({ attrs, expressionData });
 
   return (
     <TitleInfo
