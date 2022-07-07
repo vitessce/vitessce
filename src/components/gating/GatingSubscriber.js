@@ -189,6 +189,8 @@ export default function GatingSubscriber(props) {
       mapping={mapping}
       title={title}
       customOptions={customOptions}
+      hideTools={selectedGenes.length < 2}
+      cellsEmptyMessage="Select two genes in the settings."
     />
   );
 }

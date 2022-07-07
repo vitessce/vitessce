@@ -68,11 +68,13 @@ export default function BaseScatterplotSubscriber(props) {
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
     loaders,
-    cellsData,
     useReadyData,
     urlsData,
+    cellsData,
     mapping,
     customOptions,
+    hideTools = false,
+    cellsEmptyMessage,
   } = props;
 
   const setComponentHover = useSetComponentHover();
@@ -271,6 +273,15 @@ export default function BaseScatterplotSubscriber(props) {
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useExpressionValueGetter({ attrs, expressionData });
 
+  let emptyMessage;
+  if (cells.length === 0 && cellsEmptyMessage) {
+    emptyMessage = (
+      <div>
+      Select two genes in the settings.
+      </div>
+    );
+  }
+
   return (
     <TitleInfo
       title={title}
@@ -306,6 +317,7 @@ export default function BaseScatterplotSubscriber(props) {
         />
         )}
     >
+      {emptyMessage}
       <Scatterplot
         ref={deckRef}
         uuid={uuid}
@@ -341,6 +353,7 @@ export default function BaseScatterplotSubscriber(props) {
         updateViewInfo={setComponentViewInfo}
         getExpressionValue={getExpressionValue}
         getCellIsSelected={getCellIsSelected}
+        hideTools={hideTools}
       />
       {!disableTooltip && (
         <ScatterplotTooltipSubscriber
