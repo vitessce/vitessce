@@ -278,9 +278,9 @@ export default function BaseScatterplotSubscriber(props) {
   const getExpressionValue = useExpressionValueGetter({ attrs, expressionData });
 
   let emptyMessage;
-  if (cells.length === 0 && cellsEmptyMessage) {
+  if (Object.keys(cells).length === 0 && cellsEmptyMessage) {
     emptyMessage = (
-      <div>${cellsEmptyMessage}</div>
+      <div>{cellsEmptyMessage}</div>
     );
   }
 
