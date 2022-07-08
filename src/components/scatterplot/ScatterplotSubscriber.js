@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import BaseScatterplotSubscriber, {
   BASE_SCATTERPLOT_DATA_TYPES,
 } from '../base-scatterplot/BaseScatterplotSubscriber';
@@ -46,12 +46,6 @@ export default function ScatterplotSubscriber(props) {
   );
   const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
 
-  // Reset file URLs and loader progress when the dataset has changed.
-  useEffect(() => {
-    resetUrls();
-    resetReadyItems();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
 
   const [selectedMapping, setSelectedMapping] = React.useState('');
 
@@ -93,12 +87,12 @@ export default function ScatterplotSubscriber(props) {
   }
 
   const plotMapping = mapping || selectedMapping;
+  // Set cells to empty if no mapping is provided so that nothing is plotted.
   const plotCells = plotMapping ? cells : {};
 
   const defaultTitle = plotMapping ? `Scatterplot (${plotMapping})` : 'Scatterplot';
   const title = titleOverride || defaultTitle;
 
-  // TODO: Add mapping picker if no mapping specified.
   return (
     <BaseScatterplotSubscriber
       {...props}

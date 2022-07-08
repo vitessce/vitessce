@@ -127,9 +127,16 @@ export default function BaseScatterplotSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
   // Get data from parent loaders via the props.
-  const [urls, addUrl] = urlsData;
-  const [isReady, setItemIsReady, setItemIsNotReady] = useReadyData;
+  const [urls, addUrl, resetUrls] = urlsData;
+  const [isReady, setItemIsReady, setItemIsNotReady, resetReadyItems] = useReadyData;
   const [cells, cellsCount] = cellsData;
+
+  // Reset file URLs and loader progress when the dataset has changed.
+  useEffect(() => {
+    resetUrls();
+    resetReadyItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaders, dataset]);
 
   const [width, height, deckRef] = useDeckCanvasSize();
 

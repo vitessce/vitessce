@@ -1,6 +1,4 @@
-import React, {
-  useMemo, useEffect,
-} from 'react';
+import React, { useMemo } from 'react';
 import TextField from '@material-ui/core/TextField';
 import BaseScatterplotSubscriber, {
   BASE_SCATTERPLOT_DATA_TYPES,
@@ -57,13 +55,6 @@ export default function GatingSubscriber(props) {
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, true,
   );
-
-  // Reset file URLs and loader progress when the dataset has changed.
-  useEffect(() => {
-    resetUrls();
-    resetReadyItems();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
 
   // State for the custom setting options.
   const [selectedGenes, setSelectedGenes] = React.useState([]);
