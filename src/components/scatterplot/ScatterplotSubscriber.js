@@ -11,7 +11,7 @@ import { useCellsData } from '../data-hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 /**
-   * A subscriber component for the scatterplot.
+   * A subscriber component for the cell mapping scatterplot.
    * @param {object} props
    * @param {number} props.uuid The unique identifier for this component.
    * @param {string} props.theme The current theme name.
@@ -30,12 +30,6 @@ export default function ScatterplotSubscriber(props) {
     title: titleOverride,
   } = props;
 
-  const [urls, addUrl, resetUrls] = useUrls();
-  const loaders = useLoaders();
-  const [isReady, setItemIsReady, setItemIsNotReady, resetReadyItems] = useReady(
-    BASE_SCATTERPLOT_DATA_TYPES,
-  );
-
   // Get "props" from the coordination space.
   const [{ dataset, embeddingType: mapping }] = useCoordination(
     COMPONENT_COORDINATION_TYPES.scatterplot,
@@ -44,14 +38,20 @@ export default function ScatterplotSubscriber(props) {
 
   const title = titleOverride || `Scatterplot (${mapping})`;
 
+  // Get data from loaders using the data hooks.
+  const [urls, addUrl, resetUrls] = useUrls();
+  const loaders = useLoaders();
+  const [isReady, setItemIsReady, setItemIsNotReady, resetReadyItems] = useReady(
+    BASE_SCATTERPLOT_DATA_TYPES,
+  );
+  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
     resetReadyItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
-
-  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
 
   return (
     <BaseScatterplotSubscriber

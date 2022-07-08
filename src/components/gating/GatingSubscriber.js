@@ -22,7 +22,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
 
 /**
-   * A subscriber component for the scatterplot.
+   * A subscriber component for the gating scatterplot.
    * @param {object} props
    * @param {number} props.uuid The unique identifier for this component.
    * @param {string} props.theme The current theme name.
@@ -39,16 +39,21 @@ export default function GatingSubscriber(props) {
     coordinationScopes,
   } = props;
 
+  // Get "props" from the coordination space.
+  const [{ dataset }] = useCoordination(
+    COMPONENT_COORDINATION_TYPES.scatterplot,
+    coordinationScopes,
+  );
+
+  // Get data from loaders using the data hooks.
   const [urls, addUrl, resetUrls] = useUrls();
   const loaders = useLoaders();
   const [isReady, setItemIsReady, setItemIsNotReady, resetReadyItems] = useReady(
     BASE_SCATTERPLOT_DATA_TYPES,
   );
-
-  // Get "props" from the coordination space.
-  const [{ dataset }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES.scatterplot,
-    coordinationScopes,
+  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const [expressionMatrix] = useExpressionMatrixData(
+    loaders, dataset, setItemIsReady, addUrl, true,
   );
 
   // Reset file URLs and loader progress when the dataset has changed.
@@ -58,18 +63,15 @@ export default function GatingSubscriber(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
+  // State for the custom setting options.
   const [selectedGenes, setSelectedGenes] = React.useState([]);
-  const TRANSFORM_OPTIONS = ['None', 'Log', 'ArcSinh'];
   const [transformType, setTransformType] = React.useState('');
   const [transformCoefficient, setTransformCoefficient] = React.useState('');
 
-  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
-  const [expressionMatrix] = useExpressionMatrixData(
-    loaders, dataset, setItemIsReady, addUrl, true,
-  );
-
+  const transformOptions = ['None', 'Log', 'ArcSinh'];
   const geneSelectOptions = expressionMatrix && expressionMatrix.cols ? expressionMatrix.cols : [];
 
+  // Handlers for custom option field changes.
   const handleGeneSelectChange = (event) => {
     const { options } = event.target;
     const newValues = [];
@@ -102,6 +104,7 @@ export default function GatingSubscriber(props) {
     }
   };
 
+  // Custom options for the scatterplot settings.
   const classes = useStyles();
   const customOptions = [
     {
@@ -137,7 +140,7 @@ export default function GatingSubscriber(props) {
             id: 'scatterplot-transform-select',
           }}
         >
-          {TRANSFORM_OPTIONS.map(name => (
+          {transformOptions.map(name => (
             <option key={name} value={name}>
               {name}
             </option>
@@ -161,20 +164,24 @@ export default function GatingSubscriber(props) {
     },
   ];
 
+
   const mapping = `MAPPING_${selectedGenes[0]}_${selectedGenes[1]})`;
 
+  // Generate a new cells object with a mapping added for the user selected genes.
   const cellsWithGenes = useMemo(
     () => {
       if (selectedGenes.length < 2) {
         return [];
       }
 
+      // Get transform coefficient for log and arcsinh
       let coefficient = 1;
       const parsedTransformCoefficient = Number(transformCoefficient);
       if (!Number.isNaN(parsedTransformCoefficient) && parsedTransformCoefficient > 0) {
         coefficient = parsedTransformCoefficient;
       }
 
+      // Set transform function
       let transformFunction;
       switch (transformType) {
         case 'Log':
@@ -191,7 +198,10 @@ export default function GatingSubscriber(props) {
         expressionMatrix.cols.indexOf(selectedGenes[0]),
         expressionMatrix.cols.indexOf(selectedGenes[1]),
       ];
+
       const updatedCells = {};
+
+      // Iterate through cells and build new cells with added mapping.
       expressionMatrix.rows.forEach((cellId, index) => {
         const curCell = cells[cellId];
         const cellMatrixRowOffset = expressionMatrix.cols.length * index;
@@ -201,6 +211,7 @@ export default function GatingSubscriber(props) {
         ];
         updatedCells[cellId] = curCell;
       });
+
       return updatedCells;
     },
     [selectedGenes, transformType, transformCoefficient, expressionMatrix, cells, mapping],

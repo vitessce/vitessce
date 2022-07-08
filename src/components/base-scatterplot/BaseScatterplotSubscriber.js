@@ -31,7 +31,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 export const BASE_SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
 /**
-   * A subscriber component for the scatterplot.
+   * A subscriber component for a base scatterplot to be used by other subscriber components.
    * @param {object} props
    * @param {number} props.uuid The unique identifier for this component.
    * @param {string} props.theme The current theme name.
@@ -125,11 +125,13 @@ export default function BaseScatterplotSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
+  // Get data from parent loaders via the props.
   const [urls, addUrl] = urlsData;
-  const [width, height, deckRef] = useDeckCanvasSize();
-
   const [isReady, setItemIsReady, setItemIsNotReady] = useReadyData;
   const [cells, cellsCount] = cellsData;
+
+  const [width, height, deckRef] = useDeckCanvasSize();
+
   // Get data from loaders using the data hooks.
   const [cellSets] = useCellSetsData(
     loaders,
