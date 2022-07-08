@@ -75,6 +75,7 @@ export default function BaseScatterplotSubscriber(props) {
     customOptions,
     hideTools = false,
     cellsEmptyMessage,
+    getCellInfoOverride,
   } = props;
 
   const setComponentHover = useSetComponentHover();
@@ -257,12 +258,13 @@ export default function BaseScatterplotSubscriber(props) {
     width, height, zoom, averageFillDensity]);
 
   const getCellInfo = useCallback((cellId) => {
+    if (getCellInfoOverride) return getCellInfoOverride(cellId);
     const cellInfo = cells[cellId];
     return {
       [`${capitalize(observationsLabel)} ID`]: cellId,
       ...(cellInfo ? cellInfo.factors : {}),
     };
-  }, [cells, observationsLabel]);
+  }, [cells, getCellInfoOverride, observationsLabel]);
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
   const getCellIsSelected = useCallback(cellEntry => (
@@ -278,9 +280,7 @@ export default function BaseScatterplotSubscriber(props) {
   let emptyMessage;
   if (cells.length === 0 && cellsEmptyMessage) {
     emptyMessage = (
-      <div>
-      Select two genes in the settings.
-      </div>
+      <div>${cellsEmptyMessage}</div>
     );
   }
 

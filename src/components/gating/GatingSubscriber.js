@@ -5,6 +5,7 @@ import TextField from '@material-ui/core/TextField';
 import BaseScatterplotSubscriber, {
   BASE_SCATTERPLOT_DATA_TYPES,
 } from '../base-scatterplot/BaseScatterplotSubscriber';
+import { capitalize } from '../../utils';
 import {
   useLoaders,
   useCoordination,
@@ -37,6 +38,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 export default function GatingSubscriber(props) {
   const {
     coordinationScopes,
+    observationsLabelOverride: observationsLabel = 'cell',
   } = props;
 
   // Get "props" from the coordination space.
@@ -164,8 +166,16 @@ export default function GatingSubscriber(props) {
     },
   ];
 
-
   const mapping = `MAPPING_${selectedGenes[0]}_${selectedGenes[1]})`;
+
+  const title = useMemo(
+    () => {
+      if (selectedGenes.length < 2) {
+        return 'Gating';
+      }
+      return `Gating (${selectedGenes[0]} vs ${selectedGenes[1]})`;
+    }, [selectedGenes],
+  );
 
   // Generate a new cells object with a mapping added for the user selected genes.
   const cellsWithGenes = useMemo(
@@ -194,13 +204,13 @@ export default function GatingSubscriber(props) {
           transformFunction = v => v;
       }
 
+      // Get the columns for the selected genes.
       const selectedGeneCols = [
         expressionMatrix.cols.indexOf(selectedGenes[0]),
         expressionMatrix.cols.indexOf(selectedGenes[1]),
       ];
 
       const updatedCells = {};
-
       // Iterate through cells and build new cells with added mapping.
       expressionMatrix.rows.forEach((cellId, index) => {
         const curCell = cells[cellId];
@@ -217,14 +227,22 @@ export default function GatingSubscriber(props) {
     [selectedGenes, transformType, transformCoefficient, expressionMatrix, cells, mapping],
   );
 
-  const title = useMemo(
-    () => {
-      if (selectedGenes.length < 2) {
-        return 'Gating';
-      }
-      return `Gating (${selectedGenes[0]} vs ${selectedGenes[1]})`;
-    }, [selectedGenes],
-  );
+  // Puts the mapping values in the cell info tooltip.
+  const getCellInfoOverride = (cellId) => {
+    const cell = cells[cellId];
+    let genePrefix = '';
+    if (transformType !== 'None') genePrefix = `${transformType} `;
+
+    const cellInfo = { [`${capitalize(observationsLabel)} ID`]: cellId };
+    if (selectedGenes && selectedGenes.length === 2) {
+      const [firstGene, secondGene] = selectedGenes;
+      const [firstMapping, secondMapping] = cell.mappings[mapping];
+      cellInfo[genePrefix + firstGene] = firstMapping;
+      cellInfo[genePrefix + secondGene] = secondMapping;
+    }
+
+    return cellInfo;
+  };
 
   return (
     <BaseScatterplotSubscriber
@@ -238,6 +256,7 @@ export default function GatingSubscriber(props) {
       customOptions={customOptions}
       hideTools={selectedGenes.length < 2}
       cellsEmptyMessage="Select two genes in the settings."
+      getCellInfoOverride={getCellInfoOverride}
     />
   );
 }
