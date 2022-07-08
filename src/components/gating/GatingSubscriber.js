@@ -1,6 +1,7 @@
 import React, {
   useMemo, useEffect,
 } from 'react';
+import TextField from '@material-ui/core/TextField';
 import BaseScatterplotSubscriber, {
   BASE_SCATTERPLOT_DATA_TYPES,
 } from '../base-scatterplot/BaseScatterplotSubscriber';
@@ -60,6 +61,7 @@ export default function GatingSubscriber(props) {
   const [selectedGenes, setSelectedGenes] = React.useState([]);
   const TRANSFORM_OPTIONS = ['None', 'Log', 'ArcSinh'];
   const [transformType, setTransformType] = React.useState('');
+  const [transformCoefficient, setTransformCoefficient] = React.useState('');
 
   const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
   const [expressionMatrix] = useExpressionMatrixData(
@@ -82,8 +84,22 @@ export default function GatingSubscriber(props) {
     if (newValues.length <= 2) setSelectedGenes(newValues);
   };
 
-  const handleTransformSelectChange = (event) => {
+  const handleTransformTypeChange = (event) => {
     setTransformType(event.target.value);
+  };
+
+  // Feels a little hacky, but I think this is the best way to handle
+  // the limitations of the v4 material-ui number input.
+  const handleTransformCoefficientChange = (event) => {
+    const { value } = event.target;
+    if (!value) {
+      setTransformCoefficient(value);
+    } else {
+      const newCoefficient = Number(value);
+      if (!Number.isNaN(newCoefficient) && newCoefficient >= 0) {
+        setTransformCoefficient(value);
+      }
+    }
   };
 
   const classes = useStyles();
@@ -116,7 +132,7 @@ export default function GatingSubscriber(props) {
           key="gating-transform-select"
           className={classes.select}
           value={transformType}
-          onChange={handleTransformSelectChange}
+          onChange={handleTransformTypeChange}
           inputProps={{
             id: 'scatterplot-transform-select',
           }}
@@ -129,6 +145,20 @@ export default function GatingSubscriber(props) {
         </OptionSelect>
       ),
     },
+    {
+      label: 'Transform Coefficient',
+      input: (
+        <TextField
+          label="Number"
+          type="number"
+          onChange={handleTransformCoefficientChange}
+          value={transformCoefficient}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+      ),
+    },
   ];
 
   const mapping = `MAPPING_${selectedGenes[0]}_${selectedGenes[1]})`;
@@ -139,13 +169,19 @@ export default function GatingSubscriber(props) {
         return [];
       }
 
+      let coefficient = 1;
+      const parsedTransformCoefficient = Number(transformCoefficient);
+      if (!Number.isNaN(parsedTransformCoefficient) && parsedTransformCoefficient > 0) {
+        coefficient = parsedTransformCoefficient;
+      }
+
       let transformFunction;
       switch (transformType) {
         case 'Log':
-          transformFunction = v => Math.log10(v + 1);
+          transformFunction = v => Math.log10(1 + v * coefficient);
           break;
         case 'ArcSinh':
-          transformFunction = v => Math.asinh(v);
+          transformFunction = v => Math.asinh(v * coefficient);
           break;
         default:
           transformFunction = v => v;
@@ -167,7 +203,7 @@ export default function GatingSubscriber(props) {
       });
       return updatedCells;
     },
-    [cells, expressionMatrix, selectedGenes, transformType, mapping],
+    [selectedGenes, transformType, transformCoefficient, expressionMatrix, cells, mapping],
   );
 
   const title = useMemo(
