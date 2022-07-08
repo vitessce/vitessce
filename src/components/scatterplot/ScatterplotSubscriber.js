@@ -98,12 +98,6 @@ export default function ScatterplotSubscriber(props) {
   const defaultTitle = plotMapping ? `Scatterplot (${plotMapping})` : 'Scatterplot';
   const title = titleOverride || defaultTitle;
 
-  // eslint-disable-next-line no-console
-  console.log(mapping);
-  // eslint-disable-next-line no-console
-  console.log(plotCells);
-
-
   // TODO: Add mapping picker if no mapping specified.
   return (
     <BaseScatterplotSubscriber
