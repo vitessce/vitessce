@@ -235,6 +235,9 @@ export default function GatingSubscriber(props) {
     return cellInfo;
   };
 
+  let polygonCacheId = '';
+  if (transformType !== 'None') polygonCacheId = `${transformType}_${transformCoefficient}`;
+
   return (
     <BaseScatterplotSubscriber
       {...props}
@@ -248,6 +251,7 @@ export default function GatingSubscriber(props) {
       hideTools={selectedGenes.length < 2}
       cellsEmptyMessage="Select two genes in the settings."
       getCellInfoOverride={getCellInfoOverride}
+      cellSetsPolygonCacheId={polygonCacheId}
     />
   );
 }

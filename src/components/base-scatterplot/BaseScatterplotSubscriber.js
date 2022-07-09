@@ -48,6 +48,11 @@ export const BASE_SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-
    * @param {object} props.customOptions Custom options to be rendered in the component's options.
    * @param {object} props.hideTools Should the DeckGL tools be hidden?
    * @param {object} props.cellsEmptyMessage Message to display if no cells are present.
+   * @param {object} props.getCellInfoOverride Function to override the getCellInfo callback
+   * for the scatterplot info tooltip.
+   * @param {object} props.cellSetsPolygonCacheId An identifier for cell sets polygon cache.
+   * Change this when something modifies the values of the cell mappings (e.g. log transform)
+   * or for any other case that warrants a new cellSetsPolygonCache.
    * @param {boolean} props.disableTooltip Should the tooltip be disabled?
    * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
    * to call when the component has been removed from the grid.
@@ -76,6 +81,7 @@ export default function BaseScatterplotSubscriber(props) {
     hideTools = false,
     cellsEmptyMessage,
     getCellInfoOverride,
+    cellSetsPolygonCacheId = '',
   } = props;
 
   const setComponentHover = useSetComponentHover();
@@ -185,14 +191,19 @@ export default function BaseScatterplotSubscriber(props) {
   }), [cellColorEncoding, geneSelection, mergedCellSets, theme,
     cellSetSelection, cellSetColor, expressionData, attrs]);
 
-  // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
-  // where the keys are cellSetSelection arrays.
-  const [cellSetPolygonCache, setCellSetPolygonCache] = useState([]);
-  const cacheHas = (cache, key) => cache.findIndex(el => isEqual(el[0], key)) !== -1;
-  const cacheGet = (cache, key) => cache.find(el => isEqual(el[0], key))?.[1];
+  // cellSetPolygonCache is map of a namespace string to an array of tuples
+  // like [(key0, val0), (key1, val1), ...] where the keys are cellSetSelection arrays.
+  // We use different cache namespaces so that we don't return the same polygon when the
+  // mapping changes or anything used to compose the cellSetsPolygonCacheId changes.
+  const [cellSetPolygonCache, setCellSetPolygonCache] = useState({});
+  const cacheHas = (cache, namespace, key) => cache[namespace]
+    && cache[namespace].findIndex(el => isEqual(el[0], key)) !== -1;
+  const cacheGet = (cache, namespace, key) => cache[namespace]
+    && cache[namespace].find(el => isEqual(el[0], key))?.[1];
   const cellSetPolygons = useMemo(() => {
+    const polygonCacheNamespace = `${mapping}${cellSetsPolygonCacheId}`;
     if ((cellSetLabelsVisible || cellSetPolygonsVisible)
-        && !cacheHas(cellSetPolygonCache, cellSetSelection)
+        && !cacheHas(cellSetPolygonCache, polygonCacheNamespace, cellSetSelection)
         && mergedCellSets?.tree?.length
         && Object.values(cells).length
         && cellSetColor?.length) {
@@ -204,12 +215,17 @@ export default function BaseScatterplotSubscriber(props) {
         cellSetColor,
         theme,
       });
-      setCellSetPolygonCache(cache => [...cache, [cellSetSelection, newCellSetPolygons]]);
+      setCellSetPolygonCache((cache) => {
+        const modifyingCache = cache;
+        modifyingCache[polygonCacheNamespace] = [cache, [cellSetSelection, newCellSetPolygons]];
+        return modifyingCache;
+      });
       return newCellSetPolygons;
     }
-    return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
-  }, [cellSetLabelsVisible, cellSetPolygonsVisible, cellSetPolygonCache, cellSetSelection,
-    mergedCellSets, cells, cellSetColor, mapping, theme]);
+    return cacheGet(cellSetPolygonCache, polygonCacheNamespace, cellSetSelection) || [];
+  }, [cellSetLabelsVisible, cellSetPolygonsVisible, cellSetPolygonCache,
+    cellSetsPolygonCacheId, cellSetSelection, mergedCellSets, cells,
+    cellSetColor, mapping, theme]);
 
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
