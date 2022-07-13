@@ -40,8 +40,6 @@ export default function BarPlotEverything(props) {
   } = props;
 
 
-
-
   const loaders = useLoaders();
 
   const [width, height, containerRef] = useGridItemSize();
@@ -94,8 +92,6 @@ export default function BarPlotEverything(props) {
   const [expressionMatrix] = useExpressionMatrixData(
     loaders, dataset, setItemIsReady, addUrl, true,
   );
-
-  
 
   const [attrs] = useExpressionAttrs(
     loaders, dataset, setItemIsReady, addUrl, true,
@@ -166,11 +162,9 @@ function cellSetsToCellTypeMapping(currTree, selectedNamePaths) {
 
 var x = cellSetsToCellTypeMapping(mergedCellSets, cellSetSelection); 
 
-
+//This code collects all of the data into objects (i.e. {Identity: 'Excitatory neurons', Features: 'Lamp5', Expression: 84})
 const data1 = [];
-
 if (attrs != undefined){
-
   function flatten(arr) {
     return arr.reduce(function (flat, toFlatten) {
       return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
@@ -179,7 +173,6 @@ if (attrs != undefined){
 
 
   var counter = -1;
-
 for(let i=0; i<attrs.rows.length; i++){
   for(let a=0;a<attrs.cols.length;a++){
     counter++;
@@ -191,15 +184,13 @@ for(let i=0; i<attrs.rows.length; i++){
     else if (geneSelection.includes(attrs.cols[a])){
         data1.push(Object.fromEntries([["Identity", x.get(attrs.rows[i])], ["Features",attrs.cols[a]], ["Expression",expressionMatrix.matrix[counter]]]))}
      }
-
 }}
 
 //This code allows you to deselect an Item on Cell Sets, and have it disappear. If not it shows up as undefined (i.e. if you deselect Astrocyte, it can disappear instead of changing label to Undefined).
 let result = data1.map(a => a.Identity); //First finds all Identities
-
 const filteredArray = [];
-
 for (let i = 0; i < result.length; i++) { //Checks if any of them are undefined, and gets their index
+
   if (result[i] === undefined) filteredArray.push(i);}
 
 for (var i = filteredArray.length -1; i >= 0; i--)  //Removes all undefined from data (i.e. it was not selected in cell sets), so it does not show up
@@ -208,57 +199,55 @@ for (var i = filteredArray.length -1; i >= 0; i--)  //Removes all undefined from
 
   const spec = {"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   "description": "Punchcard Visualization like on Github. The day on y-axis uses a custom order from Monday to Sunday.  The sort property supports both full day names (e.g., 'Monday') and their three letter initials (e.g., 'mon') -- both of which are case insensitive.",
-  "width": 535,
-  "height": 320,
-  "padding": 5,
-  "params": [{"name": "highlight", "select": {
+  "width": 545,
+  "height": 390,
+  "padding": 2,
+  "params": [{"name": "highlight", "select": { //parameters for selecting dots with cursor
     "type": "point",
     "on": "mouseover",
-    "nearest": true
+    "nearest": false
   }}, 
 
-{
-  "name": "minYear",
+{//This code adds a slider for the Minimum of Dot Plot
+  "name": "minExpress",
   "value": 0,
   "bind": {
     "input": "range",
     "min": 0,
     "max": 100,
-    "step": 1,
+    "step": 0.01,
     "name": "Percent Expressed (%) Minimum: "
   }
 },
-{
-  "name": "maxYear",
+{//This code adds a slider for Maximum Expressed of Dot Plot
+  "name": "maxExpress",
   "value": 100,
   "bind": {
     "input": "range",
     "min": 0,
     "max": 100,
-    "step": 1,
+    "step": 0.01,
     "name": "Percent Expressed (%) Maximum: "
   }
 }]
-
 ,
-
-
+//This code puts the data into percentages
   "transform": [{
     "window": [{
       "op": "sum",
       "field": "Expression",
-      "as": "TotalTime"
+      "as": "TotalExpression"
     }],
   "frame": [null, null]},
-  {"calculate": "datum.Expression/datum.TotalTime * 100",
+  {"calculate": "datum.Expression/datum.TotalExpression* 100",
     "as": "PercentExpressed"
   },
 
-    {"filter": "datum.PercentExpressed>=minYear"},
-    {"filter": "datum.PercentExpressed<=maxYear"}
+    {"filter": "datum.PercentExpressed>=minExpress"},
+    {"filter": "datum.PercentExpressed<=maxExpress"}
 ],
 
-  "mark": {"type": "circle", "strokeWidth": 2},
+  "mark": {"type": "circle", "strokeWidth": 2}, //the shape of the plots (i.e. you can plot data as dots or squares) and how big the cursor is around the data
   "encoding": {
     "y": {
       "field": "Identity",
@@ -268,62 +257,42 @@ for (var i = filteredArray.length -1; i >= 0; i--)  //Removes all undefined from
       "field": "Features",
       "type": "ordinal",
     },
-    "color": {
+    "color": {//This is the gradient legend on the top right of the graph (i.e. it shows mean of expression as color gradient bar)
       "field": "Expression",
       "type": "quantitative",
       "aggregate": name,
-      //"scale": {"range": ["white", "green"]}
-      
-      
-    
     },
 
-    "tooltip": [
+    "tooltip": [//This tooltip adds transparent portion when you scroll over dots (i.e. it shows the box with Mean of Expression and Percent Expressed)
       {"field": "Expression", "aggregate": name, "type": "nominal", "title": `${name.charAt(0).toUpperCase() + name.slice(1)} of Expression`},
       {"field": "PercentExpressed", "type": "nominal", "title": "Percent Expressed (%)"}],
 
-
-
-    "size": {
+    "size": {//This is the dot legend on the bottom right of the graph (i.e. it shows the sizes of each percent expressed) 
       "field": "PercentExpressed",
       "type": "quantitative",
-      
-      
       "title": "Percent Expressed (%)"
     },
 
 
     "stroke": {
-      "condition": {
+      "condition": {//This allows you to highlight dots of plot, and the border color when you select dot (i.e. black)
         "param": "highlight",
         "empty": false,
         "value": "black"
       },
     "value": null
     },
-    "opacity": {
+    "opacity": {//This makes the other non-selected dots opaque, you can vary the opaque value to make it more or less
       "condition": {"param": "highlight", "value": 1},
       "value": 0.55
     }
-
-      }
-
+   }
     }
-
- // ,
- //   width: clamp(width - marginRight, 10, Infinity),
-//    height: clamp(height - marginBottom, 10, Infinity),
-//    config: VEGA_THEMES[theme],
- // };
-
-
- 
 
 function aggregate_function(p)
 {console.log('Parameter Name', p.target.value)
 aggregate_variable = p.target.value
 this.setState({p})
-
 
 }
   return (
@@ -334,33 +303,23 @@ this.setState({p})
       theme={theme}
       isReady={true}
     >
+      
       <div ref={containerRef} className="vega-container">
-        {/*<BarPlot
-          data={[
-            {"a": "A", "b": 28}, {"a": "B", "b": 55}, {"a": "C", "b": 43},
-            {"a": "D", "b": 91}, {"a": "E", "b": 81}, {"a": "F", "b": 53},
-            {"a": "G", "b": 19}, {"a": "H", "b": 87}, {"a": "I", "b": 52}
-          ]}
-          theme={theme}
-          width={width}
-          height={height}
-        />*/}
         <VegaPlot
           data={data1}
           spec={spec}
+          actions={false}
         />
+        
       </div>
       <select
         value={name}
         onChange={e => setName(e.target.value)}
-      > 
+      > //These are the mathematical options for the dot plot
       <option> mean </option>  
       <option> median </option>  
       <option> sum </option>  
       <option> stdev </option> 
-      
-      
-
       </select>  
      
     </TitleInfo>

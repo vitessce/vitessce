@@ -14,16 +14,27 @@ export const barplots = {
           {
             "type": "cell-sets",
             "fileType": "cell-sets.json",
-            "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cell-sets.json"
-          
+            "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cell-sets.json"},
+
+            {
+              "type": "cells",
+              "fileType": "cells.json",
+              "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cells.json"
+            },
 
 
      
-    }]}],
+    ]}],
     coordinationSpace: {
         dataset: {
             A: 'codeluppi'
-        }
+        },
+        embeddingType: {
+          A: 't-SNE',
+        },
+        embeddingZoom: {
+          A: 0.75,
+        },
     },
     'layout': [{
         'component': 'dotplot',
@@ -32,8 +43,8 @@ export const barplots = {
         },
         'x': 0,
         'y': 0,
-        'w': 8,
-        'h': 9,
+        'w': 7,
+        'h': 12,
     },
 {'component': 'genes',
 props: {
@@ -42,23 +53,46 @@ props: {
   coordinationScopes: {
     dataset: 'A'
 },
-'x': 8,
+'x': 7,
 'y': 0,
 'w': 2,
-'h':9,
+'h':6,
 },
 
 
 {
     'component': 'cellSets',
     coordinationScopes: {
-        
-    },
-    x: 10,
+
+      },
+    x: 9,
       y: 0,
-      w: 2,
-      h: 9,
-    }
+      w: 3,
+      h: 6,
+    },
+
+    {
+    
+            component: 'cellSetExpression',
+        x: 9,
+          y: 6,
+          w: 3,
+          h: 6,
+        },
+
+
+       { component: 'scatterplot',
+      coordinationScopes: {
+        embeddingType: 'A',
+        embeddingZoom: 'A',
+      },
+          
+          
+      x: 7,
+        y: 6,
+        w: 2,
+        h: 6,
+      }
     ]
 
 
