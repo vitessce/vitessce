@@ -14,7 +14,8 @@ import { PALETTE, getDefaultColor } from '../utils';
 import { getSourceFromLoader } from '../../utils';
 import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
-import { createSegmentationsQuadTree } from '../shared-spatial-scatterplot/quadtree';
+import { createQuadTree } from '../shared-spatial-scatterplot/quadtree';
+import { getOnHoverCallback } from '../shared-spatial-scatterplot/cursor';
 import { ScaledExpressionExtension } from '../../layer-extensions';
 
 const CELLS_LAYER_ID = 'cells-layer';
@@ -37,6 +38,11 @@ const makeDefaultGetCellIsSelected = (cellSelection) => {
   }
   return () => 0.0;
 };
+const makeDefaultGetObsCoords = (obsLocations) => (i) => ([
+  obsLocations.data[0][i],
+  obsLocations.data[1][i],
+  0,
+]);
 
 /**
  * React component which expresses the spatial relationships between cells and molecules.
@@ -180,6 +186,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           onCellClick(info);
         }
       },
+      onHover: getOnHoverCallback(obsIndex, setCellHighlight, setComponentHover),
       visible,
       getLineWidth: stroked ? 1 : 0,
       lineWidthScale,
@@ -275,19 +282,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   createSelectionLayers() {
-    const { obsSegmentationsIndex, obsSegmentations } = this.props;
+    const { obsSegmentationsIndex, obsCentroids } = this.props;
     const {
       viewState,
       setCellSelection,
     } = this.props;
     const { tool } = this.state;
     const { cellsQuadTree } = this;
-    // TODO: find the center of the polygon.
-    const getCellCoords = i => ([
-      obsSegmentations.data[i][0][0],
-      obsSegmentations.data[i][0][1],
-      0,
-    ]);
+    const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
     return getSelectionLayers(
       tool,
       viewState.zoom,
@@ -494,12 +496,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsSegmentationsIndex,
       obsSegmentations,
       obsSegmentationsType,
+      obsCentroids,
     } = this.props;
     if (obsSegmentationsIndex
       && obsSegmentations
       && obsSegmentationsType === 'polygon'
+      && obsCentroids
     ) {
-      this.cellsQuadTree = createSegmentationsQuadTree(obsSegmentations);
+      const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
+      this.cellsQuadTree = createQuadTree(obsCentroids, getCellCoords);
     }
   }
 
@@ -602,7 +607,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
   viewInfoDidUpdate() {
     const {
       obsSegmentations,
+      obsSegmentationsIndex,
       obsSegmentationsType,
+      obsCentroids,
       updateViewInfo,
       uuid,
     } = this.props;
@@ -610,12 +617,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (updateViewInfo && viewport) {
       updateViewInfo({
         uuid,
-        project: (cellIndex) => {
+        project: (obsId) => {
           try {
-            if (obsSegmentationsType === 'polygon') {
-              const positionX = obsSegmentations.data[cellIndex][0][0];
-              const positionY = -obsSegmentations.data[cellIndex][0][1];
-              return viewport.project([positionX, positionY]);
+            if (obsSegmentationsType === 'polygon' && obsCentroids) {
+              const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
+              const obsIdx = obsSegmentationsIndex.indexOf(obsId);
+              const obsCoord = getCellCoords(obsIdx);
+              return viewport.project(obsCoord);
             }
             return [null, null];
           } catch (e) {
@@ -644,6 +652,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'obsSegmentations',
         'obsSegmentationsIndex',
         'obsSegmentationsType',
+        'obsCentroids',
       ].some(shallowDiff)
     ) {
       // Cells data changed.
@@ -669,6 +678,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'obsSegmentations',
         'obsSegmentationsIndex',
         'obsSegmentationsType',
+        'obsCentroids',
         'cellFilter',
         'cellSelection',
         'cellColors',

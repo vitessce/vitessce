@@ -203,11 +203,12 @@ export function expandAnndataCellsZarr(fileDef) {
         path: options.xy,
       },
     }] : []),
-    ...(options.poly ? [{
+    ...(options.poly && options.xy ? [{
       ...baseFileDef,
       fileType: FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR,
       options: {
-        path: options.poly,
+        polygonsPath: options.poly,
+        centroidsPath: options.xy,
       },
     }] : []),
     ...embeddingTypes.map(et => ({

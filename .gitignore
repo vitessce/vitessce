@@ -6,6 +6,7 @@
 /demo/dist
 npm-debug.log*
 venv
+node_modules/
 
 # misc
 .DS_Store

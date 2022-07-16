@@ -28,13 +28,15 @@ Depending on the **data type** of the **file type**, the `data` parameter of the
 
 | Data Type | `data` object |
 |-----|-----|
-| `obsEmbedding` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsEmbedding`: `{ data: array<number[]>, shape: number[] }` <br/> } |
+| `obsEmbedding` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsEmbedding`: `ZarrArray<number[]>` <br/> } |
 | `obsLabels` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsLabels`: `string[]`  <br/> } |
-| `obsLocations` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsLocations`: `{ data: array<number[]>, shape: number[] }` <br/> } |
-| `obsSegmentations` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsSegmentations`: `Array<number[]>`, <br/> &nbsp;&nbsp; `obsSegmentationsType`: `string` <br/> } |
+| `obsLocations` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsLocations`: `ZarrArray<number[]>` <br/> } |
+| `obsSegmentations` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsSegmentations`: `ZarrArray<number[]>`, <br/> &nbsp;&nbsp; `obsSegmentationsType`: `string`, <br/> &nbsp;&nbsp; `obsCentroids`: `ZarrArray<number[]>` <br/> } |
 | `obsSets` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsSets`: `object` <br/> } |
-| `obsFeatureMatrix` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `featureIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsFeatureMatrix`: `number[]` <br/> } |
+| `obsFeatureMatrix` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `featureIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsFeatureMatrix`: `ZarrArray<number[]>` <br/> } |
 | `image` | { <br/> &nbsp;&nbsp; `image`: `object` <br/> } |
+
+where `ZarrArray<T>` is an object `{ data: T, shape: number[] }`. 
 
 ## The data source class
 

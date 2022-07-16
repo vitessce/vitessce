@@ -183,6 +183,7 @@ export default function SpatialSubscriber(props) {
     obsIndex: obsSegmentationsIndex,
     obsSegmentations,
     obsSegmentationsType,
+    obsCentroids,
   } = useObsSegmentationsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialSegmentationLayer: setCellsLayer },
@@ -305,12 +306,11 @@ export default function SpatialSubscriber(props) {
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
-  const getCellInfo = (cellId) => {
-    const cell = obsSegmentationsIndex[cellId];
-    if (cell) {
+  const getCellInfo = (obsId) => {
+    if (obsId) {
       return {
-        [`${capitalize(observationsLabel)} ID`]: cellId,
-        ...cell.factors, // TODO: no longer use factors
+        [`${capitalize(observationsLabel)} ID`]: obsId,
+        // ...cell.factors, // TODO: get factors from obsLabels
       };
     }
     return null;
@@ -412,6 +412,7 @@ export default function SpatialSubscriber(props) {
         obsLocationsFeatureIndex={obsLocationsFeatureIndex}
         obsSegmentations={obsSegmentations}
         obsSegmentationsType={obsSegmentationsType}
+        obsCentroids={obsCentroids}
         cellFilter={cellFilter}
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}

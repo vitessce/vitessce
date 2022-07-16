@@ -6,10 +6,11 @@ import { forceSimulation } from 'd3-force';
 import { getSelectionLayers } from '../../layers';
 import { getDefaultColor } from '../utils';
 import {
-  createEmbeddingQuadTree,
+  createQuadTree,
 } from '../shared-spatial-scatterplot/quadtree';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
 import { forceCollideRects } from '../shared-spatial-scatterplot/force-collide-rects';
+import { getOnHoverCallback } from '../shared-spatial-scatterplot/cursor';
 import { ScaledExpressionExtension, SelectionExtension } from '../../layer-extensions';
 
 const CELLS_LAYER_ID = 'scatterplot';
@@ -23,6 +24,16 @@ const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { ind
     || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
+const makeDefaultGetObsCoords = (obsLocations) => (i) => ([
+  obsLocations.data[0][i],
+  obsLocations.data[1][i],
+  0,
+]);
+const makeFlippedGetObsCoords = (obsLocations) => (i) => ([
+  obsLocations.data[0][i],
+  -obsLocations.data[1][i],
+  0,
+]);
 
 /**
  * React component which renders a scatterplot from cell data, typically tSNE or PCA.
@@ -143,6 +154,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
           onCellClick(info);
         }
       },
+      onHover: getOnHoverCallback(obsIndex, setCellHighlight, setComponentHover),
       updateTriggers: {
         getExpressionValue,
         getFillColor: [cellColorEncoding, cellSelection, cellColors],
@@ -225,7 +237,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const { tool } = this.state;
     const { cellsQuadTree } = this;
     const flipYTooltip = true;
-    const getCellCoords = i => ([obsEmbedding.data[0][i], obsEmbedding.data[1][i], 0]);
+    const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
     return getSelectionLayers(
       tool,
       viewState.zoom,
@@ -253,7 +265,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   onUpdateCellsData() {
     const { obsEmbedding } = this.props;
     if (obsEmbedding) {
-      this.cellsQuadTree = createEmbeddingQuadTree(obsEmbedding);
+      const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
+      this.cellsQuadTree = createQuadTree(obsEmbedding, getCellCoords);
     }
   }
 
@@ -297,16 +310,22 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const {
       updateViewInfo,
       uuid,
+      obsEmbeddingIndex,
+      obsEmbedding,
     } = this.props;
-    const { viewport, obsEmbedding } = this;
+    const { viewport } = this;
     if (updateViewInfo && viewport) {
       updateViewInfo({
         uuid,
-        project: (cellIndex) => {
+        project: (obsId) => {
           try {
-            const positionX = obsEmbedding.data[0][cellIndex];
-            const positionY = -obsEmbedding.data[1][cellIndex];
-            return viewport.project([positionX, positionY]);
+            if(obsEmbedding && obsEmbeddingIndex) {
+              const getCellCoords = makeFlippedGetObsCoords(obsEmbedding);
+              const obsIdx = obsEmbeddingIndex.indexOf(obsId);
+              const obsCoord = getCellCoords(obsIdx);
+              return viewport.project(obsCoord);
+            }
+            return [null, null];
           } catch (e) {
             return [null, null];
           }

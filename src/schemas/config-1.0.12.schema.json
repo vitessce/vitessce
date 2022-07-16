@@ -272,9 +272,16 @@
       "type": "object",
       "description": "Options for the obsSegmentations.anndata.zarr file type.",
       "additionalProperties": false,
-      "required": ["path"],
+      "required": ["polygonsPath", "centroidsPath"],
       "properties": {
-        "path": { "type": "string" }
+        "polygonsPath": {
+          "type": "string",
+          "description": "Path to an array containing polygon vertices, like obsm/segmentation_polygons"
+        },
+        "centroidsPath": {
+          "type": "string",
+          "description": "Path to an array containing XY coordinates, like obsm/segmentation_centroids"
+        }
       }
     },
     "annDataConvenience": {

@@ -262,12 +262,14 @@ export default function ScatterplotSubscriber(props) {
     width, height, zoom, averageFillDensity]);
 
   const getCellInfo = useCallback((cellId) => {
-    const cellInfo = cells[cellId];
-    return {
-      [`${capitalize(observationsLabel)} ID`]: cellId,
-      ...(cellInfo ? cellInfo.factors : {}),
-    };
-  }, [cells, observationsLabel]);
+    if(cellId) {
+      return {
+        [`${capitalize(observationsLabel)} ID`]: cellId,
+        // ...(cellInfo ? cellInfo.factors : {}), TODO: get factors from obsLabels
+      };
+    }
+    return null;
+  }, [obsEmbeddingIndex, observationsLabel]);
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
   const getCellIsSelected = useCallback(cellEntry => (

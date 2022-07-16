@@ -211,7 +211,8 @@ describe('src/app/convenience-file-types.js', () => {
           fileType: 'obsSegmentations.anndata.zarr',
           url: 'http://localhost:8000/anndata.zarr',
           options: {
-            path: 'obsm/segmentations',
+            polygonsPath: 'obsm/segmentations',
+            centroidsPath: 'obsm/locations',
           },
           coordinationValues: {
             obsType: 'cell',
