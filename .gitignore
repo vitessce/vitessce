@@ -6,6 +6,13 @@
 /demo/dist
 npm-debug.log*
 venv
+dist-root/
+dist-versioned/
+.pnpm-debug.log
+package-lock.json
+yarn.lock
+.docusaurus/
+node_modules/
 
 # misc
 .DS_Store

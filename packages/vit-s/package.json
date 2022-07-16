@@ -1,0 +1,25 @@
+{
+  "name": "@vitessce/vit-s",
+  "version": "2.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "tsc --watch",
+    "build": "tsc",
+    "test": "vitest --ui -r ../../ --dir ."
+  },
+  "dependencies": {
+    "@vitessce/utils": "workspace:*",
+    "@material-ui/core": "-",
+    "lodash": "-",
+    "internmap": "-",
+    "zustand": "^3.5.10",
+    "react-grid-layout": "^1.1.1"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
