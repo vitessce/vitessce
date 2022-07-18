@@ -41,6 +41,7 @@ jobs:
           node-version: 16
       - uses: cypress-io/github-action@v2
         with:
+          install-command: npm ci --legacy-peer-deps
           start: npm start, npm run start:fixtures
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 120
