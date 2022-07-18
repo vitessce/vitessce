@@ -61,9 +61,11 @@ module.exports = {
           label: 'R Package',
           position: 'left',
         },
-        /* // TODO: uncomment when the blog contains something interesting
-        {to: 'blog', label: 'Blog', position: 'right'},
-        */
+        {
+          to: 'blog',
+          label: 'Blog',
+          position: 'right',
+        },
         {
           href: 'https://github.com/vitessce/',
           label: 'GitHub',
