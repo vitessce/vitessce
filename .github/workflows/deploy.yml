@@ -9,8 +9,6 @@ jobs:
   deploy:
     runs-on: ubuntu-20.04
     name: Deploy
-    env:
-      NODE_OPTIONS: '--max_old_space_size=4096 --openssl-legacy-provider'
     steps:
       - uses: actions/checkout@v2
       - name: Setup Node 16
@@ -18,12 +16,12 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
+      - run: ./set-node-options.sh
       - name: Install NPM dependencies
         run: |
           npm install -g npm@8.5.0
           npm ci
-      - name: Run tests
-        run: ./test.sh
+      - run: ./test.sh
       - name: Deploy to NPM
         continue-on-error: true
         run: npm publish

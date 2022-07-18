@@ -27,14 +27,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
+      - run: ./set-node-options.sh
       - name: Install NPM dependencies
         run: |
           npm install -g npm@8.5.0
           npm ci
-      - name: Run tests
-        run: ./test.sh
-        env:
-          NODE_OPTIONS: '--max_old_space_size=4096 --openssl-legacy-provider'
+      - run: ./test.sh
   cypress-run:
     runs-on: ubuntu-20.04
     steps:
