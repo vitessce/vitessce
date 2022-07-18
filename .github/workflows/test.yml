@@ -27,12 +27,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-      - run: . ./set-node-options.sh
+      - id: get-options
+        run: . ./set-node-options.sh --action
       - name: Install NPM dependencies
         run: |
           npm install -g npm@8.5.0
           npm ci
       - run: ./test.sh
+        env:
+          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
   cypress-run:
     runs-on: ubuntu-20.04
     steps:
