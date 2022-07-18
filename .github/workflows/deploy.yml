@@ -11,17 +11,13 @@ jobs:
     name: Deploy
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Node 16
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       - id: get-options
         run: . ./set-node-options.sh --action
-      - name: Install NPM dependencies
-        run: |
-          npm install -g npm@8.5.0
-          npm ci
+      - run: npm ci
       - run: ./test.sh
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
