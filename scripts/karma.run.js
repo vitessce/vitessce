@@ -25,8 +25,9 @@ async function run() {
     });
 
     const expressServer = await setup();
-    const karmaServer = new karma.Server(karmaConfig, () => {
+    const karmaServer = new karma.Server(karmaConfig, (exitCode) => {
         expressServer.close();
+        process.exit(exitCode);
     });
     karmaServer.start();
 }
