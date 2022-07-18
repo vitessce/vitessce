@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-      - run: ./set-node-options.sh
+      - run: . ./set-node-options.sh
       - name: Install NPM dependencies
         run: |
           npm install -g npm@8.5.0

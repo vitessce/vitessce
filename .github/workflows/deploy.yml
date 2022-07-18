@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - run: ./set-node-options.sh
+      - run: . ./set-node-options.sh
       - name: Install NPM dependencies
         run: |
           npm install -g npm@8.5.0

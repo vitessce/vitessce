@@ -49,7 +49,7 @@ First install NodeJS and NPM. We develop and test against NodeJS `v16.14.2` and 
 > **Note**
 > NodeJS may require the [`max_old_space_size`](https://stackoverflow.com/a/59572966) value to be increased and the [`openssl-legacy-provider`](https://stackoverflow.com/questions/69692842/error-message-error0308010cdigital-envelope-routinesunsupported) flag to be set.
   ```sh
-  ./set-node-options.sh
+  . ./set-node-options.sh
   ```
 
 
