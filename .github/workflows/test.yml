@@ -13,11 +13,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [12, 14, 16]
+        node: [16, 18]
         os: [ubuntu-18.04]
         include:
           - os: windows-2019
-            node: 14
+            node: 16
     
     name: Test on ${{ matrix.os }} with Node ${{ matrix.node }}
     
@@ -29,23 +29,20 @@ jobs:
           node-version: ${{ matrix.node }}
       - name: Install NPM dependencies
         run: |
-          npm install -g npm@6.14.16
+          npm install -g npm@8.5.0
           npm ci
       - name: Run tests
         run: ./test.sh
-        env:
-          NODE_OPTIONS: '--max_old_space_size=4096'
   cypress-run:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Node 14
-        uses: actions/setup-node@v1
+      - name: Setup Node 16
+        uses: actions/setup-node@v3
         with:
-          node-version: 14
-          registry-url: https://registry.npmjs.org/
+          node-version: 16
       - name: Install NPM
-        run: npm install -g npm@6.14.16
+        run: npm install -g npm@8.5.0
       - uses: cypress-io/github-action@v2
         with:
           start: npm start, npm run start:fixtures

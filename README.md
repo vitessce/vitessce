@@ -44,16 +44,7 @@ For more details, please visit the [documentation](http://vitessce.io/docs/js-ov
 
 ## Development
 
-First check your NodeJS version: It should work with NodeJS 8, 10, 12, 13, or 14.
-```
-$ node --version
-v14.0.0
-```
-
-Note: NodeJS 14 may require the `max_old_space_size` option to be increased ([apparently due to a different heap management strategy](https://stackoverflow.com/a/59572966)):
-```sh
-export NODE_OPTIONS=--max_old_space_size=4096
-```
+First install NodeJS and NPM. We develop and test against NodeJS `v16.14.2` and NPM `8.5.0`.
 
 Checkout the project, `cd`, and then:
 
