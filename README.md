@@ -47,9 +47,9 @@ For more details, please visit the [documentation](http://vitessce.io/docs/js-ov
 First install NodeJS and NPM. We develop and test against NodeJS `v16.14.2` and NPM `8.5.0`.
 
 > **Note**
-> NodeJS may require the `max_old_space_size` option to be increased ([apparently due to a different heap management strategy](https://stackoverflow.com/a/59572966)):
+> NodeJS may require the [`max_old_space_size`](https://stackoverflow.com/a/59572966) value to be increased and the [`openssl-legacy-provider`](https://stackoverflow.com/questions/69692842/error-message-error0308010cdigital-envelope-routinesunsupported) flag to be set.
   ```sh
-  export NODE_OPTIONS=--max_old_space_size=4096
+  export NODE_OPTIONS="--max_old_space_size=4096 --openssl-legacy-provider"
   ```
 
 
