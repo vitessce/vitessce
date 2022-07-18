@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 import expect from 'expect';
 import MatrixZarrLoader from './MatrixZarrLoader';
 import { AnnDataSource } from '../data-sources';
@@ -8,7 +9,7 @@ const createMatrixLoader = (config) => {
 };
 
 describe('loaders/MatrixZarrLoader', () => {
-  it('loadFilteredGeneNames returns gene names', async function() {
+  it('loadFilteredGeneNames returns gene names', async function () {
     this.timeout(15000);
     const loader = createMatrixLoader({
       url: 'http://127.0.0.1:8080/anndata/anndata-dense.zarr', options: { matrix: 'X' },
