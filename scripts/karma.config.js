@@ -22,11 +22,6 @@ module.exports = config => {
     browserDisconnectTimeout: 50000, // in ms
     basePath: '../src/',
     frameworks: ['mocha'],
-    client: {
-      mocha: {
-        timeout: 15000,
-      },
-    },
 
     files: [
         { pattern: '**/*.test.js' },

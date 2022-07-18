@@ -8,7 +8,8 @@ const createMatrixLoader = (config) => {
 };
 
 describe('loaders/MatrixZarrLoader', () => {
-  it('loadFilteredGeneNames returns gene names', async () => {
+  it('loadFilteredGeneNames returns gene names', async function() {
+    this.timeout(15000);
     const loader = createMatrixLoader({
       url: 'http://127.0.0.1:8080/anndata/anndata-dense.zarr', options: { matrix: 'X' },
     });
