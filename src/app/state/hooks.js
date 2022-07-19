@@ -319,7 +319,8 @@ export function useMultiDatasetCoordination(parameters, coordinationScopes) {
 }
 
 const AUXILIARY_COORDINATION_TYPES_MAP = {
-  spatialImageLayer: ['rasterLayersCallbacks', 'areLoadingRasterChannnels'],
+  spatialImageLayer: ['imageLayerCallbacks', 'areLoadingImageChannels'],
+  spatialSegmentationLayer: ['segmentationLayerCallbacks', 'areLoadingSegmentationChannels']
 };
 
 /**
@@ -427,7 +428,7 @@ export function useMatchingLoader(loaders, dataset, dataType, viewCoordinationVa
       return null;
     }
     return loaderInternMap.get(matchingKey);
-  }, [loaders, dataset, dataType, viewCoordinationValues]);
+  }, [loaders, dataset, dataType, ...Object.keys(viewCoordinationValues), ...Object.values(viewCoordinationValues)]);
 }
 
 /**

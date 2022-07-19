@@ -52,10 +52,14 @@ const LayerControllerMemoized = React.memo(
       rasterLayers,
       imageLayerLoaders,
       imageLayerMeta,
-      rasterLayersCallbacks,
-      setRasterLayersCallbacks,
-      areLoadingRasterChannnels,
-      setAreLoadingRasterChannnels,
+      imageLayerCallbacks,
+      setImageLayerCallbacks,
+      areLoadingImageChannels,
+      setAreLoadingImageChannels,
+      segmentationLayerCallbacks,
+      setSegmentationLayerCallbacks,
+      areLoadingSegmentationChannels,
+      setAreLoadingSegmentationChannels,
       handleRasterLayerChange,
       handleRasterLayerRemove,
       disable3d,
@@ -116,20 +120,20 @@ const LayerControllerMemoized = React.memo(
                 : BitmaskChannelController;
               // Set up the call back mechanism so that each layer manages
               // callbacks/loading state for itself and its channels.
-              const setRasterLayerCallback = (cb) => {
+              const setImageLayerCallback = (cb) => {
                 const newRasterLayersCallbacks = [
-                  ...(rasterLayersCallbacks || []),
+                  ...(imageLayerCallbacks || []),
                 ];
                 newRasterLayersCallbacks[i] = cb;
-                setRasterLayersCallbacks(newRasterLayersCallbacks);
+                setImageLayerCallbacks(newRasterLayersCallbacks);
               };
-              const areLayerChannelsLoading = (areLoadingRasterChannnels || [])[i] || [];
+              const areLayerChannelsLoading = (areLoadingImageChannels || [])[i] || [];
               const setAreLayerChannelsLoading = (v) => {
-                const newAreLoadingRasterChannnels = [
-                  ...(areLoadingRasterChannnels || []),
+                const newAreLoadingImageChannels = [
+                  ...(areLoadingImageChannels || []),
                 ];
-                newAreLoadingRasterChannnels[i] = v;
-                setAreLoadingRasterChannnels(newAreLoadingRasterChannnels);
+                newAreLoadingImageChannels[i] = v;
+                setAreLoadingImageChannels(newAreLoadingImageChannels);
               };
               return loader && layerMeta ? (
                 <Grid
@@ -164,8 +168,8 @@ const LayerControllerMemoized = React.memo(
                       && layerIs3DIndex !== i
                     }
                     disableChannelsIfRgbDetected={disableChannelsIfRgbDetected}
-                    rasterLayersCallbacks={rasterLayersCallbacks}
-                    setRasterLayerCallback={setRasterLayerCallback}
+                    imageLayerCallbacks={imageLayerCallbacks}
+                    setImageLayerCallback={setImageLayerCallback}
                     setViewState={({
                       zoom: newZoom,
                       target,
@@ -259,12 +263,16 @@ function LayerControllerSubscriber(props) {
 
   const [
     {
-      rasterLayersCallbacks,
-      areLoadingRasterChannnels,
+      imageLayerCallbacks,
+      areLoadingImageChannels,
+      segmentationLayerCallbacks, // TODO: use
+      areLoadingSegmentationChannels, // TODO: use
     },
     {
-      setRasterLayersCallbacks,
-      setAreLoadingRasterChannnels,
+      setImageLayerCallbacks,
+      setAreLoadingImageChannels,
+      setSegmentationLayerCallbacks, // TODO: use
+      setAreLoadingSegmentationChannels, // TODO: use
     },
   ] = useAuxiliaryCoordination(
     COMPONENT_COORDINATION_TYPES.layerController,
@@ -367,10 +375,10 @@ function LayerControllerSubscriber(props) {
       rasterLayers={rasterLayers}
       imageLayerLoaders={imageLayerLoaders}
       imageLayerMeta={imageLayerMeta}
-      rasterLayersCallbacks={rasterLayersCallbacks}
-      setRasterLayersCallbacks={setRasterLayersCallbacks}
-      areLoadingRasterChannnels={areLoadingRasterChannnels}
-      setAreLoadingRasterChannnels={setAreLoadingRasterChannnels}
+      imageLayerCallbacks={imageLayerCallbacks}
+      setImageLayerCallbacks={setImageLayerCallbacks}
+      areLoadingImageChannels={areLoadingImageChannels}
+      setAreLoadingImageChannels={setAreLoadingImageChannels}
       handleRasterLayerChange={handleRasterLayerChange}
       handleRasterLayerRemove={handleRasterLayerRemove}
       disable3d={disable3d}

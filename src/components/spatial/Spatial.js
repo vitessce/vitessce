@@ -85,11 +85,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // in React state, this component
     // uses instance variables.
     // All instance variables used in this class:
-    this.cellsQuadTree = null;
-    this.cellsLayer = null;
-    this.moleculesLayer = null;
-    this.neighborhoodsLayer = null;
+    this.obsSegmentationsQuadTree = null;
+
     this.imageLayers = [];
+    this.obsSegmentationsBitmaskLayers = [];
+    this.obsSegmentationsPolygonLayer = null;
+    this.obsLocationsLayer = null;
+    this.neighborhoodsLayer = null;
+
     this.layerLoaderSelections = {};
     // Better for the bitmask layer when there is no color data to use this.
     // 2048 is best for performance and for stability (4096 texture size is not always supported).
@@ -288,7 +291,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       setCellSelection,
     } = this.props;
     const { tool } = this.state;
-    const { cellsQuadTree } = this;
+    const { obsSegmentationsQuadTree } = this;
     const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
     return getSelectionLayers(
       tool,
@@ -297,7 +300,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getCellCoords,
       obsSegmentationsIndex,
       setCellSelection,
-      cellsQuadTree,
+      obsSegmentationsQuadTree,
     );
   }
 
@@ -307,9 +310,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       width,
       height,
       imageLayerLoaders = {},
-      layers,
+      imageLayerDefs,
     } = this.props;
-    const use3d = (layers || []).some(i => i.use3d);
+    const use3d = (imageLayerDefs || []).some(i => i.use3d);
     // Just get the first layer/loader since they should all be spatially
     // resolved and therefore have the same unit size scale.
     const loaders = Object.values(imageLayerLoaders);
@@ -335,7 +338,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     return null;
   }
 
-  createImageLayer(rawLayerDef, loader, i) {
+  createRasterLayer(rawLayerDef, loader, i) {
     const layerDef = {
       ...rawLayerDef,
       channels: rawLayerDef.channels.filter(
@@ -461,31 +464,53 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createImageLayers() {
     const {
-      layers,
+      imageLayerDefs,
       imageLayerLoaders = {},
-      rasterLayersCallbacks = [],
+      imageLayerCallbacks = [],
     } = this.props;
-    const use3d = (layers || []).some(i => i.use3d);
-    const use3dIndex = (layers || []).findIndex(i => i.use3d);
-    return (layers || [])
-      .filter(layer => layer.type === 'raster' || layer.type === 'bitmask')
+    const use3d = (imageLayerDefs || []).some(i => i.use3d);
+    const use3dIndex = (imageLayerDefs || []).findIndex(i => i.use3d);
+    return (imageLayerDefs || [])
       .filter(layer => (use3d ? layer.use3d === use3d : true))
-      .map((layer, i) => this.createImageLayer(
-        { ...layer, callback: rasterLayersCallbacks[use3d ? use3dIndex : i] },
+      .map((layer, i) => this.createRasterLayer(
+        { ...layer, callback: imageLayerCallbacks[use3d ? use3dIndex : i] },
         imageLayerLoaders[layer.index],
         i,
       ));
   }
+  createBitmaskLayers() {
+    const {
+      obsSegmentationsLayerDefs,
+      obsSegmentations,
+      obsSegmentationsType,
+      segmentationLayerCallbacks = [],
+    } = this.props;
+    if (obsSegmentationsType === 'bitmask') {
+      const { loaders = {} } = obsSegmentations;
+      return (obsSegmentationsLayerDefsDefs || [])
+        .filter(layer => (use3d ? layer.use3d === use3d : true))
+        .map((layer, i) => this.createRasterLayer(
+          { ...layer, callback: segmentationLayerCallbacks[use3d ? use3dIndex : i] },
+          imageLayerLoaders[layer.index],
+          i,
+        ));
+    }
+  }
 
   getLayers() {
     const {
-      imageLayers, cellsLayer, neighborhoodsLayer, moleculesLayer,
+      imageLayers,
+      obsSegmentationsPolygonLayer,
+      neighborhoodsLayer,
+      obsLocationsLayer,
+      obsSegmentationsBitmaskLayers,
     } = this;
     return [
       ...imageLayers,
-      cellsLayer,
+      ...obsSegmentationsBitmaskLayers,
+      obsSegmentationsPolygonLayer,
       neighborhoodsLayer,
-      moleculesLayer,
+      obsLocationsLayer,
       this.createScaleBarLayer(),
       ...this.createSelectionLayers(),
     ];
@@ -504,22 +529,23 @@ class Spatial extends AbstractSpatialOrScatterplot {
       && obsCentroids
     ) {
       const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
-      this.cellsQuadTree = createQuadTree(obsCentroids, getCellCoords);
+      this.obsSegmentationsQuadTree = createQuadTree(obsCentroids, getCellCoords);
     }
   }
 
   onUpdateCellsLayer() {
     const {
-      layers,
+      obsSegmentationsLayerDefs: obsSegmentationsLayerDef,
       obsSegmentationsIndex,
       obsSegmentations,
       obsSegmentationsType,
     } = this.props;
-    const layerDef = (layers || []).find(layer => layer.type === 'cells');
-    if (layerDef && obsSegmentationsIndex && obsSegmentations && obsSegmentationsType === 'polygon') {
-      this.cellsLayer = this.createCellsLayer(layerDef);
+    if (obsSegmentationsLayerDef && obsSegmentationsIndex && obsSegmentations && obsSegmentationsType === 'polygon') {
+      this.obsSegmentationsPolygonLayer = this.createCellsLayer(obsSegmentationsLayerDef);
+    } else if (obsSegmentationsLayerDef && obsSegmentationsIndex && obsSegmentations && obsSegmentationsType === 'bitmask') {
+      this.obsSegmentationsBitmaskLayers = this.createBitmaskLayers();
     } else {
-      this.cellsLayer = null;
+      this.obsSegmentationsPolygonLayer = null;
     }
   }
 
@@ -564,21 +590,20 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   onUpdateMoleculesLayer() {
     const {
-      layers,
+      obsLocationsLayerDefs: obsLocationsLayerDef,
       obsLocations,
       obsLocationsIndex,
       obsLocationsLabels,
       obsLocationsFeatureIndex,
     } = this.props;
-    const layerDef = (layers || []).find(layer => layer.type === 'molecules');
     if (
-      layerDef
+      obsLocationsLayerDef
       && obsLocations?.data && obsLocationsIndex
       && obsLocationsLabels && obsLocationsFeatureIndex
     ) {
-      this.moleculesLayer = this.createMoleculesLayer(layerDef);
+      this.obsLocationsLayer = this.createMoleculesLayer(obsLocationsLayerDef);
     } else {
-      this.moleculesLayer = null;
+      this.obsLocationsLayer = null;
     }
   }
 
@@ -589,12 +614,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateNeighborhoodsLayer() {
-    const { layers } = this.props;
-    const layerDef = (layers || []).find(
-      layer => layer.type === 'neighborhoods',
-    );
-    if (layerDef) {
-      this.neighborhoodsLayer = this.createNeighborhoodsLayer(layerDef);
+    const { neighborhoodLayerDefs: neighborhoodLayerDef } = this.props;
+    if (neighborhoodLayerDef) {
+      this.neighborhoodsLayer = this.createNeighborhoodsLayer(neighborhoodLayerDef);
     } else {
       this.neighborhoodsLayer = null;
     }
@@ -625,6 +647,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
               const obsCoord = getCellCoords(obsIdx);
               return viewport.project(obsCoord);
             }
+            // TODO: when obsSegmentationsType is bitmask?
             return [null, null];
           } catch (e) {
             return [null, null];
@@ -674,7 +697,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     if (
       [
-        'layers',
+        'obsSegmentationsLayerDefs',
         'obsSegmentations',
         'obsSegmentationsIndex',
         'obsSegmentationsType',
@@ -685,6 +708,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'geneExpressionColormapRange',
         'cellColorEncoding',
         'geneExpressionColormap',
+        'segmentationLayerCallbacks',
       ].some(shallowDiff)
     ) {
       // Cells layer props changed.
@@ -706,7 +730,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     if (
       [
-        'layers',
+        'obsLocationsLayerDefs',
         'obsLocations',
         'obsLocationsIndex',
         'obsLocationsLabels',
@@ -724,7 +748,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.forceUpdate();
     }
 
-    if (['layers', 'neighborhoods'].some(shallowDiff)) {
+    if (['neighborhoodLayerDefsDefs', 'neighborhoods'].some(shallowDiff)) {
       // Neighborhoods layer props changed.
       this.onUpdateNeighborhoodsLayer();
       this.forceUpdate();
@@ -732,13 +756,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     if (
       [
-        'layers',
+        'imageLayerDefs',
         'imageLayerLoaders',
         'cellColors',
         'cellHighlight',
         'geneExpressionColormapRange',
         'expressionData',
-        'rasterLayersCallbacks',
+        'imageLayerCallbacks',
         'geneExpressionColormap',
       ].some(shallowDiff)
     ) {

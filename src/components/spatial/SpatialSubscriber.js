@@ -83,7 +83,7 @@ export default function SpatialSubscriber(props) {
     spatialRotationZ: rotationZ,
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
-    spatialImageLayer: rasterLayers,
+    spatialImageLayer: imageLayers,
     spatialSegmentationLayer: cellsLayer,
     spatialPointLayer: moleculesLayer,
     spatialNeighborhoodLayer: neighborhoodsLayer,
@@ -123,14 +123,15 @@ export default function SpatialSubscriber(props) {
 
   const [
     {
-      rasterLayersCallbacks,
+      imageLayerCallbacks,
+      segmentationLayerCallbacks,
     },
   ] = useAuxiliaryCoordination(
     COMPONENT_COORDINATION_TYPES.layerController,
     coordinationScopes,
   );
 
-  const use3d = rasterLayers?.some(l => l.use3d);
+  const use3d = imageLayers?.some(l => l.use3d);
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [
@@ -208,7 +209,7 @@ export default function SpatialSubscriber(props) {
   const [raster, imageLayerLoaders, imageLayerMeta] = useImageData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialImageLayer: setRasterLayers },
-    { spatialImageLayer: rasterLayers },
+    { spatialImageLayer: imageLayers },
     {}, // TODO: which properties to match on
   );
   const [neighborhoods] = useNeighborhoodsData(
@@ -226,18 +227,6 @@ export default function SpatialSubscriber(props) {
   const moleculesCount = obsLocationsFeatureIndex?.length || 0;
   const locationsCount = obsLocationsIndex?.length || 0;
 
-  const layers = useMemo(() => {
-    // Only want to pass in cells layer once if there is not `bitmask`.
-    // We pass in the cells data regardless because it is needed for selection,
-    // but the rendering layer itself is not needed.
-    const canPassInCellsLayer = obsSegmentationsType === 'polygon';
-    return [
-      ...(moleculesLayer ? [{ ...moleculesLayer, type: 'molecules' }] : []),
-      ...((cellsLayer && canPassInCellsLayer) ? [{ ...cellsLayer, type: 'cells' }] : []),
-      ...(neighborhoodsLayer ? [{ ...neighborhoodsLayer, type: 'neighborhoods' }] : []),
-      ...(rasterLayers ? rasterLayers.map(l => ({ ...l, type: (l.type && ['raster', 'bitmask'].includes(l.type) ? l.type : 'raster') })) : []),
-    ];
-  }, [cellsLayer, moleculesLayer, neighborhoodsLayer, rasterLayers, obsSegmentationsType]);
   useEffect(() => {
     if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
       const {
@@ -404,7 +393,12 @@ export default function SpatialSubscriber(props) {
           orbitAxis,
         }}
         setViewState={setViewState}
-        layers={layers}
+        
+        imageLayerDefs={imageLayers}
+        obsSegmentationsLayerDefs={cellsLayer}
+        obsLocationsLayerDefs={moleculesLayer}
+        neighborhoodLayerDefs={neighborhoodsLayer}
+        
         obsLocationsIndex={obsLocationsIndex}
         obsSegmentationsIndex={obsSegmentationsIndex}
         obsLocations={obsLocations}
@@ -427,7 +421,8 @@ export default function SpatialSubscriber(props) {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
-        rasterLayersCallbacks={rasterLayersCallbacks}
+        imageLayerCallbacks={imageLayerCallbacks}
+        segmentationLayerCallbacks={segmentationLayerCallbacks}
         spatialAxisFixed={spatialAxisFixed}
         geneExpressionColormap={geneExpressionColormap}
         geneExpressionColormapRange={geneExpressionColormapRange}
