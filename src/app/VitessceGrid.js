@@ -38,6 +38,7 @@ export default function VitessceGrid(props) {
     getComponent,
     theme,
     height,
+    isBounded,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
@@ -90,6 +91,7 @@ export default function VitessceGrid(props) {
           padding={padding}
           onRemoveComponent={removeComponent}
           onLayoutChange={changeLayoutPostMount}
+          isBounded={isBounded}
           reactGridLayoutProps={{
             onResize,
             onResizeStop: onResize,
