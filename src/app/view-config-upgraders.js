@@ -456,6 +456,10 @@ export function upgradeFrom1_0_11(config) {
 export function upgradeFrom1_0_12(config) {
   const newConfig = cloneDeep(config);
 
+  // TODO: Set up coordination scopes for anndata-cells.zarr's options.factors
+  // in the coordination space, and create a new coordinationScopes.obsLabelsType array
+  // for each component in the layout.
+
   return {
     ...newConfig,
     version: '1.0.13',

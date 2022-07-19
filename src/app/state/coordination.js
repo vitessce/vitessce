@@ -96,6 +96,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
     CoordinationType.FEATURE_VALUE_TYPE,
+    CoordinationType.OBS_LABELS_TYPE,
     CoordinationType.EMBEDDING_TYPE,
     CoordinationType.EMBEDDING_ZOOM,
     CoordinationType.EMBEDDING_ROTATION,

@@ -4,7 +4,7 @@ import React, {
 import { extent } from 'd3-array';
 import isEqual from 'lodash/isEqual';
 import TitleInfo from '../TitleInfo';
-import { pluralize, capitalize } from '../../utils';
+import { pluralize, capitalize, fromEntries } from '../../utils';
 import {
   useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
 } from '../hooks';
@@ -22,6 +22,7 @@ import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import ScatterplotOptions from './ScatterplotOptions';
 import {
+  useMultiCoordinationValues,
   useCoordination,
   useLoaders,
   useSetComponentHover,
@@ -32,7 +33,8 @@ import {
   getPointOpacity,
 } from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-import { DataType } from '../../app/constants';
+import { DataType, CoordinationType } from '../../app/constants';
+import { useDataTypeMulti } from '../data-hook-utils';
 
 const SCATTERPLOT_DATA_TYPES = [
   DataType.OBS_EMBEDDING,
@@ -121,6 +123,17 @@ export default function ScatterplotSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
+  const obsLabelsTypes = useMultiCoordinationValues(
+    CoordinationType.OBS_LABELS_TYPE,
+    coordinationScopes,
+  );
+  const obsLabelsMatchOnObj = useMemo(() => {
+    return fromEntries(Object.entries(obsLabelsTypes).map(([scope, obsLabelsType]) => ([
+      scope,
+      { obsLabelsType, obsType },
+    ])));
+  }, [obsLabelsTypes, obsType]);
+
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
   const [
@@ -140,6 +153,12 @@ export default function ScatterplotSubscriber(props) {
     resetReadyItems();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
+
+  const obsLabelsData = useDataTypeMulti(
+    DataType.OBS_LABELS, loaders, dataset,
+    setItemIsReady, addUrl, false, {}, {},
+    obsLabelsMatchOnObj,
+  );
 
   // Get data from loaders using the data hooks.
   const { obsIndex: obsEmbeddingIndex, obsEmbedding } = useObsEmbeddingData(
@@ -263,17 +282,21 @@ export default function ScatterplotSubscriber(props) {
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {
+      const cellIdx = obsEmbeddingIndex.indexOf(cellId);
       return {
         [`${capitalize(observationsLabel)} ID`]: cellId,
-        // ...(cellInfo ? cellInfo.factors : {}), TODO: get factors from obsLabels
+        ...fromEntries(Object.entries(obsLabelsTypes).map(([scopeKey, obsLabelsType]) => ([
+          obsLabelsType,
+          obsLabelsData?.[scopeKey]?.obsLabels?.[cellIdx],
+        ]))),
       };
     }
     return null;
-  }, [obsEmbeddingIndex, observationsLabel]);
+  }, [obsEmbeddingIndex, observationsLabel, obsLabelsTypes, obsLabelsData]);
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
-  const getCellIsSelected = useCallback(cellEntry => (
-    (cellSelectionSet || new Set([])).has(cellEntry[0]) ? 1.0 : 0.0), [cellSelectionSet]);
+  const getCellIsSelected = useCallback((object, { index }) => (
+    (cellSelectionSet || new Set([])).has(obsEmbeddingIndex[index]) ? 1.0 : 0.0), [cellSelectionSet, obsEmbeddingIndex]);
 
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);

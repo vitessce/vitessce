@@ -143,14 +143,13 @@ export default function HeatmapSubscriber(props) {
 
   const getCellInfo = useCallback((cellId) => {
     if (cellId) {
-      const cellInfo = obsIndex[cellId];
       return {
         [`${capitalize(observationsLabel)} ID`]: cellId,
-        ...(cellInfo ? cellInfo.factors : {}), // TODO: no longer use factors
+        // ...(cellInfo ? cellInfo.factors : {}), // TODO: no longer use factors
       };
     }
     return null;
-  }, [obsIndex, observationsLabel]);
+  }, [observationsLabel]);
 
   const getGeneInfo = useCallback((geneId) => {
     if (geneId) {

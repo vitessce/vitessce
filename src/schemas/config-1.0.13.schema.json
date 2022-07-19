@@ -4,6 +4,12 @@
   "title": "Vitessce data set",
   "type": "object",
   "definitions": {
+    "stringOrStringArray": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": {"type": "string"} }
+      ]
+    },
     "componentCoordinationScopeValue": {
       "oneOf": [
         { "type": "string" },
@@ -45,16 +51,11 @@
             "additionalProperties": true,
             "required": [],
             "properties": {
-              "dataset": {
-                "oneOf": [
-                  { "type": "string" },
-                  { "type": "array", "items": {"type": "string"} }
-                ]
-              },
+              "dataset": { "$ref": "#/definitions/stringOrStringArray" },
+              "obsLabelsType": { "$ref": "#/definitions/stringOrStringArray" },
               "obsType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "featureType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "featureValueType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "obsLabelsType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingType": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingZoom": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "embeddingRotation": { "$ref": "#/definitions/componentCoordinationScopeValue" },
