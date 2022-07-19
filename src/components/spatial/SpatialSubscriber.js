@@ -393,12 +393,10 @@ export default function SpatialSubscriber(props) {
           orbitAxis,
         }}
         setViewState={setViewState}
-        
         imageLayerDefs={imageLayers}
         obsSegmentationsLayerDefs={cellsLayer}
         obsLocationsLayerDefs={moleculesLayer}
         neighborhoodLayerDefs={neighborhoodsLayer}
-        
         obsLocationsIndex={obsLocationsIndex}
         obsSegmentationsIndex={obsSegmentationsIndex}
         obsLocations={obsLocations}

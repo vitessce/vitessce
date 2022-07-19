@@ -24,14 +24,14 @@ const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { ind
     || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
-const makeDefaultGetObsCoords = (obsLocations) => (i) => ([
-  obsLocations.data[0][i],
-  obsLocations.data[1][i],
+const makeDefaultGetObsCoords = obsEmbedding => i => ([
+  obsEmbedding.data[0][i],
+  obsEmbedding.data[1][i],
   0,
 ]);
-const makeFlippedGetObsCoords = (obsLocations) => (i) => ([
-  obsLocations.data[0][i],
-  -obsLocations.data[1][i],
+const makeFlippedGetObsCoords = obsEmbedding => i => ([
+  obsEmbedding.data[0][i],
+  -obsEmbedding.data[1][i],
   0,
 ]);
 
@@ -91,7 +91,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       theme,
       cellRadius = 1.0,
       cellOpacity = 1.0,
-      cellFilter,
+      // cellFilter,
       cellSelection,
       setCellHighlight,
       setComponentHover,
@@ -143,7 +143,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       getLineWidth: 0,
       extensions: [
         new ScaledExpressionExtension(),
-        // new SelectionExtension({ instanced: true }),
+        new SelectionExtension({ instanced: true }),
       ],
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
@@ -319,7 +319,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         uuid,
         project: (obsId) => {
           try {
-            if(obsEmbedding && obsEmbeddingIndex) {
+            if (obsEmbedding && obsEmbeddingIndex) {
               const getCellCoords = makeFlippedGetObsCoords(obsEmbedding);
               const obsIdx = obsEmbeddingIndex.indexOf(obsId);
               const obsCoord = getCellCoords(obsIdx);

@@ -262,7 +262,7 @@ export default function ScatterplotSubscriber(props) {
     width, height, zoom, averageFillDensity]);
 
   const getCellInfo = useCallback((cellId) => {
-    if(cellId) {
+    if (cellId) {
       return {
         [`${capitalize(observationsLabel)} ID`]: cellId,
         // ...(cellInfo ? cellInfo.factors : {}), TODO: get factors from obsLabels

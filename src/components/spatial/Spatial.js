@@ -38,7 +38,7 @@ const makeDefaultGetCellIsSelected = (cellSelection) => {
   }
   return () => 0.0;
 };
-const makeDefaultGetObsCoords = (obsLocations) => (i) => ([
+const makeDefaultGetObsCoords = obsLocations => i => ([
   obsLocations.data[0][i],
   obsLocations.data[1][i],
   0,
@@ -114,7 +114,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // Initialize data and layers.
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();
-    this.onUpdateMoleculesData();
     this.onUpdateMoleculesLayer();
     this.onUpdateNeighborhoodsData();
     this.onUpdateNeighborhoodsLayer();
@@ -123,13 +122,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createCellsLayer(layerDef) {
     const {
-      radius, stroked, visible, opacity,
+      stroked, visible, opacity,
     } = layerDef;
     const {
       obsSegmentationsIndex: obsIndex,
       obsSegmentations,
       theme,
-      cellFilter,
+      // cellFilter,
       cellSelection,
       setCellHighlight,
       setComponentHover,
@@ -164,9 +163,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       stroked: true,
       backgroundColor: [0, 0, 0],
       isSelected: getCellIsSelected,
-      getPolygon: (object, { index, data }) => {
-        return data.src.obsSegmentations.data[index];
-      },
+      getPolygon: (object, { index, data }) => data.src.obsSegmentations.data[index],
       updateTriggers: {
         getLineWidth: [stroked],
         isSelected: cellSelection,
@@ -235,8 +232,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       visible: layerDef.visible,
       getRadius: layerDef.radius,
       getPosition: (object, { data, index, target }) => {
+        // eslint-disable-next-line no-param-reassign
         target[0] = data.src.obsLocations.data[0][index];
+        // eslint-disable-next-line no-param-reassign
         target[1] = data.src.obsLocations.data[1][index];
+        // eslint-disable-next-line no-param-reassign
         target[2] = 0;
         return target;
       },
@@ -478,6 +478,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         i,
       ));
   }
+
   createBitmaskLayers() {
     const {
       obsSegmentationsLayerDefs,
@@ -487,14 +488,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } = this.props;
     if (obsSegmentationsType === 'bitmask') {
       const { loaders = {} } = obsSegmentations;
-      return (obsSegmentationsLayerDefsDefs || [])
+      const use3d = (obsSegmentationsLayerDefs || []).some(i => i.use3d);
+      const use3dIndex = (obsSegmentationsLayerDefs || []).findIndex(i => i.use3d);
+      return (obsSegmentationsLayerDefs || [])
         .filter(layer => (use3d ? layer.use3d === use3d : true))
         .map((layer, i) => this.createRasterLayer(
           { ...layer, callback: segmentationLayerCallbacks[use3d ? use3dIndex : i] },
-          imageLayerLoaders[layer.index],
+          loaders[layer.index],
           i,
         ));
     }
+    return [];
   }
 
   getLayers() {
@@ -584,10 +588,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
   }
 
-  onUpdateMoleculesData() {
-    // TODO: remove
-  }
-
   onUpdateMoleculesLayer() {
     const {
       obsLocationsLayerDefs: obsLocationsLayerDef,
@@ -628,7 +628,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   viewInfoDidUpdate() {
     const {
-      obsSegmentations,
       obsSegmentationsIndex,
       obsSegmentationsType,
       obsCentroids,
@@ -680,18 +679,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ) {
       // Cells data changed.
       this.onUpdateCellsData();
-      this.forceUpdate();
-    }
-    if (
-      [
-        'obsLocations',
-        'obsLocationsIndex',
-        'obsLocationsLabels',
-        'obsLocationsFeatureIndex',
-      ].some(shallowDiff)
-    ) {
-      // Cells data changed.
-      this.onUpdateMoleculesData();
       this.forceUpdate();
     }
 
