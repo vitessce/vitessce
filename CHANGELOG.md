@@ -60,6 +60,8 @@
   - `embeddingCellOpacityMode` -> `embeddingObsOpacityMode`
 - Fixed schema v1.0.12
 - Removed the requirement for `cellSets` data in the CellSetsManagerSubscriber component to support the use case where all cell sets are provided via `additionalCellSets` / the coordination space.
+- Implemented support for `obsLabelsType` which supersedes `factors`.
+  - The view config upgrade can be performed automatically for the `anndata-cells.zarr` file type but not the `cells.json` file type (we would need to access the `cells.json` file contents to know which `factors` keys are present, but we perform view config upgrades _prior to_ loading any data).
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
 
