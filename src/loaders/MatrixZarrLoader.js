@@ -3,11 +3,15 @@ import AbstractTwoStepLoader from './AbstractTwoStepLoader';
 import LoaderResult from './LoaderResult';
 
 export default class MatrixZarrLoader extends AbstractTwoStepLoader {
-  loadAttrs() {
+  async loadAttrs() {
     if (this.attrs) {
       return this.attrs;
     }
-    this.attrs = this.dataSource.getJson('.zattrs');
+    const attrs = await this.dataSource.getJson('.zattrs');
+    this.attrs = {
+      data: attrs,
+      url: null,
+    };
     return this.attrs;
   }
 
@@ -26,6 +30,6 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
   load() {
     return Promise
       .all([this.loadAttrs(), this.loadArr()])
-      .then(data => Promise.resolve(new LoaderResult(data, null)));
+      .then(([attrs, arr]) => Promise.resolve(new LoaderResult([attrs.data, arr], null)));
   }
 }
