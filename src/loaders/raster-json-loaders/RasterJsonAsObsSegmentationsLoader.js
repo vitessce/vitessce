@@ -8,20 +8,31 @@ export default class RasterJsonAsObsSegmentationsLoader extends RasterLoader {
     if (loaderResult instanceof AbstractLoaderError) {
       return Promise.reject(loaderResult);
     }
-    const { data, url: urls, coordinationValues } = loaderResult;
-    const { loaders, meta } = data;
+    const { data = {}, url: urls, coordinationValues } = loaderResult;
+    const { loaders: allLoaders = [], meta: allMeta = [] } = data;
 
-    // Filter, removing any bitmask items.
-    const segmentationLoaders = loaders.filter(l => l.type === 'bitmask');
-    const segmentationMeta = meta.filter(l => l.type === 'bitmask');
+    const loaders = [];
+    const meta = [];
+
+    // Only include bitmask items.
+    allMeta.forEach((layer, i) => {
+      if (layer.metadata.isBitmask) {
+        loaders.push(allLoaders[i]);
+        meta.push(allMeta[i]);
+      }
+    });
 
     return new LoaderResult(
       {
         obsSegmentationsType: 'bitmask',
-        obsSegmentations: { loaders: segmentationLoaders, meta: segmentationMeta },
+        obsSegmentations: { loaders, meta },
       },
       urls,
-      coordinationValues,
+      {
+        // Filter coordinationValues, keeping only bitmask layers.
+        spatialSegmentationLayer: coordinationValues
+          .spatialImageLayer.filter(l => l.type === 'bitmask'),
+      },
     );
   }
 }

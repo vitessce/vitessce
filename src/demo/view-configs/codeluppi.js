@@ -187,8 +187,59 @@ export const justSpatial = {
 };
 
 export const codeluppi2018 = {
-  ...linnarssonBase,
+  name: 'Codeluppi et al., Nature Methods 2018',
+  description: 'Spatial organization of the somatosensory cortex revealed by osmFISH',
+  version: '1.0.13',
+  initStrategy: 'auto',
   public: true,
+  datasets: [
+    {
+      uid: 'codeluppi',
+      name: 'Codeluppi',
+      files: [
+        {
+          type: 'cells',
+          fileType: 'cells.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cells.json',
+          options: {
+            embeddingTypes: [
+              'PCA',
+              't-SNE',
+            ],
+            obsLabelsTypes: [
+              'cluster',
+              'subcluster',
+            ],
+          },
+        },
+        {
+          type: 'cell-sets',
+          fileType: 'cell-sets.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cell-sets.json',
+        },
+        {
+          type: 'raster',
+          fileType: 'raster.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.raster.json',
+        },
+        {
+          type: 'molecules',
+          fileType: 'molecules.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.molecules.json',
+        },
+        {
+          type: 'neighborhoods',
+          fileType: 'neighborhoods.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.neighborhoods.json',
+        },
+        {
+          type: 'expression-matrix',
+          fileType: 'clusters.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.clusters.json',
+        },
+      ],
+    },
+  ],
   coordinationSpace: {
     embeddingZoom: {
       PCA: 0,
@@ -197,6 +248,10 @@ export const codeluppi2018 = {
     embeddingType: {
       PCA: 'PCA',
       TSNE: 't-SNE',
+    },
+    obsLabelsType: {
+      A: 'cluster',
+      B: 'subcluster',
     },
     spatialZoom: {
       A: -5.5,
@@ -221,6 +276,10 @@ export const codeluppi2018 = {
     },
     {
       component: 'layerController',
+      props: {
+        globalDisable3d: true,
+        disableChannelsIfRgbDetected: true,
+      },
       x: 0,
       y: 1,
       w: 2,
@@ -281,6 +340,7 @@ export const codeluppi2018 = {
       coordinationScopes: {
         embeddingType: 'PCA',
         embeddingZoom: 'PCA',
+        obsLabelsType: ['A', 'B'],
       },
       x: 6,
       y: 0,

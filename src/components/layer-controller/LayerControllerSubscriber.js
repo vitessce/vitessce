@@ -308,7 +308,7 @@ function LayerControllerSubscriber(props) {
     { spatialPointLayer: moleculesLayer },
     {}, // TODO: use obsType once #1240 is merged.
   );
-  useObsSegmentationsData(
+  const { obsSegmentations, obsSegmentationsType } = useObsSegmentationsData(
     loaders, dataset, setItemIsReady, () => {}, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
@@ -321,6 +321,9 @@ function LayerControllerSubscriber(props) {
     { spatialImageLayer: rasterLayers },
     {}, // TODO: which values to match on
   );
+
+  const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.loaders : [];
+  const segmentationLayerMeta = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.meta : [];
 
   // useCallback prevents new functions from propogating
   // changes to the underlying component.

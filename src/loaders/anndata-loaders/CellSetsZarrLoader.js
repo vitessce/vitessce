@@ -15,7 +15,7 @@ export function dataToCellSetsTree(data, options) {
   const [cellNames, cellSets, cellSetScores] = data;
   const cellSetsTree = treeInitialize(SETS_DATATYPE_OBS);
   cellSets.forEach((cellSetIds, j) => {
-    const name = options[j].groupName;
+    const { name } = options[j];
     let levelZeroNode = {
       name,
       children: [],

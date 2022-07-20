@@ -431,10 +431,7 @@ export function useMatchingLoader(loaders, dataset, dataType, viewCoordinationVa
       return null;
     }
     return loaderInternMap.get(matchingKey);
-  }, [loaders, dataset, dataType,
-    ...Object.keys(viewCoordinationValues),
-    ...Object.values(viewCoordinationValues),
-  ]);
+  }, [loaders, dataset, dataType, viewCoordinationValues]);
 }
 
 /**
@@ -465,7 +462,6 @@ export function useMatchingLoaders(loaders, dataset, dataType, viewCoordinationV
         .find(fileCoordinationValues => isMatch(fileCoordinationValues, viewCoordinationValues));
       return loaderInternMap.get(matchingKey);
     }
-    console.log("useMatchingLoaders");
     return fromEntries(
       Object.entries(viewCoordinationValuesObj).map(([key, viewCoordinationValues]) => ([
         key,

@@ -48,6 +48,7 @@ export function expandExpressionMatrixZarr(fileDef) {
 export function expandRasterJson(fileDef) {
   const {
     url,
+    options,
     requestInit,
     coordinationValues = {},
   } = fileDef;
@@ -58,12 +59,14 @@ export function expandRasterJson(fileDef) {
     {
       fileType: FileType.IMAGE_RASTER_JSON,
       url,
+      options,
       requestInit,
       coordinationValues,
     },
     {
       fileType: FileType.OBS_SEGMENTATIONS_RASTER_JSON,
       url,
+      options,
       requestInit,
       coordinationValues: baseCoordinationValues,
     },

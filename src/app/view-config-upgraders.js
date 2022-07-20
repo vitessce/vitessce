@@ -2,9 +2,6 @@
 import uuidv4 from 'uuid/v4';
 import cloneDeep from 'lodash/cloneDeep';
 import { getNextScope, capitalize } from '../utils';
-import {
-  COMPONENT_COORDINATION_TYPES,
-} from './state/coordination';
 
 /**
  * A helper function for the `upgrade()` function,

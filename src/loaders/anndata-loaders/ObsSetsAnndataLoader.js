@@ -12,13 +12,13 @@ import { dataToCellSetsTree } from './CellSetsZarrLoader';
 export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
   loadCellSetIds() {
     const { options } = this;
-    const cellSetZarrLocation = options.map(({ setName }) => setName);
+    const cellSetZarrLocation = options.map(({ path }) => path);
     return this.dataSource.loadObsColumns(cellSetZarrLocation);
   }
 
   loadCellSetScores() {
     const { options } = this;
-    const cellSetScoreZarrLocation = options.map(option => option.scoreName || undefined);
+    const cellSetScoreZarrLocation = options.map(option => option.scorePath || undefined);
     return this.dataSource.loadObsColumns(cellSetScoreZarrLocation);
   }
 

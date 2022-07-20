@@ -152,7 +152,8 @@ export function useDataTypeMulti(
           loader.load().catch(e => warn(e, setWarning)).then((payload) => {
             if (!payload) return;
             const { data: payloadData, url, coordinationValues } = payload;
-            setData(prev => {
+            setData((prev) => {
+              // eslint-disable-next-line no-param-reassign
               prev[scopeKey] = payloadData;
               return prev;
             });

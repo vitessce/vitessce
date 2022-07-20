@@ -127,12 +127,12 @@ export default function ScatterplotSubscriber(props) {
     CoordinationType.OBS_LABELS_TYPE,
     coordinationScopes,
   );
-  const obsLabelsMatchOnObj = useMemo(() => {
-    return fromEntries(Object.entries(obsLabelsTypes).map(([scope, obsLabelsType]) => ([
+  const obsLabelsMatchOnObj = useMemo(() => fromEntries(
+    Object.entries(obsLabelsTypes).map(([scope, obsLabelsType]) => ([
       scope,
       { obsLabelsType, obsType },
-    ])));
-  }, [obsLabelsTypes, obsType]);
+    ])),
+  ), [obsLabelsTypes, obsType]);
 
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -296,7 +296,8 @@ export default function ScatterplotSubscriber(props) {
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
   const getCellIsSelected = useCallback((object, { index }) => (
-    (cellSelectionSet || new Set([])).has(obsEmbeddingIndex[index]) ? 1.0 : 0.0), [cellSelectionSet, obsEmbeddingIndex]);
+    (cellSelectionSet || new Set([])).has(obsEmbeddingIndex[index]) ? 1.0 : 0.0
+  ), [cellSelectionSet, obsEmbeddingIndex]);
 
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
