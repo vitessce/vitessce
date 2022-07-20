@@ -12,6 +12,7 @@
   - `featureValueType`
 - Add more usage examples to the `about` documentation page.
 - Added `npm run start:nolint` script to disable linting for quickly prototyping code.
+- Added the optional `isBounded` property to the `Vitessce` React component that prevents users from dragging or resizing components beyond the original grid boundary.
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
