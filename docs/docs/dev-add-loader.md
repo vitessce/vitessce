@@ -49,6 +49,7 @@ For instance, AnnData-Zarr stores typically contain multiple data types located 
 
 Similar to the [view type registry](/docs/dev-add-component/#the-view-type-registry), there must be a mapping between a **file type** name and the actual data loader & data source class definitions to facilitate usage of the file type name as a string ([`datasets[].files[].fileType`](/docs/view-config-json/#datasets)) in the JSON view config. 
 The [file type registry](https://github.com/vitessce/vitessce/blob/main/src/loaders/types.js) maps file types to `[data source, data loader]` tuples.
+Every file type in the registry must be [mapped to a data type](https://github.com/vitessce/vitessce/blob/main/src/app/constant-relationships.js) as well.
 
 :::tip
 The plugin analog of the file type registry is the [`registerPluginFileType`](/docs/dev-plugins/#plugin-file-types) function.

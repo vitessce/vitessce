@@ -3,6 +3,11 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
 
 export default function DataTypesTable() {
+  const anndataConvenienceFileType = (
+    <li>
+      <a href={useBaseUrl('/docs/data-file-types/#anndatazarr')}><code>anndata.zarr</code></a> (<a href="#joint-file-types">joint</a>)
+    </li>
+  );
   return (
     <table className={styles.dataTypesTable}>
       <thead>
@@ -11,14 +16,16 @@ export default function DataTypesTable() {
       <tbody>
         <tr>
           <td>
-            <code>cells</code>
-            <br /> Cells, their positions (spatially and for dimensionality-reduction scatterplots),
-            their segmentations as polygons, and other per-cell attributes.
+            <code>obsEmbedding</code>
+            <br /> Per-observation 2D embedding coordinates.
+            Typically used to store dimensionality reductions
+            performed on cell-by-biomarker expression matrices.
           </td>
           <td>
             <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#cellsjson')}><code>cells.json</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-cellszarr')}><code>anndata-cells.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsembeddingcellsjson')}><code>obsEmbedding.cells.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsembeddinganndatazarr')}><code>obsEmbedding.anndata.zarr</code></a></li>
+              {anndataConvenienceFileType}
             </ul>
           </td>
           <td>
@@ -32,27 +39,32 @@ export default function DataTypesTable() {
         </tr>
         <tr>
           <td>
-            <code>molecules</code>
-            <br /> Spatially-resolved molecules such as individual RNA molecules
-            measured by FISH assays.
+            <code>obsLocations</code>
+            <br /> Spatially-resolved 2D coordinates.
+            For example, individual RNA molecule x-y coordinates
+            measured by FISH, or cell segmentation centroid coordinates.
           </td>
           <td>
             <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#moleculesjson')}><code>molecules.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obslocationsmoleculesjson')}><code>obsLocations.molecules.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obslocationscellsjson')}><code>obsLocations.cells.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obslocationsanndatazarr')}><code>obsLocations.anndata.zarr</code></a></li>
+              {anndataConvenienceFileType}
             </ul>
           </td>
           <td />
         </tr>
         <tr>
           <td>
-            <code>cell-sets</code>
-            <br /> Lists or hierarchies of cell sets,
-            used to store cell type assignments or automated clustering results.
+            <code>obsSets</code>
+            <br /> Lists or hierarchies of sets of observations.
+            For example, cell type annotations or unsupervised clustering results.
           </td>
           <td>
             <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#cell-setsjson')}><code>cell-sets.json</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-cell-setszarr')}><code>anndata-cell-sets.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssetsjson')}><code>obsSets.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssetsanndatazarr')}><code>obsSets.anndata.zarr</code></a></li>
+              {anndataConvenienceFileType}
             </ul>
           </td>
           <td>
@@ -66,19 +78,36 @@ export default function DataTypesTable() {
         </tr>
         <tr>
           <td>
-            <code>raster</code>
+            <code>obsLabels</code>
+            <br /> Per-observation string labels.
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obslocationsmoleculesjson')}><code>obsLabels.cells.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obslocationscellsjson')}><code>obsLabels.anndata.zarr</code></a></li>
+              {anndataConvenienceFileType}
+            </ul>
+          </td>
+          <td />
+        </tr>
+        <tr>
+          <td>
+            <code>image</code>
             <br />
-            Multi-scale multiplexed imaging data, including OME-TIFF files and OME-NGFF stores.
+            Multi-scale multiplexed imaging data, including OME-TIFF files and OME-NGFF Zarr stores.
           </td>
           <td>
             <ul>
               <li>
                 <a href={useBaseUrl('/docs/data-file-types/#rasterome-zarr')}>
-                  <code>raster.ome-zarr</code>
-                </a> (OME-NGFF)
+                  <code>image.ome-zarr</code>
+                </a>
+                <ul>
+                  <li>OME-NGFF</li>
+                </ul>
               </li>
               <li>
-                <a href={useBaseUrl('/docs/data-file-types/#rasterjson')}><code>raster.json</code></a>
+                <a href={useBaseUrl('/docs/data-file-types/#imagerasterjson')}><code>image.raster.json</code></a>
                 <ul>
                   <li>OME-TIFF</li>
                   <li>Bioformats-Zarr (precursor to OME-NGFF)</li>
@@ -94,15 +123,16 @@ export default function DataTypesTable() {
         </tr>
         <tr>
           <td>
-            <code>expression-matrix</code>
-            <br /> Gene expression matrices.
+            <code>obsFeatureMatrix</code>
+            <br /> Observation-by-feature matrix.
+            Typically used to store cell-by-gene expression matrices.
           </td>
           <td>
             <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#expression-matrixzarr')}><code>expression-matrix.zarr</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-expression-matrixzarr')}><code>anndata-expression-matrix.zarr</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#clustersjson')}><code>clusters.json</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#genesjson')}><code>genes.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixanndatazarr')}><code>obsFeatureMatrix.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixclustersjson')}><code>obsFeatureMatrix.clusters.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixgenesjson')}><code>obsFeatureMatrix.genes.json</code></a></li>
+              {anndataConvenienceFileType}
             </ul>
           </td>
           <td>
@@ -114,10 +144,17 @@ export default function DataTypesTable() {
           </td>
         </tr>
         <tr>
-          <td><code>neighborhoods</code><br /> </td>
+          <td>
+            <code>obsSegmentations</code>
+            <br /> Per-observation segmentation polygons or bitmasks.
+            Typically used to store cell or organelle segmentations.
+          </td>
           <td>
             <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#neighborhoodsjson')}><code>neighborhoods.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsanndatazarr')}><code>obsSegmentations.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationscellsjson')}><code>obsSegmentations.cells.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsrasterjson')}><code>obsSegmentations.raster.json</code></a></li>
+              {anndataConvenienceFileType}
             </ul>
           </td>
           <td />
