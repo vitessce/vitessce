@@ -266,9 +266,14 @@ export function useGetObsInfo(obsType, obsIndex, obsLabelsTypes, obsLabelsData) 
         ...fromEntries(Object.entries(obsLabelsTypes).map(([scopeKey, obsLabelsType]) => ([
           obsLabelsType,
           obsLabelsData?.[scopeKey]?.obsLabels?.[
+            // TODO: Maybe all loaders that return obsIndex should also return an obsIndexMap
+            // with keys: obsId, values: obsIdx
+            // which would avoid the indexOf calls.
             obsLabelsData?.[scopeKey]?.obsIndex?.indexOf(obsId)
           ],
         ]))),
+        // TODO: use obsSets and obsSetSelection to list any currently-selected sets
+        // that contain this obsId.
       };
     }
     return null;

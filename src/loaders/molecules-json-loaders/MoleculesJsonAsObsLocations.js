@@ -14,8 +14,8 @@ export default class MoleculesJsonAsObsLocationsLoader extends JsonLoader {
   }
 
   loadFromCache(data) {
-    if (this.locations) {
-      return this.locations;
+    if (this.cachedResult) {
+      return this.cachedResult;
     }
     const moleculesValues = Object.values(data);
     const obsIndex = range(sum(moleculesValues.map(v => v.length))).map(i => String(i));
@@ -31,8 +31,8 @@ export default class MoleculesJsonAsObsLocationsLoader extends JsonLoader {
       data: [obsLocationsX, obsLocationsY],
       shape: [2, obsLocationsX.length],
     };
-    this.locations = { obsLocations, obsIndex };
-    return this.locations;
+    this.cachedResult = { obsLocations, obsIndex };
+    return this.cachedResult;
   }
 
   async load() {
