@@ -13,7 +13,6 @@ import { getCellSetPolygons } from '../sets/cell-set-utils';
 import {
   useObsEmbeddingData,
   useObsSetsData,
-  useCellsData,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
 } from '../data-hooks';
@@ -165,6 +164,7 @@ export default function ScatterplotSubscriber(props) {
     loaders, dataset, setItemIsReady, addUrl, true, {}, {},
     { obsType, embeddingType: mapping },
   );
+  const cellsCount = obsEmbeddingIndex?.length || 0;
   const { obsSets: cellSets } = useObsSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
@@ -172,7 +172,6 @@ export default function ScatterplotSubscriber(props) {
     { obsType },
   );
   // Existing data hooks
-  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, false);
   const [expressionData] = useFeatureSelection(
     loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
     { obsType, featureType, featureValueType },
@@ -219,11 +218,12 @@ export default function ScatterplotSubscriber(props) {
     if ((cellSetLabelsVisible || cellSetPolygonsVisible)
       && !cacheHas(cellSetPolygonCache, cellSetSelection)
       && mergedCellSets?.tree?.length
-      && Object.values(cells).length
+      && obsEmbedding
+      && obsEmbeddingIndex
       && cellSetColor?.length) {
       const newCellSetPolygons = getCellSetPolygons({
-        cells,
-        mapping,
+        obsIndex: obsEmbeddingIndex,
+        obsEmbedding,
         cellSets: mergedCellSets,
         cellSetSelection,
         cellSetColor,
@@ -234,7 +234,7 @@ export default function ScatterplotSubscriber(props) {
     }
     return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
   }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible, theme,
-    cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
+    obsEmbeddingIndex, obsEmbedding, mergedCellSets, cellSetSelection, cellSetColor]);
 
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
@@ -285,6 +285,7 @@ export default function ScatterplotSubscriber(props) {
       const cellIdx = obsEmbeddingIndex.indexOf(cellId);
       return {
         [`${capitalize(observationsLabel)} ID`]: cellId,
+        // TODO: handle case when obsLabelsTypes is empty/null
         ...fromEntries(Object.entries(obsLabelsTypes).map(([scopeKey, obsLabelsType]) => ([
           obsLabelsType,
           obsLabelsData?.[scopeKey]?.obsLabels?.[cellIdx],

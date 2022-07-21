@@ -30,7 +30,11 @@ export default class RasterJsonAsImageLoader extends RasterLoader {
       {
         // Filter coordinationValues, keeping only non-bitmask layers.
         spatialImageLayer: coordinationValues
-          .spatialImageLayer.filter(l => l.type !== 'bitmask'),
+          .spatialImageLayer
+          .filter(l => l.type !== 'bitmask')
+          // Re-index since we removed the bitmask layers,
+          // so the indices may have gaps.
+          .map((l, index) => ({ ...l, index })),
       },
     );
   }

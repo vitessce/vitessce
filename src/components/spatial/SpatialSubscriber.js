@@ -155,11 +155,12 @@ export default function SpatialSubscriber(props) {
   const hasExpressionData = useHasLoader(
     loaders, dataset, DataType.OBS_FEATURE_MATRIX,
     { obsType, featureType, featureValueType },
+    // TODO: get per-spatialLayerType expression data once #1240 is merged.
   );
   const hasCellsData = useHasLoader(
     loaders, dataset, DataType.OBS_SEGMENTATIONS,
-    {},
-  ); // TODO: use obsType in matchOn once #1240 is merged.
+    { obsType: 'cell' }, // TODO: use obsType in matchOn once #1240 is merged.
+  );
   const hasImageData = useHasLoader(
     loaders, dataset, DataType.IMAGE,
     {}, // TODO: which properties to match on
@@ -172,24 +173,34 @@ export default function SpatialSubscriber(props) {
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
-    {}, // TODO: use obsType in matchOn once #1240 is merged.
+    { obsType: 'molecule' }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
   );
   const {
+    // TODO: use in tooltips
     obsLabels: obsLocationsLabels,
   } = useObsLabelsData(
     loaders, dataset, setItemIsReady, addUrl, false, {}, {},
+    // TODO: see scatterplot obsLabels usage,
+    // update convenience file type for molecules.json to supply obsLabels.molecules.json
+    // and an obsLabelsType
     { obsLabelsType: 'feature' }, // TODO: use obsType in matchOn once #1240 is merged.
+  );
+  const {
+    obsIndex: obsCentroidsIndex,
+    obsLocations: obsCentroids,
+  } = useObsLocationsData(
+    loaders, dataset, setItemIsReady, addUrl, false, {}, {},
+    { obsType: 'cell' }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
   );
   const {
     obsIndex: obsSegmentationsIndex,
     obsSegmentations,
     obsSegmentationsType,
-    obsCentroids,
   } = useObsSegmentationsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
-    {}, // TODO: use obsType in matchOn once #1240 is merged.
+    { obsType: 'cell' }, // TODO: use obsType in matchOn once #1240 is merged.
   );
   const { obsSets: cellSets } = useObsSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
@@ -205,13 +216,13 @@ export default function SpatialSubscriber(props) {
     loaders, dataset, setItemIsReady, addUrl, false,
     { obsType, featureType, featureValueType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [raster, imageLayerLoaders, imageLayerMeta] = useImageData(
+  const { image } = useImageData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: imageLayers },
     {}, // TODO: which properties to match on
   );
+  const { loaders: imageLayerLoaders = [], meta: imageLayerMeta = [] } = image || {};
   const [neighborhoods] = useNeighborhoodsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
@@ -405,6 +416,7 @@ export default function SpatialSubscriber(props) {
         obsSegmentations={obsSegmentations}
         obsSegmentationsType={obsSegmentationsType}
         obsCentroids={obsCentroids}
+        obsCentroidsIndex={obsCentroidsIndex}
         cellFilter={cellFilter}
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}

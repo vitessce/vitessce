@@ -199,19 +199,18 @@ export function expandAnndataCellsZarr(fileDef) {
   const embeddingTypes = options.mappings ? Object.keys(options.mappings) : [];
   const obsLabelsTypes = options.factors ? options.factors : [];
   return [
+    ...(options.poly ? [{
+      ...baseFileDef,
+      fileType: FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR,
+      options: {
+        path: options.poly,
+      },
+    }] : []),
     ...(options.xy ? [{
       ...baseFileDef,
       fileType: FileType.OBS_LOCATIONS_ANNDATA_ZARR,
       options: {
         path: options.xy,
-      },
-    }] : []),
-    ...(options.poly && options.xy ? [{
-      ...baseFileDef,
-      fileType: FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR,
-      options: {
-        polygonsPath: options.poly,
-        centroidsPath: options.xy,
       },
     }] : []),
     ...embeddingTypes.map(et => ({

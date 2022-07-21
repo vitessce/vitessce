@@ -427,6 +427,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         isExpressionMode: cellColorEncoding === 'geneSelection',
         colormap: geneExpressionColormap,
         expressionData: this.expression.data,
+        // There is no onHover here,
+        // see the onHover method of AbstractSpatialOrScatterplot.
       });
     }
     const [Layer, layerLoader] = getLayerLoaderTuple(data, layerDef.use3d);
@@ -486,11 +488,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsSegmentationsType,
       segmentationLayerCallbacks = [],
     } = this.props;
-    if (obsSegmentationsType === 'bitmask') {
-      const { loaders = {} } = obsSegmentations;
-      const use3d = (obsSegmentationsLayerDefs || []).some(i => i.use3d);
-      const use3dIndex = (obsSegmentationsLayerDefs || []).findIndex(i => i.use3d);
-      return (obsSegmentationsLayerDefs || [])
+    if (obsSegmentationsType === 'bitmask' && Array.isArray(obsSegmentationsLayerDefs)) {
+      const { loaders = [] } = obsSegmentations;
+      const use3d = obsSegmentationsLayerDefs.some(i => i.use3d);
+      const use3dIndex = obsSegmentationsLayerDefs.findIndex(i => i.use3d);
+      return obsSegmentationsLayerDefs
         .filter(layer => (use3d ? layer.use3d === use3d : true))
         .map((layer, i) => this.createRasterLayer(
           { ...layer, callback: segmentationLayerCallbacks[use3d ? use3dIndex : i] },
@@ -546,7 +548,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } = this.props;
     if (obsSegmentationsLayerDef && obsSegmentationsIndex && obsSegmentations && obsSegmentationsType === 'polygon') {
       this.obsSegmentationsPolygonLayer = this.createCellsLayer(obsSegmentationsLayerDef);
-    } else if (obsSegmentationsLayerDef && obsSegmentationsIndex && obsSegmentations && obsSegmentationsType === 'bitmask') {
+    } else if (obsSegmentationsLayerDef && obsSegmentations && obsSegmentationsType === 'bitmask') {
       this.obsSegmentationsBitmaskLayers = this.createBitmaskLayers();
     } else {
       this.obsSegmentationsPolygonLayer = null;
@@ -628,8 +630,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   viewInfoDidUpdate() {
     const {
-      obsSegmentationsIndex,
-      obsSegmentationsType,
+      obsCentroidsIndex,
       obsCentroids,
       updateViewInfo,
       uuid,
@@ -640,9 +641,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
         uuid,
         project: (obsId) => {
           try {
-            if (obsSegmentationsType === 'polygon' && obsCentroids) {
+            if (obsCentroidsIndex && obsCentroids) {
               const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
-              const obsIdx = obsSegmentationsIndex.indexOf(obsId);
+              const obsIdx = obsCentroidsIndex.indexOf(obsId);
               const obsCoord = getCellCoords(obsIdx);
               return viewport.project(obsCoord);
             }

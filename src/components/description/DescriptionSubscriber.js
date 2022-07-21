@@ -54,27 +54,28 @@ export default function DescriptionSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [description] = useDescription(loaders, dataset);
-  const [raster, imageLayerLoaders, imageLayerMeta] = useImageData(
+  const { image } = useImageData(
     loaders, dataset, setItemIsReady, () => {}, false, {}, {},
     {}, // TODO: which properties to match on
   );
+  const { loaders: imageLayerLoaders = [], meta: imageLayerMeta = [] } = image || {};
 
   const metadata = useMemo(() => {
     const result = new Map();
-    if (rasterLayers && rasterLayers.length > 0 && raster && imageLayerMeta && imageLayerLoaders) {
+    if (rasterLayers && rasterLayers.length > 0 && imageLayerMeta && imageLayerLoaders) {
       rasterLayers.forEach((layer) => {
         if (imageLayerMeta[layer.index]) {
           // Want to ensure that layer index is a string.
           const { format } = imageLayerLoaders[layer.index].metadata;
           result.set(`${layer.index}`, {
-            name: raster.meta[layer.index].name,
+            name: imageLayerMeta[layer.index].name,
             metadata: format && format(),
           });
         }
       });
     }
     return result;
-  }, [raster, rasterLayers, imageLayerMeta, imageLayerLoaders]);
+  }, [rasterLayers, imageLayerMeta, imageLayerLoaders]);
 
   return (
     <TitleInfo

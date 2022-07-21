@@ -314,13 +314,13 @@ function LayerControllerSubscriber(props) {
     { spatialSegmentationLayer: cellsLayer },
     {}, // TODO: use obsType once #1240 is merged.
   );
-  // eslint-disable-next-line no-unused-vars
-  const [raster, imageLayerLoaders, imageLayerMeta] = useImageData(
+  const { image } = useImageData(
     loaders, dataset, setItemIsReady, () => {}, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: rasterLayers },
     {}, // TODO: which values to match on
   );
+  const { loaders: imageLayerLoaders = [], meta: imageLayerMeta = [] } = image || {};
 
   const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.loaders : [];
   const segmentationLayerMeta = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.meta : [];

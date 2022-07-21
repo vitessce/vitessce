@@ -2,11 +2,8 @@ import { useState, useEffect } from 'react';
 import { useMatchingLoader, useSetWarning } from '../app/state/hooks';
 import {
   LoaderNotFoundError,
-  DatasetNotFoundError,
 } from '../loaders/errors/index';
 import {
-  DEFAULT_MOLECULES_LAYER,
-  DEFAULT_CELLS_LAYER,
   DEFAULT_NEIGHBORHOODS_LAYER,
 } from './spatial/constants';
 import { DataType } from '../app/constants';
@@ -113,31 +110,6 @@ export function useObsSegmentationsData(
   );
 }
 
-/**
- * Get data from a cells data type loader,
- * updating "ready" and URL state appropriately.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
- * @param {function} addUrl A function to call to update
- * the URL list.
- * @param {boolean} isRequired Should a warning be thrown if
- * loading is unsuccessful?
- * @param {object} coordinationSetters Object where
- * keys are coordination type names with the prefix 'set',
- * values are coordination setter functions.
- * @param {object} initialCoordinationValues Object where
- * keys are coordination type names with the prefix 'initialize',
- * values are initialization preferences as boolean values.
- * @returns {array} [cells, cellsCount] where
- * cells is an object and cellsCount is the
- * number of items in the cells object.
- */
 export function useObsSetsData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -160,75 +132,15 @@ export function useObsFeatureMatrixData(
   );
 }
 
-/**
- * Get data from a cells data type loader,
- * updating "ready" and URL state appropriately.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
- * @param {function} addUrl A function to call to update
- * the URL list.
- * @param {boolean} isRequired Should a warning be thrown if
- * loading is unsuccessful?
- * @param {object} coordinationSetters Object where
- * keys are coordination type names with the prefix 'set',
- * values are coordination setter functions.
- * @param {object} initialCoordinationValues Object where
- * keys are coordination type names with the prefix 'initialize',
- * values are initialization preferences as boolean values.
- * @returns {array} [cells, cellsCount] where
- * cells is an object and cellsCount is the
- * number of items in the cells object.
- */
-export function useCellsData(
+export function useImageData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, initialCoordinationValues,
+  coordinationSetters, initialCoordinationValues, matchOn,
 ) {
-  const [cells, setCells] = useState({});
-  const [cellsCount, setCellsCount] = useState(0);
-
-  const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, 'cells', {});
-
-  useEffect(() => {
-    if (loader) {
-      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data, url, coordinationValues } = payload;
-        setCells(data);
-        setCellsCount(Object.keys(data).length);
-        addUrl(url, 'Cells');
-        // This dataset has cells, so set up the
-        // spatial cells layer coordination value
-        // using the cell layer singleton.
-        const coordinationValuesOrDefault = {
-          spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
-          ...coordinationValues,
-        };
-        initCoordinationSpace(
-          coordinationValuesOrDefault,
-          coordinationSetters, initialCoordinationValues,
-        );
-        setItemIsReady('cells');
-      });
-    } else {
-      setCells({});
-      setCellsCount(0);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'cells', null, null), setWarning);
-      } else {
-        setItemIsReady('cells');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loader]);
-
-  return [cells, cellsCount];
+  return useDataType(
+    DataType.IMAGE,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
 }
 
 /**
@@ -378,80 +290,6 @@ export function useObsFeatureMatrixIndices(
   return data;
 }
 
-/**
- * Get data from a molecules data type loader,
- * updating "ready" and URL state appropriately.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
- * @param {function} addUrl A function to call to update
- * the URL list.
- * @param {boolean} isRequired Should a warning be thrown if
- * loading is unsuccessful?
- * @param {object} coordinationSetters Object where
- * keys are coordination type names with the prefix 'set',
- * values are coordination setter functions.
- * @param {object} initialCoordinationValues Object where
- * keys are coordination type names with the prefix 'initialize',
- * values are initialization preferences as boolean values.
- * @returns {array} [molecules, moleculesCount, locationsCount] where
- * molecules is an object,
- * moleculesCount is the number of unique molecule types, and
- * locationsCount is the number of molecules.
- */
-export function useMoleculesData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, initialCoordinationValues,
-) {
-  const [molecules, setMolecules] = useState();
-  const [moleculesCount, setMoleculesCount] = useState(0);
-  const [locationsCount, setLocationsCount] = useState(0);
-
-  const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, 'molecules', {});
-
-  useEffect(() => {
-    if (loader) {
-      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data, url, coordinationValues } = payload;
-        setMolecules(data);
-        setMoleculesCount(Object.keys(data).length);
-        setLocationsCount(Object.values(data)
-          .map(l => l.length)
-          .reduce((a, b) => a + b, 0));
-        addUrl(url, 'Molecules');
-        const coordinationValuesOrDefault = {
-          spatialPointLayer: DEFAULT_MOLECULES_LAYER,
-          ...coordinationValues,
-        };
-        initCoordinationSpace(
-          coordinationValuesOrDefault,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
-        setItemIsReady('molecules');
-      });
-    } else {
-      setMolecules({});
-      setMoleculesCount(0);
-      setLocationsCount(0);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'molecules', null, null), setWarning);
-      } else {
-        setItemIsReady('molecules');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loader]);
-
-  return [molecules, moleculesCount, locationsCount];
-}
 
 /**
  * Get data from a neighborhoods data type loader,
@@ -517,87 +355,6 @@ export function useNeighborhoodsData(
   }, [loader]);
 
   return [neighborhoods];
-}
-
-/**
- * Get data from a raster data type loader,
- * updating "ready" and URL state appropriately.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
- * @param {function} addUrl A function to call to update
- * the URL list.
- * @param {boolean} isRequired Should a warning be thrown if
- * loading is unsuccessful?
- * @param {object} coordinationSetters Object where
- * keys are coordination type names with the prefix 'set',
- * values are coordination setter functions.
- * @param {object} initialCoordinationValues Object where
- * keys are coordination type names with the prefix 'initialize',
- * values are initialization preferences as boolean values.
- * @returns {array} [raster, imageLayerLoaders, imageLayerMeta] where
- * raster is an object,
- * imageLayerLoaders is an object, and
- * imageLayerMeta is an object.
- */
-export function useImageData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, initialCoordinationValues,
-  matchOn,
-) {
-  const [raster, setRaster] = useState();
-  // Since we want the image layer / channel definitions to come from the
-  // coordination space stored as JSON in the view config,
-  // we need to set up a separate state variable here to store the
-  // non-JSON objects, such as layer loader instances.
-  const [imageLayerLoaders, setImageLayerLoaders] = useState([]);
-  const [imageLayerMeta, setImageLayerMeta] = useState([]);
-
-  const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, DataType.IMAGE, matchOn);
-
-  useEffect(() => {
-    if (loader) {
-      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data, url: urls, coordinationValues } = payload;
-        setRaster(data.image);
-        urls.forEach(([url, name]) => {
-          addUrl(url, name);
-        });
-        const { loaders: nextImageLoaders, meta: nextImageMeta } = data.image;
-        setImageLayerLoaders(nextImageLoaders);
-        setImageLayerMeta(nextImageMeta);
-        initCoordinationSpace(
-          coordinationValues,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
-        setItemIsReady(DataType.IMAGE);
-      });
-    } else {
-      // There was no raster loader for this dataset,
-      // and raster should be optional.
-      setImageLayerLoaders([]);
-      setImageLayerMeta([]);
-      if (isRequired) {
-        if (dataset) {
-          warn(new LoaderNotFoundError(dataset, DataType.IMAGE, null, null), setWarning);
-        } else {
-          warn(new DatasetNotFoundError(dataset), setWarning);
-        }
-      } else {
-        setItemIsReady(DataType.IMAGE);
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loader]);
-  return [raster, imageLayerLoaders, imageLayerMeta];
 }
 
 /**

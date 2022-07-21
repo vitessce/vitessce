@@ -31,7 +31,11 @@ export default class RasterJsonAsObsSegmentationsLoader extends RasterLoader {
       {
         // Filter coordinationValues, keeping only bitmask layers.
         spatialSegmentationLayer: coordinationValues
-          .spatialImageLayer.filter(l => l.type === 'bitmask'),
+          .spatialImageLayer
+          .filter(l => l.type === 'bitmask')
+          // Re-index since we removed the bitmask layers,
+          // so the indices may have gaps.
+          .map((l, index) => ({ ...l, index })),
       },
     );
   }

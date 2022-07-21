@@ -89,7 +89,13 @@ export function useDataType(
         if (!payload) return;
         const { data: payloadData, url, coordinationValues } = payload;
         setData(payloadData);
-        addUrl(url, dataType);
+        if (Array.isArray(url)) {
+          url.forEach(([val, name]) => {
+            addUrl(val, name);
+          });
+        } else if (url) {
+          addUrl(url, dataType);
+        }
         initCoordinationSpace(
           coordinationValues,
           coordinationSetters,

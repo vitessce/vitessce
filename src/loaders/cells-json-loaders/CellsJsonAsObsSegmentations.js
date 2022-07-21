@@ -1,19 +1,9 @@
-import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
-import centroid from '@turf/centroid';
-
 import cellsSchema from '../../schemas/cells.schema.json';
 import JsonLoader from '../JsonLoader';
 import { AbstractLoaderError } from '../errors';
 import LoaderResult from '../LoaderResult';
 import { square } from '../../components/spatial/utils';
 import { DEFAULT_CELLS_LAYER } from '../../components/spatial/constants';
-
-function polyToCentroid(poly) {
-  const points = turfFeatureCollection(
-    poly.map(v => turfPoint(v)),
-  );
-  return centroid(points).geometry.coordinates;
-}
 
 export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -44,20 +34,6 @@ export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
     } else {
       cellPolygons = cellObjs.map(cellObj => cellObj.poly);
     }
-    let obsLocationsX;
-    let obsLocationsY;
-    if (Array.isArray(cellObjs[0].xy)) {
-      obsLocationsX = cellObjs.map(cellObj => cellObj.xy[0]);
-      obsLocationsY = cellObjs.map(cellObj => cellObj.xy[1]);
-    } else {
-      const cellCentroids = cellPolygons.map(p => polyToCentroid(p));
-      obsLocationsX = cellCentroids.map(v => v[0]);
-      obsLocationsY = cellCentroids.map(v => v[1]);
-    }
-    const obsCentroids = {
-      data: [obsLocationsX, obsLocationsY],
-      shape: [2, obsLocationsX.length],
-    };
     const obsSegmentations = {
       data: cellPolygons,
     };
@@ -69,7 +45,6 @@ export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
       obsIndex,
       obsSegmentationsType: 'polygon',
       obsSegmentations,
-      obsCentroids,
     }, url, coordinationValues));
   }
 }

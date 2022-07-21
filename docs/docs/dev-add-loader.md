@@ -31,7 +31,7 @@ Depending on the **data type** of the **file type**, the `data` parameter of the
 | `obsEmbedding` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsEmbedding`: `ZarrArray<number[]>` <br/> } |
 | `obsLabels` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsLabels`: `string[]`  <br/> } |
 | `obsLocations` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsLocations`: `ZarrArray<number[]>` <br/> } |
-| `obsSegmentations` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsSegmentations`: `ZarrArray<number[]>`, <br/> &nbsp;&nbsp; `obsSegmentationsType`: `string`, <br/> &nbsp;&nbsp; `obsCentroids`: `ZarrArray<number[]>` <br/> } |
+| `obsSegmentations` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsSegmentations`: `ZarrArray<number[]>`, <br/> &nbsp;&nbsp; `obsSegmentationsType`: `string` <br/> } |
 | `obsSets` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsSets`: `object` <br/> } |
 | `obsFeatureMatrix` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `featureIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsFeatureMatrix`: `ZarrArray<number[]>` <br/> } |
 | `image` | { <br/> &nbsp;&nbsp; `image`: `object` <br/> } |

@@ -461,7 +461,7 @@ export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor, t
 }
 
 export function treeToCellPolygonsBySetNames(
-  currTree, cells, mapping, selectedNamePaths, cellSetColor, theme,
+  currTree, obsIndex, obsEmbedding, selectedNamePaths, cellSetColor, theme,
 ) {
   const cellSetPolygons = [];
   selectedNamePaths.forEach((setNamePath) => {
@@ -473,10 +473,13 @@ export function treeToCellPolygonsBySetNames(
         || getDefaultColor(theme)
       );
       const cellPositions = nodeSet
-        .map(([cellId]) => ([
-          cells[cellId]?.mappings[mapping][0],
-          -cells[cellId]?.mappings[mapping][1],
-        ]))
+        .map(([cellId]) => {
+          const cellIdx = obsIndex.indexOf(cellId);
+          return [
+            obsEmbedding.data[0][cellIdx],
+            -obsEmbedding.data[1][cellIdx],
+          ];
+        })
         .filter(cell => cell.every(i => typeof i === 'number'));
 
       if (cellPositions.length > 2) {
@@ -635,16 +638,16 @@ export function initializeCellSetColor(cellSets, cellSetColor) {
 
 export function getCellSetPolygons(params) {
   const {
-    cells,
-    mapping,
+    obsIndex,
+    obsEmbedding,
     cellSets,
     cellSetSelection,
     cellSetColor,
     theme,
   } = params;
-  if (cellSetSelection && cellSetSelection.length > 0 && cellSets && cells) {
+  if (cellSetSelection && cellSetSelection.length > 0 && cellSets && obsIndex && obsEmbedding) {
     return treeToCellPolygonsBySetNames(
-      cellSets, cells, mapping, cellSetSelection, cellSetColor, theme,
+      cellSets, obsIndex, obsEmbedding, cellSetSelection, cellSetColor, theme,
     );
   }
   return [];
