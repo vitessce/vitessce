@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import TextField from '@material-ui/core/TextField';
 import { Component } from '../../app/constants';
 import ScatterplotSubscriber, {
   SCATTERPLOT_DATA_TYPES,
@@ -16,10 +15,8 @@ import {
   useCellsData,
   useExpressionMatrixData,
 } from '../data-hooks';
-import OptionSelect from '../shared-plot-options/OptionSelect';
-import { useStyles } from '../shared-plot-options/styles';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-
+import GatingScatterplotOptions from './GatingScatterplotOptions';
 
 /**
    * A subscriber component for the gating scatterplot.
@@ -75,107 +72,9 @@ export default function GatingSubscriber(props) {
     { name: 'ArcSinh', value: 'arcsinh' }];
   const geneSelectOptions = expressionMatrix && expressionMatrix.cols ? expressionMatrix.cols : [];
 
-  // Handlers for custom option field changes.
-  const handleGeneSelectChange = (event) => {
-    const { options } = event.target;
-    const newValues = [];
-    for (let i = 0, l = options.length; i < l; i += 1) {
-      if (options[i].selected) {
-        newValues.push(options[i].value);
-      }
-    }
-
-    if (newValues.length === 1
-      && gatingFeatureSelectionX
-      && !gatingFeatureSelectionY
-      && newValues[0] !== gatingFeatureSelectionX) {
-      setGatingFeatureSelectionY(newValues[0]);
-    } else if (newValues.length <= 2) {
-      setGatingFeatureSelectionX(newValues[0]);
-      setGatingFeatureSelectionY(newValues[1]);
-    }
-  };
-
-  const handleTransformChange = (event) => {
-    setGatingFeatureValueTransform(event.target.value);
-  };
-
-  // Feels a little hacky, but I think this is the best way to handle
-  // the limitations of the v4 material-ui number input.
-  const handleTransformCoefficientChange = (event) => {
-    const { value } = event.target;
-    if (!value) {
-      setGatingFeatureValueTransformCoefficient(value);
-    } else {
-      const newCoefficient = Number(value);
-      if (!Number.isNaN(newCoefficient) && newCoefficient >= 0) {
-        setGatingFeatureValueTransformCoefficient(value);
-      }
-    }
-  };
 
   // eslint-disable-next-line no-console
   console.log([gatingFeatureSelectionX, gatingFeatureSelectionY].filter(v => v));
-
-  // Custom options for the scatterplot settings.
-  const classes = useStyles();
-  const customOptions = [
-    {
-      label: 'Genes',
-      input: (
-        <OptionSelect
-          key="gating-gene-select"
-          multiple
-          className={classes.select}
-          value={[gatingFeatureSelectionX, gatingFeatureSelectionY].filter(v => v)}
-          onChange={handleGeneSelectChange}
-          inputProps={{
-            id: 'scatterplot-gene-select',
-          }}
-        >
-          {geneSelectOptions.map(name => (
-            <option key={name} value={name}>
-              {name}
-            </option>
-          ))}
-        </OptionSelect>
-      ),
-    },
-    {
-      label: 'Transform',
-      input: (
-        <OptionSelect
-          key="gating-transform-select"
-          className={classes.select}
-          value={gatingFeatureValueTransform || ''}
-          onChange={handleTransformChange}
-          inputProps={{
-            id: 'scatterplot-transform-select',
-          }}
-        >
-          {transformOptions.map(opt => (
-            <option key={opt.name} value={opt.value}>
-              {opt.name}
-            </option>
-          ))}
-        </OptionSelect>
-      ),
-    },
-    {
-      label: 'Transform Coefficient',
-      input: (
-        <TextField
-          label="Number"
-          type="number"
-          onChange={handleTransformCoefficientChange}
-          value={gatingFeatureValueTransformCoefficient}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-      ),
-    },
-  ];
 
   const mapping = `MAPPING_${gatingFeatureSelectionX}_${gatingFeatureSelectionY})`;
 
@@ -260,6 +159,21 @@ export default function GatingSubscriber(props) {
 
   let polygonCacheId = '';
   if (gatingFeatureValueTransform) polygonCacheId = `${gatingFeatureValueTransform}_${gatingFeatureValueTransformCoefficient}`;
+
+  const customOptions = (
+    <GatingScatterplotOptions
+      gatingFeatureSelectionX={gatingFeatureSelectionX}
+      setGatingFeatureSelectionX={setGatingFeatureSelectionX}
+      gatingFeatureSelectionY={gatingFeatureSelectionY}
+      setGatingFeatureSelectionY={setGatingFeatureSelectionY}
+      gatingFeatureValueTransform={gatingFeatureValueTransform}
+      setGatingFeatureValueTransform={setGatingFeatureValueTransform}
+      gatingFeatureValueTransformCoefficient={gatingFeatureValueTransformCoefficient}
+      setGatingFeatureValueTransformCoefficient={setGatingFeatureValueTransformCoefficient}
+      geneSelectOptions={geneSelectOptions}
+      transformOptions={transformOptions}
+    />
+  );
 
   return (
     <ScatterplotSubscriber

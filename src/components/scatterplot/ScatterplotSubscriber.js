@@ -317,7 +317,6 @@ export default function ScatterplotSubscriber(props) {
       isReady={isReady}
       options={(
         <ScatterplotOptions
-          customOptions={customOptions}
           observationsLabel={observationsLabel}
           cellRadius={cellRadiusFixed}
           setCellRadius={setCellRadiusFixed}
@@ -339,7 +338,9 @@ export default function ScatterplotSubscriber(props) {
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
-        />
+        >
+          {customOptions}
+        </ScatterplotOptions>
         )}
     >
       {emptyMessage}

@@ -8,9 +8,8 @@ import {
 } from '../../app/state/hooks';
 import { useReady, useUrls } from '../hooks';
 import { useCellsData } from '../data-hooks';
-import OptionSelect from '../shared-plot-options/OptionSelect';
-import { useStyles } from '../shared-plot-options/styles';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import EmbeddingScatterplotOptions from './EmbeddingScatterplotOptions';
 
 /**
    * A subscriber component for the cell mapping scatterplot.
@@ -49,42 +48,21 @@ export default function EmbeddingScatterplotSubscriber(props) {
 
   const [selectedMapping, setSelectedMapping] = React.useState('');
 
-  const handleSelectedMappingChange = (event) => {
-    setSelectedMapping(event.target.value);
-  };
 
-  // Custom options for the scatterplot settings.
-  const classes = useStyles();
-  const customOptions = [];
-
-  // If no mapping is set, allow the user to pick which mapping is displayed
+  let optionMappings = {};
   const cellIds = Object.keys(cells);
   if (!mapping && cellIds.length !== 0) {
-    const { mappings } = cells[cellIds[0]];
-    const mappingSelectOptions = ['', ...Object.keys(mappings)];
-    customOptions.push(
-      {
-        label: 'Mapping',
-        input: (
-          <OptionSelect
-            key="scatterplot-mapping-select"
-            className={classes.select}
-            value={selectedMapping}
-            onChange={handleSelectedMappingChange}
-            inputProps={{
-              id: 'scatterplot-mapping-select',
-            }}
-          >
-            {mappingSelectOptions.map(name => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </OptionSelect>
-        ),
-      },
-    );
+    optionMappings = cells[cellIds[0]].mappings;
   }
+
+  const customOptions = (
+    <EmbeddingScatterplotOptions
+      mappingSelectEnabled={!mapping}
+      mappings={optionMappings}
+      selectedMapping={selectedMapping}
+      setSelectedMapping={setSelectedMapping}
+    />
+  );
 
   const plotMapping = mapping || selectedMapping;
   // Set cells to empty if no mapping is provided so that nothing is plotted.
