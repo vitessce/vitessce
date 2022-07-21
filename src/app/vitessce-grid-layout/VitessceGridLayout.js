@@ -17,7 +17,7 @@ export default function VitessceGridLayout(props) {
   const {
     layout,
     getComponent, padding, margin, draggableHandle,
-    reactGridLayoutProps, rowHeight, theme, height,
+    onResize, onResizeStop, rowHeight, theme, height,
     onRemoveComponent, onLayoutChange: onLayoutChangeProp,
     isBounded,
   } = props;
@@ -141,7 +141,8 @@ export default function VitessceGridLayout(props) {
         isBounded={isBounded}
         onResizeStart={saveCurrentLayouts}
         onDragStart={saveCurrentLayouts}
-        {... reactGridLayoutProps}
+        onResize={onResize}
+        onResizeStop={onResizeStop}
       >
         {layoutChildren}
       </ResponsiveHeightGridLayout>

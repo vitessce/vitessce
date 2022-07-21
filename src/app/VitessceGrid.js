@@ -92,10 +92,8 @@ export default function VitessceGrid(props) {
           onRemoveComponent={removeComponent}
           onLayoutChange={changeLayoutPostMount}
           isBounded={isBounded}
-          reactGridLayoutProps={{
-            onResize,
-            onResizeStop: onResize,
-          }}
+          onResize={onResize}
+          onResizeStop={onResize}
         />
       )}
     </div>
