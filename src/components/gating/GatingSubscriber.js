@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import TextField from '@material-ui/core/TextField';
-import BaseScatterplotSubscriber, {
-  BASE_SCATTERPLOT_DATA_TYPES,
-} from '../base-scatterplot/BaseScatterplotSubscriber';
+import { Component } from '../../app/constants';
+import ScatterplotSubscriber, {
+  SCATTERPLOT_DATA_TYPES,
+} from '../scatterplot/ScatterplotSubscriber';
 import { capitalize } from '../../utils';
 import {
   useLoaders,
@@ -49,7 +50,7 @@ export default function GatingSubscriber(props) {
   const [urls, addUrl, resetUrls] = useUrls();
   const loaders = useLoaders();
   const [isReady, setItemIsReady, setItemIsNotReady, resetReadyItems] = useReady(
-    BASE_SCATTERPLOT_DATA_TYPES,
+    SCATTERPLOT_DATA_TYPES,
   );
   const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
   const [expressionMatrix] = useExpressionMatrixData(
@@ -239,7 +240,7 @@ export default function GatingSubscriber(props) {
   if (transformType !== 'None') polygonCacheId = `${transformType}_${transformCoefficient}`;
 
   return (
-    <BaseScatterplotSubscriber
+    <ScatterplotSubscriber
       {...props}
       loaders={loaders}
       cellsData={[cellsWithGenes, cellsCount]}

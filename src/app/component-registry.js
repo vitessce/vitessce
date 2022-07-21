@@ -5,7 +5,7 @@ import DescriptionSubscriber from '../components/description/DescriptionSubscrib
 import StatusSubscriber from '../components/status/StatusSubscriber';
 import GenesSubscriber from '../components/genes/GenesSubscriber';
 import CellSetsManagerSubscriber from '../components/sets/CellSetsManagerSubscriber';
-import ScatterplotSubscriber from '../components/scatterplot/ScatterplotSubscriber';
+import EmbeddingScatterplotSubscriber from '../components/embedding-scatterplot/EmbeddingScatterplotSubscriber';
 import GatingSubscriber from '../components/gating/GatingSubscriber';
 import SpatialSubscriber from '../components/spatial/SpatialSubscriber';
 import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
@@ -21,7 +21,7 @@ const registry = {
   [Component.STATUS]: StatusSubscriber,
   [Component.GENES]: GenesSubscriber,
   [Component.CELL_SETS]: CellSetsManagerSubscriber,
-  [Component.SCATTERPLOT]: ScatterplotSubscriber,
+  [Component.SCATTERPLOT]: EmbeddingScatterplotSubscriber,
   [Component.GATING]: GatingSubscriber,
   [Component.SPATIAL]: SpatialSubscriber,
   [Component.HEATMAP]: HeatmapSubscriber,
