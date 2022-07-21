@@ -156,6 +156,15 @@ export default function HeatmapSubscriber(props) {
     return null;
   }, [variablesLabel]);
 
+  const setTrackHighlight = useCallback(() => {
+    // No-op, since the default handler
+    // logs in the console on every hover event.
+  }, []);
+
+  const cellColorLabels = useMemo(() => ([
+    `${capitalize(observationsLabel)} Set`,
+  ]), [observationsLabel]);
+
   const cellsCount = expressionMatrix && expressionMatrix.rows
     ? expressionMatrix.rows.length : 0;
   const genesCount = expressionMatrix && expressionMatrix.cols
@@ -201,12 +210,17 @@ export default function HeatmapSubscriber(props) {
         setIsRendering={setIsRendering}
         setCellHighlight={setCellHighlight}
         setGeneHighlight={setGeneHighlight}
+        setTrackHighlight={setTrackHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
         observationsTitle={observationsTitle}
         variablesTitle={variablesTitle}
+        variablesDashes={false}
+        observationsDashes={false}
+        cellColorLabels={cellColorLabels}
+        useDevicePixels
       />
       {!disableTooltip && (
       <HeatmapTooltipSubscriber
