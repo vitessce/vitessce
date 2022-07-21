@@ -41,7 +41,7 @@ export default function GatingSubscriber(props) {
 
   // Get "props" from the coordination space.
   const [{ dataset }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES.scatterplot,
+    COMPONENT_COORDINATION_TYPES[Component.GATING],
     coordinationScopes,
   );
 
