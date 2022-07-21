@@ -12,6 +12,7 @@
   - `featureValueType`
 - Add more usage examples to the `about` documentation page.
 - Added `npm run start:nolint` script to disable linting for quickly prototyping code.
+- Added support for multiple `cellColor` tracks in the Heatmap component.
 - Added new file type and data type constants.
 - Added support for `datatype: 'obs'` in `obsSets.schema.json`
 - Added loaders for `obsSets.json` and `obsSets.cell-sets.json`.

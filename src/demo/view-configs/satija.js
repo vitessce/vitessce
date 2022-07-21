@@ -101,6 +101,9 @@ export const satija2020 = {
       coordinationScopes: {
         geneExpressionColormapRange: 'A',
       },
+      props: {
+        transpose: false,
+      },
     },
     {
       component: 'description',
