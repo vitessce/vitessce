@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useCallback } from 'react';
 import TitleInfo from '../TitleInfo';
-import { capitalize } from '../../utils';
 import {
-  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
+  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter, useGetObsInfo,
 } from '../hooks';
 import { setCellSelection, mergeCellSets, canLoadResolution } from '../utils';
 import {
@@ -14,6 +13,7 @@ import {
   useObsFeatureMatrixIndices,
   useNeighborhoodsData,
   useObsLabelsData,
+  useMultiObsLabels,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Spatial from './Spatial';
@@ -152,6 +152,10 @@ export default function SpatialSubscriber(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
+  const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
+    coordinationScopes, obsType, loaders, dataset, setItemIsReady, addUrl,
+  );
+
   const hasExpressionData = useHasLoader(
     loaders, dataset, DataType.OBS_FEATURE_MATRIX,
     { obsType, featureType, featureValueType },
@@ -222,7 +226,7 @@ export default function SpatialSubscriber(props) {
     { spatialImageLayer: imageLayers },
     {}, // TODO: which properties to match on
   );
-  const { loaders: imageLayerLoaders = [], meta: imageLayerMeta = [] } = image || {};
+  const { loaders: imageLayerLoaders = [] } = image || {};
   const [neighborhoods] = useNeighborhoodsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
@@ -291,8 +295,7 @@ export default function SpatialSubscriber(props) {
   // Cell ids in `attrs.rows` do not necessaryily correspond to indices in that array, though,
   // so we create a "shifted" array where this is the case.
   const shiftedExpressionDataForBitmask = useMemo(() => {
-    const hasBitmask = imageLayerMeta.some(l => l?.metadata?.isBitmask);
-    if (matrixObsIndex && expressionData && hasBitmask) {
+    if (matrixObsIndex && expressionData && obsSegmentationsType === 'bitmask') {
       const maxId = matrixObsIndex.reduce((max, curr) => Math.max(max, Number(curr)));
       const result = new Uint8Array(maxId + 1);
       // eslint-disable-next-line no-plusplus
@@ -302,19 +305,13 @@ export default function SpatialSubscriber(props) {
       }
       return [result];
     } return [new Uint8Array()];
-  }, [matrixObsIndex, expressionData, imageLayerMeta]);
+  }, [matrixObsIndex, expressionData, obsSegmentationsType]);
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
-  const getCellInfo = (obsId) => {
-    if (obsId) {
-      return {
-        [`${capitalize(observationsLabel)} ID`]: obsId,
-        // ...cell.factors, // TODO: get factors from obsLabels
-      };
-    }
-    return null;
-  };
+  const getCellInfo = useGetObsInfo(
+    observationsLabel, obsCentroidsIndex, obsLabelsTypes, obsLabelsData,
+  );
 
   const setViewState = ({
     zoom: newZoom,

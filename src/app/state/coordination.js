@@ -125,6 +125,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   [Component.SPATIAL]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
+    CoordinationType.OBS_LABELS_TYPE,
     CoordinationType.FEATURE_TYPE,
     CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.SPATIAL_ZOOM,
@@ -158,6 +159,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   [Component.HEATMAP]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
+    CoordinationType.OBS_LABELS_TYPE,
     CoordinationType.FEATURE_TYPE,
     CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.HEATMAP_ZOOM_X,

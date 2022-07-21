@@ -298,6 +298,7 @@ export const codeluppi2018 = {
         spatialZoom: 'A',
         spatialTargetX: 'A',
         spatialTargetY: 'A',
+        obsLabelsType: ['A', 'B'],
       },
       x: 2,
       y: 0,
@@ -320,6 +321,9 @@ export const codeluppi2018 = {
     },
     {
       component: 'heatmap',
+      coordinationScopes: {
+        obsLabelsType: ['A', 'B'],
+      },
       props: {
         transpose: true,
       },
@@ -352,6 +356,7 @@ export const codeluppi2018 = {
       coordinationScopes: {
         embeddingType: 'TSNE',
         embeddingZoom: 'TSNE',
+        obsLabelsType: ['A', 'B'],
       },
       x: 6,
       y: 2,

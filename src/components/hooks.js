@@ -4,6 +4,7 @@ import {
 import debounce from 'lodash/debounce';
 import { useGridResize, useEmitGridResize } from '../app/state/hooks';
 import { VITESSCE_CONTAINER } from './classNames';
+import { capitalize, fromEntries } from '../utils';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -255,4 +256,21 @@ export function useExpressionValueGetter({ instanceObsIndex, matrixObsIndex, exp
     return 0;
   }, [matrixIndexMap, expressionData]);
   return getExpressionValue;
+}
+
+export function useGetObsInfo(obsType, obsIndex, obsLabelsTypes, obsLabelsData) {
+  return useCallback((obsId) => {
+    if (obsId) {
+      return {
+        [`${capitalize(obsType)} ID`]: obsId,
+        ...fromEntries(Object.entries(obsLabelsTypes).map(([scopeKey, obsLabelsType]) => ([
+          obsLabelsType,
+          obsLabelsData?.[scopeKey]?.obsLabels?.[
+            obsLabelsData?.[scopeKey]?.obsIndex?.indexOf(obsId)
+          ],
+        ]))),
+      };
+    }
+    return null;
+  }, [obsType, obsLabelsTypes, obsLabelsData]);
 }

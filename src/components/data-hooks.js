@@ -1,17 +1,19 @@
-import { useState, useEffect } from 'react';
-import { useMatchingLoader, useSetWarning } from '../app/state/hooks';
+import { useState, useEffect, useMemo } from 'react';
+import { useMatchingLoader, useMultiCoordinationValues, useSetWarning } from '../app/state/hooks';
 import {
   LoaderNotFoundError,
 } from '../loaders/errors/index';
 import {
   DEFAULT_NEIGHBORHOODS_LAYER,
 } from './spatial/constants';
-import { DataType } from '../app/constants';
+import { CoordinationType, DataType } from '../app/constants';
 import {
   warn,
   initCoordinationSpace,
   useDataType,
+  useDataTypeMulti,
 } from './data-hook-utils';
+import { fromEntries } from '../utils';
 
 /**
  * Get the dataset description string.
@@ -417,4 +419,25 @@ export function useGenomicProfilesData(
   }, [loader]);
 
   return [genomicProfilesAttrs];
+}
+
+export function useMultiObsLabels(
+  coordinationScopes, obsType, loaders, dataset, setItemIsReady, addUrl,
+) {
+  const obsLabelsTypes = useMultiCoordinationValues(
+    CoordinationType.OBS_LABELS_TYPE,
+    coordinationScopes,
+  );
+  const obsLabelsMatchOnObj = useMemo(() => fromEntries(
+    Object.entries(obsLabelsTypes).map(([scope, obsLabelsType]) => ([
+      scope,
+      { obsLabelsType, obsType },
+    ])),
+  ), [obsLabelsTypes, obsType]);
+  const obsLabelsData = useDataTypeMulti(
+    DataType.OBS_LABELS, loaders, dataset,
+    setItemIsReady, addUrl, false, {}, {},
+    obsLabelsMatchOnObj,
+  );
+  return [obsLabelsTypes, obsLabelsData];
 }

@@ -3,11 +3,12 @@ import React, {
 } from 'react';
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
+import { useDeckCanvasSize, useGetObsInfo, useReady, useUrls } from '../hooks';
 import { mergeCellSets } from '../utils';
 import {
   useObsSetsData,
   useObsFeatureMatrixData,
+  useMultiObsLabels,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import {
@@ -114,6 +115,10 @@ export default function HeatmapSubscriber(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
+  const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
+    coordinationScopes, obsType, loaders, dataset, setItemIsReady, addUrl,
+  );
+
   // Get data from loaders using the data hooks.
   const { obsIndex, featureIndex, obsFeatureMatrix } = useObsFeatureMatrixData(
     loaders, dataset, setItemIsReady, addUrl, true, {}, {},
@@ -141,15 +146,9 @@ export default function HeatmapSubscriber(props) {
   }), [mergedCellSets, geneSelection, theme,
     cellSetColor, cellSetSelection, obsIndex]);
 
-  const getCellInfo = useCallback((cellId) => {
-    if (cellId) {
-      return {
-        [`${capitalize(observationsLabel)} ID`]: cellId,
-        // ...(cellInfo ? cellInfo.factors : {}), // TODO: no longer use factors
-      };
-    }
-    return null;
-  }, [observationsLabel]);
+  const getCellInfo = useGetObsInfo(
+    observationsLabel, obsIndex, obsLabelsTypes, obsLabelsData,
+  );
 
   const getGeneInfo = useCallback((geneId) => {
     if (geneId) {

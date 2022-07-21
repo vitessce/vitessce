@@ -4,9 +4,9 @@ import React, {
 import { extent } from 'd3-array';
 import isEqual from 'lodash/isEqual';
 import TitleInfo from '../TitleInfo';
-import { pluralize, capitalize, fromEntries } from '../../utils';
+import { pluralize } from '../../utils';
 import {
-  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
+  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter, useGetObsInfo,
 } from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
 import { getCellSetPolygons } from '../sets/cell-set-utils';
@@ -15,13 +15,13 @@ import {
   useObsSetsData,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
+  useMultiObsLabels,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
 import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import ScatterplotOptions from './ScatterplotOptions';
 import {
-  useMultiCoordinationValues,
   useCoordination,
   useLoaders,
   useSetComponentHover,
@@ -32,8 +32,7 @@ import {
   getPointOpacity,
 } from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-import { DataType, CoordinationType } from '../../app/constants';
-import { useDataTypeMulti } from '../data-hook-utils';
+import { DataType } from '../../app/constants';
 
 const SCATTERPLOT_DATA_TYPES = [
   DataType.OBS_EMBEDDING,
@@ -122,17 +121,6 @@ export default function ScatterplotSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
-  const obsLabelsTypes = useMultiCoordinationValues(
-    CoordinationType.OBS_LABELS_TYPE,
-    coordinationScopes,
-  );
-  const obsLabelsMatchOnObj = useMemo(() => fromEntries(
-    Object.entries(obsLabelsTypes).map(([scope, obsLabelsType]) => ([
-      scope,
-      { obsLabelsType, obsType },
-    ])),
-  ), [obsLabelsTypes, obsType]);
-
   const [urls, addUrl, resetUrls] = useUrls();
   const [width, height, deckRef] = useDeckCanvasSize();
   const [
@@ -153,10 +141,8 @@ export default function ScatterplotSubscriber(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
-  const obsLabelsData = useDataTypeMulti(
-    DataType.OBS_LABELS, loaders, dataset,
-    setItemIsReady, addUrl, false, {}, {},
-    obsLabelsMatchOnObj,
+  const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
+    coordinationScopes, obsType, loaders, dataset, setItemIsReady, addUrl,
   );
 
   // Get data from loaders using the data hooks.
@@ -280,20 +266,9 @@ export default function ScatterplotSubscriber(props) {
   }, [xRange, yRange, xExtent, yExtent, numCells,
     width, height, zoom, averageFillDensity]);
 
-  const getCellInfo = useCallback((cellId) => {
-    if (cellId) {
-      const cellIdx = obsEmbeddingIndex.indexOf(cellId);
-      return {
-        [`${capitalize(observationsLabel)} ID`]: cellId,
-        // TODO: handle case when obsLabelsTypes is empty/null
-        ...fromEntries(Object.entries(obsLabelsTypes).map(([scopeKey, obsLabelsType]) => ([
-          obsLabelsType,
-          obsLabelsData?.[scopeKey]?.obsLabels?.[cellIdx],
-        ]))),
-      };
-    }
-    return null;
-  }, [obsEmbeddingIndex, observationsLabel, obsLabelsTypes, obsLabelsData]);
+  const getCellInfo = useGetObsInfo(
+    observationsLabel, obsEmbeddingIndex, obsLabelsTypes, obsLabelsData,
+  );
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
   const getCellIsSelected = useCallback((object, { index }) => (

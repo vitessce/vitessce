@@ -236,7 +236,8 @@ export function useMultiCoordinationValues(parameter, coordinationScopes) {
         return [scope, value];
       }
       return [scope, undefined];
-    }));
+      // eslint-disable-next-line no-unused-vars
+    }).filter(([k, v]) => v !== undefined));
   }, shallow);
 
   return vals;
