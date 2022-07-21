@@ -41,7 +41,19 @@ export default function GatingSubscriber(props) {
   } = props;
 
   // Get "props" from the coordination space.
-  const [{ dataset }] = useCoordination(
+  const [{
+    dataset,
+    gatingFeatureValueTransform,
+    gatingFeatureValueTransformCoefficient,
+    gatingFeatureSelectionX,
+    gatingFeatureSelectionY,
+  }, {
+    setGatingFeatureValueTransform,
+    setGatingFeatureValueTransformCoefficient,
+    setGatingFeatureSelectionX,
+    setGatingFeatureSelectionY,
+
+  }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[Component.GATING],
     coordinationScopes,
   );
@@ -57,12 +69,10 @@ export default function GatingSubscriber(props) {
     loaders, dataset, setItemIsReady, addUrl, true,
   );
 
-  // State for the custom setting options.
-  const [selectedGenes, setSelectedGenes] = React.useState([]);
-  const [transformType, setTransformType] = React.useState('');
-  const [transformCoefficient, setTransformCoefficient] = React.useState('');
-
-  const transformOptions = ['None', 'Log', 'ArcSinh'];
+  const transformOptions = [
+    { name: 'None', value: '' },
+    { name: 'Log', value: 'log1p' },
+    { name: 'ArcSinh', value: 'arcsinh' }];
   const geneSelectOptions = expressionMatrix && expressionMatrix.cols ? expressionMatrix.cols : [];
 
   // Handlers for custom option field changes.
@@ -74,14 +84,20 @@ export default function GatingSubscriber(props) {
         newValues.push(options[i].value);
       }
     }
-    if (newValues.length === 1 && selectedGenes.length === 1 && newValues[0] !== selectedGenes[0]) {
-      newValues.unshift(selectedGenes[0]);
+
+    if (newValues.length === 1
+      && gatingFeatureSelectionX
+      && !gatingFeatureSelectionY
+      && newValues[0] !== gatingFeatureSelectionX) {
+      setGatingFeatureSelectionY(newValues[0]);
+    } else if (newValues.length <= 2) {
+      setGatingFeatureSelectionX(newValues[0]);
+      setGatingFeatureSelectionY(newValues[1]);
     }
-    if (newValues.length <= 2) setSelectedGenes(newValues);
   };
 
-  const handleTransformTypeChange = (event) => {
-    setTransformType(event.target.value);
+  const handleTransformChange = (event) => {
+    setGatingFeatureValueTransform(event.target.value);
   };
 
   // Feels a little hacky, but I think this is the best way to handle
@@ -89,14 +105,17 @@ export default function GatingSubscriber(props) {
   const handleTransformCoefficientChange = (event) => {
     const { value } = event.target;
     if (!value) {
-      setTransformCoefficient(value);
+      setGatingFeatureValueTransformCoefficient(value);
     } else {
       const newCoefficient = Number(value);
       if (!Number.isNaN(newCoefficient) && newCoefficient >= 0) {
-        setTransformCoefficient(value);
+        setGatingFeatureValueTransformCoefficient(value);
       }
     }
   };
+
+  // eslint-disable-next-line no-console
+  console.log([gatingFeatureSelectionX, gatingFeatureSelectionY].filter(v => v));
 
   // Custom options for the scatterplot settings.
   const classes = useStyles();
@@ -108,7 +127,7 @@ export default function GatingSubscriber(props) {
           key="gating-gene-select"
           multiple
           className={classes.select}
-          value={selectedGenes}
+          value={[gatingFeatureSelectionX, gatingFeatureSelectionY].filter(v => v)}
           onChange={handleGeneSelectChange}
           inputProps={{
             id: 'scatterplot-gene-select',
@@ -128,15 +147,15 @@ export default function GatingSubscriber(props) {
         <OptionSelect
           key="gating-transform-select"
           className={classes.select}
-          value={transformType}
-          onChange={handleTransformTypeChange}
+          value={gatingFeatureValueTransform || ''}
+          onChange={handleTransformChange}
           inputProps={{
             id: 'scatterplot-transform-select',
           }}
         >
-          {transformOptions.map(name => (
-            <option key={name} value={name}>
-              {name}
+          {transformOptions.map(opt => (
+            <option key={opt.name} value={opt.value}>
+              {opt.name}
             </option>
           ))}
         </OptionSelect>
@@ -149,7 +168,7 @@ export default function GatingSubscriber(props) {
           label="Number"
           type="number"
           onChange={handleTransformCoefficientChange}
-          value={transformCoefficient}
+          value={gatingFeatureValueTransformCoefficient}
           InputLabelProps={{
             shrink: true,
           }}
@@ -158,38 +177,38 @@ export default function GatingSubscriber(props) {
     },
   ];
 
-  const mapping = `MAPPING_${selectedGenes[0]}_${selectedGenes[1]})`;
+  const mapping = `MAPPING_${gatingFeatureSelectionX}_${gatingFeatureSelectionY})`;
 
   const title = useMemo(
     () => {
-      if (selectedGenes.length < 2) {
+      if (!(gatingFeatureSelectionX && gatingFeatureSelectionY)) {
         return 'Gating';
       }
-      return `Gating (${selectedGenes[0]} vs ${selectedGenes[1]})`;
-    }, [selectedGenes],
+      return `Gating (${gatingFeatureSelectionX} vs ${gatingFeatureSelectionY})`;
+    }, [gatingFeatureSelectionX, gatingFeatureSelectionY],
   );
 
   // Generate a new cells object with a mapping added for the user selected genes.
   const cellsWithGenes = useMemo(
     () => {
-      if (selectedGenes.length < 2) {
+      if (!(gatingFeatureSelectionX && gatingFeatureSelectionY)) {
         return [];
       }
 
       // Get transform coefficient for log and arcsinh
       let coefficient = 1;
-      const parsedTransformCoefficient = Number(transformCoefficient);
+      const parsedTransformCoefficient = Number(gatingFeatureValueTransformCoefficient);
       if (!Number.isNaN(parsedTransformCoefficient) && parsedTransformCoefficient > 0) {
         coefficient = parsedTransformCoefficient;
       }
 
       // Set transform function
       let transformFunction;
-      switch (transformType) {
-        case 'Log':
-          transformFunction = v => Math.log10(1 + v * coefficient);
+      switch (gatingFeatureValueTransform) {
+        case 'log1p':
+          transformFunction = v => Math.log(1 + v * coefficient);
           break;
-        case 'ArcSinh':
+        case 'arcsinh':
           transformFunction = v => Math.asinh(v * coefficient);
           break;
         default:
@@ -198,8 +217,8 @@ export default function GatingSubscriber(props) {
 
       // Get the columns for the selected genes.
       const selectedGeneCols = [
-        expressionMatrix.cols.indexOf(selectedGenes[0]),
-        expressionMatrix.cols.indexOf(selectedGenes[1]),
+        expressionMatrix.cols.indexOf(gatingFeatureSelectionX),
+        expressionMatrix.cols.indexOf(gatingFeatureSelectionY),
       ];
 
       const updatedCells = {};
@@ -216,28 +235,31 @@ export default function GatingSubscriber(props) {
 
       return updatedCells;
     },
-    [selectedGenes, transformType, transformCoefficient, expressionMatrix, cells, mapping],
+    [gatingFeatureSelectionX, gatingFeatureSelectionY, gatingFeatureValueTransformCoefficient,
+      gatingFeatureValueTransform, expressionMatrix, cells, mapping],
   );
 
   // Puts the mapping values in the cell info tooltip.
   const getCellInfoOverride = (cellId) => {
     const cell = cells[cellId];
     let genePrefix = '';
-    if (transformType !== 'None') genePrefix = `${transformType} `;
+    const selectedTransformOption = transformOptions.filter(
+      o => o.value === gatingFeatureValueTransform,
+    );
+    if (selectedTransformOption) genePrefix = `${selectedTransformOption.name} `;
 
     const cellInfo = { [`${capitalize(observationsLabel)} ID`]: cellId };
-    if (selectedGenes && selectedGenes.length === 2) {
-      const [firstGene, secondGene] = selectedGenes;
+    if (gatingFeatureSelectionX && gatingFeatureSelectionY) {
       const [firstMapping, secondMapping] = cell.mappings[mapping];
-      cellInfo[genePrefix + firstGene] = firstMapping;
-      cellInfo[genePrefix + secondGene] = secondMapping;
+      cellInfo[genePrefix + gatingFeatureSelectionX] = firstMapping;
+      cellInfo[genePrefix + gatingFeatureSelectionY] = secondMapping;
     }
 
     return cellInfo;
   };
 
   let polygonCacheId = '';
-  if (transformType !== 'None') polygonCacheId = `${transformType}_${transformCoefficient}`;
+  if (gatingFeatureValueTransform) polygonCacheId = `${gatingFeatureValueTransform}_${gatingFeatureValueTransformCoefficient}`;
 
   return (
     <ScatterplotSubscriber
@@ -249,7 +271,7 @@ export default function GatingSubscriber(props) {
       mapping={mapping}
       title={title}
       customOptions={customOptions}
-      hideTools={selectedGenes.length < 2}
+      hideTools={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}
       cellsEmptyMessage="Select two genes in the settings."
       getCellInfoOverride={getCellInfoOverride}
       cellSetsPolygonCacheId={polygonCacheId}

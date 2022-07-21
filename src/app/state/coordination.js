@@ -58,6 +58,10 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.GENOMIC_TARGET_Y]: 1549999999.5,
   [CoordinationType.ADDITIONAL_OBS_SETS]: null,
   [CoordinationType.MOLECULE_HIGHLIGHT]: null,
+  [CoordinationType.GATING_FEATURE_SELECTION_X]: null,
+  [CoordinationType.GATING_FEATURE_SELECTION_Y]: null,
+  [CoordinationType.GATING_FEATURE_VALUE_TRANSFORM]: '',
+  [CoordinationType.GATING_FEATURE_VALUE_TRANSFORM_COEFFICIENT]: 1,
 };
 
 // The following coordination types should be
@@ -150,6 +154,10 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
+    CoordinationType.GATING_FEATURE_VALUE_TRANSFORM,
+    CoordinationType.GATING_FEATURE_VALUE_TRANSFORM_COEFFICIENT,
+    CoordinationType.GATING_FEATURE_SELECTION_X,
+    CoordinationType.GATING_FEATURE_SELECTION_Y,
   ],
   [Component.SPATIAL]: [
     CoordinationType.DATASET,

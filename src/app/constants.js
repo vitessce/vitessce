@@ -108,4 +108,8 @@ export const CoordinationType = {
   ADDITIONAL_OBS_SETS: 'additionalObsSets',
   // TODO: use obsHighlight rather than moleculeHighlight.
   MOLECULE_HIGHLIGHT: 'moleculeHighlight',
+  GATING_FEATURE_SELECTION_X: 'gatingFeatureSelectionX',
+  GATING_FEATURE_SELECTION_Y: 'gatingFeatureSelectionY',
+  GATING_FEATURE_VALUE_TRANSFORM: 'gatingFeatureValueTransform',
+  GATING_FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'gatingFeatureValueTransformCoefficient',
 };
