@@ -12,12 +12,10 @@ export default class MoleculesJsonAsObsLabelsLoader extends JsonLoader {
     this.schema = moleculesSchema;
   }
 
-  async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
+  loadFromCache(data) {
+    if (this.cachedResult) {
+      return this.cachedResult;
     }
-    const { data, url } = payload;
     const obsIndex = range(sum(Object.values(data).map(v => v.length))).map(i => String(i));
     let obsLabels = [];
     Object.entries(data).forEach(([gene, locations]) => {
@@ -26,6 +24,17 @@ export default class MoleculesJsonAsObsLabelsLoader extends JsonLoader {
         ...range(locations.length).map(() => gene),
       ];
     });
-    return Promise.resolve(new LoaderResult({ obsIndex, obsLabels }, url));
+    this.cachedResult = { obsIndex, obsLabels };
+    return this.cachedResult;
+  }
+
+  async load() {
+    const payload = await super.load().catch(reason => Promise.resolve(reason));
+    if (payload instanceof AbstractLoaderError) {
+      return Promise.reject(payload);
+    }
+    const { data, url } = payload;
+    const result = this.loadFromCache(data);
+    return Promise.resolve(new LoaderResult(result, url));
   }
 }

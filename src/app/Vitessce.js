@@ -88,7 +88,7 @@ export default function Vitessce(props) {
       }, false];
     }
     return [upgradedConfig, false];
-  }, [config]);
+  }, [config, onConfigUpgrade]);
 
   // Emit the upgraded/initialized view config
   // to onConfigChange if necessary.

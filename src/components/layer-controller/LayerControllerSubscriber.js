@@ -1,4 +1,5 @@
 /* eslint-disable dot-notation */
+/* eslint-disable no-unused-vars */
 import React, {
   useEffect, useCallback, useRef, forwardRef,
 } from 'react';

@@ -10,12 +10,10 @@ export default class GenesJsonAsObsFeatureMatrixLoader extends JsonLoader {
     this.schema = genesSchema;
   }
 
-  async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
+  loadFromCache(data) {
+    if (this.cachedResult) {
+      return this.cachedResult;
     }
-    const { data, url } = payload;
     const cols = Object.keys(data);
     const rows = (cols.length > 0 ? Object.keys(data[cols[0]].cells) : []);
 
@@ -28,8 +26,19 @@ export default class GenesJsonAsObsFeatureMatrixLoader extends JsonLoader {
     const featureIndex = cols;
     const obsIndex = rows;
     const obsFeatureMatrix = { data: Uint8Array.from(normalizedFlatMatrix) };
+    this.cachedResult = { obsIndex, featureIndex, obsFeatureMatrix };
+    return this.cachedResult;
+  }
+
+  async load() {
+    const payload = await super.load().catch(reason => Promise.resolve(reason));
+    if (payload instanceof AbstractLoaderError) {
+      return Promise.reject(payload);
+    }
+    const { data, url } = payload;
+    const result = this.loadFromCache(data);
     return Promise.resolve(new LoaderResult(
-      { obsIndex, featureIndex, obsFeatureMatrix },
+      result,
       url,
     ));
   }

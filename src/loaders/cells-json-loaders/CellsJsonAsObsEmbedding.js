@@ -10,30 +10,44 @@ export default class CellsJsonAsObsEmbeddingLoader extends JsonLoader {
     this.schema = cellsSchema;
   }
 
-  async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
+  loadFromCache(data) {
+    if (this.cachedResult) {
+      return this.cachedResult;
     }
     const { embeddingType } = this.coordinationValues;
-    const { data, url } = payload;
     const cellObjs = Object.values(data);
     if (cellObjs.length > 0 && (
       !cellObjs[0].mappings
       || !Array.isArray(cellObjs[0].mappings[embeddingType])
     )) {
       // The cells file does not contain this embedding.
-      return Promise.resolve(new LoaderResult(null, url));
+      this.cachedResult = null;
+    } else {
+      const obsIndex = Object.keys(data);
+      const obsEmbeddingX = Float32Array.from(
+        cellObjs.map(cellObj => cellObj.mappings[embeddingType][0]),
+      );
+      const obsEmbeddingY = Float32Array.from(
+        cellObjs.map(cellObj => cellObj.mappings[embeddingType][1]),
+      );
+      const obsEmbedding = {
+        data: [obsEmbeddingX, obsEmbeddingY],
+        shape: [2, obsEmbeddingX.length],
+      };
+      this.cachedResult = { obsIndex, obsEmbedding };
     }
-    const obsIndex = Object.keys(data);
-    const obsEmbeddingX = cellObjs.map(cellObj => cellObj.mappings[embeddingType][0]);
-    const obsEmbeddingY = cellObjs.map(cellObj => cellObj.mappings[embeddingType][1]);
-    const obsEmbedding = {
-      data: [obsEmbeddingX, obsEmbeddingY],
-      shape: [2, obsEmbeddingX.length],
-    };
+    return this.cachedResult;
+  }
+
+  async load() {
+    const payload = await super.load().catch(reason => Promise.resolve(reason));
+    if (payload instanceof AbstractLoaderError) {
+      return Promise.reject(payload);
+    }
+    const { data, url } = payload;
+    const result = this.loadFromCache(data);
     return Promise.resolve(new LoaderResult(
-      { obsIndex, obsEmbedding },
+      result,
       url,
     ));
   }

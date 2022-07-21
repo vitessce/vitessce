@@ -1,15 +1,11 @@
-/* eslint-disable no-control-regex */
 import { InternMap } from 'internmap';
 import {
   treeInitialize,
   nodeAppendChild,
-  initializeCellSetColor,
 } from '../../components/sets/cell-set-utils';
 import {
   SETS_DATATYPE_OBS,
 } from '../../components/sets/constants';
-import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
-import LoaderResult from '../LoaderResult';
 
 export function dataToCellSetsTree(data, options) {
   const [cellNames, cellSets, cellSetScores] = data;
@@ -107,48 +103,4 @@ export function dataToCellSetsTree(data, options) {
     cellSetsTree.tree.push(levelZeroNode);
   });
   return cellSetsTree;
-}
-
-/**
- * Loader for converting zarr into the cell sets json schema.
- */
-export default class CellSetsZarrLoader extends AbstractTwoStepLoader {
-  loadCellSetIds() {
-    const { options } = this;
-    const cellSetZarrLocation = options.map(({ setName }) => setName);
-    return this.dataSource.loadObsColumns(cellSetZarrLocation);
-  }
-
-  loadCellSetScores() {
-    const { options } = this;
-    const cellSetScoreZarrLocation = options.map(option => option.scoreName || undefined);
-    return this.dataSource.loadObsColumns(cellSetScoreZarrLocation);
-  }
-
-  async load() {
-    if (!this.cellSetsTree) {
-      const { options } = this;
-      this.cellSetsTree = Promise.all([
-        this.dataSource.loadObsIndex(),
-        this.loadCellSetIds(),
-        this.loadCellSetScores(),
-      ]).then(data => [dataToCellSetsTree(data, options), data[0]]);
-    }
-    const [obsSets, obsIndex] = await this.cellSetsTree;
-    const coordinationValues = {};
-    const { tree } = obsSets;
-    const newAutoSetSelectionParentName = tree[0].name;
-    // Create a list of set paths to initally select.
-    const newAutoSetSelections = tree[0].children.map(node => [
-      newAutoSetSelectionParentName,
-      node.name,
-    ]);
-    // Create a list of cell set objects with color mappings.
-    const newAutoSetColors = initializeCellSetColor(obsSets, []);
-    coordinationValues.obsSetSelection = newAutoSetSelections;
-    coordinationValues.obsSetColor = newAutoSetColors;
-    return Promise.resolve(
-      new LoaderResult({ obsIndex, obsSets }, null, coordinationValues),
-    );
-  }
 }

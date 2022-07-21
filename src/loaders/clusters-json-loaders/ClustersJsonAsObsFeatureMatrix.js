@@ -12,12 +12,10 @@ export default class ClustersJsonAsObsFeatureMatrixLoader extends JsonLoader {
     this.schema = clustersSchema;
   }
 
-  async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
+  loadFromCache(data) {
+    if (this.cachedResult) {
+      return this.cachedResult;
     }
-    const { data, url } = payload;
     const { rows: featureIndex, cols: obsIndex, matrix } = data;
     const attrs = {
       rows: obsIndex,
@@ -39,8 +37,19 @@ export default class ClustersJsonAsObsFeatureMatrixLoader extends JsonLoader {
     // Need to wrap the NestedArray to mock the HTTPStore-based array
     // which returns promises.
     const obsFeatureMatrix = { data: Uint8Array.from(normalizedFlatMatrix) };
+    this.cachedResult = { obsIndex, featureIndex, obsFeatureMatrix };
+    return this.cachedResult;
+  }
+
+  async load() {
+    const payload = await super.load().catch(reason => Promise.resolve(reason));
+    if (payload instanceof AbstractLoaderError) {
+      return Promise.reject(payload);
+    }
+    const { data, url } = payload;
+    const result = this.loadFromCache(data);
     return Promise.resolve(new LoaderResult(
-      { obsIndex, featureIndex, obsFeatureMatrix },
+      result,
       url,
     ));
   }
