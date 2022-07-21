@@ -7,6 +7,7 @@ import { OrthographicView } from '@deck.gl/core'; // eslint-disable-line import/
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
+import { getLongestString } from '../../utils';
 import HeatmapCompositeTextLayer from '../../layers/HeatmapCompositeTextLayer';
 import PixelatedBitmapLayer from '../../layers/PixelatedBitmapLayer';
 import HeatmapBitmapLayer from '../../layers/HeatmapBitmapLayer';
@@ -180,12 +181,6 @@ const Heatmap = forwardRef((props, deckRef) => {
       setAxisTopLabels(expression.cols);
     }
   }, [expression, transpose]);
-
-  const getLongestString = strings => strings.reduce(
-    (prevLongest, currentValue) => (
-      prevLongest.length > currentValue.length ? prevLongest : currentValue
-    ),
-  );
 
   const [longestCellLabel, longestGeneLabel] = useMemo(() => {
     if (!expression) {

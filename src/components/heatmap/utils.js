@@ -299,15 +299,16 @@ export function mouseToCellColorPosition(mouseX, mouseY, {
     const zoomedViewMouseX = viewMouseX / (matrixWidth * scaleFactor);
     const zoomedMouseX = zoomedOffsetLeft + zoomedViewMouseX;
     cellI = Math.floor(zoomedMouseX * numCols);
-  } else {
-    const viewMouseY = mouseY - axisOffsetTop;
-    const bboxTargetY = targetY * scaleFactor + matrixHeight * scaleFactor / 2;
-    const bboxTop = bboxTargetY - matrixHeight / 2;
-    const zoomedOffsetTop = bboxTop / (matrixHeight * scaleFactor);
-    const zoomedViewMouseY = viewMouseY / (matrixHeight * scaleFactor);
-    const zoomedMouseY = zoomedOffsetTop + zoomedViewMouseY;
-    cellI = Math.floor(zoomedMouseY * numRows);
+    return [cellI, trackI];
   }
+  // Not transposed
+  const viewMouseY = mouseY - axisOffsetTop;
+  const bboxTargetY = targetY * scaleFactor + matrixHeight * scaleFactor / 2;
+  const bboxTop = bboxTargetY - matrixHeight / 2;
+  const zoomedOffsetTop = bboxTop / (matrixHeight * scaleFactor);
+  const zoomedViewMouseY = viewMouseY / (matrixHeight * scaleFactor);
+  const zoomedMouseY = zoomedOffsetTop + zoomedViewMouseY;
+  cellI = Math.floor(zoomedMouseY * numRows);
 
   return [cellI, trackI];
 }
