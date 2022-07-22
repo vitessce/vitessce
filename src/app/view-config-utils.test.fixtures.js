@@ -625,14 +625,25 @@ export const initializedViewConfig = {
     {
       files: [
         {
-          fileType: 'cells.json',
-          type: 'cells',
+          fileType: 'obsSegmentations.cells.json',
           url: 'https://example.com/cells.json',
+          coordinationValues: {
+            obsType: 'cell',
+          },
         },
         {
-          fileType: 'cell-sets.json',
-          type: 'cell-sets',
+          fileType: 'obsLocations.cells.json',
+          url: 'https://example.com/cells.json',
+          coordinationValues: {
+            obsType: 'cell',
+          },
+        },
+        {
+          fileType: 'obsSets.cell-sets.json',
           url: 'https://example.com/cell-sets.json',
+          coordinationValues: {
+            obsType: 'cell',
+          },
         },
       ],
       name: 'A',
