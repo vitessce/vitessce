@@ -9,6 +9,7 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.OBS_TYPE]: 'cell',
   [CoordinationType.FEATURE_TYPE]: 'gene',
   [CoordinationType.FEATURE_VALUE_TYPE]: 'expression',
+  [CoordinationType.OBS_LABELS_TYPE]: null,
   [CoordinationType.EMBEDDING_ZOOM]: null,
   [CoordinationType.EMBEDDING_ROTATION]: 0,
   [CoordinationType.EMBEDDING_TARGET_X]: null,

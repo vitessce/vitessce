@@ -14,7 +14,7 @@ const createLoader = (ClassDef, config, data) => {
   return new ClassDef(source, configWithUrl);
 };
 
-describe.only('loaders/molecules-json-loaders', () => {
+describe('loaders/molecules-json-loaders', () => {
   describe('MoleculesJsonAsObsLocationsLoader', () => {
     it('can load obsLocations', async () => {
       const loader = createLoader(MoleculesJsonAsObsLocationsLoader, {

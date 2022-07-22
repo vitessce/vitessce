@@ -25,6 +25,7 @@ describe('src/app/joint-file-types.js', () => {
           coordinationValues: {
             obsType: 'cell',
             featureType: 'gene',
+            featureValueType: 'expression',
           },
         },
       ]);
@@ -43,6 +44,9 @@ describe('src/app/joint-file-types.js', () => {
         {
           fileType: 'obsSegmentations.raster.json',
           url: 'http://localhost:8000/raster.json',
+          coordinationValues: {
+            obsType: 'cell',
+          },
         },
       ]);
     });
@@ -72,6 +76,7 @@ describe('src/app/joint-file-types.js', () => {
           coordinationValues: {
             obsType: 'cell',
             featureType: 'gene',
+            featureValueType: 'expression',
           },
         },
       ]);
@@ -89,6 +94,7 @@ describe('src/app/joint-file-types.js', () => {
           coordinationValues: {
             obsType: 'cell',
             featureType: 'gene',
+            featureValueType: 'expression',
           },
         },
       ]);
@@ -105,7 +111,13 @@ describe('src/app/joint-file-types.js', () => {
           url: 'http://localhost:8000/cells.json',
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
+          },
+        },
+        {
+          fileType: 'obsLocations.cells.json',
+          url: 'http://localhost:8000/cells.json',
+          coordinationValues: {
+            obsType: 'cell',
           },
         },
       ]);
@@ -124,7 +136,13 @@ describe('src/app/joint-file-types.js', () => {
           url: 'http://localhost:8000/cells.json',
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
+          },
+        },
+        {
+          fileType: 'obsLocations.cells.json',
+          url: 'http://localhost:8000/cells.json',
+          coordinationValues: {
+            obsType: 'cell',
           },
         },
         {
@@ -132,7 +150,6 @@ describe('src/app/joint-file-types.js', () => {
           url: 'http://localhost:8000/cells.json',
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
             embeddingType: 'UMAP',
           },
         },
@@ -141,7 +158,6 @@ describe('src/app/joint-file-types.js', () => {
           url: 'http://localhost:8000/cells.json',
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
             embeddingType: 't-SNE',
           },
         },
@@ -150,7 +166,6 @@ describe('src/app/joint-file-types.js', () => {
           url: 'http://localhost:8000/cells.json',
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
             obsLabelsType: 'cluster',
           },
         },
@@ -159,7 +174,6 @@ describe('src/app/joint-file-types.js', () => {
           url: 'http://localhost:8000/cells.json',
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
             obsLabelsType: 'subcluster',
           },
         },
@@ -197,6 +211,16 @@ describe('src/app/joint-file-types.js', () => {
         },
       })).toEqual([
         {
+          fileType: 'obsSegmentations.anndata.zarr',
+          url: 'http://localhost:8000/anndata.zarr',
+          options: {
+            path: 'obsm/segmentations',
+          },
+          coordinationValues: {
+            obsType: 'cell',
+          },
+        },
+        {
           fileType: 'obsLocations.anndata.zarr',
           url: 'http://localhost:8000/anndata.zarr',
           options: {
@@ -204,19 +228,6 @@ describe('src/app/joint-file-types.js', () => {
           },
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
-          },
-        },
-        {
-          fileType: 'obsSegmentations.anndata.zarr',
-          url: 'http://localhost:8000/anndata.zarr',
-          options: {
-            polygonsPath: 'obsm/segmentations',
-            centroidsPath: 'obsm/locations',
-          },
-          coordinationValues: {
-            obsType: 'cell',
-            featureType: 'gene',
           },
         },
         {
@@ -227,7 +238,6 @@ describe('src/app/joint-file-types.js', () => {
           },
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
             embeddingType: 't-SNE',
           },
         },
@@ -240,7 +250,6 @@ describe('src/app/joint-file-types.js', () => {
           },
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
             embeddingType: 'PCA',
           },
         },
@@ -252,7 +261,6 @@ describe('src/app/joint-file-types.js', () => {
           },
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
             obsLabelsType: 'cluster',
           },
         },
@@ -264,7 +272,6 @@ describe('src/app/joint-file-types.js', () => {
           },
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
             obsLabelsType: 'subcluster',
           },
         },
@@ -313,7 +320,6 @@ describe('src/app/joint-file-types.js', () => {
           ],
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
           },
         },
       ]);
@@ -337,6 +343,7 @@ describe('src/app/joint-file-types.js', () => {
             coordinationValues: {
               obsType: 'cell',
               featureType: 'gene',
+              featureValueType: 'expression',
             },
           },
         ]);
@@ -359,7 +366,6 @@ describe('src/app/joint-file-types.js', () => {
               path: 'var/gene_symbol',
             },
             coordinationValues: {
-              obsType: 'cell',
               featureType: 'gene',
               featureLabelsType: 'geneAlias',
             },
@@ -368,13 +374,14 @@ describe('src/app/joint-file-types.js', () => {
             fileType: 'obsFeatureMatrix.anndata.zarr',
             url: 'http://localhost:8000/anndata.zarr',
             options: {
-              path: 'X',
+              path: 'obsm/hvg_subset',
               featureFilterPath: 'var/in_hvg_subset',
               initialFeatureFilterPath: 'var/highly_variable',
             },
             coordinationValues: {
               obsType: 'cell',
               featureType: 'gene',
+              featureValueType: 'expression',
             },
           },
         ]);
@@ -414,6 +421,18 @@ describe('src/app/joint-file-types.js', () => {
         },
       })).toEqual([
         {
+          fileType: 'obsEmbedding.anndata.zarr',
+          url: 'http://localhost:8000/anndata.zarr',
+          options: {
+            path: 'obsm/pca',
+            dims: [2, 4],
+          },
+          coordinationValues: {
+            obsType: 'spot',
+            embeddingType: 'PCA',
+          },
+        },
+        {
           fileType: 'obsLabels.anndata.zarr',
           url: 'http://localhost:8000/anndata.zarr',
           options: {
@@ -421,10 +440,7 @@ describe('src/app/joint-file-types.js', () => {
           },
           coordinationValues: {
             obsType: 'spot',
-            featureType: 'transcript',
             obsLabelsType: 'spotName',
-            featureLabelsType: 'geneSymbol',
-            embeddingType: 'PCA',
           },
         },
         {
@@ -434,24 +450,8 @@ describe('src/app/joint-file-types.js', () => {
             path: 'var/gene_symbol',
           },
           coordinationValues: {
-            obsType: 'spot',
             featureType: 'transcript',
-            obsLabelsType: 'spotName',
             featureLabelsType: 'geneSymbol',
-            embeddingType: 'PCA',
-          },
-        },
-        {
-          fileType: 'obsEmbedding.anndata.zarr',
-          url: 'http://localhost:8000/anndata.zarr',
-          options: {
-            path: 'obsm/pca',
-            dims: [2, 4],
-          },
-          coordinationValues: {
-            obsType: 'spot',
-            featureType: 'transcript',
-            embeddingType: 'PCA',
           },
         },
       ]);
@@ -485,7 +485,6 @@ describe('src/app/joint-file-types.js', () => {
           },
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
           },
         },
         {
@@ -497,7 +496,6 @@ describe('src/app/joint-file-types.js', () => {
           },
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
             embeddingType: 'PCA',
           },
         },
@@ -509,7 +507,6 @@ describe('src/app/joint-file-types.js', () => {
           },
           coordinationValues: {
             obsType: 'cell',
-            featureType: 'gene',
             embeddingType: 'UMAP',
           },
         },

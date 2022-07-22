@@ -15,7 +15,7 @@ describe('loaders/CellSetsZarrLoader', () => {
       [undefined],
     ];
     const options = [
-      { groupName: 'Subclass Levels', setName: ['obs/L1', 'obs/L2', 'obs/L3'] },
+      { name: 'Subclass Levels', path: ['obs/L1', 'obs/L2', 'obs/L3'] },
     ];
 
     const tree = dataToCellSetsTree(data, options);
@@ -81,7 +81,7 @@ describe('loaders/CellSetsZarrLoader', () => {
       [undefined],
     ];
     const options = [
-      { groupName: 'Subclass Level 1', setName: 'obs/L1' },
+      { name: 'Subclass Level 1', path: 'obs/L1' },
     ];
 
     const tree = dataToCellSetsTree(data, options);
@@ -124,7 +124,7 @@ describe('loaders/CellSetsZarrLoader', () => {
       ],
     ];
     const options = [
-      { groupName: 'Subclass Level 1', setName: 'obs/L1' },
+      { name: 'Subclass Level 1', path: 'obs/L1' },
     ];
 
     const tree = dataToCellSetsTree(data, options);

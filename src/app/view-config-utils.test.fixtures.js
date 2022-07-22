@@ -614,6 +614,9 @@ export const initializedViewConfig = {
     obsSetColor: {
       A: null,
     },
+    obsLabelsType: {
+      A: null,
+    },
     moleculeHighlight: {
       A: null,
     },
@@ -656,6 +659,7 @@ export const initializedViewConfig = {
       component: 'scatterplot',
       coordinationScopes: {
         obsType: 'A',
+        obsLabelsType: 'A',
         featureType: 'A',
         featureValueType: 'A',
         obsColorEncoding: 'A',
@@ -705,6 +709,7 @@ export const initializedViewConfig = {
       component: 'spatial',
       coordinationScopes: {
         obsType: 'A',
+        obsLabelsType: 'A',
         obsColorEncoding: 'A',
         obsFilter: 'A',
         obsHighlight: 'A',

@@ -31,7 +31,7 @@ export default class MoleculesJsonAsObsLocationsLoader extends JsonLoader {
       data: [obsLocationsX, obsLocationsY],
       shape: [2, obsLocationsX.length],
     };
-    this.cachedResult = { obsLocations, obsIndex };
+    this.cachedResult = { obsIndex, obsLocations };
     return this.cachedResult;
   }
 

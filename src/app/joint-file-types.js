@@ -4,9 +4,7 @@ export function expandMoleculesJson(fileDef) {
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
-      ...fileDef.coordinationValues,
       obsType: fileDef.coordinationValues?.obsType || 'molecule',
-      featureType: fileDef.coordinationValues?.featureType || 'gene',
     },
   };
   delete baseFileDef.type;
@@ -18,10 +16,6 @@ export function expandMoleculesJson(fileDef) {
     {
       ...baseFileDef,
       fileType: FileType.OBS_LABELS_MOLECULES_JSON,
-      coordinationValues: {
-        ...baseFileDef.coordinationValues,
-        obsLabelsType: 'feature',
-      },
     },
   ];
 }
@@ -30,7 +24,6 @@ export function expandExpressionMatrixZarr(fileDef) {
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
-      ...fileDef.coordinationValues,
       obsType: fileDef.coordinationValues?.obsType || 'cell',
       featureType: fileDef.coordinationValues?.featureType || 'gene',
       featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
@@ -46,64 +39,44 @@ export function expandExpressionMatrixZarr(fileDef) {
 }
 
 export function expandRasterJson(fileDef) {
-  const {
-    url,
-    options,
-    requestInit,
-    coordinationValues = {},
-  } = fileDef;
-  const baseCoordinationValues = {
-    obsType: coordinationValues.obsType || 'cell',
-  };
+  const baseFileDef = { ...fileDef };
+  delete baseFileDef.type;
   return [
     {
+      ...baseFileDef,
       fileType: FileType.IMAGE_RASTER_JSON,
-      url,
-      options,
-      requestInit,
-      coordinationValues,
     },
     {
+      ...baseFileDef,
       fileType: FileType.OBS_SEGMENTATIONS_RASTER_JSON,
-      url,
-      options,
-      requestInit,
-      coordinationValues: baseCoordinationValues,
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues?.obsType || 'cell',
+      },
     },
   ];
 }
 
 export function expandRasterOmeZarr(fileDef) {
-  const {
-    url,
-    requestInit,
-    coordinationValues = {},
-  } = fileDef;
+  const baseFileDef = { ...fileDef };
+  delete baseFileDef.type;
   return [
     {
+      ...baseFileDef,
       fileType: FileType.IMAGE_OME_ZARR,
-      url,
-      requestInit,
-      coordinationValues,
     },
   ];
 }
 
 export function expandCellSetsJson(fileDef) {
-  const {
-    url,
-    requestInit,
-    coordinationValues = {},
-  } = fileDef;
-  const baseCoordinationValues = {
-    obsType: coordinationValues.obsType || 'cell',
-  };
+  const baseFileDef = { ...fileDef };
+  delete baseFileDef.type;
   return [
     {
+      ...baseFileDef,
       fileType: FileType.OBS_SETS_CELL_SETS_JSON,
-      url,
-      requestInit,
-      coordinationValues: baseCoordinationValues,
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues?.obsType || 'cell',
+      },
     },
   ];
 }
@@ -112,7 +85,6 @@ export function expandCellsJson(fileDef) {
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
-      ...fileDef.coordinationValues,
       obsType: fileDef.coordinationValues?.obsType || 'cell',
       featureType: fileDef.coordinationValues?.featureType || 'gene',
     },
@@ -123,16 +95,22 @@ export function expandCellsJson(fileDef) {
     {
       ...baseFileDef,
       fileType: FileType.OBS_SEGMENTATIONS_CELLS_JSON,
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
     },
     {
       ...baseFileDef,
       fileType: FileType.OBS_LOCATIONS_CELLS_JSON,
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
     },
     ...(fileDef.options?.embeddingTypes ? fileDef.options.embeddingTypes.map(et => ({
       ...baseFileDef,
       fileType: FileType.OBS_EMBEDDING_CELLS_JSON,
       coordinationValues: {
-        ...baseFileDef.coordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
         embeddingType: et,
       },
     })) : []),
@@ -140,7 +118,7 @@ export function expandCellsJson(fileDef) {
       ...baseFileDef,
       fileType: FileType.OBS_LABELS_CELLS_JSON,
       coordinationValues: {
-        ...baseFileDef.coordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
         obsLabelsType: key,
       },
     })) : []),
@@ -151,7 +129,6 @@ export function expandClustersJson(fileDef) {
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
-      ...fileDef.coordinationValues,
       obsType: fileDef.coordinationValues?.obsType || 'cell',
       featureType: fileDef.coordinationValues?.featureType || 'gene',
       featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
@@ -170,7 +147,6 @@ export function expandGenesJson(fileDef) {
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
-      ...fileDef.coordinationValues,
       obsType: fileDef.coordinationValues?.obsType || 'cell',
       featureType: fileDef.coordinationValues?.featureType || 'gene',
       featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
@@ -210,12 +186,18 @@ export function expandAnndataCellsZarr(fileDef) {
       options: {
         path: options.poly,
       },
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
     }] : []),
     ...(options.xy ? [{
       ...baseFileDef,
       fileType: FileType.OBS_LOCATIONS_ANNDATA_ZARR,
       options: {
         path: options.xy,
+      },
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
       },
     }] : []),
     ...embeddingTypes.map(et => ({
@@ -226,7 +208,7 @@ export function expandAnndataCellsZarr(fileDef) {
         dims: options.mappings[et].dims,
       },
       coordinationValues: {
-        ...baseFileDef.coordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
         embeddingType: et,
       },
     })),
@@ -237,7 +219,7 @@ export function expandAnndataCellsZarr(fileDef) {
         path: olt,
       },
       coordinationValues: {
-        ...baseFileDef.coordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
         obsLabelsType: olt.split('/').at(-1),
       },
     })),
@@ -256,6 +238,9 @@ export function expandAnndataCellSetsZarr(fileDef) {
         path: option.setName,
         scorePath: option.scoreName,
       })),
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
     },
   ];
 }
@@ -271,8 +256,8 @@ export function expandAnndataExpressionMatrixZarr(fileDef) {
         path: options.geneAlias,
       },
       coordinationValues: {
-        ...baseFileDef.coordinationValues,
-        featureLabelsType: 'geneAlias',
+        featureType: baseFileDef.coordinationValues.featureType,
+        featureLabelsType: 'geneAlias', // TODO: check if this works in the portal
       },
     }] : []),
     {
@@ -282,6 +267,11 @@ export function expandAnndataExpressionMatrixZarr(fileDef) {
         path: options.matrix,
         featureFilterPath: options.geneFilter,
         initialFeatureFilterPath: options.matrixGeneFilter,
+      },
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+        featureType: baseFileDef.coordinationValues.featureType,
+        featureValueType: baseFileDef.coordinationValues.featureValueType,
       },
     },
   ];
@@ -296,24 +286,38 @@ export function expandAnndataZarr(fileDef) {
       ...baseFileDef,
       fileType: FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR,
       options: options.obsFeatureMatrix,
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+        featureType: baseFileDef.coordinationValues.featureType,
+        featureValueType: baseFileDef.coordinationValues.featureValueType,
+      },
     }] : []),
     // obsSets
     ...(options.obsSets ? [{
       ...baseFileDef,
       fileType: FileType.OBS_SETS_ANNDATA_ZARR,
       options: options.obsSets,
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
     }] : []),
     // obsLocations
     ...(options.obsLocations ? [{
       ...baseFileDef,
       fileType: FileType.OBS_LOCATIONS_ANNDATA_ZARR,
       options: options.obsLocations,
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
     }] : []),
     // obsSegmentations
     ...(options.obsSegmentations ? [{
       ...baseFileDef,
       fileType: FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR,
       options: options.obsSegmentations,
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
     }] : []),
     // obsEmbedding
     // eslint-disable-next-line no-nested-ternary
@@ -327,7 +331,7 @@ export function expandAnndataZarr(fileDef) {
           dims: oe.dims,
         },
         coordinationValues: {
-          ...baseFileDef.coordinationValues,
+          obsType: baseFileDef.coordinationValues.obsType,
           // Move embedding type property out of options and into coordinationValues.
           embeddingType: oe.embeddingType,
         },
@@ -336,6 +340,10 @@ export function expandAnndataZarr(fileDef) {
         ...baseFileDef,
         fileType: FileType.OBS_EMBEDDING_ANNDATA_ZARR,
         options: options.obsEmbedding,
+        coordinationValues: {
+          obsType: baseFileDef.coordinationValues.obsType,
+          embeddingType: baseFileDef.coordinationValues.embeddingType,
+        },
       }]
     ) : []),
     // obsLabels
@@ -349,7 +357,7 @@ export function expandAnndataZarr(fileDef) {
           path: ol.path,
         },
         coordinationValues: {
-          ...baseFileDef.coordinationValues,
+          obsType: baseFileDef.coordinationValues.obsType,
           // Move obsLabels type property out of options and into coordinationValues.
           obsLabelsType: ol.obsLabelsType,
         },
@@ -358,6 +366,10 @@ export function expandAnndataZarr(fileDef) {
         ...baseFileDef,
         fileType: FileType.OBS_LABELS_ANNDATA_ZARR,
         options: options.obsLabels,
+        coordinationValues: {
+          obsType: baseFileDef.coordinationValues.obsType,
+          obsLabelsType: baseFileDef.coordinationValues.obsLabelsType,
+        },
       }]
     ) : []),
     // featureLabels
@@ -371,15 +383,19 @@ export function expandAnndataZarr(fileDef) {
           path: fl.path,
         },
         coordinationValues: {
-          ...baseFileDef.coordinationValues,
+          featureType: baseFileDef.coordinationValues.featureType,
           // Move featureLabels type property out of options and into coordinationValues.
-          obsLabelsType: fl.featureLabelsType,
+          featureLabelsType: fl.featureLabelsType,
         },
       })) : [{
         // featureLabels was an object.
         ...baseFileDef,
         fileType: FileType.FEATURE_LABELS_ANNDATA_ZARR,
         options: options.featureLabels,
+        coordinationValues: {
+          featureType: baseFileDef.coordinationValues.featureType,
+          featureLabelsType: baseFileDef.coordinationValues.featureLabelsType,
+        },
       }]
     ) : []),
   ];

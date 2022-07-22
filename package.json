@@ -39,7 +39,6 @@
     "@turf/helpers": "^6.1.4",
     "ajv": "^6.10.0",
     "bowser": "^2.11.0",
-    "classnames": "^2.2.6",
     "clsx": "^1.1.1",
     "concaveman": "^1.2.1",
     "d3-array": "^2.4.0",

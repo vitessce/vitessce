@@ -1,6 +1,6 @@
 import React from 'react';
 import RcTree from 'rc-tree';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 /**
  * A helper component around the rc-tree
@@ -21,7 +21,7 @@ const Tree = React.forwardRef((props, ref) => {
       itemHeight={32}
       ref={ref}
       {...props}
-      className={classNames(className, {
+      className={clsx(className, {
         [`${prefixCls}-icon-hide`]: !showIcon,
         [`${prefixCls}-block-node`]: blockNode,
       })}
