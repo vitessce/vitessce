@@ -3,7 +3,12 @@ import React, {
 } from 'react';
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useGetObsInfo, useReady, useUrls } from '../hooks';
+import {
+  useDeckCanvasSize,
+  useGetObsInfo,
+  useReady,
+  useUrls,
+} from '../hooks';
 import { mergeCellSets } from '../utils';
 import {
   useObsSetsData,

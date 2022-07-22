@@ -386,10 +386,10 @@ export function expandAnndataZarr(fileDef) {
 }
 
 /**
- * Built-in convenience file type
+ * Built-in joint file type
  * expansion functions.
  */
-export const CONVENIENCE_FILE_TYPES = {
+export const JOINT_FILE_TYPES = {
   [FileType.ANNDATA_ZARR]: expandAnndataZarr,
   [FileType.ANNDATA_CELLS_ZARR]: expandAnndataCellsZarr,
   [FileType.ANNDATA_CELL_SETS_ZARR]: expandAnndataCellSetsZarr,

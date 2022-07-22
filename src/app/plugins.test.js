@@ -2,9 +2,9 @@
 import expect from 'expect';
 import {
   registerPluginFileType,
-  registerPluginConvenienceFileType,
+  registerPluginJointFileType,
   getFileTypeDataTypeMapping,
-  getConvenienceFileTypes,
+  getJointFileTypes,
 } from './plugins';
 import {
   convenienceFileDefsCollapsed,
@@ -29,13 +29,13 @@ describe('src/app/plugins.js', () => {
   });
   describe('convenience file types', () => {
     it('registers plugin convenience file types', () => {
-      registerPluginConvenienceFileType('anndata.convenience.zarr', pluginExpandAnnDataConvenience);
-      const expansionFuncs = getConvenienceFileTypes();
+      registerPluginJointFileType('anndata.convenience.zarr', pluginExpandAnnDataConvenience);
+      const expansionFuncs = getJointFileTypes();
       expect(Object.keys(expansionFuncs).includes('anndata.convenience.zarr')).toBeTruthy();
       expect(typeof expansionFuncs['anndata.convenience.zarr']).toEqual('function');
     });
     it('uses plugin convenience file types in view config initialization', () => {
-      registerPluginConvenienceFileType('anndata.convenience.zarr', pluginExpandAnnDataConvenience);
+      registerPluginJointFileType('anndata.convenience.zarr', pluginExpandAnnDataConvenience);
       expect(initialize(convenienceFileDefsCollapsed).datasets)
         .toEqual(convenienceFileDefsExpanded.datasets);
     });

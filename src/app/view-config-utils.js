@@ -13,7 +13,7 @@ import {
   getDefaultCoordinationValues,
   getCoordinationTypes,
   getFileTypes,
-  getConvenienceFileTypes,
+  getJointFileTypes,
 } from './plugins';
 import { SCHEMA_HANDLERS } from './view-config-versions';
 
@@ -226,7 +226,7 @@ function assignViewUids(config) {
  * @returns The view config containing expanded minimal file types.
  */
 function expandConvenienceFileDefs(config) {
-  const convenienceFileTypes = getConvenienceFileTypes();
+  const convenienceFileTypes = getJointFileTypes();
   const { datasets: currDatasets } = config;
   const datasets = cloneDeep(currDatasets);
   currDatasets.forEach((dataset, i) => {

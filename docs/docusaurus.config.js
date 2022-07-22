@@ -53,22 +53,17 @@ module.exports = {
         },
         {
           href: 'https://vitessce.github.io/vitessce-python/',
-          label: 'Python Package',
+          label: 'For Python',
           position: 'left',
         },
         {
           href: 'https://vitessce.github.io/vitessceR/',
-          label: 'R Package',
+          label: 'For R',
           position: 'left',
         },
         {
           to: 'blog',
           label: 'Blog',
-          position: 'right',
-        },
-        {
-          href: 'https://github.com/vitessce/',
-          label: 'GitHub',
           position: 'right',
         },
       ],

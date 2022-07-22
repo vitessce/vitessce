@@ -10,9 +10,9 @@ import {
   expandAnndataCellSetsZarr,
   expandAnndataExpressionMatrixZarr,
   expandClustersJson,
-} from './convenience-file-types';
+} from './joint-file-types';
 
-describe('src/app/convenience-file-types.js', () => {
+describe('src/app/joint-file-types.js', () => {
   describe('expandExpressionMatrixZarr', () => {
     it('expands expression-matrix.zarr', () => {
       expect(expandExpressionMatrixZarr({
