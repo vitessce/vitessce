@@ -5,6 +5,7 @@ import ObsEmbeddingAnndataLoader from './ObsEmbeddingAnndataLoader';
 import ObsLocationsAnndataLoader from './ObsLocationsAnndataLoader';
 import ObsSegmentationsAnndataLoader from './ObsSegmentationsAnndataLoader';
 import ObsSetsAnndataLoader from './ObsSetsAnndataLoader';
+import ObsLabelsAnndataLoader from './ObsLabelsAnndataLoader';
 
 export default {
   MatrixZarrLoader,
@@ -13,4 +14,5 @@ export default {
   ObsLocationsAnndataLoader,
   ObsSegmentationsAnndataLoader,
   ObsSetsAnndataLoader,
+  ObsLabelsAnndataLoader,
 };

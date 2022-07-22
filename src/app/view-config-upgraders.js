@@ -459,12 +459,58 @@ export function upgradeFrom1_0_11(config) {
 export function upgradeFrom1_0_12(config) {
   const newConfig = cloneDeep(config);
 
-  // TODO: Set up coordination scopes for anndata-cells.zarr's options.factors
+  // Set up coordination scopes for anndata-cells.zarr's options.factors
   // in the coordination space, and create a new coordinationScopes.obsLabelsType array
   // for each component in the layout.
+  const { datasets, coordinationSpace, layout } = newConfig;
+  const datasetUidToObsLabelsTypeScopes = {};
+  datasets.forEach((dataset) => {
+    const { files, uid } = dataset;
+    files.forEach((fileDef) => {
+      const { fileType, options = {} } = fileDef;
+      if (fileType === 'anndata-cells.zarr') {
+        const { factors } = options;
+        if (factors) {
+          const obsLabelsTypeScopes = [];
+          factors.forEach((olt) => {
+            const nextScope = getNextScope(Object.keys(coordinationSpace?.obsLabelsType || {}));
+            coordinationSpace.obsLabelsType = {
+              ...coordinationSpace.obsLabelsType,
+              // Need to remove the obs/ prefix.
+              [nextScope]: olt.split('/').at(-1),
+            };
+            obsLabelsTypeScopes.push(nextScope);
+          });
+          datasetUidToObsLabelsTypeScopes[uid] = obsLabelsTypeScopes;
+        }
+      }
+    });
+  });
+  function getDatasetUidForView(viewDef) {
+    if (viewDef.coordinationScopes?.dataset) {
+      return coordinationSpace.dataset[viewDef.coordinationScopes.dataset];
+    }
+    return datasets[0].uid;
+  }
+  const newLayout = layout.map((viewDef) => {
+    const viewDatasetUid = getDatasetUidForView(datasets, coordinationSpace, viewDef);
+    const datasetObsLabelsTypeScopes = datasetUidToObsLabelsTypeScopes[viewDatasetUid];
+    if (datasetObsLabelsTypeScopes) {
+      return {
+        ...viewDef,
+        coordinationScopes: {
+          ...viewDef.coordinationScopes,
+          obsLabelsType: datasetObsLabelsTypeScopes,
+        },
+      };
+    }
+    return viewDef;
+  });
 
   return {
     ...newConfig,
+    coordinationSpace,
+    layout: newLayout,
     version: '1.0.13',
   };
 }
