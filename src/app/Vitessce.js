@@ -51,6 +51,7 @@ export default function Vitessce(props) {
     onLoaderChange,
     validateOnConfigChange = false,
     onConfigUpgrade,
+    isBounded = false,
   } = props;
 
   // Process the view config and memoize the result:
@@ -109,6 +110,7 @@ export default function Vitessce(props) {
               rowHeight={rowHeight}
               height={height}
               theme={theme}
+              isBounded={isBounded}
             />
             <CallbackPublisher
               onWarn={onWarn}
