@@ -52,6 +52,7 @@
 - Fixed schema v1.0.12
 - Removed the requirement for `cellSets` data in the CellSetsManagerSubscriber component to support the use case where all cell sets are provided via `additionalCellSets` / the coordination space.
 - Use Node v16 and NPM v8 for development, testing, and CI. Motivated by [issue](https://github.com/npm/cli/issues/2610) caused by GitHub SSH URLs in NPM v6-formatted package-lock.
+  - Fixed package-lock issue
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
 
