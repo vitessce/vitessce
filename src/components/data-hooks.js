@@ -293,7 +293,7 @@ export function useObsFeatureMatrixIndices(
             obsIndex: payloadData.rows,
             featureIndex: payloadData.cols,
           });
-          addUrl(url, 'Observation-by-Feature Matrix');
+          addUrl(url, DataType.OBS_FEATURE_MATRIX);
           setStatus(STATUS.SUCCESS);
         });
       } else {
@@ -304,7 +304,7 @@ export function useObsFeatureMatrixIndices(
             obsIndex: payloadData.obsIndex,
             featureIndex: payloadData.featureIndex,
           });
-          addUrl(url, 'Observation-by-Feature Matrix');
+          addUrl(url, DataType.OBS_FEATURE_MATRIX);
           setStatus(STATUS.SUCCESS);
         });
       }
