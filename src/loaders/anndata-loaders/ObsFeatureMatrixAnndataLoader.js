@@ -80,10 +80,8 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    */
   async _getFilteredGenes(filterZarr) {
     const filter = await this.dataSource.getFlatArrDecompressed(filterZarr);
-    console.log(filter);
     const geneNames = await this.loadFilteredGeneNames();
     const genes = geneNames.filter((_, i) => filter[i]);
-    console.log(genes);
     return genes;
   }
 

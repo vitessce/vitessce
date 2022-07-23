@@ -171,7 +171,10 @@ export default function HeatmapSubscriber(props) {
     if (obsIndex && featureIndex && obsFeatureMatrix) {
       return {
         rows: obsIndex,
-        cols: (featureLabelsMap ? featureIndex.map(key => featureLabelsMap.get(key) || key) : featureIndex),
+        cols: (featureLabelsMap
+          ? featureIndex.map(key => featureLabelsMap.get(key) || key)
+          : featureIndex
+        ),
         matrix: obsFeatureMatrix.data,
       };
     }

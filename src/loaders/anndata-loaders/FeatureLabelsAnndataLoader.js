@@ -28,7 +28,11 @@ export default class FeatureLabelsAnndataLoader extends AbstractTwoStepLoader {
       this.dataSource.loadVarIndex(),
       this.loadLabels(),
     ]).then(([featureIndex, featureLabels]) => Promise.resolve(new LoaderResult(
-      { featureIndex, featureLabels, featureLabelsMap: new Map(featureIndex.map((key, i) => ([key, featureLabels[i]]))) },
+      {
+        featureIndex,
+        featureLabels,
+        featureLabelsMap: new Map(featureIndex.map((key, i) => ([key, featureLabels[i]]))),
+      },
       null,
     )));
   }
