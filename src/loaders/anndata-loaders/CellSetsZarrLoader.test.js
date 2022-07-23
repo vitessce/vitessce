@@ -15,14 +15,14 @@ describe('loaders/CellSetsZarrLoader', () => {
       [undefined],
     ];
     const options = [
-      { groupName: 'Subclass Levels', setName: ['obs/L1', 'obs/L2', 'obs/L3'] },
+      { name: 'Subclass Levels', path: ['obs/L1', 'obs/L2', 'obs/L3'] },
     ];
 
     const tree = dataToCellSetsTree(data, options);
 
     expect(tree).toEqual({
       version: '0.1.3',
-      datatype: 'cell',
+      datatype: 'obs',
       tree: [
         {
           name: 'Subclass Levels',
@@ -81,14 +81,14 @@ describe('loaders/CellSetsZarrLoader', () => {
       [undefined],
     ];
     const options = [
-      { groupName: 'Subclass Level 1', setName: 'obs/L1' },
+      { name: 'Subclass Level 1', path: 'obs/L1' },
     ];
 
     const tree = dataToCellSetsTree(data, options);
 
     expect(tree).toEqual({
       version: '0.1.3',
-      datatype: 'cell',
+      datatype: 'obs',
       tree: [
         {
           name: 'Subclass Level 1',
@@ -124,14 +124,14 @@ describe('loaders/CellSetsZarrLoader', () => {
       ],
     ];
     const options = [
-      { groupName: 'Subclass Level 1', setName: 'obs/L1' },
+      { name: 'Subclass Level 1', path: 'obs/L1' },
     ];
 
     const tree = dataToCellSetsTree(data, options);
 
     expect(tree).toEqual({
       version: '0.1.3',
-      datatype: 'cell',
+      datatype: 'obs',
       tree: [
         {
           name: 'Subclass Level 1',

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import clsx from 'clsx';
 import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
-import classNames from 'classnames';
 import range from 'lodash/range';
 import isEqual from 'lodash/isEqual';
 import PopoverMenu from './PopoverMenu';
@@ -359,7 +358,7 @@ export default class TreeNode extends RcTreeNode {
       <span
         ref={this.setSelectHandle}
         title={title}
-        className={classNames(
+        className={clsx(
           wrapClass,
           `${wrapClass}-${this.getNodeState() || 'normal'}`,
           isSelected && `${prefixClass}-node-selected`,
@@ -414,7 +413,7 @@ export default class TreeNode extends RcTreeNode {
       }
     };
 
-    const switcherClass = classNames(
+    const switcherClass = clsx(
       `${prefixClass}-switcher`,
       { [`${prefixClass}-switcher_${(expanded ? 'open' : 'close')}`]: !isLeaf },
     );
@@ -467,7 +466,7 @@ export default class TreeNode extends RcTreeNode {
 
     return (
       <li
-        className={classNames('rc-tree-treenode', `level-${level}-treenode`, {
+        className={clsx('rc-tree-treenode', `level-${level}-treenode`, {
           [`${prefixClass}-treenode-disabled`]: disabled,
           [`${prefixClass}-treenode-switcher-${expanded ? 'open' : 'close'}`]: !isLeaf,
           [`${prefixClass}-treenode-checkbox-checked`]: checked,

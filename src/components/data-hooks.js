@@ -1,58 +1,19 @@
-import { useState, useEffect } from 'react';
-import equal from 'fast-deep-equal';
-import { capitalize } from '../utils';
-import { useSetWarning } from '../app/state/hooks';
+import { useState, useEffect, useMemo } from 'react';
+import { useMatchingLoader, useMultiCoordinationValues, useSetWarning } from '../app/state/hooks';
 import {
-  AbstractLoaderError,
   LoaderNotFoundError,
-  DatasetNotFoundError,
 } from '../loaders/errors/index';
 import {
-  DEFAULT_MOLECULES_LAYER,
-  DEFAULT_CELLS_LAYER,
   DEFAULT_NEIGHBORHOODS_LAYER,
 } from './spatial/constants';
-import { getDefaultCoordinationValues } from '../app/plugins';
-
-/**
- * Warn via publishing to the console
- * and to the global warning store.
- * @param {AbstractLoaderError} error An error instance.
- */
-function warn(error, setWarning) {
-  setWarning(error.message);
-  console.warn(error.message);
-  if (error instanceof AbstractLoaderError) {
-    error.warnInConsole();
-  }
-}
-
-/**
- * Initialize values in the coordination space.
- * @param {object} values Object where
- * keys are coordination type names,
- * values are initial coordination values.
- * @param {object} setters Object where
- * keys are coordination type names with the prefix 'set',
- * values are coordination setter functions.
- * @param {object} initialValues Object where
- * keys are coordination type names and keys are values.
- */
-function initCoordinationSpace(values, setters, initialValues) {
-  if (!values || !setters) {
-    return;
-  }
-  const defaultCoordinationValues = getDefaultCoordinationValues();
-  Object.entries(values).forEach(([coordinationType, value]) => {
-    const setterName = `set${capitalize(coordinationType)}`;
-    const setterFunc = setters[setterName];
-    const initialValue = initialValues && initialValues[coordinationType];
-    const shouldInit = equal(initialValue, defaultCoordinationValues[coordinationType]);
-    if (shouldInit && setterFunc) {
-      setterFunc(value);
-    }
-  });
-}
+import { CoordinationType, DataType } from '../app/constants';
+import {
+  warn,
+  initCoordinationSpace,
+  useDataType,
+  useDataTypeMulti,
+} from './data-hook-utils';
+import { fromEntries } from '../utils';
 
 /**
  * Get the dataset description string.
@@ -107,189 +68,81 @@ export function useDescription(loaders, dataset) {
  * cells is an object and cellsCount is the
  * number of items in the cells object.
  */
-export function useCellsData(
+export function useObsEmbeddingData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, initialCoordinationValues,
+  coordinationSetters, initialCoordinationValues, matchOn,
 ) {
-  const [cells, setCells] = useState({});
-  const [cellsCount, setCellsCount] = useState(0);
-
-  const setWarning = useSetWarning();
-
-  useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-
-    if (loaders[dataset].loaders.cells) {
-      loaders[dataset].loaders.cells.load().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data, url, coordinationValues } = payload;
-        setCells(data);
-        setCellsCount(Object.keys(data).length);
-        addUrl(url, 'Cells');
-        // This dataset has cells, so set up the
-        // spatial cells layer coordination value
-        // using the cell layer singleton.
-        const coordinationValuesOrDefault = {
-          spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
-          ...coordinationValues,
-        };
-        initCoordinationSpace(
-          coordinationValuesOrDefault,
-          coordinationSetters, initialCoordinationValues,
-        );
-        setItemIsReady('cells');
-      });
-    } else {
-      setCells({});
-      setCellsCount(0);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'cells', null, null), setWarning);
-      } else {
-        setItemIsReady('cells');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
-
-  return [cells, cellsCount];
+  return useDataType(
+    DataType.OBS_EMBEDDING,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
 }
 
-/**
- * Get data from a cell sets data type loader,
- * updating "ready" and URL state appropriately.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
- * @param {function} addUrl A function to call to update
- * the URL list.
- * @param {boolean} isRequired Should a warning be thrown if
- * loading is unsuccessful?
- * @param {object} coordinationSetters Object where
- * keys are coordination type names with the prefix 'set',
- * values are coordination setter functions.
- * @param {object} initialCoordinationValues Object where
- * keys are coordination type names and values are the current values.
- * @returns {array} [cellSets] where
- * cellSets is a sets tree object.
- */
-export function useCellSetsData(
+export function useObsLocationsData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, initialCoordinationValues,
+  coordinationSetters, initialCoordinationValues, matchOn,
 ) {
-  const [cellSets, setCellSets] = useState();
-
-  const setWarning = useSetWarning();
-
-  useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-
-    if (loaders[dataset].loaders['cell-sets']) {
-      // Load the data initially.
-      loaders[dataset].loaders['cell-sets'].load().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data, url, coordinationValues } = payload;
-        setCellSets(data);
-        addUrl(url, 'Cell Sets');
-        initCoordinationSpace(
-          coordinationValues,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
-        setItemIsReady('cell-sets');
-      });
-    } else {
-      setCellSets(null);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'cell-sets', null, null), setWarning);
-      } else {
-        setItemIsReady('cell-sets');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
-
-  return [cellSets];
+  return useDataType(
+    DataType.OBS_LOCATIONS,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
 }
 
-/**
- * Get (potentially filtered) data from an expression matrix data type loader,
- * updating "ready" and URL state appropriately.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.  Should not be used in conjunction (called in the same component)
- * with useExpressionAttrs as this returns a potentially filtered set of attributes
- * specifically for the returned expression data.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
- * @param {function} addUrl A function to call to update
- * the URL list.
- * @param {boolean} isRequired Should a warning be thrown if
- * loading is unsuccessful?
- * @param {object} coordinationSetters Object where
- * keys are coordination type names with the prefix 'set',
- * values are coordination setter functions.
- * @param {object} initialCoordinationValues Object where
- * keys are coordination type names with the prefix 'initialize',
- * values are initialization preferences as boolean values.
- * @returns {array} [expressionMatrix] where
- * expressionMatrix is an object with
- * shape { cols, rows, matrix }.
- */
-export function useExpressionMatrixData(
+export function useObsLabelsData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, initialCoordinationValues,
+  coordinationSetters, initialCoordinationValues, matchOn,
 ) {
-  const [expressionMatrix, setExpressionMatrix] = useState();
+  return useDataType(
+    DataType.OBS_LABELS,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
 
-  const setWarning = useSetWarning();
+export function useObsSegmentationsData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_SEGMENTATIONS,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
 
-  useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
+export function useObsSetsData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_SETS,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
 
-    if (loaders[dataset].loaders['expression-matrix']) {
-      loaders[dataset].loaders['expression-matrix'].load().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data, url, coordinationValues } = payload;
-        const [attrs, arr] = data;
-        setExpressionMatrix({
-          cols: attrs.cols,
-          rows: attrs.rows,
-          matrix: arr.data,
-        });
-        addUrl(url, 'Expression Matrix');
-        initCoordinationSpace(
-          coordinationValues,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
-        setItemIsReady('expression-matrix');
-      });
-    } else {
-      setExpressionMatrix(null);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null), setWarning);
-      } else {
-        setItemIsReady('expression-matrix');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+export function useObsFeatureMatrixData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_FEATURE_MATRIX,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
 
-  return [expressionMatrix];
+export function useImageData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.IMAGE,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
 }
 
 /**
@@ -308,69 +161,67 @@ export function useExpressionMatrixData(
  * @returns {array} [geneData] where geneData is an array [Uint8Array, ..., Uint8Array]
  * for however many genes are in the selection.
  */
-export function useGeneSelection(
+export function useFeatureSelection(
   loaders,
   dataset,
   setItemIsReady,
   isRequired,
   selection,
   setItemIsNotReady,
+  matchOn,
 ) {
   const [geneData, setGeneData] = useState();
 
   const setWarning = useSetWarning();
+  const loader = useMatchingLoader(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
 
   useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
     if (!selection) {
-      setItemIsReady('expression-matrix');
+      setItemIsReady(DataType.OBS_FEATURE_MATRIX);
       return;
     }
-    const loader = loaders[dataset].loaders['expression-matrix'];
     if (loader) {
-      setItemIsNotReady('expression-matrix');
+      setItemIsNotReady(DataType.OBS_FEATURE_MATRIX);
       const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
       if (implementsGeneSelection) {
-        loaders[dataset].loaders['expression-matrix']
+        loader
           .loadGeneSelection({ selection })
           .catch(e => warn(e, setWarning))
           .then((payload) => {
             if (!payload) return;
             const { data } = payload;
             setGeneData(data);
-            setItemIsReady('expression-matrix');
+            setItemIsReady(DataType.OBS_FEATURE_MATRIX);
           });
       } else {
         loader.load().catch(e => warn(e, setWarning)).then((payload) => {
           if (!payload) return;
           const { data } = payload;
-          const [attrs, { data: matrix }] = data;
+          const { obsIndex, featureIndex, obsFeatureMatrix } = data;
           const expressionDataForSelection = selection.map((sel) => {
-            const geneIndex = attrs.cols.indexOf(sel);
-            const numGenes = attrs.cols.length;
-            const numCells = attrs.rows.length;
+            const geneIndex = featureIndex.indexOf(sel);
+            const numGenes = featureIndex.length;
+            const numCells = obsIndex.length;
             const expressionData = new Uint8Array(numCells);
             for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
-              expressionData[cellIndex] = matrix[cellIndex * numGenes + geneIndex];
+              expressionData[cellIndex] = obsFeatureMatrix.data[cellIndex * numGenes + geneIndex];
             }
             return expressionData;
           });
           setGeneData(expressionDataForSelection);
-          setItemIsReady('expression-matrix');
+          setItemIsReady(DataType.OBS_FEATURE_MATRIX);
         });
       }
     } else {
       setGeneData(null);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.OBS_FEATURE_MATRIX, null, null), setWarning);
       } else {
-        setItemIsReady('expression-matrix');
+        setItemIsReady(DataType.OBS_FEATURE_MATRIX);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset, selection]);
+  }, [loader, selection]);
 
   return [geneData];
 }
@@ -393,126 +244,54 @@ export function useGeneSelection(
  * loading is unsuccessful?
  * @returns {object} [attrs] { rows, cols } object containing cell and gene names.
  */
-export function useExpressionAttrs(loaders, dataset, setItemIsReady, addUrl, isRequired) {
-  const [attrs, setAttrs] = useState();
+export function useObsFeatureMatrixIndices(
+  loaders, dataset, setItemIsReady, addUrl, isRequired, matchOn,
+) {
+  const [data, setData] = useState({});
 
   const setWarning = useSetWarning();
+  const loader = useMatchingLoader(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
 
   useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-    const loader = loaders[dataset].loaders['expression-matrix'];
     if (loader) {
       const implementsLoadAttrs = typeof loader.loadAttrs === 'function';
       if (implementsLoadAttrs) {
         loader.loadAttrs().catch(e => warn(e, setWarning)).then((payload) => {
           if (!payload) return;
-          const { data, url } = payload;
-          setAttrs(data);
-          addUrl(url, 'Expression Matrix');
-          setItemIsReady('expression-matrix');
+          const { data: payloadData, url } = payload;
+          setData({
+            obsIndex: payloadData.rows,
+            featureIndex: payloadData.cols,
+          });
+          addUrl(url, 'Observation-by-Feature Matrix');
+          setItemIsReady(DataType.OBS_FEATURE_MATRIX);
         });
       } else {
         loader.load().catch(e => warn(e, setWarning)).then((payload) => {
           if (!payload) return;
-          const { data, url } = payload;
-          setAttrs(data[0]);
-          addUrl(url, 'Expression Matrix');
-          setItemIsReady('expression-matrix');
+          const { data: payloadData, url } = payload;
+          setData({
+            obsIndex: payloadData.obsIndex,
+            featureIndex: payloadData.featureIndex,
+          });
+          addUrl(url, 'Observation-by-Feature Matrix');
+          setItemIsReady(DataType.OBS_FEATURE_MATRIX);
         });
       }
     } else {
-      setAttrs(null);
+      setData({});
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'expression-matrix', null, null), setWarning);
+        warn(new LoaderNotFoundError(dataset, DataType.OBS_FEATURE_MATRIX, null, null), setWarning);
       } else {
-        setItemIsReady('expression-matrix');
+        setItemIsReady(DataType.OBS_FEATURE_MATRIX);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }, [loader]);
 
-  return [attrs];
+  return data;
 }
 
-/**
- * Get data from a molecules data type loader,
- * updating "ready" and URL state appropriately.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
- * @param {function} addUrl A function to call to update
- * the URL list.
- * @param {boolean} isRequired Should a warning be thrown if
- * loading is unsuccessful?
- * @param {object} coordinationSetters Object where
- * keys are coordination type names with the prefix 'set',
- * values are coordination setter functions.
- * @param {object} initialCoordinationValues Object where
- * keys are coordination type names with the prefix 'initialize',
- * values are initialization preferences as boolean values.
- * @returns {array} [molecules, moleculesCount, locationsCount] where
- * molecules is an object,
- * moleculesCount is the number of unique molecule types, and
- * locationsCount is the number of molecules.
- */
-export function useMoleculesData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, initialCoordinationValues,
-) {
-  const [molecules, setMolecules] = useState();
-  const [moleculesCount, setMoleculesCount] = useState(0);
-  const [locationsCount, setLocationsCount] = useState(0);
-
-  const setWarning = useSetWarning();
-
-  useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-
-    if (loaders[dataset].loaders.molecules) {
-      loaders[dataset].loaders.molecules.load().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data, url, coordinationValues } = payload;
-        setMolecules(data);
-        setMoleculesCount(Object.keys(data).length);
-        setLocationsCount(Object.values(data)
-          .map(l => l.length)
-          .reduce((a, b) => a + b, 0));
-        addUrl(url, 'Molecules');
-        const coordinationValuesOrDefault = {
-          spatialPointLayer: DEFAULT_MOLECULES_LAYER,
-          ...coordinationValues,
-        };
-        initCoordinationSpace(
-          coordinationValuesOrDefault,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
-        setItemIsReady('molecules');
-      });
-    } else {
-      setMolecules({});
-      setMoleculesCount(0);
-      setLocationsCount(0);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'molecules', null, null), setWarning);
-      } else {
-        setItemIsReady('molecules');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
-
-  return [molecules, moleculesCount, locationsCount];
-}
 
 /**
  * Get data from a neighborhoods data type loader,
@@ -545,14 +324,11 @@ export function useNeighborhoodsData(
   const [neighborhoods, setNeighborhoods] = useState();
 
   const setWarning = useSetWarning();
+  const loader = useMatchingLoader(loaders, dataset, 'neighborhoods', {});
 
   useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-
-    if (loaders[dataset].loaders.neighborhoods) {
-      loaders[dataset].loaders.neighborhoods.load().catch(e => warn(e, setWarning))
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning))
         .then((payload) => {
           if (!payload) return;
           const { data, url, coordinationValues } = payload;
@@ -578,93 +354,9 @@ export function useNeighborhoodsData(
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }, [loader]);
 
   return [neighborhoods];
-}
-
-/**
- * Get data from a raster data type loader,
- * updating "ready" and URL state appropriately.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
- * @param {function} addUrl A function to call to update
- * the URL list.
- * @param {boolean} isRequired Should a warning be thrown if
- * loading is unsuccessful?
- * @param {object} coordinationSetters Object where
- * keys are coordination type names with the prefix 'set',
- * values are coordination setter functions.
- * @param {object} initialCoordinationValues Object where
- * keys are coordination type names with the prefix 'initialize',
- * values are initialization preferences as boolean values.
- * @returns {array} [raster, imageLayerLoaders, imageLayerMeta] where
- * raster is an object,
- * imageLayerLoaders is an object, and
- * imageLayerMeta is an object.
- */
-export function useRasterData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, initialCoordinationValues,
-) {
-  const [raster, setRaster] = useState();
-  // Since we want the image layer / channel definitions to come from the
-  // coordination space stored as JSON in the view config,
-  // we need to set up a separate state variable here to store the
-  // non-JSON objects, such as layer loader instances.
-  const [imageLayerLoaders, setImageLayerLoaders] = useState([]);
-  const [imageLayerMeta, setImageLayerMeta] = useState([]);
-
-  const setWarning = useSetWarning();
-
-  useEffect(() => {
-    if (!loaders[dataset]) {
-      if (isRequired) {
-        warn(new DatasetNotFoundError(dataset), setWarning);
-      } else {
-        setItemIsReady('raster');
-      }
-      return;
-    }
-
-    if (loaders[dataset].loaders.raster) {
-      loaders[dataset].loaders.raster.load().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data, url: urls, coordinationValues } = payload;
-        setRaster(data);
-        urls.forEach(([url, name]) => {
-          addUrl(url, name);
-        });
-        const { loaders: nextImageLoaders, meta: nextImageMeta } = data;
-        setImageLayerLoaders(nextImageLoaders);
-        setImageLayerMeta(nextImageMeta);
-        initCoordinationSpace(
-          coordinationValues,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
-        setItemIsReady('raster');
-      });
-    } else {
-      // There was no raster loader for this dataset,
-      // and raster should be optional.
-      setImageLayerLoaders([]);
-      setImageLayerMeta([]);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'raster', null, null), setWarning);
-      } else {
-        setItemIsReady('raster');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
-  return [raster, imageLayerLoaders, imageLayerMeta];
 }
 
 /**
@@ -698,14 +390,11 @@ export function useGenomicProfilesData(
   const [genomicProfilesAttrs, setGenomicProfilesAttrs] = useState();
 
   const setWarning = useSetWarning();
+  const loader = useMatchingLoader(loaders, dataset, 'genomic-profiles', {});
 
   useEffect(() => {
-    if (!loaders[dataset]) {
-      return;
-    }
-
-    if (loaders[dataset].loaders['genomic-profiles']) {
-      loaders[dataset].loaders['genomic-profiles'].load().catch(e => warn(e, setWarning))
+    if (loader) {
+      loader.load().catch(e => warn(e, setWarning))
         .then((payload) => {
           if (!payload) return;
           const { data, url, coordinationValues } = payload;
@@ -727,7 +416,28 @@ export function useGenomicProfilesData(
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }, [loader]);
 
   return [genomicProfilesAttrs];
+}
+
+export function useMultiObsLabels(
+  coordinationScopes, obsType, loaders, dataset, setItemIsReady, addUrl,
+) {
+  const obsLabelsTypes = useMultiCoordinationValues(
+    CoordinationType.OBS_LABELS_TYPE,
+    coordinationScopes,
+  );
+  const obsLabelsMatchOnObj = useMemo(() => fromEntries(
+    Object.entries(obsLabelsTypes).map(([scope, obsLabelsType]) => ([
+      scope,
+      { obsLabelsType, obsType },
+    ])),
+  ), [obsLabelsTypes, obsType]);
+  const obsLabelsData = useDataTypeMulti(
+    DataType.OBS_LABELS, loaders, dataset,
+    setItemIsReady, addUrl, false, {}, {},
+    obsLabelsMatchOnObj,
+  );
+  return [obsLabelsTypes, obsLabelsData];
 }

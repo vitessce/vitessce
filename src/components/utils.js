@@ -1,7 +1,6 @@
 import React from 'react';
-import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import {
-  SETS_DATATYPE_CELL,
+  SETS_DATATYPE_OBS,
   HIERARCHICAL_SCHEMAS,
 } from './sets/constants';
 import { PRIMARY_CARD } from './classNames';
@@ -10,38 +9,6 @@ export function makeCellStatusMessage(cellInfoFactors) {
   return Object.entries(cellInfoFactors).map(
     ([factor, value]) => `${factor}: ${value}`,
   ).join('; ');
-}
-
-export function cellLayerDefaultProps(cells, updateStatus, setCellHighlight, setComponentHover) {
-  return {
-    coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-    data: cells,
-    pickable: true,
-    autoHighlight: true,
-    stroked: true,
-    filled: true,
-    getElevation: 0,
-    onHover: (info) => {
-      // Notify the parent component that its child component is
-      // the "hover source".
-      if (setComponentHover) {
-        setComponentHover();
-      }
-      if (info.object) {
-        const [cellId, cellInfo] = info.object;
-        const { factors = {} } = cellInfo;
-        if (updateStatus) {
-          updateStatus(makeCellStatusMessage(factors));
-        }
-        if (setCellHighlight) {
-          setCellHighlight(cellId);
-        }
-      } else if (setCellHighlight) {
-        // Clear the currently-hovered cell info by passing null.
-        setCellHighlight('');
-      }
-    },
-  };
 }
 
 export const DEFAULT_DARK_COLOR = [50, 50, 50];
@@ -106,6 +73,10 @@ export function createDefaultUpdateGenesHover(componentName) {
   return hoverInfo => console.warn(`${componentName} updateGenesHover: ${hoverInfo.geneId}`);
 }
 
+export function createDefaultUpdateTracksHover(componentName) {
+  return hoverInfo => console.warn(`${componentName} updateTracksHover: ${hoverInfo}`);
+}
+
 export function createDefaultUpdateViewInfo(componentName) {
   return viewInfo => console.warn(`${componentName} updateViewInfo: ${viewInfo}`);
 }
@@ -153,8 +124,8 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
     n => n.name === CELL_SELECTIONS_LEVEL_ZERO_NAME,
   );
   const nextAdditionalCellSets = {
-    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_CELL].latestVersion,
-    datatype: SETS_DATATYPE_CELL,
+    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_OBS].latestVersion,
+    datatype: SETS_DATATYPE_OBS,
     tree: [...(additionalCellSets ? additionalCellSets.tree : [])],
   };
 
@@ -192,8 +163,8 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
 
 export function mergeCellSets(cellSets, additionalCellSets) {
   return {
-    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_CELL].latestVersion,
-    datatype: SETS_DATATYPE_CELL,
+    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_OBS].latestVersion,
+    datatype: SETS_DATATYPE_OBS,
     tree: [
       ...(cellSets ? cellSets.tree : []),
       ...(additionalCellSets ? additionalCellSets.tree : []),

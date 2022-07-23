@@ -4,17 +4,18 @@ import React, {
 import { extent } from 'd3-array';
 import isEqual from 'lodash/isEqual';
 import TitleInfo from '../TitleInfo';
-import { pluralize, capitalize } from '../../utils';
+import { pluralize } from '../../utils';
 import {
-  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
+  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter, useGetObsInfo,
 } from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
 import { getCellSetPolygons } from '../sets/cell-set-utils';
 import {
-  useCellsData,
-  useCellSetsData,
-  useGeneSelection,
-  useExpressionAttrs,
+  useObsEmbeddingData,
+  useObsSetsData,
+  useFeatureSelection,
+  useObsFeatureMatrixIndices,
+  useMultiObsLabels,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import Scatterplot from './Scatterplot';
@@ -31,8 +32,13 @@ import {
   getPointOpacity,
 } from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import { DataType } from '../../app/constants';
 
-const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
+const SCATTERPLOT_DATA_TYPES = [
+  DataType.OBS_EMBEDDING,
+  DataType.OBS_SETS,
+  DataType.OBS_FEATURE_MATRIX,
+];
 
 /**
  * A subscriber component for the scatterplot.
@@ -69,6 +75,9 @@ export default function ScatterplotSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
+    featureType,
+    featureValueType,
     embeddingZoom: zoom,
     embeddingTargetX: targetX,
     embeddingTargetY: targetY,
@@ -132,22 +141,30 @@ export default function ScatterplotSubscriber(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
+  const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
+    coordinationScopes, obsType, loaders, dataset, setItemIsReady, addUrl,
+  );
+
   // Get data from loaders using the data hooks.
-  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
-  const [cellSets] = useCellSetsData(
-    loaders,
-    dataset,
-    setItemIsReady,
-    addUrl,
-    false,
+  const { obsIndex: obsEmbeddingIndex, obsEmbedding } = useObsEmbeddingData(
+    loaders, dataset, setItemIsReady, addUrl, true, {}, {},
+    { obsType, embeddingType: mapping },
+  );
+  const cellsCount = obsEmbeddingIndex?.length || 0;
+  const { obsSets: cellSets } = useObsSetsData(
+    loaders, dataset, setItemIsReady, addUrl, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
+    { obsType },
   );
-  const [expressionData] = useGeneSelection(
+  // Existing data hooks
+  const [expressionData] = useFeatureSelection(
     loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
+    { obsType, featureType, featureValueType },
   );
-  const [attrs] = useExpressionAttrs(
+  const { obsIndex: matrixObsIndex } = useObsFeatureMatrixIndices(
     loaders, dataset, setItemIsReady, addUrl, false,
+    { obsType, featureType, featureValueType },
   );
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
@@ -173,10 +190,10 @@ export default function ScatterplotSubscriber(props) {
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-    expressionDataAttrs: attrs,
+    obsIndex: matrixObsIndex,
     theme,
   }), [cellColorEncoding, geneSelection, mergedCellSets, theme,
-    cellSetSelection, cellSetColor, expressionData, attrs]);
+    cellSetSelection, cellSetColor, expressionData, matrixObsIndex]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
@@ -187,11 +204,12 @@ export default function ScatterplotSubscriber(props) {
     if ((cellSetLabelsVisible || cellSetPolygonsVisible)
       && !cacheHas(cellSetPolygonCache, cellSetSelection)
       && mergedCellSets?.tree?.length
-      && Object.values(cells).length
+      && obsEmbedding
+      && obsEmbeddingIndex
       && cellSetColor?.length) {
       const newCellSetPolygons = getCellSetPolygons({
-        cells,
-        mapping,
+        obsIndex: obsEmbeddingIndex,
+        obsEmbedding,
         cellSets: mergedCellSets,
         cellSetSelection,
         cellSetColor,
@@ -202,24 +220,22 @@ export default function ScatterplotSubscriber(props) {
     }
     return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
   }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible, theme,
-    cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
+    obsEmbeddingIndex, obsEmbedding, mergedCellSets, cellSetSelection, cellSetColor]);
 
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
-    const cellValues = cells && Object.values(cells);
-    if (cellValues?.length) {
-      const cellCoordinates = Object.values(cells)
-        .map(c => c.mappings[mapping]);
-      const xE = extent(cellCoordinates, c => c[0]);
-      const yE = extent(cellCoordinates, c => c[1]);
+    if (obsEmbedding && obsEmbedding.data && obsEmbedding.shape) {
+      const cellCount = obsEmbedding.shape[1];
+      const xE = extent(obsEmbedding.data[0]);
+      const yE = extent(obsEmbedding.data[1]);
       const xR = xE[1] - xE[0];
       const yR = yE[1] - yE[0];
-      return [xR, yR, xE, yE, cellValues.length];
+      return [xR, yR, xE, yE, cellCount];
     }
     return [null, null, null, null, null];
-  }, [cells, mapping]);
+  }, [obsEmbedding]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the
@@ -247,32 +263,33 @@ export default function ScatterplotSubscriber(props) {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [xRange, yRange, xExtent, yExtent, numCells, cells, mapping,
+  }, [xRange, yRange, xExtent, yExtent, numCells,
     width, height, zoom, averageFillDensity]);
 
-  const getCellInfo = useCallback((cellId) => {
-    const cellInfo = cells[cellId];
-    return {
-      [`${capitalize(observationsLabel)} ID`]: cellId,
-      ...(cellInfo ? cellInfo.factors : {}),
-    };
-  }, [cells, observationsLabel]);
+  const getCellInfo = useGetObsInfo(
+    observationsLabel, obsEmbeddingIndex, obsLabelsTypes, obsLabelsData,
+  );
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
-  const getCellIsSelected = useCallback(cellEntry => (
-    (cellSelectionSet || new Set([])).has(cellEntry[0]) ? 1.0 : 0.0), [cellSelectionSet]);
+  const getCellIsSelected = useCallback((object, { index }) => (
+    (cellSelectionSet || new Set([])).has(obsEmbeddingIndex[index]) ? 1.0 : 0.0
+  ), [cellSelectionSet, obsEmbeddingIndex]);
 
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
-  const getExpressionValue = useExpressionValueGetter({ attrs, expressionData });
+  const getExpressionValue = useExpressionValueGetter({
+    instanceObsIndex: obsEmbeddingIndex,
+    matrixObsIndex,
+    expressionData,
+  });
 
   return (
     <TitleInfo
       title={title}
-      info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
+      info={`${numCells} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
@@ -314,8 +331,8 @@ export default function ScatterplotSubscriber(props) {
           setTargetY(target[1]);
           setTargetZ(target[2] || 0);
         }}
-        cells={cells}
-        mapping={mapping}
+        obsEmbeddingIndex={obsEmbeddingIndex}
+        obsEmbedding={obsEmbedding}
         cellFilter={cellFilter}
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}

@@ -1,6 +1,7 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
 import { treeToCellColorsBySetNames } from './sets/cell-set-utils';
+import { getDefaultColor } from './utils';
 
 // The functions defined here have been adapted from d3-interpolate,
 // d3-color, and d3-scale-chromatic.
@@ -90,25 +91,29 @@ export function getCellColors(params) {
     expressionData,
     cellSets, cellSetSelection,
     cellSetColor,
-    expressionDataAttrs,
+    obsIndex,
     theme,
   } = params;
-  if (cellColorEncoding === 'geneSelection' && expressionData && expressionDataAttrs) {
+  if (cellColorEncoding === 'geneSelection' && expressionData && obsIndex) {
     // TODO: allow other color maps.
     const geneExpColormap = interpolatePlasma;
     const colors = new Map();
     for (let i = 0; i < expressionData.length; i += 1) {
       const value = expressionData[i];
       const cellColor = geneExpColormap(value / 255);
-      colors.set(expressionDataAttrs.rows[i], cellColor);
+      colors.set(obsIndex[i], cellColor);
     }
     return colors;
-  } if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {
+  }
+  if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {
     // Cell sets can potentially lack set colors since the color property
     // is not a required part of the schema.
     // The `initializeSets` function fills in any empty colors
     // with defaults and returns the processed tree object.
     return treeToCellColorsBySetNames(cellSets, cellSetSelection, cellSetColor, theme);
+  }
+  if (obsIndex && theme) {
+    return new Map(obsIndex.map(o => ([o, getDefaultColor(theme)])));
   }
   return new Map();
 }

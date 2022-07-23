@@ -1,16 +1,16 @@
-import cellSetsSchema from '../schemas/cell-sets.schema.json';
+import obsSetsSchema from '../schemas/obsSets.schema.json';
 import JsonLoader from './JsonLoader';
 import { tryUpgradeTreeToLatestSchema } from '../components/sets/io';
 import { AbstractLoaderError } from './errors';
 import LoaderResult from './LoaderResult';
 
-import { initializeCellSetColor } from '../components/sets/cell-set-utils';
+import { initializeCellSetColor, nodeToSet } from '../components/sets/cell-set-utils';
 
-export default class CellSetsJsonLoader extends JsonLoader {
+export default class ObsSetsJsonLoader extends JsonLoader {
   constructor(dataSource, params) {
     super(dataSource, params);
 
-    this.schema = cellSetsSchema;
+    this.schema = obsSetsSchema;
   }
 
   async load() {
@@ -19,8 +19,9 @@ export default class CellSetsJsonLoader extends JsonLoader {
       return Promise.reject(payload);
     }
     const { data: rawData, url } = payload;
-    const upgradedData = tryUpgradeTreeToLatestSchema(rawData, 'cell');
-
+    const datatype = this.fileType.endsWith('cell-sets.json') ? 'cell' : 'obs';
+    const upgradedData = tryUpgradeTreeToLatestSchema(rawData, datatype);
+    let obsIndex = [];
     const coordinationValues = {
       obsSetSelection: [],
       obsSetColor: [],
@@ -37,7 +38,12 @@ export default class CellSetsJsonLoader extends JsonLoader {
       const newAutoSetColors = initializeCellSetColor(upgradedData, []);
       coordinationValues.obsSetSelection = newAutoSetSelections;
       coordinationValues.obsSetColor = newAutoSetColors;
+
+      obsIndex = nodeToSet(tree[0]).map(d => d[0]);
     }
-    return Promise.resolve(new LoaderResult(upgradedData, url, coordinationValues));
+    return Promise.resolve(new LoaderResult({
+      obsIndex,
+      obsSets: upgradedData,
+    }, url, coordinationValues));
   }
 }

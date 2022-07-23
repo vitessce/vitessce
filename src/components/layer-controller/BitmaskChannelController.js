@@ -38,7 +38,7 @@ function BitmaskChannelController({
   */
   const createSelection = index => ({ [dimName]: index });
   return (
-    <Grid container direction="row" justify="space-between">
+    <Grid container direction="row" justifyContent="space-between">
       <Grid item xs={2}>
         <ChannelVisibilityCheckbox
           color={[220, 220, 220]}

@@ -12,6 +12,22 @@
   - `featureValueType`
 - Add more usage examples to the `about` documentation page.
 - Added tests for checking that FileType constants have been mapped to corresponding data types and loader classes.
+- Added `npm run start:nolint` script to disable linting for quickly prototyping code.
+- Added the optional `isBounded` property to the `Vitessce` React component that prevents users from dragging or resizing components beyond the original grid boundary.
+- Added support for multiple `cellColor` tracks in the Heatmap component.
+- Added new file type and data type constants.
+- Added support for `datatype: 'obs'` in `obsSets.schema.json`
+- Added loaders for `obsSets.json` and `obsSets.cell-sets.json`.
+- Added loaders for `obsFeatureMatrix.clusters.json`
+- Added loaders for `obsFeatureMatrix.genes.json`
+- Added loaders for `obsLabels.cells.json`, `obsEmbedding.cells.json`, `obsLocations.cells.json`, `obsSegmentations.cells.json`
+- Added loaders for `image.raster.json`,`obsSegmentations.raster.json`, `image.ome-zarr`
+- Added loaders for `obsLabels.anndata-expression-matrix.zarr`, `featureLabels.anndata-expression-matrix.zarr`, `obsFeatureMatrix.anndata-expression-matrix.zarr`
+- Added loaders for `obsFeatureMatrix.expression-matrix.zarr`
+- Added the property `coordinationValues` for view config file definitions.
+- Added the `useMatchingLoader` hook.
+- Added loaders for `obsLabels.molecules.json` and `obsLocations.molecules.json`
+
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
@@ -47,6 +63,11 @@
   - `embeddingCellOpacity` -> `embeddingObsOpacity`
   - `embeddingCellOpacityMode` -> `embeddingObsOpacityMode`
 - Fixed schema v1.0.12
+- Removed the requirement for `cellSets` data in the CellSetsManagerSubscriber component to support the use case where all cell sets are provided via `additionalCellSets` / the coordination space.
+- Implemented support for `obsLabelsType` which supersedes `factors`.
+  - The view config upgrade can be performed automatically for the `anndata-cells.zarr` file type but not the `cells.json` file type (we would need to access the `cells.json` file contents to know which `factors` keys are present, but we perform view config upgrades _prior to_ loading any data).
+- Use Node v16 and NPM v8 for development, testing, and CI. Motivated by [issue](https://github.com/npm/cli/issues/2610) caused by GitHub SSH URLs in NPM v6-formatted package-lock.
+  - Fixed package-lock issue
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
 

@@ -4,6 +4,7 @@ import {
 import debounce from 'lodash/debounce';
 import { useGridResize, useEmitGridResize } from '../app/state/hooks';
 import { VITESSCE_CONTAINER } from './classNames';
+import { capitalize, fromEntries } from '../utils';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -231,29 +232,50 @@ export function useClosestVitessceContainerSize(ref) {
   return [width, height];
 }
 
-export function useExpressionValueGetter({ attrs, expressionData }) {
+export function useExpressionValueGetter({ instanceObsIndex, matrixObsIndex, expressionData }) {
   // Get a mapping from cell ID to row index in the gene expression matrix.
-  const cellIdMap = useMemo(() => {
-    const result = {};
-    if (attrs && attrs.rows) {
-      // eslint-disable-next-line no-plusplus
-      for (let i = 0; i < attrs.rows.length; i++) {
-        result[attrs.rows[i]] = i;
-      }
+  // Since the two obsIndices (instanceObsIndex = the obsIndex from obsEmbedding)
+  // may be ordered differently (matrixObsIndex = the obsIndex from obsFeatureMatrix),
+  // we need a way to look up anobsFeatureMatrix obsIndex index
+  // given an obsEmbedding obsIndex index.
+  const matrixIndexMap = useMemo(() => {
+    if (instanceObsIndex && matrixObsIndex) {
+      return instanceObsIndex.map(i => matrixObsIndex.indexOf(i));
     }
-    return result;
-  }, [attrs]);
+    return null;
+  }, [instanceObsIndex, matrixObsIndex]);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
-  const getExpressionValue = useCallback((entry) => {
-    const cellId = entry[0];
-    if (cellIdMap && expressionData && expressionData[0]) {
-      const cellIndex = cellIdMap[cellId];
-      const val = expressionData[0][cellIndex];
+  const getExpressionValue = useCallback((entry, { index: instanceIndex }) => {
+    if (matrixIndexMap && expressionData && expressionData[0]) {
+      const rowIndex = matrixIndexMap[instanceIndex];
+      const val = expressionData[0][rowIndex];
       return val;
     }
     return 0;
-  }, [cellIdMap, expressionData]);
+  }, [matrixIndexMap, expressionData]);
   return getExpressionValue;
+}
+
+export function useGetObsInfo(obsType, obsIndex, obsLabelsTypes, obsLabelsData) {
+  return useCallback((obsId) => {
+    if (obsId) {
+      return {
+        [`${capitalize(obsType)} ID`]: obsId,
+        ...fromEntries(Object.entries(obsLabelsTypes).map(([scopeKey, obsLabelsType]) => ([
+          obsLabelsType,
+          obsLabelsData?.[scopeKey]?.obsLabels?.[
+            // TODO: Maybe all loaders that return obsIndex should also return an obsIndexMap
+            // with keys: obsId, values: obsIdx
+            // which would avoid the indexOf calls.
+            obsLabelsData?.[scopeKey]?.obsIndex?.indexOf(obsId)
+          ],
+        ]))),
+        // TODO: use obsSets and obsSetSelection to list any currently-selected sets
+        // that contain this obsId.
+      };
+    }
+    return null;
+  }, [obsType, obsLabelsTypes, obsLabelsData]);
 }

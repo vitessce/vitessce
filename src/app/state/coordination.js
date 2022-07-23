@@ -9,6 +9,7 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.OBS_TYPE]: 'cell',
   [CoordinationType.FEATURE_TYPE]: 'gene',
   [CoordinationType.FEATURE_VALUE_TYPE]: 'expression',
+  [CoordinationType.OBS_LABELS_TYPE]: null,
   [CoordinationType.EMBEDDING_ZOOM]: null,
   [CoordinationType.EMBEDDING_ROTATION]: 0,
   [CoordinationType.EMBEDDING_TARGET_X]: null,
@@ -96,6 +97,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
     CoordinationType.FEATURE_VALUE_TYPE,
+    CoordinationType.OBS_LABELS_TYPE,
     CoordinationType.EMBEDDING_TYPE,
     CoordinationType.EMBEDDING_ZOOM,
     CoordinationType.EMBEDDING_ROTATION,
@@ -124,6 +126,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   [Component.SPATIAL]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
+    CoordinationType.OBS_LABELS_TYPE,
     CoordinationType.FEATURE_TYPE,
     CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.SPATIAL_ZOOM,
@@ -157,6 +160,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   [Component.HEATMAP]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
+    CoordinationType.OBS_LABELS_TYPE,
     CoordinationType.FEATURE_TYPE,
     CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.HEATMAP_ZOOM_X,
@@ -203,7 +207,9 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [Component.GENES]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.FEATURE_FILTER,
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.FEATURE_SELECTION,

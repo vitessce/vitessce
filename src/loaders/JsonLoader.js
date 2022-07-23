@@ -8,14 +8,14 @@ import cellsSchema from '../schemas/cells.schema.json';
 import moleculesSchema from '../schemas/molecules.schema.json';
 import neighborhoodsSchema from '../schemas/neighborhoods.schema.json';
 import rasterSchema from '../schemas/raster.schema.json';
-import cellSetsSchema from '../schemas/cell-sets.schema.json';
+import obsSetsSchema from '../schemas/obsSets.schema.json';
 
 const fileTypeToSchema = {
   [FileType.CELLS_JSON]: cellsSchema,
   [FileType.MOLECULES_JSON]: moleculesSchema,
   [FileType.NEIGHBORHOODS_JSON]: neighborhoodsSchema,
   [FileType.RASTER_JSON]: rasterSchema,
-  [FileType.CELL_SETS_JSON]: cellSetsSchema,
+  [FileType.CELL_SETS_JSON]: obsSetsSchema,
 };
 
 export default class JsonLoader extends AbstractTwoStepLoader {

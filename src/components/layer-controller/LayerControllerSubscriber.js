@@ -1,4 +1,5 @@
 /* eslint-disable dot-notation */
+/* eslint-disable no-unused-vars */
 import React, {
   useEffect, useCallback, useRef, forwardRef,
 } from 'react';
@@ -10,7 +11,11 @@ import VectorLayerController from './VectorLayerController';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
 import { useReady, useClosestVitessceContainerSize, useWindowDimensions } from '../hooks';
-import { useCellsData, useMoleculesData, useRasterData } from '../data-hooks';
+import {
+  useImageData,
+  useObsLocationsData,
+  useObsSegmentationsData,
+} from '../data-hooks';
 import {
   useCoordination,
   useLoaders,
@@ -20,8 +25,13 @@ import {
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { initializeLayerChannels } from '../spatial/utils';
 import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
+import { DataType } from '../../app/constants';
 
-const LAYER_CONTROLLER_DATA_TYPES = ['raster'];
+const LAYER_CONTROLLER_DATA_TYPES = [
+  DataType.IMAGE,
+  DataType.OBS_LOCATIONS,
+  DataType.OBS_SEGMENTATIONS,
+];
 
 // LayerController is memoized to prevent updates from prop changes that
 // are caused by view state updates i.e zooming and panning within
@@ -34,21 +44,32 @@ const LayerControllerMemoized = React.memo(
       removeGridComponent,
       theme,
       isReady,
-      moleculesLayer,
       dataset,
+      moleculesLayer,
       setMoleculesLayer,
-      cellsLayer,
-      canShowCellVecmask,
+      cellsLayer, // May be one polygon layer object or an array of bitmask layers.
       setCellsLayer,
+
       rasterLayers,
       imageLayerLoaders,
       imageLayerMeta,
-      rasterLayersCallbacks,
-      setRasterLayersCallbacks,
-      areLoadingRasterChannnels,
-      setAreLoadingRasterChannnels,
+      imageLayerCallbacks,
+      setImageLayerCallbacks,
+      areLoadingImageChannels,
+      setAreLoadingImageChannels,
       handleRasterLayerChange,
       handleRasterLayerRemove,
+
+      obsSegmentationsType,
+      segmentationLayerLoaders,
+      segmentationLayerMeta,
+      segmentationLayerCallbacks,
+      setSegmentationLayerCallbacks,
+      areLoadingSegmentationChannels,
+      setAreLoadingSegmentationChannels,
+      handleSegmentationLayerChange,
+      handleSegmentationLayerRemove,
+
       disable3d,
       globalDisable3d,
       disableChannelsIfRgbDetected,
@@ -86,7 +107,7 @@ const LayerControllerMemoized = React.memo(
               handleLayerChange={setMoleculesLayer}
             />
           )}
-          {cellsLayer && canShowCellVecmask && (
+          {cellsLayer && obsSegmentationsType === 'polygon' && (
             <VectorLayerController
               key={`${dataset}-cells`}
               label="Cell Segmentations"
@@ -95,32 +116,29 @@ const LayerControllerMemoized = React.memo(
               handleLayerChange={setCellsLayer}
             />
           )}
-          {rasterLayers
-            && rasterLayers.map((layer, i) => {
+          {/* Segmentation bitmask layers: */}
+          {cellsLayer && obsSegmentationsType === 'bitmask'
+            && cellsLayer.map((layer, i) => {
               const { index } = layer;
-              const loader = imageLayerLoaders[index];
-              const layerMeta = imageLayerMeta[index];
-              // Could also be bitmask at the moment.
-              const isRaster = !layerMeta?.metadata?.isBitmask;
-              const ChannelController = isRaster
-                ? RasterChannelController
-                : BitmaskChannelController;
+              const loader = segmentationLayerLoaders[index];
+              const layerMeta = segmentationLayerMeta[index];
+              const isRaster = false;
               // Set up the call back mechanism so that each layer manages
               // callbacks/loading state for itself and its channels.
-              const setRasterLayerCallback = (cb) => {
+              const setSegmentationLayerCallback = (cb) => {
                 const newRasterLayersCallbacks = [
-                  ...(rasterLayersCallbacks || []),
+                  ...(imageLayerCallbacks || []),
                 ];
                 newRasterLayersCallbacks[i] = cb;
-                setRasterLayersCallbacks(newRasterLayersCallbacks);
+                setSegmentationLayerCallbacks(newRasterLayersCallbacks);
               };
-              const areLayerChannelsLoading = (areLoadingRasterChannnels || [])[i] || [];
+              const areLayerChannelsLoading = (areLoadingSegmentationChannels || [])[i] || [];
               const setAreLayerChannelsLoading = (v) => {
-                const newAreLoadingRasterChannnels = [
-                  ...(areLoadingRasterChannnels || []),
+                const newAreLoadingImageChannels = [
+                  ...(areLoadingSegmentationChannels || []),
                 ];
-                newAreLoadingRasterChannnels[i] = v;
-                setAreLoadingRasterChannnels(newAreLoadingRasterChannnels);
+                newAreLoadingImageChannels[i] = v;
+                setAreLoadingSegmentationChannels(newAreLoadingImageChannels);
               };
               return loader && layerMeta ? (
                 <Grid
@@ -134,9 +152,9 @@ const LayerControllerMemoized = React.memo(
                     layer={layer}
                     loader={loader}
                     theme={theme}
-                    handleLayerChange={v => handleRasterLayerChange(v, i)}
-                    handleLayerRemove={() => handleRasterLayerRemove(i)}
-                    ChannelController={ChannelController}
+                    handleLayerChange={v => handleSegmentationLayerChange(v, i)}
+                    handleLayerRemove={() => handleSegmentationLayerRemove(i)}
+                    ChannelController={BitmaskChannelController}
                     shouldShowTransparentColor={isRaster}
                     shouldShowDomain={isRaster}
                     shouldShowColormap={isRaster}
@@ -155,8 +173,90 @@ const LayerControllerMemoized = React.memo(
                       && layerIs3DIndex !== i
                     }
                     disableChannelsIfRgbDetected={disableChannelsIfRgbDetected}
-                    rasterLayersCallbacks={rasterLayersCallbacks}
-                    setRasterLayerCallback={setRasterLayerCallback}
+                    imageLayerCallbacks={imageLayerCallbacks}
+                    setImageLayerCallback={setSegmentationLayerCallback}
+                    setViewState={({
+                      zoom: newZoom,
+                      target,
+                      rotationX: newRotationX,
+                      rotationOrbit: newRotationOrbit,
+                    }) => {
+                      setZoom(newZoom);
+                      setTargetX(target[0]);
+                      setTargetY(target[1]);
+                      setTargetZ(target[2]);
+                      setRotationX(newRotationX);
+                      setRotationOrbit(newRotationOrbit);
+                    }}
+                    setAreLayerChannelsLoading={setAreLayerChannelsLoading}
+                    areLayerChannelsLoading={areLayerChannelsLoading}
+                    spatialHeight={(componentHeight * (spatialLayout ? spatialLayout.h : 1)) / 12}
+                    spatialWidth={(componentWidth * (spatialLayout ? spatialLayout.w : 1)) / 12}
+                    shouldShowRemoveLayerButton={shouldShowImageLayerButton}
+                  />
+                </Grid>
+              ) : null;
+            })}
+          {/* Image layers: */}
+          {rasterLayers
+            && rasterLayers.map((layer, i) => {
+              const { index } = layer;
+              const loader = imageLayerLoaders[index];
+              const layerMeta = imageLayerMeta[index];
+              // Bitmasks are handled above.
+              const isRaster = true;
+              // Set up the call back mechanism so that each layer manages
+              // callbacks/loading state for itself and its channels.
+              const setImageLayerCallback = (cb) => {
+                const newRasterLayersCallbacks = [
+                  ...(imageLayerCallbacks || []),
+                ];
+                newRasterLayersCallbacks[i] = cb;
+                setImageLayerCallbacks(newRasterLayersCallbacks);
+              };
+              const areLayerChannelsLoading = (areLoadingImageChannels || [])[i] || [];
+              const setAreLayerChannelsLoading = (v) => {
+                const newAreLoadingImageChannels = [
+                  ...(areLoadingImageChannels || []),
+                ];
+                newAreLoadingImageChannels[i] = v;
+                setAreLoadingImageChannels(newAreLoadingImageChannels);
+              };
+              return loader && layerMeta ? (
+                <Grid
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={`${dataset}-raster-${index}-${i}`}
+                  item
+                  style={{ marginTop: '10px' }}
+                >
+                  <LayerController
+                    name={layerMeta.name}
+                    layer={layer}
+                    loader={loader}
+                    theme={theme}
+                    handleLayerChange={v => handleRasterLayerChange(v, i)}
+                    handleLayerRemove={() => handleRasterLayerRemove(i)}
+                    ChannelController={RasterChannelController}
+                    shouldShowTransparentColor={isRaster}
+                    shouldShowDomain={isRaster}
+                    shouldShowColormap={isRaster}
+                    // Disable 3D if given explicit instructions to do so
+                    // or if another layer is using 3D mode.
+                    disable3d={
+                      globalDisable3d
+                      || (disable3d || []).indexOf(layerMeta.name) >= 0
+                      || (typeof layerIs3DIndex === 'number'
+                        && layerIs3DIndex !== -1
+                        && layerIs3DIndex !== i)
+                    }
+                    disabled={
+                      typeof layerIs3DIndex === 'number'
+                      && layerIs3DIndex !== -1
+                      && layerIs3DIndex !== i
+                    }
+                    disableChannelsIfRgbDetected={disableChannelsIfRgbDetected}
+                    imageLayerCallbacks={imageLayerCallbacks}
+                    setImageLayerCallback={setImageLayerCallback}
                     setViewState={({
                       zoom: newZoom,
                       target,
@@ -250,12 +350,16 @@ function LayerControllerSubscriber(props) {
 
   const [
     {
-      rasterLayersCallbacks,
-      areLoadingRasterChannnels,
+      imageLayerCallbacks,
+      areLoadingImageChannels,
+      segmentationLayerCallbacks,
+      areLoadingSegmentationChannels,
     },
     {
-      setRasterLayersCallbacks,
-      setAreLoadingRasterChannnels,
+      setImageLayerCallbacks,
+      setAreLoadingImageChannels,
+      setSegmentationLayerCallbacks,
+      setAreLoadingSegmentationChannels,
     },
   ] = useAuxiliaryCoordination(
     COMPONENT_COORDINATION_TYPES.layerController,
@@ -285,23 +389,28 @@ function LayerControllerSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  // eslint-disable-next-line no-unused-vars
-  const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
-    loaders, dataset, setItemIsReady, () => { }, false,
-    { setSpatialImageLayer: setRasterLayers },
-    { spatialImageLayer: rasterLayers },
-  );
-
-  useCellsData(
-    loaders, dataset, setItemIsReady, () => {}, false,
-    { setSpatialSegmentationLayer: setCellsLayer },
-    { spatialSegmentationLayer: cellsLayer },
-  );
-  useMoleculesData(
+  useObsLocationsData(
     loaders, dataset, setItemIsReady, () => {}, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
+    {}, // TODO: use obsType once #1240 is merged.
   );
+  const { obsSegmentations, obsSegmentationsType } = useObsSegmentationsData(
+    loaders, dataset, setItemIsReady, () => {}, false,
+    { setSpatialSegmentationLayer: setCellsLayer },
+    { spatialSegmentationLayer: cellsLayer },
+    {}, // TODO: use obsType once #1240 is merged.
+  );
+  const { image } = useImageData(
+    loaders, dataset, setItemIsReady, () => {}, false,
+    { setSpatialImageLayer: setRasterLayers },
+    { spatialImageLayer: rasterLayers },
+    {}, // TODO: which values to match on
+  );
+  const { loaders: imageLayerLoaders = [], meta: imageLayerMeta = [] } = image || {};
+
+  const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.loaders : [];
+  const segmentationLayerMeta = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.meta : [];
 
   // useCallback prevents new functions from propogating
   // changes to the underlying component.
@@ -334,11 +443,20 @@ function LayerControllerSubscriber(props) {
     setRasterLayers(newLayers);
   }, [rasterLayers, setRasterLayers]);
 
-  const hasNoBitmask = (
-    imageLayerMeta.length ? imageLayerMeta : [{ metadata: { isBitmask: true } }]
-  ).every(l => !l?.metadata?.isBitmask);
-  // Only want to show vector cells controller if there is no bitmask
-  const canShowCellVecmask = hasNoBitmask;
+  const handleSegmentationLayerChange = useCallback((newLayer, i) => {
+    // Currently only used when obsSegmentationsType is 'bitmask'
+    const newLayers = [...cellsLayer];
+    newLayers[i] = newLayer;
+    setCellsLayer(newLayers);
+  }, [cellsLayer, setCellsLayer]);
+
+  const handleSegmentationLayerRemove = useCallback((i) => {
+    // Currently only used when obsSegmentationsType is 'bitmask'
+    const newLayers = [...cellsLayer];
+    newLayers.splice(i, 1);
+    setCellsLayer(newLayers);
+  }, [cellsLayer, setCellsLayer]);
+
   const layerIs3DIndex = rasterLayers?.findIndex && rasterLayers.findIndex(layer => layer.use3d);
   return (
     <LayerControllerMemoized
@@ -351,17 +469,28 @@ function LayerControllerSubscriber(props) {
       dataset={dataset}
       setMoleculesLayer={setMoleculesLayer}
       cellsLayer={cellsLayer}
-      canShowCellVecmask={canShowCellVecmask}
       setCellsLayer={setCellsLayer}
+
       rasterLayers={rasterLayers}
       imageLayerLoaders={imageLayerLoaders}
       imageLayerMeta={imageLayerMeta}
-      rasterLayersCallbacks={rasterLayersCallbacks}
-      setRasterLayersCallbacks={setRasterLayersCallbacks}
-      areLoadingRasterChannnels={areLoadingRasterChannnels}
-      setAreLoadingRasterChannnels={setAreLoadingRasterChannnels}
+      imageLayerCallbacks={imageLayerCallbacks}
+      setImageLayerCallbacks={setImageLayerCallbacks}
+      areLoadingImageChannels={areLoadingImageChannels}
+      setAreLoadingImageChannels={setAreLoadingImageChannels}
       handleRasterLayerChange={handleRasterLayerChange}
       handleRasterLayerRemove={handleRasterLayerRemove}
+
+      obsSegmentationsType={obsSegmentationsType}
+      segmentationLayerLoaders={segmentationLayerLoaders}
+      segmentationLayerMeta={segmentationLayerMeta}
+      segmentationLayerCallbacks={segmentationLayerCallbacks}
+      setSegmentationLayerCallbacks={setSegmentationLayerCallbacks}
+      areLoadingSegmentationChannels={areLoadingSegmentationChannels}
+      setAreLoadingSegmentationChannels={setAreLoadingSegmentationChannels}
+      handleSegmentationLayerChange={handleSegmentationLayerChange}
+      handleSegmentationLayerRemove={handleSegmentationLayerRemove}
+
       disable3d={disable3d}
       globalDisable3d={globalDisable3d}
       layerIs3DIndex={layerIs3DIndex}

@@ -136,3 +136,7 @@ div[role='tooltip'] table td, div[role='tooltip'] table th {
   margin-top: 15px;
   margin-bottom: 15px;
 }
+
+.navbar__inner .ghLink {
+  padding-right: var(--ifm-navbar-item-padding-horizontal);
+}

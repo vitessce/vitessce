@@ -2,9 +2,6 @@
 import uuidv4 from 'uuid/v4';
 import cloneDeep from 'lodash/cloneDeep';
 import { getNextScope, capitalize } from '../utils';
-import {
-  COMPONENT_COORDINATION_TYPES,
-} from './state/coordination';
 
 /**
  * A helper function for the `upgrade()` function,
@@ -180,8 +177,12 @@ export function upgradeFrom1_0_0(config) {
 
     function replaceCoordinationScope(layerType) {
       const isRaster = layerType === 'raster';
-      if (COMPONENT_COORDINATION_TYPES[newComponent.component].includes(`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`)) {
-        newComponent.coordinationScopes[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`] = newComponent.coordinationScopes.spatialLayers;
+      if (
+        ['spatial', 'layerController'].includes(newComponent.component)
+        || (newComponent.component === 'description' && isRaster)
+      ) {
+        newComponent.coordinationScopes[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`] = newComponent
+          .coordinationScopes.spatialLayers;
       }
     }
 
@@ -419,8 +420,34 @@ export function upgradeFrom1_0_10(config) {
 export function upgradeFrom1_0_11(config) {
   const newConfig = cloneDeep(config);
 
+  const {
+    datasets,
+    coordinationSpace,
+  } = newConfig;
+
+  if (coordinationSpace.embeddingType) {
+    // This array may contain more embedding types than
+    // the cells.json file actually contains, but the tradeoff is that
+    // we do not have to load the cells.json file to double check what
+    // embedding types are actually present. CellsJsonAsObsEmbedding
+    // will just load the embedding as null if it is not present.
+    const embeddingTypes = Object.values(coordinationSpace.embeddingType);
+    datasets.forEach((dataset, i) => {
+      const { files } = dataset;
+      files.forEach((fileDef, j) => {
+        const { fileType } = fileDef;
+        if (fileType === 'cells.json') {
+          datasets[i].files[j].options = {
+            embeddingTypes,
+          };
+        }
+      });
+    });
+  }
+
   return {
     ...newConfig,
+    datasets,
     version: '1.0.12',
   };
 }
@@ -432,8 +459,58 @@ export function upgradeFrom1_0_11(config) {
 export function upgradeFrom1_0_12(config) {
   const newConfig = cloneDeep(config);
 
+  // Set up coordination scopes for anndata-cells.zarr's options.factors
+  // in the coordination space, and create a new coordinationScopes.obsLabelsType array
+  // for each component in the layout.
+  const { datasets, coordinationSpace, layout } = newConfig;
+  const datasetUidToObsLabelsTypeScopes = {};
+  datasets.forEach((dataset) => {
+    const { files, uid } = dataset;
+    files.forEach((fileDef) => {
+      const { fileType, options = {} } = fileDef;
+      if (fileType === 'anndata-cells.zarr') {
+        const { factors } = options;
+        if (factors) {
+          const obsLabelsTypeScopes = [];
+          factors.forEach((olt) => {
+            const nextScope = getNextScope(Object.keys(coordinationSpace?.obsLabelsType || {}));
+            coordinationSpace.obsLabelsType = {
+              ...coordinationSpace.obsLabelsType,
+              // Need to remove the obs/ prefix.
+              [nextScope]: olt.split('/').at(-1),
+            };
+            obsLabelsTypeScopes.push(nextScope);
+          });
+          datasetUidToObsLabelsTypeScopes[uid] = obsLabelsTypeScopes;
+        }
+      }
+    });
+  });
+  function getDatasetUidForView(viewDef) {
+    if (viewDef.coordinationScopes?.dataset) {
+      return coordinationSpace.dataset[viewDef.coordinationScopes.dataset];
+    }
+    return datasets[0].uid;
+  }
+  const newLayout = layout.map((viewDef) => {
+    const viewDatasetUid = getDatasetUidForView(datasets, coordinationSpace, viewDef);
+    const datasetObsLabelsTypeScopes = datasetUidToObsLabelsTypeScopes[viewDatasetUid];
+    if (datasetObsLabelsTypeScopes) {
+      return {
+        ...viewDef,
+        coordinationScopes: {
+          ...viewDef.coordinationScopes,
+          obsLabelsType: datasetObsLabelsTypeScopes,
+        },
+      };
+    }
+    return viewDef;
+  });
+
   return {
     ...newConfig,
+    coordinationSpace,
+    layout: newLayout,
     version: '1.0.13',
   };
 }

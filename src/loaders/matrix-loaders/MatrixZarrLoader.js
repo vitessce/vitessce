@@ -1,13 +1,16 @@
 import { openArray } from 'zarr';
-import AbstractTwoStepLoader from './AbstractTwoStepLoader';
-import LoaderResult from './LoaderResult';
+import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
+import LoaderResult from '../LoaderResult';
 
 export default class MatrixZarrLoader extends AbstractTwoStepLoader {
-  loadAttrs() {
+  async loadAttrs() {
     if (this.attrs) {
       return this.attrs;
     }
-    this.attrs = this.dataSource.getJson('.zattrs');
+    this.attrs = {
+      data: await this.dataSource.getJson('.zattrs'),
+      url: null,
+    };
     return this.attrs;
   }
 

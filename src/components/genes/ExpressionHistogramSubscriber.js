@@ -5,10 +5,11 @@ import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
-import { useExpressionMatrixData, useGeneSelection } from '../data-hooks';
+import { useObsFeatureMatrixData, useFeatureSelection } from '../data-hooks';
 import ExpressionHistogram from './ExpressionHistogram';
+import { Component, DataType } from '../../app/constants';
 
-const EXPRESSION_HISTOGRAM_DATA_TYPES = ['expression-matrix'];
+const EXPRESSION_HISTOGRAM_DATA_TYPES = [DataType.OBS_FEATURE_MATRIX];
 
 /**
  * A subscriber component for `ExpressionHistogram`,
@@ -32,8 +33,14 @@ export default function ExpressionHistogramSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
+    featureType,
+    featureValueType,
     featureSelection: geneSelection,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.expressionHistogram, coordinationScopes);
+  }] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[Component.EXPRESSION_HISTOGRAM],
+    coordinationScopes,
+  );
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl, resetUrls] = useUrls();
@@ -54,12 +61,14 @@ export default function ExpressionHistogramSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [expressionMatrix] = useExpressionMatrixData(
-    loaders, dataset, setItemIsReady, addUrl, true,
+  const { obsIndex, featureIndex, obsFeatureMatrix } = useObsFeatureMatrixData(
+    loaders, dataset, setItemIsReady, addUrl, true, {}, {},
+    { obsType, featureType, featureValueType },
   );
   // Get data from loaders using the data hooks.
-  const [expressionData] = useGeneSelection(
+  const [expressionData] = useFeatureSelection(
     loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
+    { obsType, featureType, featureValueType },
   );
 
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
@@ -69,7 +78,7 @@ export default function ExpressionHistogramSubscriber(props) {
   // From the expression matrix and the list of selected genes,
   // generate the array of data points for the histogram.
   const data = useMemo(() => {
-    if (firstGeneSelected && expressionMatrix && expressionData) {
+    if (firstGeneSelected && obsFeatureMatrix && expressionData) {
       // Create new cellColors map based on the selected gene.
       return Array.from(expressionData[0]).map((_, index) => {
         const value = expressionData[0][index];
@@ -77,17 +86,17 @@ export default function ExpressionHistogramSubscriber(props) {
         return { value: normValue, gene: firstGeneSelected };
       });
     }
-    if (expressionMatrix) {
-      const numGenes = expressionMatrix.cols.length;
-      return expressionMatrix.rows.map((cellId, cellIndex) => {
-        const values = expressionMatrix.matrix
+    if (obsFeatureMatrix) {
+      const numGenes = featureIndex.length;
+      return obsIndex.map((cellId, cellIndex) => {
+        const values = obsFeatureMatrix.data
           .subarray(cellIndex * numGenes, (cellIndex + 1) * numGenes);
         const sumValue = sum(values) * 100 / 255;
         return { value: sumValue, gene: null };
       });
     }
     return null;
-  }, [expressionMatrix, firstGeneSelected, expressionData]);
+  }, [obsIndex, featureIndex, obsFeatureMatrix, firstGeneSelected, expressionData]);
 
   return (
     <TitleInfo

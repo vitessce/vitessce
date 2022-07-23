@@ -1,6 +1,7 @@
 import { fromEntries } from '../utils';
 import { FILE_TYPE_DATA_TYPE_MAPPING } from './constant-relationships';
 import { FileType, CoordinationType } from './constants';
+import { JOINT_FILE_TYPES } from './joint-file-types';
 import {
   COMPONENT_COORDINATION_TYPES,
   DEFAULT_COORDINATION_VALUES,
@@ -12,7 +13,7 @@ const PLUGIN_COORDINATION_TYPES_KEY = 'coordinationTypes';
 const PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY = 'coordinationTypesPerView';
 const PLUGIN_FILE_TYPES_KEY = 'fileTypes';
 const PLUGIN_FILE_TYPE_DATA_TYPE_MAPPING_KEY = 'fileTypeDataTypeMapping';
-const PLUGIN_CONVENIENCE_FILE_TYPES_KEY = 'convenienceFileTypes';
+const PLUGIN_JOINT_FILE_TYPES_KEY = 'jointFileTypes';
 
 window[PLUGINS_KEY] = {};
 const PLUGINS = window[PLUGINS_KEY];
@@ -27,7 +28,7 @@ PLUGINS[PLUGIN_FILE_TYPES_KEY] = PLUGINS[PLUGIN_FILE_TYPES_KEY] || {};
 PLUGINS[PLUGIN_FILE_TYPE_DATA_TYPE_MAPPING_KEY] = (
   PLUGINS[PLUGIN_FILE_TYPE_DATA_TYPE_MAPPING_KEY] || {}
 );
-PLUGINS[PLUGIN_CONVENIENCE_FILE_TYPES_KEY] = PLUGINS[PLUGIN_CONVENIENCE_FILE_TYPES_KEY] || {};
+PLUGINS[PLUGIN_JOINT_FILE_TYPES_KEY] = PLUGINS[PLUGIN_JOINT_FILE_TYPES_KEY] || {};
 
 /**
  * Register a new coordination type.
@@ -75,17 +76,17 @@ export function registerPluginFileType(
 }
 
 /**
- * Register a new file type.
+ * Register a new joint file type.
  * @param {string} fileTypeName Name for the new file type.
- * @param {function} expansionFunction The file type expansion function.
+ * @param {function} expansionFunction The joint file type expansion function.
  * Should take in a single file definition and return an array of
- * file definitions with valid fileType values.
+ * file definitions with valid atomic fileType values.
  */
-export function registerPluginConvenienceFileType(
+export function registerPluginJointFileType(
   // eslint-disable-next-line no-unused-vars
   fileTypeName, expansionFunction,
 ) {
-  PLUGINS[PLUGIN_CONVENIENCE_FILE_TYPES_KEY][fileTypeName] = expansionFunction;
+  PLUGINS[PLUGIN_JOINT_FILE_TYPES_KEY][fileTypeName] = expansionFunction;
 }
 
 
@@ -118,7 +119,7 @@ export function getPluginFileTypes() {
   return Object.keys(PLUGINS[PLUGIN_FILE_TYPES_KEY]);
 }
 export function getPluginConvenienceFileTypes() {
-  return Object.keys(PLUGINS[PLUGIN_CONVENIENCE_FILE_TYPES_KEY]);
+  return Object.keys(PLUGINS[PLUGIN_JOINT_FILE_TYPES_KEY]);
 }
 
 export function getDataTypeForPluginFileType(fileType) {
@@ -128,7 +129,7 @@ export function getLoaderClassesForPluginFileType(fileType) {
   return PLUGINS[PLUGIN_FILE_TYPES_KEY][fileType];
 }
 export function getExpansionFunctionForPluginConvenienceFileType(fileType) {
-  return PLUGINS[PLUGIN_CONVENIENCE_FILE_TYPES_KEY][fileType];
+  return PLUGINS[PLUGIN_JOINT_FILE_TYPES_KEY][fileType];
 }
 
 // Getters that depend on plugins.
@@ -177,9 +178,9 @@ export function getFileTypeDataTypeMapping() {
   };
 }
 
-export function getConvenienceFileTypes() {
+export function getJointFileTypes() {
   return {
-    // TODO: import built-in convenience file types and include them here.
-    ...PLUGINS[PLUGIN_CONVENIENCE_FILE_TYPES_KEY],
+    ...JOINT_FILE_TYPES,
+    ...PLUGINS[PLUGIN_JOINT_FILE_TYPES_KEY],
   };
 }

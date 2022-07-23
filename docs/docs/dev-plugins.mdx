@@ -90,8 +90,8 @@ For a full example, see the [Plugin Coordination Type Development tutorial](/doc
 ## Plugin file types
 
 
-Plugin file types must be implemented as a pair of JavaScript classes (a data source class and a data loader class).
-They must be registered so that the file type can be associated with a name that can be used as a value for the field [`datasets[].files[].fileType`](/docs/view-config-json/#datasets) in the view config.
+A plugin (atomic) file type must be implemented as a pair of JavaScript classes (a data source class and a data loader class).
+The classes must be registered so that they can be associated with a name that can be used as a value for the field [`datasets[].files[].fileType`](/docs/view-config-json/#datasets) in the view config.
 
 ### `registerPluginFileType(fileType, dataType, dataLoaderClass, dataSourceClass)`
 
@@ -119,3 +119,43 @@ registerPluginFileType(
 
 For a full example, see the [Plugin File Type Development tutorial](/docs/tutorial-plugin-file-type/).
 
+## Plugin joint file types
+
+
+A plugin joint file type must be implemented as a JavaScript function that takes one joint file definition as input and returns an array of file definitions with atomic file types.
+The function must be registered so that the file type can be associated with a name that can be used as a value for the field [`datasets[].files[].fileType`](/docs/view-config-json/#datasets) in the view config.
+
+### `registerPluginJointFileType(fileType, expansionFunction)`
+
+#### Parameters:
+- `fileType` (`string`) - A name for the plugin joint file type.
+- `expansionFunction` (`function`) - A JavaScript function.
+
+```js
+import { registerPluginJointFileType } from 'vitessce';
+
+function mySegmentationsAndLocationsExpansionFunction(fileDef) {
+  const { url, coordinationValues } = fileDef;
+  return [
+    {
+      // Assuming 'obsSegmentations.segmentations-and-locations.csv'
+      // was already registered as an "atomic" plugin file type.
+      fileType: 'obsSegmentations.segmentations-and-locations.csv',
+      url,
+      coordinationValues,
+    },
+    {
+      // Assuming 'obsLocations.segmentations-and-locations.csv'
+      // was already registered as an "atomic" plugin file type.
+      fileType: 'obsLocations.segmentations-and-locations.csv',
+      url,
+      coordinationValues,
+    }
+  ];
+}
+
+registerPluginJointFileType(
+  'segmentations-and-locations.csv',
+  mySegmentationsAndLocationsExpansionFunction,
+);
+```

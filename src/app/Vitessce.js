@@ -50,6 +50,8 @@ export default function Vitessce(props) {
     onConfigChange,
     onLoaderChange,
     validateOnConfigChange = false,
+    onConfigUpgrade,
+    isBounded = false,
   } = props;
 
   // Process the view config and memoize the result:
@@ -73,7 +75,7 @@ export default function Vitessce(props) {
       }, false];
     }
     // Check if this is a "legacy" view config.
-    const [upgradedConfig, upgradeSuccess] = upgradeAndValidate(config);
+    const [upgradedConfig, upgradeSuccess] = upgradeAndValidate(config, onConfigUpgrade);
     if (upgradeSuccess) {
       // Initialize the view config according to the initStrategy.
       const [typeCheckSuccess, typeCheckMessage] = checkTypes(upgradedConfig);
@@ -87,7 +89,7 @@ export default function Vitessce(props) {
       }, false];
     }
     return [upgradedConfig, false];
-  }, [config]);
+  }, [config, onConfigUpgrade]);
 
   // Emit the upgraded/initialized view config
   // to onConfigChange if necessary.
@@ -108,6 +110,7 @@ export default function Vitessce(props) {
               rowHeight={rowHeight}
               height={height}
               theme={theme}
+              isBounded={isBounded}
             />
             <CallbackPublisher
               onWarn={onWarn}

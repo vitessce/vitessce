@@ -314,7 +314,8 @@ export function makeSpatialSubtitle({
 export function getInitialSpatialTargets({
   width,
   height,
-  cells,
+  obsSegmentations,
+  obsSegmentationsType,
   imageLayerLoaders,
   useRaster,
   use3d,
@@ -325,7 +326,6 @@ export function getInitialSpatialTargets({
   let initialZoom = -Infinity;
   // Some backoff from completely filling the screen.
   const zoomBackoff = use3d ? 1.5 : 0.1;
-  const cellValues = Object.values(cells);
   if (imageLayerLoaders.length > 0 && useRaster) {
     for (let i = 0; i < imageLayerLoaders.length; i += 1) {
       const viewSize = { height, width };
@@ -353,12 +353,12 @@ export function getInitialSpatialTargets({
         initialTargetZ = null;
       }
     }
-  } else if (cellValues.length > 0
+  } else if (obsSegmentationsType === 'polygon' && obsSegmentations?.data?.length
     // Only use cellValues in quadtree calculation if there is
     // centroid data in the cells (i.e not just ids).
-    && cellValues[0].xy
     && !useRaster) {
-    const cellCoordinates = cellValues.map(c => c.xy);
+    // TODO: use centroid of polygon
+    const cellCoordinates = obsSegmentations.data.map(c => [c[0][0], c[0][1]]);
     let xExtent = extent(cellCoordinates, c => c[0]);
     let yExtent = extent(cellCoordinates, c => c[1]);
     let xRange = xExtent[1] - xExtent[0];
@@ -370,14 +370,14 @@ export function getInitialSpatialTargets({
     if (xRange === 0) {
       // The fall back is the cells' polygon coordinates, if the original range
       // is 0 i.e the centroids are all on the same axis.
-      const polygonExtentsX = cellValues.map(cell => extent(cell.poly, i => i[0]));
+      const polygonExtentsX = obsSegmentations.data.map(cell => extent(cell, i => i[0]));
       xExtent = getViewExtentFromPolygonExtents(polygonExtentsX);
       xRange = xExtent[1] - xExtent[0];
     }
     if (yRange === 0) {
       // The fall back is the first cells' polygon coordinates, if the original range
       // is 0 i.e the centroids are all on the same axis.
-      const polygonExtentsY = cellValues.map(cell => extent(cell.poly, i => i[1]));
+      const polygonExtentsY = obsSegmentations.data.map(cell => extent(cell, i => i[1]));
       yExtent = getViewExtentFromPolygonExtents(polygonExtentsY);
       yRange = yExtent[1] - yExtent[0];
     }

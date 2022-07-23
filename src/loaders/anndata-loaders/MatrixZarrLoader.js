@@ -32,6 +32,22 @@ const concatenateColumnVectors = (arr) => {
  * Loader for converting zarr into the a cell x gene matrix for use in Genes/Heatmap components.
  */
 export default class MatrixZarrLoader extends AbstractTwoStepLoader {
+  getOptions() {
+    const { options, fileType } = this;
+    const newOptions = {
+      path: options.path,
+      featureFilterPath: options.featureFilterPath,
+      initialFeatureFilterPath: options.initialFeatureFilterPath,
+      geneAlias: options.geneAlias, // TODO: use featureLabels.anndata.zarr instead
+    };
+    if (fileType !== 'obsFeatureMatrix.anndata.zarr') {
+      newOptions.path = options.matrix;
+      newOptions.featureFilterPath = options.geneFilter;
+      newOptions.initialFeatureFilterPath = options.matrixGeneFilter;
+    }
+    return newOptions;
+  }
+
   /**
    * Class method for loading the genes list from AnnData.var,
    * filtered if a there is a `geneFilterZarr` present in the view config.
@@ -41,7 +57,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
     if (this.filteredGeneNames) {
       return this.filteredGeneNames;
     }
-    const { geneFilter: geneFilterZarr, geneAlias } = this.options;
+    const { featureFilterPath: geneFilterZarr, geneAlias } = this.getOptions();
     const getFilterFn = async () => {
       if (!geneFilterZarr) return data => data;
       const geneFilter = await this.dataSource.getFlatArrDecompressed(geneFilterZarr);
@@ -103,7 +119,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    * @returns {Array} A list of promises pointing to the indptr, indices, and data of the matrix.
    */
   async _openSparseArrays() {
-    const { options: { matrix } } = this;
+    const { path: matrix } = this.getOptions();
     const { store } = this.dataSource;
     if (this.sparseArrays) {
       return this.sparseArrays;
@@ -177,7 +193,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
       return this._sparseMatrix;
     }
     this._sparseMatrix = this._openSparseArrays().then(async (sparseArrays) => {
-      const { options: { matrix } } = this;
+      const { path: matrix } = this.getOptions();
       const { shape } = await this.dataSource.getJson(`${matrix}/.zattrs`);
       const [rows, cols, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
@@ -211,7 +227,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
       return this._sparseMatrix;
     }
     this._sparseMatrix = this._openSparseArrays().then(async (sparseArrays) => {
-      const { options: { matrix } } = this;
+      const { path: matrix } = this.getOptions();
       const { shape } = await this.dataSource.getJson(`${matrix}/.zattrs`);
       const [cols, rows, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
@@ -245,7 +261,10 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
     if (this.cellXGene) {
       return this.cellXGene;
     }
-    const { options: { matrix, matrixGeneFilter } } = this;
+    const {
+      path: matrix,
+      initialFeatureFilterPath: matrixGeneFilter,
+    } = this.getOptions();
     if (!this._matrixZattrs) {
       this._matrixZattrs = await this.dataSource.getJson(`${matrix}/.zattrs`);
     }
@@ -297,7 +316,7 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
    * @returns {Object} { data } containing an array of gene expression data.
    */
   async loadGeneSelection({ selection, shouldNormalize = true }) {
-    const { options: { matrix } } = this;
+    const { path: matrix } = this.getOptions();
     const { store } = this.dataSource;
     if (!this._matrixZattrs) {
       this._matrixZattrs = await this.dataSource.getJson(`${matrix}/.zattrs`);
@@ -343,8 +362,8 @@ export default class MatrixZarrLoader extends AbstractTwoStepLoader {
       async (d) => {
         const [{ data: attrs }, cellXGene] = d;
         const {
-          options: { matrixGeneFilter: matrixGeneFilterZarr },
-        } = this;
+          initialFeatureFilterPath: matrixGeneFilterZarr,
+        } = this.getOptions();
         // In order to return the correct gene list with the heatmap data,
         // we need to filter the columns of attrs so it matches the cellXGene data.
         if (matrixGeneFilterZarr) {

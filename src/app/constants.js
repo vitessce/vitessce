@@ -19,29 +19,68 @@ export const Component = {
 };
 
 export const DataType = {
-  CELLS: 'cells',
-  CELL_SETS: 'cell-sets',
-  EXPRESSION_MATRIX: 'expression-matrix',
-  GENOMIC_PROFILES: 'genomic-profiles',
-  MOLECULES: 'molecules',
+  OBS_LABELS: 'obsLabels',
+  OBS_EMBEDDING: 'obsEmbedding',
+  OBS_LOCATIONS: 'obsLocations',
+  OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
+  OBS_SETS: 'obsSets',
+  FEATURE_LABELS: 'featureLabels',
+  IMAGE: 'image',
+  OBS_SEGMENTATIONS: 'obsSegmentations',
   NEIGHBORHOODS: 'neighborhoods',
-  RASTER: 'raster',
+  GENOMIC_PROFILES: 'genomic-profiles',
 };
 
 
 export const FileType = {
+  // New file types
+  OBS_SETS_JSON: 'obsSets.json',
+  IMAGE_OME_ZARR: 'image.ome-zarr',
+  ANNDATA_ZARR: 'anndata.zarr',
+  // Also for anndata-expression-matrix.zarr
+  OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
+  // Also for anndata-cell-sets.zarr
+  OBS_SETS_ANNDATA_ZARR: 'obsSets.anndata.zarr',
+  // Also for anndata-cells.zarr
+  OBS_EMBEDDING_ANNDATA_ZARR: 'obsEmbedding.anndata.zarr',
+  OBS_LOCATIONS_ANNDATA_ZARR: 'obsLocations.anndata.zarr',
+  OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
+  OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
+  FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
+  // New file types to support old file types:
+  // For cells.json
+  OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
+  OBS_SEGMENTATIONS_CELLS_JSON: 'obsSegmentations.cells.json',
+  OBS_LOCATIONS_CELLS_JSON: 'obsLocations.cells.json',
+  OBS_LABELS_CELLS_JSON: 'obsLabels.cells.json',
+  // For cell-sets.json
+  OBS_SETS_CELL_SETS_JSON: 'obsSets.cell-sets.json',
+  // For genes.json
+  OBS_FEATURE_MATRIX_GENES_JSON: 'obsFeatureMatrix.genes.json',
+  // For clusters.json
+  OBS_FEATURE_MATRIX_CLUSTERS_JSON: 'obsFeatureMatrix.clusters.json',
+  // For expression-matrix.zarr
+  OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR: 'obsFeatureMatrix.expression-matrix.zarr',
+  // For raster.json
+  IMAGE_RASTER_JSON: 'image.raster.json',
+  OBS_SEGMENTATIONS_RASTER_JSON: 'obsSegmentations.raster.json',
+  // For molecules.json
+  OBS_LOCATIONS_MOLECULES_JSON: 'obsLocations.molecules.json',
+  OBS_LABELS_MOLECULES_JSON: 'obsLabels.molecules.json',
+  // Old file types
+  GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
+  NEIGHBORHOODS_JSON: 'neighborhoods.json',
+  // Convenience file types
   CELLS_JSON: 'cells.json',
   CELL_SETS_JSON: 'cell-sets.json',
+  ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
+  ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
   EXPRESSION_MATRIX_ZARR: 'expression-matrix.zarr',
-  GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
   MOLECULES_JSON: 'molecules.json',
-  NEIGHBORHOODS_JSON: 'neighborhoods.json',
   RASTER_JSON: 'raster.json',
   RASTER_OME_ZARR: 'raster.ome-zarr',
   CLUSTERS_JSON: 'clusters.json',
   GENES_JSON: 'genes.json',
-  ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
-  ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
   ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
 };
 
@@ -55,6 +94,7 @@ export const CoordinationType = {
   OBS_TYPE: 'obsType',
   FEATURE_TYPE: 'featureType',
   FEATURE_VALUE_TYPE: 'featureValueType',
+  OBS_LABELS_TYPE: 'obsLabelsType',
   // Other types
   EMBEDDING_TYPE: 'embeddingType',
   EMBEDDING_ZOOM: 'embeddingZoom',

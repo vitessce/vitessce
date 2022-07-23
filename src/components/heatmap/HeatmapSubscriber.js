@@ -3,12 +3,17 @@ import React, {
 } from 'react';
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
+import {
+  useDeckCanvasSize,
+  useGetObsInfo,
+  useReady,
+  useUrls,
+} from '../hooks';
 import { mergeCellSets } from '../utils';
 import {
-  useCellsData,
-  useCellSetsData,
-  useExpressionMatrixData,
+  useObsSetsData,
+  useObsFeatureMatrixData,
+  useMultiObsLabels,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import {
@@ -21,8 +26,9 @@ import {
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 import HeatmapOptions from './HeatmapOptions';
+import { DataType } from '../../app/constants';
 
-const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
+const HEATMAP_DATA_TYPES = [DataType.OBS_SETS, DataType.OBS_FEATURE_MATRIX];
 
 /**
  * @param {object} props
@@ -65,6 +71,9 @@ export default function HeatmapSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
+    featureType,
+    featureValueType,
     heatmapZoomX: zoomX,
     heatmapTargetX: targetX,
     heatmapTargetY: targetY,
@@ -111,17 +120,21 @@ export default function HeatmapSubscriber(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
-  // Get data from loaders using the data hooks.
-  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
-  const [expressionMatrix] = useExpressionMatrixData(
-    loaders, dataset, setItemIsReady, addUrl, true,
+  const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
+    coordinationScopes, obsType, loaders, dataset, setItemIsReady, addUrl,
   );
-  const [cellSets] = useCellSetsData(
+
+  // Get data from loaders using the data hooks.
+  const { obsIndex, featureIndex, obsFeatureMatrix } = useObsFeatureMatrixData(
+    loaders, dataset, setItemIsReady, addUrl, true, {}, {},
+    { obsType, featureType, featureValueType },
+  );
+  const { obsSets: cellSets } = useObsSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
+    { obsType },
   );
-
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
@@ -133,21 +146,14 @@ export default function HeatmapSubscriber(props) {
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-    expressionDataAttrs: expressionMatrix,
+    obsIndex,
     theme,
   }), [mergedCellSets, geneSelection, theme,
-    cellSetColor, cellSetSelection, expressionMatrix]);
+    cellSetColor, cellSetSelection, obsIndex]);
 
-  const getCellInfo = useCallback((cellId) => {
-    if (cellId) {
-      const cellInfo = cells[cellId];
-      return {
-        [`${capitalize(observationsLabel)} ID`]: cellId,
-        ...(cellInfo ? cellInfo.factors : {}),
-      };
-    }
-    return null;
-  }, [cells, observationsLabel]);
+  const getCellInfo = useGetObsInfo(
+    observationsLabel, obsIndex, obsLabelsTypes, obsLabelsData,
+  );
 
   const getGeneInfo = useCallback((geneId) => {
     if (geneId) {
@@ -156,10 +162,29 @@ export default function HeatmapSubscriber(props) {
     return null;
   }, [variablesLabel]);
 
-  const cellsCount = expressionMatrix && expressionMatrix.rows
-    ? expressionMatrix.rows.length : 0;
-  const genesCount = expressionMatrix && expressionMatrix.cols
-    ? expressionMatrix.cols.length : 0;
+  const expressionMatrix = useMemo(() => {
+    if (obsIndex && featureIndex && obsFeatureMatrix) {
+      return {
+        rows: obsIndex,
+        cols: featureIndex,
+        matrix: obsFeatureMatrix.data,
+      };
+    }
+    return null;
+  }, [obsIndex, featureIndex, obsFeatureMatrix]);
+
+  const cellsCount = obsIndex ? obsIndex.length : 0;
+  const genesCount = featureIndex ? featureIndex.length : 0;
+
+  const setTrackHighlight = useCallback(() => {
+    // No-op, since the default handler
+    // logs in the console on every hover event.
+  }, []);
+
+  const cellColorLabels = useMemo(() => ([
+    `${capitalize(observationsLabel)} Set`,
+  ]), [observationsLabel]);
+
   const selectedCount = cellColors.size;
   return (
     <TitleInfo
@@ -201,12 +226,17 @@ export default function HeatmapSubscriber(props) {
         setIsRendering={setIsRendering}
         setCellHighlight={setCellHighlight}
         setGeneHighlight={setGeneHighlight}
+        setTrackHighlight={setTrackHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
         observationsTitle={observationsTitle}
         variablesTitle={variablesTitle}
+        variablesDashes={false}
+        observationsDashes={false}
+        cellColorLabels={cellColorLabels}
+        useDevicePixels
       />
       {!disableTooltip && (
       <HeatmapTooltipSubscriber
