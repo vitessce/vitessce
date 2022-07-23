@@ -11,6 +11,7 @@
   - `featureType`
   - `featureValueType`
 - Add more usage examples to the `about` documentation page.
+- Added tests for checking that FileType constants have been mapped to corresponding data types and loader classes.
 - Added `npm run start:nolint` script to disable linting for quickly prototyping code.
 - Added the optional `isBounded` property to the `Vitessce` React component that prevents users from dragging or resizing components beyond the original grid boundary.
 - Added support for multiple `cellColor` tracks in the Heatmap component.
