@@ -25,7 +25,7 @@ export default class RasterJsonAsObsSegmentationsLoader extends RasterLoader {
     return new LoaderResult(
       {
         obsSegmentationsType: 'bitmask',
-        obsSegmentations: { loaders, meta },
+        obsSegmentations: (loaders.length > 0 && meta.length > 0 ? { loaders, meta } : null),
       },
       urls,
       {
@@ -35,7 +35,10 @@ export default class RasterJsonAsObsSegmentationsLoader extends RasterLoader {
           .filter(l => l.type === 'bitmask')
           // Re-index since we removed the bitmask layers,
           // so the indices may have gaps.
-          .map((l, index) => ({ ...l, index })),
+          .map(layer => ({
+            ...layer,
+            index: meta.findIndex(metaItem => metaItem.name === allMeta[layer.index].name),
+          })),
       },
     );
   }

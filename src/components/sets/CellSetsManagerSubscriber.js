@@ -54,9 +54,6 @@ import {
   getNextNumberedNodeName,
 } from '../utils';
 import { useObsSetsData } from '../data-hooks';
-import { DataType } from '../../app/constants';
-
-const CELL_SETS_DATA_TYPES = [DataType.OBS_SETS];
 
 /**
  * A subscriber wrapper around the SetsManager component
@@ -95,34 +92,27 @@ export default function CellSetsManagerSubscriber(props) {
     setAdditionalObsSets: setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSets, coordinationScopes);
 
-  const [urls, addUrl, resetUrls] = useUrls();
-  const [
-    isReady,
-    setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
-    resetReadyItems,
-  ] = useReady(
-    CELL_SETS_DATA_TYPES,
-  );
+  const [urls, addUrl] = useUrls(loaders, dataset);
 
   const [cellSetExpansion, setCellSetExpansion] = useState([]);
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
-    resetUrls();
-    resetReadyItems();
     setCellSetExpansion([]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  // TODO: return obsIndex from obsSets loaders.
-  const { obsIndex, obsSets: cellSets } = useObsSetsData(
-    loaders, dataset, setItemIsReady, addUrl, true,
+  // TODO: return obsIndex from all obsSets loaders.
+  const [{ obsIndex, obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
+    loaders, dataset, addUrl, true,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
+  const isReady = useReady([
+    obsSetsStatus,
+  ]);
 
   // Validate and upgrade the additionalCellSets.
   useEffect(() => {

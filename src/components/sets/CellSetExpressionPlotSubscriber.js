@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useReducer } from 'react';
 import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
@@ -7,9 +7,6 @@ import { useFeatureSelection, useObsSetsData, useObsFeatureMatrixIndices } from 
 import { useExpressionByCellSet } from './hooks';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
 import CellSetExpressionPlot from './CellSetExpressionPlot';
-import { DataType } from '../../app/constants';
-
-const CELL_SET_EXPRESSION_DATA_TYPES = [DataType.OBS_SETS, DataType.OBS_FEATURE_MATRIX];
 
 /**
  * A subscriber component for `CellSetExpressionPlot`,
@@ -46,15 +43,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetExpression, coordinationScopes);
 
   const [width, height, containerRef] = useGridItemSize();
-  const [urls, addUrl, resetUrls] = useUrls();
-  const [
-    isReady,
-    setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
-    resetReadyItems,
-  ] = useReady(
-    CELL_SET_EXPRESSION_DATA_TYPES,
-  );
+  const [urls, addUrl] = useUrls(loaders, dataset);
 
   const [useGeneExpressionTransform, toggleGeneExpressionTransform] = useReducer((v) => {
     const newValue = !v;
@@ -62,26 +51,25 @@ export default function CellSetExpressionPlotSubscriber(props) {
     return newValue;
   }, geneExpressionTransform);
 
-  // Reset file URLs and loader progress when the dataset has changed.
-  useEffect(() => {
-    resetUrls();
-    resetReadyItems();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
-
   // Get data from loaders using the data hooks.
-  const [expressionData] = useFeatureSelection(
-    loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
+  // eslint-disable-next-line no-unused-vars
+  const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
+    loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
-  const { obsIndex } = useObsFeatureMatrixIndices(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  const [{ obsIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
+    loaders, dataset, addUrl, false,
     { obsType, featureType, featureValueType },
   );
-  const { obsSets: cellSets } = useObsSetsData(
-    loaders, dataset, setItemIsReady, addUrl, true, {}, {},
+  const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
+    loaders, dataset, addUrl, true, {}, {},
     { obsType },
   );
+  const isReady = useReady([
+    featureSelectionStatus,
+    matrixIndicesStatus,
+    obsSetsStatus,
+  ]);
 
   const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
     expressionData, obsIndex, cellSets, additionalCellSets,

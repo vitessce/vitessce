@@ -1,7 +1,7 @@
 /* eslint-disable dot-notation */
 /* eslint-disable no-unused-vars */
 import React, {
-  useEffect, useCallback, useRef, forwardRef,
+  useCallback, useRef, forwardRef,
 } from 'react';
 import Grid from '@material-ui/core/Grid';
 import TitleInfo from '../TitleInfo';
@@ -25,13 +25,6 @@ import {
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { initializeLayerChannels } from '../spatial/utils';
 import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
-import { DataType } from '../../app/constants';
-
-const LAYER_CONTROLLER_DATA_TYPES = [
-  DataType.IMAGE,
-  DataType.OBS_LOCATIONS,
-  DataType.OBS_SEGMENTATIONS,
-];
 
 // LayerController is memoized to prevent updates from prop changes that
 // are caused by view state updates i.e zooming and panning within
@@ -120,8 +113,8 @@ const LayerControllerMemoized = React.memo(
           {cellsLayer && obsSegmentationsType === 'bitmask'
             && cellsLayer.map((layer, i) => {
               const { index } = layer;
-              const loader = segmentationLayerLoaders[index];
-              const layerMeta = segmentationLayerMeta[index];
+              const loader = segmentationLayerLoaders?.[index];
+              const layerMeta = segmentationLayerMeta?.[index];
               const isRaster = false;
               // Set up the call back mechanism so that each layer manages
               // callbacks/loading state for itself and its channels.
@@ -201,8 +194,8 @@ const LayerControllerMemoized = React.memo(
           {rasterLayers
             && rasterLayers.map((layer, i) => {
               const { index } = layer;
-              const loader = imageLayerLoaders[index];
-              const layerMeta = imageLayerMeta[index];
+              const loader = imageLayerLoaders?.[index];
+              const layerMeta = imageLayerMeta?.[index];
               // Bitmasks are handled above.
               const isRaster = true;
               // Set up the call back mechanism so that each layer manages
@@ -373,44 +366,38 @@ function LayerControllerSubscriber(props) {
   const [componentWidth, componentHeight] = useClosestVitessceContainerSize(layerControllerRef);
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
-  const [
-    isReady,
-    setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
-    resetReadyItems,
-  ] = useReady(
-    LAYER_CONTROLLER_DATA_TYPES,
-  );
-
-  // Reset loader progress when the dataset has changed.
-  useEffect(() => {
-    resetReadyItems();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
-
   // Get data from loaders using the data hooks.
-  useObsLocationsData(
-    loaders, dataset, setItemIsReady, () => {}, false,
+  // eslint-disable-next-line no-unused-vars
+  const [obsLocationsData, obsLocationsStatus] = useObsLocationsData(
+    loaders, dataset, () => {}, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
     {}, // TODO: use obsType once #1240 is merged.
   );
-  const { obsSegmentations, obsSegmentationsType } = useObsSegmentationsData(
-    loaders, dataset, setItemIsReady, () => {}, false,
+  const [
+    { obsSegmentations, obsSegmentationsType },
+    obsSegmentationsStatus,
+  ] = useObsSegmentationsData(
+    loaders, dataset, () => {}, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
     {}, // TODO: use obsType once #1240 is merged.
   );
-  const { image } = useImageData(
-    loaders, dataset, setItemIsReady, () => {}, false,
+  const [{ image }, imageStatus] = useImageData(
+    loaders, dataset, () => {}, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: rasterLayers },
     {}, // TODO: which values to match on
   );
-  const { loaders: imageLayerLoaders = [], meta: imageLayerMeta = [] } = image || {};
+  const { loaders: imageLayerLoaders, meta: imageLayerMeta } = image || {};
+  const isReady = useReady([
+    obsLocationsStatus,
+    obsSegmentationsStatus,
+    imageStatus,
+  ]);
 
-  const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.loaders : [];
-  const segmentationLayerMeta = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.meta : [];
+  const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.loaders : null;
+  const segmentationLayerMeta = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.meta : null;
 
   // useCallback prevents new functions from propogating
   // changes to the underlying component.

@@ -190,21 +190,26 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
 
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  use3d() {
+    return false;
+  }
+
   /**
    * A common render function for both Spatial
    * and Scatterplot components.
    */
   render() {
     const {
-      deckRef, viewState, uuid, layers: layerProps,
+      deckRef, viewState, uuid,
     } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
-    const use3d = (layerProps || []).some(l => l.use3d);
+    const use3d = this.use3d();
 
     const showCellSelectionTools = this.cellsLayer !== null
       || (this.obsIndex && this.obsIndex.length > 0);
-    const showPanTool = this.cellsLayer !== null || (layerProps && layerProps.findIndex(l => l.type === 'bitmask' || l.type === 'raster') >= 0);
+    const showPanTool = layers.length > 0;
     // For large datasets or ray casting, the visual quality takes only a small
     // hit in exchange for much better performance by setting this to false:
     // https://deck.gl/docs/api-reference/core/deck#usedevicepixels

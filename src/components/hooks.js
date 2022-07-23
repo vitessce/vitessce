@@ -2,6 +2,7 @@ import {
   useRef, useState, useEffect, useCallback, useMemo,
 } from 'react';
 import debounce from 'lodash/debounce';
+import every from 'lodash/every';
 import { useGridResize, useEmitGridResize } from '../app/state/hooks';
 import { VITESSCE_CONTAINER } from './classNames';
 import { capitalize, fromEntries } from '../utils';
@@ -131,60 +132,26 @@ export function useDeckCanvasSize() {
  * This hook handles a boolean isReady value,
  * which only returns true once every item in the
  * input list has been marked as "ready".
- * @param {string[]} items The items to wait on.
- * Should be defined as a constant
- * (outside a function component / render function),
- * otherwise strange bugs may occur.
- * @returns {array} An array
- * [isReady, setItemIsReady, setItemIsNotReady, resetReadyItems]
- * where isReady is the boolean value,
- * setItemIsReady marks one item as ready,
- * setItemIsNotReady marks one item as not ready,
- * and resetReadyItem marks all items as waiting.
+ * @param {string[]} statusValues The items to wait on.
+ * @returns {boolean} Whether the status values are all success.
  */
-export function useReady(supportedItems) {
-  const items = supportedItems;
-  const [waiting, setWaiting] = useState(items);
-
-  const setItemIsReady = useCallback((readyItem) => {
-    setWaiting((waitingItems) => {
-      const nextWaitingItems = waitingItems.filter(item => item !== readyItem);
-      // eslint-disable-next-line no-console
-      console.log(`cleared ${readyItem}; waiting on ${nextWaitingItems.length}: ${JSON.stringify(nextWaitingItems)}`);
-      return nextWaitingItems;
-    });
-  }, [setWaiting]);
-
-  const setItemIsNotReady = useCallback((notReadyItem) => {
-    setWaiting((waitingItems) => {
-      const nextWaitingItems = [...waitingItems, notReadyItem];
-      // eslint-disable-next-line no-console
-      console.log(`waiting on ${nextWaitingItems.length}: ${JSON.stringify(nextWaitingItems)}`);
-      return nextWaitingItems;
-    });
-  }, [setWaiting]);
-
-  const resetReadyItems = useCallback(() => {
-    setWaiting(items);
-    // eslint-disable-next-line no-console
-    console.log(`waiting on ${items.length}: ${JSON.stringify(items)}`);
-  }, [setWaiting, items]);
-
-  const isReady = waiting.length === 0;
-
-  return [isReady, setItemIsReady, setItemIsNotReady, resetReadyItems];
+export function useReady(statusValues) {
+  return useMemo(() => every(
+    statusValues, val => val === 'success',
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ), statusValues);
 }
 
 /**
  * This hook manages a list of URLs,
  * with adding and resetting helpers.
  * @returns {array} An array
- * [urls, addUrl, resetUrls]
+ * [urls, addUrl]
  * where urls is the array of URL objects,
  * addUrl is a function for adding a URL to the array,
  * resetUrls is a function that clears the array.
  */
-export function useUrls() {
+export function useUrls(loaders, dataset) {
   const [urls, setUrls] = useState([]);
 
   const addUrl = useCallback((url, name) => {
@@ -193,11 +160,11 @@ export function useUrls() {
     }
   }, [setUrls]);
 
-  const resetUrls = useCallback(() => {
+  useEffect(() => {
     setUrls([]);
-  }, [setUrls]);
+  }, [loaders, dataset]);
 
-  return [urls, addUrl, resetUrls];
+  return [urls, addUrl];
 }
 
 /**
@@ -238,9 +205,10 @@ export function useExpressionValueGetter({ instanceObsIndex, matrixObsIndex, exp
   // may be ordered differently (matrixObsIndex = the obsIndex from obsFeatureMatrix),
   // we need a way to look up anobsFeatureMatrix obsIndex index
   // given an obsEmbedding obsIndex index.
-  const matrixIndexMap = useMemo(() => {
+  const toMatrixIndexMap = useMemo(() => {
     if (instanceObsIndex && matrixObsIndex) {
-      return instanceObsIndex.map(i => matrixObsIndex.indexOf(i));
+      const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => ([key, i])));
+      return instanceObsIndex.map(key => matrixIndexMap.get(key));
     }
     return null;
   }, [instanceObsIndex, matrixObsIndex]);
@@ -248,13 +216,13 @@ export function useExpressionValueGetter({ instanceObsIndex, matrixObsIndex, exp
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useCallback((entry, { index: instanceIndex }) => {
-    if (matrixIndexMap && expressionData && expressionData[0]) {
-      const rowIndex = matrixIndexMap[instanceIndex];
+    if (toMatrixIndexMap && expressionData && expressionData[0]) {
+      const rowIndex = toMatrixIndexMap[instanceIndex];
       const val = expressionData[0][rowIndex];
       return val;
     }
     return 0;
-  }, [matrixIndexMap, expressionData]);
+  }, [toMatrixIndexMap, expressionData]);
   return getExpressionValue;
 }
 

@@ -1,5 +1,5 @@
 import React, {
-  useEffect, useState, useCallback, useMemo,
+  useState, useCallback, useMemo,
 } from 'react';
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
@@ -27,9 +27,6 @@ import {
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 import HeatmapOptions from './HeatmapOptions';
-import { DataType } from '../../app/constants';
-
-const HEATMAP_DATA_TYPES = [DataType.OBS_SETS, DataType.OBS_FEATURE_MATRIX];
 
 /**
  * @param {object} props
@@ -103,43 +100,35 @@ export default function HeatmapSubscriber(props) {
   const variablesTitle = capitalize(variablesPluralLabel);
 
   const [isRendering, setIsRendering] = useState(false);
-  const [
-    isReady,
-    setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
-    resetReadyItems,
-  ] = useReady(
-    HEATMAP_DATA_TYPES,
-  );
-  const [urls, addUrl, resetUrls] = useUrls();
-  const [width, height, deckRef] = useDeckCanvasSize();
 
-  // Reset file URLs and loader progress when the dataset has changed.
-  useEffect(() => {
-    resetUrls();
-    resetReadyItems();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  const [urls, addUrl] = useUrls(loaders, dataset);
+  const [width, height, deckRef] = useDeckCanvasSize();
 
   // Get data from loaders using the data hooks.
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
-    coordinationScopes, obsType, loaders, dataset, setItemIsReady, addUrl,
+    coordinationScopes, obsType, loaders, dataset, addUrl,
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const { featureLabelsMap } = useFeatureLabelsData(
-    loaders, dataset, setItemIsReady, addUrl, false, {}, {},
+  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
+    loaders, dataset, addUrl, false, {}, {},
     { featureType },
   );
-  const { obsIndex, featureIndex, obsFeatureMatrix } = useObsFeatureMatrixData(
-    loaders, dataset, setItemIsReady, addUrl, true, {}, {},
+  const [{ obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus] = useObsFeatureMatrixData(
+    loaders, dataset, addUrl, true, {}, {},
     { obsType, featureType, featureValueType },
   );
-  const { obsSets: cellSets } = useObsSetsData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
+    loaders, dataset, addUrl, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
+  const isReady = useReady([
+    featureLabelsStatus,
+    matrixStatus,
+    obsSetsStatus,
+  ]);
+
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);

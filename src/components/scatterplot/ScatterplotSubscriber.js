@@ -32,13 +32,6 @@ import {
   getPointOpacity,
 } from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-import { DataType } from '../../app/constants';
-
-const SCATTERPLOT_DATA_TYPES = [
-  DataType.OBS_EMBEDDING,
-  DataType.OBS_SETS,
-  DataType.OBS_FEATURE_MATRIX,
-];
 
 /**
  * A subscriber component for the scatterplot.
@@ -121,51 +114,43 @@ export default function ScatterplotSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
-  const [urls, addUrl, resetUrls] = useUrls();
+  const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
-  const [
-    isReady,
-    setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
-    resetReadyItems,
-  ] = useReady(
-    SCATTERPLOT_DATA_TYPES,
-  );
 
   const title = titleOverride || `Scatterplot (${mapping})`;
 
-  // Reset file URLs and loader progress when the dataset has changed.
-  useEffect(() => {
-    resetUrls();
-    resetReadyItems();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
-
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
-    coordinationScopes, obsType, loaders, dataset, setItemIsReady, addUrl,
+    coordinationScopes, obsType, loaders, dataset, addUrl,
   );
 
   // Get data from loaders using the data hooks.
-  const { obsIndex: obsEmbeddingIndex, obsEmbedding } = useObsEmbeddingData(
-    loaders, dataset, setItemIsReady, addUrl, true, {}, {},
+  const [{ obsIndex: obsEmbeddingIndex, obsEmbedding }, obsEmbeddingStatus] = useObsEmbeddingData(
+    loaders, dataset, addUrl, true, {}, {},
     { obsType, embeddingType: mapping },
   );
   const cellsCount = obsEmbeddingIndex?.length || 0;
-  const { obsSets: cellSets } = useObsSetsData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
+    loaders, dataset, addUrl, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
-  // Existing data hooks
-  const [expressionData] = useFeatureSelection(
-    loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
+  // eslint-disable-next-line no-unused-vars
+  const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
+    loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
-  const { obsIndex: matrixObsIndex } = useObsFeatureMatrixIndices(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  const [{ obsIndex: matrixObsIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
+    loaders, dataset, addUrl, false,
     { obsType, featureType, featureValueType },
   );
+
+  const isReady = useReady([
+    obsEmbeddingStatus,
+    obsSetsStatus,
+    featureSelectionStatus,
+    matrixIndicesStatus,
+  ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);

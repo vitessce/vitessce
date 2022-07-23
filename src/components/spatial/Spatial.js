@@ -450,13 +450,20 @@ class Spatial extends AbstractSpatialOrScatterplot {
     });
   }
 
+  use3d() {
+    const {
+      imageLayerDefs,
+    } = this.props;
+    return (imageLayerDefs || []).some(i => i.use3d);
+  }
+
   createImageLayers() {
     const {
       imageLayerDefs,
       imageLayerLoaders = {},
       imageLayerCallbacks = [],
     } = this.props;
-    const use3d = (imageLayerDefs || []).some(i => i.use3d);
+    const use3d = this.use3d();
     const use3dIndex = (imageLayerDefs || []).findIndex(i => i.use3d);
     return (imageLayerDefs || [])
       .filter(layer => (use3d ? layer.use3d === use3d : true))
@@ -474,7 +481,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsSegmentationsType,
       segmentationLayerCallbacks = [],
     } = this.props;
-    if (obsSegmentationsType === 'bitmask' && Array.isArray(obsSegmentationsLayerDefs)) {
+    if (obsSegmentations && obsSegmentationsType === 'bitmask' && Array.isArray(obsSegmentationsLayerDefs)) {
       const { loaders = [] } = obsSegmentations;
       const use3d = obsSegmentationsLayerDefs.some(i => i.use3d);
       const use3dIndex = obsSegmentationsLayerDefs.findIndex(i => i.use3d);
@@ -679,6 +686,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.viewInfoDidUpdate();
 
     const shallowDiff = propName => prevProps[propName] !== this.props[propName];
+    let forceUpdate = false;
     if (
       [
         'obsSegmentations',
@@ -688,7 +696,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ) {
       // Cells data changed.
       this.onUpdateCellsData();
-      this.forceUpdate();
+      forceUpdate = true;
     }
 
     if (
@@ -709,19 +717,19 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
-      this.forceUpdate();
+      forceUpdate = true;
     }
 
     if (['cellColors'].some(shallowDiff)) {
       // Cells Color layer props changed.
       this.onUpdateCellColors();
-      this.forceUpdate();
+      forceUpdate = true;
     }
 
     if (['expressionData'].some(shallowDiff)) {
       // Expression data prop changed.
       this.onUpdateExpressionData();
-      this.forceUpdate();
+      forceUpdate = true;
     }
 
     if (
@@ -733,7 +741,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ) {
       // Molecules data props changed.
       this.onUpdateMoleculesData();
-      this.forceUpdate();
+      forceUpdate = true;
     }
 
     if (
@@ -747,19 +755,19 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ) {
       // Molecules layer props changed.
       this.onUpdateMoleculesLayer();
-      this.forceUpdate();
+      forceUpdate = true;
     }
 
     if (['neighborhoods'].some(shallowDiff)) {
       // Neighborhoods data changed.
       this.onUpdateNeighborhoodsData();
-      this.forceUpdate();
+      forceUpdate = true;
     }
 
     if (['neighborhoodLayerDefsDefs', 'neighborhoods'].some(shallowDiff)) {
       // Neighborhoods layer props changed.
       this.onUpdateNeighborhoodsLayer();
-      this.forceUpdate();
+      forceUpdate = true;
     }
 
     if (
@@ -776,6 +784,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ) {
       // Image layers changed.
       this.onUpdateImages();
+      forceUpdate = true;
+    }
+    if (forceUpdate) {
       this.forceUpdate();
     }
   }

@@ -148,3 +148,9 @@ export const CoordinationType = {
   // TODO: use obsHighlight rather than moleculeHighlight.
   MOLECULE_HIGHLIGHT: 'moleculeHighlight',
 };
+
+export const STATUS = {
+  LOADING: 'loading',
+  SUCCESS: 'success',
+  ERROR: 'error',
+};

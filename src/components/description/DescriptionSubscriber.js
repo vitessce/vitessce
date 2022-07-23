@@ -1,13 +1,12 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useReady } from '../hooks';
 import { useDescription, useImageData } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
 import Description from './Description';
-import { DataType } from '../../app/constants';
 
-const DESCRIPTION_DATA_TYPES = [DataType.IMAGE];
+const addUrl = () => {}; // noop
 
 /**
  * A subscriber component for a text description component.
@@ -37,28 +36,15 @@ export default function DescriptionSubscriber(props) {
     spatialImageLayer: rasterLayers,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.description, coordinationScopes);
 
-  const [
-    isReady,
-    setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
-    resetReadyItems,
-  ] = useReady(
-    DESCRIPTION_DATA_TYPES,
-  );
-
-  // Reset loader progress when the dataset has changed.
-  useEffect(() => {
-    resetReadyItems();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
-
   // Get data from loaders using the data hooks.
   const [description] = useDescription(loaders, dataset);
-  const { image } = useImageData(
-    loaders, dataset, setItemIsReady, () => {}, false, {}, {},
+  const [{ image }, imageStatus] = useImageData(
+    loaders, dataset, addUrl, false, {}, {},
     {}, // TODO: which properties to match on
   );
   const { loaders: imageLayerLoaders = [], meta: imageLayerMeta = [] } = image || {};
+
+  const isReady = useReady([imageStatus]);
 
   const metadata = useMemo(() => {
     const result = new Map();

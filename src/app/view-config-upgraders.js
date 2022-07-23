@@ -113,6 +113,12 @@ export function upgradeFrom0_1_0(config, datasetUid = null) {
     layout.push(newComponentDef);
   });
 
+  const lcDef = layout.find(c => c.component === 'layerController');
+  const spatialDef = layout.find(c => c.component === 'spatial');
+  if (lcDef && spatialDef.coordinationScopes) {
+    lcDef.coordinationScopes = spatialDef.coordinationScopes;
+  }
+
   // Use a random dataset ID when initializing automatically,
   // so that it changes with each new v0.1.0 view config.
   // However, check if the `datasetUid` parameter was passed,

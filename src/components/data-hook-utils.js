@@ -7,6 +7,7 @@ import {
   LoaderNotFoundError,
 } from '../loaders/errors/index';
 import { getDefaultCoordinationValues } from '../app/plugins';
+import { STATUS } from '../app/constants';
 
 /**
  * Warn via publishing to the console
@@ -58,8 +59,6 @@ export function initCoordinationSpace(values, setters, initialValues) {
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
  * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
  * @param {function} addUrl A function to call to update
  * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
@@ -75,16 +74,18 @@ export function initCoordinationSpace(values, setters, initialValues) {
  * number of items in the cells object.
  */
 export function useDataType(
-  dataType, loaders, dataset, setItemIsReady, addUrl, isRequired,
+  dataType, loaders, dataset, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   const [data, setData] = useState({});
+  const [status, setStatus] = useState(STATUS.LOADING);
 
   const setWarning = useSetWarning();
   const loader = useMatchingLoader(loaders, dataset, dataType, matchOn);
 
   useEffect(() => {
     if (loader) {
+      setStatus(STATUS.LOADING);
       loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
         const { data: payloadData, url, coordinationValues } = payload;
@@ -101,20 +102,21 @@ export function useDataType(
           coordinationSetters,
           initialCoordinationValues,
         );
-        setItemIsReady(dataType);
+        setStatus(STATUS.SUCCESS);
       });
     } else {
       setData({});
       if (isRequired) {
         warn(new LoaderNotFoundError(dataset, dataType, null, null), setWarning);
+        setStatus(STATUS.ERROR);
       } else {
-        setItemIsReady(dataType);
+        setStatus(STATUS.SUCCESS);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loader]);
 
-  return data;
+  return [data, status];
 }
 
 /**
@@ -126,8 +128,6 @@ export function useDataType(
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
  * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
  * @param {function} addUrl A function to call to update
  * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
@@ -143,16 +143,18 @@ export function useDataType(
  * number of items in the cells object.
  */
 export function useDataTypeMulti(
-  dataType, loaders, dataset, setItemIsReady, addUrl, isRequired,
+  dataType, loaders, dataset, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOnObj,
 ) {
   const [data, setData] = useState({});
+  const [status, setStatus] = useState(STATUS.LOADING);
 
   const setWarning = useSetWarning();
   const matchingLoaders = useMatchingLoaders(loaders, dataset, dataType, matchOnObj);
 
   useEffect(() => {
     if (matchingLoaders) {
+      setStatus(STATUS.LOADING);
       Object.entries(matchingLoaders).forEach(([scopeKey, loader]) => {
         if (loader) {
           loader.load().catch(e => warn(e, setWarning)).then((payload) => {
@@ -169,7 +171,7 @@ export function useDataTypeMulti(
               coordinationSetters,
               initialCoordinationValues,
             );
-            setItemIsReady(dataType);
+            setStatus(STATUS.SUCCESS);
           });
         }
       });
@@ -177,14 +179,15 @@ export function useDataTypeMulti(
       setData({});
       if (isRequired) {
         warn(new LoaderNotFoundError(dataset, dataType, null, null), setWarning);
+        setStatus(STATUS.ERROR);
       } else {
-        setItemIsReady(dataType);
+        setStatus(STATUS.SUCCESS);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchingLoaders]);
 
-  return data;
+  return [data, status];
 }
 
 export function useHasLoader(loaders, dataset, dataType, matchOn) {

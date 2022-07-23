@@ -3,13 +3,9 @@ import { useMatchingLoader, useMultiCoordinationValues, useSetWarning } from '..
 import {
   LoaderNotFoundError,
 } from '../loaders/errors/index';
-import {
-  DEFAULT_NEIGHBORHOODS_LAYER,
-} from './spatial/constants';
-import { CoordinationType, DataType } from '../app/constants';
+import { CoordinationType, DataType, STATUS } from '../app/constants';
 import {
   warn,
-  initCoordinationSpace,
   useDataType,
   useDataTypeMulti,
 } from './data-hook-utils';
@@ -52,8 +48,6 @@ export function useDescription(loaders, dataset) {
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
  * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
  * @param {function} addUrl A function to call to update
  * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
@@ -69,89 +63,111 @@ export function useDescription(loaders, dataset) {
  * number of items in the cells object.
  */
 export function useObsEmbeddingData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_EMBEDDING,
-    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    loaders, dataset, addUrl, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsLocationsData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_LOCATIONS,
-    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    loaders, dataset, addUrl, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsLabelsData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_LABELS,
-    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    loaders, dataset, addUrl, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsSegmentationsData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_SEGMENTATIONS,
-    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    loaders, dataset, addUrl, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsSetsData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_SETS,
-    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    loaders, dataset, addUrl, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsFeatureMatrixData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_FEATURE_MATRIX,
-    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    loaders, dataset, addUrl, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useFeatureLabelsData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.FEATURE_LABELS,
-    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    loaders, dataset, addUrl, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useImageData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  loaders, dataset, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.IMAGE,
-    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    loaders, dataset, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+export function useGenomicProfilesData(
+  loaders, dataset, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.GENOMIC_PROFILES,
+    loaders, dataset, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+export function useNeighborhoodsData(
+  loaders, dataset, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.NEIGHBORHOODS,
+    loaders, dataset, addUrl, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
@@ -164,8 +180,6 @@ export function useImageData(
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
  * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
  * @param {boolean} selection A list of gene names to get expression data for.
@@ -175,24 +189,24 @@ export function useImageData(
 export function useFeatureSelection(
   loaders,
   dataset,
-  setItemIsReady,
   isRequired,
   selection,
-  setItemIsNotReady,
   matchOn,
 ) {
   const [geneData, setGeneData] = useState();
+  const [status, setStatus] = useState(STATUS.LOADING);
+  const [loadedGeneName, setLoadedGeneName] = useState(null);
 
   const setWarning = useSetWarning();
   const loader = useMatchingLoader(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
 
   useEffect(() => {
     if (!selection) {
-      setItemIsReady(DataType.OBS_FEATURE_MATRIX);
+      setStatus(STATUS.SUCCESS);
       return;
     }
     if (loader) {
-      setItemIsNotReady(DataType.OBS_FEATURE_MATRIX);
+      setStatus(STATUS.LOADING);
       const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
       if (implementsGeneSelection) {
         loader
@@ -202,7 +216,8 @@ export function useFeatureSelection(
             if (!payload) return;
             const { data } = payload;
             setGeneData(data);
-            setItemIsReady(DataType.OBS_FEATURE_MATRIX);
+            setStatus(STATUS.SUCCESS);
+            setLoadedGeneName(selection);
           });
       } else {
         loader.load().catch(e => warn(e, setWarning)).then((payload) => {
@@ -220,21 +235,25 @@ export function useFeatureSelection(
             return expressionData;
           });
           setGeneData(expressionDataForSelection);
-          setItemIsReady(DataType.OBS_FEATURE_MATRIX);
+          setStatus(STATUS.SUCCESS);
+          setLoadedGeneName(selection);
         });
       }
     } else {
       setGeneData(null);
       if (isRequired) {
         warn(new LoaderNotFoundError(dataset, DataType.OBS_FEATURE_MATRIX, null, null), setWarning);
+        setStatus(STATUS.ERROR);
+        setLoadedGeneName(null);
       } else {
-        setItemIsReady(DataType.OBS_FEATURE_MATRIX);
+        setStatus(STATUS.SUCCESS);
+        setLoadedGeneName(null);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loader, selection]);
 
-  return [geneData];
+  return [geneData, loadedGeneName, status];
 }
 
 /**
@@ -247,8 +266,6 @@ export function useFeatureSelection(
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
  * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
  * @param {function} addUrl A function to call to update
  * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
@@ -256,15 +273,17 @@ export function useFeatureSelection(
  * @returns {object} [attrs] { rows, cols } object containing cell and gene names.
  */
 export function useObsFeatureMatrixIndices(
-  loaders, dataset, setItemIsReady, addUrl, isRequired, matchOn,
+  loaders, dataset, addUrl, isRequired, matchOn,
 ) {
   const [data, setData] = useState({});
+  const [status, setStatus] = useState(STATUS.LOADING);
 
   const setWarning = useSetWarning();
   const loader = useMatchingLoader(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
 
   useEffect(() => {
     if (loader) {
+      setStatus(STATUS.LOADING);
       const implementsLoadAttrs = typeof loader.loadAttrs === 'function';
       if (implementsLoadAttrs) {
         loader.loadAttrs().catch(e => warn(e, setWarning)).then((payload) => {
@@ -275,7 +294,7 @@ export function useObsFeatureMatrixIndices(
             featureIndex: payloadData.cols,
           });
           addUrl(url, 'Observation-by-Feature Matrix');
-          setItemIsReady(DataType.OBS_FEATURE_MATRIX);
+          setStatus(STATUS.SUCCESS);
         });
       } else {
         loader.load().catch(e => warn(e, setWarning)).then((payload) => {
@@ -286,154 +305,26 @@ export function useObsFeatureMatrixIndices(
             featureIndex: payloadData.featureIndex,
           });
           addUrl(url, 'Observation-by-Feature Matrix');
-          setItemIsReady(DataType.OBS_FEATURE_MATRIX);
+          setStatus(STATUS.SUCCESS);
         });
       }
     } else {
       setData({});
       if (isRequired) {
         warn(new LoaderNotFoundError(dataset, DataType.OBS_FEATURE_MATRIX, null, null), setWarning);
+        setStatus(STATUS.ERROR);
       } else {
-        setItemIsReady(DataType.OBS_FEATURE_MATRIX);
+        setStatus(STATUS.SUCCESS);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loader]);
 
-  return data;
-}
-
-
-/**
- * Get data from a neighborhoods data type loader,
- * updating "ready" and URL state appropriately.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
- * @param {function} addUrl A function to call to update
- * the URL list.
- * @param {boolean} isRequired Should a warning be thrown if
- * loading is unsuccessful?
- * @param {object} coordinationSetters Object where
- * keys are coordination type names with the prefix 'set',
- * values are coordination setter functions.
- * @param {object} initialCoordinationValues Object where
- * keys are coordination type names with the prefix 'initialize',
- * values are initialization preferences as boolean values.
- * @returns {array} [neighborhoods] where
- * neighborhoods is an object.
- */
-export function useNeighborhoodsData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, initialCoordinationValues,
-) {
-  const [neighborhoods, setNeighborhoods] = useState();
-
-  const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, 'neighborhoods', {});
-
-  useEffect(() => {
-    if (loader) {
-      loader.load().catch(e => warn(e, setWarning))
-        .then((payload) => {
-          if (!payload) return;
-          const { data, url, coordinationValues } = payload;
-          setNeighborhoods(data);
-          addUrl(url, 'Neighborhoods');
-          const coordinationValuesOrDefault = {
-            spatialNeighborhoodLayer: DEFAULT_NEIGHBORHOODS_LAYER,
-            ...coordinationValues,
-          };
-          initCoordinationSpace(
-            coordinationValuesOrDefault,
-            coordinationSetters,
-            initialCoordinationValues,
-          );
-          setItemIsReady('neighborhoods');
-        });
-    } else {
-      setNeighborhoods({});
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'neighborhoods', null, null), setWarning);
-      } else {
-        setItemIsReady('neighborhoods');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loader]);
-
-  return [neighborhoods];
-}
-
-/**
- * Get data from a genomic-profiles data type loader,
- * updating "ready" and URL state appropriately.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @param {function} setItemIsReady A function to call
- * when done loading.
- * @param {function} addUrl A function to call to update
- * the URL list.
- * @param {boolean} isRequired Should a warning be thrown if
- * loading is unsuccessful?
- * @param {object} coordinationSetters Object where
- * keys are coordination type names with the prefix 'set',
- * values are coordination setter functions.
- * @param {object} initialCoordinationValues Object where
- * keys are coordination type names with the prefix 'initialize',
- * values are initialization preferences as boolean values.
- * @returns {array} [neighborhoods] where
- * neighborhoods is an object.
- */
-export function useGenomicProfilesData(
-  loaders, dataset, setItemIsReady, addUrl, isRequired,
-  coordinationSetters, initialCoordinationValues,
-) {
-  const [genomicProfilesAttrs, setGenomicProfilesAttrs] = useState();
-
-  const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, 'genomic-profiles', {});
-
-  useEffect(() => {
-    if (loader) {
-      loader.load().catch(e => warn(e, setWarning))
-        .then((payload) => {
-          if (!payload) return;
-          const { data, url, coordinationValues } = payload;
-          setGenomicProfilesAttrs(data);
-          addUrl(url);
-          initCoordinationSpace(
-            coordinationValues,
-            coordinationSetters,
-            initialCoordinationValues,
-          );
-          setItemIsReady('genomic-profiles');
-        });
-    } else {
-      setGenomicProfilesAttrs(null);
-      if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, 'genomic-profiles', null, null), setWarning);
-      } else {
-        setItemIsReady('genomic-profiles');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loader]);
-
-  return [genomicProfilesAttrs];
+  return [data, status];
 }
 
 export function useMultiObsLabels(
-  coordinationScopes, obsType, loaders, dataset, setItemIsReady, addUrl,
+  coordinationScopes, obsType, loaders, dataset, addUrl,
 ) {
   const obsLabelsTypes = useMultiCoordinationValues(
     CoordinationType.OBS_LABELS_TYPE,
@@ -445,10 +336,10 @@ export function useMultiObsLabels(
       { obsLabelsType, obsType },
     ])),
   ), [obsLabelsTypes, obsType]);
-  const obsLabelsData = useDataTypeMulti(
+  const [obsLabelsData, obsLabelsDataStatus] = useDataTypeMulti(
     DataType.OBS_LABELS, loaders, dataset,
-    setItemIsReady, addUrl, false, {}, {},
+    addUrl, false, {}, {},
     obsLabelsMatchOnObj,
   );
-  return [obsLabelsTypes, obsLabelsData];
+  return [obsLabelsTypes, obsLabelsData, obsLabelsDataStatus];
 }

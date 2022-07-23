@@ -353,10 +353,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.viewInfoDidUpdate();
 
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
+    let forceUpdate = false;
     if (['obsEmbedding'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateCellsData();
-      this.forceUpdate();
+      forceUpdate = true;
     }
 
     if ([
@@ -366,7 +367,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
-      this.forceUpdate();
+      forceUpdate = true;
     }
     if ([
       'cellSetPolygons', 'cellSetPolygonsVisible',
@@ -374,11 +375,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     ].some(shallowDiff)) {
       // Cell sets layer props changed.
       this.onUpdateCellSetsLayers(false);
-      this.forceUpdate();
+      forceUpdate = true;
     }
     if (shallowDiff('viewState')) {
       // The viewState prop has changed (due to zoom or pan).
       this.onUpdateCellSetsLayers(true);
+      forceUpdate = true;
+    }
+    if (forceUpdate) {
       this.forceUpdate();
     }
   }

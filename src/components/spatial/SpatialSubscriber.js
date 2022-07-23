@@ -31,13 +31,6 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { DataType } from '../../app/constants';
 import { useHasLoader } from '../data-hook-utils';
 
-const SPATIAL_DATA_TYPES = [
-  DataType.IMAGE,
-  DataType.OBS_LOCATIONS, DataType.OBS_SEGMENTATIONS,
-  DataType.OBS_LABELS,
-  DataType.OBS_SETS, DataType.OBS_FEATURE_MATRIX,
-];
-
 /**
  * A subscriber component for the spatial plot.
  * @param {object} props
@@ -133,27 +126,11 @@ export default function SpatialSubscriber(props) {
 
   const use3d = imageLayers?.some(l => l.use3d);
 
-  const [urls, addUrl, resetUrls] = useUrls();
-  const [
-    isReady,
-    setItemIsReady,
-    setItemIsNotReady,
-    resetReadyItems,
-  ] = useReady(
-    SPATIAL_DATA_TYPES,
-  );
+  const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
 
-  // Reset file URLs and loader progress when the dataset has changed.
-  // Also clear the array of automatically-initialized layers.
-  useEffect(() => {
-    resetUrls();
-    resetReadyItems();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
-
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
-    coordinationScopes, obsType, loaders, dataset, setItemIsReady, addUrl,
+    coordinationScopes, obsType, loaders, dataset, addUrl,
   );
 
   const hasExpressionData = useHasLoader(
@@ -170,68 +147,79 @@ export default function SpatialSubscriber(props) {
     {}, // TODO: which properties to match on
   );
   // Get data from loaders using the data hooks.
-  const {
+  const [{
     obsIndex: obsLocationsIndex,
     obsLocations,
-  } = useObsLocationsData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  }, obsLocationsStatus] = useObsLocationsData(
+    loaders, dataset, addUrl, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
     { obsType: 'molecule' }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
   );
-  const {
-    // TODO: use in tooltips
+  const [{
     obsLabels: obsLocationsLabels,
-  } = useObsLabelsData(
-    loaders, dataset, setItemIsReady, addUrl, false, {}, {},
+  }, obsLabelsStatus] = useObsLabelsData(
+    loaders, dataset, addUrl, false, {}, {},
     // TODO: see scatterplot obsLabels usage,
     // update convenience file type for molecules.json to supply obsLabels.molecules.json
     // and an obsLabelsType
     { obsType: 'molecule' }, // TODO: use obsType in matchOn once #1240 is merged.
   );
-  const {
+  const [{
     obsIndex: obsCentroidsIndex,
     obsLocations: obsCentroids,
-  } = useObsLocationsData(
-    loaders, dataset, setItemIsReady, addUrl, false, {}, {},
+  }, obsCentroidsStatus] = useObsLocationsData(
+    loaders, dataset, addUrl, false, {}, {},
     { obsType: 'cell' }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
   );
-  const {
+  const [{
     obsIndex: obsSegmentationsIndex,
     obsSegmentations,
     obsSegmentationsType,
-  } = useObsSegmentationsData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  }, obsSegmentationsStatus] = useObsSegmentationsData(
+    loaders, dataset, addUrl, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
     { obsType: 'cell' }, // TODO: use obsType in matchOn once #1240 is merged.
   );
-  const { obsSets: cellSets } = useObsSetsData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
+    loaders, dataset, addUrl, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
-  const [expressionData] = useFeatureSelection(
-    loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
+  // eslint-disable-next-line no-unused-vars
+  const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
+    loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
-  const { obsIndex: matrixObsIndex } = useObsFeatureMatrixIndices(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  const [{ obsIndex: matrixObsIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
+    loaders, dataset, addUrl, false,
     { obsType, featureType, featureValueType },
   );
-  const { image } = useImageData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  const [{ image }, imageStatus] = useImageData(
+    loaders, dataset, addUrl, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: imageLayers },
     {}, // TODO: which properties to match on
   );
   const { loaders: imageLayerLoaders = [] } = image || {};
-  const [neighborhoods] = useNeighborhoodsData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  const [neighborhoods, neighborhoodsStatus] = useNeighborhoodsData(
+    loaders, dataset, addUrl, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
+  const isReady = useReady([
+    obsLocationsStatus,
+    obsLabelsStatus,
+    obsCentroidsStatus,
+    obsSegmentationsStatus,
+    obsSetsStatus,
+    featureSelectionStatus,
+    matrixIndicesStatus,
+    imageStatus,
+    neighborhoodsStatus,
+  ]);
 
   const obsLocationsFeatureIndex = useMemo(() => {
     if (obsLocationsLabels) {

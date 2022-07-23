@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../hooks';
 import { useFeatureLabelsData, useObsFeatureMatrixIndices } from '../data-hooks';
@@ -6,9 +6,6 @@ import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
 import Genes from './Genes';
-import { DataType } from '../../app/constants';
-
-const GENES_DATA_TYPES = [DataType.OBS_FEATURE_MATRIX];
 
 /**
  * A subscriber component for a gene listing component.
@@ -53,33 +50,22 @@ export default function GenesSubscriber(props) {
     setObsColorEncoding: setCellColorEncoding,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
 
-  const [urls, addUrl, resetUrls] = useUrls();
-  const [
-    isReady,
-    setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
-    resetReadyItems,
-  ] = useReady(
-    GENES_DATA_TYPES,
-  );
-
-  // Reset file URLs and loader progress when the dataset has changed.
-  useEffect(() => {
-    resetUrls();
-    resetReadyItems();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  const [urls, addUrl] = useUrls(loaders, dataset);
 
   // Get data from loaders using the data hooks.
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const { featureLabelsMap } = useFeatureLabelsData(
-    loaders, dataset, setItemIsReady, addUrl, false, {}, {},
+  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
+    loaders, dataset, addUrl, false, {}, {},
     { featureType },
   );
-  const { featureIndex } = useObsFeatureMatrixIndices(
-    loaders, dataset, setItemIsReady, addUrl, true,
+  const [{ featureIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
+    loaders, dataset, addUrl, true,
     { featureType },
   );
+  const isReady = useReady([
+    featureLabelsStatus,
+    matrixIndicesStatus,
+  ]);
   const geneList = featureIndex || [];
   const numGenes = geneList.length;
 

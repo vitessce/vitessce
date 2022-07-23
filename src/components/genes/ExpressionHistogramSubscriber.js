@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { sum } from 'd3-array';
 
 import TitleInfo from '../TitleInfo';
@@ -7,9 +7,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
 import { useObsFeatureMatrixData, useFeatureSelection } from '../data-hooks';
 import ExpressionHistogram from './ExpressionHistogram';
-import { Component, DataType } from '../../app/constants';
-
-const EXPRESSION_HISTOGRAM_DATA_TYPES = [DataType.OBS_FEATURE_MATRIX];
+import { Component } from '../../app/constants';
 
 /**
  * A subscriber component for `ExpressionHistogram`,
@@ -43,33 +41,22 @@ export default function ExpressionHistogramSubscriber(props) {
   );
 
   const [width, height, containerRef] = useGridItemSize();
-  const [urls, addUrl, resetUrls] = useUrls();
-  const [
-    isReady,
-    setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
-    resetReadyItems,
-  ] = useReady(
-    EXPRESSION_HISTOGRAM_DATA_TYPES,
-  );
-
-  // Reset file URLs and loader progress when the dataset has changed.
-  useEffect(() => {
-    resetUrls();
-    resetReadyItems();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  const [urls, addUrl] = useUrls(loaders, dataset);
 
   // Get data from loaders using the data hooks.
-  const { obsIndex, featureIndex, obsFeatureMatrix } = useObsFeatureMatrixData(
-    loaders, dataset, setItemIsReady, addUrl, true, {}, {},
+  const [{ obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus] = useObsFeatureMatrixData(
+    loaders, dataset, addUrl, true, {}, {},
     { obsType, featureType, featureValueType },
   );
-  // Get data from loaders using the data hooks.
-  const [expressionData] = useFeatureSelection(
-    loaders, dataset, setItemIsReady, false, geneSelection, setItemIsNotReady,
+  // eslint-disable-next-line no-unused-vars
+  const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
+    loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
+  const isReady = useReady([
+    matrixStatus,
+    featureSelectionStatus,
+  ]);
 
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
     ? geneSelection[0]

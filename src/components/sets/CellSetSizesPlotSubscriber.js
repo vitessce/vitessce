@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
@@ -7,9 +7,6 @@ import { mergeCellSets } from '../utils';
 import { useObsSetsData } from '../data-hooks';
 import { treeToSetSizesBySetNames } from './cell-set-utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
-import { DataType } from '../../app/constants';
-
-const CELL_SET_SIZES_DATA_TYPES = [DataType.OBS_SETS];
 
 /**
  * A subscriber component for `CellSetSizePlot`,
@@ -45,30 +42,18 @@ export default function CellSetSizesPlotSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetSizes, coordinationScopes);
 
   const [width, height, containerRef] = useGridItemSize();
-  const [urls, addUrl, resetUrls] = useUrls();
-  const [
-    isReady,
-    setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
-    resetReadyItems,
-  ] = useReady(
-    CELL_SET_SIZES_DATA_TYPES,
-  );
-
-  // Reset file URLs and loader progress when the dataset has changed.
-  useEffect(() => {
-    resetUrls();
-    resetReadyItems();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  const [urls, addUrl] = useUrls(loaders, dataset);
 
   // Get data from loaders using the data hooks.
-  const { obsSets: cellSets } = useObsSetsData(
-    loaders, dataset, setItemIsReady, addUrl, true,
+  const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
+    loaders, dataset, addUrl, true,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
+  const isReady = useReady([
+    obsSetsStatus,
+  ]);
 
   const mergedCellSets = useMemo(
     () => mergeCellSets(cellSets, additionalCellSets),
