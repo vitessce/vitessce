@@ -2,7 +2,6 @@
 /* eslint-disable camelcase */
 import difference from 'lodash/difference';
 import cloneDeep from 'lodash/cloneDeep';
-import packageJson from '../../package.json';
 import { getNextScope } from '../utils';
 import {
   AUTO_INDEPENDENT_COORDINATION_TYPES,
@@ -311,12 +310,6 @@ export function upgradeAndValidate(oldConfig, onConfigUpgrade = null) {
       }
     }
   } while (upgradeFunction);
-
-  // NOTE: Remove when a view config viewer/editor is available in UI.
-  console.groupCollapsed(`🚄 Vitessce (${packageJson.version}) view configuration`);
-  console.info(`data:,${JSON.stringify(nextConfig)}`);
-  console.info(JSON.stringify(nextConfig, null, 2));
-  console.groupEnd();
 
   return [nextConfig, true];
 }

@@ -218,8 +218,7 @@ export const codeluppi2018 = {
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cell-sets.json',
         },
         {
-          type: 'raster',
-          fileType: 'raster.json',
+          fileType: 'image.raster.json',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.raster.json',
         },
         {

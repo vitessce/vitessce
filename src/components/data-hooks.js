@@ -134,6 +134,17 @@ export function useObsFeatureMatrixData(
   );
 }
 
+export function useFeatureLabelsData(
+  loaders, dataset, setItemIsReady, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.FEATURE_LABELS,
+    loaders, dataset, setItemIsReady, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
 export function useImageData(
   loaders, dataset, setItemIsReady, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,

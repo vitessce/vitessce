@@ -271,7 +271,7 @@ export function useGetObsInfo(obsType, obsIndex, obsLabelsTypes, obsLabelsData) 
             // which would avoid the indexOf calls.
             obsLabelsData?.[scopeKey]?.obsIndex?.indexOf(obsId)
           ],
-        ]))),
+        ])).filter(([obsLabelsType]) => Boolean(obsLabelsType))),
         // TODO: use obsSets and obsSetSelection to list any currently-selected sets
         // that contain this obsId.
       };

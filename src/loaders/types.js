@@ -43,6 +43,9 @@ export const fileTypeToLoaderAndSource = {
   [FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR]: [
     ZarrDataSource, MatrixZarrAsObsFeatureMatrixLoader,
   ],
+  [FileType.FEATURE_LABELS_ANNDATA_ZARR]: [
+    AnnDataSource, AnnDataLoaders.FeatureLabelsAnndataLoader,
+  ],
   [FileType.IMAGE_OME_ZARR]: [ZarrDataSource, OmeZarrLoader],
   [FileType.IMAGE_RASTER_JSON]: [JsonSource, RasterJsonAsImageLoader],
   [FileType.OBS_SEGMENTATIONS_RASTER_JSON]: [JsonSource, RasterJsonAsObsSegmentationsLoader],

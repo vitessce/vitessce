@@ -289,7 +289,7 @@ export default function ScatterplotSubscriber(props) {
   return (
     <TitleInfo
       title={title}
-      info={`${numCells} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
+      info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}

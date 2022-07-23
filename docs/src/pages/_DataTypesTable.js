@@ -80,6 +80,7 @@ export default function DataTypesTable() {
           <td>
             <code>obsLabels</code>
             <br /> Per-observation string labels.
+            For example, alternate cell identifiers.
           </td>
           <td>
             <ul>
@@ -142,6 +143,20 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#seurat')}>Seurat</a></li>
             </ul>
           </td>
+        </tr>
+        <tr>
+          <td>
+            <code>featureLabels</code>
+            <br /> Per-feature string labels.
+            For example, alternate gene identifiers.
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#featurelabelsanndatazarr')}><code>featureLabels.anndata.zarr</code></a></li>
+              {anndataConvenienceFileType}
+            </ul>
+          </td>
+          <td />
         </tr>
         <tr>
           <td>

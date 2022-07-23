@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { pluralize } from '../../utils';
 import { useReady, useUrls } from '../hooks';
-import { useObsFeatureMatrixIndices } from '../data-hooks';
+import { useFeatureLabelsData, useObsFeatureMatrixIndices } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
@@ -71,6 +71,11 @@ export default function GenesSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
+  // TODO: support multiple feature labels using featureLabelsType coordination values.
+  const { featureLabelsMap } = useFeatureLabelsData(
+    loaders, dataset, setItemIsReady, addUrl, false, {}, {},
+    { featureType },
+  );
   const { featureIndex } = useObsFeatureMatrixIndices(
     loaders, dataset, setItemIsReady, addUrl, true,
     { featureType },
@@ -99,6 +104,7 @@ export default function GenesSubscriber(props) {
       <Genes
         hasColorEncoding={cellColorEncoding === 'geneSelection'}
         geneList={geneList}
+        featureLabelsMap={featureLabelsMap}
         geneSelection={geneSelection}
         geneFilter={geneFilter}
         setGeneSelection={setGeneSelectionAndColorEncoding}

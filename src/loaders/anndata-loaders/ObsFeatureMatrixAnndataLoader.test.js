@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 import expect from 'expect';
 import ObsFeatureMatrixAnndataLoader from './ObsFeatureMatrixAnndataLoader';
 import { AnnDataSource } from '../data-sources';
@@ -15,7 +16,8 @@ const createMatrixLoader = (url) => {
 };
 
 describe('loaders/ObsFeatureMatrixAnndataLoader', () => {
-  it('loadFilteredGeneNames returns gene names', async () => {
+  it('loadFilteredGeneNames returns gene names', async function () {
+    this.timeout(15000);
     const loader = createMatrixLoader(
       'http://127.0.0.1:8080/anndata/anndata-dense.zarr',
     );

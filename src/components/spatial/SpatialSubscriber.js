@@ -187,7 +187,7 @@ export default function SpatialSubscriber(props) {
     // TODO: see scatterplot obsLabels usage,
     // update convenience file type for molecules.json to supply obsLabels.molecules.json
     // and an obsLabelsType
-    { obsLabelsType: 'feature' }, // TODO: use obsType in matchOn once #1240 is merged.
+    { obsType: 'molecule' }, // TODO: use obsType in matchOn once #1240 is merged.
   );
   const {
     obsIndex: obsCentroidsIndex,

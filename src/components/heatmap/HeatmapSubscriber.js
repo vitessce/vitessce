@@ -14,6 +14,7 @@ import {
   useObsSetsData,
   useObsFeatureMatrixData,
   useMultiObsLabels,
+  useFeatureLabelsData,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import {
@@ -120,11 +121,15 @@ export default function HeatmapSubscriber(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
+  // Get data from loaders using the data hooks.
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
     coordinationScopes, obsType, loaders, dataset, setItemIsReady, addUrl,
   );
-
-  // Get data from loaders using the data hooks.
+  // TODO: support multiple feature labels using featureLabelsType coordination values.
+  const { featureLabelsMap } = useFeatureLabelsData(
+    loaders, dataset, setItemIsReady, addUrl, false, {}, {},
+    { featureType },
+  );
   const { obsIndex, featureIndex, obsFeatureMatrix } = useObsFeatureMatrixData(
     loaders, dataset, setItemIsReady, addUrl, true, {}, {},
     { obsType, featureType, featureValueType },
@@ -166,12 +171,12 @@ export default function HeatmapSubscriber(props) {
     if (obsIndex && featureIndex && obsFeatureMatrix) {
       return {
         rows: obsIndex,
-        cols: featureIndex,
+        cols: (featureLabelsMap ? featureIndex.map(key => featureLabelsMap.get(key) || key) : featureIndex),
         matrix: obsFeatureMatrix.data,
       };
     }
     return null;
-  }, [obsIndex, featureIndex, obsFeatureMatrix]);
+  }, [obsIndex, featureIndex, obsFeatureMatrix, featureLabelsMap]);
 
   const cellsCount = obsIndex ? obsIndex.length : 0;
   const genesCount = featureIndex ? featureIndex.length : 0;

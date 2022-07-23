@@ -6,6 +6,7 @@ export default function Genes(props) {
   const {
     hasColorEncoding,
     geneList = [],
+    featureLabelsMap,
     geneSelection = [],
     geneFilter = null,
     setGeneSelection,
@@ -17,30 +18,37 @@ export default function Genes(props) {
 
   useEffect(() => {
     const results = geneList
-      .filter(gene => gene.toLowerCase().includes(searchTerm.toLowerCase()));
+      .filter(gene => (
+        gene.toLowerCase().includes(searchTerm.toLowerCase())
+        || featureLabelsMap?.get(gene)?.toLowerCase().includes(searchTerm.toLowerCase())
+      ));
     setSearchResults(results);
-  }, [searchTerm, geneList]);
+  }, [searchTerm, geneList, featureLabelsMap]);
 
   function onChange(selection) {
     if (setGeneSelection && selection) {
       if (Array.isArray(selection)) {
-        if (selection.length > 0 && every(selection, s => s.name)) {
-          setGeneSelection(selection.map(s => s.name));
+        if (selection.length > 0 && every(selection, s => s.key)) {
+          setGeneSelection(selection.map(s => s.key));
         } else {
           setGeneSelection(null);
         }
-      } else if (selection.name) {
-        setGeneSelection([selection.name]);
+      } else if (selection.key) {
+        setGeneSelection([selection.key]);
       }
     }
   }
 
   const data = searchResults
     .filter(gene => (geneFilter ? geneFilter.includes(gene) : true))
-    .sort((a, b) => a.localeCompare(b))
     .map(
-      gene => ({ name: gene, value: (geneSelection ? geneSelection.includes(gene) : false) }),
-    );
+      gene => ({
+        key: gene,
+        name: featureLabelsMap?.get(gene) || gene,
+        value: (geneSelection ? geneSelection.includes(gene) : false),
+      }),
+    )
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const handleChange = (event) => {
     setSearchTerm(event.target.value);
@@ -59,7 +67,7 @@ export default function Genes(props) {
         columns={['name']}
         data={data}
         hasColorEncoding={hasColorEncoding}
-        idKey="name"
+        idKey="key"
         valueKey="value"
         onChange={onChange}
         allowMultiple={enableMultiSelect}
