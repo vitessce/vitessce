@@ -463,6 +463,7 @@ export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor, t
 export function treeToCellPolygonsBySetNames(
   currTree, obsIndex, obsEmbedding, selectedNamePaths, cellSetColor, theme,
 ) {
+  const obsIndexMap = new Map(obsIndex.map((key, i) => ([key, i])));
   const cellSetPolygons = [];
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
@@ -474,7 +475,7 @@ export function treeToCellPolygonsBySetNames(
       );
       const cellPositions = nodeSet
         .map(([cellId]) => {
-          const cellIdx = obsIndex.indexOf(cellId);
+          const cellIdx = obsIndexMap.get(cellId);
           return [
             obsEmbedding.data[0][cellIdx],
             -obsEmbedding.data[1][cellIdx],

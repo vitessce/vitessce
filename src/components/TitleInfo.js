@@ -56,7 +56,7 @@ function PlotOptions(props) {
   const { options } = props;
   const [open, setOpen] = useState(false);
   const classes = useStyles();
-  return (
+  return (options ? (
     <PopperMenu
       open={open}
       setOpen={setOpen}
@@ -66,7 +66,7 @@ function PlotOptions(props) {
     >
       {options}
     </PopperMenu>
-  );
+  ) : null);
 }
 
 function CloudDownloadIconWithArrow({ open }) {
@@ -82,7 +82,7 @@ function DownloadOptions(props) {
   const { urls } = props;
   const [open, setOpen] = useState(false);
   const classes = useStyles();
-  return (
+  return (urls && urls.length ? (
     <PopperMenu
       open={open}
       setOpen={setOpen}
@@ -98,7 +98,7 @@ function DownloadOptions(props) {
         </MenuItem>
       ))}
     </PopperMenu>
-  );
+  ) : null);
 }
 
 function ClosePaneButton(props) {
@@ -134,16 +134,12 @@ export default function TitleInfo(props) {
           {info}
         </div>
         <div className="title-buttons">
-          { options && (
-            <PlotOptions
-              options={options}
-            />
-          ) }
-          {urls && urls.length > 0 && (
-            <DownloadOptions
-              urls={urls}
-            />
-          )}
+          <PlotOptions
+            options={options}
+          />
+          <DownloadOptions
+            urls={urls}
+          />
           <ClosePaneButton
             removeGridComponent={removeGridComponent}
           />

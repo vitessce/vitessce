@@ -86,6 +86,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // uses instance variables.
     // All instance variables used in this class:
     this.obsSegmentationsQuadTree = null;
+    this.obsSegmentationsData = null;
+    this.obsLocationsData = null;
 
     this.imageLayers = [];
     this.obsSegmentationsBitmaskLayers = [];
@@ -114,6 +116,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // Initialize data and layers.
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();
+    this.onUpdateMoleculesData();
     this.onUpdateMoleculesLayer();
     this.onUpdateNeighborhoodsData();
     this.onUpdateNeighborhoodsLayer();
@@ -126,7 +129,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } = layerDef;
     const {
       obsSegmentationsIndex: obsIndex,
-      obsSegmentations,
       theme,
       // cellFilter,
       cellSelection,
@@ -150,12 +152,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     //   : cellsEntries;
     return new PolygonLayer({
       id: CELLS_LAYER_ID,
-      data: {
-        src: {
-          obsSegmentations,
-        },
-        length: obsIndex.length,
-      },
+      data: this.obsSegmentationsData,
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
       autoHighlight: true,
@@ -203,8 +200,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
   createMoleculesLayer(layerDef) {
     const {
       obsLocations,
-      obsLocationsIndex: obsIndex,
-      obsLocationsLabels: obsLabels,
       obsLocationsFeatureIndex: obsLabelsTypes,
       setMoleculeHighlight,
     } = this.props;
@@ -212,18 +207,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       const i = data.src.obsLabelsTypes.indexOf(data.src.obsLabels[index]);
       return data.src.PALETTE[i % data.src.PALETTE.length];
     };
-
     return new ScatterplotLayer({
       id: MOLECULES_LAYER_ID,
-      data: {
-        src: {
-          obsLabels,
-          obsLocations,
-          obsLabelsTypes,
-          PALETTE,
-        },
-        length: obsIndex.length,
-      },
+      data: this.obsLocationsData,
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
       autoHighlight: true,
@@ -524,18 +510,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   onUpdateCellsData() {
     const {
-      obsSegmentationsIndex,
       obsSegmentations,
       obsSegmentationsType,
       obsCentroids,
     } = this.props;
-    if (obsSegmentationsIndex
-      && obsSegmentations
+    if (obsSegmentations
       && obsSegmentationsType === 'polygon'
       && obsCentroids
     ) {
       const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
       this.obsSegmentationsQuadTree = createQuadTree(obsCentroids, getCellCoords);
+      this.obsSegmentationsData = {
+        src: {
+          obsSegmentations,
+        },
+        length: obsSegmentations.shape[0],
+      };
     }
   }
 
@@ -587,6 +577,25 @@ class Spatial extends AbstractSpatialOrScatterplot {
         this.expression.height * this.expression.width,
       );
       this.expression.data.set(expressionData[0]);
+    }
+  }
+
+  onUpdateMoleculesData() {
+    const {
+      obsLocations,
+      obsLocationsLabels: obsLabels,
+      obsLocationsFeatureIndex: obsLabelsTypes,
+    } = this.props;
+    if (obsLocations && obsLabels && obsLabelsTypes) {
+      this.obsLocationsData = {
+        src: {
+          obsLabels,
+          obsLocations,
+          obsLabelsTypes,
+          PALETTE,
+        },
+        length: obsLocations.shape[1],
+      };
     }
   }
 
@@ -673,7 +682,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (
       [
         'obsSegmentations',
-        'obsSegmentationsIndex',
         'obsSegmentationsType',
         'obsCentroids',
       ].some(shallowDiff)
@@ -713,6 +721,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (['expressionData'].some(shallowDiff)) {
       // Expression data prop changed.
       this.onUpdateExpressionData();
+      this.forceUpdate();
+    }
+
+    if (
+      [
+        'obsLocations',
+        'obsLocationsLabels',
+        'obsLocationsFeatureIndex',
+      ].some(shallowDiff)
+    ) {
+      // Molecules data props changed.
+      this.onUpdateMoleculesData();
       this.forceUpdate();
     }
 

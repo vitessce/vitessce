@@ -34,6 +34,7 @@ export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
       }
       const obsSegmentations = {
         data: cellPolygons,
+        shape: [cellPolygons.length, cellPolygons[0].length],
       };
       this.cachedResult = { obsIndex, obsSegmentations };
     }

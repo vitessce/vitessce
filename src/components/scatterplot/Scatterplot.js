@@ -34,6 +34,12 @@ const makeFlippedGetObsCoords = obsEmbedding => i => ([
   -obsEmbedding.data[1][i],
   0,
 ]);
+const getPosition = (object, { index, data, target }) => {
+  target[0] = data.src.obsEmbedding.data[0][index];
+  target[1] = -data.src.obsEmbedding.data[1][index];
+  target[2] = 0;
+  return target;
+};
 
 /**
  * React component which renders a scatterplot from cell data, typically tSNE or PCA.
@@ -75,6 +81,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     // All instance variables used in this class:
     this.cellsQuadTree = null;
     this.cellsLayer = null;
+    this.cellsData = null;
     this.cellSetsForceSimulation = forceCollideRects();
     this.cellSetsLabelPrevZoom = null;
     this.cellSetsLayers = [];
@@ -88,7 +95,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   createCellsLayer() {
     const {
       obsEmbeddingIndex: obsIndex,
-      obsEmbedding,
       theme,
       cellRadius = 1.0,
       cellOpacity = 1.0,
@@ -110,12 +116,10 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     //   : cellsEntries);
     return new ScatterplotLayer({
       id: CELLS_LAYER_ID,
-      data: {
-        src: {
-          obsEmbedding,
-        },
-        length: obsIndex.length,
-      },
+      // Note that the reference for the object passed to the data prop should not change,
+      // otherwise DeckGL will need to do a full re-render every time .createCellsLayer is called,
+      // which can be very often to handle cellOpacity and cellRadius updates for dynamic opacity.
+      data: this.cellsData,
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       visible: true,
       pickable: true,
@@ -131,12 +135,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       // Our radius pixel setters measure in pixels.
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
-      getPosition: (object, { index, data, target }) => {
-        target[0] = data.src.obsEmbedding.data[0][index];
-        target[1] = -data.src.obsEmbedding.data[1][index];
-        target[2] = 0;
-        return target;
-      },
+      getPosition,
       getFillColor: getCellColor,
       getLineColor: getCellColor,
       getRadius: 1,
@@ -268,6 +267,12 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     if (obsEmbedding) {
       const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
       this.cellsQuadTree = createQuadTree(obsEmbedding, getCellCoords);
+      this.cellsData = {
+        src: {
+          obsEmbedding,
+        },
+        length: obsEmbedding.shape[1],
+      };
     }
   }
 
@@ -348,7 +353,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.viewInfoDidUpdate();
 
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
-    if (['obsEmbeddingIndex', 'obsEmbedding'].some(shallowDiff)) {
+    if (['obsEmbedding'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateCellsData();
       this.forceUpdate();

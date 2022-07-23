@@ -355,6 +355,35 @@ export default function SpatialSubscriber(props) {
   const canShow3DOptions = canLoad3DLayers
     && !(disable3d?.length === imageLayerLoaders.length) && !globalDisable3d;
 
+  const options = useMemo(() => {
+    // Only show button if there is expression or 3D data because only cells data
+    // does not have any options (i.e for color encoding, you need to switch to expression data)
+    if (canShow3DOptions || hasExpressionData) {
+      return (
+        <SpatialOptions
+          observationsLabel={observationsLabel}
+          cellColorEncoding={cellColorEncoding}
+          setCellColorEncoding={setCellColorEncoding}
+          setSpatialAxisFixed={setSpatialAxisFixed}
+          spatialAxisFixed={spatialAxisFixed}
+          use3d={use3d}
+          geneExpressionColormap={geneExpressionColormap}
+          setGeneExpressionColormap={setGeneExpressionColormap}
+          geneExpressionColormapRange={geneExpressionColormapRange}
+          setGeneExpressionColormapRange={setGeneExpressionColormapRange}
+          canShowExpressionOptions={hasExpressionData}
+          canShowColorEncodingOption={hasCellsData && hasExpressionData}
+          canShow3DOptions={canShow3DOptions}
+        />
+      );
+    }
+    return null;
+  }, [canShow3DOptions, cellColorEncoding, geneExpressionColormap,
+    geneExpressionColormapRange, setGeneExpressionColormap,
+    hasCellsData, hasExpressionData, observationsLabel, setCellColorEncoding,
+    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d,
+  ]);
+
   return (
     <TitleInfo
       title={title}
@@ -364,27 +393,7 @@ export default function SpatialSubscriber(props) {
       theme={theme}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
-      options={
-        // Only show button if there is expression or 3D data because only cells data
-        // does not have any options (i.e for color encoding, you need to switch to expression data)
-        canShow3DOptions || hasExpressionData ? (
-          <SpatialOptions
-            observationsLabel={observationsLabel}
-            cellColorEncoding={cellColorEncoding}
-            setCellColorEncoding={setCellColorEncoding}
-            setSpatialAxisFixed={setSpatialAxisFixed}
-            spatialAxisFixed={spatialAxisFixed}
-            use3d={use3d}
-            geneExpressionColormap={geneExpressionColormap}
-            setGeneExpressionColormap={setGeneExpressionColormap}
-            geneExpressionColormapRange={geneExpressionColormapRange}
-            setGeneExpressionColormapRange={setGeneExpressionColormapRange}
-            canShowExpressionOptions={hasExpressionData}
-            canShowColorEncodingOption={hasCellsData && hasExpressionData}
-            canShow3DOptions={canShow3DOptions}
-          />
-        ) : null
-      }
+      options={options}
     >
       <Spatial
         ref={deckRef}
