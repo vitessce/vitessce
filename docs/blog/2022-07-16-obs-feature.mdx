@@ -124,7 +124,7 @@ We intend to update the constructors in R and Python to enforce this requirement
 
 This is a breaking change, but it should be easy to update existing code to pass a `schemaVersion` value (see notes on [backwards compatibility](#backwards-compatibility)) below).
 
-For new code, we recommend using the latest view config schema version:
+For new code, we recommend specifying the latest view config schema version:
 
 ```js
 const vc = new VitessceConfig("1.0.13", "My config");
@@ -145,7 +145,8 @@ The following sections are meant for developers looking to make existing code co
 
 ### VitessceConfig constructor calls
 
-`"1.0.7"` was the config schema version that was previously hard-coded in `vitessce` package version `1.1.21`.
+If you are using the `VitessceConfig` class in existing code (package version `1.1.21` or earlier), and you would like to upgrade to the new version while keeping the previous behavior:
+`"1.0.7"` was the schema version that was previously hard-coded.
 
 ```diff
 - const vc = new VitessceConfig("My config");
