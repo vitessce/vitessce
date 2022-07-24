@@ -1,10 +1,18 @@
 import LoaderResult from '../LoaderResult';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
+import { AbstractLoaderError } from '../errors';
+import { obsSegmentationsAnndataSchema } from '../../app/file-options-schemas';
+
 
 /**
  * Loader for embedding arrays located in anndata.zarr stores.
  */
 export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader {
+  constructor(dataSource, params) {
+    super(dataSource, params);
+    this.optionsSchema = obsSegmentationsAnndataSchema;
+  }
+
   /**
    * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
    * @returns {Promise} A promise for an array of columns.
@@ -23,6 +31,10 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
   }
 
   async load() {
+    const superResult = await super.load().catch(reason => Promise.resolve(reason));
+    if (superResult instanceof AbstractLoaderError) {
+      return Promise.reject(superResult);
+    }
     return Promise.all([
       this.dataSource.loadObsIndex(),
       this.loadSegmentations(),

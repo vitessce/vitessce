@@ -1,10 +1,28 @@
 import LoaderResult from '../LoaderResult';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
+import { AbstractLoaderError } from '../errors';
+
+const optionsSchema = {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  $id: 'https://github.com/vitessce/vitessce/#cells',
+  title: 'obsEmbedding.anndata.zarr options',
+  type: 'object',
+  additionalProperties: false,
+  required: ['path'],
+  properties: {
+    path: { type: 'string' },
+  },
+};
 
 /**
  * Loader for string arrays located in anndata.zarr stores.
  */
 export default class FeatureLabelsAnndataLoader extends AbstractTwoStepLoader {
+  constructor(dataSource, params) {
+    super(dataSource, params);
+    this.optionsSchema = optionsSchema;
+  }
+
   /**
    * Class method for loading feature string labels.
    * @returns {Promise} A promise for the array.
@@ -24,6 +42,10 @@ export default class FeatureLabelsAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
+    const superResult = await super.load().catch(reason => Promise.resolve(reason));
+    if (superResult instanceof AbstractLoaderError) {
+      return Promise.reject(superResult);
+    }
     return Promise.all([
       this.dataSource.loadVarIndex(),
       this.loadLabels(),

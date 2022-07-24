@@ -1,10 +1,18 @@
 import LoaderResult from '../LoaderResult';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
+import { AbstractLoaderError } from '../errors';
+import { obsLabelsAnndataSchema } from '../../app/file-options-schemas';
+
 
 /**
  * Loader for string arrays located in anndata.zarr stores.
  */
 export default class ObsLabelsAnndataLoader extends AbstractTwoStepLoader {
+  constructor(dataSource, params) {
+    super(dataSource, params);
+    this.optionsSchema = obsLabelsAnndataSchema;
+  }
+
   /**
    * Class method for loading observation string labels.
    * @returns {Promise} A promise for the array.
@@ -24,6 +32,10 @@ export default class ObsLabelsAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
+    const superResult = await super.load().catch(reason => Promise.resolve(reason));
+    if (superResult instanceof AbstractLoaderError) {
+      return Promise.reject(superResult);
+    }
     return Promise.all([
       this.dataSource.loadObsIndex(),
       this.loadLabels(),

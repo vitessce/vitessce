@@ -90,14 +90,19 @@ export default function Vitessce(props) {
       // Initialize the view config according to the initStrategy.
       const [typeCheckSuccess, typeCheckMessage] = checkTypes(upgradedConfig);
       if (typeCheckSuccess) {
-        const initializedConfig = initialize(upgradedConfig);
-
-        logConfig(initializedConfig, 'initialized view config');
-
-        return [initializedConfig, true];
+        try {
+          const initializedConfig = initialize(upgradedConfig);
+          logConfig(initializedConfig, 'initialized view config');
+          return [initializedConfig, true];
+        } catch (e) {
+          return [{
+            title: 'View config initialization failed.',
+            unformatted: e.message,
+          }, false];
+        }
       }
       return [{
-        title: 'View config initialization failed.',
+        title: 'View config checks failed.',
         unformatted: typeCheckMessage,
       }, false];
     }

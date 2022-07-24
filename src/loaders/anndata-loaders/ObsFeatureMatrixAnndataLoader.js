@@ -3,6 +3,8 @@ import { openArray, slice } from 'zarr';
 import { extent } from 'd3-array';
 import LoaderResult from '../LoaderResult';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
+import { AbstractLoaderError } from '../errors';
+import { obsFeatureMatrixAnndataSchema } from '../../app/file-options-schemas';
 
 const normalize = (arr) => {
   const [min, max] = extent(arr);
@@ -32,20 +34,13 @@ const concatenateColumnVectors = (arr) => {
  * Loader for converting zarr into the a cell x gene matrix for use in Genes/Heatmap components.
  */
 export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader {
+  constructor(dataSource, params) {
+    super(dataSource, params);
+    this.optionsSchema = obsFeatureMatrixAnndataSchema;
+  }
+
   getOptions() {
-    const { options, fileType } = this;
-    const newOptions = {
-      path: options.path,
-      featureFilterPath: options.featureFilterPath,
-      initialFeatureFilterPath: options.initialFeatureFilterPath,
-      geneAlias: options.geneAlias, // TODO: use featureLabels.anndata.zarr instead
-    };
-    if (fileType !== 'obsFeatureMatrix.anndata.zarr') {
-      newOptions.path = options.matrix;
-      newOptions.featureFilterPath = options.geneFilter;
-      newOptions.initialFeatureFilterPath = options.matrixGeneFilter;
-    }
-    return newOptions;
+    return this.options;
   }
 
   /**
@@ -393,6 +388,10 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     );
   } */
   async load() {
+    const superResult = await super.load().catch(reason => Promise.resolve(reason));
+    if (superResult instanceof AbstractLoaderError) {
+      return Promise.reject(superResult);
+    }
     return Promise.all([
       this.dataSource.loadObsIndex(),
       this.loadInitialFilteredGeneNames(),

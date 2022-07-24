@@ -4,12 +4,13 @@ import {
   expandRasterJson,
   expandRasterOmeZarr,
   expandGenesJson,
+  expandClustersJson,
   expandCellsJson,
+  expandMoleculesJson,
   expandAnndataZarr,
   expandAnndataCellsZarr,
   expandAnndataCellSetsZarr,
   expandAnndataExpressionMatrixZarr,
-  expandClustersJson,
 } from './joint-file-types';
 
 describe('src/app/joint-file-types.js', () => {
@@ -95,6 +96,29 @@ describe('src/app/joint-file-types.js', () => {
             obsType: 'cell',
             featureType: 'gene',
             featureValueType: 'expression',
+          },
+        },
+      ]);
+    });
+  });
+  describe('expandMoleculesJson', () => {
+    it('expands when there are no options', () => {
+      expect(expandMoleculesJson({
+        fileType: 'molecules.json',
+        url: 'http://localhost:8000/molecules.json',
+      })).toEqual([
+        {
+          fileType: 'obsLocations.molecules.json',
+          url: 'http://localhost:8000/molecules.json',
+          coordinationValues: {
+            obsType: 'molecule',
+          },
+        },
+        {
+          fileType: 'obsLabels.molecules.json',
+          url: 'http://localhost:8000/molecules.json',
+          coordinationValues: {
+            obsType: 'molecule',
           },
         },
       ]);
@@ -367,7 +391,6 @@ describe('src/app/joint-file-types.js', () => {
             },
             coordinationValues: {
               featureType: 'gene',
-              featureLabelsType: 'geneAlias',
             },
           },
           {

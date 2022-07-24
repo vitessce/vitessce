@@ -1,15 +1,23 @@
 /* eslint-disable no-control-regex */
+import { obsSetsAnndataSchema } from '../../app/file-options-schemas';
 import {
   initializeCellSetColor,
 } from '../../components/sets/cell-set-utils';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
+import { AbstractLoaderError } from '../errors';
 import LoaderResult from '../LoaderResult';
 import { dataToCellSetsTree } from './CellSetsZarrLoader';
+
 
 /**
  * Loader for converting zarr into the cell sets json schema.
  */
 export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
+  constructor(dataSource, params) {
+    super(dataSource, params);
+    this.optionsSchema = obsSetsAnndataSchema;
+  }
+
   loadCellSetIds() {
     const { options } = this;
     const cellSetZarrLocation = options.map(({ path }) => path);
@@ -23,6 +31,10 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
+    const superResult = await super.load().catch(reason => Promise.resolve(reason));
+    if (superResult instanceof AbstractLoaderError) {
+      return Promise.reject(superResult);
+    }
     if (!this.cellSetsTree) {
       const { options } = this;
       this.cellSetsTree = Promise.all([

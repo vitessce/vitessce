@@ -1,6 +1,26 @@
+import Ajv from 'ajv';
 import { FileType } from './constants';
+import {
+  emptySchema,
+  cellsJsonSchema,
+  anndataCellsZarrSchema,
+  anndataCellSetsZarrSchema,
+  anndataExpressionMatrixZarrSchema,
+  anndataZarrSchema,
+} from './file-options-schemas';
+
+function validateOptions(optionsSchema, options) {
+  const validate = new Ajv().compile(optionsSchema);
+  const valid = validate(options);
+  if (!valid) {
+    console.warn(JSON.stringify(validate.errors, null, 2));
+    throw new Error(`File definition options failed schema validation (${optionsSchema.title})`);
+  }
+  return true;
+}
 
 export function expandMoleculesJson(fileDef) {
+  validateOptions(emptySchema, fileDef.options);
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
@@ -21,6 +41,7 @@ export function expandMoleculesJson(fileDef) {
 }
 
 export function expandExpressionMatrixZarr(fileDef) {
+  validateOptions(emptySchema, fileDef.options);
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
@@ -39,6 +60,7 @@ export function expandExpressionMatrixZarr(fileDef) {
 }
 
 export function expandRasterJson(fileDef) {
+  // Validation already happens in the RasterJsonLoader.
   const baseFileDef = { ...fileDef };
   delete baseFileDef.type;
   return [
@@ -57,6 +79,7 @@ export function expandRasterJson(fileDef) {
 }
 
 export function expandRasterOmeZarr(fileDef) {
+  validateOptions(emptySchema, fileDef.options);
   const baseFileDef = { ...fileDef };
   delete baseFileDef.type;
   return [
@@ -68,6 +91,7 @@ export function expandRasterOmeZarr(fileDef) {
 }
 
 export function expandCellSetsJson(fileDef) {
+  validateOptions(emptySchema, fileDef.options);
   const baseFileDef = { ...fileDef };
   delete baseFileDef.type;
   return [
@@ -82,6 +106,7 @@ export function expandCellSetsJson(fileDef) {
 }
 
 export function expandCellsJson(fileDef) {
+  validateOptions(cellsJsonSchema, fileDef.options);
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
@@ -126,6 +151,7 @@ export function expandCellsJson(fileDef) {
 }
 
 export function expandClustersJson(fileDef) {
+  validateOptions(emptySchema, fileDef.options);
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
@@ -144,6 +170,7 @@ export function expandClustersJson(fileDef) {
 }
 
 export function expandGenesJson(fileDef) {
+  validateOptions(emptySchema, fileDef.options);
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
@@ -175,6 +202,7 @@ function getAnndataBaseFileDef(fileDef) {
 }
 
 export function expandAnndataCellsZarr(fileDef) {
+  validateOptions(anndataCellsZarrSchema, fileDef.options);
   const baseFileDef = getAnndataBaseFileDef(fileDef);
   const { options = {} } = fileDef;
   const embeddingTypes = options.mappings ? Object.keys(options.mappings) : [];
@@ -227,6 +255,7 @@ export function expandAnndataCellsZarr(fileDef) {
 }
 
 export function expandAnndataCellSetsZarr(fileDef) {
+  validateOptions(anndataCellSetsZarrSchema, fileDef.options);
   const baseFileDef = getAnndataBaseFileDef(fileDef);
   const { options = [] } = fileDef;
   return [
@@ -246,6 +275,7 @@ export function expandAnndataCellSetsZarr(fileDef) {
 }
 
 export function expandAnndataExpressionMatrixZarr(fileDef) {
+  validateOptions(anndataExpressionMatrixZarrSchema, fileDef.options);
   const baseFileDef = getAnndataBaseFileDef(fileDef);
   const { options = {} } = fileDef;
   return [
@@ -257,7 +287,6 @@ export function expandAnndataExpressionMatrixZarr(fileDef) {
       },
       coordinationValues: {
         featureType: baseFileDef.coordinationValues.featureType,
-        featureLabelsType: 'geneAlias', // TODO: check if this works in the portal
       },
     }] : []),
     {
@@ -278,6 +307,7 @@ export function expandAnndataExpressionMatrixZarr(fileDef) {
 }
 
 export function expandAnndataZarr(fileDef) {
+  validateOptions(anndataZarrSchema, fileDef.options);
   const baseFileDef = getAnndataBaseFileDef(fileDef);
   const { options = {} } = fileDef;
   return [
