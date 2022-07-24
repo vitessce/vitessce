@@ -4,7 +4,6 @@ export const emptySchema = {
   title: 'Empty options',
   oneOf: [
     { type: 'null' },
-    { type: 'undefined' },
   ],
 };
 

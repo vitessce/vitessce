@@ -237,6 +237,7 @@ export default function SpatialSubscriber(props) {
       } = getInitialSpatialTargets({
         width,
         height,
+        obsCentroids,
         obsSegmentations,
         obsSegmentationsType,
         // TODO: use obsLocations here too.
@@ -251,7 +252,7 @@ export default function SpatialSubscriber(props) {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageLayerLoaders, targetX, targetY, setTargetX, setTargetY,
-    setZoom, use3d, hasImageData, obsSegmentations, obsSegmentationsType]);
+    setZoom, use3d, hasImageData, obsCentroids, obsSegmentations, obsSegmentationsType]);
 
   const mergedCellSets = useMemo(() => mergeCellSets(
     cellSets, additionalCellSets,

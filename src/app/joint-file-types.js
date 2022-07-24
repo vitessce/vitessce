@@ -11,7 +11,7 @@ import {
 
 function validateOptions(optionsSchema, options) {
   const validate = new Ajv().compile(optionsSchema);
-  const valid = validate(options);
+  const valid = validate(options || null);
   if (!valid) {
     console.warn(JSON.stringify(validate.errors, null, 2));
     throw new Error(`File definition options failed schema validation (${optionsSchema.title})`);

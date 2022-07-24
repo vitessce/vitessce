@@ -24,7 +24,7 @@ export default class AbstractLoader {
   validateOptions() {
     const { optionsSchema, options } = this;
     const validate = new Ajv().compile(optionsSchema);
-    const valid = validate(options);
+    const valid = validate(options || null);
     if (!valid) {
       return [false, validate.errors];
     }
