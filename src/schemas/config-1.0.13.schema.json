@@ -437,7 +437,10 @@
         "obsLabelsType": {
           "type": "object",
           "patternProperties": {
-            ".": { "type": "string" }
+            ".": { "oneOf": [
+              { "type": "null" },
+              { "type": "string" }
+            ] }
           }
         },
         "embeddingZoom": {

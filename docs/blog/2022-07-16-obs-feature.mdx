@@ -122,12 +122,7 @@ This will help us to understand which schema version the config was constructed 
 For instance, the API may show warnings or throw errors when passed invalid constants based on the specified view config schema version. New coordination types like `obsType` would be invalid when using an older schema version such as `1.0.7`.
 We intend to update the constructors in R and Python to enforce this requirement as well.
 
-This is a breaking change, but it should be straightforward to update existing code (`"1.0.7"` was the schema version that was previously hard-coded in `vitessce` v1.1.21).
-
-```diff
-- const vc = new VitessceConfig("My config");
-+ const vc = new VitessceConfig("1.0.7", "My config"); // Previous behavior
-```
+This is a breaking change, but it should be easy to update existing code to pass a `schemaVersion` value (see notes on [backwards compatibility](#backwards-compatibility)) below).
 
 For new code, we recommend using the latest view config schema version:
 
@@ -142,3 +137,30 @@ For a full list of valid `schemaVersion` values, see the table of [schema versio
 While we have primarily been thinking of observations and features at the cellular scale, in theory an observation could instead represent an entity at a larger scale such as a tissue sample or donor.
 We hope to enable this use case by supporting mappings between `obsType`s, for instance to indicate which cells belong to which samples, if a dataset contains multiple tissue sample observations with per-sample cellular observations.
 Such mappings could also be performed in the opposite direction to capture which organelles belong to which cells.
+
+
+## Backwards compatibility
+
+The following sections are meant for developers looking to make existing code compatible with the latest version of the `vitessce` JavaScript package.
+
+### VitessceConfig constructor calls
+
+`"1.0.7"` was the config schema version that was previously hard-coded in `vitessce` package version `1.1.21`.
+
+```diff
+- const vc = new VitessceConfig("My config");
++ const vc = new VitessceConfig("1.0.7", "My config"); // Previous behavior
+```
+
+### Versioned documentation
+
+While we still support them internally, we have removed the following file types from the documentation, as we do not encourage their use in new code:
+- `cells.json`
+- `molecules.json`
+- `anndata-cells.zarr`
+- `anndata-expression-matrix.zarr`
+- `anndata-cell-sets.zarr`
+- `genes.json`
+- `clusters.json`
+
+If you are still using these file types in your configurations, please look back to an [older version of the documentation](https://github.com/vitessce/vitessce/blob/main/DOCS.md).

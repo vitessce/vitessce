@@ -324,6 +324,7 @@ export const anndataZarrSchema = {
   title: 'anndata.zarr options',
   definitions: sharedDefinitions,
   type: 'object',
+  minProperties: 1,
   additionalProperties: false,
   required: [],
   properties: {

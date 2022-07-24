@@ -206,11 +206,11 @@ describe('src/app/joint-file-types.js', () => {
   });
   // cells
   describe('expandAnndataCellsZarr', () => {
-    it('expands when there are no options', () => {
-      expect(expandAnndataCellsZarr({
+    it('fails to expand when there are no options', () => {
+      expect(() => expandAnndataCellsZarr({
         fileType: 'anndata-cells.zarr',
         url: 'http://localhost:8000/anndata.zarr',
-      })).toEqual([]);
+      })).toThrow();
     });
     it('expands when there are lots of options', () => {
       expect(expandAnndataCellsZarr({
@@ -413,11 +413,11 @@ describe('src/app/joint-file-types.js', () => {
   });
   // cells
   describe('expandAnndataZarr', () => {
-    it('expands to empty array when there are no options', () => {
-      expect(expandAnndataZarr({
+    it('fails to expand when there are no options', () => {
+      expect(() => expandAnndataZarr({
         fileType: 'anndata.zarr',
         url: 'http://localhost:8000/anndata.zarr',
-      })).toEqual([]);
+      })).toThrow();
     });
     it('expands when there is an obsEmbedding object', () => {
       expect(expandAnndataZarr({

@@ -314,30 +314,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
   viewInfoDidUpdate() {
     const {
-      updateViewInfo,
-      uuid,
       obsEmbeddingIndex,
       obsEmbedding,
     } = this.props;
-    const { viewport } = this;
-    if (updateViewInfo && viewport) {
-      updateViewInfo({
-        uuid,
-        project: (obsId) => {
-          try {
-            if (obsEmbedding && obsEmbeddingIndex) {
-              const getCellCoords = makeFlippedGetObsCoords(obsEmbedding);
-              const obsIdx = obsEmbeddingIndex.indexOf(obsId);
-              const obsCoord = getCellCoords(obsIdx);
-              return viewport.project(obsCoord);
-            }
-            return [null, null];
-          } catch (e) {
-            return [null, null];
-          }
-        },
-      });
-    }
+    super.viewInfoDidUpdate(
+      obsEmbeddingIndex,
+      obsEmbedding,
+      makeFlippedGetObsCoords,
+    );
   }
 
   /**

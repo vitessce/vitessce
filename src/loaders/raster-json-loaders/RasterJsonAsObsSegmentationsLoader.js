@@ -16,7 +16,7 @@ export default class RasterJsonAsObsSegmentationsLoader extends RasterLoader {
 
     // Only include bitmask items.
     allMeta.forEach((layer, i) => {
-      if (layer.metadata.isBitmask) {
+      if (layer?.metadata?.isBitmask) {
         loaders.push(allLoaders[i]);
         meta.push(allMeta[i]);
       }

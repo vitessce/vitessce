@@ -648,28 +648,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const {
       obsCentroidsIndex,
       obsCentroids,
-      updateViewInfo,
-      uuid,
     } = this.props;
-    const { viewport } = this;
-    if (updateViewInfo && viewport) {
-      updateViewInfo({
-        uuid,
-        project: (obsId) => {
-          try {
-            if (obsCentroidsIndex && obsCentroids) {
-              const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
-              const obsIdx = obsCentroidsIndex.indexOf(obsId);
-              const obsCoord = getCellCoords(obsIdx);
-              return viewport.project(obsCoord);
-            }
-            return [null, null];
-          } catch (e) {
-            return [null, null];
-          }
-        },
-      });
-    }
+    super.viewInfoDidUpdate(
+      obsCentroidsIndex,
+      obsCentroids,
+      makeDefaultGetObsCoords,
+    );
   }
 
   /**
