@@ -28,7 +28,7 @@ jobs:
           node-version: ${{ matrix.node }}
       - id: get-options
         run: . ./set-node-options.sh --action
-      - run: npm ci --legacy-peer-deps
+      - run: CYPRESS_INSTALL_BINARY=0 npm ci --legacy-peer-deps
       - run: ./test.sh
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
