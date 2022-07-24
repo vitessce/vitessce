@@ -45,6 +45,29 @@ This means that multiple data loader instances can share the same data source in
 
 For instance, AnnData-Zarr stores typically contain multiple data types located under the same URL (e.g., http://localhost:8000/anndata.zarr), all of which share the same cell and gene indices (`obsIndex` in `anndata.zarr/obs/index` and `featureIndex` in `anndata.zarr/var/index`, respectively). A shared data source instance can handle cacheing of the `obsIndex` and `featureIndex` values to prevent redundant network requests and Zarr array parsing.
 
+## Validation of file definition `options`
+
+We delegate validation of the `options` value passed in the file definition to the loader (or the expansion function, in the case of a joint file type).
+If your loader inherits from `AbstractTwoStepLoader`, this can be done by setting a JSON object containing a JSON schema definition as `this.optionsSchema` in the `constructor`:
+
+```js
+class MyLoader extends AbstractTwoStepLoader {
+  constructor(dataSource, params) {
+    super(dataSource, params);
+    this.optionsSchema = obsEmbeddingAnndataSchema;
+  }
+
+  async load() {
+    // super.load() will perform validation of this.options against this.optionsSchema
+    const superResult = await super.load().catch(reason => Promise.resolve(reason));
+    if (superResult instanceof AbstractLoaderError) {
+      return Promise.reject(superResult);
+    }
+    // ... omitted ...
+  }
+}
+```
+
 ## The file type registry
 
 Similar to the [view type registry](/docs/dev-add-component/#the-view-type-registry), there must be a mapping between a **file type** name and the actual data loader & data source class definitions to facilitate usage of the file type name as a string ([`datasets[].files[].fileType`](/docs/view-config-json/#datasets)) in the JSON view config. 
