@@ -33,44 +33,47 @@ export const DataType = {
 
 
 export const FileType = {
-  // New file types
+  // Joint file types
+  ANNDATA_ZARR: 'anndata.zarr',
+  // Atomic file types
+  OBS_EMBEDDING_CSV: 'obsEmbedding.csv',
+  OBS_LOCATIONS_CSV: 'obsLocations.csv',
+  OBS_LABELS_CSV: 'obsLabels.csv', // TODO
+  FEATURE_LABELS_CSV: 'featureLabels.csv', // TODO
+  OBS_FEATURE_MATRIX_CSV: 'obsFeatureMatrix.csv', // TODO
+  OBS_SEGMENTATIONS_JSON: 'obsSegmentations.json', // TODO
   OBS_SETS_JSON: 'obsSets.json',
   IMAGE_OME_ZARR: 'image.ome-zarr',
-  ANNDATA_ZARR: 'anndata.zarr',
-  // Also for anndata-expression-matrix.zarr
   OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
-  // Also for anndata-cell-sets.zarr
   OBS_SETS_ANNDATA_ZARR: 'obsSets.anndata.zarr',
-  // Also for anndata-cells.zarr
   OBS_EMBEDDING_ANNDATA_ZARR: 'obsEmbedding.anndata.zarr',
   OBS_LOCATIONS_ANNDATA_ZARR: 'obsLocations.anndata.zarr',
   OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
   OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
   FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
+  GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
+  NEIGHBORHOODS_JSON: 'neighborhoods.json',
   // New file types to support old file types:
-  // For cells.json
+  // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
   OBS_SEGMENTATIONS_CELLS_JSON: 'obsSegmentations.cells.json',
   OBS_LOCATIONS_CELLS_JSON: 'obsLocations.cells.json',
   OBS_LABELS_CELLS_JSON: 'obsLabels.cells.json',
-  // For cell-sets.json
+  // - cell-sets.json
   OBS_SETS_CELL_SETS_JSON: 'obsSets.cell-sets.json',
-  // For genes.json
+  // - genes.json
   OBS_FEATURE_MATRIX_GENES_JSON: 'obsFeatureMatrix.genes.json',
-  // For clusters.json
+  // - clusters.json
   OBS_FEATURE_MATRIX_CLUSTERS_JSON: 'obsFeatureMatrix.clusters.json',
-  // For expression-matrix.zarr
+  // - expression-matrix.zarr
   OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR: 'obsFeatureMatrix.expression-matrix.zarr',
-  // For raster.json
+  // - raster.json
   IMAGE_RASTER_JSON: 'image.raster.json',
   OBS_SEGMENTATIONS_RASTER_JSON: 'obsSegmentations.raster.json',
-  // For molecules.json
+  // - molecules.json
   OBS_LOCATIONS_MOLECULES_JSON: 'obsLocations.molecules.json',
   OBS_LABELS_MOLECULES_JSON: 'obsLabels.molecules.json',
-  // Old file types
-  GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
-  NEIGHBORHOODS_JSON: 'neighborhoods.json',
-  // Convenience file types
+  // Legacy joint file types
   CELLS_JSON: 'cells.json',
   CELL_SETS_JSON: 'cell-sets.json',
   ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',

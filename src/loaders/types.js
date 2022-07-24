@@ -2,13 +2,17 @@ import { FileType } from '../app/constants';
 import {
   getLoaderClassesForPluginFileType,
 } from '../app/plugins';
-
+import {
+  AnnDataSource,
+  ZarrDataSource,
+  JsonSource,
+  CsvSource,
+} from './data-sources';
 import JsonLoader from './JsonLoader';
 import OmeZarrLoader from './OmeZarrLoader';
 import ObsSetsJsonLoader from './ObsSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
-import { AnnDataSource, ZarrDataSource, JsonSource } from './data-sources';
 import CellsJsonAsObsLabelsLoader from './cells-json-loaders/CellsJsonAsObsLabels';
 import CellsJsonAsObsEmbeddingLoader from './cells-json-loaders/CellsJsonAsObsEmbedding';
 import CellsJsonAsObsSegmentationsLoader from './cells-json-loaders/CellsJsonAsObsSegmentations';
@@ -20,8 +24,12 @@ import MatrixZarrAsObsFeatureMatrixLoader from './matrix-loaders/MatrixZarrAsObs
 import MoleculesJsonAsObsLocationsLoader from './molecules-json-loaders/MoleculesJsonAsObsLocations';
 import MoleculesJsonAsObsLabelsLoader from './molecules-json-loaders/MoleculesJsonAsObsLabels';
 import CellsJsonAsObsLocationsLoader from './cells-json-loaders/CellsJsonAsObsLocations';
+import ObsEmbeddingCsvLoader from './csv-loaders/ObsEmbeddingCsv';
+import ObsLocationsCsvLoader from './csv-loaders/ObsLocationsCsv';
 
 export const fileTypeToLoaderAndSource = {
+  [FileType.OBS_EMBEDDING_CSV]: [CsvSource, ObsEmbeddingCsvLoader],
+  [FileType.OBS_LOCATIONS_CSV]: [CsvSource, ObsLocationsCsvLoader],
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: [
     AnnDataSource, AnnDataLoaders.ObsFeatureMatrixAnndataLoader,
   ],

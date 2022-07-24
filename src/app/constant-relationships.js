@@ -7,6 +7,12 @@ import { FileType, DataType } from './constants';
  */
 export const FILE_TYPE_DATA_TYPE_MAPPING = {
   // For new file types
+  [FileType.OBS_EMBEDDING_CSV]: DataType.OBS_EMBEDDING,
+  [FileType.OBS_LOCATIONS_CSV]: DataType.OBS_LOCATIONS,
+  [FileType.OBS_LABELS_CSV]: DataType.OBS_LABELS,
+  [FileType.FEATURE_LABELS_CSV]: DataType.FEATURE_LABELS,
+  [FileType.OBS_FEATURE_MATRIX_CSV]: DataType.OBS_FEATURE_MATRIX,
+  [FileType.OBS_SEGMENTATIONS_JSON]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_SETS_JSON]: DataType.OBS_SETS,
   [FileType.IMAGE_OME_ZARR]: DataType.IMAGE,
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: DataType.OBS_FEATURE_MATRIX,
