@@ -663,7 +663,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
               const obsCoord = getCellCoords(obsIdx);
               return viewport.project(obsCoord);
             }
-            // TODO: when obsSegmentationsType is bitmask?
             return [null, null];
           } catch (e) {
             return [null, null];

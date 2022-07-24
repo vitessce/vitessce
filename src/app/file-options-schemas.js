@@ -182,19 +182,24 @@ export const cellsJsonSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
   $id: 'https://github.com/vitessce/vitessce/#cells-json-options',
   title: 'cells.json options',
-  type: 'object',
-  additionalProperties: false,
-  required: [],
-  properties: {
-    obsLabelsTypes: {
-      type: 'array',
-      items: { type: 'string' },
+  oneOf: [
+    { type: 'null' },
+    {
+      type: 'object',
+      additionalProperties: false,
+      required: [],
+      properties: {
+        obsLabelsTypes: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+        embeddingTypes: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      },
     },
-    embeddingTypes: {
-      type: 'array',
-      items: { type: 'string' },
-    },
-  },
+  ],
 };
 
 export const anndataCellsZarrSchema = {
