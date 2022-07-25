@@ -54,24 +54,6 @@ export default class HeatmapCompositeTextLayer extends CompositeLayer {
         },
       }),
     ];
-
-    return [
-      ...topTextLayers,
-      ...cellColorLabelsData.map(data => (
-        new TextLayer({
-          id: `cellColorLabelLayer-${data[0]}`,
-          coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-          data: [data],
-          getText: d => d[1],
-          getTextAnchor: 'end',
-          getColor: () => THEME_TO_TEXT_COLOR[theme],
-          getSize: AXIS_LABEL_TEXT_SIZE,
-          getPosition: () => [axisLabelLeft, targetY],
-          getAngle: 0,
-          fontFamily: AXIS_FONT_FAMILY,
-        })
-      )),
-    ];
   }
 
   _renderCornerLayers() {

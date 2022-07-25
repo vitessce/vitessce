@@ -235,11 +235,9 @@ export default class AnnDataSource extends ZarrDataSource {
     }
     [this.varAlias] = await this.loadVarColumns([varPath]);
     const index = await this.loadVarIndex();
-    console.log(this.varAlias); // eslint-disable-line
     this.varAlias = this.varAlias.map(
       (val, ind) => (val ? val.concat(` (${index[ind]})`) : index[ind]),
     );
-    console.log(this.varAlias); // eslint-disable-line
     return this.varAlias;
   }
 }

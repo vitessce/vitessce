@@ -702,7 +702,6 @@ const Heatmap = forwardRef((props, deckRef) => {
           width: matrixWidth,
           height: matrixHeight,
         }),
-
         new OrthographicView({
           id: 'axisLeft',
           controller: false,
