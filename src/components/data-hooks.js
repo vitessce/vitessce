@@ -132,7 +132,7 @@ export function useCellsData(
         // spatial cells layer coordination value
         // using the cell layer singleton.
         const coordinationValuesOrDefault = {
-          spatialCellsLayer: DEFAULT_CELLS_LAYER,
+          spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
           ...coordinationValues,
         };
         initCoordinationSpace(
@@ -488,7 +488,7 @@ export function useMoleculesData(
           .reduce((a, b) => a + b, 0));
         addUrl(url, 'Molecules');
         const coordinationValuesOrDefault = {
-          spatialMoleculesLayer: DEFAULT_MOLECULES_LAYER,
+          spatialPointLayer: DEFAULT_MOLECULES_LAYER,
           ...coordinationValues,
         };
         initCoordinationSpace(
@@ -559,7 +559,7 @@ export function useNeighborhoodsData(
           setNeighborhoods(data);
           addUrl(url, 'Neighborhoods');
           const coordinationValuesOrDefault = {
-            spatialNeighborhoodsLayer: DEFAULT_NEIGHBORHOODS_LAYER,
+            spatialNeighborhoodLayer: DEFAULT_NEIGHBORHOODS_LAYER,
             ...coordinationValues,
           };
           initCoordinationSpace(

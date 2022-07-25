@@ -22,7 +22,7 @@ Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
 ### Interactive
 
-Vitessce consists of reusable interactive components including a scatterplot, spatial+imaging plot, genome browser tracks, statistical plots, and controller components, built on web technologies such as WebGL.
+Vitessce consists of reusable interactive views including a scatterplot, spatial+imaging plot, genome browser tracks, statistical plots, and control views, built on web technologies such as WebGL.
 
 ### Integrative
 
@@ -34,7 +34,7 @@ Visualize large datasets stored in static cloud object stores such as AWS S3. No
 
 ## Usage
 
-Vitessce components can be used in React projects by installing the package from NPM:
+Vitessce can be used in React projects by installing the package from NPM:
 
 ```sh
 npm install vitessce
@@ -44,22 +44,20 @@ For more details, please visit the [documentation](http://vitessce.io/docs/js-ov
 
 ## Development
 
-First check your NodeJS version: It should work with NodeJS 8, 10, 12, 13, or 14.
-```
-$ node --version
-v14.0.0
-```
+First install NodeJS and NPM. We develop and test against NodeJS `v16.14.2` and NPM `8.5.0`.
 
-Note: NodeJS 14 may require the `max_old_space_size` option to be increased ([apparently due to a different heap management strategy](https://stackoverflow.com/a/59572966)):
-```sh
-export NODE_OPTIONS=--max_old_space_size=4096
-```
+> **Note**
+> NodeJS may require the [`max_old_space_size`](https://stackoverflow.com/a/59572966) value to be increased and the [`openssl-legacy-provider`](https://stackoverflow.com/questions/69692842/error-message-error0308010cdigital-envelope-routinesunsupported) flag to be set.
+  ```sh
+  . ./set-node-options.sh
+  ```
+
 
 Checkout the project, `cd`, and then:
 
-```
-$ npm install
-$ npm start
+```sh
+npm install
+npm start
 ```
 
 The development server will refresh the browser as you edit the code.
@@ -78,8 +76,8 @@ $ aws iam list-account-aliases --query 'AccountAliases[0]'
 ### Staging
 
 To build the current branch and push the "minimal" demo and docs sites to S3, run this script:
-```
-$ ./push-demos.sh
+```sh
+./push-demos.sh
 ```
 
 This will build the demo and docs, push both to S3, and finally open the docs deployment in your browser.
@@ -88,8 +86,8 @@ This will build the demo and docs, push both to S3, and finally open the docs de
 
 To make a release of the dev site, docs site, and NPM package:
 
-```
-$ ./create-release.sh patch
+```sh
+./create-release.sh patch
 ```
 
 This script does the following:
@@ -104,8 +102,8 @@ This script does the following:
 After doing a [manual test](TESTING.md) of the deployment of the dev site,
 if it looks good, copy it to dev.vitessce.io:
 
-```
-$ ./copy-dev.sh https://{url returned by create-release.sh or push-demos.sh}
+```sh
+./copy-dev.sh https://{url returned by create-release.sh or push-demos.sh}
 ```
 
 #### Publish staged docs to vitessce.io
@@ -113,8 +111,8 @@ $ ./copy-dev.sh https://{url returned by create-release.sh or push-demos.sh}
 After doing a manual test of the deployment of the docs,
 if it looks good, copy it to vitessce.io:
 
-```
-$ ./copy-docs.sh https://{url returned by create-release.sh or push-demos.sh}
+```sh
+./copy-docs.sh https://{url returned by create-release.sh or push-demos.sh}
 ```
 
 #### Publish the NPM package

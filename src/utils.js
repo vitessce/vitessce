@@ -28,6 +28,19 @@ export function capitalize(word) {
 }
 
 /**
+ * Get the longest string in the array of strings.
+ * @param {string[]} strings The array of strings.
+ * @returns The longest string.
+ */
+export function getLongestString(strings) {
+  return strings.reduce(
+    (prevLongest, currentValue) => (
+      prevLongest.length > currentValue.length ? prevLongest : currentValue
+    ),
+  );
+}
+
+/**
  * Generate a new scope name which does not
  * conflict / overlap with a previous scope name.
  * Really these just need to be unique within the coordination object.

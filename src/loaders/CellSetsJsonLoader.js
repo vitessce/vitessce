@@ -22,8 +22,8 @@ export default class CellSetsJsonLoader extends JsonLoader {
     const upgradedData = tryUpgradeTreeToLatestSchema(rawData, 'cell');
 
     const coordinationValues = {
-      cellSetSelection: [],
-      cellSetColor: [],
+      obsSetSelection: [],
+      obsSetColor: [],
     };
 
     // Set up the initial coordination values.
@@ -35,8 +35,8 @@ export default class CellSetsJsonLoader extends JsonLoader {
         .map(node => ([newAutoSetSelectionParentName, node.name]));
       // Create a list of cell set objects with color mappings.
       const newAutoSetColors = initializeCellSetColor(upgradedData, []);
-      coordinationValues.cellSetSelection = newAutoSetSelections;
-      coordinationValues.cellSetColor = newAutoSetColors;
+      coordinationValues.obsSetSelection = newAutoSetSelections;
+      coordinationValues.obsSetColor = newAutoSetColors;
     }
     return Promise.resolve(new LoaderResult(upgradedData, url, coordinationValues));
   }

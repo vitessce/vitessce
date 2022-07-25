@@ -14,6 +14,7 @@ import {
   legacyViewConfig1_0_0,
   upgradedLegacyViewConfig1_0_0,
   initializedViewConfig,
+  viewConfig1_0_10,
   missingViewUids,
 } from './view-config-utils.test.fixtures';
 
@@ -56,11 +57,11 @@ describe('src/app/view-config-utils.js', () => {
 
   describe('initialize', () => {
     it('initializes coordination space and component coordination scopes when initStrategy is auto', () => {
-      expect(initialize(upgradedLegacyViewConfig0_1_0)).toEqual(initializedViewConfig);
+      expect(initialize(viewConfig1_0_10)).toEqual(initializedViewConfig);
     });
 
     it('does not change the result when initialized twice when initStrategy is auto', () => {
-      const firstResult = initialize(upgradedLegacyViewConfig0_1_0);
+      const firstResult = initialize(viewConfig1_0_10);
       expect(firstResult).toEqual(initializedViewConfig);
       const secondResult = initialize(firstResult);
       expect(secondResult).toEqual(initializedViewConfig);
@@ -80,7 +81,8 @@ describe('src/app/view-config-utils.js', () => {
         ...upgradedLegacyViewConfig0_1_0,
         initStrategy: 'none',
       };
-      expect(initialize(noneInitViewConfig)).toEqual(noneInitViewConfig);
+      expect(initialize(noneInitViewConfig).coordinationSpace)
+        .toEqual(noneInitViewConfig.coordinationSpace);
     });
   });
 });

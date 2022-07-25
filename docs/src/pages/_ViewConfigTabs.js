@@ -9,7 +9,7 @@ import styles from './styles.module.css';
 const jsonPrefix = '  ...,\n  ';
 const jsonSuffix = ',\n  ...';
 
-const jsPrefix = 'const vc = new VitessceConfig("My config");\n';
+const jsPrefix = 'const vc = new VitessceConfig("1.0.9", "My config");\n';
 
 export default function ViewConfigTabs(props) {
   const {

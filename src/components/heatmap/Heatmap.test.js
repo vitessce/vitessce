@@ -1,4 +1,4 @@
-
+/* eslint-disable func-names */
 import React from 'react';
 import Adapter from 'enzyme-adapter-react-16';
 import { configure, mount } from 'enzyme';
@@ -9,7 +9,8 @@ import { expressionMatrix, cellColors } from './Heatmap.test.fixtures';
 configure({ adapter: new Adapter() });
 
 describe('<Heatmap/>', () => {
-  it('renders a DeckGL element', () => {
+  it('renders a DeckGL element', function () {
+    this.timeout(15000);
     const wrapper = mount(
       <Heatmap
         uuid="heatmap-0"

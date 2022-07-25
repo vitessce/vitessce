@@ -91,9 +91,8 @@ export function layerFilter({ layer, viewport }) {
     return layer.id.startsWith('axisTop');
   }
 
-  if (viewport.id.startsWith('cellColorLabel')) {
-    const matches = viewport.id.match(/-(\d)/);
-    if (matches) return layer.id.startsWith(`cellColorLabelLayer-${matches[1]}`);
+  if (viewport.id === 'cellColorLabel') {
+    return layer.id.startsWith('cellColorLabel');
   }
 
   if (viewport.id === 'heatmap') {
@@ -139,12 +138,17 @@ function getTextWidth(text, font) {
  * @param {String} longestGeneLabel longest gene label
  * @param {String} longestCellLabel longest cell label
  * @param {boolean} hideObservationLabels are cell labels hidden?
+ * @param {boolean} hideVariableLabels are gene labels hidden?
  * Increases vertical space for heatmap
  * @returns {number[]} [axisOffsetLeft, axisOffsetTop]
  */
-export function getAxisSizes(transpose, longestGeneLabel, longestCellLabel, hideObservationLabels) {
+export function getAxisSizes(
+  transpose, longestGeneLabel, longestCellLabel,
+  hideObservationLabels, hideVariableLabels,
+) {
   const font = `${AXIS_LABEL_TEXT_SIZE}pt ${AXIS_FONT_FAMILY}`;
-  const geneLabelMaxWidth = getTextWidth(longestGeneLabel, font) + AXIS_PADDING;
+  const geneLabelMaxWidth = hideVariableLabels
+    ? 0 : getTextWidth(longestGeneLabel, font) + AXIS_PADDING;
   const cellLabelMaxWidth = hideObservationLabels
     ? 0 : getTextWidth(longestCellLabel, font) + AXIS_PADDING;
 
@@ -295,15 +299,16 @@ export function mouseToCellColorPosition(mouseX, mouseY, {
     const zoomedViewMouseX = viewMouseX / (matrixWidth * scaleFactor);
     const zoomedMouseX = zoomedOffsetLeft + zoomedViewMouseX;
     cellI = Math.floor(zoomedMouseX * numCols);
-  } else {
-    const viewMouseY = mouseY - axisOffsetTop;
-    const bboxTargetY = targetY * scaleFactor + matrixHeight * scaleFactor / 2;
-    const bboxTop = bboxTargetY - matrixHeight / 2;
-    const zoomedOffsetTop = bboxTop / (matrixHeight * scaleFactor);
-    const zoomedViewMouseY = viewMouseY / (matrixHeight * scaleFactor);
-    const zoomedMouseY = zoomedOffsetTop + zoomedViewMouseY;
-    cellI = Math.floor(zoomedMouseY * numRows);
+    return [cellI, trackI];
   }
+  // Not transposed
+  const viewMouseY = mouseY - axisOffsetTop;
+  const bboxTargetY = targetY * scaleFactor + matrixHeight * scaleFactor / 2;
+  const bboxTop = bboxTargetY - matrixHeight / 2;
+  const zoomedOffsetTop = bboxTop / (matrixHeight * scaleFactor);
+  const zoomedViewMouseY = viewMouseY / (matrixHeight * scaleFactor);
+  const zoomedMouseY = zoomedOffsetTop + zoomedViewMouseY;
+  cellI = Math.floor(zoomedMouseY * numRows);
 
   return [cellI, trackI];
 }

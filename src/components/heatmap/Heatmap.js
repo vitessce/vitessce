@@ -7,6 +7,7 @@ import { OrthographicView } from '@deck.gl/core'; // eslint-disable-line import/
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
+import { getLongestString } from '../../utils';
 import HeatmapCompositeTextLayer from '../../layers/HeatmapCompositeTextLayer';
 import PixelatedBitmapLayer from '../../layers/PixelatedBitmapLayer';
 import HeatmapBitmapLayer from '../../layers/HeatmapBitmapLayer';
@@ -39,8 +40,10 @@ import HeatmapWorkerPool from './HeatmapWorkerPool';
  * used by tooltips to determine whether to render a tooltip or
  * a crosshair.
  * @param {string} props.theme The current theme name.
- * @param {object} props.initialViewState The initial viewState for
+ * @param {object} props.viewState The viewState for
  * DeckGL.
+ * @param {function} props.setViewState The viewState setter
+ * for DeckGL.
  * @param {number} props.width The width of the canvas.
  * @param {number} props.height The height of the canvas.
  * @param {object} props.expressionMatrix An object { rows, cols, matrix },
@@ -65,6 +68,7 @@ import HeatmapWorkerPool from './HeatmapWorkerPool';
  * @param {number} props.useDevicePixels By default, 1. Higher values
  * e.g. 2 increase text sharpness.
  * @param {boolean} props.hideObservationLabels By default false.
+ * @param {boolean} props.hideVariableLabels By default false.
  * @param {string} props.colormap The name of the colormap function to use.
  * @param {array} props.colormapRange A tuple [lower, upper] to adjust the color scale.
  * @param {function} props.setColormapRange The setter function for colormapRange.
@@ -92,8 +96,11 @@ const Heatmap = forwardRef((props, deckRef) => {
     transpose = false,
     variablesTitle = 'Genes',
     observationsTitle = 'Cells',
+    variablesDashes = true,
+    observationsDashes = true,
     useDevicePixels = 1,
     hideObservationLabels = false,
+    hideVariableLabels = false,
   } = props;
 
   const viewState = {
@@ -175,12 +182,6 @@ const Heatmap = forwardRef((props, deckRef) => {
     }
   }, [expression, transpose]);
 
-  const getLongestString = strings => strings.reduce(
-    (prevLongest, currentValue) => (
-      prevLongest.length > currentValue.length ? prevLongest : currentValue
-    ),
-  );
-
   const [longestCellLabel, longestGeneLabel] = useMemo(() => {
     if (!expression) {
       return ['', ''];
@@ -207,7 +208,8 @@ const Heatmap = forwardRef((props, deckRef) => {
   const height = axisLeftLabels.length;
 
   const [axisOffsetLeft, axisOffsetTop] = getAxisSizes(
-    transpose, longestGeneLabel, longestCellLabel, hideObservationLabels,
+    transpose, longestGeneLabel, longestCellLabel,
+    hideObservationLabels, hideVariableLabels,
   );
 
   const offsetTop = axisOffsetTop + COLOR_BAR_SIZE * (transpose ? numCellColorTracks : 0);
@@ -389,12 +391,17 @@ const Heatmap = forwardRef((props, deckRef) => {
     aggSizeX, aggSizeY, colormap, colormapRange,
     axisLeftLabels, axisTopLabels, xTiles]);
 
+  const axisLeftDashes = (transpose ? variablesDashes : observationsDashes);
+  const axisTopDashes = (transpose ? observationsDashes : variablesDashes);
 
   // Map cell and gene names to arrays with indices,
   // to prepare to render the names in TextLayers.
-  const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, `- ${d}`]), [axisTopLabels]);
-  const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, `${d} -`]), [axisLeftLabels]);
-  const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d && `${d} -`]), [cellColorLabels]);
+  const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, (axisTopDashes ? `- ${d}` : d)]), [axisTopLabels, axisTopDashes]);
+  const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, (axisLeftDashes ? `${d} -` : d)]), [axisLeftLabels, axisLeftDashes]);
+  const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d && (transpose ? `${d} -` : `- ${d}`)]), [cellColorLabels, transpose]);
+
+  const hideTopLabels = (transpose ? hideObservationLabels : hideVariableLabels);
+  const hideLeftLabels = (transpose ? hideVariableLabels : hideObservationLabels);
 
   // Generate the axis label, axis title, and loading indicator text layers.
   const textLayers = [
@@ -421,6 +428,9 @@ const Heatmap = forwardRef((props, deckRef) => {
       axisTopTitle,
       axisOffsetLeft,
       axisOffsetTop,
+      hideTopLabels,
+      hideLeftLabels,
+      transpose,
     }),
     new HeatmapCompositeTextLayer({
       axis: 'top',
@@ -446,7 +456,37 @@ const Heatmap = forwardRef((props, deckRef) => {
       axisOffsetLeft,
       axisOffsetTop,
       cellColorLabelsData,
-      hideObservationLabels,
+      hideTopLabels,
+      hideLeftLabels,
+      transpose,
+    }),
+    new HeatmapCompositeTextLayer({
+      axis: 'corner',
+      id: 'cellColorLabelCompositeTextLayer',
+      targetX,
+      targetY,
+      scaleFactor,
+      axisLeftLabelData,
+      matrixTop,
+      height,
+      matrixHeight,
+      cellHeight,
+      cellWidth,
+      axisTopLabelData,
+      matrixLeft,
+      width,
+      matrixWidth,
+      viewHeight,
+      viewWidth,
+      theme,
+      axisLeftTitle,
+      axisTopTitle,
+      axisOffsetLeft,
+      axisOffsetTop,
+      cellColorLabelsData,
+      hideTopLabels,
+      hideLeftLabels,
+      transpose,
     }),
   ];
 
@@ -640,26 +680,12 @@ const Heatmap = forwardRef((props, deckRef) => {
           height: matrixHeight,
         });
       }
-
       return view;
     });
 
     return result;
   }, [numCellColorTracks, transpose, offsetLeft, axisOffsetTop,
     offsetTop, axisOffsetLeft, matrixHeight, matrixWidth]);
-
-  const cellColorsLabelsViews = useMemo(() => {
-    const result = range(numCellColorTracks).map(track => new OrthographicView({
-      id: `cellColorLabel-${track}`,
-      controller: false,
-      x: 0,
-      y: axisOffsetTop + track * COLOR_BAR_SIZE,
-      width: axisOffsetLeft,
-      height: COLOR_BAR_SIZE,
-    }));
-
-    return result;
-  }, [numCellColorTracks, axisOffsetTop, axisOffsetLeft]);
 
   return (
     <DeckGL
@@ -693,7 +719,14 @@ const Heatmap = forwardRef((props, deckRef) => {
           width: matrixWidth,
           height: axisOffsetTop,
         }),
-        ...cellColorsLabelsViews,
+        new OrthographicView({
+          id: 'cellColorLabel',
+          controller: false,
+          x: (transpose ? 0 : axisOffsetLeft),
+          y: (transpose ? axisOffsetTop : 0),
+          width: (transpose ? axisOffsetLeft : COLOR_BAR_SIZE * numCellColorTracks),
+          height: (transpose ? COLOR_BAR_SIZE * numCellColorTracks : axisOffsetTop),
+        }),
         ...cellColorsViews,
       ]}
       layers={layers}

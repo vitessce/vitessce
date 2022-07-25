@@ -227,12 +227,13 @@ export class VitessceConfigCoordinationScope {
 export class VitessceConfig {
   /**
    * Construct a new view config instance.
+   * @param {string} schemaVersion The view config schema version. Required.
    * @param {string} name A name for the config. Optional.
    * @param {string} description A description for the config. Optional.
    */
-  constructor(name = undefined, description = undefined) {
+  constructor(schemaVersion, name = undefined, description = undefined) {
     this.config = {
-      version: '1.0.7',
+      version: schemaVersion,
       name,
       description,
       datasets: [],
@@ -422,8 +423,8 @@ export class VitessceConfig {
    * the config parameter.
    */
   static fromJSON(config) {
-    const { name, description } = config;
-    const vc = new VitessceConfig(name, description);
+    const { name, description, version: schemaVersion } = config;
+    const vc = new VitessceConfig(schemaVersion, name, description);
     config.datasets.forEach((d) => {
       const newDataset = vc.addDataset(d.name, d.description, { uid: d.uid });
       d.files.forEach((f) => {
