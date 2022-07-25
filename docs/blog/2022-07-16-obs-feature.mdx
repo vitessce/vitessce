@@ -89,8 +89,8 @@ Instead, we now store a mapping from `fileType`s to data types internally and do
 ### Joint file types
 
 Joint file types can now be defined via functions which expand one file definition into an array of file definitions.
+Note that joint file type expansion is currently not performed recursively (i.e., a joint file type expansion function must return a list of atomic file definitions).
 
-For instance, despite removing the `cells` _data type_, the former `cells.json` _file type_ can be re-implemented via a convenience file type which expands one `cells.json` file definition into multiple file definitions corresponding to the new data types `obsEmbedding`, `obsSegmentations`, etc.
 For more information, see [Joint File Types](/docs/data-types-file-types/#joint-file-types).
 
 ### View config schema

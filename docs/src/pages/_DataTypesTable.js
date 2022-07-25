@@ -23,7 +23,7 @@ export default function DataTypesTable() {
           </td>
           <td>
             <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obsembeddingcellsjson')}><code>obsEmbedding.cells.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsembeddingcsv')}><code>obsEmbedding.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsembeddinganndatazarr')}><code>obsEmbedding.anndata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
@@ -32,8 +32,6 @@ export default function DataTypesTable() {
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#seurat')}>Seurat</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#snapatac')}>SnapATAC</a></li>
             </ul>
           </td>
         </tr>
@@ -46,13 +44,17 @@ export default function DataTypesTable() {
           </td>
           <td>
             <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obslocationsmoleculesjson')}><code>obsLocations.molecules.json</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obslocationscellsjson')}><code>obsLocations.cells.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obslocationscsv')}><code>obsLocations.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obslocationsanndatazarr')}><code>obsLocations.anndata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
-          <td />
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
+            </ul>
+          </td>
         </tr>
         <tr>
           <td>
@@ -63,6 +65,7 @@ export default function DataTypesTable() {
           <td>
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssetsjson')}><code>obsSets.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssetscsv')}><code>obsSets.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssetsanndatazarr')}><code>obsSets.anndata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
@@ -71,8 +74,6 @@ export default function DataTypesTable() {
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#seurat')}>Seurat</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#snapatac')}>SnapATAC</a></li>
             </ul>
           </td>
         </tr>
@@ -84,12 +85,17 @@ export default function DataTypesTable() {
           </td>
           <td>
             <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obslocationsmoleculesjson')}><code>obsLabels.cells.json</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obslocationscellsjson')}><code>obsLabels.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obslabelscsv')}><code>obsLabels.csv</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obslabelsanndatazarr')}><code>obsLabels.anndata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
-          <td />
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
+            </ul>
+          </td>
         </tr>
         <tr>
           <td>
@@ -130,9 +136,8 @@ export default function DataTypesTable() {
           </td>
           <td>
             <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixcsv')}><code>obsFeatureMatrix.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixanndatazarr')}><code>obsFeatureMatrix.anndata.zarr</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixclustersjson')}><code>obsFeatureMatrix.clusters.json</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixgenesjson')}><code>obsFeatureMatrix.genes.json</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
@@ -140,7 +145,6 @@ export default function DataTypesTable() {
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#seurat')}>Seurat</a></li>
             </ul>
           </td>
         </tr>
@@ -152,11 +156,17 @@ export default function DataTypesTable() {
           </td>
           <td>
             <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#featurelabelscsv')}><code>featureLabels.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#featurelabelsanndatazarr')}><code>featureLabels.anndata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
-          <td />
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
+            </ul>
+          </td>
         </tr>
         <tr>
           <td>
@@ -166,13 +176,18 @@ export default function DataTypesTable() {
           </td>
           <td>
             <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsjson')}><code>obsSegmentations.json</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsanndatazarr')}><code>obsSegmentations.anndata.zarr</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationscellsjson')}><code>obsSegmentations.cells.json</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsrasterjson')}><code>obsSegmentations.raster.json</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
-          <td />
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
+            </ul>
+          </td>
         </tr>
         <tr>
           <td><code>genomic-profiles</code><br /> Genomic profiles, such as ATAC-seq profiles.</td>

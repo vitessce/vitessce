@@ -1,7 +1,6 @@
 ---
 id: data-hosting
-title: Hosting Data
-sidebar_label: Hosting Data
+title: Data Hosting
 slug: /data-hosting
 ---
 

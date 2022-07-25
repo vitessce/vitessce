@@ -1,39 +1,222 @@
 ---
 id: data-file-types
-title: Supported File Types
-sidebar_label: Supported File Types
+title: File Types and File Formats
 slug: /data-file-types
 ---
 import ViewConfigTabs from '../src/pages/_ViewConfigTabs';
+import FileDefTabs from '../src/pages/_FileDefTabs';
+
 import TabItem from '@theme/TabItem';
 import CodeBlock from '@theme/CodeBlock';
 
-This page contains details about the file types that are supported by Vitessce, both those which can be loaded natively (by specifying file URLs in the view config) and those other file types for which conversion to native file types is straightforward.
-Use the tabs on the page to toggle between code snippets for [JSON-](/docs/view-config-json/) and [JavaScript API-](/docs/view-config-js/)based view configs.
+This page describes, for each file type, the configuration options and the file formatting requirements.
 
-## Native File Types
-
-Native file types are those which Vitessce can read directly from a static web server via a [loader class](https://github.com/vitessce/vitessce/tree/master/src/loaders)
-(in contrast to [Other File Types](#other-file-types) which require a data conversion step, either explicitly or implicitly when using the Vitessce R or Python packages).
-[Plugin file types](/docs/dev-plugins/#plugin-file-types) can be defined to facilitate loading custom file types or those that Vitessce does not yet support.
+The file types and file formats listed here are natively (i.e., can be loaded directly without a conversion step) supported by Vitessce.
+To use [other file formats](#other-file-formats) with Vitessce, there are two options: convert to format(s) supported by Vitessce, or develop a [plugin file type](/docs/dev-plugins/).
 
 
-### AnnData as Zarr
-
-Once your AnnData object has been written to a Zarr store, columns and keys in the original object (such as `adata.obs["leiden"]` or `adata.obsm["X_umap"]`) become relative file paths such as `obs/leiden` and `obsm/X_umap`.
-In the `options` property for file definitions in the Vitessce view config, you must specify which columns and keys will be used for visualization using POSIX-style paths.
-
-:::caution
-Vitessce uses [Zarr.js](https://github.com/gzuidhof/zarr.js) to load Zarr data.
-Zarr.js currently supports a __[subset](https://github.com/gzuidhof/zarr.js/blob/61d9cdb56ce6f8eaf97d213bcaa5b4ea8d01f5d1/src/nestedArray/types.ts#L32)__ of NumPy data types, so ensure that the types used in the arrays and data frames of your AnnData store are supported (otherwise cast using [np.astype](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.astype.html) or [pd.astype](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.astype.html)).
-In addition to the Zarr.js data types, Vitessce supports loading AnnData [string columns](https://github.com/vitessce/vitessce/blob/3615b55/src/loaders/data-sources/AnnDataSource.js#L102) with `vlen-utf8` or `|O` types.
+:::tip
+If you encounter any issues, please check out our [data troubleshooting](/docs/data-troubleshooting/) page before opening an [issue](https://github.com/vitessce/vitessce/issues).
 :::
 
-:::note
-The same Zarr store URL can be used for defining multiple files in the view config, for different data types and file types.
+:::info
+The JSON file definition snippets found on this page would be specified as objects in the array [`datasets[].files[]`](/docs/view-config-json/#files) in the JSON view configuration.
 :::
 
-#### `anndata-cells.zarr`
+
+## `anndata.zarr`
+
+Defines an AnnData object that has been written to a Zarr store. This is a [joint](/docs/data-types-file-types/#joint-file-types) file type.
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="anndata.zarr"
+fileConst="ANNDATA_ZARR"
+options={`{
+  "obsLocations": {
+    // Accepts the same options as obsLocations.anndata.zarr
+    "path": "obsm/X_centroids"
+  },
+  "obsSegmentations": {
+    // Accepts the same options as obsSegmentations.anndata.zarr
+    "path": "obsm/X_segmentations"
+  },
+  "obsEmbedding": [
+    {
+      // Accepts a superset of the options from obsEmbedding.anndata.zarr
+      // Should point to an array of (d1, d2) coordinate pairs, one coordinate pair per obs/cell.
+      "path": "obsm/X_umap",
+      "dims": [0, 1],
+      // An embeddingType must be specified to distinguish between multiple embedding arrays.
+      "embeddingType": "UMAP"
+    },
+    {
+      "path": "obsm/X_pca",
+      "dims": [4, 5],
+      "embeddingType": "PCA"
+    }
+  ],
+  "obsLabels": [
+    {
+      // Accepts a superset of the options from obsLabels.anndata.zarr
+      "path": "obs/alt_cell_id",
+      // An obsLabelsType must be specified to distinguish between multiple label columns.
+      "obsLabelsType": "Alternate cell ID"
+    }
+  ],
+  "obsSets": [
+    // Accepts the same options as obsSets.anndata.zarr
+    {
+      "name": "Cell Type Annotations",
+      "path": ["obs/cell_type_coarse", "obs/cell_type_fine"]
+    }
+  ],
+  "obsFeatureMatrix": {
+    // Accepts the same options as obsFeatureMatrix.anndata.zarr
+    // Should point to the observation-x-feature matrix
+    "path": "X"
+  }
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "featureType": "gene",
+  "featureValueType": "expression"
+}`}
+/>
+
+## `obsEmbedding.anndata.zarr`
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsEmbedding.anndata.zarr"
+fileConst="OBS_EMBEDDING_ANNDATA_ZARR"
+options={`{
+  // Should point to an array of (d1, d2) coordinate pairs, one coordinate pair per obs/cell.
+  "path": "obsm/X_umap",
+  "dims": [0, 1]
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "embeddingType": "UMAP"
+}`}
+/>
+
+## `obsFeatureMatrix.anndata.zarr`
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsFeatureMatrix.anndata.zarr"
+fileConst="OBS_FEATURE_MATRIX_ANNDATA_ZARR"
+options={`{
+  // Should point to the observation-x-feature matrix
+  "path": "X",
+  "featureFilterPath": "var/",
+  "initialFeatureFilterPath": "var/"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "featureType": "gene",
+  "featureValueType": "expression"
+}`}
+/>
+
+## `obsLabels.anndata.zarr`
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsLabels.anndata.zarr"
+fileConst="OBS_LABELS_ANNDATA_ZARR"
+options={`{
+  // Should point to a string column
+  "path": "obs/alt_cell_ids"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "obsLabelsType": "Alternate cell ID"
+}`}
+/>
+
+## `obsLocations.anndata.zarr`
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsLocations.anndata.zarr"
+fileConst="OBS_LOCATIONS_ANNDATA_ZARR"
+options={`{
+  // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
+  "path": "obs/alt_cell_ids"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+## `obsSegmentations.anndata.zarr`
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsSegmentations.anndata.zarr"
+fileConst="OBS_SEGMENTATIONS_ANNDATA_ZARR"
+options={`{
+  // Should point to an array of polygon vertices, one polygon per obs/cell.
+  "path": "obs/alt_cell_ids"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+## `obsSets.anndata.zarr`
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsSets.anndata.zarr"
+fileConst="OBS_SETS_ANNDATA_ZARR"
+options={`[
+  {
+    "name": "Leiden Clustering"
+    "path": "obs/leiden"
+  },
+  {
+    "name": "Cell Type Annotations"
+    "path": ["obs/cell_type_coarse", "obs/cell_type_fine"]
+  },
+  {
+    "name": "Predicted Cell Types"
+    "path": "obs/predicted_cell_type",
+    "scorePath": "obs/prediction_score"
+  }
+]`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+## `featureLabels.anndata.zarr`
+
+## `obsEmbedding.csv`
+
+## `obsFeatureMatrix.csv`
+
+## `obsLabels.csv`
+
+## `obsLocations.csv`
+
+## `obsSegmentations.json`
+
+## `obsSets.csv`
+
+## `obsSets.json`
+
+## `featureLabels.csv`
+
+## `image.raster.json`
+
+## `obsSegmentations.raster.json`
+
+## `image.ome-zarr`
+
+## `genomic-profiles.zarr`
 
 - View config file definition snippet:
 
@@ -707,10 +890,10 @@ const dataset = vc
   />
 
 
-## Other File Types
+## Other File Formats
 
-Other file types must be converted to native file types prior to being used with Vitessce.
-Here we provide tips for conversion from common single-cell file types.
+Other file formats must be converted to one or more of the file types listed above prior to being used with Vitessce.
+Here we provide tips for conversion from common single-cell file formats.
 
 ### AnnData as h5ad
 
