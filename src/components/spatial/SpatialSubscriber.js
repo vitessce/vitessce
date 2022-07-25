@@ -240,7 +240,7 @@ export default function SpatialSubscriber(props) {
         obsCentroids,
         obsSegmentations,
         obsSegmentationsType,
-        // TODO: use obsLocations here too.
+        // TODO: use obsLocations (molecules) here too.
         imageLayerLoaders,
         useRaster: Boolean(hasImageData),
         use3d,

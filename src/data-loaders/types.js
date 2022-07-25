@@ -29,6 +29,8 @@ import ObsLocationsCsvLoader from './csv-loaders/ObsLocationsCsv';
 import ObsLabelsCsvLoader from './csv-loaders/ObsLabelsCsv';
 import FeatureLabelsCsvLoader from './csv-loaders/FeatureLabelsCsv';
 import ObsFeatureMatrixCsvLoader from './csv-loaders/ObsFeatureMatrixCsv';
+import ObsSegmentationsJsonLoader from './json-loaders/ObsSegmentationsJson';
+import ObsSetsCsvLoader from './csv-loaders/ObsSetsCsv';
 
 export const fileTypeToLoaderAndSource = {
   [FileType.OBS_EMBEDDING_CSV]: [CsvSource, ObsEmbeddingCsvLoader],
@@ -36,6 +38,8 @@ export const fileTypeToLoaderAndSource = {
   [FileType.OBS_LABELS_CSV]: [CsvSource, ObsLabelsCsvLoader],
   [FileType.FEATURE_LABELS_CSV]: [CsvSource, FeatureLabelsCsvLoader],
   [FileType.OBS_FEATURE_MATRIX_CSV]: [CsvSource, ObsFeatureMatrixCsvLoader],
+  [FileType.OBS_SEGMENTATIONS_JSON]: [JsonSource, ObsSegmentationsJsonLoader],
+  [FileType.OBS_SETS_CSV]: [CsvSource, ObsSetsCsvLoader],
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: [
     AnnDataSource, AnnDataLoaders.ObsFeatureMatrixAnndataLoader,
   ],

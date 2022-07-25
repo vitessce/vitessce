@@ -2,6 +2,7 @@ import LoaderResult from '../LoaderResult';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
 import { AbstractLoaderError } from '../errors';
 import { obsSegmentationsAnndataSchema } from '../../app/file-options-schemas';
+import { DEFAULT_CELLS_LAYER } from '../../components/spatial/constants';
 
 
 /**
@@ -35,6 +36,9 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
+    const coordinationValues = {
+      spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
+    };
     return Promise.all([
       this.dataSource.loadObsIndex(),
       this.loadSegmentations(),
@@ -44,7 +48,7 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
         obsSegmentations,
         obsSegmentationsType: 'polygon',
       },
-      null,
+      coordinationValues,
     )));
   }
 }

@@ -41,8 +41,8 @@ export const FileType = {
   OBS_LABELS_CSV: 'obsLabels.csv',
   FEATURE_LABELS_CSV: 'featureLabels.csv',
   OBS_FEATURE_MATRIX_CSV: 'obsFeatureMatrix.csv',
-  OBS_SEGMENTATIONS_JSON: 'obsSegmentations.json', // TODO
-  OBS_SETS_CSV: 'obsSets.csv', // TODO
+  OBS_SEGMENTATIONS_JSON: 'obsSegmentations.json',
+  OBS_SETS_CSV: 'obsSets.csv',
   OBS_SETS_JSON: 'obsSets.json',
   IMAGE_OME_ZARR: 'image.ome-zarr',
   OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',

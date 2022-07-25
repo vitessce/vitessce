@@ -241,6 +241,52 @@ export const featureLabelsCsvSchema = {
     featureLabels: { type: 'string' },
   },
 };
+export const obsSetsCsvSchema = {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  $id: 'https://github.com/vitessce/vitessce/#obsLabels-csv-options',
+  title: 'obsLabels.csv options',
+  type: 'object',
+  additionalProperties: false,
+  required: ['obsIndex', 'obsSets'],
+  properties: {
+    obsIndex: { type: 'string' },
+    obsSets: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['name', 'column'],
+        properties: {
+          name: {
+            type: 'string',
+            description: "The display name for the set, like 'Cell Type' or 'Louvain'",
+          },
+          column: {
+            oneOf: [
+              {
+                type: 'string',
+                description: "The column for the set, like 'cell_type'",
+              },
+              {
+                type: 'array',
+                items: { type: 'string' },
+                description: 'An array of columns for a hierarchy of set names, from coarse to fine levels.',
+              },
+            ],
+          },
+          scoreColumn: {
+            oneOf: [
+              {
+                type: 'string',
+                description: "The column for the set confidence scores, like 'celltype_prediction_score'",
+              },
+            ],
+          },
+        },
+      },
+    },
+  },
+};
 
 /**
  * Options schemas for joint file types.

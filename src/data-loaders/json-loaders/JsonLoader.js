@@ -48,9 +48,9 @@ export default class JsonLoader extends AbstractTwoStepLoader {
   }
 
   validate(data) {
-    const { schema, fileType } = this;
+    const { schema } = this;
     if (!schema) {
-      throw Error(`No schema for ${fileType}`);
+      return [true, null];
     }
     const validate = new Ajv().compile(schema);
     const valid = validate(data);
