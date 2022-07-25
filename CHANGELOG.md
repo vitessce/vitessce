@@ -27,6 +27,7 @@
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
 - Update code to reflect renaming of the default branch from `master` to `main`.
+- Concatenate gene alias with original id for uniqueness in the presence of duplicates like `alias (original)`
 - Change spatial layer coordination type names.
   - `spatialRasterLayers` -> `spatialImageLayer`
   - `spatialCellsLayer` -> `spatialSegmentationLayer`
