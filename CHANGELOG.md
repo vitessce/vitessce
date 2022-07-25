@@ -1,5 +1,13 @@
 
 ### Added
+
+### Changed
+
+## [1.2.0](https://www.npmjs.com/package/vitessce/v/1.2.0) - 2022-07-22
+
+
+
+### Added
 - Added the property `coordinationValues` for view config file definitions but is not yet used to do file matching/lookups.
 - Added warning log messages when outdated constant values have been accessed (via JS Proxy).
 - Added the optional `uid` property for view definitions in the view config.
