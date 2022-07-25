@@ -26,10 +26,16 @@ import MoleculesJsonAsObsLabelsLoader from './molecules-json-loaders/MoleculesJs
 import CellsJsonAsObsLocationsLoader from './cells-json-loaders/CellsJsonAsObsLocations';
 import ObsEmbeddingCsvLoader from './csv-loaders/ObsEmbeddingCsv';
 import ObsLocationsCsvLoader from './csv-loaders/ObsLocationsCsv';
+import ObsLabelsCsvLoader from './csv-loaders/ObsLabelsCsv';
+import FeatureLabelsCsvLoader from './csv-loaders/FeatureLabelsCsv';
+import ObsFeatureMatrixCsvLoader from './csv-loaders/ObsFeatureMatrixCsv';
 
 export const fileTypeToLoaderAndSource = {
   [FileType.OBS_EMBEDDING_CSV]: [CsvSource, ObsEmbeddingCsvLoader],
   [FileType.OBS_LOCATIONS_CSV]: [CsvSource, ObsLocationsCsvLoader],
+  [FileType.OBS_LABELS_CSV]: [CsvSource, ObsLabelsCsvLoader],
+  [FileType.FEATURE_LABELS_CSV]: [CsvSource, FeatureLabelsCsvLoader],
+  [FileType.OBS_FEATURE_MATRIX_CSV]: [CsvSource, ObsFeatureMatrixCsvLoader],
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: [
     AnnDataSource, AnnDataLoaders.ObsFeatureMatrixAnndataLoader,
   ],

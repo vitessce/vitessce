@@ -1,7 +1,5 @@
 import { obsLocationsCsvSchema } from '../../app/file-options-schemas';
-import CsvLoader from '../CsvLoader';
-import { AbstractLoaderError } from '../errors';
-import LoaderResult from '../LoaderResult';
+import CsvLoader from './CsvLoader';
 
 export default class ObsLocationsCsvLoader extends CsvLoader {
   constructor(dataSource, params) {
@@ -24,18 +22,5 @@ export default class ObsLocationsCsvLoader extends CsvLoader {
     };
     this.cachedResult = { obsIndex, obsLocations };
     return this.cachedResult;
-  }
-
-  async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
-    const { data, url } = payload;
-    const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(
-      result,
-      url,
-    ));
   }
 }

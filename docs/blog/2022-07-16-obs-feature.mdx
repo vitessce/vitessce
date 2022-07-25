@@ -77,7 +77,7 @@ The `viewCoordinationValues` tuple element refers to the coordination values tha
 This is required to disambiguate between files now that each dataset may contain multiple files per data type.
 
 The diagram below shows how the matching between views and files would be performed for a configuration containing one dataset and three views.
-<!-- Diagram -->
+
 <MatchingDiagramTabs />
 
 ### File definitions
@@ -134,9 +134,16 @@ For a full list of valid `schemaVersion` values, see the table of [schema versio
 
 ## Next steps
 
-While we have primarily been thinking of observations and features at the cellular scale, in theory an observation could instead represent an entity at a larger scale such as a tissue sample or donor.
-We hope to enable this use case by supporting mappings between `obsType`s, for instance to indicate which cells belong to which samples, if a dataset contains multiple tissue sample observations with per-sample cellular observations.
-Such mappings could also be performed in the opposite direction to capture which organelles belong to which cells.
+We hope that these changes make it easier to configure Vitessce instances, prepare your data for use with Vitessce, and develop plugins.
+We welcome feedback via [issues](https://github.com/vitessce/vitessce/issues) or [discussions](https://github.com/vitessce/vitessce/discussions).
+
+One of our next steps is to make sure the changes described here are reflected in the Python and R APIs.
+Another next step is to deploy additional demos that showcase these features.
+
+We also think that the observation-x-feature paradigm will simplify the conceptualization and implementation of additional features.
+For instance, while we have primarily been thinking of observations and features at the cellular scale, in theory an observation could instead represent an entity at a larger scale such as a tissue sample or donor.
+We might enable this use case by supporting mappings between `obsType`s to indicate which cells belong to which samples (if a dataset contains multiple tissue sample observations with per-sample cellular observations).
+Such mappings could also be specified in the opposite direction to capture which organelles belong to which cells.
 
 
 ## Backwards compatibility
@@ -155,7 +162,8 @@ If you are using the `VitessceConfig` class in existing code (package version `1
 
 ### Versioned documentation
 
-While we still support them internally, we have removed the following file types from the documentation, as we do not encourage their use in new code:
+While Vitessce still supports them, we have removed the following file types from the documentation, as we do not encourage their use in new code:
+
 - `cells.json`
 - `molecules.json`
 - `anndata-cells.zarr`

@@ -219,6 +219,28 @@ export const obsLocationsCsvSchema = {
     },
   },
 };
+export const obsLabelsCsvSchema = {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  $id: 'https://github.com/vitessce/vitessce/#obsLabels-csv-options',
+  title: 'obsLabels.csv options',
+  type: 'object',
+  required: ['obsIndex', 'obsLabels'],
+  properties: {
+    obsIndex: { type: 'string' },
+    obsLabels: { type: 'string' },
+  },
+};
+export const featureLabelsCsvSchema = {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  $id: 'https://github.com/vitessce/vitessce/#featureLabels-csv-options',
+  title: 'featureLabels.csv options',
+  type: 'object',
+  required: ['featureIndex', 'featureLabels'],
+  properties: {
+    featureIndex: { type: 'string' },
+    featureLabels: { type: 'string' },
+  },
+};
 
 /**
  * Options schemas for joint file types.

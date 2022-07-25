@@ -38,10 +38,11 @@ export const FileType = {
   // Atomic file types
   OBS_EMBEDDING_CSV: 'obsEmbedding.csv',
   OBS_LOCATIONS_CSV: 'obsLocations.csv',
-  OBS_LABELS_CSV: 'obsLabels.csv', // TODO
-  FEATURE_LABELS_CSV: 'featureLabels.csv', // TODO
-  OBS_FEATURE_MATRIX_CSV: 'obsFeatureMatrix.csv', // TODO
+  OBS_LABELS_CSV: 'obsLabels.csv',
+  FEATURE_LABELS_CSV: 'featureLabels.csv',
+  OBS_FEATURE_MATRIX_CSV: 'obsFeatureMatrix.csv',
   OBS_SEGMENTATIONS_JSON: 'obsSegmentations.json', // TODO
+  OBS_SETS_CSV: 'obsSets.csv', // TODO
   OBS_SETS_JSON: 'obsSets.json',
   IMAGE_OME_ZARR: 'image.ome-zarr',
   OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
