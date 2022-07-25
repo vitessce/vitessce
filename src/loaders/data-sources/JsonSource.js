@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import DataSourceFetchError from '../data-loaders/errors/DataSourceFetchError';
+import DataSourceFetchError from '../errors/DataSourceFetchError';
 
 export default class JsonSource {
   constructor({ url, requestInit }) {

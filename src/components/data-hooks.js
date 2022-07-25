@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useMatchingLoader, useMultiCoordinationValues, useSetWarning } from '../app/state/hooks';
 import {
   LoaderNotFoundError,
-} from '../data-loaders/errors/index';
+} from '../loaders/errors/index';
 import { CoordinationType, DataType, STATUS } from '../app/constants';
 import {
   warn,

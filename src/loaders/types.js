@@ -7,7 +7,7 @@ import {
   ZarrDataSource,
   JsonSource,
   CsvSource,
-} from '../data-sources';
+} from './data-sources';
 import JsonLoader from './json-loaders/JsonLoader';
 import OmeZarrLoader from './OmeZarrLoader';
 import ObsSetsJsonLoader from './ObsSetsJsonLoader';

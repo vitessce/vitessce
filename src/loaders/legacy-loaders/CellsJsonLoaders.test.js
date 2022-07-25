@@ -3,7 +3,7 @@ import CellsJsonAsObsEmbeddingLoader from './CellsJsonAsObsEmbedding';
 import CellsJsonAsObsLabelsLoader from './CellsJsonAsObsLabels';
 import CellsJsonAsObsSegmentationsLoader from './CellsJsonAsObsSegmentations';
 import cellsGoodFixture from '../../schemas/fixtures/cells.good.json';
-import { JsonSource } from '../../data-sources';
+import { JsonSource } from '../data-sources';
 import LoaderResult from '../LoaderResult';
 
 const createLoader = (ClassDef, config, data) => {

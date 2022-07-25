@@ -1,6 +1,6 @@
 import expect from 'expect';
 import ObsEmbeddingAnndataLoader from './ObsEmbeddingAnndataLoader';
-import { AnnDataSource } from '../../data-sources';
+import { AnnDataSource } from '../data-sources';
 import LoaderResult from '../LoaderResult';
 
 const createMatrixLoader = (url) => {

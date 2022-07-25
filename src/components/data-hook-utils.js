@@ -5,7 +5,7 @@ import { useMatchingLoader, useMatchingLoaders, useSetWarning } from '../app/sta
 import {
   AbstractLoaderError,
   LoaderNotFoundError,
-} from '../data-loaders/errors/index';
+} from '../loaders/errors/index';
 import { getDefaultCoordinationValues } from '../app/plugins';
 import { STATUS } from '../app/constants';
 

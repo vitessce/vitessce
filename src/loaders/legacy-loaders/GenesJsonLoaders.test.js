@@ -1,7 +1,7 @@
 import expect from 'expect';
 import GenesJsonAsObsFeatureMatrixLoader from './GenesJsonAsObsFeatureMatrix';
 import genesGoodFixture from '../../schemas/fixtures/genes.good.json';
-import { JsonSource } from '../../data-sources';
+import { JsonSource } from '../data-sources';
 import LoaderResult from '../LoaderResult';
 
 const createLoader = (ClassDef, config, data) => {
