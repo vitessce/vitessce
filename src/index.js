@@ -57,12 +57,12 @@ import {
   LoaderResult,
   AbstractTwoStepLoader,
   AnnDataLoaders,
-} from './loaders';
+} from './data-loaders';
 import {
   JsonSource,
   ZarrDataSource,
   AnnDataSource,
-} from './loaders/data-sources';
+} from './data-sources';
 
 
 export {

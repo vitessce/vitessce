@@ -1,7 +1,7 @@
 import { extent } from 'd3-array';
 import range from 'lodash/range';
 import clustersSchema from '../../schemas/clusters.schema.json';
-import JsonLoader from '../JsonLoader';
+import JsonLoader from '../json-loaders/JsonLoader';
 import { AbstractLoaderError } from '../errors';
 import LoaderResult from '../LoaderResult';
 

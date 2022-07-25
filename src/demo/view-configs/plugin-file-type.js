@@ -1,7 +1,7 @@
 import range from 'lodash/range';
-import JsonLoader from '../../loaders/JsonLoader';
-import LoaderResult from '../../loaders/LoaderResult';
-import JsonSource from '../../loaders/data-sources/JsonSource';
+import JsonLoader from '../../data-loaders/json-loaders/JsonLoader';
+import LoaderResult from '../../data-loaders/LoaderResult';
+import JsonSource from '../../data-sources/JsonSource';
 import {
   registerPluginFileType,
 } from '../../app/plugins';

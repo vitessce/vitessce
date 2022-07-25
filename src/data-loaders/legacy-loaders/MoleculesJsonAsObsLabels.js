@@ -1,7 +1,7 @@
 import range from 'lodash/range';
 import sum from 'lodash/sum';
 import moleculesSchema from '../../schemas/molecules.schema.json';
-import JsonLoader from '../JsonLoader';
+import JsonLoader from '../json-loaders/JsonLoader';
 import { AbstractLoaderError } from '../errors';
 import LoaderResult from '../LoaderResult';
 

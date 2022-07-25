@@ -1,5 +1,5 @@
 import obsSetsSchema from '../schemas/obsSets.schema.json';
-import JsonLoader from './JsonLoader';
+import JsonLoader from './json-loaders/JsonLoader';
 import { tryUpgradeTreeToLatestSchema } from '../components/sets/io';
 import { AbstractLoaderError } from './errors';
 import LoaderResult from './LoaderResult';

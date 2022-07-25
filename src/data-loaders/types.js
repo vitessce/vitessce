@@ -7,23 +7,23 @@ import {
   ZarrDataSource,
   JsonSource,
   CsvSource,
-} from './data-sources';
-import JsonLoader from './JsonLoader';
+} from '../data-sources';
+import JsonLoader from './json-loaders/JsonLoader';
 import OmeZarrLoader from './OmeZarrLoader';
 import ObsSetsJsonLoader from './ObsSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
-import CellsJsonAsObsLabelsLoader from './cells-json-loaders/CellsJsonAsObsLabels';
-import CellsJsonAsObsEmbeddingLoader from './cells-json-loaders/CellsJsonAsObsEmbedding';
-import CellsJsonAsObsSegmentationsLoader from './cells-json-loaders/CellsJsonAsObsSegmentations';
-import ClustersJsonAsObsFeatureMatrixLoader from './clusters-json-loaders/ClustersJsonAsObsFeatureMatrix';
-import GenesJsonAsObsFeatureMatrixLoader from './genes-json-loaders/GenesJsonAsObsFeatureMatrix';
+import CellsJsonAsObsLabelsLoader from './legacy-loaders/CellsJsonAsObsLabels';
+import CellsJsonAsObsEmbeddingLoader from './legacy-loaders/CellsJsonAsObsEmbedding';
+import CellsJsonAsObsSegmentationsLoader from './legacy-loaders/CellsJsonAsObsSegmentations';
+import ClustersJsonAsObsFeatureMatrixLoader from './legacy-loaders/ClustersJsonAsObsFeatureMatrix';
+import GenesJsonAsObsFeatureMatrixLoader from './legacy-loaders/GenesJsonAsObsFeatureMatrix';
 import RasterJsonAsImageLoader from './raster-json-loaders/RasterJsonAsImageLoader';
 import RasterJsonAsObsSegmentationsLoader from './raster-json-loaders/RasterJsonAsObsSegmentationsLoader';
 import MatrixZarrAsObsFeatureMatrixLoader from './matrix-loaders/MatrixZarrAsObsFeatureMatrix';
-import MoleculesJsonAsObsLocationsLoader from './molecules-json-loaders/MoleculesJsonAsObsLocations';
-import MoleculesJsonAsObsLabelsLoader from './molecules-json-loaders/MoleculesJsonAsObsLabels';
-import CellsJsonAsObsLocationsLoader from './cells-json-loaders/CellsJsonAsObsLocations';
+import MoleculesJsonAsObsLocationsLoader from './legacy-loaders/MoleculesJsonAsObsLocations';
+import MoleculesJsonAsObsLabelsLoader from './legacy-loaders/MoleculesJsonAsObsLabels';
+import CellsJsonAsObsLocationsLoader from './legacy-loaders/CellsJsonAsObsLocations';
 import ObsEmbeddingCsvLoader from './csv-loaders/ObsEmbeddingCsv';
 import ObsLocationsCsvLoader from './csv-loaders/ObsLocationsCsv';
 import ObsLabelsCsvLoader from './csv-loaders/ObsLabelsCsv';

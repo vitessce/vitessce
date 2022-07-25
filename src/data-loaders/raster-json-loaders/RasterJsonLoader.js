@@ -1,7 +1,7 @@
 import { ZarrPixelSource, loadOmeTiff } from '@hms-dbmi/viv';
 import { openArray } from 'zarr';
 import rasterSchema from '../../schemas/raster.schema.json';
-import JsonLoader from '../JsonLoader';
+import JsonLoader from '../json-loaders/JsonLoader';
 import { AbstractLoaderError } from '../errors';
 import LoaderResult from '../LoaderResult';
 

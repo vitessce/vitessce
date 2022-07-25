@@ -1,7 +1,7 @@
 import expect from 'expect';
 import ObsSetsJsonLoader from './ObsSetsJsonLoader';
 import obsSetsGoodFixture from '../schemas/fixtures/obsSets.good.json';
-import { JsonSource } from './data-sources';
+import { JsonSource } from '../data-sources';
 import LoaderResult from './LoaderResult';
 
 const createLoader = (ClassDef, config, data) => {

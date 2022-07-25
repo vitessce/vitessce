@@ -1,9 +1,9 @@
 import cellsSchema from '../../schemas/cells.schema.json';
-import JsonLoader from '../JsonLoader';
+import JsonLoader from '../json-loaders/JsonLoader';
 import { AbstractLoaderError } from '../errors';
 import LoaderResult from '../LoaderResult';
 
-export default class CellsJsonAsObsLocationsLoader extends JsonLoader {
+export default class CellsJsonAsObsEmbeddingLoader extends JsonLoader {
   constructor(dataSource, params) {
     super(dataSource, params);
 
@@ -14,19 +14,27 @@ export default class CellsJsonAsObsLocationsLoader extends JsonLoader {
     if (this.cachedResult) {
       return this.cachedResult;
     }
+    const { embeddingType } = this.coordinationValues;
     const cellObjs = Object.values(data);
-    if (cellObjs.length > 0 && !Array.isArray(cellObjs[0].xy)) {
-      // This cells file does not contain xy coordinates.
+    if (cellObjs.length > 0 && (
+      !cellObjs[0].mappings
+      || !Array.isArray(cellObjs[0].mappings[embeddingType])
+    )) {
+      // The cells file does not contain this embedding.
       this.cachedResult = null;
     } else {
       const obsIndex = Object.keys(data);
-      const obsLocationsX = Float32Array.from(cellObjs.map(cellObj => cellObj.xy[0]));
-      const obsLocationsY = Float32Array.from(cellObjs.map(cellObj => cellObj.xy[1]));
-      const obsLocations = {
-        data: [obsLocationsX, obsLocationsY],
-        shape: [2, obsLocationsX.length],
+      const obsEmbeddingX = Float32Array.from(
+        cellObjs.map(cellObj => cellObj.mappings[embeddingType][0]),
+      );
+      const obsEmbeddingY = Float32Array.from(
+        cellObjs.map(cellObj => cellObj.mappings[embeddingType][1]),
+      );
+      const obsEmbedding = {
+        data: [obsEmbeddingX, obsEmbeddingY],
+        shape: [2, obsEmbeddingX.length],
       };
-      this.cachedResult = { obsIndex, obsLocations };
+      this.cachedResult = { obsIndex, obsEmbedding };
     }
     return this.cachedResult;
   }

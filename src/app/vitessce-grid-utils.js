@@ -2,7 +2,7 @@ import {
   useState, useEffect, useRef,
 } from 'react';
 import { InternMap } from 'internmap';
-import { getSourceAndLoaderFromFileType } from '../loaders/types';
+import { getSourceAndLoaderFromFileType } from '../data-loaders/types';
 import { getFileTypeDataTypeMapping } from './plugins';
 
 /**

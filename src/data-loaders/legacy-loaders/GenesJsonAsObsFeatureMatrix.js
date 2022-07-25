@@ -1,5 +1,5 @@
 import genesSchema from '../../schemas/genes.schema.json';
-import JsonLoader from '../JsonLoader';
+import JsonLoader from '../json-loaders/JsonLoader';
 import { AbstractLoaderError } from '../errors';
 import LoaderResult from '../LoaderResult';
 

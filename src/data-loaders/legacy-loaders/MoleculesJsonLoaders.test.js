@@ -2,7 +2,7 @@ import expect from 'expect';
 import MoleculesJsonAsObsLocationsLoader from './MoleculesJsonAsObsLocations';
 import MoleculesJsonAsObsLabelsLoader from './MoleculesJsonAsObsLabels';
 import moleculesGoodFixture from '../../schemas/fixtures/molecules.good.json';
-import { JsonSource } from '../data-sources';
+import { JsonSource } from '../../data-sources';
 import LoaderResult from '../LoaderResult';
 
 const createLoader = (ClassDef, config, data) => {

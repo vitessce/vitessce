@@ -1,7 +1,7 @@
 import expect from 'expect';
 import ClustersJsonAsObsFeatureMatrixLoader from './ClustersJsonAsObsFeatureMatrix';
 import clustersGoodFixture from '../../schemas/fixtures/clusters.good.json';
-import { JsonSource } from '../data-sources';
+import { JsonSource } from '../../data-sources';
 import LoaderResult from '../LoaderResult';
 
 const createLoader = (ClassDef, config, data) => {

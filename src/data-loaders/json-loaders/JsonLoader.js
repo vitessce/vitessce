@@ -1,14 +1,14 @@
 import Ajv from 'ajv';
-import { FileType } from '../app/constants';
-import AbstractTwoStepLoader from './AbstractTwoStepLoader';
-import { LoaderValidationError, AbstractLoaderError } from './errors/index';
-import LoaderResult from './LoaderResult';
+import { FileType } from '../../app/constants';
+import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
+import { LoaderValidationError, AbstractLoaderError } from '../errors/index';
+import LoaderResult from '../LoaderResult';
 
-import cellsSchema from '../schemas/cells.schema.json';
-import moleculesSchema from '../schemas/molecules.schema.json';
-import neighborhoodsSchema from '../schemas/neighborhoods.schema.json';
-import rasterSchema from '../schemas/raster.schema.json';
-import obsSetsSchema from '../schemas/obsSets.schema.json';
+import cellsSchema from '../../schemas/cells.schema.json';
+import moleculesSchema from '../../schemas/molecules.schema.json';
+import neighborhoodsSchema from '../../schemas/neighborhoods.schema.json';
+import rasterSchema from '../../schemas/raster.schema.json';
+import obsSetsSchema from '../../schemas/obsSets.schema.json';
 
 const fileTypeToSchema = {
   [FileType.CELLS_JSON]: cellsSchema,
