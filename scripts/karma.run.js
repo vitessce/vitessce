@@ -12,7 +12,7 @@ const isAutoWatch = process.argv[2] == "--auto-watch";
 async function setup() {
     const app = express();
     app.use(cors());
-    app.use(express.static("src/loaders/fixtures", { dotfiles: 'allow' }));
+    app.use(express.static("src/data-loaders/fixtures", { dotfiles: 'allow' }));
     const server = app.listen(8080);
     return server;
 }
