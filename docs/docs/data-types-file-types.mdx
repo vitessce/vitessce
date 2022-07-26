@@ -32,3 +32,5 @@ Rather than defining five different files
 (corresponding to the atomic file types `obsFeatureMatrix.anndata.zarr`, `obsEmbedding.anndata.zarr`,
 `obsEmbedding.anndata.zarr`, `obsLocations.anndata.zarr`, and `obsSets.anndata.zarr`, respectively),
 one `anndata.zarr` joint file definition can be used instead.
+
+Note that joint file type expansion is currently not performed recursively (i.e., a joint file type expansion function must return a list of atomic file definitions).
