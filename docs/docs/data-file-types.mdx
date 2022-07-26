@@ -171,7 +171,7 @@ fileType="obsLocations.anndata.zarr"
 fileConst="OBS_LOCATIONS_ANNDATA_ZARR"
 options={`{
   // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
-  "path": "obs/alt_cell_ids"
+  "path": "obs/X_spatial"
 }`}
 coordinationValues={`{
   "obsType": "cell"
@@ -221,7 +221,48 @@ coordinationValues={`{
 
 ## `featureLabels.anndata.zarr`
 
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="featureLabels.anndata.zarr"
+fileConst="FEATURE_LABELS_ANNDATA_ZARR"
+options={`{
+  // Should point to a string column
+  "path": "var/gene_symbol"
+}`}
+coordinationValues={`{
+  "featureType": "gene",
+  "featureLabelsType": "Gene symbol"
+}`}
+/>
+
 ## `obsEmbedding.csv`
+
+A three-column (minimum; the file may contain extra columns) CSV file.
+One column stores the observation index (unique ID for each observation) and the other two store 2D embedding coordinates.
+The column names are configurable.
+For example:
+
+| cell_id | UMAP_1 | UMAP_2 |
+| ----- | ----- | ----- |
+| cell_1 | 1.5 | 2.7 |
+| cell_2 | 3.1 | 1.2 |
+| ... | ... | ... |
+
+<FileDefTabs
+fileName="my_umap.csv"
+fileType="obsEmbedding.csv"
+fileConst="OBS_EMBEDDING_CSV"
+options={`{
+  // The column containing the observation index.
+  "obsIndex": "cell_id",
+  // The two columns containing the embedding coordinates.
+  "obsEmbedding": ["UMAP_1", "UMAP_2"]
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "embeddingType": "UMAP"
+}`}
+/>
 
 ## `obsFeatureMatrix.csv`
 
@@ -246,256 +287,6 @@ coordinationValues={`{
 ## `genomic-profiles.zarr`
 
 
-
-#### `anndata-expression-matrix.zarr`
-
-- View config file definition snippet:
-
-  <ViewConfigTabs
-json={`
-{
-  "url": "http://example.com/my_store.zarr",
-  "type": "expression-matrix",
-  "fileType": "anndata-expression-matrix.zarr",
-  "options": {
-    "matrix": "X"
-  }
-}
-`}
-js={`
-const options = {
-  "matrix": "X"
-};
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile(
-    "http://example.com/my_store.zarr",
-    dt.EXPRESSION_MATRIX,
-    ft.ANNDATA_EXPRESSION_MATRIX_ZARR,
-    options
-  );
-`}
-  />
-  
-
-  <ViewConfigTabs
-json={`
-{
-  "url": "http://example.com/my_store.zarr",
-  "type": "expression-matrix",
-  "fileType": "anndata-expression-matrix.zarr",
-  "options": {
-    // Matrix provides the location of an
-    // obs-by-var (cell-by-gene) matrix to load into memory.
-    "matrix": "obsm/X",
-    // Matrix genes filter is a boolean list which defines
-    // the subset of genes contained in the matrix to be visualized in the heatmap.
-    // All of the genes in \`var\` will display in the \`Genes\` view though.
-    // Use \`geneFilter\` instead if you only want to show a subset of the genes there
-    // (this must be defined if the matrix is a subset of AnnData.X).
-    "matrixGeneFilter": "var/highly_variable",
-    // The gene alias property supports specifying a column containing
-    // alternative gene identifiers.
-    "geneAlias": "var/hugo_symbol"
-  }
-}
-`}
-js={`
-const options = {
-  // Matrix provides the location of an
-  // obs-by-var (cell-by-gene) matrix to load into memory.
-  "matrix": "obsm/X",
-  // Matrix genes filter is a boolean list which defines
-  // the subset of genes contained in the matrix to be visualized in the heatmap.
-  // All of the genes in \`var\` will display in the \`Genes\` view though.
-  // Use \`geneFilter\` instead if you only want to show a subset of the genes there
-  // (this must be defined if the matrix is a subset of AnnData.X).
-  "matrixGeneFilter": "var/highly_variable",
-  // The gene alias property supports specifying a column containing
-  // alternative gene identifiers.
-  "geneAlias": "var/hugo_symbol"
-};
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile(
-    "http://example.com/my_store.zarr",
-    dt.EXPRESSION_MATRIX,
-    ft.ANNDATA_EXPRESSION_MATRIX_ZARR,
-    options
-  );
-`}
-  />
-
-### `cells.json`
-
-- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/cells.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/cells.good.json)
-- [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json)
-- View config file definition snippet:
-
-  <ViewConfigTabs
-json={`
-{
-  "url": "http://example.com/my_cells.json",
-  "type": "cells",
-  "fileType": "cells.json"
-}
-`}
-js={`
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile(
-    "http://example.com/my_cells.json",
-    dt.CELLS,
-    ft.CELLS_JSON
-  );
-`}
-  />
-
-
-### `cell-sets.json`
-
-- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/cell-sets.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/cell-sets.good.json)
-- [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json)
-- View config file definition snippet:
-
-  <ViewConfigTabs
-json={`
-{
-  "url": "http://example.com/my_cell_sets.json",
-  "type": "cell-sets",
-  "fileType": "cell-sets.json"
-}
-`}
-js={`
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile(
-    "http://example.com/my_cell_sets.json",
-    dt.CELL_SETS,
-    ft.CELL_SETS_JSON
-  );
-`}
-  />
-
-
-### `molecules.json`
-
-- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/molecules.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/molecules.good.json)
-- [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.molecules.json)
-- View config file definition snippet:
-
-  <ViewConfigTabs
-json={`
-{
-  "url": "http://example.com/my_molecules.json",
-  "type": "molecules",
-  "fileType": "molecules.json"
-}
-`}
-js={`
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile(
-    "http://example.com/my_molecules.json",
-    dt.MOLECULES,
-    ft.MOLECULES_JSON
-  );
-`}
-  />
-
-### `genes.json`
-
-:::tip
-The `genes.json` format is not very efficient from a file size perspective.
-For large expression matrices, we recommend using the more compact Zarr `expression-matrix.zarr` or `anndata-expression-matrix.zarr` formats.
-:::
-
-- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/genes.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/genes.good.json)
-- [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.genes.json)
-- View config file definition snippet:
-
-  <ViewConfigTabs
-json={`
-{
-  "url": "http://example.com/my_matrix_a.json",
-  "type": "expression-matrix",
-  "fileType": "genes.json"
-}
-`}
-js={`
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile(
-    "http://example.com/my_matrix_a.json",
-    dt.EXPRESSION_MATRIX,
-    ft.GENES_JSON
-  );
-`}
-  />
-
-### `clusters.json`
-
-:::note
-The name `clusters.json` is misleading; this file type is not intended to store clustering results (see `cell-sets.json` for storing clustering results).
-`clusters.json` is meant to store cell-by-gene expression matrices.
-:::
-
-:::tip
-The `clusters.json` format is not very efficient from a file size perspective.
-For large expression matrices, we recommend using the more compact Zarr `expression-matrix.zarr` or `anndata-expression-matrix.zarr` formats.
-:::
-
-- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/clusters.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/clusters.good.json)
-- [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.clusters.json)
-- View config file definition snippet:
-
-  <ViewConfigTabs
-json={`
-{
-  "url": "http://example.com/my_matrix_b.json",
-  "type": "expression-matrix",
-  "fileType": "clusters.json"
-}
-`}
-js={`
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile(
-    "http://example.com/my_matrix_b.json",
-    dt.EXPRESSION_MATRIX,
-    ft.CLUSTERS_JSON
-  );
-`}
-  />
-
-
-### `expression-matrix.zarr`
-
-- View config file definition snippet:
-
-  <ViewConfigTabs
-json={`
-{
-  "url": "http://example.com/my_matrix.zarr",
-  "type": "expression-matrix",
-  "fileType": "expression-matrix.zarr"
-}
-`}
-js={`
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile(
-    "http://example.com/my_matrix.zarr",
-    dt.EXPRESSION_MATRIX,
-    ft.EXPRESSION_MATRIX_ZARR
-  );
-`}
-  />
 
 ### `raster.json`
 
@@ -700,23 +491,6 @@ const dataset = vc
 
 ### `raster.ome-zarr`
 
-Vitessce supports [OME-NGFF](https://ngff.openmicroscopy.org/latest/) images saved as Zarr stores and a subset of OME-NGFF features via the `raster.ome-zarr` file type.
-The following table lists the support for different OME-NGFF features:
-
-| Feature | Supported by Vitessce |
-|-----|-----|
-| Downsampling along Z axis | N |
-| `omero` field | Y |
-| multiscales with a scaling factor other than 2 | N |
-| URL (not only S3) | Y |
-| `multiscales[].axes` (added in v0.3) | Y |
-| 3D view | Y |
-| labels | N |
-| HCS plate | N |
-
-To compare Vitessce to other OME-NGFF clients, see the [table](https://github.com/ome/ngff/issues/71) listing the OME-NGFF features supported by other clients.
-We welcome feature requests or pull requests to add support for the remaining features to Vitessce.
-
 - View config file definition snippet:
 
   <ViewConfigTabs
@@ -734,33 +508,6 @@ const dataset = vc
     "url": "http://example.com/my_image.ome.zarr",
     dt.RASTER,
     ft.RASTER_OME_ZARR
-  );
-`}
-  />
-
-
-### `neighborhoods.json`
-
-- [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/neighborhoods.schema.json)
-- [JSON schema fixture](https://github.com/vitessce/vitessce/blob/main/src/schemas/fixtures/neighborhoods.good.json)
-- [Example file](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.neighborhoods.json)
-- View config file definition snippet:
-
-  <ViewConfigTabs
-json={`
-{
-  "url": "http://example.com/my_neighborhoods.json",
-  "type": "neighborhoods",
-  "fileType": "neighborhoods.json"
-}
-`}
-js={`
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile(
-    "http://example.com/my_neighborhoods.json",
-    dt.NEIGHBORHOODS,
-    ft.NEIGHBORHOODS_JSON
   );
 `}
   />
