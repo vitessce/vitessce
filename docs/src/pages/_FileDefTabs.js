@@ -17,15 +17,19 @@ const jsonSuffix = `
 
 const jsPrefix = 'const vc = new VitessceConfig("1.0.13", "My config");';
 
-function getJsSuffix(fileType, fileConst, fileName) {
+function getJsSuffix(options, cv, fileConst, fileName) {
+  const cvPart = cv ? `,
+    coordinationValues` : `,
+    null`;
+  const optionsPart = options ? `,
+    options` : `,
+    null`;
   return `
 const dataset = vc
   .addDataset("My dataset")
   .addFile(
     "https://example.com/${fileName}",
-    ft.${fileConst},
-    coordinationValues,
-    options,
+    ft.${fileConst}${cvPart}${optionsPart}
   );`;
 }
 
@@ -43,19 +47,31 @@ function jsonToJs(obj) {
 }
 
 function formatJsonCv(obj) {
+  if (!obj) {
+    return '';
+  }
   return `,\n  "coordinationValues": ${indentObject(obj)}`;
 }
 
 function formatJsonOptions(obj) {
+  if (!obj) {
+    return '';
+  }
   return `,\n  "options": ${indentObject(obj.trim())}`;
 }
 
 function formatJsCv(obj) {
+  if (!obj) {
+    return '';
+  }
   return `
 const coordinationValues = ${jsonToJs(obj)};`;
 }
 
 function formatJsOptions(obj) {
+  if (!obj) {
+    return '';
+  }
   return `
 const options = ${jsonToJs(obj)};`;
 }
@@ -83,7 +99,7 @@ export default function FileDefTabs(props) {
             <CodeBlock className="language-javascript">{getJsonPrefix(fileType, fileName) + formatJsonCv(coordinationValues) + formatJsonOptions(options) + jsonSuffix}</CodeBlock>
           </TabItem>
           <TabItem value="js">
-            <CodeBlock className="language-javascript">{jsPrefix + formatJsCv(coordinationValues) + formatJsOptions(options) + getJsSuffix(fileType, fileConst, fileName)}</CodeBlock>
+            <CodeBlock className="language-javascript">{jsPrefix + formatJsCv(coordinationValues) + formatJsOptions(options) + getJsSuffix(options, coordinationValues, fileConst, fileName)}</CodeBlock>
           </TabItem>
         </Tabs>
       </div>

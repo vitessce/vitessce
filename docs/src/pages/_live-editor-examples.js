@@ -1,6 +1,6 @@
 
 export const baseJson = `{
-  "version": "1.0.9",
+  "version": "1.0.13",
   "name": "My config",
   "description": "Test",
   "datasets": [],
@@ -9,19 +9,19 @@ export const baseJson = `{
   "initStrategy": "auto"
 }`;
 
-export const baseJs = `const vc = new VitessceConfig("1.0.9", "My config");
+export const baseJs = `const vc = new VitessceConfig("1.0.13", "My config");
 
 // Return the view config as JSON.
 return vc.toJSON();`;
 
 export const exampleJs = `// Instantiate a view config object.
-const vc = new VitessceConfig("1.0.9", "My example config", "This demonstrates the JavaScript API");
+const vc = new VitessceConfig("1.0.13", "My example config", "This demonstrates the JavaScript API");
 // Add a dataset and its files.
 const baseUrl = "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries";
 const dataset = vc
   .addDataset("Dries")
-  .addFile(baseUrl + '/dries.cells.json', dt.CELLS, ft.CELLS_JSON)
-  .addFile(baseUrl + '/dries.cell-sets.json', dt.CELL_SETS, ft.CELL_SETS_JSON);
+  .addFile(baseUrl + '/dries.cells.json', ft.CELLS_JSON, null, { embeddingTypes: ["UMAP", "t-SNE"] })
+  .addFile(baseUrl + '/dries.cell-sets.json', ft.CELL_SETS_JSON, null, null);
 // Add components.
 // Use mapping: "UMAP" so that cells are mapped to the UMAP positions from the JSON file.
 const umap = vc.addView(dataset, cm.SCATTERPLOT, { mapping: "UMAP" });
@@ -46,7 +46,7 @@ vc.layout(
 return vc.toJSON();`;
 
 export const exampleJson = `{
-  "version": "1.0.9",
+  "version": "1.0.13",
   "name": "My example config",
   "description": "This demonstrates the JSON schema",
   "datasets": [
@@ -56,12 +56,13 @@ export const exampleJson = `{
       "files": [
         {
           "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json",
-          "type": "cells",
-          "fileType": "cells.json"
+          "fileType": "cells.json",
+          "options": {
+            "embeddingTypes": ["UMAP", "t-SNE"]
+          }
         },
         {
           "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json",
-          "type": "cell-sets",
           "fileType": "cell-sets.json"
         }
       ]

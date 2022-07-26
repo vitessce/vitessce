@@ -23,6 +23,416 @@ If you encounter any issues, please check out our [data troubleshooting](/docs/d
 The JSON file definition snippets found on this page would be specified as objects in the array [`datasets[].files[]`](/docs/view-config-json/#files) in the JSON view configuration.
 :::
 
+## `obsFeatureMatrix.csv`
+
+An observation-x-feature matrix stored in a CSV file.
+Rows represent observations, columns represent features.
+The first column stores the observation index (unique ID for each observation).
+For example, the file contents might look like:
+
+| cell_id | CD33 | MYC |
+| ----- | ----- | ----- |
+| **cell_1** | 15.1 | 0.0 |
+| **cell_2** | 0.0 | 21.4 |
+| **cell_3** | 0.0 | 0.0 |
+
+<FileDefTabs
+fileName="my_expression_matrix.csv"
+fileType="obsFeatureMatrix.csv"
+fileConst="OBS_FEATURE_MATRIX_CSV"
+coordinationValues={`{
+  "obsType": "cell",
+  "featureType": "gene",
+  "featureValueType": "expression"
+}`}
+/>
+
+
+## `obsEmbedding.csv`
+
+A three-column (minimum; the file may contain extra columns) CSV file.
+One column stores the observation index (unique ID for each observation) and the other two store 2D embedding coordinates.
+The column names are configurable.
+For example, the file contents might look like:
+
+| cell_id | UMAP_1 | UMAP_2 |
+| ----- | ----- | ----- |
+| cell_1 | 1.5 | 2.7 |
+| cell_2 | 3.1 | 1.2 |
+| ... | ... | ... |
+
+<FileDefTabs
+fileName="my_umap.csv"
+fileType="obsEmbedding.csv"
+fileConst="OBS_EMBEDDING_CSV"
+options={`{
+  // The column containing the observation index.
+  "obsIndex": "cell_id",
+  // The two columns containing the embedding coordinates.
+  "obsEmbedding": ["UMAP_1", "UMAP_2"]
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "embeddingType": "UMAP"
+}`}
+/>
+
+## `obsLocations.csv`
+
+A three-column (minimum; the file may contain extra columns) CSV file.
+One column stores the observation index (unique ID for each observation) and the other two store (x, y) spatial coordinates.
+The column names are configurable.
+For example, the file contents might look like:
+
+| cell_id | X | Y |
+| ----- | ----- | ----- |
+| cell_1 | 1.5 | 2.7 |
+| cell_2 | 3.1 | 1.2 |
+| ... | ... | ... |
+
+<FileDefTabs
+fileName="my_cell_coordinates.csv"
+fileType="obsLocations.csv"
+fileConst="OBS_LOCATIONS_CSV"
+options={`{
+  // The column containing the observation index.
+  "obsIndex": "cell_id",
+  // The two columns containing the (x, y) coordinates.
+  "obsLocations": ["X", "Y"]
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+
+## `obsSets.csv`
+
+Maps each observation to membership in one or more sets.
+Typically used to assign cells to cell type labels or cell cluster IDs.
+To allow for multiple groups of sets to be be specified, `options` takes an array.
+
+If a group of sets is organized as a flat list, then `"column"` points to a column containing string labels.
+Alternatively, if organized as a hierarchy, then `"column"` can point to an array of columns, progressing from coarser to finer labels.
+
+For example, the file contents might look like:
+
+| cell_id | leiden | cell_type_coarse | cell_type_fine | pred_cell_type | pred_score |
+| ----- | ----- | ----- | ----- | ----- | ----- |
+| cell_1 | 1 | Immune | B cell | B cell | 0.81 |
+| cell_2 | 2 | Immune | T cell | T cell | 0.99 |
+| cell_3 | 2 | Immune | T cell | Macrophage | 0.21 |
+| cell_4 | 3 | Neuron | Excitatory neuron | Inhibitory neuron | 0.25 |
+| ... | ... | ... | ... | ... | ... |
+
+<FileDefTabs
+fileName="my_cell_set_membership.csv"
+fileType="obsSets.csv"
+fileConst="OBS_SETS_CSV"
+options={`{
+  "obsIndex": "cell_id",
+  "obsSets": [
+    {
+      "name": "Leiden Clustering",
+      "column": "leiden"
+    },
+    {
+      "name": "Cell Type Annotations",
+      "column": ["cell_type_coarse", "cell_type_fine"]
+    },
+    {
+      "name": "Predicted Cell Types",
+      "column": "pred_cell_type",
+      "scoreColumn": "pred_score"
+    }
+  ]
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+## `obsLabels.csv`
+
+A two-column (minimum; the file may contain extra columns) CSV file.
+One column stores the observation index (unique ID for each observation) and the other stores string labels.
+The column names are configurable.
+For example, the file contents might look like:
+
+| cell_id | alt_cell_id |
+| ----- | ----- |
+| cell_1 | ATGC |
+| cell_2 | GTTA |
+| ... | ... |
+
+<FileDefTabs
+fileName="my_cell_barcodes.csv"
+fileType="obsLabels.csv"
+fileConst="OBS_LABELS_CSV"
+options={`{
+  // The column containing the observation index.
+  "obsIndex": "cell_id",
+  // The column containing the string labels.
+  "obsLabels": "alt_cell_id"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "obsLabelsType": "Alternate cell ID"
+}`}
+/>
+
+## `featureLabels.csv`
+
+A two-column (minimum; the file may contain extra columns) CSV file.
+One column stores the feature index (unique ID for each feature) and the other stores string labels.
+The column names are configurable.
+For example, the file contents might look like:
+
+| ensembl_gene_id | gene_symbol |
+| ----- | ----- |
+| ENSG00000105383 | CD33 |
+| ENSG00000136997 | MYC |
+| ... | ... |
+
+<FileDefTabs
+fileName="my_gene_symbols.csv"
+fileType="featureLabels.csv"
+fileConst="FEATURE_LABELS_CSV"
+options={`{
+  // The column containing the feature index.
+  "featureIndex": "ensembl_gene_id",
+  // The column containing the string labels.
+  "featureLabels": "gene_symbol"
+}`}
+coordinationValues={`{
+  "featureType": "gene",
+  "featureLabelsType": "Gene symbol"
+}`}
+/>
+
+## `obsFeatureMatrix.anndata.zarr`
+
+An observation-x-feature matrix with observations along the `obs` axis (rows) and features along the `var` axis (columns).
+Typically stored in `adata.X`, but the `"path"` option allows pointing to any array within the AnnData object.
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsFeatureMatrix.anndata.zarr"
+fileConst="OBS_FEATURE_MATRIX_ANNDATA_ZARR"
+options={`{
+  // Should point to the observation-x-feature matrix
+  "path": "X"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "featureType": "gene",
+  "featureValueType": "expression"
+}`}
+/>
+
+By default, rendering an observation-x-feature matrix in a heatmap requires fetching the entire matrix over the network which can result in a long initial load time and a large network request.
+There are two ways to alleviate this issue when using the `obsFeatureMatrix.anndata.zarr` file type:
+- Load (and therefore transfer over the network) only a subset of the matrix initially (`"initialFeatureFilterPath"`)
+- Store a smaller matrix in an `obsm` array, and load that smaller matrix (`"featureFilterPath"`)
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsFeatureMatrix.anndata.zarr"
+fileConst="OBS_FEATURE_MATRIX_ANNDATA_ZARR"
+options={`{
+  // Should point to the observation-x-feature matrix
+  "path": "obsm/X_subset",
+  // If the matrix specified in "path" is a subset of X,
+  // then "featureFilterPath" must point to a boolean array
+  // that indicates which features are contained in the subsetted matrix.
+  "featureFilterPath": "var/in_X_subset",
+  // If you would like to limit the amount of data loaded
+  // initially (specifically in the heatmap),
+  // then "initialFeatureFilterPath" should point to a boolean array
+  // that indicates which features to load initially.
+  "initialFeatureFilterPath": "var/highly_variable"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "featureType": "gene",
+  "featureValueType": "expression"
+}`}
+/>
+
+## `obsEmbedding.anndata.zarr`
+
+A two-column array with entries along the `obs` axis.
+The two columns store 2D embedding coordinates.
+For example, the contents of `adata.obsm['X_umap']` might look like:
+
+```
+array([[ 3.1402664 , -7.1668797 ],
+       [-3.105793  , -3.2035291 ],
+       [ 6.1815314 ,  3.4141443 ],
+       ...,
+       [ 6.922351  , -6.529349  ],
+       [ 4.714882  , -4.027811  ],
+       [ 0.75445884, -4.2975116 ]], dtype=float32)
+```
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsEmbedding.anndata.zarr"
+fileConst="OBS_EMBEDDING_ANNDATA_ZARR"
+options={`{
+  // Should point to an array of (d1, d2) coordinate pairs, one coordinate pair per obs/cell.
+  "path": "obsm/X_umap",
+  "dims": [0, 1]
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "embeddingType": "UMAP"
+}`}
+/>
+
+## `obsLocations.anndata.zarr`
+
+A two-column array with entries along the `obs` axis.
+The two columns store (x, y) spatial coordinates.
+For example, the contents of `adata.obsm['X_spatial']` might look like:
+
+```
+array([[ 3.1402664 , -7.1668797 ],
+       [-3.105793  , -3.2035291 ],
+       [ 6.1815314 ,  3.4141443 ],
+       ...,
+       [ 6.922351  , -6.529349  ],
+       [ 4.714882  , -4.027811  ],
+       [ 0.75445884, -4.2975116 ]], dtype=float32)
+```
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsLocations.anndata.zarr"
+fileConst="OBS_LOCATIONS_ANNDATA_ZARR"
+options={`{
+  // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
+  "path": "obs/X_spatial"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+## `obsSets.anndata.zarr`
+
+Maps each observation to membership in one or more sets.
+Typically used to assign cells to cell type labels or cell cluster IDs.
+To allow for multiple groups of sets to be be specified, `options` takes an array.
+
+If a group of sets is organized as a flat list, then `"path"` points to a column containing string labels.
+Alternatively, if organized as a hierarchy, then `"path"` can point to an array of columns, progressing from coarser to finer labels.
+
+For example, the contents of `adata.obs` might look like:
+
+| index | leiden | cell_type_coarse | cell_type_fine | pred_cell_type | pred_score |
+| ----- | ----- | ----- | ----- | ----- | ----- |
+| cell_1 | 1 | Immune | B cell | B cell | 0.81 |
+| cell_2 | 2 | Immune | T cell | T cell | 0.99 |
+| cell_3 | 2 | Immune | T cell | Macrophage | 0.21 |
+| cell_4 | 3 | Neuron | Excitatory neuron | Inhibitory neuron | 0.25 |
+| ... | ... | ... | ... | ... | ... |
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsSets.anndata.zarr"
+fileConst="OBS_SETS_ANNDATA_ZARR"
+options={`[
+  {
+    "name": "Leiden Clustering",
+    "path": "obs/leiden"
+  },
+  {
+    "name": "Cell Type Annotations",
+    "path": ["obs/cell_type_coarse", "obs/cell_type_fine"]
+  },
+  {
+    "name": "Predicted Cell Types",
+    "path": "obs/pred_cell_type",
+    "scorePath": "obs/pred_score"
+  }
+]`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+## `obsSegmentations.anndata.zarr`
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsSegmentations.anndata.zarr"
+fileConst="OBS_SEGMENTATIONS_ANNDATA_ZARR"
+options={`{
+  // Should point to an array of polygon vertices, one polygon per obs/cell.
+  "path": "obs/X_segmentations"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+## `obsLabels.anndata.zarr`
+
+A column containing string labels along the `obs` axis.
+For example, the contents of `adata.obs['alt_cell_id']` might look like:
+
+```
+index
+cell_1     ATCGC
+cell_2     TCGGC
+cell_3     TTTCA
+Name: alt_cell_id, dtype: object
+```
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsLabels.anndata.zarr"
+fileConst="OBS_LABELS_ANNDATA_ZARR"
+options={`{
+  // Should point to a string column
+  "path": "obs/alt_cell_ids"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "obsLabelsType": "Alternate cell ID"
+}`}
+/>
+
+## `featureLabels.anndata.zarr`
+
+A column containing string labels along the `var` axis.
+For example, the contents of `adata.var['gene_symbol']` might look like:
+
+```
+index
+ENSG00000152128     TMEM163
+ENSG00000153086     ACMSD
+ENSG00000082258     CCNT2
+ENSG00000176601     MAP3K19
+ENSG00000115839     RAB3GAP1
+Name: gene_symbol, dtype: object
+```
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="featureLabels.anndata.zarr"
+fileConst="FEATURE_LABELS_ANNDATA_ZARR"
+options={`{
+  // Should point to a string column
+  "path": "var/gene_symbol"
+}`}
+coordinationValues={`{
+  "featureType": "gene",
+  "featureLabelsType": "Gene symbol"
+}`}
+/>
+
 
 ## `anndata.zarr`
 
@@ -84,231 +494,138 @@ coordinationValues={`{
 }`}
 />
 
-## `obsEmbedding.anndata.zarr`
+## `obsSets.json`
+
+Storage of sets of observations in a tree data structure.
+See the [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/obsSets.schema.json) and an [example](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json) for reference.
 
 <FileDefTabs
-fileName="my_adata.zarr"
-fileType="obsEmbedding.anndata.zarr"
-fileConst="OBS_EMBEDDING_ANNDATA_ZARR"
-options={`{
-  // Should point to an array of (d1, d2) coordinate pairs, one coordinate pair per obs/cell.
-  "path": "obsm/X_umap",
-  "dims": [0, 1]
-}`}
-coordinationValues={`{
-  "obsType": "cell",
-  "embeddingType": "UMAP"
-}`}
-/>
-
-## `obsFeatureMatrix.anndata.zarr`
-
-<FileDefTabs
-fileName="my_adata.zarr"
-fileType="obsFeatureMatrix.anndata.zarr"
-fileConst="OBS_FEATURE_MATRIX_ANNDATA_ZARR"
-options={`{
-  // Should point to the observation-x-feature matrix
-  "path": "X"
-}`}
-coordinationValues={`{
-  "obsType": "cell",
-  "featureType": "gene",
-  "featureValueType": "expression"
-}`}
-/>
-
-By default, rendering an observation-x-feature matrix in a heatmap requires fetching the entire matrix over the network which can result in a long initial load time and a large network request.
-There are two ways to alleviate this issue when using the `obsFeatureMatrix.anndata.zarr` file type:
-- Load (and therefore transfer over the network) only a subset of the matrix initially (`"initialFeatureFilterPath"`)
-- Store a smaller matrix in an `obsm` array, and load that smaller matrix (`"featureFilterPath"`)
-
-<FileDefTabs
-fileName="my_adata.zarr"
-fileType="obsFeatureMatrix.anndata.zarr"
-fileConst="OBS_FEATURE_MATRIX_ANNDATA_ZARR"
-options={`{
-  // Should point to the observation-x-feature matrix
-  "path": "obsm/X_subset",
-  // If the matrix specified in "path" is a subset of X,
-  // then "featureFilterPath" must point to a boolean array
-  // that indicates which features are contained in the subsetted matrix.
-  "featureFilterPath": "var/in_X_subset",
-  // If you would like to limit the amount of data loaded
-  // initially (specifically in the heatmap),
-  // then "initialFeatureFilterPath" should point to a boolean array
-  // that indicates which features to load initially.
-  "initialFeatureFilterPath": "var/highly_variable"
-}`}
-coordinationValues={`{
-  "obsType": "cell",
-  "featureType": "gene",
-  "featureValueType": "expression"
-}`}
-/>
-
-## `obsLabels.anndata.zarr`
-
-<FileDefTabs
-fileName="my_adata.zarr"
-fileType="obsLabels.anndata.zarr"
-fileConst="OBS_LABELS_ANNDATA_ZARR"
-options={`{
-  // Should point to a string column
-  "path": "obs/alt_cell_ids"
-}`}
-coordinationValues={`{
-  "obsType": "cell",
-  "obsLabelsType": "Alternate cell ID"
-}`}
-/>
-
-## `obsLocations.anndata.zarr`
-
-<FileDefTabs
-fileName="my_adata.zarr"
-fileType="obsLocations.anndata.zarr"
-fileConst="OBS_LOCATIONS_ANNDATA_ZARR"
-options={`{
-  // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
-  "path": "obs/X_spatial"
-}`}
+fileName="my_cell_sets.json"
+fileType="obsSets.json"
+fileConst="OBS_SETS_JSON"
 coordinationValues={`{
   "obsType": "cell"
 }`}
 />
-
-## `obsSegmentations.anndata.zarr`
-
-<FileDefTabs
-fileName="my_adata.zarr"
-fileType="obsSegmentations.anndata.zarr"
-fileConst="OBS_SEGMENTATIONS_ANNDATA_ZARR"
-options={`{
-  // Should point to an array of polygon vertices, one polygon per obs/cell.
-  "path": "obs/X_segmentations"
-}`}
-coordinationValues={`{
-  "obsType": "cell"
-}`}
-/>
-
-## `obsSets.anndata.zarr`
-
-<FileDefTabs
-fileName="my_adata.zarr"
-fileType="obsSets.anndata.zarr"
-fileConst="OBS_SETS_ANNDATA_ZARR"
-options={`[
-  {
-    "name": "Leiden Clustering",
-    "path": "obs/leiden"
-  },
-  {
-    "name": "Cell Type Annotations",
-    "path": ["obs/cell_type_coarse", "obs/cell_type_fine"]
-  },
-  {
-    "name": "Predicted Cell Types",
-    "path": "obs/predicted_cell_type",
-    "scorePath": "obs/prediction_score"
-  }
-]`}
-coordinationValues={`{
-  "obsType": "cell"
-}`}
-/>
-
-## `featureLabels.anndata.zarr`
-
-<FileDefTabs
-fileName="my_adata.zarr"
-fileType="featureLabels.anndata.zarr"
-fileConst="FEATURE_LABELS_ANNDATA_ZARR"
-options={`{
-  // Should point to a string column
-  "path": "var/gene_symbol"
-}`}
-coordinationValues={`{
-  "featureType": "gene",
-  "featureLabelsType": "Gene symbol"
-}`}
-/>
-
-## `obsEmbedding.csv`
-
-A three-column (minimum; the file may contain extra columns) CSV file.
-One column stores the observation index (unique ID for each observation) and the other two store 2D embedding coordinates.
-The column names are configurable.
-For example:
-
-| cell_id | UMAP_1 | UMAP_2 |
-| ----- | ----- | ----- |
-| cell_1 | 1.5 | 2.7 |
-| cell_2 | 3.1 | 1.2 |
-| ... | ... | ... |
-
-<FileDefTabs
-fileName="my_umap.csv"
-fileType="obsEmbedding.csv"
-fileConst="OBS_EMBEDDING_CSV"
-options={`{
-  // The column containing the observation index.
-  "obsIndex": "cell_id",
-  // The two columns containing the embedding coordinates.
-  "obsEmbedding": ["UMAP_1", "UMAP_2"]
-}`}
-coordinationValues={`{
-  "obsType": "cell",
-  "embeddingType": "UMAP"
-}`}
-/>
-
-## `obsFeatureMatrix.csv`
-
-## `obsLabels.csv`
-
-## `obsLocations.csv`
 
 ## `obsSegmentations.json`
 
-## `obsSets.csv`
+Storage of per-observation segmentation polygons, where each polygon is represented as an array of vertices.
+File contents might look like:
 
-## `obsSets.json`
+```json
+{
+  "cell_1": [
+    [6668, 26182],
+    [6668, 26296],
+    [6873, 26501],
+    [6932, 26501],
+    [6955, 26478],
+    [6955, 26260],
+    [6838, 26143],
+    [6707, 26143]
+  ],
+  "cell_2": [
+    [5047, 44428],
+    [5047, 44553],
+    [5065, 44571],
+    [5125, 44571],
+    [5284, 44412],
+    [5284, 44368],
+    [5239, 44323],
+    [5152, 44323]
+  ],
+  ...
+}
+```
 
-## `featureLabels.csv`
-
-## `image.raster.json`
+<FileDefTabs
+fileName="my_cell_segmentations.json"
+fileType="obsSegmentations.json"
+fileConst="OBS_SEGMENTATIONS_JSON"
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
 
 ## `obsSegmentations.raster.json`
 
-## `image.ome-zarr`
+Points to one or more segmentation bitmasks in OME-TIFF format.
+See the [options JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/raster.schema.json) for reference.
+Note that for this file type, the top-level `"url"` property is not required (URLs are specified for each image in `options.images[].url` instead).
 
-## `genomic-profiles.zarr`
-
-
-
-### `raster.json`
-
-- [JSON schema for options](https://github.com/vitessce/vitessce/blob/main/src/schemas/raster.schema.json)
-
-  :::note
-
-  When defining image data with the `raster.json` file type, the main `url` property is not used.
-  Instead, image URLs may be specified in the `images` array in the `options` property.
-
-  :::note
-
-
-- View config file definition snippet with an OME-TIFF image and segmentation bitmask:
-
-  <ViewConfigTabs
+<ViewConfigTabs
 json={`
 {
-  "type": "raster",
-  "fileType": "raster.json",
+  "fileType": "image.raster.json",
+  "coordinationValues": {
+    "obsType": "cell"
+  },
   "options": {
-    "renderLayers": ["My OME-TIFF Image", "My OME-TIFF Mask"],
+    "renderLayers": ["My OME-TIFF Mask"],
+    "schemaVersion": "0.0.2",
+    "images": [
+      {
+        "name": "My OME-TIFF Mask",
+        "url": "http://example.com/my_mask.ome.tif",
+        "type": "ome-tiff"
+      }
+    ]
+  }
+}
+`}
+js={`
+const options = {
+  "renderLayers": ["My OME-TIFF Mask"],
+  "schemaVersion": "0.0.2",
+  "images": [
+    {
+      "name": "My OME-TIFF Mask",
+      "url": "http://example.com/my_mask.ome.tif",
+      "type": "ome-tiff",
+      "metadata": {
+        "isBitmask": true
+      }
+    }
+  ]
+};
+const dataset = vc
+  .addDataset("My dataset")
+  .addFile(
+    undefined,
+    ft.OBS_SEGMENTATIONS_RASTER_JSON,
+    {
+      obsType: "cell"
+    },
+    options
+  );
+`}
+/>
+
+
+## `image.ome-zarr`
+
+Points to an image in OME-NGFF format that has been saved to a Zarr store.
+See [OME-NGFF data troubleshooting](/docs/data-troubleshooting/#ome-ngff) for more details.
+
+<FileDefTabs
+fileName="my_image.ome.zarr"
+fileType="image.ome-zarr"
+fileConst="IMAGE_OME_ZARR"
+/>
+
+## `image.raster.json`
+
+Points to one or more images in OME-TIFF or Bioformats-Zarr format.
+See the [options JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/raster.schema.json) for reference.
+Note that for this file type, the top-level `"url"` property is not required (URLs are specified for each image in `options.images[].url` instead).
+
+<ViewConfigTabs
+json={`
+{
+  "fileType": "image.raster.json",
+  "options": {
+    "renderLayers": ["My OME-TIFF Image"],
     "schemaVersion": "0.0.2",
     "images": [
       {
@@ -327,14 +644,6 @@ json={`
             ]
           }
         }
-      },
-      {
-        "name": "My OME-TIFF Mask",
-        "url": "http://example.com/my_mask.ome.tif",
-        "type": "ome-tiff",
-        "metadata": {
-          "isBitmask": true
-        }
       }
     ]
   }
@@ -342,7 +651,7 @@ json={`
 `}
 js={`
 const options = {
-  "renderLayers": ["My OME-TIFF Image", "My OME-TIFF Mask"],
+  "renderLayers": ["My OME-TIFF Image"],
   "schemaVersion": "0.0.2",
   "images": [
     {
@@ -361,14 +670,6 @@ const options = {
           ]
         }
       }
-    },
-    {
-      "name": "My OME-TIFF Mask",
-      "url": "http://example.com/my_mask.ome.tif",
-      "type": "ome-tiff",
-      "metadata": {
-        "isBitmask": true
-      }
     }
   ]
 };
@@ -376,20 +677,19 @@ const dataset = vc
   .addDataset("My dataset")
   .addFile(
     undefined,
-    dt.RASTER,
-    ft.RASTER_JSON,
+    ft.IMAGE_RASTER_JSON,
+    null,
     options
   );
 `}
-  />
+/>
 
-- View config file definition snippet with a Zarr store:
+Example with a Zarr store:
 
-  <ViewConfigTabs
+<ViewConfigTabs
 json={`
 {
-  "type": "raster",
-  "fileType": "raster.json",
+  "fileType": "image.raster.json",
   "options": {
     "schemaVersion": "0.0.2",
     "images": [
@@ -481,59 +781,22 @@ const dataset = vc
   .addDataset("My dataset")
   .addFile(
     undefined,
-    dt.RASTER,
-    ft.RASTER_JSON,
+    ft.IMAGE_RASTER_JSON,
+    null,
     options
   );
 `}
-  />
+/>
 
+## `genomic-profiles.zarr`
 
-### `raster.ome-zarr`
+Points to a Zarr store containing cluster-level quantitative genomic profiles.
 
-- View config file definition snippet:
-
-  <ViewConfigTabs
-json={`
-{
-  "url": "http://example.com/my_image.ome.zarr",
-  "type": "raster",
-  "fileType": "raster.ome-zarr"
-}
-`}
-js={`
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile(
-    "url": "http://example.com/my_image.ome.zarr",
-    dt.RASTER,
-    ft.RASTER_OME_ZARR
-  );
-`}
-  />
-
-### `genomic-profiles.zarr`
-
-- View config file definition snippet:
-
-  <ViewConfigTabs
-json={`
-{
-  "url": "http://example.com/my_genomic_profiles.zarr",
-  "type": "genomic-profiles",
-  "fileType": "genomic-profiles.zarr"
-}
-`}
-js={`
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile(
-    "url": "http://example.com/my_genomic_profiles.zarr",
-    dt.GENOMIC_PROFILES,
-    ft.GENOMIC_PROFILES_ZARR
-  );
-`}
-  />
+<FileDefTabs
+fileName="my_genomic_profiles.zarr"
+fileType="genomic-profiles.zarr"
+fileConst="GENOMIC_PROFILES_ZARR"
+/>
 
 
 ## Other File Formats
@@ -641,12 +904,12 @@ The [Data Preparation](http://viv.gehlenborglab.org/#data-preparation) section o
 
 #### Conversion to OME-TIFF
 
-[OME-TIFF](https://docs.openmicroscopy.org/ome-model/6.0.0/index.html#ome-tiff) images are supported via the [`raster.json`](#rasterjson) file type.
+[OME-TIFF](https://docs.openmicroscopy.org/ome-model/6.0.0/index.html#ome-tiff) images are supported via the [`image.raster.json`](#imagerasterjson) file type.
 
 #### Conversion to OME-NGFF
 
-[OME-NGFF](https://ngff.openmicroscopy.org/latest/) images saved as Zarr stores are supported via the [`raster.ome-zarr`](#rasterome-zarr) file type.
+[OME-NGFF](https://ngff.openmicroscopy.org/latest/) images saved as Zarr stores are supported via the [`image.ome-zarr`](#imageome-zarr) file type.
 
 :::tip
-The [`ome-zarr`](https://pypi.org/project/ome-zarr/) Python package can be used to read the metadata of  `OME-Zarr` images.
+The [`ome-zarr`](https://pypi.org/project/ome-zarr/) Python package can be used to read the metadata of  `OME-NGFF` images.
 :::

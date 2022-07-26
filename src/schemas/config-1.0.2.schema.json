@@ -348,7 +348,7 @@
               "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["type", "fileType"],
+                "required": ["fileType"],
                 "properties": {
                   "name": { "type": "string" },
                   "type": { "type": "string" },

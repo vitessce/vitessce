@@ -47,8 +47,9 @@ describe('src/api/VitessceConfig.js', () => {
       const config = new VitessceConfig('1.0.4', 'My config', 'My config description');
       config.addDataset('My dataset', 'My dataset description').addFile(
         'http://example.com/cells.json',
-        'cells',
         'cells.json',
+        null,
+        null,
       );
 
       const configJSON = config.toJSON();
@@ -64,7 +65,6 @@ describe('src/api/VitessceConfig.js', () => {
           uid: 'A',
           files: [{
             url: 'http://example.com/cells.json',
-            type: 'cells',
             fileType: 'cells.json',
           }],
         }],
