@@ -15,11 +15,11 @@ export class VitessceConfigDatasetFile {
    * which may provide additional parameters to the loader class
    * corresponding to the specified fileType.
    */
-  constructor(url, dataType, fileType, options) {
+  constructor(url, fileType, coordinationValues, options) {
     this.file = {
       url,
-      type: dataType,
       fileType,
+      ...(coordinationValues !== null ? { coordinationValues } : {}),
       ...(options !== null ? { options } : {}),
     };
   }
@@ -54,16 +54,16 @@ export class VitessceConfigDataset {
   /**
    * Add a file definition to the dataset.
    * @param {string|undefined} url The URL to the file.
-   * @param {string} dataType The type of data contained in the file.
    * @param {string} fileType The file type.
-   * @param {object|array} options An optional object or array
+   * @param {object} coordinationValues The coordination values.
+   * @param {object|array|null} options An optional object or array
    * which may provide additional parameters to the loader class
    * corresponding to the specified fileType.
    * @returns {VitessceConfigDataset} This, to allow chaining.
    */
-  addFile(url, dataType, fileType, options = null) {
+  addFile(url, fileType, coordinationValues, options = null) {
     this.dataset.files.push(
-      new VitessceConfigDatasetFile(url, dataType, fileType, options),
+      new VitessceConfigDatasetFile(url, fileType, coordinationValues, options),
     );
     return this;
   }
@@ -430,8 +430,9 @@ export class VitessceConfig {
       d.files.forEach((f) => {
         newDataset.addFile(
           f.url,
-          f.type,
           f.fileType,
+          f.coordinationValues,
+          f.options,
         );
       });
     });

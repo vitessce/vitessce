@@ -6,9 +6,18 @@ slug: /data-troubleshooting
 
 Some common issues may arise when writing or converting data to use with Vitessce.
 
-## AnnData-Zarr
+## AnnData-Zarr paths
 
 When an AnnData object is written to a Zarr store (e.g., via `adata.write_zarr`), the columns and keys in the original object (e.g., `adata.obs["leiden"]` or `adata.obsm["X_umap"]`) become relative POSIX-style paths (e.g., `obs/leiden` and `obsm/X_umap`) in the Zarr store.
+
+## AnnData-Zarr obsFeatureMatrix chunking strategy
+
+A benefit of the Zarr format is that arrays can be chunked and stored in small pieces.
+In Vitessce, we leverage the chunking features of Zarr to load only the subset of the `obsFeatureMatrix` which is required for each visualization.
+
+For instance, if a gene is selected to color the points in the scatterplot or spatial views, we only load the chunks containing the gene of interest.
+
+However, a poor chunking strategy (e.g., each chunk containing too many genes) can reduce the efficiency of this approach and result in too much data being requested when a gene is selected.
 
 ## Zarr dtypes
 

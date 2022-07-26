@@ -109,9 +109,36 @@ fileType="obsFeatureMatrix.anndata.zarr"
 fileConst="OBS_FEATURE_MATRIX_ANNDATA_ZARR"
 options={`{
   // Should point to the observation-x-feature matrix
-  "path": "X",
-  "featureFilterPath": "var/",
-  "initialFeatureFilterPath": "var/"
+  "path": "X"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "featureType": "gene",
+  "featureValueType": "expression"
+}`}
+/>
+
+By default, rendering an observation-x-feature matrix in a heatmap requires fetching the entire matrix over the network which can result in a long initial load time and a large network request.
+There are two ways to alleviate this issue when using the `obsFeatureMatrix.anndata.zarr` file type:
+- Load (and therefore transfer over the network) only a subset of the matrix initially (`"initialFeatureFilterPath"`)
+- Store a smaller matrix in an `obsm` array, and load that smaller matrix (`"featureFilterPath"`)
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsFeatureMatrix.anndata.zarr"
+fileConst="OBS_FEATURE_MATRIX_ANNDATA_ZARR"
+options={`{
+  // Should point to the observation-x-feature matrix
+  "path": "obsm/X_subset",
+  // If the matrix specified in "path" is a subset of X,
+  // then "featureFilterPath" must point to a boolean array
+  // that indicates which features are contained in the subsetted matrix.
+  "featureFilterPath": "var/in_X_subset",
+  // If you would like to limit the amount of data loaded
+  // initially (specifically in the heatmap),
+  // then "initialFeatureFilterPath" should point to a boolean array
+  // that indicates which features to load initially.
+  "initialFeatureFilterPath": "var/highly_variable"
 }`}
 coordinationValues={`{
   "obsType": "cell",
@@ -159,7 +186,7 @@ fileType="obsSegmentations.anndata.zarr"
 fileConst="OBS_SEGMENTATIONS_ANNDATA_ZARR"
 options={`{
   // Should point to an array of polygon vertices, one polygon per obs/cell.
-  "path": "obs/alt_cell_ids"
+  "path": "obs/X_segmentations"
 }`}
 coordinationValues={`{
   "obsType": "cell"
@@ -174,15 +201,15 @@ fileType="obsSets.anndata.zarr"
 fileConst="OBS_SETS_ANNDATA_ZARR"
 options={`[
   {
-    "name": "Leiden Clustering"
+    "name": "Leiden Clustering",
     "path": "obs/leiden"
   },
   {
-    "name": "Cell Type Annotations"
+    "name": "Cell Type Annotations",
     "path": ["obs/cell_type_coarse", "obs/cell_type_fine"]
   },
   {
-    "name": "Predicted Cell Types"
+    "name": "Predicted Cell Types",
     "path": "obs/predicted_cell_type",
     "scorePath": "obs/prediction_score"
   }
@@ -218,126 +245,6 @@ coordinationValues={`{
 
 ## `genomic-profiles.zarr`
 
-- View config file definition snippet:
-
-  <ViewConfigTabs forData
-json={`
-  {
-    "url": "http://example.com/my_store.zarr",
-    "type": "cells",
-    "fileType": "anndata-cells.zarr",
-    "options": {
-      // XY values represent spatial centroids, so values point to an array of tuples, one per observation/cell.
-      "xy": "obsm/centroids",
-      // Polygon values represent spatial segmentations, so values point to an array of arrays, one per observation/cell.
-      "poly": "obsm/polygons",
-      // Mappings define coordinates for scatterplot points - 
-      // the original arrays may contain more than two dimensions per observation/cell,
-      // so the dims property must slice these down to tuples.
-      // This allows comparing the fourth and fifth principal components, for example.
-      // The key immediately under mappings must be used in the coordination scopes.
-      "mappings": {
-        "UMAP": {
-          "key": "obsm/umap",
-          "dims": [ 0, 1 ]
-        },
-        "PCA": {
-          "key": "obsm/pca",
-          "dims": [ 4, 5 ]
-        }
-      },
-      // Factors define per-observation annotations, like clustering results, to display in the popover.
-      "factors": [
-        "obs/leiden"
-      ]
-    }
-  }
-`}
-js={`
-const options = {
-  // XY values represent spatial centroids, so values point to an array of tuples, one per observation/cell.
-  "xy": "obsm/centroids",
-  // Polygon values represent spatial segmentations, so values point to an array of arrays, one per observation/cell.
-  "poly": "obsm/polygons",
-  // Mappings define coordinates for scatterplot points - 
-  // the original arrays may contain more than two dimensions per observation/cell,
-  // so the dims property must slice these down to tuples.
-  // This allows comparing the fourth and fifth principal components, for example.
-  // The key immediately under mappings must be used in the coordination scopes.
-  "mappings": {
-    "UMAP": {
-      "key": "obsm/umap",
-      "dims": [ 0, 1 ]
-    },
-    "PCA": {
-      "key": "obsm/pca",
-      "dims": [ 4, 5 ]
-    }
-  },
-  // Factors define per-observation annotations, like clustering results, to display in the popover.
-  "factors": [
-    "obs/leiden"
-  ]
-};
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile(
-    "http://example.com/my_store.zarr",
-    dt.CELLS,
-    ft.ANNDATA_CELLS_ZARR,
-    options
-  );
-`}
-  />
-
-
-#### `anndata-cell-sets.zarr`
-
-- View config file definition snippet:
-
-  <ViewConfigTabs
-json={`
-{
-  "url": "http://example.com/my_store.zarr",
-  "type": "cell-sets",
-  "fileType": "anndata-cell-sets.zarr",
-  // Options defines which columns contain cell sets (clustering results) in the cell sets view.
-  // The groupName is the display name and the setName is the path within the Zarr store.
-  "options": [
-    {
-      "groupName": "Ledien",
-      "setName": "obs/leiden"
-    },
-    {
-      "groupName": "Cell Type",
-      "setName": "obs/cell_type"
-    },
-  ]
-}
-`}
-js={`
-// Options defines which columns contain cell sets (clustering results) in the cell sets view.
-// The groupName is the display name and the setName is the path within the Zarr store.
-const options = [
-  {
-    "groupName": "Ledien",
-    "setName": "obs/leiden"
-  },
-  {
-    "groupName": "Cell Type",
-    "setName": "obs/cell_type"
-  },
-];
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile(
-    "http://example.com/my_store.zarr",
-    dt.CELL_SETS,
-    ft.ANNDATA_CELL_SETS_ZARR,
-    options
-  );
-`}
-  />
 
 
 #### `anndata-expression-matrix.zarr`
@@ -370,14 +277,6 @@ const dataset = vc
 `}
   />
   
-  While the expression matrix file loader does not fetch the entire matrix and store it in memory, displaying a heatmap will fetch whatever
-  genes are needed for the heatmap.  Similarly, selecting a gene to display over a scatterplot or spatial view can be costly
-  if the expression matrix is not stored properly.
-  In both cases, a poor chunking strategy can lead to too much data being requested for every gene selection/gene needed for the heatmap.
-  If you experience performance issues, you may [use or store a subset of the matrix](#use-or-store-a-subset-of-x) to the Zarr store.
-
-  The following snippet uses a Zarr store in which `var/highly_variable` provides a boolean filter of `X` for displaying a heatmap of
-  highly variable genes:
 
   <ViewConfigTabs
 json={`
