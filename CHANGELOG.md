@@ -1,5 +1,13 @@
 
 ### Added
+
+### Changed
+
+## [1.2.0](https://www.npmjs.com/package/vitessce/v/1.2.0) - 2022-07-22
+
+
+
+### Added
 - Added the property `coordinationValues` for view config file definitions but is not yet used to do file matching/lookups.
 - Added warning log messages when outdated constant values have been accessed (via JS Proxy).
 - Added the optional `uid` property for view definitions in the view config.
@@ -32,6 +40,7 @@
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
 - Update code to reflect renaming of the default branch from `master` to `main`.
+- Concatenate gene alias with original id for uniqueness in the presence of duplicates like `alias (original)`
 - Change spatial layer coordination type names.
   - `spatialRasterLayers` -> `spatialImageLayer`
   - `spatialCellsLayer` -> `spatialSegmentationLayer`

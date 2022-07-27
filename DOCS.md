@@ -34,4 +34,5 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2022-04-21: [keller-mark/initial-plugin-support](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2022-04-21/83afd866/index.html)
 - 2022-04-27: [release-v1.1.21](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2022-04-27/a1589f3/index.html)
 - 2022-05-20: [release-v1.1.21](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2022-05-20/8a1c10f/index.html)
+- 2022-07-22: [release-v1.2.0](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2022-07-22/abaa9e3/index.html)
 - 2022-07-26: [keller-mark/fom-file-types](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2022-07-26/3ca5e14/index.html)
