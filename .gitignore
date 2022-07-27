@@ -6,7 +6,6 @@
 /demo/dist
 npm-debug.log*
 venv
-node_modules/
 /eslint/node_modules
 
 # misc

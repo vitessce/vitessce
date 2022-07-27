@@ -18,8 +18,6 @@ jobs:
       - id: get-options
         run: . ./set-node-options.sh --action
       - run: npm ci --legacy-peer-deps
-        env:
-          CYPRESS_INSTALL_BINARY: 0
       - run: ./test.sh
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
