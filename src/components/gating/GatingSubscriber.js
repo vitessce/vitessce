@@ -49,7 +49,6 @@ export default function GatingSubscriber(props) {
     setGatingFeatureValueTransformCoefficient,
     setGatingFeatureSelectionX,
     setGatingFeatureSelectionY,
-
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[Component.GATING],
     coordinationScopes,
@@ -67,7 +66,7 @@ export default function GatingSubscriber(props) {
   );
 
   const transformOptions = [
-    { name: 'None', value: '' },
+    { name: 'None', value: null },
     { name: 'Log', value: 'log1p' },
     { name: 'ArcSinh', value: 'arcsinh' }];
   const geneSelectOptions = expressionMatrix && expressionMatrix.cols ? expressionMatrix.cols : [];
@@ -76,7 +75,10 @@ export default function GatingSubscriber(props) {
   // eslint-disable-next-line no-console
   console.log([gatingFeatureSelectionX, gatingFeatureSelectionY].filter(v => v));
 
-  const mapping = `MAPPING_${gatingFeatureSelectionX}_${gatingFeatureSelectionY})`;
+  const mapping = (gatingFeatureSelectionX && gatingFeatureSelectionY
+    ? `MAPPING_${gatingFeatureSelectionX}_${gatingFeatureSelectionY})`
+    : null
+  );
 
   const title = useMemo(
     () => {
@@ -186,7 +188,7 @@ export default function GatingSubscriber(props) {
       title={title}
       customOptions={customOptions}
       hideTools={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}
-      cellsEmptyMessage="Select two genes in the settings."
+      cellsEmptyMessage="Select two genes in the plot settings."
       getCellInfoOverride={getCellInfoOverride}
       cellSetsPolygonCacheId={polygonCacheId}
     />

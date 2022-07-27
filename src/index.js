@@ -1,6 +1,6 @@
 import { Heatmap } from './components/heatmap';
 import { Spatial } from './components/spatial';
-import { Scatterplot } from './components/base-scatterplot';
+import { Scatterplot } from './components/scatterplot';
 import VitessceGrid from './app/VitessceGrid';
 import {
   createApp,

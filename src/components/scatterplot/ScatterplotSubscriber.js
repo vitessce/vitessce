@@ -202,7 +202,8 @@ export default function ScatterplotSubscriber(props) {
     && cache[namespace].find(el => isEqual(el[0], key))?.[1];
   const cellSetPolygons = useMemo(() => {
     const polygonCacheNamespace = `${mapping}${cellSetsPolygonCacheId}`;
-    if ((cellSetLabelsVisible || cellSetPolygonsVisible)
+    if (mapping
+        && (cellSetLabelsVisible || cellSetPolygonsVisible)
         && !cacheHas(cellSetPolygonCache, polygonCacheNamespace, cellSetSelection)
         && mergedCellSets?.tree?.length
         && Object.values(cells).length
@@ -232,7 +233,7 @@ export default function ScatterplotSubscriber(props) {
 
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
     const cellValues = cells && Object.values(cells);
-    if (cellValues?.length) {
+    if (mapping && cellValues?.length) {
       const cellCoordinates = Object.values(cells)
         .map(c => c.mappings[mapping]);
       const xE = extent(cellCoordinates, c => c[0]);
@@ -301,7 +302,7 @@ export default function ScatterplotSubscriber(props) {
   const getExpressionValue = useExpressionValueGetter({ attrs, expressionData });
 
   let emptyMessage;
-  if (Object.keys(cells).length === 0 && cellsEmptyMessage) {
+  if ((numCells === 0 || !mapping) && cellsEmptyMessage) {
     emptyMessage = (
       <div>{cellsEmptyMessage}</div>
     );

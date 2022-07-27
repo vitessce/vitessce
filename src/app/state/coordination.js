@@ -60,7 +60,7 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.MOLECULE_HIGHLIGHT]: null,
   [CoordinationType.GATING_FEATURE_SELECTION_X]: null,
   [CoordinationType.GATING_FEATURE_SELECTION_Y]: null,
-  [CoordinationType.GATING_FEATURE_VALUE_TRANSFORM]: '',
+  [CoordinationType.GATING_FEATURE_VALUE_TRANSFORM]: null,
   [CoordinationType.GATING_FEATURE_VALUE_TRANSFORM_COEFFICIENT]: 1,
 };
 
