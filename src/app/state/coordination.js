@@ -43,6 +43,7 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.FEATURE_VALUE_COLORMAP]: 'plasma',
   [CoordinationType.FEATURE_VALUE_COLORMAP_RANGE]: [0.0, 1.0],
   [CoordinationType.FEATURE_VALUE_TRANSFORM]: null,
+  [CoordinationType.FEATURE_VALUE_TRANSFORM_COEFFICIENT]: 1,
   [CoordinationType.FEATURE_FILTER]: null,
   [CoordinationType.FEATURE_HIGHLIGHT]: null,
   [CoordinationType.FEATURE_SELECTION]: null,
@@ -60,8 +61,6 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.MOLECULE_HIGHLIGHT]: null,
   [CoordinationType.GATING_FEATURE_SELECTION_X]: null,
   [CoordinationType.GATING_FEATURE_SELECTION_Y]: null,
-  [CoordinationType.GATING_FEATURE_VALUE_TRANSFORM]: null,
-  [CoordinationType.GATING_FEATURE_VALUE_TRANSFORM_COEFFICIENT]: 1,
 };
 
 // The following coordination types should be
@@ -154,8 +153,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
-    CoordinationType.GATING_FEATURE_VALUE_TRANSFORM,
-    CoordinationType.GATING_FEATURE_VALUE_TRANSFORM_COEFFICIENT,
+    CoordinationType.FEATURE_VALUE_TRANSFORM,
+    CoordinationType.FEATURE_VALUE_TRANSFORM_COEFFICIENT,
     CoordinationType.GATING_FEATURE_SELECTION_X,
     CoordinationType.GATING_FEATURE_SELECTION_Y,
   ],
@@ -255,6 +254,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.FEATURE_SELECTION,
     CoordinationType.FEATURE_VALUE_TRANSFORM,
+    CoordinationType.FEATURE_VALUE_TRANSFORM_COEFFICIENT,
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,

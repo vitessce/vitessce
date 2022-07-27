@@ -442,8 +442,7 @@ export function upgradeFrom1_0_12(config) {
 // - Adds the coordination types
 // gatingFeatureSelectionX,
 // gatingFeatureSelectionY,
-// gatingFeatureValueTransform,
-// gatingFeatureValueTransformCoefficient.
+// featureValueTransformCoefficient.
 export function upgradeFrom1_0_13(config) {
   const newConfig = cloneDeep(config);
 

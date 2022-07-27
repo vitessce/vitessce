@@ -34,7 +34,7 @@ export default function CellSetExpressionPlot(props) {
     height,
     marginRight = 90,
     marginBottom,
-    useGeneExpressionTransform,
+    featureValueTransformName,
   } = props;
   // Get the max characters in an axis label for autsizing the bottom margin.
   const maxCharactersForLabel = data.reduce((acc, val) => {
@@ -151,10 +151,8 @@ export default function CellSetExpressionPlot(props) {
         orient: 'left',
         scale: 'yscale',
         zindex: 1,
-        // title: useGeneExpressionTransform
-        //   ? 'Log-Normalized Expression Values' : 'Normalized Expression Values',
-        title: useGeneExpressionTransform
-          ? ['Log-Transformed', 'Normalized Expression Values']
+        title: featureValueTransformName
+          ? [`${featureValueTransformName}-Transformed`, 'Normalized Expression Values']
           : 'Normalized Expression Values',
       },
       {

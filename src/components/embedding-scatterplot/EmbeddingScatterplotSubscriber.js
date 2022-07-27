@@ -25,12 +25,14 @@ import { Component } from '../../app/constants';
    * @param {string} props.title An override value for the component title.
    * @param {number} props.averageFillDensity Override the average fill density calculation
    * when using dynamic opacity mode.
+   * @param {boolean} props.enableEmbeddingTypeSelection Should
+   * the dropdown to select an embedding type be displayed? By default, false.
    */
 export default function EmbeddingScatterplotSubscriber(props) {
   const {
     coordinationScopes,
     title: titleOverride,
-    enableEmbeddingTypeSelection = true,
+    enableEmbeddingTypeSelection = false,
   } = props;
 
   // Get "props" from the coordination space.

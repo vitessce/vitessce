@@ -91,6 +91,7 @@
               "featureHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "featureSelection": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "featureValueTransform": { "$ref": "#/definitions/componentCoordinationScopeValue" },
+              "featureValueTransformCoefficient": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "featureValueColormap": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "featureValueColormapRange": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "obsColorEncoding": { "$ref": "#/definitions/componentCoordinationScopeValue" },
@@ -104,8 +105,6 @@
               "genomicTargetY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "gatingFeatureSelectionX": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "gatingFeatureSelectionY": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "gatingFeatureValueTransform": { "$ref": "#/definitions/componentCoordinationScopeValue" },
-              "gatingFeatureValueTransformCoefficient": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "additionalObsSets": { "$ref": "#/definitions/componentCoordinationScopeValue" },
               "moleculeHighlight": { "$ref": "#/definitions/componentCoordinationScopeValue" }
             }
@@ -1021,9 +1020,15 @@
                 {
                   "type": "null"
                 },
-                { "type": "string", "pattern": "log1p" }
+                { "type": "string", "enum": ["log1p", "arcsinh"] }
               ]
             }
+          }
+        },
+        "featureValueTransformCoefficient": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "number" }
           }
         },
         "featureValueColormap": {
@@ -1078,21 +1083,6 @@
              { "type": "string" },
              { "type": "null" }
             ] }
-          }
-        },
-        "gatingFeatureValueTransform": {
-          "type": "object",
-          "patternProperties": {
-            ".": { "oneOf": [
-             { "type": "string" },
-             { "type": "null" }
-            ] }
-          }
-        },
-        "gatingFeatureValueTransformCoefficient": {
-          "type": "object",
-          "patternProperties": {
-            ".": { "type": "number" }
           }
         },
         "additionalObsSets": {
