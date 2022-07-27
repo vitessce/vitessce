@@ -31,10 +31,10 @@ Emerging formats such as [MuData](https://mudata.readthedocs.io/en/latest/) are 
 For instance, [AnnData](https://anndata.readthedocs.io/en/latest/) has become widely adopted, which easily generalizes to non-transcriptomics single-modality experiments using the FOM paradigm.
 -->
 
-The problem then arose that the Vitessce code was tightly coupled to the more specific cell-x-gene idea, preventing straightforward usage with non-transcriptomics or multi-modal datasets.
+The problem then arose that the Vitessce code was tightly coupled to the more specific cell-x-gene ideas, preventing straightforward usage with non-transcriptomics or multi-modal datasets.
 This prompted the need for a major update to realize the FOM paradigm in Vitessce.
-In our latest update, we have changed how we represent data ("file types") and how we configure mappings between data and views.
-These changes allow Vitessce to support any dataset containing one or more observation-x-feature matrices.
+In our latest update, we have changed how we represent data and how we configure mappings between data and views.
+These changes allow Vitessce to support visualization of datasets containing one or more observation-x-feature matrices.
 
 ## Support for the FOM paradigm in Vitessce
 
@@ -52,7 +52,7 @@ We now also include a tool to [compare](https://observablehq.com/@keller-mark/vi
 
 [Coordination type](/docs/coordination-types/) names have been updated to use `obs` and `feature` (rather than `cell` and `gene`, respectively).
 
-We introduce the coordination types `obsType`, `featureType`, and `featureValueType` to enable **entity types** to be specified. For example, if we performed an scATAC-seq experiment and want to visualize the cell-x-peak matrix in the heatmap, then the following coordination values should be configured (via the coordination space) for our heatmap view:
+We introduce the coordination types `obsType`, `featureType`, and `featureValueType` to enable entity types to be specified. For example, if we performed an scATAC-seq experiment and want to visualize the cell-x-peak matrix in the heatmap, then the following coordination values should be configured (via the coordination space) for our heatmap view:
 
 ```js
 obsType: 'cell',
@@ -60,17 +60,19 @@ featureType: 'peak',
 featureValueType: 'count'
 ```
 
-This way, we can render more accurate strings like `'100 cells x 200 peaks'` in the interface (as opposed to `'100 observations x 200 features'`).
-Views may also leverage specific `featureType` values like `'gene'` to know when to offer analysis features such as differential gene expression testing (which alternatively may be hidden from the user when `featureType === 'peak'`).
+This way, we can render more accurate strings like `'100 cells x 200 peaks'` in the interface (as opposed to the more abstract `'100 observations x 200 features'`).
+Views may also leverage specific `featureType` values like `'gene'` to offer specific analysis functionality such as differential gene expression testing (which alternatively may be hidden from the user when `featureType === 'peak'`).
 
+It is also common in single-cell workflows to obtain results from matrix factorization- or topic model-based analyses, which can often be stored as observation-x-feature matrices.
+In such a case, we might use `featureType: 'topic'` to describe the columns of the matrix.
 
 ### Data types
 
 [Data types](/docs/data-types-file-types/) no longer assume observation types like `cell`.
 
 Instead, to facilitate re-use across observation types, we have split up each of the former data types into multiple more minimal data types.
-For example, the former `cells` data type would now be represented using the following set of minimal data types: `obsLocations` (x-y coordinate per observation), `obsEmbedding` (dim1-dim2 coordinate per observation per embedding type), `obsSegmentations` (polygon vertices and centroid per observation).
-Simplified data types also make it easier to implement new file types (including via plugins).
+For example, `obsLocations` stores (x, y) coordinates per observation, `obsEmbedding` stores (dim1, dim2) coordinates per observation for a given embedding type, and `obsSegmentations` stores polygon vertices per observation.
+Simplified data types should also make it easier to implement new file types (including via plugins).
 
 The former `raster` data type has been split into two new data types, `image` and `obsSegmentations`, to better reflect semantics (as opposed to exposing the implementation difference between bitmask and polygon segmentations). (Internally, the fact that an `obsSegmentations` file type may return either polygons or bitmasks is handled by returning an `obsSegmentationsType` from the data loader class.)
 
@@ -81,15 +83,14 @@ For the full list of data types, please visit the updated [Data Types and File T
 Dataset definitions ([`datasets`](/docs/view-config-json/#datasets) in the view configuration) are no longer limited to one file per data type.
 
 Each `dataset` may now contain multiple file definitions corresponding to the same data type.
-The disambiguation of multiple files of the same data type is described below.
 
 ### Mapping between files and views
 
 File lookup from within a view now takes into account `(dataset, dataType, viewCoordinationValues)`.
 
 
-The `viewCoordinationValues` tuple element refers to the coordination values that a particular view takes on at a given point in time.
-This is required to disambiguate between files now that each dataset may contain multiple files per data type.
+The `viewCoordinationValues` item refers to the coordination values that a particular view takes on at a given point in time.
+This is required to disambiguate between multiple files within a dataset which have the same `dataType` (now that each dataset may contain multiple files per data type).
 
 The diagram below shows how the matching between views and files would be performed for a configuration containing one dataset and three views.
 
@@ -97,7 +98,7 @@ The diagram below shows how the matching between views and files would be perfor
 
 ### File definitions
 
-[File definitions](/docs/view-config-json/#files) no longer require the `type` ("data type") property.
+[File definitions](/docs/view-config-json/#files) no longer require the `type` (data type) property.
 Instead, we now store a [mapping](https://github.com/vitessce/vitessce/blob/main/src/app/constant-relationships.js) from `fileType`s to data types internally and do the lookup automatically.
 
 ### Joint file types
@@ -149,10 +150,11 @@ We welcome your feedback via [issues](https://github.com/vitessce/vitessce/issue
 One of our next steps is to make sure the changes described here are reflected in the Python and R APIs.
 Another next step is to deploy additional demos that showcase these features.
 
-We also think that the observation-x-feature paradigm will simplify the conceptualization and implementation of additional features.
+We also intend for the observation-x-feature paradigm to simplify the conceptualization and implementation of additional functionality.
 For instance, while we have primarily been thinking of observations and features at the cellular scale, in theory an observation could instead represent an entity at a larger scale such as a tissue sample or donor.
-We might enable this use case by supporting mappings between `obsType`s to indicate which cells belong to which samples (if a dataset contains multiple tissue sample observations with per-sample cellular observations).
+We are considering how to enable this use case by supporting mappings between `obsType`s to indicate which cells belong to which samples (if a dataset contains multiple tissue sample observations with per-sample cellular observations).
 Such mappings could also be specified in the opposite direction to capture which organelles belong to which cells.
+Again, if you have feedback about this or other features, we would love to hear!
 
 
 ## Backwards compatibility
@@ -161,7 +163,7 @@ The remaining sections are meant for developers looking to make existing code co
 
 ### VitessceConfig constructor calls
 
-If you are using the `VitessceConfig` class in existing code (package version `1.1.21` or earlier), and you would like to upgrade to the new version while keeping the previous behavior:
+If you are already using the `VitessceConfig` class in existing code (package version `1.2.0` or earlier), and you would like to upgrade to the new version while keeping the previous behavior:
 `"1.0.7"` was the schema version that was previously hard-coded.
 
 ```diff
@@ -171,7 +173,16 @@ If you are using the `VitessceConfig` class in existing code (package version `1
 
 ### VitessceConfigDataset addFile calls
 
-<!-- TODO -->
+The parameters of the [`addFile`](/docs/view-config-js/#addfileurl-filetype-coordinationvalues-options) method have changed.
+Data type is no longer an argument, so file type has moved to the second argument.
+The new argument `coordinationValues` is now the third argument.
+The fourth argument is now `options`.
+The `coordinationValues` and `options` parameters are optional: `null` can be passed when not applicable.
+
+```diff
+- dataset.addFile('http://example.com/my_cells.json', dt.CELLS, ft.CELLS_JSON);
++ dataset.addFile('http://example.com/my_cells.json', ft.CELLS_JSON, null, null);
+```
 
 ### Versioned documentation
 
