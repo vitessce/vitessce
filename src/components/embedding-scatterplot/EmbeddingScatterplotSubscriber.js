@@ -32,7 +32,7 @@ export default function EmbeddingScatterplotSubscriber(props) {
   const {
     coordinationScopes,
     title: titleOverride,
-    enableEmbeddingTypeSelection = false,
+    enableEmbeddingTypeSelection = true,
   } = props;
 
   // Get "props" from the coordination space.
@@ -62,7 +62,7 @@ export default function EmbeddingScatterplotSubscriber(props) {
 
   const customOptions = (
     <EmbeddingScatterplotOptions
-      mappingSelectEnabled={enableEmbeddingTypeSelection}
+      mappingSelectEnabled={enableEmbeddingTypeSelection && availableEmbeddingTypes?.length > 1}
       mappings={availableEmbeddingTypes}
       selectedMapping={embeddingType}
       setSelectedMapping={setEmbeddingType}
