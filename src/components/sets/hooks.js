@@ -17,6 +17,10 @@ import { treeToObjectsBySetNames, treeToSetSizesBySetNames } from './cell-set-ut
  * @param {array} geneSelection Array of selected genes.
  * @param {array} cellSetSelection Array of selected cell set paths.
  * @param {object[]} cellSetColor Array of objects with properties
+ * @param {string|null} featureValueTransform The name of the
+ * feature value transform function.
+ * @param {number} featureValueTransformCoefficient A coefficient
+ * to be used in the transform function.
  * @param {string} theme "light" or "dark" for the vitessce theme
  * `path` and `color`.
  */

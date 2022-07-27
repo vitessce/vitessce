@@ -21,8 +21,8 @@ import { colorArrayToString } from './utils';
  * @param {number} props.marginBottom The size of the margin
  * on the bottom of the plot, to account for long x-axis labels.
  * Default is allowing the component to automatically determine the margin.
- * @param {boolean} props.useGeneExpressionTransform Boolean representing
- * whether or not the expression values are log-transformed.
+ * @param {string|null} props.featureValueTransformName A name
+ * for the feature value transformation function.
  */
 export default function CellSetExpressionPlot(props) {
   const {
