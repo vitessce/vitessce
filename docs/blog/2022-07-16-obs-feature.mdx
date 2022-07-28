@@ -25,7 +25,8 @@ In general, a multi-modal dataset may contain gene expression _and_ antigen quan
 -->
 
 Meanwhile, the HuBMAP Consortium moved into its second phase, adding new labs and contributors, and generating a wide range of multi-modal datasets using technologies like SNARE-seq.
-In parallel, the wider single-cell data analysis community is moving toward the paradigm of the **observation-x-feature** matrix (or **FOM**, in the [Feature and Observation Matrix Schema Working Group](https://github.com/single-cell-data/mams/) terminology; as implemented in data structures like [AnnData](https://anndata.readthedocs.io/en/latest/)), a generalization of the more specific cell-x-gene expression matrix that is typically produced by transcriptomics experiments.
+In parallel, the single-cell community is generalizing from the cell-x-gene matrices produced by transcriptomics experiments to "observation-x-feature" matrices (or **FOM**, in the [Feature and Observation Matrix Schema Working Group](https://github.com/single-cell-data/mams/) terminology.
+This idea is implemented in data structures like [AnnData](https://anndata.readthedocs.io/en/latest/).
 Emerging formats such as [MuData](https://mudata.readthedocs.io/en/latest/) are taking this paradigm yet further to support multi-modal use cases via container data structures that hold _multiple_ observation-x-feature matrices.
 <!--
 For instance, [AnnData](https://anndata.readthedocs.io/en/latest/) has become widely adopted, which easily generalizes to non-transcriptomics single-modality experiments using the FOM paradigm.
