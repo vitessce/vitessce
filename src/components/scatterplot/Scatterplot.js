@@ -141,6 +141,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         getExpressionValue,
         getFillColor: [cellColorEncoding, cellSelection, cellColors],
         getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        getPosition: [mapping],
         getCellIsSelected,
       },
       ...cellLayerDefaultProps(
@@ -318,7 +319,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     }
 
     if ([
-      'cells', 'cellFilter', 'cellSelection', 'cellColors',
+      'cells', 'mapping', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
     ].some(shallowDiff)) {

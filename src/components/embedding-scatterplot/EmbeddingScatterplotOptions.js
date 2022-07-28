@@ -14,8 +14,6 @@ export default function EmbeddingScatterplotOptions(props) {
 
   const classes = useStyles();
 
-  const mappingSelectOptions = ['', ...Object.keys(mappings)];
-
   // Handlers for custom option field changes.
   const handleSelectedMappingChange = (event) => {
     setSelectedMapping(event.target.value);
@@ -25,7 +23,7 @@ export default function EmbeddingScatterplotOptions(props) {
     ? (
       <TableRow key="mapping-option-row">
         <TableCell className={classes.labelCell}>
-      Mapping
+          Embedding Type
         </TableCell>
         <TableCell className={classes.inputCell}>
           <OptionSelect
@@ -37,7 +35,7 @@ export default function EmbeddingScatterplotOptions(props) {
               id: 'scatterplot-mapping-select',
             }}
           >
-            {mappingSelectOptions.map(name => (
+            {mappings.map(name => (
               <option key={name} value={name}>
                 {name}
               </option>

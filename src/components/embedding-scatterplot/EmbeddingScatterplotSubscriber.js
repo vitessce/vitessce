@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import ScatterplotSubscriber, {
   SCATTERPLOT_DATA_TYPES,
 } from '../scatterplot/ScatterplotSubscriber';
@@ -10,6 +10,7 @@ import { useReady, useUrls } from '../hooks';
 import { useCellsData } from '../data-hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import EmbeddingScatterplotOptions from './EmbeddingScatterplotOptions';
+import { Component } from '../../app/constants';
 
 /**
    * A subscriber component for the cell mapping scatterplot.
@@ -24,16 +25,22 @@ import EmbeddingScatterplotOptions from './EmbeddingScatterplotOptions';
    * @param {string} props.title An override value for the component title.
    * @param {number} props.averageFillDensity Override the average fill density calculation
    * when using dynamic opacity mode.
+   * @param {boolean} props.enableEmbeddingTypeSelection Should
+   * the dropdown to select an embedding type be displayed? By default, false.
    */
 export default function EmbeddingScatterplotSubscriber(props) {
   const {
     coordinationScopes,
     title: titleOverride,
+    enableEmbeddingTypeSelection = true,
   } = props;
 
   // Get "props" from the coordination space.
-  const [{ dataset, embeddingType: mapping }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES.scatterplot,
+  const [
+    { dataset, embeddingType },
+    { setEmbeddingType },
+  ] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[Component.SCATTERPLOT],
     coordinationScopes,
   );
 
@@ -43,46 +50,40 @@ export default function EmbeddingScatterplotSubscriber(props) {
   const [isReady, setItemIsReady, setItemIsNotReady, resetReadyItems] = useReady(
     SCATTERPLOT_DATA_TYPES,
   );
-  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
+  const cellsData = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
 
-
-  const [selectedMapping, setSelectedMapping] = React.useState('');
-
-
-  let optionMappings = {};
-  const cellIds = Object.keys(cells);
-  if (!mapping && cellIds.length !== 0) {
-    optionMappings = cells[cellIds[0]].mappings;
-  }
+  const availableEmbeddingTypes = useMemo(() => {
+    const cellObjs = Object.values(cellsData?.[0] || {});
+    if (cellObjs.length !== 0) {
+      return Object.keys(cellObjs[0].mappings);
+    }
+    return null;
+  }, [cellsData]);
 
   const customOptions = (
     <EmbeddingScatterplotOptions
-      mappingSelectEnabled={!mapping}
-      mappings={optionMappings}
-      selectedMapping={selectedMapping}
-      setSelectedMapping={setSelectedMapping}
+      mappingSelectEnabled={enableEmbeddingTypeSelection && availableEmbeddingTypes?.length > 1}
+      mappings={availableEmbeddingTypes}
+      selectedMapping={embeddingType}
+      setSelectedMapping={setEmbeddingType}
     />
   );
 
-  const plotMapping = mapping || selectedMapping;
-  // Set cells to empty if no mapping is provided so that nothing is plotted.
-  const plotCells = plotMapping ? cells : {};
-
-  const defaultTitle = plotMapping ? `Scatterplot (${plotMapping})` : 'Scatterplot';
+  const defaultTitle = embeddingType ? `Scatterplot (${embeddingType})` : 'Scatterplot';
   const title = titleOverride || defaultTitle;
 
   return (
     <ScatterplotSubscriber
       {...props}
       loaders={loaders}
-      cellsData={[plotCells, cellsCount]}
+      cellsData={cellsData}
       useReadyData={[isReady, setItemIsReady, setItemIsNotReady, resetReadyItems]}
       urlsData={[urls, addUrl, resetUrls]}
       title={title}
-      mapping={plotMapping}
+      mapping={embeddingType}
       customOptions={customOptions}
-      hideTools={!mapping}
-      cellsEmptyMessage="Select a cell mapping in the settings."
+      hideTools={!embeddingType}
+      cellsEmptyMessage="Select an embedding type in the plot settings."
     />
   );
 }
