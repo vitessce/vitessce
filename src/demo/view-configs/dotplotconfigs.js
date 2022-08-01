@@ -1,26 +1,26 @@
-export const barplots = {
+export const dotplots = {
     'version': "1.0.4",
     public: true,
     initStrategy: 'auto',
-    'name': 'Immunology Plot',
-    'description': '',
+    'name': ' Sade-Feldman et al., Cell 2018',
+    'description': 'Transcriptomes of 16,291 individual immune cells from 48 tumor samples of melanoma patients treated with checkpoint inhibitor',
     'datasets': [{"uid": "codeluppi",
     "name": "Codeluppi",
     "files": [{
         "type": "expression-matrix",
           "fileType": "clusters.json",
-          "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.clusters.json"},
+          "url": "http://localhost:9100/expressionmatrix13.json"},
+          { 
 
-          {
             "type": "cell-sets",
             "fileType": "cell-sets.json",
-            "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cell-sets.json"},
+            "url": "http://localhost:9100/cellsets_data.json"},
 
             {
               "type": "cells",
               "fileType": "cells.json",
-              "url": "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cells.json"
-            },
+              "url": "http://localhost:9100/tsne_data_test.json"
+             },
 
 
      
@@ -74,6 +74,7 @@ props: {
     {
     
             component: 'cellSetExpression',
+          
         x: 9,
           y: 6,
           w: 3,

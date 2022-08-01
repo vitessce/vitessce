@@ -29,7 +29,7 @@ const CELL_SET_SIZES_DATA_TYPES = ['cell-sets', 'expression-matrix'];
  * @param {string} props.theme The name of the current Vitessce theme.
  * @param {string} props.title The component title.
  */
-export default function BarPlotEverything(props) {
+export default function DotPlotEverything(props) {
   const {
     coordinationScopes,
     removeGridComponent,
@@ -199,9 +199,9 @@ for (var i = filteredArray.length -1; i >= 0; i--)  //Removes all undefined from
 
   const spec = {"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   "description": "Punchcard Visualization like on Github. The day on y-axis uses a custom order from Monday to Sunday.  The sort property supports both full day names (e.g., 'Monday') and their three letter initials (e.g., 'mon') -- both of which are case insensitive.",
-  "width": 545,
-  "height": 390,
-  "padding": 2,
+  "width": 430,
+  "height": 410,
+  "padding": 1,
   "params": [{"name": "highlight", "select": { //parameters for selecting dots with cursor
     "type": "point",
     "on": "mouseover",
@@ -227,7 +227,8 @@ for (var i = filteredArray.length -1; i >= 0; i--)  //Removes all undefined from
     "min": 0,
     "max": 100,
     "step": 0.01,
-    "name": "Percent Expressed (%) Maximum: "
+    "name": "Percent Expressed (%) Maximum: ",
+    
   }
 }]
 ,
@@ -240,8 +241,10 @@ for (var i = filteredArray.length -1; i >= 0; i--)  //Removes all undefined from
     }],
   "frame": [null, null]},
   {"calculate": "datum.Expression/datum.TotalExpression* 100",
-    "as": "PercentExpressed"
+    "as": "PercentExpressed",
+    
   },
+
 
     {"filter": "datum.PercentExpressed>=minExpress"},
     {"filter": "datum.PercentExpressed<=maxExpress"}

@@ -17,7 +17,7 @@ import {
   embeddingTargetYConfig,
   embeddingCellSetPolygonsVisibleConfig,
 } from './view-configs/coordination-types/index';
-import { barplots } from './view-configs/barplotconfigs';
+import { dotplots } from './view-configs/dotplotconfigs';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -50,5 +50,5 @@ export const configs = {
   vanderbilt: notPublic(spraggins2020),
   'dries-2019': notPublic(eng2019),
   ...coordinationTypeConfigs,
-  'bar-plot': barplots
+  'dot-plot': dotplots,
 };
