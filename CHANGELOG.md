@@ -12,6 +12,10 @@
   - `featureValueType`
 - Add more usage examples to the `about` documentation page.
 - Added `npm run start:nolint` script to disable linting for quickly prototyping code.
+- Added `gating` component that allows users to dynamically generate a scatterplot based on gene expression values.
+  - New coordination types of `gatingFeatureSelectionX` and `gatingFeatureSelectionY` for the values selected for the gating plot.
+- Added new `arcsinh` option for the coordinaition type `featureValueTransform`
+- Added new coordination type `featureValueTransformCoefficient` to apply a coefficent to a feature value transform.
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
