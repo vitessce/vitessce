@@ -3,6 +3,14 @@
 
 ### Changed
 
+## [1.2.1](https://www.npmjs.com/package/vitessce/v/1.2.1) - 2022-08-03
+
+
+
+### Added
+
+### Changed
+
 ## [1.2.0](https://www.npmjs.com/package/vitessce/v/1.2.0) - 2022-07-22
 
 
