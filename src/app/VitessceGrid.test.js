@@ -22,6 +22,7 @@ describe('VitessceGrid.js', () => {
           {
             component: 'FakeComponent',
             props: { description: 'fake prop description' },
+            uid: 'A',
             x: 0,
             y: 0,
           },

@@ -7,6 +7,7 @@ import {
   AXIS_MARGIN,
   THEME_TO_TEXT_COLOR,
   AXIS_FONT_FAMILY,
+  COLOR_BAR_SIZE,
 } from './heatmap-constants';
 
 export default class HeatmapCompositeTextLayer extends CompositeLayer {
@@ -14,10 +15,11 @@ export default class HeatmapCompositeTextLayer extends CompositeLayer {
     const {
       axisTopLabelData, matrixLeft, width, matrixWidth, viewWidth, theme,
       targetX, targetY, axisTopTitle, cellWidth, axisOffsetTop, scaleFactor,
+      hideTopLabels,
     } = this.props;
     const showAxisTopLabels = cellWidth >= AXIS_LABEL_TEXT_SIZE;
     const axisLabelTop = targetY + (axisOffsetTop - AXIS_MARGIN) / 2 / scaleFactor;
-    return [
+    return hideTopLabels ? [] : [
       new TextLayer({
         id: 'axisTopLabels',
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
@@ -54,15 +56,52 @@ export default class HeatmapCompositeTextLayer extends CompositeLayer {
     ];
   }
 
+  _renderCornerLayers() {
+    const {
+      theme, targetX, targetY, axisOffsetTop, scaleFactor,
+      cellColorLabelsData, axisOffsetLeft, transpose,
+    } = this.props;
+    const axisLabelTop = targetY + (axisOffsetTop - AXIS_MARGIN) / 2 / scaleFactor;
+    const axisLabelLeft = targetX + (axisOffsetLeft - AXIS_MARGIN) / 2 / scaleFactor;
+    return cellColorLabelsData.map(data => (
+      new TextLayer({
+        id: `cellColorLabel-${data[0]}`,
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: [data],
+        getText: d => d[1],
+        getTextAnchor: (transpose ? 'end' : 'start'),
+        getAlignmentBaseline: 'top',
+        getColor: () => THEME_TO_TEXT_COLOR[theme],
+        getSize: AXIS_LABEL_TEXT_SIZE,
+        getPosition: d => [
+          (transpose
+            ? axisLabelLeft
+            : targetX
+              + ((-cellColorLabelsData.length + d[0] * 2) * COLOR_BAR_SIZE + AXIS_MARGIN)
+              / 2 / scaleFactor
+          ),
+          (transpose
+            ? targetY
+              + ((-cellColorLabelsData.length + d[0] * 2) * COLOR_BAR_SIZE + AXIS_MARGIN)
+              / 2 / scaleFactor
+            : axisLabelTop
+          ),
+        ],
+        getAngle: (transpose ? 0 : 90),
+        fontFamily: AXIS_FONT_FAMILY,
+      })
+    ));
+  }
+
   _renderAxisLeftLayers() {
     const {
       axisLeftLabelData, matrixTop, height, matrixHeight,
       viewHeight, theme, axisLeftTitle, targetX, targetY, cellHeight, axisOffsetLeft,
-      scaleFactor,
+      scaleFactor, hideLeftLabels,
     } = this.props;
     const showAxisLeftLabels = cellHeight >= AXIS_LABEL_TEXT_SIZE;
     const axisLabelLeft = targetX + (axisOffsetLeft - AXIS_MARGIN) / 2 / scaleFactor;
-    return [
+    return hideLeftLabels ? [] : [
       new TextLayer({
         id: 'axisLeftLabels',
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
@@ -104,7 +143,13 @@ export default class HeatmapCompositeTextLayer extends CompositeLayer {
     if (axis === 'left') {
       return this._renderAxisLeftLayers();
     }
-    return this._renderAxisTopLayers();
+    if (axis === 'top') {
+      return this._renderAxisTopLayers();
+    }
+    if (axis === 'corner') {
+      return this._renderCornerLayers();
+    }
+    return [];
   }
 }
 

@@ -1,5 +1,13 @@
 
 ### Added
+
+### Changed
+
+## [1.2.0](https://www.npmjs.com/package/vitessce/v/1.2.0) - 2022-07-22
+
+
+
+### Added
 - Added the property `coordinationValues` for view config file definitions but is not yet used to do file matching/lookups.
 - Added warning log messages when outdated constant values have been accessed (via JS Proxy).
 - Added the optional `uid` property for view definitions in the view config.
@@ -12,6 +20,8 @@
   - `featureValueType`
 - Add more usage examples to the `about` documentation page.
 - Added `npm run start:nolint` script to disable linting for quickly prototyping code.
+- Added the optional `isBounded` property to the `Vitessce` React component that prevents users from dragging or resizing components beyond the original grid boundary.
+- Added support for multiple `cellColor` tracks in the Heatmap component.
 - Added `gating` component that allows users to dynamically generate a scatterplot based on gene expression values.
   - New coordination types of `gatingFeatureSelectionX` and `gatingFeatureSelectionY` for the values selected for the gating plot.
 - Added new `arcsinh` option for the coordinaition type `featureValueTransform`
@@ -20,6 +30,7 @@
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
 - Update code to reflect renaming of the default branch from `master` to `main`.
+- Concatenate gene alias with original id for uniqueness in the presence of duplicates like `alias (original)`
 - Change spatial layer coordination type names.
   - `spatialRasterLayers` -> `spatialImageLayer`
   - `spatialCellsLayer` -> `spatialSegmentationLayer`
@@ -52,6 +63,8 @@
   - `embeddingCellOpacityMode` -> `embeddingObsOpacityMode`
 - Fixed schema v1.0.12
 - Removed the requirement for `cellSets` data in the CellSetsManagerSubscriber component to support the use case where all cell sets are provided via `additionalCellSets` / the coordination space.
+- Use Node v16 and NPM v8 for development, testing, and CI. Motivated by [issue](https://github.com/npm/cli/issues/2610) caused by GitHub SSH URLs in NPM v6-formatted package-lock.
+  - Fixed package-lock issue
 
 ## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
 
