@@ -34,7 +34,7 @@ const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
 };
 
 /**
- * React component which renders a scatterplot from cell data, typically tSNE or PCA.
+ * React component which renders a scatterplot from cell data.
  * @param {object} props
  * @param {string} props.uuid A unique identifier for this component.
  * @param {string} props.theme The current vitessce theme.
@@ -142,6 +142,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         getExpressionValue,
         getFillColor: [cellColorEncoding, cellSelection, cellColors],
         getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        getPosition: [mapping],
         getCellIsSelected,
       },
       ...cellLayerDefaultProps(
@@ -319,7 +320,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     }
 
     if ([
-      'cells', 'cellFilter', 'cellSelection', 'cellColors',
+      'cells', 'mapping', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
     ].some(shallowDiff)) {

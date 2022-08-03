@@ -1,6 +1,8 @@
 import { notPublic, vapi } from './utils';
 import {
-  justScatter, justScatterExpression, justSpatial, codeluppi2018,
+  justScatter, justScatterExpression, justSpatial,
+  codeluppi2018,
+  codeluppiGating,
 } from './view-configs/codeluppi';
 import { eng2019 } from './view-configs/eng';
 import { wang2018 } from './view-configs/wang';
@@ -46,6 +48,7 @@ export const configs = {
   'ome-ngff-v0.1': omeNgffLegacy,
   // Keys which enable backwards compatibility with old links.
   'linnarsson-2018': notPublic(codeluppi2018),
+  gating: codeluppiGating,
   vanderbilt: notPublic(spraggins2020),
   'dries-2019': notPublic(eng2019),
   ...coordinationTypeConfigs,

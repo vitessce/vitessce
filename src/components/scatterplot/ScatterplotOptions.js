@@ -13,6 +13,7 @@ import { GLSL_COLORMAPS } from '../../layers/constants';
 
 export default function ScatterplotOptions(props) {
   const {
+    children,
     observationsLabel,
     cellRadius,
     setCellRadius,
@@ -82,6 +83,7 @@ export default function ScatterplotOptions(props) {
 
   return (
     <OptionsContainer>
+      {children}
       <CellColorEncodingOption
         observationsLabel={observationsLabel}
         cellColorEncoding={cellColorEncoding}

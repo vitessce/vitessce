@@ -438,3 +438,17 @@ export function upgradeFrom1_0_12(config) {
     version: '1.0.13',
   };
 }
+
+// Added in version 1.0.14:
+// - Adds the coordination types
+// gatingFeatureSelectionX,
+// gatingFeatureSelectionY,
+// featureValueTransformCoefficient.
+export function upgradeFrom1_0_13(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.14',
+  };
+}

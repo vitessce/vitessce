@@ -16,6 +16,7 @@ venv
 .env.production.local
 default.profraw
 .nova/
+.vscode/
 *.tgz
 
 # Created and deleted during build

@@ -5,13 +5,10 @@ import { extent } from 'd3-array';
 import isEqual from 'lodash/isEqual';
 import TitleInfo from '../TitleInfo';
 import { pluralize, capitalize } from '../../utils';
-import {
-  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
-} from '../hooks';
+import { useDeckCanvasSize, useExpressionValueGetter } from '../hooks';
 import { setCellSelection, mergeCellSets } from '../utils';
 import { getCellSetPolygons } from '../sets/cell-set-utils';
 import {
-  useCellsData,
   useCellSetsData,
   useGeneSelection,
   useExpressionAttrs,
@@ -22,7 +19,6 @@ import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
 import ScatterplotOptions from './ScatterplotOptions';
 import {
   useCoordination,
-  useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
 } from '../../app/state/hooks';
@@ -32,22 +28,38 @@ import {
 } from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 
-const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
+export const SCATTERPLOT_DATA_TYPES = ['cells', 'expression-matrix', 'cell-sets'];
 
 /**
- * A subscriber component for the scatterplot.
- * @param {object} props
- * @param {number} props.uuid The unique identifier for this component.
- * @param {string} props.theme The current theme name.
- * @param {object} props.coordinationScopes The mapping from coordination types to coordination
- * scopes.
- * @param {boolean} props.disableTooltip Should the tooltip be disabled?
- * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
- * to call when the component has been removed from the grid.
- * @param {string} props.title An override value for the component title.
- * @param {number} props.averageFillDensity Override the average fill density calculation
- * when using dynamic opacity mode.
- */
+   * A subscriber component for a base scatterplot to be used by other subscriber components.
+   * @param {object} props
+   * @param {number} props.uuid The unique identifier for this component.
+   * @param {string} props.theme The current theme name.
+   * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+   * scopes.
+   * @param {object} props.loaders The return values from loaders to keep the hooks from the parent
+   * subscriber component and this subscriber in sync.
+   * @param {object} props.useReadyData The return values from useReadyData to keep the hooks from
+   * the parent subscriber component and this subscriber in sync.
+   * @param {object} props.urlsData The return values from useUrls to keep the hooks from the parent
+   * subscriber component and this subscriber in sync.
+   * @param {object} props.cellsData [cells, cellsCount] either from useCellsData or another source.
+   * @param {string} props.mapping The name of the mapping to plot from the cells data.
+   * @param {object} props.customOptions Custom options to be rendered in the component's options.
+   * @param {object} props.hideTools Should the DeckGL tools be hidden?
+   * @param {object} props.cellsEmptyMessage Message to display if no cells are present.
+   * @param {object} props.getCellInfoOverride Function to override the getCellInfo callback
+   * for the scatterplot info tooltip.
+   * @param {object} props.cellSetsPolygonCacheId An identifier for cell sets polygon cache.
+   * Change this when something modifies the values of the cell mappings (e.g. log transform)
+   * or for any other case that warrants a new cellSetsPolygonCache.
+   * @param {boolean} props.disableTooltip Should the tooltip be disabled?
+   * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
+   * to call when the component has been removed from the grid.
+   * @param {string} props.title The component title.
+   * @param {number} props.averageFillDensity Override the average fill density calculation
+   * when using dynamic opacity mode.
+   */
 export default function ScatterplotSubscriber(props) {
   const {
     uuid,
@@ -57,12 +69,21 @@ export default function ScatterplotSubscriber(props) {
     disableTooltip = false,
     observationsLabelOverride: observationsLabel = 'cell',
     observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
-    title: titleOverride,
+    title,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
+    loaders,
+    useReadyData,
+    urlsData,
+    cellsData,
+    mapping,
+    customOptions,
+    hideTools = false,
+    cellsEmptyMessage,
+    getCellInfoOverride,
+    cellSetsPolygonCacheId = '',
   } = props;
 
-  const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
@@ -73,7 +94,6 @@ export default function ScatterplotSubscriber(props) {
     embeddingTargetX: targetX,
     embeddingTargetY: targetY,
     embeddingTargetZ: targetZ,
-    embeddingType: mapping,
     obsFilter: cellFilter,
     obsHighlight: cellHighlight,
     featureSelection: geneSelection,
@@ -112,28 +132,21 @@ export default function ScatterplotSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
 
-  const [urls, addUrl, resetUrls] = useUrls();
-  const [width, height, deckRef] = useDeckCanvasSize();
-  const [
-    isReady,
-    setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
-    resetReadyItems,
-  ] = useReady(
-    SCATTERPLOT_DATA_TYPES,
-  );
-
-  const title = titleOverride || `Scatterplot (${mapping})`;
+  // Get data from parent loaders via the props.
+  const [urls, addUrl, resetUrls] = urlsData;
+  const [isReady, setItemIsReady, setItemIsNotReady, resetReadyItems] = useReadyData;
+  const [cells, cellsCount] = cellsData;
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     resetUrls();
     resetReadyItems();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
+  const [width, height, deckRef] = useDeckCanvasSize();
+
   // Get data from loaders using the data hooks.
-  const [cells, cellsCount] = useCellsData(loaders, dataset, setItemIsReady, addUrl, true);
   const [cellSets] = useCellSetsData(
     loaders,
     dataset,
@@ -178,17 +191,23 @@ export default function ScatterplotSubscriber(props) {
   }), [cellColorEncoding, geneSelection, mergedCellSets, theme,
     cellSetSelection, cellSetColor, expressionData, attrs]);
 
-  // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
-  // where the keys are cellSetSelection arrays.
-  const [cellSetPolygonCache, setCellSetPolygonCache] = useState([]);
-  const cacheHas = (cache, key) => cache.findIndex(el => isEqual(el[0], key)) !== -1;
-  const cacheGet = (cache, key) => cache.find(el => isEqual(el[0], key))?.[1];
+  // cellSetPolygonCache is map of a namespace string to an array of tuples
+  // like [(key0, val0), (key1, val1), ...] where the keys are cellSetSelection arrays.
+  // We use different cache namespaces so that we don't return the same polygon when the
+  // mapping changes or anything used to compose the cellSetsPolygonCacheId changes.
+  const [cellSetPolygonCache, setCellSetPolygonCache] = useState({});
+  const cacheHas = (cache, namespace, key) => cache[namespace]
+    && cache[namespace].findIndex(el => isEqual(el[0], key)) !== -1;
+  const cacheGet = (cache, namespace, key) => cache[namespace]
+    && cache[namespace].find(el => isEqual(el[0], key))?.[1];
   const cellSetPolygons = useMemo(() => {
-    if ((cellSetLabelsVisible || cellSetPolygonsVisible)
-      && !cacheHas(cellSetPolygonCache, cellSetSelection)
-      && mergedCellSets?.tree?.length
-      && Object.values(cells).length
-      && cellSetColor?.length) {
+    const polygonCacheNamespace = `${mapping}${cellSetsPolygonCacheId}`;
+    if (mapping
+        && (cellSetLabelsVisible || cellSetPolygonsVisible)
+        && !cacheHas(cellSetPolygonCache, polygonCacheNamespace, cellSetSelection)
+        && mergedCellSets?.tree?.length
+        && Object.values(cells).length
+        && cellSetColor?.length) {
       const newCellSetPolygons = getCellSetPolygons({
         cells,
         mapping,
@@ -197,19 +216,24 @@ export default function ScatterplotSubscriber(props) {
         cellSetColor,
         theme,
       });
-      setCellSetPolygonCache(cache => [...cache, [cellSetSelection, newCellSetPolygons]]);
+      setCellSetPolygonCache((cache) => {
+        const modifyingCache = cache;
+        modifyingCache[polygonCacheNamespace] = [cache, [cellSetSelection, newCellSetPolygons]];
+        return modifyingCache;
+      });
       return newCellSetPolygons;
     }
-    return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
-  }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible, theme,
-    cells, mapping, mergedCellSets, cellSetSelection, cellSetColor]);
+    return cacheGet(cellSetPolygonCache, polygonCacheNamespace, cellSetSelection) || [];
+  }, [cellSetLabelsVisible, cellSetPolygonsVisible, cellSetPolygonCache,
+    cellSetsPolygonCacheId, cellSetSelection, mergedCellSets, cells,
+    cellSetColor, mapping, theme]);
 
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
     const cellValues = cells && Object.values(cells);
-    if (cellValues?.length) {
+    if (mapping && cellValues?.length) {
       const cellCoordinates = Object.values(cells)
         .map(c => c.mappings[mapping]);
       const xE = extent(cellCoordinates, c => c[0]);
@@ -220,6 +244,23 @@ export default function ScatterplotSubscriber(props) {
     }
     return [null, null, null, null, null];
   }, [cells, mapping]);
+
+  // Reset the zoom and recenter the view with the new extent and range.
+  // Makes sense to do this if the data set or the mapping has changed
+  // as the new zoom and center could be very different.
+  useEffect(() => {
+    if (xRange && yRange) {
+      const newTargetX = xExtent[0] + xRange / 2;
+      const newTargetY = yExtent[0] + yRange / 2;
+      const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
+      setTargetX(newTargetX);
+      // Graphics rendering has the y-axis going south so we need to multiply by negative one.
+      setTargetY(-newTargetY);
+      setZoom(newZoom);
+    }
+  },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [cells, mapping]);
 
   // After cells have loaded or changed,
   // compute the cell radius scale based on the
@@ -235,28 +276,19 @@ export default function ScatterplotSubscriber(props) {
         zoom, xRange, yRange, width, height, numCells, averageFillDensity,
       );
       setDynamicCellOpacity(nextCellOpacityScale);
-
-      if (typeof targetX !== 'number' || typeof targetY !== 'number') {
-        const newTargetX = xExtent[0] + xRange / 2;
-        const newTargetY = yExtent[0] + yRange / 2;
-        const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
-        setTargetX(newTargetX);
-        // Graphics rendering has the y-axis going south so we need to multiply by negative one.
-        setTargetY(-newTargetY);
-        setZoom(newZoom);
-      }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [xRange, yRange, xExtent, yExtent, numCells, cells, mapping,
     width, height, zoom, averageFillDensity]);
 
   const getCellInfo = useCallback((cellId) => {
+    if (getCellInfoOverride) return getCellInfoOverride(cellId);
     const cellInfo = cells[cellId];
     return {
       [`${capitalize(observationsLabel)} ID`]: cellId,
       ...(cellInfo ? cellInfo.factors : {}),
     };
-  }, [cells, observationsLabel]);
+  }, [cells, getCellInfoOverride, observationsLabel]);
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
   const getCellIsSelected = useCallback(cellEntry => (
@@ -268,6 +300,13 @@ export default function ScatterplotSubscriber(props) {
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useExpressionValueGetter({ attrs, expressionData });
+
+  let emptyMessage;
+  if ((numCells === 0 || !mapping) && cellsEmptyMessage) {
+    emptyMessage = (
+      <div>{cellsEmptyMessage}</div>
+    );
+  }
 
   return (
     <TitleInfo
@@ -300,9 +339,12 @@ export default function ScatterplotSubscriber(props) {
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
-        />
-      )}
+        >
+          {customOptions}
+        </ScatterplotOptions>
+        )}
     >
+      {emptyMessage}
       <Scatterplot
         ref={deckRef}
         uuid={uuid}
@@ -338,16 +380,16 @@ export default function ScatterplotSubscriber(props) {
         updateViewInfo={setComponentViewInfo}
         getExpressionValue={getExpressionValue}
         getCellIsSelected={getCellIsSelected}
-
+        hideTools={hideTools}
       />
       {!disableTooltip && (
-      <ScatterplotTooltipSubscriber
-        parentUuid={uuid}
-        cellHighlight={cellHighlight}
-        width={width}
-        height={height}
-        getCellInfo={getCellInfo}
-      />
+        <ScatterplotTooltipSubscriber
+          parentUuid={uuid}
+          cellHighlight={cellHighlight}
+          width={width}
+          height={height}
+          getCellInfo={getCellInfo}
+        />
       )}
     </TitleInfo>
   );
