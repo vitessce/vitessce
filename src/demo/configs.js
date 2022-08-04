@@ -48,7 +48,7 @@ export const configs = {
   'ome-ngff-v0.1': omeNgffLegacy,
   // Keys which enable backwards compatibility with old links.
   'linnarsson-2018': notPublic(codeluppi2018),
-  gating: codeluppiGating,
+  gating: notPublic(codeluppiGating),
   vanderbilt: notPublic(spraggins2020),
   'dries-2019': notPublic(eng2019),
   ...coordinationTypeConfigs,
