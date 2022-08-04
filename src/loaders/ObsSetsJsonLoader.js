@@ -4,7 +4,7 @@ import { tryUpgradeTreeToLatestSchema } from '../components/sets/io';
 import { AbstractLoaderError } from './errors';
 import LoaderResult from './LoaderResult';
 
-import { initializeCellSetColor, nodeToSet } from '../components/sets/cell-set-utils';
+import { initializeCellSetColor, nodeToSet, treeToMembershipMap } from '../components/sets/cell-set-utils';
 
 export default class ObsSetsJsonLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -26,10 +26,12 @@ export default class ObsSetsJsonLoader extends JsonLoader {
       obsSetSelection: [],
       obsSetColor: [],
     };
+    let obsSetsMembership = new Map();
 
     // Set up the initial coordination values.
     if (upgradedData && upgradedData.tree.length >= 1) {
       const { tree } = upgradedData;
+      obsSetsMembership = treeToMembershipMap(upgradedData);
       const newAutoSetSelectionParentName = tree[0].name;
       // Create a list of set paths to initally select.
       const newAutoSetSelections = tree[0].children
@@ -44,6 +46,7 @@ export default class ObsSetsJsonLoader extends JsonLoader {
     return Promise.resolve(new LoaderResult({
       obsIndex,
       obsSets: upgradedData,
+      obsSetsMembership,
     }, url, coordinationValues));
   }
 }

@@ -653,3 +653,31 @@ export function getCellSetPolygons(params) {
   }
   return [];
 }
+
+export function treeToMembershipMap(currTree) {
+  const result = new Map();
+  if (currTree) {
+    currTree.tree.forEach((lzn) => {
+      const height = nodeToHeight(lzn);
+      range(height).forEach((i) => {
+        const levelIndex = i + 1;
+        const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
+        levelNodePaths.forEach((setNamePath) => {
+          const node = treeFindNodeByNamePath(currTree, setNamePath);
+          // If this is a child node, then we are interested.
+          if (node && !node.children) {
+            const nodeSet = nodeToSet(node);
+            nodeSet.forEach(([obsId]) => {
+              if (result.has(obsId)) {
+                result.get(obsId).push(setNamePath);
+              } else {
+                result.set(obsId, [setNamePath]);
+              }
+            });
+          }
+        });
+      });
+    });
+  }
+  return result;
+}

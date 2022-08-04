@@ -226,11 +226,16 @@ export function useExpressionValueGetter({ instanceObsIndex, matrixObsIndex, exp
   return getExpressionValue;
 }
 
-export function useGetObsInfo(obsType, obsIndex, obsLabelsTypes, obsLabelsData) {
+export function useGetObsInfo(obsType, obsIndex, obsLabelsTypes, obsLabelsData, obsSetsMembership) {
   return useCallback((obsId) => {
     if (obsId) {
+      const obsMembership = obsSetsMembership?.get(obsId) || [];
       return {
         [`${capitalize(obsType)} ID`]: obsId,
+        ...fromEntries(obsMembership.flatMap(path => path.slice(1).map((pathEl, elLevel) => ([
+          `${path[0]}${path.length > 2 ? ` L${elLevel + 1}` : ''}`,
+          pathEl,
+        ])))),
         ...fromEntries(Object.entries(obsLabelsTypes).map(([scopeKey, obsLabelsType]) => ([
           obsLabelsType,
           obsLabelsData?.[scopeKey]?.obsLabels?.[
@@ -240,10 +245,8 @@ export function useGetObsInfo(obsType, obsIndex, obsLabelsTypes, obsLabelsData) 
             obsLabelsData?.[scopeKey]?.obsIndex?.indexOf(obsId)
           ],
         ])).filter(([obsLabelsType]) => Boolean(obsLabelsType))),
-        // TODO: use obsSets and obsSetSelection to list any currently-selected sets
-        // that contain this obsId.
       };
     }
     return null;
-  }, [obsType, obsLabelsTypes, obsLabelsData]);
+  }, [obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership]);
 }

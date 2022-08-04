@@ -1,5 +1,5 @@
 import { obsSetsCsvSchema } from '../../app/file-options-schemas';
-import { initializeCellSetColor } from '../../components/sets/cell-set-utils';
+import { initializeCellSetColor, treeToMembershipMap } from '../../components/sets/cell-set-utils';
 import { dataToCellSetsTree } from '../anndata-loaders/CellSetsZarrLoader';
 import { AbstractLoaderError } from '../errors';
 import LoaderResult from '../LoaderResult';
@@ -30,6 +30,7 @@ export default class ObsSetsCsvLoader extends CsvLoader {
     ));
 
     const cellSetsTree = dataToCellSetsTree([obsIndex, cellSetIds, cellSetScores], setsArr);
+    const obsSetsMembership = treeToMembershipMap(cellSetsTree);
 
     const coordinationValues = {};
     const { tree } = cellSetsTree;
@@ -43,7 +44,7 @@ export default class ObsSetsCsvLoader extends CsvLoader {
     const newAutoSetColors = initializeCellSetColor(cellSetsTree, []);
     coordinationValues.obsSetSelection = newAutoSetSelections;
     coordinationValues.obsSetColor = newAutoSetColors;
-    return [obsIndex, cellSetsTree, coordinationValues];
+    return [obsIndex, cellSetsTree, obsSetsMembership, coordinationValues];
   }
 
   async load() {
@@ -52,9 +53,16 @@ export default class ObsSetsCsvLoader extends CsvLoader {
       return Promise.reject(payload);
     }
     const { data, url } = payload;
-    const [obsIndex, cellSetsTree, coordinationValues] = this.loadFromCache(data);
+    const [
+      obsIndex,
+      cellSetsTree,
+      obsSetsMembership,
+      coordinationValues,
+    ] = this.loadFromCache(data);
     return Promise.resolve(
-      new LoaderResult({ obsIndex, obsSets: cellSetsTree }, url, coordinationValues),
+      new LoaderResult({
+        obsIndex, obsSets: cellSetsTree, obsSetsMembership,
+      }, url, coordinationValues),
     );
   }
 }

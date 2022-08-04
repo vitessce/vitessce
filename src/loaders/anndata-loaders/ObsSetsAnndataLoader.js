@@ -1,7 +1,7 @@
 /* eslint-disable no-control-regex */
 import { obsSetsAnndataSchema } from '../../app/file-options-schemas';
 import {
-  initializeCellSetColor,
+  initializeCellSetColor, treeToMembershipMap,
 } from '../../components/sets/cell-set-utils';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
 import { AbstractLoaderError } from '../errors';
@@ -44,6 +44,7 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
       ]).then(data => dataToCellSetsTree(data, options));
     }
     const cellSetsTree = await this.cellSetsTree;
+    const obsSetsMembership = treeToMembershipMap(cellSetsTree);
     const coordinationValues = {};
     const { tree } = cellSetsTree;
     const newAutoSetSelectionParentName = tree[0].name;
@@ -57,7 +58,7 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
     coordinationValues.obsSetSelection = newAutoSetSelections;
     coordinationValues.obsSetColor = newAutoSetColors;
     return Promise.resolve(
-      new LoaderResult({ obsSets: cellSetsTree }, null, coordinationValues),
+      new LoaderResult({ obsSets: cellSetsTree, obsSetsMembership }, null, coordinationValues),
     );
   }
 }

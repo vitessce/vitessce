@@ -182,7 +182,7 @@ export default function SpatialSubscriber(props) {
     { spatialSegmentationLayer: cellsLayer },
     { obsType: 'cell' }, // TODO: use obsType in matchOn once #1240 is merged.
   );
-  const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
+  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus] = useObsSetsData(
     loaders, dataset, addUrl, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
@@ -300,6 +300,7 @@ export default function SpatialSubscriber(props) {
 
   const getCellInfo = useGetObsInfo(
     observationsLabel, obsCentroidsIndex, obsLabelsTypes, obsLabelsData,
+    obsSetsMembership,
   );
 
   const setViewState = ({

@@ -21,8 +21,6 @@ export const satija2020 = {
               'UMAP',
             ],
             obsLabelsTypes: [
-              'Leiden Clustering',
-              'Cell Type Annotation',
               'Cell Type Annotation Prediction Score',
             ],
           },
@@ -46,9 +44,7 @@ export const satija2020 = {
       UMAP: 'UMAP',
     },
     obsLabelsType: {
-      A: 'Leiden Clustering',
-      B: 'Cell Type Annotation',
-      C: 'Cell Type Annotation Prediction Score',
+      A: 'Cell Type Annotation Prediction Score',
     },
     embeddingZoom: {
       A: 3,
@@ -100,7 +96,7 @@ export const satija2020 = {
         embeddingZoom: 'A',
         embeddingTargetX: 'A',
         embeddingTargetY: 'A',
-        obsLabelsType: ['A', 'B', 'C'],
+        obsLabelsType: ['A'],
       },
     },
     {
@@ -111,7 +107,7 @@ export const satija2020 = {
       y: 4,
       coordinationScopes: {
         featureValueColormapRange: 'A',
-        obsLabelsType: ['A', 'B', 'C'],
+        obsLabelsType: ['A'],
       },
       props: {
         transpose: false,

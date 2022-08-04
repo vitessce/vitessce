@@ -206,10 +206,6 @@ export const codeluppi2018 = {
               'PCA',
               't-SNE',
             ],
-            obsLabelsTypes: [
-              'cluster',
-              'subcluster',
-            ],
           },
         },
         {
@@ -247,10 +243,6 @@ export const codeluppi2018 = {
     embeddingType: {
       PCA: 'PCA',
       TSNE: 't-SNE',
-    },
-    obsLabelsType: {
-      A: 'cluster',
-      B: 'subcluster',
     },
     spatialZoom: {
       A: -5.5,
@@ -297,7 +289,6 @@ export const codeluppi2018 = {
         spatialZoom: 'A',
         spatialTargetX: 'A',
         spatialTargetY: 'A',
-        obsLabelsType: ['A', 'B'],
       },
       x: 2,
       y: 0,
@@ -320,9 +311,6 @@ export const codeluppi2018 = {
     },
     {
       component: 'heatmap',
-      coordinationScopes: {
-        obsLabelsType: ['A', 'B'],
-      },
       props: {
         transpose: true,
       },
@@ -343,7 +331,6 @@ export const codeluppi2018 = {
       coordinationScopes: {
         embeddingType: 'PCA',
         embeddingZoom: 'PCA',
-        obsLabelsType: ['A', 'B'],
       },
       x: 6,
       y: 0,
@@ -355,7 +342,6 @@ export const codeluppi2018 = {
       coordinationScopes: {
         embeddingType: 'TSNE',
         embeddingZoom: 'TSNE',
-        obsLabelsType: ['A', 'B'],
       },
       x: 6,
       y: 2,

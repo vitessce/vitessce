@@ -130,7 +130,7 @@ export default function EmbeddingScatterplotSubscriber(props) {
     { obsType, embeddingType: mapping },
   );
   const cellsCount = obsEmbeddingIndex?.length || 0;
-  const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
+  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus] = useObsSetsData(
     loaders, dataset, addUrl, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
@@ -254,6 +254,7 @@ export default function EmbeddingScatterplotSubscriber(props) {
 
   const getCellInfo = useGetObsInfo(
     observationsLabel, obsEmbeddingIndex, obsLabelsTypes, obsLabelsData,
+    obsSetsMembership,
   );
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);

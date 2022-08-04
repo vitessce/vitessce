@@ -117,7 +117,7 @@ export default function HeatmapSubscriber(props) {
     loaders, dataset, addUrl, true, {}, {},
     { obsType, featureType, featureValueType },
   );
-  const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
+  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus] = useObsSetsData(
     loaders, dataset, addUrl, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
@@ -147,6 +147,7 @@ export default function HeatmapSubscriber(props) {
 
   const getCellInfo = useGetObsInfo(
     observationsLabel, obsIndex, obsLabelsTypes, obsLabelsData,
+    obsSetsMembership,
   );
 
   const getGeneInfo = useCallback((geneId) => {
