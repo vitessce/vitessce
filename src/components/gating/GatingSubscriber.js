@@ -112,9 +112,10 @@ export default function GatingSubscriber(props) {
       const updatedCells = {};
       // Iterate through cells and build new cells with added mapping.
       expressionMatrix.rows.forEach((cellId, index) => {
-        // Need to use new cell object reference
-        // to prevent other plots from seeing these
-        // changes to the cells objects.
+        // Need to use new cell and cell.mappings objects
+        // to prevent other views which use the same
+        // top-level cells object reference from seeing any
+        // modifications.
         const cellMatrixRowOffset = expressionMatrix.cols.length * index;
         updatedCells[cellId] = {
           ...cells[cellId],
