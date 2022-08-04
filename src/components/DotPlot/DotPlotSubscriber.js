@@ -181,10 +181,14 @@ for(let i=0; i<attrs.rows.length; i++){
       data1.push(Object.fromEntries([["Identity", x.get(attrs.rows[i])], ["Features",attrs.cols[a]], ["Expression",expressionMatrix.matrix[counter]]]))
     }
     
+    
     else if (geneSelection.includes(attrs.cols[a])){
         data1.push(Object.fromEntries([["Identity", x.get(attrs.rows[i])], ["Features",attrs.cols[a]], ["Expression",expressionMatrix.matrix[counter]]]))}
      }
 }}
+
+console.log(data1);
+
 
 //This code allows you to deselect an Item on Cell Sets, and have it disappear. If not it shows up as undefined (i.e. if you deselect Astrocyte, it can disappear instead of changing label to Undefined).
 let result = data1.map(a => a.Identity); //First finds all Identities
@@ -196,12 +200,13 @@ for (let i = 0; i < result.length; i++) { //Checks if any of them are undefined,
 for (var i = filteredArray.length -1; i >= 0; i--)  //Removes all undefined from data (i.e. it was not selected in cell sets), so it does not show up
    data1.splice(filteredArray[i],1);
 
-
+console.log(data1);
   const spec = {"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   "description": "Punchcard Visualization like on Github. The day on y-axis uses a custom order from Monday to Sunday.  The sort property supports both full day names (e.g., 'Monday') and their three letter initials (e.g., 'mon') -- both of which are case insensitive.",
   "width": 430,
-  "height": 410,
+  "height": 500,
   "padding": 1,
+
   "params": [{"name": "highlight", "select": { //parameters for selecting dots with cursor
     "type": "point",
     "on": "mouseover",
@@ -239,15 +244,28 @@ for (var i = filteredArray.length -1; i >= 0; i--)  //Removes all undefined from
       "field": "Expression",
       "as": "TotalExpression"
     }],
-  "frame": [null, null]},
-  {"calculate": "datum.Expression/datum.TotalExpression* 100",
-    "as": "PercentExpressed",
+  "frame": [null, null],
+  "groupby": ["Identity"]},
+  {"calculate": "clamp((datum.Expression/datum.TotalExpression* 100), 0, 100)",
     
+    "as": "PercentExpressed"},
+ 
+    {"joinaggregate": [{
+      "op": "sum",
+      //
+      "field": "PercentExpressed",
+      "as": "TPercentExpressed"
+    }],
+    "groupby": ["Features", "Identity"],
   },
 
 
-    {"filter": "datum.PercentExpressed>=minExpress"},
-    {"filter": "datum.PercentExpressed<=maxExpress"}
+    //Slider filter, if it is greater or less than the options
+    //Clamp is required to avoid filter from dismismissing some data (i.e. calculation might be 100.000000004 due to floating point, but without clamp it gets dismissed)
+   {"filter": "clamp(datum.TPercentExpressed, 0, 100)>=minExpress"},
+
+
+    {"filter": "clamp(datum.TPercentExpressed, 0, 100)<=maxExpress"},
 ],
 
   "mark": {"type": "circle", "strokeWidth": 2}, //the shape of the plots (i.e. you can plot data as dots or squares) and how big the cursor is around the data
@@ -263,16 +281,19 @@ for (var i = filteredArray.length -1; i >= 0; i--)  //Removes all undefined from
     "color": {//This is the gradient legend on the top right of the graph (i.e. it shows mean of expression as color gradient bar)
       "field": "Expression",
       "type": "quantitative",
-      "aggregate": name,
+      "scale":{
+      "scheme": "blues"},
+      "aggregate": name, 
     },
 
     "tooltip": [//This tooltip adds transparent portion when you scroll over dots (i.e. it shows the box with Mean of Expression and Percent Expressed)
-      {"field": "Expression", "aggregate": name, "type": "nominal", "title": `${name.charAt(0).toUpperCase() + name.slice(1)} of Expression`},
-      {"field": "PercentExpressed", "type": "nominal", "title": "Percent Expressed (%)"}],
+      {"field": "Expression", "format": ".0f", "aggregate": name, "type": "nominal", "title": `${name.charAt(0).toUpperCase() + name.slice(1)} of Expression`},  
+      {"field": "PercentExpressed", "format": ".0f", "aggregate": "sum",  "type": "nominal", "title": "Percent Expressed (%)"}], 
 
     "size": {//This is the dot legend on the bottom right of the graph (i.e. it shows the sizes of each percent expressed) 
       "field": "PercentExpressed",
       "type": "quantitative",
+      "aggregate": "sum",
       "title": "Percent Expressed (%)"
     },
 

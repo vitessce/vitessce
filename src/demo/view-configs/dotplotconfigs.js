@@ -9,17 +9,17 @@ export const dotplots = {
     "files": [{
         "type": "expression-matrix",
           "fileType": "clusters.json",
-          "url": "http://localhost:9100/expressionmatrix13.json"},
+          "url": "https://vitessce-data.s3.amazonaws.com/0.0.32/master_release/sade-feldman_2018/expressionmatrix.json"},
           { 
 
             "type": "cell-sets",
             "fileType": "cell-sets.json",
-            "url": "http://localhost:9100/cellsets_data.json"},
+            "url": "https://vitessce-data.s3.amazonaws.com/0.0.32/master_release/sade-feldman_2018/cellsets_data.json"},
 
             {
               "type": "cells",
               "fileType": "cells.json",
-              "url": "http://localhost:9100/tsne_data_test.json"
+              "url": "https://vitessce-data.s3.amazonaws.com/0.0.32/master_release/sade-feldman_2018/tsne_data.json"
              },
 
 
