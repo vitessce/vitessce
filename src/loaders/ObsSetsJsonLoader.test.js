@@ -22,7 +22,7 @@ describe('loaders/ObsSetsJsonLoader', () => {
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;
-      expect(Object.keys(payload)).toEqual(['obsIndex', 'obsSets']);
+      expect(Object.keys(payload)).toEqual(['obsIndex', 'obsSets', 'obsSetsMembership']);
       expect(payload.obsSets.datatype).toEqual('obs');
       expect(payload.obsSets.tree[0].name).toEqual('Clustering Algorithm');
     });
