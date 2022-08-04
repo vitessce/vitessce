@@ -202,10 +202,14 @@ export function useFeatureSelection(
 
   useEffect(() => {
     if (!selection) {
+      setGeneData(null);
+      setLoadedGeneName(null);
       setStatus(STATUS.SUCCESS);
       return;
     }
     if (loader) {
+      setGeneData(null);
+      setLoadedGeneName(null);
       setStatus(STATUS.LOADING);
       const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
       if (implementsGeneSelection) {
@@ -241,13 +245,12 @@ export function useFeatureSelection(
       }
     } else {
       setGeneData(null);
+      setLoadedGeneName(null);
       if (isRequired) {
         warn(new LoaderNotFoundError(dataset, DataType.OBS_FEATURE_MATRIX, null, null), setWarning);
         setStatus(STATUS.ERROR);
-        setLoadedGeneName(null);
       } else {
         setStatus(STATUS.SUCCESS);
-        setLoadedGeneName(null);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

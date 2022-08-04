@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getValueTransformFunction } from '../gating/utils';
 import { mergeCellSets } from '../utils';
 import { treeToObjectsBySetNames, treeToSetSizesBySetNames } from './cell-set-utils';
 
@@ -16,12 +17,17 @@ import { treeToObjectsBySetNames, treeToSetSizesBySetNames } from './cell-set-ut
  * @param {array} geneSelection Array of selected genes.
  * @param {array} cellSetSelection Array of selected cell set paths.
  * @param {object[]} cellSetColor Array of objects with properties
+ * @param {string|null} featureValueTransform The name of the
+ * feature value transform function.
+ * @param {number} featureValueTransformCoefficient A coefficient
+ * to be used in the transform function.
  * @param {string} theme "light" or "dark" for the vitessce theme
  * `path` and `color`.
  */
 export function useExpressionByCellSet(
   expressionData, obsIndex, cellSets, additionalCellSets,
-  geneSelection, cellSetSelection, cellSetColor, useGeneExpressionTransform,
+  geneSelection, cellSetSelection, cellSetColor,
+  featureValueTransform, featureValueTransformCoefficient,
   theme,
 ) {
   const mergedCellSets = useMemo(
@@ -51,7 +57,10 @@ export function useExpressionByCellSet(
         const cellIndex = cellIndices[cell.obsId];
         const value = expressionData[0][cellIndex];
         const normValue = value * 100 / 255;
-        const transformedValue = useGeneExpressionTransform ? Math.log(1 + normValue) : normValue;
+        const transformFunction = getValueTransformFunction(
+          featureValueTransform, featureValueTransformCoefficient,
+        );
+        const transformedValue = transformFunction(normValue);
         exprMax = Math.max(transformedValue, exprMax);
         return { value: transformedValue, gene: firstGeneSelected, set: cell.name };
       });
@@ -59,7 +68,9 @@ export function useExpressionByCellSet(
     }
     return [null, null];
   }, [expressionData, obsIndex, geneSelection, theme,
-    mergedCellSets, cellSetSelection, cellSetColor, useGeneExpressionTransform]);
+    mergedCellSets, cellSetSelection, cellSetColor,
+    featureValueTransform, featureValueTransformCoefficient,
+  ]);
 
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.

@@ -1,11 +1,26 @@
 
 ### Added
+- Added `gating` component that allows users to dynamically generate a scatterplot based on gene expression values.
+  - New coordination types of `gatingFeatureSelectionX` and `gatingFeatureSelectionY` for the values selected for the gating plot.
+- Added new `arcsinh` option for the coordinaition type `featureValueTransform`
+- Added new coordination type `featureValueTransformCoefficient` to apply a coefficent to a feature value transform.
 
 ### Changed
+- Added new file type and data type constants.
+- Added support for `datatype: 'obs'` in `obsSets.schema.json`
+- Added loaders for `obsSets.json` and `obsSets.cell-sets.json`.
+- Added loaders for `obsFeatureMatrix.clusters.json`
+- Added loaders for `obsFeatureMatrix.genes.json`
+- Added loaders for `obsLabels.cells.json`, `obsEmbedding.cells.json`, `obsLocations.cells.json`, `obsSegmentations.cells.json`
+- Added loaders for `image.raster.json`,`obsSegmentations.raster.json`, `image.ome-zarr`
+- Added loaders for `obsLabels.anndata-expression-matrix.zarr`, `featureLabels.anndata-expression-matrix.zarr`, `obsFeatureMatrix.anndata-expression-matrix.zarr`
+- Added loaders for `obsFeatureMatrix.expression-matrix.zarr`
+- Added the property `coordinationValues` for view config file definitions.
+- Added the `useMatchingLoader` hook.
+- Added loaders for `obsLabels.molecules.json` and `obsLocations.molecules.json`
+
 
 ## [1.2.0](https://www.npmjs.com/package/vitessce/v/1.2.0) - 2022-07-22
-
-
 
 ### Added
 - Added the property `coordinationValues` for view config file definitions but is not yet used to do file matching/lookups.
@@ -23,19 +38,6 @@
 - Added `npm run start:nolint` script to disable linting for quickly prototyping code.
 - Added the optional `isBounded` property to the `Vitessce` React component that prevents users from dragging or resizing components beyond the original grid boundary.
 - Added support for multiple `cellColor` tracks in the Heatmap component.
-- Added new file type and data type constants.
-- Added support for `datatype: 'obs'` in `obsSets.schema.json`
-- Added loaders for `obsSets.json` and `obsSets.cell-sets.json`.
-- Added loaders for `obsFeatureMatrix.clusters.json`
-- Added loaders for `obsFeatureMatrix.genes.json`
-- Added loaders for `obsLabels.cells.json`, `obsEmbedding.cells.json`, `obsLocations.cells.json`, `obsSegmentations.cells.json`
-- Added loaders for `image.raster.json`,`obsSegmentations.raster.json`, `image.ome-zarr`
-- Added loaders for `obsLabels.anndata-expression-matrix.zarr`, `featureLabels.anndata-expression-matrix.zarr`, `obsFeatureMatrix.anndata-expression-matrix.zarr`
-- Added loaders for `obsFeatureMatrix.expression-matrix.zarr`
-- Added the property `coordinationValues` for view config file definitions.
-- Added the `useMatchingLoader` hook.
-- Added loaders for `obsLabels.molecules.json` and `obsLocations.molecules.json`
-
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.

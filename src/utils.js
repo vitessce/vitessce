@@ -24,7 +24,7 @@ export function pluralize(singular, plural, count) {
  * @returns {string} The word parameter with the first letter capitalized.
  */
 export function capitalize(word) {
-  return word.charAt(0).toUpperCase() + word.slice(1);
+  return word ? word.charAt(0).toUpperCase() + word.slice(1) : '';
 }
 
 /**

@@ -18,9 +18,9 @@ import {
   useMultiObsLabels,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
-import Scatterplot from './Scatterplot';
-import ScatterplotTooltipSubscriber from './ScatterplotTooltipSubscriber';
-import ScatterplotOptions from './ScatterplotOptions';
+import Scatterplot from '../scatterplot/Scatterplot';
+import ScatterplotTooltipSubscriber from '../scatterplot/ScatterplotTooltipSubscriber';
+import ScatterplotOptions from '../scatterplot/ScatterplotOptions';
 import {
   useCoordination,
   useLoaders,
@@ -32,6 +32,7 @@ import {
   getPointOpacity,
 } from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
+import { Component } from '../../app/constants';
 
 /**
  * A subscriber component for the scatterplot.
@@ -47,7 +48,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
  * @param {number} props.averageFillDensity Override the average fill density calculation
  * when using dynamic opacity mode.
  */
-export default function ScatterplotSubscriber(props) {
+export default function EmbeddingScatterplotSubscriber(props) {
   const {
     uuid,
     coordinationScopes,
@@ -112,7 +113,7 @@ export default function ScatterplotSubscriber(props) {
     setEmbeddingObsOpacityMode: setCellOpacityMode,
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.scatterplot, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.SCATTERPLOT], coordinationScopes);
 
   const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();

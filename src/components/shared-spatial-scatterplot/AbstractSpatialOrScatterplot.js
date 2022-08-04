@@ -209,7 +209,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    */
   render() {
     const {
-      deckRef, viewState, uuid,
+      deckRef, viewState, uuid, hideTools,
     } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
@@ -233,9 +233,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           activeTool={tool}
           setActiveTool={this.onToolChange}
           visibleTools={{
-            pan: showPanTool,
-            selectRectangle: showCellSelectionTools,
-            selectLasso: showCellSelectionTools,
+            pan: showPanTool && !hideTools,
+            selectRectangle: showCellSelectionTools && !hideTools,
+            selectLasso: showCellSelectionTools && !hideTools,
           }}
         />
         <DeckGL

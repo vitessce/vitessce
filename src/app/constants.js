@@ -16,6 +16,7 @@ export const Component = {
   GENOMIC_PROFILES: 'genomicProfiles',
   CELL_SET_EXPRESSION: 'cellSetExpression',
   EXPRESSION_HISTOGRAM: 'expressionHistogram',
+  GATING: 'gating',
 };
 
 export const DataType = {
@@ -151,6 +152,9 @@ export const CoordinationType = {
   ADDITIONAL_OBS_SETS: 'additionalObsSets',
   // TODO: use obsHighlight rather than moleculeHighlight.
   MOLECULE_HIGHLIGHT: 'moleculeHighlight',
+  GATING_FEATURE_SELECTION_X: 'gatingFeatureSelectionX',
+  GATING_FEATURE_SELECTION_Y: 'gatingFeatureSelectionY',
+  FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'featureValueTransformCoefficient',
 };
 
 export const STATUS = {

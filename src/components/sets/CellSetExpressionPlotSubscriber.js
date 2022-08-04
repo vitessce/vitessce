@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React from 'react';
 import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
@@ -7,6 +7,7 @@ import { useFeatureSelection, useObsSetsData, useObsFeatureMatrixIndices } from 
 import { useExpressionByCellSet } from './hooks';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
 import CellSetExpressionPlot from './CellSetExpressionPlot';
+import { VALUE_TRANSFORM_OPTIONS } from '../gating/utils';
 
 /**
  * A subscriber component for `CellSetExpressionPlot`,
@@ -34,22 +35,20 @@ export default function CellSetExpressionPlotSubscriber(props) {
     featureType,
     featureValueType,
     featureSelection: geneSelection,
-    featureValueTransform: geneExpressionTransform,
+    featureValueTransform,
+    featureValueTransformCoefficient,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
   }, {
-    setFeatureValueTransform: setGeneExpressionTransform,
+    setFeatureValueTransform,
+    setFeatureValueTransformCoefficient,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetExpression, coordinationScopes);
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl] = useUrls(loaders, dataset);
 
-  const [useGeneExpressionTransform, toggleGeneExpressionTransform] = useReducer((v) => {
-    const newValue = !v;
-    setGeneExpressionTransform(newValue ? 'log1p' : null);
-    return newValue;
-  }, geneExpressionTransform);
+  const transformOptions = VALUE_TRANSFORM_OPTIONS;
 
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
@@ -73,13 +72,17 @@ export default function CellSetExpressionPlotSubscriber(props) {
 
   const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
     expressionData, obsIndex, cellSets, additionalCellSets,
-    geneSelection, cellSetSelection, cellSetColor, useGeneExpressionTransform,
+    geneSelection, cellSetSelection, cellSetColor,
+    featureValueTransform, featureValueTransformCoefficient,
     theme,
   );
 
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
     ? geneSelection[0]
     : null;
+  const selectedTransformName = transformOptions.find(
+    o => o.value === featureValueTransform,
+  )?.name;
   return (
     <TitleInfo
       title={`Expression by Cell Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
@@ -89,8 +92,11 @@ export default function CellSetExpressionPlotSubscriber(props) {
       isReady={isReady}
       options={(
         <CellSetExpressionPlotOptions
-          useGeneExpressionTransform={useGeneExpressionTransform}
-          toggleGeneExpressionTransform={toggleGeneExpressionTransform}
+          featureValueTransform={featureValueTransform}
+          setFeatureValueTransform={setFeatureValueTransform}
+          featureValueTransformCoefficient={featureValueTransformCoefficient}
+          setFeatureValueTransformCoefficient={setFeatureValueTransformCoefficient}
+          transformOptions={transformOptions}
         />
       )}
     >
@@ -103,7 +109,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
             theme={theme}
             width={width}
             height={height}
-            useGeneExpressionTransform={useGeneExpressionTransform}
+            featureValueTransformName={selectedTransformName}
           />
         ) : (
           <span>Select a gene.</span>

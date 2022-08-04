@@ -42,7 +42,7 @@ const getPosition = (object, { index, data, target }) => {
 };
 
 /**
- * React component which renders a scatterplot from cell data, typically tSNE or PCA.
+ * React component which renders a scatterplot from cell data.
  * @param {object} props
  * @param {string} props.uuid A unique identifier for this component.
  * @param {string} props.theme The current vitessce theme.
@@ -280,6 +280,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const { obsEmbeddingIndex, obsEmbedding } = this.props;
     if (obsEmbeddingIndex && obsEmbedding) {
       this.cellsLayer = this.createCellsLayer();
+    } else {
+      this.cellsLayer = null;
     }
   }
 
