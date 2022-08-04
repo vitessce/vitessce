@@ -9,6 +9,7 @@
 ### Added
 - Added `gating` component that allows users to dynamically generate a scatterplot based on gene expression values.
   - New coordination types of `gatingFeatureSelectionX` and `gatingFeatureSelectionY` for the values selected for the gating plot.
+    - Fixed bug in `GatingSubscriber` which accidentally modified the shared `cells` data object.
 - Added new `arcsinh` option for the coordinaition type `featureValueTransform`
 - Added new coordination type `featureValueTransformCoefficient` to apply a coefficent to a feature value transform.
 
