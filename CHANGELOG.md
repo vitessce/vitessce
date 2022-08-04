@@ -3,17 +3,20 @@
 
 ### Changed
 
+
 ## [1.2.1](https://www.npmjs.com/package/vitessce/v/1.2.1) - 2022-08-03
 
-
-
 ### Added
+- Added `gating` component that allows users to dynamically generate a scatterplot based on gene expression values.
+  - New coordination types of `gatingFeatureSelectionX` and `gatingFeatureSelectionY` for the values selected for the gating plot.
+- Added new `arcsinh` option for the coordinaition type `featureValueTransform`
+- Added new coordination type `featureValueTransformCoefficient` to apply a coefficent to a feature value transform.
+
 
 ### Changed
 
+
 ## [1.2.0](https://www.npmjs.com/package/vitessce/v/1.2.0) - 2022-07-22
-
-
 
 ### Added
 - Added the property `coordinationValues` for view config file definitions but is not yet used to do file matching/lookups.
@@ -30,10 +33,6 @@
 - Added `npm run start:nolint` script to disable linting for quickly prototyping code.
 - Added the optional `isBounded` property to the `Vitessce` React component that prevents users from dragging or resizing components beyond the original grid boundary.
 - Added support for multiple `cellColor` tracks in the Heatmap component.
-- Added `gating` component that allows users to dynamically generate a scatterplot based on gene expression values.
-  - New coordination types of `gatingFeatureSelectionX` and `gatingFeatureSelectionY` for the values selected for the gating plot.
-- Added new `arcsinh` option for the coordinaition type `featureValueTransform`
-- Added new coordination type `featureValueTransformCoefficient` to apply a coefficent to a feature value transform.
 
 ### Changed
 - Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
