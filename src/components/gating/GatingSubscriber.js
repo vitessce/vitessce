@@ -115,13 +115,17 @@ export default function GatingSubscriber(props) {
         // Need to use new cell object reference
         // to prevent other plots from seeing these
         // changes to the cells objects.
-        const curCell = { ...cells[cellId] };
         const cellMatrixRowOffset = expressionMatrix.cols.length * index;
-        curCell.mappings[mapping] = [
-          transformFunction(expressionMatrix.matrix[cellMatrixRowOffset + selectedGeneCols[0]]),
-          transformFunction(expressionMatrix.matrix[cellMatrixRowOffset + selectedGeneCols[1]]),
-        ];
-        updatedCells[cellId] = curCell;
+        updatedCells[cellId] = {
+          ...cells[cellId],
+          mappings: {
+            ...cells[cellId].mappings,
+            [mapping]: [
+              transformFunction(expressionMatrix.matrix[cellMatrixRowOffset + selectedGeneCols[0]]),
+              transformFunction(expressionMatrix.matrix[cellMatrixRowOffset + selectedGeneCols[1]]),
+            ],
+          },
+        };
       });
 
       return updatedCells;
@@ -132,7 +136,7 @@ export default function GatingSubscriber(props) {
 
   // Puts the mapping values in the cell info tooltip.
   const getCellInfoOverride = (cellId) => {
-    const cell = cells[cellId];
+    const cell = cellsWithGenes[cellId];
     const selectedTransformName = transformOptions.find(
       o => o.value === featureValueTransform,
     )?.name;
