@@ -589,6 +589,7 @@ export function upgradeFrom1_0_14(config) {
             [newType]: nextScope,
           },
         };
+        // TODO: delete from the props object
       }
       return viewDef;
     });

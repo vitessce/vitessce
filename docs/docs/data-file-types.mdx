@@ -591,14 +591,11 @@ const options = {
 };
 const dataset = vc
   .addDataset("My dataset")
-  .addFile(
-    undefined,
-    ft.OBS_SEGMENTATIONS_RASTER_JSON,
-    {
-      obsType: "cell"
-    },
-    options
-  );
+  .addFile({
+    fileType: ft.OBS_SEGMENTATIONS_RASTER_JSON,
+    coordinationValues: { obsType: "cell" },
+    options,
+  });
 `}
 />
 
@@ -675,12 +672,10 @@ const options = {
 };
 const dataset = vc
   .addDataset("My dataset")
-  .addFile(
-    undefined,
-    ft.IMAGE_RASTER_JSON,
-    null,
-    options
-  );
+  .addFile({
+    fileType: ft.IMAGE_RASTER_JSON,
+    options,
+  });
 `}
 />
 
@@ -779,12 +774,10 @@ const options = {
 };
 const dataset = vc
   .addDataset("My dataset")
-  .addFile(
-    undefined,
-    ft.IMAGE_RASTER_JSON,
-    null,
-    options
-  );
+  .addFile({
+    fileType: ft.IMAGE_RASTER_JSON,
+    options,
+  });
 `}
 />
 

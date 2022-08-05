@@ -19,18 +19,16 @@ const jsPrefix = 'const vc = new VitessceConfig("1.0.13", "My config");';
 
 function getJsSuffix(options, cv, fileConst, fileName) {
   const cvPart = cv ? `,
-    coordinationValues` : `,
-    null`;
+    coordinationValues` : '';
   const optionsPart = options ? `,
-    options` : `,
-    null`;
+    options` : '';
   return `
 const dataset = vc
   .addDataset("My dataset")
-  .addFile(
-    "https://example.com/${fileName}",
-    ft.${fileConst}${cvPart}${optionsPart}
-  );`;
+  .addFile({
+    url: "https://example.com/${fileName}",
+    fileType: ft.${fileConst}${cvPart}${optionsPart},
+  });`;
 }
 
 function indentObject(obj) {

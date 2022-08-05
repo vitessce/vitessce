@@ -8,8 +8,21 @@ import {
 
 describe('src/api/VitessceConfig.js', () => {
   describe('VitessceConfig', () => {
+    it('can be instantiated in the old way for backwards compatibility', () => {
+      const config = new VitessceConfig('My config');
+
+      const configJSON = config.toJSON();
+      expect(configJSON).toEqual({
+        coordinationSpace: {},
+        datasets: [],
+        initStrategy: 'auto',
+        layout: [],
+        name: 'My config',
+        version: '1.0.7',
+      });
+    });
     it('can be instantiated', () => {
-      const config = new VitessceConfig('1.0.4', 'My config');
+      const config = new VitessceConfig({ schemaVersion: '1.0.4', name: 'My config' });
 
       const configJSON = config.toJSON();
       expect(configJSON).toEqual({
@@ -22,7 +35,7 @@ describe('src/api/VitessceConfig.js', () => {
       });
     });
     it('can add a dataset', () => {
-      const config = new VitessceConfig('1.0.4', 'My config');
+      const config = new VitessceConfig({ schemaVersion: '1.0.4', name: 'My config' });
       config.addDataset('My dataset');
 
       const configJSON = config.toJSON();
@@ -43,14 +56,53 @@ describe('src/api/VitessceConfig.js', () => {
         version: '1.0.4',
       });
     });
-    it('can add a file to a dataset', () => {
-      const config = new VitessceConfig('1.0.4', 'My config', 'My config description');
+    it('can add a file to a dataset in the old way for backwards compatibility', () => {
+      const config = new VitessceConfig({
+        schemaVersion: '1.0.4',
+        name: 'My config',
+        description: 'My config description',
+      });
+      // Positional arguments.
       config.addDataset('My dataset', 'My dataset description').addFile(
         'http://example.com/cells.json',
+        'cells',
         'cells.json',
-        null,
-        null,
       );
+
+      const configJSON = config.toJSON();
+      expect(configJSON).toEqual({
+        coordinationSpace: {
+          dataset: {
+            A: 'A',
+          },
+        },
+        datasets: [{
+          name: 'My dataset',
+          description: 'My dataset description',
+          uid: 'A',
+          files: [{
+            url: 'http://example.com/cells.json',
+            fileType: 'cells.json',
+          }],
+        }],
+        description: 'My config description',
+        initStrategy: 'auto',
+        layout: [],
+        name: 'My config',
+        version: '1.0.4',
+      });
+    });
+    it('can add a file to a dataset', () => {
+      const config = new VitessceConfig({
+        schemaVersion: '1.0.4',
+        name: 'My config',
+        description: 'My config description',
+      });
+      // Named arguments.
+      config.addDataset('My dataset', 'My dataset description').addFile({
+        url: 'http://example.com/cells.json',
+        fileType: 'cells.json',
+      });
 
       const configJSON = config.toJSON();
       expect(configJSON).toEqual({
@@ -77,7 +129,10 @@ describe('src/api/VitessceConfig.js', () => {
     });
 
     it('can add a view', () => {
-      const config = new VitessceConfig('1.0.4', 'My config');
+      const config = new VitessceConfig({
+        schemaVersion: '1.0.4',
+        name: 'My config',
+      });
       const dataset = config.addDataset('My dataset');
       config.addView(dataset, 'description');
       config.addView(dataset, 'scatterplot', { mapping: 'PCA' });
@@ -126,7 +181,10 @@ describe('src/api/VitessceConfig.js', () => {
       });
     });
     it('can add a coordination scope', () => {
-      const config = new VitessceConfig('1.0.4', 'My config');
+      const config = new VitessceConfig({
+        schemaVersion: '1.0.4',
+        name: 'My config',
+      });
       const dataset = config.addDataset('My dataset');
       const pca = config.addView(dataset, 'scatterplot', { mapping: 'PCA' });
       const tsne = config.addView(dataset, 'scatterplot', { mapping: 't-SNE' });
@@ -206,7 +264,10 @@ describe('src/api/VitessceConfig.js', () => {
     });
 
     it('can add a coordination scope using the link views convenience function', () => {
-      const config = new VitessceConfig('1.0.4', 'My config');
+      const config = new VitessceConfig({
+        schemaVersion: '1.0.4',
+        name: 'My config',
+      });
       const dataset = config.addDataset('My dataset');
       const pca = config.addView(dataset, 'scatterplot', { mapping: 'PCA' });
       const tsne = config.addView(dataset, 'scatterplot', { mapping: 't-SNE' });
@@ -292,7 +353,10 @@ describe('src/api/VitessceConfig.js', () => {
     });
 
     it('can create a layout', () => {
-      const config = new VitessceConfig('1.0.4', 'My config');
+      const config = new VitessceConfig({
+        schemaVersion: '1.0.4',
+        name: 'My config',
+      });
       const dataset = config.addDataset('My dataset');
       const v1 = config.addView(dataset, 'spatial');
       const v2 = config.addView(dataset, 'scatterplot', { mapping: 'PCA' });
@@ -355,7 +419,10 @@ describe('src/api/VitessceConfig.js', () => {
     });
 
     it('can load a view config from JSON', () => {
-      const config = new VitessceConfig('1.0.4', 'My config');
+      const config = new VitessceConfig({
+        schemaVersion: '1.0.4',
+        name: 'My config',
+      });
       const dataset = config.addDataset('My dataset');
       const v1 = config.addView(dataset, 'spatial');
       const v2 = config.addView(dataset, 'scatterplot', { mapping: 'PCA' });

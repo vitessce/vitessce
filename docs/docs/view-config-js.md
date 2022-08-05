@@ -19,20 +19,21 @@ The methods of this object (and the objects its methods return) allow you to man
 When you are ready to render the Vitessce component, you can use the `.toJSON()` method to translate the `VitessceConfig` object to a plain JSON object.
 
 
-### `constructor(schemaVersion, name, description)`
+### `constructor({ schemaVersion, name, description })`
 
 Construct a Vitessce view config object.
 
 
 #### Parameters:
-- `schemaVersion` (`string`) - The JSON schema version. Required.
-- `name` (`string`) - A name for the view config.
-- `description` (`string`) - A description for the view config. Optional.
+- `params` (`object`) - An object with named arguments.
+- `params.schemaVersion` (`string`) - The JSON schema version. Required.
+- `params.name` (`string`) - A name for the view config. Required.
+- `params.description` (`string|undefined`) - A description for the view config. Optional.
 
 ```js {3}
 import { VitessceConfig } from 'vitessce';
 
-const vc = new VitessceConfig("1.0.13", "My config");
+const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
 ```
 
 
@@ -52,13 +53,13 @@ Returns the instance for the new dataset.
 ```js {4}
 import { VitessceConfig, DataType as dt, FileType as ft } from 'vitessce';
 
-const vc = new VitessceConfig("1.0.13", "My config");
+const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
 const dataset = vc.addDataset("My dataset")
-    .addFile(
-        "http://example.com/my-cell-coordinates.csv",
-        ft.OBS_LOCATIONS_CSV,
-        { obsType: 'cell' }
-    );
+    .addFile({
+        url: "http://example.com/my-cell-coordinates.csv",
+        fileType: ft.OBS_LOCATIONS_CSV,
+        coordinationValues: { obsType: 'cell' },
+    });
 ```
 
 
@@ -108,7 +109,7 @@ Returns `this` to allow chaining.
 ```js {7-11}
 import { VitessceConfig, Component as cm, CoordinationType as ct } from 'vitessce';
 
-const vc = new VitessceConfig("1.0.13", "My config");
+const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, cm.SPATIAL);
 const v2 = vc.addView(dataset, cm.SPATIAL);
@@ -135,7 +136,7 @@ Returns `this` to allow chaining.
 ```js {8}
 import { VitessceConfig, Component as cm, hconcat, vconcat } from 'vitessce';
 
-const vc = new VitessceConfig("1.0.13", "My config");
+const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, cm.SPATIAL);
 const v2 = vc.addView(dataset, cm.SPATIAL);
@@ -159,7 +160,7 @@ Returns the instances for the new scope objects corresponding to each coordinati
 ```js {7-11}
 import { VitessceConfig, Component as cm, CoordinationType as ct } from 'vitessce';
 
-const vc = new VitessceConfig("1.0.13", "My config");
+const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, cm.SPATIAL);
 const v2 = vc.addView(dataset, cm.SPATIAL);
@@ -188,7 +189,7 @@ Returns the config instance as a JSON object.
 ```js {6}
 import { VitessceConfig, Component as cm } from 'vitessce';
 
-const vc = new VitessceConfig("1.0.13", "My config");
+const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
 const dataset = vc.addDataset("My dataset");
 vc.layout(vc.addView(dataset, cm.SPATIAL));
 const vcJson = vc.toJSON();
@@ -222,7 +223,7 @@ Helper function to allow horizontal concatenation of views in the Vitessce grid 
 ```js {7}
 import { VitessceConfig, Component as cm, hconcat } from 'vitessce';
 
-const vc = new VitessceConfig("1.0.13", "My config");
+const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, cm.SPATIAL);
 const v2 = vc.addView(dataset, cm.SPATIAL);
@@ -305,7 +306,7 @@ Helper function to allow vertical concatenation of views in the Vitessce grid la
 ```js {7}
 import { VitessceConfig, Component as cm, vconcat } from 'vitessce';
 
-const vc = new VitessceConfig("1.0.13", "My config");
+const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
 const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, cm.SPATIAL);
 const v2 = vc.addView(dataset, cm.SPATIAL);
@@ -397,13 +398,14 @@ vc.layout(vconcat(v1, v2));
 
 This class is not meant to be instantiated directly, but instances will be created and returned by the `VitessceConfig.addDataset()` method.
 
-### `addFile(url, fileType, coordinationValues, options)`
+### `addFile({ url, fileType, coordinationValues, options })`
 
 #### Parameters:
-- `url` (`string|undefined`) - The URL for the file, pointing to either a local or remote location. We don't associate any semantics with URL strings.
-- `fileType` (`string`) - The file type. We recommend using the [`FileType`](/docs/data-types-file-types/#constants) constant values rather than writing strings directly.
-- `coordinationValues` (`object|null`) An object defining the coordination values such as `obsType` and `featureType` which allow mapping between views to files.
-- `options` (`object|array|null`) -  An object or array which may provide additional parameters to the loader class corresponding to the specified `fileType`.
+- `params` (`object`) - An object with named arguments.
+- `params.url` (`string|undefined`) - The URL for the file, pointing to either a local or remote location. We don't associate any semantics with URL strings.
+- `params.fileType` (`string`) - The file type. We recommend using the [`FileType`](/docs/data-types-file-types/#constants) constant values rather than writing strings directly.
+- `params.coordinationValues` (`object|undefined`) An object defining the coordination values such as `obsType` and `featureType` which allow mapping between views to files.
+- `params.options` (`object|array|undefined`) -  An object or array which may provide additional parameters to the loader class corresponding to the specified `fileType`.
 
 #### Returns:
 - Type: `VitessceConfigDataset`
@@ -413,13 +415,13 @@ Returns `this` to allow chaining.
 ```js {5-9}
 import { VitessceConfig, DataType as dt, FileType as ft } from 'vitessce';
 
-const vc = new VitessceConfig("1.0.13", "My config");
+const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
 const dataset = vc.addDataset("My dataset")
-    .addFile(
-        "http://example.com/my-cell-coordinates.csv",
-        ft.OBS_LOCATIONS_CSV,
-        { obsType: 'cell' }
-    );
+    .addFile({
+        url: "http://example.com/my-cell-coordinates.csv",
+        fileType: ft.OBS_LOCATIONS_CSV,
+        coordinationValues: { obsType: 'cell' }
+    });
 ```
 
 ## `VitessceConfigView`

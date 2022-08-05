@@ -540,11 +540,11 @@ export const linnarssonWithRorb = {
 };
 
 export function getCodeluppiViewConfig(name, description) {
-  const vc = new vapi.VitessceConfig('1.0.0', name, description);
+  const vc = new vapi.VitessceConfig({ schemaVersion: '1.0.0', name, description });
   const dataset = vc.addDataset(linnarssonName, linnarssonDescription)
-    .addFile(getS3Url('linnarsson', 'cells'), vapi.ft.CELLS_JSON, null, null)
-    .addFile(getS3Url('linnarsson', 'cell-sets'), vapi.ft.CELL_SETS_JSON, null, null)
-    .addFile(getS3Url('linnarsson', 'raster'), vapi.ft.RASTER_JSON, null, null)
-    .addFile(getS3Url('linnarsson', 'molecules'), vapi.ft.MOLECULES_JSON, null, null);
+    .addFile({ url: getS3Url('linnarsson', 'cells'), fileType: vapi.ft.CELLS_JSON })
+    .addFile({ url: getS3Url('linnarsson', 'cell-sets'), fileType: vapi.ft.CELL_SETS_JSON })
+    .addFile({ url: getS3Url('linnarsson', 'raster'), fileType: vapi.ft.RASTER_JSON })
+    .addFile({ url: getS3Url('linnarsson', 'molecules'), fileType: vapi.ft.MOLECULES_JSON });
   return [vc, dataset];
 }

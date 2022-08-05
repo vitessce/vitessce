@@ -20,8 +20,8 @@ const vc = new VitessceConfig("1.0.13", "My example config", "This demonstrates 
 const baseUrl = "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries";
 const dataset = vc
   .addDataset("Dries")
-  .addFile(baseUrl + '/dries.cells.json', ft.CELLS_JSON, null, { embeddingTypes: ["UMAP", "t-SNE"] })
-  .addFile(baseUrl + '/dries.cell-sets.json', ft.CELL_SETS_JSON, null, null);
+  .addFile({ url: baseUrl + '/dries.cells.json', fileType: ft.CELLS_JSON, options: { embeddingTypes: ["UMAP", "t-SNE"] } })
+  .addFile({ url: baseUrl + '/dries.cell-sets.json', fileType: ft.CELL_SETS_JSON });
 // Add components.
 // Use mapping: "UMAP" so that cells are mapped to the UMAP positions from the JSON file.
 const umap = vc.addView(dataset, cm.SCATTERPLOT, { mapping: "UMAP" });

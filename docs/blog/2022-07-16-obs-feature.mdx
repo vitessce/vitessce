@@ -79,7 +79,6 @@ With these coordination types:
 - specific values like `featureType: 'gene'` can be used to offer specific analysis functionality (e.g., differential expression tests that are valid only for transcriptomics experiments).
 - the mapping between files and views can leverage both data types and entity types, as described in the next section.
 
-
 ### Mapping between files and views
 
 File lookup from within a view now takes into account<br/> `(dataset, dataType, viewCoordinationValues)`.
@@ -101,7 +100,6 @@ Instead, we now [map](https://github.com/vitessce/vitessce/blob/main/src/app/con
 
 [Joint file types](/docs/data-types-file-types/#joint-file-types) can now be defined via functions which expand one file definition into an array of file definitions.
 
-
 ### Exported constants
 
 Exported [constants](/docs/constants/) have been updated to reflect the changes to view types, file types, data types, and coordination types as described here.
@@ -111,21 +109,19 @@ Exported [constants](/docs/constants/) have been updated to reflect the changes 
 The changes described in this blog post are reflected in the view config schema [versions](/docs/view-config-json/#version) `1.0.13` and above.
 You can [diff](https://observablehq.com/@keller-mark/vitessce-config-version-diff?ref=main&prev=1.0.10&next=1.0.13) new and old versions to see the changes.
 
-
 ### VitessceConfig constructor
 
-The [VitessceConfig](/docs/view-config-js/) constructor now requires `schemaVersion` as its first parameter.
+The [VitessceConfig](/docs/view-config-js/) constructor now requires `schemaVersion` as a named parameter.
 
 This will help us to understand which schema version the config was constructed against, enabling better warning messages and error handling.
-For instance, the API may show warnings or throw errors when passed invalid constants based on the specified view config schema version. New coordination types like `obsType` would be invalid when using an older schema version such as `1.0.7`.
+For instance, the API may show warnings or throw errors when passed invalid constants based on the specified view config schema version.
+New coordination types like `obsType` would be invalid when using an older schema version such as `1.0.7`.
 We intend to update the constructors in R and Python to enforce this requirement as well.
-
-This is a breaking change, but it should be easy to update existing code to pass a `schemaVersion` value (see [Migration](#migration) section below).
 
 For new code, we recommend specifying the latest view config schema version:
 
 ```js
-const vc = new VitessceConfig("1.0.15", "My config");
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
 ```
 
 For a full list of valid `schemaVersion` values, see the table of [schema versions](/docs/view-config-json/#version).
@@ -165,26 +161,50 @@ However, instead of implementing them using plain JS objects, deprecated constan
 
 ### VitessceConfig constructor calls
 
-If you are already using the `VitessceConfig` class in existing code (package version `1.2.0` or earlier), and you would like to upgrade to the new version while keeping the previous behavior:
+The [constructor](/docs/view-config-js/#constructor-schemaversion-name-description-) now accepts named arguments via an object.
+If you have existing code that calls the constructor and would like to keep the previous behavior:
 `"1.0.7"` was the schema version that was previously hard-coded.
 
 ```diff
 - const vc = new VitessceConfig("My config");
-+ const vc = new VitessceConfig("1.0.7", "My config"); // Previous behavior
++ const vc = new VitessceConfig({ schemaVersion: "1.0.7", name: "My config" });
 ```
 
 ### VitessceConfigDataset addFile calls
 
-The parameters of the [`addFile`](/docs/view-config-js/#addfileurl-filetype-coordinationvalues-options) method have changed.
-Data type is no longer an argument, so file type has moved to the second argument.
-The new argument `coordinationValues` is now the third argument.
-The fourth argument is now `options`.
-The `coordinationValues` and `options` parameters are optional: `null` can be passed when not applicable.
+The [`addFile`](/docs/view-config-js/#addfile-url-filetype-coordinationvalues-options-) method now accepts named arguments via an object.
+Data type is no longer a required argument.
+A new named `coordinationValues` argument can be passed.
 
 ```diff
 - dataset.addFile('http://example.com/my_cells.json', dt.CELLS, ft.CELLS_JSON);
-+ dataset.addFile('http://example.com/my_cells.json', ft.CELLS_JSON, null, null);
++ dataset.addFile({ url: 'http://example.com/my_cells.json', fileType: ft.CELLS_JSON });
 ```
+
+### Label override props
+
+Previously, overrides for `cell` and `gene` terminology could be configured via props:
+
+```js
+...,
+layout: [
+  {
+    component: 'heatmap',
+    props: {
+      observationsLabelOverride: 'spot',
+      variablesLabelOverride: 'antigen',
+    },
+    ...
+  },
+],
+...
+
+```
+
+Now, the coordination types `obsType` and `featureType` should be used for this purpose instead.
+Existing view configs (version `1.0.14` and below) will be automatically upgraded, replacing the props usage with coordination usage.
+
+
 
 ### Versioned documentation
 
