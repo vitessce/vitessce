@@ -55,8 +55,7 @@ export default function EmbeddingScatterplotSubscriber(props) {
     removeGridComponent,
     theme,
     disableTooltip = false,
-    observationsLabelOverride: observationsLabel = 'cell',
-    observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
+    observationsLabelOverride,
     title: titleOverride,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
@@ -114,6 +113,9 @@ export default function EmbeddingScatterplotSubscriber(props) {
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.SCATTERPLOT], coordinationScopes);
+
+  const observationsLabel = observationsLabelOverride || obsType;
+  const observationsPluralLabel = `${observationsLabel}s`;
 
   const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();

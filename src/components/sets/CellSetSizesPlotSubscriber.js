@@ -7,6 +7,7 @@ import { mergeCellSets } from '../utils';
 import { useObsSetsData } from '../data-hooks';
 import { treeToSetSizesBySetNames } from './cell-set-utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
+import { Component } from '../../app/constants';
 
 /**
  * A subscriber component for `CellSetSizePlot`,
@@ -39,7 +40,7 @@ export default function CellSetSizesPlotSubscriber(props) {
   }, {
     setObsSetSelection: setCellSetSelection,
     setObsSetColor: setCellSetColor,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetSizes, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.OBS_SET_SIZES], coordinationScopes);
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl] = useUrls(loaders, dataset);

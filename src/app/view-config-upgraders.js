@@ -547,7 +547,7 @@ export function upgradeFrom1_0_13(config) {
 //   - observationsLabelOverride
 export function upgradeFrom1_0_14(config) {
   const newConfig = cloneDeep(config);
-  const { layout, coordinationSpace } = newConfig;
+  const { layout } = newConfig;
 
   const viewTypeAnalogies = {
     genes: 'featureList',
@@ -556,12 +556,8 @@ export function upgradeFrom1_0_14(config) {
     cellSetExpression: 'obsSetFeatureValueDistribution',
     expressionHistogram: 'featureValueHistogram',
   };
-  const propAnalogies = {
-    variablesLabelOverride: 'featureType',
-    observationsLabelOverride: 'obsType',
-  };
-  // First, handle the view type renaming.
-  let newLayout = layout.map((viewDef) => {
+  // Handle the view type renaming.
+  const newLayout = layout.map((viewDef) => {
     // Replace the old component name with the new one.
     if (viewTypeAnalogies[viewDef.component]) {
       return {
@@ -571,34 +567,22 @@ export function upgradeFrom1_0_14(config) {
     }
     return viewDef;
   });
-  // Next, handle the prop usage.
-  // Iterate over each old prop key.
-  Object.entries(propAnalogies).forEach(([oldProp, newType]) => {
-    newLayout = newLayout.map((viewDef) => {
-      // Replace the old prop with the analogous coordination type.
+  const propAnalogies = {
+    variablesLabelOverride: 'featureType',
+    observationsLabelOverride: 'obsType',
+  };
+  // Warn about the prop usage.
+  newLayout.forEach((viewDef) => {
+    // Iterate over each old prop key.
+    Object.entries(propAnalogies).forEach(([oldProp, newType]) => {
       if (viewDef.props?.[oldProp]) {
-        const nextScope = getNextScope(Object.keys(coordinationSpace?.[newType] || {}));
-        coordinationSpace[newType] = {
-          ...coordinationSpace[newType],
-          [nextScope]: viewDef.props[oldProp],
-        };
-        return {
-          ...viewDef,
-          coordinationScopes: {
-            ...viewDef.coordinationScopes,
-            [newType]: nextScope,
-          },
-        };
-        // TODO: delete from the props object
+        console.warn(`Warning: the '${oldProp}' prop on the ${viewDef.component} view is deprecated. Please use the '${newType}' coordination type instead.`);
       }
-      return viewDef;
     });
   });
-
   return {
     ...newConfig,
     version: '1.0.15',
     layout: newLayout,
-    coordinationSpace,
   };
 }

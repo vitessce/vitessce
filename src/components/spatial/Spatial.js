@@ -679,6 +679,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
       forceUpdate = true;
     }
 
+    if (['cellColors'].some(shallowDiff)) {
+      // Cells Color layer props changed.
+      // Must come before onUpdateCellsLayer
+      // since the new layer may use the new processed color data.
+      this.onUpdateCellColors();
+      forceUpdate = true;
+    }
+
+    if (['expressionData'].some(shallowDiff)) {
+      // Expression data prop changed.
+      // Must come before onUpdateCellsLayer
+      // since the new layer may use the new processed expression data.
+      this.onUpdateExpressionData();
+      forceUpdate = true;
+    }
+
     if (
       [
         'obsSegmentationsLayerDefs',
@@ -697,18 +713,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
-      forceUpdate = true;
-    }
-
-    if (['cellColors'].some(shallowDiff)) {
-      // Cells Color layer props changed.
-      this.onUpdateCellColors();
-      forceUpdate = true;
-    }
-
-    if (['expressionData'].some(shallowDiff)) {
-      // Expression data prop changed.
-      this.onUpdateExpressionData();
       forceUpdate = true;
     }
 

@@ -39,14 +39,6 @@ import { Component } from '../../app/constants';
  * @param {string} props.title The component title.
  * @param {boolean} props.transpose Whether to
  * render as cell-by-gene or gene-by-cell.
- * @param {string} props.observationsLabelOverride The singular
- * form of the name of the observation.
- * @param {string} props.observationsPluralLabelOverride The
- * plural form of the name of the observation.
- * @param {string} props.variablesLabelOverride The singular
- * form of the name of the variable.
- * @param {string} props.variablesPluralLabelOverride The plural
- * form of the name of the variable.
  * @param {boolean} props.disableTooltip Whether to disable the
  * tooltip on mouse hover.
  */
@@ -54,11 +46,11 @@ export default function HeatmapSubscriber(props) {
   const {
     uuid,
     coordinationScopes,
-    removeGridComponent, theme, transpose,
-    observationsLabelOverride: observationsLabel = 'cell',
-    observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
-    variablesLabelOverride: variablesLabel = 'gene',
-    variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
+    removeGridComponent,
+    theme,
+    transpose,
+    observationsLabelOverride,
+    variablesLabelOverride,
     disableTooltip = false,
     title = 'Heatmap',
   } = props;
@@ -96,6 +88,11 @@ export default function HeatmapSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setFeatureValueColormap: setGeneExpressionColormap,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.HEATMAP], coordinationScopes);
+
+  const observationsLabel = observationsLabelOverride || obsType;
+  const observationsPluralLabel = `${observationsLabel}s`;
+  const variablesLabel = variablesLabelOverride || featureType;
+  const variablesPluralLabel = `${variablesLabel}s`;
 
   const observationsTitle = capitalize(observationsPluralLabel);
   const variablesTitle = capitalize(variablesPluralLabel);

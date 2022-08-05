@@ -28,8 +28,7 @@ export default function GenesSubscriber(props) {
   const {
     coordinationScopes,
     removeGridComponent,
-    variablesLabelOverride: variablesLabel = 'gene',
-    variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
+    variablesLabelOverride,
     theme,
     title: titleOverride,
     enableMultiSelect = false,
@@ -51,7 +50,10 @@ export default function GenesSubscriber(props) {
     setObsColorEncoding: setCellColorEncoding,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.FEATURE_LIST], coordinationScopes);
 
-  const title = titleOverride || `${capitalize(featureType)} List`;
+  const variablesLabel = variablesLabelOverride || featureType;
+  const variablesPluralLabel = `${variablesLabel}s`;
+
+  const title = titleOverride || `${capitalize(variablesLabel)} List`;
 
   const [urls, addUrl] = useUrls(loaders, dataset);
 

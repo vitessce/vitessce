@@ -11,6 +11,7 @@ import {
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useGenomicProfilesData } from '../data-hooks';
 import HiGlassLazy from './HiGlassLazy';
+import { Component } from '../../app/constants';
 
 const REFERENCE_TILESETS = {
   hg38: {
@@ -74,7 +75,7 @@ export default function GenomicProfilesSubscriber(props) {
     obsSetColor: cellSetColor,
     obsSetSelection: cellSetSelection,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES.genomicProfiles,
+    COMPONENT_COORDINATION_TYPES[Component.GENOMIC_PROFILES],
     coordinationScopes,
   );
 
