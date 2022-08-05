@@ -217,7 +217,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.CELL_SETS]: [
+  [Component.OBS_SETS]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.OBS_SET_SELECTION,
@@ -227,7 +227,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.FEATURE_SELECTION,
   ],
-  [Component.CELL_SET_SIZES]: [
+  [Component.OBS_SET_SIZES]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.OBS_SET_SELECTION,
@@ -242,7 +242,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.MOLECULE_HIGHLIGHT,
   ],
-  [Component.GENES]: [
+  [Component.FEATURE_LIST]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
@@ -253,7 +253,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.OBS_SET_SELECTION,
   ],
-  [Component.CELL_SET_EXPRESSION]: [
+  [Component.OBS_SET_FEATURE_VALUE_DISTRIBUTION]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
@@ -266,7 +266,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.EXPRESSION_HISTOGRAM]: [
+  [Component.FEATURE_VALUE_HISTOGRAM]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,

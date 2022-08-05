@@ -36,7 +36,7 @@ export default function ExpressionHistogramSubscriber(props) {
     featureValueType,
     featureSelection: geneSelection,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[Component.EXPRESSION_HISTOGRAM],
+    COMPONENT_COORDINATION_TYPES[Component.FEATURE_VALUE_HISTOGRAM],
     coordinationScopes,
   );
 

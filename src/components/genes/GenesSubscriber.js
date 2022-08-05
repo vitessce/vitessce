@@ -1,11 +1,12 @@
 import React from 'react';
-import { pluralize } from '../../utils';
+import { capitalize, pluralize } from '../../utils';
 import { useReady, useUrls } from '../hooks';
 import { useFeatureLabelsData, useObsFeatureMatrixIndices } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
 import Genes from './Genes';
+import { Component } from '../../app/constants';
 
 /**
  * A subscriber component for a gene listing component.
@@ -30,7 +31,7 @@ export default function GenesSubscriber(props) {
     variablesLabelOverride: variablesLabel = 'gene',
     variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
     theme,
-    title = 'Expression Levels',
+    title: titleOverride,
     enableMultiSelect = false,
   } = props;
 
@@ -48,7 +49,9 @@ export default function GenesSubscriber(props) {
     setFeatureFilter: setGeneFilter,
     setFeatureHighlight: setGeneHighlight,
     setObsColorEncoding: setCellColorEncoding,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.genes, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.FEATURE_LIST], coordinationScopes);
+
+  const title = titleOverride || `${capitalize(featureType)} List`;
 
   const [urls, addUrl] = useUrls(loaders, dataset);
 

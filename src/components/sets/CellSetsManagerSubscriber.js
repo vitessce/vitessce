@@ -54,6 +54,7 @@ import {
   getNextNumberedNodeName,
 } from '../utils';
 import { useObsSetsData } from '../data-hooks';
+import { Component } from '../../app/constants';
 
 /**
  * A subscriber wrapper around the SetsManager component
@@ -90,7 +91,7 @@ export default function CellSetsManagerSubscriber(props) {
     setObsColorEncoding: setCellColorEncoding,
     setObsSetColor: setCellSetColor,
     setAdditionalObsSets: setAdditionalCellSets,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSets, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.OBS_SETS], coordinationScopes);
 
   const [urls, addUrl] = useUrls(loaders, dataset);
 

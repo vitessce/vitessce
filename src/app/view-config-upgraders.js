@@ -534,3 +534,70 @@ export function upgradeFrom1_0_13(config) {
     version: '1.0.14',
   };
 }
+
+// Added in version 1.0.15:
+// - Changes the following view names:
+//   - genes -> featureList
+//   - cellSets -> obsSets
+//   - cellSetSizes -> obsSetSizes
+//   - cellSetExpression -> obsSetFeatureValueDistribution
+//   - expressionHistogram -> featureValueHistogram
+// - Deprecates the props:
+//   - variablesLabelOverride
+//   - observationsLabelOverride
+export function upgradeFrom1_0_14(config) {
+  const newConfig = cloneDeep(config);
+  const { layout, coordinationSpace } = newConfig;
+
+  const viewTypeAnalogies = {
+    genes: 'featureList',
+    cellSets: 'obsSets',
+    cellSetSizes: 'obsSetSizes',
+    cellSetExpression: 'obsSetFeatureValueDistribution',
+    expressionHistogram: 'featureValueHistogram',
+  };
+  const propAnalogies = {
+    variablesLabelOverride: 'featureType',
+    observationsLabelOverride: 'obsType',
+  };
+  // First, handle the view type renaming.
+  let newLayout = layout.map((viewDef) => {
+    // Replace the old component name with the new one.
+    if (viewTypeAnalogies[viewDef.component]) {
+      return {
+        ...viewDef,
+        component: viewTypeAnalogies[viewDef.component],
+      };
+    }
+    return viewDef;
+  });
+  // Next, handle the prop usage.
+  // Iterate over each old prop key.
+  Object.entries(propAnalogies).forEach(([oldProp, newType]) => {
+    newLayout = newLayout.map((viewDef) => {
+      // Replace the old prop with the analogous coordination type.
+      if (viewDef.props?.[oldProp]) {
+        const nextScope = getNextScope(Object.keys(coordinationSpace?.[newType] || {}));
+        coordinationSpace[newType] = {
+          ...coordinationSpace[newType],
+          [nextScope]: viewDef.props[oldProp],
+        };
+        return {
+          ...viewDef,
+          coordinationScopes: {
+            ...viewDef.coordinationScopes,
+            [newType]: nextScope,
+          },
+        };
+      }
+      return viewDef;
+    });
+  });
+
+  return {
+    ...newConfig,
+    version: '1.0.15',
+    layout: newLayout,
+    coordinationSpace,
+  };
+}

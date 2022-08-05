@@ -6,17 +6,17 @@
 export const Component = {
   DESCRIPTION: 'description',
   STATUS: 'status',
-  GENES: 'genes',
-  CELL_SETS: 'cellSets',
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
   HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
-  CELL_SET_SIZES: 'cellSetSizes',
   GENOMIC_PROFILES: 'genomicProfiles',
-  CELL_SET_EXPRESSION: 'cellSetExpression',
-  EXPRESSION_HISTOGRAM: 'expressionHistogram',
   GATING: 'gating',
+  FEATURE_LIST: 'featureList',
+  OBS_SETS: 'obsSets',
+  OBS_SET_SIZES: 'obsSetSizes',
+  OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'obsSetFeatureValueDistribution',
+  FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
 };
 
 export const DataType = {

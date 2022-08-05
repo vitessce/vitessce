@@ -27,6 +27,7 @@ import {
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 import HeatmapOptions from './HeatmapOptions';
+import { Component } from '../../app/constants';
 
 /**
  * @param {object} props
@@ -94,7 +95,7 @@ export default function HeatmapSubscriber(props) {
     setObsSetColor: setCellSetColor,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setFeatureValueColormap: setGeneExpressionColormap,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.heatmap, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.HEATMAP], coordinationScopes);
 
   const observationsTitle = capitalize(observationsPluralLabel);
   const variablesTitle = capitalize(variablesPluralLabel);
@@ -146,8 +147,7 @@ export default function HeatmapSubscriber(props) {
     cellSetColor, cellSetSelection, obsIndex]);
 
   const getCellInfo = useGetObsInfo(
-    observationsLabel, obsIndex, obsLabelsTypes, obsLabelsData,
-    obsSetsMembership,
+    observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
   const getGeneInfo = useCallback((geneId) => {

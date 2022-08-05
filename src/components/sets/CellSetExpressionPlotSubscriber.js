@@ -8,6 +8,7 @@ import { useExpressionByCellSet } from './hooks';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
 import CellSetExpressionPlot from './CellSetExpressionPlot';
 import { VALUE_TRANSFORM_OPTIONS } from '../gating/utils';
+import { Component } from '../../app/constants';
 
 /**
  * A subscriber component for `CellSetExpressionPlot`,
@@ -43,7 +44,10 @@ export default function CellSetExpressionPlotSubscriber(props) {
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.cellSetExpression, coordinationScopes);
+  }] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[Component.OBS_SET_FEATURE_VALUE_DISTRIBUTION],
+    coordinationScopes,
+  );
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl] = useUrls(loaders, dataset);

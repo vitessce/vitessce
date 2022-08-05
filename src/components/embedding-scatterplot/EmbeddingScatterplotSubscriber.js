@@ -253,8 +253,7 @@ export default function EmbeddingScatterplotSubscriber(props) {
     width, height, zoom, averageFillDensity]);
 
   const getCellInfo = useGetObsInfo(
-    observationsLabel, obsEmbeddingIndex, obsLabelsTypes, obsLabelsData,
-    obsSetsMembership,
+    observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);

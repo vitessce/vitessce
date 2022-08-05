@@ -111,9 +111,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       geneExpressionColormapRange = [0.0, 1.0],
       cellColorEncoding,
     } = this.props;
-    // const filteredCellsEntries = (cellFilter
-    //   ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
-    //   : cellsEntries);
     return new ScatterplotLayer({
       id: CELLS_LAYER_ID,
       // Note that the reference for the object passed to the data prop should not change,

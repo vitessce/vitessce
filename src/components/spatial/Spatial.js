@@ -147,9 +147,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getExpressionValue,
       geneExpressionColormap,
     } = this.props;
-    // const filteredCellsEntries = cellFilter
-    //   ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
-    //   : cellsEntries;
     return new PolygonLayer({
       id: CELLS_LAYER_ID,
       data: this.obsSegmentationsData,

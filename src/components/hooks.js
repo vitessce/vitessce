@@ -143,13 +143,13 @@ export function useReady(statusValues) {
 }
 
 /**
- * This hook manages a list of URLs,
- * with adding and resetting helpers.
+ * This hook helps manage a list of URLs.
+ * @param {object} loaders The loaders dependency.
+ * @param {string} dataset The dataset UID dependency.
  * @returns {array} An array
  * [urls, addUrl]
  * where urls is the array of URL objects,
- * addUrl is a function for adding a URL to the array,
- * resetUrls is a function that clears the array.
+ * and addUrl is a function for adding a URL to the array.
  */
 export function useUrls(loaders, dataset) {
   const [urls, setUrls] = useState([]);
@@ -203,7 +203,7 @@ export function useExpressionValueGetter({ instanceObsIndex, matrixObsIndex, exp
   // Get a mapping from cell ID to row index in the gene expression matrix.
   // Since the two obsIndices (instanceObsIndex = the obsIndex from obsEmbedding)
   // may be ordered differently (matrixObsIndex = the obsIndex from obsFeatureMatrix),
-  // we need a way to look up anobsFeatureMatrix obsIndex index
+  // we need a way to look up an obsFeatureMatrix obsIndex index
   // given an obsEmbedding obsIndex index.
   const toMatrixIndexMap = useMemo(() => {
     if (instanceObsIndex && matrixObsIndex) {
@@ -226,7 +226,7 @@ export function useExpressionValueGetter({ instanceObsIndex, matrixObsIndex, exp
   return getExpressionValue;
 }
 
-export function useGetObsInfo(obsType, obsIndex, obsLabelsTypes, obsLabelsData, obsSetsMembership) {
+export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership) {
   return useCallback((obsId) => {
     if (obsId) {
       const obsMembership = obsSetsMembership?.get(obsId) || [];

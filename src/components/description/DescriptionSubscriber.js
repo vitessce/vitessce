@@ -5,6 +5,7 @@ import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
 import Description from './Description';
+import { Component } from '../../app/constants';
 
 const addUrl = () => {}; // noop
 
@@ -34,7 +35,7 @@ export default function DescriptionSubscriber(props) {
   const [{
     dataset,
     spatialImageLayer: rasterLayers,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.description, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.DESCRIPTION], coordinationScopes);
 
   // Get data from loaders using the data hooks.
   const [description] = useDescription(loaders, dataset);

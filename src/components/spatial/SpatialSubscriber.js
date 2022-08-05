@@ -28,7 +28,7 @@ import {
   useAuxiliaryCoordination,
 } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-import { DataType } from '../../app/constants';
+import { Component, DataType } from '../../app/constants';
 import { useHasLoader } from '../data-hook-utils';
 
 /**
@@ -112,7 +112,7 @@ export default function SpatialSubscriber(props) {
     setSpatialAxisFixed,
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.spatial, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.SPATIAL], coordinationScopes);
 
   const [
     {
@@ -299,8 +299,7 @@ export default function SpatialSubscriber(props) {
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   const getCellInfo = useGetObsInfo(
-    observationsLabel, obsCentroidsIndex, obsLabelsTypes, obsLabelsData,
-    obsSetsMembership,
+    observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
   const setViewState = ({

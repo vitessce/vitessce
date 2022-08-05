@@ -44,6 +44,9 @@ For the full list of data types, please visit the updated [Data Types and File T
 Each of the [`datasets`](/docs/view-config-json/#datasets) in the view configuration may now contain multiple file definitions corresponding to the same data type.
 Previously, dataset definitions were limited to one file per data type.
 
+### View type changes
+
+[View type](/docs/components/) names have been updated to use `obs` and `feature` terminology (e.g., `cellSets` is now `obsSets` and `genes` is now `featureList`).
 
 
 ### Coordination type changes
@@ -101,7 +104,7 @@ Instead, we now [map](https://github.com/vitessce/vitessce/blob/main/src/app/con
 
 ### Exported constants
 
-Exported [constants](/docs/constants/) have been updated to reflect the changes to file types, data types, and coordination types as described here.
+Exported [constants](/docs/constants/) have been updated to reflect the changes to view types, file types, data types, and coordination types as described here.
 
 ### View config schema
 
@@ -122,7 +125,7 @@ This is a breaking change, but it should be easy to update existing code to pass
 For new code, we recommend specifying the latest view config schema version:
 
 ```js
-const vc = new VitessceConfig("1.0.13", "My config");
+const vc = new VitessceConfig("1.0.15", "My config");
 ```
 
 For a full list of valid `schemaVersion` values, see the table of [schema versions](/docs/view-config-json/#version).

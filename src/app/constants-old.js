@@ -2,7 +2,28 @@
  * Old constant values with deprecation log messages.
  * Values should be tuples like [oldValue, deprecationMessage].
  */
-export const Component = {};
+export const Component = {
+  GENES: [
+    'genes',
+    'This view type was renamed to featureList in schema version 1.0.15.',
+  ],
+  CELL_SETS: [
+    'cellSets',
+    'This view type was renamed to obsSets in schema version 1.0.15.',
+  ],
+  CELL_SET_SIZES: [
+    'cellSetSizes',
+    'This view type was renamed to obsSetSizes in schema version 1.0.15.',
+  ],
+  CELL_SET_EXPRESSION: [
+    'cellSetExpression',
+    'This view type was renamed to obsSetFeatureValueDistribution in schema version 1.0.15.',
+  ],
+  EXPRESSION_HISTOGRAM: [
+    'expressionHistogram',
+    'This view type was renamed to featureValueHistogram in schema version 1.0.15.',
+  ],
+};
 
 export const DataType = {
   CELLS: [
