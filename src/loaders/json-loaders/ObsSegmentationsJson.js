@@ -2,7 +2,6 @@ import JsonLoader from './JsonLoader';
 import { AbstractLoaderError } from '../errors';
 import LoaderResult from '../LoaderResult';
 import { emptySchema } from '../../app/file-options-schemas';
-import { DEFAULT_CELLS_LAYER } from '../../components/spatial/constants';
 
 export default class ObsSegmentationsJsonLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -32,13 +31,9 @@ export default class ObsSegmentationsJsonLoader extends JsonLoader {
     }
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    const coordinationValues = {
-      spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
-    };
     return Promise.resolve(new LoaderResult(
       result,
       url,
-      coordinationValues,
     ));
   }
 }
