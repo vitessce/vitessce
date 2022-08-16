@@ -106,8 +106,8 @@ Exported [constants](/docs/constants/) have been updated to reflect the changes 
 
 ### View config schema
 
-The changes described in this blog post are reflected in the view config schema [versions](/docs/view-config-json/#version) `1.0.13` and above.
-You can [diff](https://observablehq.com/@keller-mark/vitessce-config-version-diff?ref=main&prev=1.0.10&next=1.0.13) new and old versions to see the changes.
+The changes described in this blog post are reflected in the view config schema [versions](/docs/view-config-json/#version) `1.0.15` and above.
+You can [diff](https://observablehq.com/@keller-mark/vitessce-config-version-diff?ref=main&prev=1.0.10&next=1.0.15) new and old versions to see the changes.
 
 ### VitessceConfig constructor
 
@@ -129,26 +129,23 @@ For a full list of valid `schemaVersion` values, see the table of [schema versio
 
 ## Next steps
 
-We hope that these changes make it easier to configure Vitessce, [prepare data](/docs/data-file-types/) for use with Vitessce, and develop [plugins](/docs/dev-plugins/).
-While we want to make Vitessce general enough to facilitate many use cases, we recognize the danger of over abstraction (e.g., preventing users from easily configuring Vitessce), and hope that our implementation strikes a useful balance.
+We hope that these changes make it easier to configure, [prepare data](/docs/data-file-types/), and [develop plugins](/docs/dev-plugins/) for Vitessce.
+While we want our tools to be general enough to facilitate many use cases, we recognize the danger of over abstraction (e.g., preventing users from easily configuring Vitessce), and hope that our implementation strikes a useful balance.
 We welcome your feedback via [issues](https://github.com/vitessce/vitessce/issues) and [discussions](https://github.com/vitessce/vitessce/discussions).
 
-One of our next steps is to make sure the changes described here are reflected in the Python and R APIs.
-Another next step is to deploy additional demos that showcase these features.
+## Demos
 
+New examples showcase how the updates described here can be used to visualize multi-modal datasets.
+
+<!-- TODO -->
+
+<!--
 We also intend for the observation-by-feature paradigm to simplify the conceptualization and implementation of additional functionality.
 For instance, while we have primarily been thinking of observations and features at the cellular scale, in theory an observation could instead represent an entity at a larger scale such as a tissue sample or donor.
 We are considering how to enable this use case by supporting mappings between `obsType`s to indicate which cells belong to which samples (if a dataset contains multiple tissue sample observations with per-sample cellular observations).
 Such mappings could also be specified in the opposite direction to capture which organelles belong to which cells.
 Again, if you have feedback about this or other features, we would love to hear!
-
-### Python and R support
-
-The changes described here are not yet reflected in the Vitessce Python and R packages. 
-We will now work to update the code for generating view configs in Python and R and will release new versions once finished.
-
-All Vitessce packages will continue to be backwards compatible with previous view config schema versions.
-
+-->
 
 ## Migration
 
@@ -217,3 +214,11 @@ While still supported by Vitessce, the following file types have been removed fr
 - `clusters.json`
 
 If you are still using these file types in your configurations, please look back to an [older version of the documentation](https://github.com/vitessce/vitessce/blob/main/DOCS.md).
+
+### Python and R support
+
+The changes described here are not yet reflected in the Vitessce Python and R packages. 
+We will now work to update the code for generating view configs in Python and R and will release new versions once finished.
+
+All Vitessce packages will continue to be backwards compatible with previous view config schema versions.
+

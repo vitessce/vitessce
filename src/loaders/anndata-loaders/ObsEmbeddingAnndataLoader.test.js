@@ -19,7 +19,8 @@ const createMatrixLoader = (url) => {
 };
 
 describe('loaders/ObsEmbeddingAnndataLoader', () => {
-  it('load returns obsIndex and obsEmbedding', async () => {
+  it('load returns obsIndex and obsEmbedding', async function () {
+    this.timeout(15000);
     const loader = createMatrixLoader(
       'http://127.0.0.1:8080/anndata/anndata-dense.zarr',
     );
