@@ -9,6 +9,7 @@ import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
 import CellSetExpressionPlot from './CellSetExpressionPlot';
 import { VALUE_TRANSFORM_OPTIONS } from '../gating/utils';
 import { Component } from '../../app/constants';
+import { capitalize } from '../../utils';
 
 /**
  * A subscriber component for `CellSetExpressionPlot`,
@@ -89,7 +90,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
   )?.name;
   return (
     <TitleInfo
-      title={`Expression by Cell Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      title={`Expression by ${capitalize(obsType)} Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
@@ -113,10 +114,12 @@ export default function CellSetExpressionPlotSubscriber(props) {
             theme={theme}
             width={width}
             height={height}
+            obsType={obsType}
+            featureValueType={featureValueType}
             featureValueTransformName={selectedTransformName}
           />
         ) : (
-          <span>Select a gene.</span>
+          <span>Select a {featureType}.</span>
         )}
       </div>
     </TitleInfo>

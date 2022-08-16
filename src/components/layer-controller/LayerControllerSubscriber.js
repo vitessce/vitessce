@@ -26,6 +26,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { initializeLayerChannels } from '../spatial/utils';
 import { DEFAULT_RASTER_LAYER_PROPS } from '../spatial/constants';
 import { Component } from '../../app/constants';
+import { capitalize } from '../../utils';
 
 // LayerController is memoized to prevent updates from prop changes that
 // are caused by view state updates i.e zooming and panning within
@@ -39,6 +40,7 @@ const LayerControllerMemoized = React.memo(
       theme,
       isReady,
       dataset,
+      obsType,
       moleculesLayer,
       setMoleculesLayer,
       cellsLayer, // May be one polygon layer object or an array of bitmask layers.
@@ -104,7 +106,7 @@ const LayerControllerMemoized = React.memo(
           {cellsLayer && obsSegmentationsType === 'polygon' && (
             <VectorLayerController
               key={`${dataset}-cells`}
-              label="Cell Segmentations"
+              label={`${capitalize(obsType)} Segmentations`}
               layerType="cells"
               layer={cellsLayer}
               handleLayerChange={setCellsLayer}
@@ -322,6 +324,7 @@ function LayerControllerSubscriber(props) {
   const [
     {
       dataset,
+      obsType,
       spatialImageLayer: rasterLayers,
       spatialSegmentationLayer: cellsLayer,
       spatialPointLayer: moleculesLayer,
@@ -455,6 +458,7 @@ function LayerControllerSubscriber(props) {
       isReady={isReady}
       moleculesLayer={moleculesLayer}
       dataset={dataset}
+      obsType={obsType}
       setMoleculesLayer={setMoleculesLayer}
       cellsLayer={cellsLayer}
       setCellsLayer={setCellsLayer}

@@ -2,6 +2,7 @@ import React from 'react';
 import clamp from 'lodash/clamp';
 import { VegaPlot, VEGA_THEMES } from '../vega';
 import { colorArrayToString } from './utils';
+import { capitalize } from '../../utils';
 
 /**
  * Cell set sizes displayed as a bar chart,
@@ -31,6 +32,7 @@ export default function CellSetSizesPlot(props) {
     marginRight = 90,
     marginBottom = 120,
     keyLength = 36,
+    obsType,
   } = props;
 
   // Add a property `keyName` which concatenates the key and the name,
@@ -67,7 +69,7 @@ export default function CellSetSizesPlot(props) {
       y: {
         field: 'size',
         type: 'quantitative',
-        title: 'Cell Set Size',
+        title: `${capitalize(obsType)} Set Size`,
       },
       color: {
         field: 'key',

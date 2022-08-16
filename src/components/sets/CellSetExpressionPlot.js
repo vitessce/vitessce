@@ -2,6 +2,7 @@ import React from 'react';
 import clamp from 'lodash/clamp';
 import { VegaPlot, VEGA_THEMES, DATASET_NAME } from '../vega';
 import { colorArrayToString } from './utils';
+import { capitalize } from '../../utils';
 
 /**
  * Gene expression histogram displayed as a bar chart,
@@ -34,6 +35,8 @@ export default function CellSetExpressionPlot(props) {
     height,
     marginRight = 90,
     marginBottom,
+    obsType,
+    featureValueType,
     featureValueTransformName,
   } = props;
   // Get the max characters in an axis label for autsizing the bottom margin.
@@ -65,7 +68,7 @@ export default function CellSetExpressionPlot(props) {
 
   const spec = {
     $schema: 'https://vega.github.io/schema/vega/v5.json',
-    description: 'A violin plot showing distributions of expression levels for selected cell sets.',
+    description: `A violin plot showing distributions of expression levels for selected ${obsType} sets.`,
     width: plotWidth,
     height: plotHeight,
     config: {
@@ -152,15 +155,15 @@ export default function CellSetExpressionPlot(props) {
         scale: 'yscale',
         zindex: 1,
         title: featureValueTransformName
-          ? [`${featureValueTransformName}-Transformed`, 'Normalized Expression Values']
-          : 'Normalized Expression Values',
+          ? [`${featureValueTransformName}-Transformed`, `Normalized ${capitalize(featureValueType)} Values`]
+          : `Normalized ${capitalize(featureValueType)} Values`,
       },
       {
         orient: 'bottom',
         scale: 'layout',
         tickCount: 5,
         zindex: 1,
-        title: 'Cell Set',
+        title: `${capitalize(obsType)} Set`,
         labelAngle: -45,
         labelAlign: 'right',
       },

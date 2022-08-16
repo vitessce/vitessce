@@ -8,6 +8,7 @@ import { useObsSetsData } from '../data-hooks';
 import { treeToSetSizesBySetNames } from './cell-set-utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
 import { Component } from '../../app/constants';
+import { capitalize } from '../../utils';
 
 /**
  * A subscriber component for `CellSetSizePlot`,
@@ -25,7 +26,7 @@ export default function CellSetSizesPlotSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    title = 'Cell Set Sizes',
+    title: titleOverride,
   } = props;
 
   const loaders = useLoaders();
@@ -41,6 +42,8 @@ export default function CellSetSizesPlotSubscriber(props) {
     setObsSetSelection: setCellSetSelection,
     setObsSetColor: setCellSetColor,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.OBS_SET_SIZES], coordinationScopes);
+
+  const title = titleOverride || `${capitalize(obsType)} Set Sizes`;
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl] = useUrls(loaders, dataset);
@@ -82,6 +85,7 @@ export default function CellSetSizesPlotSubscriber(props) {
           theme={theme}
           width={width}
           height={height}
+          obsType={obsType}
         />
       </div>
     </TitleInfo>
