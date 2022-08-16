@@ -23,6 +23,16 @@
 - Implemented obs set membership tooltips.
 
 
+## [1.2.1](https://www.npmjs.com/package/vitessce/v/1.2.1) - 2022-08-03
+
+### Added
+- Added `gating` component that allows users to dynamically generate a scatterplot based on gene expression values.
+  - New coordination types of `gatingFeatureSelectionX` and `gatingFeatureSelectionY` for the values selected for the gating plot.
+    - Fixed bug in `GatingSubscriber` which accidentally modified the shared `cells` data object.
+- Added new `arcsinh` option for the coordinaition type `featureValueTransform`
+- Added new coordination type `featureValueTransformCoefficient` to apply a coefficent to a feature value transform.
+
+
 ## [1.2.0](https://www.npmjs.com/package/vitessce/v/1.2.0) - 2022-07-22
 
 ### Added
