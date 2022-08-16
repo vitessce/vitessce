@@ -48,7 +48,6 @@ export default function SpatialSubscriber(props) {
     removeGridComponent,
     observationsLabelOverride,
     subobservationsLabelOverride: subobservationsLabel = 'molecule',
-    subobservationsPluralLabelOverride: subobservationsPluralLabel = `${subobservationsLabel}s`,
     theme,
     disableTooltip = false,
     title = 'Spatial',
@@ -114,7 +113,6 @@ export default function SpatialSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.SPATIAL], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
-  const observationsPluralLabel = `${observationsLabel}s`;
 
   const [
     {
@@ -323,10 +321,8 @@ export default function SpatialSubscriber(props) {
   const subtitle = makeSpatialSubtitle({
     observationsCount: obsSegmentationsIndex?.length || matrixObsIndex?.length,
     observationsLabel,
-    observationsPluralLabel,
     subobservationsCount: moleculesCount,
     subobservationsLabel,
-    subobservationsPluralLabel,
     locationsCount,
   });
 

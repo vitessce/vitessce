@@ -1,8 +1,9 @@
 import React, {
   useState, useCallback, useMemo,
 } from 'react';
+import plur from 'plur';
 import TitleInfo from '../TitleInfo';
-import { pluralize, capitalize } from '../../utils';
+import { capitalize, commaNumber } from '../../utils';
 import {
   useDeckCanvasSize,
   useGetObsInfo,
@@ -28,6 +29,7 @@ import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 import HeatmapOptions from './HeatmapOptions';
 import { Component } from '../../app/constants';
+
 
 /**
  * @param {object} props
@@ -90,9 +92,9 @@ export default function HeatmapSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.HEATMAP], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
-  const observationsPluralLabel = `${observationsLabel}s`;
+  const observationsPluralLabel = plur(observationsLabel);
   const variablesLabel = variablesLabelOverride || featureType;
-  const variablesPluralLabel = `${variablesLabel}s`;
+  const variablesPluralLabel = plur(variablesLabel);
 
   const observationsTitle = capitalize(observationsPluralLabel);
   const variablesTitle = capitalize(variablesPluralLabel);
@@ -184,8 +186,8 @@ export default function HeatmapSubscriber(props) {
   return (
     <TitleInfo
       title={title}
-      info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)} × ${genesCount} ${pluralize(variablesLabel, variablesPluralLabel, genesCount)},
-             with ${selectedCount} ${pluralize(observationsLabel, observationsPluralLabel, selectedCount)} selected`}
+      info={`${commaNumber(cellsCount)} ${plur(observationsLabel, cellsCount)} × ${commaNumber(genesCount)} ${plur(variablesLabel, genesCount)},
+             with ${commaNumber(selectedCount)} ${plur(observationsLabel, selectedCount)} selected`}
       urls={urls}
       theme={theme}
       removeGridComponent={removeGridComponent}

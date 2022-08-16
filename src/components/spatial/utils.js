@@ -1,6 +1,7 @@
 /* eslint-disable no-plusplus */
 import shortNumber from 'short-number';
 import isEqual from 'lodash/isEqual';
+import plur from 'plur';
 import {
   getDefaultInitialViewState,
   MultiscaleImageLayer,
@@ -10,7 +11,7 @@ import {
 import { extent } from 'd3-array';
 import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
-import { pluralize, getSourceFromLoader, isRgb } from '../../utils';
+import { getSourceFromLoader, isRgb, commaNumber } from '../../utils';
 import { VIEWER_PALETTE } from '../utils';
 import {
   GLOBAL_LABELS,
@@ -110,13 +111,13 @@ export async function initializeLayerChannels(loader, use3d) {
     loader: loader.data, selections: defaultSelection, use3d,
   });
 
-  const domains = isRgb(loader)
+  const domains = isRgb(loader, null)
     ? [[0, 255], [0, 255], [0, 255]]
     : stats.domains;
-  const colors = isRgb(loader)
+  const colors = isRgb(loader, null)
     ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]]
     : null;
-  const sliders = isRgb(loader)
+  const sliders = isRgb(loader, null)
     ? [[0, 255], [0, 255], [0, 255]]
     : stats.sliders;
 
@@ -293,20 +294,20 @@ export async function initializeRasterLayersAndChannels(
  * with info about items with zero counts omitted.
  */
 export function makeSpatialSubtitle({
-  observationsCount, observationsLabel, observationsPluralLabel,
-  subobservationsCount, subobservationsLabel, subobservationsPluralLabel,
+  observationsCount, observationsLabel,
+  subobservationsCount, subobservationsLabel,
   locationsCount,
 }) {
   const parts = [];
   if (subobservationsCount > 0) {
-    let part = `${subobservationsCount} ${pluralize(subobservationsLabel, subobservationsPluralLabel, subobservationsCount)}`;
+    let part = `${commaNumber(subobservationsCount)} ${plur(subobservationsLabel, subobservationsCount)}`;
     if (locationsCount > 0) {
       part += ` at ${shortNumber(locationsCount)} locations`;
     }
     parts.push(part);
   }
   if (observationsCount > 0) {
-    parts.push(`${observationsCount} ${pluralize(observationsLabel, observationsPluralLabel, observationsCount)}`);
+    parts.push(`${commaNumber(observationsCount)} ${plur(observationsLabel, observationsCount)}`);
   }
   return parts.join(', ');
 }

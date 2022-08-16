@@ -16,7 +16,8 @@ const Tree = React.forwardRef((props, ref) => {
     children,
     checkable,
   } = props;
-  return (
+  // Do not render RcTree if the tree nodes have not yet loaded.
+  return (children?.length > 0 ? (
     <RcTree
       itemHeight={32}
       ref={ref}
@@ -26,10 +27,11 @@ const Tree = React.forwardRef((props, ref) => {
         [`${prefixCls}-block-node`]: blockNode,
       })}
       checkable={checkable ? <span className={`${prefixCls}-checkbox-inner`} /> : checkable}
+      checkStrictly={false}
     >
       {children}
     </RcTree>
-  );
+  ) : null);
 });
 
 Tree.defaultProps = {

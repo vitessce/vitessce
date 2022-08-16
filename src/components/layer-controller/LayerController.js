@@ -427,7 +427,7 @@ export default function LayerController(props) {
         }
         handleTransparentColorChange={setTransparentColor}
         disableChannelsIfRgbDetected={
-          isRgb(loader) && disableChannelsIfRgbDetected
+          isRgb(loader, channels) && disableChannelsIfRgbDetected
         }
         handleDomainChange={handleDomainChange}
         shouldShowTransparentColor={shouldShowTransparentColor}
@@ -445,10 +445,10 @@ export default function LayerController(props) {
         spatialWidth={spatialWidth}
         modelMatrix={modelMatrix}
       />
-      {isRgb(loader) && disableChannelsIfRgbDetected
+      {isRgb(loader, channels) && disableChannelsIfRgbDetected
         ? null
         : channelControllers}
-      {isRgb(loader) && disableChannelsIfRgbDetected ? null : (
+      {isRgb(loader, channels) && disableChannelsIfRgbDetected ? null : (
         <Button
           disabled={channels.length === MAX_CHANNELS}
           onClick={handleChannelAdd}

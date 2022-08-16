@@ -3,8 +3,8 @@ import React, {
 } from 'react';
 import { extent } from 'd3-array';
 import isEqual from 'lodash/isEqual';
+import plur from 'plur';
 import TitleInfo from '../TitleInfo';
-import { pluralize } from '../../utils';
 import {
   useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter, useGetObsInfo,
 } from '../hooks';
@@ -33,6 +33,7 @@ import {
 } from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { Component } from '../../app/constants';
+import { commaNumber } from '../../utils';
 
 /**
  * A subscriber component for the scatterplot.
@@ -115,7 +116,6 @@ export default function EmbeddingScatterplotSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.SCATTERPLOT], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
-  const observationsPluralLabel = `${observationsLabel}s`;
 
   const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -277,7 +277,7 @@ export default function EmbeddingScatterplotSubscriber(props) {
   return (
     <TitleInfo
       title={title}
-      info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)}`}
+      info={`${commaNumber(cellsCount)} ${plur(observationsLabel, cellsCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}

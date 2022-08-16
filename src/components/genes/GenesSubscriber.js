@@ -1,5 +1,6 @@
 import React from 'react';
-import { capitalize, pluralize } from '../../utils';
+import plur from 'plur';
+import { capitalize, commaNumber } from '../../utils';
 import { useReady, useUrls } from '../hooks';
 import { useFeatureLabelsData, useObsFeatureMatrixIndices } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
@@ -7,6 +8,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
 import Genes from './Genes';
 import { Component } from '../../app/constants';
+
 
 /**
  * A subscriber component for a gene listing component.
@@ -51,7 +53,6 @@ export default function GenesSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.FEATURE_LIST], coordinationScopes);
 
   const variablesLabel = variablesLabelOverride || featureType;
-  const variablesPluralLabel = `${variablesLabel}s`;
 
   const title = titleOverride || `${capitalize(variablesLabel)} List`;
 
@@ -82,7 +83,7 @@ export default function GenesSubscriber(props) {
   return (
     <TitleInfo
       title={title}
-      info={`${numGenes} ${pluralize(variablesLabel, variablesPluralLabel, numGenes)}`}
+      info={`${commaNumber(numGenes)} ${plur(variablesLabel, numGenes)}`}
       theme={theme}
       // Virtual scroll is used but this allows for the same styling as a scroll component
       // even though this no longer uses the TitleInfo component's

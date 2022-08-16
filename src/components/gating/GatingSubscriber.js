@@ -1,10 +1,11 @@
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
+import plur from 'plur';
 import { extent } from 'd3-array';
 import isEqual from 'lodash/isEqual';
 import TitleInfo from '../TitleInfo';
-import { pluralize, capitalize } from '../../utils';
+import { capitalize, commaNumber } from '../../utils';
 import {
   useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
 } from '../hooks';
@@ -350,7 +351,7 @@ export default function GatingSubscriber(props) {
   return (
     <TitleInfo
       title={title}
-      info={`${cellsCount} ${pluralize(obsType, `${obsType}s`, cellsCount)}`}
+      info={`${commaNumber(cellsCount)} ${plur(obsType, cellsCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
@@ -402,7 +403,7 @@ export default function GatingSubscriber(props) {
     >
       <EmptyMessage
         visible={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}
-        message={`Select two ${pluralize(featureType, `${featureType}s`, 2)} in the plot settings.`}
+        message={`Select two ${plur(featureType, 2)} in the plot settings.`}
       />
       <Scatterplot
         ref={deckRef}
