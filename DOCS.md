@@ -39,3 +39,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2022-08-03: [release-v1.2.1](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2022-08-03/3c00617/index.html)
 - 2022-08-04: [release-v1.2.1](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2022-08-04/353f85e/index.html)
 - 2022-08-16: [keller-mark/fom-file-types](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2022-08-16/31d08ea/index.html)
+- 2022-08-16: [keller-mark/fom-file-types](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2022-08-16/7904edd/index.html)
