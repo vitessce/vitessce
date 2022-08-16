@@ -55,6 +55,7 @@ import {
 } from '../utils';
 import { useObsSetsData } from '../data-hooks';
 import { Component } from '../../app/constants';
+import { capitalize } from '../../utils';
 
 /**
  * A subscriber wrapper around the SetsManager component
@@ -72,7 +73,7 @@ export default function CellSetsManagerSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    title = 'Cell Sets',
+    title: titleOverride,
   } = props;
 
   const loaders = useLoaders();
@@ -92,6 +93,8 @@ export default function CellSetsManagerSubscriber(props) {
     setObsSetColor: setCellSetColor,
     setAdditionalObsSets: setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.OBS_SETS], coordinationScopes);
+
+  const title = titleOverride || `${capitalize(obsType)} Sets`;
 
   const [urls, addUrl] = useUrls(loaders, dataset);
 

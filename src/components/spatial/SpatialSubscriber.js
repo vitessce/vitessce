@@ -140,7 +140,7 @@ export default function SpatialSubscriber(props) {
   );
   const hasCellsData = useHasLoader(
     loaders, dataset, DataType.OBS_SEGMENTATIONS,
-    { obsType: 'cell' }, // TODO: use obsType in matchOn once #1240 is merged.
+    { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
   );
   const hasImageData = useHasLoader(
     loaders, dataset, DataType.IMAGE,
@@ -170,7 +170,7 @@ export default function SpatialSubscriber(props) {
     obsLocations: obsCentroids,
   }, obsCentroidsStatus] = useObsLocationsData(
     loaders, dataset, addUrl, false, {}, {},
-    { obsType: 'cell' }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
+    { obsType }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
   );
   const [{
     obsIndex: obsSegmentationsIndex,
@@ -180,7 +180,7 @@ export default function SpatialSubscriber(props) {
     loaders, dataset, addUrl, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
-    { obsType: 'cell' }, // TODO: use obsType in matchOn once #1240 is merged.
+    { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
   );
   const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus] = useObsSetsData(
     loaders, dataset, addUrl, false,
