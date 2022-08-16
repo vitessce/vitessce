@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 import expect from 'expect';
 import ObsEmbeddingAnndataLoader from './ObsEmbeddingAnndataLoader';
 import { AnnDataSource } from '../data-sources';

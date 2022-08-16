@@ -19,6 +19,14 @@ import {
   embeddingTargetYConfig,
   embeddingCellSetPolygonsVisibleConfig,
 } from './view-configs/coordination-types/index';
+import { codeluppiViaCsv } from './view-configs/codeluppi-via-csv';
+import { codeluppiViaZarr } from './view-configs/codeluppi-via-zarr';
+import { combat2022cell } from './view-configs/combat_2022_cell';
+import { habib2017natureMethods } from './view-configs/habib_2017_nature_methods';
+import { humanLymphNode10xVisium } from './view-configs/human_lymph_node_10x_visium';
+import { kuppe2022nature } from './view-configs/kuppe_2022_nature';
+import { marshall2022iScience } from './view-configs/marshall_2022_iscience';
+import { meta2022azimuth } from './view-configs/meta_2022_azimuth';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -36,7 +44,14 @@ export const configs = {
   'just-scatter-expression': justScatterExpression,
   'just-spatial': justSpatial,
   'just-higlass': justHiglass,
-  'codeluppi-2018': codeluppi2018,
+  'codeluppi-2018': codeluppiViaCsv,
+  'codeluppi-2018-via-zarr': notPublic(codeluppiViaZarr),
+  'combat-2022': notPublic(combat2022cell),
+  'habib-2017': notPublic(habib2017natureMethods),
+  'human-lymph-node-10x-visium': notPublic(humanLymphNode10xVisium),
+  'kuppe-2022': notPublic(kuppe2022nature),
+  'marshall-2022': notPublic(marshall2022iScience),
+  'meta-2022-azimuth': notPublic(meta2022azimuth),
   'eng-2019': eng2019,
   'wang-2018': wang2018,
   'spraggins-2020': spraggins2020,
@@ -47,6 +62,7 @@ export const configs = {
   'blin-2019': blin2019,
   'ome-ngff-v0.1': omeNgffLegacy,
   // Keys which enable backwards compatibility with old links.
+  'codeluppi-2018-via-json': notPublic(codeluppi2018),
   'linnarsson-2018': notPublic(codeluppi2018),
   gating: notPublic(codeluppiGating),
   vanderbilt: notPublic(spraggins2020),
