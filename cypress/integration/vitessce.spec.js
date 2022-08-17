@@ -40,7 +40,7 @@ describe('Vitessce Mocked Routes', () => {
   });
 
   it('loads details', () => {
-    cy.visit('/?dataset=codeluppi-2018&debug=true');
+    cy.visit('/?dataset=codeluppi-2018-via-json&debug=true');
 
     // Data Set:
     cy.contains('Spatial organization');
