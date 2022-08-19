@@ -12,6 +12,7 @@ const publicConfigs = [
   'satija-2020',
   'sn-atac-seq-hubmap-2020',
   'blin-2019',
+  'human-lymph-node-10x-visium',
 ];
 
 function DemoList(props) {
