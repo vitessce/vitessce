@@ -1,7 +1,7 @@
 export const humanLymphNode10xVisium = {
   version: '1.0.15',
-  name: '10x visium human lymph node',
-  description: '10x visium human lymph node',
+  name: 'Human lymph node, 10X Genomics',
+  description: 'Visium Spatial Gene Expression data from 10x Genomics',
   initStrategy: 'auto',
   datasets: [
     {

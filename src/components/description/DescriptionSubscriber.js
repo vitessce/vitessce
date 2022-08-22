@@ -26,7 +26,7 @@ export default function DescriptionSubscriber(props) {
     description: descriptionOverride,
     removeGridComponent,
     theme,
-    title = 'Data Set',
+    title = 'Description',
   } = props;
 
   const loaders = useLoaders();

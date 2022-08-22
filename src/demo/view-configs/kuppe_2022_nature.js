@@ -1,7 +1,7 @@
 export const kuppe2022nature = {
   version: '1.0.15',
   name: 'Kuppe et al., 2022 Nature',
-  description: 'Kuppe et al., 2022 Nature: Spatial multi-omic map of human myocardial infarction. Visium slide from patient P9, region GT/IZ_P9, HCA sample ACH0012.',
+  description: 'Spatial multi-omic map of human myocardial infarction. Visium slide from patient P9, region GT/IZ_P9.',
   datasets: [{
     uid: 'kuppe_2022_nature',
     name: 'kuppe_2022_nature',

@@ -137,9 +137,6 @@ export const codeluppiViaZarr = {
   layout: [
     {
       component: 'description',
-      props: {
-        description: 'Codeluppi et al., Nature Methods 2018: Spatial organization of the somatosensory cortex revealed by osmFISH',
-      },
       x: 0,
       y: 0,
       w: 2,

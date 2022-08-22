@@ -1,6 +1,7 @@
 export const codeluppiViaCsv = {
   name: 'Codeluppi et al., Nature Methods 2018',
   description: 'Spatial organization of the somatosensory cortex revealed by osmFISH',
+  public: true,
   version: '1.0.15',
   initStrategy: 'auto',
   datasets: [
@@ -175,9 +176,6 @@ export const codeluppiViaCsv = {
   layout: [
     {
       component: 'description',
-      props: {
-        description: 'Codeluppi et al., Nature Methods 2018: Spatial organization of the somatosensory cortex revealed by osmFISH',
-      },
       x: 0,
       y: 0,
       w: 2,

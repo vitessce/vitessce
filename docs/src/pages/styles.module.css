@@ -238,6 +238,11 @@
   width: 50%;
 }
 
+.demoDescription {
+  padding: 2rem 2rem 0 2rem;
+  margin-bottom: 0;
+}
+
 .demoGridContainer {
   display: grid;
   padding: 2rem;
@@ -248,25 +253,20 @@
 
 .demoGridItem {
   background-color: var(--ifm-footer-background-color);
-  min-height: 150px;
+  min-height: 130px;
   border-radius: 4px;
-}
-
-.demoDescription {
-  padding: 2rem 2rem 0 2rem;
-  margin-bottom: 0;
-  
+  padding: 1rem;
 }
 
 .demoGridItemLink {
   display: inline-block;
-  margin: 0.5rem 1rem;
+  margin: 0 0 0.5rem 0;
   font-weight: bold;
   font-size: 22px;
 }
 
 .demoGridItemDescription {
-  margin: 0rem 1rem 1rem 1rem;
+  margin: 0 0 0.5rem 0;
 }
 
 .livePreviewHeader {
@@ -345,4 +345,74 @@
   color: var(--ifm-heading-color);
   font-weight: 400;
   text-decoration: none;
+}
+
+/* Demo list */
+
+.demoDescriptionSmall {
+  display: none;
+}
+.demoGridContainerSmall {
+  padding: 0;
+  grid-gap: 0.5rem;
+}
+.demoGridContainerSmall .demoGridItem {
+  background-color: var(--ifm-footer-background-color);
+  min-height: 120px;
+  border-radius: 4px;
+  padding: 0.7rem;
+}
+.demoGridContainerSmall .demoGridItem  .demoGridItemLink {
+  display: inline-block;
+  font-weight: bold;
+  font-size: 16px;
+  margin: 0 0 0.5rem 0;
+}
+.demoGridContainerSmall .demoGridItem .demoGridItemDescription {
+  margin: 0 0 0.5rem 0;
+  font-size: 13px;
+}
+.demoGridItem .demoGridItemPill {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 12px;
+  opacity: 0.8;
+  font-size: 13px;
+  margin-right: 0.3rem;
+}
+.demoGridItem .demoGridItemPill.spatial {
+  background-color: rgb(246, 231, 136);
+}
+.demoGridItem .demoGridItemPill.imaging {
+  background-color: rgb(246, 231, 136);
+}
+.demoGridItem .demoGridItemPill.csv {
+  background-color: rgb(180, 180, 251);
+}
+.demoGridItem .demoGridItemPill.anndata {
+  background-color: rgb(164, 242, 193);
+}
+.demoGridItem .demoGridItemPill.omengff {
+  background-color: rgb(164, 242, 193);
+}
+.demoGridItem .demoGridItemPill.ometiff {
+  background-color: rgb(164, 242, 193);
+}
+.demoGridItem .demoGridItemPill.zarr {
+  background-color: rgb(242, 164, 237);
+}
+.demoGridItem .demoGridItemPill.scalability {
+  background-color: rgb(240, 178, 110);
+}
+.demoGridItem .demoGridItemPill.multimodal {
+  background-color: rgb(232, 122, 161);
+}
+.demoGridItem .demoGridItemPill.diagonal {
+  background-color: rgb(122, 204, 232);
+}
+.demoGridItem .demoGridItemPill.mosaic {
+  background-color: rgb(122, 204, 232);
+}
+.demoGridItem .demoGridItemPill._3d {
+  background-color: rgb(206, 232, 122);
 }

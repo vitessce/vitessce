@@ -1,7 +1,7 @@
 export const combat2022cell = {
   version: '1.0.15',
-  name: 'COMBAT 2022 Cell',
-  description: 'COMBAT Consortium, 2022 Cell: COVID-19 Multi-omic Blood Atlas',
+  name: 'COMBAT Consortium, 2022 Cell',
+  description: 'COVID-19 Multi-omic Blood Atlas',
   datasets: [{
     uid: 'a',
     name: 'CITE-Seq',

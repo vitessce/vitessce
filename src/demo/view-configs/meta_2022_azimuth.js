@@ -1,7 +1,7 @@
 export const meta2022azimuth = {
   version: '1.0.15',
-  name: 'Azimuth meta-analysis 2022',
-  description: 'Azimuth meta-analysis of 10 datasets of healthy and diseased human lung',
+  name: 'Meta-analysis, Azimuth 2022',
+  description: 'Meta-analysis of 10 datasets of healthy and diseased human lung',
   datasets: [{
     uid: 'azimuth_2022_meta',
     name: 'azimuth_2022_meta',

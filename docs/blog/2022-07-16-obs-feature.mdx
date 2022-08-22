@@ -9,7 +9,6 @@ tags: [fom]
 import MatchingDiagramTabs from '../src/pages/_MatchingDiagramTabs';
 import DemoList from '../src/pages/_DemoList';
 import { configs } from '../../src/demo/configs';
-import '../src/css/blog.css';
 
 Since the start of the Vitessce project in late 2018, our team has been focused on addressing the challenges of interactive web-based visualization of **multi-modal** and **spatial** single-cell datasets.
 
@@ -60,18 +59,10 @@ The new coordination types `obsType`, `featureType`, and `featureValueType` enab
 For example, if we have a cell-by-peak matrix from an scATAC-seq experiment, then the entities along the observation axis are cells and the entities along the feature axis are peaks:
 
 ```js
-dataset: 'my_atac',
+dataset: 'my_atac_experiment',
 obsType: 'cell',
 featureType: 'peak',
 featureValueType: 'count'
-```
-
-In addition, we might have run a [topic model-based](https://doi.org/10.1038/s41592-019-0367-1) analysis on our data, so we also have a cell-by-topic matrix:
-```js
-dataset: 'my_atac',
-obsType: 'cell',
-featureType: 'topic',
-featureValueType: 'probability'
 ```
 
 With these coordination types:
@@ -138,38 +129,23 @@ For a full list of valid `schemaVersion` values, see the table of [schema versio
 
 ## Next steps
 
-We hope that these changes make it easier to configure, [prepare data](/docs/data-file-types/), and [develop plugins](/docs/dev-plugins/) for Vitessce.
+We hope that these changes make it easier to configure, [prepare data](/docs/data-file-types/), and [develop plugins](/docs/dev-plugins/) for visualizing one or more related single-cell experiments with Vitessce.
 While we want our tools to be general enough to facilitate many use cases, we recognize the danger of over abstraction (e.g., preventing users from easily configuring Vitessce), and hope that our implementation strikes a useful balance.
 We welcome your feedback via [issues](https://github.com/vitessce/vitessce/issues) and [discussions](https://github.com/vitessce/vitessce/discussions).
+
+Some additional use cases that we are excited about:
+- using `obsType: 'nucleus'` to more accurately refer to observations from [single-nucleus](https://doi.org/10.1038/nmeth.4407) experiments (similarly `obsType: 'nucleolus'`, `obsType: 'mitochondria'`, etc. as technologies for [isolating subcellular components](https://doi.org/10.1002/smll.202005793) mature)
+- using `featureType: 'isoform'` to more accurately refer to features from [isoform-resolved](https://doi.org/10.1038/s41587-022-01231-3) sequencing- and FISH-based experiments
+- using `featureType: 'topic'` and `featureValueType: 'probability'` to enable visualization of [topic model-based](https://doi.org/10.1038/s41592-019-0367-1) analysis results
 
 ## Demos
 
 The following examples showcase how the updates described here can be used to perform integrative visualization of single-cell data.
 
-<div className="obsFeatureDemoGrid">
-  <div className="obsFeatureDemoGridItem">
-    <a className="obsFeatureDemoGridItemTitle">Codeluppi et al., Nature Methods 2018</a>
-    <p className="obsFeatureDemoGridItemDescription">Spatial organization of the somatosensory cortex revealed by osmFISH</p>
-    <span className="pill spatial">spatial</span>
-    <span className="pill csv">CSV</span>
-  </div>
-  <div className="obsFeatureDemoGridItem">
-    <a className="obsFeatureDemoGridItemTitle">Codeluppi et al., Nature Methods 2018</a>
-    <p className="obsFeatureDemoGridItemDescription">Spatial organization of the somatosensory cortex revealed by osmFISH</p>
-    <span className="pill spatial">spatial</span>
-    <span className="pill zarr">Zarr</span>
-    <span className="pill anndata">AnnData</span>
-  </div>
-  <div className="obsFeatureDemoGridItem">
-    <a className="obsFeatureDemoGridItemTitle">Human lymph node, 10X Visium</a>
-    <p className="obsFeatureDemoGridItemDescription">3,861 spots</p>
-    <span className="pill spatial">spatial</span>
-    <span className="pill zarr">Zarr</span>
-    <span className="pill anndata">AnnData</span>
-  </div>
-</div>
-
-<DemoList configs={configs} />
+<DemoList
+  configs={configs}
+  small
+/>
 
 <!-- TODO -->
 

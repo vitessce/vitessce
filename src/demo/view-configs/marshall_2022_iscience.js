@@ -1,7 +1,7 @@
 export const marshall2022iScience = {
   version: '1.0.15',
   name: 'Marshall et al., 2022 iScience',
-  description: 'Marshall et al., 2022 iScience: High Resolution Slide-seqV2 Spatial Transcriptomics Enables Discovery of Disease-Specific Cell Neighborhoods and Pathways. Spatial transcriptomics in the healthy human kidney: Puck_200903_13',
+  description: 'Spatial transcriptomics (Slide-seqV2) in the healthy human kidney (Puck_200903_13)',
   datasets: [{
     uid: 'marshall_2022',
     name: 'marshall_2022',
