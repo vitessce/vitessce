@@ -268,7 +268,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   createSelectionLayers() {
-    const { obsSegmentationsIndex, obsCentroids } = this.props;
+    const { obsCentroidsIndex, obsCentroids } = this.props;
     const {
       viewState,
       setCellSelection,
@@ -281,7 +281,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       viewState.zoom,
       CELLS_LAYER_ID,
       getCellCoords,
-      obsSegmentationsIndex,
+      obsCentroidsIndex,
       setCellSelection,
       obsSegmentationsQuadTree,
     );
