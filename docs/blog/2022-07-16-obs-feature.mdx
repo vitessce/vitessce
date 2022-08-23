@@ -75,7 +75,7 @@ With these coordination types:
 File lookup from within a view now takes into account<br/> `(dataset, dataType, viewCoordinationValues)`.
 
 
-The `viewCoordinationValues` item refers to the coordination values that a particular view takes on at a given point in time.
+The `viewCoordinationValues` refers to the coordination values that a particular view takes on at a given point in time.
 This is required to disambiguate between multiple files within a dataset which have the same `dataType` (now that each dataset may contain multiple files per data type).
 
 The diagram below shows how the mapping between views and files would be performed for a configuration containing one dataset and three views.
@@ -145,6 +145,18 @@ The following examples showcase how the updates described here can be used to pe
 <DemoList
   configs={configs}
   small
+  subset={[
+    'codeluppi-2018',
+    'codeluppi-2018-via-zarr',
+    'eng-2019',
+    'wang-2018',
+    'human-lymph-node-10x-visium',
+    'habib-2017',
+    'marshall-2022',
+    'kuppe-2022',
+    'combat-2022',
+    'meta-2022-azimuth'
+  ]}
 />
 
 <!-- TODO -->

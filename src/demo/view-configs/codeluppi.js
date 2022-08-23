@@ -257,9 +257,6 @@ export const codeluppi2018 = {
   layout: [
     {
       component: 'description',
-      props: {
-        description: `${linnarssonName}: ${linnarssonDescription}`,
-      },
       x: 0,
       y: 0,
       w: 2,

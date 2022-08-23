@@ -8,7 +8,7 @@ export const combat2022cell = {
     files: [
       {
         fileType: 'obsEmbedding.anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat_2022_cell/combat_2022_cell.h5ad.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
           embeddingType: 'UMAP',
@@ -19,7 +19,7 @@ export const combat2022cell = {
       },
       {
         fileType: 'obsSets.anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat_2022_cell/combat_2022_cell.h5ad.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
         },
@@ -36,7 +36,7 @@ export const combat2022cell = {
       },
       {
         fileType: 'obsFeatureMatrix.anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat_2022_cell/combat_2022_cell.h5ad.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
           featureType: 'gene',
@@ -49,7 +49,7 @@ export const combat2022cell = {
       },
       {
         fileType: 'obsFeatureMatrix.anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat_2022_cell/combat_2022_cell.h5ad.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
           featureType: 'antibody',

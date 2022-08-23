@@ -148,7 +148,8 @@ export function upgradeFrom0_1_0(config, datasetUid = null) {
 }
 
 export function upgradeFrom1_0_0(config) {
-  const coordinationSpace = { ...config.coordinationSpace };
+  const newConfig = cloneDeep(config);
+  const { coordinationSpace } = newConfig;
 
   function replaceLayerType(layerType) {
     // Layer type could be one of a few things, bitmask or raster at the moment.
@@ -178,7 +179,7 @@ export function upgradeFrom1_0_0(config) {
     delete coordinationSpace.spatialLayers;
   }
 
-  const layout = config.layout.map((component) => {
+  const layout = newConfig.layout.map((component) => {
     const newComponent = { ...component };
 
     function replaceCoordinationScope(layerType) {
@@ -203,7 +204,7 @@ export function upgradeFrom1_0_0(config) {
   });
 
   return {
-    ...config,
+    ...newConfig,
     coordinationSpace,
     layout,
     version: '1.0.1',

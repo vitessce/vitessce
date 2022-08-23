@@ -4,7 +4,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import styles from './styles.module.css';
 
-const publicConfigs = {
+const configAttrs = {
   'codeluppi-2018': ['imaging', 'CSV'],
   'eng-2019': ['spatial', 'CSV'],
   'wang-2018': ['spatial', 'CSV'],
@@ -13,7 +13,7 @@ const publicConfigs = {
   'satija-2020': ['Zarr', 'scalability'],
   'sn-atac-seq-hubmap-2020': [],
   'blin-2019': ['imaging', '3D', 'Zarr', 'OME-NGFF'],
-  // 'codeluppi-2018-via-zarr': ['Zarr'],
+  'codeluppi-2018-via-zarr': ['imaging', 'Zarr'],
   'human-lymph-node-10x-visium': ['imaging', 'Zarr', 'AnnData'],
   'habib-2017': ['Zarr', 'AnnData'],
   'marshall-2022': ['spatial', 'Zarr', 'AnnData'],
@@ -33,12 +33,28 @@ function cleanAttr(attrVal) {
 function DemoList(props) {
   const {
     configs,
-    small,
+    small = false,
+    subset = [
+      'codeluppi-2018',
+      'eng-2019',
+      'wang-2018',
+      'spraggins-2020',
+      'neumann-2020',
+      'satija-2020',
+      'sn-atac-seq-hubmap-2020',
+      'blin-2019',
+      'human-lymph-node-10x-visium',
+      'habib-2017',
+      'marshall-2022',
+      'kuppe-2022',
+      'combat-2022',
+      'meta-2022-azimuth',
+    ],
   } = props;
 
   const baseUrl = useBaseUrl('/#?dataset=');
 
-  const demos = Object.keys(publicConfigs).map(key => ([key, configs[key]]));
+  const demos = subset.map(key => ([key, configs[key]]));
   return (
     <>
       <p className={clsx(styles.demoDescription, { [styles.demoDescriptionSmall]: small })}>
@@ -49,7 +65,7 @@ function DemoList(props) {
           <div key={key} className={styles.demoGridItem}>
             <a href={baseUrl + key} className={styles.demoGridItemLink}>{d.name}</a>
             <p className={styles.demoGridItemDescription}>{d.description}</p>
-            {publicConfigs[key] ? publicConfigs[key].map(attrVal => (
+            {configAttrs[key] ? configAttrs[key].map(attrVal => (
               <span className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])}>
                 {attrVal}
               </span>

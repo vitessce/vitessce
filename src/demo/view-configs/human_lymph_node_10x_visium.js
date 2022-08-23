@@ -9,7 +9,7 @@ export const humanLymphNode10xVisium = {
       files: [
         {
           fileType: 'anndata.zarr',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/human_lymph_node_10x_visium/human_lymph_node_10x_visium.h5ad.zarr',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr',
           coordinationValues: {
             obsType: 'spot',
             featureType: 'gene',
@@ -45,45 +45,8 @@ export const humanLymphNode10xVisium = {
           },
         },
         {
-          fileType: 'image.raster.json',
-          options: {
-            schemaVersion: '0.0.2',
-            images: [
-              {
-                name: 'H and E Image',
-                url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/human_lymph_node_10x_visium/human_lymph_node_10x_visium.h5ad.zarr/uns/spatial/V1_Human_Lymph_Node/images/hires',
-                type: 'zarr',
-                metadata: {
-                  isPyramid: false,
-                  transform: {
-                    scale: 5.87,
-                    translate: { x: 0, y: 0 },
-                  },
-                  dimensions: [
-                    {
-                      field: 'channel',
-                      type: 'nominal',
-                      values: [
-                        'R',
-                        'G',
-                        'B',
-                      ],
-                    },
-                    {
-                      field: 'y',
-                      type: 'quantitative',
-                      values: null,
-                    },
-                    {
-                      field: 'x',
-                      type: 'quantitative',
-                      values: null,
-                    },
-                  ],
-                },
-              },
-            ],
-          },
+          fileType: 'image.ome-zarr',
+          url: 'https://vitessce-data.storage.googleapis.com/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.ome.zarr',
         },
       ],
     },
@@ -108,7 +71,7 @@ export const humanLymphNode10xVisium = {
           domainType: 'Min/Max',
           channels: [
             {
-              selection: { channel: 0 },
+              selection: { c: 0 },
               color: [
                 255,
                 0,
@@ -117,11 +80,11 @@ export const humanLymphNode10xVisium = {
               visible: true,
               slider: [
                 0,
-                1,
+                255,
               ],
             },
             {
-              selection: { channel: 1 },
+              selection: { c: 1 },
               color: [
                 0,
                 255,
@@ -130,11 +93,11 @@ export const humanLymphNode10xVisium = {
               visible: true,
               slider: [
                 0,
-                1,
+                255,
               ],
             },
             {
-              selection: { channel: 2 },
+              selection: { c: 2 },
               color: [
                 0,
                 0,
@@ -143,7 +106,7 @@ export const humanLymphNode10xVisium = {
               visible: true,
               slider: [
                 0,
-                1,
+                255,
               ],
             },
           ],
@@ -155,13 +118,13 @@ export const humanLymphNode10xVisium = {
       B: 'geneSelection',
     },
     spatialZoom: {
-      A: -4.455728265917529,
+      A: -2.598,
     },
     spatialTargetX: {
-      A: 4975.310550270499,
+      A: 1008.88,
     },
     spatialTargetY: {
-      A: 5678.288421953778,
+      A: 1004.69,
     },
     featureSelection: {
       A: ['CR2'],

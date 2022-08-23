@@ -3,13 +3,13 @@ export const habib2017natureMethods = {
   name: 'Habib et al., 2017 Nature Methods',
   description: 'Archived frozen adult human post-mortem brain tissue profiled by snRNA-seq (DroNc-seq)',
   datasets: [{
-    uid: '339952f4-a47f-46dc-9228-18ba2ca256f2',
-    name: '339952f4-a47f-46dc-9228-18ba2ca256f2',
+    uid: 'habib-2017',
+    name: 'Habib 2017',
     files: [{
       fileType: 'anndata.zarr',
-      url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/habib_2017_nature_methods/habib_2017_nature_methods.h5ad.zarr',
+      url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/habib-2017/habib_2017_nature_methods.h5ad.zarr',
       coordinationValues: {
-        obsType: 'nucleus',
+        obsType: 'cell',
         featureType: 'gene',
         featureValueType: 'expression',
         embeddingType: 'UMAP',
@@ -23,7 +23,7 @@ export const habib2017natureMethods = {
           path: 'obsm/X_umap',
         },
         obsSets: [{
-          name: 'Nucleus Type',
+          name: 'Cell Type',
           path: 'obs/CellType',
         }],
       },
@@ -35,7 +35,7 @@ export const habib2017natureMethods = {
       UMAP: 'UMAP',
     },
     obsType: {
-      A: 'nucleus',
+      A: 'cell',
     },
     featureType: {
       A: 'gene',
