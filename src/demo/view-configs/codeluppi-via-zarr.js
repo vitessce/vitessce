@@ -10,7 +10,7 @@ export const codeluppiViaZarr = {
       files: [
         {
           fileType: 'anndata.zarr',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi_2018_nature_methods/codeluppi_2018_nature_methods.cells.h5ad.zarr',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.cells.h5ad.zarr',
           options: {
             obsFeatureMatrix: {
               path: 'X',
@@ -46,7 +46,7 @@ export const codeluppiViaZarr = {
         },
         {
           fileType: 'anndata.zarr',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi_2018_nature_methods/codeluppi_2018_nature_methods.molecules.h5ad.zarr',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.molecules.h5ad.zarr',
           options: {
             obsLocations: {
               path: 'obsm/X_spatial',
@@ -125,7 +125,7 @@ export const codeluppiViaZarr = {
     },
     spatialSegmentationLayer: {
       A: {
-        opacity: 1, radius: 50, visible: true, stroked: false,
+        opacity: 1, radius: 0, visible: true, stroked: false,
       },
     },
     spatialPointLayer: {
@@ -137,6 +137,9 @@ export const codeluppiViaZarr = {
   layout: [
     {
       component: 'description',
+      props: {
+        description: 'Codeluppi et al., Nature Methods 2018: Spatial organization of the somatosensory cortex revealed by osmFISH',
+      },
       x: 0,
       y: 0,
       w: 2,

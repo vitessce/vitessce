@@ -1,7 +1,6 @@
 export const codeluppiViaCsv = {
   name: 'Codeluppi et al., Nature Methods 2018',
   description: 'Spatial organization of the somatosensory cortex revealed by osmFISH',
-  public: true,
   version: '1.0.15',
   initStrategy: 'auto',
   datasets: [
@@ -11,14 +10,14 @@ export const codeluppiViaCsv = {
       files: [
         {
           fileType: 'obsSegmentations.json',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi_2018_nature_methods/codeluppi_2018_nature_methods.cells.segmentations.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.segmentations.json',
           coordinationValues: {
             obsType: 'cell',
           },
         },
         {
           fileType: 'obsLocations.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi_2018_nature_methods/codeluppi_2018_nature_methods.cells.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
           options: {
             obsIndex: 'cell_id',
             obsLocations: ['X', 'Y'],
@@ -29,7 +28,7 @@ export const codeluppiViaCsv = {
         },
         {
           fileType: 'obsEmbedding.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi_2018_nature_methods/codeluppi_2018_nature_methods.cells.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
           options: {
             obsIndex: 'cell_id',
             obsEmbedding: ['PCA_1', 'PCA_2'],
@@ -41,7 +40,7 @@ export const codeluppiViaCsv = {
         },
         {
           fileType: 'obsEmbedding.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi_2018_nature_methods/codeluppi_2018_nature_methods.cells.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
           options: {
             obsIndex: 'cell_id',
             obsEmbedding: ['TSNE_1', 'TSNE_2'],
@@ -53,7 +52,7 @@ export const codeluppiViaCsv = {
         },
         {
           fileType: 'obsSets.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi_2018_nature_methods/codeluppi_2018_nature_methods.cells.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
           options: {
             obsIndex: 'cell_id',
             obsSets: [
@@ -69,7 +68,7 @@ export const codeluppiViaCsv = {
         },
         {
           fileType: 'obsLocations.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi_2018_nature_methods/codeluppi_2018_nature_methods.molecules.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.molecules.csv',
           options: {
             obsIndex: 'molecule_id',
             obsLocations: ['X', 'Y'],
@@ -80,7 +79,7 @@ export const codeluppiViaCsv = {
         },
         {
           fileType: 'obsLabels.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi_2018_nature_methods/codeluppi_2018_nature_methods.molecules.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.molecules.csv',
           options: {
             obsIndex: 'molecule_id',
             obsLabels: 'Gene',
@@ -91,7 +90,7 @@ export const codeluppiViaCsv = {
         },
         {
           fileType: 'obsFeatureMatrix.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi_2018_nature_methods/codeluppi_2018_nature_methods.cells.matrix.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.matrix.csv',
           coordinationValues: {
             obsType: 'cell',
             featureType: 'gene',
@@ -164,7 +163,7 @@ export const codeluppiViaCsv = {
     },
     spatialSegmentationLayer: {
       A: {
-        opacity: 1, radius: 50, visible: true, stroked: false,
+        opacity: 1, radius: 0, visible: true, stroked: false,
       },
     },
     spatialPointLayer: {
@@ -176,6 +175,9 @@ export const codeluppiViaCsv = {
   layout: [
     {
       component: 'description',
+      props: {
+        description: 'Codeluppi et al., Nature Methods 2018: Spatial organization of the somatosensory cortex revealed by osmFISH',
+      },
       x: 0,
       y: 0,
       w: 2,
