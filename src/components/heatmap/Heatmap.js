@@ -3,6 +3,9 @@ import React, {
 } from 'react';
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import GL from '@luma.gl/constants';
+import { Texture2D } from '@luma.gl/core';
 import { OrthographicView } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
@@ -28,6 +31,7 @@ import {
   COLOR_BAR_SIZE,
   AXIS_MARGIN,
   DATA_TEXTURE_SIZE,
+  PIXELATED_TEXTURE_PARAMETERS,
 } from '../../layers/heatmap-constants';
 
 // Only allocate the memory once for the container
@@ -173,6 +177,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   const [axisOffsetLeft, axisOffsetTop] = getAxisSizes(
     transpose, geneLabelMaxLength, cellLabelMaxLength,
   );
+  const [gl, setGlContext] = useState(null);
 
   const offsetTop = axisOffsetTop + COLOR_BAR_SIZE;
   const offsetLeft = axisOffsetLeft + COLOR_BAR_SIZE;
@@ -259,7 +264,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   const paddedExpressions = useMemo(() => {
     setIsRendering(true);
     const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
-    if (expression?.matrix && cellOrdering.length) {
+    if (expression?.matrix && cellOrdering.length && gl) {
       let newIndex = 0;
       for (
         let cellOrderingIndex = 0; cellOrderingIndex < cellOrdering.length; cellOrderingIndex += 1
@@ -278,8 +283,21 @@ const Heatmap = forwardRef((props, deckRef) => {
       }
     }
     setIsRendering(false);
-    return [...paddedExpressionContainers];
-  }, [setIsRendering, transpose, axisTopLabels, axisLeftLabels, expression, expressionRowLookUp]);
+    return paddedExpressionContainers.map(image => (gl ? new Texture2D(gl, {
+      data: image,
+      mipmaps: false,
+      parameters: PIXELATED_TEXTURE_PARAMETERS,
+      // Each color contains a single luminance value.
+      // When sampled, rgb are all set to this luminance, alpha is 1.0.
+      // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
+      format: GL.LUMINANCE,
+      dataFormat: GL.LUMINANCE,
+      type: GL.UNSIGNED_BYTE,
+      width: DATA_TEXTURE_SIZE,
+      height: DATA_TEXTURE_SIZE,
+    }) : image));
+  }, [setIsRendering, transpose, axisTopLabels,
+    axisLeftLabels, expression, expressionRowLookUp, gl]);
 
 
   // Update the heatmap tiles if:
@@ -500,6 +518,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     <DeckGL
       id={`deckgl-overlay-${uuid}`}
       ref={deckRef}
+      onWebGLInitialized={setGlContext}
       views={[
         // Note that there are multiple views here,
         // but only one viewState.
@@ -514,7 +533,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         new OrthographicView({
           id: 'axisLeft',
           controller: false,
-          x: (transpose ? COLOR_BAR_SIZE : 0),
+          x: transpose ? COLOR_BAR_SIZE : 0,
           y: offsetTop,
           width: axisOffsetLeft,
           height: matrixHeight,
@@ -523,7 +542,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           id: 'axisTop',
           controller: false,
           x: offsetLeft,
-          y: (transpose ? 0 : COLOR_BAR_SIZE),
+          y: transpose ? 0 : COLOR_BAR_SIZE,
           width: matrixWidth,
           height: axisOffsetTop,
         }),
