@@ -1,4 +1,4 @@
-import { CoordinationType, Component } from '../constants';
+import { CoordinationType, ViewType } from '../constants';
 
 /**
  * Coordination types may have default values,
@@ -95,7 +95,7 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
    * Keys here are the component registry keys.
    */
 export const COMPONENT_COORDINATION_TYPES = {
-  [Component.SCATTERPLOT]: [
+  [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
@@ -126,7 +126,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.GATING]: [
+  [ViewType.GATING]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
@@ -160,7 +160,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.GATING_FEATURE_SELECTION_X,
     CoordinationType.GATING_FEATURE_SELECTION_Y,
   ],
-  [Component.SPATIAL]: [
+  [ViewType.SPATIAL]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.OBS_LABELS_TYPE,
@@ -194,7 +194,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.MOLECULE_HIGHLIGHT,
   ],
-  [Component.HEATMAP]: [
+  [ViewType.HEATMAP]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.OBS_LABELS_TYPE,
@@ -217,7 +217,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.OBS_SETS]: [
+  [ViewType.OBS_SETS]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.OBS_SET_SELECTION,
@@ -227,7 +227,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.FEATURE_SELECTION,
   ],
-  [Component.OBS_SET_SIZES]: [
+  [ViewType.OBS_SET_SIZES]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.OBS_SET_SELECTION,
@@ -235,14 +235,14 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.STATUS]: [
+  [ViewType.STATUS]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_HIGHLIGHT,
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.MOLECULE_HIGHLIGHT,
   ],
-  [Component.FEATURE_LIST]: [
+  [ViewType.FEATURE_LIST]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
@@ -253,7 +253,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.OBS_SET_SELECTION,
   ],
-  [Component.OBS_SET_FEATURE_VALUE_DISTRIBUTION]: [
+  [ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
@@ -266,14 +266,14 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.FEATURE_VALUE_HISTOGRAM]: [
+  [ViewType.FEATURE_VALUE_HISTOGRAM]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
     CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.FEATURE_SELECTION,
   ],
-  [Component.LAYER_CONTROLLER]: [
+  [ViewType.LAYER_CONTROLLER]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
@@ -292,7 +292,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_ROTATION_ORBIT,
     CoordinationType.SPATIAL_ORBIT_AXIS,
   ],
-  [Component.GENOMIC_PROFILES]: [
+  [ViewType.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
@@ -309,7 +309,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.DESCRIPTION]: [
+  [ViewType.DESCRIPTION]: [
     CoordinationType.DATASET,
     CoordinationType.SPATIAL_IMAGE_LAYER,
   ],

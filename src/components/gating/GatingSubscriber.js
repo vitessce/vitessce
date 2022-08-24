@@ -31,7 +31,7 @@ import {
   getPointOpacity,
 } from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-import { Component } from '../../app/constants';
+import { ViewType } from '../../app/constants';
 import GatingScatterplotOptions from './GatingScatterplotOptions';
 import { getValueTransformFunction, VALUE_TRANSFORM_OPTIONS } from './utils';
 import EmptyMessage from '../scatterplot/EmptyMessage';
@@ -120,7 +120,7 @@ export default function GatingSubscriber(props) {
     setGatingFeatureSelectionX,
     setGatingFeatureSelectionY,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[Component.GATING],
+    COMPONENT_COORDINATION_TYPES[ViewType.GATING],
     coordinationScopes,
   );
 

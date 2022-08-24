@@ -313,10 +313,10 @@ Next, we can define the visualization components:
   js={`
 ...
 const pcaPlot = vc
-  .addView(dataset, cm.SCATTERPLOT)
+  .addView(dataset, vt.SCATTERPLOT)
   .useCoordination(ET1);
 const umapPlot = vc
-  .addView(dataset, cm.SCATTERPLOT)
+  .addView(dataset, vt.SCATTERPLOT)
   .useCoordination(ET2);
 ...
   `}
@@ -404,10 +404,10 @@ const [ET1, ET2] = vc.addCoordination("embeddingType", "embeddingType");
 ET1.setValue("PCA");
 ET2.setValue("UMAP");
 const pcaPlot = vc
-  .addView(dataset, cm.SCATTERPLOT)
+  .addView(dataset, vt.SCATTERPLOT)
   .useCoordination(ET1);
 const umapPlot = vc
-  .addView(dataset, cm.SCATTERPLOT)
+  .addView(dataset, vt.SCATTERPLOT)
   .useCoordination(ET2);
 vc.layout(hconcat(pcaPlot, umapPlot));
 return vc.toJSON();

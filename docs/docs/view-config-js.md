@@ -33,7 +33,7 @@ Construct a Vitessce view config object.
 ```js {3}
 import { VitessceConfig } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
 ```
 
 
@@ -53,7 +53,7 @@ Returns the instance for the new dataset.
 ```js {4}
 import { VitessceConfig, DataType as dt, FileType as ft } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
 const dataset = vc.addDataset("My dataset")
     .addFile({
         url: "http://example.com/my-cell-coordinates.csv",
@@ -69,7 +69,7 @@ Add a view to the config.
 
 #### Parameters:
 - `dataset` (`VitessceConfigDataset`) - A dataset instance to be used for the data visualized in this view.
-- `viewType` (`string`) - A view type name. A full list of view types can be found on the [view types](/docs/components/) documentation page. We recommend using the [`Component`](/docs/constants/#view-types) constant values rather than writing strings directly.
+- `viewType` (`string`) - A view type name. A full list of view types can be found on the [view types](/docs/components/) documentation page. We recommend using the [`ViewType`](/docs/constants/#view-types) constant values rather than writing strings directly.
 - `extra` (`object`) - An optional object with extra parameters.
     - `mapping` (`string`) - A convenience parameter for setting the `embeddingType` coordination scope value. This parameter is only applicable when adding the `scatterplot` view. Optional.
     - `x` (`number`) - The horizontal position of the view. Must be an integer between 0 and 11. Optional.
@@ -83,12 +83,12 @@ Add a view to the config.
 Returns the instance for the new view.
 
 ```js {5-6}
-import { VitessceConfig, Component as cm } from 'vitessce';
+import { VitessceConfig, ViewType as vt } from 'vitessce';
 
-const vc = new VitessceConfig("1.0.13", "My config");
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
 const dataset = vc.addDataset("My dataset");
-const v1 = vc.addView(dataset, cm.SPATIAL);
-const v2 = vc.addView(dataset, cm.SCATTERPLOT, { mapping: "X_umap" });
+const v1 = vc.addView(dataset, vt.SPATIAL);
+const v2 = vc.addView(dataset, vt.SCATTERPLOT, { mapping: "X_umap" });
 ```
 
 
@@ -107,12 +107,12 @@ A convenience function for setting up new coordination scopes across a set of vi
 Returns `this` to allow chaining.
 
 ```js {7-11}
-import { VitessceConfig, Component as cm, CoordinationType as ct } from 'vitessce';
+import { VitessceConfig, ViewType as vt, CoordinationType as ct } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
 const dataset = vc.addDataset("My dataset");
-const v1 = vc.addView(dataset, cm.SPATIAL);
-const v2 = vc.addView(dataset, cm.SPATIAL);
+const v1 = vc.addView(dataset, vt.SPATIAL);
+const v2 = vc.addView(dataset, vt.SPATIAL);
 vc.linkViews(
     [v1, v2],
     [ct.SPATIAL_ZOOM, ct.SPATIAL_TARGET_X, ct.SPATIAL_TARGET_Y],
@@ -134,13 +134,13 @@ Create a multi-view layout based on (potentially recursive) view concatenations.
 Returns `this` to allow chaining.
 
 ```js {8}
-import { VitessceConfig, Component as cm, hconcat, vconcat } from 'vitessce';
+import { VitessceConfig, ViewType as vt, hconcat, vconcat } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
 const dataset = vc.addDataset("My dataset");
-const v1 = vc.addView(dataset, cm.SPATIAL);
-const v2 = vc.addView(dataset, cm.SPATIAL);
-const v3 = vc.addView(dataset, cm.SPATIAL);
+const v1 = vc.addView(dataset, vt.SPATIAL);
+const v2 = vc.addView(dataset, vt.SPATIAL);
+const v3 = vc.addView(dataset, vt.SPATIAL);
 vc.layout(hconcat(v1, vconcat(v2, v3)));
 ```
 
@@ -158,12 +158,12 @@ Add scope(s) for new coordination type(s) to the config. See also `VitessceConfi
 Returns the instances for the new scope objects corresponding to each coordination type. These can be linked to views via the `VitessceConfigView.use_coordination()` method.
 
 ```js {7-11}
-import { VitessceConfig, Component as cm, CoordinationType as ct } from 'vitessce';
+import { VitessceConfig, ViewType as vt, CoordinationType as ct } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
 const dataset = vc.addDataset("My dataset");
-const v1 = vc.addView(dataset, cm.SPATIAL);
-const v2 = vc.addView(dataset, cm.SPATIAL);
+const v1 = vc.addView(dataset, vt.SPATIAL);
+const v2 = vc.addView(dataset, vt.SPATIAL);
 const [zoomScope, xScope, yScope] = vc.addCoordination(
     ct.SPATIAL_ZOOM,
     ct.SPATIAL_TARGET_X,
@@ -187,11 +187,11 @@ Convert the view config instance to a JSON object.
 Returns the config instance as a JSON object.
 
 ```js {6}
-import { VitessceConfig, Component as cm } from 'vitessce';
+import { VitessceConfig, ViewType as vt } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
 const dataset = vc.addDataset("My dataset");
-vc.layout(vc.addView(dataset, cm.SPATIAL));
+vc.layout(vc.addView(dataset, vt.SPATIAL));
 const vcJson = vc.toJSON();
 ```
 
@@ -221,12 +221,12 @@ const vc = VitessceConfig.fromJSON(myConfig);
 Helper function to allow horizontal concatenation of views in the Vitessce grid layout.
 
 ```js {7}
-import { VitessceConfig, Component as cm, hconcat } from 'vitessce';
+import { VitessceConfig, ViewType as vt, hconcat } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
 const dataset = vc.addDataset("My dataset");
-const v1 = vc.addView(dataset, cm.SPATIAL);
-const v2 = vc.addView(dataset, cm.SPATIAL);
+const v1 = vc.addView(dataset, vt.SPATIAL);
+const v2 = vc.addView(dataset, vt.SPATIAL);
 vc.layout(hconcat(v1, v2));
 ```
 
@@ -304,12 +304,12 @@ vc.layout(hconcat(v1, v2));
 Helper function to allow vertical concatenation of views in the Vitessce grid layout.
 
 ```js {7}
-import { VitessceConfig, Component as cm, vconcat } from 'vitessce';
+import { VitessceConfig, ViewType as vt, vconcat } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
 const dataset = vc.addDataset("My dataset");
-const v1 = vc.addView(dataset, cm.SPATIAL);
-const v2 = vc.addView(dataset, cm.SPATIAL);
+const v1 = vc.addView(dataset, vt.SPATIAL);
+const v2 = vc.addView(dataset, vt.SPATIAL);
 vc.layout(vconcat(v1, v2));
 ```
 
@@ -415,7 +415,7 @@ Returns `this` to allow chaining.
 ```js {5-9}
 import { VitessceConfig, DataType as dt, FileType as ft } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: "1.0.13", name: "My config" });
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
 const dataset = vc.addDataset("My dataset")
     .addFile({
         url: "http://example.com/my-cell-coordinates.csv",

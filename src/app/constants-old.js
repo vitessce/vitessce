@@ -2,7 +2,7 @@
  * Old constant values with deprecation log messages.
  * Values should be tuples like [oldValue, deprecationMessage].
  */
-export const Component = {
+export const ViewType = {
   GENES: [
     'genes',
     'This view type was renamed to featureList in schema version 1.0.15.',

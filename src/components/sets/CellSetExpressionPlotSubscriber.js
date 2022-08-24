@@ -8,7 +8,7 @@ import { useExpressionByCellSet } from './hooks';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
 import CellSetExpressionPlot from './CellSetExpressionPlot';
 import { VALUE_TRANSFORM_OPTIONS } from '../gating/utils';
-import { Component } from '../../app/constants';
+import { ViewType } from '../../app/constants';
 import { capitalize } from '../../utils';
 
 /**
@@ -46,7 +46,7 @@ export default function CellSetExpressionPlotSubscriber(props) {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[Component.OBS_SET_FEATURE_VALUE_DISTRIBUTION],
+    COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION],
     coordinationScopes,
   );
 

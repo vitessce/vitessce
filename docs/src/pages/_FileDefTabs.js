@@ -6,28 +6,30 @@ import CodeBlock from '@theme/CodeBlock';
 import styles from './styles.module.css';
 
 function getJsonPrefix(fileType, fileName) {
+  const urlPart = fileName ? `,
+  "url": "https://example.com/${fileName}"` : '';
   return `...,
 {
-  "fileType": "${fileType}",
-  "url": "https://example.com/${fileName}"`;
+  "fileType": "${fileType}"${urlPart}`;
 }
 const jsonSuffix = `
 },
 ...`;
 
-const jsPrefix = 'const vc = new VitessceConfig("1.0.13", "My config");';
+const jsPrefix = 'const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });';
 
 function getJsSuffix(options, cv, fileConst, fileName) {
   const cvPart = cv ? `,
     coordinationValues` : '';
   const optionsPart = options ? `,
     options` : '';
+  const urlPart = fileName ? `,
+    url: "https://example.com/${fileName}"` : '';
   return `
 const dataset = vc
   .addDataset("My dataset")
   .addFile({
-    url: "https://example.com/${fileName}",
-    fileType: ft.${fileConst}${cvPart}${optionsPart},
+    fileType: ft.${fileConst}${urlPart}${cvPart}${optionsPart},
   });`;
 }
 

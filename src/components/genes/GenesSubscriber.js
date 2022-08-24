@@ -7,7 +7,7 @@ import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
 import Genes from './Genes';
-import { Component } from '../../app/constants';
+import { ViewType } from '../../app/constants';
 
 
 /**
@@ -50,7 +50,7 @@ export default function GenesSubscriber(props) {
     setFeatureFilter: setGeneFilter,
     setFeatureHighlight: setGeneHighlight,
     setObsColorEncoding: setCellColorEncoding,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.FEATURE_LIST], coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_LIST], coordinationScopes);
 
   const variablesLabel = variablesLabelOverride || featureType;
 

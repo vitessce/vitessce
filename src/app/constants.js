@@ -3,7 +3,7 @@
  * To deprecate a value, add it to ./constants-old.js
  * with a corresponding log message.
  */
-export const Component = {
+export const ViewType = {
   DESCRIPTION: 'description',
   STATUS: 'status',
   SCATTERPLOT: 'scatterplot',

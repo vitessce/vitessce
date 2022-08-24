@@ -7,7 +7,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
 import { useObsFeatureMatrixData, useFeatureSelection } from '../data-hooks';
 import ExpressionHistogram from './ExpressionHistogram';
-import { Component } from '../../app/constants';
+import { ViewType } from '../../app/constants';
 
 /**
  * A subscriber component for `ExpressionHistogram`,
@@ -36,7 +36,7 @@ export default function ExpressionHistogramSubscriber(props) {
     featureValueType,
     featureSelection: geneSelection,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[Component.FEATURE_VALUE_HISTOGRAM],
+    COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_VALUE_HISTOGRAM],
     coordinationScopes,
   );
 

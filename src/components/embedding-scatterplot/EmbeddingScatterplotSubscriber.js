@@ -32,7 +32,7 @@ import {
   getPointOpacity,
 } from '../shared-spatial-scatterplot/dynamic-opacity';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-import { Component } from '../../app/constants';
+import { ViewType } from '../../app/constants';
 import { commaNumber } from '../../utils';
 
 /**
@@ -113,7 +113,7 @@ export default function EmbeddingScatterplotSubscriber(props) {
     setEmbeddingObsOpacityMode: setCellOpacityMode,
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.SCATTERPLOT], coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
 

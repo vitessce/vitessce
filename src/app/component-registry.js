@@ -1,4 +1,4 @@
-import { Component } from './constants';
+import { ViewType } from './constants';
 import { getPluginViewType, getPluginViewTypes } from './plugins';
 
 import DescriptionSubscriber from '../components/description/DescriptionSubscriber';
@@ -17,19 +17,19 @@ import ExpressionHistogramSubscriber from '../components/genes/ExpressionHistogr
 import CellSetExpressionPlotSubscriber from '../components/sets/CellSetExpressionPlotSubscriber';
 
 const registry = {
-  [Component.DESCRIPTION]: DescriptionSubscriber,
-  [Component.STATUS]: StatusSubscriber,
-  [Component.FEATURE_LIST]: GenesSubscriber,
-  [Component.OBS_SETS]: CellSetsManagerSubscriber,
-  [Component.SCATTERPLOT]: EmbeddingScatterplotSubscriber,
-  [Component.GATING]: GatingSubscriber,
-  [Component.SPATIAL]: SpatialSubscriber,
-  [Component.HEATMAP]: HeatmapSubscriber,
-  [Component.LAYER_CONTROLLER]: LayerControllerSubscriber,
-  [Component.OBS_SET_SIZES]: CellSetSizesPlotSubscriber,
-  [Component.GENOMIC_PROFILES]: GenomicProfilesSubscriber,
-  [Component.FEATURE_VALUE_HISTOGRAM]: ExpressionHistogramSubscriber,
-  [Component.OBS_SET_FEATURE_VALUE_DISTRIBUTION]: CellSetExpressionPlotSubscriber,
+  [ViewType.DESCRIPTION]: DescriptionSubscriber,
+  [ViewType.STATUS]: StatusSubscriber,
+  [ViewType.FEATURE_LIST]: GenesSubscriber,
+  [ViewType.OBS_SETS]: CellSetsManagerSubscriber,
+  [ViewType.SCATTERPLOT]: EmbeddingScatterplotSubscriber,
+  [ViewType.GATING]: GatingSubscriber,
+  [ViewType.SPATIAL]: SpatialSubscriber,
+  [ViewType.HEATMAP]: HeatmapSubscriber,
+  [ViewType.LAYER_CONTROLLER]: LayerControllerSubscriber,
+  [ViewType.OBS_SET_SIZES]: CellSetSizesPlotSubscriber,
+  [ViewType.GENOMIC_PROFILES]: GenomicProfilesSubscriber,
+  [ViewType.FEATURE_VALUE_HISTOGRAM]: ExpressionHistogramSubscriber,
+  [ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION]: CellSetExpressionPlotSubscriber,
   // The plain higlass component does not abstract away the HiGlass view config,
   // so we probably want to avoid documenting it, only use it for development purposes.
   higlass: HiGlassSubscriber,

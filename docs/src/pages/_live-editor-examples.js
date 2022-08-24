@@ -47,13 +47,13 @@ const dataset = vc
   });
 // Add components.
 // Use mapping: "UMAP" so that cells are mapped to the UMAP positions from the JSON file.
-const umap = vc.addView(dataset, cm.SCATTERPLOT, { mapping: "UMAP" });
+const umap = vc.addView(dataset, vt.SCATTERPLOT, { mapping: "UMAP" });
 // Use mapping: "t-SNE" so that cells are mapped to the t-SNE positions from the JSON file.
-const tsne = vc.addView(dataset, cm.SCATTERPLOT, { mapping: "t-SNE" });
+const tsne = vc.addView(dataset, vt.SCATTERPLOT, { mapping: "t-SNE" });
 // Add the cell sets controller component.
-const cellSetsManager = vc.addView(dataset, cm.OBS_SETS);
+const cellSetsManager = vc.addView(dataset, vt.OBS_SETS);
 // Add the cell set sizes bar plot component.
-const cellSetSizesPlot = vc.addView(dataset, cm.OBS_SET_SIZES);
+const cellSetSizesPlot = vc.addView(dataset, vt.OBS_SET_SIZES);
 // Try un-commenting the line below to link the zoom levels of the two scatterplots!
 //vc.linkViews([umap, tsne], [ct.EMBEDDING_ZOOM], [2.5]);
 vc.layout(

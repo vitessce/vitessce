@@ -4,13 +4,13 @@
  * backwards compatibility.
  */
 import {
-  Component as ComponentCurr,
+  ViewType as ViewTypeCurr,
   DataType as DataTypeCurr,
   FileType as FileTypeCurr,
   CoordinationType as CoordinationTypeCurr,
 } from './constants';
 import {
-  Component as ComponentOld,
+  ViewType as ViewTypeOld,
   DataType as DataTypeOld,
   FileType as FileTypeOld,
   CoordinationType as CoordinationTypeOld,
@@ -31,9 +31,9 @@ function makeConstantWithDeprecationMessage(currObj, oldObj) {
   return objWithMessage;
 }
 
-export const Component = makeConstantWithDeprecationMessage(
-  ComponentCurr,
-  ComponentOld,
+export const ViewType = makeConstantWithDeprecationMessage(
+  ViewTypeCurr,
+  ViewTypeOld,
 );
 export const DataType = makeConstantWithDeprecationMessage(
   DataTypeCurr,

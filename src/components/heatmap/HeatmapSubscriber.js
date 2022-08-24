@@ -28,7 +28,7 @@ import {
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 import HeatmapOptions from './HeatmapOptions';
-import { Component } from '../../app/constants';
+import { ViewType } from '../../app/constants';
 
 
 /**
@@ -89,7 +89,7 @@ export default function HeatmapSubscriber(props) {
     setObsSetColor: setCellSetColor,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setFeatureValueColormap: setGeneExpressionColormap,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[Component.HEATMAP], coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.HEATMAP], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
   const observationsPluralLabel = plur(observationsLabel);

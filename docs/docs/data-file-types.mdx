@@ -3,7 +3,6 @@ id: data-file-types
 title: File Types and File Formats
 slug: /data-file-types
 ---
-import ViewConfigTabs from '../src/pages/_ViewConfigTabs';
 import FileDefTabs from '../src/pages/_FileDefTabs';
 
 import TabItem from '@theme/TabItem';
@@ -555,51 +554,24 @@ Points to one or more segmentation bitmasks in OME-TIFF format.
 See the [options JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/raster.schema.json) for reference.
 Note that for this file type, the top-level `"url"` property is not required (URLs are specified for each image in `options.images[].url` instead).
 
-<ViewConfigTabs
-json={`
-{
-  "fileType": "image.raster.json",
-  "coordinationValues": {
-    "obsType": "cell"
-  },
-  "options": {
-    "renderLayers": ["My OME-TIFF Mask"],
-    "schemaVersion": "0.0.2",
-    "images": [
-      {
-        "name": "My OME-TIFF Mask",
-        "url": "http://example.com/my_mask.ome.tif",
-        "type": "ome-tiff"
-      }
-    ]
-  }
-}
-`}
-js={`
-const options = {
+<FileDefTabs
+fileType="obsSegmentations.raster.json"
+fileConst="OBS_SEGMENTATIONS_RASTER_JSON"
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+options={`{
   "renderLayers": ["My OME-TIFF Mask"],
   "schemaVersion": "0.0.2",
   "images": [
     {
       "name": "My OME-TIFF Mask",
       "url": "http://example.com/my_mask.ome.tif",
-      "type": "ome-tiff",
-      "metadata": {
-        "isBitmask": true
-      }
+      "type": "ome-tiff"
     }
   ]
-};
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile({
-    fileType: ft.OBS_SEGMENTATIONS_RASTER_JSON,
-    coordinationValues: { obsType: "cell" },
-    options,
-  });
-`}
+}`}
 />
-
 
 ## `image.ome-zarr`
 
@@ -618,37 +590,10 @@ Points to one or more images in OME-TIFF or Bioformats-Zarr format.
 See the [options JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/raster.schema.json) for reference.
 Note that for this file type, the top-level `"url"` property is not required (URLs are specified for each image in `options.images[].url` instead).
 
-<ViewConfigTabs
-json={`
-{
-  "fileType": "image.raster.json",
-  "options": {
-    "renderLayers": ["My OME-TIFF Image"],
-    "schemaVersion": "0.0.2",
-    "images": [
-      {
-        "name": "My OME-TIFF Image",
-        "url": "http://example.com/my_image.ome.tif",
-        "type": "ome-tiff",
-        "metadata": {
-          "transform": {
-            // An optional transformation matrix
-            // in column-major order.
-            "matrix": [
-              0.81915098, -0.57357901, 0, 3264.76514684,
-              0.57357502, 0.819152, 0, 556.50440621,
-              0, 0, 1, 0,
-              0, 0, 0, 1
-            ]
-          }
-        }
-      }
-    ]
-  }
-}
-`}
-js={`
-const options = {
+<FileDefTabs
+fileType="image.raster.json"
+fileConst="IMAGE_RASTER_JSON"
+options={`{
   "renderLayers": ["My OME-TIFF Image"],
   "schemaVersion": "0.0.2",
   "images": [
@@ -670,68 +615,15 @@ const options = {
       }
     }
   ]
-};
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile({
-    fileType: ft.IMAGE_RASTER_JSON,
-    options,
-  });
-`}
+}`}
 />
 
 Example with a Zarr store:
 
-<ViewConfigTabs
-json={`
-{
-  "fileType": "image.raster.json",
-  "options": {
-    "schemaVersion": "0.0.2",
-    "images": [
-      {
-        "name": "My Bioformats-Zarr Image",
-        "url": "http://example.com/my_image.zarr",
-        "type": "zarr",
-        "metadata": {
-          "dimensions": [
-            {
-              "field": "channel",
-              "type": "nominal",
-              "values": [
-                "DAPI - Hoechst (nuclei)",
-                "FITC - Laminin (basement membrane)",
-                "Cy3 - Synaptopodin (glomerular)",
-                "Cy5 - THP (thick limb)"
-              ]
-            },
-            {
-              "field": "y",
-              "type": "quantitative",
-              "values": null
-            },
-            {
-              "field": "x",
-              "type": "quantitative",
-              "values": null
-            }
-          ],
-          "isPyramid": true,
-          "transform": {
-            "translate": {
-              "y": 0,
-              "x": 0
-            },
-            "scale": 1
-          }
-        }
-      }
-    ]
-  }
-}
-`}
-js={`
-const options = {
+<FileDefTabs
+fileType="image.raster.json"
+fileConst="IMAGE_RASTER_JSON"
+options={`{
   "schemaVersion": "0.0.2",
   "images": [
     {
@@ -772,14 +664,7 @@ const options = {
       }
     }
   ]
-};
-const dataset = vc
-  .addDataset("My dataset")
-  .addFile({
-    fileType: ft.IMAGE_RASTER_JSON,
-    options,
-  });
-`}
+}`}
 />
 
 ## `genomic-profiles.zarr`
