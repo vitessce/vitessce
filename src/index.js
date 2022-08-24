@@ -17,7 +17,8 @@ import {
   vconcat,
 } from './api';
 import {
-  Component,
+  ViewType as Component,
+  ViewType,
   DataType,
   FileType,
   CoordinationType,
@@ -78,6 +79,7 @@ export {
   hconcat,
   vconcat,
   Component,
+  ViewType,
   DataType,
   FileType,
   CoordinationType,

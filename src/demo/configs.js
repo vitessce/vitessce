@@ -1,4 +1,4 @@
-import { notPublic, vapi } from './utils';
+import { vapi } from './utils';
 import {
   justScatter, justScatterExpression, justSpatial,
   codeluppi2018,
@@ -45,13 +45,13 @@ export const configs = {
   'just-spatial': justSpatial,
   'just-higlass': justHiglass,
   'codeluppi-2018': codeluppiViaCsv,
-  'codeluppi-2018-via-zarr': notPublic(codeluppiViaZarr),
-  'combat-2022': notPublic(combat2022cell),
-  'habib-2017': notPublic(habib2017natureMethods),
-  'human-lymph-node-10x-visium': notPublic(humanLymphNode10xVisium),
-  'kuppe-2022': notPublic(kuppe2022nature),
-  'marshall-2022': notPublic(marshall2022iScience),
-  'meta-2022-azimuth': notPublic(meta2022azimuth),
+  'codeluppi-2018-via-zarr': codeluppiViaZarr,
+  'combat-2022': combat2022cell,
+  'habib-2017': habib2017natureMethods,
+  'human-lymph-node-10x-visium': humanLymphNode10xVisium,
+  'kuppe-2022': kuppe2022nature,
+  'marshall-2022': marshall2022iScience,
+  'meta-2022-azimuth': meta2022azimuth,
   'eng-2019': eng2019,
   'wang-2018': wang2018,
   'spraggins-2020': spraggins2020,
@@ -62,10 +62,22 @@ export const configs = {
   'blin-2019': blin2019,
   'ome-ngff-v0.1': omeNgffLegacy,
   // Keys which enable backwards compatibility with old links.
-  'codeluppi-2018-via-json': notPublic(codeluppi2018),
-  'linnarsson-2018': notPublic(codeluppi2018),
-  gating: notPublic(codeluppiGating),
-  vanderbilt: notPublic(spraggins2020),
-  'dries-2019': notPublic(eng2019),
+  'codeluppi-2018-via-json': codeluppi2018,
+  'linnarsson-2018': codeluppi2018,
+  gating: codeluppiGating,
+  vanderbilt: spraggins2020,
+  'dries-2019': eng2019,
   ...coordinationTypeConfigs,
 };
+
+// The list of configs shown by default on the development site
+// (http://localhost:3000 or dev.vitessce.io).
+// To adjust the list for the docs site, see docs/src/pages/_DemoList.js
+export const publicConfigs = [
+  'codeluppi-2018',
+  'eng-2019',
+  'wang-2018',
+  'spraggins-2020',
+  'satija-2020',
+  'blin-2019',
+];

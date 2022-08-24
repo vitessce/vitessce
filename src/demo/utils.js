@@ -2,7 +2,7 @@ import {
   VitessceConfig, hconcat, vconcat,
 } from '../api/index';
 import {
-  Component as cm,
+  ViewType as vt,
   DataType as dt,
   FileType as ft,
   CoordinationType as ct,
@@ -23,18 +23,11 @@ export function getS3Url(datasetPrefix, name) {
   return `${urlPrefix}/${datasetPrefix}/${datasetPrefix}.${name}.json`;
 }
 
-export function notPublic(config) {
-  return {
-    ...config,
-    public: undefined,
-  };
-}
-
 export const vapi = {
   VitessceConfig,
   hconcat,
   vconcat,
-  cm,
+  vt,
   dt,
   ft,
   ct,
