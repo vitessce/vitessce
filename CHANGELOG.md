@@ -4,6 +4,8 @@
   - New coordination types of `gatingFeatureSelectionX` and `gatingFeatureSelectionY` for the values selected for the gating plot.
 - Added new `arcsinh` option for the coordinaition type `featureValueTransform`
 - Added new coordination type `featureValueTransformCoefficient` to apply a coefficent to a feature value transform.
+- Added new demos to the documentation to showcase the new obs-by-feature features.
+- Added `ViewType` as a main export from `src/index.js` alongside `Component`. Replaced `Component` with `ViewType` in the documentation.
 
 ### Changed
 - Added new file type and data type constants.
@@ -21,6 +23,8 @@
 - Added tests for checking that FileType constants have been mapped to corresponding data types and loader classes.
 - Implemented support for `obsLabelsType` which supersedes `factors`.
 - Implemented obs set membership tooltips.
+- Fixed bug in the v1.0.0 to v1.0.1 view config upgrade function caused by modification of a reference to the config object.
+- Changed the `VitessceConfig` constructor and `VitessceConfigDataset.addFile` method to use named arguments via JS objects.
 
 
 ## [1.2.1](https://www.npmjs.com/package/vitessce/v/1.2.1) - 2022-08-03
