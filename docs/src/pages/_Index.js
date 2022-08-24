@@ -16,6 +16,15 @@ import { configs } from '../../../src/demo/configs';
 
 import styles from './styles.module.css';
 
+function logConfigUpgrade(prevConfig, nextConfig) {
+  // eslint-disable-next-line no-console
+  console.log(`Upgrade view config schema from ${prevConfig.version} to ${nextConfig.version}`);
+  // eslint-disable-next-line no-console
+  console.log(prevConfig);
+  // eslint-disable-next-line no-console
+  console.log(nextConfig);
+}
+
 function AppStyles(props) {
   const {
     dimNavbar = false,
@@ -194,6 +203,7 @@ function IndexWithHashParams() {
         <ThemedVitessce
           validateOnConfigChange={debug}
           onConfigChange={debug ? console.log : undefined}
+          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
           config={validConfig}
         />
         <div className={styles.vitessceClear}>

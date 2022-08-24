@@ -16,8 +16,7 @@ export const habib2017natureMethods = {
       },
       options: {
         obsFeatureMatrix: {
-          path: 'obsm/X_hvg',
-          featureFilterPath: 'var/highly_variable',
+          path: 'X',
         },
         obsEmbedding: {
           path: 'obsm/X_umap',
@@ -42,6 +41,9 @@ export const habib2017natureMethods = {
     },
     featureValueType: {
       A: 'expression',
+    },
+    featureValueColormapRange: {
+      A: [0.0, 0.35],
     },
   },
   layout: [{
@@ -77,6 +79,7 @@ export const habib2017natureMethods = {
       obsType: 'A',
       featureType: 'A',
       featureValueType: 'A',
+      featureValueColormapRange: 'A',
     },
     uid: 'C',
   },
@@ -90,9 +93,10 @@ export const habib2017natureMethods = {
       obsType: 'A',
       featureType: 'A',
       featureValueType: 'A',
+      featureValueColormapRange: 'A',
     },
     props: {
-      transpose: false,
+      transpose: true,
     },
     uid: 'D',
   },

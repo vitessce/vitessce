@@ -62,9 +62,11 @@ if (typeof self !== 'undefined') {
 
   self.addEventListener('message', (event) => {
     try {
-      const [name, args] = event.data;
-      const [message, transfers] = nameToFunction[name](args);
-      self.postMessage(message, transfers);
+      if (Array.isArray(event.data)) {
+        const [name, args] = event.data;
+        const [message, transfers] = nameToFunction[name](args);
+        self.postMessage(message, transfers);
+      }
     } catch (e) {
       console.warn(e);
     }

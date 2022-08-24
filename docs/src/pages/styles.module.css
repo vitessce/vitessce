@@ -376,43 +376,42 @@
   display: inline-block;
   padding: 0 6px;
   border-radius: 12px;
-  opacity: 0.8;
   font-size: 13px;
   margin-right: 0.3rem;
 }
 .demoGridItem .demoGridItemPill.spatial {
-  background-color: rgb(246, 231, 136);
+  background-color: rgb(189, 172, 58);
 }
 .demoGridItem .demoGridItemPill.imaging {
-  background-color: rgb(246, 231, 136);
+  background-color: rgb(189, 172, 58);
 }
 .demoGridItem .demoGridItemPill.csv {
-  background-color: rgb(180, 180, 251);
+  background-color: rgb(154, 154, 225);
 }
 .demoGridItem .demoGridItemPill.anndata {
-  background-color: rgb(164, 242, 193);
+  background-color: rgb(111, 193, 141);
 }
 .demoGridItem .demoGridItemPill.omengff {
-  background-color: rgb(164, 242, 193);
+  background-color: rgb(111, 193, 141);
 }
 .demoGridItem .demoGridItemPill.ometiff {
-  background-color: rgb(164, 242, 193);
+  background-color: rgb(111, 193, 141);
 }
 .demoGridItem .demoGridItemPill.zarr {
-  background-color: rgb(242, 164, 237);
+  background-color: rgb(206, 139, 202);
 }
 .demoGridItem .demoGridItemPill.scalability {
-  background-color: rgb(240, 178, 110);
+  background-color: rgb(234, 165, 90);
 }
 .demoGridItem .demoGridItemPill.multimodal {
   background-color: rgb(232, 122, 161);
 }
 .demoGridItem .demoGridItemPill.diagonal {
-  background-color: rgb(122, 204, 232);
+  background-color: rgb(100, 192, 222);
 }
 .demoGridItem .demoGridItemPill.mosaic {
-  background-color: rgb(122, 204, 232);
+  background-color: rgb(99, 186, 215);
 }
 .demoGridItem .demoGridItemPill._3d {
-  background-color: rgb(206, 232, 122);
+  background-color: rgb(161, 185, 84);
 }

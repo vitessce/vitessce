@@ -19,8 +19,8 @@ export class VitessceConfigDatasetFile {
     this.file = {
       url,
       fileType,
-      ...(coordinationValues !== null ? { coordinationValues } : {}),
-      ...(options !== null ? { options } : {}),
+      ...(coordinationValues ? { coordinationValues } : {}),
+      ...(options ? { options } : {}),
     };
   }
 

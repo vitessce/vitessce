@@ -6,14 +6,14 @@ import styles from './styles.module.css';
 
 const configAttrs = {
   'codeluppi-2018': ['imaging', 'CSV'],
+  'codeluppi-2018-via-zarr': ['imaging', 'Zarr', 'AnnData'],
   'eng-2019': ['spatial', 'CSV'],
   'wang-2018': ['spatial', 'CSV'],
   'spraggins-2020': ['imaging'],
   'neumann-2020': ['multi-modal', 'imaging', 'OME-TIFF'],
-  'satija-2020': ['Zarr', 'scalability'],
-  'sn-atac-seq-hubmap-2020': [],
+  'satija-2020': ['Zarr', 'AnnData'],
+  'sn-atac-seq-hubmap-2020': ['CSV', 'Zarr'],
   'blin-2019': ['imaging', '3D', 'Zarr', 'OME-NGFF'],
-  'codeluppi-2018-via-zarr': ['imaging', 'Zarr'],
   'human-lymph-node-10x-visium': ['imaging', 'Zarr', 'AnnData'],
   'habib-2017': ['Zarr', 'AnnData'],
   'marshall-2022': ['spatial', 'Zarr', 'AnnData'],
