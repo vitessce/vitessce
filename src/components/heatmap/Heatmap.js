@@ -391,7 +391,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       ) {
         const cell = cellOrdering[cellOrderingIndex];
         newIndex = transpose ? cellOrderingIndex : newIndex;
-        const cellIndex = expressionRowLookUp[cell];
+        const cellIndex = expressionRowLookUp.get(cell);
         for (
           let geneIndex = 0;
           geneIndex < expression.cols.length;
