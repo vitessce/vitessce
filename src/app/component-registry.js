@@ -1,10 +1,12 @@
 import { Component } from './constants';
+import { getPluginViewType, getPluginViewTypes } from './plugins';
 
 import DescriptionSubscriber from '../components/description/DescriptionSubscriber';
 import StatusSubscriber from '../components/status/StatusSubscriber';
 import GenesSubscriber from '../components/genes/GenesSubscriber';
 import CellSetsManagerSubscriber from '../components/sets/CellSetsManagerSubscriber';
-import ScatterplotSubscriber from '../components/scatterplot/ScatterplotSubscriber';
+import EmbeddingScatterplotSubscriber from '../components/embedding-scatterplot/EmbeddingScatterplotSubscriber';
+import GatingSubscriber from '../components/gating/GatingSubscriber';
 import SpatialSubscriber from '../components/spatial/SpatialSubscriber';
 import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
 import LayerControllerSubscriber from '../components/layer-controller/LayerControllerSubscriber';
@@ -14,13 +16,13 @@ import GenomicProfilesSubscriber from '../components/higlass/GenomicProfilesSubs
 import ExpressionHistogramSubscriber from '../components/genes/ExpressionHistogramSubscriber';
 import CellSetExpressionPlotSubscriber from '../components/sets/CellSetExpressionPlotSubscriber';
 
-
 const registry = {
   [Component.DESCRIPTION]: DescriptionSubscriber,
   [Component.STATUS]: StatusSubscriber,
   [Component.GENES]: GenesSubscriber,
   [Component.CELL_SETS]: CellSetsManagerSubscriber,
-  [Component.SCATTERPLOT]: ScatterplotSubscriber,
+  [Component.SCATTERPLOT]: EmbeddingScatterplotSubscriber,
+  [Component.GATING]: GatingSubscriber,
   [Component.SPATIAL]: SpatialSubscriber,
   [Component.HEATMAP]: HeatmapSubscriber,
   [Component.LAYER_CONTROLLER]: LayerControllerSubscriber,
@@ -34,9 +36,19 @@ const registry = {
 };
 
 export function getComponent(name) {
-  const component = registry[name];
+  let component = registry[name];
   if (component === undefined) {
-    throw new Error(`Could not find definition for "${name}" in registry.`);
+    component = getPluginViewType(name);
+    if (component === undefined) {
+      throw new Error(`Could not find definition for "${name}" in the core registry nor the plugin registry.`);
+    }
   }
-  return registry[name];
+  return component;
+}
+
+export function getViewTypes() {
+  return [
+    ...Object.keys(registry),
+    ...getPluginViewTypes(),
+  ];
 }

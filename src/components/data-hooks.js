@@ -5,13 +5,14 @@ import { useSetWarning } from '../app/state/hooks';
 import {
   AbstractLoaderError,
   LoaderNotFoundError,
+  DatasetNotFoundError,
 } from '../loaders/errors/index';
 import {
   DEFAULT_MOLECULES_LAYER,
   DEFAULT_CELLS_LAYER,
   DEFAULT_NEIGHBORHOODS_LAYER,
 } from './spatial/constants';
-import { DEFAULT_COORDINATION_VALUES } from '../app/state/coordination';
+import { getDefaultCoordinationValues } from '../app/plugins';
 
 /**
  * Warn via publishing to the console
@@ -41,11 +42,12 @@ function initCoordinationSpace(values, setters, initialValues) {
   if (!values || !setters) {
     return;
   }
+  const defaultCoordinationValues = getDefaultCoordinationValues();
   Object.entries(values).forEach(([coordinationType, value]) => {
     const setterName = `set${capitalize(coordinationType)}`;
     const setterFunc = setters[setterName];
     const initialValue = initialValues && initialValues[coordinationType];
-    const shouldInit = equal(initialValue, DEFAULT_COORDINATION_VALUES[coordinationType]);
+    const shouldInit = equal(initialValue, defaultCoordinationValues[coordinationType]);
     if (shouldInit && setterFunc) {
       setterFunc(value);
     }
@@ -130,7 +132,7 @@ export function useCellsData(
         // spatial cells layer coordination value
         // using the cell layer singleton.
         const coordinationValuesOrDefault = {
-          spatialCellsLayer: DEFAULT_CELLS_LAYER,
+          spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
           ...coordinationValues,
         };
         initCoordinationSpace(
@@ -486,7 +488,7 @@ export function useMoleculesData(
           .reduce((a, b) => a + b, 0));
         addUrl(url, 'Molecules');
         const coordinationValuesOrDefault = {
-          spatialMoleculesLayer: DEFAULT_MOLECULES_LAYER,
+          spatialPointLayer: DEFAULT_MOLECULES_LAYER,
           ...coordinationValues,
         };
         initCoordinationSpace(
@@ -557,7 +559,7 @@ export function useNeighborhoodsData(
           setNeighborhoods(data);
           addUrl(url, 'Neighborhoods');
           const coordinationValuesOrDefault = {
-            spatialNeighborhoodsLayer: DEFAULT_NEIGHBORHOODS_LAYER,
+            spatialNeighborhoodLayer: DEFAULT_NEIGHBORHOODS_LAYER,
             ...coordinationValues,
           };
           initCoordinationSpace(
@@ -623,6 +625,11 @@ export function useRasterData(
 
   useEffect(() => {
     if (!loaders[dataset]) {
+      if (isRequired) {
+        warn(new DatasetNotFoundError(dataset), setWarning);
+      } else {
+        setItemIsReady('raster');
+      }
       return;
     }
 

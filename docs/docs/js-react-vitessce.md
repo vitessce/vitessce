@@ -59,6 +59,11 @@ Whether to validate
 against the view config schema when publishing changes. Use for debugging
 purposes only, as this has a performance impact.
 
+### `isBounded`
+- Type: `boolean`
+
+If set to `true` then users cannot resize or move components beyond the initial borders of the grid. By default, `false`.
+
 ## Lazy loading
 
 We are aware that the main JavaScript bundle for Vitessce is large.

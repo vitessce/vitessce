@@ -2,7 +2,7 @@ module.exports = {
   docs: [
     {
       type: 'doc',
-      id: 'introduction'
+      id: 'introduction',
     },
     {
       type: 'category',
@@ -13,25 +13,20 @@ module.exports = {
         'data-types-file-types',
         'coordination',
         'coordination-types',
-        'platforms'
+        'platforms',
       ],
     },
     {
-      type: 'category',
-      label: 'View Configs',
-      items: [
-        'view-config-json',
-        'view-config-js',
-        'constants',
-        'troubleshooting'
-      ],
+      type: 'doc',
+      id: 'view-config-json',
     },
     {
       type: 'category',
       label: 'Data Preparation',
       items: [
         'data-file-types',
-        'data-hosting'
+        'data-hosting',
+        'data-troubleshooting',
       ],
     },
     {
@@ -39,6 +34,8 @@ module.exports = {
       label: 'JavaScript API',
       items: [
         'js-overview',
+        'view-config-js',
+        'constants',
         'js-react-vitessce',
       ],
     },
@@ -47,13 +44,19 @@ module.exports = {
       label: 'Developer Docs',
       items: [
         'dev-overview',
-        'dev-add-component'
+        'dev-add-component',
+        'dev-plugins',
+        'troubleshooting',
       ],
     },
     {
       type: 'doc',
-      id: 'about'
-    } 
+      id: 'roadmap',
+    },
+    {
+      type: 'doc',
+      id: 'about',
+    },
   ],
   tutorials: [
     {
@@ -62,7 +65,11 @@ module.exports = {
       collapsed: false,
       items: [
         'tutorials',
-        'tutorial-visium'
+        'tutorial-visium',
+        'tutorial-gh-pages',
+        'tutorial-plugin-view-type',
+        'tutorial-plugin-coordination-type',
+        'tutorial-plugin-file-type',
       ],
     },
   ],

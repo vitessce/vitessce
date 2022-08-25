@@ -3,7 +3,7 @@ name: Test
 on:
   push:
     branches:
-    - master
+    - main
   pull_request:
 
 jobs:
@@ -13,33 +13,35 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [12, 14, 16]
-        os: [ubuntu-18.04]
+        node: [16, 18]
+        os: [ubuntu-20.04]
         include:
-          - os: windows-2019
-            node: 14
+          - os: windows-2022
+            node: 16
     
     name: Test on ${{ matrix.os }} with Node ${{ matrix.node }}
     
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Node ${{ matrix.node }}
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-      - name: Install NPM dependencies
-        run: npm ci
-      - name: Run tests
-        run: ./test.sh
+      - id: get-options
+        run: . ./set-node-options.sh --action
+      - run: npm ci --legacy-peer-deps
+      - run: ./test.sh
         env:
-          NODE_OPTIONS: '--max_old_space_size=4096'
+          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
   cypress-run:
-    runs-on: ubuntu-18.04
-
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
       - uses: cypress-io/github-action@v2
         with:
+          install-command: npm ci --legacy-peer-deps
           start: npm start, npm run start:fixtures
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 120

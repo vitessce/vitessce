@@ -34,7 +34,7 @@ const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
 };
 
 /**
- * React component which renders a scatterplot from cell data, typically tSNE or PCA.
+ * React component which renders a scatterplot from cell data.
  * @param {object} props
  * @param {string} props.uuid A unique identifier for this component.
  * @param {string} props.theme The current vitessce theme.
@@ -54,6 +54,7 @@ const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
  * (used by the selection layer).
  * @param {function} props.getCellPosition Getter function for cell [x, y, z] position.
  * @param {function} props.getCellColor Getter function for cell color as [r, g, b] array.
+ * @param {function} props.getExpressionValue Getter function for cell expression value.
  * @param {function} props.getCellIsSelected Getter function for cell layer isSelected.
  * @param {function} props.setCellSelection
  * @param {function} props.setCellHighlight
@@ -121,7 +122,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       getPosition: getCellPosition,
       getFillColor: getCellColor,
       getLineColor: getCellColor,
-      getPointRadius: 1,
+      getRadius: 1,
       getExpressionValue,
       getLineWidth: 0,
       extensions: [
@@ -141,6 +142,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         getExpressionValue,
         getFillColor: [cellColorEncoding, cellSelection, cellColors],
         getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        getPosition: [mapping],
         getCellIsSelected,
       },
       ...cellLayerDefaultProps(
@@ -318,7 +320,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     }
 
     if ([
-      'cells', 'cellFilter', 'cellSelection', 'cellColors',
+      'cells', 'mapping', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
     ].some(shallowDiff)) {

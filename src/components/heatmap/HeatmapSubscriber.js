@@ -68,25 +68,25 @@ export default function HeatmapSubscriber(props) {
     heatmapZoomX: zoomX,
     heatmapTargetX: targetX,
     heatmapTargetY: targetY,
-    geneSelection,
-    cellHighlight,
-    geneHighlight,
-    cellSetSelection,
-    cellSetColor,
-    additionalCellSets,
-    geneExpressionColormap,
-    geneExpressionColormapRange,
+    featureSelection: geneSelection,
+    obsHighlight: cellHighlight,
+    featureHighlight: geneHighlight,
+    obsSetSelection: cellSetSelection,
+    obsSetColor: cellSetColor,
+    additionalObsSets: additionalCellSets,
+    featureValueColormap: geneExpressionColormap,
+    featureValueColormapRange: geneExpressionColormapRange,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
     setHeatmapTargetX: setTargetX,
     setHeatmapTargetY: setTargetY,
-    setCellHighlight,
-    setGeneHighlight,
-    setCellSetSelection,
-    setCellSetColor,
-    setGeneExpressionColormapRange,
-    setGeneExpressionColormap,
+    setObsHighlight: setCellHighlight,
+    setFeatureHighlight: setGeneHighlight,
+    setObsSetSelection: setCellSetSelection,
+    setObsSetColor: setCellSetColor,
+    setFeatureValueColormapRange: setGeneExpressionColormapRange,
+    setFeatureValueColormap: setGeneExpressionColormap,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES.heatmap, coordinationScopes);
 
   const observationsTitle = capitalize(observationsPluralLabel);
@@ -118,8 +118,8 @@ export default function HeatmapSubscriber(props) {
   );
   const [cellSets] = useCellSetsData(
     loaders, dataset, setItemIsReady, addUrl, false,
-    { setCellSetSelection, setCellSetColor },
-    { cellSetSelection, cellSetColor },
+    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
+    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
   );
 
   const mergedCellSets = useMemo(() => mergeCellSets(
@@ -155,6 +155,15 @@ export default function HeatmapSubscriber(props) {
     }
     return null;
   }, [variablesLabel]);
+
+  const setTrackHighlight = useCallback(() => {
+    // No-op, since the default handler
+    // logs in the console on every hover event.
+  }, []);
+
+  const cellColorLabels = useMemo(() => ([
+    `${capitalize(observationsLabel)} Set`,
+  ]), [observationsLabel]);
 
   const cellsCount = expressionMatrix && expressionMatrix.rows
     ? expressionMatrix.rows.length : 0;
@@ -201,12 +210,17 @@ export default function HeatmapSubscriber(props) {
         setIsRendering={setIsRendering}
         setCellHighlight={setCellHighlight}
         setGeneHighlight={setGeneHighlight}
+        setTrackHighlight={setTrackHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
         observationsTitle={observationsTitle}
         variablesTitle={variablesTitle}
+        variablesDashes={false}
+        observationsDashes={false}
+        cellColorLabels={cellColorLabels}
+        useDevicePixels
       />
       {!disableTooltip && (
       <HeatmapTooltipSubscriber

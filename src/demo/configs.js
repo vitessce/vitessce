@@ -1,6 +1,8 @@
 import { notPublic, vapi } from './utils';
 import {
-  justScatter, justScatterExpression, justSpatial, codeluppi2018,
+  justScatter, justScatterExpression, justSpatial,
+  codeluppi2018,
+  codeluppiGating,
 } from './view-configs/codeluppi';
 import { eng2019 } from './view-configs/eng';
 import { wang2018 } from './view-configs/wang';
@@ -22,7 +24,7 @@ export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
   [vapi.ct.EMBEDDING_TARGET_X]: embeddingTargetXConfig,
   [vapi.ct.EMBEDDING_TARGET_Y]: embeddingTargetYConfig,
-  [vapi.ct.EMBEDDING_CELL_SET_POLYGONS_VISIBLE]: embeddingCellSetPolygonsVisibleConfig,
+  [vapi.ct.EMBEDDING_OBS_SET_POLYGONS_VISIBLE]: embeddingCellSetPolygonsVisibleConfig,
 };
 
 // Note that the ordering of the components in the layout
@@ -46,6 +48,7 @@ export const configs = {
   'ome-ngff-v0.1': omeNgffLegacy,
   // Keys which enable backwards compatibility with old links.
   'linnarsson-2018': notPublic(codeluppi2018),
+  gating: notPublic(codeluppiGating),
   vanderbilt: notPublic(spraggins2020),
   'dries-2019': notPublic(eng2019),
   ...coordinationTypeConfigs,

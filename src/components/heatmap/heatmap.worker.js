@@ -10,13 +10,13 @@ import { getCellByGeneTile, getGeneByCellTile } from './utils';
  * @param {number} params.yTiles How many tiles required in the y direction?
  * @param {number} params.tileSize How many entries along each tile axis?
  * @param {string[]} params.cellOrdering The current ordering of cells.
- * @param {string[]} params.rows The name of each row (cell ID).
- * Does not take transpose into account (always cells).
  * @param {string[]} params.cols The name of each column (gene ID).
  * Does not take transpose into account (always genes).
  * @param {ArrayBuffer} params.data The array buffer.
  * Need to transfer back to main thread when done.
  * @param {boolean} params.transpose Is the heatmap transposed?
+ * @param {boolean} params.expressionRowLookUp A lookup table for the array index of a given cell.
+ * This is needed for performance reasons instead of calling `indexOf` repeatedly.
  * @returns {array} [message, transfers]
  */
 function getTile({
@@ -25,27 +25,30 @@ function getTile({
   tileJ,
   tileSize,
   cellOrdering,
-  rows,
   cols,
   data,
   transpose,
+  expressionRowLookUp,
 }) {
   const view = new Uint8Array(data);
 
   const numGenes = cols.length;
   const numCells = cellOrdering.length;
 
-  const getTileFunction = transpose ? getGeneByCellTile : getCellByGeneTile;
+  const getTileFunction = (transpose ? getGeneByCellTile : getCellByGeneTile);
 
-  const result = getTileFunction(view, {
-    tileSize,
-    tileI,
-    tileJ,
-    numCells,
-    numGenes,
-    cellOrdering,
-    cells: rows,
-  });
+  const result = getTileFunction(
+    view,
+    {
+      tileSize,
+      tileI,
+      tileJ,
+      numCells,
+      numGenes,
+      cellOrdering,
+      expressionRowLookUp,
+    },
+  );
   return [{ tile: result, buffer: data, curr }, [data]];
 }
 

@@ -3,38 +3,26 @@ name: Deploy
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     name: Deploy
-    env:
-      NODE_OPTIONS: '--max_old_space_size=4096'
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Node 14
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 16
           registry-url: https://registry.npmjs.org/
-      - name: Install NPM dependencies
-        run: npm ci
-      - name: Run tests
-        run: ./test.sh
+      - id: get-options
+        run: . ./set-node-options.sh --action
+      - run: npm ci --legacy-peer-deps
+      - run: ./test.sh
+        env:
+          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - name: Deploy to NPM
         continue-on-error: true
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-  cypress-run:
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2
-      - uses: cypress-io/github-action@v2
-        with:
-          start: npm start, npm run start:fixtures
-          wait-on: 'http://localhost:3000'
-          wait-on-timeout: 120
-          browser: chrome
-          headless: true

@@ -11,6 +11,7 @@
         }
         .table-item {
             cursor: pointer;
+            user-select: none;
             &:not(.row-checked):hover {
                 @if $theme-name == dark {
                     background-color: darken(map-get($theme-colors, "secondary-background-dim"), 10%);

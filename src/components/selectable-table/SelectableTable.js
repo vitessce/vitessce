@@ -7,6 +7,8 @@ import union from 'lodash/union';
 import difference from 'lodash/difference';
 import isEqual from 'lodash/isEqual';
 
+const SHIFT_KEYCODE = 16;
+
 /**
  * A table with "selectable" rows.
  * @prop {string[]} columns An array of column names, corresponding to data object properties.
@@ -18,7 +20,7 @@ import isEqual from 'lodash/isEqual';
  * @prop {string} valueKey If initially-selected rows are required,
  * this key specifies a boolean property of the `data` objects
  * indicating those rows that should be initially selected.
- * @prop {boolean} allowMultiple Whether to allow multiple rows to be selected. By default, false.
+ * @prop {boolean} allowMultiple Whether to allow multiple rows to be selected.
  * @prop {boolean} allowUncheck Whether to allow selected rows to be un-checked. By default, false.
  * @prop {boolean} showTableHead Whether to show the table header element. By default, true.
  * @prop {boolean} showTableInputs Whether to show the table input elements for each row.
@@ -41,12 +43,40 @@ export default function SelectableTable(props) {
   } = props;
 
   const [selectedRows, setSelectedRows] = useState(null);
+  const [isCheckingMultiple, setIsCheckingMultiple] = useState(false);
+
+  // Enable selecting multiple rows while the shift key is down.
+  useEffect(() => {
+    function onKeyDown(event) {
+      if (allowMultiple && event.keyCode === SHIFT_KEYCODE) {
+        setIsCheckingMultiple(true);
+      }
+    }
+
+    function onKeyUp(event) {
+      if (allowMultiple && event.keyCode === SHIFT_KEYCODE) {
+        setIsCheckingMultiple(false);
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+    };
+  }, [allowMultiple]);
 
   // Callback function to update the `selectedRows` state.
   const onSelectRow = useCallback((value, checked) => {
     if (checked || allowUncheck) {
-      if (!allowMultiple) {
-        setSelectedRows(checked ? [value] : []);
+      if (!isCheckingMultiple
+        && (checked || (!checked && allowMultiple && selectedRows.length > 1))
+      ) {
+        setSelectedRows([value]);
+      } else if (!allowMultiple && !checked) {
+        setSelectedRows([]);
       } else {
         setSelectedRows(
           checked
@@ -55,7 +85,7 @@ export default function SelectableTable(props) {
         );
       }
     }
-  }, [allowMultiple, allowUncheck, selectedRows]);
+  }, [allowMultiple, isCheckingMultiple, allowUncheck, selectedRows]);
 
   // Handler for checkbox input elements.
   const handleInputChange = useCallback((event) => {
@@ -111,7 +141,7 @@ export default function SelectableTable(props) {
     } else if (selectedRows.length === 0) {
       onChange(null);
     }
-  }, [selectedRows]);
+  }, [selectedRows, allowMultiple]);
 
   // Generate a unique ID to use in (for, id) label-input pairs.
   const inputUuid = uuidv4();
@@ -136,7 +166,7 @@ export default function SelectableTable(props) {
           <input
             id={`${inputUuid}_${data[index][idKey]}`}
             type="checkbox"
-            className={(allowMultiple ? 'checkbox' : 'radio')}
+            className={(isCheckingMultiple ? 'checkbox' : 'radio')}
             name={inputUuid}
             value={data[index][idKey]}
             onChange={handleInputChange}

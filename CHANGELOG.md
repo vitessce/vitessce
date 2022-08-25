@@ -2,6 +2,146 @@
 ### Added
 
 ### Changed
+
+- Speed up heatmap load times (including when cell ordering changes) by implementing a custom indexing scheme on the shaders (see `src/components/heatmap/heatmap-indexing.pdf` for more info)
+
+
+## [1.2.1](https://www.npmjs.com/package/vitessce/v/1.2.1) - 2022-08-03
+
+### Added
+- Added `gating` component that allows users to dynamically generate a scatterplot based on gene expression values.
+  - New coordination types of `gatingFeatureSelectionX` and `gatingFeatureSelectionY` for the values selected for the gating plot.
+    - Fixed bug in `GatingSubscriber` which accidentally modified the shared `cells` data object.
+- Added new `arcsinh` option for the coordinaition type `featureValueTransform`
+- Added new coordination type `featureValueTransformCoefficient` to apply a coefficent to a feature value transform.
+
+
+### Changed
+
+
+## [1.2.0](https://www.npmjs.com/package/vitessce/v/1.2.0) - 2022-07-22
+
+### Added
+- Added the property `coordinationValues` for view config file definitions but is not yet used to do file matching/lookups.
+- Added warning log messages when outdated constant values have been accessed (via JS Proxy).
+- Added the optional `uid` property for view definitions in the view config.
+- Added `enableMultiSelect` prop for `GenesSubscriber`. Current built-in views do not display multiple gene selections but plugin views could use this functionality.
+- Added a mapping from file types to data types, making the `datasets[].files[].type` property no longer required.
+- Added a registration function for plugin convenience file types.
+- Added coordination types for entity types.
+  - `obsType`
+  - `featureType`
+  - `featureValueType`
+- Add more usage examples to the `about` documentation page.
+- Added `npm run start:nolint` script to disable linting for quickly prototyping code.
+- Added the optional `isBounded` property to the `Vitessce` React component that prevents users from dragging or resizing components beyond the original grid boundary.
+- Added support for multiple `cellColor` tracks in the Heatmap component.
+
+### Changed
+- Fixed buggy view closing behavior by using the view `uid` rather than the index as the component `key`.
+- Update code to reflect renaming of the default branch from `master` to `main`.
+- Concatenate gene alias with original id for uniqueness in the presence of duplicates like `alias (original)`
+- Change spatial layer coordination type names.
+  - `spatialRasterLayers` -> `spatialImageLayer`
+  - `spatialCellsLayer` -> `spatialSegmentationLayer`
+  - `spatialMoleculesLayer` -> `spatialPointLayer`
+  - `spatialNeighborhoodsLayer` -> `spatialNeighborhoodLayer`
+- Added the required `schemaVersion` parameter in the `VitessceConfig` constructor. (Breaking change for the `VitessceConfig` API.)
+- Improved documentation.
+  - More consistently using the term "view type" rather than "component".
+  - Added a config schema version diff tool to the view config JSON documentation page.
+- Changed cell- and gene-related coordination type names.
+  - `cellFilter` -> `obsFilter`
+  - `cellHighlight` -> `obsHighlight`
+  - `cellSelection` -> `obsSelection`
+  - `cellSetSelection` -> `obsSetSelection`
+  - `cellSetHighlight` -> `obsSetHighlight`
+  - `cellSetColor` -> `obsSetColor`
+  - `geneFilter` -> `featureFilter`
+  - `geneHighlight` -> `featureHighlight`
+  - `geneSelection` -> `featureSelection`
+  - `geneExpressionColormap` -> `featureValueColormap`
+  - `geneExpressionColormapRange` -> `featureValueColormapRange`
+  - `cellColorEncoding` -> `obsColorEncoding`
+  - `additionalCellSets` -> `additionalObsSets`
+  - `embeddingCellSetPolygonsVisible` -> `embeddingObsSetPolygonsVisible`
+  - `embeddingCellSetLabelsVisible` -> `embeddingObsSetLabelsVisible`
+  - `embeddingCellSetLabelSize` -> `embeddingObsSetLabelSize`
+  - `embeddingCellRadius` -> `embeddingObsRadius`
+  - `embeddingCellRadiusMode` -> `embeddingObsRadiusMode`
+  - `embeddingCellOpacity` -> `embeddingObsOpacity`
+  - `embeddingCellOpacityMode` -> `embeddingObsOpacityMode`
+- Fixed schema v1.0.12
+- Removed the requirement for `cellSets` data in the CellSetsManagerSubscriber component to support the use case where all cell sets are provided via `additionalCellSets` / the coordination space.
+- Use Node v16 and NPM v8 for development, testing, and CI. Motivated by [issue](https://github.com/npm/cli/issues/2610) caused by GitHub SSH URLs in NPM v6-formatted package-lock.
+  - Fixed package-lock issue
+
+## [1.1.21](https://www.npmjs.com/package/vitessce/v/1.1.21) - 2022-04-27
+
+### Added
+- Adds new view config schema version `1.0.8` to support multiple `dataset` coordination scopes and dataset-specific coordination scope mappings for all other coordination types
+  ```js
+  datasets: [
+    { uid: 'my-query', ... },
+    { uid: 'some-atlas', ... },
+  ],
+  coordinationSpace: {
+    dataset: {
+      REFERENCE: 'some-atlas',
+      QUERY: 'my-query',
+    },
+    embeddingType: {
+      common: 'UMAP',
+    },
+    embeddingZoom: {
+      refZoom: 2,
+      qryZoom: 4,
+    },
+    ...,
+  },
+  layout: [
+    {
+      component: 'qrComparisonScatterplot',
+      coordinationScopes: {
+        dataset: ['REFERENCE', 'QUERY'],
+        embeddingType: 'common',
+        embeddingZoom: { REFERENCE: 'refZoom', QUERY: 'qryZoom' },
+      },
+      x: 0, y: 0, w: 5, h: 12,
+    },
+    ...,
+  ],
+  ...
+  ```
+- Add support for plugin view types, coordination types, and file types.
+- Added more exports in `src/index.js` to better support plugin development.
+- Added data troubleshooting documentation page.
+- Added more old presentation links to the README.
+
+### Changed
+- Merged dependabot PRs.
+- Allow `Description` component to render without a dataset.
+
+
+## [1.1.20](https://www.npmjs.com/package/vitessce/v/1.1.20) - 2022-04-21
+
+
+
+### Added
+- Add a tutorial that describes how to deploy a Vitessce web app to GitHub pages.
+- Support `var` alias for AnnData to display altenrative gene names via new `geneAlias` field.
+
+### Changed
+- Use a hash table lookup instead of calling `indexOf` repeatedly for the heatmap component tiling.
+- Fix `molecules` layer sizing
+
+
+## [1.1.19](https://www.npmjs.com/package/vitessce/v/1.1.19) - 2022-03-30
+
+### Added
+- Added a roadmap page to the documentation.
+
+### Changed
 - Update README: Point users to vitessce.io, use smaller screenshots, drop low-level details.
 - Upgrade Viv to 0.12.6 to fix shader compilation issue with interleaved RGB images
 - Fixed layer controller raster channel slider bug, related to [MUI slider issue](https://github.com/mui/material-ui/issues/20896).

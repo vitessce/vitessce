@@ -2,9 +2,6 @@
 import uuidv4 from 'uuid/v4';
 import cloneDeep from 'lodash/cloneDeep';
 import { getNextScope, capitalize } from '../utils';
-import {
-  COMPONENT_COORDINATION_TYPES,
-} from './state/coordination';
 
 /**
  * A helper function for the `upgrade()` function,
@@ -180,8 +177,12 @@ export function upgradeFrom1_0_0(config) {
 
     function replaceCoordinationScope(layerType) {
       const isRaster = layerType === 'raster';
-      if (COMPONENT_COORDINATION_TYPES[newComponent.component].includes(`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`)) {
-        newComponent.coordinationScopes[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`] = newComponent.coordinationScopes.spatialLayers;
+      if (
+        ['spatial', 'layerController'].includes(newComponent.component)
+        || (newComponent.component === 'description' && isRaster)
+      ) {
+        newComponent.coordinationScopes[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`] = newComponent
+          .coordinationScopes.spatialLayers;
       }
     }
 
@@ -296,5 +297,158 @@ export function upgradeFrom1_0_5(config) {
   return {
     ...newConfig,
     version: '1.0.6',
+  };
+}
+
+// Added in version 1.0.7:
+// - Support for aliasing the gene identifiers using a different var dataframe column
+// via a new `geneAlias` option for the `anndata-expression-matrix.zarr` fileType.
+export function upgradeFrom1_0_6(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.7',
+  };
+}
+
+// Added in version 1.0.8:
+// - Support for multiple `dataset` coordination scopes and
+// dataset-specific coordination scope mappings for all
+// other coordination types.
+export function upgradeFrom1_0_7(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.8',
+  };
+}
+
+// Added in version 1.0.9:
+// - Support for plugin coordination types.
+export function upgradeFrom1_0_8(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.9',
+  };
+}
+
+// Added in version 1.0.10:
+// - Support for the optional 'uid' property for views.
+export function upgradeFrom1_0_9(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.10',
+  };
+}
+
+// Added in version 1.0.11:
+// - Changes to spatial layer coordination type names.
+// - Cell -> Obs, Gene -> Feature in coordination type names.
+export function upgradeFrom1_0_10(config) {
+  const coordinationSpace = { ...config.coordinationSpace };
+
+  const scopeAnalogies = {
+    // Spatial layer types
+    spatialRasterLayers: 'spatialImageLayer',
+    spatialCellsLayer: 'spatialSegmentationLayer',
+    spatialMoleculesLayer: 'spatialPointLayer',
+    spatialNeighborhoodsLayer: 'spatialNeighborhoodLayer',
+    // Other types
+    cellFilter: 'obsFilter',
+    cellHighlight: 'obsHighlight',
+    cellSelection: 'obsSelection',
+    cellSetSelection: 'obsSetSelection',
+    cellSetHighlight: 'obsSetHighlight',
+    cellSetColor: 'obsSetColor',
+    geneFilter: 'featureFilter',
+    geneHighlight: 'featureHighlight',
+    geneSelection: 'featureSelection',
+    geneExpressionColormap: 'featureValueColormap',
+    geneExpressionColormapRange: 'featureValueColormapRange',
+    cellColorEncoding: 'obsColorEncoding',
+    additionalCellSets: 'additionalObsSets',
+    embeddingCellSetPolygonsVisible: 'embeddingObsSetPolygonsVisible',
+    embeddingCellSetLabelsVisible: 'embeddingObsSetLabelsVisible',
+    embeddingCellSetLabelSize: 'embeddingObsSetLabelSize',
+    embeddingCellRadius: 'embeddingObsRadius',
+    embeddingCellRadiusMode: 'embeddingObsRadiusMode',
+    embeddingCellOpacity: 'embeddingObsOpacity',
+    embeddingCellOpacityMode: 'embeddingObsOpacityMode',
+  };
+
+  Object.entries(scopeAnalogies).forEach(([oldKey, newKey]) => {
+    if (coordinationSpace[oldKey]) {
+      coordinationSpace[newKey] = coordinationSpace[oldKey];
+      delete coordinationSpace[oldKey];
+    }
+  });
+
+  const layout = config.layout.map((component) => {
+    const newComponent = { ...component };
+    const { coordinationScopes = {} } = newComponent;
+
+    Object.entries(scopeAnalogies).forEach(([oldKey, newKey]) => {
+      if (coordinationScopes[oldKey]) {
+        coordinationScopes[newKey] = coordinationScopes[oldKey];
+        delete coordinationScopes[oldKey];
+      }
+    });
+
+    return {
+      ...newComponent,
+      coordinationScopes,
+    };
+  });
+
+  return {
+    ...config,
+    coordinationSpace,
+    layout,
+    version: '1.0.11',
+  };
+}
+
+// Added in version 1.0.12:
+// - Added a fileType-to-dataType mapping
+// so that datasets[].files[].type is no longer required.
+export function upgradeFrom1_0_11(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.12',
+  };
+}
+
+// Added in version 1.0.13:
+// - Adds the property `coordinationValues` for
+// view config file definitions but is not yet
+// used to do file matching/lookups.
+export function upgradeFrom1_0_12(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.13',
+  };
+}
+
+// Added in version 1.0.14:
+// - Adds the coordination types
+// gatingFeatureSelectionX,
+// gatingFeatureSelectionY,
+// featureValueTransformCoefficient.
+export function upgradeFrom1_0_13(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.14',
   };
 }

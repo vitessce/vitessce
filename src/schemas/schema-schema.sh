@@ -24,7 +24,7 @@ fi
 # Check that existing schemas have not changed.
 for SCHEMA in $SCHEMA_DIR/config-*.schema.json; do
   SCHEMA_NAME=`basename $SCHEMA`
-  SCHEMA_RESPONSE=`curl -s https://raw.githubusercontent.com/vitessce/vitessce/master/src/schemas/$SCHEMA_NAME`
+  SCHEMA_RESPONSE=`curl -s https://raw.githubusercontent.com/vitessce/vitessce/main/src/schemas/$SCHEMA_NAME`
   if [ "$SCHEMA_RESPONSE" == "404: Not Found" ]; then
     echo "Schema $SCHEMA is not in production yet."
   else

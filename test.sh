@@ -10,8 +10,8 @@ die() { set +v; echo "$*" 1>&2 ; sleep 1; exit 1; }
 PATH=$PATH:`npm bin`
 
 start changelog
-if [ "$GITHUB_REF" != 'refs/heads/master' ]; then
-  diff CHANGELOG.md <(curl https://raw.githubusercontent.com/vitessce/vitessce/master/CHANGELOG.md) \
+if [ "$GITHUB_REF" != 'refs/heads/main' ]; then
+  diff CHANGELOG.md <(curl https://raw.githubusercontent.com/vitessce/vitessce/main/CHANGELOG.md) \
     && die 'Update CHANGELOG.md'
 fi
 end changelog

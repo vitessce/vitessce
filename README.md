@@ -22,7 +22,7 @@ Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
 ### Interactive
 
-Vitessce consists of reusable interactive components including a scatterplot, spatial+imaging plot, genome browser tracks, statistical plots, and controller components, built on web technologies such as WebGL.
+Vitessce consists of reusable interactive views including a scatterplot, spatial+imaging plot, genome browser tracks, statistical plots, and control views, built on web technologies such as WebGL.
 
 ### Integrative
 
@@ -34,7 +34,7 @@ Visualize large datasets stored in static cloud object stores such as AWS S3. No
 
 ## Usage
 
-Vitessce components can be used in React projects by installing the package from NPM:
+Vitessce can be used in React projects by installing the package from NPM:
 
 ```sh
 npm install vitessce
@@ -44,22 +44,20 @@ For more details, please visit the [documentation](http://vitessce.io/docs/js-ov
 
 ## Development
 
-First check your NodeJS version: It should work with NodeJS 8, 10, 12, 13, or 14.
-```
-$ node --version
-v14.0.0
-```
+First install NodeJS and NPM. We develop and test against NodeJS `v16.14.2` and NPM `8.5.0`.
 
-Note: NodeJS 14 may require the `max_old_space_size` option to be increased ([apparently due to a different heap management strategy](https://stackoverflow.com/a/59572966)):
-```sh
-export NODE_OPTIONS=--max_old_space_size=4096
-```
+> **Note**
+> NodeJS may require the [`max_old_space_size`](https://stackoverflow.com/a/59572966) value to be increased and the [`openssl-legacy-provider`](https://stackoverflow.com/questions/69692842/error-message-error0308010cdigital-envelope-routinesunsupported) flag to be set.
+  ```sh
+  . ./set-node-options.sh
+  ```
+
 
 Checkout the project, `cd`, and then:
 
-```
-$ npm install
-$ npm start
+```sh
+npm install
+npm start
 ```
 
 The development server will refresh the browser as you edit the code.
@@ -78,8 +76,8 @@ $ aws iam list-account-aliases --query 'AccountAliases[0]'
 ### Staging
 
 To build the current branch and push the "minimal" demo and docs sites to S3, run this script:
-```
-$ ./push-demos.sh
+```sh
+./push-demos.sh
 ```
 
 This will build the demo and docs, push both to S3, and finally open the docs deployment in your browser.
@@ -88,8 +86,8 @@ This will build the demo and docs, push both to S3, and finally open the docs de
 
 To make a release of the dev site, docs site, and NPM package:
 
-```
-$ ./create-release.sh patch
+```sh
+./create-release.sh patch
 ```
 
 This script does the following:
@@ -104,8 +102,8 @@ This script does the following:
 After doing a [manual test](TESTING.md) of the deployment of the dev site,
 if it looks good, copy it to dev.vitessce.io:
 
-```
-$ ./copy-dev.sh https://{url returned by create-release.sh or push-demos.sh}
+```sh
+./copy-dev.sh https://{url returned by create-release.sh or push-demos.sh}
 ```
 
 #### Publish staged docs to vitessce.io
@@ -113,8 +111,8 @@ $ ./copy-dev.sh https://{url returned by create-release.sh or push-demos.sh}
 After doing a manual test of the deployment of the docs,
 if it looks good, copy it to vitessce.io:
 
-```
-$ ./copy-docs.sh https://{url returned by create-release.sh or push-demos.sh}
+```sh
+./copy-docs.sh https://{url returned by create-release.sh or push-demos.sh}
 ```
 
 #### Publish the NPM package
@@ -143,6 +141,32 @@ module.exports = {
 
 This fix is temporary and will no longer be necessary after the [next release of Viv](https://github.com/vitessce/vitessce/pull/1049#issuecomment-939520471).
 
+
+## Version bumps
+
+In this project we try to follow semantic versioning.
+The following are examples of things that would require a major, minor, or patch type of bump.
+
+### Patch version bumps
+
+Bug fixes, minor feature improvements, additional view types, additional coordination types, and additional file type implementations are possible in a patch version bump.
+
+When a coordination type is added, it must be reflected by a new view config JSON schema with an incremented `version` property, and a new view config upgrade function to enable previous view config versions to remain compatible.
+The default schema version parameter of the `VitessceConfig` constructor may also change to reflect the new schema version.
+
+### Minor version bumps
+
+An exported helper function or React component for plugin views had a change in props or function signature.
+Major feature improvements or additions.
+
+### Major version bumps
+
+The exported constant values changed, such as view types and coordination types, such that previous code using these values may no longer run successfully.
+React props of the main `<Vitessce />` component changed.
+Major behavior changes or interface updates.
+Changes to the directory structure or filenames in the `dist/` directory that could result in broken import statements.
+
+
 ## Related repositories
 
 - [Viv](https://github.com/hms-dbmi/viv): A library for multiscale visualization of high-resolution multiplexed tissue data on the web.
@@ -153,6 +177,12 @@ This fix is temporary and will no longer be necessary after the [next release of
 
 ## Old presentations
 
+- [May 2022: Mark Keller's lab meeting update](https://docs.google.com/presentation/d/1qfd0rc6bF9nFIvOMp2YacpbJ7F8_UYhSYjLn26AlH7k/edit?usp=sharing)
+- [February 2022: Mark Keller's lab meeting update](https://docs.google.com/presentation/d/1J4lcWxD1GRGLBm0RLkGmEGcuQvXX9yBVBsQo2rXPTVM/edit?usp=sharing)
+- [October 2021: Mark Keller's lab meeting update](https://docs.google.com/presentation/d/1bibMLiR5aW_MgXn6ydhXWJsEN3tG5gJSw9xuYa49x5U/edit?usp=sharing)
+- [September 2021: HuBMAP Consortium Sci-Tech Webinar (Mark)](https://docs.google.com/presentation/d/1iPXSGEGT9HNNSrXT5uu0x_9Jq6L3cnhrpaz1Pge5O50/edit?usp=sharing)
+- [June 2021: Mark Keller's lab meeting update](https://docs.google.com/presentation/d/1P--F_MLeWK2n3JrY21mGn9FBgI2u60nQGN_XZtniSnc/edit?usp=sharing)
+- [April 2021: Spatial Biology Europe (Mark)](https://docs.google.com/presentation/d/1s33dKMCdE3LtC43IWBw48ZDmmtYJarDPtUOhH9T3D6Q/edit?usp=sharing)
 - [January 2021: Ilan Gold's lab meeting update](https://docs.google.com/presentation/d/10kmjLxQh5ji-4TVMq06KRpXek3uje_fQpTXBqjFj0p4/edit?usp=sharing)
 - [December 2020: Mark Keller's lab meeting update](https://docs.google.com/presentation/d/1rG0s5eH_NrFSk3_7lpmc9dsaUPFvnakYD59ff9D-G1M/edit?usp=sharing)
 - [November 2020: Ilan Gold's lab meeting update](https://docs.google.com/presentation/d/1egAwCR8UwdRCWiGYVRelebwNDH9boBX1nJIX5auvf1w/edit?usp=sharing)

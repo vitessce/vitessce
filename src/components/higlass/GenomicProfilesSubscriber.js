@@ -73,8 +73,8 @@ export default function GenomicProfilesSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    cellSetColor,
-    cellSetSelection,
+    obsSetColor: cellSetColor,
+    obsSetSelection: cellSetSelection,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES.genomicProfiles,
     coordinationScopes,

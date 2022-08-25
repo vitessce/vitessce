@@ -6,6 +6,7 @@
 /demo/dist
 npm-debug.log*
 venv
+/eslint/node_modules
 
 # misc
 .DS_Store
@@ -15,6 +16,7 @@ venv
 .env.production.local
 default.profraw
 .nova/
+.vscode/
 *.tgz
 
 # Created and deleted during build

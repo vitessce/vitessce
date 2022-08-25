@@ -14,7 +14,7 @@ Vitessce can be used as a standalone web application on the [App](/#?edit=true) 
 
 Vitessce can be used as a React component embedded in another web application.
 For example, the [HuBMAP Data Portal](https://portal.hubmapconsortium.org/) currently embeds Vitessce for visualization of HuBMAP datasets.
-Visit our [JavaScript API](/docs/js-overview/) documentation pages to learn more about using the Vitessce JavaScript library and React component.
+Visit our [JavaScript API](/docs/js-overview/) documentation or [GitHub Pages Deployment](/docs/tutorial-gh-pages/) tutorial to learn more about using the Vitessce JavaScript library and React component.
 
 ## Python Jupyter widget
 
