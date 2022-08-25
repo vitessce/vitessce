@@ -247,7 +247,10 @@ export function useFeatureSelection(
       setGeneData(null);
       setLoadedGeneName(null);
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, DataType.OBS_FEATURE_MATRIX, null, null), setWarning);
+        warn(
+          new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn),
+          setWarning,
+        );
         setStatus(STATUS.ERROR);
       } else {
         setStatus(STATUS.SUCCESS);
@@ -314,7 +317,10 @@ export function useObsFeatureMatrixIndices(
     } else {
       setData({});
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, DataType.OBS_FEATURE_MATRIX, null, null), setWarning);
+        warn(
+          new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn),
+          setWarning,
+        );
         setStatus(STATUS.ERROR);
       } else {
         setStatus(STATUS.SUCCESS);

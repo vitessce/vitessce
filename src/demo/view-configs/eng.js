@@ -4,7 +4,6 @@ export const eng2019 = {
   name: 'Eng et al., Nature 2019',
   version: '1.0.15',
   description: 'Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH',
-  public: true,
   datasets: [
     {
       uid: 'eng-2019',
@@ -39,7 +38,6 @@ export const eng2019 = {
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
           coordinationValues: {
             obsType: 'cell',
-            embeddingType: 'UMAP',
           },
           options: {
             obsIndex: 'cell_id',

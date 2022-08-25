@@ -107,7 +107,7 @@ export function useDataType(
     } else {
       setData({});
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, dataType, null, null), setWarning);
+        warn(new LoaderNotFoundError(loaders, dataset, dataType, matchOn), setWarning);
         setStatus(STATUS.ERROR);
       } else {
         setStatus(STATUS.SUCCESS);
@@ -178,7 +178,7 @@ export function useDataTypeMulti(
     } else {
       setData({});
       if (isRequired) {
-        warn(new LoaderNotFoundError(dataset, dataType, null, null), setWarning);
+        warn(new LoaderNotFoundError(loaders, dataset, dataType, matchOnObj), setWarning);
         setStatus(STATUS.ERROR);
       } else {
         setStatus(STATUS.SUCCESS);

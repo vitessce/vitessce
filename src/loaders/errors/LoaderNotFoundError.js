@@ -1,27 +1,24 @@
 import AbstractLoaderError from './AbstractLoaderError';
 
 export default class LoaderNotFoundError extends AbstractLoaderError {
-  constructor(datasetType, datasetFileType, datasetUrl) {
-    super(`Error finding loader for ${datasetType}.`);
+  constructor(loaders, dataset, fileType, viewCoordinationValues) {
+    super(`Error: unable to find matching ${fileType} file in dataset ${dataset}.`);
     this.name = 'LoaderNotFoundError';
 
-    this.datasetType = datasetType;
-    this.datasetFileType = datasetFileType;
-    this.datasetUrl = datasetUrl;
+    this.loaders = loaders;
+    this.dataset = dataset;
+    this.fileType = fileType;
+    this.viewCoordinationValues = viewCoordinationValues;
   }
 
   warnInConsole() {
     const {
-      datasetType, datasetFileType, datasetUrl,
+      loaders, viewCoordinationValues,
     } = this;
-    if (datasetFileType && datasetUrl) {
-      console.warn(
-        `${datasetType} from ${datasetUrl}: unable to find loader for fileType ${datasetFileType}`,
-      );
-    } else {
-      console.warn(
-        `${datasetType}: unable to find loader`,
-      );
-    }
+    console.warn(
+      // eslint-disable-next-line prefer-template
+      `Expected to match on { ${Object.entries(viewCoordinationValues).map(([k, v]) => k + ': ' + v).join(', ')} }`,
+      loaders,
+    );
   }
 }
