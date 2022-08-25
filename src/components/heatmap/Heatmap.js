@@ -249,16 +249,8 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   // Get power of 2 between 1 and 16,
   // for number of cells to aggregate together in each direction.
-  const aggSizeX = clamp(
-    2 ** Math.ceil(Math.log2(1 / cellWidth)),
-    MIN_ROW_AGG,
-    MAX_ROW_AGG,
-  );
-  const aggSizeY = clamp(
-    2 ** Math.ceil(Math.log2(1 / cellHeight)),
-    MIN_ROW_AGG,
-    MAX_ROW_AGG,
-  );
+  const aggSizeX = clamp(2 ** Math.ceil(Math.log2(1 / cellWidth)), MIN_ROW_AGG, MAX_ROW_AGG);
+  const aggSizeY = clamp(2 ** Math.ceil(Math.log2(1 / cellHeight)), MIN_ROW_AGG, MAX_ROW_AGG);
 
   const [targetX, targetY] = viewState.target;
 
@@ -291,30 +283,27 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   // Listen for viewState changes.
   // Do not allow the user to zoom and pan outside of the initial window.
-  const onViewStateChange = useCallback(
-    ({ viewState: nextViewState }) => {
-      const { zoom: nextZoom } = nextViewState;
-      const nextScaleFactor = 2 ** nextZoom;
+  const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
+    const { zoom: nextZoom } = nextViewState;
+    const nextScaleFactor = 2 ** nextZoom;
 
-      const minTargetX = nextZoom === 0 ? 0 : -(matrixRight - matrixRight / nextScaleFactor);
-      const maxTargetX = -1 * minTargetX;
+    const minTargetX = nextZoom === 0 ? 0 : -(matrixRight - (matrixRight / nextScaleFactor));
+    const maxTargetX = -1 * minTargetX;
 
-      const minTargetY = nextZoom === 0 ? 0 : -(matrixBottom - matrixBottom / nextScaleFactor);
-      const maxTargetY = -1 * minTargetY;
+    const minTargetY = nextZoom === 0 ? 0 : -(matrixBottom - (matrixBottom / nextScaleFactor));
+    const maxTargetY = -1 * minTargetY;
 
-      // Manipulate view state if necessary to keep the user in the window.
-      const nextTarget = [
-        clamp(nextViewState.target[0], minTargetX, maxTargetX),
-        clamp(nextViewState.target[1], minTargetY, maxTargetY),
-      ];
+    // Manipulate view state if necessary to keep the user in the window.
+    const nextTarget = [
+      clamp(nextViewState.target[0], minTargetX, maxTargetX),
+      clamp(nextViewState.target[1], minTargetY, maxTargetY),
+    ];
 
-      setViewState({
-        zoom: nextZoom,
-        target: transpose ? [nextTarget[1], nextTarget[0]] : nextTarget,
-      });
-    },
-    [matrixRight, matrixBottom, transpose, setViewState],
-  );
+    setViewState({
+      zoom: nextZoom,
+      target: (transpose ? [nextTarget[1], nextTarget[0]] : nextTarget),
+    });
+  }, [matrixRight, matrixBottom, transpose, setViewState]);
 
   // If `expression` or `cellOrdering` have changed,
   // then new tiles need to be generated,
@@ -755,12 +744,12 @@ const Heatmap = forwardRef((props, deckRef) => {
       }
     }
 
-    const obsI = expression.rows.indexOf(
-      transpose ? axisTopLabels[colI] : axisLeftLabels[rowI],
-    );
-    const varI = expression.cols.indexOf(
-      transpose ? axisLeftLabels[rowI] : axisTopLabels[colI],
-    );
+    const obsI = expression.rows.indexOf(transpose
+      ? axisTopLabels[colI]
+      : axisLeftLabels[rowI]);
+    const varI = expression.cols.indexOf(transpose
+      ? axisLeftLabels[rowI]
+      : axisTopLabels[colI]);
 
     const obsId = expression.rows[obsI];
     const varId = expression.cols[varI];
