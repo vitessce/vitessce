@@ -6,22 +6,30 @@ import glsl from 'glslify';
  */
 export const vertexShader = glsl`
 #define SHADER_NAME heatmap-bitmap-layer-vertex-shader
+
 attribute vec2 texCoords;
 attribute vec3 positions;
 attribute vec3 positions64Low;
+
 varying vec2 vTexCoord;
+
 const vec3 pickingColor = vec3(1.0, 0.0, 0.0);
+
 void main(void) {
   geometry.worldPosition = positions;
   geometry.uv = texCoords;
   geometry.pickingColor = pickingColor;
+
   gl_Position = project_position_to_clipspace(positions, positions64Low, vec3(0.0), geometry.position);
   DECKGL_FILTER_GL_POSITION(gl_Position, geometry);
+
   vTexCoord = texCoords;
+
   vec4 color = vec4(0.0);
   DECKGL_FILTER_COLOR(color, geometry);
 }
 `;
+
 /**
  * Fragment shader adapted to perform aggregation and
  * take color scale functions + sliders into account.
@@ -30,9 +38,11 @@ void main(void) {
  */
 export const fragmentShader = glsl`
 #define SHADER_NAME heatmap-bitmap-layer-fragment-shader
+
 #ifdef GL_ES
 precision mediump float;
 #endif
+
 #pragma glslify: rdbu = require("glsl-colormap/rdbu")
 #pragma glslify: plasma = require("glsl-colormap/plasma")
 #pragma glslify: viridis = require("glsl-colormap/viridis")
@@ -49,27 +59,36 @@ precision mediump float;
 #pragma glslify: summer = require("glsl-colormap/summer")
 #pragma glslify: autumn = require("glsl-colormap/autumn")
 #pragma glslify: winter = require("glsl-colormap/winter")
+
 // The texture (GL.LUMINANCE & Uint8Array).
 uniform sampler2D uBitmapTexture;
+
 // What are the dimensions of the texture (width, height)?
 uniform vec2 uTextureSize;
+
 // How many consecutive pixels should be aggregated together along each axis?
 uniform vec2 uAggSize;
+
 // What are the values of the color scale sliders?
 uniform vec2 uColorScaleRange;
+
 // The texture coordinate, varying (interpolated between values set by the vertex shader).
 varying vec2 vTexCoord;
+
 void main(void) {
   // Compute 1 pixel in texture coordinates
   vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
   
   vec2 viewCoord = vec2(floor(vTexCoord.x * uTextureSize.x), floor(vTexCoord.y * uTextureSize.y));
+
   // Compute (x % aggSizeX, y % aggSizeY).
   // These values will be the number of values to the left / above the current position to consider.
   vec2 modAggSize = vec2(-1.0 * mod(viewCoord.x, uAggSize.x), -1.0 * mod(viewCoord.y, uAggSize.y));
+
   // Take the sum of values along each axis.
   float intensitySum = 0.0;
   vec2 offsetPixels = vec2(0.0, 0.0);
+
   for(int i = 0; i < 16; i++) {
     // Check to break outer loop early.
     // Uniforms cannot be used as conditions in GLSL for loops.
@@ -77,7 +96,9 @@ void main(void) {
       // Done in the y direction.
       break;
     }
+
     offsetPixels = vec2(offsetPixels.x, (modAggSize.y + float(i)) * onePixel.y);
+
     for(int j = 0; j < 16; j++) {
       // Check to break inner loop early.
       // Uniforms cannot be used as conditions in GLSL for loops.
@@ -85,6 +106,7 @@ void main(void) {
         // Done in the x direction.
         break;
       }
+
       offsetPixels = vec2((modAggSize.x + float(j)) * onePixel.x, offsetPixels.y);
       intensitySum += texture2D(uBitmapTexture, vTexCoord + offsetPixels).r;
     }
@@ -95,7 +117,9 @@ void main(void) {
   
   // Re-scale using the color scale slider values.
   float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
+
   gl_FragColor = COLORMAP_FUNC(clamp(scaledIntensityMean, 0.0, 1.0));
+
   geometry.uv = vTexCoord;
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);
 }
