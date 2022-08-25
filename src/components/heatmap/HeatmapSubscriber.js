@@ -18,7 +18,6 @@ import {
 import {
   COMPONENT_COORDINATION_TYPES,
 } from '../../app/state/coordination';
-import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 import HeatmapOptions from './HeatmapOptions';
 
