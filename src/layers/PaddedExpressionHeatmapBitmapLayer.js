@@ -123,8 +123,8 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
   loadTexture(image) {
     const { gl } = this.context;
 
-    if (this.state.bitmapTextures) {
-      this.state.bitmapTextures.forEach(tex => tex.delete());
+    if (this.state.bitmapTexture) {
+      this.state.bitmapTexture.delete();
     }
 
     if (image && image instanceof Texture2D) {
@@ -133,7 +133,7 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
       });
     } else if (image) {
       this.setState({
-        bitmapTextures: new Texture2D(gl, {
+        bitmapTexture: new Texture2D(gl, {
           data: image,
           mipmaps: false,
           parameters: PIXELATED_TEXTURE_PARAMETERS,
