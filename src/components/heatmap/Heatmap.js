@@ -38,12 +38,7 @@ import {
 } from '../../layers/heatmap-constants';
 import HeatmapWorkerPool from './HeatmapWorkerPool';
 // Only allocate the memory once for the container
-const paddedExpressionContainers = [
-  new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE),
-  new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE),
-  new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE),
-  new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE),
-];
+const paddedExpressionContainer = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE);
 
 /**
  * A heatmap component for cell x gene matrices.
@@ -394,10 +389,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           geneIndex += 1
         ) {
           const index = cellIndex * expression.cols.length + geneIndex;
-          const container = Math.floor(
-            newIndex / (DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE),
-          );
-          paddedExpressionContainers[container][
+          paddedExpressionContainer[
             newIndex % (DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE)
           ] = expression.matrix[index];
           newIndex = transpose ? newIndex + cellOrdering.length : newIndex + 1;
@@ -405,21 +397,19 @@ const Heatmap = forwardRef((props, deckRef) => {
       }
     }
     setIsRendering(false);
-    return paddedExpressionContainers.map(image => (gl
-      ? new Texture2D(gl, {
-        data: image,
-        mipmaps: false,
-        parameters: PIXELATED_TEXTURE_PARAMETERS,
-        // Each color contains a single luminance value.
-        // When sampled, rgb are all set to this luminance, alpha is 1.0.
-        // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
-        format: GL.LUMINANCE,
-        dataFormat: GL.LUMINANCE,
-        type: GL.UNSIGNED_BYTE,
-        width: DATA_TEXTURE_SIZE,
-        height: DATA_TEXTURE_SIZE,
-      })
-      : image));
+    return gl ? new Texture2D(gl, {
+      data: paddedExpressionContainer,
+      mipmaps: false,
+      parameters: PIXELATED_TEXTURE_PARAMETERS,
+      // Each color contains a single luminance value.
+      // When sampled, rgb are all set to this luminance, alpha is 1.0.
+      // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
+      format: GL.LUMINANCE,
+      dataFormat: GL.LUMINANCE,
+      type: GL.UNSIGNED_BYTE,
+      width: DATA_TEXTURE_SIZE,
+      height: DATA_TEXTURE_SIZE,
+    }) : paddedExpressionContainer;
   }, [
     setIsRendering,
     transpose,
@@ -448,7 +438,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         const { cols } = expression;
         return new PaddedExpressionHeatmapBitmapLayer({
           id: `heatmapLayer-${i}-${j}`,
-          images: paddedExpressions,
+          image: paddedExpressions,
           bounds: [
             matrixLeft + j * tileWidth,
             matrixTop + i * tileHeight,

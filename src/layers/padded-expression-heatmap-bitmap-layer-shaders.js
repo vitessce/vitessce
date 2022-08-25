@@ -61,10 +61,7 @@ precision mediump float;
 #pragma glslify: winter = require("glsl-colormap/winter")
 
 // The texture (GL.LUMINANCE & Uint8Array).
-uniform sampler2D uBitmapTexture0;
-uniform sampler2D uBitmapTexture1;
-uniform sampler2D uBitmapTexture2;
-uniform sampler2D uBitmapTexture3;
+uniform sampler2D uBitmapTexture;
 
 // height x width of the data matrix (i.e x and y are flipped compared to the graphics convention)
 uniform vec2 uOrigDataSize;
@@ -145,12 +142,8 @@ void main(void) {
       offsetPixels = vec2((modAggSize.x + float(j)), offsetPixels.y);
       float indexFull = getIndexFromViewCoord(viewCoordTransformed + offsetPixels);
       float index = indexFull - (floor(indexFull / (uReshapedDataSize.x * uReshapedDataSize.y)) * (uReshapedDataSize.x * uReshapedDataSize.y));
-      float container = floor(indexFull / (uReshapedDataSize.x * uReshapedDataSize.y));
       vec2 vTexCoordTransformed = transformDataCoordinate(index);
-      intensitySum += float(abs(container - 0.) < .1) * texture2D(uBitmapTexture0, vTexCoordTransformed).r;
-      intensitySum += float(abs(container - 1.) < .1) * texture2D(uBitmapTexture1, vTexCoordTransformed).r;
-      intensitySum += float(abs(container - 2.) < .1) * texture2D(uBitmapTexture2, vTexCoordTransformed).r;
-      intensitySum += float(abs(container - 3.) < .1) * texture2D(uBitmapTexture3, vTexCoordTransformed).r;
+      intensitySum += texture2D(uBitmapTexture, vTexCoordTransformed).r;
     }
   }
   

@@ -67,8 +67,8 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
       this.state.model = this._getModel(gl);
       this.getAttributeManager().invalidateAll();
     }
-    if (props.images !== oldProps.images) {
-      this.loadTexture(this.props.images);
+    if (props.image !== oldProps.image) {
+      this.loadTexture(this.props.image);
     }
   }
 
@@ -80,7 +80,7 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
    */
   draw(opts) {
     const { uniforms } = opts;
-    const { bitmapTextures, model } = this.state;
+    const { bitmapTexture, model } = this.state;
     const {
       aggSizeX,
       aggSizeY,
@@ -93,14 +93,11 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
       numYTiles,
     } = this.props;
     // Render the image
-    if (bitmapTextures && model) {
+    if (bitmapTexture && model) {
       model
         .setUniforms(
           Object.assign({}, uniforms, {
-            uBitmapTexture0: bitmapTextures[0],
-            uBitmapTexture1: bitmapTextures[1],
-            uBitmapTexture2: bitmapTextures[2],
-            uBitmapTexture3: bitmapTextures[3],
+            uBitmapTexture: bitmapTexture,
             uOrigDataSize: origDataSize,
             uReshapedDataSize: [DATA_TEXTURE_SIZE, DATA_TEXTURE_SIZE],
             uTextureSize: [TILE_SIZE, TILE_SIZE],
@@ -123,34 +120,32 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
    * Reference: https://github.com/visgl/deck.gl/blob/0afd4e99a6199aeec979989e0c361c97e6c17a16/modules/layers/src/bitmap-layer/bitmap-layer.js#L218
    * @param {Array<Uint8Array>} images
    */
-  loadTexture(images) {
+  loadTexture(image) {
     const { gl } = this.context;
 
     if (this.state.bitmapTextures) {
       this.state.bitmapTextures.forEach(tex => tex.delete());
     }
 
-    if (images && images.every(image => image instanceof Texture2D)) {
+    if (image && image instanceof Texture2D) {
       this.setState({
-        bitmapTextures: images,
+        bitmapTexture: image,
       });
-    } else if (images) {
+    } else if (image) {
       this.setState({
-        bitmapTextures: images.map(
-          image => new Texture2D(gl, {
-            data: image,
-            mipmaps: false,
-            parameters: PIXELATED_TEXTURE_PARAMETERS,
-            // Each color contains a single luminance value.
-            // When sampled, rgb are all set to this luminance, alpha is 1.0.
-            // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
-            format: GL.LUMINANCE,
-            dataFormat: GL.LUMINANCE,
-            type: GL.UNSIGNED_BYTE,
-            width: DATA_TEXTURE_SIZE,
-            height: DATA_TEXTURE_SIZE,
-          }),
-        ),
+        bitmapTextures: new Texture2D(gl, {
+          data: image,
+          mipmaps: false,
+          parameters: PIXELATED_TEXTURE_PARAMETERS,
+          // Each color contains a single luminance value.
+          // When sampled, rgb are all set to this luminance, alpha is 1.0.
+          // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
+          format: GL.LUMINANCE,
+          dataFormat: GL.LUMINANCE,
+          type: GL.UNSIGNED_BYTE,
+          width: DATA_TEXTURE_SIZE,
+          height: DATA_TEXTURE_SIZE,
+        }),
       });
     }
   }
