@@ -1,5 +1,6 @@
 import React, {
-  useState, useCallback, useMemo, useEffect, forwardRef,
+  useRef, useState, useCallback, useMemo, useEffect,
+  useReducer, forwardRef,
 } from 'react';
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
@@ -13,12 +14,14 @@ import isEqual from 'lodash/isEqual';
 import { max } from 'd3-array';
 import HeatmapCompositeTextLayer from '../../layers/HeatmapCompositeTextLayer';
 import PixelatedBitmapLayer from '../../layers/PixelatedBitmapLayer';
+import PaddedExpressionHeatmapBitmapLayer from '../../layers/PaddedExpressionHeatmapBitmapLayer';
 import HeatmapBitmapLayer from '../../layers/HeatmapBitmapLayer';
 import {
   DEFAULT_GL_OPTIONS,
   createDefaultUpdateCellsHover,
   createDefaultUpdateGenesHover,
   createDefaultUpdateViewInfo,
+  copyUint8Array,
 } from '../utils';
 import {
   layerFilter,
@@ -33,7 +36,7 @@ import {
   DATA_TEXTURE_SIZE,
   PIXELATED_TEXTURE_PARAMETERS,
 } from '../../layers/heatmap-constants';
-
+import HeatmapWorkerPool from './HeatmapWorkerPool';
 // Only allocate the memory once for the container
 const paddedExpressionContainers = [
   new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE),
@@ -99,12 +102,16 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   const viewState = {
     ...rawViewState,
-    target: (transpose ? [rawViewState.target[1], rawViewState.target[0]] : rawViewState.target),
+    target: transpose
+      ? [rawViewState.target[1], rawViewState.target[0]]
+      : rawViewState.target,
     minZoom: 0,
   };
 
-  const axisLeftTitle = (transpose ? variablesTitle : observationsTitle);
-  const axisTopTitle = (transpose ? observationsTitle : variablesTitle);
+  const axisLeftTitle = transpose ? variablesTitle : observationsTitle;
+  const axisTopTitle = transpose ? observationsTitle : variablesTitle;
+
+  const workerPool = useMemo(() => new HeatmapWorkerPool(), []);
 
   useEffect(() => {
     if (clearPleaseWait && expression) {
@@ -112,9 +119,30 @@ const Heatmap = forwardRef((props, deckRef) => {
     }
   }, [clearPleaseWait, expression]);
 
+  const tilesRef = useRef();
+  const dataRef = useRef();
+
   const [axisLeftLabels, setAxisLeftLabels] = useState([]);
   const [axisTopLabels, setAxisTopLabels] = useState([]);
 
+  // Since we are storing the tile data in a ref,
+  // and updating it asynchronously when the worker finishes,
+  // we need to tie it to a piece of state through this iteration value.
+  const [tileIteration, incTileIteration] = useReducer(i => i + 1, 0);
+
+  // We need to keep a backlog of the tasks for the worker thread,
+  // since the array buffer can only be held by one thread at a time.
+  const [backlog, setBacklog] = useState([]);
+
+  // Store a reference to the matrix Uint8Array in the dataRef,
+  // since we need to access its array buffer to transfer
+  // it back and forth from the worker thread.
+  useEffect(() => {
+    // Store the expression matrix Uint8Array in the dataRef.
+    if (expression && expression.matrix && expression.matrix.length > DATA_TEXTURE_SIZE ** 2) {
+      dataRef.current = copyUint8Array(expression.matrix);
+    }
+  }, [dataRef, expression]);
 
   // Check if the ordering of axis labels needs to be changed,
   // for example if the cells "selected" (technically just colored)
@@ -123,11 +151,10 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (!expression) {
       return;
     }
-    const newCellOrdering = (!cellColors || cellColors.size === 0
+    const newCellOrdering = !cellColors || cellColors.size === 0
       ? expression.rows
-      : Array.from(cellColors.keys())
-    );
-    const oldCellOrdering = (transpose ? axisTopLabels : axisLeftLabels);
+      : Array.from(cellColors.keys());
+    const oldCellOrdering = transpose ? axisTopLabels : axisLeftLabels;
 
     if (!isEqual(oldCellOrdering, newCellOrdering)) {
       if (transpose) {
@@ -175,7 +202,9 @@ const Heatmap = forwardRef((props, deckRef) => {
   const height = axisLeftLabels.length;
 
   const [axisOffsetLeft, axisOffsetTop] = getAxisSizes(
-    transpose, geneLabelMaxLength, cellLabelMaxLength,
+    transpose,
+    geneLabelMaxLength,
+    cellLabelMaxLength,
   );
   const [gl, setGlContext] = useState(null);
 
@@ -196,16 +225,24 @@ const Heatmap = forwardRef((props, deckRef) => {
   const widthRatio = 1 - (TILE_SIZE - (width % TILE_SIZE)) / (xTiles * TILE_SIZE);
   const heightRatio = 1 - (TILE_SIZE - (height % TILE_SIZE)) / (yTiles * TILE_SIZE);
 
-  const tileWidth = (matrixWidth / widthRatio) / (xTiles);
-  const tileHeight = (matrixHeight / heightRatio) / (yTiles);
+  const tileWidth = matrixWidth / widthRatio / xTiles;
+  const tileHeight = matrixHeight / heightRatio / yTiles;
   const scaleFactor = 2 ** viewState.zoom;
   const cellHeight = (matrixHeight * scaleFactor) / height;
   const cellWidth = (matrixWidth * scaleFactor) / width;
 
   // Get power of 2 between 1 and 16,
   // for number of cells to aggregate together in each direction.
-  const aggSizeX = clamp(2 ** Math.ceil(Math.log2(1 / cellWidth)), MIN_ROW_AGG, MAX_ROW_AGG);
-  const aggSizeY = clamp(2 ** Math.ceil(Math.log2(1 / cellHeight)), MIN_ROW_AGG, MAX_ROW_AGG);
+  const aggSizeX = clamp(
+    2 ** Math.ceil(Math.log2(1 / cellWidth)),
+    MIN_ROW_AGG,
+    MAX_ROW_AGG,
+  );
+  const aggSizeY = clamp(
+    2 ** Math.ceil(Math.log2(1 / cellHeight)),
+    MIN_ROW_AGG,
+    MAX_ROW_AGG,
+  );
 
   const [targetX, targetY] = viewState.target;
 
@@ -215,114 +252,242 @@ const Heatmap = forwardRef((props, deckRef) => {
     updateViewInfo({
       uuid,
       project: (cellId, geneId) => {
-        const colI = transpose ? axisTopLabels.indexOf(cellId) : axisTopLabels.indexOf(geneId);
-        const rowI = transpose ? axisLeftLabels.indexOf(geneId) : axisLeftLabels.indexOf(cellId);
-        return heatmapToMousePosition(
-          colI, rowI, {
-            offsetLeft,
-            offsetTop,
-            targetX: viewState.target[0],
-            targetY: viewState.target[1],
-            scaleFactor,
-            matrixWidth,
-            matrixHeight,
-            numRows: height,
-            numCols: width,
-          },
-        );
+        const colI = transpose
+          ? axisTopLabels.indexOf(cellId)
+          : axisTopLabels.indexOf(geneId);
+        const rowI = transpose
+          ? axisLeftLabels.indexOf(geneId)
+          : axisLeftLabels.indexOf(cellId);
+        return heatmapToMousePosition(colI, rowI, {
+          offsetLeft,
+          offsetTop,
+          targetX: viewState.target[0],
+          targetY: viewState.target[1],
+          scaleFactor,
+          matrixWidth,
+          matrixHeight,
+          numRows: height,
+          numCols: width,
+        });
       },
     });
-  }, [uuid, updateViewInfo, transpose, axisTopLabels, axisLeftLabels, offsetLeft,
-    offsetTop, viewState, scaleFactor, matrixWidth, matrixHeight, height, width]);
-
+  }, [
+    uuid,
+    updateViewInfo,
+    transpose,
+    axisTopLabels,
+    axisLeftLabels,
+    offsetLeft,
+    offsetTop,
+    viewState,
+    scaleFactor,
+    matrixWidth,
+    matrixHeight,
+    height,
+    width,
+  ]);
 
   // Listen for viewState changes.
   // Do not allow the user to zoom and pan outside of the initial window.
-  const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
-    const { zoom: nextZoom } = nextViewState;
-    const nextScaleFactor = 2 ** nextZoom;
+  const onViewStateChange = useCallback(
+    ({ viewState: nextViewState }) => {
+      const { zoom: nextZoom } = nextViewState;
+      const nextScaleFactor = 2 ** nextZoom;
 
-    const minTargetX = nextZoom === 0 ? 0 : -(matrixRight - (matrixRight / nextScaleFactor));
-    const maxTargetX = -1 * minTargetX;
+      const minTargetX = nextZoom === 0 ? 0 : -(matrixRight - matrixRight / nextScaleFactor);
+      const maxTargetX = -1 * minTargetX;
 
-    const minTargetY = nextZoom === 0 ? 0 : -(matrixBottom - (matrixBottom / nextScaleFactor));
-    const maxTargetY = -1 * minTargetY;
+      const minTargetY = nextZoom === 0 ? 0 : -(matrixBottom - matrixBottom / nextScaleFactor);
+      const maxTargetY = -1 * minTargetY;
 
-    // Manipulate view state if necessary to keep the user in the window.
-    const nextTarget = [
-      clamp(nextViewState.target[0], minTargetX, maxTargetX),
-      clamp(nextViewState.target[1], minTargetY, maxTargetY),
-    ];
+      // Manipulate view state if necessary to keep the user in the window.
+      const nextTarget = [
+        clamp(nextViewState.target[0], minTargetX, maxTargetX),
+        clamp(nextViewState.target[1], minTargetY, maxTargetY),
+      ];
 
-    setViewState({
-      zoom: nextZoom,
-      target: (transpose ? [nextTarget[1], nextTarget[0]] : nextTarget),
-    });
-  }, [matrixRight, matrixBottom, transpose, setViewState]);
+      setViewState({
+        zoom: nextZoom,
+        target: transpose ? [nextTarget[1], nextTarget[0]] : nextTarget,
+      });
+    },
+    [matrixRight, matrixBottom, transpose, setViewState],
+  );
+
+  // If `expression` or `cellOrdering` have changed,
+  // then new tiles need to be generated,
+  // so add a new task to the backlog.
+  useEffect(() => {
+    if (!expression || !expression.matrix || expression.matrix.length < DATA_TEXTURE_SIZE ** 2) {
+      return;
+    }
+    // Use a uuid to give the task a unique ID,
+    // to help identify where in the list it is located
+    // after the worker thread asynchronously sends the data back
+    // to this thread.
+    if (
+      axisTopLabels && axisLeftLabels && xTiles && yTiles
+    ) {
+      setBacklog(prev => [...prev, uuidv4()]);
+    }
+  }, [dataRef, expression, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
+
+  // When the backlog has updated, a new worker job can be submitted if:
+  // - the backlog has length >= 1 (at least one job is waiting), and
+  // - buffer.byteLength is not zero, so the worker does not currently "own" the buffer.
+  useEffect(() => {
+    if (backlog.length < 1 || dataRef.current.length <= DATA_TEXTURE_SIZE ** 2) {
+      return;
+    }
+    const curr = backlog[backlog.length - 1];
+    if (dataRef.current && dataRef.current.buffer.byteLength
+      && dataRef.current.length > DATA_TEXTURE_SIZE ** 2) {
+      const { rows, cols, matrix } = expression;
+      const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.process({
+        curr,
+        tileI: i,
+        tileJ: j,
+        tileSize: TILE_SIZE,
+        cellOrdering: transpose ? axisTopLabels : axisLeftLabels,
+        rows,
+        cols,
+        transpose,
+        data: matrix.buffer.slice(),
+      })));
+      const process = async () => {
+        const tiles = await Promise.all(promises.flat());
+        tilesRef.current = tiles.map(i => i.tile);
+        incTileIteration();
+        dataRef.current = new Uint8Array(tiles[0].buffer);
+        const { curr: currWork } = tiles[0];
+        setBacklog((prev) => {
+          const currIndex = prev.indexOf(currWork);
+          return prev.slice(currIndex + 1, prev.length);
+        });
+      };
+      process();
+    }
+  }, [axisLeftLabels, axisTopLabels, backlog, expression, transpose, xTiles, yTiles, workerPool]);
+
+  useEffect(() => {
+    setIsRendering(backlog.length > 0);
+  }, [backlog, setIsRendering]);
 
   // Create the padded expression matrix for holding data which can then be bound to the GPU.
   const paddedExpressions = useMemo(() => {
     setIsRendering(true);
     const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
-    if (expression?.matrix && cellOrdering.length && gl) {
+    if (expression?.matrix && cellOrdering.length
+      && gl && expression.matrix.length <= DATA_TEXTURE_SIZE ** 2) {
       let newIndex = 0;
       for (
-        let cellOrderingIndex = 0; cellOrderingIndex < cellOrdering.length; cellOrderingIndex += 1
+        let cellOrderingIndex = 0;
+        cellOrderingIndex < cellOrdering.length;
+        cellOrderingIndex += 1
       ) {
         const cell = cellOrdering[cellOrderingIndex];
         newIndex = transpose ? cellOrderingIndex : newIndex;
         const cellIndex = expressionRowLookUp[cell];
-        for (let geneIndex = 0; geneIndex < expression.cols.length; geneIndex += 1) {
+        for (
+          let geneIndex = 0;
+          geneIndex < expression.cols.length;
+          geneIndex += 1
+        ) {
           const index = cellIndex * expression.cols.length + geneIndex;
-          const container = Math.floor(newIndex / (DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE));
+          const container = Math.floor(
+            newIndex / (DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE),
+          );
           paddedExpressionContainers[container][
             newIndex % (DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE)
           ] = expression.matrix[index];
-          newIndex = (transpose ? newIndex + cellOrdering.length : newIndex + 1);
+          newIndex = transpose ? newIndex + cellOrdering.length : newIndex + 1;
         }
       }
     }
     setIsRendering(false);
-    return paddedExpressionContainers.map(image => (gl ? new Texture2D(gl, {
-      data: image,
-      mipmaps: false,
-      parameters: PIXELATED_TEXTURE_PARAMETERS,
-      // Each color contains a single luminance value.
-      // When sampled, rgb are all set to this luminance, alpha is 1.0.
-      // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
-      format: GL.LUMINANCE,
-      dataFormat: GL.LUMINANCE,
-      type: GL.UNSIGNED_BYTE,
-      width: DATA_TEXTURE_SIZE,
-      height: DATA_TEXTURE_SIZE,
-    }) : image));
-  }, [setIsRendering, transpose, axisTopLabels,
-    axisLeftLabels, expression, expressionRowLookUp, gl]);
-
+    return paddedExpressionContainers.map(image => (gl
+      ? new Texture2D(gl, {
+        data: image,
+        mipmaps: false,
+        parameters: PIXELATED_TEXTURE_PARAMETERS,
+        // Each color contains a single luminance value.
+        // When sampled, rgb are all set to this luminance, alpha is 1.0.
+        // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
+        format: GL.LUMINANCE,
+        dataFormat: GL.LUMINANCE,
+        type: GL.UNSIGNED_BYTE,
+        width: DATA_TEXTURE_SIZE,
+        height: DATA_TEXTURE_SIZE,
+      })
+      : image));
+  }, [
+    setIsRendering,
+    transpose,
+    axisTopLabels,
+    axisLeftLabels,
+    expression,
+    expressionRowLookUp,
+    gl,
+  ]);
 
   // Update the heatmap tiles if:
+  // - new tiles are available (`tileIteration` has changed), or
   // - the matrix bounds have changed, or
   // - the `aggSizeX` or `aggSizeY` have changed, or
   // - the cell ordering has changed.
   const heatmapLayers = useMemo(() => {
-    const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
-    function getLayer(i, j) {
-      const { cols } = expression;
+    const usePaddedExpressions = expression?.matrix
+      && expression?.matrix.length <= DATA_TEXTURE_SIZE ** 2;
+    if ((!tilesRef.current || backlog.length) && !usePaddedExpressions) {
+      return [];
+    }
+    if (usePaddedExpressions) {
+      const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
+      // eslint-disable-next-line no-inner-declarations, no-shadow
+      function getLayer(i, j) {
+        const { cols } = expression;
+        return new PaddedExpressionHeatmapBitmapLayer({
+          id: `heatmapLayer-${i}-${j}`,
+          images: paddedExpressions,
+          bounds: [
+            matrixLeft + j * tileWidth,
+            matrixTop + i * tileHeight,
+            matrixLeft + (j + 1) * tileWidth,
+            matrixTop + (i + 1) * tileHeight,
+          ],
+          tileI: i,
+          tileJ: j,
+          numXTiles: xTiles,
+          numYTiles: yTiles,
+          origDataSize: transpose
+            ? [cols.length, cellOrdering.length]
+            : [cellOrdering.length, cols.length],
+          aggSizeX,
+          aggSizeY,
+          colormap,
+          colorScaleLo: colormapRange[0],
+          colorScaleHi: colormapRange[1],
+          updateTriggers: {
+            image: [axisLeftLabels, axisTopLabels],
+            bounds: [tileHeight, tileWidth],
+          },
+        });
+      }
+      const layers = range(yTiles * xTiles).map(
+        index => getLayer(Math.floor(index / xTiles), index % xTiles),
+      );
+      return layers;
+    }
+    function getLayer(i, j, tile) {
       return new HeatmapBitmapLayer({
-        id: `heatmapLayer-${i}-${j}`,
-        images: paddedExpressions,
+        id: `heatmapLayer-${tileIteration}-${i}-${j}`,
+        image: tile,
         bounds: [
           matrixLeft + j * tileWidth,
           matrixTop + i * tileHeight,
           matrixLeft + (j + 1) * tileWidth,
           matrixTop + (i + 1) * tileHeight,
         ],
-        tileI: i,
-        tileJ: j,
-        numXTiles: xTiles,
-        numYTiles: yTiles,
-        origDataSize:
-          transpose ? [cols.length, cellOrdering.length] : [cellOrdering.length, cols.length],
         aggSizeX,
         aggSizeY,
         colormap,
@@ -334,18 +499,24 @@ const Heatmap = forwardRef((props, deckRef) => {
         },
       });
     }
-    const layers = range(yTiles * xTiles)
-      .map(index => getLayer(Math.floor(index / xTiles), index % xTiles));
+    const layers = tilesRef.current.map(
+      (tile, index) => getLayer(Math.floor(index / xTiles), index % xTiles, tile),
+    );
     return layers;
-  }, [yTiles, xTiles, expression, paddedExpressions, matrixLeft,
-    tileWidth, matrixTop, tileHeight, transpose, aggSizeX, aggSizeY,
-    colormap, colormapRange, axisLeftLabels, axisTopLabels]);
-
+  }, [expression, backlog.length, transpose, axisTopLabels, axisLeftLabels, yTiles, xTiles,
+    paddedExpressions, matrixLeft, tileWidth, matrixTop, tileHeight,
+    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration]);
 
   // Map cell and gene names to arrays with indices,
   // to prepare to render the names in TextLayers.
-  const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, d]), [axisTopLabels]);
-  const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, d]), [axisLeftLabels]);
+  const axisTopLabelData = useMemo(
+    () => axisTopLabels.map((d, i) => [i, d]),
+    [axisTopLabels],
+  );
+  const axisLeftLabelData = useMemo(
+    () => axisLeftLabels.map((d, i) => [i, d]),
+    [axisLeftLabels],
+  );
 
   // Generate the axis label, axis title, and loading indicator text layers.
   const textLayers = [
@@ -411,19 +582,19 @@ const Heatmap = forwardRef((props, deckRef) => {
     let color;
     let rowI;
 
-    const cellOrdering = (transpose ? axisTopLabels : axisLeftLabels);
-    const colorBarTileWidthPx = (transpose ? TILE_SIZE : 1);
-    const colorBarTileHeightPx = (transpose ? 1 : TILE_SIZE);
+    const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
+    const colorBarTileWidthPx = transpose ? TILE_SIZE : 1;
+    const colorBarTileHeightPx = transpose ? 1 : TILE_SIZE;
 
-    const result = range((transpose ? xTiles : yTiles)).map((i) => {
+    const result = range(transpose ? xTiles : yTiles).map((i) => {
       const tileData = new Uint8ClampedArray(TILE_SIZE * 1 * 4);
 
       range(TILE_SIZE).forEach((tileY) => {
-        rowI = (i * TILE_SIZE) + tileY; // the row / cell index
+        rowI = i * TILE_SIZE + tileY; // the row / cell index
         if (rowI < cellOrdering.length) {
           cellId = cellOrdering[rowI];
           color = cellColors.get(cellId);
-          offset = (transpose ? tileY : (TILE_SIZE - tileY - 1)) * 4;
+          offset = (transpose ? tileY : TILE_SIZE - tileY - 1) * 4;
           if (color) {
             const [rValue, gValue, bValue] = color;
             tileData[offset + 0] = rValue;
@@ -440,29 +611,43 @@ const Heatmap = forwardRef((props, deckRef) => {
     return result;
   }, [cellColors, transpose, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
 
-  const cellColorsLayers = useMemo(() => (cellColorsTiles
-    ? cellColorsTiles
-      .map((tile, i) => new PixelatedBitmapLayer({
-        id: `${(transpose ? 'colorsTopLayer' : 'colorsLeftLayer')}-${i}-${uuidv4()}`,
-        image: tile,
-        bounds: (transpose ? [
-          matrixLeft + i * tileWidth,
-          -matrixHeight / 2,
-          matrixLeft + (i + 1) * tileWidth,
-          matrixHeight / 2,
-        ] : [
-          -matrixWidth / 2,
-          matrixTop + i * tileHeight,
-          matrixWidth / 2,
-          matrixTop + (i + 1) * tileHeight,
-        ]),
-      }))
-    : []), [cellColorsTiles, matrixTop, matrixLeft, matrixHeight,
-    matrixWidth, tileWidth, tileHeight, transpose]);
+  const cellColorsLayers = useMemo(
+    () => (cellColorsTiles
+      ? cellColorsTiles.map(
+        (tile, i) => new PixelatedBitmapLayer({
+          id: `${
+            transpose ? 'colorsTopLayer' : 'colorsLeftLayer'
+          }-${i}-${uuidv4()}`,
+          image: tile,
+          bounds: transpose
+            ? [
+              matrixLeft + i * tileWidth,
+              -matrixHeight / 2,
+              matrixLeft + (i + 1) * tileWidth,
+              matrixHeight / 2,
+            ]
+            : [
+              -matrixWidth / 2,
+              matrixTop + i * tileHeight,
+              matrixWidth / 2,
+              matrixTop + (i + 1) * tileHeight,
+            ],
+        }),
+      )
+      : []),
+    [
+      cellColorsTiles,
+      matrixTop,
+      matrixLeft,
+      matrixHeight,
+      matrixWidth,
+      tileWidth,
+      tileHeight,
+      transpose,
+    ],
+  );
 
-  const layers = heatmapLayers
-    .concat(textLayers)
-    .concat(cellColorsLayers);
+  const layers = heatmapLayers.concat(textLayers).concat(cellColorsLayers);
 
   // Set up the onHover function.
   function onHover(info, event) {
@@ -498,12 +683,12 @@ const Heatmap = forwardRef((props, deckRef) => {
       }
     }
 
-    const obsI = expression.rows.indexOf(transpose
-      ? axisTopLabels[colI]
-      : axisLeftLabels[rowI]);
-    const varI = expression.cols.indexOf(transpose
-      ? axisLeftLabels[rowI]
-      : axisTopLabels[colI]);
+    const obsI = expression.rows.indexOf(
+      transpose ? axisTopLabels[colI] : axisLeftLabels[rowI],
+    );
+    const varI = expression.cols.indexOf(
+      transpose ? axisLeftLabels[rowI] : axisTopLabels[colI],
+    );
 
     const obsId = expression.rows[obsI];
     const varId = expression.cols[varI];
@@ -565,7 +750,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       ]}
       layers={layers}
       layerFilter={layerFilter}
-      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
+      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')
+      }
       glOptions={DEFAULT_GL_OPTIONS}
       onViewStateChange={onViewStateChange}
       viewState={viewState}
