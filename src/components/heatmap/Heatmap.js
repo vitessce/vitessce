@@ -134,6 +134,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   const dataRef = useRef();
   const [axisLeftLabels, setAxisLeftLabels] = useState([]);
   const [axisTopLabels, setAxisTopLabels] = useState([]);
+  const [numCellColorTracks, setNumCellColorTracks] = useState([]);
 
 
   // Since we are storing the tile data in a ref,
