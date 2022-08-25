@@ -147,6 +147,7 @@
 - Fixed layer controller raster channel slider bug, related to [MUI slider issue](https://github.com/mui/material-ui/issues/20896).
 - Started to update the documentation to use the term "view" rather than "component".
 
+
 ## [1.1.18](https://www.npmjs.com/package/vitessce/v/1.1.18) - 2022-02-14
 
 ### Added
