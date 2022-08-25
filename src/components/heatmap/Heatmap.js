@@ -655,12 +655,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       return trackResult;
     });
 
-      return trackResult;
-    });
-
     return result;
-  }, [cellColors, transpose, axisTopLabels,
-    axisLeftLabels, numCellColorTracks, xTiles, yTiles, theme]);
+  }, [cellColors, transpose, axisTopLabels, axisLeftLabels, xTiles, yTiles, theme]);
 
 
   const cellColorsLayersList = useMemo(() => {
@@ -800,8 +796,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     });
 
     return result;
-  }, [numCellColorTracks, transpose, offsetLeft, axisOffsetTop,
-    offsetTop, axisOffsetLeft, matrixHeight, matrixWidth]);
+  }, [transpose, offsetLeft, axisOffsetTop, offsetTop, axisOffsetLeft, matrixHeight, matrixWidth]);
 
   return (
     <DeckGL
