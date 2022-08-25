@@ -1,6 +1,5 @@
 import React, {
-  useRef, useState, useCallback, useMemo, useEffect,
-  useReducer, forwardRef,
+  useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
 } from 'react';
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
