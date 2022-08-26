@@ -19,11 +19,29 @@ For instance, if a gene is selected to color the points in the scatterplot or sp
 
 However, a poor chunking strategy (e.g., each chunk containing too many genes) can reduce the efficiency of this approach and result in too much data being requested when a gene is selected.
 
+A `chunks` argument can be passed to the AnnData [`write_zarr`](https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.write_zarr.html) method to resolve this:
+
+```py
+# ...
+VAR_CHUNK_SIZE = 10 # VAR_CHUNK_SIZE should be small
+adata.write_zarr(out_path, chunks=(adata.shape[0], VAR_CHUNK_SIZE))
+```
+
+
 ## Zarr dtypes
 
 Vitessce uses [Zarr.js](https://github.com/gzuidhof/zarr.js) to load Zarr data.
 Zarr.js currently supports a __[subset](https://github.com/gzuidhof/zarr.js/blob/61d9cdb56ce6f8eaf97d213bcaa5b4ea8d01f5d1/src/nestedArray/types.ts#L32)__ of NumPy data types, so ensure that the types used in the arrays and data frames of your AnnData store are supported (otherwise cast using [np.astype](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.astype.html) or [pd.astype](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.astype.html)).
 In addition to the Zarr.js data types, Vitessce supports loading AnnData [string columns](https://github.com/vitessce/vitessce/blob/3615b55/src/loaders/data-sources/AnnDataSource.js#L102) with `vlen-utf8` or `|O` types.
+
+To automatically do this casting for AnnData objects, the `vitessce` Python package provides the `optimize_adata` function:
+
+```py
+from vitessce.data_utils import optimize_adata
+# ...
+adata = optimize_adata(adata)
+# ...
+```
 
 ## OME-NGFF
 

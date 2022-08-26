@@ -229,10 +229,83 @@ coordinationValues={`{
 }`}
 />
 
+### Data types
+
+Currently, Vitessce requires that the data type of the matrix is `uint8` (sometimes abbreviated `u1`), to improve performance.
+In the future, we hope to remove this requirement and support float data types with the ability to perform multiple types of normalization on-the-fly within Vitessce.
+Therefore, we recommend using the [layers](https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.layers.html) feature of AnnData to store a copy of `adata.X` that has been normalized and cast to `uint8`, while keeping `adata.X` with its original dtype:
+
+```py
+from vitessce.data_utils import to_uint8
+
+# ...
+adata.layers['X_uint8'] = to_uint8(adata.X, norm_along="global")
+# ...
+```
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsFeatureMatrix.anndata.zarr"
+fileConst="OBS_FEATURE_MATRIX_ANNDATA_ZARR"
+options={`{
+  // Should point to the observation-by-feature matrix
+  "path": "layers/X_uint8"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "featureType": "gene",
+  "featureValueType": "expression"
+}`}
+/>
+
+
+### Sub-matrix
+
 By default, rendering an observation-by-feature matrix in a heatmap requires fetching the entire matrix over the network which can result in a long initial load time and a large network request.
 There are two ways to alleviate this issue when using the `obsFeatureMatrix.anndata.zarr` file type:
 - Load (and therefore transfer over the network) only a subset of the matrix initially (`"initialFeatureFilterPath"`)
 - Store a smaller matrix in an `obsm` array, and load that smaller matrix (`"featureFilterPath"`)
+
+#### Initialization-only filtering
+
+```py
+import scanpy as sc
+
+# ...
+sc.pp.highly_variable_genes(adata, n_top_genes=200)
+# ...
+```
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsFeatureMatrix.anndata.zarr"
+fileConst="OBS_FEATURE_MATRIX_ANNDATA_ZARR"
+options={`{
+  // Should point to the observation-by-feature matrix
+  "path": "X",
+  // If you would like to limit the amount of data loaded
+  // initially (specifically in the heatmap),
+  // then "initialFeatureFilterPath" should point to a boolean array
+  // that indicates which features to load initially.
+  "initialFeatureFilterPath": "var/highly_variable"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "featureType": "gene",
+  "featureValueType": "expression"
+}`}
+/>
+
+#### Always filtering
+
+```py
+import scanpy as sc
+
+# ...
+sc.pp.highly_variable_genes(adata, n_top_genes=200)
+adata.obsm['X_subset'] = adata[:, adata.var['highly_variable']].X
+# ...
+```
 
 <FileDefTabs
 fileName="my_adata.zarr"
@@ -244,12 +317,7 @@ options={`{
   // If the matrix specified in "path" is a subset of X,
   // then "featureFilterPath" must point to a boolean array
   // that indicates which features are contained in the subsetted matrix.
-  "featureFilterPath": "var/in_X_subset",
-  // If you would like to limit the amount of data loaded
-  // initially (specifically in the heatmap),
-  // then "initialFeatureFilterPath" should point to a boolean array
-  // that indicates which features to load initially.
-  "initialFeatureFilterPath": "var/highly_variable"
+  "featureFilterPath": "var/highly_variable"
 }`}
 coordinationValues={`{
   "obsType": "cell",
