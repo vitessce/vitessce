@@ -15,7 +15,7 @@
 
 
 ### Changed
-- Increase `--max_old_space_size` value from `4096` to `8192` in `set-node-options.sh` script.
+- Pass `NODE_OPTIONS` to the `npm publish` step of the deploy GitHub Action.
 
 
 ## [1.2.0](https://www.npmjs.com/package/vitessce/v/1.2.0) - 2022-07-22

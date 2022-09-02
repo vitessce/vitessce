@@ -18,11 +18,11 @@ jobs:
       - id: get-options
         run: . ./set-node-options.sh --action
       - run: npm ci --legacy-peer-deps
-      - run: ./test.sh
+      - run: ./test.sh --deploy-action
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - name: Deploy to NPM
-        continue-on-error: false
         run: npm publish
         env:
+          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
