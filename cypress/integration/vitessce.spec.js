@@ -89,6 +89,14 @@ describe('Vitessce Zarr Store Routes', () => {
     cy.contains('gene_0');
   });
 
+  it('loads AnnData v0.8 zarr store', () => {
+    // 8080 is serving the loader fixtures directory.
+    cy.visit('/?url=http://127.0.0.1:8080/anndata-0.8/good-config.json&debug=true');
+    cy.contains('UMAP');
+    // This should exist as per the create-fixtures.py file.
+    cy.contains('gene_0');
+  });
+
   it('loads OME-TIFF', () => {
     // 8080 is serving the loader fixtures directory.
     cy.visit('/?url=http://127.0.0.1:8080/ome/good-config.json&debug=true');
