@@ -12,7 +12,7 @@
     - Fixed bug in `GatingSubscriber` which accidentally modified the shared `cells` data object.
 - Added new `arcsinh` option for the coordinaition type `featureValueTransform`
 - Added new coordination type `featureValueTransformCoefficient` to apply a coefficent to a feature value transform.
-
+- Added support for loading categorical columns stored as zarr groups from `anndata-cell-sets.zarr` file types.
 
 ### Changed
 
