@@ -1,10 +1,13 @@
-/* eslint-disable no-underscore-dangle */
 import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { Texture2D } from '@luma.gl/core';
 import { PIXELATED_TEXTURE_PARAMETERS, TILE_SIZE } from './heatmap-constants';
-import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from './constants';
+import {
+  GLSL_COLORMAPS,
+  GLSL_COLORMAP_DEFAULT,
+  COLORMAP_SHADER_PLACEHOLDER,
+} from './constants';
 import { vertexShader, fragmentShader } from './heatmap-bitmap-layer-shaders';
 
 const defaultProps = {
@@ -16,7 +19,6 @@ const defaultProps = {
   colorScaleLo: { type: 'number', value: 0.0, compare: true },
   colorScaleHi: { type: 'number', value: 1.0, compare: true },
 };
-
 /**
  * A BitmapLayer that performs aggregation in the fragment shader,
  * and renders its texture from a Uint8Array rather than an ImageData.
@@ -28,10 +30,14 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    * @param {object} shaders
    * @returns {object} Merged shaders.
    */
+  // eslint-disable-next-line no-underscore-dangle
   _getShaders(shaders) {
     this.props.extensions.forEach((extension) => {
       // eslint-disable-next-line no-param-reassign
-      shaders = _mergeShaders(shaders, extension.getShaders.call(this, extension));
+      shaders = _mergeShaders(
+        shaders,
+        extension.getShaders.call(this, extension),
+      );
     });
     return shaders;
   }
@@ -41,10 +47,13 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    */
   getShaders() {
     const { colormap } = this.props;
-    const fragmentShaderWithColormap = (GLSL_COLORMAPS.includes(colormap)
+    const fragmentShaderWithColormap = GLSL_COLORMAPS.includes(colormap)
       ? fragmentShader.replace(COLORMAP_SHADER_PLACEHOLDER, colormap)
-      : fragmentShader.replace(COLORMAP_SHADER_PLACEHOLDER, GLSL_COLORMAP_DEFAULT)
-    );
+      : fragmentShader.replace(
+        COLORMAP_SHADER_PLACEHOLDER,
+        GLSL_COLORMAP_DEFAULT,
+      );
+    // eslint-disable-next-line no-underscore-dangle
     return this._getShaders({
       vs: vertexShader,
       fs: fragmentShaderWithColormap,
@@ -60,6 +69,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
       const { gl } = this.context;
       // eslint-disable-next-line no-unused-expressions
       this.state.model?.delete();
+      // eslint-disable-next-line no-underscore-dangle
       this.state.model = this._getModel(gl);
       this.getAttributeManager().invalidateAll();
     }
@@ -75,10 +85,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
     const { uniforms } = opts;
     const { bitmapTexture, model } = this.state;
     const {
-      aggSizeX,
-      aggSizeY,
-      colorScaleLo,
-      colorScaleHi,
+      aggSizeX, aggSizeY, colorScaleLo, colorScaleHi,
     } = this.props;
 
     // Render the image

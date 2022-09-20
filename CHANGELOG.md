@@ -26,6 +26,8 @@
 - Fixed bug in the v1.0.0 to v1.0.1 view config upgrade function caused by modification of a reference to the config object.
 - Changed the `VitessceConfig` constructor and `VitessceConfigDataset.addFile` method to use named arguments via JS objects.
 
+- Speed up heatmap load times (including when cell ordering changes) by implementing a custom indexing scheme on the shaders (see `src/components/heatmap/heatmap-indexing.pdf` for more info)
+
 
 ## [1.2.1](https://www.npmjs.com/package/vitessce/v/1.2.1) - 2022-08-03
 
@@ -35,6 +37,10 @@
     - Fixed bug in `GatingSubscriber` which accidentally modified the shared `cells` data object.
 - Added new `arcsinh` option for the coordinaition type `featureValueTransform`
 - Added new coordination type `featureValueTransformCoefficient` to apply a coefficent to a feature value transform.
+- Added support for loading categorical columns stored as zarr groups from `anndata-cell-sets.zarr` file types.
+
+### Changed
+- Pass `NODE_OPTIONS` to the `npm publish` step of the deploy GitHub Action.
 
 
 ## [1.2.0](https://www.npmjs.com/package/vitessce/v/1.2.0) - 2022-07-22

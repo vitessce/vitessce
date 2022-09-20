@@ -37,7 +37,12 @@ start schema
 ./src/schemas/schema-schema.sh
 end schema
 
-start build
-npm run build:prod
-node ./scripts/verify-build.js
-end build
+if [[ "$1" == "--deploy-action" ]]; then
+  echo "Not running npm run build:prod because it will be run as part of prepublishOnly"
+else
+  start build
+  npm run build:prod
+  node ./scripts/verify-build.js
+  end build
+fi
+

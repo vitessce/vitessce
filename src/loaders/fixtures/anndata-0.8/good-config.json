@@ -1,0 +1,117 @@
+{
+  "version": "1.0.0",
+  "name": "3ac0768d61c6c84f0ec59d766e123e05",
+  "datasets": [
+    {
+      "uid": "40334a99-2be7-4904-bc75-102609fe53e9",
+      "name": "40334a99-2be7-4904-bc75-102609fe53e9",
+      "files": [
+        {
+          "type": "cells",
+          "fileType": "anndata-cells.zarr",
+          "url": "http://127.0.0.1:8080/anndata-0.8/anndata-dense.zarr",
+          "options": {
+            "mappings": {
+              "UMAP": {
+                "key": "obsm/X_umap",
+                "dims": [0, 1]
+              }
+            },
+            "factors": ["obs/leiden"]
+          },
+          "requestInit": {
+            "method": "GET",
+            "headers": { "x-foo": "FAKE" },
+            "mode": "cors",
+            "credentials": "omit",
+            "cache": "no-store",
+            "redirect": "error",
+            "referrer": "FAKE",
+            "integrity": "FAKE"
+          }
+        },
+        {
+          "type": "cell-sets",
+          "fileType": "anndata-cell-sets.zarr",
+          "url": "http://127.0.0.1:8080/anndata-0.8/anndata-dense.zarr",
+          "options": [
+            {
+              "groupName": "Leiden",
+              "setName": "obs/leiden"
+            }
+          ],
+          "requestInit": {
+            "method": "GET",
+            "headers": { "x-foo": "FAKE" },
+            "mode": "cors",
+            "credentials": "omit",
+            "cache": "no-store",
+            "redirect": "error",
+            "referrer": "FAKE",
+            "integrity": "FAKE"
+          }
+        },
+        {
+          "type": "expression-matrix",
+          "fileType": "anndata-expression-matrix.zarr",
+          "url": "http://127.0.0.1:8080/anndata-0.8/anndata-dense.zarr",
+          "options": {
+            "matrix": "X"
+          },
+          "requestInit": {
+            "method": "GET",
+            "headers": { "x-foo": "FAKE" },
+            "mode": "cors",
+            "credentials": "omit",
+            "cache": "no-store",
+            "redirect": "error",
+            "referrer": "FAKE",
+            "integrity": "FAKE"
+          }
+        }
+      ]
+    }
+  ],
+  "initStrategy": "auto",
+  "coordinationSpace": {
+    "embeddingType": {
+      "UMAP": "UMAP"
+    }
+  },
+  "layout": [
+    {
+      "component": "cellSets",
+      "h": 3,
+      "w": 3,
+      "x": 9,
+      "y": 0,
+      "coordinationScopes": {}
+    },
+    {
+      "component": "genes",
+      "h": 3,
+      "w": 3,
+      "x": 9,
+      "y": 3,
+      "coordinationScopes": {}
+    },
+    {
+      "component": "scatterplot",
+      "h": 3,
+      "w": 5,
+      "x": 0,
+      "y": 0,
+      "coordinationScopes": {
+        "embeddingType": "UMAP"
+      }
+    },
+    {
+      "component": "heatmap",
+      "h": 3,
+      "w": 9,
+      "x": 0,
+      "y": 3,
+      "coordinationScopes": {}
+    }
+  ]
+}
