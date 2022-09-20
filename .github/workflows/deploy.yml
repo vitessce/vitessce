@@ -15,13 +15,16 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
+      - id: check-deploy
+        run: . ./check-deploy.sh --action
       - id: get-options
         run: . ./set-node-options.sh --action
       - run: npm ci --legacy-peer-deps
       - run: ./test.sh --deploy-action
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
-      - name: Deploy to NPM
+      - if: ${{ steps.check-deploy.outputs.needs-deploy }}
+        name: Deploy to NPM
         run: npm publish
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
