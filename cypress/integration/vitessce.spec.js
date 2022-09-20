@@ -81,9 +81,9 @@ describe('Vitessce Mocked Routes', () => {
 });
 
 describe('Vitessce Zarr Store Routes', () => {
-  it('loads AnnData zarr store', () => {
+  it('loads AnnData v0.7 zarr store', () => {
     // 8080 is serving the loader fixtures directory.
-    cy.visit('/?url=http://127.0.0.1:8080/anndata/good-config.json&debug=true');
+    cy.visit('/?url=http://127.0.0.1:8080/anndata-0.7/good-config.json&debug=true');
     cy.contains('UMAP');
     // This should exist as per the create-fixtures.py file.
     cy.contains('gene_0');
