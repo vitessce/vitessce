@@ -102,8 +102,9 @@ export default class AnnDataSource extends ZarrDataSource {
   async _loadColumn(path) {
     const { store } = this;
     const prefix = dirname(path);
-    const { categories } = await this.getJson(`${path}/.zattrs`);
+    const { categories, 'encoding-type': encodingType } = await this.getJson(`${path}/.zattrs`);
     let categoriesValues;
+    let codes;
     if (categories) {
       const { dtype } = await this.getJson(`/${prefix}/${categories}/.zarray`);
       if (dtype === '|O') {
@@ -111,13 +112,21 @@ export default class AnnDataSource extends ZarrDataSource {
           `/${prefix}/${categories}`,
         );
       }
+    } else if (encodingType === 'categorical') {
+      const { dtype } = await this.getJson(`/${path}/categories/.zarray`);
+      if (dtype === '|O') {
+        categoriesValues = await this.getFlatArrDecompressed(
+          `/${path}/categories`,
+        );
+      }
+      codes = `/${path}/codes`;
     } else {
       const { dtype } = await this.getJson(`/${path}/.zarray`);
       if (dtype === '|O') {
         return this.getFlatArrDecompressed(path);
       }
     }
-    const arr = await openArray({ store, path, mode: 'r' });
+    const arr = await openArray({ store, path: codes || path, mode: 'r' });
     const values = await arr.get();
     const { data } = values;
     const mappedValues = Array.from(data).map(
