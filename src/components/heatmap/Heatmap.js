@@ -43,6 +43,17 @@ import HeatmapWorkerPool from './HeatmapWorkerPool';
 const paddedExpressionContainer = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE);
 
 /**
+ * Should the "padded" implementation
+ * be used? Only works if the number of heatmap values is
+ * <=  4096^2 = ~16 million.
+ * @param {number|null} dataLength The number of heatmap values.
+ * @returns {boolean} Whether the more efficient implementation should be used.
+ */
+function shouldUsePaddedImplementation(dataLength) {
+  return dataLength <= DATA_TEXTURE_SIZE ** 2;
+}
+
+/**
  * A heatmap component for cell x gene matrices.
  * @param {object} props
  * @param {string} props.uuid The uuid of this component,
@@ -150,7 +161,9 @@ const Heatmap = forwardRef((props, deckRef) => {
   // it back and forth from the worker thread.
   useEffect(() => {
     // Store the expression matrix Uint8Array in the dataRef.
-    if (expression && expression.matrix && expression.matrix.length > DATA_TEXTURE_SIZE ** 2) {
+    if (expression && expression.matrix
+      && !shouldUsePaddedImplementation(expression.matrix.length)
+    ) {
       dataRef.current = copyUint8Array(expression.matrix);
     }
   }, [dataRef, expression]);
@@ -326,13 +339,13 @@ const Heatmap = forwardRef((props, deckRef) => {
   // - the backlog has length >= 1 (at least one job is waiting), and
   // - buffer.byteLength is not zero, so the worker does not currently "own" the buffer.
   useEffect(() => {
-    if (backlog.length < 1 || dataRef.current.length <= DATA_TEXTURE_SIZE ** 2) {
+    if (backlog.length < 1 || shouldUsePaddedImplementation(dataRef.current.length)) {
       return;
     }
     const curr = backlog[backlog.length - 1];
     if (dataRef.current
       && dataRef.current.buffer.byteLength && expressionRowLookUp.size > 0
-      && dataRef.current.length > DATA_TEXTURE_SIZE ** 2) {
+      && !shouldUsePaddedImplementation(dataRef.current.length)) {
       const { cols, matrix } = expression;
       const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.process({
         curr,
@@ -367,10 +380,9 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   // Create the padded expression matrix for holding data which can then be bound to the GPU.
   const paddedExpressions = useMemo(() => {
-    setIsRendering(true);
     const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
     if (expression?.matrix && cellOrdering.length
-      && gl && expression.matrix.length <= DATA_TEXTURE_SIZE ** 2) {
+      && gl && shouldUsePaddedImplementation(expression.matrix.length)) {
       let newIndex = 0;
       for (
         let cellOrderingIndex = 0;
@@ -393,7 +405,6 @@ const Heatmap = forwardRef((props, deckRef) => {
         }
       }
     }
-    setIsRendering(false);
     return gl ? new Texture2D(gl, {
       data: paddedExpressionContainer,
       mipmaps: false,
@@ -408,7 +419,6 @@ const Heatmap = forwardRef((props, deckRef) => {
       height: DATA_TEXTURE_SIZE,
     }) : paddedExpressionContainer;
   }, [
-    setIsRendering,
     transpose,
     axisTopLabels,
     axisLeftLabels,
@@ -424,7 +434,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   // - the cell ordering has changed.
   const heatmapLayers = useMemo(() => {
     const usePaddedExpressions = expression?.matrix
-      && expression?.matrix.length <= DATA_TEXTURE_SIZE ** 2;
+      && shouldUsePaddedImplementation(expression?.matrix.length);
     if ((!tilesRef.current || backlog.length) && !usePaddedExpressions) {
       return [];
     }
