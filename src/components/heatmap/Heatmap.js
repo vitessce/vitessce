@@ -3,6 +3,9 @@ import React, {
 } from 'react';
 import uuidv4 from 'uuid/v4';
 import DeckGL from 'deck.gl';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import GL from '@luma.gl/constants';
+import { Texture2D } from '@luma.gl/core';
 import { OrthographicView } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
@@ -10,6 +13,7 @@ import isEqual from 'lodash/isEqual';
 import { getLongestString } from '../../utils';
 import HeatmapCompositeTextLayer from '../../layers/HeatmapCompositeTextLayer';
 import PixelatedBitmapLayer from '../../layers/PixelatedBitmapLayer';
+import PaddedExpressionHeatmapBitmapLayer from '../../layers/PaddedExpressionHeatmapBitmapLayer';
 import HeatmapBitmapLayer from '../../layers/HeatmapBitmapLayer';
 import {
   DEFAULT_GL_OPTIONS,
@@ -31,8 +35,24 @@ import {
   TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
   COLOR_BAR_SIZE,
   AXIS_MARGIN,
+  DATA_TEXTURE_SIZE,
+  PIXELATED_TEXTURE_PARAMETERS,
 } from '../../layers/heatmap-constants';
 import HeatmapWorkerPool from './HeatmapWorkerPool';
+// Only allocate the memory once for the container
+const paddedExpressionContainer = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE);
+
+/**
+ * Should the "padded" implementation
+ * be used? Only works if the number of heatmap values is
+ * <=  4096^2 = ~16 million.
+ * @param {number|null} dataLength The number of heatmap values.
+ * @returns {boolean} Whether the more efficient implementation should be used.
+ */
+function shouldUsePaddedImplementation(dataLength) {
+  return dataLength <= DATA_TEXTURE_SIZE ** 2;
+}
+
 /**
  * A heatmap component for cell x gene matrices.
  * @param {object} props
@@ -141,7 +161,9 @@ const Heatmap = forwardRef((props, deckRef) => {
   // it back and forth from the worker thread.
   useEffect(() => {
     // Store the expression matrix Uint8Array in the dataRef.
-    if (expression && expression.matrix) {
+    if (expression && expression.matrix
+      && !shouldUsePaddedImplementation(expression.matrix.length)
+    ) {
       dataRef.current = copyUint8Array(expression.matrix);
     }
   }, [dataRef, expression]);
@@ -211,6 +233,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     transpose, longestGeneLabel, longestCellLabel,
     hideObservationLabels, hideVariableLabels,
   );
+  const [gl, setGlContext] = useState(null);
 
   const offsetTop = axisOffsetTop + COLOR_BAR_SIZE * (transpose ? numCellColorTracks : 0);
   const offsetLeft = axisOffsetLeft + COLOR_BAR_SIZE * (transpose ? 0 : numCellColorTracks);
@@ -298,7 +321,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   // then new tiles need to be generated,
   // so add a new task to the backlog.
   useEffect(() => {
-    if (!expression) {
+    if (!expression || !expression.matrix || expression.matrix.length < DATA_TEXTURE_SIZE ** 2) {
       return;
     }
     // Use a uuid to give the task a unique ID,
@@ -316,12 +339,13 @@ const Heatmap = forwardRef((props, deckRef) => {
   // - the backlog has length >= 1 (at least one job is waiting), and
   // - buffer.byteLength is not zero, so the worker does not currently "own" the buffer.
   useEffect(() => {
-    if (backlog.length < 1) {
+    if (backlog.length < 1 || shouldUsePaddedImplementation(dataRef.current.length)) {
       return;
     }
     const curr = backlog[backlog.length - 1];
     if (dataRef.current
-      && dataRef.current.buffer.byteLength && expressionRowLookUp.size > 0) {
+      && dataRef.current.buffer.byteLength && expressionRowLookUp.size > 0
+      && !shouldUsePaddedImplementation(dataRef.current.length)) {
       const { cols, matrix } = expression;
       const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.process({
         curr,
@@ -354,14 +378,102 @@ const Heatmap = forwardRef((props, deckRef) => {
     setIsRendering(backlog.length > 0);
   }, [backlog, setIsRendering]);
 
+  // Create the padded expression matrix for holding data which can then be bound to the GPU.
+  const paddedExpressions = useMemo(() => {
+    const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
+    if (expression?.matrix && cellOrdering.length
+      && gl && shouldUsePaddedImplementation(expression.matrix.length)) {
+      let newIndex = 0;
+      for (
+        let cellOrderingIndex = 0;
+        cellOrderingIndex < cellOrdering.length;
+        cellOrderingIndex += 1
+      ) {
+        const cell = cellOrdering[cellOrderingIndex];
+        newIndex = transpose ? cellOrderingIndex : newIndex;
+        const cellIndex = expressionRowLookUp.get(cell);
+        for (
+          let geneIndex = 0;
+          geneIndex < expression.cols.length;
+          geneIndex += 1
+        ) {
+          const index = cellIndex * expression.cols.length + geneIndex;
+          paddedExpressionContainer[
+            newIndex % (DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE)
+          ] = expression.matrix[index];
+          newIndex = transpose ? newIndex + cellOrdering.length : newIndex + 1;
+        }
+      }
+    }
+    return gl ? new Texture2D(gl, {
+      data: paddedExpressionContainer,
+      mipmaps: false,
+      parameters: PIXELATED_TEXTURE_PARAMETERS,
+      // Each color contains a single luminance value.
+      // When sampled, rgb are all set to this luminance, alpha is 1.0.
+      // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
+      format: GL.LUMINANCE,
+      dataFormat: GL.LUMINANCE,
+      type: GL.UNSIGNED_BYTE,
+      width: DATA_TEXTURE_SIZE,
+      height: DATA_TEXTURE_SIZE,
+    }) : paddedExpressionContainer;
+  }, [
+    transpose,
+    axisTopLabels,
+    axisLeftLabels,
+    expression,
+    expressionRowLookUp,
+    gl,
+  ]);
+
   // Update the heatmap tiles if:
   // - new tiles are available (`tileIteration` has changed), or
   // - the matrix bounds have changed, or
   // - the `aggSizeX` or `aggSizeY` have changed, or
   // - the cell ordering has changed.
   const heatmapLayers = useMemo(() => {
-    if (!tilesRef.current || backlog.length) {
+    const usePaddedExpressions = expression?.matrix
+      && shouldUsePaddedImplementation(expression?.matrix.length);
+    if ((!tilesRef.current || backlog.length) && !usePaddedExpressions) {
       return [];
+    }
+    if (usePaddedExpressions) {
+      const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
+      // eslint-disable-next-line no-inner-declarations, no-shadow
+      function getLayer(i, j) {
+        const { cols } = expression;
+        return new PaddedExpressionHeatmapBitmapLayer({
+          id: `heatmapLayer-${i}-${j}`,
+          image: paddedExpressions,
+          bounds: [
+            matrixLeft + j * tileWidth,
+            matrixTop + i * tileHeight,
+            matrixLeft + (j + 1) * tileWidth,
+            matrixTop + (i + 1) * tileHeight,
+          ],
+          tileI: i,
+          tileJ: j,
+          numXTiles: xTiles,
+          numYTiles: yTiles,
+          origDataSize: transpose
+            ? [cols.length, cellOrdering.length]
+            : [cellOrdering.length, cols.length],
+          aggSizeX,
+          aggSizeY,
+          colormap,
+          colorScaleLo: colormapRange[0],
+          colorScaleHi: colormapRange[1],
+          updateTriggers: {
+            image: [axisLeftLabels, axisTopLabels],
+            bounds: [tileHeight, tileWidth],
+          },
+        });
+      }
+      const layers = range(yTiles * xTiles).map(
+        index => getLayer(Math.floor(index / xTiles), index % xTiles),
+      );
+      return layers;
     }
     function getLayer(i, j, tile) {
       return new HeatmapBitmapLayer({
@@ -384,13 +496,13 @@ const Heatmap = forwardRef((props, deckRef) => {
         },
       });
     }
-    const layers = tilesRef
-      .current.map((tile, index) => getLayer(Math.floor(index / xTiles), index % xTiles, tile));
+    const layers = tilesRef.current.map(
+      (tile, index) => getLayer(Math.floor(index / xTiles), index % xTiles, tile),
+    );
     return layers;
-  }, [backlog, tileIteration, matrixLeft, tileWidth, matrixTop, tileHeight,
-    aggSizeX, aggSizeY, colormap, colormapRange,
-    axisLeftLabels, axisTopLabels, xTiles]);
-
+  }, [expression, backlog.length, transpose, axisTopLabels, axisLeftLabels, yTiles, xTiles,
+    paddedExpressions, matrixLeft, tileWidth, matrixTop, tileHeight,
+    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration]);
   const axisLeftDashes = (transpose ? variablesDashes : observationsDashes);
   const axisTopDashes = (transpose ? observationsDashes : variablesDashes);
 
@@ -543,8 +655,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     });
 
     return result;
-  }, [cellColors, transpose, axisTopLabels,
-    axisLeftLabels, numCellColorTracks, xTiles, yTiles, theme]);
+  }, [cellColors, transpose, axisTopLabels, axisLeftLabels,
+    numCellColorTracks, xTiles, yTiles, theme]);
 
 
   const cellColorsLayersList = useMemo(() => {
@@ -685,12 +797,13 @@ const Heatmap = forwardRef((props, deckRef) => {
 
     return result;
   }, [numCellColorTracks, transpose, offsetLeft, axisOffsetTop,
-    offsetTop, axisOffsetLeft, matrixHeight, matrixWidth]);
+    matrixWidth, axisOffsetLeft, offsetTop, matrixHeight]);
 
   return (
     <DeckGL
       id={`deckgl-overlay-${uuid}`}
       ref={deckRef}
+      onWebGLInitialized={setGlContext}
       views={[
         // Note that there are multiple views here,
         // but only one viewState.

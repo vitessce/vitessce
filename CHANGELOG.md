@@ -3,6 +3,8 @@
 
 ### Changed
 
+- Speed up heatmap load times (including when cell ordering changes) by implementing a custom indexing scheme on the shaders (see `src/components/heatmap/heatmap-indexing.pdf` for more info)
+
 
 ## [1.2.1](https://www.npmjs.com/package/vitessce/v/1.2.1) - 2022-08-03
 
