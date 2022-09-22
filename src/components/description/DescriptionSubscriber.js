@@ -41,7 +41,7 @@ export default function DescriptionSubscriber(props) {
   const [description] = useDescription(loaders, dataset);
   const [{ image }, imageStatus] = useImageData(
     loaders, dataset, addUrl, false, {}, {},
-    {}, // TODO: which properties to match on
+    {}, // TODO: which properties to match on. Revisit after #830.
   );
   const { loaders: imageLayerLoaders = [], meta: imageLayerMeta = [] } = image || {};
 

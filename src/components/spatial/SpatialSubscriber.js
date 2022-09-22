@@ -144,7 +144,7 @@ export default function SpatialSubscriber(props) {
   );
   const hasImageData = useHasLoader(
     loaders, dataset, DataType.IMAGE,
-    {}, // TODO: which properties to match on
+    {}, // TODO: which properties to match on. Revisit after #830.
   );
   // Get data from loaders using the data hooks.
   const [{
@@ -198,7 +198,7 @@ export default function SpatialSubscriber(props) {
     loaders, dataset, addUrl, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: imageLayers },
-    {}, // TODO: which properties to match on
+    {}, // TODO: which properties to match on. Revisit after #830.
   );
   const { loaders: imageLayerLoaders = [] } = image || {};
   const [neighborhoods, neighborhoodsStatus] = useNeighborhoodsData(
