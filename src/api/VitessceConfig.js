@@ -262,10 +262,10 @@ export class VitessceConfig {
       // Old behavior for backwards compatibility.
       schemaVersion = '1.0.7';
       name = params || '';
-      if (args.length > 1 || !args.length) {
-        throw new Error('Expected only one VitessceConfig constructor argument.');
-      } else {
+      if (args.length === 1) {
         [description] = args;
+      } else if (args.length > 1) {
+        throw new Error('Expected only one VitessceConfig constructor argument.');
       }
     } else if (typeof params === 'object') {
       ({ schemaVersion, name, description } = params);
