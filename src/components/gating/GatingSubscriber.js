@@ -9,7 +9,7 @@ import { capitalize, commaNumber } from '../../utils';
 import {
   useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
 } from '../hooks';
-import { setCellSelection, mergeCellSets } from '../utils';
+import { setObsSelection, mergeObsSets } from '../utils';
 import { getCellSetPolygons } from '../sets/cell-set-utils';
 import {
   useObsSetsData,
@@ -219,12 +219,12 @@ export default function GatingSubscriber(props) {
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
-  const mergedCellSets = useMemo(() => mergeCellSets(
+  const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
 
   const setCellSelectionProp = useCallback((v) => {
-    setCellSelection(
+    setObsSelection(
       v, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
       setCellColorEncoding,
@@ -332,7 +332,7 @@ export default function GatingSubscriber(props) {
   });
 
   // Puts the mapping values in the cell info tooltip.
-  const getCellInfo = useCallback((obsId) => {
+  const getObsInfo = useCallback((obsId) => {
     const selectedTransformName = VALUE_TRANSFORM_OPTIONS.find(
       o => o.value === featureValueTransform,
     )?.name;
@@ -446,10 +446,10 @@ export default function GatingSubscriber(props) {
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber
         parentUuid={uuid}
-        cellHighlight={cellHighlight}
+        obsHighlight={cellHighlight}
         width={width}
         height={height}
-        getCellInfo={getCellInfo}
+        getObsInfo={getObsInfo}
       />
       )}
     </TitleInfo>

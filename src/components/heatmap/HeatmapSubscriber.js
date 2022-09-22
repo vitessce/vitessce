@@ -10,7 +10,7 @@ import {
   useReady,
   useUrls,
 } from '../hooks';
-import { mergeCellSets } from '../utils';
+import { mergeObsSets } from '../utils';
 import {
   useObsSetsData,
   useObsFeatureMatrixData,
@@ -129,7 +129,7 @@ export default function HeatmapSubscriber(props) {
     obsSetsStatus,
   ]);
 
-  const mergedCellSets = useMemo(() => mergeCellSets(
+  const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
 
@@ -145,13 +145,13 @@ export default function HeatmapSubscriber(props) {
   }), [mergedCellSets, geneSelection, theme,
     cellSetColor, cellSetSelection, obsIndex]);
 
-  const getCellInfo = useGetObsInfo(
+  const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
-  const getGeneInfo = useCallback((geneId) => {
-    if (geneId) {
-      return { [`${capitalize(variablesLabel)} ID`]: geneId };
+  const getFeatureInfo = useCallback((featureId) => {
+    if (featureId) {
+      return { [`${capitalize(variablesLabel)} ID`]: featureId };
     }
     return null;
   }, [variablesLabel]);
@@ -241,10 +241,10 @@ export default function HeatmapSubscriber(props) {
         width={width}
         height={height}
         transpose={transpose}
-        getCellInfo={getCellInfo}
-        getGeneInfo={getGeneInfo}
-        cellHighlight={cellHighlight}
-        geneHighlight={geneHighlight}
+        getObsInfo={getObsInfo}
+        getFeatureInfo={getFeatureInfo}
+        obsHighlight={cellHighlight}
+        featureHighlight={geneHighlight}
       />
       )}
     </TitleInfo>

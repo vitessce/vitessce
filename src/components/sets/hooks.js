@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { getValueTransformFunction } from '../gating/utils';
-import { mergeCellSets } from '../utils';
+import { mergeObsSets } from '../utils';
 import { treeToObjectsBySetNames, treeToSetSizesBySetNames } from './cell-set-utils';
 
 /**
@@ -31,7 +31,7 @@ export function useExpressionByCellSet(
   theme,
 ) {
   const mergedCellSets = useMemo(
-    () => mergeCellSets(cellSets, additionalCellSets),
+    () => mergeObsSets(cellSets, additionalCellSets),
     [cellSets, additionalCellSets],
   );
 

@@ -117,7 +117,7 @@ export function getNextNumberedNodeName(nodes, prefix) {
  * @param {function} setCellSetSelection The setter function for cell set selections.
  * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
  */
-export function setCellSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ') {
+export function setObsSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ') {
   const CELL_SELECTIONS_LEVEL_ZERO_NAME = 'My Selections';
 
   const selectionsLevelZeroNode = additionalCellSets?.tree.find(
@@ -161,7 +161,7 @@ export function setCellSelection(cellSelection, additionalCellSets, cellSetColor
   setCellColorEncoding('cellSetSelection');
 }
 
-export function mergeCellSets(cellSets, additionalCellSets) {
+export function mergeObsSets(cellSets, additionalCellSets) {
   return {
     version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_OBS].latestVersion,
     datatype: SETS_DATATYPE_OBS,

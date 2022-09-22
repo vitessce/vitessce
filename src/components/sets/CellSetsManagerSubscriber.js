@@ -49,8 +49,8 @@ import {
 } from './constants';
 import { useUrls, useReady } from '../hooks';
 import {
-  setCellSelection,
-  mergeCellSets,
+  setObsSelection,
+  mergeObsSets,
   getNextNumberedNodeName,
 } from '../utils';
 import { useObsSetsData } from '../data-hooks';
@@ -143,7 +143,7 @@ export default function CellSetsManagerSubscriber(props) {
   // Merged cell sets are only to be used for convenience when reading
   // (if writing: update either `cellSets` _or_ `additionalCellSets`).
   const mergedCellSets = useMemo(
-    () => mergeCellSets(cellSets, additionalCellSets),
+    () => mergeObsSets(cellSets, additionalCellSets),
     [cellSets, additionalCellSets],
   );
 
@@ -492,7 +492,7 @@ export default function CellSetsManagerSubscriber(props) {
   // the union of the selected sets.
   function onUnion() {
     const newSet = treeToUnion(mergedCellSets, cellSetSelection);
-    setCellSelection(
+    setObsSelection(
       newSet, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
       setCellColorEncoding,
@@ -504,7 +504,7 @@ export default function CellSetsManagerSubscriber(props) {
   // the intersection of the selected sets.
   function onIntersection() {
     const newSet = treeToIntersection(mergedCellSets, cellSetSelection);
-    setCellSelection(
+    setObsSelection(
       newSet, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
       setCellColorEncoding,
@@ -516,7 +516,7 @@ export default function CellSetsManagerSubscriber(props) {
   // the complement of the selected sets.
   function onComplement() {
     const newSet = treeToComplement(mergedCellSets, cellSetSelection, allCellIds);
-    setCellSelection(
+    setObsSelection(
       newSet, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
       setCellColorEncoding,

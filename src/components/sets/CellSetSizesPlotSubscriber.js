@@ -3,7 +3,7 @@ import TitleInfo from '../TitleInfo';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
-import { mergeCellSets } from '../utils';
+import { mergeObsSets } from '../utils';
 import { useObsSetsData } from '../data-hooks';
 import { treeToSetSizesBySetNames } from './cell-set-utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
@@ -60,7 +60,7 @@ export default function CellSetSizesPlotSubscriber(props) {
   ]);
 
   const mergedCellSets = useMemo(
-    () => mergeCellSets(cellSets, additionalCellSets),
+    () => mergeObsSets(cellSets, additionalCellSets),
     [cellSets, additionalCellSets],
   );
 

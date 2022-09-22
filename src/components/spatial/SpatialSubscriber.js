@@ -3,7 +3,7 @@ import TitleInfo from '../TitleInfo';
 import {
   useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter, useGetObsInfo,
 } from '../hooks';
-import { setCellSelection, mergeCellSets, canLoadResolution } from '../utils';
+import { setObsSelection, mergeObsSets, canLoadResolution } from '../utils';
 import {
   useObsLocationsData,
   useObsSegmentationsData,
@@ -251,12 +251,12 @@ export default function SpatialSubscriber(props) {
   }, [imageLayerLoaders, targetX, targetY, setTargetX, setTargetY,
     setZoom, use3d, hasImageData, obsCentroids, obsSegmentations, obsSegmentationsType]);
 
-  const mergedCellSets = useMemo(() => mergeCellSets(
+  const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
 
   const setCellSelectionProp = useCallback((v) => {
-    setCellSelection(
+    setObsSelection(
       v, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
       setCellColorEncoding,
@@ -295,7 +295,7 @@ export default function SpatialSubscriber(props) {
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
-  const getCellInfo = useGetObsInfo(
+  const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
@@ -434,10 +434,10 @@ export default function SpatialSubscriber(props) {
       {!disableTooltip && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}
-          cellHighlight={cellHighlight}
+          obsHighlight={cellHighlight}
           width={width}
           height={height}
-          getCellInfo={getCellInfo}
+          getObsInfo={getObsInfo}
         />
       )}
     </TitleInfo>

@@ -8,7 +8,7 @@ import TitleInfo from '../TitleInfo';
 import {
   useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter, useGetObsInfo,
 } from '../hooks';
-import { setCellSelection, mergeCellSets } from '../utils';
+import { setObsSelection, mergeObsSets } from '../utils';
 import { getCellSetPolygons } from '../sets/cell-set-utils';
 import {
   useObsEmbeddingData,
@@ -158,12 +158,12 @@ export default function EmbeddingScatterplotSubscriber(props) {
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
-  const mergedCellSets = useMemo(() => mergeCellSets(
+  const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
 
   const setCellSelectionProp = useCallback((v) => {
-    setCellSelection(
+    setObsSelection(
       v, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
       setCellColorEncoding,
@@ -254,7 +254,7 @@ export default function EmbeddingScatterplotSubscriber(props) {
   }, [xRange, yRange, xExtent, yExtent, numCells,
     width, height, zoom, averageFillDensity]);
 
-  const getCellInfo = useGetObsInfo(
+  const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
@@ -348,10 +348,10 @@ export default function EmbeddingScatterplotSubscriber(props) {
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber
         parentUuid={uuid}
-        cellHighlight={cellHighlight}
+        obsHighlight={cellHighlight}
         width={width}
         height={height}
-        getCellInfo={getCellInfo}
+        getObsInfo={getObsInfo}
       />
       )}
     </TitleInfo>
