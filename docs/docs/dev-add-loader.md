@@ -14,7 +14,7 @@ Each data loader class should inherit from [`AbstractTwoStepLoader`](https://git
 - `fileDef.type` (`string`) - The data type.
 - `fileDef.fileType` (`string`) - The file type.
 - `fileDef.url` (`string`) - The URL to the file.
-- `fileDef.requestInit` (`string`) - An object to pass as the `fetch()` [`init` parameter](https://developer.mozilla.org/en-US/docs/Web/API/fetch#parameters). Optional.
+- `fileDef.requestInit` (`object`) - An object to pass as the `fetch()` [`init` parameter](https://developer.mozilla.org/en-US/docs/Web/API/fetch#parameters). Optional.
 - `fileDef.options` (`object|array`) - Options for the file definition. Optional.
 - `fileDef.coordinationValues` (`object`) - Coordination values for the file definition. Optional.
 

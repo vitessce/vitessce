@@ -231,9 +231,9 @@ coordinationValues={`{
 
 ### Data types
 
-Currently, Vitessce requires that the data type of the matrix is `uint8` (sometimes abbreviated `u1`), to improve performance.
-In the future, we hope to remove this requirement and support float data types with the ability to perform multiple types of normalization on-the-fly within Vitessce.
-Therefore, we recommend using the [layers](https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.layers.html) feature of AnnData to store a copy of `adata.X` that has been normalized and cast to `uint8`, while keeping `adata.X` with its original dtype:
+Currently, Vitessce internally normalizes data to `uint8` (sometimes abbreviated `u1`), to improve performance.
+(In the future, we hope to add the ability to perform multiple types of normalization on-the-fly within Vitessce.)
+If you would like full control over the normalization procedure, we recommend using the [layers](https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.layers.html) feature of AnnData to store a copy of `adata.X` that has been pre-normalized and cast to `uint8`, while keeping `adata.X` with its original dtype:
 
 ```py
 from vitessce.data_utils import to_uint8
