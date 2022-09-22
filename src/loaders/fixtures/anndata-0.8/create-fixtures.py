@@ -5,11 +5,11 @@ from random import randint
 
 from anndata import AnnData
 import zarr
-from numpy import array
+import numpy as np
 from pandas import DataFrame
 from scipy import sparse
 
-X =array(
+X = np.array(
     [[randint(0, 1) * (1 + randint(0, 1) * .5) for i in range(15)], [randint(0, 1) * (1 + randint(0, 1) * .5) for i in range(15)], [randint(0, 1) * (1 + randint(0, 1) * .5) for i in range(15)]]
 )
 
@@ -20,7 +20,7 @@ def create_zarr_anndata(output_dir, **kwargs):
         X=X,
         obs=DataFrame(index=["CTG", "GCA", "CTG"], data={"leiden": ["1", "1", "2"]}),
         var=DataFrame(index=[f"gene_{i}" for i in range(15)]),
-        obsm={"X_umap": array([[-1, -1], [0, 0], [1, 1]])},
+        obsm={"X_umap": np.array([[-1, -1], [0, 0], [1, 1]], dtype=np.dtype('<i4'))},
     )
     is_sprase = kwargs["is_sparse"]
     if is_sprase:
