@@ -18,6 +18,7 @@ export function dataToCellSetsTree(data, options) {
     };
     if (cellSetIds.length > 0 && Array.isArray(cellSetIds[0])) {
       // Multi-level case.
+      // TODO: throw a warning if the levels are not in order coarser->finer.
       const levelSets = new InternMap([], JSON.stringify);
 
       cellNames.forEach((id, i) => {
