@@ -22,6 +22,10 @@ export default class RasterJsonAsImageLoader extends RasterLoader {
       }
     });
 
+    if (!coordinationValues?.spatialImageLayer) {
+      console.warn('Could not initialize coordinationValues.spatialImageLayer in RasterJsonAsImageLoader. This may be an indicator that the image could not be loaded.');
+    }
+
     return new LoaderResult(
       {
         image: (loaders.length > 0 && meta.length > 0 ? { loaders, meta } : null),
@@ -29,9 +33,7 @@ export default class RasterJsonAsImageLoader extends RasterLoader {
       urls,
       {
         // Filter coordinationValues, keeping only non-bitmask layers.
-        spatialImageLayer: coordinationValues
-          .spatialImageLayer
-          .filter(l => l.type !== 'bitmask')
+        spatialImageLayer: coordinationValues?.spatialImageLayer?.filter(l => l.type !== 'bitmask')
           // Re-index since we removed the bitmask layers,
           // so the indices may have gaps.
           .map(layer => ({

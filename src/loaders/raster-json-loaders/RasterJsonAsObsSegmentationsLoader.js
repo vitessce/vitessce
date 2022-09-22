@@ -22,6 +22,10 @@ export default class RasterJsonAsObsSegmentationsLoader extends RasterLoader {
       }
     });
 
+    if (!coordinationValues?.spatialImageLayer) {
+      console.warn('Could not initialize coordinationValues.spatialImageLayer in RasterJsonAsObsSegmentationsLoader. This may be an indicator that the image could not be loaded.');
+    }
+
     return new LoaderResult(
       {
         obsSegmentationsType: 'bitmask',
@@ -30,9 +34,7 @@ export default class RasterJsonAsObsSegmentationsLoader extends RasterLoader {
       urls,
       {
         // Filter coordinationValues, keeping only bitmask layers.
-        spatialSegmentationLayer: coordinationValues
-          .spatialImageLayer
-          .filter(l => l.type === 'bitmask')
+        spatialSegmentationLayer: coordinationValues?.spatialImageLayer?.filter(l => l.type === 'bitmask')
           // Re-index since we removed the bitmask layers,
           // so the indices may have gaps.
           .map(layer => ({

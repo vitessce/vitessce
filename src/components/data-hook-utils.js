@@ -17,6 +17,7 @@ import { STATUS } from '../app/constants';
 export function warn(error, setWarning) {
   setWarning(error.message);
   console.warn(error.message);
+  console.error(error.stack);
   if (error instanceof AbstractLoaderError) {
     error.warnInConsole();
   }
