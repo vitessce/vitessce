@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import every from 'lodash/every';
 import { SelectableTable } from '../selectable-table/index';
 
-export default function Genes(props) {
+export default function FeatureList(props) {
   const {
     hasColorEncoding,
     geneList = [],

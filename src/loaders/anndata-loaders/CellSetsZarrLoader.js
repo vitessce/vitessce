@@ -2,10 +2,10 @@ import { InternMap } from 'internmap';
 import {
   treeInitialize,
   nodeAppendChild,
-} from '../../components/sets/cell-set-utils';
+} from '../../components/obs-sets/cell-set-utils';
 import {
   SETS_DATATYPE_OBS,
-} from '../../components/sets/constants';
+} from '../../components/obs-sets/constants';
 
 export function dataToCellSetsTree(data, options) {
   const [cellNames, cellSets, cellSetScores] = data;

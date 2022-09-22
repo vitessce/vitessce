@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
-import { treeToCellColorsBySetNames } from './sets/cell-set-utils';
+import { treeToCellColorsBySetNames } from './obs-sets/cell-set-utils';
 import { getDefaultColor } from './utils';
 
 // The functions defined here have been adapted from d3-interpolate,

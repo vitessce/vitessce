@@ -5,7 +5,7 @@ import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
 import { mergeObsSets } from '../utils';
 import { useObsSetsData } from '../data-hooks';
-import { treeToSetSizesBySetNames } from './cell-set-utils';
+import { treeToSetSizesBySetNames } from '../obs-sets/cell-set-utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
 import { ViewType } from '../../app/constants';
 import { capitalize } from '../../utils';

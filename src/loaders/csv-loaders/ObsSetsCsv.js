@@ -1,5 +1,5 @@
 import { obsSetsCsvSchema } from '../../app/file-options-schemas';
-import { initializeCellSetColor, treeToMembershipMap } from '../../components/sets/cell-set-utils';
+import { initializeCellSetColor, treeToMembershipMap } from '../../components/obs-sets/cell-set-utils';
 import { dataToCellSetsTree } from '../anndata-loaders/CellSetsZarrLoader';
 import { AbstractLoaderError } from '../errors';
 import LoaderResult from '../LoaderResult';

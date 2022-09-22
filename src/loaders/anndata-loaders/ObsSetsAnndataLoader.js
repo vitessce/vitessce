@@ -2,7 +2,7 @@
 import { obsSetsAnndataSchema } from '../../app/file-options-schemas';
 import {
   initializeCellSetColor, treeToMembershipMap,
-} from '../../components/sets/cell-set-utils';
+} from '../../components/obs-sets/cell-set-utils';
 import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
 import { AbstractLoaderError } from '../errors';
 import LoaderResult from '../LoaderResult';

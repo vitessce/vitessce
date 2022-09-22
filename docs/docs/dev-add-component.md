@@ -16,17 +16,17 @@ The parent ("subscriber") component typically carries out the following:
 - should render the [`TitleInfo`](https://github.com/vitessce/vitessce/blob/main/src/components/TitleInfo.js) component as a parent of its "plain" component.
 - load data from files specified in the view config with [data hook](https://github.com/vitessce/vitessce/blob/main/src/components/data-hooks.js) functions.
 
-A React subtree for a component called `GenesSubscriber` would look like:
+A React subtree for a component called `FeatureListSubscriber` would look like:
 
 ```jsx
-<GenesSubscriber>
+<FeatureListSubscriber>
   <TitleInfo>
     <Genes />
   </TitleInfo>
-</GenesSubscriber>
+</FeatureListSubscriber>
 ```
 
-A full example of a parent component can be found in [GenesSubscriber](https://github.com/vitessce/vitessce/blob/main/src/components/genes/GenesSubscriber.js).
+A full example of a parent component can be found in [FeatureListSubscriber](https://github.com/vitessce/vitessce/blob/main/src/components/feature-list/FeatureListSubscriber.js).
 
 :::note
 The usage of the term "subscriber" here comes from prior usage of a pub-sub pattern in Vitessce. Now we use the `[values, setters]` returned by the custom `useCoordination` hook to manage state in a more `React.useState`-like pattern (instead of pub-sub).

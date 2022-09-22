@@ -27,7 +27,12 @@
 - Changed the `VitessceConfig` constructor and `VitessceConfigDataset.addFile` method to use named arguments via JS objects.
 
 - Speed up heatmap load times (including when cell ordering changes) by implementing a custom indexing scheme on the shaders (see `src/components/heatmap/heatmap-indexing.pdf` for more info)
-
+- Renamed and moved components
+  - `genes/Genes` -> `feature-list/FeatureList`
+  - `sets/CellSetsManagerSubscriber` -> `obs-sets/ObsSetsManagerSubscriber`
+  - `sets/CellSetExpressionPlot` -> `statistical-plots/CellSetExpressionPlot`
+  - `sets/CellSetSizesPlot` -> `statistical-plots/CellSetSizesPlot`
+  - `genes/ExpressionHistogram` -> `statistical-plots/ExpressionHistogram`
 
 ## [1.2.1](https://www.npmjs.com/package/vitessce/v/1.2.1) - 2022-08-03
 

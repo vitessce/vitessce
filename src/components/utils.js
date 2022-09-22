@@ -2,7 +2,7 @@ import React from 'react';
 import {
   SETS_DATATYPE_OBS,
   HIERARCHICAL_SCHEMAS,
-} from './sets/constants';
+} from './obs-sets/constants';
 import { PRIMARY_CARD } from './classNames';
 
 export function makeCellStatusMessage(cellInfoFactors) {

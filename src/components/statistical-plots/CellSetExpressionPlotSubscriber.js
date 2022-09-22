@@ -4,7 +4,7 @@ import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useUrls, useReady, useGridItemSize } from '../hooks';
 import { useFeatureSelection, useObsSetsData, useObsFeatureMatrixIndices } from '../data-hooks';
-import { useExpressionByCellSet } from './hooks';
+import { useExpressionByCellSet } from '../obs-sets/hooks';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
 import CellSetExpressionPlot from './CellSetExpressionPlot';
 import { VALUE_TRANSFORM_OPTIONS } from '../gating/utils';

@@ -3,24 +3,24 @@ import { getPluginViewType, getPluginViewTypes } from './plugins';
 
 import DescriptionSubscriber from '../components/description/DescriptionSubscriber';
 import StatusSubscriber from '../components/status/StatusSubscriber';
-import GenesSubscriber from '../components/genes/GenesSubscriber';
-import CellSetsManagerSubscriber from '../components/sets/CellSetsManagerSubscriber';
+import FeatureListSubscriber from '../components/feature-list/FeatureListSubscriber';
+import ObsSetsManagerSubscriber from '../components/obs-sets/ObsSetsManagerSubscriber';
 import EmbeddingScatterplotSubscriber from '../components/embedding-scatterplot/EmbeddingScatterplotSubscriber';
 import GatingSubscriber from '../components/gating/GatingSubscriber';
 import SpatialSubscriber from '../components/spatial/SpatialSubscriber';
 import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
 import LayerControllerSubscriber from '../components/layer-controller/LayerControllerSubscriber';
 import HiGlassSubscriber from '../components/higlass/HiGlassSubscriber';
-import CellSetSizesPlotSubscriber from '../components/sets/CellSetSizesPlotSubscriber';
 import GenomicProfilesSubscriber from '../components/higlass/GenomicProfilesSubscriber';
-import ExpressionHistogramSubscriber from '../components/genes/ExpressionHistogramSubscriber';
-import CellSetExpressionPlotSubscriber from '../components/sets/CellSetExpressionPlotSubscriber';
+import CellSetSizesPlotSubscriber from '../components/statistical-plots/CellSetSizesPlotSubscriber';
+import ExpressionHistogramSubscriber from '../components/statistical-plots/ExpressionHistogramSubscriber';
+import CellSetExpressionPlotSubscriber from '../components/statistical-plots/CellSetExpressionPlotSubscriber';
 
 const registry = {
   [ViewType.DESCRIPTION]: DescriptionSubscriber,
   [ViewType.STATUS]: StatusSubscriber,
-  [ViewType.FEATURE_LIST]: GenesSubscriber,
-  [ViewType.OBS_SETS]: CellSetsManagerSubscriber,
+  [ViewType.FEATURE_LIST]: FeatureListSubscriber,
+  [ViewType.OBS_SETS]: ObsSetsManagerSubscriber,
   [ViewType.SCATTERPLOT]: EmbeddingScatterplotSubscriber,
   [ViewType.GATING]: GatingSubscriber,
   [ViewType.SPATIAL]: SpatialSubscriber,

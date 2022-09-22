@@ -68,7 +68,7 @@ import { capitalize } from '../../utils';
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
  */
-export default function CellSetsManagerSubscriber(props) {
+export default function ObsSetsManagerSubscriber(props) {
   const {
     coordinationScopes,
     removeGridComponent,

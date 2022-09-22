@@ -9,7 +9,7 @@ import {
   useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter, useGetObsInfo,
 } from '../hooks';
 import { setObsSelection, mergeObsSets } from '../utils';
-import { getCellSetPolygons } from '../sets/cell-set-utils';
+import { getCellSetPolygons } from '../obs-sets/cell-set-utils';
 import {
   useObsEmbeddingData,
   useObsSetsData,

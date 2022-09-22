@@ -6,7 +6,7 @@ import { useFeatureLabelsData, useObsFeatureMatrixIndices } from '../data-hooks'
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
-import Genes from './Genes';
+import FeatureList from './FeatureList';
 import { ViewType } from '../../app/constants';
 
 
@@ -26,7 +26,7 @@ import { ViewType } from '../../app/constants';
  * @param {boolean} props.enableMultiSelect If true, allow
  * shift-clicking to select multiple genes.
  */
-export default function GenesSubscriber(props) {
+export default function FeatureListSubscriber(props) {
   const {
     coordinationScopes,
     removeGridComponent,
@@ -93,7 +93,7 @@ export default function GenesSubscriber(props) {
       isReady={isReady}
       urls={urls}
     >
-      <Genes
+      <FeatureList
         hasColorEncoding={cellColorEncoding === 'geneSelection'}
         geneList={geneList}
         featureLabelsMap={featureLabelsMap}
