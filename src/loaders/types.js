@@ -9,8 +9,9 @@ import {
   CsvSource,
 } from './data-sources';
 import JsonLoader from './json-loaders/JsonLoader';
+import ObsSetsJsonLoader from './json-loaders/ObsSetsJson';
+import ObsSegmentationsJsonLoader from './json-loaders/ObsSegmentationsJson';
 import OmeZarrLoader from './OmeZarrLoader';
-import ObsSetsJsonLoader from './ObsSetsJsonLoader';
 import AnnDataLoaders from './anndata-loaders';
 import GenomicProfilesZarrLoader from './GenomicProfilesZarrLoader';
 import CellsJsonAsObsLabelsLoader from './legacy-loaders/CellsJsonAsObsLabels';
@@ -29,7 +30,6 @@ import ObsLocationsCsvLoader from './csv-loaders/ObsLocationsCsv';
 import ObsLabelsCsvLoader from './csv-loaders/ObsLabelsCsv';
 import FeatureLabelsCsvLoader from './csv-loaders/FeatureLabelsCsv';
 import ObsFeatureMatrixCsvLoader from './csv-loaders/ObsFeatureMatrixCsv';
-import ObsSegmentationsJsonLoader from './json-loaders/ObsSegmentationsJson';
 import ObsSetsCsvLoader from './csv-loaders/ObsSetsCsv';
 
 export const fileTypeToLoaderAndSource = {

@@ -93,7 +93,7 @@ export default function SetsManager(props) {
     theme,
     sets,
     additionalSets,
-    setColor, // TODO: use this
+    setColor,
     levelSelection: checkedLevel,
     setSelection,
     setExpansion,

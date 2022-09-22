@@ -1,10 +1,13 @@
-import obsSetsSchema from '../schemas/obsSets.schema.json';
-import JsonLoader from './json-loaders/JsonLoader';
-import { tryUpgradeTreeToLatestSchema } from '../components/sets/io';
-import { AbstractLoaderError } from './errors';
-import LoaderResult from './LoaderResult';
-
-import { initializeCellSetColor, nodeToSet, treeToMembershipMap } from '../components/sets/cell-set-utils';
+import obsSetsSchema from '../../schemas/obsSets.schema.json';
+import JsonLoader from './JsonLoader';
+import { tryUpgradeTreeToLatestSchema } from '../../components/sets/io';
+import { AbstractLoaderError } from '../errors';
+import LoaderResult from '../LoaderResult';
+import {
+  initializeCellSetColor,
+  nodeToSet,
+  treeToMembershipMap,
+} from '../../components/sets/cell-set-utils';
 
 export default class ObsSetsJsonLoader extends JsonLoader {
   constructor(dataSource, params) {

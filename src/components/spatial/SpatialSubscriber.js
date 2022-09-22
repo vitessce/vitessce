@@ -160,9 +160,6 @@ export default function SpatialSubscriber(props) {
     obsLabels: obsLocationsLabels,
   }, obsLabelsStatus] = useObsLabelsData(
     loaders, dataset, addUrl, false, {}, {},
-    // TODO: see scatterplot obsLabels usage,
-    // update convenience file type for molecules.json to supply obsLabels.molecules.json
-    // and an obsLabelsType
     { obsType: 'molecule' }, // TODO: use obsType in matchOn once #1240 is merged.
   );
   const [{

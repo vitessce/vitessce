@@ -107,7 +107,6 @@ export default function CellSetsManagerSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  // TODO: return obsIndex from all obsSets loaders.
   const [{ obsIndex, obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
     loaders, dataset, addUrl, true,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },

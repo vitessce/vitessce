@@ -1,8 +1,8 @@
 import expect from 'expect';
-import ObsSetsJsonLoader from './ObsSetsJsonLoader';
-import obsSetsGoodFixture from '../schemas/fixtures/obsSets.good.json';
-import { JsonSource } from './data-sources';
-import LoaderResult from './LoaderResult';
+import ObsSetsJsonLoader from './ObsSetsJson';
+import obsSetsGoodFixture from '../../schemas/fixtures/obsSets.good.json';
+import { JsonSource } from '../data-sources';
+import LoaderResult from '../LoaderResult';
 
 const createLoader = (ClassDef, config, data) => {
   const configWithUrl = {
@@ -13,7 +13,7 @@ const createLoader = (ClassDef, config, data) => {
   return new ClassDef(source, configWithUrl);
 };
 
-describe('loaders/ObsSetsJsonLoader', () => {
+describe('loaders/json-loaders/ObsSetsJson', () => {
   describe('ObsSetsJsonLoader', () => {
     it('can load obsSets', async () => {
       const loader = createLoader(ObsSetsJsonLoader, {

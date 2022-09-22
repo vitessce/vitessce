@@ -35,18 +35,18 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
-    if (!this.cellSetsTree) {
+    if (!this.cachedResult) {
       const { options } = this;
-      this.cellSetsTree = Promise.all([
+      this.cachedResult = Promise.all([
         this.dataSource.loadObsIndex(),
         this.loadCellSetIds(),
         this.loadCellSetScores(),
-      ]).then(data => dataToCellSetsTree(data, options));
+      ]).then(data => [data[0], dataToCellSetsTree(data, options)]);
     }
-    const cellSetsTree = await this.cellSetsTree;
-    const obsSetsMembership = treeToMembershipMap(cellSetsTree);
+    const [obsIndex, obsSets] = await this.cachedResult;
+    const obsSetsMembership = treeToMembershipMap(obsSets);
     const coordinationValues = {};
-    const { tree } = cellSetsTree;
+    const { tree } = obsSets;
     const newAutoSetSelectionParentName = tree[0].name;
     // Create a list of set paths to initally select.
     const newAutoSetSelections = tree[0].children.map(node => [
@@ -54,11 +54,11 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
       node.name,
     ]);
     // Create a list of cell set objects with color mappings.
-    const newAutoSetColors = initializeCellSetColor(cellSetsTree, []);
+    const newAutoSetColors = initializeCellSetColor(obsSets, []);
     coordinationValues.obsSetSelection = newAutoSetSelections;
     coordinationValues.obsSetColor = newAutoSetColors;
     return Promise.resolve(
-      new LoaderResult({ obsSets: cellSetsTree, obsSetsMembership }, null, coordinationValues),
+      new LoaderResult({ obsIndex, obsSets, obsSetsMembership }, null, coordinationValues),
     );
   }
 }
