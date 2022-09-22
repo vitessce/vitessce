@@ -1,4 +1,4 @@
-import { FileType, DataType } from './constants';
+import { FileType, DataType, CoordinationType } from './constants';
 
 /**
  * Mapping from file types to data types. Each file type
@@ -39,4 +39,40 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   // For old file types
   [FileType.GENOMIC_PROFILES_ZARR]: DataType.GENOMIC_PROFILES,
   [FileType.NEIGHBORHOODS_JSON]: DataType.NEIGHBORHOODS,
+};
+
+/**
+ * Store a mapping from data types to the coordination types used
+ * for matching using the coordinationValues field of file definitions.
+ * This enables inferring default values, simplifying view config writing.
+ */
+export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
+  [DataType.OBS_SEGMENTATIONS]: [
+    CoordinationType.OBS_TYPE,
+  ],
+  [DataType.OBS_EMBEDDING]: [
+    CoordinationType.OBS_TYPE,
+    CoordinationType.EMBEDDING_TYPE,
+  ],
+  [DataType.OBS_LOCATIONS]: [
+    CoordinationType.OBS_TYPE,
+  ],
+  [DataType.OBS_LABELS]: [
+    CoordinationType.OBS_TYPE,
+    CoordinationType.OBS_LABELS_TYPE,
+  ],
+  [DataType.FEATURE_LABELS]: [
+    CoordinationType.FEATURE_TYPE,
+  ],
+  [DataType.OBS_SETS]: [
+    CoordinationType.OBS_TYPE,
+  ],
+  [DataType.OBS_FEATURE_MATRIX]: [
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
+  ],
+  [DataType.GENOMIC_PROFILES]: [],
+  [DataType.IMAGE]: [],
+  [DataType.NEIGHBORHOODS]: [],
 };
