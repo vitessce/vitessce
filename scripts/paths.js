@@ -11,10 +11,11 @@ const resolveModule = utils.resolveModule;
 const componentsToExport = [
     'tooltip',
     'layer-controller',
-    'genes',
+    'feature-list',
     'heatmap',
     'scatterplot',
-    'sets',
+    'obs-sets',
+    'statistical-plots',
     'spatial',
     'status',
 ];

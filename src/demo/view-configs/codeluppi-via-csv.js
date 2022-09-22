@@ -11,9 +11,6 @@ export const codeluppiViaCsv = {
         {
           fileType: 'obsSegmentations.json',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.segmentations.json',
-          coordinationValues: {
-            obsType: 'cell',
-          },
         },
         {
           fileType: 'obsLocations.csv',
