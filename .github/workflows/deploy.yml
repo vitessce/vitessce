@@ -23,8 +23,8 @@ jobs:
       - run: ./test.sh --deploy-action
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
-      - if: ${{ steps.check-deploy.outputs.needs-deploy }}
-        name: Deploy to NPM
+      - name: Deploy to NPM
+        if: ${{ steps.check-deploy.outputs.needs-deploy == 'true' }}
         run: npm publish
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
