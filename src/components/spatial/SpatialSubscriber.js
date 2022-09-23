@@ -368,6 +368,19 @@ export default function SpatialSubscriber(props) {
     setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d,
   ]);
 
+  useEffect(() => {
+    // For backwards compatibility (diamond case).
+    // Log to the console to alert the user that the auto-generated diamonds are being used.
+    if (!hasCellsData
+      && cellsLayer && !obsSegmentations && !obsSegmentationsIndex
+      && obsCentroids && obsCentroidsIndex
+    ) {
+      console.warn('Rendering cell segmentation diamonds for backwards compatibility.');
+    }
+  }, [hasCellsData, cellsLayer, obsSegmentations, obsSegmentationsIndex,
+    obsCentroids, obsCentroidsIndex,
+  ]);
+
   return (
     <TitleInfo
       title={title}
@@ -403,6 +416,7 @@ export default function SpatialSubscriber(props) {
         obsLocations={obsLocations}
         obsLocationsLabels={obsLocationsLabels}
         obsLocationsFeatureIndex={obsLocationsFeatureIndex}
+        hasSegmentations={hasCellsData}
         obsSegmentations={obsSegmentations}
         obsSegmentationsType={obsSegmentationsType}
         obsCentroids={obsCentroids}

@@ -497,7 +497,10 @@ export function upgradeFrom1_0_12(config) {
     if (viewDef.coordinationScopes?.dataset) {
       return coordinationSpace.dataset[viewDef.coordinationScopes.dataset];
     }
-    return datasets[0].uid;
+    if (datasets.length > 0) {
+      return datasets[0].uid;
+    }
+    return null;
   }
   const newLayout = layout.map((viewDef) => {
     const viewDatasetUid = getDatasetUidForView(datasets, coordinationSpace, viewDef);

@@ -123,12 +123,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.onUpdateImages();
   }
 
-  createCellsLayer(layerDef) {
+  createPolygonSegmentationsLayer(layerDef, hasExplicitPolygons) {
     const {
-      stroked, visible, opacity,
+      stroked, visible, opacity, radius,
     } = layerDef;
     const {
-      obsSegmentationsIndex: obsIndex,
+      obsCentroidsIndex,
+      obsSegmentationsIndex,
+    } = this.props;
+    const obsIndex = (hasExplicitPolygons ? obsSegmentationsIndex : obsCentroidsIndex);
+    const {
       theme,
       // cellFilter,
       cellSelection,
@@ -147,6 +151,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getExpressionValue,
       geneExpressionColormap,
     } = this.props;
+    const getPolygon = hasExplicitPolygons
+      ? (object, { index, data }) => data.src.obsSegmentations.data[index]
+      : (object, { index, data }) => {
+        const x = data.src.obsCentroids.data[0][index];
+        const y = data.src.obsCentroids.data[1][index];
+        const r = radius;
+        return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
+      };
     return new PolygonLayer({
       id: CELLS_LAYER_ID,
       data: this.obsSegmentationsData,
@@ -157,13 +169,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
       stroked: true,
       backgroundColor: [0, 0, 0],
       isSelected: getCellIsSelected,
-      getPolygon: (object, { index, data }) => data.src.obsSegmentations.data[index],
+      getPolygon,
       updateTriggers: {
         getLineWidth: [stroked],
         isSelected: cellSelection,
         getExpressionValue,
         getFillColor: [opacity, cellColorEncoding, cellSelection, cellColors],
         getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        getPolygon: [radius],
       },
       getFillColor: (object, { index }) => {
         const color = getCellColor(object, { index });
@@ -518,17 +531,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsSegmentationsType,
       obsCentroids,
     } = this.props;
-    if (obsSegmentations
-      && obsSegmentationsType === 'polygon'
-      && obsCentroids
+    if ((obsSegmentations && obsSegmentationsType === 'polygon')
+      || (!obsSegmentations && obsCentroids)
     ) {
       const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
       this.obsSegmentationsQuadTree = createQuadTree(obsCentroids, getCellCoords);
       this.obsSegmentationsData = {
         src: {
           obsSegmentations,
+          obsCentroids,
         },
-        length: obsSegmentations.shape[0],
+        length: obsSegmentations ? obsSegmentations.shape[0] : obsCentroids.shape[1],
       };
     }
   }
@@ -539,11 +552,24 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsSegmentationsIndex,
       obsSegmentations,
       obsSegmentationsType,
+      obsCentroids,
+      obsCentroidsIndex,
+      hasSegmentations,
     } = this.props;
     if (obsSegmentationsLayerDef && obsSegmentationsIndex && obsSegmentations && obsSegmentationsType === 'polygon') {
-      this.obsSegmentationsPolygonLayer = this.createCellsLayer(obsSegmentationsLayerDef);
+      this.obsSegmentationsPolygonLayer = this.createPolygonSegmentationsLayer(
+        obsSegmentationsLayerDef, true,
+      );
     } else if (obsSegmentationsLayerDef && obsSegmentations && obsSegmentationsType === 'bitmask') {
       this.obsSegmentationsBitmaskLayers = this.createBitmaskLayers();
+    } else if (!hasSegmentations
+      && obsSegmentationsLayerDef && !obsSegmentations && !obsSegmentationsIndex
+      && obsCentroids && obsCentroidsIndex
+    ) {
+      // For backwards compatibility (diamond case).
+      this.obsSegmentationsPolygonLayer = this.createPolygonSegmentationsLayer(
+        obsSegmentationsLayerDef, false,
+      );
     } else {
       this.obsSegmentationsPolygonLayer = null;
     }
@@ -702,6 +728,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'obsSegmentationsIndex',
         'obsSegmentationsType',
         'obsCentroids',
+        'obsCentroidsIndex',
+        'hasSegmentations',
         'cellFilter',
         'cellSelection',
         'cellColors',

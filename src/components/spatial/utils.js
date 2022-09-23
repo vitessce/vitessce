@@ -355,7 +355,10 @@ export function getInitialSpatialTargets({
         initialTargetZ = null;
       }
     }
-  } else if (obsSegmentationsType === 'polygon' && obsSegmentations && !useRaster) {
+  } else if (!useRaster && (
+    (obsSegmentationsType === 'polygon' && obsSegmentations)
+    || (!obsSegmentations && obsCentroids) // For backwards compatibility (diamond case).
+  )) {
     let xExtent;
     let yExtent;
     let xRange;
