@@ -19,7 +19,9 @@ then
 fi
 
 AWS_ACCT=$(aws iam list-account-aliases --query 'AccountAliases[0]')
-if [[ "$AWS_ACCT" != "gehlenborglab" ]]; then
+# Need to check for substring.
+# Some AWS CLI implementations print gehlenborglab while others print "gehlenborglab"
+if [[ "$AWS_ACCT" != *"gehlenborglab"* ]]; then
     die "Deployment requires authentication with the lab account in the AWS CLI (aws)."
 fi
 
