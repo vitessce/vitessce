@@ -16,6 +16,7 @@
 - Added new `arcsinh` option for the coordinaition type `featureValueTransform`
 - Added new coordination type `featureValueTransformCoefficient` to apply a coefficent to a feature value transform.
 - Added support for loading categorical columns stored as zarr groups from `anndata-cell-sets.zarr` file types.
+- Pin `zarr.js` to `0.5.1` to fix URL concatentation issue.
 
 ### Changed
 - Pass `NODE_OPTIONS` to the `npm publish` step of the deploy GitHub Action.
