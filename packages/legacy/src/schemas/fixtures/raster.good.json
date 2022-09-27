@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "0.0.2",
+  "images": [
+    {
+      "name": "Some Image",
+      "url": "https://vitessce-data.storage.googleapis.com/0.0.25/master_release/test.zarr",
+      "type": "zarr",
+      "metadata": {
+        "dimensions": [
+          {
+            "field": "channel",
+            "type": "nominal",
+            "values": [
+              "A", "B", "C"
+            ]
+          },
+          {
+            "field": "y",
+            "type": "quantitative",
+            "values": null
+          },
+          {
+            "field": "x",
+            "type": "quantitative",
+            "values": null
+          }
+        ],
+        "isPyramid": false,
+        "transform": {
+          "scale": 20.0,
+          "translate": {
+            "y": 200,
+            "x": 200
+          }
+        }
+      }
+    }
+  ]
+}

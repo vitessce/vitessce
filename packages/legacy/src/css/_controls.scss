@@ -1,0 +1,56 @@
+/* Spatial and t-SNE controls */
+@mixin controls($theme-name, $theme-colors) {
+  .btn.icon {
+      padding: 0;
+      height: 2em;
+      width: 2em;
+      background-color: white;
+      > svg {
+          vertical-align: middle;
+      }
+  }
+  .roll-up {
+      height: 2em; /* Matches .btn.icon */
+      overflow: hidden;
+      background-color: white;
+      &:hover {
+          animation-name: roll-up;
+          animation-duration: 0.5s;
+          animation-fill-mode: forwards;
+      }
+  }
+  @keyframes roll-up {
+      0% { height: 2em; }
+      100% { height: 100%; }
+  }
+  .tool {
+      position: absolute;
+      display: inline;
+      z-index: 1000;
+      opacity: .65;
+      color: black;
+      &:hover {
+          opacity: .90;
+      }
+  }
+
+  .radio {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      /* create custom radiobutton appearance */
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      padding: 6px !important; /* TODO: Only need "important" to override Bootstrap. */
+      /* background-color only for content */
+      background-clip: content-box;
+      border: 2px solid lightgrey;
+      background-color: lightgrey;
+      border-radius: 50%;
+
+      &:checked {
+          background-clip: unset;
+      }
+  }
+}

@@ -1,0 +1,11 @@
+/* Tooltips for plot hover events. */
+@mixin plot-tooltips($theme-name, $theme-colors) {
+  .cell-emphasis-crosshair {
+    z-index: 50;
+    position: absolute;
+    pointer-events: none;
+    box-sizing: border-box;
+    background-color: map-get($theme-colors, "secondary-foreground");
+  }
+
+}

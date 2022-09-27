@@ -1,0 +1,23 @@
+/coverage
+/dist
+/dist-demo
+/node_modules
+/.docz
+/demo/dist
+npm-debug.log*
+venv
+/eslint/node_modules
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+default.profraw
+.nova/
+.vscode/
+*.tgz
+
+# Created and deleted during build
+.babelrc

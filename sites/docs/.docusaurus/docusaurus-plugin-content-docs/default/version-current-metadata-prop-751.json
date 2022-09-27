@@ -1,0 +1,27 @@
+{
+  "pluginId": "default",
+  "version": "current",
+  "label": "Next",
+  "banner": null,
+  "badge": false,
+  "className": "docs-version-current",
+  "isLast": true,
+  "docsSidebars": {
+    "docs": [
+      {
+        "type": "link",
+        "label": "Getting Started",
+        "href": "/docs/",
+        "docId": "introduction"
+      }
+    ]
+  },
+  "docs": {
+    "introduction": {
+      "id": "introduction",
+      "title": "Getting Started",
+      "description": "Learning pnpm-ts-react-example",
+      "sidebar": "docs"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+[
+  {
+    "dataPath": "['Klk6_Hybridization5'][2]",
+    "keyword": "maxItems",
+    "message": "should NOT have more than 2 items",
+    "params": {
+      "limit": 2
+    },
+    "schemaPath": "#/definitions/coord/maxItems"
+  }
+]

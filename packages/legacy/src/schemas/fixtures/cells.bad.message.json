@@ -1,0 +1,11 @@
+[
+  {
+    "dataPath": "['778']",
+    "keyword": "additionalProperties",
+    "message": "should NOT have additional properties",
+    "params": {
+      "additionalProperty": "tsne"
+    },
+    "schemaPath": "#/patternProperties/./additionalProperties"
+  }
+]

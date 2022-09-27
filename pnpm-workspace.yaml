@@ -1,0 +1,6 @@
+packages:
+  - 'packages/main'
+  - 'packages/my-component'
+  - 'packages/utils'
+  - 'sites/demo'
+  - 'sites/docs'

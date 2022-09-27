@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/vitessce/vitessce/#genes",
+  "title": "Vitessce gene data",
+  "type": "object",
+  "definitions": {
+    "positiveFloatValues": {
+      "type": "object",
+      "patternProperties": {
+        ".": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "patternProperties": {
+    ".": {
+      "additionalProperties": false,
+      "required": ["max", "cells"],
+      "properties": {
+        "max": { "type": "number" },
+        "cells": { "$ref": "#/definitions/positiveFloatValues" }
+      }
+    }
+  }
+}

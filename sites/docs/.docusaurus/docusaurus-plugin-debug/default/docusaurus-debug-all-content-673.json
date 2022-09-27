@@ -1,0 +1,78 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "loadedVersions": [
+        {
+          "versionName": "current",
+          "label": "Next",
+          "banner": null,
+          "badge": false,
+          "className": "docs-version-current",
+          "path": "/docs",
+          "tagsPath": "/docs/tags",
+          "editUrl": "https://github.com/keller-mark/pnpm-ts-react-example/edit/main/sites/docs/docs",
+          "editUrlLocalized": "https://github.com/keller-mark/pnpm-ts-react-example/edit/main/sites/docs/i18n/en/docusaurus-plugin-content-docs/current",
+          "isLast": true,
+          "routePriority": -1,
+          "sidebarFilePath": "/Users/mkeller/research/dbmi/vitessce/vitessce/sites/docs/sidebars.js",
+          "contentPath": "/Users/mkeller/research/dbmi/vitessce/vitessce/sites/docs/docs",
+          "contentPathLocalized": "/Users/mkeller/research/dbmi/vitessce/vitessce/sites/docs/i18n/en/docusaurus-plugin-content-docs/current",
+          "docs": [
+            {
+              "unversionedId": "introduction",
+              "id": "introduction",
+              "title": "Getting Started",
+              "description": "Learning pnpm-ts-react-example",
+              "source": "@site/docs/introduction.mdx",
+              "sourceDirName": ".",
+              "slug": "/",
+              "permalink": "/docs/",
+              "draft": false,
+              "editUrl": "https://github.com/keller-mark/pnpm-ts-react-example/edit/main/sites/docs/docs/introduction.mdx",
+              "tags": [],
+              "version": "current",
+              "frontMatter": {
+                "id": "introduction",
+                "title": "Getting Started",
+                "slug": "/"
+              },
+              "sidebar": "docs"
+            }
+          ],
+          "drafts": [],
+          "sidebars": {
+            "docs": [
+              {
+                "type": "doc",
+                "id": "introduction"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "docusaurus-plugin-content-blog": {
+    "default": {
+      "blogSidebarTitle": "Recent posts",
+      "blogPosts": [],
+      "blogListPaginated": [],
+      "blogTags": {},
+      "blogTagsListPath": "/blog/tags",
+      "blogTagsPaginated": []
+    }
+  },
+  "docusaurus-plugin-content-pages": {
+    "default": [
+      {
+        "type": "jsx",
+        "permalink": "/",
+        "source": "@site/src/pages/index.js"
+      }
+    ]
+  },
+  "docusaurus-plugin-debug": {},
+  "docusaurus-theme-classic": {},
+  "docusaurus-bootstrap-plugin": {},
+  "docusaurus-mdx-fallback-plugin": {}
+}

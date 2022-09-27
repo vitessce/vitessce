@@ -1,0 +1,20 @@
+{
+  "unversionedId": "introduction",
+  "id": "introduction",
+  "title": "Getting Started",
+  "description": "Learning pnpm-ts-react-example",
+  "source": "@site/docs/introduction.mdx",
+  "sourceDirName": ".",
+  "slug": "/",
+  "permalink": "/docs/",
+  "draft": false,
+  "editUrl": "https://github.com/keller-mark/pnpm-ts-react-example/edit/main/sites/docs/docs/introduction.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "introduction",
+    "title": "Getting Started",
+    "slug": "/"
+  },
+  "sidebar": "docs"
+}
