@@ -26,6 +26,14 @@
 - Fixed bug in the v1.0.0 to v1.0.1 view config upgrade function caused by modification of a reference to the config object.
 - Changed the `VitessceConfig` constructor and `VitessceConfigDataset.addFile` method to use named arguments via JS objects.
 
+## [1.2.2](https://www.npmjs.com/package/vitessce/v/1.2.2) - 2022-09-23
+
+
+
+### Added
+
+### Changed
+
 - Speed up heatmap load times (including when cell ordering changes) by implementing a custom indexing scheme on the shaders (see `src/components/heatmap/heatmap-indexing.pdf` for more info)
 - Renamed and moved components
   - `genes/Genes` -> `feature-list/FeatureList`
@@ -33,6 +41,8 @@
   - `sets/CellSetExpressionPlot` -> `statistical-plots/CellSetExpressionPlot`
   - `sets/CellSetSizesPlot` -> `statistical-plots/CellSetSizesPlot`
   - `genes/ExpressionHistogram` -> `statistical-plots/ExpressionHistogram`
+- Fixed deploy workflow to only attempt `npm publish` if the local version is higher than the latest version currently on NPM (indicating that a release is needed).
+
 
 ## [1.2.1](https://www.npmjs.com/package/vitessce/v/1.2.1) - 2022-08-03
 
@@ -43,6 +53,7 @@
 - Added new `arcsinh` option for the coordinaition type `featureValueTransform`
 - Added new coordination type `featureValueTransformCoefficient` to apply a coefficent to a feature value transform.
 - Added support for loading categorical columns stored as zarr groups from `anndata-cell-sets.zarr` file types.
+- Pin `zarr.js` to `0.5.1` to fix URL concatentation issue.
 
 ### Changed
 - Pass `NODE_OPTIONS` to the `npm publish` step of the deploy GitHub Action.
