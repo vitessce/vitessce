@@ -3,6 +3,14 @@
 
 ### Changed
 
+## [1.2.2](https://www.npmjs.com/package/vitessce/v/1.2.2) - 2022-09-23
+
+
+
+### Added
+
+### Changed
+
 - Speed up heatmap load times (including when cell ordering changes) by implementing a custom indexing scheme on the shaders (see `src/components/heatmap/heatmap-indexing.pdf` for more info)
 - Fixed deploy workflow to only attempt `npm publish` if the local version is higher than the latest version currently on NPM (indicating that a release is needed).
 
