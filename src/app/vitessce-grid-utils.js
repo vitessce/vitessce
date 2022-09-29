@@ -1,8 +1,13 @@
 import {
   useState, useEffect, useRef,
 } from 'react';
+import { InternMap } from 'internmap';
+import isEqual from 'lodash/isEqual';
+import pick from 'lodash/pick';
 import { getSourceAndLoaderFromFileType } from '../loaders/types';
 import { getFileTypeDataTypeMapping } from './plugins';
+import { DEFAULT_COORDINATION_VALUES } from './state/coordination';
+import { DATA_TYPE_COORDINATION_VALUE_USAGE } from './constant-relationships';
 
 /**
  * Return the bottom coordinate of the layout.
@@ -84,6 +89,26 @@ export function useRowHeight(config, initialRowHeight, height, margin, padding) 
   return [rowHeight, containerRef];
 }
 
+function withDefaults(coordinationValues, dataType, fileType, datasetUid) {
+  const defaultKeys = DATA_TYPE_COORDINATION_VALUE_USAGE[dataType]
+    .filter(k => (
+      Object.keys(DEFAULT_COORDINATION_VALUES).includes(k)
+      && DEFAULT_COORDINATION_VALUES[k]
+      && !Object.keys(coordinationValues).includes(k)
+    ));
+  const defaultValues = pick(DEFAULT_COORDINATION_VALUES, defaultKeys);
+  const coordinationValuesWithDefaults = {
+    ...defaultValues,
+    // The user-provided values should take precedence.
+    ...coordinationValues,
+  };
+  if (!isEqual(coordinationValues, coordinationValuesWithDefaults)) {
+    // eslint-disable-next-line max-len
+    console.warn(`Using coordination value defaults for file type ${fileType} in dataset ${datasetUid}\nBefore: ${JSON.stringify(coordinationValues)}\nAfter: ${JSON.stringify(coordinationValuesWithDefaults)}`);
+  }
+  return coordinationValuesWithDefaults;
+}
+
 /**
  * Create a mapping from dataset ID to loader objects by data type.
  * @param {object[]} datasets The datasets array from the view config.
@@ -108,8 +133,13 @@ export function createLoaders(datasets, configDescription) {
         options,
         requestInit,
         fileType,
+        coordinationValues = {},
       } = file;
       const dataType = fileTypeDataTypeMapping[fileType];
+      const coordinationValuesWithDefaults = withDefaults(
+        coordinationValues, dataType,
+        fileType, dataset.uid,
+      );
       const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(fileType);
       // Create _one_ DataSourceClass instance per URL. Derived loaders share this object.
       const fileId = url || JSON.stringify(options);
@@ -117,7 +147,13 @@ export function createLoaders(datasets, configDescription) {
         dataSources[fileId] = new DataSourceClass({ url, requestInit });
       }
       const loader = new LoaderClass(dataSources[fileId], file);
-      datasetLoaders.loaders[dataType] = loader;
+      if (datasetLoaders.loaders[dataType]) {
+        datasetLoaders.loaders[dataType].set(coordinationValuesWithDefaults, loader);
+      } else {
+        datasetLoaders.loaders[dataType] = new InternMap([
+          [coordinationValuesWithDefaults, loader],
+        ], JSON.stringify);
+      }
     });
     result[dataset.uid] = datasetLoaders;
   });

@@ -1,27 +1,24 @@
-/* eslint-disable no-control-regex */
 import { InternMap } from 'internmap';
 import {
   treeInitialize,
   nodeAppendChild,
-  initializeCellSetColor,
-} from '../../components/sets/cell-set-utils';
+} from '../../components/obs-sets/cell-set-utils';
 import {
-  SETS_DATATYPE_CELL,
-} from '../../components/sets/constants';
-import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
-import LoaderResult from '../LoaderResult';
+  SETS_DATATYPE_OBS,
+} from '../../components/obs-sets/constants';
 
 export function dataToCellSetsTree(data, options) {
   const [cellNames, cellSets, cellSetScores] = data;
-  const cellSetsTree = treeInitialize(SETS_DATATYPE_CELL);
+  const cellSetsTree = treeInitialize(SETS_DATATYPE_OBS);
   cellSets.forEach((cellSetIds, j) => {
-    const name = options[j].groupName;
+    const { name } = options[j];
     let levelZeroNode = {
       name,
       children: [],
     };
     if (cellSetIds.length > 0 && Array.isArray(cellSetIds[0])) {
       // Multi-level case.
+      // TODO: throw a warning if the levels are not in order coarser->finer.
       const levelSets = new InternMap([], JSON.stringify);
 
       cellNames.forEach((id, i) => {
@@ -107,48 +104,4 @@ export function dataToCellSetsTree(data, options) {
     cellSetsTree.tree.push(levelZeroNode);
   });
   return cellSetsTree;
-}
-
-/**
- * Loader for converting zarr into the cell sets json schema.
- */
-export default class CellSetsZarrLoader extends AbstractTwoStepLoader {
-  loadCellSetIds() {
-    const { options } = this;
-    const cellSetZarrLocation = options.map(({ setName }) => setName);
-    return this.dataSource.loadObsColumns(cellSetZarrLocation);
-  }
-
-  loadCellSetScores() {
-    const { options } = this;
-    const cellSetScoreZarrLocation = options.map(option => option.scoreName || undefined);
-    return this.dataSource.loadObsColumns(cellSetScoreZarrLocation);
-  }
-
-  async load() {
-    if (!this.cellSetsTree) {
-      const { options } = this;
-      this.cellSetsTree = Promise.all([
-        this.dataSource.loadObsIndex(),
-        this.loadCellSetIds(),
-        this.loadCellSetScores(),
-      ]).then(data => dataToCellSetsTree(data, options));
-    }
-    const cellSetsTree = await this.cellSetsTree;
-    const coordinationValues = {};
-    const { tree } = cellSetsTree;
-    const newAutoSetSelectionParentName = tree[0].name;
-    // Create a list of set paths to initally select.
-    const newAutoSetSelections = tree[0].children.map(node => [
-      newAutoSetSelectionParentName,
-      node.name,
-    ]);
-    // Create a list of cell set objects with color mappings.
-    const newAutoSetColors = initializeCellSetColor(cellSetsTree, []);
-    coordinationValues.obsSetSelection = newAutoSetSelections;
-    coordinationValues.obsSetColor = newAutoSetColors;
-    return Promise.resolve(
-      new LoaderResult(cellSetsTree, null, coordinationValues),
-    );
-  }
 }

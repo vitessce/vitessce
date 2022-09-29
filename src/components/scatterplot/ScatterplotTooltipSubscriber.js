@@ -6,19 +6,19 @@ import { useComponentHover, useComponentViewInfo } from '../../app/state/hooks';
 export default function ScatterplotTooltipSubscriber(props) {
   const {
     parentUuid,
-    cellHighlight,
+    obsHighlight,
     width,
     height,
-    getCellInfo,
+    getObsInfo,
   } = props;
 
   const sourceUuid = useComponentHover();
   const viewInfo = useComponentViewInfo(parentUuid);
 
-  const [cellInfo, x, y] = (cellHighlight && getCellInfo ? (
+  const [cellInfo, x, y] = (obsHighlight && getObsInfo ? (
     [
-      getCellInfo(cellHighlight),
-      ...(viewInfo && viewInfo.project ? viewInfo.project(cellHighlight) : [null, null]),
+      getObsInfo(obsHighlight),
+      ...(viewInfo && viewInfo.project ? viewInfo.project(obsHighlight) : [null, null]),
     ]
   ) : ([null, null, null]));
 

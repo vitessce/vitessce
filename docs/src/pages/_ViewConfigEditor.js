@@ -7,7 +7,7 @@ import {
 } from 'react-live';
 import {
   VitessceConfig, hconcat, vconcat,
-  CoordinationType, Component, DataType, FileType,
+  CoordinationType, ViewType, DataType, FileType,
 } from 'vitessce/dist/esm/index';
 import ThemedControlledEditor from './_ThemedControlledEditor';
 import {
@@ -40,11 +40,11 @@ const scope = {
   VitessceConfig,
   hconcat,
   vconcat,
-  Component,
+  ViewType,
   DataType,
   FileType,
   CoordinationType,
-  cm: Component,
+  vt: ViewType,
   dt: DataType,
   ft: FileType,
   ct: CoordinationType,

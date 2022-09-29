@@ -201,7 +201,7 @@ We begin with a skeleton of a view config which lacks any visualizations or data
 }
   `}
   js={`
-const vc = new VitessceConfig("1.0.9", "10x visium human lymph node");
+const vc = new VitessceConfig({ schemaVersion: "1.0.9", name: "10x visium human lymph node" });
   `}
 />
 
@@ -238,11 +238,11 @@ The file definition for the cells data should look like:
 ...
 const dataset = vc
   .addDataset("my-visium-dataset")
-  .addFile(
-    "http://localhost:9000/V1_Human_Lymph_Node.zarr",
-    dt.CELLS,
-    ft.ANNDATA_CELLS_ZARR,
-    {
+  .addFile({
+    url: "http://localhost:9000/V1_Human_Lymph_Node.zarr",
+    dataType: dt.CELLS,
+    fileType: ft.ANNDATA_CELLS_ZARR,
+    options: {
       "mappings": {
         "UMAP": {
           "key": "obsm/X_umap",
@@ -254,7 +254,7 @@ const dataset = vc
         }
       }
     }
-  );
+  });
 ...
   `}
 />
@@ -313,10 +313,10 @@ Next, we can define the visualization components:
   js={`
 ...
 const pcaPlot = vc
-  .addView(dataset, cm.SCATTERPLOT)
+  .addView(dataset, vt.SCATTERPLOT)
   .useCoordination(ET1);
 const umapPlot = vc
-  .addView(dataset, cm.SCATTERPLOT)
+  .addView(dataset, vt.SCATTERPLOT)
   .useCoordination(ET2);
 ...
   `}
@@ -380,14 +380,14 @@ Putting this all together:
 }
   `}
   js={`
-const vc = new VitessceConfig("1.0.9", "10x visium human lymph node");
+const vc = new VitessceConfig({ schemaVersion: "1.0.9", name: "10x visium human lymph node" });
 const dataset = vc
   .addDataset("my-visium-dataset")
-  .addFile(
-    "http://localhost:9000/V1_Human_Lymph_Node.zarr",
-    dt.CELLS,
-    ft.ANNDATA_CELLS_ZARR,
-    {
+  .addFile({
+    url: "http://localhost:9000/V1_Human_Lymph_Node.zarr",
+    dataType: dt.CELLS,
+    fileType: ft.ANNDATA_CELLS_ZARR,
+    options: {
       "mappings": {
         "UMAP": {
           "key": "obsm/X_umap",
@@ -399,15 +399,15 @@ const dataset = vc
         }
       }
     }
-  );
+  });
 const [ET1, ET2] = vc.addCoordination("embeddingType", "embeddingType");
 ET1.setValue("PCA");
 ET2.setValue("UMAP");
 const pcaPlot = vc
-  .addView(dataset, cm.SCATTERPLOT)
+  .addView(dataset, vt.SCATTERPLOT)
   .useCoordination(ET1);
 const umapPlot = vc
-  .addView(dataset, cm.SCATTERPLOT)
+  .addView(dataset, vt.SCATTERPLOT)
   .useCoordination(ET2);
 vc.layout(hconcat(pcaPlot, umapPlot));
 return vc.toJSON();

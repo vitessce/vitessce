@@ -1,35 +1,13 @@
 import range from 'lodash/range';
-import JsonLoader from '../../loaders/JsonLoader';
+import JsonLoader from '../../loaders/json-loaders/JsonLoader';
 import LoaderResult from '../../loaders/LoaderResult';
 import JsonSource from '../../loaders/data-sources/JsonSource';
 import {
   registerPluginFileType,
 } from '../../app/plugins';
-import { fromEntries } from '../../utils';
 
 const numCells = 60;
 const numGenes = 90;
-
-class InMemoryCellsLoader extends JsonLoader {
-  // eslint-disable-next-line class-methods-use-this
-  async load() {
-    const data = fromEntries(range(numCells).map(i => ([`cell_${i}`, {
-      mappings: {
-        random: [
-          Math.random(),
-          Math.random(),
-        ],
-      },
-      genes: {},
-      xy: [
-        Math.random(),
-        Math.random(),
-      ],
-    }])));
-
-    return Promise.resolve(new LoaderResult(data, null));
-  }
-}
 
 class InMemoryMatrixLoader extends JsonLoader {
   // eslint-disable-next-line class-methods-use-this
@@ -62,24 +40,23 @@ class InMemoryMatrixLoader extends JsonLoader {
     // Need to wrap the NestedArray to mock the HTTPStore-based array
     // which returns promises.
     const arr = { data: Uint8Array.from(normalizedFlatMatrix) };
-    return Promise.resolve(new LoaderResult([attrs, arr], null));
+    return Promise.resolve(new LoaderResult({
+      obsFeatureMatrix: arr,
+      obsIndex: attrs.rows,
+      featureIndex: attrs.cols,
+    }, null));
   }
 }
 
 registerPluginFileType(
-  'in-memory-cells', 'cells',
-  InMemoryCellsLoader, JsonSource,
-);
-
-registerPluginFileType(
-  'in-memory-matrix', 'expression-matrix',
+  'in-memory-matrix', 'obsFeatureMatrix',
   InMemoryMatrixLoader, JsonSource,
 );
 
 // Use the plugin file type in the configuration.
 export const pluginFileType = {
   name: 'Test plugin file types',
-  version: '1.0.9',
+  version: '1.0.13',
   description: 'Demonstration of a basic plugin file type implementation.',
   public: false,
   datasets: [
@@ -88,14 +65,13 @@ export const pluginFileType = {
       name: 'Plugin test dataset',
       files: [
         {
-          type: 'expression-matrix',
           fileType: 'in-memory-matrix',
           url: '',
-        },
-        {
-          type: 'cells',
-          fileType: 'in-memory-cells',
-          url: '',
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+            featureValueType: 'expression',
+          },
         },
       ],
     },

@@ -7,27 +7,27 @@ export default function HeatmapTooltipSubscriber(props) {
   const {
     parentUuid,
     width, height, transpose,
-    getCellInfo, getGeneInfo,
-    cellHighlight, geneHighlight,
+    getObsInfo, getFeatureInfo,
+    obsHighlight, featureHighlight,
   } = props;
 
   const sourceUuid = useComponentHover();
   const viewInfo = useComponentViewInfo(parentUuid);
 
-  const [cellInfo, cellCoord] = (cellHighlight && getCellInfo ? (
+  const [cellInfo, cellCoord] = (obsHighlight && getObsInfo ? (
     [
-      getCellInfo(cellHighlight),
+      getObsInfo(obsHighlight),
       (viewInfo && viewInfo.project
-        ? viewInfo.project(cellHighlight, null)[(transpose ? 0 : 1)]
+        ? viewInfo.project(obsHighlight, null)[(transpose ? 0 : 1)]
         : null),
     ]
   ) : ([null, null]));
 
-  const [geneInfo, geneCoord] = (geneHighlight && getGeneInfo ? (
+  const [geneInfo, geneCoord] = (featureHighlight && getFeatureInfo ? (
     [
-      getGeneInfo(geneHighlight),
+      getFeatureInfo(featureHighlight),
       (viewInfo && viewInfo.project
-        ? viewInfo.project(null, geneHighlight)[(transpose ? 1 : 0)]
+        ? viewInfo.project(null, featureHighlight)[(transpose ? 1 : 0)]
         : null),
     ]
   ) : ([null, null]));

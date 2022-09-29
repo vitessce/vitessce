@@ -1,24 +1,77 @@
-import {
-  makeDatasetNameToJsonFiles,
-  getS3Url, vapi,
-} from '../utils';
-
-const driesName = 'Eng et al., Nature 2019';
-const driesDescription = 'Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH';
+import { vapi } from '../utils';
 
 export const eng2019 = {
-  name: driesName,
-  version: '1.0.0',
-  description: driesDescription,
-  public: true,
+  name: 'Eng et al., Nature 2019',
+  version: '1.0.15',
+  description: 'Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH',
   datasets: [
     {
-      uid: 'dries-2019',
-      name: 'Dries 2019',
+      uid: 'eng-2019',
+      name: 'Eng 2019',
       files: [
-        'cells',
-        'cell-sets',
-      ].map(makeDatasetNameToJsonFiles('dries')),
+        {
+          fileType: 'obsEmbedding.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
+          coordinationValues: {
+            obsType: 'cell',
+            embeddingType: 't-SNE',
+          },
+          options: {
+            obsIndex: 'cell_id',
+            obsEmbedding: ['TSNE_1', 'TSNE_2'],
+          },
+        },
+        {
+          fileType: 'obsEmbedding.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
+          coordinationValues: {
+            obsType: 'cell',
+            embeddingType: 'UMAP',
+          },
+          options: {
+            obsIndex: 'cell_id',
+            obsEmbedding: ['UMAP_1', 'UMAP_2'],
+          },
+        },
+        {
+          fileType: 'obsLocations.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
+          coordinationValues: {
+            obsType: 'cell',
+          },
+          options: {
+            obsIndex: 'cell_id',
+            obsLocations: ['X', 'Y'],
+          },
+        },
+        {
+          fileType: 'obsSets.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
+          coordinationValues: {
+            obsType: 'cell',
+          },
+          options: {
+            obsIndex: 'cell_id',
+            obsSets: [
+              {
+                name: 'Leiden Clustering',
+                column: 'Leiden',
+              },
+              {
+                name: 'k-means Clustering',
+                column: 'Kmeans',
+              },
+            ],
+          },
+        },
+        {
+          fileType: 'obsSegmentations.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.segmentations.json',
+          coordinationValues: {
+            obsType: 'cell',
+          },
+        },
+      ],
     },
   ],
   initStrategy: 'auto',
@@ -27,17 +80,20 @@ export const eng2019 = {
       TSNE: 't-SNE',
       UMAP: 'UMAP',
     },
-    embeddingCellSetPolygonsVisible: {
+    embeddingObsSetPolygonsVisible: {
       A: false,
     },
-    embeddingCellSetLabelsVisible: {
+    embeddingObsSetLabelsVisible: {
       A: true,
     },
-    embeddingCellSetLabelSize: {
+    embeddingObsSetLabelSize: {
       A: 16,
     },
-    embeddingCellRadius: {
-      A: 1,
+    embeddingObsRadiusMode: {
+      A: 'manual',
+    },
+    embeddingObsRadius: {
+      A: 3,
     },
     embeddingZoom: {
       TSNE: 3,
@@ -52,13 +108,15 @@ export const eng2019 = {
     spatialTargetY: {
       A: -900,
     },
+    spatialSegmentationLayer: {
+      A: {
+        opacity: 1, radius: 0, visible: true, stroked: false,
+      },
+    },
   },
   layout: [
     {
       component: 'description',
-      props: {
-        description: `${driesName}: ${driesDescription}`,
-      },
       x: 9,
       y: 0,
       w: 3,
@@ -72,14 +130,14 @@ export const eng2019 = {
       h: 2,
     },
     {
-      component: 'cellSets',
+      component: 'obsSets',
       x: 9,
       y: 4,
       w: 3,
       h: 4,
     },
     {
-      component: 'cellSetSizes',
+      component: 'obsSetSizes',
       x: 5,
       y: 4,
       w: 4,
@@ -90,10 +148,11 @@ export const eng2019 = {
       coordinationScopes: {
         embeddingType: 'TSNE',
         embeddingZoom: 'TSNE',
-        embeddingCellSetLabelsVisible: 'A',
-        embeddingCellSetLabelSize: 'A',
-        embeddingCellSetPolygonsVisible: 'A',
-        embeddingCellRadius: 'A',
+        embeddingObsSetLabelsVisible: 'A',
+        embeddingObsSetLabelSize: 'A',
+        embeddingObsSetPolygonsVisible: 'A',
+        embeddingObsRadiusMode: 'A',
+        embeddingObsRadius: 'A',
       },
       x: 0,
       y: 2,
@@ -109,6 +168,7 @@ export const eng2019 = {
         spatialZoom: 'A',
         spatialTargetX: 'A',
         spatialTargetY: 'A',
+        spatialSegmentationLayer: 'A',
       },
       x: 5,
       y: 0,
@@ -120,10 +180,11 @@ export const eng2019 = {
       coordinationScopes: {
         embeddingType: 'UMAP',
         embeddingZoom: 'UMAP',
-        embeddingCellSetLabelsVisible: 'A',
-        embeddingCellSetLabelSize: 'A',
-        embeddingCellSetPolygonsVisible: 'A',
-        embeddingCellRadius: 'A',
+        embeddingObsSetLabelsVisible: 'A',
+        embeddingObsSetLabelSize: 'A',
+        embeddingObsSetPolygonsVisible: 'A',
+        embeddingObsRadiusMode: 'A',
+        embeddingObsRadius: 'A',
       },
       x: 0,
       y: 0,
@@ -134,9 +195,10 @@ export const eng2019 = {
 };
 
 export function getEngViewConfig(name, description) {
-  const vc = new vapi.VitessceConfig('1.0.0', name, description);
-  const dataset = vc.addDataset(driesName, driesDescription)
-    .addFile(getS3Url('dries', 'cells'), vapi.dt.CELLS, vapi.ft.CELLS_JSON)
-    .addFile(getS3Url('dries', 'cell-sets'), vapi.dt.CELL_SETS, vapi.ft.CELL_SETS_JSON);
+  const vc = new vapi.VitessceConfig({ schemaVersion: '1.0.15', name, description });
+  const dataset = vc.addDataset(name, description);
+  eng2019.datasets[0].files.forEach((fileDef) => {
+    dataset.addFile(fileDef);
+  });
   return [vc, dataset];
 }

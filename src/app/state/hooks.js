@@ -2,6 +2,7 @@ import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
 import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
+import isMatch from 'lodash/isMatch';
 import { CoordinationType } from '../constants';
 import { fromEntries, capitalize } from '../../utils';
 
@@ -221,30 +222,34 @@ export function useCoordination(parameters, coordinationScopes) {
   return [values, setters];
 }
 
+export function useMultiCoordinationValues(parameter, coordinationScopes) {
+  const scopes = coordinationScopes[parameter];
+
+  // Mapping from dataset coordination scope name to dataset uid
+  const vals = useViewConfigStore((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    // Convert a single scope to an array of scopes to be consistent.
+    const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
+    return fromEntries(scopesArr.map((scope) => {
+      if (coordinationSpace && coordinationSpace[parameter]) {
+        const value = coordinationSpace[parameter][scope];
+        return [scope, value];
+      }
+      return [scope, undefined];
+      // eslint-disable-next-line no-unused-vars
+    }).filter(([k, v]) => v !== undefined));
+  }, shallow);
+
+  return vals;
+}
+
 /**
  * Get a mapping from dataset coordination scopes to dataset UIDs.
  * @param {object} coordinationScopes The coordination scope mapping object for a view.
  * @returns {object} Mapping from dataset coordination scope names to dataset UIDs.
  */
 export function useDatasetUids(coordinationScopes) {
-  const parameter = CoordinationType.DATASET;
-  const datasetScopes = coordinationScopes[parameter];
-
-  // Mapping from dataset coordination scope name to dataset uid
-  const datasetUids = useViewConfigStore((state) => {
-    const { coordinationSpace } = state.viewConfig;
-    // Convert a single scope to an array of scopes to be consistent.
-    const datasetScopesArr = Array.isArray(datasetScopes) ? datasetScopes : [datasetScopes];
-    return fromEntries(datasetScopesArr.map((datasetScope) => {
-      if (coordinationSpace && coordinationSpace[parameter]) {
-        const value = coordinationSpace[parameter][datasetScope];
-        return [datasetScope, value];
-      }
-      return [datasetScope, undefined];
-    }));
-  }, shallow);
-
-  return datasetUids;
+  return useMultiCoordinationValues(CoordinationType.DATASET, coordinationScopes);
 }
 
 /**
@@ -318,7 +323,8 @@ export function useMultiDatasetCoordination(parameters, coordinationScopes) {
 }
 
 const AUXILIARY_COORDINATION_TYPES_MAP = {
-  spatialImageLayer: ['rasterLayersCallbacks', 'areLoadingRasterChannnels'],
+  spatialImageLayer: ['imageLayerCallbacks', 'areLoadingImageChannels'],
+  spatialSegmentationLayer: ['segmentationLayerCallbacks', 'areLoadingSegmentationChannels'],
 };
 
 /**
@@ -395,6 +401,75 @@ export function useAuxiliaryCoordination(parameters, coordinationScopes) {
  */
 export function useLoaders() {
   return useViewConfigStore(state => state.loaders);
+}
+
+/**
+ * Find a specific loader instance for a particular dataset, data type, and view
+ * coordination values (mapping from coordination types to coordination values).
+ * Uses lodash/isMatch to perform matching against the file definition's
+ * coordination value mapping.
+ * @param {object} loaders The value returned by useLoaders.
+ * @param {string} dataset The dataset UID.
+ * @param {string} dataType The data type for the matching file.
+ * @param {object} viewCoordinationValues Current coordination values
+ * from the view. Match these against a subset of file definition coordination
+ * values.
+ * @returns The matching loader instance or `null`.
+ */
+export function useMatchingLoader(loaders, dataset, dataType, viewCoordinationValues) {
+  return useMemo(() => {
+    if (!loaders[dataset]) {
+      return null;
+    }
+    const loaderInternMap = loaders[dataset].loaders[dataType];
+    if (!loaderInternMap) {
+      return null;
+    }
+    const loaderKeys = Array.from(loaderInternMap.keys());
+    const matchingKey = loaderKeys
+      .find(fileCoordinationValues => isMatch(fileCoordinationValues, viewCoordinationValues));
+    if (!matchingKey) {
+      return null;
+    }
+    return loaderInternMap.get(matchingKey);
+  }, [loaders, dataset, dataType, viewCoordinationValues]);
+}
+
+/**
+ * Find a specific loader instance for a particular dataset, data type, and view
+ * coordination values (mapping from coordination types to coordination values).
+ * Uses lodash/isMatch to perform matching against the file definition's
+ * coordination value mapping.
+ * @param {object} loaders The value returned by useLoaders.
+ * @param {string} dataset The dataset UID.
+ * @param {string} dataType The data type for the matching file.
+ * @param {object} viewCoordinationValues Current coordination values
+ * from the view. Match these against a subset of file definition coordination
+ * values.
+ * @returns The matching loader instance or `null`.
+ */
+export function useMatchingLoaders(loaders, dataset, dataType, viewCoordinationValuesObj) {
+  return useMemo(() => {
+    if (!loaders[dataset]) {
+      return null;
+    }
+    const loaderInternMap = loaders[dataset].loaders[dataType];
+    if (!loaderInternMap) {
+      return null;
+    }
+    const loaderKeys = Array.from(loaderInternMap.keys());
+    function getLoader(viewCoordinationValues) {
+      const matchingKey = loaderKeys
+        .find(fileCoordinationValues => isMatch(fileCoordinationValues, viewCoordinationValues));
+      return loaderInternMap.get(matchingKey);
+    }
+    return fromEntries(
+      Object.entries(viewCoordinationValuesObj).map(([key, viewCoordinationValues]) => ([
+        key,
+        getLoader(viewCoordinationValues),
+      ])),
+    );
+  }, [loaders, dataset, dataType, viewCoordinationValuesObj]);
 }
 
 /**

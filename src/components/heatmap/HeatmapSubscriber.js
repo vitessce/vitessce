@@ -1,14 +1,21 @@
 import React, {
-  useEffect, useState, useCallback, useMemo,
+  useState, useCallback, useMemo,
 } from 'react';
+import plur from 'plur';
 import TitleInfo from '../TitleInfo';
-import { pluralize, capitalize } from '../../utils';
-import { useDeckCanvasSize, useReady, useUrls } from '../hooks';
-import { mergeCellSets } from '../utils';
+import { capitalize, commaNumber } from '../../utils';
 import {
-  useCellsData,
-  useCellSetsData,
-  useExpressionMatrixData,
+  useDeckCanvasSize,
+  useGetObsInfo,
+  useReady,
+  useUrls,
+} from '../hooks';
+import { mergeObsSets } from '../utils';
+import {
+  useObsSetsData,
+  useObsFeatureMatrixData,
+  useMultiObsLabels,
+  useFeatureLabelsData,
 } from '../data-hooks';
 import { getCellColors } from '../interpolate-colors';
 import {
@@ -21,8 +28,8 @@ import {
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 import HeatmapOptions from './HeatmapOptions';
+import { ViewType } from '../../app/constants';
 
-const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
 
 /**
  * @param {object} props
@@ -34,14 +41,6 @@ const HEATMAP_DATA_TYPES = ['cells', 'cell-sets', 'expression-matrix'];
  * @param {string} props.title The component title.
  * @param {boolean} props.transpose Whether to
  * render as cell-by-gene or gene-by-cell.
- * @param {string} props.observationsLabelOverride The singular
- * form of the name of the observation.
- * @param {string} props.observationsPluralLabelOverride The
- * plural form of the name of the observation.
- * @param {string} props.variablesLabelOverride The singular
- * form of the name of the variable.
- * @param {string} props.variablesPluralLabelOverride The plural
- * form of the name of the variable.
  * @param {boolean} props.disableTooltip Whether to disable the
  * tooltip on mouse hover.
  */
@@ -49,11 +48,11 @@ export default function HeatmapSubscriber(props) {
   const {
     uuid,
     coordinationScopes,
-    removeGridComponent, theme, transpose,
-    observationsLabelOverride: observationsLabel = 'cell',
-    observationsPluralLabelOverride: observationsPluralLabel = `${observationsLabel}s`,
-    variablesLabelOverride: variablesLabel = 'gene',
-    variablesPluralLabelOverride: variablesPluralLabel = `${variablesLabel}s`,
+    removeGridComponent,
+    theme,
+    transpose,
+    observationsLabelOverride,
+    variablesLabelOverride,
     disableTooltip = false,
     title = 'Heatmap',
   } = props;
@@ -65,6 +64,9 @@ export default function HeatmapSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
+    featureType,
+    featureValueType,
     heatmapZoomX: zoomX,
     heatmapTargetX: targetX,
     heatmapTargetY: targetY,
@@ -87,42 +89,47 @@ export default function HeatmapSubscriber(props) {
     setObsSetColor: setCellSetColor,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setFeatureValueColormap: setGeneExpressionColormap,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.heatmap, coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.HEATMAP], coordinationScopes);
+
+  const observationsLabel = observationsLabelOverride || obsType;
+  const observationsPluralLabel = plur(observationsLabel);
+  const variablesLabel = variablesLabelOverride || featureType;
+  const variablesPluralLabel = plur(variablesLabel);
 
   const observationsTitle = capitalize(observationsPluralLabel);
   const variablesTitle = capitalize(variablesPluralLabel);
 
   const [isRendering, setIsRendering] = useState(false);
-  const [
-    isReady,
-    setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
-    resetReadyItems,
-  ] = useReady(
-    HEATMAP_DATA_TYPES,
-  );
-  const [urls, addUrl, resetUrls] = useUrls();
+
+  const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
 
-  // Reset file URLs and loader progress when the dataset has changed.
-  useEffect(() => {
-    resetUrls();
-    resetReadyItems();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
-
   // Get data from loaders using the data hooks.
-  const [cells] = useCellsData(loaders, dataset, setItemIsReady, addUrl, false);
-  const [expressionMatrix] = useExpressionMatrixData(
-    loaders, dataset, setItemIsReady, addUrl, true,
+  const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
+    coordinationScopes, obsType, loaders, dataset, addUrl,
   );
-  const [cellSets] = useCellSetsData(
-    loaders, dataset, setItemIsReady, addUrl, false,
+  // TODO: support multiple feature labels using featureLabelsType coordination values.
+  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
+    loaders, dataset, addUrl, false, {}, {},
+    { featureType },
+  );
+  const [{ obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus] = useObsFeatureMatrixData(
+    loaders, dataset, addUrl, true, {}, {},
+    { obsType, featureType, featureValueType },
+  );
+  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus] = useObsSetsData(
+    loaders, dataset, addUrl, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
+    { obsType },
   );
+  const isReady = useReady([
+    featureLabelsStatus,
+    matrixStatus,
+    obsSetsStatus,
+  ]);
 
-  const mergedCellSets = useMemo(() => mergeCellSets(
+  const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
 
@@ -133,28 +140,38 @@ export default function HeatmapSubscriber(props) {
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-    expressionDataAttrs: expressionMatrix,
+    obsIndex,
     theme,
   }), [mergedCellSets, geneSelection, theme,
-    cellSetColor, cellSetSelection, expressionMatrix]);
+    cellSetColor, cellSetSelection, obsIndex]);
 
-  const getCellInfo = useCallback((cellId) => {
-    if (cellId) {
-      const cellInfo = cells[cellId];
-      return {
-        [`${capitalize(observationsLabel)} ID`]: cellId,
-        ...(cellInfo ? cellInfo.factors : {}),
-      };
-    }
-    return null;
-  }, [cells, observationsLabel]);
+  const getObsInfo = useGetObsInfo(
+    observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
+  );
 
-  const getGeneInfo = useCallback((geneId) => {
-    if (geneId) {
-      return { [`${capitalize(variablesLabel)} ID`]: geneId };
+  const getFeatureInfo = useCallback((featureId) => {
+    if (featureId) {
+      return { [`${capitalize(variablesLabel)} ID`]: featureId };
     }
     return null;
   }, [variablesLabel]);
+
+  const expressionMatrix = useMemo(() => {
+    if (obsIndex && featureIndex && obsFeatureMatrix) {
+      return {
+        rows: obsIndex,
+        cols: (featureLabelsMap
+          ? featureIndex.map(key => featureLabelsMap.get(key) || key)
+          : featureIndex
+        ),
+        matrix: obsFeatureMatrix.data,
+      };
+    }
+    return null;
+  }, [obsIndex, featureIndex, obsFeatureMatrix, featureLabelsMap]);
+
+  const cellsCount = obsIndex ? obsIndex.length : 0;
+  const genesCount = featureIndex ? featureIndex.length : 0;
 
   const setTrackHighlight = useCallback(() => {
     // No-op, since the default handler
@@ -165,16 +182,12 @@ export default function HeatmapSubscriber(props) {
     `${capitalize(observationsLabel)} Set`,
   ]), [observationsLabel]);
 
-  const cellsCount = expressionMatrix && expressionMatrix.rows
-    ? expressionMatrix.rows.length : 0;
-  const genesCount = expressionMatrix && expressionMatrix.cols
-    ? expressionMatrix.cols.length : 0;
   const selectedCount = cellColors.size;
   return (
     <TitleInfo
       title={title}
-      info={`${cellsCount} ${pluralize(observationsLabel, observationsPluralLabel, cellsCount)} × ${genesCount} ${pluralize(variablesLabel, variablesPluralLabel, genesCount)},
-             with ${selectedCount} ${pluralize(observationsLabel, observationsPluralLabel, selectedCount)} selected`}
+      info={`${commaNumber(cellsCount)} ${plur(observationsLabel, cellsCount)} × ${commaNumber(genesCount)} ${plur(variablesLabel, genesCount)},
+             with ${commaNumber(selectedCount)} ${plur(observationsLabel, selectedCount)} selected`}
       urls={urls}
       theme={theme}
       removeGridComponent={removeGridComponent}
@@ -228,10 +241,10 @@ export default function HeatmapSubscriber(props) {
         width={width}
         height={height}
         transpose={transpose}
-        getCellInfo={getCellInfo}
-        getGeneInfo={getGeneInfo}
-        cellHighlight={cellHighlight}
-        geneHighlight={geneHighlight}
+        getObsInfo={getObsInfo}
+        getFeatureInfo={getFeatureInfo}
+        obsHighlight={cellHighlight}
+        featureHighlight={geneHighlight}
       />
       )}
     </TitleInfo>

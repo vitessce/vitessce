@@ -26,6 +26,11 @@ cd ..
  There is an input field where the URL of a config could be given.
  You can also paste a data URI like this: `data:,{"name":"FAKE", "version": "0.1.0", "description":"fake dataset", "layers":[], "staticLayout":[{"component":"description", "props":{"description": "Hello World"}, "x":0, "y": 0, "w": 2, "h": 2}]}`
 
+## HuBMAP view configs
+- CODEX (bitmask segmentations) http://localhost:3000/?url=https://portal.hubmapconsortium.org/browse/dataset/69d9c52bc9edb625b496cecb623ec081.vitessce.json
+- SLIDE-seq (diamond segmentations) http://localhost:3000/?url=https://portal.hubmapconsortium.org/browse/dataset/2107df00633f703d39e1ec74c271a9e5.vitessce.json
+- IMS 3D http://localhost:3000/?url=https://portal.hubmapconsortium.org/browse/dataset/a296c763352828159f3adfa495becf3e.vitessce.json
+
 ## Application Layout
 
 Click on "Linnarsson: Spatial organization of the somatosensory cortex revealed by cyclic smFISH", and, after it loads, add `debug=true` as a URL argument before reloading the page.  Make sure that the dataset loads and you can do a few basic interactions without raising an error about the config schema being invalid.

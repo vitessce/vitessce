@@ -15,12 +15,12 @@ export class VitessceConfigDatasetFile {
    * which may provide additional parameters to the loader class
    * corresponding to the specified fileType.
    */
-  constructor(url, dataType, fileType, options) {
+  constructor(url, fileType, coordinationValues, options) {
     this.file = {
       url,
-      type: dataType,
       fileType,
-      ...(options !== null ? { options } : {}),
+      ...(coordinationValues ? { coordinationValues } : {}),
+      ...(options ? { options } : {}),
     };
   }
 
@@ -53,17 +53,39 @@ export class VitessceConfigDataset {
 
   /**
    * Add a file definition to the dataset.
-   * @param {string|undefined} url The URL to the file.
-   * @param {string} dataType The type of data contained in the file.
-   * @param {string} fileType The file type.
-   * @param {object|array} options An optional object or array
+   * @param {object} params An object with named arguments.
+   * @param {string|undefined} params.url The URL to the file.
+   * @param {string} params.fileType The file type.
+   * @param {object|undefined} params.coordinationValues The coordination values.
+   * @param {object|array|undefined} params.options An optional object or array
    * which may provide additional parameters to the loader class
    * corresponding to the specified fileType.
    * @returns {VitessceConfigDataset} This, to allow chaining.
    */
-  addFile(url, dataType, fileType, options = null) {
+  addFile(params, ...args) {
+    let url;
+    let fileType;
+    let coordinationValues;
+    let options;
+    if (args.length > 0) {
+      // Old behavior.
+      url = params;
+      // eslint-disable-next-line no-unused-vars
+      let dataType;
+      if (args.length === 2) {
+        [dataType, fileType] = args;
+      } else if (args.length === 3) {
+        [dataType, fileType, options] = args;
+      }
+    } else if (typeof params === 'object') {
+      ({
+        url, fileType, options, coordinationValues,
+      } = params);
+    } else {
+      throw new Error('Expected addFile argument to be an object.');
+    }
     this.dataset.files.push(
-      new VitessceConfigDatasetFile(url, dataType, fileType, options),
+      new VitessceConfigDatasetFile(url, fileType, coordinationValues, options),
     );
     return this;
   }
@@ -227,11 +249,35 @@ export class VitessceConfigCoordinationScope {
 export class VitessceConfig {
   /**
    * Construct a new view config instance.
-   * @param {string} schemaVersion The view config schema version. Required.
-   * @param {string} name A name for the config. Optional.
-   * @param {string} description A description for the config. Optional.
+   * @param {object} params An object with named arguments.
+   * @param {string} params.schemaVersion The view config schema version. Required.
+   * @param {string} params.name A name for the config. Optional.
+   * @param {string|undefined} params.description A description for the config. Optional.
    */
-  constructor(schemaVersion, name = undefined, description = undefined) {
+  constructor(params, ...args) {
+    let name;
+    let description;
+    let schemaVersion;
+    if (typeof params === 'string') {
+      // Old behavior for backwards compatibility.
+      schemaVersion = '1.0.7';
+      name = params || '';
+      if (args.length === 1) {
+        [description] = args;
+      } else if (args.length > 1) {
+        throw new Error('Expected only one VitessceConfig constructor argument.');
+      }
+    } else if (typeof params === 'object') {
+      ({ schemaVersion, name, description } = params);
+      if (!name) {
+        throw new Error('Expected params.name argument in VitessceConfig constructor');
+      }
+      if (!schemaVersion) {
+        throw new Error('Expected params.schemaVersion argument in VitessceConfig constructor');
+      }
+    } else {
+      throw new Error('Expected VitessceConfig constructor argument to be an object.');
+    }
     this.config = {
       version: schemaVersion,
       name,
@@ -424,15 +470,16 @@ export class VitessceConfig {
    */
   static fromJSON(config) {
     const { name, description, version: schemaVersion } = config;
-    const vc = new VitessceConfig(schemaVersion, name, description);
+    const vc = new VitessceConfig({ schemaVersion, name, description });
     config.datasets.forEach((d) => {
       const newDataset = vc.addDataset(d.name, d.description, { uid: d.uid });
       d.files.forEach((f) => {
-        newDataset.addFile(
-          f.url,
-          f.type,
-          f.fileType,
-        );
+        newDataset.addFile({
+          url: f.url,
+          fileType: f.fileType,
+          coordinationValues: f.coordinationValues,
+          options: f.options,
+        });
       });
     });
     Object.keys(config.coordinationSpace).forEach((cType) => {

@@ -10,11 +10,12 @@ import {
   ColorPaletteExtension,
 } from '@hms-dbmi/viv';
 import { getSelectionLayers } from '../../layers';
-import { cellLayerDefaultProps, PALETTE, getDefaultColor } from '../utils';
+import { PALETTE, getDefaultColor } from '../utils';
 import { getSourceFromLoader } from '../../utils';
-import { square, getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
+import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
 import AbstractSpatialOrScatterplot from '../shared-spatial-scatterplot/AbstractSpatialOrScatterplot';
-import { createCellsQuadTree } from '../shared-spatial-scatterplot/quadtree';
+import { createQuadTree } from '../shared-spatial-scatterplot/quadtree';
+import { getOnHoverCallback } from '../shared-spatial-scatterplot/cursor';
 import { ScaledExpressionExtension } from '../../layer-extensions';
 
 const CELLS_LAYER_ID = 'cells-layer';
@@ -22,13 +23,10 @@ const MOLECULES_LAYER_ID = 'molecules-layer';
 const NEIGHBORHOODS_LAYER_ID = 'neighborhoods-layer';
 
 // Default getter function props.
-const defaultGetCellCoords = cell => cell.xy;
-const makeDefaultGetCellPolygon = radius => (cellEntry) => {
-  const cell = cellEntry[1];
-  return cell.poly?.length ? cell.poly : square(cell.xy[0], cell.xy[1], radius);
-};
-const makeDefaultGetCellColors = (cellColors, theme) => (cellEntry) => {
-  const [r, g, b, a] = (cellColors && cellColors.get(cellEntry[0])) || getDefaultColor(theme);
+const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { index }) => {
+  const [r, g, b, a] = (
+    cellColors && obsIndex && cellColors.get(obsIndex[index])
+  ) || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
 const makeDefaultGetCellIsSelected = (cellSelection) => {
@@ -40,6 +38,11 @@ const makeDefaultGetCellIsSelected = (cellSelection) => {
   }
   return () => 0.0;
 };
+const makeDefaultGetObsCoords = obsLocations => i => ([
+  obsLocations.data[0][i],
+  obsLocations.data[1][i],
+  0,
+]);
 
 /**
  * React component which expresses the spatial relationships between cells and molecules.
@@ -82,13 +85,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // in React state, this component
     // uses instance variables.
     // All instance variables used in this class:
-    this.cellsEntries = [];
-    this.moleculesEntries = [];
-    this.cellsQuadTree = null;
-    this.cellsLayer = null;
-    this.moleculesLayer = null;
-    this.neighborhoodsLayer = null;
+    this.obsSegmentationsQuadTree = null;
+    this.obsSegmentationsData = null;
+    this.obsLocationsData = null;
+
     this.imageLayers = [];
+    this.obsSegmentationsBitmaskLayers = [];
+    this.obsSegmentationsPolygonLayer = null;
+    this.obsLocationsLayer = null;
+    this.neighborhoodsLayer = null;
+
     this.layerLoaderSelections = {};
     // Better for the bitmask layer when there is no color data to use this.
     // 2048 is best for performance and for stability (4096 texture size is not always supported).
@@ -117,23 +123,26 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.onUpdateImages();
   }
 
-  createCellsLayer(layerDef) {
+  createPolygonSegmentationsLayer(layerDef, hasExplicitPolygons) {
     const {
-      radius, stroked, visible, opacity,
+      stroked, visible, opacity, radius,
     } = layerDef;
-    const { cellsEntries } = this;
+    const {
+      obsCentroidsIndex,
+      obsSegmentationsIndex,
+    } = this.props;
+    const obsIndex = (hasExplicitPolygons ? obsSegmentationsIndex : obsCentroidsIndex);
     const {
       theme,
-      cellFilter,
+      // cellFilter,
       cellSelection,
       setCellHighlight,
       setComponentHover,
       getCellIsSelected = makeDefaultGetCellIsSelected(
-        cellsEntries.length === cellSelection.length ? null : cellSelection,
+        obsIndex.length === cellSelection.length ? null : cellSelection,
       ),
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, theme),
-      getCellPolygon = makeDefaultGetCellPolygon(radius),
+      getCellColor = makeDefaultGetCellColors(cellColors, obsIndex, theme),
       onCellClick,
       lineWidthScale = 10,
       lineWidthMaxPixels = 2,
@@ -142,33 +151,40 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getExpressionValue,
       geneExpressionColormap,
     } = this.props;
-    const filteredCellsEntries = cellFilter
-      ? cellsEntries.filter(cellEntry => cellFilter.includes(cellEntry[0]))
-      : cellsEntries;
-
-    // Graphics rendering has the y-axis positive going south,
-    // so we need to flip it for rendering tooltips.
-    const flipYTooltip = true;
-
+    const getPolygon = hasExplicitPolygons
+      ? (object, { index, data }) => data.src.obsSegmentations.data[index]
+      : (object, { index, data }) => {
+        const x = data.src.obsCentroids.data[0][index];
+        const y = data.src.obsCentroids.data[1][index];
+        const r = radius;
+        return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
+      };
     return new PolygonLayer({
       id: CELLS_LAYER_ID,
+      data: this.obsSegmentationsData,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      pickable: true,
+      autoHighlight: true,
+      filled: true,
+      stroked: true,
       backgroundColor: [0, 0, 0],
       isSelected: getCellIsSelected,
-      getPolygon: getCellPolygon,
+      getPolygon,
       updateTriggers: {
         getLineWidth: [stroked],
         isSelected: cellSelection,
         getExpressionValue,
         getFillColor: [opacity, cellColorEncoding, cellSelection, cellColors],
         getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        getPolygon: [radius],
       },
-      getFillColor: (cellEntry) => {
-        const color = getCellColor(cellEntry);
+      getFillColor: (object, { index }) => {
+        const color = getCellColor(object, { index });
         color[3] = opacity * 255;
         return color;
       },
-      getLineColor: (cellEntry) => {
-        const color = getCellColor(cellEntry);
+      getLineColor: (object, { index }) => {
+        const color = getCellColor(object, { index });
         color[3] = 255;
         return color;
       },
@@ -177,6 +193,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           onCellClick(info);
         }
       },
+      onHover: getOnHoverCallback(obsIndex, setCellHighlight, setComponentHover),
       visible,
       getLineWidth: stroked ? 1 : 0,
       lineWidthScale,
@@ -187,35 +204,38 @@ class Spatial extends AbstractSpatialOrScatterplot {
       colorScaleHi: geneExpressionColormapRange[1],
       isExpressionMode: cellColorEncoding === 'geneSelection',
       colormap: geneExpressionColormap,
-      ...cellLayerDefaultProps(
-        filteredCellsEntries,
-        undefined,
-        setCellHighlight,
-        setComponentHover,
-        flipYTooltip,
-      ),
     });
   }
 
   createMoleculesLayer(layerDef) {
     const {
+      obsLocations,
+      obsLocationsFeatureIndex: obsLabelsTypes,
       setMoleculeHighlight,
-      getMoleculeColor = d => PALETTE[d[2] % PALETTE.length],
-      getMoleculePosition = d => [d[0], d[1], 0],
     } = this.props;
-    const { moleculesEntries } = this;
-
+    const getMoleculeColor = (object, { data, index }) => {
+      const i = data.src.obsLabelsTypes.indexOf(data.src.obsLabels[index]);
+      return data.src.PALETTE[i % data.src.PALETTE.length];
+    };
     return new ScatterplotLayer({
       id: MOLECULES_LAYER_ID,
+      data: this.obsLocationsData,
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      data: moleculesEntries,
       pickable: true,
       autoHighlight: true,
       radiusMaxPixels: 3,
       opacity: layerDef.opacity,
       visible: layerDef.visible,
       getRadius: layerDef.radius,
-      getPosition: getMoleculePosition,
+      getPosition: (object, { data, index, target }) => {
+        // eslint-disable-next-line no-param-reassign
+        target[0] = data.src.obsLocations.data[0][index];
+        // eslint-disable-next-line no-param-reassign
+        target[1] = data.src.obsLocations.data[1][index];
+        // eslint-disable-next-line no-param-reassign
+        target[2] = 0;
+        return target;
+      },
       getLineColor: getMoleculeColor,
       getFillColor: getMoleculeColor,
       onHover: (info) => {
@@ -226,6 +246,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
             setMoleculeHighlight(null);
           }
         }
+      },
+      updateTriggers: {
+        getRadius: [layerDef],
+        getPosition: [obsLocations],
+        getLineColor: [obsLabelsTypes],
+        getFillColor: [obsLabelsTypes],
       },
     });
   }
@@ -255,20 +281,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   createSelectionLayers() {
+    const { obsCentroidsIndex, obsCentroids } = this.props;
     const {
       viewState,
-      getCellCoords = defaultGetCellCoords,
       setCellSelection,
     } = this.props;
     const { tool } = this.state;
-    const { cellsQuadTree } = this;
+    const { obsSegmentationsQuadTree } = this;
+    const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
     return getSelectionLayers(
       tool,
       viewState.zoom,
       CELLS_LAYER_ID,
       getCellCoords,
+      obsCentroidsIndex,
       setCellSelection,
-      cellsQuadTree,
+      obsSegmentationsQuadTree,
     );
   }
 
@@ -278,9 +306,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       width,
       height,
       imageLayerLoaders = {},
-      layers,
+      imageLayerDefs,
     } = this.props;
-    const use3d = (layers || []).some(i => i.use3d);
+    const use3d = (imageLayerDefs || []).some(i => i.use3d);
     // Just get the first layer/loader since they should all be spatially
     // resolved and therefore have the same unit size scale.
     const loaders = Object.values(imageLayerLoaders);
@@ -306,7 +334,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     return null;
   }
 
-  createImageLayer(rawLayerDef, loader, i) {
+  createRasterLayer(rawLayerDef, loader, i) {
     const layerDef = {
       ...rawLayerDef,
       channels: rawLayerDef.channels.filter(
@@ -395,6 +423,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         isExpressionMode: cellColorEncoding === 'geneSelection',
         colormap: geneExpressionColormap,
         expressionData: this.expression.data,
+        // There is no onHover here,
+        // see the onHover method of AbstractSpatialOrScatterplot.
       });
     }
     const [Layer, layerLoader] = getLayerLoaderTuple(data, layerDef.use3d);
@@ -430,52 +460,118 @@ class Spatial extends AbstractSpatialOrScatterplot {
     });
   }
 
+  use3d() {
+    const {
+      imageLayerDefs,
+    } = this.props;
+    return (imageLayerDefs || []).some(i => i.use3d);
+  }
+
   createImageLayers() {
     const {
-      layers,
+      imageLayerDefs,
       imageLayerLoaders = {},
-      rasterLayersCallbacks = [],
+      imageLayerCallbacks = [],
     } = this.props;
-    const use3d = (layers || []).some(i => i.use3d);
-    const use3dIndex = (layers || []).findIndex(i => i.use3d);
-    return (layers || [])
-      .filter(layer => layer.type === 'raster' || layer.type === 'bitmask')
+    const use3d = this.use3d();
+    const use3dIndex = (imageLayerDefs || []).findIndex(i => i.use3d);
+    return (imageLayerDefs || [])
       .filter(layer => (use3d ? layer.use3d === use3d : true))
-      .map((layer, i) => this.createImageLayer(
-        { ...layer, callback: rasterLayersCallbacks[use3d ? use3dIndex : i] },
+      .map((layer, i) => this.createRasterLayer(
+        { ...layer, callback: imageLayerCallbacks[use3d ? use3dIndex : i] },
         imageLayerLoaders[layer.index],
         i,
       ));
   }
 
+  createBitmaskLayers() {
+    const {
+      obsSegmentationsLayerDefs,
+      obsSegmentations,
+      obsSegmentationsType,
+      segmentationLayerCallbacks = [],
+    } = this.props;
+    if (obsSegmentations && obsSegmentationsType === 'bitmask' && Array.isArray(obsSegmentationsLayerDefs)) {
+      const { loaders = [] } = obsSegmentations;
+      const use3d = obsSegmentationsLayerDefs.some(i => i.use3d);
+      const use3dIndex = obsSegmentationsLayerDefs.findIndex(i => i.use3d);
+      return obsSegmentationsLayerDefs
+        .filter(layer => (use3d ? layer.use3d === use3d : true))
+        .map((layer, i) => this.createRasterLayer(
+          { ...layer, callback: segmentationLayerCallbacks[use3d ? use3dIndex : i] },
+          loaders[layer.index],
+          i,
+        ));
+    }
+    return [];
+  }
+
   getLayers() {
     const {
-      imageLayers, cellsLayer, neighborhoodsLayer, moleculesLayer,
+      imageLayers,
+      obsSegmentationsPolygonLayer,
+      neighborhoodsLayer,
+      obsLocationsLayer,
+      obsSegmentationsBitmaskLayers,
     } = this;
     return [
       ...imageLayers,
-      cellsLayer,
+      ...obsSegmentationsBitmaskLayers,
+      obsSegmentationsPolygonLayer,
       neighborhoodsLayer,
-      moleculesLayer,
+      obsLocationsLayer,
       this.createScaleBarLayer(),
       ...this.createSelectionLayers(),
     ];
   }
 
   onUpdateCellsData() {
-    const { cells = {}, getCellCoords = defaultGetCellCoords } = this.props;
-    const cellsEntries = Object.entries(cells);
-    this.cellsEntries = cellsEntries;
-    this.cellsQuadTree = createCellsQuadTree(cellsEntries, getCellCoords);
+    const {
+      obsSegmentations,
+      obsSegmentationsType,
+      obsCentroids,
+    } = this.props;
+    if ((obsSegmentations && obsSegmentationsType === 'polygon')
+      || (!obsSegmentations && obsCentroids)
+    ) {
+      const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
+      this.obsSegmentationsQuadTree = createQuadTree(obsCentroids, getCellCoords);
+      this.obsSegmentationsData = {
+        src: {
+          obsSegmentations,
+          obsCentroids,
+        },
+        length: obsSegmentations ? obsSegmentations.shape[0] : obsCentroids.shape[1],
+      };
+    }
   }
 
   onUpdateCellsLayer() {
-    const { layers } = this.props;
-    const layerDef = (layers || []).find(layer => layer.type === 'cells');
-    if (layerDef) {
-      this.cellsLayer = this.createCellsLayer(layerDef);
+    const {
+      obsSegmentationsLayerDefs: obsSegmentationsLayerDef,
+      obsSegmentationsIndex,
+      obsSegmentations,
+      obsSegmentationsType,
+      obsCentroids,
+      obsCentroidsIndex,
+      hasSegmentations,
+    } = this.props;
+    if (obsSegmentationsLayerDef && obsSegmentationsIndex && obsSegmentations && obsSegmentationsType === 'polygon') {
+      this.obsSegmentationsPolygonLayer = this.createPolygonSegmentationsLayer(
+        obsSegmentationsLayerDef, true,
+      );
+    } else if (obsSegmentationsLayerDef && obsSegmentations && obsSegmentationsType === 'bitmask') {
+      this.obsSegmentationsBitmaskLayers = this.createBitmaskLayers();
+    } else if (!hasSegmentations
+      && obsSegmentationsLayerDef && !obsSegmentations && !obsSegmentationsIndex
+      && obsCentroids && obsCentroidsIndex
+    ) {
+      // For backwards compatibility (diamond case).
+      this.obsSegmentationsPolygonLayer = this.createPolygonSegmentationsLayer(
+        obsSegmentationsLayerDef, false,
+      );
     } else {
-      this.cellsLayer = null;
+      this.obsSegmentationsPolygonLayer = null;
     }
   }
 
@@ -515,20 +611,40 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateMoleculesData() {
-    const { molecules = {} } = this.props;
-    const moleculesEntries = Object.entries(molecules).flatMap(
-      ([molecule, coords], index) => coords.map(([x, y]) => [x, y, index, molecule]),
-    );
-    this.moleculesEntries = moleculesEntries;
+    const {
+      obsLocations,
+      obsLocationsLabels: obsLabels,
+      obsLocationsFeatureIndex: obsLabelsTypes,
+    } = this.props;
+    if (obsLocations && obsLabels && obsLabelsTypes) {
+      this.obsLocationsData = {
+        src: {
+          obsLabels,
+          obsLocations,
+          obsLabelsTypes,
+          PALETTE,
+        },
+        length: obsLocations.shape[1],
+      };
+    }
   }
 
   onUpdateMoleculesLayer() {
-    const { layers } = this.props;
-    const layerDef = (layers || []).find(layer => layer.type === 'molecules');
-    if (layerDef) {
-      this.moleculesLayer = this.createMoleculesLayer(layerDef);
+    const {
+      obsLocationsLayerDefs: obsLocationsLayerDef,
+      obsLocations,
+      obsLocationsIndex,
+      obsLocationsLabels,
+      obsLocationsFeatureIndex,
+    } = this.props;
+    if (
+      obsLocationsLayerDef
+      && obsLocations?.data && obsLocationsIndex
+      && obsLocationsLabels && obsLocationsFeatureIndex
+    ) {
+      this.obsLocationsLayer = this.createMoleculesLayer(obsLocationsLayerDef);
     } else {
-      this.moleculesLayer = null;
+      this.obsLocationsLayer = null;
     }
   }
 
@@ -539,12 +655,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateNeighborhoodsLayer() {
-    const { layers } = this.props;
-    const layerDef = (layers || []).find(
-      layer => layer.type === 'neighborhoods',
-    );
-    if (layerDef) {
-      this.neighborhoodsLayer = this.createNeighborhoodsLayer(layerDef);
+    const { neighborhoodLayerDefs: neighborhoodLayerDef } = this.props;
+    if (neighborhoodLayerDef) {
+      this.neighborhoodsLayer = this.createNeighborhoodsLayer(neighborhoodLayerDef);
     } else {
       this.neighborhoodsLayer = null;
     }
@@ -555,8 +668,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   viewInfoDidUpdate() {
-    const { getCellCoords = defaultGetCellCoords } = this.props;
-    super.viewInfoDidUpdate(getCellCoords);
+    const {
+      obsCentroidsIndex,
+      obsCentroids,
+    } = this.props;
+    super.viewInfoDidUpdate(
+      obsCentroidsIndex,
+      obsCentroids,
+      makeDefaultGetObsCoords,
+    );
   }
 
   /**
@@ -572,79 +692,113 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.viewInfoDidUpdate();
 
     const shallowDiff = propName => prevProps[propName] !== this.props[propName];
-    if (['cells'].some(shallowDiff)) {
+    let forceUpdate = false;
+    if (
+      [
+        'obsSegmentations',
+        'obsSegmentationsType',
+        'obsCentroids',
+      ].some(shallowDiff)
+    ) {
       // Cells data changed.
       this.onUpdateCellsData();
-      this.forceUpdate();
+      forceUpdate = true;
+    }
+
+    if (['cellColors'].some(shallowDiff)) {
+      // Cells Color layer props changed.
+      // Must come before onUpdateCellsLayer
+      // since the new layer may use the new processed color data.
+      this.onUpdateCellColors();
+      forceUpdate = true;
+    }
+
+    if (['expressionData'].some(shallowDiff)) {
+      // Expression data prop changed.
+      // Must come before onUpdateCellsLayer
+      // since the new layer may use the new processed expression data.
+      this.onUpdateExpressionData();
+      forceUpdate = true;
     }
 
     if (
       [
-        'layers',
-        'cells',
+        'obsSegmentationsLayerDefs',
+        'obsSegmentations',
+        'obsSegmentationsIndex',
+        'obsSegmentationsType',
+        'obsCentroids',
+        'obsCentroidsIndex',
+        'hasSegmentations',
         'cellFilter',
         'cellSelection',
         'cellColors',
         'geneExpressionColormapRange',
         'cellColorEncoding',
         'geneExpressionColormap',
+        'segmentationLayerCallbacks',
       ].some(shallowDiff)
     ) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
-      this.forceUpdate();
+      forceUpdate = true;
     }
 
-    if (['cellColors'].some(shallowDiff)) {
-      // Cells Color layer props changed.
-      this.onUpdateCellColors();
-      this.forceUpdate();
-    }
-
-    if (['expressionData'].some(shallowDiff)) {
-      // Expression data prop changed.
-      this.onUpdateExpressionData();
-      this.forceUpdate();
-    }
-
-    if (['molecules'].some(shallowDiff)) {
-      // Molecules data changed.
+    if (
+      [
+        'obsLocations',
+        'obsLocationsLabels',
+        'obsLocationsFeatureIndex',
+      ].some(shallowDiff)
+    ) {
+      // Molecules data props changed.
       this.onUpdateMoleculesData();
-      this.forceUpdate();
+      forceUpdate = true;
     }
 
-    if (['layers', 'molecules'].some(shallowDiff)) {
+    if (
+      [
+        'obsLocationsLayerDefs',
+        'obsLocations',
+        'obsLocationsIndex',
+        'obsLocationsLabels',
+        'obsLocationsFeatureIndex',
+      ].some(shallowDiff)
+    ) {
       // Molecules layer props changed.
       this.onUpdateMoleculesLayer();
-      this.forceUpdate();
+      forceUpdate = true;
     }
 
     if (['neighborhoods'].some(shallowDiff)) {
       // Neighborhoods data changed.
       this.onUpdateNeighborhoodsData();
-      this.forceUpdate();
+      forceUpdate = true;
     }
 
-    if (['layers', 'neighborhoods'].some(shallowDiff)) {
+    if (['neighborhoodLayerDefsDefs', 'neighborhoods'].some(shallowDiff)) {
       // Neighborhoods layer props changed.
       this.onUpdateNeighborhoodsLayer();
-      this.forceUpdate();
+      forceUpdate = true;
     }
 
     if (
       [
-        'layers',
+        'imageLayerDefs',
         'imageLayerLoaders',
         'cellColors',
         'cellHighlight',
         'geneExpressionColormapRange',
         'expressionData',
-        'rasterLayersCallbacks',
+        'imageLayerCallbacks',
         'geneExpressionColormap',
       ].some(shallowDiff)
     ) {
       // Image layers changed.
       this.onUpdateImages();
+      forceUpdate = true;
+    }
+    if (forceUpdate) {
       this.forceUpdate();
     }
   }

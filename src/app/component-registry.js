@@ -1,35 +1,35 @@
-import { Component } from './constants';
+import { ViewType } from './constants';
 import { getPluginViewType, getPluginViewTypes } from './plugins';
 
 import DescriptionSubscriber from '../components/description/DescriptionSubscriber';
 import StatusSubscriber from '../components/status/StatusSubscriber';
-import GenesSubscriber from '../components/genes/GenesSubscriber';
-import CellSetsManagerSubscriber from '../components/sets/CellSetsManagerSubscriber';
+import FeatureListSubscriber from '../components/feature-list/FeatureListSubscriber';
+import ObsSetsManagerSubscriber from '../components/obs-sets/ObsSetsManagerSubscriber';
 import EmbeddingScatterplotSubscriber from '../components/embedding-scatterplot/EmbeddingScatterplotSubscriber';
 import GatingSubscriber from '../components/gating/GatingSubscriber';
 import SpatialSubscriber from '../components/spatial/SpatialSubscriber';
 import HeatmapSubscriber from '../components/heatmap/HeatmapSubscriber';
 import LayerControllerSubscriber from '../components/layer-controller/LayerControllerSubscriber';
 import HiGlassSubscriber from '../components/higlass/HiGlassSubscriber';
-import CellSetSizesPlotSubscriber from '../components/sets/CellSetSizesPlotSubscriber';
 import GenomicProfilesSubscriber from '../components/higlass/GenomicProfilesSubscriber';
-import ExpressionHistogramSubscriber from '../components/genes/ExpressionHistogramSubscriber';
-import CellSetExpressionPlotSubscriber from '../components/sets/CellSetExpressionPlotSubscriber';
+import CellSetSizesPlotSubscriber from '../components/statistical-plots/CellSetSizesPlotSubscriber';
+import ExpressionHistogramSubscriber from '../components/statistical-plots/ExpressionHistogramSubscriber';
+import CellSetExpressionPlotSubscriber from '../components/statistical-plots/CellSetExpressionPlotSubscriber';
 
 const registry = {
-  [Component.DESCRIPTION]: DescriptionSubscriber,
-  [Component.STATUS]: StatusSubscriber,
-  [Component.GENES]: GenesSubscriber,
-  [Component.CELL_SETS]: CellSetsManagerSubscriber,
-  [Component.SCATTERPLOT]: EmbeddingScatterplotSubscriber,
-  [Component.GATING]: GatingSubscriber,
-  [Component.SPATIAL]: SpatialSubscriber,
-  [Component.HEATMAP]: HeatmapSubscriber,
-  [Component.LAYER_CONTROLLER]: LayerControllerSubscriber,
-  [Component.CELL_SET_SIZES]: CellSetSizesPlotSubscriber,
-  [Component.GENOMIC_PROFILES]: GenomicProfilesSubscriber,
-  [Component.EXPRESSION_HISTOGRAM]: ExpressionHistogramSubscriber,
-  [Component.CELL_SET_EXPRESSION]: CellSetExpressionPlotSubscriber,
+  [ViewType.DESCRIPTION]: DescriptionSubscriber,
+  [ViewType.STATUS]: StatusSubscriber,
+  [ViewType.FEATURE_LIST]: FeatureListSubscriber,
+  [ViewType.OBS_SETS]: ObsSetsManagerSubscriber,
+  [ViewType.SCATTERPLOT]: EmbeddingScatterplotSubscriber,
+  [ViewType.GATING]: GatingSubscriber,
+  [ViewType.SPATIAL]: SpatialSubscriber,
+  [ViewType.HEATMAP]: HeatmapSubscriber,
+  [ViewType.LAYER_CONTROLLER]: LayerControllerSubscriber,
+  [ViewType.OBS_SET_SIZES]: CellSetSizesPlotSubscriber,
+  [ViewType.GENOMIC_PROFILES]: GenomicProfilesSubscriber,
+  [ViewType.FEATURE_VALUE_HISTOGRAM]: ExpressionHistogramSubscriber,
+  [ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION]: CellSetExpressionPlotSubscriber,
   // The plain higlass component does not abstract away the HiGlass view config,
   // so we probably want to avoid documenting it, only use it for development purposes.
   higlass: HiGlassSubscriber,

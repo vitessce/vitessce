@@ -1,12 +1,15 @@
 import React from 'react';
+import plur from 'plur';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
 import { useStyles } from '../shared-plot-options/styles';
 import OptionSelect from '../shared-plot-options/OptionSelect';
+import { capitalize } from '../../utils';
 
 export default function GatingScatterplotOptions(props) {
   const {
+    featureType,
     gatingFeatureSelectionX,
     setGatingFeatureSelectionX,
     gatingFeatureSelectionY,
@@ -64,7 +67,7 @@ export default function GatingScatterplotOptions(props) {
     <>
       <TableRow key="gene-option-row">
         <TableCell className={classes.labelCell}>
-            Genes
+          {capitalize(plur(featureType, geneSelectOptions?.length))}
         </TableCell>
         <TableCell className={classes.inputCell}>
           <OptionSelect

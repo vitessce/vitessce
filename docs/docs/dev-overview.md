@@ -4,7 +4,7 @@ title: Developer Docs
 sidebar_label: Overview
 ---
 
-The **Developer Docs** are meant for internal usage by the developers of Vitessce (including external contributors).
+The developer docs are meant for usage by the internal development team, external contributors, and plugin developers.
 
 
 ## Architecture

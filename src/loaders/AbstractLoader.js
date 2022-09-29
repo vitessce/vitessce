@@ -1,4 +1,6 @@
-import uuidv4 from 'uuid/v4';
+import Ajv from 'ajv';
+import { OptionsValidationError } from './errors';
+import { emptySchema } from '../app/file-options-schemas';
 
 /**
  * A loader ancestor class containing a default constructor
@@ -6,34 +8,39 @@ import uuidv4 from 'uuid/v4';
  */
 export default class AbstractLoader {
   constructor({
-    type, url, requestInit, options,
+    type, fileType,
+    url, requestInit,
+    options, coordinationValues,
   }) {
+    this.fileType = fileType;
     this.type = type;
     this.url = url;
     this.requestInit = requestInit;
     this.options = options;
-
-    this.subscriptions = {};
+    this.coordinationValues = coordinationValues;
+    this.optionsSchema = emptySchema;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  validateOptions() {
+    const { optionsSchema, options } = this;
+    const validate = new Ajv().compile(optionsSchema);
+    const valid = validate(options || null);
+    if (!valid) {
+      return [false, validate.errors];
+    }
+    return [true, null];
+  }
+
   load() {
-    throw new Error('The load() method has not been implemented.');
-  }
-
-  subscribe(subscriber) {
-    const token = uuidv4();
-    this.subscriptions[token] = subscriber;
-    return token;
-  }
-
-  unsubscribe(token) {
-    delete this.subscriptions[token];
-  }
-
-  publish(data) {
-    Object.values(this.subscriptions).forEach((subscriber) => {
-      subscriber(data);
-    });
+    const {
+      fileType, url, options,
+    } = this;
+    const [optionsAreValid, optionsFailureReason] = this.validateOptions();
+    if (!optionsAreValid) {
+      return Promise.reject(
+        new OptionsValidationError(fileType, url, options, optionsFailureReason),
+      );
+    }
+    return Promise.resolve(optionsAreValid);
   }
 }

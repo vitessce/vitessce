@@ -1,7 +1,30 @@
 
 ### Added
+- Added `gating` component that allows users to dynamically generate a scatterplot based on gene expression values.
+  - New coordination types of `gatingFeatureSelectionX` and `gatingFeatureSelectionY` for the values selected for the gating plot.
+- Added new `arcsinh` option for the coordinaition type `featureValueTransform`
+- Added new coordination type `featureValueTransformCoefficient` to apply a coefficent to a feature value transform.
+- Added new demos to the documentation to showcase the new obs-by-feature features.
+- Added `ViewType` as a main export from `src/index.js` alongside `Component`. Replaced `Component` with `ViewType` in the documentation.
 
 ### Changed
+- Added new file type and data type constants.
+- Added support for `datatype: 'obs'` in `obsSets.schema.json`
+- Added loaders for `obsSets.json` and `obsSets.cell-sets.json`.
+- Added loaders for `obsFeatureMatrix.clusters.json`
+- Added loaders for `obsFeatureMatrix.genes.json`
+- Added loaders for `obsLabels.cells.json`, `obsEmbedding.cells.json`, `obsLocations.cells.json`, `obsSegmentations.cells.json`
+- Added loaders for `image.raster.json`,`obsSegmentations.raster.json`, `image.ome-zarr`
+- Added loaders for `obsLabels.anndata-expression-matrix.zarr`, `featureLabels.anndata-expression-matrix.zarr`, `obsFeatureMatrix.anndata-expression-matrix.zarr`
+- Added loaders for `obsFeatureMatrix.expression-matrix.zarr`
+- Added the property `coordinationValues` for view config file definitions.
+- Added the `useMatchingLoader` hook.
+- Added loaders for `obsLabels.molecules.json` and `obsLocations.molecules.json`
+- Added tests for checking that FileType constants have been mapped to corresponding data types and loader classes.
+- Implemented support for `obsLabelsType` which supersedes `factors`.
+- Implemented obs set membership tooltips.
+- Fixed bug in the v1.0.0 to v1.0.1 view config upgrade function caused by modification of a reference to the config object.
+- Changed the `VitessceConfig` constructor and `VitessceConfigDataset.addFile` method to use named arguments via JS objects.
 
 ## [1.2.2](https://www.npmjs.com/package/vitessce/v/1.2.2) - 2022-09-23
 
@@ -12,6 +35,12 @@
 ### Changed
 
 - Speed up heatmap load times (including when cell ordering changes) by implementing a custom indexing scheme on the shaders (see `src/components/heatmap/heatmap-indexing.pdf` for more info)
+- Renamed and moved components
+  - `genes/Genes` -> `feature-list/FeatureList`
+  - `sets/CellSetsManagerSubscriber` -> `obs-sets/ObsSetsManagerSubscriber`
+  - `sets/CellSetExpressionPlot` -> `statistical-plots/CellSetExpressionPlot`
+  - `sets/CellSetSizesPlot` -> `statistical-plots/CellSetSizesPlot`
+  - `genes/ExpressionHistogram` -> `statistical-plots/ExpressionHistogram`
 - Fixed deploy workflow to only attempt `npm publish` if the local version is higher than the latest version currently on NPM (indicating that a release is needed).
 
 

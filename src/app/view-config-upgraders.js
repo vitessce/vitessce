@@ -113,6 +113,12 @@ export function upgradeFrom0_1_0(config, datasetUid = null) {
     layout.push(newComponentDef);
   });
 
+  const lcDef = layout.find(c => c.component === 'layerController');
+  const spatialDef = layout.find(c => c.component === 'spatial');
+  if (lcDef && spatialDef.coordinationScopes) {
+    lcDef.coordinationScopes = spatialDef.coordinationScopes;
+  }
+
   // Use a random dataset ID when initializing automatically,
   // so that it changes with each new v0.1.0 view config.
   // However, check if the `datasetUid` parameter was passed,
@@ -142,7 +148,8 @@ export function upgradeFrom0_1_0(config, datasetUid = null) {
 }
 
 export function upgradeFrom1_0_0(config) {
-  const coordinationSpace = { ...config.coordinationSpace };
+  const newConfig = cloneDeep(config);
+  const { coordinationSpace } = newConfig;
 
   function replaceLayerType(layerType) {
     // Layer type could be one of a few things, bitmask or raster at the moment.
@@ -172,7 +179,7 @@ export function upgradeFrom1_0_0(config) {
     delete coordinationSpace.spatialLayers;
   }
 
-  const layout = config.layout.map((component) => {
+  const layout = newConfig.layout.map((component) => {
     const newComponent = { ...component };
 
     function replaceCoordinationScope(layerType) {
@@ -197,7 +204,7 @@ export function upgradeFrom1_0_0(config) {
   });
 
   return {
-    ...config,
+    ...newConfig,
     coordinationSpace,
     layout,
     version: '1.0.1',
@@ -420,8 +427,34 @@ export function upgradeFrom1_0_10(config) {
 export function upgradeFrom1_0_11(config) {
   const newConfig = cloneDeep(config);
 
+  const {
+    datasets,
+    coordinationSpace,
+  } = newConfig;
+
+  if (coordinationSpace.embeddingType) {
+    // This array may contain more embedding types than
+    // the cells.json file actually contains, but the tradeoff is that
+    // we do not have to load the cells.json file to double check what
+    // embedding types are actually present. CellsJsonAsObsEmbedding
+    // will just load the embedding as null if it is not present.
+    const embeddingTypes = Object.values(coordinationSpace.embeddingType);
+    datasets.forEach((dataset, i) => {
+      const { files } = dataset;
+      files.forEach((fileDef, j) => {
+        const { fileType } = fileDef;
+        if (fileType === 'cells.json') {
+          datasets[i].files[j].options = {
+            embeddingTypes,
+          };
+        }
+      });
+    });
+  }
+
   return {
     ...newConfig,
+    datasets,
     version: '1.0.12',
   };
 }
@@ -433,8 +466,61 @@ export function upgradeFrom1_0_11(config) {
 export function upgradeFrom1_0_12(config) {
   const newConfig = cloneDeep(config);
 
+  // Set up coordination scopes for anndata-cells.zarr's options.factors
+  // in the coordination space, and create a new coordinationScopes.obsLabelsType array
+  // for each component in the layout.
+  const { datasets, coordinationSpace, layout } = newConfig;
+  const datasetUidToObsLabelsTypeScopes = {};
+  datasets.forEach((dataset) => {
+    const { files, uid } = dataset;
+    files.forEach((fileDef) => {
+      const { fileType, options = {} } = fileDef;
+      if (fileType === 'anndata-cells.zarr') {
+        const { factors } = options;
+        if (factors) {
+          const obsLabelsTypeScopes = [];
+          factors.forEach((olt) => {
+            const nextScope = getNextScope(Object.keys(coordinationSpace?.obsLabelsType || {}));
+            coordinationSpace.obsLabelsType = {
+              ...coordinationSpace.obsLabelsType,
+              // Need to remove the obs/ prefix.
+              [nextScope]: olt.split('/').at(-1),
+            };
+            obsLabelsTypeScopes.push(nextScope);
+          });
+          datasetUidToObsLabelsTypeScopes[uid] = obsLabelsTypeScopes;
+        }
+      }
+    });
+  });
+  function getDatasetUidForView(viewDef) {
+    if (viewDef.coordinationScopes?.dataset) {
+      return coordinationSpace.dataset[viewDef.coordinationScopes.dataset];
+    }
+    if (datasets.length > 0) {
+      return datasets[0].uid;
+    }
+    return null;
+  }
+  const newLayout = layout.map((viewDef) => {
+    const viewDatasetUid = getDatasetUidForView(datasets, coordinationSpace, viewDef);
+    const datasetObsLabelsTypeScopes = datasetUidToObsLabelsTypeScopes[viewDatasetUid];
+    if (datasetObsLabelsTypeScopes) {
+      return {
+        ...viewDef,
+        coordinationScopes: {
+          ...viewDef.coordinationScopes,
+          obsLabelsType: datasetObsLabelsTypeScopes,
+        },
+      };
+    }
+    return viewDef;
+  });
+
   return {
     ...newConfig,
+    coordinationSpace,
+    layout: newLayout,
     version: '1.0.13',
   };
 }
@@ -450,5 +536,57 @@ export function upgradeFrom1_0_13(config) {
   return {
     ...newConfig,
     version: '1.0.14',
+  };
+}
+
+// Added in version 1.0.15:
+// - Changes the following view names:
+//   - genes -> featureList
+//   - cellSets -> obsSets
+//   - cellSetSizes -> obsSetSizes
+//   - cellSetExpression -> obsSetFeatureValueDistribution
+//   - expressionHistogram -> featureValueHistogram
+// - Deprecates the props:
+//   - variablesLabelOverride
+//   - observationsLabelOverride
+export function upgradeFrom1_0_14(config) {
+  const newConfig = cloneDeep(config);
+  const { layout } = newConfig;
+
+  const viewTypeAnalogies = {
+    genes: 'featureList',
+    cellSets: 'obsSets',
+    cellSetSizes: 'obsSetSizes',
+    cellSetExpression: 'obsSetFeatureValueDistribution',
+    expressionHistogram: 'featureValueHistogram',
+  };
+  // Handle the view type renaming.
+  const newLayout = layout.map((viewDef) => {
+    // Replace the old component name with the new one.
+    if (viewTypeAnalogies[viewDef.component]) {
+      return {
+        ...viewDef,
+        component: viewTypeAnalogies[viewDef.component],
+      };
+    }
+    return viewDef;
+  });
+  const propAnalogies = {
+    variablesLabelOverride: 'featureType',
+    observationsLabelOverride: 'obsType',
+  };
+  // Warn about the prop usage.
+  newLayout.forEach((viewDef) => {
+    // Iterate over each old prop key.
+    Object.entries(propAnalogies).forEach(([oldProp, newType]) => {
+      if (viewDef.props?.[oldProp]) {
+        console.warn(`Warning: the '${oldProp}' prop on the ${viewDef.component} view is deprecated. Please use the '${newType}' coordination type instead.`);
+      }
+    });
+  });
+  return {
+    ...newConfig,
+    version: '1.0.15',
+    layout: newLayout,
   };
 }

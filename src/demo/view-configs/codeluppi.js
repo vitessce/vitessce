@@ -187,8 +187,54 @@ export const justSpatial = {
 };
 
 export const codeluppi2018 = {
-  ...linnarssonBase,
+  name: 'Codeluppi et al., Nature Methods 2018',
+  description: 'Spatial organization of the somatosensory cortex revealed by osmFISH',
+  version: '1.0.13',
+  initStrategy: 'auto',
   public: true,
+  datasets: [
+    {
+      uid: 'codeluppi',
+      name: 'Codeluppi',
+      files: [
+        {
+          type: 'cells',
+          fileType: 'cells.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cells.json',
+          options: {
+            embeddingTypes: [
+              'PCA',
+              't-SNE',
+            ],
+          },
+        },
+        {
+          type: 'cell-sets',
+          fileType: 'cell-sets.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cell-sets.json',
+        },
+        {
+          fileType: 'image.raster.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.raster.json',
+        },
+        {
+          type: 'molecules',
+          fileType: 'molecules.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.molecules.json',
+        },
+        {
+          type: 'neighborhoods',
+          fileType: 'neighborhoods.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.neighborhoods.json',
+        },
+        {
+          type: 'expression-matrix',
+          fileType: 'clusters.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.clusters.json',
+        },
+      ],
+    },
+  ],
   coordinationSpace: {
     embeddingZoom: {
       PCA: 0,
@@ -211,9 +257,6 @@ export const codeluppi2018 = {
   layout: [
     {
       component: 'description',
-      props: {
-        description: `${linnarssonName}: ${linnarssonDescription}`,
-      },
       x: 0,
       y: 0,
       w: 2,
@@ -221,6 +264,10 @@ export const codeluppi2018 = {
     },
     {
       component: 'layerController',
+      props: {
+        globalDisable3d: true,
+        disableChannelsIfRgbDetected: true,
+      },
       x: 0,
       y: 1,
       w: 2,
@@ -490,11 +537,11 @@ export const linnarssonWithRorb = {
 };
 
 export function getCodeluppiViewConfig(name, description) {
-  const vc = new vapi.VitessceConfig('1.0.0', name, description);
+  const vc = new vapi.VitessceConfig({ schemaVersion: '1.0.0', name, description });
   const dataset = vc.addDataset(linnarssonName, linnarssonDescription)
-    .addFile(getS3Url('linnarsson', 'cells'), vapi.dt.CELLS, vapi.ft.CELLS_JSON)
-    .addFile(getS3Url('linnarsson', 'cell-sets'), vapi.dt.CELL_SETS, vapi.ft.CELL_SETS_JSON)
-    .addFile(getS3Url('linnarsson', 'raster'), vapi.dt.RASTER, vapi.ft.RASTER_JSON)
-    .addFile(getS3Url('linnarsson', 'molecules'), vapi.dt.MOLECULES, vapi.ft.MOLECULES_JSON);
+    .addFile({ url: getS3Url('linnarsson', 'cells'), fileType: vapi.ft.CELLS_JSON })
+    .addFile({ url: getS3Url('linnarsson', 'cell-sets'), fileType: vapi.ft.CELL_SETS_JSON })
+    .addFile({ url: getS3Url('linnarsson', 'raster'), fileType: vapi.ft.RASTER_JSON })
+    .addFile({ url: getS3Url('linnarsson', 'molecules'), fileType: vapi.ft.MOLECULES_JSON });
   return [vc, dataset];
 }

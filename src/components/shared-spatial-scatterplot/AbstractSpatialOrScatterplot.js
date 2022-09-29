@@ -164,17 +164,21 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    * spatial coordinate space, via the
    * `updateViewInfo` prop.
    */
-  viewInfoDidUpdate(getCellCoords) {
-    const { updateViewInfo, cells, uuid } = this.props;
+  viewInfoDidUpdate(obsIndex, obsLocations, makeGetObsCoords) {
+    const { updateViewInfo, uuid } = this.props;
     const { viewport } = this;
     if (updateViewInfo && viewport) {
       updateViewInfo({
         uuid,
-        project: (cellId) => {
-          const cell = cells[cellId];
+        project: (obsId) => {
           try {
-            const [positionX, positionY] = getCellCoords(cell);
-            return viewport.project([positionX, positionY]);
+            if (obsIndex && obsLocations) {
+              const getObsCoords = makeGetObsCoords(obsLocations);
+              const obsIdx = obsIndex.indexOf(obsId);
+              const obsCoord = getObsCoords(obsIdx);
+              return viewport.project(obsCoord);
+            }
+            return [null, null];
           } catch (e) {
             return [null, null];
           }
@@ -184,10 +188,19 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   }
 
   /**
-   * Intended to be overriden by descendants.
+   * Intended to be overridden by descendants.
    */
   componentDidUpdate() {
 
+  }
+
+  /**
+   * Intended to be overridden by descendants.
+   * @returns {boolean} Whether or not any layers are 3D.
+   */
+  // eslint-disable-next-line class-methods-use-this
+  use3d() {
+    return false;
   }
 
   /**
@@ -196,19 +209,23 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    */
   render() {
     const {
-      deckRef, viewState, uuid, layers: layerProps, hideTools,
+      deckRef, viewState, uuid, hideTools,
     } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
-    const use3d = (layerProps || []).some(l => l.use3d);
+    const use3d = this.use3d();
 
-    const showCellSelectionTools = this.cellsLayer !== null
-      || (this.cellsEntries.length && this.cellsEntries[0][1].xy);
-    const showPanTool = this.cellsLayer !== null || layerProps.findIndex(l => l.type === 'bitmask' || l.type === 'raster') >= 0;
+    const showCellSelectionTools = this.obsSegmentationsData !== null;
+    const showPanTool = layers.length > 0;
     // For large datasets or ray casting, the visual quality takes only a small
     // hit in exchange for much better performance by setting this to false:
     // https://deck.gl/docs/api-reference/core/deck#usedevicepixels
-    const useDevicePixels = this.cellsEntries.length < 100000 && !use3d;
+    const useDevicePixels = (!use3d
+      && (
+        this.obsSegmentationsData?.shape?.[0] < 100000
+        || this.obsLocationsData?.shape?.[1] < 100000
+      )
+    );
 
     return (
       <>

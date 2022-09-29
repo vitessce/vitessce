@@ -8,3 +8,6 @@ In order to facilitate the comparison and joint analysis of multiple HuBMAP data
 | Group | Creator |
 | --- | --- |
 | NYGC and UF | Rahul Satija |
+
+
+View data processing code on [GitHub](https://github.com/vitessce/vitessce-python/tree/main/demos/satija-2020)

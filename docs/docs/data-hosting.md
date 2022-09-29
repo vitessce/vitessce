@@ -1,7 +1,6 @@
 ---
 id: data-hosting
-title: Hosting Data
-sidebar_label: Hosting Data
+title: Data Hosting
 slug: /data-hosting
 ---
 
@@ -127,9 +126,9 @@ And make sure that the `url` values in your Vitessce view config point to the lo
         "name": "My amazing dataset",
         "files": [
             {
-                "type": "cells",
-                "fileType": "cells.json",
-                "url": "http://localhost:9000/path/to/my-local-file.json"
+                "fileType": "obsEmbedding.csv",
+                "url": "http://localhost:9000/path/to/my-local-file.csv",
+                ...
             }
         ]
     }

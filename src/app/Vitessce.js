@@ -5,6 +5,7 @@ import {
   createGenerateClassName,
 } from '@material-ui/core/styles';
 import isEqual from 'lodash/isEqual';
+import packageJson from '../../package.json';
 import { muiTheme } from '../components/shared-mui/styles';
 import {
   ViewConfigProvider, createViewConfigStore,
@@ -20,6 +21,13 @@ import { checkTypes, initialize, upgradeAndValidate } from './view-config-utils'
 const generateClassName = createGenerateClassName({
   disableGlobal: true,
 });
+
+function logConfig(config, name) {
+  console.groupCollapsed(`🚄 Vitessce (${packageJson.version}) ${name}`);
+  console.info(`data:,${JSON.stringify(config)}`);
+  console.info(JSON.stringify(config, null, 2));
+  console.groupEnd();
+}
 
 /**
  * The Vitessce component.
@@ -50,6 +58,7 @@ export default function Vitessce(props) {
     onConfigChange,
     onLoaderChange,
     validateOnConfigChange = false,
+    onConfigUpgrade,
     isBounded = false,
   } = props;
 
@@ -73,22 +82,32 @@ export default function Vitessce(props) {
         unformatted: 'The dataset configuration is missing a version, preventing validation.',
       }, false];
     }
+    logConfig(config, 'input view config');
     // Check if this is a "legacy" view config.
-    const [upgradedConfig, upgradeSuccess] = upgradeAndValidate(config);
+    const [upgradedConfig, upgradeSuccess] = upgradeAndValidate(config, onConfigUpgrade);
     if (upgradeSuccess) {
+      logConfig(upgradedConfig, 'upgraded view config');
       // Initialize the view config according to the initStrategy.
       const [typeCheckSuccess, typeCheckMessage] = checkTypes(upgradedConfig);
       if (typeCheckSuccess) {
-        const initializedConfig = initialize(upgradedConfig);
-        return [initializedConfig, true];
+        try {
+          const initializedConfig = initialize(upgradedConfig);
+          logConfig(initializedConfig, 'initialized view config');
+          return [initializedConfig, true];
+        } catch (e) {
+          return [{
+            title: 'View config initialization failed.',
+            unformatted: e.message,
+          }, false];
+        }
       }
       return [{
-        title: 'View config initialization failed.',
+        title: 'View config checks failed.',
         unformatted: typeCheckMessage,
       }, false];
     }
     return [upgradedConfig, false];
-  }, [config]);
+  }, [config, onConfigUpgrade]);
 
   // Emit the upgraded/initialized view config
   // to onConfigChange if necessary.

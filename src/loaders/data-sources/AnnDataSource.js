@@ -150,6 +150,29 @@ export default class AnnDataSource extends ZarrDataSource {
   }
 
   /**
+   * Class method for loading specific columns of numeric arrays.
+   * @param {string} path A string like obsm.X_pca.
+   * @param {number[]} dims The column indices to load.
+   * @returns {Promise} A promise for a zarr array containing the data.
+   */
+  loadNumericForDims(path, dims) {
+    const { store } = this;
+    const arr = openArray({
+      store,
+      path,
+      mode: 'r',
+    });
+    return Promise.all(
+      dims.map(dim => arr.then(
+        loadedArr => loadedArr.get([null, dim]),
+      )),
+    ).then(cols => ({
+      data: cols.map(col => col.data),
+      shape: [dims.length, cols[0].shape[0]],
+    }));
+  }
+
+  /**
    * A common method for loading flattened data
    * i.e that which has shape [n] where n is a natural number.
    * @param {string} path A path to a flat array location, like obs/_index

@@ -1,4 +1,4 @@
-import { CoordinationType, Component } from '../constants';
+import { CoordinationType, ViewType } from '../constants';
 
 /**
  * Coordination types may have default values,
@@ -9,6 +9,7 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.OBS_TYPE]: 'cell',
   [CoordinationType.FEATURE_TYPE]: 'gene',
   [CoordinationType.FEATURE_VALUE_TYPE]: 'expression',
+  [CoordinationType.OBS_LABELS_TYPE]: null,
   [CoordinationType.EMBEDDING_ZOOM]: null,
   [CoordinationType.EMBEDDING_ROTATION]: 0,
   [CoordinationType.EMBEDDING_TARGET_X]: null,
@@ -94,11 +95,12 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
    * Keys here are the component registry keys.
    */
 export const COMPONENT_COORDINATION_TYPES = {
-  [Component.SCATTERPLOT]: [
+  [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
     CoordinationType.FEATURE_VALUE_TYPE,
+    CoordinationType.OBS_LABELS_TYPE,
     CoordinationType.EMBEDDING_TYPE,
     CoordinationType.EMBEDDING_ZOOM,
     CoordinationType.EMBEDDING_ROTATION,
@@ -124,7 +126,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.GATING]: [
+  [ViewType.GATING]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
@@ -158,9 +160,10 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.GATING_FEATURE_SELECTION_X,
     CoordinationType.GATING_FEATURE_SELECTION_Y,
   ],
-  [Component.SPATIAL]: [
+  [ViewType.SPATIAL]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
+    CoordinationType.OBS_LABELS_TYPE,
     CoordinationType.FEATURE_TYPE,
     CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.SPATIAL_ZOOM,
@@ -191,9 +194,10 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.MOLECULE_HIGHLIGHT,
   ],
-  [Component.HEATMAP]: [
+  [ViewType.HEATMAP]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
+    CoordinationType.OBS_LABELS_TYPE,
     CoordinationType.FEATURE_TYPE,
     CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.HEATMAP_ZOOM_X,
@@ -213,7 +217,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.CELL_SETS]: [
+  [ViewType.OBS_SETS]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.OBS_SET_SELECTION,
@@ -223,7 +227,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.FEATURE_SELECTION,
   ],
-  [Component.CELL_SET_SIZES]: [
+  [ViewType.OBS_SET_SIZES]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.OBS_SET_SELECTION,
@@ -231,23 +235,25 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.STATUS]: [
+  [ViewType.STATUS]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_HIGHLIGHT,
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.MOLECULE_HIGHLIGHT,
   ],
-  [Component.GENES]: [
+  [ViewType.FEATURE_LIST]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.FEATURE_FILTER,
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.FEATURE_SELECTION,
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.OBS_SET_SELECTION,
   ],
-  [Component.CELL_SET_EXPRESSION]: [
+  [ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
@@ -260,14 +266,14 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.EXPRESSION_HISTOGRAM]: [
+  [ViewType.FEATURE_VALUE_HISTOGRAM]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
     CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.FEATURE_SELECTION,
   ],
-  [Component.LAYER_CONTROLLER]: [
+  [ViewType.LAYER_CONTROLLER]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
@@ -286,7 +292,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_ROTATION_ORBIT,
     CoordinationType.SPATIAL_ORBIT_AXIS,
   ],
-  [Component.GENOMIC_PROFILES]: [
+  [ViewType.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
@@ -303,7 +309,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
-  [Component.DESCRIPTION]: [
+  [ViewType.DESCRIPTION]: [
     CoordinationType.DATASET,
     CoordinationType.SPATIAL_IMAGE_LAYER,
   ],

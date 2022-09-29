@@ -21,7 +21,7 @@ describe('Vitessce Mocked Routes', () => {
       (type) => {
         cy.route(
           `${urlPrefix}/linnarsson/linnarsson.${type}.json`,
-          `fixture:../../src/schemas/fixtures/${type}.good.json`,
+          `fixture:../../src/schemas/fixtures/${(type === 'cell-sets' ? 'cellSets' : type)}.good.json`,
         );
       },
     );
@@ -40,7 +40,7 @@ describe('Vitessce Mocked Routes', () => {
   });
 
   it('loads details', () => {
-    cy.visit('/?dataset=codeluppi-2018&debug=true');
+    cy.visit('/?dataset=codeluppi-2018-via-json&debug=true');
 
     // Data Set:
     cy.contains('Spatial organization');

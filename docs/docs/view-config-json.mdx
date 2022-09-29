@@ -49,6 +49,7 @@ The view config schema version. The documentation pages here are based on the la
 | `1.0.12`| Made the `datasets[].files[].type` field optional. |
 | `1.0.13`| Support for the property `datasets[].files[].coordinationValues`. |
 | `1.0.14`| Adds the coordination types `gatingFeatureSelectionX`, `gatingFeatureSelectionY`, and `featureValueTransformCoefficient`. |
+| `1.0.15`| View type names were changed in this version to move towards support for feature-observation matrices (FOM). |
 
 <DiffViewConfigSchema />
 
@@ -84,7 +85,7 @@ A human-readable name for the dataset. Optional.
 #### `files`
 - Type: `object[]`
 
-The files array stores a list of file objects for a dataset. Each dataset may have one file of each `type`. File objects must contain a `type` ("data type") and `fileType` ("file type"). All file types require a `url` string, with the exception of [`raster.json`](/docs/data-file-types/#rasterjson) which may point to multiple image URLs via an `options` object. We don't associate any semantics with URL strings.
+The files array stores a list of file objects for a dataset. File objects must contain a `fileType`. All file types require a `url` string (with the exception of [`image.raster.json`](/docs/data-file-types/#imagerasterjson) and [`obsSegmentations.raster.json`](/docs/data-file-types/#obssegmentationsrasterjson)). We don't associate any semantics with URL strings.
 
 For more information about data types and file types, please visit our [Data Types and File Types](/docs/data-types-file-types/) documentation page.
 
@@ -96,21 +97,30 @@ For more information about data types and file types, please visit our [Data Typ
         "name": "My amazing dataset",
         "files": [
             {
-                "url": "http://example.com/a.json",
-                "type": "cells",
-                "fileType": "cells.json"
-            },
-            {
-                "url": "http://example.com/b.json",
-                "type": "cell-sets",
-                "fileType": "cell-sets.json"
-            },
-            {
-                "type": "raster",
-                "fileType": "raster.json",
+                "fileType": "obsEmbedding.csv",
+                "url": "http://example.com/umap.csv",
+                "coordinationValues": {
+                    "obsType": "cell",
+                    "embeddingType": "UMAP"
+                },
                 "options": {
                     ...
                 }
+            },
+            {
+                "fileType": "obsEmbedding.csv",
+                "url": "http://example.com/pca.csv",
+                "coordinationValues": {
+                    "obsType": "cell",
+                    "embeddingType": "PCA"
+                },
+                "options": {
+                    ...
+                }
+            },
+            {
+                "fileType": "image.ome-zarr",
+                "url": "http://example.com/my_image.zarr"
             }
         ]
     }
@@ -128,21 +138,21 @@ For more information about the available view types and coordination types, plea
 ...,
 "layout": [
     {
-        "component": "spatial",
+        "component": "scatterplot",
         "x": 0, "y": 0, "w": 6, "h": 12,
         "coordinationScopes": {
             "dataset": "D1",
-            "spatialLayers": "SZ1",
-            "spatialZoom": "SZ1"
+            "embeddingZoom": "EZ1",
+            "embeddingType": "ET1"
         }
     },
     {
-        "component": "spatial",
+        "component": "scatterplot",
         "x": 6, "y": 0, "w": 6, "h": 12,
         "coordinationScopes": {
             "dataset": "D1",
-            "spatialLayers": "SL2",
-            "spatialZoom": "SZ1"
+            "embeddingZoom": "EZ2",
+            "embeddingType": "ET2"
         }
     }
 ],
@@ -164,16 +174,13 @@ The keys of each object (at the first level) in the coordination space represent
     "dataset": {
         "D1": "my-dataset"
     },
-    "spatialZoom": {
-        "SZ1": 2
+    "embeddingZoom": {
+        "EZ1": 2,
+        "EZ2": 20
     },
-    "spatialCellsLayers": {
-        "SCL1": [
-            { "type": "cells", "opacity": 1, "radius": 50, "visible": true }
-        ],
-        "SCL2": [
-            { "type": "cells", "opacity": 1, "radius": 20, "visible": true }
-        ]
+    "embeddingType": {
+        "ET1": "UMAP",
+        "ET2": "PCA"
     }
 },
 ...

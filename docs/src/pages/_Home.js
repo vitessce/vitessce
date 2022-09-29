@@ -56,8 +56,7 @@ function Feature({ imageUrl, title, description }) {
 }
 
 export default function Home() {
-  const context = useDocusaurusContext();
-  const { siteConfig = {} } = context;
+  const { siteConfig = {} } = useDocusaurusContext();
   const { isDarkTheme } = useThemeContext();
 
   const introUrl = useBaseUrl('/docs/platforms/');

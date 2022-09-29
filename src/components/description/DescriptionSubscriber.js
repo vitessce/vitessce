@@ -1,12 +1,13 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useReady } from '../hooks';
-import { useDescription, useRasterData } from '../data-hooks';
+import { useDescription, useImageData } from '../data-hooks';
 import { useCoordination, useLoaders } from '../../app/state/hooks';
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import TitleInfo from '../TitleInfo';
 import Description from './Description';
+import { ViewType } from '../../app/constants';
 
-const DESCRIPTION_DATA_TYPES = ['raster'];
+const addUrl = () => {}; // noop
 
 /**
  * A subscriber component for a text description component.
@@ -25,7 +26,7 @@ export default function DescriptionSubscriber(props) {
     description: descriptionOverride,
     removeGridComponent,
     theme,
-    title = 'Data Set',
+    title = 'Description',
   } = props;
 
   const loaders = useLoaders();
@@ -34,45 +35,34 @@ export default function DescriptionSubscriber(props) {
   const [{
     dataset,
     spatialImageLayer: rasterLayers,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.description, coordinationScopes);
-
-  const [
-    isReady,
-    setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
-    resetReadyItems,
-  ] = useReady(
-    DESCRIPTION_DATA_TYPES,
-  );
-
-  // Reset loader progress when the dataset has changed.
-  useEffect(() => {
-    resetReadyItems();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.DESCRIPTION], coordinationScopes);
 
   // Get data from loaders using the data hooks.
   const [description] = useDescription(loaders, dataset);
-  const [raster, imageLayerLoaders, imageLayerMeta] = useRasterData(
-    loaders, dataset, setItemIsReady, () => {}, false,
+  const [{ image }, imageStatus] = useImageData(
+    loaders, dataset, addUrl, false, {}, {},
+    {}, // TODO: which properties to match on. Revisit after #830.
   );
+  const { loaders: imageLayerLoaders = [], meta: imageLayerMeta = [] } = image || {};
+
+  const isReady = useReady([imageStatus]);
 
   const metadata = useMemo(() => {
     const result = new Map();
-    if (rasterLayers && rasterLayers.length > 0 && raster && imageLayerMeta && imageLayerLoaders) {
+    if (rasterLayers && rasterLayers.length > 0 && imageLayerMeta && imageLayerLoaders) {
       rasterLayers.forEach((layer) => {
         if (imageLayerMeta[layer.index]) {
           // Want to ensure that layer index is a string.
           const { format } = imageLayerLoaders[layer.index].metadata;
           result.set(`${layer.index}`, {
-            name: raster.meta[layer.index].name,
+            name: imageLayerMeta[layer.index].name,
             metadata: format && format(),
           });
         }
       });
     }
     return result;
-  }, [raster, rasterLayers, imageLayerMeta, imageLayerLoaders]);
+  }, [rasterLayers, imageLayerMeta, imageLayerLoaders]);
 
   return (
     <TitleInfo

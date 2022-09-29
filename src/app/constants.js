@@ -3,46 +3,89 @@
  * To deprecate a value, add it to ./constants-old.js
  * with a corresponding log message.
  */
-export const Component = {
+export const ViewType = {
   DESCRIPTION: 'description',
   STATUS: 'status',
-  GENES: 'genes',
-  CELL_SETS: 'cellSets',
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
   HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
-  CELL_SET_SIZES: 'cellSetSizes',
   GENOMIC_PROFILES: 'genomicProfiles',
-  CELL_SET_EXPRESSION: 'cellSetExpression',
-  EXPRESSION_HISTOGRAM: 'expressionHistogram',
   GATING: 'gating',
+  FEATURE_LIST: 'featureList',
+  OBS_SETS: 'obsSets',
+  OBS_SET_SIZES: 'obsSetSizes',
+  OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'obsSetFeatureValueDistribution',
+  FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
 };
 
 export const DataType = {
-  CELLS: 'cells',
-  CELL_SETS: 'cell-sets',
-  EXPRESSION_MATRIX: 'expression-matrix',
-  GENOMIC_PROFILES: 'genomic-profiles',
-  MOLECULES: 'molecules',
+  OBS_LABELS: 'obsLabels',
+  OBS_EMBEDDING: 'obsEmbedding',
+  OBS_LOCATIONS: 'obsLocations',
+  OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
+  OBS_SETS: 'obsSets',
+  FEATURE_LABELS: 'featureLabels',
+  IMAGE: 'image',
+  OBS_SEGMENTATIONS: 'obsSegmentations',
   NEIGHBORHOODS: 'neighborhoods',
-  RASTER: 'raster',
+  GENOMIC_PROFILES: 'genomic-profiles',
 };
 
 
 export const FileType = {
+  // Joint file types
+  ANNDATA_ZARR: 'anndata.zarr',
+  // Atomic file types
+  OBS_EMBEDDING_CSV: 'obsEmbedding.csv',
+  OBS_LOCATIONS_CSV: 'obsLocations.csv',
+  OBS_LABELS_CSV: 'obsLabels.csv',
+  FEATURE_LABELS_CSV: 'featureLabels.csv',
+  OBS_FEATURE_MATRIX_CSV: 'obsFeatureMatrix.csv',
+  OBS_SEGMENTATIONS_JSON: 'obsSegmentations.json',
+  OBS_SETS_CSV: 'obsSets.csv',
+  OBS_SETS_JSON: 'obsSets.json',
+  IMAGE_OME_ZARR: 'image.ome-zarr',
+  OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
+  OBS_SETS_ANNDATA_ZARR: 'obsSets.anndata.zarr',
+  OBS_EMBEDDING_ANNDATA_ZARR: 'obsEmbedding.anndata.zarr',
+  OBS_LOCATIONS_ANNDATA_ZARR: 'obsLocations.anndata.zarr',
+  OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
+  OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
+  FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
+  GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
+  NEIGHBORHOODS_JSON: 'neighborhoods.json',
+  // New file types to support old file types:
+  // - cells.json
+  OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
+  OBS_SEGMENTATIONS_CELLS_JSON: 'obsSegmentations.cells.json',
+  OBS_LOCATIONS_CELLS_JSON: 'obsLocations.cells.json',
+  OBS_LABELS_CELLS_JSON: 'obsLabels.cells.json',
+  // - cell-sets.json
+  OBS_SETS_CELL_SETS_JSON: 'obsSets.cell-sets.json',
+  // - genes.json
+  OBS_FEATURE_MATRIX_GENES_JSON: 'obsFeatureMatrix.genes.json',
+  // - clusters.json
+  OBS_FEATURE_MATRIX_CLUSTERS_JSON: 'obsFeatureMatrix.clusters.json',
+  // - expression-matrix.zarr
+  OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR: 'obsFeatureMatrix.expression-matrix.zarr',
+  // - raster.json
+  IMAGE_RASTER_JSON: 'image.raster.json',
+  OBS_SEGMENTATIONS_RASTER_JSON: 'obsSegmentations.raster.json',
+  // - molecules.json
+  OBS_LOCATIONS_MOLECULES_JSON: 'obsLocations.molecules.json',
+  OBS_LABELS_MOLECULES_JSON: 'obsLabels.molecules.json',
+  // Legacy joint file types
   CELLS_JSON: 'cells.json',
   CELL_SETS_JSON: 'cell-sets.json',
+  ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
+  ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
   EXPRESSION_MATRIX_ZARR: 'expression-matrix.zarr',
-  GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
   MOLECULES_JSON: 'molecules.json',
-  NEIGHBORHOODS_JSON: 'neighborhoods.json',
   RASTER_JSON: 'raster.json',
   RASTER_OME_ZARR: 'raster.ome-zarr',
   CLUSTERS_JSON: 'clusters.json',
   GENES_JSON: 'genes.json',
-  ANNDATA_CELL_SETS_ZARR: 'anndata-cell-sets.zarr',
-  ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
   ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
 };
 
@@ -56,6 +99,7 @@ export const CoordinationType = {
   OBS_TYPE: 'obsType',
   FEATURE_TYPE: 'featureType',
   FEATURE_VALUE_TYPE: 'featureValueType',
+  OBS_LABELS_TYPE: 'obsLabelsType',
   // Other types
   EMBEDDING_TYPE: 'embeddingType',
   EMBEDDING_ZOOM: 'embeddingZoom',
@@ -111,4 +155,10 @@ export const CoordinationType = {
   GATING_FEATURE_SELECTION_X: 'gatingFeatureSelectionX',
   GATING_FEATURE_SELECTION_Y: 'gatingFeatureSelectionY',
   FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'featureValueTransformCoefficient',
+};
+
+export const STATUS = {
+  LOADING: 'loading',
+  SUCCESS: 'success',
+  ERROR: 'error',
 };

@@ -95,7 +95,7 @@ export default function LayerController(props) {
     ChannelController,
     setViewState,
     disable3d,
-    setRasterLayerCallback,
+    setImageLayerCallback,
     setAreLayerChannelsLoading,
     areLayerChannelsLoading,
     disabled,
@@ -235,12 +235,12 @@ export default function LayerController(props) {
       visible,
       color,
     };
-    setRasterLayerCallback(() => {
+    setImageLayerCallback(() => {
       setChannel({ ...channel, slider: sliders[0] }, newChannelId);
       const areLayerChannelsLoadingCallback = [...newAreLayerChannelsLoading];
       areLayerChannelsLoadingCallback[newChannelId] = false;
       setAreLayerChannelsLoading(areLayerChannelsLoadingCallback);
-      setRasterLayerCallback(null);
+      setImageLayerCallback(null);
     });
     addChannel(channel);
   };
@@ -285,8 +285,8 @@ export default function LayerController(props) {
           }));
           // Set the callback before changing the selection
           // so the callback is used when the layer (re)loads its data.
-          setRasterLayerCallback(() => {
-            setRasterLayerCallback(null);
+          setImageLayerCallback(() => {
+            setImageLayerCallback(null);
             setAreAllChannelsLoading(false);
             const newChannelsWithSliders = [...newChannelsWithSelection].map(
               (c, i) => ({
@@ -333,7 +333,7 @@ export default function LayerController(props) {
             setChannel({ ...c, ...update }, channelId);
             // Call back for raster layer handles update of UI
             // like sliders and the loading state of the channel.
-            setRasterLayerCallback(async () => {
+            setImageLayerCallback(async () => {
               const selections = [
                 { ...channels[channelId][property], ...value },
               ];
@@ -345,7 +345,7 @@ export default function LayerController(props) {
               );
               [update.slider] = sliders;
               setChannel({ ...c, ...update }, channelId);
-              setRasterLayerCallback(null);
+              setImageLayerCallback(null);
               setIsLoading(false);
             });
           } else {
@@ -387,7 +387,7 @@ export default function LayerController(props) {
             handlePropertyChange={handleChannelPropertyChange}
             handleChannelRemove={handleChannelRemove}
             handleIQRUpdate={handleIQRUpdate}
-            setRasterLayerCallback={setRasterLayerCallback}
+            setRasterLayerCallback={setImageLayerCallback}
             isLoading={areLayerChannelsLoading[channelId]}
             use3d={use3d}
           />
@@ -427,7 +427,7 @@ export default function LayerController(props) {
         }
         handleTransparentColorChange={setTransparentColor}
         disableChannelsIfRgbDetected={
-          isRgb(loader) && disableChannelsIfRgbDetected
+          isRgb(loader, channels) && disableChannelsIfRgbDetected
         }
         handleDomainChange={handleDomainChange}
         shouldShowTransparentColor={shouldShowTransparentColor}
@@ -438,17 +438,17 @@ export default function LayerController(props) {
         handleMultiPropertyChange={handleMultiPropertyChange}
         resolution={resolution}
         disable3d={disable3d}
-        setRasterLayerCallback={setRasterLayerCallback}
+        setRasterLayerCallback={setImageLayerCallback}
         setAreAllChannelsLoading={setAreAllChannelsLoading}
         setViewState={setViewState}
         spatialHeight={spatialHeight}
         spatialWidth={spatialWidth}
         modelMatrix={modelMatrix}
       />
-      {isRgb(loader) && disableChannelsIfRgbDetected
+      {isRgb(loader, channels) && disableChannelsIfRgbDetected
         ? null
         : channelControllers}
-      {isRgb(loader) && disableChannelsIfRgbDetected ? null : (
+      {isRgb(loader, channels) && disableChannelsIfRgbDetected ? null : (
         <Button
           disabled={channels.length === MAX_CHANNELS}
           onClick={handleChannelAdd}

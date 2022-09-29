@@ -1,4 +1,4 @@
-import { configs } from '../demo/configs';
+import { configs, publicConfigs } from '../demo/configs';
 
 // Imported here to keep ../demo/configs.js "clean"
 // since plugins use `window` which is not supported by docusaurus's SSR.
@@ -16,7 +16,7 @@ const configsWithPlugins = {
 
 export function listConfigs(showAll) {
   return Object.entries(configsWithPlugins).filter(
-    entry => showAll || entry[1].public,
+    entry => showAll || publicConfigs.includes(entry[0]),
   ).map(
     ([id, config]) => ({
       id,

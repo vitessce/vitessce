@@ -1,5 +1,5 @@
 import React, {
-  useMemo, useEffect,
+  useMemo,
 } from 'react';
 import isEqual from 'lodash/isEqual';
 import { sum } from 'd3-array';
@@ -11,8 +11,7 @@ import {
 import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
 import { useGenomicProfilesData } from '../data-hooks';
 import HiGlassLazy from './HiGlassLazy';
-
-const GENOMIC_PROFILES_DATA_TYPES = ['genomic-profiles'];
+import { ViewType } from '../../app/constants';
 
 const REFERENCE_TILESETS = {
   hg38: {
@@ -76,25 +75,17 @@ export default function GenomicProfilesSubscriber(props) {
     obsSetColor: cellSetColor,
     obsSetSelection: cellSetSelection,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES.genomicProfiles,
+    COMPONENT_COORDINATION_TYPES[ViewType.GENOMIC_PROFILES],
     coordinationScopes,
   );
 
-  // eslint-disable-next-line no-unused-vars
-  const [
-    isReady,
-    setItemIsReady,
-    setItemIsNotReady, // eslint-disable-line no-unused-vars
-    resetReadyItems,
-  ] = useReady(
-    GENOMIC_PROFILES_DATA_TYPES,
-  );
-    // eslint-disable-next-line no-unused-vars
-  const [urls, addUrl, resetUrls] = useUrls();
+  const [urls, addUrl] = useUrls(loaders, dataset);
 
-  const [genomicProfilesAttrs] = useGenomicProfilesData(
-    loaders, dataset, setItemIsReady, addUrl, true,
+  const [genomicProfilesAttrs, genomicProfilesStatus] = useGenomicProfilesData(
+    loaders, dataset, addUrl, true, {}, {},
+    {},
   );
+  const isReady = useReady([genomicProfilesStatus]);
 
   const hgViewConfig = useMemo(() => {
     if (!genomicProfilesAttrs || urls.length !== 1) {
@@ -234,12 +225,6 @@ export default function GenomicProfilesSubscriber(props) {
     profileTrackNameKey, cellSetSelection, cellSetColor,
     higlassServer, assembly]);
 
-  // Reset file URLs and loader progress when the dataset has changed.
-  useEffect(() => {
-    resetUrls();
-    resetReadyItems();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
 
   return (
     <div className="higlass-title-wrapper">
