@@ -1,1 +1,1 @@
-export { default as VitessceGridLayout } from './VitessceGridLayout';
+export { VitessceGridLayout } from './VitessceGridLayout';

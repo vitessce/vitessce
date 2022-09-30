@@ -1,5 +1,4 @@
-import expect from 'expect';
-import { CoordinationType } from 'vitessce';
+import { CoordinationType } from '@vitessce/constants-internal';
 import {
   VitessceConfig,
   hconcat,

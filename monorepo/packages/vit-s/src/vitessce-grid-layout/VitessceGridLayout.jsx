@@ -13,7 +13,7 @@ class ResponsiveHeightGridLayout extends ResponsiveGridLayout {
   }
 }
 
-export default function VitessceGridLayout(props) {
+export function VitessceGridLayout(props) {
   const {
     layout,
     getComponent, padding, margin, draggableHandle,

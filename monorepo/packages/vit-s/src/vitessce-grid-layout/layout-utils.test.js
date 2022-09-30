@@ -1,5 +1,3 @@
-import expect from 'expect';
-
 import {
   makeGridLayout, getMaxRows, resolveLayout,
 } from './layout-utils';

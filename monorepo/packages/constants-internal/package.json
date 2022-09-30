@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "tsc --watch",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest --ui -r ../../ --dir ."
   },
   "keywords": [],
   "author": "",
