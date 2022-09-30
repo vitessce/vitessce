@@ -78,12 +78,17 @@ importers:
       '@vitessce/my-component': workspace:*
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
+      esbuild: ^0.15.10
+      vite: ^3.0.0
     dependencies:
       '@vitessce/config': link:../config
       '@vitessce/constants': link:../constants
       '@vitessce/my-component': link:../my-component
       '@vitessce/utils': link:../utils
       '@vitessce/vit-s': link:../vit-s
+    devDependencies:
+      esbuild: 0.15.10
+      vite: 3.1.4
 
   packages/my-component:
     specifiers:
@@ -12411,6 +12416,33 @@ packages:
       resolve: 1.22.1
       rollup: 2.75.7
       sass: 1.55.0
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
+  /vite/3.1.4:
+    resolution: {integrity: sha512-JoQI08aBjY9lycL7jcEq4p9o1xUjq5aRvdH4KWaXtkSx7e7RpAh9D3IjzDWRD4Fg44LS3oDAIOG/Kq1L+82psA==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.15.10
+      postcss: 8.4.17
+      resolve: 1.22.1
+      rollup: 2.78.1
     optionalDependencies:
       fsevents: 2.3.2
     dev: true

@@ -14,13 +14,18 @@
   ],
   "scripts": {
     "start": "tsc --watch",
-    "build": "tsc"
+    "build": "tsc",
+    "build-lib": "vite build --mode lib && node ./scripts/build-umd.mjs && node ./scripts/build-embed.mjs"
   },
   "dependencies": {
+    "@vitessce/config": "workspace:*",
+    "@vitessce/constants": "workspace:*",
     "@vitessce/my-component": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@vitessce/constants": "workspace:*",
-    "@vitessce/config": "workspace:*",
     "@vitessce/vit-s": "workspace:*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.15.10",
+    "vite": "^3.0.0"
   }
 }
