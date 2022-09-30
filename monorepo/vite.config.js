@@ -9,4 +9,13 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
   },
+  // To enable .js files that contain JSX to be imported by Vitest tests.
+  // Reference: https://github.com/vitest-dev/vitest/issues/1564
+  esbuild: {
+    loader: "jsx",
+    include: /src\/.*\.jsx?$/,
+    // loader: "tsx",
+    // include: /src\/.*\.[tj]sx?$/,
+    exclude: [],
+  },
 });

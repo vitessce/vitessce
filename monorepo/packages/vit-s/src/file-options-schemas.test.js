@@ -1,4 +1,3 @@
-import expect from 'expect';
 import {
   expandAnndataZarr,
 } from './joint-file-types';

@@ -1,5 +1,4 @@
-import expect from 'expect';
-import { CoordinationType } from '../app/constants';
+import { CoordinationType } from '@vitessce/constants-internal';
 import viewConfigSchema from './config-1.0.14.schema.json';
 
 describe('view config schema', () => {

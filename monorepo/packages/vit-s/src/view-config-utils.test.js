@@ -1,5 +1,4 @@
 /* eslint-disable camelcase */
-import expect from 'expect';
 import {
   getExistingScopesForCoordinationType,
   initialize,

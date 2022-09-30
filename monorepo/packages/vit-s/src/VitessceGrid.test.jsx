@@ -1,14 +1,16 @@
-import React from 'react';
-import Adapter from 'enzyme-adapter-react-16';
-import { mount, configure } from 'enzyme';
-import expect from 'expect';
+import '@testing-library/jest-dom';
+import { cleanup, render, screen } from '@testing-library/react'
+import { afterEach } from 'vitest'
+
 import VitessceGrid from './VitessceGrid';
 import {
   ViewConfigProvider, createViewConfigStore,
   AuxiliaryProvider, createAuxiliaryStore,
 } from './state/hooks';
 
-configure({ adapter: new Adapter() });
+afterEach(() => {
+  cleanup()
+});
 
 describe('VitessceGrid.js', () => {
   describe('<VitessceGrid />', () => {
@@ -33,14 +35,14 @@ describe('VitessceGrid.js', () => {
         return <p>FakeComponent!</p>;
       }
       const getComponent = () => FakeComponent;
-      const wrapper = mount(
+      render(
         <ViewConfigProvider createStore={createViewConfigStore}>
           <AuxiliaryProvider createStore={createAuxiliaryStore}>
             <VitessceGrid config={config} getComponent={getComponent} />
           </AuxiliaryProvider>
         </ViewConfigProvider>,
       );
-      expect(wrapper.debug()).toContain('FakeComponent!');
+      expect(screen.getByText('FakeComponent!'));
     });
   });
 });
