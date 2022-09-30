@@ -1,0 +1,17 @@
+{
+  "name": "vitessce",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "tsc --watch",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@vitessce/my-component": "workspace:*",
+    "@vitessce/utils": "workspace:*"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

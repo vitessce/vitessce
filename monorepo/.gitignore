@@ -1,0 +1,9 @@
+node_modules/
+dist/
+dist-root/
+dist-versioned/
+.pnpm-debug.log
+.DS_Store
+package-lock.json
+yarn.lock
+.docusaurus/
