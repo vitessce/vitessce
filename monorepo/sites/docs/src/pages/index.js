@@ -1,16 +1,23 @@
-
+/* eslint-disable global-require */
 import React from 'react';
 import Layout from '@theme/Layout';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 
-import { MyComponent } from 'vitessce';
-
-export default function Index() {
+// Reference: https://github.com/mac-s-g/react-json-view/issues/121#issuecomment-670431408
+export default function WrappedIndex() {
   return (
     <Layout
-      description="Example repo."
+      description="Vitessce is a visual integration tool for exploration of spatial single-cell experiments."
+      image="http://beta.vitessce.io/img/logo-card.png"
     >
-      <h1>Some home page content</h1>
-      <MyComponent color="blue" a={1} b={2} />
+      <BrowserOnly>
+        {() => {
+          const Index = require('./_Index.js').default;
+          return (
+            <Index />
+          );
+        }}
+      </BrowserOnly>
     </Layout>
   );
 }

@@ -1,8 +1,17 @@
 {
   "name": "@vitessce/vit-s",
   "version": "1.0.0",
-  "description": "",
+  "author": "Mark Keller",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc",
@@ -19,8 +28,5 @@
     "internmap": "^2.0.3",
     "uuid": "^3.3.2",
     "zustand": "^3.5.10"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  }
 }

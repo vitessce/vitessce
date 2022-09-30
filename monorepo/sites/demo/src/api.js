@@ -1,4 +1,4 @@
-import { configs, publicConfigs } from './configs';
+import { configs, publicConfigs } from '@vitessce/examples';
 
 // Imported here to keep ../demo/configs.js "clean"
 // since plugins use `window` which is not supported by docusaurus's SSR.

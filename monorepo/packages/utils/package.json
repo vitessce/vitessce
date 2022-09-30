@@ -1,8 +1,17 @@
 {
   "name": "@vitessce/utils",
   "version": "1.0.0",
-  "description": "",
+  "author": "Mark Keller",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc"
@@ -10,8 +19,5 @@
   "dependencies": {
     "bowser": "^2.11.0",
     "lz-string": "^1.4.4"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  }
 }

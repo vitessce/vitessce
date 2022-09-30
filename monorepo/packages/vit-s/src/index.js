@@ -21,3 +21,10 @@ export {
   useWarning,
   useSetWarning,
 } from './state/hooks';
+export {
+  SCHEMA_HANDLERS,
+  LATEST_VERSION,
+} from './view-config-versions';
+export {
+  upgradeAndValidate
+} from './view-config-utils';

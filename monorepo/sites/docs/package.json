@@ -13,18 +13,43 @@
   },
   "dependencies": {
     "vitessce": "workspace:*",
+    "@vitessce/examples": "workspace:*",
+    "@vitessce/config": "workspace:*",
+    "@vitessce/constants": "workspace:*",
+    "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/vit-s": "workspace:*",
     "@docusaurus/core": "2.1.0",
     "@docusaurus/preset-classic": "2.1.0",
+    "@docusaurus/theme-common": "2.1.0",
     "@docusaurus/theme-live-codeblock": "2.1.0",
     "@mdx-js/react": "^1.6.21",
+    "clsx": "^1.1.1",
     "copy-text-to-clipboard": "^2.2.0",
     "docusaurus-plugin-sass": "^0.2.1",
+    "lodash": "^4.17.21",
+    "monaco-editor": "^0.28.0",
+    "monaco-editor-webpack-plugin": "^4.0.0",
     "prism-react-renderer": "^1.1.1",
+    "query-string": "^6.13.7",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
-    "react-live": "^2.2.3"
+    "react-dropzone": "^11.2.4",
+    "react-live": "^2.2.3",
+    "react-loadable": "^5.5.0",
+    "react-monaco-editor": "^0.43.0",
+    "use-query-params": "^1.1.9"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "devDependencies": {
+    "eslint": "^6.6.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-react-app": "^5.2.0",
+    "eslint-loader": "3.0.3",
+    "eslint-plugin-cypress": "^2.2.1",
+    "eslint-plugin-flowtype": "4.6.0",
+    "eslint-plugin-import": "2.20.0",
+    "eslint-plugin-jsx-a11y": "6.2.3",
+    "eslint-plugin-react": "7.18.0",
+    "eslint-plugin-react-hooks": "^1.6.1"
+  },
+  "license": "MIT"
 }

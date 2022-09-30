@@ -1,0 +1,36 @@
+---
+id: data-types-file-types
+title: Data Types and File Types
+sidebar_label: Data Types and File Types
+slug: /data-types-file-types
+---
+import DataTypesTable from '../src/pages/_DataTypesTable';
+
+Vitessce supports several **data types** which denote in an abstract sense the type of observations contained in a file (e.g., matrix, dataframe, image).
+For each data type, Vitessce may support multiple **file types** ([`datasets[].files[].fileType`](/docs/view-config-json/#files)) which denote specific schemas and file formats that Vitessce knows how to read.
+
+
+For example, a file that conforms to the `obsEmbedding` data type must contain embedding coordinates for each cell (assuming each observation represents a cell) computed via e.g. t-SNE or UMAP.
+Depending on which file format is more convenient, you may choose either `obsEmbedding.csv` or `obsEmbedding.anndata.zarr`.
+
+## Data Types and File Types
+
+<DataTypesTable />
+
+## Joint File Types
+
+A joint file type is a pseudo-file type (pseudo in the sense that it does not correspond to any one data type) which allows a single file definition
+(and therefore a single URL) in the Vitessce configuration
+to expand to define multiple files of the atomic (i.e., non-joint) types listed in the table above.
+
+This is motivated by the fact that one file may store information corresponding to _more than one_ data type.
+For instance, AnnData files may store not only the obs-by-feature matrix (`adata.X`)
+but also multiple 2D embedding coordinates (`adata.obsm['X_umap']` and `adata.obsm['X_pca']`),
+spatial coordinates (`adata.obsm['X_spatial']`),
+and cell type annotations (e.g., `adata.obs['cell_type']`).
+Rather than defining five different files
+(corresponding to the atomic file types `obsFeatureMatrix.anndata.zarr`, `obsEmbedding.anndata.zarr`,
+`obsEmbedding.anndata.zarr`, `obsLocations.anndata.zarr`, and `obsSets.anndata.zarr`, respectively),
+one `anndata.zarr` joint file definition can be used instead.
+
+Note that joint file type expansion is currently not performed recursively (i.e., a joint file type expansion function must return a list of atomic file definitions).

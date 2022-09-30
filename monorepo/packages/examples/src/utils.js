@@ -1,10 +1,12 @@
 import {
   VitessceConfig, hconcat, vconcat,
+} from '@vitessce/config';
+import {
   ViewType as vt,
   DataType as dt,
   FileType as ft,
   CoordinationType as ct,
-} from 'vitessce';
+} from '@vitessce/constants';
 
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release';
