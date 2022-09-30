@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/vitessce/vitessce/#raster",
+  "title": "Vitessce image data",
+  "type": "object",
+  "definitions": {
+    "transform": {
+      "type": "object",
+      "additionalProperties": false,
+      "oneOf":[{"required": ["scale", "translate"]},{"required": ["matrix"]}],
+      "properties": {
+        "scale": { "type": "number" },
+        "translate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["y", "x"],
+          "properties": {
+            "y": { "type": "number" },
+            "x": { "type": "number" }
+          }
+        },
+        "matrix": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 16,
+          "maxItems": 16
+        }
+      }
+    },
+    "dimensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field", "type", "values"],
+        "properties": {
+          "field": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["quantitative", "nominal", "ordinal", "temporal"]
+          },
+          "values": {
+            "type": ["array", "null"],
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "anyOf":[{"required": ["dimensions","isPyramid"]},{"required": ["transform"]},{"required": ["omeTiffOffsetsUrl"]},{"required": ["isBitmask"]}],
+      "properties": {
+        "dimensions": { "$ref": "#/definitions/dimensions" },
+        "isPyramid": { "type": "boolean" },
+        "transform": { "$ref": "#/definitions/transform" },
+        "isBitmask": { "type": "boolean" },
+        "omeTiffOffsetsUrl": { "type": "string", "format": "uri" }
+      }
+    },
+    "requestInit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "method": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "body": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "string"
+        },
+        "cache": {
+          "type": "string"
+        },
+        "redirect": {
+          "type": "string"
+        },
+        "referrer": {
+          "type": "string"
+        },
+        "integrity": {
+          "type": "string"
+        }
+      }
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "url", "type"],
+      "properties": {
+        "name": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "type": { "type": "string" },
+        "metadata": { "$ref": "#/definitions/metadata" },
+        "requestInit": { "$ref": "#/definitions/requestInit" }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": ["schemaVersion", "images"],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "usePhysicalSizeScaling": { "type": "boolean", "description": "Default is false: passing true in will infer scaling from the reported physcial size" },
+    "renderLayers": { "type": "array", "items": { "type": "string" } },
+    "images": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/image" }
+    }
+  }
+}

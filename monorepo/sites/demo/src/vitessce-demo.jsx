@@ -1,20 +1,12 @@
 /* eslint-disable no-console */
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { MyComponent } from 'vitessce';
+import { Vitessce } from 'vitessce';
 
 import { getConfig, listConfigs } from './api';
 import { Welcome } from './welcome';
 import { Warning } from './warning';
 
 import './index.scss';
-
-
-// TODO(monorepo)
-// import Vitessce from './Vitessce';
-function Vitessce() {
-  return (<p>TODO</p>);
-}
-
 
 function AwaitResponse(props) {
   const {

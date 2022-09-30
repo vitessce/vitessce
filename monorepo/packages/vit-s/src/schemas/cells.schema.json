@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/vitessce/vitessce/#cells",
+  "title": "Vitessce cell data",
+  "type": "object",
+  "definitions": {
+    "coord": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": { "type": "number" }
+    },
+    "positiveFloatValues": {
+      "type": "object",
+      "patternProperties": {
+        ".": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "stringValues": {
+      "type": "object",
+      "patternProperties": {
+        ".": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "patternProperties": {
+    ".": {
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "mappings": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "$ref": "#/definitions/coord" }
+          }
+        },
+        "xy": { "$ref": "#/definitions/coord" },
+        "genes": { "$ref": "#/definitions/positiveFloatValues" },
+        "factors": { "$ref": "#/definitions/stringValues" },
+        "poly": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/coord" }
+        }
+      }
+    }
+  }
+}

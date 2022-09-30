@@ -6,6 +6,14 @@ const LUMAGL_VERSION = '~8.5.10';
 const DECKGL_VERSION = '8.6.7';
 const REACT_VERSION = '^18.0.0';
 const MUI_VERSION = '~4.12.3';
+const OTHER_VERSIONS = {
+  "ajv": "^6.10.0",
+  'lodash': '^4.17.21',
+  'react-grid-layout': '^1.3.4',
+  "internmap": "^2.0.3",
+  "uuid": "^3.3.2",
+  "zustand": "^3.5.10",
+};
 
 // Mutates package metadata in place
 function pinVersions(deps = {}) {
@@ -24,6 +32,9 @@ function pinVersions(deps = {}) {
     }
     if (name.startsWith('@material-ui/')) {
       deps[name] = MUI_VERSION;
+    }
+    if (Object.keys(OTHER_VERSIONS).includes(name)) {
+      deps[name] = OTHER_VERSIONS[name];
     }
   }
 }

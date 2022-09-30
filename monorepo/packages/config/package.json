@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@vitessce/constants-internal": "workspace:*",
-    "object.fromentries": "^2.0.5"
+    "@vitessce/utils": "workspace:*"
   },
   "keywords": [],
   "author": "",

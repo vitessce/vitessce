@@ -1,6 +1,5 @@
-import fromEntries from 'object.fromentries';
 import { CoordinationType } from '@vitessce/constants-internal';
-import { getNextScope } from './utils';
+import { fromEntries, getNextScope } from '@vitessce/utils';
 
 /**
  * Class representing a file within a Vitessce config dataset.

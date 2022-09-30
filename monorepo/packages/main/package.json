@@ -11,7 +11,8 @@
     "@vitessce/my-component": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/constants": "workspace:*",
-    "@vitessce/config": "workspace:*"
+    "@vitessce/config": "workspace:*",
+    "@vitessce/vit-s": "workspace:*"
   },
   "keywords": [],
   "author": "",

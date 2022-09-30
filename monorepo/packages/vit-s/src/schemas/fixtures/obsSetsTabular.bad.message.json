@@ -1,0 +1,11 @@
+[
+    {
+      "dataPath": "",
+      "keyword": "type",
+      "message": "should be array",
+      "params": {
+        "type": "array"
+      },
+      "schemaPath": "#/type"
+    }
+  ]

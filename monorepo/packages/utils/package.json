@@ -7,6 +7,10 @@
     "start": "tsc --watch",
     "build": "tsc"
   },
+  "dependencies": {
+    "bowser": "^2.11.0",
+    "lz-string": "^1.4.4"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC"
