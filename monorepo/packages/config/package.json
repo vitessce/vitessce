@@ -1,5 +1,5 @@
 {
-  "name": "vitessce",
+  "name": "@vitessce/config",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
@@ -8,10 +8,8 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@vitessce/my-component": "workspace:*",
-    "@vitessce/utils": "workspace:*",
-    "@vitessce/constants": "workspace:*",
-    "@vitessce/config": "workspace:*"
+    "@vitessce/constants-internal": "workspace:*",
+    "object.fromentries": "^2.0.5"
   },
   "keywords": [],
   "author": "",

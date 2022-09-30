@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MyComponent } from 'vitessce';
+import { VitessceDemo } from './vitessce-demo';
 
 const container = document.getElementById('root');
 const root = createRoot(container);
-root.render(<MyComponent color="green" a={1} b={2} />);
+root.render(<VitessceDemo />);

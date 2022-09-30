@@ -1,0 +1,45 @@
+/* 
+ * Global color mapping.
+ * Sass map docs: https://sass-lang.com/documentation/modules/map
+ */
+$global-colors: (
+  "white": #FFFFFF,
+  "gray-light": #D3D3D3,
+  "gray-mid": #808080,
+  "gray-dark": #555555,
+  "black": #000000
+);
+
+/* 
+ * Theme color mappings.
+ */
+
+$colors-dark: (
+  "grid-layout-background": #333333,
+  "card-border": rgba(0, 0, 0, 0.125),
+  "primary-background": #222222,
+  "primary-background-highlight": #000000,
+  "primary-background-input": #D3D3D3,
+  "primary-background-dim": #333333,
+  "primary-foreground": #D3D3D3,
+  "primary-foreground-dim": #000000,
+  "primary-foreground-active": #9bb7d6,
+  "secondary-background": #000000,
+  "secondary-background-dim": #444444,
+  "secondary-foreground": #D3D3D3
+);
+
+$colors-light: (
+  "grid-layout-background": #FFFFFF,
+  "card-border": rgba(241, 241, 241, 0.125),
+  "primary-background": #F1F1F1,
+  "primary-background-highlight": #FFFFFF,
+  "primary-background-input": #FFFFFF,
+  "primary-background-dim": #8A8A8A,
+  "primary-foreground": #333333,
+  "primary-foreground-dim": #808080,
+  "primary-foreground-active": #0074D9,
+  "secondary-background": #F1F1F1,
+  "secondary-background-dim": #C0C0C0,
+  "secondary-foreground": #222222
+);
