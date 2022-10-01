@@ -22,7 +22,6 @@
   "dependencies": {
     "@vitessce/config": "workspace:*",
     "@vitessce/constants": "workspace:*",
-    "@vitessce/my-component": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*"
   },

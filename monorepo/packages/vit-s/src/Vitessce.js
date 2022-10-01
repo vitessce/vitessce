@@ -17,8 +17,11 @@ import CallbackPublisher from './CallbackPublisher';
 import { getComponent } from './component-registry';
 import { checkTypes, initialize, upgradeAndValidate } from './view-config-utils';
 
-// TODO(monorepo)
-//import packageJson from '../package.json';
+// TODO(monorepo): figure out how to load the bootstrap and the react-grid-layout styles
+// import styles from './css/index.scss';
+
+// TODO(monorepo): figure out how to get the current package version from package.json
+// import packageJson from '../package.json';
 const packageJson = { version: 'unk' };
 
 const generateClassName = createGenerateClassName({

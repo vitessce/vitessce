@@ -1,4 +1,5 @@
 export { Vitessce } from './Vitessce';
+export { TitleInfo } from './TitleInfo';
 export {
   registerPluginViewType,
   registerPluginCoordinationType,
@@ -21,6 +22,11 @@ export {
   useWarning,
   useSetWarning,
 } from './state/hooks';
+export {
+  useDescription,
+  useImageData,
+  // TODO(monorepo): add more data hook exports
+} from './data-hooks';
 export {
   SCHEMA_HANDLERS,
   LATEST_VERSION,

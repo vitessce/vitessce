@@ -1,23 +1,23 @@
-@import 'react-grid-layout/css/styles.css';
-@import 'react-resizable/css/styles.css';
+//@import 'react-grid-layout/css/styles.css';
+//@import 'react-resizable/css/styles.css';
 
 @import 'colors';
 
 @import 'app';
 @import 'bootstrap-minimal';
 
-@mixin vitessce-themable($theme-name, $theme-colors) {
+@mixin welcome-themable($theme-name, $theme-colors) {
   @include app($theme-name, $theme-colors);
 }
 
-.vitessce-container {
+.welcome-container {
   @include bootstrap-minimal;
   position: relative; // So please-wait can be positioned absolutely.
   
-  &.vitessce-theme-dark {
-    @include vitessce-themable("dark", $colors-dark);
+  &.welcome-theme-dark {
+    @include welcome-themable("dark", $colors-dark);
   }
-  &.vitessce-theme-light {
-    @include vitessce-themable("light", $colors-light);
+  &.welcome-theme-light {
+    @include welcome-themable("light", $colors-light);
   }
 }

@@ -136,14 +136,14 @@ export function VitessceDemo() {
         height: 100%;
       }
       body {
-        font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
         display: flex;
         flex-direction: column;
       }
       #root {
         flex: 1;
       }
-      #root .vitessce-container {
+      #root .welcome-container {
+        font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
         height: max(100%, 100vh);
         width: 100%;
         overflow: hidden;
