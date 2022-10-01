@@ -5,9 +5,11 @@
 // - https://github.com/hms-dbmi/viv/blob/master/scripts/bundle.mjs
 import * as esbuild from 'esbuild';
 import { defineConfig } from 'vite';
-import path from 'path';
+import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
 import pkg from './package.json';
 
+const isProduction = process.env.APP_ENV === 'production';
 
 /**
  * Bundles vite worker modules during development into single scripts.
@@ -58,30 +60,29 @@ try {
   }
 };
 
-const alias = {
-  //uuid: path.resolve(__dirname, './node_modules/uuid/dist/esm-browser/index.js')
-};
-
-const skipExt = new Set(['uuid']);
-const external = [
-  ...Object.keys(pkg.dependencies),
-  //...Object.keys(pkg.peerDependencies)
-].filter(dep => !skipExt.has(dep));
-
 export default defineConfig({
   build: {
-      emptyOutDir: false,
-      outDir: 'dist',
-      minify: false,
-      target: 'es2018',
-      sourcemap: true,
-      lib: {
-          entry: path.resolve(__dirname, 'src/index.js'),
-          formats: ['es'],
-          fileName: 'vitessce'
-      },
-      rollupOptions: { external }
+    sourcemap: true,
+    emptyOutDir: false,
+    minify: isProduction ? 'esbuild' : false,
+    lib: {
+      entry: resolve(__dirname, 'src/index.js'),
+      name: 'vitessce',
+      fileName: isProduction ? 'index.min' : 'index',
+      formats: isProduction ? ['umd'] : ['es', 'umd'],
+    },
+    rollupOptions: {
+      external: ['react', 'react-dom'],
+      output: {
+        globals: {
+          react: 'React',
+          'react-dom': 'ReactDOM',
+        },
+      }
+    }
   },
-  resolve: { alias },
-  plugins: [manualInlineWorker]
+  define: {
+    'process.env.NODE_ENV': `"${process.env.APP_ENV}"`,
+  },
+  plugins: [react(), manualInlineWorker]
 });

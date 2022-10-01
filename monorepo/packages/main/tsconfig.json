@@ -3,5 +3,10 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src"
-  }
+  },
+  "exclude": [
+    "dist",
+    "scripts",
+    "vite.config.js"
+  ]
 }

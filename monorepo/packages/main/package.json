@@ -15,7 +15,9 @@
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc",
-    "build-lib": "vite build --mode lib && node ./scripts/build-umd.mjs && node ./scripts/build-embed.mjs"
+    "build-lib": "npm run build-lib:prod && npm run build-lib:dev",
+    "build-lib:prod": "APP_ENV=production vite build --mode lib",
+    "build-lib:dev": "APP_ENV=development vite build --mode lib"
   },
   "dependencies": {
     "@vitessce/config": "workspace:*",
