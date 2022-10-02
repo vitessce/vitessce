@@ -1,7 +1,4 @@
-// TODO(monorepo): remove add function
-export function add(a, b, c) {
-  return a+b+c;
-}
+// Originally in src/utils.js
 
 // Adapted from https://github.com/feross/fromentries/blob/29b52a850bb3a47c390937631c2638edf3443942/index.js
 export function fromEntries(iterable) {

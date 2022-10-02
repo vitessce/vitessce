@@ -3,7 +3,8 @@ import {
   TitleInfo,
   useReady,
   useCoordination, useLoaders,
-  useDescription, useImageData
+  useDescription, useImageData,
+  registerPluginViewType,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import Description from './Description';
@@ -21,7 +22,7 @@ const addUrl = () => {}; // noop
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
  */
-export default function DescriptionSubscriber(props) {
+export function DescriptionSubscriber(props) {
   const {
     coordinationScopes,
     description: descriptionOverride,
@@ -80,3 +81,12 @@ export default function DescriptionSubscriber(props) {
     </TitleInfo>
   );
 }
+
+export function register() {
+  registerPluginViewType(
+    ViewType.DESCRIPTION,
+    DescriptionSubscriber,
+    COMPONENT_COORDINATION_TYPES[ViewType.DESCRIPTION],
+  );
+}
+

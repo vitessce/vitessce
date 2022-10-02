@@ -1,0 +1,40 @@
+{
+  "name": "@vitessce/gl",
+  "version": "1.0.0",
+  "author": "Mark Keller",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "tsc --watch",
+    "build": "tsc",
+    "test": "vitest --ui -r ../../ --dir ."
+  },
+  "dependencies": {
+    "glslify": "^7.0.0",
+    "@hms-dbmi/viv": "~0.12.6",
+    "@loaders.gl/3d-tiles": "^3.0.0",
+    "@loaders.gl/core": "^3.0.0",
+    "@loaders.gl/images": "^3.0.0",
+    "@loaders.gl/loader-utils": "^3.0.0",
+    "@luma.gl/core": "~8.5.10",
+    "@math.gl/core": "^3.5.6",
+    "@turf/area": "^6.5.0",
+    "@turf/boolean-contains": "^6.0.1",
+    "@turf/boolean-overlap": "^6.0.1",
+    "@turf/boolean-point-in-polygon": "^6.0.1",
+    "@turf/boolean-within": "^6.0.1",
+    "@turf/centroid": "^6.0.2",
+    "@turf/helpers": "^6.1.4",
+    "deck.gl": "~8.6.7",
+    "math.gl": "^3.5.6",
+    "nebula.gl": "^0.23.8"
+  }
+}

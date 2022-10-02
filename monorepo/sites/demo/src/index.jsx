@@ -3,13 +3,9 @@ import { createRoot } from 'react-dom/client';
 import { VitessceDemo } from './vitessce-demo';
 
 // Register view type plugins
-import { DescriptionSubscriber } from '@vitessce/description';
-import { registerPluginViewType, ViewType as vt, CoordinationType as ct } from 'vitessce';
+import { register as registerDescription } from '@vitessce/description';
 
-registerPluginViewType(vt.DESCRIPTION, DescriptionSubscriber, [
-  ct.DATASET,
-  ct.SPATIAL_IMAGE_LAYER,
-]);
+registerDescription();
 
 const container = document.getElementById('root');
 const root = createRoot(container);

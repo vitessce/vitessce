@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">
+  <path
+     id="path4"
+     d="m 4.313081,12.449321 1.9487401,-0.449902 -0.4499022,-1.94874 -1.94874,0.449902 z m 0.8998042,3.897481 1.9487401,-0.449903 -0.449902,-1.94874 -1.9487402,0.449902 z M 3.4132767,8.5518409 5.3620168,8.1019388 4.9121147,6.1531987 2.9633746,6.6031008 Z" />
+  <path
+     d="M 10.937015,7.8449965 11.844999,6.0629841 10.062984,5.1550024 9.155001,6.9370157 Z M 7.3729904,6.0290342 8.2809713,4.2470213 6.4989578,3.3390407 5.590977,5.1210534 Z"
+     id="path4160" />
+  <path
+     id="path4162"
+     d="M 15.224552,5.509318 16.821819,6.71295 18.02545,5.11568 16.42818,3.9120483 Z" />
+  <path
+     d="M 19.241206,11.238465 21.238465,11.133794 21.133794,9.1365347 19.136535,9.2412065 Z M 19.031863,7.2439475 21.029122,7.1392756 20.92445,5.1420166 18.927191,5.2466885 Z"
+     id="path4164" />
+  <circle
+     r="1.1875"
+     cy="18.6875"
+     cx="6.8125"
+     id="path4168"
+     style="opacity:1;fill:#000000;fill-opacity:1;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none" />
+  <circle
+     style="opacity:1;fill:#000000;fill-opacity:1;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none"
+     id="circle4170"
+     cx="20.375"
+     cy="13.5625"
+     r="1.1875" />
+  <circle
+     r="1.1875"
+     cy="2.25"
+     cx="19.3125"
+     id="circle4172"
+     style="opacity:1;fill:#000000;fill-opacity:1;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none" />
+  <circle
+     style="opacity:1;fill:#000000;fill-opacity:1;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none"
+     id="circle4174"
+     cx="14.0625"
+     cy="8.125"
+     r="1.1875" />
+  <circle
+     r="1.1875"
+     cy="3.4375"
+     cx="3.125"
+     id="circle4176"
+     style="opacity:1;fill:#000000;fill-opacity:1;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none" />
+  <path
+     d="m 12.520555,15.862288 0.716732,1.867158 1.867159,-0.716732 -0.716732,-1.86716 z m -3.7343252,1.43347 0.7167372,1.867161 1.867159,-0.716736 -0.716735,-1.86716 z m 7.4686422,-2.866942 0.716736,1.867163 1.867161,-0.716736 -0.716737,-1.867161 z"
+     id="path4199" />
+  <path
+     id="path4201"
+     d="M 3.3498175,21.309079 4.8819073,22.594657 6.1674826,21.062568 4.6353927,19.776993 Z" />
+</svg>

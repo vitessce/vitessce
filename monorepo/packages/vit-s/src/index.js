@@ -34,3 +34,11 @@ export {
 export {
   upgradeAndValidate
 } from './view-config-utils';
+export {
+  CellColorEncodingOption,
+  OptionsContainer,
+  OptionSelect,
+  usePlotOptionsStyles,
+} from './shared-plot-options';
+export { default as obsSetsSchema } from './schemas/obsSets.schema.json';
+export { default as obsSetsTabularSchema } from './schemas/obsSetsTabular.schema.json';

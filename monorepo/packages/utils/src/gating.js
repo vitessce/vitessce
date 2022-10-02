@@ -1,0 +1,1 @@
+// Originally in src/components/gating/utils.js

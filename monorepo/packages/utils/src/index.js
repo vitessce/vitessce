@@ -1,4 +1,5 @@
 export * from './root';
+export * from './components';
 export {
   encodeConfInUrl,
   decodeURLParamsToConf,

@@ -1,11 +1,15 @@
 import react from '@vitejs/plugin-react';
+import svgr from 'vite-plugin-svgr';
 import { defineConfig } from 'vite';
 
 // For tests.
 export default defineConfig({
-  plugins: [react({
-    jsxRuntime: 'classic',
-  })],
+  plugins: [
+    react({
+      jsxRuntime: 'classic',
+    }),
+    svgr(),
+  ],
   test: {
     globals: true,
     environment: 'jsdom',
