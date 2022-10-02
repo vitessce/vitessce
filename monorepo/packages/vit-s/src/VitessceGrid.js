@@ -2,6 +2,8 @@ import React, {
   useEffect,
   useCallback,
 } from 'react';
+import clsx from 'clsx';
+import { VITESSCE_CONTAINER } from './classNames';
 import { VitessceGridLayout } from './vitessce-grid-layout';
 import { useRowHeight, createLoaders } from './vitessce-grid-utils';
 import {
@@ -16,6 +18,7 @@ import {
 import {
   useClosestVitessceContainerSize,
 } from './hooks';
+import { useVitessceContainerStyles } from './shared-mui/container';
 
 const padding = 10;
 const margin = 5;
@@ -45,6 +48,8 @@ export default function VitessceGrid(props) {
   const onResize = useEmitGridResize();
 
   const [componentWidth] = useClosestVitessceContainerSize(containerRef);
+
+  const classes = useVitessceContainerStyles();
 
   // When the row height has changed, publish a GRID_RESIZE event.
   useEffect(() => {
@@ -77,7 +82,7 @@ export default function VitessceGrid(props) {
   return (
     <div
       ref={containerRef}
-      className={`vitessce-container vitessce-theme-${theme}`}
+      className={clsx(VITESSCE_CONTAINER, classes.vitessceContainer)}
     >
       {layout && (
         <VitessceGridLayout

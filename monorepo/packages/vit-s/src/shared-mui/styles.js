@@ -36,6 +36,8 @@ export const muiTheme = {
       secondaryBackground: '#000000',
       secondaryBackgroundDim: '#444444',
       secondaryForeground: '#D3D3D3',
+      gridLayoutBackground: '#333333',
+      cardBorder: 'rgba(0, 0, 0, 0.125)',
     },
     props: {
       MuiButtonBase: {
@@ -59,6 +61,8 @@ export const muiTheme = {
       secondaryBackground: '#F1F1F1',
       secondaryBackgroundDim: '#C0C0C0',
       secondaryForeground: '#222222',
+      gridLayoutBackground: '#FFFFFF',
+      cardBorder: 'rgba(241, 241, 241, 0.125)',
     },
     props: {
       MuiButtonBase: {

@@ -183,7 +183,7 @@ export function useClosestVitessceContainerSize(ref) {
       if (ref.current) {
         const {
           clientHeight: componentHeight, clientWidth: componentWidth,
-        } = ref.current.closest('.vitessce-container');
+        } = ref.current.closest(`.${VITESSCE_CONTAINER}`);
         setWidth(componentWidth);
         setHeight(componentHeight);
       }

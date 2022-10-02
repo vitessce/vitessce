@@ -147,9 +147,12 @@ export function Vitessce(props) {
       </ThemeProvider>
     </StylesProvider>
   ) : (
-    <Warning
-      theme={theme}
-      {...configOrWarning}
-    />
+    <StylesProvider generateClassName={generateClassName}>
+      <ThemeProvider theme={muiTheme[theme]}>
+        <Warning
+          {...configOrWarning}
+        />
+      </ThemeProvider>
+    </StylesProvider>
   );
 }

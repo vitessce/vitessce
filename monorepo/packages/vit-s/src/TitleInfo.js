@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -9,7 +10,7 @@ import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import SettingsIcon from '@material-ui/icons/Settings';
 import CloseIcon from '@material-ui/icons/Close';
 
-import { SCROLL_CARD, BLACK_CARD, SECONDARY_CARD } from './classNames';
+import { TOOLTIP_ANCESTOR } from './classNames';
 import LoadingIndicator from './LoadingIndicator';
 import { PopperMenu } from './shared-mui/components';
 
@@ -116,24 +117,98 @@ function ClosePaneButton(props) {
   );
 }
 
+const useTitleStyles = makeStyles(theme => ({
+  title: {
+    color: theme.palette.primaryForeground,
+    overflowX: 'hidden',
+    display: 'flex',
+    flexDirection: 'row',
+    flexShrink: '0',
+  },
+  titleLeft: {
+    flexShrink: '1',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  titleInfo: {
+    width: '100%',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    fontSize: '80%',
+    opacity: '.8',
+    padding: '0 0.25rem',
+    justifyContent: 'center',
+    lineHeight: '25px',
+    flexShrink: '1',
+    textAlign: 'right',
+  },
+  titleButtons: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexGrow: '1',
+    flexShrink: '0',
+    justifyContent: 'right',
+    '& div': {
+      display: 'inline-block',
+    }
+  },
+  card: {
+    border: `1px solid ${theme.palette.cardBorder}`,
+    flex: '1 1 auto',
+    minHeight: '1px',
+    padding: '0.75rem',
+    marginTop: '0.5rem',
+    marginBottom: '0.5rem',
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    minWidth: '0',
+    wordWrap: 'break-word',
+    backgroundClip: 'border-box',
+    borderRadius: '0.25rem',
+  },
+  noScrollCard: {
+    backgroundColor: theme.palette.secondaryBackground,
+    color: theme.palette.secondaryForeground,
+  },
+  scrollCard: {
+    backgroundColor: theme.palette.primaryBackground,
+    color: theme.palette.primaryForeground,
+    '& a': {
+      color: theme.palette.primaryForegroundActive,
+    },
+    overflowY: 'auto',
+  },
+  spatialCard: {
+    backgroundColor: theme.palette.black,
+    color: theme.palette.white,
+    '& a': {
+        color: theme.palette.white,
+    }
+  }
+}));
+
+
 export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options,
   } = props;
-  // eslint-disable-next-line no-nested-ternary
-  const childClassName = isScroll ? SCROLL_CARD : (isSpatial ? BLACK_CARD : SECONDARY_CARD);
+
+  const classes = useTitleStyles();
+
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
     <>
-      <div className="title">
-        <div className="title-left">
+      <div className={classes.title}>
+        <div className={classes.titleLeft}>
           {title}
         </div>
-        <div className="title-info" title={info}>
+        <div className={classes.titleInfo} title={info}>
           {info}
         </div>
-        <div className="title-buttons">
+        <div className={classes.titleButtons}>
           <PlotOptions
             options={options}
           />
@@ -145,7 +220,7 @@ export function TitleInfo(props) {
           />
         </div>
       </div>
-      <div className={childClassName}>
+      <div className={clsx(TOOLTIP_ANCESTOR, classes.card, { [classes.scrollCard]: isScroll, [classes.spatialCard]: isSpatial, [classes.noScrollCard]: !isScroll && !isSpatial })}>
         { !isReady && <LoadingIndicator /> }
         {children}
       </div>

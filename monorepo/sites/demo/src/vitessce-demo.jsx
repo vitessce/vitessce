@@ -148,6 +148,11 @@ export function VitessceDemo() {
         width: 100%;
         overflow: hidden;
       }
+      #root .vitessce-container {
+        height: max(100%,100vh);
+        width: 100%;
+        overflow: hidden;
+      }
       `}</style>
       {result}
     </>
