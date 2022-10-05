@@ -1,7 +1,9 @@
 import Ajv from 'ajv';
 import isNil from 'lodash/isNil';
 import { dsvFormat } from 'd3-dsv';
-import { parse as json2csv } from 'json2csv';
+// TODO(monorepo): try to find a different package for this.
+// Reference: https://github.com/zemirco/json2csv/issues/539
+import { Parser } from 'json2csv/dist/json2csv.umd';
 import { getDefaultColor } from '@vitessce/utils';
 import { colorArrayToString, colorStringToArray } from './utils';
 import { nodeTransform } from './cell-set-utils';
@@ -156,10 +158,11 @@ export function handleExportTabular(result) {
       }
     });
   });
-  const csvString = json2csv(exportData, {
+  const parser = new Parser({
     fields: ['groupName', 'setName', 'setColor', 'obsId', 'predictionScore'],
     delimiter: SEPARATOR_TABULAR,
   });
+  const csvString = parser.parse(exportData);
   const dataString = `data:${MIME_TYPE_TABULAR};charset=utf-8,${encodeURIComponent(csvString)}`;
   return dataString;
 }

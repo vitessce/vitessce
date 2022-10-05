@@ -26,7 +26,7 @@
     "@turf/helpers": "^6.1.4",
     "@turf/centroid": "^6.0.2",
     "concaveman": "^1.2.1",
-    "json2csv": "^4.5.2",
+    "json2csv": "^5.0.0",
     "d3-dsv": "^1.1.1",
     "ajv": "^6.10.0"
   }

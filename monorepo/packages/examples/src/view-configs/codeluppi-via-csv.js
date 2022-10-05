@@ -48,7 +48,14 @@ export const codeluppiViaCsv = {
       x: 0,
       y: 0,
       w: 2,
-      h: 1,
+      h: 12,
+    },
+    {
+      component: 'obsSets',
+      x: 2,
+      y: 0,
+      w: 2,
+      h: 12,
     }
   ],
 };
