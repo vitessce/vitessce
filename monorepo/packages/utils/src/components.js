@@ -86,19 +86,6 @@ export function copyUint8Array(arr) {
   return newArr;
 }
 
-export function getNextNumberedNodeName(nodes, prefix) {
-  let i = 1;
-  if (nodes) {
-    // eslint-disable-next-line no-loop-func
-    while (nodes.find(n => n.name === `${prefix}${i}`)) {
-      // eslint-disable-next-line no-plusplus
-      i++;
-    }
-  }
-  return `${prefix}${i}`;
-}
-
-
 // TODO(monorepo)
 /*
 export function createWarningComponent(props) {

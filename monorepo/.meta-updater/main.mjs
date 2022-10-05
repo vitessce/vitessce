@@ -24,6 +24,7 @@ const OTHER_VERSIONS = {
   "d3-force": "^2.1.1",
   "d3-quadtree": "^1.0.7",
   "d3-scale-chromatic": "^1.3.3",
+  "plur": "^5.1.0",
 };
 
 // Mutates package metadata in place

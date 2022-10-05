@@ -4,7 +4,7 @@ import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import
 import { PolygonLayer, TextLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { forceSimulation } from 'd3-force';
 import { getSelectionLayers, ScaledExpressionExtension, SelectionExtension } from '@vitessce/gl';
-import { getDefaultColor } from '../utils';
+import { getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback } from './shared-spatial-scatterplot';
 
 const CELLS_LAYER_ID = 'scatterplot';

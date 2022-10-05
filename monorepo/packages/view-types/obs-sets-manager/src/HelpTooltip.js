@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import RcTooltip from 'rc-tooltip';
-import { useVitessceContainer } from '../hooks';
+import { useVitessceContainer } from '@vitessce/vit-s';
 
 /**
  * This is a small wrapper around the Tooltip component from the rc-tooltip library,

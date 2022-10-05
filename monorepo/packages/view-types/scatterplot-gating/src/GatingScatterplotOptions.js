@@ -3,9 +3,8 @@ import plur from 'plur';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
-import { useStyles } from '../shared-plot-options/styles';
-import OptionSelect from '../shared-plot-options/OptionSelect';
-import { capitalize } from '../../utils';
+import { usePlotOptionsStyles, OptionSelect } from '@vitessce/vit-s';
+import { capitalize } from '@vitessce/utils';
 
 export default function GatingScatterplotOptions(props) {
   const {
@@ -22,7 +21,7 @@ export default function GatingScatterplotOptions(props) {
     transformOptions,
   } = props;
 
-  const classes = useStyles();
+  const classes = usePlotOptionsStyles();
 
   // Handlers for custom option field changes.
   const handleGeneSelectChange = (event) => {

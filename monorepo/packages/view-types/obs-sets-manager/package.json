@@ -20,6 +20,14 @@
   "dependencies": {
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
-    "@material-ui/core": "~4.12.3"
+    "@vitessce/sets": "workspace:*",
+    "@vitessce/utils": "workspace:*",
+    "@vitessce/icons": "workspace:*",
+    "@material-ui/core": "~4.12.3",
+    "clsx": "^1.1.1",
+    "lodash": "^4.17.21",
+    "rc-tooltip": "^4.0.3",
+    "rc-tree": "2.1.0",
+    "react-color": "^2.18.0"
   }
 }

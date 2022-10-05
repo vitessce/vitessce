@@ -6,7 +6,7 @@ export {
   registerPluginFileType,
 } from './plugins';
 // For plugin view types:
-export { useReady, useUrls } from './hooks';
+export { useReady, useUrls, useVitessceContainer } from './hooks';
 export {
   useCoordination,
   useMultiDatasetCoordination,
@@ -25,6 +25,7 @@ export {
 export {
   useDescription,
   useImageData,
+  useObsSetsData,
   // TODO(monorepo): add more data hook exports
 } from './data-hooks';
 export {

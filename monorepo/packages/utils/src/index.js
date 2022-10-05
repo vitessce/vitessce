@@ -4,3 +4,7 @@ export {
   encodeConfInUrl,
   decodeURLParamsToConf,
 } from './export-utils';
+export {
+  getValueTransformFunction,
+  VALUE_TRANSFORM_OPTIONS,
+} from './gating';

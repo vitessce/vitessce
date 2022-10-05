@@ -4,9 +4,8 @@ import isEqual from 'lodash/isEqual';
 import Tree from './Tree';
 import TreeNode from './TreeNode';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
-import { nodeToRenderProps } from './cell-set-utils';
-import { getDefaultColor } from '../utils';
-import { pathToKey } from './utils';
+import { nodeToRenderProps, pathToKey } from '@vitessce/sets';
+import { getDefaultColor } from '@vitessce/utils';
 
 function processNode(node, prevPath, setColor, theme) {
   const nodePath = [...prevPath, node.name];

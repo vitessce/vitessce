@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
-import { getValueTransformFunction } from '../gating/utils';
-import { mergeObsSets } from '../utils';
+import { getValueTransformFunction, mergeObsSets } from '@vitessce/utils';
 import { treeToObjectsBySetNames, treeToSetSizesBySetNames } from './cell-set-utils';
 
 /**

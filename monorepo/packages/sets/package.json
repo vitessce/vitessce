@@ -19,6 +19,15 @@
   },
   "dependencies": {
     "@vitessce/vit-s": "workspace:*",
-    "@vitessce/utils": "workspace:*"
+    "@vitessce/utils": "workspace:*",
+    "uuid": "^3.3.2",
+    "tinycolor2": "^1.4.1",
+    "lodash": "^4.17.21",
+    "@turf/helpers": "^6.1.4",
+    "@turf/centroid": "^6.0.2",
+    "concaveman": "^1.2.1",
+    "json2csv": "^4.5.2",
+    "d3-dsv": "^1.1.1",
+    "ajv": "^6.10.0"
   }
 }

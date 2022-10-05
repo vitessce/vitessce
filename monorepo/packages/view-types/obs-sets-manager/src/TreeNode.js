@@ -6,9 +6,9 @@ import range from 'lodash/range';
 import isEqual from 'lodash/isEqual';
 import PopoverMenu from './PopoverMenu';
 import HelpTooltip from './HelpTooltip';
-import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from './utils';
-import { ReactComponent as MenuSVG } from '../../assets/menu.svg';
-import { getDefaultColor } from '../utils';
+import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from '@vitessce/sets';
+import { MenuSVG } from '@vitessce/icons';
+import { getDefaultColor } from '@vitessce/utils';
 
 
 /**

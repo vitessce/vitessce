@@ -20,6 +20,11 @@
   "dependencies": {
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
-    "@material-ui/core": "~4.12.3"
+    "@vitessce/utils": "workspace:*",
+    "@vitessce/scatterplot": "workspace:*",
+    "@material-ui/core": "~4.12.3",
+    "plur": "^5.1.0",
+    "lodash": "^4.17.21",
+    "d3-array": "^2.4.0"
   }
 }

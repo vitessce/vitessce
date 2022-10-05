@@ -2,9 +2,9 @@ import Ajv from 'ajv';
 import isNil from 'lodash/isNil';
 import { dsvFormat } from 'd3-dsv';
 import { parse as json2csv } from 'json2csv';
+import { getDefaultColor } from '@vitessce/utils';
 import { colorArrayToString, colorStringToArray } from './utils';
 import { nodeTransform } from './cell-set-utils';
-import { getDefaultColor } from '../utils';
 import {
   HIERARCHICAL_SCHEMAS, TABULAR_SCHEMAS,
   MIME_TYPE_JSON, MIME_TYPE_TABULAR,

@@ -4,15 +4,16 @@ import React, {
   useMemo,
 } from 'react';
 import isEqual from 'lodash/isEqual';
-import packageJson from '../../../package.json';
 import {
   useCoordination,
   useLoaders,
   useSetWarning,
-} from '../../app/state/hooks';
-import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-import SetsManager from './SetsManager';
-import TitleInfo from '../TitleInfo';
+  TitleInfo,
+  useUrls, useReady,
+  useObsSetsData,
+  registerPluginViewType,
+} from '@vitessce/vit-s';
+import { COMPONENT_COORDINATION_TYPES, ViewType } from '@vitessce/constants-internal';
 import {
   treeExportLevelZeroNode,
   treeExportSet,
@@ -30,32 +31,30 @@ import {
   filterNode,
   treeInitialize,
   initializeCellSetColor,
-} from './cell-set-utils';
-import {
+
   isEqualOrPrefix,
   tryRenamePath,
   PATH_SEP,
-} from './utils';
-import {
+
   downloadForUser,
   handleExportJSON,
   handleExportTabular,
   tryUpgradeTreeToLatestSchema,
-} from './io';
-import {
+
   FILE_EXTENSION_JSON,
   FILE_EXTENSION_TABULAR,
   SETS_DATATYPE_OBS,
-} from './constants';
-import { useUrls, useReady } from '../hooks';
-import {
+
   setObsSelection,
   mergeObsSets,
   getNextNumberedNodeName,
-} from '../utils';
-import { useObsSetsData } from '../data-hooks';
-import { ViewType } from '../../app/constants';
-import { capitalize } from '../../utils';
+} from '@vitessce/sets';
+import { capitalize } from '@vitessce/utils';
+import SetsManager from './SetsManager';
+
+// TODO(monorepo): import package.json
+// import packageJson from '../../../package.json';
+const packageJson = { name: 'vitessce' };
 
 /**
  * A subscriber wrapper around the SetsManager component
@@ -68,7 +67,7 @@ import { capitalize } from '../../utils';
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
  */
-export default function ObsSetsManagerSubscriber(props) {
+export function ObsSetsManagerSubscriber(props) {
   const {
     coordinationScopes,
     removeGridComponent,
@@ -621,5 +620,13 @@ export default function ObsSetsManagerSubscriber(props) {
         theme={theme}
       />
     </TitleInfo>
+  );
+}
+
+export function register() {
+  registerPluginViewType(
+    ViewType.OBS_SETS,
+    ObsSetsManagerSubscriber,
+    COMPONENT_COORDINATION_TYPES[ViewType.OBS_SETS],
   );
 }

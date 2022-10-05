@@ -89,4 +89,3 @@ export function register() {
     COMPONENT_COORDINATION_TYPES[ViewType.DESCRIPTION],
   );
 }
-

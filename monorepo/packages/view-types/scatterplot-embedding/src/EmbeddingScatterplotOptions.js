@@ -1,8 +1,7 @@
 import React from 'react';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import { useStyles } from '../shared-plot-options/styles';
-import OptionSelect from '../shared-plot-options/OptionSelect';
+import { usePlotOptionsStyles, OptionSelect } from '@vitessce/vit-s';
 
 export default function EmbeddingScatterplotOptions(props) {
   const {
@@ -12,7 +11,7 @@ export default function EmbeddingScatterplotOptions(props) {
     setSelectedMapping,
   } = props;
 
-  const classes = useStyles();
+  const classes = usePlotOptionsStyles();
 
   // Handlers for custom option field changes.
   const handleSelectedMappingChange = (event) => {

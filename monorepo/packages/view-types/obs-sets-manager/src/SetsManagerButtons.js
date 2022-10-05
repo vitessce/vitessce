@@ -3,15 +3,11 @@ import PopoverMenu from './PopoverMenu';
 import {
   handleImportJSON,
   handleImportTabular,
-} from './io';
-import {
+
   MIME_TYPE_JSON,
   MIME_TYPE_TABULAR,
-} from './constants';
-
-import { ReactComponent as SetUnionSVG } from '../../assets/sets/union.svg';
-import { ReactComponent as SetIntersectionSVG } from '../../assets/sets/intersection.svg';
-import { ReactComponent as SetComplementSVG } from '../../assets/sets/complement.svg';
+} from '@vitessce/sets';
+import { SetUnionSVG, SetIntersectionSVG, SetComplementSVG } from '@vitessce/icons';
 
 /**
  * A plus button for creating or importing set hierarchies.

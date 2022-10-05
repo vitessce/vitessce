@@ -4,37 +4,32 @@ import React, {
 import plur from 'plur';
 import { extent } from 'd3-array';
 import isEqual from 'lodash/isEqual';
-import TitleInfo from '../TitleInfo';
-import { capitalize, commaNumber } from '../../utils';
 import {
+  capitalize, commaNumber,
+  getCellColors,
+  getValueTransformFunction, VALUE_TRANSFORM_OPTIONS,
+  setObsSelection, mergeObsSets,
+} from '@vitessce/utils';
+import {
+  TitleInfo,
   useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
-} from '../hooks';
-import { setObsSelection, mergeObsSets } from '../utils';
-import { getCellSetPolygons } from '../obs-sets/cell-set-utils';
-import {
   useObsSetsData,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
-} from '../data-hooks';
-import { getCellColors } from '../interpolate-colors';
-import Scatterplot from '../scatterplot/Scatterplot';
-import ScatterplotTooltipSubscriber from '../scatterplot/ScatterplotTooltipSubscriber';
-import ScatterplotOptions from '../scatterplot/ScatterplotOptions';
-import {
   useCoordination,
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
-} from '../../app/state/hooks';
+} from '@vitessce/vit-s';
+import { getCellSetPolygons } from '@vitessce/sets';
 import {
+  Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
   getPointSizeDevicePixels,
   getPointOpacity,
-} from '../shared-spatial-scatterplot/dynamic-opacity';
-import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-import { ViewType } from '../../app/constants';
+  EmptyMessage,
+} from '@vitessce/scatterplot';
+import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import GatingScatterplotOptions from './GatingScatterplotOptions';
-import { getValueTransformFunction, VALUE_TRANSFORM_OPTIONS } from './utils';
-import EmptyMessage from '../scatterplot/EmptyMessage';
 
 /**
    * A subscriber component for the gating scatterplot.
