@@ -4,36 +4,30 @@ import React, {
 import { extent } from 'd3-array';
 import isEqual from 'lodash/isEqual';
 import plur from 'plur';
-import { TitleInfo } from '@vitessce/vit-s';
 import {
-  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter, useGetObsInfo,
-} from '../hooks';
-import { setObsSelection, mergeObsSets } from '../utils';
-import { getCellSetPolygons } from '../obs-sets/cell-set-utils';
-import {
+  TitleInfo,
+  registerPluginViewType,
+  useReady, useUrls,
+  useDeckCanvasSize,
+  useExpressionValueGetter, useGetObsInfo,
   useObsEmbeddingData,
   useObsSetsData,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useMultiObsLabels,
-} from '../data-hooks';
-import { getCellColors } from '../interpolate-colors';
-import Scatterplot from '../scatterplot/Scatterplot';
-import ScatterplotTooltipSubscriber from '../scatterplot/ScatterplotTooltipSubscriber';
-import ScatterplotOptions from '../scatterplot/ScatterplotOptions';
-import {
   useCoordination,
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
-} from '../../app/state/hooks';
+} from '@vitessce/vit-s';
+import { setObsSelection, mergeObsSets, getCellSetPolygons } from '@vitessce/sets';
+import { getCellColors, commaNumber } from '@vitessce/utils';
 import {
+  Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
   getPointSizeDevicePixels,
   getPointOpacity,
-} from '../shared-spatial-scatterplot/dynamic-opacity';
-import { COMPONENT_COORDINATION_TYPES } from '../../app/state/coordination';
-import { ViewType } from '../../app/constants';
-import { commaNumber } from '../../utils';
+} from '@vitessce/scatterplot';
+import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 
 /**
  * A subscriber component for the scatterplot.
@@ -49,7 +43,7 @@ import { commaNumber } from '../../utils';
  * @param {number} props.averageFillDensity Override the average fill density calculation
  * when using dynamic opacity mode.
  */
-export default function EmbeddingScatterplotSubscriber(props) {
+export function EmbeddingScatterplotSubscriber(props) {
   const {
     uuid,
     coordinationScopes,
@@ -355,5 +349,13 @@ export default function EmbeddingScatterplotSubscriber(props) {
       />
       )}
     </TitleInfo>
+  );
+}
+
+export function register() {
+  registerPluginViewType(
+    ViewType.SCATTERPLOT,
+    EmbeddingScatterplotSubscriber,
+    COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT],
   );
 }

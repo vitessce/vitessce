@@ -2,3 +2,7 @@ export { default as AbstractSpatialOrScatterplot } from './AbstractSpatialOrScat
 export { createQuadTree } from './quadtree';
 export { forceCollideRects } from './force-collide-rects';
 export { getOnHoverCallback } from './cursor';
+export {
+  getPointSizeDevicePixels,
+  getPointOpacity,
+} from './dynamic-opacity';

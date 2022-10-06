@@ -18,16 +18,16 @@
     "test": "vitest --ui -r ../../ --dir ."
   },
   "dependencies": {
-    "@vitessce/vit-s": "workspace:*",
+    "@turf/centroid": "^6.5.0",
+    "@turf/helpers": "^6.5.0",
     "@vitessce/utils": "workspace:*",
-    "uuid": "^3.3.2",
-    "tinycolor2": "^1.4.1",
-    "lodash": "^4.17.21",
-    "@turf/helpers": "^6.1.4",
-    "@turf/centroid": "^6.0.2",
+    "@vitessce/vit-s": "workspace:*",
+    "ajv": "^6.10.0",
     "concaveman": "^1.2.1",
-    "json2csv": "^5.0.0",
     "d3-dsv": "^1.1.1",
-    "ajv": "^6.10.0"
+    "json2csv": "^5.0.0",
+    "lodash": "^4.17.21",
+    "tinycolor2": "^1.4.1",
+    "uuid": "^3.3.2"
   }
 }

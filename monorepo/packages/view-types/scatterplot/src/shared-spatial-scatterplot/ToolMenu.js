@@ -1,6 +1,7 @@
 import React from 'react';
 import { SELECTION_TYPE } from 'nebula.gl';
 import { PointerIconSVG, SelectRectangleIconSVG, SelectLassoIconSVG } from '@vitessce/icons';
+
 export function IconButton(props) {
   const {
     alt, onClick, isActive, children,

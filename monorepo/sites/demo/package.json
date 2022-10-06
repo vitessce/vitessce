@@ -8,14 +8,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vitessce/description": "workspace:*",
+    "@vitessce/examples": "workspace:*",
+    "@vitessce/obs-sets-manager": "workspace:*",
+    "@vitessce/scatterplot-embedding": "workspace:*",
+    "@vitessce/scatterplot-gating": "workspace:*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-grid-layout": "^1.3.4",
     "react-resizable": "^3.0.0",
-    "vitessce": "workspace:*",
-    "@vitessce/examples": "workspace:*",
-    "@vitessce/description": "workspace:*",
-    "@vitessce/obs-sets-manager": "workspace:*"
+    "vitessce": "workspace:*"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^1.3.2",

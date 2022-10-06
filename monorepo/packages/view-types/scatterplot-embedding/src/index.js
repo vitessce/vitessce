@@ -1,1 +1,1 @@
-export { default as EmbeddingScatterplotSubscriber } from './EmbeddingScatterplotSubscriber';
+export { EmbeddingScatterplotSubscriber, register } from './EmbeddingScatterplotSubscriber';

@@ -6,7 +6,6 @@ const LUMAGL_VERSION = '~8.5.10';
 const LOADERSGL_VERSION = "^3.0.0";
 const DECKGL_VERSION = '8.6.7';
 const REACT_VERSION = '^18.0.0';
-const MUI_VERSION = '~4.12.3';
 const TURF_VERSION = "^6.5.0";
 const NEBULAGL_VERSION = "^0.23.8";
 const OTHER_VERSIONS = {
@@ -25,14 +24,16 @@ const OTHER_VERSIONS = {
   "d3-quadtree": "^1.0.7",
   "d3-scale-chromatic": "^1.3.3",
   "plur": "^5.1.0",
+  "@material-ui/core": "~4.12.3",
+  "@material-ui/icons": "~4.11.2",
 };
 
 // Mutates package metadata in place
 function pinVersions(deps = {}) {
   for (let name of Object.keys(deps)) {
-    if (name === 'react' || name === 'react-dom') {
+    /*if (name === 'react' || name === 'react-dom') {
       deps[name] = REACT_VERSION;
-    }
+    }*/
     if (name.startsWith('@deck.gl/') || name === "deck.gl") {
       deps[name] = DECKGL_VERSION;
     }
@@ -50,9 +51,6 @@ function pinVersions(deps = {}) {
     }
     if (name.startsWith('@turf/')) {
       deps[name] = TURF_VERSION;
-    }
-    if (name.startsWith('@material-ui/')) {
-      deps[name] = MUI_VERSION;
     }
     if (Object.keys(OTHER_VERSIONS).includes(name)) {
       deps[name] = OTHER_VERSIONS[name];

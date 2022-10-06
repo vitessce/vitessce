@@ -18,17 +18,17 @@
     "test": "vitest --ui -r ../../../ --dir ."
   },
   "dependencies": {
-    "@vitessce/vit-s": "workspace:*",
+    "@material-ui/core": "~4.12.3",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/gl": "workspace:*",
+    "@vitessce/icons": "workspace:*",
     "@vitessce/tooltip": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@vitessce/icons": "workspace:*",
-    "@material-ui/core": "~4.12.3",
+    "@vitessce/vit-s": "workspace:*",
     "d3-force": "^2.1.1",
     "d3-quadtree": "^1.0.7",
-    "deck.gl": "~8.6.7",
-    "nebula.gl": "^0.23.8",
-    "lodash": "^4.17.21"
+    "deck.gl": "8.6.7",
+    "lodash": "^4.17.21",
+    "nebula.gl": "^0.23.8"
   }
 }

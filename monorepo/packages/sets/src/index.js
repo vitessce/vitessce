@@ -17,6 +17,7 @@ export {
   treeInitialize,
   initializeCellSetColor,
   nodeToRenderProps,
+  getCellSetPolygons,
 } from './cell-set-utils';
 export {
   isEqualOrPrefix,
