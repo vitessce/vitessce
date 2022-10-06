@@ -13,7 +13,6 @@
     "dist"
   ],
   "scripts": {
-    "start": "npm run build-lib",
     "build": "npm run build-lib",
     "build-lib": "npm run build-lib:prod && npm run build-lib:dev",
     "build-lib:prod": "APP_ENV=production vite build --mode lib",

@@ -1,8 +1,5 @@
 lockfileVersion: 5.4
 
-overrides:
-  deck.gl: 8.6.7
-
 importers:
 
   .:
@@ -78,13 +75,28 @@ importers:
 
   packages/gl:
     specifiers:
+      '@deck.gl/aggregation-layers': 8.6.7
+      '@deck.gl/core': 8.6.7
+      '@deck.gl/extensions': 8.6.7
+      '@deck.gl/geo-layers': 8.6.7
+      '@deck.gl/layers': 8.6.7
+      '@deck.gl/mesh-layers': 8.6.7
+      '@deck.gl/react': 8.6.7
       '@hms-dbmi/viv': ~0.12.6
       '@loaders.gl/3d-tiles': ^3.0.0
       '@loaders.gl/core': ^3.0.0
       '@loaders.gl/images': ^3.0.0
       '@loaders.gl/loader-utils': ^3.0.0
-      '@luma.gl/core': ~8.5.10
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/core': 8.5.10
+      '@luma.gl/engine': 8.5.10
+      '@luma.gl/experimental': 8.5.10
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
       '@math.gl/core': ^3.5.6
+      '@nebula.gl/edit-modes': 0.23.8
+      '@nebula.gl/layers': 0.23.8
       '@turf/area': ^6.5.0
       '@turf/boolean-contains': ^6.5.0
       '@turf/boolean-overlap': ^6.5.0
@@ -95,15 +107,30 @@ importers:
       deck.gl: 8.6.7
       glslify: ^7.0.0
       math.gl: ^3.5.6
-      nebula.gl: ^0.23.8
+      nebula.gl: 0.23.8
     dependencies:
-      '@hms-dbmi/viv': 0.12.9_5twjr4c2voiea5liarmqvksnmi
+      '@deck.gl/aggregation-layers': 8.6.7_xw7kzmvtc74tyv7oyffqqm4hgm
+      '@deck.gl/core': 8.6.7
+      '@deck.gl/extensions': 8.6.7_qjltsxfxy33t2jnbhndt55efki
+      '@deck.gl/geo-layers': 8.6.7_go3qibzpfgbiluv6czggami56a
+      '@deck.gl/layers': 8.6.7_r3awsm5ppykm6lrfdfc65rhsvm
+      '@deck.gl/mesh-layers': 8.6.7_hfkoowvatms54plrp6hfhethgy
+      '@deck.gl/react': 8.6.7_cn23c3y7vgm52ig7fzb256qsya
+      '@hms-dbmi/viv': 0.12.9_ern4kzgj5ufmzftmbwnbckikuy
       '@loaders.gl/3d-tiles': 3.2.9_@loaders.gl+core@3.2.9
       '@loaders.gl/core': 3.2.9
       '@loaders.gl/images': 3.2.9
       '@loaders.gl/loader-utils': 3.2.9
-      '@luma.gl/core': 8.5.16
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/core': 8.5.10
+      '@luma.gl/engine': 8.5.10
+      '@luma.gl/experimental': 8.5.10_hawe4vukmged4xa2bdab7iruye
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
       '@math.gl/core': 3.6.3
+      '@nebula.gl/edit-modes': 0.23.8
+      '@nebula.gl/layers': 0.23.8_htpb6q2lnrnlvb3jqdo536hctu
       '@turf/area': 6.5.0
       '@turf/boolean-contains': 6.5.0
       '@turf/boolean-overlap': 6.5.0
@@ -111,10 +138,10 @@ importers:
       '@turf/boolean-within': 6.5.0
       '@turf/centroid': 6.5.0
       '@turf/helpers': 6.5.0
-      deck.gl: 8.6.7_5uf5colgkjgxojj3xjamsuddiu
+      deck.gl: 8.6.7_gbuctxiv7l6ixl2hv34t537nxe
       glslify: 7.1.1
       math.gl: 3.6.3
-      nebula.gl: 0.23.8_ddhsi3ncnypy7y3jzhtjfdkd3y
+      nebula.gl: 0.23.8_ogaefdrscq2lwnkarinyct6lqa
 
   packages/icons:
     specifiers:
@@ -225,6 +252,24 @@ importers:
 
   packages/view-types/scatterplot:
     specifiers:
+      '@deck.gl/aggregation-layers': 8.6.7
+      '@deck.gl/core': 8.6.7
+      '@deck.gl/extensions': 8.6.7
+      '@deck.gl/geo-layers': 8.6.7
+      '@deck.gl/layers': 8.6.7
+      '@deck.gl/mesh-layers': 8.6.7
+      '@deck.gl/react': 8.6.7
+      '@loaders.gl/3d-tiles': ^3.0.0
+      '@loaders.gl/core': ^3.0.0
+      '@loaders.gl/images': ^3.0.0
+      '@loaders.gl/loader-utils': ^3.0.0
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/core': 8.5.10
+      '@luma.gl/engine': 8.5.10
+      '@luma.gl/experimental': 8.5.10
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
       '@vitessce/gl': workspace:*
@@ -236,8 +281,25 @@ importers:
       d3-quadtree: ^1.0.7
       deck.gl: 8.6.7
       lodash: ^4.17.21
-      nebula.gl: ^0.23.8
     dependencies:
+      '@deck.gl/aggregation-layers': 8.6.7_xw7kzmvtc74tyv7oyffqqm4hgm
+      '@deck.gl/core': 8.6.7
+      '@deck.gl/extensions': 8.6.7_qjltsxfxy33t2jnbhndt55efki
+      '@deck.gl/geo-layers': 8.6.7_go3qibzpfgbiluv6czggami56a
+      '@deck.gl/layers': 8.6.7_r3awsm5ppykm6lrfdfc65rhsvm
+      '@deck.gl/mesh-layers': 8.6.7_hfkoowvatms54plrp6hfhethgy
+      '@deck.gl/react': 8.6.7_cn23c3y7vgm52ig7fzb256qsya
+      '@loaders.gl/3d-tiles': 3.2.9_@loaders.gl+core@3.2.9
+      '@loaders.gl/core': 3.2.9
+      '@loaders.gl/images': 3.2.9
+      '@loaders.gl/loader-utils': 3.2.9
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/core': 8.5.10
+      '@luma.gl/engine': 8.5.10
+      '@luma.gl/experimental': 8.5.10_hawe4vukmged4xa2bdab7iruye
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
       '@material-ui/core': 4.12.4_wcqkhtmu7mswc6yz4uyexck3ty
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/gl': link:../../gl
@@ -247,9 +309,8 @@ importers:
       '@vitessce/vit-s': link:../../vit-s
       d3-force: 2.1.1
       d3-quadtree: 1.0.7
-      deck.gl: 8.6.7_5uf5colgkjgxojj3xjamsuddiu
+      deck.gl: 8.6.7_gbuctxiv7l6ixl2hv34t537nxe
       lodash: 4.17.21
-      nebula.gl: 0.23.8_ddhsi3ncnypy7y3jzhtjfdkd3y
 
   packages/view-types/scatterplot-embedding:
     specifiers:
@@ -1955,7 +2016,7 @@ packages:
     dependencies:
       '@deck.gl/core': 8.6.7
       '@deck.gl/layers': 8.6.7_r3awsm5ppykm6lrfdfc65rhsvm
-      '@luma.gl/shadertools': 8.5.16
+      '@luma.gl/shadertools': 8.5.17
       '@math.gl/web-mercator': 3.6.3
       d3-hexbin: 0.2.2
     dev: false
@@ -1969,7 +2030,7 @@ packages:
       '@loaders.gl/core': ^3.1.5
     dependencies:
       '@deck.gl/core': 8.6.7
-      '@deck.gl/geo-layers': 8.6.7_vzv4noa2t7yinpnv3mdvbs7mjq
+      '@deck.gl/geo-layers': 8.6.7_go3qibzpfgbiluv6czggami56a
       '@deck.gl/layers': 8.6.7_r3awsm5ppykm6lrfdfc65rhsvm
       '@loaders.gl/core': 3.2.9
       '@loaders.gl/loader-utils': 3.2.9
@@ -1985,20 +2046,7 @@ packages:
     dependencies:
       '@loaders.gl/core': 3.2.9
       '@loaders.gl/images': 3.2.9
-      '@luma.gl/core': 8.5.16
-      '@math.gl/web-mercator': 3.6.3
-      gl-matrix: 3.4.3
-      math.gl: 3.6.3
-      mjolnir.js: 2.7.1
-      probe.gl: 3.5.2
-    dev: false
-
-  /@deck.gl/core/8.6.9:
-    resolution: {integrity: sha512-P7TyXh7h9Ozad5y+kuM3sIL/YEBnTLQpB3irjXI7neJ6N7KmDhBuhqGN4i6eD4D6LImoi8by3zDlHALJsn6WFA==}
-    dependencies:
-      '@loaders.gl/core': 3.2.9
-      '@loaders.gl/images': 3.2.9
-      '@luma.gl/core': 8.5.16
+      '@luma.gl/core': 8.5.10
       '@math.gl/web-mercator': 3.6.3
       gl-matrix: 3.4.3
       math.gl: 3.6.3
@@ -2013,26 +2061,11 @@ packages:
       gl-matrix: ^3.0.0
     dependencies:
       '@deck.gl/core': 8.6.7
-      '@luma.gl/shadertools': 8.5.16
+      '@luma.gl/shadertools': 8.5.17
       gl-matrix: 3.4.3
     dev: false
 
-  /@deck.gl/extensions/8.8.11_paozvszoyzplcd3qsgvi3h7o7e:
-    resolution: {integrity: sha512-8FywVMuWKJK8xtka2JWglIxjAXUUiTyNtQKaXOaHXTgVrrCUciZP74l+xpIZNaaqchpljOIE7+aoKnxskMZi1w==}
-    peerDependencies:
-      '@deck.gl/core': ^8.0.0
-      '@luma.gl/constants': ^8.0.0
-      '@luma.gl/core': ^8.0.0
-      gl-matrix: ^3.0.0
-    dependencies:
-      '@deck.gl/core': 8.6.9
-      '@luma.gl/constants': 8.5.16
-      '@luma.gl/core': 8.5.16
-      '@luma.gl/shadertools': 8.5.16
-      gl-matrix: 3.4.3
-    dev: false
-
-  /@deck.gl/geo-layers/8.6.7_vzv4noa2t7yinpnv3mdvbs7mjq:
+  /@deck.gl/geo-layers/8.6.7_go3qibzpfgbiluv6czggami56a:
     resolution: {integrity: sha512-ZNOwlj1O0FGZ+P9EOk1l0to+cYj3Nl4G8SjnH3c//zyOv+hlL2+zhjcic8TjaQhe7pK/nV0IxfX/eFsQzMcvFg==}
     peerDependencies:
       '@deck.gl/core': ^8.0.0
@@ -2044,7 +2077,7 @@ packages:
       '@deck.gl/core': 8.6.7
       '@deck.gl/extensions': 8.6.7_qjltsxfxy33t2jnbhndt55efki
       '@deck.gl/layers': 8.6.7_r3awsm5ppykm6lrfdfc65rhsvm
-      '@deck.gl/mesh-layers': 8.6.7_o2x33ehtacxgvnizm4uau4mu7e
+      '@deck.gl/mesh-layers': 8.6.7_hfkoowvatms54plrp6hfhethgy
       '@loaders.gl/3d-tiles': 3.2.9_@loaders.gl+core@3.2.9
       '@loaders.gl/core': 3.2.9
       '@loaders.gl/gis': 3.2.9
@@ -2052,42 +2085,7 @@ packages:
       '@loaders.gl/mvt': 3.2.9
       '@loaders.gl/terrain': 3.2.9
       '@loaders.gl/tiles': 3.2.9_@loaders.gl+core@3.2.9
-      '@luma.gl/experimental': 8.5.16_hltmcpfpoy2csa2vu4wl4pbw6e
-      '@math.gl/culling': 3.6.3
-      '@math.gl/web-mercator': 3.6.3
-      h3-js: 3.7.2
-      long: 3.2.0
-      math.gl: 3.6.3
-    transitivePeerDependencies:
-      - '@loaders.gl/gltf'
-      - '@loaders.gl/images'
-      - '@luma.gl/engine'
-      - '@luma.gl/gltools'
-      - '@luma.gl/shadertools'
-      - '@luma.gl/webgl'
-    dev: false
-
-  /@deck.gl/geo-layers/8.6.9_szrx7jshoihxhhcedk7bcp5dyu:
-    resolution: {integrity: sha512-CFyAVJnTWQP0mLVvacN2Iqc5DChZJBc7YeWtubNsLzmNsMFKNBpgDsK4bIpzcqUL3ciIGEOS2JD9aKjllfQwJw==}
-    peerDependencies:
-      '@deck.gl/core': ^8.0.0
-      '@deck.gl/extensions': ^8.0.0
-      '@deck.gl/layers': ^8.0.0
-      '@deck.gl/mesh-layers': ^8.0.0
-      '@loaders.gl/core': ^3.0.0
-    dependencies:
-      '@deck.gl/core': 8.6.9
-      '@deck.gl/extensions': 8.8.11_paozvszoyzplcd3qsgvi3h7o7e
-      '@deck.gl/layers': 8.6.9_g7mmnxapblihrqpnyet2aejzxy
-      '@deck.gl/mesh-layers': 8.8.11_j3nh3ghlpoe62xefixkdrn5ijy
-      '@loaders.gl/3d-tiles': 3.2.9_@loaders.gl+core@3.2.9
-      '@loaders.gl/core': 3.2.9
-      '@loaders.gl/gis': 3.2.9
-      '@loaders.gl/loader-utils': 3.2.9
-      '@loaders.gl/mvt': 3.2.9
-      '@loaders.gl/terrain': 3.2.9
-      '@loaders.gl/tiles': 3.2.9_@loaders.gl+core@3.2.9
-      '@luma.gl/experimental': 8.5.16_hltmcpfpoy2csa2vu4wl4pbw6e
+      '@luma.gl/experimental': 8.5.16_hawe4vukmged4xa2bdab7iruye
       '@math.gl/culling': 3.6.3
       '@math.gl/web-mercator': 3.6.3
       h3-js: 3.7.2
@@ -2134,20 +2132,6 @@ packages:
       earcut: 2.2.4
     dev: false
 
-  /@deck.gl/layers/8.6.9_g7mmnxapblihrqpnyet2aejzxy:
-    resolution: {integrity: sha512-EgS/65PP6EF0VgNf1icYpHhkny/MjjPqGqgAukFksiya5TWUCs9P++KdXnQ5Wue7jw9aPT/SeUdY5XV/w+eSOQ==}
-    peerDependencies:
-      '@deck.gl/core': ^8.0.0
-      '@loaders.gl/core': ^3.1.5
-    dependencies:
-      '@deck.gl/core': 8.6.9
-      '@loaders.gl/core': 3.2.9
-      '@loaders.gl/images': 3.2.9
-      '@mapbox/tiny-sdf': 1.2.5
-      '@math.gl/polygon': 3.6.3
-      earcut: 2.2.4
-    dev: false
-
   /@deck.gl/mapbox/8.6.7_@deck.gl+core@8.6.7:
     resolution: {integrity: sha512-VTrtoQyKWGfoqyDHP/jJCYyAu/SxcmLRPdxRS2r07JBTVfo7rQVNMOJ9sD3CXMGWg+w0ZVOrkMOcDwTGdRT4hA==}
     peerDependencies:
@@ -2156,34 +2140,15 @@ packages:
       '@deck.gl/core': 8.6.7
     dev: false
 
-  /@deck.gl/mesh-layers/8.6.7_o2x33ehtacxgvnizm4uau4mu7e:
+  /@deck.gl/mesh-layers/8.6.7_hfkoowvatms54plrp6hfhethgy:
     resolution: {integrity: sha512-Vt67l1K+zkBkL4YwmKl9edQMISGffTbd+6b9g0HAfYJB2c6ga+kBrLablgOC7/eksvZShbApNuq32xmtK35lhg==}
     peerDependencies:
       '@deck.gl/core': ^8.0.0
     dependencies:
       '@deck.gl/core': 8.6.7
       '@loaders.gl/gltf': 3.2.9
-      '@luma.gl/experimental': 8.5.16_hltmcpfpoy2csa2vu4wl4pbw6e
-      '@luma.gl/shadertools': 8.5.16
-    transitivePeerDependencies:
-      - '@loaders.gl/images'
-      - '@luma.gl/engine'
-      - '@luma.gl/gltools'
-      - '@luma.gl/webgl'
-    dev: false
-
-  /@deck.gl/mesh-layers/8.8.11_j3nh3ghlpoe62xefixkdrn5ijy:
-    resolution: {integrity: sha512-bOvEO8GoSVlALrBgunBua5bkuFNVpRtiIIiKeguMqPktgohN4dRYL8nyxe8svKP2IZ1VoUU7f0j1OJCl71sJqQ==}
-    peerDependencies:
-      '@deck.gl/core': ^8.0.0
-      '@luma.gl/core': ^8.0.0
-    dependencies:
-      '@deck.gl/core': 8.6.9
-      '@loaders.gl/gltf': 3.2.9
-      '@luma.gl/constants': 8.5.16
-      '@luma.gl/core': 8.5.16
-      '@luma.gl/experimental': 8.5.16_hltmcpfpoy2csa2vu4wl4pbw6e
-      '@luma.gl/shadertools': 8.5.16
+      '@luma.gl/experimental': 8.5.16_kq3tgqo4ycln54tvqreogdlt7i
+      '@luma.gl/shadertools': 8.5.17
     transitivePeerDependencies:
       - '@loaders.gl/images'
       - '@luma.gl/engine'
@@ -2199,19 +2164,6 @@ packages:
       react-dom: '>=16.3'
     dependencies:
       '@deck.gl/core': 8.6.7
-      prop-types: 15.8.1
-      react: 16.14.0
-      react-dom: 16.14.0_react@16.14.0
-    dev: false
-
-  /@deck.gl/react/8.6.9_ylqr32ipzqzw3wp44w76rnavui:
-    resolution: {integrity: sha512-JmpR1drB2d54GQrKQYSxaMF0Bdtv8JeaUknyufLMjSWlx+b2v1HOdFvZIh+A1nV43xv8dwAmz//P3oUoT/FjZw==}
-    peerDependencies:
-      '@deck.gl/core': ^8.0.0
-      react: '>=16.3'
-      react-dom: '>=16.3'
-    dependencies:
-      '@deck.gl/core': 8.6.9
       prop-types: 15.8.1
       react: 16.14.0
       react-dom: 16.14.0_react@16.14.0
@@ -3023,7 +2975,7 @@ packages:
       '@hapi/hoek': 9.3.0
     dev: false
 
-  /@hms-dbmi/viv/0.12.9_5twjr4c2voiea5liarmqvksnmi:
+  /@hms-dbmi/viv/0.12.9_ern4kzgj5ufmzftmbwnbckikuy:
     resolution: {integrity: sha512-jwK4vShERGYjwH0AX5LXANaCPHvtwB4fwwn1Lge634R8gIJkXaMYPBUP7yzjPkSILZgbeAfwVZuLfDguEnWgig==}
     peerDependencies:
       '@deck.gl/core': ~8.6.7
@@ -3037,14 +2989,14 @@ packages:
       react: ^16.12.0
       react-dom: ^16.12.0
     dependencies:
-      '@deck.gl/core': 8.6.9
-      '@deck.gl/geo-layers': 8.6.9_szrx7jshoihxhhcedk7bcp5dyu
-      '@deck.gl/layers': 8.6.9_g7mmnxapblihrqpnyet2aejzxy
-      '@deck.gl/react': 8.6.9_ylqr32ipzqzw3wp44w76rnavui
-      '@luma.gl/constants': 8.5.16
-      '@luma.gl/core': 8.5.16
-      '@luma.gl/shadertools': 8.5.16
-      '@luma.gl/webgl': 8.5.16
+      '@deck.gl/core': 8.6.7
+      '@deck.gl/geo-layers': 8.6.7_go3qibzpfgbiluv6czggami56a
+      '@deck.gl/layers': 8.6.7_r3awsm5ppykm6lrfdfc65rhsvm
+      '@deck.gl/react': 8.6.7_cn23c3y7vgm52ig7fzb256qsya
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/core': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
       '@math.gl/culling': 3.6.3
       fast-deep-equal: 3.1.3
       fast-xml-parser: 3.21.1
@@ -3271,36 +3223,63 @@ packages:
       '@babel/runtime': 7.19.0
     dev: false
 
+  /@luma.gl/constants/8.5.10:
+    resolution: {integrity: sha512-0OZnNbb8hF+ogr/Exr5KFEnSMQdCgjrbO2ZYeNIGO0UVMTu4oTSLfRcBxKUs1NzxG5RogyV8dL6ETQbkP5VAZw==}
+    dev: false
+
   /@luma.gl/constants/8.5.16:
     resolution: {integrity: sha512-b9JrfhlU4tgQWa7vAzQzzw3yS0NdJBrTEZ6LA9XRKSwVV5VunHXApnrnN4v1oA0AGgnknnUf40PRBZolsVK+7Q==}
     dev: false
 
-  /@luma.gl/core/8.5.16:
-    resolution: {integrity: sha512-w3goHMFEhQFlpoXXygFD6zaZvu4rYvMLfDXThpBMUYm8Y4k46UREFYhsV1aOe1aJlaolsRT/9J2fgSDXr0yA3w==}
-    dependencies:
-      '@babel/runtime': 7.19.0
-      '@luma.gl/constants': 8.5.16
-      '@luma.gl/engine': 8.5.16
-      '@luma.gl/gltools': 8.5.16
-      '@luma.gl/shadertools': 8.5.16
-      '@luma.gl/webgl': 8.5.16
+  /@luma.gl/constants/8.5.17:
+    resolution: {integrity: sha512-8jD2aDgFa04HtWuj5ZyZm4h+hz2HI+1gcrab4uQp3qq75iAQXg62Tu68mTcoL8xWehmJntNCkLbnkkuTdFsOAQ==}
     dev: false
 
-  /@luma.gl/engine/8.5.16:
-    resolution: {integrity: sha512-F9wMLg+ystsXa3oOzLezaD1K7ot+kL69IKIJqVjxNecPLf8E/BxJlKL+AZW7SCluka6pFMlGomog0GnjjCxH8Q==}
+  /@luma.gl/core/8.5.10:
+    resolution: {integrity: sha512-NzzMnSgzPta3gMu8vSM/kWiY09HypHRXt4zw/xFX4geLeX4iXm7Jnm+eeaNpc/QH/yJ51+4bpvZml0P5NIukfQ==}
     dependencies:
       '@babel/runtime': 7.19.0
-      '@luma.gl/constants': 8.5.16
-      '@luma.gl/gltools': 8.5.16
-      '@luma.gl/shadertools': 8.5.16
-      '@luma.gl/webgl': 8.5.16
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/engine': 8.5.10
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
+    dev: false
+
+  /@luma.gl/engine/8.5.10:
+    resolution: {integrity: sha512-W3cPlabMl1g6dfAio4yGD9GohoMULXqsBm9P9WOh0KypQBw5pFlE2C/njY43YhfvnpMPDMUjjraYrEXa1fhaig==}
+    dependencies:
+      '@babel/runtime': 7.19.0
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
       '@math.gl/core': 3.6.3
-      '@probe.gl/env': 3.5.2
-      '@probe.gl/stats': 3.5.2
-      '@types/offscreencanvas': 2019.7.0
+      probe.gl: 3.5.2
     dev: false
 
-  /@luma.gl/experimental/8.5.16_hltmcpfpoy2csa2vu4wl4pbw6e:
+  /@luma.gl/experimental/8.5.10_hawe4vukmged4xa2bdab7iruye:
+    resolution: {integrity: sha512-1Ldq2DEor9qWHoRetcAz4BID1pwp+5x67F2mfe2UtjEpDY0Modi7t8C94PR8cviyjRIu3DErxX7o8HxJ4JXxpQ==}
+    peerDependencies:
+      '@loaders.gl/gltf': ^3.0.0
+      '@loaders.gl/images': ^3.0.0
+      '@luma.gl/engine': ^8.4.0
+      '@luma.gl/gltools': ^8.4.0
+      '@luma.gl/shadertools': ^8.4.0
+      '@luma.gl/webgl': ^8.4.0
+    dependencies:
+      '@loaders.gl/gltf': 3.2.9
+      '@loaders.gl/images': 3.2.9
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/engine': 8.5.10
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
+      '@math.gl/core': 3.6.3
+      earcut: 2.2.4
+    dev: false
+
+  /@luma.gl/experimental/8.5.16_hawe4vukmged4xa2bdab7iruye:
     resolution: {integrity: sha512-5bbb3DgyNGlfKtEGN+Ztu4WdMy7bHMKUkQ7UzHoRHsjXSB54rzlSuqfxM0royfljSCnDNhDmSUagSuwnkwNkMg==}
     peerDependencies:
       '@loaders.gl/gltf': ^3.0.0
@@ -3313,39 +3292,64 @@ packages:
       '@loaders.gl/gltf': 3.2.9
       '@loaders.gl/images': 3.2.9
       '@luma.gl/constants': 8.5.16
-      '@luma.gl/engine': 8.5.16
-      '@luma.gl/gltools': 8.5.16
-      '@luma.gl/shadertools': 8.5.16
-      '@luma.gl/webgl': 8.5.16
+      '@luma.gl/engine': 8.5.10
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
       '@math.gl/core': 3.6.3
       earcut: 2.2.4
     dev: false
 
-  /@luma.gl/gltools/8.5.16:
-    resolution: {integrity: sha512-CNCLbKtMRep7tTuB5x3RA7tD70U8XXA8xhABDZs7oAQ0Q/K2EjnwskSUlWzgD3ZPluh6JZzvQBEi4DSmeW3NZA==}
+  /@luma.gl/experimental/8.5.16_kq3tgqo4ycln54tvqreogdlt7i:
+    resolution: {integrity: sha512-5bbb3DgyNGlfKtEGN+Ztu4WdMy7bHMKUkQ7UzHoRHsjXSB54rzlSuqfxM0royfljSCnDNhDmSUagSuwnkwNkMg==}
+    peerDependencies:
+      '@loaders.gl/gltf': ^3.0.0
+      '@loaders.gl/images': ^3.0.0
+      '@luma.gl/engine': ^8.4.0
+      '@luma.gl/gltools': ^8.4.0
+      '@luma.gl/shadertools': ^8.4.0
+      '@luma.gl/webgl': ^8.4.0
     dependencies:
-      '@babel/runtime': 7.19.0
+      '@loaders.gl/gltf': 3.2.9
+      '@loaders.gl/images': 3.2.9
       '@luma.gl/constants': 8.5.16
-      '@probe.gl/env': 3.5.2
-      '@probe.gl/log': 3.5.2
-      '@types/offscreencanvas': 2019.7.0
+      '@luma.gl/engine': 8.5.10
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.17
+      '@luma.gl/webgl': 8.5.10
+      '@math.gl/core': 3.6.3
+      earcut: 2.2.4
     dev: false
 
-  /@luma.gl/shadertools/8.5.16:
-    resolution: {integrity: sha512-L3M3v6bQhIT8McCeqLvHnLJBmBXYDog1QblF4PVszuIB/WH+cHxZ0I26X2a1eEsVCvdeCrxRBxr42743oyfUNA==}
+  /@luma.gl/gltools/8.5.10:
+    resolution: {integrity: sha512-XQFocLXvSYfkW2xL1I50nYrPwgyt1jvmzmood3RQBQMiBcgU1JFW2w4tU+V/C5QXcAWWVzm8aIBkuQsCo34zrQ==}
+    dependencies:
+      '@babel/runtime': 7.19.0
+      '@luma.gl/constants': 8.5.10
+      probe.gl: 3.5.2
+    dev: false
+
+  /@luma.gl/shadertools/8.5.10:
+    resolution: {integrity: sha512-Va/e7fHFI7ZWu03obtNlXN7noIUF1u9U3Pm6PVqeVi3Z24yWl/pFbb5/O1gn66LQZF6fpwoLGN7m4NGk2YyHyA==}
     dependencies:
       '@babel/runtime': 7.19.0
       '@math.gl/core': 3.6.3
     dev: false
 
-  /@luma.gl/webgl/8.5.16:
-    resolution: {integrity: sha512-vyzr4Mu3+6rKnyu4c5gmTcuDG6xKF49qy316v8oMp45VT0xCQBP17Poq0b0j0VqbGOOtXGI/pxOtr68Ii9fDuA==}
+  /@luma.gl/shadertools/8.5.17:
+    resolution: {integrity: sha512-lpCjdutWx3i8qeroH9jPCGyCFvLguLaccQ0d7PCLeFD2eQrN/KuDzgka2V3PHgW1M9Wjph+c0RlaFc6NOuRokQ==}
     dependencies:
       '@babel/runtime': 7.19.0
-      '@luma.gl/constants': 8.5.16
-      '@luma.gl/gltools': 8.5.16
-      '@probe.gl/env': 3.5.2
-      '@probe.gl/stats': 3.5.2
+      '@math.gl/core': 3.6.3
+    dev: false
+
+  /@luma.gl/webgl/8.5.10:
+    resolution: {integrity: sha512-8cCJ6aoKmVKvrYoPC6G1jHqMsfTGyn50YMmRkrk2Q79nBe531LZr+6EYXlqx2+AR9obKwTnhTPlxjKg5gR4rYg==}
+    dependencies:
+      '@babel/runtime': 7.19.0
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/gltools': 8.5.10
+      probe.gl: 3.5.2
     dev: false
 
   /@mapbox/martini/0.2.0:
@@ -3596,7 +3600,7 @@ packages:
       viewport-mercator-project: 7.0.4
     dev: false
 
-  /@nebula.gl/layers/0.23.8_azjm5fld5duhjmoqbhwpy3fk4i:
+  /@nebula.gl/layers/0.23.8_hbr5vdal2jyczosojzotbl5luy:
     resolution: {integrity: sha512-29xzYyE2uMmZsBb4/io6SzNS8Mxfr1L4PeL1B4WV1fx83phbZa22qb8ktQ/tOkLnwVwm0Zk3QRiLfrrQGD1V4g==}
     peerDependencies:
       '@deck.gl/core': ^8.4.6
@@ -3607,12 +3611,59 @@ packages:
       '@luma.gl/core': ^8.4.3
     dependencies:
       '@danmarshall/deckgl-typings': 3.5.0
-      '@deck.gl/core': 8.6.9
-      '@deck.gl/geo-layers': 8.6.9_szrx7jshoihxhhcedk7bcp5dyu
-      '@deck.gl/layers': 8.6.9_g7mmnxapblihrqpnyet2aejzxy
-      '@deck.gl/mesh-layers': 8.8.11_j3nh3ghlpoe62xefixkdrn5ijy
-      '@luma.gl/constants': 8.5.16
-      '@luma.gl/core': 8.5.16
+      '@deck.gl/core': 8.6.7
+      '@deck.gl/geo-layers': 8.6.7_go3qibzpfgbiluv6czggami56a
+      '@deck.gl/layers': 8.6.7_r3awsm5ppykm6lrfdfc65rhsvm
+      '@deck.gl/mesh-layers': 8.6.7_hfkoowvatms54plrp6hfhethgy
+      '@luma.gl/constants': 8.5.17
+      '@luma.gl/core': 8.5.10
+      '@nebula.gl/edit-modes': 0.23.8
+      '@turf/bbox': 6.5.0
+      '@turf/bbox-polygon': 6.5.0
+      '@turf/bearing': 6.5.0
+      '@turf/boolean-point-in-polygon': 6.5.0
+      '@turf/buffer': 6.5.0
+      '@turf/center': 6.5.0
+      '@turf/centroid': 6.5.0
+      '@turf/circle': 6.5.0
+      '@turf/destination': 6.5.0
+      '@turf/difference': 6.5.0
+      '@turf/distance': 6.5.0
+      '@turf/ellipse': 6.5.0
+      '@turf/helpers': 6.5.0
+      '@turf/intersect': 6.5.0
+      '@turf/line-intersect': 6.5.0
+      '@turf/nearest-point-on-line': 6.5.0
+      '@turf/point-to-line-distance': 6.5.0
+      '@turf/polygon-to-line': 6.5.0
+      '@turf/transform-rotate': 6.5.0
+      '@turf/transform-scale': 6.5.0
+      '@turf/transform-translate': 6.5.0
+      '@turf/union': 6.5.0
+      cubic-hermite-spline: 1.0.1
+      geojson-types: 2.0.1
+      global: 4.4.0
+      h3-js: 3.7.2
+      viewport-mercator-project: 7.0.4
+    dev: false
+
+  /@nebula.gl/layers/0.23.8_htpb6q2lnrnlvb3jqdo536hctu:
+    resolution: {integrity: sha512-29xzYyE2uMmZsBb4/io6SzNS8Mxfr1L4PeL1B4WV1fx83phbZa22qb8ktQ/tOkLnwVwm0Zk3QRiLfrrQGD1V4g==}
+    peerDependencies:
+      '@deck.gl/core': ^8.4.6
+      '@deck.gl/geo-layers': ^8.4.6
+      '@deck.gl/layers': ^8.4.6
+      '@deck.gl/mesh-layers': ^8.4.6
+      '@luma.gl/constants': ^8.4.3
+      '@luma.gl/core': ^8.4.3
+    dependencies:
+      '@danmarshall/deckgl-typings': 3.5.0
+      '@deck.gl/core': 8.6.7
+      '@deck.gl/geo-layers': 8.6.7_go3qibzpfgbiluv6czggami56a
+      '@deck.gl/layers': 8.6.7_r3awsm5ppykm6lrfdfc65rhsvm
+      '@deck.gl/mesh-layers': 8.6.7_hfkoowvatms54plrp6hfhethgy
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/core': 8.5.10
       '@nebula.gl/edit-modes': 0.23.8
       '@turf/bbox': 6.5.0
       '@turf/bbox-polygon': 6.5.0
@@ -4867,10 +4918,6 @@ packages:
   /@types/normalize-package-data/2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
     dev: true
-
-  /@types/offscreencanvas/2019.7.0:
-    resolution: {integrity: sha512-PGcyveRIpL1XIqK8eBsmRBt76eFgtzuPiSTyKHZxnGemp2yzGzWpjYKAfK3wIMiU7eH+851yEpiuP8JZerTmWg==}
-    dev: false
 
   /@types/parse-json/4.0.0:
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
@@ -7006,19 +7053,19 @@ packages:
     resolution: {integrity: sha512-V0pfhfr8suzyPGOx3nmq4aHqabehUZn6Ch9kyFpV79TGDTWFmHqUqXdabR7QHqxzrYolF4+tVmJhUG4OURg5dQ==}
     dev: true
 
-  /deck.gl/8.6.7_5uf5colgkjgxojj3xjamsuddiu:
+  /deck.gl/8.6.7_gbuctxiv7l6ixl2hv34t537nxe:
     resolution: {integrity: sha512-csEU9xZQO5W74g+e3zJ09nbEbQGCGzVbX1WPK48uVtUVe6z+2qXwYm5J2d1nBfzkzsTGxSgOvf5JSeaFzBH9UA==}
     dependencies:
       '@deck.gl/aggregation-layers': 8.6.7_xw7kzmvtc74tyv7oyffqqm4hgm
       '@deck.gl/carto': 8.6.7_oateqqrdxgnc2qmhi2ilcgpwia
       '@deck.gl/core': 8.6.7
       '@deck.gl/extensions': 8.6.7_qjltsxfxy33t2jnbhndt55efki
-      '@deck.gl/geo-layers': 8.6.7_vzv4noa2t7yinpnv3mdvbs7mjq
+      '@deck.gl/geo-layers': 8.6.7_go3qibzpfgbiluv6czggami56a
       '@deck.gl/google-maps': 8.6.7_@deck.gl+core@8.6.7
       '@deck.gl/json': 8.6.7_@deck.gl+core@8.6.7
       '@deck.gl/layers': 8.6.7_r3awsm5ppykm6lrfdfc65rhsvm
       '@deck.gl/mapbox': 8.6.7_@deck.gl+core@8.6.7
-      '@deck.gl/mesh-layers': 8.6.7_o2x33ehtacxgvnizm4uau4mu7e
+      '@deck.gl/mesh-layers': 8.6.7_hfkoowvatms54plrp6hfhethgy
       '@deck.gl/react': 8.6.7_cn23c3y7vgm52ig7fzb256qsya
     transitivePeerDependencies:
       - '@loaders.gl/core'
@@ -10641,7 +10688,7 @@ packages:
       through2: 4.0.2
     dev: true
 
-  /nebula.gl/0.23.8_ddhsi3ncnypy7y3jzhtjfdkd3y:
+  /nebula.gl/0.23.8_ogaefdrscq2lwnkarinyct6lqa:
     resolution: {integrity: sha512-c/McY/c2kOw0IJAqqfE3I3ZNsd+3TJLWDDSM3tdjyFMIcSiS5bhiKTrbBxbRpPeuDet0CjJcxz2bwwYBF1EUcA==}
     peerDependencies:
       '@deck.gl/core': ^8.4.6
@@ -10649,12 +10696,12 @@ packages:
       '@deck.gl/layers': ^8.4.6
       '@luma.gl/core': ^8.4.3
     dependencies:
-      '@deck.gl/core': 8.6.9
-      '@deck.gl/geo-layers': 8.6.9_szrx7jshoihxhhcedk7bcp5dyu
-      '@deck.gl/layers': 8.6.9_g7mmnxapblihrqpnyet2aejzxy
-      '@luma.gl/constants': 8.5.16
-      '@luma.gl/core': 8.5.16
-      '@nebula.gl/layers': 0.23.8_azjm5fld5duhjmoqbhwpy3fk4i
+      '@deck.gl/core': 8.6.7
+      '@deck.gl/geo-layers': 8.6.7_go3qibzpfgbiluv6czggami56a
+      '@deck.gl/layers': 8.6.7_r3awsm5ppykm6lrfdfc65rhsvm
+      '@luma.gl/constants': 8.5.17
+      '@luma.gl/core': 8.5.10
+      '@nebula.gl/layers': 0.23.8_hbr5vdal2jyczosojzotbl5luy
       '@turf/bbox': 6.5.0
       '@turf/bbox-polygon': 6.5.0
       '@turf/bearing': 6.5.0
