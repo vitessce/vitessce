@@ -7,7 +7,24 @@ export const codeluppiViaCsv = {
     {
       uid: 'codeluppi',
       name: 'Codeluppi',
-      files: [],
+      files: [
+        {
+          fileType: 'obsSets.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
+          options: {
+            obsIndex: 'cell_id',
+            obsSets: [
+              {
+                name: 'Cell Type',
+                column: ['Cluster', 'Subcluster'],
+              },
+            ],
+          },
+          coordinationValues: {
+            obsType: 'cell',
+          },
+        },
+      ],
     },
   ],
   coordinationSpace: {

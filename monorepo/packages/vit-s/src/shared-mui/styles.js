@@ -19,6 +19,14 @@ export const styles = makeStyles(() => ({
   },
 }));
 
+const globalColors = {
+  "white": '#FFFFFF',
+  "grayLight": '#D3D3D3',
+  "grayMid": '#808080',
+  "grayDark": '#555555',
+  "black": "#000000"
+};
+
 export const muiTheme = {
   dark: createTheme({
     palette: {
@@ -38,6 +46,7 @@ export const muiTheme = {
       secondaryForeground: '#D3D3D3',
       gridLayoutBackground: '#333333',
       cardBorder: 'rgba(0, 0, 0, 0.125)',
+      ...globalColors,
     },
     props: {
       MuiButtonBase: {
@@ -63,6 +72,7 @@ export const muiTheme = {
       secondaryForeground: '#222222',
       gridLayoutBackground: '#FFFFFF',
       cardBorder: 'rgba(241, 241, 241, 0.125)',
+      ...globalColors,
     },
     props: {
       MuiButtonBase: {

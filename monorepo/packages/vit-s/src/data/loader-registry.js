@@ -1,7 +1,7 @@
 import { FileType } from '@vitessce/constants-internal';
 import {
   getLoaderClassesForPluginFileType,
-} from './plugins';
+} from '../plugins';
 
 // TODO(monorepo)
 /*

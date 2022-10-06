@@ -5,7 +5,6 @@ const MATHGL_VERSION = '^3.5.6';
 const LUMAGL_VERSION = '~8.5.10';
 const LOADERSGL_VERSION = "^3.0.0";
 const DECKGL_VERSION = '8.6.7';
-const REACT_VERSION = '^18.0.0';
 const TURF_VERSION = "^6.5.0";
 const NEBULAGL_VERSION = "^0.23.8";
 const OTHER_VERSIONS = {
@@ -26,6 +25,33 @@ const OTHER_VERSIONS = {
   "plur": "^5.1.0",
   "@material-ui/core": "~4.12.3",
   "@material-ui/icons": "~4.11.2",
+
+  // LumaGL
+  "@luma.gl/constants": "8.5.10",
+  "@luma.gl/core": "8.5.10",
+  "@luma.gl/engine": "8.5.10",
+  "@luma.gl/gltools": "8.5.10",
+  "@luma.gl/shadertools": "8.5.10",
+  "@luma.gl/experimental": "8.5.10",
+  "@luma.gl/webgl": "8.5.10",
+  // DeckGL
+  "deck.gl": "8.6.7",
+  "@deck.gl/core": "8.6.7",
+  "@deck.gl/geo-layers": "8.6.7",
+  "@deck.gl/mesh-layers": "8.6.7",
+  "@deck.gl/aggregation-layers": "8.6.7",
+  "@deck.gl/extensions": "8.6.7",
+  "@deck.gl/layers": "8.6.7",
+  "@deck.gl/react": "8.6.7",
+  // NebulaGL
+  "nebula.gl": "0.23.8",
+  "@nebula.gl/layers": "0.23.8",
+  "@nebula.gl/edit-modes": "0.23.8",
+  // LoadersGL
+  "@loaders.gl/3d-tiles": "^3.0.0",
+  "@loaders.gl/core": "^3.0.0",
+  "@loaders.gl/images": "^3.0.0",
+  "@loaders.gl/loader-utils": "^3.0.0",
 };
 
 // Mutates package metadata in place

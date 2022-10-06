@@ -1,0 +1,25 @@
+{
+  "name": "@vitessce/zarr",
+  "version": "1.0.0",
+  "author": "Mark Keller",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "tsc --watch",
+    "build": "tsc",
+    "test": "vitest --ui -r ../../../ --dir ."
+  },
+  "dependencies": {
+    "@vitessce/vit-s": "workspace:*",
+    "@vitessce/constants-internal": "workspace:*",
+    "@material-ui/core": "~4.12.3"
+  }
+}

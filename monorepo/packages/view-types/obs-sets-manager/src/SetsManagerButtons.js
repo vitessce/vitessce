@@ -8,6 +8,7 @@ import {
   MIME_TYPE_TABULAR,
 } from '@vitessce/sets';
 import { SetUnionSVG, SetIntersectionSVG, SetComplementSVG } from '@vitessce/icons';
+import { useStyles } from './styles';
 
 /**
  * A plus button for creating or importing set hierarchies.
@@ -27,6 +28,8 @@ export function PlusButton(props) {
     datatype, onError, onImportTree, onCreateLevelZeroNode,
     importable, editable,
   } = props;
+
+  const classes = useStyles();
 
   /**
    * Import a file, then process the imported data via the supplied handler function.
@@ -94,7 +97,7 @@ export function PlusButton(props) {
     <PopoverMenu
       menuConfig={menuConfig}
     >
-      <button className="plus-button" type="submit">+</button>
+      <button className={classes.plusButton} type="submit">+</button>
     </PopoverMenu>
   ) : null);
 }

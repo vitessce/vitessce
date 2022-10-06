@@ -4,7 +4,7 @@ import {
 import { InternMap } from 'internmap';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
-import { getSourceAndLoaderFromFileType } from './loader-registry';
+import { getSourceAndLoaderFromFileType } from './data/loader-registry';
 import { getFileTypeDataTypeMapping } from './plugins';
 import { DEFAULT_COORDINATION_VALUES, DATA_TYPE_COORDINATION_VALUE_USAGE } from '@vitessce/constants-internal';
 

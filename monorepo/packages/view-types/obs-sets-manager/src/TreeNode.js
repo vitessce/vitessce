@@ -9,7 +9,7 @@ import HelpTooltip from './HelpTooltip';
 import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from '@vitessce/sets';
 import { MenuSVG } from '@vitessce/icons';
 import { getDefaultColor } from '@vitessce/utils';
-
+import { useStyles } from './styles';
 
 /**
  * Construct a `menuConfig` array for the PopoverMenu component.
@@ -136,6 +136,8 @@ function NamedSetNodeStatic(props) {
   );
   const tooltipProps = (disableTooltip ? { visible: false } : {});
   const popoverMenuConfig = makeNodeViewMenuConfig(props);
+
+  const classes = useStyles();
   return (
     <span>
       <HelpTooltip title={tooltipText} {...tooltipProps}>
@@ -143,7 +145,7 @@ function NamedSetNodeStatic(props) {
           type="button"
           onClick={onClick}
           onKeyPress={e => callbackOnKeyPress(e, 'v', () => onNodeView(path))}
-          className="title-button"
+          className={classes.titleButton}
         >
           {title}
         </button>
@@ -154,11 +156,11 @@ function NamedSetNodeStatic(props) {
           color={level > 0 && editable ? (color || getDefaultColor(theme)) : null}
           setColor={c => onNodeSetColor(path, c)}
         >
-          <MenuSVG className="node-menu-icon" />
+          <MenuSVG className={classes.nodeMenuIcon} />
         </PopoverMenu>
       ) : null}
       {level > 0 && isChecking ? checkbox : null}
-      {level > 0 && (<span className="node-size-label">{niceSize}</span>)}
+      {level > 0 && (<span className={classes.nodeSizeLabel}>{niceSize}</span>)}
     </span>
   );
 }
@@ -185,12 +187,13 @@ function NamedSetNodeEditing(props) {
       onNodeSetName(path, currentTitle, true);
     }
   }
+  const classes = useStyles();
   return (
-    <span className="title-button-with-input">
+    <span className={classes.titleButtonWithInput}>
       <input
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
-        className="title-input"
+        className={classes.titleInput}
         type="text"
         value={currentTitle}
         onChange={(e) => { setCurrentTitle(e.target.value); }}
@@ -204,7 +207,7 @@ function NamedSetNodeEditing(props) {
       {!hasConflicts && (
         <button
           type="button"
-          className="title-save-button"
+          className={classes.titleSaveButton}
           onClick={trySetName}
         >
           Save
@@ -252,15 +255,16 @@ function LevelsButtons(props) {
       onCheckLevel(nodeKey, newLevel);
     }
   }
+  const classes = useStyles();
   return (
-    <div className="level-buttons-container">
+    <div className={classes.levelButtonsContainer}>
       {range(1, height + 1).map((i) => {
         const isChecked = isEqual(path, checkedLevelPath) && i === checkedLevelIndex;
         return (
-          <div className="level-buttons" key={i}>
+          <div key={i}>
             <HelpTooltip title={getLevelTooltipText(i)}>
               <input
-                className={clsx('level-radio-button', { checked: isChecked && !hasColorEncoding })}
+                className={clsx(classes.levelRadioButton, { [classes.levelRadioButtonChecked]: isChecked && !hasColorEncoding })}
                 type="checkbox"
                 value={i}
                 checked={isChecked && hasColorEncoding}

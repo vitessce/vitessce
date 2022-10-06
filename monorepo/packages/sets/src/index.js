@@ -18,6 +18,7 @@ export {
   initializeCellSetColor,
   nodeToRenderProps,
   getCellSetPolygons,
+  treeToMembershipMap,
 } from './cell-set-utils';
 export {
   isEqualOrPrefix,
@@ -46,3 +47,6 @@ export {
   MIME_TYPE_JSON,
   MIME_TYPE_TABULAR,
 } from './constants';
+export {
+  dataToCellSetsTree,
+} from './CellSetsZarrLoader';

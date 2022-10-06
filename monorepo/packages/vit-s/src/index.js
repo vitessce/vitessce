@@ -37,6 +37,36 @@ export {
   // TODO(monorepo): add more data hook exports
 } from './data-hooks';
 export {
+  AbstractLoader,
+  AbstractTwoStepLoader,
+  LoaderResult,
+} from './data/index';
+export {
+  AbstractLoaderError,
+  DatasetNotFoundError,
+  LoaderNotFoundError,
+  LoaderValidationError,
+  OptionsValidationError,
+  DataSourceFetchError,
+} from './errors/index';
+export {
+  // TODO(monorepo): should these be in here? or within file-types/
+  obsEmbeddingAnndataSchema,
+  obsLocationsAnndataSchema,
+  obsSegmentationsAnndataSchema,
+  obsSetsAnndataSchema,
+  obsFeatureMatrixAnndataSchema,
+  obsLabelsAnndataSchema,
+  featureLabelsAnndataSchema,
+  obsEmbeddingCsvSchema,
+  obsLocationsCsvSchema,
+  obsLabelsCsvSchema,
+  featureLabelsCsvSchema,
+  obsSetsCsvSchema,
+  anndataZarrSchema,
+  emptySchema,
+} from './file-options-schemas';
+export {
   SCHEMA_HANDLERS,
   LATEST_VERSION,
 } from './view-config-versions';

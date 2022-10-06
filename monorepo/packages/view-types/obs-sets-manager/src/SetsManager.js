@@ -6,6 +6,7 @@ import TreeNode from './TreeNode';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
 import { nodeToRenderProps, pathToKey } from '@vitessce/sets';
 import { getDefaultColor } from '@vitessce/utils';
+import { useStyles } from './styles';
 
 function processNode(node, prevPath, setColor, theme) {
   const nodePath = [...prevPath, node.name];
@@ -210,9 +211,11 @@ export default function SetsManager(props) {
     });
   }
 
+  const classes = useStyles();
+
   return (
-    <div className="sets-manager">
-      <div className="sets-manager-tree">
+    <div className={classes.setsManager}>
+      <div className={classes.setsManagerTree}>
         <Tree
           draggable={false}
           checkable={checkable}
@@ -270,7 +273,7 @@ export default function SetsManager(props) {
         />
       </div>
       {isChecking ? (
-        <div className="set-operation-buttons">
+        <div className={classes.setOperationButtons}>
           <SetOperationButtons
             onUnion={onUnion}
             onIntersection={onIntersection}
