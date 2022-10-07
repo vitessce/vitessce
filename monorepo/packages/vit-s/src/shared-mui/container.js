@@ -17,6 +17,9 @@ export const useVitessceContainerStyles = makeStyles((theme) => ({
       marginTop: '0',
       marginBottom: '1rem',
     },
+    '& *, ::after, ::before': {
+      boxSizing: 'border-box',
+    },
     // Manually converted styles from 'react-grid-layout/css/styles.css',
     // using https://cssinjs.org/jss-plugin-global/?v=v10.9.2
     // so that no CSS or SCSS import is required.

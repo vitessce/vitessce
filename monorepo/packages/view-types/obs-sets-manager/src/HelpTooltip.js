@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import RcTooltip from 'rc-tooltip';
 import { useVitessceContainer } from '@vitessce/vit-s';
+import { useHelpTooltipStyles } from './styles';
 
 /**
  * This is a small wrapper around the Tooltip component from the rc-tooltip library,
@@ -19,23 +20,26 @@ export default function HelpTooltip(props) {
 
   const overlay = title || content;
 
+  const classes = useHelpTooltipStyles();
+
   return (
     <>
       <span ref={spanRef} />
       <RcTooltip
-        getTooltipContainer={getTooltipContainer}
-        overlayClassName={overlayClassName}
-        overlay={overlay}
         {...props}
+        getTooltipContainer={getTooltipContainer}
+        overlayClassName={classes[overlayClassName]}
+        overlay={overlay}
       />
     </>
   );
 }
 
 HelpTooltip.defaultProps = {
-  overlayClassName: 'help-tooltip',
+  overlayClassName: 'helpTooltip',
   placement: 'top',
   trigger: 'hover',
   mouseEnterDelay: 0.2,
   mouseLeaveDelay: 0,
+  destroyTooltipOnHide: true,
 };

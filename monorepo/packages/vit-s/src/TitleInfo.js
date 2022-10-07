@@ -117,7 +117,7 @@ function ClosePaneButton(props) {
   );
 }
 
-const useTitleStyles = makeStyles(theme => ({
+export const useTitleStyles = makeStyles(theme => ({
   title: {
     color: theme.palette.primaryForeground,
     overflowX: 'hidden',

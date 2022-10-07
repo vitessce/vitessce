@@ -3,6 +3,7 @@ import { TwitterPicker } from 'react-color';
 import { colorArrayToString, callbackOnKeyPress } from '@vitessce/sets';
 import { PALETTE } from '@vitessce/utils';
 import Popover from './Popover';
+import { useHelpTooltipStyles } from './styles';
 
 /**
  * Wrapper around a button element that supports asking for confirmation.
@@ -92,11 +93,13 @@ function PopoverMenuList(props) {
     ? palette.map(colorArrayToString)
     : PALETTE.concat([[255, 255, 255], [128, 128, 128], [0, 0, 0]]).map(colorArrayToString);
 
+  const classes = useHelpTooltipStyles();
+
   return (
     <div>
       {color && setColor && defaultPalette && (
         <TwitterPicker
-          className="popover-menu-color"
+          className={classes.popoverMenuColor}
           disableAlpha
           width={108}
           triangle="hide"
@@ -105,7 +108,7 @@ function PopoverMenuList(props) {
           onChangeComplete={handleColorChange}
         />
       )}
-      <ul className="popover-menu-list">
+      <ul className={classes.popoverMenuList}>
         {menuConfig.map(item => (
           <li key={item.title + item.subtitle}>
             <PopoverMenuListButton

@@ -19,6 +19,7 @@ import {
   useClosestVitessceContainerSize,
 } from './hooks';
 import { useVitessceContainerStyles } from './shared-mui/container';
+import { useTitleStyles } from './TitleInfo';
 
 const padding = 10;
 const margin = 5;
@@ -50,6 +51,7 @@ export default function VitessceGrid(props) {
   const [componentWidth] = useClosestVitessceContainerSize(containerRef);
 
   const classes = useVitessceContainerStyles();
+  const titleClasses = useTitleStyles();
 
   // When the row height has changed, publish a GRID_RESIZE event.
   useEffect(() => {
@@ -91,7 +93,7 @@ export default function VitessceGrid(props) {
           rowHeight={rowHeight}
           theme={theme}
           getComponent={getComponent}
-          draggableHandle=".title"
+          draggableHandle={titleClasses.title}
           margin={margin}
           padding={padding}
           onRemoveComponent={removeComponent}
