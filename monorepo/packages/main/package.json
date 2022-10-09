@@ -27,7 +27,9 @@
     "@vitessce/description": "workspace:*",
     "@vitessce/obs-sets-manager": "workspace:*",
     "@vitessce/scatterplot-embedding": "workspace:*",
-    "@vitessce/csv": "workspace:*"
+    "@vitessce/spatial": "workspace:*",
+    "@vitessce/csv": "workspace:*",
+    "@vitessce/json": "workspace:*"
   },
   "devDependencies": {
     "esbuild": "^0.15.10",

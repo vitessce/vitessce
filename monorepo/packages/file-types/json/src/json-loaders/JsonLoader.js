@@ -1,12 +1,10 @@
 import Ajv from 'ajv';
 import { FileType } from '@vitessce/constants-internal';
-import { AbstractTwoStepLoader, LoaderValidationError, AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { AbstractTwoStepLoader, LoaderValidationError, AbstractLoaderError, LoaderResult, obsSetsSchema, rasterSchema } from '@vitessce/vit-s';
 
-import cellsSchema from '../../schemas/cells.schema.json';
-import moleculesSchema from '../../schemas/molecules.schema.json';
-import neighborhoodsSchema from '../../schemas/neighborhoods.schema.json';
-import rasterSchema from '../../schemas/raster.schema.json';
-import obsSetsSchema from '../../schemas/obsSets.schema.json';
+import cellsSchema from '../legacy-loaders/schemas/cells.schema.json';
+import moleculesSchema from '../legacy-loaders/schemas/molecules.schema.json';
+import neighborhoodsSchema from '../legacy-loaders/schemas/neighborhoods.schema.json';
 
 const fileTypeToSchema = {
   [FileType.CELLS_JSON]: cellsSchema,

@@ -1,4 +1,4 @@
-import genesSchema from '../../schemas/genes.schema.json';
+import genesSchema from './schemas/genes.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 

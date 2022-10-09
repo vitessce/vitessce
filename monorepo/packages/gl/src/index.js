@@ -11,3 +11,4 @@ export { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, DEFAULT_GL_OPTIONS, SELECTION_TY
 // Layer extensions
 export { default as ScaledExpressionExtension } from './ScaledExpressionExtension';
 export { default as SelectionExtension } from './SelectionExtension';
+export { default as BitmaskLayer } from './BitmaskLayer';

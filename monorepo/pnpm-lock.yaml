@@ -91,11 +91,21 @@ importers:
     specifiers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
+      '@vitessce/sets': workspace:*
+      '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
+      d3-array: ^2.4.0
+      lodash: ^4.17.21
+      zarr: 0.5.1
     dependencies:
       '@material-ui/core': 4.12.4_wcqkhtmu7mswc6yz4uyexck3ty
       '@vitessce/constants-internal': link:../../constants-internal
+      '@vitessce/sets': link:../../sets
+      '@vitessce/utils': link:../../utils
       '@vitessce/vit-s': link:../../vit-s
+      d3-array: 2.12.1
+      lodash: 4.17.21
+      zarr: 0.5.1
 
   packages/file-types/zarr:
     specifiers:
@@ -197,8 +207,10 @@ importers:
       '@vitessce/constants-internal': workspace:*
       '@vitessce/csv': workspace:*
       '@vitessce/description': workspace:*
+      '@vitessce/json': workspace:*
       '@vitessce/obs-sets-manager': workspace:*
       '@vitessce/scatterplot-embedding': workspace:*
+      '@vitessce/spatial': workspace:*
       '@vitessce/vit-s': workspace:*
       esbuild: ^0.15.10
       vite: ^3.0.0
@@ -208,8 +220,10 @@ importers:
       '@vitessce/constants-internal': link:../constants-internal
       '@vitessce/csv': link:../file-types/csv
       '@vitessce/description': link:../view-types/description
+      '@vitessce/json': link:../file-types/json
       '@vitessce/obs-sets-manager': link:../view-types/obs-sets-manager
       '@vitessce/scatterplot-embedding': link:../view-types/scatterplot-embedding
+      '@vitessce/spatial': link:../view-types/spatial
       '@vitessce/vit-s': link:../vit-s
     devDependencies:
       esbuild: 0.15.10
@@ -251,13 +265,59 @@ importers:
 
   packages/utils:
     specifiers:
+      '@deck.gl/aggregation-layers': 8.6.7
+      '@deck.gl/core': 8.6.7
+      '@deck.gl/extensions': 8.6.7
+      '@deck.gl/geo-layers': 8.6.7
+      '@deck.gl/layers': 8.6.7
+      '@deck.gl/mesh-layers': 8.6.7
+      '@deck.gl/react': 8.6.7
+      '@hms-dbmi/viv': ~0.12.6
+      '@loaders.gl/3d-tiles': ^3.0.0
+      '@loaders.gl/core': ^3.0.0
+      '@loaders.gl/images': ^3.0.0
+      '@loaders.gl/loader-utils': ^3.0.0
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/core': 8.5.10
+      '@luma.gl/engine': 8.5.10
+      '@luma.gl/experimental': 8.5.10
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
       '@vitessce/sets': workspace:*
       bowser: ^2.11.0
+      deck.gl: 8.6.7
+      lodash: ^4.17.21
       lz-string: ^1.4.4
+      math.gl: ^3.5.6
+      mathjs: ^9.2.0
     dependencies:
+      '@deck.gl/aggregation-layers': 8.6.7_xw7kzmvtc74tyv7oyffqqm4hgm
+      '@deck.gl/core': 8.6.7
+      '@deck.gl/extensions': 8.6.7_qjltsxfxy33t2jnbhndt55efki
+      '@deck.gl/geo-layers': 8.6.7_go3qibzpfgbiluv6czggami56a
+      '@deck.gl/layers': 8.6.7_r3awsm5ppykm6lrfdfc65rhsvm
+      '@deck.gl/mesh-layers': 8.6.7_hfkoowvatms54plrp6hfhethgy
+      '@deck.gl/react': 8.6.7_cn23c3y7vgm52ig7fzb256qsya
+      '@hms-dbmi/viv': 0.12.9_ern4kzgj5ufmzftmbwnbckikuy
+      '@loaders.gl/3d-tiles': 3.2.9_@loaders.gl+core@3.2.9
+      '@loaders.gl/core': 3.2.9
+      '@loaders.gl/images': 3.2.9
+      '@loaders.gl/loader-utils': 3.2.9
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/core': 8.5.10
+      '@luma.gl/engine': 8.5.10
+      '@luma.gl/experimental': 8.5.10_hawe4vukmged4xa2bdab7iruye
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
       '@vitessce/sets': link:../sets
       bowser: 2.11.0
+      deck.gl: 8.6.7_gbuctxiv7l6ixl2hv34t537nxe
+      lodash: 4.17.21
       lz-string: 1.4.4
+      math.gl: 3.6.3
+      mathjs: 9.5.2
 
   packages/view-types/description:
     specifiers:
@@ -398,6 +458,78 @@ importers:
       d3-array: 2.12.1
       lodash: 4.17.21
       plur: 5.1.0
+
+  packages/view-types/spatial:
+    specifiers:
+      '@deck.gl/aggregation-layers': 8.6.7
+      '@deck.gl/core': 8.6.7
+      '@deck.gl/extensions': 8.6.7
+      '@deck.gl/geo-layers': 8.6.7
+      '@deck.gl/layers': 8.6.7
+      '@deck.gl/mesh-layers': 8.6.7
+      '@deck.gl/react': 8.6.7
+      '@hms-dbmi/viv': ~0.12.6
+      '@loaders.gl/3d-tiles': ^3.0.0
+      '@loaders.gl/core': ^3.0.0
+      '@loaders.gl/images': ^3.0.0
+      '@loaders.gl/loader-utils': ^3.0.0
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/core': 8.5.10
+      '@luma.gl/engine': 8.5.10
+      '@luma.gl/experimental': 8.5.10
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
+      '@material-ui/core': ~4.12.3
+      '@vitessce/constants-internal': workspace:*
+      '@vitessce/gl': workspace:*
+      '@vitessce/scatterplot': workspace:*
+      '@vitessce/sets': workspace:*
+      '@vitessce/tooltip': workspace:*
+      '@vitessce/utils': workspace:*
+      '@vitessce/vit-s': workspace:*
+      d3-array: ^2.4.0
+      deck.gl: 8.6.7
+      lodash: ^4.17.21
+      math.gl: ^3.5.6
+      mathjs: ^9.2.0
+      plur: ^5.1.0
+      short-number: ^1.0.6
+    dependencies:
+      '@deck.gl/aggregation-layers': 8.6.7_xw7kzmvtc74tyv7oyffqqm4hgm
+      '@deck.gl/core': 8.6.7
+      '@deck.gl/extensions': 8.6.7_qjltsxfxy33t2jnbhndt55efki
+      '@deck.gl/geo-layers': 8.6.7_go3qibzpfgbiluv6czggami56a
+      '@deck.gl/layers': 8.6.7_r3awsm5ppykm6lrfdfc65rhsvm
+      '@deck.gl/mesh-layers': 8.6.7_hfkoowvatms54plrp6hfhethgy
+      '@deck.gl/react': 8.6.7_cn23c3y7vgm52ig7fzb256qsya
+      '@hms-dbmi/viv': 0.12.9_ern4kzgj5ufmzftmbwnbckikuy
+      '@loaders.gl/3d-tiles': 3.2.9_@loaders.gl+core@3.2.9
+      '@loaders.gl/core': 3.2.9
+      '@loaders.gl/images': 3.2.9
+      '@loaders.gl/loader-utils': 3.2.9
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/core': 8.5.10
+      '@luma.gl/engine': 8.5.10
+      '@luma.gl/experimental': 8.5.10_hawe4vukmged4xa2bdab7iruye
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
+      '@material-ui/core': 4.12.4_wcqkhtmu7mswc6yz4uyexck3ty
+      '@vitessce/constants-internal': link:../../constants-internal
+      '@vitessce/gl': link:../../gl
+      '@vitessce/scatterplot': link:../scatterplot
+      '@vitessce/sets': link:../../sets
+      '@vitessce/tooltip': link:../../tooltip
+      '@vitessce/utils': link:../../utils
+      '@vitessce/vit-s': link:../../vit-s
+      d3-array: 2.12.1
+      deck.gl: 8.6.7_gbuctxiv7l6ixl2hv34t537nxe
+      lodash: 4.17.21
+      math.gl: 3.6.3
+      mathjs: 9.5.2
+      plur: 5.1.0
+      short-number: 1.0.7
 
   packages/vit-s:
     specifiers:
@@ -6480,6 +6612,10 @@ packages:
   /commondir/1.0.1:
     resolution: {integrity: sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg==}
 
+  /complex.js/2.1.1:
+    resolution: {integrity: sha512-8njCHOTtFFLtegk6zQo0kkVX1rngygb/KQI6z1qZxlFI3scluC+LVTCFbrkWjBv4vvLlbQ9t88IPMC6k95VTTg==}
+    dev: false
+
   /component-classes/1.2.6:
     resolution: {integrity: sha512-hPFGULxdwugu1QWW3SvVOCUHLzO34+a2J6Wqy0c5ASQkfi9/8nZcBB0ZohaEbXOQlCflMAEMmEWk7u7BVs4koA==}
     dependencies:
@@ -7098,7 +7234,6 @@ packages:
 
   /decimal.js/10.3.1:
     resolution: {integrity: sha512-V0pfhfr8suzyPGOx3nmq4aHqabehUZn6Ch9kyFpV79TGDTWFmHqUqXdabR7QHqxzrYolF4+tVmJhUG4OURg5dQ==}
-    dev: true
 
   /deck.gl/8.6.7_gbuctxiv7l6ixl2hv34t537nxe:
     resolution: {integrity: sha512-csEU9xZQO5W74g+e3zJ09nbEbQGCGzVbX1WPK48uVtUVe6z+2qXwYm5J2d1nBfzkzsTGxSgOvf5JSeaFzBH9UA==}
@@ -7787,6 +7922,10 @@ packages:
 
   /escape-html/1.0.3:
     resolution: {integrity: sha512-NiSupZ4OeuGwr68lGIeym/ksIZMJodUGOSCZ/FSnTxcrekbvqrgdUxlJOMpijaKZVjAJrWrGs/6Jy8OMuyj9ow==}
+    dev: false
+
+  /escape-latex/1.2.0:
+    resolution: {integrity: sha512-nV5aVWW1K0wEiUIEdZ4erkGGH8mDxGyxSeqPzRNtWP7ataw+/olFObw7hujFWlVjNsaDFw5VZ5NzVSIqRgfTiw==}
     dev: false
 
   /escape-string-regexp/1.0.5:
@@ -9907,6 +10046,10 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: false
 
+  /javascript-natural-sort/0.7.1:
+    resolution: {integrity: sha512-nO6jcEfZWQXDhOiBtG2KvKyEptz7RVbpGP4vTD2hLBdmNQSsCiicO2Ioinv6UI4y9ukqnBpy+XZ9H6uLNgJTlw==}
+    dev: false
+
   /jest-diff/28.1.1:
     resolution: {integrity: sha512-/MUUxeR2fHbqHoMMiffe/Afm+U8U4olFRJ0hiVG2lZatPJcnGxx292ustVu7bULhjV65IYMxRdploAKLbcrsyg==}
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
@@ -10459,6 +10602,22 @@ packages:
     resolution: {integrity: sha512-Yq9CyECvSDox9+5ETi2+x1bGTY5WvGUGL3rJfC4KPoCZAM51MGfrCm6rIn4yOJUVfMPs2a5RwMD+yGS/n1g3gg==}
     dependencies:
       '@math.gl/core': 3.6.3
+    dev: false
+
+  /mathjs/9.5.2:
+    resolution: {integrity: sha512-c0erTq0GP503/Ch2OtDOAn50GIOsuxTMjmE00NI/vKJFSWrDaQHRjx6ai+16xYv70yBSnnpUgHZGNf9FR9IwmA==}
+    engines: {node: '>= 12'}
+    hasBin: true
+    dependencies:
+      '@babel/runtime': 7.19.0
+      complex.js: 2.1.1
+      decimal.js: 10.3.1
+      escape-latex: 1.2.0
+      fraction.js: 4.2.0
+      javascript-natural-sort: 0.7.1
+      seedrandom: 3.0.5
+      tiny-emitter: 2.1.0
+      typed-function: 2.1.0
     dev: false
 
   /mdast-squeeze-paragraphs/4.0.0:
@@ -11058,6 +11217,11 @@ packages:
       p-map: 2.1.0
     dev: true
 
+  /p-finally/1.0.0:
+    resolution: {integrity: sha512-LICb2p9CB7FS+0eR1oqWnHhp0FljGLZCWBE9aix0Uye9W8LTQPwMTYVGWQWIw9RdQiDg4+epXQODwIYJtSJaow==}
+    engines: {node: '>=4'}
+    dev: false
+
   /p-limit/1.3.0:
     resolution: {integrity: sha512-vvcXsLAJ9Dr5rQOPk7toZQZJApBl2K4J6dANSsEuh6QI41JYcsS/qhTGa9ErIUUgK3WNQoJYvylxvjqmiqEA9Q==}
     engines: {node: '>=4'}
@@ -11117,6 +11281,14 @@ packages:
       aggregate-error: 3.1.0
     dev: false
 
+  /p-queue/6.2.0:
+    resolution: {integrity: sha512-B2LXNONcyn/G6uz2UBFsGjmSa0e/br3jznlzhEyCXg56c7VhEpiT2pZxGOfv32Q3FSyugAdys9KGpsv3kV+Sbg==}
+    engines: {node: '>=8'}
+    dependencies:
+      eventemitter3: 4.0.7
+      p-timeout: 3.2.0
+    dev: false
+
   /p-queue/7.3.0:
     resolution: {integrity: sha512-5fP+yVQ0qp0rEfZoDTlP2c3RYBgxvRsw30qO+VtPPc95lyvSG+x6USSh1TuLB4n96IO6I8/oXQGsTgtna4q2nQ==}
     engines: {node: '>=12'}
@@ -11131,6 +11303,13 @@ packages:
     dependencies:
       '@types/retry': 0.12.0
       retry: 0.13.1
+    dev: false
+
+  /p-timeout/3.2.0:
+    resolution: {integrity: sha512-rhIwUycgwwKcP9yTOOFK/AKsAopjjCakVqLHePO3CC6Mir1Z99xT+R63jZxAT5lFZLa2inS5h+ZS2GvR99/FBg==}
+    engines: {node: '>=8'}
+    dependencies:
+      p-finally: 1.0.0
     dev: false
 
   /p-timeout/5.1.0:
@@ -13224,6 +13403,10 @@ packages:
       kind-of: 6.0.3
     dev: false
 
+  /seedrandom/3.0.5:
+    resolution: {integrity: sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==}
+    dev: false
+
   /select-hose/2.0.0:
     resolution: {integrity: sha512-mEugaLK+YfkijB4fx0e6kImuJdCIt2LxCRcbEYPqRGCs4F2ogyfZU5IAZRdjCP8JPq2AtdNoC/Dux63d9Kiryg==}
     dev: false
@@ -13390,6 +13573,10 @@ packages:
       glob: 7.2.3
       interpret: 1.4.0
       rechoir: 0.6.2
+    dev: false
+
+  /short-number/1.0.7:
+    resolution: {integrity: sha512-e3cb811QXHiAH2H5rgZwXHsmg2+aG6XK0QyKF/+pyDIZFBSz/G8bkr8avdBrL5PVIfhIq8rlohjFvSB3azzpEQ==}
     dev: false
 
   /side-channel/1.0.4:
@@ -13942,6 +14129,10 @@ packages:
     resolution: {integrity: sha512-eHY7nBftgThBqOyHGVN+l8gF0BucP09fMo0oO/Lb0w1OF80dJv+lDVpXG60WMQvkcxAkNybKsrEIE3ZtKGmPrA==}
     dev: false
 
+  /tiny-emitter/2.1.0:
+    resolution: {integrity: sha512-NB6Dk1A9xgQPMoGqC5CVXn123gWyte215ONT5Pp5a0yt4nlEoO1ZWeCwpncaekPHXO60i47ihFnZPiRPjRMq4Q==}
+    dev: false
+
   /tiny-invariant/1.2.0:
     resolution: {integrity: sha512-1Uhn/aqw5C6RI4KejVeTg6mIS7IqxnLJ8Mv2tV5rTc0qWobay7pDUz6Wi392Cnc8ak1H0F2cjoRzb2/AW4+Fvg==}
     dev: false
@@ -14116,6 +14307,11 @@ packages:
     dependencies:
       media-typer: 0.3.0
       mime-types: 2.1.35
+    dev: false
+
+  /typed-function/2.1.0:
+    resolution: {integrity: sha512-bctQIOqx2iVbWGDGPWwIm18QScpu2XRmkC19D8rQGFsjKSgteq/o1hTZvIG/wuDq8fanpBDrLkLq+aEN/6y5XQ==}
+    engines: {node: '>= 10'}
     dev: false
 
   /typedarray-to-buffer/3.1.5:
@@ -15042,6 +15238,14 @@ packages:
   /yocto-queue/0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  /zarr/0.5.1:
+    resolution: {integrity: sha512-eL7S5gza/ednVr9wJMd5UF7jcc72qgMlMxuHbFYkWWX9dvb7n0SJL6PS3dCJ5TqyRSamCpAm+ssuodcL4uBTUQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      numcodecs: 0.2.2
+      p-queue: 6.2.0
+    dev: false
 
   /zarr/0.5.2:
     resolution: {integrity: sha512-XiAZTlkCTALZyXCAXY2rgfRY45sIaGZd/rKKuQa84+bjpxoyNYXbAU5uaIDTR+CvIuTFABqq8Gc4PfzZHYOvkw==}

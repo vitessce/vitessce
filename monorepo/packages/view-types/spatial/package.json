@@ -1,5 +1,5 @@
 {
-  "name": "@vitessce/utils",
+  "name": "@vitessce/spatial",
   "version": "1.0.0",
   "author": "Mark Keller",
   "homepage": "http://vitessce.io",
@@ -14,15 +14,27 @@
   ],
   "scripts": {
     "start": "tsc --watch",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest --ui -r ../../../ --dir ."
   },
   "dependencies": {
-    "bowser": "^2.11.0",
-    "lz-string": "^1.4.4",
+    "@hms-dbmi/viv": "~0.12.6",
+    "@vitessce/vit-s": "workspace:*",
+    "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/utils": "workspace:*",
+    "@vitessce/scatterplot": "workspace:*",
+    "@vitessce/gl": "workspace:*",
+    "@vitessce/tooltip": "workspace:*",
     "@vitessce/sets": "workspace:*",
+    "@material-ui/core": "~4.12.3",
+    "lodash": "^4.17.21",
+    "d3-array": "^2.4.0",
+    "plur": "^5.1.0",
+    "short-number": "^1.0.6",
+
     "math.gl": "^3.5.6",
     "mathjs": "^9.2.0",
-    "@hms-dbmi/viv": "~0.12.6",
+
     "@luma.gl/constants": "8.5.10",
     "@luma.gl/core": "8.5.10",
     "@luma.gl/engine": "8.5.10",
@@ -41,7 +53,6 @@
     "@loaders.gl/3d-tiles": "^3.0.0",
     "@loaders.gl/core": "^3.0.0",
     "@loaders.gl/images": "^3.0.0",
-    "@loaders.gl/loader-utils": "^3.0.0",
-    "lodash": "^4.17.21"
+    "@loaders.gl/loader-utils": "^3.0.0"
   }
 }

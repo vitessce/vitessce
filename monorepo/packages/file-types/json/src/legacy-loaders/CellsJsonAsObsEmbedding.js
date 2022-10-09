@@ -1,4 +1,4 @@
-import cellsSchema from '../../schemas/cells.schema.json';
+import cellsSchema from './schemas/cells.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 

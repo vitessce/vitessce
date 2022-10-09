@@ -1,6 +1,6 @@
 import { extent } from 'd3-array';
 import range from 'lodash/range';
-import clustersSchema from '../../schemas/clusters.schema.json';
+import clustersSchema from './schemas/clusters.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 

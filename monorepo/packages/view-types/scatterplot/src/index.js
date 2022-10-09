@@ -5,4 +5,7 @@ export { default as EmptyMessage } from './EmptyMessage';
 export {
   getPointSizeDevicePixels,
   getPointOpacity,
+  getOnHoverCallback,
+  createQuadTree,
+  AbstractSpatialOrScatterplot,
 } from './shared-spatial-scatterplot/index';

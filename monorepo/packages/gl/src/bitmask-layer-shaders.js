@@ -1,6 +1,6 @@
-import glsl from 'glslify';
+import { colormaps } from './glsl/index';
 
-export const vs = glsl`
+export const vs = `
 #define SHADER_NAME bitmask-layer-vertex-shader
 
 attribute vec2 texCoords;
@@ -22,25 +22,11 @@ void main(void) {
 }
 `;
 
-export const fs = glsl`
+export const fs = `
 #define SHADER_NAME bitmask-layer-fragment-shader
 precision highp float;
 
-#pragma glslify: plasma = require("glsl-colormap/plasma")
-#pragma glslify: viridis = require("glsl-colormap/viridis")
-#pragma glslify: greys = require("glsl-colormap/greys")
-#pragma glslify: magma = require("glsl-colormap/magma")
-#pragma glslify: jet = require("glsl-colormap/jet")
-#pragma glslify: bone = require("glsl-colormap/bone")
-#pragma glslify: copper = require("glsl-colormap/copper")
-#pragma glslify: density = require("glsl-colormap/density")
-#pragma glslify: inferno = require("glsl-colormap/inferno")
-#pragma glslify: cool = require("glsl-colormap/cool")
-#pragma glslify: hot = require("glsl-colormap/hot")
-#pragma glslify: spring = require("glsl-colormap/spring")
-#pragma glslify: summer = require("glsl-colormap/summer")
-#pragma glslify: autumn = require("glsl-colormap/autumn")
-#pragma glslify: winter = require("glsl-colormap/winter")
+${colormaps}
 
 // Data (mask) texture
 uniform sampler2D channel0;

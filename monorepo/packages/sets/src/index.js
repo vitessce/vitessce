@@ -19,6 +19,7 @@ export {
   nodeToRenderProps,
   getCellSetPolygons,
   treeToMembershipMap,
+  nodeToSet,
 } from './cell-set-utils';
 export {
   isEqualOrPrefix,

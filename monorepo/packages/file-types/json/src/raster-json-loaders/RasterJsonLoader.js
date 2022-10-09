@@ -1,11 +1,8 @@
 import { ZarrPixelSource, loadOmeTiff } from '@hms-dbmi/viv';
 import { openArray } from 'zarr';
-// TODO(monorepo)
-import rasterSchema from '../../schemas/raster.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
-
-import { initializeRasterLayersAndChannels } from '../../components/spatial/utils';
+import { rasterSchema, AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { initializeRasterLayersAndChannels } from '@vitessce/utils';
 
 async function initLoader(imageData) {
   const {
