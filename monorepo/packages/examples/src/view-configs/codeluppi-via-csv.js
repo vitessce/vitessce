@@ -9,6 +9,18 @@ export const codeluppiViaCsv = {
       name: 'Codeluppi',
       files: [
         {
+          fileType: 'obsEmbedding.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
+          options: {
+            obsIndex: 'cell_id',
+            obsEmbedding: ['PCA_1', 'PCA_2'],
+          },
+          coordinationValues: {
+            obsType: 'cell',
+            embeddingType: 'PCA',
+          },
+        },
+        {
           fileType: 'obsSets.csv',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
           options: {
@@ -73,6 +85,17 @@ export const codeluppiViaCsv = {
       y: 0,
       w: 2,
       h: 12,
-    }
+    },
+    {
+      component: 'scatterplot',
+      coordinationScopes: {
+        embeddingType: 'PCA',
+        embeddingZoom: 'PCA',
+      },
+      x: 6,
+      y: 0,
+      w: 3,
+      h: 2,
+    },
   ],
 };

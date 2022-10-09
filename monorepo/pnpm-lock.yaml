@@ -139,6 +139,7 @@ importers:
       '@turf/centroid': ^6.5.0
       '@turf/helpers': ^6.5.0
       deck.gl: 8.6.7
+      glsl-colormap: ^1.0.1
       glslify: ^7.0.0
       math.gl: ^3.5.6
       nebula.gl: 0.23.8
@@ -176,6 +177,8 @@ importers:
       glslify: 7.1.1
       math.gl: 3.6.3
       nebula.gl: 0.23.8_ogaefdrscq2lwnkarinyct6lqa
+    devDependencies:
+      glsl-colormap: 1.0.1
 
   packages/icons:
     specifiers:
@@ -8959,6 +8962,10 @@ packages:
       merge2: 1.4.1
       slash: 4.0.0
     dev: false
+
+  /glsl-colormap/1.0.1:
+    resolution: {integrity: sha512-wtq1MVdu8IF4GZQnw6NIRzit/S5elC5bFHJNNqvwcsbZrg2bybx+T0IrOfB86B4cC8sLMaCyY/N2PjmmvXD/xg==}
+    dev: true
 
   /glsl-inject-defines/1.0.3:
     resolution: {integrity: sha512-W49jIhuDtF6w+7wCMcClk27a2hq8znvHtlGnrYkSWEr8tHe9eA2dcnohlcAmxLYBSpSSdzOkRdyPTrx9fw49+A==}

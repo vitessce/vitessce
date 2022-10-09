@@ -13,12 +13,14 @@ export const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.grayLight,// map-get($global-colors, "gray-light");
     borderRadius: '4px',
     padding: '2px',
-    display: 'inline-block',
+    display: 'flex',
+    flexDirection: 'row',
     position: 'absolute',
     bottom: '1.75rem',
     right: '0.25rem',
     boxShadow: '-2px -2px 5px rgba(0, 0, 0, 0.06)',
     '& button': {
+      cursor: 'pointer',
       border: '0',
       backgroundColor: 'transparent',
       color: theme.palette.grayDark,// lighten(map-get($global-colors, "gray-dark"), 5%);

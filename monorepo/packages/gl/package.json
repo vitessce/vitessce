@@ -15,7 +15,8 @@
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc",
-    "test": "vitest --ui -r ../../ --dir ."
+    "test": "vitest --ui -r ../../ --dir .",
+    "glslify": "cat src/glsl/colormaps.in.glsl | glslify > src/glsl/colormaps.out.glsl"
   },
   "dependencies": {
     "@luma.gl/constants": "8.5.10",
@@ -51,5 +52,8 @@
     "nebula.gl": "0.23.8",
     "@nebula.gl/layers": "0.23.8",
     "@nebula.gl/edit-modes": "0.23.8"
+  },
+  "devDependencies": {
+    "glsl-colormap": "^1.0.1"
   }
 }

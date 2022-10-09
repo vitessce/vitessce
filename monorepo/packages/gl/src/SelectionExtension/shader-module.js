@@ -1,6 +1,4 @@
-import glsl from 'glslify';
-
-const vs = glsl`
+const vs = `
 attribute float isSelected;
 `;
 

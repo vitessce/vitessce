@@ -7,3 +7,4 @@ dist-versioned/
 package-lock.json
 yarn.lock
 .docusaurus/
+*.out.glsl
