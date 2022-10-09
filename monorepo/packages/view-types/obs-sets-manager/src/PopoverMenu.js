@@ -44,7 +44,7 @@ function PopoverMenuListButton(props) {
   }
 
   const titleWithConfirm = `${isConfirming ? 'Confirm ' : ''}${title}`;
-
+  const classes = useHelpTooltipStyles();
   return (
     <button
       title={titleWithConfirm}
@@ -52,7 +52,7 @@ function PopoverMenuListButton(props) {
       onClick={handleOrRequireConfirm}
       onKeyPress={e => callbackOnKeyPress(e, handlerKey, handleOrRequireConfirm)}
     >{titleWithConfirm}
-      {subtitle && (<><br /><span className="small">{subtitle}</span></>)}
+      {subtitle && (<><br /><span className={classes.small}>{subtitle}</span></>)}
     </button>
   );
 }

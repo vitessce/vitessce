@@ -22,7 +22,7 @@ export const useStyles = makeStyles(theme => ({
       border: '0',
       backgroundColor: 'transparent',
       color: theme.palette.grayDark,// lighten(map-get($global-colors, "gray-dark"), 5%);
-      '& [disabled]': {
+      '&[disabled]': {
         pointerEvents: 'none',
         '& svg': {
           fill: 'silver'
@@ -34,7 +34,7 @@ export const useStyles = makeStyles(theme => ({
         height: '20px',
         marginTop: '1px',
       },
-      '& :hover, :hover path': {
+      '&:hover,:hover path': {
         color: theme.palette.grayDark,// darken(map-get($global-colors, "gray-dark"), 15%);
         fill: theme.palette.grayDark,// darken(map-get($global-colors, "gray-dark"), 15%);
       }
@@ -228,6 +228,7 @@ export const useStyles = makeStyles(theme => ({
     padding: '0',
     fontSize: '18px',
     marginBottom: '2rem',
+    cursor: 'pointer',
   },
   nodeMenuIcon: {
     fill: theme.palette.grayMid, // map-get($global-colors, "gray-mid");
@@ -237,7 +238,7 @@ export const useStyles = makeStyles(theme => ({
     verticalAlign: 'top',
     width: `${nodeHeight}px`,
     top: '5.5px',
-    '& :hover': {
+    '&:hover': {
       fill: theme.palette.grayMid,  // lighten(map-get($global-colors, "gray-mid"), 10%);
     }
   },
@@ -269,7 +270,7 @@ export const useStyles = makeStyles(theme => ({
     left: '0px',
     float: 'left',
     marginRight: '10px',
-    '& :checked': {
+    '&:checked': {
       backgroundClip: 'unset',
     }
   },
@@ -287,6 +288,7 @@ export const useStyles = makeStyles(theme => ({
     backgroundColor: 'transparent',
     verticalAlign: 'top',
     fontSize: '14px',
+    cursor: 'pointer',
   },
   titleButtonWithInput: {
     padding: 0,
@@ -323,7 +325,7 @@ export const useStyles = makeStyles(theme => ({
     verticalAlign: 'top',
     margin: 0,
     padding: 0,
-    '& :hover': {
+    '&:hover': {
       backgroundColor: theme.palette.grayDark, // lighten(map-get($global-colors, "gray-dark"), 5%);
       border: `1px solid ${theme.palette.grayDark}`, // lighten(map-get($global-colors, "gray-dark"), 5%);
     }
@@ -386,6 +388,58 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
     cursor: 'auto',
     userSelect: 'text',
     paddingBottom: '10px', // Assumes placement: 'top'
+    '&.rc-tooltip-placement-top': {
+      paddingBottom: '10px',
+    },
+    '&.rc-tooltip-placement-right': {
+      paddingLeft: '10px',
+    },
+    '&.rc-tooltip-placement-bottom': {
+      paddingTop: '10px',
+    },
+    '&.rc-tooltip-placement-left': {
+      paddingRight: '10px',
+    },
+    '&.rc-tooltip-placement-top > .rc-tooltip-content > .rc-tooltip-arrow': {
+      bottom: '6px',
+      borderTopColor: 'transparent',
+      borderRightColor: '#fff',
+      borderBottomColor: '#fff',
+      borderLeftColor: 'transparent',
+      boxShadow: '3px 3px 7px rgba(0, 0, 0, 0.07)',
+      left: '50%;',
+      transform: 'translateX(-50%) rotate(45deg)',
+    },
+    '&.rc-tooltip-placement-right > .rc-tooltip-content > .rc-tooltip-arrow': {
+      left: '6px',
+      borderTopColor: 'transparent',
+      borderRightColor: 'transparent',
+      borderBottomColor: '#fff',
+      borderLeftColor: '#fff',
+      boxShadow: '-3px 3px 7px rgba(0, 0, 0, 0.07)',
+      top: '50%',
+      transform: 'translateY(-50%) rotate(45deg)',
+    },
+    '&.rc-tooltip-placement-bottom > .rc-tooltip-content > .rc-tooltip-arrow': {
+      top: '6px',
+      borderTopColor: '#fff',
+      borderRightColor: 'transparent',
+      borderBottomColor: 'transparent',
+      borderLeftColor: '#fff',
+      boxShadow: '-2px -2px 5px rgba(0, 0, 0, 0.06)',
+      left: '50%',
+      transform: 'translateX(-50%) rotate(45deg)',
+    },
+    '&.rc-tooltip-placement-left > .rc-tooltip-content > .rc-tooltip-arrow': {
+      right: '6px',
+      borderTopColor: '#fff',
+      borderRightColor: '#fff',
+      borderBottomColor: 'transparent',
+      borderLeftColor: 'transparent',
+      boxShadow: '3px -3px 7px rgba(0, 0, 0, 0.07)',
+      top: '50%',
+      transform: 'translateY(-50%) rotate(45deg)',
+    },
     ...helpTooltipCommon,
     '& ::after': {
       position: 'absolute',
@@ -414,25 +468,13 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
       background: 'transparent',
       borderStyle: 'solid',
       borderWidth: '4px',
-
-      top: '6px',
-      borderTopColor: '#fff',
-      borderRightColor: 'transparent',
-      borderBottomColor: 'transparent',
-      borderLeftColor: '#fff',
-      boxShadow: '-2px -2px 5px rgba(0, 0, 0, 0.06)',
-      left: '50%',
-      transform: 'translateX(-50%) rotate(45deg)',
-    },
-    '@global .twitter-picker': { // .popover-menu-color.twitter-picker
-      boxShadow: 'none !important',
-      margin: '0 auto',
     }
   },
   popoverMenuList: {
     listStyleType: 'none',
     padding: 0,
     marginBottom: 0,
+    marginTop: 0,
     '& dl, ol, ul': {
       marginTop: 0,
       marginBottom: '1rem',
@@ -444,7 +486,7 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
       width: '100%',
       backgroundColor: 'transparent',
       borderRadius: '2px',
-      '& :hover': {
+      '&:hover': {
         backgroundColor: theme.palette.grayLight, // lighten(map-get($global-colors, "gray-light"), 10%);
       }
     },
@@ -452,17 +494,39 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
       borderBottom: `1px solid ${theme.palette.grayMid}`// map-get($global-colors, "gray-mid");
     },
     '& button': {
-      '-webkit-appearance': 'button',
+      appearance: 'button',
       textTransform: 'none',
       overflow: 'visible',
       margin: 0,
-      fontSamily: 'inherit',
+      fontFamily: 'inherit',
       fontSize: '14px',
       lineHeight: 'inherit',
       borderRadius: 0,
     }
   },
+  small: {
+    fontSize: '11px',
+  },
   popoverMenuColor: {
-    
+    boxShadow: 'none !important',
+    margin: '0 auto',
+    /* Sets margins around color picker and centers */
+    '& > div:nth-child(3)': {
+      padding: '6px !important',
+      transform: 'translate(2px, 0)',
+    },
+    '& > div > div:nth-of-type(1)': {
+      fontSize: '12px',
+      width: '20px !important',
+    },
+    '& input': {
+      width: '60px !important',
+      fontSize: '12px',
+    },
+    /* Sets smaller color squares */
+    '& > div > span > div': {
+      width: '18px !important',
+      height: '18px !important',
+    }
   }
 }));
