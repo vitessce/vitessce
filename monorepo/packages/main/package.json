@@ -27,6 +27,7 @@
     "@vitessce/description": "workspace:*",
     "@vitessce/obs-sets-manager": "workspace:*",
     "@vitessce/scatterplot-embedding": "workspace:*",
+    "@vitessce/scatterplot-gating": "workspace:*",
     "@vitessce/spatial": "workspace:*",
     "@vitessce/heatmap": "workspace:*",
     "@vitessce/feature-list": "workspace:*",

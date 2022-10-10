@@ -257,6 +257,7 @@ importers:
       '@vitessce/layer-controller': workspace:*
       '@vitessce/obs-sets-manager': workspace:*
       '@vitessce/scatterplot-embedding': workspace:*
+      '@vitessce/scatterplot-gating': workspace:*
       '@vitessce/spatial': workspace:*
       '@vitessce/statistical-plots': workspace:*
       '@vitessce/status': workspace:*
@@ -276,6 +277,7 @@ importers:
       '@vitessce/layer-controller': link:../view-types/layer-controller
       '@vitessce/obs-sets-manager': link:../view-types/obs-sets-manager
       '@vitessce/scatterplot-embedding': link:../view-types/scatterplot-embedding
+      '@vitessce/scatterplot-gating': link:../view-types/scatterplot-gating
       '@vitessce/spatial': link:../view-types/spatial
       '@vitessce/statistical-plots': link:../view-types/statistical-plots
       '@vitessce/status': link:../view-types/status
@@ -658,6 +660,7 @@ importers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
       '@vitessce/scatterplot': workspace:*
+      '@vitessce/sets': workspace:*
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
       d3-array: ^2.4.0
@@ -667,6 +670,7 @@ importers:
       '@material-ui/core': 4.12.4_wcqkhtmu7mswc6yz4uyexck3ty
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/scatterplot': link:../scatterplot
+      '@vitessce/sets': link:../../sets
       '@vitessce/utils': link:../../utils
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1

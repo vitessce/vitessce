@@ -1,1 +1,1 @@
-export { default as GatingSubscriber } from './GatingSubscriber';
+export { GatingSubscriber, register } from './GatingSubscriber';

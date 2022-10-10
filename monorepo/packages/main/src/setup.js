@@ -8,6 +8,7 @@ import {
 import { register as registerDescription } from '@vitessce/description';
 import { register as registerObsSetsManager } from '@vitessce/obs-sets-manager';
 import { register as registerScatterplotEmbedding } from '@vitessce/scatterplot-embedding';
+import { register as registerScatterplotGating } from '@vitessce/scatterplot-gating';
 import { register as registerSpatial } from '@vitessce/spatial';
 import { register as registerHeatmap } from '@vitessce/heatmap';
 import { register as registerFeatureList } from '@vitessce/feature-list';
@@ -68,6 +69,7 @@ function setup() {
   registerDescription();
   registerObsSetsManager();
   registerScatterplotEmbedding();
+  registerScatterplotGating();
   registerSpatial();
   registerHeatmap();
   registerFeatureList();

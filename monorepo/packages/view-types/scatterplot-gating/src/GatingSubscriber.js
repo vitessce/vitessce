@@ -8,7 +8,6 @@ import {
   capitalize, commaNumber,
   getCellColors,
   getValueTransformFunction, VALUE_TRANSFORM_OPTIONS,
-  setObsSelection, mergeObsSets,
 } from '@vitessce/utils';
 import {
   TitleInfo,
@@ -20,8 +19,9 @@ import {
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
+  registerPluginViewType,
 } from '@vitessce/vit-s';
-import { getCellSetPolygons } from '@vitessce/sets';
+import { getCellSetPolygons, mergeObsSets, setObsSelection } from '@vitessce/sets';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
   getPointSizeDevicePixels,
@@ -44,7 +44,7 @@ import GatingScatterplotOptions from './GatingScatterplotOptions';
    * @param {number} props.averageFillDensity Override the average fill density calculation
    * when using dynamic opacity mode.
    */
-export default function GatingSubscriber(props) {
+export function GatingSubscriber(props) {
   const {
     uuid,
     coordinationScopes,
@@ -448,5 +448,13 @@ export default function GatingSubscriber(props) {
       />
       )}
     </TitleInfo>
+  );
+}
+
+export function register() {
+  registerPluginViewType(
+    ViewType.GATING,
+    GatingSubscriber,
+    COMPONENT_COORDINATION_TYPES[ViewType.GATING],
   );
 }
