@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import every from 'lodash/every';
+import { makeStyles } from '@material-ui/core/styles';
 import { SelectableTable } from './selectable-table/index';
+
+const useStyles = makeStyles(theme => ({
+  searchBar: {
+    marginBottom: '.25rem',
+    border: '0',
+    padding: '2px',
+    borderRadius: '2px',
+  }
+}))
 
 export default function FeatureList(props) {
   const {
@@ -12,6 +22,8 @@ export default function FeatureList(props) {
     setGeneSelection,
     enableMultiSelect,
   } = props;
+
+  const classes = useStyles();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState(geneList);
@@ -57,7 +69,7 @@ export default function FeatureList(props) {
   return (
     <>
       <input
-        className="search-bar"
+        className={classes.searchBar}
         type="text"
         placeholder="Search"
         value={searchTerm}

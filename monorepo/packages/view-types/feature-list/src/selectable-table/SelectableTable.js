@@ -151,14 +151,11 @@ export default function SelectableTable(props) {
   // Generate a unique ID to use in (for, id) label-input pairs.
   const inputUuid = uuidv4();
 
-  // Class for first column of inputs, to hide them if desired.
-  const hiddenInputsClass = (showTableInputs ? '' : 'hidden-input-column');
-
   const rowRenderer = ({ index, style }) => (
     // eslint-disable-next-line jsx-a11y/interactive-supports-focus
     <div
       key={data[index][idKey]}
-      className={`table-item table-row ${isSelected(data[index][idKey]) ? 'row-checked ' : ''}`}
+      className={clsx(classes.tableItem, classes.tableRow, { 'row-checked': isSelected(data[index][idKey]) })}
       style={style}
       role="button"
       onClick={() => onSelectRow(
@@ -166,12 +163,12 @@ export default function SelectableTable(props) {
         !isSelected(data[index][idKey]) || !hasColorEncoding,
       )}
     >
-      <div className={`input-container ${hiddenInputsClass} table-cell`}>
+      <div className={clsx(classes.inputContainer, classes.tableCell, { [classes.hiddenInputColumn]: !showTableInputs })}>
         <label htmlFor={`${inputUuid}_${data[index][idKey]}`}>
           <input
             id={`${inputUuid}_${data[index][idKey]}`}
             type="checkbox"
-            className={(isCheckingMultiple ? 'checkbox' : 'radio')}
+            className={clsx(classes.radioOrCheckbox, isCheckingMultiple ? classes.checkbox : classes.radio)}
             name={inputUuid}
             value={data[index][idKey]}
             onChange={handleInputChange}
@@ -181,7 +178,7 @@ export default function SelectableTable(props) {
       </div>
       {columns.map(column => (
         <div
-          className="table-cell"
+          className={classes.tableCell}
           key={column}
         >
           {data[index][column]}
@@ -191,7 +188,7 @@ export default function SelectableTable(props) {
   );
 
   const headerRowRenderer = ({ style }) => (
-    <div className={`${hiddenInputsClass} table-row`} style={style}>
+    <div className={clsx({ [classes.hiddenInputColumn]: !showTableInputs }, classes.tableRow)} style={style}>
       {columns.map(column => (
         <div key={column}>{column}</div>
       ))}
