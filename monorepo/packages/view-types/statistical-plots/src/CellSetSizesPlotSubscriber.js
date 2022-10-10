@@ -3,7 +3,8 @@ import {
   TitleInfo,
   useCoordination, useLoaders,
   useUrls, useReady, useGridItemSize,
-  useObsSetsData
+  useObsSetsData,
+  registerPluginViewType,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { mergeObsSets, treeToSetSizesBySetNames } from '@vitessce/sets';
@@ -92,5 +93,13 @@ export function CellSetSizesPlotSubscriber(props) {
         />
       </div>
     </TitleInfo>
+  );
+}
+
+export function register() {
+  registerPluginViewType(
+    ViewType.OBS_SET_SIZES,
+    CellSetSizesPlotSubscriber,
+    COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_SIZES],
   );
 }

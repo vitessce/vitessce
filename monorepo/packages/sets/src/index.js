@@ -52,6 +52,3 @@ export {
 export {
   dataToCellSetsTree,
 } from './CellSetsZarrLoader';
-export {
-  useExpressionByCellSet,
-} from './hooks';

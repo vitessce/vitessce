@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo } from 'react';
+//import React, { Suspense, useMemo } from 'react';
 import { Handler } from 'vega-tooltip';
 import ReactVega from './ReactVega';
 
@@ -38,6 +38,8 @@ export function VegaPlot(props) {
       : { name: DATASET_NAME }
     ),
   };
+
+  return (<pre>{JSON.stringify(spec)}</pre>);
 
   const vegaComponent = useMemo(() => (
     <ReactVega

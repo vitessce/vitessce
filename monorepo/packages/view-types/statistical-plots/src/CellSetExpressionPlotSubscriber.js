@@ -1,16 +1,97 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   TitleInfo,
   useCoordination, useLoaders,
   useUrls, useReady, useGridItemSize,
-  useFeatureSelection, useObsSetsData, useObsFeatureMatrixIndices
+  useFeatureSelection, useObsSetsData, useObsFeatureMatrixIndices,
+  registerPluginViewType,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { useExpressionByCellSet } from '@vitessce/sets';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
 import CellSetExpressionPlot from './CellSetExpressionPlot';
-import { VALUE_TRANSFORM_OPTIONS, capitalize } from '@vitessce/utils';
+import { VALUE_TRANSFORM_OPTIONS, capitalize, getValueTransformFunction } from '@vitessce/utils';
 import { useStyles } from './styles';
+import { treeToObjectsBySetNames, treeToSetSizesBySetNames, mergeObsSets } from '@vitessce/sets';
+
+/**
+ * Get expression data for the cells
+ * in the selected cell sets.
+ * @param {object} expressionMatrix
+ * @param {string[]} expressionMatrix.rows Cell IDs.
+ * @param {string[]} expressionMatrix.cols Gene names.
+ * @param {Uint8Array} expressionMatrix.matrix The
+ * flattened expression matrix as a typed array.
+ * @param {object} cellSets The cell sets from the dataset.
+ * @param {object} additionalCellSets The user-defined cell sets
+ * from the coordination space.
+ * @param {array} geneSelection Array of selected genes.
+ * @param {array} cellSetSelection Array of selected cell set paths.
+ * @param {object[]} cellSetColor Array of objects with properties
+ * @param {string|null} featureValueTransform The name of the
+ * feature value transform function.
+ * @param {number} featureValueTransformCoefficient A coefficient
+ * to be used in the transform function.
+ * @param {string} theme "light" or "dark" for the vitessce theme
+ * `path` and `color`.
+ */
+export function useExpressionByCellSet(
+  expressionData, obsIndex, cellSets, additionalCellSets,
+  geneSelection, cellSetSelection, cellSetColor,
+  featureValueTransform, featureValueTransformCoefficient,
+  theme,
+) {
+  const mergedCellSets = useMemo(
+    () => mergeObsSets(cellSets, additionalCellSets),
+    [cellSets, additionalCellSets],
+  );
+
+  // From the expression matrix and the list of selected genes / cell sets,
+  // generate the array of data points for the plot.
+  const [expressionArr, expressionMax] = useMemo(() => {
+    if (mergedCellSets && cellSetSelection
+        && geneSelection && geneSelection.length >= 1
+        && expressionData
+    ) {
+      const cellObjects = treeToObjectsBySetNames(
+        mergedCellSets, cellSetSelection, cellSetColor, theme,
+      );
+
+      const firstGeneSelected = geneSelection[0];
+      // Create new cellColors map based on the selected gene.
+      let exprMax = -Infinity;
+      const cellIndices = {};
+      for (let i = 0; i < obsIndex.length; i += 1) {
+        cellIndices[obsIndex[i]] = i;
+      }
+      const exprValues = cellObjects.map((cell) => {
+        const cellIndex = cellIndices[cell.obsId];
+        const value = expressionData[0][cellIndex];
+        const normValue = value * 100 / 255;
+        const transformFunction = getValueTransformFunction(
+          featureValueTransform, featureValueTransformCoefficient,
+        );
+        const transformedValue = transformFunction(normValue);
+        exprMax = Math.max(transformedValue, exprMax);
+        return { value: transformedValue, gene: firstGeneSelected, set: cell.name };
+      });
+      return [exprValues, exprMax];
+    }
+    return [null, null];
+  }, [expressionData, obsIndex, geneSelection, theme,
+    mergedCellSets, cellSetSelection, cellSetColor,
+    featureValueTransform, featureValueTransformCoefficient,
+  ]);
+
+  // From the cell sets hierarchy and the list of selected cell sets,
+  // generate the array of set sizes data points for the bar plot.
+  const setArr = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
+    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme)
+    : []
+  ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
+
+  return [expressionArr, setArr, expressionMax];
+}
+
 
 /**
  * A subscriber component for `CellSetExpressionPlot`,
@@ -29,6 +110,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     theme,
   } = props;
 
+  const classes = useStyles();
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.
@@ -50,8 +132,6 @@ export function CellSetExpressionPlotSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION],
     coordinationScopes,
   );
-
-  const classes = useStyles();
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl] = useUrls(loaders, dataset);
@@ -91,6 +171,8 @@ export function CellSetExpressionPlotSubscriber(props) {
   const selectedTransformName = transformOptions.find(
     o => o.value === featureValueTransform,
   )?.name;
+
+  
   return (
     <TitleInfo
       title={`Expression by ${capitalize(obsType)} Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
@@ -126,5 +208,13 @@ export function CellSetExpressionPlotSubscriber(props) {
         )}
       </div>
     </TitleInfo>
+  );
+}
+
+export function register() {
+  registerPluginViewType(
+    ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
+    CellSetExpressionPlotSubscriber,
+    COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION],
   );
 }

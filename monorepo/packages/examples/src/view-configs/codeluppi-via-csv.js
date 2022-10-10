@@ -236,13 +236,13 @@ export const codeluppiViaCsv = {
       w: 5,
       h: 2,
     },
-    /*{
+    {
       component: 'obsSetFeatureValueDistribution',
       x: 7,
       y: 4,
       w: 5,
       h: 2,
-    },*/
+    },
     {
       component: 'scatterplot',
       coordinationScopes: {

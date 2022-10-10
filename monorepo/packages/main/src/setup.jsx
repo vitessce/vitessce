@@ -1,6 +1,5 @@
 import {
   registerPluginFileType,
-  registerPluginViewType,
 } from '@vitessce/vit-s';
 
 // Register view type plugins
@@ -13,7 +12,7 @@ import { register as registerHeatmap } from '@vitessce/heatmap';
 import { register as registerFeatureList } from '@vitessce/feature-list';
 import { register as registerLayerController } from '@vitessce/layer-controller';
 import { register as registerStatus } from '@vitessce/status';
-import { CellSetExpressionPlotSubscriber, CellSetSizesPlotSubscriber, ExpressionHistogramSubscriber } from '@vitessce/statistical-plots';
+import { registerCellSetExpression, registerCellSetSizes, registerExpressionHistogram } from '@vitessce/statistical-plots';
 // Register file type plugins
 import {
   // CSV
@@ -60,7 +59,7 @@ import {
   MatrixZarrAsObsFeatureMatrixLoader,
   GenomicProfilesZarrLoader,
 } from '@vitessce/zarr';
-import { FileType, DataType, ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { FileType, DataType } from '@vitessce/constants-internal';
 
 export function setup() {
   // View types
@@ -74,10 +73,10 @@ export function setup() {
   registerLayerController();
   registerStatus();
   // Statistical plots
-  //registerPluginViewType(ViewType.OBS_SET_SIZES, CellSetSizesPlotSubscriber, COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_SIZES]);
-  //registerPluginViewType(ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION, CellSetExpressionPlotSubscriber, COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION]);
-  //registerPluginViewType(ViewType.FEATURE_VALUE_HISTOGRAM, ExpressionHistogramSubscriber, COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_VALUE_HISTOGRAM]);
-  
+  registerCellSetExpression();
+  registerCellSetSizes();
+  registerExpressionHistogram();
+
   // File types
   // All CSV file types
   registerPluginFileType(FileType.OBS_SETS_CSV, DataType.OBS_SETS, ObsSetsCsvLoader, CsvSource);
