@@ -292,13 +292,13 @@ export const codeluppi2018 = {
       w: 4,
       h: 4,
     },
-    /*{
+    {
       component: 'genes',
       x: 9,
       y: 0,
       w: 3,
       h: 2,
-    },*/
+    },
     {
       component: 'cellSets',
       x: 9,

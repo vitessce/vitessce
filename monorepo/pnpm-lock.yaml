@@ -251,6 +251,7 @@ importers:
       '@vitessce/constants-internal': workspace:*
       '@vitessce/csv': workspace:*
       '@vitessce/description': workspace:*
+      '@vitessce/feature-list': workspace:*
       '@vitessce/heatmap': workspace:*
       '@vitessce/json': workspace:*
       '@vitessce/obs-sets-manager': workspace:*
@@ -266,6 +267,7 @@ importers:
       '@vitessce/constants-internal': link:../constants-internal
       '@vitessce/csv': link:../file-types/csv
       '@vitessce/description': link:../view-types/description
+      '@vitessce/feature-list': link:../view-types/feature-list
       '@vitessce/heatmap': link:../view-types/heatmap
       '@vitessce/json': link:../file-types/json
       '@vitessce/obs-sets-manager': link:../view-types/obs-sets-manager
@@ -376,6 +378,28 @@ importers:
       '@material-ui/core': 4.12.4_wcqkhtmu7mswc6yz4uyexck3ty
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/vit-s': link:../../vit-s
+
+  packages/view-types/feature-list:
+    specifiers:
+      '@material-ui/core': ~4.12.3
+      '@vitessce/constants-internal': workspace:*
+      '@vitessce/utils': workspace:*
+      '@vitessce/vit-s': workspace:*
+      clsx: ^1.1.1
+      lodash: ^4.17.21
+      plur: ^5.1.0
+      react-virtualized: ^9.22.2
+      uuid: ^3.3.2
+    dependencies:
+      '@material-ui/core': 4.12.4_wcqkhtmu7mswc6yz4uyexck3ty
+      '@vitessce/constants-internal': link:../../constants-internal
+      '@vitessce/utils': link:../../utils
+      '@vitessce/vit-s': link:../../vit-s
+      clsx: 1.2.1
+      lodash: 4.17.21
+      plur: 5.1.0
+      react-virtualized: 9.22.3_wcqkhtmu7mswc6yz4uyexck3ty
+      uuid: 3.4.0
 
   packages/view-types/heatmap:
     specifiers:
@@ -13017,6 +13041,22 @@ packages:
       prop-types: 15.8.1
       react: 16.14.0
       react-dom: 16.14.0_react@16.14.0
+    dev: false
+
+  /react-virtualized/9.22.3_wcqkhtmu7mswc6yz4uyexck3ty:
+    resolution: {integrity: sha512-MKovKMxWTcwPSxE1kK1HcheQTWfuCxAuBoSTf2gwyMM21NdX/PXUhnoP8Uc5dRKd+nKm8v41R36OellhdCpkrw==}
+    peerDependencies:
+      react: ^15.3.0 || ^16.0.0-alpha
+      react-dom: ^15.3.0 || ^16.0.0-alpha
+    dependencies:
+      '@babel/runtime': 7.19.0
+      clsx: 1.2.1
+      dom-helpers: 5.2.1
+      loose-envify: 1.4.0
+      prop-types: 15.8.1
+      react: 16.14.0
+      react-dom: 16.14.0_react@16.14.0
+      react-lifecycles-compat: 3.0.4
     dev: false
 
   /react/16.14.0:

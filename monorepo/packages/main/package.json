@@ -29,6 +29,7 @@
     "@vitessce/scatterplot-embedding": "workspace:*",
     "@vitessce/spatial": "workspace:*",
     "@vitessce/heatmap": "workspace:*",
+    "@vitessce/feature-list": "workspace:*",
     "@vitessce/csv": "workspace:*",
     "@vitessce/json": "workspace:*",
     "@vitessce/zarr": "workspace:*"
