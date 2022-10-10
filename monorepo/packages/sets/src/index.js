@@ -1,5 +1,6 @@
 export {
   treeToCellColorsBySetNames,
+  treeToSetSizesBySetNames,
   treeExportLevelZeroNode,
   treeExportSet,
   treeToExpectedCheckedLevel,
@@ -51,3 +52,6 @@ export {
 export {
   dataToCellSetsTree,
 } from './CellSetsZarrLoader';
+export {
+  useExpressionByCellSet,
+} from './hooks';

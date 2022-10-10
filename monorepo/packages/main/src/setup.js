@@ -1,4 +1,8 @@
-import { Vitessce as VitS } from '@vitessce/vit-s';
+import {
+  Vitessce as VitS,
+  registerPluginFileType,
+  registerPluginViewType,
+} from '@vitessce/vit-s';
 
 // Register view type plugins
 import { register as registerDescription } from '@vitessce/description';
@@ -9,6 +13,7 @@ import { register as registerHeatmap } from '@vitessce/heatmap';
 import { register as registerFeatureList } from '@vitessce/feature-list';
 import { register as registerLayerController } from '@vitessce/layer-controller';
 import { register as registerStatus } from '@vitessce/status';
+import { CellSetExpressionPlotSubscriber, CellSetSizesPlotSubscriber, ExpressionHistogramSubscriber } from '@vitessce/statistical-plots';
 // Register file type plugins
 import {
   // CSV
@@ -55,11 +60,11 @@ import {
   MatrixZarrAsObsFeatureMatrixLoader,
   GenomicProfilesZarrLoader,
 } from '@vitessce/zarr';
-import { registerPluginFileType } from '@vitessce/vit-s';
-import { FileType, DataType } from '@vitessce/constants-internal';
+import { FileType, DataType, ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { useLayoutEffect, useState } from 'react';
 
 function setup() {
+  // View types
   registerDescription();
   registerObsSetsManager();
   registerScatterplotEmbedding();
@@ -68,6 +73,12 @@ function setup() {
   registerFeatureList();
   registerLayerController();
   registerStatus();
+  // Statistical plots
+  registerPluginViewType(ViewType.OBS_SET_SIZES, CellSetSizesPlotSubscriber, COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_SIZES]);
+  registerPluginViewType(ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION, CellSetExpressionPlotSubscriber, COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION]);
+  registerPluginViewType(ViewType.FEATURE_VALUE_HISTOGRAM, ExpressionHistogramSubscriber, COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_VALUE_HISTOGRAM]);
+  
+  // File types
   // All CSV file types
   registerPluginFileType(FileType.OBS_SETS_CSV, DataType.OBS_SETS, ObsSetsCsvLoader, CsvSource);
   registerPluginFileType(FileType.OBS_EMBEDDING_CSV, DataType.OBS_EMBEDDING, ObsEmbeddingCsvLoader, CsvSource);

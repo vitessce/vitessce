@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { getValueTransformFunction, mergeObsSets } from '@vitessce/utils';
+import { getValueTransformFunction } from '@vitessce/utils';
 import { treeToObjectsBySetNames, treeToSetSizesBySetNames } from './cell-set-utils';
-
+import { mergeObsSets } from './utils';
 /**
  * Get expression data for the cells
  * in the selected cell sets.

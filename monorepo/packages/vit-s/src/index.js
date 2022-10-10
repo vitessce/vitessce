@@ -12,6 +12,7 @@ export {
   useVitessceContainer, useDeckCanvasSize,
   useExpressionValueGetter, useGetObsInfo,
   useClosestVitessceContainerSize, useWindowDimensions,
+  useGridItemSize,
 } from './hooks';
 export {
   useCoordination,

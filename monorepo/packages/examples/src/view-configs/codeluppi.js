@@ -316,13 +316,13 @@ export const codeluppi2018 = {
       w: 5,
       h: 2,
     },
-    /*{
+    {
       component: 'cellSetExpression',
       x: 7,
       y: 4,
       w: 5,
       h: 2,
-    },*/
+    },
     {
       component: 'scatterplot',
       coordinationScopes: {

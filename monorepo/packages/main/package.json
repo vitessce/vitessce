@@ -32,6 +32,7 @@
     "@vitessce/feature-list": "workspace:*",
     "@vitessce/layer-controller": "workspace:*",
     "@vitessce/status": "workspace:*",
+    "@vitessce/statistical-plots": "workspace:*",
     "@vitessce/csv": "workspace:*",
     "@vitessce/json": "workspace:*",
     "@vitessce/zarr": "workspace:*"
