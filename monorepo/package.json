@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "pnpm -r --parallel start",
+    "start-demo": "pnpm -r --parallel --filter=!docs start",
+    "start-docs": "pnpm -r --parallel --filter=!demo start",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "format-check": "prettier --check --ignore-path .gitignore sites/ packages/",

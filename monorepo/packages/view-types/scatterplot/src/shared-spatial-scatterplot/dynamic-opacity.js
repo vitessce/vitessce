@@ -1,4 +1,4 @@
-import { OrthographicView } from 'deck.gl';
+import { deck } from '@vitessce/gl';
 import clamp from 'lodash/clamp';
 
 // Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
@@ -34,7 +34,7 @@ export function getPointSizeDevicePixels(devicePixelRatio, zoom, xRange, yRange,
 // Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
 export function getPointOpacity(zoom, xRange, yRange, width, height, numCells, avgFillDensity) {
   const N = numCells;
-  const [minX, minY, maxX, maxY] = new OrthographicView({ zoom }).makeViewport({
+  const [minX, minY, maxX, maxY] = new deck.OrthographicView({ zoom }).makeViewport({
     height,
     width,
     viewState: { zoom, target: [0, 0, 0] },

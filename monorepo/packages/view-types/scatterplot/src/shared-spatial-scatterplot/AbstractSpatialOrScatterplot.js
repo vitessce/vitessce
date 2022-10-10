@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
-import DeckGL, { OrthographicView, OrbitView } from 'deck.gl';
 import ToolMenu from './ToolMenu';
-import { DEFAULT_GL_OPTIONS } from '@vitessce/gl';
+import { deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
 import { getCursor, getCursorWithTool } from './cursor';
 
 /**
@@ -190,6 +189,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   /**
    * Intended to be overridden by descendants.
    */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   componentDidUpdate() {
 
   }
@@ -238,13 +238,13 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
             selectLasso: showCellSelectionTools && !hideTools,
           }}
         />
-        <DeckGL
+        <deck.DeckGL
           id={`deckgl-overlay-${uuid}`}
           ref={deckRef}
           views={[
             use3d
-              ? new OrbitView({ id: 'orbit', controller: true, orbitAxis: 'Y' })
-              : new OrthographicView({
+              ? new deck.OrbitView({ id: 'orbit', controller: true, orbitAxis: 'Y' })
+              : new deck.OrthographicView({
                 id: 'ortho',
               }),
           ]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
@@ -263,7 +263,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           onHover={this.onHover}
         >
           {this.onInitializeViewInfo}
-        </DeckGL>
+        </deck.DeckGL>
       </>
     );
   }

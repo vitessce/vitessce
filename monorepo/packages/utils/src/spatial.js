@@ -1,5 +1,5 @@
 import isEqual from 'lodash/isEqual';
-import { RENDERING_MODES } from '@hms-dbmi/viv';
+import { viv } from '@vitessce/gl';
 import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
 import { getMultiSelectionStats } from './layer-controller';
@@ -19,7 +19,7 @@ export const DEFAULT_RASTER_LAYER_PROPS = {
   opacity: 1,
   domainType: DEFAULT_RASTER_DOMAIN_TYPE,
   transparentColor: [0, 0, 0],
-  renderingMode: RENDERING_MODES.ADDITIVE,
+  renderingMode: viv.RENDERING_MODES.ADDITIVE,
   use3d: false,
 };
 

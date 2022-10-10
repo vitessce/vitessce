@@ -1,5 +1,4 @@
 import {
-  Vitessce as VitS,
   registerPluginFileType,
   registerPluginViewType,
 } from '@vitessce/vit-s';
@@ -62,9 +61,8 @@ import {
   GenomicProfilesZarrLoader,
 } from '@vitessce/zarr';
 import { FileType, DataType, ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { useLayoutEffect, useState } from 'react';
 
-function setup() {
+export function setup() {
   // View types
   registerDescription();
   registerObsSetsManager();
@@ -76,9 +74,9 @@ function setup() {
   registerLayerController();
   registerStatus();
   // Statistical plots
-  registerPluginViewType(ViewType.OBS_SET_SIZES, CellSetSizesPlotSubscriber, COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_SIZES]);
-  registerPluginViewType(ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION, CellSetExpressionPlotSubscriber, COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION]);
-  registerPluginViewType(ViewType.FEATURE_VALUE_HISTOGRAM, ExpressionHistogramSubscriber, COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_VALUE_HISTOGRAM]);
+  //registerPluginViewType(ViewType.OBS_SET_SIZES, CellSetSizesPlotSubscriber, COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_SIZES]);
+  //registerPluginViewType(ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION, CellSetExpressionPlotSubscriber, COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION]);
+  //registerPluginViewType(ViewType.FEATURE_VALUE_HISTOGRAM, ExpressionHistogramSubscriber, COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_VALUE_HISTOGRAM]);
   
   // File types
   // All CSV file types
@@ -117,13 +115,4 @@ function setup() {
   registerPluginFileType(FileType.OBS_LABELS_MOLECULES_JSON, DataType.OBS_LABELS, MoleculesJsonAsObsLabelsLoader, JsonSource);
   registerPluginFileType(FileType.NEIGHBORHOODS_JSON, DataType.NEIGHBORHOODS, JsonLoader, JsonSource);
   registerPluginFileType(FileType.GENOMIC_PROFILES_ZARR, DataType.GENOMIC_PROFILES, GenomicProfilesZarrLoader, ZarrDataSource);
-}
-
-export function Vitessce(props) {
-  const [ready, setReady] = useState(false);
-  useLayoutEffect(() => {
-    setup();
-    setReady(true);
-  }, []);
-  return (ready ? <VitS {...props} /> : null);
 }

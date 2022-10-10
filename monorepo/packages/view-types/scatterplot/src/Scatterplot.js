@@ -1,9 +1,7 @@
 /* eslint-disable no-param-reassign */
 import React, { forwardRef } from 'react';
-import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
-import { PolygonLayer, TextLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { forceSimulation } from 'd3-force';
-import { getSelectionLayers, ScaledExpressionExtension, SelectionExtension } from '@vitessce/gl';
+import { deck, getSelectionLayers, ScaledExpressionExtension, SelectionExtension } from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback } from './shared-spatial-scatterplot';
 
@@ -105,13 +103,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       geneExpressionColormapRange = [0.0, 1.0],
       cellColorEncoding,
     } = this.props;
-    return new ScatterplotLayer({
+    return new deck.ScatterplotLayer({
       id: CELLS_LAYER_ID,
       // Note that the reference for the object passed to the data prop should not change,
       // otherwise DeckGL will need to do a full re-render every time .createCellsLayer is called,
       // which can be very often to handle cellOpacity and cellRadius updates for dynamic opacity.
       data: this.cellsData,
-      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       visible: true,
       pickable: true,
       autoHighlight: true,
@@ -168,7 +166,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const result = [];
 
     if (cellSetPolygonsVisible) {
-      result.push(new PolygonLayer({
+      result.push(new deck.PolygonLayer({
         id: 'cell-sets-polygon-layer',
         data: cellSetPolygons,
         stroked: true,
@@ -200,7 +198,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         .force('collision', collisionForce)
         .tick(NUM_FORCE_SIMULATION_TICKS);
 
-      result.push(new TextLayer({
+      result.push(new deck.TextLayer({
         id: 'cell-sets-text-layer',
         data: nodes,
         getPosition: d => ([d.x, d.y]),

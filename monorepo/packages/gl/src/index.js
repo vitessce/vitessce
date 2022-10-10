@@ -26,3 +26,6 @@ export {
   AXIS_MIN_SIZE,
   AXIS_MAX_SIZE,
 } from './heatmap-constants';
+export * as viv from './viv';
+export * as luma from './luma';
+export * as deck from './deck';

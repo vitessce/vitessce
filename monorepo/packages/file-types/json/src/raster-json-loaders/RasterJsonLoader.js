@@ -1,4 +1,4 @@
-import { ZarrPixelSource, loadOmeTiff } from '@hms-dbmi/viv';
+import { viv } from '@vitessce/gl';
 import { openArray } from 'zarr';
 import JsonLoader from '../json-loaders/JsonLoader';
 import { rasterSchema, AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
@@ -31,10 +31,10 @@ async function initLoader(imageData) {
         const size = Math.min(yChunk, xChunk);
         // deck.gl requirement for power-of-two tile size.
         const tileSize = 2 ** Math.floor(Math.log2(size));
-        source = data.map(d => new ZarrPixelSource(d, labels, tileSize));
+        source = data.map(d => new viv.ZarrPixelSource(d, labels, tileSize));
       } else {
         const data = await openArray({ store: url });
-        source = new ZarrPixelSource(data, labels);
+        source = new viv.ZarrPixelSource(data, labels);
       }
       return { data: source, metadata: { dimensions, transform }, channels: (dimensions.find(d => d.field === 'channel') || dimensions[0]).values };
     }
@@ -46,7 +46,7 @@ async function initLoader(imageData) {
         const res = await fetch(omeTiffOffsetsUrl, (requestInit || {}));
         if (res.ok) {
           const offsets = await res.json();
-          loader = await loadOmeTiff(
+          loader = await viv.loadOmeTiff(
             url,
             {
               offsets,
@@ -57,7 +57,7 @@ async function initLoader(imageData) {
           throw new Error(`Offsets not found but provided: ${res.status} from ${res.url}`);
         }
       } else {
-        loader = await loadOmeTiff(url, { headers: requestInit?.headers });
+        loader = await viv.loadOmeTiff(url, { headers: requestInit?.headers });
       }
       const { Pixels: { Channels } } = loader.metadata;
       const channels = Array.isArray(Channels)

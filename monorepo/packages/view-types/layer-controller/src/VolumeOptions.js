@@ -8,7 +8,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import Slider from '@material-ui/core/Slider';
-import { RENDERING_MODES, getDefaultInitialViewState } from '@hms-dbmi/viv';
+import { viv } from '@vitessce/gl';
 import { abbreviateNumber, getBoundingCube } from './utils';
 import { useSelectStyles } from './styles';
 
@@ -106,7 +106,7 @@ const Slicer = ({
   );
 };
 
-const renderingOptions = Object.values(RENDERING_MODES);
+const renderingOptions = Object.values(viv.RENDERING_MODES);
 
 function RenderingModeSelect({
   handleRenderingModeChange,
@@ -151,7 +151,7 @@ const ReCenterButton = ({
   <Grid item xs="auto" key="recenter">
     <Button
       onClick={() => {
-        const defaultViewState = getDefaultInitialViewState(
+        const defaultViewState = viv.getDefaultInitialViewState(
           loader.data,
           { height: spatialHeight, width: spatialWidth },
           1.5,

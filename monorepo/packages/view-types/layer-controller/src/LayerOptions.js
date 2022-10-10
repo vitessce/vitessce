@@ -6,7 +6,7 @@ import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
-import { getDefaultInitialViewState } from '@hms-dbmi/viv';
+import { viv } from '@vitessce/gl'
 import {
   getBoundingCube, getMultiSelectionStats,
 } from './utils';
@@ -85,7 +85,7 @@ function VolumeDropdown({
       }
       // Update all properties at once to avoid overriding calls.
       handleMultiPropertyChange(propertiesChanged);
-      const defaultViewState = getDefaultInitialViewState(loader,
+      const defaultViewState = viv.getDefaultInitialViewState(loader,
         { height: spatialHeight, width: spatialWidth }, 1.5, true, new Matrix4(modelMatrix));
       setViewState({
         ...defaultViewState,
@@ -108,7 +108,7 @@ function VolumeDropdown({
         spatialAxisFixed: false,
         channels: newChannels,
       });
-      const defaultViewState = getDefaultInitialViewState(loader,
+      const defaultViewState = viv.getDefaultInitialViewState(loader,
         { height: spatialHeight, width: spatialWidth }, 0.5, false, new Matrix4(modelMatrix));
       setViewState({
         ...defaultViewState,

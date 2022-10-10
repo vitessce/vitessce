@@ -1,18 +1,12 @@
 /* eslint-disable no-plusplus */
 import shortNumber from 'short-number';
 import plur from 'plur';
-import {
-  getDefaultInitialViewState,
-  MultiscaleImageLayer,
-  ImageLayer,
-  VolumeLayer,
-} from '@hms-dbmi/viv';
+import { viv, BitmaskLayer } from '@vitessce/gl';
 import { extent } from 'd3-array';
 import {
   commaNumber,
   DEFAULT_LAYER_TYPE_ORDERING,
 } from '@vitessce/utils';
-import { BitmaskLayer } from '@vitessce/gl';
 
 /**
  * Sort spatial layer definition array,
@@ -81,7 +75,7 @@ export function getInitialSpatialTargets({
   if (imageLayerLoaders.length > 0 && useRaster) {
     for (let i = 0; i < imageLayerLoaders.length; i += 1) {
       const viewSize = { height, width };
-      const { target, zoom: newViewStateZoom } = getDefaultInitialViewState(
+      const { target, zoom: newViewStateZoom } = viv.getDefaultInitialViewState(
         imageLayerLoaders[i].data,
         viewSize,
         zoomBackoff,
@@ -154,9 +148,9 @@ export function getLayerLoaderTuple(data, use3d) {
   const loader = ((Array.isArray(data) && data.length > 1) || !Array.isArray(data))
     ? data : data[0];
   if (use3d) {
-    return [VolumeLayer, Array.isArray(loader) ? loader : [loader]];
+    return [viv.VolumeLayer, Array.isArray(loader) ? loader : [loader]];
   }
-  const Layer = (Array.isArray(data) && data.length > 1) ? MultiscaleImageLayer : ImageLayer;
+  const Layer = (Array.isArray(data) && data.length > 1) ? viv.MultiscaleImageLayer : viv.ImageLayer;
   return [Layer, loader];
 }
 

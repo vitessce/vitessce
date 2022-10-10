@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MAX_CHANNELS, getChannelStats } from '@hms-dbmi/viv';
+import { viv } from '@vitessce/gl'
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -361,7 +361,7 @@ export default function LayerController(props) {
           const raster = await source.getRaster({
             selection: channels[channelId].selection,
           });
-          const stats = getChannelStats(raster.data);
+          const stats = viv.getChannelStats(raster.data);
           const { q1, q3 } = stats;
           setChannel({ ...c, slider: [q1, q3] }, channelId);
         };
@@ -448,7 +448,7 @@ export default function LayerController(props) {
         : channelControllers}
       {isRgb(loader, channels) && disableChannelsIfRgbDetected ? null : (
         <Button
-          disabled={channels.length === MAX_CHANNELS}
+          disabled={channels.length === viv.MAX_CHANNELS}
           onClick={handleChannelAdd}
           fullWidth
           variant="outlined"

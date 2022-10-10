@@ -22,6 +22,7 @@
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/sets": "workspace:*",
+    "@vitessce/gl": "workspace:*",
     "lodash": "^4.17.21",
     "d3-array": "^2.4.0",
     "zarr": "0.5.1"

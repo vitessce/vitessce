@@ -1,12 +1,9 @@
+/* eslint-disable react/display-name */
 import React, {
   useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
 } from 'react';
 import uuidv4 from 'uuid/v4';
-import DeckGL from 'deck.gl';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import GL from '@luma.gl/constants';
-import { Texture2D } from '@luma.gl/core';
-import { OrthographicView } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
+import { deck, luma } from '@vitessce/gl';
 import range from 'lodash/range';
 import clamp from 'lodash/clamp';
 import isEqual from 'lodash/isEqual';
@@ -402,16 +399,16 @@ const Heatmap = forwardRef((props, deckRef) => {
         }
       }
     }
-    return gl ? new Texture2D(gl, {
+    return gl ? new luma.Texture2D(gl, {
       data: paddedExpressionContainer,
       mipmaps: false,
       parameters: PIXELATED_TEXTURE_PARAMETERS,
       // Each color contains a single luminance value.
       // When sampled, rgb are all set to this luminance, alpha is 1.0.
       // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
-      format: GL.LUMINANCE,
-      dataFormat: GL.LUMINANCE,
-      type: GL.UNSIGNED_BYTE,
+      format: luma.GL.LUMINANCE,
+      dataFormat: luma.GL.LUMINANCE,
+      type: luma.GL.UNSIGNED_BYTE,
       width: DATA_TEXTURE_SIZE,
       height: DATA_TEXTURE_SIZE,
     }) : paddedExpressionContainer;
@@ -771,7 +768,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     const result = range(numCellColorTracks).map((track) => {
       let view;
       if (transpose) {
-        view = new OrthographicView({
+        view = new deck.OrthographicView({
           id: `colorsTop-${track}`,
           controller: true,
           x: offsetLeft,
@@ -780,7 +777,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           height: COLOR_BAR_SIZE - AXIS_MARGIN,
         });
       } else {
-        view = new OrthographicView({
+        view = new deck.OrthographicView({
           id: `colorsLeft-${track}`,
           controller: true,
           x: axisOffsetLeft + track * COLOR_BAR_SIZE,
@@ -797,14 +794,14 @@ const Heatmap = forwardRef((props, deckRef) => {
     matrixWidth, axisOffsetLeft, offsetTop, matrixHeight]);
 
   return (
-    <DeckGL
+    <deck.DeckGL
       id={`deckgl-overlay-${uuid}`}
       ref={deckRef}
       onWebGLInitialized={setGlContext}
       views={[
         // Note that there are multiple views here,
         // but only one viewState.
-        new OrthographicView({
+        new deck.OrthographicView({
           id: 'heatmap',
           controller: true,
           x: offsetLeft,
@@ -812,7 +809,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           width: matrixWidth,
           height: matrixHeight,
         }),
-        new OrthographicView({
+        new deck.OrthographicView({
           id: 'axisLeft',
           controller: false,
           x: 0,
@@ -820,7 +817,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           width: axisOffsetLeft,
           height: matrixHeight,
         }),
-        new OrthographicView({
+        new deck.OrthographicView({
           id: 'axisTop',
           controller: false,
           x: offsetLeft,
@@ -828,7 +825,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           width: matrixWidth,
           height: axisOffsetTop,
         }),
-        new OrthographicView({
+        new deck.OrthographicView({
           id: 'cellColorLabel',
           controller: false,
           x: (transpose ? 0 : axisOffsetLeft),

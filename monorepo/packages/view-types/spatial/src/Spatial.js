@@ -1,14 +1,8 @@
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
-import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
-import { PolygonLayer, ScatterplotLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
+import { deck } from '@vitessce/gl';
 import { Matrix4 } from 'math.gl';
-import {
-  ScaleBarLayer,
-  MultiscaleImageLayer,
-  AdditiveColormapExtension,
-  ColorPaletteExtension,
-} from '@hms-dbmi/viv';
+import { viv } from '@vitessce/gl';
 import { getSelectionLayers, ScaledExpressionExtension } from '@vitessce/gl';
 import { PALETTE, getDefaultColor, getSourceFromLoader } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
@@ -155,10 +149,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
         const r = radius;
         return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
       };
-    return new PolygonLayer({
+    return new deck.PolygonLayer({
       id: CELLS_LAYER_ID,
       data: this.obsSegmentationsData,
-      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
       autoHighlight: true,
       filled: true,
@@ -213,10 +207,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
       const i = data.src.obsLabelsTypes.indexOf(data.src.obsLabels[index]);
       return data.src.PALETTE[i % data.src.PALETTE.length];
     };
-    return new ScatterplotLayer({
+    return new deck.ScatterplotLayer({
       id: MOLECULES_LAYER_ID,
       data: this.obsLocationsData,
-      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
       autoHighlight: true,
       radiusMaxPixels: 3,
@@ -261,10 +255,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } = this.props;
     const { neighborhoodsEntries } = this;
 
-    return new PolygonLayer({
+    return new deck.PolygonLayer({
       id: NEIGHBORHOODS_LAYER_ID,
       getPolygon: getNeighborhoodPolygon,
-      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       data: neighborhoodsEntries,
       pickable: true,
       autoHighlight: true,
@@ -318,7 +312,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       const { x } = physicalSizes;
       const { unit, size } = x;
       if (unit && size) {
-        return new ScaleBarLayer({
+        return new viv.ScaleBarLayer({
           id: 'scalebar-layer',
           unit,
           size,
@@ -394,7 +388,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         geneExpressionColormapRange = [0.0, 1.0],
         cellColorEncoding,
       } = this.props;
-      return new MultiscaleImageLayer({
+      return new viv.MultiscaleImageLayer({
         // `bitmask` is used by the AbstractSpatialOrScatterplot
         // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
         id: `bitmask-layer-${layerDef.index}-${i}`,
@@ -427,9 +421,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     const extensions = (layerDef.use3d ? [] : [
       ...(layerProps.colormap ? [
-        new AdditiveColormapExtension(),
+        new viv.AdditiveColormapExtension(),
       ] : [
-        new ColorPaletteExtension(),
+        new viv.ColorPaletteExtension(),
       ]),
     ]);
 

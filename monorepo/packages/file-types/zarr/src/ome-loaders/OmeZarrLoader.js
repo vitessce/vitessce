@@ -1,4 +1,4 @@
-import { loadOmeZarr } from '@hms-dbmi/viv';
+import { viv } from '@vitessce/gl';
 import { AbstractLoaderError, LoaderResult, AbstractTwoStepLoader } from '@vitessce/vit-s';
 import { initializeRasterLayersAndChannels } from '@vitessce/utils';
 
@@ -18,7 +18,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       return Promise.reject(payload);
     }
 
-    const loader = await loadOmeZarr(this.url, { fetchOptions: this.requestInit, type: 'multiscales' });
+    const loader = await viv.loadOmeZarr(this.url, { fetchOptions: this.requestInit, type: 'multiscales' });
     const { metadata, data } = loader;
 
     const { omero } = metadata;

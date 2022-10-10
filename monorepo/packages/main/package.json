@@ -41,5 +41,9 @@
   "devDependencies": {
     "esbuild": "^0.15.10",
     "vite": "^3.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
   }
 }

@@ -28,25 +28,6 @@
     "@material-ui/core": "~4.12.3",
     "lodash": "^4.17.21",
     "plur": "^5.1.0",
-    "uuid": "^3.3.2",
-    "@luma.gl/constants": "8.5.10",
-    "@luma.gl/core": "8.5.10",
-    "@luma.gl/engine": "8.5.10",
-    "@luma.gl/gltools": "8.5.10",
-    "@luma.gl/shadertools": "8.5.10",
-    "@luma.gl/experimental": "8.5.10",
-    "@luma.gl/webgl": "8.5.10",
-    "deck.gl": "8.6.7",
-    "@deck.gl/core": "8.6.7",
-    "@deck.gl/geo-layers": "8.6.7",
-    "@deck.gl/mesh-layers": "8.6.7",
-    "@deck.gl/aggregation-layers": "8.6.7",
-    "@deck.gl/extensions": "8.6.7",
-    "@deck.gl/layers": "8.6.7",
-    "@deck.gl/react": "8.6.7",
-    "@loaders.gl/3d-tiles": "^3.0.0",
-    "@loaders.gl/core": "^3.0.0",
-    "@loaders.gl/images": "^3.0.0",
-    "@loaders.gl/loader-utils": "^3.0.0"
+    "uuid": "^3.3.2"
   }
 }
