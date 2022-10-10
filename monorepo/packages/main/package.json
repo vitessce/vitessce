@@ -30,7 +30,8 @@
     "@vitessce/spatial": "workspace:*",
     "@vitessce/heatmap": "workspace:*",
     "@vitessce/csv": "workspace:*",
-    "@vitessce/json": "workspace:*"
+    "@vitessce/json": "workspace:*",
+    "@vitessce/zarr": "workspace:*"
   },
   "devDependencies": {
     "esbuild": "^0.15.10",

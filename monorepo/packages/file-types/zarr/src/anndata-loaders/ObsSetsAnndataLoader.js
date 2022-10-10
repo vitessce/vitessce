@@ -1,12 +1,9 @@
-/* eslint-disable no-control-regex */
-import { obsSetsAnndataSchema } from '../../app/file-options-schemas';
+import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsSetsAnndataSchema } from '@vitessce/vit-s';
 import {
-  initializeCellSetColor, treeToMembershipMap,
-} from '../../components/obs-sets/cell-set-utils';
-import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
-import { AbstractLoaderError } from '../errors';
-import LoaderResult from '../LoaderResult';
-import { dataToCellSetsTree } from './CellSetsZarrLoader';
+  initializeCellSetColor,
+  treeToMembershipMap,
+  dataToCellSetsTree,
+} from '@vitessce/sets';
 
 
 /**

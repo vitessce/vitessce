@@ -36,58 +36,7 @@ import ObsFeatureMatrixCsvLoader from './csv-loaders/ObsFeatureMatrixCsv';
 import ObsSetsCsvLoader from './csv-loaders/ObsSetsCsv';
 */
 
-export const fileTypeToLoaderAndSource = {
-  // TODO(monorepo)
-  /*
-  [FileType.OBS_EMBEDDING_CSV]: [CsvSource, ObsEmbeddingCsvLoader],
-  [FileType.OBS_LOCATIONS_CSV]: [CsvSource, ObsLocationsCsvLoader],
-  [FileType.OBS_LABELS_CSV]: [CsvSource, ObsLabelsCsvLoader],
-  [FileType.FEATURE_LABELS_CSV]: [CsvSource, FeatureLabelsCsvLoader],
-  [FileType.OBS_FEATURE_MATRIX_CSV]: [CsvSource, ObsFeatureMatrixCsvLoader],
-  [FileType.OBS_SEGMENTATIONS_JSON]: [JsonSource, ObsSegmentationsJsonLoader],
-  [FileType.OBS_SETS_CSV]: [CsvSource, ObsSetsCsvLoader],
-  [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: [
-    AnnDataSource, AnnDataLoaders.ObsFeatureMatrixAnndataLoader,
-  ],
-  [FileType.OBS_SETS_ANNDATA_ZARR]: [
-    AnnDataSource, AnnDataLoaders.ObsSetsAnndataLoader,
-  ],
-  [FileType.OBS_EMBEDDING_ANNDATA_ZARR]: [
-    AnnDataSource, AnnDataLoaders.ObsEmbeddingAnndataLoader,
-  ],
-  [FileType.OBS_LOCATIONS_ANNDATA_ZARR]: [
-    AnnDataSource, AnnDataLoaders.ObsLocationsAnndataLoader,
-  ],
-  [FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR]: [
-    AnnDataSource, AnnDataLoaders.ObsSegmentationsAnndataLoader,
-  ],
-  [FileType.OBS_LABELS_ANNDATA_ZARR]: [
-    AnnDataSource, AnnDataLoaders.ObsLabelsAnndataLoader,
-  ],
-  [FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR]: [
-    ZarrDataSource, MatrixZarrAsObsFeatureMatrixLoader,
-  ],
-  [FileType.FEATURE_LABELS_ANNDATA_ZARR]: [
-    AnnDataSource, AnnDataLoaders.FeatureLabelsAnndataLoader,
-  ],
-  [FileType.IMAGE_OME_ZARR]: [ZarrDataSource, OmeZarrLoader],
-  [FileType.IMAGE_RASTER_JSON]: [JsonSource, RasterJsonAsImageLoader],
-  [FileType.OBS_SEGMENTATIONS_RASTER_JSON]: [JsonSource, RasterJsonAsObsSegmentationsLoader],
-  [FileType.OBS_SETS_JSON]: [JsonSource, ObsSetsJsonLoader],
-  [FileType.OBS_SETS_CELL_SETS_JSON]: [JsonSource, ObsSetsJsonLoader],
-  [FileType.OBS_FEATURE_MATRIX_CLUSTERS_JSON]: [JsonSource, ClustersJsonAsObsFeatureMatrixLoader],
-  [FileType.OBS_FEATURE_MATRIX_GENES_JSON]: [JsonSource, GenesJsonAsObsFeatureMatrixLoader],
-  [FileType.OBS_LABELS_CELLS_JSON]: [JsonSource, CellsJsonAsObsLabelsLoader],
-  [FileType.OBS_EMBEDDING_CELLS_JSON]: [JsonSource, CellsJsonAsObsEmbeddingLoader],
-  [FileType.OBS_LOCATIONS_CELLS_JSON]: [JsonSource, CellsJsonAsObsLocationsLoader],
-  [FileType.OBS_SEGMENTATIONS_CELLS_JSON]: [JsonSource, CellsJsonAsObsSegmentationsLoader],
-  [FileType.OBS_LOCATIONS_MOLECULES_JSON]: [JsonSource, MoleculesJsonAsObsLocationsLoader],
-  [FileType.OBS_LABELS_MOLECULES_JSON]: [JsonSource, MoleculesJsonAsObsLabelsLoader],
-  // Old mappings:
-  [FileType.NEIGHBORHOODS_JSON]: [JsonSource, JsonLoader],
-  [FileType.GENOMIC_PROFILES_ZARR]: [ZarrDataSource, GenomicProfilesZarrLoader],
-  */
-};
+export const fileTypeToLoaderAndSource = {};
 
 export function getSourceAndLoaderFromFileType(type) {
   if (fileTypeToLoaderAndSource[type]) {

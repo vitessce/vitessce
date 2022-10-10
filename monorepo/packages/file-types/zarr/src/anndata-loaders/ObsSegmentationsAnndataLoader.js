@@ -1,8 +1,5 @@
-import LoaderResult from '../LoaderResult';
-import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
-import { AbstractLoaderError } from '../errors';
-import { obsSegmentationsAnndataSchema } from '../../app/file-options-schemas';
-import { DEFAULT_CELLS_LAYER } from '../../components/spatial/constants';
+import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsSegmentationsAnndataSchema } from '@vitessce/vit-s';
+import { DEFAULT_CELLS_LAYER } from '@vitessce/utils';
 
 
 /**

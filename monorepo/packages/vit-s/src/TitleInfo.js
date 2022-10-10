@@ -92,7 +92,7 @@ function DownloadOptions(props) {
       placement="bottom-end"
     >
       {urls.map(({ url, name }) => (
-        <MenuItem dense key={url}>
+        <MenuItem dense key={`${url}_${name}`}>
           <Link underline="none" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
             Download {name}
           </Link>

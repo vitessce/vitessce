@@ -59,7 +59,7 @@ export const codeluppiViaZarr = {
             obsType: 'molecule',
           },
         },
-        {
+        /*{
           fileType: 'image.raster.json',
           options: {
             schemaVersion: '0.0.2',
@@ -101,7 +101,7 @@ export const codeluppiViaZarr = {
               },
             ],
           },
-        },
+        },*/
       ],
     },
   ],
@@ -145,7 +145,7 @@ export const codeluppiViaZarr = {
       w: 2,
       h: 1,
     },
-    {
+    /*{
       component: 'layerController',
       coordinationScopes: {
         spatialSegmentationLayer: 'A',
@@ -162,7 +162,7 @@ export const codeluppiViaZarr = {
       y: 5,
       w: 2,
       h: 1,
-    },
+    },*/
     {
       component: 'spatial',
       coordinationScopes: {
@@ -177,13 +177,13 @@ export const codeluppiViaZarr = {
       w: 4,
       h: 4,
     },
-    {
+    /*{
       component: 'featureList',
       x: 9,
       y: 0,
       w: 3,
       h: 2,
-    },
+    },*/
     {
       component: 'obsSets',
       x: 9,
@@ -201,13 +201,13 @@ export const codeluppiViaZarr = {
       w: 5,
       h: 2,
     },
-    {
+    /*{
       component: 'obsSetFeatureValueDistribution',
       x: 7,
       y: 4,
       w: 5,
       h: 2,
-    },
+    },*/
     {
       component: 'scatterplot',
       coordinationScopes: {

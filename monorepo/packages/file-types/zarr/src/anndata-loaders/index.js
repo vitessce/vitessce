@@ -1,17 +1,7 @@
-import ObsFeatureMatrixAnndataLoader from './ObsFeatureMatrixAnndataLoader';
-import ObsEmbeddingAnndataLoader from './ObsEmbeddingAnndataLoader';
-import ObsLocationsAnndataLoader from './ObsLocationsAnndataLoader';
-import ObsSegmentationsAnndataLoader from './ObsSegmentationsAnndataLoader';
-import ObsSetsAnndataLoader from './ObsSetsAnndataLoader';
-import ObsLabelsAnndataLoader from './ObsLabelsAnndataLoader';
-import FeatureLabelsAnndataLoader from './FeatureLabelsAnndataLoader';
-
-export default {
-  ObsFeatureMatrixAnndataLoader,
-  ObsEmbeddingAnndataLoader,
-  ObsLocationsAnndataLoader,
-  ObsSegmentationsAnndataLoader,
-  ObsSetsAnndataLoader,
-  ObsLabelsAnndataLoader,
-  FeatureLabelsAnndataLoader,
-};
+export { default as ObsFeatureMatrixAnndataLoader } from './ObsFeatureMatrixAnndataLoader';
+export { default as ObsEmbeddingAnndataLoader } from './ObsEmbeddingAnndataLoader';
+export { default as ObsLocationsAnndataLoader } from './ObsLocationsAnndataLoader';
+export { default as ObsSegmentationsAnndataLoader } from './ObsSegmentationsAnndataLoader';
+export { default as ObsSetsAnndataLoader } from './ObsSetsAnndataLoader';
+export { default as ObsLabelsAnndataLoader } from './ObsLabelsAnndataLoader';
+export { default as FeatureLabelsAnndataLoader } from './FeatureLabelsAnndataLoader';

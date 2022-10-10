@@ -1,6 +1,4 @@
-import LoaderResult from '../LoaderResult';
-import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
-import { AbstractLoaderError } from '../errors';
+import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError } from '@vitessce/vit-s';
 
 const optionsSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',

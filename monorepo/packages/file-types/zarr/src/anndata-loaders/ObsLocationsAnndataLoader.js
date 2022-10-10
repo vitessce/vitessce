@@ -1,7 +1,4 @@
-import LoaderResult from '../LoaderResult';
-import AbstractTwoStepLoader from '../AbstractTwoStepLoader';
-import { AbstractLoaderError } from '../errors';
-import { obsLocationsAnndataSchema } from '../../app/file-options-schemas';
+import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsLocationsAnndataSchema } from '@vitessce/vit-s';
 
 /**
  * Loader for embedding arrays located in anndata.zarr stores.

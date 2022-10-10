@@ -213,20 +213,20 @@ export const codeluppi2018 = {
           fileType: 'cell-sets.json',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cell-sets.json',
         },
-        {
+        /*{
           fileType: 'image.raster.json',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.raster.json',
-        },
+        },*/
         {
           type: 'molecules',
           fileType: 'molecules.json',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.molecules.json',
         },
-        {
+        /*{
           type: 'neighborhoods',
           fileType: 'neighborhoods.json',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.neighborhoods.json',
-        },
+        },*/
         {
           type: 'expression-matrix',
           fileType: 'clusters.json',
@@ -262,7 +262,7 @@ export const codeluppi2018 = {
       w: 2,
       h: 1,
     },
-    {
+    /*{
       component: 'layerController',
       props: {
         globalDisable3d: true,
@@ -279,7 +279,7 @@ export const codeluppi2018 = {
       y: 5,
       w: 2,
       h: 1,
-    },
+    },*/
     {
       component: 'spatial',
       coordinationScopes: {
@@ -292,13 +292,13 @@ export const codeluppi2018 = {
       w: 4,
       h: 4,
     },
-    {
+    /*{
       component: 'genes',
       x: 9,
       y: 0,
       w: 3,
       h: 2,
-    },
+    },*/
     {
       component: 'cellSets',
       x: 9,
@@ -316,13 +316,13 @@ export const codeluppi2018 = {
       w: 5,
       h: 2,
     },
-    {
+    /*{
       component: 'cellSetExpression',
       x: 7,
       y: 4,
       w: 5,
       h: 2,
-    },
+    },*/
     {
       component: 'scatterplot',
       coordinationScopes: {
