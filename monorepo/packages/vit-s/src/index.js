@@ -1,5 +1,6 @@
 export { Vitessce } from './Vitessce';
 export { TitleInfo } from './TitleInfo';
+export { PopperMenu } from './shared-mui/components';
 export {
   registerPluginViewType,
   registerPluginCoordinationType,
@@ -10,6 +11,7 @@ export {
   useReady, useUrls,
   useVitessceContainer, useDeckCanvasSize,
   useExpressionValueGetter, useGetObsInfo,
+  useClosestVitessceContainerSize, useWindowDimensions,
 } from './hooks';
 export {
   useCoordination,
@@ -26,6 +28,7 @@ export {
   useWarning,
   useSetWarning,
   useAuxiliaryCoordination,
+  useComponentLayout,
 } from './state/hooks';
 export {
   useDescription,

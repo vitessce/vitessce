@@ -254,6 +254,7 @@ importers:
       '@vitessce/feature-list': workspace:*
       '@vitessce/heatmap': workspace:*
       '@vitessce/json': workspace:*
+      '@vitessce/layer-controller': workspace:*
       '@vitessce/obs-sets-manager': workspace:*
       '@vitessce/scatterplot-embedding': workspace:*
       '@vitessce/spatial': workspace:*
@@ -270,6 +271,7 @@ importers:
       '@vitessce/feature-list': link:../view-types/feature-list
       '@vitessce/heatmap': link:../view-types/heatmap
       '@vitessce/json': link:../file-types/json
+      '@vitessce/layer-controller': link:../view-types/layer-controller
       '@vitessce/obs-sets-manager': link:../view-types/obs-sets-manager
       '@vitessce/scatterplot-embedding': link:../view-types/scatterplot-embedding
       '@vitessce/spatial': link:../view-types/spatial
@@ -464,6 +466,66 @@ importers:
       lodash: 4.17.21
       plur: 5.1.0
       uuid: 3.4.0
+
+  packages/view-types/layer-controller:
+    specifiers:
+      '@deck.gl/aggregation-layers': 8.6.7
+      '@deck.gl/core': 8.6.7
+      '@deck.gl/extensions': 8.6.7
+      '@deck.gl/geo-layers': 8.6.7
+      '@deck.gl/layers': 8.6.7
+      '@deck.gl/mesh-layers': 8.6.7
+      '@deck.gl/react': 8.6.7
+      '@hms-dbmi/viv': ~0.12.6
+      '@loaders.gl/3d-tiles': ^3.0.0
+      '@loaders.gl/core': ^3.0.0
+      '@loaders.gl/images': ^3.0.0
+      '@loaders.gl/loader-utils': ^3.0.0
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/core': 8.5.10
+      '@luma.gl/engine': 8.5.10
+      '@luma.gl/experimental': 8.5.10
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
+      '@material-ui/core': ~4.12.3
+      '@material-ui/icons': ~4.11.2
+      '@vitessce/constants-internal': workspace:*
+      '@vitessce/gl': workspace:*
+      '@vitessce/utils': workspace:*
+      '@vitessce/vit-s': workspace:*
+      deck.gl: 8.6.7
+      lodash: ^4.17.21
+      math.gl: ^3.5.6
+    dependencies:
+      '@deck.gl/aggregation-layers': 8.6.7_xw7kzmvtc74tyv7oyffqqm4hgm
+      '@deck.gl/core': 8.6.7
+      '@deck.gl/extensions': 8.6.7_qjltsxfxy33t2jnbhndt55efki
+      '@deck.gl/geo-layers': 8.6.7_go3qibzpfgbiluv6czggami56a
+      '@deck.gl/layers': 8.6.7_r3awsm5ppykm6lrfdfc65rhsvm
+      '@deck.gl/mesh-layers': 8.6.7_hfkoowvatms54plrp6hfhethgy
+      '@deck.gl/react': 8.6.7_cn23c3y7vgm52ig7fzb256qsya
+      '@hms-dbmi/viv': 0.12.9_ern4kzgj5ufmzftmbwnbckikuy
+      '@loaders.gl/3d-tiles': 3.2.9_@loaders.gl+core@3.2.9
+      '@loaders.gl/core': 3.2.9
+      '@loaders.gl/images': 3.2.9
+      '@loaders.gl/loader-utils': 3.2.9
+      '@luma.gl/constants': 8.5.10
+      '@luma.gl/core': 8.5.10
+      '@luma.gl/engine': 8.5.10
+      '@luma.gl/experimental': 8.5.10_hawe4vukmged4xa2bdab7iruye
+      '@luma.gl/gltools': 8.5.10
+      '@luma.gl/shadertools': 8.5.10
+      '@luma.gl/webgl': 8.5.10
+      '@material-ui/core': 4.12.4_wcqkhtmu7mswc6yz4uyexck3ty
+      '@material-ui/icons': 4.11.3_dioft7urihowmejr75iiks5cki
+      '@vitessce/constants-internal': link:../../constants-internal
+      '@vitessce/gl': link:../../gl
+      '@vitessce/utils': link:../../utils
+      '@vitessce/vit-s': link:../../vit-s
+      deck.gl: 8.6.7_gbuctxiv7l6ixl2hv34t537nxe
+      lodash: 4.17.21
+      math.gl: 3.6.3
 
   packages/view-types/obs-sets-manager:
     specifiers:

@@ -213,20 +213,20 @@ export const codeluppi2018 = {
           fileType: 'cell-sets.json',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cell-sets.json',
         },
-        /*{
+        {
           fileType: 'image.raster.json',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.raster.json',
-        },*/
+        },
         {
           type: 'molecules',
           fileType: 'molecules.json',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.molecules.json',
         },
-        /*{
+        {
           type: 'neighborhoods',
           fileType: 'neighborhoods.json',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.neighborhoods.json',
-        },*/
+        },
         {
           type: 'expression-matrix',
           fileType: 'clusters.json',
@@ -262,7 +262,7 @@ export const codeluppi2018 = {
       w: 2,
       h: 1,
     },
-    /*{
+    {
       component: 'layerController',
       props: {
         globalDisable3d: true,
@@ -273,7 +273,7 @@ export const codeluppi2018 = {
       w: 2,
       h: 4,
     },
-    {
+    /*{
       component: 'status',
       x: 0,
       y: 5,

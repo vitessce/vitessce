@@ -1,23 +1,5 @@
-import { makeStyles, createTheme } from '@material-ui/core/styles';
+import { createTheme } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
-
-export const styles = makeStyles(() => ({
-  paper: {
-    maxHeight: 200,
-    overflow: 'auto',
-  },
-  container: {
-    position: 'relative',
-    left: 0,
-    top: 0,
-  },
-  span: {
-    width: '70px',
-    textAlign: 'center',
-    paddingLeft: '2px',
-    paddingRight: '2px',
-  },
-}));
 
 const globalColors = {
   "white": '#FFFFFF',

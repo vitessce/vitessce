@@ -30,6 +30,7 @@
     "@vitessce/spatial": "workspace:*",
     "@vitessce/heatmap": "workspace:*",
     "@vitessce/feature-list": "workspace:*",
+    "@vitessce/layer-controller": "workspace:*",
     "@vitessce/csv": "workspace:*",
     "@vitessce/json": "workspace:*",
     "@vitessce/zarr": "workspace:*"

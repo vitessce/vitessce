@@ -7,6 +7,7 @@ import { register as registerScatterplotEmbedding } from '@vitessce/scatterplot-
 import { register as registerSpatial } from '@vitessce/spatial';
 import { register as registerHeatmap } from '@vitessce/heatmap';
 import { register as registerFeatureList } from '@vitessce/feature-list';
+import { register as registerLayerController } from '@vitessce/layer-controller';
 // Register file type plugins
 import {
   // CSV
@@ -64,6 +65,7 @@ function setup() {
   registerSpatial();
   registerHeatmap();
   registerFeatureList();
+  registerLayerController();
   // All CSV file types
   registerPluginFileType(FileType.OBS_SETS_CSV, DataType.OBS_SETS, ObsSetsCsvLoader, CsvSource);
   registerPluginFileType(FileType.OBS_EMBEDDING_CSV, DataType.OBS_EMBEDDING, ObsEmbeddingCsvLoader, CsvSource);

@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import IconButton from '@material-ui/core/IconButton';
@@ -6,13 +7,18 @@ import MenuList from '@material-ui/core/MenuList';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Fade from '@material-ui/core/Fade';
 import { useVitessceContainer } from '../hooks';
-import { styles } from './styles';
 
-export function MuiSpan(props) {
-  const { children } = props;
-  const classes = styles();
-  return <span className={classes.span}>{children}</span>;
-}
+const useStyles = makeStyles(() => ({
+  paper: {
+    maxHeight: 200,
+    overflow: 'auto',
+  },
+  container: {
+    position: 'relative',
+    left: 0,
+    top: 0,
+  },
+}));
 
 export function PopperMenu(props) {
   const {
@@ -23,7 +29,7 @@ export function PopperMenu(props) {
     buttonClassName,
     placement = 'bottom-end',
   } = props;
-  const classes = styles();
+  const classes = useStyles();
 
   const anchorRef = useRef();
 
