@@ -258,6 +258,7 @@ importers:
       '@vitessce/obs-sets-manager': workspace:*
       '@vitessce/scatterplot-embedding': workspace:*
       '@vitessce/spatial': workspace:*
+      '@vitessce/status': workspace:*
       '@vitessce/vit-s': workspace:*
       '@vitessce/zarr': workspace:*
       esbuild: ^0.15.10
@@ -275,6 +276,7 @@ importers:
       '@vitessce/obs-sets-manager': link:../view-types/obs-sets-manager
       '@vitessce/scatterplot-embedding': link:../view-types/scatterplot-embedding
       '@vitessce/spatial': link:../view-types/spatial
+      '@vitessce/status': link:../view-types/status
       '@vitessce/vit-s': link:../vit-s
       '@vitessce/zarr': link:../file-types/zarr
     devDependencies:
@@ -728,6 +730,18 @@ importers:
       mathjs: 9.5.2
       plur: 5.1.0
       short-number: 1.0.7
+
+  packages/view-types/status:
+    specifiers:
+      '@material-ui/core': ~4.12.3
+      '@vitessce/constants-internal': workspace:*
+      '@vitessce/vit-s': workspace:*
+      clsx: ^1.1.1
+    dependencies:
+      '@material-ui/core': 4.12.4_wcqkhtmu7mswc6yz4uyexck3ty
+      '@vitessce/constants-internal': link:../../constants-internal
+      '@vitessce/vit-s': link:../../vit-s
+      clsx: 1.2.1
 
   packages/vit-s:
     specifiers:

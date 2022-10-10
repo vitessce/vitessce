@@ -273,13 +273,13 @@ export const codeluppi2018 = {
       w: 2,
       h: 4,
     },
-    /*{
+    {
       component: 'status',
       x: 0,
       y: 5,
       w: 2,
       h: 1,
-    },*/
+    },
     {
       component: 'spatial',
       coordinationScopes: {
