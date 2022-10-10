@@ -74,7 +74,7 @@ export const codeluppiViaCsv = {
             obsType: 'molecule',
           },
         },
-        /*{
+        {
           fileType: 'obsLabels.csv',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.molecules.csv',
           options: {
@@ -94,7 +94,7 @@ export const codeluppiViaCsv = {
             featureValueType: 'expression',
           },
         },
-        {
+        /*{
           fileType: 'image.raster.json',
           options: {
             schemaVersion: '0.0.2',
@@ -226,7 +226,7 @@ export const codeluppiViaCsv = {
       w: 3,
       h: 2,
     },
-    /*{
+    {
       component: 'heatmap',
       props: {
         transpose: true,
@@ -236,7 +236,7 @@ export const codeluppiViaCsv = {
       w: 5,
       h: 2,
     },
-    {
+    /*{
       component: 'obsSetFeatureValueDistribution',
       x: 7,
       y: 4,

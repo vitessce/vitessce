@@ -40,6 +40,9 @@ export {
   useObsSegmentationsData,
   useNeighborhoodsData,
   useObsLabelsData,
+
+  useObsFeatureMatrixData,
+  useFeatureLabelsData,
   // TODO(monorepo): add more data hook exports
 } from './data-hooks';
 export {

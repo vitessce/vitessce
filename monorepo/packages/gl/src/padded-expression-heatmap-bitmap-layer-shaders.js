@@ -1,10 +1,10 @@
-import glsl from 'glslify';
+import { colormaps } from "./glsl";
 
 /**
  * No change to the vertex shader from the base BitmapLayer.
  * Reference: https://github.com/visgl/deck.gl/blob/8.2-release/modules/layers/src/bitmap-layer/bitmap-layer-vertex.js
  */
-export const vertexShader = glsl`
+export const vertexShader = `
 #define SHADER_NAME heatmap-bitmap-layer-vertex-shader
 
 attribute vec2 texCoords;
@@ -36,29 +36,14 @@ void main(void) {
  * Reference: https://github.com/visgl/deck.gl/blob/8.2-release/modules/layers/src/bitmap-layer/bitmap-layer-fragment.js
  * Reference: https://github.com/hms-dbmi/viv/blob/06231ae02cac1ff57ba458c71e9bc59ed2fc4f8b/src/layers/XRLayer/xr-layer-fragment-colormap.webgl1.glsl
  */
-export const fragmentShader = glsl`
+export const fragmentShader = `
 #define SHADER_NAME heatmap-bitmap-layer-fragment-shader
 
 #ifdef GL_ES
 precision mediump float;
 #endif
 
-#pragma glslify: rdbu = require("glsl-colormap/rdbu")
-#pragma glslify: plasma = require("glsl-colormap/plasma")
-#pragma glslify: viridis = require("glsl-colormap/viridis")
-#pragma glslify: greys = require("glsl-colormap/greys")
-#pragma glslify: magma = require("glsl-colormap/magma")
-#pragma glslify: jet = require("glsl-colormap/jet")
-#pragma glslify: bone = require("glsl-colormap/bone")
-#pragma glslify: copper = require("glsl-colormap/copper")
-#pragma glslify: density = require("glsl-colormap/density")
-#pragma glslify: inferno = require("glsl-colormap/inferno")
-#pragma glslify: cool = require("glsl-colormap/cool")
-#pragma glslify: hot = require("glsl-colormap/hot")
-#pragma glslify: spring = require("glsl-colormap/spring")
-#pragma glslify: summer = require("glsl-colormap/summer")
-#pragma glslify: autumn = require("glsl-colormap/autumn")
-#pragma glslify: winter = require("glsl-colormap/winter")
+${colormaps}
 
 // The texture (GL.LUMINANCE & Uint8Array).
 uniform sampler2D uBitmapTexture;

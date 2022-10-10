@@ -20,7 +20,8 @@ pnpm install
 ### Run demo
 
 ```sh
-pnpm start
+pnpm run build # for @vitessce/icons and @vitessce/workers
+pnpm run start
 ```
 
 ### Lint and format

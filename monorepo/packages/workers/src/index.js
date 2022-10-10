@@ -1,0 +1,1 @@
+export { default as HeatmapWorker } from 'web-worker:./heatmap.worker';

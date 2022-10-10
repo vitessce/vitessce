@@ -15,3 +15,4 @@ export {
 export {
   getMultiSelectionStats
 } from './layer-controller';
+export { default as Pool } from './Pool';

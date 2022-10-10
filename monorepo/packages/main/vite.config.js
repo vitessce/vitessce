@@ -24,7 +24,6 @@ const isProduction = process.env.APP_ENV === 'production';
           // just use esbuild to bundle the worker dependencies
           const bundle = await esbuild.build({
               entryPoints: [id],
-              inject: ['./src/alias/buffer-shim.js'],
               format: 'iife',
               bundle: true,
               write: false
@@ -33,29 +32,6 @@ const isProduction = process.env.APP_ENV === 'production';
               throw new Error('Worker must be a single module.');
           }
           return bundle.outputFiles[0].text;
-      }
-  }
-};
-
-// We can't inject a global `Buffer` polyfill for the worker entrypoint using vite alone,
-// so we reuse the `bundle-web-worker` plugin to inject the buffer shim during production.
-const manualInlineWorker = {
-  apply: 'build',
-  async transform(code, id) {
-      if (id.endsWith('bam-worker.ts?worker&inline') || id.endsWith('vcf-worker.ts?worker&inline')) {
-          const bundle = await bundleWebWorker.transform(code, id + '?worker_file');
-          const base64 = Buffer.from(bundle).toString('base64');
-          // https://github.com/vitejs/vite/blob/72cb33e947e7aa72d27ed0c5eacb2457d523dfbf/packages/vite/src/node/plugins/worker.ts#L78-L87
-          return `const encodedJs = "${base64}";
-const blob = typeof window !== "undefined" && window.Blob && new Blob([atob(encodedJs)], { type: "text/javascript;charset=utf-8" });
-export default function() {
-const objURL = blob && (window.URL || window.webkitURL).createObjectURL(blob);
-try {
-  return objURL ? new Worker(objURL) : new Worker("data:application/javascript;base64," + encodedJs, {type: "module"});
-} finally {
-  objURL && (window.URL || window.webkitURL).revokeObjectURL(objURL);
-}
-}`;
       }
   }
 };
@@ -84,5 +60,5 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': `"${process.env.APP_ENV}"`,
   },
-  plugins: [react(), manualInlineWorker]
+  plugins: [react(), bundleWebWorker]
 });

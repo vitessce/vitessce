@@ -28,6 +28,7 @@
     "@vitessce/obs-sets-manager": "workspace:*",
     "@vitessce/scatterplot-embedding": "workspace:*",
     "@vitessce/spatial": "workspace:*",
+    "@vitessce/heatmap": "workspace:*",
     "@vitessce/csv": "workspace:*",
     "@vitessce/json": "workspace:*"
   },
