@@ -246,21 +246,17 @@ importers:
 
   packages/main:
     specifiers:
+      '@vitejs/plugin-react': ^1.3.2
       '@vitessce/all': workspace:*
       '@vitessce/config': workspace:*
       '@vitessce/constants': workspace:*
-      esbuild: ^0.15.10
-      react: '>=16.14.0'
-      react-dom: '>=16.14.0'
       vite: ^3.0.0
     dependencies:
       '@vitessce/all': link:../all
       '@vitessce/config': link:../config
       '@vitessce/constants': link:../constants
     devDependencies:
-      esbuild: 0.15.10
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
+      '@vitejs/plugin-react': 1.3.2
       vite: 3.1.4
 
   packages/sets:
@@ -12783,6 +12779,7 @@ packages:
       loose-envify: 1.4.0
       react: 18.2.0
       scheduler: 0.23.0
+    dev: false
 
   /react-draggable/4.4.5_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-OMHzJdyJbYTZo4uQE393fHcqqPYsEtkjfMgvCHr6rejT+Ezn4OZbNyGH50vv+SunC1RMvwOTSWkEODQLzw1M9g==}
@@ -13158,6 +13155,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
+    dev: false
 
   /reactcss/1.2.3_react@16.14.0:
     resolution: {integrity: sha512-KiwVUcFu1RErkI97ywr8nvx8dNOpT03rbnma0SSalTYjkrPYaEajR4a/MRt6DZ46K6arDRbWMNHF+xH7G7n/8A==}
@@ -13711,6 +13709,7 @@ packages:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
     dependencies:
       loose-envify: 1.4.0
+    dev: false
 
   /schema-utils/2.7.0:
     resolution: {integrity: sha512-0ilKFI6QQF5nxDZLFn2dMjvc4hjg/Wkg7rHd3jK6/A4a1Hl9VFdQWvgB1UMGoU94pad1P/8N7fMcEnLnSiju8A==}

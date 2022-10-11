@@ -50,3 +50,5 @@ pnpm meta-updater
 ```
 
 ## Deployment
+
+## Monorepo notes

@@ -25,13 +25,7 @@
     "@vitessce/all": "workspace:*"
   },
   "devDependencies": {
-    "esbuild": "^0.15.10",
     "vite": "^3.0.0",
-    "react": ">=16.14.0",
-    "react-dom": ">=16.14.0"
-  },
-  "peerDependencies": {
-    "react": ">=16.14.0",
-    "react-dom": ">=16.14.0"
+    "@vitejs/plugin-react": "^1.3.2"
   }
 }
