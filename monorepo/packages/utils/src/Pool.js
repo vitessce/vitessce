@@ -13,7 +13,7 @@ export default class Pool {
    * @constructor
    * @param {object} Worker The worker class to be used for processing.
    */
-  constructor(Worker) {
+  constructor(createWorker) {
     this.workers = [];
     this.idleWorkers = [];
     this.waitQueue = [];
@@ -21,7 +21,7 @@ export default class Pool {
 
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < defaultPoolSize; ++i) {
-      const w = new Worker();
+      const w = createWorker();
       this.workers.push(w);
       this.idleWorkers.push(w);
     }

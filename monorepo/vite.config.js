@@ -1,6 +1,7 @@
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import { defineConfig } from 'vite';
+import { resolve } from 'path';
 
 // For tests.
 export default defineConfig({
@@ -13,6 +14,13 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    setupFiles: [resolve(__dirname, './vitest.setup.js')],
+    threads: false,
+    environmentOptions: {
+      jsdom: {
+        resources: 'usable'
+      }
+    },
   },
   // To enable .js files that contain JSX to be imported by Vitest tests.
   // Reference: https://github.com/vitest-dev/vitest/issues/1564

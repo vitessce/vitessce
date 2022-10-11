@@ -1,13 +1,18 @@
 import { HeatmapWorker } from '@vitessce/workers';
 import { Pool } from '@vitessce/utils';
 
+// Reference: https://github.com/developit/jsdom-worker/issues/14#issuecomment-1268070123
+function createWorker() {
+  return new HeatmapWorker();
+}
+
 /**
  * Pool for workers to decode chunks of the images.
  * This is a line-for-line copy of GeoTIFFs old implementation: https://github.com/geotiffjs/geotiff.js/blob/v1.0.0-beta.6/src/pool.js
  */
 export default class HeatmapPool extends Pool {
   constructor() {
-    super(HeatmapWorker);
+    super(createWorker);
   }
 
   /**
