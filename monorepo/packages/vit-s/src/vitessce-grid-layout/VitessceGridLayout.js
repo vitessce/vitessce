@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import isEqual from 'lodash/isEqual';
 import { getMaxRows, resolveLayout, COMPONENT_ID_PREFIX } from './layout-utils';
@@ -59,8 +59,8 @@ export function VitessceGridLayout(props) {
   //
   // See the following GitHub issue for more information.
   // https://github.com/react-grid-layout/react-grid-layout/issues/1104#issuecomment-827785217
-  const [currentGridLayouts, setCurrentGridLayouts] = React.useState(gridLayouts);
-  const [lastValidGridLayouts, setLastValidGridLayouts] = React.useState(gridLayouts);
+  const [currentGridLayouts, setCurrentGridLayouts] = useState(gridLayouts);
+  const [lastValidGridLayouts, setLastValidGridLayouts] = useState(gridLayouts);
 
   const onValidLayoutChange = (newLayout) => {
     if (newLayout.length === Object.entries(gridComponents).length) {

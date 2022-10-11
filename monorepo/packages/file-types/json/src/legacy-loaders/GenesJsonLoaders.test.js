@@ -1,8 +1,8 @@
 import expect from 'expect';
 import GenesJsonAsObsFeatureMatrixLoader from './GenesJsonAsObsFeatureMatrix';
-import genesGoodFixture from '../../schemas/fixtures/genes.good.json';
-import { JsonSource } from '../data-sources';
-import LoaderResult from '../LoaderResult';
+import genesGoodFixture from './schemas/fixtures/genes.good.json';
+import JsonSource from '../JsonSource';
+import LoaderResult from '@vitessce/vit-s';
 
 const createLoader = (ClassDef, config, data) => {
   const configWithUrl = {

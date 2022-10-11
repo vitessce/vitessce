@@ -1,7 +1,6 @@
 /* eslint-disable func-names */
-import expect from 'expect';
 import ObsFeatureMatrixAnndataLoader from './ObsFeatureMatrixAnndataLoader';
-import { AnnDataSource } from '../data-sources';
+import AnnDataSource from '../AnnDataSource';
 
 const createMatrixLoader = (url) => {
   const config = {

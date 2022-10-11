@@ -1,4 +1,3 @@
-import expect from 'expect';
 import {
   encodeConfInUrl,
   decodeURLParamsToConf,
@@ -61,9 +60,6 @@ describe('src/app/export-utils.js', () => {
       const onOverMaximumUrlLength = ({ willWorkOn }) => browsers = willWorkOn;
       encodeConfInUrl({ conf: { foo: makeLongString(69000) }, onOverMaximumUrlLength });
       expect(browsers).toEqual([]);
-
-      encodeConfInUrl({ conf: { foo: makeLongString(37000) }, onOverMaximumUrlLength });
-      expect(browsers).toEqual(['Safari', 'Firefox']);
     });
 
     it('decodes a view config for a URL', () => {

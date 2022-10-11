@@ -1,4 +1,3 @@
-import expect from 'expect';
 import AnnDataSource from './AnnDataSource';
 
 describe('sources/AnnDataSource', () => {

@@ -1,8 +1,7 @@
-import expect from 'expect';
 import ObsSetsJsonLoader from './ObsSetsJson';
-import obsSetsGoodFixture from '../../schemas/fixtures/obsSets.good.json';
-import { JsonSource } from '../data-sources';
-import LoaderResult from '../LoaderResult';
+import obsSetsGoodFixture from '../legacy-loaders/schemas/fixtures/obsSets.good.json';
+import JsonSource from '../JsonSource';
+import LoaderResult from '@vitessce/vit-s';
 
 const createLoader = (ClassDef, config, data) => {
   const configWithUrl = {

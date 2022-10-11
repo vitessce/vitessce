@@ -5,10 +5,11 @@ import Ajv from 'ajv';
 
 describe('schemas', () => {
   [
-    'config-1.0.1',
-    'obsSets',
-    'obsSetsTabular',
-    'raster',
+    'cells',
+    'clusters',
+    'genes',
+    'molecules',
+    'neighborhoods',
   ].forEach((type) => {
     const schemaFile = `${type}.schema.json`;
     describe(schemaFile, () => {

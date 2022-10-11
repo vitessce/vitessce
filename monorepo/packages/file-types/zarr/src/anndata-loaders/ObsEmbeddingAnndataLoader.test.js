@@ -1,8 +1,7 @@
 /* eslint-disable func-names */
-import expect from 'expect';
 import ObsEmbeddingAnndataLoader from './ObsEmbeddingAnndataLoader';
-import { AnnDataSource } from '../data-sources';
-import LoaderResult from '../LoaderResult';
+import AnnDataSource from '../AnnDataSource';
+import { LoaderResult } from '@vitessce/vit-s';
 
 const createMatrixLoader = (url) => {
   const config = {

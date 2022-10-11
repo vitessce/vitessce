@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, waitForElement } from '@testing-library/react'
 import { afterEach } from 'vitest'
 
 import { VitessceGridLayout } from './VitessceGridLayout';
@@ -26,14 +26,14 @@ const layoutJson = {
 
 describe('VitessceGridLayout.js', () => {
   describe('<VitessceGridLayout />', () => {
-    it('mount() works', () => {
+    it('mount() works', async () => {
       const { container } = render(<VitessceGridLayout
         layout={layoutJson}
         getComponent={() => FakeComponent}
         draggableHandle=".my-handle"
       />);
 
-      expect(screen.getByText('Hello World'));
+      expect(await screen.findByText('Hello World'));
       expect(container.querySelectorAll('.react-grid-item span:not(.react-resizable-handle)').length).toEqual(1);
 
       const style = container.querySelectorAll('style');

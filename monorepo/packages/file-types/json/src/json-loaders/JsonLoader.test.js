@@ -1,7 +1,6 @@
-import expect from 'expect';
 import JsonLoader from './JsonLoader';
-import cellsGoodFixture from '../../schemas/fixtures/cells.good.json';
-import cellsBadFixture from '../../schemas/fixtures/cells.bad.json';
+import cellsGoodFixture from '../legacy-loaders/schemas/fixtures/cells.good.json';
+import cellsBadFixture from '../legacy-loaders/schemas/fixtures/cells.bad.json';
 
 
 describe('loaders/JsonLoader', () => {

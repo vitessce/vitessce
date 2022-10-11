@@ -1,10 +1,9 @@
-import expect from 'expect';
 import CellsJsonAsObsEmbeddingLoader from './CellsJsonAsObsEmbedding';
 import CellsJsonAsObsLabelsLoader from './CellsJsonAsObsLabels';
 import CellsJsonAsObsSegmentationsLoader from './CellsJsonAsObsSegmentations';
-import cellsGoodFixture from '../../schemas/fixtures/cells.good.json';
-import { JsonSource } from '../data-sources';
-import LoaderResult from '../LoaderResult';
+import cellsGoodFixture from './schemas/fixtures/cells.good.json';
+import JsonSource from '../JsonSource';
+import LoaderResult from '@vitessce/vit-s';
 
 const createLoader = (ClassDef, config, data) => {
   const configWithUrl = {

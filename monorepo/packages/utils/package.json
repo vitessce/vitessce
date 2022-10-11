@@ -14,7 +14,8 @@
   ],
   "scripts": {
     "start": "tsc --watch",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest --run --passWithNoTests -r ../../ --dir ."
   },
   "dependencies": {
     "bowser": "^2.11.0",

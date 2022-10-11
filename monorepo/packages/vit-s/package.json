@@ -15,7 +15,7 @@
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc",
-    "test": "vitest --ui -r ../../ --dir ."
+    "test": "vitest --run --passWithNoTests --ui -r ../../ --dir ."
   },
   "dependencies": {
     "@material-ui/core": "~4.12.3",

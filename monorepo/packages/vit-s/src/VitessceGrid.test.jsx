@@ -42,7 +42,7 @@ describe('VitessceGrid.js', () => {
           </AuxiliaryProvider>
         </ViewConfigProvider>,
       );
-      expect(screen.getByText('FakeComponent!'));
+      expect(await screen.findByText('FakeComponent!'));
     });
   });
 });

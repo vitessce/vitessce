@@ -1,9 +1,9 @@
 import expect from 'expect';
 import MoleculesJsonAsObsLocationsLoader from './MoleculesJsonAsObsLocations';
 import MoleculesJsonAsObsLabelsLoader from './MoleculesJsonAsObsLabels';
-import moleculesGoodFixture from '../../schemas/fixtures/molecules.good.json';
-import { JsonSource } from '../data-sources';
-import LoaderResult from '../LoaderResult';
+import moleculesGoodFixture from './schemas/fixtures/molecules.good.json';
+import JsonSource from '../JsonSource';
+import LoaderResult from '@vitessce/vit-s';
 
 const createLoader = (ClassDef, config, data) => {
   const configWithUrl = {

@@ -1,8 +1,8 @@
 import expect from 'expect';
 import ClustersJsonAsObsFeatureMatrixLoader from './ClustersJsonAsObsFeatureMatrix';
-import clustersGoodFixture from '../../schemas/fixtures/clusters.good.json';
-import { JsonSource } from '../data-sources';
-import LoaderResult from '../LoaderResult';
+import clustersGoodFixture from './schemas/fixtures/clusters.good.json';
+import JsonSource from '../JsonSource';
+import LoaderResult from '@vitessce/vit-s';
 
 const createLoader = (ClassDef, config, data) => {
   const configWithUrl = {

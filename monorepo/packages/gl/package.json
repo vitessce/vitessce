@@ -15,7 +15,7 @@
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc",
-    "test": "vitest --ui -r ../../ --dir .",
+    "test": "vitest --passWithNoTests -r ../../ --dir .",
     "glslify": "cat src/glsl/colormaps.in.glsl | glslify > src/glsl/colormaps.out.glsl"
   },
   "dependencies": {
