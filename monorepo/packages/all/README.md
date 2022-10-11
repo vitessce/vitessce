@@ -1,0 +1,1 @@
+This package exports a `<Vitessce/>` component with all available plugins and file types registered.

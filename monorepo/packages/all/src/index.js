@@ -1,0 +1,1 @@
+export { Vitessce } from './setup';

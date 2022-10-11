@@ -1,3 +1,3 @@
 export * from '@vitessce/constants';
 export * from '@vitessce/config';
-export { setup } from './setup';
+export * from '@vitessce/all';

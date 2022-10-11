@@ -48,6 +48,42 @@ importers:
       vite: 3.1.4_sass@1.55.0+terser@5.15.0
       vitest: 0.23.4_rdxc36rnmmhzmlsyhdslkfctfy
 
+  packages/all:
+    specifiers:
+      '@material-ui/core': ~4.12.3
+      '@vitessce/constants-internal': workspace:*
+      '@vitessce/csv': workspace:*
+      '@vitessce/description': workspace:*
+      '@vitessce/feature-list': workspace:*
+      '@vitessce/heatmap': workspace:*
+      '@vitessce/json': workspace:*
+      '@vitessce/layer-controller': workspace:*
+      '@vitessce/obs-sets-manager': workspace:*
+      '@vitessce/scatterplot-embedding': workspace:*
+      '@vitessce/scatterplot-gating': workspace:*
+      '@vitessce/spatial': workspace:*
+      '@vitessce/statistical-plots': workspace:*
+      '@vitessce/status': workspace:*
+      '@vitessce/vit-s': workspace:*
+      '@vitessce/zarr': workspace:*
+    dependencies:
+      '@material-ui/core': 4.12.4_wcqkhtmu7mswc6yz4uyexck3ty
+      '@vitessce/constants-internal': link:../constants-internal
+      '@vitessce/csv': link:../file-types/csv
+      '@vitessce/description': link:../view-types/description
+      '@vitessce/feature-list': link:../view-types/feature-list
+      '@vitessce/heatmap': link:../view-types/heatmap
+      '@vitessce/json': link:../file-types/json
+      '@vitessce/layer-controller': link:../view-types/layer-controller
+      '@vitessce/obs-sets-manager': link:../view-types/obs-sets-manager
+      '@vitessce/scatterplot-embedding': link:../view-types/scatterplot-embedding
+      '@vitessce/scatterplot-gating': link:../view-types/scatterplot-gating
+      '@vitessce/spatial': link:../view-types/spatial
+      '@vitessce/statistical-plots': link:../view-types/statistical-plots
+      '@vitessce/status': link:../view-types/status
+      '@vitessce/vit-s': link:../vit-s
+      '@vitessce/zarr': link:../file-types/zarr
+
   packages/config:
     specifiers:
       '@vitessce/constants-internal': workspace:*
@@ -210,45 +246,21 @@ importers:
 
   packages/main:
     specifiers:
+      '@vitessce/all': workspace:*
       '@vitessce/config': workspace:*
       '@vitessce/constants': workspace:*
-      '@vitessce/constants-internal': workspace:*
-      '@vitessce/csv': workspace:*
-      '@vitessce/description': workspace:*
-      '@vitessce/feature-list': workspace:*
-      '@vitessce/heatmap': workspace:*
-      '@vitessce/json': workspace:*
-      '@vitessce/layer-controller': workspace:*
-      '@vitessce/obs-sets-manager': workspace:*
-      '@vitessce/scatterplot-embedding': workspace:*
-      '@vitessce/scatterplot-gating': workspace:*
-      '@vitessce/spatial': workspace:*
-      '@vitessce/statistical-plots': workspace:*
-      '@vitessce/status': workspace:*
-      '@vitessce/vit-s': workspace:*
-      '@vitessce/zarr': workspace:*
       esbuild: ^0.15.10
+      react: '>=16.14.0'
+      react-dom: '>=16.14.0'
       vite: ^3.0.0
     dependencies:
+      '@vitessce/all': link:../all
       '@vitessce/config': link:../config
       '@vitessce/constants': link:../constants
-      '@vitessce/constants-internal': link:../constants-internal
-      '@vitessce/csv': link:../file-types/csv
-      '@vitessce/description': link:../view-types/description
-      '@vitessce/feature-list': link:../view-types/feature-list
-      '@vitessce/heatmap': link:../view-types/heatmap
-      '@vitessce/json': link:../file-types/json
-      '@vitessce/layer-controller': link:../view-types/layer-controller
-      '@vitessce/obs-sets-manager': link:../view-types/obs-sets-manager
-      '@vitessce/scatterplot-embedding': link:../view-types/scatterplot-embedding
-      '@vitessce/scatterplot-gating': link:../view-types/scatterplot-gating
-      '@vitessce/spatial': link:../view-types/spatial
-      '@vitessce/statistical-plots': link:../view-types/statistical-plots
-      '@vitessce/status': link:../view-types/status
-      '@vitessce/vit-s': link:../vit-s
-      '@vitessce/zarr': link:../file-types/zarr
     devDependencies:
       esbuild: 0.15.10
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
       vite: 3.1.4
 
   packages/sets:
@@ -305,12 +317,14 @@ importers:
 
   packages/vega:
     specifiers:
+      '@material-ui/core': ~4.12.3
       react-vega: ^7.4.4
       vega: ^5.21.0
       vega-lite: ^5.1.1
       vega-tooltip: ^0.27.0
     dependencies:
-      react-vega: 7.6.0_owrgf5per7xuu6js62r2357ghm
+      '@material-ui/core': 4.12.4_wcqkhtmu7mswc6yz4uyexck3ty
+      react-vega: 7.6.0_ducj6uehlygg6rmkdyfyh7acna
       vega: 5.22.1
       vega-lite: 5.5.0_vega@5.22.1
       vega-tooltip: 0.27.0
@@ -12769,7 +12783,6 @@ packages:
       loose-envify: 1.4.0
       react: 18.2.0
       scheduler: 0.23.0
-    dev: false
 
   /react-draggable/4.4.5_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-OMHzJdyJbYTZo4uQE393fHcqqPYsEtkjfMgvCHr6rejT+Ezn4OZbNyGH50vv+SunC1RMvwOTSWkEODQLzw1M9g==}
@@ -13092,7 +13105,7 @@ packages:
       react-dom: 16.14.0_react@16.14.0
     dev: false
 
-  /react-vega/7.6.0_owrgf5per7xuu6js62r2357ghm:
+  /react-vega/7.6.0_ducj6uehlygg6rmkdyfyh7acna:
     resolution: {integrity: sha512-2oMML4wH9qWLnZPRxJm06ozwrVN/K+nkjqdI5/ofWWsrBnnH4iB9rRKrsV8px0nlWgZrwfdCH4g5RUiyyJHWSA==}
     peerDependencies:
       react: ^16 || ^17 || ^18
@@ -13102,7 +13115,7 @@ packages:
       '@types/react': 18.0.14
       fast-deep-equal: 3.1.3
       prop-types: 15.8.1
-      react: 18.2.0
+      react: 16.14.0
       vega: 5.22.1
       vega-embed: 6.21.0_jvjsdlbcvhacgsoum67fqdazqu
       vega-lite: 5.5.0_vega@5.22.1
@@ -13145,7 +13158,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
 
   /reactcss/1.2.3_react@16.14.0:
     resolution: {integrity: sha512-KiwVUcFu1RErkI97ywr8nvx8dNOpT03rbnma0SSalTYjkrPYaEajR4a/MRt6DZ46K6arDRbWMNHF+xH7G7n/8A==}
@@ -13699,7 +13711,6 @@ packages:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
 
   /schema-utils/2.7.0:
     resolution: {integrity: sha512-0ilKFI6QQF5nxDZLFn2dMjvc4hjg/Wkg7rHd3jK6/A4a1Hl9VFdQWvgB1UMGoU94pad1P/8N7fMcEnLnSiju8A==}

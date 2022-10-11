@@ -1,5 +1,7 @@
+import { useState, useLayoutEffect } from 'react';
 import {
   registerPluginFileType,
+  Vitessce as VitS
 } from '@vitessce/vit-s';
 
 // Register view type plugins
@@ -61,7 +63,7 @@ import {
 } from '@vitessce/zarr';
 import { FileType, DataType } from '@vitessce/constants-internal';
 
-export function setup() {
+function setup() {
   // View types
   registerDescription();
   registerObsSetsManager();
@@ -114,4 +116,15 @@ export function setup() {
   registerPluginFileType(FileType.OBS_LABELS_MOLECULES_JSON, DataType.OBS_LABELS, MoleculesJsonAsObsLabelsLoader, JsonSource);
   registerPluginFileType(FileType.NEIGHBORHOODS_JSON, DataType.NEIGHBORHOODS, JsonLoader, JsonSource);
   registerPluginFileType(FileType.GENOMIC_PROFILES_ZARR, DataType.GENOMIC_PROFILES, GenomicProfilesZarrLoader, ZarrDataSource);
+}
+
+export function Vitessce(props) {
+  const [ready, setReady] = useState(false);
+  useLayoutEffect(() => {
+    setup();
+    setReady(true);
+  }, []);
+  return (ready ? (
+    <VitS {...props} />
+  ) : null);
 }

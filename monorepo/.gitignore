@@ -9,3 +9,4 @@ yarn.lock
 .docusaurus/
 *.out.glsl
 *.tsbuildinfo
+*.tgz

@@ -22,28 +22,16 @@
   "dependencies": {
     "@vitessce/config": "workspace:*",
     "@vitessce/constants": "workspace:*",
-    "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
-    "@vitessce/description": "workspace:*",
-    "@vitessce/obs-sets-manager": "workspace:*",
-    "@vitessce/scatterplot-embedding": "workspace:*",
-    "@vitessce/scatterplot-gating": "workspace:*",
-    "@vitessce/spatial": "workspace:*",
-    "@vitessce/heatmap": "workspace:*",
-    "@vitessce/feature-list": "workspace:*",
-    "@vitessce/layer-controller": "workspace:*",
-    "@vitessce/status": "workspace:*",
-    "@vitessce/statistical-plots": "workspace:*",
-    "@vitessce/csv": "workspace:*",
-    "@vitessce/json": "workspace:*",
-    "@vitessce/zarr": "workspace:*"
+    "@vitessce/all": "workspace:*"
   },
   "devDependencies": {
     "esbuild": "^0.15.10",
-    "vite": "^3.0.0"
+    "vite": "^3.0.0",
+    "react": ">=16.14.0",
+    "react-dom": ">=16.14.0"
   },
   "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0"
+    "react": ">=16.14.0",
+    "react-dom": ">=16.14.0"
   }
 }

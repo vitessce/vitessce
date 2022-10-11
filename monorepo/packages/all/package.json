@@ -1,0 +1,37 @@
+{
+  "name": "@vitessce/all",
+  "version": "1.0.0",
+  "author": "Mark Keller",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "tsc --watch",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@material-ui/core": "~4.12.3",
+    "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/vit-s": "workspace:*",
+    "@vitessce/description": "workspace:*",
+    "@vitessce/obs-sets-manager": "workspace:*",
+    "@vitessce/scatterplot-embedding": "workspace:*",
+    "@vitessce/scatterplot-gating": "workspace:*",
+    "@vitessce/spatial": "workspace:*",
+    "@vitessce/heatmap": "workspace:*",
+    "@vitessce/feature-list": "workspace:*",
+    "@vitessce/layer-controller": "workspace:*",
+    "@vitessce/status": "workspace:*",
+    "@vitessce/statistical-plots": "workspace:*",
+    "@vitessce/csv": "workspace:*",
+    "@vitessce/json": "workspace:*",
+    "@vitessce/zarr": "workspace:*"
+  }
+}

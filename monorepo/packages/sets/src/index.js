@@ -1,6 +1,7 @@
 export {
   treeToCellColorsBySetNames,
   treeToSetSizesBySetNames,
+  treeToObjectsBySetNames,
   treeExportLevelZeroNode,
   treeExportSet,
   treeToExpectedCheckedLevel,
