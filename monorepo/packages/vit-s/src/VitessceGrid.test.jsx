@@ -14,7 +14,7 @@ afterEach(() => {
 
 describe('VitessceGrid.js', () => {
   describe('<VitessceGrid />', () => {
-    it('renders', () => {
+    it('renders', async () => {
       const config = {
         version: '1.0.0',
         description: 'fake description',
