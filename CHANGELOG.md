@@ -1,4 +1,3 @@
-
 ### Added
 - Added `gating` component that allows users to dynamically generate a scatterplot based on gene expression values.
   - New coordination types of `gatingFeatureSelectionX` and `gatingFeatureSelectionY` for the values selected for the gating plot.
@@ -25,6 +24,23 @@
 - Implemented obs set membership tooltips.
 - Fixed bug in the v1.0.0 to v1.0.1 view config upgrade function caused by modification of a reference to the config object.
 - Changed the `VitessceConfig` constructor and `VitessceConfigDataset.addFile` method to use named arguments via JS objects.
+- **Monorepo**
+  - TODO: higlass component
+  - TODO: update all unit/component tests
+  - TODO: update all integration tests
+  - TODO: convert `lighten()`/`darken()` SCSS calls to JS function calls
+  - TODO: change `<Vitessce/>` -> `<VitS/>` within @vitessce/vit-s
+  - TODO: write blog post
+  - TODO: update docs
+  - TODO: add integration test for importing the UMD and ESM bundles into an HTML page
+  - TODO: re-try addressing deck.gl dependency issue by adding more pnpm overrides/peerDependencyRules in the root package.json
+  - Converted SCSS to JSS, for both external and internal stylesheets
+  - Converted unit/component testing setup to jest/vitest/react-testing-library
+  - Converted demo development server to vite
+  - Converted inline worker bundling to `@vitessce/workers` sub-package with rollup + rollup plugin
+  - Converted SVG React component imports to `@vitessce/icons` sub-package with vite + svgr
+  - Converted glslify #pragma + webpack plugin to glslify CLI in `@vitessce/gl/src/glsl` with string manipulation to prevent need for plugin
+
 
 ## [1.2.2](https://www.npmjs.com/package/vitessce/v/1.2.2) - 2022-09-23
 
