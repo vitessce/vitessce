@@ -1,8 +1,5 @@
 import { useState, useLayoutEffect } from 'react';
-import {
-  registerPluginFileType,
-  Vitessce as VitS
-} from '@vitessce/vit-s';
+import { VitS, registerPluginFileType } from '@vitessce/vit-s';
 
 // Register view type plugins
 import { register as registerDescription } from '@vitessce/description';

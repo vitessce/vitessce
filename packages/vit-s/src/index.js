@@ -1,4 +1,4 @@
-export { Vitessce } from './Vitessce';
+export { Vitessce as VitS } from './Vitessce';
 export { TitleInfo } from './TitleInfo';
 export { PopperMenu } from './shared-mui/components';
 export {

@@ -31,9 +31,8 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 7.13.4
-          run_install: |
-            - recursive: true
+          version: 7
+          run_install: true
       - run: pnpm run build
       - run: pnpm run test
   
@@ -48,9 +47,8 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 7.13.4
-          run_install: |
-            - recursive: true
+          version: 7
+          run_install: true
       - run: pnpm run build
 
       - name: Cypress PNPM Patch
