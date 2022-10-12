@@ -34,7 +34,6 @@ jobs:
           version: 7
           run_install: |
             - recursive: true
-              cwd: 'monorepo'
       - run: pnpm run build
       - run: pnpm run test
   
@@ -52,7 +51,6 @@ jobs:
           version: 7
           run_install: |
             - recursive: true
-              cwd: 'monorepo'
       - run: pnpm run build
 
       - name: Cypress PNPM Patch
@@ -61,7 +59,7 @@ jobs:
       - name: Cypress
         uses: cypress-io/github-action@v4
         with:
-          project: ./monorepo/sites/demo
+          project: ./sites/demo
           install-command: echo
           build: pnpm run build
           start: pnpm run start
