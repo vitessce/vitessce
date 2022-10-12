@@ -1,7 +1,8 @@
 import React from 'react';
 
 // TODO(monorepo): change version.json path
-import version from '../../../../src/version.json';
+//import version from '../../../../src/version.json';
+const version = 'unk';
 
 function DatasetList(props) {
   const { configs, theme } = props;
