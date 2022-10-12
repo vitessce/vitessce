@@ -31,7 +31,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 7
+          version: 7.13.4
           run_install: |
             - recursive: true
       - run: pnpm run build
@@ -48,7 +48,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 7
+          version: 7.13.4
           run_install: |
             - recursive: true
       - run: pnpm run build
