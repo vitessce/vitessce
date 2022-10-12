@@ -499,6 +499,7 @@ importers:
       '@vitessce/tooltip': workspace:*
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
+      clsx: ^1.1.1
       d3-force: ^2.1.1
       d3-quadtree: ^1.0.7
       lodash: ^4.17.21
@@ -510,6 +511,7 @@ importers:
       '@vitessce/tooltip': link:../../tooltip
       '@vitessce/utils': link:../../utils
       '@vitessce/vit-s': link:../../vit-s
+      clsx: 1.2.1
       d3-force: 2.1.1
       d3-quadtree: 1.0.7
       lodash: 4.17.21
