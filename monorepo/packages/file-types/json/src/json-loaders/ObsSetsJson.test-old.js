@@ -1,7 +1,8 @@
 import ObsSetsJsonLoader from './ObsSetsJson';
 import JsonSource from '../JsonSource';
 import { LoaderResult } from '@vitessce/vit-s';
-
+// TODO(monorepo)
+/*
 const createLoader = (ClassDef, config, url) => {
   const configWithUrl = {
     ...config,
@@ -26,3 +27,4 @@ describe('loaders/json-loaders/ObsSetsJson', () => {
     });
   });
 });
+*/
