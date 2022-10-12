@@ -35,5 +35,5 @@ jobs:
           run_install: |
             - recursive: true
               cwd: 'monorepo'
-      - run: pnpm test
-      - run: pnpm build
+      - run: pnpm run build
+      - run: pnpm run test
