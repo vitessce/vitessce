@@ -32,6 +32,9 @@ jobs:
         id: pnpm-install
         with:
           version: 7
+          run_install: |
+            - recursive: true
+              cwd: '.'
       - run: pnpm run build
       - run: pnpm run test
   
@@ -47,6 +50,9 @@ jobs:
         id: pnpm-install
         with:
           version: 7
+          run_install: |
+            - recursive: true
+              cwd: '.'
       - run: pnpm run build
 
       - name: Cypress PNPM Patch
