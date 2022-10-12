@@ -23,7 +23,6 @@
     "@vitessce/utils": "workspace:*",
     "@material-ui/core": "~4.12.3",
     "d3-array": "^2.4.0",
-    "higlass": "1.11.4",
     "higlass-register": "^0.3.0",
     "higlass-zarr-datafetchers": "^0.2.1",
     "lodash": "^4.17.21",
