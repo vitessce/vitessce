@@ -86,24 +86,6 @@ export function copyUint8Array(arr) {
   return newArr;
 }
 
-// TODO(monorepo)
-/*
-export function createWarningComponent(props) {
-  return () => {
-    const {
-      title,
-      message,
-    } = props;
-    return (
-      <div className={PRIMARY_CARD}>
-        <h1>{title}</h1>
-        <div>{message}</div>
-      </div>
-    );
-  };
-}
-*/
-
 export function asEsModule(component) {
   return {
     __esModule: true,

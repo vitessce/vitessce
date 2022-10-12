@@ -15,6 +15,8 @@ import { register as registerFeatureList } from '@vitessce/feature-list';
 import { register as registerLayerController } from '@vitessce/layer-controller';
 import { register as registerStatus } from '@vitessce/status';
 import { registerCellSetExpression, registerCellSetSizes, registerExpressionHistogram } from '@vitessce/statistical-plots';
+import { registerHiglass, registerGenomicProfiles } from '@vitessce/genomic-profiles';
+
 // Register file type plugins
 import {
   // CSV
@@ -78,6 +80,9 @@ function setup() {
   registerCellSetExpression();
   registerCellSetSizes();
   registerExpressionHistogram();
+  // Higlass
+  registerHiglass();
+  registerGenomicProfiles();
 
   // File types
   // All CSV file types

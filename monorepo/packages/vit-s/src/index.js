@@ -47,7 +47,7 @@ export {
 
   useObsFeatureMatrixData,
   useFeatureLabelsData,
-  // TODO(monorepo): add more data hook exports
+  useGenomicProfilesData,
 } from './data-hooks';
 export {
   useHasLoader,

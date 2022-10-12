@@ -1,0 +1,33 @@
+{
+  "name": "@vitessce/genomic-profiles",
+  "version": "1.0.0",
+  "author": "Mark Keller",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "tsc --watch",
+    "build": "tsc",
+    "test": "vitest --run --passWithNoTests -r ../../../ --dir ."
+  },
+  "dependencies": {
+    "@vitessce/vit-s": "workspace:*",
+    "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/utils": "workspace:*",
+    "@material-ui/core": "~4.12.3",
+    "d3-array": "^2.4.0",
+    "higlass": "1.11.4",
+    "higlass-register": "^0.3.0",
+    "higlass-zarr-datafetchers": "^0.2.1",
+    "lodash": "^4.17.21",
+    "dynamic-import-polyfill": "^0.1.1",
+    "window-pixi": "5.3.3"
+  }
+}

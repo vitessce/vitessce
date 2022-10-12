@@ -30,6 +30,7 @@
     "@vitessce/layer-controller": "workspace:*",
     "@vitessce/status": "workspace:*",
     "@vitessce/statistical-plots": "workspace:*",
+    "@vitessce/genomic-profiles": "workspace:*",
     "@vitessce/csv": "workspace:*",
     "@vitessce/json": "workspace:*",
     "@vitessce/zarr": "workspace:*"
