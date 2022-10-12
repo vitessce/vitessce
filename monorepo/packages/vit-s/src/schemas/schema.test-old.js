@@ -1,8 +1,11 @@
 import Ajv from 'ajv';
+import obsSetsSchema from './obsSets.schema';
+import rasterSchema from './raster.schema';
 
 /* eslint-disable import/no-dynamic-require */
 /* eslint-disable global-require */
-
+// TODO(monorepo)
+/*
 describe('schemas', () => {
   [
     'config-1.0.1',
@@ -11,12 +14,12 @@ describe('schemas', () => {
     'raster',
   ].forEach((type) => {
     const schemaFile = `${type}.schema.json`;
-    describe(schemaFile, () => {
-      const schema = require(`./${schemaFile}`);
+    describe(schemaFile, async () => {
+      const schema = await import(`./${schemaFile}`);
       let validate;
       if (type === 'config-1.0.1') {
-        const obsSets = require('./obsSets.schema.json');
-        const raster = require('./raster.schema.json');
+        const obsSets = obsSetsSchema;
+        const raster = rasterSchema;
         validate = new Ajv()
           .addSchema(obsSets)
           .addSchema(raster)
@@ -29,16 +32,16 @@ describe('schemas', () => {
         'good', 'bad', 'bad.message',
       ].map(stem => `${type}.${stem}.json`);
 
-      it(`passes ${goodFixture}`, () => {
-        const data = require(`./fixtures/${goodFixture}`);
+      it(`passes ${goodFixture}`, async () => {
+        const data = await import(`./fixtures/${goodFixture}`);
         const valid = validate(data);
         if (!valid) { console.warn(validate.errors); }
         expect(valid).toEqual(true);
       });
 
-      it(`fails ${badFixture}`, () => {
-        const data = require(`./fixtures/${badFixture}`);
-        const message = require(`./fixtures/${badMessage}`);
+      it(`fails ${badFixture}`, async () => {
+        const data = await import(`./fixtures/${badFixture}`);
+        const message = await import(`./fixtures/${badMessage}`);
         const valid = validate(data);
         expect(valid).toEqual(false);
         expect(validate.errors).toEqual(message);
@@ -46,3 +49,4 @@ describe('schemas', () => {
     });
   });
 });
+*/

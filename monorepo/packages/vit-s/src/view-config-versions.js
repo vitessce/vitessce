@@ -17,8 +17,8 @@ import configSchema1_0_12 from './schemas/config-1.0.12.schema.json';
 import configSchema1_0_13 from './schemas/config-1.0.13.schema.json';
 import configSchema1_0_14 from './schemas/config-1.0.14.schema.json';
 import configSchema1_0_15 from './schemas/config-1.0.15.schema.json';
-import obsSetsSchema from './schemas/obsSets.schema.json';
-import rasterSchema from './schemas/raster.schema.json';
+import obsSetsSchema from './schemas/obsSets.schema';
+import rasterSchema from './schemas/raster.schema';
 import {
   upgradeFrom0_1_0,
   upgradeFrom1_0_0,

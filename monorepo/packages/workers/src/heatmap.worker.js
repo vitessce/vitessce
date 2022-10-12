@@ -1,6 +1,5 @@
 /* eslint-disable no-restricted-globals */
-// TODO(monorepo): dont use sub-package import here
-import { getGeneByCellTile, getCellByGeneTile } from '@vitessce/utils/heatmap';
+import { getGeneByCellTile, getCellByGeneTile } from './heatmap';
 
 /**
  * Map a gene expression matrix onto multiple square array tiles,

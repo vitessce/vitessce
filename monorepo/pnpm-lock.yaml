@@ -611,12 +611,10 @@ importers:
     specifiers:
       '@rollup/plugin-commonjs': ^23.0.0
       '@rollup/plugin-node-resolve': ^15.0.0
-      '@vitessce/utils': workspace:*
       lodash: ^4.17.21
       rollup: ^2.0.0
       rollup-plugin-web-worker-loader: ^1.0.0
     dependencies:
-      '@vitessce/utils': link:../utils
       lodash: 4.17.21
     devDependencies:
       '@rollup/plugin-commonjs': 23.0.0_rollup@2.78.1

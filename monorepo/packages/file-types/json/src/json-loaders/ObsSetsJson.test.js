@@ -1,6 +1,6 @@
 import ObsSetsJsonLoader from './ObsSetsJson';
 import JsonSource from '../JsonSource';
-import { LoaderResult, obsSetsSchema } from '@vitessce/vit-s';
+import { LoaderResult } from '@vitessce/vit-s';
 
 const createLoader = (ClassDef, config, url) => {
   const configWithUrl = {
