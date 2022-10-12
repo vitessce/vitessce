@@ -1,14 +1,13 @@
 import CellsJsonAsObsEmbeddingLoader from './CellsJsonAsObsEmbedding';
 import CellsJsonAsObsLabelsLoader from './CellsJsonAsObsLabels';
 import CellsJsonAsObsSegmentationsLoader from './CellsJsonAsObsSegmentations';
-import cellsGoodFixture from './schemas/fixtures/cells.good.json';
 import JsonSource from '../JsonSource';
-import LoaderResult from '@vitessce/vit-s';
+import { LoaderResult } from '@vitessce/vit-s';
 
-const createLoader = (ClassDef, config, data) => {
+const createLoader = (ClassDef, config, url) => {
   const configWithUrl = {
     ...config,
-    url: URL.createObjectURL(new Blob([JSON.stringify(data)])),
+    url,
   };
   const source = new JsonSource(configWithUrl);
   return new ClassDef(source, configWithUrl);
@@ -22,7 +21,7 @@ describe('loaders/cells-json-loaders', () => {
         coordinationValues: {
           embeddingType: 'PCA',
         },
-      }, cellsGoodFixture);
+      }, 'http://localhost:51204/@fixtures/json-legacy/cells.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;
@@ -39,7 +38,7 @@ describe('loaders/cells-json-loaders', () => {
         coordinationValues: {
           obsLabelsType: 'cluster',
         },
-      }, cellsGoodFixture);
+      }, 'http://localhost:51204/@fixtures/json-legacy/cells.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;
@@ -52,7 +51,7 @@ describe('loaders/cells-json-loaders', () => {
     it('can load obsSegmentations', async () => {
       const loader = createLoader(CellsJsonAsObsSegmentationsLoader, {
         fileType: 'obsSegmentations.cells.json',
-      }, cellsGoodFixture);
+      }, 'http://localhost:51204/@fixtures/json-legacy/cells.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;

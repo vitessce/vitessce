@@ -1,5 +1,3 @@
-import expect from 'expect';
-
 import {
   handleImportJSON, handleExportJSON, handleImportTabular, handleExportTabular,
 } from './io';

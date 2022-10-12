@@ -1,7 +1,5 @@
-import expect from 'expect';
 import { forceSimulation } from 'd3-force';
 import { forceCollideRects } from './force-collide-rects';
-
 
 describe('force-collide-rects.js', () => {
   describe('forceCollideRects', () => {

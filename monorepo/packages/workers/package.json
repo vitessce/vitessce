@@ -18,7 +18,8 @@
     "build-lib": "rollup --config rollup.config.js"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "@vitessce/utils": "workspace:*"
   },
   "devDependencies": {
     "rollup": "^2.0.0",

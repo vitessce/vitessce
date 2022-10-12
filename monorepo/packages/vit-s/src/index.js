@@ -95,6 +95,4 @@ export {
   OptionSelect,
   usePlotOptionsStyles,
 } from './shared-plot-options';
-export { default as rasterSchema } from './schemas/raster.schema.json';
-export { default as obsSetsSchema } from './schemas/obsSets.schema.json';
-export { default as obsSetsTabularSchema } from './schemas/obsSetsTabular.schema.json';
+export * from './schemas';

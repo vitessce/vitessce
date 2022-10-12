@@ -1,6 +1,7 @@
 export * from './root';
 export * from './components';
 export * from './spatial';
+export * from './heatmap';
 export {
   encodeConfInUrl,
   decodeURLParamsToConf,

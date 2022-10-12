@@ -1,12 +1,11 @@
 import ObsSetsJsonLoader from './ObsSetsJson';
-import obsSetsGoodFixture from '../legacy-loaders/schemas/fixtures/obsSets.good.json';
 import JsonSource from '../JsonSource';
-import LoaderResult from '@vitessce/vit-s';
+import { LoaderResult, obsSetsSchema } from '@vitessce/vit-s';
 
-const createLoader = (ClassDef, config, data) => {
+const createLoader = (ClassDef, config, url) => {
   const configWithUrl = {
     ...config,
-    url: URL.createObjectURL(new Blob([JSON.stringify(data)])),
+    url,
   };
   const source = new JsonSource(configWithUrl);
   return new ClassDef(source, configWithUrl);
@@ -17,7 +16,7 @@ describe('loaders/json-loaders/ObsSetsJson', () => {
     it('can load obsSets', async () => {
       const loader = createLoader(ObsSetsJsonLoader, {
         fileType: 'obsSets.cells.json',
-      }, obsSetsGoodFixture);
+      }, 'http://localhost:51204/@fixtures/vit-s/obsSets.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;

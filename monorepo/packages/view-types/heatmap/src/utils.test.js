@@ -1,8 +1,6 @@
 import expect from 'expect';
-import {
-  getCellByGeneTile, getGeneByCellTile,
-  mouseToHeatmapPosition, heatmapToMousePosition,
-} from './utils';
+import { getCellByGeneTile, getGeneByCellTile } from '@vitessce/utils';
+import { mouseToHeatmapPosition, heatmapToMousePosition } from './utils';
 import { expressionMatrix, cellColors } from './Heatmap.test.fixtures';
 
 describe('heatmap tiling utils', () => {

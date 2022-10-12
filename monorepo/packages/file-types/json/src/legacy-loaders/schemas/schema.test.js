@@ -1,4 +1,5 @@
 import Ajv from 'ajv';
+import { obsSetsSchema, rasterSchema } from '@vitessce/vit-s';
 
 /* eslint-disable import/no-dynamic-require */
 /* eslint-disable global-require */
@@ -16,8 +17,8 @@ describe('schemas', () => {
       const schema = require(`./${schemaFile}`);
       let validate;
       if (type === 'config-1.0.1') {
-        const obsSets = require('./obsSets.schema.json');
-        const raster = require('./raster.schema.json');
+        const obsSets = obsSetsSchema;
+        const raster = rasterSchema;
         validate = new Ajv()
           .addSchema(obsSets)
           .addSchema(raster)

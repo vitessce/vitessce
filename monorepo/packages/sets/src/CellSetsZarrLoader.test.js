@@ -1,4 +1,3 @@
-import expect from 'expect';
 import { dataToCellSetsTree } from './CellSetsZarrLoader';
 
 describe('loaders/CellSetsZarrLoader', () => {

@@ -1,4 +1,3 @@
-import expect from 'expect';
 import { getPointSizeDevicePixels, getPointOpacity } from './dynamic-opacity';
 
 describe('dynamic-opacity.js', () => {

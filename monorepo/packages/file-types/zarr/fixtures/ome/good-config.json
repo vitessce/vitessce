@@ -1,0 +1,48 @@
+{
+  "version": "1.0.0",
+  "name": "OME",
+  "description": "Test from OME",
+  "datasets": [
+    {
+      "uid": "A",
+      "name": "OME-TIFF",
+      "files": [
+        {
+          "type": "raster",
+          "fileType": "raster.json",
+          "options": {
+            "schemaVersion": "0.0.2",
+            "images": [
+              {
+                "name": "Multi Channel Test",
+                "type": "ome-tiff",
+                "url": "http://127.0.0.1:8080/ome/multi-channel.ome.tif"
+              }
+            ],
+            "renderLayers": ["Multi Channel Test"]
+          }
+        }
+      ]
+    }
+  ],
+  "coordinationSpace": {},
+  "layout": [
+    {
+      "component": "spatial",
+      "coordinationScopes": {},
+      "x": 0,
+      "y": 0,
+      "w": 9,
+      "h": 12
+    },
+    {
+      "component": "layerController",
+      "coordinationScopes": {},
+      "x": 9,
+      "y": 0,
+      "w": 3,
+      "h": 12
+    }
+  ],
+  "initStrategy": "auto"
+}
