@@ -18,3 +18,14 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+Cypress.on('window:before:load', (win) => {
+  // Forces fallback to XHR, so cypress can mock response.
+  //
+  // Using this work-around:
+  // https://github.com/cypress-io/cypress-example-recipes/tree/master/examples/stubbing-spying__window-fetch
+  //
+  // until this feature is implemented:
+  // https://github.com/cypress-io/cypress/issues/95
+
+  delete win.fetch; // eslint-disable-line no-param-reassign
+});

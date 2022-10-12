@@ -7,4 +7,5 @@ export default defineConfig({
     specPattern: 'cypress/e2e/*.spec.cy.js',
     supportFile: false,
   },
+  video: false,
 })
