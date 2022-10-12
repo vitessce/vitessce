@@ -1,4 +1,3 @@
-import expect from 'expect';
 import ClustersJsonAsObsFeatureMatrixLoader from './ClustersJsonAsObsFeatureMatrix';
 import JsonSource from '../JsonSource';
 import { LoaderResult } from '@vitessce/vit-s';

@@ -1,4 +1,3 @@
-import expect from 'expect';
 import { toRgbUIString } from './RasterChannelController';
 
 const GREY = [220, 220, 220];

@@ -1,4 +1,3 @@
-import expect from 'expect';
 import { mouseToHeatmapPosition, heatmapToMousePosition } from './utils';
 
 describe('heatmap tooltip utils', () => {

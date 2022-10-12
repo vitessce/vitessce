@@ -1,4 +1,3 @@
-import expect from 'expect';
 import { interpolateRdBu, interpolatePlasma } from './interpolate-colors';
 
 const expectRgb = ([testR, testG, testB], [r, g, b]) => ([

@@ -1,4 +1,3 @@
-import expect from 'expect';
 import GenesJsonAsObsFeatureMatrixLoader from './GenesJsonAsObsFeatureMatrix';
 import JsonSource from '../JsonSource';
 import { LoaderResult } from '@vitessce/vit-s';

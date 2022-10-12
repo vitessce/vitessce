@@ -1,4 +1,3 @@
-import expect from 'expect';
 import { getCellByGeneTile, getGeneByCellTile } from './heatmap';
 import { expressionMatrix, cellColors } from './Heatmap.test.fixtures';
 
