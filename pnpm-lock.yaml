@@ -176,6 +176,7 @@ importers:
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
       d3-array: ^2.4.0
+      lodash: ^4.17.21
       zarr: 0.5.1
     dependencies:
       '@vitessce/constants-internal': link:../../constants-internal
@@ -184,6 +185,7 @@ importers:
       '@vitessce/utils': link:../../utils
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
+      lodash: 4.17.21
       zarr: 0.5.1
 
   packages/gl:

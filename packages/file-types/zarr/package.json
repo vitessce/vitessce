@@ -24,6 +24,7 @@
     "@vitessce/sets": "workspace:*",
     "@vitessce/gl": "workspace:*",
     "zarr": "0.5.1",
-    "d3-array": "^2.4.0"
+    "d3-array": "^2.4.0",
+    "lodash": "^4.17.21"
   }
 }
