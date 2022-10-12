@@ -1,17 +1,15 @@
 import React from 'react';
 import Slider from '@material-ui/core/Slider';
 import {
+  TitleInfo,
+  useCoordination,
   registerPluginCoordinationType,
   registerPluginViewType,
-} from '../../app/plugins';
+} from '@vitessce/vit-s';
 import {
   CoordinationType,
-} from '../../app/constants';
+} from '@vitessce/constants';
 // For plugin views to use:
-import TitleInfo from '../../components/TitleInfo';
-import {
-  useCoordination,
-} from '../../app/state/hooks';
 
 function MyPluginSlider(props) {
   const {
@@ -92,7 +90,6 @@ export const pluginCoordinationType = {
   name: 'Test plugin views and coordination types',
   version: '1.0.9',
   description: 'Demonstration of a plugin coordination type implementation. The left sliders should be coordinated, while the right sliders are independent.',
-  public: false,
   datasets: [
     {
       uid: 'plugin-test-dataset',

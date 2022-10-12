@@ -1,10 +1,6 @@
 import range from 'lodash/range';
-import JsonLoader from '../../loaders/json-loaders/JsonLoader';
-import LoaderResult from '../../loaders/LoaderResult';
-import JsonSource from '../../loaders/data-sources/JsonSource';
-import {
-  registerPluginFileType,
-} from '../../app/plugins';
+import { JsonLoader, JsonSource } from '@vitessce/json';
+import { LoaderResult, registerPluginFileType } from '@vitessce/vit-s';
 
 const numCells = 60;
 const numGenes = 90;
@@ -58,7 +54,6 @@ export const pluginFileType = {
   name: 'Test plugin file types',
   version: '1.0.13',
   description: 'Demonstration of a basic plugin file type implementation.',
-  public: false,
   datasets: [
     {
       uid: 'plugin-test-dataset',

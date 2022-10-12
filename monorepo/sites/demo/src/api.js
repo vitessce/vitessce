@@ -1,20 +1,9 @@
-import { configs, publicConfigs } from '@vitessce/examples';
-
-// Imported here to keep ../demo/configs.js "clean"
-// since plugins use `window` which is not supported by docusaurus's SSR.
-// Reference: https://docusaurus.io/docs/advanced/ssg
-
-// TODO(monorepo)
-// import { pluginViewType } from './view-configs/plugin-view-type';
-// import { pluginCoordinationType } from './view-configs/plugin-coordination-type';
-// import { pluginFileType } from './view-configs/plugin-file-type';
+import { configs, publicConfigs } from '@vitessce/example-configs';
+import { configsWithPlugins as pluginConfigs } from '@vitessce/example-plugins';
 
 const configsWithPlugins = {
   ...configs,
-  // TODO(monorepo)
-  // 'plugin-view-type': pluginViewType,
-  // 'plugin-coordination-type': pluginCoordinationType,
-  // 'plugin-file-type': pluginFileType,
+  ...pluginConfigs,
 };
 
 export function listConfigs(showAll) {

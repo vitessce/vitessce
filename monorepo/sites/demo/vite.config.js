@@ -1,11 +1,11 @@
 import { defineConfig } from 'vite';
 import * as esbuild from 'esbuild';
 import react from '@vitejs/plugin-react';
+import { serveTestFixtures } from '../../vite.config';
 
 /**
  * Bundles vite worker modules during development into single scripts.
  * see: https://github.com/hms-dbmi/viv/pull/469#issuecomment-877276110
- * @returns {import('vite').Plugin}
  */
  const bundleWebWorker = {
   name: 'bundle-web-worker',
@@ -29,7 +29,11 @@ import react from '@vitejs/plugin-react';
 
 
 export default defineConfig({
-  plugins: [react({
-    jsxRuntime: 'classic',
-  }), bundleWebWorker]
+  plugins: [
+    react({
+      jsxRuntime: 'classic',
+    }),
+    bundleWebWorker,
+    serveTestFixtures,
+  ],
 });

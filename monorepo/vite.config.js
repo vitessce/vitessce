@@ -8,7 +8,7 @@ import { resolve } from 'path';
  * Vite plugins to serves contents of `packages/file-types/zarr/fixtures` during testing.
  * Reference: https://github.com/hms-dbmi/viv/blob/d8b0ae/sites/avivator/vite.config.js#L12
  */
- function serveTestFixtures() {
+export function serveTestFixtures() {
   const serveOptions = {
     setHeaders: (res, path) => {
       res.setHeader('Access-Control-Allow-Origin', '*');

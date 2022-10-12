@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "vitessce": "workspace:*",
-    "@vitessce/examples": "workspace:*",
+    "@vitessce/example-configs": "workspace:*",
     "@vitessce/config": "workspace:*",
     "@vitessce/constants": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",

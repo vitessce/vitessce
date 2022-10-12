@@ -5,11 +5,13 @@
   "scripts": {
     "start": "vite --port 3000",
     "build-demo": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "cypress open"
   },
   "dependencies": {
     "@vitessce/description": "workspace:*",
-    "@vitessce/examples": "workspace:*",
+    "@vitessce/example-configs": "workspace:*",
+    "@vitessce/example-plugins": "workspace:*",
     "@vitessce/obs-sets-manager": "workspace:*",
     "@vitessce/scatterplot-embedding": "workspace:*",
     "@vitessce/scatterplot-gating": "workspace:*",
@@ -21,6 +23,7 @@
     "vitessce": "workspace:*"
   },
   "devDependencies": {
+    "cypress": "^10.10.0",
     "@vitejs/plugin-react": "^1.3.2",
     "sass": "^1.55.0",
     "vite": "^3.0.0"

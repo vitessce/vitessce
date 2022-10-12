@@ -2,7 +2,7 @@ import React from 'react';
 
 import DemoList from './_DemoList';
 
-import { configs } from '@vitessce/examples';
+import { configs } from '@vitessce/example-configs';
 
 export default function Demos() {
   return (

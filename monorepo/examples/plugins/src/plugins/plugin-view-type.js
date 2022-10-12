@@ -1,16 +1,14 @@
 /* eslint-disable react/button-has-type */
 import React from 'react';
 import {
+  TitleInfo,
+  useCoordination,
   registerPluginViewType,
-} from '../../app/plugins';
+} from '@vitessce/vit-s';
 import {
   CoordinationType,
-} from '../../app/constants';
+} from '@vitessce/constants';
 // For plugin views to use:
-import TitleInfo from '../../components/TitleInfo';
-import {
-  useCoordination,
-} from '../../app/state/hooks';
 
 function MyPluginView(props) {
   const {
@@ -82,7 +80,6 @@ export const pluginViewType = {
   name: 'Test plugin view types',
   version: '1.0.9',
   description: 'Demonstration of a basic plugin view implementation.',
-  public: false,
   datasets: [
     {
       uid: 'plugin-test-dataset',

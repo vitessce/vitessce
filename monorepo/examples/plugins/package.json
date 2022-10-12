@@ -1,5 +1,5 @@
 {
-  "name": "@vitessce/examples",
+  "name": "@vitessce/example-plugins",
   "version": "1.0.0",
   "author": "Mark Keller",
   "homepage": "http://vitessce.io",
@@ -17,7 +17,10 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@vitessce/config": "workspace:*",
-    "@vitessce/constants": "workspace:*"
+    "@vitessce/constants": "workspace:*",
+    "@vitessce/vit-s": "workspace:*",
+    "@vitessce/json": "workspace:*",
+    "lodash": "^4.17.21",
+    "@material-ui/core": "~4.12.3"
   }
 }

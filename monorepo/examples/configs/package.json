@@ -1,0 +1,23 @@
+{
+  "name": "@vitessce/example-configs",
+  "version": "1.0.0",
+  "author": "Mark Keller",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "tsc --watch",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@vitessce/config": "workspace:*",
+    "@vitessce/constants": "workspace:*"
+  }
+}

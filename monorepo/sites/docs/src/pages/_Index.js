@@ -12,7 +12,7 @@ import ThemedVitessce from './_ThemedVitessce';
 import ViewConfigEditor from './_ViewConfigEditor';
 import { baseJs, baseJson } from './_live-editor-examples';
 
-import { configs } from '@vitessce/examples';
+import { configs } from '@vitessce/example-configs';
 
 import styles from './styles.module.css';
 
