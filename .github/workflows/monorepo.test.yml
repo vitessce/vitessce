@@ -8,7 +8,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  test-unit:
     runs-on: ${{ matrix.os }}
     
     strategy:
@@ -37,3 +37,35 @@ jobs:
               cwd: 'monorepo'
       - run: pnpm run build
       - run: pnpm run test
+  
+  test-e2e:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: pnpm/action-setup@v2.0.1
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: |
+            - recursive: true
+              cwd: 'monorepo'
+      - run: pnpm run build
+
+      - name: Cypress PNPM Patch
+        run: cp pnpm-lock.yaml package-lock.json
+
+      - name: Cypress
+        uses: cypress-io/github-action@v4
+        with:
+          project: ./monorepo/sites/demo
+          install-command: echo
+          build: pnpm run build
+          start: pnpm run start
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 120
+          browser: chrome
+          headless: true

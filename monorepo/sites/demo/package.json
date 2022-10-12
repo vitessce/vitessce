@@ -6,7 +6,8 @@
     "start": "vite --port 3000",
     "build-demo": "vite build",
     "preview": "vite preview",
-    "test:e2e": "cypress open"
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "dependencies": {
     "@vitessce/description": "workspace:*",
