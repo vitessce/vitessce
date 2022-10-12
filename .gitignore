@@ -1,23 +1,12 @@
-/coverage
-/dist
-/dist-demo
-/node_modules
-/.docz
-/demo/dist
-npm-debug.log*
-venv
-/eslint/node_modules
-
-# misc
+node_modules/
+dist/
+dist-root/
+dist-versioned/
+.pnpm-debug.log
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-default.profraw
-.nova/
-.vscode/
+package-lock.json
+yarn.lock
+.docusaurus/
+*.out.glsl
+*.tsbuildinfo
 *.tgz
-
-# Created and deleted during build
-.babelrc
