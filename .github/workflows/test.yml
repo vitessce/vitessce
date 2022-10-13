@@ -1,5 +1,5 @@
 # Adapted from https://github.com/vega/vega/blob/4b945e22905c610ccc2bdd28471a6f1f80aa1636/.github/workflows/test.yml
-name: Test
+name: Test (monorepo)
 on:
   push:
     branches:
@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  test-unit:
     runs-on: ${{ matrix.os }}
     
     strategy:
@@ -22,28 +22,44 @@ jobs:
     name: Test on ${{ matrix.os }} with Node ${{ matrix.node }}
     
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-      - id: get-options
-        run: . ./set-node-options.sh --action
-      - run: npm ci --legacy-peer-deps
-      - run: ./test.sh
-        env:
-          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
-  cypress-run:
+      - uses: pnpm/action-setup@v2.0.1
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: true
+      - run: pnpm run build
+      - run: pnpm run test
+  
+  test-e2e:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
-      - uses: cypress-io/github-action@v2
+          node-version: ${{ matrix.node }}
+      - uses: pnpm/action-setup@v2.0.1
+        name: Install pnpm
+        id: pnpm-install
         with:
-          install-command: npm ci --legacy-peer-deps
-          start: npm start, npm run start:fixtures
+          version: 7
+          run_install: true
+      - run: pnpm run build
+
+      - name: Cypress PNPM Patch
+        run: cp pnpm-lock.yaml ./sites/demo/package-lock.json
+
+      - name: Cypress
+        uses: cypress-io/github-action@v4
+        with:
+          working-directory: ./sites/demo
+          install-command: echo
+          build: pnpm -w run build
+          start: pnpm -w run start-demo
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 120
           browser: chrome
-          headless: true

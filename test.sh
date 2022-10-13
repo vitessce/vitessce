@@ -21,28 +21,28 @@ eslint src || die 'eslint failed; try: npm run lint-fix'
 end lint
 
 start test
-npm test
+pnpm run test
 end test
 
 start cypress
 # Cypress fails randomly on GH Actions so we only run this locally.
 if [ "$CI" != 'true' ]; then
-  npm start & wait-on http://localhost:3000/
-  npm run cypress:run
+  cd sites/demo
+  pnpm start & wait-on http://localhost:3000/
+  pnpm run cypress:run
   echo 'NOTE: Server is still running.'
 fi
 end cypress
 
 start schema
-./src/schemas/schema-schema.sh
+./packages/vit-s/src/schemas/schema-schema.sh
 end schema
 
 if [[ "$1" == "--deploy-action" ]]; then
   echo "Not running npm run build:prod because it will be run as part of prepublishOnly"
 else
   start build
-  npm run build:prod
-  node ./scripts/verify-build.js
+  pnpm run build
   end build
 fi
 

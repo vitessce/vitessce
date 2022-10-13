@@ -10,22 +10,22 @@ jobs:
     runs-on: ubuntu-20.04
     name: Deploy
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       - id: check-deploy
         run: . ./check-deploy.sh --action
-      - id: get-options
-        run: . ./set-node-options.sh --action
-      - run: npm ci --legacy-peer-deps
+      - uses: pnpm/action-setup@v2.0.1
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: true
       - run: ./test.sh --deploy-action
-        env:
-          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - name: Deploy to NPM
         if: ${{ steps.check-deploy.outputs.needs-deploy == 'true' }}
         run: npm publish
         env:
-          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
