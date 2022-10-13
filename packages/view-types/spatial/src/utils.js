@@ -1,11 +1,10 @@
 /* eslint-disable no-plusplus */
 import shortNumber from 'short-number';
 import plur from 'plur';
-import { viv, BitmaskLayer } from '@vitessce/gl';
+import { viv, BitmaskLayer, DEFAULT_LAYER_TYPE_ORDERING } from '@vitessce/gl';
 import { extent } from 'd3-array';
 import {
   commaNumber,
-  DEFAULT_LAYER_TYPE_ORDERING,
 } from '@vitessce/utils';
 
 /**

@@ -23,7 +23,8 @@ import {
   registerPluginViewType,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS, capitalize } from '@vitessce/utils';
+import { capitalize } from '@vitessce/utils';
+import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/gl';
 
 // LayerController is memoized to prevent updates from prop changes that
 // are caused by view state updates i.e zooming and panning within

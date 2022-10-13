@@ -1,6 +1,6 @@
 const path = require('path');
 
-const SRC_DIR = path.resolve(__dirname, '../../src');
+const SRC_DIR = path.resolve('../../src');
 
 // We need to make a custom Docusaurus plugin to be able to configure webpack.
 // Reference: https://v2.docusaurus.io/docs/using-plugins#creating-plugins

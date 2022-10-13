@@ -1,8 +1,7 @@
-import { viv } from '@vitessce/gl';
+import { viv, initializeRasterLayersAndChannels } from '@vitessce/gl';
 import { openArray } from 'zarr';
 import JsonLoader from '../json-loaders/JsonLoader';
 import { rasterSchema, AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
-import { initializeRasterLayersAndChannels } from '@vitessce/utils';
 
 async function initLoader(imageData) {
   const {

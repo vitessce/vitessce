@@ -21,9 +21,6 @@
     "bowser": "^2.11.0",
     "lz-string": "^1.4.4",
     "@vitessce/sets": "workspace:*",
-    "@vitessce/gl": "workspace:*",
-    "math.gl": "^3.5.6",
-    "mathjs": "^9.2.0",
     "lodash": "^4.17.21"
   }
 }

@@ -1,6 +1,5 @@
-import { viv } from '@vitessce/gl';
+import { viv, initializeRasterLayersAndChannels } from '@vitessce/gl';
 import { AbstractLoaderError, LoaderResult, AbstractTwoStepLoader } from '@vitessce/vit-s';
-import { initializeRasterLayersAndChannels } from '@vitessce/utils';
 
 function hexToRgb(hex) {
   const result = /^#?([A-F\d]{2})([A-F\d]{2})([A-F\d]{2})$/i.exec(hex);

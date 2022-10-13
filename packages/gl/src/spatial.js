@@ -1,9 +1,9 @@
 import isEqual from 'lodash/isEqual';
-import { viv } from '@vitessce/gl';
 import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
+import { VIEWER_PALETTE } from '@vitessce/utils';
 import { getMultiSelectionStats } from './layer-controller';
-import { VIEWER_PALETTE } from './components';
+import { RENDERING_MODES } from './viv';
 
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
@@ -19,7 +19,7 @@ export const DEFAULT_RASTER_LAYER_PROPS = {
   opacity: 1,
   domainType: DEFAULT_RASTER_DOMAIN_TYPE,
   transparentColor: [0, 0, 0],
-  renderingMode: viv.RENDERING_MODES.ADDITIVE,
+  renderingMode: RENDERING_MODES.ADDITIVE,
   use3d: false,
 };
 

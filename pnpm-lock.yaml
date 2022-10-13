@@ -219,10 +219,13 @@ importers:
       '@turf/boolean-within': ^6.5.0
       '@turf/centroid': ^6.5.0
       '@turf/helpers': ^6.5.0
+      '@vitessce/utils': workspace:*
       deck.gl: 8.6.7
       glsl-colormap: ^1.0.1
       glslify: ^7.0.0
+      lodash: ^4.17.21
       math.gl: ^3.5.6
+      mathjs: ^9.2.0
       nebula.gl: 0.23.8
     dependencies:
       '@deck.gl/aggregation-layers': 8.6.7_xw7kzmvtc74tyv7oyffqqm4hgm
@@ -254,9 +257,12 @@ importers:
       '@turf/boolean-within': 6.5.0
       '@turf/centroid': 6.5.0
       '@turf/helpers': 6.5.0
+      '@vitessce/utils': link:../utils
       deck.gl: 8.6.7_s7w6qugh3jhpoitov4va2qvphi
       glslify: 7.1.1
+      lodash: 4.17.21
       math.gl: 3.6.3
+      mathjs: 9.5.2
       nebula.gl: 0.23.8_htpb6q2lnrnlvb3jqdo536hctu
     devDependencies:
       glsl-colormap: 1.0.1
@@ -332,21 +338,15 @@ importers:
 
   packages/utils:
     specifiers:
-      '@vitessce/gl': workspace:*
       '@vitessce/sets': workspace:*
       bowser: ^2.11.0
       lodash: ^4.17.21
       lz-string: ^1.4.4
-      math.gl: ^3.5.6
-      mathjs: ^9.2.0
     dependencies:
-      '@vitessce/gl': link:../gl
       '@vitessce/sets': link:../sets
       bowser: 2.11.0
       lodash: 4.17.21
       lz-string: 1.4.4
-      math.gl: 3.6.3
-      mathjs: 9.5.2
 
   packages/vega:
     specifiers:

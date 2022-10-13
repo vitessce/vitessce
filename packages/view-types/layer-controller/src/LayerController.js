@@ -23,8 +23,8 @@ import {
   OverflowEllipsisGrid,
 } from './styles';
 import { getMultiSelectionStats } from './utils';
-
-import { GLOBAL_LABELS, getSourceFromLoader, isRgb, canLoadResolution } from '@vitessce/utils';
+import { canLoadResolution } from '@vitessce/utils';
+import { GLOBAL_LABELS, getSourceFromLoader, isRgb } from '@vitessce/gl';
 import { DOMAINS } from './constants';
 
 function TabPanel(props) {

@@ -1,6 +1,5 @@
 export * from './root';
 export * from './components';
-export * from './spatial';
 export {
   encodeConfInUrl,
   decodeURLParamsToConf,
@@ -12,7 +11,4 @@ export {
 export {
   getCellColors,
 } from './interpolate-colors';
-export {
-  getMultiSelectionStats
-} from './layer-controller';
 export { default as Pool } from './Pool';

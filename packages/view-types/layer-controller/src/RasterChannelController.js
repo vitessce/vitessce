@@ -7,7 +7,7 @@ import isEqual from 'lodash/isEqual';
 
 import ChannelOptions from './ChannelOptions';
 import { DOMAINS } from './constants';
-import { getSourceFromLoader } from '@vitessce/utils';
+import { getSourceFromLoader } from '@vitessce/gl';
 import { getMultiSelectionStats } from './utils';
 import {
   ChannelSelectionDropdown,

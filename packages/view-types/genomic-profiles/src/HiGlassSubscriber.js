@@ -52,7 +52,6 @@ export function HiGlassSubscriber(props) {
 }
 
 export function register() {
-  console.log("registering higlass");
   registerPluginViewType(
     'higlass',
     HiGlassSubscriber,

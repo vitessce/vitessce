@@ -10,7 +10,7 @@ function getCompareUrl(prevVersion, nextVersion) {
   return `https://observablehq.com/@keller-mark/vitessce-config-version-diff?ref=${defaultRef}&prev=${prevVersion}&next=${nextVersion}`;
 }
 
-export function DiffViewConfigSchema() {
+export default function DiffViewConfigSchema() {
   const [prev, setPrev] = useState(defaultPrev);
   const [next, setNext] = useState(defaultNext);
 

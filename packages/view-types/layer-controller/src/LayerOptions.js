@@ -6,7 +6,7 @@ import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
-import { viv } from '@vitessce/gl'
+import { viv, DEFAULT_RASTER_DOMAIN_TYPE } from '@vitessce/gl'
 import {
   getBoundingCube, getMultiSelectionStats,
 } from './utils';
@@ -15,7 +15,6 @@ import {
   canLoadResolution,
   formatBytes,
   getStatsForResolution,
-  DEFAULT_RASTER_DOMAIN_TYPE,
 } from '@vitessce/utils';
 import { StyledSelectionSlider, useSelectStyles } from './styles';
 

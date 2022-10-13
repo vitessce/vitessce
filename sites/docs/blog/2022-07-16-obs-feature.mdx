@@ -7,8 +7,7 @@ author_url: http://gehlenborglab.org/team/members/mark-keller/
 tags: [fom]
 ---
 import MatchingDiagramTabs from '../src/pages/_MatchingDiagramTabs';
-import DemoList from '../src/pages/_DemoList';
-import { configs } from '@vitessce/example-configs';
+import BlogDemoList from '../src/pages/_BrowserOnlyBlogDemoList';
 
 Since the start of the Vitessce project in late 2018, our team has been focused on addressing the challenges of interactive web-based visualization of **multi-modal** and **spatial** single-cell datasets.
 
@@ -142,23 +141,7 @@ Some additional use cases that we are excited about:
 
 The following examples showcase how the updates described here can be used to perform integrative visualization of single-cell data.
 
-<DemoList
-  configs={configs}
-  small
-  subset={[
-    'codeluppi-2018',
-    'codeluppi-2018-via-zarr',
-    'eng-2019',
-    'wang-2018',
-    'satija-2020',
-    'human-lymph-node-10x-visium',
-    'habib-2017',
-    'marshall-2022',
-    'kuppe-2022',
-    'combat-2022',
-    'meta-2022-azimuth'
-  ]}
-/>
+<BlogDemoList/>
 
 ## Migration
 

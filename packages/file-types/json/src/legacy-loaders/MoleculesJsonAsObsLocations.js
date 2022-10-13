@@ -3,7 +3,7 @@ import sum from 'lodash/sum';
 import moleculesSchema from './schemas/molecules.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
-import { DEFAULT_MOLECULES_LAYER } from '@vitessce/utils';
+import { DEFAULT_MOLECULES_LAYER } from '@vitessce/gl';
 
 export default class MoleculesJsonAsObsLocationsLoader extends JsonLoader {
   constructor(dataSource, params) {
