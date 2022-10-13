@@ -57,11 +57,10 @@ jobs:
       - name: Cypress
         uses: cypress-io/github-action@v4
         with:
-          project: ./sites/demo
+          working-directory: ./sites/demo
           install-command: echo
           build: pnpm run build
           start: pnpm run start
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 120
           browser: chrome
-          headless: true
