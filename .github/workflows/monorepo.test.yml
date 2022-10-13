@@ -51,7 +51,7 @@ jobs:
       - run: pnpm run build
 
       - name: Cypress PNPM Patch
-        run: cp pnpm-lock.yaml package-lock.json
+        run: cp pnpm-lock.yaml ./sites/demo/package-lock.json
 
       - name: Cypress
         uses: cypress-io/github-action@v4
