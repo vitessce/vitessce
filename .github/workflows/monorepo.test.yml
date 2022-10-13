@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - main
-    - keller-mark/pnpm-incremental-2
   pull_request:
 
 jobs:
