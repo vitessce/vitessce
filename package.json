@@ -1,7 +1,10 @@
 {
   "name": "vitessce",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.2.2",
+  "description": "Vitessce app and React component library",
+  "author": "Gehlenborg Lab",
+  "homepage": "http://vitessce.io/",
+  "repository": "https://github.com/vitessce/vitessce/",
   "main": "index.js",
   "scripts": {
     "start": "pnpm -r --parallel start",
@@ -48,9 +51,10 @@
       }
     }
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "react-component"
+  ],
+  "license": "MIT",
   "prettier": {
     "singleQuote": true,
     "trailingComma": "none",

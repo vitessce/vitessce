@@ -25,11 +25,12 @@
 - Fixed bug in the v1.0.0 to v1.0.1 view config upgrade function caused by modification of a reference to the config object.
 - Changed the `VitessceConfig` constructor and `VitessceConfigDataset.addFile` method to use named arguments via JS objects.
 - **Monorepo**
+  - TODO: eslint
   - TODO: update all integration tests
   - TODO: convert `lighten()`/`darken()` SCSS calls to JS function calls
-  - TODO: change `<Vitessce/>` -> `<VitS/>` within @vitessce/vit-s
-  - TODO: write blog post
-  - TODO: update docs
+  - Change `<Vitessce/>` -> `<VitS/>` within @vitessce/vit-s
+  - Wrote blog post
+  - Updated docs to make them compatible with new build setup
   - TODO: add integration test for importing the UMD and ESM bundles into an HTML page
   - TODO: re-try addressing deck.gl dependency issue by adding more pnpm overrides/peerDependencyRules in the root package.json
   - Converted SCSS to JSS, for both external and internal stylesheets
