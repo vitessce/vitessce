@@ -12,7 +12,9 @@ import styles from './styles.module.css';
 
 // This component has been swizzled from docusaurus
 // so that we can include the Vitessce version information.
-import version from '../../../../../../src/version.json';
+// TODO(monorepo)
+//import version from '../../../../../../src/version.json';
+const version = 'unk';
 
 function FooterLink({
   to, href, label, prependBaseUrlToHref, ...props
