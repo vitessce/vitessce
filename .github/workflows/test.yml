@@ -61,5 +61,5 @@ jobs:
           build: pnpm -w run build
           start: pnpm -w run start-demo
           wait-on: 'http://localhost:3000'
-          wait-on-timeout: 120
+          wait-on-timeout: 500
           browser: chrome
