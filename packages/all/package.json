@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/all",
-  "version": "1.0.0",
+  "version": "1.2.2",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -19,20 +19,20 @@
   "dependencies": {
     "@material-ui/core": "~4.12.3",
     "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
+    "@vitessce/csv": "workspace:*",
     "@vitessce/description": "workspace:*",
+    "@vitessce/feature-list": "workspace:*",
+    "@vitessce/genomic-profiles": "workspace:*",
+    "@vitessce/heatmap": "workspace:*",
+    "@vitessce/json": "workspace:*",
+    "@vitessce/layer-controller": "workspace:*",
     "@vitessce/obs-sets-manager": "workspace:*",
     "@vitessce/scatterplot-embedding": "workspace:*",
     "@vitessce/scatterplot-gating": "workspace:*",
     "@vitessce/spatial": "workspace:*",
-    "@vitessce/heatmap": "workspace:*",
-    "@vitessce/feature-list": "workspace:*",
-    "@vitessce/layer-controller": "workspace:*",
-    "@vitessce/status": "workspace:*",
     "@vitessce/statistical-plots": "workspace:*",
-    "@vitessce/genomic-profiles": "workspace:*",
-    "@vitessce/csv": "workspace:*",
-    "@vitessce/json": "workspace:*",
+    "@vitessce/status": "workspace:*",
+    "@vitessce/vit-s": "workspace:*",
     "@vitessce/zarr": "workspace:*"
   }
 }

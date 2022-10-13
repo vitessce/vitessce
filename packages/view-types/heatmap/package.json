@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/heatmap",
-  "version": "1.0.0",
+  "version": "1.2.2",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -18,14 +18,14 @@
     "test": "vitest --run --passWithNoTests -r ../../../ --dir ."
   },
   "dependencies": {
-    "@vitessce/vit-s": "workspace:*",
-    "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/utils": "workspace:*",
-    "@vitessce/workers": "workspace:*",
-    "@vitessce/gl": "workspace:*",
-    "@vitessce/tooltip": "workspace:*",
-    "@vitessce/sets": "workspace:*",
     "@material-ui/core": "~4.12.3",
+    "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/gl": "workspace:*",
+    "@vitessce/sets": "workspace:*",
+    "@vitessce/tooltip": "workspace:*",
+    "@vitessce/utils": "workspace:*",
+    "@vitessce/vit-s": "workspace:*",
+    "@vitessce/workers": "workspace:*",
     "lodash": "^4.17.21",
     "plur": "^5.1.0",
     "uuid": "^3.3.2"

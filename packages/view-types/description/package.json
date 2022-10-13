@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/description",
-  "version": "1.0.0",
+  "version": "1.2.2",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -18,8 +18,8 @@
     "test": "vitest --run --passWithNoTests -r ../../../ --dir ."
   },
   "dependencies": {
-    "@vitessce/vit-s": "workspace:*",
+    "@material-ui/core": "~4.12.3",
     "@vitessce/constants-internal": "workspace:*",
-    "@material-ui/core": "~4.12.3"
+    "@vitessce/vit-s": "workspace:*"
   }
 }

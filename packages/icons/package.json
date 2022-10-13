@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/icons",
-  "version": "1.0.0",
+  "version": "1.2.2",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -19,9 +19,9 @@
     "build-lib:dev": "APP_ENV=development vite build --mode lib"
   },
   "devDependencies": {
-    "vite": "^3.0.0",
-    "vite-plugin-svgr": "^2.2.1",
     "@vitejs/plugin-react": "^1.3.2",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "vite": "^3.0.0",
+    "vite-plugin-svgr": "^2.2.1"
   }
 }

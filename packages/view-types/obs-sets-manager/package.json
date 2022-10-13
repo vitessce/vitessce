@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/obs-sets-manager",
-  "version": "1.0.0",
+  "version": "1.2.2",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -18,12 +18,12 @@
     "test": "vitest --run --passWithNoTests -r ../../../ --dir ."
   },
   "dependencies": {
-    "@vitessce/vit-s": "workspace:*",
+    "@material-ui/core": "~4.12.3",
     "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/icons": "workspace:*",
     "@vitessce/sets": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@vitessce/icons": "workspace:*",
-    "@material-ui/core": "~4.12.3",
+    "@vitessce/vit-s": "workspace:*",
     "clsx": "^1.1.1",
     "lodash": "^4.17.21",
     "rc-tooltip": "^5.2.2",

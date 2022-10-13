@@ -25,6 +25,7 @@ const OTHER_VERSIONS = {
   "@material-ui/core": "~4.12.3",
   "@material-ui/icons": "~4.11.2",
   "math.gl": "^3.5.6",
+  "@math.gl/core": "^3.5.6",
   "mathjs": "^9.2.0",
 
   // LumaGL
@@ -72,9 +73,6 @@ function pinVersions(deps = {}) {
     }
     if (name.startsWith('@nebula.gl/') || name === "nebula.gl") {
       deps[name] = NEBULAGL_VERSION;
-    }
-    if (name.startsWith('@math.gl/') || name === "math.gl") {
-      deps[name] = MATHGL_VERSION;
     }
     if (name.startsWith('@turf/')) {
       deps[name] = TURF_VERSION;

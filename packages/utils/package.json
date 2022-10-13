@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/utils",
-  "version": "1.0.0",
+  "version": "1.2.2",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -18,9 +18,9 @@
     "test": "vitest --run --passWithNoTests -r ../../ --dir ."
   },
   "dependencies": {
-    "bowser": "^2.11.0",
-    "lz-string": "^1.4.4",
     "@vitessce/sets": "workspace:*",
-    "lodash": "^4.17.21"
+    "bowser": "^2.11.0",
+    "lodash": "^4.17.21",
+    "lz-string": "^1.4.4"
   }
 }

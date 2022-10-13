@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/sets",
-  "version": "1.0.0",
+  "version": "1.2.2",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -25,10 +25,10 @@
     "ajv": "^6.10.0",
     "concaveman": "^1.2.1",
     "d3-dsv": "^1.1.1",
+    "internmap": "^2.0.3",
     "json2csv": "^5.0.0",
     "lodash": "^4.17.21",
     "tinycolor2": "^1.4.1",
-    "uuid": "^3.3.2",
-    "internmap": "^2.0.3"
+    "uuid": "^3.3.2"
   }
 }
