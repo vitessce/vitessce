@@ -36,8 +36,14 @@ jobs:
       - run: |
           pnpm link --global vite
           pnpm link --global vitest
+        env:
+          PNPM_HOME: ~/setup-pnpm
       - run: pnpm run test:ci:exclude
+        env:
+          PNPM_HOME: ~/setup-pnpm
       - run: pnpm run test:ci:include
+        env:
+          PNPM_HOME: ~/setup-pnpm
   
   test-e2e:
     runs-on: ubuntu-20.04
