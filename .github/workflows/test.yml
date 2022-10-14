@@ -49,9 +49,9 @@ jobs:
           version: 7
           run_install: true
       - run: |
-        pnpm run build
-        cd ./sites/demo
-        pnpm run build-demo
+          pnpm run build
+          cd ./sites/demo
+          pnpm run build-demo
 
       - name: Cypress PNPM Patch
         run: cp pnpm-lock.yaml ./sites/demo/package-lock.json
