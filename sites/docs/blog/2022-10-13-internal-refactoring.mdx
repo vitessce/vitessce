@@ -14,8 +14,9 @@ Often additionally, we want to produce a matrix of different builds: minified/un
 If we have any custom CSS that goes along with our JavaScript, we also need to think about how that will get included in the bundle.
 
 However, in Vitessce, many other things complicate both the development and production setups.
+<!--truncate-->
 Luckily, there are new ways to address these complications due to improvements in language standards and build tooling.
-Thanks to help from fellow lab members ([Trevor Manz](https://trevorma.nz/) in particular), we have been able to greatly improve our build setup.
+Thanks to help from [Trevor Manz](http://gehlenborglab.org/team/members/trevor-manz/), we have been able to greatly improve our build setup.
 
 In the following sections I describe each requirement and how we approached it in the new setup, in the hopes that it may be useful to others. 
 
@@ -85,7 +86,8 @@ Where there are exceptions, the separation of concerns enabled by the monorepo s
 For example, we make exceptions in the following places:
 
 - The main `vitessce` package: For both backwards compatibility and to enable inclusion in HTML pages, we generate a matrix of single-file bundles using Vite and its library mode.
-- The `@vitessce/icons` sub-package: To enable SVGs to be imported and transformed into React components automatically, we use Vite and [vite-plugin-svgr](https://www.npmjs.com/package/vite-plugin-svgr) to produce a plain JS bundle that can be consumed by other monorepo packages. (Note: This setup does not allow SVGs to be hot-reloaded during development, but we can probably assume they will not change frequently.)
+- The `@vitessce/icons` sub-package: To enable SVGs to be imported and transformed into React components automatically, we use Vite and [vite-plugin-svgr](https://www.npmjs.com/package/vite-plugin-svgr) to produce a plain JS bundle that can be consumed by other monorepo packages.
+(Note: This setup does not allow SVGs to be hot-reloaded during development, but we can probably assume they will not change frequently.)
 - The `@vitessce/workers` sub-package: To enable Web Workers to be in-lined, we use Rollup + [rollup-plugin-web-worker-loader](https://www.npmjs.com/package/rollup-plugin-web-worker-loader). (This comes with the same hot reloading caveat as the `@vitessce/icons` case above.)
 
 
@@ -130,7 +132,11 @@ While JSS auto-generates class names by default (which prevents naming conflicts
 
 ### Testing
 
-To modernize our testing infrastructure, we have adopted Jest + Vitest + React Testing Library and upgraded to the latest version of Cypress. However, there were a few hiccups, namely using code that depends on Web Workers in unit tests and serving test fixtures as static files during unit tests. Jest + Vitest use jsdom rather than a real web browser during unit tests, for efficiency. However, jsdom lacks support for web workers, which can be addressed by including the [jsdom-worker](https://www.npmjs.com/package/jsdom-worker) library in the test setup script. To serve static files during unit testing, we can hook into Vite's development server and add static file routes via [serve-static](https://github.com/expressjs/serve-static).
+To modernize our testing infrastructure, we have adopted Jest + Vitest + React Testing Library and upgraded to the latest version of Cypress.
+However, there were a few hiccups, namely using code that depends on Web Workers in unit tests and serving test fixtures as static files during unit tests.
+Jest + Vitest use jsdom rather than a real web browser during unit tests, for efficiency.
+However, jsdom lacks support for web workers, which can be addressed by including the [jsdom-worker](https://www.npmjs.com/package/jsdom-worker) library in the test setup script.
+To serve static files during unit testing, we can hook into Vite's development server and add static file routes via [serve-static](https://github.com/expressjs/serve-static).
 
 ## Concluding thoughts
 
