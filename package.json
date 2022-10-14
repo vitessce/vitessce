@@ -11,6 +11,8 @@
     "start-demo": "pnpm -r --parallel --filter=!docs start",
     "start-docs": "pnpm -r --parallel --filter=!demo start",
     "build": "pnpm -r build",
+    "test:ci:exclude": "pnpm -r --filter=!@vitessce/zarr --filter=!@vitessce/json test",
+    "test:ci:include": "pnpm -r --filter=@vitessce/zarr --filter=@vitessce/json test",
     "test": "pnpm -r test",
     "format-check": "prettier --check --ignore-path .gitignore sites/ packages/",
     "format": "npm run format-check -- --write",

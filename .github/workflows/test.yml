@@ -33,7 +33,8 @@ jobs:
           version: 7
           run_install: true
       - run: pnpm run build
-      - run: pnpm run test
+      - run: pnpm run test:ci:exclude
+      - run: pnpm run test:ci:include
   
   test-e2e:
     runs-on: ubuntu-20.04
