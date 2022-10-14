@@ -55,12 +55,14 @@ jobs:
 
       - name: Cypress PNPM Patch
         run: cp pnpm-lock.yaml ./sites/demo/package-lock.json
-
-      - uses: cypress-io/github-action@v2
+      
+      - name: Cypress
+        uses: cypress-io/github-action@v4
         with:
+          working-directory: ./sites/demo
           install-command: echo
           start: pnpm run preview
           wait-on: 'http://localhost:3000'
-          wait-on-timeout: 120
+          wait-on-timeout: 360
           browser: chrome
-          headless: true
+          headed: false
