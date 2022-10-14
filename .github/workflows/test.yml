@@ -33,10 +33,6 @@ jobs:
           version: 7
           run_install: true
       - run: pnpm run build
-      - run: |
-          pnpm setup
-          pnpm link --global vite
-          pnpm link --global vitest
       - run: pnpm run test:ci:exclude
       - run: pnpm run test:ci:include
   
