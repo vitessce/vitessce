@@ -10,11 +10,14 @@ import { resolve } from 'path';
  */
 export function serveTestFixtures() {
   const serveOptions = {
-    setHeaders: (res, path) => {
+    setHeaders: (res) => {
       res.setHeader('Access-Control-Allow-Origin', '*');
     },
     dotfiles: 'allow',
     acceptRanges: true,
+    immutable: true,
+    index: false,
+    maxAge: 1000 * 60 * 60 * 24, // 24 hours
   };
   const dirZarr = resolve(__dirname, './packages/file-types/zarr/fixtures');
   const serveZarr = serveStatic(dirZarr, serveOptions);
