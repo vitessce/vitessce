@@ -13,8 +13,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "rimraf ./dist/ && rimraf *.tsbuildinfo && tsc && pnpm run build-lib",
-    "build-lib": "pnpm run build-lib:prod && pnpm run build-lib:dev",
+    "build": "rimraf ./dist/ && rimraf *.tsbuildinfo && tsc && npm run build-lib",
+    "build-lib": "npm run build-lib:prod && npm run build-lib:dev",
     "build-lib:prod": "cross-env APP_ENV=production vite build --mode lib",
     "build-lib:dev": "cross-env APP_ENV=development vite build --mode lib"
   },
