@@ -5,7 +5,7 @@
   "scripts": {
     "start": "vite --port 3000",
     "build-demo": "vite build",
-    "preview": "vite preview",
+    "preview": "vite preview --port 3000",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run"
   },

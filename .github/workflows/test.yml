@@ -59,7 +59,7 @@ jobs:
           working-directory: ./sites/demo
           install-command: echo
           build: pnpm -w run build
-          start: pnpm -w run start-demo
+          start: pnpm run preview
           wait-on: 'http://localhost:3000'
-          wait-on-timeout: 10000
+          wait-on-timeout: 2000
           browser: chrome
