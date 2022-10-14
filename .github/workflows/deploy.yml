@@ -23,7 +23,8 @@ jobs:
         with:
           version: 7
           run_install: true
-      - run: ./test.sh --deploy-action
+      - run: ./test.sh --action
+      - run: pnpm run build
       - name: Deploy to NPM
         if: ${{ steps.check-deploy.outputs.needs-deploy == 'true' }}
         run: npm publish
