@@ -15,13 +15,14 @@
   "scripts": {
     "build": "rimraf ./dist/ && rimraf *.tsbuildinfo && tsc && pnpm run build-lib",
     "build-lib": "pnpm run build-lib:prod && pnpm run build-lib:dev",
-    "build-lib:prod": "APP_ENV=production vite build --mode lib",
-    "build-lib:dev": "APP_ENV=development vite build --mode lib"
+    "build-lib:prod": "cross-env APP_ENV=production vite build --mode lib",
+    "build-lib:dev": "cross-env APP_ENV=development vite build --mode lib"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^1.3.2",
     "rimraf": "^3.0.2",
     "vite": "^3.0.0",
-    "vite-plugin-svgr": "^2.2.1"
+    "vite-plugin-svgr": "^2.2.1",
+    "cross-env": "^7.0.0"
   }
 }
