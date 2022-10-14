@@ -5,5 +5,5 @@ Typescript alone cannot do this: we need a build step to convert each SVG file i
 Then, we can simply import from `@vitessce/icons` in our consumer packages.
 
 ```sh
-npm run build
+pnpm run build
 ```

@@ -54,10 +54,12 @@ export default defineConfig({
   ],
   test: {
     api: 51204,
+    passWithNoTests: true,
+    testTimeout: 15000,
     globals: true,
+    //threads: false,
     environment: 'jsdom',
     setupFiles: [resolve(__dirname, './vitest.setup.js')],
-    threads: false,
     environmentOptions: {
       jsdom: {
         resources: 'usable'

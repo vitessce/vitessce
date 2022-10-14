@@ -17,7 +17,7 @@ fi
 end changelog
 
 start lint
-eslint src || die 'eslint failed; try: npm run lint-fix'
+eslint src || die 'eslint failed; try: pnpm run lint-fix'
 end lint
 
 start test
@@ -39,7 +39,7 @@ start schema
 end schema
 
 if [[ "$1" == "--deploy-action" ]]; then
-  echo "Not running npm run build:prod because it will be run as part of prepublishOnly"
+  echo "Not running pnpm run build because it will be run as part of prepublishOnly"
 else
   start build
   pnpm run build

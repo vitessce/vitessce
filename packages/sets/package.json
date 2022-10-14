@@ -15,7 +15,7 @@
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc",
-    "test": "vitest --run --passWithNoTests -r ../../ --dir ."
+    "test": "pnpm exec vitest --run -r ../../ --dir ."
   },
   "dependencies": {
     "@turf/centroid": "^6.5.0",

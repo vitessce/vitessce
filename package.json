@@ -13,8 +13,8 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "format-check": "prettier --check --ignore-path .gitignore sites/ packages/",
-    "format": "npm run format-check -- --write",
-    "lint": "npm run format-check && eslint \"packages/*/src/**/*\" \"sites/*/src/**/*\"",
+    "format": "pnpm run format-check -- --write",
+    "lint": "pnpm run format-check && eslint \"packages/*/src/**/*\" \"sites/*/src/**/*\"",
     "clean": "pnpm -r exec -- rm -rf node_modules"
   },
   "devDependencies": {

@@ -5,5 +5,5 @@ Using typescript alone does not allow us to do this: we need a build step to do 
 We can use rollup and [rollup-plugin-web-worker-loader](https://github.com/darionco/rollup-plugin-web-worker-loader) to perform this build step.
 
 ```sh
-npm run build
+pnpm run build
 ```

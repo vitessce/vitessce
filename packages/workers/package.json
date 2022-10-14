@@ -14,7 +14,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "npm run build-lib",
+    "build": "pnpm run build-lib",
     "build-lib": "rollup --config rollup.config.js"
   },
   "dependencies": {
