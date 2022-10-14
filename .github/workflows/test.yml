@@ -66,6 +66,6 @@ jobs:
           install-command: echo
           start: pnpm run preview
           wait-on: 'http://localhost:3000'
-          wait-on-timeout: 360
+          wait-on-timeout: 240
           browser: chrome
           headed: false
