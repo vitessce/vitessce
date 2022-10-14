@@ -59,6 +59,8 @@ jobs:
       
       - name: Cypress
         uses: cypress-io/github-action@v4
+        env:
+          DEBUG: '@cypress/github-action'
         with:
           working-directory: ./sites/demo
           install-command: echo
