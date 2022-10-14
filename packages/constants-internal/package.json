@@ -16,5 +16,9 @@
     "start": "tsc --watch",
     "build": "tsc",
     "test": "pnpm exec vitest --run -r ../../ --dir ."
+  },
+  "devDependencies": {
+    "vite": "^3.0.0",
+    "vitest": "^0.23.4"
   }
 }

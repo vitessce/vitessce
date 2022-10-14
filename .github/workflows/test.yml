@@ -34,7 +34,8 @@ jobs:
           run_install: true
       - run: pnpm run build
       - run: pnpm run test:ci:exclude
-      - run: pnpm run test:ci:include
+      - run: pnpm run test:ci:zarr
+      - run: pnpm run test:ci:json
   
   test-e2e:
     runs-on: ubuntu-20.04
