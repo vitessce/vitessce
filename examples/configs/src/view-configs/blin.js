@@ -1,5 +1,3 @@
-
-
 const blinName = 'Blin et al., PLoS Biol 2019';
 const blinDescription = 'Mouse blastocysts imaged by confocal microscopy';
 export const blin2019 = {

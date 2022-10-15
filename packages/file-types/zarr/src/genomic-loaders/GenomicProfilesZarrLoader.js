@@ -11,7 +11,6 @@ export default class GenomicProfilesZarrLoader extends AbstractTwoStepLoader {
 
   load() {
     const { url } = this;
-    return this.loadAttrs()
-      .then(attrs => Promise.resolve(new LoaderResult(attrs, url)));
+    return this.loadAttrs().then(attrs => Promise.resolve(new LoaderResult(attrs, url)));
   }
 }

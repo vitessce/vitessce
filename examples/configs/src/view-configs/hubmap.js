@@ -5,7 +5,8 @@ function getConfig() {
   const vc = new vapi.VitessceConfig({
     schemaVersion: '1.0.15',
     name: 'HBM485.TBWH.322',
-    description: 'Large intestine snATAC-seq HuBMAP dataset with genomic data visualization powered by HiGlass',
+    description:
+      'Large intestine snATAC-seq HuBMAP dataset with genomic data visualization powered by HiGlass',
   });
   // Add a dataset and its files.
   const csvUrl = 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/sn-atac-seq-hubmap-2020/human_intestine_2020_hubmap.cells.csv';
@@ -37,21 +38,19 @@ function getConfig() {
         ],
       },
     })
-    .addFile({ url: genomicProfilesUrl, fileType: vapi.ft.GENOMIC_PROFILES_ZARR });
-    // Add components.
-    // Use mapping: "UMAP" so that cells are mapped to the UMAP positions from the JSON file.
+    .addFile({
+      url: genomicProfilesUrl,
+      fileType: vapi.ft.GENOMIC_PROFILES_ZARR,
+    });
+  // Add components.
+  // Use mapping: "UMAP" so that cells are mapped to the UMAP positions from the JSON file.
   const umap = vc.addView(dataset, vapi.vt.SCATTERPLOT, { mapping: 'UMAP' });
   const cellSetsManager = vc.addView(dataset, vapi.vt.OBS_SETS);
   const genomicProfiles = vc.addView(dataset, vapi.vt.GENOMIC_PROFILES);
 
   // Try un-commenting the line below to link center points of the two scatterplots!
   // vc.linkViews([umap, tsne], [ct.EMBEDDING_TARGET_X, ct.EMBEDDING_TARGET_Y], [0, 0]);
-  vc.layout(
-    vapi.vconcat(
-      genomicProfiles,
-      vapi.hconcat(umap, cellSetsManager),
-    ),
-  );
+  vc.layout(vapi.vconcat(genomicProfiles, vapi.hconcat(umap, cellSetsManager)));
 
   // Return the view config as JSON.
   return vc.toJSON();

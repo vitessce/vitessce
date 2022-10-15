@@ -8,10 +8,14 @@ export {
 } from './plugins';
 // For plugin view types:
 export {
-  useReady, useUrls,
-  useVitessceContainer, useDeckCanvasSize,
-  useExpressionValueGetter, useGetObsInfo,
-  useClosestVitessceContainerSize, useWindowDimensions,
+  useReady,
+  useUrls,
+  useVitessceContainer,
+  useDeckCanvasSize,
+  useExpressionValueGetter,
+  useGetObsInfo,
+  useClosestVitessceContainerSize,
+  useWindowDimensions,
   useGridItemSize,
 } from './hooks';
 export {
@@ -39,19 +43,15 @@ export {
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useMultiObsLabels,
-
   useObsLocationsData,
   useObsSegmentationsData,
   useNeighborhoodsData,
   useObsLabelsData,
-
   useObsFeatureMatrixData,
   useFeatureLabelsData,
   useGenomicProfilesData,
 } from './data-hooks';
-export {
-  useHasLoader,
-} from './data-hook-utils';
+export { useHasLoader } from './data-hook-utils';
 export {
   AbstractLoader,
   AbstractTwoStepLoader,
@@ -82,13 +82,8 @@ export {
   anndataZarrSchema,
   emptySchema,
 } from './file-options-schemas';
-export {
-  SCHEMA_HANDLERS,
-  LATEST_VERSION,
-} from './view-config-versions';
-export {
-  upgradeAndValidate
-} from './view-config-utils';
+export { SCHEMA_HANDLERS, LATEST_VERSION } from './view-config-versions';
+export { upgradeAndValidate } from './view-config-utils';
 export {
   CellColorEncodingOption,
   OptionsContainer,

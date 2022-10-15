@@ -1,8 +1,4 @@
-import {
-  makeDatasetNameToJsonFiles,
-  getS3Url, vapi,
-} from '../utils';
-
+import { makeDatasetNameToJsonFiles, getS3Url, vapi } from '../utils';
 
 const linnarssonDataTypes = [
   'cells',
@@ -43,7 +39,9 @@ const linnarssonBaseNoMolecules = {
       uid: 'codeluppi',
       name: 'Codeluppi',
       files: [
-        ...linnarssonDataTypes.filter(dtype => dtype !== 'molecules').map(makeDatasetNameToJsonFiles('linnarsson')),
+        ...linnarssonDataTypes
+          .filter(dtype => dtype !== 'molecules')
+          .map(makeDatasetNameToJsonFiles('linnarsson')),
         {
           ...makeDatasetNameToJsonFiles('linnarsson')('clusters'),
           type: 'expression-matrix',
@@ -188,7 +186,8 @@ export const justSpatial = {
 
 export const codeluppi2018 = {
   name: 'Codeluppi et al., Nature Methods 2018',
-  description: 'Spatial organization of the somatosensory cortex revealed by osmFISH',
+  description:
+    'Spatial organization of the somatosensory cortex revealed by osmFISH',
   version: '1.0.13',
   initStrategy: 'auto',
   public: true,
@@ -202,10 +201,7 @@ export const codeluppi2018 = {
           fileType: 'cells.json',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cells.json',
           options: {
-            embeddingTypes: [
-              'PCA',
-              't-SNE',
-            ],
+            embeddingTypes: ['PCA', 't-SNE'],
           },
         },
         {
@@ -537,11 +533,28 @@ export const linnarssonWithRorb = {
 };
 
 export function getCodeluppiViewConfig(name, description) {
-  const vc = new vapi.VitessceConfig({ schemaVersion: '1.0.0', name, description });
-  const dataset = vc.addDataset(linnarssonName, linnarssonDescription)
-    .addFile({ url: getS3Url('linnarsson', 'cells'), fileType: vapi.ft.CELLS_JSON })
-    .addFile({ url: getS3Url('linnarsson', 'cell-sets'), fileType: vapi.ft.CELL_SETS_JSON })
-    .addFile({ url: getS3Url('linnarsson', 'raster'), fileType: vapi.ft.RASTER_JSON })
-    .addFile({ url: getS3Url('linnarsson', 'molecules'), fileType: vapi.ft.MOLECULES_JSON });
+  const vc = new vapi.VitessceConfig({
+    schemaVersion: '1.0.0',
+    name,
+    description,
+  });
+  const dataset = vc
+    .addDataset(linnarssonName, linnarssonDescription)
+    .addFile({
+      url: getS3Url('linnarsson', 'cells'),
+      fileType: vapi.ft.CELLS_JSON,
+    })
+    .addFile({
+      url: getS3Url('linnarsson', 'cell-sets'),
+      fileType: vapi.ft.CELL_SETS_JSON,
+    })
+    .addFile({
+      url: getS3Url('linnarsson', 'raster'),
+      fileType: vapi.ft.RASTER_JSON,
+    })
+    .addFile({
+      url: getS3Url('linnarsson', 'molecules'),
+      fileType: vapi.ft.MOLECULES_JSON,
+    });
   return [vc, dataset];
 }

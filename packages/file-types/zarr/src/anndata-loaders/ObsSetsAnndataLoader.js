@@ -1,10 +1,14 @@
-import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsSetsAnndataSchema } from '@vitessce/vit-s';
+import {
+  LoaderResult,
+  AbstractTwoStepLoader,
+  AbstractLoaderError,
+  obsSetsAnndataSchema,
+} from '@vitessce/vit-s';
 import {
   initializeCellSetColor,
   treeToMembershipMap,
   dataToCellSetsTree,
 } from '@vitessce/sets';
-
 
 /**
  * Loader for converting zarr into the cell sets json schema.
@@ -23,12 +27,16 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
 
   loadCellSetScores() {
     const { options } = this;
-    const cellSetScoreZarrLocation = options.map(option => option.scorePath || undefined);
+    const cellSetScoreZarrLocation = options.map(
+      option => option.scorePath || undefined,
+    );
     return this.dataSource.loadObsColumns(cellSetScoreZarrLocation);
   }
 
   async load() {
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
+    const superResult = await super
+      .load()
+      .catch(reason => Promise.resolve(reason));
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
@@ -55,7 +63,11 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
     coordinationValues.obsSetSelection = newAutoSetSelections;
     coordinationValues.obsSetColor = newAutoSetColors;
     return Promise.resolve(
-      new LoaderResult({ obsIndex, obsSets, obsSetsMembership }, null, coordinationValues),
+      new LoaderResult(
+        { obsIndex, obsSets, obsSetsMembership },
+        null,
+        coordinationValues,
+      ),
     );
   }
 }

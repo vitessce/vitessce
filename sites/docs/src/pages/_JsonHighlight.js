@@ -12,7 +12,7 @@ export const JSON_TRANSLATION_KEY = 'vitessceJsonTranslation';
 export default function JsonHighlight(props) {
   const { json } = props;
   const { colorMode } = useColorMode();
-  const isDarkTheme = (colorMode === 'dark');
+  const isDarkTheme = colorMode === 'dark';
   const highlightTheme = getHighlightTheme(isDarkTheme);
   const [showCopied, setShowCopied] = useState(false);
 
@@ -32,12 +32,20 @@ export default function JsonHighlight(props) {
 
   // Adapted from https://github.com/FormidableLabs/prism-react-renderer/blob/master/README.md#usage
   return (
-    <Highlight {...defaultProps} code={jsonCode} language="json" theme={highlightTheme}>
+    <Highlight
+      {...defaultProps}
+      code={jsonCode}
+      language="json"
+      theme={highlightTheme}
+    >
       {({
         className, style, tokens, getLineProps, getTokenProps,
       }) => (
         <div className={styles.copyButtonContainer}>
-          <pre className={clsx(className, styles.viewConfigPreviewJSCode)} style={style}>
+          <pre
+            className={clsx(className, styles.viewConfigPreviewJSCode)}
+            style={style}
+          >
             {tokens.map((line, i) => (
               <div {...getLineProps({ line, key: i })}>
                 {line.map((token, key) => (

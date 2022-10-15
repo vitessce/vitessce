@@ -1,6 +1,14 @@
 import React from 'react';
-import { TitleInfo, useCoordination, useWarning, registerPluginViewType } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import {
+  TitleInfo,
+  useCoordination,
+  useWarning,
+  registerPluginViewType,
+} from '@vitessce/vit-s';
+import {
+  ViewType,
+  COMPONENT_COORDINATION_TYPES,
+} from '@vitessce/constants-internal';
 import Status from './Status';
 
 /**
@@ -24,27 +32,23 @@ export function StatusSubscriber(props) {
   } = props;
 
   // Get "props" from the coordination space.
-  const [{
-    obsHighlight: cellHighlight,
-    featureHighlight: geneHighlight,
-    moleculeHighlight,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.STATUS], coordinationScopes);
+  const [
+    {
+      obsHighlight: cellHighlight,
+      featureHighlight: geneHighlight,
+      moleculeHighlight,
+    },
+  ] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.STATUS],
+    coordinationScopes,
+  );
 
   const warn = useWarning();
 
   const infos = [
-    ...(cellHighlight
-      ? [`Hovered cell ${cellHighlight}`]
-      : []
-    ),
-    ...(geneHighlight
-      ? [`Hovered gene ${geneHighlight}`]
-      : []
-    ),
-    ...(moleculeHighlight
-      ? [`Hovered gene ${moleculeHighlight}`]
-      : []
-    ),
+    ...(cellHighlight ? [`Hovered cell ${cellHighlight}`] : []),
+    ...(geneHighlight ? [`Hovered gene ${geneHighlight}`] : []),
+    ...(moleculeHighlight ? [`Hovered gene ${moleculeHighlight}`] : []),
   ];
   const info = infos.join('; ');
 

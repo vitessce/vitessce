@@ -11,7 +11,11 @@ import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import { SELECTION_TYPE } from 'nebula.gl';
 import { EditableGeoJsonLayer } from '@nebula.gl/layers';
-import { DrawRectangleMode, DrawPolygonByDraggingMode, ViewMode } from '@nebula.gl/edit-modes';
+import {
+  DrawRectangleMode,
+  DrawPolygonByDraggingMode,
+  ViewMode,
+} from '@nebula.gl/edit-modes';
 
 const EDIT_TYPE_ADD = 'addFeature';
 const EDIT_TYPE_CLEAR = 'clearFeatures';
@@ -81,15 +85,12 @@ const PASS_THROUGH_PROPS = [
 export default class SelectionLayer extends CompositeLayer {
   _selectPolygonObjects(coordinates) {
     const {
-      onSelect,
-      getCellCoords,
-      cellsQuadTree,
-      flipY,
+      onSelect, getCellCoords, cellsQuadTree, flipY,
     } = this.props;
 
-    const flippedCoordinates = (flipY
-      ? coordinates.map(poly => poly.map(p => ([p[0], -p[1]])))
-      : coordinates);
+    const flippedCoordinates = flipY
+      ? coordinates.map(poly => poly.map(p => [p[0], -p[1]]))
+      : coordinates;
 
     // Convert the selection to a turf polygon object.
     const selectedPolygon = turfPolygon(flippedCoordinates);
@@ -102,16 +103,35 @@ export default class SelectionLayer extends CompositeLayer {
     // If false returned, then the children of the node are visited.
     // Reference: https://github.com/d3/d3-quadtree#quadtree_visit
     cellsQuadTree.visit((node, x0, y0, x1, y1) => {
-      const nodePoints = [[[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]];
+      const nodePoints = [
+        [
+          [x0, y0],
+          [x1, y0],
+          [x1, y1],
+          [x0, y1],
+          [x0, y0],
+        ],
+      ];
       const nodePolygon = turfPolygon(nodePoints);
 
-      const nodePolygonContainsSelectedPolygon = booleanContains(nodePolygon, selectedPolygon);
-      const nodePolygonWithinSelectedPolygon = booleanWithin(nodePolygon, selectedPolygon);
-      const nodePolygonOverlapsSelectedPolgyon = booleanOverlap(nodePolygon, selectedPolygon);
+      const nodePolygonContainsSelectedPolygon = booleanContains(
+        nodePolygon,
+        selectedPolygon,
+      );
+      const nodePolygonWithinSelectedPolygon = booleanWithin(
+        nodePolygon,
+        selectedPolygon,
+      );
+      const nodePolygonOverlapsSelectedPolgyon = booleanOverlap(
+        nodePolygon,
+        selectedPolygon,
+      );
 
-      if (!nodePolygonContainsSelectedPolygon
+      if (
+        !nodePolygonContainsSelectedPolygon
         && !nodePolygonWithinSelectedPolygon
-        && !nodePolygonOverlapsSelectedPolgyon) {
+        && !nodePolygonOverlapsSelectedPolgyon
+      ) {
         // We are not interested in anything below this node,
         // so return true because we are done with this node.
         return true;
@@ -121,9 +141,11 @@ export default class SelectionLayer extends CompositeLayer {
       // contain, be within, or overlap with the selected polygon.
 
       // Check if this is a leaf node.
-      if (node.data
+      if (
+        node.data
         && booleanPointInPolygon(
-          turfPoint([].slice.call(getCellCoords(node.data))), selectedPolygon,
+          turfPoint([].slice.call(getCellCoords(node.data))),
+          selectedPolygon,
         )
       ) {
         // This node has data, so it is a leaf node representing one data point,

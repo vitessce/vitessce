@@ -1,6 +1,6 @@
+import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import cellsSchema from './schemas/cells.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 
 export default class CellsJsonAsObsLabelsLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -15,7 +15,9 @@ export default class CellsJsonAsObsLabelsLoader extends JsonLoader {
     }
     const { obsLabelsType } = this.coordinationValues;
     const obsIndex = Object.keys(data);
-    const obsLabels = Object.values(data).map(cellObj => cellObj.factors[obsLabelsType]);
+    const obsLabels = Object.values(data).map(
+      cellObj => cellObj.factors[obsLabelsType],
+    );
     this.cachedResult = { obsIndex, obsLabels };
     return this.cachedResult;
   }

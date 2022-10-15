@@ -54,22 +54,39 @@ function DemoList(props) {
 
   const baseUrl = useBaseUrl('/#?dataset=');
 
-  const demos = subset.map(key => ([key, configs[key]]));
+  const demos = subset.map(key => [key, configs[key]]);
   return (
     <>
-      <p className={clsx(styles.demoDescription, { [styles.demoDescriptionSmall]: small })}>
+      <p
+        className={clsx(styles.demoDescription, {
+          [styles.demoDescriptionSmall]: small,
+        })}
+      >
         The demos compiled here showcase the core features of Vitessce.
       </p>
-      <div className={clsx(styles.demoGridContainer, { [styles.demoGridContainerSmall]: small })}>
+      <div
+        className={clsx(styles.demoGridContainer, {
+          [styles.demoGridContainerSmall]: small,
+        })}
+      >
         {demos.map(([key, d]) => (
           <div key={key} className={styles.demoGridItem}>
-            <a href={baseUrl + key} className={styles.demoGridItemLink}>{d.name}</a>
+            <a href={baseUrl + key} className={styles.demoGridItemLink}>
+              {d.name}
+            </a>
             <p className={styles.demoGridItemDescription}>{d.description}</p>
-            {configAttrs[key] ? configAttrs[key].map(attrVal => (
-              <span className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])}>
-                {attrVal}
-              </span>
-            )) : null}
+            {configAttrs[key]
+              ? configAttrs[key].map(attrVal => (
+                <span
+                  className={clsx(
+                    styles.demoGridItemPill,
+                    styles[cleanAttr(attrVal)],
+                  )}
+                >
+                  {attrVal}
+                </span>
+              ))
+              : null}
           </div>
         ))}
       </div>

@@ -1,6 +1,7 @@
 export const codeluppiViaZarr = {
   name: 'Codeluppi et al., Nature Methods 2018',
-  description: 'Spatial organization of the somatosensory cortex revealed by osmFISH',
+  description:
+    'Spatial organization of the somatosensory cortex revealed by osmFISH',
   version: '1.0.15',
   initStrategy: 'auto',
   datasets: [
@@ -73,10 +74,7 @@ export const codeluppiViaZarr = {
                     {
                       field: 'channel',
                       type: 'nominal',
-                      values: [
-                        'polyT',
-                        'nuclei',
-                      ],
+                      values: ['polyT', 'nuclei'],
                     },
                     {
                       field: 'y',
@@ -125,12 +123,17 @@ export const codeluppiViaZarr = {
     },
     spatialSegmentationLayer: {
       A: {
-        opacity: 1, radius: 0, visible: true, stroked: false,
+        opacity: 1,
+        radius: 0,
+        visible: true,
+        stroked: false,
       },
     },
     spatialPointLayer: {
       A: {
-        opacity: 1, radius: 20, visible: true,
+        opacity: 1,
+        radius: 20,
+        visible: true,
       },
     },
   },
@@ -138,7 +141,8 @@ export const codeluppiViaZarr = {
     {
       component: 'description',
       props: {
-        description: 'Codeluppi et al., Nature Methods 2018: Spatial organization of the somatosensory cortex revealed by osmFISH',
+        description:
+          'Codeluppi et al., Nature Methods 2018: Spatial organization of the somatosensory cortex revealed by osmFISH',
       },
       x: 0,
       y: 0,

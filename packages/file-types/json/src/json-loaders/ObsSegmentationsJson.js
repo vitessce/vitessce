@@ -1,5 +1,9 @@
+import {
+  AbstractLoaderError,
+  LoaderResult,
+  emptySchema,
+} from '@vitessce/vit-s';
 import JsonLoader from './JsonLoader';
-import { AbstractLoaderError, LoaderResult, emptySchema } from '@vitessce/vit-s';
 
 export default class ObsSegmentationsJsonLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -18,7 +22,11 @@ export default class ObsSegmentationsJsonLoader extends JsonLoader {
       data: obsPolygons,
       shape: [obsPolygons.length, obsPolygons[0].length],
     };
-    this.cachedResult = { obsIndex, obsSegmentations, obsSegmentationsType: 'polygon' };
+    this.cachedResult = {
+      obsIndex,
+      obsSegmentations,
+      obsSegmentationsType: 'polygon',
+    };
     return this.cachedResult;
   }
 
@@ -29,9 +37,6 @@ export default class ObsSegmentationsJsonLoader extends JsonLoader {
     }
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(
-      result,
-      url,
-    ));
+    return Promise.resolve(new LoaderResult(result, url));
   }
 }

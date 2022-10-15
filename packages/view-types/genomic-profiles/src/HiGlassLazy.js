@@ -12,12 +12,12 @@ import { createWarningComponent } from './utils';
 import { useStyles } from './styles';
 
 // TODO(monorepo)
-//import packageJson from '../../../package.json';
-//const PIXI_BUNDLE_VERSION = packageJson.dependencies['window-pixi'];
-//const HIGLASS_BUNDLE_VERSION = packageJson.dependencies.higlass;
-//const BUNDLE_FILE_EXT = process.env.NODE_ENV === 'development' ? 'js' : 'min.js';
-const PIXI_BUNDLE_VERSION = "5.3.3";
-const HIGLASS_BUNDLE_VERSION = "1.11.4";
+// import packageJson from '../../../package.json';
+// const PIXI_BUNDLE_VERSION = packageJson.dependencies['window-pixi'];
+// const HIGLASS_BUNDLE_VERSION = packageJson.dependencies.higlass;
+// const BUNDLE_FILE_EXT = process.env.NODE_ENV === 'development' ? 'js' : 'min.js';
+const PIXI_BUNDLE_VERSION = '5.3.3';
+const HIGLASS_BUNDLE_VERSION = '1.11.4';
 const BUNDLE_FILE_EXT = true ? 'js' : 'min.js';
 const PIXI_BUNDLE_URL = `https://unpkg.com/window-pixi@${PIXI_BUNDLE_VERSION}/dist/pixi.${BUNDLE_FILE_EXT}`;
 const HIGLASS_BUNDLE_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.${BUNDLE_FILE_EXT}`;
@@ -33,7 +33,10 @@ if (dynamicImportPolyfill) {
 // https://github.com/higlass/higlass-register
 // https://github.com/higlass/higlass-zarr-datafetchers
 register(
-  { dataFetcher: ZarrMultivecDataFetcher, config: ZarrMultivecDataFetcher.config },
+  {
+    dataFetcher: ZarrMultivecDataFetcher,
+    config: ZarrMultivecDataFetcher.config,
+  },
   { pluginType: 'dataFetcher' },
 );
 
@@ -49,20 +52,28 @@ const HiGlassComponent = React.lazy(() => {
   return new Promise((resolve) => {
     const handleImportError = (e) => {
       console.warn(e);
-      resolve(asEsModule(createWarningComponent({
-        title: 'Could not load HiGlass',
-        message: 'The HiGlass scripts could not be dynamically imported.',
-      })));
+      resolve(
+        asEsModule(
+          createWarningComponent({
+            title: 'Could not load HiGlass',
+            message: 'The HiGlass scripts could not be dynamically imported.',
+          }),
+        ),
+      );
     };
-      // eslint-disable-next-line no-undef
-    __import__(PIXI_BUNDLE_URL).then(() => {
-      // eslint-disable-next-line no-undef
-      __import__(HIGLASS_BUNDLE_URL).then(() => {
-        // React.lazy promise must return an ES module with the
-        // component as the default export.
-        resolve(asEsModule(window.hglib.HiGlassComponent));
-      }).catch(handleImportError);
-    }).catch(handleImportError);
+    // eslint-disable-next-line no-undef
+    __import__(PIXI_BUNDLE_URL)
+      .then(() => {
+        // eslint-disable-next-line no-undef
+        __import__(HIGLASS_BUNDLE_URL)
+          .then(() => {
+            // React.lazy promise must return an ES module with the
+            // component as the default export.
+            resolve(asEsModule(window.hglib.HiGlassComponent));
+          })
+          .catch(handleImportError);
+      })
+      .catch(handleImportError);
   });
 });
 
@@ -71,16 +82,16 @@ const HiGlassComponent = React.lazy(() => {
 const HG_SIZE = 800;
 
 /**
-   * A wrapper around HiGlass (http://higlass.io/).
-   * The HiGlassComponent react component is loaded lazily.
-   * @prop {object} hgViewConfig A HiGlass viewconfig object to pass
-   * to the HiGlassComponent viewConfig prop.
-   * @prop {object} hgOptions An optional HiGlass object to pass
-   * to the HiGlassComponent hgOptions prop.
-   * @prop {function} removeGridComponent A grid component removal handler
-   * to pass to the TitleInfo component.
-   * @prop {function} onReady A callback function to signal that the component is ready.
-   */
+ * A wrapper around HiGlass (http://higlass.io/).
+ * The HiGlassComponent react component is loaded lazily.
+ * @prop {object} hgViewConfig A HiGlass viewconfig object to pass
+ * to the HiGlassComponent viewConfig prop.
+ * @prop {object} hgOptions An optional HiGlass object to pass
+ * to the HiGlassComponent hgOptions prop.
+ * @prop {function} removeGridComponent A grid component removal handler
+ * to pass to the TitleInfo component.
+ * @prop {function} onReady A callback function to signal that the component is ready.
+ */
 export default function HiGlassLazy(props) {
   const {
     coordinationScopes,
@@ -92,50 +103,48 @@ export default function HiGlassLazy(props) {
   } = props;
 
   // Get "props" from the coordination space.
-  const [{
-    genomicZoomX,
-    genomicZoomY,
-    genomicTargetX,
-    genomicTargetY,
-  }, {
-    setGenomicZoomX,
-    setGenomicZoomY,
-    setGenomicTargetX,
-    setGenomicTargetY,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.higlass, coordinationScopes);
+  const [
+    {
+      genomicZoomX, genomicZoomY, genomicTargetX, genomicTargetY,
+    },
+    {
+      setGenomicZoomX, setGenomicZoomY, setGenomicTargetX, setGenomicTargetY,
+    },
+  ] = useCoordination(COMPONENT_COORDINATION_TYPES.higlass, coordinationScopes);
 
   // eslint-disable-next-line no-unused-vars
   const [width, computedHeight, containerRef] = useGridItemSize();
   const [hgInstance, setHgInstance] = useState();
   const isActiveRef = useRef();
 
-  const hgOptions = useMemo(() => ({
-    ...hgOptionsProp,
-    theme,
-  }), [hgOptionsProp, theme]);
+  const hgOptions = useMemo(
+    () => ({
+      ...hgOptionsProp,
+      theme,
+    }),
+    [hgOptionsProp, theme],
+  );
 
   const hgViewConfig = useMemo(() => {
     // HiGlass needs the start and end absolute genome coordinates
     const centerX = genomicTargetX;
-    const genomesPerUnitX = genomeSize / (2 ** genomicZoomX);
+    const genomesPerUnitX = genomeSize / 2 ** genomicZoomX;
     const unitX = width / HG_SIZE;
     const initialXDomain = [
-      centerX - genomesPerUnitX * unitX / 2,
-      centerX + genomesPerUnitX * unitX / 2,
+      centerX - (genomesPerUnitX * unitX) / 2,
+      centerX + (genomesPerUnitX * unitX) / 2,
     ];
     const centerY = genomicTargetY;
-    const genomesPerUnitY = genomeSize / (2 ** genomicZoomY);
+    const genomesPerUnitY = genomeSize / 2 ** genomicZoomY;
     const unitY = height / HG_SIZE;
     const initialYDomain = [
-      centerY - genomesPerUnitY * unitY / 2,
-      centerY + genomesPerUnitY * unitY / 2,
+      centerY - (genomesPerUnitY * unitY) / 2,
+      centerY + (genomesPerUnitY * unitY) / 2,
     ];
     return {
       editable: false,
       zoomFixed: false,
-      trackSourceServers: [
-        '//higlass.io/api/v1',
-      ],
+      trackSourceServers: ['//higlass.io/api/v1'],
       exportViewUrl: '//higlass.io/api/v1/viewconfs',
       views: [
         {
@@ -158,8 +167,16 @@ export default function HiGlassLazy(props) {
         locksDict: {},
       },
     };
-  }, [genomicTargetX, genomeSize, genomicZoomX, width, genomicTargetY,
-    genomicZoomY, height, hgViewConfigProp]);
+  }, [
+    genomicTargetX,
+    genomeSize,
+    genomicZoomX,
+    width,
+    genomicTargetY,
+    genomicZoomY,
+    height,
+    hgViewConfigProp,
+  ]);
 
   useEffect(() => {
     const handleMouseEnter = () => {
@@ -176,7 +193,6 @@ export default function HiGlassLazy(props) {
       container.removeEventListener('mouseenter', handleMouseLeave);
     };
   }, [containerRef]);
-
 
   useEffect(() => {
     if (!hgInstance) {
@@ -207,15 +223,27 @@ export default function HiGlassLazy(props) {
       setGenomicTargetY(nextGenomicTargetY);
     });
     return () => hgInstance.api.off('viewConfig');
-  }, [hgInstance, genomeSize, width, height, setGenomicZoomX, setGenomicZoomY,
-    setGenomicTargetX, setGenomicTargetY]);
+  }, [
+    hgInstance,
+    genomeSize,
+    width,
+    height,
+    setGenomicZoomX,
+    setGenomicZoomY,
+    setGenomicTargetX,
+    setGenomicTargetY,
+  ]);
 
   const classes = useStyles();
 
   return (
     <div className={classes.higlassWrapperParent}>
       <link rel="stylesheet" type="text/css" href={HIGLASS_CSS_URL} />
-      <div className={classes.higlassWrapper} ref={containerRef} style={{ height: `${height}px` }}>
+      <div
+        className={classes.higlassWrapper}
+        ref={containerRef}
+        style={{ height: `${height}px` }}
+      >
         <Suspense fallback={<div>Loading...</div>}>
           <HiGlassComponent
             ref={setHgInstance}

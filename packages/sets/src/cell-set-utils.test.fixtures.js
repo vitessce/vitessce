@@ -1,6 +1,10 @@
 export const levelTwoNodeLeaf = {
   name: 'Pericytes',
-  set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
+  set: [
+    ['cell_1', null],
+    ['cell_2', null],
+    ['cell_3', null],
+  ],
 };
 
 export const levelOneNode = {
@@ -8,11 +12,19 @@ export const levelOneNode = {
   children: [
     {
       name: 'Pericytes',
-      set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
+      set: [
+        ['cell_1', null],
+        ['cell_2', null],
+        ['cell_3', null],
+      ],
     },
     {
       name: 'Endothelial',
-      set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
+      set: [
+        ['cell_4', null],
+        ['cell_5', null],
+        ['cell_6', null],
+      ],
     },
   ],
 };
@@ -25,11 +37,19 @@ export const levelZeroNode = {
       children: [
         {
           name: 'Pericytes',
-          set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
+          set: [
+            ['cell_1', null],
+            ['cell_2', null],
+            ['cell_3', null],
+          ],
         },
         {
           name: 'Endothelial',
-          set: [['cell_4', null], ['cell_5', null], ['cell_6', null]],
+          set: [
+            ['cell_4', null],
+            ['cell_5', null],
+            ['cell_6', null],
+          ],
         },
       ],
     },
@@ -48,18 +68,30 @@ export const tree = {
           children: [
             {
               name: 'Pericytes',
-              set: [['cell_1', null], ['cell_2', null], ['cell_3', null]],
+              set: [
+                ['cell_1', null],
+                ['cell_2', null],
+                ['cell_3', null],
+              ],
             },
             {
               name: 'Endothelial',
-              set: [['cell_3', null], ['cell_4', null], ['cell_5', null]],
+              set: [
+                ['cell_3', null],
+                ['cell_4', null],
+                ['cell_5', null],
+              ],
             },
             {
               name: 'Epithelial',
               children: [
                 {
                   name: 'Squamous',
-                  set: [['cell_5', null], ['cell_6', null], ['cell_7', null]],
+                  set: [
+                    ['cell_5', null],
+                    ['cell_6', null],
+                    ['cell_7', null],
+                  ],
                 },
               ],
             },

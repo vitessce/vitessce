@@ -21,14 +21,19 @@ import {
   tree,
 } from './cell-set-utils.test.fixtures';
 
-
 describe('Hierarchical sets cell-set-utils', () => {
   describe('Node rendering', () => {
     it('can get render properties for a node', () => {
-      const levelTwoRenderProps = nodeToRenderProps(levelTwoNodeLeaf, ['Cell Type Annotations', 'Vasculature', 'Pericytes'], [{
-        path: ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
-        color: [255, 0, 0],
-      }]);
+      const levelTwoRenderProps = nodeToRenderProps(
+        levelTwoNodeLeaf,
+        ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
+        [
+          {
+            path: ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
+            color: [255, 0, 0],
+          },
+        ],
+      );
 
       expect(levelTwoRenderProps.title).toEqual('Pericytes');
       expect(levelTwoRenderProps.size).toEqual(3);
@@ -37,7 +42,11 @@ describe('Hierarchical sets cell-set-utils', () => {
       expect(levelTwoRenderProps.isLeaf).toEqual(true);
       expect(levelTwoRenderProps.height).toEqual(0);
 
-      const levelZeroRenderProps = nodeToRenderProps(levelZeroNode, ['Cell Type Annotations'], []);
+      const levelZeroRenderProps = nodeToRenderProps(
+        levelZeroNode,
+        ['Cell Type Annotations'],
+        [],
+      );
 
       expect(levelZeroRenderProps.title).toEqual('Cell Type Annotations');
       expect(levelZeroRenderProps.size).toEqual(6);
@@ -51,7 +60,14 @@ describe('Hierarchical sets cell-set-utils', () => {
   describe('Get derived Node properties', () => {
     it('Get children set for Node', () => {
       const nodeSet = nodeToSet(levelZeroNode);
-      expect(nodeSet).toEqual([['cell_1', null], ['cell_2', null], ['cell_3', null], ['cell_4', null], ['cell_5', null], ['cell_6', null]]);
+      expect(nodeSet).toEqual([
+        ['cell_1', null],
+        ['cell_2', null],
+        ['cell_3', null],
+        ['cell_4', null],
+        ['cell_5', null],
+        ['cell_6', null],
+      ]);
     });
 
     it('Get height for Node', () => {
@@ -63,22 +79,48 @@ describe('Hierarchical sets cell-set-utils', () => {
     });
 
     it('Get Node by Path', () => {
-      const node = treeFindNodeByNamePath(tree, ['Cell Type Annotations', 'Vasculature', 'Pericytes']);
+      const node = treeFindNodeByNamePath(tree, [
+        'Cell Type Annotations',
+        'Vasculature',
+        'Pericytes',
+      ]);
       expect(node.name).toEqual('Pericytes');
 
-      const noNode = treeFindNodeByNamePath(tree, ['Cell Type Annotations', 'Foo', 'Bar']);
+      const noNode = treeFindNodeByNamePath(tree, [
+        'Cell Type Annotations',
+        'Foo',
+        'Bar',
+      ]);
       expect(noNode).toEqual(null);
     });
 
     it('Filter node by path', () => {
       const node = tree.tree[0];
-      const newNodeFiltered = filterNode(node, [], ['Cell Type Annotations', 'Vasculature', 'Pericytes']);
+      const newNodeFiltered = filterNode(
+        node,
+        [],
+        ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
+      );
       // eslint-disable-next-line no-return-assign
-      expect(newNodeFiltered.children[0].children.findIndex(i => i.name === 'Pericytes')).toEqual(-1);
+      expect(
+        newNodeFiltered.children[0].children.findIndex(
+          i => i.name === 'Pericytes',
+        ),
+      ).toEqual(-1);
 
-      const vasculatureNode = tree.tree[0].children.find(i => i.name === 'Vasculature');
-      const newNodeFilteredFromLevel1 = filterNode(vasculatureNode, ['Cell Type Annotations'], ['Cell Type Annotations', 'Vasculature', 'Pericytes']);
-      expect(newNodeFilteredFromLevel1.children.findIndex(i => i.name === 'Pericytes')).toEqual(-1);
+      const vasculatureNode = tree.tree[0].children.find(
+        i => i.name === 'Vasculature',
+      );
+      const newNodeFilteredFromLevel1 = filterNode(
+        vasculatureNode,
+        ['Cell Type Annotations'],
+        ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
+      );
+      expect(
+        newNodeFilteredFromLevel1.children.findIndex(
+          i => i.name === 'Pericytes',
+        ),
+      ).toEqual(-1);
     });
   });
 
@@ -88,27 +130,37 @@ describe('Hierarchical sets cell-set-utils', () => {
         cloneDeep(levelZeroNode),
         node => node.name === 'Pericytes',
         // eslint-disable-next-line no-param-reassign
-        (node) => { node.name = 'New name'; return node; },
+        (node) => {
+          node.name = 'New name';
+          return node;
+        },
         [],
         ['Cell Type Annotations'],
       );
       // Node matching predicate is transformed but none others
-      expect(nodeTransformedWithPredicate.name).toEqual('Cell Type Annotations');
-      expect(
-        nodeTransformedWithPredicate.children[0].children[0].name,
-      ).toEqual('New name');
+      expect(nodeTransformedWithPredicate.name).toEqual(
+        'Cell Type Annotations',
+      );
+      expect(nodeTransformedWithPredicate.children[0].children[0].name).toEqual(
+        'New name',
+      );
 
       // eslint-disable-next-line no-param-reassign
       const nodeTransformedWithoutPredicate = nodeTransform(
         cloneDeep(levelZeroNode),
         () => false,
         // eslint-disable-next-line no-param-reassign
-        (node) => { node.name = 'New name'; return node; },
+        (node) => {
+          node.name = 'New name';
+          return node;
+        },
         [],
         ['Cell Type Annotations'],
       );
       // No nodes transformed for fals-y predicate.
-      expect(nodeTransformedWithoutPredicate.name).toEqual('Cell Type Annotations');
+      expect(nodeTransformedWithoutPredicate.name).toEqual(
+        'Cell Type Annotations',
+      );
       expect(
         nodeTransformedWithoutPredicate.children[0].children[0].name,
       ).toEqual('Pericytes');
@@ -117,24 +169,18 @@ describe('Hierarchical sets cell-set-utils', () => {
 
   describe('Get from tree', () => {
     it('Tree Union', () => {
-      const union = treeToUnion(
-        tree,
-        [
-          ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
-          ['Cell Type Annotations', 'Vasculature', 'Epithelial', 'Squamous'],
-        ],
-      );
+      const union = treeToUnion(tree, [
+        ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
+        ['Cell Type Annotations', 'Vasculature', 'Epithelial', 'Squamous'],
+      ]);
       expect(union).toEqual(['cell_3', 'cell_4', 'cell_5', 'cell_6', 'cell_7']);
     });
 
     it('Tree Intersection', () => {
-      const union = treeToIntersection(
-        tree,
-        [
-          ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
-          ['Cell Type Annotations', 'Vasculature', 'Epithelial', 'Squamous'],
-        ],
-      );
+      const union = treeToIntersection(tree, [
+        ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
+        ['Cell Type Annotations', 'Vasculature', 'Epithelial', 'Squamous'],
+      ]);
       expect(union).toEqual(['cell_5']);
     });
 
@@ -152,25 +198,37 @@ describe('Hierarchical sets cell-set-utils', () => {
 
     it('Node Descendants by Level', () => {
       const descendants = nodeToLevelDescendantNamePaths(tree.tree[0], 2, []);
-      expect(descendants).toEqual([['Cell Type Annotations', 'Vasculature', 'Epithelial']]);
+      expect(descendants).toEqual([
+        ['Cell Type Annotations', 'Vasculature', 'Epithelial'],
+      ]);
 
-      const descendantsStopEarly = nodeToLevelDescendantNamePaths(tree.tree[0], 2, [], true);
-      expect(descendantsStopEarly).toEqual(
-        [['Cell Type Annotations', 'Vasculature', 'Pericytes'],
-          ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
-          ['Cell Type Annotations', 'Vasculature', 'Epithelial']],
+      const descendantsStopEarly = nodeToLevelDescendantNamePaths(
+        tree.tree[0],
+        2,
+        [],
+        true,
       );
+      expect(descendantsStopEarly).toEqual([
+        ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
+        ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
+        ['Cell Type Annotations', 'Vasculature', 'Epithelial'],
+      ]);
     });
 
     it('Tree export', () => {
       const exportedTree = treeExport(tree, 'cell');
       // Clears state going deeply
       expect(exportedTree.tree[0].children[0]._state).toEqual(undefined);
-      expect(exportedTree.tree[0].children[0].children[0]._state).toEqual(undefined);
+      expect(exportedTree.tree[0].children[0].children[0]._state).toEqual(
+        undefined,
+      );
       // Tree still has same names for nodes
-      expect(exportedTree.tree[0].children[0].name).toEqual(tree.tree[0].children[0].name);
-      expect(exportedTree.tree[0].children[0].children[0].name)
-        .toEqual(tree.tree[0].children[0].children[0].name);
+      expect(exportedTree.tree[0].children[0].name).toEqual(
+        tree.tree[0].children[0].name,
+      );
+      expect(exportedTree.tree[0].children[0].children[0].name).toEqual(
+        tree.tree[0].children[0].children[0].name,
+      );
     });
   });
 });

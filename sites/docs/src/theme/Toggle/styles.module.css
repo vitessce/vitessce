@@ -113,7 +113,8 @@
   fill: var(--ifm-navbar-link-color);
   width: 22px;
   height: 22px;
-  transition: fill var(--ifm-transition-fast) var(--ifm-transition-timing-default);
+  transition: fill var(--ifm-transition-fast)
+    var(--ifm-transition-timing-default);
 }
 .ghIcon:hover {
   fill: var(--ifm-navbar-link-hover-color);

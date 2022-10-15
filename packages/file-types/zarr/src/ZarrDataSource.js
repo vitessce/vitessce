@@ -10,7 +10,8 @@ export default class ZarrDataSource {
     // https://github.com/gzuidhof/zarr.js/blob/375ce0c299469a970da6bb5653513564e25806bb/docs/getting-started/remote-data.md#stores
     const supportedMethods = ['GET'];
     this.store = new HTTPStore(url, {
-      supportedMethods, fetchOptions: requestInit,
+      supportedMethods,
+      fetchOptions: requestInit,
     });
   }
 

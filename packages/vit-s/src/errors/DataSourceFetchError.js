@@ -10,6 +10,8 @@ export default class DataSourceFetchError extends AbstractLoaderError {
 
   warnInConsole() {
     const { source, url, headers } = this;
-    console.warn(`${source} failed to fetch from ${url} with headers ${headers}`);
+    console.warn(
+      `${source} failed to fetch from ${url} with headers ${headers}`,
+    );
   }
 }

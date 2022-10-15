@@ -1,21 +1,28 @@
 /* eslint-disable camelcase */
 import React, { useEffect, useMemo } from 'react';
 import {
-  ThemeProvider, StylesProvider,
+  ThemeProvider,
+  StylesProvider,
   createGenerateClassName,
 } from '@material-ui/core/styles';
 import isEqual from 'lodash/isEqual';
 import { muiTheme } from './shared-mui/styles';
 import {
-  ViewConfigProvider, createViewConfigStore,
-  AuxiliaryProvider, createAuxiliaryStore,
+  ViewConfigProvider,
+  createViewConfigStore,
+  AuxiliaryProvider,
+  createAuxiliaryStore,
 } from './state/hooks';
 
 import VitessceGrid from './VitessceGrid';
 import { Warning } from './Warning';
 import CallbackPublisher from './CallbackPublisher';
 import { getComponent } from './component-registry';
-import { checkTypes, initialize, upgradeAndValidate } from './view-config-utils';
+import {
+  checkTypes,
+  initialize,
+  upgradeAndValidate,
+} from './view-config-utils';
 
 // TODO(monorepo): figure out how to get the current package version from package.json
 // import packageJson from '../package.json';
@@ -73,21 +80,31 @@ export function Vitessce(props) {
   const [configOrWarning, success] = useMemo(() => {
     // If the config value is undefined, show a warning message.
     if (!config) {
-      return [{
-        title: 'No such dataset',
-        unformatted: 'The dataset configuration could not be found.',
-      }, false];
+      return [
+        {
+          title: 'No such dataset',
+          unformatted: 'The dataset configuration could not be found.',
+        },
+        false,
+      ];
     }
     // If the view config is missing a version, show a warning message.
     if (!config.version) {
-      return [{
-        title: 'Missing version',
-        unformatted: 'The dataset configuration is missing a version, preventing validation.',
-      }, false];
+      return [
+        {
+          title: 'Missing version',
+          unformatted:
+            'The dataset configuration is missing a version, preventing validation.',
+        },
+        false,
+      ];
     }
     logConfig(config, 'input view config');
     // Check if this is a "legacy" view config.
-    const [upgradedConfig, upgradeSuccess] = upgradeAndValidate(config, onConfigUpgrade);
+    const [upgradedConfig, upgradeSuccess] = upgradeAndValidate(
+      config,
+      onConfigUpgrade,
+    );
     if (upgradeSuccess) {
       logConfig(upgradedConfig, 'upgraded view config');
       // Initialize the view config according to the initStrategy.
@@ -98,16 +115,22 @@ export function Vitessce(props) {
           logConfig(initializedConfig, 'initialized view config');
           return [initializedConfig, true];
         } catch (e) {
-          return [{
-            title: 'View config initialization failed.',
-            unformatted: e.message,
-          }, false];
+          return [
+            {
+              title: 'View config initialization failed.',
+              unformatted: e.message,
+            },
+            false,
+          ];
         }
       }
-      return [{
-        title: 'View config checks failed.',
-        unformatted: typeCheckMessage,
-      }, false];
+      return [
+        {
+          title: 'View config checks failed.',
+          unformatted: typeCheckMessage,
+        },
+        false,
+      ];
     }
     return [upgradedConfig, false];
   }, [config, onConfigUpgrade]);
@@ -146,9 +169,7 @@ export function Vitessce(props) {
   ) : (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
-        <Warning
-          {...configOrWarning}
-        />
+        <Warning {...configOrWarning} />
       </ThemeProvider>
     </StylesProvider>
   );

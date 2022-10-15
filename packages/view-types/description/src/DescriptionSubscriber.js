@@ -2,11 +2,16 @@ import React, { useMemo } from 'react';
 import {
   TitleInfo,
   useReady,
-  useCoordination, useLoaders,
-  useDescription, useImageData,
+  useCoordination,
+  useLoaders,
+  useDescription,
+  useImageData,
   registerPluginViewType,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import {
+  ViewType,
+  COMPONENT_COORDINATION_TYPES,
+} from '@vitessce/constants-internal';
 import Description from './Description';
 
 const addUrl = () => {}; // noop
@@ -34,15 +39,20 @@ export function DescriptionSubscriber(props) {
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.
-  const [{
-    dataset,
-    spatialImageLayer: rasterLayers,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.DESCRIPTION], coordinationScopes);
+  const [{ dataset, spatialImageLayer: rasterLayers }] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.DESCRIPTION],
+    coordinationScopes,
+  );
 
   // Get data from loaders using the data hooks.
   const [description] = useDescription(loaders, dataset);
   const [{ image }, imageStatus] = useImageData(
-    loaders, dataset, addUrl, false, {}, {},
+    loaders,
+    dataset,
+    addUrl,
+    false,
+    {},
+    {},
     {}, // TODO: which properties to match on. Revisit after #830.
   );
   const { loaders: imageLayerLoaders = [], meta: imageLayerMeta = [] } = image || {};
@@ -51,7 +61,12 @@ export function DescriptionSubscriber(props) {
 
   const metadata = useMemo(() => {
     const result = new Map();
-    if (rasterLayers && rasterLayers.length > 0 && imageLayerMeta && imageLayerLoaders) {
+    if (
+      rasterLayers
+      && rasterLayers.length > 0
+      && imageLayerMeta
+      && imageLayerLoaders
+    ) {
       rasterLayers.forEach((layer) => {
         if (imageLayerMeta[layer.index]) {
           // Want to ensure that layer index is a string.

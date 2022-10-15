@@ -27,16 +27,27 @@ export default function DiffViewConfigSchema() {
       Compare schema versions:&nbsp;
       <select onChange={handlePrevChange} value={prev}>
         {viewConfigVersions.slice(0, viewConfigVersions.length - 1).map(v => (
-          <option value={v} key={v}>{v}</option>
+          <option value={v} key={v}>
+            {v}
+          </option>
         ))}
-      </select> vs.&nbsp;
+      </select>{' '}
+      vs.&nbsp;
       <select onChange={handleNextChange} value={next}>
         {viewConfigVersions.slice(1).map(v => (
-          <option value={v} key={v}>{v}</option>
+          <option value={v} key={v}>
+            {v}
+          </option>
         ))}
       </select>
       &nbsp;
-      <a target="_blank" rel="noopener noreferrer" href={getCompareUrl(prev, next)}>Go</a>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href={getCompareUrl(prev, next)}
+      >
+        Go
+      </a>
     </p>
   );
 }

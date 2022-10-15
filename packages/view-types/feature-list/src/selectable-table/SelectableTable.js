@@ -72,43 +72,54 @@ export default function SelectableTable(props) {
   }, [allowMultiple]);
 
   // Callback function to update the `selectedRows` state.
-  const onSelectRow = useCallback((value, checked) => {
-    if (checked || allowUncheck) {
-      if (!isCheckingMultiple
-        && (checked || (!checked && allowMultiple && selectedRows.length > 1))
-      ) {
-        setSelectedRows([value]);
-      } else if (!allowMultiple && !checked) {
-        setSelectedRows([]);
-      } else {
-        setSelectedRows(
-          checked
-            ? union(selectedRows || [], [value])
-            : difference(selectedRows || [], [value]),
-        );
+  const onSelectRow = useCallback(
+    (value, checked) => {
+      if (checked || allowUncheck) {
+        if (
+          !isCheckingMultiple
+          && (checked || (!checked && allowMultiple && selectedRows.length > 1))
+        ) {
+          setSelectedRows([value]);
+        } else if (!allowMultiple && !checked) {
+          setSelectedRows([]);
+        } else {
+          setSelectedRows(
+            checked
+              ? union(selectedRows || [], [value])
+              : difference(selectedRows || [], [value]),
+          );
+        }
       }
-    }
-  }, [allowMultiple, isCheckingMultiple, allowUncheck, selectedRows]);
+    },
+    [allowMultiple, isCheckingMultiple, allowUncheck, selectedRows],
+  );
 
   // Handler for checkbox input elements.
-  const handleInputChange = useCallback((event) => {
-    const { target } = event;
-    const { checked } = target;
-    const { value } = target;
-    onSelectRow(value, checked);
-  }, [onSelectRow]);
+  const handleInputChange = useCallback(
+    (event) => {
+      const { target } = event;
+      const { checked } = target;
+      const { value } = target;
+      onSelectRow(value, checked);
+    },
+    [onSelectRow],
+  );
 
   // Function to map row IDs to corresponding objects
   // to pass to the `onChange` callback.
-  const getDataFromIds = useCallback(ids => ids.map(id => ({
-    [idKey]: id,
-    data: data.find(item => item[idKey] === id),
-  })), [data, idKey]);
+  const getDataFromIds = useCallback(
+    ids => ids.map(id => ({
+      [idKey]: id,
+      data: data.find(item => item[idKey] === id),
+    })),
+    [data, idKey],
+  );
 
   // Function to check if a row ID has been selected.
-  const isSelected = useCallback(id => (
-    Array.isArray(selectedRows) && selectedRows.includes(id)
-  ), [selectedRows]);
+  const isSelected = useCallback(
+    id => Array.isArray(selectedRows) && selectedRows.includes(id),
+    [selectedRows],
+  );
 
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
@@ -155,20 +166,30 @@ export default function SelectableTable(props) {
     // eslint-disable-next-line jsx-a11y/interactive-supports-focus
     <div
       key={data[index][idKey]}
-      className={clsx(classes.tableItem, classes.tableRow, { 'row-checked': isSelected(data[index][idKey]) })}
+      className={clsx(classes.tableItem, classes.tableRow, {
+        'row-checked': isSelected(data[index][idKey]),
+      })}
       style={style}
       role="button"
       onClick={() => onSelectRow(
         data[index][idKey],
         !isSelected(data[index][idKey]) || !hasColorEncoding,
-      )}
+      )
+      }
     >
-      <div className={clsx(classes.inputContainer, classes.tableCell, { [classes.hiddenInputColumn]: !showTableInputs })}>
+      <div
+        className={clsx(classes.inputContainer, classes.tableCell, {
+          [classes.hiddenInputColumn]: !showTableInputs,
+        })}
+      >
         <label htmlFor={`${inputUuid}_${data[index][idKey]}`}>
           <input
             id={`${inputUuid}_${data[index][idKey]}`}
             type="checkbox"
-            className={clsx(classes.radioOrCheckbox, isCheckingMultiple ? classes.checkbox : classes.radio)}
+            className={clsx(
+              classes.radioOrCheckbox,
+              isCheckingMultiple ? classes.checkbox : classes.radio,
+            )}
             name={inputUuid}
             value={data[index][idKey]}
             onChange={handleInputChange}
@@ -177,10 +198,7 @@ export default function SelectableTable(props) {
         </label>
       </div>
       {columns.map(column => (
-        <div
-          className={classes.tableCell}
-          key={column}
-        >
+        <div className={classes.tableCell} key={column}>
           {data[index][column]}
         </div>
       ))}
@@ -188,7 +206,13 @@ export default function SelectableTable(props) {
   );
 
   const headerRowRenderer = ({ style }) => (
-    <div className={clsx({ [classes.hiddenInputColumn]: !showTableInputs }, classes.tableRow)} style={style}>
+    <div
+      className={clsx(
+        { [classes.hiddenInputColumn]: !showTableInputs },
+        classes.tableRow,
+      )}
+      style={style}
+    >
       {columns.map(column => (
         <div key={column}>{column}</div>
       ))}

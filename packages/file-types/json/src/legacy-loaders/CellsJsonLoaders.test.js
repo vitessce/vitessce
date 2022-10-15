@@ -1,8 +1,8 @@
+import { LoaderResult } from '@vitessce/vit-s';
 import CellsJsonAsObsEmbeddingLoader from './CellsJsonAsObsEmbedding';
 import CellsJsonAsObsLabelsLoader from './CellsJsonAsObsLabels';
 import CellsJsonAsObsSegmentationsLoader from './CellsJsonAsObsSegmentations';
 import JsonSource from '../JsonSource';
-import { LoaderResult } from '@vitessce/vit-s';
 
 const createLoader = (ClassDef, config, url) => {
   const configWithUrl = {
@@ -16,12 +16,16 @@ const createLoader = (ClassDef, config, url) => {
 describe('loaders/cells-json-loaders', () => {
   describe('CellsJsonAsObsEmbeddingLoader', () => {
     it('can load obsEmbedding', async () => {
-      const loader = createLoader(CellsJsonAsObsEmbeddingLoader, {
-        fileType: 'obsEmbedding.cells.json',
-        coordinationValues: {
-          embeddingType: 'PCA',
+      const loader = createLoader(
+        CellsJsonAsObsEmbeddingLoader,
+        {
+          fileType: 'obsEmbedding.cells.json',
+          coordinationValues: {
+            embeddingType: 'PCA',
+          },
         },
-      }, 'http://localhost:51204/@fixtures/json-legacy/cells.good.json');
+        'http://localhost:51204/@fixtures/json-legacy/cells.good.json',
+      );
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;
@@ -33,12 +37,16 @@ describe('loaders/cells-json-loaders', () => {
   });
   describe('CellsJsonAsObsLabelsLoader', () => {
     it('can load obsLabels', async () => {
-      const loader = createLoader(CellsJsonAsObsLabelsLoader, {
-        fileType: 'obsLabels.cells.json',
-        coordinationValues: {
-          obsLabelsType: 'cluster',
+      const loader = createLoader(
+        CellsJsonAsObsLabelsLoader,
+        {
+          fileType: 'obsLabels.cells.json',
+          coordinationValues: {
+            obsLabelsType: 'cluster',
+          },
         },
-      }, 'http://localhost:51204/@fixtures/json-legacy/cells.good.json');
+        'http://localhost:51204/@fixtures/json-legacy/cells.good.json',
+      );
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;
@@ -49,13 +57,21 @@ describe('loaders/cells-json-loaders', () => {
   });
   describe('CellsJsonAsObsSegmentationsLoader', () => {
     it('can load obsSegmentations', async () => {
-      const loader = createLoader(CellsJsonAsObsSegmentationsLoader, {
-        fileType: 'obsSegmentations.cells.json',
-      }, 'http://localhost:51204/@fixtures/json-legacy/cells.good.json');
+      const loader = createLoader(
+        CellsJsonAsObsSegmentationsLoader,
+        {
+          fileType: 'obsSegmentations.cells.json',
+        },
+        'http://localhost:51204/@fixtures/json-legacy/cells.good.json',
+      );
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;
-      expect(Object.keys(payload)).toEqual(['obsIndex', 'obsSegmentations', 'obsSegmentationsType']);
+      expect(Object.keys(payload)).toEqual([
+        'obsIndex',
+        'obsSegmentations',
+        'obsSegmentationsType',
+      ]);
       expect(payload.obsIndex).toEqual(['778']);
       expect(payload.obsSegmentationsType).toEqual('polygon');
       expect(payload.obsSegmentations.data[0]).toEqual([

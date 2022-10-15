@@ -1,4 +1,3 @@
-
 function loadConfig(config) {
   // Without a route, Cypress tries to proxy the request,
   // and that doesn't seem to work for data URIs.
@@ -45,57 +44,59 @@ describe('Vitessce Data URIs', () => {
 
   it('handles errors from bad URL in config', () => {
     const config = {
-      "version": "0.1.0",
-      "name": "fake",
-      "description": "Good schema, Bad URL",
-      "layers": [
+      version: '0.1.0',
+      name: 'fake',
+      description: 'Good schema, Bad URL',
+      layers: [
         {
-          "name": "cells",
-          "type": "CELLS",
-          "fileType": "cells.json",
-          "url": "https://example.com/bad-url.json"
-        }
+          name: 'cells',
+          type: 'CELLS',
+          fileType: 'cells.json',
+          url: 'https://example.com/bad-url.json',
+        },
       ],
-      "staticLayout": [
+      staticLayout: [
         {
-          "component": "status",
-          "x": 0,
-          "y": 0,
-          "w": 4,
-          "h": 8,
+          component: 'status',
+          x: 0,
+          y: 0,
+          w: 4,
+          h: 8,
         },
         {
-          "component": "scatterplot",
-          "props": {
-            "mapping": "PCA",
+          component: 'scatterplot',
+          props: {
+            mapping: 'PCA',
           },
-          "x": 4,
-          "y": 0,
-          "w": 4,
-          "h": 8,
-        }
-      ]
+          x: 4,
+          y: 0,
+          w: 4,
+          h: 8,
+        },
+      ],
     };
     loadConfig(config);
-    cy.contains('JsonSource Error HTTP Status fetching from https://example.com/bad-url.json');
+    cy.contains(
+      'JsonSource Error HTTP Status fetching from https://example.com/bad-url.json',
+    );
   });
 
   it('handles errors from bad view config v0.1.0', () => {
-    const config = {'bad': 'config', 'version': '0.1.0'};
+    const config = { bad: 'config', version: '0.1.0' };
     loadConfig(config);
     cy.contains('Config validation failed');
     cy.contains('"additionalProperty": "bad"');
   });
 
   it('handles errors from bad view config v1.0.0', () => {
-    const config = {'bad': 'config', 'version': '1.0.0'};
+    const config = { bad: 'config', version: '1.0.0' };
     loadConfig(config);
     cy.contains('Config validation failed');
     cy.contains('"additionalProperty": "bad"');
   });
 
   it('handles errors from bad view config missing version', () => {
-    const config = {'bad': 'config'};
+    const config = { bad: 'config' };
     loadConfig(config);
     cy.contains('Missing version');
   });

@@ -105,10 +105,7 @@ export const CoordinationType = {
     'embeddingCellOpacityMode',
     makeChangeMessage('embeddingObsOpacityMode', '1.0.11'),
   ],
-  CELL_FILTER: [
-    'cellFilter',
-    makeChangeMessage('obsFilter', '1.0.11'),
-  ],
+  CELL_FILTER: ['cellFilter', makeChangeMessage('obsFilter', '1.0.11')],
   CELL_HIGHLIGHT: [
     'cellHighlight',
     makeChangeMessage('obsHighlight', '1.0.11'),
@@ -121,10 +118,7 @@ export const CoordinationType = {
     'cellSetHighlight',
     makeChangeMessage('obsSetHighlight', '1.0.11'),
   ],
-  CELL_SET_COLOR: [
-    'cellSetColor',
-    makeChangeMessage('obsSetColor', '1.0.11'),
-  ],
+  CELL_SET_COLOR: ['cellSetColor', makeChangeMessage('obsSetColor', '1.0.11')],
   CELL_COLOR_ENCODING: [
     'cellColorEncoding',
     makeChangeMessage('obsColorEncoding', '1.0.11'),
@@ -134,10 +128,7 @@ export const CoordinationType = {
     makeChangeMessage('additionalObsSets', '1.0.11'),
   ],
   // Gene -> Feature
-  GENE_FILTER: [
-    'geneFilter',
-    makeChangeMessage('featureFilter', '1.0.11'),
-  ],
+  GENE_FILTER: ['geneFilter', makeChangeMessage('featureFilter', '1.0.11')],
   GENE_HIGHLIGHT: [
     'geneHighlight',
     makeChangeMessage('featureHighlight', '1.0.11'),

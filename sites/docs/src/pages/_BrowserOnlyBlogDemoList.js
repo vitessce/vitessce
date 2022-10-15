@@ -8,9 +8,7 @@ export default function BrowserOnlyBlogDemoList() {
     <BrowserOnly>
       {() => {
         const BlogDemoList = require('./_BlogDemoList.js').default;
-        return (
-          <BlogDemoList />
-        );
+        return <BlogDemoList />;
       }}
     </BrowserOnly>
   );

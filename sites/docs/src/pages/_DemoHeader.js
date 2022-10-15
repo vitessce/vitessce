@@ -5,10 +5,7 @@ import ErrorBoundary from './_ErrorBoundary';
 import styles from './styles.module.css';
 
 function DemoHeader(props) {
-  const {
-    demo,
-    config,
-  } = props;
+  const { demo, config } = props;
 
   return (
     <div>

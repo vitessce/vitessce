@@ -2,7 +2,10 @@ import React from 'react';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
-import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './shared-channel-controls';
+import {
+  ChannelSelectionDropdown,
+  ChannelVisibilityCheckbox,
+} from './shared-channel-controls';
 
 /**
  * Controller for the handling the bitmask channels.
@@ -24,15 +27,15 @@ function BitmaskChannelController({
   disableOptions = false,
 }) {
   /* A valid selection is defined by an object where the keys are
-  *  the name of a dimension of the data, and the values are the
-  *  index of the image along that particular dimension.
-  *
-  *  Since we currently only support making a selection along one
-  *  addtional dimension (i.e. the dropdown just has channels or mz)
-  *  we have a helper function to create the selection.
-  *
-  *  e.g { channel: 2 } // channel dimension, third channel
-  */
+   *  the name of a dimension of the data, and the values are the
+   *  index of the image along that particular dimension.
+   *
+   *  Since we currently only support making a selection along one
+   *  addtional dimension (i.e. the dropdown just has channels or mz)
+   *  we have a helper function to create the selection.
+   *
+   *  e.g { channel: 2 } // channel dimension, third channel
+   */
   const createSelection = index => ({ [dimName]: index });
   return (
     <Grid container direction="row" justifyContent="space-between">
@@ -45,14 +48,18 @@ function BitmaskChannelController({
       </Grid>
       <Grid item xs={9}>
         <ChannelSelectionDropdown
-          handleChange={v => handlePropertyChange('selection', createSelection(v))}
+          handleChange={v => handlePropertyChange('selection', createSelection(v))
+          }
           selectionIndex={selectionIndex}
           disableOptions={disableOptions}
           channelOptions={channelOptions}
         />
       </Grid>
       <Grid item xs={1}>
-        <IconButton onClick={handleChannelRemove} style={{ padding: '6px 6px 6px 0px' }}>
+        <IconButton
+          onClick={handleChannelRemove}
+          style={{ padding: '6px 6px 6px 0px' }}
+        >
           <RemoveCircleIcon />
         </IconButton>
       </Grid>

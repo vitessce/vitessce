@@ -1,9 +1,17 @@
+/* eslint-disable no-mixed-operators */
 import { deck } from '@vitessce/gl';
 import clamp from 'lodash/clamp';
 
 // Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
 // Reference: https://observablehq.com/@bmschmidt/dot-density-election-maps-with-webgl
-export function getPointSizeDevicePixels(devicePixelRatio, zoom, xRange, yRange, width, height) {
+export function getPointSizeDevicePixels(
+  devicePixelRatio,
+  zoom,
+  xRange,
+  yRange,
+  width,
+  height,
+) {
   // Size of a point, in units of the diagonal axis.
   const pointSize = 0.0005;
   // Point size maximum, in screen pixels.
@@ -18,8 +26,8 @@ export function getPointSizeDevicePixels(devicePixelRatio, zoom, xRange, yRange,
 
   // The diagonal screen size as a fraction of the current diagonal axis range,
   // then converted to device pixels.
-  const diagonalScreenSize = Math.sqrt((width ** 2) + (height ** 2));
-  const diagonalAxisRange = Math.sqrt((xAxisRange ** 2) + (yAxisRange ** 2));
+  const diagonalScreenSize = Math.sqrt(width ** 2 + height ** 2);
+  const diagonalAxisRange = Math.sqrt(xAxisRange ** 2 + yAxisRange ** 2);
   const diagonalFraction = pointSize / diagonalAxisRange;
   const deviceSize = diagonalFraction * diagonalScreenSize;
 
@@ -32,13 +40,23 @@ export function getPointSizeDevicePixels(devicePixelRatio, zoom, xRange, yRange,
 }
 
 // Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
-export function getPointOpacity(zoom, xRange, yRange, width, height, numCells, avgFillDensity) {
+export function getPointOpacity(
+  zoom,
+  xRange,
+  yRange,
+  width,
+  height,
+  numCells,
+  avgFillDensity,
+) {
   const N = numCells;
-  const [minX, minY, maxX, maxY] = new deck.OrthographicView({ zoom }).makeViewport({
-    height,
-    width,
-    viewState: { zoom, target: [0, 0, 0] },
-  }).getBounds();
+  const [minX, minY, maxX, maxY] = new deck.OrthographicView({ zoom })
+    .makeViewport({
+      height,
+      width,
+      viewState: { zoom, target: [0, 0, 0] },
+    })
+    .getBounds();
   const X = maxY - minY;
   const Y = maxX - minX;
   const X0 = xRange;
@@ -48,7 +66,7 @@ export function getPointOpacity(zoom, xRange, yRange, width, height, numCells, a
 
   let rho = avgFillDensity;
   if (!rho) {
-    rho = Math.min(1, 1 / (10 ** (Math.log10(N) - 3)));
+    rho = Math.min(1, 1 / 10 ** (Math.log10(N) - 3));
   }
   // p in the calculation is the pixel length/width of a given point, which for us is 1
   // so it does not factor into our calculation here.

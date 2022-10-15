@@ -3,7 +3,7 @@
 export function getHighlightTheme(isDarkTheme) {
   return {
     plain: {
-      color: (isDarkTheme ? '#dcdcdc' : '#393A34'),
+      color: isDarkTheme ? '#dcdcdc' : '#393A34',
       backgroundColor: '#f6f8fa',
     },
     styles: [
@@ -17,23 +17,32 @@ export function getHighlightTheme(isDarkTheme) {
       },
       {
         types: ['string', 'attr-value'],
-        style: { color: (isDarkTheme ? '#ce9178' : '#0451a5') },
+        style: { color: isDarkTheme ? '#ce9178' : '#0451a5' },
       },
       {
         types: ['punctuation', 'operator'],
-        style: { color: (isDarkTheme ? '#dcdcdc' : '#393A34') },
+        style: { color: isDarkTheme ? '#dcdcdc' : '#393A34' },
       },
       {
-        types: ['entity', 'url', 'symbol', 'variable', 'constant', 'property', 'regex', 'inserted'],
-        style: { color: (isDarkTheme ? '#9cdcfe' : '#e3116c') },
+        types: [
+          'entity',
+          'url',
+          'symbol',
+          'variable',
+          'constant',
+          'property',
+          'regex',
+          'inserted',
+        ],
+        style: { color: isDarkTheme ? '#9cdcfe' : '#e3116c' },
       },
       {
         types: ['boolean'],
-        style: { color: (isDarkTheme ? '#ce9178' : '#0451a5') },
+        style: { color: isDarkTheme ? '#ce9178' : '#0451a5' },
       },
       {
         types: ['number'],
-        style: { color: (isDarkTheme ? '#aac593' : '#098658') },
+        style: { color: isDarkTheme ? '#aac593' : '#098658' },
       },
       {
         types: ['atrule', 'keyword', 'attr-name', 'selector'],
@@ -49,7 +58,7 @@ export function getHighlightTheme(isDarkTheme) {
       },
       {
         types: ['tag', 'selector', 'keyword'],
-        style: { color: (isDarkTheme ? '#ce9178' : '#00009f') },
+        style: { color: isDarkTheme ? '#ce9178' : '#00009f' },
       },
     ],
   };

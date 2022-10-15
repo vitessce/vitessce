@@ -18,19 +18,26 @@ export default class MatrixZarrAsObsFeatureMatrixLoader extends AbstractTwoStepL
     if (this.arr) {
       return this.arr;
     }
-    this.arr = openArray({ store, path: '/', mode: 'r' }).then(z => new Promise((resolve) => {
-      z.getRaw([null, null])
-        .then(resolve);
-    }));
+    this.arr = openArray({ store, path: '/', mode: 'r' }).then(
+      z => new Promise((resolve) => {
+        z.getRaw([null, null]).then(resolve);
+      }),
+    );
     return this.arr;
   }
 
   load() {
-    return Promise
-      .all([this.loadAttrs(), this.loadArr()])
-      .then(([attrs, arr]) => Promise.resolve(new LoaderResult(
-        { obsIndex: attrs.data.rows, featureIndex: attrs.data.cols, obsFeatureMatrix: arr },
-        null,
-      )));
+    return Promise.all([this.loadAttrs(), this.loadArr()]).then(
+      ([attrs, arr]) => Promise.resolve(
+        new LoaderResult(
+          {
+            obsIndex: attrs.data.rows,
+            featureIndex: attrs.data.cols,
+            obsFeatureMatrix: arr,
+          },
+          null,
+        ),
+      ),
+    );
   }
 }

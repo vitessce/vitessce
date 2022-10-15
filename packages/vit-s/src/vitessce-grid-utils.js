@@ -1,12 +1,13 @@
-import {
-  useState, useEffect, useRef,
-} from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { InternMap } from 'internmap';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
+import {
+  DEFAULT_COORDINATION_VALUES,
+  DATA_TYPE_COORDINATION_VALUE_USAGE,
+} from '@vitessce/constants-internal';
 import { getSourceAndLoaderFromFileType } from './data/loader-registry';
 import { getFileTypeDataTypeMapping } from './plugins';
-import { DEFAULT_COORDINATION_VALUES, DATA_TYPE_COORDINATION_VALUE_USAGE } from '@vitessce/constants-internal';
 
 /**
  * Return the bottom coordinate of the layout.
@@ -41,7 +42,13 @@ function getRowHeight(containerHeight, numRows, margin, padding) {
   return effectiveContainerHeight / numRows;
 }
 
-export function useRowHeight(config, initialRowHeight, height, margin, padding) {
+export function useRowHeight(
+  config,
+  initialRowHeight,
+  height,
+  margin,
+  padding,
+) {
   const [containerHeight, setContainerHeight] = useState(height);
   const [rowHeight, setRowHeight] = useState(initialRowHeight);
   const containerRef = useRef();
@@ -50,7 +57,12 @@ export function useRowHeight(config, initialRowHeight, height, margin, padding) 
   // have changed, and update `rowHeight` in response.
   useEffect(() => {
     const numRows = getNumRows(config.layout);
-    const newRowHeight = getRowHeight(containerHeight, numRows, margin, padding);
+    const newRowHeight = getRowHeight(
+      containerHeight,
+      numRows,
+      margin,
+      padding,
+    );
     setRowHeight(newRowHeight);
   }, [containerHeight, config, margin, padding]);
 
@@ -84,17 +96,15 @@ export function useRowHeight(config, initialRowHeight, height, margin, padding) 
     };
   }, [containerRef, height]);
 
-
   return [rowHeight, containerRef];
 }
 
 function withDefaults(coordinationValues, dataType, fileType, datasetUid) {
-  const defaultKeys = DATA_TYPE_COORDINATION_VALUE_USAGE[dataType]
-    .filter(k => (
-      Object.keys(DEFAULT_COORDINATION_VALUES).includes(k)
+  const defaultKeys = DATA_TYPE_COORDINATION_VALUE_USAGE[dataType].filter(
+    k => Object.keys(DEFAULT_COORDINATION_VALUES).includes(k)
       && DEFAULT_COORDINATION_VALUES[k]
-      && !Object.keys(coordinationValues).includes(k)
-    ));
+      && !Object.keys(coordinationValues).includes(k),
+  );
   const defaultValues = pick(DEFAULT_COORDINATION_VALUES, defaultKeys);
   const coordinationValuesWithDefaults = {
     ...defaultValues,
@@ -103,7 +113,11 @@ function withDefaults(coordinationValues, dataType, fileType, datasetUid) {
   };
   if (!isEqual(coordinationValues, coordinationValuesWithDefaults)) {
     // eslint-disable-next-line max-len
-    console.warn(`Using coordination value defaults for file type ${fileType} in dataset ${datasetUid}\nBefore: ${JSON.stringify(coordinationValues)}\nAfter: ${JSON.stringify(coordinationValuesWithDefaults)}`);
+    console.warn(
+      `Using coordination value defaults for file type ${fileType} in dataset ${datasetUid}\nBefore: ${JSON.stringify(
+        coordinationValues,
+      )}\nAfter: ${JSON.stringify(coordinationValuesWithDefaults)}`,
+    );
   }
   return coordinationValuesWithDefaults;
 }
@@ -136,8 +150,10 @@ export function createLoaders(datasets, configDescription) {
       } = file;
       const dataType = fileTypeDataTypeMapping[fileType];
       const coordinationValuesWithDefaults = withDefaults(
-        coordinationValues, dataType,
-        fileType, dataset.uid,
+        coordinationValues,
+        dataType,
+        fileType,
+        dataset.uid,
       );
       const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(fileType);
       // Create _one_ DataSourceClass instance per URL. Derived loaders share this object.
@@ -147,11 +163,15 @@ export function createLoaders(datasets, configDescription) {
       }
       const loader = new LoaderClass(dataSources[fileId], file);
       if (datasetLoaders.loaders[dataType]) {
-        datasetLoaders.loaders[dataType].set(coordinationValuesWithDefaults, loader);
+        datasetLoaders.loaders[dataType].set(
+          coordinationValuesWithDefaults,
+          loader,
+        );
       } else {
-        datasetLoaders.loaders[dataType] = new InternMap([
-          [coordinationValuesWithDefaults, loader],
-        ], JSON.stringify);
+        datasetLoaders.loaders[dataType] = new InternMap(
+          [[coordinationValuesWithDefaults, loader]],
+          JSON.stringify,
+        );
       }
     });
     result[dataset.uid] = datasetLoaders;

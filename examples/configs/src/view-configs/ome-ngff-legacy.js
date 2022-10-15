@@ -1,5 +1,3 @@
-
-
 const blinName = '179706';
 const blinDescription = 'Example of OME-NGFF v0.1';
 export const omeNgffLegacy = {

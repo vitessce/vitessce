@@ -8,9 +8,12 @@ import { emptySchema } from '../file-options-schemas';
  */
 export default class AbstractLoader {
   constructor({
-    type, fileType,
-    url, requestInit,
-    options, coordinationValues,
+    type,
+    fileType,
+    url,
+    requestInit,
+    options,
+    coordinationValues,
   }) {
     this.fileType = fileType;
     this.type = type;
@@ -32,13 +35,16 @@ export default class AbstractLoader {
   }
 
   load() {
-    const {
-      fileType, url, options,
-    } = this;
+    const { fileType, url, options } = this;
     const [optionsAreValid, optionsFailureReason] = this.validateOptions();
     if (!optionsAreValid) {
       return Promise.reject(
-        new OptionsValidationError(fileType, url, options, optionsFailureReason),
+        new OptionsValidationError(
+          fileType,
+          url,
+          options,
+          optionsFailureReason,
+        ),
       );
     }
     return Promise.resolve(optionsAreValid);

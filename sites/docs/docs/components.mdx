@@ -3,9 +3,10 @@ id: components
 title: Views Types
 slug: /components
 ---
+
 import ComponentImage from '../src/pages/_ComponentImage';
 
-Vitessce supports several __view types__ for visualization of single-cell data, and several view types for updating visualization parameters. The view names found on this page are all valid values for the field [`layout[].component`](/docs/view-config-json/#layout) in the view config. On this page you will also find screenshots of each view.
+Vitessce supports several **view types** for visualization of single-cell data, and several view types for updating visualization parameters. The view names found on this page are all valid values for the field [`layout[].component`](/docs/view-config-json/#layout) in the view config. On this page you will also find screenshots of each view.
 
 ### `scatterplot`
 
@@ -13,9 +14,13 @@ The scatterplot view displays 2-dimensional (pre-computed) embeddings / projecti
 Use with the `embeddingType` coordination type to specify which embedding to use when mapping cells onto scatterplot points.
 Use with datasets containing the `obsEmbedding` data type. Optionally, the `obsSets` and `obsFeatureMatrix` data types can be used for coloring cells on the plot.
 
-<ComponentImage filename="scatterplot-2.png" alt="Screenshot of Scatterplot View" />
+<ComponentImage
+  filename="scatterplot-2.png"
+  alt="Screenshot of Scatterplot View"
+/>
 
 ### `gating`
+
 The gating view displays 2-dimensional scatterplot of gene expression data.
 Users select two genes, and a scatterplot is dynamically generated using the `obsFeatureMatrix` data. Gating can then be performed by using the lasso or box select tools.
 Use with datasets containing the `obsFeatureMatrix` data types. Optionally, the `obsSets` and `obsFeatureMatrix` data types can be used for coloring cells on the plot.
@@ -44,7 +49,10 @@ The spatial view is meant to display data with spatial coordinates, including sp
 The layer controller view provides an interface for manipulating the visualization layers displayed in the `spatial` view.
 The image layers are coordinated through the [`spatialImageLayer`](/docs/coordination-types/#spatialImageLayer) coordination type.
 
-<ComponentImage filename="layerController.png" alt="Screenshot of Layer Controller View" />
+<ComponentImage
+  filename="layerController.png"
+  alt="Screenshot of Layer Controller View"
+/>
 
 ### `genomicProfiles`
 
@@ -52,32 +60,47 @@ The genomic profiles view displays genome browser tracks (using the `genomic-pro
 Genome tracks may be colored by corresponding cell set color assignments if the `obsSets` data type is available in the same dataset, coordinated on the [`obsSetSelection`](/docs/coordination-types/#obsSetSelection) coordination type.
 This view was implemented with [HiGlass](https://higlass.io/).
 
-<ComponentImage filename="genomicProfiles.png" alt="Screenshot of Genomic Profiles View" />
+<ComponentImage
+  filename="genomicProfiles.png"
+  alt="Screenshot of Genomic Profiles View"
+/>
 
 ### `featureList`
 
 The feature list view displays an interactive list of features (i.e., genes when `featureType: 'gene'`).
 The list is obtained from the feature axis of matrix files corresponding to the `obsFeatureMatrix` data type.
 
-<ComponentImage filename="genes.png" alt="Screenshot of Expression Levels View" />
+<ComponentImage
+  filename="genes.png"
+  alt="Screenshot of Expression Levels View"
+/>
 
 ### `obsSets`
 
 The observation sets view displays an interactive list of (potentially hierarchical) observation sets (e.g., cell sets) when used with datasets containing the `obsSets` data type. This can be useful for managing cell sets representing clustering algorithm outputs or cell type annotations.
 
-<ComponentImage filename="cellSets.png" alt="Screenshot of Cell Set Manager View" />
+<ComponentImage
+  filename="cellSets.png"
+  alt="Screenshot of Cell Set Manager View"
+/>
 
 ### `obsSetSizes`
 
 The observation set sizes view displays a bar plot with the currently-selected observation sets (e.g., cell sets) using the `obsSets` data type and [`obsSetSelection`](/docs/coordination-types/#obsSetSelection) coordination type on the x-axis and bars representing their size (e.g., by number of cells) on the y-axis. This view was implemented with [Vega-Lite](https://vega.github.io/vega-lite/).
 
-<ComponentImage filename="cellSetSizes.png" alt="Screenshot of Cell Set Sizes View" />
+<ComponentImage
+  filename="cellSetSizes.png"
+  alt="Screenshot of Cell Set Sizes View"
+/>
 
 ### `description`
 
 The description view can be used to display text content. This may be useful for communicating the details of a dataset or a data analysis process. When the `spatial` view is used for visualization of imaging data, the `description` view also renders a dropdown containing image metadata.
 
-<ComponentImage filename="description.png" alt="Screenshot of Description View" />
+<ComponentImage
+  filename="description.png"
+  alt="Screenshot of Description View"
+/>
 
 ### `status`
 
@@ -89,10 +112,16 @@ The status view displays debugging messages, including app-wide error messages w
 
 The observation set feature value distribution view displays a violin plot with values (e.g., expression values) for the selected feature (e.g., gene), implemented with [Vega-Lite](https://vega.github.io/vega-lite/).
 
-<ComponentImage filename="cellSetExpression.png" alt="Screenshot of Cell Set Expression View" />
+<ComponentImage
+  filename="cellSetExpression.png"
+  alt="Screenshot of Cell Set Expression View"
+/>
 
 ### `featureValueHistogram`
 
 The feature value histogram view displays the distribution of values (e.g., expression) for the selected feature (e.g., gene), implemented with [Vega-Lite](https://vega.github.io/vega-lite/).
 
-<ComponentImage filename="expressionHistogram.png" alt="Screenshot of Expression Histogram View" />
+<ComponentImage
+  filename="expressionHistogram.png"
+  alt="Screenshot of Expression Histogram View"
+/>

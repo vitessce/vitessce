@@ -5,23 +5,20 @@ import {
   useCoordination,
   registerPluginViewType,
 } from '@vitessce/vit-s';
-import {
-  CoordinationType,
-} from '@vitessce/constants';
+import { CoordinationType } from '@vitessce/constants';
 // For plugin views to use:
 
 function MyPluginView(props) {
-  const {
-    spatialZoom,
-    setSpatialZoom,
-  } = props;
+  const { spatialZoom, setSpatialZoom } = props;
 
   function handleClick() {
     setSpatialZoom(-10 + Math.random() * 10);
   }
   return (
     <div>
-      <p>Zoom level: <b>{spatialZoom}</b></p>
+      <p>
+        Zoom level: <b>{spatialZoom}</b>
+      </p>
       <p>
         <button onClick={handleClick}>Try a random zoom level</button>
       </p>
@@ -38,15 +35,8 @@ function MyPluginViewSubscriber(props) {
   } = props;
 
   // Get "props" from the coordination space.
-  const [{
-    spatialZoom,
-  }, {
-    setSpatialZoom,
-  }] = useCoordination(
-    [
-      CoordinationType.DATASET,
-      CoordinationType.SPATIAL_ZOOM,
-    ],
+  const [{ spatialZoom }, { setSpatialZoom }] = useCoordination(
+    [CoordinationType.DATASET, CoordinationType.SPATIAL_ZOOM],
     coordinationScopes,
   );
 
@@ -57,23 +47,16 @@ function MyPluginViewSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady
     >
-      <MyPluginView
-        spatialZoom={spatialZoom}
-        setSpatialZoom={setSpatialZoom}
-      />
+      <MyPluginView spatialZoom={spatialZoom} setSpatialZoom={setSpatialZoom} />
     </TitleInfo>
   );
 }
 
 // Register the plugin view type.
-registerPluginViewType(
-  'myCustomZoomController',
-  MyPluginViewSubscriber,
-  [
-    CoordinationType.DATASET,
-    CoordinationType.SPATIAL_ZOOM,
-  ],
-);
+registerPluginViewType('myCustomZoomController', MyPluginViewSubscriber, [
+  CoordinationType.DATASET,
+  CoordinationType.SPATIAL_ZOOM,
+]);
 
 // Use the plugin view in the configuration.
 export const pluginViewType = {

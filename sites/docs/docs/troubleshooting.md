@@ -24,7 +24,6 @@ Look for the line
 The network tab in your browser's developer tools window can help to determine whether any files failed to load.
 This can help to uncover incorrect URLs, cross-origin request (CORS) issues, AWS S3 bucket configuration issues, etc.
 
-
 - In Chrome: right-click -> Inspect -> Network
 - In Firefox: right-click -> Inspect -> Network
 

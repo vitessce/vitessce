@@ -10,9 +10,7 @@ import {
   convenienceFileDefsExpanded,
   pluginExpandAnnDataConvenience,
 } from './plugins.test.fixtures';
-import {
-  initialize,
-} from './view-config-utils';
+import { initialize } from './view-config-utils';
 
 describe('src/app/plugins.js', () => {
   describe('getFileTypeDataTypeMapping', () => {
@@ -28,15 +26,26 @@ describe('src/app/plugins.js', () => {
   });
   describe('convenience file types', () => {
     it('registers plugin convenience file types', () => {
-      registerPluginJointFileType('anndata.convenience.zarr', pluginExpandAnnDataConvenience);
+      registerPluginJointFileType(
+        'anndata.convenience.zarr',
+        pluginExpandAnnDataConvenience,
+      );
       const expansionFuncs = getJointFileTypes();
-      expect(Object.keys(expansionFuncs).includes('anndata.convenience.zarr')).toBeTruthy();
-      expect(typeof expansionFuncs['anndata.convenience.zarr']).toEqual('function');
+      expect(
+        Object.keys(expansionFuncs).includes('anndata.convenience.zarr'),
+      ).toBeTruthy();
+      expect(typeof expansionFuncs['anndata.convenience.zarr']).toEqual(
+        'function',
+      );
     });
     it('uses plugin convenience file types in view config initialization', () => {
-      registerPluginJointFileType('anndata.convenience.zarr', pluginExpandAnnDataConvenience);
-      expect(initialize(convenienceFileDefsCollapsed).datasets)
-        .toEqual(convenienceFileDefsExpanded.datasets);
+      registerPluginJointFileType(
+        'anndata.convenience.zarr',
+        pluginExpandAnnDataConvenience,
+      );
+      expect(initialize(convenienceFileDefsCollapsed).datasets).toEqual(
+        convenienceFileDefsExpanded.datasets,
+      );
     });
   });
 });

@@ -14,9 +14,7 @@ export default function WrappedDemos() {
       <BrowserOnly>
         {() => {
           const Demos = require('./_Demos.js').default;
-          return (
-            <Demos />
-          );
+          return <Demos />;
         }}
       </BrowserOnly>
     </Layout>

@@ -73,7 +73,6 @@ export function createDefaultClearPleaseWait() {
   return () => {};
 }
 
-
 /**
  * Copy a typed array into a new array buffer.
  * @param {Uint8Array} arr The typed array to be copied.
@@ -92,7 +91,6 @@ export function asEsModule(component) {
     default: component,
   };
 }
-
 
 export function formatBytes(bytes, decimals = 2) {
   if (bytes === 0) return '0 Bytes';
@@ -117,7 +115,10 @@ export const getStatsForResolution = (loader, resolution) => {
   // Check memory allocation limits for Float32Array (used in XR3DLayer for rendering)
   const totalBytes = 4 * height * width * depthDownsampled;
   return {
-    height, width, depthDownsampled, totalBytes,
+    height,
+    width,
+    depthDownsampled,
+    totalBytes,
   };
 };
 
@@ -130,7 +131,7 @@ export const canLoadResolution = (loader, resolution) => {
   );
   const maxHeapSize = window.performance?.memory
     && window.performance?.memory?.jsHeapSizeLimit / 2;
-  const maxSize = maxHeapSize || (2 ** 31) - 1;
+  const maxSize = maxHeapSize || 2 ** 31 - 1;
   // 2048 is a normal texture size limit although some browsers go larger.
   return (
     totalBytes < maxSize

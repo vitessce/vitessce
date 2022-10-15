@@ -1,4 +1,8 @@
-import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError } from '@vitessce/vit-s';
+import {
+  LoaderResult,
+  AbstractTwoStepLoader,
+  AbstractLoaderError,
+} from '@vitessce/vit-s';
 
 const optionsSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
@@ -40,20 +44,26 @@ export default class FeatureLabelsAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
+    const superResult = await super
+      .load()
+      .catch(reason => Promise.resolve(reason));
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
     return Promise.all([
       this.dataSource.loadVarIndex(),
       this.loadLabels(),
-    ]).then(([featureIndex, featureLabels]) => Promise.resolve(new LoaderResult(
-      {
-        featureIndex,
-        featureLabels,
-        featureLabelsMap: new Map(featureIndex.map((key, i) => ([key, featureLabels[i]]))),
-      },
-      null,
-    )));
+    ]).then(([featureIndex, featureLabels]) => Promise.resolve(
+      new LoaderResult(
+        {
+          featureIndex,
+          featureLabels,
+          featureLabelsMap: new Map(
+            featureIndex.map((key, i) => [key, featureLabels[i]]),
+          ),
+        },
+        null,
+      ),
+    ));
   }
 }

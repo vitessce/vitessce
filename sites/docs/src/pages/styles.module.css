@@ -39,12 +39,13 @@
   align-items: center;
   width: 100%;
   background-color: var(--ifm-navbar-background-color);
-  padding: var(--ifm-footer-padding-vertical) var(--ifm-footer-padding-horizontal);
+  padding: var(--ifm-footer-padding-vertical)
+    var(--ifm-footer-padding-horizontal);
 }
 
 @media (max-width: 996px) {
   .features {
-      --ifm-footer-padding-horizontal: 0;
+    --ifm-footer-padding-horizontal: 0;
   }
 }
 
@@ -65,7 +66,7 @@
   color: var(--dropzone);
   cursor: pointer;
   text-align: center;
-  box-shadow: -3px 3px 5px 5px rgba(0,0,0,.06);
+  box-shadow: -3px 3px 5px 5px rgba(0, 0, 0, 0.06);
 }
 
 .dropzoneInfo {
@@ -87,7 +88,7 @@
   height: 40px;
   left: calc(50% - 85px);
   top: calc(50% - 20px);
-  
+
   border: 2px solid var(--ifm-color-primary);
   background-color: var(--ifm-color-primary);
   text-decoration: none !important;
@@ -98,13 +99,13 @@
   font-weight: 700;
   padding: 5px 10px;
   cursor: pointer;
-  box-shadow: -3px 3px 9px 9px rgba(0,0,0,.1);
+  box-shadow: -3px 3px 9px 9px rgba(0, 0, 0, 0.1);
 }
 
 .viewConfigPreviewJSCode {
   overflow: visible;
   background-color: transparent !important;
-  font: 75%/var(--ifm-pre-line-height) var(--ifm-font-family-monospace);
+  font: 75% / var(--ifm-pre-line-height) var(--ifm-font-family-monospace);
 }
 .viewConfigPreviewErrorSplit {
   margin-left: 10px;
@@ -185,7 +186,6 @@
 }
 
 .viewConfigInputButton {
-
 }
 
 .viewConfigUrlInput {
@@ -193,7 +193,7 @@
   font-size: 16px;
   margin: 0.5rem 0 0.5rem 20px;
   border: 0;
-  box-shadow: -3px 3px 5px 5px rgba(0,0,0,.06);
+  box-shadow: -3px 3px 5px 5px rgba(0, 0, 0, 0.06);
   outline: none;
   color: var(--vit-input-foreground);
   background-color: var(--vit-input-background);
@@ -204,7 +204,6 @@
   color: var(--dropzone);
   opacity: 1;
 }
-
 
 .vitessceClear {
   text-align: center;
@@ -272,14 +271,13 @@
 .livePreviewHeader {
   background: var(--ifm-color-emphasis-500);
   color: var(--ifm-color-content-inverse);
-  letter-spacing: .08rem;
-  padding: 0.25rem .75rem;
+  letter-spacing: 0.08rem;
+  padding: 0.25rem 0.75rem;
   margin-bottom: 0 !important;
   position: absolute;
   height: 36px;
   width: 100%;
 }
-
 
 .viewConfigEditorMain {
   padding-bottom: 4rem;
@@ -290,19 +288,19 @@
   position: relative;
 }
 .copyButton {
-    background: rgba(0, 0, 0, 0.3);
-    border: none;
-    border-radius: var(--ifm-global-radius);
-    color: var(--ifm-color-white);
-    cursor: pointer;
-    opacity: 1;
-    -webkit-user-select: none;
-    user-select: none;
-    padding: 0.4rem 0.5rem;
-    position: absolute;
-    right: calc(var(--ifm-pre-padding) / 2);
-    top: calc(var(--ifm-pre-padding) / 2);
-    transition: opacity 200ms ease-in-out;
+  background: rgba(0, 0, 0, 0.3);
+  border: none;
+  border-radius: var(--ifm-global-radius);
+  color: var(--ifm-color-white);
+  cursor: pointer;
+  opacity: 1;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 0.4rem 0.5rem;
+  position: absolute;
+  right: calc(var(--ifm-pre-padding) / 2);
+  top: calc(var(--ifm-pre-padding) / 2);
+  transition: opacity 200ms ease-in-out;
 }
 
 :global(.monaco-editor .mtk8) {
@@ -310,7 +308,7 @@
 }
 
 :global(.monaco-editor .mtk20) {
-  color:#e3116c;
+  color: #e3116c;
 }
 
 .demoHeaderContainer {
@@ -362,7 +360,7 @@
   border-radius: 4px;
   padding: 0.7rem;
 }
-.demoGridContainerSmall .demoGridItem  .demoGridItemLink {
+.demoGridContainerSmall .demoGridItem .demoGridItemLink {
   display: inline-block;
   font-weight: bold;
   font-size: 16px;

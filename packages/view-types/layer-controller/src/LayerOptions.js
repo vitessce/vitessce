@@ -6,16 +6,14 @@ import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
-import { viv, DEFAULT_RASTER_DOMAIN_TYPE } from '@vitessce/gl'
-import {
-  getBoundingCube, getMultiSelectionStats,
-} from './utils';
+import { viv, DEFAULT_RASTER_DOMAIN_TYPE } from '@vitessce/gl';
 import {
   COLORMAP_OPTIONS,
   canLoadResolution,
   formatBytes,
   getStatsForResolution,
 } from '@vitessce/utils';
+import { getBoundingCube, getMultiSelectionStats } from './utils';
 import { StyledSelectionSlider, useSelectStyles } from './styles';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
@@ -84,8 +82,13 @@ function VolumeDropdown({
       }
       // Update all properties at once to avoid overriding calls.
       handleMultiPropertyChange(propertiesChanged);
-      const defaultViewState = viv.getDefaultInitialViewState(loader,
-        { height: spatialHeight, width: spatialWidth }, 1.5, true, new Matrix4(modelMatrix));
+      const defaultViewState = viv.getDefaultInitialViewState(
+        loader,
+        { height: spatialHeight, width: spatialWidth },
+        1.5,
+        true,
+        new Matrix4(modelMatrix),
+      );
       setViewState({
         ...defaultViewState,
         rotationX: 0,
@@ -93,7 +96,9 @@ function VolumeDropdown({
       });
     } else {
       const { sliders } = await getMultiSelectionStats({
-        loader, selections, use3d: shouldUse3D,
+        loader,
+        selections,
+        use3d: shouldUse3D,
       });
       const newChannels = [...channels];
       newChannels.forEach((ch, i) => {
@@ -107,8 +112,13 @@ function VolumeDropdown({
         spatialAxisFixed: false,
         channels: newChannels,
       });
-      const defaultViewState = viv.getDefaultInitialViewState(loader,
-        { height: spatialHeight, width: spatialWidth }, 0.5, false, new Matrix4(modelMatrix));
+      const defaultViewState = viv.getDefaultInitialViewState(
+        loader,
+        { height: spatialHeight, width: spatialWidth },
+        0.5,
+        false,
+        new Matrix4(modelMatrix),
+      );
       setViewState({
         ...defaultViewState,
         rotationX: null,
@@ -130,11 +140,9 @@ function VolumeDropdown({
         }
         classes={{ root: classes.selectRoot }}
       >
-        {
-          <option key="2D" value="2D">
-            2D Visualization
-          </option>
-        }
+        <option key="2D" value="2D">
+          2D Visualization
+        </option>
         {Array.from({ length: loader.length })
           .fill(0)
           // eslint-disable-next-line no-unused-vars
@@ -142,19 +150,13 @@ function VolumeDropdown({
             if (loader) {
               if (canLoadResolution(loader, resolution)) {
                 const {
-                  height,
-                  width,
-                  depthDownsampled,
-                  totalBytes,
+                  height, width, depthDownsampled, totalBytes,
                 } = getStatsForResolution(loader, resolution);
                 return (
                   <option
                     key={`(${height}, ${width}, ${depthDownsampled})`}
                     value={resolution}
-                    disabled={
-                      disable3d
-                      || !hasZStack
-                    }
+                    disabled={disable3d || !hasZStack}
                   >
                     {`3D: ${resolution}x Downsampled, ~${formatBytes(
                       totalBytes,
@@ -170,7 +172,6 @@ function VolumeDropdown({
   );
 }
 
-
 /**
  * Wrapper for the dropdown that selects a colormap (None, viridis, magma, etc.).
  * @prop {string} value Currently selected value for the colormap.
@@ -182,13 +183,16 @@ function ColormapSelect({ value, inputId, handleChange }) {
   return (
     <Select
       native
-      onChange={e => handleChange(e.target.value === '' ? null : e.target.value)}
+      onChange={e => handleChange(e.target.value === '' ? null : e.target.value)
+      }
       value={value}
       inputProps={{ name: 'colormap', id: inputId }}
       style={{ width: '100%' }}
       classes={{ root: classes.selectRoot }}
     >
-      <option aria-label="None" value="">None</option>
+      <option aria-label="None" value="">
+        None
+      </option>
       {COLORMAP_OPTIONS.map(name => (
         <option key={name} value={name}>
           {name}
@@ -270,26 +274,19 @@ function SliderDomainSelector({ value, inputId, handleChange }) {
  * @prop {function} possibleValues All available values for the field.
  */
 function GlobalSelectionSlider({
-  field,
-  value,
-  handleChange,
-  possibleValues,
+  field, value, handleChange, possibleValues,
 }) {
   return (
     <StyledSelectionSlider
       value={value}
       // See https://github.com/hms-dbmi/viv/issues/176 for why
       // we have the two handlers.
-      onChange={
-        (event, newValue) => {
-          handleChange({ selection: { [field]: newValue }, event });
-        }
-      }
-      onChangeCommitted={
-        (event, newValue) => {
-          handleChange({ selection: { [field]: newValue }, event });
-        }
-      }
+      onChange={(event, newValue) => {
+        handleChange({ selection: { [field]: newValue }, event });
+      }}
+      onChangeCommitted={(event, newValue) => {
+        handleChange({ selection: { [field]: newValue }, event });
+      }}
       valueLabelDisplay="auto"
       getAriaLabel={() => `${field} slider`}
       marks={possibleValues.map(val => ({ value: val }))}
@@ -365,19 +362,20 @@ function LayerOptions({
   spatialWidth,
   modelMatrix,
 }) {
-  const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+  const { labels, shape } = Array.isArray(loader.data)
+    ? loader.data[0]
+    : loader.data;
   const hasDimensionsAndChannels = labels.length > 0 && channels.length > 0;
   const hasZStack = shape[labels.indexOf('z')] > 1;
   // Only show volume button if we can actually view resolutions.
-  const hasViewableResolutions = Boolean(Array.from({
-    length: loader.data.length,
-  }).filter((_, res) => canLoadResolution(loader.data, res)).length);
+  const hasViewableResolutions = Boolean(
+    Array.from({
+      length: loader.data.length,
+    }).filter((_, res) => canLoadResolution(loader.data, res)).length,
+  );
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
-      {hasZStack
-        && !disable3d
-        && hasViewableResolutions
-        && (
+      {hasZStack && !disable3d && hasViewableResolutions && (
         <VolumeDropdown
           loader={loader}
           handleSliderChange={handleSliderChange}
@@ -394,8 +392,7 @@ function LayerOptions({
           use3d={use3d}
           modelMatrix={modelMatrix}
         />
-        )
-      }
+      )}
       {hasDimensionsAndChannels
         && !use3d
         && globalControlLabels.map(

@@ -3,13 +3,14 @@ import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
 import isEqual from 'lodash/isEqual';
 import range from 'lodash/range';
-import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
+import {
+  featureCollection as turfFeatureCollection,
+  point as turfPoint,
+} from '@turf/helpers';
 import centroid from '@turf/centroid';
 import concaveman from 'concaveman';
-import {
-  HIERARCHICAL_SCHEMAS,
-} from './constants';
 import { getDefaultColor, PALETTE } from '@vitessce/utils';
+import { HIERARCHICAL_SCHEMAS } from './constants';
 import { pathToKey } from './utils';
 
 /**
@@ -31,7 +32,7 @@ export function nodeToSet(currNode) {
     return [];
   }
   if (!currNode.children) {
-    return (currNode.set || []);
+    return currNode.set || [];
   }
   return currNode.children.flatMap(c => nodeToSet(c));
 }
@@ -63,7 +64,7 @@ export function getNodeLength(currNode) {
     return 0;
   }
   if (!currNode.children) {
-    return (currNode.set?.length || 0);
+    return currNode.set?.length || 0;
   }
   return currNode.children.reduce((acc, curr) => acc + getNodeLength(curr), 0);
 }
@@ -121,7 +122,13 @@ export function treeFindNodeByNamePath(currTree, targetNamePath) {
  * during recursion.
  * @returns {object} The updated node.
  */
-export function nodeTransform(node, predicate, transform, transformedPaths, currPath) {
+export function nodeTransform(
+  node,
+  predicate,
+  transform,
+  transformedPaths,
+  currPath,
+) {
   let newPath;
   if (!currPath) {
     newPath = [node.name];
@@ -135,11 +142,13 @@ export function nodeTransform(node, predicate, transform, transformedPaths, curr
   if (node.children) {
     return {
       ...node,
-      children: node.children.map(
-        child => nodeTransform(
-          child, predicate, transform, transformedPaths, newPath.concat([child.name]),
-        ),
-      ),
+      children: node.children.map(child => nodeTransform(
+        child,
+        predicate,
+        transform,
+        transformedPaths,
+        newPath.concat([child.name]),
+      )),
     };
   }
   return node;
@@ -157,7 +166,13 @@ export function nodeTransform(node, predicate, transform, transformedPaths, curr
  * during recursion.
  * @returns {object} The updated node.
  */
-export function nodeTransformAll(node, predicate, transform, transformedPaths, currPath) {
+export function nodeTransformAll(
+  node,
+  predicate,
+  transform,
+  transformedPaths,
+  currPath,
+) {
   let newPath;
   if (!currPath) {
     newPath = [node.name];
@@ -172,11 +187,13 @@ export function nodeTransformAll(node, predicate, transform, transformedPaths, c
   if (node.children) {
     return {
       ...newNode,
-      children: newNode.children.map(
-        child => nodeTransformAll(
-          child, predicate, transform, transformedPaths, newPath.concat([child.name]),
-        ),
-      ),
+      children: newNode.children.map(child => nodeTransformAll(
+        child,
+        predicate,
+        transform,
+        transformedPaths,
+        newPath.concat([child.name]),
+      )),
     };
   }
   return newNode;
@@ -232,8 +249,10 @@ export function nodeInsertChild(currNode, newChild, insertIndex) {
 export function treeToUnion(currTree, checkedPaths) {
   const nodes = checkedPaths.map(path => treeFindNodeByNamePath(currTree, path));
   const nodeSets = nodes.map(node => nodeToSet(node).map(([cellId]) => cellId));
-  return nodeSets
-    .reduce((a, h) => a.concat(h.filter(hEl => !a.includes(hEl))), nodeSets[0] || []);
+  return nodeSets.reduce(
+    (a, h) => a.concat(h.filter(hEl => !a.includes(hEl))),
+    nodeSets[0] || [],
+  );
 }
 
 /**
@@ -244,8 +263,10 @@ export function treeToUnion(currTree, checkedPaths) {
 export function treeToIntersection(currTree, checkedPaths) {
   const nodes = checkedPaths.map(path => treeFindNodeByNamePath(currTree, path));
   const nodeSets = nodes.map(node => nodeToSet(node).map(([cellId]) => cellId));
-  return nodeSets
-    .reduce((a, h) => h.filter(hEl => a.includes(hEl)), nodeSets[0] || []);
+  return nodeSets.reduce(
+    (a, h) => h.filter(hEl => a.includes(hEl)),
+    nodeSets[0] || [],
+  );
 }
 
 /**
@@ -269,7 +290,12 @@ export function treeToComplement(currTree, checkedPaths, items) {
  * @returns {object[]} An array of descendants at the specified level,
  * where the level is relative to the node.
  */
-export function nodeToLevelDescendantNamePaths(node, level, prevPath, stopEarly = false) {
+export function nodeToLevelDescendantNamePaths(
+  node,
+  level,
+  prevPath,
+  stopEarly = false,
+) {
   if (!node.children) {
     if (!stopEarly) {
       return null;
@@ -280,7 +306,12 @@ export function nodeToLevelDescendantNamePaths(node, level, prevPath, stopEarly 
     return [[...prevPath, node.name]];
   }
   return node.children
-    .flatMap(c => nodeToLevelDescendantNamePaths(c, level - 1, [...prevPath, node.name], stopEarly))
+    .flatMap(c => nodeToLevelDescendantNamePaths(
+      c,
+      level - 1,
+      [...prevPath, node.name],
+      stopEarly,
+    ))
     .filter(Boolean);
 }
 
@@ -308,16 +339,27 @@ export function treeExport(currTree, datatype) {
  * @returns {object} { treeToExport, nodeName }
  * Tree with one level zero node, and with state removed.
  */
-export function treeExportLevelZeroNode(currTree, nodePath, datatype, cellSetColors, theme) {
+export function treeExportLevelZeroNode(
+  currTree,
+  nodePath,
+  datatype,
+  cellSetColors,
+  theme,
+) {
   const node = treeFindNodeByNamePath(currTree, nodePath);
-  const nodeWithColors = nodeTransformAll(node, () => true, (n, nPath) => {
-    const nodeColor = cellSetColors?.find(c => isEqual(c.path, nPath))?.color
-      ?? getDefaultColor(theme);
-    return {
-      ...n,
-      color: nodeColor.slice(0, 3),
-    };
-  }, []);
+  const nodeWithColors = nodeTransformAll(
+    node,
+    () => true,
+    (n, nPath) => {
+      const nodeColor = cellSetColors?.find(c => isEqual(c.path, nPath))?.color
+        ?? getDefaultColor(theme);
+      return {
+        ...n,
+        color: nodeColor.slice(0, 3),
+      };
+    },
+    [],
+  );
   const treeWithOneLevelZeroNode = {
     ...currTree,
     tree: [nodeWithColors],
@@ -383,11 +425,15 @@ export function nodeToRenderProps(node, path, cellSetColor) {
  * @param {number[]} mixingColor The color with which to mix. By default, [128, 128, 128] gray.
  * @returns {number[]} Returns the color after mixing.
  */
-function colorMixWithUncertainty(originalColor, p, mixingColor = [128, 128, 128]) {
+function colorMixWithUncertainty(
+  originalColor,
+  p,
+  mixingColor = [128, 128, 128],
+) {
   return [
-    ((originalColor[0] - mixingColor[0]) * p) + mixingColor[0],
-    ((originalColor[1] - mixingColor[1]) * p) + mixingColor[1],
-    ((originalColor[2] - mixingColor[2]) * p) + mixingColor[2],
+    (originalColor[0] - mixingColor[0]) * p + mixingColor[0],
+    (originalColor[1] - mixingColor[1]) * p + mixingColor[1],
+    (originalColor[2] - mixingColor[2]) * p + mixingColor[2],
   ];
 }
 
@@ -404,21 +450,24 @@ function colorMixWithUncertainty(originalColor, p, mixingColor = [128, 128, 128]
  * where cellIds is an array of strings,
  * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
  */
-export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetColor, theme) {
+export function treeToCellColorsBySetNames(
+  currTree,
+  selectedNamePaths,
+  cellSetColor,
+  theme,
+) {
   let cellColorsArray = [];
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
-      const nodeColor = (
-        cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
-        || getDefaultColor(theme)
-      );
+      const nodeColor = cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
+        || getDefaultColor(theme);
       cellColorsArray = [
         ...cellColorsArray,
         ...nodeSet.map(([cellId, prob]) => [
           cellId,
-          (isNil(prob) ? nodeColor : colorMixWithUncertainty(nodeColor, prob)),
+          isNil(prob) ? nodeColor : colorMixWithUncertainty(nodeColor, prob),
         ]),
       ];
     }
@@ -439,40 +488,48 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
  * @returns {object[]} Array of objects with properties
  * `obsId`, `name`, and `color`.
  */
-export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor, theme) {
+export function treeToObjectsBySetNames(
+  currTree,
+  selectedNamePaths,
+  setColor,
+  theme,
+) {
   let cellsArray = [];
   for (let i = 0; i < selectedNamePaths.length; i += 1) {
     const setNamePath = selectedNamePaths[i];
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
-      const nodeColor = (
-        setColor?.find(d => isEqual(d.path, setNamePath))?.color
-        || getDefaultColor(theme)
+      const nodeColor = setColor?.find(d => isEqual(d.path, setNamePath))?.color
+        || getDefaultColor(theme);
+      cellsArray = cellsArray.concat(
+        nodeSet.map(([cellId]) => ({
+          obsId: cellId,
+          name: node.name,
+          color: nodeColor,
+        })),
       );
-      cellsArray = cellsArray.concat(nodeSet.map(([cellId]) => ({
-        obsId: cellId,
-        name: node.name,
-        color: nodeColor,
-      })));
     }
   }
   return cellsArray;
 }
 
 export function treeToCellPolygonsBySetNames(
-  currTree, obsIndex, obsEmbedding, selectedNamePaths, cellSetColor, theme,
+  currTree,
+  obsIndex,
+  obsEmbedding,
+  selectedNamePaths,
+  cellSetColor,
+  theme,
 ) {
-  const obsIndexMap = new Map(obsIndex.map((key, i) => ([key, i])));
+  const obsIndexMap = new Map(obsIndex.map((key, i) => [key, i]));
   const cellSetPolygons = [];
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
-      const nodeColor = (
-        cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
-        || getDefaultColor(theme)
-      );
+      const nodeColor = cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
+        || getDefaultColor(theme);
       const cellPositions = nodeSet
         .map(([cellId]) => {
           const cellIdx = obsIndexMap.get(cellId);
@@ -484,9 +541,7 @@ export function treeToCellPolygonsBySetNames(
         .filter(cell => cell.every(i => typeof i === 'number'));
 
       if (cellPositions.length > 2) {
-        const points = turfFeatureCollection(
-          cellPositions.map(turfPoint),
-        );
+        const points = turfFeatureCollection(cellPositions.map(turfPoint));
         const concavity = Infinity;
         const hullCoords = concaveman(cellPositions, concavity);
         if (hullCoords) {
@@ -518,7 +573,12 @@ export function treeToCellPolygonsBySetNames(
  * with the properties `name`, `size`, `key`,
  * and `color`.
  */
-export function treeToSetSizesBySetNames(currTree, selectedNamePaths, setColor, theme) {
+export function treeToSetSizesBySetNames(
+  currTree,
+  selectedNamePaths,
+  setColor,
+  theme,
+) {
   const sizes = [];
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
@@ -553,9 +613,9 @@ export function filterNode(node, prevPath, filterPath) {
   }
   return {
     ...node,
-    children: node.children.map(
-      c => filterNode(c, [...prevPath, node.name], filterPath),
-    ).filter(Boolean),
+    children: node.children
+      .map(c => filterNode(c, [...prevPath, node.name], filterPath))
+      .filter(Boolean),
   };
 }
 
@@ -567,7 +627,12 @@ export function treeToExpectedCheckedLevel(currTree, checkedPaths) {
       const height = nodeToHeight(lzn);
       range(height).forEach((i) => {
         const levelIndex = i + 1;
-        const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
+        const levelNodePaths = nodeToLevelDescendantNamePaths(
+          lzn,
+          levelIndex,
+          [],
+          true,
+        );
         if (isEqual(levelNodePaths, checkedPaths)) {
           result = { levelZeroPath, levelIndex };
         }
@@ -608,10 +673,9 @@ export function treesConflict(cellSets, testCellSets) {
 
 export function initializeCellSetColor(cellSets, cellSetColor) {
   const nextCellSetColor = [...(cellSetColor || [])];
-  const nodeCountPerTreePerLevel = cellSets.tree.map(tree => Array
-    .from({
-      length: nodeToHeight(tree) + 1, // Need to add one because its an array.
-    }).fill(0));
+  const nodeCountPerTreePerLevel = cellSets.tree.map(tree => Array.from({
+    length: nodeToHeight(tree) + 1, // Need to add one because its an array.
+  }).fill(0));
 
   function processNode(node, prevPath, hierarchyLevel, treeIndex) {
     const index = nodeCountPerTreePerLevel[treeIndex][hierarchyLevel];
@@ -621,7 +685,9 @@ export function initializeCellSetColor(cellSets, cellSetColor) {
     if (!nodeColor) {
       // If there is a color for the node specified via the cell set tree,
       // then use it. Otherwise, use a color from the default color palette.
-      const nodeColorArray = (node.color ? node.color : PALETTE[index % PALETTE.length]);
+      const nodeColorArray = node.color
+        ? node.color
+        : PALETTE[index % PALETTE.length];
       nextCellSetColor.push({
         path: nodePath,
         color: nodeColorArray,
@@ -646,9 +712,20 @@ export function getCellSetPolygons(params) {
     cellSetColor,
     theme,
   } = params;
-  if (cellSetSelection && cellSetSelection.length > 0 && cellSets && obsIndex && obsEmbedding) {
+  if (
+    cellSetSelection
+    && cellSetSelection.length > 0
+    && cellSets
+    && obsIndex
+    && obsEmbedding
+  ) {
     return treeToCellPolygonsBySetNames(
-      cellSets, obsIndex, obsEmbedding, cellSetSelection, cellSetColor, theme,
+      cellSets,
+      obsIndex,
+      obsEmbedding,
+      cellSetSelection,
+      cellSetColor,
+      theme,
     );
   }
   return [];
@@ -661,7 +738,12 @@ export function treeToMembershipMap(currTree) {
       const height = nodeToHeight(lzn);
       range(height).forEach((i) => {
         const levelIndex = i + 1;
-        const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
+        const levelNodePaths = nodeToLevelDescendantNamePaths(
+          lzn,
+          levelIndex,
+          [],
+          true,
+        );
         levelNodePaths.forEach((setNamePath) => {
           const node = treeFindNodeByNamePath(currTree, setNamePath);
           // If this is a child node, then we are interested.

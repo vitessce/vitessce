@@ -5,11 +5,7 @@ export const expressionMatrix = {
   // if it's turned or flipped etc when we use it as a texture."
   // - https://webglfundamentals.org/webgl/lessons/webgl-3d-textures.html
   matrix: Uint8Array.from([
-    0, 255, 255, 0,
-    0, 255, 0, 0,
-    0, 255, 255, 0,
-    0, 255, 0, 0,
-    0, 255, 0, 0,
+    0, 255, 255, 0, 0, 255, 0, 0, 0, 255, 255, 0, 0, 255, 0, 0, 0, 255, 0, 0,
   ]),
 };
 

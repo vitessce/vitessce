@@ -5,7 +5,9 @@ export function validateOptions(optionsSchema, options) {
   const valid = validate(options || null);
   if (!valid) {
     console.warn(JSON.stringify(validate.errors, null, 2));
-    throw new Error(`File definition options failed schema validation (${optionsSchema.title})`);
+    throw new Error(
+      `File definition options failed schema validation (${optionsSchema.title})`,
+    );
   }
   return true;
 }
@@ -14,9 +16,7 @@ export const emptySchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
   $id: 'https://github.com/vitessce/vitessce/#empty-options',
   title: 'Empty options',
-  oneOf: [
-    { type: 'null' },
-  ],
+  oneOf: [{ type: 'null' }],
 };
 
 const sharedDefinitions = {
@@ -36,7 +36,8 @@ const sharedDefinitions = {
       path: { type: 'string' },
       dims: {
         type: 'array',
-        description: 'Which indices of the obsm object to take for a scatterplot, allowing for, for example, different PCs from obsm/X_pca',
+        description:
+          'Which indices of the obsm object to take for a scatterplot, allowing for, for example, different PCs from obsm/X_pca',
         items: { type: 'number' },
       },
     },
@@ -67,7 +68,8 @@ const sharedDefinitions = {
       path: { type: 'string' },
       dims: {
         type: 'array',
-        description: 'Which indices of the obsm object to take for a scatterplot, allowing for, for example, different PCs from obsm/X_pca',
+        description:
+          'Which indices of the obsm object to take for a scatterplot, allowing for, for example, different PCs from obsm/X_pca',
         items: { type: 'number' },
       },
       embeddingType: { type: 'string' },
@@ -84,11 +86,13 @@ const sharedDefinitions = {
       path: { type: 'string' },
       featureFilterPath: {
         type: 'string',
-        description: 'If the feature index should be filtered, put a boolean column here (analogous to the previous geneFilter option). e.g., var/in_obsm_X_small_matrix',
+        description:
+          'If the feature index should be filtered, put a boolean column here (analogous to the previous geneFilter option). e.g., var/in_obsm_X_small_matrix',
       },
       initialFeatureFilterPath: {
         type: 'string',
-        description: 'If only a subset of the matrix should be loaded initially, put a boolean column along the feature axis here (analogous to the previous matrixGeneFilter option). e.g., var/highly_variable',
+        description:
+          'If only a subset of the matrix should be loaded initially, put a boolean column along the feature axis here (analogous to the previous matrixGeneFilter option). e.g., var/highly_variable',
       },
     },
   },
@@ -102,18 +106,21 @@ const sharedDefinitions = {
       properties: {
         name: {
           type: 'string',
-          description: "The display name for the set, like 'Cell Type' or 'Louvain.'",
+          description:
+            "The display name for the set, like 'Cell Type' or 'Louvain.'",
         },
         path: {
           oneOf: [
             {
               type: 'string',
-              description: "The location in the AnnData store for the set, like 'obs/louvain' or 'obs/celltype.'",
+              description:
+                "The location in the AnnData store for the set, like 'obs/louvain' or 'obs/celltype.'",
             },
             {
               type: 'array',
               items: { type: 'string' },
-              description: 'An array of locations in the AnnData store for a hierarchy of set names, from coarse to fine levels.',
+              description:
+                'An array of locations in the AnnData store for a hierarchy of set names, from coarse to fine levels.',
             },
           ],
         },
@@ -121,7 +128,8 @@ const sharedDefinitions = {
           oneOf: [
             {
               type: 'string',
-              description: "The location in the AnnData store for the set confidence scores, like 'obs/celltype_prediction_score.'",
+              description:
+                "The location in the AnnData store for the set confidence scores, like 'obs/celltype_prediction_score.'",
             },
           ],
         },
@@ -259,7 +267,8 @@ export const obsSetsCsvSchema = {
         properties: {
           name: {
             type: 'string',
-            description: "The display name for the set, like 'Cell Type' or 'Louvain'",
+            description:
+              "The display name for the set, like 'Cell Type' or 'Louvain'",
           },
           column: {
             oneOf: [
@@ -270,7 +279,8 @@ export const obsSetsCsvSchema = {
               {
                 type: 'array',
                 items: { type: 'string' },
-                description: 'An array of columns for a hierarchy of set names, from coarse to fine levels.',
+                description:
+                  'An array of columns for a hierarchy of set names, from coarse to fine levels.',
               },
             ],
           },
@@ -278,7 +288,8 @@ export const obsSetsCsvSchema = {
             oneOf: [
               {
                 type: 'string',
-                description: "The column for the set confidence scores, like 'celltype_prediction_score'",
+                description:
+                  "The column for the set confidence scores, like 'celltype_prediction_score'",
               },
             ],
           },
@@ -304,13 +315,19 @@ export const anndataZarrSchema = {
     obsLabels: {
       oneOf: [
         { $ref: '#/definitions/annDataObsLabels' },
-        { type: 'array', items: { $ref: '#/definitions/annDataConvenienceObsLabelsItem' } },
+        {
+          type: 'array',
+          items: { $ref: '#/definitions/annDataConvenienceObsLabelsItem' },
+        },
       ],
     },
     featureLabels: {
       oneOf: [
         { $ref: '#/definitions/annDataFeatureLabels' },
-        { type: 'array', items: { $ref: '#/definitions/annDataConvenienceFeatureLabelsItem' } },
+        {
+          type: 'array',
+          items: { $ref: '#/definitions/annDataConvenienceFeatureLabelsItem' },
+        },
       ],
     },
     obsFeatureMatrix: { $ref: '#/definitions/annDataObsFeatureMatrix' },
@@ -320,7 +337,10 @@ export const anndataZarrSchema = {
     obsEmbedding: {
       oneOf: [
         { $ref: '#/definitions/annDataObsEmbedding' },
-        { type: 'array', items: { $ref: '#/definitions/annDataConvenienceObsEmbeddingItem' } },
+        {
+          type: 'array',
+          items: { $ref: '#/definitions/annDataConvenienceObsEmbeddingItem' },
+        },
       ],
     },
   },

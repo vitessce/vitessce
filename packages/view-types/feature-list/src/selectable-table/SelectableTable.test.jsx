@@ -1,14 +1,16 @@
 import '@testing-library/jest-dom';
-import { cleanup, findByText, render, screen } from '@testing-library/react'
+import {
+  cleanup, findByText, render, screen,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach } from 'vitest'
-
-const user = userEvent.setup();
+import { afterEach } from 'vitest';
 
 import SelectableTable from './SelectableTable';
 
+const user = userEvent.setup();
+
 afterEach(() => {
-  cleanup()
+  cleanup();
 });
 
 const tableData = [
@@ -29,11 +31,7 @@ const tableData = [
   },
 ];
 const tableIdKey = 'Name';
-const tableColumns = [
-  'X',
-  'Y',
-  'Name',
-];
+const tableColumns = ['X', 'Y', 'Name'];
 
 describe('SelectableTable.js', () => {
   describe('<SelectableTable />', () => {

@@ -1,5 +1,8 @@
 import Bowser from 'bowser';
-import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
+import {
+  compressToEncodedURIComponent,
+  decompressFromEncodedURIComponent,
+} from 'lz-string';
 
 const CURRENT_VERSION = '0.0.1';
 const VITESSCE_CONF_QUERY_STRING = 'vitessce_conf';
@@ -36,10 +39,7 @@ export default class CompressedConfLengthError {
  * @returns {string} The new params like
  * vitessce_conf_length=10&vitessce_conf_version=0.0.1&vitessce_conf=fksdfasdfjkl
  */
-export function encodeConfInUrl({
-  conf,
-  onOverMaximumUrlLength = () => { },
-}) {
+export function encodeConfInUrl({ conf, onOverMaximumUrlLength = () => {} }) {
   const compressedConf = compressToEncodedURIComponent(JSON.stringify(conf));
   const newParams = `${LENGTH_QUERY_STRING}=${compressedConf.length}&${VERSION_QUERY_STRING}=${CURRENT_VERSION}&${VITESSCE_CONF_QUERY_STRING}=${compressedConf}`;
   const browser = sniffBrowser();
@@ -48,7 +48,11 @@ export function encodeConfInUrl({
     const willWorkOn = Object.entries(MAX_BROWSER_URL_LENGTHS)
       .filter(entry => entry[1] > newParams.length)
       .map(entry => entry[0]);
-    const message = `Configuration is ${compressedConf.length} characters; max URL for ${browser} is ${maxLength}: it will work on ${willWorkOn.join(', ') || 'no browser'}.`;
+    const message = `Configuration is ${
+      compressedConf.length
+    } characters; max URL for ${browser} is ${maxLength}: it will work on ${
+      willWorkOn.join(', ') || 'no browser'
+    }.`;
     console.error(message);
     onOverMaximumUrlLength({ message, willWorkOn });
   }
@@ -68,11 +72,15 @@ export function decodeURLParamsToConf(queryString) {
   const compressedConfString = params.get(VITESSCE_CONF_QUERY_STRING);
   const expectedConfLength = Number(params.get(LENGTH_QUERY_STRING));
   if (expectedConfLength !== compressedConfString.length) {
-    throw new CompressedConfLengthError(`Compressed conf length (${compressedConfString.length}) != expected (${expectedConfLength}). URL truncated?`);
+    throw new CompressedConfLengthError(
+      `Compressed conf length (${compressedConfString.length}) != expected (${expectedConfLength}). URL truncated?`,
+    );
   }
   const version = params.get(VERSION_QUERY_STRING);
   if (version === CURRENT_VERSION) {
-    const conf = JSON.parse(decompressFromEncodedURIComponent(compressedConfString));
+    const conf = JSON.parse(
+      decompressFromEncodedURIComponent(compressedConfString),
+    );
     return conf;
   }
   throw new Error('Unrecognized URL Param Version');

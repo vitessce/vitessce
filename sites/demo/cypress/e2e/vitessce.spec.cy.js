@@ -1,18 +1,14 @@
-
 describe('Vitessce Mocked Routes', () => {
-
   it('has title, blurb, and link to "Please wait"', () => {
     cy.visit('/?show=all');
     cy.contains('Vitessce');
     cy.contains('Its modular design is optimized');
     cy.contains('just scatterplot as component'); // Not public; requires "show=all".
-    cy.contains('Spraggins as component')
-      .click();
+    cy.contains('Spraggins as component').click();
     // This part seems to be fragile: Might run too fast?
     // cy.contains('Please wait');
     // cy.get('.modal-body').should('be.visible');
   });
-
 });
 
 describe('Vitessce plugin support', () => {

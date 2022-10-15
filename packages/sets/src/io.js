@@ -8,9 +8,12 @@ import { getDefaultColor } from '@vitessce/utils';
 import { colorArrayToString, colorStringToArray } from './utils';
 import { nodeTransform } from './cell-set-utils';
 import {
-  HIERARCHICAL_SCHEMAS, TABULAR_SCHEMAS,
-  MIME_TYPE_JSON, MIME_TYPE_TABULAR,
-  SEPARATOR_TABULAR, NA_VALUE_TABULAR,
+  HIERARCHICAL_SCHEMAS,
+  TABULAR_SCHEMAS,
+  MIME_TYPE_JSON,
+  MIME_TYPE_TABULAR,
+  SEPARATOR_TABULAR,
+  NA_VALUE_TABULAR,
 } from './constants';
 
 /**
@@ -40,7 +43,8 @@ export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
       tree: currTree.tree.map(levelZeroNode => nodeTransform(
         levelZeroNode,
         n => !n.children && Array.isArray(n.set),
-        n => ({ ...n, set: n.set.map(itemId => ([itemId, null])) }), [],
+        n => ({ ...n, set: n.set.map(itemId => [itemId, null]) }),
+        [],
       )),
     };
   }
@@ -76,16 +80,14 @@ export function handleImportTabular(result, datatype, theme) {
   const importData = dsvParser.parse(result, row => ({
     groupName: row.groupName,
     setName: row.setName,
-    setColor: (row.setColor ? colorStringToArray(row.setColor) : getDefaultColor(theme)),
+    setColor: row.setColor
+      ? colorStringToArray(row.setColor)
+      : getDefaultColor(theme),
     obsId: row.obsId,
-    predictionScore: (
-      (
-        isNil(row.predictionScore)
-        || row.predictionScore === NA_VALUE_TABULAR
-      )
+    predictionScore:
+      isNil(row.predictionScore) || row.predictionScore === NA_VALUE_TABULAR
         ? null
-        : +row.predictionScore
-    ),
+        : +row.predictionScore,
   }));
   // Validate the imported file.
   const validate = new Ajv().compile(TABULAR_SCHEMAS[datatype].schema);
@@ -100,7 +102,9 @@ export function handleImportTabular(result, datatype, theme) {
       datatype,
       tree: [],
     };
-    const uniqueGroupNames = Array.from(new Set(importData.map(d => d.groupName)));
+    const uniqueGroupNames = Array.from(
+      new Set(importData.map(d => d.groupName)),
+    );
     uniqueGroupNames.forEach((groupName) => {
       const levelZeroNode = {
         name: groupName,
@@ -114,7 +118,7 @@ export function handleImportTabular(result, datatype, theme) {
         const levelOneNode = {
           name: setName,
           color: setColor,
-          set: setRows.map(d => ([d.obsId, d.predictionScore])),
+          set: setRows.map(d => [d.obsId, d.predictionScore]),
         };
         levelZeroNode.children.push(levelOneNode);
       });
@@ -131,7 +135,9 @@ export function handleImportTabular(result, datatype, theme) {
  */
 export function handleExportJSON(result) {
   const jsonString = JSON.stringify(result);
-  const dataString = `data:${MIME_TYPE_JSON};charset=utf-8,${encodeURIComponent(jsonString)}`;
+  const dataString = `data:${MIME_TYPE_JSON};charset=utf-8,${encodeURIComponent(
+    jsonString,
+  )}`;
   return dataString;
 }
 
@@ -163,7 +169,9 @@ export function handleExportTabular(result) {
     delimiter: SEPARATOR_TABULAR,
   });
   const csvString = parser.parse(exportData);
-  const dataString = `data:${MIME_TYPE_TABULAR};charset=utf-8,${encodeURIComponent(csvString)}`;
+  const dataString = `data:${MIME_TYPE_TABULAR};charset=utf-8,${encodeURIComponent(
+    csvString,
+  )}`;
   return dataString;
 }
 

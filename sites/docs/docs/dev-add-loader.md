@@ -26,15 +26,15 @@ The `load()` method should return a promise that resolves to a [`LoaderResult`](
 
 Depending on the **data type** of the **file type**, the `data` parameter of the `LoaderResult` constructor should be a JS object with the following structure:
 
-| Data Type | `data` object |
-|-----|-----|
-| `obsEmbedding` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsEmbedding`: `ArrayWrapper<number[]>` <br/> } |
-| `obsLabels` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsLabels`: `string[]` <br/> } |
-| `obsLocations` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsLocations`: `ArrayWrapper<number[]>` <br/> } |
+| Data Type          | `data` object                                                                                                                                                             |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `obsEmbedding`     | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsEmbedding`: `ArrayWrapper<number[]>` <br/> }                                                          |
+| `obsLabels`        | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsLabels`: `string[]` <br/> }                                                                           |
+| `obsLocations`     | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsLocations`: `ArrayWrapper<number[]>` <br/> }                                                          |
 | `obsSegmentations` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsSegmentations`: `ArrayWrapper<number[]>`, <br/> &nbsp;&nbsp; `obsSegmentationsType`: `string` <br/> } |
-| `obsSets` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsSets`: `object` <br/> &nbsp;&nbsp; `obsSetsMembership`: `Map<string,array<string[]>>` <br/> } |
-| `obsFeatureMatrix` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `featureIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsFeatureMatrix`: `ArrayWrapper<number[]>` <br/> } |
-| `image` | { <br/> &nbsp;&nbsp; `image`: `object` <br/> } |
+| `obsSets`          | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsSets`: `object` <br/> &nbsp;&nbsp; `obsSetsMembership`: `Map<string,array<string[]>>` <br/> }         |
+| `obsFeatureMatrix` | { <br/> &nbsp;&nbsp; `obsIndex`: `string[]`, <br/> &nbsp;&nbsp; `featureIndex`: `string[]`, <br/> &nbsp;&nbsp; `obsFeatureMatrix`: `ArrayWrapper<number[]>` <br/> }       |
+| `image`            | { <br/> &nbsp;&nbsp; `image`: `object` <br/> }                                                                                                                            |
 
 where `ArrayWrapper<T>` is an object `{ data: T, shape: number[] }` and `MembershipMap` is `Map<string,array<string[]>>` where keys are observation IDs and values are arrays of set paths.
 
@@ -59,7 +59,9 @@ class MyLoader extends AbstractTwoStepLoader {
 
   async load() {
     // super.load() will perform validation of this.options against this.optionsSchema
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
+    const superResult = await super
+      .load()
+      .catch(reason => Promise.resolve(reason));
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
@@ -70,7 +72,7 @@ class MyLoader extends AbstractTwoStepLoader {
 
 ## The file type registry
 
-Similar to the [view type registry](/docs/dev-add-component/#the-view-type-registry), there must be a mapping between a **file type** name and the actual data loader & data source class definitions to facilitate usage of the file type name as a string ([`datasets[].files[].fileType`](/docs/view-config-json/#datasets)) in the JSON view config. 
+Similar to the [view type registry](/docs/dev-add-component/#the-view-type-registry), there must be a mapping between a **file type** name and the actual data loader & data source class definitions to facilitate usage of the file type name as a string ([`datasets[].files[].fileType`](/docs/view-config-json/#datasets)) in the JSON view config.
 The [file type registry](https://github.com/vitessce/vitessce/blob/main/src/loaders/types.js) maps file types to `[data source, data loader]` tuples.
 Every file type in the registry must be [mapped to a data type](https://github.com/vitessce/vitessce/blob/main/src/app/constant-relationships.js) as well.
 

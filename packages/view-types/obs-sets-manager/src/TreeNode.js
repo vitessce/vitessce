@@ -4,11 +4,15 @@ import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import range from 'lodash/range';
 import isEqual from 'lodash/isEqual';
-import PopoverMenu from './PopoverMenu';
-import HelpTooltip from './HelpTooltip';
-import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from '@vitessce/sets';
+import {
+  callbackOnKeyPress,
+  colorArrayToString,
+  getLevelTooltipText,
+} from '@vitessce/sets';
 import { MenuSVG } from '@vitessce/icons';
 import { getDefaultColor } from '@vitessce/utils';
+import HelpTooltip from './HelpTooltip';
+import PopoverMenu from './PopoverMenu';
 import { useStyles } from './styles';
 
 /**
@@ -34,52 +38,76 @@ function makeNodeViewMenuConfig(props) {
   } = props;
 
   return [
-    ...(editable ? [
-      {
-        title: 'Rename',
-        handler: () => { onNodeSetIsEditing(path, true); },
-        handlerKey: 'r',
-      },
-      {
-        title: 'Delete',
-        confirm: true,
-        handler: () => { onNodeRemove(path); },
-        handlerKey: 'd',
-      },
-    ] : []),
-    ...(level === 0 && exportable ? [
-      {
-        title: 'Export hierarchy',
-        subtitle: '(to JSON file)',
-        handler: () => { onExportLevelZeroNodeJSON(path); },
-        handlerKey: 'j',
-      },
-      ...(height <= 1 ? [
+    ...(editable
+      ? [
+        {
+          title: 'Rename',
+          handler: () => {
+            onNodeSetIsEditing(path, true);
+          },
+          handlerKey: 'r',
+        },
+        {
+          title: 'Delete',
+          confirm: true,
+          handler: () => {
+            onNodeRemove(path);
+          },
+          handlerKey: 'd',
+        },
+      ]
+      : []),
+    ...(level === 0 && exportable
+      ? [
         {
           title: 'Export hierarchy',
-          subtitle: '(to CSV file)',
-          handler: () => { onExportLevelZeroNodeTabular(path); },
-          handlerKey: 't',
-        },
-      ] : []),
-    ] : []),
-    ...(level > 0 ? [
-      ...(checkable ? [
-        {
-          title: (checked ? 'Uncheck' : 'Check'),
-          handler: () => { onCheckNode(path, !checked); },
-          handlerKey: 's',
-        },
-      ] : []),
-      ...(exportable ? [
-        {
-          title: 'Export set',
           subtitle: '(to JSON file)',
-          handler: () => { onExportSetJSON(path); },
-          handlerKey: 'e',
+          handler: () => {
+            onExportLevelZeroNodeJSON(path);
+          },
+          handlerKey: 'j',
         },
-      ] : []),
-    ] : []),
+        ...(height <= 1
+          ? [
+            {
+              title: 'Export hierarchy',
+              subtitle: '(to CSV file)',
+              handler: () => {
+                onExportLevelZeroNodeTabular(path);
+              },
+              handlerKey: 't',
+            },
+          ]
+          : []),
+      ]
+      : []),
+    ...(level > 0
+      ? [
+        ...(checkable
+          ? [
+            {
+              title: checked ? 'Uncheck' : 'Check',
+              handler: () => {
+                onCheckNode(path, !checked);
+              },
+              handlerKey: 's',
+            },
+          ]
+          : []),
+        ...(exportable
+          ? [
+            {
+              title: 'Export set',
+              subtitle: '(to JSON file)',
+              handler: () => {
+                onExportSetJSON(path);
+              },
+              handlerKey: 'e',
+            },
+          ]
+          : []),
+      ]
+      : []),
   ];
 }
 
@@ -110,19 +138,21 @@ function NamedSetNodeStatic(props) {
     editable,
     theme,
   } = props;
-  const shouldCheckNextLevel = (level === 0 && !expanded);
-  const nextLevelToCheck = (
-    (checkedLevelIndex && isEqual(path, checkedLevelPath) && checkedLevelIndex < height)
-      ? checkedLevelIndex + 1
-      : 1
-  );
+  const shouldCheckNextLevel = level === 0 && !expanded;
+  const nextLevelToCheck = checkedLevelIndex
+    && isEqual(path, checkedLevelPath)
+    && checkedLevelIndex < height
+    ? checkedLevelIndex + 1
+    : 1;
   const numberFormatter = new Intl.NumberFormat('en-US');
   const niceSize = numberFormatter.format(size);
   let tooltipText;
   if (shouldCheckNextLevel) {
     tooltipText = getLevelTooltipText(nextLevelToCheck);
   } else if (isLeaf || !expanded) {
-    tooltipText = `Color individual set (${niceSize} ${datatype}${(size === 1 ? '' : 's')})`;
+    tooltipText = `Color individual set (${niceSize} ${datatype}${
+      size === 1 ? '' : 's'
+    })`;
   } else {
     tooltipText = 'Color by expanded descendants';
   }
@@ -130,11 +160,10 @@ function NamedSetNodeStatic(props) {
   // the behavior should be to color by the first or next cluster level.
   // If this is a level zero node and _is_ expanded, or if any other node,
   // click should trigger onNodeView.
-  const onClick = (level === 0 && !expanded
+  const onClick = level === 0 && !expanded
     ? () => onCheckLevel(nodeKey, nextLevelToCheck)
-    : () => onNodeView(path)
-  );
-  const tooltipProps = (disableTooltip ? { visible: false } : {});
+    : () => onNodeView(path);
+  const tooltipProps = disableTooltip ? { visible: false } : {};
   const popoverMenuConfig = makeNodeViewMenuConfig(props);
 
   const classes = useStyles();
@@ -153,14 +182,14 @@ function NamedSetNodeStatic(props) {
       {popoverMenuConfig.length > 0 ? (
         <PopoverMenu
           menuConfig={makeNodeViewMenuConfig(props)}
-          color={level > 0 && editable ? (color || getDefaultColor(theme)) : null}
+          color={level > 0 && editable ? color || getDefaultColor(theme) : null}
           setColor={c => onNodeSetColor(path, c)}
         >
           <MenuSVG className={classes.nodeMenuIcon} />
         </PopoverMenu>
       ) : null}
       {level > 0 && isChecking ? checkbox : null}
-      {level > 0 && (<span className={classes.nodeSizeLabel}>{niceSize}</span>)}
+      {level > 0 && <span className={classes.nodeSizeLabel}>{niceSize}</span>}
     </span>
   );
 }
@@ -172,10 +201,7 @@ function NamedSetNodeStatic(props) {
  */
 function NamedSetNodeEditing(props) {
   const {
-    title,
-    path,
-    onNodeSetName,
-    onNodeCheckNewName,
+    title, path, onNodeSetName, onNodeCheckNewName,
   } = props;
   const [currentTitle, setCurrentTitle] = useState(title);
 
@@ -196,12 +222,10 @@ function NamedSetNodeEditing(props) {
         className={classes.titleInput}
         type="text"
         value={currentTitle}
-        onChange={(e) => { setCurrentTitle(e.target.value); }}
-        onKeyPress={e => callbackOnKeyPress(
-          e,
-          'Enter',
-          trySetName,
-        )}
+        onChange={(e) => {
+          setCurrentTitle(e.target.value);
+        }}
+        onKeyPress={e => callbackOnKeyPress(e, 'Enter', trySetName)}
         onFocus={e => e.target.select()}
       />
       {!hasConflicts && (
@@ -223,14 +247,11 @@ function NamedSetNodeEditing(props) {
  * @param {object} props The props for the TreeNode component.
  */
 function NamedSetNode(props) {
-  const {
-    isEditing,
-    isCurrentSet,
-  } = props;
-  return (
-    (isEditing || isCurrentSet)
-      ? (<NamedSetNodeEditing {...props} />)
-      : (<NamedSetNodeStatic {...props} />)
+  const { isEditing, isCurrentSet } = props;
+  return isEditing || isCurrentSet ? (
+    <NamedSetNodeEditing {...props} />
+  ) : (
+    <NamedSetNodeStatic {...props} />
   );
 }
 
@@ -264,7 +285,10 @@ function LevelsButtons(props) {
           <div key={i}>
             <HelpTooltip title={getLevelTooltipText(i)}>
               <input
-                className={clsx(classes.levelRadioButton, { [classes.levelRadioButtonChecked]: isChecked && !hasColorEncoding })}
+                className={clsx(classes.levelRadioButton, {
+                  [classes.levelRadioButtonChecked]:
+                    isChecked && !hasColorEncoding,
+                })}
                 type="checkbox"
                 value={i}
                 checked={isChecked && hasColorEncoding}
@@ -285,15 +309,11 @@ function LevelsButtons(props) {
  * @param {object} props The props for the TreeNode component.
  */
 function SwitcherIcon(props) {
-  const {
-    isLeaf, isOpen, color,
-  } = props;
-  const hexColor = (color ? colorArrayToString(color) : undefined);
+  const { isLeaf, isOpen, color } = props;
+  const hexColor = color ? colorArrayToString(color) : undefined;
   if (isLeaf) {
     return (
-      <i
-        className="anticon anticon-circle rc-tree-switcher-icon"
-      >
+      <i className="anticon anticon-circle rc-tree-switcher-icon">
         <svg
           viewBox="0 0 1024 1024"
           focusable="false"
@@ -302,15 +322,19 @@ function SwitcherIcon(props) {
           height="1em"
           aria-hidden="true"
         >
-          <rect fill={hexColor} x={600 / 2} y={600 / 2} width={1024 - 600} height={1024 - 600} />
+          <rect
+            fill={hexColor}
+            x={600 / 2}
+            y={600 / 2}
+            width={1024 - 600}
+            height={1024 - 600}
+          />
         </svg>
       </i>
     );
   }
   return (
-    <i
-      className="anticon anticon-caret-down rc-tree-switcher-icon"
-    >
+    <i className="anticon anticon-caret-down rc-tree-switcher-icon">
       <svg
         viewBox="0 0 1024 1024"
         focusable="false"
@@ -320,7 +344,7 @@ function SwitcherIcon(props) {
         aria-hidden="true"
       >
         <path
-          fill={(isOpen ? '#444' : hexColor)}
+          fill={isOpen ? '#444' : hexColor}
           d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"
         />
       </svg>
@@ -345,10 +369,7 @@ export default class TreeNode extends RcTreeNode {
       onDragStart: onDragStartProp,
     } = this.props;
     const {
-      rcTree: {
-        prefixCls: prefixClass,
-        draggable,
-      },
+      rcTree: { prefixCls: prefixClass, draggable },
     } = this.context;
 
     const onDragStart = (e) => {
@@ -357,7 +378,7 @@ export default class TreeNode extends RcTreeNode {
     };
 
     const wrapClass = `${prefixClass}-node-content-wrapper`;
-    const isDraggable = (!isCurrentSet && !isEditing && draggable);
+    const isDraggable = !isCurrentSet && !isEditing && draggable;
     return (
       <span
         ref={this.setSelectHandle}
@@ -391,12 +412,8 @@ export default class TreeNode extends RcTreeNode {
     if (level !== 0 || expanded) {
       return null;
     }
-    return (
-      <LevelsButtons
-        {...this.props}
-      />
-    );
-  }
+    return <LevelsButtons {...this.props} />;
+  };
 
   /**
    * Override the switcher element.
@@ -404,10 +421,7 @@ export default class TreeNode extends RcTreeNode {
   renderSwitcher = () => {
     const { expanded, isLeaf, color } = this.props;
     const {
-      rcTree: {
-        prefixCls: prefixClass,
-        onNodeExpand,
-      },
+      rcTree: { prefixCls: prefixClass, onNodeExpand },
     } = this.context;
 
     const onNodeExpandWrapper = (e) => {
@@ -417,10 +431,9 @@ export default class TreeNode extends RcTreeNode {
       }
     };
 
-    const switcherClass = clsx(
-      `${prefixClass}-switcher`,
-      { [`${prefixClass}-switcher_${(expanded ? 'open' : 'close')}`]: !isLeaf },
-    );
+    const switcherClass = clsx(`${prefixClass}-switcher`, {
+      [`${prefixClass}-switcher_${expanded ? 'open' : 'close'}`]: !isLeaf,
+    });
     return (
       <span
         className={switcherClass}
@@ -429,11 +442,7 @@ export default class TreeNode extends RcTreeNode {
         role="button"
         tabIndex="0"
       >
-        <SwitcherIcon
-          isLeaf={isLeaf}
-          isOpen={expanded}
-          color={color}
-        />
+        <SwitcherIcon isLeaf={isLeaf} isOpen={expanded} color={color} />
       </span>
     );
   };
@@ -445,20 +454,23 @@ export default class TreeNode extends RcTreeNode {
    */
   render() {
     const {
-      style, loading, level,
-      dragOver, dragOverGapTop, dragOverGapBottom,
+      style,
+      loading,
+      level,
+      dragOver,
+      dragOverGapTop,
+      dragOverGapBottom,
       isLeaf,
-      expanded, selected, checked, halfChecked,
+      expanded,
+      selected,
+      checked,
+      halfChecked,
       onDragEnd: onDragEndProp,
       expandable,
       ...otherProps
     } = this.props;
     const {
-      rcTree: {
-        prefixCls: prefixClass,
-        filterTreeNode,
-        draggable,
-      },
+      rcTree: { prefixCls: prefixClass, filterTreeNode, draggable },
     } = this.context;
     const disabled = this.isDisabled();
     const dataAndAriaAttributeProps = getDataAndAria(otherProps);
@@ -472,7 +484,8 @@ export default class TreeNode extends RcTreeNode {
       <li
         className={clsx('rc-tree-treenode', `level-${level}-treenode`, {
           [`${prefixClass}-treenode-disabled`]: disabled,
-          [`${prefixClass}-treenode-switcher-${expanded ? 'open' : 'close'}`]: !isLeaf,
+          [`${prefixClass}-treenode-switcher-${expanded ? 'open' : 'close'}`]:
+            !isLeaf,
           [`${prefixClass}-treenode-checkbox-checked`]: checked,
           [`${prefixClass}-treenode-checkbox-indeterminate`]: halfChecked,
           [`${prefixClass}-treenode-selected`]: selected,

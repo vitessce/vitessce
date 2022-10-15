@@ -1,10 +1,7 @@
 import tinycolor from 'tinycolor2';
 import isEqual from 'lodash/isEqual';
-import {
-  SETS_DATATYPE_OBS,
-  HIERARCHICAL_SCHEMAS,
-} from './constants';
 import { PALETTE } from '@vitessce/utils';
+import { SETS_DATATYPE_OBS, HIERARCHICAL_SCHEMAS } from './constants';
 
 /**
  * Execute a callback function based on a keypress event.
@@ -25,7 +22,11 @@ export function callbackOnKeyPress(event, key, callback) {
  * @returns {string} The hex color as a string.
  */
 export function colorArrayToString(rgbArray) {
-  return tinycolor({ r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] }).toHexString();
+  return tinycolor({
+    r: rgbArray[0],
+    g: rgbArray[1],
+    b: rgbArray[2],
+  }).toHexString();
 }
 
 /**
@@ -46,7 +47,7 @@ export function colorStringToArray(colorString) {
 export function getLevelTooltipText(i) {
   if (i === 0) return 'Color by hierarchy';
   if (i <= 2) {
-    const subs = j => ('sub'.repeat(j));
+    const subs = j => 'sub'.repeat(j);
     return `Color by ${subs(i - 1)}cluster`;
   }
   return `Color by cluster level ${i}`;
@@ -81,7 +82,16 @@ export function pathToKey(path) {
  * @param {function} setCellSetSelection The setter function for cell set selections.
  * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
  */
- export function setObsSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ') {
+export function setObsSelection(
+  cellSelection,
+  additionalCellSets,
+  cellSetColor,
+  setCellSetSelection,
+  setAdditionalCellSets,
+  setCellSetColor,
+  setCellColorEncoding,
+  prefix = 'Selection ',
+) {
   const CELL_SELECTIONS_LEVEL_ZERO_NAME = 'My Selections';
 
   const selectionsLevelZeroNode = additionalCellSets?.tree.find(
@@ -93,7 +103,10 @@ export function pathToKey(path) {
     tree: [...(additionalCellSets ? additionalCellSets.tree : [])],
   };
 
-  const nextName = getNextNumberedNodeName(selectionsLevelZeroNode?.children, prefix);
+  const nextName = getNextNumberedNodeName(
+    selectionsLevelZeroNode?.children,
+    prefix,
+  );
   let colorIndex = 0;
   if (selectionsLevelZeroNode) {
     colorIndex = selectionsLevelZeroNode.children.length;

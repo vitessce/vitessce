@@ -1,13 +1,16 @@
 import React, { useCallback } from 'react';
-import PopoverMenu from './PopoverMenu';
 import {
   handleImportJSON,
   handleImportTabular,
-
   MIME_TYPE_JSON,
   MIME_TYPE_TABULAR,
 } from '@vitessce/sets';
-import { SetUnionSVG, SetIntersectionSVG, SetComplementSVG } from '@vitessce/icons';
+import {
+  SetUnionSVG,
+  SetIntersectionSVG,
+  SetComplementSVG,
+} from '@vitessce/icons';
+import PopoverMenu from './PopoverMenu';
 import { useStyles } from './styles';
 
 /**
@@ -25,8 +28,12 @@ import { useStyles } from './styles';
  */
 export function PlusButton(props) {
   const {
-    datatype, onError, onImportTree, onCreateLevelZeroNode,
-    importable, editable,
+    datatype,
+    onError,
+    onImportTree,
+    onCreateLevelZeroNode,
+    importable,
+    editable,
   } = props;
 
   const classes = useStyles();
@@ -37,69 +44,84 @@ export function PlusButton(props) {
    * @param {string} mimeType The accepted mime type for the file upload input.
    * @returns {Function} An import function corresponding to the supplied parameters.
    */
-  const onImport = useCallback((importHandler, mimeType) => () => {
-    const uploadInputNode = document.createElement('input');
-    uploadInputNode.setAttribute('type', 'file');
-    uploadInputNode.setAttribute('accept', mimeType);
-    document.body.appendChild(uploadInputNode); // required for firefox
-    uploadInputNode.click();
-    uploadInputNode.addEventListener('change', (event) => {
-      if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
-        onError('Local file reading APIs are not fully supported in this browser.');
-        return;
-      }
-      const { files } = event.target;
-      if (!files || files.length !== 1) {
-        onError('Incorrect number of files selected.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.addEventListener('load', () => {
-        const { result } = reader;
-        try {
-          const treeToImport = importHandler(result, datatype);
-          onError(false); // Clear any previous import error.
-          onImportTree(treeToImport);
-        } catch (e) {
-          onError(e.message);
+  const onImport = useCallback(
+    (importHandler, mimeType) => () => {
+      const uploadInputNode = document.createElement('input');
+      uploadInputNode.setAttribute('type', 'file');
+      uploadInputNode.setAttribute('accept', mimeType);
+      document.body.appendChild(uploadInputNode); // required for firefox
+      uploadInputNode.click();
+      uploadInputNode.addEventListener('change', (event) => {
+        if (
+          !(window.File && window.FileReader && window.FileList && window.Blob)
+        ) {
+          onError(
+            'Local file reading APIs are not fully supported in this browser.',
+          );
+          return;
         }
-      }, false);
-      reader.readAsText(files[0]);
-    });
-    uploadInputNode.remove();
-  }, [datatype, onError, onImportTree]);
+        const { files } = event.target;
+        if (!files || files.length !== 1) {
+          onError('Incorrect number of files selected.');
+          return;
+        }
+        const reader = new FileReader();
+        reader.addEventListener(
+          'load',
+          () => {
+            const { result } = reader;
+            try {
+              const treeToImport = importHandler(result, datatype);
+              onError(false); // Clear any previous import error.
+              onImportTree(treeToImport);
+            } catch (e) {
+              onError(e.message);
+            }
+          },
+          false,
+        );
+        reader.readAsText(files[0]);
+      });
+      uploadInputNode.remove();
+    },
+    [datatype, onError, onImportTree],
+  );
 
   const menuConfig = [
-    ...(editable ? [
-      {
-        title: 'Create hierarchy',
-        handler: onCreateLevelZeroNode,
-        handlerKey: 'n',
-      },
-    ] : []),
-    ...(importable ? [
-      {
-        title: 'Import hierarchy',
-        subtitle: '(from CSV file)',
-        handler: onImport(handleImportTabular, MIME_TYPE_TABULAR),
-        handlerKey: 'c',
-      },
-      {
-        title: 'Import hierarchy',
-        subtitle: '(from JSON file)',
-        handler: onImport(handleImportJSON, MIME_TYPE_JSON),
-        handlerKey: 'j',
-      },
-    ] : []),
+    ...(editable
+      ? [
+        {
+          title: 'Create hierarchy',
+          handler: onCreateLevelZeroNode,
+          handlerKey: 'n',
+        },
+      ]
+      : []),
+    ...(importable
+      ? [
+        {
+          title: 'Import hierarchy',
+          subtitle: '(from CSV file)',
+          handler: onImport(handleImportTabular, MIME_TYPE_TABULAR),
+          handlerKey: 'c',
+        },
+        {
+          title: 'Import hierarchy',
+          subtitle: '(from JSON file)',
+          handler: onImport(handleImportJSON, MIME_TYPE_JSON),
+          handlerKey: 'j',
+        },
+      ]
+      : []),
   ];
 
-  return (menuConfig.length > 0 ? (
-    <PopoverMenu
-      menuConfig={menuConfig}
-    >
-      <button className={classes.plusButton} type="submit">+</button>
+  return menuConfig.length > 0 ? (
+    <PopoverMenu menuConfig={menuConfig}>
+      <button className={classes.plusButton} type="submit">
+        +
+      </button>
     </PopoverMenu>
-  ) : null);
+  ) : null;
 }
 
 /**

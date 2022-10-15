@@ -2,66 +2,68 @@ export const combat2022cell = {
   version: '1.0.15',
   name: 'COMBAT Consortium, 2022 Cell',
   description: 'COVID-19 Multi-omic Blood Atlas',
-  datasets: [{
-    uid: 'a',
-    name: 'CITE-Seq',
-    files: [
-      {
-        fileType: 'obsEmbedding.anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
-        coordinationValues: {
-          obsType: 'cell',
-          embeddingType: 'UMAP',
-        },
-        options: {
-          path: 'obsm/X_umap',
-        },
-      },
-      {
-        fileType: 'obsSets.anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
-        coordinationValues: {
-          obsType: 'cell',
-        },
-        options: [
-          {
-            name: 'Cell Type',
-            path: 'obs/cell_type',
+  datasets: [
+    {
+      uid: 'a',
+      name: 'CITE-Seq',
+      files: [
+        {
+          fileType: 'obsEmbedding.anndata.zarr',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
+          coordinationValues: {
+            obsType: 'cell',
+            embeddingType: 'UMAP',
           },
-          {
-            name: 'Source',
-            path: 'obs/Source',
+          options: {
+            path: 'obsm/X_umap',
           },
-        ],
-      },
-      {
-        fileType: 'obsFeatureMatrix.anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
-        coordinationValues: {
-          obsType: 'cell',
-          featureType: 'gene',
-          featureValueType: 'expression',
         },
-        options: {
-          path: 'obsm/X_gene_expression',
-          featureFilterPath: 'var/is_gene_expression',
+        {
+          fileType: 'obsSets.anndata.zarr',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
+          coordinationValues: {
+            obsType: 'cell',
+          },
+          options: [
+            {
+              name: 'Cell Type',
+              path: 'obs/cell_type',
+            },
+            {
+              name: 'Source',
+              path: 'obs/Source',
+            },
+          ],
         },
-      },
-      {
-        fileType: 'obsFeatureMatrix.anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
-        coordinationValues: {
-          obsType: 'cell',
-          featureType: 'antibody',
-          featureValueType: 'capture',
+        {
+          fileType: 'obsFeatureMatrix.anndata.zarr',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'gene',
+            featureValueType: 'expression',
+          },
+          options: {
+            path: 'obsm/X_gene_expression',
+            featureFilterPath: 'var/is_gene_expression',
+          },
         },
-        options: {
-          path: 'obsm/X_antibody_capture',
-          featureFilterPath: 'var/is_antibody_capture',
+        {
+          fileType: 'obsFeatureMatrix.anndata.zarr',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
+          coordinationValues: {
+            obsType: 'cell',
+            featureType: 'antibody',
+            featureValueType: 'capture',
+          },
+          options: {
+            path: 'obsm/X_antibody_capture',
+            featureFilterPath: 'var/is_antibody_capture',
+          },
         },
-      },
-    ],
-  }],
+      ],
+    },
+  ],
   initStrategy: 'auto',
   coordinationSpace: {
     embeddingType: {
@@ -103,105 +105,106 @@ export const combat2022cell = {
       B: [0, 0.05],
     },
   },
-  layout: [{
-    component: 'obsSets',
-    h: 4,
-    w: 3,
-    x: 7,
-    y: 0,
-    coordinationScopes: {
-      obsType: 'A',
+  layout: [
+    {
+      component: 'obsSets',
+      h: 4,
+      w: 3,
+      x: 7,
+      y: 0,
+      coordinationScopes: {
+        obsType: 'A',
+      },
+      uid: 'A',
     },
-    uid: 'A',
-  },
-  {
-    component: 'obsSetSizes',
-    h: 4,
-    w: 5,
-    x: 7,
-    y: 4,
-    coordinationScopes: {
-      obsType: 'A',
+    {
+      component: 'obsSetSizes',
+      h: 4,
+      w: 5,
+      x: 7,
+      y: 4,
+      coordinationScopes: {
+        obsType: 'A',
+      },
+      uid: 'B',
     },
-    uid: 'B',
-  },
-  {
-    component: 'scatterplot',
-    h: 4,
-    w: 4,
-    x: 0,
-    y: 0,
-    coordinationScopes: {
-      embeddingType: 'UMAP',
-      obsType: 'A',
-      featureType: 'A',
-      featureValueType: 'A',
-      obsColorEncoding: 'A',
-      featureSelection: 'A',
-      embeddingZoom: 'A',
-      embeddingTargetX: 'A',
-      embeddingTargetY: 'A',
-      embeddingObsSetLabelsVisible: 'A',
-      featureValueColormapRange: 'A',
+    {
+      component: 'scatterplot',
+      h: 4,
+      w: 4,
+      x: 0,
+      y: 0,
+      coordinationScopes: {
+        embeddingType: 'UMAP',
+        obsType: 'A',
+        featureType: 'A',
+        featureValueType: 'A',
+        obsColorEncoding: 'A',
+        featureSelection: 'A',
+        embeddingZoom: 'A',
+        embeddingTargetX: 'A',
+        embeddingTargetY: 'A',
+        embeddingObsSetLabelsVisible: 'A',
+        featureValueColormapRange: 'A',
+      },
+      uid: 'C',
     },
-    uid: 'C',
-  },
-  {
-    component: 'scatterplot',
-    h: 4,
-    w: 4,
-    x: 0,
-    y: 4,
-    coordinationScopes: {
-      embeddingType: 'UMAP',
-      obsType: 'A',
-      featureType: 'B',
-      featureValueType: 'B',
-      obsColorEncoding: 'B',
-      featureSelection: 'B',
-      embeddingZoom: 'A',
-      embeddingTargetX: 'A',
-      embeddingTargetY: 'A',
-      embeddingObsSetLabelsVisible: 'A',
-      featureValueColormapRange: 'B',
+    {
+      component: 'scatterplot',
+      h: 4,
+      w: 4,
+      x: 0,
+      y: 4,
+      coordinationScopes: {
+        embeddingType: 'UMAP',
+        obsType: 'A',
+        featureType: 'B',
+        featureValueType: 'B',
+        obsColorEncoding: 'B',
+        featureSelection: 'B',
+        embeddingZoom: 'A',
+        embeddingTargetX: 'A',
+        embeddingTargetY: 'A',
+        embeddingObsSetLabelsVisible: 'A',
+        featureValueColormapRange: 'B',
+      },
+      uid: 'D',
     },
-    uid: 'D',
-  },
-  {
-    component: 'description',
-    h: 4,
-    w: 2,
-    x: 10,
-    y: 0,
-    uid: 'E',
-  },
-  {
-    component: 'featureList',
-    h: 4,
-    w: 3,
-    x: 4,
-    y: 0,
-    coordinationScopes: {
-      obsType: 'A',
-      featureType: 'A',
-      obsColorEncoding: 'A',
-      featureSelection: 'A',
+    {
+      component: 'description',
+      h: 4,
+      w: 2,
+      x: 10,
+      y: 0,
+      uid: 'E',
     },
-    uid: 'F',
-  },
-  {
-    component: 'featureList',
-    h: 4,
-    w: 3,
-    x: 4,
-    y: 4,
-    coordinationScopes: {
-      obsType: 'A',
-      featureType: 'B',
-      obsColorEncoding: 'B',
-      featureSelection: 'B',
+    {
+      component: 'featureList',
+      h: 4,
+      w: 3,
+      x: 4,
+      y: 0,
+      coordinationScopes: {
+        obsType: 'A',
+        featureType: 'A',
+        obsColorEncoding: 'A',
+        featureSelection: 'A',
+      },
+      uid: 'F',
     },
-    uid: 'G',
-  },
+    {
+      component: 'featureList',
+      h: 4,
+      w: 3,
+      x: 4,
+      y: 4,
+      coordinationScopes: {
+        obsType: 'A',
+        featureType: 'B',
+        obsColorEncoding: 'B',
+        featureSelection: 'B',
+      },
+      uid: 'G',
+    },
   ],
 };

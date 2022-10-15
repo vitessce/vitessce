@@ -13,9 +13,7 @@ export default function WrappedIndex() {
       <BrowserOnly>
         {() => {
           const Index = require('./_Index.js').default;
-          return (
-            <Index />
-          );
+          return <Index />;
         }}
       </BrowserOnly>
     </Layout>

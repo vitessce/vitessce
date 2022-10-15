@@ -87,13 +87,13 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
 ];
 
 /**
-   * Mapping from component type to
-   * supported coordination object types.
-   * This mapping can be used to determine
-   * which pieces of state that a component will
-   * need to get/set.
-   * Keys here are the component registry keys.
-   */
+ * Mapping from component type to
+ * supported coordination object types.
+ * This mapping can be used to determine
+ * which pieces of state that a component will
+ * need to get/set.
+ * Keys here are the component registry keys.
+ */
 export const COMPONENT_COORDINATION_TYPES = {
   [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,

@@ -8,7 +8,7 @@ export const useStyles = makeStyles(theme => ({
       height: 'inherit',
       padding: '5px',
       backgroundColor: theme.palette.secondaryBackground, // map-get($theme-colors, "secondary-background");
-    }
+    },
   },
   higlassLazyWrapper: {
     width: 'inherit',

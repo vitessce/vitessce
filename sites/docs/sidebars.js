@@ -23,11 +23,7 @@ module.exports = {
     {
       type: 'category',
       label: 'Data Preparation',
-      items: [
-        'data-file-types',
-        'data-hosting',
-        'data-troubleshooting',
-      ],
+      items: ['data-file-types', 'data-hosting', 'data-troubleshooting'],
     },
     {
       type: 'category',

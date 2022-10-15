@@ -88,13 +88,16 @@ export const useHashParam = (key, defaultValue, varType) => {
     };
   }, [key, varType]);
 
-  const setValue = useCallback((value) => {
-    if (typeof value === 'function') {
-      setHashParam(key, value(getHashParam(key)));
-    } else {
-      setHashParam(key, value);
-    }
-  }, [key]);
+  const setValue = useCallback(
+    (value) => {
+      if (typeof value === 'function') {
+        setHashParam(key, value(getHashParam(key)));
+      } else {
+        setHashParam(key, value);
+      }
+    },
+    [key],
+  );
 
   return [innerValue === undefined ? defaultValue : innerValue, setValue];
 };

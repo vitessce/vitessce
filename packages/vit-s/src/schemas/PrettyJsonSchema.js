@@ -20,7 +20,10 @@ function valuesAre(yamlString) {
 }
 
 function hasProperties(yamlString) {
-  return yamlString.replace(/\.:\s+properties:/g, 'Each value has these properties:');
+  return yamlString.replace(
+    /\.:\s+properties:/g,
+    'Each value has these properties:',
+  );
 }
 
 function pretty(title, obj) {
@@ -31,9 +34,11 @@ function pretty(title, obj) {
     <>
       <h3>{title}</h3>
       <pre>
-        {hasProperties(valuesAre(stripAddProps(
-          abbreviateRef(abbreviateType(yaml.safeDump(obj))),
-        )))}
+        {hasProperties(
+          valuesAre(
+            stripAddProps(abbreviateRef(abbreviateType(yaml.safeDump(obj)))),
+          ),
+        )}
       </pre>
     </>
   );

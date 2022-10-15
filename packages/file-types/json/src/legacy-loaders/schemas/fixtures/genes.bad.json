@@ -1,6 +1,6 @@
 {
-  "gene-id": {
-    "cells": {"cell-id": -999},
-    "max": 1
+  'gene-id': {
+    cells: { 'cell-id': -999 },
+    max: 1,
   }
-}
+};

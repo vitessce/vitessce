@@ -24,8 +24,8 @@ export default defineConfig({
           react: 'React',
           'react-dom': 'ReactDOM',
         },
-      }
-    }
+      },
+    },
   },
   plugins: [
     react({

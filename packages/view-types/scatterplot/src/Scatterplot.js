@@ -1,9 +1,19 @@
 /* eslint-disable no-param-reassign */
 import React, { forwardRef } from 'react';
 import { forceSimulation } from 'd3-force';
-import { deck, getSelectionLayers, ScaledExpressionExtension, SelectionExtension } from '@vitessce/gl';
+import {
+  deck,
+  getSelectionLayers,
+  ScaledExpressionExtension,
+  SelectionExtension,
+} from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
-import { AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback } from './shared-spatial-scatterplot';
+import {
+  AbstractSpatialOrScatterplot,
+  createQuadTree,
+  forceCollideRects,
+  getOnHoverCallback,
+} from './shared-spatial-scatterplot';
 
 const CELLS_LAYER_ID = 'scatterplot';
 const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
@@ -13,19 +23,11 @@ const LABEL_UPDATE_ZOOM_DELTA = 0.25;
 // Default getter function props.
 const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { index }) => {
   const [r, g, b, a] = (cellColors && obsIndex && cellColors.get(obsIndex[index]))
-    || getDefaultColor(theme);
+      || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
-const makeDefaultGetObsCoords = obsEmbedding => i => ([
-  obsEmbedding.data[0][i],
-  obsEmbedding.data[1][i],
-  0,
-]);
-const makeFlippedGetObsCoords = obsEmbedding => i => ([
-  obsEmbedding.data[0][i],
-  -obsEmbedding.data[1][i],
-  0,
-]);
+const makeDefaultGetObsCoords = obsEmbedding => i => [obsEmbedding.data[0][i], obsEmbedding.data[1][i], 0];
+const makeFlippedGetObsCoords = obsEmbedding => i => [obsEmbedding.data[0][i], -obsEmbedding.data[1][i], 0];
 const getPosition = (object, { index, data, target }) => {
   target[0] = data.src.obsEmbedding.data[0][index];
   target[1] = -data.src.obsEmbedding.data[1][index];
@@ -115,7 +117,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       autoHighlight: true,
       filled: true,
       stroked: true,
-      backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
+      backgroundColor: theme === 'dark' ? [0, 0, 0] : [241, 241, 241],
       getCellIsSelected,
       opacity: cellOpacity,
       radiusScale: cellRadius,
@@ -136,14 +138,18 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       ],
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
-      isExpressionMode: (cellColorEncoding === 'geneSelection'),
+      isExpressionMode: cellColorEncoding === 'geneSelection',
       colormap: geneExpressionColormap,
       onClick: (info) => {
         if (onCellClick) {
           onCellClick(info);
         }
       },
-      onHover: getOnHoverCallback(obsIndex, setCellHighlight, setComponentHover),
+      onHover: getOnHoverCallback(
+        obsIndex,
+        setCellHighlight,
+        setComponentHover,
+      ),
       updateTriggers: {
         getExpressionValue,
         getFillColor: [cellColorEncoding, cellSelection, cellColors],
@@ -166,17 +172,19 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const result = [];
 
     if (cellSetPolygonsVisible) {
-      result.push(new deck.PolygonLayer({
-        id: 'cell-sets-polygon-layer',
-        data: cellSetPolygons,
-        stroked: true,
-        filled: false,
-        wireframe: true,
-        lineWidthMaxPixels: 1,
-        getPolygon: d => d.hull,
-        getLineColor: d => d.color,
-        getLineWidth: 1,
-      }));
+      result.push(
+        new deck.PolygonLayer({
+          id: 'cell-sets-polygon-layer',
+          data: cellSetPolygons,
+          stroked: true,
+          filled: false,
+          wireframe: true,
+          lineWidthMaxPixels: 1,
+          getPolygon: d => d.hull,
+          getLineColor: d => d.color,
+          getLineWidth: 1,
+        }),
+      );
     }
 
     if (cellSetLabelsVisible) {
@@ -187,30 +195,31 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         label: p.name,
       }));
 
-      const collisionForce = this.cellSetsForceSimulation
-        .size(d => ([
-          cellSetLabelSize * 1 / (2 ** zoom) * 4 * d.label.length,
-          cellSetLabelSize * 1 / (2 ** zoom) * 1.5,
-        ]));
+      const collisionForce = this.cellSetsForceSimulation.size(d => [
+        ((cellSetLabelSize * 1) / 2 ** zoom) * 4 * d.label.length,
+        ((cellSetLabelSize * 1) / 2 ** zoom) * 1.5,
+      ]);
 
       forceSimulation()
         .nodes(nodes)
         .force('collision', collisionForce)
         .tick(NUM_FORCE_SIMULATION_TICKS);
 
-      result.push(new deck.TextLayer({
-        id: 'cell-sets-text-layer',
-        data: nodes,
-        getPosition: d => ([d.x, d.y]),
-        getText: d => d.label,
-        getColor: (theme === 'dark' ? [255, 255, 255] : [0, 0, 0]),
-        getSize: cellSetLabelSize,
-        getAngle: 0,
-        getTextAnchor: 'middle',
-        getAlignmentBaseline: 'center',
-        fontFamily: LABEL_FONT_FAMILY,
-        fontWeight: 'normal',
-      }));
+      result.push(
+        new deck.TextLayer({
+          id: 'cell-sets-text-layer',
+          data: nodes,
+          getPosition: d => [d.x, d.y],
+          getText: d => d.label,
+          getColor: theme === 'dark' ? [255, 255, 255] : [0, 0, 0],
+          getSize: cellSetLabelSize,
+          getAngle: 0,
+          getTextAnchor: 'middle',
+          getAlignmentBaseline: 'center',
+          fontFamily: LABEL_FONT_FAMILY,
+          fontWeight: 'normal',
+        }),
+      );
     }
 
     return result;
@@ -240,15 +249,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   getLayers() {
-    const {
-      cellsLayer,
-      cellSetsLayers,
-    } = this;
-    return [
-      cellsLayer,
-      ...cellSetsLayers,
-      ...this.createSelectionLayers(),
-    ];
+    const { cellsLayer, cellSetsLayers } = this;
+    return [cellsLayer, ...cellSetsLayers, ...this.createSelectionLayers()];
   }
 
   onUpdateCellsData() {
@@ -285,11 +287,10 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       // Instead, we can just check if the zoom level has changed
       // by some relatively large delta, to be more conservative
       // about re-running the force simulation.
-      if (cellSetLabelsVisible
-        && (
-          cellSetsLabelPrevZoom === null
-          || Math.abs(cellSetsLabelPrevZoom - zoom) > LABEL_UPDATE_ZOOM_DELTA
-        )
+      if (
+        cellSetLabelsVisible
+        && (cellSetsLabelPrevZoom === null
+          || Math.abs(cellSetsLabelPrevZoom - zoom) > LABEL_UPDATE_ZOOM_DELTA)
       ) {
         this.cellSetsLayers = this.createCellSetsLayers();
         this.cellSetsLabelPrevZoom = zoom;
@@ -304,10 +305,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   viewInfoDidUpdate() {
-    const {
-      obsEmbeddingIndex,
-      obsEmbedding,
-    } = this.props;
+    const { obsEmbeddingIndex, obsEmbedding } = this.props;
     super.viewInfoDidUpdate(
       obsEmbeddingIndex,
       obsEmbedding,
@@ -327,7 +325,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   componentDidUpdate(prevProps) {
     this.viewInfoDidUpdate();
 
-    const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
+    const shallowDiff = propName => prevProps[propName] !== this.props[propName];
     let forceUpdate = false;
     if (['obsEmbedding'].some(shallowDiff)) {
       // Cells data changed.
@@ -335,19 +333,34 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       forceUpdate = true;
     }
 
-    if ([
-      'obsEmbeddingIndex', 'obsEmbedding', 'cellFilter', 'cellSelection', 'cellColors',
-      'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
-      'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
-    ].some(shallowDiff)) {
+    if (
+      [
+        'obsEmbeddingIndex',
+        'obsEmbedding',
+        'cellFilter',
+        'cellSelection',
+        'cellColors',
+        'cellRadius',
+        'cellOpacity',
+        'cellRadiusMode',
+        'geneExpressionColormap',
+        'geneExpressionColormapRange',
+        'geneSelection',
+        'cellColorEncoding',
+      ].some(shallowDiff)
+    ) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
       forceUpdate = true;
     }
-    if ([
-      'cellSetPolygons', 'cellSetPolygonsVisible',
-      'cellSetLabelsVisible', 'cellSetLabelSize',
-    ].some(shallowDiff)) {
+    if (
+      [
+        'cellSetPolygons',
+        'cellSetPolygonsVisible',
+        'cellSetLabelsVisible',
+        'cellSetLabelSize',
+      ].some(shallowDiff)
+    ) {
       // Cell sets layer props changed.
       this.onUpdateCellSetsLayers(false);
       forceUpdate = true;
@@ -373,9 +386,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
  * but we are using a class component.
  */
 const ScatterplotWrapper = forwardRef((props, deckRef) => (
-  <Scatterplot
-    {...props}
-    deckRef={deckRef}
-  />
+  <Scatterplot {...props} deckRef={deckRef} />
 ));
 export default ScatterplotWrapper;

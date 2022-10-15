@@ -1,7 +1,8 @@
 export const wang2018 = {
   name: 'Wang et al., Scientific Reports 2018',
   version: '1.0.15',
-  description: 'Multiplexed imaging of high-density libraries of RNAs with MERFISH and expansion microscopy',
+  description:
+    'Multiplexed imaging of high-density libraries of RNAs with MERFISH and expansion microscopy',
   public: true,
   datasets: [
     {
@@ -67,12 +68,17 @@ export const wang2018 = {
     },
     spatialSegmentationLayer: {
       A: {
-        opacity: 1, radius: 0, visible: true, stroked: false,
+        opacity: 1,
+        radius: 0,
+        visible: true,
+        stroked: false,
       },
     },
     spatialPointLayer: {
       A: {
-        opacity: 1, radius: 2, visible: true,
+        opacity: 1,
+        radius: 2,
+        visible: true,
       },
     },
   },

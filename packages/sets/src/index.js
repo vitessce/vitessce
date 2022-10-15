@@ -50,6 +50,4 @@ export {
   MIME_TYPE_JSON,
   MIME_TYPE_TABULAR,
 } from './constants';
-export {
-  dataToCellSetsTree,
-} from './CellSetsZarrLoader';
+export { dataToCellSetsTree } from './CellSetsZarrLoader';

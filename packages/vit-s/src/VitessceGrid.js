@@ -1,7 +1,4 @@
-import React, {
-  useEffect,
-  useCallback,
-} from 'react';
+import React, { useEffect, useCallback } from 'react';
 import clsx from 'clsx';
 import { VITESSCE_CONTAINER } from './classNames';
 import { VitessceGridLayout } from './vitessce-grid-layout';
@@ -15,9 +12,7 @@ import {
   useChangeLayout,
   useLayout,
 } from './state/hooks';
-import {
-  useClosestVitessceContainerSize,
-} from './hooks';
+import { useClosestVitessceContainerSize } from './hooks';
 import { useVitessceContainerStyles } from './shared-mui/container';
 import { useTitleStyles } from './TitleInfo';
 
@@ -45,7 +40,13 @@ export default function VitessceGrid(props) {
     isBounded,
   } = props;
 
-  const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
+  const [rowHeight, containerRef] = useRowHeight(
+    config,
+    initialRowHeight,
+    height,
+    margin,
+    padding,
+  );
   const onResize = useEmitGridResize();
 
   const [componentWidth] = useClosestVitessceContainerSize(containerRef);
@@ -65,9 +66,10 @@ export default function VitessceGrid(props) {
   const changeLayout = useChangeLayout();
   const layout = useLayout();
 
-  const changeLayoutPostMount = useCallback(() => (
-    componentWidth > 0 ? changeLayout : () => {}
-  ), [changeLayout, componentWidth]);
+  const changeLayoutPostMount = useCallback(
+    () => (componentWidth > 0 ? changeLayout : () => {}),
+    [changeLayout, componentWidth],
+  );
 
   // Update the view config and loaders in the global state.
   useEffect(() => {

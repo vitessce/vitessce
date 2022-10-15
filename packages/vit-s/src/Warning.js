@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
   },
   row: {
-    flexGrow: '1'
+    flexGrow: '1',
   },
   card: {
     border: `1px solid ${theme.palette.cardBorder}`,
@@ -36,15 +36,11 @@ const useStyles = makeStyles(theme => ({
     borderRadius: '0.25rem',
     backgroundColor: theme.palette.primaryBackground,
     color: theme.palette.primaryForeground,
-  }
+  },
 }));
 
 export function Warning(props) {
-  const {
-    title,
-    preformatted,
-    unformatted,
-  } = props;
+  const { title, preformatted, unformatted } = props;
   const classes = useStyles();
   return (
     <div className={VITESSCE_CONTAINER}>
@@ -52,7 +48,7 @@ export function Warning(props) {
         <div className={classes.row}>
           <div className={classes.card}>
             <h1>{title}</h1>
-            {preformatted ? (<pre>{preformatted}</pre>) : null}
+            {preformatted ? <pre>{preformatted}</pre> : null}
             <p>{unformatted}</p>
           </div>
         </div>

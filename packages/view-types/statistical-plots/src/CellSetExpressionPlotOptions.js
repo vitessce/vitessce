@@ -2,7 +2,11 @@ import React from 'react';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
-import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
+import {
+  usePlotOptionsStyles,
+  OptionsContainer,
+  OptionSelect,
+} from '@vitessce/vit-s';
 
 export default function CellSetExpressionPlotOptions(props) {
   const {
@@ -15,7 +19,9 @@ export default function CellSetExpressionPlotOptions(props) {
   const classes = usePlotOptionsStyles();
 
   const handleTransformChange = (event) => {
-    setFeatureValueTransform(event.target.value === '' ? null : event.target.value);
+    setFeatureValueTransform(
+      event.target.value === '' ? null : event.target.value,
+    );
   };
 
   // Feels a little hacky, but I think this is the best way to handle
@@ -47,7 +53,10 @@ export default function CellSetExpressionPlotOptions(props) {
             }}
           >
             {transformOptions.map(opt => (
-              <option key={opt.name} value={opt.value === null ? '' : opt.value}>
+              <option
+                key={opt.name}
+                value={opt.value === null ? '' : opt.value}
+              >
                 {opt.name}
               </option>
             ))}

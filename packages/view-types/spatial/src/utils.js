@@ -3,9 +3,7 @@ import shortNumber from 'short-number';
 import plur from 'plur';
 import { viv, BitmaskLayer, DEFAULT_LAYER_TYPE_ORDERING } from '@vitessce/gl';
 import { extent } from 'd3-array';
-import {
-  commaNumber,
-} from '@vitessce/utils';
+import { commaNumber } from '@vitessce/utils';
 
 /**
  * Sort spatial layer definition array,
@@ -18,9 +16,10 @@ import {
  * Object must have a .type property.
  */
 export function sortLayers(layers) {
-  return layers.sort((a, b) => (
-    DEFAULT_LAYER_TYPE_ORDERING.indexOf(a.type) - DEFAULT_LAYER_TYPE_ORDERING.indexOf(b.type)
-  ));
+  return layers.sort(
+    (a, b) => DEFAULT_LAYER_TYPE_ORDERING.indexOf(a.type)
+      - DEFAULT_LAYER_TYPE_ORDERING.indexOf(b.type),
+  );
 }
 
 /**
@@ -37,20 +36,30 @@ export function sortLayers(layers) {
  * with info about items with zero counts omitted.
  */
 export function makeSpatialSubtitle({
-  observationsCount, observationsLabel,
-  subobservationsCount, subobservationsLabel,
+  observationsCount,
+  observationsLabel,
+  subobservationsCount,
+  subobservationsLabel,
   locationsCount,
 }) {
   const parts = [];
   if (subobservationsCount > 0) {
-    let part = `${commaNumber(subobservationsCount)} ${plur(subobservationsLabel, subobservationsCount)}`;
+    let part = `${commaNumber(subobservationsCount)} ${plur(
+      subobservationsLabel,
+      subobservationsCount,
+    )}`;
     if (locationsCount > 0) {
       part += ` at ${shortNumber(locationsCount)} locations`;
     }
     parts.push(part);
   }
   if (observationsCount > 0) {
-    parts.push(`${commaNumber(observationsCount)} ${plur(observationsLabel, observationsCount)}`);
+    parts.push(
+      `${commaNumber(observationsCount)} ${plur(
+        observationsLabel,
+        observationsCount,
+      )}`,
+    );
   }
   return parts.join(', ');
 }
@@ -98,10 +107,11 @@ export function getInitialSpatialTargets({
         initialTargetZ = null;
       }
     }
-  } else if (!useRaster && (
-    (obsSegmentationsType === 'polygon' && obsSegmentations)
-    || (!obsSegmentations && obsCentroids) // For backwards compatibility (diamond case).
-  )) {
+  } else if (
+    !useRaster
+    && ((obsSegmentationsType === 'polygon' && obsSegmentations)
+      || (!obsSegmentations && obsCentroids)) // For backwards compatibility (diamond case).
+  ) {
     let xExtent;
     let yExtent;
     let xRange;
@@ -130,11 +140,17 @@ export function getInitialSpatialTargets({
     initialZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
   } else {
     return {
-      initialTargetX: null, initialTargetY: null, initialTargetZ: null, initialZoom: null,
+      initialTargetX: null,
+      initialTargetY: null,
+      initialTargetZ: null,
+      initialZoom: null,
     };
   }
   return {
-    initialTargetX, initialTargetY, initialZoom, initialTargetZ,
+    initialTargetX,
+    initialTargetY,
+    initialZoom,
+    initialTargetZ,
   };
 }
 
@@ -144,12 +160,15 @@ export function getInitialSpatialTargets({
  * @returns {Array} [Layer, PixelSource | PixelSource[]] tuple.
  */
 export function getLayerLoaderTuple(data, use3d) {
-  const loader = ((Array.isArray(data) && data.length > 1) || !Array.isArray(data))
-    ? data : data[0];
+  const loader = (Array.isArray(data) && data.length > 1) || !Array.isArray(data)
+    ? data
+    : data[0];
   if (use3d) {
     return [viv.VolumeLayer, Array.isArray(loader) ? loader : [loader]];
   }
-  const Layer = (Array.isArray(data) && data.length > 1) ? viv.MultiscaleImageLayer : viv.ImageLayer;
+  const Layer = Array.isArray(data) && data.length > 1
+    ? viv.MultiscaleImageLayer
+    : viv.ImageLayer;
   return [Layer, loader];
 }
 
@@ -162,9 +181,7 @@ export function renderSubBitmaskLayers(props) {
     y,
     z,
   } = props.tile;
-  const {
-    data, id, loader,
-  } = props;
+  const { data, id, loader } = props;
   // Only render in positive coorinate system
   if ([left, bottom, right, top].some(v => v < 0) || !data) {
     return null;

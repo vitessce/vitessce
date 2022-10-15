@@ -35,20 +35,17 @@ function getTile({
   const numGenes = cols.length;
   const numCells = cellOrdering.length;
 
-  const getTileFunction = (transpose ? getGeneByCellTile : getCellByGeneTile);
+  const getTileFunction = transpose ? getGeneByCellTile : getCellByGeneTile;
 
-  const result = getTileFunction(
-    view,
-    {
-      tileSize,
-      tileI,
-      tileJ,
-      numCells,
-      numGenes,
-      cellOrdering,
-      expressionRowLookUp,
-    },
-  );
+  const result = getTileFunction(view, {
+    tileSize,
+    tileI,
+    tileJ,
+    numCells,
+    numGenes,
+    cellOrdering,
+    expressionRowLookUp,
+  });
   return [{ tile: result, buffer: data, curr }, [data]];
 }
 

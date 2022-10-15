@@ -13,10 +13,7 @@ const jsPrefix = 'const vc = new VitessceConfig({ schemaVersion: "1.0.9", name: 
 
 export default function ViewConfigTabs(props) {
   const {
-    json,
-    js,
-    forData = false,
-    withJsonLink = false,
+    json, js, forData = false, withJsonLink = false,
   } = props;
 
   const baseUrl = useBaseUrl('/#?edit=true&url=data:,');
@@ -33,16 +30,20 @@ export default function ViewConfigTabs(props) {
           ]}
         >
           <TabItem value="json">
-            <CodeBlock className="language-javascript">{(forData ? jsonPrefix : '') + json.trim() + (forData ? jsonSuffix : '')}</CodeBlock>
+            <CodeBlock className="language-javascript">
+              {(forData ? jsonPrefix : '')
+                + json.trim()
+                + (forData ? jsonSuffix : '')}
+            </CodeBlock>
           </TabItem>
           <TabItem value="js">
-            <CodeBlock className="language-javascript">{(forData ? jsPrefix : '') + js.trim()}</CodeBlock>
+            <CodeBlock className="language-javascript">
+              {(forData ? jsPrefix : '') + js.trim()}
+            </CodeBlock>
           </TabItem>
         </Tabs>
       </div>
-      {withJsonLink ? (
-        <a href={jsonLink}>Try it!</a>
-      ) : null}
+      {withJsonLink ? <a href={jsonLink}>Try it!</a> : null}
     </>
   );
 }

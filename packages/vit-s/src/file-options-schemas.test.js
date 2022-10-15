@@ -1,6 +1,4 @@
-import {
-  expandAnndataZarr,
-} from './joint-file-types';
+import { expandAnndataZarr } from './joint-file-types';
 
 describe('src/app/file-options-schemas.js', () => {
   describe('Options validation for joint file type expansion functions', () => {

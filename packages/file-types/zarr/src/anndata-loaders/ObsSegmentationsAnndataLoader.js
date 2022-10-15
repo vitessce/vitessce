@@ -1,6 +1,10 @@
-import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsSegmentationsAnndataSchema } from '@vitessce/vit-s';
+import {
+  LoaderResult,
+  AbstractTwoStepLoader,
+  AbstractLoaderError,
+  obsSegmentationsAnndataSchema,
+} from '@vitessce/vit-s';
 import { DEFAULT_CELLS_LAYER } from '@vitessce/gl';
-
 
 /**
  * Loader for embedding arrays located in anndata.zarr stores.
@@ -29,7 +33,9 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
   }
 
   async load() {
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
+    const superResult = await super
+      .load()
+      .catch(reason => Promise.resolve(reason));
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
@@ -39,13 +45,15 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
     return Promise.all([
       this.dataSource.loadObsIndex(),
       this.loadSegmentations(),
-    ]).then(([obsIndex, obsSegmentations]) => Promise.resolve(new LoaderResult(
-      {
-        obsIndex,
-        obsSegmentations,
-        obsSegmentationsType: 'polygon',
-      },
-      coordinationValues,
-    )));
+    ]).then(([obsIndex, obsSegmentations]) => Promise.resolve(
+      new LoaderResult(
+        {
+          obsIndex,
+          obsSegmentations,
+          obsSegmentationsType: 'polygon',
+        },
+        coordinationValues,
+      ),
+    ));
   }
 }

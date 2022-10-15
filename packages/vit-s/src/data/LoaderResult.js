@@ -1,4 +1,3 @@
-
 export default class LoaderResult {
   constructor(data, url, coordinationValues = null) {
     this.data = data;

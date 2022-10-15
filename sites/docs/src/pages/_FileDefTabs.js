@@ -6,8 +6,10 @@ import CodeBlock from '@theme/CodeBlock';
 import styles from './styles.module.css';
 
 function getJsonPrefix(fileType, fileName) {
-  const urlPart = fileName ? `,
-  "url": "https://example.com/${fileName}"` : '';
+  const urlPart = fileName
+    ? `,
+  "url": "https://example.com/${fileName}"`
+    : '';
   return `...,
 {
   "fileType": "${fileType}"${urlPart}`;
@@ -19,12 +21,18 @@ const jsonSuffix = `
 const jsPrefix = 'const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });';
 
 function getJsSuffix(options, cv, fileConst, fileName) {
-  const cvPart = cv ? `,
-    coordinationValues` : '';
-  const optionsPart = options ? `,
-    options` : '';
-  const urlPart = fileName ? `,
-    url: "https://example.com/${fileName}"` : '';
+  const cvPart = cv
+    ? `,
+    coordinationValues`
+    : '';
+  const optionsPart = options
+    ? `,
+    options`
+    : '';
+  const urlPart = fileName
+    ? `,
+    url: "https://example.com/${fileName}"`
+    : '';
   return `
 const dataset = vc
   .addDataset("My dataset")
@@ -34,7 +42,10 @@ const dataset = vc
 }
 
 function indentObject(obj) {
-  return obj.split('\n').map((l, i) => (i > 0 ? `  ${l}` : l)).join('\n');
+  return obj
+    .split('\n')
+    .map((l, i) => (i > 0 ? `  ${l}` : l))
+    .join('\n');
 }
 
 function jsonToJs(obj) {
@@ -43,7 +54,10 @@ function jsonToJs(obj) {
     // p1 is non-digits
     return `${p1.substring(1, p1.length - 3)}: `;
   }
-  return obj.split('\n').map(l => l.replace(/("[^\d]*": )/, replacer)).join('\n');
+  return obj
+    .split('\n')
+    .map(l => l.replace(/("[^\d]*": )/, replacer))
+    .join('\n');
 }
 
 function formatJsonCv(obj) {
@@ -78,11 +92,7 @@ const options = ${jsonToJs(obj)};`;
 
 export default function FileDefTabs(props) {
   const {
-    fileName,
-    fileType,
-    fileConst,
-    options,
-    coordinationValues,
+    fileName, fileType, fileConst, options, coordinationValues,
   } = props;
 
   return (
@@ -96,10 +106,20 @@ export default function FileDefTabs(props) {
           ]}
         >
           <TabItem value="json">
-            <CodeBlock className="language-javascript">{getJsonPrefix(fileType, fileName) + formatJsonCv(coordinationValues) + formatJsonOptions(options) + jsonSuffix}</CodeBlock>
+            <CodeBlock className="language-javascript">
+              {getJsonPrefix(fileType, fileName)
+                + formatJsonCv(coordinationValues)
+                + formatJsonOptions(options)
+                + jsonSuffix}
+            </CodeBlock>
           </TabItem>
           <TabItem value="js">
-            <CodeBlock className="language-javascript">{jsPrefix + formatJsCv(coordinationValues) + formatJsOptions(options) + getJsSuffix(options, coordinationValues, fileConst, fileName)}</CodeBlock>
+            <CodeBlock className="language-javascript">
+              {jsPrefix
+                + formatJsCv(coordinationValues)
+                + formatJsOptions(options)
+                + getJsSuffix(options, coordinationValues, fileConst, fileName)}
+            </CodeBlock>
           </TabItem>
         </Tabs>
       </div>

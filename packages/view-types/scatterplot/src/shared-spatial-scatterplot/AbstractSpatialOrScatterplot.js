@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
-import ToolMenu from './ToolMenu';
 import { deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
+import ToolMenu from './ToolMenu';
 import { getCursor, getCursorWithTool } from './cursor';
 
 /**
@@ -43,7 +43,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     setViewState({
       ...nextViewState,
       // If the axis is fixed, just use the current target in state i.e don't change target.
-      target: spatialAxisFixed && use3d ? viewState.target : nextViewState.target,
+      target:
+        spatialAxisFixed && use3d ? viewState.target : nextViewState.target,
     });
   }
 
@@ -94,9 +95,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
 
   // eslint-disable-next-line consistent-return
   onHover(info) {
-    const {
-      coordinate, sourceLayer: layer, tile,
-    } = info;
+    const { coordinate, sourceLayer: layer, tile } = info;
     const {
       setCellHighlight, cellHighlight, setComponentHover, layers,
     } = this.props;
@@ -136,10 +135,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     // Tiled layer needs a custom layerZoomScale.
     if (layer.id.includes('bitmask')) {
       // The zoomed out layer needs to use the fixed zoom at which it is rendered.
-      const layerZoomScale = Math.max(
-        1,
-        2 ** Math.round(-z),
-      );
+      const layerZoomScale = Math.max(1, 2 ** Math.round(-z));
       const dataCoords = [
         Math.floor((coordinate[0] - bounds[0]) / layerZoomScale),
         Math.floor((coordinate[1] - bounds[3]) / layerZoomScale),
@@ -190,9 +186,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    * Intended to be overridden by descendants.
    */
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  componentDidUpdate() {
-
-  }
+  componentDidUpdate() {}
 
   /**
    * Intended to be overridden by descendants.
@@ -220,12 +214,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     // For large datasets or ray casting, the visual quality takes only a small
     // hit in exchange for much better performance by setting this to false:
     // https://deck.gl/docs/api-reference/core/deck#usedevicepixels
-    const useDevicePixels = (!use3d
-      && (
-        this.obsSegmentationsData?.shape?.[0] < 100000
-        || this.obsLocationsData?.shape?.[1] < 100000
-      )
-    );
+    const useDevicePixels = !use3d
+      && (this.obsSegmentationsData?.shape?.[0] < 100000
+        || this.obsLocationsData?.shape?.[1] < 100000);
 
     return (
       <>
@@ -243,7 +234,11 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           ref={deckRef}
           views={[
             use3d
-              ? new deck.OrbitView({ id: 'orbit', controller: true, orbitAxis: 'Y' })
+              ? new deck.OrbitView({
+                id: 'orbit',
+                controller: true,
+                orbitAxis: 'Y',
+              })
               : new deck.OrthographicView({
                 id: 'ortho',
               }),

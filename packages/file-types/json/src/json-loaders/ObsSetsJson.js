@@ -1,11 +1,15 @@
-import JsonLoader from './JsonLoader';
 import {
   tryUpgradeTreeToLatestSchema,
   initializeCellSetColor,
   nodeToSet,
   treeToMembershipMap,
 } from '@vitessce/sets';
-import { obsSetsSchema, AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import {
+  obsSetsSchema,
+  AbstractLoaderError,
+  LoaderResult,
+} from '@vitessce/vit-s';
+import JsonLoader from './JsonLoader';
 
 export default class ObsSetsJsonLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -35,8 +39,10 @@ export default class ObsSetsJsonLoader extends JsonLoader {
       obsSetsMembership = treeToMembershipMap(upgradedData);
       const newAutoSetSelectionParentName = tree[0].name;
       // Create a list of set paths to initally select.
-      const newAutoSetSelections = tree[0].children
-        .map(node => ([newAutoSetSelectionParentName, node.name]));
+      const newAutoSetSelections = tree[0].children.map(node => [
+        newAutoSetSelectionParentName,
+        node.name,
+      ]);
       // Create a list of cell set objects with color mappings.
       const newAutoSetColors = initializeCellSetColor(upgradedData, []);
       coordinationValues.obsSetSelection = newAutoSetSelections;
@@ -44,10 +50,16 @@ export default class ObsSetsJsonLoader extends JsonLoader {
 
       obsIndex = nodeToSet(tree[0]).map(d => d[0]);
     }
-    return Promise.resolve(new LoaderResult({
-      obsIndex,
-      obsSets: upgradedData,
-      obsSetsMembership,
-    }, url, coordinationValues));
+    return Promise.resolve(
+      new LoaderResult(
+        {
+          obsIndex,
+          obsSets: upgradedData,
+          obsSetsMembership,
+        },
+        url,
+        coordinationValues,
+      ),
+    );
   }
 }

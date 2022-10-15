@@ -1,6 +1,8 @@
 import { vapi } from './utils';
 import {
-  justScatter, justScatterExpression, justSpatial,
+  justScatter,
+  justScatterExpression,
+  justSpatial,
   codeluppi2018,
   codeluppiGating,
 } from './view-configs/codeluppi';
@@ -32,7 +34,8 @@ export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
   [vapi.ct.EMBEDDING_TARGET_X]: embeddingTargetXConfig,
   [vapi.ct.EMBEDDING_TARGET_Y]: embeddingTargetYConfig,
-  [vapi.ct.EMBEDDING_OBS_SET_POLYGONS_VISIBLE]: embeddingCellSetPolygonsVisibleConfig,
+  [vapi.ct.EMBEDDING_OBS_SET_POLYGONS_VISIBLE]:
+    embeddingCellSetPolygonsVisibleConfig,
 };
 
 // Note that the ordering of the components in the layout

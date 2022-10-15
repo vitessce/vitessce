@@ -13,24 +13,20 @@ import 'vitessce/dist/es/production/static/css/index.css';
 import './index.css';
 
 export default function MyApp() {
-    return (
-        <Vitessce
-            config={myViewConfig}
-            height={800}
-            theme="light"
-        />
-    );
+  return <Vitessce config={myViewConfig} height={800} theme="light" />;
 }
 ```
 
 ## Required props
 
 ### `config`
+
 - Type: `object`
 
 This parameter takes a Vitessce view config as a JSON object. Please visit our [view config](/docs/view-config-json) documentation pages for more details.
 
 ### `height`
+
 - Type: `number`
 
 The height in pixels that the Vitessce grid will fill on the page.
@@ -38,21 +34,24 @@ The height in pixels that the Vitessce grid will fill on the page.
 ## Optional props
 
 ### `theme`
+
 - Type: `string`
 
 The theme, used for styling the components. By default, `dark`.
 
-|Value| Notes|
-|-----|------|
+| Value   | Notes           |
+| ------- | --------------- |
 | `light` | The light theme |
-| `dark` | The dark theme |
+| `dark`  | The dark theme  |
 
 ### `onConfigChange`
+
 - Type: `function`
 
 A callback for view config updates.
 
 ### `validateOnConfigChange`
+
 - Type: `boolean`
 
 Whether to validate
@@ -60,6 +59,7 @@ against the view config schema when publishing changes. Use for debugging
 purposes only, as this has a performance impact.
 
 ### `isBounded`
+
 - Type: `boolean`
 
 If set to `true` then users cannot resize or move components beyond the initial borders of the grid. By default, `false`.
@@ -72,6 +72,7 @@ If you would like to use the `<Vitessce/>` component in certain parts of your ap
 ### Bundle splitting approach
 
 `React.lazy` only works with [default exports](https://reactjs.org/docs/code-splitting.html#named-exports) (rather than named exports), but we can work around this by adding a new file to wrap the `Vitessce` named export as a default export.
+
 ```js title="/src/components/VitessceWrapper.js"
 export { Vitessce as default } from 'vitessce';
 ```
@@ -92,7 +93,6 @@ export default function MyApp(props) {
   );
 }
 ```
-
 
 ### CDN dynamic import approach
 
@@ -117,10 +117,7 @@ dynamicImportPolyfill.initialize();
 
 export function createWarningComponent(props) {
   return () => {
-    const {
-      title,
-      message,
-    } = props;
+    const { title, message } = props;
     return (
       <div className={PRIMARY_CARD}>
         <h1>{title}</h1>
@@ -146,19 +143,25 @@ const Vitessce = React.lazy(() => {
   if (!window.ReactDOM) {
     window.ReactDOM = ReactDOM;
   }
-  return new Promise((resolve) => {
-    const handleImportError = (e) => {
+  return new Promise(resolve => {
+    const handleImportError = e => {
       console.warn(e);
-      resolve(asEsModule(createWarningComponent({
-        title: 'Could not load Vitessce',
-        message: 'The Vitessce scripts could not be dynamically imported.',
-      })));
+      resolve(
+        asEsModule(
+          createWarningComponent({
+            title: 'Could not load Vitessce',
+            message: 'The Vitessce scripts could not be dynamically imported.',
+          }),
+        ),
+      );
     };
-    __import__(VITESSCE_BUNDLE_URL).then(() => {
+    __import__(VITESSCE_BUNDLE_URL)
+      .then(() => {
         // React.lazy promise must return an ES module with the
         // component as the default export.
         resolve(asEsModule(window.vitessce));
-    }).catch(handleImportError);
+      })
+      .catch(handleImportError);
   });
 });
 

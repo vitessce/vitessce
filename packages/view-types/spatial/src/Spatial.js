@@ -1,9 +1,19 @@
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
-import { deck, viv, getSelectionLayers, ScaledExpressionExtension, getSourceFromLoader } from '@vitessce/gl';
+import {
+  deck,
+  viv,
+  getSelectionLayers,
+  ScaledExpressionExtension,
+  getSourceFromLoader,
+} from '@vitessce/gl';
 import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
-import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
+import {
+  AbstractSpatialOrScatterplot,
+  createQuadTree,
+  getOnHoverCallback,
+} from '@vitessce/scatterplot';
 import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
 
 const CELLS_LAYER_ID = 'cells-layer';
@@ -12,9 +22,8 @@ const NEIGHBORHOODS_LAYER_ID = 'neighborhoods-layer';
 
 // Default getter function props.
 const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { index }) => {
-  const [r, g, b, a] = (
-    cellColors && obsIndex && cellColors.get(obsIndex[index])
-  ) || getDefaultColor(theme);
+  const [r, g, b, a] = (cellColors && obsIndex && cellColors.get(obsIndex[index]))
+      || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
 const makeDefaultGetCellIsSelected = (cellSelection) => {
@@ -26,11 +35,7 @@ const makeDefaultGetCellIsSelected = (cellSelection) => {
   }
   return () => 0.0;
 };
-const makeDefaultGetObsCoords = obsLocations => i => ([
-  obsLocations.data[0][i],
-  obsLocations.data[1][i],
-  0,
-]);
+const makeDefaultGetObsCoords = obsLocations => i => [obsLocations.data[0][i], obsLocations.data[1][i], 0];
 
 /**
  * React component which expresses the spatial relationships between cells and molecules.
@@ -87,8 +92,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // Better for the bitmask layer when there is no color data to use this.
     // 2048 is best for performance and for stability (4096 texture size is not always supported).
     this.randomColorData = {
-      data: new Uint8Array(2048 * 2048 * 3)
-        .map((_, j) => (j < 4 ? 0 : Math.round(255 * Math.random()))),
+      data: new Uint8Array(2048 * 2048 * 3).map((_, j) => (j < 4 ? 0 : Math.round(255 * Math.random()))),
       // This buffer should be able to hold colors for 2048 x 2048 ~ 4 million cells.
       height: 2048,
       width: 2048,
@@ -115,11 +119,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const {
       stroked, visible, opacity, radius,
     } = layerDef;
-    const {
-      obsCentroidsIndex,
-      obsSegmentationsIndex,
-    } = this.props;
-    const obsIndex = (hasExplicitPolygons ? obsSegmentationsIndex : obsCentroidsIndex);
+    const { obsCentroidsIndex, obsSegmentationsIndex } = this.props;
+    const obsIndex = hasExplicitPolygons
+      ? obsSegmentationsIndex
+      : obsCentroidsIndex;
     const {
       theme,
       // cellFilter,
@@ -145,7 +148,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
         const x = data.src.obsCentroids.data[0][index];
         const y = data.src.obsCentroids.data[1][index];
         const r = radius;
-        return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
+        return [
+          [x, y + r],
+          [x + r, y],
+          [x, y - r],
+          [x - r, y],
+        ];
       };
     return new deck.PolygonLayer({
       id: CELLS_LAYER_ID,
@@ -181,7 +189,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
           onCellClick(info);
         }
       },
-      onHover: getOnHoverCallback(obsIndex, setCellHighlight, setComponentHover),
+      onHover: getOnHoverCallback(
+        obsIndex,
+        setCellHighlight,
+        setComponentHover,
+      ),
       visible,
       getLineWidth: stroked ? 1 : 0,
       lineWidthScale,
@@ -270,10 +282,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createSelectionLayers() {
     const { obsCentroidsIndex, obsCentroids } = this.props;
-    const {
-      viewState,
-      setCellSelection,
-    } = this.props;
+    const { viewState, setCellSelection } = this.props;
     const { tool } = this.state;
     const { obsSegmentationsQuadTree } = this;
     const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
@@ -343,8 +352,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       selections = nextLoaderSelection;
       this.layerLoaderSelections[layerDef.index] = nextLoaderSelection;
     }
-    const useTransparentColor = (!layerDef.visible
-      && typeof layerDef.visible === 'boolean')
+    const useTransparentColor = (!layerDef.visible && typeof layerDef.visible === 'boolean')
       || Boolean(layerDef.transparentColor);
     const transparentColor = useTransparentColor ? [0, 0, 0] : null;
     const layerProps = {
@@ -417,13 +425,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
     const [Layer, layerLoader] = getLayerLoaderTuple(data, layerDef.use3d);
 
-    const extensions = (layerDef.use3d ? [] : [
-      ...(layerProps.colormap ? [
-        new viv.AdditiveColormapExtension(),
-      ] : [
-        new viv.ColorPaletteExtension(),
-      ]),
-    ]);
+    const extensions = layerDef.use3d
+      ? []
+      : [
+        ...(layerProps.colormap
+          ? [new viv.AdditiveColormapExtension()]
+          : [new viv.ColorPaletteExtension()]),
+      ];
 
     return new Layer({
       loader: layerLoader,
@@ -449,9 +457,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   use3d() {
-    const {
-      imageLayerDefs,
-    } = this.props;
+    const { imageLayerDefs } = this.props;
     return (imageLayerDefs || []).some(i => i.use3d);
   }
 
@@ -479,14 +485,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsSegmentationsType,
       segmentationLayerCallbacks = [],
     } = this.props;
-    if (obsSegmentations && obsSegmentationsType === 'bitmask' && Array.isArray(obsSegmentationsLayerDefs)) {
+    if (
+      obsSegmentations
+      && obsSegmentationsType === 'bitmask'
+      && Array.isArray(obsSegmentationsLayerDefs)
+    ) {
       const { loaders = [] } = obsSegmentations;
       const use3d = obsSegmentationsLayerDefs.some(i => i.use3d);
       const use3dIndex = obsSegmentationsLayerDefs.findIndex(i => i.use3d);
       return obsSegmentationsLayerDefs
         .filter(layer => (use3d ? layer.use3d === use3d : true))
         .map((layer, i) => this.createRasterLayer(
-          { ...layer, callback: segmentationLayerCallbacks[use3d ? use3dIndex : i] },
+          {
+            ...layer,
+            callback: segmentationLayerCallbacks[use3d ? use3dIndex : i],
+          },
           loaders[layer.index],
           i,
         ));
@@ -514,22 +527,24 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateCellsData() {
-    const {
-      obsSegmentations,
-      obsSegmentationsType,
-      obsCentroids,
-    } = this.props;
-    if ((obsSegmentations && obsSegmentationsType === 'polygon')
+    const { obsSegmentations, obsSegmentationsType, obsCentroids } = this.props;
+    if (
+      (obsSegmentations && obsSegmentationsType === 'polygon')
       || (!obsSegmentations && obsCentroids)
     ) {
       const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
-      this.obsSegmentationsQuadTree = createQuadTree(obsCentroids, getCellCoords);
+      this.obsSegmentationsQuadTree = createQuadTree(
+        obsCentroids,
+        getCellCoords,
+      );
       this.obsSegmentationsData = {
         src: {
           obsSegmentations,
           obsCentroids,
         },
-        length: obsSegmentations ? obsSegmentations.shape[0] : obsCentroids.shape[1],
+        length: obsSegmentations
+          ? obsSegmentations.shape[0]
+          : obsCentroids.shape[1],
       };
     }
   }
@@ -544,19 +559,34 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsCentroidsIndex,
       hasSegmentations,
     } = this.props;
-    if (obsSegmentationsLayerDef && obsSegmentationsIndex && obsSegmentations && obsSegmentationsType === 'polygon') {
+    if (
+      obsSegmentationsLayerDef
+      && obsSegmentationsIndex
+      && obsSegmentations
+      && obsSegmentationsType === 'polygon'
+    ) {
       this.obsSegmentationsPolygonLayer = this.createPolygonSegmentationsLayer(
-        obsSegmentationsLayerDef, true,
+        obsSegmentationsLayerDef,
+        true,
       );
-    } else if (obsSegmentationsLayerDef && obsSegmentations && obsSegmentationsType === 'bitmask') {
+    } else if (
+      obsSegmentationsLayerDef
+      && obsSegmentations
+      && obsSegmentationsType === 'bitmask'
+    ) {
       this.obsSegmentationsBitmaskLayers = this.createBitmaskLayers();
-    } else if (!hasSegmentations
-      && obsSegmentationsLayerDef && !obsSegmentations && !obsSegmentationsIndex
-      && obsCentroids && obsCentroidsIndex
+    } else if (
+      !hasSegmentations
+      && obsSegmentationsLayerDef
+      && !obsSegmentations
+      && !obsSegmentationsIndex
+      && obsCentroids
+      && obsCentroidsIndex
     ) {
       // For backwards compatibility (diamond case).
       this.obsSegmentationsPolygonLayer = this.createPolygonSegmentationsLayer(
-        obsSegmentationsLayerDef, false,
+        obsSegmentationsLayerDef,
+        false,
       );
     } else {
       this.obsSegmentationsPolygonLayer = null;
@@ -627,8 +657,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } = this.props;
     if (
       obsLocationsLayerDef
-      && obsLocations?.data && obsLocationsIndex
-      && obsLocationsLabels && obsLocationsFeatureIndex
+      && obsLocations?.data
+      && obsLocationsIndex
+      && obsLocationsLabels
+      && obsLocationsFeatureIndex
     ) {
       this.obsLocationsLayer = this.createMoleculesLayer(obsLocationsLayerDef);
     } else {
@@ -656,10 +688,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   viewInfoDidUpdate() {
-    const {
-      obsCentroidsIndex,
-      obsCentroids,
-    } = this.props;
+    const { obsCentroidsIndex, obsCentroids } = this.props;
     super.viewInfoDidUpdate(
       obsCentroidsIndex,
       obsCentroids,
@@ -682,11 +711,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const shallowDiff = propName => prevProps[propName] !== this.props[propName];
     let forceUpdate = false;
     if (
-      [
-        'obsSegmentations',
-        'obsSegmentationsType',
-        'obsCentroids',
-      ].some(shallowDiff)
+      ['obsSegmentations', 'obsSegmentationsType', 'obsCentroids'].some(
+        shallowDiff,
+      )
     ) {
       // Cells data changed.
       this.onUpdateCellsData();
@@ -733,11 +760,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
 
     if (
-      [
-        'obsLocations',
-        'obsLocationsLabels',
-        'obsLocationsFeatureIndex',
-      ].some(shallowDiff)
+      ['obsLocations', 'obsLocationsLabels', 'obsLocationsFeatureIndex'].some(
+        shallowDiff,
+      )
     ) {
       // Molecules data props changed.
       this.onUpdateMoleculesData();

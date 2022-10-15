@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, {
+  useEffect, useRef, useState, useMemo,
+} from 'react';
 import { Vitessce } from 'vitessce';
 
 import { getConfig, listConfigs } from './api';
@@ -9,10 +11,7 @@ import { Warning } from './warning';
 import './index.scss';
 
 function AwaitResponse(props) {
-  const {
-    response,
-    theme,
-  } = props;
+  const { response, theme } = props;
   const [isLoading, setIsLoading] = useState(true);
   const responseRef = useRef();
   useEffect(() => {
@@ -21,7 +20,11 @@ function AwaitResponse(props) {
       setIsLoading(false);
     });
   }, [response]);
-  return (!isLoading ? React.createElement(responseRef.current) : <Warning title="Loading..." theme={theme} />);
+  return !isLoading ? (
+    React.createElement(responseRef.current)
+  ) : (
+    <Warning title="Loading..." theme={theme} />
+  );
 }
 
 function preformattedDetails(response) {
@@ -36,7 +39,9 @@ function preformattedDetails(response) {
 
 function logConfigUpgrade(prevConfig, nextConfig) {
   // eslint-disable-next-line no-console
-  console.log(`Upgrade view config schema from ${prevConfig.version} to ${nextConfig.version}`);
+  console.log(
+    `Upgrade view config schema from ${prevConfig.version} to ${nextConfig.version}`,
+  );
   // eslint-disable-next-line no-console
   console.log(prevConfig);
   // eslint-disable-next-line no-console
@@ -45,15 +50,13 @@ function logConfigUpgrade(prevConfig, nextConfig) {
 
 function checkResponse(response, theme, debug) {
   if (!response.ok) {
-    return Promise.resolve(
-      () => (
-        <Warning
-          title="Fetch response not OK"
-          preformatted={preformattedDetails(response)}
-          theme={theme}
-        />
-      ),
-    );
+    return Promise.resolve(() => (
+      <Warning
+        title="Fetch response not OK"
+        preformatted={preformattedDetails(response)}
+        theme={theme}
+      />
+    ));
   }
   return response.text().then((text) => {
     try {
@@ -86,7 +89,7 @@ function checkResponse(response, theme, debug) {
  * @returns {string} A valid theme name.
  */
 function validateTheme(theme) {
-  return (['light', 'dark'].includes(theme) ? theme : 'dark');
+  return ['light', 'dark'].includes(theme) ? theme : 'dark';
 }
 
 export function VitessceDemo() {
@@ -122,12 +125,10 @@ export function VitessceDemo() {
             theme={theme}
           />
         )));
-      return (
-        <AwaitResponse response={responsePromise} theme={theme} />
-      );
+      return <AwaitResponse response={responsePromise} theme={theme} />;
     }
     const configs = listConfigs(showAll);
-    return (<Welcome configs={configs} theme={theme} />);
+    return <Welcome configs={configs} theme={theme} />;
   }, [window.location.search]);
   return (
     <>
@@ -153,7 +154,8 @@ export function VitessceDemo() {
         width: 100%;
         overflow: hidden;
       }
-      `}</style>
+      `}
+      </style>
       {result}
     </>
   );

@@ -42,7 +42,10 @@ export function ChannelSelectionDropdown({
  * @prop {function} toggle Callback for toggling on/off.
  */
 export function ChannelVisibilityCheckbox({
-  color, checked, toggle, disabled,
+  color,
+  checked,
+  toggle,
+  disabled,
 }) {
   return (
     <Checkbox

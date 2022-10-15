@@ -25,7 +25,10 @@ function upgradeReplaceViewProp(prefix, view, coordinationSpace) {
   const nextTXScope = getNextScope(prevTXScopes);
   const nextTYScope = getNextScope(prevTYScopes);
 
-  const { zoom, target: [targetX, targetY] } = view;
+  const {
+    zoom,
+    target: [targetX, targetY],
+  } = view;
   // eslint-disable-next-line no-param-reassign
   coordinationSpace[`${prefix}Zoom`][nextZScope] = zoom;
   // eslint-disable-next-line no-param-reassign
@@ -81,7 +84,9 @@ export function upgradeFrom0_1_0(config, datasetUid = null) {
       if (componentDef.props.view) {
         // Note that the below function does mutate the coordinationSpace param.
         const newScopeValues = upgradeReplaceViewProp(
-          'embedding', componentDef.props.view, coordinationSpace,
+          'embedding',
+          componentDef.props.view,
+          coordinationSpace,
         );
         newComponentDef = {
           ...newComponentDef,
@@ -99,7 +104,9 @@ export function upgradeFrom0_1_0(config, datasetUid = null) {
       if (componentDef?.props?.view) {
         // Note that the below function does mutate the coordinationSpace param.
         const newScopeValues = upgradeReplaceViewProp(
-          'spatial', componentDef.props.view, coordinationSpace,
+          'spatial',
+          componentDef.props.view,
+          coordinationSpace,
         );
         newComponentDef = {
           ...newComponentDef,
@@ -154,21 +161,32 @@ export function upgradeFrom1_0_0(config) {
   function replaceLayerType(layerType) {
     // Layer type could be one of a few things, bitmask or raster at the moment.
     const isRaster = layerType === 'raster';
-    coordinationSpace[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`] = {};
-    Object.entries(coordinationSpace.spatialLayers).forEach(([scope, layers]) => {
-      if (Array.isArray(layers) && layers.find(layer => layer.type === layerType)) {
-        const typedLayers = layers
-          .filter(layer => layer.type === layerType)
-          .map((layer) => {
-            const newLayer = { ...layer };
-            delete newLayer.type;
-            return newLayer;
-          });
-        coordinationSpace[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`][scope] = isRaster ? typedLayers : typedLayers[0];
-      } else {
-        coordinationSpace[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`][scope] = null;
-      }
-    });
+    coordinationSpace[
+      `spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`
+    ] = {};
+    Object.entries(coordinationSpace.spatialLayers).forEach(
+      ([scope, layers]) => {
+        if (
+          Array.isArray(layers)
+          && layers.find(layer => layer.type === layerType)
+        ) {
+          const typedLayers = layers
+            .filter(layer => layer.type === layerType)
+            .map((layer) => {
+              const newLayer = { ...layer };
+              delete newLayer.type;
+              return newLayer;
+            });
+          coordinationSpace[
+            `spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`
+          ][scope] = isRaster ? typedLayers : typedLayers[0];
+        } else {
+          coordinationSpace[
+            `spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`
+          ][scope] = null;
+        }
+      },
+    );
   }
 
   if (coordinationSpace.spatialLayers) {
@@ -188,12 +206,16 @@ export function upgradeFrom1_0_0(config) {
         ['spatial', 'layerController'].includes(newComponent.component)
         || (newComponent.component === 'description' && isRaster)
       ) {
-        newComponent.coordinationScopes[`spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`] = newComponent
-          .coordinationScopes.spatialLayers;
+        newComponent.coordinationScopes[
+          `spatial${capitalize(layerType)}Layer${isRaster ? 's' : ''}`
+        ] = newComponent.coordinationScopes.spatialLayers;
       }
     }
 
-    if (newComponent.coordinationScopes && newComponent.coordinationScopes.spatialLayers) {
+    if (
+      newComponent.coordinationScopes
+      && newComponent.coordinationScopes.spatialLayers
+    ) {
       replaceCoordinationScope('raster');
       replaceCoordinationScope('cells');
       replaceCoordinationScope('molecules');
@@ -210,7 +232,6 @@ export function upgradeFrom1_0_0(config) {
     version: '1.0.1',
   };
 }
-
 
 export function upgradeFrom1_0_1(config) {
   // Need to add the globalDisable3d prop to any layer controller views,
@@ -231,13 +252,22 @@ export function upgradeFrom1_0_1(config) {
   // to raster layer if it is not one of bitmask or raster from the old config.
 
   const newConfig = cloneDeep(config);
-  Object.keys((newConfig?.coordinationSpace?.spatialRasterLayers || {})).forEach((key) => {
-    if (newConfig.coordinationSpace.spatialRasterLayers[key]) {
-      newConfig.coordinationSpace.spatialRasterLayers[key].forEach((layer, index) => {
-        newConfig.coordinationSpace.spatialRasterLayers[key][index].type = ['bitmask', 'raster'].includes(layer.type) ? layer.type : 'raster';
-      });
-    }
-  });
+  Object.keys(newConfig?.coordinationSpace?.spatialRasterLayers || {}).forEach(
+    (key) => {
+      if (newConfig.coordinationSpace.spatialRasterLayers[key]) {
+        newConfig.coordinationSpace.spatialRasterLayers[key].forEach(
+          (layer, index) => {
+            newConfig.coordinationSpace.spatialRasterLayers[key][index].type = [
+              'bitmask',
+              'raster',
+            ].includes(layer.type)
+              ? layer.type
+              : 'raster';
+          },
+        );
+      }
+    },
+  );
 
   return {
     ...newConfig,
@@ -293,7 +323,6 @@ export function upgradeFrom1_0_4(config) {
     version: '1.0.5',
   };
 }
-
 
 // Added in version 1.0.6:
 // - Support for the scoreName property within options array items
@@ -427,10 +456,7 @@ export function upgradeFrom1_0_10(config) {
 export function upgradeFrom1_0_11(config) {
   const newConfig = cloneDeep(config);
 
-  const {
-    datasets,
-    coordinationSpace,
-  } = newConfig;
+  const { datasets, coordinationSpace } = newConfig;
 
   if (coordinationSpace.embeddingType) {
     // This array may contain more embedding types than
@@ -480,7 +506,9 @@ export function upgradeFrom1_0_12(config) {
         if (factors) {
           const obsLabelsTypeScopes = [];
           factors.forEach((olt) => {
-            const nextScope = getNextScope(Object.keys(coordinationSpace?.obsLabelsType || {}));
+            const nextScope = getNextScope(
+              Object.keys(coordinationSpace?.obsLabelsType || {}),
+            );
             coordinationSpace.obsLabelsType = {
               ...coordinationSpace.obsLabelsType,
               // Need to remove the obs/ prefix.
@@ -503,7 +531,11 @@ export function upgradeFrom1_0_12(config) {
     return null;
   }
   const newLayout = layout.map((viewDef) => {
-    const viewDatasetUid = getDatasetUidForView(datasets, coordinationSpace, viewDef);
+    const viewDatasetUid = getDatasetUidForView(
+      datasets,
+      coordinationSpace,
+      viewDef,
+    );
     const datasetObsLabelsTypeScopes = datasetUidToObsLabelsTypeScopes[viewDatasetUid];
     if (datasetObsLabelsTypeScopes) {
       return {
@@ -580,7 +612,9 @@ export function upgradeFrom1_0_14(config) {
     // Iterate over each old prop key.
     Object.entries(propAnalogies).forEach(([oldProp, newType]) => {
       if (viewDef.props?.[oldProp]) {
-        console.warn(`Warning: the '${oldProp}' prop on the ${viewDef.component} view is deprecated. Please use the '${newType}' coordination type instead.`);
+        console.warn(
+          `Warning: the '${oldProp}' prop on the ${viewDef.component} view is deprecated. Please use the '${newType}' coordination type instead.`,
+        );
       }
     });
   });

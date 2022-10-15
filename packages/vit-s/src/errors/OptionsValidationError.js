@@ -2,7 +2,9 @@ import AbstractLoaderError from './AbstractLoaderError';
 
 export default class OptionsValidationError extends AbstractLoaderError {
   constructor(fileType, url, options, reason) {
-    super(`Error while validating file definition options: ${fileType} from ${url}.`);
+    super(
+      `Error while validating file definition options: ${fileType} from ${url}.`,
+    );
     this.name = 'OptionsValidationError';
 
     this.fileType = fileType;
@@ -12,9 +14,7 @@ export default class OptionsValidationError extends AbstractLoaderError {
   }
 
   warnInConsole() {
-    const {
-      options, reason,
-    } = this;
+    const { options, reason } = this;
     console.warn(
       'Received options\n',
       JSON.stringify(options, null, 2),

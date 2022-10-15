@@ -14,7 +14,7 @@ const useStyles = makeStyles(theme => ({
       // TODO(monorepo): lighten color by 10%
       borderBottom: `1px solid ${theme.palette.primaryBackground}`,
       cursor: 'pointer',
-    }
+    },
   },
   metadataContainer: {
     paddingLeft: '14px',
@@ -31,9 +31,9 @@ const useStyles = makeStyles(theme => ({
       },
       '& tr:nth-child(even)': {
         // TODO(monorepo): lighten color by 5%
-        backgroundColor: `1px solid ${theme.palette.primaryBackground}` 
-      }
-    }
+        backgroundColor: `1px solid ${theme.palette.primaryBackground}`,
+      },
+    },
   },
 }));
 
@@ -44,26 +44,26 @@ export default function Description(props) {
     <div className={classes.description}>
       <p>{description}</p>
 
-      {metadata && Array.from(metadata.entries())
-        .map(([layerIndex, { name: layerName, metadata: metadataRecord }]) => (
-          metadataRecord && Object.entries(metadataRecord).length > 0 ? (
+      {metadata
+        && Array.from(metadata.entries()).map(
+          ([layerIndex, { name: layerName, metadata: metadataRecord }]) => (metadataRecord && Object.entries(metadataRecord).length > 0 ? (
             <details key={layerIndex}>
               <summary>{layerName}</summary>
               <div className={classes.metadataContainer}>
                 <table>
                   <tbody>
-                    {Object.entries(metadataRecord)
-                      .map(([key, value]) => (
-                        <tr key={key}>
-                          <th title={key}>{key}</th>
-                          <td title={value}>{value}</td>
-                        </tr>
-                      ))}
+                    {Object.entries(metadataRecord).map(([key, value]) => (
+                      <tr key={key}>
+                        <th title={key}>{key}</th>
+                        <td title={value}>{value}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
             </details>
-          ) : null))}
+          ) : null),
+        )}
     </div>
   );
 }

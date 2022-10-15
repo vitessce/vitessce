@@ -11,8 +11,15 @@ import { register as registerHeatmap } from '@vitessce/heatmap';
 import { register as registerFeatureList } from '@vitessce/feature-list';
 import { register as registerLayerController } from '@vitessce/layer-controller';
 import { register as registerStatus } from '@vitessce/status';
-import { registerCellSetExpression, registerCellSetSizes, registerExpressionHistogram } from '@vitessce/statistical-plots';
-import { registerHiglass, registerGenomicProfiles } from '@vitessce/genomic-profiles';
+import {
+  registerCellSetExpression,
+  registerCellSetSizes,
+  registerExpressionHistogram,
+} from '@vitessce/statistical-plots';
+import {
+  registerHiglass,
+  registerGenomicProfiles,
+} from '@vitessce/genomic-profiles';
 
 // Register file type plugins
 import {
@@ -83,41 +90,191 @@ function setup() {
 
   // File types
   // All CSV file types
-  registerPluginFileType(FileType.OBS_SETS_CSV, DataType.OBS_SETS, ObsSetsCsvLoader, CsvSource);
-  registerPluginFileType(FileType.OBS_EMBEDDING_CSV, DataType.OBS_EMBEDDING, ObsEmbeddingCsvLoader, CsvSource);
-  registerPluginFileType(FileType.OBS_LOCATIONS_CSV, DataType.OBS_LOCATIONS, ObsLocationsCsvLoader, CsvSource);
-  registerPluginFileType(FileType.OBS_LABELS_CSV, DataType.OBS_LABELS, ObsLabelsCsvLoader, CsvSource);
-  registerPluginFileType(FileType.OBS_FEATURE_MATRIX_CSV, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixCsvLoader, CsvSource);
-  registerPluginFileType(FileType.FEATURE_LABELS_CSV, DataType.FEATURE_LABELS, FeatureLabelsCsvLoader, CsvSource);
+  registerPluginFileType(
+    FileType.OBS_SETS_CSV,
+    DataType.OBS_SETS,
+    ObsSetsCsvLoader,
+    CsvSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_EMBEDDING_CSV,
+    DataType.OBS_EMBEDDING,
+    ObsEmbeddingCsvLoader,
+    CsvSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_LOCATIONS_CSV,
+    DataType.OBS_LOCATIONS,
+    ObsLocationsCsvLoader,
+    CsvSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_LABELS_CSV,
+    DataType.OBS_LABELS,
+    ObsLabelsCsvLoader,
+    CsvSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_FEATURE_MATRIX_CSV,
+    DataType.OBS_FEATURE_MATRIX,
+    ObsFeatureMatrixCsvLoader,
+    CsvSource,
+  );
+  registerPluginFileType(
+    FileType.FEATURE_LABELS_CSV,
+    DataType.FEATURE_LABELS,
+    FeatureLabelsCsvLoader,
+    CsvSource,
+  );
   // All JSON file types
-  registerPluginFileType(FileType.OBS_SEGMENTATIONS_JSON, DataType.OBS_SEGMENTATIONS, ObsSegmentationsJsonLoader, JsonSource);
-  registerPluginFileType(FileType.OBS_SETS_JSON, DataType.OBS_SETS, ObsSetsJsonLoader, JsonSource);
+  registerPluginFileType(
+    FileType.OBS_SEGMENTATIONS_JSON,
+    DataType.OBS_SEGMENTATIONS,
+    ObsSegmentationsJsonLoader,
+    JsonSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_SETS_JSON,
+    DataType.OBS_SETS,
+    ObsSetsJsonLoader,
+    JsonSource,
+  );
   // All AnnData file types
-  registerPluginFileType(FileType.OBS_SETS_ANNDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, AnnDataSource);
-  registerPluginFileType(FileType.OBS_EMBEDDING_ANNDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, AnnDataSource);
-  registerPluginFileType(FileType.OBS_LOCATIONS_ANNDATA_ZARR, DataType.OBS_LOCATIONS, ObsLocationsAnndataLoader, AnnDataSource);
-  registerPluginFileType(FileType.OBS_LABELS_ANNDATA_ZARR, DataType.OBS_LABELS, ObsLabelsAnndataLoader, AnnDataSource);
-  registerPluginFileType(FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, AnnDataSource);
-  registerPluginFileType(FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, AnnDataSource);
-  registerPluginFileType(FileType.FEATURE_LABELS_ANNDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, AnnDataSource);
+  registerPluginFileType(
+    FileType.OBS_SETS_ANNDATA_ZARR,
+    DataType.OBS_SETS,
+    ObsSetsAnndataLoader,
+    AnnDataSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_EMBEDDING_ANNDATA_ZARR,
+    DataType.OBS_EMBEDDING,
+    ObsEmbeddingAnndataLoader,
+    AnnDataSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_LOCATIONS_ANNDATA_ZARR,
+    DataType.OBS_LOCATIONS,
+    ObsLocationsAnndataLoader,
+    AnnDataSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_LABELS_ANNDATA_ZARR,
+    DataType.OBS_LABELS,
+    ObsLabelsAnndataLoader,
+    AnnDataSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR,
+    DataType.OBS_FEATURE_MATRIX,
+    ObsFeatureMatrixAnndataLoader,
+    AnnDataSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR,
+    DataType.OBS_SEGMENTATIONS,
+    ObsSegmentationsAnndataLoader,
+    AnnDataSource,
+  );
+  registerPluginFileType(
+    FileType.FEATURE_LABELS_ANNDATA_ZARR,
+    DataType.FEATURE_LABELS,
+    FeatureLabelsAnndataLoader,
+    AnnDataSource,
+  );
   // All OME file types
-  registerPluginFileType(FileType.IMAGE_OME_ZARR, DataType.IMAGE, OmeZarrLoader, ZarrDataSource);
+  registerPluginFileType(
+    FileType.IMAGE_OME_ZARR,
+    DataType.IMAGE,
+    OmeZarrLoader,
+    ZarrDataSource,
+  );
 
   // All legacy file types
-  registerPluginFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource);
-  registerPluginFileType(FileType.IMAGE_RASTER_JSON, DataType.IMAGE, RasterJsonAsImageLoader, JsonSource);
-  registerPluginFileType(FileType.OBS_SEGMENTATIONS_RASTER_JSON, DataType.OBS_SEGMENTATIONS, RasterJsonAsObsSegmentationsLoader, JsonSource);
-  registerPluginFileType(FileType.OBS_SETS_CELL_SETS_JSON, DataType.OBS_SETS, ObsSetsJsonLoader, JsonSource);
-  registerPluginFileType(FileType.OBS_FEATURE_MATRIX_CLUSTERS_JSON, DataType.OBS_FEATURE_MATRIX, ClustersJsonAsObsFeatureMatrixLoader, JsonSource);
-  registerPluginFileType(FileType.OBS_FEATURE_MATRIX_GENES_JSON, DataType.OBS_FEATURE_MATRIX, GenesJsonAsObsFeatureMatrixLoader, JsonSource);
-  registerPluginFileType(FileType.OBS_LABELS_CELLS_JSON, DataType.OBS_LABELS, CellsJsonAsObsLabelsLoader, JsonSource);
-  registerPluginFileType(FileType.OBS_EMBEDDING_CELLS_JSON, DataType.OBS_EMBEDDING, CellsJsonAsObsEmbeddingLoader, JsonSource);
-  registerPluginFileType(FileType.OBS_LOCATIONS_CELLS_JSON, DataType.OBS_LOCATIONS, CellsJsonAsObsLocationsLoader, JsonSource);
-  registerPluginFileType(FileType.OBS_SEGMENTATIONS_CELLS_JSON, DataType.OBS_SEGMENTATIONS, CellsJsonAsObsSegmentationsLoader, JsonSource);
-  registerPluginFileType(FileType.OBS_LOCATIONS_MOLECULES_JSON, DataType.OBS_LOCATIONS, MoleculesJsonAsObsLocationsLoader, JsonSource);
-  registerPluginFileType(FileType.OBS_LABELS_MOLECULES_JSON, DataType.OBS_LABELS, MoleculesJsonAsObsLabelsLoader, JsonSource);
-  registerPluginFileType(FileType.NEIGHBORHOODS_JSON, DataType.NEIGHBORHOODS, JsonLoader, JsonSource);
-  registerPluginFileType(FileType.GENOMIC_PROFILES_ZARR, DataType.GENOMIC_PROFILES, GenomicProfilesZarrLoader, ZarrDataSource);
+  registerPluginFileType(
+    FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR,
+    DataType.OBS_FEATURE_MATRIX,
+    MatrixZarrAsObsFeatureMatrixLoader,
+    ZarrDataSource,
+  );
+  registerPluginFileType(
+    FileType.IMAGE_RASTER_JSON,
+    DataType.IMAGE,
+    RasterJsonAsImageLoader,
+    JsonSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_SEGMENTATIONS_RASTER_JSON,
+    DataType.OBS_SEGMENTATIONS,
+    RasterJsonAsObsSegmentationsLoader,
+    JsonSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_SETS_CELL_SETS_JSON,
+    DataType.OBS_SETS,
+    ObsSetsJsonLoader,
+    JsonSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_FEATURE_MATRIX_CLUSTERS_JSON,
+    DataType.OBS_FEATURE_MATRIX,
+    ClustersJsonAsObsFeatureMatrixLoader,
+    JsonSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_FEATURE_MATRIX_GENES_JSON,
+    DataType.OBS_FEATURE_MATRIX,
+    GenesJsonAsObsFeatureMatrixLoader,
+    JsonSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_LABELS_CELLS_JSON,
+    DataType.OBS_LABELS,
+    CellsJsonAsObsLabelsLoader,
+    JsonSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_EMBEDDING_CELLS_JSON,
+    DataType.OBS_EMBEDDING,
+    CellsJsonAsObsEmbeddingLoader,
+    JsonSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_LOCATIONS_CELLS_JSON,
+    DataType.OBS_LOCATIONS,
+    CellsJsonAsObsLocationsLoader,
+    JsonSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_SEGMENTATIONS_CELLS_JSON,
+    DataType.OBS_SEGMENTATIONS,
+    CellsJsonAsObsSegmentationsLoader,
+    JsonSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_LOCATIONS_MOLECULES_JSON,
+    DataType.OBS_LOCATIONS,
+    MoleculesJsonAsObsLocationsLoader,
+    JsonSource,
+  );
+  registerPluginFileType(
+    FileType.OBS_LABELS_MOLECULES_JSON,
+    DataType.OBS_LABELS,
+    MoleculesJsonAsObsLabelsLoader,
+    JsonSource,
+  );
+  registerPluginFileType(
+    FileType.NEIGHBORHOODS_JSON,
+    DataType.NEIGHBORHOODS,
+    JsonLoader,
+    JsonSource,
+  );
+  registerPluginFileType(
+    FileType.GENOMIC_PROFILES_ZARR,
+    DataType.GENOMIC_PROFILES,
+    GenomicProfilesZarrLoader,
+    ZarrDataSource,
+  );
 }
 
 export function Vitessce(props) {
@@ -126,7 +283,5 @@ export function Vitessce(props) {
     setup();
     setReady(true);
   }, []);
-  return (ready ? (
-    <VitS {...props} />
-  ) : null);
+  return ready ? <VitS {...props} /> : null;
 }

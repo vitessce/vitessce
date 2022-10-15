@@ -57,7 +57,10 @@ export const humanLymphNode10xVisium = {
     },
     spatialSegmentationLayer: {
       A: {
-        radius: 65, stroked: true, visible: true, opacity: 1,
+        radius: 65,
+        stroked: true,
+        visible: true,
+        opacity: 1,
       },
     },
     spatialImageLayer: {
@@ -72,42 +75,21 @@ export const humanLymphNode10xVisium = {
           channels: [
             {
               selection: { c: 0 },
-              color: [
-                255,
-                0,
-                0,
-              ],
+              color: [255, 0, 0],
               visible: true,
-              slider: [
-                0,
-                255,
-              ],
+              slider: [0, 255],
             },
             {
               selection: { c: 1 },
-              color: [
-                0,
-                255,
-                0,
-              ],
+              color: [0, 255, 0],
               visible: true,
-              slider: [
-                0,
-                255,
-              ],
+              slider: [0, 255],
             },
             {
               selection: { c: 2 },
-              color: [
-                0,
-                0,
-                255,
-              ],
+              color: [0, 0, 255],
               visible: true,
-              slider: [
-                0,
-                255,
-              ],
+              slider: [0, 255],
             },
           ],
         },

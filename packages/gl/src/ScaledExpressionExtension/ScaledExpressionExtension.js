@@ -2,7 +2,11 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import GL from '@luma.gl/constants';
 import { LayerExtension } from '@deck.gl/core';
-import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from '../constants';
+import {
+  GLSL_COLORMAPS,
+  GLSL_COLORMAP_DEFAULT,
+  COLORMAP_SHADER_PLACEHOLDER,
+} from '../constants';
 import module from './shader-module';
 
 const defaultProps = {
@@ -42,12 +46,12 @@ export default class ScaledExpressionExtension extends LayerExtension {
           this.state.models?.forEach(model => model?.delete());
         }
         if (this.state.topModel) {
-           // eslint-disable-next-line no-unused-expressions
-           this.state.topModel?.delete();
+          // eslint-disable-next-line no-unused-expressions
+          this.state.topModel?.delete();
         }
         if (this.state.sideModel) {
-           // eslint-disable-next-line no-unused-expressions
-           this.state.sideModel?.delete();
+          // eslint-disable-next-line no-unused-expressions
+          this.state.sideModel?.delete();
         }
         if (this._getModels) {
           this.setState(this._getModels(this.context.gl));
@@ -80,18 +84,15 @@ export default class ScaledExpressionExtension extends LayerExtension {
           // PolygonLayer fill needs not-intsanced attribute but
           // ScatterplotLayer and the PolygonLayer stroke needs instanced.
           // So use another attribute's divisor property as a proxy for this divisor.
-          divisor: Object.values(attributeManager.attributes)[0].settings.divisor,
+          divisor: Object.values(attributeManager.attributes)[0].settings
+            .divisor,
         },
       });
     }
   }
 
   draw() {
-    const {
-      colorScaleLo,
-      colorScaleHi,
-      isExpressionMode,
-    } = this.props;
+    const { colorScaleLo, colorScaleHi, isExpressionMode } = this.props;
     const {
       topModel, sideModel, models, model,
     } = this.state;

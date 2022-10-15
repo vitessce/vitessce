@@ -16,9 +16,17 @@ class ResponsiveHeightGridLayout extends ResponsiveGridLayout {
 export function VitessceGridLayout(props) {
   const {
     layout,
-    getComponent, padding, margin, draggableHandle: draggableHandleClass,
-    onResize, onResizeStop, rowHeight, theme, height,
-    onRemoveComponent, onLayoutChange: onLayoutChangeProp,
+    getComponent,
+    padding,
+    margin,
+    draggableHandle: draggableHandleClass,
+    onResize,
+    onResizeStop,
+    rowHeight,
+    theme,
+    height,
+    onRemoveComponent,
+    onLayoutChange: onLayoutChangeProp,
     isBounded,
   } = props;
 
@@ -26,7 +34,10 @@ export function VitessceGridLayout(props) {
 
   // If layout changes, update grid components.
   const {
-    cols: gridCols, layouts: gridLayouts, breakpoints: gridBreakpoints, components: gridComponents,
+    cols: gridCols,
+    layouts: gridLayouts,
+    breakpoints: gridBreakpoints,
+    components: gridComponents,
   } = resolveLayout(layout);
 
   const maxRows = getMaxRows(gridLayouts);
@@ -69,12 +80,21 @@ export function VitessceGridLayout(props) {
         const id = nextC.i;
         const prevC = gridComponents[id];
         if (prevC) {
-          const i = parseInt(id.substring(id.indexOf(COMPONENT_ID_PREFIX) + 1), 10);
+          const i = parseInt(
+            id.substring(id.indexOf(COMPONENT_ID_PREFIX) + 1),
+            10,
+          );
           const nextProps = {
-            x: nextC.x, y: nextC.y, w: nextC.w, h: nextC.h,
+            x: nextC.x,
+            y: nextC.y,
+            w: nextC.w,
+            h: nextC.h,
           };
           const prevProps = {
-            x: prevC.x, y: prevC.y, w: prevC.w, h: prevC.h,
+            x: prevC.x,
+            y: prevC.y,
+            w: prevC.w,
+            h: prevC.h,
           };
           if (!isEqual(nextProps, prevProps)) {
             newComponentProps.push([i, nextProps]);
@@ -101,7 +121,6 @@ export function VitessceGridLayout(props) {
     setLastValidGridLayouts(currentGridLayouts);
   };
 
-
   const layoutChildren = Object.values(gridComponents).map((v) => {
     const Component = getComponent(v.component);
 
@@ -112,7 +131,7 @@ export function VitessceGridLayout(props) {
     return (
       <div key={v.uid}>
         <Component
-          {... v.props}
+          {...v.props}
           uuid={v.uid}
           coordinationScopes={v.coordinationScopes}
           theme={theme}
@@ -121,34 +140,38 @@ export function VitessceGridLayout(props) {
       </div>
     );
   });
-  return (currentGridLayouts && gridComponents && gridBreakpoints && gridCols) && (
-    <>
-      {style}
-      <ResponsiveHeightGridLayout
-        className="layout"
-        cols={gridCols}
-        layouts={currentGridLayouts}
-        breakpoints={gridBreakpoints}
-        height={height}
-        rowHeight={
-          rowHeight
-          || (
-            (window.innerHeight - 2 * padding - (maxRows - 1) * margin)
-            / maxRows
-          )}
-        containerPadding={[padding, padding]}
-        margin={[margin, margin]}
-        draggableHandle={draggableHandle}
-        onLayoutChange={onLayoutChange}
-        isBounded={isBounded}
-        onResizeStart={saveCurrentLayouts}
-        onDragStart={saveCurrentLayouts}
-        onResize={onResize}
-        onResizeStop={onResizeStop}
-      >
-        {layoutChildren}
-      </ResponsiveHeightGridLayout>
-    </>
+  return (
+    currentGridLayouts
+    && gridComponents
+    && gridBreakpoints
+    && gridCols && (
+      <>
+        {style}
+        <ResponsiveHeightGridLayout
+          className="layout"
+          cols={gridCols}
+          layouts={currentGridLayouts}
+          breakpoints={gridBreakpoints}
+          height={height}
+          rowHeight={
+            rowHeight
+            || (window.innerHeight - 2 * padding - (maxRows - 1) * margin)
+              / maxRows
+          }
+          containerPadding={[padding, padding]}
+          margin={[margin, margin]}
+          draggableHandle={draggableHandle}
+          onLayoutChange={onLayoutChange}
+          isBounded={isBounded}
+          onResizeStart={saveCurrentLayouts}
+          onDragStart={saveCurrentLayouts}
+          onResize={onResize}
+          onResizeStop={onResizeStop}
+        >
+          {layoutChildren}
+        </ResponsiveHeightGridLayout>
+      </>
+    )
   );
 }
 

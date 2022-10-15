@@ -5,13 +5,18 @@ import plur from 'plur';
 import { extent } from 'd3-array';
 import isEqual from 'lodash/isEqual';
 import {
-  capitalize, commaNumber,
+  capitalize,
+  commaNumber,
   getCellColors,
-  getValueTransformFunction, VALUE_TRANSFORM_OPTIONS,
+  getValueTransformFunction,
+  VALUE_TRANSFORM_OPTIONS,
 } from '@vitessce/utils';
 import {
   TitleInfo,
-  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
+  useDeckCanvasSize,
+  useReady,
+  useUrls,
+  useExpressionValueGetter,
   useObsSetsData,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
@@ -21,29 +26,38 @@ import {
   useSetComponentViewInfo,
   registerPluginViewType,
 } from '@vitessce/vit-s';
-import { getCellSetPolygons, mergeObsSets, setObsSelection } from '@vitessce/sets';
 import {
-  Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
+  getCellSetPolygons,
+  mergeObsSets,
+  setObsSelection,
+} from '@vitessce/sets';
+import {
+  Scatterplot,
+  ScatterplotTooltipSubscriber,
+  ScatterplotOptions,
   getPointSizeDevicePixels,
   getPointOpacity,
   EmptyMessage,
 } from '@vitessce/scatterplot';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import {
+  ViewType,
+  COMPONENT_COORDINATION_TYPES,
+} from '@vitessce/constants-internal';
 import GatingScatterplotOptions from './GatingScatterplotOptions';
 
 /**
-   * A subscriber component for the gating scatterplot.
-   * @param {object} props
-   * @param {number} props.uuid The unique identifier for this component.
-   * @param {string} props.theme The current theme name.
-   * @param {object} props.coordinationScopes The mapping from coordination types to coordination
-   * scopes.
-   * @param {boolean} props.disableTooltip Should the tooltip be disabled?
-   * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
-   * to call when the component has been removed from the grid.
-   * @param {number} props.averageFillDensity Override the average fill density calculation
-   * when using dynamic opacity mode.
-   */
+ * A subscriber component for the gating scatterplot.
+ * @param {object} props
+ * @param {number} props.uuid The unique identifier for this component.
+ * @param {string} props.theme The current theme name.
+ * @param {object} props.coordinationScopes The mapping from coordination types to coordination
+ * scopes.
+ * @param {boolean} props.disableTooltip Should the tooltip be disabled?
+ * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
+ * to call when the component has been removed from the grid.
+ * @param {number} props.averageFillDensity Override the average fill density calculation
+ * when using dynamic opacity mode.
+ */
 export function GatingSubscriber(props) {
   const {
     uuid,
@@ -61,60 +75,63 @@ export function GatingSubscriber(props) {
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
   // Get "props" from the coordination space.
-  const [{
-    dataset,
-    obsType,
-    featureType,
-    featureValueType,
-    embeddingZoom: zoom,
-    embeddingTargetX: targetX,
-    embeddingTargetY: targetY,
-    embeddingTargetZ: targetZ,
-    obsFilter: cellFilter,
-    obsHighlight: cellHighlight,
-    obsSetSelection: cellSetSelection,
-    obsSetColor: cellSetColor,
-    obsColorEncoding: cellColorEncoding,
-    additionalObsSets: additionalCellSets,
-    embeddingObsSetPolygonsVisible: cellSetPolygonsVisible,
-    embeddingObsSetLabelsVisible: cellSetLabelsVisible,
-    embeddingObsSetLabelSize: cellSetLabelSize,
-    embeddingObsRadius: cellRadiusFixed,
-    embeddingObsRadiusMode: cellRadiusMode,
-    embeddingObsOpacity: cellOpacityFixed,
-    embeddingObsOpacityMode: cellOpacityMode,
-    featureValueColormap: geneExpressionColormap,
-    featureValueColormapRange: geneExpressionColormapRange,
-    featureSelection: gatingFeatureSelectionColor,
-    featureValueTransform,
-    featureValueTransformCoefficient,
-    gatingFeatureSelectionX,
-    gatingFeatureSelectionY,
-  }, {
-    setEmbeddingZoom: setZoom,
-    setEmbeddingTargetX: setTargetX,
-    setEmbeddingTargetY: setTargetY,
-    setEmbeddingTargetZ: setTargetZ,
-    setObsFilter: setCellFilter,
-    setObsSetSelection: setCellSetSelection,
-    setObsHighlight: setCellHighlight,
-    setObsSetColor: setCellSetColor,
-    setObsColorEncoding: setCellColorEncoding,
-    setAdditionalObsSets: setAdditionalCellSets,
-    setEmbeddingObsSetPolygonsVisible: setCellSetPolygonsVisible,
-    setEmbeddingObsSetLabelsVisible: setCellSetLabelsVisible,
-    setEmbeddingObsSetLabelSize: setCellSetLabelSize,
-    setEmbeddingObsRadius: setCellRadiusFixed,
-    setEmbeddingObsRadiusMode: setCellRadiusMode,
-    setEmbeddingObsOpacity: setCellOpacityFixed,
-    setEmbeddingObsOpacityMode: setCellOpacityMode,
-    setFeatureValueColormap: setGeneExpressionColormap,
-    setFeatureValueColormapRange: setGeneExpressionColormapRange,
-    setFeatureValueTransform,
-    setFeatureValueTransformCoefficient,
-    setGatingFeatureSelectionX,
-    setGatingFeatureSelectionY,
-  }] = useCoordination(
+  const [
+    {
+      dataset,
+      obsType,
+      featureType,
+      featureValueType,
+      embeddingZoom: zoom,
+      embeddingTargetX: targetX,
+      embeddingTargetY: targetY,
+      embeddingTargetZ: targetZ,
+      obsFilter: cellFilter,
+      obsHighlight: cellHighlight,
+      obsSetSelection: cellSetSelection,
+      obsSetColor: cellSetColor,
+      obsColorEncoding: cellColorEncoding,
+      additionalObsSets: additionalCellSets,
+      embeddingObsSetPolygonsVisible: cellSetPolygonsVisible,
+      embeddingObsSetLabelsVisible: cellSetLabelsVisible,
+      embeddingObsSetLabelSize: cellSetLabelSize,
+      embeddingObsRadius: cellRadiusFixed,
+      embeddingObsRadiusMode: cellRadiusMode,
+      embeddingObsOpacity: cellOpacityFixed,
+      embeddingObsOpacityMode: cellOpacityMode,
+      featureValueColormap: geneExpressionColormap,
+      featureValueColormapRange: geneExpressionColormapRange,
+      featureSelection: gatingFeatureSelectionColor,
+      featureValueTransform,
+      featureValueTransformCoefficient,
+      gatingFeatureSelectionX,
+      gatingFeatureSelectionY,
+    },
+    {
+      setEmbeddingZoom: setZoom,
+      setEmbeddingTargetX: setTargetX,
+      setEmbeddingTargetY: setTargetY,
+      setEmbeddingTargetZ: setTargetZ,
+      setObsFilter: setCellFilter,
+      setObsSetSelection: setCellSetSelection,
+      setObsHighlight: setCellHighlight,
+      setObsSetColor: setCellSetColor,
+      setObsColorEncoding: setCellColorEncoding,
+      setAdditionalObsSets: setAdditionalCellSets,
+      setEmbeddingObsSetPolygonsVisible: setCellSetPolygonsVisible,
+      setEmbeddingObsSetLabelsVisible: setCellSetLabelsVisible,
+      setEmbeddingObsSetLabelSize: setCellSetLabelSize,
+      setEmbeddingObsRadius: setCellRadiusFixed,
+      setEmbeddingObsRadiusMode: setCellRadiusMode,
+      setEmbeddingObsOpacity: setCellOpacityFixed,
+      setEmbeddingObsOpacityMode: setCellOpacityMode,
+      setFeatureValueColormap: setGeneExpressionColormap,
+      setFeatureValueColormapRange: setGeneExpressionColormapRange,
+      setFeatureValueTransform,
+      setFeatureValueTransformCoefficient,
+      setGatingFeatureSelectionX,
+      setGatingFeatureSelectionY,
+    },
+  ] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.GATING],
     coordinationScopes,
   );
@@ -132,39 +149,51 @@ export function GatingSubscriber(props) {
     return `Gating (${gatingFeatureSelectionX} vs ${gatingFeatureSelectionY})`;
   }, [titleOverride, gatingFeatureSelectionX, gatingFeatureSelectionY]);
 
-  const featureSelectionX = useMemo(() => (
-    gatingFeatureSelectionX ? [gatingFeatureSelectionX] : null
-  ), [gatingFeatureSelectionX]);
-  const featureSelectionY = useMemo(() => (
-    gatingFeatureSelectionY ? [gatingFeatureSelectionY] : null
-  ), [gatingFeatureSelectionY]);
+  const featureSelectionX = useMemo(
+    () => (gatingFeatureSelectionX ? [gatingFeatureSelectionX] : null),
+    [gatingFeatureSelectionX],
+  );
+  const featureSelectionY = useMemo(
+    () => (gatingFeatureSelectionY ? [gatingFeatureSelectionY] : null),
+    [gatingFeatureSelectionY],
+  );
 
   // Get data from loaders using the data hooks.
   const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
-    loaders, dataset, addUrl, false,
-    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
+    loaders,
+    dataset,
+    addUrl,
+    false,
+    {
+      setObsSetSelection: setCellSetSelection,
+      setObsSetColor: setCellSetColor,
+    },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
   // eslint-disable-next-line no-unused-vars
-  const [expressionDataColor, loadedColor, featureSelectionColorStatus] = useFeatureSelection(
-    loaders, dataset, false, gatingFeatureSelectionColor,
-    { obsType, featureType, featureValueType },
-  );
+  const [expressionDataColor, loadedColor, featureSelectionColorStatus] = useFeatureSelection(loaders, dataset, false, gatingFeatureSelectionColor, {
+    obsType,
+    featureType,
+    featureValueType,
+  });
   // eslint-disable-next-line no-unused-vars
-  const [expressionDataX, loadedX, featureSelectionXStatus] = useFeatureSelection(
-    loaders, dataset, false, featureSelectionX,
-    { obsType, featureType, featureValueType },
-  );
+  const [expressionDataX, loadedX, featureSelectionXStatus] = useFeatureSelection(loaders, dataset, false, featureSelectionX, {
+    obsType,
+    featureType,
+    featureValueType,
+  });
   // eslint-disable-next-line no-unused-vars
-  const [expressionDataY, loadedY, featureSelectionYStatus] = useFeatureSelection(
-    loaders, dataset, false, featureSelectionY,
-    { obsType, featureType, featureValueType },
-  );
-  const [{ obsIndex, featureIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
-    loaders, dataset, addUrl, false,
-    { obsType, featureType, featureValueType },
-  );
+  const [expressionDataY, loadedY, featureSelectionYStatus] = useFeatureSelection(loaders, dataset, false, featureSelectionY, {
+    obsType,
+    featureType,
+    featureValueType,
+  });
+  const [{ obsIndex, featureIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(loaders, dataset, addUrl, false, {
+    obsType,
+    featureType,
+    featureValueType,
+  });
   const cellsCount = obsIndex?.length || 0;
 
   const isReady = useReady([
@@ -177,16 +206,25 @@ export function GatingSubscriber(props) {
 
   // Generate a new cells object with a mapping added for the user selected genes.
   const obsXY = useMemo(() => {
-    if (!(cellsCount && expressionDataX?.[0] && expressionDataY?.[0]
-      && featureSelectionX && featureSelectionY
-    )) {
+    if (
+      !(
+        cellsCount
+        && expressionDataX?.[0]
+        && expressionDataY?.[0]
+        && featureSelectionX
+        && featureSelectionY
+      )
+    ) {
       return null;
     }
 
     // Get transform coefficient for log and arcsinh
     let coefficient = 1;
     const parsedTransformCoefficient = Number(featureValueTransformCoefficient);
-    if (!Number.isNaN(parsedTransformCoefficient) && parsedTransformCoefficient > 0) {
+    if (
+      !Number.isNaN(parsedTransformCoefficient)
+      && parsedTransformCoefficient > 0
+    ) {
       coefficient = parsedTransformCoefficient;
     }
 
@@ -206,38 +244,68 @@ export function GatingSubscriber(props) {
       data: [obsX, obsY],
       shape: [2, cellsCount],
     };
-  }, [cellsCount, expressionDataX, expressionDataY,
-    featureValueTransform, featureValueTransformCoefficient,
-    featureSelectionX, featureSelectionY,
+  }, [
+    cellsCount,
+    expressionDataX,
+    expressionDataY,
+    featureValueTransform,
+    featureValueTransformCoefficient,
+    featureSelectionX,
+    featureSelectionY,
   ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
-  const mergedCellSets = useMemo(() => mergeObsSets(
-    cellSets, additionalCellSets,
-  ), [cellSets, additionalCellSets]);
+  const mergedCellSets = useMemo(
+    () => mergeObsSets(cellSets, additionalCellSets),
+    [cellSets, additionalCellSets],
+  );
 
-  const setCellSelectionProp = useCallback((v) => {
-    setObsSelection(
-      v, additionalCellSets, cellSetColor,
-      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+  const setCellSelectionProp = useCallback(
+    (v) => {
+      setObsSelection(
+        v,
+        additionalCellSets,
+        cellSetColor,
+        setCellSetSelection,
+        setAdditionalCellSets,
+        setCellSetColor,
+        setCellColorEncoding,
+      );
+    },
+    [
+      additionalCellSets,
+      cellSetColor,
       setCellColorEncoding,
-    );
-  }, [additionalCellSets, cellSetColor, setCellColorEncoding,
-    setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
+      setAdditionalCellSets,
+      setCellSetColor,
+      setCellSetSelection,
+    ],
+  );
 
-  const cellColors = useMemo(() => getCellColors({
-    cellColorEncoding,
-    expressionData: expressionDataColor && expressionDataColor[0],
-    geneSelection: gatingFeatureSelectionColor,
-    cellSets: mergedCellSets,
-    cellSetSelection,
-    cellSetColor,
-    obsIndex,
-    theme,
-  }), [cellColorEncoding, gatingFeatureSelectionColor, mergedCellSets, theme,
-    cellSetSelection, cellSetColor, expressionDataColor, obsIndex]);
+  const cellColors = useMemo(
+    () => getCellColors({
+      cellColorEncoding,
+      expressionData: expressionDataColor && expressionDataColor[0],
+      geneSelection: gatingFeatureSelectionColor,
+      cellSets: mergedCellSets,
+      cellSetSelection,
+      cellSetColor,
+      obsIndex,
+      theme,
+    }),
+    [
+      cellColorEncoding,
+      gatingFeatureSelectionColor,
+      mergedCellSets,
+      theme,
+      cellSetSelection,
+      cellSetColor,
+      expressionDataColor,
+      obsIndex,
+    ],
+  );
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
@@ -245,12 +313,14 @@ export function GatingSubscriber(props) {
   const cacheHas = (cache, key) => cache.findIndex(el => isEqual(el[0], key)) !== -1;
   const cacheGet = (cache, key) => cache.find(el => isEqual(el[0], key))?.[1];
   const cellSetPolygons = useMemo(() => {
-    if ((cellSetLabelsVisible || cellSetPolygonsVisible)
+    if (
+      (cellSetLabelsVisible || cellSetPolygonsVisible)
       && !cacheHas(cellSetPolygonCache, cellSetSelection)
       && mergedCellSets?.tree?.length
       && obsXY
       && obsIndex
-      && cellSetColor?.length) {
+      && cellSetColor?.length
+    ) {
       const newCellSetPolygons = getCellSetPolygons({
         obsIndex,
         obsEmbedding: obsXY,
@@ -259,15 +329,29 @@ export function GatingSubscriber(props) {
         cellSetColor,
         theme,
       });
-      setCellSetPolygonCache(cache => [...cache, [cellSetSelection, newCellSetPolygons]]);
+      setCellSetPolygonCache(cache => [
+        ...cache,
+        [cellSetSelection, newCellSetPolygons],
+      ]);
       return newCellSetPolygons;
     }
     return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
-  }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible, theme,
-    obsIndex, obsXY, mergedCellSets, cellSetSelection, cellSetColor]);
+  }, [
+    cellSetPolygonsVisible,
+    cellSetPolygonCache,
+    cellSetLabelsVisible,
+    theme,
+    obsIndex,
+    obsXY,
+    mergedCellSets,
+    cellSetSelection,
+    cellSetColor,
+  ]);
 
-
-  const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
+  const cellSelection = useMemo(
+    () => Array.from(cellColors.keys()),
+    [cellColors],
+  );
 
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
     if (obsXY && obsXY.data && obsXY.shape) {
@@ -287,12 +371,23 @@ export function GatingSubscriber(props) {
   useEffect(() => {
     if (xRange && yRange) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(
-        window.devicePixelRatio, zoom, xRange, yRange, width, height,
+        window.devicePixelRatio,
+        zoom,
+        xRange,
+        yRange,
+        width,
+        height,
       );
       setDynamicCellRadius(pointSizeDevicePixels);
 
       const nextCellOpacityScale = getPointOpacity(
-        zoom, xRange, yRange, width, height, numCells, averageFillDensity,
+        zoom,
+        xRange,
+        yRange,
+        width,
+        height,
+        numCells,
+        averageFillDensity,
       );
       setDynamicCellOpacity(nextCellOpacityScale);
 
@@ -306,17 +401,30 @@ export function GatingSubscriber(props) {
         setZoom(newZoom);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [xRange, yRange, xExtent, yExtent, numCells,
-    width, height, zoom, averageFillDensity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    xRange,
+    yRange,
+    xExtent,
+    yExtent,
+    numCells,
+    width,
+    height,
+    zoom,
+    averageFillDensity,
+  ]);
 
-  const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
-  const getCellIsSelected = useCallback((object, { index }) => (
-    (cellSelectionSet || new Set([])).has(obsIndex[index]) ? 1.0 : 0.0
-  ), [cellSelectionSet, obsIndex]);
+  const cellSelectionSet = useMemo(
+    () => new Set(cellSelection),
+    [cellSelection],
+  );
+  const getCellIsSelected = useCallback(
+    (object, { index }) => ((cellSelectionSet || new Set([])).has(obsIndex[index]) ? 1.0 : 0.0),
+    [cellSelectionSet, obsIndex],
+  );
 
-  const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
-  const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
+  const cellRadius = cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius;
+  const cellOpacity = cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity;
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
@@ -327,21 +435,31 @@ export function GatingSubscriber(props) {
   });
 
   // Puts the mapping values in the cell info tooltip.
-  const getObsInfo = useCallback((obsId) => {
-    const selectedTransformName = VALUE_TRANSFORM_OPTIONS.find(
-      o => o.value === featureValueTransform,
-    )?.name;
-    const genePrefix = featureValueTransform ? `${selectedTransformName} ` : '';
-    const obsIdx = obsIndex?.indexOf(obsId);
-    const obsInfo = { [`${capitalize(obsType)} ID`]: obsId };
-    if (gatingFeatureSelectionX && gatingFeatureSelectionY) {
-      obsInfo[genePrefix + gatingFeatureSelectionX] = obsXY.data[0][obsIdx];
-      obsInfo[genePrefix + gatingFeatureSelectionY] = obsXY.data[1][obsIdx];
-    }
-    return obsInfo;
-  }, [obsXY, obsIndex, featureValueTransform,
-    gatingFeatureSelectionX, gatingFeatureSelectionY, obsType,
-  ]);
+  const getObsInfo = useCallback(
+    (obsId) => {
+      const selectedTransformName = VALUE_TRANSFORM_OPTIONS.find(
+        o => o.value === featureValueTransform,
+      )?.name;
+      const genePrefix = featureValueTransform
+        ? `${selectedTransformName} `
+        : '';
+      const obsIdx = obsIndex?.indexOf(obsId);
+      const obsInfo = { [`${capitalize(obsType)} ID`]: obsId };
+      if (gatingFeatureSelectionX && gatingFeatureSelectionY) {
+        obsInfo[genePrefix + gatingFeatureSelectionX] = obsXY.data[0][obsIdx];
+        obsInfo[genePrefix + gatingFeatureSelectionY] = obsXY.data[1][obsIdx];
+      }
+      return obsInfo;
+    },
+    [
+      obsXY,
+      obsIndex,
+      featureValueTransform,
+      gatingFeatureSelectionX,
+      gatingFeatureSelectionY,
+      obsType,
+    ],
+  );
 
   return (
     <TitleInfo
@@ -388,8 +506,12 @@ export function GatingSubscriber(props) {
               setTargetY(null);
               setZoom(null);
             }}
-            gatingFeatureValueTransformCoefficient={featureValueTransformCoefficient}
-            setGatingFeatureValueTransformCoefficient={setFeatureValueTransformCoefficient}
+            gatingFeatureValueTransformCoefficient={
+              featureValueTransformCoefficient
+            }
+            setGatingFeatureValueTransformCoefficient={
+              setFeatureValueTransformCoefficient
+            }
             geneSelectOptions={featureIndex}
             transformOptions={VALUE_TRANSFORM_OPTIONS}
           />
@@ -436,16 +558,15 @@ export function GatingSubscriber(props) {
         updateViewInfo={setComponentViewInfo}
         getExpressionValue={getExpressionValue}
         getCellIsSelected={getCellIsSelected}
-
       />
       {!disableTooltip && (
-      <ScatterplotTooltipSubscriber
-        parentUuid={uuid}
-        obsHighlight={cellHighlight}
-        width={width}
-        height={height}
-        getObsInfo={getObsInfo}
-      />
+        <ScatterplotTooltipSubscriber
+          parentUuid={uuid}
+          obsHighlight={cellHighlight}
+          width={width}
+          height={height}
+          getObsInfo={getObsInfo}
+        />
       )}
     </TitleInfo>
   );

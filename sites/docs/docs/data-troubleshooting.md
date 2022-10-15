@@ -27,11 +27,10 @@ VAR_CHUNK_SIZE = 10 # VAR_CHUNK_SIZE should be small
 adata.write_zarr(out_path, chunks=(adata.shape[0], VAR_CHUNK_SIZE))
 ```
 
-
 ## Zarr dtypes
 
 Vitessce uses [Zarr.js](https://github.com/gzuidhof/zarr.js) to load Zarr data.
-Zarr.js currently supports a __[subset](https://github.com/gzuidhof/zarr.js/blob/61d9cdb56ce6f8eaf97d213bcaa5b4ea8d01f5d1/src/nestedArray/types.ts#L32)__ of NumPy data types, so ensure that the types used in the arrays and data frames of your AnnData store are supported (otherwise cast using [np.astype](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.astype.html) or [pd.astype](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.astype.html)).
+Zarr.js currently supports a **[subset](https://github.com/gzuidhof/zarr.js/blob/61d9cdb56ce6f8eaf97d213bcaa5b4ea8d01f5d1/src/nestedArray/types.ts#L32)** of NumPy data types, so ensure that the types used in the arrays and data frames of your AnnData store are supported (otherwise cast using [np.astype](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.astype.html) or [pd.astype](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.astype.html)).
 In addition to the Zarr.js data types, Vitessce supports loading AnnData [string columns](https://github.com/vitessce/vitessce/blob/3615b55/src/loaders/data-sources/AnnDataSource.js#L102) with `vlen-utf8` or `|O` types.
 
 To automatically do this casting for AnnData objects, the `vitessce` Python package provides the `optimize_adata` function:
@@ -49,31 +48,28 @@ adata = optimize_adata(adata)
 
 Vitessce currently supports up to OME-NGFF spec v3.0. Until v4.0 is supported in [viv](https://github.com/hms-dbmi/viv/issues/586) (and subsequently here in Vitessce) you may need to use previous versions of OME-NGFF writer tools. For example, v0.2.1 of [ome-zarr-py](https://github.com/ome/ome-zarr-py) (`ome-zarr==0.2.1`) writes v3.0 OME-NGFFs.
 
-
 ### Supported features
 
 Vitessce supports [OME-NGFF](https://ngff.openmicroscopy.org/latest/) images saved as Zarr stores and a subset of OME-NGFF features via the `raster.ome-zarr` file type.
 The following table lists the support for different OME-NGFF features:
 
-| Feature | Supported by Vitessce |
-|-----|-----|
-| Downsampling along Z axis | N |
-| `omero` field | Y |
-| multiscales with a scaling factor other than 2 | N |
-| URL (not only S3) | Y |
-| `multiscales[].axes` (added in v0.3) | Y |
-| 3D view | Y |
-| labels | N |
-| HCS plate | N |
+| Feature                                        | Supported by Vitessce |
+| ---------------------------------------------- | --------------------- |
+| Downsampling along Z axis                      | N                     |
+| `omero` field                                  | Y                     |
+| multiscales with a scaling factor other than 2 | N                     |
+| URL (not only S3)                              | Y                     |
+| `multiscales[].axes` (added in v0.3)           | Y                     |
+| 3D view                                        | Y                     |
+| labels                                         | N                     |
+| HCS plate                                      | N                     |
 
 To compare Vitessce to other OME-NGFF clients, see the [table](https://github.com/ome/ngff/issues/71) listing the OME-NGFF features supported by other clients.
 We welcome feature requests or pull requests to add support for the remaining features to Vitessce.
 
-
 ### Metadata requirements
 
-The [`omero`](https://ngff.openmicroscopy.org/latest/#omero-md) metadata field must be present. `omero.channels` and `omero.rdefs` fields provide metadata that Vitessce uses for the initial rendering settings and must be present in the 
-
+The [`omero`](https://ngff.openmicroscopy.org/latest/#omero-md) metadata field must be present. `omero.channels` and `omero.rdefs` fields provide metadata that Vitessce uses for the initial rendering settings and must be present in the
 
 ### Z-axis chunking
 

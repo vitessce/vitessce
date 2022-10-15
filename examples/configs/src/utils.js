@@ -1,6 +1,4 @@
-import {
-  VitessceConfig, hconcat, vconcat,
-} from '@vitessce/config';
+import { VitessceConfig, hconcat, vconcat } from '@vitessce/config';
 import {
   ViewType as vt,
   DataType as dt,

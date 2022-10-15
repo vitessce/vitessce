@@ -13,8 +13,8 @@ const features = [
     description: (
       <>
         Vitessce consists of reusable interactive views including a scatterplot,
-        spatial+imaging plot, genome browser tracks, statistical plots,
-        and control views, built on web technologies such as WebGL.
+        spatial+imaging plot, genome browser tracks, statistical plots, and
+        control views, built on web technologies such as WebGL.
       </>
     ),
   },
@@ -22,9 +22,9 @@ const features = [
     title: 'Integrative',
     description: (
       <>
-        Vitessce enables visual analysis of multi-modal assay types
-        which probe biological systems through techniques such as microscopy,
-        genomics, and transcriptomics.
+        Vitessce enables visual analysis of multi-modal assay types which probe
+        biological systems through techniques such as microscopy, genomics, and
+        transcriptomics.
       </>
     ),
   },
@@ -32,9 +32,9 @@ const features = [
     title: 'Serverless',
     description: (
       <>
-        Visualize large datasets stored in static cloud object
-        stores such as AWS S3. No need to manage or pay for expensive
-        compute infrastructure for visualization purposes.
+        Visualize large datasets stored in static cloud object stores such as
+        AWS S3. No need to manage or pay for expensive compute infrastructure
+        for visualization purposes.
       </>
     ),
   },
@@ -58,25 +58,52 @@ function Feature({ imageUrl, title, description }) {
 export default function Home() {
   const { siteConfig = {} } = useDocusaurusContext();
   const { colorMode } = useColorMode();
-  const isDarkTheme = (colorMode === 'dark');
+  const isDarkTheme = colorMode === 'dark';
 
   const introUrl = useBaseUrl('/docs/platforms/');
-  const logoUrl = useBaseUrl(`/img/logo-vitessce-${(isDarkTheme ? 'dark' : 'light')}.png`);
+  const logoUrl = useBaseUrl(
+    `/img/logo-vitessce-${isDarkTheme ? 'dark' : 'light'}.png`,
+  );
 
   return (
     <>
       <header className={clsx('hero hero--primary', styles.heroBanner)}>
         <div className={clsx('container', styles.heroContainer)}>
-          <img className="hero__title" src={logoUrl} title="Vitessce" alt="Vitessce logo" />
+          <img
+            className="hero__title"
+            src={logoUrl}
+            title="Vitessce"
+            alt="Vitessce logo"
+          />
           <p className="hero__subtitle">{siteConfig.tagline}</p>
         </div>
       </header>
       <main>
         <section className={styles.homeScreenshots}>
-          <a href={`${introUrl}#web-application`}><ScreenshotImage filename="web.png" alt="Vitessce as a web application" /></a>
-          <a href={`${introUrl}#embedded-component`}><ScreenshotImage filename="hubmap.png" alt="Vitessce as an embedded web component (HuBMAP Portal)" /></a>
-          <a href={`${introUrl}#python-jupyter-widget`}><ScreenshotImage filename="jupyterlab.png" alt="Vitessce as an ipywidget in JupyterLab" /></a>
-          <a href={`${introUrl}#r-htmlwidget`}><ScreenshotImage filename="rstudio.png" alt="Vitessce as an htmlwidget in RStudio" /></a>
+          <a href={`${introUrl}#web-application`}>
+            <ScreenshotImage
+              filename="web.png"
+              alt="Vitessce as a web application"
+            />
+          </a>
+          <a href={`${introUrl}#embedded-component`}>
+            <ScreenshotImage
+              filename="hubmap.png"
+              alt="Vitessce as an embedded web component (HuBMAP Portal)"
+            />
+          </a>
+          <a href={`${introUrl}#python-jupyter-widget`}>
+            <ScreenshotImage
+              filename="jupyterlab.png"
+              alt="Vitessce as an ipywidget in JupyterLab"
+            />
+          </a>
+          <a href={`${introUrl}#r-htmlwidget`}>
+            <ScreenshotImage
+              filename="rstudio.png"
+              alt="Vitessce as an htmlwidget in RStudio"
+            />
+          </a>
         </section>
         {features && features.length > 0 && (
           <section className={styles.features}>
