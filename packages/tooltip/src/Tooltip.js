@@ -6,7 +6,11 @@ import { styles } from './styles';
 
 export default function Tooltip(props) {
   const {
-    x, y, parentWidth, parentHeight, children,
+    x,
+    y,
+    parentWidth,
+    parentHeight,
+    children,
   } = props;
   const ref = useRef();
   const classes = styles();
@@ -18,8 +22,8 @@ export default function Tooltip(props) {
   // Do collision detection based on the bounds of the tooltip ancestor element.
   useEffect(() => {
     if (ref && ref.current) {
-      const flipX = x > parentWidth / 2;
-      const flipY = y > parentHeight / 2;
+      const flipX = (x > parentWidth / 2);
+      const flipY = (y > parentHeight / 2);
       setPlacementX(flipX ? 'end' : 'start');
       setPlacementY(flipY ? 'top' : 'bottom');
       ref.current.style.left = `${x + (flipX ? -20 : 5)}px`;
@@ -28,7 +32,10 @@ export default function Tooltip(props) {
   }, [x, y, parentWidth, parentHeight]);
 
   return (
-    <div ref={ref} className={classes.tooltipAnchor}>
+    <div
+      ref={ref}
+      className={classes.tooltipAnchor}
+    >
       {ref && ref.current ? (
         <Popper
           open

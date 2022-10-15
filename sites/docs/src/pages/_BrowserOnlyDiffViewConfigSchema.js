@@ -8,7 +8,9 @@ export default function BrowserOnlyDiffViewConfigSchema() {
     <BrowserOnly>
       {() => {
         const DiffViewConfigSchema = require('./_DiffViewConfigSchema.js').default;
-        return <DiffViewConfigSchema />;
+        return (
+          <DiffViewConfigSchema />
+        );
       }}
     </BrowserOnly>
   );

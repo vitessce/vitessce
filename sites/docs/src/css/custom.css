@@ -19,7 +19,7 @@
   --ifm-color-primary-lightest: rgb(146, 224, 208);
   --ifm-code-font-size: 95%;
 
-  --ifm-navbar-height: 3rem;
+  --ifm-navbar-height: 3.0rem;
 
   --vit-input-foreground: #0451a5;
   --vit-input-background: #ffffff;
@@ -29,6 +29,7 @@
   --hero-banner-background: #49a5b7;
 
   font-family: 'Inter', sans-serif;
+
 }
 
 :root[data-theme='dark'] {
@@ -52,7 +53,7 @@
 }
 
 .docusaurus-highlight-code-line {
-  background-color: #dddfe1;
+  background-color: #DDDFE1;
   display: block;
   margin: 0 calc(-1 * var(--ifm-pre-padding));
   padding: 0 var(--ifm-pre-padding);
@@ -60,8 +61,10 @@
 
 /* If you have a different syntax highlighting theme for dark mode. */
 html[data-theme='dark'] .docusaurus-highlight-code-line {
-  background-color: #1c1d26; /* Color which works with dark mode syntax highlighting theme */
+  background-color: #1C1D26; /* Color which works with dark mode syntax highlighting theme */
 }
+
+
 
 .vitessce-app {
   flex: 1;
@@ -90,7 +93,7 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
 }
 
 .monaco-editor {
-  box-shadow: -3px 3px 5px 5px rgba(0, 0, 0, 0.06);
+  box-shadow: -3px 3px 5px 5px rgba(0,0,0,.06);
 }
 
 .table-concat tr:nth-child(2n) {
@@ -110,12 +113,12 @@ div[role='tooltip'] table {
   margin-bottom: 0;
 }
 
-div[role='tooltip'] table td,
-div[role='tooltip'] table th {
+div[role='tooltip'] table td, div[role='tooltip'] table th {
   border-left: 0;
   border-right: 0;
   border-top: 0;
 }
+
 
 .ar-16x9 {
   aspect-ratio: 16 / 9;

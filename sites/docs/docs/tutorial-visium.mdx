@@ -4,12 +4,12 @@ title: 'Tutorial: 10x Genomics Visium Dataset'
 sidebar_label: 10x Genomics Visium Dataset
 slug: /tutorial-visium
 ---
-
 import ViewConfigTabs from '../src/pages/_ViewConfigTabs';
 
 In this tutorial, we will visualize a 10x Genomics visium dataset from start to finish with the Vitessce web app.
 
 We will perform data conversion using Python 3 and save our converted dataset to a Zarr-based AnnData file type.
+
 
 ## Python environment setup
 
@@ -30,6 +30,7 @@ conda activate vitessce-tutorial-env
 ## Python package installation
 
 Use `conda install` to install the required Python packages.
+
 
 We will be using [Scanpy](https://scanpy.readthedocs.io/en/stable/index.html) to access the sample Visium dataset with the [visium_sge](https://scanpy.readthedocs.io/en/stable/api/scanpy.datasets.visium_sge.html) function. We will be using the [leiden](https://scanpy.readthedocs.io/en/stable/api/scanpy.tl.leiden.html#scanpy.tl.leiden) function of Scanpy which depends on the `leidenalg` package.
 
@@ -56,7 +57,6 @@ from os.path import join
 ```
 
 Next, retrieve the AnnData object for the `V1_Human_Lymph_Node` dataset.
-
 ```py
 adata = sc.datasets.visium_sge(sample_id="V1_Human_Lymph_Node", include_hires_tiff=True)
 ```
@@ -92,7 +92,6 @@ sc.tl.leiden(adata, key_added="clusters")
 As part of the previous steps, we ran the `highly_variable_genes` function, which updates the `highly_variable` column of the [`adata.var`](https://anndata.readthedocs.io/en/latest/anndata.AnnData.var.html) data frame, marking 300 genes with `True` to denote that they are highly variable.
 
 Based on the 300 most highly variable genes, we want to:
-
 - compute the optimal ordering of the 300 highly variable genes (for heatmap visualization),
 - re-order the columns of the smaller cell-by-gene matrix based on the optimal ordering, and
 - append a smaller cell-by-gene matrix (N cells by 300 genes) to the `adata` object.
@@ -124,6 +123,7 @@ We can run the following line to [subset](https://anndata.readthedocs.io/en/late
 ```py
 adata = adata[:, var_index_ordering].copy()
 ```
+
 
 We can append the smaller 300-gene cell-by-gene matrix under a new key `X_hvg` in [`adata.obsm`](https://anndata.readthedocs.io/en/latest/anndata.AnnData.obsm.html) (with the optimal gene ordering).
 
@@ -178,7 +178,6 @@ When `.zgroup` is opened in a text editor, it should contain the following conte
 ## View configuration
 
 Now that we have processed the data and started the local web server, we need to write a Vitessce configuration which specifies:
-
 - the data that we want to visualize,
 - the visualization types of interest, and
 - linking of visualization parameters across views ("view coordinations").
@@ -186,6 +185,7 @@ Now that we have processed the data and started the local web server, we need to
 :::note
 View configurations can be written using either a JSON syntax or a JavaScript syntax. Use the tabs above the view configuration examples below to toggle between these two options.
 :::
+
 
 We begin with a skeleton of a view config which lacks any visualizations or datasets.
 
@@ -259,6 +259,8 @@ const dataset = vc
   `}
 />
 
+
+
 The `options` part of the file definition above is specific to the `anndata-cells.zarr` file type, and the `mappings` object tells Vitessce how to map names of dimensionality reductions to arrays in the Zarr store. The strings `"UMAP"` and `"PCA"` in the above example are arbitrary names that we are choosing, and these strings will appear in the Vitessce user interface. The value for `"key"` must be a key to an array in the Zarr store, and the value for `"dims"` must be a tuple that specifies which dimensions of the dimensionality reduction array to use for the [X, Y] axes of the scatterplot.
 
 Before defining a scatterplot component, we need to set up the `embeddingType` coordination object in the coordination space.
@@ -283,6 +285,7 @@ ET2.setValue("UMAP");
 ...
   `}
 />
+
 
 The `ET1` and `ET2` above are arbitrary names for the two coordination scopes.
 
@@ -410,6 +413,7 @@ vc.layout(hconcat(pcaPlot, umapPlot));
 return vc.toJSON();
   `}
 />
+
 
 <!--
 ### Images and heatmap

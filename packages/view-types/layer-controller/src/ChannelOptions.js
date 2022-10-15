@@ -25,11 +25,7 @@ const useStyles = makeStyles(() => ({
  * @prop {function} handleChannelRemove Callback for channel removal.
  * @prop {function} handleIQRUpdate Callback for IQR slider update.
  */
-function ChannelOptions({
-  handlePropertyChange,
-  handleChannelRemove,
-  handleIQRUpdate,
-}) {
+function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUpdate }) {
   const [open, setOpen] = useState(false);
 
   const classes = useStyles();

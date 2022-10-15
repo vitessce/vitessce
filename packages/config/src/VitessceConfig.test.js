@@ -1,5 +1,9 @@
 import { CoordinationType } from '@vitessce/constants-internal';
-import { VitessceConfig, hconcat, vconcat } from './VitessceConfig';
+import {
+  VitessceConfig,
+  hconcat,
+  vconcat,
+} from './VitessceConfig';
 
 describe('src/api/VitessceConfig.js', () => {
   describe('VitessceConfig', () => {
@@ -17,10 +21,7 @@ describe('src/api/VitessceConfig.js', () => {
       });
     });
     it('can be instantiated', () => {
-      const config = new VitessceConfig({
-        schemaVersion: '1.0.4',
-        name: 'My config',
-      });
+      const config = new VitessceConfig({ schemaVersion: '1.0.4', name: 'My config' });
 
       const configJSON = config.toJSON();
       expect(configJSON).toEqual({
@@ -33,10 +34,7 @@ describe('src/api/VitessceConfig.js', () => {
       });
     });
     it('can add a dataset', () => {
-      const config = new VitessceConfig({
-        schemaVersion: '1.0.4',
-        name: 'My config',
-      });
+      const config = new VitessceConfig({ schemaVersion: '1.0.4', name: 'My config' });
       config.addDataset('My dataset');
 
       const configJSON = config.toJSON();
@@ -46,13 +44,11 @@ describe('src/api/VitessceConfig.js', () => {
             A: 'A',
           },
         },
-        datasets: [
-          {
-            name: 'My dataset',
-            uid: 'A',
-            files: [],
-          },
-        ],
+        datasets: [{
+          name: 'My dataset',
+          uid: 'A',
+          files: [],
+        }],
         initStrategy: 'auto',
         layout: [],
         name: 'My config',
@@ -66,9 +62,11 @@ describe('src/api/VitessceConfig.js', () => {
         description: 'My config description',
       });
       // Positional arguments.
-      config
-        .addDataset('My dataset', 'My dataset description')
-        .addFile('http://example.com/cells.json', 'cells', 'cells.json');
+      config.addDataset('My dataset', 'My dataset description').addFile(
+        'http://example.com/cells.json',
+        'cells',
+        'cells.json',
+      );
 
       const configJSON = config.toJSON();
       expect(configJSON).toEqual({
@@ -77,19 +75,15 @@ describe('src/api/VitessceConfig.js', () => {
             A: 'A',
           },
         },
-        datasets: [
-          {
-            name: 'My dataset',
-            description: 'My dataset description',
-            uid: 'A',
-            files: [
-              {
-                url: 'http://example.com/cells.json',
-                fileType: 'cells.json',
-              },
-            ],
-          },
-        ],
+        datasets: [{
+          name: 'My dataset',
+          description: 'My dataset description',
+          uid: 'A',
+          files: [{
+            url: 'http://example.com/cells.json',
+            fileType: 'cells.json',
+          }],
+        }],
         description: 'My config description',
         initStrategy: 'auto',
         layout: [],
@@ -116,19 +110,15 @@ describe('src/api/VitessceConfig.js', () => {
             A: 'A',
           },
         },
-        datasets: [
-          {
-            name: 'My dataset',
-            description: 'My dataset description',
-            uid: 'A',
-            files: [
-              {
-                url: 'http://example.com/cells.json',
-                fileType: 'cells.json',
-              },
-            ],
-          },
-        ],
+        datasets: [{
+          name: 'My dataset',
+          description: 'My dataset description',
+          uid: 'A',
+          files: [{
+            url: 'http://example.com/cells.json',
+            fileType: 'cells.json',
+          }],
+        }],
         description: 'My config description',
         initStrategy: 'auto',
         layout: [],
@@ -156,13 +146,11 @@ describe('src/api/VitessceConfig.js', () => {
             A: 'PCA',
           },
         },
-        datasets: [
-          {
-            name: 'My dataset',
-            uid: 'A',
-            files: [],
-          },
-        ],
+        datasets: [{
+          name: 'My dataset',
+          uid: 'A',
+          files: [],
+        }],
         initStrategy: 'auto',
         layout: [
           {
@@ -212,6 +200,7 @@ describe('src/api/VitessceConfig.js', () => {
       etxScope.setValue(11);
       etyScope.setValue(12);
 
+
       const configJSON = config.toJSON();
       expect(configJSON).toEqual({
         coordinationSpace: {
@@ -232,13 +221,11 @@ describe('src/api/VitessceConfig.js', () => {
             A: 12,
           },
         },
-        datasets: [
-          {
-            name: 'My dataset',
-            uid: 'A',
-            files: [],
-          },
-        ],
+        datasets: [{
+          name: 'My dataset',
+          uid: 'A',
+          files: [],
+        }],
         initStrategy: 'auto',
         layout: [
           {
@@ -284,7 +271,12 @@ describe('src/api/VitessceConfig.js', () => {
       const pca = config.addView(dataset, 'scatterplot', { mapping: 'PCA' });
       const tsne = config.addView(dataset, 'scatterplot', { mapping: 't-SNE' });
 
-      config.linkViews([pca, tsne], [CoordinationType.EMBEDDING_ZOOM]);
+      config.linkViews(
+        [pca, tsne],
+        [
+          CoordinationType.EMBEDDING_ZOOM,
+        ],
+      );
 
       config.linkViews(
         [pca, tsne],
@@ -292,7 +284,10 @@ describe('src/api/VitessceConfig.js', () => {
           CoordinationType.EMBEDDING_TARGET_X,
           CoordinationType.EMBEDDING_TARGET_Y,
         ],
-        [2, 3],
+        [
+          2,
+          3,
+        ],
       );
 
       const configJSON = config.toJSON();
@@ -315,13 +310,11 @@ describe('src/api/VitessceConfig.js', () => {
             A: 3,
           },
         },
-        datasets: [
-          {
-            name: 'My dataset',
-            uid: 'A',
-            files: [],
-          },
-        ],
+        datasets: [{
+          name: 'My dataset',
+          uid: 'A',
+          files: [],
+        }],
         initStrategy: 'auto',
         layout: [
           {
@@ -380,13 +373,11 @@ describe('src/api/VitessceConfig.js', () => {
             A: 'PCA',
           },
         },
-        datasets: [
-          {
-            name: 'My dataset',
-            uid: 'A',
-            files: [],
-          },
-        ],
+        datasets: [{
+          name: 'My dataset',
+          uid: 'A',
+          files: [],
+        }],
         initStrategy: 'auto',
         layout: [
           {
@@ -452,13 +443,11 @@ describe('src/api/VitessceConfig.js', () => {
             A: 'PCA',
           },
         },
-        datasets: [
-          {
-            name: 'My dataset',
-            uid: 'A',
-            files: [],
-          },
-        ],
+        datasets: [{
+          name: 'My dataset',
+          uid: 'A',
+          files: [],
+        }],
         initStrategy: 'auto',
         layout: [
           {

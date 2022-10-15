@@ -9,7 +9,10 @@ import { useControllerSectionStyles } from './styles';
 
 export default function VectorLayerController(props) {
   const {
-    label, layer, layerType, handleLayerChange,
+    label,
+    layer,
+    layerType,
+    handleLayerChange,
   } = props;
 
   const slider = layer.opacity;
@@ -42,11 +45,7 @@ export default function VectorLayerController(props) {
         </Typography>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={2}>
-            <Checkbox
-              color="primary"
-              checked={isOn}
-              onChange={(e, v) => handleCheckBoxChange(v)}
-            />
+            <Checkbox color="primary" checked={isOn} onChange={(e, v) => handleCheckBoxChange(v)} />
           </Grid>
           <Grid item xs={9} style={{ paddingRight: '8px' }}>
             <Slider

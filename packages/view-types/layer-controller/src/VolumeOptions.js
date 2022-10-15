@@ -38,9 +38,24 @@ const Slicer = ({
 }) => {
   const [xSliceInit, ySliceInit, zSliceInit] = getBoundingCube(loader.data);
   const sliceValuesAndSetSliceFunctions = [
-    [xSlice, xSliceNew => handleSlicerSetting('x', xSliceNew), 'x', xSliceInit],
-    [ySlice, ySliceNew => handleSlicerSetting('y', ySliceNew), 'y', ySliceInit],
-    [zSlice, zSliceNew => handleSlicerSetting('z', zSliceNew), 'z', zSliceInit],
+    [
+      xSlice,
+      xSliceNew => handleSlicerSetting('x', xSliceNew),
+      'x',
+      xSliceInit,
+    ],
+    [
+      ySlice,
+      ySliceNew => handleSlicerSetting('y', ySliceNew),
+      'y',
+      ySliceInit,
+    ],
+    [
+      zSlice,
+      zSliceNew => handleSlicerSetting('z', zSliceNew),
+      'z',
+      zSliceInit,
+    ],
   ];
   const classes = useSlicerStyles();
   const Slicers = sliceValuesAndSetSliceFunctions.map(
@@ -148,14 +163,15 @@ const ReCenterButton = ({
           rotationX: 0,
           rotationOrbit: 0,
         });
-      }}
+      }
+        }
       disabled={!use3d}
       style={{
         padding: 0,
         marginBottom: 6,
       }}
     >
-      Re-Center
+        Re-Center
     </Button>
   </Grid>
 );

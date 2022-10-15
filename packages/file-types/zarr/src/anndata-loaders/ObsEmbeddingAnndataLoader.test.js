@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
-import { LoaderResult } from '@vitessce/vit-s';
 import ObsEmbeddingAnndataLoader from './ObsEmbeddingAnndataLoader';
 import AnnDataSource from '../AnnDataSource';
+import { LoaderResult } from '@vitessce/vit-s';
 
 const createMatrixLoader = (url) => {
   const config = {
@@ -19,7 +19,7 @@ const createMatrixLoader = (url) => {
 };
 
 describe('loaders/ObsEmbeddingAnndataLoader', () => {
-  it('load returns obsIndex and obsEmbedding', async () => {
+  it('load returns obsIndex and obsEmbedding', async function () {
     const loader = createMatrixLoader(
       'http://localhost:51204/@fixtures/zarr/anndata-0.7/anndata-dense.zarr',
     );

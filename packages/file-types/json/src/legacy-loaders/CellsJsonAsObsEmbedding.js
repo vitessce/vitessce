@@ -1,6 +1,6 @@
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import cellsSchema from './schemas/cells.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 
 export default class CellsJsonAsObsEmbeddingLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -15,11 +15,10 @@ export default class CellsJsonAsObsEmbeddingLoader extends JsonLoader {
     }
     const { embeddingType } = this.coordinationValues;
     const cellObjs = Object.values(data);
-    if (
-      cellObjs.length > 0
-      && (!cellObjs[0].mappings
-        || !Array.isArray(cellObjs[0].mappings[embeddingType]))
-    ) {
+    if (cellObjs.length > 0 && (
+      !cellObjs[0].mappings
+      || !Array.isArray(cellObjs[0].mappings[embeddingType])
+    )) {
       // The cells file does not contain this embedding.
       this.cachedResult = null;
     } else {
@@ -46,6 +45,9 @@ export default class CellsJsonAsObsEmbeddingLoader extends JsonLoader {
     }
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(result, url));
+    return Promise.resolve(new LoaderResult(
+      result,
+      url,
+    ));
   }
 }

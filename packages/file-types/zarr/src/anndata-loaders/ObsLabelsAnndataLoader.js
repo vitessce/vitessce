@@ -1,9 +1,5 @@
-import {
-  LoaderResult,
-  AbstractTwoStepLoader,
-  AbstractLoaderError,
-  obsLabelsAnndataSchema,
-} from '@vitessce/vit-s';
+import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsLabelsAnndataSchema } from '@vitessce/vit-s';
+
 
 /**
  * Loader for string arrays located in anndata.zarr stores.
@@ -33,15 +29,16 @@ export default class ObsLabelsAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const superResult = await super
-      .load()
-      .catch(reason => Promise.resolve(reason));
+    const superResult = await super.load().catch(reason => Promise.resolve(reason));
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
     return Promise.all([
       this.dataSource.loadObsIndex(),
       this.loadLabels(),
-    ]).then(([obsIndex, obsLabels]) => Promise.resolve(new LoaderResult({ obsIndex, obsLabels }, null)));
+    ]).then(([obsIndex, obsLabels]) => Promise.resolve(new LoaderResult(
+      { obsIndex, obsLabels },
+      null,
+    )));
   }
 }

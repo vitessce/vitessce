@@ -1,17 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 import { openArray, slice } from 'zarr';
 import { extent } from 'd3-array';
-import {
-  LoaderResult,
-  AbstractTwoStepLoader,
-  AbstractLoaderError,
-  obsFeatureMatrixAnndataSchema,
-} from '@vitessce/vit-s';
+import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsFeatureMatrixAnndataSchema } from '@vitessce/vit-s';
 
 const normalize = (arr) => {
   const [min, max] = extent(arr);
   const ratio = 255 / (max - min);
-  const data = new Uint8Array(arr.map(i => Math.floor((i - min) * ratio)));
+  const data = new Uint8Array(
+    arr.map(i => Math.floor((i - min) * ratio)),
+  );
   return { data };
 };
 
@@ -19,18 +16,12 @@ const concatenateColumnVectors = (arr) => {
   const numCols = arr.length;
   const numRows = arr[0].length;
   const { BYTES_PER_ELEMENT } = arr[0];
-  const view = new DataView(
-    new ArrayBuffer(numCols * numRows * BYTES_PER_ELEMENT),
-  );
+  const view = new DataView(new ArrayBuffer(numCols * numRows * BYTES_PER_ELEMENT));
   const TypedArray = arr[0].constructor;
   const dtype = TypedArray.name.replace('Array', '');
   for (let i = 0; i < numCols; i += 1) {
     for (let j = 0; j < numRows; j += 1) {
-      view[`set${dtype}`](
-        BYTES_PER_ELEMENT * (j * numCols + i),
-        arr[i][j],
-        true,
-      );
+      view[`set${dtype}`](BYTES_PER_ELEMENT * (j * numCols + i), arr[i][j], true);
     }
   }
   return new TypedArray(view.buffer);
@@ -61,9 +52,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     const { featureFilterPath: geneFilterZarr, geneAlias } = this.getOptions();
     const getFilterFn = async () => {
       if (!geneFilterZarr) return data => data;
-      const geneFilter = await this.dataSource.getFlatArrDecompressed(
-        geneFilterZarr,
-      );
+      const geneFilter = await this.dataSource.getFlatArrDecompressed(geneFilterZarr);
       return data => data.filter((_, j) => geneFilter[j]);
     };
     const geneNamesPromise = geneAlias
@@ -264,7 +253,10 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     if (this.cellXGene) {
       return this.cellXGene;
     }
-    const { path: matrix, initialFeatureFilterPath: matrixGeneFilter } = this.getOptions();
+    const {
+      path: matrix,
+      initialFeatureFilterPath: matrixGeneFilter,
+    } = this.getOptions();
     if (!this._matrixZattrs) {
       this._matrixZattrs = await this.dataSource.getJson(`${matrix}/.zattrs`);
     }
@@ -281,29 +273,29 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
         this.cellXGene = this.arr.then(z => z.getRaw(null).then(({ data }) => normalize(data)));
       }
     } else if (encodingType === 'csr_matrix') {
-      this.cellXGene = this._loadCSRSparseCellXGene().then(async (cellXGene) => {
-        const filteredGenes = await this._getFilteredGenes(matrixGeneFilter);
-        const numGenesFiltered = filteredGenes.length;
-        const geneNames = await this.loadFilteredGeneNames();
-        const numGenes = geneNames.length;
-        const numCells = await this._getNumCells();
-        const cellXGeneMatrixFiltered = new Float32Array(
-          numCells * numGenesFiltered,
-        ).fill(0);
-        for (let i = 0; i < numGenesFiltered; i += 1) {
-          const index = geneNames.indexOf(filteredGenes[i]);
-          for (let j = 0; j < numCells; j += 1) {
-            cellXGeneMatrixFiltered[j * numGenesFiltered + i] = cellXGene[j * numGenes + index];
+      this.cellXGene = this._loadCSRSparseCellXGene().then(
+        async (cellXGene) => {
+          const filteredGenes = await this._getFilteredGenes(matrixGeneFilter);
+          const numGenesFiltered = filteredGenes.length;
+          const geneNames = await this.loadFilteredGeneNames();
+          const numGenes = geneNames.length;
+          const numCells = await this._getNumCells();
+          const cellXGeneMatrixFiltered = new Float32Array(
+            numCells * numGenesFiltered,
+          ).fill(0);
+          for (let i = 0; i < numGenesFiltered; i += 1) {
+            const index = geneNames.indexOf(filteredGenes[i]);
+            for (let j = 0; j < numCells; j += 1) {
+              cellXGeneMatrixFiltered[j * numGenesFiltered + i] = cellXGene[j * numGenes + index];
+            }
           }
-        }
-        return normalize(cellXGeneMatrixFiltered);
-      });
+          return normalize(cellXGeneMatrixFiltered);
+        },
+      );
     } else {
       const genes = await this._getFilteredGenes(matrixGeneFilter);
-      this.cellXGene = this.loadGeneSelection({
-        selection: genes,
-        shouldNormalize: false,
-      }).then(({ data }) => normalize(concatenateColumnVectors(data)));
+      this.cellXGene = this.loadGeneSelection({ selection: genes, shouldNormalize: false })
+        .then(({ data }) => (normalize(concatenateColumnVectors(data))));
     }
     return this.cellXGene;
   }
@@ -337,10 +329,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
         indices.map(index => this.arr.then(z => z.get([null, index])).then(({ data }) => data)),
       );
     }
-    return {
-      data: genes.map(i => (shouldNormalize ? normalize(i).data : i)),
-      url: null,
-    };
+    return { data: genes.map(i => (shouldNormalize ? normalize(i).data : i)), url: null };
   }
 
   /**
@@ -349,22 +338,22 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    * @returns {Object} { data: { rows, cols }, url } containing row and col labels for the matrix.
    */
   loadAttrs() {
-    return Promise.all([
-      this.dataSource.loadObsIndex(),
-      this.loadFilteredGeneNames(),
-    ]).then((d) => {
-      const [cellNames, geneNames] = d;
-      const attrs = { rows: cellNames, cols: geneNames };
-      return {
-        data: attrs,
-        url: null,
-      };
-    });
+    return Promise.all([this.dataSource.loadObsIndex(), this.loadFilteredGeneNames()])
+      .then((d) => {
+        const [cellNames, geneNames] = d;
+        const attrs = { rows: cellNames, cols: geneNames };
+        return {
+          data: attrs,
+          url: null,
+        };
+      });
   }
 
   async loadInitialFilteredGeneNames() {
     const filteredGeneNames = await this.loadFilteredGeneNames();
-    const { initialFeatureFilterPath: matrixGeneFilterZarr } = this.getOptions();
+    const {
+      initialFeatureFilterPath: matrixGeneFilterZarr,
+    } = this.getOptions();
     // In order to return the correct gene list with the heatmap data,
     // we need to filter the columns of attrs so it matches the cellXGene data.
     if (matrixGeneFilterZarr) {
@@ -396,9 +385,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     );
   } */
   async load() {
-    const superResult = await super
-      .load()
-      .catch(reason => Promise.resolve(reason));
+    const superResult = await super.load().catch(reason => Promise.resolve(reason));
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
@@ -406,8 +393,9 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       this.dataSource.loadObsIndex(),
       this.loadInitialFilteredGeneNames(),
       this.loadCellXGene(),
-    ]).then(([obsIndex, featureIndex, obsFeatureMatrix]) => Promise.resolve(
-      new LoaderResult({ obsIndex, featureIndex, obsFeatureMatrix }, null),
-    ));
+    ]).then(([obsIndex, featureIndex, obsFeatureMatrix]) => Promise.resolve(new LoaderResult(
+      { obsIndex, featureIndex, obsFeatureMatrix },
+      null,
+    )));
   }
 }

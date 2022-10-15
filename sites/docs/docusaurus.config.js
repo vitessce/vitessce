@@ -1,8 +1,7 @@
 const path = require('path');
 module.exports = {
   title: 'Vitessce',
-  tagline:
-    'Visual integration tool for exploration of spatial single cell experiments',
+  tagline: 'Visual integration tool for exploration of spatial single cell experiments',
   url: 'http://vitessce.io',
   baseUrl: process.env.VITESSCE_DOCS_BASE_URL || '/',
   onBrokenLinks: 'warn',
@@ -112,7 +111,7 @@ module.exports = {
             },
             {
               html: 'Harvard Stem Cell Institute (CF-0014-17-03, PI: Nils Gehlenborg)',
-            },
+            }
           ],
         },
       ],
@@ -146,9 +145,11 @@ module.exports = {
   ],
   scripts: [
     {
-      src: 'https://www.googletagmanager.com/gtag/js?id=UA-96954979-2',
+      src: "https://www.googletagmanager.com/gtag/js?id=UA-96954979-2",
       async: true,
-    },
+    }
   ],
-  clientModules: [require.resolve('./analytics.js')],
+  clientModules: [
+    require.resolve('./analytics.js'),
+  ],
 };

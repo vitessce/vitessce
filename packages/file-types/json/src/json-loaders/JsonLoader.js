@@ -1,13 +1,6 @@
 import Ajv from 'ajv';
 import { FileType } from '@vitessce/constants-internal';
-import {
-  AbstractTwoStepLoader,
-  LoaderValidationError,
-  AbstractLoaderError,
-  LoaderResult,
-  obsSetsSchema,
-  rasterSchema,
-} from '@vitessce/vit-s';
+import { AbstractTwoStepLoader, LoaderValidationError, AbstractLoaderError, LoaderResult, obsSetsSchema, rasterSchema } from '@vitessce/vit-s';
 
 import cellsSchema from '../legacy-loaders/schemas/cells.schema.json';
 import moleculesSchema from '../legacy-loaders/schemas/molecules.schema.json';
@@ -30,22 +23,23 @@ export default class JsonLoader extends AbstractTwoStepLoader {
   }
 
   load() {
-    const { url, type, fileType } = this;
+    const {
+      url, type, fileType,
+    } = this;
     if (this.data) {
       return this.data;
     }
-    this.data = this.dataSource.data.then((data) => {
-      if (data instanceof AbstractLoaderError) {
-        return Promise.reject(data);
-      }
-      const [valid, reason] = this.validate(data);
-      if (valid) {
-        return Promise.resolve(new LoaderResult(data, url));
-      }
-      return Promise.reject(
-        new LoaderValidationError(type, fileType, url, reason),
-      );
-    });
+    this.data = this.dataSource.data
+      .then((data) => {
+        if (data instanceof AbstractLoaderError) {
+          return Promise.reject(data);
+        }
+        const [valid, reason] = this.validate(data);
+        if (valid) {
+          return Promise.resolve(new LoaderResult(data, url));
+        }
+        return Promise.reject(new LoaderValidationError(type, fileType, url, reason));
+      });
     return this.data;
   }
 

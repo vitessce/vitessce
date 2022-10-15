@@ -12,10 +12,8 @@
     "start-docs": "pnpm -r --parallel --filter=!demo start",
     "build": "pnpm -r build",
     "format-check": "prettier --check --ignore-path .gitignore sites/ packages/ examples/",
-    "format-fix": "pnpm run format-check --write",
-    "lint-check": "eslint \"packages/**/src/**/*\" \"sites/*/src/**/*\" \"examples/*/src/**/*\"",
-    "lint-fix": "eslint --fix \"packages/**/src/**/*\" \"sites/*/src/**/*\" \"examples/*/src/**/*\"",
-    "format-and-lint": "pnpm run format-check && pnpm run lint-check",
+    "format": "pnpm run format-check -- --write",
+    "lint": "pnpm run format-check && eslint \"packages/**/src/**/*\" \"sites/*/src/**/*\" \"examples/*/src/**/*\"",
     "clean": "pnpm -r exec -- rm -rf node_modules"
   },
   "devDependencies": {
@@ -58,7 +56,7 @@
   "license": "MIT",
   "prettier": {
     "singleQuote": true,
-    "trailingComma": "all",
+    "trailingComma": "none",
     "arrowParens": "avoid"
   }
 }

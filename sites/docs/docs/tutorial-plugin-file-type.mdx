@@ -6,6 +6,7 @@ sidebar_label: Plugin File Type
 
 See the [file type implementation](/docs/dev-add-loader/) and [plugin file type development](/docs/dev-plugins/#plugin-file-types) documentation for more details.
 
+
 ### Minimal example
 
 ```js
@@ -27,18 +28,19 @@ const numGenes = 90;
 class InMemoryCellsLoader extends JsonLoader {
   // eslint-disable-next-line class-methods-use-this
   async load() {
-    const data = fromEntries(
-      range(numCells).map(i => [
-        `cell_${i}`,
-        {
-          mappings: {
-            random: [Math.random(), Math.random()],
-          },
-          genes: {},
-          xy: [Math.random(), Math.random()],
-        },
-      ]),
-    );
+    const data = fromEntries(range(numCells).map(i => ([`cell_${i}`, {
+      mappings: {
+        random: [
+          Math.random(),
+          Math.random(),
+        ],
+      },
+      genes: {},
+      xy: [
+        Math.random(),
+        Math.random(),
+      ],
+    }])));
 
     return Promise.resolve(new LoaderResult(data, null));
   }
@@ -50,7 +52,9 @@ class InMemoryMatrixLoader extends JsonLoader {
     const data = {
       rows: range(numGenes).map(j => `gene_${j}`),
       cols: range(numCells).map(j => `cell_${j}`),
-      matrix: range(numGenes).map(i => range(numCells).map(j => i + j + 1)),
+      matrix: range(numGenes).map(
+        i => range(numCells).map(j => i + j + 1),
+      ),
     };
     const { rows, cols, matrix } = data;
     const attrs = {
@@ -60,15 +64,14 @@ class InMemoryMatrixLoader extends JsonLoader {
     const shape = [attrs.rows.length, attrs.cols.length];
     // Normalize values by converting to one-byte integers.
     // Normalize for each gene (column) independently.
-    const normalizedMatrix = matrix.map(col => {
+    const normalizedMatrix = matrix.map((col) => {
       const [min, max] = [0, 1];
       const normalize = d => Math.floor(((d - min) / (max - min)) * 255);
       return col.map(normalize);
     });
     // Transpose the normalized matrix.
-    const tNormalizedMatrix = range(shape[0]).map(i =>
-      range(shape[1]).map(j => normalizedMatrix[j][i]),
-    );
+    const tNormalizedMatrix = range(shape[0])
+      .map(i => range(shape[1]).map(j => normalizedMatrix[j][i]));
     // Flatten the transposed matrix.
     const normalizedFlatMatrix = tNormalizedMatrix.flat();
     // Need to wrap the NestedArray to mock the HTTPStore-based array
@@ -79,17 +82,13 @@ class InMemoryMatrixLoader extends JsonLoader {
 }
 
 registerPluginFileType(
-  'in-memory-cells',
-  'cells',
-  InMemoryCellsLoader,
-  JsonSource,
+  'in-memory-cells', 'cells',
+  InMemoryCellsLoader, JsonSource,
 );
 
 registerPluginFileType(
-  'in-memory-matrix',
-  'expression-matrix',
-  InMemoryMatrixLoader,
-  JsonSource,
+  'in-memory-matrix', 'expression-matrix',
+  InMemoryMatrixLoader, JsonSource,
 );
 
 // Use the plugin file type in the configuration.
@@ -145,7 +144,12 @@ const configWithPluginFileType = {
 
 export default function MyApp() {
   return (
-    <Vitessce config={configWithPluginFileType} height={800} theme="light" />
+    <Vitessce
+      config={configWithPluginFileType}
+      height={800}
+      theme="light"
+    />
   );
 }
 ```
+

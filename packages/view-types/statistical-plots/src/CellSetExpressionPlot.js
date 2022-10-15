@@ -49,7 +49,8 @@ export default function CellSetExpressionPlot(props) {
   // so the perpendicular distance to the bottom of the labels is proportional to the
   // square root of the length of the labels along the imaginary hypotenuse.
   // 30 is an estimate of the pixel size of a given character and seems to work well.
-  const autoMarginBottom = marginBottom || 30 + Math.sqrt(maxCharactersForLabel / 2) * 30;
+  const autoMarginBottom = marginBottom
+    || 30 + Math.sqrt(maxCharactersForLabel / 2) * 30;
   // Manually set the color scale so that Vega-Lite does
   // not choose the colors automatically.
   const colorScale = {
@@ -63,7 +64,7 @@ export default function CellSetExpressionPlot(props) {
   const numBands = colors.length;
   const bandWidth = plotWidth / numBands;
 
-  const rectColor = theme === 'dark' ? 'white' : 'black';
+  const rectColor = (theme === 'dark' ? 'white' : 'black');
 
   const spec = {
     $schema: 'https://vega.github.io/schema/vega/v5.json',
@@ -154,10 +155,7 @@ export default function CellSetExpressionPlot(props) {
         scale: 'yscale',
         zindex: 1,
         title: featureValueTransformName
-          ? [
-            `${featureValueTransformName}-Transformed`,
-            `Normalized ${capitalize(featureValueType)} Values`,
-          ]
+          ? [`${featureValueTransformName}-Transformed`, `Normalized ${capitalize(featureValueType)} Values`]
           : `Normalized ${capitalize(featureValueType)} Values`,
       },
       {
@@ -271,5 +269,10 @@ export default function CellSetExpressionPlot(props) {
     ],
   };
 
-  return <VegaPlot data={data} spec={spec} />;
+  return (
+    <VegaPlot
+      data={data}
+      spec={spec}
+    />
+  );
 }

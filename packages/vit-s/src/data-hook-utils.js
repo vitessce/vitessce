@@ -2,12 +2,11 @@ import { useState, useEffect } from 'react';
 import equal from 'fast-deep-equal';
 import { capitalize } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
+import { useMatchingLoader, useMatchingLoaders, useSetWarning } from './state/hooks';
 import {
-  useMatchingLoader,
-  useMatchingLoaders,
-  useSetWarning,
-} from './state/hooks';
-import { AbstractLoaderError, LoaderNotFoundError } from './errors/index';
+  AbstractLoaderError,
+  LoaderNotFoundError,
+} from './errors/index';
 import { getDefaultCoordinationValues } from './plugins';
 
 /**
@@ -44,15 +43,13 @@ export function initCoordinationSpace(values, setters, initialValues) {
     const setterName = `set${capitalize(coordinationType)}`;
     const setterFunc = setters[setterName];
     const initialValue = initialValues && initialValues[coordinationType];
-    const shouldInit = equal(
-      initialValue,
-      defaultCoordinationValues[coordinationType],
-    );
+    const shouldInit = equal(initialValue, defaultCoordinationValues[coordinationType]);
     if (shouldInit && setterFunc) {
       setterFunc(value);
     }
   });
 }
+
 
 /**
  * Get data from a cells data type loader,
@@ -78,14 +75,8 @@ export function initCoordinationSpace(values, setters, initialValues) {
  * number of items in the cells object.
  */
 export function useDataType(
-  dataType,
-  loaders,
-  dataset,
-  addUrl,
-  isRequired,
-  coordinationSetters,
-  initialCoordinationValues,
-  matchOn,
+  dataType, loaders, dataset, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   const [data, setData] = useState({});
   const [status, setStatus] = useState(STATUS.LOADING);
@@ -96,40 +87,34 @@ export function useDataType(
   useEffect(() => {
     if (loader) {
       setStatus(STATUS.LOADING);
-      loader
-        .load()
-        .catch(e => warn(e, setWarning))
-        .then((payload) => {
-          if (!payload) return;
-          const { data: payloadData, url, coordinationValues } = payload;
-          setData(payloadData);
-          if (Array.isArray(url)) {
-            url.forEach(([val, name]) => {
-              addUrl(val, name);
-            });
-          } else if (url) {
-            addUrl(url, dataType);
-          }
-          initCoordinationSpace(
-            coordinationValues,
-            coordinationSetters,
-            initialCoordinationValues,
-          );
-          setStatus(STATUS.SUCCESS);
-        });
+      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
+        if (!payload) return;
+        const { data: payloadData, url, coordinationValues } = payload;
+        setData(payloadData);
+        if (Array.isArray(url)) {
+          url.forEach(([val, name]) => {
+            addUrl(val, name);
+          });
+        } else if (url) {
+          addUrl(url, dataType);
+        }
+        initCoordinationSpace(
+          coordinationValues,
+          coordinationSetters,
+          initialCoordinationValues,
+        );
+        setStatus(STATUS.SUCCESS);
+      });
     } else {
       setData({});
       if (isRequired) {
-        warn(
-          new LoaderNotFoundError(loaders, dataset, dataType, matchOn),
-          setWarning,
-        );
+        warn(new LoaderNotFoundError(loaders, dataset, dataType, matchOn), setWarning);
         setStatus(STATUS.ERROR);
       } else {
         setStatus(STATUS.SUCCESS);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loader]);
 
   return [data, status];
@@ -159,65 +144,48 @@ export function useDataType(
  * number of items in the cells object.
  */
 export function useDataTypeMulti(
-  dataType,
-  loaders,
-  dataset,
-  addUrl,
-  isRequired,
-  coordinationSetters,
-  initialCoordinationValues,
-  matchOnObj,
+  dataType, loaders, dataset, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOnObj,
 ) {
   const [data, setData] = useState({});
   const [status, setStatus] = useState(STATUS.LOADING);
 
   const setWarning = useSetWarning();
-  const matchingLoaders = useMatchingLoaders(
-    loaders,
-    dataset,
-    dataType,
-    matchOnObj,
-  );
+  const matchingLoaders = useMatchingLoaders(loaders, dataset, dataType, matchOnObj);
 
   useEffect(() => {
     if (matchingLoaders) {
       setStatus(STATUS.LOADING);
       Object.entries(matchingLoaders).forEach(([scopeKey, loader]) => {
         if (loader) {
-          loader
-            .load()
-            .catch(e => warn(e, setWarning))
-            .then((payload) => {
-              if (!payload) return;
-              const { data: payloadData, url, coordinationValues } = payload;
-              setData((prev) => {
-                // eslint-disable-next-line no-param-reassign
-                prev[scopeKey] = payloadData;
-                return prev;
-              });
-              addUrl(url, dataType);
-              initCoordinationSpace(
-                coordinationValues,
-                coordinationSetters,
-                initialCoordinationValues,
-              );
-              setStatus(STATUS.SUCCESS);
+          loader.load().catch(e => warn(e, setWarning)).then((payload) => {
+            if (!payload) return;
+            const { data: payloadData, url, coordinationValues } = payload;
+            setData((prev) => {
+              // eslint-disable-next-line no-param-reassign
+              prev[scopeKey] = payloadData;
+              return prev;
             });
+            addUrl(url, dataType);
+            initCoordinationSpace(
+              coordinationValues,
+              coordinationSetters,
+              initialCoordinationValues,
+            );
+            setStatus(STATUS.SUCCESS);
+          });
         }
       });
     } else {
       setData({});
       if (isRequired) {
-        warn(
-          new LoaderNotFoundError(loaders, dataset, dataType, matchOnObj),
-          setWarning,
-        );
+        warn(new LoaderNotFoundError(loaders, dataset, dataType, matchOnObj), setWarning);
         setStatus(STATUS.ERROR);
       } else {
         setStatus(STATUS.SUCCESS);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchingLoaders]);
 
   return [data, status];

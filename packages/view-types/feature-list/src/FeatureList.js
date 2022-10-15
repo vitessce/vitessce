@@ -3,14 +3,14 @@ import every from 'lodash/every';
 import { makeStyles } from '@material-ui/core/styles';
 import { SelectableTable } from './selectable-table/index';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   searchBar: {
     marginBottom: '.25rem',
     border: '0',
     padding: '2px',
     borderRadius: '2px',
-  },
-}));
+  }
+}))
 
 export default function FeatureList(props) {
   const {
@@ -29,13 +29,11 @@ export default function FeatureList(props) {
   const [searchResults, setSearchResults] = useState(geneList);
 
   useEffect(() => {
-    const results = geneList.filter(
-      gene => gene.toLowerCase().includes(searchTerm.toLowerCase())
-        || featureLabelsMap
-          ?.get(gene)
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase()),
-    );
+    const results = geneList
+      .filter(gene => (
+        gene.toLowerCase().includes(searchTerm.toLowerCase())
+        || featureLabelsMap?.get(gene)?.toLowerCase().includes(searchTerm.toLowerCase())
+      ));
     setSearchResults(results);
   }, [searchTerm, geneList, featureLabelsMap]);
 
@@ -55,11 +53,13 @@ export default function FeatureList(props) {
 
   const data = searchResults
     .filter(gene => (geneFilter ? geneFilter.includes(gene) : true))
-    .map(gene => ({
-      key: gene,
-      name: featureLabelsMap?.get(gene) || gene,
-      value: geneSelection ? geneSelection.includes(gene) : false,
-    }))
+    .map(
+      gene => ({
+        key: gene,
+        name: featureLabelsMap?.get(gene) || gene,
+        value: (geneSelection ? geneSelection.includes(gene) : false),
+      }),
+    )
     .sort((a, b) => a.name.localeCompare(b.name));
 
   const handleChange = (event) => {

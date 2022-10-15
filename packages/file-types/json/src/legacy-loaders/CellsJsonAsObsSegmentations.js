@@ -1,7 +1,7 @@
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
-import { DEFAULT_CELLS_LAYER, square } from '@vitessce/gl';
 import cellsSchema from './schemas/cells.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { DEFAULT_CELLS_LAYER, square } from '@vitessce/gl';
 
 export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -16,11 +16,7 @@ export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
     }
     const obsIndex = Object.keys(data);
     const cellObjs = Object.values(data);
-    if (
-      cellObjs.length > 0
-      && !Array.isArray(cellObjs[0].poly)
-      && !Array.isArray(cellObjs[0].xy)
-    ) {
+    if (cellObjs.length > 0 && !Array.isArray(cellObjs[0].poly) && !Array.isArray(cellObjs[0].xy)) {
       // This cells.json file does not have segmentations.
       this.cachedResult = null;
     } else {
@@ -53,15 +49,9 @@ export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
     const coordinationValues = {
       spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
     };
-    return Promise.resolve(
-      new LoaderResult(
-        {
-          ...result,
-          obsSegmentationsType: 'polygon',
-        },
-        url,
-        coordinationValues,
-      ),
-    );
+    return Promise.resolve(new LoaderResult({
+      ...result,
+      obsSegmentationsType: 'polygon',
+    }, url, coordinationValues));
   }
 }

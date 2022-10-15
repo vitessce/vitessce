@@ -12,7 +12,9 @@ export default class LoaderValidationError extends AbstractLoaderError {
   }
 
   warnInConsole() {
-    const { datasetType, datasetUrl, reason } = this;
+    const {
+      datasetType, datasetUrl, reason,
+    } = this;
     console.warn(
       `${datasetType} from ${datasetUrl}: validation failed`,
       JSON.stringify(reason, null, 2),

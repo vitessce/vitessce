@@ -4,60 +4,53 @@ export const legacyViewConfig0_1_0 = {
   public: true,
   name: 'My config name',
   description: 'My config description',
-  layers: [
-    {
-      name: 'cells',
-      type: 'CELLS',
-      fileType: 'cells.json',
-      url: 'https://example.com/cells.json',
+  layers: [{
+    name: 'cells',
+    type: 'CELLS',
+    fileType: 'cells.json',
+    url: 'https://example.com/cells.json',
+  }, {
+    name: 'cell-sets',
+    type: 'CELL-SETS',
+    fileType: 'cell-sets.json',
+    url: 'https://example.com/cell-sets.json',
+  }],
+  staticLayout: [{
+    component: 'description',
+    props: {
+      description: 'My component description',
     },
-    {
-      name: 'cell-sets',
-      type: 'CELL-SETS',
-      fileType: 'cell-sets.json',
-      url: 'https://example.com/cell-sets.json',
-    },
-  ],
-  staticLayout: [
-    {
-      component: 'description',
-      props: {
-        description: 'My component description',
+    x: 9,
+    y: 0,
+    w: 3,
+    h: 2,
+  }, {
+    component: 'scatterplot',
+    props: {
+      mapping: 't-SNE',
+      view: {
+        zoom: 3,
+        target: [0, 0, 0],
       },
-      x: 9,
-      y: 0,
-      w: 3,
-      h: 2,
     },
-    {
-      component: 'scatterplot',
-      props: {
-        mapping: 't-SNE',
-        view: {
-          zoom: 3,
-          target: [0, 0, 0],
-        },
+    x: 0,
+    y: 2,
+    w: 5,
+    h: 4,
+  }, {
+    component: 'spatial',
+    props: {
+      cellRadius: 50,
+      view: {
+        zoom: -4.4,
+        target: [3800, -900, 0],
       },
-      x: 0,
-      y: 2,
-      w: 5,
-      h: 4,
     },
-    {
-      component: 'spatial',
-      props: {
-        cellRadius: 50,
-        view: {
-          zoom: -4.4,
-          target: [3800, -900, 0],
-        },
-      },
-      x: 5,
-      y: 0,
-      w: 4,
-      h: 4,
-    },
-  ],
+    x: 5,
+    y: 0,
+    w: 4,
+    h: 4,
+  }],
 };
 
 export const upgradedLegacyViewConfig0_1_0 = {
@@ -131,7 +124,11 @@ export const upgradedLegacyViewConfig0_1_0 = {
       props: {
         mapping: 't-SNE',
         view: {
-          target: [0, 0, 0],
+          target: [
+            0,
+            0,
+            0,
+          ],
           zoom: 3,
         },
       },
@@ -150,7 +147,11 @@ export const upgradedLegacyViewConfig0_1_0 = {
       props: {
         cellRadius: 50,
         view: {
-          target: [3800, -900, 0],
+          target: [
+            3800,
+            -900,
+            0,
+          ],
           zoom: -4.4,
         },
       },
@@ -212,7 +213,11 @@ export const legacyViewConfig1_0_0 = {
       props: {
         cellRadius: 50,
         view: {
-          target: [3800, -900, 0],
+          target: [
+            3800,
+            -900,
+            0,
+          ],
           zoom: -4.4,
         },
       },
@@ -234,7 +239,10 @@ export const upgradedLegacyViewConfig1_0_0 = {
       A: 'A',
     },
     spatialRasterLayers: {
-      A: [{ index: 2 }, { index: 3 }],
+      A: [
+        { index: 2 },
+        { index: 3 },
+      ],
     },
     spatialCellsLayer: {
       A: { radius: 10, visible: true },
@@ -281,7 +289,11 @@ export const upgradedLegacyViewConfig1_0_0 = {
       props: {
         cellRadius: 50,
         view: {
-          target: [3800, -900, 0],
+          target: [
+            3800,
+            -900,
+            0,
+          ],
           zoom: -4.4,
         },
       },
@@ -291,6 +303,7 @@ export const upgradedLegacyViewConfig1_0_0 = {
     },
   ],
 };
+
 
 export const missingViewUids = {
   version: '1.0.9',
@@ -353,6 +366,7 @@ export const missingViewUids = {
     },
   ],
 };
+
 
 export const viewConfig1_0_10 = {
   version: '1.0.10',
@@ -424,7 +438,11 @@ export const viewConfig1_0_10 = {
       props: {
         mapping: 't-SNE',
         view: {
-          target: [0, 0, 0],
+          target: [
+            0,
+            0,
+            0,
+          ],
           zoom: 3,
         },
       },
@@ -443,7 +461,11 @@ export const viewConfig1_0_10 = {
       props: {
         cellRadius: 50,
         view: {
-          target: [3800, -900, 0],
+          target: [
+            3800,
+            -900,
+            0,
+          ],
           zoom: -4.4,
         },
       },
@@ -530,7 +552,10 @@ export const initializedViewConfig = {
       A: 'plasma',
     },
     featureValueColormapRange: {
-      A: [0, 1],
+      A: [
+        0,
+        1,
+      ],
     },
     featureHighlight: {
       A: null,
@@ -678,7 +703,11 @@ export const initializedViewConfig = {
       props: {
         mapping: 't-SNE',
         view: {
-          target: [0, 0, 0],
+          target: [
+            0,
+            0,
+            0,
+          ],
           zoom: 3,
         },
       },
@@ -727,7 +756,11 @@ export const initializedViewConfig = {
       props: {
         cellRadius: 50,
         view: {
-          target: [3800, -900, 0],
+          target: [
+            3800,
+            -900,
+            0,
+          ],
           zoom: -4.4,
         },
       },

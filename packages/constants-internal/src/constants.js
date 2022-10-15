@@ -32,6 +32,7 @@ export const DataType = {
   GENOMIC_PROFILES: 'genomic-profiles',
 };
 
+
 export const FileType = {
   // Joint file types
   ANNDATA_ZARR: 'anndata.zarr',
@@ -67,8 +68,7 @@ export const FileType = {
   // - clusters.json
   OBS_FEATURE_MATRIX_CLUSTERS_JSON: 'obsFeatureMatrix.clusters.json',
   // - expression-matrix.zarr
-  OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR:
-    'obsFeatureMatrix.expression-matrix.zarr',
+  OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR: 'obsFeatureMatrix.expression-matrix.zarr',
   // - raster.json
   IMAGE_RASTER_JSON: 'image.raster.json',
   OBS_SEGMENTATIONS_RASTER_JSON: 'obsSegmentations.raster.json',

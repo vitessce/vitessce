@@ -1,10 +1,9 @@
 import { fromEntries } from '@vitessce/utils';
 import {
-  FileType,
-  CoordinationType,
+  FileType, CoordinationType,
   FILE_TYPE_DATA_TYPE_MAPPING,
   COMPONENT_COORDINATION_TYPES,
-  DEFAULT_COORDINATION_VALUES,
+  DEFAULT_COORDINATION_VALUES
 } from '@vitessce/constants-internal';
 import { JOINT_FILE_TYPES } from './joint-file-types';
 
@@ -46,11 +45,7 @@ export function registerPluginCoordinationType(typeName, defaultValue) {
  * @param {function} viewSubscriberReactComponent A react component.
  * @param {string[]} coordinationTypes A list of coordination types that this view supports.
  */
-export function registerPluginViewType(
-  viewType,
-  viewSubscriberReactComponent,
-  coordinationTypes,
-) {
+export function registerPluginViewType(viewType, viewSubscriberReactComponent, coordinationTypes) {
   PLUGINS[PLUGIN_VIEW_TYPES_KEY][viewType] = viewSubscriberReactComponent;
   // Register the supported coordination types.
   const pluginTypesPerView = PLUGINS[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY];
@@ -74,15 +69,9 @@ export function registerPluginViewType(
  */
 export function registerPluginFileType(
   // eslint-disable-next-line no-unused-vars
-  fileTypeName,
-  dataTypeName,
-  dataLoaderClass,
-  dataSourceClass,
+  fileTypeName, dataTypeName, dataLoaderClass, dataSourceClass,
 ) {
-  PLUGINS[PLUGIN_FILE_TYPES_KEY][fileTypeName] = [
-    dataSourceClass,
-    dataLoaderClass,
-  ];
+  PLUGINS[PLUGIN_FILE_TYPES_KEY][fileTypeName] = [dataSourceClass, dataLoaderClass];
   PLUGINS[PLUGIN_FILE_TYPE_DATA_TYPE_MAPPING_KEY][fileTypeName] = dataTypeName;
 }
 
@@ -95,11 +84,11 @@ export function registerPluginFileType(
  */
 export function registerPluginJointFileType(
   // eslint-disable-next-line no-unused-vars
-  fileTypeName,
-  expansionFunction,
+  fileTypeName, expansionFunction,
 ) {
   PLUGINS[PLUGIN_JOINT_FILE_TYPES_KEY][fileTypeName] = expansionFunction;
 }
+
 
 // Plugin getter functions.
 
@@ -120,9 +109,7 @@ export function getPluginCoordinationTypeDefaults() {
 }
 
 export function getPluginCoordinationTypesForViewType(viewType) {
-  if (
-    Array.isArray(PLUGINS[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY][viewType])
-  ) {
+  if (Array.isArray(PLUGINS[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY][viewType])) {
     return PLUGINS[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY][viewType];
   }
   return [];
@@ -147,11 +134,17 @@ export function getExpansionFunctionForPluginConvenienceFileType(fileType) {
 
 // Getters that depend on plugins.
 export function getFileTypes() {
-  return [...Object.values(FileType), ...getPluginFileTypes()];
+  return [
+    ...Object.values(FileType),
+    ...getPluginFileTypes(),
+  ];
 }
 
 export function getCoordinationTypes() {
-  return [...Object.values(CoordinationType), ...getPluginCoordinationTypes()];
+  return [
+    ...Object.values(CoordinationType),
+    ...getPluginCoordinationTypes(),
+  ];
 }
 
 // Need to do this in a function since the plugin coordination
@@ -168,24 +161,20 @@ export function getDefaultCoordinationValues() {
 export function getComponentCoordinationTypes() {
   return {
     ...COMPONENT_COORDINATION_TYPES,
-    ...fromEntries(
-      getPluginViewTypes().map(viewType => [
-        viewType,
-        getPluginCoordinationTypesForViewType(viewType),
-      ]),
-    ),
+    ...fromEntries(getPluginViewTypes().map(viewType => ([
+      viewType,
+      getPluginCoordinationTypesForViewType(viewType),
+    ]))),
   };
 }
 
 export function getFileTypeDataTypeMapping() {
   return {
     ...FILE_TYPE_DATA_TYPE_MAPPING,
-    ...fromEntries(
-      getPluginFileTypes().map(fileType => [
-        fileType,
-        getDataTypeForPluginFileType(fileType),
-      ]),
-    ),
+    ...fromEntries(getPluginFileTypes().map(fileType => ([
+      fileType,
+      getDataTypeForPluginFileType(fileType),
+    ]))),
   };
 }
 

@@ -1,19 +1,17 @@
 import { viv, initializeRasterLayersAndChannels } from '@vitessce/gl';
 import { openArray } from 'zarr';
-import {
-  rasterSchema,
-  AbstractLoaderError,
-  LoaderResult,
-} from '@vitessce/vit-s';
 import JsonLoader from '../json-loaders/JsonLoader';
+import { rasterSchema, AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 
 async function initLoader(imageData) {
   const {
     type, url, metadata, requestInit,
   } = imageData;
   switch (type) {
-    case 'zarr': {
-      const { dimensions, isPyramid, transform } = metadata || {};
+    case ('zarr'): {
+      const {
+        dimensions, isPyramid, transform,
+      } = metadata || {};
       const labels = dimensions.map(d => d.field);
       let source;
       if (isPyramid) {
@@ -37,36 +35,30 @@ async function initLoader(imageData) {
         const data = await openArray({ store: url });
         source = new viv.ZarrPixelSource(data, labels);
       }
-      return {
-        data: source,
-        metadata: { dimensions, transform },
-        channels: (dimensions.find(d => d.field === 'channel') || dimensions[0])
-          .values,
-      };
+      return { data: source, metadata: { dimensions, transform }, channels: (dimensions.find(d => d.field === 'channel') || dimensions[0]).values };
     }
-    case 'ome-tiff': {
+    case ('ome-tiff'): {
       let loader;
       // Fetch offsets for ome-tiff if needed.
       if (metadata && 'omeTiffOffsetsUrl' in metadata) {
         const { omeTiffOffsetsUrl } = metadata;
-        const res = await fetch(omeTiffOffsetsUrl, requestInit || {});
+        const res = await fetch(omeTiffOffsetsUrl, (requestInit || {}));
         if (res.ok) {
           const offsets = await res.json();
-          loader = await viv.loadOmeTiff(url, {
-            offsets,
-            headers: requestInit?.headers,
-          });
-        } else {
-          throw new Error(
-            `Offsets not found but provided: ${res.status} from ${res.url}`,
+          loader = await viv.loadOmeTiff(
+            url,
+            {
+              offsets,
+              headers: requestInit?.headers,
+            },
           );
+        } else {
+          throw new Error(`Offsets not found but provided: ${res.status} from ${res.url}`);
         }
       } else {
         loader = await viv.loadOmeTiff(url, { headers: requestInit?.headers });
       }
-      const {
-        Pixels: { Channels },
-      } = loader.metadata;
+      const { Pixels: { Channels } } = loader.metadata;
       const channels = Array.isArray(Channels)
         ? Channels.map((channel, i) => channel.Name || `Channel ${i}`)
         : [Channels.Name || `Channel ${0}`];
@@ -100,7 +92,7 @@ export default class RasterLoader extends JsonLoader {
     // Get image name and URL tuples.
     const urls = images
       .filter(image => !image.url.includes('zarr'))
-      .map(image => [image.url, image.name]);
+      .map(image => ([image.url, image.name]));
 
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = images.map(image => ({

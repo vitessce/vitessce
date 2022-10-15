@@ -1,6 +1,6 @@
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import cellsSchema from './schemas/cells.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 
 export default class CellsJsonAsObsLocationsLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -19,12 +19,8 @@ export default class CellsJsonAsObsLocationsLoader extends JsonLoader {
       this.cachedResult = null;
     } else {
       const obsIndex = Object.keys(data);
-      const obsLocationsX = Float32Array.from(
-        cellObjs.map(cellObj => cellObj.xy[0]),
-      );
-      const obsLocationsY = Float32Array.from(
-        cellObjs.map(cellObj => cellObj.xy[1]),
-      );
+      const obsLocationsX = Float32Array.from(cellObjs.map(cellObj => cellObj.xy[0]));
+      const obsLocationsY = Float32Array.from(cellObjs.map(cellObj => cellObj.xy[1]));
       const obsLocations = {
         data: [obsLocationsX, obsLocationsY],
         shape: [2, obsLocationsX.length],
@@ -41,6 +37,9 @@ export default class CellsJsonAsObsLocationsLoader extends JsonLoader {
     }
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(result, url));
+    return Promise.resolve(new LoaderResult(
+      result,
+      url,
+    ));
   }
 }

@@ -3,9 +3,9 @@ import {
 } from 'react';
 import debounce from 'lodash/debounce';
 import every from 'lodash/every';
-import { capitalize, fromEntries } from '@vitessce/utils';
 import { useGridResize, useEmitGridResize } from './state/hooks';
 import { VITESSCE_CONTAINER } from './classNames';
+import { capitalize, fromEntries } from '@vitessce/utils';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -136,14 +136,10 @@ export function useDeckCanvasSize() {
  * @returns {boolean} Whether the status values are all success.
  */
 export function useReady(statusValues) {
-  return useMemo(
-    () => every(
-      statusValues,
-      val => val === 'success',
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    ),
-    statusValues,
-  );
+  return useMemo(() => every(
+    statusValues, val => val === 'success',
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ), statusValues);
 }
 
 /**
@@ -158,14 +154,11 @@ export function useReady(statusValues) {
 export function useUrls(loaders, dataset) {
   const [urls, setUrls] = useState([]);
 
-  const addUrl = useCallback(
-    (url, name) => {
-      if (url) {
-        setUrls(prev => [...prev, { url, name }]);
-      }
-    },
-    [setUrls],
-  );
+  const addUrl = useCallback((url, name) => {
+    if (url) {
+      setUrls(prev => ([...prev, { url, name }]));
+    }
+  }, [setUrls]);
 
   useEffect(() => {
     setUrls([]);
@@ -188,7 +181,9 @@ export function useClosestVitessceContainerSize(ref) {
   useEffect(() => {
     function onWindowResize() {
       if (ref.current) {
-        const { clientHeight: componentHeight, clientWidth: componentWidth } = ref.current.closest(`.${VITESSCE_CONTAINER}`);
+        const {
+          clientHeight: componentHeight, clientWidth: componentWidth,
+        } = ref.current.closest(`.${VITESSCE_CONTAINER}`);
         setWidth(componentWidth);
         setHeight(componentHeight);
       }
@@ -204,11 +199,7 @@ export function useClosestVitessceContainerSize(ref) {
   return [width, height];
 }
 
-export function useExpressionValueGetter({
-  instanceObsIndex,
-  matrixObsIndex,
-  expressionData,
-}) {
+export function useExpressionValueGetter({ instanceObsIndex, matrixObsIndex, expressionData }) {
   // Get a mapping from cell ID to row index in the gene expression matrix.
   // Since the two obsIndices (instanceObsIndex = the obsIndex from obsEmbedding)
   // may be ordered differently (matrixObsIndex = the obsIndex from obsFeatureMatrix),
@@ -216,7 +207,7 @@ export function useExpressionValueGetter({
   // given an obsEmbedding obsIndex index.
   const toMatrixIndexMap = useMemo(() => {
     if (instanceObsIndex && matrixObsIndex) {
-      const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => [key, i]));
+      const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => ([key, i])));
       return instanceObsIndex.map(key => matrixIndexMap.get(key));
     }
     return null;
@@ -224,57 +215,38 @@ export function useExpressionValueGetter({
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
-  const getExpressionValue = useCallback(
-    (entry, { index: instanceIndex }) => {
-      if (toMatrixIndexMap && expressionData && expressionData[0]) {
-        const rowIndex = toMatrixIndexMap[instanceIndex];
-        const val = expressionData[0][rowIndex];
-        return val;
-      }
-      return 0;
-    },
-    [toMatrixIndexMap, expressionData],
-  );
+  const getExpressionValue = useCallback((entry, { index: instanceIndex }) => {
+    if (toMatrixIndexMap && expressionData && expressionData[0]) {
+      const rowIndex = toMatrixIndexMap[instanceIndex];
+      const val = expressionData[0][rowIndex];
+      return val;
+    }
+    return 0;
+  }, [toMatrixIndexMap, expressionData]);
   return getExpressionValue;
 }
 
-export function useGetObsInfo(
-  obsType,
-  obsLabelsTypes,
-  obsLabelsData,
-  obsSetsMembership,
-) {
-  return useCallback(
-    (obsId) => {
-      if (obsId) {
-        const obsMembership = obsSetsMembership?.get(obsId) || [];
-        return {
-          [`${capitalize(obsType)} ID`]: obsId,
-          ...fromEntries(
-            obsMembership.flatMap(path => path
-              .slice(1)
-              .map((pathEl, elLevel) => [
-                `${path[0]}${path.length > 2 ? ` L${elLevel + 1}` : ''}`,
-                pathEl,
-              ])),
-          ),
-          ...fromEntries(
-            Object.entries(obsLabelsTypes)
-              .map(([scopeKey, obsLabelsType]) => [
-                obsLabelsType,
-                obsLabelsData?.[scopeKey]?.obsLabels?.[
-                  // TODO: Maybe all loaders that return obsIndex should also return an obsIndexMap
-                  // with keys: obsId, values: obsIdx
-                  // which would avoid the indexOf calls.
-                  obsLabelsData?.[scopeKey]?.obsIndex?.indexOf(obsId)
-                ],
-              ])
-              .filter(([obsLabelsType]) => Boolean(obsLabelsType)),
-          ),
-        };
-      }
-      return null;
-    },
-    [obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership],
-  );
+export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership) {
+  return useCallback((obsId) => {
+    if (obsId) {
+      const obsMembership = obsSetsMembership?.get(obsId) || [];
+      return {
+        [`${capitalize(obsType)} ID`]: obsId,
+        ...fromEntries(obsMembership.flatMap(path => path.slice(1).map((pathEl, elLevel) => ([
+          `${path[0]}${path.length > 2 ? ` L${elLevel + 1}` : ''}`,
+          pathEl,
+        ])))),
+        ...fromEntries(Object.entries(obsLabelsTypes).map(([scopeKey, obsLabelsType]) => ([
+          obsLabelsType,
+          obsLabelsData?.[scopeKey]?.obsLabels?.[
+            // TODO: Maybe all loaders that return obsIndex should also return an obsIndexMap
+            // with keys: obsId, values: obsIdx
+            // which would avoid the indexOf calls.
+            obsLabelsData?.[scopeKey]?.obsIndex?.indexOf(obsId)
+          ],
+        ])).filter(([obsLabelsType]) => Boolean(obsLabelsType))),
+      };
+    }
+    return null;
+  }, [obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership]);
 }

@@ -5,12 +5,7 @@ import Slider from '@material-ui/core/Slider';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import { capitalize } from '@vitessce/utils';
-import {
-  usePlotOptionsStyles,
-  CellColorEncodingOption,
-  OptionsContainer,
-  OptionSelect,
-} from '@vitessce/vit-s';
+import { usePlotOptionsStyles, CellColorEncodingOption, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
 export default function ScatterplotOptions(props) {
@@ -112,10 +107,7 @@ export default function ScatterplotOptions(props) {
         <TableCell className={classes.inputCell}>
           <Slider
             disabled={!cellSetLabelsVisible}
-            classes={{
-              root: classes.slider,
-              valueLabel: classes.sliderValueLabel,
-            }}
+            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={cellSetLabelSize}
             onChange={handleLabelSizeChange}
             aria-labelledby="cell-set-label-size-slider"
@@ -141,10 +133,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell
-          className={classes.labelCell}
-          htmlFor="cell-radius-mode-select"
-        >
+        <TableCell className={classes.labelCell} htmlFor="cell-radius-mode-select">
           {observationsLabelNice} Radius Mode
         </TableCell>
         <TableCell className={classes.inputCell}>
@@ -168,10 +157,7 @@ export default function ScatterplotOptions(props) {
         <TableCell className={classes.inputCell}>
           <Slider
             disabled={cellRadiusMode !== 'manual'}
-            classes={{
-              root: classes.slider,
-              valueLabel: classes.sliderValueLabel,
-            }}
+            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={cellRadius}
             onChange={handleRadiusChange}
             aria-labelledby="cell-radius-slider"
@@ -183,10 +169,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell
-          className={classes.labelCell}
-          htmlFor="cell-opacity-mode-select"
-        >
+        <TableCell className={classes.labelCell} htmlFor="cell-opacity-mode-select">
           {observationsLabelNice} Opacity Mode
         </TableCell>
         <TableCell className={classes.inputCell}>
@@ -210,10 +193,7 @@ export default function ScatterplotOptions(props) {
         <TableCell className={classes.inputCell}>
           <Slider
             disabled={cellOpacityMode !== 'manual'}
-            classes={{
-              root: classes.slider,
-              valueLabel: classes.sliderValueLabel,
-            }}
+            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={cellOpacity}
             onChange={handleOpacityChange}
             aria-labelledby="cell-opacity-slider"
@@ -225,10 +205,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell
-          className={classes.labelCell}
-          htmlFor="gene-expression-colormap-select"
-        >
+        <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
           Gene Expression Colormap
         </TableCell>
         <TableCell className={classes.inputCell}>
@@ -241,9 +218,7 @@ export default function ScatterplotOptions(props) {
             }}
           >
             {GLSL_COLORMAPS.map(cmap => (
-              <option key={cmap} value={cmap}>
-                {cmap}
-              </option>
+              <option key={cmap} value={cmap}>{cmap}</option>
             ))}
           </OptionSelect>
         </TableCell>
@@ -254,10 +229,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell}>
           <Slider
-            classes={{
-              root: classes.slider,
-              valueLabel: classes.sliderValueLabel,
-            }}
+            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
             aria-labelledby="gene-expression-colormap-range-slider"

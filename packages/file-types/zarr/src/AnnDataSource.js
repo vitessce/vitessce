@@ -19,10 +19,10 @@ function dirname(path) {
 }
 
 /**
- * Method for decoding text arrays from zarr.
- * Largerly a port of https://github.com/zarr-developers/numcodecs/blob/2c1aff98e965c3c4747d9881d8b8d4aad91adb3a/numcodecs/vlen.pyx#L135-L178
- * @returns {string[]} An array of strings.
- */
+   * Method for decoding text arrays from zarr.
+   * Largerly a port of https://github.com/zarr-developers/numcodecs/blob/2c1aff98e965c3c4747d9881d8b8d4aad91adb3a/numcodecs/vlen.pyx#L135-L178
+   * @returns {string[]} An array of strings.
+   */
 function parseVlenUtf8(buffer) {
   const decoder = new TextDecoder();
   let data = 0;
@@ -102,9 +102,7 @@ export default class AnnDataSource extends ZarrDataSource {
   async _loadColumn(path) {
     const { store } = this;
     const prefix = dirname(path);
-    const { categories, 'encoding-type': encodingType } = await this.getJson(
-      `${path}/.zattrs`,
-    );
+    const { categories, 'encoding-type': encodingType } = await this.getJson(`${path}/.zattrs`);
     let categoriesValues;
     let codes;
     if (categories) {
@@ -131,7 +129,9 @@ export default class AnnDataSource extends ZarrDataSource {
     const arr = await openArray({ store, path: codes || path, mode: 'r' });
     const values = await arr.get();
     const { data } = values;
-    const mappedValues = Array.from(data).map(i => (!categoriesValues ? String(i) : categoriesValues[i]));
+    const mappedValues = Array.from(data).map(
+      i => (!categoriesValues ? String(i) : categoriesValues[i]),
+    );
     return mappedValues;
   }
 
@@ -163,7 +163,9 @@ export default class AnnDataSource extends ZarrDataSource {
       mode: 'r',
     });
     return Promise.all(
-      dims.map(dim => arr.then(loadedArr => loadedArr.get([null, dim]))),
+      dims.map(dim => arr.then(
+        loadedArr => loadedArr.get([null, dim]),
+      )),
     ).then(cols => ({
       data: cols.map(col => col.data),
       shape: [dims.length, cols[0].shape[0]],
@@ -265,7 +267,9 @@ export default class AnnDataSource extends ZarrDataSource {
     }
     [this.varAlias] = await this.loadVarColumns([varPath]);
     const index = await this.loadVarIndex();
-    this.varAlias = this.varAlias.map((val, ind) => (val ? val.concat(` (${index[ind]})`) : index[ind]));
+    this.varAlias = this.varAlias.map(
+      (val, ind) => (val ? val.concat(` (${index[ind]})`) : index[ind]),
+    );
     return this.varAlias;
   }
 }

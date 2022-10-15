@@ -1,18 +1,12 @@
 import React, { useMemo } from 'react';
 import {
   TitleInfo,
-  useCoordination,
-  useLoaders,
-  useUrls,
-  useReady,
-  useGridItemSize,
+  useCoordination, useLoaders,
+  useUrls, useReady, useGridItemSize,
   useObsSetsData,
   registerPluginViewType,
 } from '@vitessce/vit-s';
-import {
-  ViewType,
-  COMPONENT_COORDINATION_TYPES,
-} from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { mergeObsSets, treeToSetSizesBySetNames } from '@vitessce/sets';
 import { capitalize } from '@vitessce/utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
@@ -42,22 +36,16 @@ export function CellSetSizesPlotSubscriber(props) {
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.
-  const [
-    {
-      dataset,
-      obsType,
-      obsSetSelection: cellSetSelection,
-      obsSetColor: cellSetColor,
-      additionalObsSets: additionalCellSets,
-    },
-    {
-      setObsSetSelection: setCellSetSelection,
-      setObsSetColor: setCellSetColor,
-    },
-  ] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_SIZES],
-    coordinationScopes,
-  );
+  const [{
+    dataset,
+    obsType,
+    obsSetSelection: cellSetSelection,
+    obsSetColor: cellSetColor,
+    additionalObsSets: additionalCellSets,
+  }, {
+    setObsSetSelection: setCellSetSelection,
+    setObsSetColor: setCellSetColor,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_SIZES], coordinationScopes);
 
   const title = titleOverride || `${capitalize(obsType)} Set Sizes`;
 
@@ -66,18 +54,14 @@ export function CellSetSizesPlotSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
-    loaders,
-    dataset,
-    addUrl,
-    true,
-    {
-      setObsSetSelection: setCellSetSelection,
-      setObsSetColor: setCellSetColor,
-    },
+    loaders, dataset, addUrl, true,
+    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
-  const isReady = useReady([obsSetsStatus]);
+  const isReady = useReady([
+    obsSetsStatus,
+  ]);
 
   const mergedCellSets = useMemo(
     () => mergeObsSets(cellSets, additionalCellSets),
@@ -86,17 +70,10 @@ export function CellSetSizesPlotSubscriber(props) {
 
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
-  const data = useMemo(
-    () => (mergedCellSets && cellSetSelection && cellSetColor
-      ? treeToSetSizesBySetNames(
-        mergedCellSets,
-        cellSetSelection,
-        cellSetColor,
-        theme,
-      )
-      : []),
-    [mergedCellSets, cellSetSelection, cellSetColor, theme],
-  );
+  const data = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
+    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme)
+    : []
+  ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
 
   return (
     <TitleInfo

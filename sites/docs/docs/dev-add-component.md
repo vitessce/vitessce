@@ -12,7 +12,6 @@ All of the core Vitessce components consist of at least two React components: an
 By convention, we add the suffix `Subscriber` to the name of the parent component.
 
 The parent ("subscriber") component typically carries out the following:
-
 - get and set values from the coordination space with the [`useCoordination`](https://github.com/vitessce/vitessce/blob/main/src/app/state/hooks.js#L196) hook function.
 - should render the [`TitleInfo`](https://github.com/vitessce/vitessce/blob/main/src/components/TitleInfo.js) component as a parent of its "plain" component.
 - load data from files specified in the view config with [data hook](https://github.com/vitessce/vitessce/blob/main/src/components/data-hooks.js) functions.

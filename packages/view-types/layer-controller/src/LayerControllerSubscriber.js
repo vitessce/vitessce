@@ -1,12 +1,18 @@
 /* eslint-disable dot-notation */
 /* eslint-disable no-unused-vars */
-import React, { useCallback, useRef, forwardRef } from 'react';
+import React, {
+  useCallback, useRef, forwardRef,
+} from 'react';
 import Grid from '@material-ui/core/Grid';
+import RasterChannelController from './RasterChannelController';
+import BitmaskChannelController from './BitmaskChannelController';
+import VectorLayerController from './VectorLayerController';
+import LayerController from './LayerController';
+import ImageAddButton from './ImageAddButton';
 import {
   TitleInfo,
   useReady,
-  useClosestVitessceContainerSize,
-  useWindowDimensions,
+  useClosestVitessceContainerSize, useWindowDimensions,
   useImageData,
   useObsLocationsData,
   useObsSegmentationsData,
@@ -16,20 +22,9 @@ import {
   useComponentLayout,
   registerPluginViewType,
 } from '@vitessce/vit-s';
-import {
-  ViewType,
-  COMPONENT_COORDINATION_TYPES,
-} from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { capitalize } from '@vitessce/utils';
-import {
-  initializeLayerChannels,
-  DEFAULT_RASTER_LAYER_PROPS,
-} from '@vitessce/gl';
-import RasterChannelController from './RasterChannelController';
-import BitmaskChannelController from './BitmaskChannelController';
-import VectorLayerController from './VectorLayerController';
-import LayerController from './LayerController';
-import ImageAddButton from './ImageAddButton';
+import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/gl';
 
 // LayerController is memoized to prevent updates from prop changes that
 // are caused by view state updates i.e zooming and panning within
@@ -116,8 +111,7 @@ const LayerControllerMemoized = React.memo(
             />
           )}
           {/* Segmentation bitmask layers: */}
-          {cellsLayer
-            && obsSegmentationsType === 'bitmask'
+          {cellsLayer && obsSegmentationsType === 'bitmask'
             && cellsLayer.map((layer, i) => {
               const { index } = layer;
               const loader = segmentationLayerLoaders?.[index];
@@ -190,15 +184,8 @@ const LayerControllerMemoized = React.memo(
                     }}
                     setAreLayerChannelsLoading={setAreLayerChannelsLoading}
                     areLayerChannelsLoading={areLayerChannelsLoading}
-                    spatialHeight={
-                      (componentHeight
-                        * (spatialLayout ? spatialLayout.h : 1))
-                      / 12
-                    }
-                    spatialWidth={
-                      (componentWidth * (spatialLayout ? spatialLayout.w : 1))
-                      / 12
-                    }
+                    spatialHeight={(componentHeight * (spatialLayout ? spatialLayout.h : 1)) / 12}
+                    spatialWidth={(componentWidth * (spatialLayout ? spatialLayout.w : 1)) / 12}
                     shouldShowRemoveLayerButton={shouldShowImageLayerButton}
                   />
                 </Grid>
@@ -279,28 +266,22 @@ const LayerControllerMemoized = React.memo(
                     }}
                     setAreLayerChannelsLoading={setAreLayerChannelsLoading}
                     areLayerChannelsLoading={areLayerChannelsLoading}
-                    spatialHeight={
-                      (componentHeight
-                        * (spatialLayout ? spatialLayout.h : 1))
-                      / 12
-                    }
-                    spatialWidth={
-                      (componentWidth * (spatialLayout ? spatialLayout.w : 1))
-                      / 12
-                    }
+                    spatialHeight={(componentHeight * (spatialLayout ? spatialLayout.h : 1)) / 12}
+                    spatialWidth={(componentWidth * (spatialLayout ? spatialLayout.w : 1)) / 12}
                     shouldShowRemoveLayerButton={shouldShowImageLayerButton}
                   />
                 </Grid>
               ) : null;
             })}
-          {shouldShowImageLayerButton ? (
-            <Grid item>
-              <ImageAddButton
-                imageOptions={imageLayerMeta}
-                handleImageAdd={handleImageAdd}
-              />
-            </Grid>
-          ) : null}
+          {shouldShowImageLayerButton
+            ? (
+              <Grid item>
+                <ImageAddButton
+                  imageOptions={imageLayerMeta}
+                  handleImageAdd={handleImageAdd}
+                />
+              </Grid>
+            ) : null}
         </div>
       </TitleInfo>
     );
@@ -382,11 +363,7 @@ export function LayerControllerSubscriber(props) {
   // Spatial layout + window size is needed for the "re-center" button to work properly.
   // Dimensions of the Spatial component can be inferred and used for resetting view state to
   // a nice, centered view.
-  const [spatialLayout] = useComponentLayout(
-    'spatial',
-    ['spatialImageLayer'],
-    coordinationScopes,
-  );
+  const [spatialLayout] = useComponentLayout('spatial', ['spatialImageLayer'], coordinationScopes);
   const layerControllerRef = useRef();
   const [componentWidth, componentHeight] = useClosestVitessceContainerSize(layerControllerRef);
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
@@ -394,28 +371,22 @@ export function LayerControllerSubscriber(props) {
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
   const [obsLocationsData, obsLocationsStatus] = useObsLocationsData(
-    loaders,
-    dataset,
-    () => {},
-    false,
+    loaders, dataset, () => {}, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
     {}, // TODO: use obsType once #1240 is merged.
   );
-  const [{ obsSegmentations, obsSegmentationsType }, obsSegmentationsStatus] = useObsSegmentationsData(
-    loaders,
-    dataset,
-    () => {},
-    false,
+  const [
+    { obsSegmentations, obsSegmentationsType },
+    obsSegmentationsStatus,
+  ] = useObsSegmentationsData(
+    loaders, dataset, () => {}, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
     {}, // TODO: use obsType once #1240 is merged.
   );
   const [{ image }, imageStatus] = useImageData(
-    loaders,
-    dataset,
-    () => {},
-    false,
+    loaders, dataset, () => {}, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: rasterLayers },
     {}, // TODO: which values to match on
@@ -427,72 +398,53 @@ export function LayerControllerSubscriber(props) {
     imageStatus,
   ]);
 
-  const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask'
-    ? obsSegmentations.loaders
-    : null;
-  const segmentationLayerMeta = obsSegmentations && obsSegmentationsType === 'bitmask'
-    ? obsSegmentations.meta
-    : null;
+  const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.loaders : null;
+  const segmentationLayerMeta = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.meta : null;
 
   // useCallback prevents new functions from propogating
   // changes to the underlying component.
-  const handleImageAdd = useCallback(
-    async (index) => {
-      const loader = imageLayerLoaders[index];
-      const newChannels = await initializeLayerChannels(
-        loader,
-        (rasterLayers[index] || {}).use3d,
-      );
-      const newLayer = {
-        index,
-        modelMatrix: imageLayerMeta[index]?.metadata?.transform?.matrix,
-        ...DEFAULT_RASTER_LAYER_PROPS,
-        channels: newChannels,
-        type: imageLayerMeta[index]?.metadata?.isBitmask ? 'bitmask' : 'raster',
-      };
-      const newLayers = [...rasterLayers, newLayer];
-      setRasterLayers(newLayers);
-    },
-    [imageLayerLoaders, imageLayerMeta, rasterLayers, setRasterLayers],
-  );
+  const handleImageAdd = useCallback(async (index) => {
+    const loader = imageLayerLoaders[index];
+    const newChannels = await initializeLayerChannels(
+      loader,
+      (rasterLayers[index] || {}).use3d,
+    );
+    const newLayer = {
+      index,
+      modelMatrix: imageLayerMeta[index]?.metadata?.transform?.matrix,
+      ...DEFAULT_RASTER_LAYER_PROPS,
+      channels: newChannels,
+      type: imageLayerMeta[index]?.metadata?.isBitmask ? 'bitmask' : 'raster',
+    };
+    const newLayers = [...rasterLayers, newLayer];
+    setRasterLayers(newLayers);
+  }, [imageLayerLoaders, imageLayerMeta, rasterLayers, setRasterLayers]);
 
-  const handleRasterLayerChange = useCallback(
-    (newLayer, i) => {
-      const newLayers = [...rasterLayers];
-      newLayers[i] = newLayer;
-      setRasterLayers(newLayers);
-    },
-    [rasterLayers, setRasterLayers],
-  );
+  const handleRasterLayerChange = useCallback((newLayer, i) => {
+    const newLayers = [...rasterLayers];
+    newLayers[i] = newLayer;
+    setRasterLayers(newLayers);
+  }, [rasterLayers, setRasterLayers]);
 
-  const handleRasterLayerRemove = useCallback(
-    (i) => {
-      const newLayers = [...rasterLayers];
-      newLayers.splice(i, 1);
-      setRasterLayers(newLayers);
-    },
-    [rasterLayers, setRasterLayers],
-  );
+  const handleRasterLayerRemove = useCallback((i) => {
+    const newLayers = [...rasterLayers];
+    newLayers.splice(i, 1);
+    setRasterLayers(newLayers);
+  }, [rasterLayers, setRasterLayers]);
 
-  const handleSegmentationLayerChange = useCallback(
-    (newLayer, i) => {
-      // Currently only used when obsSegmentationsType is 'bitmask'
-      const newLayers = [...cellsLayer];
-      newLayers[i] = newLayer;
-      setCellsLayer(newLayers);
-    },
-    [cellsLayer, setCellsLayer],
-  );
+  const handleSegmentationLayerChange = useCallback((newLayer, i) => {
+    // Currently only used when obsSegmentationsType is 'bitmask'
+    const newLayers = [...cellsLayer];
+    newLayers[i] = newLayer;
+    setCellsLayer(newLayers);
+  }, [cellsLayer, setCellsLayer]);
 
-  const handleSegmentationLayerRemove = useCallback(
-    (i) => {
-      // Currently only used when obsSegmentationsType is 'bitmask'
-      const newLayers = [...cellsLayer];
-      newLayers.splice(i, 1);
-      setCellsLayer(newLayers);
-    },
-    [cellsLayer, setCellsLayer],
-  );
+  const handleSegmentationLayerRemove = useCallback((i) => {
+    // Currently only used when obsSegmentationsType is 'bitmask'
+    const newLayers = [...cellsLayer];
+    newLayers.splice(i, 1);
+    setCellsLayer(newLayers);
+  }, [cellsLayer, setCellsLayer]);
 
   const layerIs3DIndex = rasterLayers?.findIndex && rasterLayers.findIndex(layer => layer.use3d);
   return (
@@ -508,6 +460,7 @@ export function LayerControllerSubscriber(props) {
       setMoleculesLayer={setMoleculesLayer}
       cellsLayer={cellsLayer}
       setCellsLayer={setCellsLayer}
+
       rasterLayers={rasterLayers}
       imageLayerLoaders={imageLayerLoaders}
       imageLayerMeta={imageLayerMeta}
@@ -517,6 +470,7 @@ export function LayerControllerSubscriber(props) {
       setAreLoadingImageChannels={setAreLoadingImageChannels}
       handleRasterLayerChange={handleRasterLayerChange}
       handleRasterLayerRemove={handleRasterLayerRemove}
+
       obsSegmentationsType={obsSegmentationsType}
       segmentationLayerLoaders={segmentationLayerLoaders}
       segmentationLayerMeta={segmentationLayerMeta}
@@ -526,6 +480,7 @@ export function LayerControllerSubscriber(props) {
       setAreLoadingSegmentationChannels={setAreLoadingSegmentationChannels}
       handleSegmentationLayerChange={handleSegmentationLayerChange}
       handleSegmentationLayerRemove={handleSegmentationLayerRemove}
+
       disable3d={disable3d}
       globalDisable3d={globalDisable3d}
       layerIs3DIndex={layerIs3DIndex}

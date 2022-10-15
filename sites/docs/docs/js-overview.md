@@ -23,7 +23,6 @@ npm install --save vitessce
 :::note
 
 NodeJS 14 may require the `max_old_space_size` option to be increased:
-
 ```sh
 export NODE_OPTIONS=--max_old_space_size=4096
 ```

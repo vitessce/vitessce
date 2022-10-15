@@ -2,6 +2,7 @@ import JsonLoader from './JsonLoader';
 import cellsGoodFixture from '../legacy-loaders/schemas/fixtures/cells.good.json';
 import cellsBadFixture from '../legacy-loaders/schemas/fixtures/cells.bad.json';
 
+
 describe('loaders/JsonLoader', () => {
   describe('validation against JSON schema', () => {
     it('can validate against a schema when data looks good', () => {
@@ -21,9 +22,7 @@ describe('loaders/JsonLoader', () => {
       expect(loader.schema).toBeDefined();
       const [valid, reason] = loader.validate(cellsBadFixture);
       expect(valid).toBeFalsy();
-      expect(reason[0].message).toEqual(
-        'should NOT have additional properties',
-      );
+      expect(reason[0].message).toEqual('should NOT have additional properties');
     });
   });
 });

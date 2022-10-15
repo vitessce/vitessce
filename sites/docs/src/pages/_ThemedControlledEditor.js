@@ -3,18 +3,17 @@ import MonacoEditor from 'react-monaco-editor';
 import { useColorMode } from '@docusaurus/theme-common';
 
 function ControlledEditor(props) {
-  const { onChange } = props;
+  const {
+    onChange,
+  } = props;
 
   const editorDidMount = useCallback((editor) => {
     editor.focus();
   }, []);
 
-  const onChangeInternal = useCallback(
-    (newValue) => {
-      onChange(newValue);
-    },
-    [onChange],
-  );
+  const onChangeInternal = useCallback((newValue) => {
+    onChange(newValue);
+  }, [onChange]);
 
   return (
     <MonacoEditor
@@ -27,11 +26,11 @@ function ControlledEditor(props) {
 
 function ThemedControlledEditor(props) {
   const { colorMode } = useColorMode();
-  const isDarkTheme = colorMode === 'dark';
+  const isDarkTheme = (colorMode === 'dark');
   return (
     <ControlledEditor
       {...props}
-      theme={isDarkTheme ? 'vs-dark' : 'GitHub'}
+      theme={(isDarkTheme ? 'vs-dark' : 'GitHub')}
       height="60vh"
       options={{
         automaticLayout: true,

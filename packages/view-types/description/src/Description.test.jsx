@@ -1,11 +1,11 @@
 import '@testing-library/jest-dom';
-import { cleanup, render, screen } from '@testing-library/react';
-import { afterEach } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react'
+import { afterEach } from 'vitest'
 
 import Description from './Description';
 
 afterEach(() => {
-  cleanup();
+  cleanup()
 });
 
 describe('Description.js', () => {
@@ -19,16 +19,13 @@ describe('Description.js', () => {
       const layerIndex = '0';
       const layerName = 'My layer';
       const metadata = new Map([
-        [
-          layerIndex,
-          {
-            name: layerName,
-            metadata: {
-              Channels: 4,
-              'Pixels Type': 'uint16',
-            },
+        [layerIndex, {
+          name: layerName,
+          metadata: {
+            Channels: 4,
+            'Pixels Type': 'uint16',
           },
-        ],
+        }],
       ]);
       render(<Description metadata={metadata} />);
       expect(await screen.findByText('My layer'));

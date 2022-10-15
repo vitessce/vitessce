@@ -2,12 +2,9 @@
 /* eslint-disable no-console */
 import React, { useState, useEffect } from 'react';
 import {
-  QueryParamProvider,
-  useQueryParam,
-  StringParam,
+  QueryParamProvider, useQueryParam, StringParam,
 } from 'use-query-params';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import { configs } from '@vitessce/example-configs';
 import { useHashParam, useSetHashParams } from './_use-hash-param';
 import Home from './_Home';
 import DemoHeader from './_DemoHeader';
@@ -15,14 +12,13 @@ import ThemedVitessce from './_ThemedVitessce';
 import ViewConfigEditor from './_ViewConfigEditor';
 import { baseJs, baseJson } from './_live-editor-examples';
 
+import { configs } from '@vitessce/example-configs';
 
 import styles from './styles.module.css';
 
 function logConfigUpgrade(prevConfig, nextConfig) {
   // eslint-disable-next-line no-console
-  console.log(
-    `Upgrade view config schema from ${prevConfig.version} to ${nextConfig.version}`,
-  );
+  console.log(`Upgrade view config schema from ${prevConfig.version} to ${nextConfig.version}`);
   // eslint-disable-next-line no-console
   console.log(prevConfig);
   // eslint-disable-next-line no-console
@@ -30,17 +26,16 @@ function logConfigUpgrade(prevConfig, nextConfig) {
 }
 
 function AppStyles(props) {
-  const { dimNavbar = false } = props;
+  const {
+    dimNavbar = false,
+  } = props;
   return (
-    <style>
-      {`
+    <style>{`
         .navbar__brand + a.navbar__item.navbar__link {
           color: var(--ifm-navbar-link-hover-color);
           text-decoration: none;
         }
-        ${
-          dimNavbar
-            ? `
+        ${dimNavbar ? (`
         .footer {
           display: none;
         }
@@ -51,9 +46,7 @@ function AppStyles(props) {
         .navbar:hover .navbar__item {
           opacity: 1;
         }
-        `
-            : ''
-        }
+        `) : ''}
       `}
     </style>
   );
@@ -61,8 +54,7 @@ function AppStyles(props) {
 
 function DemoStyles() {
   return (
-    <style>
-      {`
+    <style>{`
          .navbar__brand + a.navbar__item.navbar__link + a.navbar__item.navbar__link {
             color: var(--ifm-navbar-link-hover-color);
             text-decoration: none;
@@ -179,7 +171,7 @@ function IndexWithHashParams() {
     });
   }
 
-  return edit ? (
+  return (edit ? (
     <>
       <AppStyles />
       <ViewConfigEditor
@@ -199,7 +191,10 @@ function IndexWithHashParams() {
       {demo && Object.keys(configs).includes(demo) ? (
         <>
           <DemoStyles />
-          <DemoHeader demo={demo} config={configs[demo]} />
+          <DemoHeader
+            demo={demo}
+            config={configs[demo]}
+          />
         </>
       ) : (
         <AppStyles dimNavbar />
@@ -222,11 +217,11 @@ function IndexWithHashParams() {
         </div>
       </main>
     </div>
-  ) : !loading ? (
+  ) : (!loading ? (
     <Home />
   ) : (
     <p>Loading...</p>
-  );
+  )));
 }
 
 function IndexWithQueryParamRedirect() {
@@ -240,12 +235,12 @@ function IndexWithQueryParamRedirect() {
   useEffect(() => {
     const hasQueryParams = demo || url;
     if (hasQueryParams) {
-      const params = demo ? `dataset=${demo}` : `url=${url}`;
+      const params = (demo ? `dataset=${demo}` : `url=${url}`);
       window.location.href = baseUrl + params;
     }
   }, [baseUrl, demo, url]);
 
-  return <IndexWithHashParams />;
+  return (<IndexWithHashParams />);
 }
 
 export default function Index() {

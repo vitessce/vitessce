@@ -1,21 +1,17 @@
-root: true
-parser: '@typescript-eslint/parser'
 extends:
+  - react-app
   - eslint:recommended
   - plugin:react/recommended
-  - plugin:react-hooks/recommended
   - plugin:cypress/recommended
   - airbnb
 plugins:
-  - '@typescript-eslint'
   - react
-  - react-hooks
   - cypress
+  - vitessce-rules
 settings:
   react:
     version: detect
 env:
-  browser: true
   cypress/globals: true
 rules:
   no-console: [2, { "allow": ["warn", "error", "info", "groupCollapsed", "groupEnd"]}]
@@ -26,24 +22,8 @@ rules:
   react/jsx-one-expression-per-line: [0]  # Makes punctuation after tab awkward.
   react/prop-types: [0] # Re-enable: https://github.com/vitessce/vitessce/issues/144
   import/prefer-default-export: [0]  # Hit eslint error: SyntaxError: Unexpected token, expected {
-  react/react-in-jsx-scope: [0]
-  react/jsx-curly-newline: [0]
-  '@typescript-eslint/no-empty-function': [0] # Allow writing no-op functions like () => {}
-  react/jsx-no-bind: [0] # Allow passing functions as JSX props
+  vitessce-rules/prevent-pubsub-import: [2]
 overrides:
-  - files: 'sites/docs/src/theme/**'
+  - files: '*Subscriber.js'
     rules:
-      # Allow @theme/ and @docusaurus/ imports
-      import/no-unresolved: [0]
-  - files: 'sites/docs/src/pages/**'
-    rules:
-      # Allow @theme/ and @docusaurus/ imports
-      import/no-unresolved: [0]
-      # Allow require() statements within docusaurus components
-      '@typescript-eslint/no-var-requires': [0]
-
-#overrides:
-#  - files: '*.test.js'
-#    rules:
-#      vitessce-rules/prevent-pubsub-import: 0
-    
+      vitessce-rules/prevent-pubsub-import: 0

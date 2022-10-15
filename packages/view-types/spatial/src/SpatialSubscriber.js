@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useCallback } from 'react';
 import {
   TitleInfo,
-  useDeckCanvasSize,
-  useReady,
-  useUrls,
+  useDeckCanvasSize, useReady, useUrls,
   useObsLocationsData,
   useObsSegmentationsData,
   useObsSetsData,
@@ -13,8 +11,7 @@ import {
   useNeighborhoodsData,
   useObsLabelsData,
   useMultiObsLabels,
-  useExpressionValueGetter,
-  useGetObsInfo,
+  useExpressionValueGetter, useGetObsInfo,
   useCoordination,
   useLoaders,
   useSetComponentHover,
@@ -25,11 +22,7 @@ import {
 } from '@vitessce/vit-s';
 import { setObsSelection, mergeObsSets } from '@vitessce/sets';
 import { canLoadResolution, getCellColors } from '@vitessce/utils';
-import {
-  COMPONENT_COORDINATION_TYPES,
-  ViewType,
-  DataType,
-} from '@vitessce/constants-internal';
+import { COMPONENT_COORDINATION_TYPES, ViewType, DataType } from '@vitessce/constants-internal';
 import Spatial from './Spatial';
 import SpatialOptions from './SpatialOptions';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
@@ -64,67 +57,66 @@ export function SpatialSubscriber(props) {
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
   // Get "props" from the coordination space.
-  const [
-    {
-      dataset,
-      obsType,
-      featureType,
-      featureValueType,
-      spatialZoom: zoom,
-      spatialTargetX: targetX,
-      spatialTargetY: targetY,
-      spatialTargetZ: targetZ,
-      spatialRotationX: rotationX,
-      spatialRotationY: rotationY,
-      spatialRotationZ: rotationZ,
-      spatialRotationOrbit: rotationOrbit,
-      spatialOrbitAxis: orbitAxis,
-      spatialImageLayer: imageLayers,
-      spatialSegmentationLayer: cellsLayer,
-      spatialPointLayer: moleculesLayer,
-      spatialNeighborhoodLayer: neighborhoodsLayer,
-      obsFilter: cellFilter,
-      obsHighlight: cellHighlight,
-      featureSelection: geneSelection,
-      obsSetSelection: cellSetSelection,
-      obsSetColor: cellSetColor,
-      obsColorEncoding: cellColorEncoding,
-      additionalObsSets: additionalCellSets,
-      spatialAxisFixed,
-      featureValueColormap: geneExpressionColormap,
-      featureValueColormapRange: geneExpressionColormapRange,
-    },
-    {
-      setSpatialZoom: setZoom,
-      setSpatialTargetX: setTargetX,
-      setSpatialTargetY: setTargetY,
-      setSpatialTargetZ: setTargetZ,
-      setSpatialRotationX: setRotationX,
-      setSpatialRotationOrbit: setRotationOrbit,
-      setSpatialOrbitAxis: setOrbitAxis,
-      setSpatialImageLayer: setRasterLayers,
-      setSpatialSegmentationLayer: setCellsLayer,
-      setSpatialPointLayer: setMoleculesLayer,
-      setSpatialNeighborhoodLayer: setNeighborhoodsLayer,
-      setObsFilter: setCellFilter,
-      setObsSetSelection: setCellSetSelection,
-      setObsHighlight: setCellHighlight,
-      setObsSetColor: setCellSetColor,
-      setObsColorEncoding: setCellColorEncoding,
-      setAdditionalObsSets: setAdditionalCellSets,
-      setMoleculeHighlight,
-      setSpatialAxisFixed,
-      setFeatureValueColormap: setGeneExpressionColormap,
-      setFeatureValueColormapRange: setGeneExpressionColormapRange,
-    },
-  ] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL],
-    coordinationScopes,
-  );
+  const [{
+    dataset,
+    obsType,
+    featureType,
+    featureValueType,
+    spatialZoom: zoom,
+    spatialTargetX: targetX,
+    spatialTargetY: targetY,
+    spatialTargetZ: targetZ,
+    spatialRotationX: rotationX,
+    spatialRotationY: rotationY,
+    spatialRotationZ: rotationZ,
+    spatialRotationOrbit: rotationOrbit,
+    spatialOrbitAxis: orbitAxis,
+    spatialImageLayer: imageLayers,
+    spatialSegmentationLayer: cellsLayer,
+    spatialPointLayer: moleculesLayer,
+    spatialNeighborhoodLayer: neighborhoodsLayer,
+    obsFilter: cellFilter,
+    obsHighlight: cellHighlight,
+    featureSelection: geneSelection,
+    obsSetSelection: cellSetSelection,
+    obsSetColor: cellSetColor,
+    obsColorEncoding: cellColorEncoding,
+    additionalObsSets: additionalCellSets,
+    spatialAxisFixed,
+    featureValueColormap: geneExpressionColormap,
+    featureValueColormapRange: geneExpressionColormapRange,
+  }, {
+    setSpatialZoom: setZoom,
+    setSpatialTargetX: setTargetX,
+    setSpatialTargetY: setTargetY,
+    setSpatialTargetZ: setTargetZ,
+    setSpatialRotationX: setRotationX,
+    setSpatialRotationOrbit: setRotationOrbit,
+    setSpatialOrbitAxis: setOrbitAxis,
+    setSpatialImageLayer: setRasterLayers,
+    setSpatialSegmentationLayer: setCellsLayer,
+    setSpatialPointLayer: setMoleculesLayer,
+    setSpatialNeighborhoodLayer: setNeighborhoodsLayer,
+    setObsFilter: setCellFilter,
+    setObsSetSelection: setCellSetSelection,
+    setObsHighlight: setCellHighlight,
+    setObsSetColor: setCellSetColor,
+    setObsColorEncoding: setCellColorEncoding,
+    setAdditionalObsSets: setAdditionalCellSets,
+    setMoleculeHighlight,
+    setSpatialAxisFixed,
+    setFeatureValueColormap: setGeneExpressionColormap,
+    setFeatureValueColormapRange: setGeneExpressionColormapRange,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
 
-  const [{ imageLayerCallbacks, segmentationLayerCallbacks }] = useAuxiliaryCoordination(
+  const [
+    {
+      imageLayerCallbacks,
+      segmentationLayerCallbacks,
+    },
+  ] = useAuxiliaryCoordination(
     COMPONENT_COORDINATION_TYPES.layerController,
     coordinationScopes,
   );
@@ -135,113 +127,79 @@ export function SpatialSubscriber(props) {
   const [width, height, deckRef] = useDeckCanvasSize();
 
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
-    coordinationScopes,
-    obsType,
-    loaders,
-    dataset,
-    addUrl,
+    coordinationScopes, obsType, loaders, dataset, addUrl,
   );
 
   const hasExpressionData = useHasLoader(
-    loaders,
-    dataset,
-    DataType.OBS_FEATURE_MATRIX,
+    loaders, dataset, DataType.OBS_FEATURE_MATRIX,
     { obsType, featureType, featureValueType },
     // TODO: get per-spatialLayerType expression data once #1240 is merged.
   );
   const hasCellsData = useHasLoader(
-    loaders,
-    dataset,
-    DataType.OBS_SEGMENTATIONS,
+    loaders, dataset, DataType.OBS_SEGMENTATIONS,
     { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
   );
   const hasImageData = useHasLoader(
-    loaders,
-    dataset,
-    DataType.IMAGE,
+    loaders, dataset, DataType.IMAGE,
     {}, // TODO: which properties to match on. Revisit after #830.
   );
   // Get data from loaders using the data hooks.
-  const [{ obsIndex: obsLocationsIndex, obsLocations }, obsLocationsStatus] = useObsLocationsData(
-    loaders,
-    dataset,
-    addUrl,
-    false,
+  const [{
+    obsIndex: obsLocationsIndex,
+    obsLocations,
+  }, obsLocationsStatus] = useObsLocationsData(
+    loaders, dataset, addUrl, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
     { obsType: 'molecule' }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
   );
-  const [{ obsLabels: obsLocationsLabels }, obsLabelsStatus] = useObsLabelsData(
-    loaders,
-    dataset,
-    addUrl,
-    false,
-    {},
-    {},
+  const [{
+    obsLabels: obsLocationsLabels,
+  }, obsLabelsStatus] = useObsLabelsData(
+    loaders, dataset, addUrl, false, {}, {},
     { obsType: 'molecule' }, // TODO: use obsType in matchOn once #1240 is merged.
   );
-  const [
-    { obsIndex: obsCentroidsIndex, obsLocations: obsCentroids },
-    obsCentroidsStatus,
-  ] = useObsLocationsData(
-    loaders,
-    dataset,
-    addUrl,
-    false,
-    {},
-    {},
+  const [{
+    obsIndex: obsCentroidsIndex,
+    obsLocations: obsCentroids,
+  }, obsCentroidsStatus] = useObsLocationsData(
+    loaders, dataset, addUrl, false, {}, {},
     { obsType }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
   );
-  const [
-    { obsIndex: obsSegmentationsIndex, obsSegmentations, obsSegmentationsType },
-    obsSegmentationsStatus,
-  ] = useObsSegmentationsData(
-    loaders,
-    dataset,
-    addUrl,
-    false,
+  const [{
+    obsIndex: obsSegmentationsIndex,
+    obsSegmentations,
+    obsSegmentationsType,
+  }, obsSegmentationsStatus] = useObsSegmentationsData(
+    loaders, dataset, addUrl, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
     { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
   );
   const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus] = useObsSetsData(
-    loaders,
-    dataset,
-    addUrl,
-    false,
-    {
-      setObsSetSelection: setCellSetSelection,
-      setObsSetColor: setCellSetColor,
-    },
+    loaders, dataset, addUrl, false,
+    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
   // eslint-disable-next-line no-unused-vars
-  const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(loaders, dataset, false, geneSelection, {
-    obsType,
-    featureType,
-    featureValueType,
-  });
-  const [{ obsIndex: matrixObsIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(loaders, dataset, addUrl, false, {
-    obsType,
-    featureType,
-    featureValueType,
-  });
+  const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
+    loaders, dataset, false, geneSelection,
+    { obsType, featureType, featureValueType },
+  );
+  const [{ obsIndex: matrixObsIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
+    loaders, dataset, addUrl, false,
+    { obsType, featureType, featureValueType },
+  );
   const [{ image }, imageStatus] = useImageData(
-    loaders,
-    dataset,
-    addUrl,
-    false,
+    loaders, dataset, addUrl, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: imageLayers },
     {}, // TODO: which properties to match on. Revisit after #830.
   );
   const { loaders: imageLayerLoaders = [] } = image || {};
   const [neighborhoods, neighborhoodsStatus] = useNeighborhoodsData(
-    loaders,
-    dataset,
-    addUrl,
-    false,
+    loaders, dataset, addUrl, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
@@ -267,7 +225,7 @@ export function SpatialSubscriber(props) {
   const locationsCount = obsLocationsIndex?.length || 0;
 
   useEffect(() => {
-    if (typeof targetX !== 'number' || typeof targetY !== 'number') {
+    if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
       const {
         initialTargetX, initialTargetY, initialTargetZ, initialZoom,
       } = getInitialSpatialTargets({
@@ -286,81 +244,41 @@ export function SpatialSubscriber(props) {
       setTargetZ(initialTargetZ);
       setZoom(initialZoom);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    imageLayerLoaders,
-    targetX,
-    targetY,
-    setTargetX,
-    setTargetY,
-    setZoom,
-    use3d,
-    hasImageData,
-    obsCentroids,
-    obsSegmentations,
-    obsSegmentationsType,
-  ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageLayerLoaders, targetX, targetY, setTargetX, setTargetY,
+    setZoom, use3d, hasImageData, obsCentroids, obsSegmentations, obsSegmentationsType]);
 
-  const mergedCellSets = useMemo(
-    () => mergeObsSets(cellSets, additionalCellSets),
-    [cellSets, additionalCellSets],
-  );
+  const mergedCellSets = useMemo(() => mergeObsSets(
+    cellSets, additionalCellSets,
+  ), [cellSets, additionalCellSets]);
 
-  const setCellSelectionProp = useCallback(
-    (v) => {
-      setObsSelection(
-        v,
-        additionalCellSets,
-        cellSetColor,
-        setCellSetSelection,
-        setAdditionalCellSets,
-        setCellSetColor,
-        setCellColorEncoding,
-      );
-    },
-    [
-      additionalCellSets,
-      cellSetColor,
+  const setCellSelectionProp = useCallback((v) => {
+    setObsSelection(
+      v, additionalCellSets, cellSetColor,
+      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
       setCellColorEncoding,
-      setAdditionalCellSets,
-      setCellSetColor,
-      setCellSetSelection,
-    ],
-  );
+    );
+  }, [additionalCellSets, cellSetColor, setCellColorEncoding,
+    setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
-  const cellColors = useMemo(
-    () => getCellColors({
-      cellColorEncoding,
-      expressionData: expressionData && expressionData[0],
-      geneSelection,
-      cellSets: mergedCellSets,
-      cellSetSelection,
-      cellSetColor,
-      obsIndex: matrixObsIndex,
-      theme,
-    }),
-    [
-      cellColorEncoding,
-      geneSelection,
-      mergedCellSets,
-      theme,
-      cellSetColor,
-      cellSetSelection,
-      expressionData,
-      matrixObsIndex,
-    ],
-  );
+  const cellColors = useMemo(() => getCellColors({
+    cellColorEncoding,
+    expressionData: expressionData && expressionData[0],
+    geneSelection,
+    cellSets: mergedCellSets,
+    cellSetSelection,
+    cellSetColor,
+    obsIndex: matrixObsIndex,
+    theme,
+  }), [cellColorEncoding, geneSelection, mergedCellSets, theme,
+    cellSetColor, cellSetSelection, expressionData, matrixObsIndex]);
 
   // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
   // where each cell id indexes into the array.
   // Cell ids in `attrs.rows` do not necessaryily correspond to indices in that array, though,
   // so we create a "shifted" array where this is the case.
   const shiftedExpressionDataForBitmask = useMemo(() => {
-    if (
-      matrixObsIndex
-      && expressionData
-      && obsSegmentationsType === 'bitmask'
-    ) {
+    if (matrixObsIndex && expressionData && obsSegmentationsType === 'bitmask') {
       const maxId = matrixObsIndex.reduce((max, curr) => Math.max(max, Number(curr)));
       const result = new Uint8Array(maxId + 1);
       // eslint-disable-next-line no-plusplus
@@ -369,20 +287,13 @@ export function SpatialSubscriber(props) {
         result.set(expressionData[0].slice(i, i + 1), Number(id));
       }
       return [result];
-    }
-    return [new Uint8Array()];
+    } return [new Uint8Array()];
   }, [matrixObsIndex, expressionData, obsSegmentationsType]);
 
-  const cellSelection = useMemo(
-    () => Array.from(cellColors.keys()),
-    [cellColors],
-  );
+  const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   const getObsInfo = useGetObsInfo(
-    observationsLabel,
-    obsLabelsTypes,
-    obsLabelsData,
-    obsSetsMembership,
+    observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
   const setViewState = ({
@@ -423,8 +334,7 @@ export function SpatialSubscriber(props) {
   ));
   // Only show 3D options if we can theoretically load the data and it is allowed to be loaded.
   const canShow3DOptions = canLoad3DLayers
-    && !(disable3d?.length === imageLayerLoaders.length)
-    && !globalDisable3d;
+    && !(disable3d?.length === imageLayerLoaders.length) && !globalDisable3d;
 
   const options = useMemo(() => {
     // Only show button if there is expression or 3D data because only cells data
@@ -449,44 +359,23 @@ export function SpatialSubscriber(props) {
       );
     }
     return null;
-  }, [
-    canShow3DOptions,
-    cellColorEncoding,
-    geneExpressionColormap,
-    geneExpressionColormapRange,
-    setGeneExpressionColormap,
-    hasCellsData,
-    hasExpressionData,
-    observationsLabel,
-    setCellColorEncoding,
-    setGeneExpressionColormapRange,
-    setSpatialAxisFixed,
-    spatialAxisFixed,
-    use3d,
+  }, [canShow3DOptions, cellColorEncoding, geneExpressionColormap,
+    geneExpressionColormapRange, setGeneExpressionColormap,
+    hasCellsData, hasExpressionData, observationsLabel, setCellColorEncoding,
+    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d,
   ]);
 
   useEffect(() => {
     // For backwards compatibility (diamond case).
     // Log to the console to alert the user that the auto-generated diamonds are being used.
-    if (
-      !hasCellsData
-      && cellsLayer
-      && !obsSegmentations
-      && !obsSegmentationsIndex
-      && obsCentroids
-      && obsCentroidsIndex
+    if (!hasCellsData
+      && cellsLayer && !obsSegmentations && !obsSegmentationsIndex
+      && obsCentroids && obsCentroidsIndex
     ) {
-      console.warn(
-        'Rendering cell segmentation diamonds for backwards compatibility.',
-      );
+      console.warn('Rendering cell segmentation diamonds for backwards compatibility.');
     }
-  }, [
-    hasCellsData,
-    cellsLayer,
-    obsSegmentations,
-    obsSegmentationsIndex,
-    obsCentroids,
-    obsCentroidsIndex,
+  }, [hasCellsData, cellsLayer, obsSegmentations, obsSegmentationsIndex,
+    obsCentroids, obsCentroidsIndex,
   ]);
 
   return (

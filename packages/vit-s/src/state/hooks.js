@@ -18,10 +18,14 @@ export const ViewConfigProvider = ViewConfigProviderLocal;
 export const useViewConfigStore = useViewConfigStoreLocal;
 export const useViewConfigStoreApi = useViewConfigStoreApiLocal;
 
-const { Provider: AuxiliaryProviderLocal, useStore: useAuxiliaryStoreLocal } = createContext();
+const {
+  Provider: AuxiliaryProviderLocal,
+  useStore: useAuxiliaryStoreLocal,
+} = createContext();
 
 export const AuxiliaryProvider = AuxiliaryProviderLocal;
 export const useAuxiliaryStore = useAuxiliaryStoreLocal;
+
 
 /**
  * The useViewConfigStore hook is initialized via the zustand
@@ -85,11 +89,12 @@ export const createViewConfigStore = () => create(set => ({
  * matching all coordination scopes.
  * @returns {Object} The components' layout.
  */
-export const useComponentLayout = (component, scopes, coordinationScopes) => useViewConfigStore(state => state.viewConfig.layout
-  .filter(l => l.component === component)
-  .filter(l => scopes.every(
-    scope => l.coordinationScopes[scope] === coordinationScopes[scope],
-  )));
+export const useComponentLayout = (component, scopes, coordinationScopes) => useViewConfigStore(
+  state => state.viewConfig.layout.filter(l => l.component === component).filter(
+    l => scopes.every(scope => l.coordinationScopes[scope]
+          === coordinationScopes[scope]),
+  ),
+);
 
 /**
  * The useAuxiliaryStore hook is initialized via the zustand
@@ -190,38 +195,29 @@ const useGridSizeStore = create(set => ({
  * prefix.
  */
 export function useCoordination(parameters, coordinationScopes) {
-  const setCoordinationValue = useViewConfigStore(
-    state => state.setCoordinationValue,
-  );
+  const setCoordinationValue = useViewConfigStore(state => state.setCoordinationValue);
 
   const values = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
-    return fromEntries(
-      parameters.map((parameter) => {
-        if (coordinationSpace && coordinationSpace[parameter]) {
-          const value = coordinationSpace[parameter][coordinationScopes[parameter]];
-          return [parameter, value];
-        }
-        return [parameter, undefined];
-      }),
-    );
+    return fromEntries(parameters.map((parameter) => {
+      if (coordinationSpace && coordinationSpace[parameter]) {
+        const value = coordinationSpace[parameter][coordinationScopes[parameter]];
+        return [parameter, value];
+      }
+      return [parameter, undefined];
+    }));
   }, shallow);
 
-  const setters = useMemo(
-    () => fromEntries(
-      parameters.map((parameter) => {
-        const setterName = `set${capitalize(parameter)}`;
-        const setterFunc = value => setCoordinationValue({
-          parameter,
-          scope: coordinationScopes[parameter],
-          value,
-        });
-        return [setterName, setterFunc];
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }),
-    ),
-    [parameters, coordinationScopes],
-  );
+  const setters = useMemo(() => fromEntries(parameters.map((parameter) => {
+    const setterName = `set${capitalize(parameter)}`;
+    const setterFunc = value => setCoordinationValue({
+      parameter,
+      scope: coordinationScopes[parameter],
+      value,
+    });
+    return [setterName, setterFunc];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  })), [parameters, coordinationScopes]);
 
   return [values, setters];
 }
@@ -234,18 +230,14 @@ export function useMultiCoordinationValues(parameter, coordinationScopes) {
     const { coordinationSpace } = state.viewConfig;
     // Convert a single scope to an array of scopes to be consistent.
     const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
-    return fromEntries(
-      scopesArr
-        .map((scope) => {
-          if (coordinationSpace && coordinationSpace[parameter]) {
-            const value = coordinationSpace[parameter][scope];
-            return [scope, value];
-          }
-          return [scope, undefined];
-          // eslint-disable-next-line no-unused-vars
-        })
-        .filter(([k, v]) => v !== undefined),
-    );
+    return fromEntries(scopesArr.map((scope) => {
+      if (coordinationSpace && coordinationSpace[parameter]) {
+        const value = coordinationSpace[parameter][scope];
+        return [scope, value];
+      }
+      return [scope, undefined];
+      // eslint-disable-next-line no-unused-vars
+    }).filter(([k, v]) => v !== undefined));
   }, shallow);
 
   return vals;
@@ -257,10 +249,7 @@ export function useMultiCoordinationValues(parameter, coordinationScopes) {
  * @returns {object} Mapping from dataset coordination scope names to dataset UIDs.
  */
 export function useDatasetUids(coordinationScopes) {
-  return useMultiCoordinationValues(
-    CoordinationType.DATASET,
-    coordinationScopes,
-  );
+  return useMultiCoordinationValues(CoordinationType.DATASET, coordinationScopes);
 }
 
 /**
@@ -274,90 +263,68 @@ export function useDatasetUids(coordinationScopes) {
  * setter functions.
  */
 export function useMultiDatasetCoordination(parameters, coordinationScopes) {
-  const setCoordinationValue = useViewConfigStore(
-    state => state.setCoordinationValue,
-  );
+  const setCoordinationValue = useViewConfigStore(state => state.setCoordinationValue);
 
   const datasetScopes = coordinationScopes[CoordinationType.DATASET];
 
   // Convert a single scope to an array of scopes to be consistent.
-  const datasetScopesArr = Array.isArray(datasetScopes)
-    ? datasetScopes
-    : [datasetScopes];
+  const datasetScopesArr = Array.isArray(datasetScopes) ? datasetScopes : [datasetScopes];
 
   const values = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
-    return fromEntries(
-      datasetScopesArr.map((datasetScope) => {
-        const datasetValues = fromEntries(
-          parameters.map((parameter) => {
-            if (coordinationSpace && coordinationSpace[parameter]) {
-              let value;
-              const parameterSpace = coordinationSpace[parameter];
-              const parameterScope = coordinationScopes[parameter];
-              if (typeof parameterScope === 'object') {
-                value = parameterSpace[parameterScope[datasetScope]];
-              } else if (typeof parameterScope === 'string') {
-                value = parameterSpace[parameterScope];
-              } else {
-                console.error(
-                  `coordination scope for ${parameter} must be of type string or object.`,
-                );
-              }
-              return [parameter, value];
-            }
-            return [parameter, undefined];
-          }),
-        );
-        return [datasetScope, datasetValues];
-      }),
-    );
+    return fromEntries(datasetScopesArr.map((datasetScope) => {
+      const datasetValues = fromEntries(parameters.map((parameter) => {
+        if (coordinationSpace && coordinationSpace[parameter]) {
+          let value;
+          const parameterSpace = coordinationSpace[parameter];
+          const parameterScope = coordinationScopes[parameter];
+          if (typeof parameterScope === 'object') {
+            value = parameterSpace[parameterScope[datasetScope]];
+          } else if (typeof parameterScope === 'string') {
+            value = parameterSpace[parameterScope];
+          } else {
+            console.error(`coordination scope for ${parameter} must be of type string or object.`);
+          }
+          return [parameter, value];
+        }
+        return [parameter, undefined];
+      }));
+      return [datasetScope, datasetValues];
+    }));
   }, shallow);
 
-  const setters = useMemo(
-    () => fromEntries(
-      datasetScopesArr.map((datasetScope) => {
-        const datasetSetters = fromEntries(
-          parameters.map((parameter) => {
-            const setterName = `set${capitalize(parameter)}`;
-            let setterFunc;
-            const parameterScope = coordinationScopes[parameter];
-            if (typeof parameterScope === 'object') {
-              setterFunc = value => setCoordinationValue({
-                parameter,
-                scope: parameterScope[datasetScope],
-                value,
-              });
-            } else if (typeof parameterScope === 'string') {
-              setterFunc = value => setCoordinationValue({
-                parameter,
-                scope: parameterScope,
-                value,
-              });
-            } else {
-              console.error(
-                `coordination scope for ${parameter} must be of type string or object.`,
-              );
-            }
-            return [setterName, setterFunc];
-          }),
-        );
-        return [datasetScope, datasetSetters];
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }),
-    ),
-    [parameters, coordinationScopes],
-  );
+  const setters = useMemo(() => fromEntries(datasetScopesArr.map((datasetScope) => {
+    const datasetSetters = fromEntries(parameters.map((parameter) => {
+      const setterName = `set${capitalize(parameter)}`;
+      let setterFunc;
+      const parameterScope = coordinationScopes[parameter];
+      if (typeof parameterScope === 'object') {
+        setterFunc = value => setCoordinationValue({
+          parameter,
+          scope: parameterScope[datasetScope],
+          value,
+        });
+      } else if (typeof parameterScope === 'string') {
+        setterFunc = value => setCoordinationValue({
+          parameter,
+          scope: parameterScope,
+          value,
+        });
+      } else {
+        console.error(`coordination scope for ${parameter} must be of type string or object.`);
+      }
+      return [setterName, setterFunc];
+    }));
+    return [datasetScope, datasetSetters];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  })), [parameters, coordinationScopes]);
 
   return [values, setters];
 }
 
 const AUXILIARY_COORDINATION_TYPES_MAP = {
   spatialImageLayer: ['imageLayerCallbacks', 'areLoadingImageChannels'],
-  spatialSegmentationLayer: [
-    'segmentationLayerCallbacks',
-    'areLoadingSegmentationChannels',
-  ],
+  spatialSegmentationLayer: ['segmentationLayerCallbacks', 'areLoadingSegmentationChannels'],
 };
 
 /**
@@ -380,9 +347,7 @@ const mapCoordinationScopes = (coordinationScopes) => {
 };
 
 const mapParameters = parameters => parameters
-  .map(parameter => AUXILIARY_COORDINATION_TYPES_MAP[parameter])
-  .filter(Boolean)
-  .flat();
+  .map(parameter => AUXILIARY_COORDINATION_TYPES_MAP[parameter]).filter(Boolean).flat();
 
 /**
  * The useAuxiliaryCoordination hook returns both the
@@ -401,38 +366,29 @@ const mapParameters = parameters => parameters
  * prefix.
  */
 export function useAuxiliaryCoordination(parameters, coordinationScopes) {
-  const setCoordinationValue = useAuxiliaryStore(
-    state => state.setCoordinationValue,
-  );
+  const setCoordinationValue = useAuxiliaryStore(state => state.setCoordinationValue);
   const mappedCoordinationScopes = mapCoordinationScopes(coordinationScopes);
   const mappedParameters = mapParameters(parameters);
   const values = useAuxiliaryStore((state) => {
     const { auxiliaryStore } = state;
-    return fromEntries(
-      mappedParameters.map((parameter) => {
-        if (auxiliaryStore && auxiliaryStore[parameter]) {
-          const value = auxiliaryStore[parameter][mappedCoordinationScopes[parameter]];
-          return [parameter, value];
-        }
-        return [parameter, undefined];
-      }),
-    );
+    return fromEntries(mappedParameters.map((parameter) => {
+      if (auxiliaryStore && auxiliaryStore[parameter]) {
+        const value = auxiliaryStore[parameter][mappedCoordinationScopes[parameter]];
+        return [parameter, value];
+      }
+      return [parameter, undefined];
+    }));
   }, shallow);
-  const setters = useMemo(
-    () => fromEntries(
-      mappedParameters.map((parameter) => {
-        const setterName = `set${capitalize(parameter)}`;
-        const setterFunc = value => setCoordinationValue({
-          parameter,
-          scope: mappedCoordinationScopes[parameter],
-          value,
-        });
-        return [setterName, setterFunc];
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }),
-    ),
-    [parameters, coordinationScopes],
-  );
+  const setters = useMemo(() => fromEntries(mappedParameters.map((parameter) => {
+    const setterName = `set${capitalize(parameter)}`;
+    const setterFunc = value => setCoordinationValue({
+      parameter,
+      scope: mappedCoordinationScopes[parameter],
+      value,
+    });
+    return [setterName, setterFunc];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  })), [parameters, coordinationScopes]);
 
   return [values, setters];
 }
@@ -460,12 +416,7 @@ export function useLoaders() {
  * values.
  * @returns The matching loader instance or `null`.
  */
-export function useMatchingLoader(
-  loaders,
-  dataset,
-  dataType,
-  viewCoordinationValues,
-) {
+export function useMatchingLoader(loaders, dataset, dataType, viewCoordinationValues) {
   return useMemo(() => {
     if (!loaders[dataset]) {
       return null;
@@ -475,7 +426,8 @@ export function useMatchingLoader(
       return null;
     }
     const loaderKeys = Array.from(loaderInternMap.keys());
-    const matchingKey = loaderKeys.find(fileCoordinationValues => isMatch(fileCoordinationValues, viewCoordinationValues));
+    const matchingKey = loaderKeys
+      .find(fileCoordinationValues => isMatch(fileCoordinationValues, viewCoordinationValues));
     if (!matchingKey) {
       return null;
     }
@@ -496,12 +448,7 @@ export function useMatchingLoader(
  * values.
  * @returns The matching loader instance or `null`.
  */
-export function useMatchingLoaders(
-  loaders,
-  dataset,
-  dataType,
-  viewCoordinationValuesObj,
-) {
+export function useMatchingLoaders(loaders, dataset, dataType, viewCoordinationValuesObj) {
   return useMemo(() => {
     if (!loaders[dataset]) {
       return null;
@@ -512,16 +459,15 @@ export function useMatchingLoaders(
     }
     const loaderKeys = Array.from(loaderInternMap.keys());
     function getLoader(viewCoordinationValues) {
-      const matchingKey = loaderKeys.find(fileCoordinationValues => isMatch(fileCoordinationValues, viewCoordinationValues));
+      const matchingKey = loaderKeys
+        .find(fileCoordinationValues => isMatch(fileCoordinationValues, viewCoordinationValues));
       return loaderInternMap.get(matchingKey);
     }
     return fromEntries(
-      Object.entries(viewCoordinationValuesObj).map(
-        ([key, viewCoordinationValues]) => [
-          key,
-          getLoader(viewCoordinationValues),
-        ],
-      ),
+      Object.entries(viewCoordinationValuesObj).map(([key, viewCoordinationValues]) => ([
+        key,
+        getLoader(viewCoordinationValues),
+      ])),
     );
   }, [loaders, dataset, dataType, viewCoordinationValuesObj]);
 }
@@ -635,9 +581,7 @@ export function useComponentViewInfo(uuid) {
  * in the `useViewInfoStore` store.
  */
 export function useSetComponentViewInfo(uuid) {
-  const setViewInfoRef = useRef(
-    useViewInfoStore.getState().setComponentViewInfo,
-  );
+  const setViewInfoRef = useRef(useViewInfoStore.getState().setComponentViewInfo);
   const setComponentViewInfo = viewInfo => setViewInfoRef.current(uuid, viewInfo);
   return setComponentViewInfo;
 }

@@ -6,7 +6,11 @@ import OptionSelect from './OptionSelect';
 import { useStyles } from './styles';
 
 export default function CellColorEncodingOption(props) {
-  const { observationsLabel, cellColorEncoding, setCellColorEncoding } = props;
+  const {
+    observationsLabel,
+    cellColorEncoding,
+    setCellColorEncoding,
+  } = props;
 
   const classes = useStyles();
 
@@ -18,10 +22,7 @@ export default function CellColorEncodingOption(props) {
 
   return (
     <TableRow>
-      <TableCell
-        className={classes.labelCell}
-        htmlFor="cell-color-encoding-select"
-      >
+      <TableCell className={classes.labelCell} htmlFor="cell-color-encoding-select">
         {observationsLabelNice} Color Encoding
       </TableCell>
       <TableCell className={classes.inputCell}>

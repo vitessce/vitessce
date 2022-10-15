@@ -57,8 +57,7 @@ export function layerFilter({ layer, viewport }) {
  */
 function getTextWidth(text, font) {
   // re-use canvas object for better performance
-  const canvas = getTextWidth.canvas
-    || (getTextWidth.canvas = document.createElement('canvas'));
+  const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement('canvas'));
   const context = canvas.getContext('2d');
   context.font = font;
   const metrics = context.measureText(text);
@@ -77,27 +76,22 @@ function getTextWidth(text, font) {
  * @returns {number[]} [axisOffsetLeft, axisOffsetTop]
  */
 export function getAxisSizes(
-  transpose,
-  longestGeneLabel,
-  longestCellLabel,
-  hideObservationLabels,
-  hideVariableLabels,
+  transpose, longestGeneLabel, longestCellLabel,
+  hideObservationLabels, hideVariableLabels,
 ) {
   const font = `${AXIS_LABEL_TEXT_SIZE}pt ${AXIS_FONT_FAMILY}`;
   const geneLabelMaxWidth = hideVariableLabels
-    ? 0
-    : getTextWidth(longestGeneLabel, font) + AXIS_PADDING;
+    ? 0 : getTextWidth(longestGeneLabel, font) + AXIS_PADDING;
   const cellLabelMaxWidth = hideObservationLabels
-    ? 0
-    : getTextWidth(longestCellLabel, font) + AXIS_PADDING;
+    ? 0 : getTextWidth(longestCellLabel, font) + AXIS_PADDING;
 
   const axisOffsetLeft = clamp(
-    transpose ? geneLabelMaxWidth : cellLabelMaxWidth,
+    (transpose ? geneLabelMaxWidth : cellLabelMaxWidth),
     AXIS_MIN_SIZE,
     AXIS_MAX_SIZE,
   );
   const axisOffsetTop = clamp(
-    transpose ? cellLabelMaxWidth : geneLabelMaxWidth,
+    (transpose ? cellLabelMaxWidth : geneLabelMaxWidth),
     AXIS_MIN_SIZE,
     AXIS_MAX_SIZE,
   );
@@ -111,21 +105,9 @@ export function getAxisSizes(
  * @param {object} param2 An object containing current sizes and scale factors.
  * @returns {number[]} [colI, rowI]
  */
-export function mouseToHeatmapPosition(
-  mouseX,
-  mouseY,
-  {
-    offsetLeft,
-    offsetTop,
-    targetX,
-    targetY,
-    scaleFactor,
-    matrixWidth,
-    matrixHeight,
-    numRows,
-    numCols,
-  },
-) {
+export function mouseToHeatmapPosition(mouseX, mouseY, {
+  offsetLeft, offsetTop, targetX, targetY, scaleFactor, matrixWidth, matrixHeight, numRows, numCols,
+}) {
   // TODO: use linear algebra
   const viewMouseX = mouseX - offsetLeft;
   const viewMouseY = mouseY - offsetTop;
@@ -136,8 +118,8 @@ export function mouseToHeatmapPosition(
   }
 
   // Determine the rowI and colI values based on the current viewState.
-  const bboxTargetX = targetX * scaleFactor + (matrixWidth * scaleFactor) / 2;
-  const bboxTargetY = targetY * scaleFactor + (matrixHeight * scaleFactor) / 2;
+  const bboxTargetX = targetX * scaleFactor + matrixWidth * scaleFactor / 2;
+  const bboxTargetY = targetY * scaleFactor + matrixHeight * scaleFactor / 2;
 
   const bboxLeft = bboxTargetX - matrixWidth / 2;
   const bboxTop = bboxTargetY - matrixHeight / 2;
@@ -163,52 +145,40 @@ export function mouseToHeatmapPosition(
  * @param {object} param2 An object containing current sizes and scale factors.
  * @returns {number[]} [x, y]
  */
-export function heatmapToMousePosition(
-  colI,
-  rowI,
-  {
-    offsetLeft,
-    offsetTop,
-    targetX,
-    targetY,
-    scaleFactor,
-    matrixWidth,
-    matrixHeight,
-    numRows,
-    numCols,
-  },
-) {
+export function heatmapToMousePosition(colI, rowI, {
+  offsetLeft, offsetTop, targetX, targetY, scaleFactor, matrixWidth, matrixHeight, numRows, numCols,
+}) {
   // TODO: use linear algebra
   let zoomedMouseY = null;
   let zoomedMouseX = null;
 
   if (rowI !== null) {
-    const minY = (-matrixHeight * scaleFactor) / 2;
-    const maxY = (matrixHeight * scaleFactor) / 2;
+    const minY = -matrixHeight * scaleFactor / 2;
+    const maxY = matrixHeight * scaleFactor / 2;
     const totalHeight = maxY - minY;
 
-    const minInViewY = targetY * scaleFactor - matrixHeight / 2;
-    const maxInViewY = targetY * scaleFactor + matrixHeight / 2;
+    const minInViewY = (targetY * scaleFactor) - (matrixHeight / 2);
+    const maxInViewY = (targetY * scaleFactor) + (matrixHeight / 2);
     const inViewHeight = maxInViewY - minInViewY;
 
     const normalizedRowY = (rowI + 0.5) / numRows;
-    const globalRowY = minY + normalizedRowY * totalHeight;
+    const globalRowY = minY + (normalizedRowY * totalHeight);
 
     if (minInViewY <= globalRowY && globalRowY <= maxInViewY) {
       zoomedMouseY = offsetTop + ((globalRowY - minInViewY) / inViewHeight) * matrixHeight;
     }
   }
   if (colI !== null) {
-    const minX = (-matrixWidth * scaleFactor) / 2;
-    const maxX = (matrixWidth * scaleFactor) / 2;
+    const minX = -matrixWidth * scaleFactor / 2;
+    const maxX = matrixWidth * scaleFactor / 2;
     const totalWidth = maxX - minX;
 
-    const minInViewX = targetX * scaleFactor - matrixWidth / 2;
-    const maxInViewX = targetX * scaleFactor + matrixWidth / 2;
+    const minInViewX = (targetX * scaleFactor) - (matrixWidth / 2);
+    const maxInViewX = (targetX * scaleFactor) + (matrixWidth / 2);
     const inViewWidth = maxInViewX - minInViewX;
 
     const normalizedRowX = (colI + 0.5) / numCols;
-    const globalRowX = minX + normalizedRowX * totalWidth;
+    const globalRowX = minX + (normalizedRowX * totalWidth);
 
     if (minInViewX <= globalRowX && globalRowX <= maxInViewX) {
       zoomedMouseX = offsetLeft + ((globalRowX - minInViewX) / inViewWidth) * matrixWidth;
@@ -224,30 +194,24 @@ export function heatmapToMousePosition(
  * @param {object} param2 An object containing current sizes and scale factors.
  * @returns {number[]} [cellI, trackI]
  */
-export function mouseToCellColorPosition(
-  mouseX,
-  mouseY,
-  {
-    axisOffsetTop,
-    axisOffsetLeft,
-    offsetTop,
-    offsetLeft,
-    colorBarSize,
-    numCellColorTracks,
-    transpose,
-    targetX,
-    targetY,
-    scaleFactor,
-    matrixWidth,
-    matrixHeight,
-    numRows,
-    numCols,
-  },
-) {
+export function mouseToCellColorPosition(mouseX, mouseY, {
+  axisOffsetTop,
+  axisOffsetLeft,
+  offsetTop,
+  offsetLeft,
+  colorBarSize,
+  numCellColorTracks,
+  transpose,
+  targetX,
+  targetY,
+  scaleFactor,
+  matrixWidth,
+  matrixHeight,
+  numRows,
+  numCols,
+}) {
   const cellPosition = transpose ? mouseX - offsetLeft : mouseY - offsetTop;
-  const trackPosition = transpose
-    ? mouseY - axisOffsetTop
-    : mouseX - axisOffsetLeft;
+  const trackPosition = transpose ? mouseY - axisOffsetTop : mouseX - axisOffsetLeft;
 
   const tracksWidth = numCellColorTracks * colorBarSize;
 
@@ -262,7 +226,7 @@ export function mouseToCellColorPosition(
   let cellI;
   if (transpose) {
     const viewMouseX = mouseX - offsetLeft;
-    const bboxTargetX = targetX * scaleFactor + (matrixWidth * scaleFactor) / 2;
+    const bboxTargetX = targetX * scaleFactor + matrixWidth * scaleFactor / 2;
     const bboxLeft = bboxTargetX - matrixWidth / 2;
     const zoomedOffsetLeft = bboxLeft / (matrixWidth * scaleFactor);
     const zoomedViewMouseX = viewMouseX / (matrixWidth * scaleFactor);
@@ -272,7 +236,7 @@ export function mouseToCellColorPosition(
   }
   // Not transposed
   const viewMouseY = mouseY - axisOffsetTop;
-  const bboxTargetY = targetY * scaleFactor + (matrixHeight * scaleFactor) / 2;
+  const bboxTargetY = targetY * scaleFactor + matrixHeight * scaleFactor / 2;
   const bboxTop = bboxTargetY - matrixHeight / 2;
   const zoomedOffsetTop = bboxTop / (matrixHeight * scaleFactor);
   const zoomedViewMouseY = viewMouseY / (matrixHeight * scaleFactor);

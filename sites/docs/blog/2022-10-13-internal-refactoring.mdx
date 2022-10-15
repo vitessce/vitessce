@@ -5,7 +5,7 @@ author: Mark Keller
 author_title: Gehlenborg Lab
 author_url: http://gehlenborglab.org/team/members/mark-keller/
 tags: [internals]
----
+---    
 
 Vitessce has a relatively large and complex code base for a JavaScript project.
 Like many other JavaScript projects, we not only develop a library for distribution on NPM but also an internal development web application and a documentation website.
@@ -14,15 +14,14 @@ Often additionally, we want to produce a matrix of different builds: minified/un
 If we have any custom CSS that goes along with our JavaScript, we also need to think about how that will get included in the bundle.
 
 However, in Vitessce, many other things complicate both the development and production setups.
-
 <!--truncate-->
-
 Luckily, there are new ways to address these complications due to improvements in language standards and build tooling.
 Thanks to help from [Trevor Manz](http://gehlenborglab.org/team/members/trevor-manz/), we have been able to greatly improve our build setup.
 
-In the following sections I describe each requirement and how we approached it in the new setup, in the hopes that it may be useful to others.
+In the following sections I describe each requirement and how we approached it in the new setup, in the hopes that it may be useful to others. 
 
 ## Previous build setup
+
 
 We previously used ejected [create-react-app](https://create-react-app.dev/) (CRA) scripts. The base CRA scripts work well for publishing web apps but are not meant for bundling a library.
 We had to eject the base scripts to add support for the library build.
@@ -34,7 +33,7 @@ While I previously made attempts to simplify our bundle scripts by using [Rollup
 They usually required hours of debugging to find a perfect (ordered) set of plugins and parameter settings to support all of the requirements of Vitessce and its dependencies.
 It often felt like a game of whack-a-mole, fixing each issue just for another to emerge.
 After days of debugging, I achieved fully working setups on a few occasions.
-Unfortunately, even on these successful occasions (i.e., bundles, tests, and development server with no errors), I would still encounter issues preventing full adoption: the bundle size would be larger, or hot reloading in the development server would be unacceptably slow.
+Unfortunately, even on these successful occasions (i.e., bundles, tests, and development server with no errors), I would still encounter issues preventing full adoption: the bundle size would be larger, or hot reloading in the development server would be unacceptably slow. 
 
 ## Incentives for this work
 
@@ -71,7 +70,7 @@ Practically, this meant using [PNPM](https://pnpm.io) for dependency management 
 ### Minimizing bundle steps in sub-packages
 
 As browser, NodeJS, and JavaScript module standards have matured, there is becoming less of a need for a complex bundle step in between source code development and published code deployment, as described [by others](https://cmdcolin.github.io/posts/2022-05-27-youmaynotneedabundler).
-In short, when the consumer of your library is another JavaScript library, it makes more sense for them to import from the original source code.
+In short, when the consumer of your library is another JavaScript library, it  makes more sense for them to import from the original source code.
 On the other hand, when the consumer of your library is an HTML page, it currently makes more sense for them to import a single-file, minified bundle.
 As browser module features like [importmaps](https://github.com/WICG/import-maps) improve, perhaps these considerations will evolve.
 
@@ -88,8 +87,9 @@ For example, we make exceptions in the following places:
 
 - The main `vitessce` package: For both backwards compatibility and to enable inclusion in HTML pages, we generate a matrix of single-file bundles using Vite and its library mode.
 - The `@vitessce/icons` sub-package: To enable SVGs to be imported and transformed into React components automatically, we use Vite and [vite-plugin-svgr](https://www.npmjs.com/package/vite-plugin-svgr) to produce a plain JS bundle that can be consumed by other monorepo packages.
-  (Note: This setup does not allow SVGs to be hot-reloaded during development, but we can probably assume they will not change frequently.)
+(Note: This setup does not allow SVGs to be hot-reloaded during development, but we can probably assume they will not change frequently.)
 - The `@vitessce/workers` sub-package: To enable Web Workers to be in-lined, we use Rollup + [rollup-plugin-web-worker-loader](https://www.npmjs.com/package/rollup-plugin-web-worker-loader). (This comes with the same hot reloading caveat as the `@vitessce/icons` case above.)
+
 
 ### Website development with hot reloading
 
@@ -107,7 +107,7 @@ To further improve performance, we enable TypeScript's "incremental" mode with `
 To leverage the benefits of React 18, we use the TypeScript option `"jsx": "react-jsx"`, which also comes with the minor benefit that JSX code can be written [without explicitly importing](https://reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html) React at the top of each file.
 To use React 18 in the context of Docusaurus and Material UI dependencies, which do not yet specify compatibility above React 17 in their `peerDependencies`, we use PNPM's [peerDependencyRules](https://pnpm.io/package_json#pnpmpeerdependencyrules) in the root of the repository to override them and ensure that we are only depending on React 18 (as two versions of React cannot be included in the same web page).
 
-### Managing and publishing sub-packages
+### Managing and publishing sub-packages 
 
 To streamline the management of many sub-packages, we use PNPM and its [meta-updater](https://github.com/pnpm/meta-updater) plugin.
 This allows syncing changes to every sub-package's `package.json` file, for instance to update the main `"version"` or particular dependency version values.

@@ -2,10 +2,8 @@
 
 // Adapted from https://github.com/feross/fromentries/blob/29b52a850bb3a47c390937631c2638edf3443942/index.js
 export function fromEntries(iterable) {
-  return [...iterable].reduce(
-    (obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }),
-    {},
-  );
+  return [...iterable]
+    .reduce((obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }), {});
 }
 
 export function commaNumber(n) {
@@ -28,7 +26,11 @@ export function capitalize(word) {
  * @returns The longest string.
  */
 export function getLongestString(strings) {
-  return strings.reduce((prevLongest, currentValue) => (prevLongest.length > currentValue.length ? prevLongest : currentValue));
+  return strings.reduce(
+    (prevLongest, currentValue) => (
+      prevLongest.length > currentValue.length ? prevLongest : currentValue
+    ),
+  );
 }
 
 /**

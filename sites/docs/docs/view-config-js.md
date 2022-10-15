@@ -18,12 +18,13 @@ Writing large JSON objects by hand can be difficult and prevents from using vari
 The methods of this object (and the objects its methods return) allow you to manipulate the underlying configuration.
 When you are ready to render the Vitessce component, you can use the `.toJSON()` method to translate the `VitessceConfig` object to a plain JSON object.
 
+
 ### `constructor({ schemaVersion, name, description })`
 
 Construct a Vitessce view config object.
 
-#### Parameters:
 
+#### Parameters:
 - `params` (`object`) - An object with named arguments.
 - `params.schemaVersion` (`string`) - The JSON schema version. Required.
 - `params.name` (`string`) - A name for the view config. Required.
@@ -32,51 +33,51 @@ Construct a Vitessce view config object.
 ```js {3}
 import { VitessceConfig } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: '1.0.15', name: 'My config' });
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
 ```
+
 
 ### `addDataset(name)`
 
 Add a dataset to the config.
 
 #### Parameters:
-
 - `name` (`string`) - A name for the dataset.
 
 #### Returns:
-
 - Type: `VitessceConfigDataset`
 
 Returns the instance for the new dataset.
 
+
 ```js {4}
 import { VitessceConfig, DataType as dt, FileType as ft } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: '1.0.15', name: 'My config' });
-const dataset = vc.addDataset('My dataset').addFile({
-  url: 'http://example.com/my-cell-coordinates.csv',
-  fileType: ft.OBS_LOCATIONS_CSV,
-  coordinationValues: { obsType: 'cell' },
-});
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
+const dataset = vc.addDataset("My dataset")
+    .addFile({
+        url: "http://example.com/my-cell-coordinates.csv",
+        fileType: ft.OBS_LOCATIONS_CSV,
+        coordinationValues: { obsType: 'cell' },
+    });
 ```
+
 
 ### `addView(dataset, viewType, extra)`
 
 Add a view to the config.
 
 #### Parameters:
-
 - `dataset` (`VitessceConfigDataset`) - A dataset instance to be used for the data visualized in this view.
 - `viewType` (`string`) - A view type name. A full list of view types can be found on the [view types](/docs/components/) documentation page. We recommend using the [`ViewType`](/docs/constants/#view-types) constant values rather than writing strings directly.
 - `extra` (`object`) - An optional object with extra parameters.
-  - `mapping` (`string`) - A convenience parameter for setting the `embeddingType` coordination scope value. This parameter is only applicable when adding the `scatterplot` view. Optional.
-  - `x` (`number`) - The horizontal position of the view. Must be an integer between 0 and 11. Optional.
-  - `y` (`number`) - The vertical position of the view. Must be an integer between 0 and 11. Optional.
-  - `w` (`number`) - The width of the view. Must be an integer between 1 and 12. Optional.
-  - `h` (`number`) - The height of the view. Must be an integer between 1 and 12. Optional.
+    - `mapping` (`string`) - A convenience parameter for setting the `embeddingType` coordination scope value. This parameter is only applicable when adding the `scatterplot` view. Optional.
+    - `x` (`number`) - The horizontal position of the view. Must be an integer between 0 and 11. Optional.
+    - `y` (`number`) - The vertical position of the view. Must be an integer between 0 and 11. Optional.
+    - `w` (`number`) - The width of the view. Must be an integer between 1 and 12. Optional.
+    - `h` (`number`) - The height of the view. Must be an integer between 1 and 12. Optional.
 
 #### Returns:
-
 - Type: `VitessceConfigView`
 
 Returns the instance for the new view.
@@ -84,56 +85,50 @@ Returns the instance for the new view.
 ```js {5-6}
 import { VitessceConfig, ViewType as vt } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: '1.0.15', name: 'My config' });
-const dataset = vc.addDataset('My dataset');
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
+const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, vt.SPATIAL);
-const v2 = vc.addView(dataset, vt.SCATTERPLOT, { mapping: 'X_umap' });
+const v2 = vc.addView(dataset, vt.SCATTERPLOT, { mapping: "X_umap" });
 ```
+
 
 ### `linkViews(views, cTypes, cValues)`
 
 A convenience function for setting up new coordination scopes across a set of views.
 
 #### Parameters:
-
 - `views` (`VitessceConfigView[]`) - An array of view objects to coordinate together.
 - `cTypes` (`string[]`) - The coordination types on which to coordinate the views. We recommend using the [`CoordinationType`](/docs/coordination-types/#constants) constant values rather than writing strings directly.
 - `cValues` (`array`) - Initial values for each coordination type. Should have the same length as the `cTypes` array. Optional.
 
 #### Returns:
-
 - Type: `VitessceConfig`
 
 Returns `this` to allow chaining.
 
 ```js {7-11}
-import {
-  VitessceConfig,
-  ViewType as vt,
-  CoordinationType as ct,
-} from 'vitessce';
+import { VitessceConfig, ViewType as vt, CoordinationType as ct } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: '1.0.15', name: 'My config' });
-const dataset = vc.addDataset('My dataset');
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
+const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, vt.SPATIAL);
 const v2 = vc.addView(dataset, vt.SPATIAL);
 vc.linkViews(
-  [v1, v2],
-  [ct.SPATIAL_ZOOM, ct.SPATIAL_TARGET_X, ct.SPATIAL_TARGET_Y],
-  [2, 0, 0],
+    [v1, v2],
+    [ct.SPATIAL_ZOOM, ct.SPATIAL_TARGET_X, ct.SPATIAL_TARGET_Y],
+    [2, 0, 0]
 );
 ```
+
 
 ### `layout(viewConcat)`
 
 Create a multi-view layout based on (potentially recursive) view concatenations.
 
 #### Parameters:
-
 - `viewConcat` (`VitessceConfigViewHConcat` or `VitessceConfigViewVConcat` or `VitessceConfigView`) - Views arranged by concatenating vertically or horizontally. Alternatively, a single view can be passed.
 
 #### Returns:
-
 - Type: `VitessceConfig`
 
 Returns `this` to allow chaining.
@@ -141,43 +136,38 @@ Returns `this` to allow chaining.
 ```js {8}
 import { VitessceConfig, ViewType as vt, hconcat, vconcat } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: '1.0.15', name: 'My config' });
-const dataset = vc.addDataset('My dataset');
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
+const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, vt.SPATIAL);
 const v2 = vc.addView(dataset, vt.SPATIAL);
 const v3 = vc.addView(dataset, vt.SPATIAL);
 vc.layout(hconcat(v1, vconcat(v2, v3)));
 ```
 
+
 ### `addCoordination(...cTypes)`
 
 Add scope(s) for new coordination type(s) to the config. See also `VitessceConfig.linkViews()`.
 
 #### Parameters:
-
 - `...cTypes` (variable number of `string`) - A variable number of coordination types. We recommend using the [`CoordinationType`](/docs/coordination-types/#constants) constant values rather than writing strings directly.
 
 #### Returns:
-
 - Type: `VitessceConfigCoordinationScope[]`
 
 Returns the instances for the new scope objects corresponding to each coordination type. These can be linked to views via the `VitessceConfigView.use_coordination()` method.
 
 ```js {7-11}
-import {
-  VitessceConfig,
-  ViewType as vt,
-  CoordinationType as ct,
-} from 'vitessce';
+import { VitessceConfig, ViewType as vt, CoordinationType as ct } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: '1.0.15', name: 'My config' });
-const dataset = vc.addDataset('My dataset');
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
+const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, vt.SPATIAL);
 const v2 = vc.addView(dataset, vt.SPATIAL);
 const [zoomScope, xScope, yScope] = vc.addCoordination(
-  ct.SPATIAL_ZOOM,
-  ct.SPATIAL_TARGET_X,
-  ct.SPATIAL_TARGET_Y,
+    ct.SPATIAL_ZOOM,
+    ct.SPATIAL_TARGET_X,
+    ct.SPATIAL_TARGET_Y,
 );
 v1.useCoordination(zoomScope, xScope, yScope);
 v2.useCoordination(zoomScope, xScope, yScope);
@@ -186,12 +176,12 @@ xScope.setValue(0);
 yScope.setValue(0);
 ```
 
+
 ### `toJSON()`
 
 Convert the view config instance to a JSON object.
 
 #### Returns:
-
 - Type: `object`
 
 Returns the config instance as a JSON object.
@@ -199,22 +189,21 @@ Returns the config instance as a JSON object.
 ```js {6}
 import { VitessceConfig, ViewType as vt } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: '1.0.15', name: 'My config' });
-const dataset = vc.addDataset('My dataset');
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
+const dataset = vc.addDataset("My dataset");
 vc.layout(vc.addView(dataset, vt.SPATIAL));
 const vcJson = vc.toJSON();
 ```
+
 
 ### `static fromJSON(config)`
 
 Static method to construct a view config instance from an existing JSON config.
 
 #### Parameters:
-
 - `config` (`object`) - A view config as a JSON object.
 
 #### Returns:
-
 - Type: `VitessceConfig`
 
 Returns the config instance.
@@ -226,6 +215,7 @@ import myConfig from './my-config.json';
 const vc = VitessceConfig.fromJSON(myConfig);
 ```
 
+
 ## `hconcat`
 
 Helper function to allow horizontal concatenation of views in the Vitessce grid layout.
@@ -233,8 +223,8 @@ Helper function to allow horizontal concatenation of views in the Vitessce grid 
 ```js {7}
 import { VitessceConfig, ViewType as vt, hconcat } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: '1.0.15', name: 'My config' });
-const dataset = vc.addDataset('My dataset');
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
+const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, vt.SPATIAL);
 const v2 = vc.addView(dataset, vt.SPATIAL);
 vc.layout(hconcat(v1, v2));
@@ -243,11 +233,9 @@ vc.layout(hconcat(v1, v2));
 ### Visual Examples
 
 - Split grid in half horizontally
-
-  ```js
-  hconcat(v1, v2);
-  ```
-
+    ```js
+    hconcat(v1, v2)
+    ```
     <table className="table-concat">
         <tbody>
             <tr>
@@ -258,11 +246,9 @@ vc.layout(hconcat(v1, v2));
     </table>
 
 - Split grid in thirds horizontally
-
-  ```js
-  hconcat(v1, v2, v3);
-  ```
-
+    ```js
+    hconcat(v1, v2, v3)
+    ```
     <table className="table-concat">
         <tbody>
             <tr>
@@ -274,11 +260,9 @@ vc.layout(hconcat(v1, v2));
     </table>
 
 - Split grid in half horizontally and in half again vertically on right side
-
-  ```js
-  hconcat(v1, vconcat(v2, v3));
-  ```
-
+    ```js
+    hconcat(v1, vconcat(v2, v3))
+    ```
     <table className="table-concat">
         <tbody>
             <tr>
@@ -292,9 +276,12 @@ vc.layout(hconcat(v1, v2));
     </table>
 
 - Use a nested `hconcat` to split in half on left side and fourths on right side (top row).
-  ```js {2}
-  vconcat(hconcat(v1, hconcat(v2, v3)), hconcat(v4, v5, v6, v7));
-  ```
+    ```js {2}
+    vconcat(
+        hconcat(v1, hconcat(v2, v3)),
+        hconcat(v4, v5, v6, v7)
+    )
+    ```
     <table className="table-concat">
         <tbody>
             <tr>
@@ -311,6 +298,7 @@ vc.layout(hconcat(v1, v2));
         </tbody>
     </table>
 
+
 ## `vconcat`
 
 Helper function to allow vertical concatenation of views in the Vitessce grid layout.
@@ -318,8 +306,8 @@ Helper function to allow vertical concatenation of views in the Vitessce grid la
 ```js {7}
 import { VitessceConfig, ViewType as vt, vconcat } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: '1.0.15', name: 'My config' });
-const dataset = vc.addDataset('My dataset');
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
+const dataset = vc.addDataset("My dataset");
 const v1 = vc.addView(dataset, vt.SPATIAL);
 const v2 = vc.addView(dataset, vt.SPATIAL);
 vc.layout(vconcat(v1, v2));
@@ -328,11 +316,9 @@ vc.layout(vconcat(v1, v2));
 ### Visual Examples
 
 - Split grid in half vertically
-
-  ```js
-  vconcat(v1, v2);
-  ```
-
+    ```js
+    vconcat(v1, v2)
+    ```
     <table className="table-concat">
         <tbody>
             <tr>
@@ -345,11 +331,9 @@ vc.layout(vconcat(v1, v2));
     </table>
 
 - Split grid in thirds horizontally
-
-  ```js
-  vconcat(v1, v2, v3);
-  ```
-
+    ```js
+    vconcat(v1, v2, v3)
+    ```
     <table className="table-concat">
         <tbody>
             <tr>
@@ -365,11 +349,9 @@ vc.layout(vconcat(v1, v2));
     </table>
 
 - Split grid in half horizontally and in half again vertically on right side
-
-  ```js
-  vconcat(v1, hconcat(v2, v3));
-  ```
-
+    ```js
+    vconcat(v1, hconcat(v2, v3))
+    ```
     <table className="table-concat">
         <tbody>
             <tr>
@@ -382,10 +364,14 @@ vc.layout(vconcat(v1, v2));
         </tbody>
     </table>
 
+
 - Use a nested `vconcat` to split in half on top and fourths on bottom (left column).
-  ```js {2}
-  hconcat(vconcat(v1, vconcat(v2, v3)), vconcat(v4, v5, v6, v7));
-  ```
+    ```js {2}
+    hconcat(
+        vconcat(v1, vconcat(v2, v3)),
+        vconcat(v4, v5, v6, v7)
+    )
+    ```
     <table className="table-concat">
         <tbody>
             <tr>
@@ -415,15 +401,13 @@ This class is not meant to be instantiated directly, but instances will be creat
 ### `addFile({ url, fileType, coordinationValues, options })`
 
 #### Parameters:
-
 - `params` (`object`) - An object with named arguments.
 - `params.url` (`string|undefined`) - The URL for the file, pointing to either a local or remote location. We don't associate any semantics with URL strings.
 - `params.fileType` (`string`) - The file type. We recommend using the [`FileType`](/docs/data-types-file-types/#constants) constant values rather than writing strings directly.
 - `params.coordinationValues` (`object|undefined`) An object defining the coordination values such as `obsType` and `featureType` which allow mapping between views to files.
-- `params.options` (`object|array|undefined`) - An object or array which may provide additional parameters to the loader class corresponding to the specified `fileType`.
+- `params.options` (`object|array|undefined`) -  An object or array which may provide additional parameters to the loader class corresponding to the specified `fileType`.
 
 #### Returns:
-
 - Type: `VitessceConfigDataset`
 
 Returns `this` to allow chaining.
@@ -431,12 +415,13 @@ Returns `this` to allow chaining.
 ```js {5-9}
 import { VitessceConfig, DataType as dt, FileType as ft } from 'vitessce';
 
-const vc = new VitessceConfig({ schemaVersion: '1.0.15', name: 'My config' });
-const dataset = vc.addDataset('My dataset').addFile({
-  url: 'http://example.com/my-cell-coordinates.csv',
-  fileType: ft.OBS_LOCATIONS_CSV,
-  coordinationValues: { obsType: 'cell' },
-});
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
+const dataset = vc.addDataset("My dataset")
+    .addFile({
+        url: "http://example.com/my-cell-coordinates.csv",
+        fileType: ft.OBS_LOCATIONS_CSV,
+        coordinationValues: { obsType: 'cell' }
+    });
 ```
 
 ## `VitessceConfigView`
@@ -450,11 +435,9 @@ This class is not meant to be instantiated directly, but instances will be creat
 Attach coordination scopes to this view instance. All views using the same coordination scope for a particular coordination type will effectively be linked together.
 
 #### Parameters:
-
 - `...cScopes` (variable number of `VitessceConfigCoordinationScope`) - A variable number of coordination scope instances.
 
 #### Returns:
-
 - Type: `VitessceConfigView`
 
 Returns `this` to allow chaining.
@@ -464,11 +447,9 @@ Returns `this` to allow chaining.
 Set extra props for this view. Mostly for debugging.
 
 #### Parameters:
-
 - `props` (`object`) - The props as a JSON object.
 
 #### Returns:
-
 - Type: `VitessceConfigView`
 
 Returns `this` to allow chaining.
@@ -478,7 +459,6 @@ Returns `this` to allow chaining.
 Set the x, y, w, h values for this view. This method can be used in place of calling `VitessceConfig.layout()` if more fine-grained control over the layout is required.
 
 #### Returns:
-
 - Type: `VitessceConfigView`
 
 Returns `this` to allow chaining.
@@ -492,11 +472,9 @@ Class representing a coordination scope in the coordination space.
 Set the coordination value of the coordination scope.
 
 #### Parameters:
-
 - `cValue` (`any`) - The value to set.
 
 #### Returns:
-
 - Type: `VitessceConfigCoordinationScope`
 
 Returns `this` to allow chaining.

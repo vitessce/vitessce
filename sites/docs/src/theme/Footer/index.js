@@ -13,7 +13,7 @@ import styles from './styles.module.css';
 // This component has been swizzled from docusaurus
 // so that we can include the Vitessce version information.
 // TODO(monorepo)
-// import version from '../../../../../../src/version.json';
+//import version from '../../../../../../src/version.json';
 const version = 'unk';
 
 function FooterLink({
@@ -138,9 +138,10 @@ function Footer() {
                   }}
                 />
                 <p className="info-section-text">
-                  This deployment:&nbsp; branch=<code>{version.branch}</code>
-                  ,&nbsp; hash=<code>{version.hash}</code>,&nbsp; date=
-                  {version.date}
+                  This deployment:&nbsp;
+                  branch=<code>{version.branch}</code>,&nbsp;
+                  hash=<code>{version.hash}</code>,&nbsp;
+                  date={version.date}
                 </p>
               </div>
             ) : null}

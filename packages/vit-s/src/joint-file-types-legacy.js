@@ -1,5 +1,8 @@
 import { FileType } from '@vitessce/constants-internal';
-import { validateOptions, emptySchema } from './file-options-schemas';
+import {
+  validateOptions,
+  emptySchema,
+} from './file-options-schemas';
 import {
   cellsJsonSchema,
   anndataCellsZarrSchema,
@@ -35,8 +38,7 @@ export function expandExpressionMatrixZarr(fileDef) {
     coordinationValues: {
       obsType: fileDef.coordinationValues?.obsType || 'cell',
       featureType: fileDef.coordinationValues?.featureType || 'gene',
-      featureValueType:
-        fileDef.coordinationValues?.featureValueType || 'expression',
+      featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
     },
   };
   delete baseFileDef.type;
@@ -120,26 +122,22 @@ export function expandCellsJson(fileDef) {
         obsType: baseFileDef.coordinationValues.obsType,
       },
     },
-    ...(fileDef.options?.embeddingTypes
-      ? fileDef.options.embeddingTypes.map(et => ({
-        ...baseFileDef,
-        fileType: FileType.OBS_EMBEDDING_CELLS_JSON,
-        coordinationValues: {
-          obsType: baseFileDef.coordinationValues.obsType,
-          embeddingType: et,
-        },
-      }))
-      : []),
-    ...(fileDef.options?.obsLabelsTypes
-      ? fileDef.options.obsLabelsTypes.map(key => ({
-        ...baseFileDef,
-        fileType: FileType.OBS_LABELS_CELLS_JSON,
-        coordinationValues: {
-          obsType: baseFileDef.coordinationValues.obsType,
-          obsLabelsType: key,
-        },
-      }))
-      : []),
+    ...(fileDef.options?.embeddingTypes ? fileDef.options.embeddingTypes.map(et => ({
+      ...baseFileDef,
+      fileType: FileType.OBS_EMBEDDING_CELLS_JSON,
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+        embeddingType: et,
+      },
+    })) : []),
+    ...(fileDef.options?.obsLabelsTypes ? fileDef.options.obsLabelsTypes.map(key => ({
+      ...baseFileDef,
+      fileType: FileType.OBS_LABELS_CELLS_JSON,
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+        obsLabelsType: key,
+      },
+    })) : []),
   ];
 }
 
@@ -150,8 +148,7 @@ export function expandClustersJson(fileDef) {
     coordinationValues: {
       obsType: fileDef.coordinationValues?.obsType || 'cell',
       featureType: fileDef.coordinationValues?.featureType || 'gene',
-      featureValueType:
-        fileDef.coordinationValues?.featureValueType || 'expression',
+      featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
     },
   };
   delete baseFileDef.type;
@@ -170,8 +167,7 @@ export function expandGenesJson(fileDef) {
     coordinationValues: {
       obsType: fileDef.coordinationValues?.obsType || 'cell',
       featureType: fileDef.coordinationValues?.featureType || 'gene',
-      featureValueType:
-        fileDef.coordinationValues?.featureValueType || 'expression',
+      featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
     },
   };
   delete baseFileDef.type;
@@ -191,8 +187,7 @@ function getAnndataBaseFileDef(fileDef) {
       ...fileDef.coordinationValues,
       obsType: fileDef.coordinationValues?.obsType || 'cell',
       featureType: fileDef.coordinationValues?.featureType || 'gene',
-      featureValueType:
-        fileDef.coordinationValues?.featureValueType || 'expression',
+      featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
     },
   };
 }
@@ -204,34 +199,26 @@ export function expandAnndataCellsZarr(fileDef) {
   const embeddingTypes = options.mappings ? Object.keys(options.mappings) : [];
   const obsLabelsTypes = options.factors ? options.factors : [];
   return [
-    ...(options.poly
-      ? [
-        {
-          ...baseFileDef,
-          fileType: FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR,
-          options: {
-            path: options.poly,
-          },
-          coordinationValues: {
-            obsType: baseFileDef.coordinationValues.obsType,
-          },
-        },
-      ]
-      : []),
-    ...(options.xy
-      ? [
-        {
-          ...baseFileDef,
-          fileType: FileType.OBS_LOCATIONS_ANNDATA_ZARR,
-          options: {
-            path: options.xy,
-          },
-          coordinationValues: {
-            obsType: baseFileDef.coordinationValues.obsType,
-          },
-        },
-      ]
-      : []),
+    ...(options.poly ? [{
+      ...baseFileDef,
+      fileType: FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR,
+      options: {
+        path: options.poly,
+      },
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
+    }] : []),
+    ...(options.xy ? [{
+      ...baseFileDef,
+      fileType: FileType.OBS_LOCATIONS_ANNDATA_ZARR,
+      options: {
+        path: options.xy,
+      },
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
+    }] : []),
     ...embeddingTypes.map(et => ({
       ...baseFileDef,
       fileType: FileType.OBS_EMBEDDING_ANNDATA_ZARR,
@@ -283,20 +270,16 @@ export function expandAnndataExpressionMatrixZarr(fileDef) {
   const baseFileDef = getAnndataBaseFileDef(fileDef);
   const { options = {} } = fileDef;
   return [
-    ...(options.geneAlias
-      ? [
-        {
-          ...baseFileDef,
-          fileType: FileType.FEATURE_LABELS_ANNDATA_ZARR,
-          options: {
-            path: options.geneAlias,
-          },
-          coordinationValues: {
-            featureType: baseFileDef.coordinationValues.featureType,
-          },
-        },
-      ]
-      : []),
+    ...(options.geneAlias ? [{
+      ...baseFileDef,
+      fileType: FileType.FEATURE_LABELS_ANNDATA_ZARR,
+      options: {
+        path: options.geneAlias,
+      },
+      coordinationValues: {
+        featureType: baseFileDef.coordinationValues.featureType,
+      },
+    }] : []),
     {
       ...baseFileDef,
       fileType: FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR,

@@ -16,14 +16,20 @@ import Tooltip from './Tooltip';
  */
 export default function Tooltip2D(props) {
   const {
-    parentUuid, sourceUuid, x, y, parentWidth, parentHeight, children,
+    parentUuid,
+    sourceUuid,
+    x,
+    y,
+    parentWidth,
+    parentHeight,
+    children,
   } = props;
   // Check if out of bounds.
   if (x < 0 || x > parentWidth || y < 0 || y > parentHeight) {
     return null;
   }
   // Show tooltip or crosshair?
-  const isTooltipVisible = parentUuid === sourceUuid;
+  const isTooltipVisible = (parentUuid === sourceUuid);
   const crosshairWidth = 1;
   return (
     <>

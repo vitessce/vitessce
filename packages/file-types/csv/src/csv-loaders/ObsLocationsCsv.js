@@ -12,10 +12,7 @@ export default class ObsLocationsCsvLoader extends CsvLoader {
     if (this.cachedResult) {
       return this.cachedResult;
     }
-    const {
-      obsIndex: indexCol,
-      obsLocations: [xCol, yCol],
-    } = this.options;
+    const { obsIndex: indexCol, obsLocations: [xCol, yCol] } = this.options;
     const obsIndex = data.map(d => String(d[indexCol]));
     const obsLocationsX = Float32Array.from(data.map(d => d[xCol]));
     const obsLocationsY = Float32Array.from(data.map(d => d[yCol]));

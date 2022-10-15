@@ -1,3 +1,4 @@
+
 export const justHiglass = {
   public: false,
   initStrategy: 'auto',
@@ -75,8 +76,7 @@ export const justHiglass = {
                 },
               },
               {
-                chromInfoPath:
-                  '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
+                chromInfoPath: '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
                 type: 'horizontal-chromosome-labels',
                 height: 30,
                 uid: 'X4e_1DKiQHmyghDa6lLMVA',
@@ -119,8 +119,7 @@ export const justHiglass = {
                 uid: 'dqBTMH78Rn6DeSyDBoAEXw',
               },
               {
-                chromInfoPath:
-                  '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
+                chromInfoPath: '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
                 type: 'vertical-chromosome-labels',
                 width: 30,
                 uid: 'RHdQK4IRQ7yJeDmKWb7Pcg',
@@ -265,8 +264,7 @@ export const justHiglass = {
                 },
               },
               {
-                chromInfoPath:
-                  '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
+                chromInfoPath: '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
                 type: 'horizontal-chromosome-labels',
                 height: 30,
                 uid: 'X4e_1DKiQHmyghDa6lLMVA',
@@ -309,8 +307,7 @@ export const justHiglass = {
                 uid: 'dqBTMH78Rn6DeSyDBoAEXw',
               },
               {
-                chromInfoPath:
-                  '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
+                chromInfoPath: '//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv',
                 type: 'vertical-chromosome-labels',
                 width: 30,
                 uid: 'RHdQK4IRQ7yJeDmKWb7Pcg',

@@ -1,13 +1,5 @@
-import {
-  obsSetsCsvSchema,
-  LoaderResult,
-  AbstractLoaderError,
-} from '@vitessce/vit-s';
-import {
-  initializeCellSetColor,
-  treeToMembershipMap,
-  dataToCellSetsTree,
-} from '@vitessce/sets';
+import { obsSetsCsvSchema, LoaderResult, AbstractLoaderError } from '@vitessce/vit-s';
+import { initializeCellSetColor, treeToMembershipMap, dataToCellSetsTree } from '@vitessce/sets';
 import CsvLoader from './CsvLoader';
 
 export default class ObsSetsCsvLoader extends CsvLoader {
@@ -27,14 +19,14 @@ export default class ObsSetsCsvLoader extends CsvLoader {
     const setsCols = setsArr.map(({ column }) => column);
     const cellSetIds = setsCols.map(setCol => (Array.isArray(setCol)
       ? setCol.map(subCol => data.map(d => d[subCol]))
-      : data.map(d => d[setCol])));
+      : data.map(d => d[setCol])
+    ));
     const scoresCols = setsArr.map(option => option.scorePath || undefined);
-    const cellSetScores = scoresCols.map(scoreCol => (scoreCol ? data.map(d => d[scoreCol]) : undefined));
+    const cellSetScores = scoresCols.map(scoreCol => (
+      scoreCol ? data.map(d => d[scoreCol]) : undefined
+    ));
 
-    const cellSetsTree = dataToCellSetsTree(
-      [obsIndex, cellSetIds, cellSetScores],
-      setsArr,
-    );
+    const cellSetsTree = dataToCellSetsTree([obsIndex, cellSetIds, cellSetScores], setsArr);
     const obsSetsMembership = treeToMembershipMap(cellSetsTree);
 
     const coordinationValues = {};
@@ -58,17 +50,16 @@ export default class ObsSetsCsvLoader extends CsvLoader {
       return Promise.reject(payload);
     }
     const { data, url } = payload;
-    const [obsIndex, cellSetsTree, obsSetsMembership, coordinationValues] = this.loadFromCache(data);
+    const [
+      obsIndex,
+      cellSetsTree,
+      obsSetsMembership,
+      coordinationValues,
+    ] = this.loadFromCache(data);
     return Promise.resolve(
-      new LoaderResult(
-        {
-          obsIndex,
-          obsSets: cellSetsTree,
-          obsSetsMembership,
-        },
-        url,
-        coordinationValues,
-      ),
+      new LoaderResult({
+        obsIndex, obsSets: cellSetsTree, obsSetsMembership,
+      }, url, coordinationValues),
     );
   }
 }

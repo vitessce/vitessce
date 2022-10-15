@@ -1,11 +1,9 @@
 export const getCursorWithTool = () => 'crosshair';
-export const getCursor = interactionState => (interactionState.isDragging ? 'grabbing' : 'default');
+export const getCursor = interactionState => (interactionState.isDragging
+  ? 'grabbing' : 'default'
+);
 
-export function getOnHoverCallback(
-  obsIndex,
-  setObsHighlight,
-  setComponentHover,
-) {
+export function getOnHoverCallback(obsIndex, setObsHighlight, setComponentHover) {
   return (info) => {
     // Notify the parent component that its child component is
     // the "hover source".

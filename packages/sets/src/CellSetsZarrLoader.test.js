@@ -41,7 +41,9 @@ describe('loaders/CellSetsZarrLoader', () => {
                     },
                     {
                       name: 'CD19+',
-                      set: [['cell_1', null]],
+                      set: [
+                        ['cell_1', null],
+                      ],
                     },
                   ],
                 },
@@ -55,7 +57,9 @@ describe('loaders/CellSetsZarrLoader', () => {
                   children: [
                     {
                       name: 'Retinal bipolar neuron',
-                      set: [['cell_4', null]],
+                      set: [
+                        ['cell_4', null],
+                      ],
                     },
                   ],
                 },
@@ -70,10 +74,14 @@ describe('loaders/CellSetsZarrLoader', () => {
   it('dataToCellSetsTree creates a flat tree from a single column', async () => {
     const data = [
       ['cell_1', 'cell_2', 'cell_3', 'cell_4'],
-      [['Immune', 'Immune', 'Immune', 'Neuron']],
+      [
+        ['Immune', 'Immune', 'Immune', 'Neuron'],
+      ],
       [undefined],
     ];
-    const options = [{ name: 'Subclass Level 1', path: 'obs/L1' }];
+    const options = [
+      { name: 'Subclass Level 1', path: 'obs/L1' },
+    ];
 
     const tree = dataToCellSetsTree(data, options);
 
@@ -94,7 +102,9 @@ describe('loaders/CellSetsZarrLoader', () => {
             },
             {
               name: 'Neuron',
-              set: [['cell_4', null]],
+              set: [
+                ['cell_4', null],
+              ],
             },
           ],
         },
@@ -105,10 +115,16 @@ describe('loaders/CellSetsZarrLoader', () => {
   it('dataToCellSetsTree creates a flat tree from a single column with scores', async () => {
     const data = [
       ['cell_1', 'cell_2', 'cell_3', 'cell_4'],
-      [['Immune', 'Immune', 'Immune', 'Neuron']],
-      [[0.25, 0.5, 0.6, 0.1]],
+      [
+        ['Immune', 'Immune', 'Immune', 'Neuron'],
+      ],
+      [
+        [0.25, 0.5, 0.6, 0.1],
+      ],
     ];
-    const options = [{ name: 'Subclass Level 1', path: 'obs/L1' }];
+    const options = [
+      { name: 'Subclass Level 1', path: 'obs/L1' },
+    ];
 
     const tree = dataToCellSetsTree(data, options);
 
@@ -129,7 +145,9 @@ describe('loaders/CellSetsZarrLoader', () => {
             },
             {
               name: 'Neuron',
-              set: [['cell_4', 0.1]],
+              set: [
+                ['cell_4', 0.1],
+              ],
             },
           ],
         },

@@ -3,19 +3,14 @@ import plur from 'plur';
 import { capitalize, commaNumber } from '@vitessce/utils';
 import {
   TitleInfo,
-  useReady,
-  useUrls,
-  useFeatureLabelsData,
-  useObsFeatureMatrixIndices,
-  useCoordination,
-  useLoaders,
+  useReady, useUrls,
+  useFeatureLabelsData, useObsFeatureMatrixIndices,
+  useCoordination, useLoaders,
   registerPluginViewType,
 } from '@vitessce/vit-s';
-import {
-  ViewType,
-  COMPONENT_COORDINATION_TYPES,
-} from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import FeatureList from './FeatureList';
+
 
 /**
  * A subscriber component for a gene listing component.
@@ -46,24 +41,18 @@ export function FeatureListSubscriber(props) {
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.
-  const [
-    {
-      dataset,
-      featureType,
-      featureSelection: geneSelection,
-      featureFilter: geneFilter,
-      obsColorEncoding: cellColorEncoding,
-    },
-    {
-      setFeatureSelection: setGeneSelection,
-      setFeatureFilter: setGeneFilter,
-      setFeatureHighlight: setGeneHighlight,
-      setObsColorEncoding: setCellColorEncoding,
-    },
-  ] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_LIST],
-    coordinationScopes,
-  );
+  const [{
+    dataset,
+    featureType,
+    featureSelection: geneSelection,
+    featureFilter: geneFilter,
+    obsColorEncoding: cellColorEncoding,
+  }, {
+    setFeatureSelection: setGeneSelection,
+    setFeatureFilter: setGeneFilter,
+    setFeatureHighlight: setGeneHighlight,
+    setObsColorEncoding: setCellColorEncoding,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_LIST], coordinationScopes);
 
   const variablesLabel = variablesLabelOverride || featureType;
 
@@ -74,22 +63,17 @@ export function FeatureListSubscriber(props) {
   // Get data from loaders using the data hooks.
   // TODO: support multiple feature labels using featureLabelsType coordination values.
   const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
-    loaders,
-    dataset,
-    addUrl,
-    false,
-    {},
-    {},
+    loaders, dataset, addUrl, false, {}, {},
     { featureType },
   );
   const [{ featureIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
-    loaders,
-    dataset,
-    addUrl,
-    true,
+    loaders, dataset, addUrl, true,
     { featureType },
   );
-  const isReady = useReady([featureLabelsStatus, matrixIndicesStatus]);
+  const isReady = useReady([
+    featureLabelsStatus,
+    matrixIndicesStatus,
+  ]);
   const geneList = featureIndex || [];
   const numGenes = geneList.length;
 

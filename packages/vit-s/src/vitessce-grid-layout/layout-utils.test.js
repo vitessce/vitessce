@@ -1,4 +1,6 @@
-import { makeGridLayout, getMaxRows, resolveLayout } from './layout-utils';
+import {
+  makeGridLayout, getMaxRows, resolveLayout,
+} from './layout-utils';
 
 describe('layout-utils.js', () => {
   describe('makeGridLayout', () => {
@@ -18,39 +20,39 @@ describe('layout-utils.js', () => {
         /* eslint-disable quotes */
         [
           {
-            h: 1,
-            i: 'bigLeft',
-            w: 8,
-            x: 0,
-            y: 0,
+            "h": 1,
+            "i": "bigLeft",
+            "w": 8,
+            "x": 0,
+            "y": 0,
           },
           {
-            h: 1,
-            i: 'smallRight',
-            w: 4,
-            x: 8,
-            y: 0,
+            "h": 1,
+            "i": "smallRight",
+            "w": 4,
+            "x": 8,
+            "y": 0,
           },
           {
-            h: 1,
-            i: 'smallLeft',
-            w: 4,
-            x: 0,
-            y: 1,
+            "h": 1,
+            "i": "smallLeft",
+            "w": 4,
+            "x": 0,
+            "y": 1,
           },
           {
-            h: 1,
-            i: 'bigRight',
-            w: 8,
-            x: 4,
-            y: 1,
+            "h": 1,
+            "i": "bigRight",
+            "w": 8,
+            "x": 4,
+            "y": 1,
           },
           {
-            h: 1,
-            i: 'wholeRow',
-            w: 12,
-            x: 0,
-            y: 2,
+            "h": 1,
+            "i": "wholeRow",
+            "w": 12,
+            "x": 0,
+            "y": 2,
           },
         ],
         /* eslint-enable */
@@ -76,19 +78,10 @@ describe('layout-utils.js', () => {
   describe('resolveLayout', () => {
     const componentsSpec = [
       {
-        uid: 'i0',
-        component: 'NoProps',
-        x: 0,
-        y: 0,
+        uid: 'i0', component: 'NoProps', x: 0, y: 0,
       },
       {
-        uid: 'i1',
-        component: 'HasProps',
-        props: { foo: 'bar' },
-        x: 1,
-        y: 1,
-        w: 1,
-        h: 1,
+        uid: 'i1', component: 'HasProps', props: { foo: 'bar' }, x: 1, y: 1, w: 1, h: 1,
       },
     ];
     const expectedComponents = {
@@ -119,40 +112,26 @@ describe('layout-utils.js', () => {
         components: componentsSpec,
       });
       expect(cols).toEqual({ 800: 12, 1000: 12 });
-      expect(layouts).toEqual({
-        800: [
-          {
-            h: 1,
-            i: 'i0',
-            w: 4,
-            x: 0,
-            y: 0,
-          },
-          {
-            h: 1,
-            i: 'i1',
-            w: 4,
-            x: 4,
-            y: 1,
-          },
-        ],
-        1000: [
-          {
-            h: 1,
-            i: 'i0',
-            w: 3,
-            x: 0,
-            y: 0,
-          },
-          {
-            h: 1,
-            i: 'i1',
-            w: 6,
-            x: 3,
-            y: 1,
-          },
-        ],
-      });
+      expect(layouts).toEqual(
+        {
+          800: [
+            {
+              h: 1, i: 'i0', w: 4, x: 0, y: 0,
+            },
+            {
+              h: 1, i: 'i1', w: 4, x: 4, y: 1,
+            },
+          ],
+          1000: [
+            {
+              h: 1, i: 'i0', w: 3, x: 0, y: 0,
+            },
+            {
+              h: 1, i: 'i1', w: 6, x: 3, y: 1,
+            },
+          ],
+        },
+      );
       expect(breakpoints).toEqual({
         800: '800',
         1000: '1000',
@@ -163,26 +142,22 @@ describe('layout-utils.js', () => {
     it('handles static', () => {
       const {
         cols, layouts, breakpoints, components,
-      } = resolveLayout(componentsSpec);
+      } = resolveLayout(
+        componentsSpec,
+      );
       expect(cols).toEqual({ ID: 12 });
-      expect(layouts).toEqual({
-        ID: [
-          {
-            h: 1,
-            i: 'i0',
-            w: 1,
-            x: 0,
-            y: 0,
-          },
-          {
-            h: 1,
-            i: 'i1',
-            w: 1,
-            x: 1,
-            y: 1,
-          },
-        ],
-      });
+      expect(layouts).toEqual(
+        {
+          ID: [
+            {
+              h: 1, i: 'i0', w: 1, x: 0, y: 0,
+            },
+            {
+              h: 1, i: 'i1', w: 1, x: 1, y: 1,
+            },
+          ],
+        },
+      );
       expect(breakpoints).toEqual({ ID: 1000 });
       expect(components).toEqual(expectedComponents);
     });

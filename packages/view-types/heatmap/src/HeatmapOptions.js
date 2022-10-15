@@ -3,11 +3,7 @@ import debounce from 'lodash/debounce';
 import Slider from '@material-ui/core/Slider';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import {
-  usePlotOptionsStyles,
-  OptionsContainer,
-  OptionSelect,
-} from '@vitessce/vit-s';
+import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
 export default function HeatmapOptions(props) {
@@ -35,10 +31,7 @@ export default function HeatmapOptions(props) {
   return (
     <OptionsContainer>
       <TableRow>
-        <TableCell
-          className={classes.labelCell}
-          htmlFor="gene-expression-colormap-select"
-        >
+        <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
           Gene Expression Colormap
         </TableCell>
         <TableCell className={classes.inputCell}>
@@ -51,9 +44,7 @@ export default function HeatmapOptions(props) {
             }}
           >
             {GLSL_COLORMAPS.map(cmap => (
-              <option key={cmap} value={cmap}>
-                {cmap}
-              </option>
+              <option key={cmap} value={cmap}>{cmap}</option>
             ))}
           </OptionSelect>
         </TableCell>
@@ -64,10 +55,7 @@ export default function HeatmapOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell}>
           <Slider
-            classes={{
-              root: classes.slider,
-              valueLabel: classes.sliderValueLabel,
-            }}
+            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
             aria-labelledby="gene-expression-colormap-range-slider"

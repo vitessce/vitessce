@@ -3,8 +3,7 @@ import { vapi } from '../utils';
 export const eng2019 = {
   name: 'Eng et al., Nature 2019',
   version: '1.0.15',
-  description:
-    'Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH',
+  description: 'Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH',
   datasets: [
     {
       uid: 'eng-2019',
@@ -111,10 +110,7 @@ export const eng2019 = {
     },
     spatialSegmentationLayer: {
       A: {
-        opacity: 1,
-        radius: 0,
-        visible: true,
-        stroked: false,
+        opacity: 1, radius: 0, visible: true, stroked: false,
       },
     },
   },
@@ -199,11 +195,7 @@ export const eng2019 = {
 };
 
 export function getEngViewConfig(name, description) {
-  const vc = new vapi.VitessceConfig({
-    schemaVersion: '1.0.15',
-    name,
-    description,
-  });
+  const vc = new vapi.VitessceConfig({ schemaVersion: '1.0.15', name, description });
   const dataset = vc.addDataset(name, description);
   eng2019.datasets[0].files.forEach((fileDef) => {
     dataset.addFile(fileDef);

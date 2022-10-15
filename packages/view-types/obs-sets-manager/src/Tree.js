@@ -9,10 +9,15 @@ import clsx from 'clsx';
  */
 const Tree = React.forwardRef((props, ref) => {
   const {
-    prefixCls, className, showIcon, blockNode, children, checkable,
+    prefixCls,
+    className,
+    showIcon,
+    blockNode,
+    children,
+    checkable,
   } = props;
   // Do not render RcTree if the tree nodes have not yet loaded.
-  return children?.length > 0 ? (
+  return (children?.length > 0 ? (
     <RcTree
       itemHeight={32}
       ref={ref}
@@ -21,18 +26,12 @@ const Tree = React.forwardRef((props, ref) => {
         [`${prefixCls}-icon-hide`]: !showIcon,
         [`${prefixCls}-block-node`]: blockNode,
       })}
-      checkable={
-        checkable ? (
-          <span className={`${prefixCls}-checkbox-inner`} />
-        ) : (
-          checkable
-        )
-      }
+      checkable={checkable ? <span className={`${prefixCls}-checkbox-inner`} /> : checkable}
       checkStrictly={false}
     >
       {children}
     </RcTree>
-  ) : null;
+  ) : null);
 });
 
 Tree.defaultProps = {

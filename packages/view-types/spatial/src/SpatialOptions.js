@@ -6,12 +6,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import Slider from '@material-ui/core/Slider';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  usePlotOptionsStyles,
-  OptionsContainer,
-  CellColorEncodingOption,
-  OptionSelect,
-} from '@vitessce/vit-s';
+import { usePlotOptionsStyles, OptionsContainer, CellColorEncodingOption, OptionSelect } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
 const useToggleStyles = makeStyles(() => ({
@@ -34,7 +29,9 @@ const ToggleFixedAxisButton = ({
   const classes = useToggleStyles();
   return (
     <TableRow>
-      <TableCell className={classes.cameraLabel}>Fix Camera Axis</TableCell>
+      <TableCell className={classes.cameraLabel}>
+      Fix Camera Axis
+      </TableCell>
       <TableCell className={classes.box}>
         <Checkbox
           onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
@@ -96,11 +93,8 @@ export default function SpatialOptions(props) {
       {canShowExpressionOptions ? (
         <>
           <TableRow>
-            <TableCell
-              className={classes.labelCell}
-              htmlFor="gene-expression-colormap-select"
-            >
-              Gene Expression Colormap
+            <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
+          Gene Expression Colormap
             </TableCell>
             <TableCell className={classes.inputCell}>
               <OptionSelect
@@ -112,23 +106,18 @@ export default function SpatialOptions(props) {
                 }}
               >
                 {GLSL_COLORMAPS.map(cmap => (
-                  <option key={cmap} value={cmap}>
-                    {cmap}
-                  </option>
+                  <option key={cmap} value={cmap}>{cmap}</option>
                 ))}
               </OptionSelect>
             </TableCell>
           </TableRow>
           <TableRow>
             <TableCell className={classes.labelCell}>
-              Gene Expression Colormap Range
+          Gene Expression Colormap Range
             </TableCell>
             <TableCell className={classes.inputCell}>
               <Slider
-                classes={{
-                  root: classes.slider,
-                  valueLabel: classes.sliderValueLabel,
-                }}
+                classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
                 value={geneExpressionColormapRange}
                 onChange={handleColormapRangeChangeDebounced}
                 aria-labelledby="gene-expression-colormap-range-slider"

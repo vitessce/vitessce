@@ -7,13 +7,15 @@ const configsWithPlugins = {
 };
 
 export function listConfigs(showAll) {
-  return Object.entries(configsWithPlugins)
-    .filter(entry => showAll || publicConfigs.includes(entry[0]))
-    .map(([id, config]) => ({
+  return Object.entries(configsWithPlugins).filter(
+    entry => showAll || publicConfigs.includes(entry[0]),
+  ).map(
+    ([id, config]) => ({
       id,
       name: config.name,
       description: config.description,
-    }));
+    }),
+  );
 }
 
 export function getConfig(id) {

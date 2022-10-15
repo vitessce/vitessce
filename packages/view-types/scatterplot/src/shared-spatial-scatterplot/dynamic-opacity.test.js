@@ -10,12 +10,7 @@ describe('dynamic-opacity.js', () => {
       const width = 1000;
       const height = 650;
       const pointSize = getPointSizeDevicePixels(
-        devicePixelRatio,
-        zoom,
-        xRange,
-        yRange,
-        width,
-        height,
+        devicePixelRatio, zoom, xRange, yRange, width, height,
       );
       expect(pointSize).toBeCloseTo(0.5);
     });
@@ -30,13 +25,7 @@ describe('dynamic-opacity.js', () => {
       const numCells = 500000;
       const avgFillDensity = undefined;
       const pointOpacity = getPointOpacity(
-        zoom,
-        xRange,
-        yRange,
-        width,
-        height,
-        numCells,
-        avgFillDensity,
+        zoom, xRange, yRange, width, height, numCells, avgFillDensity,
       );
       expect(pointOpacity).toBeCloseTo(0.005);
     });

@@ -1,8 +1,8 @@
 import { extent } from 'd3-array';
 import range from 'lodash/range';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import clustersSchema from './schemas/clusters.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 
 export default class ClustersJsonAsObsFeatureMatrixLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -29,7 +29,8 @@ export default class ClustersJsonAsObsFeatureMatrixLoader extends JsonLoader {
       return col.map(normalize);
     });
     // Transpose the normalized matrix.
-    const tNormalizedMatrix = range(shape[0]).map(i => range(shape[1]).map(j => normalizedMatrix[j][i]));
+    const tNormalizedMatrix = range(shape[0])
+      .map(i => range(shape[1]).map(j => normalizedMatrix[j][i]));
     // Flatten the transposed matrix.
     const normalizedFlatMatrix = tNormalizedMatrix.flat();
     // Need to wrap the NestedArray to mock the HTTPStore-based array
@@ -46,6 +47,9 @@ export default class ClustersJsonAsObsFeatureMatrixLoader extends JsonLoader {
     }
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(result, url));
+    return Promise.resolve(new LoaderResult(
+      result,
+      url,
+    ));
   }
 }

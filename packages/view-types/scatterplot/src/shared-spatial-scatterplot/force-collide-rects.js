@@ -6,7 +6,7 @@ import { quadtree } from 'd3-quadtree';
  * Returns a closure that returns a constant value.
  */
 function constant(v) {
-  return () => v;
+  return (() => v);
 }
 
 /**
@@ -107,21 +107,16 @@ export function forceCollideRects() {
           // their distance apart (`l`), their amount of overlap (`xd` or `yd`), their masses (`m`),
           // and the strength parameter (`strength`).
           if (Math.abs(xd) < Math.abs(yd)) {
-            node.vx -= (x *= (xd / l) * strength) * m;
+            node.vx -= (x *= xd / l * strength) * m;
             data.vx += x * (1 - m);
           } else {
-            node.vy -= (y *= (yd / l) * strength) * m;
+            node.vy -= (y *= yd / l * strength) * m;
             data.vy += y * (1 - m);
           }
         }
         // When the quadtree.visit callback returns _true_ for a node,
         // then the node's children will _not_ be visited.
-        return (
-          x0 > xi + xSize
-          || x1 < xi - xSize
-          || y0 > yi + ySize
-          || y1 < yi - ySize
-        );
+        return x0 > xi + xSize || x1 < xi - xSize || y0 > yi + ySize || y1 < yi - ySize;
       }
       return false;
     }
@@ -183,7 +178,7 @@ export function forceCollideRects() {
   // If no size function is provided as a parameter, this acts as a getter function.
   force.size = (...v) => {
     if (v.length) {
-      size = typeof v[0] === 'function' ? v[0] : constant(v[0]);
+      size = (typeof v[0] === 'function' ? v[0] : constant(v[0]));
       return force;
     }
     return size;

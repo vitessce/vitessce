@@ -1,6 +1,11 @@
 import { InternMap } from 'internmap';
-import { treeInitialize, nodeAppendChild } from './cell-set-utils';
-import { SETS_DATATYPE_OBS } from './constants';
+import {
+  treeInitialize,
+  nodeAppendChild,
+} from './cell-set-utils';
+import {
+  SETS_DATATYPE_OBS,
+} from './constants';
 
 export function dataToCellSetsTree(data, options) {
   const [cellNames, cellSets, cellSetScores] = data;
@@ -28,63 +33,55 @@ export function dataToCellSetsTree(data, options) {
       const levels = Array.from(levelSets.keys());
 
       const getNextLevelNames = (levelSuffixes) => {
-        const nextLevelNames = Array.from(
-          new Set(levelSuffixes.map(l => l[0])),
-        );
+        const nextLevelNames = Array.from(new Set(levelSuffixes.map(l => l[0])));
         return nextLevelNames.sort((a, b) => a.localeCompare(b));
       };
 
       // Recursive function to create nodes.
-      const getNode = (
-        parentLevelPrefixes,
-        currLevelName,
-        childLevelSuffixes,
-      ) => {
+      const getNode = (parentLevelPrefixes, currLevelName, childLevelSuffixes) => {
         const isLeaf = childLevelSuffixes.length === 0;
         const resultNode = {
           name: currLevelName,
         };
         if (isLeaf) {
           // Base case: this is a leaf node.
-          resultNode.set = levelSets.get([
-            ...parentLevelPrefixes,
-            currLevelName,
-          ]);
+          resultNode.set = levelSets.get([...parentLevelPrefixes, currLevelName]);
         } else {
           // Are the remaining suffices redundant?
           // Consider ["Parent", "Child", "Child"]
           // where parentLevelPrefixes is ["Parent"] and currLevelName is "Child".
-          const shouldBeLeaf = childLevelSuffixes.length === 1
-            && currLevelName
-              === childLevelSuffixes[0][childLevelSuffixes[0].length - 1];
+          const shouldBeLeaf = (
+            childLevelSuffixes.length === 1
+            && currLevelName === childLevelSuffixes[0][childLevelSuffixes[0].length - 1]
+          );
           if (shouldBeLeaf) {
-            resultNode.set = levelSets.get([
-              ...parentLevelPrefixes,
-              currLevelName,
-              ...childLevelSuffixes[0],
-            ]);
+            resultNode.set = levelSets.get(
+              [...parentLevelPrefixes, currLevelName, ...childLevelSuffixes[0]],
+            );
           } else {
             // Recursion, run getNode() on each of the unique names at the next level.
             const nextLevelNames = getNextLevelNames(childLevelSuffixes);
 
-            resultNode.children = nextLevelNames.map(nextLevelName => getNode(
-              [...parentLevelPrefixes, currLevelName],
-              nextLevelName,
-              childLevelSuffixes
-                .filter(l => l[0] === nextLevelName)
-                .map(l => l.slice(1))
-                .filter(v => v.length > 0),
-            ));
+            resultNode.children = nextLevelNames
+              .map(nextLevelName => getNode(
+                [...parentLevelPrefixes, currLevelName],
+                nextLevelName,
+                childLevelSuffixes
+                  .filter(l => l[0] === nextLevelName)
+                  .map(l => l.slice(1))
+                  .filter(v => v.length > 0),
+              ));
           }
         }
         return resultNode;
       };
       // Start the recursion.
-      const levelOneNodes = getNextLevelNames(levels).map(levelOneName => getNode(
-        [],
-        levelOneName,
-        levels.filter(l => l[0] === levelOneName).map(l => l.slice(1)),
-      ));
+      const levelOneNodes = getNextLevelNames(levels)
+        .map(levelOneName => getNode(
+          [],
+          levelOneName,
+          levels.filter(l => l[0] === levelOneName).map(l => l.slice(1)),
+        ));
 
       levelZeroNode.children = levelOneNodes;
     } else {

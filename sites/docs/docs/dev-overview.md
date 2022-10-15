@@ -6,6 +6,7 @@ sidebar_label: Overview
 
 The developer docs are meant for usage by the internal development team, external contributors, and plugin developers.
 
+
 ## Architecture
 
 The diagram below highlights how Vitessce is composed of a top-level `<Vitessce/>` React component which encapsulates several individual visualization or control views such as `<Scatterplot/>` and `<Spatial/>`.
@@ -17,3 +18,5 @@ The diagram below highlights how Vitessce is composed of a top-level `<Vitessce/
         className="ar-16x9"
     />
 </a>
+
+

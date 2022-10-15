@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  viv, GLOBAL_LABELS, getSourceFromLoader, isRgb,
-} from '@vitessce/gl';
+import { viv } from '@vitessce/gl'
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -15,7 +13,6 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 
-import { canLoadResolution } from '@vitessce/utils';
 import LayerOptions from './LayerOptions';
 import VolumeOptions from './VolumeOptions';
 import {
@@ -26,7 +23,8 @@ import {
   OverflowEllipsisGrid,
 } from './styles';
 import { getMultiSelectionStats } from './utils';
-
+import { canLoadResolution } from '@vitessce/utils';
+import { GLOBAL_LABELS, getSourceFromLoader, isRgb } from '@vitessce/gl';
 import { DOMAINS } from './constants';
 
 function TabPanel(props) {

@@ -22,7 +22,9 @@ import failOnConsoleError, { consoleType } from 'cypress-fail-on-console-error';
 
 const config = {
   excludeMessages: ['^((?!Error: Config validation failed).)*$'],
-  includeConsoleTypes: [consoleType.ERROR],
+  includeConsoleTypes: [
+    consoleType.ERROR,
+  ],
 };
 
 failOnConsoleError(config);

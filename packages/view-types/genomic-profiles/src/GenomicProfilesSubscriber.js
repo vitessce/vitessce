@@ -1,20 +1,14 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, } from 'react';
 import isEqual from 'lodash/isEqual';
 import { sum } from 'd3-array';
 import {
   TitleInfo,
-  useReady,
-  useUrls,
-  useGridItemSize,
-  useCoordination,
-  useLoaders,
+  useReady, useUrls, useGridItemSize,
+  useCoordination, useLoaders,
   useGenomicProfilesData,
   registerPluginViewType,
 } from '@vitessce/vit-s';
-import {
-  ViewType,
-  COMPONENT_COORDINATION_TYPES,
-} from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import HiGlassLazy from './HiGlassLazy';
 import { useStyles } from './styles';
 
@@ -75,9 +69,11 @@ export function GenomicProfilesSubscriber(props) {
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.
-  const [
-    { dataset, obsSetColor: cellSetColor, obsSetSelection: cellSetSelection },
-  ] = useCoordination(
+  const [{
+    dataset,
+    obsSetColor: cellSetColor,
+    obsSetSelection: cellSetSelection,
+  }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.GENOMIC_PROFILES],
     coordinationScopes,
   );
@@ -85,12 +81,7 @@ export function GenomicProfilesSubscriber(props) {
   const [urls, addUrl] = useUrls(loaders, dataset);
 
   const [genomicProfilesAttrs, genomicProfilesStatus] = useGenomicProfilesData(
-    loaders,
-    dataset,
-    addUrl,
-    true,
-    {},
-    {},
+    loaders, dataset, addUrl, true, {}, {},
     {},
   );
   const isReady = useReady([genomicProfilesStatus]);
@@ -103,9 +94,9 @@ export function GenomicProfilesSubscriber(props) {
     const { url } = urls[0];
 
     // Set up the colors to use in the HiGlass view config based on the current theme.
-    const foregroundColor = theme === 'dark' ? '#C0C0C0' : '#000000';
-    const backgroundColor = theme === 'dark' ? '#000000' : '#f1f1f1';
-    const dimColor = theme === 'dark' ? 'dimgray' : 'silver';
+    const foregroundColor = (theme === 'dark' ? '#C0C0C0' : '#000000');
+    const backgroundColor = (theme === 'dark' ? '#000000' : '#f1f1f1');
+    const dimColor = (theme === 'dark' ? 'dimgray' : 'silver');
 
     // Define the "reference tracks" for chromosome labels and gene annotations.
     const referenceTracks = [
@@ -168,17 +159,11 @@ export function GenomicProfilesSubscriber(props) {
       // eslint-disable-next-line no-nested-ternary
       const trackName = profileTrackNameKey
         ? rowInfo[profileTrackNameKey]
-        : isPath
-          ? trackUid[trackUid.length - 1]
-          : trackUid;
+        : (isPath ? trackUid[trackUid.length - 1] : trackUid);
       // If the uid is a path, then try to get the corresponding cell set's color,
       // if it is currently selected.
-      const setInSelection = isPath
-        ? cellSetSelection?.find(s => isEqual(s, trackUid))
-        : false;
-      const setColor = isPath
-        ? cellSetColor?.find(s => isEqual(s.path, trackUid))?.color
-        : null;
+      const setInSelection = isPath ? cellSetSelection?.find(s => isEqual(s, trackUid)) : false;
+      const setColor = isPath ? cellSetColor?.find(s => isEqual(s.path, trackUid))?.color : null;
       // Get the track UID as a string before passing to HiGlass.
       const trackUidString = isPath ? trackUid.join('__') : trackUid;
       // Create the HiGlass track definition for this profile.
@@ -194,8 +179,8 @@ export function GenomicProfilesSubscriber(props) {
           name: trackName,
           showMousePosition: true,
           mousePositionColor: foregroundColor,
-          labelColor: theme === 'dark' ? 'white' : 'black',
-          labelBackgroundColor: theme === 'dark' ? 'black' : 'white',
+          labelColor: (theme === 'dark' ? 'white' : 'black'),
+          labelBackgroundColor: (theme === 'dark' ? 'black' : 'white'),
           labelShowAssembly: false,
         },
         height: profileTrackHeight,
@@ -215,7 +200,10 @@ export function GenomicProfilesSubscriber(props) {
     // 'initialXDomain', and 'initialYDomain'.
     const hgView = {
       tracks: {
-        top: [...referenceTracks, ...profileTracks],
+        top: [
+          ...referenceTracks,
+          ...profileTracks,
+        ],
         left: [],
         center: [],
         right: [],
@@ -232,20 +220,12 @@ export function GenomicProfilesSubscriber(props) {
       },
     };
     return hgView;
-  }, [
-    genomicProfilesAttrs,
-    urls,
-    theme,
-    height,
-    profileTrackUidKey,
-    profileTrackNameKey,
-    cellSetSelection,
-    cellSetColor,
-    higlassServer,
-    assembly,
-  ]);
+  }, [genomicProfilesAttrs, urls, theme, height, profileTrackUidKey,
+    profileTrackNameKey, cellSetSelection, cellSetColor,
+    higlassServer, assembly]);
 
   const classes = useStyles();
+
 
   return (
     <div className={classes.higlassTitleWrapper}>
@@ -276,5 +256,5 @@ export function register() {
     ViewType.GENOMIC_PROFILES,
     GenomicProfilesSubscriber,
     COMPONENT_COORDINATION_TYPES[ViewType.GENOMIC_PROFILES],
-  );
+  )
 }

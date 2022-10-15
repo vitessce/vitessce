@@ -1,33 +1,22 @@
 /* eslint-disable react/display-name */
 import React, {
-  useRef,
-  useState,
-  useCallback,
-  useMemo,
-  useEffect,
-  useReducer,
-  forwardRef,
+  useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
 } from 'react';
 import uuidv4 from 'uuid/v4';
+import { deck, luma } from '@vitessce/gl';
+import range from 'lodash/range';
+import clamp from 'lodash/clamp';
+import isEqual from 'lodash/isEqual';
+import { getLongestString } from '@vitessce/utils';
 import {
-  deck, luma,
-  HeatmapCompositeTextLayer,
-  PixelatedBitmapLayer,
-  PaddedExpressionHeatmapBitmapLayer,
-  HeatmapBitmapLayer,
-  TILE_SIZE,
-  MAX_ROW_AGG,
-  MIN_ROW_AGG,
+  HeatmapCompositeTextLayer, PixelatedBitmapLayer, PaddedExpressionHeatmapBitmapLayer, HeatmapBitmapLayer,
+  TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
   COLOR_BAR_SIZE,
   AXIS_MARGIN,
   DATA_TEXTURE_SIZE,
   PIXELATED_TEXTURE_PARAMETERS,
 } from '@vitessce/gl';
-import range from 'lodash/range';
-import clamp from 'lodash/clamp';
-import isEqual from 'lodash/isEqual';
 import {
-  getLongestString,
   DEFAULT_GL_OPTIONS,
   createDefaultUpdateCellsHover,
   createDefaultUpdateGenesHover,
@@ -36,8 +25,6 @@ import {
   copyUint8Array,
   getDefaultColor,
 } from '@vitessce/utils';
-
-
 import {
   layerFilter,
   getAxisSizes,
@@ -47,9 +34,7 @@ import {
 } from './utils';
 import HeatmapWorkerPool from './HeatmapWorkerPool';
 // Only allocate the memory once for the container
-const paddedExpressionContainer = new Uint8Array(
-  DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE,
-);
+const paddedExpressionContainer = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE);
 
 /**
  * Should the "padded" implementation
@@ -134,14 +119,12 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   const viewState = {
     ...rawViewState,
-    target: transpose
-      ? [rawViewState.target[1], rawViewState.target[0]]
-      : rawViewState.target,
+    target: (transpose ? [rawViewState.target[1], rawViewState.target[0]] : rawViewState.target),
     minZoom: 0,
   };
 
-  const axisLeftTitle = transpose ? variablesTitle : observationsTitle;
-  const axisTopTitle = transpose ? observationsTitle : variablesTitle;
+  const axisLeftTitle = (transpose ? variablesTitle : observationsTitle);
+  const axisTopTitle = (transpose ? observationsTitle : variablesTitle);
 
   const workerPool = useMemo(() => new HeatmapWorkerPool(), []);
 
@@ -157,6 +140,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   const [axisTopLabels, setAxisTopLabels] = useState([]);
   const [numCellColorTracks, setNumCellColorTracks] = useState([]);
 
+
   // Since we are storing the tile data in a ref,
   // and updating it asynchronously when the worker finishes,
   // we need to tie it to a piece of state through this iteration value.
@@ -171,9 +155,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   // it back and forth from the worker thread.
   useEffect(() => {
     // Store the expression matrix Uint8Array in the dataRef.
-    if (
-      expression
-      && expression.matrix
+    if (expression && expression.matrix
       && !shouldUsePaddedImplementation(expression.matrix.length)
     ) {
       dataRef.current = copyUint8Array(expression.matrix);
@@ -188,11 +170,12 @@ const Heatmap = forwardRef((props, deckRef) => {
       return;
     }
 
-    const newCellOrdering = !cellColors || cellColors.size === 0
+    const newCellOrdering = (!cellColors || cellColors.size === 0
       ? expression.rows
-      : Array.from(cellColors.keys());
+      : Array.from(cellColors.keys())
+    );
 
-    const oldCellOrdering = transpose ? axisTopLabels : axisLeftLabels;
+    const oldCellOrdering = (transpose ? axisTopLabels : axisLeftLabels);
 
     if (!isEqual(oldCellOrdering, newCellOrdering)) {
       if (transpose) {
@@ -232,7 +215,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     const lookUp = new Map();
     if (expression?.rows) {
       // eslint-disable-next-line no-return-assign
-      expression.rows.forEach((cell, j) => lookUp.set(cell, j));
+      expression.rows.forEach((cell, j) => (lookUp.set(cell, j)));
     }
     return lookUp;
   }, [expression]);
@@ -241,11 +224,8 @@ const Heatmap = forwardRef((props, deckRef) => {
   const height = axisLeftLabels.length;
 
   const [axisOffsetLeft, axisOffsetTop] = getAxisSizes(
-    transpose,
-    longestGeneLabel,
-    longestCellLabel,
-    hideObservationLabels,
-    hideVariableLabels,
+    transpose, longestGeneLabel, longestCellLabel,
+    hideObservationLabels, hideVariableLabels,
   );
   const [gl, setGlContext] = useState(null);
 
@@ -266,8 +246,8 @@ const Heatmap = forwardRef((props, deckRef) => {
   const widthRatio = 1 - (TILE_SIZE - (width % TILE_SIZE)) / (xTiles * TILE_SIZE);
   const heightRatio = 1 - (TILE_SIZE - (height % TILE_SIZE)) / (yTiles * TILE_SIZE);
 
-  const tileWidth = matrixWidth / widthRatio / xTiles;
-  const tileHeight = matrixHeight / heightRatio / yTiles;
+  const tileWidth = (matrixWidth / widthRatio) / (xTiles);
+  const tileHeight = (matrixHeight / heightRatio) / (yTiles);
 
   const scaleFactor = 2 ** viewState.zoom;
   const cellHeight = (matrixHeight * scaleFactor) / height;
@@ -275,16 +255,8 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   // Get power of 2 between 1 and 16,
   // for number of cells to aggregate together in each direction.
-  const aggSizeX = clamp(
-    2 ** Math.ceil(Math.log2(1 / cellWidth)),
-    MIN_ROW_AGG,
-    MAX_ROW_AGG,
-  );
-  const aggSizeY = clamp(
-    2 ** Math.ceil(Math.log2(1 / cellHeight)),
-    MIN_ROW_AGG,
-    MAX_ROW_AGG,
-  );
+  const aggSizeX = clamp(2 ** Math.ceil(Math.log2(1 / cellWidth)), MIN_ROW_AGG, MAX_ROW_AGG);
+  const aggSizeY = clamp(2 ** Math.ceil(Math.log2(1 / cellHeight)), MIN_ROW_AGG, MAX_ROW_AGG);
 
   const [targetX, targetY] = viewState.target;
 
@@ -294,84 +266,65 @@ const Heatmap = forwardRef((props, deckRef) => {
     updateViewInfo({
       uuid,
       project: (cellId, geneId) => {
-        const colI = transpose
-          ? axisTopLabels.indexOf(cellId)
-          : axisTopLabels.indexOf(geneId);
-        const rowI = transpose
-          ? axisLeftLabels.indexOf(geneId)
-          : axisLeftLabels.indexOf(cellId);
-        return heatmapToMousePosition(colI, rowI, {
-          offsetLeft,
-          offsetTop,
-          targetX: viewState.target[0],
-          targetY: viewState.target[1],
-          scaleFactor,
-          matrixWidth,
-          matrixHeight,
-          numRows: height,
-          numCols: width,
-        });
+        const colI = transpose ? axisTopLabels.indexOf(cellId) : axisTopLabels.indexOf(geneId);
+        const rowI = transpose ? axisLeftLabels.indexOf(geneId) : axisLeftLabels.indexOf(cellId);
+        return heatmapToMousePosition(
+          colI, rowI, {
+            offsetLeft,
+            offsetTop,
+            targetX: viewState.target[0],
+            targetY: viewState.target[1],
+            scaleFactor,
+            matrixWidth,
+            matrixHeight,
+            numRows: height,
+            numCols: width,
+          },
+        );
       },
     });
-  }, [
-    uuid,
-    updateViewInfo,
-    transpose,
-    axisTopLabels,
-    axisLeftLabels,
-    offsetLeft,
-    offsetTop,
-    viewState,
-    scaleFactor,
-    matrixWidth,
-    matrixHeight,
-    height,
-    width,
-  ]);
+  }, [uuid, updateViewInfo, transpose, axisTopLabels, axisLeftLabels, offsetLeft,
+    offsetTop, viewState, scaleFactor, matrixWidth, matrixHeight, height, width]);
+
 
   // Listen for viewState changes.
   // Do not allow the user to zoom and pan outside of the initial window.
-  const onViewStateChange = useCallback(
-    ({ viewState: nextViewState }) => {
-      const { zoom: nextZoom } = nextViewState;
-      const nextScaleFactor = 2 ** nextZoom;
+  const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
+    const { zoom: nextZoom } = nextViewState;
+    const nextScaleFactor = 2 ** nextZoom;
 
-      const minTargetX = nextZoom === 0 ? 0 : -(matrixRight - matrixRight / nextScaleFactor);
-      const maxTargetX = -1 * minTargetX;
+    const minTargetX = nextZoom === 0 ? 0 : -(matrixRight - (matrixRight / nextScaleFactor));
+    const maxTargetX = -1 * minTargetX;
 
-      const minTargetY = nextZoom === 0 ? 0 : -(matrixBottom - matrixBottom / nextScaleFactor);
-      const maxTargetY = -1 * minTargetY;
+    const minTargetY = nextZoom === 0 ? 0 : -(matrixBottom - (matrixBottom / nextScaleFactor));
+    const maxTargetY = -1 * minTargetY;
 
-      // Manipulate view state if necessary to keep the user in the window.
-      const nextTarget = [
-        clamp(nextViewState.target[0], minTargetX, maxTargetX),
-        clamp(nextViewState.target[1], minTargetY, maxTargetY),
-      ];
+    // Manipulate view state if necessary to keep the user in the window.
+    const nextTarget = [
+      clamp(nextViewState.target[0], minTargetX, maxTargetX),
+      clamp(nextViewState.target[1], minTargetY, maxTargetY),
+    ];
 
-      setViewState({
-        zoom: nextZoom,
-        target: transpose ? [nextTarget[1], nextTarget[0]] : nextTarget,
-      });
-    },
-    [matrixRight, matrixBottom, transpose, setViewState],
-  );
+    setViewState({
+      zoom: nextZoom,
+      target: (transpose ? [nextTarget[1], nextTarget[0]] : nextTarget),
+    });
+  }, [matrixRight, matrixBottom, transpose, setViewState]);
 
   // If `expression` or `cellOrdering` have changed,
   // then new tiles need to be generated,
   // so add a new task to the backlog.
   useEffect(() => {
-    if (
-      !expression
-      || !expression.matrix
-      || expression.matrix.length < DATA_TEXTURE_SIZE ** 2
-    ) {
+    if (!expression || !expression.matrix || expression.matrix.length < DATA_TEXTURE_SIZE ** 2) {
       return;
     }
     // Use a uuid to give the task a unique ID,
     // to help identify where in the list it is located
     // after the worker thread asynchronously sends the data back
     // to this thread.
-    if (axisTopLabels && axisLeftLabels && xTiles && yTiles) {
+    if (
+      axisTopLabels && axisLeftLabels && xTiles && yTiles
+    ) {
       setBacklog(prev => [...prev, uuidv4()]);
     }
   }, [dataRef, expression, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
@@ -380,19 +333,13 @@ const Heatmap = forwardRef((props, deckRef) => {
   // - the backlog has length >= 1 (at least one job is waiting), and
   // - buffer.byteLength is not zero, so the worker does not currently "own" the buffer.
   useEffect(() => {
-    if (
-      backlog.length < 1
-      || shouldUsePaddedImplementation(dataRef.current.length)
-    ) {
+    if (backlog.length < 1 || shouldUsePaddedImplementation(dataRef.current.length)) {
       return;
     }
     const curr = backlog[backlog.length - 1];
-    if (
-      dataRef.current
-      && dataRef.current.buffer.byteLength
-      && expressionRowLookUp.size > 0
-      && !shouldUsePaddedImplementation(dataRef.current.length)
-    ) {
+    if (dataRef.current
+      && dataRef.current.buffer.byteLength && expressionRowLookUp.size > 0
+      && !shouldUsePaddedImplementation(dataRef.current.length)) {
       const { cols, matrix } = expression;
       const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.process({
         curr,
@@ -418,17 +365,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       };
       process();
     }
-  }, [
-    axisLeftLabels,
-    axisTopLabels,
-    backlog,
-    expression,
-    transpose,
-    xTiles,
-    yTiles,
-    workerPool,
-    expressionRowLookUp,
-  ]);
+  }, [axisLeftLabels, axisTopLabels, backlog, expression, transpose,
+    xTiles, yTiles, workerPool, expressionRowLookUp]);
 
   useEffect(() => {
     setIsRendering(backlog.length > 0);
@@ -437,12 +375,8 @@ const Heatmap = forwardRef((props, deckRef) => {
   // Create the padded expression matrix for holding data which can then be bound to the GPU.
   const paddedExpressions = useMemo(() => {
     const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
-    if (
-      expression?.matrix
-      && cellOrdering.length
-      && gl
-      && shouldUsePaddedImplementation(expression.matrix.length)
-    ) {
+    if (expression?.matrix && cellOrdering.length
+      && gl && shouldUsePaddedImplementation(expression.matrix.length)) {
       let newIndex = 0;
       for (
         let cellOrderingIndex = 0;
@@ -465,21 +399,19 @@ const Heatmap = forwardRef((props, deckRef) => {
         }
       }
     }
-    return gl
-      ? new luma.Texture2D(gl, {
-        data: paddedExpressionContainer,
-        mipmaps: false,
-        parameters: PIXELATED_TEXTURE_PARAMETERS,
-        // Each color contains a single luminance value.
-        // When sampled, rgb are all set to this luminance, alpha is 1.0.
-        // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
-        format: luma.GL.LUMINANCE,
-        dataFormat: luma.GL.LUMINANCE,
-        type: luma.GL.UNSIGNED_BYTE,
-        width: DATA_TEXTURE_SIZE,
-        height: DATA_TEXTURE_SIZE,
-      })
-      : paddedExpressionContainer;
+    return gl ? new luma.Texture2D(gl, {
+      data: paddedExpressionContainer,
+      mipmaps: false,
+      parameters: PIXELATED_TEXTURE_PARAMETERS,
+      // Each color contains a single luminance value.
+      // When sampled, rgb are all set to this luminance, alpha is 1.0.
+      // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
+      format: luma.GL.LUMINANCE,
+      dataFormat: luma.GL.LUMINANCE,
+      type: luma.GL.UNSIGNED_BYTE,
+      width: DATA_TEXTURE_SIZE,
+      height: DATA_TEXTURE_SIZE,
+    }) : paddedExpressionContainer;
   }, [
     transpose,
     axisTopLabels,
@@ -532,7 +464,9 @@ const Heatmap = forwardRef((props, deckRef) => {
           },
         });
       }
-      const layers = range(yTiles * xTiles).map(index => getLayer(Math.floor(index / xTiles), index % xTiles));
+      const layers = range(yTiles * xTiles).map(
+        index => getLayer(Math.floor(index / xTiles), index % xTiles),
+      );
       return layers;
     }
     function getLayer(i, j, tile) {
@@ -556,50 +490,24 @@ const Heatmap = forwardRef((props, deckRef) => {
         },
       });
     }
-    const layers = tilesRef.current.map((tile, index) => getLayer(Math.floor(index / xTiles), index % xTiles, tile));
+    const layers = tilesRef.current.map(
+      (tile, index) => getLayer(Math.floor(index / xTiles), index % xTiles, tile),
+    );
     return layers;
-  }, [
-    expression,
-    backlog.length,
-    transpose,
-    axisTopLabels,
-    axisLeftLabels,
-    yTiles,
-    xTiles,
-    paddedExpressions,
-    matrixLeft,
-    tileWidth,
-    matrixTop,
-    tileHeight,
-    aggSizeX,
-    aggSizeY,
-    colormap,
-    colormapRange,
-    tileIteration,
-  ]);
-  const axisLeftDashes = transpose ? variablesDashes : observationsDashes;
-  const axisTopDashes = transpose ? observationsDashes : variablesDashes;
+  }, [expression, backlog.length, transpose, axisTopLabels, axisLeftLabels, yTiles, xTiles,
+    paddedExpressions, matrixLeft, tileWidth, matrixTop, tileHeight,
+    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration]);
+  const axisLeftDashes = (transpose ? variablesDashes : observationsDashes);
+  const axisTopDashes = (transpose ? observationsDashes : variablesDashes);
 
   // Map cell and gene names to arrays with indices,
   // to prepare to render the names in TextLayers.
-  const axisTopLabelData = useMemo(
-    () => axisTopLabels.map((d, i) => [i, axisTopDashes ? `- ${d}` : d]),
-    [axisTopLabels, axisTopDashes],
-  );
-  const axisLeftLabelData = useMemo(
-    () => axisLeftLabels.map((d, i) => [i, axisLeftDashes ? `${d} -` : d]),
-    [axisLeftLabels, axisLeftDashes],
-  );
-  const cellColorLabelsData = useMemo(
-    () => cellColorLabels.map((d, i) => [
-      i,
-      d && (transpose ? `${d} -` : `- ${d}`),
-    ]),
-    [cellColorLabels, transpose],
-  );
+  const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, (axisTopDashes ? `- ${d}` : d)]), [axisTopLabels, axisTopDashes]);
+  const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, (axisLeftDashes ? `${d} -` : d)]), [axisLeftLabels, axisLeftDashes]);
+  const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d && (transpose ? `${d} -` : `- ${d}`)]), [cellColorLabels, transpose]);
 
-  const hideTopLabels = transpose ? hideObservationLabels : hideVariableLabels;
-  const hideLeftLabels = transpose ? hideVariableLabels : hideObservationLabels;
+  const hideTopLabels = (transpose ? hideObservationLabels : hideVariableLabels);
+  const hideLeftLabels = (transpose ? hideVariableLabels : hideObservationLabels);
 
   // Generate the axis label, axis title, and loading indicator text layers.
   const textLayers = [
@@ -692,6 +600,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     setNumCellColorTracks(cellColorLabels.length);
   }, [cellColorLabels]);
 
+
   // Create the left color bar with a BitmapLayer.
   // TODO: find a way to do aggregation for this as well.
   const cellColorsTilesList = useMemo(() => {
@@ -704,21 +613,21 @@ const Heatmap = forwardRef((props, deckRef) => {
     let color;
     let rowI;
 
-    const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
-    const colorBarTileWidthPx = transpose ? TILE_SIZE : 1;
-    const colorBarTileHeightPx = transpose ? 1 : TILE_SIZE;
+    const cellOrdering = (transpose ? axisTopLabels : axisLeftLabels);
+    const colorBarTileWidthPx = (transpose ? TILE_SIZE : 1);
+    const colorBarTileHeightPx = (transpose ? 1 : TILE_SIZE);
 
     const result = range(numCellColorTracks).map((track) => {
-      const trackResult = range(transpose ? xTiles : yTiles).map((i) => {
+      const trackResult = range((transpose ? xTiles : yTiles)).map((i) => {
         const tileData = new Uint8ClampedArray(TILE_SIZE * 1 * 4);
 
         range(TILE_SIZE).forEach((tileY) => {
-          rowI = i * TILE_SIZE + tileY; // the row / cell index
+          rowI = (i * TILE_SIZE) + tileY; // the row / cell index
           if (rowI < cellOrdering.length) {
             cellId = cellOrdering[rowI];
             color = cellColors.get(cellId);
 
-            offset = (transpose ? tileY : TILE_SIZE - tileY - 1) * 4;
+            offset = (transpose ? tileY : (TILE_SIZE - tileY - 1)) * 4;
 
             if (color) {
               // allows color to be [R, G, B] or array of arrays of [R, G, B]
@@ -733,27 +642,16 @@ const Heatmap = forwardRef((props, deckRef) => {
           }
         });
 
-        return new ImageData(
-          tileData,
-          colorBarTileWidthPx,
-          colorBarTileHeightPx,
-        );
+        return new ImageData(tileData, colorBarTileWidthPx, colorBarTileHeightPx);
       });
 
       return trackResult;
     });
 
     return result;
-  }, [
-    cellColors,
-    transpose,
-    axisTopLabels,
-    axisLeftLabels,
-    numCellColorTracks,
-    xTiles,
-    yTiles,
-    theme,
-  ]);
+  }, [cellColors, transpose, axisTopLabels, axisLeftLabels,
+    numCellColorTracks, xTiles, yTiles, theme]);
+
 
   const cellColorsLayersList = useMemo(() => {
     if (!cellColorsTilesList) {
@@ -761,40 +659,27 @@ const Heatmap = forwardRef((props, deckRef) => {
     }
 
     const result = cellColorsTilesList.map((cellColorsTiles, track) => (cellColorsTiles
-      ? cellColorsTiles.map(
-        (tile, i) => new PixelatedBitmapLayer({
-          id: `${
-            transpose ? 'colorsTopLayer' : 'colorsLeftLayer'
-          }-${track}-${i}-${uuidv4()}`,
-          image: tile,
-          bounds: transpose
-            ? [
-              matrixLeft + i * tileWidth,
-              -matrixHeight / 2,
-              matrixLeft + (i + 1) * tileWidth,
-              matrixHeight / 2,
-            ]
-            : [
-              -matrixWidth / 2,
-              matrixTop + i * tileHeight,
-              matrixWidth / 2,
-              matrixTop + (i + 1) * tileHeight,
-            ],
-        }),
-      )
+      ? cellColorsTiles.map((tile, i) => new PixelatedBitmapLayer({
+        id: `${(transpose ? 'colorsTopLayer' : 'colorsLeftLayer')}-${track}-${i}-${uuidv4()}`,
+        image: tile,
+        bounds: (transpose ? [
+          matrixLeft + i * tileWidth,
+          -matrixHeight / 2,
+          matrixLeft + (i + 1) * tileWidth,
+          matrixHeight / 2,
+        ] : [
+          -matrixWidth / 2,
+          matrixTop + i * tileHeight,
+          matrixWidth / 2,
+          matrixTop + (i + 1) * tileHeight,
+        ]),
+      }))
       : []));
 
-    return result;
-  }, [
-    cellColorsTilesList,
-    matrixTop,
-    matrixLeft,
-    matrixHeight,
-    matrixWidth,
-    tileWidth,
-    tileHeight,
-    transpose,
-  ]);
+    return (result);
+  }, [cellColorsTilesList, matrixTop, matrixLeft, matrixHeight,
+    matrixWidth, tileWidth, tileHeight, transpose]);
+
 
   const layers = heatmapLayers
     .concat(textLayers)
@@ -862,12 +747,12 @@ const Heatmap = forwardRef((props, deckRef) => {
       }
     }
 
-    const obsI = expression.rows.indexOf(
-      transpose ? axisTopLabels[colI] : axisLeftLabels[rowI],
-    );
-    const varI = expression.cols.indexOf(
-      transpose ? axisLeftLabels[rowI] : axisTopLabels[colI],
-    );
+    const obsI = expression.rows.indexOf(transpose
+      ? axisTopLabels[colI]
+      : axisLeftLabels[rowI]);
+    const varI = expression.cols.indexOf(transpose
+      ? axisLeftLabels[rowI]
+      : axisTopLabels[colI]);
 
     const obsId = expression.rows[obsI];
     const varId = expression.cols[varI];
@@ -905,16 +790,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     });
 
     return result;
-  }, [
-    numCellColorTracks,
-    transpose,
-    offsetLeft,
-    axisOffsetTop,
-    matrixWidth,
-    axisOffsetLeft,
-    offsetTop,
-    matrixHeight,
-  ]);
+  }, [numCellColorTracks, transpose, offsetLeft, axisOffsetTop,
+    matrixWidth, axisOffsetLeft, offsetTop, matrixHeight]);
 
   return (
     <deck.DeckGL
@@ -951,21 +828,16 @@ const Heatmap = forwardRef((props, deckRef) => {
         new deck.OrthographicView({
           id: 'cellColorLabel',
           controller: false,
-          x: transpose ? 0 : axisOffsetLeft,
-          y: transpose ? axisOffsetTop : 0,
-          width: transpose
-            ? axisOffsetLeft
-            : COLOR_BAR_SIZE * numCellColorTracks,
-          height: transpose
-            ? COLOR_BAR_SIZE * numCellColorTracks
-            : axisOffsetTop,
+          x: (transpose ? 0 : axisOffsetLeft),
+          y: (transpose ? axisOffsetTop : 0),
+          width: (transpose ? axisOffsetLeft : COLOR_BAR_SIZE * numCellColorTracks),
+          height: (transpose ? COLOR_BAR_SIZE * numCellColorTracks : axisOffsetTop),
         }),
         ...cellColorsViews,
       ]}
       layers={layers}
       layerFilter={layerFilter}
-      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')
-      }
+      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
       glOptions={DEFAULT_GL_OPTIONS}
       onViewStateChange={onViewStateChange}
       viewState={viewState}

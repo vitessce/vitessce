@@ -13,12 +13,8 @@ describe('view config schema', () => {
           .coordinationScopes.properties,
       );
 
-      expect(inCoordinationSpace).toEqual(
-        expect.arrayContaining(allCoordinationTypes),
-      );
-      expect(inCoordinationScopes).toEqual(
-        expect.arrayContaining(allCoordinationTypes),
-      );
+      expect(inCoordinationSpace).toEqual(expect.arrayContaining(allCoordinationTypes));
+      expect(inCoordinationScopes).toEqual(expect.arrayContaining(allCoordinationTypes));
     });
 
     it('defines schema for only valid coordination types (does not have extra)', () => {
@@ -31,12 +27,8 @@ describe('view config schema', () => {
           .coordinationScopes.properties,
       );
 
-      expect(allCoordinationTypes).toEqual(
-        expect.arrayContaining(inCoordinationSpace),
-      );
-      expect(allCoordinationTypes).toEqual(
-        expect.arrayContaining(inCoordinationScopes),
-      );
+      expect(allCoordinationTypes).toEqual(expect.arrayContaining(inCoordinationSpace));
+      expect(allCoordinationTypes).toEqual(expect.arrayContaining(inCoordinationScopes));
     });
   });
 });

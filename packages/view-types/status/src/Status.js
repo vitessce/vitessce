@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   info: {
     // details
     fontSize: '80%',
@@ -21,7 +21,7 @@ const useStyles = makeStyles(() => ({
 
     marginTop: '0',
     marginBottom: '0',
-  },
+  }
 }));
 
 export default function Status(props) {
@@ -29,18 +29,12 @@ export default function Status(props) {
   const classes = useStyles();
   const messages = [];
   if (info) {
-    messages.push(
-      <p className={classes.info} key="info">
-        {info}
-      </p>,
-    );
+    messages.push(<p className={classes.info} key="info">{info}</p>);
   }
   if (warn) {
-    messages.push(
-      <p className={clsx(classes.info, classes.warn)} key="warn">
-        {warn}
-      </p>,
-    );
+    messages.push(<p className={clsx(classes.info, classes.warn)} key="warn">{warn}</p>);
   }
-  return messages;
+  return (
+    messages
+  );
 }

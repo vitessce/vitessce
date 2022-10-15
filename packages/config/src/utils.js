@@ -8,7 +8,7 @@
  * @param {string[]} prevScopes Previous scope names.
  * @returns {string} The new scope name.
  */
-export function getNextScope(prevScopes) {
+ export function getNextScope(prevScopes) {
   // Keep an ordered list of valid characters.
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   // Store the value of the next character for each position

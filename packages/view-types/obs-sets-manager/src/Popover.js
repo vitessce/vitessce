@@ -7,7 +7,9 @@ import HelpTooltip from './HelpTooltip';
  * @param {*} props Props are passed through to the HelpTooltip component.
  */
 export default function Popover(props) {
-  return <HelpTooltip {...props} />;
+  return (
+    <HelpTooltip {...props} />
+  );
 }
 
 Popover.defaultProps = {

@@ -11,7 +11,9 @@ class InMemoryMatrixLoader extends JsonLoader {
     const data = {
       rows: range(numGenes).map(j => `gene_${j}`),
       cols: range(numCells).map(j => `cell_${j}`),
-      matrix: range(numGenes).map(i => range(numCells).map(j => i + j + 1)),
+      matrix: range(numGenes).map(
+        i => range(numCells).map(j => i + j + 1),
+      ),
     };
     const { rows, cols, matrix } = data;
     const attrs = {
@@ -28,31 +30,23 @@ class InMemoryMatrixLoader extends JsonLoader {
     });
     // Transpose the normalized matrix.
     const tNormalizedMatrix = range(shape[0])
-      .map(i => range(shape[1])
-        .map(j => normalizedMatrix[j][i]));
+      .map(i => range(shape[1]).map(j => normalizedMatrix[j][i]));
     // Flatten the transposed matrix.
     const normalizedFlatMatrix = tNormalizedMatrix.flat();
     // Need to wrap the NestedArray to mock the HTTPStore-based array
     // which returns promises.
     const arr = { data: Uint8Array.from(normalizedFlatMatrix) };
-    return Promise.resolve(
-      new LoaderResult(
-        {
-          obsFeatureMatrix: arr,
-          obsIndex: attrs.rows,
-          featureIndex: attrs.cols,
-        },
-        null,
-      ),
-    );
+    return Promise.resolve(new LoaderResult({
+      obsFeatureMatrix: arr,
+      obsIndex: attrs.rows,
+      featureIndex: attrs.cols,
+    }, null));
   }
 }
 
 registerPluginFileType(
-  'in-memory-matrix',
-  'obsFeatureMatrix',
-  InMemoryMatrixLoader,
-  JsonSource,
+  'in-memory-matrix', 'obsFeatureMatrix',
+  InMemoryMatrixLoader, JsonSource,
 );
 
 // Use the plugin file type in the configuration.

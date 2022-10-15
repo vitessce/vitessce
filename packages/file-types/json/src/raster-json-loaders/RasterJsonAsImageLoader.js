@@ -3,9 +3,7 @@ import RasterLoader from './RasterJsonLoader';
 
 export default class RasterJsonAsImageLoader extends RasterLoader {
   async load() {
-    const loaderResult = await super
-      .load()
-      .catch(reason => Promise.resolve(reason));
+    const loaderResult = await super.load().catch(reason => Promise.resolve(reason));
     if (loaderResult instanceof AbstractLoaderError) {
       return Promise.reject(loaderResult);
     }
@@ -24,27 +22,22 @@ export default class RasterJsonAsImageLoader extends RasterLoader {
     });
 
     if (!coordinationValues?.spatialImageLayer) {
-      console.warn(
-        'Could not initialize coordinationValues.spatialImageLayer in RasterJsonAsImageLoader. This may be an indicator that the image could not be loaded.',
-      );
+      console.warn('Could not initialize coordinationValues.spatialImageLayer in RasterJsonAsImageLoader. This may be an indicator that the image could not be loaded.');
     }
 
     return new LoaderResult(
       {
-        image: loaders.length > 0 && meta.length > 0 ? { loaders, meta } : null,
+        image: (loaders.length > 0 && meta.length > 0 ? { loaders, meta } : null),
       },
       urls,
       {
         // Filter coordinationValues, keeping only non-bitmask layers.
-        spatialImageLayer: coordinationValues?.spatialImageLayer
-          ?.filter(l => l.type !== 'bitmask')
+        spatialImageLayer: coordinationValues?.spatialImageLayer?.filter(l => l.type !== 'bitmask')
           // Re-index since we removed the bitmask layers,
           // so the indices may have gaps.
           .map(layer => ({
             ...layer,
-            index: meta.findIndex(
-              metaItem => metaItem.name === allMeta[layer.index].name,
-            ),
+            index: meta.findIndex(metaItem => metaItem.name === allMeta[layer.index].name),
           })),
       },
     );

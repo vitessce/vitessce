@@ -2,11 +2,11 @@ import { createTheme } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
 
 const globalColors = {
-  white: '#FFFFFF',
-  grayLight: '#D3D3D3',
-  grayMid: '#808080',
-  grayDark: '#555555',
-  black: '#000000',
+  "white": '#FFFFFF',
+  "grayLight": '#D3D3D3',
+  "grayMid": '#808080',
+  "grayDark": '#555555',
+  "black": "#000000"
 };
 
 export const muiTheme = {

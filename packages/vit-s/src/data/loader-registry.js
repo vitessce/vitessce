@@ -1,4 +1,6 @@
-import { getLoaderClassesForPluginFileType } from '../plugins';
+import {
+  getLoaderClassesForPluginFileType,
+} from '../plugins';
 
 export const fileTypeToLoaderAndSource = {};
 

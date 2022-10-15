@@ -4,11 +4,14 @@ import { Vitessce } from 'vitessce';
 
 export default function ThemedVitessce(props) {
   const { colorMode } = useColorMode();
-  const isDarkTheme = colorMode === 'dark';
+  const isDarkTheme = (colorMode === 'dark');
 
   return (
     <>
-      <Vitessce theme={isDarkTheme ? 'dark' : 'light'} {...props} />
+      <Vitessce
+        theme={isDarkTheme ? 'dark' : 'light'}
+        {...props}
+      />
     </>
   );
 }

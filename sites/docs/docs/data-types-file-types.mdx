@@ -4,11 +4,11 @@ title: Data Types and File Types
 sidebar_label: Data Types and File Types
 slug: /data-types-file-types
 ---
-
 import DataTypesTable from '../src/pages/_DataTypesTable';
 
 Vitessce supports several **data types** which denote in an abstract sense the type of observations contained in a file (e.g., matrix, dataframe, image).
 For each data type, Vitessce may support multiple **file types** ([`datasets[].files[].fileType`](/docs/view-config-json/#files)) which denote specific schemas and file formats that Vitessce knows how to read.
+
 
 For example, a file that conforms to the `obsEmbedding` data type must contain embedding coordinates for each cell (assuming each observation represents a cell) computed via e.g. t-SNE or UMAP.
 Depending on which file format is more convenient, you may choose either `obsEmbedding.csv` or `obsEmbedding.anndata.zarr`.

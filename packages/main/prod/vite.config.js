@@ -27,11 +27,11 @@ export default defineConfig({
           react: 'React',
           'react-dom': 'ReactDOM',
         },
-      },
-    },
+      }
+    }
   },
   define: {
     'process.env.NODE_ENV': `"${process.env.APP_ENV}"`,
   },
-  plugins: [react()],
+  plugins: [react()]
 });

@@ -1,34 +1,29 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useMemo } from 'react';
 import isEqual from 'lodash/isEqual';
-import { nodeToRenderProps, pathToKey } from '@vitessce/sets';
-import { getDefaultColor } from '@vitessce/utils';
 import Tree from './Tree';
 import TreeNode from './TreeNode';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
+import { nodeToRenderProps, pathToKey } from '@vitessce/sets';
+import { getDefaultColor } from '@vitessce/utils';
 import { useStyles } from './styles';
 
 function processNode(node, prevPath, setColor, theme) {
   const nodePath = [...prevPath, node.name];
   return {
     ...node,
-    ...(node.children
-      ? {
-        children: node.children.map(c => processNode(c, nodePath, setColor)),
-      }
-      : {}),
-    color:
-      setColor?.find(d => isEqual(d.path, nodePath))?.color
-      || getDefaultColor(theme),
+    ...(node.children ? ({
+      children: node.children
+        .map(c => processNode(c, nodePath, setColor)),
+    }) : {}),
+    color: setColor?.find(d => isEqual(d.path, nodePath))?.color || getDefaultColor(theme),
   };
 }
 
 function processSets(sets, setColor, theme) {
   return {
     ...sets,
-    tree: sets
-      ? sets.tree.map(lzn => processNode(lzn, [], setColor, theme))
-      : [],
+    tree: sets ? sets.tree.map(lzn => processNode(lzn, [], setColor, theme)) : [],
   };
 }
 
@@ -38,10 +33,7 @@ function getAllKeys(node, path = []) {
   }
   const newPath = [...path, node.name];
   if (node.children) {
-    return [
-      pathToKey(newPath),
-      ...node.children.flatMap(v => getAllKeys(v, newPath)),
-    ];
+    return [pathToKey(newPath), ...node.children.flatMap(v => getAllKeys(v, newPath))];
   }
   return pathToKey(newPath);
 }
@@ -142,28 +134,23 @@ export default function SetsManager(props) {
   const [isDragging, setIsDragging] = useState(false);
   const [isEditingNodeName, setIsEditingNodeName] = useState(null);
 
-  const processedSets = useMemo(
-    () => processSets(sets, setColor, theme),
-    [sets, setColor, theme],
-  );
-  const processedAdditionalSets = useMemo(
-    () => processSets(additionalSets, setColor, theme),
-    [additionalSets, setColor, theme],
-  );
+  const processedSets = useMemo(() => processSets(
+    sets, setColor, theme,
+  ), [sets, setColor, theme]);
+  const processedAdditionalSets = useMemo(() => processSets(
+    additionalSets, setColor, theme,
+  ), [additionalSets, setColor, theme]);
 
-  const additionalSetKeys = processedAdditionalSets
+  const additionalSetKeys = (processedAdditionalSets
     ? processedAdditionalSets.tree.flatMap(v => getAllKeys(v, []))
-    : [];
+    : []
+  );
 
   const allSetSelectionKeys = (setSelection || []).map(pathToKey);
   const allSetExpansionKeys = (setExpansion || []).map(pathToKey);
 
-  const setSelectionKeys = allSetSelectionKeys.filter(
-    k => !additionalSetKeys.includes(k),
-  );
-  const setExpansionKeys = allSetExpansionKeys.filter(
-    k => !additionalSetKeys.includes(k),
-  );
+  const setSelectionKeys = allSetSelectionKeys.filter(k => !additionalSetKeys.includes(k));
+  const setExpansionKeys = allSetExpansionKeys.filter(k => !additionalSetKeys.includes(k));
 
   const additionalSetSelectionKeys = allSetSelectionKeys.filter(k => additionalSetKeys.includes(k));
   const additionalSetExpansionKeys = allSetExpansionKeys.filter(k => additionalSetKeys.includes(k));
@@ -184,17 +171,21 @@ export default function SetsManager(props) {
           theme={theme}
           key={pathToKey(newPath)}
           {...nodeToRenderProps(node, newPath, setColor)}
+
           isEditing={isEqual(isEditingNodeName, newPath)}
+
           datatype={datatype}
           draggable={draggable && !readOnly}
           editable={editable && !readOnly}
           checkable={checkable}
           expandable={expandable}
           exportable={exportable}
+
           hasColorEncoding={hasColorEncoding}
           isChecking={isChecking}
           checkedLevelPath={checkedLevel ? checkedLevel.levelZeroPath : null}
           checkedLevelIndex={checkedLevel ? checkedLevel.levelIndex : null}
+
           onCheckNode={onCheckNode}
           onCheckLevel={onCheckLevel}
           onNodeView={onNodeView}
@@ -209,6 +200,7 @@ export default function SetsManager(props) {
           onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
           onExportLevelZeroNodeTabular={onExportLevelZeroNodeTabular}
           onExportSetJSON={onExportSetJSON}
+
           disableTooltip={isDragging}
           onDragStart={() => setIsDragging(true)}
           onDragEnd={() => setIsDragging(false)}
@@ -227,26 +219,40 @@ export default function SetsManager(props) {
         <Tree
           draggable={false}
           checkable={checkable}
+
           checkedKeys={setSelectionKeys}
           expandedKeys={setExpansionKeys}
           autoExpandParent={autoExpandParent}
-          onCheck={(checkedKeys, info) => onCheckNode(info.node.props.nodeKey, info.checked)
-          }
-          onExpand={(expandedKeys, info) => onExpandNode(expandedKeys, info.node.props.nodeKey, info.expanded)
-          }
+
+          onCheck={(checkedKeys, info) => onCheckNode(
+            info.node.props.nodeKey,
+            info.checked,
+          )}
+          onExpand={(expandedKeys, info) => onExpandNode(
+            expandedKeys,
+            info.node.props.nodeKey,
+            info.expanded,
+          )}
         >
           {renderTreeNodes(processedSets.tree, true, [], theme)}
         </Tree>
         <Tree
           draggable /* TODO */
           checkable={checkable}
+
           checkedKeys={additionalSetSelectionKeys}
           expandedKeys={additionalSetExpansionKeys}
           autoExpandParent={autoExpandParent}
-          onCheck={(checkedKeys, info) => onCheckNode(info.node.props.nodeKey, info.checked)
-          }
-          onExpand={(expandedKeys, info) => onExpandNode(expandedKeys, info.node.props.nodeKey, info.expanded)
-          }
+
+          onCheck={(checkedKeys, info) => onCheckNode(
+            info.node.props.nodeKey,
+            info.checked,
+          )}
+          onExpand={(expandedKeys, info) => onExpandNode(
+            expandedKeys,
+            info.node.props.nodeKey,
+            info.expanded,
+          )}
           onDrop={(info) => {
             const { eventKey: dropKey } = info.node.props;
             const { eventKey: dragKey } = info.dragNode.props;
@@ -273,6 +279,7 @@ export default function SetsManager(props) {
             onIntersection={onIntersection}
             onComplement={onComplement}
             operatable={operatable}
+
             hasCheckedSetsToUnion={hasCheckedSetsToUnion}
             hasCheckedSetsToIntersect={hasCheckedSetsToIntersect}
             hasCheckedSetsToComplement={hasCheckedSetsToComplement}

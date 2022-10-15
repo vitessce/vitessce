@@ -22,7 +22,8 @@ import { useHelpTooltipStyles } from './styles';
  */
 function PopoverMenuListButton(props) {
   const {
-    title, subtitle, onClick, handler, handlerKey, confirm, visible,
+    title, subtitle, onClick, handler, handlerKey, confirm,
+    visible,
   } = props;
 
   const [isConfirming, setIsConfirming] = useState(false);
@@ -49,16 +50,9 @@ function PopoverMenuListButton(props) {
       title={titleWithConfirm}
       type="button"
       onClick={handleOrRequireConfirm}
-      onKeyPress={e => callbackOnKeyPress(e, handlerKey, handleOrRequireConfirm)
-      }
-    >
-      {titleWithConfirm}
-      {subtitle && (
-        <>
-          <br />
-          <span className={classes.small}>{subtitle}</span>
-        </>
-      )}
+      onKeyPress={e => callbackOnKeyPress(e, handlerKey, handleOrRequireConfirm)}
+    >{titleWithConfirm}
+      {subtitle && (<><br /><span className={classes.small}>{subtitle}</span></>)}
     </button>
   );
 }
@@ -97,11 +91,7 @@ function PopoverMenuList(props) {
 
   const defaultPalette = palette
     ? palette.map(colorArrayToString)
-    : PALETTE.concat([
-      [255, 255, 255],
-      [128, 128, 128],
-      [0, 0, 0],
-    ]).map(colorArrayToString);
+    : PALETTE.concat([[255, 255, 255], [128, 128, 128], [0, 0, 0]]).map(colorArrayToString);
 
   const classes = useHelpTooltipStyles();
 
@@ -149,12 +139,8 @@ function PopoverMenuList(props) {
  */
 export default function PopoverMenu(props) {
   const {
-    menuConfig,
-    placement,
-    children,
-    color = null,
-    setColor = null,
-    palette = null,
+    menuConfig, placement, children,
+    color = null, setColor = null, palette = null,
   } = props;
 
   const [visible, setVisible] = useState(false);
@@ -170,7 +156,7 @@ export default function PopoverMenu(props) {
           palette={palette}
           visible={visible}
         />
-      )}
+)}
       placement={placement}
       visible={visible}
       onVisibleChange={setVisible}

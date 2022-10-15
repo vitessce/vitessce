@@ -1,11 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import { SELECTION_TYPE } from '@vitessce/gl';
-import {
-  PointerIconSVG,
-  SelectRectangleIconSVG,
-  SelectLassoIconSVG,
-} from '@vitessce/icons';
+import { PointerIconSVG, SelectRectangleIconSVG, SelectLassoIconSVG } from '@vitessce/icons';
 import { makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(() => ({
@@ -16,7 +12,7 @@ const useStyles = makeStyles(() => ({
     opacity: '.65',
     color: 'black',
     '&:hover': {
-      opacity: '.90',
+        opacity: '.90',
     },
   },
   iconButton: {
@@ -36,15 +32,14 @@ const useStyles = makeStyles(() => ({
     fontSize: '1rem',
     lineHeight: '1.5',
     borderRadius: '0.25rem',
-    transition:
-      'color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+    transition: 'color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
     color: '#6c757d',
 
     marginRight: '0.5rem',
 
     '& > svg': {
-      verticalAlign: 'middle',
-    },
+        verticalAlign: 'middle',
+    }
   },
   iconButtonActive: {
     // active
@@ -62,9 +57,7 @@ export function IconButton(props) {
   const classes = useStyles();
   return (
     <button
-      className={clsx(classes.iconButton, {
-        [classes.iconButtonActive]: isActive,
-      })}
+      className={clsx(classes.iconButton, { [classes.iconButtonActive]: isActive })}
       onClick={onClick}
       type="button"
       title={alt}
@@ -84,21 +77,19 @@ export default function ToolMenu(props) {
   return (
     <div className={classes.tool}>
       {visibleTools.pan && (
-        <IconButton
-          alt="pointer tool"
-          onClick={() => setActiveTool(null)}
-          isActive={activeTool === null}
-        >
-          <PointerIconSVG />
-        </IconButton>
+      <IconButton
+        alt="pointer tool"
+        onClick={() => setActiveTool(null)}
+        isActive={activeTool === null}
+      ><PointerIconSVG />
+      </IconButton>
       )}
       {visibleTools.selectRectangle ? (
         <IconButton
           alt="select rectangle"
           onClick={() => setActiveTool(SELECTION_TYPE.RECTANGLE)}
           isActive={activeTool === SELECTION_TYPE.RECTANGLE}
-        >
-          <SelectRectangleIconSVG />
+        ><SelectRectangleIconSVG />
         </IconButton>
       ) : null}
       {visibleTools.selectLasso ? (
@@ -106,8 +97,7 @@ export default function ToolMenu(props) {
           alt="select lasso"
           onClick={() => setActiveTool(SELECTION_TYPE.POLYGON)}
           isActive={activeTool === SELECTION_TYPE.POLYGON}
-        >
-          <SelectLassoIconSVG />
+        ><SelectLassoIconSVG />
         </IconButton>
       ) : null}
     </div>

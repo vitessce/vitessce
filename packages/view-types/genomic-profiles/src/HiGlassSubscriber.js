@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  TitleInfo,
-  useGridItemSize,
-  registerPluginViewType,
-} from '@vitessce/vit-s';
+import { TitleInfo, useGridItemSize, registerPluginViewType } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import HiGlassLazy from './HiGlassLazy';
 import { useStyles } from './styles';
@@ -23,7 +19,10 @@ const urls = [];
  */
 export function HiGlassSubscriber(props) {
   const {
-    coordinationScopes, theme, hgViewConfig, removeGridComponent,
+    coordinationScopes,
+    theme,
+    hgViewConfig,
+    removeGridComponent,
   } = props;
 
   // eslint-disable-next-line no-unused-vars

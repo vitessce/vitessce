@@ -56,5 +56,10 @@ export default function ExpressionHistogram(props) {
     config: VEGA_THEMES[theme],
   };
 
-  return <VegaPlot data={data} spec={spec} />;
+  return (
+    <VegaPlot
+      data={data}
+      spec={spec}
+    />
+  );
 }

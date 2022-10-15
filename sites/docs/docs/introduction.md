@@ -4,6 +4,7 @@ title: Getting Started
 slug: /
 ---
 
+
 Vitessce is a framework for integrative visualization of multi-modal and spatially-resolved single-cell data.
 Its modular design is optimized for scalable, linked visualizations that support spatial (and non-spatial) cellular and molecular observations.
 Highly multiplexed, high-resolution, high-bit depth images can be viewed in Vitessce, loaded directly from OME-TIFF files and Bio-Formats-compatible Zarr stores (enabled by the [Viv](http://viv.gehlenborglab.org/) library).
@@ -55,3 +56,4 @@ A great starting point for configuring Vitessce is to take an [example](/example
 ### Tutorials
 
 For full walk throughs of the data processing and view configuration processes, visit the [tutorials](/docs/tutorials/).
+

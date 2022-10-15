@@ -1,22 +1,110 @@
 export const kuppe2022nature = {
   version: '1.0.15',
   name: 'Kuppe et al., 2022 Nature',
-  description:
-    'Spatial multi-omic map of human myocardial infarction. Visium slide from patient P9, region GT/IZ_P9',
-  datasets: [
-    {
-      uid: 'kuppe_2022_nature',
-      name: 'kuppe_2022_nature',
-      files: [
-        {
-          fileType: 'obsSets.anndata.zarr',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.joint.h5ad.zarr',
-          coordinationValues: {
-            obsType: 'cell',
+  description: 'Spatial multi-omic map of human myocardial infarction. Visium slide from patient P9, region GT/IZ_P9',
+  datasets: [{
+    uid: 'kuppe_2022_nature',
+    name: 'kuppe_2022_nature',
+    files: [
+      {
+        fileType: 'obsSets.anndata.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.joint.h5ad.zarr',
+        coordinationValues: {
+          obsType: 'cell',
+        },
+        options: [
+          {
+            name: 'Cell Type',
+            path: 'obs/cell_type',
           },
-          options: [
+          {
+            name: 'Development Stage',
+            path: 'obs/development_stage',
+          },
+          {
+            name: 'Disease',
+            path: 'obs/disease',
+          },
+          {
+            name: 'Sex',
+            path: 'obs/sex',
+          },
+        ],
+      },
+      {
+        fileType: 'anndata.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.rna.h5ad.zarr',
+        coordinationValues: {
+          obsType: 'cell',
+          featureType: 'gene',
+          featureValueType: 'transcript count',
+        },
+        options: {
+          obsFeatureMatrix: {
+            path: 'X',
+          },
+          featureLabels: {
+            path: 'var/feature_name',
+          },
+          obsEmbedding: [
             {
-              name: 'Cell Type',
+              path: 'obsm/X_umap',
+              embeddingType: 'snRNA UMAP',
+            },
+            {
+              path: 'obsm/X_pca',
+              embeddingType: 'snRNA PCA',
+            },
+          ],
+        },
+      },
+      {
+        fileType: 'anndata.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.atac.h5ad.zarr',
+        coordinationValues: {
+          obsType: 'cell',
+          featureType: 'gene',
+          featureValueType: 'mapped peak count',
+        },
+        options: {
+          obsFeatureMatrix: {
+            path: 'X',
+          },
+          featureLabels: {
+            path: 'var/feature_name',
+          },
+          obsEmbedding: [
+            {
+              path: 'obsm/X_umap',
+              embeddingType: 'snATAC UMAP',
+            },
+          ],
+        },
+      },
+      {
+        fileType: 'anndata.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.visium.h5ad.zarr',
+        coordinationValues: {
+          obsType: 'spot',
+          featureType: 'gene',
+          featureValueType: 'detection count',
+        },
+        options: {
+          obsLocations: {
+            path: 'obsm/xy_scaled',
+          },
+          obsSegmentations: {
+            path: 'obsm/xy_segmentations_scaled',
+          },
+          obsFeatureMatrix: {
+            path: 'X',
+          },
+          featureLabels: {
+            path: 'var/feature_name',
+          },
+          obsSets: [
+            {
+              name: 'Spot Type',
               path: 'obs/cell_type',
             },
             {
@@ -33,104 +121,13 @@ export const kuppe2022nature = {
             },
           ],
         },
-        {
-          fileType: 'anndata.zarr',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.rna.h5ad.zarr',
-          coordinationValues: {
-            obsType: 'cell',
-            featureType: 'gene',
-            featureValueType: 'transcript count',
-          },
-          options: {
-            obsFeatureMatrix: {
-              path: 'X',
-            },
-            featureLabels: {
-              path: 'var/feature_name',
-            },
-            obsEmbedding: [
-              {
-                path: 'obsm/X_umap',
-                embeddingType: 'snRNA UMAP',
-              },
-              {
-                path: 'obsm/X_pca',
-                embeddingType: 'snRNA PCA',
-              },
-            ],
-          },
-        },
-        {
-          fileType: 'anndata.zarr',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.atac.h5ad.zarr',
-          coordinationValues: {
-            obsType: 'cell',
-            featureType: 'gene',
-            featureValueType: 'mapped peak count',
-          },
-          options: {
-            obsFeatureMatrix: {
-              path: 'X',
-            },
-            featureLabels: {
-              path: 'var/feature_name',
-            },
-            obsEmbedding: [
-              {
-                path: 'obsm/X_umap',
-                embeddingType: 'snATAC UMAP',
-              },
-            ],
-          },
-        },
-        {
-          fileType: 'anndata.zarr',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.visium.h5ad.zarr',
-          coordinationValues: {
-            obsType: 'spot',
-            featureType: 'gene',
-            featureValueType: 'detection count',
-          },
-          options: {
-            obsLocations: {
-              path: 'obsm/xy_scaled',
-            },
-            obsSegmentations: {
-              path: 'obsm/xy_segmentations_scaled',
-            },
-            obsFeatureMatrix: {
-              path: 'X',
-            },
-            featureLabels: {
-              path: 'var/feature_name',
-            },
-            obsSets: [
-              {
-                name: 'Spot Type',
-                path: 'obs/cell_type',
-              },
-              {
-                name: 'Development Stage',
-                path: 'obs/development_stage',
-              },
-              {
-                name: 'Disease',
-                path: 'obs/disease',
-              },
-              {
-                name: 'Sex',
-                path: 'obs/sex',
-              },
-            ],
-          },
-        },
-        {
-          fileType: 'image.ome-zarr',
-          url: 'https://vitessce-data.storage.googleapis.com/0.0.33/main/kuppe-2022/kuppe_2022_nature.visium.ome.zarr',
-        },
-      ],
-    },
-  ],
+      },
+      {
+        fileType: 'image.ome-zarr',
+        url: 'https://vitessce-data.storage.googleapis.com/0.0.33/main/kuppe-2022/kuppe_2022_nature.visium.ome.zarr',
+      },
+    ],
+  }],
   initStrategy: 'auto',
   coordinationSpace: {
     embeddingType: {
@@ -183,21 +180,42 @@ export const kuppe2022nature = {
           channels: [
             {
               selection: { c: 0 },
-              color: [255, 0, 0],
+              color: [
+                255,
+                0,
+                0,
+              ],
               visible: true,
-              slider: [0, 255],
+              slider: [
+                0,
+                255,
+              ],
             },
             {
               selection: { c: 1 },
-              color: [0, 255, 0],
+              color: [
+                0,
+                255,
+                0,
+              ],
               visible: true,
-              slider: [0, 255],
+              slider: [
+                0,
+                255,
+              ],
             },
             {
               selection: { c: 2 },
-              color: [0, 0, 255],
+              color: [
+                0,
+                0,
+                255,
+              ],
               visible: true,
-              slider: [0, 255],
+              slider: [
+                0,
+                255,
+              ],
             },
           ],
         },
@@ -205,10 +223,7 @@ export const kuppe2022nature = {
     },
     spatialSegmentationLayer: {
       A: {
-        radius: 65,
-        stroked: true,
-        visible: true,
-        opacity: 1,
+        radius: 65, stroked: true, visible: true, opacity: 1,
       },
     },
   },

@@ -1,9 +1,8 @@
+import { FileType, FILE_TYPE_DATA_TYPE_MAPPING } from '@vitessce/constants-internal';
+import { JOINT_FILE_TYPES } from './joint-file-types';
 import {
-  FileType,
-  FILE_TYPE_DATA_TYPE_MAPPING,
-} from '@vitessce/constants-internal';
-import { JOINT_FILE_TYPES, expandAnndataZarr } from './joint-file-types';
-
+  expandAnndataZarr,
+} from './joint-file-types';
 
 describe('src/app/joint-file-types.js', () => {
   describe('FileType-to-DataType mappings', () => {
@@ -25,31 +24,29 @@ describe('src/app/joint-file-types.js', () => {
       })).toThrow();
     });
     it('expands when there is an obsEmbedding object', () => {
-      expect(
-        expandAnndataZarr({
-          fileType: 'anndata.zarr',
-          url: 'http://localhost:8000/anndata.zarr',
-          options: {
-            obsLabels: {
-              path: 'obs/spot_name',
-            },
-            featureLabels: {
-              path: 'var/gene_symbol',
-            },
-            obsEmbedding: {
-              path: 'obsm/pca',
-              dims: [2, 4],
-            },
+      expect(expandAnndataZarr({
+        fileType: 'anndata.zarr',
+        url: 'http://localhost:8000/anndata.zarr',
+        options: {
+          obsLabels: {
+            path: 'obs/spot_name',
           },
-          coordinationValues: {
-            obsType: 'spot',
-            featureType: 'transcript',
-            obsLabelsType: 'spotName',
-            featureLabelsType: 'geneSymbol',
-            embeddingType: 'PCA',
+          featureLabels: {
+            path: 'var/gene_symbol',
           },
-        }),
-      ).toEqual([
+          obsEmbedding: {
+            path: 'obsm/pca',
+            dims: [2, 4],
+          },
+        },
+        coordinationValues: {
+          obsType: 'spot',
+          featureType: 'transcript',
+          obsLabelsType: 'spotName',
+          featureLabelsType: 'geneSymbol',
+          embeddingType: 'PCA',
+        },
+      })).toEqual([
         {
           fileType: 'obsEmbedding.anndata.zarr',
           url: 'http://localhost:8000/anndata.zarr',
@@ -87,28 +84,26 @@ describe('src/app/joint-file-types.js', () => {
       ]);
     });
     it('expands when there is an obsEmbedding array of objects', () => {
-      expect(
-        expandAnndataZarr({
-          fileType: 'anndata.zarr',
-          url: 'http://localhost:8000/anndata.zarr',
-          options: {
-            obsLocations: {
-              path: 'obsm/xy',
-            },
-            obsEmbedding: [
-              {
-                path: 'obsm/pca',
-                dims: [2, 4],
-                embeddingType: 'PCA',
-              },
-              {
-                path: 'obsm/umap',
-                embeddingType: 'UMAP',
-              },
-            ],
+      expect(expandAnndataZarr({
+        fileType: 'anndata.zarr',
+        url: 'http://localhost:8000/anndata.zarr',
+        options: {
+          obsLocations: {
+            path: 'obsm/xy',
           },
-        }),
-      ).toEqual([
+          obsEmbedding: [
+            {
+              path: 'obsm/pca',
+              dims: [2, 4],
+              embeddingType: 'PCA',
+            },
+            {
+              path: 'obsm/umap',
+              embeddingType: 'UMAP',
+            },
+          ],
+        },
+      })).toEqual([
         {
           fileType: 'obsLocations.anndata.zarr',
           url: 'http://localhost:8000/anndata.zarr',

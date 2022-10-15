@@ -5,7 +5,7 @@ const SRC_DIR = path.resolve('../../src');
 // We need to make a custom Docusaurus plugin to be able to configure webpack.
 // Reference: https://v2.docusaurus.io/docs/using-plugins#creating-plugins
 // Reference: https://v2.docusaurus.io/docs/lifecycle-apis#configurewebpackconfig-isserver-utils
-module.exports = function (context, options) {
+module.exports = function(context, options) {
   return {
     name: 'vitessce-docusaurus-plugin',
     configureWebpack(config, isServer, utils) {
@@ -37,10 +37,10 @@ module.exports = function (context, options) {
             {
               test: /\.m?js/,
               resolve: {
-                fullySpecified: false,
-              },
-            },
-          ],
+                fullySpecified: false
+              }
+            }
+          ]
         },
       };
     },

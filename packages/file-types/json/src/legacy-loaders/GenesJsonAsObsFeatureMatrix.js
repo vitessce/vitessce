@@ -1,6 +1,6 @@
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import genesSchema from './schemas/genes.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 
 export default class GenesJsonAsObsFeatureMatrixLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -14,9 +14,12 @@ export default class GenesJsonAsObsFeatureMatrixLoader extends JsonLoader {
       return this.cachedResult;
     }
     const cols = Object.keys(data);
-    const rows = cols.length > 0 ? Object.keys(data[cols[0]].cells) : [];
+    const rows = (cols.length > 0 ? Object.keys(data[cols[0]].cells) : []);
 
-    const normalizedFlatMatrix = rows.flatMap(cellId => cols.map(geneId => (data[geneId].cells[cellId] / data[geneId].max) * 255));
+    const normalizedFlatMatrix = rows
+      .flatMap(cellId => cols.map(
+        geneId => (data[geneId].cells[cellId] / data[geneId].max) * 255,
+      ));
     // Need to wrap the NestedArray to mock the HTTPStore-based array
     // which returns promises.
     const featureIndex = cols;
@@ -33,6 +36,9 @@ export default class GenesJsonAsObsFeatureMatrixLoader extends JsonLoader {
     }
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(result, url));
+    return Promise.resolve(new LoaderResult(
+      result,
+      url,
+    ));
   }
 }

@@ -1,7 +1,9 @@
 import React from 'react';
 
 export default function TooltipContent(props) {
-  const { info } = props;
+  const {
+    info,
+  } = props;
 
   return (
     <table>

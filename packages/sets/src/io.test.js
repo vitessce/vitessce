@@ -1,8 +1,5 @@
 import {
-  handleImportJSON,
-  handleExportJSON,
-  handleImportTabular,
-  handleExportTabular,
+  handleImportJSON, handleExportJSON, handleImportTabular, handleExportTabular,
 } from './io';
 
 const treeV012 = {
@@ -66,16 +63,10 @@ const treeV013WithPredictionScores = {
 };
 const treeV012AsJson = JSON.stringify(treeV012);
 const treeV013AsJson = JSON.stringify(treeV013);
-const treeV013WithPredictionScoresAsJson = JSON.stringify(
-  treeV013WithPredictionScores,
-);
+const treeV013WithPredictionScoresAsJson = JSON.stringify(treeV013WithPredictionScores);
 
-const expectedExportedJson = `data:application/json;charset=utf-8,${encodeURIComponent(
-  treeV013AsJson,
-)}`;
-const expectedExportedJsonWithPredictionScores = `data:application/json;charset=utf-8,${encodeURIComponent(
-  treeV013WithPredictionScoresAsJson,
-)}`;
+const expectedExportedJson = `data:application/json;charset=utf-8,${encodeURIComponent(treeV013AsJson)}`;
+const expectedExportedJsonWithPredictionScores = `data:application/json;charset=utf-8,${encodeURIComponent(treeV013WithPredictionScoresAsJson)}`;
 
 const treeV012AsCsv = `"groupName","setName","setColor","obsId"
 "Clustering Algorithm","Cluster A","#ff0000","cell_243"
@@ -88,18 +79,14 @@ const treeV013AsCsv = `"groupName","setName","setColor","obsId","predictionScore
 "Clustering Algorithm","Cluster A","#ff0000","cell_271","NA"
 "Clustering Algorithm","Cluster A","#ff0000","cell_247","NA"
 "Clustering Algorithm","Cluster A","#ff0000","cell_248","NA"`;
-const expectedExportedTabular = `data:text/csv;charset=utf-8,${encodeURIComponent(
-  treeV013AsCsv,
-)}`;
+const expectedExportedTabular = `data:text/csv;charset=utf-8,${encodeURIComponent(treeV013AsCsv)}`;
 
 const treeV013WithPredictionScoresAsCsv = `"groupName","setName","setColor","obsId","predictionScore"
 "Clustering Algorithm","Cluster A","#ff0000","cell_243",0.5
 "Clustering Algorithm","Cluster A","#ff0000","cell_271",0.6
 "Clustering Algorithm","Cluster A","#ff0000","cell_247",0.12345
 "Clustering Algorithm","Cluster A","#ff0000","cell_248",0`;
-const expectedExportedTabularWithPredictionScores = `data:text/csv;charset=utf-8,${encodeURIComponent(
-  treeV013WithPredictionScoresAsCsv,
-)}`;
+const expectedExportedTabularWithPredictionScores = `data:text/csv;charset=utf-8,${encodeURIComponent(treeV013WithPredictionScoresAsCsv)}`;
 
 describe('io.js', () => {
   describe('importing sets', () => {
@@ -114,10 +101,7 @@ describe('io.js', () => {
     });
 
     it('can import cell sets from a JSON file v0.1.3 with prediction scores', () => {
-      const importedTree = handleImportJSON(
-        treeV013WithPredictionScoresAsJson,
-        'cell',
-      );
+      const importedTree = handleImportJSON(treeV013WithPredictionScoresAsJson, 'cell');
       expect(importedTree).toEqual(treeV013WithPredictionScores);
     });
 
@@ -132,10 +116,7 @@ describe('io.js', () => {
     });
 
     it('can import cell sets from a CSV file v0.1.3 with prediction scores', () => {
-      const importedTree = handleImportTabular(
-        treeV013WithPredictionScoresAsCsv,
-        'cell',
-      );
+      const importedTree = handleImportTabular(treeV013WithPredictionScoresAsCsv, 'cell');
       expect(importedTree).toEqual(treeV013WithPredictionScores);
     });
   });

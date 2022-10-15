@@ -1,3 +1,5 @@
+
+
 export const scAtacSeq10xPbmc = {
   version: '1.0.0',
   name: 'HiGlass serverless demo with 10x Genomics scATAC-seq 5k PBMC dataset',
@@ -28,8 +30,7 @@ export const scAtacSeq10xPbmc = {
     {
       component: 'description',
       props: {
-        description:
-          '10x Genomics scATAC-seq of 5k PBMCs. Note: the Zarr HiGlass Plugin Datafetcher is not yet optimized. Please be patient while the HiGlass tracks load.',
+        description: '10x Genomics scATAC-seq of 5k PBMCs. Note: the Zarr HiGlass Plugin Datafetcher is not yet optimized. Please be patient while the HiGlass tracks load.',
       },
       x: 8,
       y: 0,

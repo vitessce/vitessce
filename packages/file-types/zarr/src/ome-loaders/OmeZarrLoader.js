@@ -1,9 +1,5 @@
 import { viv, initializeRasterLayersAndChannels } from '@vitessce/gl';
-import {
-  AbstractLoaderError,
-  LoaderResult,
-  AbstractTwoStepLoader,
-} from '@vitessce/vit-s';
+import { AbstractLoaderError, LoaderResult, AbstractTwoStepLoader } from '@vitessce/vit-s';
 
 function hexToRgb(hex) {
   const result = /^#?([A-F\d]{2})([A-F\d]{2})([A-F\d]{2})$/i.exec(hex);
@@ -16,17 +12,12 @@ function hexToRgb(hex) {
 
 export default class OmeZarrLoader extends AbstractTwoStepLoader {
   async load() {
-    const payload = await this.dataSource
-      .getJson('.zattrs')
-      .catch(reason => Promise.resolve(reason));
+    const payload = await this.dataSource.getJson('.zattrs').catch(reason => Promise.resolve(reason));
     if (payload instanceof AbstractLoaderError) {
       return Promise.reject(payload);
     }
 
-    const loader = await viv.loadOmeZarr(this.url, {
-      fetchOptions: this.requestInit,
-      type: 'multiscales',
-    });
+    const loader = await viv.loadOmeZarr(this.url, { fetchOptions: this.requestInit, type: 'multiscales' });
     const { metadata, data } = loader;
 
     const { omero } = metadata;
@@ -65,29 +56,25 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
           slider: [channel.window.start, channel.window.end],
           color: hexToRgb(channel.color),
         })),
-        loaderCreator: async () => ({
-          ...loader,
-          channels: channels.map(c => c.label),
-        }),
+        loaderCreator: async () => ({ ...loader, channels: channels.map(c => c.label) }),
       },
     ];
 
     // TODO: use options for initial selection of channels
     // which omit domain/slider ranges.
-    const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = await initializeRasterLayersAndChannels(
-      imagesWithLoaderCreators,
-      undefined,
+    const [
+      autoImageLayers, imageLayerLoaders, imageLayerMeta,
+    ] = await initializeRasterLayersAndChannels(
+      imagesWithLoaderCreators, undefined,
     );
 
     const coordinationValues = {
       spatialImageLayer: autoImageLayers,
     };
-    return Promise.resolve(
-      new LoaderResult(
-        { image: { loaders: imageLayerLoaders, meta: imageLayerMeta } },
-        [],
-        coordinationValues,
-      ),
-    );
+    return Promise.resolve(new LoaderResult(
+      { image: { loaders: imageLayerLoaders, meta: imageLayerMeta } },
+      [],
+      coordinationValues,
+    ));
   }
 }

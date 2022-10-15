@@ -6,7 +6,6 @@ author_title: Gehlenborg Lab
 author_url: http://gehlenborglab.org/team/members/mark-keller/
 tags: [fom]
 ---
-
 import MatchingDiagramTabs from '../src/pages/_MatchingDiagramTabs';
 import BlogDemoList from '../src/pages/_BrowserOnlyBlogDemoList';
 
@@ -27,9 +26,7 @@ Our tools should support visualization of datasets that conform to any of these 
 
 ![Figure 1, Argelaguet et al., Nature Biotechnology 2021](/img/blog/fig1_argelaguet_2021.png)
 
-<p style={{ textAlign: 'right', width: '100%' }}>
-  Adapted from Figure 1, Argelaguet et al., Nature Biotechnology 2021
-</p>
+<p style={{ textAlign: 'right', width: '100%'}}>Adapted from Figure 1, Argelaguet et al., Nature Biotechnology 2021</p>
 
 ## Updates in Vitessce
 
@@ -68,7 +65,6 @@ featureValueType: 'count'
 ```
 
 With these coordination types:
-
 - more accurate strings like `100 cells x 200 peaks` can be rendered in the interface (as opposed to the more abstract `100 observations x 200 features`).
 - specific values like `featureType: 'gene'` can be used to offer specific analysis functionality (e.g., differential expression tests that are valid only for transcriptomics experiments).
 - the mapping between files and views can leverage both data types and entity types, as described in the next section.
@@ -77,6 +73,7 @@ With these coordination types:
 
 File lookup from within a view now takes into account<br/> `(dataset, dataType, viewCoordinationValues)`.
 
+
 The `viewCoordinationValues` refers to the coordination values that a particular view takes on at a given point in time.
 This is required to disambiguate between multiple files within a dataset which have the same `dataType` (now that each dataset may contain multiple files per data type).
 
@@ -84,15 +81,18 @@ The diagram below shows how the mapping between views and files would be perform
 
 <MatchingDiagramTabs />
 
+
 ### Joint file types
 
 [Joint file types](/docs/data-types-file-types/#joint-file-types) can now be defined via functions which expand one file definition into an array of file definitions.
+
 
 ### Name changes
 
 [View type](/docs/components/) names have been updated to use `obs` and `feature` terminology (e.g., `cellSets` is now `obsSets` and `genes` is now `featureList`).
 
 [Coordination type](/docs/coordination-types/) names have been updated to use `obs` and `feature` terminology (e.g., `cellColorEncoding` is now `obsColorEncoding` and `geneExpressionColormap` is now `featureValueColormap`).
+
 
 ### Exported constants
 
@@ -120,10 +120,11 @@ We intend to update the constructors in R and Python to enforce this requirement
 For new code, we recommend specifying the latest view config schema version:
 
 ```js
-const vc = new VitessceConfig({ schemaVersion: '1.0.15', name: 'My config' });
+const vc = new VitessceConfig({ schemaVersion: "1.0.15", name: "My config" });
 ```
 
 For a full list of valid `schemaVersion` values, see the table of [schema versions](/docs/view-config-json/#version).
+
 
 ## Next steps
 
@@ -132,7 +133,6 @@ While we want our tools to be general enough to facilitate many use cases, we re
 We welcome your feedback via [issues](https://github.com/vitessce/vitessce/issues) and [discussions](https://github.com/vitessce/vitessce/discussions).
 
 Some additional use cases that we are excited about:
-
 - using `obsType: 'nucleus'` to accurately refer to observations from [single-nucleus](https://doi.org/10.1038/nmeth.4407) experiments (similarly `obsType: 'nucleolus'`, `obsType: 'mitochondria'`, etc. as technologies for [isolating subcellular components](https://doi.org/10.1002/smll.202005793) mature)
 - using `featureType: 'isoform'` to accurately refer to features from [isoform-resolved](https://doi.org/10.1038/s41587-022-01231-3) sequencing- and FISH-based experiments
 - using `featureType: 'topic'` and `featureValueType: 'probability'` to enable visualization of [topic model-based](https://doi.org/10.1038/s41592-019-0367-1) analysis results
@@ -141,7 +141,7 @@ Some additional use cases that we are excited about:
 
 The following examples showcase how the updates described here can be used to perform integrative visualization of single-cell data.
 
-<BlogDemoList />
+<BlogDemoList/>
 
 ## Migration
 
@@ -152,7 +152,7 @@ The remaining sections are meant for developers looking to make existing code co
 
 ### Deprecated constant values
 
-While no longer documented, we will continue to export the old constants for backwards compatibility (since their values will remain useful when defining view configs corresponding to previous schema versions).
+While no longer documented, we will continue to export the old constants for backwards compatibility (since their values will remain useful when  defining view configs corresponding to previous schema versions).
 However, instead of implementing them using plain JS objects, deprecated constants will be exposed via [proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) which log deprecation messages to the console when accessed.
 
 ### VitessceConfig constructor calls
@@ -199,6 +199,7 @@ layout: [
 
 Now, the coordination types `obsType` and `featureType` must be used for this purpose instead.
 
+
 ### Versioned documentation
 
 While still supported by Vitessce, the following file types have been removed from the documentation, as we do not encourage their use in new code:
@@ -215,5 +216,7 @@ If you are still using these file types in your configurations, please look back
 
 ### Python and R support
 
-The changes described here are not yet reflected in the Vitessce Python and R packages.
+The changes described here are not yet reflected in the Vitessce Python and R packages. 
 We will now work to update the Python and R code to release new Python and R package versions.
+
+

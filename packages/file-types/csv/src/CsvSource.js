@@ -10,17 +10,13 @@ export default class CsvSource {
 
   get data() {
     if (this._data) return this._data;
-    this._data = fetch(this.url, this.requestInit)
-      .then((response) => {
-        if (!response.ok) {
-          return Promise.reject(
-            new DataSourceFetchError('CsvSource', this.url, response.headers),
-          );
-        }
-        return response.text();
-        // eslint-disable-next-line no-console
-      })
-      .catch(() => Promise.reject(new DataSourceFetchError('CsvSource', this.url, {})))
+    this._data = fetch(this.url, this.requestInit).then((response) => {
+      if (!response.ok) {
+        return Promise.reject(new DataSourceFetchError('CsvSource', this.url, response.headers));
+      }
+      return response.text();
+    // eslint-disable-next-line no-console
+    }).catch(() => Promise.reject(new DataSourceFetchError('CsvSource', this.url, {})))
       .then((data) => {
         if (data instanceof AbstractLoaderError) {
           return Promise.reject(data);

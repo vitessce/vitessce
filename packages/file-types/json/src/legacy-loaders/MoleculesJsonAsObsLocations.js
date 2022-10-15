@@ -1,9 +1,9 @@
 import range from 'lodash/range';
 import sum from 'lodash/sum';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
-import { DEFAULT_MOLECULES_LAYER } from '@vitessce/gl';
 import moleculesSchema from './schemas/molecules.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { DEFAULT_MOLECULES_LAYER } from '@vitessce/gl';
 
 export default class MoleculesJsonAsObsLocationsLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -22,14 +22,8 @@ export default class MoleculesJsonAsObsLocationsLoader extends JsonLoader {
     const obsLocationsY = new Float32Array(obsIndex.length);
     let startAt = 0;
     moleculesValues.forEach((locations) => {
-      obsLocationsX.set(
-        locations.map(l => l[0]),
-        startAt,
-      );
-      obsLocationsY.set(
-        locations.map(l => l[1]),
-        startAt,
-      );
+      obsLocationsX.set(locations.map(l => l[0]), startAt);
+      obsLocationsY.set(locations.map(l => l[1]), startAt);
       startAt += locations.length;
     });
     const obsLocations = {

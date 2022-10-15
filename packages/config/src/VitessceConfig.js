@@ -74,7 +74,6 @@ export class VitessceConfigDataset {
       if (args.length === 2) {
         [dataType, fileType] = args;
       } else if (args.length === 3) {
-        // eslint-disable-next-line no-unused-vars
         [dataType, fileType, options] = args;
       }
     } else if (typeof params === 'object') {
@@ -141,13 +140,13 @@ export class VitessceConfigView {
   }
 
   /**
-   * Set the x, y, w, h values for this view.
-   * @param {number} x The x-coordinate of the view in the layout.
-   * @param {number} y The y-coordinate of the view in the layout.
-   * @param {number} w The width of the view in the layout.
-   * @param {number} h The height of the view in the layout.
-   * @returns {VitessceConfigView} This, to allow chaining.
-   */
+    * Set the x, y, w, h values for this view.
+    * @param {number} x The x-coordinate of the view in the layout.
+    * @param {number} y The y-coordinate of the view in the layout.
+    * @param {number} w The width of the view in the layout.
+    * @param {number} h The height of the view in the layout.
+    * @returns {VitessceConfigView} This, to allow chaining.
+    */
   setXYWH(x, y, w, h) {
     this.view.x = x;
     this.view.y = y;
@@ -265,26 +264,18 @@ export class VitessceConfig {
       if (args.length === 1) {
         [description] = args;
       } else if (args.length > 1) {
-        throw new Error(
-          'Expected only one VitessceConfig constructor argument.',
-        );
+        throw new Error('Expected only one VitessceConfig constructor argument.');
       }
     } else if (typeof params === 'object') {
       ({ schemaVersion, name, description } = params);
       if (!name) {
-        throw new Error(
-          'Expected params.name argument in VitessceConfig constructor',
-        );
+        throw new Error('Expected params.name argument in VitessceConfig constructor');
       }
       if (!schemaVersion) {
-        throw new Error(
-          'Expected params.schemaVersion argument in VitessceConfig constructor',
-        );
+        throw new Error('Expected params.schemaVersion argument in VitessceConfig constructor');
       }
     } else {
-      throw new Error(
-        'Expected VitessceConfig constructor argument to be an object.',
-      );
+      throw new Error('Expected VitessceConfig constructor argument to be an object.');
     }
     this.config = {
       version: schemaVersion,
@@ -309,7 +300,7 @@ export class VitessceConfig {
   addDataset(name = undefined, description = undefined, options = undefined) {
     const { uid } = options || {};
     const prevDatasetUids = this.config.datasets.map(d => d.dataset.uid);
-    const nextUid = uid || getNextScope(prevDatasetUids);
+    const nextUid = (uid || getNextScope(prevDatasetUids));
     const newDataset = new VitessceConfigDataset(nextUid, name, description);
     this.config.datasets.push(newDataset);
     const [newScope] = this.addCoordination(CoordinationType.DATASET);
@@ -333,38 +324,30 @@ export class VitessceConfig {
    */
   addView(dataset, component, options) {
     const {
-      x = 0, y = 0, w = 1, h = 1, mapping = null,
+      x = 0,
+      y = 0,
+      w = 1,
+      h = 1,
+      mapping = null,
     } = options || {};
-    const datasetMatches = this.config.coordinationSpace[
-      CoordinationType.DATASET
-    ]
-      ? Object.entries(this.config.coordinationSpace[CoordinationType.DATASET])
-      // eslint-disable-next-line no-unused-vars
-        .filter(
-          // eslint-disable-next-line no-unused-vars
-          ([scopeName, datasetScope]) => datasetScope.cValue === dataset.dataset.uid,
-        )
-        .map(([scopeName]) => scopeName)
-      : [];
+    const datasetMatches = (
+      this.config.coordinationSpace[CoordinationType.DATASET]
+        ? Object.entries(this.config.coordinationSpace[CoordinationType.DATASET])
+        // eslint-disable-next-line no-unused-vars
+          .filter(([scopeName, datasetScope]) => datasetScope.cValue === dataset.dataset.uid)
+          .map(([scopeName]) => scopeName)
+        : []
+    );
     let datasetScope;
     if (datasetMatches.length === 1) {
       [datasetScope] = datasetMatches;
     } else {
-      throw new Error(
-        'No coordination scope matching the dataset parameter could be found in the coordination space.',
-      );
+      throw new Error('No coordination scope matching the dataset parameter could be found in the coordination space.');
     }
     const coordinationScopes = {
       [CoordinationType.DATASET]: datasetScope,
     };
-    const newView = new VitessceConfigView(
-      component,
-      coordinationScopes,
-      x,
-      y,
-      w,
-      h,
-    );
+    const newView = new VitessceConfigView(component, coordinationScopes, x, y, w, h);
     if (mapping) {
       const [etScope] = this.addCoordination(CoordinationType.EMBEDDING_TYPE);
       etScope.setValue(mapping);
@@ -384,13 +367,12 @@ export class VitessceConfig {
     const cTypes = args;
     const result = [];
     cTypes.forEach((cType) => {
-      const prevScopes = this.config.coordinationSpace[cType]
-        ? Object.keys(this.config.coordinationSpace[cType])
-        : [];
-      const scope = new VitessceConfigCoordinationScope(
-        cType,
-        getNextScope(prevScopes),
+      const prevScopes = (
+        this.config.coordinationSpace[cType]
+          ? Object.keys(this.config.coordinationSpace[cType])
+          : []
       );
+      const scope = new VitessceConfigCoordinationScope(cType, getNextScope(prevScopes));
       if (!this.config.coordinationSpace[scope.cType]) {
         this.config.coordinationSpace[scope.cType] = {};
       }
@@ -439,25 +421,13 @@ export class VitessceConfig {
         const { views } = obj;
         const numViews = views.length;
         views.forEach((view, i) => {
-          layoutAux(
-            view,
-            xMin + (w / numViews) * i,
-            xMin + (w / numViews) * (i + 1),
-            yMin,
-            yMax,
-          );
+          layoutAux(view, xMin + (w / numViews) * i, xMin + (w / numViews) * (i + 1), yMin, yMax);
         });
       } else if (obj instanceof VitessceConfigViewVConcat) {
         const { views } = obj;
         const numViews = views.length;
         views.forEach((view, i) => {
-          layoutAux(
-            view,
-            xMin,
-            xMax,
-            yMin + (h / numViews) * i,
-            yMin + (h / numViews) * (i + 1),
-          );
+          layoutAux(view, xMin, xMax, yMin + (h / numViews) * i, yMin + (h / numViews) * (i + 1));
         });
       }
     }
@@ -476,17 +446,15 @@ export class VitessceConfig {
       ...this.config,
       datasets: this.config.datasets.map(d => d.toJSON()),
       coordinationSpace: fromEntries(
-        Object.entries(this.config.coordinationSpace).map(
-          ([cType, cScopes]) => [
-            cType,
-            fromEntries(
-              Object.entries(cScopes).map(([cScopeName, cScope]) => [
-                cScopeName,
-                cScope.cValue,
-              ]),
-            ),
-          ],
-        ),
+        Object.entries(this.config.coordinationSpace).map(([cType, cScopes]) => ([
+          cType,
+          fromEntries(
+            Object.entries(cScopes).map(([cScopeName, cScope]) => ([
+              cScopeName,
+              cScope.cValue,
+            ])),
+          ),
+        ])),
       ),
       layout: this.config.layout.map(c => c.toJSON()),
     };
@@ -525,14 +493,7 @@ export class VitessceConfig {
       }
     });
     config.layout.forEach((c) => {
-      const newView = new VitessceConfigView(
-        c.component,
-        c.coordinationScopes,
-        c.x,
-        c.y,
-        c.w,
-        c.h,
-      );
+      const newView = new VitessceConfigView(c.component, c.coordinationScopes, c.x, c.y, c.w, c.h);
       vc.config.layout.push(newView);
     });
     return vc;

@@ -46,6 +46,7 @@ git remote add origin git@github.com:my-username/vitessce-demo-gh-pages.git
 git push -u origin main
 ```
 
+
 Install [craco](https://github.com/gsoft-inc/craco) which enables customization of the Webpack configuration:
 
 ```sh
@@ -80,86 +81,74 @@ Make a new file `src/my-view-config.js`:
 
 ```js
 export const myViewConfig = {
-  version: '1.0.4',
-  name: 'My example config',
-  description: 'This demonstrates the JSON schema',
+  version: "1.0.4",
+  name: "My example config",
+  description: "This demonstrates the JSON schema",
   datasets: [
     {
-      uid: 'D1',
-      name: 'Dries',
+      uid: "D1",
+      name: "Dries",
       files: [
         {
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json',
-          type: 'cells',
-          fileType: 'cells.json',
+          url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json",
+          type: "cells",
+          fileType: "cells.json"
         },
         {
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json',
-          type: 'cell-sets',
-          fileType: 'cell-sets.json',
-        },
-      ],
-    },
+          url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json",
+          type: "cell-sets",
+          fileType: "cell-sets.json"
+        }
+      ]
+    }
   ],
   coordinationSpace: {
     dataset: {
-      A: 'D1',
+      A: "D1"
     },
     embeddingType: {
-      A: 'UMAP',
-      B: 't-SNE',
+      A: "UMAP",
+      B: "t-SNE"
     },
     embeddingZoom: {
-      A: 2.5,
-    },
+      A: 2.5
+    }
   },
   layout: [
     {
-      component: 'scatterplot',
+      component: "scatterplot",
       coordinationScopes: {
-        dataset: 'A',
-        embeddingType: 'A',
-        embeddingZoom: 'A',
+        dataset: "A",
+        embeddingType: "A",
+        embeddingZoom: "A"
       },
-      x: 6,
-      y: 0,
-      w: 6,
-      h: 6,
+      x: 6, y: 0, w: 6, h: 6
     },
     {
-      component: 'scatterplot',
+      component: "scatterplot",
       coordinationScopes: {
-        dataset: 'A',
-        embeddingType: 'B',
-        embeddingZoom: 'A',
+        dataset: "A",
+        embeddingType: "B",
+        embeddingZoom: "A"
       },
-      x: 0,
-      y: 0,
-      w: 6,
-      h: 6,
+      x: 0, y: 0, w: 6, h: 6
     },
     {
-      component: 'cellSets',
+      component: "cellSets",
       coordinationScopes: {
-        dataset: 'A',
+        dataset: "A"
       },
-      x: 0,
-      y: 6,
-      w: 6,
-      h: 6,
+      x: 0, y: 6, w: 6, h: 6
     },
     {
-      component: 'cellSetSizes',
+      component: "cellSetSizes",
       coordinationScopes: {
-        dataset: 'A',
+        dataset: "A"
       },
-      x: 6,
-      y: 6,
-      w: 6,
-      h: 6,
-    },
+      x: 6, y: 6, w: 6, h: 6
+    }
   ],
-  initStrategy: 'auto',
+  initStrategy: "auto"
 };
 ```
 
@@ -172,7 +161,12 @@ import { myViewConfig } from './my-view-config';
 import 'vitessce/dist/es/production/static/css/index.css';
 
 export default function App() {
-  return <Vitessce config={myViewConfig} theme="light" />;
+  return (
+    <Vitessce
+      config={myViewConfig}
+      theme="light"
+    />
+  );
 }
 ```
 
@@ -184,9 +178,9 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
-    'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   display: flex;
@@ -208,6 +202,7 @@ When you deploy the React app to the internet via GitHub Pages, the data URLs re
 AWS S3 is one example of a static file hosting service (in this case, an object storage system) that can be configured such that other websites (e.g., GitHub Pages sites) can load its hosted files.
 
 If you are using AWS S3 to host the data that is referenced in your Vitessce configuration, ensure that the S3 bucket is configured according to our [AWS S3 data hosting](/docs/data-hosting/#aws-s3) documentation.
+
 
 ## GitHub Pages deployment
 
@@ -277,6 +272,7 @@ In `package.json` (replacing `my-username` with your GitHub username):
   "homepage": "https://my-username.github.io/vitessce-demo-gh-pages/",
   ...,
 ```
+
 
 ### Commit and push to GitHub
 

@@ -87,5 +87,10 @@ export default function CellSetSizesPlot(props) {
     config: VEGA_THEMES[theme],
   };
 
-  return <VegaPlot data={data} spec={spec} />;
+  return (
+    <VegaPlot
+      data={data}
+      spec={spec}
+    />
+  );
 }

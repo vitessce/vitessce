@@ -6,12 +6,7 @@ import { getMultiSelectionStats } from './layer-controller';
 import { RENDERING_MODES } from './viv';
 
 export function square(x, y, r) {
-  return [
-    [x, y + r],
-    [x + r, y],
-    [x, y - r],
-    [x - r, y],
-  ];
+  return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
 }
 
 export const GLOBAL_LABELS = ['z', 't'];
@@ -29,15 +24,10 @@ export const DEFAULT_RASTER_LAYER_PROPS = {
 };
 
 export const DEFAULT_MOLECULES_LAYER = {
-  opacity: 1,
-  radius: 20,
-  visible: true,
+  opacity: 1, radius: 20, visible: true,
 };
 export const DEFAULT_CELLS_LAYER = {
-  opacity: 1,
-  radius: 50,
-  visible: true,
-  stroked: false,
+  opacity: 1, radius: 50, visible: true, stroked: false,
 };
 export const DEFAULT_NEIGHBORHOODS_LAYER = {
   visible: false,
@@ -57,9 +47,9 @@ export const DEFAULT_LAYER_TYPE_ORDERING = [
  * @param {number=} level Level of the multiscale loader from which to get a PixelSource
  * @returns {object} PixelSource object
  */
-export function getSourceFromLoader(loader, level) {
+ export function getSourceFromLoader(loader, level) {
   const { data } = loader;
-  const source = Array.isArray(data) ? data[level || data.length - 1] : data;
+  const source = Array.isArray(data) ? data[(level || data.length - 1)] : data;
   return source;
 }
 
@@ -71,17 +61,11 @@ export function getSourceFromLoader(loader, level) {
 export function isRgb(loader, channels) {
   const source = getSourceFromLoader(loader);
   const { shape, dtype, labels } = source;
-  const channelSize = shape[
-    labels.includes('channel')
-      ? labels.indexOf('channel')
-      : labels.indexOf('c')
-  ];
+  const channelSize = shape[(labels.includes('channel') ? labels.indexOf('channel') : labels.indexOf('c'))];
   if (channelSize === 3 && dtype === 'Uint8') {
     return true;
   }
-  if (
-    channels
-    && channels.length === 3
+  if (channels && channels.length === 3
     && isEqual(channels[0].color, [255, 0, 0])
     && isEqual(channels[1].color, [0, 255, 0])
     && isEqual(channels[2].color, [0, 0, 255])
@@ -97,13 +81,9 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
   // Do not fill in transformation matrices if any of the layers specify one.
   const sources = imageLoaders.map(loader => getSourceFromLoader(loader));
   if (
-    imageMeta
-      .map(
-        meta => meta?.metadata?.transform?.matrix
-          || meta?.metadata?.transform?.scale
-          || meta?.metadata?.transform?.translate,
-      )
-      .some(Boolean)
+    imageMeta.map(meta => meta?.metadata?.transform?.matrix
+      || meta?.metadata?.transform?.scale
+      || meta?.metadata?.transform?.translate).some(Boolean)
     || sources.every(
       source => !source.meta?.physicalSizes?.x || !source.meta?.physicalSizes?.y,
     )
@@ -114,66 +94,26 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
   const minPhysicalSize = sources.reduce((acc, source) => {
     const hasZPhyscialSize = source.meta?.physicalSizes?.z?.size;
     const sizes = [
-      unit(
-        `${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace(
-          'µ',
-          'u',
-        ),
-      ),
-      unit(
-        `${source.meta?.physicalSizes.y.size} ${source.meta?.physicalSizes.y.unit}`.replace(
-          'µ',
-          'u',
-        ),
-      ),
+      unit(`${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
+      unit(`${source.meta?.physicalSizes.y.size} ${source.meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
     ];
     if (hasZPhyscialSize) {
-      sizes.push(
-        unit(
-          `${source.meta?.physicalSizes.z.size} ${source.meta?.physicalSizes.z.unit}`.replace(
-            'µ',
-            'u',
-          ),
-        ),
-      );
+      sizes.push(unit(`${source.meta?.physicalSizes.z.size} ${source.meta?.physicalSizes.z.unit}`.replace('µ', 'u')));
     }
-    acc[0] = acc[0] === undefined || compare(sizes[0], acc[0]) === -1
-      ? sizes[0]
-      : acc[0];
-    acc[1] = acc[1] === undefined || compare(sizes[1], acc[1]) === -1
-      ? sizes[1]
-      : acc[1];
-    acc[2] = acc[2] === undefined || compare(sizes[2], acc[2]) === -1
-      ? sizes[2]
-      : acc[2];
+    acc[0] = (acc[0] === undefined || compare(sizes[0], acc[0]) === -1) ? sizes[0] : acc[0];
+    acc[1] = (acc[1] === undefined || compare(sizes[1], acc[1]) === -1) ? sizes[1] : acc[1];
+    acc[2] = (acc[2] === undefined || compare(sizes[2], acc[2]) === -1) ? sizes[2] : acc[2];
     return acc;
   }, []);
   const imageMetaWithTransform = imageMeta.map((meta, j) => {
     const source = sources[j];
     const hasZPhyscialSize = source.meta?.physicalSizes?.z?.size;
     const sizes = [
-      unit(
-        `${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace(
-          'µ',
-          'u',
-        ),
-      ),
-      unit(
-        `${source.meta?.physicalSizes.y.size} ${source.meta?.physicalSizes.y.unit}`.replace(
-          'µ',
-          'u',
-        ),
-      ),
+      unit(`${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
+      unit(`${source.meta?.physicalSizes.y.size} ${source.meta?.physicalSizes.y.unit}`.replace('µ', 'u')),
     ];
     if (hasZPhyscialSize) {
-      sizes.push(
-        unit(
-          `${source.meta?.physicalSizes.z.size} ${source.meta?.physicalSizes.z.unit}`.replace(
-            'µ',
-            'u',
-          ),
-        ),
-      );
+      sizes.push(unit(`${source.meta?.physicalSizes.z.size} ${source.meta?.physicalSizes.z.unit}`.replace('µ', 'u')));
     }
     // Find the ratio of the sizes to get the scaling factor.
     const scale = sizes.map((i, k) => divide(i, minPhysicalSize[k]));
@@ -203,8 +143,9 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
  * @param {object} source PixelSource object from Viv
  * @returns {object} The selection.
  */
-function getDefaultGlobalSelection(source) {
-  const globalIndices = source.labels.filter(dim => GLOBAL_LABELS.includes(dim));
+ function getDefaultGlobalSelection(source) {
+  const globalIndices = source.labels
+    .filter(dim => GLOBAL_LABELS.includes(dim));
   const selection = {};
   globalIndices.forEach((dim) => {
     selection[dim] = Math.floor(
@@ -214,29 +155,32 @@ function getDefaultGlobalSelection(source) {
   return selection;
 }
 
+
+
+
 /**
  * Create a default selection using the midpoint of the available global dimensions,
  * and then the first four available selections from the first selectable channel.
  * @param {object} source PixelSource object from Viv
  * @returns {object} The selection.
  */
-function buildDefaultSelection(source) {
+ function buildDefaultSelection(source) {
   const selection = [];
   const globalSelection = getDefaultGlobalSelection(source);
   // First non-global dimension with some sort of selectable values
   const firstNonGlobalDimension = source.labels.filter(
-    dim => !GLOBAL_LABELS.includes(dim) && source.shape[source.labels.indexOf(dim)],
+    dim => !GLOBAL_LABELS.includes(dim)
+      && source.shape[source.labels.indexOf(dim)],
   )[0];
-  for (
-    let i = 0;
-    i
-    < Math.min(4, source.shape[source.labels.indexOf(firstNonGlobalDimension)]);
-    i += 1
-  ) {
-    selection.push({
-      [firstNonGlobalDimension]: i,
-      ...globalSelection,
-    });
+  for (let i = 0; i < Math.min(4, source.shape[
+    source.labels.indexOf(firstNonGlobalDimension)
+  ]); i += 1) {
+    selection.push(
+      {
+        [firstNonGlobalDimension]: i,
+        ...globalSelection,
+      },
+    );
   }
   return selection;
 }
@@ -256,40 +200,25 @@ export function isInterleaved(shape) {
  * @returns {object[]} An array of selected channels with default
  * domain/slider settings.
  */
-export async function initializeLayerChannels(loader, use3d) {
+ export async function initializeLayerChannels(loader, use3d) {
   const result = [];
   const source = getSourceFromLoader(loader);
   // Add channel automatically as the first avaialable value for each dimension.
   let defaultSelection = buildDefaultSelection(source);
   defaultSelection = isInterleaved(source.shape)
-    ? [{ ...defaultSelection[0], c: 0 }]
-    : defaultSelection;
+    ? [{ ...defaultSelection[0], c: 0 }] : defaultSelection;
   const stats = await getMultiSelectionStats({
-    loader: loader.data,
-    selections: defaultSelection,
-    use3d,
+    loader: loader.data, selections: defaultSelection, use3d,
   });
 
   const domains = isRgb(loader, null)
-    ? [
-      [0, 255],
-      [0, 255],
-      [0, 255],
-    ]
+    ? [[0, 255], [0, 255], [0, 255]]
     : stats.domains;
   const colors = isRgb(loader, null)
-    ? [
-      [255, 0, 0],
-      [0, 255, 0],
-      [0, 0, 255],
-    ]
+    ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]]
     : null;
   const sliders = isRgb(loader, null)
-    ? [
-      [0, 255],
-      [0, 255],
-      [0, 255],
-    ]
+    ? [[0, 255], [0, 255], [0, 255]]
     : stats.sliders;
 
   defaultSelection.forEach((selection, i) => {
@@ -298,11 +227,9 @@ export async function initializeLayerChannels(loader, use3d) {
     const channel = {
       selection,
       // eslint-disable-next-line no-nested-ternary
-      color: colors
-        ? colors[i]
+      color: colors ? colors[i]
         : defaultSelection.length !== 1
-          ? VIEWER_PALETTE[i]
-          : [255, 255, 255],
+          ? VIEWER_PALETTE[i] : [255, 255, 255],
       visible: true,
       slider: slider || domain,
     };
@@ -321,7 +248,7 @@ export async function initializeLayerChannels(loader, use3d) {
  * shape { name, type, url, createLoader }.
  * @param {(string[]|null)} rasterRenderLayers A list of default raster layers. Optional.
  */
-export async function initializeRasterLayersAndChannels(
+ export async function initializeRasterLayersAndChannels(
   rasterLayers,
   rasterRenderLayers,
   usePhysicalSizeScaling,
@@ -332,9 +259,7 @@ export async function initializeRasterLayersAndChannels(
 
   // Start all loader creators immediately.
   // Reference: https://eslint.org/docs/rules/no-await-in-loop
-  const loaders = await Promise.all(
-    rasterLayers.map(layer => layer.loaderCreator()),
-  );
+  const loaders = await Promise.all(rasterLayers.map(layer => layer.loaderCreator()));
 
   for (let i = 0; i < rasterLayers.length; i++) {
     const layer = rasterLayers[i];
@@ -343,58 +268,47 @@ export async function initializeRasterLayersAndChannels(
     nextImageMetaAndLayers[i] = layer;
   }
   if (usePhysicalSizeScaling) {
-    nextImageMetaAndLayers = getMetaWithTransformMatrices(
-      nextImageMetaAndLayers,
-      nextImageLoaders,
-    );
+    nextImageMetaAndLayers = getMetaWithTransformMatrices(nextImageMetaAndLayers, nextImageLoaders);
   }
   // No layers were pre-defined so set up the default image layers.
   if (!rasterRenderLayers) {
     // Midpoint of images list as default image to show.
     const layerIndex = Math.floor(rasterLayers.length / 2);
     const loader = nextImageLoaders[layerIndex];
-    const autoImageLayerDefPromise = initializeLayerChannels(loader).then(
-      channels => Promise.resolve({
-        type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask
-          ? 'bitmask'
-          : 'raster',
+    const autoImageLayerDefPromise = initializeLayerChannels(loader)
+      .then(channels => Promise.resolve({
+        type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
         index: layerIndex,
         ...DEFAULT_RASTER_LAYER_PROPS,
         channels: channels.map((channel, j) => ({
           ...channel,
           ...(nextImageMetaAndLayers[layerIndex].channels
-            ? nextImageMetaAndLayers[layerIndex].channels[j]
-            : []),
+            ? nextImageMetaAndLayers[layerIndex].channels[j] : []),
         })),
-        modelMatrix:
-            nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
+        modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
         transparentColor: layerIndex > 0 ? [0, 0, 0] : null,
-      }),
-    );
+      }));
     autoImageLayerDefPromises.push(autoImageLayerDefPromise);
   } else {
     // The renderLayers parameter is a list of layer names to show by default.
-    const globalIndicesOfRenderLayers = rasterRenderLayers.map(imageName => rasterLayers.findIndex(image => image.name === imageName));
+    const globalIndicesOfRenderLayers = rasterRenderLayers
+      .map(imageName => rasterLayers.findIndex(image => image.name === imageName));
     for (let i = 0; i < globalIndicesOfRenderLayers.length; i++) {
       const layerIndex = globalIndicesOfRenderLayers[i];
       const loader = nextImageLoaders[layerIndex];
       const autoImageLayerDefPromise = initializeLayerChannels(loader)
         // eslint-disable-next-line no-loop-func
         .then(channels => Promise.resolve({
-          type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask
-            ? 'bitmask'
-            : 'raster',
+          type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
           index: layerIndex,
           ...DEFAULT_RASTER_LAYER_PROPS,
           channels: channels.map((channel, j) => ({
             ...channel,
             ...(nextImageMetaAndLayers[layerIndex].channels
-              ? nextImageMetaAndLayers[layerIndex].channels[j]
-              : []),
+              ? nextImageMetaAndLayers[layerIndex].channels[j] : []),
           })),
           domainType: 'Min/Max',
-          modelMatrix:
-              nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
+          modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
           transparentColor: i > 0 ? [0, 0, 0] : null,
         }));
       autoImageLayerDefPromises.push(autoImageLayerDefPromise);

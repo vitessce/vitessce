@@ -1,9 +1,4 @@
-import {
-  LoaderResult,
-  AbstractTwoStepLoader,
-  AbstractLoaderError,
-  obsEmbeddingAnndataSchema,
-} from '@vitessce/vit-s';
+import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsEmbeddingAnndataSchema } from '@vitessce/vit-s';
 
 /**
  * Loader for embedding arrays located in anndata.zarr stores.
@@ -32,15 +27,16 @@ export default class ObsEmbeddingAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const superResult = await super
-      .load()
-      .catch(reason => Promise.resolve(reason));
+    const superResult = await super.load().catch(reason => Promise.resolve(reason));
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
     return Promise.all([
       this.dataSource.loadObsIndex(),
       this.loadEmbedding(),
-    ]).then(([obsIndex, obsEmbedding]) => Promise.resolve(new LoaderResult({ obsIndex, obsEmbedding }, null)));
+    ]).then(([obsIndex, obsEmbedding]) => Promise.resolve(new LoaderResult(
+      { obsIndex, obsEmbedding },
+      null,
+    )));
   }
 }

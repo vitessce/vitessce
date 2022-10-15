@@ -31,8 +31,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_SETS_CELL_SETS_JSON]: DataType.OBS_SETS,
   [FileType.OBS_FEATURE_MATRIX_GENES_JSON]: DataType.OBS_FEATURE_MATRIX,
   [FileType.OBS_FEATURE_MATRIX_CLUSTERS_JSON]: DataType.OBS_FEATURE_MATRIX,
-  [FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR]:
-    DataType.OBS_FEATURE_MATRIX,
+  [FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR]: DataType.OBS_FEATURE_MATRIX,
   [FileType.IMAGE_RASTER_JSON]: DataType.IMAGE,
   [FileType.OBS_SEGMENTATIONS_RASTER_JSON]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_LOCATIONS_MOLECULES_JSON]: DataType.OBS_LOCATIONS,
@@ -48,18 +47,26 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
  * This enables inferring default values, simplifying view config writing.
  */
 export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
-  [DataType.OBS_SEGMENTATIONS]: [CoordinationType.OBS_TYPE],
+  [DataType.OBS_SEGMENTATIONS]: [
+    CoordinationType.OBS_TYPE,
+  ],
   [DataType.OBS_EMBEDDING]: [
     CoordinationType.OBS_TYPE,
     CoordinationType.EMBEDDING_TYPE,
   ],
-  [DataType.OBS_LOCATIONS]: [CoordinationType.OBS_TYPE],
+  [DataType.OBS_LOCATIONS]: [
+    CoordinationType.OBS_TYPE,
+  ],
   [DataType.OBS_LABELS]: [
     CoordinationType.OBS_TYPE,
     CoordinationType.OBS_LABELS_TYPE,
   ],
-  [DataType.FEATURE_LABELS]: [CoordinationType.FEATURE_TYPE],
-  [DataType.OBS_SETS]: [CoordinationType.OBS_TYPE],
+  [DataType.FEATURE_LABELS]: [
+    CoordinationType.FEATURE_TYPE,
+  ],
+  [DataType.OBS_SETS]: [
+    CoordinationType.OBS_TYPE,
+  ],
   [DataType.OBS_FEATURE_MATRIX]: [
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,

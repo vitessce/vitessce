@@ -22,35 +22,41 @@ function isVega(spec) {
  * @param {object} signalListeners Vega signal listeners. Optional.
  */
 export function VegaPlot(props) {
-  const { spec: partialSpec, data, signalListeners } = props;
+  const {
+    spec: partialSpec,
+    data,
+    signalListeners,
+  } = props;
 
-  const spec = useMemo(
-    () => ({
-      ...partialSpec,
-      data: isVega(partialSpec)
-        ? [{ name: DATASET_NAME }, ...partialSpec.data]
-        : { name: DATASET_NAME },
-    }),
-    [partialSpec],
-  );
-
-  const vegaComponent = useMemo(
-    () => (
-      <ReactVega
-        spec={spec}
-        data={{
-          [DATASET_NAME]: data,
-        }}
-        signalListeners={signalListeners}
-        tooltip={new Handler().call}
-        renderer="canvas"
-        scaleFactor={3}
-      />
+  const spec = useMemo(() => ({
+    ...partialSpec,
+    data: (isVega(partialSpec)
+      ? [
+        { name: DATASET_NAME },
+        ...partialSpec.data,
+      ]
+      : { name: DATASET_NAME }
     ),
-    [spec, data, signalListeners],
-  );
+  }), [partialSpec]);
 
-  return spec && data && data.length > 0 ? (
-    <Suspense fallback={<div>Loading...</div>}>{vegaComponent}</Suspense>
-  ) : null;
+  const vegaComponent = useMemo(() => (
+    <ReactVega
+      spec={spec}
+      data={{
+        [DATASET_NAME]: data,
+      }}
+      signalListeners={signalListeners}
+      tooltip={new Handler().call}
+      renderer="canvas"
+      scaleFactor={3}
+    />
+  ), [spec, data, signalListeners]);
+
+  return (
+    spec && data && data.length > 0 ? (
+      <Suspense fallback={<div>Loading...</div>}>
+        {vegaComponent}
+      </Suspense>
+    ) : null
+  );
 }

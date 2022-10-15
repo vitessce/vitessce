@@ -2,16 +2,14 @@ import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-
 import { CompositeLayer } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { PIXELATED_TEXTURE_PARAMETERS } from './heatmap-constants';
 
+
 // These are the same defaultProps as for BitmapLayer.
 const defaultProps = {
   ...BitmapLayer.defaultProps,
   image: { type: 'object', value: null, async: true },
   bounds: { type: 'array', value: [1, 0, 0, 1], compare: true },
   desaturate: {
-    type: 'number',
-    min: 0,
-    max: 1,
-    value: 0,
+    type: 'number', min: 0, max: 1, value: 0,
   },
   transparentColor: { type: 'color', value: [0, 0, 0, 0] },
   tintColor: { type: 'color', value: [255, 255, 255] },

@@ -6,11 +6,16 @@ import {
   registerPluginCoordinationType,
   registerPluginViewType,
 } from '@vitessce/vit-s';
-import { CoordinationType } from '@vitessce/constants';
+import {
+  CoordinationType,
+} from '@vitessce/constants';
 // For plugin views to use:
 
 function MyPluginSlider(props) {
-  const { myCustomCoordinationType, setMyCustomCoordinationType } = props;
+  const {
+    myCustomCoordinationType,
+    setMyCustomCoordinationType,
+  } = props;
 
   function handleChange(event, newValue) {
     setMyCustomCoordinationType(newValue);
@@ -38,8 +43,15 @@ function MyPluginSliderSubscriber(props) {
   } = props;
 
   // Get "props" from the coordination space.
-  const [{ myCustomCoordinationType }, { setMyCustomCoordinationType }] = useCoordination(
-    [CoordinationType.DATASET, 'myCustomCoordinationType'],
+  const [{
+    myCustomCoordinationType,
+  }, {
+    setMyCustomCoordinationType,
+  }] = useCoordination(
+    [
+      CoordinationType.DATASET,
+      'myCustomCoordinationType',
+    ],
     coordinationScopes,
   );
 
@@ -58,20 +70,26 @@ function MyPluginSliderSubscriber(props) {
   );
 }
 
-registerPluginCoordinationType('myCustomCoordinationType', 0.75);
+registerPluginCoordinationType(
+  'myCustomCoordinationType',
+  0.75,
+);
 
 // Register the plugin view type.
-registerPluginViewType('myCustomSlider', MyPluginSliderSubscriber, [
-  CoordinationType.DATASET,
-  'myCustomCoordinationType',
-]);
+registerPluginViewType(
+  'myCustomSlider',
+  MyPluginSliderSubscriber,
+  [
+    CoordinationType.DATASET,
+    'myCustomCoordinationType',
+  ],
+);
 
 // Use the plugin view in the configuration.
 export const pluginCoordinationType = {
   name: 'Test plugin views and coordination types',
   version: '1.0.9',
-  description:
-    'Demonstration of a plugin coordination type implementation. The left sliders should be coordinated, while the right sliders are independent.',
+  description: 'Demonstration of a plugin coordination type implementation. The left sliders should be coordinated, while the right sliders are independent.',
   datasets: [
     {
       uid: 'plugin-test-dataset',

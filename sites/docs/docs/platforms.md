@@ -30,3 +30,4 @@ We have developed the [vitessce R package](https://vitessce.github.io/vitessceR/
 The package contains an R object-oriented API for creating Vitessce configurations (which can be exported to a JSON format).
 
 The R package also contains helpers which facilitate visualizing data stored in common R single-cell formats with Vitessce.
+

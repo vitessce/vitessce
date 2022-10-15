@@ -1,4 +1,1 @@
-export {
-  EmbeddingScatterplotSubscriber,
-  register,
-} from './EmbeddingScatterplotSubscriber';
+export { EmbeddingScatterplotSubscriber, register } from './EmbeddingScatterplotSubscriber';

@@ -1,4 +1,3 @@
-/* eslint-disable no-plusplus */
 import range from 'lodash/range';
 
 export const COMPONENT_ID_PREFIX = 'i';
@@ -9,8 +8,7 @@ function sum(a) {
 
 export function makeGridLayout(colXs, colLayout) {
   const colWs = [];
-  for (let i = 0; i < colXs.length; i++) {
-    // eslint-disable-line no-plusplus
+  for (let i = 0; i < colXs.length; i++) { // eslint-disable-line no-plusplus
     colWs.push(colXs[i + 1] - colXs[i]);
   }
   return Object.entries(colLayout).map(([id, spec]) => ({
@@ -24,7 +22,11 @@ export function makeGridLayout(colXs, colLayout) {
 
 export function getMaxRows(layouts) {
   return Math.max(
-    ...Object.values(layouts).map(layout => Math.max(...layout.map(xywh => xywh.y + xywh.h))),
+    ...Object.values(layouts).map(
+      layout => Math.max(
+        ...layout.map(xywh => xywh.y + xywh.h),
+      ),
+    ),
   );
 }
 
@@ -35,29 +37,29 @@ export function resolveLayout(layout) {
   const components = {};
   const positions = {};
 
-  ('components' in layout ? layout.components : layout).forEach((def) => {
-    const id = def.uid;
-    components[id] = {
-      uid: def.uid,
-      component: def.component,
-      props: def.props || {},
-      coordinationScopes: def.coordinationScopes || {},
-    };
-    positions[id] = {
-      id,
-      x: def.x,
-      y: def.y,
-      w: def.w,
-      h: def.h,
-    };
-  });
+  (('components' in layout) ? layout.components : layout).forEach(
+    (def) => {
+      const id = def.uid;
+      components[id] = {
+        uid: def.uid,
+        component: def.component,
+        props: def.props || {},
+        coordinationScopes: def.coordinationScopes || {},
+      };
+      positions[id] = {
+        id, x: def.x, y: def.y, w: def.w, h: def.h,
+      };
+    },
+  );
 
   if ('components' in layout) {
-    Object.entries(layout.columns).forEach(([width, columnXs]) => {
-      cols[width] = columnXs[columnXs.length - 1];
-      layouts[width] = makeGridLayout(columnXs, positions);
-      breakpoints[width] = width;
-    });
+    Object.entries(layout.columns).forEach(
+      ([width, columnXs]) => {
+        cols[width] = columnXs[columnXs.length - 1];
+        layouts[width] = makeGridLayout(columnXs, positions);
+        breakpoints[width] = width;
+      },
+    );
   } else {
     // static layout
     const id = 'ID';
@@ -70,9 +72,6 @@ export function resolveLayout(layout) {
     // regardless of window width.
   }
   return {
-    cols,
-    layouts,
-    breakpoints,
-    components,
+    cols, layouts, breakpoints, components,
   };
 }

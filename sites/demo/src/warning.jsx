@@ -2,7 +2,10 @@ import React from 'react';
 
 export function Warning(props) {
   const {
-    title, preformatted, unformatted, theme,
+    title,
+    preformatted,
+    unformatted,
+    theme,
   } = props;
   return (
     <div className={`vitessce-container vitessce-theme-${theme}`}>
