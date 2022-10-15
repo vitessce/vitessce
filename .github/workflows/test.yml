@@ -34,7 +34,6 @@ jobs:
           run_install: true
       - run: pnpm run build:ci
       - run: ./test.sh --action
-        shell: bash
   
   test-e2e:
     runs-on: ubuntu-20.04

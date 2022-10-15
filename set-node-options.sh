@@ -1,12 +1,7 @@
-FULL_VERSION=`node --version`
-MAJOR_VERSION_WITH_V=${FULL_VERSION%.*.*}
-MAJOR_VERSION=${MAJOR_VERSION_WITH_V:1}
-
+# When running pnpm run build-lib in packages/main/dev and packages/main/prod
+# with sourcemap: true, GitHub actions runs out of memory during the build.
+# Reference: https://github.com/vitejs/vite/issues/2433
 V_OPTIONS="--max_old_space_size=4096"
-if [ "$MAJOR_VERSION" -gt "17" ]; then
-  echo "Set node options for >=17"
-  V_OPTIONS="--max_old_space_size=4096 --openssl-legacy-provider"
-fi
 
 if [[ "$1" == "--action" ]]; then
   echo "::set-output name=node-options::$V_OPTIONS"
