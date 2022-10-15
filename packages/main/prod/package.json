@@ -11,7 +11,7 @@
   "main": "dist/index.js",
   "publishConfig": {
     "main": "dist/index.js",
-    "module": "dist/index.mjs",
+    "module": "dist/index.min.mjs",
     "browser": "dist/index.min.umd.js"
   },
   "files": [
