@@ -19,11 +19,7 @@ pnpm run lint || die 'eslint failed; try: pnpm run lint-fix'
 end lint
 
 start test
-# The zarr and json package tests depend on the vite dev server,
-# and cannot be run in parallel, so instead we run them here in sequence
-pnpm -r --filter=!@vitessce/zarr --filter=!@vitessce/json test
-pnpm -r --filter=@vitessce/json test
-pnpm -r --filter=@vitessce/zarr test
+pnpm run test
 end test
 
 start cypress

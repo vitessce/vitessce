@@ -32,7 +32,7 @@ jobs:
         with:
           version: 7
           run_install: true
-      - run: pnpm run build
+      - run: pnpm run build:ci
       - run: ./test.sh --action
         shell: bash
   
@@ -50,7 +50,7 @@ jobs:
           version: 7
           run_install: true
       - run: |
-          pnpm run build
+          pnpm run build:ci
           cd ./sites/demo
           pnpm run build-demo
 

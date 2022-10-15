@@ -10,7 +10,9 @@
     "start": "pnpm -r --parallel start",
     "start-demo": "pnpm -r --parallel --filter=!docs start",
     "start-docs": "pnpm -r --parallel --filter=!demo start",
+    "build:ci": "pnpm -r --workspace-concurrency 1 build",
     "build": "pnpm -r build",
+    "test": "pnpm -r --workspace-concurrency 1 test",
     "lint": "eslint \"packages/**/src/**/*.js\" \"sites/*/src/**/*.js\" \"examples/*/src/**/*.js\"",
     "lint-fix": "eslint --fix \"packages/**/src/**/*.js\" \"sites/*/src/**/*.js\" \"examples/*/src/**/*.js\"",
     "clean": "pnpm -r exec -- rm -rf node_modules"
