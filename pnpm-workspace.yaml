@@ -2,5 +2,6 @@ packages:
   - 'packages/*'
   - 'packages/view-types/*'
   - 'packages/file-types/*'
+  - 'packages/main/*'
   - 'sites/*'
   - 'examples/*'

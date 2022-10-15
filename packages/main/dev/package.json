@@ -1,5 +1,5 @@
 {
-  "name": "vitessce",
+  "name": "@vitessce/dev",
   "version": "1.2.2",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
@@ -20,7 +20,7 @@
   "scripts": {
     "start": "tsc --watch",
     "build": "rimraf ./dist/ && rimraf *.tsbuildinfo && tsc && pnpm run build-lib",
-    "build-lib": "pnpm run build-lib:prod && pnpm run build-lib:dev",
+    "build-lib": "pnpm run build-lib:dev",
     "build-lib:prod": "cross-env APP_ENV=production vite build --mode lib",
     "build-lib:dev": "cross-env APP_ENV=development vite build --mode lib"
   },
