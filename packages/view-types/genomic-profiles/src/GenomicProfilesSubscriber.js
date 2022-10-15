@@ -1,4 +1,4 @@
-import React, { useMemo, } from 'react';
+import React, { useMemo } from 'react';
 import isEqual from 'lodash/isEqual';
 import { sum } from 'd3-array';
 import {
@@ -256,5 +256,5 @@ export function register() {
     ViewType.GENOMIC_PROFILES,
     GenomicProfilesSubscriber,
     COMPONENT_COORDINATION_TYPES[ViewType.GENOMIC_PROFILES],
-  )
+  );
 }

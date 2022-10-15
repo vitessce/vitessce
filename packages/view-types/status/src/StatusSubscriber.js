@@ -1,5 +1,7 @@
 import React from 'react';
-import { TitleInfo, useCoordination, useWarning, registerPluginViewType } from '@vitessce/vit-s';
+import {
+  TitleInfo, useCoordination, useWarning, registerPluginViewType,
+} from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import Status from './Status';
 

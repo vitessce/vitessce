@@ -1,9 +1,13 @@
 /* eslint-disable no-param-reassign */
 import React, { forwardRef } from 'react';
 import { forceSimulation } from 'd3-force';
-import { deck, getSelectionLayers, ScaledExpressionExtension, SelectionExtension } from '@vitessce/gl';
+import {
+  deck, getSelectionLayers, ScaledExpressionExtension, SelectionExtension,
+} from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
-import { AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback } from './shared-spatial-scatterplot';
+import {
+  AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback,
+} from './shared-spatial-scatterplot';
 
 const CELLS_LAYER_ID = 'scatterplot';
 const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";

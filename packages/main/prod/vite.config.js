@@ -13,7 +13,7 @@ export default defineConfig({
   build: {
     emptyOutDir: false,
     minify: isProduction ? 'esbuild' : false,
-    sourcemaps: true,
+    sourcemap: true,
     lib: {
       entry: resolve(__dirname, 'src/index.js'),
       name: 'vitessce',

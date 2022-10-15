@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { makeStyles } from '@material-ui/core/styles';
 
 export const useStyles = makeStyles(theme => ({
@@ -39,7 +40,7 @@ export const useStyles = makeStyles(theme => ({
     },
     '& input': {
       cursor: 'pointer',
-    }
+    },
   },
   hiddenInputColumn: {
     // Class for first column of inputs, to hide them if desired.
@@ -55,16 +56,16 @@ export const useStyles = makeStyles(theme => ({
     padding: '6px',
     /* background-color only for content */
     backgroundClip: 'content-box',
-    border: `2px solid ${theme.palette.grayLight}`, //map-get($global-colors, "gray-light");
+    border: `2px solid ${theme.palette.grayLight}`, // map-get($global-colors, "gray-light");
     backgroundColor: theme.palette.grayLight, // map-get($global-colors, "gray-light");
     '&:checked': {
-        backgroundClip: 'unset',
-    }
+      backgroundClip: 'unset',
+    },
   },
   radio: {
     borderRadius: '50%',
   },
   checkbox: {
     borderRadius: '2px',
-  }
+  },
 }));

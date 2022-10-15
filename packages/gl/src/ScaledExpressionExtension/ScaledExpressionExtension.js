@@ -42,12 +42,12 @@ export default class ScaledExpressionExtension extends LayerExtension {
           this.state.models?.forEach(model => model?.delete());
         }
         if (this.state.topModel) {
-           // eslint-disable-next-line no-unused-expressions
-           this.state.topModel?.delete();
+          // eslint-disable-next-line no-unused-expressions
+          this.state.topModel?.delete();
         }
         if (this.state.sideModel) {
-           // eslint-disable-next-line no-unused-expressions
-           this.state.sideModel?.delete();
+          // eslint-disable-next-line no-unused-expressions
+          this.state.sideModel?.delete();
         }
         if (this._getModels) {
           this.setState(this._getModels(this.context.gl));

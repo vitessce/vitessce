@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
   },
   row: {
-    flexGrow: '1'
+    flexGrow: '1',
   },
   card: {
     border: `1px solid ${theme.palette.cardBorder}`,
@@ -36,7 +36,7 @@ const useStyles = makeStyles(theme => ({
     borderRadius: '0.25rem',
     backgroundColor: theme.palette.primaryBackground,
     color: theme.palette.primaryForeground,
-  }
+  },
 }));
 
 export function Warning(props) {

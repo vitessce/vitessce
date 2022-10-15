@@ -11,9 +11,8 @@
     "start-demo": "pnpm -r --parallel --filter=!docs start",
     "start-docs": "pnpm -r --parallel --filter=!demo start",
     "build": "pnpm -r build",
-    "format-check": "prettier --check --ignore-path .gitignore sites/ packages/ examples/",
-    "format": "pnpm run format-check -- --write",
-    "lint": "pnpm run format-check && eslint \"packages/**/src/**/*\" \"sites/*/src/**/*\" \"examples/*/src/**/*\"",
+    "lint": "eslint \"packages/**/src/**/*.js\" \"sites/*/src/**/*.js\" \"examples/*/src/**/*.js\"",
+    "lint-fix": "eslint --fix \"packages/**/src/**/*.js\" \"sites/*/src/**/*.js\" \"examples/*/src/**/*.js\"",
     "clean": "pnpm -r exec -- rm -rf node_modules"
   },
   "devDependencies": {
@@ -32,7 +31,6 @@
     "jest-canvas-mock": "^2.3.0",
     "jsdom": "^20.0.0",
     "jsdom-worker": "^0.3.0",
-    "prettier": "^2.7.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "sass": "^1.55.0",
@@ -53,10 +51,5 @@
   "keywords": [
     "react-component"
   ],
-  "license": "MIT",
-  "prettier": {
-    "singleQuote": true,
-    "trailingComma": "none",
-    "arrowParens": "avoid"
-  }
+  "license": "MIT"
 }

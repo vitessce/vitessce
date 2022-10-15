@@ -1,6 +1,6 @@
+import { LoaderResult } from '@vitessce/vit-s';
 import GenesJsonAsObsFeatureMatrixLoader from './GenesJsonAsObsFeatureMatrix';
 import JsonSource from '../JsonSource';
-import { LoaderResult } from '@vitessce/vit-s';
 
 const createLoader = (ClassDef, config, url) => {
   const configWithUrl = {

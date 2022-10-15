@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 // Originally in src/utils.js
 
 // Adapted from https://github.com/feross/fromentries/blob/29b52a850bb3a47c390937631c2638edf3443942/index.js

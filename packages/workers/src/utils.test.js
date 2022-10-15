@@ -110,4 +110,3 @@ describe('heatmap tiling utils', () => {
     ]);
   });
 });
-

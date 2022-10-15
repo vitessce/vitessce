@@ -1,7 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 import { openArray, slice } from 'zarr';
 import { extent } from 'd3-array';
-import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsFeatureMatrixAnndataSchema } from '@vitessce/vit-s';
+import {
+  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsFeatureMatrixAnndataSchema,
+} from '@vitessce/vit-s';
 
 const normalize = (arr) => {
   const [min, max] = extent(arr);

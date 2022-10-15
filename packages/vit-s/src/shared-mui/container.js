@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
 
-export const useVitessceContainerStyles = makeStyles((theme) => ({
+export const useVitessceContainerStyles = makeStyles(theme => ({
   vitessceContainer: {
     position: 'relative',
     margin: '0',
@@ -41,7 +41,7 @@ export const useVitessceContainerStyles = makeStyles((theme) => ({
     },
     '@global .react-grid-item img': {
       pointerEvents: 'none',
-      userSelect: 'none',  
+      userSelect: 'none',
     },
     '@global .react-grid-item.cssTransforms': {
       transitionProperty: 'transform',
@@ -203,7 +203,7 @@ export const useVitessceContainerStyles = makeStyles((theme) => ({
     // Custom
     '@global .react-draggable-transparent-selection .react-grid-item': {
       /* These styles prevent text selection during resize drag interactions.
-        The react-draggable-transparent-selection class is added to the body 
+        The react-draggable-transparent-selection class is added to the body
         element during resizing and removed after resizing has finished.
         Not part of mixin because acts outside of .vitessce-container. */
       userSelect: 'none !important',

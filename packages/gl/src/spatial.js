@@ -47,7 +47,7 @@ export const DEFAULT_LAYER_TYPE_ORDERING = [
  * @param {number=} level Level of the multiscale loader from which to get a PixelSource
  * @returns {object} PixelSource object
  */
- export function getSourceFromLoader(loader, level) {
+export function getSourceFromLoader(loader, level) {
   const { data } = loader;
   const source = Array.isArray(data) ? data[(level || data.length - 1)] : data;
   return source;
@@ -143,7 +143,7 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
  * @param {object} source PixelSource object from Viv
  * @returns {object} The selection.
  */
- function getDefaultGlobalSelection(source) {
+function getDefaultGlobalSelection(source) {
   const globalIndices = source.labels
     .filter(dim => GLOBAL_LABELS.includes(dim));
   const selection = {};
@@ -156,15 +156,13 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
 }
 
 
-
-
 /**
  * Create a default selection using the midpoint of the available global dimensions,
  * and then the first four available selections from the first selectable channel.
  * @param {object} source PixelSource object from Viv
  * @returns {object} The selection.
  */
- function buildDefaultSelection(source) {
+function buildDefaultSelection(source) {
   const selection = [];
   const globalSelection = getDefaultGlobalSelection(source);
   // First non-global dimension with some sort of selectable values
@@ -200,7 +198,7 @@ export function isInterleaved(shape) {
  * @returns {object[]} An array of selected channels with default
  * domain/slider settings.
  */
- export async function initializeLayerChannels(loader, use3d) {
+export async function initializeLayerChannels(loader, use3d) {
   const result = [];
   const source = getSourceFromLoader(loader);
   // Add channel automatically as the first avaialable value for each dimension.
@@ -248,7 +246,7 @@ export function isInterleaved(shape) {
  * shape { name, type, url, createLoader }.
  * @param {(string[]|null)} rasterRenderLayers A list of default raster layers. Optional.
  */
- export async function initializeRasterLayersAndChannels(
+export async function initializeRasterLayersAndChannels(
   rasterLayers,
   rasterRenderLayers,
   usePhysicalSizeScaling,

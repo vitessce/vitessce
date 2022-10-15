@@ -1,6 +1,6 @@
+import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import genesSchema from './schemas/genes.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 
 export default class GenesJsonAsObsFeatureMatrixLoader extends JsonLoader {
   constructor(dataSource, params) {

@@ -1,4 +1,3 @@
-import JsonLoader from './JsonLoader';
 import {
   tryUpgradeTreeToLatestSchema,
   initializeCellSetColor,
@@ -6,6 +5,7 @@ import {
   treeToMembershipMap,
 } from '@vitessce/sets';
 import { obsSetsSchema, AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import JsonLoader from './JsonLoader';
 
 export default class ObsSetsJsonLoader extends JsonLoader {
   constructor(dataSource, params) {

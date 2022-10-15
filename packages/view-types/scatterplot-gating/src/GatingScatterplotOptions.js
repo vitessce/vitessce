@@ -111,7 +111,7 @@ export default function GatingScatterplotOptions(props) {
       </TableRow>
       <TableRow key="transform-coefficient-option-row">
         <TableCell className={classes.labelCell}>
-              Transform Coefficient
+          Transform Coefficient
         </TableCell>
         <TableCell className={classes.inputCell}>
           <TextField

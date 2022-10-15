@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { makeStyles } from '@material-ui/core';
 
 const nodeHeight = 32;
@@ -10,7 +11,7 @@ export const useStyles = makeStyles(theme => ({
     height: 'auto',
   },
   setOperationButtons: {
-    backgroundColor: theme.palette.grayLight,// map-get($global-colors, "gray-light");
+    backgroundColor: theme.palette.grayLight, // map-get($global-colors, "gray-light");
     borderRadius: '4px',
     padding: '2px',
     display: 'flex',
@@ -23,24 +24,24 @@ export const useStyles = makeStyles(theme => ({
       cursor: 'pointer',
       border: '0',
       backgroundColor: 'transparent',
-      color: theme.palette.grayDark,// lighten(map-get($global-colors, "gray-dark"), 5%);
+      color: theme.palette.grayDark, // lighten(map-get($global-colors, "gray-dark"), 5%);
       '&[disabled]': {
         pointerEvents: 'none',
         '& svg': {
-          fill: 'silver'
-        }
+          fill: 'silver',
+        },
       },
       '& svg': {
-        fill: theme.palette.grayDark,// map-get($global-colors, "gray-dark");
+        fill: theme.palette.grayDark, // map-get($global-colors, "gray-dark");
         verticalAlign: 'top',
         height: '20px',
         marginTop: '1px',
       },
       '&:hover,:hover path': {
-        color: theme.palette.grayDark,// darken(map-get($global-colors, "gray-dark"), 15%);
-        fill: theme.palette.grayDark,// darken(map-get($global-colors, "gray-dark"), 15%);
-      }
-    }
+        color: theme.palette.grayDark, // darken(map-get($global-colors, "gray-dark"), 15%);
+        fill: theme.palette.grayDark, // darken(map-get($global-colors, "gray-dark"), 15%);
+      },
+    },
   },
   setsManagerTree: {
     position: 'relative',
@@ -135,7 +136,7 @@ export const useStyles = makeStyles(theme => ({
       marginRight: '6px',
       verticalAlign: 'middle',
       backgroundColor: 'transparent',
-      
+
       backgroundRepeat: 'no-repeat',
       backgroundAttachment: 'scroll',
       border: '0 none',
@@ -163,7 +164,7 @@ export const useStyles = makeStyles(theme => ({
       marginRight: '10px',
     },
     '@global .rc-tree-treenode span.rc-tree-checkbox-checked': {
-      backgroundColor: theme.palette.grayMid,// map-get($global-colors, "gray-mid");
+      backgroundColor: theme.palette.grayMid, // map-get($global-colors, "gray-mid");
     },
     '@global .rc-tree-treenode span.rc-tree-checkbox-indeterminate': {
       backgroundPosition: '-14px -28px',
@@ -192,7 +193,7 @@ export const useStyles = makeStyles(theme => ({
       content: "' '",
     },
     '@global .rc-tree:not(.rc-tree-show-line) .rc-treenode .rc-tree-switcher-noop': {
-      background: 'none'
+      background: 'none',
     },
     '@global .rc-tree.rc-tree-show-line .rc-tree-treenode:not(:last-child) > .rc-tree-switcher-noop': {
       backgroundPosition: '-56px -18px',
@@ -201,10 +202,10 @@ export const useStyles = makeStyles(theme => ({
       backgroundPosition: '-56px -36px',
     },
     '@global .rc-tree-child-tree': {
-      display: 'none'
+      display: 'none',
     },
     '@global .rc-tree-child-tree-open': {
-      display: 'block'
+      display: 'block',
     },
     '@global .rc-tree-treenode-disabled > span:not(.rc-tree-switcher), .rc-tree-treenode-disabled > a, .rc-tree-treenode-disabled > a span': {
       color: '#767676',
@@ -241,8 +242,8 @@ export const useStyles = makeStyles(theme => ({
     width: `${nodeHeight}px`,
     top: '5.5px',
     '&:hover': {
-      fill: theme.palette.grayMid,  // lighten(map-get($global-colors, "gray-mid"), 10%);
-    }
+      fill: theme.palette.grayMid, // lighten(map-get($global-colors, "gray-mid"), 10%);
+    },
   },
   nodeSizeLabel: {
     fontSize: '12px',
@@ -264,7 +265,7 @@ export const useStyles = makeStyles(theme => ({
     padding: '5px',
     /* background-color only for content */
     backgroundClip: 'content-box',
-    border: `2px solid ${theme.palette.primaryForeground}`,// lighten(map-get($theme-colors, "primary-foreground"), 10%);
+    border: `2px solid ${theme.palette.primaryForeground}`, // lighten(map-get($theme-colors, "primary-foreground"), 10%);
     backgroundColor: theme.palette.primaryForeground, // lighten(map-get($theme-colors, "primary-foreground"), 10%);
     borderRadius: '6px',
     position: 'relative',
@@ -274,7 +275,7 @@ export const useStyles = makeStyles(theme => ({
     marginRight: '10px',
     '&:checked': {
       backgroundClip: 'unset',
-    }
+    },
   },
   levelRadioButtonChecked: {
     backgroundClip: 'unset',
@@ -309,11 +310,11 @@ export const useStyles = makeStyles(theme => ({
     color: theme.palette.black, // map-get($global-colors, "black");
     borderRadius: '4px',
     outline: 'none',
-    padding:' 4px 0px 4px 4px',
-    border: `1px solid ${theme.palette.grayLight}`,//  map-get($global-colors, "gray-light");
+    padding: ' 4px 0px 4px 4px',
+    border: `1px solid ${theme.palette.grayLight}`, //  map-get($global-colors, "gray-light");
     '& :focus': {
-      border: `1px solid ${theme.palette.primaryForegroundActive}`, //map-get($theme-colors, "primary-foreground-active");
-    }
+      border: `1px solid ${theme.palette.primaryForegroundActive}`, // map-get($theme-colors, "primary-foreground-active");
+    },
   },
   titleSaveButton: {
     backgroundColor: theme.palette.grayDark, // map-get($global-colors, "gray-dark");
@@ -330,13 +331,13 @@ export const useStyles = makeStyles(theme => ({
     '&:hover': {
       backgroundColor: theme.palette.grayDark, // lighten(map-get($global-colors, "gray-dark"), 5%);
       border: `1px solid ${theme.palette.grayDark}`, // lighten(map-get($global-colors, "gray-dark"), 5%);
-    }
+    },
   },
   // TODO(monorepo): is this style used anywhere?
   '@global .vitessce-tooltip .ant-tooltip-content .ant-tooltip-inner': {
     fontSize: '12px',
     backgroundColor: 'rgba(0, 0, 0, 0.95)',
-  }
+  },
 }));
 
 
@@ -354,7 +355,7 @@ const helpTooltipCommon = {
   fontSize: '14px',
   listStyle: 'none',
   position: 'absolute',
-}
+};
 
 export const useHelpTooltipStyles = makeStyles(theme => ({
   helpTooltip: {
@@ -378,7 +379,7 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
     },
     '@global .rc-tooltip-arrow': {
       display: 'none',
-    }
+    },
   },
   popover: {
     top: 0,
@@ -470,7 +471,7 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
       background: 'transparent',
       borderStyle: 'solid',
       borderWidth: '4px',
-    }
+    },
   },
   popoverMenuList: {
     listStyleType: 'none',
@@ -490,10 +491,10 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
       borderRadius: '2px',
       '&:hover': {
         backgroundColor: theme.palette.grayLight, // lighten(map-get($global-colors, "gray-light"), 10%);
-      }
+      },
     },
     '& li:not(:last-child)': {
-      borderBottom: `1px solid ${theme.palette.grayMid}`// map-get($global-colors, "gray-mid");
+      borderBottom: `1px solid ${theme.palette.grayMid}`, // map-get($global-colors, "gray-mid");
     },
     '& button': {
       appearance: 'button',
@@ -504,7 +505,7 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
       fontSize: '14px',
       lineHeight: 'inherit',
       borderRadius: 0,
-    }
+    },
   },
   small: {
     fontSize: '11px',
@@ -529,6 +530,6 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
     '& > div > span > div': {
       width: '18px !important',
       height: '18px !important',
-    }
-  }
+    },
+  },
 }));

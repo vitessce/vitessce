@@ -7,11 +7,11 @@ import {
   registerPluginViewType,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { VALUE_TRANSFORM_OPTIONS, capitalize, getValueTransformFunction } from '@vitessce/utils';
+import { treeToObjectsBySetNames, treeToSetSizesBySetNames, mergeObsSets } from '@vitessce/sets';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
 import CellSetExpressionPlot from './CellSetExpressionPlot';
-import { VALUE_TRANSFORM_OPTIONS, capitalize, getValueTransformFunction } from '@vitessce/utils';
 import { useStyles } from './styles';
-import { treeToObjectsBySetNames, treeToSetSizesBySetNames, mergeObsSets } from '@vitessce/sets';
 
 /**
  * Get expression data for the cells
@@ -172,7 +172,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     o => o.value === featureValueTransform,
   )?.name;
 
-  
+
   return (
     <TitleInfo
       title={`Expression by ${capitalize(obsType)} Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}

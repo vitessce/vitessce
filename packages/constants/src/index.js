@@ -1,1 +1,3 @@
-export { ViewType, DataType, FileType, CoordinationType } from './constants-merged';
+export {
+  ViewType, DataType, FileType, CoordinationType,
+} from './constants-merged';

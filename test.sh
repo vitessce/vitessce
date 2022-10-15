@@ -15,8 +15,7 @@ fi
 end changelog
 
 start lint
-# TODO(monorepo): re-enable eslint
-#eslint src || die 'eslint failed; try: pnpm run lint-fix'
+pnpm run lint || die 'eslint failed; try: pnpm run lint-fix'
 end lint
 
 start test

@@ -3,9 +3,9 @@ import {
 } from 'react';
 import debounce from 'lodash/debounce';
 import every from 'lodash/every';
+import { capitalize, fromEntries } from '@vitessce/utils';
 import { useGridResize, useEmitGridResize } from './state/hooks';
 import { VITESSCE_CONTAINER } from './classNames';
-import { capitalize, fromEntries } from '@vitessce/utils';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;

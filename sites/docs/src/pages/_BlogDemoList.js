@@ -1,6 +1,7 @@
 /* eslint-disable global-require */
 import React from 'react';
 import { configs } from '@vitessce/example-configs';
+import DemoList from './_DemoList';
 
 // Reference: https://github.com/mac-s-g/react-json-view/issues/121#issuecomment-670431408
 export default function BlogDemoList() {
@@ -19,8 +20,8 @@ export default function BlogDemoList() {
         'marshall-2022',
         'kuppe-2022',
         'combat-2022',
-        'meta-2022-azimuth'
+        'meta-2022-azimuth',
       ]}
     />
-);
+  );
 }

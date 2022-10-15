@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
-import ToolMenu from './ToolMenu';
 import { deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
+import ToolMenu from './ToolMenu';
 import { getCursor, getCursorWithTool } from './cursor';
 
 /**

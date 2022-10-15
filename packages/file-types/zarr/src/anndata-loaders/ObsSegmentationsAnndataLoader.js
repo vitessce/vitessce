@@ -1,4 +1,6 @@
-import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsSegmentationsAnndataSchema } from '@vitessce/vit-s';
+import {
+  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsSegmentationsAnndataSchema,
+} from '@vitessce/vit-s';
 import { DEFAULT_CELLS_LAYER } from '@vitessce/gl';
 
 

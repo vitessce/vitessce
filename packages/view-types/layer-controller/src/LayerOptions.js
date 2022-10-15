@@ -6,16 +6,16 @@ import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
-import { viv, DEFAULT_RASTER_DOMAIN_TYPE } from '@vitessce/gl'
-import {
-  getBoundingCube, getMultiSelectionStats,
-} from './utils';
+import { viv, DEFAULT_RASTER_DOMAIN_TYPE } from '@vitessce/gl';
 import {
   COLORMAP_OPTIONS,
   canLoadResolution,
   formatBytes,
   getStatsForResolution,
 } from '@vitessce/utils';
+import {
+  getBoundingCube, getMultiSelectionStats,
+} from './utils';
 import { StyledSelectionSlider, useSelectStyles } from './styles';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
@@ -130,11 +130,9 @@ function VolumeDropdown({
         }
         classes={{ root: classes.selectRoot }}
       >
-        {
-          <option key="2D" value="2D">
-            2D Visualization
-          </option>
-        }
+        <option key="2D" value="2D">
+          2D Visualization
+        </option>
         {Array.from({ length: loader.length })
           .fill(0)
           // eslint-disable-next-line no-unused-vars

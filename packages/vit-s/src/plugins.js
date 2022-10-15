@@ -3,7 +3,7 @@ import {
   FileType, CoordinationType,
   FILE_TYPE_DATA_TYPE_MAPPING,
   COMPONENT_COORDINATION_TYPES,
-  DEFAULT_COORDINATION_VALUES
+  DEFAULT_COORDINATION_VALUES,
 } from '@vitessce/constants-internal';
 import { JOINT_FILE_TYPES } from './joint-file-types';
 

@@ -1,5 +1,5 @@
-import JsonLoader from './JsonLoader';
 import { AbstractLoaderError, LoaderResult, emptySchema } from '@vitessce/vit-s';
+import JsonLoader from './JsonLoader';
 
 export default class ObsSegmentationsJsonLoader extends JsonLoader {
   constructor(dataSource, params) {

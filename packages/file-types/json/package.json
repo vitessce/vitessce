@@ -25,7 +25,8 @@
     "@vitessce/vit-s": "workspace:*",
     "d3-array": "^2.4.0",
     "lodash": "^4.17.21",
-    "zarr": "0.5.1"
+    "zarr": "0.5.1",
+    "ajv": "^6.10.0"
   },
   "devDependencies": {
     "ajv": "^6.10.0"

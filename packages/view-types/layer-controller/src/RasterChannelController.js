@@ -5,9 +5,9 @@ import Slider from '@material-ui/core/Slider';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 
+import { getSourceFromLoader } from '@vitessce/gl';
 import ChannelOptions from './ChannelOptions';
 import { DOMAINS } from './constants';
-import { getSourceFromLoader } from '@vitessce/gl';
 import { getMultiSelectionStats } from './utils';
 import {
   ChannelSelectionDropdown,

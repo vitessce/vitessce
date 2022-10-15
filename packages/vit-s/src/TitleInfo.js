@@ -151,7 +151,7 @@ export const useTitleStyles = makeStyles(theme => ({
     justifyContent: 'right',
     '& div': {
       display: 'inline-block',
-    }
+    },
   },
   card: {
     border: `1px solid ${theme.palette.cardBorder}`,
@@ -184,9 +184,9 @@ export const useTitleStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.black,
     color: theme.palette.white,
     '& a': {
-        color: theme.palette.white,
-    }
-  }
+      color: theme.palette.white,
+    },
+  },
 }));
 
 
@@ -220,7 +220,17 @@ export function TitleInfo(props) {
           />
         </div>
       </div>
-      <div className={clsx(TOOLTIP_ANCESTOR, classes.card, { [classes.scrollCard]: isScroll, [classes.spatialCard]: isSpatial, [classes.noScrollCard]: !isScroll && !isSpatial })}>
+      <div
+        className={clsx(
+          TOOLTIP_ANCESTOR,
+          classes.card,
+          {
+            [classes.scrollCard]: isScroll,
+            [classes.spatialCard]: isSpatial,
+            [classes.noScrollCard]: !isScroll && !isSpatial,
+          },
+        )}
+      >
         { !isReady && <LoadingIndicator /> }
         {children}
       </div>

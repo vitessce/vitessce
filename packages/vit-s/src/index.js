@@ -1,4 +1,4 @@
-export { Vitessce as VitS } from './Vitessce';
+export { VitS } from './VitS';
 export { TitleInfo } from './TitleInfo';
 export { PopperMenu } from './shared-mui/components';
 export {
@@ -87,7 +87,7 @@ export {
   LATEST_VERSION,
 } from './view-config-versions';
 export {
-  upgradeAndValidate
+  upgradeAndValidate,
 } from './view-config-utils';
 export {
   CellColorEncodingOption,

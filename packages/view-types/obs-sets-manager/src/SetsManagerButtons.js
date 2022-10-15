@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import PopoverMenu from './PopoverMenu';
 import {
   handleImportJSON,
   handleImportTabular,
@@ -8,6 +7,7 @@ import {
   MIME_TYPE_TABULAR,
 } from '@vitessce/sets';
 import { SetUnionSVG, SetIntersectionSVG, SetComplementSVG } from '@vitessce/icons';
+import PopoverMenu from './PopoverMenu';
 import { useStyles } from './styles';
 
 /**

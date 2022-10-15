@@ -3,14 +3,14 @@ import every from 'lodash/every';
 import { makeStyles } from '@material-ui/core/styles';
 import { SelectableTable } from './selectable-table/index';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   searchBar: {
     marginBottom: '.25rem',
     border: '0',
     padding: '2px',
     borderRadius: '2px',
-  }
-}))
+  },
+}));
 
 export default function FeatureList(props) {
   const {

@@ -3,20 +3,25 @@ import React, {
   useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
 } from 'react';
 import uuidv4 from 'uuid/v4';
-import { deck, luma } from '@vitessce/gl';
-import range from 'lodash/range';
-import clamp from 'lodash/clamp';
-import isEqual from 'lodash/isEqual';
-import { getLongestString } from '@vitessce/utils';
 import {
-  HeatmapCompositeTextLayer, PixelatedBitmapLayer, PaddedExpressionHeatmapBitmapLayer, HeatmapBitmapLayer,
-  TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
+  deck, luma,
+  HeatmapCompositeTextLayer,
+  PixelatedBitmapLayer,
+  PaddedExpressionHeatmapBitmapLayer,
+  HeatmapBitmapLayer,
+  TILE_SIZE,
+  MAX_ROW_AGG,
+  MIN_ROW_AGG,
   COLOR_BAR_SIZE,
   AXIS_MARGIN,
   DATA_TEXTURE_SIZE,
   PIXELATED_TEXTURE_PARAMETERS,
 } from '@vitessce/gl';
+import range from 'lodash/range';
+import clamp from 'lodash/clamp';
+import isEqual from 'lodash/isEqual';
 import {
+  getLongestString,
   DEFAULT_GL_OPTIONS,
   createDefaultUpdateCellsHover,
   createDefaultUpdateGenesHover,
@@ -25,6 +30,8 @@ import {
   copyUint8Array,
   getDefaultColor,
 } from '@vitessce/utils';
+
+
 import {
   layerFilter,
   getAxisSizes,

@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable max-len */
 import React, { useEffect, useCallback, useState } from 'react';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import Table from 'react-virtualized/dist/commonjs/Table';

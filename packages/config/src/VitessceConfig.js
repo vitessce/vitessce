@@ -74,6 +74,7 @@ export class VitessceConfigDataset {
       if (args.length === 2) {
         [dataType, fileType] = args;
       } else if (args.length === 3) {
+        // eslint-disable-next-line no-unused-vars
         [dataType, fileType, options] = args;
       }
     } else if (typeof params === 'object') {

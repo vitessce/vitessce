@@ -1,10 +1,10 @@
 import tinycolor from 'tinycolor2';
 import isEqual from 'lodash/isEqual';
+import { PALETTE } from '@vitessce/utils';
 import {
   SETS_DATATYPE_OBS,
   HIERARCHICAL_SCHEMAS,
 } from './constants';
-import { PALETTE } from '@vitessce/utils';
 
 /**
  * Execute a callback function based on a keypress event.
@@ -74,6 +74,18 @@ export function pathToKey(path) {
 
 // Moved from src/components/utils.js
 
+export function getNextNumberedNodeName(nodes, prefix) {
+  let i = 1;
+  if (nodes) {
+    // eslint-disable-next-line no-loop-func
+    while (nodes.find(n => n.name === `${prefix}${i}`)) {
+      // eslint-disable-next-line no-plusplus
+      i++;
+    }
+  }
+  return `${prefix}${i}`;
+}
+
 /**
  * Create a new selected cell set based on a cell selection.
  * @param {string[]} cellSelection An array of cell IDs.
@@ -81,7 +93,7 @@ export function pathToKey(path) {
  * @param {function} setCellSetSelection The setter function for cell set selections.
  * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
  */
- export function setObsSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ') {
+export function setObsSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ') {
   const CELL_SELECTIONS_LEVEL_ZERO_NAME = 'My Selections';
 
   const selectionsLevelZeroNode = additionalCellSets?.tree.find(
@@ -134,16 +146,4 @@ export function mergeObsSets(cellSets, additionalCellSets) {
       ...(additionalCellSets ? additionalCellSets.tree : []),
     ],
   };
-}
-
-export function getNextNumberedNodeName(nodes, prefix) {
-  let i = 1;
-  if (nodes) {
-    // eslint-disable-next-line no-loop-func
-    while (nodes.find(n => n.name === `${prefix}${i}`)) {
-      // eslint-disable-next-line no-plusplus
-      i++;
-    }
-  }
-  return `${prefix}${i}`;
 }

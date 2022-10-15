@@ -1,6 +1,13 @@
 import Ajv from 'ajv';
 import { FileType } from '@vitessce/constants-internal';
-import { AbstractTwoStepLoader, LoaderValidationError, AbstractLoaderError, LoaderResult, obsSetsSchema, rasterSchema } from '@vitessce/vit-s';
+import {
+  AbstractTwoStepLoader,
+  LoaderValidationError,
+  AbstractLoaderError,
+  LoaderResult,
+  obsSetsSchema,
+  rasterSchema,
+} from '@vitessce/vit-s';
 
 import cellsSchema from '../legacy-loaders/schemas/cells.schema.json';
 import moleculesSchema from '../legacy-loaders/schemas/molecules.schema.json';

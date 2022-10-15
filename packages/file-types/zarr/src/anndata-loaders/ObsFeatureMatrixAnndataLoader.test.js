@@ -16,7 +16,7 @@ const createMatrixLoader = (url) => {
 
 describe('loaders/ObsFeatureMatrixAnndataLoader', () => {
   describe('AnnData v0.7', () => {
-    it('loadFilteredGeneNames returns gene names', async function () {
+    it('loadFilteredGeneNames returns gene names', async () => {
       const loader = createMatrixLoader('http://localhost:51204/@fixtures/zarr/anndata-0.7/anndata-dense.zarr');
       const names = await loader.loadFilteredGeneNames();
       expect(names).toEqual(Array.from({ length: 15 }).map((_, i) => `gene_${i}`));
@@ -47,7 +47,7 @@ describe('loaders/ObsFeatureMatrixAnndataLoader', () => {
   });
 
   describe('AnnData v0.8', () => {
-    it('loadFilteredGeneNames returns gene names', async function () {
+    it('loadFilteredGeneNames returns gene names', async () => {
       const loader = createMatrixLoader('http://localhost:51204/@fixtures/zarr/anndata-0.8/anndata-dense.zarr');
       const names = await loader.loadFilteredGeneNames();
       expect(names).toEqual(Array.from({ length: 15 }).map((_, i) => `gene_${i}`));

@@ -1,8 +1,8 @@
 import React from 'react';
 
+import { configs } from '@vitessce/example-configs';
 import DemoList from './_DemoList';
 
-import { configs } from '@vitessce/example-configs';
 
 export default function Demos() {
   return (

@@ -1,4 +1,6 @@
-import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsSetsAnndataSchema } from '@vitessce/vit-s';
+import {
+  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsSetsAnndataSchema,
+} from '@vitessce/vit-s';
 import {
   initializeCellSetColor,
   treeToMembershipMap,

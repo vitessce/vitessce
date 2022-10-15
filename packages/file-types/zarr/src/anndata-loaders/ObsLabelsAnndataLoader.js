@@ -1,4 +1,6 @@
-import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsLabelsAnndataSchema } from '@vitessce/vit-s';
+import {
+  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsLabelsAnndataSchema,
+} from '@vitessce/vit-s';
 
 
 /**

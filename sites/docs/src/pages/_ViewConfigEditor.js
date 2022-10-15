@@ -11,13 +11,13 @@ import {
 import {
   CoordinationType, ViewType, DataType, FileType,
 } from '@vitessce/constants';
+import { upgradeAndValidate } from '@vitessce/vit-s';
 import ThemedControlledEditor from './_ThemedControlledEditor';
 import {
   baseJs, baseJson, exampleJs, exampleJson,
 } from './_live-editor-examples';
 import JsonHighlight, { JSON_TRANSLATION_KEY } from './_JsonHighlight';
 
-import { upgradeAndValidate } from '@vitessce/vit-s';
 
 import styles from './styles.module.css';
 
@@ -150,7 +150,7 @@ export default function ViewConfigEditor(props) {
           <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error, null, 2)}</pre>
         )}
         <p className={styles.viewConfigEditorInfo}>
-            To use Vitessce, enter a&nbsp;
+          To use Vitessce, enter a&nbsp;
           <a href={syntaxType === 'JS' ? viewConfigDocsJsUrl : viewConfigDocsJsonUrl}>view config</a>
             &nbsp;using the editor below.&nbsp;
           <button type="button" onClick={tryExample}>Try an example</button>&nbsp;
@@ -213,7 +213,7 @@ export default function ViewConfigEditor(props) {
           <div className={styles.viewConfigInputs}>
             <div className={styles.viewConfigInputUrlOrFile}>
               <p className={styles.viewConfigInputUrlOrFileText}>
-                  Alternatively, provide a URL or drag &amp; drop a view config file.
+                Alternatively, provide a URL or drag &amp; drop a view config file.
               </p>
               <div className={styles.viewConfigInputUrlOrFileSplit}>
                 <input

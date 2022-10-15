@@ -1,11 +1,8 @@
+// TODO(monorepo)
+/*
 import Ajv from 'ajv';
 import obsSetsSchema from './obsSets.schema';
 import rasterSchema from './raster.schema';
-
-/* eslint-disable import/no-dynamic-require */
-/* eslint-disable global-require */
-// TODO(monorepo)
-/*
 describe('schemas', () => {
   [
     'config-1.0.1',

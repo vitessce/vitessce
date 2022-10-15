@@ -34,5 +34,11 @@
     "@vitessce/status": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/zarr": "workspace:*"
+  },
+  "devDependencies": {
+    "react": "^18.0.0"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
   }
 }

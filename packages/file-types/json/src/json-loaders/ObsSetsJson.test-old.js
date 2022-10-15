@@ -1,8 +1,9 @@
-import ObsSetsJsonLoader from './ObsSetsJson';
-import JsonSource from '../JsonSource';
-import { LoaderResult } from '@vitessce/vit-s';
 // TODO(monorepo)
 /*
+import { LoaderResult } from '@vitessce/vit-s';
+import ObsSetsJsonLoader from './ObsSetsJson';
+import JsonSource from '../JsonSource';
+
 const createLoader = (ClassDef, config, url) => {
   const configWithUrl = {
     ...config,

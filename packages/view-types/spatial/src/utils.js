@@ -149,7 +149,9 @@ export function getLayerLoaderTuple(data, use3d) {
   if (use3d) {
     return [viv.VolumeLayer, Array.isArray(loader) ? loader : [loader]];
   }
-  const Layer = (Array.isArray(data) && data.length > 1) ? viv.MultiscaleImageLayer : viv.ImageLayer;
+  const Layer = (Array.isArray(data) && data.length > 1)
+    ? viv.MultiscaleImageLayer
+    : viv.ImageLayer;
   return [Layer, loader];
 }
 

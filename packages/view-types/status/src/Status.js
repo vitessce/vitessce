@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   info: {
     // details
     fontSize: '80%',
@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
 
     marginTop: '0',
     marginBottom: '0',
-  }
+  },
 }));
 
 export default function Status(props) {

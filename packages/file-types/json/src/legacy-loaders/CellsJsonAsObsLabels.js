@@ -1,6 +1,6 @@
+import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import cellsSchema from './schemas/cells.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 
 export default class CellsJsonAsObsLabelsLoader extends JsonLoader {
   constructor(dataSource, params) {

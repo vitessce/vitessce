@@ -6,10 +6,10 @@ import range from 'lodash/range';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
 import centroid from '@turf/centroid';
 import concaveman from 'concaveman';
+import { getDefaultColor, PALETTE } from '@vitessce/utils';
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants';
-import { getDefaultColor, PALETTE } from '@vitessce/utils';
 import { pathToKey } from './utils';
 
 /**

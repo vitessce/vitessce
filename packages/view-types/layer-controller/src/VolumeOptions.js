@@ -171,7 +171,7 @@ const ReCenterButton = ({
         marginBottom: 6,
       }}
     >
-        Re-Center
+      Re-Center
     </Button>
   </Grid>
 );

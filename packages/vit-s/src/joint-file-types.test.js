@@ -1,8 +1,9 @@
 import { FileType, FILE_TYPE_DATA_TYPE_MAPPING } from '@vitessce/constants-internal';
-import { JOINT_FILE_TYPES } from './joint-file-types';
 import {
+  JOINT_FILE_TYPES,
   expandAnndataZarr,
 } from './joint-file-types';
+
 
 describe('src/app/joint-file-types.js', () => {
   describe('FileType-to-DataType mappings', () => {

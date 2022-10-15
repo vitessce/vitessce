@@ -12,7 +12,7 @@ const useStyles = makeStyles(() => ({
     opacity: '.65',
     color: 'black',
     '&:hover': {
-        opacity: '.90',
+      opacity: '.90',
     },
   },
   iconButton: {
@@ -38,8 +38,8 @@ const useStyles = makeStyles(() => ({
     marginRight: '0.5rem',
 
     '& > svg': {
-        verticalAlign: 'middle',
-    }
+      verticalAlign: 'middle',
+    },
   },
   iconButtonActive: {
     // active

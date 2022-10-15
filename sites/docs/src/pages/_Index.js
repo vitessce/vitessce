@@ -5,6 +5,7 @@ import {
   QueryParamProvider, useQueryParam, StringParam,
 } from 'use-query-params';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import { configs } from '@vitessce/example-configs';
 import { useHashParam, useSetHashParams } from './_use-hash-param';
 import Home from './_Home';
 import DemoHeader from './_DemoHeader';
@@ -12,7 +13,6 @@ import ThemedVitessce from './_ThemedVitessce';
 import ViewConfigEditor from './_ViewConfigEditor';
 import { baseJs, baseJson } from './_live-editor-examples';
 
-import { configs } from '@vitessce/example-configs';
 
 import styles from './styles.module.css';
 

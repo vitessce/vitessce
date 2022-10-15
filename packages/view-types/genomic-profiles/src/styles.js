@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { makeStyles } from '@material-ui/core/styles';
 
 export const useStyles = makeStyles(theme => ({
@@ -8,7 +9,7 @@ export const useStyles = makeStyles(theme => ({
       height: 'inherit',
       padding: '5px',
       backgroundColor: theme.palette.secondaryBackground, // map-get($theme-colors, "secondary-background");
-    }
+    },
   },
   higlassLazyWrapper: {
     width: 'inherit',

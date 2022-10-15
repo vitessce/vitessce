@@ -1,11 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useMemo } from 'react';
 import isEqual from 'lodash/isEqual';
+import { nodeToRenderProps, pathToKey } from '@vitessce/sets';
+import { getDefaultColor } from '@vitessce/utils';
 import Tree from './Tree';
 import TreeNode from './TreeNode';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
-import { nodeToRenderProps, pathToKey } from '@vitessce/sets';
-import { getDefaultColor } from '@vitessce/utils';
 import { useStyles } from './styles';
 
 function processNode(node, prevPath, setColor, theme) {

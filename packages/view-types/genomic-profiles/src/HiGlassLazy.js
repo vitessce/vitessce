@@ -12,12 +12,12 @@ import { createWarningComponent } from './utils';
 import { useStyles } from './styles';
 
 // TODO(monorepo)
-//import packageJson from '../../../package.json';
-//const PIXI_BUNDLE_VERSION = packageJson.dependencies['window-pixi'];
-//const HIGLASS_BUNDLE_VERSION = packageJson.dependencies.higlass;
-//const BUNDLE_FILE_EXT = process.env.NODE_ENV === 'development' ? 'js' : 'min.js';
-const PIXI_BUNDLE_VERSION = "5.3.3";
-const HIGLASS_BUNDLE_VERSION = "1.11.4";
+// import packageJson from '../../../package.json';
+// const PIXI_BUNDLE_VERSION = packageJson.dependencies['window-pixi'];
+// const HIGLASS_BUNDLE_VERSION = packageJson.dependencies.higlass;
+// const BUNDLE_FILE_EXT = process.env.NODE_ENV === 'development' ? 'js' : 'min.js';
+const PIXI_BUNDLE_VERSION = '5.3.3';
+const HIGLASS_BUNDLE_VERSION = '1.11.4';
 const BUNDLE_FILE_EXT = true ? 'js' : 'min.js';
 const PIXI_BUNDLE_URL = `https://unpkg.com/window-pixi@${PIXI_BUNDLE_VERSION}/dist/pixi.${BUNDLE_FILE_EXT}`;
 const HIGLASS_BUNDLE_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.${BUNDLE_FILE_EXT}`;

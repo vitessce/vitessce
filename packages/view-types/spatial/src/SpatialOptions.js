@@ -6,7 +6,9 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import Slider from '@material-ui/core/Slider';
 import { makeStyles } from '@material-ui/core/styles';
-import { usePlotOptionsStyles, OptionsContainer, CellColorEncodingOption, OptionSelect } from '@vitessce/vit-s';
+import {
+  usePlotOptionsStyles, OptionsContainer, CellColorEncodingOption, OptionSelect,
+} from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
 const useToggleStyles = makeStyles(() => ({
@@ -30,7 +32,7 @@ const ToggleFixedAxisButton = ({
   return (
     <TableRow>
       <TableCell className={classes.cameraLabel}>
-      Fix Camera Axis
+        Fix Camera Axis
       </TableCell>
       <TableCell className={classes.box}>
         <Checkbox
@@ -94,7 +96,7 @@ export default function SpatialOptions(props) {
         <>
           <TableRow>
             <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
-          Gene Expression Colormap
+              Gene Expression Colormap
             </TableCell>
             <TableCell className={classes.inputCell}>
               <OptionSelect
@@ -113,7 +115,7 @@ export default function SpatialOptions(props) {
           </TableRow>
           <TableRow>
             <TableCell className={classes.labelCell}>
-          Gene Expression Colormap Range
+              Gene Expression Colormap Range
             </TableCell>
             <TableCell className={classes.inputCell}>
               <Slider

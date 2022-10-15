@@ -14,7 +14,7 @@ const useStyles = makeStyles(theme => ({
       // TODO(monorepo): lighten color by 10%
       borderBottom: `1px solid ${theme.palette.primaryBackground}`,
       cursor: 'pointer',
-    }
+    },
   },
   metadataContainer: {
     paddingLeft: '14px',
@@ -31,9 +31,9 @@ const useStyles = makeStyles(theme => ({
       },
       '& tr:nth-child(even)': {
         // TODO(monorepo): lighten color by 5%
-        backgroundColor: `1px solid ${theme.palette.primaryBackground}` 
-      }
-    }
+        backgroundColor: `1px solid ${theme.palette.primaryBackground}`,
+      },
+    },
   },
 }));
 

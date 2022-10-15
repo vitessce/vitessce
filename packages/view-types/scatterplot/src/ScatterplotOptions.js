@@ -5,7 +5,9 @@ import Slider from '@material-ui/core/Slider';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import { capitalize } from '@vitessce/utils';
-import { usePlotOptionsStyles, CellColorEncodingOption, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
+import {
+  usePlotOptionsStyles, CellColorEncodingOption, OptionsContainer, OptionSelect,
+} from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
 export default function ScatterplotOptions(props) {

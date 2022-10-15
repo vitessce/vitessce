@@ -1,5 +1,5 @@
-import { getChannelStats,  } from './viv';
 import { Matrix4 } from 'math.gl';
+import { getChannelStats } from './viv';
 
 async function getSingleSelectionStats2D({ loader, selection }) {
   const data = Array.isArray(loader) ? loader[loader.length - 1] : loader;
