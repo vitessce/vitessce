@@ -35,7 +35,7 @@ jobs:
       - run: pnpm run build:ci
       - run: ./test.sh --action
   
-  test-e2e:
+  test-e2e-demo:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -65,6 +65,37 @@ jobs:
           install-command: echo
           start: pnpm run preview
           wait-on: 'http://localhost:3000'
+          wait-on-timeout: 240
+          browser: chrome
+          headed: false
+  
+  test-e2e-html:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: pnpm/action-setup@v2.0.1
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: true
+      - run: pnpm run build:ci
+
+      - name: Cypress PNPM Patch
+        run: cp pnpm-lock.yaml ./sites/html/package-lock.json
+      
+      - name: Cypress
+        uses: cypress-io/github-action@v4
+        env:
+          DEBUG: '@cypress/github-action'
+        with:
+          working-directory: ./sites/html
+          install-command: echo
+          start: pnpm run start
+          wait-on: 'http://localhost:3003'
           wait-on-timeout: 240
           browser: chrome
           headed: false
