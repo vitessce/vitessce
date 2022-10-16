@@ -1,0 +1,20 @@
+{
+  "name": "html",
+  "private": true,
+  "version": "1.2.2",
+  "scripts": {
+    "start": "http-server --cors='*' --port 3003 ../../",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "vitessce": "workspace:*"
+  },
+  "devDependencies": {
+    "cypress": "^10.10.0",
+    "http-server": "^14.0.0"
+  },
+  "license": "MIT"
+}
