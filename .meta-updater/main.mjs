@@ -1,5 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import jsonDiff from 'json-diff-ts';
+import lodash from 'lodash';
+const { cloneDeep } = lodash;
+
+const isDryrun = process.env.META_UPDATER_MODE === 'dryrun';
 
 const LUMAGL_VERSION = '8.5.10';
 const LOADERSGL_VERSION = "^3.0.0";
@@ -83,26 +88,47 @@ function pinVersions(deps = {}) {
   }
 }
 
+function processUpdate(prevJson, newJson, isDryrun, dir, filename) {
+  console.log(`meta-update for ${filename} in ${dir}`);
+  // Diff the changes and print.
+  const changeset = jsonDiff.diff(prevJson, newJson);
+  const flatChangeset = jsonDiff.flattenChangeset(changeset);
+  console.log(JSON.stringify(flatChangeset, null, 2));
+  if(!isDryrun) {
+    // Not a dry-run, return the new JSON.
+    return newJson;
+  }
+  // This is a dry-run, return the old JSON.
+  return prevJson;
+}
+
 export default (workspaceDir) => {
+  console.log("is dryrun", isDryrun);
   let root = path.resolve(workspaceDir, 'package.json');
   let meta = JSON.parse(fs.readFileSync(root, { encoding: 'utf-8' }));
   return {
-    'package.json': (manifest, dir) => {
-      pinVersions(manifest.dependencies);
-      pinVersions(manifest.devDependencies);
-      pinVersions(manifest.peerDependencies);
-      return { ...manifest, version: meta.version };
+    'package.json': (prevJson, dir) => {
+      let newJson = cloneDeep(prevJson);
+      pinVersions(newJson.dependencies);
+      pinVersions(newJson.devDependencies);
+      pinVersions(newJson.peerDependencies);
+      newJson = { ...newJson, version: meta.version };
+      return processUpdate(prevJson, newJson, isDryrun, dir, 'package.json');
     },
-    'tsconfig.json': (tsConfig, dir) => {
-      
-      return (tsConfig && dir !== workspaceDir) ? {
-        ...tsConfig,
-        compilerOptions: {
-          ...tsConfig?.compilerOptions,
-          outDir: 'dist',
-          rootDir: 'src',
-        },
-      } : tsConfig;
+    'tsconfig.json': (prevJson, dir) => {
+      let newJson = cloneDeep(prevJson);
+      if(prevJson && dir !== workspaceDir) {
+        newJson = {
+          ...newJson,
+          compilerOptions: {
+            ...newJson?.compilerOptions,
+            outDir: 'dist',
+            rootDir: 'src',
+          },
+        };
+        return processUpdate(prevJson, newJson, isDryrun, dir, 'tsconfig.json');
+      }
+      return prevJson;
     }
   }
 }
