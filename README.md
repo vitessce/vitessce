@@ -44,26 +44,43 @@ For more details, please visit the [documentation](http://vitessce.io/docs/js-ov
 
 ## Development
 
-First install NodeJS and NPM. We develop and test against NodeJS `v16.14.2` and NPM `8.5.0`.
+First install [PNPM](https://pnpm.io/installation) v7. We develop and test against NodeJS `v18.6.0` and NPM `8.13.2`.
 
 > **Note**
-> NodeJS may require the [`max_old_space_size`](https://stackoverflow.com/a/59572966) value to be increased and the [`openssl-legacy-provider`](https://stackoverflow.com/questions/69692842/error-message-error0308010cdigital-envelope-routinesunsupported) flag to be set.
+> NodeJS may require the [`max_old_space_size`](https://stackoverflow.com/a/59572966) value to be increased.
   ```sh
   . ./set-node-options.sh
   ```
 
-
 Checkout the project, `cd`, and then:
 
 ```sh
-npm install
-npm start
+pnpm install
+pnpm run build # for @vitessce/icons and @vitessce/workers
+pnpm run start-demo
 ```
 
 The development server will refresh the browser as you edit the code.
 
-- To run all the Travis checks: `./test.sh`
-- To run just the unit tests: `npm run test:watch`
+### Monorepo organization
+
+#### Meta-updater script
+
+```sh
+pnpm run meta-dryrun
+pnpm run meta-update
+```
+
+### Testing
+
+For the end-to-end tests, they depend on 
+```sh
+pnpm run build-demo
+```
+
+- To run all the tests, both unit and e2e: `./test.sh`
+- To run just the unit tests: `pnpm run test`
+
 
 ## Deployment
 
@@ -120,27 +137,6 @@ if it looks good, copy it to vitessce.io:
 The `vitessce` package is published to the NPM registry by Travis when the version in `package.json` has been updated and pushed to the `master` branch. To perform this update, make a pull request to merge from the release branch into `master`.
 
 Travis uses the `NPM_EMAIL` and `NPM_TOKEN` variables that can be set using the [web interface](https://travis-ci.org/github/vitessce/vitessce/settings) (Settings -> Environment Variables).
-
-## Bundling
-
-Vitessce provides a pure ESM export intended for bundlers (e.g. Vite, Webpack, Rollup).
-Most modern bundlers should work out of the box, however bundling with legacy Webpack (<5.0) 
-requires adding the following [resolution alias](https://webpack.js.org/configuration/resolve/#resolvealias)
-to your `webpack.config.js`.
-
-```javascript
-module.exports = {
-  //...
-  resolve: {
-    alias: {
-      'txml/txml': 'txml/dist/txml'
-    },
-  },
-};
-```
-
-This fix is temporary and will no longer be necessary after the [next release of Viv](https://github.com/vitessce/vitessce/pull/1049#issuecomment-939520471).
-
 
 ## Version bumps
 
