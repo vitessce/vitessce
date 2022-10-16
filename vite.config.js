@@ -1,5 +1,4 @@
 import react from '@vitejs/plugin-react';
-import svgr from 'vite-plugin-svgr';
 import serveStatic from 'serve-static';
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
@@ -52,7 +51,6 @@ export default defineConfig({
     react({
       jsxRuntime: 'classic',
     }),
-    svgr(),
     serveTestFixtures(),
   ],
   test: {
@@ -60,19 +58,18 @@ export default defineConfig({
     passWithNoTests: true,
     testTimeout: 15000,
     globals: true,
-    //threads: false,
     environment: 'jsdom',
     setupFiles: [resolve(__dirname, './vitest.setup.js')],
     environmentOptions: {
       jsdom: {
-        resources: 'usable'
-      }
+        resources: 'usable',
+      },
     },
   },
   // To enable .js files that contain JSX to be imported by Vitest tests.
   // Reference: https://github.com/vitest-dev/vitest/issues/1564
   esbuild: {
-    loader: "jsx",
+    loader: 'jsx',
     include: /src\/.*\.jsx?$/,
     // loader: "tsx",
     // include: /src\/.*\.[tj]sx?$/,
