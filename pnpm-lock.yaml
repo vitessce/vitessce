@@ -1,5 +1,8 @@
 lockfileVersion: 5.4
 
+overrides:
+  zarr: 0.5.1
+
 importers:
 
   .:
@@ -328,6 +331,7 @@ importers:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
       rimraf: ^3.0.2
+      rollup-plugin-visualizer: ^5.8.3
       vite: ^3.0.0
     dependencies:
       '@vitessce/all': link:../all
@@ -339,6 +343,7 @@ importers:
       '@vitejs/plugin-react': 1.3.2
       cross-env: 7.0.3
       rimraf: 3.0.2
+      rollup-plugin-visualizer: 5.8.3
       vite: 3.1.8
 
   packages/sets:
@@ -569,7 +574,7 @@ importers:
       rc-tooltip: ^5.2.2
       rc-tree: 2.1.0
       react: ^18.0.0
-      react-color: ^2.18.0
+      react-color-with-lodash: ^2.19.5
       vite: ^3.0.0
       vitest: ^0.23.4
     dependencies:
@@ -583,7 +588,7 @@ importers:
       lodash: 4.17.21
       rc-tooltip: 5.2.2_biqbaboplfbrettd7655fr4n2y
       rc-tree: 2.1.0_biqbaboplfbrettd7655fr4n2y
-      react-color: 2.19.3_react@18.2.0
+      react-color-with-lodash: 2.19.5_react@18.2.0
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
@@ -778,7 +783,7 @@ importers:
       jss-plugin-global: ^10.9.2
       lodash: ^4.17.21
       react: ^18.0.0
-      react-grid-layout: ^1.3.4
+      react-grid-layout-with-lodash: ^1.3.5
       uuid: ^3.3.2
       vite: ^3.0.0
       vitest: ^0.23.4
@@ -794,7 +799,7 @@ importers:
       internmap: 2.0.3
       jss-plugin-global: 10.9.2
       lodash: 4.17.21
-      react-grid-layout: 1.3.4_biqbaboplfbrettd7655fr4n2y
+      react-grid-layout-with-lodash: 1.3.5_biqbaboplfbrettd7655fr4n2y
       uuid: 3.4.0
       zustand: 3.7.2_react@18.2.0
     devDependencies:
@@ -820,33 +825,19 @@ importers:
   sites/demo:
     specifiers:
       '@vitejs/plugin-react': ^1.3.2
-      '@vitessce/csv': workspace:*
-      '@vitessce/description': workspace:*
       '@vitessce/example-configs': workspace:*
       '@vitessce/example-plugins': workspace:*
-      '@vitessce/obs-sets-manager': workspace:*
-      '@vitessce/scatterplot-embedding': workspace:*
-      '@vitessce/scatterplot-gating': workspace:*
       cypress: ^10.10.0
       react: ^18.0.0
       react-dom: ^18.0.0
-      react-grid-layout: ^1.3.4
-      react-resizable: ^3.0.0
       sass: ^1.55.0
       vite: ^3.0.0
       vitessce: workspace:*
     dependencies:
-      '@vitessce/csv': link:../../packages/file-types/csv
-      '@vitessce/description': link:../../packages/view-types/description
       '@vitessce/example-configs': link:../../examples/configs
       '@vitessce/example-plugins': link:../../examples/plugins
-      '@vitessce/obs-sets-manager': link:../../packages/view-types/obs-sets-manager
-      '@vitessce/scatterplot-embedding': link:../../packages/view-types/scatterplot-embedding
-      '@vitessce/scatterplot-gating': link:../../packages/view-types/scatterplot-gating
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      react-grid-layout: 1.3.4_biqbaboplfbrettd7655fr4n2y
-      react-resizable: 3.0.4_biqbaboplfbrettd7655fr4n2y
       vitessce: link:../../packages/main/prod
     devDependencies:
       '@vitejs/plugin-react': 1.3.2
@@ -3514,7 +3505,7 @@ packages:
       quickselect: 2.0.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      zarr: 0.5.2
+      zarr: 0.5.1
     dev: false
 
   /@humanwhocodes/config-array/0.10.7:
@@ -6805,7 +6796,6 @@ packages:
       string-width: 4.2.3
       strip-ansi: 6.0.1
       wrap-ansi: 7.0.0
-    dev: false
 
   /clone-deep/4.0.1:
     resolution: {integrity: sha512-neHB9xuzh/wk0dIHweyAXv2aPGZIVk3pLMe+/RNzINf17fe0OG96QroktYAUm7SM1PBnzTabaLboqqxDyMU+SQ==}
@@ -7870,7 +7860,6 @@ packages:
   /define-lazy-prop/2.0.0:
     resolution: {integrity: sha512-Ds09qNh8yw3khSjiJjiUInaGX9xlqZDY7JVryGxdxV7NPeuqQfplOpQ66yJFZut3jLa5zOwkXw1g9EI2uKh4Og==}
     engines: {node: '>=8'}
-    dev: false
 
   /define-properties/1.1.4:
     resolution: {integrity: sha512-uckOqKcfaVvtBdsVkdPv3XjveQJsNQqmhXgRi8uhvWWuPYZCNlzT8qAyblUgNoXdHdjMTzAqeGjAoli8f+bzPA==}
@@ -9616,7 +9605,6 @@ packages:
   /get-caller-file/2.0.5:
     resolution: {integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==}
     engines: {node: 6.* || 8.* || >= 10.*}
-    dev: false
 
   /get-func-name/2.0.0:
     resolution: {integrity: sha512-Hm0ixYtaSZ/V7C8FJrtZIuBBI+iSgL+1Aq82zSu8VQNB4S3Gk8e7Qs3VwBDJAhmRZcFqkl3tQu36g/Foh5I5ig==}
@@ -10079,7 +10067,7 @@ packages:
   /higlass-zarr-datafetchers/0.2.1:
     resolution: {integrity: sha512-co/WtJ+K1RI2n4Okf2qUobkRGnM/YjqNdbXOGb01ogci21fjQbDWlltDxpZssGgVZJu786WQGQIAuHbJjwQOEQ==}
     dependencies:
-      zarr: 0.4.2
+      zarr: 0.5.1
     dev: false
 
   /history/4.10.1:
@@ -10585,7 +10573,6 @@ packages:
     resolution: {integrity: sha512-F+i2BKsFrH66iaUFc0woD8sLy8getkwTwtOBjvs56Cx4CgJDeKQeqfz8wAYiSb8JOprWhHH5p77PbmYCvvUuXQ==}
     engines: {node: '>=8'}
     hasBin: true
-    dev: false
 
   /is-extendable/0.1.1:
     resolution: {integrity: sha512-5BMULNob1vgFX6EjQw5izWDxrecWK9AM72rugNr0TFldMOi0fj6Jk+zeKIt0xGj4cEfQIJth4w3OKWOJ4f+AFw==}
@@ -10780,7 +10767,6 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       is-docker: 2.2.1
-    dev: false
 
   /is-yarn-global/0.3.0:
     resolution: {integrity: sha512-VjSeb/lHmkoyd8ryPVIKvOCn4D1koMqY+vqyjjUfc3xyKtP4dYOxM44sZrnqQSzSds3xyOrUTLTC9LVCVgLngw==}
@@ -11334,10 +11320,6 @@ packages:
     dependencies:
       p-locate: 5.0.0
 
-  /lodash-es/4.17.21:
-    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
-    dev: false
-
   /lodash.camelcase/4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
     dev: false
@@ -11356,10 +11338,6 @@ packages:
 
   /lodash.get/4.4.2:
     resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
-    dev: false
-
-  /lodash.isequal/4.5.0:
-    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
     dev: false
 
   /lodash.memoize/4.1.2:
@@ -12080,7 +12058,6 @@ packages:
       define-lazy-prop: 2.0.0
       is-docker: 2.2.1
       is-wsl: 2.2.0
-    dev: false
 
   /opener/1.5.2:
     resolution: {integrity: sha512-ur5UIdyw5Y7yEj9wLzhqXiy6GZ3Mwx0yGI+5sMn2r0N0v3cKJvUmFH5yPP+WXh9e0xfyzyJX95D8l088DNFj7A==}
@@ -12210,14 +12187,6 @@ packages:
       p-timeout: 3.2.0
     dev: false
 
-  /p-queue/7.3.0:
-    resolution: {integrity: sha512-5fP+yVQ0qp0rEfZoDTlP2c3RYBgxvRsw30qO+VtPPc95lyvSG+x6USSh1TuLB4n96IO6I8/oXQGsTgtna4q2nQ==}
-    engines: {node: '>=12'}
-    dependencies:
-      eventemitter3: 4.0.7
-      p-timeout: 5.1.0
-    dev: false
-
   /p-retry/4.6.2:
     resolution: {integrity: sha512-312Id396EbJdvRONlngUx0NydfrIQ5lsYu0znKVUzVvArzEIt08V1qhtyESbGVd1FGX7UKtiFp5uwKZdM8wIuQ==}
     engines: {node: '>=8'}
@@ -12231,11 +12200,6 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       p-finally: 1.0.0
-    dev: false
-
-  /p-timeout/5.1.0:
-    resolution: {integrity: sha512-auFDyzzzGZZZdHz3BtET9VEz0SE/uMEAx7uWfGPucfzEwwe/xH0iVeZibQmANYE/hp9T2+UUZT5m+BKyrDp3Ew==}
-    engines: {node: '>=12'}
     dev: false
 
   /p-try/1.0.0:
@@ -13325,14 +13289,13 @@ packages:
       pure-color: 1.3.0
     dev: false
 
-  /react-color/2.19.3_react@18.2.0:
-    resolution: {integrity: sha512-LEeGE/ZzNLIsFWa1TMe8y5VYqr7bibneWmvJwm1pCn/eNmrabWDh659JSPn9BuaMpEfU83WTOJfnCcjDZwNQTA==}
+  /react-color-with-lodash/2.19.5_react@18.2.0:
+    resolution: {integrity: sha512-Sq71fl8K4opo+tXKB1b4jePolSrmkZXsDDd3dr5CFM5Oq+XIyQcVLpv0+Y7zXs2hUTM1JqCrQCa5d96glvvtrw==}
     peerDependencies:
       react: '*'
     dependencies:
       '@icons/material': 0.2.4_react@18.2.0
       lodash: 4.17.21
-      lodash-es: 4.17.21
       material-colors: 1.2.6
       prop-types: 15.8.1
       react: 18.2.0
@@ -13433,14 +13396,14 @@ packages:
     resolution: {integrity: sha512-rtGImPZ0YyLrscKI9xTpV8psd6I8VAtjKCzQDlzyDvqJA8XOW78TXYQwNRNd8g8JZnDu8q9Fu/1v4HPAVwVdHA==}
     dev: false
 
-  /react-grid-layout/1.3.4_biqbaboplfbrettd7655fr4n2y:
-    resolution: {integrity: sha512-sB3rNhorW77HUdOjB4JkelZTdJGQKuXLl3gNg+BI8gJkTScspL1myfZzW/EM0dLEn+1eH+xW+wNqk0oIM9o7cw==}
+  /react-grid-layout-with-lodash/1.3.5_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-4E7uB3M1zBZ/u5aw4RCOXtHlRK5q4j19Nxhcq98A0Kif9smunI8JRNHJgImYsG4AMSxgdyW8RbNpo43iWrCoHA==}
     peerDependencies:
       react: '>= 16.3.0 || 18'
       react-dom: '>= 16.3.0 || 18'
     dependencies:
       clsx: 1.2.1
-      lodash.isequal: 4.5.0
+      lodash: 4.17.21
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -14033,7 +13996,6 @@ packages:
   /require-directory/2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
     engines: {node: '>=0.10.0'}
-    dev: false
 
   /require-from-string/2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
@@ -14136,6 +14098,21 @@ packages:
   /robust-predicates/3.0.1:
     resolution: {integrity: sha512-ndEIpszUHiG4HtDsQLeIuMvRsDnn8c8rYStabochtUeCvfuvNptb5TUbVD68LRAILPX7p9nqQGh4xJgn3EHS/g==}
     dev: false
+
+  /rollup-plugin-visualizer/5.8.3:
+    resolution: {integrity: sha512-QGJk4Bqe4AOat5AjipOh8esZH1nck5X2KFpf4VytUdSUuuuSwvIQZjMGgjcxe/zXexltqaXp5Vx1V3LmnQH15Q==}
+    engines: {node: '>=14'}
+    hasBin: true
+    peerDependencies:
+      rollup: 2.x || 3.x
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      open: 8.4.0
+      source-map: 0.7.4
+      yargs: 17.5.1
+    dev: true
 
   /rollup-plugin-web-worker-loader/1.6.1_rollup@2.79.1:
     resolution: {integrity: sha512-4QywQSz1NXFHKdyiou16mH3ijpcfLtLGOrAqvAqu1Gx+P8+zj+3gwC2BSL/VW1d+LW4nIHC8F7d7OXhs9UdR2A==}
@@ -14611,6 +14588,11 @@ packages:
   /source-map/0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
+
+  /source-map/0.7.4:
+    resolution: {integrity: sha512-l3BikUxvPOcn5E74dZiq5BGsTb5yEwhaTSzccU6t4sDOH8NWJCstKO5QT2CvtFoK6F0saL7p9xHAqHOlCPJygA==}
+    engines: {node: '>= 8'}
+    dev: true
 
   /sourcemap-codec/1.4.8:
     resolution: {integrity: sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA==}
@@ -16697,7 +16679,6 @@ packages:
   /y18n/5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
     engines: {node: '>=10'}
-    dev: false
 
   /yallist/4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
@@ -16714,7 +16695,6 @@ packages:
   /yargs-parser/21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
     engines: {node: '>=12'}
-    dev: false
 
   /yargs/17.5.1:
     resolution: {integrity: sha512-t6YAJcxDkNX7NFYiVtKvWUz8l+PaKTLiL63mJYWR2GnHq2gjEWISzsLp9wg3aY36dY1j+gfIEL3pIF+XlJJfbA==}
@@ -16727,7 +16707,6 @@ packages:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 21.1.1
-    dev: false
 
   /yauzl/2.10.0:
     resolution: {integrity: sha512-p4a9I6X6nu6IhoGmBqAcbJy1mlC4j27vEPZX9F4L4/vZT3Lyq1VkFHw/V/PUcB9Buo+DG3iHkT0x3Qya58zc3g==}
@@ -16740,28 +16719,12 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  /zarr/0.4.2:
-    resolution: {integrity: sha512-zyC1DaVURXqSEP6O0R8XOYa83RZkCpEHLUFOCsYn1a5n1j6ojwzwoUgeMOtHuNfuJwUnb8dGK0g3gTGGs87QiQ==}
-    engines: {node: '>=8.0.0'}
-    dependencies:
-      numcodecs: 0.2.2
-      p-queue: 6.2.0
-    dev: false
-
   /zarr/0.5.1:
     resolution: {integrity: sha512-eL7S5gza/ednVr9wJMd5UF7jcc72qgMlMxuHbFYkWWX9dvb7n0SJL6PS3dCJ5TqyRSamCpAm+ssuodcL4uBTUQ==}
     engines: {node: '>=12'}
     dependencies:
       numcodecs: 0.2.2
       p-queue: 6.2.0
-    dev: false
-
-  /zarr/0.5.2:
-    resolution: {integrity: sha512-XiAZTlkCTALZyXCAXY2rgfRY45sIaGZd/rKKuQa84+bjpxoyNYXbAU5uaIDTR+CvIuTFABqq8Gc4PfzZHYOvkw==}
-    engines: {node: '>=12'}
-    dependencies:
-      numcodecs: 0.2.2
-      p-queue: 7.3.0
     dev: false
 
   /zustand/3.7.2_react@18.2.0:

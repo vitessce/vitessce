@@ -94,7 +94,7 @@ jobs:
         with:
           working-directory: ./sites/html
           install-command: echo
-          start: pnpm run start
+          start: pnpm run start-html
           wait-on: 'http://localhost:3003'
           wait-on-timeout: 240
           browser: chrome

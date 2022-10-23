@@ -48,6 +48,9 @@
     "lodash": "^4.17.21"
   },
   "pnpm": {
+    "overrides": {
+      "zarr": "0.5.1"
+    },
     "peerDependencyRules": {
       "allowedVersions": {
         "react": "18",

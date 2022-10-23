@@ -14,7 +14,7 @@ const NEBULAGL_VERSION = "0.23.8";
 const OTHER_VERSIONS = {
   "ajv": "^6.10.0",
   'lodash': '^4.17.21',
-  'react-grid-layout': '^1.3.4',
+  'react-grid-layout-with-lodash': '^1.3.5',
   "internmap": "^2.0.3",
   "uuid": "^3.3.2",
   "zarr": "0.5.1",

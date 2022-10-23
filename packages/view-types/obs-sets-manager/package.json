@@ -28,7 +28,7 @@
     "lodash": "^4.17.21",
     "rc-tooltip": "^5.2.2",
     "rc-tree": "2.1.0",
-    "react-color": "^2.18.0"
+    "react-color-with-lodash": "^2.19.5"
   },
   "devDependencies": {
     "react": "^18.0.0",

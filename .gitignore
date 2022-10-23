@@ -10,3 +10,4 @@ yarn.lock
 *.out.glsl
 *.tsbuildinfo
 *.tgz
+stats.html

@@ -6,6 +6,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+import { visualizer } from "rollup-plugin-visualizer";
 
 const isProduction = process.env.APP_ENV === 'production';
 
@@ -33,5 +34,8 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': `"${process.env.APP_ENV}"`,
   },
-  plugins: [react()]
+  plugins: [
+    react(),
+    visualizer(),
+  ],
 });
