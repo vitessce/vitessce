@@ -99,7 +99,7 @@ These websites both need to consume the library code, ideally with hot reloading
 In the same way that the monorepo's separation of concerns facilitates different bundling tools scoped to each sub-repo, it also enables different development servers in each "sub-website".
 This allows us to use Vite development server mode and its React plugin for the minimal development website.
 Meanwhile, we can continue to use [Docusaurus](https://docusaurus.io/) and its internal Webpack configuration for the documentation website.
-To enable hot reloading during development of both websites, rather than `tsc`, we run `tsc --watch` so that the `dist` directory of each sub-packages is updated on every source code change.
+To enable hot reloading during development of both websites, rather than `tsc`, we run `tsc --watch` so that the `dist` directory of each sub-package is updated on every source code change.
 To further improve performance, we enable TypeScript's "incremental" mode with `"incremental": true`.
 
 ### React 18
@@ -123,11 +123,12 @@ This is not ideal, so we will need to look into ways to address the IDE support 
 
 ### Style definitions
 
-To style our React components, we previously used a combination of SCSS and CSS-in-JS (via Material UI + JSS).
+To style our React components, we previously used a combination of SCSS and CSS-in-JS (via Material UI v4 + JSS).
 SCSS requires a build step to convert the source code to plain CSS code.
 Further, CSS imports in general also require a build step as they must be transformed from the JS-like import syntax to JS-compatible syntax.
 To address this, we have manually converted all SCSS to JSS using Material UI's [makeStyles](https://v4.mui.com/styles/basics/#hook-api) function and theming utilities.
-This comes with the benefits of standardizing our styling code and facilitating direct style injection for consumers (i.e., no need for library users to include or think about a separate CSS file).
+(Note: we have not upgraded to Material UI v5 which [no longer uses JSS](https://mui.com/material-ui/migration/migrating-from-jss/) so this solution may not be advised in a new project.)
+Using JSS everywhere comes with the benefits of standardizing our styling code and facilitating direct style injection for consumers (i.e., no need for library users to include or think about a separate CSS file).
 While JSS auto-generates class names by default (which prevents naming conflicts), the [jss-global-plugin](https://cssinjs.org/jss-plugin-global) enables global class names to be used to refer to elements defined by dependencies such as [react-grid-layout](https://www.npmjs.com/package/react-grid-layout).
 
 ### Testing
