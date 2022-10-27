@@ -34,6 +34,35 @@ const makeDefaultGetObsCoords = obsLocations => i => ([
   0,
 ]);
 
+function getVivLayerExtensions(use3d, colormap, renderingMode) {
+  if (use3d) {
+    // Is 3d
+    if (colormap) {
+      // Colormap: use AdditiveColormap extensions
+      if (renderingMode === 'Minimum Intensity Projection') {
+        return [new viv.AdditiveColormap3DExtensions.MinimumIntensityProjectionExtension()];
+      }
+      if (renderingMode === 'Maximum Intensity Projection') {
+        return [new viv.AdditiveColormap3DExtensions.MaximumIntensityProjectionExtension()];
+      }
+      return [new viv.AdditiveColormap3DExtensions.AdditiveBlendExtension()];
+    }
+    // No colormap: use ColorPalette extensions
+    if (renderingMode === 'Minimum Intensity Projection') {
+      return [new viv.ColorPalette3DExtensions.MinimumIntensityProjectionExtension()];
+    }
+    if (renderingMode === 'Maximum Intensity Projection') {
+      return [new viv.ColorPalette3DExtensions.MaximumIntensityProjectionExtension()];
+    }
+    return [new viv.ColorPalette3DExtensions.AdditiveBlendExtension()];
+  }
+  // Not 3d
+  if (colormap) {
+    return [new viv.AdditiveColormapExtension()];
+  }
+  return [new viv.ColorPaletteExtension()];
+}
+
 /**
  * React component which expresses the spatial relationships between cells and molecules.
  * @param {object} props
@@ -419,13 +448,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
     const [Layer, layerLoader] = getLayerLoaderTuple(data, layerDef.use3d);
 
-    const extensions = (layerDef.use3d ? [] : [
-      ...(layerProps.colormap ? [
-        new viv.AdditiveColormapExtension(),
-      ] : [
-        new viv.ColorPaletteExtension(),
-      ]),
-    ]);
+    const extensions = getVivLayerExtensions(
+      layerDef.use3d, layerProps.colormap, layerProps.renderingMode,
+    );
 
     return new Layer({
       loader: layerLoader,
