@@ -134,9 +134,15 @@ if it looks good, copy it to vitessce.io:
 
 #### Publish the NPM package
 
-The `vitessce` package is published to the NPM registry by Travis when the version in `package.json` has been updated and pushed to the `master` branch. To perform this update, make a pull request to merge from the release branch into `master`.
+From GitHub Actions:
 
-Travis uses the `NPM_EMAIL` and `NPM_TOKEN` variables that can be set using the [web interface](https://travis-ci.org/github/vitessce/vitessce/settings) (Settings -> Environment Variables).
+- The `vitessce` package is published to the NPM registry by GitHub Actions when the version in `package.json` has been updated and pushed to the `main` branch. To perform this update, make a pull request to merge from the release branch into `main`.
+
+From local machine:
+
+  ```sh
+  pnpm publish --filter='./packages/**' --no-git-checks --tag beta --dry-run
+  ```
 
 ## Version bumps
 
