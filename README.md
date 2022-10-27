@@ -141,7 +141,7 @@ From GitHub Actions:
 From local machine:
 
   ```sh
-  pnpm publish --filter='./packages/**' --no-git-checks --tag beta --dry-run
+  pnpm publish --filter='./packages/**' --no-git-checks --tag beta --access public --dry-run
   ```
 
 ## Version bumps

@@ -1,6 +1,6 @@
 {
-  "name": "@vitessce/utils",
-  "version": "2.0.0-beta.0",
+  "name": "@vitessce/export-utils",
+  "version": "2.0.0-beta.1",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -18,9 +18,7 @@
     "test": "pnpm exec vitest --run -r ../../ --dir ."
   },
   "dependencies": {
-    "@vitessce/sets": "workspace:*",
     "bowser": "^2.11.0",
-    "lodash": "^4.17.21",
     "lz-string": "^1.4.4"
   }
 }

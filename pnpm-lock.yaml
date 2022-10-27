@@ -92,7 +92,7 @@ importers:
       '@vitessce/utils': workspace:*
     dependencies:
       '@vitessce/constants-internal': link:../constants-internal
-      '@vitessce/utils': link:../utils
+      '@vitessce/utils': link:../utils/other-utils
 
   packages/constants:
     specifiers:
@@ -137,7 +137,7 @@ importers:
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/gl': link:../../gl
       '@vitessce/sets': link:../../sets
-      '@vitessce/utils': link:../../utils
+      '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       ajv: 6.12.6
       d3-array: 2.12.1
@@ -158,7 +158,7 @@ importers:
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/gl': link:../../gl
       '@vitessce/sets': link:../../sets
-      '@vitessce/utils': link:../../utils
+      '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
       lodash: 4.17.21
@@ -233,7 +233,7 @@ importers:
       '@turf/boolean-within': 6.5.0
       '@turf/centroid': 6.5.0
       '@turf/helpers': 6.5.0
-      '@vitessce/utils': link:../utils
+      '@vitessce/utils': link:../utils/other-utils
       deck.gl: 8.6.7_s7w6qugh3jhpoitov4va2qvphi
       glslify: 7.1.1
       lodash: 4.17.21
@@ -304,6 +304,7 @@ importers:
       '@vitessce/all': workspace:*
       '@vitessce/config': workspace:*
       '@vitessce/constants': workspace:*
+      '@vitessce/export-utils': workspace:*
       cross-env: ^7.0.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
@@ -313,6 +314,7 @@ importers:
       '@vitessce/all': link:../all
       '@vitessce/config': link:../../config
       '@vitessce/constants': link:../../constants
+      '@vitessce/export-utils': link:../../utils/export-utils
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
@@ -327,6 +329,7 @@ importers:
       '@vitessce/all': workspace:*
       '@vitessce/config': workspace:*
       '@vitessce/constants': workspace:*
+      '@vitessce/export-utils': workspace:*
       cross-env: ^7.0.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
@@ -337,6 +340,7 @@ importers:
       '@vitessce/all': link:../all
       '@vitessce/config': link:../../config
       '@vitessce/constants': link:../../constants
+      '@vitessce/export-utils': link:../../utils/export-utils
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
@@ -363,7 +367,7 @@ importers:
     dependencies:
       '@turf/centroid': 6.5.0
       '@turf/helpers': 6.5.0
-      '@vitessce/utils': link:../utils
+      '@vitessce/utils': link:../utils/other-utils
       '@vitessce/vit-s': link:../vit-s
       ajv: 6.12.6
       concaveman: 1.2.1
@@ -389,14 +393,22 @@ importers:
       vite: 3.1.8
       vitest: 0.23.4
 
-  packages/utils:
+  packages/utils/export-utils:
+    specifiers:
+      bowser: ^2.11.0
+      lz-string: ^1.4.4
+    dependencies:
+      bowser: 2.11.0
+      lz-string: 1.4.4
+
+  packages/utils/other-utils:
     specifiers:
       '@vitessce/sets': workspace:*
       bowser: ^2.11.0
       lodash: ^4.17.21
       lz-string: ^1.4.4
     dependencies:
-      '@vitessce/sets': link:../sets
+      '@vitessce/sets': link:../../sets
       bowser: 2.11.0
       lodash: 4.17.21
       lz-string: 1.4.4
@@ -456,7 +468,7 @@ importers:
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
-      '@vitessce/utils': link:../../utils
+      '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       clsx: 1.2.1
       lodash: 4.17.21
@@ -487,7 +499,7 @@ importers:
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
-      '@vitessce/utils': link:../../utils
+      '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
       dynamic-import-polyfill: 0.1.1
@@ -523,7 +535,7 @@ importers:
       '@vitessce/gl': link:../../gl
       '@vitessce/sets': link:../../sets
       '@vitessce/tooltip': link:../../tooltip
-      '@vitessce/utils': link:../../utils
+      '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       '@vitessce/workers': link:../../workers
       lodash: 4.17.21
@@ -552,7 +564,7 @@ importers:
       '@material-ui/icons': 4.11.3_jvx44q7qymyhf2qyoxemen5jw4
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/gl': link:../../gl
-      '@vitessce/utils': link:../../utils
+      '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       lodash: 4.17.21
       math.gl: 3.6.3
@@ -582,7 +594,7 @@ importers:
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/icons': link:../../icons
       '@vitessce/sets': link:../../sets
-      '@vitessce/utils': link:../../utils
+      '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       clsx: 1.2.1
       lodash: 4.17.21
@@ -616,7 +628,7 @@ importers:
       '@vitessce/gl': link:../../gl
       '@vitessce/icons': link:../../icons
       '@vitessce/tooltip': link:../../tooltip
-      '@vitessce/utils': link:../../utils
+      '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       clsx: 1.2.1
       d3-force: 2.1.1
@@ -646,7 +658,7 @@ importers:
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/scatterplot': link:../scatterplot
       '@vitessce/sets': link:../../sets
-      '@vitessce/utils': link:../../utils
+      '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
       lodash: 4.17.21
@@ -675,7 +687,7 @@ importers:
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/scatterplot': link:../scatterplot
       '@vitessce/sets': link:../../sets
-      '@vitessce/utils': link:../../utils
+      '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
       lodash: 4.17.21
@@ -711,7 +723,7 @@ importers:
       '@vitessce/scatterplot': link:../scatterplot
       '@vitessce/sets': link:../../sets
       '@vitessce/tooltip': link:../../tooltip
-      '@vitessce/utils': link:../../utils
+      '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
       lodash: 4.17.21
@@ -741,7 +753,7 @@ importers:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/sets': link:../../sets
-      '@vitessce/utils': link:../../utils
+      '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vega': link:../../vega
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
@@ -792,7 +804,7 @@ importers:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@material-ui/icons': 4.11.3_jvx44q7qymyhf2qyoxemen5jw4
       '@vitessce/constants-internal': link:../constants-internal
-      '@vitessce/utils': link:../utils
+      '@vitessce/utils': link:../utils/other-utils
       ajv: 6.12.6
       clsx: 1.2.1
       fast-deep-equal: 3.1.3

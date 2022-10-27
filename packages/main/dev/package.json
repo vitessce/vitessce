@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/dev",
-  "version": "2.0.0-beta.0",
+  "version": "2.0.0-beta.1",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -27,7 +27,8 @@
   "dependencies": {
     "@vitessce/all": "workspace:*",
     "@vitessce/config": "workspace:*",
-    "@vitessce/constants": "workspace:*"
+    "@vitessce/constants": "workspace:*",
+    "@vitessce/export-utils": "workspace:*"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^1.3.2",
