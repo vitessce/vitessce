@@ -3,7 +3,9 @@ import {
   TitleInfo,
   useCoordination, useLoaders,
   useUrls, useReady, useGridItemSize,
-  useFeatureSelection, useObsSetsData, useObsFeatureMatrixIndices,
+  useFeatureSelection, useObsSetsData,
+  useObsFeatureMatrixIndices,
+  useFeatureLabelsData,
   registerPluginViewType,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
@@ -144,6 +146,11 @@ export function CellSetExpressionPlotSubscriber(props) {
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
+  // TODO: support multiple feature labels using featureLabelsType coordination values.
+  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
+    loaders, dataset, addUrl, false, {}, {},
+    { featureType },
+  );
   const [{ obsIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
     loaders, dataset, addUrl, false,
     { obsType, featureType, featureValueType },
@@ -156,6 +163,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     featureSelectionStatus,
     matrixIndicesStatus,
     obsSetsStatus,
+    featureLabelsStatus,
   ]);
 
   const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
@@ -166,7 +174,7 @@ export function CellSetExpressionPlotSubscriber(props) {
   );
 
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
-    ? geneSelection[0]
+    ? (featureLabelsMap?.get(geneSelection[0]) || geneSelection[0])
     : null;
   const selectedTransformName = transformOptions.find(
     o => o.value === featureValueTransform,

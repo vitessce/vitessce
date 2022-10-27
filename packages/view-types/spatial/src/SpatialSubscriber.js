@@ -135,8 +135,12 @@ export function SpatialSubscriber(props) {
     { obsType, featureType, featureValueType },
     // TODO: get per-spatialLayerType expression data once #1240 is merged.
   );
-  const hasCellsData = useHasLoader(
+  const hasSegmentationsData = useHasLoader(
     loaders, dataset, DataType.OBS_SEGMENTATIONS,
+    { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
+  );
+  const hasLocationsData = useHasLoader(
+    loaders, dataset, DataType.OBS_LOCATIONS,
     { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
   );
   const hasImageData = useHasLoader(
@@ -323,7 +327,13 @@ export function SpatialSubscriber(props) {
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useExpressionValueGetter({
-    instanceObsIndex: obsSegmentationsIndex,
+    // eslint-disable-next-line no-unneeded-ternary
+    instanceObsIndex: (obsSegmentationsIndex
+      // When there are polygon cell segmentations.
+      ? obsSegmentationsIndex
+      // When there are not polygon cell segmentations, and we need to make fake diamonds.
+      : obsCentroidsIndex
+    ),
     matrixObsIndex,
     expressionData,
   });
@@ -353,7 +363,9 @@ export function SpatialSubscriber(props) {
           geneExpressionColormapRange={geneExpressionColormapRange}
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
           canShowExpressionOptions={hasExpressionData}
-          canShowColorEncodingOption={hasCellsData && hasExpressionData}
+          canShowColorEncodingOption={
+            (hasLocationsData || hasSegmentationsData) && hasExpressionData
+          }
           canShow3DOptions={canShow3DOptions}
         />
       );
@@ -361,20 +373,21 @@ export function SpatialSubscriber(props) {
     return null;
   }, [canShow3DOptions, cellColorEncoding, geneExpressionColormap,
     geneExpressionColormapRange, setGeneExpressionColormap,
-    hasCellsData, hasExpressionData, observationsLabel, setCellColorEncoding,
+    hasLocationsData, hasSegmentationsData, hasExpressionData,
+    observationsLabel, setCellColorEncoding,
     setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d,
   ]);
 
   useEffect(() => {
     // For backwards compatibility (diamond case).
     // Log to the console to alert the user that the auto-generated diamonds are being used.
-    if (!hasCellsData
+    if (!hasSegmentationsData
       && cellsLayer && !obsSegmentations && !obsSegmentationsIndex
       && obsCentroids && obsCentroidsIndex
     ) {
       console.warn('Rendering cell segmentation diamonds for backwards compatibility.');
     }
-  }, [hasCellsData, cellsLayer, obsSegmentations, obsSegmentationsIndex,
+  }, [hasSegmentationsData, cellsLayer, obsSegmentations, obsSegmentationsIndex,
     obsCentroids, obsCentroidsIndex,
   ]);
 
@@ -413,7 +426,7 @@ export function SpatialSubscriber(props) {
         obsLocations={obsLocations}
         obsLocationsLabels={obsLocationsLabels}
         obsLocationsFeatureIndex={obsLocationsFeatureIndex}
-        hasSegmentations={hasCellsData}
+        hasSegmentations={hasSegmentationsData}
         obsSegmentations={obsSegmentations}
         obsSegmentationsType={obsSegmentationsType}
         obsCentroids={obsCentroids}

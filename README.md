@@ -141,6 +141,7 @@ From GitHub Actions:
 From local machine:
 
   ```sh
+  pnpm run build
   pnpm publish --filter='./packages/**' --no-git-checks --tag beta --access public --dry-run
   ```
 
