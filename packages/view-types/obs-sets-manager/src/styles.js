@@ -11,7 +11,7 @@ export const useStyles = makeStyles(theme => ({
     height: 'auto',
   },
   setOperationButtons: {
-    backgroundColor: theme.palette.grayLight, // map-get($global-colors, "gray-light");
+    backgroundColor: theme.palette.grayLight,
     borderRadius: '4px',
     padding: '2px',
     display: 'flex',
@@ -24,7 +24,7 @@ export const useStyles = makeStyles(theme => ({
       cursor: 'pointer',
       border: '0',
       backgroundColor: 'transparent',
-      color: theme.palette.grayDark, // lighten(map-get($global-colors, "gray-dark"), 5%);
+      color: theme.palette.grayDarkL5,
       '&[disabled]': {
         pointerEvents: 'none',
         '& svg': {
@@ -32,14 +32,14 @@ export const useStyles = makeStyles(theme => ({
         },
       },
       '& svg': {
-        fill: theme.palette.grayDark, // map-get($global-colors, "gray-dark");
+        fill: theme.palette.grayDark,
         verticalAlign: 'top',
         height: '20px',
         marginTop: '1px',
       },
       '&:hover,:hover path': {
-        color: theme.palette.grayDark, // darken(map-get($global-colors, "gray-dark"), 15%);
-        fill: theme.palette.grayDark, // darken(map-get($global-colors, "gray-dark"), 15%);
+        color: theme.palette.grayDarkD15,
+        fill: theme.palette.grayDarkD15,
       },
     },
   },
@@ -60,7 +60,7 @@ export const useStyles = makeStyles(theme => ({
     },
 
     '@global .level-0-treenode > .rc-tree-switcher i svg path': {
-      fill: theme.palette.primaryForeground, // lighten(map-get($theme-colors, "primary-foreground"), 5%)
+      fill: theme.palette.primaryForegroundL5,
     },
     '@global .rc-tree-focused:not(.rc-tree-active-focused)': {
       borderColor: 'cyan',
@@ -157,14 +157,14 @@ export const useStyles = makeStyles(theme => ({
       width: '13px',
       height: '13px',
       margin: '0 3px',
-      border: `2px solid ${theme.palette.grayMid}`, // map-get($global-colors, "gray-mid");
+      border: `2px solid ${theme.palette.grayMid}`,
       borderRadius: '3px',
       position: 'relative',
       left: '0',
       marginRight: '10px',
     },
     '@global .rc-tree-treenode span.rc-tree-checkbox-checked': {
-      backgroundColor: theme.palette.grayMid, // map-get($global-colors, "gray-mid");
+      backgroundColor: theme.palette.grayMid,
     },
     '@global .rc-tree-treenode span.rc-tree-checkbox-indeterminate': {
       backgroundPosition: '-14px -28px',
@@ -227,14 +227,14 @@ export const useStyles = makeStyles(theme => ({
   plusButton: {
     border: '0',
     backgroundColor: 'transparent',
-    color: theme.palette.primaryForeground, // lighten(map-get($theme-colors, "primary-foreground"), 5%);
+    color: theme.palette.primaryForegroundL5,
     padding: '0',
     fontSize: '18px',
     marginBottom: '2rem',
     cursor: 'pointer',
   },
   nodeMenuIcon: {
-    fill: theme.palette.grayMid, // map-get($global-colors, "gray-mid");
+    fill: theme.palette.grayMid,
     cursor: 'pointer',
     height: '14px',
     position: 'relative',
@@ -242,12 +242,12 @@ export const useStyles = makeStyles(theme => ({
     width: `${nodeHeight}px`,
     top: '5.5px',
     '&:hover': {
-      fill: theme.palette.grayMid, // lighten(map-get($global-colors, "gray-mid"), 10%);
+      fill: theme.palette.grayMidL10,
     },
   },
   nodeSizeLabel: {
     fontSize: '12px',
-    color: theme.palette.primaryForeground, // darken(map-get($theme-colors, "primary-foreground"), 15%);
+    color: theme.palette.primaryForegroundD15,
   },
   levelButtonsContainer: {
     height: '20px',
@@ -265,8 +265,8 @@ export const useStyles = makeStyles(theme => ({
     padding: '5px',
     /* background-color only for content */
     backgroundClip: 'content-box',
-    border: `2px solid ${theme.palette.primaryForeground}`, // lighten(map-get($theme-colors, "primary-foreground"), 10%);
-    backgroundColor: theme.palette.primaryForeground, // lighten(map-get($theme-colors, "primary-foreground"), 10%);
+    border: `2px solid ${theme.palette.primaryForegroundL10}`,
+    backgroundColor: theme.palette.primaryForegroundL10,
     borderRadius: '6px',
     position: 'relative',
     top: '3px',
@@ -286,7 +286,7 @@ export const useStyles = makeStyles(theme => ({
     height: `${nodeHeight - 8}px`,
     lineHeight: `${nodeHeight - 8}px`,
     border: '1px solid transparent',
-    color: theme.palette.primaryForeground, // lighten(map-get($theme-colors, "primary-foreground"), 5%);
+    color: theme.palette.primaryForegroundL5,
     background: 'transparent',
     backgroundColor: 'transparent',
     verticalAlign: 'top',
@@ -306,20 +306,20 @@ export const useStyles = makeStyles(theme => ({
     lineHeight: `${nodeHeight - 8}px`,
     width: 'calc(100% - 60px)',
     marginRight: '10px',
-    backgroundColor: theme.palette.grayLight, // map-get($global-colors, "gray-light");
-    color: theme.palette.black, // map-get($global-colors, "black");
+    backgroundColor: theme.palette.grayLight,
+    color: theme.palette.black,
     borderRadius: '4px',
     outline: 'none',
     padding: ' 4px 0px 4px 4px',
-    border: `1px solid ${theme.palette.grayLight}`, //  map-get($global-colors, "gray-light");
+    border: `1px solid ${theme.palette.grayLight}`,
     '& :focus': {
-      border: `1px solid ${theme.palette.primaryForegroundActive}`, // map-get($theme-colors, "primary-foreground-active");
+      border: `1px solid ${theme.palette.primaryForegroundActive}`,
     },
   },
   titleSaveButton: {
-    backgroundColor: theme.palette.grayDark, // map-get($global-colors, "gray-dark");
-    border: `1px solid ${theme.palette.grayDark}`, // map-get($global-colors, "gray-dark");
-    color: theme.palette.grayLight, // map-get($global-colors, "gray-light");
+    backgroundColor: theme.palette.grayDark,
+    border: `1px solid ${theme.palette.grayDark}`,
+    color: theme.palette.grayLight,
     borderRadius: '3px',
     width: '50px',
     height: `${nodeHeight - 8}px`,
@@ -329,8 +329,8 @@ export const useStyles = makeStyles(theme => ({
     margin: 0,
     padding: 0,
     '&:hover': {
-      backgroundColor: theme.palette.grayDark, // lighten(map-get($global-colors, "gray-dark"), 5%);
-      border: `1px solid ${theme.palette.grayDark}`, // lighten(map-get($global-colors, "gray-dark"), 5%);
+      backgroundColor: theme.palette.grayDarkL5,
+      border: `1px solid ${theme.palette.grayDarkL5}`,
     },
   },
   // TODO(monorepo): is this style used anywhere?
@@ -490,11 +490,11 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
       backgroundColor: 'transparent',
       borderRadius: '2px',
       '&:hover': {
-        backgroundColor: theme.palette.grayLight, // lighten(map-get($global-colors, "gray-light"), 10%);
+        backgroundColor: theme.palette.grayLightL10,
       },
     },
     '& li:not(:last-child)': {
-      borderBottom: `1px solid ${theme.palette.grayMid}`, // map-get($global-colors, "gray-mid");
+      borderBottom: `1px solid ${theme.palette.grayMid}`,
     },
     '& button': {
       appearance: 'button',

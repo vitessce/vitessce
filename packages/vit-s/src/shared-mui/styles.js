@@ -7,6 +7,10 @@ const globalColors = {
   grayMid: '#808080',
   grayDark: '#555555',
   black: '#000000',
+  grayDarkL5: 'rgb(98, 98, 98)', // lighten(map-get($global-colors, "gray-dark"), 5%);
+  grayDarkD15: 'rgb(47, 47, 47)', // darken(map-get($global-colors, "gray-dark"), 15%);
+  grayMidL10: 'rgb(154, 154, 154)', // lighten(map-get($global-colors, "gray-mid"), 10%);
+  grayLightL10: 'rgb(237, 237, 237)', // lighten(map-get($global-colors, "gray-light"), 10%);
 };
 
 export const muiTheme = {
@@ -21,6 +25,9 @@ export const muiTheme = {
       primaryBackgroundDim: '#333333',
       primaryBackgroundLight: '#757575',
       primaryForeground: '#D3D3D3',
+      primaryForegroundL5: 'rgb(224, 224, 224)',
+      primaryForegroundL10: 'rgb(237, 237, 237)',
+      primaryForegroundD15: 'rgb(173, 173, 173)',
       primaryForegroundDim: '#000000',
       primaryForegroundActive: '#9bb7d6',
       secondaryBackground: '#000000',
@@ -47,6 +54,9 @@ export const muiTheme = {
       primaryBackgroundDim: '#8A8A8A',
       primaryBackgroundLight: '#e0e0e0',
       primaryForeground: '#333333',
+      primaryForegroundL5: 'rgb(64, 64, 64)', // lighten(map-get($theme-colors, "primary-foreground"), 5%);
+      primaryForegroundL10: 'rgb(77, 77, 77)', // lighten(map-get($theme-colors, "primary-foreground"), 10%);
+      primaryForegroundD15: 'rgb(13, 13, 13)', // darken(map-get($theme-colors, "primary-foreground"), 15%);
       primaryForegroundDim: '#808080',
       primaryForegroundActive: '#0074D9',
       secondaryBackground: '#F1F1F1',
