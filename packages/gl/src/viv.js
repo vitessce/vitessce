@@ -13,6 +13,8 @@ export {
   ColorPaletteExtension,
   ImageLayer,
   VolumeLayer,
+  AdditiveColormap3DExtensions,
+  ColorPalette3DExtensions,
   // TODO: deprecated
   DTYPE_VALUES,
 } from '@hms-dbmi/viv';
