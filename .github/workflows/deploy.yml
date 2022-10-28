@@ -27,6 +27,6 @@ jobs:
       - run: pnpm run build:ci
       - name: Deploy to NPM
         if: ${{ steps.check-deploy.outputs.needs-deploy == 'true' }}
-        run: npm publish
+        run: pnpm publish --filter='./packages/**' --no-git-checks --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
