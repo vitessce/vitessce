@@ -107,6 +107,28 @@ To further improve performance, we enable TypeScript's "incremental" mode with `
 To leverage the benefits of React 18, we use the TypeScript option `"jsx": "react-jsx"`, which also comes with the minor benefit that JSX code can be written [without explicitly importing](https://reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html) React at the top of each file.
 To use React 18 in the context of Docusaurus and Material UI dependencies, which do not yet specify compatibility above React 17 in their `peerDependencies`, we use PNPM's [peerDependencyRules](https://pnpm.io/package_json#pnpmpeerdependencyrules) in the root of the repository to override them and ensure that we are only depending on React 18 (as two versions of React cannot be included in the same web page).
 
+### Externalizing React
+
+Because the Vitessce React component is intended to be consumed by a React application (or other React component library), we can assume the consumer is using their own copy of React.
+In fact, including two copies of React in the same web application typically causes a website to [crash](https://reactjs.org/warnings/invalid-hook-call-warning.html#duplicate-react).
+To make React an external dependency in the main development and production bundles, we can use the `rollupOptions` part of the Vite configuration:
+
+```js
+...,
+rollupOptions: {
+  external: ['react', 'react-dom'],
+  output: {
+    globals: {
+      react: 'React',
+      'react-dom': 'ReactDOM',
+    },
+  }
+},
+...
+```
+
+Then, we can use the React-less Vitessce bundle in different contexts: [UMD](https://github.com/vitessce/vitessce/blob/4bd70c0/sites/html/src/umd.html), [ESM with importmap](https://github.com/vitessce/vitessce/blob/4bd70c0/sites/html/src/es.html), or [d3.require.alias](https://observablehq.com/@keller-mark/vitessce-from-unpkg).
+
 ### Managing and publishing sub-packages 
 
 To streamline the management of many sub-packages, we use PNPM and its [meta-updater](https://github.com/pnpm/meta-updater) plugin.
@@ -138,6 +160,13 @@ However, there were a few hiccups, namely using code that depends on Web Workers
 Jest + Vitest use jsdom rather than a real web browser during unit tests, for efficiency.
 However, jsdom lacks support for web workers, which can be addressed by including the [jsdom-worker](https://www.npmjs.com/package/jsdom-worker) library in the test setup script.
 To serve static files during unit testing, we can hook into Vite's development server and add static file routes via [serve-static](https://github.com/expressjs/serve-static).
+
+### Bundle analysis
+
+It can be difficult to know what matters when it comes to the minified bundle size, and where to focus efforts when trying to reduce the size.
+Visualizing the bundle composition is a great way to understand which dependencies or source files are contributing.
+Luckily, [rollup-plugin-visualizer](https://www.npmjs.com/package/rollup-plugin-visualizer) is compatible with this build setup because Vite uses the [rollup plugin API](https://vitejs.dev/guide/using-plugins.html).
+From this visual analysis, I found that three different versions of the Zarr package were being included in the bundle, which I resolved using PNPM's [overrides](https://pnpm.io/package_json#pnpmoverrides) in the root of the monorepo.
 
 ## Concluding thoughts
 
