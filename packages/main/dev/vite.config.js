@@ -6,8 +6,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+import { visualizer } from "rollup-plugin-visualizer";
 
 const isProduction = process.env.APP_ENV === 'production';
+
+console.log(process.env.APP_ENV, __dirname);
 
 export default defineConfig({
   build: {
@@ -15,6 +18,8 @@ export default defineConfig({
     minify: isProduction ? 'esbuild' : false,
     sourcemap: false,
     lib: {
+      // __dirname is packages/main/dev regardless of whether
+      // vite build CLI is executed from packages/main/dev or packages/main/prod.
       entry: resolve(__dirname, 'src/index.js'),
       name: 'vitessce',
       fileName: isProduction ? 'index.min' : 'index',
@@ -33,5 +38,10 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': `"${process.env.APP_ENV}"`,
   },
-  plugins: [react()]
+  plugins: [
+    react(),
+    visualizer({
+      template: 'treemap'
+    }),
+  ],
 });

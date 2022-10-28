@@ -18,11 +18,8 @@
     "dist"
   ],
   "scripts": {
-    "start": "tsc --watch",
-    "build": "rimraf ./dist/ && rimraf *.tsbuildinfo && tsc && pnpm run build-lib",
-    "build-lib": "pnpm run build-lib:prod",
-    "build-lib:prod": "cross-env APP_ENV=production vite build --mode lib",
-    "build-lib:dev": "cross-env APP_ENV=development vite build --mode lib"
+    "build": "rimraf ./dist/ && pnpm --dir ../dev run build-lib && pnpm run bundle",
+    "bundle": "cross-env APP_ENV=production vite build --mode lib -c ../dev/vite.config.js"
   },
   "dependencies": {
     "@vitessce/all": "workspace:*",
