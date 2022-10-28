@@ -1,16 +1,8 @@
 
 function loadConfig(config) {
-  // Without a route, Cypress tries to proxy the request,
-  // and that doesn't seem to work for data URIs.
-  const uri = 'data:,JSON-HERE';
-  cy.route({
-    url: uri,
-    response: config,
-  });
-
-  cy.visit('/');
-  cy.get('input[name=url]').type(uri);
-  cy.get('button').click();
+  // Visit the demo by using the config object as a data URI.
+  const uri = `data:,${JSON.stringify(config)}`;
+  cy.visit(`/?url=${uri}`);
 }
 
 describe('Vitessce Data URIs', () => {
