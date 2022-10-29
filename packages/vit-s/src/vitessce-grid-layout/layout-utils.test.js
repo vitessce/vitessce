@@ -89,12 +89,14 @@ describe('layout-utils.js', () => {
         uid: 'i0',
         component: 'NoProps',
         coordinationScopes: {},
+        coordinationScopesBy: {},
         props: {},
       },
       i1: {
         uid: 'i1',
         component: 'HasProps',
         coordinationScopes: {},
+        coordinationScopesBy: {},
         props: {
           foo: 'bar',
         },

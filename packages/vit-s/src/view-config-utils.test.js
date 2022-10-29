@@ -6,6 +6,7 @@ import {
 import {
   upgradeFrom0_1_0,
   upgradeFrom1_0_0,
+  upgradeFrom1_0_15,
 } from './view-config-upgraders';
 import {
   legacyViewConfig0_1_0,
@@ -14,6 +15,8 @@ import {
   upgradedLegacyViewConfig1_0_0,
   initializedViewConfig,
   viewConfig1_0_10,
+  implicitPerDatasetCoordinations,
+  explicitPerDatasetCoordinations,
   missingViewUids,
 } from './view-config-utils.test.fixtures';
 
@@ -51,6 +54,10 @@ describe('src/app/view-config-utils.js', () => {
 
     it('upgrade view config from v1.0.0 to v1.0.1', () => {
       expect(upgradeFrom1_0_0(legacyViewConfig1_0_0)).toEqual(upgradedLegacyViewConfig1_0_0);
+    });
+    it('upgrade view config from v1.0.9 to v1.0.16', () => {
+      expect(upgradeFrom1_0_15(implicitPerDatasetCoordinations))
+        .toEqual(explicitPerDatasetCoordinations);
     });
   });
 
