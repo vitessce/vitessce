@@ -11,6 +11,7 @@ import { register as registerSpatial } from '@vitessce/spatial';
 import { register as registerHeatmap } from '@vitessce/heatmap';
 import { register as registerFeatureList } from '@vitessce/feature-list';
 import { register as registerLayerController } from '@vitessce/layer-controller';
+import { registerLayerController as registerLayerControllerV2 } from '@vitessce/spatial-split';
 import { register as registerStatus } from '@vitessce/status';
 import { registerCellSetExpression, registerCellSetSizes, registerExpressionHistogram } from '@vitessce/statistical-plots';
 import { registerHiglass, registerGenomicProfiles } from '@vitessce/genomic-profiles';
@@ -73,6 +74,7 @@ function setup() {
   registerHeatmap();
   registerFeatureList();
   registerLayerController();
+  registerLayerControllerV2();
   registerStatus();
   // Statistical plots
   registerCellSetExpression();

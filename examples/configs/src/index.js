@@ -27,6 +27,7 @@ import { humanLymphNode10xVisium } from './view-configs/human_lymph_node_10x_vis
 import { kuppe2022nature } from './view-configs/kuppe_2022_nature';
 import { marshall2022iScience } from './view-configs/marshall_2022_iscience';
 import { meta2022azimuth } from './view-configs/meta_2022_azimuth';
+import { codeluppiSpatialSplit } from './view-configs/spatial-split';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -46,6 +47,7 @@ export const configs = {
   'just-higlass': justHiglass,
   'codeluppi-2018': codeluppiViaCsv,
   'codeluppi-2018-via-zarr': codeluppiViaZarr,
+  'codeluppi-2018-spatial-split': codeluppiSpatialSplit,
   'combat-2022': combat2022cell,
   'habib-2017': habib2017natureMethods,
   'human-lymph-node-10x-visium': humanLymphNode10xVisium,

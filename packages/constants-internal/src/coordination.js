@@ -27,6 +27,8 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.SPATIAL_TARGET_X]: null,
   [CoordinationType.SPATIAL_TARGET_Y]: null,
   [CoordinationType.SPATIAL_TARGET_Z]: null,
+  [CoordinationType.SPATIAL_TARGET_T]: null,
+  [CoordinationType.SPATIAL_TARGET_C]: null,
   [CoordinationType.SPATIAL_ROTATION_X]: null,
   [CoordinationType.SPATIAL_ROTATION_Y]: null,
   [CoordinationType.SPATIAL_ROTATION_Z]: null,
@@ -62,6 +64,19 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.MOLECULE_HIGHLIGHT]: null,
   [CoordinationType.GATING_FEATURE_SELECTION_X]: null,
   [CoordinationType.GATING_FEATURE_SELECTION_Y]: null,
+  [CoordinationType.SPATIAL_LAYER_VISIBLE]: true,
+  [CoordinationType.SPATIAL_LAYER_OPACITY]: 1.0,
+  [CoordinationType.SPATIAL_IMAGE_CHANNEL]: null,
+  [CoordinationType.SPATIAL_IMAGE_CHANNEL_MODE]: null,
+  [CoordinationType.SPATIAL_IMAGE_CHANNEL_VISIBLE]: true,
+  [CoordinationType.SPATIAL_IMAGE_CHANNEL_COLOR]: [255, 255, 255],
+  [CoordinationType.SPATIAL_IMAGE_COLORMAP]: null,
+  [CoordinationType.SPATIAL_IMAGE_CHANNEL_RANGE]: null,
+  [CoordinationType.SPATIAL_IMAGE_CHANNEL_RANGE_EXTENT_MODE]: 'Min/Max',
+  [CoordinationType.SPATIAL_RENDERING_MODE]: null,
+  [CoordinationType.SPATIAL_IMAGE_VOLUME_RENDERING_MODE]: 'Additive',
+  [CoordinationType.SPATIAL_MODEL_MATRIX]: null,
+  [CoordinationType.SPATIAL_POINT_RADIUS]: 1.0,
 };
 
 // The following coordination types should be

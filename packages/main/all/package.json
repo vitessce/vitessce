@@ -30,6 +30,7 @@
     "@vitessce/scatterplot-embedding": "workspace:*",
     "@vitessce/scatterplot-gating": "workspace:*",
     "@vitessce/spatial": "workspace:*",
+    "@vitessce/spatial-split": "workspace:*",
     "@vitessce/statistical-plots": "workspace:*",
     "@vitessce/status": "workspace:*",
     "@vitessce/vit-s": "workspace:*",

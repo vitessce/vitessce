@@ -119,6 +119,8 @@ export const CoordinationType = {
   SPATIAL_TARGET_X: 'spatialTargetX',
   SPATIAL_TARGET_Y: 'spatialTargetY',
   SPATIAL_TARGET_Z: 'spatialTargetZ',
+  SPATIAL_TARGET_T: 'spatialTargetT',
+  SPATIAL_TARGET_C: 'spatialTargetC',
   SPATIAL_ROTATION_X: 'spatialRotationX',
   SPATIAL_ROTATION_Y: 'spatialRotationY',
   SPATIAL_ROTATION_Z: 'spatialRotationZ',
@@ -150,11 +152,23 @@ export const CoordinationType = {
   GENOMIC_TARGET_X: 'genomicTargetX',
   GENOMIC_TARGET_Y: 'genomicTargetY',
   ADDITIONAL_OBS_SETS: 'additionalObsSets',
-  // TODO: use obsHighlight rather than moleculeHighlight.
-  MOLECULE_HIGHLIGHT: 'moleculeHighlight',
+  MOLECULE_HIGHLIGHT: 'moleculeHighlight', // TODO: use obsHighlight rather than moleculeHighlight.
   GATING_FEATURE_SELECTION_X: 'gatingFeatureSelectionX',
   GATING_FEATURE_SELECTION_Y: 'gatingFeatureSelectionY',
   FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'featureValueTransformCoefficient',
+  SPATIAL_LAYER_VISIBLE: 'spatialLayerVisible',
+  SPATIAL_LAYER_OPACITY: 'spatialLayerOpacity',
+  SPATIAL_IMAGE_CHANNEL: 'spatialImageChannel',
+  SPATIAL_IMAGE_CHANNEL_MODE: 'spatialImageChannelMode',
+  SPATIAL_IMAGE_CHANNEL_VISIBLE: 'spatialImageChannelVisible',
+  SPATIAL_IMAGE_CHANNEL_COLOR: 'spatialImageChannelColor',
+  SPATIAL_IMAGE_COLORMAP: 'spatialImageColormap',
+  SPATIAL_IMAGE_CHANNEL_RANGE: 'spatialImageChannelRange',
+  SPATIAL_IMAGE_CHANNEL_RANGE_EXTENT_MODE: 'spatialImageChannelRangeExtentMode',
+  SPATIAL_RENDERING_MODE: 'spatialRenderingMode',
+  SPATIAL_IMAGE_VOLUME_RENDERING_MODE: 'spatialImageVolumeRenderingMode',
+  SPATIAL_MODEL_MATRIX: 'spatialModelMatrix',
+  SPATIAL_POINT_RADIUS: 'spatialPointRadius',
 };
 
 export const STATUS = {
