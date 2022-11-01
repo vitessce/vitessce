@@ -20,6 +20,7 @@ import {
 } from '@vitessce/vit-s';
 import { CoordinationType, ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { capitalize } from '@vitessce/utils';
+import LayerController from './LayerController';
 
 const coordinationTypes = [
   CoordinationType.DATASET,
@@ -206,6 +207,8 @@ export function LayerControllerSubscriber(props) {
     imageStatus,
   ]);
 
+  // TODO: pass data to LayerController
+
   
   return (
     <TitleInfo
@@ -215,35 +218,18 @@ export function LayerControllerSubscriber(props) {
       theme={theme}
       isReady={isReady}
     >
-      <p>T: {JSON.stringify(spatialTargetT)}</p>
-      <p>Z: {JSON.stringify(spatialTargetZ)}</p>
-      <p>
-        Points
-        <ul>
-          {pointLayerCoordination?.[0] ? Object.entries(pointLayerCoordination[0]).map(([k, v]) => (
-            <li>{k}: {JSON.stringify(v)}</li>
-          )) : null}
-        </ul>
-        Segmentations
-        <ul>
-          {segmentationLayerCoordination?.[0] ? Object.entries(segmentationLayerCoordination[0]).map(([k, v]) => (
-            <li>{k}: {JSON.stringify(v)}</li>
-          )) : null}
-        </ul>
-        Images
-        <ul>
-          {imageLayerCoordination?.[0] ? Object.entries(imageLayerCoordination[0]).map(([k, v]) => (
-            <li>
-              {k}: {JSON.stringify(v)}
-              <ul>
-                {imageChannelCoordination?.[0] ? Object.entries(imageChannelCoordination?.[0][k]).map(([k2, v2]) => (
-                  <li>{k2}: {JSON.stringify(v2)}</li>
-                )) : null}
-              </ul>
-            </li>
-          )) : null}
-        </ul>
-      </p>
+      <LayerController
+        spatialTargetT={spatialTargetT}
+        setSpatialTargetT={setTargetT}
+        possibleT={[30, 60, 90]}
+        spatialTargetZ={spatialTargetZ}
+        setSpatialTargetZ={setTargetZ}
+        possibleZ={[0, 1, 2, 3, 4, 5, 6, 7]}
+        pointLayerCoordination={pointLayerCoordination}
+        segmentationLayerCoordination={segmentationLayerCoordination}
+        imageLayerCoordination={imageLayerCoordination}
+        imageChannelCoordination={imageChannelCoordination}
+      />
     </TitleInfo>
   );
 }
