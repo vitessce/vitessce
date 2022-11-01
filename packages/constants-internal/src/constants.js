@@ -169,6 +169,9 @@ export const CoordinationType = {
   SPATIAL_IMAGE_VOLUME_RENDERING_MODE: 'spatialImageVolumeRenderingMode',
   SPATIAL_MODEL_MATRIX: 'spatialModelMatrix',
   SPATIAL_POINT_RADIUS: 'spatialPointRadius',
+  SPATIAL_SLICE_X: 'spatialSliceX',
+  SPATIAL_SLICE_Y: 'spatialSliceY',
+  SPATIAL_SLICE_Z: 'spatialSliceZ',
 };
 
 export const STATUS = {

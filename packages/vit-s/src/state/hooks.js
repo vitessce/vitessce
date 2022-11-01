@@ -345,9 +345,21 @@ export function useComplexCoordinationSecondary(
   const coordinationScopesFake = useMemo(() => ({
     [secondaryType]: Object.values(coordinationScopesBy[primaryType][secondaryType]).flat(),
   }), [coordinationScopesBy, primaryType, secondaryType]);
-  return useComplexCoordination(
+  const flatResult = useComplexCoordination(
     parameters, coordinationScopesFake, coordinationScopesBy, secondaryType,
   );
+  // Re-nest
+  const result = [{}, {}];
+  Object.entries(coordinationScopesBy[primaryType][secondaryType])
+    .forEach(([layerScope, channelScopes]) => {
+      result[0][layerScope] = {};
+      result[1][layerScope] = {};
+      channelScopes.forEach((channelScope) => {
+        result[0][layerScope][channelScope] = flatResult[0][channelScope];
+        result[1][layerScope][channelScope] = flatResult[1][channelScope];
+      });
+    });
+  return result;
 }
 
 /**

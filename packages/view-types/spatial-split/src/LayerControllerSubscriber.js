@@ -41,6 +41,7 @@ const coordinationTypes = [
   CoordinationType.SPATIAL_ROTATION_Z,
   CoordinationType.SPATIAL_ROTATION_ORBIT,
   CoordinationType.SPATIAL_ORBIT_AXIS,
+  CoordinationType.FEATURE_SELECTION,
   // new coordination types
   CoordinationType.SPATIAL_LAYER_VISIBLE,
   CoordinationType.SPATIAL_LAYER_OPACITY,
@@ -76,17 +77,20 @@ export function LayerControllerSubscriber(props) {
       spatialTargetT,
       spatialTargetZ,
       spatialRenderingMode,
-      spatialSegmentationLayer,
       spatialPointLayer,
+      spatialSegmentationLayer,
+      spatialImageLayer,
     },
     {
-      setSpatialSegmentationLayer,
-      setSpatialPointLayer,
       setSpatialTargetX: setTargetX,
       setSpatialTargetY: setTargetY,
       setSpatialTargetZ: setTargetZ,
       setSpatialTargetT: setTargetT,
       setSpatialZoom: setZoom,
+      setSpatialRenderingMode,
+      setSpatialPointLayer,
+      setSpatialSegmentationLayer,
+      setSpatialImageLayer,
     },
   ] = useCoordination(
     coordinationTypes, // TODO: use COMPONENT_COORDINATION_TYPES
@@ -103,26 +107,66 @@ export function LayerControllerSubscriber(props) {
 
   console.log(imageLayerValues);
 
+  // Object keys are coordination scope names for spatialPointLayer.
+  const pointLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.SPATIAL_POINT_RADIUS,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_POINT_LAYER,
+  );
 
-  const complexCoordination = useComplexCoordination(
+  // Object keys are coordination scope names for spatialSegmentationLayer.
+  const segmentationLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+  );
+
+
+  // Object keys are coordination scope names for spatialImageLayer.
+  const imageLayerCoordination = useComplexCoordination(
     [
       CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_IMAGE_COLORMAP,
       CoordinationType.SPATIAL_IMAGE_CHANNEL_MODE,
       CoordinationType.FEATURE_SELECTION,
-    ], coordinationScopes, coordinationScopesBy, CoordinationType.SPATIAL_IMAGE_LAYER,
+      CoordinationType.SPATIAL_IMAGE_VOLUME_RENDERING_MODE,
+      CoordinationType.SPATIAL_MODEL_MATRIX,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_IMAGE_LAYER,
   );
 
-  const complexCoordination2 = useComplexCoordinationSecondary(
+  // Object keys are coordination scope names for spatialImageChannel.
+  const imageChannelCoordination = useComplexCoordinationSecondary(
     [
       CoordinationType.SPATIAL_TARGET_C,
-    ], coordinationScopesBy,
+      CoordinationType.SPATIAL_IMAGE_CHANNEL_VISIBLE,
+      CoordinationType.SPATIAL_IMAGE_CHANNEL_COLOR,
+      CoordinationType.SPATIAL_IMAGE_CHANNEL_RANGE,
+      CoordinationType.SPATIAL_IMAGE_CHANNEL_RANGE_EXTENT_MODE,
+    ],
+    coordinationScopesBy,
     CoordinationType.SPATIAL_IMAGE_LAYER,
     CoordinationType.SPATIAL_IMAGE_CHANNEL,
   );
   
-  console.log(complexCoordination);
-  console.log(complexCoordination2);
+  console.log(pointLayerCoordination);
+  console.log(segmentationLayerCoordination);
+  console.log(imageLayerCoordination);
+  console.log(imageChannelCoordination);
 
   // Spatial layout + window size is needed for the "re-center" button to work properly.
   // Dimensions of the Spatial component can be inferred and used for resetting view state to
@@ -171,7 +215,35 @@ export function LayerControllerSubscriber(props) {
       theme={theme}
       isReady={isReady}
     >
-      <pre>{JSON.stringify(complexCoordination)}</pre>
+      <p>T: {JSON.stringify(spatialTargetT)}</p>
+      <p>Z: {JSON.stringify(spatialTargetZ)}</p>
+      <p>
+        Points
+        <ul>
+          {pointLayerCoordination?.[0] ? Object.entries(pointLayerCoordination[0]).map(([k, v]) => (
+            <li>{k}: {JSON.stringify(v)}</li>
+          )) : null}
+        </ul>
+        Segmentations
+        <ul>
+          {segmentationLayerCoordination?.[0] ? Object.entries(segmentationLayerCoordination[0]).map(([k, v]) => (
+            <li>{k}: {JSON.stringify(v)}</li>
+          )) : null}
+        </ul>
+        Images
+        <ul>
+          {imageLayerCoordination?.[0] ? Object.entries(imageLayerCoordination[0]).map(([k, v]) => (
+            <li>
+              {k}: {JSON.stringify(v)}
+              <ul>
+                {imageChannelCoordination?.[0] ? Object.entries(imageChannelCoordination?.[0][k]).map(([k2, v2]) => (
+                  <li>{k2}: {JSON.stringify(v2)}</li>
+                )) : null}
+              </ul>
+            </li>
+          )) : null}
+        </ul>
+      </p>
     </TitleInfo>
   );
 }

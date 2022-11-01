@@ -98,6 +98,7 @@ export const codeluppiSpatialSplit = {
           fileType: 'image.raster.json',
           coordinationValues: {
             spatialImageLayer: 'linnarsson',
+            // TODO: if an image file contains multiple "images", add functionality to .options to enable each to be mapped to a separate spatialImageLayer.
           },
           options: {
             schemaVersion: '0.0.2',
@@ -144,6 +145,10 @@ export const codeluppiSpatialSplit = {
     },
   ],
   coordinationSpace: {
+    obsType: {
+      pointScopeA: 'molecule',
+      segmentationScopeA: 'cell',
+    },
     embeddingZoom: {
       PCA: 0,
       TSNE: 0.75,
@@ -194,29 +199,67 @@ export const codeluppiSpatialSplit = {
         opacity: 1, radius: 20, visible: true,
       },
     },
+    spatialImageChannelVisible: {
+      A_1: true,
+      A_2: true,
+    },
+    spatialImageChannelColor: {
+      A_1: [255, 0, 0],
+      A_2: [0, 0, 255],
+    },
+    spatialImageChannelRange: {
+      A_1: null,
+      A_2: null,
+    },
+    spatialImageChannelRangeExtentMode: {
+      A_1: null,
+      A_2: null,
+    },
   },
   layout: [
     {
       component: 'layerControllerV2',
       coordinationScopes: {
-        spatialSegmentationLayer: 'A',
         spatialPointLayer: 'A',
+        spatialSegmentationLayer: 'A',
         spatialImageLayer: ['A'],
       },
       coordinationScopesBy: {
+        spatialPointLayer: {
+          obsType: { A: 'pointScopeA' },
+        },
+        spatialSegmentationLayer: {
+          obsType: { A: 'segmentationScopeA' },
+        },
         spatialImageLayer: {
           spatialLayerVisible: { A: 'visibilityScopeA' },
           spatialImageColormap: { A: 'colormapScopeA' },
+          spatialImageChannelMode: { A: 'channelModeScopeA' },
+          featureSelection: { A: 'featureSelectionScopeA' },
           spatialImageChannel: {
             A: ['A_1', 'A_2'],
           },
-          spatialImageChannelMode: { A: 'channelModeScopeA' },
-          featureSelection: { A: 'featureSelectionScopeA' },
         },
         spatialImageChannel: {
           spatialTargetC: {
             A_1: 'channelScopeA1',
             A_2: 'channelScopeA2',
+          },
+          spatialImageChannelVisible: {
+            A_1: 'A_1',
+            A_2: 'A_2',
+          },
+          spatialImageChannelColor: {
+            A_1: 'A_1',
+            A_2: 'A_2',
+          },
+          spatialImageChannelRange: {
+            A_1: 'A_1',
+            A_2: 'A_2',
+          },
+          spatialImageChannelRangeExtentMode: {
+            A_1: 'A_1',
+            A_2: 'A_2',
           },
         },
       },

@@ -77,6 +77,9 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.SPATIAL_IMAGE_VOLUME_RENDERING_MODE]: 'Additive',
   [CoordinationType.SPATIAL_MODEL_MATRIX]: null,
   [CoordinationType.SPATIAL_POINT_RADIUS]: 1.0,
+  [CoordinationType.SPATIAL_SLICE_X]: null,
+  [CoordinationType.SPATIAL_SLICE_Y]: null,
+  [CoordinationType.SPATIAL_SLICE_Z]: null,
 };
 
 // The following coordination types should be
