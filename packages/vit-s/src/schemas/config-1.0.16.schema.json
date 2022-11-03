@@ -48,6 +48,7 @@
             "required": [],
             "properties": {
               "dataset": { "$ref": "#/definitions/stringOrStringArray" },
+              "datasetArray": { "$ref": "#/definitions/stringOrStringArray" },
               "obsLabelsType": { "$ref": "#/definitions/stringOrStringArray" },
               "obsType": { "$ref": "#/definitions/stringOrStringArray" },
               "featureType": { "$ref": "#/definitions/stringOrStringArray" },
@@ -96,8 +97,11 @@
               "featureValueColormapRange": { "$ref": "#/definitions/stringOrStringArray" },
               "obsColorEncoding": { "$ref": "#/definitions/stringOrStringArray" },
               "spatialImageLayer": { "$ref": "#/definitions/stringOrStringArray" },
+              "spatialImageLayerArray": { "$ref": "#/definitions/stringOrStringArray" },
               "spatialSegmentationLayer": { "$ref": "#/definitions/stringOrStringArray" },
+              "spatialSegmentationLayerArray": { "$ref": "#/definitions/stringOrStringArray" },
               "spatialPointLayer": { "$ref": "#/definitions/stringOrStringArray" },
+              "spatialPointLayerArray": { "$ref": "#/definitions/stringOrStringArray" },
               "spatialNeighborhoodLayer": { "$ref": "#/definitions/stringOrStringArray" },
               "genomicZoomX": { "$ref": "#/definitions/stringOrStringArray" },
               "genomicZoomY": { "$ref": "#/definitions/stringOrStringArray" },
@@ -110,6 +114,7 @@
               "spatialLayerVisible": { "$ref": "#/definitions/stringOrStringArray" },
               "spatialLayerOpacity": { "$ref": "#/definitions/stringOrStringArray" },
               "spatialImageChannel": { "$ref": "#/definitions/stringOrStringArray" },
+              "spatialImageChannelArray": { "$ref": "#/definitions/stringOrStringArray" },
               "spatialImageChannelMode": { "$ref": "#/definitions/stringOrStringArray" },
               "spatialImageChannelVisible": { "$ref": "#/definitions/stringOrStringArray" },
               "spatialImageChannelColor": { "$ref": "#/definitions/stringOrStringArray" },
@@ -775,6 +780,12 @@
             }
           }
         },
+        "spatialImageLayerArray": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "array", "items": { "type": "string" } }
+          }
+        },
         "spatialSegmentationLayer": {
           "type": "object",
           "patternProperties": {
@@ -789,6 +800,12 @@
                 { "$ref": "#/definitions/spatialImageLayer" }
               ]
             }
+          }
+        },
+        "spatialSegmentationLayerArray": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "array", "items": { "type": "string" } }
           }
         },
         "spatialNeighborhoodLayer": {
@@ -819,6 +836,12 @@
                 { "$ref": "#/definitions/moleculesLayer" }
               ]
             }
+          }
+        },
+        "spatialPointLayerArray": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "array", "items": { "type": "string" } }
           }
         },
         "heatmapZoomX": {
@@ -1110,6 +1133,12 @@
           "type": "object",
           "patternProperties": {
             ".": { "type": "string" }
+          }
+        },
+        "spatialImageChannelArray": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "array", "items": { "type": "string" } }
           }
         },
         "spatialImageChannelMode": {

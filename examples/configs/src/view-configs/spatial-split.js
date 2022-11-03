@@ -169,6 +169,9 @@ export const codeluppiSpatialSplit = {
     spatialImageLayer: {
       A: 'linnarsson',
     },
+    spatialImageLayerArray: {
+      myLayers: ['A'], // array of spatialImageLayer scopes
+    },
     spatialLayerVisible: {
       visibilityScopeA: true,
     },
@@ -178,6 +181,9 @@ export const codeluppiSpatialSplit = {
     spatialImageChannel: {
       A_1: 'A_1',
       A_2: 'A_2',
+    },
+    spatialImageChannelArray: {
+      myChannels: ['A_1', 'A_2'], // array of spatialImageChannel scopes
     },
     spatialTargetC: {
       channelScopeA1: 0,
@@ -194,10 +200,16 @@ export const codeluppiSpatialSplit = {
         opacity: 1, radius: 0, visible: true, stroked: false,
       },
     },
+    spatialSegmentationLayerArray: {
+      myLayers: ['A'],
+    },
     spatialPointLayer: {
       A: {
         opacity: 1, radius: 20, visible: true,
       },
+    },
+    spatialPointLayerArray: {
+      myLayers: ['A'],
     },
     spatialImageChannelVisible: {
       A_1: true,
@@ -220,9 +232,9 @@ export const codeluppiSpatialSplit = {
     {
       component: 'layerControllerV2',
       coordinationScopes: {
-        spatialPointLayer: 'A',
-        spatialSegmentationLayer: 'A',
-        spatialImageLayer: ['A'],
+        spatialPointLayerArray: 'myLayers',
+        spatialSegmentationLayerArray: 'myLayers',
+        spatialImageLayerArray: 'myLayers',
       },
       coordinationScopesBy: {
         spatialPointLayer: {
@@ -236,9 +248,7 @@ export const codeluppiSpatialSplit = {
           spatialImageColormap: { A: 'colormapScopeA' },
           spatialImageChannelMode: { A: 'channelModeScopeA' },
           featureSelection: { A: 'featureSelectionScopeA' },
-          spatialImageChannel: {
-            A: ['A_1', 'A_2'],
-          },
+          spatialImageChannelArray: { A: 'myChannels' },
         },
         spatialImageChannel: {
           spatialTargetC: {

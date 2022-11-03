@@ -28,8 +28,11 @@ const coordinationTypes = [
   CoordinationType.FEATURE_TYPE,
   CoordinationType.FEATURE_VALUE_TYPE,
   CoordinationType.SPATIAL_IMAGE_LAYER,
+  CoordinationType.SPATIAL_IMAGE_LAYER_ARRAY,
   CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+  CoordinationType.SPATIAL_SEGMENTATION_LAYER_ARRAY,
   CoordinationType.SPATIAL_POINT_LAYER,
+  CoordinationType.SPATIAL_POINT_LAYER_ARRAY,
   CoordinationType.SPATIAL_NEIGHBORHOOD_LAYER,
   CoordinationType.SPATIAL_ZOOM,
   CoordinationType.SPATIAL_TARGET_X,
@@ -46,6 +49,7 @@ const coordinationTypes = [
   // new coordination types
   CoordinationType.SPATIAL_LAYER_VISIBLE,
   CoordinationType.SPATIAL_LAYER_OPACITY,
+  CoordinationType.SPATIAL_IMAGE_CHANNEL_ARRAY,
   CoordinationType.SPATIAL_IMAGE_CHANNEL,
   CoordinationType.SPATIAL_IMAGE_CHANNEL_MODE,
   CoordinationType.SPATIAL_IMAGE_CHANNEL_VISIBLE,
@@ -79,8 +83,11 @@ export function LayerControllerSubscriber(props) {
       spatialTargetZ,
       spatialRenderingMode,
       spatialPointLayer,
+      spatialPointLayerArray,
       spatialSegmentationLayer,
+      spatialSegmentationLayerArray,
       spatialImageLayer,
+      spatialImageLayerArray,
     },
     {
       setSpatialTargetX: setTargetX,
@@ -98,15 +105,7 @@ export function LayerControllerSubscriber(props) {
     coordinationScopes,
   );
 
-  console.log(coordinationScopes, coordinationScopesBy);
-
-  // Normalize arrays and non-arrays to always be arrays.
-  const imageLayerValues = useMultiCoordinationValues(
-    CoordinationType.SPATIAL_IMAGE_LAYER,
-    coordinationScopes,
-  );
-
-  console.log(imageLayerValues);
+  // console.log(coordinationScopes, coordinationScopesBy);
 
   // Object keys are coordination scope names for spatialPointLayer.
   const pointLayerCoordination = useComplexCoordination(
@@ -116,6 +115,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_POINT_RADIUS,
     ],
+    spatialPointLayerArray,
     coordinationScopes,
     coordinationScopesBy,
     CoordinationType.SPATIAL_POINT_LAYER,
@@ -128,6 +128,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
     ],
+    spatialSegmentationLayerArray,
     coordinationScopes,
     coordinationScopesBy,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
@@ -144,13 +145,14 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.SPATIAL_IMAGE_VOLUME_RENDERING_MODE,
       CoordinationType.SPATIAL_MODEL_MATRIX,
+      CoordinationType.SPATIAL_IMAGE_CHANNEL_ARRAY,
     ],
+    spatialImageLayerArray,
     coordinationScopes,
     coordinationScopesBy,
     CoordinationType.SPATIAL_IMAGE_LAYER,
   );
 
-  // Object keys are coordination scope names for spatialImageChannel.
   const imageChannelCoordination = useComplexCoordinationSecondary(
     [
       CoordinationType.SPATIAL_TARGET_C,
@@ -159,15 +161,18 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_IMAGE_CHANNEL_RANGE,
       CoordinationType.SPATIAL_IMAGE_CHANNEL_RANGE_EXTENT_MODE,
     ],
+    spatialImageLayerArray,
+    imageLayerCoordination,
+    coordinationScopes,
     coordinationScopesBy,
-    CoordinationType.SPATIAL_IMAGE_LAYER,
     CoordinationType.SPATIAL_IMAGE_CHANNEL,
+    CoordinationType.SPATIAL_IMAGE_CHANNEL_ARRAY,
   );
   
-  console.log(pointLayerCoordination);
-  console.log(segmentationLayerCoordination);
-  console.log(imageLayerCoordination);
-  console.log(imageChannelCoordination);
+  // console.log(pointLayerCoordination);
+  // console.log(segmentationLayerCoordination);
+  // console.log(imageLayerCoordination);
+  // console.log(imageChannelCoordination);
 
   // Spatial layout + window size is needed for the "re-center" button to work properly.
   // Dimensions of the Spatial component can be inferred and used for resetting view state to
