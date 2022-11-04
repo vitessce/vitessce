@@ -267,11 +267,11 @@ export function useDatasetUids(coordinationScopes) {
  * setter functions.
  */
 export function useComplexCoordination(
-  parameters, typeScopes, coordinationScopes, coordinationScopesBy, byType,
+  parameters, coordinationScopes, coordinationScopesBy, byType,
 ) {
   const setCoordinationValue = useViewConfigStore(state => state.setCoordinationValue);
 
-  // const typeScopes = coordinationScopes[byType];
+  const typeScopes = coordinationScopes[byType];
   const byTypeScopes = coordinationScopesBy[byType];
 
   // Convert a single scope to an array of scopes to be consistent.
@@ -340,27 +340,18 @@ export function useComplexCoordination(
  * @returns The results of useComplexCoordination.
  */
 export function useComplexCoordinationSecondary(
-  parameters, primaryScopes, primaryCoordination,
-  coordinationScopes, coordinationScopesBy,
-  secondaryType, secondaryArrayType,
+  parameters, coordinationScopesBy, primaryType, secondaryType,
 ) {
-  // Un-nest
-  const secondaryScopes = useMemo(() => Object.values(primaryCoordination[0])
-    .map(v => v[secondaryArrayType]).flat(),
-  [primaryCoordination, secondaryArrayType]);
-
+  const coordinationScopesFake = useMemo(() => ({
+    [secondaryType]: Object.values(coordinationScopesBy[primaryType][secondaryType]).flat(),
+  }), [coordinationScopesBy, primaryType, secondaryType]);
   const flatResult = useComplexCoordination(
-    parameters,
-    secondaryScopes,
-    coordinationScopes,
-    coordinationScopesBy,
-    secondaryType,
+    parameters, coordinationScopesFake, coordinationScopesBy, secondaryType,
   );
   // Re-nest
   const result = [{}, {}];
-  Object.entries(primaryCoordination[0])
-    .forEach(([layerScope, layerCoordination]) => {
-      const channelScopes = layerCoordination[secondaryArrayType];
+  Object.entries(coordinationScopesBy[primaryType][secondaryType])
+    .forEach(([layerScope, channelScopes]) => {
       result[0][layerScope] = {};
       result[1][layerScope] = {};
       channelScopes.forEach((channelScope) => {
