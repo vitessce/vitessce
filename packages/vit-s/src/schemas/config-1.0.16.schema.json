@@ -17,6 +17,110 @@
         ".": { "$ref": "#/definitions/stringOrStringArray" }
       }
     },
+    "componentCoordinationScopes": {
+      "type": "object",
+      "description": "Component-level coordination scope mappings define which coordination object values a particular component can read and write, for each coordination type.",
+      "additionalProperties": true,
+      "required": [],
+      "properties": {
+        "dataset": { "$ref": "#/definitions/stringOrStringArray" },
+        "obsLabelsType": { "$ref": "#/definitions/stringOrStringArray" },
+        "obsType": { "$ref": "#/definitions/stringOrStringArray" },
+        "featureType": { "$ref": "#/definitions/stringOrStringArray" },
+        "featureValueType": { "$ref": "#/definitions/stringOrStringArray" },
+        "embeddingType": { "$ref": "#/definitions/stringOrStringArray" },
+        "embeddingZoom": { "$ref": "#/definitions/stringOrStringArray" },
+        "embeddingRotation": { "$ref": "#/definitions/stringOrStringArray" },
+        "embeddingTargetX": { "$ref": "#/definitions/stringOrStringArray" },
+        "embeddingTargetY": { "$ref": "#/definitions/stringOrStringArray" },
+        "embeddingTargetZ": { "$ref": "#/definitions/stringOrStringArray" },
+        "embeddingObsSetPolygonsVisible": { "$ref": "#/definitions/stringOrStringArray" },
+        "embeddingObsSetLabelsVisible": { "$ref": "#/definitions/stringOrStringArray" },
+        "embeddingObsSetLabelSize": { "$ref": "#/definitions/stringOrStringArray" },
+        "embeddingObsRadius": { "$ref": "#/definitions/stringOrStringArray" },
+        "embeddingObsOpacity": { "$ref": "#/definitions/stringOrStringArray" },
+        "embeddingObsRadiusMode": { "$ref": "#/definitions/stringOrStringArray" },
+        "embeddingObsOpacityMode": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialZoom": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialRotation": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialTargetX": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialTargetY": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialTargetZ": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialTargetT": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialTargetC": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialRotationX": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialRotationY": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialRotationZ": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialRotationOrbit": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialOrbitAxis": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialAxisFixed": { "$ref": "#/definitions/stringOrStringArray" },
+        "heatmapZoomX": { "$ref": "#/definitions/stringOrStringArray" },
+        "heatmapZoomY": { "$ref": "#/definitions/stringOrStringArray" },
+        "heatmapTargetX": { "$ref": "#/definitions/stringOrStringArray" },
+        "heatmapTargetY": { "$ref": "#/definitions/stringOrStringArray" },
+        "obsFilter": { "$ref": "#/definitions/stringOrStringArray" },
+        "obsHighlight": { "$ref": "#/definitions/stringOrStringArray" },
+        "obsSetSelection": { "$ref": "#/definitions/stringOrStringArray" },
+        "obsSetHighlight": { "$ref": "#/definitions/stringOrStringArray" },
+        "obsSetColor": { "$ref": "#/definitions/stringOrStringArray" },
+        "featureFilter": { "$ref": "#/definitions/stringOrStringArray" },
+        "featureHighlight": { "$ref": "#/definitions/stringOrStringArray" },
+        "featureSelection": { "$ref": "#/definitions/stringOrStringArray" },
+        "featureValueTransform": { "$ref": "#/definitions/stringOrStringArray" },
+        "featureValueTransformCoefficient": { "$ref": "#/definitions/stringOrStringArray" },
+        "featureValueColormap": { "$ref": "#/definitions/stringOrStringArray" },
+        "featureValueColormapRange": { "$ref": "#/definitions/stringOrStringArray" },
+        "obsColorEncoding": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialImageLayer": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialSegmentationLayer": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialPointLayer": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialNeighborhoodLayer": { "$ref": "#/definitions/stringOrStringArray" },
+        "genomicZoomX": { "$ref": "#/definitions/stringOrStringArray" },
+        "genomicZoomY": { "$ref": "#/definitions/stringOrStringArray" },
+        "genomicTargetX": { "$ref": "#/definitions/stringOrStringArray" },
+        "genomicTargetY": { "$ref": "#/definitions/stringOrStringArray" },
+        "additionalObsSets": { "$ref": "#/definitions/stringOrStringArray" },
+        "moleculeHighlight": { "$ref": "#/definitions/stringOrStringArray" },
+        "gatingFeatureSelectionX": { "$ref": "#/definitions/stringOrStringArray" },
+        "gatingFeatureSelectionY": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialLayerVisible": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialLayerOpacity": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialImageChannel": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialImageChannelMode": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialImageChannelVisible": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialImageChannelColor": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialImageColormap": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialImageChannelRange": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialImageChannelRangeExtentMode": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialRenderingMode": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialImageVolumeRenderingMode": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialModelMatrix": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialPointRadius": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialSliceX": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialSliceY": { "$ref": "#/definitions/stringOrStringArray" },
+        "spatialSliceZ": { "$ref": "#/definitions/stringOrStringArray" },
+        "metaCoordinationScopes": { "$ref": "#/definitions/stringOrStringArray" }
+      }
+    },
+    "componentCoordinationScopesBy": {
+      "type": "object",
+      "description": "Component-level and coordination type-level coordination scope mappings. Keys are coordination types.",
+      "additionalProperties": true,
+      "required": [],
+      "patternProperties": {
+        ".": {
+          "type": "object",
+          "description": "Coordination type-level coordination scope mappings. Keys are coordination types. Values are objects.",
+          "additionalProperties": true,
+          "required": [],
+          "patternProperties": {
+            ".": {
+              "$ref": "#/definitions/componentCoordinationScopeByValue"
+            }
+          }
+        }
+      }
+    },
     "components": {
       "description": "The layout array defines the views, or components, rendered in the grid.",
       "type": "array",
@@ -41,109 +145,8 @@
           "y": { "type": "integer" },
           "w": { "type": "integer" },
           "h": { "type": "integer" },
-          "coordinationScopes": {
-            "type": "object",
-            "description": "Component-level coordination scope mappings define which coordination object values a particular component can read and write, for each coordination type.",
-            "additionalProperties": true,
-            "required": [],
-            "properties": {
-              "dataset": { "$ref": "#/definitions/stringOrStringArray" },
-              "obsLabelsType": { "$ref": "#/definitions/stringOrStringArray" },
-              "obsType": { "$ref": "#/definitions/stringOrStringArray" },
-              "featureType": { "$ref": "#/definitions/stringOrStringArray" },
-              "featureValueType": { "$ref": "#/definitions/stringOrStringArray" },
-              "embeddingType": { "$ref": "#/definitions/stringOrStringArray" },
-              "embeddingZoom": { "$ref": "#/definitions/stringOrStringArray" },
-              "embeddingRotation": { "$ref": "#/definitions/stringOrStringArray" },
-              "embeddingTargetX": { "$ref": "#/definitions/stringOrStringArray" },
-              "embeddingTargetY": { "$ref": "#/definitions/stringOrStringArray" },
-              "embeddingTargetZ": { "$ref": "#/definitions/stringOrStringArray" },
-              "embeddingObsSetPolygonsVisible": { "$ref": "#/definitions/stringOrStringArray" },
-              "embeddingObsSetLabelsVisible": { "$ref": "#/definitions/stringOrStringArray" },
-              "embeddingObsSetLabelSize": { "$ref": "#/definitions/stringOrStringArray" },
-              "embeddingObsRadius": { "$ref": "#/definitions/stringOrStringArray" },
-              "embeddingObsOpacity": { "$ref": "#/definitions/stringOrStringArray" },
-              "embeddingObsRadiusMode": { "$ref": "#/definitions/stringOrStringArray" },
-              "embeddingObsOpacityMode": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialZoom": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialRotation": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialTargetX": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialTargetY": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialTargetZ": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialTargetT": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialTargetC": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialRotationX": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialRotationY": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialRotationZ": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialRotationOrbit": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialOrbitAxis": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialAxisFixed": { "$ref": "#/definitions/stringOrStringArray" },
-              "heatmapZoomX": { "$ref": "#/definitions/stringOrStringArray" },
-              "heatmapZoomY": { "$ref": "#/definitions/stringOrStringArray" },
-              "heatmapTargetX": { "$ref": "#/definitions/stringOrStringArray" },
-              "heatmapTargetY": { "$ref": "#/definitions/stringOrStringArray" },
-              "obsFilter": { "$ref": "#/definitions/stringOrStringArray" },
-              "obsHighlight": { "$ref": "#/definitions/stringOrStringArray" },
-              "obsSetSelection": { "$ref": "#/definitions/stringOrStringArray" },
-              "obsSetHighlight": { "$ref": "#/definitions/stringOrStringArray" },
-              "obsSetColor": { "$ref": "#/definitions/stringOrStringArray" },
-              "featureFilter": { "$ref": "#/definitions/stringOrStringArray" },
-              "featureHighlight": { "$ref": "#/definitions/stringOrStringArray" },
-              "featureSelection": { "$ref": "#/definitions/stringOrStringArray" },
-              "featureValueTransform": { "$ref": "#/definitions/stringOrStringArray" },
-              "featureValueTransformCoefficient": { "$ref": "#/definitions/stringOrStringArray" },
-              "featureValueColormap": { "$ref": "#/definitions/stringOrStringArray" },
-              "featureValueColormapRange": { "$ref": "#/definitions/stringOrStringArray" },
-              "obsColorEncoding": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialImageLayer": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialSegmentationLayer": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialPointLayer": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialNeighborhoodLayer": { "$ref": "#/definitions/stringOrStringArray" },
-              "genomicZoomX": { "$ref": "#/definitions/stringOrStringArray" },
-              "genomicZoomY": { "$ref": "#/definitions/stringOrStringArray" },
-              "genomicTargetX": { "$ref": "#/definitions/stringOrStringArray" },
-              "genomicTargetY": { "$ref": "#/definitions/stringOrStringArray" },
-              "additionalObsSets": { "$ref": "#/definitions/stringOrStringArray" },
-              "moleculeHighlight": { "$ref": "#/definitions/stringOrStringArray" },
-              "gatingFeatureSelectionX": { "$ref": "#/definitions/stringOrStringArray" },
-              "gatingFeatureSelectionY": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialLayerVisible": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialLayerOpacity": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialImageChannel": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialImageChannelMode": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialImageChannelVisible": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialImageChannelColor": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialImageColormap": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialImageChannelRange": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialImageChannelRangeExtentMode": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialRenderingMode": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialImageVolumeRenderingMode": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialModelMatrix": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialPointRadius": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialSliceX": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialSliceY": { "$ref": "#/definitions/stringOrStringArray" },
-              "spatialSliceZ": { "$ref": "#/definitions/stringOrStringArray" }
-            }
-          },
-          "coordinationScopesBy": {
-            "type": "object",
-            "description": "Component-level and coordination type-level coordination scope mappings. Keys are coordination types.",
-            "additionalProperties": true,
-            "required": [],
-            "patternProperties": {
-              ".": {
-                "type": "object",
-                "description": "Coordination type-level coordination scope mappings. Keys are coordination types. Values are objects.",
-                "additionalProperties": true,
-                "required": [],
-                "patternProperties": {
-                  ".": {
-                    "$ref": "#/definitions/componentCoordinationScopeByValue"
-                  }
-                }
-              }
-            }
-          }
+          "coordinationScopes": { "$ref": "#/definitions/componentCoordinationScopes" },
+          "coordinationScopesBy": { "$ref": "#/definitions/componentCoordinationScopesBy" }
         }
       }
     },
@@ -446,6 +449,18 @@
       "additionalProperties": true,
       "required": [],
       "properties": {
+        "metaCoordinationScopes": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "type": "object",
+              "properties": {
+                "coordinationScopes": { "$ref": "#/definitions/componentCoordinationScopes" },
+                "coordinationScopesBy": { "$ref": "#/definitions/componentCoordinationScopesBy" }
+              }
+            }
+          }
+        },
         "dataset": {
           "type": "object",
           "patternProperties": {

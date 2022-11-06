@@ -23,6 +23,7 @@ import { capitalize } from '@vitessce/utils';
 import LayerController from './LayerController';
 
 const coordinationTypes = [
+  CoordinationType.META_COORDINATION_SCOPES,
   CoordinationType.DATASET,
   CoordinationType.OBS_TYPE,
   CoordinationType.FEATURE_TYPE,
