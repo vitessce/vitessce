@@ -16,6 +16,8 @@ export {
 } from './hooks';
 export {
   useCoordination,
+  useComplexCoordination,
+  useMultiCoordinationValues,
   useMultiDatasetCoordination,
   useDatasetUids,
   useLoaders,
