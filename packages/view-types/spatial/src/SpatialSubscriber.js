@@ -20,7 +20,7 @@ import {
   useHasLoader,
   registerPluginViewType,
 } from '@vitessce/vit-s';
-import { setObsSelection, mergeObsSets } from '@vitessce/sets';
+import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
 import { canLoadResolution, getCellColors } from '@vitessce/utils';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType } from '@vitessce/constants-internal';
 import Spatial from './Spatial';

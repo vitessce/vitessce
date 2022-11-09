@@ -111,13 +111,13 @@ importers:
   packages/file-types/csv:
     specifiers:
       '@vitessce/constants-internal': workspace:*
-      '@vitessce/sets': workspace:*
+      '@vitessce/sets-utils': workspace:*
       '@vitessce/vit-s': workspace:*
       d3-array: ^2.4.0
       d3-dsv: ^1.1.1
     dependencies:
       '@vitessce/constants-internal': link:../../constants-internal
-      '@vitessce/sets': link:../../sets
+      '@vitessce/sets-utils': link:../../utils/sets-utils
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
       d3-dsv: 1.2.0
@@ -126,7 +126,8 @@ importers:
     specifiers:
       '@vitessce/constants-internal': workspace:*
       '@vitessce/gl': workspace:*
-      '@vitessce/sets': workspace:*
+      '@vitessce/sets-utils': workspace:*
+      '@vitessce/spatial-utils': workspace:*
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
       ajv: ^6.10.0
@@ -136,7 +137,8 @@ importers:
     dependencies:
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/gl': link:../../gl
-      '@vitessce/sets': link:../../sets
+      '@vitessce/sets-utils': link:../../utils/sets-utils
+      '@vitessce/spatial-utils': link:../../utils/spatial-utils
       '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       ajv: 6.12.6
@@ -148,7 +150,8 @@ importers:
     specifiers:
       '@vitessce/constants-internal': workspace:*
       '@vitessce/gl': workspace:*
-      '@vitessce/sets': workspace:*
+      '@vitessce/sets-utils': workspace:*
+      '@vitessce/spatial-utils': workspace:*
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
       d3-array: ^2.4.0
@@ -157,7 +160,8 @@ importers:
     dependencies:
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/gl': link:../../gl
-      '@vitessce/sets': link:../../sets
+      '@vitessce/sets-utils': link:../../utils/sets-utils
+      '@vitessce/spatial-utils': link:../../utils/spatial-utils
       '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
@@ -350,34 +354,6 @@ importers:
       rollup-plugin-visualizer: 5.8.3
       vite: 3.1.8
 
-  packages/sets:
-    specifiers:
-      '@turf/centroid': ^6.5.0
-      '@turf/helpers': ^6.5.0
-      '@vitessce/utils': workspace:*
-      '@vitessce/vit-s': workspace:*
-      ajv: ^6.10.0
-      concaveman: ^1.2.1
-      d3-dsv: ^1.1.1
-      internmap: ^2.0.3
-      json2csv: ^5.0.0
-      lodash: ^4.17.21
-      tinycolor2: ^1.4.1
-      uuid: ^3.3.2
-    dependencies:
-      '@turf/centroid': 6.5.0
-      '@turf/helpers': 6.5.0
-      '@vitessce/utils': link:../utils/other-utils
-      '@vitessce/vit-s': link:../vit-s
-      ajv: 6.12.6
-      concaveman: 1.2.1
-      d3-dsv: 1.2.0
-      internmap: 2.0.3
-      json2csv: 5.0.7
-      lodash: 4.17.21
-      tinycolor2: 1.4.2
-      uuid: 3.4.0
-
   packages/tooltip:
     specifiers:
       '@material-ui/core': ~4.12.3
@@ -403,15 +379,57 @@ importers:
 
   packages/utils/other-utils:
     specifiers:
-      '@vitessce/sets': workspace:*
+      '@vitessce/sets-utils': workspace:*
       bowser: ^2.11.0
       lodash: ^4.17.21
       lz-string: ^1.4.4
     dependencies:
-      '@vitessce/sets': link:../../sets
+      '@vitessce/sets-utils': link:../sets-utils
       bowser: 2.11.0
       lodash: 4.17.21
       lz-string: 1.4.4
+
+  packages/utils/sets-utils:
+    specifiers:
+      '@turf/centroid': ^6.5.0
+      '@turf/helpers': ^6.5.0
+      '@vitessce/utils': workspace:*
+      '@vitessce/vit-s': workspace:*
+      ajv: ^6.10.0
+      concaveman: ^1.2.1
+      d3-dsv: ^1.1.1
+      internmap: ^2.0.3
+      json2csv: ^5.0.0
+      lodash: ^4.17.21
+      tinycolor2: ^1.4.1
+      uuid: ^3.3.2
+    dependencies:
+      '@turf/centroid': 6.5.0
+      '@turf/helpers': 6.5.0
+      '@vitessce/utils': link:../other-utils
+      '@vitessce/vit-s': link:../../vit-s
+      ajv: 6.12.6
+      concaveman: 1.2.1
+      d3-dsv: 1.2.0
+      internmap: 2.0.3
+      json2csv: 5.0.7
+      lodash: 4.17.21
+      tinycolor2: 1.4.2
+      uuid: 3.4.0
+
+  packages/utils/spatial-utils:
+    specifiers:
+      '@vitessce/gl': workspace:*
+      '@vitessce/utils': workspace:*
+      lodash: ^4.17.21
+      math.gl: ^3.5.6
+      mathjs: ^9.2.0
+    dependencies:
+      '@vitessce/gl': link:../../gl
+      '@vitessce/utils': link:../other-utils
+      lodash: 4.17.21
+      math.gl: 3.6.3
+      mathjs: 9.5.2
 
   packages/vega:
     specifiers:
@@ -518,7 +536,7 @@ importers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
       '@vitessce/gl': workspace:*
-      '@vitessce/sets': workspace:*
+      '@vitessce/sets-utils': workspace:*
       '@vitessce/tooltip': workspace:*
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
@@ -533,7 +551,7 @@ importers:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/gl': link:../../gl
-      '@vitessce/sets': link:../../sets
+      '@vitessce/sets-utils': link:../../utils/sets-utils
       '@vitessce/tooltip': link:../../tooltip
       '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
@@ -552,6 +570,7 @@ importers:
       '@material-ui/icons': ~4.11.2
       '@vitessce/constants-internal': workspace:*
       '@vitessce/gl': workspace:*
+      '@vitessce/spatial-utils': workspace:*
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
       lodash: ^4.17.21
@@ -564,6 +583,7 @@ importers:
       '@material-ui/icons': 4.11.3_jvx44q7qymyhf2qyoxemen5jw4
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/gl': link:../../gl
+      '@vitessce/spatial-utils': link:../../utils/spatial-utils
       '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       lodash: 4.17.21
@@ -578,7 +598,7 @@ importers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
       '@vitessce/icons': workspace:*
-      '@vitessce/sets': workspace:*
+      '@vitessce/sets-utils': workspace:*
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
       clsx: ^1.1.1
@@ -593,7 +613,7 @@ importers:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/icons': link:../../icons
-      '@vitessce/sets': link:../../sets
+      '@vitessce/sets-utils': link:../../utils/sets-utils
       '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       clsx: 1.2.1
@@ -644,7 +664,7 @@ importers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
       '@vitessce/scatterplot': workspace:*
-      '@vitessce/sets': workspace:*
+      '@vitessce/sets-utils': workspace:*
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
       d3-array: ^2.4.0
@@ -657,7 +677,7 @@ importers:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/scatterplot': link:../scatterplot
-      '@vitessce/sets': link:../../sets
+      '@vitessce/sets-utils': link:../../utils/sets-utils
       '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
@@ -673,7 +693,7 @@ importers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
       '@vitessce/scatterplot': workspace:*
-      '@vitessce/sets': workspace:*
+      '@vitessce/sets-utils': workspace:*
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
       d3-array: ^2.4.0
@@ -686,7 +706,7 @@ importers:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/scatterplot': link:../scatterplot
-      '@vitessce/sets': link:../../sets
+      '@vitessce/sets-utils': link:../../utils/sets-utils
       '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
@@ -703,7 +723,8 @@ importers:
       '@vitessce/constants-internal': workspace:*
       '@vitessce/gl': workspace:*
       '@vitessce/scatterplot': workspace:*
-      '@vitessce/sets': workspace:*
+      '@vitessce/sets-utils': workspace:*
+      '@vitessce/spatial-utils': workspace:*
       '@vitessce/tooltip': workspace:*
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
@@ -721,7 +742,8 @@ importers:
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/gl': link:../../gl
       '@vitessce/scatterplot': link:../scatterplot
-      '@vitessce/sets': link:../../sets
+      '@vitessce/sets-utils': link:../../utils/sets-utils
+      '@vitessce/spatial-utils': link:../../utils/spatial-utils
       '@vitessce/tooltip': link:../../tooltip
       '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
@@ -740,7 +762,7 @@ importers:
     specifiers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
-      '@vitessce/sets': workspace:*
+      '@vitessce/sets-utils': workspace:*
       '@vitessce/utils': workspace:*
       '@vitessce/vega': workspace:*
       '@vitessce/vit-s': workspace:*
@@ -752,7 +774,7 @@ importers:
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
-      '@vitessce/sets': link:../../sets
+      '@vitessce/sets-utils': link:../../utils/sets-utils
       '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vega': link:../../vega
       '@vitessce/vit-s': link:../../vit-s

@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/sets": "workspace:*",
+    "@vitessce/sets-utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "d3-array": "^2.4.0",
     "d3-dsv": "^1.1.1"

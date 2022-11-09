@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { viv } from '@vitessce/gl';
 import {
-  viv, GLOBAL_LABELS, getSourceFromLoader, isRgb,
-} from '@vitessce/gl';
+  GLOBAL_LABELS, getSourceFromLoader, isRgb,
+} from '@vitessce/spatial-utils';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';

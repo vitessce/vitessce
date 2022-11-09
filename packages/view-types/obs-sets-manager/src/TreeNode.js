@@ -5,7 +5,7 @@ import { TreeNode as RcTreeNode } from 'rc-tree';
 import { getDataAndAria } from 'rc-tree/es/util';
 import range from 'lodash/range';
 import isEqual from 'lodash/isEqual';
-import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from '@vitessce/sets';
+import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from '@vitessce/sets-utils';
 import { MenuSVG } from '@vitessce/icons';
 import { getDefaultColor } from '@vitessce/utils';
 import HelpTooltip from './HelpTooltip';

@@ -1,7 +1,8 @@
 /* eslint-disable no-plusplus */
 import shortNumber from 'short-number';
 import plur from 'plur';
-import { viv, BitmaskLayer, DEFAULT_LAYER_TYPE_ORDERING } from '@vitessce/gl';
+import { viv, BitmaskLayer } from '@vitessce/gl';
+import { DEFAULT_LAYER_TYPE_ORDERING } from '@vitessce/spatial-utils';
 import { extent } from 'd3-array';
 import {
   commaNumber,

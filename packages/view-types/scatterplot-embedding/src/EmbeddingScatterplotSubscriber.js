@@ -20,7 +20,7 @@ import {
   useSetComponentHover,
   useSetComponentViewInfo,
 } from '@vitessce/vit-s';
-import { setObsSelection, mergeObsSets, getCellSetPolygons } from '@vitessce/sets';
+import { setObsSelection, mergeObsSets, getCellSetPolygons } from '@vitessce/sets-utils';
 import { getCellColors, commaNumber } from '@vitessce/utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,

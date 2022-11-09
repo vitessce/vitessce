@@ -48,7 +48,7 @@ import {
   setObsSelection,
   mergeObsSets,
   getNextNumberedNodeName,
-} from '@vitessce/sets';
+} from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
 import SetsManager from './SetsManager';
 

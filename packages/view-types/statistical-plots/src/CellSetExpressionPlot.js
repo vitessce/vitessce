@@ -1,7 +1,7 @@
 import React from 'react';
 import clamp from 'lodash/clamp';
 import { VegaPlot, VEGA_THEMES, DATASET_NAME } from '@vitessce/vega';
-import { colorArrayToString } from '@vitessce/sets';
+import { colorArrayToString } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
 
 /**

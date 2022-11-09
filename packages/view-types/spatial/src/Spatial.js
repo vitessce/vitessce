@@ -1,8 +1,9 @@
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
 import {
-  deck, viv, getSelectionLayers, ScaledExpressionExtension, getSourceFromLoader,
+  deck, viv, getSelectionLayers, ScaledExpressionExtension,
 } from '@vitessce/gl';
+import { getSourceFromLoader } from '@vitessce/spatial-utils';
 import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';

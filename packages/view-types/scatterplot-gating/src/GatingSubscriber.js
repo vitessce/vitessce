@@ -21,7 +21,7 @@ import {
   useSetComponentViewInfo,
   registerPluginViewType,
 } from '@vitessce/vit-s';
-import { getCellSetPolygons, mergeObsSets, setObsSelection } from '@vitessce/sets';
+import { getCellSetPolygons, mergeObsSets, setObsSelection } from '@vitessce/sets-utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
   getPointSizeDevicePixels,

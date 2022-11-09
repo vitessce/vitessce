@@ -3,7 +3,7 @@ import {
   initializeCellSetColor,
   nodeToSet,
   treeToMembershipMap,
-} from '@vitessce/sets';
+} from '@vitessce/sets-utils';
 import { obsSetsSchema, AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import JsonLoader from './JsonLoader';
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TwitterPicker } from 'react-color-with-lodash';
-import { colorArrayToString, callbackOnKeyPress } from '@vitessce/sets';
+import { colorArrayToString, callbackOnKeyPress } from '@vitessce/sets-utils';
 import { PALETTE } from '@vitessce/utils';
 import Popover from './Popover';
 import { useHelpTooltipStyles } from './styles';

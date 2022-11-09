@@ -1,4 +1,5 @@
-import { viv, initializeRasterLayersAndChannels } from '@vitessce/gl';
+import { viv } from '@vitessce/gl';
+import { initializeRasterLayersAndChannels } from '@vitessce/spatial-utils';
 import { AbstractLoaderError, LoaderResult, AbstractTwoStepLoader } from '@vitessce/vit-s';
 
 function hexToRgb(hex) {

@@ -5,7 +5,7 @@ import {
 
   MIME_TYPE_JSON,
   MIME_TYPE_TABULAR,
-} from '@vitessce/sets';
+} from '@vitessce/sets-utils';
 import { SetUnionSVG, SetIntersectionSVG, SetComplementSVG } from '@vitessce/icons';
 import PopoverMenu from './PopoverMenu';
 import { useStyles } from './styles';

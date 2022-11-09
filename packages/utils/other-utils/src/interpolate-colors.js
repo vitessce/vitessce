@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
-import { treeToCellColorsBySetNames } from '@vitessce/sets';
+import { treeToCellColorsBySetNames } from '@vitessce/sets-utils';
 import { getDefaultColor } from './components';
 
 // The functions defined here have been adapted from d3-interpolate,

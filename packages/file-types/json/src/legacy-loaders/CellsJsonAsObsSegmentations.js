@@ -1,5 +1,5 @@
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
-import { DEFAULT_CELLS_LAYER, square } from '@vitessce/gl';
+import { DEFAULT_CELLS_LAYER, square } from '@vitessce/spatial-utils';
 import cellsSchema from './schemas/cells.schema.json';
 import JsonLoader from '../json-loaders/JsonLoader';
 

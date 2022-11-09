@@ -5,7 +5,7 @@ import {
   initializeCellSetColor,
   treeToMembershipMap,
   dataToCellSetsTree,
-} from '@vitessce/sets';
+} from '@vitessce/sets-utils';
 
 
 /**

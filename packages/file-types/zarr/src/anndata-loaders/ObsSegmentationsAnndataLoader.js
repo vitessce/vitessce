@@ -1,7 +1,7 @@
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsSegmentationsAnndataSchema,
 } from '@vitessce/vit-s';
-import { DEFAULT_CELLS_LAYER } from '@vitessce/gl';
+import { DEFAULT_CELLS_LAYER } from '@vitessce/spatial-utils';
 
 
 /**

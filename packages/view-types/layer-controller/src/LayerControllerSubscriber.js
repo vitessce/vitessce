@@ -19,7 +19,7 @@ import {
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { capitalize } from '@vitessce/utils';
-import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/gl';
+import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/spatial-utils';
 import RasterChannelController from './RasterChannelController';
 import BitmaskChannelController from './BitmaskChannelController';
 import VectorLayerController from './VectorLayerController';
