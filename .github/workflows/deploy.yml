@@ -23,8 +23,8 @@ jobs:
         with:
           version: 7
           run_install: true
-      - run: ./test.sh --action
       - run: pnpm run build:ci
+      - run: ./test.sh --action
       - name: Deploy to NPM
         if: ${{ steps.check-deploy.outputs.needs-deploy == 'true' }}
         run: pnpm publish --filter='./packages/**' --no-git-checks --access public
