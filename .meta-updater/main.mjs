@@ -1,0 +1,134 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import jsonDiff from 'json-diff-ts';
+import lodash from 'lodash';
+const { cloneDeep } = lodash;
+
+const isDryrun = process.env.META_UPDATER_MODE === 'dryrun';
+
+const LUMAGL_VERSION = '8.5.10';
+const LOADERSGL_VERSION = "^3.0.0";
+const DECKGL_VERSION = '8.6.7';
+const TURF_VERSION = "^6.5.0";
+const NEBULAGL_VERSION = "0.23.8";
+const OTHER_VERSIONS = {
+  "ajv": "^6.10.0",
+  'lodash': '^4.17.21',
+  'react-grid-layout-with-lodash': '^1.3.5',
+  "internmap": "^2.0.3",
+  "uuid": "^3.3.2",
+  "zarr": "0.5.1",
+  "zustand": "^3.5.10",
+  "@hms-dbmi/viv": "~0.12.6",
+  "clsx": "^1.1.1",
+  "d3-array": "^2.4.0",
+  "d3-dsv": "^1.1.1",
+  "d3-force": "^2.1.1",
+  "d3-quadtree": "^1.0.7",
+  "d3-scale-chromatic": "^1.3.3",
+  "plur": "^5.1.0",
+  "@material-ui/core": "~4.12.3",
+  "@material-ui/icons": "~4.11.2",
+  "math.gl": "^3.5.6",
+  "@math.gl/core": "^3.5.6",
+  "mathjs": "^9.2.0",
+
+  // LumaGL
+  "@luma.gl/constants": LUMAGL_VERSION,
+  "@luma.gl/core": LUMAGL_VERSION,
+  "@luma.gl/engine": LUMAGL_VERSION,
+  "@luma.gl/gltools": LUMAGL_VERSION,
+  "@luma.gl/shadertools": LUMAGL_VERSION,
+  "@luma.gl/experimental": LUMAGL_VERSION,
+  "@luma.gl/webgl": LUMAGL_VERSION,
+  // DeckGL
+  "deck.gl": DECKGL_VERSION,
+  "@deck.gl/core": DECKGL_VERSION,
+  "@deck.gl/geo-layers": DECKGL_VERSION,
+  "@deck.gl/mesh-layers": DECKGL_VERSION,
+  "@deck.gl/aggregation-layers": DECKGL_VERSION,
+  "@deck.gl/extensions": DECKGL_VERSION,
+  "@deck.gl/layers": DECKGL_VERSION,
+  "@deck.gl/react": DECKGL_VERSION,
+  // NebulaGL
+  "nebula.gl": NEBULAGL_VERSION,
+  "@nebula.gl/layers": NEBULAGL_VERSION,
+  "@nebula.gl/edit-modes": NEBULAGL_VERSION,
+  // LoadersGL
+  "@loaders.gl/3d-tiles": LOADERSGL_VERSION,
+  "@loaders.gl/core": LOADERSGL_VERSION,
+  "@loaders.gl/images": LOADERSGL_VERSION,
+  "@loaders.gl/loader-utils":LOADERSGL_VERSION,
+};
+
+// Mutates package metadata in place
+function pinVersions(deps = {}) {
+  for (let name of Object.keys(deps)) {
+    /*if (name === 'react' || name === 'react-dom') {
+      deps[name] = REACT_VERSION;
+    }*/
+    if (name.startsWith('@deck.gl/') || name === "deck.gl") {
+      deps[name] = DECKGL_VERSION;
+    }
+    if (name.startsWith('@luma.gl/') || name === "luma.gl") {
+      deps[name] = LUMAGL_VERSION;
+    }
+    if (name.startsWith('@loaders.gl/') || name === "loaders.gl") {
+      deps[name] = LOADERSGL_VERSION;
+    }
+    if (name.startsWith('@nebula.gl/') || name === "nebula.gl") {
+      deps[name] = NEBULAGL_VERSION;
+    }
+    if (name.startsWith('@turf/')) {
+      deps[name] = TURF_VERSION;
+    }
+    if (Object.keys(OTHER_VERSIONS).includes(name)) {
+      deps[name] = OTHER_VERSIONS[name];
+    }
+  }
+}
+
+function processUpdate(prevJson, newJson, isDryrun, dir, filename) {
+  console.log(`meta-update for ${filename} in ${dir}`);
+  // Diff the changes and print.
+  const changeset = jsonDiff.diff(prevJson, newJson);
+  const flatChangeset = jsonDiff.flattenChangeset(changeset);
+  console.log(JSON.stringify(flatChangeset, null, 2));
+  if(!isDryrun) {
+    // Not a dry-run, return the new JSON.
+    return newJson;
+  }
+  // This is a dry-run, return the old JSON.
+  return prevJson;
+}
+
+export default (workspaceDir) => {
+  console.log("is dryrun", isDryrun);
+  let root = path.resolve(workspaceDir, 'package.json');
+  let meta = JSON.parse(fs.readFileSync(root, { encoding: 'utf-8' }));
+  return {
+    'package.json': (prevJson, dir) => {
+      let newJson = cloneDeep(prevJson);
+      pinVersions(newJson.dependencies);
+      pinVersions(newJson.devDependencies);
+      pinVersions(newJson.peerDependencies);
+      newJson = { ...newJson, version: meta.version };
+      return processUpdate(prevJson, newJson, isDryrun, dir, 'package.json');
+    },
+    'tsconfig.json': (prevJson, dir) => {
+      let newJson = cloneDeep(prevJson);
+      if(prevJson && dir !== workspaceDir) {
+        newJson = {
+          ...newJson,
+          compilerOptions: {
+            ...newJson?.compilerOptions,
+            outDir: 'dist',
+            rootDir: 'src',
+          },
+        };
+        return processUpdate(prevJson, newJson, isDryrun, dir, 'tsconfig.json');
+      }
+      return prevJson;
+    }
+  }
+}

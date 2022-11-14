@@ -1,0 +1,20 @@
+@import 'colors';
+
+@import 'app';
+@import 'bootstrap-minimal';
+
+@mixin welcome-themable($theme-name, $theme-colors) {
+  @include app($theme-name, $theme-colors);
+}
+
+.welcome-container {
+  @include bootstrap-minimal;
+  position: relative; // So please-wait can be positioned absolutely.
+  
+  &.welcome-theme-dark {
+    @include welcome-themable("dark", $colors-dark);
+  }
+  &.welcome-theme-light {
+    @include welcome-themable("light", $colors-light);
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@vitessce/constants-internal",
+  "version": "2.0.0-beta.2",
+  "author": "Gehlenborg Lab",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "tsc --watch",
+    "build": "tsc",
+    "test": "pnpm exec vitest --run -r ../../ --dir ."
+  },
+  "devDependencies": {
+    "vite": "^3.0.0",
+    "vitest": "^0.23.4"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@vitessce/export-utils",
+  "version": "2.0.0-beta.2",
+  "author": "Gehlenborg Lab",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "tsc --watch",
+    "build": "tsc",
+    "test": "pnpm exec vitest --run -r ../../../ --dir ."
+  },
+  "dependencies": {
+    "bowser": "^2.11.0",
+    "lz-string": "^1.4.4"
+  }
+}

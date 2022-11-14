@@ -1,0 +1,193 @@
+@import 'colors';
+
+@mixin app($theme-name, $theme-colors) {
+
+    &.welcome-container {
+        overflow: visible;
+        .row > div > .card {
+            margin: 1rem 0;
+        }
+    }
+
+    .welcome-beta-header {
+        background-color: #93e5c3;
+        padding: 1rem;
+        p {
+            margin: 0;
+            color: #222222;
+            a {
+                color: #000;
+                text-decoration: underline;
+                font-weight: 600;
+            }
+        }
+    }
+
+
+    .warning-layout {
+        height: 100vh;
+        .card {
+            margin-left: 0.5rem;
+        }
+    }
+
+    /* Fix grid title rendering on Safari 12.0.
+        Inspired by https://stackoverflow.com/questions/32689686/overlapping-css-flexbox-items-in-safari */
+    .d-flex {
+        flex-shrink: 0;
+    }
+
+    /* Tool styles */
+    .title {
+        color: map-get($theme-colors, "primary-foreground");
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: row;
+        flex-shrink: 0;
+        .title-left {
+            flex-shrink: 1;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .title-info {
+            width: 100%;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            font-size: 80%;
+            opacity: .8;
+            padding: 0 0.25rem;
+            justify-content: center;
+            line-height: 25px;
+            flex-shrink: 1;
+            text-align: right;
+        }
+        .title-buttons {
+            display: flex;
+            flex-direction: row;
+            flex-grow: 1;
+            flex-shrink: 0;
+            justify-content: right;
+            div {
+                display: inline-block;
+            }
+        }
+        
+    }
+
+    .card {
+        border: 1px solid map-get($theme-colors, "card-border");
+    }
+
+    .bg-black {
+        background-color: map-get($global-colors, "black");
+        color: map-get($global-colors, "white");
+        a {
+            color: map-get($global-colors, "white");
+        }
+    }
+
+    .bg-primary {
+        background-color: map-get($theme-colors, "primary-background");
+        color: map-get($theme-colors, "primary-foreground");
+        a {
+            color: map-get($theme-colors, "primary-foreground-active");
+        }
+    }
+
+    .bg-secondary {
+        background-color: map-get($theme-colors, "secondary-background");
+        color: map-get($theme-colors, "secondary-foreground");
+    }
+
+    .scroll {
+        overflow-y: auto;
+    }
+
+    .details {
+        font-size: 80%;
+        opacity: 0.8;
+    }
+
+
+    .coll-full, .welcome-col-left, .welcome-col-right {
+        position: relative;
+        width: 100%;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+
+    .col-full {
+        -ms-flex: 0 0 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .welcome-col-left {
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+
+        .list-group-item {
+            background-color: map-get($theme-colors, "primary-background-highlight");
+        }
+
+        .input-group input {
+            background-color: map-get($theme-colors, "primary-background-input");
+        }
+        a {
+            color: #ffffff;
+        }
+    }
+  
+
+    .welcome-col-right {
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+        .info-paragraph {
+            margin-bottom: 0 !important;
+        }
+        .info-section-text {
+            margin-top: 0.5rem
+        }
+        a {
+            color: #ffffff;
+        }
+    }
+
+    .container-fluid {
+        width: 100%;
+        padding-right: 15px;
+        padding-left: 15px;
+        margin-right: auto;
+        margin-left: auto;
+        box-sizing: border-box;
+    
+        background-color: map-get($theme-colors, "grid-layout-background");
+        height: auto;
+        position: absolute;
+        width: 100%;
+        
+    }
+  
+}
+
+.react-draggable-transparent-selection .react-grid-item {
+  /* These styles prevent text selection during resize drag interactions.
+     The react-draggable-transparent-selection class is added to the body 
+     element during resizing and removed after resizing has finished.
+     Not part of mixin because acts outside of .vitessce-container. */
+  -webkit-user-select: none !important;
+  -khtml-user-select: none !important;
+  -moz-user-select: none !important;
+  -o-user-select: none !important;
+  user-select: none !important;
+}
+
+
+body {
+    margin: 0;
+    text-align: left;
+}
+

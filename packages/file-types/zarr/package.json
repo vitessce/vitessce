@@ -1,0 +1,31 @@
+{
+  "name": "@vitessce/zarr",
+  "version": "2.0.0-beta.2",
+  "author": "Gehlenborg Lab",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "tsc --watch",
+    "build": "tsc",
+    "test": "pnpm exec vitest --run -r ../../../ --dir ."
+  },
+  "dependencies": {
+    "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/gl": "workspace:*",
+    "@vitessce/spatial-utils": "workspace:*",
+    "@vitessce/sets-utils": "workspace:*",
+    "@vitessce/utils": "workspace:*",
+    "@vitessce/vit-s": "workspace:*",
+    "d3-array": "^2.4.0",
+    "lodash": "^4.17.21",
+    "zarr": "0.5.1"
+  }
+}

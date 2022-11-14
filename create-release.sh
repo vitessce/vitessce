@@ -40,6 +40,7 @@ fi
 DATE=`date "+%Y-%m-%d"`
 
 # Bump the version.
+# TODO(monorepo): pnpm publish equivalent or use jq to bump the version
 NEXT_VERSION_WITH_V=$( npm version "$1" --no-git-tag-version )
 NEXT_VERSION=${NEXT_VERSION_WITH_V:1}
 
@@ -56,13 +57,13 @@ printf '%s\n%s\n' "
 
 " "$(cat CHANGELOG.md)" > CHANGELOG.md
 
-git add CHANGELOG.md package.json package-lock.json
+git add CHANGELOG.md package.json pnpm-logk.yaml
 git commit -m "Release for $NEXT_VERSION_WITH_V. Commit by create-release.sh"
 
 # Push dev and docs site.
 bash ./push-demos.sh
 
-git add src/version.json DEMOS.md DOCS.md
+git add version.json DEMOS.md DOCS.md
 git commit -m "Demo for $NEXT_VERSION_WITH_V. Commit by create-release.sh"
 
 # Make a pull request.
