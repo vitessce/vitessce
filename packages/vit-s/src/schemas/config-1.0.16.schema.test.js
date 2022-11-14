@@ -9,8 +9,7 @@ describe('view config schema', () => {
         viewConfigSchema.properties.coordinationSpace.properties,
       );
       const inCoordinationScopes = Object.keys(
-        viewConfigSchema.definitions.components.items.properties
-          .coordinationScopes.properties,
+        viewConfigSchema.definitions.componentCoordinationScopes.properties,
       );
 
       expect(inCoordinationSpace).toEqual(expect.arrayContaining(allCoordinationTypes));
@@ -23,8 +22,7 @@ describe('view config schema', () => {
         viewConfigSchema.properties.coordinationSpace.properties,
       );
       const inCoordinationScopes = Object.keys(
-        viewConfigSchema.definitions.components.items.properties
-          .coordinationScopes.properties,
+        viewConfigSchema.definitions.componentCoordinationScopes.properties,
       );
 
       expect(allCoordinationTypes).toEqual(expect.arrayContaining(inCoordinationSpace));
