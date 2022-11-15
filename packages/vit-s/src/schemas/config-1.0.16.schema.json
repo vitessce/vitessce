@@ -46,8 +46,6 @@
         "spatialTargetX": { "$ref": "#/definitions/stringOrStringArray" },
         "spatialTargetY": { "$ref": "#/definitions/stringOrStringArray" },
         "spatialTargetZ": { "$ref": "#/definitions/stringOrStringArray" },
-        "spatialTargetT": { "$ref": "#/definitions/stringOrStringArray" },
-        "spatialTargetC": { "$ref": "#/definitions/stringOrStringArray" },
         "spatialRotationX": { "$ref": "#/definitions/stringOrStringArray" },
         "spatialRotationY": { "$ref": "#/definitions/stringOrStringArray" },
         "spatialRotationZ": { "$ref": "#/definitions/stringOrStringArray" },
@@ -624,32 +622,6 @@
           }
         },
         "spatialTargetZ": {
-          "type": "object",
-          "patternProperties": {
-            ".":  { "oneOf": [
-                {
-                  "type": "null",
-                  "description": "If null is provided, value will be automatically set."
-                },
-                { "type": "number" }
-              ]
-            }
-          }
-        },
-        "spatialTargetT": {
-          "type": "object",
-          "patternProperties": {
-            ".":  { "oneOf": [
-                {
-                  "type": "null",
-                  "description": "If null is provided, value will be automatically set."
-                },
-                { "type": "number" }
-              ]
-            }
-          }
-        },
-        "spatialTargetC": {
           "type": "object",
           "patternProperties": {
             ".":  { "oneOf": [
