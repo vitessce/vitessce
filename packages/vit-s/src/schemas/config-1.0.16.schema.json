@@ -432,18 +432,6 @@
       "additionalProperties": true,
       "required": [],
       "properties": {
-        "metaCoordinationScopes": {
-          "type": "object",
-          "patternProperties": {
-            ".": {
-              "type": "object",
-              "properties": {
-                "coordinationScopes": { "$ref": "#/definitions/componentCoordinationScopes" },
-                "coordinationScopesBy": { "$ref": "#/definitions/componentCoordinationScopesBy" }
-              }
-            }
-          }
-        },
         "dataset": {
           "type": "object",
           "patternProperties": {
