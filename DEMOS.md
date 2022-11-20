@@ -122,3 +122,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2022-09-23: [release-v1.2.2](https://s3.amazonaws.com/vitessce-data/demos/2022-09-23/d1ed3f21/index.html)
 - 2022-10-13: [keller-mark/pnpm-incremental-2](https://s3.amazonaws.com/vitessce-data/demos/2022-10-13/07cf6970/index.html)
 - 2022-10-25: [keller-mark/pnpm-incremental-2](https://s3.amazonaws.com/vitessce-data/demos/2022-10-25/c625d225/index.html)
+- 2022-11-20: [release-v2.0.1](https://s3.amazonaws.com/vitessce-data/demos/2022-11-20/ee48eb18/index.html)

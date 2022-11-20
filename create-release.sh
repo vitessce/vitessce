@@ -40,7 +40,6 @@ fi
 DATE=`date "+%Y-%m-%d"`
 
 # Bump the version.
-# TODO(monorepo): pnpm publish equivalent or use jq to bump the version
 NEXT_VERSION_WITH_V=$( npm version "$1" --no-git-tag-version )
 NEXT_VERSION=${NEXT_VERSION_WITH_V:1}
 
