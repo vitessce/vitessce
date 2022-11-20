@@ -5,6 +5,7 @@ import lodash from 'lodash';
 const { cloneDeep } = lodash;
 
 const isDryrun = process.env.META_UPDATER_MODE === 'dryrun';
+const isVersionOnly = process.env.META_UPDATER_MODE === 'versiononly';
 
 const LUMAGL_VERSION = '8.5.10';
 const LOADERSGL_VERSION = "^3.0.0";
@@ -88,12 +89,27 @@ function pinVersions(deps = {}) {
   }
 }
 
+function getChangeset(prevJson, newJson) {
+  const changeset = jsonDiff.diff(prevJson, newJson);
+  return jsonDiff.flattenChangeset(changeset);
+}
+
+function checkUpdate(prevJson, newJson, isVersionOnly, dir, filename) {
+  const changeset = getChangeset(prevJson, newJson);
+  if(isVersionOnly) {
+    if(changeset.length > 0) {
+      console.log(`Error: found non-version changes for ${filename} in ${dir}`);
+      console.log(JSON.stringify(changeset, null, 2));
+      process.exit(1);
+    }
+  }
+}
+
 function processUpdate(prevJson, newJson, isDryrun, dir, filename) {
   console.log(`meta-update for ${filename} in ${dir}`);
   // Diff the changes and print.
-  const changeset = jsonDiff.diff(prevJson, newJson);
-  const flatChangeset = jsonDiff.flattenChangeset(changeset);
-  console.log(JSON.stringify(flatChangeset, null, 2));
+  const changeset = getChangeset(prevJson, newJson);
+  console.log(JSON.stringify(changeset, null, 2));
   if(!isDryrun) {
     // Not a dry-run, return the new JSON.
     return newJson;
@@ -103,7 +119,7 @@ function processUpdate(prevJson, newJson, isDryrun, dir, filename) {
 }
 
 export default (workspaceDir) => {
-  console.log("is dryrun", isDryrun);
+  console.log("mode:", process.env.META_UPDATER_MODE);
   let root = path.resolve(workspaceDir, 'package.json');
   let meta = JSON.parse(fs.readFileSync(root, { encoding: 'utf-8' }));
   return {
@@ -112,8 +128,9 @@ export default (workspaceDir) => {
       pinVersions(newJson.dependencies);
       pinVersions(newJson.devDependencies);
       pinVersions(newJson.peerDependencies);
+      checkUpdate(prevJson, newJson, isVersionOnly, dir, 'package.json');
       newJson = { ...newJson, version: meta.version };
-      return processUpdate(prevJson, newJson, isDryrun, dir, 'package.json');
+      return processUpdate(prevJson, newJson, isDryrun || isVersionOnly, dir, 'package.json');
     },
     'tsconfig.json': (prevJson, dir) => {
       let newJson = cloneDeep(prevJson);
