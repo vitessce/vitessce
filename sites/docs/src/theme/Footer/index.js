@@ -8,13 +8,11 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import isInternalUrl from '@docusaurus/isInternalUrl';
 import ThemedImage from '@theme/ThemedImage';
 import IconExternalLink from '@theme/Icon/ExternalLink';
+import { META_VERSION } from '@vitessce/constants-internal';
 import styles from './styles.module.css';
 
 // This component has been swizzled from docusaurus
 // so that we can include the Vitessce version information.
-// TODO(monorepo)
-// import version from '../../../../../../src/version.json';
-const version = 'unk';
 
 function FooterLink({
   to, href, label, prependBaseUrlToHref, ...props
@@ -139,9 +137,9 @@ function Footer() {
                 />
                 <p className="info-section-text">
                   This deployment:&nbsp;
-                  branch=<code>{version.branch}</code>,&nbsp;
-                  hash=<code>{version.hash}</code>,&nbsp;
-                  date={version.date}
+                  branch=<code>{META_VERSION.branch}</code>,&nbsp;
+                  hash=<code>{META_VERSION.hash}</code>,&nbsp;
+                  date={META_VERSION.date}
                 </p>
               </div>
             ) : null}

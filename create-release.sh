@@ -69,7 +69,7 @@ git commit -m "Release for $NEXT_VERSION_WITH_V. Commit by create-release.sh"
 # Push dev and docs site.
 bash ./push-demos.sh
 
-git add version.json DEMOS.md DOCS.md
+git add packages/constants-internal/src/version.json DEMOS.md DOCS.md
 git commit -m "Demo for $NEXT_VERSION_WITH_V. Commit by create-release.sh"
 
 # Make a pull request.

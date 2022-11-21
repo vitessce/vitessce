@@ -66,6 +66,12 @@ module.exports = {
           label: 'Blog',
           position: 'right',
         },
+        {
+          href: 'https://github.com/vitessce/',
+          position: 'right',
+          className: 'header-github-link',
+          'aria-label': 'GitHub repository',
+        },
       ],
     },
     footer: {
