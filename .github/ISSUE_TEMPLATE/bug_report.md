@@ -23,3 +23,9 @@ If applicable, add screenshots to help explain your problem.
  - Release or git hash:
  - Browser:
  - Browser version:
+
+**Use case**
+ - [ ] Relevant to HuBMAP Consortium
+ - [ ] Relevant to Kidney Precision Medicine Project
+ - [ ] Relevant to Human Tumor Atlas Network
+ - [ ] Other
