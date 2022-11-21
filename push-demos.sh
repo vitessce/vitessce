@@ -73,11 +73,11 @@ cp ../demo/error.html $VERSIONED_DIST_DIR
 # and push to S3.
 aws s3 cp --recursive $ROOT_DIST_DIR s3://$ROOT_DOCS_URL_PATH
 aws s3 cp --recursive $VERSIONED_DIST_DIR s3://$BUCKET/$VERSIONED_DOCS_URL_PATH
-VERSIONED_TARGET_URL="http://$BUCKET.s3-website-us-east-1.amazonaws.com/$VERSIONED_DOCS_URL_PATH/index.html"
+VERSIONED_TARGET_URL="http://$BUCKET.s3-website-us-east-1.amazonaws.com/$VERSIONED_DOCS_URL_PATH/"
 COPY_TARGET_URL="https://s3.amazonaws.com/$ROOT_DOCS_URL_PATH/index.html"
 
 cd ../..
-echo "- $DATE: [$BRANCH]($VERSIONED_TARGET_URL)" >> ../DOCS.md
+echo "- $DATE: [$BRANCH]($VERSIONED_TARGET_URL)" >> DOCS.md
 
 echo "Deployed docs site"
 echo "Copy dev to $DEMO_TARGET_URL"
