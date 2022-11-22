@@ -395,6 +395,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       visibilities: layerDef.channels.map(c => (!layerDef.visible && typeof layerDef.visible === 'boolean'
         ? false
         : c.visible)),
+      excludeBackground: useTransparentColor,
     };
 
     if (!loader || !layerProps) return null;
@@ -472,6 +473,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ySlice: layerProps.ySlice,
       zSlice: layerProps.zSlice,
       onViewportLoad: layerProps.callback,
+      excludeBackground: layerProps.excludeBackground,
       extensions,
     });
   }
