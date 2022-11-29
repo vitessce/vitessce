@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout-with-lodash';
 import isEqual from 'lodash/isEqual';
-import { getMaxRows, resolveLayout, COMPONENT_ID_PREFIX } from './layout-utils';
+import { getMaxRows, resolveLayout } from './layout-utils';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -64,12 +64,11 @@ export function VitessceGridLayout(props) {
 
   const onValidLayoutChange = (newLayout) => {
     if (newLayout.length === Object.entries(gridComponents).length) {
-      const newComponentProps = [];
+      const newComponentProps = {};
       newLayout.forEach((nextC) => {
         const id = nextC.i;
         const prevC = gridComponents[id];
         if (prevC) {
-          const i = parseInt(id.substring(id.indexOf(COMPONENT_ID_PREFIX) + 1), 10);
           const nextProps = {
             x: nextC.x, y: nextC.y, w: nextC.w, h: nextC.h,
           };
@@ -77,11 +76,11 @@ export function VitessceGridLayout(props) {
             x: prevC.x, y: prevC.y, w: prevC.w, h: prevC.h,
           };
           if (!isEqual(nextProps, prevProps)) {
-            newComponentProps.push([i, nextProps]);
+            newComponentProps[id] = nextProps;
           }
         }
       });
-      if (newComponentProps.length > 0) {
+      if (Object.keys(newComponentProps).length > 0) {
         onLayoutChangeProp(newComponentProps);
       }
     }
