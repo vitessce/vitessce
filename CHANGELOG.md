@@ -35,6 +35,7 @@
   - Converted SVG React component imports to `@vitessce/icons` sub-package with vite + svgr
   - Converted glslify #pragma + webpack plugin to glslify CLI in `@vitessce/gl/src/glsl` with string manipulation to prevent need for plugin
 - Make sure to exclude the background image when using `transparentColor`
+- Fixed bug preventing `onConfigChange` from being called upon view resize events.
 
 
 ## [1.2.2](https://www.npmjs.com/package/vitessce/v/1.2.2) - 2022-09-23
