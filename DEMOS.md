@@ -125,3 +125,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2022-11-20: [release-v2.0.1](https://s3.amazonaws.com/vitessce-data/demos/2022-11-20/ee48eb18/index.html)
 - 2022-11-21: [release-v2.0.1](https://s3.amazonaws.com/vitessce-data/demos/2022-11-21/4482d113/index.html)
 - 2022-11-29: [release-v2.0.1](https://s3.amazonaws.com/vitessce-data/demos/2022-11-29/034a6aa8/index.html)
+- 2022-11-30: [release-v2.0.1](https://s3.amazonaws.com/vitessce-data/demos/2022-11-30/0327a9c6/index.html)
