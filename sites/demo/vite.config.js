@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { serveTestFixtures } from '../../vite.config';
 
 export default defineConfig({
+  base: './',
   plugins: [
     react({
       jsxRuntime: 'classic',
