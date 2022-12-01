@@ -1,7 +1,7 @@
 {
   "name": "demo",
   "private": true,
-  "version": "2.0.0-beta.2",
+  "version": "2.0.1",
   "scripts": {
     "start": "vite --port 3000",
     "build-demo": "vite build",
@@ -12,6 +12,7 @@
   "dependencies": {
     "@vitessce/example-configs": "workspace:*",
     "@vitessce/example-plugins": "workspace:*",
+    "@vitessce/constants-internal": "workspace:*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "vitessce": "workspace:*"

@@ -40,9 +40,15 @@ fi
 DATE=`date "+%Y-%m-%d"`
 
 # Bump the version.
-# TODO(monorepo): pnpm publish equivalent or use jq to bump the version
 NEXT_VERSION_WITH_V=$( npm version "$1" --no-git-tag-version )
 NEXT_VERSION=${NEXT_VERSION_WITH_V:1}
+
+# Check whether the version is the only change for the meta-updater to perform in every subpackage.
+# Error if there are additional changes.
+pnpm run meta-version-only
+# The above command would have exited with a non-zero code if it found non-version changes.
+# If we reach this point we can proceed with the meta-updater, which will update the version field of the package.json in all sub-packages to match the root package.json. 
+pnpm run meta-update
 
 # Make a new branch for the release.
 git checkout -b "release-$NEXT_VERSION_WITH_V"
@@ -57,13 +63,13 @@ printf '%s\n%s\n' "
 
 " "$(cat CHANGELOG.md)" > CHANGELOG.md
 
-git add CHANGELOG.md package.json pnpm-logk.yaml
+git add CHANGELOG.md pnpm-lock.yaml package.json **/package.json
 git commit -m "Release for $NEXT_VERSION_WITH_V. Commit by create-release.sh"
 
 # Push dev and docs site.
 bash ./push-demos.sh
 
-git add version.json DEMOS.md DOCS.md
+git add packages/constants-internal/src/version.json DEMOS.md DOCS.md
 git commit -m "Demo for $NEXT_VERSION_WITH_V. Commit by create-release.sh"
 
 # Make a pull request.

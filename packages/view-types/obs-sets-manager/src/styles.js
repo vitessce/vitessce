@@ -117,7 +117,6 @@ export const useStyles = makeStyles(theme => ({
       width: '100%',
       display: 'inline-block',
     },
-    // TODO(monorepo): how to combine global and local styles?
     '@global .rc-tree-treenode .rc-tree-node-content-wrapper > span .title-button': {
       position: 'relative',
       /* To accomodate the checkbox and node menu button. */
@@ -125,7 +124,6 @@ export const useStyles = makeStyles(theme => ({
       overflow: 'hidden',
       textOverflow: 'ellipsis',
     },
-    // TODO(monorepo): how to combine global and local styles?
     '@global .rc-tree-treenode .rc-tree-node-content-wrapper > span .node-menu-icon': {
       position: 'relative',
       left: '0',

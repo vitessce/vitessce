@@ -1,6 +1,6 @@
 {
   "name": "vitessce",
-  "version": "2.0.0-beta.2",
+  "version": "2.0.1",
   "description": "Vitessce app and React component library",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io/",
@@ -17,7 +17,8 @@
     "lint-fix": "eslint --fix \"packages/**/src/**/*.js\" \"sites/*/src/**/*.js\" \"examples/*/src/**/*.js\"",
     "clean": "pnpm -r exec -- rm -rf node_modules",
     "meta-update": "cross-env META_UPDATER_MODE=write pnpm meta-updater",
-    "meta-dryrun": "cross-env META_UPDATER_MODE=dryrun pnpm meta-updater"
+    "meta-dryrun": "cross-env META_UPDATER_MODE=dryrun pnpm meta-updater",
+    "meta-version-only": "cross-env META_UPDATER_MODE=versiononly pnpm meta-updater"
   },
   "devDependencies": {
     "@pnpm/meta-updater": "^0.0.6",
