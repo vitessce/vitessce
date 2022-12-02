@@ -1,5 +1,6 @@
 
 ### Added
+- Added ./copy-dev.sh and ./copy-docs.sh instructions.
 
 ### Changed
 
