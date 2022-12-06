@@ -2,6 +2,7 @@
 ### Added
 
 ### Changed
+- Don't `await` AnnData payloads that might be accessed in quickly repeatedly (i.e cache the promise, not the payload).
 
 ## [2.0.1](https://www.npmjs.com/package/vitessce/v/2.0.1) - 2022-11-20
 
