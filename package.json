@@ -28,7 +28,7 @@
     "@testing-library/user-event": "^14.2.1",
     "@typescript-eslint/eslint-plugin": "^5.29.0",
     "@typescript-eslint/parser": "^5.29.0",
-    "@vitejs/plugin-react": "^3.0.0-alpha.2",
+    "@vitejs/plugin-react": "^3.0.0-beta.0",
     "@vitest/ui": "^0.16.0",
     "eslint": "^8.18.0",
     "eslint-plugin-react": "^7.30.0",

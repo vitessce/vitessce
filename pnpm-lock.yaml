@@ -14,7 +14,7 @@ importers:
       '@testing-library/user-event': ^14.2.1
       '@typescript-eslint/eslint-plugin': ^5.29.0
       '@typescript-eslint/parser': ^5.29.0
-      '@vitejs/plugin-react': ^3.0.0-alpha.2
+      '@vitejs/plugin-react': ^3.0.0-beta.0
       '@vitest/ui': ^0.16.0
       cross-env: ^7.0.0
       eslint: ^8.18.0
@@ -41,7 +41,7 @@ importers:
       '@testing-library/user-event': 14.4.3_aaq3sbffpfe3jnxzm2zngsddei
       '@typescript-eslint/eslint-plugin': 5.40.0_25sstg4uu2sk4pm7xcyzuov7xq
       '@typescript-eslint/parser': 5.40.0_z4bbprzjrhnsfa24uvmcbu7f5q
-      '@vitejs/plugin-react': 3.0.0-alpha.2_vite@3.1.8
+      '@vitejs/plugin-react': 3.0.0-beta.0_vite@3.1.8
       '@vitest/ui': 0.16.0
       cross-env: 7.0.3
       eslint: 8.25.0
@@ -249,13 +249,13 @@ importers:
 
   packages/icons:
     specifiers:
-      '@vitejs/plugin-react': ^3.0.0-alpha.2
+      '@vitejs/plugin-react': ^3.0.0-beta.0
       cross-env: ^7.0.0
       rimraf: ^3.0.2
       vite: ^3.0.0
       vite-plugin-svgr: ^2.2.1
     devDependencies:
-      '@vitejs/plugin-react': 3.0.0-alpha.2_vite@3.1.8
+      '@vitejs/plugin-react': 3.0.0-beta.0_vite@3.1.8
       cross-env: 7.0.3
       rimraf: 3.0.2
       vite: 3.1.8
@@ -304,7 +304,7 @@ importers:
 
   packages/main/dev:
     specifiers:
-      '@vitejs/plugin-react': ^3.0.0-alpha.2
+      '@vitejs/plugin-react': ^3.0.0-beta.0
       '@vitessce/all': workspace:*
       '@vitessce/config': workspace:*
       '@vitessce/constants': workspace:*
@@ -322,14 +322,14 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
-      '@vitejs/plugin-react': 3.0.0-alpha.2_vite@3.1.8
+      '@vitejs/plugin-react': 3.0.0-beta.0_vite@3.1.8
       cross-env: 7.0.3
       rimraf: 3.0.2
       vite: 3.1.8
 
   packages/main/prod:
     specifiers:
-      '@vitejs/plugin-react': ^3.0.0-alpha.2
+      '@vitejs/plugin-react': ^3.0.0-beta.0
       '@vitessce/all': workspace:*
       '@vitessce/config': workspace:*
       '@vitessce/constants': workspace:*
@@ -348,7 +348,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
-      '@vitejs/plugin-react': 3.0.0-alpha.2_vite@3.1.8
+      '@vitejs/plugin-react': 3.0.0-beta.0_vite@3.1.8
       cross-env: 7.0.3
       rimraf: 3.0.2
       rollup-plugin-visualizer: 5.8.3
@@ -858,7 +858,7 @@ importers:
 
   sites/demo:
     specifiers:
-      '@vitejs/plugin-react': ^3.0.0-alpha.2
+      '@vitejs/plugin-react': ^3.0.0-beta.0
       '@vitessce/constants-internal': workspace:*
       '@vitessce/example-configs': workspace:*
       '@vitessce/example-plugins': workspace:*
@@ -876,7 +876,7 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       vitessce: link:../../packages/main/prod
     devDependencies:
-      '@vitejs/plugin-react': 3.0.0-alpha.2_vite@3.1.8
+      '@vitejs/plugin-react': 3.0.0-beta.0_vite@3.1.8
       cypress: 10.10.0
       sass: 1.55.0
       vite: 3.1.8_sass@1.55.0
@@ -1225,6 +1225,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/types': 7.20.5
+    dev: false
 
   /@babel/helper-builder-binary-assignment-operator-visitor/7.18.9:
     resolution: {integrity: sha512-yFQ0YCHoIqarl8BCRwBL8ulYUaZpz3bNsA7oFepAzee+8/+ImtADXNOmO5vJvsPff3qi+hvpkY/NYBTrBQgdNw==}
@@ -2141,6 +2142,7 @@ packages:
     dependencies:
       '@babel/core': 7.20.5
       '@babel/helper-plugin-utils': 7.19.0
+    dev: false
 
   /@babel/plugin-syntax-logical-assignment-operators/7.10.4_@babel+core@7.19.3:
     resolution: {integrity: sha512-d8waShlpFDinQ5MtvGU9xDAOzKH47+FFoney2baFIoMr952hKOLp1HR7VszoZvOsV/4+RRszNY7D17ba0te0ig==}
@@ -2917,6 +2919,7 @@ packages:
     dependencies:
       '@babel/core': 7.20.5
       '@babel/plugin-transform-react-jsx': 7.19.0_@babel+core@7.20.5
+    dev: false
 
   /@babel/plugin-transform-react-jsx-self/7.18.6_@babel+core@7.20.5:
     resolution: {integrity: sha512-A0LQGx4+4Jv7u/tWzoJF7alZwnBDQd6cGLh9P+Ttk4dpiL+J5p7NSNv/9tlEFFJDq3kjxOavWmbm6t0Gk+A3Ig==}
@@ -2964,6 +2967,7 @@ packages:
       '@babel/helper-plugin-utils': 7.19.0
       '@babel/plugin-syntax-jsx': 7.18.6_@babel+core@7.20.5
       '@babel/types': 7.20.5
+    dev: false
 
   /@babel/plugin-transform-react-pure-annotations/7.18.6_@babel+core@7.19.3:
     resolution: {integrity: sha512-I8VfEPg9r2TRDdvnHgPepTKvuRomzA8+u+nhY7qSI1fR2hRNebasZEETLyM5mAUr0Ku56OkXJ0I7NHJnO6cJiQ==}
@@ -6751,18 +6755,16 @@ packages:
       eslint-visitor-keys: 3.3.0
     dev: true
 
-  /@vitejs/plugin-react/3.0.0-alpha.2_vite@3.1.8:
-    resolution: {integrity: sha512-VObQvgDSWuEyxsCm/7gnMAzO82v7/JW1Yki6gvgFishqY4TMVHtm+3k7m6ci5zEBI22d+vfXh54mOpVHE+VgKA==}
+  /@vitejs/plugin-react/3.0.0-beta.0_vite@3.1.8:
+    resolution: {integrity: sha512-t8zyzMbXgrPvNpeKNn5eI/JJekYUVGklbzjmmelCePdlt3unrwZRtlsUWKDaH+8owbY7+I6bIpa4S2lwgkjXZg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      vite: ^3.0.0
+      vite: ^4.0.0-alpha.0
     dependencies:
       '@babel/core': 7.20.5
-      '@babel/plugin-transform-react-jsx': 7.19.0_@babel+core@7.20.5
-      '@babel/plugin-transform-react-jsx-development': 7.18.6_@babel+core@7.20.5
       '@babel/plugin-transform-react-jsx-self': 7.18.6_@babel+core@7.20.5
       '@babel/plugin-transform-react-jsx-source': 7.19.6_@babel+core@7.20.5
-      magic-string: 0.26.7
+      magic-string: 0.27.0
       react-refresh: 0.14.0
       vite: 3.1.8
     transitivePeerDependencies:
@@ -12598,6 +12600,13 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       sourcemap-codec: 1.4.8
+    dev: true
+
+  /magic-string/0.27.0:
+    resolution: {integrity: sha512-8UnnX2PeRAPZuN12svgR9j7M1uWMovg/CEnIwIG0LFkXSJJe4PdfUGiTGl8V9bsBHFUtfVINcSyYxd7q+kx9fA==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
   /make-dir/3.1.0:
