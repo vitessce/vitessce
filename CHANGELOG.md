@@ -2,7 +2,7 @@
 ### Added
 
 ### Changed
-- Bumped `@vitejs/plugin-react` version from `1.3.2` to `2.2.0`
+- Bumped `@vitejs/plugin-react` version from `1.3.2` to `3.0.0-beta.0`
 
 ## [2.0.1](https://www.npmjs.com/package/vitessce/v/2.0.1) - 2022-11-20
 
