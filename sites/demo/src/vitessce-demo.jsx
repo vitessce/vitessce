@@ -146,7 +146,8 @@ export function VitessceDemo() {
         font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
         height: max(100%, 100vh);
         width: 100%;
-        overflow: hidden;
+        overflow: scroll;
+        background-color: #333333;
       }
       #root .vitessce-container {
         height: max(100%,100vh);
