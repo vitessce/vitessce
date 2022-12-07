@@ -3,6 +3,7 @@
 - Added ./copy-dev.sh and ./copy-docs.sh instructions.
 
 ### Changed
+- Bumped `@vitejs/plugin-react` version from `1.3.2` to `3.0.0-beta.0`
 - Update parameters of MUI `createGenerateClassName` so that class names are deterministic
 
 ## [2.0.1](https://www.npmjs.com/package/vitessce/v/2.0.1) - 2022-11-20
