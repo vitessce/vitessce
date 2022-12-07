@@ -123,6 +123,12 @@ if it looks good, copy it to dev.vitessce.io:
 ./copy-dev.sh https://{url returned by create-release.sh or push-demos.sh}
 ```
 
+Note: if you need to obtain this URL later:
+
+```
+Copy dev to https://s3.amazonaws.com/vitessce-data/demos/$DATE/$HASH/index.html
+```
+
 #### Publish staged docs to vitessce.io
 
 After doing a manual test of the deployment of the docs,
@@ -130,6 +136,12 @@ if it looks good, copy it to vitessce.io:
 
 ```sh
 ./copy-docs.sh https://{url returned by create-release.sh or push-demos.sh}
+```
+
+Note: if you need to obtain this URL later:
+
+```
+Copy docs to https://s3.amazonaws.com/vitessce-data/docs-root/$DATE/$HASH/index.html
 ```
 
 #### Publish the NPM package
