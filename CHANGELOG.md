@@ -6,6 +6,7 @@
 - Fixed CSS bug in the development demo: changed `overflow: hidden` to `overflow: scroll` on the list of demos.
 - Bumped `@vitejs/plugin-react` version from `1.3.2` to `3.0.0-beta.0`
 - Update parameters of MUI `createGenerateClassName` so that class names are deterministic
+- Downgraded `@hms-dbmi/viv` from `0.12.9` to `0.12.6` 
 
 ## [2.0.1](https://www.npmjs.com/package/vitessce/v/2.0.1) - 2022-11-20
 

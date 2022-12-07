@@ -34,7 +34,7 @@ const makeDefaultGetObsCoords = obsLocations => i => ([
   obsLocations.data[1][i],
   0,
 ]);
-
+/*
 function getVivLayerExtensions(use3d, colormap, renderingMode) {
   if (use3d) {
     // Is 3d
@@ -63,6 +63,7 @@ function getVivLayerExtensions(use3d, colormap, renderingMode) {
   }
   return [new viv.ColorPaletteExtension()];
 }
+*/
 
 /**
  * React component which expresses the spatial relationships between cells and molecules.
@@ -450,9 +451,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
     const [Layer, layerLoader] = getLayerLoaderTuple(data, layerDef.use3d);
 
-    const extensions = getVivLayerExtensions(
+    /*const extensions = getVivLayerExtensions(
       layerDef.use3d, layerProps.colormap, layerProps.renderingMode,
-    );
+    );*/
+    const extensions = (layerDef.use3d ? [] : [
+      ...(layerProps.colormap ? [
+        new viv.AdditiveColormapExtension(),
+      ] : [
+        new viv.ColorPaletteExtension(),
+      ]),
+    ]);
 
     return new Layer({
       loader: layerLoader,
