@@ -1,5 +1,6 @@
 
 ### Added
+- Added ./copy-dev.sh and ./copy-docs.sh instructions.
 
 ### Changed
 - Update parameters of MUI `createGenerateClassName` so that class names are deterministic
