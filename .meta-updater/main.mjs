@@ -7,9 +7,9 @@ const { cloneDeep } = lodash;
 const isDryrun = process.env.META_UPDATER_MODE === 'dryrun';
 const isVersionOnly = process.env.META_UPDATER_MODE === 'versiononly';
 
-const LUMAGL_VERSION = '8.5.10';
+const LUMAGL_VERSION = '8.5.16';
 const LOADERSGL_VERSION = "^3.0.0";
-const DECKGL_VERSION = '8.6.7';
+const DECKGL_VERSION = '^8.8.6';
 const TURF_VERSION = "^6.5.0";
 const NEBULAGL_VERSION = "0.23.8";
 const OTHER_VERSIONS = {
@@ -20,7 +20,7 @@ const OTHER_VERSIONS = {
   "uuid": "^3.3.2",
   "zarr": "0.5.1",
   "zustand": "^3.5.10",
-  "@hms-dbmi/viv": "~0.12.6",
+  "@hms-dbmi/viv": "~0.13.3",
   "clsx": "^1.1.1",
   "d3-array": "^2.4.0",
   "d3-dsv": "^1.1.1",
