@@ -34,8 +34,20 @@ const makeDefaultGetObsCoords = obsLocations => i => ([
   obsLocations.data[1][i],
   0,
 ]);
-/*
+
+// eslint-disable-next-line no-unused-vars
 function getVivLayerExtensions(use3d, colormap, renderingMode) {
+  // For viv 0.12.6
+  // Reference: https://github.com/vitessce/vitessce/issues/1360
+  return (use3d ? [] : [
+    ...(colormap ? [
+      new viv.AdditiveColormapExtension(),
+    ] : [
+      new viv.ColorPaletteExtension(),
+    ]),
+  ]);
+  /*
+  // For viv 0.12.9
   if (use3d) {
     // Is 3d
     if (colormap) {
@@ -62,8 +74,8 @@ function getVivLayerExtensions(use3d, colormap, renderingMode) {
     return [new viv.AdditiveColormapExtension()];
   }
   return [new viv.ColorPaletteExtension()];
+  */
 }
-*/
 
 /**
  * React component which expresses the spatial relationships between cells and molecules.
@@ -451,16 +463,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
     const [Layer, layerLoader] = getLayerLoaderTuple(data, layerDef.use3d);
 
-    /*const extensions = getVivLayerExtensions(
+    const extensions = getVivLayerExtensions(
       layerDef.use3d, layerProps.colormap, layerProps.renderingMode,
-    );*/
-    const extensions = (layerDef.use3d ? [] : [
-      ...(layerProps.colormap ? [
-        new viv.AdditiveColormapExtension(),
-      ] : [
-        new viv.ColorPaletteExtension(),
-      ]),
-    ]);
+    );
 
     return new Layer({
       loader: layerLoader,
