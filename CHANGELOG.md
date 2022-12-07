@@ -2,6 +2,7 @@
 ### Added
 
 ### Changed
+- Update parameters of MUI `createGenerateClassName` so that class names are deterministic
 
 ## [2.0.1](https://www.npmjs.com/package/vitessce/v/2.0.1) - 2022-11-20
 

@@ -26,7 +26,8 @@ import {
 } from './view-config-utils';
 
 const generateClassName = createGenerateClassName({
-  disableGlobal: true,
+  disableGlobal: false, // Class names need to be deterministic
+  productionPrefix: 'vit', // Avoid conflicts with portal-ui MUI class names
 });
 
 function logConfig(config, name) {
