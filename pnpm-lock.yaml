@@ -243,7 +243,7 @@ importers:
       lodash: 4.17.21
       math.gl: 3.6.3
       mathjs: 9.5.2
-      nebula.gl: 0.23.8_jgy3bmd5b6tlh3y6qw73wt6lg4
+      nebula.gl: 0.23.8_wx37g7s5e2c67a2zttdkcrfb5m
     devDependencies:
       glsl-colormap: 1.0.1
 
@@ -310,6 +310,8 @@ importers:
       '@vitessce/constants': workspace:*
       '@vitessce/export-utils': workspace:*
       cross-env: ^7.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
       rimraf: ^3.0.2
       vite: ^3.0.0
     dependencies:
@@ -317,6 +319,8 @@ importers:
       '@vitessce/config': link:../../config
       '@vitessce/constants': link:../../constants
       '@vitessce/export-utils': link:../../utils/export-utils
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
     devDependencies:
       '@vitejs/plugin-react': 3.0.0-beta.0_vite@3.1.8
       cross-env: 7.0.3
@@ -331,6 +335,8 @@ importers:
       '@vitessce/constants': workspace:*
       '@vitessce/export-utils': workspace:*
       cross-env: ^7.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
       rimraf: ^3.0.2
       rollup-plugin-visualizer: ^5.8.3
       vite: ^3.0.0
@@ -339,6 +345,8 @@ importers:
       '@vitessce/config': link:../../config
       '@vitessce/constants': link:../../constants
       '@vitessce/export-utils': link:../../utils/export-utils
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
     devDependencies:
       '@vitejs/plugin-react': 3.0.0-beta.0_vite@3.1.8
       cross-env: 7.0.3
@@ -502,6 +510,7 @@ importers:
       higlass-zarr-datafetchers: ^0.2.1
       lodash: ^4.17.21
       react: ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
       vite: ^3.0.0
       vitest: ^0.23.4
       window-pixi: 5.3.3
@@ -515,6 +524,7 @@ importers:
       higlass-register: 0.3.0
       higlass-zarr-datafetchers: 0.2.1
       lodash: 4.17.21
+      react-dom: 18.2.0_react@18.2.0
       window-pixi: 5.3.3
     devDependencies:
       react: 18.2.0
@@ -7157,8 +7167,10 @@ packages:
       clean-stack: 2.2.0
       indent-string: 4.0.0
 
-  /ajv-formats/2.1.1:
+  /ajv-formats/2.1.1_ajv@8.11.0:
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
+    peerDependencies:
+      ajv: ^8.0.0
     peerDependenciesMeta:
       ajv:
         optional: true
@@ -13086,12 +13098,13 @@ packages:
       through2: 4.0.2
     dev: true
 
-  /nebula.gl/0.23.8_jgy3bmd5b6tlh3y6qw73wt6lg4:
+  /nebula.gl/0.23.8_wx37g7s5e2c67a2zttdkcrfb5m:
     resolution: {integrity: sha512-c/McY/c2kOw0IJAqqfE3I3ZNsd+3TJLWDDSM3tdjyFMIcSiS5bhiKTrbBxbRpPeuDet0CjJcxz2bwwYBF1EUcA==}
     peerDependencies:
       '@deck.gl/core': ^8.4.6
       '@deck.gl/geo-layers': ^8.4.6
       '@deck.gl/layers': ^8.4.6
+      '@luma.gl/constants': ^8.4.3
       '@luma.gl/core': ^8.4.3
     dependencies:
       '@deck.gl/core': 8.8.20
@@ -14617,6 +14630,12 @@ packages:
   /react-dev-utils/12.0.1_dn7vwzcw53b2xxjf4ntjf53x2i:
     resolution: {integrity: sha512-84Ivxmr17KjUupyqzFode6xKhjwuEJDROWKJy/BthkL7Wn6NJ8h4WE6k/exAv6ImS+0oZLRRW5j/aINMHyeGeQ==}
     engines: {node: '>=14'}
+    peerDependencies:
+      typescript: '>=2.7'
+      webpack: '>=4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
     dependencies:
       '@babel/code-frame': 7.18.6
       address: 1.2.1
@@ -14647,9 +14666,7 @@ packages:
     transitivePeerDependencies:
       - eslint
       - supports-color
-      - typescript
       - vue-template-compiler
-      - webpack
     dev: false
 
   /react-dom/18.2.0_react@18.2.0:
@@ -15590,7 +15607,7 @@ packages:
     dependencies:
       '@types/json-schema': 7.0.11
       ajv: 8.11.0
-      ajv-formats: 2.1.1
+      ajv-formats: 2.1.1_ajv@8.11.0
       ajv-keywords: 5.1.0_ajv@8.11.0
     dev: false
 
