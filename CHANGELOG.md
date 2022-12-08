@@ -3,6 +3,7 @@
 - Added ./copy-dev.sh and ./copy-docs.sh instructions.
 
 ### Changed
+- Don't `await` AnnData payloads that might be accessed in quickly repeatedly (i.e cache the promise, not the payload).
 - Fixed CSS bug in the development demo: changed `overflow: hidden` to `overflow: scroll` on the list of demos.
 - Bumped `@vitejs/plugin-react` version from `1.3.2` to `3.0.0-beta.0`
 - Update parameters of MUI `createGenerateClassName` so that class names are deterministic
