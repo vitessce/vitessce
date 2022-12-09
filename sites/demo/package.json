@@ -1,7 +1,7 @@
 {
   "name": "demo",
   "private": true,
-  "version": "2.0.1",
+  "version": "2.0.2",
   "scripts": {
     "start": "vite --port 3000",
     "build-demo": "vite build",
@@ -10,9 +10,9 @@
     "cypress:run": "cypress run"
   },
   "dependencies": {
+    "@vitessce/constants-internal": "workspace:*",
     "@vitessce/example-configs": "workspace:*",
     "@vitessce/example-plugins": "workspace:*",
-    "@vitessce/constants-internal": "workspace:*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "vitessce": "workspace:*"

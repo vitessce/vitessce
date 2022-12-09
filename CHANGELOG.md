@@ -1,5 +1,13 @@
 
 ### Added
+
+### Changed
+
+## [2.0.2](https://www.npmjs.com/package/vitessce/v/2.0.2) - 2022-12-09
+
+
+
+### Added
 - Added ./copy-dev.sh and ./copy-docs.sh instructions.
 
 ### Changed
