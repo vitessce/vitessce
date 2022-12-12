@@ -1,6 +1,7 @@
 
 ### Added
 - Added ./copy-dev.sh and ./copy-docs.sh instructions.
+- Added plugin registration exports to the `main/all` package exports, so that they are included in `vitessce` and `@vitessce/dev` package exports.
 
 ### Changed
 - Don't `await` AnnData payloads that might be accessed in quickly repeatedly (i.e cache the promise, not the payload).
