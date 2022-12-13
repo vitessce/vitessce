@@ -454,7 +454,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     );
     // Safer to only use this prop when we have an interleaved image i.e not multiple channels.
     const rgbInterleavedProps = {};
-    if (isInterleaved(data[0].shape)) {
+    if (isInterleaved(layerLoader[0].shape)) {
       rgbInterleavedProps.visible = layerDef.visible;
     }
     return new Layer({
