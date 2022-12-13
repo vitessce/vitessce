@@ -172,10 +172,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       geneExpressionColormap,
     } = this.props;
     const getPolygon = hasExplicitPolygons
-      // Bug introduced from DeckGL v8.6.x to v8.8.x:
-      // Polygon vertices cannot be passed via Uint32Arrays, which is how they might load via Zarr.
-      // For now, a workaround is to cast each vertex to a plain Array.
-      ? (object, { index, data }) => data.src.obsSegmentations.data[index].map(d => Array.from(d))
+      ? (object, { index, data }) => data.src.obsSegmentations.data[index]
       : (object, { index, data }) => {
         const x = data.src.obsCentroids.data[0][index];
         const y = data.src.obsCentroids.data[1][index];
