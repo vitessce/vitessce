@@ -3,7 +3,7 @@ import isEqual from 'lodash/isEqual';
 import {
   deck, viv, getSelectionLayers, ScaledExpressionExtension,
 } from '@vitessce/gl';
-import { getSourceFromLoader } from '@vitessce/spatial-utils';
+import { getSourceFromLoader, isInterleaved } from '@vitessce/spatial-utils';
 import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
@@ -397,7 +397,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
         : c.visible)),
       excludeBackground: useTransparentColor,
     };
-
     if (!loader || !layerProps) return null;
     const {
       metadata: { transform },
@@ -453,7 +452,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const extensions = getVivLayerExtensions(
       layerDef.use3d, layerProps.colormap, layerProps.renderingMode,
     );
-
+    // Safer to only use this prop when we have an interleaved image i.e not multiple channels.
+    const rgbInterleavedProps = {};
+    if (isInterleaved((Array.isArray(data) ? data[0] : data).shape)) {
+      rgbInterleavedProps.visible = layerDef.visible;
+    }
     return new Layer({
       loader: layerLoader,
       id: `${layerDef.use3d ? 'volume' : 'image'}-layer-${layerDef.index}-${i}`,
@@ -475,6 +478,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       onViewportLoad: layerProps.callback,
       excludeBackground: layerProps.excludeBackground,
       extensions,
+      ...rgbInterleavedProps,
     });
   }
 
