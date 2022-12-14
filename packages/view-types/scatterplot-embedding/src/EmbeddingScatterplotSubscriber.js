@@ -27,6 +27,7 @@ import {
   getPointSizeDevicePixels,
   getPointOpacity,
 } from '@vitessce/scatterplot';
+import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 
 /**
@@ -348,6 +349,15 @@ export function EmbeddingScatterplotSubscriber(props) {
         getObsInfo={getObsInfo}
       />
       )}
+      <Legend
+        visible
+        featureType={featureType}
+        featureValueType={featureValueType}
+        obsColorEncoding={cellColorEncoding}
+        featureSelection={geneSelection}
+        featureValueColormap={geneExpressionColormap}
+        featureValueColormapRange={geneExpressionColormapRange}
+      />
     </TitleInfo>
   );
 }

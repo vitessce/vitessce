@@ -261,6 +261,29 @@ importers:
       vite: 3.1.8
       vite-plugin-svgr: 2.2.2_neiqdhe6tejzlgo4ve4hcexot4
 
+  packages/legend:
+    specifiers:
+      '@material-ui/core': ~4.12.3
+      '@vitessce/utils': workspace:*
+      colormap: ^2.3.2
+      d3-color: ^1.4.0
+      d3-interpolate: ^2.0.1
+      d3-scale: ^3.2.3
+      react: ^18.0.0
+      vite: ^3.0.0
+      vitest: ^0.23.4
+    dependencies:
+      '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
+      '@vitessce/utils': link:../utils/other-utils
+      colormap: 2.3.2
+      d3-color: 1.4.1
+      d3-interpolate: 2.0.1
+      d3-scale: 3.3.0
+    devDependencies:
+      react: 18.2.0
+      vite: 3.1.8
+      vitest: 0.23.4
+
   packages/main/all:
     specifiers:
       '@material-ui/core': ~4.12.3
@@ -663,6 +686,7 @@ importers:
     specifiers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
+      '@vitessce/legend': workspace:*
       '@vitessce/scatterplot': workspace:*
       '@vitessce/sets-utils': workspace:*
       '@vitessce/utils': workspace:*
@@ -676,6 +700,7 @@ importers:
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
+      '@vitessce/legend': link:../../legend
       '@vitessce/scatterplot': link:../scatterplot
       '@vitessce/sets-utils': link:../../utils/sets-utils
       '@vitessce/utils': link:../../utils/other-utils
@@ -722,6 +747,7 @@ importers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
       '@vitessce/gl': workspace:*
+      '@vitessce/legend': workspace:*
       '@vitessce/scatterplot': workspace:*
       '@vitessce/sets-utils': workspace:*
       '@vitessce/spatial-utils': workspace:*
@@ -741,6 +767,7 @@ importers:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/gl': link:../../gl
+      '@vitessce/legend': link:../../legend
       '@vitessce/scatterplot': link:../scatterplot
       '@vitessce/sets-utils': link:../../utils/sets-utils
       '@vitessce/spatial-utils': link:../../utils/spatial-utils
@@ -5009,6 +5036,7 @@ packages:
   /@material-ui/core/4.12.4_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-tr7xekNlM9LjA6pagJmL8QCgZXaubWUwkJnoYcMKd4gw/t4XiyvnTkjdGrUVicyB2BsdaAv1tvow45bPM4sSwQ==}
     engines: {node: '>=8.0.0'}
+    deprecated: Material UI v4 doesn't receive active development since September 2021. See the guide https://mui.com/material-ui/migration/migration-v4/ to upgrade to v5.
     peerDependencies:
       '@types/react': ^16.8.6 || ^17.0.0
       react: ^16.8.0 || ^17.0.0 || 18
@@ -5054,6 +5082,7 @@ packages:
   /@material-ui/styles/4.11.5_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-o/41ot5JJiUsIETME9wVLAJrmIWL3j0R0Bj2kCOLbSfqEkKf0fmaPt+5vtblUh5eXr2S+J/8J3DaCb10+CzPGA==}
     engines: {node: '>=8.0.0'}
+    deprecated: Material UI v4 doesn't receive active development since September 2021. See the guide https://mui.com/material-ui/migration/migration-v4/ to upgrade to v5.
     peerDependencies:
       '@types/react': ^16.8.6 || ^17.0.0
       react: ^16.8.0 || ^17.0.0 || 18
@@ -8186,6 +8215,12 @@ packages:
   /colorette/2.0.19:
     resolution: {integrity: sha512-3tlv/dIP7FWvj3BsbHrGLJ6l/oKh1O3TcgBqMn+yyCagOxc23fyzDS6HypQbgxWbkpDnf52p1LuR4eWDQ/K9WQ==}
 
+  /colormap/2.3.2:
+    resolution: {integrity: sha512-jDOjaoEEmA9AgA11B/jCSAvYE95r3wRoAyTf3LEHGiUVlNHJaL1mRkf5AyLSpQBVGfTEPwGEqCIzL+kgr2WgNA==}
+    dependencies:
+      lerp: 1.0.3
+    dev: false
+
   /combine-promises/1.1.0:
     resolution: {integrity: sha512-ZI9jvcLDxqwaXEixOhArm3r7ReIivsXkpbyEWyeOhzz1QS0iSgBPnWvEqvIQtYyamGCYA88gFhmUrs9hrrQ0pg==}
     engines: {node: '>=10'}
@@ -8806,6 +8841,10 @@ packages:
       internmap: 2.0.3
     dev: false
 
+  /d3-color/1.4.1:
+    resolution: {integrity: sha512-p2sTHSLCJI2QKunbGb7ocOh7DgTAn8IrLx21QRc/BSnodXM4sv6aLQlnfpvehFMLZEfBc6g9pH9SWQccFYfJ9Q==}
+    dev: false
+
   /d3-color/3.1.0:
     resolution: {integrity: sha512-zg/chbXyeBtMQ1LbD/WSoW2DpC3I0mpmPdW+ynRTj/x2DAWYrIY7qeZIHidozwV24m4iavr15lNwIwLxRmOxhA==}
     engines: {node: '>=12'}
@@ -8863,6 +8902,10 @@ packages:
       d3-timer: 3.0.1
     dev: false
 
+  /d3-format/2.0.0:
+    resolution: {integrity: sha512-Ab3S6XuE/Q+flY96HXT0jOXcM4EAClYFnRGY5zsjRGNy6qCYrQsMffs7cV5Q9xejb35zxW5hf/guKw34kvIKsA==}
+    dev: false
+
   /d3-format/3.1.0:
     resolution: {integrity: sha512-YyUI6AEuY/Wpt8KWLgZHsIU86atmikuoOmCfommt0LYHiQSPjvX2AcFc38PX0CBpr2RCyZhjex+NS/LPOv6YqA==}
     engines: {node: '>=12'}
@@ -8900,6 +8943,12 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
+  /d3-interpolate/2.0.1:
+    resolution: {integrity: sha512-c5UhwwTs/yybcmTpAVqwSFl6vrQ8JZJoT5F7xNFK9pymv5C0Ymcc9/LIJHtYIggg/yS9YHw8i8O8tgb9pupjeQ==}
+    dependencies:
+      d3-color: 1.4.1
+    dev: false
+
   /d3-interpolate/3.0.1:
     resolution: {integrity: sha512-3bYs1rOD33uo8aqJfKP3JWPAibgw8Zm2+L9vBKEHJ2Rg+viTR7o5Mmv5mZcieN+FRYaAOWX5SJATX6k1PWz72g==}
     engines: {node: '>=12'}
@@ -8921,6 +8970,16 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
+  /d3-scale/3.3.0:
+    resolution: {integrity: sha512-1JGp44NQCt5d1g+Yy+GeOnZP7xHo0ii8zsQp6PGzd+C1/dl0KGsp9A7Mxwp+1D1o4unbTTxVdU/ZOIEBoeZPbQ==}
+    dependencies:
+      d3-array: 2.12.1
+      d3-format: 2.0.0
+      d3-interpolate: 2.0.1
+      d3-time: 2.1.1
+      d3-time-format: 3.0.0
+    dev: false
+
   /d3-scale/4.0.2:
     resolution: {integrity: sha512-GZW464g1SH7ag3Y7hXjf8RoUuAFIqklOAq3MRl4OaWabTFJY9PN/E1YklhXLh+OQ3fM9yS2nOkCoS+WLZ6kvxQ==}
     engines: {node: '>=12'}
@@ -8939,11 +8998,23 @@ packages:
       d3-path: 3.0.1
     dev: false
 
+  /d3-time-format/3.0.0:
+    resolution: {integrity: sha512-UXJh6EKsHBTjopVqZBhFysQcoXSv/5yLONZvkQ5Kk3qbwiUYkdX17Xa1PT6U1ZWXGGfB1ey5L8dKMlFq2DO0Ag==}
+    dependencies:
+      d3-time: 2.1.1
+    dev: false
+
   /d3-time-format/4.1.0:
     resolution: {integrity: sha512-dJxPBlzC7NugB2PDLwo9Q8JiTR3M3e4/XANkreKSUxF8vvXKqm1Yfq4Q5dl8budlunRVlUUaDUgFt7eA8D6NLg==}
     engines: {node: '>=12'}
     dependencies:
       d3-time: 3.0.0
+    dev: false
+
+  /d3-time/2.1.1:
+    resolution: {integrity: sha512-/eIQe/eR4kCQwq7yxi7z4c6qEXf2IYGcjoWB5OOQy4Tq9Uv39/947qlDcN2TLkiTzQWzvnsuYPB9TrWaNfipKQ==}
+    dependencies:
+      d3-array: 2.12.1
     dev: false
 
   /d3-time/3.0.0:
@@ -12482,6 +12553,10 @@ packages:
 
   /lerc/3.0.0:
     resolution: {integrity: sha512-Rm4J/WaHhRa93nCN2mwWDZFoRVF18G1f47C+kvQWyHGEZxFpTUi73p7lMVSAndyxGt6lJ2/CFbOcf9ra5p8aww==}
+    dev: false
+
+  /lerp/1.0.3:
+    resolution: {integrity: sha512-70Rh4rCkJDvwWiTsyZ1HmJGvnyfFah4m6iTux29XmasRiZPDBpT9Cfa4ai73+uLZxnlKruUS62jj2lb11wURiA==}
     dev: false
 
   /leven/3.1.0:

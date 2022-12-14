@@ -1,5 +1,5 @@
 {
-  "name": "@vitessce/spatial",
+  "name": "@vitessce/legend",
   "version": "2.0.2",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
@@ -15,25 +15,15 @@
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc",
-    "test": "pnpm exec vitest --run -r ../../../ --dir ."
+    "test": "pnpm exec vitest --run -r ../../ --dir ."
   },
   "dependencies": {
     "@material-ui/core": "~4.12.3",
-    "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/gl": "workspace:*",
-    "@vitessce/scatterplot": "workspace:*",
-    "@vitessce/sets-utils": "workspace:*",
-    "@vitessce/spatial-utils": "workspace:*",
-    "@vitessce/tooltip": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
-    "@vitessce/legend": "workspace:*",
-    "d3-array": "^2.4.0",
-    "lodash": "^4.17.21",
-    "math.gl": "^3.5.6",
-    "mathjs": "^9.2.0",
-    "plur": "^5.1.0",
-    "short-number": "^1.0.6"
+    "colormap": "^2.3.2",
+    "d3-scale": "^3.2.3",
+    "d3-interpolate": "^2.0.1",
+    "d3-color": "^1.4.0"
   },
   "devDependencies": {
     "react": "^18.0.0",

@@ -1,5 +1,6 @@
 
 ### Added
+- Added a legend for quantitative color scales in the `SpatialSubscriber` and `EmbeddingScatterplotSubscriber` views.
 
 ### Changed
 

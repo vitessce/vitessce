@@ -22,6 +22,7 @@ import {
 } from '@vitessce/vit-s';
 import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
 import { canLoadResolution, getCellColors } from '@vitessce/utils';
+import { Legend } from '@vitessce/legend';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType } from '@vitessce/constants-internal';
 import Spatial from './Spatial';
 import SpatialOptions from './SpatialOptions';
@@ -464,6 +465,15 @@ export function SpatialSubscriber(props) {
           getObsInfo={getObsInfo}
         />
       )}
+      <Legend
+        visible
+        featureType={featureType}
+        featureValueType={featureValueType}
+        obsColorEncoding={cellColorEncoding}
+        featureSelection={geneSelection}
+        featureValueColormap={geneExpressionColormap}
+        featureValueColormapRange={geneExpressionColormapRange}
+      />
     </TitleInfo>
   );
 }
