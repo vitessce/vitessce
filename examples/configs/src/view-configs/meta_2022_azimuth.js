@@ -55,7 +55,7 @@ export const meta2022azimuth = {
           },
           {
             name: 'Ethnicity',
-            path: 'obs/ethnicity',
+            path: 'obs/self_reported_ethnicity',
           },
           {
             name: 'Development Stage',

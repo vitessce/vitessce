@@ -43,7 +43,7 @@ export const combat2022cell = {
           featureValueType: 'expression',
         },
         options: {
-          path: 'obsm/X_gene_expression',
+          path: 'obsm/X_gene_expression_uint8',
           featureFilterPath: 'var/is_gene_expression',
         },
       },
@@ -56,7 +56,7 @@ export const combat2022cell = {
           featureValueType: 'capture',
         },
         options: {
-          path: 'obsm/X_antibody_capture',
+          path: 'obsm/X_antibody_capture_uint8',
           featureFilterPath: 'var/is_antibody_capture',
         },
       },
