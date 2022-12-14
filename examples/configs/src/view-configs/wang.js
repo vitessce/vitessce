@@ -10,14 +10,14 @@ export const wang2018 = {
       files: [
         {
           fileType: 'obsSegmentations.json',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/wang-2018/wang_2018_scientific_reports.cells.segmentations.json',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/wang-2018/wang_2018_scientific_reports.cells.segmentations.json',
           coordinationValues: {
             obsType: 'cell',
           },
         },
         {
           fileType: 'obsLocations.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/wang-2018/wang_2018_scientific_reports.cells.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/wang-2018/wang_2018_scientific_reports.cells.csv',
           options: {
             obsIndex: 'cell_id',
             obsLocations: ['X', 'Y'],
@@ -28,7 +28,7 @@ export const wang2018 = {
         },
         {
           fileType: 'obsLocations.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/wang-2018/wang_2018_scientific_reports.molecules.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/wang-2018/wang_2018_scientific_reports.molecules.csv',
           options: {
             obsIndex: 'molecule_id',
             obsLocations: ['X', 'Y'],
@@ -39,7 +39,7 @@ export const wang2018 = {
         },
         {
           fileType: 'obsLabels.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/wang-2018/wang_2018_scientific_reports.molecules.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/wang-2018/wang_2018_scientific_reports.molecules.csv',
           options: {
             obsIndex: 'molecule_id',
             obsLabels: 'Gene',
@@ -50,7 +50,7 @@ export const wang2018 = {
         },
         {
           fileType: 'obsFeatureMatrix.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/wang-2018/wang_2018_scientific_reports.cells.matrix.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/wang-2018/wang_2018_scientific_reports.cells.matrix.csv',
           coordinationValues: {
             obsType: 'cell',
             featureType: 'gene',

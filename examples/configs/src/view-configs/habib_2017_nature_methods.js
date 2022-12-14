@@ -7,7 +7,7 @@ export const habib2017natureMethods = {
     name: 'Habib 2017',
     files: [{
       fileType: 'anndata.zarr',
-      url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/habib-2017/habib_2017_nature_methods.h5ad.zarr',
+      url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/habib-2017/habib_2017_nature_methods.h5ad.zarr',
       coordinationValues: {
         obsType: 'cell',
         featureType: 'gene',
