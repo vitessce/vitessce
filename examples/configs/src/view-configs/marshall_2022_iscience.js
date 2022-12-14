@@ -16,8 +16,7 @@ export const marshall2022iScience = {
       },
       options: {
         obsFeatureMatrix: {
-          path: 'obsm/X_hvg',
-          featureFilterPath: 'var/highly_variable',
+          path: 'X',
         },
         obsEmbedding: {
           path: 'obsm/X_umap',

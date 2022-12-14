@@ -343,6 +343,9 @@ export const kuppe2022nature = {
         spatialSegmentationLayer: 'A',
         spatialImageLayer: 'A',
       },
+      props: {
+        disableChannelsIfRgbDetected: true,
+      },
       h: 4,
       w: 3,
       x: 9,

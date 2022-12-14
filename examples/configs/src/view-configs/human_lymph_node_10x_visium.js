@@ -17,8 +17,8 @@ export const humanLymphNode10xVisium = {
           },
           options: {
             obsFeatureMatrix: {
-              path: 'obsm/X_hvg',
-              featureFilterPath: 'var/highly_variable',
+              path: 'X',
+              initialFeatureFilterPath: 'var/highly_variable',
             },
             obsLocations: {
               path: 'obsm/spatial',
