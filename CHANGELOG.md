@@ -1,5 +1,13 @@
 
 ### Added
+
+### Changed
+
+## [2.0.2](https://www.npmjs.com/package/vitessce/v/2.0.2) - 2022-12-09
+
+
+
+### Added
 - Added ./copy-dev.sh and ./copy-docs.sh instructions.
 - Added plugin registration exports to the `main/all` package exports, so that they are included in `vitessce` and `@vitessce/dev` package exports.
 
