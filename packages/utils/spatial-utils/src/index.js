@@ -10,5 +10,6 @@ export {
   initializeLayerChannels,
   initializeRasterLayersAndChannels,
   getSourceFromLoader,
+  isInterleaved,
   isRgb,
 } from './spatial';

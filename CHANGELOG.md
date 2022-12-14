@@ -9,6 +9,7 @@
 
 ### Added
 - Added ./copy-dev.sh and ./copy-docs.sh instructions.
+- Added plugin registration exports to the `main/all` package exports, so that they are included in `vitessce` and `@vitessce/dev` package exports.
 
 ### Changed
 - Don't `await` AnnData payloads that might be accessed in quickly repeatedly (i.e cache the promise, not the payload).
@@ -17,6 +18,8 @@
 - Update parameters of MUI `createGenerateClassName` so that class names are deterministic
 - Fixed broken cell highlight crosshairs upon hover events in scatterplots/spatial/heatmap views by porting SCSS to MUI JSS.
 - Upgrade Viv to `0.13` and deck.gl to `8.8`
+- Interleaved rgb images obey visibility prop
+- Added workaround in `Spatial` view for apparent bug in DeckGL `PolygonLayer` preventing passing polygon vertices via `Uint32Array`.
 
 ## [2.0.1](https://www.npmjs.com/package/vitessce/v/2.0.1) - 2022-11-20
 
