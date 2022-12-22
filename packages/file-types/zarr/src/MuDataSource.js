@@ -2,7 +2,7 @@ import AnnDataSource from './AnnDataSource';
 
 // If the array path starts with mod/something/rest
 // capture mod/something.
-const regex = /^mod\/([^\/]*)\/(.*)$/;
+const regex = /^mod\/([^/]*)\/(.*)$/;
 
 function getModPrefix(arrPath) {
   if (arrPath) {
