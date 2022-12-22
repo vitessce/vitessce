@@ -13,11 +13,11 @@ function getModPrefix(arrPath) {
   }
   return '';
 }
-function getObsPath(arrPath) {
+export function getObsPath(arrPath) {
   return `${getModPrefix(arrPath)}obs`;
 }
 
-function getVarPath(arrPath) {
+export function getVarPath(arrPath) {
   return `${getModPrefix(arrPath)}var`;
 }
 

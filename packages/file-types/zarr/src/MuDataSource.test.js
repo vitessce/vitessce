@@ -1,5 +1,5 @@
 import range from 'lodash/range';
-import MuDataSource from './MuDataSource';
+import MuDataSource, { getObsPath, getVarPath } from './MuDataSource';
 
 describe('sources/MuDataSource', () => {
   it('loadObsColumns returns ids for location in store, with joint-modality path', async () => {
@@ -32,5 +32,17 @@ describe('sources/MuDataSource', () => {
     });
     const names = await dataSource.loadObsIndex('mod/atac/X');
     expect(names).toEqual(['CTG', 'GCA', 'CTT']);
+  });
+
+  it('getObsPath regex works', async () => {
+    expect(getObsPath('mod/rna/obsm/X_umap')).toEqual('mod/rna/obs');
+    expect(getObsPath('mod/rna/X')).toEqual('mod/rna/obs');
+    expect(getObsPath('obsm/X_umap')).toEqual('obs');
+  });
+
+  it('getVarPath regex works', async () => {
+    expect(getVarPath('mod/rna/obsm/X_umap')).toEqual('mod/rna/var');
+    expect(getVarPath('mod/rna/X')).toEqual('mod/rna/var');
+    expect(getVarPath('obsm/X_umap')).toEqual('var');
   });
 });
