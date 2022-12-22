@@ -1,5 +1,6 @@
 
 ### Added
+- Added `image.ome-tiff` and `obsSegmentations.ome-tiff` file types.
 
 ### Changed
 

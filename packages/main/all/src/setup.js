@@ -61,6 +61,12 @@ import {
   MatrixZarrAsObsFeatureMatrixLoader,
   GenomicProfilesZarrLoader,
 } from '@vitessce/zarr';
+import {
+  // OME-TIFF
+  OmeTiffSource,
+  OmeTiffLoader,
+  OmeTiffAsObsSegmentationsLoader,
+} from '@vitessce/ome-tiff';
 import { FileType, DataType } from '@vitessce/constants-internal';
 
 function setup() {
@@ -103,6 +109,9 @@ function setup() {
   registerPluginFileType(FileType.FEATURE_LABELS_ANNDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, AnnDataSource);
   // All OME file types
   registerPluginFileType(FileType.IMAGE_OME_ZARR, DataType.IMAGE, OmeZarrLoader, ZarrDataSource);
+  // OME-TIFF file types
+  registerPluginFileType(FileType.IMAGE_OME_TIFF, DataType.IMAGE, OmeTiffLoader, OmeTiffSource);
+  registerPluginFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource);
 
   // All legacy file types
   registerPluginFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource);

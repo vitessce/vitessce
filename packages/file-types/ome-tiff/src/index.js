@@ -1,3 +1,3 @@
 export { default as OmeTiffSource } from './OmeTiffSource';
-export { default as RasterJsonAsImageLoader } from './RasterJsonAsImageLoader';
-export { default as RasterJsonAsObsSegmentationsLoader } from './RasterJsonAsObsSegmentationsLoader';
+export { default as OmeTiffLoader } from './OmeTiffLoader';
+export { default as OmeTiffAsObsSegmentationsLoader } from './OmeTiffAsObsSegmentationsLoader';

@@ -287,6 +287,17 @@ export const obsSetsCsvSchema = {
     },
   },
 };
+// OME-TIFF
+export const imageOmeTiffSchema = {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  $id: 'https://github.com/vitessce/vitessce/#image-omeTiff-options',
+  title: 'image.ome-tiff options',
+  type: 'object',
+  required: [],
+  properties: {
+    offsetsUrl: { type: 'string' },
+  },
+};
 
 /**
  * Options schemas for joint file types.

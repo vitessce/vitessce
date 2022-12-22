@@ -81,6 +81,7 @@ export {
   featureLabelsCsvSchema,
   obsSetsCsvSchema,
   anndataZarrSchema,
+  imageOmeTiffSchema,
   emptySchema,
 } from './file-options-schemas';
 export {

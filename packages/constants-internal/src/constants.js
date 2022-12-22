@@ -55,6 +55,9 @@ export const FileType = {
   FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
   GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
   NEIGHBORHOODS_JSON: 'neighborhoods.json',
+  // OME-TIFF
+  IMAGE_OME_TIFF: 'image.ome-tiff',
+  OBS_SEGMENTATIONS_OME_TIFF: 'obsSegmentations.ome-tiff',
   // New file types to support old file types:
   // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
