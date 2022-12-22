@@ -2,6 +2,7 @@
 ### Added
 
 ### Changed
+- Specify default shell as `bash` to fix windows CI.
 
 ## [2.0.2](https://www.npmjs.com/package/vitessce/v/2.0.2) - 2022-12-09
 
