@@ -26,6 +26,8 @@ jobs:
     name: Test on ${{ matrix.os }} with Node ${{ matrix.node }}
     
     steps:
+      - run: git config --global core.autocrlf false
+        if: ${{ matrix.os == 'windows-2022' }}
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
