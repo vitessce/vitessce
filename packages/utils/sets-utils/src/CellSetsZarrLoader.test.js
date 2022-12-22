@@ -3,7 +3,9 @@ import { dataToCellSetsTree } from './CellSetsZarrLoader';
 describe('loaders/CellSetsZarrLoader', () => {
   it('dataToCellSetsTree constructs a hierarchy from an array of columns', async () => {
     const data = [
-      ['cell_1', 'cell_2', 'cell_3', 'cell_4'],
+      [
+        ['cell_1', 'cell_2', 'cell_3', 'cell_4'],
+      ],
       [
         [
           ['Immune', 'Immune', 'Immune', 'Neuron'],
@@ -73,7 +75,9 @@ describe('loaders/CellSetsZarrLoader', () => {
 
   it('dataToCellSetsTree creates a flat tree from a single column', async () => {
     const data = [
-      ['cell_1', 'cell_2', 'cell_3', 'cell_4'],
+      [
+        ['cell_1', 'cell_2', 'cell_3', 'cell_4'],
+      ],
       [
         ['Immune', 'Immune', 'Immune', 'Neuron'],
       ],
@@ -114,7 +118,9 @@ describe('loaders/CellSetsZarrLoader', () => {
 
   it('dataToCellSetsTree creates a flat tree from a single column with scores', async () => {
     const data = [
-      ['cell_1', 'cell_2', 'cell_3', 'cell_4'],
+      [
+        ['cell_1', 'cell_2', 'cell_3', 'cell_4'],
+      ],
       [
         ['Immune', 'Immune', 'Immune', 'Neuron'],
       ],

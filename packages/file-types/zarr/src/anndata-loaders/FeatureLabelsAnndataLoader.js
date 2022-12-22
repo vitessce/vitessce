@@ -1,5 +1,4 @@
 import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError } from '@vitessce/vit-s';
-import { dirname } from '../utils';
 
 const optionsSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
@@ -50,7 +49,7 @@ export default class FeatureLabelsAnndataLoader extends AbstractTwoStepLoader {
       // Pass in the obsEmbedding path,
       // to handle the MuData case where the obsIndex is located at
       // `mod/rna/index` rather than `index`.
-      this.dataSource.loadVarIndex(dirname(path)),
+      this.dataSource.loadVarIndex(path),
       this.loadLabels(),
     ]).then(([featureIndex, featureLabels]) => Promise.resolve(new LoaderResult(
       {

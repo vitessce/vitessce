@@ -1,5 +1,25 @@
-import { dirname } from './utils';
 import AnnDataSource from './AnnDataSource';
+
+// If the array path starts with mod/something/rest
+// capture mod/something.
+const regex = /^mod\/([^\/]*)\/(.*)$/;
+
+function getModPrefix(arrPath) {
+  if (arrPath) {
+    const matches = arrPath.match(regex);
+    if (matches && matches.length === 3) {
+      return `mod/${matches[1]}/`;
+    }
+  }
+  return '';
+}
+function getObsPath(arrPath) {
+  return `${getModPrefix(arrPath)}obs`;
+}
+
+function getVarPath(arrPath) {
+  return `${getModPrefix(arrPath)}var`;
+}
 
 export default class MuDataSource extends AnnDataSource {
   /**
@@ -10,13 +30,13 @@ export default class MuDataSource extends AnnDataSource {
     if (!this.obsIndex) {
       this.obsIndex = {};
     }
-    if (this.obsIndex[path]) {
-      return this.obsIndex[path];
+    const obsPath = getObsPath(path);
+    if (this.obsIndex[obsPath]) {
+      return this.obsIndex[obsPath];
     }
-    const obsPath = path ? `${dirname(path)}/obs` : 'obs';
-    this.obsIndex[path] = this.getJson(`${obsPath}/.zattrs`)
+    this.obsIndex[obsPath] = this.getJson(`${obsPath}/.zattrs`)
       .then(({ _index }) => this.getFlatArrDecompressed(`${obsPath}/${_index}`));
-    return this.obsIndex[path];
+    return this.obsIndex[obsPath];
   }
 
   /**
@@ -27,13 +47,13 @@ export default class MuDataSource extends AnnDataSource {
     if (!this.varIndex) {
       this.varIndex = {};
     }
-    if (this.varIndex[path]) {
-      return this.varIndex[path];
+    const varPath = getVarPath(path);
+    if (this.varIndex[varPath]) {
+      return this.varIndex[varPath];
     }
-    const varPath = `${dirname(path)}/var`;
-    this.varIndex[path] = this.getJson(`${varPath}/.zattrs`)
+    this.varIndex[varPath] = this.getJson(`${varPath}/.zattrs`)
       .then(({ _index }) => this.getFlatArrDecompressed(`${varPath}/${_index}`));
-    return this.varIndex[path];
+    return this.varIndex[varPath];
   }
 
   /**

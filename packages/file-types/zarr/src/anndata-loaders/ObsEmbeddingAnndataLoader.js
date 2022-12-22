@@ -1,7 +1,6 @@
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsEmbeddingAnndataSchema,
 } from '@vitessce/vit-s';
-import { dirname } from '../utils';
 
 /**
  * Loader for embedding arrays located in anndata.zarr stores.
@@ -39,7 +38,7 @@ export default class ObsEmbeddingAnndataLoader extends AbstractTwoStepLoader {
       // Pass in the obsEmbedding path,
       // to handle the MuData case where the obsIndex is located at
       // `mod/rna/index` rather than `index`.
-      this.dataSource.loadObsIndex(dirname(path)),
+      this.dataSource.loadObsIndex(path),
       this.loadEmbedding(),
     ]).then(([obsIndex, obsEmbedding]) => Promise.resolve(new LoaderResult(
       { obsIndex, obsEmbedding },

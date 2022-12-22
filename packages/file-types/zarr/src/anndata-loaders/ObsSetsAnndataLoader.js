@@ -17,6 +17,25 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
     this.optionsSchema = obsSetsAnndataSchema;
   }
 
+  loadObsIndices() {
+    const { options } = this;
+    const obsIndexPromises = options
+      .map(({ path }) => path)
+      .map((pathOrPaths) => {
+        if (Array.isArray(pathOrPaths)) {
+          // The multi-level case, try using the first item to get the obsIndex.
+          if (pathOrPaths.length > 0) {
+            return this.dataSource.loadObsIndex(pathOrPaths[0]);
+          }
+          // pathOrPaths should not be of length 0, but if so, fall back to the default obsIndex.
+          return this.dataSource.loadObsIndex();
+        }
+        // The single-level case.
+        return this.dataSource.loadObsIndex(pathOrPaths);
+      });
+    return Promise.all(obsIndexPromises);
+  }
+
   loadCellSetIds() {
     const { options } = this;
     const cellSetZarrLocation = options.map(({ path }) => path);
@@ -38,9 +57,10 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
       const { options } = this;
       this.cachedResult = Promise.all([
         this.dataSource.loadObsIndex(),
+        this.loadObsIndices(),
         this.loadCellSetIds(),
         this.loadCellSetScores(),
-      ]).then(data => [data[0], dataToCellSetsTree(data, options)]);
+      ]).then(data => [data[0], dataToCellSetsTree([data[1], data[2], data[3]], options)]);
     }
     const [obsIndex, obsSets] = await this.cachedResult;
     const obsSetsMembership = treeToMembershipMap(obsSets);
