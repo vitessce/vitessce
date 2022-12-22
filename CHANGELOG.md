@@ -1,5 +1,6 @@
 
 ### Added
+- Added `MuData` file types.
 
 ### Changed
 
