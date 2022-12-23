@@ -14,6 +14,7 @@ import { register as registerLayerController } from '@vitessce/layer-controller'
 import { register as registerStatus } from '@vitessce/status';
 import { registerCellSetExpression, registerCellSetSizes, registerExpressionHistogram } from '@vitessce/statistical-plots';
 import { registerHiglass, registerGenomicProfiles } from '@vitessce/genomic-profiles';
+import { register as registerDiffExpViews } from '@vitessce/diff-exp';
 
 // Register file type plugins
 import {
@@ -81,6 +82,8 @@ function setup() {
   // Higlass
   registerHiglass();
   registerGenomicProfiles();
+  // Diff exp
+  registerDiffExpViews();
 
   // File types
   // All CSV file types

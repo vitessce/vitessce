@@ -116,7 +116,7 @@ export const eng2019 = {
   },
   layout: [
     {
-      component: 'description',
+      component: 'obsSets',
       x: 9,
       y: 0,
       w: 3,
@@ -130,7 +130,7 @@ export const eng2019 = {
       h: 2,
     },
     {
-      component: 'obsSets',
+      component: 'flatObsSets',
       x: 9,
       y: 4,
       w: 3,
