@@ -22,7 +22,6 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const offsets = await this.loadOffsets();
     const { url, requestInit } = this;
 
     // Get image name and URL tuples.
@@ -36,18 +35,18 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       type: 'ome-tiff',
     };
 
+    const offsets = await this.loadOffsets();
+    const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
+    const { Pixels: { Channels } } = loader.metadata;
+    const channels = Array.isArray(Channels)
+      ? Channels.map((channel, i) => channel.Name || `Channel ${i}`)
+      : [Channels.Name || `Channel ${0}`];
+
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = [
       {
         ...image,
-        loaderCreator: async () => {
-          const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
-          const { Pixels: { Channels } } = loader.metadata;
-          const channels = Array.isArray(Channels)
-            ? Channels.map((channel, i) => channel.Name || `Channel ${i}`)
-            : [Channels.Name || `Channel ${0}`];
-          return { ...loader, channels };
-        },
+        loaderCreator: async () => ({ ...loader, channels }),
       },
     ];
 
@@ -71,7 +70,10 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
         spatialImageLayer: autoImageLayers,
       };
       return new LoaderResult(
-        { image: { loaders: imageLayerLoaders, meta: imageLayerMeta } },
+        {
+          image: { loaders: imageLayerLoaders, meta: imageLayerMeta },
+          featureIndex: channels,
+        },
         urls,
         coordinationValues,
       );
