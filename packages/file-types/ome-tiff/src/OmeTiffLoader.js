@@ -29,18 +29,18 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       [url, 'image'],
     ];
 
-    const image = {
-      name: 'Image',
-      url,
-      type: 'ome-tiff',
-    };
-
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
-    const { Pixels: { Channels } } = loader.metadata;
+    const { Name: imageName, Pixels: { Channels } } = loader.metadata;
     const channels = Array.isArray(Channels)
       ? Channels.map((channel, i) => channel.Name || `Channel ${i}`)
       : [Channels.Name || `Channel ${0}`];
+
+    const image = {
+      name: imageName || 'Image',
+      url,
+      type: 'ome-tiff',
+    };
 
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = [
