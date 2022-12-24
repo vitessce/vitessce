@@ -559,6 +559,58 @@ export function filterNode(node, prevPath, filterPath) {
   };
 }
 
+function isEqualSet(a, b) {
+  if (a.length === b.length) {
+    const aSet = new Set(a);
+    aSet.forEach((aVal) => {
+      b.forEach((bVal) => {
+        if (isEqual(aVal, bVal)) {
+          aSet.delete(aVal);
+        }
+      });
+    });
+    if (aSet.size === 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isPartialSet(a, b) {
+  // b is partially contained in a.
+  if (a.length > 0 && b.length > 0) {
+    const bIsPartOfA = a.some((aVal) => {
+      const bHasAVal = b.some((bVal) => {
+        if (isEqual(aVal, bVal)) {
+          return true;
+        }
+        return false;
+      });
+      return bHasAVal;
+    });
+    return bIsPartOfA;
+  }
+  return false;
+}
+
+function isFullSubSet(a, b) {
+  // a is fully contained within b.
+  if (a.length > 0 && b.length > 0 && a.length <= b.length) {
+    const bSet = new Set(b);
+    bSet.forEach((bVal) => {
+      a.forEach((aVal) => {
+        if (isEqual(aVal, bVal)) {
+          bSet.delete(bVal);
+        }
+      });
+    });
+    if ((b.length - bSet.size) === a.length) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function treeToExpectedCheckedLevel(currTree, checkedPaths) {
   let result = null;
   if (currTree) {
@@ -568,13 +620,52 @@ export function treeToExpectedCheckedLevel(currTree, checkedPaths) {
       range(height).forEach((i) => {
         const levelIndex = i + 1;
         const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
-        if (isEqual(levelNodePaths, checkedPaths)) {
+        if (isEqualSet(levelNodePaths, checkedPaths)) {
           result = { levelZeroPath, levelIndex };
         }
       });
     });
   }
   return result;
+}
+
+export function treeToFullyCheckedLevels(currTree, checkedPaths) {
+  const results = [];
+  if (currTree) {
+    currTree.tree.forEach((lzn) => {
+      const levelZeroPath = [lzn.name];
+      const height = nodeToHeight(lzn);
+      range(height).forEach((i) => {
+        const levelIndex = i + 1;
+        const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
+        if (isFullSubSet(levelNodePaths, checkedPaths)) {
+          results.push({ levelZeroPath, levelIndex });
+        }
+      });
+    });
+  }
+  return results;
+}
+
+export function treeToPartialCheckedLevels(currTree, checkedPaths) {
+  const results = [];
+  if (currTree) {
+    currTree.tree.forEach((lzn) => {
+      const levelZeroPath = [lzn.name];
+      const height = nodeToHeight(lzn);
+      range(height).forEach((i) => {
+        const levelIndex = i + 1;
+        const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
+        if (
+          isPartialSet(levelNodePaths, checkedPaths)
+          && !isEqualSet(levelNodePaths, checkedPaths)
+        ) {
+          results.push({ levelZeroPath, levelIndex });
+        }
+      });
+    });
+  }
+  return results;
 }
 
 export function treesConflict(cellSets, testCellSets) {

@@ -8,17 +8,12 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Favorite from '@material-ui/icons/Favorite';
-import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
-import OpacityIcon from '@material-ui/icons/Opacity';
-import InvertColorsIcon from '@material-ui/icons/InvertColors';
+import { DropIcon, DropOutlineIcon } from './DropIcon';
 import isEqual from 'lodash/isEqual';
 import { nodeToRenderProps, pathToKey } from '@vitessce/sets-utils';
 import { getDefaultColor } from '@vitessce/utils';
-import Tree from './Tree';
-import TreeNode from './TreeNode';
-import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
 import { useStyles } from './styles';
+import SvgIcon from '@material-ui/core/SvgIcon';
 
 function processNode(node, prevPath, setColor, theme) {
   const nodePath = [...prevPath, node.name];
@@ -57,6 +52,9 @@ function ChildManager(props) {
     nodeKey,
     path,
     onCheckNode,
+    size,
+    color,
+    parentIsFullyChecked,
   } = props;
 
   console.log("ChildManager", props);
@@ -64,26 +62,35 @@ function ChildManager(props) {
   function handleChange(event) {
     onCheckNode(path, event.target.checked);
   }
+
+  const classes = useStyles();
   return (
-    <Grid container item spacing={1} direction="row">
-      <Grid item xs={2} />
-      <FormControlLabel
-        control={
-          <Checkbox
-            //className={classes.checkbox}
-            checked={isChecked}
-            onChange={handleChange}
-            name={`child-checkbox-${name}`}
-            color="default"
-          />
-        }
-        label={
-          <span>
-            {name}
-          </span>
-        }
-      />
-      
+    <Grid container item spacing={0} direction="row" justifyContent="space-between" classes={{ root: classes.childRow }}>
+      <Grid container item spacing={0} xs direction="row">
+        <Grid item xs={2} />
+        <FormControlLabel
+          classes={{ label: classes.childLabel }}
+          control={
+            <Checkbox
+              classes={{ root: classes.checkboxRoot }}
+              checked={isChecked}
+              onChange={handleChange}
+              name={`child-checkbox-${name}`}
+              color="default"
+              disableRipple
+            />
+          }
+          label={name}
+        />
+      </Grid>
+      <Grid container item spacing={0} xs={3} direction="row" justifyContent="flex-end">
+        <span className={classes.sizeLabel}>{size}</span>
+        {parentIsFullyChecked ? (
+          <SvgIcon width="14" height="14" viewBox="0 0 14 14">
+            <rect x="3" y="3" width="8" height="8" rx="2" fill={`rgb(${color[0]},${color[1]},${color[2]})`} />
+          </SvgIcon>
+        ) : null}
+      </Grid>
     </Grid>
   );
 }
@@ -100,53 +107,85 @@ function GroupManager(props) {
     expandedKeys,
     checkedKeys,
     onCheckLevel,
+    onCheckNone,
     onCheckNode,
     onExpand,
+    partialCheckedLevelPath,
+    fullyCheckedLevelPath,
   } = props;
 
-  const isFullyChecked = isEqual(currPath, checkedLevelPath);
+  const isColored = isEqual(currPath, checkedLevelPath);
+  const isFullyChecked = isEqual(currPath, fullyCheckedLevelPath);
+  const isPartiallyChecked = isEqual(currPath, partialCheckedLevelPath);
   const isExpanded = expandedKeys.includes(nodeKey);
 
   console.log("GroupManager", props);
 
   function handleCheck(event) {
-    // TODO: fix un-check level behavior
-    onCheckLevel(nodeKey, event.target.checked ? 1 : 0);
+    // TODO: switch from checking to "filtering"
+    if (event.target.checked) {
+      onCheckLevel(nodeKey, event.target.checked);
+    } else {
+      onCheckNone();
+    }
   }
   function handleExpand(event) {
     onExpand(nodeKey, event.target.checked);
   }
+  function handleColor(event) {
+    if (event.target.checked) {
+      onCheckLevel(nodeKey, event.target.checked);
+    } else {
+      onCheckNone();
+    }
+  }
+
+  const classes = useStyles();
+
   return (
-    <Grid container spacing={1} direction="column">
-      <Grid container item spacing={1} direction="row" justifyContent="space-between">
+    <Grid container spacing={0} direction="column" classes={{ root: classes.groupRow }}>
+      <Grid container item spacing={0} direction="row" justifyContent="space-between">
         <Grid item direction="row">
           <Checkbox
-            //className={classes.checkbox}
+            classes={{ root: classes.checkboxRoot }}
             checked={isFullyChecked}
+            indeterminate={!isFullyChecked && isPartiallyChecked}
             onChange={handleCheck}
             name={`group-checkbox-${name}`}
             color="default"
+            disableRipple
           />
           <FormControlLabel
+            classes={{ labelPlacementStart: classes.labelPlacementStart, label: classes.label }}
             control={
               <Checkbox
-                //className={classes.checkbox}
+                classes={{ root: classes.checkboxRoot }}
                 checked={isExpanded}
                 onChange={handleExpand}
                 name={`group-expand-${name}`}
                 color="default"
                 icon={<ChevronRightIcon />}
                 checkedIcon={<ExpandMoreIcon />}
+                disableRipple
               />
             }
             label={name}
             labelPlacement="start"
           />
         </Grid>
-        <Checkbox icon={<OpacityIcon />} checkedIcon={<InvertColorsIcon />} name="checkedH" />
+        <Checkbox
+          classes={{ root: classes.checkboxRoot }}
+          checked={isColored}
+          onChange={handleColor}
+          icon={<DropOutlineIcon />}
+          checkedIcon={<DropIcon />}
+          name={`group-color-${name}`}
+          color="default"
+          disableRipple
+        />
       </Grid>
       {isExpanded ? (
-        <Grid container item spacing={1} direction="column">
+        <Grid container item spacing={0} direction="column">
           {items.map((node) => {
             const newPath = [...currPath, node.name];
             const childKey = pathToKey(newPath);
@@ -154,6 +193,7 @@ function GroupManager(props) {
               <ChildManager
                 key={childKey}
                 isChecked={checkedKeys.includes(childKey)}
+                parentIsFullyChecked={isColored}
                 onCheckNode={onCheckNode}
                 {...nodeToRenderProps(node, newPath, setColor)}
               />
@@ -222,6 +262,8 @@ export default function FlatSetsManager(props) {
     additionalSets,
     setColor,
     levelSelection: checkedLevel,
+    fullyCheckedLevels,
+    partialCheckedLevels,
     setSelection,
     setExpansion,
     hasColorEncoding,
@@ -234,6 +276,7 @@ export default function FlatSetsManager(props) {
     exportable = true,
     importable = true,
     onError,
+    onCheckNone,
     onCheckNode,
     onExpandNode,
     onDropNode,
@@ -256,6 +299,7 @@ export default function FlatSetsManager(props) {
     hasCheckedSetsToComplement,
   } = props;
 
+  console.log(partialCheckedLevels);
   const isChecking = true;
   const autoExpandParent = true;
 
@@ -285,6 +329,10 @@ export default function FlatSetsManager(props) {
     <div>
       {processedSets.tree.map((node) => {
         const newPath = [node.name];
+        const partialCheckedLevel = partialCheckedLevels
+          .find(d => isEqual(d.levelZeroPath, newPath));
+        const fullyCheckedLevel = fullyCheckedLevels
+          .find(d => isEqual(d.levelZeroPath, newPath));
         return (
           <GroupManager
             key={pathToKey(newPath)}
@@ -297,11 +345,18 @@ export default function FlatSetsManager(props) {
             checkedLevelPath={checkedLevel ? checkedLevel.levelZeroPath : null}
             checkedLevelIndex={checkedLevel ? checkedLevel.levelIndex : null}
 
+            partialCheckedLevelPath={partialCheckedLevel ? partialCheckedLevel.levelZeroPath : null}
+            partialCheckedLevelIndex={partialCheckedLevel ? partialCheckedLevel.levelIndex : null}
+
+            fullyCheckedLevelPath={fullyCheckedLevel ? fullyCheckedLevel.levelZeroPath : null}
+            fullyCheckedLevelIndex={fullyCheckedLevel ? fullyCheckedLevel.levelIndex : null}
+
             checkedKeys={setSelectionKeys}
             expandedKeys={setExpansionKeys}
             autoExpandParent={autoExpandParent}
 
             onCheckLevel={onCheckLevel}
+            onCheckNone={onCheckNone}
             onCheckNode={onCheckNode}
             onExpand={(nodeKey, expanded) => onExpandNode(
               setExpansionKeys,

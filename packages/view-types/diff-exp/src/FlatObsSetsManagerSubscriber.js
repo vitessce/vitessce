@@ -18,6 +18,8 @@ import {
   treeExportLevelZeroNode,
   treeExportSet,
   treeToExpectedCheckedLevel,
+  treeToFullyCheckedLevels,
+  treeToPartialCheckedLevels,
   nodeToLevelDescendantNamePaths,
   treeToIntersection,
   treeToUnion,
@@ -142,6 +144,22 @@ export function FlatObsSetsManagerSubscriber(props) {
     return null;
   }, [cellSetSelection, mergedCellSets]);
 
+  const partialCheckedLevels = useMemo(() => {
+    if (cellSetSelection && cellSetSelection.length > 0
+    && mergedCellSets && mergedCellSets.tree.length > 0) {
+      return treeToPartialCheckedLevels(mergedCellSets, cellSetSelection);
+    }
+    return [];
+  }, [cellSetSelection, mergedCellSets]);
+
+  const fullyCheckedLevels = useMemo(() => {
+    if (cellSetSelection && cellSetSelection.length > 0
+    && mergedCellSets && mergedCellSets.tree.length > 0) {
+      return treeToFullyCheckedLevels(mergedCellSets, cellSetSelection);
+    }
+    return [];
+  }, [cellSetSelection, mergedCellSets]);
+
   // Callback functions
 
   // The user wants to select all nodes at a particular hierarchy level.
@@ -152,6 +170,11 @@ export function FlatObsSetsManagerSubscriber(props) {
       setCellSetSelection(newCellSetSelection);
       setCellSetColorEncoding();
     }
+  }
+
+  function onCheckNone() {
+    setCellSetSelection([]);
+    setCellSetColorEncoding();
   }
 
   // The user wants to check or uncheck a cell set node.
@@ -579,12 +602,15 @@ export function FlatObsSetsManagerSubscriber(props) {
         sets={cellSets}
         additionalSets={additionalCellSets}
         levelSelection={checkedLevel}
+        fullyCheckedLevels={fullyCheckedLevels}
+        partialCheckedLevels={partialCheckedLevels}
         setSelection={cellSetSelection}
         setExpansion={cellSetExpansion}
         hasColorEncoding={cellColorEncoding === 'cellSetSelection'}
         draggable
         datatype={SETS_DATATYPE_OBS}
         onError={setWarning}
+        onCheckNone={onCheckNone}
         onCheckNode={onCheckNode}
         onExpandNode={onExpandNode}
         onDropNode={onDropNode}

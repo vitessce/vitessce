@@ -5,6 +5,8 @@ export {
   treeExportLevelZeroNode,
   treeExportSet,
   treeToExpectedCheckedLevel,
+  treeToFullyCheckedLevels,
+  treeToPartialCheckedLevels,
   nodeToLevelDescendantNamePaths,
   treeToIntersection,
   treeToUnion,
