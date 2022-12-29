@@ -72,15 +72,19 @@ export function FlatObsSetsManagerSubscriber(props) {
     dataset,
     obsType,
     obsSetSelection: cellSetSelection,
+    obsSetFilter,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
     obsColorEncoding: cellColorEncoding,
   }, {
     setObsSetSelection: setCellSetSelection,
+    setObsSetFilter,
     setObsColorEncoding: setCellColorEncoding,
     setObsSetColor: setCellSetColor,
     setAdditionalObsSets: setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.OBS_SETS], coordinationScopes);
+
+  console.log(obsSetFilter);
 
   const title = titleOverride || `${capitalize(obsType)} Sets`;
 
@@ -97,8 +101,8 @@ export function FlatObsSetsManagerSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [{ obsIndex, obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
     loaders, dataset, addUrl, true,
-    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
-    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
+    { setObsSetSelection: setCellSetSelection, setObsSetFilter, setObsSetColor: setCellSetColor },
+    { obsSetSelection: cellSetSelection, obsSetFilter, obsSetColor: cellSetColor },
     { obsType },
   );
   const isReady = useReady([
@@ -136,7 +140,7 @@ export function FlatObsSetsManagerSubscriber(props) {
   );
 
   // Infer the state of the "checked level" radio button based on the selected cell sets.
-  const checkedLevel = useMemo(() => {
+  const coloredLevel = useMemo(() => {
     if (cellSetSelection && cellSetSelection.length > 0
     && mergedCellSets && mergedCellSets.tree.length > 0) {
       return treeToExpectedCheckedLevel(mergedCellSets, cellSetSelection);
@@ -144,37 +148,45 @@ export function FlatObsSetsManagerSubscriber(props) {
     return null;
   }, [cellSetSelection, mergedCellSets]);
 
-  const partialCheckedLevels = useMemo(() => {
-    if (cellSetSelection && cellSetSelection.length > 0
+  const checkedLevel = useMemo(() => {
+    if (obsSetFilter && obsSetFilter.length > 0
     && mergedCellSets && mergedCellSets.tree.length > 0) {
-      return treeToPartialCheckedLevels(mergedCellSets, cellSetSelection);
+      return treeToExpectedCheckedLevel(mergedCellSets, obsSetFilter);
+    }
+    return null;
+  }, [obsSetFilter, mergedCellSets]);
+
+  const partialCheckedLevels = useMemo(() => {
+    if (obsSetFilter && obsSetFilter.length > 0
+    && mergedCellSets && mergedCellSets.tree.length > 0) {
+      return treeToPartialCheckedLevels(mergedCellSets, obsSetFilter);
     }
     return [];
-  }, [cellSetSelection, mergedCellSets]);
+  }, [obsSetFilter, mergedCellSets]);
 
   const fullyCheckedLevels = useMemo(() => {
-    if (cellSetSelection && cellSetSelection.length > 0
+    if (obsSetFilter && obsSetFilter.length > 0
     && mergedCellSets && mergedCellSets.tree.length > 0) {
-      return treeToFullyCheckedLevels(mergedCellSets, cellSetSelection);
+      return treeToFullyCheckedLevels(mergedCellSets, obsSetFilter);
     }
     return [];
-  }, [cellSetSelection, mergedCellSets]);
+  }, [obsSetFilter, mergedCellSets]);
 
   // Callback functions
 
   // The user wants to select all nodes at a particular hierarchy level.
-  function onCheckLevel(levelZeroName, levelIndex) {
+  function onColorGroup(levelZeroName, checked) {
+    const levelIndex = 1;
     const lzn = mergedCellSets.tree.find(n => n.name === levelZeroName);
     if (lzn) {
-      const newCellSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
-      setCellSetSelection(newCellSetSelection);
+      if (checked) {
+        const newCellSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
+        setCellSetSelection(newCellSetSelection);
+      } else {
+        setCellSetSelection([]);
+      }
       setCellSetColorEncoding();
     }
-  }
-
-  function onCheckNone() {
-    setCellSetSelection([]);
-    setCellSetColorEncoding();
   }
 
   // The user wants to check or uncheck a cell set node.
@@ -184,11 +196,36 @@ export function FlatObsSetsManagerSubscriber(props) {
       return;
     }
     if (checked) {
-      setCellSetSelection([...cellSetSelection, targetPath]);
+      setObsSetFilter([...obsSetFilter, targetPath]);
     } else {
-      setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, targetPath)));
+      setObsSetFilter(obsSetFilter.filter(d => !isEqual(d, targetPath)));
     }
-    setCellSetColorEncoding();
+  }
+
+  function onCheckGroup(levelZeroName, checked) {
+    const levelIndex = 1;
+    const lzn = mergedCellSets.tree.find(n => n.name === levelZeroName);
+    if (lzn) {
+      let newObsSetFilter;
+      if (checked) {
+        newObsSetFilter = [...obsSetFilter];
+        const obsSetsToAdd = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
+        obsSetsToAdd.forEach((path) => {
+          if (newObsSetFilter.find(d => isEqual(d, path)) === undefined) {
+            newObsSetFilter.push(path);
+          }
+        });
+      } else {
+        newObsSetFilter = [];
+        const obsSetsToRemove = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
+        obsSetFilter.forEach((path) => {
+          if (obsSetsToRemove.find(d => isEqual(d, path)) === undefined) {
+            newObsSetFilter.push(path);
+          }
+        });
+      }
+      setObsSetFilter(newObsSetFilter);
+    }
   }
 
   // The user wants to expand or collapse a node in the tree.
@@ -601,20 +638,22 @@ export function FlatObsSetsManagerSubscriber(props) {
         setColor={cellSetColor}
         sets={cellSets}
         additionalSets={additionalCellSets}
+        coloredLevel={coloredLevel}
         levelSelection={checkedLevel}
         fullyCheckedLevels={fullyCheckedLevels}
         partialCheckedLevels={partialCheckedLevels}
         setSelection={cellSetSelection}
+        setFilter={obsSetFilter}
         setExpansion={cellSetExpansion}
         hasColorEncoding={cellColorEncoding === 'cellSetSelection'}
         draggable
         datatype={SETS_DATATYPE_OBS}
         onError={setWarning}
-        onCheckNone={onCheckNone}
+        onCheckGroup={onCheckGroup}
         onCheckNode={onCheckNode}
         onExpandNode={onExpandNode}
         onDropNode={onDropNode}
-        onCheckLevel={onCheckLevel}
+        onColorGroup={onColorGroup}
         onNodeSetColor={onNodeSetColor}
         onNodeSetName={onNodeSetName}
         onNodeCheckNewName={onNodeCheckNewName}

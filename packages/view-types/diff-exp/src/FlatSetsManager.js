@@ -54,7 +54,7 @@ function ChildManager(props) {
     onCheckNode,
     size,
     color,
-    parentIsFullyChecked,
+    parentIsColored,
   } = props;
 
   console.log("ChildManager", props);
@@ -85,7 +85,7 @@ function ChildManager(props) {
       </Grid>
       <Grid container item spacing={0} xs={3} direction="row" justifyContent="flex-end">
         <span className={classes.sizeLabel}>{size}</span>
-        {parentIsFullyChecked ? (
+        {parentIsColored ? (
           <SvgIcon width="14" height="14" viewBox="0 0 14 14">
             <rect x="3" y="3" width="8" height="8" rx="2" fill={`rgb(${color[0]},${color[1]},${color[2]})`} />
           </SvgIcon>
@@ -103,18 +103,18 @@ function GroupManager(props) {
     path,
     currPath,
     setColor,
-    checkedLevelPath,
+    coloredLevelPath,
     expandedKeys,
     checkedKeys,
-    onCheckLevel,
-    onCheckNone,
+    onColorGroup,
+    onCheckGroup,
     onCheckNode,
     onExpand,
     partialCheckedLevelPath,
     fullyCheckedLevelPath,
   } = props;
 
-  const isColored = isEqual(currPath, checkedLevelPath);
+  const isColored = isEqual(currPath, coloredLevelPath);
   const isFullyChecked = isEqual(currPath, fullyCheckedLevelPath);
   const isPartiallyChecked = isEqual(currPath, partialCheckedLevelPath);
   const isExpanded = expandedKeys.includes(nodeKey);
@@ -122,22 +122,13 @@ function GroupManager(props) {
   console.log("GroupManager", props);
 
   function handleCheck(event) {
-    // TODO: switch from checking to "filtering"
-    if (event.target.checked) {
-      onCheckLevel(nodeKey, event.target.checked);
-    } else {
-      onCheckNone();
-    }
+    onCheckGroup(nodeKey, event.target.checked);
   }
   function handleExpand(event) {
     onExpand(nodeKey, event.target.checked);
   }
   function handleColor(event) {
-    if (event.target.checked) {
-      onCheckLevel(nodeKey, event.target.checked);
-    } else {
-      onCheckNone();
-    }
+    onColorGroup(nodeKey, event.target.checked);
   }
 
   const classes = useStyles();
@@ -193,7 +184,7 @@ function GroupManager(props) {
               <ChildManager
                 key={childKey}
                 isChecked={checkedKeys.includes(childKey)}
-                parentIsFullyChecked={isColored}
+                parentIsColored={isColored}
                 onCheckNode={onCheckNode}
                 {...nodeToRenderProps(node, newPath, setColor)}
               />
@@ -261,10 +252,12 @@ export default function FlatSetsManager(props) {
     sets,
     additionalSets,
     setColor,
+    coloredLevel,
     levelSelection: checkedLevel,
     fullyCheckedLevels,
     partialCheckedLevels,
     setSelection,
+    setFilter,
     setExpansion,
     hasColorEncoding,
     datatype,
@@ -276,11 +269,11 @@ export default function FlatSetsManager(props) {
     exportable = true,
     importable = true,
     onError,
-    onCheckNone,
+    onCheckGroup,
     onCheckNode,
     onExpandNode,
     onDropNode,
-    onCheckLevel,
+    onColorGroup,
     onNodeSetColor,
     onNodeSetName,
     onNodeCheckNewName,
@@ -315,10 +308,10 @@ export default function FlatSetsManager(props) {
     : []
   );
 
-  const allSetSelectionKeys = (setSelection || []).map(pathToKey);
+  const allSetFilterKeys = (setFilter || []).map(pathToKey);
   const allSetExpansionKeys = (setExpansion || []).map(pathToKey);
 
-  const setSelectionKeys = allSetSelectionKeys.filter(k => !additionalSetKeys.includes(k));
+  const setFilterKeys = allSetFilterKeys.filter(k => !additionalSetKeys.includes(k));
   const setExpansionKeys = allSetExpansionKeys.filter(k => !additionalSetKeys.includes(k));
 
   const classes = useStyles();
@@ -342,21 +335,19 @@ export default function FlatSetsManager(props) {
 
             hasColorEncoding={hasColorEncoding}
             isChecking={isChecking}
+
+            coloredLevelPath={coloredLevel ? coloredLevel.levelZeroPath : null}
+            
             checkedLevelPath={checkedLevel ? checkedLevel.levelZeroPath : null}
-            checkedLevelIndex={checkedLevel ? checkedLevel.levelIndex : null}
-
             partialCheckedLevelPath={partialCheckedLevel ? partialCheckedLevel.levelZeroPath : null}
-            partialCheckedLevelIndex={partialCheckedLevel ? partialCheckedLevel.levelIndex : null}
-
             fullyCheckedLevelPath={fullyCheckedLevel ? fullyCheckedLevel.levelZeroPath : null}
-            fullyCheckedLevelIndex={fullyCheckedLevel ? fullyCheckedLevel.levelIndex : null}
 
-            checkedKeys={setSelectionKeys}
+            checkedKeys={setFilterKeys}
             expandedKeys={setExpansionKeys}
             autoExpandParent={autoExpandParent}
 
-            onCheckLevel={onCheckLevel}
-            onCheckNone={onCheckNone}
+            onColorGroup={onColorGroup}
+            onCheckGroup={onCheckGroup}
             onCheckNode={onCheckNode}
             onExpand={(nodeKey, expanded) => onExpandNode(
               setExpansionKeys,

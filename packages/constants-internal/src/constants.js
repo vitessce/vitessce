@@ -133,6 +133,7 @@ export const CoordinationType = {
   OBS_HIGHLIGHT: 'obsHighlight',
   OBS_SET_SELECTION: 'obsSetSelection',
   OBS_SET_HIGHLIGHT: 'obsSetHighlight',
+  OBS_SET_FILTER: 'obsSetFilter',
   OBS_SET_COLOR: 'obsSetColor',
   FEATURE_FILTER: 'featureFilter',
   FEATURE_HIGHLIGHT: 'featureHighlight',
