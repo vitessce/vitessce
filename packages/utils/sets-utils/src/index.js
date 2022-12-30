@@ -7,6 +7,7 @@ export {
   treeToExpectedCheckedLevel,
   treeToFullyCheckedLevels,
   treeToPartialCheckedLevels,
+  treeToGroupProportions,
   nodeToLevelDescendantNamePaths,
   treeToIntersection,
   treeToUnion,

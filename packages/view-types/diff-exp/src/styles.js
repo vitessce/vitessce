@@ -25,4 +25,8 @@ export const useStyles = makeStyles(theme => ({
   childRow: {
     marginTop: '6px',
   },
+  proportionSvg: {
+    display: 'inline-block',
+    width: '100%',
+  },
 }));

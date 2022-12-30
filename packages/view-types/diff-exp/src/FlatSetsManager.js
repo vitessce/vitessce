@@ -45,6 +45,41 @@ function getAllKeys(node, path = []) {
   return pathToKey(newPath);
 }
 
+function ProportionBar(props) {
+  const {
+    proportions,
+  } = props;
+
+  console.log(proportions);
+
+  const parts = useMemo(() => {
+    const result = [];
+    let x = 0;
+    proportions.proportions.forEach(p => {
+      const width = p.proportion * 100;
+      result.push((
+        <rect
+          x={x}
+          y="0"
+          width={width}
+          height="14"
+          fill={`rgb(${p.color[0]},${p.color[1]},${p.color[2]})`}
+        />
+      ));
+      x += width;
+    });
+    return result;
+  }, [proportions]);
+
+  const classes = useStyles();
+
+  return (
+    <svg className={classes.proportionSvg} height="14" viewBox="0 0 100 10">
+      {parts}
+    </svg>
+  );
+}
+
 function ChildManager(props) {
   const {
     title: name,
@@ -55,7 +90,11 @@ function ChildManager(props) {
     size,
     color,
     parentIsColored,
+    groupProportions,
   } = props;
+
+  const matchingProportions = !parentIsColored && groupProportions
+    && groupProportions.find(d => isEqual(d.path, path));
 
   console.log("ChildManager", props);
 
@@ -83,7 +122,12 @@ function ChildManager(props) {
           label={name}
         />
       </Grid>
-      <Grid container item spacing={0} xs={3} direction="row" justifyContent="flex-end">
+      <Grid item spacing={0} xs={3} direction="row" justifyContent="flex-start">
+        {matchingProportions ? (
+          <ProportionBar proportions={matchingProportions} />
+        ) : null}
+      </Grid>
+      <Grid container item spacing={0} xs={2} direction="row" justifyContent="flex-end">
         <span className={classes.sizeLabel}>{size}</span>
         {parentIsColored ? (
           <SvgIcon width="14" height="14" viewBox="0 0 14 14">
@@ -112,6 +156,7 @@ function GroupManager(props) {
     onExpand,
     partialCheckedLevelPath,
     fullyCheckedLevelPath,
+    groupProportions,
   } = props;
 
   const isColored = isEqual(currPath, coloredLevelPath);
@@ -119,7 +164,7 @@ function GroupManager(props) {
   const isPartiallyChecked = isEqual(currPath, partialCheckedLevelPath);
   const isExpanded = expandedKeys.includes(nodeKey);
 
-  console.log("GroupManager", props);
+  // console.log("GroupManager", props);
 
   function handleCheck(event) {
     onCheckGroup(nodeKey, event.target.checked);
@@ -186,6 +231,7 @@ function GroupManager(props) {
                 isChecked={checkedKeys.includes(childKey)}
                 parentIsColored={isColored}
                 onCheckNode={onCheckNode}
+                groupProportions={groupProportions}
                 {...nodeToRenderProps(node, newPath, setColor)}
               />
             );
@@ -259,6 +305,7 @@ export default function FlatSetsManager(props) {
     setSelection,
     setFilter,
     setExpansion,
+    groupProportions,
     hasColorEncoding,
     datatype,
     draggable = true,
@@ -292,7 +339,7 @@ export default function FlatSetsManager(props) {
     hasCheckedSetsToComplement,
   } = props;
 
-  console.log(partialCheckedLevels);
+  // console.log(partialCheckedLevels);
   const isChecking = true;
   const autoExpandParent = true;
 
@@ -316,7 +363,7 @@ export default function FlatSetsManager(props) {
 
   const classes = useStyles();
 
-  console.log(processedSets.tree);
+  // console.log(processedSets.tree);
 
   return (
     <div>
@@ -345,6 +392,8 @@ export default function FlatSetsManager(props) {
             checkedKeys={setFilterKeys}
             expandedKeys={setExpansionKeys}
             autoExpandParent={autoExpandParent}
+
+            groupProportions={groupProportions}
 
             onColorGroup={onColorGroup}
             onCheckGroup={onCheckGroup}

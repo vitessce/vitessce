@@ -20,6 +20,7 @@ import {
   treeToExpectedCheckedLevel,
   treeToFullyCheckedLevels,
   treeToPartialCheckedLevels,
+  treeToGroupProportions,
   nodeToLevelDescendantNamePaths,
   treeToIntersection,
   treeToUnion,
@@ -83,8 +84,6 @@ export function FlatObsSetsManagerSubscriber(props) {
     setObsSetColor: setCellSetColor,
     setAdditionalObsSets: setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.OBS_SETS], coordinationScopes);
-
-  console.log(obsSetFilter);
 
   const title = titleOverride || `${capitalize(obsType)} Sets`;
 
@@ -171,6 +170,18 @@ export function FlatObsSetsManagerSubscriber(props) {
     }
     return [];
   }, [obsSetFilter, mergedCellSets]);
+
+  const groupProportions = useMemo(() => {
+    if (coloredLevel && mergedCellSets && mergedCellSets.tree.length > 0) {
+      return treeToGroupProportions(
+        mergedCellSets,
+        coloredLevel.levelZeroPath,
+        cellSetColor,
+        theme,
+      );
+    }
+    return null;
+  }, [coloredLevel, mergedCellSets, cellSetColor, theme]);
 
   // Callback functions
 
@@ -645,6 +656,7 @@ export function FlatObsSetsManagerSubscriber(props) {
         setSelection={cellSetSelection}
         setFilter={obsSetFilter}
         setExpansion={cellSetExpansion}
+        groupProportions={groupProportions}
         hasColorEncoding={cellColorEncoding === 'cellSetSelection'}
         draggable
         datatype={SETS_DATATYPE_OBS}

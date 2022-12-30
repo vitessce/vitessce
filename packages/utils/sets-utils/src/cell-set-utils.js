@@ -668,6 +668,49 @@ export function treeToPartialCheckedLevels(currTree, checkedPaths) {
   return results;
 }
 
+export function treeToGroupProportions(currTree, coloredLevelZeroPath, setColor, theme) {
+  const coloredGroup = treeFindNodeByNamePath(currTree, coloredLevelZeroPath);
+
+  const coloredNodeSets = coloredGroup.children.map((node) => {
+    const setNamePath = [...coloredLevelZeroPath, node.name];
+    return {
+      path: setNamePath,
+      color: setColor?.find(d => isEqual(d.path, setNamePath))?.color
+        || getDefaultColor(theme),
+      set: new Set(nodeToSet(node).map(([cellId]) => cellId)),
+    };
+  });
+
+  const results = [];
+  if (currTree) {
+    currTree.tree.forEach((lzn) => {
+      if (lzn.name !== coloredLevelZeroPath[0] && lzn.children) {
+        lzn.children.forEach((node) => {
+          if (node) {
+            const setNamePath = [lzn.name, node.name];
+            const nodeSet = nodeToSet(node);
+            const proportions = coloredNodeSets.map((cns) => {
+              const intersectionSize = nodeToSet(node)
+                .reduce((a, h) => (cns.set.has(h[0]) ? a + 1 : a), 0);
+              return {
+                path: cns.path,
+                color: cns.color,
+                size: intersectionSize,
+                proportion: intersectionSize / nodeSet.length,
+              };
+            });
+            results.push({
+              path: setNamePath,
+              proportions,
+            });
+          }
+        });
+      }
+    });
+  }
+  return results;
+}
+
 export function treesConflict(cellSets, testCellSets) {
   const paths = [];
   const testPaths = [];
