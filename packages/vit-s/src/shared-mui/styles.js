@@ -13,6 +13,49 @@ const globalColors = {
   grayLightL10: 'rgb(237, 237, 237)', // lighten(map-get($global-colors, "gray-light"), 10%);
 };
 
+const sharedThemeOptions = {
+  // Use px instead of rem, so that sizing is consistent despite the root element font-size.
+  // Reference: https://github.com/mui/material-ui/blob/627c08fc/src/styles/createTypography.js
+  typography: {
+    pxToRem: size => `${size}px`,
+    display4: {
+      fontSize: '112px',
+    },
+    display3: {
+      fontSize: '56px',
+    },
+    display2: {
+      fontSize: '45px',
+    },
+    display1: {
+      fontSize: '34px',
+    },
+    headline: {
+      fontSize: '24px',
+    },
+    title: {
+      fontSize: '21px',
+    },
+    subheading: {
+      fontSize: '16px',
+    },
+    body2: {
+      fontSize: '14px',
+    },
+    body1: {
+      fontSize: '14px',
+    },
+    caption: {
+      fontSize: '12px',
+    },
+  },
+  props: {
+    MuiButtonBase: {
+      disableRipple: true,
+    },
+  },
+};
+
 export const muiTheme = {
   dark: createTheme({
     palette: {
@@ -37,11 +80,7 @@ export const muiTheme = {
       cardBorder: 'rgba(0, 0, 0, 0.125)',
       ...globalColors,
     },
-    props: {
-      MuiButtonBase: {
-        disableRipple: true,
-      },
-    },
+    ...sharedThemeOptions,
   }),
   light: createTheme({
     palette: {
@@ -66,10 +105,6 @@ export const muiTheme = {
       cardBorder: 'rgba(241, 241, 241, 0.125)',
       ...globalColors,
     },
-    props: {
-      MuiButtonBase: {
-        disableRipple: true,
-      },
-    },
+    ...sharedThemeOptions,
   }),
 };
