@@ -50,12 +50,10 @@ function ProportionBar(props) {
     proportions,
   } = props;
 
-  console.log(proportions);
-
   const parts = useMemo(() => {
     const result = [];
     let x = 0;
-    proportions.proportions.forEach(p => {
+    proportions.proportions.forEach((p) => {
       const width = p.proportion * 100;
       result.push((
         <rect
@@ -64,7 +62,9 @@ function ProportionBar(props) {
           width={width}
           height="14"
           fill={`rgb(${p.color[0]},${p.color[1]},${p.color[2]})`}
-        />
+        >
+          <title>{p.path.at(-1)}: {Math.round(width)}%</title>
+        </rect>
       ));
       x += width;
     });
@@ -96,7 +96,7 @@ function ChildManager(props) {
   const matchingProportions = !parentIsColored && groupProportions
     && groupProportions.find(d => isEqual(d.path, path));
 
-  console.log("ChildManager", props);
+  // console.log("ChildManager", props);
 
   function handleChange(event) {
     onCheckNode(path, event.target.checked);
@@ -109,7 +109,7 @@ function ChildManager(props) {
         <Grid item xs={2} />
         <FormControlLabel
           classes={{ label: classes.childLabel }}
-          control={
+          control={(
             <Checkbox
               classes={{ root: classes.checkboxRoot }}
               checked={isChecked}
@@ -118,7 +118,7 @@ function ChildManager(props) {
               color="default"
               disableRipple
             />
-          }
+          )}
           label={name}
         />
       </Grid>
@@ -193,7 +193,7 @@ function GroupManager(props) {
           />
           <FormControlLabel
             classes={{ labelPlacementStart: classes.labelPlacementStart, label: classes.label }}
-            control={
+            control={(
               <Checkbox
                 classes={{ root: classes.checkboxRoot }}
                 checked={isExpanded}
@@ -204,7 +204,7 @@ function GroupManager(props) {
                 checkedIcon={<ExpandMoreIcon />}
                 disableRipple
               />
-            }
+            )}
             label={name}
             labelPlacement="start"
           />

@@ -25,11 +25,11 @@
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
+    "@vitessce/scatterplot": "workspace:*",
+    "d3-array": "^2.4.0",
+    "plur": "^5.1.0",
     "clsx": "^1.1.1",
-    "lodash": "^4.17.21",
-    "rc-tooltip": "^5.2.2",
-    "rc-tree": "2.1.0",
-    "react-color-with-lodash": "^2.19.5"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "react": "^18.0.0",

@@ -130,7 +130,7 @@ export const eng2019 = {
       h: 2,
     },
     {
-      component: 'flatObsSets',
+      component: 'diffExpObsSets',
       x: 9,
       y: 4,
       w: 3,
@@ -176,7 +176,7 @@ export const eng2019 = {
       h: 4,
     },
     {
-      component: 'scatterplot',
+      component: 'diffExpScatterplot',
       coordinationScopes: {
         embeddingType: 'UMAP',
         embeddingZoom: 'UMAP',

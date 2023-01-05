@@ -54,10 +54,11 @@ import {
 } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
 import FlatSetsManager from './FlatSetsManager';
+import { DiffExpScatterplotSubscriber } from './EmbeddingScatterplotSubscriber';
 
 const packageJson = { name: 'vitessce' };
 
-export function FlatObsSetsManagerSubscriber(props) {
+export function DiffExpObsSetsManagerSubscriber(props) {
   const {
     coordinationScopes,
     removeGridComponent,
@@ -690,8 +691,13 @@ export function FlatObsSetsManagerSubscriber(props) {
 
 export function register() {
   registerPluginViewType(
-    'flatObsSets',
-    FlatObsSetsManagerSubscriber,
+    'diffExpObsSets',
+    DiffExpObsSetsManagerSubscriber,
     COMPONENT_COORDINATION_TYPES[ViewType.OBS_SETS],
+  );
+  registerPluginViewType(
+    'diffExpScatterplot',
+    DiffExpScatterplotSubscriber,
+    COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT],
   );
 }

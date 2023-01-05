@@ -119,6 +119,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_HIGHLIGHT,
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_HIGHLIGHT,
+    CoordinationType.OBS_SET_FILTER,
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.FEATURE_SELECTION,
