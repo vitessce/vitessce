@@ -15,7 +15,7 @@
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc",
-    "test": "pnpm exec -c vitest --run -r ../../ --dir .",
+    "test": "pnpm -c exec vitest --run -r ../../ --dir .",
     "glslify": "cat src/glsl/colormaps.in.glsl | glslify > src/glsl/colormaps.out.glsl"
   },
   "dependencies": {
