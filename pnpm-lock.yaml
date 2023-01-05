@@ -32,7 +32,7 @@ importers:
       terser: ^5.15.0
       typescript: ^4.7.4
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     devDependencies:
       '@pnpm/meta-updater': 0.0.6
       '@testing-library/jest-dom': 5.16.5
@@ -59,7 +59,7 @@ importers:
       terser: 5.15.1
       typescript: 4.8.4
       vite: 3.1.8_sass@1.55.0+terser@5.15.1
-      vitest: 0.23.4_oky3mtdc42rhitevp5bkzgyhf4
+      vitest: 0.26.3_oky3mtdc42rhitevp5bkzgyhf4
 
   examples/configs:
     specifiers:
@@ -103,10 +103,10 @@ importers:
   packages/constants-internal:
     specifiers:
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     devDependencies:
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/file-types/csv:
     specifiers:
@@ -360,14 +360,14 @@ importers:
       '@vitessce/vit-s': workspace:*
       react: ^18.0.0
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/vit-s': link:../vit-s
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/utils/export-utils:
     specifiers:
@@ -440,7 +440,7 @@ importers:
       vega-lite: ^5.1.1
       vega-tooltip: ^0.27.0
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       react-vega: 7.6.0_owrgf5per7xuu6js62r2357ghm
@@ -450,7 +450,7 @@ importers:
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/view-types/description:
     specifiers:
@@ -459,7 +459,7 @@ importers:
       '@vitessce/vit-s': workspace:*
       react: ^18.0.0
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
@@ -467,7 +467,7 @@ importers:
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/view-types/feature-list:
     specifiers:
@@ -482,7 +482,7 @@ importers:
       react-virtualized: ^9.22.2
       uuid: ^3.3.2
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
@@ -496,7 +496,7 @@ importers:
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/view-types/genomic-profiles:
     specifiers:
@@ -512,7 +512,7 @@ importers:
       react: ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
       window-pixi: 5.3.3
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
@@ -529,7 +529,7 @@ importers:
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/view-types/heatmap:
     specifiers:
@@ -546,7 +546,7 @@ importers:
       react: ^18.0.0
       uuid: ^3.3.2
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
@@ -562,7 +562,7 @@ importers:
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/view-types/layer-controller:
     specifiers:
@@ -577,7 +577,7 @@ importers:
       math.gl: ^3.5.6
       react: ^18.0.0
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@material-ui/icons': 4.11.3_jvx44q7qymyhf2qyoxemen5jw4
@@ -591,7 +591,7 @@ importers:
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/view-types/obs-sets-manager:
     specifiers:
@@ -608,7 +608,7 @@ importers:
       react: ^18.0.0
       react-color-with-lodash: ^2.19.5
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
@@ -624,7 +624,7 @@ importers:
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/view-types/scatterplot:
     specifiers:
@@ -641,7 +641,7 @@ importers:
       lodash: ^4.17.21
       react: ^18.0.0
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
@@ -657,7 +657,7 @@ importers:
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/view-types/scatterplot-embedding:
     specifiers:
@@ -672,7 +672,7 @@ importers:
       plur: ^5.1.0
       react: ^18.0.0
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
@@ -686,7 +686,7 @@ importers:
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/view-types/scatterplot-gating:
     specifiers:
@@ -701,7 +701,7 @@ importers:
       plur: ^5.1.0
       react: ^18.0.0
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
@@ -715,7 +715,7 @@ importers:
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/view-types/spatial:
     specifiers:
@@ -736,7 +736,7 @@ importers:
       react: ^18.0.0
       short-number: ^1.0.6
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
@@ -756,7 +756,7 @@ importers:
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/view-types/statistical-plots:
     specifiers:
@@ -770,7 +770,7 @@ importers:
       lodash: ^4.17.21
       react: ^18.0.0
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
@@ -783,7 +783,7 @@ importers:
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/view-types/status:
     specifiers:
@@ -793,7 +793,7 @@ importers:
       clsx: ^1.1.1
       react: ^18.0.0
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
@@ -802,7 +802,7 @@ importers:
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/vit-s:
     specifiers:
@@ -820,7 +820,7 @@ importers:
       react-grid-layout-with-lodash: ^1.3.5
       uuid: ^3.3.2
       vite: ^3.0.0
-      vitest: ^0.23.4
+      vitest: ^0.26.3
       zustand: ^3.5.10
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
@@ -839,7 +839,7 @@ importers:
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
-      vitest: 0.23.4
+      vitest: 0.26.3
 
   packages/workers:
     specifiers:
@@ -6291,11 +6291,11 @@ packages:
   /@types/chai-subset/1.3.3:
     resolution: {integrity: sha512-frBecisrNGz+F4T6bcc+NLeolfiojh5FxW2klu669+8BARtyQv2C/GkNW6FUodVe4BroGMP/wER/YDGc7rEllw==}
     dependencies:
-      '@types/chai': 4.3.3
+      '@types/chai': 4.3.4
     dev: true
 
-  /@types/chai/4.3.3:
-    resolution: {integrity: sha512-hC7OMnszpxhZPduX+m+nrx+uFoLkWOMiR4oa/AZF3MuSETYTZmFfJAHqZEM8MVlvfG7BEUcgvtwoCTxBp6hm3g==}
+  /@types/chai/4.3.4:
+    resolution: {integrity: sha512-KnRanxnpfpjUTqTCXslZSEdLfXExwgNxYPdiO2WGUj8+HDjFi8R3k5RVKPeSCzLjCcshCAtVO2QBbVuAV4kTnw==}
     dev: true
 
   /@types/clone/2.1.1:
@@ -7086,16 +7086,16 @@ packages:
   /acorn-globals/7.0.1:
     resolution: {integrity: sha512-umOSDSDrfHbTNPuNpC2NSnnA3LUrqpevPb4T9jRx4MagXNS0rs+gwiTcAvqCRmsD6utzsrzNt+ebm00SNWiC3Q==}
     dependencies:
-      acorn: 8.8.0
+      acorn: 8.8.1
       acorn-walk: 8.2.0
     dev: true
 
-  /acorn-import-assertions/1.8.0_acorn@8.8.0:
+  /acorn-import-assertions/1.8.0_acorn@8.8.1:
     resolution: {integrity: sha512-m7VZ3jwz4eK6A4Vtt8Ew1/mNbP24u0FhdyfA7fSvnJR6LMdfOYnmuIrrJAgrYfYJ10F/otaHTtrtrtmHdMNzEw==}
     peerDependencies:
       acorn: ^8
     dependencies:
-      acorn: 8.8.0
+      acorn: 8.8.1
 
   /acorn-jsx/5.3.2_acorn@6.4.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -7112,12 +7112,12 @@ packages:
     dependencies:
       acorn: 7.4.1
 
-  /acorn-jsx/5.3.2_acorn@8.8.0:
+  /acorn-jsx/5.3.2_acorn@8.8.1:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
       acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
-      acorn: 8.8.0
+      acorn: 8.8.1
     dev: true
 
   /acorn-walk/8.2.0:
@@ -7137,6 +7137,11 @@ packages:
 
   /acorn/8.8.0:
     resolution: {integrity: sha512-QOxyigPVrpZ2GXT+PFyZTl6TtOFc5egxHIP9IlQ+RbupQuX4RkT/Bee4/kQuC02Xkzg84JcT7oLYtDIQxp+v7w==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
+  /acorn/8.8.1:
+    resolution: {integrity: sha512-7zFpHzhnqYKrkYdUjF1HI1bzd0VygEGX8lFk4k5zVMqHEoES+P+7TKI+EvLO9WVMJ8eekdO0aDEK044xTXwPPA==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -7950,13 +7955,13 @@ packages:
     resolution: {integrity: sha512-vlNK021QdI7PNeiUh/lKkC/mNHHfV0m/Ad5JoI0TYtlBnJAslM/JIkm/tGC88bkLIwO6OQ5uV6ztS6kVAtCDlg==}
     dev: false
 
-  /chai/4.3.6:
-    resolution: {integrity: sha512-bbcp3YfHCUzMOvKqsztczerVgBKSsEijCySNlHHbX3VG1nskvqjz5Rfso1gGwD6w6oOV3eI60pKuMOV5MV7p3Q==}
+  /chai/4.3.7:
+    resolution: {integrity: sha512-HLnAzZ2iupm25PlN0xFreAlBA5zaBSv3og0DdeGA4Ar6h6rJ3A0rolRUKJhSF2V10GZKDgWF/VmAEsNWjCRB+A==}
     engines: {node: '>=4'}
     dependencies:
       assertion-error: 1.1.0
       check-error: 1.0.2
-      deep-eql: 3.0.1
+      deep-eql: 4.1.3
       get-func-name: 2.0.0
       loupe: 2.3.4
       pathval: 1.1.1
@@ -9116,9 +9121,9 @@ packages:
       mimic-response: 1.0.1
     dev: false
 
-  /deep-eql/3.0.1:
-    resolution: {integrity: sha512-+QeIQyN5ZuO+3Uk5DYh6/1eKO0m0YmJFGNmFHGACpf1ClL1nmlV/p4gNgbl2pJGxgXb4faqo6UE+M5ACEMyVcw==}
-    engines: {node: '>=0.12'}
+  /deep-eql/4.1.3:
+    resolution: {integrity: sha512-WaEtAOpRA1MQ0eohqZjpGD8zdI0Ovsm8mmFhaDN8dvDZzyoUMcYDnf5Y6iu7HTXxf8JDS23qWa4a+hKCDyOPzw==}
+    engines: {node: '>=6'}
     dependencies:
       type-detect: 4.0.8
     dev: true
@@ -10220,8 +10225,8 @@ packages:
     resolution: {integrity: sha512-DQmnRpLj7f6TgN/NYb0MTzJXL+vJF9h3pHy4JhCIs3zwcgez8xmGg3sXHcEO97BrmO2OSvCwMdfdlyl+E9KjOw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
-      acorn: 8.8.0
-      acorn-jsx: 5.3.2_acorn@8.8.0
+      acorn: 8.8.1
+      acorn-jsx: 5.3.2_acorn@8.8.1
       eslint-visitor-keys: 3.3.0
     dev: true
 
@@ -12339,6 +12344,10 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
+  /jsonc-parser/3.2.0:
+    resolution: {integrity: sha512-gfFQZrcTc8CnKXp6Y4/CBT3fTc0OVuDofpre4aEeEpSBPV5X5v4+Vmx+8snU7RLPrNHPKSgLxGo9YuQzz20o+w==}
+    dev: true
+
   /jsonfile/4.0.0:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
     optionalDependencies:
@@ -13018,6 +13027,15 @@ packages:
     hasBin: true
     dependencies:
       minimist: 1.2.7
+
+  /mlly/1.0.0:
+    resolution: {integrity: sha512-QL108Hwt+u9bXdWgOI0dhzZfACovn5Aen4Xvc8Jasd9ouRH4NjnrXEiyP3nVvJo91zPlYjVRckta0Nt2zfoR6g==}
+    dependencies:
+      acorn: 8.8.1
+      pathe: 1.0.0
+      pkg-types: 1.0.1
+      ufo: 1.0.1
+    dev: true
 
   /moment-timezone/0.5.39:
     resolution: {integrity: sha512-hoB6suq4ISDj7BDgctiOy6zljBsdYT0++0ZzZm9rtxIvJhIbQ3nmbgSWe7dNFGurl6/7b1OUkHlmN9JWgXVz7w==}
@@ -13705,6 +13723,14 @@ packages:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
     engines: {node: '>=8'}
 
+  /pathe/0.2.0:
+    resolution: {integrity: sha512-sTitTPYnn23esFR3RlqYBWn4c45WGeLcsKzQiUpXJAyfcWkolvlYpV8FLo7JishK946oQwMFUCHXQ9AjGPKExw==}
+    dev: true
+
+  /pathe/1.0.0:
+    resolution: {integrity: sha512-nPdMG0Pd09HuSsr7QOKUXO2Jr9eqaDiZvDwdyIhNG5SHYujkQHYKDfGQkulBxvbDHz8oHLsTgKN86LSwYzSHAg==}
+    dev: true
+
   /pathval/1.1.1:
     resolution: {integrity: sha512-Dp6zGqpTdETdR63lehJYPeIOqpiNBNtc7BpWSLrOje7UaIsE5aY92r/AunQA7rsXvet3lrJ3JnZX29UPTKXyKQ==}
     dev: true
@@ -13761,6 +13787,14 @@ packages:
     dependencies:
       find-up: 4.1.0
     dev: false
+
+  /pkg-types/1.0.1:
+    resolution: {integrity: sha512-jHv9HB+Ho7dj6ItwppRDDl0iZRYBD0jsakHXtFgoLr+cHSF6xC+QL54sJmWxyGxOLYSHm0afhXhXcQDQqH9z8g==}
+    dependencies:
+      jsonc-parser: 3.2.0
+      mlly: 1.0.0
+      pathe: 1.0.0
+    dev: true
 
   /pkg-up/3.1.0:
     resolution: {integrity: sha512-nDywThFk1i4BQK4twPQ6TA4RT8bDY96yeuCVBWL3ePARCiEKDRSrNGbFIgUJpLp+XeIR65v8ra7WuJOFUBtkMA==}
@@ -16209,10 +16243,10 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
-  /strip-literal/0.4.2:
-    resolution: {integrity: sha512-pv48ybn4iE1O9RLgCAN0iU4Xv7RlBTiit6DKmMiErbs9x1wH6vXBs45tWc0H5wUIF6TLTrKweqkmYF/iraQKNw==}
+  /strip-literal/1.0.0:
+    resolution: {integrity: sha512-5o4LsH1lzBzO9UFH63AJ2ad2/S2AVx6NtjOcaz+VTT2h1RiRvbipW72z8M/lxEhcPHDBQwpDrnTF7sXy/7OwCQ==}
     dependencies:
-      acorn: 8.8.0
+      acorn: 8.8.1
     dev: true
 
   /strnum/1.0.5:
@@ -16398,8 +16432,8 @@ packages:
     resolution: {integrity: sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==}
     dev: false
 
-  /tinybench/2.3.0:
-    resolution: {integrity: sha512-zs1gMVBwyyG2QbVchYIbnabRhMOCGvrwZz/q+SV+LIMa9q5YDQZi2kkI6ZRqV2Bz7ba1uvrc7ieUoE4KWnGeKg==}
+  /tinybench/2.3.1:
+    resolution: {integrity: sha512-hGYWYBMPr7p4g5IarQE7XhlyWveh1EKhy4wUBS1LrHXCKYgvz+4/jCqgmJqZxxldesn05vccrtME2RLLZNW7iA==}
     dev: true
 
   /tinycolor2/1.4.2:
@@ -16630,6 +16664,10 @@ packages:
   /ua-parser-js/0.7.31:
     resolution: {integrity: sha512-qLK/Xe9E2uzmYI3qLeOmI0tEOt+TBBQyUIAh4aAgU05FVYzeZrKUdkAZfBNVGRaHVgV0TDkdEngJSw/SyQchkQ==}
     dev: false
+
+  /ufo/1.0.1:
+    resolution: {integrity: sha512-boAm74ubXHY7KJQZLlXrtMz52qFvpsbOxDcZOnw/Wf+LS4Mmyu7JxmzD4tDLtUQtmZECypJ0FrCz4QIe6dvKRA==}
+    dev: true
 
   /unbox-primitive/1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
@@ -17387,6 +17425,44 @@ packages:
       '@math.gl/web-mercator': 3.6.3
     dev: false
 
+  /vite-node/0.26.3:
+    resolution: {integrity: sha512-Te2bq0Bfvq6XiO718I+1EinMjpNYKws6SNHKOmVbILAQimKoZKDd+IZLlkaYcBXPpK3HFe2U80k8Zw+m3w/a2w==}
+    engines: {node: '>=v14.16.0'}
+    hasBin: true
+    dependencies:
+      debug: 4.3.4
+      mlly: 1.0.0
+      pathe: 0.2.0
+      source-map: 0.6.1
+      source-map-support: 0.5.21
+      vite: 3.1.8
+    transitivePeerDependencies:
+      - less
+      - sass
+      - stylus
+      - supports-color
+      - terser
+    dev: true
+
+  /vite-node/0.26.3_sass@1.55.0+terser@5.15.1:
+    resolution: {integrity: sha512-Te2bq0Bfvq6XiO718I+1EinMjpNYKws6SNHKOmVbILAQimKoZKDd+IZLlkaYcBXPpK3HFe2U80k8Zw+m3w/a2w==}
+    engines: {node: '>=v14.16.0'}
+    hasBin: true
+    dependencies:
+      debug: 4.3.4
+      mlly: 1.0.0
+      pathe: 0.2.0
+      source-map: 0.6.1
+      source-map-support: 0.5.21
+      vite: 3.1.8_sass@1.55.0+terser@5.15.1
+    transitivePeerDependencies:
+      - less
+      - sass
+      - stylus
+      - supports-color
+      - terser
+    dev: true
+
   /vite-plugin-svgr/2.2.2_neiqdhe6tejzlgo4ve4hcexot4:
     resolution: {integrity: sha512-u8Ac27uZmDHTVGawpAhvLMJMuzbGeZGhe61TGeHoRQLxVhmQfIYCefa0iLbjC0ui1zFo6XZnS8EkzPITCYp85g==}
     peerDependencies:
@@ -17485,8 +17561,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitest/0.23.4:
-    resolution: {integrity: sha512-iukBNWqQAv8EKDBUNntspLp9SfpaVFbmzmM0sNcnTxASQZMzRw3PsM6DMlsHiI+I6GeO5/sYDg3ecpC+SNFLrQ==}
+  /vitest/0.26.3:
+    resolution: {integrity: sha512-FmHxU9aUCxTi23keF3vxb/Qp0lYXaaJ+jRLGOUmMS3qVTOJvgGE+f1VArupA6pEhaG2Ans4X+zV9dqM5WISMbg==}
     engines: {node: '>=v14.16.0'}
     hasBin: true
     peerDependencies:
@@ -17507,17 +17583,21 @@ packages:
       jsdom:
         optional: true
     dependencies:
-      '@types/chai': 4.3.3
+      '@types/chai': 4.3.4
       '@types/chai-subset': 1.3.3
       '@types/node': 18.8.5
-      chai: 4.3.6
+      acorn: 8.8.1
+      acorn-walk: 8.2.0
+      chai: 4.3.7
       debug: 4.3.4
       local-pkg: 0.4.2
-      strip-literal: 0.4.2
-      tinybench: 2.3.0
+      source-map: 0.6.1
+      strip-literal: 1.0.0
+      tinybench: 2.3.1
       tinypool: 0.3.0
       tinyspy: 1.0.2
       vite: 3.1.8
+      vite-node: 0.26.3
     transitivePeerDependencies:
       - less
       - sass
@@ -17526,8 +17606,8 @@ packages:
       - terser
     dev: true
 
-  /vitest/0.23.4_oky3mtdc42rhitevp5bkzgyhf4:
-    resolution: {integrity: sha512-iukBNWqQAv8EKDBUNntspLp9SfpaVFbmzmM0sNcnTxASQZMzRw3PsM6DMlsHiI+I6GeO5/sYDg3ecpC+SNFLrQ==}
+  /vitest/0.26.3_oky3mtdc42rhitevp5bkzgyhf4:
+    resolution: {integrity: sha512-FmHxU9aUCxTi23keF3vxb/Qp0lYXaaJ+jRLGOUmMS3qVTOJvgGE+f1VArupA6pEhaG2Ans4X+zV9dqM5WISMbg==}
     engines: {node: '>=v14.16.0'}
     hasBin: true
     peerDependencies:
@@ -17548,19 +17628,23 @@ packages:
       jsdom:
         optional: true
     dependencies:
-      '@types/chai': 4.3.3
+      '@types/chai': 4.3.4
       '@types/chai-subset': 1.3.3
       '@types/node': 18.8.5
       '@vitest/ui': 0.16.0
-      chai: 4.3.6
+      acorn: 8.8.1
+      acorn-walk: 8.2.0
+      chai: 4.3.7
       debug: 4.3.4
       jsdom: 20.0.1
       local-pkg: 0.4.2
-      strip-literal: 0.4.2
-      tinybench: 2.3.0
+      source-map: 0.6.1
+      strip-literal: 1.0.0
+      tinybench: 2.3.1
       tinypool: 0.3.0
       tinyspy: 1.0.2
       vite: 3.1.8_sass@1.55.0+terser@5.15.1
+      vite-node: 0.26.3_sass@1.55.0+terser@5.15.1
     transitivePeerDependencies:
       - less
       - sass
@@ -17640,7 +17724,7 @@ packages:
     engines: {node: '>= 10.13.0'}
     hasBin: true
     dependencies:
-      acorn: 8.8.0
+      acorn: 8.8.1
       acorn-walk: 8.2.0
       chalk: 4.1.2
       commander: 7.2.0
@@ -17743,8 +17827,8 @@ packages:
       '@webassemblyjs/ast': 1.11.1
       '@webassemblyjs/wasm-edit': 1.11.1
       '@webassemblyjs/wasm-parser': 1.11.1
-      acorn: 8.8.0
-      acorn-import-assertions: 1.8.0_acorn@8.8.0
+      acorn: 8.8.1
+      acorn-import-assertions: 1.8.0_acorn@8.8.1
       browserslist: 4.21.4
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.10.0
