@@ -15,7 +15,7 @@
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc",
-    "test": "pnpm exec vitest --run -r ../../../ --dir ."
+    "test": "pnpm exec -c vitest --run -r ../../../ --dir ."
   },
   "dependencies": {
     "@vitessce/gl": "workspace:*",

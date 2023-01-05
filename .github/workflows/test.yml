@@ -39,7 +39,7 @@ jobs:
           version: 7
           run_install: true
       - run: pnpm run build:ci
-      - run: npm config set script-shell "$(which bash)"
+      - run: npm config set script-shell $(which bash)
         if: ${{ runner.os == 'Windows' }}
       - run: ./test.sh --action
   
