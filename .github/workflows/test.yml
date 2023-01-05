@@ -37,7 +37,9 @@ jobs:
         id: pnpm-install
         with:
           version: 7
-          run_install: true
+          run_install: |
+            - recursive: true
+              args: [--shamefully-hoist]
       - run: pnpm run build:ci
       - run: ./test.sh --action
   
