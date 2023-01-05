@@ -27,7 +27,7 @@ jobs:
     
     steps:
       - run: git config --global core.autocrlf false
-        if: ${{ matrix.os == 'windows-2022' }}
+        if: ${{ runner.os == 'Windows' }}
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
