@@ -65,9 +65,11 @@ export default function VitessceGrid(props) {
   const changeLayout = useChangeLayout();
   const layout = useLayout();
 
-  const changeLayoutPostMount = useCallback(() => (
-    componentWidth > 0 ? changeLayout : () => {}
-  ), [changeLayout, componentWidth]);
+  const changeLayoutPostMount = useCallback((newComponentProps) => {
+    if (componentWidth > 0) {
+      changeLayout(newComponentProps);
+    }
+  }, [changeLayout, componentWidth]);
 
   // Update the view config and loaders in the global state.
   useEffect(() => {

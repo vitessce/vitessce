@@ -6,6 +6,7 @@ import {
   createGenerateClassName,
 } from '@material-ui/core/styles';
 import isEqual from 'lodash/isEqual';
+import { META_VERSION } from '@vitessce/constants-internal';
 import { muiTheme } from './shared-mui/styles';
 import {
   ViewConfigProvider,
@@ -24,16 +25,13 @@ import {
   upgradeAndValidate,
 } from './view-config-utils';
 
-// TODO(monorepo): figure out how to get the current package version from package.json
-// import packageJson from '../package.json';
-const packageJson = { version: 'unk' };
-
 const generateClassName = createGenerateClassName({
-  disableGlobal: true,
+  disableGlobal: false, // Class names need to be deterministic
+  productionPrefix: 'vit', // Avoid conflicts with portal-ui MUI class names
 });
 
 function logConfig(config, name) {
-  console.groupCollapsed(`🚄 Vitessce (${packageJson.version}) ${name}`);
+  console.groupCollapsed(`🚄 Vitessce (${META_VERSION.version}) ${name}`);
   console.info(`data:,${JSON.stringify(config)}`);
   console.info(JSON.stringify(config, null, 2));
   console.groupEnd();

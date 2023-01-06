@@ -1,5 +1,16 @@
 import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from './Tooltip';
+
+const useStyles = makeStyles(theme => ({
+  cellEmphasisCrosshair: {
+    zIndex: 50,
+    position: 'absolute',
+    pointerEvents: 'none',
+    boxSizing: 'border-box',
+    backgroundColor: theme.palette.secondaryForeground,
+  },
+}));
 
 /**
  * A tooltip component that also incorporates a crosshair element.
@@ -24,6 +35,9 @@ export default function Tooltip2D(props) {
     parentHeight,
     children,
   } = props;
+
+  const classes = useStyles();
+
   // Check if out of bounds.
   if (x < 0 || x > parentWidth || y < 0 || y > parentHeight) {
     return null;
@@ -46,7 +60,7 @@ export default function Tooltip2D(props) {
         <>
           {x !== null ? (
             <div
-              className="cell-emphasis-crosshair"
+              className={classes.cellEmphasisCrosshair}
               style={{
                 left: `${x - crosshairWidth / 2}px`,
                 top: 0,
@@ -57,7 +71,7 @@ export default function Tooltip2D(props) {
           ) : null}
           {y !== null ? (
             <div
-              className="cell-emphasis-crosshair"
+              className={classes.cellEmphasisCrosshair}
               style={{
                 left: 0,
                 top: `${y - crosshairWidth / 2}px`,

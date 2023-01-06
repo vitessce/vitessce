@@ -17,13 +17,20 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
    * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
    * @returns {Promise} A promise for an array of columns.
    */
-  async loadSegmentations() {
+  loadSegmentations() {
     const { path } = this.options;
     if (this.segmentations) {
       return this.segmentations;
     }
     if (!this.segmentations) {
-      this.segmentations = await this.dataSource.loadNumeric(path);
+      this.segmentations = this.dataSource.loadNumeric(path).then(arr => ({
+        ...arr,
+        // Bug introduced from DeckGL v8.6.x to v8.8.x:
+        // Polygon vertices cannot be passed via Uint32Arrays, which is how they load via Zarr.
+        // For now, a workaround is to cast each vertex to a plain Array.
+        data: arr.data
+          .map(poly => poly.map(vertex => Array.from(vertex))),
+      }));
       return this.segmentations;
     }
     this.segmentations = Promise.resolve(null);

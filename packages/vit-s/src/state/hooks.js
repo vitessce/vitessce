@@ -68,13 +68,12 @@ export const createViewConfigStore = () => create(set => ({
     };
   }),
   changeLayout: newComponentProps => set((state) => {
-    const newLayout = state.viewConfig.layout.slice();
-    newComponentProps.forEach(([i, newProps]) => {
-      newLayout[i] = {
-        ...newLayout[i],
-        ...newProps,
-      };
-    });
+    const newLayout = state.viewConfig.layout
+      .slice()
+      .map(componentProps => ({
+        ...componentProps,
+        ...newComponentProps[componentProps.uid],
+      }));
     return {
       viewConfig: {
         ...state.viewConfig,

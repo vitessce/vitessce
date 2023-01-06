@@ -110,7 +110,11 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       }
       return null;
     }
-    const { content, bbox, z } = tile;
+    const {
+      content,
+      bbox,
+      index: { z },
+    } = tile;
     if (!content) {
       if (cellHighlight && hasBitmask) {
         setCellHighlight(null);

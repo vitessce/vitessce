@@ -1,7 +1,5 @@
 import range from 'lodash/range';
 
-export const COMPONENT_ID_PREFIX = 'i';
-
 function sum(a) {
   return a.reduce((x, y) => x + y, 0);
 }

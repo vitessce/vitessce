@@ -161,9 +161,7 @@ export function renderSubBitmaskLayers(props) {
     bbox: {
       left, top, right, bottom,
     },
-    x,
-    y,
-    z,
+    index: { x, y, z },
   } = props.tile;
   const {
     data, id, loader,

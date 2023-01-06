@@ -17,8 +17,8 @@ export const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'row',
     position: 'absolute',
-    bottom: '1.75rem',
-    right: '0.25rem',
+    bottom: '28px',
+    right: '4px',
     boxShadow: '-2px -2px 5px rgba(0, 0, 0, 0.06)',
     '& button': {
       cursor: 'pointer',
@@ -117,7 +117,6 @@ export const useStyles = makeStyles(theme => ({
       width: '100%',
       display: 'inline-block',
     },
-    // TODO(monorepo): how to combine global and local styles?
     '@global .rc-tree-treenode .rc-tree-node-content-wrapper > span .title-button': {
       position: 'relative',
       /* To accomodate the checkbox and node menu button. */
@@ -125,7 +124,6 @@ export const useStyles = makeStyles(theme => ({
       overflow: 'hidden',
       textOverflow: 'ellipsis',
     },
-    // TODO(monorepo): how to combine global and local styles?
     '@global .rc-tree-treenode .rc-tree-node-content-wrapper > span .node-menu-icon': {
       position: 'relative',
       left: '0',
@@ -230,7 +228,7 @@ export const useStyles = makeStyles(theme => ({
     color: theme.palette.primaryForegroundL5,
     padding: '0',
     fontSize: '18px',
-    marginBottom: '2rem',
+    marginBottom: '32px',
     cursor: 'pointer',
   },
   nodeMenuIcon: {
@@ -480,7 +478,7 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
     marginTop: 0,
     '& dl, ol, ul': {
       marginTop: 0,
-      marginBottom: '1rem',
+      marginBottom: '16px',
     },
     '& li button': {
       border: 0,

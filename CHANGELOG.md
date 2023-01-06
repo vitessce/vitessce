@@ -1,3 +1,31 @@
+
+### Added
+- Re-implemented PR 1240 (coordinationScopesBy)
+
+### Changed
+- Converted all `rem` units to `px` to fix R/Python widget CSS bugs caused by different root style conflicts.
+
+## [2.0.2](https://www.npmjs.com/package/vitessce/v/2.0.2) - 2022-12-09
+
+
+
+### Added
+- Added ./copy-dev.sh and ./copy-docs.sh instructions.
+- Added plugin registration exports to the `main/all` package exports, so that they are included in `vitessce` and `@vitessce/dev` package exports.
+
+### Changed
+- Don't `await` AnnData payloads that might be accessed in quickly repeatedly (i.e cache the promise, not the payload).
+- Fixed CSS bug in the development demo: changed `overflow: hidden` to `overflow: scroll` on the list of demos.
+- Bumped `@vitejs/plugin-react` version from `1.3.2` to `3.0.0-beta.0`
+- Update parameters of MUI `createGenerateClassName` so that class names are deterministic
+- Fixed broken cell highlight crosshairs upon hover events in scatterplots/spatial/heatmap views by porting SCSS to MUI JSS.
+- Upgrade Viv to `0.13` and deck.gl to `8.8`
+- Interleaved rgb images obey visibility prop
+- Added workaround in `Spatial` view for apparent bug in DeckGL `PolygonLayer` preventing passing polygon vertices via `Uint32Array`.
+
+## [2.0.1](https://www.npmjs.com/package/vitessce/v/2.0.1) - 2022-11-20
+
+
 ### Added
 - Added `gating` component that allows users to dynamically generate a scatterplot based on gene expression values.
   - New coordination types of `gatingFeatureSelectionX` and `gatingFeatureSelectionY` for the values selected for the gating plot.
@@ -8,22 +36,29 @@
 
 ### Changed
 - Added new file type and data type constants.
+- Implemented "minimal" file types and data types:
+  - Added loaders for `obsSets.json` and `obsSets.cell-sets.json`.
+  - Added loaders for `obsFeatureMatrix.clusters.json`
+  - Added loaders for `obsFeatureMatrix.genes.json`
+  - Added loaders for `obsLabels.cells.json`, `obsEmbedding.cells.json`, `obsLocations.cells.json`, `obsSegmentations.cells.json`
+  - Added loaders for `image.raster.json`,`obsSegmentations.raster.json`, `image.ome-zarr`
+  - Added loaders for `obsLabels.anndata-expression-matrix.zarr`, `featureLabels.anndata-expression-matrix.zarr`, `obsFeatureMatrix.anndata-expression-matrix.zarr`
+  - Added loaders for `obsFeatureMatrix.expression-matrix.zarr`
+  - Added loaders for `obsLabels.molecules.json` and `obsLocations.molecules.json`
 - Added support for `datatype: 'obs'` in `obsSets.schema.json`
-- Added loaders for `obsSets.json` and `obsSets.cell-sets.json`.
-- Added loaders for `obsFeatureMatrix.clusters.json`
-- Added loaders for `obsFeatureMatrix.genes.json`
-- Added loaders for `obsLabels.cells.json`, `obsEmbedding.cells.json`, `obsLocations.cells.json`, `obsSegmentations.cells.json`
-- Added loaders for `image.raster.json`,`obsSegmentations.raster.json`, `image.ome-zarr`
-- Added loaders for `obsLabels.anndata-expression-matrix.zarr`, `featureLabels.anndata-expression-matrix.zarr`, `obsFeatureMatrix.anndata-expression-matrix.zarr`
-- Added loaders for `obsFeatureMatrix.expression-matrix.zarr`
 - Added the property `coordinationValues` for view config file definitions.
 - Added the `useMatchingLoader` hook.
-- Added loaders for `obsLabels.molecules.json` and `obsLocations.molecules.json`
 - Added tests for checking that FileType constants have been mapped to corresponding data types and loader classes.
 - Implemented support for `obsLabelsType` which supersedes `factors`.
 - Implemented obs set membership tooltips.
 - Fixed bug in the v1.0.0 to v1.0.1 view config upgrade function caused by modification of a reference to the config object.
 - Changed the `VitessceConfig` constructor and `VitessceConfigDataset.addFile` method to use named arguments via JS objects.
+- Renamed and moved components
+  - `genes/Genes` -> `feature-list/FeatureList`
+  - `sets/CellSetsManagerSubscriber` -> `obs-sets/ObsSetsManagerSubscriber`
+  - `sets/CellSetExpressionPlot` -> `statistical-plots/CellSetExpressionPlot`
+  - `sets/CellSetSizesPlot` -> `statistical-plots/CellSetSizesPlot`
+  - `genes/ExpressionHistogram` -> `statistical-plots/ExpressionHistogram`
 - **Monorepo**
   - Change `<Vitessce/>` -> `<VitS/>` within @vitessce/vit-s
   - Wrote blog post
@@ -34,7 +69,8 @@
   - Converted inline worker bundling to `@vitessce/workers` sub-package with rollup + rollup plugin
   - Converted SVG React component imports to `@vitessce/icons` sub-package with vite + svgr
   - Converted glslify #pragma + webpack plugin to glslify CLI in `@vitessce/gl/src/glsl` with string manipulation to prevent need for plugin
-  - Re-implemented PR 1240 (coordinationScopesBy)
+- Make sure to exclude the background image when using `transparentColor`
+- Fixed bug preventing `onConfigChange` from being called upon view resize events.
 
 
 ## [1.2.2](https://www.npmjs.com/package/vitessce/v/1.2.2) - 2022-09-23
@@ -46,12 +82,6 @@
 ### Changed
 
 - Speed up heatmap load times (including when cell ordering changes) by implementing a custom indexing scheme on the shaders (see `src/components/heatmap/heatmap-indexing.pdf` for more info)
-- Renamed and moved components
-  - `genes/Genes` -> `feature-list/FeatureList`
-  - `sets/CellSetsManagerSubscriber` -> `obs-sets/ObsSetsManagerSubscriber`
-  - `sets/CellSetExpressionPlot` -> `statistical-plots/CellSetExpressionPlot`
-  - `sets/CellSetSizesPlot` -> `statistical-plots/CellSetSizesPlot`
-  - `genes/ExpressionHistogram` -> `statistical-plots/ExpressionHistogram`
 - Fixed deploy workflow to only attempt `npm publish` if the local version is higher than the latest version currently on NPM (indicating that a release is needed).
 
 

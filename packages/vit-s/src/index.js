@@ -5,6 +5,7 @@ export {
   registerPluginViewType,
   registerPluginCoordinationType,
   registerPluginFileType,
+  registerPluginJointFileType,
 } from './plugins';
 // For plugin view types:
 export {

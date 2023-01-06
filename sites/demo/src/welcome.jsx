@@ -1,8 +1,5 @@
 import React from 'react';
-
-// TODO(monorepo): change version.json path
-//import version from '../../../../src/version.json';
-const version = 'unk';
+import { META_VERSION } from '@vitessce/constants-internal';
 
 function DatasetList(props) {
   const { configs, theme } = props;
@@ -100,7 +97,8 @@ function Info() {
         <li>Harvard Stem Cell Institute (CF-0014-17-03, PI: Nils Gehlenborg)</li>
       </ul>
       <p className="info-section-text">
-        This deployment: branch={version.branch} | hash={version.hash} | date={version.date}
+        This deployment:
+        branch={META_VERSION.branch} | hash={META_VERSION.hash} | date={META_VERSION.date}
       </p>
     </>
   );
