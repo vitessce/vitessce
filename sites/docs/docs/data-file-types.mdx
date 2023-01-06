@@ -561,6 +561,205 @@ coordinationValues={`{
 }`}
 />
 
+
+## `obsFeatureMatrix.mudata.zarr`
+
+An observation-by-feature matrix with observations along the `obs` axis (rows) and features along the `var` axis (columns).
+For some `rna` modality, this would typically be stored in `mdata.mod['rna'].X`, but the `"path"` option allows pointing to any array within the MuData object.
+
+The [data types](#data-types) and [sub-matrix](#sub-matrix) information from `obsFeatureMatrix.anndata.zarr` apply.
+
+<FileDefTabs
+fileName="my_mdata.zarr"
+fileType="obsFeatureMatrix.mudata.zarr"
+fileConst="OBS_FEATURE_MATRIX_MUDATA_ZARR"
+options={`{
+  // Should point to an observation-by-feature matrix
+  "path": "mod/rna/X"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "featureType": "gene",
+  "featureValueType": "expression"
+}`}
+/>
+
+
+## `obsEmbedding.mudata.zarr`
+
+A two-column array with entries along the `obs` axis.
+The two columns store 2D embedding coordinates.
+For example, the contents of `mdata.mod['rna'].obsm['X_umap']` might look like:
+
+```
+array([[ 3.1402664 , -7.1668797 ],
+       [-3.105793  , -3.2035291 ],
+       [ 6.1815314 ,  3.4141443 ],
+       ...,
+       [ 6.922351  , -6.529349  ],
+       [ 4.714882  , -4.027811  ],
+       [ 0.75445884, -4.2975116 ]], dtype=float32)
+```
+
+<FileDefTabs
+fileName="my_mdata.zarr"
+fileType="obsEmbedding.mudata.zarr"
+fileConst="OBS_EMBEDDING_MUDATA_ZARR"
+options={`{
+  // Should point to an array of (d1, d2) coordinate pairs, one coordinate pair per obs/cell.
+  "path": "mod/rna/obsm/X_umap",
+  // Dimension indices are optional. By default, [0, 1].
+  "dims": [0, 1]
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "embeddingType": "UMAP"
+}`}
+/>
+
+## `obsLocations.mudata.zarr`
+
+A two-column array with entries along the `obs` axis.
+The two columns store (x, y) spatial coordinates.
+For example, the contents of `mdata.mod['rna'].obsm['X_spatial']` might look like:
+
+```
+array([[ 3.1402664 , -7.1668797 ],
+       [-3.105793  , -3.2035291 ],
+       [ 6.1815314 ,  3.4141443 ],
+       ...,
+       [ 6.922351  , -6.529349  ],
+       [ 4.714882  , -4.027811  ],
+       [ 0.75445884, -4.2975116 ]], dtype=float32)
+```
+
+<FileDefTabs
+fileName="my_mdata.zarr"
+fileType="obsLocations.mudata.zarr"
+fileConst="OBS_LOCATIONS_MUDATA_ZARR"
+options={`{
+  // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
+  "path": "mod/rna/obs/X_spatial"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+## `obsSets.mudata.zarr`
+
+Maps each observation to membership in one or more sets.
+Typically used to assign cells to cell type labels or cell cluster IDs.
+To allow for multiple groups of sets to be be specified, `options` takes an array.
+
+If a group of sets is organized as a flat list, then `"path"` points to a column containing string labels.
+Alternatively, if organized as a hierarchy, then `"path"` can point to an array of columns, progressing from coarser to finer labels.
+
+For example, the contents of `mdata.mod['rna'].obs` might look like:
+
+| index | leiden | cell_type_coarse | cell_type_fine | pred_cell_type | pred_score |
+| ----- | ----- | ----- | ----- | ----- | ----- |
+| cell_1 | 1 | Immune | B cell | B cell | 0.81 |
+| cell_2 | 2 | Immune | T cell | T cell | 0.99 |
+| cell_3 | 2 | Immune | T cell | Macrophage | 0.21 |
+| cell_4 | 3 | Neuron | Excitatory neuron | Inhibitory neuron | 0.25 |
+| ... | ... | ... | ... | ... | ... |
+
+<FileDefTabs
+fileName="my_mdata.zarr"
+fileType="obsSets.mudata.zarr"
+fileConst="OBS_SETS_MUDATA_ZARR"
+options={`[
+  {
+    "name": "Leiden Clustering",
+    "path": "mod/rna/obs/leiden"
+  },
+  {
+    "name": "Cell Type Annotations",
+    "path": ["mod/rna/obs/cell_type_coarse", "mod/rna/obs/cell_type_fine"]
+  },
+  {
+    "name": "Predicted Cell Types",
+    "path": "mod/rna/obs/pred_cell_type",
+    "scorePath": "mod/rna/obs/pred_score"
+  }
+]`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+## `obsSegmentations.mudata.zarr`
+
+<FileDefTabs
+fileName="my_mdata.zarr"
+fileType="obsSegmentations.mudata.zarr"
+fileConst="OBS_SEGMENTATIONS_MUDATA_ZARR"
+options={`{
+  // Should point to an array of polygon vertices, one polygon per obs/cell.
+  "path": "mod/rna/obs/X_segmentations"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+## `obsLabels.mudata.zarr`
+
+A column containing string labels along the `obs` axis.
+For example, the contents of `mdata.mod['rna'].obs['alt_cell_id']` might look like:
+
+```
+index
+cell_1     ATCGC
+cell_2     TCGGC
+cell_3     TTTCA
+Name: alt_cell_id, dtype: object
+```
+
+<FileDefTabs
+fileName="my_mdata.zarr"
+fileType="obsLabels.mudata.zarr"
+fileConst="OBS_LABELS_MUDATA_ZARR"
+options={`{
+  // Should point to a string column
+  "path": "mod/rna/obs/alt_cell_ids"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "obsLabelsType": "Alternate cell ID"
+}`}
+/>
+
+## `featureLabels.mudata.zarr`
+
+A column containing string labels along the `var` axis.
+For example, the contents of `mdata.mod['rna'].var['gene_symbol']` might look like:
+
+```
+index
+ENSG00000152128     TMEM163
+ENSG00000153086     ACMSD
+ENSG00000082258     CCNT2
+ENSG00000176601     MAP3K19
+ENSG00000115839     RAB3GAP1
+Name: gene_symbol, dtype: object
+```
+
+<FileDefTabs
+fileName="my_mdata.zarr"
+fileType="featureLabels.mudata.zarr"
+fileConst="FEATURE_LABELS_MUDATA_ZARR"
+options={`{
+  // Should point to a string column
+  "path": "mod/rna/var/gene_symbol"
+}`}
+coordinationValues={`{
+  "featureType": "gene",
+  "featureLabelsType": "Gene symbol"
+}`}
+/>
+
 ## `obsSets.json`
 
 Storage of sets of observations in a tree data structure.
