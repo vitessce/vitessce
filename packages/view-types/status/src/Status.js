@@ -11,9 +11,9 @@ const useStyles = makeStyles(() => ({
   warn: {
     // alert alert-warning my-0 details
     position: 'relative',
-    padding: '0.75rem 1.25rem',
+    padding: '12px 20px',
     border: '1px solid transparent',
-    borderRadius: '0.25rem',
+    borderRadius: '4px',
 
     color: '#856404',
     backgroundColor: '#fff3cd',
