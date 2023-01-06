@@ -1,12 +1,18 @@
 import { viv } from '@vitessce/gl';
-import { LoaderResult } from '@vitessce/vit-s';
+import { LoaderResult, obsSegmentationsOmeTiffSchema } from '@vitessce/vit-s';
 import { initializeRasterLayersAndChannels } from '@vitessce/spatial-utils';
 import OmeTiffLoader from './OmeTiffLoader';
 
 export default class RasterJsonAsObsSegmentationsLoader extends OmeTiffLoader {
+  constructor(dataSource, params) {
+    super(dataSource, params);
+    this.optionsSchema = obsSegmentationsOmeTiffSchema;
+  }
+
   async load() {
     const offsets = await this.loadOffsets();
     const { url, requestInit } = this;
+    const { channel: channelIndex } = this.options;
 
     // Get image name and URL tuples.
     const urls = [url, 'OME-TIFF'];
@@ -28,9 +34,12 @@ export default class RasterJsonAsObsSegmentationsLoader extends OmeTiffLoader {
         loaderCreator: async () => {
           const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
           const { Pixels: { Channels } } = loader.metadata;
-          const channels = Array.isArray(Channels)
+          let channels = Array.isArray(Channels)
             ? Channels.map((channel, i) => channel.Name || `Channel ${i}`)
             : [Channels.Name || `Channel ${0}`];
+          if (channelIndex !== undefined && channelIndex !== null) {
+            channels = [channels[channelIndex]];
+          }
           return { ...loader, channels };
         },
       },
@@ -46,6 +55,7 @@ export default class RasterJsonAsObsSegmentationsLoader extends OmeTiffLoader {
         imagesWithLoaderCreators,
         renderLayers,
         usePhysicalSizeScaling,
+        channelIndex,
       );
     }
 

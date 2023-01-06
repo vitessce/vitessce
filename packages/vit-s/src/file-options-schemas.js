@@ -298,6 +298,22 @@ export const imageOmeTiffSchema = {
     offsetsUrl: { type: 'string' },
   },
 };
+export const obsSegmentationsOmeTiffSchema = {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  $id: 'https://github.com/vitessce/vitessce/#image-omeTiff-options',
+  title: 'image.ome-tiff options',
+  type: 'object',
+  required: [],
+  properties: {
+    offsetsUrl: { type: 'string' },
+    channel: {
+      oneOf: [
+        { type: 'number', description: 'The index of a channel to select (disregard all other channels).' },
+        { type: 'null' },
+      ],
+    },
+  },
+};
 
 /**
  * Options schemas for joint file types.
