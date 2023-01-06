@@ -7,7 +7,7 @@ describe('sources/MuDataSource', () => {
       url: 'http://localhost:51204/@fixtures/zarr/mudata-0.2/mudata-dense.zarr',
     });
     const ids = await dataSource.loadObsColumns(['obs/leiden']);
-    expect(ids).toEqual([['3', '2', '3']]);
+    expect(ids).toEqual([['3', '2', '3', '1', '1']]);
   });
 
   it('loadObsColumns returns ids for location in store, with modality-specific path', async () => {
@@ -15,7 +15,7 @@ describe('sources/MuDataSource', () => {
       url: 'http://localhost:51204/@fixtures/zarr/mudata-0.2/mudata-dense.zarr',
     });
     const ids = await dataSource.loadObsColumns(['mod/rna/obs/leiden']);
-    expect(ids).toEqual([['1', '1', '2']]);
+    expect(ids).toEqual([['1', '1', '2', '2']]);
   });
 
   it('loadVarIndex supports modality-specific paths', async () => {
@@ -31,7 +31,7 @@ describe('sources/MuDataSource', () => {
       url: 'http://localhost:51204/@fixtures/zarr/mudata-0.2/mudata-dense.zarr',
     });
     const names = await dataSource.loadObsIndex('mod/atac/X');
-    expect(names).toEqual(['CTG', 'GCA', 'CTT']);
+    expect(names).toEqual(['CTG', 'GCA', 'CTT', 'GGG']);
   });
 
   it('getObsPath regex works', async () => {

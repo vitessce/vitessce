@@ -2,6 +2,7 @@
 import { LoaderResult } from '@vitessce/vit-s';
 import ObsEmbeddingAnndataLoader from './ObsEmbeddingAnndataLoader';
 import AnnDataSource from '../AnnDataSource';
+import MuDataSource from '../MuDataSource';
 
 const createAnndataLoader = (url) => {
   const config = {
@@ -29,7 +30,7 @@ const createMudataLoader = (url) => {
       embeddingType: 'UMAP',
     },
   };
-  const source = new AnnDataSource(config);
+  const source = new MuDataSource(config);
   return new ObsEmbeddingAnndataLoader(source, config);
 };
 
@@ -56,9 +57,23 @@ describe('loaders/ObsEmbeddingAnndataLoader for AnnData', () => {
     expect(result).toBeInstanceOf(LoaderResult);
     const payload = result.data;
     expect(Object.keys(payload)).toEqual(['obsIndex', 'obsEmbedding']);
-    expect(payload.obsIndex).toEqual(['CTG', 'GCA', 'CTT']);
-    expect(payload.obsEmbedding.shape).toEqual([2, 3]);
-    expect(Array.from(payload.obsEmbedding.data[0])).toEqual([-1, 0, 1]);
-    expect(Array.from(payload.obsEmbedding.data[1])).toEqual([-1, 0, 1]);
+    expect(payload.obsIndex).toEqual(['CTG', 'GCA', 'CTT', 'AAA']);
+    expect(payload.obsEmbedding.shape).toEqual([2, 4]);
+    expect(Array.from(payload.obsEmbedding.data[0])).toEqual([-1, 0, 1, 1]);
+    expect(Array.from(payload.obsEmbedding.data[1])).toEqual([-1, 0, 1, 2]);
+  });
+
+  it('load returns obsIndex and obsEmbedding for updated MuData', async () => {
+    const loader = createMudataLoader(
+      'http://localhost:51204/@fixtures/zarr/mudata-0.2/mudata-dense-updated.zarr',
+    );
+    const result = await loader.load();
+    expect(result).toBeInstanceOf(LoaderResult);
+    const payload = result.data;
+    expect(Object.keys(payload)).toEqual(['obsIndex', 'obsEmbedding']);
+    expect(payload.obsIndex).toEqual(['CTG', 'GCA', 'CTT', 'AAA']);
+    expect(payload.obsEmbedding.shape).toEqual([2, 4]);
+    expect(Array.from(payload.obsEmbedding.data[0])).toEqual([-1, 0, 1, 1]);
+    expect(Array.from(payload.obsEmbedding.data[1])).toEqual([-1, 0, 1, 2]);
   });
 });
