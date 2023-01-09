@@ -12,13 +12,13 @@ export default class RasterJsonAsObsSegmentationsLoader extends OmeTiffLoader {
   async load() {
     const offsets = await this.loadOffsets();
     const { url, requestInit } = this;
-    const { channel: channelIndex } = this.options;
+    const { channel: channelIndex } = this.options || {};
 
     // Get image name and URL tuples.
     const urls = [url, 'OME-TIFF'];
 
     const image = {
-      name: 'Image',
+      name: 'Segmentations',
       url,
       type: 'ome-tiff',
       // This load() method is the same as in ./OmeTiffLoader except we specify isBitmask here:
