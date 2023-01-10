@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import React, { useMemo } from 'react';
 import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
@@ -42,6 +41,7 @@ function getAllKeys(node, path = []) {
   return pathToKey(newPath);
 }
 
+// Horizontal stacked bar plot of subset proportions.
 function ProportionBar(props) {
   const {
     proportions,
@@ -77,6 +77,7 @@ function ProportionBar(props) {
   );
 }
 
+// Child nodes
 function ChildManager(props) {
   const {
     title: name,
@@ -87,12 +88,11 @@ function ChildManager(props) {
     color,
     parentIsColored,
     groupProportions,
+    hasColorEncoding,
   } = props;
 
-  const matchingProportions = !parentIsColored && groupProportions
+  const matchingProportions = hasColorEncoding && !parentIsColored && groupProportions
     && groupProportions.find(d => isEqual(d.path, path));
-
-  // console.log("ChildManager", props);
 
   function handleChange(event) {
     onCheckNode(path, event.target.checked);
@@ -135,6 +135,7 @@ function ChildManager(props) {
   );
 }
 
+// Group (parent) nodes
 function GroupManager(props) {
   const {
     title: name,
@@ -152,14 +153,13 @@ function GroupManager(props) {
     partialCheckedLevelPath,
     fullyCheckedLevelPath,
     groupProportions,
+    hasColorEncoding,
   } = props;
 
-  const isColored = isEqual(currPath, coloredLevelPath);
+  const isColored = hasColorEncoding && isEqual(currPath, coloredLevelPath);
   const isFullyChecked = isEqual(currPath, fullyCheckedLevelPath);
   const isPartiallyChecked = isEqual(currPath, partialCheckedLevelPath);
   const isExpanded = expandedKeys.includes(nodeKey);
-
-  // console.log("GroupManager", props);
 
   function handleCheck(event) {
     onCheckGroup(nodeKey, event.target.checked);
@@ -227,6 +227,7 @@ function GroupManager(props) {
                 parentIsColored={isColored}
                 onCheckNode={onCheckNode}
                 groupProportions={groupProportions}
+                hasColorEncoding={hasColorEncoding}
                 {...nodeToRenderProps(node, newPath, setColor)}
               />
             );
@@ -239,11 +240,11 @@ function GroupManager(props) {
 
 /**
  * A flat set manager component.
- * @prop {object} tree An object representing set hierarchies.
+ * @prop {object} sets An object representing set hierarchies.
  * @prop {function} onCheckNode Function to call when a single node has been checked or un-checked.
+ * @prop {function} onCheckGroup Function to call when a group has been checked or un-checked.
+ * @prop {function} onColorGroup Function to call when a group has been colored or un-colored.
  * @prop {function} onExpandNode Function to call when a node has been expanded.
- * @prop {function} onCheckLevel Function to call when an entire hierarchy level has been selected,
- * via the "Color by cluster" and "Color by subcluster" buttons below collapsed level zero nodes.
  * @prop {string} theme "light" or "dark" for the vitessce theme
  */
 export default function FlatSetsManager(props) {
@@ -253,22 +254,18 @@ export default function FlatSetsManager(props) {
     additionalSets,
     setColor,
     coloredLevel,
-    levelSelection: checkedLevel,
+    checkedLevel,
     fullyCheckedLevels,
     partialCheckedLevels,
     setFilter,
     setExpansion,
     groupProportions,
-    hasColorEncoding,
     onCheckGroup,
     onCheckNode,
     onExpandNode,
     onColorGroup,
+    hasColorEncoding,
   } = props;
-
-  // console.log(partialCheckedLevels);
-  const isChecking = true;
-  const autoExpandParent = true;
 
   const processedSets = useMemo(() => processSets(
     sets, setColor, theme,
@@ -303,9 +300,6 @@ export default function FlatSetsManager(props) {
             items={node.children}
             {...nodeToRenderProps(node, newPath, setColor)}
 
-            hasColorEncoding={hasColorEncoding}
-            isChecking={isChecking}
-
             coloredLevelPath={coloredLevel ? coloredLevel.levelZeroPath : null}
             checkedLevelPath={checkedLevel ? checkedLevel.levelZeroPath : null}
             partialCheckedLevelPath={partialCheckedLevel ? partialCheckedLevel.levelZeroPath : null}
@@ -313,7 +307,6 @@ export default function FlatSetsManager(props) {
 
             checkedKeys={setFilterKeys}
             expandedKeys={setExpansionKeys}
-            autoExpandParent={autoExpandParent}
 
             groupProportions={groupProportions}
 
@@ -325,7 +318,7 @@ export default function FlatSetsManager(props) {
               nodeKey,
               expanded,
             )}
-
+            hasColorEncoding={hasColorEncoding}
             setColor={setColor}
           />
         );

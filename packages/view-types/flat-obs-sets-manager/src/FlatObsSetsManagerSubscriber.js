@@ -231,7 +231,7 @@ export function FlatObsSetsManagerSubscriber(props) {
         sets={cellSets}
         additionalSets={additionalCellSets}
         coloredLevel={coloredLevel}
-        levelSelection={checkedLevel}
+        checkedLevel={checkedLevel}
         fullyCheckedLevels={fullyCheckedLevels}
         partialCheckedLevels={partialCheckedLevels}
         setFilter={obsSetFilter}
