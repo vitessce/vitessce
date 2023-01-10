@@ -1,5 +1,6 @@
 
 ### Added
+- Added dot plot view.
 
 ### Changed
 - Converted all `rem` units to `px` to fix R/Python widget CSS bugs caused by different root style conflicts.

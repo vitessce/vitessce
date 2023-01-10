@@ -42,7 +42,7 @@ export function useExpressionSummaries(
   expressionData, obsIndex, cellSets, additionalCellSets,
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
-  posThreshold,
+  posThreshold, featureLabelsMap,
 ) {
   const mergedCellSets = useMemo(
     () => mergeObsSets(cellSets, additionalCellSets),
@@ -88,7 +88,7 @@ export function useExpressionSummaries(
             featureKey,
             groupKey: setObj.key,
             group: setObj.name,
-            feature: featureName,
+            feature: featureLabelsMap?.get(featureName) || featureName,
             meanExpInGroup: exprMean,
             fracPosInGroup: fracPos,
           });
@@ -101,7 +101,7 @@ export function useExpressionSummaries(
   }, [expressionData, obsIndex, geneSelection,
     mergedCellSets, cellSetSelection,
     featureValueTransform, featureValueTransformCoefficient,
-    posThreshold,
+    posThreshold, featureLabelsMap,
   ]);
 
   return [resultArr, meanExpressionMax];
@@ -124,7 +124,7 @@ export function DotPlotSubscriber(props) {
     removeGridComponent,
     theme,
     title = 'Dot Plot',
-    posThreshold = 20,
+    posThreshold = 0,
   } = props;
 
   const classes = useStyles();
@@ -186,7 +186,7 @@ export function DotPlotSubscriber(props) {
     expressionData, obsIndex, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
-    posThreshold,
+    posThreshold, featureLabelsMap,
   );
   const selectedTransformName = transformOptions.find(
     o => o.value === featureValueTransform,

@@ -1,6 +1,6 @@
 import React from 'react';
 import clamp from 'lodash/clamp';
-import { VegaPlot, VEGA_THEMES, DATASET_NAME } from '@vitessce/vega';
+import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 import { capitalize } from '@vitessce/utils';
 import plur from 'plur';
 
@@ -27,7 +27,6 @@ import plur from 'plur';
  */
 export default function DotPlot(props) {
   const {
-    domainMax = 100,
     data: rawData,
     theme,
     width,
