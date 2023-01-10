@@ -14,6 +14,7 @@ export const ViewType = {
   GATING: 'gating',
   FEATURE_LIST: 'featureList',
   OBS_SETS: 'obsSets',
+  FLAT_OBS_SETS: 'flatObsSets',
   OBS_SET_SIZES: 'obsSetSizes',
   OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'obsSetFeatureValueDistribution',
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
