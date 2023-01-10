@@ -9,10 +9,12 @@ import {
   registerPluginViewType,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { VALUE_TRANSFORM_OPTIONS, capitalize, getValueTransformFunction } from '@vitessce/utils';
-import { treeToObjectsBySetNames, treeToSetSizesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
+import { VALUE_TRANSFORM_OPTIONS, getValueTransformFunction } from '@vitessce/utils';
+import { treeToObsIndicesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
+import { mean } from 'd3-array';
+import uuidv4 from 'uuid/v4';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
-import CellSetExpressionPlot from './CellSetExpressionPlot';
+import DotPlot from './DotPlot';
 import { useStyles } from './styles';
 
 /**
@@ -36,11 +38,11 @@ import { useStyles } from './styles';
  * @param {string} theme "light" or "dark" for the vitessce theme
  * `path` and `color`.
  */
-export function useExpressionByCellSet(
+export function useExpressionSummaries(
   expressionData, obsIndex, cellSets, additionalCellSets,
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
-  theme,
+  posThreshold,
 ) {
   const mergedCellSets = useMemo(
     () => mergeObsSets(cellSets, additionalCellSets),
@@ -49,54 +51,65 @@ export function useExpressionByCellSet(
 
   // From the expression matrix and the list of selected genes / cell sets,
   // generate the array of data points for the plot.
-  const [expressionArr, expressionMax] = useMemo(() => {
+  const [resultArr, meanExpressionMax] = useMemo(() => {
     if (mergedCellSets && cellSetSelection
         && geneSelection && geneSelection.length >= 1
-        && expressionData
+        && expressionData && expressionData.length === geneSelection.length
     ) {
-      const cellObjects = treeToObjectsBySetNames(
-        mergedCellSets, cellSetSelection, cellSetColor, theme,
-      );
-
-      const firstGeneSelected = geneSelection[0];
-      // Create new cellColors map based on the selected gene.
       let exprMax = -Infinity;
+      const result = [];
       const cellIndices = {};
       for (let i = 0; i < obsIndex.length; i += 1) {
         cellIndices[obsIndex[i]] = i;
       }
-      const exprValues = cellObjects.map((cell) => {
-        const cellIndex = cellIndices[cell.obsId];
-        const value = expressionData[0][cellIndex];
-        const normValue = value * 100 / 255;
-        const transformFunction = getValueTransformFunction(
-          featureValueTransform, featureValueTransformCoefficient,
-        );
-        const transformedValue = transformFunction(normValue);
-        exprMax = Math.max(transformedValue, exprMax);
-        return { value: transformedValue, gene: firstGeneSelected, set: cell.name };
+      const setObjects = treeToObsIndicesBySetNames(
+        mergedCellSets, cellSetSelection, cellIndices,
+      );
+      geneSelection.forEach((featureName, featureI) => {
+        const featureKey = uuidv4();
+        let numPos = 0;
+        setObjects.forEach((setObj) => {
+          const exprValues = setObj.indices.map((cellIndex) => {
+            const value = expressionData[featureI][cellIndex];
+            const normValue = value * 100 / 255;
+            const transformFunction = getValueTransformFunction(
+              featureValueTransform, featureValueTransformCoefficient,
+            );
+            const transformedValue = transformFunction(normValue);
+            if (transformedValue > posThreshold) {
+              numPos += 1;
+            }
+            return transformedValue;
+          });
+          const exprMean = mean(exprValues);
+          const fracPos = numPos / setObj.size;
+          result.push({
+            key: uuidv4(),
+            featureKey,
+            groupKey: setObj.key,
+            group: setObj.name,
+            feature: featureName,
+            meanExpInGroup: exprMean,
+            fracPosInGroup: fracPos,
+          });
+          exprMax = Math.max(exprMean, exprMax);
+        });
       });
-      return [exprValues, exprMax];
+      return [result, exprMax];
     }
     return [null, null];
-  }, [expressionData, obsIndex, geneSelection, theme,
-    mergedCellSets, cellSetSelection, cellSetColor,
+  }, [expressionData, obsIndex, geneSelection,
+    mergedCellSets, cellSetSelection,
     featureValueTransform, featureValueTransformCoefficient,
+    posThreshold,
   ]);
 
-  // From the cell sets hierarchy and the list of selected cell sets,
-  // generate the array of set sizes data points for the bar plot.
-  const setArr = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
-    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme)
-    : []
-  ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
-
-  return [expressionArr, setArr, expressionMax];
+  return [resultArr, meanExpressionMax];
 }
 
 
 /**
- * A subscriber component for `CellSetExpressionPlot`,
+ * A subscriber component for `DotPlot`,
  * which listens for gene selection updates and
  * `GRID_RESIZE` events.
  * @param {object} props
@@ -110,6 +123,8 @@ export function DotPlotSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
+    title = 'Dot Plot',
+    posThreshold = 20,
   } = props;
 
   const classes = useStyles();
@@ -127,11 +142,12 @@ export function DotPlotSubscriber(props) {
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
+    // TODO: coordination type for mean expression colormap
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION],
+    COMPONENT_COORDINATION_TYPES[ViewType.DOT_PLOT],
     coordinationScopes,
   );
 
@@ -166,16 +182,12 @@ export function DotPlotSubscriber(props) {
     featureLabelsStatus,
   ]);
 
-  const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
+  const [resultArr, meanExpressionMax] = useExpressionSummaries(
     expressionData, obsIndex, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
-    theme,
+    posThreshold,
   );
-
-  const firstGeneSelected = geneSelection && geneSelection.length >= 1
-    ? (featureLabelsMap?.get(geneSelection[0]) || geneSelection[0])
-    : null;
   const selectedTransformName = transformOptions.find(
     o => o.value === featureValueTransform,
   )?.name;
@@ -183,7 +195,7 @@ export function DotPlotSubscriber(props) {
 
   return (
     <TitleInfo
-      title={`Expression by ${capitalize(obsType)} Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      title={title}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
@@ -199,20 +211,20 @@ export function DotPlotSubscriber(props) {
       )}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
-        {expressionArr ? (
-          <CellSetExpressionPlot
-            domainMax={expressionMax}
-            colors={setArr}
-            data={expressionArr}
+        {resultArr ? (
+          <DotPlot
+            domainMax={meanExpressionMax}
+            data={resultArr}
             theme={theme}
             width={width}
             height={height}
             obsType={obsType}
+            featureType={featureType}
             featureValueType={featureValueType}
             featureValueTransformName={selectedTransformName}
           />
         ) : (
-          <span>Select a {featureType}.</span>
+          <span>Select at least one {featureType}.</span>
         )}
       </div>
     </TitleInfo>
