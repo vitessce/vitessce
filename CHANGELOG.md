@@ -1,5 +1,6 @@
 
 ### Added
+- Added a flat obsSet manager.
 
 ### Changed
 
