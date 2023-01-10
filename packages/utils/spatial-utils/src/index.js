@@ -12,4 +12,5 @@ export {
   getSourceFromLoader,
   isInterleaved,
   isRgb,
+  coordinateTransformationsToMatrix,
 } from './spatial';
