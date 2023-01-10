@@ -13,6 +13,9 @@ import {
   nodeToLevelDescendantNamePaths,
   treeExport,
   filterNode,
+  isEqualSet,
+  isPartialSet,
+  isFullSubSet,
 } from './cell-set-utils';
 
 import {
@@ -171,6 +174,54 @@ describe('Hierarchical sets cell-set-utils', () => {
       expect(exportedTree.tree[0].children[0].name).toEqual(tree.tree[0].children[0].name);
       expect(exportedTree.tree[0].children[0].children[0].name)
         .toEqual(tree.tree[0].children[0].children[0].name);
+    });
+  });
+  describe('Set equality helpers', () => {
+    it('isEqualSet returns true when two sets of paths contain the same elements', () => {
+      const a = [
+        ['k-means Clustering', 'Cluster 1'],
+        ['k-means Clustering', 'Cluster 2'],
+        ['k-means Clustering', 'Cluster 3'],
+      ];
+      const b = [
+        ['k-means Clustering', 'Cluster 1'],
+        ['k-means Clustering', 'Cluster 2'],
+        ['k-means Clustering', 'Cluster 3'],
+      ];
+
+      expect(isEqualSet(a, b)).toEqual(true);
+    });
+    it('isEqualSet and isPartialSet are correct when two sets of paths are different', () => {
+      const a = [
+        ['k-means Clustering', 'Cluster 1'],
+        ['k-means Clustering', 'Cluster 2'],
+        ['k-means Clustering', 'Cluster 3'],
+      ];
+      const b = [
+        ['k-means Clustering', 'Cluster 1'],
+        ['k-means Clustering', 'Cluster 2'],
+      ];
+      const c = [
+        ['Leiden Clustering', 'Cluster 1'],
+        ['Leiden Clustering', 'Cluster 2'],
+        ['Leiden Clustering', 'Cluster 3'],
+      ];
+
+      expect(isEqualSet(a, b)).toEqual(false);
+      expect(isEqualSet(b, a)).toEqual(false);
+
+      expect(isPartialSet(a, b)).toEqual(true);
+      expect(isPartialSet(a, [])).toEqual(false);
+      expect(isPartialSet(b, a)).toEqual(true);
+      expect(isPartialSet(a, c)).toEqual(false);
+
+      expect(isFullSubSet(a, b)).toEqual(false);
+      expect(isFullSubSet(b, a)).toEqual(true);
+      expect(isFullSubSet(a, c)).toEqual(false);
+      expect(isFullSubSet(c, a)).toEqual(false);
+      expect(isFullSubSet(a, [])).toEqual(false);
+      expect(isFullSubSet([], a)).toEqual(false);
+      expect(isFullSubSet([], [])).toEqual(false);
     });
   });
 });

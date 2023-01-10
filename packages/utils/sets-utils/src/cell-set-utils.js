@@ -559,7 +559,13 @@ export function filterNode(node, prevPath, filterPath) {
   };
 }
 
-function isEqualSet(a, b) {
+/**
+ * Two arrays of paths are equal (contain the same elements).
+ * @param {Array<string[]>} a Set of paths.
+ * @param {Array<string[]>} b Other set of paths.
+ * @returns {boolean} Whether the two sets are equivalent.
+ */
+export function isEqualSet(a, b) {
   if (a.length === b.length) {
     const aSet = new Set(a);
     aSet.forEach((aVal) => {
@@ -576,7 +582,13 @@ function isEqualSet(a, b) {
   return false;
 }
 
-function isPartialSet(a, b) {
+/**
+ * One set contains part of another.
+ * @param {Array<string[]>} a Set of paths.
+ * @param {Array<string[]>} b Other set of paths.
+ * @returns {boolean} Whether set B is partially contained in set A.
+ */
+export function isPartialSet(a, b) {
   // b is partially contained in a.
   if (a.length > 0 && b.length > 0) {
     const bIsPartOfA = a.some((aVal) => {
@@ -593,7 +605,13 @@ function isPartialSet(a, b) {
   return false;
 }
 
-function isFullSubSet(a, b) {
+/**
+ * One set contains another entirely.
+ * @param {Array<string[]>} a Set of paths.
+ * @param {Array<string[]>} b Other set of paths.
+ * @returns {boolean} Whether set A is fully contained in set B.
+ */
+export function isFullSubSet(a, b) {
   // a is fully contained within b.
   if (a.length > 0 && b.length > 0 && a.length <= b.length) {
     const bSet = new Set(b);
