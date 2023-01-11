@@ -135,7 +135,7 @@ const sharedDefinitions = {
   // coordinateTransformations matches the OME-NGFF v0.4 spec.
   // Reference: https://ngff.openmicroscopy.org/0.4/#trafo-md
   omeCoordinateTransformations: {
-    type: 'list',
+    type: 'array',
     items: {
       oneOf: [
         {
