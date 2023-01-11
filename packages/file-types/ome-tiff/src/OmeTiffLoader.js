@@ -47,7 +47,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       ...(coordinateTransformations ? {
         metadata: {
           transform: {
-            matrix: coordinateTransformationsToMatrix(coordinateTransformations)
+            matrix: coordinateTransformationsToMatrix(coordinateTransformations),
           },
         },
       } : {}),
