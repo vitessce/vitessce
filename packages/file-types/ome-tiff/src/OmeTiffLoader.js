@@ -1,5 +1,8 @@
 import { viv } from '@vitessce/gl';
-import { initializeRasterLayersAndChannels } from '@vitessce/spatial-utils';
+import {
+  initializeRasterLayersAndChannels,
+  coordinateTransformationsToMatrix,
+} from '@vitessce/spatial-utils';
 import { AbstractTwoStepLoader, imageOmeTiffSchema, LoaderResult } from '@vitessce/vit-s';
 
 export default class OmeTiffLoader extends AbstractTwoStepLoader {
@@ -23,6 +26,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
   async load() {
     const { url, requestInit } = this;
+    const { coordinateTransformations } = this.options || {};
 
     // Get image name and URL tuples.
     const urls = [
@@ -40,6 +44,13 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       name: imageName || 'Image',
       url,
       type: 'ome-tiff',
+      ...(coordinateTransformations ? {
+        metadata: {
+          transform: {
+            matrix: coordinateTransformationsToMatrix(coordinateTransformations),
+          },
+        },
+      } : {}),
     };
 
     // Add a loaderCreator function for each image layer.

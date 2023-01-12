@@ -1,6 +1,7 @@
 
 ### Added
 - Added `image.ome-tiff` and `obsSegmentations.ome-tiff` file types.
+- Added `coordinateTransformation` file type options for `image.ome-tiff` and `image.ome-zarr`.
 
 ### Changed
 
