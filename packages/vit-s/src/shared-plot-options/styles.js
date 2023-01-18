@@ -39,7 +39,7 @@ export const useStyles = makeStyles(theme => ({
   },
   select: {
     '& select': {
-      fontSize: '.875rem',
+      fontSize: '14px',
     },
   },
   selectRoot: {
