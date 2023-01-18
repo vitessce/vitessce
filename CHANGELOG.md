@@ -1,12 +1,15 @@
 
 ### Added
 - Added `MuData` file types.
+- Added a `uid` prop for `VitS` to fix Jupyter notebook style conflicts caused by multiple `Vitessce` widget instances loaded in the same `JupyterLab` session.
 
 ### Changed
+- Converted all `rem` units to `px` to fix R/Python widget CSS bugs caused by different root style conflicts.
+- Comment out `_DiffViewConfigSchema` in the docs to fix bug.
+- Switched to using `react` via esm.sh rather than `es-react` via unpkg for the Cypress tests in `sites/html`.
+
 
 ## [2.0.2](https://www.npmjs.com/package/vitessce/v/2.0.2) - 2022-12-09
-
-
 
 ### Added
 - Added ./copy-dev.sh and ./copy-docs.sh instructions.
