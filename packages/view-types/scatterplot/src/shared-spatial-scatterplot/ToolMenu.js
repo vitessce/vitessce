@@ -29,13 +29,13 @@ const useStyles = makeStyles(() => ({
     cursor: 'pointer',
     userSelect: 'none',
     border: '1px solid #6c757d',
-    fontSize: '1rem',
+    fontSize: '16px',
     lineHeight: '1.5',
-    borderRadius: '0.25rem',
+    borderRadius: '4px',
     transition: 'color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
     color: '#6c757d',
 
-    marginRight: '0.5rem',
+    marginRight: '8px',
 
     '& > svg': {
       verticalAlign: 'middle',
@@ -46,7 +46,7 @@ const useStyles = makeStyles(() => ({
     color: '#fff',
     backgroundColor: '#6c757d',
     borderColor: '#6c757d',
-    boxShadow: '0 0 0 0.2rem rgba(108, 117, 125, 0.5)',
+    boxShadow: '0 0 0 3px rgba(108, 117, 125, 0.5)',
   },
 }));
 

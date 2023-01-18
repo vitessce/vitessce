@@ -319,3 +319,39 @@ export async function initializeRasterLayersAndChannels(
   const autoImageLayerDefs = await Promise.all(autoImageLayerDefPromises);
   return [autoImageLayerDefs, nextImageLoaders, nextImageMetaAndLayers];
 }
+
+/**
+ * Convert an array of coordinateTransformations objects to a 16-element
+ * plain JS array using Matrix4 linear algebra transformation functions.
+ * @param {object[]} coordinateTransformations List of objects matching the
+ * OME-NGFF v0.4 coordinateTransformations spec.
+ * @returns {number[]} Plain JS array of 16 numbers representing the Matrix4.
+ */
+export function coordinateTransformationsToMatrix(coordinateTransformations) {
+  let mat = (new Matrix4()).identity();
+  if (coordinateTransformations) {
+    // Applied sequentially and in order according to the OME-NGFF v0.4 spec.
+    // Reference: https://ngff.openmicroscopy.org/0.4/#trafo-md
+    coordinateTransformations.forEach((transform) => {
+      if (transform.type === 'translation') {
+        const translation = [...transform.translation];
+        // Add in z dimension needed for Matrix4 scale API.
+        if (!translation[2]) {
+          translation[2] = 0;
+        }
+        const nextMat = (new Matrix4()).translate(translation);
+        mat = mat.multiplyLeft(nextMat);
+      }
+      if (transform.type === 'scale') {
+        const scale = [...transform.scale];
+        // Add in z dimension needed for Matrix4 scale API.
+        if (!scale[2]) {
+          scale[2] = 1;
+        }
+        const nextMat = (new Matrix4()).scale(scale);
+        mat = mat.multiplyLeft(nextMat);
+      }
+    });
+  }
+  return mat.toArray();
+}

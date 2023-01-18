@@ -10,7 +10,7 @@ const useStyles = makeStyles(() => ({
     zIndex: '1040',
     width: '100%',
     height: '100%',
-    borderRadius: '0.25rem',
+    borderRadius: '4px',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   loadingIndicatorContainer: {

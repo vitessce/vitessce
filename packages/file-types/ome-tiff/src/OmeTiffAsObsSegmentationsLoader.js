@@ -1,15 +1,19 @@
 import { viv } from '@vitessce/gl';
 import { LoaderResult, obsSegmentationsOmeTiffSchema } from '@vitessce/vit-s';
-import { initializeRasterLayersAndChannels } from '@vitessce/spatial-utils';
+import {
+  initializeRasterLayersAndChannels,
+  coordinateTransformationsToMatrix,
+} from '@vitessce/spatial-utils';
 import OmeTiffLoader from './OmeTiffLoader';
 
-export default class RasterJsonAsObsSegmentationsLoader extends OmeTiffLoader {
+export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
   constructor(dataSource, params) {
     super(dataSource, params);
     this.optionsSchema = obsSegmentationsOmeTiffSchema;
   }
 
   async load() {
+    const { coordinateTransformations } = this.options || {};
     const offsets = await this.loadOffsets();
     const { url, requestInit } = this;
     const { channel: channelIndex } = this.options || {};
@@ -24,6 +28,11 @@ export default class RasterJsonAsObsSegmentationsLoader extends OmeTiffLoader {
       // This load() method is the same as in ./OmeTiffLoader except we specify isBitmask here:
       metadata: {
         isBitmask: true,
+        ...(coordinateTransformations ? {
+          transform: {
+            matrix: coordinateTransformationsToMatrix(coordinateTransformations),
+          },
+        } : {}),
       },
     };
 

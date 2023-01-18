@@ -13,9 +13,20 @@ export const blin2019 = {
       name: 'idr0062-blin-nuclearsegmentation/6001240',
       files: [
         {
-          type: 'raster',
-          fileType: 'raster.ome-zarr',
+          fileType: 'image.ome-zarr',
           url: 'https://minio-dev.openmicroscopy.org/idr/v0.3/idr0062-blin-nuclearsegmentation/6001240.zarr',
+          options: {
+            coordinateTransformations: [
+              {
+                type: 'translation',
+                translation: [1, 1],
+              },
+              {
+                type: 'scale',
+                scale: [0.5, 0.5, 0.5],
+              },
+            ],
+          },
         },
       ],
     },

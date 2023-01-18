@@ -1,6 +1,14 @@
 import { viv } from '@vitessce/gl';
-import { initializeRasterLayersAndChannels } from '@vitessce/spatial-utils';
-import { AbstractLoaderError, LoaderResult, AbstractTwoStepLoader } from '@vitessce/vit-s';
+import {
+  initializeRasterLayersAndChannels,
+  coordinateTransformationsToMatrix,
+} from '@vitessce/spatial-utils';
+import {
+  AbstractLoaderError,
+  LoaderResult,
+  AbstractTwoStepLoader,
+  imageOmeZarrSchema,
+} from '@vitessce/vit-s';
 
 function hexToRgb(hex) {
   const result = /^#?([A-F\d]{2})([A-F\d]{2})([A-F\d]{2})$/i.exec(hex);
@@ -12,11 +20,18 @@ function hexToRgb(hex) {
 }
 
 export default class OmeZarrLoader extends AbstractTwoStepLoader {
+  constructor(dataSource, params) {
+    super(dataSource, params);
+    this.optionsSchema = imageOmeZarrSchema;
+  }
+
   async load() {
     const payload = await this.dataSource.getJson('.zattrs').catch(reason => Promise.resolve(reason));
     if (payload instanceof AbstractLoaderError) {
       return Promise.reject(payload);
     }
+
+    const { coordinateTransformations } = this.options || {};
 
     const loader = await viv.loadOmeZarr(this.url, { fetchOptions: this.requestInit, type: 'multiscales' });
     const { metadata, data } = loader;
@@ -57,6 +72,13 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
           slider: [channel.window.start, channel.window.end],
           color: hexToRgb(channel.color),
         })),
+        ...(coordinateTransformations ? {
+          metadata: {
+            transform: {
+              matrix: coordinateTransformationsToMatrix(coordinateTransformations),
+            },
+          },
+        } : {}),
         loaderCreator: async () => ({ ...loader, channels: channels.map(c => c.label) }),
       },
     ];

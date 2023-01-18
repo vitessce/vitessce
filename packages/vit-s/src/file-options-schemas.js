@@ -131,6 +131,39 @@ const sharedDefinitions = {
   annDataObsLocations: { $ref: '#/definitions/annDataObsm' },
   annDataObsEmbedding: { $ref: '#/definitions/annDataObsm' },
   annDataObsSegmentations: { $ref: '#/definitions/annDataObs' },
+  // OME
+  // coordinateTransformations matches the OME-NGFF v0.4 spec.
+  // Reference: https://ngff.openmicroscopy.org/0.4/#trafo-md
+  omeCoordinateTransformations: {
+    type: 'array',
+    items: {
+      oneOf: [
+        {
+          type: 'object',
+          required: ['type'],
+          properties: {
+            type: { type: 'string', enum: ['identity'] },
+          },
+        },
+        {
+          type: 'object',
+          required: ['type', 'translation'],
+          properties: {
+            type: { type: 'string', enum: ['translation'] },
+            translation: { type: 'array', items: { type: 'number' } },
+          },
+        },
+        {
+          type: 'object',
+          required: ['type', 'scale'],
+          properties: {
+            type: { type: 'string', enum: ['scale'] },
+            scale: { type: 'array', items: { type: 'number' } },
+          },
+        },
+      ],
+    },
+  },
 };
 
 /**
@@ -292,10 +325,24 @@ export const imageOmeTiffSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
   $id: 'https://github.com/vitessce/vitessce/#image-omeTiff-options',
   title: 'image.ome-tiff options',
+  definitions: sharedDefinitions,
   type: 'object',
   required: [],
   properties: {
     offsetsUrl: { type: 'string' },
+    coordinateTransformations: { $ref: '#/definitions/omeCoordinateTransformations' },
+  },
+};
+// OME-Zarr (NGFF)
+export const imageOmeZarrSchema = {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  $id: 'https://github.com/vitessce/vitessce/#image-omeZarr-options',
+  title: 'image.ome-zarr options',
+  definitions: sharedDefinitions,
+  type: 'object',
+  required: [],
+  properties: {
+    coordinateTransformations: { $ref: '#/definitions/omeCoordinateTransformations' },
   },
 };
 export const obsSegmentationsOmeTiffSchema = {

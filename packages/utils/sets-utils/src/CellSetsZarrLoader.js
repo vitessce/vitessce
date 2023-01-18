@@ -8,6 +8,8 @@ import {
 } from './constants';
 
 export function dataToCellSetsTree(data, options) {
+  // obsIndex is an array of all cell IDs, for the purposes of set complement operations only.
+  // cellNames is per-cellSets arrays of cell IDs.
   const [cellNames, cellSets, cellSetScores] = data;
   const cellSetsTree = treeInitialize(SETS_DATATYPE_OBS);
   cellSets.forEach((cellSetIds, j) => {
@@ -21,7 +23,7 @@ export function dataToCellSetsTree(data, options) {
       // TODO: throw a warning if the levels are not in order coarser->finer.
       const levelSets = new InternMap([], JSON.stringify);
 
-      cellNames.forEach((id, i) => {
+      cellNames[j].forEach((id, i) => {
         const classes = cellSetIds.map(col => col[i]);
         if (levelSets.has(classes)) {
           levelSets.get(classes).push([id, null]);
@@ -92,9 +94,11 @@ export function dataToCellSetsTree(data, options) {
       // eslint-disable-next-line no-return-assign
       uniqueCellSetIds.forEach(id => (clusters[id] = { name: id, set: [] }));
       if (cellSetScores[j]) {
-        cellSetIds.forEach((id, i) => clusters[id].set.push([cellNames[i], cellSetScores[j][i]]));
+        cellSetIds
+          .forEach((id, i) => clusters[id].set.push([cellNames[j][i], cellSetScores[j][i]]));
       } else {
-        cellSetIds.forEach((id, i) => clusters[id].set.push([cellNames[i], null]));
+        cellSetIds
+          .forEach((id, i) => clusters[id].set.push([cellNames[j][i], null]));
       }
       Object.values(clusters).forEach(
         // eslint-disable-next-line no-return-assign

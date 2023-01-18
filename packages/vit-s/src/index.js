@@ -17,6 +17,8 @@ export {
 } from './hooks';
 export {
   useCoordination,
+  useComplexCoordination,
+  useMultiCoordinationValues,
   useMultiDatasetCoordination,
   useDatasetUids,
   useLoaders,
@@ -83,6 +85,7 @@ export {
   anndataZarrSchema,
   imageOmeTiffSchema,
   obsSegmentationsOmeTiffSchema,
+  imageOmeZarrSchema,
   emptySchema,
 } from './file-options-schemas';
 export {
