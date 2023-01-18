@@ -185,6 +185,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_AXIS_FIXED,
     CoordinationType.OBS_FILTER,
     CoordinationType.OBS_HIGHLIGHT,
+    CoordinationType.OBS_SET_FILTER,
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,
