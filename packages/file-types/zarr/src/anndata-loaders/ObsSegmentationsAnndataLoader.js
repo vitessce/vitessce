@@ -38,6 +38,7 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
   }
 
   async load() {
+    const { path } = this.options;
     const superResult = await super.load().catch(reason => Promise.resolve(reason));
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
@@ -46,7 +47,7 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
       spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
     };
     return Promise.all([
-      this.dataSource.loadObsIndex(),
+      this.dataSource.loadObsIndex(path),
       this.loadSegmentations(),
     ]).then(([obsIndex, obsSegmentations]) => Promise.resolve(new LoaderResult(
       {
