@@ -25,8 +25,12 @@ export default class ObsSetsCsvLoader extends CsvLoader {
     const cellSetScores = scoresCols.map(scoreCol => (
       scoreCol ? data.map(d => d[scoreCol]) : undefined
     ));
-
-    const cellSetsTree = dataToCellSetsTree([obsIndex, cellSetIds, cellSetScores], setsArr);
+    const obsIndices = cellSetIds.map(() => obsIndex);
+    const cellSetsTree = dataToCellSetsTree([
+      obsIndices,
+      cellSetIds,
+      cellSetScores,
+    ], setsArr);
     const obsSetsMembership = treeToMembershipMap(cellSetsTree);
 
     const coordinationValues = {};

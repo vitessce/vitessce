@@ -114,6 +114,7 @@ export function VitessceGridLayout(props) {
           {... v.props}
           uuid={v.uid}
           coordinationScopes={v.coordinationScopes}
+          coordinationScopesBy={v.coordinationScopesBy}
           theme={theme}
           removeGridComponent={removeGridComponent}
         />
