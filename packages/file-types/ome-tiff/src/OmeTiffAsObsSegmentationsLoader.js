@@ -40,15 +40,13 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
     const imagesWithLoaderCreators = [
       {
         ...image,
+        channel: channelIndex,
         loaderCreator: async () => {
           const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
           const { Pixels: { Channels } } = loader.metadata;
-          let channels = Array.isArray(Channels)
+          const channels = Array.isArray(Channels)
             ? Channels.map((channel, i) => channel.Name || `Channel ${i}`)
             : [Channels.Name || `Channel ${0}`];
-          if (channelIndex !== undefined && channelIndex !== null) {
-            channels = [channels[channelIndex]];
-          }
           return { ...loader, channels };
         },
       },

@@ -1,8 +1,9 @@
 /* eslint-disable dot-notation */
 /* eslint-disable no-unused-vars */
 import React, {
-  useCallback, useRef, forwardRef,
+  useCallback, useRef, forwardRef, useMemo,
 } from 'react';
+import plur from 'plur';
 import Grid from '@material-ui/core/Grid';
 import {
   TitleInfo,
@@ -16,8 +17,9 @@ import {
   useAuxiliaryCoordination,
   useComponentLayout,
   registerPluginViewType,
+  useMultiObsSegmentations,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, STATUS } from '@vitessce/constants-internal';
 import { capitalize } from '@vitessce/utils';
 import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/spatial-utils';
 import RasterChannelController from './RasterChannelController';
@@ -38,7 +40,7 @@ const LayerControllerMemoized = React.memo(
       theme,
       isReady,
       dataset,
-      obsType,
+      obsType: obsTypeProp,
       moleculesLayer,
       setMoleculesLayer,
       cellsLayer, // May be one polygon layer object or an array of bitmask layers.
@@ -53,7 +55,10 @@ const LayerControllerMemoized = React.memo(
       setAreLoadingImageChannels,
       handleRasterLayerChange,
       handleRasterLayerRemove,
-
+      
+      obsTypes,
+      obsSegmentationsStatus,
+      obsSegmentationsData,
       obsSegmentationsType,
       segmentationLayerLoaders,
       segmentationLayerMeta,
@@ -104,18 +109,43 @@ const LayerControllerMemoized = React.memo(
           {cellsLayer && obsSegmentationsType === 'polygon' && (
             <VectorLayerController
               key={`${dataset}-cells`}
-              label={`${capitalize(obsType)} Segmentations`}
+              label={`${capitalize(obsTypeProp)} Segmentations`}
               layerType="cells"
               layer={cellsLayer}
               handleLayerChange={setCellsLayer}
             />
           )}
           {/* Segmentation bitmask layers: */}
-          {cellsLayer && obsSegmentationsType === 'bitmask'
-            && cellsLayer.map((layer, i) => {
-              const { index } = layer;
-              const loader = segmentationLayerLoaders?.[index];
-              const layerMeta = segmentationLayerMeta?.[index];
+          {obsSegmentationsStatus === STATUS.SUCCESS
+            && Object.entries(obsSegmentationsData).map(([obsTypeScope, obsTypeData], i) => {
+              const index = 0;
+              const obsType = obsTypes[obsTypeScope];
+              const obsTypeName = capitalize(plur(obsType));
+              const loader = obsTypeData?.obsSegmentations?.loaders?.[index];
+              const layerMeta = obsTypeData?.obsSegmentations?.meta?.[index];
+              const channelIndex = layerMeta.channel;
+
+              const layer = {
+                index,
+                colormap: null,
+                domainType: "Min/Max",
+                modelMatrix: undefined,
+                opacity: 1,
+                renderingMode: "Additive",
+                transparentColor: null,
+                type: "bitmask",
+                use3d: false,
+                visible: true,
+                channels: [
+                  {
+                    selection: { t: 0, z: 0, c: channelIndex },
+                    visible: true,
+                    slider: [0, 1],
+                    color: [255, 255, 255],
+                  },
+                ],
+              };
+
               const isRaster = false;
               // Set up the call back mechanism so that each layer manages
               // callbacks/loading state for itself and its channels.
@@ -142,7 +172,7 @@ const LayerControllerMemoized = React.memo(
                   style={{ marginTop: '10px' }}
                 >
                   <LayerController
-                    name={layerMeta.name}
+                    name={obsTypeName}
                     layer={layer}
                     loader={loader}
                     theme={theme}
@@ -368,6 +398,10 @@ export function LayerControllerSubscriber(props) {
   const [componentWidth, componentHeight] = useClosestVitessceContainerSize(layerControllerRef);
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
+  const [obsTypes, obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
+    coordinationScopes, loaders, dataset, () => {},
+  );
+
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
   const [obsLocationsData, obsLocationsStatus] = useObsLocationsData(
@@ -376,14 +410,8 @@ export function LayerControllerSubscriber(props) {
     { spatialPointLayer: moleculesLayer },
     {}, // TODO: use obsType once #1240 is merged.
   );
-  const [
-    { obsSegmentations, obsSegmentationsType },
-    obsSegmentationsStatus,
-  ] = useObsSegmentationsData(
-    loaders, dataset, () => {}, false,
-    { setSpatialSegmentationLayer: setCellsLayer },
-    { spatialSegmentationLayer: cellsLayer },
-    {}, // TODO: use obsType once #1240 is merged.
+  const [obsSegmentations, obsSegmentationsType, obsSegmentationsStatus] = useMemo(
+    () => ([null, null, STATUS.ERROR]), [],
   );
   const [{ image }, imageStatus] = useImageData(
     loaders, dataset, () => {}, false,
@@ -394,7 +422,7 @@ export function LayerControllerSubscriber(props) {
   const { loaders: imageLayerLoaders, meta: imageLayerMeta } = image || {};
   const isReady = useReady([
     obsLocationsStatus,
-    obsSegmentationsStatus,
+    obsSegmentationsDataStatus,
     imageStatus,
   ]);
 
@@ -471,6 +499,9 @@ export function LayerControllerSubscriber(props) {
       handleRasterLayerChange={handleRasterLayerChange}
       handleRasterLayerRemove={handleRasterLayerRemove}
 
+      obsTypes={obsTypes}
+      obsSegmentationsStatus={obsSegmentationsDataStatus}
+      obsSegmentationsData={obsSegmentationsData}
       obsSegmentationsType={obsSegmentationsType}
       segmentationLayerLoaders={segmentationLayerLoaders}
       segmentationLayerMeta={segmentationLayerMeta}

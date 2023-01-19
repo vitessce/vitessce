@@ -206,7 +206,7 @@ export async function initializeLayerChannels(loader, use3d, channelIndex) {
   defaultSelection = isInterleaved(source.shape)
     ? [{ ...defaultSelection[0], c: 0 }] : defaultSelection;
   defaultSelection = channelIndex !== undefined && channelIndex !== null
-    ? [{ ...defaultSelection[channelIndex], c: channelIndex }] : defaultSelection;
+    ? [{ ...defaultSelection[0], c: channelIndex }] : defaultSelection;
   const stats = await getMultiSelectionStats({
     loader: loader.data, selections: defaultSelection, use3d,
   });

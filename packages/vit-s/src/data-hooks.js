@@ -352,3 +352,24 @@ export function useMultiObsLabels(
   );
   return [obsLabelsTypes, obsLabelsData, obsLabelsDataStatus];
 }
+
+export function useMultiObsSegmentations(
+  coordinationScopes, loaders, dataset, addUrl,
+) {
+  const obsTypes = useMultiCoordinationValues(
+    CoordinationType.OBS_TYPE,
+    coordinationScopes,
+  );
+  const obsTypeMatchOnObj = useMemo(() => fromEntries(
+    Object.entries(obsTypes).map(([scope, obsType]) => ([
+      scope,
+      { obsType },
+    ])),
+  ), [obsTypes]);
+  const [obsSegmentationsData, obsSegmentationsDataStatus] = useDataTypeMulti(
+    DataType.OBS_SEGMENTATIONS, loaders, dataset,
+    addUrl, false, {}, {},
+    obsTypeMatchOnObj,
+  );
+  return [obsTypes, obsSegmentationsData, obsSegmentationsDataStatus];
+}

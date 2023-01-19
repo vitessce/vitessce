@@ -19,6 +19,7 @@ import {
   useAuxiliaryCoordination,
   useHasLoader,
   registerPluginViewType,
+  useMultiObsSegmentations,
 } from '@vitessce/vit-s';
 import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
 import { canLoadResolution, getCellColors } from '@vitessce/utils';
@@ -27,6 +28,27 @@ import Spatial from './Spatial';
 import SpatialOptions from './SpatialOptions';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils';
+
+const tempLayer = [{
+  index: 0,
+  colormap: null,
+  domainType: "Min/Max",
+  modelMatrix: undefined,
+  opacity: 1,
+  renderingMode: "Additive",
+  transparentColor: null,
+  type: "bitmask",
+  use3d: false,
+  visible: true,
+  channels: [
+    {
+      selection: { t: 0, z: 0, c: undefined } // should fill in c.
+      visible: true,
+      slider: [0, 1],
+      color: [255, 255, 255],
+    },
+  ],
+}];
 
 /**
  * A subscriber component for the spatial plot.
@@ -130,15 +152,17 @@ export function SpatialSubscriber(props) {
     coordinationScopes, obsType, loaders, dataset, addUrl,
   );
 
+  const [obsTypes, obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
+    coordinationScopes, loaders, dataset, () => {},
+  );
+  console.log(obsTypes, obsSegmentationsData, obsSegmentationsDataStatus);
+
   const hasExpressionData = useHasLoader(
     loaders, dataset, DataType.OBS_FEATURE_MATRIX,
     { obsType, featureType, featureValueType },
     // TODO: get per-spatialLayerType expression data once #1240 is merged.
   );
-  const hasSegmentationsData = useHasLoader(
-    loaders, dataset, DataType.OBS_SEGMENTATIONS,
-    { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
-  );
+  const hasSegmentationsData = Object.entries(obsSegmentationsData).length > 0;
   const hasLocationsData = useHasLoader(
     loaders, dataset, DataType.OBS_LOCATIONS,
     { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
@@ -418,7 +442,7 @@ export function SpatialSubscriber(props) {
         }}
         setViewState={setViewState}
         imageLayerDefs={imageLayers}
-        obsSegmentationsLayerDefs={cellsLayer}
+        obsSegmentationsLayerDefs={tempLayer}
         obsLocationsLayerDefs={moleculesLayer}
         neighborhoodLayerDefs={neighborhoodsLayer}
         obsLocationsIndex={obsLocationsIndex}
@@ -427,8 +451,8 @@ export function SpatialSubscriber(props) {
         obsLocationsLabels={obsLocationsLabels}
         obsLocationsFeatureIndex={obsLocationsFeatureIndex}
         hasSegmentations={hasSegmentationsData}
-        obsSegmentations={obsSegmentations}
-        obsSegmentationsType={obsSegmentationsType}
+        obsSegmentations={obsSegmentationsData}
+        obsSegmentationsType={"bitmask"}
         obsCentroids={obsCentroids}
         obsCentroidsIndex={obsCentroidsIndex}
         cellFilter={cellFilter}

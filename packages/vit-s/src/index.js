@@ -42,6 +42,7 @@ export {
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useMultiObsLabels,
+  useMultiObsSegmentations,
 
   useObsLocationsData,
   useObsSegmentationsData,

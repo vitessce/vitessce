@@ -1,40 +1,69 @@
 
 
 const blinName = 'Blin et al., PLoS Biol 2019';
-const blinDescription = 'Mouse blastocysts imaged by confocal microscopy';
+const blinDescription = '18-142_PAS_1of6.ome.tif';
 export const blin2019 = {
-  version: '1.0.6',
+  version: '1.0.16',
   name: blinName,
   description: blinDescription,
-  public: true,
   datasets: [
     {
       uid: 'idr0062-blin-nuclearsegmentation/6001240',
       name: 'idr0062-blin-nuclearsegmentation/6001240',
       files: [
         {
-          fileType: 'image.ome-zarr',
-          url: 'https://minio-dev.openmicroscopy.org/idr/v0.3/idr0062-blin-nuclearsegmentation/6001240.zarr',
+          fileType: 'obsSegmentations.ome-tiff',
+          url: 'http://localhost:8000/18-142_PAS_1of6.pyramid.ome.tif',
           options: {
-            coordinateTransformations: [
-              {
-                type: 'translation',
-                translation: [1, 1],
-              },
-              {
-                type: 'scale',
-                scale: [0.5, 0.5, 0.5],
-              },
-            ],
+            channel: 2,
           },
+          coordinationValues: {
+            obsType: 'glomerulus',
+          },
+        },
+        {
+          fileType: 'obsSegmentations.ome-tiff',
+          url: 'http://localhost:8000/18-142_PAS_1of6.pyramid.ome.tif',
+          options: {
+            channel: 4,
+          },
+          coordinationValues: {
+            obsType: 'tubule',
+          },
+        },
+        {
+          fileType: 'image.ome-tiff',
+          url: 'http://localhost:8000/18-142_PAS_1of6_bf.ome.tif',
+          coordinationValues: {},
         },
       ],
     },
   ],
   initStrategy: 'auto',
+  coordinationSpace: {
+    obsType: {
+      A: 'glomerulus',
+      B: 'tubule',
+    },
+    spatialTargetX: {
+      A: 19375.01239458,
+    },
+    spatialTargetY: {
+      A: 18524.67196937,
+    },
+    spatialZoom: {
+      A: -4.60703913795,
+    },
+  },
   layout: [
     {
       component: 'spatial',
+      coordinationScopes: {
+        obsType: ['A', 'B'],
+        spatialTargetX: 'A',
+        spatialTargetY: 'A',
+        spatialZoom: 'A',
+      },
       x: 0,
       y: 0,
       w: 8,
@@ -42,17 +71,19 @@ export const blin2019 = {
     },
     {
       component: 'layerController',
+      props: {
+        disableChannelsIfRgbDetected: true,
+      },
+      coordinationScopes: {
+        obsType: ['A', 'B'],
+        spatialTargetX: 'A',
+        spatialTargetY: 'A',
+        spatialZoom: 'A',
+      },
       x: 8,
       y: 0,
       w: 4,
       h: 6,
-    },
-    {
-      component: 'description',
-      x: 8,
-      y: 6,
-      w: 4,
-      h: 3,
     },
     {
       component: 'status',
