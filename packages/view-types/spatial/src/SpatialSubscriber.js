@@ -42,7 +42,7 @@ const tempLayer = [{
   visible: true,
   channels: [
     {
-      selection: { t: 0, z: 0, c: undefined } // should fill in c.
+      selection: { t: 0, z: 0, c: undefined }, // should fill in c.
       visible: true,
       slider: [0, 1],
       color: [255, 255, 255],
@@ -155,7 +155,7 @@ export function SpatialSubscriber(props) {
   const [obsTypes, obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
     coordinationScopes, loaders, dataset, () => {},
   );
-  console.log(obsTypes, obsSegmentationsData, obsSegmentationsDataStatus);
+  //console.log(obsTypes, obsSegmentationsData, obsSegmentationsDataStatus);
 
   const hasExpressionData = useHasLoader(
     loaders, dataset, DataType.OBS_FEATURE_MATRIX,

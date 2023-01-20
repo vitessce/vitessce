@@ -514,16 +514,40 @@ class Spatial extends AbstractSpatialOrScatterplot {
       segmentationLayerCallbacks = [],
     } = this.props;
     if (obsSegmentations && obsSegmentationsType === 'bitmask' && Array.isArray(obsSegmentationsLayerDefs)) {
-      const { loaders = [] } = obsSegmentations;
+      const layer = {
+        ...obsSegmentationsLayerDefs[0],
+        channels: [
+          {
+            selection: { t: 0, z: 0, c: undefined }, // should fill in c.
+            visible: true,
+            slider: [0, 1],
+            color: [255, 255, 255],
+          },
+        ],
+      }
       const use3d = obsSegmentationsLayerDefs.some(i => i.use3d);
       const use3dIndex = obsSegmentationsLayerDefs.findIndex(i => i.use3d);
-      return obsSegmentationsLayerDefs
-        .filter(layer => (use3d ? layer.use3d === use3d : true))
-        .map((layer, i) => this.createRasterLayer(
-          { ...layer, callback: segmentationLayerCallbacks[use3d ? use3dIndex : i] },
-          loaders[layer.index],
+      return Object.entries(obsSegmentations)
+        //.filter(layer => (use3d ? layer.use3d === use3d : true))
+        .map(([obsTypeScope, obsTypeObj], i) => {
+          console.log(obsTypeObj, obsTypeObj.obsSegmentations.meta[layer.index].channel)
+          return this.createRasterLayer(
+          {
+            ...obsSegmentationsLayerDefs[0],
+            channels: [
+              {
+                selection: { t: 0, z: 0, c: obsTypeObj.obsSegmentations.meta[layer.index].channel }, // should fill in c.
+                visible: true,
+                slider: [0, 1],
+                color: [255, 255, 255],
+              },
+            ],
+            callback: segmentationLayerCallbacks[use3d ? use3dIndex : i],
+          },
+          obsTypeObj.obsSegmentations.loaders[layer.index],
           i,
-        ));
+        )
+      });
     }
     return [];
   }

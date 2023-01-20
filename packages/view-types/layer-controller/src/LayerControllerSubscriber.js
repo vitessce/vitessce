@@ -3,7 +3,6 @@
 import React, {
   useCallback, useRef, forwardRef, useMemo,
 } from 'react';
-import plur from 'plur';
 import Grid from '@material-ui/core/Grid';
 import {
   TitleInfo,
@@ -20,7 +19,7 @@ import {
   useMultiObsSegmentations,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, STATUS } from '@vitessce/constants-internal';
-import { capitalize } from '@vitessce/utils';
+import { capitalize, pluralize } from '@vitessce/utils';
 import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/spatial-utils';
 import RasterChannelController from './RasterChannelController';
 import BitmaskChannelController from './BitmaskChannelController';
@@ -120,7 +119,7 @@ const LayerControllerMemoized = React.memo(
             && Object.entries(obsSegmentationsData).map(([obsTypeScope, obsTypeData], i) => {
               const index = 0;
               const obsType = obsTypes[obsTypeScope];
-              const obsTypeName = capitalize(plur(obsType));
+              const obsTypeName = capitalize(pluralize(obsType));
               const loader = obsTypeData?.obsSegmentations?.loaders?.[index];
               const layerMeta = obsTypeData?.obsSegmentations?.meta?.[index];
               const channelIndex = layerMeta.channel;
