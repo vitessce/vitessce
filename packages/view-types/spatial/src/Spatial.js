@@ -508,11 +508,49 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createBitmaskLayers() {
     const {
+      segmentationLayerScopes,
+      segmentationLayerValues,
+      segmentationLayerCoordination,
+
       obsSegmentationsLayerDefs,
       obsSegmentations,
       obsSegmentationsType,
       segmentationLayerCallbacks = [],
     } = this.props;
+    // TODO: do not hard-code obsSegmentations.A
+    if(obsSegmentations && obsSegmentations.A && segmentationLayerScopes && segmentationLayerValues && segmentationLayerCoordination) {
+      return segmentationLayerScopes.map((layerScope, i) => {
+        const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC } = segmentationLayerCoordination[0][layerScope];
+        const layerIndex = 0;
+        return this.createRasterLayer(
+          {
+            ...({
+              index: layerIndex,
+              colormap: null,
+              domainType: "Min/Max",
+              modelMatrix: undefined,
+              opacity,
+              renderingMode: "Additive",
+              transparentColor: null,
+              type: "bitmask",
+              use3d: false,
+              visible,
+            }),
+            channels: [
+              {
+                selection: { t: 0, z: 0, c: spatialTargetC }, // should fill in c.
+                visible: true,
+                slider: [0, 1],
+                color: [255, 255, 255],
+              },
+            ],
+            callback: segmentationLayerCallbacks[i],
+          },
+          obsSegmentations.A.obsSegmentations.loaders[layerIndex],
+          i,
+        );
+      });
+    }
     if (obsSegmentations && obsSegmentationsType === 'bitmask' && Array.isArray(obsSegmentationsLayerDefs)) {
       const layer = {
         ...obsSegmentationsLayerDefs[0],
@@ -783,6 +821,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'cellColorEncoding',
         'geneExpressionColormap',
         'segmentationLayerCallbacks',
+        'segmentationLayerScopes',
+        'segmentationLayerValues',
+        'segmentationLayerCoordination',
       ].some(shallowDiff)
     ) {
       // Cells layer props changed.

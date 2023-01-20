@@ -5,6 +5,39 @@
 - Re-implemented PR 1240 (coordinationScopesBy)
 - Added `MuData` file types.
 - Added a `uid` prop for `VitS` to fix Jupyter notebook style conflicts caused by multiple `Vitessce` widget instances loaded in the same `JupyterLab` session.
+- Added support for obsType-per-channel segmentation layers in spatial view
+```js
+coordinationScopes: {
+  // TODO: ensure that any coordinationScope value here that is an arrays has a key that is valid for coordinationScopesBy:
+  // - dataset
+  // - spatialRasterLayer
+  // - spatialBitmaskLayer
+  // - spatialPointLayer
+  // - spatialRasterChannel
+  dataset: 'A',
+  spatialSegmentationLayer: ['glomerulus', 'tubule'], // the ordering here will also dictate the render ordering
+},
+coordinationScopesBy: {
+  spatialSegmentationLayer: {
+    obsType: {
+      glomerulus: 'A',
+      tubule: 'B',
+    },
+    spatialTargetC: {
+      glomerulus: 'A',
+      tubule: 'B',
+    },
+    spatialLayerVisible: {
+      glomerulus: 'A',
+      tubule: 'B',
+    },
+    spatialLayerOpacity: {
+      glomerulus: 'A',
+      tubule: 'B',
+    },
+  },
+}
+```
 
 ### Changed
 - Converted all `rem` units to `px` to fix R/Python widget CSS bugs caused by different root style conflicts.

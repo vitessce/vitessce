@@ -14,21 +14,9 @@ export const blin2019 = {
         {
           fileType: 'obsSegmentations.ome-tiff',
           url: 'http://localhost:8000/18-142_PAS_1of6.pyramid.ome.tif',
-          options: {
-            channel: 2,
-          },
           coordinationValues: {
+            image: '18-142_PAS_1of6',
             obsType: 'glomerulus',
-          },
-        },
-        {
-          fileType: 'obsSegmentations.ome-tiff',
-          url: 'http://localhost:8000/18-142_PAS_1of6.pyramid.ome.tif',
-          options: {
-            channel: 4,
-          },
-          coordinationValues: {
-            obsType: 'tubule',
           },
         },
         {
@@ -41,9 +29,28 @@ export const blin2019 = {
   ],
   initStrategy: 'auto',
   coordinationSpace: {
+    image: {
+      A: '18-142_PAS_1of6',
+    },
+    spatialSegmentationLayer: {
+      glomerulus: 'glomerulus',
+      tubule: 'tubule',
+    },
     obsType: {
       A: 'glomerulus',
       B: 'tubule',
+    },
+    spatialTargetC: {
+      A: 2,
+      B: 4,
+    },
+    spatialLayerVisible: {
+      A: true,
+      B: true,
+    },
+    spatialLayerOpacity: {
+      A: 1,
+      B: 1,
     },
     spatialTargetX: {
       A: 19375.01239458,
@@ -63,6 +70,31 @@ export const blin2019 = {
         spatialTargetX: 'A',
         spatialTargetY: 'A',
         spatialZoom: 'A',
+        spatialSegmentationLayer: ['glomerulus', 'tubule'],
+      },
+      coordinationScopesBy: {
+        spatialSegmentationLayer: {
+          image: {
+            glomerulus: 'A',
+            tubule: 'A',
+          },
+          obsType: {
+            glomerulus: 'A',
+            tubule: 'B',
+          },
+          spatialTargetC: {
+            glomerulus: 'A',
+            tubule: 'B',
+          },
+          spatialLayerVisible: {
+            glomerulus: 'A',
+            tubule: 'B',
+          },
+          spatialLayerOpacity: {
+            glomerulus: 'A',
+            tubule: 'B',
+          },
+        },
       },
       x: 0,
       y: 0,
@@ -79,6 +111,31 @@ export const blin2019 = {
         spatialTargetX: 'A',
         spatialTargetY: 'A',
         spatialZoom: 'A',
+        spatialSegmentationLayer: ['glomerulus', 'tubule'],
+      },
+      coordinationScopesBy: {
+        spatialSegmentationLayer: {
+          image: {
+            glomerulus: 'A',
+            tubule: 'A',
+          },
+          obsType: {
+            glomerulus: 'A',
+            tubule: 'B',
+          },
+          spatialTargetC: {
+            glomerulus: 'A',
+            tubule: 'B',
+          },
+          spatialLayerVisible: {
+            glomerulus: 'A',
+            tubule: 'B',
+          },
+          spatialLayerOpacity: {
+            glomerulus: 'A',
+            tubule: 'B',
+          },
+        },
       },
       x: 8,
       y: 0,

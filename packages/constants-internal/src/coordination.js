@@ -62,6 +62,10 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.MOLECULE_HIGHLIGHT]: null,
   [CoordinationType.GATING_FEATURE_SELECTION_X]: null,
   [CoordinationType.GATING_FEATURE_SELECTION_Y]: null,
+  [CoordinationType.IMAGE]: null,
+  [CoordinationType.SPATIAL_TARGET_C]: null,
+  [CoordinationType.SPATIAL_LAYER_VISIBLE]: true,
+  [CoordinationType.SPATIAL_LAYER_OPACITY]: 1.0,
 };
 
 // The following coordination types should be
@@ -193,6 +197,10 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.MOLECULE_HIGHLIGHT,
+    CoordinationType.IMAGE,
+    CoordinationType.SPATIAL_TARGET_C,
+    CoordinationType.SPATIAL_LAYER_VISIBLE,
+    CoordinationType.SPATIAL_LAYER_OPACITY,
   ],
   [ViewType.HEATMAP]: [
     CoordinationType.DATASET,
@@ -291,6 +299,10 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_ROTATION_Z,
     CoordinationType.SPATIAL_ROTATION_ORBIT,
     CoordinationType.SPATIAL_ORBIT_AXIS,
+    CoordinationType.IMAGE,
+    CoordinationType.SPATIAL_TARGET_C,
+    CoordinationType.SPATIAL_LAYER_VISIBLE,
+    CoordinationType.SPATIAL_LAYER_OPACITY,
   ],
   [ViewType.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,

@@ -167,6 +167,10 @@ export const CoordinationType = {
   GATING_FEATURE_SELECTION_X: 'gatingFeatureSelectionX',
   GATING_FEATURE_SELECTION_Y: 'gatingFeatureSelectionY',
   FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'featureValueTransformCoefficient',
+  IMAGE: 'image',
+  SPATIAL_TARGET_C: 'spatialTargetC',
+  SPATIAL_LAYER_VISIBLE: 'spatialLayerVisible',
+  SPATIAL_LAYER_OPACITY: 'spatialLayerOpacity',
 };
 
 export const STATUS = {

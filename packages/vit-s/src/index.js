@@ -18,6 +18,7 @@ export {
 export {
   useCoordination,
   useComplexCoordination,
+  useComplexCoordinationSecondary,
   useMultiCoordinationValues,
   useMultiDatasetCoordination,
   useDatasetUids,

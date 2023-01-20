@@ -17,8 +17,11 @@ import {
   useComponentLayout,
   registerPluginViewType,
   useMultiObsSegmentations,
+  useComplexCoordination,
+  useMultiCoordinationValues,
+  useComplexCoordinationSecondary,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES, STATUS } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, STATUS, CoordinationType } from '@vitessce/constants-internal';
 import { capitalize, pluralize } from '@vitessce/utils';
 import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/spatial-utils';
 import RasterChannelController from './RasterChannelController';
@@ -26,6 +29,7 @@ import BitmaskChannelController from './BitmaskChannelController';
 import VectorLayerController from './VectorLayerController';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
+import SplitVectorLayerController from './SplitVectorLayerController';
 
 // LayerController is memoized to prevent updates from prop changes that
 // are caused by view state updates i.e zooming and panning within
@@ -54,6 +58,10 @@ const LayerControllerMemoized = React.memo(
       setAreLoadingImageChannels,
       handleRasterLayerChange,
       handleRasterLayerRemove,
+
+      segmentationLayerScopes,
+      segmentationLayerValues,
+      segmentationLayerCoordination,
       
       obsTypes,
       obsSegmentationsStatus,
@@ -115,110 +123,30 @@ const LayerControllerMemoized = React.memo(
             />
           )}
           {/* Segmentation bitmask layers: */}
-          {obsSegmentationsStatus === STATUS.SUCCESS
-            && Object.entries(obsSegmentationsData).map(([obsTypeScope, obsTypeData], i) => {
-              const index = 0;
-              const obsType = obsTypes[obsTypeScope];
+          {segmentationLayerScopes && segmentationLayerValues
+            && segmentationLayerScopes.map((layerScope) => {
+              const { obsType, spatialLayerVisible: visible, spatialLayerOpacity: opacity } = segmentationLayerCoordination[0][layerScope];
+              const { setSpatialLayerVisible: setVisible, setSpatialLayerOpacity: setOpacity } = segmentationLayerCoordination[1][layerScope];
+
               const obsTypeName = capitalize(pluralize(obsType));
-              const loader = obsTypeData?.obsSegmentations?.loaders?.[index];
-              const layerMeta = obsTypeData?.obsSegmentations?.meta?.[index];
-              const channelIndex = layerMeta.channel;
 
-              const layer = {
-                index,
-                colormap: null,
-                domainType: "Min/Max",
-                modelMatrix: undefined,
-                opacity: 1,
-                renderingMode: "Additive",
-                transparentColor: null,
-                type: "bitmask",
-                use3d: false,
-                visible: true,
-                channels: [
-                  {
-                    selection: { t: 0, z: 0, c: channelIndex },
-                    visible: true,
-                    slider: [0, 1],
-                    color: [255, 255, 255],
-                  },
-                ],
-              };
+              //const index = 0;
+              //const loader = obsTypeData?.obsSegmentations?.loaders?.[index];
+              //const layerMeta = obsTypeData?.obsSegmentations?.meta?.[index];
+              //const loader = null;
+              //const layerMeta = null;
+              //const channelIndex = segmentationLayerCoordination[0][layerScope].spatialTargetC;
 
-              const isRaster = false;
-              // Set up the call back mechanism so that each layer manages
-              // callbacks/loading state for itself and its channels.
-              const setSegmentationLayerCallback = (cb) => {
-                const newRasterLayersCallbacks = [
-                  ...(imageLayerCallbacks || []),
-                ];
-                newRasterLayersCallbacks[i] = cb;
-                setSegmentationLayerCallbacks(newRasterLayersCallbacks);
-              };
-              const areLayerChannelsLoading = (areLoadingSegmentationChannels || [])[i] || [];
-              const setAreLayerChannelsLoading = (v) => {
-                const newAreLoadingImageChannels = [
-                  ...(areLoadingSegmentationChannels || []),
-                ];
-                newAreLoadingImageChannels[i] = v;
-                setAreLoadingSegmentationChannels(newAreLoadingImageChannels);
-              };
-              return loader && layerMeta ? (
-                <Grid
-                  // eslint-disable-next-line react/no-array-index-key
-                  key={`${dataset}-raster-${index}-${i}`}
-                  item
-                  style={{ marginTop: '10px' }}
-                >
-                  <LayerController
-                    name={obsTypeName}
-                    layer={layer}
-                    loader={loader}
-                    theme={theme}
-                    handleLayerChange={v => handleSegmentationLayerChange(v, i)}
-                    handleLayerRemove={() => handleSegmentationLayerRemove(i)}
-                    ChannelController={BitmaskChannelController}
-                    shouldShowTransparentColor={isRaster}
-                    shouldShowDomain={isRaster}
-                    shouldShowColormap={isRaster}
-                    // Disable 3D if given explicit instructions to do so
-                    // or if another layer is using 3D mode.
-                    disable3d={
-                      globalDisable3d
-                      || (disable3d || []).indexOf(layerMeta.name) >= 0
-                      || (typeof layerIs3DIndex === 'number'
-                        && layerIs3DIndex !== -1
-                        && layerIs3DIndex !== i)
-                    }
-                    disabled={
-                      typeof layerIs3DIndex === 'number'
-                      && layerIs3DIndex !== -1
-                      && layerIs3DIndex !== i
-                    }
-                    disableChannelsIfRgbDetected={disableChannelsIfRgbDetected}
-                    imageLayerCallbacks={imageLayerCallbacks}
-                    setImageLayerCallback={setSegmentationLayerCallback}
-                    setViewState={({
-                      zoom: newZoom,
-                      target,
-                      rotationX: newRotationX,
-                      rotationOrbit: newRotationOrbit,
-                    }) => {
-                      setZoom(newZoom);
-                      setTargetX(target[0]);
-                      setTargetY(target[1]);
-                      setTargetZ(target[2]);
-                      setRotationX(newRotationX);
-                      setRotationOrbit(newRotationOrbit);
-                    }}
-                    setAreLayerChannelsLoading={setAreLayerChannelsLoading}
-                    areLayerChannelsLoading={areLayerChannelsLoading}
-                    spatialHeight={(componentHeight * (spatialLayout ? spatialLayout.h : 1)) / 12}
-                    spatialWidth={(componentWidth * (spatialLayout ? spatialLayout.w : 1)) / 12}
-                    shouldShowRemoveLayerButton={shouldShowImageLayerButton}
-                  />
-                </Grid>
-              ) : null;
+              return (
+                <SplitVectorLayerController
+                  key={layerScope}
+                  label={obsTypeName}
+                  opacity={opacity}
+                  setOpacity={setOpacity}
+                  visible={visible}
+                  setVisible={setVisible}
+                />
+              );
             })}
           {/* Image layers: */}
           {rasterLayers
@@ -336,6 +264,7 @@ const LayerControllerMemoized = React.memo(
 export function LayerControllerSubscriber(props) {
   const {
     coordinationScopes,
+    coordinationScopesBy,
     removeGridComponent,
     theme,
     title = 'Spatial Layers',
@@ -370,6 +299,27 @@ export function LayerControllerSubscriber(props) {
   ] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER],
     coordinationScopes,
+  );
+
+  // Normalize arrays and non-arrays to always be arrays.
+  const segmentationLayerValues = useMultiCoordinationValues(
+    CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+    coordinationScopes,
+  );
+  const segmentationLayerScopes = coordinationScopes.spatialSegmentationLayer;
+
+  // Object keys are coordination scope names for spatialSegmentationLayer.
+  const segmentationLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.IMAGE,
+      CoordinationType.SPATIAL_TARGET_C,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_SEGMENTATION_LAYER,
   );
 
   const [
@@ -497,6 +447,10 @@ export function LayerControllerSubscriber(props) {
       setAreLoadingImageChannels={setAreLoadingImageChannels}
       handleRasterLayerChange={handleRasterLayerChange}
       handleRasterLayerRemove={handleRasterLayerRemove}
+
+      segmentationLayerScopes={segmentationLayerScopes}
+      segmentationLayerValues={segmentationLayerValues}
+      segmentationLayerCoordination={segmentationLayerCoordination}
 
       obsTypes={obsTypes}
       obsSegmentationsStatus={obsSegmentationsDataStatus}

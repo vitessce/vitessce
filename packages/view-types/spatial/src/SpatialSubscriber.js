@@ -20,10 +20,12 @@ import {
   useHasLoader,
   registerPluginViewType,
   useMultiObsSegmentations,
+  useComplexCoordination,
+  useMultiCoordinationValues,
 } from '@vitessce/vit-s';
 import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
 import { canLoadResolution, getCellColors } from '@vitessce/utils';
-import { COMPONENT_COORDINATION_TYPES, ViewType, DataType } from '@vitessce/constants-internal';
+import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, CoordinationType } from '@vitessce/constants-internal';
 import Spatial from './Spatial';
 import SpatialOptions from './SpatialOptions';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
@@ -64,6 +66,7 @@ export function SpatialSubscriber(props) {
   const {
     uuid,
     coordinationScopes,
+    coordinationScopesBy,
     removeGridComponent,
     observationsLabelOverride,
     subobservationsLabelOverride: subobservationsLabel = 'molecule',
@@ -132,6 +135,27 @@ export function SpatialSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
+
+  // Normalize arrays and non-arrays to always be arrays.
+  const segmentationLayerValues = useMultiCoordinationValues(
+    CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+    coordinationScopes,
+  );
+  const segmentationLayerScopes = coordinationScopes.spatialSegmentationLayer;
+
+  // Object keys are coordination scope names for spatialSegmentationLayer.
+  const segmentationLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.IMAGE,
+      CoordinationType.SPATIAL_TARGET_C,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+  );
 
   const [
     {
@@ -451,6 +475,11 @@ export function SpatialSubscriber(props) {
         obsLocationsLabels={obsLocationsLabels}
         obsLocationsFeatureIndex={obsLocationsFeatureIndex}
         hasSegmentations={hasSegmentationsData}
+
+        segmentationLayerScopes={segmentationLayerScopes}
+        segmentationLayerValues={segmentationLayerValues}
+        segmentationLayerCoordination={segmentationLayerCoordination}
+        
         obsSegmentations={obsSegmentationsData}
         obsSegmentationsType={"bitmask"}
         obsCentroids={obsCentroids}

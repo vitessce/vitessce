@@ -331,6 +331,37 @@ export function useComplexCoordination(
 }
 
 /**
+ * Use a second level of complex coordination.
+ * @param {string[]} parameters Array of coordination types.
+ * @param {object} coordinationScopesBy The coordinationScopesBy object from the view definition.
+ * @param {string} primaryType The first-level coordination type, such as spatialImageLayer.
+ * @param {string} secondaryType The second-level coordination type, such as spatialImageChannel.
+ * @returns The results of useComplexCoordination.
+ */
+export function useComplexCoordinationSecondary(
+  parameters, coordinationScopesBy, primaryType, secondaryType,
+) {
+  const coordinationScopesFake = useMemo(() => ({
+    [secondaryType]: Object.values(coordinationScopesBy[primaryType][secondaryType]).flat(),
+  }), [coordinationScopesBy, primaryType, secondaryType]);
+  const flatResult = useComplexCoordination(
+    parameters, coordinationScopesFake, coordinationScopesBy, secondaryType,
+  );
+  // Re-nest
+  const result = [{}, {}];
+  Object.entries(coordinationScopesBy[primaryType][secondaryType])
+    .forEach(([layerScope, channelScopes]) => {
+      result[0][layerScope] = {};
+      result[1][layerScope] = {};
+      channelScopes.forEach((channelScope) => {
+        result[0][layerScope][channelScope] = flatResult[0][channelScope];
+        result[1][layerScope][channelScope] = flatResult[1][channelScope];
+      });
+    });
+  return result;
+}
+
+/**
  * Use coordination values and coordination setter functions corresponding to
  * dataset-specific coordination scopes for each coordination type.
  * @param {string[]} parameters An array of coordination types supported by a view.
