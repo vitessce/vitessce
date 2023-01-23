@@ -106,6 +106,8 @@ export const FileType = {
  * to help prevent typos.
  */
 export const CoordinationType = {
+  META_COORDINATION_SCOPES: 'metaCoordinationScopes',
+  META_COORDINATION_SCOPES_BY: 'metaCoordinationScopesBy',
   DATASET: 'dataset',
   // Entity types
   OBS_TYPE: 'obsType',

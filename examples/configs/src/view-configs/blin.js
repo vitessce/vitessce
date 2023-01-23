@@ -61,18 +61,14 @@ export const blin2019 = {
     spatialZoom: {
       A: -4.60703913795,
     },
-  },
-  layout: [
-    {
-      component: 'spatial',
-      coordinationScopes: {
+    metaCoordinationScopes: {
+      metaA: {
         obsType: ['A', 'B'],
-        spatialTargetX: 'A',
-        spatialTargetY: 'A',
-        spatialZoom: 'A',
         spatialSegmentationLayer: ['glomerulus', 'tubule'],
       },
-      coordinationScopesBy: {
+    },
+    metaCoordinationScopesBy: {
+      metaA: {
         spatialSegmentationLayer: {
           image: {
             glomerulus: 'A',
@@ -95,6 +91,18 @@ export const blin2019 = {
             tubule: 'B',
           },
         },
+      },
+    },
+  },
+  layout: [
+    {
+      component: 'spatial',
+      coordinationScopes: {
+        metaCoordinationScopes: ['metaA'],
+        metaCoordinationScopesBy: ['metaA'],
+        spatialTargetX: 'A',
+        spatialTargetY: 'A',
+        spatialZoom: 'A',
       },
       x: 0,
       y: 0,

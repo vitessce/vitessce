@@ -21,6 +21,7 @@ import {
   registerPluginViewType,
   useMultiObsSegmentations,
   useComplexCoordination,
+  useMultiCoordinationScopes,
   useMultiCoordinationValues,
 } from '@vitessce/vit-s';
 import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
@@ -141,7 +142,10 @@ export function SpatialSubscriber(props) {
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
     coordinationScopes,
   );
-  const segmentationLayerScopes = coordinationScopes.spatialSegmentationLayer;
+  const segmentationLayerScopes = useMultiCoordinationScopes(
+    CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+    coordinationScopes,
+  );
 
   // Object keys are coordination scope names for spatialSegmentationLayer.
   const segmentationLayerCoordination = useComplexCoordination(
@@ -156,6 +160,8 @@ export function SpatialSubscriber(props) {
     coordinationScopesBy,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
   );
+
+  console.log(segmentationLayerValues, segmentationLayerScopes, segmentationLayerCoordination);
 
   const [
     {

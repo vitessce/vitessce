@@ -66,6 +66,8 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.SPATIAL_TARGET_C]: null,
   [CoordinationType.SPATIAL_LAYER_VISIBLE]: true,
   [CoordinationType.SPATIAL_LAYER_OPACITY]: 1.0,
+  [CoordinationType.META_COORDINATION_SCOPES]: null,
+  [CoordinationType.META_COORDINATION_SCOPES_BY]: null,
 };
 
 // The following coordination types should be
@@ -165,6 +167,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.GATING_FEATURE_SELECTION_Y,
   ],
   [ViewType.SPATIAL]: [
+    CoordinationType.META_COORDINATION_SCOPES,
+    CoordinationType.META_COORDINATION_SCOPES_BY,
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.OBS_LABELS_TYPE,
@@ -282,6 +286,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_SELECTION,
   ],
   [ViewType.LAYER_CONTROLLER]: [
+    CoordinationType.META_COORDINATION_SCOPES,
+    CoordinationType.META_COORDINATION_SCOPES_BY,
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
