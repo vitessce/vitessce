@@ -155,13 +155,14 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_TARGET_C,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.SPATIAL_CHANNEL_COLOR,
     ],
     coordinationScopes,
     coordinationScopesBy,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
   );
 
-  console.log(segmentationLayerValues, segmentationLayerScopes, segmentationLayerCoordination);
+  console.log(segmentationLayerCoordination);
 
   const [
     {

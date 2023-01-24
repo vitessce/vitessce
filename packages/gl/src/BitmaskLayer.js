@@ -18,6 +18,7 @@ function padWithDefault(arr, defaultValue, padWidth) {
 }
 
 const defaultProps = {
+  channelColors: { type: 'array', value: null, compare: true },
   hoveredCell: { type: 'number', value: null, compare: true },
   cellColorData: { type: 'object', value: null, compare: true },
   colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
@@ -101,6 +102,7 @@ export default class BitmaskLayer extends XRLayer {
   draw(opts) {
     const { uniforms } = opts;
     const {
+      channelColors,
       channelsVisible,
       hoveredCell,
       colorScaleLo,
@@ -115,6 +117,8 @@ export default class BitmaskLayer extends XRLayer {
       model
         .setUniforms(
           Object.assign({}, uniforms, {
+            color0: channelColors[0].map(v => v / 255),
+            // TODO: colors 1-5
             hovered: hoveredCell || 0,
             colorTex,
             expressionTex,
@@ -128,6 +132,7 @@ export default class BitmaskLayer extends XRLayer {
             ),
             uColorScaleRange: [colorScaleLo, colorScaleHi],
             uIsExpressionMode: isExpressionMode,
+            uIsColorMode: true,
             ...textures,
           }),
         )

@@ -28,6 +28,7 @@ export function PopperMenu(props) {
     children,
     buttonClassName,
     placement = 'bottom-end',
+    withPaper = true,
   } = props;
   const classes = useStyles();
 
@@ -67,9 +68,11 @@ export function PopperMenu(props) {
         {({ TransitionProps }) => (
           <ClickAwayListener onClickAway={handleClose}>
             <Fade {...TransitionProps} timeout={100}>
-              <Paper elevation={4} className={classes.paper}>
-                <MenuList>{children}</MenuList>
-              </Paper>
+              {withPaper ? (
+                <Paper elevation={4} className={classes.paper}>
+                  <MenuList>{children}</MenuList>
+                </Paper>
+              ) : children}
             </Fade>
           </ClickAwayListener>
         )}

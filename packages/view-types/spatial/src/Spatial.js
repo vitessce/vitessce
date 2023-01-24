@@ -424,6 +424,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         id: `bitmask-layer-${layerDef.index}-${i}`,
         channelsVisible: layerProps.visibilities,
         opacity: layerProps.opacity,
+        channelColors: layerProps.colors,
         modelMatrix,
         hoveredCell: Number(this.props.cellHighlight),
         renderSubLayers: renderSubBitmaskLayers,
@@ -520,7 +521,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // TODO: do not hard-code obsSegmentations.A
     if(obsSegmentations && obsSegmentations.A && segmentationLayerScopes && segmentationLayerValues && segmentationLayerCoordination) {
       return segmentationLayerScopes.map((layerScope, i) => {
-        const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC } = segmentationLayerCoordination[0][layerScope];
+        const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC, spatialChannelColor } = segmentationLayerCoordination[0][layerScope];
         const layerIndex = 0;
         return this.createRasterLayer(
           {
@@ -541,7 +542,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
                 selection: { t: 0, z: 0, c: spatialTargetC }, // should fill in c.
                 visible: true,
                 slider: [0, 1],
-                color: [255, 255, 255],
+                color: spatialChannelColor,
               },
             ],
             callback: segmentationLayerCallbacks[i],
@@ -568,7 +569,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       return Object.entries(obsSegmentations)
         //.filter(layer => (use3d ? layer.use3d === use3d : true))
         .map(([obsTypeScope, obsTypeObj], i) => {
-          console.log(obsTypeObj, obsTypeObj.obsSegmentations.meta[layer.index].channel)
           return this.createRasterLayer(
           {
             ...obsSegmentationsLayerDefs[0],

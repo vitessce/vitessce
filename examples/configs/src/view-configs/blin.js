@@ -14,6 +14,9 @@ export const blin2019 = {
         {
           fileType: 'obsSegmentations.ome-tiff',
           url: 'http://localhost:8000/18-142_PAS_1of6.pyramid.ome.tif',
+          options: {
+            offsetsUrl: 'http://localhost:8000/18-142_PAS_1of6.pyramid.offsets.json',
+          },
           coordinationValues: {
             image: '18-142_PAS_1of6',
             obsType: 'glomerulus',
@@ -22,6 +25,9 @@ export const blin2019 = {
         {
           fileType: 'image.ome-tiff',
           url: 'http://localhost:8000/18-142_PAS_1of6_bf.ome.tif',
+          options: {
+            offsetsUrl: 'http://localhost:8000/18-142_PAS_1of6_bf.offsets.json',
+          },
           coordinationValues: {},
         },
       ],
@@ -51,6 +57,10 @@ export const blin2019 = {
     spatialLayerOpacity: {
       A: 1,
       B: 1,
+    },
+    spatialChannelColor: {
+      A: [255, 0, 0],
+      B: [0, 0, 255],
     },
     spatialTargetX: {
       A: 19375.01239458,
@@ -87,6 +97,10 @@ export const blin2019 = {
             tubule: 'B',
           },
           spatialLayerOpacity: {
+            glomerulus: 'A',
+            tubule: 'B',
+          },
+          spatialChannelColor: {
             glomerulus: 'A',
             tubule: 'B',
           },
@@ -140,6 +154,10 @@ export const blin2019 = {
             tubule: 'B',
           },
           spatialLayerOpacity: {
+            glomerulus: 'A',
+            tubule: 'B',
+          },
+          spatialChannelColor: {
             glomerulus: 'A',
             tubule: 'B',
           },
