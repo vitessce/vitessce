@@ -18,6 +18,7 @@ function padWithDefault(arr, defaultValue, padWidth) {
 }
 
 const defaultProps = {
+  channelOpacities: { type: 'array', value: null, compare: true},
   channelColors: { type: 'array', value: null, compare: true },
   hoveredCell: { type: 'number', value: null, compare: true },
   cellColorData: { type: 'object', value: null, compare: true },
@@ -102,6 +103,7 @@ export default class BitmaskLayer extends XRLayer {
   draw(opts) {
     const { uniforms } = opts;
     const {
+      channelOpacities,
       channelColors,
       channelsVisible,
       hoveredCell,
@@ -118,6 +120,13 @@ export default class BitmaskLayer extends XRLayer {
         .setUniforms(
           Object.assign({}, uniforms, {
             color0: channelColors[0].map(v => v / 255),
+            color1: channelColors[1].map(v => v / 255),
+            channelOpacities: padWithDefault(
+              channelOpacities,
+              0.0,
+              // There are six texture entries on the shaders
+              6 - channelOpacities.length,
+            ),
             // TODO: colors 1-5
             hovered: hoveredCell || 0,
             colorTex,

@@ -43,6 +43,7 @@ uniform float colorTexWidth;
 uniform float hovered;
 // range
 uniform bool channelsVisible[6];
+uniform float channelOpacities[6];
 
 // Expression mapping
 uniform vec2 uColorScaleRange;
@@ -53,6 +54,7 @@ uniform sampler2D expressionTex;
 // Static colors
 // For some reason I cannot use uniform vec3 colors[6]; and i cannot figure out why.
 uniform vec3 color0;
+uniform vec3 color1;
 
 
 // opacity
@@ -60,7 +62,7 @@ uniform float opacity;
 
 varying vec2 vTexCoord;
 
-vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 someColor) {
+vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelColor, float channelOpacity) {
   float sampledData = texture(dataTex, coord).r;
   vec4 hoveredColor = float(sampledData == hovered && sampledData > 0. && hovered > 0.) * vec4(0., 0., 1., 1.);
   // Colors are laid out corresponding to ids in row-major order in the texture.  So if width of the texture is 10, and you want ID 25,
@@ -69,14 +71,16 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 someColor)
   float expressionValue = texture(expressionTex, colorTexCoord).r / 255.;
   float scaledExpressionValue = (expressionValue - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
   vec4 sampledColor = float(uIsExpressionMode) * COLORMAP_FUNC(clamp(scaledExpressionValue, 0.0, 1.0)) + (1. - float(uIsExpressionMode)) * vec4(texture(colorTex, colorTexCoord).rgb, 1.);
-  vec4 newColor = float(uIsColorMode) * vec4(someColor.rgb, 1.) + (1. - float(uIsColorMode)) * sampledColor;
+  vec4 newColor = float(uIsColorMode) * vec4(channelColor.rgb, channelOpacity) + (1. - float(uIsColorMode)) * sampledColor;
   // Only return a color if the data is non-zero.
   return max(0., min(sampledData, 1.)) * float(isOn) * newColor;
 }
 
 void main() {
 
-  gl_FragColor = sampleAndGetColor(channel0, vTexCoord, channelsVisible[0], color0);
+  gl_FragColor = sampleAndGetColor(channel0, vTexCoord, channelsVisible[0], color0, channelOpacities[0]);
+  vec4 sampledColor = sampleAndGetColor(channel1, vTexCoord, channelsVisible[1], color1, channelOpacities[1]);
+  gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
 
   // If the sampled color and the currently stored color (gl_FragColor) are identical, don't blend and use the sampled color,
   // otherwise just use the currently stored color.  Repeat this for all channels.
@@ -91,7 +95,9 @@ void main() {
   // sampledColor = sampleAndGetColor(channel5, vTexCoord, channelsVisible[5], channelColors[5]);
   // gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
   // Apply the opacity if there is pixel data, and if the pixel data is empty i.e no segmentation, use 0 opacity.
-  gl_FragColor = vec4(gl_FragColor.rgb, (gl_FragColor.rgb == vec3(0., 0., 0.)) ? 0.0 : opacity);
+  if(!uIsColorMode) {
+    gl_FragColor = vec4(gl_FragColor.rgb, (gl_FragColor.rgb == vec3(0., 0., 0.)) ? 0.0 : opacity);
+  }
 
   geometry.uv = vTexCoord;
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);

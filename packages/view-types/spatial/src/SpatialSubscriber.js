@@ -162,7 +162,7 @@ export function SpatialSubscriber(props) {
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
   );
 
-  console.log(segmentationLayerCoordination);
+  //console.log(segmentationLayerCoordination);
 
   const [
     {

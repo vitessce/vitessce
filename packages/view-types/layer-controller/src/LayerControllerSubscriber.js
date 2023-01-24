@@ -19,6 +19,7 @@ import {
   useMultiObsSegmentations,
   useComplexCoordination,
   useMultiCoordinationValues,
+  useMultiCoordinationScopes,
   useComplexCoordinationSecondary,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, STATUS, CoordinationType } from '@vitessce/constants-internal';
@@ -308,7 +309,10 @@ export function LayerControllerSubscriber(props) {
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
     coordinationScopes,
   );
-  const segmentationLayerScopes = coordinationScopes.spatialSegmentationLayer;
+  const segmentationLayerScopes = useMultiCoordinationScopes(
+    CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+    coordinationScopes,
+  );
 
   // Object keys are coordination scope names for spatialSegmentationLayer.
   const segmentationLayerCoordination = useComplexCoordination(

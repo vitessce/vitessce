@@ -386,6 +386,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       transparentColor,
       colors: layerDef.channels.map(c => c.color),
       sliders: layerDef.channels.map(c => c.slider),
+      opacities: layerDef.channels.map(c => c.opacity),
       resolution: layerDef.resolution,
       renderingMode: layerDef.renderingMode,
       xSlice: layerDef.xSlice,
@@ -423,6 +424,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
         id: `bitmask-layer-${layerDef.index}-${i}`,
         channelsVisible: layerProps.visibilities,
+        channelOpacities: layerProps.opacities,
         opacity: layerProps.opacity,
         channelColors: layerProps.colors,
         modelMatrix,
@@ -520,6 +522,38 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } = this.props;
     // TODO: do not hard-code obsSegmentations.A
     if(obsSegmentations && obsSegmentations.A && segmentationLayerScopes && segmentationLayerValues && segmentationLayerCoordination) {
+      const layerIndex = 0;
+      return [
+        this.createRasterLayer(
+          {
+            ...({
+              index: layerIndex,
+              colormap: null,
+              domainType: "Min/Max",
+              modelMatrix: undefined,
+              opacity: 1.0,
+              renderingMode: "Additive",
+              transparentColor: null,
+              type: "bitmask",
+              use3d: false,
+              visible: true,
+            }),
+            channels: segmentationLayerScopes.map((layerScope, i) => {
+              const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC, spatialChannelColor } = segmentationLayerCoordination[0][layerScope];
+              return {
+                selection: { t: 0, z: 0, c: spatialTargetC }, // should fill in c.
+                visible: visible,
+                opacity: opacity,
+                slider: [0, 1],
+                color: spatialChannelColor,
+              };
+            }),
+            callback: segmentationLayerCallbacks[0],
+          },
+          obsSegmentations.A.obsSegmentations.loaders[layerIndex],
+          0,
+        ),
+      ];
       return segmentationLayerScopes.map((layerScope, i) => {
         const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC, spatialChannelColor } = segmentationLayerCoordination[0][layerScope];
         const layerIndex = 0;
@@ -552,6 +586,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         );
       });
     }
+    return [];
     if (obsSegmentations && obsSegmentationsType === 'bitmask' && Array.isArray(obsSegmentationsLayerDefs)) {
       const layer = {
         ...obsSegmentationsLayerDefs[0],

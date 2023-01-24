@@ -129,39 +129,11 @@ export const blin2019 = {
         disableChannelsIfRgbDetected: true,
       },
       coordinationScopes: {
-        obsType: ['A', 'B'],
+        metaCoordinationScopes: ['metaA'],
+        metaCoordinationScopesBy: ['metaA'],
         spatialTargetX: 'A',
         spatialTargetY: 'A',
         spatialZoom: 'A',
-        spatialSegmentationLayer: ['glomerulus', 'tubule'],
-      },
-      coordinationScopesBy: {
-        spatialSegmentationLayer: {
-          image: {
-            glomerulus: 'A',
-            tubule: 'A',
-          },
-          obsType: {
-            glomerulus: 'A',
-            tubule: 'B',
-          },
-          spatialTargetC: {
-            glomerulus: 'A',
-            tubule: 'B',
-          },
-          spatialLayerVisible: {
-            glomerulus: 'A',
-            tubule: 'B',
-          },
-          spatialLayerOpacity: {
-            glomerulus: 'A',
-            tubule: 'B',
-          },
-          spatialChannelColor: {
-            glomerulus: 'A',
-            tubule: 'B',
-          },
-        },
       },
       x: 8,
       y: 0,
