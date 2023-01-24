@@ -126,10 +126,10 @@ const LayerControllerMemoized = React.memo(
           {/* Segmentation bitmask layers: */}
           {segmentationLayerScopes && segmentationLayerValues
             && segmentationLayerScopes.map((layerScope) => {
-              const { obsType, spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialChannelColor: color } = segmentationLayerCoordination[0][layerScope];
-              const { setSpatialLayerVisible: setVisible, setSpatialLayerOpacity: setOpacity, setSpatialChannelColor: setColor } = segmentationLayerCoordination[1][layerScope];
+              const { obsType, spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialLayerColor: color, spatialLayerFilled: filled } = segmentationLayerCoordination[0][layerScope];
+              const { setSpatialLayerVisible: setVisible, setSpatialLayerOpacity: setOpacity, setSpatialLayerColor: setColor, setSpatialLayerFilled: setFilled } = segmentationLayerCoordination[1][layerScope];
 
-              const obsTypeName = capitalize(pluralize(obsType));
+              const obsTypeName = obsType;
 
               //const index = 0;
               //const loader = obsTypeData?.obsSegmentations?.loaders?.[index];
@@ -148,6 +148,8 @@ const LayerControllerMemoized = React.memo(
                   setVisible={setVisible}
                   color={color}
                   setColor={setColor}
+                  filled={filled}
+                  setFilled={setFilled}
                 />
               );
             })}
@@ -275,6 +277,7 @@ export function LayerControllerSubscriber(props) {
     globalDisable3d,
     disableChannelsIfRgbDetected,
     enableLayerButtonsWithOneLayer,
+    obsSegmentationsMatchOn = 'image', // use obsType if split across multiple files or using polygons
   } = props;
 
   const loaders = useLoaders();
@@ -322,7 +325,8 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_TARGET_C,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
-      CoordinationType.SPATIAL_CHANNEL_COLOR,
+      CoordinationType.SPATIAL_LAYER_COLOR,
+      CoordinationType.SPATIAL_LAYER_FILLED,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -355,8 +359,9 @@ export function LayerControllerSubscriber(props) {
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
   const [obsTypes, obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
-    coordinationScopes, loaders, dataset, () => {},
+    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {}, obsSegmentationsMatchOn,
   );
+  // console.log(obsTypes, obsSegmentationsData, obsSegmentationsDataStatus)
 
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars

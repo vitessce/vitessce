@@ -35,6 +35,8 @@ uniform sampler2D channel2;
 uniform sampler2D channel3;
 uniform sampler2D channel4;
 uniform sampler2D channel5;
+uniform sampler2D channel6; // TODO: requires change in Viv or multiple layers
+uniform sampler2D channel7; // TODO: requires change in Viv or multiple layers
 
 // Color texture
 uniform sampler2D colorTex;
@@ -42,8 +44,8 @@ uniform float colorTexHeight;
 uniform float colorTexWidth;
 uniform float hovered;
 // range
-uniform bool channelsVisible[6];
-uniform float channelOpacities[6];
+uniform bool channelsVisible[8];
+uniform float channelOpacities[8];
 
 // Expression mapping
 uniform vec2 uColorScaleRange;
@@ -55,34 +57,46 @@ uniform sampler2D expressionTex;
 // For some reason I cannot use uniform vec3 colors[6]; and i cannot figure out why.
 uniform vec3 color0;
 uniform vec3 color1;
-// TODO: support the additional channels (up to 8)
+uniform vec3 color2;
+uniform vec3 color3;
+uniform vec3 color4;
+uniform vec3 color5;
+uniform vec3 color6;
+uniform vec3 color7;
 
 // Info for edge-only mode
 uniform float scaleFactor;
+uniform bool channelsFilled[8];
 
 // opacity
 uniform float opacity;
 
 varying vec2 vTexCoord;
 
-vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelColor, float channelOpacity) {
+vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelColor, float channelOpacity, bool isFilled) {
   float sampledData = texture(dataTex, coord).r;
 
-  // TODO: put the outline stuff behind a flag
-  vec2 uTextureSize = vec2(2048.0, 2048.0);
-  vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
+  bool isEdge = true;
 
-  // TODO: vary the edgeSize based on:
-  // - user-defined size value
-  // - current resolution being rendered (e.g., multiply by power of two for each higher resolution)
-  float edgeSize = 100.0 * scaleFactor;
+  if(!isFilled) {
+    vec2 uTextureSize = vec2(2048.0, 2048.0);
+    vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
 
-  float pixN = texture(dataTex, coord + vec2(0.0, onePixel.y * edgeSize)).r;
-  float pixS = texture(dataTex, coord - vec2(0.0, onePixel.y * edgeSize)).r;
-  float pixW = texture(dataTex, coord + vec2(onePixel.x * edgeSize, 0.0)).r;
-  float pixE = texture(dataTex, coord - vec2(onePixel.x * edgeSize, 0.0)).r;
+    // TODO: vary the edgeSize based on user-defined size value
+    float edgeSize = 150.0 * scaleFactor;
 
-  bool isEdge = (pixN != sampledData || pixS != sampledData || pixW != sampledData || pixE != sampledData);
+    float pixN = texture(dataTex, coord + vec2(0.0, onePixel.y * edgeSize)).r;
+    float pixS = texture(dataTex, coord - vec2(0.0, onePixel.y * edgeSize)).r;
+    float pixW = texture(dataTex, coord + vec2(onePixel.x * edgeSize, 0.0)).r;
+    float pixE = texture(dataTex, coord - vec2(onePixel.x * edgeSize, 0.0)).r;
+
+    float pixNW = texture(dataTex, coord + vec2(onePixel.y * edgeSize, onePixel.y * edgeSize)).r;
+    float pixNE = texture(dataTex, coord + vec2(-1.0 * onePixel.x * edgeSize, onePixel.y * edgeSize)).r;
+    float pixSW = texture(dataTex, coord - vec2(onePixel.x * edgeSize, onePixel.y * edgeSize)).r;
+    float pixSE = texture(dataTex, coord - vec2(-1.0 * onePixel.x * edgeSize, onePixel.y * edgeSize)).r;
+
+    isEdge = (pixN != sampledData || pixS != sampledData || pixW != sampledData || pixE != sampledData || pixNW != sampledData || pixNE != sampledData || pixSW != sampledData || pixSE != sampledData);
+  }
 
   vec4 hoveredColor = float(sampledData == hovered && sampledData > 0. && hovered > 0.) * vec4(0., 0., 1., 1.);
   // Colors are laid out corresponding to ids in row-major order in the texture.  So if width of the texture is 10, and you want ID 25,
@@ -98,9 +112,18 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelCol
 
 void main() {
 
-  gl_FragColor = sampleAndGetColor(channel0, vTexCoord, channelsVisible[0], color0, channelOpacities[0]);
-  vec4 sampledColor = sampleAndGetColor(channel1, vTexCoord, channelsVisible[1], color1, channelOpacities[1]);
+  gl_FragColor = sampleAndGetColor(channel0, vTexCoord, channelsVisible[0], color0, channelOpacities[0], channelsFilled[0]);
+  vec4 sampledColor = sampleAndGetColor(channel1, vTexCoord, channelsVisible[1], color1, channelOpacities[1], channelsFilled[1]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
+  sampledColor = sampleAndGetColor(channel2, vTexCoord, channelsVisible[2], color2, channelOpacities[2], channelsFilled[2]);
+  gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
+  sampledColor = sampleAndGetColor(channel3, vTexCoord, channelsVisible[3], color2, channelOpacities[3], channelsFilled[3]);
+  gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
+  sampledColor = sampleAndGetColor(channel4, vTexCoord, channelsVisible[4], color4, channelOpacities[4], channelsFilled[4]);
+  gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
+  sampledColor = sampleAndGetColor(channel5, vTexCoord, channelsVisible[5], color5, channelOpacities[5], channelsFilled[5]);
+  gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
+  // TODO channel6, channel7
 
   // TODO: support the additional channels (up to 8)
 

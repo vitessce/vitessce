@@ -9,6 +9,8 @@ import {
   COLORMAP_SHADER_PLACEHOLDER,
 } from './constants';
 
+const MAX_CHANNELS = 8;
+
 function padWithDefault(arr, defaultValue, padWidth) {
   const newArr = [...arr];
   for (let i = 0; i < padWidth; i += 1) {
@@ -17,8 +19,13 @@ function padWithDefault(arr, defaultValue, padWidth) {
   return newArr;
 }
 
+function getColor(arr) {
+  return arr ? arr.map(v => v / 255) : [0, 0, 0];
+}
+
 const defaultProps = {
-  channelOpacities: { type: 'array', value: null, compare: true},
+  channelsFilled: { type: 'array', value: null, compare: true },
+  channelOpacities: { type: 'array', value: null, compare: true },
   channelColors: { type: 'array', value: null, compare: true },
   hoveredCell: { type: 'number', value: null, compare: true },
   cellColorData: { type: 'object', value: null, compare: true },
@@ -103,6 +110,7 @@ export default class BitmaskLayer extends XRLayer {
   draw(opts) {
     const { uniforms } = opts;
     const {
+      channelsFilled,
       channelOpacities,
       channelColors,
       channelsVisible,
@@ -120,18 +128,30 @@ export default class BitmaskLayer extends XRLayer {
     } = this.state;
     // Render the image
     if (textures && model && colorTex) {
-      const scaleFactor = 1/(2**(maxZoom - zoom));
-      console.log(scaleFactor);
+      const scaleFactor = 1 / (2 ** (maxZoom - zoom));
       model
         .setUniforms(
           Object.assign({}, uniforms, {
-            color0: channelColors[0].map(v => v / 255),
-            color1: channelColors[1].map(v => v / 255),
+            color0: getColor(channelColors[0]),
+            color1: getColor(channelColors[1]),
+            color2: getColor(channelColors[2]),
+            color3: getColor(channelColors[3]),
+            color4: getColor(channelColors[4]),
+            color5: getColor(channelColors[5]),
+            color6: getColor(channelColors[6]),
+            color7: getColor(channelColors[7]),
+            // TODO: up to 8 colors
+            channelsFilled: padWithDefault(
+              channelsFilled,
+              true,
+              // There are six texture entries on the shaders
+              MAX_CHANNELS - channelsFilled.length,
+            ),
             channelOpacities: padWithDefault(
               channelOpacities,
               0.0,
               // There are six texture entries on the shaders
-              6 - channelOpacities.length,
+              MAX_CHANNELS - channelOpacities.length,
             ),
             // TODO: colors 1-5
             hovered: hoveredCell || 0,
@@ -143,11 +163,12 @@ export default class BitmaskLayer extends XRLayer {
               channelsVisible,
               false,
               // There are six texture entries on the shaders
-              6 - channelsVisible.length,
+              MAX_CHANNELS - channelsVisible.length,
             ),
             uColorScaleRange: [colorScaleLo, colorScaleHi],
             uIsExpressionMode: isExpressionMode,
             uIsColorMode: true,
+            uIsOutlined: false,
             scaleFactor,
             ...textures,
           }),

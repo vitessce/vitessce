@@ -76,6 +76,7 @@ export function SpatialSubscriber(props) {
     title = 'Spatial',
     disable3d,
     globalDisable3d,
+    obsSegmentationsMatchOn = 'image',
   } = props;
 
   const loaders = useLoaders();
@@ -155,7 +156,8 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_TARGET_C,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
-      CoordinationType.SPATIAL_CHANNEL_COLOR,
+      CoordinationType.SPATIAL_LAYER_COLOR,
+      CoordinationType.SPATIAL_LAYER_FILLED,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -184,9 +186,9 @@ export function SpatialSubscriber(props) {
   );
 
   const [obsTypes, obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
-    coordinationScopes, loaders, dataset, () => {},
+    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {}, obsSegmentationsMatchOn,
   );
-  //console.log(obsTypes, obsSegmentationsData, obsSegmentationsDataStatus);
+  // console.log(obsTypes, obsSegmentationsData, obsSegmentationsDataStatus);
 
   const hasExpressionData = useHasLoader(
     loaders, dataset, DataType.OBS_FEATURE_MATRIX,

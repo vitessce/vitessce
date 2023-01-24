@@ -173,7 +173,8 @@ export const CoordinationType = {
   SPATIAL_TARGET_C: 'spatialTargetC',
   SPATIAL_LAYER_VISIBLE: 'spatialLayerVisible',
   SPATIAL_LAYER_OPACITY: 'spatialLayerOpacity',
-  SPATIAL_CHANNEL_COLOR: 'spatialChannelColor',
+  SPATIAL_LAYER_COLOR: 'spatialLayerColor',
+  SPATIAL_LAYER_FILLED: 'spatialLayerFilled',
 };
 
 export const STATUS = {

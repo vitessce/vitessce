@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal';
 import { fromEntries } from '@vitessce/utils';
-import { useMatchingLoader, useMultiCoordinationValues, useSetWarning } from './state/hooks';
+import { useMatchingLoader, useMultiCoordinationValues, useComplexCoordination, useSetWarning } from './state/hooks';
 import {
   LoaderNotFoundError,
 } from './errors/index';
@@ -354,22 +354,34 @@ export function useMultiObsLabels(
 }
 
 export function useMultiObsSegmentations(
-  coordinationScopes, loaders, dataset, addUrl,
+  coordinationScopes, coordinationScopesBy, loaders, dataset, addUrl, shouldMatchOn,
 ) {
   const obsTypes = useMultiCoordinationValues(
     CoordinationType.OBS_TYPE,
     coordinationScopes,
   );
-  const obsTypeMatchOnObj = useMemo(() => fromEntries(
-    Object.entries(obsTypes).map(([scope, obsType]) => ([
+  const imageCoordination = useComplexCoordination(
+    [
+      CoordinationType.IMAGE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+  );
+  const matchOnObj = useMemo(() => (shouldMatchOn === 'obsType'
+    ? fromEntries(Object.entries(obsTypes).map(([scope, obsType]) => ([
       scope,
       { obsType },
-    ])),
-  ), [obsTypes]);
+    ])))
+    : imageCoordination[0]
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+  ), [obsTypes, coordinationScopes, coordinationScopesBy]);
   const [obsSegmentationsData, obsSegmentationsDataStatus] = useDataTypeMulti(
     DataType.OBS_SEGMENTATIONS, loaders, dataset,
     addUrl, false, {}, {},
-    obsTypeMatchOnObj,
+    matchOnObj,
   );
   return [obsTypes, obsSegmentationsData, obsSegmentationsDataStatus];
 }

@@ -68,7 +68,8 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.SPATIAL_LAYER_OPACITY]: 1.0,
   [CoordinationType.META_COORDINATION_SCOPES]: null,
   [CoordinationType.META_COORDINATION_SCOPES_BY]: null,
-  [CoordinationType.SPATIAL_CHANNEL_COLOR]: null,
+  [CoordinationType.SPATIAL_LAYER_COLOR]: null,
+  [CoordinationType.SPATIAL_LAYER_FILLED]: true,
 };
 
 // The following coordination types should be
@@ -206,7 +207,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_TARGET_C,
     CoordinationType.SPATIAL_LAYER_VISIBLE,
     CoordinationType.SPATIAL_LAYER_OPACITY,
-    CoordinationType.SPATIAL_CHANNEL_COLOR,
+    CoordinationType.SPATIAL_LAYER_COLOR,
+    CoordinationType.SPATIAL_LAYER_FILLED,
   ],
   [ViewType.HEATMAP]: [
     CoordinationType.DATASET,
@@ -311,7 +313,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_TARGET_C,
     CoordinationType.SPATIAL_LAYER_VISIBLE,
     CoordinationType.SPATIAL_LAYER_OPACITY,
-    CoordinationType.SPATIAL_CHANNEL_COLOR,
+    CoordinationType.SPATIAL_LAYER_COLOR,
+    CoordinationType.SPATIAL_LAYER_FILLED,
   ],
   [ViewType.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,

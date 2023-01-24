@@ -386,7 +386,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       transparentColor,
       colors: layerDef.channels.map(c => c.color),
       sliders: layerDef.channels.map(c => c.slider),
-      opacities: layerDef.channels.map(c => c.opacity),
+      opacities: layerDef.channels.map(c => c.opacity), // for bitmask
+      filled: layerDef.channels.map(c => c.filled), // for bitmask
       resolution: layerDef.resolution,
       renderingMode: layerDef.renderingMode,
       xSlice: layerDef.xSlice,
@@ -425,6 +426,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         id: `bitmask-layer-${layerDef.index}-${i}`,
         channelsVisible: layerProps.visibilities,
         channelOpacities: layerProps.opacities,
+        channelsFilled: layerProps.filled,
         opacity: layerProps.opacity,
         channelColors: layerProps.colors,
         modelMatrix,
@@ -520,8 +522,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsSegmentationsType,
       segmentationLayerCallbacks = [],
     } = this.props;
-    // TODO: do not hard-code obsSegmentations.A
-    if(obsSegmentations && obsSegmentations.A && segmentationLayerScopes && segmentationLayerValues && segmentationLayerCoordination) {
+    // console.log('obsSegmentations', obsSegmentations, segmentationLayerScopes, segmentationLayerCoordination)
+    if(obsSegmentations && Object.keys(obsSegmentations).length === segmentationLayerScopes.length && segmentationLayerScopes && segmentationLayerValues && segmentationLayerCoordination) {
       const layerIndex = 0;
       return [
         this.createRasterLayer(
@@ -539,23 +541,25 @@ class Spatial extends AbstractSpatialOrScatterplot {
               visible: true,
             }),
             channels: segmentationLayerScopes.map((layerScope, i) => {
-              const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC, spatialChannelColor } = segmentationLayerCoordination[0][layerScope];
+              const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC, spatialLayerColor, spatialLayerFilled } = segmentationLayerCoordination[0][layerScope];
               return {
                 selection: { t: 0, z: 0, c: spatialTargetC }, // should fill in c.
                 visible: visible,
                 opacity: opacity,
+                filled: spatialLayerFilled,
                 slider: [0, 1],
-                color: spatialChannelColor,
+                color: spatialLayerColor,
               };
             }),
             callback: segmentationLayerCallbacks[0],
           },
-          obsSegmentations.A.obsSegmentations.loaders[layerIndex],
+          // TODO: one loader passed here, which one?
+          obsSegmentations[segmentationLayerScopes[0]].obsSegmentations.loaders[layerIndex],
           0,
         ),
       ];
       return segmentationLayerScopes.map((layerScope, i) => {
-        const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC, spatialChannelColor } = segmentationLayerCoordination[0][layerScope];
+        const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC, spatialLayerColor } = segmentationLayerCoordination[0][layerScope];
         const layerIndex = 0;
         return this.createRasterLayer(
           {
@@ -576,7 +580,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
                 selection: { t: 0, z: 0, c: spatialTargetC }, // should fill in c.
                 visible: true,
                 slider: [0, 1],
-                color: spatialChannelColor,
+                color: spatialLayerColor,
               },
             ],
             callback: segmentationLayerCallbacks[i],

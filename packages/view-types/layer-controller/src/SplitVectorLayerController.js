@@ -137,7 +137,9 @@ export default function SplitVectorLayerController(props) {
     setVisible,
     color,
     setColor,
-    palette,
+    palette = null,
+    filled,
+    setFilled,
   } = props;
 
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
@@ -188,7 +190,10 @@ export default function SplitVectorLayerController(props) {
               palette={palette}
             />
           </Grid>
-          <Grid item xs={5} style={{ paddingRight: '8px' }}>
+          <Grid item xs={1}>
+            <Checkbox color="primary" checked={filled} onChange={(e, v) => setFilled(v)} />
+          </Grid>
+          <Grid item xs={4} style={{ paddingRight: '8px' }}>
             <Slider
               value={opacity}
               min={0}
