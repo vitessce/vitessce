@@ -162,9 +162,13 @@ export function renderSubBitmaskLayers(props) {
       left, top, right, bottom,
     },
     index: { x, y, z },
+    zoom,
   } = props.tile;
   const {
     data, id, loader,
+    maxZoom,
+    minZoom,
+    zoomOffset,
   } = props;
   // Only render in positive coorinate system
   if ([left, bottom, right, top].some(v => v < 0) || !data) {
@@ -191,5 +195,9 @@ export function renderSubBitmaskLayers(props) {
     bounds,
     id: `sub-layer-${bounds}-${id}`,
     tileId: { x, y, z },
+    zoom,
+    minZoom,
+    maxZoom,
+    zoomOffset, // TODO: figure out if this needs to be used or not
   });
 }

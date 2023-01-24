@@ -55,7 +55,10 @@ uniform sampler2D expressionTex;
 // For some reason I cannot use uniform vec3 colors[6]; and i cannot figure out why.
 uniform vec3 color0;
 uniform vec3 color1;
+// TODO: support the additional channels (up to 8)
 
+// Info for edge-only mode
+uniform float scaleFactor;
 
 // opacity
 uniform float opacity;
@@ -64,6 +67,23 @@ varying vec2 vTexCoord;
 
 vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelColor, float channelOpacity) {
   float sampledData = texture(dataTex, coord).r;
+
+  // TODO: put the outline stuff behind a flag
+  vec2 uTextureSize = vec2(2048.0, 2048.0);
+  vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
+
+  // TODO: vary the edgeSize based on:
+  // - user-defined size value
+  // - current resolution being rendered (e.g., multiply by power of two for each higher resolution)
+  float edgeSize = 100.0 * scaleFactor;
+
+  float pixN = texture(dataTex, coord + vec2(0.0, onePixel.y * edgeSize)).r;
+  float pixS = texture(dataTex, coord - vec2(0.0, onePixel.y * edgeSize)).r;
+  float pixW = texture(dataTex, coord + vec2(onePixel.x * edgeSize, 0.0)).r;
+  float pixE = texture(dataTex, coord - vec2(onePixel.x * edgeSize, 0.0)).r;
+
+  bool isEdge = (pixN != sampledData || pixS != sampledData || pixW != sampledData || pixE != sampledData);
+
   vec4 hoveredColor = float(sampledData == hovered && sampledData > 0. && hovered > 0.) * vec4(0., 0., 1., 1.);
   // Colors are laid out corresponding to ids in row-major order in the texture.  So if width of the texture is 10, and you want ID 25,
   // you need coordinate (1, 4) (i.e 2 rows down, and 5 columns over indexed from 0 for a total of 25 units covered in row major order).
@@ -73,7 +93,7 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelCol
   vec4 sampledColor = float(uIsExpressionMode) * COLORMAP_FUNC(clamp(scaledExpressionValue, 0.0, 1.0)) + (1. - float(uIsExpressionMode)) * vec4(texture(colorTex, colorTexCoord).rgb, 1.);
   vec4 newColor = float(uIsColorMode) * vec4(channelColor.rgb, channelOpacity) + (1. - float(uIsColorMode)) * sampledColor;
   // Only return a color if the data is non-zero.
-  return max(0., min(sampledData, 1.)) * float(isOn) * newColor;
+  return max(0., min(sampledData, 1.)) * float(isEdge) * float(isOn) * newColor;
 }
 
 void main() {
@@ -81,6 +101,8 @@ void main() {
   gl_FragColor = sampleAndGetColor(channel0, vTexCoord, channelsVisible[0], color0, channelOpacities[0]);
   vec4 sampledColor = sampleAndGetColor(channel1, vTexCoord, channelsVisible[1], color1, channelOpacities[1]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
+
+  // TODO: support the additional channels (up to 8)
 
   // If the sampled color and the currently stored color (gl_FragColor) are identical, don't blend and use the sampled color,
   // otherwise just use the currently stored color.  Repeat this for all channels.

@@ -110,12 +110,18 @@ export default class BitmaskLayer extends XRLayer {
       colorScaleLo,
       colorScaleHi,
       isExpressionMode,
+      zoom,
+      minZoom,
+      maxZoom,
+      zoomOffset, // TODO: figure out if this needs to be used or not
     } = this.props;
     const {
       textures, model, colorTex, expressionTex,
     } = this.state;
     // Render the image
     if (textures && model && colorTex) {
+      const scaleFactor = 1/(2**(maxZoom - zoom));
+      console.log(scaleFactor);
       model
         .setUniforms(
           Object.assign({}, uniforms, {
@@ -142,6 +148,7 @@ export default class BitmaskLayer extends XRLayer {
             uColorScaleRange: [colorScaleLo, colorScaleHi],
             uIsExpressionMode: isExpressionMode,
             uIsColorMode: true,
+            scaleFactor,
             ...textures,
           }),
         )
