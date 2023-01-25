@@ -175,6 +175,7 @@ export const CoordinationType = {
   SPATIAL_LAYER_OPACITY: 'spatialLayerOpacity',
   SPATIAL_LAYER_COLOR: 'spatialLayerColor',
   SPATIAL_LAYER_FILLED: 'spatialLayerFilled',
+  SPATIAL_LAYER_STROKE_WIDTH: 'spatialLayerStrokeWidth',
 };
 
 export const STATUS = {

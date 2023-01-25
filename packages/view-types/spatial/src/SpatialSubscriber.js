@@ -158,6 +158,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_LAYER_COLOR,
       CoordinationType.SPATIAL_LAYER_FILLED,
+      CoordinationType.SPATIAL_LAYER_STROKE_WIDTH,
     ],
     coordinationScopes,
     coordinationScopesBy,

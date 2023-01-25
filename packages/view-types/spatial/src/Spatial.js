@@ -388,6 +388,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       sliders: layerDef.channels.map(c => c.slider),
       opacities: layerDef.channels.map(c => c.opacity), // for bitmask
       filled: layerDef.channels.map(c => c.filled), // for bitmask
+      strokeWidth: layerDef.channels.map(c => c.strokeWidth), // for bitmask
       resolution: layerDef.resolution,
       renderingMode: layerDef.renderingMode,
       xSlice: layerDef.xSlice,
@@ -429,6 +430,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         channelsFilled: layerProps.filled,
         opacity: layerProps.opacity,
         channelColors: layerProps.colors,
+        channelStrokeWidths: layerProps.strokeWidth,
         modelMatrix,
         hoveredCell: Number(this.props.cellHighlight),
         renderSubLayers: renderSubBitmaskLayers,
@@ -525,6 +527,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // console.log('obsSegmentations', obsSegmentations, segmentationLayerScopes, segmentationLayerCoordination)
     if(obsSegmentations && Object.keys(obsSegmentations).length === segmentationLayerScopes.length && segmentationLayerScopes && segmentationLayerValues && segmentationLayerCoordination) {
       const layerIndex = 0;
+      // TODO: identify the unique images (i.e., loaders).
+      // Return one layer corresponding to each image.
+      // For each image layer, filter to include only the matching channels.
       return [
         this.createRasterLayer(
           {
@@ -541,12 +546,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
               visible: true,
             }),
             channels: segmentationLayerScopes.map((layerScope, i) => {
-              const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC, spatialLayerColor, spatialLayerFilled } = segmentationLayerCoordination[0][layerScope];
+              const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC, spatialLayerColor, spatialLayerFilled, spatialLayerStrokeWidth } = segmentationLayerCoordination[0][layerScope];
               return {
                 selection: { t: 0, z: 0, c: spatialTargetC }, // should fill in c.
                 visible: visible,
                 opacity: opacity,
                 filled: spatialLayerFilled,
+                strokeWidth: spatialLayerStrokeWidth,
                 slider: [0, 1],
                 color: spatialLayerColor,
               };

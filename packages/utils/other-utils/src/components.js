@@ -57,6 +57,7 @@ export const LARGE_PATHOLOGY_PALETTE = [
   [219, 109, 0],
   [36, 255, 36],
   [255, 255, 109],
+  [255, 255, 255],
 ];
 
 export const COLORMAP_OPTIONS = [

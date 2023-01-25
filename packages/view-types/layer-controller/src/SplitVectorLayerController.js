@@ -65,6 +65,11 @@ const useStyles = makeStyles(() => ({
       height: '18px !important',
     },
   },
+  popperContainer: {
+    display: 'flex',
+    marginTop: '4px',
+    justifyContent: 'space-around',
+  },
 }));
 
 function VectorIcon(props) {
@@ -128,6 +133,45 @@ function ColorPickerMenu(props) {
   );
 }
 
+function StrokeWidthMenu(props) {
+  const {
+    strokeWidth,
+    setStrokeWidth,
+    filled,
+    setFilled,
+  } = props;
+  const [open, setOpen] = useState(false);
+  const classes = useStyles();
+  return (
+    <PopperMenu
+      open={open}
+      setOpen={setOpen}
+      buttonIcon={<MoreVertIcon />}
+      buttonClassName={classes.menuButton}
+      containerClassName={classes.popperContainer}
+      withPaper
+    >
+      <MenuItem dense disableGutters>
+        <span style={{ margin: '0 5px' }}>Filled: </span>
+        <Checkbox color="primary" checked={filled} onChange={(e, v) => setFilled(v)} />
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <span style={{ margin: '0 5px' }}>Stroke width: </span>
+        <Slider
+          disabled={filled}
+          value={strokeWidth}
+          min={0.5}
+          max={5.0}
+          step={0.1}
+          onChange={(e, v) => setStrokeWidth(v)}
+          style={{ marginTop: '7px', width: '100px' }}
+          orientation="horizontal"
+        />
+      </MenuItem>
+    </PopperMenu>
+  );
+}
+
 export default function SplitVectorLayerController(props) {
   const {
     label,
@@ -140,6 +184,8 @@ export default function SplitVectorLayerController(props) {
     palette = null,
     filled,
     setFilled,
+    strokeWidth,
+    setStrokeWidth,
   } = props;
 
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
@@ -171,7 +217,7 @@ export default function SplitVectorLayerController(props) {
               <Visibility />
             </Button>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <Typography
               style={{
                 padding: 0,
@@ -190,10 +236,7 @@ export default function SplitVectorLayerController(props) {
               palette={palette}
             />
           </Grid>
-          <Grid item xs={1}>
-            <Checkbox color="primary" checked={filled} onChange={(e, v) => setFilled(v)} />
-          </Grid>
-          <Grid item xs={4} style={{ paddingRight: '8px' }}>
+          <Grid item xs={2}>
             <Slider
               value={opacity}
               min={0}
@@ -202,6 +245,14 @@ export default function SplitVectorLayerController(props) {
               onChange={(e, v) => setOpacity(v)}
               style={{ marginTop: '7px' }}
               orientation="horizontal"
+            />
+          </Grid>
+          <Grid item xs={1}>
+            <StrokeWidthMenu
+              strokeWidth={strokeWidth}
+              setStrokeWidth={setStrokeWidth}
+              filled={filled}
+              setFilled={setFilled}
             />
           </Grid>
           <Grid item xs={1}>

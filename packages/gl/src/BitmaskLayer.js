@@ -24,6 +24,7 @@ function getColor(arr) {
 }
 
 const defaultProps = {
+  channelStrokeWidths: { type: 'array', value: null, compare: true },
   channelsFilled: { type: 'array', value: null, compare: true },
   channelOpacities: { type: 'array', value: null, compare: true },
   channelColors: { type: 'array', value: null, compare: true },
@@ -110,6 +111,7 @@ export default class BitmaskLayer extends XRLayer {
   draw(opts) {
     const { uniforms } = opts;
     const {
+      channelStrokeWidths,
       channelsFilled,
       channelOpacities,
       channelColors,
@@ -152,6 +154,12 @@ export default class BitmaskLayer extends XRLayer {
               0.0,
               // There are six texture entries on the shaders
               MAX_CHANNELS - channelOpacities.length,
+            ),
+            channelStrokeWidths: padWithDefault(
+              channelStrokeWidths,
+              1.0,
+              // There are six texture entries on the shaders
+              MAX_CHANNELS - channelStrokeWidths.length,
             ),
             // TODO: colors 1-5
             hovered: hoveredCell || 0,

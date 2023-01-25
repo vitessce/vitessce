@@ -6,6 +6,7 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuList from '@material-ui/core/MenuList';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Fade from '@material-ui/core/Fade';
+import clsx from 'clsx';
 import { useVitessceContainer } from '../hooks';
 
 const useStyles = makeStyles(() => ({
@@ -29,6 +30,7 @@ export function PopperMenu(props) {
     buttonClassName,
     placement = 'bottom-end',
     withPaper = true,
+    containerClassName,
   } = props;
   const classes = useStyles();
 
@@ -47,7 +49,7 @@ export function PopperMenu(props) {
   const getTooltipContainer = useVitessceContainer(anchorRef);
 
   return (
-    <div ref={anchorRef} className={classes.container}>
+    <div ref={anchorRef} className={clsx(classes.container, containerClassName)}>
       <IconButton
         aria-describedby={id}
         onClick={handleClick}

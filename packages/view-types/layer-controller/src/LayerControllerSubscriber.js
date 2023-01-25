@@ -126,8 +126,8 @@ const LayerControllerMemoized = React.memo(
           {/* Segmentation bitmask layers: */}
           {segmentationLayerScopes && segmentationLayerValues
             && segmentationLayerScopes.map((layerScope) => {
-              const { obsType, spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialLayerColor: color, spatialLayerFilled: filled } = segmentationLayerCoordination[0][layerScope];
-              const { setSpatialLayerVisible: setVisible, setSpatialLayerOpacity: setOpacity, setSpatialLayerColor: setColor, setSpatialLayerFilled: setFilled } = segmentationLayerCoordination[1][layerScope];
+              const { obsType, spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialLayerColor: color, spatialLayerFilled: filled, spatialLayerStrokeWidth: strokeWidth } = segmentationLayerCoordination[0][layerScope];
+              const { setSpatialLayerVisible: setVisible, setSpatialLayerOpacity: setOpacity, setSpatialLayerColor: setColor, setSpatialLayerFilled: setFilled, setSpatialLayerStrokeWidth: setStrokeWidth } = segmentationLayerCoordination[1][layerScope];
 
               const obsTypeName = obsType;
 
@@ -150,6 +150,8 @@ const LayerControllerMemoized = React.memo(
                   setColor={setColor}
                   filled={filled}
                   setFilled={setFilled}
+                  strokeWidth={strokeWidth}
+                  setStrokeWidth={setStrokeWidth}
                 />
               );
             })}
@@ -327,6 +329,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_LAYER_COLOR,
       CoordinationType.SPATIAL_LAYER_FILLED,
+      CoordinationType.SPATIAL_LAYER_STROKE_WIDTH,
     ],
     coordinationScopes,
     coordinationScopesBy,

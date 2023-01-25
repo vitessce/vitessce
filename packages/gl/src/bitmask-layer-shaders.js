@@ -67,13 +67,14 @@ uniform vec3 color7;
 // Info for edge-only mode
 uniform float scaleFactor;
 uniform bool channelsFilled[8];
+uniform float channelStrokeWidths[8];
 
 // opacity
 uniform float opacity;
 
 varying vec2 vTexCoord;
 
-vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelColor, float channelOpacity, bool isFilled) {
+vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelColor, float channelOpacity, bool isFilled, float strokeWidth) {
   float sampledData = texture(dataTex, coord).r;
 
   bool isEdge = true;
@@ -83,7 +84,7 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelCol
     vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
 
     // TODO: vary the edgeSize based on user-defined size value
-    float edgeSize = 150.0 * scaleFactor;
+    float edgeSize = 150.0 * strokeWidth * scaleFactor;
 
     float pixN = texture(dataTex, coord + vec2(0.0, onePixel.y * edgeSize)).r;
     float pixS = texture(dataTex, coord - vec2(0.0, onePixel.y * edgeSize)).r;
@@ -112,16 +113,16 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelCol
 
 void main() {
 
-  gl_FragColor = sampleAndGetColor(channel0, vTexCoord, channelsVisible[0], color0, channelOpacities[0], channelsFilled[0]);
-  vec4 sampledColor = sampleAndGetColor(channel1, vTexCoord, channelsVisible[1], color1, channelOpacities[1], channelsFilled[1]);
+  gl_FragColor = sampleAndGetColor(channel0, vTexCoord, channelsVisible[0], color0, channelOpacities[0], channelsFilled[0], channelStrokeWidths[0]);
+  vec4 sampledColor = sampleAndGetColor(channel1, vTexCoord, channelsVisible[1], color1, channelOpacities[1], channelsFilled[1], channelStrokeWidths[1]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  sampledColor = sampleAndGetColor(channel2, vTexCoord, channelsVisible[2], color2, channelOpacities[2], channelsFilled[2]);
+  sampledColor = sampleAndGetColor(channel2, vTexCoord, channelsVisible[2], color2, channelOpacities[2], channelsFilled[2], channelStrokeWidths[2]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  sampledColor = sampleAndGetColor(channel3, vTexCoord, channelsVisible[3], color2, channelOpacities[3], channelsFilled[3]);
+  sampledColor = sampleAndGetColor(channel3, vTexCoord, channelsVisible[3], color3, channelOpacities[3], channelsFilled[3], channelStrokeWidths[3]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  sampledColor = sampleAndGetColor(channel4, vTexCoord, channelsVisible[4], color4, channelOpacities[4], channelsFilled[4]);
+  sampledColor = sampleAndGetColor(channel4, vTexCoord, channelsVisible[4], color4, channelOpacities[4], channelsFilled[4], channelStrokeWidths[4]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  sampledColor = sampleAndGetColor(channel5, vTexCoord, channelsVisible[5], color5, channelOpacities[5], channelsFilled[5]);
+  sampledColor = sampleAndGetColor(channel5, vTexCoord, channelsVisible[5], color5, channelOpacities[5], channelsFilled[5], channelStrokeWidths[5]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
   // TODO channel6, channel7
 
