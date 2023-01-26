@@ -8,6 +8,7 @@ import {
   registerPluginViewType,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { capitalize } from '@vitessce/utils';
 import ExpressionHistogram from './ExpressionHistogram';
 import { useStyles } from './styles';
 
@@ -26,6 +27,7 @@ export function ExpressionHistogramSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
+    aggregateFeatureValues = true,
   } = props;
 
   const classes = useStyles();
@@ -72,7 +74,7 @@ export function ExpressionHistogramSubscriber(props) {
       // Create new cellColors map based on the selected gene.
       return Array.from(expressionData[0]).map((_, index) => {
         const value = expressionData[0][index];
-        const normValue = value * 100 / 255;
+        const normValue = value;
         return { value: normValue, gene: firstGeneSelected };
       });
     }
@@ -81,29 +83,38 @@ export function ExpressionHistogramSubscriber(props) {
       return obsIndex.map((cellId, cellIndex) => {
         const values = obsFeatureMatrix.data
           .subarray(cellIndex * numGenes, (cellIndex + 1) * numGenes);
-        const sumValue = sum(values) * 100 / 255;
+        const sumValue = sum(values);
         return { value: sumValue, gene: null };
       });
     }
     return null;
   }, [obsIndex, featureIndex, obsFeatureMatrix, firstGeneSelected, expressionData]);
 
+  const showPlot = aggregateFeatureValues || (!aggregateFeatureValues && firstGeneSelected);
+
   return (
     <TitleInfo
-      title={`Expression Histogram${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      title={`${capitalize(obsType)} Histogram${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
       isReady={isReady}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
-        <ExpressionHistogram
-          geneSelection={geneSelection}
-          data={data}
-          theme={theme}
-          width={width}
-          height={height}
-        />
+        {showPlot ? (
+          <ExpressionHistogram
+            geneSelection={geneSelection}
+            data={data}
+            theme={theme}
+            width={width}
+            height={height}
+            obsType={obsType}
+            featureType={featureType}
+            featureValueType={featureValueType}
+          />
+        ) : (
+          <span>Select a {featureType}.</span>
+        )}
       </div>
     </TitleInfo>
   );

@@ -1,6 +1,7 @@
 import React from 'react';
 import clamp from 'lodash/clamp';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
+import { capitalize } from '@vitessce/utils';
 
 /**
  * Gene expression histogram displayed as a bar chart,
@@ -29,10 +30,12 @@ export default function ExpressionHistogram(props) {
     height,
     marginRight = 90,
     marginBottom = 50,
+    obsType,
+    featureValueType,
   } = props;
 
   const xTitle = geneSelection && geneSelection.length >= 1
-    ? 'Normalized Expression Value'
+    ? capitalize(featureValueType)
     : 'Total Normalized Transcript Count';
 
   const spec = {
@@ -47,7 +50,7 @@ export default function ExpressionHistogram(props) {
       y: {
         type: 'quantitative',
         aggregate: 'count',
-        title: 'Number of Cells',
+        title: `Number of ${obsType}`,
       },
       color: { value: 'gray' },
     },

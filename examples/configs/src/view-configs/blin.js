@@ -29,6 +29,24 @@ export const blin2019 = {
           },
           coordinationValues: {},
         },
+        {
+          fileType: 'obsFeatureMatrix.csv',
+          url: 'http://localhost:8000/fake_glom_info.csv',
+          coordinationValues: {
+            obsType: 'Glomeruli',
+            featureType: 'feature',
+            featureValueType: 'value',
+          },
+        },
+        {
+          fileType: 'obsFeatureMatrix.csv',
+          url: 'http://localhost:8000/fake_tub_info.csv',
+          coordinationValues: {
+            obsType: 'Tubules',
+            featureType: 'feature',
+            featureValueType: 'value',
+          },
+        },
       ],
     },
   ],
@@ -52,6 +70,16 @@ export const blin2019 = {
       D: 'Globally Sclerotic Glomeruli',
       E: 'Tubules',
       F: 'Arteries/Arterioles',
+    },
+    featureType: {
+      A: 'feature',
+    },
+    featureValueType: {
+      A: 'value',
+    },
+    featureSelection: {
+      C: null,
+      E: null,
     },
     spatialTargetC: {
       A: 0,
@@ -213,14 +241,78 @@ export const blin2019 = {
       x: 8,
       y: 0,
       w: 4,
-      h: 6,
+      h: 5,
+    },
+    {
+      component: 'featureList',
+      coordinationScopes: {
+        obsType: 'C',
+        featureType: 'A',
+        featureValueType: 'A',
+        featureSelection: 'C',
+      },
+      props: {
+        title: 'Glomerulus Features',
+      },
+      x: 8,
+      y: 5,
+      w: 4,
+      h: 1,
+    },
+    {
+      component: 'featureValueHistogram',
+      coordinationScopes: {
+        obsType: 'C',
+        featureType: 'A',
+        featureValueType: 'A',
+        featureSelection: 'C',
+      },
+      props: {
+        aggregateFeatureValues: false,
+      },
+      x: 8,
+      y: 6,
+      w: 4,
+      h: 2,
+    },
+    {
+      component: 'featureList',
+      coordinationScopes: {
+        obsType: 'E',
+        featureType: 'A',
+        featureValueType: 'A',
+        featureSelection: 'E',
+      },
+      props: {
+        title: 'Tubule Features',
+      },
+      x: 8,
+      y: 8,
+      w: 4,
+      h: 1,
+    },
+    {
+      component: 'featureValueHistogram',
+      coordinationScopes: {
+        obsType: 'E',
+        featureType: 'A',
+        featureValueType: 'A',
+        featureSelection: 'E',
+      },
+      props: {
+        aggregateFeatureValues: false,
+      },
+      x: 8,
+      y: 9,
+      w: 4,
+      h: 2,
     },
     {
       component: 'status',
       x: 8,
-      y: 9,
+      y: 11,
       w: 4,
-      h: 3,
+      h: 1,
     },
   ],
 };

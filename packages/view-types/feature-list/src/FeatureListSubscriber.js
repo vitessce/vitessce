@@ -43,7 +43,9 @@ export function FeatureListSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
     featureType,
+    featureValueType,
     featureSelection: geneSelection,
     featureFilter: geneFilter,
     obsColorEncoding: cellColorEncoding,
@@ -68,7 +70,7 @@ export function FeatureListSubscriber(props) {
   );
   const [{ featureIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
     loaders, dataset, addUrl, true,
-    { featureType },
+    { obsType, featureType, featureValueType },
   );
   const isReady = useReady([
     featureLabelsStatus,

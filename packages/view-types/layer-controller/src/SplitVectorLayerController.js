@@ -67,7 +67,7 @@ const useStyles = makeStyles(() => ({
   },
   popperContainer: {
     display: 'flex',
-    marginTop: '4px',
+    marginTop: '5px',
     justifyContent: 'space-around',
   },
 }));
@@ -217,6 +217,13 @@ export default function SplitVectorLayerController(props) {
               <Visibility />
             </Button>
           </Grid>
+          <Grid item xs={1}>
+            <ColorPickerMenu
+              color={color}
+              setColor={setColor}
+              palette={palette}
+            />
+          </Grid>
           <Grid item xs={6}>
             <Typography
               style={{
@@ -228,13 +235,6 @@ export default function SplitVectorLayerController(props) {
             >
               {label}
             </Typography>
-          </Grid>
-          <Grid item xs={1}>
-            <ColorPickerMenu
-              color={color}
-              setColor={setColor}
-              palette={palette}
-            />
           </Grid>
           <Grid item xs={2}>
             <Slider
