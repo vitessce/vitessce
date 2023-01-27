@@ -17,7 +17,6 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - id: check-deploy
         run: . ./check-deploy.sh --action
-        shell: bash
       - uses: pnpm/action-setup@v2.0.1
         name: Install pnpm
         id: pnpm-install
@@ -26,6 +25,7 @@ jobs:
           run_install: true
       - id: get-options
         run: . ./set-node-options.sh --action
+        shell: bash
       - run: pnpm run build:ci
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
