@@ -20,8 +20,11 @@ register(
 );
 
 // Lazy load the HiGlass React component,
-// using dynamic imports with absolute URLs.
+// using a dynamic import.
 const LazyHiGlassComponent = React.lazy(async () => {
+  // Temporary fix until a new release of HiGlass is made after 1.11.11,
+  // which removes the github.com dependencies in the higlass package.json,
+  // which is causing issues with PNPM install on GitHub Actions.
   const { HiGlassComponent } = await import('higlass-no-github-deps');
   return { default: HiGlassComponent };
 });

@@ -24,7 +24,7 @@
     "@vitessce/vit-s": "workspace:*",
     "d3-array": "^2.4.0",
     "pixi.js": "^5.0.3",
-    "higlass-no-github-deps": "1.11.11",
+    "higlass-no-github-deps": "1.11.13",
     "higlass-register": "^0.3.0",
     "higlass-zarr-datafetchers": "^0.2.1",
     "lodash": "^4.17.21"

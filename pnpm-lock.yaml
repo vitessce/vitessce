@@ -505,7 +505,7 @@ importers:
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
       d3-array: ^2.4.0
-      higlass-no-github-deps: 1.11.11
+      higlass-no-github-deps: 1.11.13
       higlass-register: ^0.3.0
       higlass-zarr-datafetchers: ^0.2.1
       lodash: ^4.17.21
@@ -520,7 +520,7 @@ importers:
       '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
-      higlass-no-github-deps: 1.11.11_ywwie34tdztbqf5ti6itikxkja
+      higlass-no-github-deps: 1.11.13_ywwie34tdztbqf5ti6itikxkja
       higlass-register: 0.3.0
       higlass-zarr-datafetchers: 0.2.1
       lodash: 4.17.21
@@ -12634,8 +12634,8 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
-  /higlass-no-github-deps/1.11.11_ywwie34tdztbqf5ti6itikxkja:
-    resolution: {integrity: sha512-ELmyAED9H4zE8TbXWL6DOvltafZr0n8Q3vVFwoQqoEujEXrD2r+EHq7hyDs/zHupFkrLKxVhOrZdsfvuN5Gg/A==}
+  /higlass-no-github-deps/1.11.13_ywwie34tdztbqf5ti6itikxkja:
+    resolution: {integrity: sha512-Kw+6B6jmUIpkyjqw+iMNIeQ/9qIVU9TnxnuzCsuE4Iu3RnzL2/1W1Agz3dHr+qK1P4MMSNnAO+yMo5O77cyelQ==}
     engines: {node: '>=0.12.0'}
     peerDependencies:
       pixi.js: ^5.0.3
