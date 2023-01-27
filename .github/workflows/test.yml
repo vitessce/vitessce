@@ -30,7 +30,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 7
+          version: 7.18.1
           run_install: true
       - run: pnpm run build:ci
       - run: ./test.sh --action
