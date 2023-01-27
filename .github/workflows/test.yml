@@ -28,8 +28,8 @@ jobs:
       - name: Reconfigure git to use HTTP authentication
         # Reference: https://github.com/actions/setup-node/issues/214#issuecomment-810829250
         run: >
-          git config --global url."https://github.com/".insteadOf
-          ssh://git@github.com/
+          git config --global url."ssh://git@github.com/".insteadOf
+          https://github.com/
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
