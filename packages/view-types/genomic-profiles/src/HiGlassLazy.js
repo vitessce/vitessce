@@ -9,7 +9,6 @@ import { useGridItemSize, useCoordination } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { useStyles } from './styles';
 
-// eslint-disable-next-line no-constant-condition
 const BUNDLE_FILE_EXT = false ? 'js' : 'min.js';
 
 const PIXI_BUNDLE_VERSION = '5.3.3';
@@ -36,9 +35,7 @@ const LazyHiGlassComponent = React.lazy(async () => {
   if (!window.ReactDOM) {
     window.ReactDOM = ReactDOM;
   }
-  // eslint-disable-next-line no-unused-vars
   const pixi = await import(/* @vite-ignore */ PIXI_BUNDLE_URL);
-  // eslint-disable-next-line no-unused-vars
   const higlass = await import(/* @vite-ignore */ HIGLASS_JS_URL);
   return asEsModule(window.hglib.HiGlassComponent);
 });
