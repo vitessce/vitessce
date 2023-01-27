@@ -9,6 +9,7 @@ import { useStyles } from './styles';
 
 const HIGLASS_BUNDLE_VERSION = '1.11.11';
 const HIGLASS_CSS_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.css`;
+const HIGLASS_JS_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.min.js`
 
 // Register the zarr-multivec plugin data fetcher.
 // References:
@@ -22,7 +23,7 @@ register(
 // Lazy load the HiGlass React component,
 // using dynamic imports with absolute URLs.
 const LazyHiGlassComponent = React.lazy(async () => {
-  const { HiGlassComponent } = await import('higlass');
+  const { HiGlassComponent } = await import(HIGLASS_JS_URL);
   return { default: HiGlassComponent };
 });
 

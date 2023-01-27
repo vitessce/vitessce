@@ -23,8 +23,6 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "d3-array": "^2.4.0",
-    "pixi.js": "^6.5.2",
-    "higlass": "1.11.11",
     "higlass-register": "^0.3.0",
     "higlass-zarr-datafetchers": "^0.2.1",
     "lodash": "^4.17.21"
