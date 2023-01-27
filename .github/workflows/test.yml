@@ -31,7 +31,13 @@ jobs:
         id: pnpm-install
         with:
           version: 7
-          run_install: true
+          run_install: |
+            - recursive: true
+              args: [--ignore-scripts]
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      - run: pnpm -r rebuild
+      - run: pnpm -r prepare
       - run: pnpm run build:ci
       - run: ./test.sh --action
   
