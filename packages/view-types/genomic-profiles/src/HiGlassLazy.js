@@ -1,21 +1,15 @@
 import React, {
   useMemo, useEffect, useRef, Suspense, useState,
 } from 'react';
-import ReactDOM from 'react-dom';
 import register from 'higlass-register';
 import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
-import { asEsModule } from '@vitessce/utils';
 import { useGridItemSize, useCoordination } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { useStyles } from './styles';
 
-const BUNDLE_FILE_EXT = false ? 'js' : 'min.js';
-
-const PIXI_BUNDLE_VERSION = '5.3.3';
-const PIXI_BUNDLE_URL = `https://unpkg.com/window-pixi@${PIXI_BUNDLE_VERSION}/dist/pixi.${BUNDLE_FILE_EXT}`;
 const HIGLASS_BUNDLE_VERSION = '1.11.11';
 const HIGLASS_CSS_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.css`;
-const HIGLASS_JS_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.${BUNDLE_FILE_EXT}`;
+const HIGLASS_JS_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.min.js`
 
 // Register the zarr-multivec plugin data fetcher.
 // References:
@@ -29,15 +23,8 @@ register(
 // Lazy load the HiGlass React component,
 // using dynamic imports with absolute URLs.
 const LazyHiGlassComponent = React.lazy(async () => {
-  if (!window.React) {
-    window.React = React;
-  }
-  if (!window.ReactDOM) {
-    window.ReactDOM = ReactDOM;
-  }
-  const pixi = await import(/* @vite-ignore */ PIXI_BUNDLE_URL);
-  const higlass = await import(/* @vite-ignore */ HIGLASS_JS_URL);
-  return asEsModule(window.hglib.HiGlassComponent);
+  const { HiGlassComponent } = await import(HIGLASS_JS_URL);
+  return { default: HiGlassComponent };
 });
 
 // Use an arbitrary size for normalization of the zoom level.
