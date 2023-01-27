@@ -22,7 +22,7 @@ register(
 // Lazy load the HiGlass React component,
 // using dynamic imports with absolute URLs.
 const LazyHiGlassComponent = React.lazy(async () => {
-  const { HiGlassComponent } = await import('higlass');
+  const { HiGlassComponent } = await import('higlass-no-github-deps');
   return { default: HiGlassComponent };
 });
 
