@@ -25,7 +25,8 @@
     "d3-array": "^2.4.0",
     "higlass-register": "^0.3.0",
     "higlass-zarr-datafetchers": "^0.2.1",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "pixi.js": "5.3.3"
   },
   "devDependencies": {
     "react": "^18.0.0",

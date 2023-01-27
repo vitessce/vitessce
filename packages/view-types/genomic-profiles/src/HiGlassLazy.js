@@ -30,17 +30,8 @@ register(
 // Lazy load the HiGlass React component,
 // using dynamic imports with absolute URLs.
 const LazyHiGlassComponent = React.lazy(async () => {
-  if (!window.React) {
-    window.React = React;
-  }
-  if (!window.ReactDOM) {
-    window.ReactDOM = ReactDOM;
-  }
-  // eslint-disable-next-line no-unused-vars
-  const pixi = await import(/* @vite-ignore */ PIXI_BUNDLE_URL);
-  // eslint-disable-next-line no-unused-vars
-  const higlass = await import(/* @vite-ignore */ HIGLASS_JS_URL);
-  return asEsModule(window.hglib.HiGlassComponent);
+  const { HiGlassComponent } = await import('./vendor/higlass/dist/hglib.min.js');
+  return { default: HiGlassComponent };
 });
 
 // Use an arbitrary size for normalization of the zoom level.
