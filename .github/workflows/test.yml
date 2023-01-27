@@ -23,6 +23,13 @@ jobs:
     
     steps:
       - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+      - name: Reconfigure git to use HTTP authentication
+        # Reference: https://github.com/actions/setup-node/issues/214#issuecomment-810829250
+        run: >
+          git config --global url."https://github.com/".insteadOf
+          ssh://git@github.com/
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
@@ -31,13 +38,7 @@ jobs:
         id: pnpm-install
         with:
           version: 7
-          run_install: |
-            - recursive: true
-              args: [--ignore-scripts]
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-      - run: pnpm -r rebuild
-      - run: pnpm -r prepare
+          run_install: true
       - run: pnpm run build:ci
       - run: ./test.sh --action
   
