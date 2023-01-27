@@ -17,6 +17,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - id: check-deploy
         run: . ./check-deploy.sh --action
+        shell: bash
       - uses: pnpm/action-setup@v2.0.1
         name: Install pnpm
         id: pnpm-install
