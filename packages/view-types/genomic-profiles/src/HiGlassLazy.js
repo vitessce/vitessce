@@ -1,14 +1,22 @@
 import React, {
   useMemo, useEffect, useRef, Suspense, useState,
 } from 'react';
+import ReactDOM from 'react-dom';
 import register from 'higlass-register';
 import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
+import { asEsModule } from '@vitessce/utils';
 import { useGridItemSize, useCoordination } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { useStyles } from './styles';
 
+// eslint-disable-next-line no-constant-condition
+const BUNDLE_FILE_EXT = false ? 'js' : 'min.js';
+
+const PIXI_BUNDLE_VERSION = '5.3.3';
+const PIXI_BUNDLE_URL = `https://unpkg.com/window-pixi@${PIXI_BUNDLE_VERSION}/dist/pixi.${BUNDLE_FILE_EXT}`;
 const HIGLASS_BUNDLE_VERSION = '1.11.11';
 const HIGLASS_CSS_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.css`;
+const HIGLASS_JS_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.${BUNDLE_FILE_EXT}`;
 
 // Register the zarr-multivec plugin data fetcher.
 // References:
