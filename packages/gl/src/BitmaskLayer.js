@@ -54,6 +54,40 @@ export default class BitmaskLayer extends XRLayer {
     };
   }
 
+  /**
+   * Override the parent loadChannelTextures to enable
+   * up to eight channels (rather than six).
+   * Reference: https://github.com/hms-dbmi/viv/blob/v0.13.3/packages/layers/src/xr-layer/xr-layer.js#L316
+  */
+  loadChannelTextures(channelData) {
+    const textures = {
+      channel0: null,
+      channel1: null,
+      channel2: null,
+      channel3: null,
+      channel4: null,
+      channel5: null,
+      channel6: null,
+      channel7: null,
+    };
+    if (this.state.textures) {
+      Object.values(this.state.textures).forEach(tex => tex && tex.delete());
+    }
+    if (channelData
+      && Object.keys(channelData).length > 0
+      && channelData.data
+    ) {
+      channelData.data.forEach((d, i) => {
+        textures[`channel${i}`] = this.dataToTexture(
+          d,
+          channelData.width,
+          channelData.height,
+        );
+      }, this);
+      this.setState({ textures });
+    }
+  }
+
   updateState({ props, oldProps, changeFlags }) {
     super.updateState({ props, oldProps, changeFlags });
     if (props.cellColorData !== oldProps.cellColorData) {

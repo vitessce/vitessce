@@ -35,8 +35,8 @@ uniform sampler2D channel2;
 uniform sampler2D channel3;
 uniform sampler2D channel4;
 uniform sampler2D channel5;
-uniform sampler2D channel6; // TODO: requires change in Viv or multiple layers
-uniform sampler2D channel7; // TODO: requires change in Viv or multiple layers
+uniform sampler2D channel6;
+uniform sampler2D channel7;
 
 // Color texture
 uniform sampler2D colorTex;
@@ -124,9 +124,10 @@ void main() {
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
   sampledColor = sampleAndGetColor(channel5, vTexCoord, channelsVisible[5], color5, channelOpacities[5], channelsFilled[5], channelStrokeWidths[5]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  // TODO channel6, channel7
-
-  // TODO: support the additional channels (up to 8)
+  sampledColor = sampleAndGetColor(channel6, vTexCoord, channelsVisible[6], color6, channelOpacities[6], channelsFilled[6], channelStrokeWidths[6]);
+  gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
+  sampledColor = sampleAndGetColor(channel7, vTexCoord, channelsVisible[7], color7, channelOpacities[7], channelsFilled[7], channelStrokeWidths[7]);
+  gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
 
   // If the sampled color and the currently stored color (gl_FragColor) are identical, don't blend and use the sampled color,
   // otherwise just use the currently stored color.  Repeat this for all channels.
