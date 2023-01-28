@@ -895,7 +895,7 @@
           "patternProperties": {
             ".": {
               "type": "string",
-              "enum": ["geneSelection", "cellSetSelection"],
+              "enum": ["geneSelection", "cellSetSelection", "spatialChannelColor"],
               "description": "How should data points representing cells be colored?"
             }
           }

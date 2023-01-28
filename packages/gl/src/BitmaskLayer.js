@@ -2,6 +2,8 @@ import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous
 import { project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { Texture2D, isWebGL2 } from '@luma.gl/core';
 import { XRLayer } from '@hms-dbmi/viv';
+import { fromEntries } from '@vitessce/utils';
+import range from 'lodash/range';
 import { fs, vs } from './bitmask-layer-shaders';
 import {
   GLSL_COLORMAPS,
@@ -9,7 +11,7 @@ import {
   COLORMAP_SHADER_PLACEHOLDER,
 } from './constants';
 
-const MAX_CHANNELS = 8;
+const MAX_CHANNELS = 7;
 
 function padWithDefault(arr, defaultValue, padWidth) {
   const newArr = [...arr];
@@ -29,7 +31,6 @@ const defaultProps = {
   channelOpacities: { type: 'array', value: null, compare: true },
   channelColors: { type: 'array', value: null, compare: true },
   hoveredCell: { type: 'number', value: null, compare: true },
-  cellColorData: { type: 'object', value: null, compare: true },
   colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
   expressionData: { type: 'object', value: null, compare: true },
 };
@@ -68,7 +69,6 @@ export default class BitmaskLayer extends XRLayer {
       channel4: null,
       channel5: null,
       channel6: null,
-      channel7: null,
     };
     if (this.state.textures) {
       Object.values(this.state.textures).forEach(tex => tex && tex.delete());
@@ -90,11 +90,10 @@ export default class BitmaskLayer extends XRLayer {
 
   updateState({ props, oldProps, changeFlags }) {
     super.updateState({ props, oldProps, changeFlags });
-    if (props.cellColorData !== oldProps.cellColorData) {
-      this.setColorTexture();
-    }
     if (props.expressionData !== oldProps.expressionData) {
       const { expressionData, cellTexHeight, cellTexWidth } = this.props;
+      // TODO: use one expressionTex for all channels,
+      // using some kind of offset mechanism.
       const expressionTex = this.dataToTexture(
         expressionData,
         cellTexWidth,
@@ -114,34 +113,6 @@ export default class BitmaskLayer extends XRLayer {
     }
   }
 
-  setColorTexture() {
-    const {
-      cellColorData: data,
-      cellTexHeight: height,
-      cellTexWidth: width,
-    } = this.props;
-    const colorTex = new Texture2D(this.context.gl, {
-      width,
-      height,
-      // Only use Float32 so we don't have to write two shaders
-      data,
-      // we don't want or need mimaps
-      mipmaps: false,
-      parameters: {
-        // NEAREST for integer data
-        [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-        [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
-        // CLAMP_TO_EDGE to remove tile artifacts
-        [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-        [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
-      },
-      format: GL.RGB,
-      dataFormat: GL.RGB,
-      type: GL.UNSIGNED_BYTE,
-    });
-    this.setState({ colorTex });
-  }
-
   draw(opts) {
     const { uniforms } = opts;
     const {
@@ -154,29 +125,26 @@ export default class BitmaskLayer extends XRLayer {
       colorScaleLo,
       colorScaleHi,
       isExpressionMode,
+      cellTexHeight,
+      cellTexWidth,
       zoom,
       minZoom,
       maxZoom,
       zoomOffset, // TODO: figure out if this needs to be used or not
     } = this.props;
     const {
-      textures, model, colorTex, expressionTex,
+      textures, model, expressionTex,
     } = this.state;
     // Render the image
-    if (textures && model && colorTex) {
+    if (textures && model) {
       const scaleFactor = 1 / (2 ** (maxZoom - zoom));
+      const colors = fromEntries(range(MAX_CHANNELS).map(i => ([`color${i}`, getColor(channelColors[i])])));
       model
         .setUniforms(
           Object.assign({}, uniforms, {
-            color0: getColor(channelColors[0]),
-            color1: getColor(channelColors[1]),
-            color2: getColor(channelColors[2]),
-            color3: getColor(channelColors[3]),
-            color4: getColor(channelColors[4]),
-            color5: getColor(channelColors[5]),
-            color6: getColor(channelColors[6]),
-            color7: getColor(channelColors[7]),
-            // TODO: up to 8 colors
+            ...colors,
+            ...textures,
+            expressionTex,
             channelsFilled: padWithDefault(
               channelsFilled,
               true,
@@ -195,12 +163,9 @@ export default class BitmaskLayer extends XRLayer {
               // There are six texture entries on the shaders
               MAX_CHANNELS - channelStrokeWidths.length,
             ),
-            // TODO: colors 1-5
             hovered: hoveredCell || 0,
-            colorTex,
-            expressionTex,
-            colorTexHeight: colorTex.height,
-            colorTexWidth: colorTex.width,
+            colorTexHeight: cellTexHeight,
+            colorTexWidth: cellTexWidth,
             channelsVisible: padWithDefault(
               channelsVisible,
               false,
@@ -209,10 +174,8 @@ export default class BitmaskLayer extends XRLayer {
             ),
             uColorScaleRange: [colorScaleLo, colorScaleHi],
             uIsExpressionMode: isExpressionMode,
-            uIsColorMode: true,
             uIsOutlined: false,
             scaleFactor,
-            ...textures,
           }),
         )
         .draw();

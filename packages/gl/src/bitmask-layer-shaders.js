@@ -28,6 +28,9 @@ precision highp float;
 
 ${colormaps}
 
+// Note: can have a maximum of 16 textures in most browsers
+// Reference: https://webglreport.com/
+
 // Data (mask) texture
 uniform sampler2D channel0;
 uniform sampler2D channel1;
@@ -36,25 +39,24 @@ uniform sampler2D channel3;
 uniform sampler2D channel4;
 uniform sampler2D channel5;
 uniform sampler2D channel6;
-uniform sampler2D channel7;
 
 // Color texture
-uniform sampler2D colorTex;
 uniform float colorTexHeight;
 uniform float colorTexWidth;
 uniform float hovered;
 // range
-uniform bool channelsVisible[8];
-uniform float channelOpacities[8];
+uniform bool channelsVisible[7];
+uniform float channelOpacities[7];
 
 // Expression mapping
 uniform vec2 uColorScaleRange;
 uniform bool uIsExpressionMode;
-uniform bool uIsColorMode;
+// TODO: use one expressionTex for all channels,
+// using some kind of offset mechanism.
 uniform sampler2D expressionTex;
 
 // Static colors
-// For some reason I cannot use uniform vec3 colors[6]; and i cannot figure out why.
+// For some reason I cannot use uniform vec3 colors[7]; and i cannot figure out why.
 uniform vec3 color0;
 uniform vec3 color1;
 uniform vec3 color2;
@@ -62,12 +64,11 @@ uniform vec3 color3;
 uniform vec3 color4;
 uniform vec3 color5;
 uniform vec3 color6;
-uniform vec3 color7;
 
 // Info for edge-only mode
 uniform float scaleFactor;
-uniform bool channelsFilled[8];
-uniform float channelStrokeWidths[8];
+uniform bool channelsFilled[7];
+uniform float channelStrokeWidths[7];
 
 // opacity
 uniform float opacity;
@@ -105,10 +106,9 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelCol
   vec2 colorTexCoord = vec2(mod(sampledData, colorTexWidth) / colorTexWidth, floor(sampledData / colorTexWidth) / (colorTexHeight - 1.));
   float expressionValue = texture(expressionTex, colorTexCoord).r / 255.;
   float scaledExpressionValue = (expressionValue - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
-  vec4 sampledColor = float(uIsExpressionMode) * COLORMAP_FUNC(clamp(scaledExpressionValue, 0.0, 1.0)) + (1. - float(uIsExpressionMode)) * vec4(texture(colorTex, colorTexCoord).rgb, 1.);
-  vec4 newColor = float(uIsColorMode) * vec4(channelColor.rgb, channelOpacity) + (1. - float(uIsColorMode)) * sampledColor;
+  vec4 sampledColor = float(uIsExpressionMode) * COLORMAP_FUNC(clamp(scaledExpressionValue, 0.0, 1.0)) + (1. - float(uIsExpressionMode)) * vec4(channelColor.rgb, channelOpacity);
   // Only return a color if the data is non-zero.
-  return max(0., min(sampledData, 1.)) * float(isEdge) * float(isOn) * newColor;
+  return max(0., min(sampledData, 1.)) * float(isEdge) * float(isOn) * sampledColor;
 }
 
 void main() {
@@ -126,8 +126,6 @@ void main() {
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
   sampledColor = sampleAndGetColor(channel6, vTexCoord, channelsVisible[6], color6, channelOpacities[6], channelsFilled[6], channelStrokeWidths[6]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  sampledColor = sampleAndGetColor(channel7, vTexCoord, channelsVisible[7], color7, channelOpacities[7], channelsFilled[7], channelStrokeWidths[7]);
-  gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
 
   // If the sampled color and the currently stored color (gl_FragColor) are identical, don't blend and use the sampled color,
   // otherwise just use the currently stored color.  Repeat this for all channels.
@@ -141,10 +139,6 @@ void main() {
   // gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
   // sampledColor = sampleAndGetColor(channel5, vTexCoord, channelsVisible[5], channelColors[5]);
   // gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  // Apply the opacity if there is pixel data, and if the pixel data is empty i.e no segmentation, use 0 opacity.
-  if(!uIsColorMode) {
-    gl_FragColor = vec4(gl_FragColor.rgb, (gl_FragColor.rgb == vec3(0., 0., 0.)) ? 0.0 : opacity);
-  }
 
   geometry.uv = vTexCoord;
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);

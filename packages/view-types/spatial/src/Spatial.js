@@ -545,16 +545,25 @@ class Spatial extends AbstractSpatialOrScatterplot {
               use3d: false,
               visible: true,
             }),
-            channels: segmentationLayerScopes.map((layerScope, i) => {
-              const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC, spatialLayerColor, spatialLayerFilled, spatialLayerStrokeWidth } = segmentationLayerCoordination[0][layerScope];
+            channels: segmentationLayerScopes.map((layerScope) => {
+              const {
+                spatialLayerVisible: visible,
+                spatialLayerOpacity: opacity,
+                spatialTargetC,
+                spatialLayerColor,
+                spatialLayerFilled,
+                spatialLayerStrokeWidth,
+                obsColorEncoding,
+              } = segmentationLayerCoordination[0][layerScope];
               return {
                 selection: { t: 0, z: 0, c: spatialTargetC }, // should fill in c.
-                visible: visible,
-                opacity: opacity,
+                visible,
+                opacity,
                 filled: spatialLayerFilled,
                 strokeWidth: spatialLayerStrokeWidth,
                 slider: [0, 1],
                 color: spatialLayerColor,
+                colorEncoding: obsColorEncoding, // TODO: use
               };
             }),
             callback: segmentationLayerCallbacks[0],
