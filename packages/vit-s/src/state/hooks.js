@@ -3,6 +3,7 @@ import create from 'zustand';
 import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
 import isMatch from 'lodash/isMatch';
+import merge from 'lodash/merge';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { fromEntries, capitalize } from '@vitessce/utils';
 
@@ -27,53 +28,43 @@ export const AuxiliaryProvider = AuxiliaryProviderLocal;
 export const useAuxiliaryStore = useAuxiliaryStoreLocal;
 
 /**
- * Get the matching parameter scope,
- * accounting for metaCoordinationScopes.
- * @param {string} parameter A coordination type.
+ * Get the "computed" coordinationScopes after accounting for
+ * meta-coordination.
  * @param {*} coordinationScopes The coordinationScopes for a view.
  * @param {*} coordinationSpace The coordinationSpace for a config.
- * @returns {string|undefined} The coordination scope that matches.
+ * @returns {string|undefined} The coordinationScopesBy after meta-coordination.
  */
-export function getParameterScope(parameter, coordinationScopes, coordinationSpace) {
-  // Set parameterScope to the non-meta-value first.
-  let parameterScope = coordinationScopes[parameter];
+export function getScopes(coordinationScopes, coordinationSpace) {
+  let result = coordinationScopes;
   // Check if there is a matching meta-scope.
   if (coordinationSpace) {
     // Determine if there is a meta-scope that would take precedence.
     const metaScopes = coordinationScopes[CoordinationType.META_COORDINATION_SCOPES];
     const metaSpace = coordinationSpace[CoordinationType.META_COORDINATION_SCOPES];
-    if (metaSpace && metaScopes) {
+    if (metaScopes && metaSpace) {
       // The view.coordinationScopes.metaCoordinationScopes might be an array or a string.
       // Convert to an array.
       const metaScopesArr = Array.isArray(metaScopes) ? metaScopes : [metaScopes];
-      // Find the first matching meta-scope which has a matching scope
-      // for the parameter of interest.
-      const matchingMetaScope = metaScopesArr.find(metaScope => (
-        metaSpace[metaScope] && metaSpace[metaScope][parameter]
-      ));
-      if (matchingMetaScope !== undefined) {
-        parameterScope = metaSpace[matchingMetaScope][parameter];
-      }
+      metaScopesArr.forEach((metaScope) => {
+        // Merge the original coordinationScopes with the matching meta-coordinationScopes
+        // from the coordinationSpace.
+        result = merge(result, metaSpace[metaScope]);
+      });
     }
   }
-  return parameterScope;
+  return result;
 }
 
 /**
- * Get the matching parameter scope,
- * accounting for metaCoordinationScopes.
- * @param {string} parameter A coordination type.
+ * Get the "computed" coordinationScopesBy after accounting for
+ * meta-coordination.
  * @param {*} coordinationScopes The coordinationScopes for a view.
  * @param {*} coordinationScopesBy The coordinationScopesBy for a view.
  * @param {*} coordinationSpace The coordinationSpace for a config.
- * @returns {string|undefined} The coordination scope that matches.
+ * @returns {string|undefined} The coordinationScopesBy after meta-coordination.
  */
-export function getParameterScopeBy(
-  parameter, byType, typeScope, coordinationScopes, coordinationScopesBy, coordinationSpace,
-) {
-  const parameterScopeGlobal = coordinationScopes[parameter];
-  // Set parameterScope to the non-meta-value first.
-  let parameterScopeByType = coordinationScopesBy?.[byType]?.[parameter];
+export function getScopesBy(coordinationScopes, coordinationScopesBy, coordinationSpace) {
+  let result = coordinationScopesBy;
   // Check if there is a matching meta-scope.
   if (coordinationSpace) {
     // Determine if there is a meta-scope that would take precedence.
@@ -83,18 +74,39 @@ export function getParameterScopeBy(
       // The view.coordinationScopes.metaCoordinationScopes might be an array or a string.
       // Convert to an array.
       const metaScopesArr = Array.isArray(metaScopesBy) ? metaScopesBy : [metaScopesBy];
-      // Find the first matching meta-scope which has a matching scope
-      // for the parameter of interest.
-      const matchingMetaScope = metaScopesArr.find(metaScope => (
-        metaSpaceBy[metaScope]
-        && metaSpaceBy[metaScope][byType]
-        && metaSpaceBy[metaScope][byType][parameter]
-      ));
-      if (matchingMetaScope !== undefined) {
-        parameterScopeByType = metaSpaceBy[matchingMetaScope][byType][parameter];
-      }
+      metaScopesArr.forEach((metaScope) => {
+        // Merge the original coordinationScopesBy with the matching meta-coordinationScopesBy
+        // from the coordinationSpace.
+        result = merge(result, metaSpaceBy[metaScope]);
+      });
     }
   }
+  return result;
+}
+
+/**
+ * Get the matching parameter scope.
+ * @param {string} parameter A coordination type.
+ * @param {*} coordinationScopes The coordinationScopes for a view.
+ * @returns {string|undefined} The coordination scope that matches.
+ */
+export function getParameterScope(parameter, coordinationScopes) {
+  return coordinationScopes[parameter];
+}
+
+/**
+ * Get the matching parameter scope.
+ * @param {string} parameter A coordination type.
+ * @param {*} coordinationScopes The coordinationScopes for a view.
+ * @param {*} coordinationScopesBy The coordinationScopesBy for a view.
+ * @returns {string|undefined} The coordination scope that matches.
+ */
+export function getParameterScopeBy(
+  parameter, byType, typeScope, coordinationScopes, coordinationScopesBy,
+) {
+  const parameterScopeGlobal = coordinationScopes[parameter];
+  // Set parameterScope to the non-meta-value first.
+  const parameterScopeByType = coordinationScopesBy?.[byType]?.[parameter];
 
   if (parameterScopeByType && parameterScopeByType[typeScope]) {
     return parameterScopeByType[typeScope];
@@ -130,10 +142,10 @@ export const createViewConfigStore = () => create(set => ({
     const { coordinationSpace } = state.viewConfig;
     let scope;
     if (!byType) {
-      scope = getParameterScope(parameter, coordinationScopes, coordinationSpace);
+      scope = getParameterScope(parameter, coordinationScopes);
     } else {
       scope = getParameterScopeBy(
-        parameter, byType, typeScope, coordinationScopes, coordinationScopesBy, coordinationSpace,
+        parameter, byType, typeScope, coordinationScopes, coordinationScopesBy,
       );
     }
     return {
@@ -291,7 +303,7 @@ export function useCoordination(parameters, coordinationScopes) {
     const { coordinationSpace } = state.viewConfig;
     return fromEntries(parameters.map((parameter) => {
       if (coordinationSpace) {
-        const parameterScope = getParameterScope(parameter, coordinationScopes, coordinationSpace);
+        const parameterScope = getParameterScope(parameter, coordinationScopes);
         if (coordinationSpace && coordinationSpace[parameter]) {
           const value = coordinationSpace[parameter][parameterScope];
           return [parameter, value];
@@ -316,22 +328,34 @@ export function useCoordination(parameters, coordinationScopes) {
 }
 
 export function useMultiCoordinationScopes(parameter, coordinationScopes) {
-  // Mapping from dataset coordination scope name to dataset uid
-  const vals = useViewConfigStore((state) => {
-    const { coordinationSpace } = state.viewConfig;
-    const scopes = getParameterScope(parameter, coordinationScopes, coordinationSpace);
-    // Convert a single scope to an array of scopes to be consistent.
+  return useMemo(() => {
+    const scopes = coordinationScopes[parameter];
     return Array.isArray(scopes) ? scopes : [scopes];
-  }, shallow);
+  }, [parameter, coordinationScopes]);
+}
 
-  return vals;
+export function useMultiCoordinationScopesSecondary(
+  parameter, byType, coordinationScopes, coordinationScopesBy,
+) {
+  return useMemo(() => {
+    const scopes = getParameterScope(byType, coordinationScopes);
+    const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
+    return [scopesArr, fromEntries(scopesArr.map((scope) => {
+      const secondaryScopes = coordinationScopesBy[byType][parameter][scope];
+      const secondaryScopesArr = Array.isArray(secondaryScopes)
+        ? secondaryScopes
+        : [secondaryScopes];
+      return [scope, secondaryScopesArr];
+    }))];
+  }, [parameter, byType, coordinationScopes, coordinationScopesBy]);
 }
 
 export function useMultiCoordinationValues(parameter, coordinationScopes) {
+  const scopes = getParameterScope(parameter, coordinationScopes);
+
   // Mapping from dataset coordination scope name to dataset uid
   const vals = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
-    const scopes = getParameterScope(parameter, coordinationScopes, coordinationSpace);
     // Convert a single scope to an array of scopes to be consistent.
     const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
     return fromEntries(scopesArr.map((scope) => {
@@ -378,7 +402,7 @@ export function useComplexCoordination(
 
   const values = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
-    const typeScopes = getParameterScope(byType, coordinationScopes, coordinationSpace);
+    const typeScopes = getParameterScope(byType, coordinationScopes);
 
     // Convert a single scope to an array of scopes to be consistent.
     const typeScopesArr = Array.isArray(typeScopes) ? typeScopes : [typeScopes];
@@ -392,7 +416,6 @@ export function useComplexCoordination(
             datasetScope,
             coordinationScopes,
             coordinationScopesBy,
-            coordinationSpace,
           );
           const value = parameterSpace[parameterScope];
           return [parameter, value];
@@ -403,9 +426,8 @@ export function useComplexCoordination(
     }));
   }, shallow);
 
-  const setters = useViewConfigStore((state) => {
-    const { coordinationSpace } = state.viewConfig;
-    const typeScopes = getParameterScope(byType, coordinationScopes, coordinationSpace);
+  const setters = useMemo(() => {
+    const typeScopes = getParameterScope(byType, coordinationScopes);
 
     // Convert a single scope to an array of scopes to be consistent.
     const typeScopesArr = Array.isArray(typeScopes) ? typeScopes : [typeScopes];
@@ -424,9 +446,50 @@ export function useComplexCoordination(
       }));
       return [datasetScope, datasetSetters];
     }));
-  }, shallow);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parameters, coordinationScopes]);
 
   return [values, setters];
+}
+
+/**
+ * Get the "computed" (i.e., after accounting for meta-coordination)
+ * value for coordinationScopes.
+ * @param {object} coordinationScopes The original coordinationScopes passed to the view.
+ * @returns {object} The coordinationScopes after filling in with meta-coordinationScopes.
+ */
+export function useCoordinationScopes(coordinationScopes) {
+  const vals = useViewConfigStore((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    const scopes = getScopes(
+      coordinationScopes,
+      coordinationSpace,
+    );
+    // Prevent infinite loop, delete metaCoordinationScopes now that they are computed.
+    delete scopes[CoordinationType.META_COORDINATION_SCOPES];
+    return scopes;
+  }, shallow);
+  return vals;
+}
+
+/**
+ * Get the "computed" (i.e., after accounting for meta-coordination)
+ * value for coordinationScopesBy.
+ * @param {object} coordinationScopes The original coordinationScopes passed to the view.
+ * @param {object} coordinationScopesBy The original coordinationScopesBy passed to the view.
+ * @returns {object} The coordinationScopesBy after filling in with meta-coordinationScopesBy.
+ */
+export function useCoordinationScopesBy(coordinationScopes, coordinationScopesBy) {
+  const vals = useViewConfigStore((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    const scopesBy = getScopesBy(
+      coordinationScopes,
+      coordinationScopesBy,
+      coordinationSpace,
+    );
+    return scopesBy;
+  }, shallow);
+  return vals;
 }
 
 /**

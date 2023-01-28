@@ -21,6 +21,8 @@ import {
   useMultiCoordinationValues,
   useMultiCoordinationScopes,
   useComplexCoordinationSecondary,
+  useCoordinationScopes,
+  useCoordinationScopesBy,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, STATUS, CoordinationType } from '@vitessce/constants-internal';
 import { capitalize, pluralize } from '@vitessce/utils';
@@ -126,8 +128,8 @@ const LayerControllerMemoized = React.memo(
           {/* Segmentation bitmask layers: */}
           {segmentationLayerScopes && segmentationLayerValues
             && segmentationLayerScopes.map((layerScope) => {
-              const { obsType, spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialLayerColor: color, spatialLayerFilled: filled, spatialLayerStrokeWidth: strokeWidth } = segmentationLayerCoordination[0][layerScope];
-              const { setSpatialLayerVisible: setVisible, setSpatialLayerOpacity: setOpacity, setSpatialLayerColor: setColor, setSpatialLayerFilled: setFilled, setSpatialLayerStrokeWidth: setStrokeWidth } = segmentationLayerCoordination[1][layerScope];
+              const { obsType, spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialChannelColor: color, spatialLayerFilled: filled, spatialLayerStrokeWidth: strokeWidth } = segmentationLayerCoordination[0][layerScope];
+              const { setSpatialLayerVisible: setVisible, setSpatialLayerOpacity: setOpacity, setSpatialChannelColor: setColor, setSpatialLayerFilled: setFilled, setSpatialLayerStrokeWidth: setStrokeWidth } = segmentationLayerCoordination[1][layerScope];
 
               const obsTypeName = obsType;
 
@@ -155,8 +157,8 @@ const LayerControllerMemoized = React.memo(
                 />
               );
             })}
-          {/* Image layers: */}
-          {rasterLayers
+          {/* Image layers: TODO: update */}
+          {false && rasterLayers
             && rasterLayers.map((layer, i) => {
               const { index } = layer;
               const loader = imageLayerLoaders?.[index];
@@ -270,8 +272,8 @@ const LayerControllerMemoized = React.memo(
  */
 export function LayerControllerSubscriber(props) {
   const {
-    coordinationScopes,
-    coordinationScopesBy,
+    coordinationScopes: coordinationScopesRaw,
+    coordinationScopesBy: coordinationScopesByRaw,
     removeGridComponent,
     theme,
     title = 'Spatial Layers',
@@ -283,6 +285,9 @@ export function LayerControllerSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
+  const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
 
   // Get "props" from the coordination space.
   const [
@@ -327,9 +332,10 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_TARGET_C,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
-      CoordinationType.SPATIAL_LAYER_COLOR,
+      CoordinationType.SPATIAL_CHANNEL_COLOR,
       CoordinationType.SPATIAL_LAYER_FILLED,
       CoordinationType.SPATIAL_LAYER_STROKE_WIDTH,
+      CoordinationType.OBS_COLOR_ENCODING,
     ],
     coordinationScopes,
     coordinationScopesBy,

@@ -492,8 +492,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
   use3d() {
     const {
       imageLayerDefs,
+
+      imageLayerScopes,
+      imageLayerCoordination,
     } = this.props;
+    // TODO: use imageLayerCoordination rather than imageLayerDefs here
+    return false;
     return (imageLayerDefs || []).some(i => i.use3d);
+  }
+
+  createImageLayer(layerScope, layerCoordination, channelScopes, channelCoordination) {
+    // TODO
+    return null;
   }
 
   createImageLayers() {
@@ -501,7 +511,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
       imageLayerDefs,
       imageLayerLoaders = {},
       imageLayerCallbacks = [],
+
+      imageLayerScopes,
+      imageLayerCoordination,
+
+      imageChannelScopesByLayer,
+      imageChannelCoordination,
     } = this.props;
+    // TODO: check for 3D.
+    return imageLayerScopes.map((layerScope) => {
+      return this.createImageLayer(
+        layerScope,
+        imageLayerCoordination[layerScope],
+        imageChannelScopesByLayer[layerScope],
+        imageChannelCoordination[layerScope],
+      );
+    });
     const use3d = this.use3d();
     const use3dIndex = (imageLayerDefs || []).findIndex(i => i.use3d);
     return (imageLayerDefs || [])
@@ -516,7 +541,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
   createBitmaskLayers() {
     const {
       segmentationLayerScopes,
-      segmentationLayerValues,
       segmentationLayerCoordination,
 
       obsSegmentationsLayerDefs,
@@ -525,7 +549,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       segmentationLayerCallbacks = [],
     } = this.props;
     // console.log('obsSegmentations', obsSegmentations, segmentationLayerScopes, segmentationLayerCoordination)
-    if(obsSegmentations && Object.keys(obsSegmentations).length === segmentationLayerScopes.length && segmentationLayerScopes && segmentationLayerValues && segmentationLayerCoordination) {
+    if(obsSegmentations && Object.keys(obsSegmentations).length === segmentationLayerScopes.length && segmentationLayerScopes && segmentationLayerCoordination) {
       const layerIndex = 0;
       // TODO: identify the unique images (i.e., loaders).
       // Return one layer corresponding to each image.
@@ -550,7 +574,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
                 spatialLayerVisible: visible,
                 spatialLayerOpacity: opacity,
                 spatialTargetC,
-                spatialLayerColor,
+                spatialChannelColor,
                 spatialLayerFilled,
                 spatialLayerStrokeWidth,
                 obsColorEncoding,
@@ -562,7 +586,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
                 filled: spatialLayerFilled,
                 strokeWidth: spatialLayerStrokeWidth,
                 slider: [0, 1],
-                color: spatialLayerColor,
+                color: spatialChannelColor,
                 colorEncoding: obsColorEncoding, // TODO: use
               };
             }),
@@ -574,7 +598,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         ),
       ];
       return segmentationLayerScopes.map((layerScope, i) => {
-        const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC, spatialLayerColor } = segmentationLayerCoordination[0][layerScope];
+        const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC, spatialChannelColor } = segmentationLayerCoordination[0][layerScope];
         const layerIndex = 0;
         return this.createRasterLayer(
           {
@@ -595,7 +619,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
                 selection: { t: 0, z: 0, c: spatialTargetC }, // should fill in c.
                 visible: true,
                 slider: [0, 1],
-                color: spatialLayerColor,
+                color: spatialChannelColor,
               },
             ],
             callback: segmentationLayerCallbacks[i],
@@ -876,7 +900,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'geneExpressionColormap',
         'segmentationLayerCallbacks',
         'segmentationLayerScopes',
-        'segmentationLayerValues',
         'segmentationLayerCoordination',
       ].some(shallowDiff)
     ) {
@@ -933,6 +956,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'expressionData',
         'imageLayerCallbacks',
         'geneExpressionColormap',
+
+        'imageLayerScopes',
+        'imageLayerCoordination',
+
+        'imageChannelScopesByLayer',
+        'imageChannelCoordination',
       ].some(shallowDiff)
     ) {
       // Image layers changed.

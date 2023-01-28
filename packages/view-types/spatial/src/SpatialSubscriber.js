@@ -22,7 +22,10 @@ import {
   useMultiObsSegmentations,
   useComplexCoordination,
   useMultiCoordinationScopes,
-  useMultiCoordinationValues,
+  useMultiCoordinationScopesSecondary,
+  useComplexCoordinationSecondary,
+  useCoordinationScopes,
+  useCoordinationScopesBy,
 } from '@vitessce/vit-s';
 import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
 import { canLoadResolution, getCellColors } from '@vitessce/utils';
@@ -66,8 +69,8 @@ const tempLayer = [{
 export function SpatialSubscriber(props) {
   const {
     uuid,
-    coordinationScopes,
-    coordinationScopesBy,
+    coordinationScopes: coordinationScopesRaw,
+    coordinationScopesBy: coordinationScopesByRaw,
     removeGridComponent,
     observationsLabelOverride,
     subobservationsLabelOverride: subobservationsLabel = 'molecule',
@@ -82,6 +85,10 @@ export function SpatialSubscriber(props) {
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
+
+  // Acccount for possible meta-coordination.
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
+  const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
 
   // Get "props" from the coordination space.
   const [{
@@ -98,7 +105,6 @@ export function SpatialSubscriber(props) {
     spatialRotationZ: rotationZ,
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
-    spatialImageLayer: imageLayers,
     spatialSegmentationLayer: cellsLayer,
     spatialPointLayer: moleculesLayer,
     spatialNeighborhoodLayer: neighborhoodsLayer,
@@ -120,7 +126,6 @@ export function SpatialSubscriber(props) {
     setSpatialRotationX: setRotationX,
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialOrbitAxis: setOrbitAxis,
-    setSpatialImageLayer: setRasterLayers,
     setSpatialSegmentationLayer: setCellsLayer,
     setSpatialPointLayer: setMoleculesLayer,
     setSpatialNeighborhoodLayer: setNeighborhoodsLayer,
@@ -139,14 +144,19 @@ export function SpatialSubscriber(props) {
   const observationsLabel = observationsLabelOverride || obsType;
 
   // Normalize arrays and non-arrays to always be arrays.
-  const segmentationLayerValues = useMultiCoordinationValues(
-    CoordinationType.SPATIAL_SEGMENTATION_LAYER,
-    coordinationScopes,
-  );
   const segmentationLayerScopes = useMultiCoordinationScopes(
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
     coordinationScopes,
   );
+
+  const [imageLayerScopes, imageChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
+    CoordinationType.SPATIAL_IMAGE_CHANNEL,
+    CoordinationType.SPATIAL_IMAGE_LAYER,
+    coordinationScopes,
+    coordinationScopesBy,
+  );
+
+  console.log(imageLayerScopes, imageChannelScopesByLayer);
 
   // Object keys are coordination scope names for spatialSegmentationLayer.
   const segmentationLayerCoordination = useComplexCoordination(
@@ -156,7 +166,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_TARGET_C,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
-      CoordinationType.SPATIAL_LAYER_COLOR,
+      CoordinationType.SPATIAL_CHANNEL_COLOR,
       CoordinationType.SPATIAL_LAYER_FILLED,
       CoordinationType.SPATIAL_LAYER_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,
@@ -166,7 +176,31 @@ export function SpatialSubscriber(props) {
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
   );
 
-  //console.log(segmentationLayerCoordination);
+  const imageLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.IMAGE,
+      CoordinationType.SPATIAL_IMAGE_CHANNEL,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_IMAGE_LAYER,
+  );
+
+  // Object keys are coordination scope names for spatialImageChannel.
+  const imageChannelCoordination = useComplexCoordinationSecondary(
+    [
+      CoordinationType.SPATIAL_TARGET_C,
+      CoordinationType.SPATIAL_CHANNEL_VISIBLE,
+      CoordinationType.SPATIAL_CHANNEL_COLOR,
+    ],
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_IMAGE_LAYER,
+    CoordinationType.SPATIAL_IMAGE_CHANNEL,
+  );
+
+  console.log(imageLayerCoordination, imageChannelCoordination);
 
   const [
     {
@@ -177,7 +211,8 @@ export function SpatialSubscriber(props) {
     COMPONENT_COORDINATION_TYPES.layerController,
     coordinationScopes,
   );
-
+  
+  const imageLayers = []; // TODO: remove
   const use3d = imageLayers?.some(l => l.use3d);
 
   const [urls, addUrl] = useUrls(loaders, dataset);
@@ -256,8 +291,8 @@ export function SpatialSubscriber(props) {
   );
   const [{ image }, imageStatus] = useImageData(
     loaders, dataset, addUrl, false,
-    { setSpatialImageLayer: setRasterLayers },
-    { spatialImageLayer: imageLayers },
+    {},
+    {},
     {}, // TODO: which properties to match on. Revisit after #830.
   );
   const { loaders: imageLayerLoaders = [] } = image || {};
@@ -488,9 +523,14 @@ export function SpatialSubscriber(props) {
         hasSegmentations={hasSegmentationsData}
 
         segmentationLayerScopes={segmentationLayerScopes}
-        segmentationLayerValues={segmentationLayerValues}
         segmentationLayerCoordination={segmentationLayerCoordination}
-        
+
+        imageLayerScopes={imageLayerScopes}
+        imageLayerCoordination={imageLayerCoordination}
+
+        imageChannelScopesByLayer={imageChannelScopesByLayer}
+        imageChannelCoordination={imageChannelCoordination}
+
         obsSegmentations={obsSegmentationsData}
         obsSegmentationsType={"bitmask"}
         obsCentroids={obsCentroids}

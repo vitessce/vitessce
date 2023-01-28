@@ -169,13 +169,15 @@ export const CoordinationType = {
   GATING_FEATURE_SELECTION_X: 'gatingFeatureSelectionX',
   GATING_FEATURE_SELECTION_Y: 'gatingFeatureSelectionY',
   FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'featureValueTransformCoefficient',
-  IMAGE: 'image',
+  IMAGE: 'image', // TODO: change to fileUid?
   SPATIAL_TARGET_C: 'spatialTargetC',
   SPATIAL_LAYER_VISIBLE: 'spatialLayerVisible',
   SPATIAL_LAYER_OPACITY: 'spatialLayerOpacity',
-  SPATIAL_LAYER_COLOR: 'spatialLayerColor',
   SPATIAL_LAYER_FILLED: 'spatialLayerFilled',
   SPATIAL_LAYER_STROKE_WIDTH: 'spatialLayerStrokeWidth',
+  SPATIAL_CHANNEL_COLOR: 'spatialChannelColor', // TODO: have both SPATIAL_LAYER_COLOR (for bitmasks) and SPATIAL_CHANNEL_COLOR (for images)?
+  SPATIAL_IMAGE_CHANNEL: 'spatialImageChannel',
+  SPATIAL_CHANNEL_VISIBLE: 'spatialChannelVisible',
 };
 
 export const STATUS = {

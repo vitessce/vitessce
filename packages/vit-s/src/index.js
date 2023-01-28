@@ -16,10 +16,13 @@ export {
   useGridItemSize,
 } from './hooks';
 export {
+  useCoordinationScopes,
+  useCoordinationScopesBy,
   useCoordination,
   useComplexCoordination,
   useComplexCoordinationSecondary,
   useMultiCoordinationScopes,
+  useMultiCoordinationScopesSecondary,
   useMultiCoordinationValues,
   useMultiDatasetCoordination,
   useDatasetUids,

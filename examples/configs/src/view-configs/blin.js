@@ -27,7 +27,9 @@ export const blin2019 = {
           options: {
             offsetsUrl: 'http://localhost:8000/18-142_PAS_1of6_bf.offsets.json',
           },
-          coordinationValues: {},
+          coordinationValues: {
+            image: '18-142_PAS_1of6_bf',
+          },
         },
         {
           fileType: 'obsFeatureMatrix.csv',
@@ -53,7 +55,16 @@ export const blin2019 = {
   initStrategy: 'auto',
   coordinationSpace: {
     image: {
-      A: '18-142_PAS_1of6',
+      bitmask: '18-142_PAS_1of6',
+      rgb: '18-142_PAS_1of6_bf',
+    },
+    spatialImageLayer: {
+      histology: 'histology',
+    },
+    spatialImageChannel: {
+      R: 'R',
+      G: 'G',
+      B: 'B',
     },
     spatialSegmentationLayer: {
       ci: 'ci',
@@ -71,6 +82,9 @@ export const blin2019 = {
       E: 'Tubules',
       F: 'Arteries/Arterioles',
     },
+    obsColorEncoding: {
+      A: 'spatialChannelColor',
+    },
     featureType: {
       A: 'feature',
     },
@@ -82,12 +96,35 @@ export const blin2019 = {
       E: null,
     },
     spatialTargetC: {
+      // bitmask
       A: 0,
       B: 1,
       C: 2,
       D: 3,
       E: 4,
       F: 5,
+      // RGB
+      imageR: 0,
+      imageG: 1,
+      imageB: 2,
+    },
+    spatialChannelColor: {
+      // bitmask
+      A: [0xFF, 0xFF, 0xFF],
+      B: [0x00, 0x92, 0x92],
+      C: [0x24, 0xFF, 0x24],
+      D: [0x00, 0x49, 0x49],
+      E: [0xFF, 0xFF, 0x6D],
+      F: [0xDB, 0x6D, 0x00],
+      // RGB
+      imageR: [255, 0, 0],
+      imageG: [0, 255, 0],
+      imageB: [0, 0, 255],
+    },
+    spatialChannelVisible: {
+      imageR: true,
+      imageG: true,
+      imageB: true,
     },
     spatialLayerVisible: {
       A: false,
@@ -96,22 +133,18 @@ export const blin2019 = {
       D: true,
       E: true,
       F: true,
+      image: true,
     },
     spatialLayerOpacity: {
+      // bitmask
       A: 1,
       B: 1,
       C: 1,
       D: 1,
       E: 1,
       F: 1,
-    },
-    spatialLayerColor: {
-      A: [0xFF, 0xFF, 0xFF],
-      B: [0x00, 0x92, 0x92],
-      C: [0x24, 0xFF, 0x24],
-      D: [0x00, 0x49, 0x49],
-      E: [0xFF, 0xFF, 0x6D],
-      F: [0xDB, 0x6D, 0x00],
+      // RGB
+      image: 1,
     },
     spatialLayerFilled: {
       A: false,
@@ -137,19 +170,55 @@ export const blin2019 = {
     metaCoordinationScopes: {
       metaA: {
         obsType: ['A', 'B', 'C', 'D', 'E', 'F'],
+        // TODO: treat segmentation layers more like the image layers. add a level for channels,
+        // i.e., additional level of coordination. This should make it more clear that the different
+        // segmentations are coming from different channels in the image file.
+        // Also, a segmentation layer should correspond to a single bitmask file.
         spatialSegmentationLayer: ['ci', 'mi', 'g', 'gsg', 't', 'a'],
+        spatialImageLayer: ['histology'],
       },
     },
     metaCoordinationScopesBy: {
       metaA: {
+        spatialImageLayer: {
+          image: {
+            histology: 'rgb',
+          },
+          spatialImageChannel: {
+            histology: ['R', 'G', 'B'],
+          },
+          spatialLayerVisible: {
+            histology: 'image',
+          },
+          spatialLayerOpacity: {
+            histology: 'image',
+          },
+        },
+        spatialImageChannel: {
+          spatialTargetC: {
+            R: 'imageR',
+            G: 'imageG',
+            B: 'imageB',
+          },
+          spatialChannelColor: {
+            R: 'imageR',
+            G: 'imageG',
+            B: 'imageB',
+          },
+          spatialChannelVisible: {
+            R: 'imageR',
+            G: 'imageG',
+            B: 'imageB',
+          },
+        },
         spatialSegmentationLayer: {
           image: {
-            ci: 'A',
-            mi: 'A',
-            g: 'A',
-            gsg: 'A',
-            t: 'A',
-            a: 'A',
+            ci: 'bitmask',
+            mi: 'bitmask',
+            g: 'bitmask',
+            gsg: 'bitmask',
+            t: 'bitmask',
+            a: 'bitmask',
           },
           obsType: {
             ci: 'A',
@@ -167,6 +236,14 @@ export const blin2019 = {
             t: 'E',
             a: 'F',
           },
+          obsColorEncoding: {
+            ci: 'A',
+            mi: 'A',
+            g: 'A',
+            gsg: 'A',
+            t: 'A',
+            a: 'A',
+          },
           spatialLayerVisible: {
             ci: 'A',
             mi: 'B',
@@ -183,7 +260,7 @@ export const blin2019 = {
             t: 'E',
             a: 'F',
           },
-          spatialLayerColor: {
+          spatialChannelColor: {
             ci: 'A',
             mi: 'B',
             g: 'C',
