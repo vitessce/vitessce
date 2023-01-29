@@ -578,7 +578,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       contrastLimits,
       selections,
       channelsVisible: channelScopes
-        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]),
+        .map(cScope => visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]),
       opacity: layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY],
       colormap,
       modelMatrix,
