@@ -22,6 +22,8 @@ import { PATHOLOGY_PALETTE, LARGE_PATHOLOGY_PALETTE } from '@vitessce/utils';
 import { CoordinationType } from '@vitessce/constants-internal';
 
 import { useControllerSectionStyles } from './styles';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import ExpandLess from '@material-ui/icons/ExpandLess';
 
 const useStyles = makeStyles(() => ({
   
@@ -39,6 +41,8 @@ export default function SplitImageLayerController(props) {
     use3d, /* TODO */
   } = props;
 
+  const [open, setOpen] = useState(false);
+
   const {
     spatialLayerVisible: visible,
     spatialLayerOpacity: opacity,
@@ -51,7 +55,10 @@ export default function SplitImageLayerController(props) {
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
 
-  const label = layerScope;
+  // TODO: does this work for non-OME-TIFF?
+  const label = image?.image?.loaders?.[0]?.metadata?.Name;
+
+  console.log(image);
 
   const classes = useControllerSectionStyles();
   return (
@@ -78,14 +85,7 @@ export default function SplitImageLayerController(props) {
               <Visibility />
             </Button>
           </Grid>
-          <Grid item xs={1}></Grid>
-          {/*<Grid item xs={1}>
-            <ColorPickerMenu
-              color={color}
-              setColor={setColor}
-              palette={palette}
-            />
-          </Grid>*/}
+          <Grid item xs={1} />
           <Grid item xs={6}>
             <Typography
               style={{
@@ -109,19 +109,31 @@ export default function SplitImageLayerController(props) {
               orientation="horizontal"
             />
           </Grid>
-          <Grid item xs={1}></Grid>
-          {/*<Grid item xs={1}>
-            <StrokeWidthMenu
-              strokeWidth={strokeWidth}
-              setStrokeWidth={setStrokeWidth}
-              filled={filled}
-              setFilled={setFilled}
-            />
-          </Grid>*/}
-          <Grid item xs={1}>
-            <ImageIcon style={{ marginTop: '10px', marginLeft: '8px' }} />
+          <Grid item xs={2} container direction="row" justifyContent="flex-end">
+            <ImageIcon style={{ marginTop: '8px' }} />
+            <Button
+              onClick={(e) => {
+                // Needed to prevent affecting the expansion panel from changing
+                e.stopPropagation();
+                setOpen(prev => !prev);
+              }}
+              style={{
+                display: 'inline-block',
+                margin: 0,
+                padding: 0,
+                minWidth: 0,
+                lineHeight: 1,
+              }}
+            >
+              {open ? <ExpandLess /> : <ExpandMore />}
+            </Button>
           </Grid>
         </Grid>
+        {open ? (
+          <Grid container direction="column" justifyContent="space-between">
+            <p>TODO</p>
+          </Grid>
+        ) : null}
       </Paper>
     </Grid>
   );
