@@ -11,6 +11,8 @@ import {
   useNeighborhoodsData,
   useObsLabelsData,
   useMultiObsLabels,
+  useMultiObsSegmentations,
+  useMultiImages,
   useExpressionValueGetter, useGetObsInfo,
   useCoordination,
   useLoaders,
@@ -19,7 +21,6 @@ import {
   useAuxiliaryCoordination,
   useHasLoader,
   registerPluginViewType,
-  useMultiObsSegmentations,
   useComplexCoordination,
   useMultiCoordinationScopes,
   useMultiCoordinationScopesSecondary,
@@ -225,6 +226,10 @@ export function SpatialSubscriber(props) {
   const [obsTypes, obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset, () => {}, obsSegmentationsMatchOn,
   );
+  const [imageData, imageDataStatus] = useMultiImages(
+    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
+  );
+  console.log(imageData, imageDataStatus);
   // console.log(obsTypes, obsSegmentationsData, obsSegmentationsDataStatus);
 
   const hasExpressionData = useHasLoader(
@@ -525,6 +530,7 @@ export function SpatialSubscriber(props) {
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerCoordination={segmentationLayerCoordination}
 
+        images={imageData}
         imageLayerScopes={imageLayerScopes}
         imageLayerCoordination={imageLayerCoordination}
 

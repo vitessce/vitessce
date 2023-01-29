@@ -385,3 +385,27 @@ export function useMultiObsSegmentations(
   );
   return [obsTypes, obsSegmentationsData, obsSegmentationsDataStatus];
 }
+
+export function useMultiImages(
+  coordinationScopes, coordinationScopesBy, loaders, dataset, addUrl,
+) {
+  const imageCoordination = useComplexCoordination(
+    [
+      CoordinationType.IMAGE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_IMAGE_LAYER,
+  );
+  const matchOnObj = useMemo(() => imageCoordination[0]
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+  , [coordinationScopes, coordinationScopesBy]);
+  const [imageData, imageDataStatus] = useDataTypeMulti(
+    DataType.IMAGE, loaders, dataset,
+    addUrl, false, {}, {},
+    matchOnObj,
+  );
+  return [imageData, imageDataStatus];
+}

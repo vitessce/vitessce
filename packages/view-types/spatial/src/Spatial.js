@@ -7,6 +7,7 @@ import { getSourceFromLoader, isInterleaved } from '@vitessce/spatial-utils';
 import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
+import { CoordinationType } from '@vitessce/constants-internal';
 import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
 
 const CELLS_LAYER_ID = 'cells-layer';
@@ -354,6 +355,19 @@ class Spatial extends AbstractSpatialOrScatterplot {
     return null;
   }
 
+  use3d() {
+    const {
+      imageLayerDefs,
+
+      imageLayerScopes,
+      imageLayerCoordination,
+    } = this.props;
+    // TODO: use imageLayerCoordination rather than imageLayerDefs here
+    return false;
+    return (imageLayerDefs || []).some(i => i.use3d);
+  }
+
+  // Old createRasterLayer function.
   createRasterLayer(rawLayerDef, loader, i) {
     const layerDef = {
       ...rawLayerDef,
@@ -489,21 +503,95 @@ class Spatial extends AbstractSpatialOrScatterplot {
     });
   }
 
-  use3d() {
-    const {
-      imageLayerDefs,
+  // New createImageLayer function.
+  createImageLayer(layerScope, layerCoordination, channelScopes, channelCoordination, image, use3d) {
+    // TODO: always using 0th loader here, create joint file type to split existing multi-image
+    // raster.json when necessary.
+    const { data, metadata } = image?.image?.loaders?.[0] || {};
+    if (!data) {
+      return null;
+    }
 
-      imageLayerScopes,
-      imageLayerCoordination,
-    } = this.props;
-    // TODO: use imageLayerCoordination rather than imageLayerDefs here
-    return false;
-    return (imageLayerDefs || []).some(i => i.use3d);
-  }
+    const [Layer, layerLoader] = getLayerLoaderTuple(data, use3d);
 
-  createImageLayer(layerScope, layerCoordination, channelScopes, channelCoordination) {
-    // TODO
-    return null;
+    const colormap = null; // TODO(CoordinationType): per-layer colormap
+    const renderingMode = null; // TODO(CoordinationType): global or per-layer renderingMode (used in 3d mode)
+    const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
+
+    const layerDefTransparentColor = null; // TODO(CoordinationType): per-layer transparentColor
+    const useTransparentColor = (!visible && typeof visible === 'boolean') || Boolean(layerDefTransparentColor);
+    const transparentColor = useTransparentColor ? [0, 0, 0] : null;
+
+    const extensions = getVivLayerExtensions(
+      use3d, colormap, renderingMode,
+    );
+
+    // Safer to only use this prop when we have an interleaved image i.e not multiple channels.
+    const rgbInterleavedProps = {};
+    if (isInterleaved((Array.isArray(data) ? data[0] : data).shape)) {
+      rgbInterleavedProps.visible = visible;
+    }
+
+    const layerDefModelMatrix = null; // TODO(CoordinationType): per-layer modelMatrix
+    let modelMatrix;
+    const { transform } = metadata || {};
+    if (transform) {
+      const { scale, translate } = transform;
+      modelMatrix = new Matrix4()
+        .translate([translate.x, translate.y, 0])
+        .scale(scale);
+    } else if (layerDefModelMatrix) {
+      // eslint-disable-next-line prefer-destructuring
+      modelMatrix = new Matrix4(layerDefModelMatrix);
+    }
+
+    // We need to keep the same selections array reference,
+    // otherwise the Viv layer will not be re-used as we want it to,
+    // since selections is one of its `updateTriggers`.
+    // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
+    let selections;
+    const nextLoaderSelection = channelScopes
+      .map(cScope => ({
+        // TODO: Z, T
+        // TODO: keys (if not always 'c', 'z', 't')
+        z: 0,
+        t: 0,
+        c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+      }));
+    const prevLoaderSelection = this.layerLoaderSelections[layerScope];
+    if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
+      selections = prevLoaderSelection;
+    } else {
+      selections = nextLoaderSelection;
+      this.layerLoaderSelections[layerScope] = nextLoaderSelection;
+    }
+
+    return new Layer({
+      loader: layerLoader,
+      id: `${use3d ? 'volume' : 'image'}-layer-${layerScope}`,
+      colors: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]),
+      contrastLimits: channelScopes
+        .map(cScope => ([0, 255])), // TODO(CoordinationType): per-channel sliders
+      selections,
+      channelsVisible: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]),
+      opacity: layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY],
+      colormap,
+      modelMatrix,
+      transparentColor,
+      useTransparentColor,
+      resolution: null, // layerProps.resolution, // TODO(CoordinationType): global or per-layer resolution (used in 3d mode)
+      renderingMode,
+      pickable: false,
+      xSlice: [0, 1], // layerProps.xSlice, // TODO(CoordinationType): global or per-layer xSlice (used in 3d mode)
+      ySlice: [0, 1], // layerProps.ySlice, // TODO(CoordinationType)
+      zSlice: [0, 1], // layerProps.zSlice, // TODO(CoordinationType)
+      onViewportLoad: () => {}, // layerProps.callback, // TODO: figure out callback implementation
+      excludeBackground: useTransparentColor,
+      extensions,
+      ...rgbInterleavedProps,
+    });
   }
 
   createImageLayers() {
@@ -512,6 +600,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       imageLayerLoaders = {},
       imageLayerCallbacks = [],
 
+      images = {},
       imageLayerScopes,
       imageLayerCoordination,
 
@@ -519,15 +608,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
       imageChannelCoordination,
     } = this.props;
     // TODO: check for 3D.
-    return imageLayerScopes.map((layerScope) => {
-      return this.createImageLayer(
-        layerScope,
-        imageLayerCoordination[layerScope],
-        imageChannelScopesByLayer[layerScope],
-        imageChannelCoordination[layerScope],
-      );
-    });
     const use3d = this.use3d();
+    return imageLayerScopes.map(layerScope => this.createImageLayer(
+      layerScope,
+      imageLayerCoordination[0][layerScope],
+      imageChannelScopesByLayer[layerScope],
+      imageChannelCoordination[0][layerScope],
+      images[layerScope],
+      use3d,
+    ));
+    /*const use3d = this.use3d();
     const use3dIndex = (imageLayerDefs || []).findIndex(i => i.use3d);
     return (imageLayerDefs || [])
       .filter(layer => (use3d ? layer.use3d === use3d : true))
@@ -535,7 +625,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         { ...layer, callback: imageLayerCallbacks[use3d ? use3dIndex : i] },
         imageLayerLoaders[layer.index],
         i,
-      ));
+      ));*/
   }
 
   createBitmaskLayers() {
@@ -957,6 +1047,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'imageLayerCallbacks',
         'geneExpressionColormap',
 
+        'images',
         'imageLayerScopes',
         'imageLayerCoordination',
 

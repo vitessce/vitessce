@@ -127,6 +127,8 @@ void main() {
   sampledColor = sampleAndGetColor(channel6, vTexCoord, channelsVisible[6], color6, channelOpacities[6], channelsFilled[6], channelStrokeWidths[6]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
 
+  // TODO: multiply the resulting channel-level opacity value by the layer-level opacity value.
+
   // If the sampled color and the currently stored color (gl_FragColor) are identical, don't blend and use the sampled color,
   // otherwise just use the currently stored color.  Repeat this for all channels.
   // vec4 sampledColor = sampleAndGetColor(channel1, vTexCoord, channelsVisible[1], channelColors[1]);

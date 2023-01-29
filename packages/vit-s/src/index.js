@@ -48,6 +48,7 @@ export {
   useObsFeatureMatrixIndices,
   useMultiObsLabels,
   useMultiObsSegmentations,
+  useMultiImages,
 
   useObsLocationsData,
   useObsSegmentationsData,
