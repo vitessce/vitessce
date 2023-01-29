@@ -17,9 +17,11 @@ import {
   useComponentLayout,
   registerPluginViewType,
   useMultiObsSegmentations,
+  useMultiImages,
   useComplexCoordination,
   useMultiCoordinationValues,
   useMultiCoordinationScopes,
+  useMultiCoordinationScopesSecondary,
   useComplexCoordinationSecondary,
   useCoordinationScopes,
   useCoordinationScopesBy,
@@ -33,6 +35,7 @@ import VectorLayerController from './VectorLayerController';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
 import SplitVectorLayerController from './SplitVectorLayerController';
+import SplitImageLayerController from './SplitImageLayerController';
 
 // LayerController is memoized to prevent updates from prop changes that
 // are caused by view state updates i.e zooming and panning within
@@ -65,6 +68,13 @@ const LayerControllerMemoized = React.memo(
       segmentationLayerScopes,
       segmentationLayerValues,
       segmentationLayerCoordination,
+
+      images,
+      imageLayerScopes,
+      imageLayerCoordination,
+
+      imageChannelScopesByLayer,
+      imageChannelCoordination,
       
       obsTypes,
       obsSegmentationsStatus,
@@ -143,6 +153,7 @@ const LayerControllerMemoized = React.memo(
               return (
                 <SplitVectorLayerController
                   key={layerScope}
+                  layerScope={layerScope}
                   label={obsTypeName}
                   opacity={opacity}
                   setOpacity={setOpacity}
@@ -157,8 +168,20 @@ const LayerControllerMemoized = React.memo(
                 />
               );
             })}
-          {/* Image layers: TODO: update */}
-          {false && rasterLayers
+          {/* Image layers: */}
+          {imageLayerScopes && imageLayerScopes.map(layerScope => (
+            <SplitImageLayerController
+              key={layerScope}
+              layerScope={layerScope}
+              layerCoordination={imageLayerCoordination[0][layerScope]}
+              channelScopes={imageChannelScopesByLayer[layerScope]}
+              channelCoordination={imageChannelCoordination[0][layerScope]}
+              image={images[layerScope]}
+              /* TODO: setters */
+              use3d={false} /* TODO */
+            />
+          ))}
+          {/*false && rasterLayers
             && rasterLayers.map((layer, i) => {
               const { index } = layer;
               const loader = imageLayerLoaders?.[index];
@@ -238,7 +261,7 @@ const LayerControllerMemoized = React.memo(
                   />
                 </Grid>
               ) : null;
-            })}
+            })*/}
           {shouldShowImageLayerButton
             ? (
               <Grid item>
@@ -324,6 +347,15 @@ export function LayerControllerSubscriber(props) {
     coordinationScopes,
   );
 
+  const [imageLayerScopes, imageChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
+    CoordinationType.SPATIAL_IMAGE_CHANNEL,
+    CoordinationType.SPATIAL_IMAGE_LAYER,
+    coordinationScopes,
+    coordinationScopesBy,
+  );
+
+  console.log(imageLayerScopes, imageChannelScopesByLayer);
+
   // Object keys are coordination scope names for spatialSegmentationLayer.
   const segmentationLayerCoordination = useComplexCoordination(
     [
@@ -341,6 +373,32 @@ export function LayerControllerSubscriber(props) {
     coordinationScopesBy,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
   );
+
+  const imageLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.IMAGE,
+      CoordinationType.SPATIAL_IMAGE_CHANNEL,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_IMAGE_LAYER,
+  );
+
+  // Object keys are coordination scope names for spatialImageChannel.
+  const imageChannelCoordination = useComplexCoordinationSecondary(
+    [
+      CoordinationType.SPATIAL_TARGET_C,
+      CoordinationType.SPATIAL_CHANNEL_VISIBLE,
+      CoordinationType.SPATIAL_CHANNEL_COLOR,
+    ],
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_IMAGE_LAYER,
+    CoordinationType.SPATIAL_IMAGE_CHANNEL,
+  );
+
+  console.log(imageLayerCoordination, imageChannelCoordination);
 
   const [
     {
@@ -370,7 +428,10 @@ export function LayerControllerSubscriber(props) {
   const [obsTypes, obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset, () => {}, obsSegmentationsMatchOn,
   );
-  // console.log(obsTypes, obsSegmentationsData, obsSegmentationsDataStatus)
+  const [imageData, imageDataStatus] = useMultiImages(
+    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
+  );
+  console.log(imageData, imageDataStatus);
 
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
@@ -472,6 +533,13 @@ export function LayerControllerSubscriber(props) {
       segmentationLayerScopes={segmentationLayerScopes}
       segmentationLayerValues={segmentationLayerValues}
       segmentationLayerCoordination={segmentationLayerCoordination}
+
+      images={imageData}
+      imageLayerScopes={imageLayerScopes}
+      imageLayerCoordination={imageLayerCoordination}
+
+      imageChannelScopesByLayer={imageChannelScopesByLayer}
+      imageChannelCoordination={imageChannelCoordination}
 
       obsTypes={obsTypes}
       obsSegmentationsStatus={obsSegmentationsDataStatus}

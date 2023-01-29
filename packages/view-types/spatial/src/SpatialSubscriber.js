@@ -157,8 +157,6 @@ export function SpatialSubscriber(props) {
     coordinationScopesBy,
   );
 
-  console.log(imageLayerScopes, imageChannelScopesByLayer);
-
   // Object keys are coordination scope names for spatialSegmentationLayer.
   const segmentationLayerCoordination = useComplexCoordination(
     [
@@ -201,8 +199,6 @@ export function SpatialSubscriber(props) {
     CoordinationType.SPATIAL_IMAGE_CHANNEL,
   );
 
-  console.log(imageLayerCoordination, imageChannelCoordination);
-
   const [
     {
       imageLayerCallbacks,
@@ -229,8 +225,6 @@ export function SpatialSubscriber(props) {
   const [imageData, imageDataStatus] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
   );
-  console.log(imageData, imageDataStatus);
-  // console.log(obsTypes, obsSegmentationsData, obsSegmentationsDataStatus);
 
   const hasExpressionData = useHasLoader(
     loaders, dataset, DataType.OBS_FEATURE_MATRIX,

@@ -566,13 +566,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.layerLoaderSelections[layerScope] = nextLoaderSelection;
     }
 
+    const colors = channelScopes
+      .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]);
+    const contrastLimits = channelScopes
+      .map(cScope => ([0, 255])); // TODO(CoordinationType): per-channel sliders
+
     return new Layer({
       loader: layerLoader,
       id: `${use3d ? 'volume' : 'image'}-layer-${layerScope}`,
-      colors: channelScopes
-        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]),
-      contrastLimits: channelScopes
-        .map(cScope => ([0, 255])), // TODO(CoordinationType): per-channel sliders
+      colors,
+      contrastLimits,
       selections,
       channelsVisible: channelScopes
         .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]),
