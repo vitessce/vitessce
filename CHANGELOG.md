@@ -4,6 +4,7 @@
 - Added `MuData` file types.
 - Added a `uid` prop for `VitS` to fix Jupyter notebook style conflicts caused by multiple `Vitessce` widget instances loaded in the same `JupyterLab` session.
 - Added `!important` statements to override Jupyter Notebook (classic) style conflicts.
+- Add GitHub Actions step to tag a release.
 
 ### Changed
 - Converted all `rem` units to `px` to fix R/Python widget CSS bugs caused by different root style conflicts.

@@ -35,3 +35,13 @@ jobs:
         run: pnpm publish --filter='./packages/**' --no-git-checks --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      - id: tag-release
+        if: ${{ steps.check-deploy.outputs.needs-deploy == 'true' }}
+        run: ./tag-release.sh --action
+      - name: Create release on GitHub
+        uses: softprops/action-gh-release@v1
+        if: ${{ steps.check-deploy.outputs.needs-deploy == 'true' }}
+        with:
+          tag_name: ${{ steps.tag-release.outputs.tag-name }}
+
+
