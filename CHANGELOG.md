@@ -1,5 +1,13 @@
 
 ### Added
+
+### Changed
+
+## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
+
+
+
+### Added
 - Re-implemented PR 1240 (coordinationScopesBy)
 - Added `MuData` file types.
 - Added a `uid` prop for `VitS` to fix Jupyter notebook style conflicts caused by multiple `Vitessce` widget instances loaded in the same `JupyterLab` session.
