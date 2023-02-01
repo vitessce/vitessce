@@ -50,3 +50,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2022-11-30: [release-v2.0.1](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2022-11-30/0327a9c6/)
 - 2022-12-09: [release-v2.0.2](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2022-12-09/b925db97/)
 - 2022-12-14: [release-v2.0.2](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2022-12-14/a8ee1542/)
+- 2023-02-01: [release-v2.0.3](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2023-02-01/f2ddf311/)
