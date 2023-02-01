@@ -23,11 +23,10 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "d3-array": "^2.4.0",
-    "dynamic-import-polyfill": "^0.1.1",
+    "higlass-no-github-deps": "1.11.13",
     "higlass-register": "^0.3.0",
     "higlass-zarr-datafetchers": "^0.2.1",
-    "lodash": "^4.17.21",
-    "window-pixi": "5.3.3"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "react": "^18.0.0",
