@@ -33,7 +33,8 @@
     "@vitessce/statistical-plots": "workspace:*",
     "@vitessce/status": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
-    "@vitessce/zarr": "workspace:*"
+    "@vitessce/zarr": "workspace:*",
+    "@vitessce/flat-obs-sets-manager": "workspace:*"
   },
   "devDependencies": {
     "react": "^18.0.0"

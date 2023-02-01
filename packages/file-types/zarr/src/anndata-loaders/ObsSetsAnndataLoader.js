@@ -72,9 +72,14 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
       newAutoSetSelectionParentName,
       node.name,
     ]);
+    const newAutoSetFilters = tree.flatMap(group => group.children.map(node => [
+      group.name,
+      node.name,
+    ]));
     // Create a list of cell set objects with color mappings.
     const newAutoSetColors = initializeCellSetColor(obsSets, []);
     coordinationValues.obsSetSelection = newAutoSetSelections;
+    coordinationValues.obsSetFilter = newAutoSetFilters;
     coordinationValues.obsSetColor = newAutoSetColors;
     return Promise.resolve(
       new LoaderResult({ obsIndex, obsSets, obsSetsMembership }, null, coordinationValues),

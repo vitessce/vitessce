@@ -626,3 +626,14 @@ export function upgradeFrom1_0_15(config) {
     version: '1.0.16',
   };
 }
+
+// Added in version 1.0.17:
+// - Adds the coordination type obsSetFilter.
+export function upgradeFrom1_0_16(config) {
+  const newConfig = cloneDeep(config);
+
+  return {
+    ...newConfig,
+    version: '1.0.17',
+  };
+}

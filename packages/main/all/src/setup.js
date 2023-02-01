@@ -14,6 +14,7 @@ import { register as registerLayerController } from '@vitessce/layer-controller'
 import { register as registerStatus } from '@vitessce/status';
 import { registerCellSetExpression, registerCellSetSizes, registerExpressionHistogram } from '@vitessce/statistical-plots';
 import { registerHiglass, registerGenomicProfiles } from '@vitessce/genomic-profiles';
+import { register as registerFlatObsSetsManager } from '@vitessce/flat-obs-sets-manager';
 
 // Register file type plugins
 import {
@@ -69,6 +70,7 @@ function setup() {
   // View types
   registerDescription();
   registerObsSetsManager();
+  registerFlatObsSetsManager();
   registerScatterplotEmbedding();
   registerScatterplotGating();
   registerSpatial();

@@ -506,6 +506,9 @@ export const initializedViewConfig = {
     obsSetSelection: {
       A: null,
     },
+    obsSetFilter: {
+      A: null,
+    },
     dataset: {
       A: 'A',
     },
@@ -679,6 +682,7 @@ export const initializedViewConfig = {
         obsSetHighlight: 'A',
         obsSetSelection: 'A',
         obsSetColor: 'A',
+        obsSetFilter: 'A',
         dataset: 'A',
         embeddingObsOpacity: 'A',
         embeddingObsOpacityMode: 'A',
@@ -727,6 +731,7 @@ export const initializedViewConfig = {
         obsSetHighlight: 'A',
         obsSetSelection: 'A',
         obsSetColor: 'A',
+        obsSetFilter: 'A',
         dataset: 'A',
         featureValueColormap: 'A',
         featureValueColormapRange: 'A',

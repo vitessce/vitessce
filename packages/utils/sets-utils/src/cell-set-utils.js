@@ -559,6 +559,76 @@ export function filterNode(node, prevPath, filterPath) {
   };
 }
 
+/**
+ * Two arrays of paths are equal (contain the same elements).
+ * @param {Array<string[]>} a Set of paths.
+ * @param {Array<string[]>} b Other set of paths.
+ * @returns {boolean} Whether the two sets are equivalent.
+ */
+export function isEqualSet(a, b) {
+  if (a.length === b.length) {
+    const aSet = new Set(a);
+    aSet.forEach((aVal) => {
+      b.forEach((bVal) => {
+        if (isEqual(aVal, bVal)) {
+          aSet.delete(aVal);
+        }
+      });
+    });
+    if (aSet.size === 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * One set contains part of another.
+ * @param {Array<string[]>} a Set of paths.
+ * @param {Array<string[]>} b Other set of paths.
+ * @returns {boolean} Whether set B is partially contained in set A.
+ */
+export function isPartialSet(a, b) {
+  // b is partially contained in a.
+  if (a.length > 0 && b.length > 0) {
+    const bIsPartOfA = a.some((aVal) => {
+      const bHasAVal = b.some((bVal) => {
+        if (isEqual(aVal, bVal)) {
+          return true;
+        }
+        return false;
+      });
+      return bHasAVal;
+    });
+    return bIsPartOfA;
+  }
+  return false;
+}
+
+/**
+ * One set contains another entirely.
+ * @param {Array<string[]>} a Set of paths.
+ * @param {Array<string[]>} b Other set of paths.
+ * @returns {boolean} Whether set A is fully contained in set B.
+ */
+export function isFullSubSet(a, b) {
+  // a is fully contained within b.
+  if (a.length > 0 && b.length > 0 && a.length <= b.length) {
+    const bSet = new Set(b);
+    bSet.forEach((bVal) => {
+      a.forEach((aVal) => {
+        if (isEqual(aVal, bVal)) {
+          bSet.delete(bVal);
+        }
+      });
+    });
+    if ((b.length - bSet.size) === a.length) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function treeToExpectedCheckedLevel(currTree, checkedPaths) {
   let result = null;
   if (currTree) {
@@ -568,13 +638,95 @@ export function treeToExpectedCheckedLevel(currTree, checkedPaths) {
       range(height).forEach((i) => {
         const levelIndex = i + 1;
         const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
-        if (isEqual(levelNodePaths, checkedPaths)) {
+        if (isEqualSet(levelNodePaths, checkedPaths)) {
           result = { levelZeroPath, levelIndex };
         }
       });
     });
   }
   return result;
+}
+
+export function treeToFullyCheckedLevels(currTree, checkedPaths) {
+  const results = [];
+  if (currTree) {
+    currTree.tree.forEach((lzn) => {
+      const levelZeroPath = [lzn.name];
+      const height = nodeToHeight(lzn);
+      range(height).forEach((i) => {
+        const levelIndex = i + 1;
+        const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
+        if (isFullSubSet(levelNodePaths, checkedPaths)) {
+          results.push({ levelZeroPath, levelIndex });
+        }
+      });
+    });
+  }
+  return results;
+}
+
+export function treeToPartialCheckedLevels(currTree, checkedPaths) {
+  const results = [];
+  if (currTree) {
+    currTree.tree.forEach((lzn) => {
+      const levelZeroPath = [lzn.name];
+      const height = nodeToHeight(lzn);
+      range(height).forEach((i) => {
+        const levelIndex = i + 1;
+        const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
+        if (
+          isPartialSet(levelNodePaths, checkedPaths)
+          && !isEqualSet(levelNodePaths, checkedPaths)
+        ) {
+          results.push({ levelZeroPath, levelIndex });
+        }
+      });
+    });
+  }
+  return results;
+}
+
+export function treeToGroupProportions(currTree, coloredLevelZeroPath, setColor, theme) {
+  const coloredGroup = treeFindNodeByNamePath(currTree, coloredLevelZeroPath);
+
+  const coloredNodeSets = coloredGroup.children.map((node) => {
+    const setNamePath = [...coloredLevelZeroPath, node.name];
+    return {
+      path: setNamePath,
+      color: setColor?.find(d => isEqual(d.path, setNamePath))?.color
+        || getDefaultColor(theme),
+      set: new Set(nodeToSet(node).map(([cellId]) => cellId)),
+    };
+  });
+
+  const results = [];
+  if (currTree) {
+    currTree.tree.forEach((lzn) => {
+      if (lzn.name !== coloredLevelZeroPath[0] && lzn.children) {
+        lzn.children.forEach((node) => {
+          if (node) {
+            const setNamePath = [lzn.name, node.name];
+            const nodeSet = nodeToSet(node);
+            const proportions = coloredNodeSets.map((cns) => {
+              const intersectionSize = nodeToSet(node)
+                .reduce((a, h) => (cns.set.has(h[0]) ? a + 1 : a), 0);
+              return {
+                path: cns.path,
+                color: cns.color,
+                size: intersectionSize,
+                proportion: intersectionSize / nodeSet.length,
+              };
+            });
+            results.push({
+              path: setNamePath,
+              proportions,
+            });
+          }
+        });
+      }
+    });
+  }
+  return results;
 }
 
 export function treesConflict(cellSets, testCellSets) {

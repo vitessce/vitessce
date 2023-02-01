@@ -268,6 +268,7 @@ importers:
       '@vitessce/csv': workspace:*
       '@vitessce/description': workspace:*
       '@vitessce/feature-list': workspace:*
+      '@vitessce/flat-obs-sets-manager': workspace:*
       '@vitessce/genomic-profiles': workspace:*
       '@vitessce/heatmap': workspace:*
       '@vitessce/json': workspace:*
@@ -287,6 +288,7 @@ importers:
       '@vitessce/csv': link:../../file-types/csv
       '@vitessce/description': link:../../view-types/description
       '@vitessce/feature-list': link:../../view-types/feature-list
+      '@vitessce/flat-obs-sets-manager': link:../../view-types/flat-obs-sets-manager
       '@vitessce/genomic-profiles': link:../../view-types/genomic-profiles
       '@vitessce/heatmap': link:../../view-types/heatmap
       '@vitessce/json': link:../../file-types/json
@@ -493,6 +495,31 @@ importers:
       plur: 5.1.0
       react-virtualized: 9.22.3_biqbaboplfbrettd7655fr4n2y
       uuid: 3.4.0
+    devDependencies:
+      react: 18.2.0
+      vite: 3.1.8
+      vitest: 0.23.4
+
+  packages/view-types/flat-obs-sets-manager:
+    specifiers:
+      '@material-ui/core': ~4.12.3
+      '@material-ui/icons': ~4.11.2
+      '@vitessce/constants-internal': workspace:*
+      '@vitessce/sets-utils': workspace:*
+      '@vitessce/utils': workspace:*
+      '@vitessce/vit-s': workspace:*
+      lodash: ^4.17.21
+      react: ^18.0.0
+      vite: ^3.0.0
+      vitest: ^0.23.4
+    dependencies:
+      '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
+      '@material-ui/icons': 4.11.3_jvx44q7qymyhf2qyoxemen5jw4
+      '@vitessce/constants-internal': link:../../constants-internal
+      '@vitessce/sets-utils': link:../../utils/sets-utils
+      '@vitessce/utils': link:../../utils/other-utils
+      '@vitessce/vit-s': link:../../vit-s
+      lodash: 4.17.21
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
@@ -5007,6 +5034,7 @@ packages:
   /@material-ui/core/4.12.4_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-tr7xekNlM9LjA6pagJmL8QCgZXaubWUwkJnoYcMKd4gw/t4XiyvnTkjdGrUVicyB2BsdaAv1tvow45bPM4sSwQ==}
     engines: {node: '>=8.0.0'}
+    deprecated: Material UI v4 doesn't receive active development since September 2021. See the guide https://mui.com/material-ui/migration/migration-v4/ to upgrade to v5.
     peerDependencies:
       '@types/react': ^16.8.6 || ^17.0.0
       react: ^16.8.0 || ^17.0.0 || 18
@@ -5052,6 +5080,7 @@ packages:
   /@material-ui/styles/4.11.5_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-o/41ot5JJiUsIETME9wVLAJrmIWL3j0R0Bj2kCOLbSfqEkKf0fmaPt+5vtblUh5eXr2S+J/8J3DaCb10+CzPGA==}
     engines: {node: '>=8.0.0'}
+    deprecated: Material UI v4 doesn't receive active development since September 2021. See the guide https://mui.com/material-ui/migration/migration-v4/ to upgrade to v5.
     peerDependencies:
       '@types/react': ^16.8.6 || ^17.0.0
       react: ^16.8.0 || ^17.0.0 || 18

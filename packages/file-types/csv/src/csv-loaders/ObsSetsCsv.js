@@ -41,9 +41,14 @@ export default class ObsSetsCsvLoader extends CsvLoader {
       newAutoSetSelectionParentName,
       node.name,
     ]);
+    const newAutoSetFilters = tree.flatMap(group => group.children.map(node => [
+      group.name,
+      node.name,
+    ]));
     // Create a list of cell set objects with color mappings.
     const newAutoSetColors = initializeCellSetColor(cellSetsTree, []);
     coordinationValues.obsSetSelection = newAutoSetSelections;
+    coordinationValues.obsSetFilter = newAutoSetFilters;
     coordinationValues.obsSetColor = newAutoSetColors;
     return [obsIndex, cellSetsTree, obsSetsMembership, coordinationValues];
   }
