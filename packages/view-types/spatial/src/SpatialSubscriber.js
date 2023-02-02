@@ -13,6 +13,7 @@ import {
   useMultiObsLabels,
   useMultiObsSegmentations,
   useMultiImages,
+  useMultiFeatureSelection,
   useExpressionValueGetter, useGetObsInfo,
   useCoordination,
   useLoaders,
@@ -169,6 +170,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_FILLED,
       CoordinationType.SPATIAL_LAYER_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_SELECTION,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -224,6 +226,10 @@ export function SpatialSubscriber(props) {
   );
   const [imageData, imageDataStatus] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
+  );
+
+  const [multiExpressionData, multiLoadedFeatureSelection, multiFeatureSelectionStatus] = useMultiFeatureSelection(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   const hasExpressionData = useHasLoader(
@@ -438,10 +444,11 @@ export function SpatialSubscriber(props) {
   // Only show 3D options if we can theoretically load the data and it is allowed to be loaded.
   const canShow3DOptions = canLoad3DLayers
     && !(disable3d?.length === imageLayerLoaders.length) && !globalDisable3d;
-
+  
   const options = useMemo(() => {
     // Only show button if there is expression or 3D data because only cells data
     // does not have any options (i.e for color encoding, you need to switch to expression data)
+    // TODO: show options if there are featureSelections (use results of useMultiFeatureSelection)
     if (canShow3DOptions || hasExpressionData) {
       return (
         <SpatialOptions
@@ -523,6 +530,7 @@ export function SpatialSubscriber(props) {
 
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerCoordination={segmentationLayerCoordination}
+        multiExpressionData={multiExpressionData}
 
         images={imageData}
         imageLayerScopes={imageLayerScopes}

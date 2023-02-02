@@ -200,20 +200,10 @@ export function LayerControllerSubscriber(props) {
     { spatialPointLayer: moleculesLayer },
     {}, // TODO: use obsType once #1240 is merged.
   );
-  const [obsSegmentations, obsSegmentationsType, obsSegmentationsStatus] = useMemo(
-    () => ([null, null, STATUS.ERROR]), [],
-  );
-  const [{ image }, imageStatus] = useImageData(
-    loaders, dataset, () => {}, false,
-    { setSpatialImageLayer: setRasterLayers },
-    { spatialImageLayer: rasterLayers },
-    {}, // TODO: which values to match on
-  );
-  const { loaders: imageLayerLoaders, meta: imageLayerMeta } = image || {};
   const isReady = useReady([
     obsLocationsStatus,
     obsSegmentationsDataStatus,
-    imageStatus,
+    imageDataStatus,
   ]);
 
   return (

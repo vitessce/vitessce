@@ -49,6 +49,7 @@ export {
   useMultiObsLabels,
   useMultiObsSegmentations,
   useMultiImages,
+  useMultiFeatureSelection,
 
   useObsLocationsData,
   useObsSegmentationsData,

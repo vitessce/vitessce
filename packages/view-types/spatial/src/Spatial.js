@@ -640,6 +640,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsSegmentations,
       obsSegmentationsType,
       segmentationLayerCallbacks = [],
+
+      multiExpressionData, // TODO: use
     } = this.props;
     // console.log('obsSegmentations', obsSegmentations, segmentationLayerScopes, segmentationLayerCoordination)
     if(obsSegmentations && Object.keys(obsSegmentations).length === segmentationLayerScopes.length && segmentationLayerScopes && segmentationLayerCoordination) {

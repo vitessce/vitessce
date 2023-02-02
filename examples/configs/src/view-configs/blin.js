@@ -228,6 +228,18 @@ export const blin2019 = {
             t: 'E',
             a: 'F',
           },
+          featureType: {
+            g: 'A',
+            t: 'A',
+          },
+          featureValueType: {
+            g: 'A',
+            t: 'A',
+          },
+          featureSelection: {
+            g: 'C',
+            t: 'E',
+          },
           spatialTargetC: {
             ci: 'A',
             mi: 'B',

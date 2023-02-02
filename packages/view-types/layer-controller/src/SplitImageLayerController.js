@@ -58,7 +58,7 @@ export default function SplitImageLayerController(props) {
   // TODO: does this work for non-OME-TIFF?
   const label = image?.image?.loaders?.[0]?.metadata?.Name;
 
-  console.log(image);
+  // console.log(image);
 
   const classes = useControllerSectionStyles();
   return (

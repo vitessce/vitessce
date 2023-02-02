@@ -9,6 +9,7 @@ import {
   warn,
   useDataType,
   useDataTypeMulti,
+  useFeatureSelectionMulti,
 } from './data-hook-utils';
 
 /**
@@ -389,6 +390,8 @@ export function useMultiObsSegmentations(
 export function useMultiImages(
   coordinationScopes, coordinationScopesBy, loaders, dataset, addUrl,
 ) {
+  // TODO: delegate the generation of matchOnObj to a different hoook and pass as a parameter?
+  // (in all of the useMulti data hooks)?
   const imageCoordination = useComplexCoordination(
     [
       CoordinationType.IMAGE,
@@ -408,4 +411,46 @@ export function useMultiImages(
     matchOnObj,
   );
   return [imageData, imageDataStatus];
+}
+
+export function useMultiFeatureSelection(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const obsFeatureMatrixCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.FEATURE_TYPE,
+      CoordinationType.FEATURE_VALUE_TYPE,
+      CoordinationType.FEATURE_SELECTION,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+  );
+  const matchOnObj = useMemo(() => fromEntries(Object.entries(obsFeatureMatrixCoordination[0])
+    .map(([key, val]) => ([
+      key,
+      {
+        obsType: val.obsType,
+        featureType: val.featureType,
+        featureValueType: val.featureValueType,
+      },
+    ])))
+    // obsFeatureMatrixCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+  , [coordinationScopes, coordinationScopesBy]);
+  const selections = useMemo(() => fromEntries(Object.entries(obsFeatureMatrixCoordination[0])
+    .map(([key, val]) => ([
+      key,
+      val.featureSelection,
+    ])))
+    // Need to execute this more frequently, whenever the featureSelections update.
+  , [coordinationScopes, coordinationScopesBy,
+    ...Object.values(obsFeatureMatrixCoordination[0] || {}).map(val => val.featureSelection),
+  ]);
+  const [featureData, loadedSelections, featureStatus] = useFeatureSelectionMulti(
+    loaders, dataset, false, matchOnObj, selections,
+  );
+  return [featureData, loadedSelections, featureStatus];
 }

@@ -111,7 +111,7 @@ export function getParameterScopeBy(
   if (parameterScopeByType && parameterScopeByType[typeScope]) {
     return parameterScopeByType[typeScope];
   }
-  console.error(`coordination scope for ${parameter} was not found.`);
+  // console.error(`coordination scope for ${parameter} was not found.`);
   return parameterScopeGlobal;
 }
 
