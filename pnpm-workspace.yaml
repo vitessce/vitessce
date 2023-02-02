@@ -6,3 +6,4 @@ packages:
   - 'packages/main/*'
   - 'sites/*'
   - 'examples/*'
+  - '!consumer'

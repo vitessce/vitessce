@@ -8,14 +8,14 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist-tsc/index.js",
   "publishConfig": {
-    "main": "dist/index.js",
-    "module": "dist/index.min.mjs",
+    "main": "dist/index.min.mjs",
     "browser": "dist/index.min.umd.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
     "start": "tsc --watch",

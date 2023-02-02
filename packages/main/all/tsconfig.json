@@ -1,9 +1,10 @@
 {
   "extends": "../../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist",
+    "outDir": "dist-tsc",
     "rootDir": "src"
   },
+  "include": ["src"],
   "exclude": [
     "dist",
     "scripts",

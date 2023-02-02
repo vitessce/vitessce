@@ -8,9 +8,10 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist-tsc/index.js",
   "files": [
-    "dist"
+    "dist-tsc",
+    "src"
   ],
   "scripts": {
     "start": "tsc --watch",

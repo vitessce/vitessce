@@ -4,6 +4,8 @@
 - Added `MuData` file types.
 - Added a `uid` prop for `VitS` to fix Jupyter notebook style conflicts caused by multiple `Vitessce` widget instances loaded in the same `JupyterLab` session.
 - Added `!important` statements to override Jupyter Notebook (classic) style conflicts.
+- Added `vite.config.js` and `pnpm run bundle` for bundling sub-packages as proper ESM.
+- Added test for a "consumer" package of the Vitessce sub-packages in `consumer/` directory, with a corresponding cypress test in `sites/html/cypress/e2e/html.spec.cy.js`.
 
 ### Changed
 - Converted all `rem` units to `px` to fix R/Python widget CSS bugs caused by different root style conflicts.

@@ -10,7 +10,8 @@
   "license": "MIT",
   "main": "dist/index.mjs",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
     "build": "rimraf ./dist/ && rimraf *.tsbuildinfo && tsc && pnpm run build-lib",
