@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# Purpose: install subpackages in a directory to simulate
+# a consumer package installing them from NPM.
+# Also runs vite build to generate a website bundle
+# which can be served and tested via a Cypress end-to-end test
+# in sites/html.
 set -o errexit
 set -o pipefail
 
