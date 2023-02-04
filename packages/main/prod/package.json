@@ -8,7 +8,7 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
-  "main": "dist-tsc/index.js",
+  "main": "src/index.js",
   "publishConfig": {
     "main": "dist/index.min.mjs",
     "browser": "dist/index.min.umd.js"
@@ -18,8 +18,7 @@
     "src"
   ],
   "scripts": {
-    "start": "tsc --watch",
-    "build": "rimraf ./dist/ && rimraf *.tsbuildinfo && tsc && pnpm run build-lib",
+    "build": "rimraf ./dist/ && pnpm run build-lib",
     "build-lib": "pnpm run build-lib:prod",
     "build-lib:prod": "cross-env APP_ENV=production vite build --mode lib",
     "build-lib:dev": "cross-env APP_ENV=development vite build --mode lib"

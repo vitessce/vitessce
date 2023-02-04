@@ -8,7 +8,7 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
-  "main": "src/index.js",
+  "main": "dist-tsc/index.js",
   "publishConfig": {
     "main": "dist/index.mjs"
   },

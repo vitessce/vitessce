@@ -14,8 +14,6 @@
     "src"
   ],
   "scripts": {
-    "start": "tsc --watch",
-    "build": "tsc"
   },
   "dependencies": {
     "@vitessce/config": "workspace:*",

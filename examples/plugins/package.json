@@ -14,8 +14,6 @@
     "src"
   ],
   "scripts": {
-    "start": "tsc --watch",
-    "build": "tsc"
   },
   "dependencies": {
     "@material-ui/core": "~4.12.3",

@@ -12,6 +12,8 @@
     "start-html": "pnpm -r start-html",
     "build:ci": "pnpm -r --workspace-concurrency 1 build",
     "build": "pnpm -r build",
+    "start-tsc": "tsc -b --watch",
+    "build-tsc": "tsc --build",
     "bundle:ci": "pnpm -r --workspace-concurrency 1 bundle",
     "bundle": "pnpm -r bundle",
     "test": "pnpm -r --workspace-concurrency 1 test",

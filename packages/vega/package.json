@@ -17,8 +17,6 @@
     "src"
   ],
   "scripts": {
-    "start": "tsc --watch",
-    "build": "tsc",
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
     "test": "pnpm exec vitest --run -r ../../ --dir ."
   },
