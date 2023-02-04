@@ -28,6 +28,8 @@
     { "path": "packages/file-types/zarr" },
     { "path": "packages/gl" },
     { "path": "packages/main/all" },
+    { "path": "packages/main/dev" },
+    { "path": "packages/main/prod" },
     { "path": "packages/tooltip" },
     { "path": "packages/utils/export-utils" },
     { "path": "packages/utils/other-utils" },
