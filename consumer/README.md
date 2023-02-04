@@ -7,7 +7,7 @@ To test:
 # From root of repo
 pnpm run build
 pnpm run bundle
-./scripts/consumer_install.sh
+./scripts/consumer-install.sh
 pnpm run start-html
 ```
 

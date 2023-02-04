@@ -98,7 +98,7 @@ jobs:
       - run: pnpm run build:ci && pnpm run bundle:ci
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
-      - run: ./scripts/consumer_install.sh
+      - run: ./scripts/consumer-install.sh
         shell: bash
       - name: Cypress PNPM Patch
         run: cp pnpm-lock.yaml ./sites/html/package-lock.json
