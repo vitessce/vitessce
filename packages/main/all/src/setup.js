@@ -12,6 +12,7 @@ import { register as registerHeatmap } from '@vitessce/heatmap';
 import { register as registerFeatureList } from '@vitessce/feature-list';
 import { register as registerLayerController } from '@vitessce/layer-controller';
 import { register as registerStatus } from '@vitessce/status';
+import { register as registerStaticFigure } from '@vitessce/static-figure';
 import { registerCellSetExpression, registerCellSetSizes, registerExpressionHistogram } from '@vitessce/statistical-plots';
 import { registerHiglass, registerGenomicProfiles } from '@vitessce/genomic-profiles';
 
@@ -76,6 +77,7 @@ function setup() {
   registerFeatureList();
   registerLayerController();
   registerStatus();
+  registerStaticFigure();
   // Statistical plots
   registerCellSetExpression();
   registerCellSetSizes();

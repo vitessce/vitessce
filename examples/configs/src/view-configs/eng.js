@@ -144,15 +144,15 @@ export const eng2019 = {
       h: 4,
     },
     {
-      component: 'scatterplot',
-      coordinationScopes: {
-        embeddingType: 'TSNE',
-        embeddingZoom: 'TSNE',
-        embeddingObsSetLabelsVisible: 'A',
-        embeddingObsSetLabelSize: 'A',
-        embeddingObsSetPolygonsVisible: 'A',
-        embeddingObsRadiusMode: 'A',
-        embeddingObsRadius: 'A',
+      component: 'staticFigure',
+      props: {
+        imgSrc: [
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/A_dog_sitting_on_a_chair%2C_smiling.jpg/1024px-A_dog_sitting_on_a_chair%2C_smiling.jpg',
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_dog_-_36797913216.jpg/1920px-A_dog_-_36797913216.jpg',
+        ],
+        imgAlt: [
+          'Dog 1', 'Dog 2',
+        ],
       },
       x: 0,
       y: 2,
