@@ -47,6 +47,7 @@
     { "path": "packages/view-types/scatterplot-embedding" },
     { "path": "packages/view-types/scatterplot-gating" },
     { "path": "packages/view-types/spatial" },
+    { "path": "packages/view-types/static-figure" },
     { "path": "packages/view-types/statistical-plots" },
     { "path": "packages/view-types/status" }
   ],

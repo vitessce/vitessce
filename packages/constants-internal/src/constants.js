@@ -17,6 +17,7 @@ export const ViewType = {
   OBS_SET_SIZES: 'obsSetSizes',
   OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'obsSetFeatureValueDistribution',
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
+  STATIC_FIGURE: 'staticFigure',
 };
 
 export const DataType = {

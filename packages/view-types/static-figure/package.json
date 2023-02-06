@@ -1,0 +1,37 @@
+{
+  "name": "@vitessce/static-figure",
+  "version": "2.0.2",
+  "author": "Gehlenborg Lab",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.mjs"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "test": "pnpm exec vitest --run -r ../../../ --dir ."
+  },
+  "dependencies": {
+    "@material-ui/core": "~4.12.3",
+    "@material-ui/icons": "~4.11.2",
+    "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/vit-s": "workspace:*",
+    "clsx": "^1.1.1"
+  },
+  "devDependencies": {
+    "react": "^18.0.0",
+    "vite": "^3.0.0",
+    "vitest": "^0.23.4"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+  }
+}
