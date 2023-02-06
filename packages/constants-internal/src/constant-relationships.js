@@ -46,6 +46,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   // For old file types
   [FileType.GENOMIC_PROFILES_ZARR]: DataType.GENOMIC_PROFILES,
   [FileType.NEIGHBORHOODS_JSON]: DataType.NEIGHBORHOODS,
+  [FileType.FIGURE_JPG]: DataType.FIGURE,
 };
 
 /**
@@ -81,5 +82,6 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
   ],
   [DataType.GENOMIC_PROFILES]: [],
   [DataType.IMAGE]: [],
+  [DataType.FIGURE]: [],
   [DataType.NEIGHBORHOODS]: [],
 };

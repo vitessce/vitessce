@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import { useState, useLayoutEffect } from 'react';
-import { VitS, registerPluginFileType } from '@vitessce/vit-s';
+import { VitS, registerPluginFileType, AbstractTwoStepLoader } from '@vitessce/vit-s';
 
 // Register view type plugins
 import { register as registerDescription } from '@vitessce/description';

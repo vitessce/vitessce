@@ -31,6 +31,7 @@ export const DataType = {
   OBS_SEGMENTATIONS: 'obsSegmentations',
   NEIGHBORHOODS: 'neighborhoods',
   GENOMIC_PROFILES: 'genomic-profiles',
+  FIGURE: 'figure',
 };
 
 
@@ -97,6 +98,7 @@ export const FileType = {
   CLUSTERS_JSON: 'clusters.json',
   GENES_JSON: 'genes.json',
   ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
+  FIGURE_JPG: 'figure.jpg',
 };
 
 /**

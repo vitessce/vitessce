@@ -71,11 +71,35 @@ export const eng2019 = {
             obsType: 'cell',
           },
         },
+        {
+          fileType: 'figure.jpg',
+          url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/A_dog_sitting_on_a_chair%2C_smiling.jpg/1024px-A_dog_sitting_on_a_chair%2C_smiling.jpg',
+          options: {
+            caption: 'Dog 1',
+          },
+          coordinationValues: {
+            figure: 'D1',
+          },
+        },
+        {
+          fileType: 'figure.jpg',
+          url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_dog_-_36797913216.jpg/1920px-A_dog_-_36797913216.jpg',
+          options: {
+            caption: 'Dog 2',
+          },
+          coordinationValues: {
+            figure: 'D2',
+          },
+        },
       ],
     },
   ],
   initStrategy: 'auto',
   coordinationSpace: {
+    figure: {
+      A: 'D1',
+      B: 'D2',
+    },
     embeddingType: {
       TSNE: 't-SNE',
       UMAP: 'UMAP',
@@ -145,14 +169,8 @@ export const eng2019 = {
     },
     {
       component: 'staticFigure',
-      props: {
-        imgSrc: [
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/A_dog_sitting_on_a_chair%2C_smiling.jpg/1024px-A_dog_sitting_on_a_chair%2C_smiling.jpg',
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_dog_-_36797913216.jpg/1920px-A_dog_-_36797913216.jpg',
-        ],
-        imgAlt: [
-          'Dog 1', 'Dog 2',
-        ],
+      coordinationScopes: {
+        figure: ['A', 'B'],
       },
       x: 0,
       y: 2,
