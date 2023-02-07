@@ -8,13 +8,16 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.mjs"
+  },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
-    "start": "tsc --watch",
-    "build": "tsc",
+    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
     "test": "pnpm exec vitest --run -r ../../ --dir .",
     "glslify": "cat src/glsl/colormaps.in.glsl | glslify > src/glsl/colormaps.out.glsl"
   },
@@ -26,7 +29,7 @@
     "@deck.gl/layers": "~8.8.6",
     "@deck.gl/mesh-layers": "~8.8.6",
     "@deck.gl/react": "~8.8.6",
-    "@hms-dbmi/viv": "~0.13.3",
+    "@hms-dbmi/viv": "~0.13.6",
     "@loaders.gl/3d-tiles": "^3.0.0",
     "@loaders.gl/core": "^3.0.0",
     "@loaders.gl/images": "^3.0.0",

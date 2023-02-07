@@ -8,13 +8,18 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.mjs"
+  },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
-    "start": "tsc --watch",
-    "build": "tsc"
+    "start": "pnpm -C ../../../ run start-tsc",
+    "build": "pnpm -C ../../../ run build-tsc",
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js"
   },
   "dependencies": {
     "@material-ui/core": "~4.12.3",
