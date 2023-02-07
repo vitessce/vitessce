@@ -177,7 +177,7 @@ importers:
       '@deck.gl/layers': ~8.8.6
       '@deck.gl/mesh-layers': ~8.8.6
       '@deck.gl/react': ~8.8.6
-      '@hms-dbmi/viv': ~0.13.3
+      '@hms-dbmi/viv': ~0.13.6
       '@loaders.gl/3d-tiles': ^3.0.0
       '@loaders.gl/core': ^3.0.0
       '@loaders.gl/images': ^3.0.0
@@ -215,7 +215,7 @@ importers:
       '@deck.gl/layers': 8.8.20_snnu3edqbfe6dyy3jpp7evodsa
       '@deck.gl/mesh-layers': 8.8.20_welrkb5kgjlcqbkmp6ayvup7qy
       '@deck.gl/react': 8.8.20_pe6xxt3ruipqla76eupor3nslu
-      '@hms-dbmi/viv': 0.13.3_c5db6wcq5dn5x6xibqjjtjnrzm
+      '@hms-dbmi/viv': 0.13.6_c5db6wcq5dn5x6xibqjjtjnrzm
       '@loaders.gl/3d-tiles': 3.2.10_@loaders.gl+core@3.2.10
       '@loaders.gl/core': 3.2.10
       '@loaders.gl/images': 3.2.10
@@ -4668,16 +4668,16 @@ packages:
       '@hapi/hoek': 9.3.0
     dev: false
 
-  /@hms-dbmi/viv/0.13.3_c5db6wcq5dn5x6xibqjjtjnrzm:
-    resolution: {integrity: sha512-dHDW6rPBUBCveL4QHbMSJff8XAhnA/a+CH8IvPu9t6/KZZM7yh0tYfFVHs9i4qfPXJQB+A1+9UQzVcvddckj3w==}
+  /@hms-dbmi/viv/0.13.6_c5db6wcq5dn5x6xibqjjtjnrzm:
+    resolution: {integrity: sha512-CeP/qehola+vGi4okZV6/TcuzUW4CHa6noWvqq63N/JLhox1HSn0J2qu/Eduj7wpsX+Tvibk2eXV6K8GbiXm5A==}
     dependencies:
-      '@vivjs/constants': 0.13.3
-      '@vivjs/extensions': 0.13.3_@deck.gl+core@8.8.20
-      '@vivjs/layers': 0.13.3_eyd5bnsygdbmm6idrylcbxpwiq
-      '@vivjs/loaders': 0.13.3
-      '@vivjs/types': 0.13.3
-      '@vivjs/viewers': 0.13.3_c5db6wcq5dn5x6xibqjjtjnrzm
-      '@vivjs/views': 0.13.3_eyd5bnsygdbmm6idrylcbxpwiq
+      '@vivjs/constants': 0.13.6
+      '@vivjs/extensions': 0.13.6_@deck.gl+core@8.8.20
+      '@vivjs/layers': 0.13.6_eyd5bnsygdbmm6idrylcbxpwiq
+      '@vivjs/loaders': 0.13.6
+      '@vivjs/types': 0.13.6
+      '@vivjs/viewers': 0.13.6_c5db6wcq5dn5x6xibqjjtjnrzm
+      '@vivjs/views': 0.13.6_eyd5bnsygdbmm6idrylcbxpwiq
     transitivePeerDependencies:
       - '@deck.gl/core'
       - '@deck.gl/geo-layers'
@@ -7146,23 +7146,23 @@ packages:
       sirv: 2.0.2
     dev: true
 
-  /@vivjs/constants/0.13.3:
-    resolution: {integrity: sha512-dwOT/SvNiehMn0r9zkbnm5uA4wJpsoTMSQa6hupqaXKHl+0tPmTjPAeo4ZTEovuipBXAmizoLzH/ZpkzrOu9eA==}
+  /@vivjs/constants/0.13.6:
+    resolution: {integrity: sha512-nt9WMcUFgs24zVcLitvD5vcnnkephiG/6qDou16LOWPaWhODH2W/TbymOYHQp6MRoKKi3pIhIFeUxx/Ig1rUzw==}
     dependencies:
       '@luma.gl/constants': 8.5.18
     dev: false
 
-  /@vivjs/extensions/0.13.3_@deck.gl+core@8.8.20:
-    resolution: {integrity: sha512-5thyekUok7Fl+1enu74swY5ullNRRhga9QXWUvZBnb6TzjURJCwP1gWvYTXSx26fu+K4Y4Y9E0hjLbjBIB32HA==}
+  /@vivjs/extensions/0.13.6_@deck.gl+core@8.8.20:
+    resolution: {integrity: sha512-yaz6OB3pdvMt5cJA1COnx9Vcw0zQIvfA8+/X1xxGBG87NDeQR0FY/vSMBe/nCTxcoYNFvxF8uWrXc2wWZWHWiw==}
     peerDependencies:
       '@deck.gl/core': ~8.8.6
     dependencies:
       '@deck.gl/core': 8.8.20
-      '@vivjs/constants': 0.13.3
+      '@vivjs/constants': 0.13.6
     dev: false
 
-  /@vivjs/layers/0.13.3_eyd5bnsygdbmm6idrylcbxpwiq:
-    resolution: {integrity: sha512-fb+66EOeOnM2LJe3dn5hm8Xe7dn2lPEAmv/0nLN0O770ljMFjCyxljr5xw284JRSBaZULG5AzR/4HiBnVKaOqA==}
+  /@vivjs/layers/0.13.6_eyd5bnsygdbmm6idrylcbxpwiq:
+    resolution: {integrity: sha512-thNulJNyvNJFn009847mKfdP4KNBr0j4udSbIB+u7sI2uEWBXt2Wnq7xgCep0AWT5SdHNtL5IqOk8B38RPvuTA==}
     peerDependencies:
       '@deck.gl/core': ~8.8.6
       '@deck.gl/geo-layers': ~8.8.6
@@ -7181,16 +7181,16 @@ packages:
       '@luma.gl/webgl': 8.5.16
       '@math.gl/core': 3.6.3
       '@math.gl/culling': 3.6.3
-      '@vivjs/constants': 0.13.3
-      '@vivjs/extensions': 0.13.3_@deck.gl+core@8.8.20
-      '@vivjs/loaders': 0.13.3
-      '@vivjs/types': 0.13.3
+      '@vivjs/constants': 0.13.6
+      '@vivjs/extensions': 0.13.6_@deck.gl+core@8.8.20
+      '@vivjs/loaders': 0.13.6
+      '@vivjs/types': 0.13.6
     dev: false
 
-  /@vivjs/loaders/0.13.3:
-    resolution: {integrity: sha512-JwKtSa3fd6VKJyszyXdEjNcnOUrQrLUDXeoazDAlcxLIWjt9AYer7Y3LQBWYFzt2AN/S5Y/5rXrxO2e3HFlOzg==}
+  /@vivjs/loaders/0.13.6:
+    resolution: {integrity: sha512-9KeCQ+I1yGvX/Y06CSEoY2xniZ305zAYCkhPCzX9kjb8BiRn97ci5DVNwfr2ajtSPXRiFhn9ITlSWBm8767Pbg==}
     dependencies:
-      '@vivjs/types': 0.13.3
+      '@vivjs/types': 0.13.6
       fast-xml-parser: 3.21.1
       geotiff: 2.0.5
       lzw-tiff-decoder: 0.1.1
@@ -7198,23 +7198,23 @@ packages:
       zarr: 0.5.1
     dev: false
 
-  /@vivjs/types/0.13.3:
-    resolution: {integrity: sha512-OkqID35+jVQR6bDyT4Y8cWh95tvbOABiiB0YYknwlmW7PRZzxg/lnQqZ4vsNCGvHCO2oLBHwrZ+lTrJAOlP3wQ==}
+  /@vivjs/types/0.13.6:
+    resolution: {integrity: sha512-pp9xGA3czWxRlSOWDYbt8noCUm2MTRrOmaQzuvsGPx0fZecvL+HbEzW3zQTyxRYJJQBqgkHqXNZfLkvwGCpRQw==}
     dependencies:
-      '@vivjs/constants': 0.13.3
+      '@vivjs/constants': 0.13.6
       math.gl: 3.6.3
     dev: false
 
-  /@vivjs/viewers/0.13.3_c5db6wcq5dn5x6xibqjjtjnrzm:
-    resolution: {integrity: sha512-0VvTx653JUwK3Ga4ihaJIcbz7frQIHTHav0nhLA+NSw7sOors5Y1fV4vFJQb7ijnjDQakeUKb9qNu0k1dt2ETw==}
+  /@vivjs/viewers/0.13.6_c5db6wcq5dn5x6xibqjjtjnrzm:
+    resolution: {integrity: sha512-EZ55ebDIwntZs3t1gFYhM/kqi4RF+SHgEISTmvsVOcaJuUQlczxXwzJDe3KhRFGHEariJvIpObKaU3CurwdkKw==}
     peerDependencies:
       '@deck.gl/react': ~8.8.6
       react: ^16.8.0 || ^17.0.0 || 18
     dependencies:
       '@deck.gl/react': 8.8.20_pe6xxt3ruipqla76eupor3nslu
-      '@vivjs/constants': 0.13.3
-      '@vivjs/extensions': 0.13.3_@deck.gl+core@8.8.20
-      '@vivjs/views': 0.13.3_eyd5bnsygdbmm6idrylcbxpwiq
+      '@vivjs/constants': 0.13.6
+      '@vivjs/extensions': 0.13.6_@deck.gl+core@8.8.20
+      '@vivjs/views': 0.13.6_eyd5bnsygdbmm6idrylcbxpwiq
       fast-deep-equal: 3.1.3
       react: 18.2.0
     transitivePeerDependencies:
@@ -7227,8 +7227,8 @@ packages:
       - '@luma.gl/webgl'
     dev: false
 
-  /@vivjs/views/0.13.3_eyd5bnsygdbmm6idrylcbxpwiq:
-    resolution: {integrity: sha512-z9asRQR+fhpoqB32g9jHwkkVrqsYTJEfx19GImpZ28+KBjOW5Hnx6wMyw2Nn+DqbztYM8eeK4evfwxMs5l4gZA==}
+  /@vivjs/views/0.13.6_eyd5bnsygdbmm6idrylcbxpwiq:
+    resolution: {integrity: sha512-E/ix+BB5W2zKdLcIBQkPDAePS+++kOfDlq9BNdMXyUc2yVRxgYK5Bs3TXjPWLDqPkRcG6xlBI18Ajb38iRhOAQ==}
     peerDependencies:
       '@deck.gl/core': ~8.8.6
       '@deck.gl/layers': ~8.8.6
@@ -7236,8 +7236,8 @@ packages:
       '@deck.gl/core': 8.8.20
       '@deck.gl/layers': 8.8.20_snnu3edqbfe6dyy3jpp7evodsa
       '@math.gl/core': 3.6.3
-      '@vivjs/layers': 0.13.3_eyd5bnsygdbmm6idrylcbxpwiq
-      '@vivjs/loaders': 0.13.3
+      '@vivjs/layers': 0.13.6_eyd5bnsygdbmm6idrylcbxpwiq
+      '@vivjs/loaders': 0.13.6
       math.gl: 3.6.3
     transitivePeerDependencies:
       - '@deck.gl/geo-layers'

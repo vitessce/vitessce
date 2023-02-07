@@ -29,7 +29,7 @@
     "@deck.gl/layers": "~8.8.6",
     "@deck.gl/mesh-layers": "~8.8.6",
     "@deck.gl/react": "~8.8.6",
-    "@hms-dbmi/viv": "~0.13.3",
+    "@hms-dbmi/viv": "~0.13.6",
     "@loaders.gl/3d-tiles": "^3.0.0",
     "@loaders.gl/core": "^3.0.0",
     "@loaders.gl/images": "^3.0.0",
