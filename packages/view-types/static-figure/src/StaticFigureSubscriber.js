@@ -1,25 +1,46 @@
 import React, { useState } from 'react';
 import {
-  TitleInfo, useCoordination, useGridItemSize, registerPluginViewType, registerPluginFileType, registerPluginCoordinationType,
-  AbstractTwoStepLoader, LoaderResult, useMultiFigures, useLoaders, useUrls, useReady,
+  TitleInfo,
+  useCoordination,
+  registerPluginViewType,
+  registerPluginFileType,
+  registerPluginCoordinationType,
+  AbstractTwoStepLoader,
+  LoaderResult,
+  useMultiFigures,
+  useLoaders,
+  useUrls,
+  useReady,
 } from '@vitessce/vit-s';
-import { FileType, DataType, ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import Grid from '@material-ui/core/Grid';
+import {
+  FileType,
+  DataType,
+  ViewType,
+  COMPONENT_COORDINATION_TYPES,
+} from '@vitessce/constants-internal';
 import { makeStyles } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import ChevronLeft from '@material-ui/icons/ChevronLeft';
 import ChevronRight from '@material-ui/icons/ChevronRight';
 import clsx from 'clsx';
 
-const CAPTION_HEIGHT = 40;
 
 const useStyles = makeStyles(() => ({
   container: {
     height: '100%',
     position: 'relative',
   },
+  grid: {
+    height: '100%',
+    display: 'grid',
+    gridTemplateRows: '1fr min-content',
+  },
   image: {
     width: '100%',
+    display: 'block',
+    backgroundSize: 'contain',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
   },
   button: {
     position: 'absolute',
@@ -32,7 +53,10 @@ const useStyles = makeStyles(() => ({
     right: 0,
   },
   caption: {
-    height: `${CAPTION_HEIGHT}px`,
+    textAlign: 'center !important',
+    width: '80%',
+    marginLeft: '10%',
+    paddingTop: '10px',
   },
 }));
 
@@ -43,7 +67,6 @@ export function StaticFigure(props) {
   } = props;
 
   const [index, setIndex] = useState(0);
-  const [width, height, containerRef] = useGridItemSize();
 
   const isMulti = figureScopes.length > 1;
 
@@ -59,22 +82,22 @@ export function StaticFigure(props) {
   const selectedFigure = figureData[figureScopes[index]];
 
   return (
-    <div ref={containerRef} className={classes.container}>
-      <Grid container spacing={1} direction="column" justifyContent="center" alignItems="center">
-        <Grid item xs={12}>
-        <img src={selectedFigure?.url} alt={selectedFigure?.caption} title={selectedFigure?.caption} className={classes.image} style={{ maxHeight: height - CAPTION_HEIGHT }} />
-        </Grid>
-        <Grid item xs={12}>
-          <p className={classes.caption}>
-            {selectedFigure?.caption}
-          </p>
-        </Grid>
-      </Grid>
+    <div className={classes.container}>
+      <div className={classes.grid}>
+        <div title={selectedFigure?.caption} style={{ backgroundImage: `url(${selectedFigure?.url})` }} className={classes.image} />
+        <div className={classes.caption}>
+          {selectedFigure?.caption}
+        </div>
+      </div>
       {isMulti && index !== 0 ? (
-        <IconButton className={clsx(classes.button, classes.buttonLeft)} onClick={handleLeft}><ChevronLeft /></IconButton>
+        <IconButton className={clsx(classes.button, classes.buttonLeft)} onClick={handleLeft}>
+          <ChevronLeft />
+        </IconButton>
       ) : null}
       {isMulti && index !== (figureScopes.length - 1) ? (
-        <IconButton className={clsx(classes.button, classes.buttonRight)} onClick={handleRight}><ChevronRight /></IconButton>
+        <IconButton className={clsx(classes.button, classes.buttonRight)} onClick={handleRight}>
+          <ChevronRight />
+        </IconButton>
       ) : null}
     </div>
   );
@@ -98,8 +121,6 @@ export function StaticFigureSubscriber(props) {
     removeGridComponent,
     theme,
     title = 'Figure',
-    imgSrc,
-    imgAlt,
   } = props;
 
   const loaders = useLoaders();
@@ -111,12 +132,15 @@ export function StaticFigureSubscriber(props) {
 
   const [urls, addUrl] = useUrls(loaders, dataset);
 
-  // TODO: get figures from datasets[].files[] to enable {{ base_url }} placeholder support and downloading.
-  const [figureData, figureStatus] = useMultiFigures(coordinationScopes, loaders, dataset, addUrl);
+  // Get figures from datasets[].files[]
+  // to enable {{ base_url }} placeholder support and downloading.
+  const [figureData, figureStatus] = useMultiFigures(
+    coordinationScopes, loaders, dataset, addUrl,
+  );
 
-  const figureScopes = Array.isArray(coordinationScopes.figure) ? coordinationScopes.figure : [coordinationScopes.figure];
-
-  console.log(figureData, figureScopes);
+  const figureScopes = Array.isArray(coordinationScopes.figure)
+    ? coordinationScopes.figure
+    : [coordinationScopes.figure];
 
   const isReady = useReady([
     figureStatus,
