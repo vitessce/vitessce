@@ -20,7 +20,7 @@ const OTHER_VERSIONS = {
   "uuid": "^3.3.2",
   "zarr": "0.5.1",
   "zustand": "^3.5.10",
-  "@hms-dbmi/viv": "~0.13.6",
+  "@hms-dbmi/viv": "~0.13.3",
   "clsx": "^1.1.1",
   "d3-array": "^2.4.0",
   "d3-dsv": "^1.1.1",

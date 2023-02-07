@@ -15,7 +15,7 @@ export const blin2019 = {
         {
           type: 'raster',
           fileType: 'raster.ome-zarr',
-          url: 'https://minio-dev.openmicroscopy.org/idr/v0.4/2022-01-05/idr0062/6001240.zarr',
+          url: 'https://minio-dev.openmicroscopy.org/idr/v0.3/idr0062-blin-nuclearsegmentation/6001240.zarr',
         },
       ],
     },
