@@ -95,11 +95,9 @@ jobs:
       - id: get-options
         run: . ./set-node-options.sh --action
         shell: bash
-      - run: pnpm run build:ci && pnpm run bundle:ci
+      - run: pnpm run build:ci
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
-      - run: ./scripts/consumer-install.sh
-        shell: bash
       - name: Cypress PNPM Patch
         run: cp pnpm-lock.yaml ./sites/html/package-lock.json
       
@@ -111,6 +109,55 @@ jobs:
           working-directory: ./sites/html
           install-command: echo
           start: pnpm run start-html
+          wait-on: 'http://localhost:3003'
+          wait-on-timeout: 240
+          browser: chrome
+          headed: false
+
+  test-e2e-consumer-package:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - id: check-deploy
+        run: . ./check-deploy.sh --action
+      - uses: pnpm/action-setup@v2.0.1
+        # Only run the rest of the steps if it is not a deployment,
+        # since the consumer install will try to install sibling packages
+        # from the monorepo using versions that are not yet on NPM
+        # but arespecified as dependencies in the packed packages.
+        if: ${{ steps.check-deploy.outputs.needs-deploy != 'true' }}
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: true
+      - id: get-options
+        if: ${{ steps.check-deploy.outputs.needs-deploy != 'true' }}
+        run: . ./set-node-options.sh --action
+        shell: bash
+      - run: pnpm run build:ci && pnpm run bundle:ci
+        if: ${{ steps.check-deploy.outputs.needs-deploy != 'true' }}
+        env:
+          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
+      - run: ./scripts/consumer-install.sh
+        if: ${{ steps.check-deploy.outputs.needs-deploy != 'true' }}
+        shell: bash
+      - name: Cypress PNPM Patch
+        if: ${{ steps.check-deploy.outputs.needs-deploy != 'true' }}
+        run: cp pnpm-lock.yaml ./sites/html/package-lock.json
+      
+      - name: Cypress
+        if: ${{ steps.check-deploy.outputs.needs-deploy != 'true' }}
+        uses: cypress-io/github-action@v4
+        env:
+          DEBUG: '@cypress/github-action'
+        with:
+          working-directory: ./consumer
+          install-command: echo
+          start: pnpm run -C ../sites/html start-html
           wait-on: 'http://localhost:3003'
           wait-on-timeout: 240
           browser: chrome
