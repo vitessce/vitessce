@@ -38,7 +38,6 @@ cd -
 cd consumer
 npm install react react-dom
 npm install --save-dev vite@3.0.0
-npm install --save-dev cypress@^10.10.0
 npm install ./vitessce-vit-s-$LOCAL_VERSION.tgz
 npm install ./vitessce-description-$LOCAL_VERSION.tgz
 # Run vite to bundle the consumer HTML/JS.
