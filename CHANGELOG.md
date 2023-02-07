@@ -21,7 +21,7 @@
 - Switched to using `react` via esm.sh rather than `es-react` via unpkg for the Cypress tests in `sites/html`.
 - Simplify HiGlass dynamic import (possible now since no longer using Webpack) to resolve bug in Vitessce Python.
 - Upgrade `Viv` to `0.13.6` to support OME-NGFF `v0.4`
-
+- Use `pnpm pack` in all subpackages so that outdated packages from NPM are not used during the consumer package install test.
 
 ## [2.0.2](https://www.npmjs.com/package/vitessce/v/2.0.2) - 2022-12-09
 
