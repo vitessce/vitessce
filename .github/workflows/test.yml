@@ -95,10 +95,11 @@ jobs:
       - id: get-options
         run: . ./set-node-options.sh --action
         shell: bash
-      - run: pnpm run build:ci
+      - run: pnpm run build:ci && pnpm run bundle:ci
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
-
+      - run: ./scripts/consumer-install.sh
+        shell: bash
       - name: Cypress PNPM Patch
         run: cp pnpm-lock.yaml ./sites/html/package-lock.json
       

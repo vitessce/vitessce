@@ -34,4 +34,8 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
     cy.contains('HiGlass');
     cy.get('.higlass .tiled-plot-div', { timeout: 5000 });
   });
+  it('Works for consumer package', () => {
+    cy.visit('/consumer/dist/index.html');
+    cy.contains('Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH');
+  });
 });
