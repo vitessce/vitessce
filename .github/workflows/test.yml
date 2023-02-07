@@ -41,10 +41,23 @@ jobs:
       - run: ./test.sh --action
   
   test-e2e-demo:
-    needs: test-unit
     runs-on: ubuntu-20.04
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: pnpm/action-setup@v2.0.1
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: true
+      - id: get-options
+        run: . ./set-node-options.sh --action
+        shell: bash
       - run: |
+          pnpm run build:ci
           cd ./sites/demo
           pnpm run build-demo
         env:
@@ -67,10 +80,22 @@ jobs:
           headed: false
   
   test-e2e-html:
-    needs: test-unit
     runs-on: ubuntu-20.04
     steps:
-      - run: pnpm run bundle:ci
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: pnpm/action-setup@v2.0.1
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: true
+      - id: get-options
+        run: . ./set-node-options.sh --action
+        shell: bash
+      - run: pnpm run build:ci && pnpm run bundle:ci
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - run: ./scripts/consumer-install.sh
