@@ -24,21 +24,14 @@ rm -rf node_modules/
 npm init -y
 cd -
 
-# Pack @vitessce/vit-s
-cd packages/vit-s
-pnpm pack --pack-destination ../../consumer/
-cd -
+# Pack all sub-packages
+pnpm -r exec pnpm pack --pack-destination $(pwd)/consumer/
 
-# Pack @vitessce/description
-cd packages/view-types/description
-pnpm pack --pack-destination ../../../consumer/
-cd -
 
 # Install packed tgz
 cd consumer
 npm install react react-dom
 npm install --save-dev vite@3.0.0
-npm install ./vitessce-vit-s-$LOCAL_VERSION.tgz
-npm install ./vitessce-description-$LOCAL_VERSION.tgz
+npm install $(ls ./vitessce-*.tgz)
 # Run vite to bundle the consumer HTML/JS.
 npm exec vite build
