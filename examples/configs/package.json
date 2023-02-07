@@ -8,12 +8,13 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
-  "main": "dist-tsc/index.js",
+  "main": "dist/index.js",
   "files": [
-    "dist-tsc",
-    "src"
+    "dist"
   ],
   "scripts": {
+    "start": "tsc --watch",
+    "build": "tsc"
   },
   "dependencies": {
     "@vitessce/config": "workspace:*",

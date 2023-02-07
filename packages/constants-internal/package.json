@@ -8,16 +8,13 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
-  "main": "dist-tsc/index.js",
-  "publishConfig": {
-    "main": "dist/index.mjs"
-  },
+  "main": "dist/index.js",
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "scripts": {
-    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
+    "start": "tsc --watch",
+    "build": "tsc",
     "test": "pnpm exec vitest --run -r ../../ --dir ."
   },
   "devDependencies": {

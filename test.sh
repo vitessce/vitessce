@@ -36,5 +36,3 @@ end cypress
 start schema
 ./packages/vit-s/src/schemas/schema-schema.sh
 end schema
-
-node scripts/check-tsconfig-references.mjs
