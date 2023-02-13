@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/constants",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -8,13 +8,16 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.mjs"
+  },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
-    "start": "tsc --watch",
-    "build": "tsc"
+    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js"
   },
   "dependencies": {
     "@vitessce/constants-internal": "workspace:*"

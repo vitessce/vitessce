@@ -109,4 +109,4 @@ export {
   OptionSelect,
   usePlotOptionsStyles,
 } from './shared-plot-options';
-export * from './schemas';
+export * from './json-schemas';
