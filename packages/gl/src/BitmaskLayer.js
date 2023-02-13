@@ -12,7 +12,7 @@ import {
 } from './constants';
 
 const MAX_CHANNELS = 7;
-const MULTI_FEATURE_TEX_SIZE = 100;
+const MULTI_FEATURE_TEX_SIZE = 2048;
 
 function padWithDefault(arr, defaultValue, padWidth) {
   const newArr = [...arr];
@@ -94,12 +94,12 @@ export default class BitmaskLayer extends XRLayer {
     super.updateState({ props, oldProps, changeFlags });
     if (props.multiFeatureValues !== oldProps.multiFeatureValues) {
       const { multiFeatureValues } = this.props;
-      // TODO: use one expressionTex for all channels,
-      // using some kind of offset mechanism.
-      const [expressionTex, offsets] = this.multiDataToTexture(
+      // Use one expressionTex for all channels,
+      // using an offset mechanism.
+      const [expressionTex, offsets, texHeight] = this.multiDataToTexture(
         multiFeatureValues,
       );
-      this.setState({ expressionTex, offsets });
+      this.setState({ expressionTex, offsets, texHeight });
     }
     if (props.colormap !== oldProps.colormap) {
       const { gl } = this.context;
@@ -133,10 +133,10 @@ export default class BitmaskLayer extends XRLayer {
       zoomOffset, // TODO: figure out if this needs to be used or not
     } = this.props;
     const {
-      textures, model, expressionTex, offsets,
+      textures, model, expressionTex, offsets, texHeight,
     } = this.state;
     // Render the image
-    if (textures && model && expressionTex && offsets) {
+    if (textures && model) {
       const scaleFactor = 1 / (2 ** (maxZoom - zoom));
       const colors = fromEntries(range(MAX_CHANNELS).map(i => ([`color${i}`, getColor(channelColors[i])])));
       model
@@ -146,6 +146,7 @@ export default class BitmaskLayer extends XRLayer {
             ...textures,
             expressionTex,
             offsets: padWithDefault(offsets, 0, MAX_CHANNELS - offsets.length),
+            texHeight,
             multiFeatureTexSize: MULTI_FEATURE_TEX_SIZE,
             channelsFilled: padWithDefault(
               channelsFilled,
@@ -213,10 +214,15 @@ export default class BitmaskLayer extends XRLayer {
   multiDataToTexture(data) {
     const isWebGL2On = isWebGL2(this.context.gl);
     const totalLength = data.reduce((a, h) => a + h.length, 0); // Throw error if too large
-    const totalData = new Uint8Array(MULTI_FEATURE_TEX_SIZE * MULTI_FEATURE_TEX_SIZE);
+    const texHeight = Math.max(2, Math.ceil(totalLength / MULTI_FEATURE_TEX_SIZE));
+    if (texHeight > MULTI_FEATURE_TEX_SIZE) {
+      console.error('Error: length of concatenated quantitative feature values larger than maximum texture size');
+    }
+    const totalData = new Uint8Array(MULTI_FEATURE_TEX_SIZE * texHeight);
     const offsets = [];
     let offset = 0;
     data.forEach((featureArr) => {
+      // TODO: use normalized values
       totalData.set(featureArr.map(v => Math.floor(v / 20 * 255)), offset);
       offsets.push(offset);
       offset += featureArr.length;
@@ -224,7 +230,7 @@ export default class BitmaskLayer extends XRLayer {
     return [
       new Texture2D(this.context.gl, {
         width: MULTI_FEATURE_TEX_SIZE,
-        height: MULTI_FEATURE_TEX_SIZE,
+        height: texHeight,
         // Only use Float32 so we don't have to write two shaders
         data: new Float32Array(totalData),
         // we don't want or need mimaps
@@ -242,6 +248,7 @@ export default class BitmaskLayer extends XRLayer {
         type: GL.FLOAT,
       }),
       offsets,
+      texHeight,
     ];
   }
 }

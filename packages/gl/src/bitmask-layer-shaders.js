@@ -41,8 +41,8 @@ uniform sampler2D channel5;
 uniform sampler2D channel6;
 
 // Color texture
-uniform float colorTexHeight;
-uniform float colorTexWidth;
+// uniform float colorTexHeight;
+// uniform float colorTexWidth;
 uniform float hovered;
 // range
 uniform bool channelsVisible[7];
@@ -57,6 +57,7 @@ uniform bool uIsExpressionMode;
 uniform sampler2D expressionTex;
 uniform float offsets[7];
 uniform float multiFeatureTexSize;
+uniform float texHeight;
 
 // Static colors
 // For some reason I cannot use uniform vec3 colors[7]; and i cannot figure out why.
@@ -108,7 +109,7 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelCol
   // Colors are laid out corresponding to ids in row-major order in the texture.  So if width of the texture is 10, and you want ID 25,
   // you need coordinate (1, 4) (i.e 2 rows down, and 5 columns over indexed from 0 for a total of 25 units covered in row major order).
   float offsetSampledData = sampledData + featureOffset - 1.0;
-  vec2 colorTexCoord = vec2(mod(offsetSampledData, multiFeatureTexSize) / multiFeatureTexSize, floor(offsetSampledData / multiFeatureTexSize) / (multiFeatureTexSize - 1.));
+  vec2 colorTexCoord = vec2(mod(offsetSampledData, multiFeatureTexSize) / multiFeatureTexSize, floor(offsetSampledData / multiFeatureTexSize) / (texHeight - 1.));
   
   float expressionValue = texture(expressionTex, colorTexCoord).r / 255.;
   float scaledExpressionValue = (expressionValue - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
