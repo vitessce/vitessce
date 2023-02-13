@@ -413,6 +413,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         ? false
         : c.visible)),
       excludeBackground: useTransparentColor,
+      multiFeatureValues: layerDef.channels.map(c => c.featureValues),
     };
     if (!loader || !layerProps) return null;
     const {
@@ -447,6 +448,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         channelStrokeWidths: layerProps.strokeWidth,
         modelMatrix,
         hoveredCell: Number(this.props.cellHighlight),
+        multiFeatureValues: layerProps.multiFeatureValues,
         renderSubLayers: renderSubBitmaskLayers,
         loader: data,
         selections,
@@ -641,7 +643,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsSegmentationsType,
       segmentationLayerCallbacks = [],
 
-      multiExpressionData, // TODO: use
+      multiExpressionData,
     } = this.props;
     // console.log('obsSegmentations', obsSegmentations, segmentationLayerScopes, segmentationLayerCoordination)
     if(obsSegmentations && Object.keys(obsSegmentations).length === segmentationLayerScopes.length && segmentationLayerScopes && segmentationLayerCoordination) {
@@ -683,6 +685,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
                 slider: [0, 1],
                 color: spatialChannelColor,
                 colorEncoding: obsColorEncoding, // TODO: use
+                featureValues: multiExpressionData?.[layerScope]?.[0] || [],
               };
             }),
             callback: segmentationLayerCallbacks[0],
@@ -996,6 +999,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'segmentationLayerCallbacks',
         'segmentationLayerScopes',
         'segmentationLayerCoordination',
+        'multiExpressionData', // TODO: should this be here?
       ].some(shallowDiff)
     ) {
       // Cells layer props changed.

@@ -27,6 +27,7 @@ import { humanLymphNode10xVisium } from './view-configs/human_lymph_node_10x_vis
 import { kuppe2022nature } from './view-configs/kuppe_2022_nature';
 import { marshall2022iScience } from './view-configs/marshall_2022_iscience';
 import { meta2022azimuth } from './view-configs/meta_2022_azimuth';
+import { kpmpOld2023 } from './view-configs/kpmp-old';
 import { kpmp2023 } from './view-configs/kpmp';
 
 
@@ -63,6 +64,7 @@ export const configs = {
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
   'blin-2019': blin2019,
   'ome-ngff-v0.1': omeNgffLegacy,
+  'kpmp-old-2023': kpmpOld2023,
   'kpmp-2023': kpmp2023,
   // Keys which enable backwards compatibility with old links.
   'codeluppi-2018-via-json': codeluppi2018,

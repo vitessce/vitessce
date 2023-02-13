@@ -51,9 +51,12 @@ uniform float channelOpacities[7];
 // Expression mapping
 uniform vec2 uColorScaleRange;
 uniform bool uIsExpressionMode;
+
 // TODO: use one expressionTex for all channels,
 // using some kind of offset mechanism.
 uniform sampler2D expressionTex;
+uniform float offsets[7];
+uniform float multiFeatureTexSize;
 
 // Static colors
 // For some reason I cannot use uniform vec3 colors[7]; and i cannot figure out why.
@@ -75,7 +78,7 @@ uniform float opacity;
 
 varying vec2 vTexCoord;
 
-vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelColor, float channelOpacity, bool isFilled, float strokeWidth) {
+vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelColor, float channelOpacity, bool isFilled, float strokeWidth, float featureOffset) {
   float sampledData = texture(dataTex, coord).r;
 
   bool isEdge = true;
@@ -101,9 +104,12 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelCol
   }
 
   vec4 hoveredColor = float(sampledData == hovered && sampledData > 0. && hovered > 0.) * vec4(0., 0., 1., 1.);
+  
   // Colors are laid out corresponding to ids in row-major order in the texture.  So if width of the texture is 10, and you want ID 25,
   // you need coordinate (1, 4) (i.e 2 rows down, and 5 columns over indexed from 0 for a total of 25 units covered in row major order).
-  vec2 colorTexCoord = vec2(mod(sampledData, colorTexWidth) / colorTexWidth, floor(sampledData / colorTexWidth) / (colorTexHeight - 1.));
+  float offsetSampledData = sampledData + featureOffset - 1.0;
+  vec2 colorTexCoord = vec2(mod(offsetSampledData, multiFeatureTexSize) / multiFeatureTexSize, floor(offsetSampledData / multiFeatureTexSize) / (multiFeatureTexSize - 1.));
+  
   float expressionValue = texture(expressionTex, colorTexCoord).r / 255.;
   float scaledExpressionValue = (expressionValue - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
   vec4 sampledColor = float(uIsExpressionMode) * COLORMAP_FUNC(clamp(scaledExpressionValue, 0.0, 1.0)) + (1. - float(uIsExpressionMode)) * vec4(channelColor.rgb, channelOpacity);
@@ -113,18 +119,18 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelCol
 
 void main() {
 
-  gl_FragColor = sampleAndGetColor(channel0, vTexCoord, channelsVisible[0], color0, channelOpacities[0], channelsFilled[0], channelStrokeWidths[0]);
-  vec4 sampledColor = sampleAndGetColor(channel1, vTexCoord, channelsVisible[1], color1, channelOpacities[1], channelsFilled[1], channelStrokeWidths[1]);
+  gl_FragColor = sampleAndGetColor(channel0, vTexCoord, channelsVisible[0], color0, channelOpacities[0], channelsFilled[0], channelStrokeWidths[0], offsets[0]);
+  vec4 sampledColor = sampleAndGetColor(channel1, vTexCoord, channelsVisible[1], color1, channelOpacities[1], channelsFilled[1], channelStrokeWidths[1], offsets[1]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  sampledColor = sampleAndGetColor(channel2, vTexCoord, channelsVisible[2], color2, channelOpacities[2], channelsFilled[2], channelStrokeWidths[2]);
+  sampledColor = sampleAndGetColor(channel2, vTexCoord, channelsVisible[2], color2, channelOpacities[2], channelsFilled[2], channelStrokeWidths[2], offsets[2]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  sampledColor = sampleAndGetColor(channel3, vTexCoord, channelsVisible[3], color3, channelOpacities[3], channelsFilled[3], channelStrokeWidths[3]);
+  sampledColor = sampleAndGetColor(channel3, vTexCoord, channelsVisible[3], color3, channelOpacities[3], channelsFilled[3], channelStrokeWidths[3], offsets[3]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  sampledColor = sampleAndGetColor(channel4, vTexCoord, channelsVisible[4], color4, channelOpacities[4], channelsFilled[4], channelStrokeWidths[4]);
+  sampledColor = sampleAndGetColor(channel4, vTexCoord, channelsVisible[4], color4, channelOpacities[4], channelsFilled[4], channelStrokeWidths[4], offsets[4]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  sampledColor = sampleAndGetColor(channel5, vTexCoord, channelsVisible[5], color5, channelOpacities[5], channelsFilled[5], channelStrokeWidths[5]);
+  sampledColor = sampleAndGetColor(channel5, vTexCoord, channelsVisible[5], color5, channelOpacities[5], channelsFilled[5], channelStrokeWidths[5], offsets[5]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
-  sampledColor = sampleAndGetColor(channel6, vTexCoord, channelsVisible[6], color6, channelOpacities[6], channelsFilled[6], channelStrokeWidths[6]);
+  sampledColor = sampleAndGetColor(channel6, vTexCoord, channelsVisible[6], color6, channelOpacities[6], channelsFilled[6], channelStrokeWidths[6], offsets[6]);
   gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
 
   // TODO: multiply the resulting channel-level opacity value by the layer-level opacity value.

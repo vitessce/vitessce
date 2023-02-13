@@ -12,6 +12,7 @@ import {
 } from './constants';
 
 const MAX_CHANNELS = 7;
+const MULTI_FEATURE_TEX_SIZE = 100;
 
 function padWithDefault(arr, defaultValue, padWidth) {
   const newArr = [...arr];
@@ -33,6 +34,7 @@ const defaultProps = {
   hoveredCell: { type: 'number', value: null, compare: true },
   colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
   expressionData: { type: 'object', value: null, compare: true },
+  multiFeatureValues: { type: 'array', value: null, compare: true },
 };
 
 /**
@@ -90,16 +92,14 @@ export default class BitmaskLayer extends XRLayer {
 
   updateState({ props, oldProps, changeFlags }) {
     super.updateState({ props, oldProps, changeFlags });
-    if (props.expressionData !== oldProps.expressionData) {
-      const { expressionData, cellTexHeight, cellTexWidth } = this.props;
+    if (props.multiFeatureValues !== oldProps.multiFeatureValues) {
+      const { multiFeatureValues } = this.props;
       // TODO: use one expressionTex for all channels,
       // using some kind of offset mechanism.
-      const expressionTex = this.dataToTexture(
-        expressionData,
-        cellTexWidth,
-        cellTexHeight,
+      const [expressionTex, offsets] = this.multiDataToTexture(
+        multiFeatureValues,
       );
-      this.setState({ expressionTex });
+      this.setState({ expressionTex, offsets });
     }
     if (props.colormap !== oldProps.colormap) {
       const { gl } = this.context;
@@ -133,10 +133,10 @@ export default class BitmaskLayer extends XRLayer {
       zoomOffset, // TODO: figure out if this needs to be used or not
     } = this.props;
     const {
-      textures, model, expressionTex,
+      textures, model, expressionTex, offsets,
     } = this.state;
     // Render the image
-    if (textures && model) {
+    if (textures && model && expressionTex && offsets) {
       const scaleFactor = 1 / (2 ** (maxZoom - zoom));
       const colors = fromEntries(range(MAX_CHANNELS).map(i => ([`color${i}`, getColor(channelColors[i])])));
       model
@@ -145,6 +145,8 @@ export default class BitmaskLayer extends XRLayer {
             ...colors,
             ...textures,
             expressionTex,
+            offsets: padWithDefault(offsets, 0, MAX_CHANNELS - offsets.length),
+            multiFeatureTexSize: MULTI_FEATURE_TEX_SIZE,
             channelsFilled: padWithDefault(
               channelsFilled,
               true,
@@ -206,6 +208,41 @@ export default class BitmaskLayer extends XRLayer {
       dataFormat: isWebGL2On ? GL.RED : GL.LUMINANCE,
       type: GL.FLOAT,
     });
+  }
+
+  multiDataToTexture(data) {
+    const isWebGL2On = isWebGL2(this.context.gl);
+    const totalLength = data.reduce((a, h) => a + h.length, 0); // Throw error if too large
+    const totalData = new Uint8Array(MULTI_FEATURE_TEX_SIZE * MULTI_FEATURE_TEX_SIZE);
+    const offsets = [];
+    let offset = 0;
+    data.forEach((featureArr) => {
+      totalData.set(featureArr.map(v => Math.floor(v / 20 * 255)), offset);
+      offsets.push(offset);
+      offset += featureArr.length;
+    });
+    return [
+      new Texture2D(this.context.gl, {
+        width: MULTI_FEATURE_TEX_SIZE,
+        height: MULTI_FEATURE_TEX_SIZE,
+        // Only use Float32 so we don't have to write two shaders
+        data: new Float32Array(totalData),
+        // we don't want or need mimaps
+        mipmaps: false,
+        parameters: {
+          // NEAREST for integer data
+          [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
+          [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
+          // CLAMP_TO_EDGE to remove tile artifacts
+          [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
+          [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
+        },
+        format: isWebGL2On ? GL.R32F : GL.LUMINANCE,
+        dataFormat: isWebGL2On ? GL.RED : GL.LUMINANCE,
+        type: GL.FLOAT,
+      }),
+      offsets,
+    ];
   }
 }
 BitmaskLayer.layerName = 'BitmaskLayer';
