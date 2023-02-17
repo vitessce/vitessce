@@ -4,6 +4,7 @@ import { Texture2D, isWebGL2 } from '@luma.gl/core';
 import { XRLayer } from '@hms-dbmi/viv';
 import { fromEntries } from '@vitessce/utils';
 import range from 'lodash/range';
+import { extent } from 'd3-array';
 import { fs, vs } from './bitmask-layer-shaders';
 import {
   GLSL_COLORMAPS,
@@ -24,6 +25,15 @@ function padWithDefault(arr, defaultValue, padWidth) {
 
 function getColor(arr) {
   return arr ? arr.map(v => v / 255) : [0, 0, 0];
+}
+
+function normalize(arr) {
+  const [min, max] = extent(arr);
+  const ratio = 255 / (max - min);
+  const data = new Uint8Array(
+    arr.map(i => Math.floor((i - min) * ratio)),
+  );
+  return data;
 }
 
 const defaultProps = {
@@ -223,7 +233,7 @@ export default class BitmaskLayer extends XRLayer {
     let offset = 0;
     data.forEach((featureArr) => {
       // TODO: use normalized values
-      totalData.set(featureArr.map(v => Math.floor(v / 20 * 255)), offset);
+      totalData.set(normalize(featureArr), offset);
       offsets.push(offset);
       offset += featureArr.length;
     });

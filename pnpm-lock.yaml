@@ -222,6 +222,7 @@ importers:
       '@turf/centroid': ^6.5.0
       '@turf/helpers': ^6.5.0
       '@vitessce/utils': workspace:*
+      d3-array: ^2.4.0
       deck.gl: ~8.8.6
       glsl-colormap: ^1.0.1
       glslify: ^7.0.0
@@ -260,6 +261,7 @@ importers:
       '@turf/centroid': 6.5.0
       '@turf/helpers': 6.5.0
       '@vitessce/utils': link:../utils/other-utils
+      d3-array: 2.12.1
       deck.gl: 8.8.20_fjs6sbp54he2tngqqeku6af7wm
       glslify: 7.1.1
       lodash: 4.17.21

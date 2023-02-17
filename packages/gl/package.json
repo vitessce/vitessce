@@ -57,7 +57,8 @@
     "lodash": "^4.17.21",
     "math.gl": "^3.5.6",
     "mathjs": "^9.2.0",
-    "nebula.gl": "0.23.8"
+    "nebula.gl": "0.23.8",
+    "d3-array": "^2.4.0"
   },
   "devDependencies": {
     "glsl-colormap": "^1.0.1"

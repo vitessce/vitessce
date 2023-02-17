@@ -1,18 +1,19 @@
 /* eslint-disable no-underscore-dangle */
 import { openArray, slice } from 'zarr';
-import { extent } from 'd3-array';
+//import { extent } from 'd3-array';
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsFeatureMatrixAnndataSchema,
 } from '@vitessce/vit-s';
 
-const normalize = (arr) => {
-  const [min, max] = extent(arr);
+function normalize(arr) {
+  return { data: arr };
+  /*const [min, max] = extent(arr);
   const ratio = 255 / (max - min);
   const data = new Uint8Array(
     arr.map(i => Math.floor((i - min) * ratio)),
   );
-  return { data };
-};
+  return { data };*/
+}
 
 const concatenateColumnVectors = (arr) => {
   const numCols = arr.length;
