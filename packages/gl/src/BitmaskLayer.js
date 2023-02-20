@@ -45,6 +45,9 @@ const defaultProps = {
   colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
   expressionData: { type: 'object', value: null, compare: true },
   multiFeatureValues: { type: 'array', value: null, compare: true },
+  channelFeatureValueColormaps: { type: 'array', value: null, compare: true },
+  channelFeatureValueColormapRanges: { type: 'array', value: null, compare: true },
+  channelIsStaticColorMode: { type: 'array', value: null, compare: true },
 };
 
 /**
@@ -131,6 +134,9 @@ export default class BitmaskLayer extends XRLayer {
       channelOpacities,
       channelColors,
       channelsVisible,
+      channelFeatureValueColormaps, // TODO: use in shader, figure out how to inject multiple GLSL colormap functions
+      channelFeatureValueColormapRanges,
+      channelIsStaticColorMode,
       hoveredCell,
       colorScaleLo,
       colorScaleHi,
@@ -176,6 +182,24 @@ export default class BitmaskLayer extends XRLayer {
               // There are six texture entries on the shaders
               MAX_CHANNELS - channelStrokeWidths.length,
             ),
+            channelColormapRangeStarts: padWithDefault(
+              channelFeatureValueColormapRanges.map(r => r?.[0] || 0.0),
+              0.0,
+              // There are six texture entries on the shaders
+              MAX_CHANNELS - channelFeatureValueColormapRanges.length,
+            ),
+            channelColormapRangeEnds: padWithDefault(
+              channelFeatureValueColormapRanges.map(r => r?.[1] || 1.0),
+              1.0,
+              // There are six texture entries on the shaders
+              MAX_CHANNELS - channelFeatureValueColormapRanges.length,
+            ),
+            channelIsStaticColorMode: padWithDefault(
+              channelIsStaticColorMode,
+              true,
+              // There are six texture entries on the shaders
+              MAX_CHANNELS - channelIsStaticColorMode.length,
+            ),
             hovered: hoveredCell || 0,
             colorTexHeight: cellTexHeight,
             colorTexWidth: cellTexWidth,
@@ -185,9 +209,9 @@ export default class BitmaskLayer extends XRLayer {
               // There are six texture entries on the shaders
               MAX_CHANNELS - channelsVisible.length,
             ),
-            uColorScaleRange: [colorScaleLo, colorScaleHi],
-            uIsExpressionMode: isExpressionMode,
-            uIsOutlined: false,
+            //uColorScaleRange: [colorScaleLo, colorScaleHi],
+            //uIsExpressionMode: isExpressionMode,
+            //uIsOutlined: false,
             scaleFactor,
           }),
         )

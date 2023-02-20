@@ -58,7 +58,7 @@ export function FeatureListSubscriber(props) {
 
   const variablesLabel = variablesLabelOverride || featureType;
 
-  const title = titleOverride || `${capitalize(variablesLabel)} List`;
+  const title = titleOverride || `${capitalize(obsType)} Features`;
 
   const [urls, addUrl] = useUrls(loaders, dataset);
 

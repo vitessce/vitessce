@@ -31,6 +31,7 @@ export default function ExpressionHistogram(props) {
     marginRight = 90,
     marginBottom = 50,
     obsType,
+    featureType,
     featureValueType,
   } = props;
 
@@ -50,7 +51,7 @@ export default function ExpressionHistogram(props) {
       y: {
         type: 'quantitative',
         aggregate: 'count',
-        title: `Number of ${obsType}`,
+        title: 'Count',
       },
       color: { value: 'gray' },
     },

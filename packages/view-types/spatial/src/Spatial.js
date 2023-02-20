@@ -414,6 +414,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
         : c.visible)),
       excludeBackground: useTransparentColor,
       multiFeatureValues: layerDef.channels.map(c => c.featureValues),
+      featureValueColormap: layerDef.channels.map(c => c.featureValueColormap),
+      featureValueColormapRange: layerDef.channels.map(c => c.featureValueColormapRange),
+      isStaticColorMode: layerDef.channels.map(c => c.obsColorEncoding === 'spatialChannelColor'),
     };
     if (!loader || !layerProps) return null;
     const {
@@ -446,6 +449,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
         opacity: layerProps.opacity,
         channelColors: layerProps.colors,
         channelStrokeWidths: layerProps.strokeWidth,
+        channelFeatureValueColormaps: layerProps.featureValueColormap,
+        channelFeatureValueColormapRanges: layerProps.featureValueColormapRange,
+        channelIsStaticColorMode: layerProps.isStaticColorMode,
         modelMatrix,
         hoveredCell: Number(this.props.cellHighlight),
         multiFeatureValues: layerProps.multiFeatureValues,
@@ -675,6 +681,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
                 spatialLayerFilled,
                 spatialLayerStrokeWidth,
                 obsColorEncoding,
+                featureValueColormap,
+                featureValueColormapRange,
               } = segmentationLayerCoordination[0][layerScope];
               return {
                 selection: { t: 0, z: 0, c: spatialTargetC }, // should fill in c.
@@ -684,8 +692,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
                 strokeWidth: spatialLayerStrokeWidth,
                 slider: [0, 1],
                 color: spatialChannelColor,
-                colorEncoding: obsColorEncoding, // TODO: use
+                obsColorEncoding,
                 featureValues: multiExpressionData?.[layerScope]?.[0] || [],
+                featureValueColormap,
+                featureValueColormapRange,
               };
             }),
             callback: segmentationLayerCallbacks[0],

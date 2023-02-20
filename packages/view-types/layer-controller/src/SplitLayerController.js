@@ -131,6 +131,9 @@ export default function SplitLayerController(props) {
             spatialChannelColor: color,
             spatialLayerFilled: filled,
             spatialLayerStrokeWidth: strokeWidth,
+            obsColorEncoding,
+            featureValueColormap,
+            featureValueColormapRange,
           } = segmentationLayerCoordination[0][layerScope];
           const {
             setSpatialLayerVisible: setVisible,
@@ -138,6 +141,9 @@ export default function SplitLayerController(props) {
             setSpatialChannelColor: setColor,
             setSpatialLayerFilled: setFilled,
             setSpatialLayerStrokeWidth: setStrokeWidth,
+            setObsColorEncoding,
+            setFeatureValueColormap,
+            setFeatureValueColormapRange,
           } = segmentationLayerCoordination[1][layerScope];
 
           const obsTypeName = obsType;
@@ -164,6 +170,13 @@ export default function SplitLayerController(props) {
               setFilled={setFilled}
               strokeWidth={strokeWidth}
               setStrokeWidth={setStrokeWidth}
+
+              obsColorEncoding={obsColorEncoding}
+              featureValueColormap={featureValueColormap}
+              featureValueColormapRange={featureValueColormapRange}
+              setObsColorEncoding={setObsColorEncoding}
+              setFeatureValueColormap={setFeatureValueColormap}
+              setFeatureValueColormapRange={setFeatureValueColormapRange}
             />
           );
         })}

@@ -133,12 +133,16 @@ function ColorPickerMenu(props) {
   );
 }
 
-function StrokeWidthMenu(props) {
+function EllipsisMenu(props) {
   const {
     strokeWidth,
     setStrokeWidth,
     filled,
     setFilled,
+    obsColorEncoding,
+    setObsColorEncoding,
+    featureValueColormapRange,
+    setFeatureValueColormapRange,
   } = props;
   const [open, setOpen] = useState(false);
   const classes = useStyles();
@@ -168,6 +172,23 @@ function StrokeWidthMenu(props) {
           orientation="horizontal"
         />
       </MenuItem>
+      <MenuItem dense disableGutters>
+        <span style={{ margin: '0 5px' }}>Quantitative Colormap: </span>
+        <Checkbox color="primary" checked={obsColorEncoding === 'geneSelection'} onChange={(e, v) => setObsColorEncoding(v ? 'geneSelection' : 'spatialChannelColor')} />
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <span style={{ margin: '0 5px' }}>Colormap Range: </span>
+        <Slider
+          disabled={obsColorEncoding !== 'geneSelection'}
+          value={featureValueColormapRange}
+          min={0.0}
+          max={1.0}
+          step={0.01}
+          onChange={(e, v) => setFeatureValueColormapRange(v)}
+          style={{ marginTop: '7px', width: '100px' }}
+          orientation="horizontal"
+        />
+      </MenuItem>
     </PopperMenu>
   );
 }
@@ -186,6 +207,13 @@ export default function SplitVectorLayerController(props) {
     setFilled,
     strokeWidth,
     setStrokeWidth,
+
+    obsColorEncoding,
+    featureValueColormap,
+    featureValueColormapRange,
+    setObsColorEncoding,
+    setFeatureValueColormap,
+    setFeatureValueColormapRange,
   } = props;
 
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
@@ -248,11 +276,15 @@ export default function SplitVectorLayerController(props) {
             />
           </Grid>
           <Grid item xs={1}>
-            <StrokeWidthMenu
+            <EllipsisMenu
               strokeWidth={strokeWidth}
               setStrokeWidth={setStrokeWidth}
               filled={filled}
               setFilled={setFilled}
+              obsColorEncoding={obsColorEncoding}
+              setObsColorEncoding={setObsColorEncoding}
+              featureValueColormapRange={featureValueColormapRange}
+              setFeatureValueColormapRange={setFeatureValueColormapRange}
             />
           </Grid>
           <Grid item xs={1}>
