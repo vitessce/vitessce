@@ -39,7 +39,10 @@
     "colormap": "^2.3.2",
     "d3-scale": "^3.2.3",
     "d3-interpolate": "^2.0.1",
-    "d3-color": "^1.4.0"
+    "d3-color": "^1.4.0",
+    "d3-axis": "^3.0.0",
+    "d3-selection": "^3.0.0",
+    "vega-scale": "^6.0.0"
   },
   "devDependencies": {
     "react": "^18.0.0",

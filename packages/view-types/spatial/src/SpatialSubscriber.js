@@ -36,6 +36,7 @@ import Spatial from './Spatial';
 import SpatialOptions from './SpatialOptions';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils';
+import MultiLegend from './MultiLegend';
 
 const tempLayer = [{
   index: 0,
@@ -568,6 +569,12 @@ export function SpatialSubscriber(props) {
         cellColorEncoding={cellColorEncoding}
         getExpressionValue={getExpressionValue}
         theme={theme}
+        hideTools
+      />
+      <MultiLegend
+        segmentationLayerScopes={segmentationLayerScopes}
+        segmentationLayerCoordination={segmentationLayerCoordination}
+        multiExpressionData={multiExpressionData}
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber

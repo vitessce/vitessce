@@ -29,7 +29,6 @@ export default function StratifiedFeaturePlot2(props) {
     featureName,
   } = props;
 
-  const divRef = useRef();
   const svgRef = useRef();
 
 
@@ -133,26 +132,15 @@ export default function StratifiedFeaturePlot2(props) {
   }, [width, height, data, featureName]);
 
   return (
-    <div
-      ref={divRef}
+    <svg
+      ref={svgRef}
       style={{
-        top: `${0}px`,
-        position: "relative",
+        top: 0,
+        left: 0,
         width: `${width}px`,
         height: `${height}px`,
+        position: "relative",
       }}
-    >
-      <svg
-        ref={svgRef}
-        style={{
-          top: 0,
-          left: 0, 
-          width: `${width}px`,
-          height: `${height}px`,
-          position: "relative",
-          cursor: "pointer",
-        }}
-      />
-    </div>
+    />
   );
 }

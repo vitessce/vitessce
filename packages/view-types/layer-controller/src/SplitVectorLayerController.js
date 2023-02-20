@@ -92,6 +92,8 @@ function ColorPickerMenu(props) {
     color,
     setColor,
     palette = null,
+    isStaticColor,
+    visible
   } = props;
 
   const defaultPalette = palette
@@ -103,6 +105,7 @@ function ColorPickerMenu(props) {
   function handleColorChange({ rgb }) {
     if (rgb && setColor) {
       setColor([rgb.r, rgb.g, rgb.b]);
+      // TODO: set obsColorEncoding when user changes color also
     }
   }
 
@@ -115,7 +118,12 @@ function ColorPickerMenu(props) {
       open={open}
       setOpen={setOpen}
       buttonIcon={
-        <div className={classes.colorIcon} style={{ backgroundColor: currentColor }} />
+        isStaticColor && visible ? (
+          <div className={classes.colorIcon} style={{ backgroundColor: currentColor }} />
+        ) : (
+          // TODO: show quantitative colormap in color box when (visible && !isStaticColor)
+          <div className={classes.colorIcon} />
+        )
       }
       buttonClassName={classes.menuButton}
       withPaper={false}
@@ -219,6 +227,8 @@ export default function SplitVectorLayerController(props) {
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
 
+  const isStaticColor = obsColorEncoding === 'spatialChannelColor';
+
 
   const classes = useControllerSectionStyles();
   return (
@@ -250,6 +260,8 @@ export default function SplitVectorLayerController(props) {
               color={color}
               setColor={setColor}
               palette={palette}
+              isStaticColor={isStaticColor}
+              visible={visible}
             />
           </Grid>
           <Grid item xs={6}>
