@@ -94,6 +94,15 @@ export default function Legend(props) {
           .style("fill", "black")
         axisTicks.selectAll("text")
           .attr("text-anchor", (d, i) => (i === 0 ? "start" : "end"));
+        
+        g
+          .append("text")
+          .attr("text-anchor", "end")
+          .attr("x", width)
+          .attr("y", titleHeight + rectHeight)
+          .text(featureSelection?.[0])
+          .style("font-size", "10px")
+          .style("fill", "black");
       }
     }
     

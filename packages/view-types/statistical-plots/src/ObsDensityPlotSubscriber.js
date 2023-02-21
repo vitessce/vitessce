@@ -98,31 +98,32 @@ export function ObsDensityPlotSubscriber(props) {
       const ptcAreaTotal = sum(areaArr);
       const ptcAreaInIfta = sum(areaArr.filter((d, i) => inIftaFlags[i]));
       const ptcAreaInCortex = sum(areaArr.filter((d, i) => inCortexFlags[i]));
+      const ptcAreaInNonIftaCortex = sum(areaArr.filter((d, i) => inCortexFlags[i] && !inIftaFlags[i]));
       return [
         {
-          density: ptcAreaTotal / corticalArea,
-          group: 'PTC Area (total) / Cortical Area',
-          ptcFilter: 'Total',
-        },
-        {
-          density: ptcAreaTotal / corticalInterstitialArea,
-          group: 'PTC Area (total) / Cortical Interstitial Area',
-          ptcFilter: 'Total',
-        },
-        {
           density: ptcAreaInCortex / corticalArea,
-          group: 'PTC Area (in Cortex) / Cortical Area',
-          ptcFilter: 'In Cortex',
+          group: 'PTC Area / Cortical Area',
+          membership: 'in total cortex',
         },
         {
           density: ptcAreaInCortex / corticalInterstitialArea,
-          group: 'PTC Area (in Cortex) / Cortical Interstitial Area',
-          ptcFilter: 'In Cortex',
+          group: 'PTC Area / Cortical Interstitial Area',
+          membership: 'in total cortex',
         },
         {
           density: ptcAreaInIfta / iftaArea,
-          group: 'PTC Area (in IFTA) / IFTA Area',
-          ptcFilter: 'In IFTA',
+          group: 'PTC Area / IFTA Area',
+          membership: 'in IFTA',
+        },
+        {
+          density: ptcAreaInNonIftaCortex / (corticalArea - iftaArea),
+          group: 'PTC Area / Cortical Area minus IFTA Area',
+          membership: 'in non-IFTA cortex',
+        },
+        {
+          density: ptcAreaInNonIftaCortex / (corticalInterstitialArea - iftaArea),
+          group: 'PTC Area / Cortical Interstitial Area minus IFTA Area',
+          membership: 'in non-IFTA cortex',
         },
       ];
     }

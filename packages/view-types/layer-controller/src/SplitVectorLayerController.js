@@ -98,7 +98,7 @@ function ColorPickerMenu(props) {
 
   const defaultPalette = palette
     ? palette.map(colorArrayToString)
-    : LARGE_PATHOLOGY_PALETTE.map(colorArrayToString);
+    : PATHOLOGY_PALETTE.map(colorArrayToString);
 
   const [open, setOpen] = useState(false);
 

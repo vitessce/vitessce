@@ -41,6 +41,7 @@ export default function MultiLegend(props) {
           featureValueColormapRange,
           obsType,
           featureType,
+          featureSelection,
         } = segmentationLayerCoordination[0][layerScope];
 
         return visible ? (
@@ -52,6 +53,7 @@ export default function MultiLegend(props) {
             obsColorEncoding={obsColorEncoding}
             featureValueColormap={featureValueColormap}
             featureValueColormapRange={featureValueColormapRange}
+            featureSelection={featureSelection}
 
             expressionData={multiExpressionData?.[layerScope]}
           />
