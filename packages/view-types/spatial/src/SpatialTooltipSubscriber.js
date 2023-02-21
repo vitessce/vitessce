@@ -5,19 +5,20 @@ import { useComponentHover, useComponentViewInfo } from '@vitessce/vit-s';
 export default function SpatialTooltipSubscriber(props) {
   const {
     parentUuid,
-    obsHighlight,
     width,
     height,
     getObsInfo,
+    hoverData,
+    hoverCoord,
   } = props;
 
   const sourceUuid = useComponentHover();
   const viewInfo = useComponentViewInfo(parentUuid);
 
-  const [cellInfo, x, y] = (obsHighlight && getObsInfo ? (
+  const [cellInfo, x, y] = (hoverCoord && hoverData && getObsInfo ? (
     [
-      getObsInfo(obsHighlight),
-      ...(viewInfo && viewInfo.project ? viewInfo.project(obsHighlight) : [null, null]),
+      getObsInfo(hoverData),
+      ...(viewInfo && viewInfo.projectFallback ? viewInfo.projectFallback(hoverCoord) : [null, null]),
     ]
   ) : ([null, null, null]));
 

@@ -295,3 +295,71 @@ export function useFeatureSelectionMulti(
 
   return [geneData, loadedGeneNames, status];
 }
+
+export function useObsFeatureMatrixIndicesMulti(
+  loaders, dataset, addUrl, isRequired, matchOn,
+) {
+  const [data, setData] = useState({});
+  const [status, setStatus] = useState(STATUS.LOADING);
+
+  const setWarning = useSetWarning();
+  const matchingLoaders = useMatchingLoaders(
+    loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn,
+  );
+
+  useEffect(() => {
+    if (matchingLoaders) {
+      setStatus(STATUS.LOADING);
+      Object.entries(matchingLoaders).forEach(([scopeKey, loader]) => {
+        if (loader) {
+          const implementsLoadAttrs = typeof loader.loadAttrs === 'function';
+          if (implementsLoadAttrs) {
+            loader.loadAttrs().catch(e => warn(e, setWarning)).then((payload) => {
+              if (!payload) return;
+              const { data: payloadData, url } = payload;
+              setData(prev => ({
+                ...prev,
+                // eslint-disable-next-line no-param-reassign
+                [scopeKey]: {
+                  obsIndex: payloadData.rows,
+                  featureIndex: payloadData.cols,
+                },
+              }));
+              addUrl(url, DataType.OBS_FEATURE_MATRIX);
+              setStatus(STATUS.SUCCESS);
+            });
+          } else {
+            loader.load().catch(e => warn(e, setWarning)).then((payload) => {
+              if (!payload) return;
+              const { data: payloadData, url } = payload;
+              setData(prev => ({
+                ...prev,
+                // eslint-disable-next-line no-param-reassign
+                [scopeKey]: {
+                  obsIndex: payloadData.obsIndex,
+                  featureIndex: payloadData.featureIndex,
+                },
+              }));
+              addUrl(url, DataType.OBS_FEATURE_MATRIX);
+              setStatus(STATUS.SUCCESS);
+            });
+          }
+        }
+      });
+    } else {
+      setData({});
+      if (isRequired) {
+        warn(
+          new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn),
+          setWarning,
+        );
+        setStatus(STATUS.ERROR);
+      } else {
+        setStatus(STATUS.SUCCESS);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matchingLoaders]);
+
+  return [data, status];
+}

@@ -134,7 +134,7 @@ export default class BitmaskLayer extends XRLayer {
       channelOpacities,
       channelColors,
       channelsVisible,
-      channelFeatureValueColormaps, // TODO: use in shader, figure out how to inject multiple GLSL colormap functions
+      channelFeatureValueColormaps, // TODO: use in shader, figure out how to call multiple GLSL colormap functions
       channelFeatureValueColormapRanges,
       channelIsStaticColorMode,
       hoveredCell,

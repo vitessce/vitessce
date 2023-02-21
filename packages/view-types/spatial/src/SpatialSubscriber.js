@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import {
   TitleInfo,
   useDeckCanvasSize, useReady, useUrls,
@@ -14,6 +14,7 @@ import {
   useMultiObsSegmentations,
   useMultiImages,
   useMultiFeatureSelection,
+  useMultiObsFeatureMatrixIndices,
   useExpressionValueGetter, useGetObsInfo,
   useCoordination,
   useLoaders,
@@ -30,7 +31,7 @@ import {
   useCoordinationScopesBy,
 } from '@vitessce/vit-s';
 import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
-import { canLoadResolution, getCellColors } from '@vitessce/utils';
+import { canLoadResolution, commaNumber, getCellColors } from '@vitessce/utils';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, CoordinationType } from '@vitessce/constants-internal';
 import Spatial from './Spatial';
 import SpatialOptions from './SpatialOptions';
@@ -235,6 +236,10 @@ export function SpatialSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+  const [multiIndicesData, multiIndicesDataStatus] = useMultiObsFeatureMatrixIndices(
+    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
+  );
+
   const hasExpressionData = useHasLoader(
     loaders, dataset, DataType.OBS_FEATURE_MATRIX,
     { obsType, featureType, featureValueType },
@@ -398,9 +403,9 @@ export function SpatialSubscriber(props) {
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
-  const getObsInfo = useGetObsInfo(
+  /*const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
-  );
+  );*/
 
   const setViewState = ({
     zoom: newZoom,
@@ -494,6 +499,38 @@ export function SpatialSubscriber(props) {
     obsCentroids, obsCentroidsIndex,
   ]);
 
+  const [hoverData, setHoverData] = useState(null);
+  const [hoverCoord, setHoverCoord] = useState(null);
+
+  const getObsInfo = useCallback((channelData) => {
+    if (channelData) {
+      const result = {};
+      let hasObsInfo = false;
+      segmentationLayerScopes.forEach((layerScope) => {
+        const {
+          obsType: layerObsType,
+          spatialTargetC,
+          spatialLayerVisible,
+        } = segmentationLayerCoordination[0][layerScope];
+        if (spatialLayerVisible && channelData[spatialTargetC] > 0) {
+          hasObsInfo = true;
+          result[`${layerObsType} ID`] = channelData[spatialTargetC];
+          if (multiExpressionData?.[layerScope] && multiLoadedFeatureSelection?.[layerScope]) {
+            const channelFeature = multiLoadedFeatureSelection?.[layerScope];
+            const channelFeatureData = multiExpressionData?.[layerScope];
+            // TODO: use multiIndicesData to obtain an index into the obsFeatureMatrix data
+            // using the bitmask channel value.
+            // For the sake of time, here I am assuming the off-by-one alignment.
+            const channelFeatureValue = channelFeatureData[0][channelData[spatialTargetC] - 1];
+            result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue);
+          }
+        }
+      });
+      return hasObsInfo ? result : null;
+    }
+    return null;
+  }, [segmentationLayerScopes, segmentationLayerCoordination, multiExpressionData, multiLoadedFeatureSelection, multiIndicesData]);
+
   return (
     <TitleInfo
       title={title}
@@ -555,6 +592,11 @@ export function SpatialSubscriber(props) {
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
+        multiObsHighlight={hoverData}
+        setMultiObsHighlight={(a, b) => {
+          setHoverData(a);
+          setHoverCoord(b);
+        }}
         setMoleculeHighlight={setMoleculeHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);
@@ -583,6 +625,8 @@ export function SpatialSubscriber(props) {
           width={width}
           height={height}
           getObsInfo={getObsInfo}
+          hoverData={hoverData}
+          hoverCoord={hoverCoord}
         />
       )}
     </TitleInfo>

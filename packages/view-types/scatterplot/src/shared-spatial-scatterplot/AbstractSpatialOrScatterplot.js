@@ -99,6 +99,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     } = info;
     const {
       setCellHighlight, cellHighlight, setComponentHover, layers,
+      setMultiObsHighlight, multiObsHighlight,
     } = this.props;
     const hasBitmask = (layers || []).some(l => l.type === 'bitmask');
     if (!setCellHighlight || !tile) {
@@ -119,6 +120,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       if (cellHighlight && hasBitmask) {
         setCellHighlight(null);
       }
+      if (multiObsHighlight && setMultiObsHighlight) {
+        setMultiObsHighlight(null, null);
+      }
       return null;
     }
     const { data, width, height } = content;
@@ -135,6 +139,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       if (cellHighlight && hasBitmask) {
         setCellHighlight(null);
       }
+      if (multiObsHighlight && setMultiObsHighlight) {
+        setMultiObsHighlight(null, null);
+      }
       return null;
     }
     // Tiled layer needs a custom layerZoomScale.
@@ -150,6 +157,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       ];
       const coords = dataCoords[1] * width + dataCoords[0];
       const hoverData = data.map(d => d[coords]);
+
       const cellId = hoverData.find(i => i > 0);
       if (cellId !== Number(cellHighlight)) {
         if (setComponentHover) {
@@ -157,6 +165,15 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
         }
         // eslint-disable-next-line no-unused-expressions
         setCellHighlight(cellId ? String(cellId) : null);
+      }
+      if (cellId) {
+        if (setMultiObsHighlight) {
+          setMultiObsHighlight(hoverData, coordinate);
+        }
+      } else {
+        if (multiObsHighlight && setMultiObsHighlight) {
+          setMultiObsHighlight(null, null);
+        }
       }
     }
   }
@@ -173,6 +190,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     if (updateViewInfo && viewport) {
       updateViewInfo({
         uuid,
+        // TODO: name this "project"
+        projectFallback: viewport.project,
+        // TODO: change this name to something different than "project"
         project: (obsId) => {
           try {
             if (obsIndex && obsLocations) {

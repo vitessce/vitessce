@@ -50,6 +50,7 @@ export {
   useMultiObsSegmentations,
   useMultiImages,
   useMultiFeatureSelection,
+  useMultiObsFeatureMatrixIndices,
 
   useObsLocationsData,
   useObsSegmentationsData,
