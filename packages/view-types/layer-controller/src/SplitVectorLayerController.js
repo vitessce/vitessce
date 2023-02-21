@@ -93,7 +93,7 @@ function ColorPickerMenu(props) {
     setColor,
     palette = null,
     isStaticColor,
-    visible
+    visible,
   } = props;
 
   const defaultPalette = palette

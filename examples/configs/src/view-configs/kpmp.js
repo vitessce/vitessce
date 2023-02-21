@@ -451,7 +451,7 @@ export const kpmp2023 = {
       x: 0,
       y: 0,
       w: 8,
-      h: 4,
+      h: 8,
     },
     {
       component: 'layerController',
@@ -468,7 +468,7 @@ export const kpmp2023 = {
       x: 8,
       y: 0,
       w: 4,
-      h: 4,
+      h: 8,
     },
     // Tubules
     {
@@ -480,9 +480,9 @@ export const kpmp2023 = {
         featureSelection: 't',
         obsColorEncoding: 't',
       },
-      x: 0,
-      y: 4,
-      w: 3,
+      x: 4,
+      y: 8,
+      w: 2,
       h: 2,
     },
     {
@@ -496,9 +496,9 @@ export const kpmp2023 = {
       props: {
         aggregateFeatureValues: false,
       },
-      x: 0,
-      y: 6,
-      w: 3,
+      x: 4,
+      y: 10,
+      w: 2,
       h: 2,
     },
     // Glomerulus
@@ -511,9 +511,9 @@ export const kpmp2023 = {
         featureSelection: 'ngsg',
         obsColorEncoding: 'ngsg',
       },
-      x: 3,
-      y: 4,
-      w: 3,
+      x: 0,
+      y: 8,
+      w: 2,
       h: 2,
     },
     {
@@ -527,9 +527,9 @@ export const kpmp2023 = {
       props: {
         aggregateFeatureValues: false,
       },
-      x: 3,
-      y: 6,
-      w: 3,
+      x: 0,
+      y: 10,
+      w: 2,
       h: 2,
     },
     // GSG
@@ -542,9 +542,9 @@ export const kpmp2023 = {
         featureSelection: 'gsg',
         obsColorEncoding: 'gsg',
       },
-      x: 6,
-      y: 4,
-      w: 3,
+      x: 2,
+      y: 8,
+      w: 2,
       h: 2,
     },
     {
@@ -558,13 +558,13 @@ export const kpmp2023 = {
       props: {
         aggregateFeatureValues: false,
       },
-      x: 6,
-      y: 6,
-      w: 3,
+      x: 2,
+      y: 10,
+      w: 2,
       h: 2,
     },
     // Cortical interstitia
-    {
+    /*{
       component: 'featureList',
       coordinationScopes: {
         obsType: 'ci',
@@ -624,7 +624,7 @@ export const kpmp2023 = {
       y: 8,
       w: 3,
       h: 2,
-    },
+    },*/
     // PTC
     {
       component: 'featureList',
@@ -637,7 +637,7 @@ export const kpmp2023 = {
       },
       x: 6,
       y: 8,
-      w: 3,
+      w: 2,
       h: 2,
     },
     {
@@ -652,8 +652,8 @@ export const kpmp2023 = {
         aggregateFeatureValues: false,
       },
       x: 6,
-      y: 8,
-      w: 3,
+      y: 10,
+      w: 2,
       h: 2,
     },
     // Violin plots
@@ -670,18 +670,30 @@ export const kpmp2023 = {
         filterBy: 'PTC in Cortex',
         groupBy: 'PTC in IFTA',
       },
-      x: 9,
-      y: 4,
-      w: 3,
+      x: 8,
+      y: 8,
+      w: 2,
+      h: 4,
+    },
+    {
+      component: 'obsDensity',
+      coordinationScopes: {
+        obsType: ['ptc', 'ci', 'ifta'],
+        featureType: 'global',
+        featureValueType: 'global',
+      },
+      x: 10,
+      y: 8,
+      w: 2,
       h: 4,
     },
     // Status
-    {
+    /*{
       component: 'status',
-      x: 11,
-      y: 11,
+      x: 12,
+      y: 12,
       w: 1,
       h: 1,
-    },
+    },*/
   ],
 };

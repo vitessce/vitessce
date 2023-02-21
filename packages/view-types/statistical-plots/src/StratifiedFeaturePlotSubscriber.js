@@ -126,7 +126,7 @@ export function StratifiedFeaturePlotSubscriber(props) {
             obsType={obsType}
             featureName={firstFeatureSelected}
           />
-        ) : null}
+        ) : (<p>Select a feature.</p>)}
       </div>
     </TitleInfo>
   );
