@@ -11,7 +11,7 @@ import {
 } from '@vitessce/vit-s';
 import { ViewType, CoordinationType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { capitalize } from '@vitessce/utils';
-import StratifiedFeaturePlot2 from './StratifiedFeaturePlot2';
+import StratifiedFeaturePlot from './StratifiedFeaturePlot';
 import { useStyles } from './styles';
 
 
@@ -98,9 +98,9 @@ export function StratifiedFeaturePlotSubscriber(props) {
         // PTC in Cortex
         const inCortex = filterData[0][index];
         // PTC in IFTA
-        const groupVal = stratificationData[0][index] ? "in IFTA" : "in non-IFTA cortex";
+        const groupVal = stratificationData[0][index] ? "Cortical IFTA" : "Cortical non-IFTA";
         return inCortex ? [
-          { value, group: "in total cortex", feature: firstFeatureSelected },
+          { value, group: "Total cortex", feature: firstFeatureSelected },
           { value, group: groupVal, feature: firstFeatureSelected },
         ] : [];
       });
@@ -108,9 +108,13 @@ export function StratifiedFeaturePlotSubscriber(props) {
     return null;
   }, [obsIndex, featureIndex, obsFeatureMatrix, firstFeatureSelected, firstStratificationSelected, firstFilterSelected, expressionData, stratificationData, filterData]);
 
+  const title = firstFeatureSelected
+    ? `${capitalize(firstFeatureSelected.replace('PTC ', ''))} of Cortical Peritubular Capillaries`
+    : `${capitalize(obsType)} Feature Distributions`;
+
   return (
     <TitleInfo
-      title={`${capitalize(obsType)} Distributions${(firstFeatureSelected ? ` (${firstFeatureSelected})` : '')}`}
+      title={title}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
@@ -118,7 +122,7 @@ export function StratifiedFeaturePlotSubscriber(props) {
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         {data ? (
-          <StratifiedFeaturePlot2
+          <StratifiedFeaturePlot
             data={data}
             theme={theme}
             width={width}

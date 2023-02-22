@@ -16,7 +16,7 @@ function chauvenet(x, keepZeros) {
   return x.filter(d => (keepZeros || d.value > 0) && dMax > (Math.abs(d.value - mean)) / stdv);
 }
 
-export default function StratifiedFeaturePlot2(props) {
+export default function StratifiedFeaturePlot(props) {
   const {
     data,
     theme,
@@ -57,12 +57,12 @@ export default function StratifiedFeaturePlot2(props) {
 
     const xGroup = scaleBand()
       .range([marginLeft, width])
-      .domain(["in total cortex", "in IFTA", "in non-IFTA cortex"])
+      .domain(["Total cortex", "Cortical IFTA", "Cortical non-IFTA"])
       .padding(0.1);
 
     const y = scaleLinear()
-      .domain(extent(trimmedData, d => d['value']))
-      .range([innerHeight, 0])
+      .domain([0, max(trimmedData, d => d['value'])])
+      .range([innerHeight, 0]);
 
     const histogram = bin()
       .thresholds(y.ticks(16))
@@ -83,7 +83,7 @@ export default function StratifiedFeaturePlot2(props) {
       .x0(d => x(-d.length))
       .x1(d => x(d.length))
       .y(d => y(d.x0))
-      .curve(curveCatmullRom);
+      .curve(curveBasis);
     
     // Violin areas
     g
@@ -128,7 +128,7 @@ export default function StratifiedFeaturePlot2(props) {
       .attr("text-anchor", "middle")
       .attr("x", marginLeft + innerWidth/2)
       .attr("y", height - 10)
-      .text("Membership")
+      .text("Group")
       .style("font-size", "14px")
       .style("fill", "white");
 

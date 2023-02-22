@@ -29,12 +29,12 @@ export default function ObsDensityPlot(props) {
     theme,
     width,
     height,
-    marginRight = 180,
-    marginBottom = 180,
+    marginRight = 120,
+    marginBottom = 120,
   } = props;
 
   const colors = {
-    domain: ['in total cortex', 'in IFTA', 'in non-IFTA cortex'],
+    domain: ['Total Cortex', 'Cortical IFTA', 'Cortical non-IFTA'],
     range: ["rgb(212, 212, 212)", "#808080", "rgb(76, 76, 76)"],
   };
 
@@ -54,10 +54,11 @@ export default function ObsDensityPlot(props) {
         title: 'Density',
       },
       color: {
-        field: 'membership',
+        field: 'group',
         type: 'nominal',
-        title: 'PTC Membership',
+        title: 'Group',
         scale: colors,
+        legend: null,
       },
     },
     width: clamp(width - marginRight, 10, Infinity),

@@ -217,12 +217,12 @@ export const kpmp2023 = {
     spatialLayerVisible: {
       // bitmask
       ci: false,
-      ngsg: true,
-      gsg: true,
-      t: true,
-      a: true,
-      ifta: true,
-      ptc: true,
+      ngsg: false,
+      gsg: false,
+      t: false,
+      a: false,
+      ifta: false,
+      ptc: false,
       // RGB
       image: true,
     },
@@ -683,6 +683,9 @@ export const kpmp2023 = {
         obsType: ['ptc', 'ci', 'ifta'],
         featureType: 'global',
         featureValueType: 'global',
+      },
+      props: {
+        title: 'Density of Cortical Peritubular Capillaries',
       },
       x: 10,
       y: 8,
