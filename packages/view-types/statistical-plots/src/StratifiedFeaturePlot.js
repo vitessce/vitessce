@@ -5,6 +5,7 @@ import { axisBottom, axisLeft } from "d3-axis";
 import { extent, bin, min, max, rollup as d3_rollup, mean as d3_mean, deviation as d3_deviation } from 'd3-array';
 import { area as d3_area, curveCatmullRom, curveBasis } from 'd3-shape';
 import { select, create } from "d3-selection";
+import { Parser } from 'json2csv/dist/json2csv.umd';
 
 const scaleBand = vega_scale("band");
 
@@ -15,6 +16,16 @@ function chauvenet(x, keepZeros) {
   var stdv = d3_deviation(x, d => d.value);
   return x.filter(d => (keepZeros || d.value > 0) && dMax > (Math.abs(d.value - mean)) / stdv);
 }
+
+function downloadForUser(dataString, fileName) {
+  const downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute('href', dataString);
+  downloadAnchorNode.setAttribute('download', fileName);
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+}
+
 
 export default function StratifiedFeaturePlot(props) {
   const {
@@ -35,6 +46,14 @@ export default function StratifiedFeaturePlot(props) {
   useEffect(() => {
     const domElement = svgRef.current;
 
+    /*const parser = new Parser({
+      fields: ['value', 'group', 'feature'],
+      delimiter: ",",
+    });
+    const csvString = parser.parse(data);
+    const dataString = `data:text/csv;charset=utf-8,${encodeURIComponent(csvString)}`;
+    downloadForUser(dataString, featureName + ".csv");*/
+
     const svg = select(domElement);
       svg.selectAll("g").remove();
       svg
@@ -47,10 +66,15 @@ export default function StratifiedFeaturePlot(props) {
       .attr("height", height);
     
     // Remove outliers on a per-group basis.
-    const trimmedData = Array.from(
+    const groupedData = Array.from(
       d3_rollup(data, groupData => chauvenet(groupData, featureName !== 'PTC Aspect Ratio'), d => d['group']),
-      ([key, value]) => (value),
-    ).flat();
+      ([key, value]) => ({ key, value}),
+    );
+    const trimmedData = groupedData.map(kv => kv.value).flat();
+
+    /*const csvStringNO = parser.parse(data);
+    const dataStringNO = `data:text/csv;charset=utf-8,${encodeURIComponent(csvStringNO)}`;
+    downloadForUser(dataStringNO, featureName + "_without_outliers.csv");*/
 
     const innerWidth = width - marginLeft;
     const innerHeight = height - marginBottom;
@@ -69,10 +93,8 @@ export default function StratifiedFeaturePlot(props) {
       .value(d => d['value'])
       .domain(y.domain());
 
-    const groupBins = Array.from(
-      d3_rollup(trimmedData, group => histogram(group), d => d['group']),
-      ([key, value]) => ({ key, value }),
-    );
+    const groupBins = groupedData.map(kv => ({ key: kv.key, value: histogram(kv.value) }));
+
     const groupBinsMax = max(groupBins.flatMap(d => d.value.map(v => v.length)));
 
     const x = scaleLinear()
@@ -97,6 +119,20 @@ export default function StratifiedFeaturePlot(props) {
           .style("stroke", "none")
           .style("fill","#808080")
           .attr("d", d => area(d));
+    
+    // Jittered points
+    g
+      .selectAll("point")
+      .data(trimmedData)
+      .enter()
+        .append("circle")
+          .attr("transform", d => `translate(${xGroup(d.group)},0)`)
+          .style("stroke", "none")
+          .style("fill","yellow")
+          .style("opacity", "0.5")
+          .attr("cx", d => Math.random() * xGroup.bandwidth())
+          .attr("cy", d => y(d.value))
+          .attr("r", 2);
     
     // Y-axis ticks
     g
