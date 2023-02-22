@@ -5,7 +5,7 @@ import { axisBottom, axisLeft } from "d3-axis";
 import { extent, bin, min, max, rollup as d3_rollup, mean as d3_mean, deviation as d3_deviation } from 'd3-array';
 import { area as d3_area, curveCatmullRom, curveBasis } from 'd3-shape';
 import { select, create } from "d3-selection";
-import { Parser } from 'json2csv/dist/json2csv.umd';
+//import { Parser } from 'json2csv/dist/json2csv.umd';
 
 const scaleBand = vega_scale("band");
 
@@ -17,14 +17,14 @@ function chauvenet(x, keepZeros) {
   return x.filter(d => (keepZeros || d.value > 0) && dMax > (Math.abs(d.value - mean)) / stdv);
 }
 
-function downloadForUser(dataString, fileName) {
+/*function downloadForUser(dataString, fileName) {
   const downloadAnchorNode = document.createElement('a');
   downloadAnchorNode.setAttribute('href', dataString);
   downloadAnchorNode.setAttribute('download', fileName);
   document.body.appendChild(downloadAnchorNode); // required for firefox
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
-}
+}*/
 
 
 export default function StratifiedFeaturePlot(props) {
@@ -85,7 +85,7 @@ export default function StratifiedFeaturePlot(props) {
       .padding(0.1);
 
     const y = scaleLinear()
-      .domain([0, max(trimmedData, d => d['value'])])
+      .domain([(featureName === 'PTC Aspect Ratio' ? 1 : 0), max(trimmedData, d => d['value'])])
       .range([innerHeight, 0]);
 
     const histogram = bin()
@@ -102,7 +102,7 @@ export default function StratifiedFeaturePlot(props) {
       .range([0, xGroup.bandwidth()]);
       
     const area = d3_area()
-      .x0(d => x(-d.length))
+      .x0(d => x(0))
       .x1(d => x(d.length))
       .y(d => y(d.x0))
       .curve(curveBasis);
@@ -128,9 +128,9 @@ export default function StratifiedFeaturePlot(props) {
         .append("circle")
           .attr("transform", d => `translate(${xGroup(d.group)},0)`)
           .style("stroke", "none")
-          .style("fill","yellow")
-          .style("opacity", "0.5")
-          .attr("cx", d => Math.random() * xGroup.bandwidth())
+          .style("fill","silver")
+          .style("opacity", "0.1")
+          .attr("cx", d => 5 + Math.random() * ((xGroup.bandwidth()/2) - 10))
           .attr("cy", d => y(d.value))
           .attr("r", 2);
     
@@ -147,6 +147,8 @@ export default function StratifiedFeaturePlot(props) {
         .style("font-size", "14px")
       .call( axisBottom(xGroup) );
     
+    const unitSuffix = featureName.endsWith('Area') ? ' (microns squared)' : '';
+    
     // Y-axis title
     g
       .append("text")
@@ -154,7 +156,7 @@ export default function StratifiedFeaturePlot(props) {
       .attr("x", -innerHeight/2)
       .attr("y", 15)
       .attr("transform", "rotate(-90)")
-      .text(featureName)
+      .text(featureName + unitSuffix)
       .style("font-size", "14px")
       .style("fill", "white");
 

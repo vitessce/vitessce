@@ -35,8 +35,12 @@ export default function ExpressionHistogram(props) {
     featureValueType,
   } = props;
 
+  const unitSuffix = geneSelection?.[0].endsWith('Area') ? ' (microns squared)' : (
+    geneSelection?.[0].endsWith('Thickness') ? ' (microns)' : ''
+  );
+
   const xTitle = geneSelection && geneSelection.length >= 1
-    ? capitalize(featureValueType)
+    ? capitalize(geneSelection?.[0]) + unitSuffix
     : 'Total Normalized Transcript Count';
 
   const spec = {

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import debounce from 'lodash/debounce';
 import {
   TitleInfo,
   useDeckCanvasSize, useReady, useUrls,
@@ -516,20 +517,31 @@ export function SpatialSubscriber(props) {
           hasObsInfo = true;
           result[`${layerObsType} ID`] = channelData[spatialTargetC];
           if (multiExpressionData?.[layerScope] && multiLoadedFeatureSelection?.[layerScope]) {
-            const channelFeature = multiLoadedFeatureSelection?.[layerScope];
+            const channelFeature = multiLoadedFeatureSelection?.[layerScope]?.[0];
             const channelFeatureData = multiExpressionData?.[layerScope];
+            const unitSuffix = channelFeature.endsWith('Area') ? ' microns squared' : (
+              channelFeature.endsWith('Thickness') ? ' microns' : ''
+            );
+
             // TODO: use multiIndicesData to obtain an index into the obsFeatureMatrix data
             // using the bitmask channel value.
             // For the sake of time, here I am assuming the off-by-one alignment.
             const channelFeatureValue = channelFeatureData[0][channelData[spatialTargetC] - 1];
-            result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue);
+            result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue) + unitSuffix;
           }
         }
       });
       return hasObsInfo ? result : null;
     }
     return null;
-  }, [segmentationLayerScopes, segmentationLayerCoordination, multiExpressionData, multiLoadedFeatureSelection, multiIndicesData]);
+  }, [segmentationLayerScopes, segmentationLayerCoordination,
+    multiExpressionData, multiLoadedFeatureSelection, multiIndicesData,
+  ]);
+
+  const setMultiObsHighlight = useCallback(debounce((a, b) => {
+    setHoverData(a);
+    setHoverCoord(b);
+  }, 10, { trailing: true }), [setHoverData, setHoverCoord]);
 
   return (
     <TitleInfo
@@ -593,10 +605,7 @@ export function SpatialSubscriber(props) {
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
         multiObsHighlight={hoverData}
-        setMultiObsHighlight={(a, b) => {
-          setHoverData(a);
-          setHoverCoord(b);
-        }}
+        setMultiObsHighlight={setMultiObsHighlight}
         setMoleculeHighlight={setMoleculeHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);
