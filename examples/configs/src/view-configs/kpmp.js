@@ -1,5 +1,8 @@
 // Serve kpmp/OME-TIFF folder
 
+//const baseUrl = 'http://localhost:8000';
+const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/kpmp-f2f-march-2023';
+
 export const kpmp2023 = {
   version: '1.0.16',
   name: 'KPMP',
@@ -11,9 +14,9 @@ export const kpmp2023 = {
       files: [
         {
           fileType: 'obsSegmentations.ome-tiff',
-          url: 'http://localhost:8000/S-1905-017737/S-1905-017737_PAS_2of2.ome.tif',
+          url: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2.ome.tif`,
           options: {
-           // offsetsUrl: 'http://localhost:8000/S-1905-017737/S-1905-017737_PAS_2of2.offsets.json',
+            offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2.offsets.json`,
           },
           coordinationValues: {
             image: 'S-1905-017737',
@@ -21,9 +24,9 @@ export const kpmp2023 = {
         },
         {
           fileType: 'image.ome-tiff',
-          url: 'http://localhost:8000/S-1905-017737/S-1905-017737_PAS_2of2_bf.ome.tif',
+          url: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2_bf.ome.tif`,
           options: {
-            // offsetsUrl: 'http://localhost:8000/S-1905-017737/S-1905-017737_PAS_2of2_bf.offsets.json',
+            offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2_bf.offsets.json`,
           },
           coordinationValues: {
             image: 'S-1905-017737_bf',
@@ -31,7 +34,7 @@ export const kpmp2023 = {
         },
         {
           fileType: 'obsFeatureMatrix.anndata.zarr',
-          url: 'http://localhost:8000/S-1905-017737/Cortical Interstitium.adata.zarr',
+          url: `${baseUrl}/S-1905-017737/Cortical Interstitium.adata.zarr`,
           options: {
             path: 'X',
           },
@@ -43,7 +46,7 @@ export const kpmp2023 = {
         },
         {
           fileType: 'obsFeatureMatrix.anndata.zarr',
-          url: 'http://localhost:8000/S-1905-017737/Glomeruli.adata.zarr',
+          url: `${baseUrl}/S-1905-017737/Glomeruli.adata.zarr`,
           options: {
             path: 'X',
           },
@@ -55,7 +58,7 @@ export const kpmp2023 = {
         },
         {
           fileType: 'obsFeatureMatrix.anndata.zarr',
-          url: 'http://localhost:8000/S-1905-017737/Globally Sclerotic Glomeruli.adata.zarr',
+          url: `${baseUrl}/S-1905-017737/Globally Sclerotic Glomeruli.adata.zarr`,
           options: {
             path: 'X',
           },
@@ -67,7 +70,7 @@ export const kpmp2023 = {
         },
         {
           fileType: 'obsFeatureMatrix.anndata.zarr',
-          url: 'http://localhost:8000/S-1905-017737/Tubules.adata.zarr',
+          url: `${baseUrl}/S-1905-017737/Tubules.adata.zarr`,
           options: {
             path: 'X',
           },
@@ -79,7 +82,7 @@ export const kpmp2023 = {
         },
         {
           fileType: 'obsFeatureMatrix.anndata.zarr',
-          url: 'http://localhost:8000/S-1905-017737/IFTA.adata.zarr',
+          url: `${baseUrl}/S-1905-017737/IFTA.adata.zarr`,
           options: {
             path: 'X',
           },
@@ -91,7 +94,7 @@ export const kpmp2023 = {
         },
         {
           fileType: 'obsFeatureMatrix.anndata.zarr',
-          url: 'http://localhost:8000/S-1905-017737/Peritubular Capillaries.adata.zarr',
+          url: `${baseUrl}/S-1905-017737/Peritubular Capillaries.adata.zarr`,
           options: {
             path: 'X',
           },
