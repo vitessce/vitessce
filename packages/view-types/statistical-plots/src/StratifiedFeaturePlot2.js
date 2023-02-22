@@ -46,7 +46,11 @@ export default function StratifiedFeaturePlot2(props) {
       .attr("width", width)
       .attr("height", height);
     
-    const trimmedData = chauvenet(data, featureName !== 'PTC Aspect Ratio');
+    // Remove outliers on a per-group basis.
+    const trimmedData = Array.from(
+      d3_rollup(data, groupData => chauvenet(groupData, featureName !== 'PTC Aspect Ratio'), d => d['group']),
+      ([key, value]) => (value),
+    ).flat();
 
     const innerWidth = width - marginLeft;
     const innerHeight = height - marginBottom;

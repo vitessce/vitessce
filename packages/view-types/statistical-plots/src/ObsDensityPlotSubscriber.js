@@ -107,7 +107,7 @@ export function ObsDensityPlotSubscriber(props) {
         },
         {
           density: ptcAreaInCortex / corticalInterstitialArea,
-          group: 'PTC Area / Cortical Interstitial Area',
+          group: 'PTC Area / CI Area',
           membership: 'in total cortex',
         },
         {
@@ -117,12 +117,12 @@ export function ObsDensityPlotSubscriber(props) {
         },
         {
           density: ptcAreaInNonIftaCortex / (corticalArea - iftaArea),
-          group: 'PTC Area / Cortical Area minus IFTA Area',
+          group: 'PTC Area / Cortical minus IFTA Area',
           membership: 'in non-IFTA cortex',
         },
         {
           density: ptcAreaInNonIftaCortex / (corticalInterstitialArea - iftaArea),
-          group: 'PTC Area / Cortical Interstitial Area minus IFTA Area',
+          group: 'PTC Area / CI minus IFTA Area',
           membership: 'in non-IFTA cortex',
         },
       ];

@@ -29,8 +29,8 @@ export default function ObsDensityPlot(props) {
     theme,
     width,
     height,
-    marginRight = 150,
-    marginBottom = 120,
+    marginRight = 180,
+    marginBottom = 180,
   } = props;
 
   const colors = {
@@ -46,6 +46,7 @@ export default function ObsDensityPlot(props) {
         type: 'nominal',
         title: 'Group',
         sort: colors.domain,
+        axis: { labelExpr: 'datum.label' },
       },
       y: {
         field: 'density',
