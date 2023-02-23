@@ -70,7 +70,7 @@ export const kpmp2023 = {
         },
         {
           fileType: 'obsFeatureMatrix.anndata.zarr',
-          url: `${baseUrl}/S-1905-017737/Tubules.adata.zarr`,
+          url: `${baseUrl}/S-1905-017737/Tubules with Area.adata.zarr`,
           options: {
             path: 'X',
           },
