@@ -18,6 +18,7 @@ import {
   registerExpressionHistogram,
   registerStratifiedFeaturePlot,
   registerObsDensityPlot,
+  registerObsAreaPlot,
 } from '@vitessce/statistical-plots';
 import { registerHiglass, registerGenomicProfiles } from '@vitessce/genomic-profiles';
 
@@ -94,6 +95,7 @@ function setup() {
   registerExpressionHistogram();
   registerStratifiedFeaturePlot();
   registerObsDensityPlot();
+  registerObsAreaPlot();
   // Higlass
   registerHiglass();
   registerGenomicProfiles();

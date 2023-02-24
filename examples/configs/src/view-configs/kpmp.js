@@ -1,6 +1,6 @@
 // Serve kpmp/OME-TIFF folder
 
-//const baseUrl = 'http://localhost:8000';
+const localBaseUrl = 'http://localhost:8000';
 const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/kpmp-f2f-march-2023';
 
 export const kpmp2023 = {
@@ -94,7 +94,7 @@ export const kpmp2023 = {
         },
         {
           fileType: 'obsFeatureMatrix.anndata.zarr',
-          url: `${baseUrl}/S-1905-017737/Peritubular Capillaries.adata.zarr`,
+          url: `${baseUrl}/S-1905-017737/Peritubular Capillaries renamed.adata.zarr`,
           options: {
             path: 'X',
           },
@@ -470,7 +470,7 @@ export const kpmp2023 = {
       x: 8,
       y: 0,
       w: 4,
-      h: 8,
+      h: 4,
     },
     // Tubules
     {
@@ -637,6 +637,9 @@ export const kpmp2023 = {
         featureSelection: 'ptc',
         obsColorEncoding: 'ptc',
       },
+      props: {
+        omitFeatures: ['PTC in Cortex', 'PTC in IFTA'],
+      },
       x: 6,
       y: 8,
       w: 2,
@@ -674,7 +677,7 @@ export const kpmp2023 = {
       },
       x: 8,
       y: 8,
-      w: 2,
+      w: 4,
       h: 4,
     },
     {
@@ -683,13 +686,46 @@ export const kpmp2023 = {
         obsType: ['ptc', 'ci', 'ifta'],
         featureType: 'global',
         featureValueType: 'global',
+        spatialLayerVisible: 'ptc',
       },
       props: {
         title: 'Density of Cortical Peritubular Capillaries',
       },
-      x: 10,
-      y: 8,
+      x: 8,
+      y: 4,
       w: 2,
+      h: 4,
+    },
+    {
+      component: 'obsDensity',
+      coordinationScopes: {
+        obsType: ['t', 'ci', 'ifta'],
+        featureType: 'global',
+        featureValueType: 'global',
+        spatialLayerVisible: 't',
+      },
+      props: {
+        title: 'Density of Tubules',
+      },
+      x: 10,
+      y: 4,
+      w: 1,
+      h: 4,
+    },
+    {
+      component: 'obsArea',
+      coordinationScopes: {
+        obsType: ['ifta', 'ci'],
+        featureType: 'global',
+        featureValueType: 'global',
+        spatialLayerVisible: 'ifta',
+      },
+      props: {
+        title: 'Areas of IFTA and non-IFTA',
+      },
+      x: 11,
+      y: 4,
+      w: 1,
       h: 4,
     },
     // Status

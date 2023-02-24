@@ -19,6 +19,7 @@ export const ViewType = {
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
   STRATIFIED_FEATURE_VALUE_DISTRIBUTION: 'stratifiedFeatureValueDistribution',
   OBS_DENSITY: 'obsDensity',
+  OBS_AREA: 'obsArea',
 };
 
 export const DataType = {

@@ -109,7 +109,7 @@ export function StratifiedFeaturePlotSubscriber(props) {
   }, [obsIndex, featureIndex, obsFeatureMatrix, firstFeatureSelected, firstStratificationSelected, firstFilterSelected, expressionData, stratificationData, filterData]);
 
   const title = firstFeatureSelected
-    ? `${capitalize(firstFeatureSelected.replace('PTC ', ''))} of Cortical Peritubular Capillaries`
+    ? `${capitalize(firstFeatureSelected)} of Cortical Peritubular Capillaries`
     : `${capitalize(obsType)} Feature Distributions`;
 
   return (

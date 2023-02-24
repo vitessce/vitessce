@@ -18,7 +18,7 @@ import ObsDensityPlot from './ObsDensityPlot';
 import { useStyles } from './styles';
 
 const ciFeatures = ['Cortical Area', 'Cortical Interstitial Area'];
-const ptcFeatures = ['PTC Area'];
+const ptcFeatures = ['Area'];
 const ptcGroups = ['PTC in IFTA', 'PTC in Cortex'];
 const iftaFeatures = ['IFTA Area'];
 
@@ -37,6 +37,7 @@ export function ObsDensityPlotSubscriber(props) {
     dataset,
     featureType,
     featureValueType,
+    spatialLayerVisible,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.OBS_DENSITY],
     coordinationScopes,
@@ -88,34 +89,46 @@ export function ObsDensityPlotSubscriber(props) {
   const processedData = useMemo(() => {
     if (ciData && ptcData && ptcGroupData && iftaData) {
       const corticalArea = ciData[loadedCiSelection.indexOf("Cortical Area")][0];
-      const corticalInterstitialArea = ciData[loadedCiSelection.indexOf("Cortical Interstitial Area")][0];
-      const iftaArea = iftaData[loadedIftaSelection.indexOf("IFTA Area")][0];
+      const areaArr = Array.from(ptcData[loadedPtcSelection.indexOf("Area")]);
+      if (numeratorObsType === 'Peritubular Capillaries') {
+        const corticalInterstitialArea = ciData[loadedCiSelection.indexOf("Cortical Interstitial Area")][0];
+        const iftaArea = iftaData[loadedIftaSelection.indexOf("IFTA Area")][0];
 
-      const areaArr = Array.from(ptcData[loadedPtcSelection.indexOf("PTC Area")]);
-      const inIftaFlags = ptcGroupData[loadedPtcGroupSelection.indexOf("PTC in IFTA")];
-      const inCortexFlags = ptcGroupData[loadedPtcGroupSelection.indexOf("PTC in Cortex")];
+        const inIftaFlags = ptcGroupData[loadedPtcGroupSelection.indexOf("PTC in IFTA")];
+        const inCortexFlags = ptcGroupData[loadedPtcGroupSelection.indexOf("PTC in Cortex")];
 
-      const ptcAreaTotal = sum(areaArr);
-      const ptcAreaInIfta = sum(areaArr.filter((d, i) => inIftaFlags[i]));
-      const ptcAreaInCortex = sum(areaArr.filter((d, i) => inCortexFlags[i]));
-      const ptcAreaInNonIftaCortex = sum(areaArr.filter((d, i) => inCortexFlags[i] && !inIftaFlags[i]));
-      return [
-        {
-          density: ptcAreaInCortex / corticalArea,
-          group: 'Total Cortex',
-        },
-        {
-          density: ptcAreaInIfta / iftaArea,
-          group: 'Cortical IFTA',
-        },
-        {
-          density: ptcAreaInNonIftaCortex / (corticalArea - iftaArea),
-          group: 'Cortical non-IFTA',
-        },
-      ];
+        const ptcAreaTotal = sum(areaArr);
+        const ptcAreaInIfta = sum(areaArr.filter((d, i) => inIftaFlags[i]));
+        const ptcAreaInCortex = sum(areaArr.filter((d, i) => inCortexFlags[i]));
+        const ptcAreaInNonIftaCortex = sum(areaArr.filter((d, i) => inCortexFlags[i] && !inIftaFlags[i]));
+        return [
+          {
+            density: ptcAreaInCortex / corticalArea,
+            group: 'Total Cortex',
+          },
+          {
+            density: ptcAreaInIfta / iftaArea,
+            group: 'Cortical IFTA',
+          },
+          {
+            density: ptcAreaInNonIftaCortex / (corticalArea - iftaArea),
+            group: 'Cortical non-IFTA',
+          },
+        ];
+      } else if (numeratorObsType === 'Tubules') {
+        const tubuleAreaTotal = sum(areaArr);
+        return [
+          {
+            density: tubuleAreaTotal / corticalArea,
+            group: 'Total Cortex',
+          },
+        ]
+      } else {
+        return [];
+      }
     }
     return null;
-  }, [ciData, ptcData, ptcGroupData, iftaData,
+  }, [ciData, ptcData, ptcGroupData, iftaData, numeratorObsType,
     loadedCiSelection, loadedPtcSelection, loadedPtcGroupSelection, loadedIftaSelection,
   ]);
 
@@ -128,12 +141,14 @@ export function ObsDensityPlotSubscriber(props) {
       isReady={isReady}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
-        <ObsDensityPlot
-          data={processedData}
-          theme={theme}
-          width={width}
-          height={height}
-        />
+        {spatialLayerVisible ? (
+          <ObsDensityPlot
+            data={processedData}
+            theme={theme}
+            width={width}
+            height={height}
+          />
+        ) : null}
       </div>
     </TitleInfo>
   );

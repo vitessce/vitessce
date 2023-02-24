@@ -67,7 +67,7 @@ export default function StratifiedFeaturePlot(props) {
     
     // Remove outliers on a per-group basis.
     const groupedData = Array.from(
-      d3_rollup(data, groupData => chauvenet(groupData, featureName !== 'PTC Aspect Ratio'), d => d['group']),
+      d3_rollup(data, groupData => chauvenet(groupData, featureName !== 'Aspect Ratio'), d => d['group']),
       ([key, value]) => ({ key, value}),
     );
     const trimmedData = groupedData.map(kv => kv.value).flat();
@@ -85,7 +85,7 @@ export default function StratifiedFeaturePlot(props) {
       .padding(0.1);
 
     const y = scaleLinear()
-      .domain([(featureName === 'PTC Aspect Ratio' ? 1 : 0), max(trimmedData, d => d['value'])])
+      .domain([(featureName === 'Aspect Ratio' ? 1 : 0), max(trimmedData, d => d['value'])])
       .range([innerHeight, 0]);
 
     const histogram = bin()

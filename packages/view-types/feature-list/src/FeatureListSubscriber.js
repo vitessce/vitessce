@@ -8,6 +8,7 @@ import {
   useCoordination, useLoaders,
   registerPluginViewType,
 } from '@vitessce/vit-s';
+import difference from 'lodash/difference';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import FeatureList from './FeatureList';
 
@@ -36,6 +37,7 @@ export function FeatureListSubscriber(props) {
     theme,
     title: titleOverride,
     enableMultiSelect = false,
+    omitFeatures = null,
   } = props;
 
   const loaders = useLoaders();
@@ -76,7 +78,7 @@ export function FeatureListSubscriber(props) {
     featureLabelsStatus,
     matrixIndicesStatus,
   ]);
-  const geneList = featureIndex || [];
+  const geneList = difference(featureIndex, omitFeatures || []) || [];
   const numGenes = geneList.length;
 
   function setGeneSelectionAndColorEncoding(newSelection) {
