@@ -159,12 +159,12 @@ export const kpmp2023 = {
     },
     featureValueColormapRange: {
       ci: [0.0, 1.0],
-      ngsg: [0.0, 1.0],
-      gsg: [0.0, 1.0],
-      t: [0.0, 1.0],
+      ngsg: [0.0, 1 - (59451 - 29911) / (59451 - 3077)],
+      gsg: [(3077 - 2333) / (29911 - 2333), 1.0],
+      t: [0.0, 0.3],
       a: [0.0, 1.0],
       ifta: [0.0, 1.0],
-      ptc: [0.0, 1.0],
+      ptc: [0.0, 0.2],
     },
     featureType: {
       global: 'feature',
