@@ -133,3 +133,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2023-02-21: [keller-mark/meta-coordination](https://s3.amazonaws.com/vitessce-data/demos/2023-02-21/da5208cd/index.html)
 - 2023-02-22: [keller-mark/meta-coordination](https://s3.amazonaws.com/vitessce-data/demos/2023-02-22/ee83677e/index.html)
 - 2023-02-24: [keller-mark/meta-coordination](https://s3.amazonaws.com/vitessce-data/demos/2023-02-24/43a177f6/index.html)
+- 2023-02-25: [keller-mark/meta-coordination](https://s3.amazonaws.com/vitessce-data/demos/2023-02-25/7371412b/index.html)
