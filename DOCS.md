@@ -56,3 +56,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2023-02-22: [keller-mark/meta-coordination](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2023-02-22/ee83677e/)
 - 2023-02-24: [keller-mark/meta-coordination](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2023-02-24/43a177f6/)
 - 2023-02-25: [keller-mark/meta-coordination](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2023-02-25/7371412b/)
+- 2023-02-28: [keller-mark/meta-coordination](http://vitessce-data.s3-website-us-east-1.amazonaws.com/docs/2023-02-28/5fd884a3/)
