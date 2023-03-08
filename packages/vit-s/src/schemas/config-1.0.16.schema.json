@@ -1052,15 +1052,15 @@
               ]
             }
           }
-        }
-      },
-      "featureValuePositivityThreshold": {
-        "type": "object",
-        "patternProperties": {
-          ".": { "oneOf": [
-            { "type": "number" },
-            { "type": "null" }
-          ] }
+        },
+        "featureValuePositivityThreshold": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "oneOf": [
+              { "type": "number" },
+              { "type": "null" }
+            ] }
+          }
         }
       }
     },
