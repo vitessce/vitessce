@@ -51,15 +51,15 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     if (this.filteredGeneNames) {
       return this.filteredGeneNames;
     }
-    const { featureFilterPath: geneFilterZarr, geneAlias } = this.getOptions();
+    const { path, featureFilterPath: geneFilterZarr, geneAlias } = this.getOptions();
     const getFilterFn = async () => {
       if (!geneFilterZarr) return data => data;
       const geneFilter = await this.dataSource.getFlatArrDecompressed(geneFilterZarr);
       return data => data.filter((_, j) => geneFilter[j]);
     };
     const geneNamesPromise = geneAlias
-      ? this.dataSource.loadVarAlias(geneAlias)
-      : this.dataSource.loadVarIndex();
+      ? this.dataSource.loadVarAlias(geneAlias, path)
+      : this.dataSource.loadVarIndex(path);
     this.filteredGeneNames = Promise.all([
       geneNamesPromise,
       getFilterFn(),
@@ -94,7 +94,8 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    * @returns {Number} The number of cells.
    */
   async _getNumCells() {
-    const cells = await this.dataSource.loadObsIndex();
+    const { path } = this.getOptions();
+    const cells = await this.dataSource.loadObsIndex(path);
     return cells.length;
   }
 
@@ -340,7 +341,8 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    * @returns {Object} { data: { rows, cols }, url } containing row and col labels for the matrix.
    */
   loadAttrs() {
-    return Promise.all([this.dataSource.loadObsIndex(), this.loadFilteredGeneNames()])
+    const { path } = this.getOptions();
+    return Promise.all([this.dataSource.loadObsIndex(path), this.loadFilteredGeneNames()])
       .then((d) => {
         const [cellNames, geneNames] = d;
         const attrs = { rows: cellNames, cols: geneNames };
@@ -367,32 +369,14 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     return filteredGeneNames;
   }
 
-  /* load() {
-    return Promise.all([this.loadAttrs(), this.loadCellXGene()]).then(
-      async (d) => {
-        const [{ data: attrs }, cellXGene] = d;
-        const {
-          initialFeatureFilterPath: matrixGeneFilterZarr,
-        } = this.getOptions();
-        // In order to return the correct gene list with the heatmap data,
-        // we need to filter the columns of attrs so it matches the cellXGene data.
-        if (matrixGeneFilterZarr) {
-          const matrixGeneFilter = await this.dataSource.getFlatArrDecompressed(
-            matrixGeneFilterZarr,
-          );
-          attrs.cols = attrs.cols.filter((_, i) => matrixGeneFilter[i]);
-        }
-        return Promise.resolve(new LoaderResult([attrs, cellXGene], null));
-      },
-    );
-  } */
   async load() {
+    const { path } = this.getOptions();
     const superResult = await super.load().catch(reason => Promise.resolve(reason));
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
     return Promise.all([
-      this.dataSource.loadObsIndex(),
+      this.dataSource.loadObsIndex(path),
       this.loadInitialFilteredGeneNames(),
       this.loadCellXGene(),
     ]).then(([obsIndex, featureIndex, obsFeatureMatrix]) => Promise.resolve(new LoaderResult(

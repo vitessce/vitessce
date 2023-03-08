@@ -47,6 +47,7 @@ export const FileType = {
   OBS_SETS_CSV: 'obsSets.csv',
   OBS_SETS_JSON: 'obsSets.json',
   IMAGE_OME_ZARR: 'image.ome-zarr',
+  // AnnData
   OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
   OBS_SETS_ANNDATA_ZARR: 'obsSets.anndata.zarr',
   OBS_EMBEDDING_ANNDATA_ZARR: 'obsEmbedding.anndata.zarr',
@@ -54,6 +55,14 @@ export const FileType = {
   OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
   OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
   FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
+  // MuData
+  OBS_FEATURE_MATRIX_MUDATA_ZARR: 'obsFeatureMatrix.mudata.zarr',
+  OBS_SETS_MUDATA_ZARR: 'obsSets.mudata.zarr',
+  OBS_EMBEDDING_MUDATA_ZARR: 'obsEmbedding.mudata.zarr',
+  OBS_LOCATIONS_MUDATA_ZARR: 'obsLocations.mudata.zarr',
+  OBS_SEGMENTATIONS_MUDATA_ZARR: 'obsSegmentations.mudata.zarr',
+  OBS_LABELS_MUDATA_ZARR: 'obsLabels.mudata.zarr',
+  FEATURE_LABELS_MUDATA_ZARR: 'featureLabels.mudata.zarr',
   GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
   NEIGHBORHOODS_JSON: 'neighborhoods.json',
   // New file types to support old file types:

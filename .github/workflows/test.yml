@@ -32,7 +32,12 @@ jobs:
         with:
           version: 7
           run_install: true
+      - id: get-options
+        run: . ./set-node-options.sh --action
+        shell: bash
       - run: pnpm run build:ci
+        env:
+          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - run: ./test.sh --action
   
   test-e2e-demo:
@@ -48,10 +53,15 @@ jobs:
         with:
           version: 7
           run_install: true
+      - id: get-options
+        run: . ./set-node-options.sh --action
+        shell: bash
       - run: |
           pnpm run build:ci
           cd ./sites/demo
           pnpm run build-demo
+        env:
+          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
 
       - name: Cypress PNPM Patch
         run: cp pnpm-lock.yaml ./sites/demo/package-lock.json
@@ -82,8 +92,14 @@ jobs:
         with:
           version: 7
           run_install: true
-      - run: pnpm run build:ci
-
+      - id: get-options
+        run: . ./set-node-options.sh --action
+        shell: bash
+      - run: pnpm run build:ci && pnpm run bundle:ci
+        env:
+          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
+      - run: ./scripts/consumer-install.sh
+        shell: bash
       - name: Cypress PNPM Patch
         run: cp pnpm-lock.yaml ./sites/html/package-lock.json
       

@@ -1,32 +1,20 @@
 import React, {
   useMemo, useEffect, useRef, Suspense, useState,
 } from 'react';
-import ReactDOM from 'react-dom';
-import dynamicImportPolyfill from 'dynamic-import-polyfill';
 import register from 'higlass-register';
 import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
-import { asEsModule } from '@vitessce/utils';
 import { useGridItemSize, useCoordination } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { createWarningComponent } from './utils';
 import { useStyles } from './styles';
 
-// TODO(monorepo)
-// import packageJson from '../../../package.json';
-// const PIXI_BUNDLE_VERSION = packageJson.dependencies['window-pixi'];
-// const HIGLASS_BUNDLE_VERSION = packageJson.dependencies.higlass;
-// const BUNDLE_FILE_EXT = process.env.NODE_ENV === 'development' ? 'js' : 'min.js';
-const PIXI_BUNDLE_VERSION = '5.3.3';
-const HIGLASS_BUNDLE_VERSION = '1.11.4';
-const BUNDLE_FILE_EXT = true ? 'js' : 'min.js';
-const PIXI_BUNDLE_URL = `https://unpkg.com/window-pixi@${PIXI_BUNDLE_VERSION}/dist/pixi.${BUNDLE_FILE_EXT}`;
-const HIGLASS_BUNDLE_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.${BUNDLE_FILE_EXT}`;
-const HIGLASS_CSS_URL = `https://unpkg.com/higlass@${HIGLASS_BUNDLE_VERSION}/dist/hglib.css`;
-
-// Initialize the dynamic __import__() function.
-if (dynamicImportPolyfill) {
-  dynamicImportPolyfill.initialize();
-}
+// Temporary usage of the package 'higlass-no-github-deps'
+// rather than 'higlass' is discussed at
+// https://github.com/vitessce/vitessce/pull/1404
+// When a new version of 'higlass' that follows v1.11.11
+// is released, we can switch over to that one here.
+const HIGLASS_PKG_NAME = 'higlass-no-github-deps';
+const HIGLASS_BUNDLE_VERSION = '1.11.13';
+const HIGLASS_CSS_URL = `https://unpkg.com/${HIGLASS_PKG_NAME}@${HIGLASS_BUNDLE_VERSION}/dist/hglib.css`;
 
 // Register the zarr-multivec plugin data fetcher.
 // References:
@@ -38,32 +26,13 @@ register(
 );
 
 // Lazy load the HiGlass React component,
-// using dynamic imports with absolute URLs.
-const HiGlassComponent = React.lazy(() => {
-  if (!window.React) {
-    window.React = React;
-  }
-  if (!window.ReactDOM) {
-    window.ReactDOM = ReactDOM;
-  }
-  return new Promise((resolve) => {
-    const handleImportError = (e) => {
-      console.warn(e);
-      resolve(asEsModule(createWarningComponent({
-        title: 'Could not load HiGlass',
-        message: 'The HiGlass scripts could not be dynamically imported.',
-      })));
-    };
-      // eslint-disable-next-line no-undef
-    __import__(PIXI_BUNDLE_URL).then(() => {
-      // eslint-disable-next-line no-undef
-      __import__(HIGLASS_BUNDLE_URL).then(() => {
-        // React.lazy promise must return an ES module with the
-        // component as the default export.
-        resolve(asEsModule(window.hglib.HiGlassComponent));
-      }).catch(handleImportError);
-    }).catch(handleImportError);
-  });
+// using a dynamic import.
+const LazyHiGlassComponent = React.lazy(async () => {
+  // Temporary fix until a new release of HiGlass is made after 1.11.11,
+  // which removes the github.com dependencies in the higlass package.json,
+  // which is causing issues with PNPM install on GitHub Actions.
+  const { HiGlassComponent } = await import('higlass-no-github-deps');
+  return { default: HiGlassComponent };
 });
 
 // Use an arbitrary size for normalization of the zoom level.
@@ -217,7 +186,7 @@ export default function HiGlassLazy(props) {
       <link rel="stylesheet" type="text/css" href={HIGLASS_CSS_URL} />
       <div className={classes.higlassWrapper} ref={containerRef} style={{ height: `${height}px` }}>
         <Suspense fallback={<div>Loading...</div>}>
-          <HiGlassComponent
+          <LazyHiGlassComponent
             ref={setHgInstance}
             zoomFixed={false}
             viewConfig={hgViewConfig}
