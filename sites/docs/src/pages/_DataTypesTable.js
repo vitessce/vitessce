@@ -25,6 +25,7 @@ export default function DataTypesTable() {
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsembeddingcsv')}><code>obsEmbedding.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsembeddinganndatazarr')}><code>obsEmbedding.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsembeddingmudatazarr')}><code>obsEmbedding.mudata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
@@ -46,6 +47,7 @@ export default function DataTypesTable() {
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#obslocationscsv')}><code>obsLocations.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obslocationsanndatazarr')}><code>obsLocations.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obslocationsmudatazarr')}><code>obsLocations.mudata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
@@ -67,6 +69,7 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#obssetsjson')}><code>obsSets.json</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssetscsv')}><code>obsSets.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssetsanndatazarr')}><code>obsSets.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssetsmudatazarr')}><code>obsSets.mudata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
@@ -87,6 +90,7 @@ export default function DataTypesTable() {
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#obslabelscsv')}><code>obsLabels.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obslabelsanndatazarr')}><code>obsLabels.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obslabelsmudatazarr')}><code>obsLabels.mudata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
@@ -138,6 +142,7 @@ export default function DataTypesTable() {
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixcsv')}><code>obsFeatureMatrix.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixanndatazarr')}><code>obsFeatureMatrix.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixmudatazarr')}><code>obsFeatureMatrix.mudata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
@@ -158,6 +163,7 @@ export default function DataTypesTable() {
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#featurelabelscsv')}><code>featureLabels.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#featurelabelsanndatazarr')}><code>featureLabels.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#featurelabelsmudatazarr')}><code>featureLabels.mudata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
@@ -178,6 +184,7 @@ export default function DataTypesTable() {
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsjson')}><code>obsSegmentations.json</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsanndatazarr')}><code>obsSegmentations.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsmudatazarr')}><code>obsSegmentations.mudata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsrasterjson')}><code>obsSegmentations.raster.json</code></a></li>
               {anndataConvenienceFileType}
             </ul>

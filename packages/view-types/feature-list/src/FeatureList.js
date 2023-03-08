@@ -5,7 +5,7 @@ import { SelectableTable } from './selectable-table/index';
 
 const useStyles = makeStyles(() => ({
   searchBar: {
-    marginBottom: '.25rem',
+    marginBottom: '4px',
     border: '0',
     padding: '2px',
     borderRadius: '2px',

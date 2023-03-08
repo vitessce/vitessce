@@ -17,6 +17,8 @@ export {
 } from './hooks';
 export {
   useCoordination,
+  useComplexCoordination,
+  useMultiCoordinationValues,
   useMultiDatasetCoordination,
   useDatasetUids,
   useLoaders,
@@ -96,4 +98,4 @@ export {
   OptionSelect,
   usePlotOptionsStyles,
 } from './shared-plot-options';
-export * from './schemas';
+export * from './json-schemas';

@@ -8,14 +8,14 @@ export const useVitessceContainerStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.gridLayoutBackground,
     '& div': {
       fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"',
-      fontSize: '1rem',
+      fontSize: '16px',
       fontWeight: '400',
       lineHeight: '1.5',
       textAlign: 'left',
     },
     '& p': {
       marginTop: '0',
-      marginBottom: '1rem',
+      marginBottom: '16px',
     },
     '& *, ::after, ::before': {
       boxSizing: 'border-box',

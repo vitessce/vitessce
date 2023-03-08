@@ -17,8 +17,8 @@ export const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'row',
     position: 'absolute',
-    bottom: '1.75rem',
-    right: '0.25rem',
+    bottom: '28px',
+    right: '4px',
     boxShadow: '-2px -2px 5px rgba(0, 0, 0, 0.06)',
     '& button': {
       cursor: 'pointer',
@@ -228,13 +228,14 @@ export const useStyles = makeStyles(theme => ({
     color: theme.palette.primaryForegroundL5,
     padding: '0',
     fontSize: '18px',
-    marginBottom: '2rem',
+    marginBottom: '32px',
     cursor: 'pointer',
   },
   nodeMenuIcon: {
     fill: theme.palette.grayMid,
     cursor: 'pointer',
-    height: '14px',
+    // Important needed due to Jupyter Notebook conflicting styles
+    height: '14px !important',
     position: 'relative',
     verticalAlign: 'top',
     width: `${nodeHeight}px`,
@@ -260,7 +261,8 @@ export const useStyles = makeStyles(theme => ({
     /* create custom radiobutton appearance */
     width: '12px',
     height: '12px',
-    padding: '5px',
+    // Important needed due to Jupyter Notebook conflicting styles
+    padding: '5px !important',
     /* background-color only for content */
     backgroundClip: 'content-box',
     border: `2px solid ${theme.palette.primaryForegroundL10}`,
@@ -478,7 +480,7 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
     marginTop: 0,
     '& dl, ol, ul': {
       marginTop: 0,
-      marginBottom: '1rem',
+      marginBottom: '16px',
     },
     '& li button': {
       border: 0,
