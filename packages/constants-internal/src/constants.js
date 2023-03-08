@@ -165,6 +165,7 @@ export const CoordinationType = {
   GATING_FEATURE_SELECTION_X: 'gatingFeatureSelectionX',
   GATING_FEATURE_SELECTION_Y: 'gatingFeatureSelectionY',
   FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'featureValueTransformCoefficient',
+  FEATURE_VALUE_POSITIVITY_THRESHOLD: 'featureValuePositivityThreshold',
 };
 
 export const STATUS = {

@@ -5,14 +5,11 @@ import { capitalize } from '@vitessce/utils';
 import plur from 'plur';
 
 /**
- * Gene expression histogram displayed as a bar chart,
+ * Gene expression dot plot,
  * implemented with the VegaPlot component.
  * @param {object} props
  * @param {object[]} props.data The expression data, an array
  * of objects with properties `value`, `gene`, and `set`.
- * @param {number} props.domainMax The maximum gene expression value.
- * @param {object[]} props.colors An object for each
- * cell set, with properties `name` and `color`.
  * @param {string} props.theme The name of the current Vitessce theme.
  * @param {number} props.width The container width.
  * @param {number} props.height The container height.
@@ -104,7 +101,7 @@ export default function DotPlot(props) {
         type: 'quantitative',
         title: meanTransform,
         scale: {
-          scheme: 'plasma',
+          scheme: 'darkred',
         },
         legend: {
           direction: 'horizontal',

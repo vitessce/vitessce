@@ -67,8 +67,8 @@ export function useExpressionSummaries(
       );
       geneSelection.forEach((featureName, featureI) => {
         const featureKey = uuidv4();
-        let numPos = 0;
         setObjects.forEach((setObj) => {
+          let numPos = 0;
           const exprValues = setObj.indices.map((cellIndex) => {
             const value = expressionData[featureI][cellIndex];
             const normValue = value * 100 / 255;
@@ -109,9 +109,7 @@ export function useExpressionSummaries(
 
 
 /**
- * A subscriber component for `DotPlot`,
- * which listens for gene selection updates and
- * `GRID_RESIZE` events.
+ * A subscriber component for DotPlot.
  * @param {object} props
  * @param {function} props.removeGridComponent The grid component removal function.
  * @param {object} props.coordinationScopes An object mapping coordination
@@ -124,7 +122,6 @@ export function DotPlotSubscriber(props) {
     removeGridComponent,
     theme,
     title = 'Dot Plot',
-    posThreshold = 0,
   } = props;
 
   const classes = useStyles();
@@ -142,10 +139,12 @@ export function DotPlotSubscriber(props) {
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
+    featureValuePositivityThreshold: posThreshold,
     // TODO: coordination type for mean expression colormap
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
+    setFeatureValuePositivityThreshold: setPosThreshold,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.DOT_PLOT],
     coordinationScopes,
@@ -207,6 +206,8 @@ export function DotPlotSubscriber(props) {
           featureValueTransformCoefficient={featureValueTransformCoefficient}
           setFeatureValueTransformCoefficient={setFeatureValueTransformCoefficient}
           transformOptions={transformOptions}
+          featureValuePositivityThreshold={posThreshold}
+          setFeatureValuePositivityThreshold={setPosThreshold}
         />
       )}
     >

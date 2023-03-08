@@ -62,6 +62,7 @@ export const DEFAULT_COORDINATION_VALUES = {
   [CoordinationType.MOLECULE_HIGHLIGHT]: null,
   [CoordinationType.GATING_FEATURE_SELECTION_X]: null,
   [CoordinationType.GATING_FEATURE_SELECTION_Y]: null,
+  [CoordinationType.FEATURE_VALUE_POSITIVITY_THRESHOLD]: 0,
 };
 
 // The following coordination types should be
@@ -287,6 +288,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.ADDITIONAL_OBS_SETS,
+    CoordinationType.FEATURE_VALUE_POSITIVITY_THRESHOLD,
   ],
   [ViewType.LAYER_CONTROLLER]: [
     CoordinationType.DATASET,

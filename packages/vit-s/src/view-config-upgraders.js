@@ -595,6 +595,7 @@ export function upgradeFrom1_0_14(config) {
 // - Explict coordinationScopesBy property for view definitions,
 // to replace the previous implicit mapping of per-dataset coordination
 // scopes.
+// - Add featureValuePositivityThreshold coordination type.
 export function upgradeFrom1_0_15(config) {
   const newConfig = cloneDeep(config);
 

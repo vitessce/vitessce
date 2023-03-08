@@ -2,6 +2,8 @@ import React from 'react';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
+import Slider from '@material-ui/core/Slider';
+
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 
 export default function CellSetExpressionPlotOptions(props) {
@@ -11,6 +13,8 @@ export default function CellSetExpressionPlotOptions(props) {
     featureValueTransformCoefficient,
     setFeatureValueTransformCoefficient,
     transformOptions,
+    featureValuePositivityThreshold,
+    setFeatureValuePositivityThreshold,
   } = props;
   const classes = usePlotOptionsStyles();
 
@@ -31,6 +35,10 @@ export default function CellSetExpressionPlotOptions(props) {
       }
     }
   };
+
+  function handlePositivityThresholdChange(event, value) {
+    setFeatureValuePositivityThreshold(value);
+  }
 
   return (
     <OptionsContainer>
@@ -70,6 +78,25 @@ export default function CellSetExpressionPlotOptions(props) {
           />
         </TableCell>
       </TableRow>
+      {setFeatureValuePositivityThreshold ? (
+        <TableRow key="transform-coefficient-option-row">
+          <TableCell className={classes.labelCell}>
+            Positivity Threshold
+          </TableCell>
+          <TableCell className={classes.inputCell}>
+            <Slider
+              classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+              value={featureValuePositivityThreshold}
+              onChange={handlePositivityThresholdChange}
+              aria-labelledby="pos-threshold-slider"
+              valueLabelDisplay="auto"
+              step={1.0}
+              min={0.0}
+              max={100.0}
+            />
+          </TableCell>
+        </TableRow>
+      ) : null}
     </OptionsContainer>
   );
 }
