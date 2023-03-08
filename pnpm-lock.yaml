@@ -266,9 +266,11 @@ importers:
       '@material-ui/core': ~4.12.3
       '@vitessce/utils': workspace:*
       colormap: ^2.3.2
+      d3-axis: ^3.0.0
       d3-color: ^1.4.0
       d3-interpolate: ^2.0.1
       d3-scale: ^3.2.3
+      d3-selection: ^3.0.0
       react: ^18.0.0
       vite: ^3.0.0
       vitest: ^0.23.4
@@ -276,9 +278,11 @@ importers:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/utils': link:../utils/other-utils
       colormap: 2.3.2
+      d3-axis: 3.0.0
       d3-color: 1.4.1
       d3-interpolate: 2.0.1
       d3-scale: 3.3.0
+      d3-selection: 3.0.0
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
@@ -9656,6 +9660,11 @@ packages:
     resolution: {integrity: sha512-ejINPfPSNdGFKEOAtnBtdkpr24c4d4jsei6Lg98mxf424ivoDP2956/5HDpIAtmHo85lqT4pruy+zEgvRUBqaQ==}
     dev: false
 
+  /d3-axis/3.0.0:
+    resolution: {integrity: sha512-IH5tgjV4jE/GhHkRV0HiVYPDtvfjHQlQfJHs0usq7M30XcSBvOotpmH1IgkcXsO/5gEQZD43B//fc7SRT5S+xw==}
+    engines: {node: '>=12'}
+    dev: false
+
   /d3-collection/1.0.7:
     resolution: {integrity: sha512-ii0/r5f4sjKNTfh84Di+DpztYwqKhEyUlKoPrzUFfeSkWxjW49xU2QzO9qrPrNkpdI0XJkfzvmTu8V2Zylln6A==}
     dev: false
@@ -9864,6 +9873,11 @@ packages:
 
   /d3-selection/1.4.2:
     resolution: {integrity: sha512-SJ0BqYihzOjDnnlfyeHT0e30k0K1+5sR3d5fNueCNeuhZTnGw4M4o8mqJchSwgKMXCNFo+e2VTChiSJ0vYtXkg==}
+    dev: false
+
+  /d3-selection/3.0.0:
+    resolution: {integrity: sha512-fmTRWbNMmsmWq6xJV8D19U/gw/bwrHfNXxrIN+HfZgnzqTHp9jOmKMhsTUjXOJnZOdZY9Q28y4yebKzqDKlxlQ==}
+    engines: {node: '>=12'}
     dev: false
 
   /d3-shape/3.1.0:

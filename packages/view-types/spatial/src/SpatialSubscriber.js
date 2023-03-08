@@ -467,6 +467,8 @@ export function SpatialSubscriber(props) {
       )}
       <Legend
         visible
+        // Fix to dark theme due to black background of spatial plot.
+        theme="dark"
         featureType={featureType}
         featureValueType={featureValueType}
         obsColorEncoding={cellColorEncoding}

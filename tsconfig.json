@@ -27,6 +27,7 @@
     { "path": "packages/file-types/json" },
     { "path": "packages/file-types/zarr" },
     { "path": "packages/gl" },
+    { "path": "packages/legend" },
     { "path": "packages/main/all" },
     { "path": "packages/main/dev" },
     { "path": "packages/main/prod" },

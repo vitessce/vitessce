@@ -8,13 +8,16 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.mjs"
+  },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
-    "start": "tsc --watch",
-    "build": "tsc",
+    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
     "test": "pnpm exec vitest --run -r ../../ --dir ."
   },
   "dependencies": {
@@ -23,7 +26,9 @@
     "colormap": "^2.3.2",
     "d3-scale": "^3.2.3",
     "d3-interpolate": "^2.0.1",
-    "d3-color": "^1.4.0"
+    "d3-color": "^1.4.0",
+    "d3-axis": "^3.0.0",
+    "d3-selection": "^3.0.0"
   },
   "devDependencies": {
     "react": "^18.0.0",

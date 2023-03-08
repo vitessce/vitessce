@@ -351,6 +351,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       )}
       <Legend
         visible
+        theme={theme}
         featureType={featureType}
         featureValueType={featureValueType}
         obsColorEncoding={cellColorEncoding}
