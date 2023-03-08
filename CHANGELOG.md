@@ -1,5 +1,6 @@
 
 ### Added
+- Added dot plot view.
 
 ### Changed
 

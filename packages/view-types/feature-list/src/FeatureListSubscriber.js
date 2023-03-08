@@ -35,7 +35,7 @@ export function FeatureListSubscriber(props) {
     variablesLabelOverride,
     theme,
     title: titleOverride,
-    enableMultiSelect = false,
+    enableMultiSelect = true,
   } = props;
 
   const loaders = useLoaders();
