@@ -1,6 +1,5 @@
 import React from 'react';
-import { TitleInfo, useGridItemSize, registerPluginViewType } from '@vitessce/vit-s';
-import { COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { TitleInfo, useGridItemSize } from '@vitessce/vit-s';
 import HiGlassLazy from './HiGlassLazy';
 import { useStyles } from './styles';
 
@@ -48,13 +47,5 @@ export function HiGlassSubscriber(props) {
         </div>
       </TitleInfo>
     </div>
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    'higlass',
-    HiGlassSubscriber,
-    COMPONENT_COORDINATION_TYPES.higlass,
   );
 }
