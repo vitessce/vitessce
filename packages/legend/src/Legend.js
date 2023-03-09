@@ -35,7 +35,6 @@ export default function Legend(props) {
   const {
     visible: visibleProp,
     obsType,
-    featureType,
     featureValueType,
     obsColorEncoding,
     featureSelection,
