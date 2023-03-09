@@ -1,0 +1,32 @@
+{
+  "name": "@vitessce/schemas",
+  "version": "2.0.3",
+  "author": "Gehlenborg Lab",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.mjs"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
+    "test": "pnpm exec vitest --run -r ../../ --dir ."
+  },
+  "dependencies": {
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "vite": "^3.0.0",
+    "vitest": "^0.23.4",
+    "zod-to-json-schema": "^3.20.4",
+    "json-schema-to-zod": "^0.6.3"
+  }
+}

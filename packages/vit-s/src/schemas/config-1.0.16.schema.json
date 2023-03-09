@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "#/dataset",
+  "$id": "https://github.com/vitessce/vitessce/#dataset",
   "title": "Vitessce data set",
   "type": "object",
   "definitions": {
@@ -1030,6 +1030,9 @@
                 {
                   "type": "null",
                   "description": "If null is provided, no cell will be highlighted initially."
+                },
+                {
+                  "$ref": "https://github.com/vitessce/vitessce/#cell-sets"
                 }
               ]
             }

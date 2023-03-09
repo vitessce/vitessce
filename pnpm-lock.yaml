@@ -356,6 +356,21 @@ importers:
       rollup-plugin-visualizer: 5.8.3
       vite: 3.1.8
 
+  packages/schemas:
+    specifiers:
+      json-schema-to-zod: ^0.6.3
+      vite: ^3.0.0
+      vitest: ^0.23.4
+      zod: ^3.21.4
+      zod-to-json-schema: ^3.20.4
+    dependencies:
+      zod: 3.21.4
+    devDependencies:
+      json-schema-to-zod: 0.6.3
+      vite: 3.1.8
+      vitest: 0.23.4
+      zod-to-json-schema: 3.20.4_zod@3.21.4
+
   packages/tooltip:
     specifiers:
       '@material-ui/core': ~4.12.3
@@ -821,7 +836,6 @@ importers:
       uuid: ^3.3.2
       vite: ^3.0.0
       vitest: ^0.23.4
-      zod: ^3.21.4
       zustand: ^3.5.10
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
@@ -836,7 +850,6 @@ importers:
       lodash: 4.17.21
       react-grid-layout-with-lodash: 1.3.5_biqbaboplfbrettd7655fr4n2y
       uuid: 3.4.0
-      zod: 3.21.4
       zustand: 3.7.2_react@18.2.0
     devDependencies:
       react: 18.2.0
@@ -20767,9 +20780,16 @@ packages:
       p-queue: 6.2.0
     dev: false
 
+  /zod-to-json-schema/3.20.4_zod@3.21.4:
+    resolution: {integrity: sha512-Un9+kInJ2Zt63n6Z7mLqBifzzPcOyX+b+Exuzf7L1+xqck9Q2EPByyTRduV3kmSPaXaRer1JCsucubpgL1fipg==}
+    peerDependencies:
+      zod: ^3.20.0
+    dependencies:
+      zod: 3.21.4
+    dev: true
+
   /zod/3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
-    dev: false
 
   /zustand/3.7.2_react@18.2.0:
     resolution: {integrity: sha512-PIJDIZKtokhof+9+60cpockVOq05sJzHCriyvaLBmEJixseQ1a5Kdov6fWZfWOu5SK9c+FhH1jU0tntLxRJYMA==}
