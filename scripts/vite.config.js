@@ -1,6 +1,7 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { resolve, basename } from 'path';
+import { existsSync } from 'fs';
 
 const cwd = process.cwd();
 
@@ -16,7 +17,7 @@ export default defineConfig({
     minify: false,
     sourcemap: false,
     lib: {
-      entry: resolve(cwd, 'src/index.js'),
+      entry: existsSync(resolve(cwd, 'src/index.ts')) ? resolve(cwd, 'src/index.ts') : resolve(cwd, 'src/index.js'),
       fileName: 'index',
       formats: ['es'],
     },

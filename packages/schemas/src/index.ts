@@ -1,0 +1,1 @@
+export { genericSchema, vitessceSchema } from './config-1.0.16';
