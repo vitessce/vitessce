@@ -24,7 +24,6 @@ importers:
       jsdom: ^20.0.0
       jsdom-worker: ^0.3.0
       json-diff-ts: ^1.2.5
-      json-schema-to-zod: ^0.6.3
       lodash: ^4.17.21
       react: ^18.0.0
       react-dom: ^18.0.0
@@ -52,7 +51,6 @@ importers:
       jsdom: 20.0.1
       jsdom-worker: 0.3.0_node-fetch@3.2.10
       json-diff-ts: 1.2.5_lodash@4.17.21
-      json-schema-to-zod: 0.6.3
       lodash: 4.17.21
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
