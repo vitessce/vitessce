@@ -35,7 +35,7 @@ import { useStyles } from './styles';
  * @param {string} theme "light" or "dark" for the vitessce theme
  * `path` and `color`.
  */
-export function useExpressionByCellSet(
+function useExpressionByCellSet(
   expressionData, obsIndex, cellSets, additionalCellSets,
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
