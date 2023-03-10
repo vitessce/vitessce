@@ -15,7 +15,9 @@
     "esModuleInterop": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "incremental": true
+    "incremental": true,
+    "declaration": true,
+    "declarationMap": true
   },
   "references": [
     { "path": "examples/configs" },

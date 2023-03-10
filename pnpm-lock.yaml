@@ -765,8 +765,13 @@ importers:
       '@vitessce/vega': workspace:*
       '@vitessce/vit-s': workspace:*
       d3-array: ^2.4.0
+      d3-axis: ^3.0.0
+      d3-scale: ^4.0.0
+      d3-selection: ^3.0.0
+      d3-shape: ^3.2.0
       lodash: ^4.17.21
       react: ^18.0.0
+      vega-scale: ^6.0.0
       vite: ^3.0.0
       vitest: ^0.23.4
     dependencies:
@@ -777,7 +782,12 @@ importers:
       '@vitessce/vega': link:../../vega
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
+      d3-axis: 3.0.0
+      d3-scale: 4.0.2
+      d3-selection: 3.0.0
+      d3-shape: 3.2.0
       lodash: 4.17.21
+      vega-scale: 6.1.0
     devDependencies:
       react: 18.2.0
       vite: 3.1.8
@@ -9621,6 +9631,11 @@ packages:
     resolution: {integrity: sha512-ejINPfPSNdGFKEOAtnBtdkpr24c4d4jsei6Lg98mxf424ivoDP2956/5HDpIAtmHo85lqT4pruy+zEgvRUBqaQ==}
     dev: false
 
+  /d3-axis/3.0.0:
+    resolution: {integrity: sha512-IH5tgjV4jE/GhHkRV0HiVYPDtvfjHQlQfJHs0usq7M30XcSBvOotpmH1IgkcXsO/5gEQZD43B//fc7SRT5S+xw==}
+    engines: {node: '>=12'}
+    dev: false
+
   /d3-collection/1.0.7:
     resolution: {integrity: sha512-ii0/r5f4sjKNTfh84Di+DpztYwqKhEyUlKoPrzUFfeSkWxjW49xU2QzO9qrPrNkpdI0XJkfzvmTu8V2Zylln6A==}
     dev: false
@@ -9761,8 +9776,8 @@ packages:
       d3-color: 3.1.0
     dev: false
 
-  /d3-path/3.0.1:
-    resolution: {integrity: sha512-gq6gZom9AFZby0YLduxT1qmrp4xpBA1YZr19OI717WIdKE2OM5ETq5qrHLb301IgxhLwcuxvGZVLeeWc/k1I6w==}
+  /d3-path/3.1.0:
+    resolution: {integrity: sha512-p3KP5HCf/bvjBSSKuXid6Zqijx7wIfNW+J/maPs+iwR35at5JCbLUT0LzF1cnjbCHWhqzQTIN2Jpe8pRebIEFQ==}
     engines: {node: '>=12'}
     dev: false
 
@@ -9800,6 +9815,16 @@ packages:
       d3-time-format: 2.3.0
     dev: false
 
+  /d3-scale/3.3.0:
+    resolution: {integrity: sha512-1JGp44NQCt5d1g+Yy+GeOnZP7xHo0ii8zsQp6PGzd+C1/dl0KGsp9A7Mxwp+1D1o4unbTTxVdU/ZOIEBoeZPbQ==}
+    dependencies:
+      d3-array: 2.12.1
+      d3-format: 1.4.5
+      d3-interpolate: 1.4.0
+      d3-time: 2.1.1
+      d3-time-format: 2.3.0
+    dev: false
+
   /d3-scale/4.0.2:
     resolution: {integrity: sha512-GZW464g1SH7ag3Y7hXjf8RoUuAFIqklOAq3MRl4OaWabTFJY9PN/E1YklhXLh+OQ3fM9yS2nOkCoS+WLZ6kvxQ==}
     engines: {node: '>=12'}
@@ -9815,11 +9840,16 @@ packages:
     resolution: {integrity: sha512-SJ0BqYihzOjDnnlfyeHT0e30k0K1+5sR3d5fNueCNeuhZTnGw4M4o8mqJchSwgKMXCNFo+e2VTChiSJ0vYtXkg==}
     dev: false
 
-  /d3-shape/3.1.0:
-    resolution: {integrity: sha512-tGDh1Muf8kWjEDT/LswZJ8WF85yDZLvVJpYU9Nq+8+yW1Z5enxrmXOhTArlkaElU+CTn0OTVNli+/i+HP45QEQ==}
+  /d3-selection/3.0.0:
+    resolution: {integrity: sha512-fmTRWbNMmsmWq6xJV8D19U/gw/bwrHfNXxrIN+HfZgnzqTHp9jOmKMhsTUjXOJnZOdZY9Q28y4yebKzqDKlxlQ==}
+    engines: {node: '>=12'}
+    dev: false
+
+  /d3-shape/3.2.0:
+    resolution: {integrity: sha512-SaLBuwGm3MOViRq2ABk3eLoxwZELpH6zhl3FbAoJ7Vm1gofKx6El1Ib5z23NUEhF9AsGl7y+dzLe5Cw2AArGTA==}
     engines: {node: '>=12'}
     dependencies:
-      d3-path: 3.0.1
+      d3-path: 3.1.0
     dev: false
 
   /d3-time-format/2.3.0:
@@ -9837,6 +9867,12 @@ packages:
 
   /d3-time/1.1.0:
     resolution: {integrity: sha512-Xh0isrZ5rPYYdqhAVk8VLnMEidhz5aP7htAADH6MfzgmmicPkTo8LhkLxci61/lCB7n7UmE3bN0leRt+qvkLxA==}
+    dev: false
+
+  /d3-time/2.1.1:
+    resolution: {integrity: sha512-/eIQe/eR4kCQwq7yxi7z4c6qEXf2IYGcjoWB5OOQy4Tq9Uv39/947qlDcN2TLkiTzQWzvnsuYPB9TrWaNfipKQ==}
+    dependencies:
+      d3-array: 2.12.1
     dev: false
 
   /d3-time/3.0.0:
@@ -19755,6 +19791,17 @@ packages:
       - encoding
     dev: false
 
+  /vega-scale/6.1.0:
+    resolution: {integrity: sha512-gpe+5JmVSloj70jJNw2aE1OES6+xERFjorRawk9xfD521AgThoFt1Dgs/afQwy/hz2mUG1t4MkpDKJ/Q3EAmIA==}
+    dependencies:
+      d3-array: 2.12.1
+      d3-format: 1.4.5
+      d3-interpolate: 1.4.0
+      d3-scale: 3.3.0
+      vega-time: 1.1.0
+      vega-util: 1.17.0
+    dev: false
+
   /vega-scale/7.2.0:
     resolution: {integrity: sha512-QYltO/otrZHLrCGGf06Y99XtPtqWXITr6rw7rO9oL+l3d9o5RFl9sjHrVxiM7v+vGoZVWbBd5IPbFhPsXZ6+TA==}
     dependencies:
@@ -19768,8 +19815,8 @@ packages:
   /vega-scenegraph/4.10.1:
     resolution: {integrity: sha512-takIpkmNxYHhJYALOYzhTin3EDzbys6U4g+l1yJZVlXG9YTdiCMuEVAdtaQOCqF9/7qytD6pCrMxJY2HaoN0qQ==}
     dependencies:
-      d3-path: 3.0.1
-      d3-shape: 3.1.0
+      d3-path: 3.1.0
+      d3-shape: 3.2.0
       vega-canvas: 1.2.6
       vega-loader: 4.5.0
       vega-scale: 7.2.0
@@ -19804,6 +19851,15 @@ packages:
     dependencies:
       vega: 5.22.1
       vega-lite: 5.5.0_vega@5.22.1
+    dev: false
+
+  /vega-time/1.1.0:
+    resolution: {integrity: sha512-yQ4co3hN0/NiuPWHKm3uCIGMjzYBJFM5glhME8mb5mrrKnBUsany+HL/9a6aU/HBeLDsDPEhna/lFpj1Y5cW8A==}
+    dependencies:
+      d3-array: 2.12.1
+      d3-time: 1.1.0
+      d3-time-format: 2.3.0
+      vega-util: 1.17.0
     dev: false
 
   /vega-time/2.1.0:

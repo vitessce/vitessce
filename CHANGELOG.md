@@ -2,6 +2,7 @@
 ### Added
 
 ### Changed
+- Re-implement `CellSetExpressionPlot` (violin plots) using plain D3. Add a rainfall (half violin + jitter) plot option.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
