@@ -19,6 +19,7 @@ import {
 import { capitalize, commaNumber, getCellColors } from '@vitessce/utils';
 import { mergeObsSets } from '@vitessce/sets-utils';
 import { COMPONENT_COORDINATION_TYPES, ViewType } from '@vitessce/constants-internal';
+import { Legend } from '@vitessce/legend';
 import Heatmap from './Heatmap';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
 import HeatmapOptions from './HeatmapOptions';
@@ -240,6 +241,17 @@ export function HeatmapSubscriber(props) {
         featureHighlight={geneHighlight}
       />
       )}
+      <Legend
+        visible
+        theme={theme}
+        featureType={featureType}
+        featureValueType={featureValueType}
+        obsColorEncoding="geneExpression"
+        considerSelections={false}
+        featureSelection={geneSelection}
+        featureValueColormap={geneExpressionColormap}
+        featureValueColormapRange={geneExpressionColormapRange}
+      />
     </TitleInfo>
   );
 }

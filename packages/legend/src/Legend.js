@@ -36,6 +36,7 @@ export default function Legend(props) {
     visible: visibleProp,
     obsType,
     featureValueType,
+    considerSelections = true,
     obsColorEncoding,
     featureSelection,
     featureValueColormap,
@@ -50,9 +51,14 @@ export default function Legend(props) {
 
   const isDarkTheme = theme === 'dark';
 
-  const visible = (visibleProp && obsColorEncoding === 'geneSelection'
-    && featureSelection && Array.isArray(featureSelection) && featureSelection.length === 1
-  );
+  const visible = (visibleProp && (
+    !considerSelections || (
+      obsColorEncoding === 'geneSelection'
+      && featureSelection
+      && Array.isArray(featureSelection)
+      && featureSelection.length === 1
+    )
+  ));
 
   useEffect(() => {
     const domElement = svgRef.current;
@@ -72,7 +78,7 @@ export default function Legend(props) {
 
     const xlinkHref = getXlinkHref(featureValueColormap);
 
-    if (obsColorEncoding === 'geneSelection') {
+    if (!considerSelections || obsColorEncoding === 'geneSelection') {
       g.append('image')
         .attr('x', 0)
         .attr('y', titleHeight)
@@ -107,16 +113,23 @@ export default function Legend(props) {
         .attr('text-anchor', (d, i) => (i === 0 ? 'start' : 'end'));
     }
 
+    // If the parent component wants to consider selections, then
+    // use the selected feature for the label. Otherwise,
+    // show the feature type.
+    const legendLabel = considerSelections
+      ? (featureSelection?.[0] || capitalize(featureValueType))
+      : capitalize(featureValueType);
+
     g
       .append('text')
       .attr('text-anchor', 'end')
       .attr('dominant-baseline', 'hanging')
       .attr('x', width)
       .attr('y', 0)
-      .text(featureSelection?.[0] || capitalize(featureValueType))
+      .text(legendLabel)
       .style('font-size', '10px')
       .style('fill', foregroundColor);
-  }, [width, height, featureValueColormap, featureValueColormapRange,
+  }, [width, height, featureValueColormap, featureValueColormapRange, considerSelections,
     obsType, obsColorEncoding, featureSelection, isDarkTheme, featureValueType,
   ]);
 
