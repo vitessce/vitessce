@@ -110,6 +110,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
+    jitter = false,
   } = props;
 
   const classes = useStyles();
@@ -201,6 +202,7 @@ export function CellSetExpressionPlotSubscriber(props) {
       <div ref={containerRef} className={classes.vegaContainer}>
         {expressionArr ? (
           <CellSetExpressionPlot
+            jitter={jitter}
             domainMax={expressionMax}
             colors={setArr}
             data={expressionArr}

@@ -1,26 +1,31 @@
+/* eslint-disable indent */
+/* eslint-disable camelcase */
 import React, { useMemo, useEffect, useRef, useState } from 'react';
-import { scaleLinear, scaleOrdinal, scaleThreshold } from "d3-scale";
-import { scale as vega_scale } from "vega-scale";
-import { axisBottom, axisLeft } from "d3-axis";
+import { scaleLinear, scaleOrdinal, scaleThreshold } from 'd3-scale';
+import { scale as vega_scale } from 'vega-scale';
+import { axisBottom, axisLeft } from 'd3-axis';
 import { extent, bin, min, max, rollup as d3_rollup, mean as d3_mean, deviation as d3_deviation } from 'd3-array';
-import { area as d3_area, curveCatmullRom, curveBasis } from 'd3-shape';
-import { select, create } from "d3-selection";
+import { area as d3_area, curveBasis } from 'd3-shape';
+import { select } from 'd3-selection';
 import clamp from 'lodash/clamp';
 import { colorArrayToString } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
 
-const scaleBand = vega_scale("band");
+const scaleBand = vega_scale('band');
 
-const GROUP_KEY = "set";
-const FEATURE_KEY = "gene";
-const VALUE_KEY = "value";
+const GROUP_KEY = 'set';
+const FEATURE_KEY = 'gene';
+const VALUE_KEY = 'value';
 
 // Return filtered array with outliers removed.
 function chauvenet(x, keepZeros) {
   const dMax = 3;
   const mean = d3_mean(x, d => d[VALUE_KEY]);
   const stdv = d3_deviation(x, d => d[VALUE_KEY]);
-  return x.filter(d => (keepZeros || d[VALUE_KEY] > 0) && dMax > (Math.abs(d[VALUE_KEY] - mean)) / stdv);
+  return x.filter(d => (
+    (keepZeros || d[VALUE_KEY] > 0)
+    && dMax > (Math.abs(d[VALUE_KEY] - mean)) / stdv
+  ));
 }
 
 /**
@@ -46,6 +51,7 @@ function chauvenet(x, keepZeros) {
  */
 export default function CellSetExpressionPlot(props) {
   const {
+    jitter,
     domainMax = 100,
     colors,
     data,
@@ -85,19 +91,19 @@ export default function CellSetExpressionPlot(props) {
   useEffect(() => {
     const domElement = svgRef.current;
 
-    const featureName = "Gene Expression";
+    const featureName = 'Gene Expression';
 
     const svg = select(domElement);
-      svg.selectAll("g").remove();
-      svg
-          .attr("width", width)
-          .attr("height", height);
-        
+    svg.selectAll('g').remove();
+    svg
+      .attr('width', width)
+      .attr('height', height);
+
     const g = svg
-      .append("g")
-      .attr("width", width)
-      .attr("height", height);
-    
+      .append('g')
+      .attr('width', width)
+      .attr('height', height);
+
     const groupNames = colors.map(d => d.name);
 
     // Manually set the color scale so that Vega-Lite does
@@ -106,7 +112,7 @@ export default function CellSetExpressionPlot(props) {
       domain: colors.map(d => d.name),
       range: colors.map(d => colorArrayToString(d.color)),
     };
-    
+
     // Remove outliers on a per-group basis.
     const groupedData = Array.from(
       d3_rollup(data, groupData => chauvenet(groupData, true), d => d[GROUP_KEY]),
@@ -138,77 +144,79 @@ export default function CellSetExpressionPlot(props) {
     const x = scaleLinear()
       .domain([-groupBinsMax, groupBinsMax])
       .range([0, xGroup.bandwidth()]);
-      
+
     const area = d3_area()
-      .x0(d => x(0))
+      .x0(d => (jitter ? x(0) : x(-d.length)))
       .x1(d => x(d.length))
       .y(d => y(d.x0))
       .curve(curveBasis);
-    
+
     // Violin areas
     g
-      .selectAll("violin")
+      .selectAll('violin')
       .data(groupBins)
       .enter()
-        .append("g")
-          .attr("transform", d => `translate(${xGroup(d.key)},0)`)
-        .append("path")
+        .append('g')
+          .attr('transform', d => `translate(${xGroup(d.key)},0)`)
+          .style('fill', d => colorScale.range[groupNames.indexOf(d.key)])
+        .append('path')
           .datum(d => d.value)
-          .style("stroke", "none")
-          .style("fill","#808080")
-          .attr("d", d => area(d));
-    
+          .style('stroke', 'none')
+          .attr('d', d => area(d));
+
     // Jittered points
-    g
-      .selectAll("point")
-      .data(trimmedData)
-      .enter()
-        .append("circle")
-          .attr("transform", d => `translate(${xGroup(d[GROUP_KEY])},0)`)
-          .style("stroke", "none")
-          .style("fill","silver")
-          .style("opacity", "0.1")
-          .attr("cx", d => 5 + Math.random() * ((xGroup.bandwidth() / 2) - 10))
-          .attr("cy", d => y(d[VALUE_KEY]))
-          .attr("r", 2);
-    
+
+    if (jitter) {
+      g
+        .selectAll('point')
+        .data(trimmedData)
+        .enter()
+          .append('circle')
+            .attr('transform', d => `translate(${xGroup(d[GROUP_KEY])},0)`)
+            .style('stroke', 'none')
+            .style('fill', 'silver')
+            .style('opacity', '0.1')
+            .attr('cx', () => 5 + Math.random() * ((xGroup.bandwidth() / 2) - 10))
+            .attr('cy', d => y(d[VALUE_KEY]))
+            .attr('r', 2);
+    }
+
     // Y-axis ticks
     g
-      .append("g")
-        .attr("transform", `translate(${marginLeft},0)`)
-        .style("font-size", "14px")
-      .call( axisLeft(y) );
+      .append('g')
+        .attr('transform', `translate(${marginLeft},0)`)
+        .style('font-size', '14px')
+      .call(axisLeft(y));
     // X-axis ticks
     g
-      .append("g")
-        .attr("transform", `translate(0,${innerHeight})`)
-        .style("font-size", "14px")
-      .call( axisBottom(xGroup) );
-    
+      .append('g')
+        .attr('transform', `translate(0,${innerHeight})`)
+        .style('font-size', '14px')
+      .call(axisBottom(xGroup));
+
     const unitSuffix = featureName.endsWith('Area') ? ' (microns squared)' : '';
-    
+
     // Y-axis title
     g
-      .append("text")
-      .attr("text-anchor", "middle")
-      .attr("x", -innerHeight/2)
-      .attr("y", 15)
-      .attr("transform", "rotate(-90)")
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .attr('x', -innerHeight / 2)
+      .attr('y', 15)
+      .attr('transform', 'rotate(-90)')
       .text(featureName + unitSuffix)
-      .style("font-size", "14px")
-      .style("fill", "white");
+      .style('font-size', '14px')
+      .style('fill', 'white');
 
     // X-axis title
     g
-      .append("text")
-      .attr("text-anchor", "middle")
-      .attr("x", marginLeft + innerWidth/2)
-      .attr("y", height - 10)
-      .text("Group")
-      .style("font-size", "14px")
-      .style("fill", "white");
-
-  }, [width, height, data, marginBottom, marginLeft, colors]);
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .attr('x', marginLeft + innerWidth / 2)
+      .attr('y', height - 10)
+      .text('Group')
+      .style('font-size', '14px')
+      .style('fill', 'white');
+  }, [width, height, data, marginBottom, marginLeft, colors, jitter]);
 
   return (
     <svg
@@ -218,7 +226,7 @@ export default function CellSetExpressionPlot(props) {
         left: 0,
         width: `${width}px`,
         height: `${height}px`,
-        position: "relative",
+        position: 'relative',
       }}
     />
   );
