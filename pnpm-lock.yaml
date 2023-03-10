@@ -356,12 +356,18 @@ importers:
 
   packages/schemas:
     specifiers:
+      '@types/lodash': ^4.14.191
+      '@vitessce/constants': workspace:*
       json-schema-to-zod: ^0.6.3
+      lodash: ^4.17.21
       vite: ^3.0.0
       vitest: ^0.23.4
       zod: ^3.21.4
       zod-to-json-schema: ^3.20.4
     dependencies:
+      '@types/lodash': 4.14.191
+      '@vitessce/constants': link:../constants
+      lodash: 4.17.21
       zod: 3.21.4
     devDependencies:
       json-schema-to-zod: 0.6.3
@@ -471,6 +477,7 @@ importers:
     specifiers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
+      '@vitessce/schemas': workspace:*
       '@vitessce/vit-s': workspace:*
       react: ^18.0.0
       vite: ^3.0.0
@@ -478,6 +485,7 @@ importers:
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
+      '@vitessce/schemas': link:../../schemas
       '@vitessce/vit-s': link:../../vit-s
     devDependencies:
       react: 18.2.0
@@ -6725,6 +6733,10 @@ packages:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
       '@types/node': 18.8.5
+    dev: false
+
+  /@types/lodash/4.14.191:
+    resolution: {integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==}
     dev: false
 
   /@types/mapbox-gl/2.7.10:

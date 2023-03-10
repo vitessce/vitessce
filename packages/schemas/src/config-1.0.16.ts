@@ -109,8 +109,10 @@ function buildVitessceSchema<
         y: z.number().int(),
         w: z.number().int().optional(),
         h: z.number().int().optional(),
-        coordinationScopes: componentCoordinationScopes,
-        coordinationScopesBy: componentCoordinationScopesBy,
+        coordinationScopes: componentCoordinationScopes
+          .optional(),
+        coordinationScopesBy: componentCoordinationScopesBy
+          .optional(),
       }),
     )
       .describe(
@@ -120,7 +122,7 @@ function buildVitessceSchema<
       .describe(
         'The initialization strategy determines how missing coordination objects and coordination scope mappings are initially filled in.',
       ),
-    version: z.enum(['1.0.16'])
+    version: z.literal('1.0.16')
       .describe('The schema version for the view config.'),
   });
 }
@@ -198,4 +200,8 @@ export const vitessceSchema = buildVitessceSchema({
   // TODO: defaultCoordinationTypes
 }, [
   // TODO: view type names
-]);
+  'description'
+]).transform((val) => {
+  console.log(val.layout[0].component);
+  return val;
+});
