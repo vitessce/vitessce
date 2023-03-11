@@ -358,8 +358,10 @@ importers:
     specifiers:
       '@types/lodash': ^4.14.191
       '@vitessce/constants': workspace:*
+      '@vitessce/utils': workspace:*
       json-schema-to-zod: ^0.6.3
       lodash: ^4.17.21
+      uuid: ^3.3.2
       vite: ^3.0.0
       vitest: ^0.23.4
       zod: ^3.21.4
@@ -367,7 +369,9 @@ importers:
     dependencies:
       '@types/lodash': 4.14.191
       '@vitessce/constants': link:../constants
+      '@vitessce/utils': link:../utils/other-utils
       lodash: 4.17.21
+      uuid: 3.4.0
       zod: 3.21.4
     devDependencies:
       json-schema-to-zod: 0.6.3
@@ -477,7 +481,6 @@ importers:
     specifiers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
-      '@vitessce/schemas': workspace:*
       '@vitessce/vit-s': workspace:*
       react: ^18.0.0
       vite: ^3.0.0
@@ -485,7 +488,6 @@ importers:
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
-      '@vitessce/schemas': link:../../schemas
       '@vitessce/vit-s': link:../../vit-s
     devDependencies:
       react: 18.2.0

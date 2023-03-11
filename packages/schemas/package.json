@@ -23,6 +23,8 @@
   "dependencies": {
     "zod": "^3.21.4",
     "@vitessce/constants": "workspace:*",
+    "@vitessce/utils": "workspace:*",
+    "uuid": "^3.3.2",
     "lodash": "^4.17.21",
     "@types/lodash": "^4.14.191"
   },

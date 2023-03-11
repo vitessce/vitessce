@@ -68,6 +68,8 @@ function buildVitessceSchema<
   const fileDefs = toUnion([genericFileDef, ...fileTypeSchemas]);
 
   return z.object({
+    version: z.literal('1.0.16')
+      .describe('The schema version for the view config.'),
     name: z.string(),
     public: z.boolean().optional(),
     description: z.string().optional(),
@@ -122,12 +124,10 @@ function buildVitessceSchema<
       .describe(
         'The initialization strategy determines how missing coordination objects and coordination scope mappings are initially filled in.',
       ),
-    version: z.literal('1.0.16')
-      .describe('The schema version for the view config.'),
   });
 }
 
-export const genericSchema = buildVitessceSchema({}, {}, {}, []);
+export const latestConfigSchema = buildVitessceSchema({}, {}, {}, []);
 
 export const vitessceSchema = buildVitessceSchema({
   // TODO: fileTypes
@@ -200,8 +200,6 @@ export const vitessceSchema = buildVitessceSchema({
   // TODO: defaultCoordinationTypes
 }, [
   // TODO: view type names
-  'description'
-]).transform((val) => {
-  console.log(val.layout[0].component);
-  return val;
-});
+  'description',
+]);
+// vitessceSchema.shape.coordinationSpace.unwrap().shape.embeddingTargetZ.valueSchema._def
