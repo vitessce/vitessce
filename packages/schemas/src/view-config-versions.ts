@@ -18,9 +18,9 @@ import {
   configSchema1_0_13,
   configSchema1_0_14,
   configSchema1_0_15,
-  configSchema1_0_16,
   AnyVersionConfig,
   UpgradeFunction,
+  latestConfigSchema,
 } from './previous-base-schemas';
 import {
   upgradeFrom0_1_0,
@@ -64,7 +64,7 @@ export const SCHEMA_HANDLERS: [string, z.ZodTypeAny, UpgradeFunction][] = [
 ];
 
 // TODO: run fullUpgrade, then parse against the schema built against the registered plugins.
-export function fullUpgrade(config: any): z.infer<typeof configSchema1_0_16> {
+export function upgradeAndParse(config: any): z.infer<typeof latestConfigSchema> {
   const versions = SCHEMA_HANDLERS.map(d => d[0]);
   if (versions.includes(config?.version)) {
     const versionIndex = versions.indexOf(config.version);
@@ -72,7 +72,7 @@ export function fullUpgrade(config: any): z.infer<typeof configSchema1_0_16> {
     SCHEMA_HANDLERS.slice(versionIndex, SCHEMA_HANDLERS.length).forEach((versionInfo) => {
       upgradable = upgradable.transform(versionInfo[2]);
     });
-    upgradable = upgradable.pipe(configSchema1_0_16);
+    upgradable = upgradable.pipe(latestConfigSchema);
     return upgradable.parse(config);
   }
   throw new Error('Config version was not recognized');

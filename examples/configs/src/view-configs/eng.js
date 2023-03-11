@@ -2,7 +2,7 @@ import { vapi } from '../utils';
 
 export const eng2019 = {
   name: 'Eng et al., Nature 2019',
-  version: '1.0.15',
+  version: '1.0.16',
   description: 'Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH',
   datasets: [
     {
@@ -134,13 +134,6 @@ export const eng2019 = {
       x: 9,
       y: 4,
       w: 3,
-      h: 4,
-    },
-    {
-      component: 'obsSetSizes',
-      x: 5,
-      y: 4,
-      w: 4,
       h: 4,
     },
     {

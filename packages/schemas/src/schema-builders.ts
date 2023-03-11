@@ -50,7 +50,7 @@ function buildFileDefSchema<T extends z.ZodTypeAny>(fileType: string, options: T
   });
 }
 
-function buildVitessceSchema<
+export function buildConfigSchema<
   T1 extends Record<string, z.ZodTypeAny>,
   T2 extends Record<string, z.ZodTypeAny>,
   T3 extends Record<string, any>,
@@ -67,6 +67,7 @@ function buildVitessceSchema<
 
   const fileDefs = toUnion([genericFileDef, ...fileTypeSchemas]);
 
+  // TODO: make this less redundant with latestSchema from ./previous-base-schemas
   return z.object({
     version: z.literal('1.0.16')
       .describe('The schema version for the view config.'),
@@ -127,9 +128,9 @@ function buildVitessceSchema<
   });
 }
 
-export const latestConfigSchema = buildVitessceSchema({}, {}, {}, []);
+export const latestConfigSchema = buildConfigSchema({}, {}, {}, []);
 
-export const vitessceSchema = buildVitessceSchema({
+export const vitessceSchema = buildConfigSchema({
   // TODO: fileTypes
 }, {
   dataset: z.record(coordinationScopeName, z.string()),

@@ -7,6 +7,7 @@ import {
 } from '@material-ui/core/styles';
 import isEqual from 'lodash/isEqual';
 import { META_VERSION } from '@vitessce/constants-internal';
+import { latestConfigSchema } from '@vitessce/schemas';
 import { muiTheme } from './shared-mui/styles';
 import {
   ViewConfigProvider,
@@ -64,7 +65,6 @@ export function VitS(props) {
     onConfigChange,
     onLoaderChange,
     validateOnConfigChange = false,
-    onConfigUpgrade,
     isBounded = false,
     uid,
   } = props;
@@ -76,40 +76,19 @@ export function VitS(props) {
     productionPrefix: (uid ? `vit${uid}` : 'vit'),
   }), [uid]);
 
+  // TODO: change to config?.uid when that field is added
+  const configUid = config?.name;
+
   // Process the view config and memoize the result:
   // - Validate.
   // - Upgrade, if legacy schema.
   // - Validate after upgrade, if legacy schema.
   // - Initialize (based on initStrategy).
   const [configOrWarning, success] = useMemo(() => {
-    // If the config value is undefined, show a warning message.
-    if (!config) {
-      return [
-        {
-          title: 'No such dataset',
-          unformatted: 'The dataset configuration could not be found.',
-        },
-        false,
-      ];
-    }
-    // If the view config is missing a version, show a warning message.
-    if (!config.version) {
-      return [
-        {
-          title: 'Missing version',
-          unformatted:
-            'The dataset configuration is missing a version, preventing validation.',
-        },
-        false,
-      ];
-    }
     logConfig(config, 'input view config');
-    // Check if this is a "legacy" view config.
-    const [upgradedConfig, upgradeSuccess] = upgradeAndValidate(
-      config,
-      onConfigUpgrade,
-    );
-    if (upgradeSuccess) {
+    const result = latestConfigSchema.safeParse(config);
+    if (result.success) {
+      const upgradedConfig = result.data;
       logConfig(upgradedConfig, 'upgraded view config');
       // Initialize the view config according to the initStrategy.
       const [typeCheckSuccess, typeCheckMessage] = checkTypes(upgradedConfig);
@@ -136,8 +115,11 @@ export function VitS(props) {
         false,
       ];
     }
-    return [upgradedConfig, false];
-  }, [config, onConfigUpgrade]);
+    return [{
+      title: 'View config validation failed.',
+      unformatted: result.error.message,
+    }, result.success];
+  }, [configUid]);
 
   // Emit the upgraded/initialized view config
   // to onConfigChange if necessary.
@@ -145,7 +127,7 @@ export function VitS(props) {
     if (success && !isEqual(configOrWarning, config) && onConfigChange) {
       onConfigChange(configOrWarning);
     }
-  }, [success, config, configOrWarning, onConfigChange]);
+  }, [success, configUid, configOrWarning, onConfigChange]);
 
   return success ? (
     <StylesProvider generateClassName={generateClassName}>

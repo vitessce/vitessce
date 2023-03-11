@@ -2,6 +2,7 @@ import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
 import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
+import { subscribeWithSelector } from 'zustand/middleware';
 import isMatch from 'lodash/isMatch';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { fromEntries, capitalize } from '@vitessce/utils';
@@ -31,10 +32,13 @@ export const useAuxiliaryStore = useAuxiliaryStoreLocal;
  * The useViewConfigStore hook is initialized via the zustand
  * create() function, which sets up both the state variables
  * and the reducer-type functions.
- * Reference: https://github.com/react-spring/zustand
+ * References:
+ * - https://github.com/react-spring/zustand
+ * - https://github.com/pmndrs/zustand/releases/tag/v3.6.0
+ * - https://github.com/pmndrs/zustand#using-subscribe-with-selector
  * @returns {function} The useStore hook.
  */
-export const createViewConfigStore = () => create(set => ({
+export const createViewConfigStore = () => create(subscribeWithSelector(set => ({
   // State:
   // The viewConfig is an object which must conform to the schema
   // found in src/schemas/config.schema.json.
@@ -81,7 +85,7 @@ export const createViewConfigStore = () => create(set => ({
       },
     };
   }),
-}));
+})));
 
 /**
  * Hook for getting components' layout from the view config based on

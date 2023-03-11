@@ -18,7 +18,7 @@ import {
   explicitPerDatasetCoordinations,
 } from './view-config-utils.test.fixtures';
 import {
-  fullUpgrade,
+  upgradeAndParse,
 } from './view-config-versions';
 
 describe('src/app/view-config-utils.js', () => {
@@ -36,7 +36,7 @@ describe('src/app/view-config-utils.js', () => {
         .toEqual(explicitPerDatasetCoordinations);
     });
     it('upgrades more than once', () => {
-      const latestConfig = fullUpgrade(legacyViewConfig1_0_0);
+      const latestConfig = upgradeAndParse(legacyViewConfig1_0_0);
       //console.log(JSON.stringify(latestConfig, null, 2));
       expect(latestConfig.version).toEqual('1.0.16');
     });

@@ -577,6 +577,42 @@ export function ObsSetsManagerSubscriber(props) {
       FILE_EXTENSION_JSON,
     );
   }
+
+  const manager = useMemo(() => (
+    <SetsManager
+      setColor={cellSetColor}
+      sets={cellSets}
+      additionalSets={additionalCellSets}
+      levelSelection={checkedLevel}
+      setSelection={cellSetSelection}
+      setExpansion={cellSetExpansion}
+      hasColorEncoding={cellColorEncoding === 'cellSetSelection'}
+      draggable
+      datatype={SETS_DATATYPE_OBS}
+      onError={setWarning}
+      onCheckNode={onCheckNode}
+      onExpandNode={onExpandNode}
+      onDropNode={onDropNode}
+      onCheckLevel={onCheckLevel}
+      onNodeSetColor={onNodeSetColor}
+      onNodeSetName={onNodeSetName}
+      onNodeCheckNewName={onNodeCheckNewName}
+      onNodeRemove={onNodeRemove}
+      onNodeView={onNodeView}
+      onImportTree={onImportTree}
+      onCreateLevelZeroNode={onCreateLevelZeroNode}
+      onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
+      onExportLevelZeroNodeTabular={onExportLevelZeroNodeTabular}
+      onExportSetJSON={onExportSetJSON}
+      onUnion={onUnion}
+      onIntersection={onIntersection}
+      onComplement={onComplement}
+      hasCheckedSetsToUnion={cellSetSelection?.length > 1}
+      hasCheckedSetsToIntersect={cellSetSelection?.length > 1}
+      hasCheckedSetsToComplement={cellSetSelection?.length > 0}
+      theme={theme}
+    />
+  ), [additionalCellSets, cellColorEncoding, cellSetColor, cellSetExpansion, cellSetSelection, cellSets, checkedLevel, onCheckLevel, onCheckNode, onComplement, onCreateLevelZeroNode, onDropNode, onExportLevelZeroNodeJSON, onExportLevelZeroNodeTabular, onExportSetJSON, onImportTree, onIntersection, onNodeCheckNewName, onNodeRemove, onNodeSetColor, onNodeSetName, onNodeView, onUnion, setWarning, theme]);
   return (
     <TitleInfo
       title={title}
@@ -586,39 +622,7 @@ export function ObsSetsManagerSubscriber(props) {
       theme={theme}
       isReady={isReady}
     >
-      <SetsManager
-        setColor={cellSetColor}
-        sets={cellSets}
-        additionalSets={additionalCellSets}
-        levelSelection={checkedLevel}
-        setSelection={cellSetSelection}
-        setExpansion={cellSetExpansion}
-        hasColorEncoding={cellColorEncoding === 'cellSetSelection'}
-        draggable
-        datatype={SETS_DATATYPE_OBS}
-        onError={setWarning}
-        onCheckNode={onCheckNode}
-        onExpandNode={onExpandNode}
-        onDropNode={onDropNode}
-        onCheckLevel={onCheckLevel}
-        onNodeSetColor={onNodeSetColor}
-        onNodeSetName={onNodeSetName}
-        onNodeCheckNewName={onNodeCheckNewName}
-        onNodeRemove={onNodeRemove}
-        onNodeView={onNodeView}
-        onImportTree={onImportTree}
-        onCreateLevelZeroNode={onCreateLevelZeroNode}
-        onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
-        onExportLevelZeroNodeTabular={onExportLevelZeroNodeTabular}
-        onExportSetJSON={onExportSetJSON}
-        onUnion={onUnion}
-        onIntersection={onIntersection}
-        onComplement={onComplement}
-        hasCheckedSetsToUnion={cellSetSelection?.length > 1}
-        hasCheckedSetsToIntersect={cellSetSelection?.length > 1}
-        hasCheckedSetsToComplement={cellSetSelection?.length > 0}
-        theme={theme}
-      />
+      {manager}
     </TitleInfo>
   );
 }

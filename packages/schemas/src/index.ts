@@ -1,2 +1,3 @@
-export { latestConfigSchema, vitessceSchema } from './config-1.0.16';
-export * from './previous-base-schemas';
+export { buildConfigSchema } from './schema-builders';
+export { latestConfigSchema } from './previous-base-schemas';
+export { upgradeAndParse } from './view-config-versions';

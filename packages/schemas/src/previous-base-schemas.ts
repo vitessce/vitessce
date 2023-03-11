@@ -259,6 +259,8 @@ export const configSchema1_0_16 = configSchema1_0_13.extend({
   ),
 });
 
+export const latestConfigSchema = configSchema1_0_16;
+
 export type AnyVersionConfig =
   z.infer<typeof configSchema0_1_0> |
   z.infer<typeof configSchema1_0_0> |
