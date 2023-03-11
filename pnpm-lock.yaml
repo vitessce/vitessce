@@ -357,6 +357,7 @@ importers:
   packages/schemas:
     specifiers:
       '@types/lodash': ^4.14.191
+      '@types/uuid': ^9.0.1
       '@vitessce/constants': workspace:*
       '@vitessce/utils': workspace:*
       json-schema-to-zod: ^0.6.3
@@ -368,6 +369,7 @@ importers:
       zod-to-json-schema: ^3.20.4
     dependencies:
       '@types/lodash': 4.14.191
+      '@types/uuid': 9.0.1
       '@vitessce/constants': link:../constants
       '@vitessce/utils': link:../utils/other-utils
       lodash: 4.17.21
@@ -6913,6 +6915,10 @@ packages:
 
   /@types/unist/2.0.6:
     resolution: {integrity: sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==}
+    dev: false
+
+  /@types/uuid/9.0.1:
+    resolution: {integrity: sha512-rFT3ak0/2trgvp4yYZo5iKFEPsET7vKydKF+VRCxlQ9bpheehyAJH89dAkaLEq/j/RZXJIqcgsmPJKUP1Z28HA==}
     dev: false
 
   /@types/ws/8.5.3:

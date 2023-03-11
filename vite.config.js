@@ -65,14 +65,13 @@ export default defineConfig({
         resources: 'usable',
       },
     },
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
   },
   // To enable .js files that contain JSX to be imported by Vitest tests.
   // Reference: https://github.com/vitest-dev/vitest/issues/1564
   esbuild: {
-    loader: 'jsx',
-    include: /src\/.*\.jsx?$/,
-    // loader: "tsx",
-    // include: /src\/.*\.[tj]sx?$/,
+    loader: 'tsx',
+    include: /src\/.*\.[tj]sx?$/,
     exclude: [],
   },
 });

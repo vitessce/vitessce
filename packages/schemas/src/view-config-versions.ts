@@ -63,9 +63,10 @@ export const SCHEMA_HANDLERS: [string, z.ZodTypeAny, UpgradeFunction][] = [
   ['1.0.15', configSchema1_0_15, upgradeFrom1_0_15],
 ];
 
+// TODO: run fullUpgrade, then parse against the schema built against the registered plugins.
 export function fullUpgrade(config: any): z.infer<typeof configSchema1_0_16> {
   const versions = SCHEMA_HANDLERS.map(d => d[0]);
-  if (config?.version in versions) {
+  if (versions.includes(config?.version)) {
     const versionIndex = versions.indexOf(config.version);
     let upgradable = SCHEMA_HANDLERS[versionIndex][1];
     SCHEMA_HANDLERS.slice(versionIndex, SCHEMA_HANDLERS.length).forEach((versionInfo) => {

@@ -2,11 +2,18 @@
 import { z } from 'zod';
 import cloneDeep from 'lodash/cloneDeep';
 import { OldCoordinationType } from '@vitessce/constants';
-import { coordinationScopeName, requestInit, componentCoordinationScopes, componentCoordinationScopesBy } from './shared';
+import {
+  coordinationScopeName,
+  requestInit,
+  componentCoordinationScopes,
+  componentCoordinationScopesBy,
+} from './shared';
 
 // Base schemas for previous config versions.
 // These do not validate coordinationType, viewType, or fileType-related values;
 // only the latest version validates these after merging with plugin schemas.
+
+// TODO: use superRefine to catch deprecated things (e.g., coordination types, etc.)?
 
 const nameSchema = z.string();
 const publicFlagSchema = z.boolean().optional();
@@ -38,7 +45,7 @@ export const configSchema0_1_0 = z.object({
   ),
 });
 
-const fileOptionsSchema = z.union([z.object({}), z.array(z.any())]);
+const fileOptionsSchema = z.any();
 
 // Cannot keep extending, so using composition instead.
 // const nextVersionSchema = prevVersionSchema.extend(...)

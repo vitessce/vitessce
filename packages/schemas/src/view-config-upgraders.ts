@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import { z } from 'zod';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import cloneDeep from 'lodash/cloneDeep';
 import { getNextScope, capitalize } from '@vitessce/utils';
 import {
@@ -175,7 +175,6 @@ export function upgradeFrom0_1_0(
         uid: newDatasetUid,
         name: newDatasetUid,
         files: config.layers.map(layer => ({
-          type: layer.type.toLowerCase(),
           fileType: layer.fileType,
           url: layer.url,
         })),
@@ -564,7 +563,7 @@ export function upgradeFrom1_0_12(
       if (fileType === 'anndata-cells.zarr') {
         if (options && 'factors' in options && Array.isArray(options.factors)) {
           const obsLabelsTypeScopes: string[] = [];
-          options.factors.forEach((olt) => {
+          options.factors.forEach((olt: string) => {
             const nextScope = getNextScope(Object.keys(coordinationSpace?.obsLabelsType || {}));
             newCoordinationSpace.obsLabelsType = {
               ...newCoordinationSpace.obsLabelsType,

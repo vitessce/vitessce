@@ -26,7 +26,8 @@
     "@vitessce/utils": "workspace:*",
     "uuid": "^3.3.2",
     "lodash": "^4.17.21",
-    "@types/lodash": "^4.14.191"
+    "@types/lodash": "^4.14.191",
+    "@types/uuid": "^9.0.1"
   },
   "devDependencies": {
     "vite": "^3.0.0",
