@@ -137,6 +137,13 @@ export const eng2019 = {
       h: 4,
     },
     {
+      component: 'obsSetSizes',
+      x: 5,
+      y: 4,
+      w: 4,
+      h: 4,
+    },
+    {
       component: 'scatterplot',
       coordinationScopes: {
         embeddingType: 'TSNE',

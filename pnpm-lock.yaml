@@ -275,6 +275,7 @@ importers:
       '@vitessce/obs-sets-manager': workspace:*
       '@vitessce/scatterplot-embedding': workspace:*
       '@vitessce/scatterplot-gating': workspace:*
+      '@vitessce/schemas': workspace:*
       '@vitessce/spatial': workspace:*
       '@vitessce/statistical-plots': workspace:*
       '@vitessce/status': workspace:*
@@ -294,6 +295,7 @@ importers:
       '@vitessce/obs-sets-manager': link:../../view-types/obs-sets-manager
       '@vitessce/scatterplot-embedding': link:../../view-types/scatterplot-embedding
       '@vitessce/scatterplot-gating': link:../../view-types/scatterplot-gating
+      '@vitessce/schemas': link:../../schemas
       '@vitessce/spatial': link:../../view-types/spatial
       '@vitessce/statistical-plots': link:../../view-types/statistical-plots
       '@vitessce/status': link:../../view-types/status

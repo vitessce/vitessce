@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
-import { useState, useLayoutEffect } from 'react';
+import { useState, useMemo, useLayoutEffect } from 'react';
 import { VitS, registerPluginFileType } from '@vitessce/vit-s';
+import { upgradeAndParse } from '@vitessce/schemas';
 
 // Register view type plugins
 import { register as registerDescription } from '@vitessce/description';
@@ -132,12 +133,37 @@ function setup() {
 }
 
 export function Vitessce(props) {
+  const {
+    config,
+    onConfigUpgrade,
+  } = props;
+
+  // TODO: change to config?.uid when that field is added
+  const configUid = config?.name;
+
+  const [configOrWarning, success] = useMemo(() => {
+    try {
+      const validConfig = upgradeAndParse(config, onConfigUpgrade);
+      // TODO: second round of parsing against plugin-specific config schema.
+      return [validConfig, true];
+    } catch (e) {
+      console.error(e);
+      return [
+        {
+          title: 'View config initialization failed.',
+          unformatted: e.message,
+        },
+        false,
+      ];
+    }
+  }, [configUid]);
+
   const [ready, setReady] = useState(false);
   useLayoutEffect(() => {
     setup();
     setReady(true);
   }, []);
-  return (ready ? (
-    <VitS {...props} />
-  ) : null);
+  return (ready && success ? (
+    <VitS {...props} config={configOrWarning} />
+  ) : (<p>Config validation failed</p>));
 }
