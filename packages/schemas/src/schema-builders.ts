@@ -53,11 +53,9 @@ function buildFileDefSchema<T extends z.ZodTypeAny>(fileType: string, options: T
 export function buildConfigSchema<
   T1 extends Record<string, z.ZodTypeAny>,
   T2 extends Record<string, z.ZodTypeAny>,
-  T3 extends Record<string, any>,
 >(
   pluginFileTypes: T1,
   pluginCoordinationTypes: T2,
-  pluginCoordinationTypeDefaults: T3,
   pluginViewTypes: string[],
 ) {
   const fileTypeSchemas = Object.entries(pluginFileTypes)
@@ -128,9 +126,10 @@ export function buildConfigSchema<
   });
 }
 
-export const latestConfigSchema = buildConfigSchema({}, {}, {}, []);
+// TODO: remove/move the code below
+const genericSchema = buildConfigSchema({}, {}, []);
 
-export const vitessceSchema = buildConfigSchema({
+const vitessceSchema = buildConfigSchema({
   // TODO: fileTypes
 }, {
   dataset: z.record(coordinationScopeName, z.string()),
@@ -197,8 +196,6 @@ export const vitessceSchema = buildConfigSchema({
   genomicTargetY: z.record(coordinationScopeName, z.number()),
   additionalObsSets: z.record(coordinationScopeName, obsSets.nullable()),
   moleculeHighlight: z.record(coordinationScopeName, z.string().nullable()),
-}, {
-  // TODO: defaultCoordinationTypes
 }, [
   // TODO: view type names
   'description',

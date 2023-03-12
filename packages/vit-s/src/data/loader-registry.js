@@ -4,13 +4,12 @@ import {
 
 export const fileTypeToLoaderAndSource = {};
 
-export function getSourceAndLoaderFromFileType(type) {
-  if (fileTypeToLoaderAndSource[type]) {
-    return fileTypeToLoaderAndSource[type];
-  }
-  const pluginFileType = getLoaderClassesForPluginFileType(type);
-  if (pluginFileType) {
-    return pluginFileType;
+export function getSourceAndLoaderFromFileType(type, fileTypes) {
+  if (Array.isArray(fileTypes)) {
+    const matchingFileType = fileTypes.find(ft => ft.name === type);
+    if (matchingFileType) {
+      return [matchingFileType.dataSourceClass, matchingFileType.dataLoaderClass];
+    }
   }
   // Fallback to JSON.
   // TODO(monorepo)

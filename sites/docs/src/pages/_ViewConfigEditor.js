@@ -11,7 +11,7 @@ import {
 import {
   CoordinationType, ViewType, DataType, FileType,
 } from '@vitessce/constants';
-import { upgradeAndValidate } from '@vitessce/vit-s';
+import { upgradeAndValidate } from '@vitessce/vit-s'; // TODO: switch to upgradeAndParse
 import ThemedControlledEditor from './_ThemedControlledEditor';
 import {
   baseJs, baseJson, exampleJs, exampleJson,

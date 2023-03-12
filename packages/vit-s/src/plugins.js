@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { fromEntries } from '@vitessce/utils';
 import {
   FileType, CoordinationType,
@@ -66,12 +67,16 @@ export function registerPluginViewType(viewType, viewSubscriberReactComponent, c
  * @param {string} dataTypeName Name for the data type associated with the file type.
  * @param {class} dataSourceClass Data source class definition.
  * @param {class} dataLoaderClass Data loader class definition.
+ * @param {z.ZodTypeAny|null} optionsSchema A zod schema for the file type options.
  */
 export function registerPluginFileType(
   // eslint-disable-next-line no-unused-vars
-  fileTypeName, dataTypeName, dataLoaderClass, dataSourceClass,
+  fileTypeName, dataTypeName, dataLoaderClass, dataSourceClass, optionsSchema = null,
 ) {
-  PLUGINS[PLUGIN_FILE_TYPES_KEY][fileTypeName] = [dataSourceClass, dataLoaderClass];
+  PLUGINS[PLUGIN_FILE_TYPES_KEY][fileTypeName] = {
+    loaderClasses: [dataSourceClass, dataLoaderClass],
+    optionsSchema,
+  };
   PLUGINS[PLUGIN_FILE_TYPE_DATA_TYPE_MAPPING_KEY][fileTypeName] = dataTypeName;
 }
 
@@ -126,7 +131,10 @@ export function getDataTypeForPluginFileType(fileType) {
   return PLUGINS[PLUGIN_FILE_TYPE_DATA_TYPE_MAPPING_KEY][fileType];
 }
 export function getLoaderClassesForPluginFileType(fileType) {
-  return PLUGINS[PLUGIN_FILE_TYPES_KEY][fileType];
+  return PLUGINS[PLUGIN_FILE_TYPES_KEY][fileType].loaderClasses;
+}
+export function getOptionsSchemaForPluginFileType(fileType) {
+  return PLUGINS[PLUGIN_FILE_TYPES_KEY][fileType].optionsSchema;
 }
 export function getExpansionFunctionForPluginConvenienceFileType(fileType) {
   return PLUGINS[PLUGIN_JOINT_FILE_TYPES_KEY][fileType];
@@ -184,3 +192,5 @@ export function getJointFileTypes() {
     ...PLUGINS[PLUGIN_JOINT_FILE_TYPES_KEY],
   };
 }
+
+export { z };

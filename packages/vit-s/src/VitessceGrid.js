@@ -14,6 +14,7 @@ import {
   useRemoveComponent,
   useChangeLayout,
   useLayout,
+  useSetPluginViewTypes,
 } from './state/hooks';
 import {
   useClosestVitessceContainerSize,
@@ -39,10 +40,11 @@ export default function VitessceGrid(props) {
   const {
     rowHeight: initialRowHeight,
     config,
-    getComponent,
     theme,
     height,
     isBounded,
+    viewTypes,
+    fileTypes,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
@@ -75,13 +77,13 @@ export default function VitessceGrid(props) {
   useEffect(() => {
     if (config) {
       setViewConfig(config);
-      const loaders = createLoaders(config.datasets, config.description);
+      const loaders = createLoaders(config.datasets, config.description, fileTypes);
       setLoaders(loaders);
     } else {
       // No config found, so clear the loaders.
       setLoaders({});
     }
-  }, [config, setViewConfig, setLoaders]);
+  }, [config, setViewConfig, setLoaders, fileTypes]);
 
   return (
     <div
@@ -94,7 +96,7 @@ export default function VitessceGrid(props) {
           height={height}
           rowHeight={rowHeight}
           theme={theme}
-          getComponent={getComponent}
+          viewTypes={viewTypes}
           draggableHandle={titleClasses.title}
           margin={margin}
           padding={padding}

@@ -7,7 +7,7 @@ import {
 } from '@material-ui/core/styles';
 import isEqual from 'lodash/isEqual';
 import { META_VERSION } from '@vitessce/constants-internal';
-import { latestConfigSchema } from '@vitessce/schemas';
+import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
 import { muiTheme } from './shared-mui/styles';
 import {
   ViewConfigProvider,
@@ -19,12 +19,11 @@ import {
 import VitessceGrid from './VitessceGrid';
 import { Warning } from './Warning';
 import CallbackPublisher from './CallbackPublisher';
-import { getComponent } from './component-registry';
 import {
   checkTypes,
   initialize,
-  upgradeAndValidate,
 } from './view-config-utils';
+import { fromEntries } from '@vitessce/utils';
 
 function logConfig(config, name) {
   console.groupCollapsed(`🚄 Vitessce (${META_VERSION.version}) ${name}`);
@@ -67,6 +66,9 @@ export function VitS(props) {
     validateOnConfigChange = false,
     isBounded = false,
     uid,
+    viewTypes,
+    fileTypes,
+    coordinationTypes,
   } = props;
 
   const generateClassName = useMemo(() => createGenerateClassName({
@@ -78,6 +80,13 @@ export function VitS(props) {
 
   // TODO: change to config?.uid when that field is added
   const configUid = config?.name;
+  const configVersion = config?.version;
+
+  const pluginSpecificConfigSchema = useMemo(() => buildConfigSchema(
+    fromEntries(fileTypes.map(ft => ([ft.name, ft.optionsSchema]))),
+    fromEntries(coordinationTypes.map(ct => ([ct.name, ct.valueSchema]))),
+    viewTypes.map(vt => vt.name),
+  ), [viewTypes, fileTypes, coordinationTypes]);
 
   // Process the view config and memoize the result:
   // - Validate.
@@ -90,11 +99,13 @@ export function VitS(props) {
     if (result.success) {
       const upgradedConfig = result.data;
       logConfig(upgradedConfig, 'upgraded view config');
+      // Perform second round of parsing against plugin-specific config schema.
+      const pluginSpecificResult = pluginSpecificConfigSchema.safeParse(upgradedConfig);
       // Initialize the view config according to the initStrategy.
-      const [typeCheckSuccess, typeCheckMessage] = checkTypes(upgradedConfig);
-      if (typeCheckSuccess) {
+      if (pluginSpecificResult.success) {
         try {
-          const initializedConfig = initialize(upgradedConfig);
+          const upgradedConfigWithValidPlugins = pluginSpecificResult.data;
+          const initializedConfig = initialize(upgradedConfigWithValidPlugins);
           logConfig(initializedConfig, 'initialized view config');
           return [initializedConfig, true];
         } catch (e) {
@@ -110,7 +121,7 @@ export function VitS(props) {
       return [
         {
           title: 'View config checks failed.',
-          unformatted: typeCheckMessage,
+          unformatted: pluginSpecificResult.error.message,
         },
         false,
       ];
@@ -119,7 +130,7 @@ export function VitS(props) {
       title: 'View config validation failed.',
       unformatted: result.error.message,
     }, result.success];
-  }, [configUid]);
+  }, [configUid, configVersion, pluginSpecificConfigSchema]);
 
   // Emit the upgraded/initialized view config
   // to onConfigChange if necessary.
@@ -135,8 +146,10 @@ export function VitS(props) {
         <ViewConfigProvider createStore={createViewConfigStore}>
           <AuxiliaryProvider createStore={createAuxiliaryStore}>
             <VitessceGrid
+              viewTypes={viewTypes}
+              fileTypes={fileTypes}
+              coordinationTypes={coordinationTypes}
               config={configOrWarning}
-              getComponent={getComponent}
               rowHeight={rowHeight}
               height={height}
               theme={theme}

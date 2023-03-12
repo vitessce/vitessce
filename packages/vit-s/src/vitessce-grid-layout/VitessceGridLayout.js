@@ -16,11 +16,21 @@ class ResponsiveHeightGridLayout extends ResponsiveGridLayout {
 export function VitessceGridLayout(props) {
   const {
     layout,
-    getComponent, padding, margin: marginProp, draggableHandle: draggableHandleClass,
+    viewTypes, padding, margin: marginProp, draggableHandle: draggableHandleClass,
     onResize, onResizeStop, rowHeight, theme, height,
     onRemoveComponent, onLayoutChange: onLayoutChangeProp,
     isBounded,
   } = props;
+
+  const getComponent = useCallback((viewType) => {
+    if (Array.isArray(viewTypes)) {
+      const matchingViewType = viewTypes.find(v => v.name === viewType);
+      if (matchingViewType) {
+        return matchingViewType.component;
+      }
+    }
+    return () => null;
+  }, [viewTypes]);
 
   const draggableHandle = `.${draggableHandleClass}`;
 

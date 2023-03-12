@@ -6,6 +6,7 @@ export {
   registerPluginCoordinationType,
   registerPluginFileType,
   registerPluginJointFileType,
+  z,
 } from './plugins';
 // For plugin view types:
 export {
@@ -89,9 +90,6 @@ export {
   SCHEMA_HANDLERS,
   LATEST_VERSION,
 } from './view-config-versions';
-export {
-  upgradeAndValidate,
-} from './view-config-utils';
 export {
   CellColorEncodingOption,
   OptionsContainer,

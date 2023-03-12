@@ -116,7 +116,7 @@ function withDefaults(coordinationValues, dataType, fileType, datasetUid) {
  * @returns {object} Mapping from dataset ID to data type to loader
  * instance.
  */
-export function createLoaders(datasets, configDescription) {
+export function createLoaders(datasets, configDescription, fileTypes) {
   const result = {};
   const dataSources = {};
   const fileTypeDataTypeMapping = getFileTypeDataTypeMapping();
@@ -139,7 +139,7 @@ export function createLoaders(datasets, configDescription) {
         coordinationValues, dataType,
         fileType, dataset.uid,
       );
-      const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(fileType);
+      const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(fileType, fileTypes);
       // Create _one_ DataSourceClass instance per URL. Derived loaders share this object.
       const fileId = url || JSON.stringify(options);
       if (!(fileId in dataSources)) {

@@ -1,20 +1,27 @@
 /* eslint-disable max-len */
 import { useState, useMemo, useLayoutEffect } from 'react';
-import { VitS, registerPluginFileType } from '@vitessce/vit-s';
-import { upgradeAndParse } from '@vitessce/schemas';
+import { VitS, registerPluginFileType, z } from '@vitessce/vit-s';
+import {
+  upgradeAndParse,
+  obsEmbeddingCsvSchema, // TODO: define in single-cell-specific sub-package?
+  obsSetsCsvSchema,
+  obsLocationsCsvSchema,
+  obsLabelsCsvSchema,
+  featureLabelsCsvSchema,
+} from '@vitessce/schemas';
 
 // Register view type plugins
-import { register as registerDescription } from '@vitessce/description';
-import { register as registerObsSetsManager } from '@vitessce/obs-sets-manager';
-import { register as registerScatterplotEmbedding } from '@vitessce/scatterplot-embedding';
-import { register as registerScatterplotGating } from '@vitessce/scatterplot-gating';
-import { register as registerSpatial } from '@vitessce/spatial';
-import { register as registerHeatmap } from '@vitessce/heatmap';
-import { register as registerFeatureList } from '@vitessce/feature-list';
-import { register as registerLayerController } from '@vitessce/layer-controller';
-import { register as registerStatus } from '@vitessce/status';
-import { registerCellSetExpression, registerCellSetSizes, registerExpressionHistogram } from '@vitessce/statistical-plots';
-import { registerHiglass, registerGenomicProfiles } from '@vitessce/genomic-profiles';
+import { register as registerDescription, DescriptionSubscriber } from '@vitessce/description';
+import { ObsSetsManagerSubscriber, register as registerObsSetsManager } from '@vitessce/obs-sets-manager';
+import { EmbeddingScatterplotSubscriber, register as registerScatterplotEmbedding } from '@vitessce/scatterplot-embedding';
+import { GatingSubscriber, register as registerScatterplotGating } from '@vitessce/scatterplot-gating';
+import { register as registerSpatial, SpatialSubscriber } from '@vitessce/spatial';
+import { HeatmapSubscriber, register as registerHeatmap } from '@vitessce/heatmap';
+import { FeatureListSubscriber, register as registerFeatureList } from '@vitessce/feature-list';
+import { LayerControllerSubscriber, register as registerLayerController } from '@vitessce/layer-controller';
+import { register as registerStatus, StatusSubscriber } from '@vitessce/status';
+import { CellSetExpressionPlotSubscriber, CellSetSizesPlotSubscriber, ExpressionHistogramSubscriber, registerCellSetExpression, registerCellSetSizes, registerExpressionHistogram } from '@vitessce/statistical-plots';
+import { registerHiglass, registerGenomicProfiles, HiGlassSubscriber, GenomicProfilesSubscriber } from '@vitessce/genomic-profiles';
 
 // Register file type plugins
 import {
@@ -64,33 +71,73 @@ import {
   MatrixZarrAsObsFeatureMatrixLoader,
   GenomicProfilesZarrLoader,
 } from '@vitessce/zarr';
-import { FileType, DataType } from '@vitessce/constants-internal';
+import { FileType, DataType, ViewType, COMPONENT_COORDINATION_TYPES, CoordinationType } from '@vitessce/constants-internal';
 
-function setup() {
-  // View types
-  registerDescription();
-  registerObsSetsManager();
-  registerScatterplotEmbedding();
-  registerScatterplotGating();
-  registerSpatial();
-  registerHeatmap();
-  registerFeatureList();
-  registerLayerController();
-  registerStatus();
-  // Statistical plots
-  registerCellSetExpression();
-  registerCellSetSizes();
-  registerExpressionHistogram();
-  // Higlass
-  registerHiglass();
-  registerGenomicProfiles();
+// TODO: Move these class definitions into vit-s
+class PluginViewType {
+  constructor(name, component, coordinationTypes) {
+    this.name = name;
+    this.component = component;
+    this.coordinationTypes = coordinationTypes;
+  }
+}
+
+class PluginFileType {
+  constructor(name, dataType, dataLoaderClass, dataSourceClass, optionsSchema) {
+    this.name = name;
+    this.dataType = dataType;
+    this.dataLoaderClass = dataLoaderClass;
+    this.dataSourceClass = dataSourceClass;
+    this.optionsSchema = optionsSchema;
+  }
+}
+
+class PluginCoordinationType {
+  constructor(name, defaultValue, valueSchema) {
+    this.name = name;
+    this.defaultValue = defaultValue;
+    this.valueSchema = valueSchema;
+  }
+}
+
+function makeVitessceViewType(name, component) {
+  return new PluginViewType(name, component, COMPONENT_COORDINATION_TYPES[name]);
+}
+
+const vitessceViewTypes = [
+  makeVitessceViewType(ViewType.DESCRIPTION, DescriptionSubscriber),
+  makeVitessceViewType(ViewType.OBS_SETS, ObsSetsManagerSubscriber),
+  makeVitessceViewType(ViewType.SCATTERPLOT, EmbeddingScatterplotSubscriber),
+  makeVitessceViewType(ViewType.GATING, GatingSubscriber),
+  makeVitessceViewType(ViewType.SPATIAL, SpatialSubscriber),
+  makeVitessceViewType(ViewType.HEATMAP, HeatmapSubscriber),
+  makeVitessceViewType(ViewType.FEATURE_LIST, FeatureListSubscriber),
+  makeVitessceViewType(ViewType.LAYER_CONTROLLER, LayerControllerSubscriber),
+  makeVitessceViewType(ViewType.STATUS, StatusSubscriber),
+  makeVitessceViewType(ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION, CellSetExpressionPlotSubscriber),
+  makeVitessceViewType(ViewType.OBS_SET_SIZES, CellSetSizesPlotSubscriber),
+  makeVitessceViewType(ViewType.FEATURE_VALUE_HISTOGRAM, ExpressionHistogramSubscriber),
+  makeVitessceViewType('higlass', HiGlassSubscriber),
+  makeVitessceViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
+];
+
+const vitessceFileTypes = [
+  new PluginFileType(FileType.OBS_SETS_CSV, DataType.OBS_SETS, ObsSetsCsvLoader, CsvSource, obsSetsCsvSchema),
+  new PluginFileType(FileType.OBS_EMBEDDING_CSV, DataType.OBS_EMBEDDING, ObsEmbeddingCsvLoader, CsvSource, obsEmbeddingCsvSchema),
+  new PluginFileType(FileType.OBS_LOCATIONS_CSV, DataType.OBS_LOCATIONS, ObsLocationsCsvLoader, CsvSource, obsLocationsCsvSchema),
+  new PluginFileType(FileType.OBS_LABELS_CSV, DataType.OBS_LABELS, ObsLabelsCsvLoader, CsvSource, obsLabelsCsvSchema),
+  new PluginFileType(FileType.OBS_FEATURE_MATRIX_CSV, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixCsvLoader, CsvSource, z.null()),
+  new PluginFileType(FileType.FEATURE_LABELS_CSV, DataType.FEATURE_LABELS, FeatureLabelsCsvLoader, CsvSource, featureLabelsCsvSchema),
+];
+const vitessceCoordinationTypes = [
+  new PluginCoordinationType(CoordinationType.DATASET, null, z.string()),
+];
+
+/*function setup() {
 
   // File types
   // All CSV file types
-  registerPluginFileType(FileType.OBS_SETS_CSV, DataType.OBS_SETS, ObsSetsCsvLoader, CsvSource);
-  registerPluginFileType(FileType.OBS_EMBEDDING_CSV, DataType.OBS_EMBEDDING, ObsEmbeddingCsvLoader, CsvSource);
-  registerPluginFileType(FileType.OBS_LOCATIONS_CSV, DataType.OBS_LOCATIONS, ObsLocationsCsvLoader, CsvSource);
-  registerPluginFileType(FileType.OBS_LABELS_CSV, DataType.OBS_LABELS, ObsLabelsCsvLoader, CsvSource);
+
   registerPluginFileType(FileType.OBS_FEATURE_MATRIX_CSV, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixCsvLoader, CsvSource);
   registerPluginFileType(FileType.FEATURE_LABELS_CSV, DataType.FEATURE_LABELS, FeatureLabelsCsvLoader, CsvSource);
   // All JSON file types
@@ -130,21 +177,24 @@ function setup() {
   registerPluginFileType(FileType.OBS_LABELS_MOLECULES_JSON, DataType.OBS_LABELS, MoleculesJsonAsObsLabelsLoader, JsonSource);
   registerPluginFileType(FileType.NEIGHBORHOODS_JSON, DataType.NEIGHBORHOODS, JsonLoader, JsonSource);
   registerPluginFileType(FileType.GENOMIC_PROFILES_ZARR, DataType.GENOMIC_PROFILES, GenomicProfilesZarrLoader, ZarrDataSource);
-}
+}*/
 
 export function Vitessce(props) {
   const {
     config,
     onConfigUpgrade,
+    pluginViewTypes: pluginViewTypesProp,
+    pluginFileTypes: pluginFileTypesProp,
+    pluginCoordinationTypes: pluginCoordinationTypesProp,
   } = props;
 
   // TODO: change to config?.uid when that field is added
   const configUid = config?.name;
+  const configVersion = config?.version;
 
   const [configOrWarning, success] = useMemo(() => {
     try {
       const validConfig = upgradeAndParse(config, onConfigUpgrade);
-      // TODO: second round of parsing against plugin-specific config schema.
       return [validConfig, true];
     } catch (e) {
       console.error(e);
@@ -156,14 +206,27 @@ export function Vitessce(props) {
         false,
       ];
     }
-  }, [configUid]);
+  }, [configUid, configVersion]);
 
-  const [ready, setReady] = useState(false);
-  useLayoutEffect(() => {
-    setup();
-    setReady(true);
-  }, []);
-  return (ready && success ? (
-    <VitS {...props} config={configOrWarning} />
+  const mergedPluginViewTypes = useMemo(() => ([
+    ...vitessceViewTypes, ...(pluginViewTypesProp || []),
+  ]), [pluginViewTypesProp]);
+
+  const mergedPluginFileTypes = useMemo(() => ([
+    ...vitessceFileTypes, ...(pluginFileTypesProp || []),
+  ]), [pluginFileTypesProp]);
+
+  const mergedPluginCoordinationTypes = useMemo(() => ([
+    ...vitessceCoordinationTypes, ...(pluginCoordinationTypesProp || []),
+  ]), [pluginCoordinationTypesProp]);
+
+  return (success ? (
+    <VitS
+      {...props}
+      config={configOrWarning}
+      viewTypes={mergedPluginViewTypes}
+      fileTypes={mergedPluginFileTypes}
+      coordinationTypes={mergedPluginCoordinationTypes}
+    />
   ) : (<p>Config validation failed</p>));
 }
