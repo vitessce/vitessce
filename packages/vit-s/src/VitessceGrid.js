@@ -14,7 +14,6 @@ import {
   useRemoveComponent,
   useChangeLayout,
   useLayout,
-  useSetPluginViewTypes,
 } from './state/hooks';
 import {
   useClosestVitessceContainerSize,
