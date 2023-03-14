@@ -68,6 +68,7 @@ export function VitS(props) {
     uid,
     viewTypes,
     fileTypes,
+    jointFileTypes,
     coordinationTypes,
   } = props;
 
@@ -83,11 +84,14 @@ export function VitS(props) {
   const configVersion = config?.version;
 
   const pluginSpecificConfigSchema = useMemo(() => buildConfigSchema(
-    fromEntries(fileTypes.map(ft => ([ft.name, ft.optionsSchema]))),
+    fromEntries([
+      ...fileTypes.map(ft => ([ft.name, ft.optionsSchema])),
+      ...jointFileTypes.map(ft => ([ft.name, ft.optionsSchema])),
+    ]),
     // TODO: refactor buildConfigSchema to do these fromEntries and .optional() internally
     fromEntries(coordinationTypes.map(ct => ([ct.name, ct.valueSchema.optional()]))),
     viewTypes.map(vt => vt.name),
-  ), [viewTypes, fileTypes, coordinationTypes]);
+  ), [viewTypes, fileTypes, jointFileTypes, coordinationTypes]);
 
   // Process the view config and memoize the result:
   // - Validate.
@@ -106,7 +110,7 @@ export function VitS(props) {
       if (pluginSpecificResult.success) {
         try {
           const upgradedConfigWithValidPlugins = pluginSpecificResult.data;
-          const initializedConfig = initialize(upgradedConfigWithValidPlugins);
+          const initializedConfig = initialize(upgradedConfigWithValidPlugins, jointFileTypes);
           logConfig(initializedConfig, 'initialized view config');
           return [initializedConfig, true];
         } catch (e) {

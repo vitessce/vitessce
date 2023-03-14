@@ -2,7 +2,7 @@
 /* eslint-disable camelcase */
 import difference from 'lodash/difference';
 import cloneDeep from 'lodash/cloneDeep';
-import { getNextScope } from '@vitessce/utils';
+import { fromEntries, getNextScope } from '@vitessce/utils';
 import {
   AUTO_INDEPENDENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
@@ -224,8 +224,10 @@ function assignViewUids(config) {
  * convenience file types.
  * @returns The view config containing expanded minimal file types.
  */
-function expandConvenienceFileDefs(config) {
-  const convenienceFileTypes = getJointFileTypes();
+function expandConvenienceFileDefs(config, jointFileTypes) {
+  const convenienceFileTypes = fromEntries(
+    jointFileTypes.map(ft => ([ft.name, ft.expandFunction])),
+  );
   const { datasets: currDatasets } = config;
   const datasets = cloneDeep(currDatasets);
   currDatasets.forEach((dataset, i) => {
@@ -264,11 +266,11 @@ function expandConvenienceFileDefs(config) {
  * @param {object} config The view config prop.
  * @returns The initialized view config.
  */
-export function initialize(config) {
+export function initialize(config, jointFileTypes) {
   let newConfig = cloneDeep(config);
   if (newConfig.initStrategy === 'auto') {
     newConfig = initializeAuto(config);
   }
-  newConfig = expandConvenienceFileDefs(newConfig);
+  newConfig = expandConvenienceFileDefs(newConfig, jointFileTypes);
   return assignViewUids(newConfig);
 }

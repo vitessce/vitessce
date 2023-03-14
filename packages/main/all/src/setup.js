@@ -16,6 +16,11 @@ import {
   obsSegmentationsAnndataSchema,
   featureLabelsAnndataSchema,
   rasterJsonSchema,
+  anndataZarrSchema,
+  anndataCellsZarrSchema,
+  anndataCellSetsZarrSchema,
+  anndataExpressionMatrixZarrSchema,
+  cellsJsonSchema,
 } from '@vitessce/schemas';
 
 // Register view type plugins
@@ -81,6 +86,11 @@ import {
 } from '@vitessce/zarr';
 import { FileType, DataType, ViewType, COMPONENT_COORDINATION_TYPES, CoordinationType } from '@vitessce/constants-internal';
 
+import {
+  expandAnndataZarr,
+} from './joint-file-types';
+import { expandAnndataCellSetsZarr, expandAnndataCellsZarr, expandAnndataExpressionMatrixZarr, expandCellSetsJson, expandCellsJson, expandClustersJson, expandExpressionMatrixZarr, expandGenesJson, expandMoleculesJson, expandRasterJson, expandRasterOmeZarr } from './joint-file-types-legacy';
+
 // TODO: Move these class definitions into vit-s
 class PluginViewType {
   constructor(name, component, coordinationTypes) {
@@ -96,6 +106,14 @@ class PluginFileType {
     this.dataType = dataType;
     this.dataLoaderClass = dataLoaderClass;
     this.dataSourceClass = dataSourceClass;
+    this.optionsSchema = optionsSchema;
+  }
+}
+
+class PluginJointFileType {
+  constructor(name, expandFunction, optionsSchema) {
+    this.name = name;
+    this.expandFunction = expandFunction;
     this.optionsSchema = optionsSchema;
   }
 }
@@ -174,11 +192,25 @@ const vitessceFileTypes = [
   new PluginFileType(FileType.NEIGHBORHOODS_JSON, DataType.NEIGHBORHOODS, JsonLoader, JsonSource, z.null()),
   new PluginFileType(FileType.GENOMIC_PROFILES_ZARR, DataType.GENOMIC_PROFILES, GenomicProfilesZarrLoader, ZarrDataSource, z.null()),
 ];
-// TODO: schemas for joint file types.
+const vitessceJointFileTypes = [
+  new PluginJointFileType(FileType.ANNDATA_ZARR, expandAnndataZarr, anndataZarrSchema),
+  new PluginJointFileType(FileType.ANNDATA_CELLS_ZARR, expandAnndataCellsZarr, anndataCellsZarrSchema),
+  new PluginJointFileType(FileType.ANNDATA_CELL_SETS_ZARR, expandAnndataCellSetsZarr, anndataCellSetsZarrSchema),
+  new PluginJointFileType(FileType.ANNDATA_EXPRESSION_MATRIX_ZARR, expandAnndataExpressionMatrixZarr, anndataExpressionMatrixZarrSchema),
+  new PluginJointFileType(FileType.EXPRESSION_MATRIX_ZARR, expandExpressionMatrixZarr, z.null()),
+  new PluginJointFileType(FileType.RASTER_JSON, expandRasterJson, rasterJsonSchema),
+  new PluginJointFileType(FileType.RASTER_OME_ZARR, expandRasterOmeZarr, z.null()),
+  new PluginJointFileType(FileType.CELL_SETS_JSON, expandCellSetsJson, z.null()),
+  new PluginJointFileType(FileType.CLUSTERS_JSON, expandClustersJson, z.null()),
+  new PluginJointFileType(FileType.GENES_JSON, expandGenesJson, z.null()),
+  new PluginJointFileType(FileType.CELLS_JSON, expandCellsJson, cellsJsonSchema),
+  new PluginJointFileType(FileType.MOLECULES_JSON, expandMoleculesJson, z.null()),
+];
 
 
 const vitessceCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.DATASET, null, z.string()),
+  // TODO
 ];
 
 
@@ -189,6 +221,7 @@ export function Vitessce(props) {
     pluginViewTypes: pluginViewTypesProp,
     pluginFileTypes: pluginFileTypesProp,
     pluginCoordinationTypes: pluginCoordinationTypesProp,
+    pluginJointFileTypes: pluginJointFileTypesProp,
   } = props;
 
   // TODO: change to config?.uid when that field is added
@@ -223,12 +256,17 @@ export function Vitessce(props) {
     ...vitessceCoordinationTypes, ...(pluginCoordinationTypesProp || []),
   ]), [pluginCoordinationTypesProp]);
 
+  const mergedPluginJointFileTypes = useMemo(() => ([
+    ...vitessceJointFileTypes, ...(pluginJointFileTypesProp || []),
+  ]), [pluginJointFileTypesProp]);
+
   return (success ? (
     <VitS
       {...props}
       config={configOrWarning}
       viewTypes={mergedPluginViewTypes}
       fileTypes={mergedPluginFileTypes}
+      jointFileTypes={mergedPluginJointFileTypes}
       coordinationTypes={mergedPluginCoordinationTypes}
     />
   ) : (<p>Config validation failed</p>));
