@@ -63,7 +63,7 @@ export function buildConfigSchema<
 
   const genericFileDef = buildFileDefSchema('any', z.null());
 
-  const fileDefs = toUnion([genericFileDef, ...fileTypeSchemas]);
+  const fileDefs = toUnion([...fileTypeSchemas, genericFileDef]);
 
   // TODO: make this less redundant with latestSchema from ./previous-base-schemas
   return z.object({

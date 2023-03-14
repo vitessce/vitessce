@@ -38,7 +38,7 @@ export const useAuxiliaryStore = useAuxiliaryStoreLocal;
  * - https://github.com/pmndrs/zustand#using-subscribe-with-selector
  * @returns {function} The useStore hook.
  */
-export const createViewConfigStore = () => create(subscribeWithSelector(set => ({
+export const createViewConfigStore = () => create(set => ({
   // State:
   // The viewConfig is an object which must conform to the schema
   // found in src/schemas/config.schema.json.
@@ -85,7 +85,7 @@ export const createViewConfigStore = () => create(subscribeWithSelector(set => (
       },
     };
   }),
-})));
+}));
 
 /**
  * Hook for getting components' layout from the view config based on

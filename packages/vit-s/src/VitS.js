@@ -84,7 +84,8 @@ export function VitS(props) {
 
   const pluginSpecificConfigSchema = useMemo(() => buildConfigSchema(
     fromEntries(fileTypes.map(ft => ([ft.name, ft.optionsSchema]))),
-    fromEntries(coordinationTypes.map(ct => ([ct.name, ct.valueSchema]))),
+    // TODO: refactor buildConfigSchema to do these fromEntries and .optional() internally
+    fromEntries(coordinationTypes.map(ct => ([ct.name, ct.valueSchema.optional()]))),
     viewTypes.map(vt => vt.name),
   ), [viewTypes, fileTypes, coordinationTypes]);
 
