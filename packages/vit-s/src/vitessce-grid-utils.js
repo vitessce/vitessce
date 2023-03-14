@@ -5,8 +5,7 @@ import { InternMap } from 'internmap';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
 import { DEFAULT_COORDINATION_VALUES, DATA_TYPE_COORDINATION_VALUE_USAGE } from '@vitessce/constants-internal';
-import { getSourceAndLoaderFromFileType } from './data/loader-registry';
-import { getFileTypeDataTypeMapping } from './plugins';
+import { getSourceAndLoaderFromFileType, getDataTypeFromFileType } from './data/loader-registry';
 
 /**
  * Return the bottom coordinate of the layout.
@@ -119,7 +118,6 @@ function withDefaults(coordinationValues, dataType, fileType, datasetUid) {
 export function createLoaders(datasets, configDescription, fileTypes) {
   const result = {};
   const dataSources = {};
-  const fileTypeDataTypeMapping = getFileTypeDataTypeMapping();
   datasets.forEach((dataset) => {
     const datasetLoaders = {
       name: dataset.name,
@@ -134,7 +132,7 @@ export function createLoaders(datasets, configDescription, fileTypes) {
         fileType,
         coordinationValues = {},
       } = file;
-      const dataType = fileTypeDataTypeMapping[fileType];
+      const dataType = getDataTypeFromFileType(fileType, fileTypes);
       const coordinationValuesWithDefaults = withDefaults(
         coordinationValues, dataType,
         fileType, dataset.uid,

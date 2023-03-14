@@ -20,7 +20,6 @@ import VitessceGrid from './VitessceGrid';
 import { Warning } from './Warning';
 import CallbackPublisher from './CallbackPublisher';
 import {
-  checkTypes,
   initialize,
 } from './view-config-utils';
 import { fromEntries } from '@vitessce/utils';
@@ -165,6 +164,7 @@ export function VitS(props) {
               onConfigChange={onConfigChange}
               onLoaderChange={onLoaderChange}
               validateOnConfigChange={validateOnConfigChange}
+              pluginSpecificConfigSchema={pluginSpecificConfigSchema}
             />
           </AuxiliaryProvider>
         </ViewConfigProvider>

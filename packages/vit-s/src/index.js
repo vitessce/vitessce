@@ -86,10 +86,6 @@ export {
   emptySchema,
 } from './file-options-schemas';
 export {
-  SCHEMA_HANDLERS,
-  LATEST_VERSION,
-} from './view-config-versions';
-export {
   CellColorEncodingOption,
   OptionsContainer,
   OptionSelect,

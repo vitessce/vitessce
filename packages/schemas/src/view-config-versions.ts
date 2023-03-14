@@ -66,7 +66,7 @@ export const SCHEMA_HANDLERS: [string, z.ZodTypeAny, UpgradeFunction][] = [
 // TODO: run fullUpgrade, then parse against the schema built against the registered plugins.
 export function upgradeAndParse(
   config: any,
-  onConfigUpgrade: ((a: any) => void)|null = null,
+  onConfigUpgrade: ((a: any, b: any) => void)|null = null,
 ): z.infer<typeof latestConfigSchema> {
   // If this is the latest schema version, then no upgrading required.
   if (config?.version === latestConfigSchema.shape.version.value) {
@@ -79,10 +79,11 @@ export function upgradeAndParse(
     let upgradable = SCHEMA_HANDLERS[versionIndex][1];
     SCHEMA_HANDLERS.slice(versionIndex, SCHEMA_HANDLERS.length).forEach((versionInfo) => {
       upgradable = upgradable.transform((prevConfig) => {
+        const nextConfig = versionInfo[2](prevConfig);
         if (typeof onConfigUpgrade === 'function') {
-          onConfigUpgrade(prevConfig);
+          onConfigUpgrade(prevConfig, nextConfig);
         }
-        return versionInfo[2](prevConfig);
+        return nextConfig;
       });
     });
     upgradable = upgradable.pipe(latestConfigSchema);

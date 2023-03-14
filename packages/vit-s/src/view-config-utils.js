@@ -1,20 +1,15 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable camelcase */
-import difference from 'lodash/difference';
 import cloneDeep from 'lodash/cloneDeep';
 import { fromEntries, getNextScope } from '@vitessce/utils';
 import {
   AUTO_INDEPENDENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
-import { getViewTypes } from './component-registry';
 import {
   getComponentCoordinationTypes,
   getDefaultCoordinationValues,
   getCoordinationTypes,
-  getFileTypes,
-  getJointFileTypes,
 } from './plugins';
-import { SCHEMA_HANDLERS } from './view-config-versions';
 
 /**
  * Get a list of all unique scope names for a
@@ -163,35 +158,6 @@ function initializeAuto(config) {
   return newConfig;
 }
 
-export function checkTypes(config) {
-  // Add a log message when there are additionalProperties in the coordination space that
-  // do not appear in the view config JSON schema,
-  // with a note that this indicates either a mistake or custom coordination type usage.
-  const coordinationTypesInConfig = Object.keys(config.coordinationSpace || {});
-  const allCoordinationTypes = getCoordinationTypes();
-  const unknownCoordinationTypes = difference(coordinationTypesInConfig, allCoordinationTypes);
-  if (unknownCoordinationTypes.length > 0) {
-    return [false, `The following coordination types are not recognized: [${unknownCoordinationTypes}].\nIf these are plugin coordination types, ensure that they have been properly registered.`];
-  }
-  // Add a log message when there are views in the layout that are neither
-  // core views nor registered plugin views.
-  const viewTypesInConfig = config.layout.map(c => c.component);
-  const allViewTypes = getViewTypes();
-  const unknownViewTypes = difference(viewTypesInConfig, allViewTypes);
-  if (unknownViewTypes.length > 0) {
-    return [false, `The following view types are not recognized: [${unknownViewTypes}].\nIf these are plugin view types, ensure that they have been properly registered.`];
-  }
-  // Add a log message when there are file definitions with neither
-  // core nor registered plugin file types.
-  const fileTypesInConfig = config.datasets.flatMap(d => d.files.map(f => f.fileType));
-  const allFileTypes = getFileTypes();
-  const unknownFileTypes = difference(fileTypesInConfig, allFileTypes);
-  if (unknownFileTypes.length > 0) {
-    return [false, `The following file types are not recognized: [${unknownFileTypes}].\nIf these are plugin file types, ensure that they have been properly registered.`];
-  }
-  return [true, 'All view types, coordination types, and file types that appear in the view config are recognized.'];
-}
-
 /**
  * Assign unique ids for view definitions where
  * they are missing a value for the uid property
@@ -269,6 +235,8 @@ function expandConvenienceFileDefs(config, jointFileTypes) {
 export function initialize(config, jointFileTypes) {
   let newConfig = cloneDeep(config);
   if (newConfig.initStrategy === 'auto') {
+    // TODO: pass coordination types with defaults
+    // TODO: pass view types with per-view coordination type lists
     newConfig = initializeAuto(config);
   }
   newConfig = expandConvenienceFileDefs(newConfig, jointFileTypes);

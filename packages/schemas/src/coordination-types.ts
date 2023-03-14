@@ -80,7 +80,7 @@ export const COORDINATION_TYPE_SCHEMAS = [
     z.array(z.object({
       path: obsSetPath,
       color: rgbArray,
-    })),
+    })).nullable(),
   ),
   new PluginCoordinationType(
     CoordinationType.OBS_COLOR_ENCODING,

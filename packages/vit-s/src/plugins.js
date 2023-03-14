@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { fromEntries } from '@vitessce/utils';
 import {
   FileType, CoordinationType,
@@ -141,13 +140,6 @@ export function getExpansionFunctionForPluginConvenienceFileType(fileType) {
 }
 
 // Getters that depend on plugins.
-export function getFileTypes() {
-  return [
-    ...Object.values(FileType),
-    ...getPluginFileTypes(),
-  ];
-}
-
 export function getCoordinationTypes() {
   return [
     ...Object.values(CoordinationType),
@@ -175,22 +167,3 @@ export function getComponentCoordinationTypes() {
     ]))),
   };
 }
-
-export function getFileTypeDataTypeMapping() {
-  return {
-    ...FILE_TYPE_DATA_TYPE_MAPPING,
-    ...fromEntries(getPluginFileTypes().map(fileType => ([
-      fileType,
-      getDataTypeForPluginFileType(fileType),
-    ]))),
-  };
-}
-
-export function getJointFileTypes() {
-  return {
-    ...JOINT_FILE_TYPES,
-    ...PLUGINS[PLUGIN_JOINT_FILE_TYPES_KEY],
-  };
-}
-
-export { z };
