@@ -1,9 +1,24 @@
 /* eslint-disable max-len */
-import { useState, useMemo, useLayoutEffect } from 'react';
-import { VitS, registerPluginFileType, z } from '@vitessce/vit-s';
+import React, { useMemo } from 'react';
 import {
+  FileType,
+  DataType,
+  ViewType,
+  COMPONENT_COORDINATION_TYPES,
+} from '@vitessce/constants-internal';
+import {
+  VitS,
+} from '@vitessce/vit-s';
+import {
+  PluginFileType,
+  PluginJointFileType,
+  PluginViewType,
+} from '@vitessce/plugins';
+import {
+  z,
   upgradeAndParse,
-  obsEmbeddingCsvSchema, // TODO: define in single-cell-specific sub-package?
+  COORDINATION_TYPE_SCHEMAS,
+  obsEmbeddingCsvSchema,
   obsSetsCsvSchema,
   obsLocationsCsvSchema,
   obsLabelsCsvSchema,
@@ -24,17 +39,21 @@ import {
 } from '@vitessce/schemas';
 
 // Register view type plugins
-import { register as registerDescription, DescriptionSubscriber } from '@vitessce/description';
-import { ObsSetsManagerSubscriber, register as registerObsSetsManager } from '@vitessce/obs-sets-manager';
-import { EmbeddingScatterplotSubscriber, register as registerScatterplotEmbedding } from '@vitessce/scatterplot-embedding';
-import { GatingSubscriber, register as registerScatterplotGating } from '@vitessce/scatterplot-gating';
-import { register as registerSpatial, SpatialSubscriber } from '@vitessce/spatial';
-import { HeatmapSubscriber, register as registerHeatmap } from '@vitessce/heatmap';
-import { FeatureListSubscriber, register as registerFeatureList } from '@vitessce/feature-list';
-import { LayerControllerSubscriber, register as registerLayerController } from '@vitessce/layer-controller';
-import { register as registerStatus, StatusSubscriber } from '@vitessce/status';
-import { CellSetExpressionPlotSubscriber, CellSetSizesPlotSubscriber, ExpressionHistogramSubscriber, registerCellSetExpression, registerCellSetSizes, registerExpressionHistogram } from '@vitessce/statistical-plots';
-import { registerHiglass, registerGenomicProfiles, HiGlassSubscriber, GenomicProfilesSubscriber } from '@vitessce/genomic-profiles';
+import { DescriptionSubscriber } from '@vitessce/description';
+import { ObsSetsManagerSubscriber } from '@vitessce/obs-sets-manager';
+import { EmbeddingScatterplotSubscriber } from '@vitessce/scatterplot-embedding';
+import { GatingSubscriber } from '@vitessce/scatterplot-gating';
+import { SpatialSubscriber } from '@vitessce/spatial';
+import { HeatmapSubscriber } from '@vitessce/heatmap';
+import { FeatureListSubscriber } from '@vitessce/feature-list';
+import { LayerControllerSubscriber } from '@vitessce/layer-controller';
+import { StatusSubscriber } from '@vitessce/status';
+import { HiGlassSubscriber, GenomicProfilesSubscriber } from '@vitessce/genomic-profiles';
+import {
+  CellSetExpressionPlotSubscriber,
+  CellSetSizesPlotSubscriber,
+  ExpressionHistogramSubscriber,
+} from '@vitessce/statistical-plots';
 
 // Register file type plugins
 import {
@@ -84,48 +103,26 @@ import {
   MatrixZarrAsObsFeatureMatrixLoader,
   GenomicProfilesZarrLoader,
 } from '@vitessce/zarr';
-import { FileType, DataType, ViewType, COMPONENT_COORDINATION_TYPES, CoordinationType } from '@vitessce/constants-internal';
 
+// Joint file types
 import {
   expandAnndataZarr,
 } from './joint-file-types';
-import { expandAnndataCellSetsZarr, expandAnndataCellsZarr, expandAnndataExpressionMatrixZarr, expandCellSetsJson, expandCellsJson, expandClustersJson, expandExpressionMatrixZarr, expandGenesJson, expandMoleculesJson, expandRasterJson, expandRasterOmeZarr } from './joint-file-types-legacy';
+import {
+  expandAnndataCellSetsZarr,
+  expandAnndataCellsZarr,
+  expandAnndataExpressionMatrixZarr,
+  expandCellSetsJson,
+  expandCellsJson,
+  expandClustersJson,
+  expandExpressionMatrixZarr,
+  expandGenesJson,
+  expandMoleculesJson,
+  expandRasterJson,
+  expandRasterOmeZarr,
+} from './joint-file-types-legacy';
 
-// TODO: Move these class definitions into vit-s
-class PluginViewType {
-  constructor(name, component, coordinationTypes) {
-    this.name = name;
-    this.component = component;
-    this.coordinationTypes = coordinationTypes;
-  }
-}
-
-class PluginFileType {
-  constructor(name, dataType, dataLoaderClass, dataSourceClass, optionsSchema) {
-    this.name = name;
-    this.dataType = dataType;
-    this.dataLoaderClass = dataLoaderClass;
-    this.dataSourceClass = dataSourceClass;
-    this.optionsSchema = optionsSchema;
-  }
-}
-
-class PluginJointFileType {
-  constructor(name, expandFunction, optionsSchema) {
-    this.name = name;
-    this.expandFunction = expandFunction;
-    this.optionsSchema = optionsSchema;
-  }
-}
-
-class PluginCoordinationType {
-  constructor(name, defaultValue, valueSchema) {
-    this.name = name;
-    this.defaultValue = defaultValue;
-    this.valueSchema = valueSchema;
-  }
-}
-
+// Helper function to use COMPONENT_COORDINATION_TYPES.
 function makeVitessceViewType(name, component) {
   return new PluginViewType(name, component, COMPONENT_COORDINATION_TYPES[name]);
 }
@@ -194,6 +191,7 @@ const vitessceFileTypes = [
 ];
 const vitessceJointFileTypes = [
   new PluginJointFileType(FileType.ANNDATA_ZARR, expandAnndataZarr, anndataZarrSchema),
+  // For legacy file types:
   new PluginJointFileType(FileType.ANNDATA_CELLS_ZARR, expandAnndataCellsZarr, anndataCellsZarrSchema),
   new PluginJointFileType(FileType.ANNDATA_CELL_SETS_ZARR, expandAnndataCellSetsZarr, anndataCellSetsZarrSchema),
   new PluginJointFileType(FileType.ANNDATA_EXPRESSION_MATRIX_ZARR, expandAnndataExpressionMatrixZarr, anndataExpressionMatrixZarrSchema),
@@ -206,13 +204,6 @@ const vitessceJointFileTypes = [
   new PluginJointFileType(FileType.CELLS_JSON, expandCellsJson, cellsJsonSchema),
   new PluginJointFileType(FileType.MOLECULES_JSON, expandMoleculesJson, z.null()),
 ];
-
-
-const vitessceCoordinationTypes = [
-  new PluginCoordinationType(CoordinationType.DATASET, null, z.string()),
-  // TODO
-];
-
 
 export function Vitessce(props) {
   const {
@@ -252,13 +243,14 @@ export function Vitessce(props) {
     ...vitessceFileTypes, ...(pluginFileTypesProp || []),
   ]), [pluginFileTypesProp]);
 
-  const mergedPluginCoordinationTypes = useMemo(() => ([
-    ...vitessceCoordinationTypes, ...(pluginCoordinationTypesProp || []),
-  ]), [pluginCoordinationTypesProp]);
-
   const mergedPluginJointFileTypes = useMemo(() => ([
     ...vitessceJointFileTypes, ...(pluginJointFileTypesProp || []),
   ]), [pluginJointFileTypesProp]);
+
+  const mergedPluginCoordinationTypes = useMemo(() => ([
+    ...COORDINATION_TYPE_SCHEMAS, ...(pluginCoordinationTypesProp || []),
+  ]), [pluginCoordinationTypesProp]);
+
 
   return (success ? (
     <VitS

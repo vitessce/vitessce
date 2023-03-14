@@ -1,3 +1,4 @@
+import { fromEntries } from '@vitessce/utils';
 import { z } from 'zod';
 import {
   requestInit,
@@ -86,7 +87,13 @@ export function buildConfigSchema<
         'The datasets array defines groups of files, where the files within each dataset reference the same entities (cells, genes, cell sets, etc).',
       ),
     // Merge with coordination type schemas.
-    coordinationSpace: z.object(pluginCoordinationTypes)
+    coordinationSpace: z.object(
+      // Wrap each value schema in z.record()
+      fromEntries(
+        Object.entries(pluginCoordinationTypes)
+          .map(([k, v]) => ([k, z.record(coordinationScopeName, v).optional()])),
+      ),
+    )
       .catchall(z.record(coordinationScopeName, z.any()))
       .describe(
         'The coordination space stores the values for each scope of each coordination object.',
@@ -125,79 +132,3 @@ export function buildConfigSchema<
       ),
   });
 }
-
-// TODO: remove/move the code below
-const genericSchema = buildConfigSchema({}, {}, []);
-
-const vitessceSchema = buildConfigSchema({
-  // TODO: fileTypes
-}, {
-  dataset: z.record(coordinationScopeName, z.string()),
-  obsType: z.record(coordinationScopeName, z.string()),
-  featureType: z.record(coordinationScopeName, z.string()),
-  featureValueType: z.record(coordinationScopeName, z.string()),
-  obsLabelsType: z.record(coordinationScopeName, z.string().nullable()),
-  embeddingZoom: z.record(coordinationScopeName, z.number().nullable()),
-  embeddingRotation: z.record(coordinationScopeName, z.number().nullable()),
-  embeddingTargetX: z.record(coordinationScopeName, z.number().nullable()),
-  embeddingTargetY: z.record(coordinationScopeName, z.number().nullable()),
-  embeddingTargetZ: z.record(coordinationScopeName, z.number().nullable()),
-  embeddingType: z.record(coordinationScopeName, z.string()),
-  embeddingObsSetPolygonsVisible: z.record(coordinationScopeName, z.boolean()),
-  embeddingObsSetLabelsVisible: z.record(coordinationScopeName, z.boolean()),
-  embeddingObsSetLabelSize: z.record(coordinationScopeName, z.number()),
-  embeddingObsRadius: z.record(coordinationScopeName, z.number()),
-  embeddingObsOpacity: z.record(coordinationScopeName, z.number()),
-  embeddingObsRadiusMode: z.record(coordinationScopeName, z.enum(['manual', 'auto'])),
-  embeddingObsOpacityMode: z.record(coordinationScopeName, z.enum(['manual', 'auto'])),
-  spatialZoom: z.record(coordinationScopeName, z.number().nullable()),
-  spatialRotation: z.record(coordinationScopeName, z.number().nullable()),
-  spatialTargetX: z.record(coordinationScopeName, z.number().nullable()),
-  spatialTargetY: z.record(coordinationScopeName, z.number().nullable()),
-  spatialTargetZ: z.record(coordinationScopeName, z.number().nullable()),
-  spatialRotationX: z.record(coordinationScopeName, z.number().nullable()),
-  spatialRotationY: z.record(coordinationScopeName, z.number().nullable()),
-  spatialRotationZ: z.record(coordinationScopeName, z.number().nullable()),
-  spatialRotationOrbit: z.record(coordinationScopeName, z.number().nullable()),
-  spatialOrbitAxis: z.record(coordinationScopeName, z.string().nullable()),
-  spatialAxisFixed: z.record(coordinationScopeName, z.boolean().nullable()),
-  spatialImageLayer: z.record(coordinationScopeName, imageLayerObj.nullable()),
-  spatialSegmentationLayer: z.record(
-    coordinationScopeName,
-    z.union([cellsLayerObj, imageLayerObj]),
-  ),
-  spatialNeighborhoodLayer: z.record(coordinationScopeName, neighborhoodsLayerObj.nullable()),
-  spatialPointLayer: z.record(coordinationScopeName, moleculesLayerObj.nullable()),
-  heatmapZoomX: z.record(coordinationScopeName, z.number()),
-  heatmapZoomY: z.record(coordinationScopeName, z.number()),
-  heatmapTargetX: z.record(coordinationScopeName, z.number()),
-  heatmapTargetY: z.record(coordinationScopeName, z.number()),
-  obsFilter: z.record(coordinationScopeName, z.array(z.string()).nullable()),
-  obsHighlight: z.record(coordinationScopeName, z.string().nullable()),
-  obsSetSelection: z.record(coordinationScopeName, z.array(obsSetPath).nullable()),
-  obsSetHighlight: z.record(coordinationScopeName, obsSetPath.nullable()),
-  obsSetColor: z.record(coordinationScopeName, z.array(z.object({
-    path: obsSetPath,
-    color: rgbArray,
-  }))),
-  obsColorEncoding: z.record(coordinationScopeName, z.enum(['geneSelection', 'cellSetSelection'])),
-  featureFilter: z.record(coordinationScopeName, z.array(z.string()).nullable()),
-  featureHighlight: z.record(coordinationScopeName, z.string().nullable()),
-  featureSelection: z.record(coordinationScopeName, z.array(z.string()).nullable()),
-  featureValueTransform: z.record(coordinationScopeName, z.enum(['log1p', 'arcsinh']).nullable()),
-  featureValueTransformCoefficient: z.record(coordinationScopeName, z.number()),
-  featureValueColormap: z.record(coordinationScopeName, z.string().nullable()),
-  featureValueColormapRange: z.record(coordinationScopeName, z.array(z.number())),
-  gatingFeatureSelectionX: z.record(coordinationScopeName, z.string().nullable()),
-  gatingFeatureSelectionY: z.record(coordinationScopeName, z.string().nullable()),
-  genomicZoomX: z.record(coordinationScopeName, z.number()),
-  genomicZoomY: z.record(coordinationScopeName, z.number()),
-  genomicTargetX: z.record(coordinationScopeName, z.number()),
-  genomicTargetY: z.record(coordinationScopeName, z.number()),
-  additionalObsSets: z.record(coordinationScopeName, obsSets.nullable()),
-  moleculeHighlight: z.record(coordinationScopeName, z.string().nullable()),
-}, [
-  // TODO: view type names
-  'description',
-]);
-// vitessceSchema.shape.coordinationSpace.unwrap().shape.embeddingTargetZ.valueSchema._def

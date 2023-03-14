@@ -30,6 +30,7 @@
     { "path": "packages/main/all" },
     { "path": "packages/main/dev" },
     { "path": "packages/main/prod" },
+    { "path": "packages/plugins" },
     { "path": "packages/schemas" },
     { "path": "packages/tooltip" },
     { "path": "packages/utils/export-utils" },

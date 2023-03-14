@@ -4,3 +4,5 @@ export { upgradeAndParse } from './view-config-versions';
 export { rasterJsonSchema } from './raster-json';
 export * from './file-def-options';
 export * from './file-def-options-legacy';
+export { COORDINATION_TYPE_SCHEMAS } from './coordination-types';
+export { z } from 'zod';

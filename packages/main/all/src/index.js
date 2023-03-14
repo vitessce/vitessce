@@ -1,7 +1,8 @@
-export { Vitessce } from './setup';
+export { Vitessce } from './Vitessce';
 export {
-  registerPluginFileType,
-  registerPluginViewType,
-  registerPluginCoordinationType,
-  registerPluginJointFileType,
-} from '@vitessce/vit-s';
+  PluginFileType,
+  PluginViewType,
+  PluginCoordinationType,
+  PluginJointFileType,
+} from '@vitessce/plugins';
+export { z } from '@vitessce/schemas';
