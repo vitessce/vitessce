@@ -227,7 +227,7 @@ export function Vitessce(props) {
       console.error(e);
       return [
         {
-          title: 'View config initialization failed.',
+          title: 'Config validation or upgrade failed.',
           unformatted: e.message,
         },
         false,

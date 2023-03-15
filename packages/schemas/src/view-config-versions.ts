@@ -124,5 +124,8 @@ export function upgradeAndParse(
     upgradable = upgradable.pipe(latestConfigSchema);
     return upgradable.parse(config);
   }
+  if (typeof config === 'object' && !('version' in config)) {
+    throw new Error('Missing version');
+  }
   throw new Error('Config version was not recognized');
 }

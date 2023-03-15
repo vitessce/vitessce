@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 export const cellsJsonSchema = z.object({
-  obsLabelsTypes: z.array(z.string()),
-  embeddingTypes: z.array(z.string()),
-});
+  obsLabelsTypes: z.array(z.string()).optional(),
+  embeddingTypes: z.array(z.string()).optional(),
+}).optional();
 
 export const anndataCellsZarrSchema = z.object({
   xy: z.string().optional(),

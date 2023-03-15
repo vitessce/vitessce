@@ -124,7 +124,7 @@ export function VitS(props) {
         } catch (e) {
           return [
             {
-              title: 'View config initialization failed.',
+              title: 'Config initialization failed.',
               unformatted: e.message,
             },
             false,
@@ -133,14 +133,14 @@ export function VitS(props) {
       }
       return [
         {
-          title: 'View config checks failed.',
+          title: 'Config validation failed on second pass.',
           unformatted: pluginSpecificResult.error.message,
         },
         false,
       ];
     }
     return [{
-      title: 'View config validation failed.',
+      title: 'Config validation failed on first pass.',
       unformatted: result.error.message,
     }, result.success];
   }, [configUid, configVersion, pluginSpecificConfigSchema, warning]);
