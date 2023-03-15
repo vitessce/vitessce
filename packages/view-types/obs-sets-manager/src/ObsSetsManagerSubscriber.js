@@ -2,6 +2,7 @@ import React, {
   useEffect,
   useState,
   useMemo,
+  useCallback,
 } from 'react';
 import isEqual from 'lodash/isEqual';
 import {
@@ -134,9 +135,9 @@ export function ObsSetsManagerSubscriber(props) {
 
   // A helper function for updating the encoding for cell colors,
   // which may have previously been set to 'geneSelection'.
-  function setCellSetColorEncoding() {
+  const setCellSetColorEncoding = useCallback(() => {
     setCellColorEncoding('cellSetSelection');
-  }
+  }, [setCellColorEncoding]);
 
   // Merged cell sets are only to be used for convenience when reading
   // (if writing: update either `cellSets` _or_ `additionalCellSets`).
@@ -157,17 +158,17 @@ export function ObsSetsManagerSubscriber(props) {
   // Callback functions
 
   // The user wants to select all nodes at a particular hierarchy level.
-  function onCheckLevel(levelZeroName, levelIndex) {
+  const onCheckLevel = useCallback((levelZeroName, levelIndex) => {
     const lzn = mergedCellSets.tree.find(n => n.name === levelZeroName);
     if (lzn) {
       const newCellSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
       setCellSetSelection(newCellSetSelection);
       setCellSetColorEncoding();
     }
-  }
+  }, [mergedCellSets, setCellSetColorEncoding, setCellSetSelection]);
 
   // The user wants to check or uncheck a cell set node.
-  function onCheckNode(targetKey, checked) {
+  const onCheckNode = useCallback((targetKey, checked) => {
     const targetPath = (Array.isArray(targetKey) ? targetKey : targetKey.split(PATH_SEP));
     if (!targetKey) {
       return;
@@ -178,16 +179,16 @@ export function ObsSetsManagerSubscriber(props) {
       setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, targetPath)));
     }
     setCellSetColorEncoding();
-  }
+  }, [cellSetSelection, setCellSetColorEncoding, setCellSetSelection]);
 
   // The user wants to expand or collapse a node in the tree.
-  function onExpandNode(expandedKeys, targetKey, expanded) {
+  const onExpandNode = useCallback((expandedKeys, targetKey, expanded) => {
     if (expanded) {
       setCellSetExpansion(prev => ([...prev, targetKey.split(PATH_SEP)]));
     } else {
       setCellSetExpansion(prev => prev.filter(d => !isEqual(d, targetKey.split(PATH_SEP))));
     }
-  }
+  }, []);
 
   // The user dragged a tree node and dropped it somewhere else in the tree
   // to re-arrange or re-order the nodes.
@@ -611,7 +612,13 @@ export function ObsSetsManagerSubscriber(props) {
       hasCheckedSetsToComplement={cellSetSelection?.length > 0}
       theme={theme}
     />
-  ), [additionalCellSets, cellColorEncoding, cellSetColor, cellSetExpansion, cellSetSelection, cellSets, checkedLevel, onCheckLevel, onCheckNode, onComplement, onCreateLevelZeroNode, onDropNode, onExportLevelZeroNodeJSON, onExportLevelZeroNodeTabular, onExportSetJSON, onImportTree, onIntersection, onNodeCheckNewName, onNodeRemove, onNodeSetColor, onNodeSetName, onNodeView, onUnion, setWarning, theme]);
+  ), [additionalCellSets, cellColorEncoding, cellSetColor, cellSetExpansion, cellSetSelection,
+    cellSets, checkedLevel, onCheckLevel, onCheckNode, onComplement, onCreateLevelZeroNode,
+    onDropNode, onExpandNode, onExportLevelZeroNodeJSON, onExportLevelZeroNodeTabular,
+    onExportSetJSON, onImportTree, onIntersection, onNodeCheckNewName, onNodeRemove, onNodeSetColor,
+    onNodeSetName, onNodeView, onUnion, setWarning, theme
+  ]);
+
   return (
     <TitleInfo
       title={title}
