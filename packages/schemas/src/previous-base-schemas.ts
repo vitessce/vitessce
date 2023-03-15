@@ -1,6 +1,5 @@
 /* eslint-disable camelcase */
 import { z } from 'zod';
-import cloneDeep from 'lodash/cloneDeep';
 import { OldCoordinationType } from '@vitessce/constants';
 import {
   coordinationScopeName,
@@ -8,6 +7,38 @@ import {
   componentCoordinationScopes,
   componentCoordinationScopesBy,
 } from './shared';
+
+/**
+ * Check for deprecated coordination types.
+ * @param {object} config The parsed config.
+ * @param ctx The Zod refinement context.
+ */
+function refineCoordinationTypes<T extends object>(config: T, ctx: z.RefinementCtx): config is T {
+  if (config) {
+    if ('version' in config) {
+      const version = config?.version;
+      const deprecatedCoordinationTypes = Object.entries(OldCoordinationType)
+        .filter(([prevName, v]) => (v[2] === version))
+        .map(([k]) => k);
+      deprecatedCoordinationTypes.forEach((prevName) => {
+        const newTypeName = (OldCoordinationType as Record<string, string[]>)[prevName][3];
+        if (
+          'coordinationSpace' in config
+          && typeof config.coordinationSpace === 'object'
+          && config.coordinationSpace !== null
+          && prevName in config.coordinationSpace
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `The coordination type ${prevName} was changed to ${newTypeName} in view config schema version ${version}`,
+          });
+        }
+        // TODO: check config.layout[].coordinationScopes also?
+      });
+    }
+  }
+  return z.NEVER;
+}
 
 // Base schemas for previous config versions.
 // These do not validate coordinationType, viewType, or fileType-related values;
@@ -18,6 +49,7 @@ import {
 const nameSchema = z.string();
 const publicFlagSchema = z.boolean().optional();
 const descriptionSchema = z.string().optional();
+
 
 export const configSchema0_1_0 = z.object({
   version: z.literal('0.1.0'),
@@ -43,7 +75,7 @@ export const configSchema0_1_0 = z.object({
       h: z.number().int().optional(),
     }),
   ),
-});
+}).superRefine(refineCoordinationTypes);
 
 const fileOptionsSchema = z.any();
 
@@ -96,42 +128,42 @@ export const configSchema1_0_0 = z.object({
   coordinationSpace: coordinationSpaceSchema.optional(),
   layout: layoutSchema1_0_0,
   initStrategy: initStrategySchema,
-});
+}).superRefine(refineCoordinationTypes);
 
 // Only coordination type or behavioral changes.
-export const configSchema1_0_1 = configSchema1_0_0.extend({
+export const configSchema1_0_1 = configSchema1_0_0.innerType().extend({
   version: z.literal('1.0.1'),
-});
+}).superRefine(refineCoordinationTypes);
 
 // Only coordination type or behavioral changes.
-export const configSchema1_0_2 = configSchema1_0_0.extend({
+export const configSchema1_0_2 = configSchema1_0_0.innerType().extend({
   version: z.literal('1.0.2'),
-});
+}).superRefine(refineCoordinationTypes);
 
 // Only coordination type or behavioral changes.
-export const configSchema1_0_3 = configSchema1_0_0.extend({
+export const configSchema1_0_3 = configSchema1_0_0.innerType().extend({
   version: z.literal('1.0.3'),
-});
+}).superRefine(refineCoordinationTypes);
 
 // Only coordination type or behavioral changes.
-export const configSchema1_0_4 = configSchema1_0_0.extend({
+export const configSchema1_0_4 = configSchema1_0_0.innerType().extend({
   version: z.literal('1.0.4'),
-});
+}).superRefine(refineCoordinationTypes);
 
 // Only coordination type or behavioral changes.
-export const configSchema1_0_5 = configSchema1_0_0.extend({
+export const configSchema1_0_5 = configSchema1_0_0.innerType().extend({
   version: z.literal('1.0.5'),
-});
+}).superRefine(refineCoordinationTypes);
 
 // Only coordination type or behavioral changes.
-export const configSchema1_0_6 = configSchema1_0_0.extend({
+export const configSchema1_0_6 = configSchema1_0_0.innerType().extend({
   version: z.literal('1.0.6'),
-});
+}).superRefine(refineCoordinationTypes);
 
 // Only coordination type or behavioral changes.
-export const configSchema1_0_7 = configSchema1_0_0.extend({
+export const configSchema1_0_7 = configSchema1_0_0.innerType().extend({
   version: z.literal('1.0.7'),
-});
+}).superRefine(refineCoordinationTypes);
 
 // Allow implicit per-dataset coordination scope mappings,
 // (initially for Polyphony use case).
@@ -160,15 +192,15 @@ const layoutSchema1_0_8 = z.array(
   }),
 );
 
-export const configSchema1_0_8 = configSchema1_0_0.extend({
+export const configSchema1_0_8 = configSchema1_0_0.innerType().extend({
   version: z.literal('1.0.8'),
   layout: layoutSchema1_0_8,
-});
+}).superRefine(refineCoordinationTypes);
 
 // Only coordination type or behavioral changes.
-export const configSchema1_0_9 = configSchema1_0_8.extend({
+export const configSchema1_0_9 = configSchema1_0_8.innerType().extend({
   version: z.literal('1.0.9'),
-});
+}).superRefine(refineCoordinationTypes);
 
 // Allow for each view to have a uid
 const layoutSchema1_0_10 = z.array(
@@ -188,20 +220,20 @@ const layoutSchema1_0_10 = z.array(
   }),
 );
 
-export const configSchema1_0_10 = configSchema1_0_8.extend({
+export const configSchema1_0_10 = configSchema1_0_8.innerType().extend({
   version: z.literal('1.0.10'),
   layout: layoutSchema1_0_10,
-});
+}).superRefine(refineCoordinationTypes);
 
 // Only coordination type or behavioral changes.
-export const configSchema1_0_11 = configSchema1_0_10.extend({
+export const configSchema1_0_11 = configSchema1_0_10.innerType().extend({
   version: z.literal('1.0.11'),
-});
+}).superRefine(refineCoordinationTypes);
 
 // Only coordination type or behavioral changes.
-export const configSchema1_0_12 = configSchema1_0_10.extend({
+export const configSchema1_0_12 = configSchema1_0_10.innerType().extend({
   version: z.literal('1.0.12'),
-});
+}).superRefine(refineCoordinationTypes);
 
 // Allow file definitions to have coordinationValues.
 const datasetsSchema1_0_13 = z.array(
@@ -222,22 +254,22 @@ const datasetsSchema1_0_13 = z.array(
     ),
   }),
 );
-export const configSchema1_0_13 = configSchema1_0_10.extend({
+export const configSchema1_0_13 = configSchema1_0_10.innerType().extend({
   version: z.literal('1.0.13'),
   datasets: datasetsSchema1_0_13,
-});
+}).superRefine(refineCoordinationTypes);
 
 // Only coordination type or behavioral changes.
-export const configSchema1_0_14 = configSchema1_0_13.extend({
+export const configSchema1_0_14 = configSchema1_0_13.innerType().extend({
   version: z.literal('1.0.14'),
-});
+}).superRefine(refineCoordinationTypes);
 
 // Only coordination type or behavioral changes.
-export const configSchema1_0_15 = configSchema1_0_13.extend({
+export const configSchema1_0_15 = configSchema1_0_13.innerType().extend({
   version: z.literal('1.0.15'),
-});
+}).superRefine(refineCoordinationTypes);
 
-export const configSchema1_0_16 = configSchema1_0_13.extend({
+export const configSchema1_0_16 = configSchema1_0_13.innerType().extend({
   version: z.literal('1.0.16'),
   layout: z.array(
     z.object({
@@ -257,7 +289,7 @@ export const configSchema1_0_16 = configSchema1_0_13.extend({
         .optional(),
     }),
   ),
-});
+}).superRefine(refineCoordinationTypes);
 
 export const latestConfigSchema = configSchema1_0_16;
 
