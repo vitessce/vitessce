@@ -616,7 +616,7 @@ export function ObsSetsManagerSubscriber(props) {
     cellSets, checkedLevel, onCheckLevel, onCheckNode, onComplement, onCreateLevelZeroNode,
     onDropNode, onExpandNode, onExportLevelZeroNodeJSON, onExportLevelZeroNodeTabular,
     onExportSetJSON, onImportTree, onIntersection, onNodeCheckNewName, onNodeRemove, onNodeSetColor,
-    onNodeSetName, onNodeView, onUnion, setWarning, theme
+    onNodeSetName, onNodeView, onUnion, setWarning, theme,
   ]);
 
   return (
