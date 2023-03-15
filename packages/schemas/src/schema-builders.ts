@@ -2,19 +2,10 @@ import { fromEntries } from '@vitessce/utils';
 import { z } from 'zod';
 import {
   requestInit,
-  obsSets,
   coordinationScopeName,
   componentCoordinationScopes,
   componentCoordinationScopesBy,
-  obsSetPath,
-  rgbArray,
 } from './shared';
-import {
-  imageLayerObj,
-  cellsLayerObj,
-  moleculesLayerObj,
-  neighborhoodsLayerObj,
-} from './spatial-layers';
 
 function toUnion<T extends z.ZodTypeAny[]>(schemaArr: T) {
   if (schemaArr.length === 0) return z.null();
