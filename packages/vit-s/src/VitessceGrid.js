@@ -29,11 +29,12 @@ const margin = 5;
  * @param {object} props
  * @param {number} props.rowHeight The height of each grid row. Optional.
  * @param {object} props.config The view config.
- * @param {function} props.getComponent A function that maps component names to their
- * React counterparts.
  * @param {string} props.theme The theme name.
  * @param {number} props.height Total height for grid. Optional.
  * @param {function} props.onWarn A callback for warning messages. Optional.
+ * @param {PluginViewType[]} props.viewTypes
+ * @param {PluginFileType[]} props.fileTypes
+ * @param {PluginCoordinationType[]} props.coordinationTypes
  */
 export default function VitessceGrid(props) {
   const {

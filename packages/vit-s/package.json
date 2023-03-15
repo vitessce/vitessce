@@ -26,6 +26,7 @@
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/schemas": "workspace:*",
+    "@vitessce/plugins": "workspace:*",
     "ajv": "^6.10.0",
     "clsx": "^1.1.1",
     "fast-deep-equal": "^3.1.3",

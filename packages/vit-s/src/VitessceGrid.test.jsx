@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach } from 'vitest'
 
+import { PluginViewType } from '@vitessce/plugins';
 import VitessceGrid from './VitessceGrid';
 import {
   ViewConfigProvider, createViewConfigStore,
@@ -34,11 +35,18 @@ describe('VitessceGrid.js', () => {
       function FakeComponent() {
         return <p>FakeComponent!</p>;
       }
-      const getComponent = () => FakeComponent;
+      const viewTypes = [new PluginViewType('FakeComponent', FakeComponent, [])];
+      const fileTypes = [];
+      const coordinationTypes = [];
       render(
         <ViewConfigProvider createStore={createViewConfigStore}>
           <AuxiliaryProvider createStore={createAuxiliaryStore}>
-            <VitessceGrid config={config} getComponent={getComponent} />
+            <VitessceGrid
+              config={config}
+              viewTypes={viewTypes}
+              fileTypes={fileTypes}
+              coordinationTypes={coordinationTypes}
+            />
           </AuxiliaryProvider>
         </ViewConfigProvider>,
       );

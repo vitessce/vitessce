@@ -2,7 +2,7 @@
 import { openArray, slice } from 'zarr';
 import { extent } from 'd3-array';
 import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsFeatureMatrixAnndataSchema,
+  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
 
 const normalize = (arr) => {
@@ -33,11 +33,6 @@ const concatenateColumnVectors = (arr) => {
  * Loader for converting zarr into the a cell x gene matrix for use in Genes/Heatmap components.
  */
 export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-    this.optionsSchema = obsFeatureMatrixAnndataSchema;
-  }
-
   getOptions() {
     return this.options;
   }

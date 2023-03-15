@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { cleanup, render, screen, waitForElement } from '@testing-library/react'
 import { afterEach } from 'vitest'
 
+import { PluginViewType } from '@vitessce/plugins';
 import { VitessceGridLayout } from './VitessceGridLayout';
 
 afterEach(() => {
@@ -27,9 +28,10 @@ const layoutJson = {
 describe('VitessceGridLayout.js', () => {
   describe('<VitessceGridLayout />', () => {
     it('mount() works', async () => {
+      const viewTypes = [new PluginViewType('FakeComponent', FakeComponent, [])];
       const { container } = render(<VitessceGridLayout
         layout={layoutJson}
-        getComponent={() => FakeComponent}
+        viewTypes={viewTypes}
         draggableHandle=".my-handle"
       />);
 
@@ -43,9 +45,10 @@ describe('VitessceGridLayout.js', () => {
     });
 
     it('rowHeight works', () => {
+      const viewTypes = [new PluginViewType('FakeComponent', FakeComponent, [])];
       const { container } = render(<VitessceGridLayout
         layout={layoutJson}
-        getComponent={() => FakeComponent}
+        viewTypes={viewTypes}
         draggableHandle=".my-handle"
         rowHeight={123}
       />);

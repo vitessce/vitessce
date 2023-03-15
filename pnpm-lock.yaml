@@ -856,6 +856,7 @@ importers:
       '@material-ui/core': ~4.12.3
       '@material-ui/icons': ~4.11.2
       '@vitessce/constants-internal': workspace:*
+      '@vitessce/plugins': workspace:*
       '@vitessce/schemas': workspace:*
       '@vitessce/utils': workspace:*
       ajv: ^6.10.0
@@ -874,6 +875,7 @@ importers:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@material-ui/icons': 4.11.3_jvx44q7qymyhf2qyoxemen5jw4
       '@vitessce/constants-internal': link:../constants-internal
+      '@vitessce/plugins': link:../plugins
       '@vitessce/schemas': link:../schemas
       '@vitessce/utils': link:../utils/other-utils
       ajv: 6.12.6
