@@ -16,7 +16,8 @@ import ThemedControlledEditor from './_ThemedControlledEditor';
 import {
   baseJs, baseJson, exampleJs, exampleJson,
 } from './_live-editor-examples';
-import JsonHighlight, { JSON_TRANSLATION_KEY } from './_JsonHighlight';
+import { JSON_TRANSLATION_KEY } from './_editor-utils';
+import JsonHighlight from './_JsonHighlight';
 
 
 import styles from './styles.module.css';

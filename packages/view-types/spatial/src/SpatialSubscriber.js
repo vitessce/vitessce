@@ -18,7 +18,6 @@ import {
   useSetComponentViewInfo,
   useAuxiliaryCoordination,
   useHasLoader,
-  registerPluginViewType,
 } from '@vitessce/vit-s';
 import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
 import { canLoadResolution, getCellColors } from '@vitessce/utils';
@@ -465,13 +464,5 @@ export function SpatialSubscriber(props) {
         />
       )}
     </TitleInfo>
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    ViewType.SPATIAL,
-    SpatialSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL],
   );
 }

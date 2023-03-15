@@ -1,4 +1,5 @@
 /* eslint-disable max-len */
+/* eslint-disable react-refresh/only-export-components */
 import React, { useState } from 'react';
 import clsx from 'clsx';
 import { TreeNode as RcTreeNode } from 'rc-tree';
