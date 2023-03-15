@@ -3,7 +3,6 @@ import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
 import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
-import { subscribeWithSelector } from 'zustand/middleware';
 import isMatch from 'lodash/isMatch';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { fromEntries, capitalize } from '@vitessce/utils';

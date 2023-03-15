@@ -6,7 +6,6 @@ import {
  * Loader for embedding arrays located in anndata.zarr stores.
  */
 export default class ObsLocationsAnndataLoader extends AbstractTwoStepLoader {
-
   /**
    * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
    * @returns {Promise} A promise for an array of columns.

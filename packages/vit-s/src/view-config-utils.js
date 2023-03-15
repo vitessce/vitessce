@@ -158,9 +158,13 @@ function initializeAuto(config, coordinationTypeObjs, viewTypeObjs) {
       // a unique scope for every component ("independent")
       // vs. the same scope for every component ("together").
       if (AUTO_INDEPENDENT_COORDINATION_TYPES.includes(coordinationType)) {
-        newConfig = coordinateComponentsIndependent(newConfig, coordinationType, defaultValue, viewTypeObjs);
+        newConfig = coordinateComponentsIndependent(
+          newConfig, coordinationType, defaultValue, viewTypeObjs,
+        );
       } else {
-        newConfig = coordinateComponentsTogether(newConfig, coordinationType, defaultValue, viewTypeObjs);
+        newConfig = coordinateComponentsTogether(
+          newConfig, coordinationType, defaultValue, viewTypeObjs,
+        );
       }
     }
   });

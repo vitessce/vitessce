@@ -63,7 +63,7 @@ export const CoordinationType = {
     'spatialLayers',
     'This coordination type was split into multiple coordination types in view config schema version 1.0.1',
     '1.0.1',
-    'SOME_NEW_NAME', //null,
+    'multiple', // Not used for spatialLayers (since it was split into multiple).
   ],
   // Spatial layers
   SPATIAL_RASTER_LAYERS: [

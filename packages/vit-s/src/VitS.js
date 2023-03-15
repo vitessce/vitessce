@@ -8,6 +8,7 @@ import {
 import isEqual from 'lodash/isEqual';
 import { META_VERSION } from '@vitessce/constants-internal';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
+import { fromEntries } from '@vitessce/utils';
 import { muiTheme } from './shared-mui/styles';
 import {
   ViewConfigProvider,
@@ -22,7 +23,6 @@ import CallbackPublisher from './CallbackPublisher';
 import {
   initialize,
 } from './view-config-utils';
-import { fromEntries } from '@vitessce/utils';
 
 function logConfig(config, name) {
   console.groupCollapsed(`🚄 Vitessce (${META_VERSION.version}) ${name}`);

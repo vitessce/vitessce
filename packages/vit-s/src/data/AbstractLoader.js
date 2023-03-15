@@ -16,6 +16,7 @@ export default class AbstractLoader {
     this.coordinationValues = coordinationValues;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   load() {
     return Promise.resolve(true);
   }
