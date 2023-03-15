@@ -5,9 +5,6 @@ import { fromEntries, getNextScope } from '@vitessce/utils';
 import {
   AUTO_INDEPENDENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
-import {
-  getDefaultCoordinationValues,
-} from './plugins';
 
 /**
  * Get a list of all unique scope names for a

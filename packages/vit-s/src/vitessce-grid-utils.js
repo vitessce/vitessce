@@ -4,7 +4,8 @@ import {
 import { InternMap } from 'internmap';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
-import { DEFAULT_COORDINATION_VALUES, DATA_TYPE_COORDINATION_VALUE_USAGE } from '@vitessce/constants-internal';
+import { fromEntries } from '@vitessce/utils';
+import { DATA_TYPE_COORDINATION_VALUE_USAGE } from '@vitessce/constants-internal';
 import { getSourceAndLoaderFromFileType, getDataTypeFromFileType } from './data/loader-registry';
 
 /**
@@ -87,14 +88,20 @@ export function useRowHeight(config, initialRowHeight, height, margin, padding) 
   return [rowHeight, containerRef];
 }
 
-function withDefaults(coordinationValues, dataType, fileType, datasetUid) {
+function withDefaults(
+  coordinationValues,
+  dataType,
+  fileType,
+  datasetUid,
+  defaultCoordinationValues,
+) {
   const defaultKeys = DATA_TYPE_COORDINATION_VALUE_USAGE[dataType]
     .filter(k => (
-      Object.keys(DEFAULT_COORDINATION_VALUES).includes(k)
-      && DEFAULT_COORDINATION_VALUES[k]
+      Object.keys(defaultCoordinationValues).includes(k)
+      && defaultCoordinationValues[k]
       && !Object.keys(coordinationValues).includes(k)
     ));
-  const defaultValues = pick(DEFAULT_COORDINATION_VALUES, defaultKeys);
+  const defaultValues = pick(defaultCoordinationValues, defaultKeys);
   const coordinationValuesWithDefaults = {
     ...defaultValues,
     // The user-provided values should take precedence.
@@ -111,13 +118,18 @@ function withDefaults(coordinationValues, dataType, fileType, datasetUid) {
  * Create a mapping from dataset ID to loader objects by data type.
  * @param {object[]} datasets The datasets array from the view config.
  * @param {string} configDescription The top-level description in the
+ * @param {PluginFileType[]} fileTypes
+ * @param {PluginCoordinationType[]} coordinationTypes
  * view config.
  * @returns {object} Mapping from dataset ID to data type to loader
  * instance.
  */
-export function createLoaders(datasets, configDescription, fileTypes) {
+export function createLoaders(datasets, configDescription, fileTypes, coordinationTypes) {
   const result = {};
   const dataSources = {};
+  const defaultCoordinationValues = fromEntries(
+    coordinationTypes.map(ct => ([ct.name, ct.defaultValue])),
+  );
   datasets.forEach((dataset) => {
     const datasetLoaders = {
       name: dataset.name,
@@ -134,8 +146,11 @@ export function createLoaders(datasets, configDescription, fileTypes) {
       } = file;
       const dataType = getDataTypeFromFileType(fileType, fileTypes);
       const coordinationValuesWithDefaults = withDefaults(
-        coordinationValues, dataType,
-        fileType, dataset.uid,
+        coordinationValues,
+        dataType,
+        fileType,
+        dataset.uid,
+        defaultCoordinationValues,
       );
       const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(fileType, fileTypes);
       // Create _one_ DataSourceClass instance per URL. Derived loaders share this object.

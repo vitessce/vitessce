@@ -44,6 +44,7 @@ export default function VitessceGrid(props) {
     isBounded,
     viewTypes,
     fileTypes,
+    coordinationTypes,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
@@ -76,13 +77,18 @@ export default function VitessceGrid(props) {
   useEffect(() => {
     if (config) {
       setViewConfig(config);
-      const loaders = createLoaders(config.datasets, config.description, fileTypes);
+      const loaders = createLoaders(
+        config.datasets,
+        config.description,
+        fileTypes,
+        coordinationTypes,
+      );
       setLoaders(loaders);
     } else {
       // No config found, so clear the loaders.
       setLoaders({});
     }
-  }, [config, setViewConfig, setLoaders, fileTypes]);
+  }, [config, setViewConfig, setLoaders, fileTypes, coordinationTypes]);
 
   return (
     <div
