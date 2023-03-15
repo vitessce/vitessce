@@ -63,7 +63,7 @@ export const SCHEMA_HANDLERS: [string, z.ZodTypeAny, UpgradeFunction][] = [
   ['1.0.15', configSchema1_0_15, upgradeFrom1_0_15],
 ];
 
-// TODO: run fullUpgrade, then parse against the schema built against the registered plugins.
+// Run upgrade, then parse against the latest schema built against the registered plugins.
 export function upgradeAndParse(
   config: any,
   onConfigUpgrade: ((a: any, b: any) => void)|null = null,
@@ -79,6 +79,7 @@ export function upgradeAndParse(
     let upgradable = SCHEMA_HANDLERS[versionIndex][1];
     SCHEMA_HANDLERS.slice(versionIndex, SCHEMA_HANDLERS.length).forEach((versionInfo) => {
       upgradable = upgradable.transform((prevConfig) => {
+        // TODO: check for deprecated coordination types
         const nextConfig = versionInfo[2](prevConfig);
         if (typeof onConfigUpgrade === 'function') {
           onConfigUpgrade(prevConfig, nextConfig);
