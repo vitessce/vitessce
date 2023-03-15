@@ -1,7 +1,5 @@
 /* eslint-disable camelcase */
 import { z } from 'zod';
-import cloneDeep from 'lodash/cloneDeep';
-import { OldCoordinationType } from '@vitessce/constants';
 import {
   coordinationScopeName,
   requestInit,
@@ -12,8 +10,6 @@ import {
 // Base schemas for previous config versions.
 // These do not validate coordinationType, viewType, or fileType-related values;
 // only the latest version validates these after merging with plugin schemas.
-
-// TODO: use superRefine to catch deprecated things (e.g., coordination types, etc.)?
 
 const nameSchema = z.string();
 const publicFlagSchema = z.boolean().optional();

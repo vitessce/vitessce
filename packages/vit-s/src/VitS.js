@@ -69,6 +69,7 @@ export function VitS(props) {
     fileTypes,
     jointFileTypes,
     coordinationTypes,
+    warning,
   } = props;
 
   const generateClassName = useMemo(() => createGenerateClassName({
@@ -98,6 +99,9 @@ export function VitS(props) {
   // - Validate after upgrade, if legacy schema.
   // - Initialize (based on initStrategy).
   const [configOrWarning, success] = useMemo(() => {
+    if (warning) {
+      return [warning, false];
+    }
     logConfig(config, 'input view config');
     const result = latestConfigSchema.safeParse(config);
     if (result.success) {
@@ -139,7 +143,7 @@ export function VitS(props) {
       title: 'View config validation failed.',
       unformatted: result.error.message,
     }, result.success];
-  }, [configUid, configVersion, pluginSpecificConfigSchema]);
+  }, [configUid, configVersion, pluginSpecificConfigSchema, warning]);
 
   // Emit the upgraded/initialized view config
   // to onConfigChange if necessary.

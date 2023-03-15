@@ -371,6 +371,7 @@ importers:
   packages/schemas:
     specifiers:
       '@types/lodash': ^4.14.191
+      '@types/semver': ^7.3.13
       '@types/uuid': ^9.0.1
       '@vitessce/constants': workspace:*
       '@vitessce/constants-internal': workspace:*
@@ -378,6 +379,7 @@ importers:
       '@vitessce/utils': workspace:*
       json-schema-to-zod: ^0.6.3
       lodash: ^4.17.21
+      semver: ^7.3.8
       uuid: ^3.3.2
       vite: ^3.0.0
       vitest: ^0.23.4
@@ -385,12 +387,14 @@ importers:
       zod-to-json-schema: ^3.20.4
     dependencies:
       '@types/lodash': 4.14.191
+      '@types/semver': 7.3.13
       '@types/uuid': 9.0.1
       '@vitessce/constants': link:../constants
       '@vitessce/constants-internal': link:../constants-internal
       '@vitessce/plugins': link:../plugins
       '@vitessce/utils': link:../utils/other-utils
       lodash: 4.17.21
+      semver: 7.3.8
       uuid: 3.4.0
       zod: 3.21.4
     devDependencies:
@@ -6891,6 +6895,10 @@ packages:
 
   /@types/scheduler/0.16.2:
     resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
+
+  /@types/semver/7.3.13:
+    resolution: {integrity: sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==}
+    dev: false
 
   /@types/serve-index/1.9.1:
     resolution: {integrity: sha512-d/Hs3nWDxNL2xAczmOVZNj92YZCS6RGxfBPjKzuu/XirCgXdpKEb88dYNbrYGint6IVWLNP+yonwVAuRC0T2Dg==}

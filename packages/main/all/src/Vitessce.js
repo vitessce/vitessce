@@ -252,7 +252,7 @@ export function Vitessce(props) {
   ]), [pluginCoordinationTypesProp]);
 
 
-  return (success ? (
+  return (
     <VitS
       {...props}
       config={configOrWarning}
@@ -260,6 +260,7 @@ export function Vitessce(props) {
       fileTypes={mergedPluginFileTypes}
       jointFileTypes={mergedPluginJointFileTypes}
       coordinationTypes={mergedPluginCoordinationTypes}
+      warning={(success ? null : configOrWarning)}
     />
-  ) : (<p>Config validation failed</p>));
+  );
 }

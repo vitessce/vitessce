@@ -34,6 +34,7 @@ const OTHER_VERSIONS = {
   "@math.gl/core": "^3.5.6",
   "mathjs": "^9.2.0",
   "zod": "^3.21.4",
+  "semver": "^7.3.8",
 
   // LumaGL
   "@luma.gl/constants": LUMAGL_VERSION,
