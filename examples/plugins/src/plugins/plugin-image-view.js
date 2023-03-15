@@ -3,8 +3,10 @@
 import React from 'react';
 import {
   TitleInfo,
-  /*registerPluginViewType,*/
 } from '@vitessce/vit-s';
+import {
+  PluginViewType,
+} from '@vitessce/plugins';
 
 function PluginImageViewSubscriber(props) {
   const {
@@ -27,14 +29,15 @@ function PluginImageViewSubscriber(props) {
   );
 }
 
-/*
-// Register the plugin view type.
-registerPluginViewType(
-  'staticImage',
-  PluginImageViewSubscriber,
-  [],
-);
-*/
+export const pluginImageViewProps = {
+  pluginViewTypes: [
+    new PluginViewType(
+      'staticImage',
+      PluginImageViewSubscriber,
+      [],
+    ),
+  ],
+};
 
 // Use the plugin view in the configuration.
 export const pluginImageView = {

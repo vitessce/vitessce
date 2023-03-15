@@ -76,6 +76,8 @@ importers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants': workspace:*
       '@vitessce/json': workspace:*
+      '@vitessce/plugins': workspace:*
+      '@vitessce/schemas': workspace:*
       '@vitessce/vit-s': workspace:*
       lodash: ^4.17.21
       react: ^18.0.0
@@ -83,6 +85,8 @@ importers:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants': link:../../packages/constants
       '@vitessce/json': link:../../packages/file-types/json
+      '@vitessce/plugins': link:../../packages/plugins
+      '@vitessce/schemas': link:../../packages/schemas
       '@vitessce/vit-s': link:../../packages/vit-s
       lodash: 4.17.21
     devDependencies:

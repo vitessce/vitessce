@@ -85,7 +85,7 @@ export function buildConfigSchema<
           .map(([k, v]) => ([k, z.record(coordinationScopeName, v).optional()])),
       ),
     )
-      .catchall(z.record(coordinationScopeName, z.any()))
+      .strict()
       .describe(
         'The coordination space stores the values for each scope of each coordination object.',
       )

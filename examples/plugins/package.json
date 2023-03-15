@@ -20,6 +20,8 @@
     "@vitessce/constants": "workspace:*",
     "@vitessce/json": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
+    "@vitessce/plugins": "workspace:*",
+    "@vitessce/schemas": "workspace:*",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

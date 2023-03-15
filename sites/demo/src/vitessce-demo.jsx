@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Vitessce } from 'vitessce';
 
-import { getConfig, listConfigs } from './api';
+import { getConfig, listConfigs, getPlugins } from './api';
 import { Welcome } from './welcome';
 import { Warning } from './warning';
 
@@ -101,6 +101,7 @@ export function VitessceDemo() {
 
     if (datasetId) {
       const config = getConfig(datasetId);
+      const pluginProps = getPlugins(datasetId);
       return (
         <Vitessce
           config={config}
@@ -109,6 +110,7 @@ export function VitessceDemo() {
           onConfigChange={debug ? console.log : undefined}
           onConfigUpgrade={debug ? logConfigUpgrade : undefined}
           validateOnConfigChange={debug}
+          {...pluginProps}
         />
       );
     }
