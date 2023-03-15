@@ -1,11 +1,6 @@
-import { fromEntries } from '@vitessce/utils';
 import {
-  FileType, CoordinationType,
-  FILE_TYPE_DATA_TYPE_MAPPING,
-  COMPONENT_COORDINATION_TYPES,
   DEFAULT_COORDINATION_VALUES,
 } from '@vitessce/constants-internal';
-import { JOINT_FILE_TYPES } from './joint-file-types';
 
 const PLUGINS_KEY = '__VITESSCE_PLUGINS__';
 const PLUGIN_VIEW_TYPES_KEY = 'viewTypes';
@@ -79,72 +74,10 @@ export function registerPluginFileType(
   PLUGINS[PLUGIN_FILE_TYPE_DATA_TYPE_MAPPING_KEY][fileTypeName] = dataTypeName;
 }
 
-/**
- * Register a new joint file type.
- * @param {string} fileTypeName Name for the new file type.
- * @param {function} expansionFunction The joint file type expansion function.
- * Should take in a single file definition and return an array of
- * file definitions with valid atomic fileType values.
- */
-export function registerPluginJointFileType(
-  // eslint-disable-next-line no-unused-vars
-  fileTypeName, expansionFunction,
-) {
-  PLUGINS[PLUGIN_JOINT_FILE_TYPES_KEY][fileTypeName] = expansionFunction;
-}
-
 
 // Plugin getter functions.
-
-export function getPluginViewTypes() {
-  return Object.keys(PLUGINS[PLUGIN_VIEW_TYPES_KEY]);
-}
-
-export function getPluginViewType(viewType) {
-  return PLUGINS[PLUGIN_VIEW_TYPES_KEY][viewType];
-}
-
-export function getPluginCoordinationTypes() {
-  return Object.keys(PLUGINS[PLUGIN_COORDINATION_TYPES_KEY]);
-}
-
 export function getPluginCoordinationTypeDefaults() {
   return PLUGINS[PLUGIN_COORDINATION_TYPES_KEY];
-}
-
-export function getPluginCoordinationTypesForViewType(viewType) {
-  if (Array.isArray(PLUGINS[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY][viewType])) {
-    return PLUGINS[PLUGIN_COORDINATION_TYPES_PER_VIEW_KEY][viewType];
-  }
-  return [];
-}
-
-export function getPluginFileTypes() {
-  return Object.keys(PLUGINS[PLUGIN_FILE_TYPES_KEY]);
-}
-export function getPluginConvenienceFileTypes() {
-  return Object.keys(PLUGINS[PLUGIN_JOINT_FILE_TYPES_KEY]);
-}
-
-export function getDataTypeForPluginFileType(fileType) {
-  return PLUGINS[PLUGIN_FILE_TYPE_DATA_TYPE_MAPPING_KEY][fileType];
-}
-export function getLoaderClassesForPluginFileType(fileType) {
-  return PLUGINS[PLUGIN_FILE_TYPES_KEY][fileType].loaderClasses;
-}
-export function getOptionsSchemaForPluginFileType(fileType) {
-  return PLUGINS[PLUGIN_FILE_TYPES_KEY][fileType].optionsSchema;
-}
-export function getExpansionFunctionForPluginConvenienceFileType(fileType) {
-  return PLUGINS[PLUGIN_JOINT_FILE_TYPES_KEY][fileType];
-}
-
-// Getters that depend on plugins.
-export function getCoordinationTypes() {
-  return [
-    ...Object.values(CoordinationType),
-    ...getPluginCoordinationTypes(),
-  ];
 }
 
 // Need to do this in a function since the plugin coordination
@@ -153,17 +86,5 @@ export function getDefaultCoordinationValues() {
   return {
     ...DEFAULT_COORDINATION_VALUES,
     ...getPluginCoordinationTypeDefaults(),
-  };
-}
-
-// Need to do this in a function since the plugin coordination
-// types are dynamic.
-export function getComponentCoordinationTypes() {
-  return {
-    ...COMPONENT_COORDINATION_TYPES,
-    ...fromEntries(getPluginViewTypes().map(viewType => ([
-      viewType,
-      getPluginCoordinationTypesForViewType(viewType),
-    ]))),
   };
 }

@@ -6,9 +6,7 @@ import {
   AUTO_INDEPENDENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
 import {
-  getComponentCoordinationTypes,
   getDefaultCoordinationValues,
-  getCoordinationTypes,
 } from './plugins';
 
 /**
@@ -35,8 +33,10 @@ export function getExistingScopesForCoordinationType(config, coordinationType) {
  * to set in the coordination space.
  * @returns {object} The new view config.
  */
-function coordinateComponentsTogether(config, coordinationType, scopeValue) {
-  const componentCoordinationTypes = getComponentCoordinationTypes();
+function coordinateComponentsTogether(config, coordinationType, scopeValue, viewTypes) {
+  const componentCoordinationTypes = fromEntries(
+    viewTypes.map(vt => ([vt.name, vt.coordinationTypes])),
+  );
   const scopeName = getNextScope(getExistingScopesForCoordinationType(config, coordinationType));
   const newConfig = {
     ...config,
@@ -77,8 +77,10 @@ function coordinateComponentsTogether(config, coordinationType, scopeValue) {
  * to set in the coordination space.
  * @returns {object} The new view config.
  */
-function coordinateComponentsIndependent(config, coordinationType, scopeValue) {
-  const componentCoordinationTypes = getComponentCoordinationTypes();
+function coordinateComponentsIndependent(config, coordinationType, scopeValue, viewTypes) {
+  const componentCoordinationTypes = fromEntries(
+    viewTypes.map(vt => ([vt.name, vt.coordinationTypes])),
+  );
   const newConfig = {
     ...config,
     layout: [...config.layout],
@@ -115,13 +117,24 @@ function coordinateComponentsIndependent(config, coordinationType, scopeValue) {
   return newConfig;
 }
 
-function initializeAuto(config) {
+/**
+ * Perform initialization using initStrategy: "auto".
+ * @param {object} config The view config.
+ * @param {PluginCoordinationType[]} coordinationTypeObjs
+ * @param {PluginViewType[]} viewTypeObjs
+ * @returns {object} The config.
+ */
+function initializeAuto(config, coordinationTypeObjs, viewTypeObjs) {
   let newConfig = config;
   const { layout, datasets } = newConfig;
 
-  const componentCoordinationTypes = getComponentCoordinationTypes();
-  const defaultCoordinationValues = getDefaultCoordinationValues();
-  const coordinationTypes = getCoordinationTypes();
+  const componentCoordinationTypes = fromEntries(
+    viewTypeObjs.map(vt => ([vt.name, vt.coordinationTypes])),
+  );
+  const defaultCoordinationValues = fromEntries(
+    coordinationTypeObjs.map(ct => ([ct.name, ct.defaultValue])),
+  );
+  const coordinationTypes = coordinationTypeObjs.map(ct => ct.name);
 
   // For each coordination type, check whether it requires initialization.
   coordinationTypes.forEach((coordinationType) => {
@@ -148,9 +161,9 @@ function initializeAuto(config) {
       // a unique scope for every component ("independent")
       // vs. the same scope for every component ("together").
       if (AUTO_INDEPENDENT_COORDINATION_TYPES.includes(coordinationType)) {
-        newConfig = coordinateComponentsIndependent(newConfig, coordinationType, defaultValue);
+        newConfig = coordinateComponentsIndependent(newConfig, coordinationType, defaultValue, viewTypeObjs);
       } else {
-        newConfig = coordinateComponentsTogether(newConfig, coordinationType, defaultValue);
+        newConfig = coordinateComponentsTogether(newConfig, coordinationType, defaultValue, viewTypeObjs);
       }
     }
   });
@@ -230,14 +243,17 @@ function expandConvenienceFileDefs(config, jointFileTypes) {
  * Should be "stable": if run on the same view config twice, the return value the second
  * time should be identical to the return value the first time.
  * @param {object} config The view config prop.
+ * @param {PluginJointFileType[]} jointFileTypes
+ * @param {PluginCoordinationType[]} coordinationTypes
+ * @param {PluginViewType[]} viewTypes
  * @returns The initialized view config.
  */
-export function initialize(config, jointFileTypes) {
+export function initialize(config, jointFileTypes, coordinationTypes, viewTypes) {
   let newConfig = cloneDeep(config);
   if (newConfig.initStrategy === 'auto') {
     // TODO: pass coordination types with defaults
     // TODO: pass view types with per-view coordination type lists
-    newConfig = initializeAuto(config);
+    newConfig = initializeAuto(config, coordinationTypes, viewTypes);
   }
   newConfig = expandConvenienceFileDefs(newConfig, jointFileTypes);
   return assignViewUids(newConfig);

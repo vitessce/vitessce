@@ -1,12 +1,6 @@
 export { VitS } from './VitS';
 export { TitleInfo } from './TitleInfo';
 export { PopperMenu } from './shared-mui/components';
-export {
-  registerPluginViewType,
-  registerPluginCoordinationType,
-  registerPluginFileType,
-  registerPluginJointFileType,
-} from './plugins';
 // For plugin view types:
 export {
   useReady, useUrls,

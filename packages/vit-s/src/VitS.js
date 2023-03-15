@@ -109,7 +109,12 @@ export function VitS(props) {
       if (pluginSpecificResult.success) {
         try {
           const upgradedConfigWithValidPlugins = pluginSpecificResult.data;
-          const initializedConfig = initialize(upgradedConfigWithValidPlugins, jointFileTypes);
+          const initializedConfig = initialize(
+            upgradedConfigWithValidPlugins,
+            jointFileTypes,
+            coordinationTypes,
+            viewTypes,
+          );
           logConfig(initializedConfig, 'initialized view config');
           return [initializedConfig, true];
         } catch (e) {
