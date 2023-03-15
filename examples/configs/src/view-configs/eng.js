@@ -80,7 +80,7 @@ export const eng2019 = {
       TSNE: 't-SNE',
       UMAP: 'UMAP',
     },
-    embeddingCellSetPolygonsVisible: {
+    embeddingObsSetPolygonsVisible: {
       A: false,
     },
     embeddingObsSetLabelsVisible: {
