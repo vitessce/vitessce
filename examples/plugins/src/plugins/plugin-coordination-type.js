@@ -4,8 +4,8 @@ import Slider from '@material-ui/core/Slider';
 import {
   TitleInfo,
   useCoordination,
-  registerPluginCoordinationType,
-  registerPluginViewType,
+  /*registerPluginCoordinationType,
+  registerPluginViewType,*/
 } from '@vitessce/vit-s';
 import {
   CoordinationType,
@@ -71,6 +71,7 @@ function MyPluginSliderSubscriber(props) {
   );
 }
 
+/*
 registerPluginCoordinationType(
   'myCustomCoordinationType',
   0.75,
@@ -85,6 +86,7 @@ registerPluginViewType(
     'myCustomCoordinationType',
   ],
 );
+*/
 
 // Use the plugin view in the configuration.
 export const pluginCoordinationType = {

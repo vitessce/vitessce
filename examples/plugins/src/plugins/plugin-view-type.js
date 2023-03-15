@@ -4,7 +4,7 @@ import React from 'react';
 import {
   TitleInfo,
   useCoordination,
-  registerPluginViewType,
+  /*registerPluginViewType,*/
 } from '@vitessce/vit-s';
 import {
   CoordinationType,
@@ -66,6 +66,7 @@ function MyPluginViewSubscriber(props) {
   );
 }
 
+/*
 // Register the plugin view type.
 registerPluginViewType(
   'myCustomZoomController',
@@ -75,6 +76,7 @@ registerPluginViewType(
     CoordinationType.SPATIAL_ZOOM,
   ],
 );
+*/
 
 // Use the plugin view in the configuration.
 export const pluginViewType = {

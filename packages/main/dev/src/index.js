@@ -4,10 +4,6 @@ export * from '@vitessce/constants';
 export * from '@vitessce/config';
 export {
   Vitessce,
-  registerPluginFileType,
-  registerPluginViewType,
-  registerPluginCoordinationType,
-  registerPluginJointFileType,
 } from '@vitessce/all';
 export {
   encodeConfInUrl,
