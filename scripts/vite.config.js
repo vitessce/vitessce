@@ -40,10 +40,8 @@ export default defineConfig({
   // To enable .js files that contain JSX to be imported.
   // Reference: https://github.com/vitest-dev/vitest/issues/1564
   esbuild: {
-    loader: 'jsx',
-    include: /src\/.*\.jsx?$/,
-    // loader: "tsx",
-    // include: /src\/.*\.[tj]sx?$/,
+    loader: 'tsx',
+    include: /src\/.*\.[tj]sx?$/,
     exclude: [],
   },
 });
