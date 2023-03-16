@@ -65,12 +65,23 @@ export function VitS(props) {
     validateOnConfigChange = false,
     isBounded = false,
     uid,
-    viewTypes,
-    fileTypes,
-    jointFileTypes,
-    coordinationTypes,
+    viewTypes: viewTypesProp,
+    fileTypes: fileTypesProp,
+    jointFileTypes: jointFileTypesProp,
+    coordinationTypes: coordinationTypesProp,
     warning,
   } = props;
+
+  const viewTypes = useMemo(() => (viewTypesProp || []), [viewTypesProp]);
+  const fileTypes = useMemo(() => (fileTypesProp || []), [fileTypesProp]);
+  const jointFileTypes = useMemo(
+    () => (jointFileTypesProp || []),
+    [jointFileTypesProp],
+  );
+  const coordinationTypes = useMemo(
+    () => (coordinationTypesProp || []),
+    [coordinationTypesProp],
+  );
 
   const generateClassName = useMemo(() => createGenerateClassName({
     disableGlobal: false, // Class names need to be deterministic
