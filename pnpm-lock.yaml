@@ -450,7 +450,6 @@ importers:
       '@turf/helpers': ^6.5.0
       '@vitessce/schemas': workspace:*
       '@vitessce/utils': workspace:*
-      '@vitessce/vit-s': workspace:*
       concaveman: ^1.2.1
       d3-dsv: ^1.1.1
       internmap: ^2.0.3
@@ -463,7 +462,6 @@ importers:
       '@turf/helpers': 6.5.0
       '@vitessce/schemas': link:../../schemas
       '@vitessce/utils': link:../other-utils
-      '@vitessce/vit-s': link:../../vit-s
       concaveman: 1.2.1
       d3-dsv: 1.2.0
       internmap: 2.0.3
