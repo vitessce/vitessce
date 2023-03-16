@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { VitS } from '@vitessce/vit-s';
 import { PluginViewType } from '@vitessce/plugins';
+import { CoordinationType } from '@vitessce/constants';
 import { DescriptionSubscriber } from '@vitessce/description';
 
 const e = React.createElement;
@@ -29,7 +30,7 @@ const eng2019 = {
 };
 
 const viewTypes = [
-  new PluginViewType('description', DescriptionSubscriber, []),
+  new PluginViewType('description', DescriptionSubscriber, [CoordinationType.DATASET, CoordinationType.SPATIAL_IMAGE_LAYER]),
 ];
 
 class App extends React.Component {
