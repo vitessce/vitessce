@@ -2,7 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { VitS } from '@vitessce/vit-s';
-import { PluginViewType } from '@vitessce/schemas';
+import { PluginViewType } from '@vitessce/plugins';
 import { DescriptionSubscriber } from '@vitessce/description';
 
 const e = React.createElement;
