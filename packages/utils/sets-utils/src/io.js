@@ -18,6 +18,7 @@ import {
  * which has already passed schema validation, but may not have the latest schema version.
  * @param {string} datatype The data type of the items in the schema.
  */
+// eslint-disable-next-line no-unused-vars
 export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
   const zodSchema = HIERARCHICAL_SCHEMAS.schema;
   const parseResult = zodSchema.safeParse(currTree);
