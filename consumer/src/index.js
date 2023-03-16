@@ -2,11 +2,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { VitS } from '@vitessce/vit-s';
-import { register as registerDescription } from '@vitessce/description';
+import { PluginViewType } from '@vitessce/schemas';
+import { DescriptionSubscriber } from '@vitessce/description';
 
 const e = React.createElement;
-
-registerDescription();
 
 const eng2019 = {
   name: 'Eng et al., Nature 2019',
@@ -29,6 +28,10 @@ const eng2019 = {
   ],
 };
 
+const viewTypes = [
+  new PluginViewType('description', DescriptionSubscriber, []),
+];
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -37,7 +40,7 @@ class App extends React.Component {
   render() {
     return e(
       VitS,
-      { config: eng2019, height: 500, theme: 'light' },
+      { config: eng2019, height: 500, theme: 'light', viewTypes },
       null
     );
   }
