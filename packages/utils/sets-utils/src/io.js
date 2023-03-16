@@ -83,7 +83,6 @@ export function handleImportTabular(result, datatype, theme) {
     // Convert the validated array to a tree representation.
     const treeToImport = {
       version: HIERARCHICAL_SCHEMAS.latestVersion,
-      datatype,
       tree: [],
     };
     const uniqueGroupNames = Array.from(new Set(parsedData.map(d => d.groupName)));

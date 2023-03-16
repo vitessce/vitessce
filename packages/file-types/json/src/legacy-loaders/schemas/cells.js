@@ -9,5 +9,5 @@ export const cellsSchema = z.record(
     factors: z.record(z.string()),
     poly: z.array(coordSchema),
     mappings: z.record(coordSchema),
-  }).partial(),
+  }).strict().partial(),
 );
