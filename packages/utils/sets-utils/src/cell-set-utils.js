@@ -291,7 +291,7 @@ export function nodeToLevelDescendantNamePaths(node, level, prevPath, stopEarly 
  */
 export function treeExport(currTree, datatype) {
   return {
-    version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
+    version: HIERARCHICAL_SCHEMAS.latestVersion,
     datatype,
     tree: currTree.tree,
   };
@@ -346,7 +346,7 @@ export function treeExportSet(currTree, nodePath) {
  */
 export function treeInitialize(datatype) {
   return {
-    version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
+    version: HIERARCHICAL_SCHEMAS.latestVersion,
     datatype,
     tree: [],
   };

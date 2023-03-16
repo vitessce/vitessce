@@ -1,5 +1,12 @@
+/* eslint-disable camelcase */
 import { z } from 'zod';
-import { configSchema0_1_0, configSchema1_0_0, configSchema1_0_1, configSchema1_0_14, configSchema1_0_15, configSchema1_0_16, configSchema1_0_9 } from "./previous-base-schemas";
+import {
+  configSchema0_1_0,
+  configSchema1_0_0,
+  configSchema1_0_1,
+  configSchema1_0_15,
+  configSchema1_0_16,
+} from "./previous-base-schemas";
 
 /* eslint-disable camelcase */
 export const legacyViewConfig0_1_0: z.infer<typeof configSchema0_1_0> = {

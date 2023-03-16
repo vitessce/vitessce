@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import {
   upgradeFrom0_1_0,
   upgradeFrom1_0_0,
-  upgradeFrom1_0_14,
   upgradeFrom1_0_15,
 } from './view-config-upgraders';
 import {
@@ -11,9 +10,6 @@ import {
   upgradedLegacyViewConfig0_1_0,
   legacyViewConfig1_0_0,
   upgradedLegacyViewConfig1_0_0,
-  initializedViewConfig,
-  viewConfig1_0_10,
-  missingViewUids,
   implicitPerDatasetCoordinations,
   explicitPerDatasetCoordinations,
 } from './view-config-utils.test.fixtures';
@@ -37,7 +33,6 @@ describe('src/app/view-config-utils.js', () => {
     });
     it('upgrades more than once', () => {
       const latestConfig = upgradeAndParse(legacyViewConfig1_0_0);
-      //console.log(JSON.stringify(latestConfig, null, 2));
       expect(latestConfig.version).toEqual('1.0.16');
     });
   });

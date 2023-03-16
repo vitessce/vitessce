@@ -1,7 +1,7 @@
 import { extent } from 'd3-array';
 import range from 'lodash/range';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
-import clustersSchema from './schemas/clusters.schema.json';
+import { clustersSchema } from './schemas/clusters';
 import JsonLoader from '../json-loaders/JsonLoader';
 
 export default class ClustersJsonAsObsFeatureMatrixLoader extends JsonLoader {

@@ -118,21 +118,30 @@ export function nodeTransform(
   return node;
 }
 
-export const obsSets = z.union([cellSets3, cellSets2]).transform((v): z.infer<typeof cellSets3> => {
-  if (v.version === '0.1.3') return v;
-  // To upgrade from cell-sets schema 0.1.2 to 0.1.3,
-  // add a confidence value of null for each cell ID.
-  return {
-    ...v,
-    version: '0.1.3',
-    tree: v.tree.map(levelZeroNode => nodeTransform(
-      levelZeroNode,
-      (n: TreeNode) => !('children' in n) && Array.isArray(n.set),
-      (n: TreeNodeLeaf) => ({ ...n, set: n.set.map((itemId: string) => ([itemId, null])) }),
-      [],
-    ) as TreeNodeNonLeafProbabilistic),
-  };
-});
+export const obsSetsSchema = z.union([cellSets3, cellSets2])
+  .transform((v): z.infer<typeof cellSets3> => {
+    if (v.version === '0.1.3') return v;
+    // To upgrade from cell-sets schema 0.1.2 to 0.1.3,
+    // add a confidence value of null for each cell ID.
+    return {
+      ...v,
+      version: '0.1.3',
+      tree: v.tree.map(levelZeroNode => nodeTransform(
+        levelZeroNode,
+        (n: TreeNode) => !('children' in n) && Array.isArray(n.set),
+        (n: TreeNodeLeaf) => ({ ...n, set: n.set.map((itemId: string) => ([itemId, null])) }),
+        [],
+      ) as TreeNodeNonLeafProbabilistic),
+    };
+  });
+
+export const obsSetsTabularSchema = z.array(z.object({
+  groupName: z.string(),
+  setName: z.string(),
+  setColor: rgbArray.optional(),
+  obsId: z.string(),
+  predictionScore: z.number().nullable().optional(),
+}));
 
 export const obsSetPath = z.array(z.string());
 

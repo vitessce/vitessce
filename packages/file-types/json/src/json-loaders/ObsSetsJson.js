@@ -4,7 +4,8 @@ import {
   nodeToSet,
   treeToMembershipMap,
 } from '@vitessce/sets-utils';
-import { obsSetsSchema, AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { obsSetsSchema } from '@vitessce/schemas';
 import JsonLoader from './JsonLoader';
 
 export default class ObsSetsJsonLoader extends JsonLoader {

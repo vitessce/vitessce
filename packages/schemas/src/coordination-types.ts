@@ -8,7 +8,7 @@ import {
   neighborhoodsLayerObj,
   moleculesLayerObj,
 } from './spatial-layers';
-import { obsSetPath, rgbArray, obsSets } from './shared';
+import { obsSetPath, rgbArray, obsSetsSchema } from './shared';
 
 export const COORDINATION_TYPE_SCHEMAS = [
   new PluginCoordinationType(CoordinationType.DATASET, null, z.string()),
@@ -128,6 +128,6 @@ export const COORDINATION_TYPE_SCHEMAS = [
   new PluginCoordinationType(CoordinationType.GENOMIC_ZOOM_Y, 0, z.number()),
   new PluginCoordinationType(CoordinationType.GENOMIC_TARGET_X, 1549999999.5, z.number()),
   new PluginCoordinationType(CoordinationType.GENOMIC_TARGET_Y, 1549999999.5, z.number()),
-  new PluginCoordinationType(CoordinationType.ADDITIONAL_OBS_SETS, null, obsSets.nullable()),
+  new PluginCoordinationType(CoordinationType.ADDITIONAL_OBS_SETS, null, obsSetsSchema.nullable()),
   new PluginCoordinationType(CoordinationType.MOLECULE_HIGHLIGHT, null, z.string().nullable()),
 ];
