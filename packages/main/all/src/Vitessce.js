@@ -215,8 +215,7 @@ export function Vitessce(props) {
     pluginJointFileTypes: pluginJointFileTypesProp,
   } = props;
 
-  // TODO: change to config?.uid when that field is added
-  const configUid = config?.name;
+  const configUid = config?.uid;
   const configVersion = config?.version;
 
   const [configOrWarning, success] = useMemo(() => {

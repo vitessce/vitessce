@@ -235,6 +235,7 @@ export const configSchema1_0_15 = configSchema1_0_13.extend({
 
 export const configSchema1_0_16 = configSchema1_0_13.extend({
   version: z.literal('1.0.16'),
+  uid: z.string().optional(),
   layout: z.array(
     z.object({
       uid: z.string()

@@ -90,8 +90,7 @@ export function VitS(props) {
     productionPrefix: (uid ? `vit${uid}` : 'vit'),
   }), [uid]);
 
-  // TODO: change to config?.uid when that field is added
-  const configUid = config?.name;
+  const configUid = config?.uid;
   const configVersion = config?.version;
 
   const pluginSpecificConfigSchema = useMemo(() => buildConfigSchema(

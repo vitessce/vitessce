@@ -180,7 +180,7 @@ function initializeAuto(config, coordinationTypeObjs, viewTypeObjs) {
  * @returns The updated view config.
  */
 function assignViewUids(config) {
-  const { layout } = config;
+  const { uid, layout } = config;
   const usedIds = layout.map(view => view.uid);
   layout.forEach((view, i) => {
     // Assign uids for views where they are not present.
@@ -190,8 +190,10 @@ function assignViewUids(config) {
       usedIds.push(nextUid);
     }
   });
+  const newUid = uid || getNextScope([]);
   return {
     ...config,
+    uid: newUid,
     layout,
   };
 }

@@ -61,6 +61,7 @@ export function buildConfigSchema<
   return z.object({
     version: z.literal('1.0.16')
       .describe('The schema version for the view config.'),
+    uid: z.string().optional(),
     name: z.string(),
     public: z.boolean().optional(),
     description: z.string().optional(),

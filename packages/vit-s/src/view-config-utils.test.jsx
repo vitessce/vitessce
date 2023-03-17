@@ -102,6 +102,7 @@ describe('src/app/view-config-utils.js', () => {
 
       const initializedViewConfig = {
         version: '1.0.16',
+        uid: 'A',
         name: 'My config name',
         description: 'My config description',
         initStrategy: 'auto',
