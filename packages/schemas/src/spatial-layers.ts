@@ -27,8 +27,7 @@ export const imageLayerObj = z.array(
     colormap: z.string()
       .nullable(),
     transparentColor: z.array(z.number().describe('One of R G or B (0 - 255).'))
-      .min(3)
-      .max(3)
+      .length(3)
       .describe('Determines the color to be set to opacity 0')
       .nullable()
       .optional(),
@@ -39,8 +38,7 @@ export const imageLayerObj = z.array(
       ),
     opacity: z.number(),
     modelMatrix: z.array(z.number())
-      .min(16)
-      .max(16)
+      .length(16)
       .describe('transformation matrix for this layer')
       .optional(),
     domainType: z.enum(['Full', 'Min/Max'])
@@ -52,8 +50,7 @@ export const imageLayerObj = z.array(
       .describe('Resolution of 3D volumetric rendering')
       .optional(),
     xSlice: z.array(z.any())
-      .min(2)
-      .max(2)
+      .length(2)
       .describe('Slice bounds')
       .nullable()
       .optional(),
@@ -62,14 +59,12 @@ export const imageLayerObj = z.array(
       .describe('Rendering mode of 3D volumetric rendering')
       .optional(),
     ySlice: z.array(z.any())
-      .min(2)
-      .max(2)
+      .length(2)
       .describe('Slice bounds')
       .nullable()
       .optional(),
     zSlice: z.array(z.any())
-      .min(2)
-      .max(2)
+      .length(2)
       .describe('Slice bounds')
       .nullable()
       .optional(),
