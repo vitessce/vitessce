@@ -222,7 +222,7 @@ importers:
       '@deck.gl/geo-layers': 8.8.20_e4gaidlky2vf4rkx76l7vfyxti
       '@deck.gl/layers': 8.8.20_snnu3edqbfe6dyy3jpp7evodsa
       '@deck.gl/mesh-layers': 8.8.20_welrkb5kgjlcqbkmp6ayvup7qy
-      '@deck.gl/react': 8.8.20_pe6xxt3ruipqla76eupor3nslu
+      '@deck.gl/react': 8.8.20_wppsrnmaqiuayjv5jkdly57q4a
       '@hms-dbmi/viv': 0.13.6_c5db6wcq5dn5x6xibqjjtjnrzm
       '@loaders.gl/3d-tiles': 3.2.10_@loaders.gl+core@3.2.10
       '@loaders.gl/core': 3.2.10
@@ -246,7 +246,7 @@ importers:
       '@turf/centroid': 6.5.0
       '@turf/helpers': 6.5.0
       '@vitessce/utils': link:../utils/other-utils
-      deck.gl: 8.8.20_fjs6sbp54he2tngqqeku6af7wm
+      deck.gl: 8.8.20_xi3ankhzxop2mswjjjlt7ljfua
       glslify: 7.1.1
       lodash: 4.17.21
       math.gl: 3.6.3
@@ -368,8 +368,13 @@ importers:
 
   packages/plugins:
     specifiers:
+      '@types/react': ^18.0.28
       vite: ^3.0.0
       vitest: ^0.23.4
+      zod: ^3.21.4
+    dependencies:
+      '@types/react': 18.0.28
+      zod: 3.21.4
     devDependencies:
       vite: 3.1.8
       vitest: 0.23.4
@@ -3665,7 +3670,7 @@ packages:
     requiresBuild: true
     dependencies:
       '@types/hammerjs': 2.0.41
-      '@types/react': 18.0.21
+      '@types/react': 18.0.28
       indefinitely-typed: 1.1.0
     dev: false
 
@@ -3863,7 +3868,7 @@ packages:
       - '@luma.gl/webgl'
     dev: false
 
-  /@deck.gl/react/8.8.20_pe6xxt3ruipqla76eupor3nslu:
+  /@deck.gl/react/8.8.20_wppsrnmaqiuayjv5jkdly57q4a:
     resolution: {integrity: sha512-Pk23yFR00WPC0lHkTzRduZytWqHcgftqSWDZicyZZ5qjoafcxOYEPvyMPEknoEcjrb/sE/bWMd3RyxPRQRB+sw==}
     peerDependencies:
       '@deck.gl/core': ^8.0.0
@@ -3872,7 +3877,7 @@ packages:
       react-dom: '>=16.3 || 18'
     dependencies:
       '@deck.gl/core': 8.8.20
-      '@types/react': 18.0.21
+      '@types/react': 18.0.28
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     dev: false
@@ -4068,7 +4073,7 @@ packages:
       '@docusaurus/react-loadable': 5.5.2_react@18.2.0
       '@docusaurus/types': 2.2.0_biqbaboplfbrettd7655fr4n2y
       '@types/history': 4.7.11
-      '@types/react': 18.0.21
+      '@types/react': 18.0.28
       '@types/react-router-config': 5.0.6
       '@types/react-router-dom': 5.3.3
       react: 18.2.0
@@ -4383,7 +4388,7 @@ packages:
     peerDependencies:
       react: '*'
     dependencies:
-      '@types/react': 18.0.21
+      '@types/react': 18.0.28
       prop-types: 15.8.1
       react: 18.2.0
     dev: false
@@ -4454,7 +4459,7 @@ packages:
       '@docusaurus/plugin-content-pages': 2.2.0_dotmwdmj5dpvdnx7i6vg2sllxm
       '@docusaurus/utils': 2.2.0_@docusaurus+types@2.2.0
       '@types/history': 4.7.11
-      '@types/react': 18.0.21
+      '@types/react': 18.0.28
       '@types/react-router-config': 5.0.6
       clsx: 1.2.1
       parse-numeric-range: 1.3.0
@@ -4580,7 +4585,7 @@ packages:
       react-dom: ^16.8.4 || ^17.0.0 || 18
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.0.21
+      '@types/react': 18.0.28
       commander: 5.1.0
       joi: 17.6.3
       react: 18.2.0
@@ -6830,14 +6835,14 @@ packages:
   /@types/react-dom/18.0.6:
     resolution: {integrity: sha512-/5OFZgfIPSwy+YuIBP/FgJnQnsxhZhjjrnxudMddeblOouIodEQ75X14Rr4wGSG/bknL+Omy9iWlLo1u/9GzAA==}
     dependencies:
-      '@types/react': 18.0.21
+      '@types/react': 18.0.28
     dev: true
 
   /@types/react-router-config/5.0.6:
     resolution: {integrity: sha512-db1mx37a1EJDf1XeX8jJN7R3PZABmJQXR8r28yUjVMFSjkmnQo6X6pOEEmNl+Tp2gYQOGPdYbFIipBtdElZ3Yg==}
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.0.21
+      '@types/react': 18.0.28
       '@types/react-router': 5.1.19
     dev: false
 
@@ -6845,7 +6850,7 @@ packages:
     resolution: {integrity: sha512-kpqnYK4wcdm5UaWI3fLcELopqLrHgLqNsdpHauzlQktfkHL3npOSwtj1Uz9oKBAzs7lFtVkV8j83voAz2D8fhw==}
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.0.21
+      '@types/react': 18.0.28
       '@types/react-router': 5.1.19
     dev: false
 
@@ -6853,13 +6858,13 @@ packages:
     resolution: {integrity: sha512-Fv/5kb2STAEMT3wHzdKQK2z8xKq38EDIGVrutYLmQVVLe+4orDFquU52hQrULnEHinMKv9FSA6lf9+uNT1ITtA==}
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.0.21
+      '@types/react': 18.0.28
     dev: false
 
   /@types/react-transition-group/4.4.5:
     resolution: {integrity: sha512-juKD/eiSM3/xZYzjuzH6ZwpP+/lejltmiS3QEzV/vmb/Q8+HfDmxu+Baga8UEMGBqV88Nbg4l2hY/K2DkyaLLA==}
     dependencies:
-      '@types/react': 18.0.21
+      '@types/react': 18.0.28
     dev: false
 
   /@types/react/17.0.50:
@@ -6870,8 +6875,8 @@ packages:
       csstype: 3.1.1
     dev: false
 
-  /@types/react/18.0.21:
-    resolution: {integrity: sha512-7QUCOxvFgnD5Jk8ZKlUAhVcRj7GuJRjnjjiY/IUBWKgOlnvDvTMLD4RTF7NPyVmbRhNrbomZiOepg7M/2Kj1mA==}
+  /@types/react/18.0.28:
+    resolution: {integrity: sha512-RD0ivG1kEztNBdoAK7lekI9M+azSnitIn85h4iOiaLjaTrMjzslhaqCGaI4IyCJ1RljWiLCEu4jyrLLgqxBTew==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
@@ -7268,7 +7273,7 @@ packages:
       '@deck.gl/react': ~8.8.6
       react: ^16.8.0 || ^17.0.0 || 18
     dependencies:
-      '@deck.gl/react': 8.8.20_pe6xxt3ruipqla76eupor3nslu
+      '@deck.gl/react': 8.8.20_wppsrnmaqiuayjv5jkdly57q4a
       '@vivjs/constants': 0.13.6
       '@vivjs/extensions': 0.13.6_@deck.gl+core@8.8.20
       '@vivjs/views': 0.13.6_eyd5bnsygdbmm6idrylcbxpwiq
@@ -10075,7 +10080,7 @@ packages:
   /decimal.js/10.4.2:
     resolution: {integrity: sha512-ic1yEvwT6GuvaYwBLLY6/aFFgjZdySKTE8en/fkU3QICTmRtgtSlFn0u0BXN06InZwtfCelR7j8LRiDI/02iGA==}
 
-  /deck.gl/8.8.20_fjs6sbp54he2tngqqeku6af7wm:
+  /deck.gl/8.8.20_xi3ankhzxop2mswjjjlt7ljfua:
     resolution: {integrity: sha512-6aybdEw1TLlnpwOk+c/KZpE6JJ/SbEPQ/vBlzL+ov7Lz2p7nijinVWge9ESpNzCuwFIzAY5evDj0LFREe5jlgA==}
     dependencies:
       '@deck.gl/aggregation-layers': 8.8.20_mk75alnpm2cnqlbulfnkd63ocy
@@ -10088,7 +10093,7 @@ packages:
       '@deck.gl/layers': 8.8.20_snnu3edqbfe6dyy3jpp7evodsa
       '@deck.gl/mapbox': 8.8.20_@deck.gl+core@8.8.20
       '@deck.gl/mesh-layers': 8.8.20_welrkb5kgjlcqbkmp6ayvup7qy
-      '@deck.gl/react': 8.8.20_pe6xxt3ruipqla76eupor3nslu
+      '@deck.gl/react': 8.8.20_wppsrnmaqiuayjv5jkdly57q4a
     transitivePeerDependencies:
       - '@loaders.gl/core'
       - '@loaders.gl/gltf'
@@ -17203,7 +17208,7 @@ packages:
       vega: '*'
       vega-lite: '*'
     dependencies:
-      '@types/react': 18.0.21
+      '@types/react': 18.0.28
       fast-deep-equal: 3.1.3
       prop-types: 15.8.1
       react: 18.2.0

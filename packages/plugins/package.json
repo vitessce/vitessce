@@ -20,6 +20,10 @@
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
     "test": "pnpm exec vitest --run -r ../../ --dir ."
   },
+  "dependencies": {
+    "zod": "^3.21.4",
+    "@types/react": "^18.0.28"
+  },
   "devDependencies": {
     "vite": "^3.0.0",
     "vitest": "^0.23.4"

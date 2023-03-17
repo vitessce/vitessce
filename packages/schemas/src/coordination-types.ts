@@ -11,7 +11,7 @@ import {
 import { obsSetPath, rgbArray, obsSetsSchema } from './shared';
 
 export const COORDINATION_TYPE_SCHEMAS = [
-  new PluginCoordinationType(CoordinationType.DATASET, null, z.string()),
+  new PluginCoordinationType(CoordinationType.DATASET, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.OBS_TYPE, 'cell', z.string()),
   new PluginCoordinationType(CoordinationType.FEATURE_TYPE, 'gene', z.string()),
   new PluginCoordinationType(CoordinationType.FEATURE_VALUE_TYPE, 'expression', z.string()),
@@ -21,7 +21,7 @@ export const COORDINATION_TYPE_SCHEMAS = [
   new PluginCoordinationType(CoordinationType.EMBEDDING_TARGET_X, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_TARGET_Y, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_TARGET_Z, 0, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.EMBEDDING_TYPE, null, z.string()),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_TYPE, null, z.string().nullable()),
   new PluginCoordinationType(
     CoordinationType.EMBEDDING_OBS_SET_POLYGONS_VISIBLE,
     false,
@@ -50,7 +50,7 @@ export const COORDINATION_TYPE_SCHEMAS = [
     null,
     z.union([
       cellsLayerObj, imageLayerObj,
-    ]),
+    ]).nullable(),
   ),
   new PluginCoordinationType(
     CoordinationType.SPATIAL_NEIGHBORHOOD_LAYER,

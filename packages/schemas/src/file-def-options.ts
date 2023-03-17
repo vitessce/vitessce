@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-// TODO: define within the file-types/ sub-packages to be able to register as plugins.
-
 // Shared
 const annDataObs = z.object({
   path: z.string(),

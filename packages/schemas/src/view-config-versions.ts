@@ -44,7 +44,6 @@ import {
   upgradeFrom1_0_15,
 } from './view-config-upgraders';
 
-export const LATEST_VERSION = '1.0.15';
 export const SCHEMA_HANDLERS: [string, z.ZodTypeAny, UpgradeFunction][] = [
   ['0.1.0', configSchema0_1_0, upgradeFrom0_1_0],
   ['1.0.0', configSchema1_0_0, upgradeFrom1_0_0],
