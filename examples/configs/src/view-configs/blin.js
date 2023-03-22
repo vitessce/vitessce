@@ -19,7 +19,7 @@ export const blin2019 = {
             coordinateTransformations: [
               {
                 type: 'translation',
-                translation: [1, 1],
+                translation: [1, 1, 0],
               },
               {
                 type: 'scale',

@@ -322,7 +322,7 @@ export async function initializeRasterLayersAndChannels(
  * plain JS array using Matrix4 linear algebra transformation functions.
  * @param {object[]} coordinateTransformations List of objects matching the
  * OME-NGFF v0.4 coordinateTransformations spec.
- * @returns {number[]} Plain JS array of 16 numbers representing the Matrix4.
+ * @returns {Array<number>} Array of 16 numbers representing the Matrix4.
  */
 export function coordinateTransformationsToMatrix(coordinateTransformations) {
   let mat = (new Matrix4()).identity();
@@ -350,5 +350,5 @@ export function coordinateTransformationsToMatrix(coordinateTransformations) {
       }
     });
   }
-  return mat.toArray();
+  return mat;
 }
