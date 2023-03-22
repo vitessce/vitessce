@@ -13,34 +13,20 @@ const baseConfig = {
 }
 
 const defaultConfigOME_TIFF = {
-    "name": "Auto config for ome-tiff file formats",
-    "description": "bla blbaalbla blbalblabal",
-    "datasets": [
-        {
-            "files": [
-                {
-                    "fileType": "raster.json",
-                    "options": {
-                        "images": [
-                            {
-                                "metadata": {
-                                    "isBitmask": false,
-                                },
-                                "name": "TODO",
-                                "type": "ome-tiff",
-                                "url": "TODO"
-                            }
-                        ],
-                        "schemaVersion": "0.0.2",
-                        "usePhysicalSizeScaling": false
-                    },
-                    "type": "raster"
+    "options": {
+        "images": [
+            {
+                "metadata": {
+                    "isBitmask": false,
                 },
-            ],
-            "name": "Visualization Files",
-            "uid": "A"
-        }
-    ],
+                "name": "TODO",
+                "type": "ome-tiff",
+                "url": "TODO"
+            }
+        ],
+        "schemaVersion": "0.0.2",
+        "usePhysicalSizeScaling": false
+    },
     "coordinationSpace": {
         "dataset": {
             "A": "A"
@@ -85,30 +71,52 @@ const defaultConfigOME_TIFF = {
     "initStrategy": "auto"
 }
 
-const supportedFileTypes = {
-    "OME-TIFF": {
-        "possibleExtensions": ["ome.tif"],
-        "defaultConfig": defaultConfigOME_TIFF,
-        "type": "ome-tiff",
-    },
-    "OME-ZARR": {
-        "possibleExtensions": ["ome.zarr"],
-        "defaultConfig": {},
-        "type": "NOT DEFINED",
-    },
-    "Anndata-ZARR": {
-        "possibleExtensions": ["h5ad.zarr", ".adata.zarr", ".anndata.zarr"],
-        "defaultConfig": {},
-        "type": "NOT DEFINED",
+function getOmeTiffOptions(fileUrl, fileName) {
+    return {
+        "images": [
+            {
+                "metadata": {
+                    "isBitmask": false,
+                },
+                "name": fileName,
+                "type": "ome-tiff",
+                "url": fileUrl
+            }
+        ],
+        "schemaVersion": "0.0.2",
+        "usePhysicalSizeScaling": false
     }
-};
+}
 
 export class VitessceAutoConfig {
     
-    findFileType(fileUrl) {
+    getFileName(fileUrl) {
+        return fileUrl.split("/").at(-1);
+    }
+
+    supportedFileTypes = {
+        "OME-TIFF": {
+            "possibleExtensions": ["ome.tif"],
+            "optionsConfigName": getOmeTiffOptions,
+            "type": "ome-tiff",
+            "fileType": "raster.json"
+        },
+        "OME-ZARR": {
+            "possibleExtensions": ["ome.zarr"],
+            "defaultConfig": {},
+            "type": "NOT DEFINED",
+        },
+        "Anndata-ZARR": {
+            "possibleExtensions": ["h5ad.zarr", ".adata.zarr", ".anndata.zarr"],
+            "defaultConfig": {},
+            "type": "NOT DEFINED",
+        }
+    };
+
+    getFileType(fileUrl) {
         let fileType = null;
-        Object.keys(supportedFileTypes).forEach(key => {
-          const matchingExtensions = supportedFileTypes[key].possibleExtensions.filter(ext => fileUrl.endsWith(ext));
+        Object.keys(this.supportedFileTypes).forEach(key => {
+          const matchingExtensions = this.supportedFileTypes[key].possibleExtensions.filter(ext => fileUrl.endsWith(ext));
           if (matchingExtensions.length === 1) {
             fileType = key;
             return key;
@@ -118,6 +126,9 @@ export class VitessceAutoConfig {
     }
 
     generateConfig(fileUrl) {
+        const fileType = this.getFileType(fileUrl);
+        const fileName = this.getFileName(fileUrl);
+
         const vc = new VitessceConfig({
             schemaVersion: "1.0.15",
             name: "My example config",
@@ -128,12 +139,13 @@ export class VitessceAutoConfig {
         const dataset = vc
         .addDataset("Auto generated config for a dataset")
         .addFile({
-            url: fileUrl,
-            fileType: supportedFileTypes[this.findFileType(fileUrl)].type,
-            coordinationValues: { obsType: "cell", embeddingType: "t-SNE" },
-            options: { obsIndex: "cell_id", obsEmbedding: ["TSNE_1", "TSNE_2"] }
+            fileType: this.supportedFileTypes[fileType].fileType,
+            options: this.supportedFileTypes[fileType].optionsConfigName(fileUrl, fileName)
         });
 
+        vc.addView(dataset, 'description', {"h": 4, "w": 3, "x": 0, "y": 8});
+        vc.addView(dataset, 'spatial', {"h": 12, "w": 9, "x": 3, "y": 0});
+        vc.addView(dataset, 'layerController', {"h": 8, "w": 3, "x": 0, "y": 0});
         return vc.toJSON();
     }
     

@@ -70,6 +70,7 @@ export default function ViewConfigEditor(props) {
   const viewConfigDocsJsonUrl = useBaseUrl('/docs/view-config-json/');
 
   const [pendingUrl, setPendingUrl] = useState('');
+  const [datasetUrl, setDatasetUrl] = useState('');
   const [pendingFileContents, setPendingFileContents] = useState('');
 
   const [syntaxType, setSyntaxType] = useState('JSON');
@@ -88,15 +89,6 @@ export default function ViewConfigEditor(props) {
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, maxFiles: 1 });
 
-  const onDropAutoConfig = useCallback((acceptedFiles) => {
-    console.log(acceptedFiles);
-    if (acceptedFiles.length === 1) {
-      const autoConfig = new VitessceAutoConfig({description: "Iva"});
-      const configJson = autoConfig.generateConfig(acceptedFiles[0].name);
-      setPendingJson(JSON.stringify(configJson, null, 2));
-    }
-  }, []);
-  const { getRootProps: getRootPropsAutoConfig, getInputProps: getInputPropsAutoConfig, isDragActiveAutoConfig } = useDropzone({ onDrop: onDropAutoConfig, maxFiles: 1 });
 
   function validateConfig(nextConfig) {
     const [failureReason, upgradeSuccess] = upgradeAndValidate(JSON.parse(nextConfig));
@@ -124,26 +116,21 @@ export default function ViewConfigEditor(props) {
     setUrl(nextUrl);
   }
 
-
   function handleConfigGeneration() {
-    let config = {
-      "version": "1.0.15",
-      "name": "My amazing test config",
-      "description": "Test",
-      "datasets": [],
-      "coordinationSpace": {},
-      "layout": [],
-      "initStrategy": "auto"
-    };
-    // console.log("*****");
-    // console.log(pendingFileContents);
-    // console.log("******** IVA");
-    setPendingJson(JSON.stringify(config, null, 2));
+    console.log(datasetUrl);
+    const autoConfig = new VitessceAutoConfig({description: "Iva"});
+    const configJson = autoConfig.generateConfig(datasetUrl);
+    setPendingJson(JSON.stringify(configJson, null, 2));
+    setLoadFrom('editor');
   }
 
   function handleUrlChange(event) {
     setPendingUrl(event.target.value);
     setLoadFrom('url');
+  }
+
+  function handleDatasetUrlChange(event) {
+    setDatasetUrl(event.target.value);
   }
 
   function handleSyntaxChange(event) {
@@ -195,20 +182,9 @@ export default function ViewConfigEditor(props) {
                   type="text"
                   className={styles.viewConfigUrlInput}
                   placeholder="Drop url to file"
-                  value={pendingUrl}
-                  onChange={handleUrlChange}
+                  value={datasetUrl}
+                  onChange={handleDatasetUrlChange}
                 />
-                <div {...getRootPropsAutoConfig()} className={styles.dropzone}>
-                  <input {...getInputPropsAutoConfig()} className={styles.dropzoneInfo} />
-                  {isDragActiveAutoConfig
-                    ? <span>Drop the file here ...</span>
-                    : (pendingFileContents ? (
-                      <span>Successfully read the file.</span>
-                    ) : (
-                      <span>Drop a file</span>
-                    )
-                    )}
-                </div>
               </div>
             </div>
             <div className={styles.viewConfigInputButton}>
