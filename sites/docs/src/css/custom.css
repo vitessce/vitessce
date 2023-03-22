@@ -29,6 +29,7 @@
   --hero-banner-background: #49a5b7;
 
   font-family: 'Inter', sans-serif;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 
 }
 
@@ -39,6 +40,7 @@
   --vit-input-foreground: #9cdcfe;
   --dropzone: #5f5f60;
   --code-block-background: rgb(40, 42, 54);
+  --docusaurus-highlighted-code-line-bg: rgba(66, 66, 66, 0.35);
 }
 
 .table-of-contents a code {
@@ -52,7 +54,7 @@
   padding: inherit;
 }
 
-.docusaurus-highlight-code-line {
+.docusaurus-highlight-code-line, .theme-code-block-highlighted-line {
   background-color: #DDDFE1;
   display: block;
   margin: 0 calc(-1 * var(--ifm-pre-padding));
@@ -60,7 +62,7 @@
 }
 
 /* If you have a different syntax highlighting theme for dark mode. */
-html[data-theme='dark'] .docusaurus-highlight-code-line {
+html[data-theme='dark'] .docusaurus-highlight-code-line, .theme-code-block-highlighted-line {
   background-color: #1C1D26; /* Color which works with dark mode syntax highlighting theme */
 }
 
