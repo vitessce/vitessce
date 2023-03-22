@@ -6,7 +6,7 @@ import { scaleLinear } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
 import { getXlinkHref } from './legend-utils';
 
-export const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(() => ({
   legend: {
     position: 'absolute',
     top: '2px',
@@ -29,7 +29,7 @@ export const useStyles = makeStyles(() => ({
 
 
 const titleHeight = 10;
-const rectHeight = 10;
+const rectHeight = 8;
 
 export default function Legend(props) {
   const {
@@ -42,7 +42,7 @@ export default function Legend(props) {
     featureValueColormap,
     featureValueColormapRange,
     width = 100,
-    height = 40,
+    height = 36,
     theme,
   } = props;
 
