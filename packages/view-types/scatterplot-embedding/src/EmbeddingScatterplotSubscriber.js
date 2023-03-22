@@ -6,7 +6,6 @@ import isEqual from 'lodash/isEqual';
 import plur from 'plur';
 import {
   TitleInfo,
-  registerPluginViewType,
   useReady, useUrls,
   useDeckCanvasSize,
   useExpressionValueGetter, useGetObsInfo,
@@ -360,13 +359,5 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureValueColormapRange={geneExpressionColormapRange}
       />
     </TitleInfo>
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    ViewType.SCATTERPLOT,
-    EmbeddingScatterplotSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT],
   );
 }

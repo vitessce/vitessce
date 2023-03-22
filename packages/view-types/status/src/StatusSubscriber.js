@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  TitleInfo, useCoordination, useWarning, registerPluginViewType,
+  TitleInfo, useCoordination, useWarning,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import Status from './Status';
@@ -60,13 +60,5 @@ export function StatusSubscriber(props) {
     >
       <Status warn={warn} info={info} />
     </TitleInfo>
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    ViewType.STATUS,
-    StatusSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.STATUS],
   );
 }

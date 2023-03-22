@@ -14,7 +14,6 @@ import {
   useFeatureLabelsData,
   useCoordination, useLoaders,
   useSetComponentHover, useSetComponentViewInfo,
-  registerPluginViewType,
 } from '@vitessce/vit-s';
 import { capitalize, commaNumber, getCellColors } from '@vitessce/utils';
 import { mergeObsSets } from '@vitessce/sets-utils';
@@ -253,13 +252,5 @@ export function HeatmapSubscriber(props) {
         featureValueColormapRange={geneExpressionColormapRange}
       />
     </TitleInfo>
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    ViewType.HEATMAP,
-    HeatmapSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.HEATMAP],
   );
 }

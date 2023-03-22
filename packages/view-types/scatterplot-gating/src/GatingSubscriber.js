@@ -19,7 +19,6 @@ import {
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
-  registerPluginViewType,
 } from '@vitessce/vit-s';
 import { getCellSetPolygons, mergeObsSets, setObsSelection } from '@vitessce/sets-utils';
 import {
@@ -448,13 +447,5 @@ export function GatingSubscriber(props) {
       />
       )}
     </TitleInfo>
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    ViewType.GATING,
-    GatingSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.GATING],
   );
 }

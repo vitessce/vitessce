@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 export { default as JsonSource } from './JsonSource';
 export * from './json-loaders/index';
 export * from './legacy-loaders/index';

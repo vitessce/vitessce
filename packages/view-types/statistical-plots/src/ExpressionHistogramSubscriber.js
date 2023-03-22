@@ -5,7 +5,6 @@ import {
   useCoordination, useLoaders,
   useUrls, useReady, useGridItemSize,
   useObsFeatureMatrixData, useFeatureSelection,
-  registerPluginViewType,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import ExpressionHistogram from './ExpressionHistogram';
@@ -106,13 +105,5 @@ export function ExpressionHistogramSubscriber(props) {
         />
       </div>
     </TitleInfo>
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    ViewType.FEATURE_VALUE_HISTOGRAM,
-    ExpressionHistogramSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_VALUE_HISTOGRAM],
   );
 }

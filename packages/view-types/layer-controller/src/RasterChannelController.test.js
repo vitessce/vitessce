@@ -1,4 +1,4 @@
-import { toRgbUIString } from './RasterChannelController';
+import { toRgbUIString } from './utils';
 
 const GREY = [220, 220, 220];
 

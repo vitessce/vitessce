@@ -20,6 +20,7 @@ importers:
       eslint: ^8.18.0
       eslint-plugin-react: ^7.30.0
       eslint-plugin-react-hooks: ^4.6.0
+      eslint-plugin-react-refresh: ^0.3.4
       jest-canvas-mock: ^2.3.0
       jsdom: ^20.0.0
       jsdom-worker: ^0.3.0
@@ -47,6 +48,7 @@ importers:
       eslint: 8.25.0
       eslint-plugin-react: 7.31.10_eslint@8.25.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.25.0
+      eslint-plugin-react-refresh: 0.3.4_eslint@8.25.0
       jest-canvas-mock: 2.4.0
       jsdom: 20.0.1
       jsdom-worker: 0.3.0_node-fetch@3.2.10
@@ -11173,6 +11175,14 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
+    dependencies:
+      eslint: 8.25.0
+    dev: true
+
+  /eslint-plugin-react-refresh/0.3.4_eslint@8.25.0:
+    resolution: {integrity: sha512-E0ViBglxSQAERBp6eTj5fPgtCRtDonnbCFiVQBhf4Dto2blJRxg1dFUMdMh7N6ljTI4UwPhHwYDQ3Dyo4m6bwA==}
+    peerDependencies:
+      eslint: '>=7'
     dependencies:
       eslint: 8.25.0
     dev: true

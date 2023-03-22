@@ -1,14 +1,13 @@
 import React, { Suspense, useMemo } from 'react';
 import { Handler } from 'vega-tooltip';
 import ReactVega from './ReactVega';
+import { DATASET_NAME } from './utils';
 
 // TODO: React.lazy is not working with Vitessce in the portal-ui.
 // For now, we can work around this by not using React.lazy,
 // but for performance benefits that come with lazy-loading
 // we should eventually try to resolve this issue.
 // const ReactVega = React.lazy(() => import('./ReactVega'));
-
-export const DATASET_NAME = 'table';
 
 function isVega(spec) {
   return spec.$schema === 'https://vega.github.io/schema/vega/v5.json';
