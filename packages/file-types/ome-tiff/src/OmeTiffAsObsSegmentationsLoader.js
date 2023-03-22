@@ -3,28 +3,35 @@ import { LoaderResult } from '@vitessce/vit-s';
 import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,
+  getNgffAxesForTiff,
 } from '@vitessce/spatial-utils';
 import OmeTiffLoader from './OmeTiffLoader';
 
 export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
   async load() {
-    const { coordinateTransformations } = this.options || {};
-    const offsets = await this.loadOffsets();
     const { url, requestInit } = this;
+    const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
+    const offsets = await this.loadOffsets();
+    const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
+    const { Name: imageName, Pixels: { DimensionOrder } } = loader.metadata;
 
     // Get image name and URL tuples.
     const urls = [url, 'OME-TIFF'];
 
+    const transformMatrix = coordinateTransformationsToMatrix(
+      coordinateTransformationsFromOptions, getNgffAxesForTiff(DimensionOrder),
+    );
+
     const image = {
-      name: 'Image',
+      name: imageName || 'Image',
       url,
       type: 'ome-tiff',
       // This load() method is the same as in ./OmeTiffLoader except we specify isBitmask here:
       metadata: {
         isBitmask: true,
-        ...(coordinateTransformations ? {
+        ...(transformMatrix ? {
           transform: {
-            matrix: coordinateTransformationsToMatrix(coordinateTransformations),
+            matrix: transformMatrix,
           },
         } : {}),
       },
@@ -35,7 +42,6 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
       {
         ...image,
         loaderCreator: async () => {
-          const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
           const { Pixels: { Channels } } = loader.metadata;
           const channels = Array.isArray(Channels)
             ? Channels.map((channel, i) => channel.Name || `Channel ${i}`)

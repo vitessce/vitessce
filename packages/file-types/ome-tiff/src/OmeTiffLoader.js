@@ -2,6 +2,7 @@ import { viv } from '@vitessce/gl';
 import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,
+  getNgffAxesForTiff,
 } from '@vitessce/spatial-utils';
 import { AbstractTwoStepLoader, imageOmeTiffSchema, LoaderResult } from '@vitessce/vit-s';
 
@@ -26,7 +27,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
   async load() {
     const { url, requestInit } = this;
-    const { coordinateTransformations } = this.options || {};
+    const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
     // Get image name and URL tuples.
     const urls = [
@@ -35,19 +36,23 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
-    const { Name: imageName, Pixels: { Channels } } = loader.metadata;
+    const { Name: imageName, Pixels: { Channels, DimensionOrder } } = loader.metadata;
     const channels = Array.isArray(Channels)
       ? Channels.map((channel, i) => channel.Name || `Channel ${i}`)
       : [Channels.Name || `Channel ${0}`];
+
+    const transformMatrix = coordinateTransformationsToMatrix(
+      coordinateTransformationsFromOptions, getNgffAxesForTiff(DimensionOrder),
+    );
 
     const image = {
       name: imageName || 'Image',
       url,
       type: 'ome-tiff',
-      ...(coordinateTransformations ? {
+      ...(transformMatrix ? {
         metadata: {
           transform: {
-            matrix: coordinateTransformationsToMatrix(coordinateTransformations),
+            matrix: transformMatrix,
           },
         },
       } : {}),

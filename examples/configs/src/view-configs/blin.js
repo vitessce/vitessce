@@ -1,5 +1,3 @@
-
-
 const blinName = 'Blin et al., PLoS Biol 2019';
 const blinDescription = 'Mouse blastocysts imaged by confocal microscopy';
 export const blin2019 = {
@@ -14,16 +12,16 @@ export const blin2019 = {
       files: [
         {
           fileType: 'image.ome-zarr',
-          url: 'https://minio-dev.openmicroscopy.org/idr/v0.4/2022-01-05/idr0062/6001240.zarr',
+          url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr',
           options: {
             coordinateTransformations: [
               {
                 type: 'translation',
-                translation: [1, 1, 0],
+                translation: [0, 0, 1, 1],
               },
               {
                 type: 'scale',
-                scale: [0.5, 0.5, 0.5],
+                scale: [1, 0.5, 0.5, 0.5],
               },
             ],
           },

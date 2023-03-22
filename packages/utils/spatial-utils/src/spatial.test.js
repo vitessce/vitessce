@@ -1,5 +1,13 @@
 import { square, coordinateTransformationsToMatrix } from './spatial';
 
+const defaultAxes = [
+  { type: 'time', name: 't' },
+  { type: 'channel', name: 'c' },
+  { type: 'space', name: 'z' },
+  { type: 'space', name: 'y' },
+  { type: 'space', name: 'x' },
+];
+
 describe('Spatial.js', () => {
   describe('square()', () => {
     it('gives the right coordinates', () => {
@@ -11,18 +19,26 @@ describe('Spatial.js', () => {
       const transformations = [
         {
           type: 'translation',
-          translation: [1, 1, 0],
+          translation: [0, 0, 0, 1, 1],
         },
         {
           type: 'scale',
-          scale: [0.5, 0.5, 0.5],
+          scale: [1, 1, 0.5, 0.5, 0.5],
         },
       ];
-      expect(coordinateTransformationsToMatrix(transformations)).toEqual([
+      expect(coordinateTransformationsToMatrix(transformations, defaultAxes)).toEqual([
         0.5, 0, 0, 0,
         0, 0.5, 0, 0,
         0, 0, 0.5, 0,
         0.5, 0.5, 0, 1,
+      ]);
+    });
+    it('returns Identity matrix when coordinateTransformations is null', () => {
+      expect(coordinateTransformationsToMatrix(null, defaultAxes)).toEqual([
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1,
       ]);
     });
   });
