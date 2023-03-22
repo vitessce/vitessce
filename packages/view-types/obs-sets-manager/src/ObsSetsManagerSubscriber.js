@@ -11,7 +11,6 @@ import {
   TitleInfo,
   useUrls, useReady,
   useObsSetsData,
-  registerPluginViewType,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType } from '@vitessce/constants-internal';
 import {
@@ -620,13 +619,5 @@ export function ObsSetsManagerSubscriber(props) {
         theme={theme}
       />
     </TitleInfo>
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    ViewType.OBS_SETS,
-    ObsSetsManagerSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.OBS_SETS],
   );
 }
