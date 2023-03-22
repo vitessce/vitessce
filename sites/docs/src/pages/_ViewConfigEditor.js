@@ -6,7 +6,7 @@ import {
   LiveProvider, LiveContext, LiveError, LivePreview,
 } from 'react-live';
 import {
-  VitessceConfig, hconcat, vconcat,
+  VitessceConfig, VitessceAutoConfig, hconcat, vconcat,
 } from '@vitessce/config';
 import {
   CoordinationType, ViewType, DataType, FileType,
@@ -76,9 +76,6 @@ export default function ViewConfigEditor(props) {
   const [loadFrom, setLoadFrom] = useState('editor');
 
   const onDrop = useCallback((acceptedFiles) => {
-    console.log("++++++");
-    console.log(acceptedFiles.name);
-    console.log("++++++");
     if (acceptedFiles.length === 1) {
       const reader = new FileReader();
       reader.addEventListener('load', () => {
@@ -90,6 +87,16 @@ export default function ViewConfigEditor(props) {
     }
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, maxFiles: 1 });
+
+  const onDropAutoConfig = useCallback((acceptedFiles) => {
+    console.log(acceptedFiles);
+    if (acceptedFiles.length === 1) {
+      const autoConfig = new VitessceAutoConfig({description: "Iva"});
+      const configJson = autoConfig.generateConfig(acceptedFiles[0].name);
+      setPendingJson(JSON.stringify(configJson, null, 2));
+    }
+  }, []);
+  const { getRootProps: getRootPropsAutoConfig, getInputProps: getInputPropsAutoConfig, isDragActiveAutoConfig } = useDropzone({ onDrop: onDropAutoConfig, maxFiles: 1 });
 
   function validateConfig(nextConfig) {
     const [failureReason, upgradeSuccess] = upgradeAndValidate(JSON.parse(nextConfig));
@@ -119,10 +126,6 @@ export default function ViewConfigEditor(props) {
 
 
   function handleConfigGeneration() {
-    const supportedFileTypes = {
-      "OME-TIFF": ["ome.tiff"],
-    };
-
     let config = {
       "version": "1.0.15",
       "name": "My amazing test config",
@@ -185,19 +188,19 @@ export default function ViewConfigEditor(props) {
         <div className={styles.viewConfigInputs}>
             <div className={styles.viewConfigInputUrlOrFile}>
               <p className={styles.viewConfigInputUrlOrFileText}>
-                Or give us your files and we will return a config for you in the editor below.
+                Or drop your file and we will return a config for you in the editor below.
               </p>
               <div className={styles.viewConfigInputUrlOrFileSplit}>
                 <input
                   type="text"
                   className={styles.viewConfigUrlInput}
-                  placeholder="Drop a folder with links to all files"
+                  placeholder="Drop url to file"
                   value={pendingUrl}
                   onChange={handleUrlChange}
                 />
-                <div {...getRootProps()} className={styles.dropzone}>
-                  <input {...getInputProps()} className={styles.dropzoneInfo} />
-                  {isDragActive
+                <div {...getRootPropsAutoConfig()} className={styles.dropzone}>
+                  <input {...getInputPropsAutoConfig()} className={styles.dropzoneInfo} />
+                  {isDragActiveAutoConfig
                     ? <span>Drop the file here ...</span>
                     : (pendingFileContents ? (
                       <span>Successfully read the file.</span>
