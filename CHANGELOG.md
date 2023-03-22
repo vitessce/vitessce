@@ -1,5 +1,6 @@
 
 ### Added
+- Added a legend for quantitative color scales in the `SpatialSubscriber` and `EmbeddingScatterplotSubscriber` views.
 - Added `image.ome-tiff` and `obsSegmentations.ome-tiff` file types.
 - Added `coordinateTransformation` file type options for `image.ome-tiff` and `image.ome-zarr`.
 
