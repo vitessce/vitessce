@@ -76,6 +76,9 @@ export default function ViewConfigEditor(props) {
   const [loadFrom, setLoadFrom] = useState('editor');
 
   const onDrop = useCallback((acceptedFiles) => {
+    console.log("++++++");
+    console.log(acceptedFiles.name);
+    console.log("++++++");
     if (acceptedFiles.length === 1) {
       const reader = new FileReader();
       reader.addEventListener('load', () => {
@@ -112,6 +115,27 @@ export default function ViewConfigEditor(props) {
       nextUrl = `data:,${encodeURIComponent(pendingFileContents)}`;
     }
     setUrl(nextUrl);
+  }
+
+
+  function handleConfigGeneration() {
+    const supportedFileTypes = {
+      "OME-TIFF": ["ome.tiff"],
+    };
+
+    let config = {
+      "version": "1.0.15",
+      "name": "My amazing test config",
+      "description": "Test",
+      "datasets": [],
+      "coordinationSpace": {},
+      "layout": [],
+      "initStrategy": "auto"
+    };
+    // console.log("*****");
+    // console.log(pendingFileContents);
+    // console.log("******** IVA");
+    setPendingJson(JSON.stringify(config, null, 2));
   }
 
   function handleUrlChange(event) {
@@ -157,6 +181,43 @@ export default function ViewConfigEditor(props) {
           <button type="button" onClick={tryExample}>Try an example</button>&nbsp;
           {showReset && <button type="button" onClick={resetEditor}>Reset the editor</button>}
         </p>
+
+        <div className={styles.viewConfigInputs}>
+            <div className={styles.viewConfigInputUrlOrFile}>
+              <p className={styles.viewConfigInputUrlOrFileText}>
+                Or give us your files and we will return a config for you in the editor below.
+              </p>
+              <div className={styles.viewConfigInputUrlOrFileSplit}>
+                <input
+                  type="text"
+                  className={styles.viewConfigUrlInput}
+                  placeholder="Drop a folder with links to all files"
+                  value={pendingUrl}
+                  onChange={handleUrlChange}
+                />
+                <div {...getRootProps()} className={styles.dropzone}>
+                  <input {...getInputProps()} className={styles.dropzoneInfo} />
+                  {isDragActive
+                    ? <span>Drop the file here ...</span>
+                    : (pendingFileContents ? (
+                      <span>Successfully read the file.</span>
+                    ) : (
+                      <span>Drop a file</span>
+                    )
+                    )}
+                </div>
+              </div>
+            </div>
+            <div className={styles.viewConfigInputButton}>
+              <button
+                type="button"
+                className={styles.viewConfigGo}
+                onClick={handleConfigGeneration}
+              >Generate config
+              </button>
+            </div>
+          </div>
+
         <div className={styles.viewConfigEditorType}>
           <label htmlFor="editor-syntax">
             <select
