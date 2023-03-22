@@ -13,13 +13,30 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
-    const { Name: imageName, Pixels: { DimensionOrder } } = loader.metadata;
+    const {
+      Name: imageName,
+      Pixels: {
+        Channels,
+        DimensionOrder,
+        PhysicalSizeX,
+        PhysicalSizeXUnit,
+        PhysicalSizeY,
+        PhysicalSizeYUnit,
+      },
+    } = loader.metadata;
 
     // Get image name and URL tuples.
     const urls = [url, 'OME-TIFF'];
 
-    const transformMatrix = coordinateTransformationsToMatrix(
+    const transformMatrixFromOptions = coordinateTransformationsToMatrix(
       coordinateTransformationsFromOptions, getNgffAxesForTiff(DimensionOrder),
+    );
+
+    const usePhysicalSizeScaling = (
+      PhysicalSizeX
+      && PhysicalSizeXUnit
+      && PhysicalSizeY
+      && PhysicalSizeYUnit
     );
 
     const image = {
@@ -29,9 +46,9 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
       // This load() method is the same as in ./OmeTiffLoader except we specify isBitmask here:
       metadata: {
         isBitmask: true,
-        ...(transformMatrix ? {
+        ...(transformMatrixFromOptions ? {
           transform: {
-            matrix: transformMatrix,
+            matrix: transformMatrixFromOptions,
           },
         } : {}),
       },
@@ -42,7 +59,6 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
       {
         ...image,
         loaderCreator: async () => {
-          const { Pixels: { Channels } } = loader.metadata;
           const channels = Array.isArray(Channels)
             ? Channels.map((channel, i) => channel.Name || `Channel ${i}`)
             : [Channels.Name || `Channel ${0}`];
@@ -51,7 +67,6 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
       },
     ];
 
-    const usePhysicalSizeScaling = false;
     const renderLayers = null;
 
     // TODO: use options for initial selection of channels

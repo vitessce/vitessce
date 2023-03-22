@@ -36,23 +36,40 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
-    const { Name: imageName, Pixels: { Channels, DimensionOrder } } = loader.metadata;
+    const {
+      Name: imageName,
+      Pixels: {
+        Channels,
+        DimensionOrder,
+        PhysicalSizeX,
+        PhysicalSizeXUnit,
+        PhysicalSizeY,
+        PhysicalSizeYUnit,
+      },
+    } = loader.metadata;
     const channels = Array.isArray(Channels)
       ? Channels.map((channel, i) => channel.Name || `Channel ${i}`)
       : [Channels.Name || `Channel ${0}`];
 
-    const transformMatrix = coordinateTransformationsToMatrix(
+    const transformMatrixFromOptions = coordinateTransformationsToMatrix(
       coordinateTransformationsFromOptions, getNgffAxesForTiff(DimensionOrder),
+    );
+
+    const usePhysicalSizeScaling = (
+      PhysicalSizeX
+      && PhysicalSizeXUnit
+      && PhysicalSizeY
+      && PhysicalSizeYUnit
     );
 
     const image = {
       name: imageName || 'Image',
       url,
       type: 'ome-tiff',
-      ...(transformMatrix ? {
+      ...(transformMatrixFromOptions ? {
         metadata: {
           transform: {
-            matrix: transformMatrix,
+            matrix: transformMatrixFromOptions,
           },
         },
       } : {}),
@@ -66,7 +83,6 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       },
     ];
 
-    const usePhysicalSizeScaling = false;
     const renderLayers = null;
 
     // TODO: use options for initial selection of channels
