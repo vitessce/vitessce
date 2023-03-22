@@ -1,6 +1,6 @@
 {
-  "name": "@vitessce/heatmap",
-  "version": "2.0.3",
+  "name": "@vitessce/legend",
+  "version": "2.0.2",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -17,22 +17,18 @@
     "src"
   ],
   "scripts": {
-    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
-    "test": "pnpm exec vitest --run -r ../../../ --dir ."
+    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
+    "test": "pnpm exec vitest --run -r ../../ --dir ."
   },
   "dependencies": {
     "@material-ui/core": "~4.12.3",
-    "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/gl": "workspace:*",
-    "@vitessce/sets-utils": "workspace:*",
-    "@vitessce/tooltip": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
-    "@vitessce/workers": "workspace:*",
-    "@vitessce/legend": "workspace:*",
-    "lodash": "^4.17.21",
-    "plur": "^5.1.0",
-    "uuid": "^3.3.2"
+    "colormap": "^2.3.2",
+    "d3-scale": "^3.2.3",
+    "d3-interpolate": "^2.0.1",
+    "d3-color": "^1.4.0",
+    "d3-axis": "^3.0.0",
+    "d3-selection": "^3.0.0"
   },
   "devDependencies": {
     "react": "^18.0.0",
