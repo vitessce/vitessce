@@ -1,2 +1,3 @@
-export { SpatialSubscriber, register } from './SpatialSubscriber';
+export { SpatialSubscriber } from './SpatialSubscriber';
 export { default as Spatial } from './Spatial';
+export { register } from './register';

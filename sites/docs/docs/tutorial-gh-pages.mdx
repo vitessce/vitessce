@@ -9,16 +9,21 @@ This tutorial covers how to embed Vitessce as a React component in a website tha
 
 ## NodeJS and NPM environment setup
 
-Be sure to install [NodeJS](https://nodejs.org/en/download/releases/) v14.0.0 and NPM v6.14.16.
+Be sure to install [NodeJS](https://nodejs.org/en/download/releases/).
 
+This tutorial was written using the following versions of NodeJS and NPM:
 ```sh
 node --version
 ```
 
+v18.6.0
+
+
 ```sh
-npm install -g npm@6.14.16
 npm --version
 ```
+
+8.13.2
 
 ## React app setup
 
@@ -46,34 +51,12 @@ git remote add origin git@github.com:my-username/vitessce-demo-gh-pages.git
 git push -u origin main
 ```
 
-
-Install [craco](https://github.com/gsoft-inc/craco) which enables customization of the Webpack configuration:
-
-```sh
-npm install @craco/craco@5.8.0 --save-dev
-```
-
 Install Vitessce:
 
 ```sh
 npm install vitessce --save
 ```
 
-Create a new file `craco.config.js` with the following contents (see the Vitessce [README](https://github.com/vitessce/vitessce#bundling) for why this is required):
-
-```js
-module.exports = {
-  webpack: {
-    configure: {
-      resolve: {
-        alias: {
-          'txml/txml': 'txml/dist/txml',
-        },
-      },
-    },
-  },
-};
-```
 
 ## React app development
 
@@ -158,7 +141,6 @@ In `src/App.js`:
 import React from 'react';
 import { Vitessce } from 'vitessce';
 import { myViewConfig } from './my-view-config';
-import 'vitessce/dist/es/production/static/css/index.css';
 
 export default function App() {
   return (
@@ -219,47 +201,50 @@ on:
     branches:
       - main
 
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  deploy:
-    runs-on: ubuntu-18.04
+  build:
+    runs-on: ubuntu-22.04
     name: Build React app and deploy to GitHub Pages
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/setup-node@v1
         with:
-          node-version: 14
-          registry-url: https://registry.npmjs.org/
+          node-version: 18
       - name: Install NPM dependencies
         run: npm ci
       - name: Build React app
         run: npm run build
-      - name: Deploy docs to gh-pages branch
-        uses: alex-page/blazing-fast-gh-pages-deploy@v1.1.0
+      - uses: actions/upload-pages-artifact@v1
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
-          repo-token: ${{ secrets.GH_TOKEN }}
-          site-directory: build
+          path: ./build
+  deploy:
+    runs-on: ubuntu-22.04
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        id: deployment
+        uses: actions/deploy-pages@v1
+    
 ```
 
-### Create a Personal access token
 
-To allow the GitHub Action to modify the `gh-pages` branch of the repository, we need to provide it with a Personal access token that has the appropriate permissions.
-This can be generated in GitHub by going to the user Settings page and then Developer settings (or https://github.com/settings/tokens).
+### Allow GitHub Pages to be deployed from GitHub Actions
 
-Click "Generate new token" (which may require you to log in).
+To allow the GitHub Action to modify the `gh-pages` branch of the repository, we need to update the settings at `https://github.com/{my-username}/vitessce-demo-gh-pages/settings/pages` (or navigate to `Settings` -> `Pages` for the repo).
 
-Provide a name and update the expiration date appropriately.
+Under Build and deployment, select `GitHub Actions` in the Source dropdown menu.
 
-Under "Select scopes", check `repo` (the sub-checkboxes should then be checked automatically).
-
-Once the token has been generated, copy it to somewhere safe to keep track of it.
-
-### Set the Personal access token as a Repository secret
-
-In the GitHub repository's Settings tab, go to Security > Secrets > Actions.
-
-Click the "New repository secret" button.
-
-Name the secret `GH_TOKEN`, and provide the Personal access token as the value.
 
 ### Set the homepage property in package.json
 

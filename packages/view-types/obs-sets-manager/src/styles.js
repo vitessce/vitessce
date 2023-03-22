@@ -234,7 +234,8 @@ export const useStyles = makeStyles(theme => ({
   nodeMenuIcon: {
     fill: theme.palette.grayMid,
     cursor: 'pointer',
-    height: '14px',
+    // Important needed due to Jupyter Notebook conflicting styles
+    height: '14px !important',
     position: 'relative',
     verticalAlign: 'top',
     width: `${nodeHeight}px`,
@@ -260,7 +261,8 @@ export const useStyles = makeStyles(theme => ({
     /* create custom radiobutton appearance */
     width: '12px',
     height: '12px',
-    padding: '5px',
+    // Important needed due to Jupyter Notebook conflicting styles
+    padding: '5px !important',
     /* background-color only for content */
     backgroundClip: 'content-box',
     border: `2px solid ${theme.palette.primaryForegroundL10}`,

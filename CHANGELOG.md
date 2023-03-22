@@ -2,15 +2,30 @@
 ### Added
 - Added `image.ome-tiff` and `obsSegmentations.ome-tiff` file types.
 - Added `coordinateTransformation` file type options for `image.ome-tiff` and `image.ome-zarr`.
+
+### Changed
+- Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
+- Fixes Go to Definition support in vscode (see https://github.com/microsoft/TypeScript/issues/49003#issuecomment-1164659854).
+
+
+## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
+
+### Added
 - Re-implemented PR 1240 (coordinationScopesBy)
 - Added `MuData` file types.
 - Added a `uid` prop for `VitS` to fix Jupyter notebook style conflicts caused by multiple `Vitessce` widget instances loaded in the same `JupyterLab` session.
+- Added `!important` statements to override Jupyter Notebook (classic) style conflicts.
+- Added `vite.config.js` and `pnpm run bundle` for bundling sub-packages as proper ESM.
+- Added test for a "consumer" package of the Vitessce sub-packages in `consumer/` directory, with a corresponding cypress test in `sites/html/cypress/e2e/html.spec.cy.js`.
 
 ### Changed
 - Converted all `rem` units to `px` to fix R/Python widget CSS bugs caused by different root style conflicts.
 - Comment out `_DiffViewConfigSchema` in the docs to fix bug.
 - Switched to using `react` via esm.sh rather than `es-react` via unpkg for the Cypress tests in `sites/html`.
-
+- Simplify HiGlass dynamic import (possible now since no longer using Webpack) to resolve bug in Vitessce Python.
+- Upgrade `Viv` to `0.13.6` to support OME-NGFF `v0.4`
+- Use `pnpm pack` in all subpackages so that outdated packages from NPM are not used during the consumer package install test.
+- Update GitHub Pages tutorial in docs.
 
 ## [2.0.2](https://www.npmjs.com/package/vitessce/v/2.0.2) - 2022-12-09
 

@@ -28,4 +28,14 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
     cy.contains('523 cells'); // Not public; requires "show=all".
     cy.contains('Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH');
   });
+  it('Works for dynamic import of HiGlass', () => {
+    cy.visit('/sites/html/src/higlass.html');
+    cy.contains('Demo of Vitessce');
+    cy.contains('HiGlass');
+    cy.get('.higlass .tiled-plot-div', { timeout: 5000 });
+  });
+  it('Works for consumer package', () => {
+    cy.visit('/consumer/dist/index.html');
+    cy.contains('Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH');
+  });
 });

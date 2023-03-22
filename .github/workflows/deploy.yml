@@ -23,7 +23,12 @@ jobs:
         with:
           version: 7
           run_install: true
-      - run: pnpm run build:ci
+      - id: get-options
+        run: . ./set-node-options.sh --action
+        shell: bash
+      - run: pnpm run build:ci && pnpm run bundle:ci
+        env:
+          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - run: ./test.sh --action
       - name: Deploy to NPM
         if: ${{ steps.check-deploy.outputs.needs-deploy == 'true' }}
