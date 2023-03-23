@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 // Reference: require('prism-react-renderer/themes/github')
 // Imported by Node using require() in docusaurus.config.js
 // and also used by src/pages/_highlight-theme.js.

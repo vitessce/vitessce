@@ -30,7 +30,6 @@ function ControlledEditor(props) {
       base: 'vs',
       inherit: true,
       rules: [
-        
         { token: 'string.key.json', foreground: '36acaa' },
         { token: 'string.value.json', foreground: 'e3116c' },
         { token: 'delimiter.bracket.json', foreground: '393A34' },
@@ -39,7 +38,7 @@ function ControlledEditor(props) {
         { token: 'delimiter.comma.json', foreground: '393A34' },
         { token: 'string', foreground: 'e3116c' },
         { token: 'keyword', foreground: '00009f' },
-        { token: 'identifier', foreground: '36acaa'},
+        { token: 'identifier', foreground: '36acaa' },
         { token: 'type.identifier', foreground: '393A34' },
         { token: 'comment', foreground: '999988' },
         { token: 'number', foreground: '36acaa' },
