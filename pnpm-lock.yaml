@@ -992,6 +992,7 @@ importers:
       '@vitessce/constants': workspace:*
       '@vitessce/constants-internal': workspace:*
       '@vitessce/example-configs': workspace:*
+      '@vitessce/schemas': workspace:*
       '@vitessce/vit-s': workspace:*
       clsx: ^1.1.1
       copy-text-to-clipboard: ^2.2.0
@@ -1038,6 +1039,7 @@ importers:
       '@vitessce/constants': link:../../packages/constants
       '@vitessce/constants-internal': link:../../packages/constants-internal
       '@vitessce/example-configs': link:../../examples/configs
+      '@vitessce/schemas': link:../../packages/schemas
       '@vitessce/vit-s': link:../../packages/vit-s
       clsx: 1.2.1
       copy-text-to-clipboard: 2.2.0
