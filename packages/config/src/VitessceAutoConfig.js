@@ -617,6 +617,9 @@ class AnndataZarrAutoConfig {
             if (key.toLowerCase().includes(("obsm/x_segmentations"))) {
                 options["obsSegmentations"] = {"path": key};
             }
+            if (key.toLowerCase().includes(("obsm/x_spatial"))) {
+                options["obsLocations"] = {"path": key};
+            }
             if (key.toLowerCase().includes("obsm/x_umap")) {
                 options["obsEmbedding"].push({"path": key,"embeddingType": "UMAP"})
             }
@@ -644,11 +647,15 @@ class AnndataZarrAutoConfig {
             }
         });
     
-        console.log("OPTIONS: ", options);
         return {
             options: options,
             fileType: this.fileType,
-            url: this.fileUrl
+            url: this.fileUrl,
+            coordinationValues: {
+                "obsType": "cell",
+                "featureType": "gene",
+                "featureValueType": "expression"
+            }
         };
     }
 
