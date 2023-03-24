@@ -8,7 +8,6 @@ import {
 import isEqual from 'lodash/isEqual';
 import { META_VERSION } from '@vitessce/constants-internal';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
-import { fromEntries } from '@vitessce/utils';
 import { muiTheme } from './shared-mui/styles';
 import {
   ViewConfigProvider,
