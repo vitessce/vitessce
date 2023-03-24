@@ -45,6 +45,10 @@ export class PluginFileType<
     this.dataSourceClass = dataSourceClass;
     this.optionsSchema = optionsSchema;
   }
+
+  getSourceAndLoader(): [IDataSource, IDataLoader] {
+    return [this.dataSourceClass, this.dataLoaderClass];
+  }
 }
 
 interface IFileDef<OptionsType> {
