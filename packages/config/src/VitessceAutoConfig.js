@@ -671,7 +671,7 @@ class AnndataZarrAutoConfig {
             .find(key => key.toLowerCase().includes("cluster") || key.toLowerCase().includes("cell_type"));
 
         if (hasCellSetData.length > 0) {
-            views.push(['obsSets', {"h": 2, "w": 3, "x": 9, "y": 3}]);
+            views.push(['obsSets']);
         }
     
         this.meta["obsm"].forEach(key => {
@@ -734,6 +734,24 @@ export class VitessceAutoConfig {
         return fileType;
     }
 
+    calculateCoordinates(viewsNumb) {
+        const rows = Math.ceil(Math.sqrt(viewsNumb));
+        const cols = Math.ceil(viewsNumb / rows);
+        const width = 12 / cols;
+        const height = 12 / rows;
+        const coords = [];
+      
+        for (let i = 0; i < viewsNumb; i++) {
+            const row = Math.floor(i / cols);
+            const col = i % cols;
+            const x = col * width;
+            const y = row * height;
+            coords.push([x, y, width, height]);
+        }
+      
+        return coords;
+    }
+
     generateConfig() {
         const configType = this.getFileType();
         const configTypeClassName = this.configClasses[configType].class;
@@ -755,6 +773,8 @@ export class VitessceAutoConfig {
         let layerControllerView = false;
         let spatialView = false;
 
+        let views = [];
+
         viewsConfig.forEach(v => {
             const view = vc.addView(dataset, ...v);
             if (v[0] === "layerController") {
@@ -770,9 +790,11 @@ export class VitessceAutoConfig {
                     "disableChannelsIfRgbDetected": true
                 });
             }
+
+            views.push(view);
         });
 
-        if (layerControllerView && spatialView) {
+        if (layerControllerView && spatialView && configType === "Anndata-ZARR") {
             const spatialSegmentationLayerValue = {
                 "opacity": 1,
                 "radius": 0,
@@ -786,6 +808,13 @@ export class VitessceAutoConfig {
                 [-5.5, 16000, 20000, spatialSegmentationLayerValue]
             )
         }
+
+        const coord = this.calculateCoordinates(views.length);
+
+        for (let i = 0; i <views.length; i++) {
+            views[i].setXYWH(...coord[i]);
+        }
+
         return vc.toJSON();
     }
 };
