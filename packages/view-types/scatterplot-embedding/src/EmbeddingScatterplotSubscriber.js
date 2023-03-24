@@ -15,6 +15,7 @@ import {
   useObsSetsData,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
+  useFeatureLabelsData,
   useMultiObsLabels,
   useCoordination,
   useLoaders,
@@ -143,11 +144,16 @@ export function EmbeddingScatterplotSubscriber(props) {
     loaders, dataset, addUrl, false,
     { obsType, featureType, featureValueType },
   );
+  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
+    loaders, dataset, addUrl, false, {}, {},
+    { featureType },
+  );
 
   const isReady = useReady([
     obsEmbeddingStatus,
     obsSetsStatus,
     featureSelectionStatus,
+    featureLabelsStatus,
     matrixIndicesStatus,
   ]);
 
@@ -262,7 +268,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
-  const [uint8ExpressionData, expressionExtent] = useUint8ExpressionData(expressionData);
+  const [uint8ExpressionData, expressionExtents] = useUint8ExpressionData(expressionData);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
@@ -359,8 +365,10 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureValueType={featureValueType}
         obsColorEncoding={cellColorEncoding}
         featureSelection={geneSelection}
+        featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        extent={expressionExtents?.[0]}
       />
     </TitleInfo>
   );

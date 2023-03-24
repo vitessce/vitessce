@@ -255,6 +255,7 @@ export function HeatmapSubscriber(props) {
         featureSelection={geneSelection}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        extent={obsFeatureMatrixExtent}
       />
     </TitleInfo>
   );

@@ -8,6 +8,7 @@ import {
   useFeatureSelection,
   useImageData,
   useObsFeatureMatrixIndices,
+  useFeatureLabelsData,
   useNeighborhoodsData,
   useObsLabelsData,
   useMultiObsLabels,
@@ -209,6 +210,11 @@ export function SpatialSubscriber(props) {
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
+  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
+    loaders, dataset, addUrl, false, {}, {},
+    { featureType },
+  );
+
   const isReady = useReady([
     obsLocationsStatus,
     obsLabelsStatus,
@@ -219,6 +225,7 @@ export function SpatialSubscriber(props) {
     matrixIndicesStatus,
     imageStatus,
     neighborhoodsStatus,
+    featureLabelsStatus,
   ]);
 
   const obsLocationsFeatureIndex = useMemo(() => {
@@ -326,7 +333,7 @@ export function SpatialSubscriber(props) {
     locationsCount,
   });
 
-  const [uint8ExpressionData, expressionExtent] = useUint8ExpressionData(expressionData);
+  const [uint8ExpressionData, expressionExtents] = useUint8ExpressionData(expressionData);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
@@ -476,8 +483,10 @@ export function SpatialSubscriber(props) {
         featureValueType={featureValueType}
         obsColorEncoding={cellColorEncoding}
         featureSelection={geneSelection}
+        featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        extent={expressionExtents?.[0]}
       />
     </TitleInfo>
   );

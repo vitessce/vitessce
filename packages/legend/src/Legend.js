@@ -39,8 +39,10 @@ export default function Legend(props) {
     considerSelections = true,
     obsColorEncoding,
     featureSelection,
+    featureLabelsMap,
     featureValueColormap,
     featureValueColormapRange,
+    extent,
     width = 100,
     height = 36,
     theme,
@@ -87,8 +89,7 @@ export default function Legend(props) {
         .attr('preserveAspectRatio', 'none')
         .attr('href', xlinkHref);
 
-      const dataExtent = [0, 1]; // TODO: update once not normalizing expression data
-      const [xMin, xMax] = dataExtent;
+      const [xMin, xMax] = extent || [0, 1];
       const [rMin, rMax] = featureValueColormapRange;
       // Use colormap range sliders to determine the range
       // to use in the legend ticks.
@@ -113,11 +114,15 @@ export default function Legend(props) {
         .attr('text-anchor', (d, i) => (i === 0 ? 'start' : 'end'));
     }
 
+    const featureLabel = featureSelection && featureSelection.length >= 1
+      ? (featureLabelsMap?.get(featureSelection[0]) || featureSelection[0])
+      : null;
+
     // If the parent component wants to consider selections, then
     // use the selected feature for the label. Otherwise,
     // show the feature type.
     const legendLabel = considerSelections
-      ? (featureSelection?.[0] || capitalize(featureValueType))
+      ? (featureLabel || capitalize(featureValueType))
       : capitalize(featureValueType);
 
     g
@@ -130,7 +135,8 @@ export default function Legend(props) {
       .style('font-size', '10px')
       .style('fill', foregroundColor);
   }, [width, height, featureValueColormap, featureValueColormapRange, considerSelections,
-    obsType, obsColorEncoding, featureSelection, isDarkTheme, featureValueType,
+    obsType, obsColorEncoding, featureSelection, isDarkTheme, featureValueType, extent,
+    featureLabelsMap,
   ]);
 
   return (
