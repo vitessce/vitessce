@@ -232,6 +232,7 @@ export function Vitessce(props) {
         false,
       ];
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configUid, configVersion]);
 
   const mergedPluginViewTypes = useMemo(() => ([

@@ -153,6 +153,7 @@ export function VitS(props) {
       title: 'Config validation failed on first pass.',
       unformatted: result.error.message,
     }, result.success];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configUid, configVersion, pluginSpecificConfigSchema, warning]);
 
   // Emit the upgraded/initialized view config
@@ -161,6 +162,7 @@ export function VitS(props) {
     if (success && !isEqual(configOrWarning, config) && onConfigChange) {
       onConfigChange(configOrWarning);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success, configUid, configOrWarning, onConfigChange]);
 
   return success ? (
