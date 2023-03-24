@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import React, { useEffect, useMemo } from 'react';
 import {
   ThemeProvider,
