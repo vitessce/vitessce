@@ -1,6 +1,8 @@
 import {
-    VitessceConfig
+    VitessceConfig,
   } from '@vitessce/config';
+
+import { CoordinationType } from '@vitessce/constants-internal';
 
 class OmeTiffAutoConfig {
 
@@ -750,7 +752,40 @@ export class VitessceAutoConfig {
         .addDataset("Auto generated config for a dataset")
         .addFile(fileConfig);
 
-        viewsConfig.forEach(v => vc.addView(dataset, ...v));
+        let layerControllerView = false;
+        let spatialView = false;
+
+        viewsConfig.forEach(v => {
+            const view = vc.addView(dataset, ...v);
+            if (v[0] === "layerController") {
+                layerControllerView = view;
+            }
+            if (v[0] === "spatial") {
+                spatialView = view;
+            }
+            // this piece of code can be removed once these props are added by default to layerController
+            if (v[0] === "layerController" && configType === "OME-TIFF") {
+                view.setProps({
+                    "disable3d": [],
+                    "disableChannelsIfRgbDetected": true
+                });
+            }
+        });
+
+        if (layerControllerView && spatialView) {
+            const spatialSegmentationLayerValue = {
+                "opacity": 1,
+                "radius": 0,
+                "visible": true,
+                "stroked": false
+            }
+
+            vc.linkViews(
+                [spatialView, layerControllerView], 
+                [CoordinationType.SPATIAL_ZOOM, CoordinationType.SPATIAL_TARGET_X, CoordinationType.SPATIAL_TARGET_Y, CoordinationType.SPATIAL_SEGMENTATION_LAYER],
+                [-5.5, 16000, 20000, spatialSegmentationLayerValue]
+            )
+        }
         return vc.toJSON();
     }
 };
