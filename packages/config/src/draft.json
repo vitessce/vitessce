@@ -1,0 +1,132 @@
+{
+    "version": "1.0.15",
+    "name": "My example config",
+    "description": "This demonstrates the JavaScript API",
+    "datasets": [
+      {
+        "uid": "A",
+        "name": "Auto generated config for a dataset",
+        "files": [
+          {
+            "url": "https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.cells.h5ad.zarr",
+            "fileType": "anndata.zarr",
+            "coordinationValues": {
+              "obsType": "cell",
+              "featureType": "gene",
+              "featureValueType": "expression"
+            },
+            "options": {
+              "obsEmbedding": [
+                {
+                  "path": "obsm/X_pca",
+                  "embeddingType": "PCA"
+                },
+                {
+                  "path": "obsm/X_tsne",
+                  "embeddingType": "t-SNE"
+                },
+                {
+                  "path": "obsm/X_umap",
+                  "embeddingType": "UMAP"
+                }
+              ],
+              "obsFeatureMatrix": {
+                "path": "X"
+              },
+              "obsSegmentations": {
+                "path": "obsm/X_segmentations"
+              },
+              "obsLocations": {
+                "path": "obsm/X_spatial"
+              },
+              "obsSets": [
+                {
+                  "name": "Cell Type",
+                  "path": [
+                    "obs/Cluster",
+                    "obs/Subcluster"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "coordinationSpace": {
+      "dataset": {
+        "A": "A"
+      },
+      "embeddingType": {
+        "A": "UMAP",
+        "B": "t-SNE",
+        "C": "UMAP"
+      }
+    },
+    "layout": [
+      {
+        "component": "obsSets",
+        "coordinationScopes": {
+          "dataset": "A"
+        },
+        "x": 9,
+        "y": 3,
+        "w": 3,
+        "h": 2
+      },
+      {
+        "component": "scatterplot",
+        "coordinationScopes": {
+          "dataset": "A",
+          "embeddingType": "A"
+        },
+        "x": 0,
+        "y": 4,
+        "w": 3,
+        "h": 2
+      },
+      {
+        "component": "layerController",
+        "coordinationScopes": {
+          "dataset": "A"
+        },
+        "x": 0,
+        "y": 2,
+        "w": 3,
+        "h": 2
+      },
+      {
+        "component": "spatial",
+        "coordinationScopes": {
+          "dataset": "A"
+        },
+        "x": 6,
+        "y": 0,
+        "w": 3,
+        "h": 2
+      },
+      {
+        "component": "scatterplot",
+        "coordinationScopes": {
+          "dataset": "A",
+          "embeddingType": "B"
+        },
+        "x": 3,
+        "y": 0,
+        "w": 3,
+        "h": 2
+      },
+      {
+        "component": "scatterplot",
+        "coordinationScopes": {
+          "dataset": "A",
+          "embeddingType": "C"
+        },
+        "x": 0,
+        "y": 0,
+        "w": 3,
+        "h": 2
+      }
+    ],
+    "initStrategy": "auto"
+  }

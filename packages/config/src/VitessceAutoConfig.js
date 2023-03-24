@@ -13,8 +13,8 @@ class OmeTiffAutoConfig {
 
     composeViewsConfig() {
         return [
-            ['description', {"h": 4, "w": 3, "x": 0, "y": 8}],
-            ['spatial', {"h": 12, "w": 9, "x": 3, "y": 0}],
+            ['description',     {"h": 4, "w": 3, "x": 0, "y": 8}],
+            ['spatial',         {"h": 12, "w": 9, "x": 3, "y": 0}],
             ['layerController', {"h": 8, "w": 3, "x": 0, "y": 0}]
         ]
     }
@@ -587,13 +587,15 @@ class AnndataZarrAutoConfig {
         return a.sort().filter(function(item, pos, ary) {
             return !pos || item != ary[pos - 1];
         });
-        }
-    
+        }   
         const obsKeys = uniq(obsKeysArr);
         
+        const X = Object.keys(fileMeta.metadata).filter(key => key.startsWith("X"));
+
         return {
             "obsm": obsmKeys,
-            "obs": obsKeys
+            "obs": obsKeys,
+            "X": X.length > 0? true: false
         }
     
     }
@@ -612,7 +614,7 @@ class AnndataZarrAutoConfig {
                 "path": "X"
              }
         };
-    
+
         this.meta["obsm"].forEach(key => {
             if (key.toLowerCase().includes(("obsm/x_segmentations"))) {
                 options["obsSegmentations"] = {"path": key};
@@ -662,13 +664,13 @@ class AnndataZarrAutoConfig {
     composeViewsConfig() {
         
         let views = [];
-        
-        this.meta["obs"].filter(key => {
-            if (key.toLowerCase().includes("cluster") || key.toLowerCase().includes("cell_type")) {
-                views.push(['obsSets', {"h": 2, "w": 3, "x": 9, "y": 3}])
-                return;
-            }
-        });
+
+        const hasCellSetData = this.meta["obs"]
+            .find(key => key.toLowerCase().includes("cluster") || key.toLowerCase().includes("cell_type"));
+
+        if (hasCellSetData.length > 0) {
+            views.push(['obsSets', {"h": 2, "w": 3, "x": 9, "y": 3}]);
+        }
     
         this.meta["obsm"].forEach(key => {
             if (key.toLowerCase().includes("obsm/x_umap")) {
@@ -678,7 +680,7 @@ class AnndataZarrAutoConfig {
                 views.push(['scatterplot', { mapping: 't-SNE' }])
             }
             if (key.toLowerCase().includes("obsm/x_pca")) {
-                views.push(['scatterplot', { mapping: 'UMAP' }])
+                views.push(['scatterplot', { mapping: 'PCA' }])
             }
             if (key.toLowerCase().includes(("obsm/x_segmentations"))) {
                 views.push(['layerController'])
@@ -687,6 +689,11 @@ class AnndataZarrAutoConfig {
                 views.push(['spatial'])
             }
         })
+
+        if (this.meta["X"]) {
+            views.push(["heatmap"]);
+            views.push(["featureList"]);
+        }
 
         return views;
     }
