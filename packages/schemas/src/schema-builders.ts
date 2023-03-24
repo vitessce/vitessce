@@ -1,5 +1,11 @@
-import { fromEntries } from '@vitessce/utils';
 import { z } from 'zod';
+import { fromEntries } from '@vitessce/utils';
+import {
+  PluginViewType,
+  PluginCoordinationType,
+  PluginFileType,
+  PluginJointFileType,
+} from '@vitessce/plugins';
 import {
   requestInit,
   coordinationScopeName,
@@ -43,19 +49,19 @@ function buildFileDefSchema<T extends z.ZodTypeAny>(fileType: string, options: T
 }
 
 export function buildConfigSchema<
-  T1 extends Record<string, z.ZodTypeAny>,
-  T2 extends Record<string, z.ZodTypeAny>,
+  T1 extends PluginFileType<any, any, z.ZodTypeAny>,
+  T2 extends PluginJointFileType<z.ZodTypeAny>,
+  T3 extends PluginCoordinationType<z.ZodTypeAny>,
 >(
-  pluginFileTypes: T1,
-  pluginCoordinationTypes: T2,
-  pluginViewTypes: string[],
+  pluginFileTypes: Array<T1>,
+  pluginJointFileTypes: Array<T2>,
+  pluginCoordinationTypes: Array<T3>,
+  pluginViewTypes: Array<PluginViewType>,
 ) {
-  const fileTypeSchemas = Object.entries(pluginFileTypes)
-    .map(([k, v]) => buildFileDefSchema(k, v));
+  const fileTypeSchemas = [...pluginFileTypes, ...pluginJointFileTypes]
+    .map(ft => buildFileDefSchema(ft.name, ft.optionsSchema));
 
-  const genericFileDef = buildFileDefSchema('any', z.null());
-
-  const fileDefs = toUnion([...fileTypeSchemas, genericFileDef]);
+  const fileDefs = toUnion(fileTypeSchemas);
 
   // TODO: make this less redundant with latestSchema from ./previous-base-schemas
   return z.object({
@@ -82,8 +88,14 @@ export function buildConfigSchema<
     coordinationSpace: z.object(
       // Wrap each value schema in z.record()
       fromEntries(
-        Object.entries(pluginCoordinationTypes)
-          .map(([k, v]) => ([k, z.record(coordinationScopeName, v).optional()])),
+        pluginCoordinationTypes
+          .map(ct => ([
+            ct.name,
+            z.record(
+              coordinationScopeName,
+              ct.valueSchema.optional(),
+            ).optional(),
+          ])),
       ),
     )
       .strict()
@@ -98,7 +110,7 @@ export function buildConfigSchema<
             'A unique identifier for the view, to refer to it in getter and setter functions in object-oriented contexts.',
           )
           .optional(),
-        component: toEnum(pluginViewTypes)
+        component: toEnum(pluginViewTypes.map(vt => vt.name))
           .describe(
             'Specify a component using a name defined in the component registry.',
           ),
