@@ -11,7 +11,9 @@ import {
   useNeighborhoodsData,
   useObsLabelsData,
   useMultiObsLabels,
-  useExpressionValueGetter, useGetObsInfo,
+  useUint8ExpressionData,
+  useExpressionValueGetter,
+  useGetObsInfo,
   useCoordination,
   useLoaders,
   useSetComponentHover,
@@ -324,6 +326,8 @@ export function SpatialSubscriber(props) {
     locationsCount,
   });
 
+  const [uint8ExpressionData, expressionExtent] = useUint8ExpressionData(expressionData);
+
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useExpressionValueGetter({
@@ -335,7 +339,7 @@ export function SpatialSubscriber(props) {
       : obsCentroidsIndex
     ),
     matrixObsIndex,
-    expressionData,
+    expressionData: uint8ExpressionData,
   });
   const canLoad3DLayers = imageLayerLoaders.some(loader => Boolean(
     Array.from({

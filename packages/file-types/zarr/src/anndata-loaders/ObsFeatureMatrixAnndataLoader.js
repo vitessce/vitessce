@@ -1,18 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 import { openArray, slice } from 'zarr';
-import { extent } from 'd3-array';
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsFeatureMatrixAnndataSchema,
 } from '@vitessce/vit-s';
 
-const normalize = (arr) => {
-  const [min, max] = extent(arr);
-  const ratio = 255 / (max - min);
-  const data = new Uint8Array(
-    arr.map(i => Math.floor((i - min) * ratio)),
-  );
-  return { data };
-};
+// Put array of data into object.
+const normalize = data => ({ data });
 
 const concatenateColumnVectors = (arr) => {
   const numCols = arr.length;

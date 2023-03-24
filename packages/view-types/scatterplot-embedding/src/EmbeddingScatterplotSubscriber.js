@@ -8,7 +8,9 @@ import {
   TitleInfo,
   useReady, useUrls,
   useDeckCanvasSize,
-  useExpressionValueGetter, useGetObsInfo,
+  useUint8ExpressionData,
+  useExpressionValueGetter,
+  useGetObsInfo,
   useObsEmbeddingData,
   useObsSetsData,
   useFeatureSelection,
@@ -260,12 +262,14 @@ export function EmbeddingScatterplotSubscriber(props) {
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
+  const [uint8ExpressionData, expressionExtent] = useUint8ExpressionData(expressionData);
+
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useExpressionValueGetter({
     instanceObsIndex: obsEmbeddingIndex,
     matrixObsIndex,
-    expressionData,
+    expressionData: uint8ExpressionData,
   });
 
   return (
