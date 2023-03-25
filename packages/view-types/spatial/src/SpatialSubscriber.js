@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
@@ -525,32 +526,40 @@ export function SpatialSubscriber(props) {
       let hasObsInfo = false;
       segmentationLayerScopes.forEach((layerScope) => {
         const {
-          obsType: layerObsType,
-          spatialTargetC,
           spatialLayerVisible,
         } = segmentationLayerCoordination[0][layerScope];
-        if (spatialLayerVisible && channelData[spatialTargetC] > 0) {
-          hasObsInfo = true;
-          result[`${layerObsType} ID`] = channelData[spatialTargetC];
-          if (multiExpressionData?.[layerScope] && multiLoadedFeatureSelection?.[layerScope]) {
-            const channelFeature = multiLoadedFeatureSelection?.[layerScope]?.[0];
-            const channelFeatureData = multiExpressionData?.[layerScope];
-            const unitSuffix = channelFeature.endsWith('Area') ? ' microns squared' : (
-              channelFeature.endsWith('Thickness') ? ' microns' : ''
-            );
 
-            // TODO: use multiIndicesData to obtain an index into the obsFeatureMatrix data
-            // using the bitmask channel value.
-            // For the sake of time, here I am assuming the off-by-one alignment.
-            const channelFeatureValue = channelFeatureData[0][channelData[spatialTargetC] - 1];
-            result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue) + unitSuffix;
+        const channelScopes = segmentationChannelScopesByLayer[layerScope];
+        const channelCoordination = segmentationChannelCoordination[0][layerScope];
+        channelScopes.forEach((channelScope) => {
+          const {
+            spatialChannelVisible,
+            obsType: layerObsType,
+            spatialTargetC,
+          } = channelCoordination[channelScope];
+          if (spatialLayerVisible && spatialChannelVisible && channelData[spatialTargetC] > 0) {
+            hasObsInfo = true;
+            result[`${layerObsType} ID`] = channelData[spatialTargetC];
+            if (multiExpressionData?.[layerScope]?.[channelScope] && multiLoadedFeatureSelection?.[layerScope]?.[channelScope]) {
+              const channelFeature = multiLoadedFeatureSelection?.[layerScope]?.[channelScope]?.[0];
+              const channelFeatureData = multiExpressionData?.[layerScope]?.[channelScope];
+              const unitSuffix = channelFeature.endsWith('Area') ? ' microns squared' : (
+                channelFeature.endsWith('Thickness') ? ' microns' : ''
+              );
+              // TODO: use multiIndicesData to obtain an index into the obsFeatureMatrix data
+              // using the bitmask channel value.
+              // For the sake of time, here I am assuming the off-by-one alignment.
+              const channelFeatureValue = channelFeatureData[0][channelData[spatialTargetC] - 1];
+              result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue) + unitSuffix;
+            }
           }
-        }
+        });
       });
       return hasObsInfo ? result : null;
     }
     return null;
   }, [segmentationLayerScopes, segmentationLayerCoordination,
+    segmentationChannelScopesByLayer, segmentationChannelCoordination,
     multiExpressionData, multiLoadedFeatureSelection, multiIndicesData,
   ]);
 

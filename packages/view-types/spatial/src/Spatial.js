@@ -116,7 +116,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.obsLocationsLayer = null;
     this.neighborhoodsLayer = null;
 
-    this.layerLoaderSelections = {};
+    this.imageLayerLoaderSelections = {};
+    this.segmentationLayerLoaderSelections = {};
     // Better for the bitmask layer when there is no color data to use this.
     // 2048 is best for performance and for stability (4096 texture size is not always supported).
     this.randomColorData = {
@@ -368,7 +369,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   // New createImageLayer function.
-  createSegmentationLayer(layerScope, layerCoordination, channelScopes, channelCoordination, image, use3d, channelFeatureValues) {
+  createSegmentationLayer(layerScope, layerCoordination, channelScopes, channelCoordination, image, use3d, layerFeatureValues) {
     const { data, metadata } = image?.obsSegmentations?.loaders?.[0] || {};
     if (!data) {
       return null;
@@ -402,13 +403,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
         t: 0,
         c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
       }));
-    const prevLoaderSelection = this.layerLoaderSelections[layerScope];
+    const prevLoaderSelection = this.segmentationLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
       selections = prevLoaderSelection;
     } else {
       selections = nextLoaderSelection;
-      this.layerLoaderSelections[layerScope] = nextLoaderSelection;
+      this.segmentationLayerLoaderSelections[layerScope] = nextLoaderSelection;
     }
+
 
     return new viv.MultiscaleImageLayer({
       // `bitmask` is used by the AbstractSpatialOrScatterplot
@@ -433,7 +435,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         .map(cScope => channelCoordination[cScope][CoordinationType.OBS_COLOR_ENCODING] === 'spatialChannelColor'),
       modelMatrix,
       hoveredCell: Number(this.props.cellHighlight),
-      multiFeatureValues: channelScopes.map(cScope => channelFeatureValues), // TODO
+      multiFeatureValues: channelScopes.map(cScope => (layerFeatureValues?.[cScope]?.[0] || [])),
       renderSubLayers: renderSubBitmaskLayers,
       loader: data,
       selections,
@@ -511,12 +513,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
         t: 0,
         c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
       }));
-    const prevLoaderSelection = this.layerLoaderSelections[layerScope];
+    const prevLoaderSelection = this.imageLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
       selections = prevLoaderSelection;
     } else {
       selections = nextLoaderSelection;
-      this.layerLoaderSelections[layerScope] = nextLoaderSelection;
+      this.imageLayerLoaderSelections[layerScope] = nextLoaderSelection;
     }
 
     const colors = channelScopes
@@ -597,7 +599,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       segmentationChannelCoordination[0][layerScope],
       obsSegmentations[layerScope],
       use3d,
-      multiExpressionData,
+      multiExpressionData?.[layerScope],
       // TODO: pass down layer-specific multiExpressionData
     ));
   }
@@ -835,6 +837,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'segmentationLayerCallbacks',
         'segmentationLayerScopes',
         'segmentationLayerCoordination',
+        'segmentationChannelScopesByLayer',
+        'segmentationChannelCoordination',
         'multiExpressionData', // TODO: should this be here?
       ].some(shallowDiff)
     ) {

@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-
 import SplitSegmentationChannelController from './SplitSegmentationChannelController';
 
 
@@ -16,7 +14,7 @@ export default function SplitSegmentationLayerController(props) {
     use3d, // TODO
   } = props;
 
-  console.log(layerCoordination, channelCoordination);
+  // console.log(layerCoordination, channelCoordination);
 
   const {
     spatialLayerVisible,

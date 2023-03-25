@@ -11,6 +11,7 @@ import {
   useDataTypeMulti,
   useFeatureSelectionMulti,
   useObsFeatureMatrixIndicesMulti,
+  useFeatureSelectionMultiSecondary,
 } from './data-hook-utils';
 
 /**
@@ -444,9 +445,8 @@ export function useMultiFeatureSelection(
     ...Object.values(featureSelectionCoordination[0] || {})
       .flatMap(layerVal => Object.values(layerVal).map(cVal => cVal.featureSelection)),
   ]);
-  console.log(selections);
   // TODO: update useFeatureSelectionMulti to support two levels of coordination
-  const [featureData, loadedSelections, featureStatus] = useFeatureSelectionMulti(
+  const [featureData, loadedSelections, featureStatus] = useFeatureSelectionMultiSecondary(
     loaders, dataset, false, matchOnObj, selections,
   );
   return [featureData, loadedSelections, featureStatus];

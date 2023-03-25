@@ -65,7 +65,7 @@ export default function MultiLegend(props) {
               featureValueColormapRange={featureValueColormapRange}
               featureSelection={featureSelection}
               // TODO: pass channel-specific expressionData
-              expressionData={multiExpressionData?.[layerScope]}
+              expressionData={multiExpressionData?.[layerScope]?.[cScope]}
             />
           ) : null;
         });

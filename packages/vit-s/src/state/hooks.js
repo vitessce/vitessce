@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable react-refresh/only-export-components */
 import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
@@ -691,6 +692,45 @@ export function useMatchingLoaders(loaders, dataset, dataType, viewCoordinationV
       ])),
     );
   }, [loaders, dataset, dataType, viewCoordinationValuesObj]);
+}
+
+/**
+ * Find a specific loader instance for a particular dataset, data type, and view
+ * coordination values (mapping from coordination types to coordination values).
+ * Uses lodash/isMatch to perform matching against the file definition's
+ * coordination value mapping.
+ * @param {object} loaders The value returned by useLoaders.
+ * @param {string} dataset The dataset UID.
+ * @param {string} dataType The data type for the matching file.
+ * @param {object} nestedViewCoordinationValuesObj Current coordination values
+ * from the layer and channel (two levels). Match these against a subset of file definition coordination
+ * values.
+ * @returns The matching loader instance or `null`.
+ */
+export function useMatchingLoadersSecondary(loaders, dataset, dataType, nestedViewCoordinationValuesObj) {
+  return useMemo(() => {
+    if (!loaders[dataset]) {
+      return null;
+    }
+    const loaderInternMap = loaders[dataset].loaders[dataType];
+    if (!loaderInternMap) {
+      return null;
+    }
+    const loaderKeys = Array.from(loaderInternMap.keys());
+    function getLoader(viewCoordinationValues) {
+      const matchingKey = loaderKeys
+        .find(fileCoordinationValues => isMatch(fileCoordinationValues, viewCoordinationValues));
+      return loaderInternMap.get(matchingKey);
+    }
+    return fromEntries(
+      Object.entries(nestedViewCoordinationValuesObj).map(([layerScope, layerCoordinationValuesObj]) => ([layerScope, fromEntries(
+        Object.entries(layerCoordinationValuesObj).map(([key, viewCoordinationValues]) => ([
+          key,
+          getLoader(viewCoordinationValues),
+        ])),
+      )])),
+    );
+  }, [loaders, dataset, dataType, nestedViewCoordinationValuesObj]);
 }
 
 /**
