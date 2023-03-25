@@ -1,3 +1,4 @@
+import log from 'loglevel';
 import { viv } from '@vitessce/gl';
 import { initializeRasterLayersAndChannels } from '@vitessce/spatial-utils';
 import { AbstractLoaderError, LoaderResult, AbstractTwoStepLoader } from '@vitessce/vit-s';
@@ -24,7 +25,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     const { omero } = metadata;
 
     if (!omero) {
-      console.error('Path for image not valid');
+      log.error('Path for image not valid');
       return Promise.reject(payload);
     }
 

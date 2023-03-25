@@ -1,3 +1,4 @@
+import log from 'loglevel';
 import AbstractLoaderError from './AbstractLoaderError';
 
 export default class OptionsValidationError extends AbstractLoaderError {
@@ -15,7 +16,7 @@ export default class OptionsValidationError extends AbstractLoaderError {
     const {
       options, reason,
     } = this;
-    console.warn(
+    log.warn(
       'Received options\n',
       JSON.stringify(options, null, 2),
       'JSON schema validation failure reason\n',

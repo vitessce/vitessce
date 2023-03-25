@@ -1,4 +1,5 @@
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import log from 'loglevel';
 import RasterLoader from './RasterJsonLoader';
 
 export default class RasterJsonAsImageLoader extends RasterLoader {
@@ -22,7 +23,7 @@ export default class RasterJsonAsImageLoader extends RasterLoader {
     });
 
     if (!coordinationValues?.spatialImageLayer) {
-      console.warn('Could not initialize coordinationValues.spatialImageLayer in RasterJsonAsImageLoader. This may be an indicator that the image could not be loaded.');
+      log.warn('Could not initialize coordinationValues.spatialImageLayer in RasterJsonAsImageLoader. This may be an indicator that the image could not be loaded.');
     }
 
     return new LoaderResult(

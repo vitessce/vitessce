@@ -1,3 +1,4 @@
+import log from 'loglevel';
 import AbstractLoaderError from './AbstractLoaderError';
 
 export default class LoaderValidationError extends AbstractLoaderError {
@@ -15,7 +16,7 @@ export default class LoaderValidationError extends AbstractLoaderError {
     const {
       datasetType, datasetUrl, reason,
     } = this;
-    console.warn(
+    log.warn(
       `${datasetType} from ${datasetUrl}: validation failed`,
       JSON.stringify(reason, null, 2),
     );

@@ -1,6 +1,7 @@
 import {
   useState, useEffect, useRef,
 } from 'react';
+import log from 'loglevel';
 import { InternMap } from 'internmap';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
@@ -103,7 +104,7 @@ function withDefaults(coordinationValues, dataType, fileType, datasetUid) {
   };
   if (!isEqual(coordinationValues, coordinationValuesWithDefaults)) {
     // eslint-disable-next-line max-len
-    console.warn(`Using coordination value defaults for file type ${fileType} in dataset ${datasetUid}\nBefore: ${JSON.stringify(coordinationValues)}\nAfter: ${JSON.stringify(coordinationValuesWithDefaults)}`);
+    log.warn(`Using coordination value defaults for file type ${fileType} in dataset ${datasetUid}\nBefore: ${JSON.stringify(coordinationValues)}\nAfter: ${JSON.stringify(coordinationValuesWithDefaults)}`);
   }
   return coordinationValuesWithDefaults;
 }

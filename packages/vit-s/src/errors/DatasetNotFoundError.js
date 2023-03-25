@@ -1,3 +1,4 @@
+import log from 'loglevel';
 import AbstractLoaderError from './AbstractLoaderError';
 
 export default class DatasetNotFoundError extends AbstractLoaderError {
@@ -13,11 +14,11 @@ export default class DatasetNotFoundError extends AbstractLoaderError {
       datasetUid,
     } = this;
     if (datasetUid) {
-      console.warn(
+      log.warn(
         `Unable to find dataset for ${datasetUid}`,
       );
     } else {
-      console.warn('No dataset uid specified.');
+      log.warn('No dataset uid specified.');
     }
   }
 }

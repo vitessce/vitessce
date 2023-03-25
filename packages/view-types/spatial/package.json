@@ -36,7 +36,8 @@
     "math.gl": "^3.5.6",
     "mathjs": "^9.2.0",
     "plur": "^5.1.0",
-    "short-number": "^1.0.6"
+    "short-number": "^1.0.6",
+    "loglevel": "^1.8.1"
   },
   "devDependencies": {
     "react": "^18.0.0",

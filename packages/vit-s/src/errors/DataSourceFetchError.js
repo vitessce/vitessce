@@ -1,3 +1,4 @@
+import log from 'loglevel';
 import AbstractLoaderError from './AbstractLoaderError';
 
 export default class DataSourceFetchError extends AbstractLoaderError {
@@ -10,6 +11,6 @@ export default class DataSourceFetchError extends AbstractLoaderError {
 
   warnInConsole() {
     const { source, url, headers } = this;
-    console.warn(`${source} failed to fetch from ${url} with headers ${headers}`);
+    log.warn(`${source} failed to fetch from ${url} with headers ${headers}`);
   }
 }

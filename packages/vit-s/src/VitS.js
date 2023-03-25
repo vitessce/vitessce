@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 import React, { useEffect, useMemo } from 'react';
+import log from 'loglevel';
 import {
   ThemeProvider,
   StylesProvider,
@@ -26,10 +27,12 @@ import {
 } from './view-config-utils';
 
 function logConfig(config, name) {
-  console.groupCollapsed(`🚄 Vitessce (${META_VERSION.version}) ${name}`);
-  console.info(`data:,${JSON.stringify(config)}`);
-  console.info(JSON.stringify(config, null, 2));
-  console.groupEnd();
+  if (log.getLevel() <= log.levels.INFO) {
+    console.groupCollapsed(`🚄 Vitessce (${META_VERSION.version}) ${name}`);
+    console.info(`data:,${JSON.stringify(config)}`);
+    console.info(JSON.stringify(config, null, 2));
+    console.groupEnd();
+  }
 }
 
 /**

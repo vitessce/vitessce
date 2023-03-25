@@ -99,8 +99,10 @@ importers:
   packages/constants:
     specifiers:
       '@vitessce/constants-internal': workspace:*
+      loglevel: ^1.8.1
     dependencies:
       '@vitessce/constants-internal': link:../constants-internal
+      loglevel: 1.8.1
 
   packages/constants-internal:
     specifiers:
@@ -135,6 +137,7 @@ importers:
       ajv: ^6.10.0
       d3-array: ^2.4.0
       lodash: ^4.17.21
+      loglevel: ^1.8.1
       zarr: 0.5.1
     dependencies:
       '@vitessce/constants-internal': link:../../constants-internal
@@ -146,6 +149,7 @@ importers:
       ajv: 6.12.6
       d3-array: 2.12.1
       lodash: 4.17.21
+      loglevel: 1.8.1
       zarr: 0.5.1
 
   packages/file-types/zarr:
@@ -158,6 +162,7 @@ importers:
       '@vitessce/vit-s': workspace:*
       d3-array: ^2.4.0
       lodash: ^4.17.21
+      loglevel: ^1.8.1
       zarr: 0.5.1
     dependencies:
       '@vitessce/constants-internal': link:../../constants-internal
@@ -168,6 +173,7 @@ importers:
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
       lodash: 4.17.21
+      loglevel: 1.8.1
       zarr: 0.5.1
 
   packages/gl:
@@ -401,9 +407,11 @@ importers:
   packages/utils/export-utils:
     specifiers:
       bowser: ^2.11.0
+      loglevel: ^1.8.1
       lz-string: ^1.4.4
     dependencies:
       bowser: 2.11.0
+      loglevel: 1.8.1
       lz-string: 1.4.4
 
   packages/utils/other-utils:
@@ -411,11 +419,13 @@ importers:
       '@vitessce/sets-utils': workspace:*
       bowser: ^2.11.0
       lodash: ^4.17.21
+      loglevel: ^1.8.1
       lz-string: ^1.4.4
     dependencies:
       '@vitessce/sets-utils': link:../sets-utils
       bowser: 2.11.0
       lodash: 4.17.21
+      loglevel: 1.8.1
       lz-string: 1.4.4
 
   packages/utils/sets-utils:
@@ -762,6 +772,7 @@ importers:
       '@vitessce/vit-s': workspace:*
       d3-array: ^2.4.0
       lodash: ^4.17.21
+      loglevel: ^1.8.1
       math.gl: ^3.5.6
       mathjs: ^9.2.0
       plur: ^5.1.0
@@ -782,6 +793,7 @@ importers:
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
       lodash: 4.17.21
+      loglevel: 1.8.1
       math.gl: 3.6.3
       mathjs: 9.5.2
       plur: 5.1.0
@@ -849,6 +861,7 @@ importers:
       internmap: ^2.0.3
       jss-plugin-global: ^10.9.2
       lodash: ^4.17.21
+      loglevel: ^1.8.1
       react: ^18.0.0
       react-grid-layout-with-lodash: ^1.3.5
       uuid: ^3.3.2
@@ -866,6 +879,7 @@ importers:
       internmap: 2.0.3
       jss-plugin-global: 10.9.2
       lodash: 4.17.21
+      loglevel: 1.8.1
       react-grid-layout-with-lodash: 1.3.5_biqbaboplfbrettd7655fr4n2y
       uuid: 3.4.0
       zustand: 3.7.2_react@18.2.0
@@ -896,6 +910,7 @@ importers:
       '@vitessce/example-configs': workspace:*
       '@vitessce/example-plugins': workspace:*
       cypress: ^10.10.0
+      loglevel: ^1.8.1
       react: ^18.0.0
       react-dom: ^18.0.0
       sass: ^1.55.0
@@ -905,6 +920,7 @@ importers:
       '@vitessce/constants-internal': link:../../packages/constants-internal
       '@vitessce/example-configs': link:../../examples/configs
       '@vitessce/example-plugins': link:../../examples/plugins
+      loglevel: 1.8.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       vitessce: link:../../packages/main/prod
@@ -14270,6 +14286,11 @@ packages:
       slice-ansi: 4.0.0
       wrap-ansi: 6.2.0
     dev: true
+
+  /loglevel/1.8.1:
+    resolution: {integrity: sha512-tCRIJM51SHjAayKwC+QAg8hT8vg6z7GSgLJKGvzuPb1Wc+hLzqtuVLxp6/HzSPOozuK+8ErAhy7U/sVzw8Dgfg==}
+    engines: {node: '>= 0.6.0'}
+    dev: false
 
   /long/3.2.0:
     resolution: {integrity: sha512-ZYvPPOMqUwPoDsbJaR10iQJYnMuZhRTvHYl62ErLIEX7RgFlziSBUUvrt3OVfc47QlHHpzPZYP17g3Fv7oeJkg==}

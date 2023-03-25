@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import log from 'loglevel';
 import { SCHEMA_HANDLERS, LATEST_VERSION } from './view-config-versions';
 import { useViewConfigStoreApi, useLoaders, useWarning } from './state/hooks';
 
@@ -13,7 +14,7 @@ function validateViewConfig(viewConfig) {
       throw new Error(`Config validation failed: ${failureReason}`);
     }
   } catch (e) {
-    console.error(e);
+    log.error(e);
   }
   // Do nothing if successful.
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import equal from 'fast-deep-equal';
+import log from 'loglevel';
 import { capitalize } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
 import { useMatchingLoader, useMatchingLoaders, useSetWarning } from './state/hooks';
@@ -16,8 +17,8 @@ import { getDefaultCoordinationValues } from './plugins';
  */
 export function warn(error, setWarning) {
   setWarning(error.message);
-  console.warn(error.message);
-  console.error(error.stack);
+  log.warn(error.message);
+  log.error(error.stack);
   if (error instanceof AbstractLoaderError) {
     error.warnInConsole();
   }

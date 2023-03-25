@@ -15,6 +15,7 @@
     "@vitessce/example-plugins": "workspace:*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "loglevel": "^1.8.1",
     "vitessce": "workspace:*"
   },
   "devDependencies": {

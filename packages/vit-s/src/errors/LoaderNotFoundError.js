@@ -1,3 +1,4 @@
+import log from 'loglevel';
 import AbstractLoaderError from './AbstractLoaderError';
 
 export default class LoaderNotFoundError extends AbstractLoaderError {
@@ -15,7 +16,7 @@ export default class LoaderNotFoundError extends AbstractLoaderError {
     const {
       loaders, viewCoordinationValues,
     } = this;
-    console.warn(
+    log.warn(
       // eslint-disable-next-line prefer-template
       `Expected to match on { ${Object.entries(viewCoordinationValues).map(([k, v]) => k + ': ' + v).join(', ')} }`,
       loaders,

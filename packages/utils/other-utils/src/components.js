@@ -1,3 +1,5 @@
+import log from 'loglevel';
+
 // Originally in src/components/utils.js
 export const DEFAULT_DARK_COLOR = [50, 50, 50];
 export const DEFAULT_LIGHT_COLOR = [200, 200, 200];
@@ -46,27 +48,27 @@ export const COLORMAP_OPTIONS = [
 export const DEFAULT_GL_OPTIONS = { webgl2: true };
 
 export function createDefaultUpdateStatus(componentName) {
-  return message => console.warn(`${componentName} updateStatus: ${message}`);
+  return message => log.warn(`${componentName} updateStatus: ${message}`);
 }
 
 export function createDefaultUpdateCellsSelection(componentName) {
-  return cellsSelection => console.warn(`${componentName} updateCellsSelection: ${cellsSelection}`);
+  return cellsSelection => log.warn(`${componentName} updateCellsSelection: ${cellsSelection}`);
 }
 
 export function createDefaultUpdateCellsHover(componentName) {
-  return hoverInfo => console.warn(`${componentName} updateCellsHover: ${hoverInfo.cellId}`);
+  return hoverInfo => log.warn(`${componentName} updateCellsHover: ${hoverInfo.cellId}`);
 }
 
 export function createDefaultUpdateGenesHover(componentName) {
-  return hoverInfo => console.warn(`${componentName} updateGenesHover: ${hoverInfo.geneId}`);
+  return hoverInfo => log.warn(`${componentName} updateGenesHover: ${hoverInfo.geneId}`);
 }
 
 export function createDefaultUpdateTracksHover(componentName) {
-  return hoverInfo => console.warn(`${componentName} updateTracksHover: ${hoverInfo}`);
+  return hoverInfo => log.warn(`${componentName} updateTracksHover: ${hoverInfo}`);
 }
 
 export function createDefaultUpdateViewInfo(componentName) {
-  return viewInfo => console.warn(`${componentName} updateViewInfo: ${viewInfo}`);
+  return viewInfo => log.warn(`${componentName} updateViewInfo: ${viewInfo}`);
 }
 
 export function createDefaultClearPleaseWait() {

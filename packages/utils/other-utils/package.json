@@ -24,6 +24,7 @@
     "@vitessce/sets-utils": "workspace:*",
     "bowser": "^2.11.0",
     "lodash": "^4.17.21",
+    "loglevel": "^1.8.1",
     "lz-string": "^1.4.4"
   }
 }

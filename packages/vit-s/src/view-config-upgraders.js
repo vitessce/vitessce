@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+import log from 'loglevel';
 import uuidv4 from 'uuid/v4';
 import cloneDeep from 'lodash/cloneDeep';
 import { getNextScope, capitalize } from '@vitessce/utils';
@@ -580,7 +581,7 @@ export function upgradeFrom1_0_14(config) {
     // Iterate over each old prop key.
     Object.entries(propAnalogies).forEach(([oldProp, newType]) => {
       if (viewDef.props?.[oldProp]) {
-        console.warn(`Warning: the '${oldProp}' prop on the ${viewDef.component} view is deprecated. Please use the '${newType}' coordination type instead.`);
+        log.warn(`Warning: the '${oldProp}' prop on the ${viewDef.component} view is deprecated. Please use the '${newType}' coordination type instead.`);
       }
     });
   });
