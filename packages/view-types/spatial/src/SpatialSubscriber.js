@@ -1,3 +1,5 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import debounce from 'lodash/debounce';
@@ -149,10 +151,11 @@ export function SpatialSubscriber(props) {
 
   const observationsLabel = observationsLabelOverride || obsType;
 
-  // Normalize arrays and non-arrays to always be arrays.
-  const segmentationLayerScopes = useMultiCoordinationScopes(
+  const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
+    CoordinationType.SPATIAL_SEGMENTATION_CHANNEL,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
     coordinationScopes,
+    coordinationScopesBy,
   );
 
   const [imageLayerScopes, imageChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
@@ -165,22 +168,34 @@ export function SpatialSubscriber(props) {
   // Object keys are coordination scope names for spatialSegmentationLayer.
   const segmentationLayerCoordination = useComplexCoordination(
     [
-      CoordinationType.OBS_TYPE,
       CoordinationType.IMAGE,
-      CoordinationType.SPATIAL_TARGET_C,
+      CoordinationType.SPATIAL_SEGMENTATION_CHANNEL,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+  );
+
+  // Object keys are coordination scope names for spatialSegmentationChannel.
+  const segmentationChannelCoordination = useComplexCoordinationSecondary(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_TARGET_C,
+      CoordinationType.SPATIAL_CHANNEL_VISIBLE,
+      CoordinationType.SPATIAL_CHANNEL_OPACITY,
       CoordinationType.SPATIAL_CHANNEL_COLOR,
-      CoordinationType.SPATIAL_LAYER_FILLED,
-      CoordinationType.SPATIAL_LAYER_STROKE_WIDTH,
+      CoordinationType.SPATIAL_SEGMENTATION_FILLED,
+      CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
     ],
-    coordinationScopes,
     coordinationScopesBy,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+    CoordinationType.SPATIAL_SEGMENTATION_CHANNEL,
   );
 
   const imageLayerCoordination = useComplexCoordination(
@@ -227,8 +242,8 @@ export function SpatialSubscriber(props) {
     coordinationScopes, obsType, loaders, dataset, addUrl,
   );
 
-  const [obsTypes, obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
-    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {}, obsSegmentationsMatchOn,
+  const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
+    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
   );
   const [imageData, imageDataStatus] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
@@ -238,6 +253,7 @@ export function SpatialSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+  // TODO: update the useMultiObsFeatureMatrixIndices hook to reflect change from layer -> channel paradigm
   const [multiIndicesData, multiIndicesDataStatus] = useMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
   );
@@ -510,32 +526,40 @@ export function SpatialSubscriber(props) {
       let hasObsInfo = false;
       segmentationLayerScopes.forEach((layerScope) => {
         const {
-          obsType: layerObsType,
-          spatialTargetC,
           spatialLayerVisible,
         } = segmentationLayerCoordination[0][layerScope];
-        if (spatialLayerVisible && channelData[spatialTargetC] > 0) {
-          hasObsInfo = true;
-          result[`${layerObsType} ID`] = channelData[spatialTargetC];
-          if (multiExpressionData?.[layerScope] && multiLoadedFeatureSelection?.[layerScope]) {
-            const channelFeature = multiLoadedFeatureSelection?.[layerScope]?.[0];
-            const channelFeatureData = multiExpressionData?.[layerScope];
-            const unitSuffix = channelFeature.endsWith('Area') ? ' microns squared' : (
-              channelFeature.endsWith('Thickness') ? ' microns' : ''
-            );
 
-            // TODO: use multiIndicesData to obtain an index into the obsFeatureMatrix data
-            // using the bitmask channel value.
-            // For the sake of time, here I am assuming the off-by-one alignment.
-            const channelFeatureValue = channelFeatureData[0][channelData[spatialTargetC] - 1];
-            result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue) + unitSuffix;
+        const channelScopes = segmentationChannelScopesByLayer[layerScope];
+        const channelCoordination = segmentationChannelCoordination[0][layerScope];
+        channelScopes.forEach((channelScope) => {
+          const {
+            spatialChannelVisible,
+            obsType: layerObsType,
+            spatialTargetC,
+          } = channelCoordination[channelScope];
+          if (spatialLayerVisible && spatialChannelVisible && channelData[spatialTargetC] > 0) {
+            hasObsInfo = true;
+            result[`${layerObsType} ID`] = channelData[spatialTargetC];
+            if (multiExpressionData?.[layerScope]?.[channelScope] && multiLoadedFeatureSelection?.[layerScope]?.[channelScope]) {
+              const channelFeature = multiLoadedFeatureSelection?.[layerScope]?.[channelScope]?.[0];
+              const channelFeatureData = multiExpressionData?.[layerScope]?.[channelScope];
+              const unitSuffix = channelFeature.endsWith('Area') ? ' microns squared' : (
+                channelFeature.endsWith('Thickness') ? ' microns' : ''
+              );
+              // TODO: use multiIndicesData to obtain an index into the obsFeatureMatrix data
+              // using the bitmask channel value.
+              // For the sake of time, here I am assuming the off-by-one alignment.
+              const channelFeatureValue = channelFeatureData[0][channelData[spatialTargetC] - 1];
+              result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue) + unitSuffix;
+            }
           }
-        }
+        });
       });
       return hasObsInfo ? result : null;
     }
     return null;
   }, [segmentationLayerScopes, segmentationLayerCoordination,
+    segmentationChannelScopesByLayer, segmentationChannelCoordination,
     multiExpressionData, multiLoadedFeatureSelection, multiIndicesData,
   ]);
 
@@ -583,6 +607,10 @@ export function SpatialSubscriber(props) {
 
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerCoordination={segmentationLayerCoordination}
+
+        segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+        segmentationChannelCoordination={segmentationChannelCoordination}
+
         multiExpressionData={multiExpressionData}
 
         images={imageData}
@@ -626,6 +654,10 @@ export function SpatialSubscriber(props) {
       <MultiLegend
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerCoordination={segmentationLayerCoordination}
+
+        segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+        segmentationChannelCoordination={segmentationChannelCoordination}
+
         multiExpressionData={multiExpressionData}
       />
       {!disableTooltip && (
@@ -639,7 +671,7 @@ export function SpatialSubscriber(props) {
           hoverCoord={hoverCoord}
         />
       )}
-      <Legend
+      {/*<Legend
         visible
         // Fix to dark theme due to black background of spatial plot.
         theme="dark"
@@ -649,7 +681,7 @@ export function SpatialSubscriber(props) {
         featureSelection={geneSelection}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
-      />
+      />*/}
     </TitleInfo>
   );
 }

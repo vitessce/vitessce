@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import equal from 'fast-deep-equal';
 import { capitalize } from '@vitessce/utils';
 import { DataType, STATUS } from '@vitessce/constants-internal';
-import { useMatchingLoader, useMatchingLoaders, useSetWarning } from './state/hooks';
+import { useMatchingLoader, useMatchingLoaders, useMatchingLoadersSecondary, useSetWarning } from './state/hooks';
 import {
   AbstractLoaderError,
   LoaderNotFoundError,
@@ -276,6 +276,117 @@ export function useFeatureSelectionMulti(
             }
           }
         }
+      });
+    } else {
+      setGeneData({});
+      setLoadedGeneNames({});
+      if (isRequired) {
+        warn(
+          new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOnObj),
+          setWarning,
+        );
+        setStatus(STATUS.ERROR);
+      } else {
+        setStatus(STATUS.SUCCESS);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matchingLoaders, selections]);
+
+  return [geneData, loadedGeneNames, status];
+}
+
+export function useFeatureSelectionMultiSecondary(
+  loaders, dataset, isRequired, matchOnObj,
+  selections,
+) {
+  const [geneData, setGeneData] = useState({});
+  // TODO: per-scopeKey status values
+  const [status, setStatus] = useState(STATUS.LOADING);
+  const [loadedGeneNames, setLoadedGeneNames] = useState({});
+
+  const setWarning = useSetWarning();
+  const matchingLoaders = useMatchingLoadersSecondary(
+    loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOnObj,
+  );
+
+  useEffect(() => {
+    if (!selections) {
+      setGeneData({});
+      setLoadedGeneNames({});
+      setStatus(STATUS.SUCCESS);
+      return;
+    }
+    if (matchingLoaders) {
+      setGeneData({});
+      setLoadedGeneNames({});
+      setStatus(STATUS.LOADING);
+      Object.entries(matchingLoaders).forEach(([layerScope, layerMatchingLoaders]) => {
+        Object.entries(layerMatchingLoaders).forEach(([channelScope, loader]) => {
+          if (loader) {
+            const selection = selections[layerScope][channelScope];
+            if (selection) {
+              const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
+              if (implementsGeneSelection) {
+                loader
+                  .loadGeneSelection({ selection })
+                  .catch(e => warn(e, setWarning))
+                  .then((payload) => {
+                    if (!payload) return;
+                    const { data: payloadData } = payload;
+                    setGeneData(prev => ({
+                      ...prev,
+                      // eslint-disable-next-line no-param-reassign
+                      [layerScope]: {
+                        ...(prev[layerScope] || {}),
+                        [channelScope]: payloadData,
+                      },
+                    }));
+                    setStatus(STATUS.SUCCESS);
+                    setLoadedGeneNames(prev => ({
+                      ...prev,
+                      [layerScope]: {
+                        ...(prev[layerScope] || {}),
+                        [channelScope]: selection,
+                      },
+                    }));
+                  });
+              } else {
+                loader.load().catch(e => warn(e, setWarning)).then((payload) => {
+                  if (!payload) return;
+                  const { data } = payload;
+                  const { obsIndex, featureIndex, obsFeatureMatrix } = data;
+                  const expressionDataForSelection = selection.map((sel) => {
+                    const geneIndex = featureIndex.indexOf(sel);
+                    const numGenes = featureIndex.length;
+                    const numCells = obsIndex.length;
+                    const expressionData = new Float32Array(numCells);
+                    for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
+                      expressionData[cellIndex] = obsFeatureMatrix
+                        .data[cellIndex * numGenes + geneIndex];
+                    }
+                    return expressionData;
+                  });
+                  setGeneData(prev => ({
+                    ...prev,
+                    [layerScope]: {
+                      ...(prev[layerScope] || {}),
+                      [channelScope]: expressionDataForSelection,
+                    },
+                  }));
+                  setStatus(STATUS.SUCCESS);
+                  setLoadedGeneNames(prev => ({
+                    ...prev,
+                    [layerScope]: {
+                      ...(prev[layerScope] || {}),
+                      [channelScope]: selection,
+                    },
+                  }));
+                });
+              }
+            }
+          }
+        });
       });
     } else {
       setGeneData({});

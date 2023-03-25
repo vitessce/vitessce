@@ -116,7 +116,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.obsLocationsLayer = null;
     this.neighborhoodsLayer = null;
 
-    this.layerLoaderSelections = {};
+    this.imageLayerLoaderSelections = {};
+    this.segmentationLayerLoaderSelections = {};
     // Better for the bitmask layer when there is no color data to use this.
     // 2048 is best for performance and for stability (4096 texture size is not always supported).
     this.randomColorData = {
@@ -367,147 +368,93 @@ class Spatial extends AbstractSpatialOrScatterplot {
     return (imageLayerDefs || []).some(i => i.use3d);
   }
 
-  // Old createRasterLayer function.
-  createRasterLayer(rawLayerDef, loader, i) {
-    const layerDef = {
-      ...rawLayerDef,
-      channels: rawLayerDef.channels.filter(
-        channel => channel.selection && channel.color && channel.slider,
-      ),
-    };
+  // New createImageLayer function.
+  createSegmentationLayer(layerScope, layerCoordination, channelScopes, channelCoordination, image, use3d, layerFeatureValues) {
+    const { data, metadata } = image?.obsSegmentations?.loaders?.[0] || {};
+    if (!data) {
+      return null;
+    }
+
+    const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
+
+    const layerDefModelMatrix = null; // TODO(CoordinationType): per-layer modelMatrix
+    let modelMatrix;
+    const { transform } = metadata || {};
+    if (transform) {
+      const { scale, translate } = transform;
+      modelMatrix = new Matrix4()
+        .translate([translate.x, translate.y, 0])
+        .scale(scale);
+    } else if (layerDefModelMatrix) {
+      // eslint-disable-next-line prefer-destructuring
+      modelMatrix = new Matrix4(layerDefModelMatrix);
+    }
 
     // We need to keep the same selections array reference,
     // otherwise the Viv layer will not be re-used as we want it to,
     // since selections is one of its `updateTriggers`.
     // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
     let selections;
-    const nextLoaderSelection = layerDef.channels.map(c => c.selection);
-    const prevLoaderSelection = this.layerLoaderSelections[layerDef.index];
+    const nextLoaderSelection = channelScopes
+      .map(cScope => ({
+        // TODO: Z, T
+        // TODO: keys (if not always 'c', 'z', 't')
+        z: 0,
+        t: 0,
+        c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+      }));
+    const prevLoaderSelection = this.segmentationLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
       selections = prevLoaderSelection;
     } else {
       selections = nextLoaderSelection;
-      this.layerLoaderSelections[layerDef.index] = nextLoaderSelection;
+      this.segmentationLayerLoaderSelections[layerScope] = nextLoaderSelection;
     }
-    const useTransparentColor = (!layerDef.visible
-      && typeof layerDef.visible === 'boolean')
-      || Boolean(layerDef.transparentColor);
-    const transparentColor = useTransparentColor ? [0, 0, 0] : null;
-    const layerProps = {
-      colormap: layerDef.colormap,
-      opacity: layerDef.opacity,
-      useTransparentColor,
-      transparentColor,
-      colors: layerDef.channels.map(c => c.color),
-      sliders: layerDef.channels.map(c => c.slider),
-      opacities: layerDef.channels.map(c => c.opacity), // for bitmask
-      filled: layerDef.channels.map(c => c.filled), // for bitmask
-      strokeWidth: layerDef.channels.map(c => c.strokeWidth), // for bitmask
-      resolution: layerDef.resolution,
-      renderingMode: layerDef.renderingMode,
-      xSlice: layerDef.xSlice,
-      ySlice: layerDef.ySlice,
-      zSlice: layerDef.zSlice,
-      callback: layerDef.callback,
-      visibilities: layerDef.channels.map(c => (!layerDef.visible && typeof layerDef.visible === 'boolean'
-        ? false
-        : c.visible)),
-      excludeBackground: useTransparentColor,
-      multiFeatureValues: layerDef.channels.map(c => c.featureValues),
-      featureValueColormap: layerDef.channels.map(c => c.featureValueColormap),
-      featureValueColormapRange: layerDef.channels.map(c => c.featureValueColormapRange),
-      isStaticColorMode: layerDef.channels.map(c => c.obsColorEncoding === 'spatialChannelColor'),
-    };
-    if (!loader || !layerProps) return null;
-    const {
-      metadata: { transform },
-      data,
-    } = loader;
-    let modelMatrix;
-    if (transform) {
-      const { scale, translate } = transform;
-      modelMatrix = new Matrix4()
-        .translate([translate.x, translate.y, 0])
-        .scale(scale);
-    } else if (layerDef.modelMatrix) {
-      // eslint-disable-next-line prefer-destructuring
-      modelMatrix = new Matrix4(layerDef.modelMatrix);
-    }
-    if (rawLayerDef.type === 'bitmask') {
-      const {
-        geneExpressionColormap,
-        geneExpressionColormapRange = [0.0, 1.0],
-        cellColorEncoding,
-      } = this.props;
-      return new viv.MultiscaleImageLayer({
-        // `bitmask` is used by the AbstractSpatialOrScatterplot
-        // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
-        id: `bitmask-layer-${layerDef.index}-${i}`,
-        channelsVisible: layerProps.visibilities,
-        channelOpacities: layerProps.opacities,
-        channelsFilled: layerProps.filled,
-        opacity: layerProps.opacity,
-        channelColors: layerProps.colors,
-        channelStrokeWidths: layerProps.strokeWidth,
-        channelFeatureValueColormaps: layerProps.featureValueColormap,
-        channelFeatureValueColormapRanges: layerProps.featureValueColormapRange,
-        channelIsStaticColorMode: layerProps.isStaticColorMode,
-        modelMatrix,
-        hoveredCell: Number(this.props.cellHighlight),
-        multiFeatureValues: layerProps.multiFeatureValues,
-        renderSubLayers: renderSubBitmaskLayers,
-        loader: data,
-        selections,
-        // For some reason, deck.gl doesn't recognize the prop diffing
-        // unless these are separated out.  I don't think it's a bug, just
-        // has to do with the fact that we don't have it in the `defaultProps`,
-        // could be wrong though.
-        cellColorData: this.color.data,
-        cellTexHeight: this.color.height,
-        cellTexWidth: this.color.width,
-        excludeBackground: true,
-        onViewportLoad: layerProps.callback,
-        colorScaleLo: geneExpressionColormapRange[0],
-        colorScaleHi: geneExpressionColormapRange[1],
-        isExpressionMode: cellColorEncoding === 'geneSelection',
-        colormap: geneExpressionColormap,
-        expressionData: this.expression.data,
-        // There is no onHover here,
-        // see the onHover method of AbstractSpatialOrScatterplot.
-      });
-    }
-    const [Layer, layerLoader] = getLayerLoaderTuple(data, layerDef.use3d);
 
-    const extensions = getVivLayerExtensions(
-      layerDef.use3d, layerProps.colormap, layerProps.renderingMode,
-    );
-    // Safer to only use this prop when we have an interleaved image i.e not multiple channels.
-    const rgbInterleavedProps = {};
-    if (isInterleaved((Array.isArray(data) ? data[0] : data).shape)) {
-      rgbInterleavedProps.visible = layerDef.visible;
-    }
-    return new Layer({
-      loader: layerLoader,
-      id: `${layerDef.use3d ? 'volume' : 'image'}-layer-${layerDef.index}-${i}`,
-      colors: layerProps.colors,
-      contrastLimits: layerProps.sliders,
-      selections,
-      channelsVisible: layerProps.visibilities,
-      opacity: layerProps.opacity,
-      colormap: layerProps.colormap,
+
+    return new viv.MultiscaleImageLayer({
+      // `bitmask` is used by the AbstractSpatialOrScatterplot
+      // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
+      id: `bitmask-layer-${layerScope}`,
+      channelsVisible: channelScopes
+        .map(cScope => visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]),
+      channelOpacities: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_OPACITY]),
+      channelsFilled: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_SEGMENTATION_FILLED]),
+      opacity: layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY],
+      channelColors: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]),
+      channelStrokeWidths: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH]),
+      channelFeatureValueColormaps: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.FEATURE_VALUE_COLORMAP]),
+      channelFeatureValueColormapRanges: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.FEATURE_VALUE_COLORMAP_RANGE]),
+      channelIsStaticColorMode: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.OBS_COLOR_ENCODING] === 'spatialChannelColor'),
       modelMatrix,
-      transparentColor: layerProps.transparentColor,
-      useTransparentColor: layerProps.useTransparentColor,
-      resolution: layerProps.resolution,
-      renderingMode: layerProps.renderingMode,
-      pickable: false,
-      xSlice: layerProps.xSlice,
-      ySlice: layerProps.ySlice,
-      zSlice: layerProps.zSlice,
-      onViewportLoad: layerProps.callback,
-      excludeBackground: layerProps.excludeBackground,
-      extensions,
-      ...rgbInterleavedProps,
+      hoveredCell: Number(this.props.cellHighlight),
+      multiFeatureValues: channelScopes.map(cScope => (layerFeatureValues?.[cScope]?.[0] || [])),
+      renderSubLayers: renderSubBitmaskLayers,
+      loader: data,
+      selections,
+      // For some reason, deck.gl doesn't recognize the prop diffing
+      // unless these are separated out.  I don't think it's a bug, just
+      // has to do with the fact that we don't have it in the `defaultProps`,
+      // could be wrong though.
+      cellColorData: this.color.data,
+      cellTexHeight: this.color.height,
+      cellTexWidth: this.color.width,
+      excludeBackground: true,
+      onViewportLoad: () => {}, // layerProps.callback, // TODO: figure out callback implementation
+      colorScaleLo: 0, // TODO: check if these can be removed?
+      colorScaleHi: 1, // TODO: check if these can be removed?
+      isExpressionMode: false, // TODO: check if these can be removed?
+      colormap: null, // TODO: check if these can be removed?
+      expressionData: this.expression.data,
+      // There is no onHover here,
+      // see the onHover method of AbstractSpatialOrScatterplot.
     });
   }
 
@@ -566,12 +513,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
         t: 0,
         c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
       }));
-    const prevLoaderSelection = this.layerLoaderSelections[layerScope];
+    const prevLoaderSelection = this.imageLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
       selections = prevLoaderSelection;
     } else {
       selections = nextLoaderSelection;
-      this.layerLoaderSelections[layerScope] = nextLoaderSelection;
+      this.imageLayerLoaderSelections[layerScope] = nextLoaderSelection;
     }
 
     const colors = channelScopes
@@ -607,8 +554,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   createImageLayers() {
     const {
-      imageLayerDefs,
-      imageLayerLoaders = {},
       imageLayerCallbacks = [],
 
       images = {},
@@ -628,152 +573,35 @@ class Spatial extends AbstractSpatialOrScatterplot {
       images[layerScope],
       use3d,
     ));
-    /*const use3d = this.use3d();
-    const use3dIndex = (imageLayerDefs || []).findIndex(i => i.use3d);
-    return (imageLayerDefs || [])
-      .filter(layer => (use3d ? layer.use3d === use3d : true))
-      .map((layer, i) => this.createRasterLayer(
-        { ...layer, callback: imageLayerCallbacks[use3d ? use3dIndex : i] },
-        imageLayerLoaders[layer.index],
-        i,
-      ));*/
   }
 
   createBitmaskLayers() {
     const {
+      obsSegmentations = {},
       segmentationLayerScopes,
       segmentationLayerCoordination,
 
-      obsSegmentationsLayerDefs,
-      obsSegmentations,
+      segmentationChannelScopesByLayer,
+      segmentationChannelCoordination,
+
       obsSegmentationsType,
       segmentationLayerCallbacks = [],
 
       multiExpressionData,
     } = this.props;
-    // console.log('obsSegmentations', obsSegmentations, segmentationLayerScopes, segmentationLayerCoordination)
-    if(obsSegmentations && Object.keys(obsSegmentations).length === segmentationLayerScopes.length && segmentationLayerScopes && segmentationLayerCoordination) {
-      const layerIndex = 0;
-      // TODO: identify the unique images (i.e., loaders).
-      // Return one layer corresponding to each image.
-      // For each image layer, filter to include only the matching channels.
-      return [
-        this.createRasterLayer(
-          {
-            ...({
-              index: layerIndex,
-              colormap: null,
-              domainType: "Min/Max",
-              modelMatrix: undefined,
-              opacity: 1.0,
-              renderingMode: "Additive",
-              transparentColor: null,
-              type: "bitmask",
-              use3d: false,
-              visible: true,
-            }),
-            channels: segmentationLayerScopes.map((layerScope) => {
-              const {
-                spatialLayerVisible: visible,
-                spatialLayerOpacity: opacity,
-                spatialTargetC,
-                spatialChannelColor,
-                spatialLayerFilled,
-                spatialLayerStrokeWidth,
-                obsColorEncoding,
-                featureValueColormap,
-                featureValueColormapRange,
-              } = segmentationLayerCoordination[0][layerScope];
-              return {
-                selection: { t: 0, z: 0, c: spatialTargetC }, // should fill in c.
-                visible,
-                opacity,
-                filled: spatialLayerFilled,
-                strokeWidth: spatialLayerStrokeWidth,
-                slider: [0, 1],
-                color: spatialChannelColor,
-                obsColorEncoding,
-                featureValues: multiExpressionData?.[layerScope]?.[0] || [],
-                featureValueColormap,
-                featureValueColormapRange,
-              };
-            }),
-            callback: segmentationLayerCallbacks[0],
-          },
-          // TODO: one loader passed here, which one?
-          obsSegmentations[segmentationLayerScopes[0]].obsSegmentations.loaders[layerIndex],
-          0,
-        ),
-      ];
-      return segmentationLayerScopes.map((layerScope, i) => {
-        const { spatialLayerVisible: visible, spatialLayerOpacity: opacity, spatialTargetC, spatialChannelColor } = segmentationLayerCoordination[0][layerScope];
-        const layerIndex = 0;
-        return this.createRasterLayer(
-          {
-            ...({
-              index: layerIndex,
-              colormap: null,
-              domainType: "Min/Max",
-              modelMatrix: undefined,
-              opacity,
-              renderingMode: "Additive",
-              transparentColor: null,
-              type: "bitmask",
-              use3d: false,
-              visible,
-            }),
-            channels: [
-              {
-                selection: { t: 0, z: 0, c: spatialTargetC }, // should fill in c.
-                visible: true,
-                slider: [0, 1],
-                color: spatialChannelColor,
-              },
-            ],
-            callback: segmentationLayerCallbacks[i],
-          },
-          obsSegmentations.A.obsSegmentations.loaders[layerIndex],
-          i,
-        );
-      });
-    }
-    return [];
-    if (obsSegmentations && obsSegmentationsType === 'bitmask' && Array.isArray(obsSegmentationsLayerDefs)) {
-      const layer = {
-        ...obsSegmentationsLayerDefs[0],
-        channels: [
-          {
-            selection: { t: 0, z: 0, c: undefined }, // should fill in c.
-            visible: true,
-            slider: [0, 1],
-            color: [255, 255, 255],
-          },
-        ],
-      }
-      const use3d = obsSegmentationsLayerDefs.some(i => i.use3d);
-      const use3dIndex = obsSegmentationsLayerDefs.findIndex(i => i.use3d);
-      return Object.entries(obsSegmentations)
-        //.filter(layer => (use3d ? layer.use3d === use3d : true))
-        .map(([obsTypeScope, obsTypeObj], i) => {
-          return this.createRasterLayer(
-          {
-            ...obsSegmentationsLayerDefs[0],
-            channels: [
-              {
-                selection: { t: 0, z: 0, c: obsTypeObj.obsSegmentations.meta[layer.index].channel }, // should fill in c.
-                visible: true,
-                slider: [0, 1],
-                color: [255, 255, 255],
-              },
-            ],
-            callback: segmentationLayerCallbacks[use3d ? use3dIndex : i],
-          },
-          obsTypeObj.obsSegmentations.loaders[layer.index],
-          i,
-        )
-      });
-    }
-    return [];
+    // TODO: support polygon layers
+    // TODO: check for 3D.
+    const use3d = this.use3d();
+    return segmentationLayerScopes.map(layerScope => this.createSegmentationLayer(
+      layerScope,
+      segmentationLayerCoordination[0][layerScope],
+      segmentationChannelScopesByLayer[layerScope],
+      segmentationChannelCoordination[0][layerScope],
+      obsSegmentations[layerScope],
+      use3d,
+      multiExpressionData?.[layerScope],
+      // TODO: pass down layer-specific multiExpressionData
+    ));
   }
 
   getLayers() {
@@ -1009,6 +837,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'segmentationLayerCallbacks',
         'segmentationLayerScopes',
         'segmentationLayerCoordination',
+        'segmentationChannelScopesByLayer',
+        'segmentationChannelCoordination',
         'multiExpressionData', // TODO: should this be here?
       ].some(shallowDiff)
     ) {

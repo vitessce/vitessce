@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable dot-notation */
 /* eslint-disable no-unused-vars */
 import React, {
@@ -101,9 +102,12 @@ export function LayerControllerSubscriber(props) {
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
     coordinationScopes,
   );
-  const segmentationLayerScopes = useMultiCoordinationScopes(
+
+  const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
+    CoordinationType.SPATIAL_SEGMENTATION_CHANNEL,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
     coordinationScopes,
+    coordinationScopesBy,
   );
 
   const [imageLayerScopes, imageChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
@@ -118,21 +122,34 @@ export function LayerControllerSubscriber(props) {
   // Object keys are coordination scope names for spatialSegmentationLayer.
   const segmentationLayerCoordination = useComplexCoordination(
     [
-      CoordinationType.OBS_TYPE,
       CoordinationType.IMAGE,
-      CoordinationType.SPATIAL_TARGET_C,
+      CoordinationType.SPATIAL_SEGMENTATION_CHANNEL,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
-      CoordinationType.SPATIAL_CHANNEL_COLOR,
-      CoordinationType.SPATIAL_LAYER_FILLED,
-      CoordinationType.SPATIAL_LAYER_STROKE_WIDTH,
-      CoordinationType.OBS_COLOR_ENCODING,
-      CoordinationType.FEATURE_VALUE_COLORMAP,
-      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
     ],
     coordinationScopes,
     coordinationScopesBy,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+  );
+
+  // Object keys are coordination scope names for spatialSegmentationChannel.
+  const segmentationChannelCoordination = useComplexCoordinationSecondary(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_TARGET_C,
+      CoordinationType.SPATIAL_CHANNEL_VISIBLE,
+      CoordinationType.SPATIAL_CHANNEL_OPACITY,
+      CoordinationType.SPATIAL_CHANNEL_COLOR,
+      CoordinationType.SPATIAL_SEGMENTATION_FILLED,
+      CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
+      CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_VALUE_COLORMAP,
+      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+    ],
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+    CoordinationType.SPATIAL_SEGMENTATION_CHANNEL,
   );
 
   const imageLayerCoordination = useComplexCoordination(
@@ -186,8 +203,8 @@ export function LayerControllerSubscriber(props) {
   const [componentWidth, componentHeight] = useClosestVitessceContainerSize(layerControllerRef);
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
-  const [obsTypes, obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
-    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {}, obsSegmentationsMatchOn,
+  const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
+    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
   );
   const [imageData, imageDataStatus] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
@@ -220,11 +237,14 @@ export function LayerControllerSubscriber(props) {
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerValues={segmentationLayerValues}
         segmentationLayerCoordination={segmentationLayerCoordination}
-    
+
+        segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+        segmentationChannelCoordination={segmentationChannelCoordination}
+
         images={imageData}
         imageLayerScopes={imageLayerScopes}
         imageLayerCoordination={imageLayerCoordination}
-    
+
         imageChannelScopesByLayer={imageChannelScopesByLayer}
         imageChannelCoordination={imageChannelCoordination}
       />

@@ -111,7 +111,7 @@ function ColorPickerMenu(props) {
 
   const classes = useStyles();
 
-  const currentColor = colorArrayToString(color);
+  const currentColor = color ? colorArrayToString(color) : colorArrayToString([0, 0, 0]);
 
   return (
     <PopperMenu

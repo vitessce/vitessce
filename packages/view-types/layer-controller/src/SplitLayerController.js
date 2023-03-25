@@ -34,7 +34,7 @@ import BitmaskChannelController from './BitmaskChannelController';
 import VectorLayerController from './VectorLayerController';
 import LayerController from './LayerController';
 import ImageAddButton from './ImageAddButton';
-import SplitVectorLayerController from './SplitVectorLayerController';
+import SplitSegmentationLayerController from './SplitSegmentationLayerController';
 import SplitImageLayerController from './SplitImageLayerController';
 
 
@@ -60,13 +60,16 @@ export default function SplitLayerController(props) {
     segmentationLayerValues,
     segmentationLayerCoordination,
 
+    segmentationChannelScopesByLayer,
+    segmentationChannelCoordination,
+
     images,
     imageLayerScopes,
     imageLayerCoordination,
 
     imageChannelScopesByLayer,
     imageChannelCoordination,
-    
+
     obsTypes,
     obsSegmentationsStatus,
     obsSegmentationsData,
@@ -121,65 +124,20 @@ export default function SplitLayerController(props) {
           handleLayerChange={setCellsLayer}
         />
       )*/}
-      {/* Segmentation bitmask layers: */}
-      {segmentationLayerScopes && segmentationLayerValues
-        && segmentationLayerScopes.map((layerScope) => {
-          const {
-            obsType,
-            spatialLayerVisible: visible,
-            spatialLayerOpacity: opacity,
-            spatialChannelColor: color,
-            spatialLayerFilled: filled,
-            spatialLayerStrokeWidth: strokeWidth,
-            obsColorEncoding,
-            featureValueColormap,
-            featureValueColormapRange,
-          } = segmentationLayerCoordination[0][layerScope];
-          const {
-            setSpatialLayerVisible: setVisible,
-            setSpatialLayerOpacity: setOpacity,
-            setSpatialChannelColor: setColor,
-            setSpatialLayerFilled: setFilled,
-            setSpatialLayerStrokeWidth: setStrokeWidth,
-            setObsColorEncoding,
-            setFeatureValueColormap,
-            setFeatureValueColormapRange,
-          } = segmentationLayerCoordination[1][layerScope];
-
-          const obsTypeName = obsType;
-
-          //const index = 0;
-          //const loader = obsTypeData?.obsSegmentations?.loaders?.[index];
-          //const layerMeta = obsTypeData?.obsSegmentations?.meta?.[index];
-          //const loader = null;
-          //const layerMeta = null;
-          //const channelIndex = segmentationLayerCoordination[0][layerScope].spatialTargetC;
-
-          return (
-            <SplitVectorLayerController
-              key={layerScope}
-              layerScope={layerScope}
-              label={obsTypeName}
-              opacity={opacity}
-              setOpacity={setOpacity}
-              visible={visible}
-              setVisible={setVisible}
-              color={color}
-              setColor={setColor}
-              filled={filled}
-              setFilled={setFilled}
-              strokeWidth={strokeWidth}
-              setStrokeWidth={setStrokeWidth}
-
-              obsColorEncoding={obsColorEncoding}
-              featureValueColormap={featureValueColormap}
-              featureValueColormapRange={featureValueColormapRange}
-              setObsColorEncoding={setObsColorEncoding}
-              setFeatureValueColormap={setFeatureValueColormap}
-              setFeatureValueColormapRange={setFeatureValueColormapRange}
-            />
-          );
-        })}
+      {/* Segmentation layers: */}
+      {segmentationLayerScopes && segmentationLayerScopes.map(layerScope => (
+        <SplitSegmentationLayerController
+          key={layerScope}
+          layerScope={layerScope}
+          layerCoordination={segmentationLayerCoordination[0][layerScope]}
+          setLayerCoordination={segmentationLayerCoordination[1][layerScope]}
+          channelScopes={segmentationChannelScopesByLayer[layerScope]}
+          channelCoordination={segmentationChannelCoordination[0][layerScope]}
+          setChannelCoordination={segmentationChannelCoordination[1][layerScope]}
+          // obsSegmentations={obsSegmentations[layerScope]} // TODO?
+          use3d={false} /* TODO */
+        />
+      ))}
       {/* Image layers: */}
       {imageLayerScopes && imageLayerScopes.map(layerScope => (
         <SplitImageLayerController

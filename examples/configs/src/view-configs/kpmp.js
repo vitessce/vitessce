@@ -122,6 +122,9 @@ export const kpmp2023 = {
       B: 'B',
     },
     spatialSegmentationLayer: {
+      ml: 'ml',
+    },
+    spatialSegmentationChannel: {
       ci: 'ci',
       ngsg: 'ngsg',
       gsg: 'gsg',
@@ -210,23 +213,24 @@ export const kpmp2023 = {
       imageB: [0, 0, 255],
     },
     spatialChannelVisible: {
+      // bitmask
+      ci: false,
+      ngsg: false,
+      gsg: false,
+      t: true,
+      a: false,
+      ifta: false,
+      ptc: false,
+      // RGB
       imageR: true,
       imageG: true,
       imageB: true,
     },
     spatialLayerVisible: {
-      // bitmask
-      ci: false,
-      ngsg: false,
-      gsg: false,
-      t: false,
-      a: false,
-      ifta: false,
-      ptc: false,
-      // RGB
       image: true,
+      bitmask: true,
     },
-    spatialLayerOpacity: {
+    spatialChannelOpacity: {
       // bitmask
       ci: 1,
       ngsg: 1,
@@ -236,9 +240,16 @@ export const kpmp2023 = {
       ifta: 1,
       ptc: 1,
       // RGB
-      image: 1,
+      imageR: 1,
+      imageG: 1,
+      imageB: 1,
     },
-    spatialLayerFilled: {
+    spatialLayerOpacity: {
+      // RGB
+      image: 1,
+      bitmask: 1,
+    },
+    spatialSegmentationFilled: {
       ci: true,
       ngsg: true,
       gsg: true,
@@ -247,7 +258,7 @@ export const kpmp2023 = {
       ifta: true,
       ptc: true,
     },
-    spatialLayerStrokeWidth: {
+    spatialSegmentationStrokeWidth: {
       ci: 1,
       ngsg: 1,
       gsg: 1,
@@ -272,7 +283,7 @@ export const kpmp2023 = {
         // i.e., additional level of coordination. This should make it more clear that the different
         // segmentations are coming from different channels in the image file.
         // Also, a segmentation layer should correspond to a single bitmask file.
-        spatialSegmentationLayer: ['ci', 'ngsg', 'gsg', 't', 'a', 'ifta', 'ptc'],
+        spatialSegmentationLayer: ['ml'],
         spatialImageLayer: ['histology'],
       },
     },
@@ -308,17 +319,27 @@ export const kpmp2023 = {
             G: 'imageG',
             B: 'imageB',
           },
+          spatialChannelOpacity: { // TODO: implement
+            R: 'imageR',
+            G: 'imageG',
+            B: 'imageB',
+          },
         },
         spatialSegmentationLayer: {
           image: {
-            ci: 'bitmask',
-            ngsg: 'bitmask',
-            gsg: 'bitmask',
-            t: 'bitmask',
-            a: 'bitmask',
-            ifta: 'bitmask',
-            ptc: 'bitmask',
+            ml: 'bitmask',
           },
+          spatialSegmentationChannel: {
+            ml: ['ci', 'ngsg', 'gsg', 't', 'a', 'ifta', 'ptc'],
+          },
+          spatialLayerVisible: {
+            ml: 'bitmask',
+          },
+          spatialLayerOpacity: {
+            ml: 'bitmask',
+          },
+        },
+        spatialSegmentationChannel: {
           obsType: {
             ci: 'ci',
             ngsg: 'ngsg',
@@ -391,7 +412,7 @@ export const kpmp2023 = {
             ifta: 'ifta',
             ptc: 'ptc',
           },
-          spatialLayerVisible: {
+          spatialChannelVisible: {
             ci: 'ci',
             ngsg: 'ngsg',
             gsg: 'gsg',
@@ -400,7 +421,7 @@ export const kpmp2023 = {
             ifta: 'ifta',
             ptc: 'ptc',
           },
-          spatialLayerOpacity: {
+          spatialChannelOpacity: {
             ci: 'ci',
             ngsg: 'ngsg',
             gsg: 'gsg',
@@ -418,7 +439,7 @@ export const kpmp2023 = {
             ifta: 'ifta',
             ptc: 'ptc',
           },
-          spatialLayerFilled: {
+          spatialSegmentationFilled: {
             ci: 'ci',
             ngsg: 'ngsg',
             gsg: 'gsg',
@@ -427,7 +448,7 @@ export const kpmp2023 = {
             ifta: 'ifta',
             ptc: 'ptc',
           },
-          spatialLayerStrokeWidth: {
+          spatialSegmentationStrokeWidth: {
             ci: 'ci',
             ngsg: 'ngsg',
             gsg: 'gsg',

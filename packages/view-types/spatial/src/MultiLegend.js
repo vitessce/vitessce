@@ -25,6 +25,8 @@ export default function MultiLegend(props) {
   const {
     segmentationLayerScopes,
     segmentationLayerCoordination,
+    segmentationChannelScopesByLayer,
+    segmentationChannelCoordination,
     multiExpressionData,
   } = props;
 
@@ -32,32 +34,41 @@ export default function MultiLegend(props) {
 
   return (
     <div className={classes.multiLegend}>
-      {segmentationLayerScopes.map((layerScope) => {
+      {segmentationLayerScopes.flatMap((layerScope) => {
+        const layerCoordination = segmentationLayerCoordination[0][layerScope];
+        const channelScopes = segmentationChannelScopesByLayer[layerScope];
+        const channelCoordination = segmentationChannelCoordination[0][layerScope];
+
         const {
-          spatialLayerVisible: visible,
-          spatialChannelColor,
-          obsColorEncoding,
-          featureValueColormap,
-          featureValueColormapRange,
-          obsType,
-          featureType,
-          featureSelection,
-        } = segmentationLayerCoordination[0][layerScope];
+          spatialLayerVisible,
+        } = layerCoordination;
 
-        return visible ? (
-          <Legend
-            key={layerScope}
-            obsType={obsType}
-            featureType={featureType}
-            spatialChannelColor={spatialChannelColor}
-            obsColorEncoding={obsColorEncoding}
-            featureValueColormap={featureValueColormap}
-            featureValueColormapRange={featureValueColormapRange}
-            featureSelection={featureSelection}
-
-            expressionData={multiExpressionData?.[layerScope]}
-          />
-        ) : null;
+        return channelScopes.map((cScope) => {
+          const {
+            spatialChannelVisible,
+            spatialChannelColor,
+            obsColorEncoding,
+            featureValueColormap,
+            featureValueColormapRange,
+            obsType,
+            featureType,
+            featureSelection,
+          } = channelCoordination[cScope];
+          return spatialLayerVisible && spatialChannelVisible ? (
+            <Legend
+              key={`${layerScope}-${cScope}`}
+              obsType={obsType}
+              featureType={featureType}
+              spatialChannelColor={spatialChannelColor}
+              obsColorEncoding={obsColorEncoding}
+              featureValueColormap={featureValueColormap}
+              featureValueColormapRange={featureValueColormapRange}
+              featureSelection={featureSelection}
+              // TODO: pass channel-specific expressionData
+              expressionData={multiExpressionData?.[layerScope]?.[cScope]}
+            />
+          ) : null;
+        });
       })}
     </div>
   );

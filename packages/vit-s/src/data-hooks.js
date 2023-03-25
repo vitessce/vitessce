@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal';
 import { fromEntries } from '@vitessce/utils';
-import { useMatchingLoader, useMultiCoordinationValues, useComplexCoordination, useSetWarning } from './state/hooks';
+import { useMatchingLoader, useMultiCoordinationValues, useComplexCoordination, useSetWarning, useComplexCoordinationSecondary } from './state/hooks';
 import {
   LoaderNotFoundError,
 } from './errors/index';
@@ -11,6 +11,7 @@ import {
   useDataTypeMulti,
   useFeatureSelectionMulti,
   useObsFeatureMatrixIndicesMulti,
+  useFeatureSelectionMultiSecondary,
 } from './data-hook-utils';
 
 /**
@@ -356,12 +357,8 @@ export function useMultiObsLabels(
 }
 
 export function useMultiObsSegmentations(
-  coordinationScopes, coordinationScopesBy, loaders, dataset, addUrl, shouldMatchOn,
+  coordinationScopes, coordinationScopesBy, loaders, dataset, addUrl,
 ) {
-  const obsTypes = useMultiCoordinationValues(
-    CoordinationType.OBS_TYPE,
-    coordinationScopes,
-  );
   const imageCoordination = useComplexCoordination(
     [
       CoordinationType.IMAGE,
@@ -370,22 +367,17 @@ export function useMultiObsSegmentations(
     coordinationScopesBy,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
   );
-  const matchOnObj = useMemo(() => (shouldMatchOn === 'obsType'
-    ? fromEntries(Object.entries(obsTypes).map(([scope, obsType]) => ([
-      scope,
-      { obsType },
-    ])))
-    : imageCoordination[0]
+  const matchOnObj = useMemo(() => imageCoordination[0]
     // imageCoordination reference changes each render,
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
-  ), [obsTypes, coordinationScopes, coordinationScopesBy]);
+  , [coordinationScopes, coordinationScopesBy]);
   const [obsSegmentationsData, obsSegmentationsDataStatus] = useDataTypeMulti(
     DataType.OBS_SEGMENTATIONS, loaders, dataset,
     addUrl, false, {}, {},
     matchOnObj,
   );
-  return [obsTypes, obsSegmentationsData, obsSegmentationsDataStatus];
+  return [obsSegmentationsData, obsSegmentationsDataStatus];
 }
 
 export function useMultiImages(
@@ -417,40 +409,44 @@ export function useMultiImages(
 export function useMultiFeatureSelection(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
-  const obsFeatureMatrixCoordination = useComplexCoordination(
+  const obsFeatureMatrixCoordination = useComplexCoordinationSecondary(
     [
       CoordinationType.OBS_TYPE,
       CoordinationType.FEATURE_TYPE,
       CoordinationType.FEATURE_VALUE_TYPE,
-      CoordinationType.FEATURE_SELECTION,
     ],
-    coordinationScopes,
     coordinationScopesBy,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+    CoordinationType.SPATIAL_SEGMENTATION_CHANNEL,
   );
-  const matchOnObj = useMemo(() => fromEntries(Object.entries(obsFeatureMatrixCoordination[0])
-    .map(([key, val]) => ([
-      key,
-      {
-        obsType: val.obsType,
-        featureType: val.featureType,
-        featureValueType: val.featureValueType,
-      },
-    ])))
-    // obsFeatureMatrixCoordination reference changes each render,
+  const featureSelectionCoordination = useComplexCoordinationSecondary(
+    [
+      CoordinationType.FEATURE_SELECTION,
+    ],
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+    CoordinationType.SPATIAL_SEGMENTATION_CHANNEL,
+  );
+  const matchOnObj = useMemo(() => obsFeatureMatrixCoordination[0]
+    // imageCoordination reference changes each render,
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
   , [coordinationScopes, coordinationScopesBy]);
-  const selections = useMemo(() => fromEntries(Object.entries(obsFeatureMatrixCoordination[0])
-    .map(([key, val]) => ([
-      key,
-      val.featureSelection,
+  const selections = useMemo(() => fromEntries(Object.entries(featureSelectionCoordination[0])
+    .map(([layerScope, layerVal]) => ([
+      layerScope,
+      fromEntries(
+        Object.entries(layerVal)
+          .map(([cScope, cVal]) => ([cScope, cVal.featureSelection])),
+      ),
     ])))
     // Need to execute this more frequently, whenever the featureSelections update.
   , [coordinationScopes, coordinationScopesBy,
-    ...Object.values(obsFeatureMatrixCoordination[0] || {}).map(val => val.featureSelection),
+    ...Object.values(featureSelectionCoordination[0] || {})
+      .flatMap(layerVal => Object.values(layerVal).map(cVal => cVal.featureSelection)),
   ]);
-  const [featureData, loadedSelections, featureStatus] = useFeatureSelectionMulti(
+  // TODO: update useFeatureSelectionMulti to support two levels of coordination
+  const [featureData, loadedSelections, featureStatus] = useFeatureSelectionMultiSecondary(
     loaders, dataset, false, matchOnObj, selections,
   );
   return [featureData, loadedSelections, featureStatus];
