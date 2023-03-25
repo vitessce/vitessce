@@ -28,3 +28,5 @@ Config schemas are defined using [Zod](https://zod.dev/) in the `@vitessce/schem
 
 Each schema version must be accompanied by an __upgrade__ function that facilitates automatically upgrading configs from the directly preceding schema version.
 Both the schema and the upgrade function must be added to the `SCHEMA_HANDLERS` list within `@vitessce/schemas`.
+
+Finally, update the list of config versions on the [View Configs via JSON](/docs/view-config-json/) documentation page.
