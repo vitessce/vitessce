@@ -241,8 +241,7 @@ export function SpatialSubscriber(props) {
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
     coordinationScopes, obsType, loaders, dataset, addUrl,
   );
-  
-  // TODO: update the useMulti hooks to reflect change from layer -> channel paradigm
+
   const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
   );
@@ -254,6 +253,7 @@ export function SpatialSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+  // TODO: update the useMultiObsFeatureMatrixIndices hook to reflect change from layer -> channel paradigm
   const [multiIndicesData, multiIndicesDataStatus] = useMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
   );
