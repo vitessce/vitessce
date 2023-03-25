@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import debounce from 'lodash/debounce';
@@ -149,10 +150,11 @@ export function SpatialSubscriber(props) {
 
   const observationsLabel = observationsLabelOverride || obsType;
 
-  // Normalize arrays and non-arrays to always be arrays.
-  const segmentationLayerScopes = useMultiCoordinationScopes(
+  const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
+    CoordinationType.SPATIAL_SEGMENTATION_CHANNEL,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
     coordinationScopes,
+    coordinationScopesBy,
   );
 
   const [imageLayerScopes, imageChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
@@ -165,22 +167,34 @@ export function SpatialSubscriber(props) {
   // Object keys are coordination scope names for spatialSegmentationLayer.
   const segmentationLayerCoordination = useComplexCoordination(
     [
-      CoordinationType.OBS_TYPE,
       CoordinationType.IMAGE,
-      CoordinationType.SPATIAL_TARGET_C,
+      CoordinationType.SPATIAL_SEGMENTATION_CHANNEL,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+  );
+
+  // Object keys are coordination scope names for spatialSegmentationChannel.
+  const segmentationChannelCoordination = useComplexCoordinationSecondary(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_TARGET_C,
+      CoordinationType.SPATIAL_CHANNEL_VISIBLE,
+      CoordinationType.SPATIAL_CHANNEL_OPACITY,
       CoordinationType.SPATIAL_CHANNEL_COLOR,
-      CoordinationType.SPATIAL_LAYER_FILLED,
-      CoordinationType.SPATIAL_LAYER_STROKE_WIDTH,
+      CoordinationType.SPATIAL_SEGMENTATION_FILLED,
+      CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
     ],
-    coordinationScopes,
     coordinationScopesBy,
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+    CoordinationType.SPATIAL_SEGMENTATION_CHANNEL,
   );
 
   const imageLayerCoordination = useComplexCoordination(
@@ -226,9 +240,10 @@ export function SpatialSubscriber(props) {
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
     coordinationScopes, obsType, loaders, dataset, addUrl,
   );
-
-  const [obsTypes, obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
-    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {}, obsSegmentationsMatchOn,
+  
+  // TODO: update the useMulti hooks to reflect change from layer -> channel paradigm
+  const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
+    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
   );
   const [imageData, imageDataStatus] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
@@ -583,6 +598,10 @@ export function SpatialSubscriber(props) {
 
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerCoordination={segmentationLayerCoordination}
+
+        segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+        segmentationChannelCoordination={segmentationChannelCoordination}
+
         multiExpressionData={multiExpressionData}
 
         images={imageData}
@@ -626,6 +645,10 @@ export function SpatialSubscriber(props) {
       <MultiLegend
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerCoordination={segmentationLayerCoordination}
+
+        segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+        segmentationChannelCoordination={segmentationChannelCoordination}
+
         multiExpressionData={multiExpressionData}
       />
       {!disableTooltip && (
@@ -639,7 +662,7 @@ export function SpatialSubscriber(props) {
           hoverCoord={hoverCoord}
         />
       )}
-      <Legend
+      {/*<Legend
         visible
         // Fix to dark theme due to black background of spatial plot.
         theme="dark"
@@ -649,7 +672,7 @@ export function SpatialSubscriber(props) {
         featureSelection={geneSelection}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
-      />
+      />*/}
     </TitleInfo>
   );
 }
