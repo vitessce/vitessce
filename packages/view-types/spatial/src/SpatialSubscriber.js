@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useCallback } from 'react';
+import log from 'loglevel';
 import {
   TitleInfo,
   useDeckCanvasSize, useReady, useUrls,
@@ -385,7 +386,7 @@ export function SpatialSubscriber(props) {
       && cellsLayer && !obsSegmentations && !obsSegmentationsIndex
       && obsCentroids && obsCentroidsIndex
     ) {
-      console.warn('Rendering cell segmentation diamonds for backwards compatibility.');
+      log.warn('Rendering cell segmentation diamonds for backwards compatibility.');
     }
   }, [hasSegmentationsData, cellsLayer, obsSegmentations, obsSegmentationsIndex,
     obsCentroids, obsCentroidsIndex,

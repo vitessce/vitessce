@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useRef, useCallback, useMemo } from 'react';
+import log from 'loglevel';
 import create from 'zustand';
 import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
@@ -291,7 +292,7 @@ export function useComplexCoordination(
           } else if (parameterScopeGlobal) {
             value = parameterSpace[parameterScopeGlobal];
           } else {
-            console.error(`coordination scope for ${parameter} was not found.`);
+            log.error(`coordination scope for ${parameter} was not found.`);
           }
           return [parameter, value];
         }
@@ -320,7 +321,7 @@ export function useComplexCoordination(
           value,
         });
       } else {
-        console.error(`coordination scope for ${parameter} was not found.`);
+        log.error(`coordination scope for ${parameter} was not found.`);
       }
       return [setterName, setterFunc];
     }));
