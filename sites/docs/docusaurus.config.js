@@ -130,7 +130,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/vitessce/vitessce/edit/main/docs/',
+          editUrl: 'https://github.com/vitessce/vitessce/edit/main/sites/docs/',
         },
         blog: {
           showReadingTime: true,
