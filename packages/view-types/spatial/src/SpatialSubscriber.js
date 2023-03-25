@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import debounce from 'lodash/debounce';
 import {
@@ -16,14 +17,13 @@ import {
   useMultiImages,
   useMultiFeatureSelection,
   useMultiObsFeatureMatrixIndices,
-  useExpressionValueGetter, useGetObsInfo,
+  useExpressionValueGetter,
   useCoordination,
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
   useAuxiliaryCoordination,
   useHasLoader,
-  registerPluginViewType,
   useComplexCoordination,
   useMultiCoordinationScopes,
   useMultiCoordinationScopesSecondary,
@@ -31,9 +31,10 @@ import {
   useCoordinationScopes,
   useCoordinationScopesBy,
 } from '@vitessce/vit-s';
-import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
 import { canLoadResolution, commaNumber, getCellColors } from '@vitessce/utils';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, CoordinationType } from '@vitessce/constants-internal';
+import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
+import { Legend } from '@vitessce/legend';
 import Spatial from './Spatial';
 import SpatialOptions from './SpatialOptions';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
@@ -638,14 +639,17 @@ export function SpatialSubscriber(props) {
           hoverCoord={hoverCoord}
         />
       )}
+      <Legend
+        visible
+        // Fix to dark theme due to black background of spatial plot.
+        theme="dark"
+        featureType={featureType}
+        featureValueType={featureValueType}
+        obsColorEncoding={cellColorEncoding}
+        featureSelection={geneSelection}
+        featureValueColormap={geneExpressionColormap}
+        featureValueColormapRange={geneExpressionColormapRange}
+      />
     </TitleInfo>
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    ViewType.SPATIAL,
-    SpatialSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL],
   );
 }

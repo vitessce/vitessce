@@ -6,7 +6,6 @@ import {
   useReady, useUrls,
   useFeatureLabelsData, useObsFeatureMatrixIndices,
   useCoordination, useLoaders,
-  registerPluginViewType,
 } from '@vitessce/vit-s';
 import difference from 'lodash/difference';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
@@ -111,13 +110,5 @@ export function FeatureListSubscriber(props) {
         enableMultiSelect={enableMultiSelect}
       />
     </TitleInfo>
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    ViewType.FEATURE_LIST,
-    FeatureListSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_LIST],
   );
 }

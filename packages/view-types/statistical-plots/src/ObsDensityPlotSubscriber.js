@@ -153,11 +153,3 @@ export function ObsDensityPlotSubscriber(props) {
     </TitleInfo>
   );
 }
-
-export function register() {
-  registerPluginViewType(
-    ViewType.OBS_DENSITY,
-    ObsDensityPlotSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.OBS_DENSITY],
-  );
-}

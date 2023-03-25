@@ -1,4 +1,5 @@
 /* eslint-disable react/button-has-type */
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react';
 import {
   TitleInfo,

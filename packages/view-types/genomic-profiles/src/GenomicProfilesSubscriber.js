@@ -6,7 +6,6 @@ import {
   useReady, useUrls, useGridItemSize,
   useCoordination, useLoaders,
   useGenomicProfilesData,
-  registerPluginViewType,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import HiGlassLazy from './HiGlassLazy';
@@ -248,13 +247,5 @@ export function GenomicProfilesSubscriber(props) {
         </div>
       </TitleInfo>
     </div>
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    ViewType.GENOMIC_PROFILES,
-    GenomicProfilesSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.GENOMIC_PROFILES],
   );
 }

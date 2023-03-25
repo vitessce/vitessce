@@ -15,7 +15,9 @@
     "esModuleInterop": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "incremental": true
+    "incremental": true,
+    "declaration": true,
+    "declarationMap": true
   },
   "references": [
     { "path": "examples/configs" },
@@ -25,8 +27,10 @@
     { "path": "packages/constants-internal" },
     { "path": "packages/file-types/csv" },
     { "path": "packages/file-types/json" },
+    { "path": "packages/file-types/ome-tiff" },
     { "path": "packages/file-types/zarr" },
     { "path": "packages/gl" },
+    { "path": "packages/legend" },
     { "path": "packages/main/all" },
     { "path": "packages/main/dev" },
     { "path": "packages/main/prod" },

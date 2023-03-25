@@ -28,6 +28,9 @@ export {
   AXIS_MIN_SIZE,
   AXIS_MAX_SIZE,
 } from './heatmap-constants';
+// eslint-disable-next-line react-refresh/only-export-components
 export * as viv from './viv';
+// eslint-disable-next-line react-refresh/only-export-components
 export * as luma from './luma';
+// eslint-disable-next-line react-refresh/only-export-components
 export * as deck from './deck';

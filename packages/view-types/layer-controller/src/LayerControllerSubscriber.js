@@ -231,11 +231,3 @@ export function LayerControllerSubscriber(props) {
     </TitleInfo>
   );
 }
-
-export function register() {
-  registerPluginViewType(
-    ViewType.LAYER_CONTROLLER,
-    LayerControllerSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER],
-  );
-}

@@ -119,11 +119,3 @@ export function ObsAreaPlotSubscriber(props) {
     </TitleInfo>
   );
 }
-
-export function register() {
-  registerPluginViewType(
-    ViewType.OBS_AREA,
-    ObsAreaPlotSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.OBS_AREA],
-  );
-}

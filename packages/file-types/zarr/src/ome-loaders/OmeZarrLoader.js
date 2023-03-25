@@ -2,6 +2,7 @@ import { viv } from '@vitessce/gl';
 import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,
+  getNgffAxes,
 } from '@vitessce/spatial-utils';
 import {
   AbstractLoaderError,
@@ -31,19 +32,36 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       return Promise.reject(payload);
     }
 
-    const { coordinateTransformations } = this.options || {};
+    const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
     const loader = await viv.loadOmeZarr(this.url, { fetchOptions: this.requestInit, type: 'multiscales' });
     const { metadata, data } = loader;
 
-    const { omero } = metadata;
+    const { omero, multiscales } = metadata;
 
     if (!omero) {
       console.error('Path for image not valid');
       return Promise.reject(payload);
     }
 
-    const { rdefs, channels } = omero;
+    if (!Array.isArray(multiscales) || multiscales.length === 0) {
+      console.error('Multiscales array must exist and have at least one element');
+    }
+    const { coordinateTransformations } = multiscales[0];
+
+    // Axes in v0.4 format.
+    const axes = getNgffAxes(multiscales[0].axes);
+
+    const transformMatrixFromOptions = coordinateTransformationsToMatrix(
+      coordinateTransformationsFromOptions, axes,
+    );
+    const transformMatrixFromFile = coordinateTransformationsToMatrix(
+      coordinateTransformations, axes,
+    );
+
+    const transformMatrix = transformMatrixFromFile.multiplyLeft(transformMatrixFromOptions);
+
+    const { rdefs, channels, name: omeroName } = omero;
 
     const t = rdefs.defaultT ?? 0;
     const z = rdefs.defaultZ ?? 0;
@@ -66,16 +84,16 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
 
     const imagesWithLoaderCreators = [
       {
-        name: omero.name || 'Image',
+        name: omeroName || 'Image',
         channels: channels.map((channel, i) => ({
           selection: filterSelection({ z, t, c: i }),
           slider: [channel.window.start, channel.window.end],
           color: hexToRgb(channel.color),
         })),
-        ...(coordinateTransformations ? {
+        ...(transformMatrix ? {
           metadata: {
             transform: {
-              matrix: coordinateTransformationsToMatrix(coordinateTransformations),
+              matrix: transformMatrix,
             },
           },
         } : {}),

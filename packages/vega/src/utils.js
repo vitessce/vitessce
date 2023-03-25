@@ -27,3 +27,5 @@ export const VEGA_THEMES = {
     background: null,
   },
 };
+
+export const DATASET_NAME = 'table';

@@ -4,7 +4,6 @@ import {
   useReady,
   useCoordination, useLoaders,
   useDescription, useImageData,
-  registerPluginViewType,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import Description from './Description';
@@ -79,13 +78,5 @@ export function DescriptionSubscriber(props) {
         metadata={metadata}
       />
     </TitleInfo>
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    ViewType.DESCRIPTION,
-    DescriptionSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.DESCRIPTION],
   );
 }

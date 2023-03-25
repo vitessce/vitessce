@@ -8,20 +8,11 @@ import isEqual from 'lodash/isEqual';
 import { getSourceFromLoader } from '@vitessce/spatial-utils';
 import ChannelOptions from './ChannelOptions';
 import { DOMAINS } from './constants';
-import { getMultiSelectionStats } from './utils';
+import { getMultiSelectionStats, toRgbUIString } from './utils';
 import {
   ChannelSelectionDropdown,
   ChannelVisibilityCheckbox,
 } from './shared-channel-controls';
-
-// Returns an rgb string for display, and changes the color (arr)
-// to use a grey for light theme + white color or if the colormap is on.
-export const toRgbUIString = (on, arr, theme) => {
-  const color = on || (theme === 'light' && arr.every(i => i === 255))
-    ? [220, 220, 220]
-    : arr;
-  return `rgb(${color})`;
-};
 
 function abbreviateNumber(value) {
   // Return an abbreviated representation of value, in 5 characters or less.

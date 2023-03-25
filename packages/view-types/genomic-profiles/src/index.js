@@ -1,2 +1,3 @@
-export { HiGlassSubscriber, register as registerHiglass } from './HiGlassSubscriber';
-export { GenomicProfilesSubscriber, register as registerGenomicProfiles } from './GenomicProfilesSubscriber';
+export { HiGlassSubscriber } from './HiGlassSubscriber';
+export { GenomicProfilesSubscriber } from './GenomicProfilesSubscriber';
+export { registerHiglass, registerGenomicProfiles } from './register';

@@ -27,9 +27,10 @@ import { humanLymphNode10xVisium } from './view-configs/human_lymph_node_10x_vis
 import { kuppe2022nature } from './view-configs/kuppe_2022_nature';
 import { marshall2022iScience } from './view-configs/marshall_2022_iscience';
 import { meta2022azimuth } from './view-configs/meta_2022_azimuth';
+import { rgbOmeTiff } from './view-configs/rgb-ome-tiff';
+import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff';
 import { kpmpOld2023 } from './view-configs/kpmp-old';
 import { kpmp2023 } from './view-configs/kpmp';
-
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -64,6 +65,8 @@ export const configs = {
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
   'blin-2019': blin2019,
   'ome-ngff-v0.1': omeNgffLegacy,
+  'rgb-ome-tiff': rgbOmeTiff,
+  'segmentations-ome-tiff': segmentationsOmeTiff,
   'kpmp-old-2023': kpmpOld2023,
   'kpmp-2023': kpmp2023,
   // Keys which enable backwards compatibility with old links.
@@ -85,4 +88,6 @@ export const publicConfigs = [
   'spraggins-2020',
   'satija-2020',
   'blin-2019',
+  'rgb-ome-tiff',
+  'segmentations-ome-tiff',
 ];

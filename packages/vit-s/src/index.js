@@ -110,4 +110,5 @@ export {
   OptionSelect,
   usePlotOptionsStyles,
 } from './shared-plot-options';
+// eslint-disable-next-line react-refresh/only-export-components
 export * from './json-schemas';

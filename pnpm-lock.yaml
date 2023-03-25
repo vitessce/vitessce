@@ -20,6 +20,7 @@ importers:
       eslint: ^8.18.0
       eslint-plugin-react: ^7.30.0
       eslint-plugin-react-hooks: ^4.6.0
+      eslint-plugin-react-refresh: ^0.3.4
       jest-canvas-mock: ^2.3.0
       jsdom: ^20.0.0
       jsdom-worker: ^0.3.0
@@ -47,6 +48,7 @@ importers:
       eslint: 8.25.0
       eslint-plugin-react: 7.31.10_eslint@8.25.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.25.0
+      eslint-plugin-react-refresh: 0.3.4_eslint@8.25.0
       jest-canvas-mock: 2.4.0
       jsdom: 20.0.1
       jsdom-worker: 0.3.0_node-fetch@3.2.10
@@ -284,6 +286,33 @@ importers:
       rimraf: 3.0.2
       vite: 3.1.8
       vite-plugin-svgr: 2.2.2_neiqdhe6tejzlgo4ve4hcexot4
+
+  packages/legend:
+    specifiers:
+      '@material-ui/core': ~4.12.3
+      '@vitessce/utils': workspace:*
+      colormap: ^2.3.2
+      d3-axis: ^3.0.0
+      d3-color: ^1.4.0
+      d3-interpolate: ^2.0.1
+      d3-scale: ^3.2.3
+      d3-selection: ^3.0.0
+      react: ^18.0.0
+      vite: ^3.0.0
+      vitest: ^0.23.4
+    dependencies:
+      '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
+      '@vitessce/utils': link:../utils/other-utils
+      colormap: 2.3.2
+      d3-axis: 3.0.0
+      d3-color: 1.4.1
+      d3-interpolate: 2.0.1
+      d3-scale: 3.3.0
+      d3-selection: 3.0.0
+    devDependencies:
+      react: 18.2.0
+      vite: 3.1.8
+      vitest: 0.23.4
 
   packages/main/all:
     specifiers:
@@ -562,6 +591,7 @@ importers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
       '@vitessce/gl': workspace:*
+      '@vitessce/legend': workspace:*
       '@vitessce/sets-utils': workspace:*
       '@vitessce/tooltip': workspace:*
       '@vitessce/utils': workspace:*
@@ -577,6 +607,7 @@ importers:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/gl': link:../../gl
+      '@vitessce/legend': link:../../legend
       '@vitessce/sets-utils': link:../../utils/sets-utils
       '@vitessce/tooltip': link:../../tooltip
       '@vitessce/utils': link:../../utils/other-utils
@@ -695,6 +726,7 @@ importers:
     specifiers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
+      '@vitessce/legend': workspace:*
       '@vitessce/scatterplot': workspace:*
       '@vitessce/sets-utils': workspace:*
       '@vitessce/utils': workspace:*
@@ -708,6 +740,7 @@ importers:
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
+      '@vitessce/legend': link:../../legend
       '@vitessce/scatterplot': link:../scatterplot
       '@vitessce/sets-utils': link:../../utils/sets-utils
       '@vitessce/utils': link:../../utils/other-utils
@@ -754,6 +787,7 @@ importers:
       '@material-ui/core': ~4.12.3
       '@vitessce/constants-internal': workspace:*
       '@vitessce/gl': workspace:*
+      '@vitessce/legend': workspace:*
       '@vitessce/scatterplot': workspace:*
       '@vitessce/sets-utils': workspace:*
       '@vitessce/spatial-utils': workspace:*
@@ -780,6 +814,7 @@ importers:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/gl': link:../../gl
+      '@vitessce/legend': link:../../legend
       '@vitessce/scatterplot': link:../scatterplot
       '@vitessce/sets-utils': link:../../utils/sets-utils
       '@vitessce/spatial-utils': link:../../utils/spatial-utils
@@ -5065,6 +5100,7 @@ packages:
   /@material-ui/core/4.12.4_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-tr7xekNlM9LjA6pagJmL8QCgZXaubWUwkJnoYcMKd4gw/t4XiyvnTkjdGrUVicyB2BsdaAv1tvow45bPM4sSwQ==}
     engines: {node: '>=8.0.0'}
+    deprecated: Material UI v4 doesn't receive active development since September 2021. See the guide https://mui.com/material-ui/migration/migration-v4/ to upgrade to v5.
     peerDependencies:
       '@types/react': ^16.8.6 || ^17.0.0
       react: ^16.8.0 || ^17.0.0 || 18
@@ -5110,6 +5146,7 @@ packages:
   /@material-ui/styles/4.11.5_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-o/41ot5JJiUsIETME9wVLAJrmIWL3j0R0Bj2kCOLbSfqEkKf0fmaPt+5vtblUh5eXr2S+J/8J3DaCb10+CzPGA==}
     engines: {node: '>=8.0.0'}
+    deprecated: Material UI v4 doesn't receive active development since September 2021. See the guide https://mui.com/material-ui/migration/migration-v4/ to upgrade to v5.
     peerDependencies:
       '@types/react': ^16.8.6 || ^17.0.0
       react: ^16.8.0 || ^17.0.0 || 18
@@ -11196,6 +11233,14 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
+    dependencies:
+      eslint: 8.25.0
+    dev: true
+
+  /eslint-plugin-react-refresh/0.3.4_eslint@8.25.0:
+    resolution: {integrity: sha512-E0ViBglxSQAERBp6eTj5fPgtCRtDonnbCFiVQBhf4Dto2blJRxg1dFUMdMh7N6ljTI4UwPhHwYDQ3Dyo4m6bwA==}
+    peerDependencies:
+      eslint: '>=7'
     dependencies:
       eslint: 8.25.0
     dev: true

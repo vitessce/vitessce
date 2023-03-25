@@ -3,6 +3,7 @@ import { LoaderResult, obsSegmentationsOmeTiffSchema } from '@vitessce/vit-s';
 import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,
+  getNgffAxesForTiff,
 } from '@vitessce/spatial-utils';
 import OmeTiffLoader from './OmeTiffLoader';
 
@@ -13,24 +14,46 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
   }
 
   async load() {
-    const { coordinateTransformations } = this.options || {};
-    const offsets = await this.loadOffsets();
     const { url, requestInit } = this;
-    const { channel: channelIndex } = this.options || {};
+    const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
+    const offsets = await this.loadOffsets();
+    const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
+    const {
+      Name: imageName,
+      Pixels: {
+        Channels,
+        DimensionOrder,
+        PhysicalSizeX,
+        PhysicalSizeXUnit,
+        PhysicalSizeY,
+        PhysicalSizeYUnit,
+      },
+    } = loader.metadata;
 
     // Get image name and URL tuples.
     const urls = [url, 'OME-TIFF'];
 
+    const transformMatrixFromOptions = coordinateTransformationsToMatrix(
+      coordinateTransformationsFromOptions, getNgffAxesForTiff(DimensionOrder),
+    );
+
+    const usePhysicalSizeScaling = (
+      PhysicalSizeX
+      && PhysicalSizeXUnit
+      && PhysicalSizeY
+      && PhysicalSizeYUnit
+    );
+
     const image = {
-      name: 'Segmentations',
+      name: imageName || 'Segmentations',
       url,
       type: 'ome-tiff',
       // This load() method is the same as in ./OmeTiffLoader except we specify isBitmask here:
       metadata: {
         isBitmask: true,
-        ...(coordinateTransformations ? {
+        ...(transformMatrixFromOptions ? {
           transform: {
-            matrix: coordinateTransformationsToMatrix(coordinateTransformations),
+            matrix: transformMatrixFromOptions,
           },
         } : {}),
       },
@@ -40,10 +63,7 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
     const imagesWithLoaderCreators = [
       {
         ...image,
-        channel: channelIndex,
         loaderCreator: async () => {
-          const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
-          const { Pixels: { Channels } } = loader.metadata;
           const channels = Array.isArray(Channels)
             ? Channels.map((channel, i) => channel.Name || `Channel ${i}`)
             : [Channels.Name || `Channel ${0}`];
@@ -52,7 +72,6 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
       },
     ];
 
-    const usePhysicalSizeScaling = false;
     const renderLayers = null;
 
     // TODO: use options for initial selection of channels
@@ -62,7 +81,7 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
         imagesWithLoaderCreators,
         renderLayers,
         usePhysicalSizeScaling,
-        channelIndex,
+        undefined, // TODO: remove channelIndex props everywhere
       );
     }
 

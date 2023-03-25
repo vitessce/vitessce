@@ -12,5 +12,7 @@ export {
   getSourceFromLoader,
   isInterleaved,
   isRgb,
+  getNgffAxes,
+  getNgffAxesForTiff,
   coordinateTransformationsToMatrix,
 } from './spatial';

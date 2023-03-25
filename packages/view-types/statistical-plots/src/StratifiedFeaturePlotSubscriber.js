@@ -135,11 +135,3 @@ export function StratifiedFeaturePlotSubscriber(props) {
     </TitleInfo>
   );
 }
-
-export function register() {
-  registerPluginViewType(
-    ViewType.STRATIFIED_FEATURE_VALUE_DISTRIBUTION,
-    StratifiedFeaturePlotSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_SIZES],
-  );
-}
