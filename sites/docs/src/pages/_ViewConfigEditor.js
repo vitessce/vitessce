@@ -70,8 +70,9 @@ export default function ViewConfigEditor(props) {
   const viewConfigDocsJsonUrl = useBaseUrl('/docs/view-config-json/');
 
   const [pendingUrl, setPendingUrl] = useState('');
+  const [datasetUrl, setDatasetUrl] = useState('http://localhost:9000/example_files/combat_2022_cell.h5ad.zarr');
   // const [datasetUrl, setDatasetUrl] = useState('https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif');
-  const [datasetUrl, setDatasetUrl] = useState('https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.cells.h5ad.zarr');
+  // const [datasetUrl, setDatasetUrl] = useState('https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.cells.h5ad.zarr');
   const [pendingFileContents, setPendingFileContents] = useState('');
 
   const [syntaxType, setSyntaxType] = useState('JSON');
@@ -117,12 +118,13 @@ export default function ViewConfigEditor(props) {
     setUrl(nextUrl);
   }
 
-  function handleConfigGeneration() {
+  async function handleConfigGeneration() {
     console.log(datasetUrl);
     const autoConfig = new VitessceAutoConfig(datasetUrl);
-    const configJson = autoConfig.generateConfig();
-    setPendingJson(JSON.stringify(configJson, null, 2));
-    setLoadFrom('editor');
+    await autoConfig.generateConfig().then((configJson) => {
+      setPendingJson(JSON.stringify(configJson, null, 2));
+      setLoadFrom('editor');
+    });
   }
 
   function handleUrlChange(event) {

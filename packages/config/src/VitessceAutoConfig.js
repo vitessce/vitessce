@@ -103,15 +103,12 @@ class AnndataZarrAutoConfig {
             "obs": obsKeys,
             "X": X.length > 0? true: false
         }
-        console.log("out: ", out);
         return out;
     }
 
-    async parseMeta() {
-        console.log("before parsing metadata");
+    async init() {
         this.meta = await this.downloadMetadata(this.postDownloadFunc);
-        console.log("after parsing metadata", this.meta);
-        return 
+        return this;
     }
 
     constructor(fileUrl) {
@@ -121,8 +118,6 @@ class AnndataZarrAutoConfig {
     }
 
     composeFileConfig() {    
-
-        console.log("in composeFileConfig 1");
 
         let options = {
             "obsEmbedding": [],
@@ -275,71 +270,74 @@ export class VitessceAutoConfig {
         return coords;
     }
 
+    async newAsync_AsyncOnlyObject(configTypeClassName) {
+        return await new configTypeClassName(this.fileUrl).init();
+    }
+
     async generateConfig() {
         const configType = this.getFileType();
         const configTypeClassName = this.configClasses[configType].class;
-        let confInst = await new configTypeClassName(this.fileUrl).parseMeta();
-
+        // let confInst = await new configTypeClassName(this.fileUrl).init();
         const vc = new VitessceConfig({
             schemaVersion: "1.0.15",
             name: "An automatically generated config. Adjust values and add layout components if needed.",
             description: "Populate with text relevant to this visualisation."
         });
+        return this.newAsync_AsyncOnlyObject(configTypeClassName).then((confInst) =>{
 
-        console.log("in generateConfig 1 ", confInst);
+            const fileConfig = confInst.composeFileConfig();
+            const viewsConfig = confInst.composeViewsConfig();
 
-        const fileConfig = confInst.composeFileConfig();
-        const viewsConfig = confInst.composeViewsConfig();
+            const dataset = vc
+            .addDataset(confInst.fileName)
+            .addFile(fileConfig);
 
-        const dataset = vc
-        .addDataset(confInst.fileName)
-        .addFile(fileConfig);
+            let layerControllerView = false;
+            let spatialView = false;
 
-        let layerControllerView = false;
-        let spatialView = false;
+            let views = [];
 
-        let views = [];
+            viewsConfig.forEach(v => {
+                const view = vc.addView(dataset, ...v);
+                if (v[0] === "layerController") {
+                    layerControllerView = view;
+                }
+                if (v[0] === "spatial") {
+                    spatialView = view;
+                }
+                // this piece of code can be removed once these props are added by default to layerController
+                if (v[0] === "layerController" && configType === "OME-TIFF") {
+                    view.setProps({
+                        "disable3d": [],
+                        "disableChannelsIfRgbDetected": true
+                    });
+                }
 
-        viewsConfig.forEach(v => {
-            const view = vc.addView(dataset, ...v);
-            if (v[0] === "layerController") {
-                layerControllerView = view;
+                views.push(view);
+            });
+
+            if (layerControllerView && spatialView && configType === "Anndata-ZARR") {
+                const spatialSegmentationLayerValue = {
+                    "opacity": 1,
+                    "radius": 0,
+                    "visible": true,
+                    "stroked": false
+                }
+
+                vc.linkViews(
+                    [spatialView, layerControllerView], 
+                    [CoordinationType.SPATIAL_ZOOM, CoordinationType.SPATIAL_TARGET_X, CoordinationType.SPATIAL_TARGET_Y, CoordinationType.SPATIAL_SEGMENTATION_LAYER],
+                    [-5.5, 16000, 20000, spatialSegmentationLayerValue]
+                )
             }
-            if (v[0] === "spatial") {
-                spatialView = view;
-            }
-            // this piece of code can be removed once these props are added by default to layerController
-            if (v[0] === "layerController" && configType === "OME-TIFF") {
-                view.setProps({
-                    "disable3d": [],
-                    "disableChannelsIfRgbDetected": true
-                });
+
+            const coord = this.calculateCoordinates(views.length);
+
+            for (let i = 0; i <views.length; i++) {
+                views[i].setXYWH(...coord[i]);
             }
 
-            views.push(view);
-        });
-
-        if (layerControllerView && spatialView && configType === "Anndata-ZARR") {
-            const spatialSegmentationLayerValue = {
-                "opacity": 1,
-                "radius": 0,
-                "visible": true,
-                "stroked": false
-            }
-
-            vc.linkViews(
-                [spatialView, layerControllerView], 
-                [CoordinationType.SPATIAL_ZOOM, CoordinationType.SPATIAL_TARGET_X, CoordinationType.SPATIAL_TARGET_Y, CoordinationType.SPATIAL_SEGMENTATION_LAYER],
-                [-5.5, 16000, 20000, spatialSegmentationLayerValue]
-            )
-        }
-
-        const coord = this.calculateCoordinates(views.length);
-
-        for (let i = 0; i <views.length; i++) {
-            views[i].setXYWH(...coord[i]);
-        }
-
-        return vc.toJSON();
+            return vc.toJSON();
+        })
     }
 };
