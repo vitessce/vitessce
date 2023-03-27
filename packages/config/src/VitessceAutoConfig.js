@@ -15,9 +15,9 @@ class OmeTiffAutoConfig {
 
     composeViewsConfig() {
         return [
-            ['description',     {"h": 4, "w": 3, "x": 0, "y": 8}],
-            ['spatial',         {"h": 12, "w": 9, "x": 3, "y": 0}],
-            ['layerController', {"h": 8, "w": 3, "x": 0, "y": 0}]
+            ['description'],
+            ['spatial'],
+            ['layerController']
         ]
     }
 
@@ -41,6 +41,35 @@ class OmeTiffAutoConfig {
         }
     }
 }
+
+class OmeZarrAutoConfig {
+    
+    constructor(fileUrl) {
+        this.fileUrl = fileUrl;
+        this.fileType = "raster.ome-zarr";
+        this.type = "raster";
+        this.fileName = fileUrl.split("/").at(-1);
+    }
+
+    composeViewsConfig() {
+        return [
+            ['description'],
+            ['spatial'],
+            ['layerController'],
+            ['status']
+        ]
+    }
+
+    composeFileConfig() {
+        return {
+            fileType: this.fileType,
+            type: this.type,
+            url: this.fileUrl
+        }
+    }
+
+}
+
 class AnndataZarrAutoConfig {
 
     parseMeta() {
@@ -606,6 +635,7 @@ class AnndataZarrAutoConfig {
         this.fileUrl = fileUrl;
         this.fileType = "anndata.zarr";
         this.meta = this.parseMeta(fileUrl);
+        this.fileName = fileUrl.split("/").at(-1);
     }
 
     composeFileConfig() {    
@@ -712,9 +742,9 @@ export class VitessceAutoConfig {
             "extensions": ["h5ad.zarr", ".adata.zarr", ".anndata.zarr"],
             "class": AnndataZarrAutoConfig
         },
-        "OME_ZARR": {
+        "OME-ZARR": {
             "extensions": ["ome.zarr"],
-            "class": "NOT IMPLEMENTED"
+            "class": OmeZarrAutoConfig
         }
     }
 
@@ -723,14 +753,23 @@ export class VitessceAutoConfig {
     }
 
     getFileType() {
-        let fileType = null;
+
+        const isOfThisFileType = (fileTypeName) => {
+            return this.configClasses[fileTypeName]["extensions"].filter(
+                ext => this.fileUrl.endsWith(ext)
+            ).length === 1? true : false;
+        }
+
+        // todo: change the value of fileType to null or not_defined after speaking to Mark
+        // connected with namings of OME-ZARR files. temporary change for testing puproses
+        let fileType = "OME-ZARR";
         Object.keys(this.configClasses).forEach(key => {
-            const matchingExtensions = this.configClasses[key]["extensions"].filter(ext => this.fileUrl.endsWith(ext));
-            if (matchingExtensions.length === 1) {
-                fileType = key;
-                return key;
+            if (isOfThisFileType(key)) {
+               fileType = key;
             }
+
         });
+
         return fileType;
     }
 
@@ -759,15 +798,15 @@ export class VitessceAutoConfig {
 
         const vc = new VitessceConfig({
             schemaVersion: "1.0.15",
-            name: "My example config",
-            description: "This demonstrates the JavaScript API"
+            name: "An automatically generated config. Adjust values and add layout components if needed.",
+            description: "Populate with text relevant to this visualisation."
         });
 
         const fileConfig = confInst.composeFileConfig()
         const viewsConfig = confInst.composeViewsConfig()
 
         const dataset = vc
-        .addDataset("Auto generated config for a dataset")
+        .addDataset(confInst.fileName)
         .addFile(fileConfig);
 
         let layerControllerView = false;
