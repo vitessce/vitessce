@@ -1,6 +1,6 @@
 import {
     VitessceConfig,
-  } from '@vitessce/config';
+  } from './VitessceConfig';
 
 import { CoordinationType } from '@vitessce/constants-internal';
 
@@ -72,544 +72,19 @@ class OmeZarrAutoConfig {
 
 class AnndataZarrAutoConfig {
 
-    parseMeta() {
-        // fileUrl = 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.cells.h5ad.zarr'
-        // metaExt = ".zmetadata"
-    
-        // var request = new XMLHttpRequest();
-        // request.open('GET', fileUrl, true);
-        // request.responseType = 'blob';
-        // request.onload = function() {
-        //     var reader = new FileReader();
-        //     reader.readAsDataURL(request.response);
-        //     reader.onload =  function(e){
-        //         console.log('DataURL:', e.target.result);
-        //     };
-        // };
-        // request.send();
-    
-        // TODO: write out this func, which should look at fileUrl/.zmetadata file.
-        const fileMeta = {
-            "metadata": {
-                ".zgroup": {
-                    "zarr_format": 2
-                },
-                "X/.zarray": {
-                    "chunks": [
-                        2420,
-                        33
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "<f4",
-                    "fill_value": 0.0,
-                    "filters": null,
-                    "order": "C",
-                    "shape": [
-                        4839,
-                        33
-                    ],
-                    "zarr_format": 2
-                },
-                "layers/.zgroup": {
-                    "zarr_format": 2
-                },
-                "layers/X_uint8/.zarray": {
-                    "chunks": [
-                        4839,
-                        33
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "|u1",
-                    "fill_value": 0,
-                    "filters": null,
-                    "order": "C",
-                    "shape": [
-                        4839,
-                        33
-                    ],
-                    "zarr_format": 2
-                },
-                "obs/.zattrs": {
-                    "_index": "CellID",
-                    "column-order": [
-                        "Cluster",
-                        "Subcluster",
-                        "Region"
-                    ],
-                    "encoding-type": "dataframe",
-                    "encoding-version": "0.1.0"
-                },
-                "obs/.zgroup": {
-                    "zarr_format": 2
-                },
-                "obs/CellID/.zarray": {
-                    "chunks": [
-                        4839
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "|O",
-                    "fill_value": 0,
-                    "filters": [
-                        {
-                            "id": "vlen-utf8"
-                        }
-                    ],
-                    "order": "C",
-                    "shape": [
-                        4839
-                    ],
-                    "zarr_format": 2
-                },
-                "obs/Cluster/.zarray": {
-                    "chunks": [
-                        4839
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "|i1",
-                    "fill_value": 0,
-                    "filters": null,
-                    "order": "C",
-                    "shape": [
-                        4839
-                    ],
-                    "zarr_format": 2
-                },
-                "obs/Cluster/.zattrs": {
-                    "categories": "__categories/Cluster"
-                },
-                "obs/Region/.zarray": {
-                    "chunks": [
-                        4839
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "|i1",
-                    "fill_value": 0,
-                    "filters": null,
-                    "order": "C",
-                    "shape": [
-                        4839
-                    ],
-                    "zarr_format": 2
-                },
-                "obs/Region/.zattrs": {
-                    "categories": "__categories/Region"
-                },
-                "obs/Subcluster/.zarray": {
-                    "chunks": [
-                        4839
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "|i1",
-                    "fill_value": 0,
-                    "filters": null,
-                    "order": "C",
-                    "shape": [
-                        4839
-                    ],
-                    "zarr_format": 2
-                },
-                "obs/Subcluster/.zattrs": {
-                    "categories": "__categories/Subcluster"
-                },
-                "obs/__categories/.zgroup": {
-                    "zarr_format": 2
-                },
-                "obs/__categories/Cluster/.zarray": {
-                    "chunks": [
-                        7
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "|O",
-                    "fill_value": 0,
-                    "filters": [
-                        {
-                            "id": "vlen-utf8"
-                        }
-                    ],
-                    "order": "C",
-                    "shape": [
-                        7
-                    ],
-                    "zarr_format": 2
-                },
-                "obs/__categories/Cluster/.zattrs": {
-                    "ordered": false
-                },
-                "obs/__categories/Region/.zarray": {
-                    "chunks": [
-                        11
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "|O",
-                    "fill_value": 0,
-                    "filters": [
-                        {
-                            "id": "vlen-utf8"
-                        }
-                    ],
-                    "order": "C",
-                    "shape": [
-                        11
-                    ],
-                    "zarr_format": 2
-                },
-                "obs/__categories/Region/.zattrs": {
-                    "ordered": false
-                },
-                "obs/__categories/Subcluster/.zarray": {
-                    "chunks": [
-                        31
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "|O",
-                    "fill_value": 0,
-                    "filters": [
-                        {
-                            "id": "vlen-utf8"
-                        }
-                    ],
-                    "order": "C",
-                    "shape": [
-                        31
-                    ],
-                    "zarr_format": 2
-                },
-                "obs/__categories/Subcluster/.zattrs": {
-                    "ordered": false
-                },
-                "obsm/.zgroup": {
-                    "zarr_format": 2
-                },
-                "obsm/X_centroid/.zarray": {
-                    "chunks": [
-                        4839,
-                        2
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "<f4",
-                    "fill_value": 0.0,
-                    "filters": null,
-                    "order": "C",
-                    "shape": [
-                        4839,
-                        2
-                    ],
-                    "zarr_format": 2
-                },
-                "obsm/X_pca/.zarray": {
-                    "chunks": [
-                        2420,
-                        32
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "<f4",
-                    "fill_value": 0.0,
-                    "filters": null,
-                    "order": "C",
-                    "shape": [
-                        4839,
-                        32
-                    ],
-                    "zarr_format": 2
-                },
-                "obsm/X_segmentations/.zarray": {
-                    "chunks": [
-                        4839,
-                        8,
-                        2
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "<u2",
-                    "fill_value": 0,
-                    "filters": null,
-                    "order": "C",
-                    "shape": [
-                        4839,
-                        8,
-                        2
-                    ],
-                    "zarr_format": 2
-                },
-                "obsm/X_spatial/.zarray": {
-                    "chunks": [
-                        4839,
-                        2
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "<f4",
-                    "fill_value": 0.0,
-                    "filters": null,
-                    "order": "C",
-                    "shape": [
-                        4839,
-                        2
-                    ],
-                    "zarr_format": 2
-                },
-                "obsm/X_tsne/.zarray": {
-                    "chunks": [
-                        4839,
-                        2
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "<f4",
-                    "fill_value": 0.0,
-                    "filters": null,
-                    "order": "C",
-                    "shape": [
-                        4839,
-                        2
-                    ],
-                    "zarr_format": 2
-                },
-                "obsm/X_umap/.zarray": {
-                    "chunks": [
-                        4839,
-                        2
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "<f4",
-                    "fill_value": 0.0,
-                    "filters": null,
-                    "order": "C",
-                    "shape": [
-                        4839,
-                        2
-                    ],
-                    "zarr_format": 2
-                },
-                "var/.zattrs": {
-                    "_index": "Gene",
-                    "column-order": [
-                        "Fluorophore",
-                        "Hybridization"
-                    ],
-                    "encoding-type": "dataframe",
-                    "encoding-version": "0.1.0"
-                },
-                "var/.zgroup": {
-                    "zarr_format": 2
-                },
-                "var/Fluorophore/.zarray": {
-                    "chunks": [
-                        33
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "|i1",
-                    "fill_value": 0,
-                    "filters": null,
-                    "order": "C",
-                    "shape": [
-                        33
-                    ],
-                    "zarr_format": 2
-                },
-                "var/Fluorophore/.zattrs": {
-                    "categories": "__categories/Fluorophore"
-                },
-                "var/Gene/.zarray": {
-                    "chunks": [
-                        33
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "|O",
-                    "fill_value": 0,
-                    "filters": [
-                        {
-                            "id": "vlen-utf8"
-                        }
-                    ],
-                    "order": "C",
-                    "shape": [
-                        33
-                    ],
-                    "zarr_format": 2
-                },
-                "var/Hybridization/.zarray": {
-                    "chunks": [
-                        33
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "<i8",
-                    "fill_value": 0,
-                    "filters": null,
-                    "order": "C",
-                    "shape": [
-                        33
-                    ],
-                    "zarr_format": 2
-                },
-                "var/__categories/.zgroup": {
-                    "zarr_format": 2
-                },
-                "var/__categories/Fluorophore/.zarray": {
-                    "chunks": [
-                        3
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "|O",
-                    "fill_value": 0,
-                    "filters": [
-                        {
-                            "id": "vlen-utf8"
-                        }
-                    ],
-                    "order": "C",
-                    "shape": [
-                        3
-                    ],
-                    "zarr_format": 2
-                },
-                "var/__categories/Fluorophore/.zattrs": {
-                    "ordered": false
-                },
-                "varm/.zgroup": {
-                    "zarr_format": 2
-                },
-                "varm/PCs/.zarray": {
-                    "chunks": [
-                        33,
-                        32
-                    ],
-                    "compressor": {
-                        "blocksize": 0,
-                        "clevel": 5,
-                        "cname": "lz4",
-                        "id": "blosc",
-                        "shuffle": 1
-                    },
-                    "dtype": "<f4",
-                    "fill_value": 0.0,
-                    "filters": null,
-                    "order": "C",
-                    "shape": [
-                        33,
-                        32
-                    ],
-                    "zarr_format": 2
-                }
-            },
-            "zarr_consolidated_format": 1
-        };
-    
+    async downloadMetadata(callbackFunc) {
+        const url = [this.fileUrl, ".zmetadata"].join("/");            
+        return fetch(url)
+            .then(res => res.json())
+            .then(zattrs => callbackFunc(zattrs)) 
+    }
+
+    postDownloadFunc(fileMeta) {
         const obsmKeys = Object.keys(fileMeta.metadata)
         .filter(key => key.startsWith("obsm/X_"))
         .map(key => key.split("/.zarray")[0]);
     
+
         const obsKeysArr = Object.keys(fileMeta.metadata)
         .filter(key => key.startsWith("obs/") && !key.includes("obs/.") && !key.includes("obs/__"))
         .map(key => key.split("/.za")[0]);
@@ -623,22 +98,31 @@ class AnndataZarrAutoConfig {
         
         const X = Object.keys(fileMeta.metadata).filter(key => key.startsWith("X"));
 
-        return {
+        const out = {
             "obsm": obsmKeys,
             "obs": obsKeys,
             "X": X.length > 0? true: false
         }
-    
+        console.log("out: ", out);
+        return out;
+    }
+
+    async parseMeta() {
+        console.log("before parsing metadata");
+        this.meta = await this.downloadMetadata(this.postDownloadFunc);
+        console.log("after parsing metadata", this.meta);
+        return 
     }
 
     constructor(fileUrl) {
         this.fileUrl = fileUrl;
         this.fileType = "anndata.zarr";
-        this.meta = this.parseMeta(fileUrl);
         this.fileName = fileUrl.split("/").at(-1);
     }
 
     composeFileConfig() {    
+
+        console.log("in composeFileConfig 1");
 
         let options = {
             "obsEmbedding": [],
@@ -791,10 +275,10 @@ export class VitessceAutoConfig {
         return coords;
     }
 
-    generateConfig() {
+    async generateConfig() {
         const configType = this.getFileType();
         const configTypeClassName = this.configClasses[configType].class;
-        const confInst = new configTypeClassName(this.fileUrl);
+        let confInst = await new configTypeClassName(this.fileUrl).parseMeta();
 
         const vc = new VitessceConfig({
             schemaVersion: "1.0.15",
@@ -802,8 +286,10 @@ export class VitessceAutoConfig {
             description: "Populate with text relevant to this visualisation."
         });
 
-        const fileConfig = confInst.composeFileConfig()
-        const viewsConfig = confInst.composeViewsConfig()
+        console.log("in generateConfig 1 ", confInst);
+
+        const fileConfig = confInst.composeFileConfig();
+        const viewsConfig = confInst.composeViewsConfig();
 
         const dataset = vc
         .addDataset(confInst.fileName)
