@@ -40,6 +40,10 @@ class OmeTiffAutoConfig {
             }
         }
     }
+
+    async init() {
+        return this;
+    }
 }
 
 class OmeZarrAutoConfig {
@@ -68,15 +72,33 @@ class OmeZarrAutoConfig {
         }
     }
 
+    async init() {
+        return this;
+    }
+
 }
 
 class AnndataZarrAutoConfig {
 
     async downloadMetadata(callbackFunc) {
-        const url = [this.fileUrl, ".zmetadata"].join("/");            
-        return fetch(url)
-            .then(res => res.json())
-            .then(zattrs => callbackFunc(zattrs)) 
+        const metadataExtension = ".zmetadata";
+        const url = [this.fileUrl, metadataExtension].join("/");
+        return fetch(url).then((response) => {
+            if (response.ok) {
+              return response.json();
+            }
+            return Promise.reject(response);
+        })
+        .then((responseJson) => {
+            return callbackFunc(responseJson);
+        })
+        .catch((error) => {
+            if (error.status === 404) {
+                const errorMssg = ["File ", metadataExtension, " not found in ", url].join("");
+                console.log(errorMssg);
+                return Promise.reject(errorMssg);
+            } 
+        });        
     }
 
     postDownloadFunc(fileMeta) {
@@ -84,7 +106,6 @@ class AnndataZarrAutoConfig {
         .filter(key => key.startsWith("obsm/X_"))
         .map(key => key.split("/.zarray")[0]);
     
-
         const obsKeysArr = Object.keys(fileMeta.metadata)
         .filter(key => key.startsWith("obs/") && !key.includes("obs/.") && !key.includes("obs/__"))
         .map(key => key.split("/.za")[0]);
@@ -103,6 +124,7 @@ class AnndataZarrAutoConfig {
             "obs": obsKeys,
             "X": X.length > 0? true: false
         }
+        
         return out;
     }
 
@@ -270,26 +292,27 @@ export class VitessceAutoConfig {
         return coords;
     }
 
-    async newAsync_AsyncOnlyObject(configTypeClassName) {
+    async get_asyncObject(configTypeClassName) {
         return await new configTypeClassName(this.fileUrl).init();
     }
 
     async generateConfig() {
         const configType = this.getFileType();
         const configTypeClassName = this.configClasses[configType].class;
-        // let confInst = await new configTypeClassName(this.fileUrl).init();
+
         const vc = new VitessceConfig({
             schemaVersion: "1.0.15",
             name: "An automatically generated config. Adjust values and add layout components if needed.",
             description: "Populate with text relevant to this visualisation."
         });
-        return this.newAsync_AsyncOnlyObject(configTypeClassName).then((confInst) =>{
 
-            const fileConfig = confInst.composeFileConfig();
-            const viewsConfig = confInst.composeViewsConfig();
+        return this.get_asyncObject(configTypeClassName).then((configInstance) =>{
+
+            const fileConfig = configInstance.composeFileConfig();
+            const viewsConfig = configInstance.composeViewsConfig();
 
             const dataset = vc
-            .addDataset(confInst.fileName)
+            .addDataset(configInstance.fileName)
             .addFile(fileConfig);
 
             let layerControllerView = false;
@@ -306,11 +329,16 @@ export class VitessceAutoConfig {
                     spatialView = view;
                 }
                 // this piece of code can be removed once these props are added by default to layerController
+                // see this issue: https://github.com/vitessce/vitessce/issues/1454
                 if (v[0] === "layerController" && configType === "OME-TIFF") {
                     view.setProps({
                         "disable3d": [],
                         "disableChannelsIfRgbDetected": true
                     });
+                }
+                // transpose the heatmap by default
+                if (v[0] === "heatmap" && configType === "Anndata-ZARR") {
+                    view.setProps({"transpose": true});
                 }
 
                 views.push(view);
