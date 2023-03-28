@@ -248,15 +248,15 @@ export class VitessceAutoConfig {
         }
     }
 
-    constructor(fileUrl) {
-        this.fileUrl = fileUrl;
+    constructor(fileUrls) {
+        this.fileUrls = fileUrls;
     }
 
-    getFileType() {
+    getFileType(url) {
 
         const isOfThisFileType = (fileTypeName) => {
             return this.configClasses[fileTypeName]["extensions"].filter(
-                ext => this.fileUrl.endsWith(ext)
+                ext => url.endsWith(ext)
             ).length === 1? true : false;
         }
 
@@ -273,11 +273,12 @@ export class VitessceAutoConfig {
 
         // todo: adjust this code after speaking to Mark
         // connected with namings of OME-ZARR files. temporary change for testing puproses
-        if (this.fileUrl.endsWith(".zarr")) {
+        if (url.endsWith(".zarr")) {
             return "OME-ZARR";
         }
 
-        throw new Error("Could not generate config. This file type is not supported.");
+        // todo: test this
+        throw new Error(`Could not generate config for URL: ${url} This file type is not supported.`);
     }
 
     calculateCoordinates(viewsNumb) {
@@ -298,19 +299,11 @@ export class VitessceAutoConfig {
         return coords;
     }
 
-    async get_asyncObject(configTypeClassName) {
-        return await new configTypeClassName(this.fileUrl).init();
+    async get_asyncObject(configTypeClassName, url) {
+        return await new configTypeClassName(url).init();
     }
 
-    async generateConfig() {
-        let configType;
-        try {
-            configType = this.getFileType();
-        } catch(err) {
-            return Promise.reject(err);
-        }
-        
-        const configTypeClassName = this.configClasses[configType].class;
+    async generateConfigs() {
 
         const vc = new VitessceConfig({
             schemaVersion: "1.0.15",
@@ -318,7 +311,34 @@ export class VitessceAutoConfig {
             description: "Populate with text relevant to this visualisation."
         });
 
-        return this.get_asyncObject(configTypeClassName)
+        let allViews = [];
+
+        this.fileUrls.forEach((url) => {
+            allViews.push(this.generateConfig(url, vc));
+        });
+        
+        return Promise.all(allViews).then((views) => {
+            views = views[0];
+            const coord = this.calculateCoordinates(views.length);
+            
+            for (let i = 0; i <views.length; i++) {
+                views[i].setXYWH(...coord[i]);
+            }
+            return vc.toJSON();
+        });
+    }
+
+    async generateConfig(url, vc) {
+        let configType;
+        try {
+            configType = this.getFileType(url);
+        } catch(err) {
+            return Promise.reject(err);
+        }
+        
+        const configTypeClassName = this.configClasses[configType].class;
+
+        return this.get_asyncObject(configTypeClassName, url)
         .then((configInstance) => {
 
             const fileConfig = configInstance.composeFileConfig();
@@ -372,13 +392,7 @@ export class VitessceAutoConfig {
                 )
             }
 
-            const coord = this.calculateCoordinates(views.length);
-
-            for (let i = 0; i <views.length; i++) {
-                views[i].setXYWH(...coord[i]);
-            }
-
-            return vc.toJSON();
+            return views;
         })
         .catch((error) => {
             return Promise.reject(error);
