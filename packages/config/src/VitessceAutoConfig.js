@@ -24,7 +24,6 @@ class OmeTiffAutoConfig extends AbstractAutoConfig{
         super();
         this.fileUrl = fileUrl;
         this.fileType = FileType.RASTER_JSON;
-        this.type = "ome-tiff";
         this.fileName = fileUrl.split("/").at(-1);
     }
 
@@ -67,7 +66,6 @@ class OmeZarrAutoConfig extends AbstractAutoConfig{
         super();
         this.fileUrl = fileUrl;
         this.fileType = FileType.RASTER_OME_ZARR;
-        this.type = "raster";
         this.fileName = fileUrl.split("/").at(-1);
     }
 
@@ -83,7 +81,7 @@ class OmeZarrAutoConfig extends AbstractAutoConfig{
     composeFileConfig() {
         return {
             fileType: this.fileType,
-            type: this.type,
+            type: "raster",
             url: this.fileUrl
         }
     }
