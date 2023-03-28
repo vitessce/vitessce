@@ -94,9 +94,8 @@ class AnndataZarrAutoConfig {
         })
         .catch((error) => {
             if (error.status === 404) {
-                const errorMssg = ["File ", metadataExtension, " not found in ", url].join("");
-                console.log(errorMssg);
-                return Promise.reject(errorMssg);
+                const errorMssg = ["File ", metadataExtension, " not found in supplied file URL. Check docs for more explanation."].join("");
+                return Promise.reject(new Error(errorMssg));
             } 
         });        
     }
@@ -306,7 +305,8 @@ export class VitessceAutoConfig {
             description: "Populate with text relevant to this visualisation."
         });
 
-        return this.get_asyncObject(configTypeClassName).then((configInstance) =>{
+        return this.get_asyncObject(configTypeClassName)
+        .then((configInstance) => {
 
             const fileConfig = configInstance.composeFileConfig();
             const viewsConfig = configInstance.composeViewsConfig();
@@ -367,5 +367,9 @@ export class VitessceAutoConfig {
 
             return vc.toJSON();
         })
+        .catch((error) => {
+            console.log("OMGGGGG ERROR!!! ", error);
+            return Promise.reject(error);
+        });
     }
 };
