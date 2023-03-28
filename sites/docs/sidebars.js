@@ -17,8 +17,12 @@ module.exports = {
       ],
     },
     {
-      type: 'doc',
-      id: 'view-config-json',
+      type: 'category',
+      label: 'View Configs via JSON',
+      items: [
+        'view-config-json',
+        'default-config-json'
+      ]
     },
     {
       type: 'category',

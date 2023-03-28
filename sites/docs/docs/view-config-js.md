@@ -12,9 +12,6 @@ Ultimately, this configuration must be a JSON object when it is passed to the `<
 
 Writing large JSON objects by hand can be difficult and prevents from using variables for more easily maintainable string constants, so we have developed object-oriented APIs to simplify this process. There are corresponding APIs in [Python](https://vitessce.github.io/vitessce-python/) and [R](https://vitessce.github.io/vitessceR/) if one of those languages is more familiar to you.
 
-We realise that having to construct a whole view config adds a lot of unnecessary friction, especially in the cases when one just wants to view a quick visualization of an image or AnnData object. This is why Vitessce can generate a valid view config, using URLs link to your datasets (see [Data Preparation](/docs/#data-preparation)).
-
-
 ## `VitessceConfig`
 
 `VitessceConfig` is a class representing a Vitessce view config. To begin creating a view config with the API, you will need to instantiate a `VitessceConfig` object.
