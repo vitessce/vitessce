@@ -2,13 +2,28 @@ import {
     VitessceConfig,
   } from './VitessceConfig';
 
-import { CoordinationType } from '@vitessce/constants-internal';
+import { CoordinationType, FileType } from '@vitessce/constants-internal';
 
-class OmeTiffAutoConfig {
+class AbstractAutoConfig {
+
+    composeViewsConfig () {
+        throw new Error('The composeViewsConfig() method has not been implemented.');
+    }
+
+    composeFileConfig () {
+        throw new Error('The composeFileConfig() method has not been implemented.');
+    }
+
+    async init() {
+        throw new Error('The init() method has not been implemented.');
+    }
+}
+class OmeTiffAutoConfig extends AbstractAutoConfig{
 
     constructor(fileUrl) {
+        super();
         this.fileUrl = fileUrl;
-        this.fileType = "raster.json";
+        this.fileType = FileType.RASTER_JSON;
         this.type = "ome-tiff";
         this.fileName = fileUrl.split("/").at(-1);
     }
@@ -46,11 +61,12 @@ class OmeTiffAutoConfig {
     }
 }
 
-class OmeZarrAutoConfig {
+class OmeZarrAutoConfig extends AbstractAutoConfig{
     
     constructor(fileUrl) {
+        super();
         this.fileUrl = fileUrl;
-        this.fileType = "raster.ome-zarr";
+        this.fileType = FileType.RASTER_OME_ZARR;
         this.type = "raster";
         this.fileName = fileUrl.split("/").at(-1);
     }
@@ -78,7 +94,7 @@ class OmeZarrAutoConfig {
 
 }
 
-class AnndataZarrAutoConfig {
+class AnndataZarrAutoConfig extends AbstractAutoConfig{
 
     async downloadMetadata(callbackFunc) {
         const metadataExtension = ".zmetadata";
@@ -133,8 +149,9 @@ class AnndataZarrAutoConfig {
     }
 
     constructor(fileUrl) {
+        super();
         this.fileUrl = fileUrl;
-        this.fileType = "anndata.zarr";
+        this.fileType = FileType.ANNDATA_ZARR;
         this.fileName = fileUrl.split("/").at(-1);
     }
 
@@ -235,7 +252,7 @@ export class VitessceAutoConfig {
     
     configClasses = {
         "OME-TIFF": {
-            "extensions": ["ome.tif"],
+            "extensions": ["ome.tif", ".ome.tiff", ".ome.tf2", ".ome.tf8"], // todo: test that ".ome.tf2", ".ome.tf8" work
             "class": OmeTiffAutoConfig
         },
         "Anndata-ZARR": {
@@ -342,7 +359,6 @@ export class VitessceAutoConfig {
 
         return this.get_asyncObject(configTypeClassName, url)
         .then((configInstance) => {
-
             const fileConfig = configInstance.composeFileConfig();
             const viewsConfig = configInstance.composeViewsConfig();
 
@@ -397,6 +413,7 @@ export class VitessceAutoConfig {
             return views;
         })
         .catch((error) => {
+            console.log("ERROR: ", error);
             return Promise.reject(error);
         });
     }
