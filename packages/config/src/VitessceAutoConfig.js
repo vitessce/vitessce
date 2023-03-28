@@ -318,12 +318,14 @@ export class VitessceAutoConfig {
         });
         
         return Promise.all(allViews).then((views) => {
-            views = views[0];
+            views = views.flat();
+
             const coord = this.calculateCoordinates(views.length);
             
             for (let i = 0; i <views.length; i++) {
                 views[i].setXYWH(...coord[i]);
             }
+
             return vc.toJSON();
         });
     }
