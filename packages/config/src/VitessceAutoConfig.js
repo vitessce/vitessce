@@ -270,32 +270,18 @@ export class VitessceAutoConfig {
     }
 
     getFileType(url) {
-
-        const isOfThisFileType = (fileTypeName) => {
-            return this.configClasses[fileTypeName]["extensions"].filter(
-                ext => url.endsWith(ext)
-            ).length === 1? true : false;
-        }
-
-        let fileType = "NOT_DEFINED";
-        Object.keys(this.configClasses).forEach(key => {
-            if (isOfThisFileType(key)) {
-               fileType = key;
+        const match = Object.keys(this.configClasses).find(key => this.configClasses[key].extensions.filter(
+            ext => url.endsWith(ext)
+        ).length === 1);
+        if(!match) {
+            // todo: adjust this code after speaking to Mark
+            // connected with namings of OME-ZARR files. temporary change for testing puproses
+            if (url.endsWith(".zarr")) {
+                return this.configClasses["OME-ZARR"].class;
             }
-        });
-
-        if (fileType !== "NOT_DEFINED") {
-            return fileType;
+            throw new Error(`Could not generate config for URL: ${url}. This file type is not supported.`);
         }
-
-        // todo: adjust this code after speaking to Mark
-        // connected with namings of OME-ZARR files. temporary change for testing puproses
-        if (url.endsWith(".zarr")) {
-            return "OME-ZARR";
-        }
-
-        // todo: test this
-        throw new Error(`Could not generate config for URL: ${url} This file type is not supported.`);
+        return this.configClasses[match].class;
     }
 
     calculateCoordinates(viewsNumb) {
@@ -348,73 +334,73 @@ export class VitessceAutoConfig {
     }
 
     async generateConfig(url, vc) {
-        let configType;
+        let configClass;
         try {
-            configType = this.getFileType(url);
+            configClass = this.getFileType(url);
         } catch(err) {
             return Promise.reject(err);
         }
         
-        const configTypeClassName = this.configClasses[configType].class;
+        console.log("*** +++ ", configClass);
 
-        return this.get_asyncObject(configTypeClassName, url)
-        .then((configInstance) => {
-            const fileConfig = configInstance.composeFileConfig();
-            const viewsConfig = configInstance.composeViewsConfig();
+        return this.get_asyncObject(configClass, url)
+            .then((configInstance) => {
+                const fileConfig = configInstance.composeFileConfig();
+                const viewsConfig = configInstance.composeViewsConfig();
 
-            const dataset = vc
-            .addDataset(configInstance.fileName)
-            .addFile(fileConfig);
+                const dataset = vc
+                .addDataset(configInstance.fileName)
+                .addFile(fileConfig);
 
-            let layerControllerView = false;
-            let spatialView = false;
+                let layerControllerView = false;
+                let spatialView = false;
 
-            let views = [];
+                let views = [];
 
-            viewsConfig.forEach(v => {
-                const view = vc.addView(dataset, ...v);
-                if (v[0] === "layerController") {
-                    layerControllerView = view;
+                viewsConfig.forEach(v => {
+                    const view = vc.addView(dataset, ...v);
+                    if (v[0] === "layerController") {
+                        layerControllerView = view;
+                    }
+                    if (v[0] === "spatial") {
+                        spatialView = view;
+                    }
+                    // this piece of code can be removed once these props are added by default to layerController
+                    // see this issue: https://github.com/vitessce/vitessce/issues/1454
+                    if (v[0] === "layerController" && configClass === this.configClasses["OME-TIFF"].class) {
+                        view.setProps({
+                            "disable3d": [],
+                            "disableChannelsIfRgbDetected": true
+                        });
+                    }
+                    // transpose the heatmap by default
+                    if (v[0] === "heatmap" && configClass === this.configClasses["Anndata-ZARR"].class) {
+                        view.setProps({"transpose": true});
+                    }
+
+                    views.push(view);
+                });
+
+                if (layerControllerView && spatialView && configClass === this.configClasses["Anndata-ZARR"].class) {
+                    const spatialSegmentationLayerValue = {
+                        "opacity": 1,
+                        "radius": 0,
+                        "visible": true,
+                        "stroked": false
+                    }
+
+                    vc.linkViews(
+                        [spatialView, layerControllerView], 
+                        [CoordinationType.SPATIAL_ZOOM, CoordinationType.SPATIAL_TARGET_X, CoordinationType.SPATIAL_TARGET_Y, CoordinationType.SPATIAL_SEGMENTATION_LAYER],
+                        [-5.5, 16000, 20000, spatialSegmentationLayerValue]
+                    )
                 }
-                if (v[0] === "spatial") {
-                    spatialView = view;
-                }
-                // this piece of code can be removed once these props are added by default to layerController
-                // see this issue: https://github.com/vitessce/vitessce/issues/1454
-                if (v[0] === "layerController" && configType === "OME-TIFF") {
-                    view.setProps({
-                        "disable3d": [],
-                        "disableChannelsIfRgbDetected": true
-                    });
-                }
-                // transpose the heatmap by default
-                if (v[0] === "heatmap" && configType === "Anndata-ZARR") {
-                    view.setProps({"transpose": true});
-                }
 
-                views.push(view);
+                return views;
+            })
+            .catch((error) => {
+                console.log("ERROR: ", error);
+                return Promise.reject(error);
             });
-
-            if (layerControllerView && spatialView && configType === "Anndata-ZARR") {
-                const spatialSegmentationLayerValue = {
-                    "opacity": 1,
-                    "radius": 0,
-                    "visible": true,
-                    "stroked": false
-                }
-
-                vc.linkViews(
-                    [spatialView, layerControllerView], 
-                    [CoordinationType.SPATIAL_ZOOM, CoordinationType.SPATIAL_TARGET_X, CoordinationType.SPATIAL_TARGET_Y, CoordinationType.SPATIAL_SEGMENTATION_LAYER],
-                    [-5.5, 16000, 20000, spatialSegmentationLayerValue]
-                )
-            }
-
-            return views;
-        })
-        .catch((error) => {
-            console.log("ERROR: ", error);
-            return Promise.reject(error);
-        });
     }
 };
