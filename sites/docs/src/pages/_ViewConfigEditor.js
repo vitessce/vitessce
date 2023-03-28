@@ -120,7 +120,6 @@ export default function ViewConfigEditor(props) {
   }
 
   async function handleConfigGeneration() {
-    console.log(datasetUrl);
     const autoConfig = new VitessceAutoConfig(datasetUrl);
     await autoConfig.generateConfig()
     .then((configJson) => {
@@ -129,7 +128,6 @@ export default function ViewConfigEditor(props) {
     })
     .catch((error) =>{
       setError(error.message);
-      return Promise.reject(error);
     });
   }
 

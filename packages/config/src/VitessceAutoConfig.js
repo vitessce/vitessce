@@ -94,7 +94,7 @@ class AnndataZarrAutoConfig {
         })
         .catch((error) => {
             if (error.status === 404) {
-                const errorMssg = ["File ", metadataExtension, " not found in supplied file URL. Check docs for more explanation."].join("");
+                const errorMssg = ["Could not generate config. File ", metadataExtension, " not found in supplied file URL. Check docs for more explanation."].join("");
                 return Promise.reject(new Error(errorMssg));
             } 
         });        
@@ -260,17 +260,24 @@ export class VitessceAutoConfig {
             ).length === 1? true : false;
         }
 
-        // todo: change the value of fileType to null or not_defined after speaking to Mark
-        // connected with namings of OME-ZARR files. temporary change for testing puproses
-        let fileType = "OME-ZARR";
+        let fileType = "NOT_DEFINED";
         Object.keys(this.configClasses).forEach(key => {
             if (isOfThisFileType(key)) {
                fileType = key;
             }
-
         });
 
-        return fileType;
+        if (fileType !== "NOT_DEFINED") {
+            return fileType;
+        }
+
+        // todo: adjust this code after speaking to Mark
+        // connected with namings of OME-ZARR files. temporary change for testing puproses
+        if (this.fileUrl.endsWith(".zarr")) {
+            return "OME-ZARR";
+        }
+
+        throw new Error("Could not generate config. This file type is not supported.");
     }
 
     calculateCoordinates(viewsNumb) {
@@ -296,7 +303,13 @@ export class VitessceAutoConfig {
     }
 
     async generateConfig() {
-        const configType = this.getFileType();
+        let configType;
+        try {
+            configType = this.getFileType();
+        } catch(err) {
+            return Promise.reject(err);
+        }
+        
         const configTypeClassName = this.configClasses[configType].class;
 
         const vc = new VitessceConfig({
@@ -368,7 +381,6 @@ export class VitessceAutoConfig {
             return vc.toJSON();
         })
         .catch((error) => {
-            console.log("OMGGGGG ERROR!!! ", error);
             return Promise.reject(error);
         });
     }
