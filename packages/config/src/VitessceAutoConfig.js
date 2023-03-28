@@ -244,161 +244,154 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig{
 
         return views;
     }
-}
+};
 
-export class VitessceAutoConfig {
     
-    configClasses = {
-        "OME-TIFF": {
-            "extensions": ["ome.tif", ".ome.tiff", ".ome.tf2", ".ome.tf8"], // todo: test that ".ome.tf2", ".ome.tf8" work
-            "class": OmeTiffAutoConfig
-        },
-        "Anndata-ZARR": {
-            "extensions": ["h5ad.zarr", ".adata.zarr", ".anndata.zarr"],
-            "class": AnndataZarrAutoConfig
-        },
-        "OME-ZARR": {
-            "extensions": ["ome.zarr"],
-            "class": OmeZarrAutoConfig
-        }
-    }
-
-    constructor(fileUrls) {
-        this.fileUrls = fileUrls;
-    }
-
-    getFileType(url) {
-        const match = Object.keys(this.configClasses).find(key => this.configClasses[key].extensions.filter(
-            ext => url.endsWith(ext)
-        ).length === 1);
-        if(!match) {
-            // todo: adjust this code after speaking to Mark
-            // connected with namings of OME-ZARR files. temporary change for testing puproses
-            if (url.endsWith(".zarr")) {
-                return this.configClasses["OME-ZARR"].class;
-            }
-            throw new Error(`Could not generate config for URL: ${url}. This file type is not supported.`);
-        }
-        return this.configClasses[match].class;
-    }
-
-    calculateCoordinates(viewsNumb) {
-        const rows = Math.ceil(Math.sqrt(viewsNumb));
-        const cols = Math.ceil(viewsNumb / rows);
-        const width = 12 / cols;
-        const height = 12 / rows;
-        const coords = [];
-      
-        for (let i = 0; i < viewsNumb; i++) {
-            const row = Math.floor(i / cols);
-            const col = i % cols;
-            const x = col * width;
-            const y = row * height;
-            coords.push([x, y, width, height]);
-        }
-      
-        return coords;
-    }
-
-    async get_asyncObject(configTypeClassName, url) {
-        return await new configTypeClassName(url).init();
-    }
-
-    async generateConfigs() {
-
-        const vc = new VitessceConfig({
-            schemaVersion: "1.0.15",
-            name: "An automatically generated config. Adjust values and add layout components if needed.",
-            description: "Populate with text relevant to this visualisation."
-        });
-
-        let allViews = [];
-
-        this.fileUrls.forEach((url) => {
-            allViews.push(this.generateConfig(url, vc));
-        });
-        
-        return Promise.all(allViews).then((views) => {
-            views = views.flat();
-
-            const coord = this.calculateCoordinates(views.length);
-            
-            for (let i = 0; i <views.length; i++) {
-                views[i].setXYWH(...coord[i]);
-            }
-
-            return vc.toJSON();
-        });
-    }
-
-    async generateConfig(url, vc) {
-        let configClass;
-        try {
-            configClass = this.getFileType(url);
-        } catch(err) {
-            return Promise.reject(err);
-        }
-        
-        console.log("*** +++ ", configClass);
-
-        return this.get_asyncObject(configClass, url)
-            .then((configInstance) => {
-                const fileConfig = configInstance.composeFileConfig();
-                const viewsConfig = configInstance.composeViewsConfig();
-
-                const dataset = vc
-                .addDataset(configInstance.fileName)
-                .addFile(fileConfig);
-
-                let layerControllerView = false;
-                let spatialView = false;
-
-                let views = [];
-
-                viewsConfig.forEach(v => {
-                    const view = vc.addView(dataset, ...v);
-                    if (v[0] === "layerController") {
-                        layerControllerView = view;
-                    }
-                    if (v[0] === "spatial") {
-                        spatialView = view;
-                    }
-                    // this piece of code can be removed once these props are added by default to layerController
-                    // see this issue: https://github.com/vitessce/vitessce/issues/1454
-                    if (v[0] === "layerController" && configClass === this.configClasses["OME-TIFF"].class) {
-                        view.setProps({
-                            "disable3d": [],
-                            "disableChannelsIfRgbDetected": true
-                        });
-                    }
-                    // transpose the heatmap by default
-                    if (v[0] === "heatmap" && configClass === this.configClasses["Anndata-ZARR"].class) {
-                        view.setProps({"transpose": true});
-                    }
-
-                    views.push(view);
-                });
-
-                if (layerControllerView && spatialView && configClass === this.configClasses["Anndata-ZARR"].class) {
-                    const spatialSegmentationLayerValue = {
-                        "opacity": 1,
-                        "radius": 0,
-                        "visible": true,
-                        "stroked": false
-                    }
-
-                    vc.linkViews(
-                        [spatialView, layerControllerView], 
-                        [CoordinationType.SPATIAL_ZOOM, CoordinationType.SPATIAL_TARGET_X, CoordinationType.SPATIAL_TARGET_Y, CoordinationType.SPATIAL_SEGMENTATION_LAYER],
-                        [-5.5, 16000, 20000, spatialSegmentationLayerValue]
-                    )
-                }
-
-                return views;
-            })
-            .catch((error) => {
-                console.log("ERROR: ", error);
-                return Promise.reject(error);
-            });
+const configClasses = {
+    "OME-TIFF": {
+        "extensions": ["ome.tif", ".ome.tiff", ".ome.tf2", ".ome.tf8"], // todo: test that ".ome.tf2", ".ome.tf8" work
+        "class": OmeTiffAutoConfig
+    },
+    "Anndata-ZARR": {
+        "extensions": ["h5ad.zarr", ".adata.zarr", ".anndata.zarr"],
+        "class": AnndataZarrAutoConfig
+    },
+    "OME-ZARR": {
+        "extensions": ["ome.zarr"],
+        "class": OmeZarrAutoConfig
     }
 };
+
+function getFileType(url) {
+    const match = Object.keys(configClasses).find(key => configClasses[key].extensions.filter(
+        ext => url.endsWith(ext)
+    ).length === 1);
+    if(!match) {
+        // todo: adjust this code after speaking to Mark
+        // connected with namings of OME-ZARR files. temporary change for testing puproses
+        if (url.endsWith(".zarr")) {
+            return configClasses["OME-ZARR"].class;
+        }
+        throw new Error(`Could not generate config for URL: ${url}. This file type is not supported.`);
+    }
+    return configClasses[match].class;
+};
+
+function calculateCoordinates(viewsNumb) {
+    const rows = Math.ceil(Math.sqrt(viewsNumb));
+    const cols = Math.ceil(viewsNumb / rows);
+    const width = 12 / cols;
+    const height = 12 / rows;
+    const coords = [];
+    
+    for (let i = 0; i < viewsNumb; i++) {
+        const row = Math.floor(i / cols);
+        const col = i % cols;
+        const x = col * width;
+        const y = row * height;
+        coords.push([x, y, width, height]);
+    }
+    
+    return coords;
+};
+
+async function get_asyncObject(configTypeClassName, url) {
+    return await new configTypeClassName(url).init();
+};
+
+export async function generateConfigs(fileUrls) {
+
+    const vc = new VitessceConfig({
+        schemaVersion: "1.0.15",
+        name: "An automatically generated config. Adjust values and add layout components if needed.",
+        description: "Populate with text relevant to this visualisation."
+    });
+
+    let allViews = [];
+
+    fileUrls.forEach((url) => {
+        allViews.push(generateConfig(url, vc));
+    });
+    
+    return Promise.all(allViews).then((views) => {
+        views = views.flat();
+
+        const coord = calculateCoordinates(views.length);
+        
+        for (let i = 0; i <views.length; i++) {
+            views[i].setXYWH(...coord[i]);
+        }
+
+        return vc.toJSON();
+    });
+};
+
+async function generateConfig(url, vc) {
+    let configClass;
+    try {
+        configClass = getFileType(url);
+    } catch(err) {
+        return Promise.reject(err);
+    }
+    
+    return get_asyncObject(configClass, url)
+        .then((configInstance) => {
+            const fileConfig = configInstance.composeFileConfig();
+            const viewsConfig = configInstance.composeViewsConfig();
+
+            const dataset = vc
+            .addDataset(configInstance.fileName)
+            .addFile(fileConfig);
+
+            let layerControllerView = false;
+            let spatialView = false;
+
+            let views = [];
+
+            viewsConfig.forEach(v => {
+                const view = vc.addView(dataset, ...v);
+                if (v[0] === "layerController") {
+                    layerControllerView = view;
+                }
+                if (v[0] === "spatial") {
+                    spatialView = view;
+                }
+                // this piece of code can be removed once these props are added by default to layerController
+                // see this issue: https://github.com/vitessce/vitessce/issues/1454
+                if (v[0] === "layerController" && configClass === configClasses["OME-TIFF"].class) {
+                    view.setProps({
+                        "disable3d": [],
+                        "disableChannelsIfRgbDetected": true
+                    });
+                }
+                // transpose the heatmap by default
+                if (v[0] === "heatmap" && configClass === configClasses["Anndata-ZARR"].class) {
+                    view.setProps({"transpose": true});
+                }
+
+                views.push(view);
+            });
+
+            if (layerControllerView && spatialView && configClass === configClasses["Anndata-ZARR"].class) {
+                const spatialSegmentationLayerValue = {
+                    "opacity": 1,
+                    "radius": 0,
+                    "visible": true,
+                    "stroked": false
+                }
+
+                vc.linkViews(
+                    [spatialView, layerControllerView], 
+                    [CoordinationType.SPATIAL_ZOOM, CoordinationType.SPATIAL_TARGET_X, CoordinationType.SPATIAL_TARGET_Y, CoordinationType.SPATIAL_SEGMENTATION_LAYER],
+                    [-5.5, 16000, 20000, spatialSegmentationLayerValue]
+                )
+            }
+
+            return views;
+        })
+        .catch((error) => {
+            console.log("ERROR: ", error);
+            return Promise.reject(error);
+        });
+}
+

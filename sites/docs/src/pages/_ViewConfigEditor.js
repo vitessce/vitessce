@@ -6,7 +6,7 @@ import {
   LiveProvider, LiveContext, LiveError, LivePreview,
 } from 'react-live';
 import {
-  VitessceConfig, VitessceAutoConfig, hconcat, vconcat,
+  VitessceConfig, generateConfigs, hconcat, vconcat,
 } from '@vitessce/config';
 import {
   CoordinationType, ViewType, DataType, FileType,
@@ -122,8 +122,7 @@ export default function ViewConfigEditor(props) {
   async function handleConfigGeneration() {
     const urls = datasetUrl.split(/, | |,/);
     console.log(urls);
-    const autoConfig = new VitessceAutoConfig(urls);
-    await autoConfig.generateConfigs()
+    await generateConfigs(urls)
     .then((configJson) => {
       setPendingJson(JSON.stringify(configJson, null, 2));
       setLoadFrom('editor');

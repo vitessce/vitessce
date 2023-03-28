@@ -1,2 +1,2 @@
 export { VitessceConfig, vconcat, hconcat } from './VitessceConfig';
-export { VitessceAutoConfig } from './VitessceAutoConfig';
+export { generateConfigs } from './VitessceAutoConfig';
