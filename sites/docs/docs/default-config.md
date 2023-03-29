@@ -1,7 +1,7 @@
 ---
 id: default-config-json
-title: Automatic view config generation
-sidebar_label: Automatic view config generation
+title: Automatic Configuration
+sidebar_label: Automatic Configuration
 slug: /default-config-json
 ---
 

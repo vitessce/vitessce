@@ -71,7 +71,7 @@ export default function ViewConfigEditor(props) {
   const defaultViewConfigDocsUrl = useBaseUrl('/docs/default-config-json');
 
   const [pendingUrl, setPendingUrl] = useState('');
-  const [datasetUrl, setDatasetUrl] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr, https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif');
+  const [datasetUrl, setDatasetUrl] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr; https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif');
   // const [datasetUrl, setDatasetUrl] = useState('https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif');
   // const [datasetUrl, setDatasetUrl] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr');
 
@@ -121,7 +121,8 @@ export default function ViewConfigEditor(props) {
   }
 
   async function handleConfigGeneration() {
-    const urls = datasetUrl.split(/, | |,/);
+    setError(null);
+    const urls = datasetUrl.trim().split(/;/);
     await generateConfigs(urls)
       .then((configJson) => {
         setPendingJson(JSON.stringify(configJson, null, 2));
