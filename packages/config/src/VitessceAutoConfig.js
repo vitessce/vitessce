@@ -238,7 +238,7 @@ const configClasses = [
     class: AnndataZarrAutoConfig,
   },
   {
-    extensions: ['ome.zarr', '9846152.zarr'],
+    extensions: ['ome.zarr'],
     class: OmeZarrAutoConfig,
   },
 ];

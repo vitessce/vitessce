@@ -24,3 +24,4 @@ Support for multiple URLs, comma and/or space separated
 
 Default views for ome-tiff and ome-zarr are ....
 
+It is assumed that ome-zarr files end with `ome.zarr`

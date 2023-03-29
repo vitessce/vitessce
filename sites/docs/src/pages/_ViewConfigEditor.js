@@ -71,7 +71,8 @@ export default function ViewConfigEditor(props) {
   const defaultViewConfigDocsUrl = useBaseUrl('/docs/default-config-json');
 
   const [pendingUrl, setPendingUrl] = useState('');
-  const [datasetUrl, setDatasetUrl] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr; https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif');
+  const [datasetUrl, setDatasetUrl] = useState('');
+  // const [datasetUrl, setDatasetUrl] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr; https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif');
   // const [datasetUrl, setDatasetUrl] = useState('https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif');
   // const [datasetUrl, setDatasetUrl] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr');
 
@@ -184,15 +185,15 @@ export default function ViewConfigEditor(props) {
         <div className={styles.viewConfigInputs}>
           <div className={styles.viewConfigInputUrlOrFile}>
             <p className={styles.viewConfigInputUrlOrFileText}>
-              Or paste the URLs of your datasets, separated by comma or space, and a&nbsp;
+              Or paste the URLs of your datasets and a&nbsp;
               <a href={defaultViewConfigDocsUrl}>default view config</a>
                   &nbsp; will be displayed in the editor below.
             </p>
-            <div className={styles.viewConfigInputUrlOrFileSplit}>
+            <div className={styles.generateConfigInputUrl}>
               <input
                 type="text"
                 className={styles.viewConfigUrlInput}
-                placeholder="Drop url to file"
+                placeholder="Put one or more URLs to your datasets in here, separating each URL with a semicolon."
                 value={datasetUrl}
                 onChange={handleDatasetUrlChange}
               />
