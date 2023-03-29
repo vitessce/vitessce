@@ -6,8 +6,6 @@
 - Added a new documentation page: `default-config.md` that describes the auto config generation functionality and how to use it.
 - Small changes to the layout of `_ViewConfigEditor.js` to accomodate the new functionality: added a space for pasting links and a "Generate Config" button.
 
-## [2.1.0](coming soon)
-
 ### Added
 
 ### Changed
