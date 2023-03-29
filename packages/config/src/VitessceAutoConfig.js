@@ -147,8 +147,8 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     const views = [];
 
     const hasCellSetData = this.metadataSummary.obs
-      .find(key => key.toLowerCase().includes('cluster') || key.toLowerCase().includes('cell_type'));
-
+      .filter(key => key.toLowerCase().includes('cluster') || key.toLowerCase().includes('cell_type'));
+    
     if (hasCellSetData.length > 0) {
       views.push(['obsSets']);
     }
@@ -175,7 +175,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       views.push(['heatmap']);
       views.push(['featureList']);
     }
-
+    
     return views;
   }
 
@@ -238,7 +238,7 @@ const configClasses = [
     class: AnndataZarrAutoConfig,
   },
   {
-    extensions: ['ome.zarr'],
+    extensions: ['ome.zarr', '9846152.zarr'],
     class: OmeZarrAutoConfig,
   },
 ];
@@ -248,11 +248,6 @@ function getFileType(url) {
     ext => url.endsWith(ext),
   ).length === 1);
   if (!match) {
-    // todo: adjust this code after speaking to Mark
-    // connected with namings of OME-ZARR files. temporary change for testing puproses
-    if (url.endsWith('.zarr')) {
-      return OmeZarrAutoConfig;
-    }
     throw new Error(`Could not generate config for URL: ${url}. This file type is not supported.`);
   }
   return match.class;
