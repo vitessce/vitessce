@@ -155,7 +155,7 @@ describe('src/VitessceAutoConfig.js', () => {
   });
 
   it('generates config for Anndata-ZARR file correctly', async () => {
-    const urls = ['http://localhost:51204/@fixtures/zarr/anndata-0.8/.anndata.zarr'];
+    const urls = ['http://localhost:51204/@fixtures/zarr/partials/.anndata.zarr'];
     const expectedName = urls[0].split('/').at(-1);
     const expectedConfig = {
       version: '1.0.15',
@@ -239,6 +239,50 @@ describe('src/VitessceAutoConfig.js', () => {
     const config = await generateConfigs(urls);
     expect(config).toEqual(expectedConfig);
   });
+
+  it('generates empty config for Anndata-ZARR file with empty .zmetadata', async () => {
+    const urls = ['http://localhost:51204/@fixtures/zarr/partials/emptymeta.h5ad.zarr'];
+    const expectedName = urls[0].split('/').at(-1);
+    const expectedConfig = {
+      "version": "1.0.15",
+      "name": "An automatically generated config. Adjust values and add layout components if needed.",
+      "description": "Populate with text relevant to this visualisation.",
+      "datasets": [
+        {
+          "uid": "A",
+          "name": expectedName,
+          "files": [
+            {
+              "url": urls[0],
+              "fileType": "anndata.zarr",
+              "coordinationValues": {
+                "obsType": "cell",
+                "featureType": "gene",
+                "featureValueType": "expression"
+              },
+              "options": {
+                "obsEmbedding": [],
+                "obsFeatureMatrix": {
+                  "path": "X"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "coordinationSpace": {
+        "dataset": {
+          "A": "A"
+        }
+      },
+      "layout": [],
+      "initStrategy": "auto"
+    };
+
+    const config = await generateConfigs(urls);
+    expect(config).toEqual(expectedConfig);
+  });
+
 
   it('generates config for multiple files correctly', async () => {
     const urls = ['somefile.ome.tif', 'anoterfile.ome.zarr'];
@@ -372,17 +416,18 @@ describe('src/VitessceAutoConfig.js', () => {
     expect(config).toEqual(expectedConfig);
   });
 
-  // todo this test does not work
   it('raises an Error when .zmetadata file not present in folder', async () => {
-    const urls = ['http://localhost:51204/@fixtures/zarr/anndata-0.7/.adata.zarr'];
-    generateConfigs(urls).catch(
-      e => expect(e.message).toContain('blabalbalbal'),
+    const urls = ['http://localhost:51204/@fixtures/zarr/partials/invalid.adata.zarr'];
+
+    await generateConfigs(urls).catch(
+      e => expect(e.message).toContain('Could not generate config. File .zmetadata not found in supplied file URL')
     );
   });
 
   it('raises an error when URL with unsupported file format is passed', async () => {
     const urls = ['http://localhost:51204/@fixtures/zarr/anndata-0.7/somefile.zarr'];
-    generateConfigs(urls).catch(
+
+    await generateConfigs(urls).catch(
       e => expect(e.message).toContain('This file type is not supported.'),
     );
   });

@@ -287,7 +287,7 @@ async function generateConfig(url, vc) {
     viewsConfig = await configInstance.composeViewsConfig();
   } catch (error) {
     console.error(error);
-    return Promise.reject(new Error(`Failed to generate config for URL: ${url}.`));
+    return Promise.reject(error);
   }
 
   const dataset = vc
