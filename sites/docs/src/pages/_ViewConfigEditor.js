@@ -68,6 +68,7 @@ export default function ViewConfigEditor(props) {
 
   const viewConfigDocsJsUrl = useBaseUrl('/docs/view-config-js/');
   const viewConfigDocsJsonUrl = useBaseUrl('/docs/view-config-json/');
+  const defaultViewConfigDocsUrl = useBaseUrl('/docs/default-config-json');
 
   const [pendingUrl, setPendingUrl] = useState('');
   const [datasetUrl, setDatasetUrl] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr, https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif');
@@ -121,15 +122,14 @@ export default function ViewConfigEditor(props) {
 
   async function handleConfigGeneration() {
     const urls = datasetUrl.split(/, | |,/);
-    console.log(urls);
     await generateConfigs(urls)
-    .then((configJson) => {
-      setPendingJson(JSON.stringify(configJson, null, 2));
-      setLoadFrom('editor');
-    })
-    .catch((error) =>{
-      setError(error.message);
-    });
+      .then((configJson) => {
+        setPendingJson(JSON.stringify(configJson, null, 2));
+        setLoadFrom('editor');
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
   }
 
   function handleUrlChange(event) {
@@ -181,29 +181,31 @@ export default function ViewConfigEditor(props) {
         </p>
 
         <div className={styles.viewConfigInputs}>
-            <div className={styles.viewConfigInputUrlOrFile}>
-              <p className={styles.viewConfigInputUrlOrFileText}>
-                Or drop your file and we will return a config for you in the editor below.
-              </p>
-              <div className={styles.viewConfigInputUrlOrFileSplit}>
-                <input
-                  type="text"
-                  className={styles.viewConfigUrlInput}
-                  placeholder="Drop url to file"
-                  value={datasetUrl}
-                  onChange={handleDatasetUrlChange}
-                />
-              </div>
-            </div>
-            <div className={styles.viewConfigInputButton}>
-              <button
-                type="button"
-                className={styles.viewConfigGo}
-                onClick={handleConfigGeneration}
-              >Generate config
-              </button>
+          <div className={styles.viewConfigInputUrlOrFile}>
+            <p className={styles.viewConfigInputUrlOrFileText}>
+              Or paste the URLs of your datasets, separated by comma or space, and a&nbsp;
+              <a href={defaultViewConfigDocsUrl}>default view config</a>
+                  &nbsp; will be displayed in the editor below.
+            </p>
+            <div className={styles.viewConfigInputUrlOrFileSplit}>
+              <input
+                type="text"
+                className={styles.viewConfigUrlInput}
+                placeholder="Drop url to file"
+                value={datasetUrl}
+                onChange={handleDatasetUrlChange}
+              />
             </div>
           </div>
+          <div className={styles.viewConfigInputButton}>
+            <button
+              type="button"
+              className={styles.viewConfigGo}
+              onClick={handleConfigGeneration}
+            >Generate config
+            </button>
+          </div>
+        </div>
 
         <div className={styles.viewConfigEditorType}>
           <label htmlFor="editor-syntax">
