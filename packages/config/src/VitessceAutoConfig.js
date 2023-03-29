@@ -5,11 +5,11 @@ import {
 
 
 class AbstractAutoConfig {
-  async composeViewsConfig() {
+  async composeViewsConfig() { /* eslint-disable-line class-methods-use-this */
     throw new Error('The composeViewsConfig() method has not been implemented.');
   }
 
-  async composeFileConfig() {
+  async composeFileConfig() { /* eslint-disable-line class-methods-use-this */
     throw new Error('The composeFileConfig() method has not been implemented.');
   }
 }
@@ -21,7 +21,8 @@ class OmeTiffAutoConfig extends AbstractAutoConfig {
     this.fileName = fileUrl.split('/').at(-1);
   }
 
-  async composeViewsConfig() {
+
+  async composeViewsConfig() { /* eslint-disable-line class-methods-use-this */
     return [
       ['description'],
       ['spatial'],
@@ -58,7 +59,7 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
     this.fileName = fileUrl.split('/').at(-1);
   }
 
-  async composeViewsConfig() {
+  async composeViewsConfig() { /* eslint-disable-line class-methods-use-this */
     return [
       ['description'],
       ['spatial'],

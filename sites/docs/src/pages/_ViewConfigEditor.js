@@ -127,8 +127,8 @@ export default function ViewConfigEditor(props) {
         setPendingJson(JSON.stringify(configJson, null, 2));
         setLoadFrom('editor');
       })
-      .catch((error) => {
-        setError(error.message);
+      .catch((e) => {
+        setError(e.message);
       });
   }
 
