@@ -94,7 +94,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig{
 
     async composeFileConfig() {
 
-        this.metadataSummary = await this.downloadMetadata();
+        this.metadataSummary = await this.setMetadataSummary();
 
         let options = {
             "obsEmbedding": [],
@@ -151,7 +151,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig{
 
     async composeViewsConfig() {
 
-        this.metadataSummary = await this.downloadMetadata();
+        this.metadataSummary = await this.setMetadataSummary();
         
         let views = [];
 
@@ -188,7 +188,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig{
         return views;
     }
 
-    async downloadMetadata() {
+    async setMetadataSummary() {
 
         if (Object.keys(this.metadataSummary).length > 0) {
             return this.metadataSummary;
