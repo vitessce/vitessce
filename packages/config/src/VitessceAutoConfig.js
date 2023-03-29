@@ -94,7 +94,7 @@ class OmeZarrAutoConfig extends AbstractAutoConfig{
 
 class AnndataZarrAutoConfig extends AbstractAutoConfig{
 
-    async downloadMetadata(callbackFunc) {
+    async downloadMetadata() {
         const metadataExtension = ".zmetadata";
         const url = [this.fileUrl, metadataExtension].join("/");
         return fetch(url).then((response) => {
@@ -104,7 +104,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig{
             return Promise.reject(response);
         })
         .then((responseJson) => {
-            return callbackFunc(responseJson);
+            return responseJson;
         })
         .catch((error) => {
             if (error.status === 404) {
@@ -114,12 +114,12 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig{
         });        
     }
 
-    postDownloadFunc(fileMeta) {
-        const obsmKeys = Object.keys(fileMeta.metadata)
+    parseMetadataFile(metadataFile) {
+        const obsmKeys = Object.keys(metadataFile.metadata)
         .filter(key => key.startsWith("obsm/X_"))
         .map(key => key.split("/.zarray")[0]);
     
-        const obsKeysArr = Object.keys(fileMeta.metadata)
+        const obsKeysArr = Object.keys(metadataFile.metadata)
         .filter(key => key.startsWith("obs/") && !key.includes("obs/.") && !key.includes("obs/__"))
         .map(key => key.split("/.za")[0]);
     
@@ -130,7 +130,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig{
         }   
         const obsKeys = uniq(obsKeysArr);
         
-        const X = Object.keys(fileMeta.metadata).filter(key => key.startsWith("X"));
+        const X = Object.keys(metadataFile.metadata).filter(key => key.startsWith("X"));
 
         const out = {
             "obsm": obsmKeys,
@@ -142,7 +142,8 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig{
     }
 
     async init() {
-        this.meta = await this.downloadMetadata(this.postDownloadFunc);
+        const metadataFile = await this.downloadMetadata();
+        this.metadataSummary = this.parseMetadataFile(metadataFile);
         return this;
     }
 
@@ -162,7 +163,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig{
              }
         };
 
-        this.meta["obsm"].forEach(key => {
+        this.metadataSummary["obsm"].forEach(key => {
             if (key.toLowerCase().includes(("obsm/x_segmentations"))) {
                 options["obsSegmentations"] = {"path": key};
             }
@@ -180,7 +181,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig{
             }
         })
     
-        this.meta["obs"].forEach(key => {
+        this.metadataSummary["obs"].forEach(key => {
             if (key.toLowerCase().includes("cluster") || key.toLowerCase().includes("cell_type")) {
                 if (!("obsSets" in options)) {
                     options["obsSets"] = [
@@ -212,14 +213,14 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig{
         
         let views = [];
 
-        const hasCellSetData = this.meta["obs"]
+        const hasCellSetData = this.metadataSummary["obs"]
             .find(key => key.toLowerCase().includes("cluster") || key.toLowerCase().includes("cell_type"));
 
         if (hasCellSetData.length > 0) {
             views.push(['obsSets']);
         }
     
-        this.meta["obsm"].forEach(key => {
+        this.metadataSummary["obsm"].forEach(key => {
             if (key.toLowerCase().includes("obsm/x_umap")) {
                 views.push(['scatterplot', { mapping: 'UMAP' }])
             }
@@ -237,7 +238,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig{
             }
         })
 
-        if (this.meta["X"]) {
+        if (this.metadataSummary["X"]) {
             views.push(["heatmap"]);
             views.push(["featureList"]);
         }
