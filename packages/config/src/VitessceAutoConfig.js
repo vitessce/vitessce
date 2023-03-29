@@ -176,6 +176,8 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       views.push(['featureList']);
     }
 
+    console.log("HERE NOW ", views);
+
     return views;
   }
 
@@ -185,6 +187,11 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     }
 
     const parseMetadataFile = (metadataFile) => {
+
+      if (!metadataFile.metadata) {
+        throw new Error('Could not generate config: .zmetadata file is not valid.');
+      }
+
       const obsmKeys = Object.keys(metadataFile.metadata)
         .filter(key => key.startsWith('obsm/X_'))
         .map(key => key.split('/.zarray')[0]);
@@ -220,7 +227,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       .then(responseJson => parseMetadataFile(responseJson))
       .catch((error) => {
         if (error.status === 404) {
-          const errorMssg = ['Could not generate config. File ', metadataExtension, ' not found in supplied file URL. Check docs for more explanation.'].join('');
+          const errorMssg = `Could not generate config. File ${metadataExtension} not found in supplied file URL. Check docs for more explanation.`;
           return Promise.reject(new Error(errorMssg));
         }
         return Promise.reject(error);
