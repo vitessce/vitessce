@@ -148,7 +148,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
 
     const hasCellSetData = this.metadataSummary.obs
       .filter(key => key.toLowerCase().includes('cluster') || key.toLowerCase().includes('cell_type'));
-    
+
     if (hasCellSetData.length > 0) {
       views.push(['obsSets']);
     }
@@ -175,7 +175,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       views.push(['heatmap']);
       views.push(['featureList']);
     }
-    
+
     return views;
   }
 
