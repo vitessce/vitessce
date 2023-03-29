@@ -246,35 +246,34 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig{
     }
 };
 
-    
-const configClasses = {
-    "OME-TIFF": {
+const configClasses = [
+    {
         "extensions": ["ome.tif", ".ome.tiff", ".ome.tf2", ".ome.tf8"], // todo: test that ".ome.tf2", ".ome.tf8" work
         "class": OmeTiffAutoConfig
     },
-    "Anndata-ZARR": {
+    {
         "extensions": ["h5ad.zarr", ".adata.zarr", ".anndata.zarr"],
         "class": AnndataZarrAutoConfig
     },
-    "OME-ZARR": {
+    {
         "extensions": ["ome.zarr"],
         "class": OmeZarrAutoConfig
     }
-};
+]
 
 function getFileType(url) {
-    const match = Object.keys(configClasses).find(key => configClasses[key].extensions.filter(
+    const match = configClasses.find(obj => obj.extensions.filter(
         ext => url.endsWith(ext)
     ).length === 1);
     if(!match) {
         // todo: adjust this code after speaking to Mark
         // connected with namings of OME-ZARR files. temporary change for testing puproses
         if (url.endsWith(".zarr")) {
-            return configClasses["OME-ZARR"].class;
+            return OmeZarrAutoConfig;
         }
         throw new Error(`Could not generate config for URL: ${url}. This file type is not supported.`);
     }
-    return configClasses[match].class;
+    return match.class;
 };
 
 function calculateCoordinates(viewsNumb) {
@@ -358,21 +357,21 @@ async function generateConfig(url, vc) {
                 }
                 // this piece of code can be removed once these props are added by default to layerController
                 // see this issue: https://github.com/vitessce/vitessce/issues/1454
-                if (v[0] === "layerController" && configClass === configClasses["OME-TIFF"].class) {
+                if (v[0] === "layerController" && configInstance instanceof OmeTiffAutoConfig) {
                     view.setProps({
                         "disable3d": [],
                         "disableChannelsIfRgbDetected": true
                     });
                 }
                 // transpose the heatmap by default
-                if (v[0] === "heatmap" && configClass === configClasses["Anndata-ZARR"].class) {
+                if (v[0] === "heatmap" && configInstance instanceof AnndataZarrAutoConfig) {
                     view.setProps({"transpose": true});
                 }
 
                 views.push(view);
             });
 
-            if (layerControllerView && spatialView && configClass === configClasses["Anndata-ZARR"].class) {
+            if (layerControllerView && spatialView && configInstance instanceof AnndataZarrAutoConfig) {
                 const spatialSegmentationLayerValue = {
                     "opacity": 1,
                     "radius": 0,
