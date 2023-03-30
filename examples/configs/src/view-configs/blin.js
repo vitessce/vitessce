@@ -13,18 +13,6 @@ export const blin2019 = {
         {
           fileType: 'image.ome-zarr',
           url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr',
-          options: {
-            coordinateTransformations: [
-              {
-                type: 'translation',
-                translation: [0, 0, 1, 1],
-              },
-              {
-                type: 'scale',
-                scale: [1, 0.5, 0.5, 0.5],
-              },
-            ],
-          },
         },
       ],
     },

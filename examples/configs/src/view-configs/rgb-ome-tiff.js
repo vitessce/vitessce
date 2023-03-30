@@ -11,19 +11,6 @@ export const rgbOmeTiff = {
         {
           fileType: 'image.ome-tiff',
           url: 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif',
-          options: {
-            // DimensionOrder: XYCZT
-            coordinateTransformations: [
-              {
-                type: 'translation',
-                translation: [1, 1, 0, 0, 0],
-              },
-              {
-                type: 'scale',
-                scale: [0.5, 0.5, 1, 1, 1],
-              },
-            ],
-          },
         },
       ],
     },

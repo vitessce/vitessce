@@ -875,15 +875,66 @@ options={`{
 }`}
 />
 
+
+## `obsSegmentations.ome-tiff`
+
+Points to a label image ("bitmask") in OME-TIFF format.
+Pixel values are integers that correspond to segmented observations, with `0` representing background.
+
+<FileDefTabs
+fileName="my_cell_segmentations.ome.tif"
+fileType="obsSegmentations.ome-tiff"
+fileConst="OBS_SEGMENTATIONS_OME_TIFF"
+/>
+
+
+## `image.ome-tiff`
+
+Points to an image in OME-TIFF format.
+
+If the OME-XML metadata contains `PhysicalSizeX`, `PhysicalSizeXUnit`, `PhysicalSizeY`, and `PhysicalSizeYUnit`, then the physical size will be used for scaling.
+
+Optionally, `options.coordinateTransformations` can be defined, which will be interpreted according to the OME-NGFF v0.4 [coordinateTransformations](https://ngff.openmicroscopy.org/0.4/#trafo-md) spec.
+The dimensions of these transformations must correspond to the `DimensionOrder` from OME-XML.
+
+<FileDefTabs
+fileName="my_image.ome.tif"
+fileType="image.ome-tiff"
+fileConst="IMAGE_OME_TIFF"
+/>
+
 ## `image.ome-zarr`
 
 Points to an image in OME-NGFF format that has been saved to a Zarr store.
 See [OME-NGFF data troubleshooting](/docs/data-troubleshooting/#ome-ngff) for more details.
 
+Optionally, `options.coordinateTransformations` can be defined according to the OME-NGFF v0.4 [coordinateTransformations](https://ngff.openmicroscopy.org/0.4/#trafo-md) spec.
+These will be applied after any `coordinateTransformations` contained within the Zarr store's OME-NGFF metadata.
+
 <FileDefTabs
 fileName="my_image.ome.zarr"
 fileType="image.ome-zarr"
 fileConst="IMAGE_OME_ZARR"
+/>
+
+Example with `coordinateTransformations` provided via `options`:
+
+<FileDefTabs
+fileName="my_image.ome.zarr"
+fileType="image.ome-zarr"
+fileConst="IMAGE_OME_ZARR"
+options={`{
+  coordinateTransformations: [
+    {
+      type: 'translation',
+      translation: [0, 0, 1, 1],
+    },
+    {
+      type: 'scale',
+      scale: [1, 0.5, 0.5, 0.5],
+    },
+  ],
+}`}
 />
 
 ## `image.raster.json`
@@ -1075,9 +1126,12 @@ The Vitessce R package can be used to [convert Seurat objects](https://vitessce.
 
 The Vitessce Python package can be used to [convert SnapATAC outputs](https://vitessce.github.io/vitessce-python/data_examples.html) to the [`genomic-profiles.zarr`](#genomic-profileszarr), [`cells.json`](#cellsjson), and [`cell-sets.json`](#cell-setsjson) file types.
 
-### Proprietary Image Formats
+
+### TIFF and Proprietary Image Formats
 
 The [Bio-Formats](https://www.glencoesoftware.com/blog/2019/12/09/converting-whole-slide-images-to-OME-TIFF.html) suite of tools can be used to convert from proprietary image formats to one of the open standard [OME file formats](http://www.openmicroscopy.org/ome-files/) supported by Vitessce.
+
+Bio-Formats can also convert TIFF to OME-TIFF.
 
 :::tip
 The [Data Preparation](http://viv.gehlenborglab.org/#data-preparation) section of the Viv documentation is a helpful resource for learning about converting to OME formats.
@@ -1085,12 +1139,9 @@ The [Data Preparation](http://viv.gehlenborglab.org/#data-preparation) section o
 
 #### Conversion to OME-TIFF
 
-[OME-TIFF](https://docs.openmicroscopy.org/ome-model/6.0.0/index.html#ome-tiff) images are supported via the [`image.raster.json`](#imagerasterjson) file type.
+[OME-TIFF](https://docs.openmicroscopy.org/ome-model/6.0.0/index.html#ome-tiff) images are supported via the [`image.ome-tiff`](#imagerasterjson) file type.
 
 #### Conversion to OME-NGFF
 
 [OME-NGFF](https://ngff.openmicroscopy.org/latest/) images saved as Zarr stores are supported via the [`image.ome-zarr`](#imageome-zarr) file type.
 
-:::tip
-The [`ome-zarr`](https://pypi.org/project/ome-zarr/) Python package can be used to read the metadata of  `OME-NGFF` images.
-:::
