@@ -316,3 +316,98 @@ export async function initializeRasterLayersAndChannels(
   const autoImageLayerDefs = await Promise.all(autoImageLayerDefPromises);
   return [autoImageLayerDefs, nextImageLoaders, nextImageMetaAndLayers];
 }
+
+function getDefaultAxisType(name) {
+  if (name === 't') return 'time';
+  if (name === 'c') return 'channel';
+  return 'space';
+}
+
+// Reference: https://github.com/hms-dbmi/vizarr/blob/ade9d5d71bbedc8c20357c5310557ff9a0c59ac5/src/utils.ts#LL114-L142C2
+export function getNgffAxes(firstMultiscalesAxes) {
+  // Returns axes in the latest v0.4+ format.
+  // defaults for v0.1 & v0.2
+  const defaultAxes = [
+    { type: 'time', name: 't' },
+    { type: 'channel', name: 'c' },
+    { type: 'space', name: 'z' },
+    { type: 'space', name: 'y' },
+    { type: 'space', name: 'x' },
+  ];
+  let axes = defaultAxes;
+  // v0.3 & v0.4+
+  if (firstMultiscalesAxes) {
+    axes = firstMultiscalesAxes.map((axis) => {
+      // axis may be string 'x' (v0.3) or object
+      if (typeof axis === 'string') {
+        return { name: axis, type: getDefaultAxisType(axis) };
+      }
+      const { name, type } = axis;
+      return { name, type: type ?? getDefaultAxisType(name) };
+    });
+  }
+  return axes;
+}
+
+export function getNgffAxesForTiff(dimOrder) {
+  return dimOrder
+    .toLowerCase()
+    .split('')
+    .map(name => ({
+      name,
+      type: getDefaultAxisType(name),
+    }));
+}
+
+/**
+ * Convert an array of coordinateTransformations objects to a 16-element
+ * plain JS array using Matrix4 linear algebra transformation functions.
+ * @param {object[]} coordinateTransformations List of objects matching the
+ * OME-NGFF v0.4 coordinateTransformations spec.
+ * @param {object[]} axes Axes in OME-NGFF v0.4 format, objects
+ * with { type, name }.
+ * @returns {Array<number>} Array of 16 numbers representing the Matrix4.
+ */
+export function coordinateTransformationsToMatrix(coordinateTransformations, axes) {
+  let mat = (new Matrix4()).identity();
+  if (coordinateTransformations && axes) {
+    // Get the indices of the objects corresponding to  X, Y, and Z from `axes`.
+    const xyzIndices = ['x', 'y', 'z'].map(name => axes.findIndex(axisObj => axisObj.type === 'space' && axisObj.name === name));
+    // Apply each transformation sequentially and in order according to the OME-NGFF v0.4 spec.
+    // Reference: https://ngff.openmicroscopy.org/0.4/#trafo-md
+    coordinateTransformations.forEach((transform) => {
+      if (transform.type === 'translation') {
+        const { translation: axisOrderedTranslation } = transform;
+        if (axisOrderedTranslation.length !== axes.length) {
+          throw new Error('Length of translation array was expected to match length of axes.');
+        }
+        const defaultValue = 0;
+        // Get the translation values for [x, y, z].
+        const xyzTranslation = xyzIndices.map(axisIndex => (
+          axisIndex >= 0
+            ? axisOrderedTranslation[axisIndex]
+            : defaultValue
+        ));
+        const nextMat = (new Matrix4()).translate(xyzTranslation);
+        mat = mat.multiplyLeft(nextMat);
+      }
+      if (transform.type === 'scale') {
+        const { scale: axisOrderedScale } = transform;
+        // Add in z dimension needed for Matrix4 scale API.
+        if (axisOrderedScale.length !== axes.length) {
+          throw new Error('Length of scale array was expected to match length of axes.');
+        }
+        const defaultValue = 1;
+        // Get the scale values for [x, y, z].
+        const xyzScale = xyzIndices.map(axisIndex => (
+          axisIndex >= 0
+            ? axisOrderedScale[axisIndex]
+            : defaultValue
+        ));
+        const nextMat = (new Matrix4()).scale(xyzScale);
+        mat = mat.multiplyLeft(nextMat);
+      }
+    });
+  }
+  return mat;
+}
