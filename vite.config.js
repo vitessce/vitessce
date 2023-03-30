@@ -65,6 +65,8 @@ export default defineConfig({
         resources: 'usable',
       },
     },
+    // Only run test files that are within src/
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
   },
   // To enable .js files that contain JSX to be imported by Vitest tests.
   // Reference: https://github.com/vitest-dev/vitest/issues/1564
