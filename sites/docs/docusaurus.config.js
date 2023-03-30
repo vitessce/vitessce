@@ -67,6 +67,12 @@ module.exports = {
           position: 'right',
         },
         {
+          href: 'http://ipa-reader.xyz/?text=v%C9%AAt-%C9%9Bs',
+          position: 'right',
+          className: 'header-pronunciation-link',
+          'aria-label': 'Pronunciation',
+        },
+        {
           href: 'https://github.com/vitessce/',
           position: 'right',
           className: 'header-github-link',
