@@ -9,6 +9,9 @@ export default function SpatialTooltipSubscriber(props) {
     width,
     height,
     getObsInfo,
+    hoverData,
+    hoverCoord,
+    useHoverCoordsForTooltip,
   } = props;
 
   const sourceUuid = useComponentHover();
@@ -17,7 +20,7 @@ export default function SpatialTooltipSubscriber(props) {
   const [cellInfo, x, y] = (obsHighlight && getObsInfo ? (
     [
       getObsInfo(obsHighlight),
-      ...(viewInfo && viewInfo.project ? viewInfo.project(obsHighlight) : [null, null]),
+      ...(viewInfo && viewInfo.projectFromId ? viewInfo.projectFromId(obsHighlight) : [null, null]),
     ]
   ) : ([null, null, null]));
 

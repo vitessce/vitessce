@@ -17,7 +17,7 @@ export default function ScatterplotTooltipSubscriber(props) {
   const [cellInfo, x, y] = (obsHighlight && getObsInfo ? (
     [
       getObsInfo(obsHighlight),
-      ...(viewInfo && viewInfo.project ? viewInfo.project(obsHighlight) : [null, null]),
+      ...(viewInfo && viewInfo.projectFromId ? viewInfo.projectFromId(obsHighlight) : [null, null]),
     ]
   ) : ([null, null, null]));
 

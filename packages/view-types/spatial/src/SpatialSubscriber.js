@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useCallback,
+  useState,
+} from 'react';
+import debounce from 'lodash/debounce';
 import {
   TitleInfo,
   useDeckCanvasSize, useReady, useUrls,
@@ -300,6 +306,22 @@ export function SpatialSubscriber(props) {
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
+  const [hoverData, setHoverData] = useState(null);
+  const [hoverCoord, setHoverCoord] = useState(null);
+
+  // Should coordinates be used for tooltip?
+  const useHoverCoordsForTooltip = obsCentroids === null;
+
+  const setObsHighlightFromHover = useCallback(debounce((data, coord) => {
+    setHoverData(data);
+    setHoverCoord(coord);
+    if (useHoverCoordsForTooltip) {
+      const spatialTargetC = 0; // There can potentially be multiple segmentation channels.
+      const obsId = data[spatialTargetC] - 1;
+      setCellHighlight(obsId);
+    }
+  }, 10, { trailing: true }), [setHoverData, setHoverCoord, useHoverCoordsForTooltip]);
+
   const setViewState = ({
     zoom: newZoom,
     target,
@@ -440,6 +462,7 @@ export function SpatialSubscriber(props) {
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
+        setCellHighlightFromHover={setObsHighlightFromHover}
         setMoleculeHighlight={setMoleculeHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);
@@ -462,6 +485,9 @@ export function SpatialSubscriber(props) {
           width={width}
           height={height}
           getObsInfo={getObsInfo}
+          useHoverCoordsForTooltip={useHoverCoordsForTooltip}
+          hoverData={hoverData}
+          hoverCoord={hoverCoord}
         />
       )}
       <Legend

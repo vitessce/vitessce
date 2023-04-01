@@ -81,8 +81,11 @@ function shouldUsePaddedImplementation(dataLength) {
  * @param {function} props.setGeneHighlight Callback function called on
  * hover with the gene ID. Optional.
  * @param {function} props.updateViewInfo Callback function that gets called with an
- * object { uuid, project() } where project is a function that maps (cellId, geneId)
- * to canvas (x,y) coordinates. Used to show tooltips. Optional.
+ * object { uuid, project(), projectFromId() } where
+ * project is the DeckGL Viewport.project function, and
+ * projectFromId is a wrapper around project that
+ * takes (cellId, geneId) as parameters and returns
+ * canvas (x,y) pixel coordinates. Used to show tooltips. Optional.
  * @param {boolean} props.transpose By default, false.
  * @param {string} props.variablesTitle By default, 'Genes'.
  * @param {string} props.observationsTitle By default, 'Cells'.
@@ -272,7 +275,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   useEffect(() => {
     updateViewInfo({
       uuid,
-      project: (cellId, geneId) => {
+      projectFromId: (cellId, geneId) => {
         const colI = transpose ? axisTopLabels.indexOf(cellId) : axisTopLabels.indexOf(geneId);
         const rowI = transpose ? axisLeftLabels.indexOf(geneId) : axisLeftLabels.indexOf(cellId);
         return heatmapToMousePosition(
