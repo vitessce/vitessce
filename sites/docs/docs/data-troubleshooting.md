@@ -47,12 +47,12 @@ adata = optimize_adata(adata)
 
 ### Supported versions
 
-Vitessce currently supports up to OME-NGFF spec v3.0. Until v4.0 is supported in [viv](https://github.com/hms-dbmi/viv/issues/586) (and subsequently here in Vitessce) you may need to use previous versions of OME-NGFF writer tools. For example, v0.2.1 of [ome-zarr-py](https://github.com/ome/ome-zarr-py) (`ome-zarr==0.2.1`) writes v3.0 OME-NGFFs.
+Vitessce currently supports up to OME-NGFF spec v0.4.
 
 
 ### Supported features
 
-Vitessce supports [OME-NGFF](https://ngff.openmicroscopy.org/latest/) images saved as Zarr stores and a subset of OME-NGFF features via the `raster.ome-zarr` file type.
+Vitessce supports [OME-NGFF](https://ngff.openmicroscopy.org/latest/) images saved as Zarr stores and a subset of OME-NGFF features via the `image.ome-zarr` file type.
 The following table lists the support for different OME-NGFF features:
 
 | Feature | Supported by Vitessce |
@@ -61,7 +61,6 @@ The following table lists the support for different OME-NGFF features:
 | `omero` field | Y |
 | multiscales with a scaling factor other than 2 | N |
 | URL (not only S3) | Y |
-| `multiscales[].axes` (added in v0.3) | Y |
 | 3D view | Y |
 | labels | N |
 | HCS plate | N |
@@ -72,14 +71,14 @@ We welcome feature requests or pull requests to add support for the remaining fe
 
 ### Metadata requirements
 
-The [`omero`](https://ngff.openmicroscopy.org/latest/#omero-md) metadata field must be present. `omero.channels` and `omero.rdefs` fields provide metadata that Vitessce uses for the initial rendering settings and must be present in the 
+The [`omero`](https://ngff.openmicroscopy.org/latest/#omero-md) metadata field must be present. `omero.channels` and `omero.rdefs` fields provide metadata that Vitessce uses for the initial rendering settings and must be present.
 
 
 ### Z-axis chunking
 
 Vitessce does not yet support chunking along the Z axis. When writing OME-Zarr stores, you may need to specify a `chunks` argument manually such that the Z axis only has 1 chunk.
 
-An example writing to a Zarr store using [ome-zarr-py](https://github.com/ome/ome-zarr-py):
+An example writing to a Zarr store using [ome-zarr-py](https://github.com/ome/ome-zarr-py) (`ome-zarr==0.2.1`):
 
 ```py
 import zarr

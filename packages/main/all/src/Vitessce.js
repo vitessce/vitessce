@@ -36,6 +36,8 @@ import {
   anndataCellSetsZarrSchema,
   anndataExpressionMatrixZarrSchema,
   cellsJsonSchema,
+  imageOmeZarrSchema,
+  imageOmeTiffSchema,
 } from '@vitessce/schemas';
 
 // Register view type plugins
@@ -121,6 +123,7 @@ import {
   expandRasterJson,
   expandRasterOmeZarr,
 } from './joint-file-types-legacy';
+import { OmeTiffAsObsSegmentationsLoader, OmeTiffLoader, OmeTiffSource } from '@vitessce/ome-tiff';
 
 // Helper function to use COMPONENT_COORDINATION_TYPES.
 function makeVitessceViewType(name, component) {
@@ -172,7 +175,9 @@ const vitessceFileTypes = [
   new PluginFileType(FileType.OBS_SEGMENTATIONS_MUDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, MuDataSource, obsSegmentationsAnndataSchema),
   new PluginFileType(FileType.FEATURE_LABELS_MUDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, MuDataSource, featureLabelsAnndataSchema),
   // All OME file types
-  new PluginFileType(FileType.IMAGE_OME_ZARR, DataType.IMAGE, OmeZarrLoader, ZarrDataSource, z.null()),
+  new PluginFileType(FileType.IMAGE_OME_ZARR, DataType.IMAGE, OmeZarrLoader, ZarrDataSource, imageOmeZarrSchema),
+  new PluginFileType(FileType.IMAGE_OME_TIFF, DataType.IMAGE, OmeTiffLoader, OmeTiffSource, imageOmeTiffSchema),
+  new PluginFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, imageOmeZarrSchema),
   // All legacy file types
   new PluginFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
   new PluginFileType(FileType.IMAGE_RASTER_JSON, DataType.IMAGE, RasterJsonAsImageLoader, JsonSource, rasterJsonSchema),

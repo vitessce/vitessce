@@ -60,6 +60,37 @@ const annDataObsLocations = annDataObsm;
 const annDataObsEmbedding = annDataObsm;
 const annDataObsSegmentations = annDataObs;
 
+// OME
+// coordinateTransformations matches the OME-NGFF v0.4 spec.
+// Reference: https://ngff.openmicroscopy.org/0.4/#trafo-md
+const omeCoordinateTransformations = z.array(z.union([
+  z.object({
+    type: z.literal('identity'),
+  }),
+  z.object({
+    type: z.literal('translation'),
+    translation: z.array(z.number()),
+  }),
+  z.object({
+    type: z.literal('scale'),
+    scale: z.array(z.number()),
+  }),
+]));
+
+// OME-TIFF
+export const imageOmeTiffSchema = z.object({
+  offsetsUrl: z.string()
+    .optional(),
+  coordinateTransformations: omeCoordinateTransformations
+    .optional(),
+});
+
+// OME-Zarr (NGFF)
+export const imageOmeZarrSchema = z.object({
+  coordinateTransformations: omeCoordinateTransformations
+    .optional(),
+});
+
 
 /**
  * Options schemas for atomic file types.

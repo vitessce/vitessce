@@ -15,11 +15,11 @@ export class PluginViewType {
   }
 }
 
-interface IDataLoader {
+export interface IDataLoader {
   load: () => Promise<any>;
 }
 
-interface IDataSource {
+export interface IDataSource {
 
 }
 
