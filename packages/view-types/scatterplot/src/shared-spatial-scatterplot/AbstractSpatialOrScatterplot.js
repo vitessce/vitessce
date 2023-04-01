@@ -99,7 +99,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     } = info;
     const {
       setCellHighlight, cellHighlight, setComponentHover, layers,
-      setCellHighlightFromHover,
+      setHoverInfo,
     } = this.props;
     const hasBitmask = (layers || []).some(l => l.type === 'bitmask');
     if (!setCellHighlight || !tile) {
@@ -109,8 +109,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       if (cellHighlight && hasBitmask) {
         setCellHighlight(null);
       }
-      if (setCellHighlightFromHover) {
-        setCellHighlightFromHover(null, null);
+      if (setHoverInfo) {
+        setHoverInfo(null, null);
       }
       return null;
     }
@@ -123,8 +123,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       if (cellHighlight && hasBitmask) {
         setCellHighlight(null);
       }
-      if (setCellHighlightFromHover) {
-        setCellHighlightFromHover(null, null);
+      if (setHoverInfo) {
+        setHoverInfo(null, null);
       }
       return null;
     }
@@ -165,11 +165,11 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
         // eslint-disable-next-line no-unused-expressions
         setCellHighlight(cellId ? String(cellId) : null);
       }
-      if (setCellHighlightFromHover) {
+      if (setHoverInfo) {
         if (cellId) {
-          setCellHighlightFromHover(hoverData, coordinate);
+          setHoverInfo(hoverData, coordinate);
         } else {
-          setCellHighlightFromHover(null, null);
+          setHoverInfo(null, null);
         }
       }
     }

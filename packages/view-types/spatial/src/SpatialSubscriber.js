@@ -309,18 +309,27 @@ export function SpatialSubscriber(props) {
   const [hoverData, setHoverData] = useState(null);
   const [hoverCoord, setHoverCoord] = useState(null);
 
-  // Should coordinates be used for tooltip?
-  const useHoverCoordsForTooltip = obsCentroids === null;
+  // Should hover position be used for tooltips?
+  // If there are centroids for each observation, then we can use those
+  // to position tooltips. However if there are not centroids,
+  // the other option is to use the mouse location.
+  const useHoverInfoForTooltip = !obsCentroids;
 
-  const setObsHighlightFromHover = useCallback(debounce((data, coord) => {
+  const setHoverInfo = useCallback(debounce((data, coord) => {
     setHoverData(data);
     setHoverCoord(coord);
-    if (useHoverCoordsForTooltip) {
-      const spatialTargetC = 0; // There can potentially be multiple segmentation channels.
-      const obsId = data[spatialTargetC] - 1;
-      setCellHighlight(obsId);
+  }, 10, { trailing: true }), [setHoverData, setHoverCoord, useHoverInfoForTooltip]);
+
+  const getObsIdFromHoverData = useCallback((data) => {
+    if (useHoverInfoForTooltip) {
+      // TODO: When there is support for multiple segmentation channels that may
+      // contain different obsTypes, then do not hard-code the zeroth channel.
+      const spatialTargetC = 0;
+      const obsId = data?.[spatialTargetC];
+      return obsId;
     }
-  }, 10, { trailing: true }), [setHoverData, setHoverCoord, useHoverCoordsForTooltip]);
+    return null;
+  }, [useHoverInfoForTooltip]);
 
   const setViewState = ({
     zoom: newZoom,
@@ -462,7 +471,7 @@ export function SpatialSubscriber(props) {
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
-        setCellHighlightFromHover={setObsHighlightFromHover}
+        setHoverInfo={setHoverInfo}
         setMoleculeHighlight={setMoleculeHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);
@@ -485,9 +494,10 @@ export function SpatialSubscriber(props) {
           width={width}
           height={height}
           getObsInfo={getObsInfo}
-          useHoverCoordsForTooltip={useHoverCoordsForTooltip}
+          useHoverInfoForTooltip={useHoverInfoForTooltip}
           hoverData={hoverData}
           hoverCoord={hoverCoord}
+          getObsIdFromHoverData={getObsIdFromHoverData}
         />
       )}
       <Legend

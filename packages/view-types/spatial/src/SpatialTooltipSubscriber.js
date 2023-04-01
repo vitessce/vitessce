@@ -11,18 +11,37 @@ export default function SpatialTooltipSubscriber(props) {
     getObsInfo,
     hoverData,
     hoverCoord,
-    useHoverCoordsForTooltip,
+    useHoverInfoForTooltip,
+    getObsIdFromHoverData,
   } = props;
 
   const sourceUuid = useComponentHover();
   const viewInfo = useComponentViewInfo(parentUuid);
 
-  const [cellInfo, x, y] = (obsHighlight && getObsInfo ? (
-    [
-      getObsInfo(obsHighlight),
-      ...(viewInfo && viewInfo.projectFromId ? viewInfo.projectFromId(obsHighlight) : [null, null]),
-    ]
-  ) : ([null, null, null]));
+  let [cellInfo, x, y] = [null, null, null];
+  if (
+    useHoverInfoForTooltip && getObsIdFromHoverData
+    && hoverData && hoverCoord
+    && parentUuid === sourceUuid
+  ) {
+    // No observation centroid coordinates were provided, so use
+    // the mouse hover info to position the tooltip.
+    const obsId = getObsIdFromHoverData(hoverData);
+    if (obsId) {
+      [cellInfo, x, y] = [
+        getObsInfo(obsId),
+        ...(viewInfo && viewInfo.project ? viewInfo.project(hoverCoord) : [null, null]),
+      ];
+    }
+  } else if (!useHoverInfoForTooltip && getObsInfo && obsHighlight) {
+    // Observation centroid coordinates were provided, so use
+    // those coordinates to position the tooltip.
+    const obsId = obsHighlight;
+    [cellInfo, x, y] = [
+      getObsInfo(obsId),
+      ...(viewInfo && viewInfo.projectFromId ? viewInfo.projectFromId(obsId) : [null, null]),
+    ];
+  }
 
   return (
     (cellInfo ? (
