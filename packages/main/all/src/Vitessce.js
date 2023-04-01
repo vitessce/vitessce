@@ -105,6 +105,11 @@ import {
   MatrixZarrAsObsFeatureMatrixLoader,
   GenomicProfilesZarrLoader,
 } from '@vitessce/zarr';
+import {
+  OmeTiffAsObsSegmentationsLoader,
+  OmeTiffLoader,
+  OmeTiffSource,
+} from '@vitessce/ome-tiff';
 
 // Joint file types
 import {
@@ -123,7 +128,7 @@ import {
   expandRasterJson,
   expandRasterOmeZarr,
 } from './joint-file-types-legacy';
-import { OmeTiffAsObsSegmentationsLoader, OmeTiffLoader, OmeTiffSource } from '@vitessce/ome-tiff';
+
 
 // Helper function to use COMPONENT_COORDINATION_TYPES.
 function makeVitessceViewType(name, component) {
