@@ -1,0 +1,41 @@
+{
+  "name": "@vitessce/legend",
+  "version": "2.0.2",
+  "author": "Gehlenborg Lab",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.mjs"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
+    "test": "pnpm exec vitest --run -r ../../ --dir ."
+  },
+  "dependencies": {
+    "@material-ui/core": "~4.12.3",
+    "@vitessce/utils": "workspace:*",
+    "colormap": "^2.3.2",
+    "d3-scale": "^3.2.3",
+    "d3-interpolate": "^2.0.1",
+    "d3-color": "^1.4.0",
+    "d3-axis": "^3.0.0",
+    "d3-selection": "^3.0.0"
+  },
+  "devDependencies": {
+    "react": "^18.0.0",
+    "vite": "^3.0.0",
+    "vitest": "^0.23.4"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+  }
+}

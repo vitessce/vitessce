@@ -6,7 +6,6 @@ import isEqual from 'lodash/isEqual';
 import plur from 'plur';
 import {
   TitleInfo,
-  registerPluginViewType,
   useReady, useUrls,
   useDeckCanvasSize,
   useExpressionValueGetter, useGetObsInfo,
@@ -27,6 +26,7 @@ import {
   getPointSizeDevicePixels,
   getPointOpacity,
 } from '@vitessce/scatterplot';
+import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 
 /**
@@ -348,14 +348,16 @@ export function EmbeddingScatterplotSubscriber(props) {
         getObsInfo={getObsInfo}
       />
       )}
+      <Legend
+        visible
+        theme={theme}
+        featureType={featureType}
+        featureValueType={featureValueType}
+        obsColorEncoding={cellColorEncoding}
+        featureSelection={geneSelection}
+        featureValueColormap={geneExpressionColormap}
+        featureValueColormapRange={geneExpressionColormapRange}
+      />
     </TitleInfo>
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    ViewType.SCATTERPLOT,
-    EmbeddingScatterplotSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT],
   );
 }

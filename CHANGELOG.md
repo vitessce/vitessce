@@ -1,12 +1,18 @@
 
 ### Added
+- Added a legend for quantitative color scales in the `SpatialSubscriber` and `EmbeddingScatterplotSubscriber` views.
+- Added a speaker icon to the documentation nav bar for using the International Phonetic Alphabet (IPA) notation to demonstrate how to pronounce Vitessce.
+- Added `image.ome-tiff` and `obsSegmentations.ome-tiff` file types.
+- Added `coordinateTransformation` file type options for `image.ome-tiff` and `image.ome-zarr`.
 
 ### Changed
+- Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
+- Fixes Go to Definition support in vscode (see https://github.com/microsoft/TypeScript/issues/49003#issuecomment-1164659854).
+- Update Vitest configuration to only include test files contained within `src` directories.
 - Re-implement `CellSetExpressionPlot` (violin plots) using plain D3. Add a rainfall (half violin + jitter) plot option.
 
+
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
-
-
 
 ### Added
 - Re-implemented PR 1240 (coordinationScopesBy)
@@ -23,6 +29,7 @@
 - Simplify HiGlass dynamic import (possible now since no longer using Webpack) to resolve bug in Vitessce Python.
 - Upgrade `Viv` to `0.13.6` to support OME-NGFF `v0.4`
 - Use `pnpm pack` in all subpackages so that outdated packages from NPM are not used during the consumer package install test.
+- Update GitHub Pages tutorial in docs.
 
 ## [2.0.2](https://www.npmjs.com/package/vitessce/v/2.0.2) - 2022-12-09
 

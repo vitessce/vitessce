@@ -29,6 +29,7 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/workers": "workspace:*",
+    "@vitessce/legend": "workspace:*",
     "lodash": "^4.17.21",
     "plur": "^5.1.0",
     "uuid": "^3.3.2"

@@ -19,7 +19,7 @@ import {
   useClosestVitessceContainerSize,
 } from './hooks';
 import { useVitessceContainerStyles } from './shared-mui/container';
-import { useTitleStyles } from './TitleInfo';
+import { useTitleStyles } from './title-styles';
 
 const padding = 10;
 const margin = 5;

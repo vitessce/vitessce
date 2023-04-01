@@ -15,7 +15,6 @@ import {
   useLoaders,
   useAuxiliaryCoordination,
   useComponentLayout,
-  registerPluginViewType,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { capitalize } from '@vitessce/utils';
@@ -498,13 +497,5 @@ export function LayerControllerSubscriber(props) {
       spatialLayout={spatialLayout}
       handleImageAdd={handleImageAdd}
     />
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    ViewType.LAYER_CONTROLLER,
-    LayerControllerSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER],
   );
 }

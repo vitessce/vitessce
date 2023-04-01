@@ -6,7 +6,6 @@ import {
   useFeatureSelection, useObsSetsData,
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
-  registerPluginViewType,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS, capitalize, getValueTransformFunction } from '@vitessce/utils';
@@ -36,7 +35,7 @@ import { useStyles } from './styles';
  * @param {string} theme "light" or "dark" for the vitessce theme
  * `path` and `color`.
  */
-export function useExpressionByCellSet(
+function useExpressionByCellSet(
   expressionData, obsIndex, cellSets, additionalCellSets,
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
@@ -218,13 +217,5 @@ export function CellSetExpressionPlotSubscriber(props) {
         )}
       </div>
     </TitleInfo>
-  );
-}
-
-export function register() {
-  registerPluginViewType(
-    ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
-    CellSetExpressionPlotSubscriber,
-    COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION],
   );
 }
