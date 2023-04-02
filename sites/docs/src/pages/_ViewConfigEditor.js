@@ -71,10 +71,8 @@ export default function ViewConfigEditor(props) {
   const defaultViewConfigDocsUrl = useBaseUrl('/docs/default-config-json');
 
   const [pendingUrl, setPendingUrl] = useState('');
-  const [datasetUrl, setDatasetUrl] = useState('');
-  // const [datasetUrl, setDatasetUrl] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr; https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif');
-  // const [datasetUrl, setDatasetUrl] = useState('https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif');
-  // const [datasetUrl, setDatasetUrl] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr');
+  // const [datasetUrl, setDatasetUrl] = useState('');
+  const [datasetUrls, setDatasetUrls] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr;https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif;');
 
   const [pendingFileContents, setPendingFileContents] = useState('');
 
@@ -121,10 +119,17 @@ export default function ViewConfigEditor(props) {
     setUrl(nextUrl);
   }
 
+  function sanitiseURLs(urls) {
+    return urls
+    .replace(/ /g,'')
+    .split(/;/)
+    .filter(url => url.match(/^http/g));
+  }
+
   async function handleConfigGeneration() {
     setError(null);
-    const urls = datasetUrl.trim().split(/;/);
-    await generateConfigs(urls)
+    const sanitisedUrls = sanitiseURLs(datasetUrls);
+    await generateConfigs(sanitisedUrls)
       .then((configJson) => {
         setPendingJson(JSON.stringify(configJson, null, 2));
         setLoadFrom('editor');
@@ -140,7 +145,7 @@ export default function ViewConfigEditor(props) {
   }
 
   function handleDatasetUrlChange(event) {
-    setDatasetUrl(event.target.value);
+    setDatasetUrls(event.target.value);
   }
 
   function handleSyntaxChange(event) {
@@ -194,7 +199,7 @@ export default function ViewConfigEditor(props) {
                 type="text"
                 className={styles.viewConfigUrlInput}
                 placeholder="Put one or more URLs to your datasets in here, separating each URL with a semicolon."
-                value={datasetUrl}
+                value={datasetUrls}
                 onChange={handleDatasetUrlChange}
               />
             </div>
