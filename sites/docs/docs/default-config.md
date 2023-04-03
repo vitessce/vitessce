@@ -26,9 +26,7 @@ This functionality relies on file extensions to infer file formats, so ensure th
 
 ### Requirements
 
-You need:
-- One of more URLs, where each of them points to the static files of the dataset you want to visualise.
-- Each dataset complies with its format-specific requirements outlined below.
+You will need one or more URLs, where each points to a static file to visualize. Each URL must end with one of the supported file extensions listed below.
 
 #### OME-TIFF format
 
