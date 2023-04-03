@@ -295,7 +295,7 @@ importers:
     specifiers:
       '@vitessce/schemas': workspace:*
       zod-to-json-schema: ^3.20.4
-    devDependencies:
+    dependencies:
       '@vitessce/schemas': link:../schemas
       zod-to-json-schema: 3.20.4_zod@3.21.4
 
@@ -20960,7 +20960,6 @@ packages:
       zod: ^3.20.0
     dependencies:
       zod: 3.21.4
-    dev: true
 
   /zod/3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
