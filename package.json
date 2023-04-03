@@ -12,6 +12,7 @@
     "start-html": "pnpm -r start-html",
     "build:ci": "pnpm -r --workspace-concurrency 1 build",
     "build": "pnpm -r build",
+    "build-json-schema": "pnpm -r build-json-schema",
     "start-tsc": "tsc -b --watch",
     "build-tsc": "tsc --build",
     "bundle:ci": "pnpm -r --workspace-concurrency 1 bundle",

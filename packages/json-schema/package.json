@@ -12,8 +12,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "pnpm run build-lib",
-    "build-lib": "node scripts/convert-schemas.mjs"
+    "build-json-schema": "node scripts/convert-schemas.mjs"
   },
   "dependencies": {
     "@vitessce/schemas": "workspace:*",
