@@ -245,7 +245,7 @@ const configClasses = [
     class: OmeTiffAutoConfig,
   },
   {
-    extensions: ['h5ad.zarr', '.adata.zarr', '.anndata.zarr'],
+    extensions: ['.h5ad.zarr', '.adata.zarr', '.anndata.zarr'],
     class: AnndataZarrAutoConfig,
   },
   {
