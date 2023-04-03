@@ -148,6 +148,28 @@ importers:
       lodash: 4.17.21
       zarr: 0.5.1
 
+  packages/file-types/ome-tiff:
+    specifiers:
+      '@vitessce/constants-internal': workspace:*
+      '@vitessce/gl': workspace:*
+      '@vitessce/sets-utils': workspace:*
+      '@vitessce/spatial-utils': workspace:*
+      '@vitessce/utils': workspace:*
+      '@vitessce/vit-s': workspace:*
+      ajv: ^6.10.0
+      d3-array: ^2.4.0
+      lodash: ^4.17.21
+    dependencies:
+      '@vitessce/constants-internal': link:../../constants-internal
+      '@vitessce/gl': link:../../gl
+      '@vitessce/sets-utils': link:../../utils/sets-utils
+      '@vitessce/spatial-utils': link:../../utils/spatial-utils
+      '@vitessce/utils': link:../../utils/other-utils
+      '@vitessce/vit-s': link:../../vit-s
+      ajv: 6.12.6
+      d3-array: 2.12.1
+      lodash: 4.17.21
+
   packages/file-types/zarr:
     specifiers:
       '@vitessce/constants-internal': workspace:*
@@ -302,6 +324,7 @@ importers:
       '@vitessce/json': workspace:*
       '@vitessce/layer-controller': workspace:*
       '@vitessce/obs-sets-manager': workspace:*
+      '@vitessce/ome-tiff': workspace:*
       '@vitessce/scatterplot-embedding': workspace:*
       '@vitessce/scatterplot-gating': workspace:*
       '@vitessce/spatial': workspace:*
@@ -321,6 +344,7 @@ importers:
       '@vitessce/json': link:../../file-types/json
       '@vitessce/layer-controller': link:../../view-types/layer-controller
       '@vitessce/obs-sets-manager': link:../../view-types/obs-sets-manager
+      '@vitessce/ome-tiff': link:../../file-types/ome-tiff
       '@vitessce/scatterplot-embedding': link:../../view-types/scatterplot-embedding
       '@vitessce/scatterplot-gating': link:../../view-types/scatterplot-gating
       '@vitessce/spatial': link:../../view-types/spatial

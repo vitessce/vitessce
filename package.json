@@ -19,7 +19,8 @@
     "test": "pnpm -r --workspace-concurrency 1 test",
     "lint": "eslint \"packages/**/src/**/*.js\" \"sites/*/src/**/*.js\" \"examples/*/src/**/*.js\"",
     "lint-fix": "eslint --fix \"packages/**/src/**/*.js\" \"sites/*/src/**/*.js\" \"examples/*/src/**/*.js\"",
-    "clean": "pnpm -r exec -- rm -rf node_modules",
+    "clean": "pnpm -r exec -- rm -rf dist dist-tsc tsconfig.tsbuildinfo",
+    "clean-deps": "pnpm -r exec -- rm -rf node_modules",
     "meta-update": "cross-env META_UPDATER_MODE=write pnpm meta-updater",
     "meta-dryrun": "cross-env META_UPDATER_MODE=dryrun pnpm meta-updater",
     "meta-version-only": "cross-env META_UPDATER_MODE=versiononly pnpm meta-updater"
