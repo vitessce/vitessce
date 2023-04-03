@@ -198,7 +198,7 @@ export default function ViewConfigEditor(props) {
               <input
                 type="text"
                 className={styles.viewConfigUrlInput}
-                placeholder="Put one or more URLs to your datasets in here, separating each URL with a semicolon."
+                placeholder="One or more file URLs (semicolon-separated)"
                 value={datasetUrls}
                 onChange={handleDatasetUrlChange}
               />
