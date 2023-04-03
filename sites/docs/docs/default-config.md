@@ -10,7 +10,7 @@ To allow quick and easy visualisation of an image or an AnnData object, Vitessce
 
 ### Supported formats
 
-Vitessce currently supports automatic __view config__ generation for the following dataset formats:
+Vitessce currently supports automatic view config generation for the following file formats:
 
 - [OME-TIFF](https://docs.openmicroscopy.org/ome-model/6.2.0/ome-tiff/specification.html), 
 - [OME_ZARR](https://ngff.openmicroscopy.org/latest/#on-disk),
