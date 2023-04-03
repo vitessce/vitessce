@@ -19,7 +19,9 @@ Vitessce currently supports automatic view config generation for the following f
 
 ### How to use
 
-To use this functionality, go to the [App](/#?edit=true) page of this website and paste the URL of each of the datasets that you want to visualise, separating with semicolon (`;`). Make sure that each dataset is of supported format and complies with the [requirements](/docs/default-config-json/#requirements). Vitessce will display the generated __view config__ in the editor. Then, you can either launch Vitessce with the generated configuration directly, or change it further to reflect any custom requirements.
+To use this functionality, go to the [App](/#?edit=true) page of this website and paste the URL of the file(s) to visualize, separating multiple URLs with semicolon (`;`). Vitessce will display the generated view config in the editor. Then, you can either launch Vitessce with the generated configuration directly, or customize the configuration before launching.
+
+This functionality relies on file extensions to infer file formats, so ensure that each data file is of supported format and complies with the [requirements](#requirements).
 
 
 ### Requirements
