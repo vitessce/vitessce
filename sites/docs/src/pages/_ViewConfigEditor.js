@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { useDropzone } from 'react-dropzone';
 import {
@@ -71,13 +71,16 @@ export default function ViewConfigEditor(props) {
   const defaultViewConfigDocsUrl = useBaseUrl('/docs/default-config-json');
 
   const [pendingUrl, setPendingUrl] = useState('');
-  // const [datasetUrl, setDatasetUrl] = useState('');
-  const [datasetUrls, setDatasetUrls] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr;https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif;');
+  const [datasetUrls, setDatasetUrls] = useState('');
+  const [useExampleURL, setUseExampleURL] = useState(false);
+
+  // const [datasetUrls, setDatasetUrls] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr;https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif;');
 
   const [pendingFileContents, setPendingFileContents] = useState('');
 
   const [syntaxType, setSyntaxType] = useState('JSON');
   const [loadFrom, setLoadFrom] = useState('editor');
+
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length === 1) {
@@ -121,13 +124,14 @@ export default function ViewConfigEditor(props) {
 
   function sanitiseURLs(urls) {
     return urls
-    .replace(/ /g,'')
-    .split(/;/)
-    .filter(url => url.match(/^http/g));
+      .replace(/ /g, '')
+      .split(/;/)
+      .filter(url => url.match(/^http/g));
   }
 
   async function handleConfigGeneration() {
     setError(null);
+    setUseExampleURL(false);
     const sanitisedUrls = sanitiseURLs(datasetUrls);
     await generateConfigs(sanitisedUrls)
       .then((configJson) => {
@@ -138,6 +142,12 @@ export default function ViewConfigEditor(props) {
         setError(e.message);
       });
   }
+
+  useEffect(() => {
+    if (useExampleURL) {
+      handleConfigGeneration();
+    }
+  }, [useExampleURL]);
 
   function handleUrlChange(event) {
     setPendingUrl(event.target.value);
@@ -152,6 +162,12 @@ export default function ViewConfigEditor(props) {
     setSyntaxType(event.target.value);
   }
 
+  function tryExampleAutoConfig() {
+    const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
+    setDatasetUrls(exampleURL);
+    setUseExampleURL(true);
+  }
+
   function tryExample() {
     if (syntaxType === 'JSON') {
       setPendingJson(exampleJson);
@@ -164,6 +180,7 @@ export default function ViewConfigEditor(props) {
   function resetEditor() {
     if (syntaxType === 'JSON') {
       setPendingJson(baseJson);
+      setDatasetUrls('');
     } else {
       setPendingJs(baseJs);
     }
@@ -192,7 +209,12 @@ export default function ViewConfigEditor(props) {
             <p className={styles.viewConfigInputUrlOrFileText}>
               Or paste the URLs of your datasets, using `;` as a separator, and a&nbsp;
               <a href={defaultViewConfigDocsUrl}>default view config</a>
-                  &nbsp; will be displayed in the editor below.
+                  &nbsp; will be displayed in the editor below. &nbsp;
+              <button
+                type="button"
+                onClick={tryExampleAutoConfig}
+              >Try an example
+              </button>
             </p>
             <div className={styles.generateConfigInputUrl}>
               <input

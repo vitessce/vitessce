@@ -244,39 +244,39 @@ describe('src/VitessceAutoConfig.js', () => {
     const urls = ['http://localhost:51204/@fixtures/zarr/partials/emptymeta.h5ad.zarr'];
     const expectedName = urls[0].split('/').at(-1);
     const expectedConfig = {
-      "version": "1.0.15",
-      "name": "An automatically generated config. Adjust values and add layout components if needed.",
-      "description": "Populate with text relevant to this visualisation.",
-      "datasets": [
+      version: '1.0.15',
+      name: 'An automatically generated config. Adjust values and add layout components if needed.',
+      description: 'Populate with text relevant to this visualisation.',
+      datasets: [
         {
-          "uid": "A",
-          "name": expectedName,
-          "files": [
+          uid: 'A',
+          name: expectedName,
+          files: [
             {
-              "url": urls[0],
-              "fileType": "anndata.zarr",
-              "coordinationValues": {
-                "obsType": "cell",
-                "featureType": "gene",
-                "featureValueType": "expression"
+              url: urls[0],
+              fileType: 'anndata.zarr',
+              coordinationValues: {
+                obsType: 'cell',
+                featureType: 'gene',
+                featureValueType: 'expression',
               },
-              "options": {
-                "obsEmbedding": [],
-                "obsFeatureMatrix": {
-                  "path": "X"
-                }
-              }
-            }
-          ]
-        }
+              options: {
+                obsEmbedding: [],
+                obsFeatureMatrix: {
+                  path: 'X',
+                },
+              },
+            },
+          ],
+        },
       ],
-      "coordinationSpace": {
-        "dataset": {
-          "A": "A"
-        }
+      coordinationSpace: {
+        dataset: {
+          A: 'A',
+        },
       },
-      "layout": [],
-      "initStrategy": "auto"
+      layout: [],
+      initStrategy: 'auto',
     };
 
     const config = await generateConfigs(urls);
@@ -287,7 +287,7 @@ describe('src/VitessceAutoConfig.js', () => {
     const urls = ['http://localhost:51204/@fixtures/zarr/partials/invalidmeta.adata.zarr'];
 
     await generateConfigs(urls).catch(
-      e => expect(e.message).toContain('Could not generate config: .zmetadata file is not valid.')
+      e => expect(e.message).toContain('Could not generate config: .zmetadata file is not valid.'),
     );
   });
 
@@ -422,13 +422,13 @@ describe('src/VitessceAutoConfig.js', () => {
     const config = await generateConfigs(urls);
     expect(config).toEqual(expectedConfig);
   });
-  
+
 
   it('raises an Error when .zmetadata file not present in folder', async () => {
     const urls = ['http://localhost:51204/@fixtures/zarr/partials/invalid.adata.zarr'];
 
     await generateConfigs(urls).catch(
-      e => expect(e.message).toContain('Could not generate config. File .zmetadata not found in supplied file URL')
+      e => expect(e.message).toContain('Could not generate config. File .zmetadata not found in supplied file URL'),
     );
   });
 

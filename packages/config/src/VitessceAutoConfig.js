@@ -115,7 +115,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     });
 
     const supportedObsSetsKeys = [
-      'cluster', 'cell_type', 'leiden', 'louvain', 'cell_type', 'disease', 'organism', 'self_reported_ethnicity', 'tissue', 'sex'
+      'cluster', 'cell_type', 'leiden', 'louvain', 'cell_type', 'disease', 'organism', 'self_reported_ethnicity', 'tissue', 'sex',
     ];
 
     this.metadataSummary.obs.forEach((key) => {
@@ -132,7 +132,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
             options.obsSets[0].path.push(key);
           }
         }
-      })
+      });
     });
 
     return {
@@ -191,7 +191,6 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     }
 
     const parseMetadataFile = (metadataFile) => {
-
       if (!metadataFile.metadata) {
         throw new Error('Could not generate config: .zmetadata file is not valid.');
       }
@@ -241,7 +240,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
 
 const configClasses = [
   {
-    extensions: ['.ome.tif', '.ome.tiff', '.ome.tf2', '.ome.tf8'], // todo: test that ".ome.tf2", ".ome.tf8" work
+    extensions: ['.ome.tif', '.ome.tiff', '.ome.tf2', '.ome.tf8'],
     class: OmeTiffAutoConfig,
   },
   {
