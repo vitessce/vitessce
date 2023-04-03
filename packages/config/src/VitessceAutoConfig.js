@@ -241,7 +241,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
 
 const configClasses = [
   {
-    extensions: ['ome.tif', '.ome.tiff', '.ome.tf2', '.ome.tf8'], // todo: test that ".ome.tf2", ".ome.tf8" work
+    extensions: ['.ome.tif', '.ome.tiff', '.ome.tf2', '.ome.tf8'], // todo: test that ".ome.tf2", ".ome.tf8" work
     class: OmeTiffAutoConfig,
   },
   {
