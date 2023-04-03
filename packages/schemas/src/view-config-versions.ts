@@ -2,6 +2,8 @@
 import { z } from 'zod';
 import semverGte from 'semver/functions/gte';
 import { OldCoordinationType } from '@vitessce/constants';
+import { fromEntries } from '@vitessce/utils';
+
 import {
   configSchema0_1_0,
   configSchema1_0_0,
@@ -44,7 +46,7 @@ import {
   upgradeFrom1_0_15,
 } from './view-config-upgraders';
 
-export const SCHEMA_HANDLERS: [string, z.ZodTypeAny, UpgradeFunction][] = [
+const SCHEMA_HANDLERS: [string, z.ZodTypeAny, UpgradeFunction][] = [
   ['0.1.0', configSchema0_1_0, upgradeFrom0_1_0],
   ['1.0.0', configSchema1_0_0, upgradeFrom1_0_0],
   ['1.0.1', configSchema1_0_1, upgradeFrom1_0_1],
@@ -63,6 +65,12 @@ export const SCHEMA_HANDLERS: [string, z.ZodTypeAny, UpgradeFunction][] = [
   ['1.0.14', configSchema1_0_14, upgradeFrom1_0_14],
   ['1.0.15', configSchema1_0_15, upgradeFrom1_0_15],
 ];
+
+export const VERSIONED_CONFIG_SCHEMAS: Record<string, z.ZodTypeAny> = {
+  ...fromEntries(SCHEMA_HANDLERS.map(([version, zodSchema]) => [version, zodSchema])),
+  // eslint-disable-next-line no-underscore-dangle
+  [latestConfigSchema.shape.version._def.value]: latestConfigSchema,
+};
 
 /**
  * Check for deprecated coordination types.

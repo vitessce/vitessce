@@ -291,6 +291,14 @@ importers:
       vite: 3.1.8
       vite-plugin-svgr: 2.2.2_neiqdhe6tejzlgo4ve4hcexot4
 
+  packages/json-schema:
+    specifiers:
+      '@vitessce/schemas': workspace:*
+      zod-to-json-schema: ^3.20.4
+    devDependencies:
+      '@vitessce/schemas': link:../schemas
+      zod-to-json-schema: 3.20.4_zod@3.21.4
+
   packages/legend:
     specifiers:
       '@material-ui/core': ~4.12.3
@@ -330,8 +338,8 @@ importers:
       '@vitessce/json': workspace:*
       '@vitessce/layer-controller': workspace:*
       '@vitessce/obs-sets-manager': workspace:*
-      '@vitessce/plugins': workspace:*
       '@vitessce/ome-tiff': workspace:*
+      '@vitessce/plugins': workspace:*
       '@vitessce/scatterplot-embedding': workspace:*
       '@vitessce/scatterplot-gating': workspace:*
       '@vitessce/schemas': workspace:*
@@ -352,8 +360,8 @@ importers:
       '@vitessce/json': link:../../file-types/json
       '@vitessce/layer-controller': link:../../view-types/layer-controller
       '@vitessce/obs-sets-manager': link:../../view-types/obs-sets-manager
-      '@vitessce/plugins': link:../../plugins
       '@vitessce/ome-tiff': link:../../file-types/ome-tiff
+      '@vitessce/plugins': link:../../plugins
       '@vitessce/scatterplot-embedding': link:../../view-types/scatterplot-embedding
       '@vitessce/scatterplot-gating': link:../../view-types/scatterplot-gating
       '@vitessce/schemas': link:../../schemas
