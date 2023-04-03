@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { CoordinationType } from '@vitessce/constants-internal';
 import { fromEntries, getNextScope } from '@vitessce/utils';
 
@@ -101,6 +102,142 @@ export class VitessceConfigDataset {
   }
 }
 
+function useComplexCoordinationHelper(scopes, coordinationScopes, coordinationScopesBy) {
+  // Set this.coordinationScopes and this.coordinationScopesBy by recursion on `scopes`.
+  /*
+    // Destructured, `scopes` might look like:
+    const {
+      [CoordinationType.SPATIAL_IMAGE_LAYER]: [
+        {
+          scope: imageLayerScope,
+          children: {
+            [CoordinationType.IMAGE]: { scope: imageScope },
+            [CoordinationType.SPATIAL_LAYER_VISIBLE]: { scope: imageVisibleScope },
+            [CoordinationType.SPATIAL_LAYER_OPACITY]: { scope: imageOpacityScope },
+            [CoordinationType.SPATIAL_IMAGE_CHANNEL]: [
+              {
+                scope: imageChannelScopeR,
+                children: {
+                  [CoordinationType.SPATIAL_TARGET_C]: { scope: rTargetScope },
+                  [CoordinationType.SPATIAL_CHANNEL_COLOR]: { scope: rColorScope },
+                },
+              },
+              {
+                scope: imageChannelScopeG,
+                children: {
+                  [CoordinationType.SPATIAL_TARGET_C]: { scope: gTargetScope },
+                  [CoordinationType.SPATIAL_CHANNEL_COLOR]: { scope: gColorScope },
+                },
+              },
+            ],
+          },
+        },
+      ],
+      // ...
+    } = scopes;
+
+    // This would set the values to:
+    this.coordinationScopes = {
+      // Add the top-level coordination types to `coordinationScopes`.
+      [CoordinationType.SPATIAL_IMAGE_LAYER]: [imageLayerScope.cScope],
+    };
+    this.coordinationScopesBy = {
+      [CoordinationType.SPATIAL_IMAGE_LAYER]: {
+        [CoordinationType.IMAGE]: {
+          [imageLayerScope.cScope]: imageScope.cScope,
+        },
+        [CoordinationType.SPATIAL_LAYER_VISIBLE]: {
+          [imageLayerScope.cScope]: imageVisibleScope.cScope,
+        },
+        [CoordinationType.SPATIAL_LAYER_OPACITY]: {
+          [imageLayerScope.cScope]: imageOpacityScope.cScope,
+        },
+        [CoordinationType.SPATIAL_IMAGE_CHANNEL]: {
+          [imageLayerScope.cScope]: [imageChannelScopeR.cScope, imageChannelScopeG.cScope],
+        },
+      },
+      [CoordinationType.SPATIAL_IMAGE_CHANNEL]: {
+        [CoordinationType.SPATIAL_TARGET_C]: {
+          [imageChannelScopeR.cScope]: rTargetScope.cScope,
+          [imageChannelScopeG.cScope]: gTargetScope.cScope,
+        },
+        [CoordinationType.SPATIAL_CHANNEL_COLOR]: {
+          [imageChannelScopeR.cScope]: rColorScope.cScope,
+          [imageChannelScopeG.cScope]: gColorScope.cScope,
+        },
+      },
+    };
+   */
+
+  // Recursive inner function.
+  function processLevel(parentType, parentScope, levelType, levelVal) {
+    if (Array.isArray(levelVal)) {
+      // eslint-disable-next-line no-param-reassign
+      coordinationScopesBy[parentType] = {
+        ...(coordinationScopesBy[parentType] || {}),
+        [levelType]: {
+          ...(coordinationScopesBy[parentType]?.[levelType] || {}),
+          [parentScope.cScope]: levelVal.map(childVal => childVal.scope.cScope),
+        },
+      };
+      levelVal.forEach((childVal) => {
+        if (childVal.children) {
+          // Continue recursion.
+          Object.entries(childVal.children)
+            .forEach(([nextLevelType, nextLevelVal]) => processLevel(
+              levelType, childVal.scope, nextLevelType, nextLevelVal,
+            ));
+        } // Else is the base case: no children
+      });
+    } else {
+      // eslint-disable-next-line no-param-reassign
+      coordinationScopesBy[parentType] = {
+        ...(coordinationScopesBy[parentType] || {}),
+        [levelType]: {
+          ...(coordinationScopesBy[parentType]?.[levelType] || {}),
+          [parentScope.cScope]: levelVal.scope.cScope,
+        },
+      };
+
+      if (levelVal.children) {
+        // Continue recursion.
+        Object.entries(levelVal.children)
+          .forEach(([nextLevelType, nextLevelVal]) => processLevel(
+            levelType, levelVal.scope, nextLevelType, nextLevelVal,
+          ));
+      } // Else is the base case: no children
+    }
+  }
+
+  Object.entries(scopes).forEach(([topLevelType, topLevelVal]) => {
+    if (Array.isArray(topLevelVal)) {
+      // eslint-disable-next-line no-param-reassign
+      coordinationScopes[topLevelType] = topLevelVal.map(levelVal => levelVal.scope.cScope);
+
+      topLevelVal.forEach((levelVal) => {
+        if (levelVal.children) {
+          // Begin recursion.
+          Object.entries(levelVal.children)
+            .forEach(([nextLevelType, nextLevelVal]) => processLevel(
+              topLevelType, levelVal.scope, nextLevelType, nextLevelVal,
+            ));
+        }
+      });
+    } else {
+      // eslint-disable-next-line no-param-reassign
+      coordinationScopes[topLevelType] = topLevelVal.scope.cScope;
+      if (topLevelVal.children) {
+        // Begin recursion.
+        Object.entries(topLevelVal.children)
+          .forEach(([nextLevelType, nextLevelVal]) => processLevel(
+            topLevelType, topLevelVal.scope, nextLevelType, nextLevelVal,
+          ));
+      }
+    }
+  });
+  return [coordinationScopes, coordinationScopesBy];
+}
+
 /**
  * Class representing a view within a Vitessce layout.
  */
@@ -119,6 +256,7 @@ export class VitessceConfigView {
     this.view = {
       component,
       coordinationScopes,
+      coordinationScopesBy: undefined, // TODO: initialize from parameter?
       x,
       y,
       w,
@@ -137,6 +275,20 @@ export class VitessceConfigView {
     cScopes.forEach((cScope) => {
       this.view.coordinationScopes[cScope.cType] = cScope.cScope;
     });
+    return this;
+  }
+
+  useComplexCoordination(scopes) {
+    if (!this.view.coordinationScopesBy) {
+      this.view.coordinationScopesBy = {};
+    }
+    const [nextCoordinationScopes, nextCoordinationScopesBy] = useComplexCoordinationHelper(
+      scopes,
+      this.view.coordinationScopes,
+      this.view.coordinationScopesBy,
+    );
+    this.view.coordinationScopes = nextCoordinationScopes;
+    this.view.coordinationScopesBy = nextCoordinationScopesBy;
     return this;
   }
 
@@ -237,13 +389,13 @@ export function vconcat(...views) {
 
 // would import as CL for convenience
 class CoordinationLevel {
-  constructor(val) {
-    this.val = val;
+  constructor(value) {
+    this.value = value;
   }
 }
 
-export function CL(val) {
-  return new CoordinationLevel(val);
+export function CL(value) {
+  return new CoordinationLevel(value);
 }
 
 /**
@@ -305,137 +457,11 @@ export class VitessceConfigMetaCoordinationScope {
   }
 
   useComplexCoordination(scopes) {
-    const metaScopesVal = this.metaScope.cValue;
-    const metaByScopesVal = this.metaByScope.cValue;
-    // Set this.coordinationScopes and this.coordinationScopesBy by recursion on `scopes`.
-    /*
-      // Destructured, `scopes` might look like:
-      const {
-        [CoordinationType.SPATIAL_IMAGE_LAYER]: [
-          {
-            scope: imageLayerScope,
-            children: {
-              [CoordinationType.IMAGE]: { scope: imageScope },
-              [CoordinationType.SPATIAL_LAYER_VISIBLE]: { scope: imageVisibleScope },
-              [CoordinationType.SPATIAL_LAYER_OPACITY]: { scope: imageOpacityScope },
-              [CoordinationType.SPATIAL_IMAGE_CHANNEL]: [
-                {
-                  scope: imageChannelScopeR,
-                  children: {
-                    [CoordinationType.SPATIAL_TARGET_C]: { scope: rTargetScope },
-                    [CoordinationType.SPATIAL_CHANNEL_COLOR]: { scope: rColorScope },
-                  },
-                },
-                {
-                  scope: imageChannelScopeG,
-                  children: {
-                    [CoordinationType.SPATIAL_TARGET_C]: { scope: gTargetScope },
-                    [CoordinationType.SPATIAL_CHANNEL_COLOR]: { scope: gColorScope },
-                  },
-                },
-              ],
-            },
-          },
-        ],
-        // ...
-      } = scopes;
-
-      // This would set the values to:
-      this.coordinationScopes = {
-        // Add the top-level coordination types to `coordinationScopes`.
-        [CoordinationType.SPATIAL_IMAGE_LAYER]: [imageLayerScope.cScope],
-      };
-      this.coordinationScopesBy = {
-        [CoordinationType.SPATIAL_IMAGE_LAYER]: {
-          [CoordinationType.IMAGE]: {
-            [imageLayerScope.cScope]: imageScope.cScope,
-          },
-          [CoordinationType.SPATIAL_LAYER_VISIBLE]: {
-            [imageLayerScope.cScope]: imageVisibleScope.cScope,
-          },
-          [CoordinationType.SPATIAL_LAYER_OPACITY]: {
-            [imageLayerScope.cScope]: imageOpacityScope.cScope,
-          },
-          [CoordinationType.SPATIAL_IMAGE_CHANNEL]: {
-            [imageLayerScope.cScope]: [imageChannelScopeR.cScope, imageChannelScopeG.cScope],
-          },
-        },
-        [CoordinationType.SPATIAL_IMAGE_CHANNEL]: {
-          [CoordinationType.SPATIAL_TARGET_C]: {
-            [imageChannelScopeR.cScope]: rTargetScope.cScope,
-            [imageChannelScopeG.cScope]: gTargetScope.cScope,
-          },
-          [CoordinationType.SPATIAL_CHANNEL_COLOR]: {
-            [imageChannelScopeR.cScope]: rColorScope.cScope,
-            [imageChannelScopeG.cScope]: gColorScope.cScope,
-          },
-        },
-      };
-   */
-
-    // Recursive inner function.
-    function processLevel(parentType, parentScope, levelType, levelVal) {
-      if (Array.isArray(levelVal)) {
-        metaByScopesVal[parentType] = {
-          ...(metaByScopesVal[parentType] || {}),
-          [levelType]: {
-            ...(metaByScopesVal[parentType]?.[levelType] || {}),
-            [parentScope.cScope]: levelVal.map(childVal => childVal.scope.cScope),
-          },
-        };
-        levelVal.forEach((childVal) => {
-          if (childVal.children) {
-            // Continue recursion.
-            Object.entries(childVal.children)
-              .forEach(([nextLevelType, nextLevelVal]) => processLevel(
-                levelType, childVal.scope, nextLevelType, nextLevelVal,
-              ));
-          } // Else is the base case: no children
-        });
-      } else {
-        metaByScopesVal[parentType] = {
-          ...(metaByScopesVal[parentType] || {}),
-          [levelType]: {
-            ...(metaByScopesVal[parentType]?.[levelType] || {}),
-            [parentScope.cScope]: levelVal.scope.cScope,
-          },
-        };
-
-        if (levelVal.children) {
-          // Continue recursion.
-          Object.entries(levelVal.children)
-            .forEach(([nextLevelType, nextLevelVal]) => processLevel(
-              levelType, levelVal.scope, nextLevelType, nextLevelVal,
-            ));
-        } // Else is the base case: no children
-      }
-    }
-
-    Object.entries(scopes).forEach(([topLevelType, topLevelVal]) => {
-      if (Array.isArray(topLevelVal)) {
-        metaScopesVal[topLevelType] = topLevelVal.map(levelVal => levelVal.scope.cScope);
-
-        topLevelVal.forEach((levelVal) => {
-          if (levelVal.children) {
-            // Begin recursion.
-            Object.entries(levelVal.children)
-              .forEach(([nextLevelType, nextLevelVal]) => processLevel(
-                topLevelType, levelVal.scope, nextLevelType, nextLevelVal,
-              ));
-          }
-        });
-      } else {
-        metaScopesVal[topLevelType] = topLevelVal.scope.cScope;
-        if (topLevelVal.children) {
-          // Begin recursion.
-          Object.entries(topLevelVal.children)
-            .forEach(([nextLevelType, nextLevelVal]) => processLevel(
-              topLevelType, topLevelVal.scope, nextLevelType, nextLevelVal,
-            ));
-        }
-      }
-    });
-
+    const [metaScopesVal, metaByScopesVal] = useComplexCoordinationHelper(
+      scopes,
+      this.metaScope.cValue,
+      this.metaByScope.cValue,
+    );
     this.metaScope.setValue(metaScopesVal);
     this.metaByScope.setValue(metaByScopesVal);
     return this;
@@ -623,7 +649,7 @@ export class VitessceConfig {
     /*
       // The value for `input` might look like:
       {
-        [CoordinationType.SPATIAL_IMAGE_LAYER]: CL([ // check if value of object is instanceof CoordinationLevel (otherwise assume it is the coordination value)
+        [CoordinationType.SPATIAL_IMAGE_LAYER]: CL([
           {
             [CoordinationType.IMAGE]: 'S-1905-017737_bf',
             [CoordinationType.SPATIAL_LAYER_VISIBLE]: true,
@@ -697,12 +723,38 @@ export class VitessceConfig {
         // ...
       }
     */
-    const output = {};
-    function processLevel(level) {
-      // TODO
-    }
+    const processLevel = (level) => {
+      const result = {};
+      Object.entries(level).forEach(([cType, nextLevelOrInitialValue]) => {
+        // Check if value of object is instanceof CoordinationLevel
+        // (otherwise assume it is the coordination value).
+        if (nextLevelOrInitialValue instanceof CoordinationLevel) {
+          const nextLevel = nextLevelOrInitialValue.value;
+          if (Array.isArray(nextLevel)) {
+            result[cType] = nextLevel.map((nextEl) => {
+              const [dummyScope] = this.addCoordination(cType);
+              // TODO: set a better initial value for dummy cases.
+              dummyScope.setValue('dummy');
+              return {
+                scope: dummyScope,
+                children: processLevel(nextEl),
+              };
+            });
+          } else {
+            throw new Error('Expected CoordinationLevel.value to be an array.');
+          }
+        } else {
+          // Base case.
+          const initialValue = nextLevelOrInitialValue;
+          const [scope] = this.addCoordination(cType);
+          scope.setValue(initialValue);
+          result[cType] = { scope };
+        }
+      });
+      return result;
+    };
     // Begin recursion.
-    processLevel(input);
+    const output = processLevel(input);
     return output;
   }
 
