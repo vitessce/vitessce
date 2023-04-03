@@ -114,19 +114,25 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       }
     });
 
+    const supportedObsSetsKeys = [
+      'cluster', 'cell_type', 'leiden', 'louvain', 'cell_type', 'disease', 'organism', 'self_reported_ethnicity', 'tissue', 'sex'
+    ];
+
     this.metadataSummary.obs.forEach((key) => {
-      if (key.toLowerCase().includes('cluster') || key.toLowerCase().includes('cell_type')) {
-        if (!('obsSets' in options)) {
-          options.obsSets = [
-            {
-              name: 'Cell Type',
-              path: [key],
-            },
-          ];
-        } else {
-          options.obsSets[0].path.push(key);
+      supportedObsSetsKeys.forEach((supportedKey) => {
+        if (key.toLowerCase().includes(supportedKey)) {
+          if (!('obsSets' in options)) {
+            options.obsSets = [
+              {
+                name: 'Cell Type',
+                path: [key],
+              },
+            ];
+          } else {
+            options.obsSets[0].path.push(key);
+          }
         }
-      }
+      })
     });
 
     return {
@@ -175,8 +181,6 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       views.push(['heatmap']);
       views.push(['featureList']);
     }
-
-    console.log("HERE NOW ", views);
 
     return views;
   }
