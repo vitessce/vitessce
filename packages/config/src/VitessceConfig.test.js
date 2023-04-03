@@ -313,20 +313,24 @@ describe('src/api/VitessceConfig.js', () => {
       });
       const configJSON = config.toJSON();
       expect(configJSON.coordinationSpace).toEqual({
-        spatialImageLayer: { A: 'dummy' },
+        spatialImageLayer: { A: '__dummy__' },
         image: { A: 'S-1905-017737_bf', B: 'S-1905-017737' },
         spatialLayerVisible: { A: true, B: true },
         spatialLayerOpacity: { A: 1, B: 1 },
-        spatialImageChannel: { A: 'dummy', B: 'dummy' },
+        spatialImageChannel: { A: '__dummy__', B: '__dummy__' },
         spatialTargetC: {
           A: 0, B: 1, C: 0, D: 1, E: 2,
         },
         spatialChannelColor: {
           A: [255, 0, 0], B: [0, 255, 0], C: [255, 0, 0], D: [255, 0, 0], E: [255, 0, 0],
         },
-        spatialSegmentationLayer: { A: 'dummy' },
-        spatialSegmentationChannel: { A: 'dummy', B: 'dummy', C: 'dummy' },
-        obsType: { A: 'Cortical Interstitia', B: 'Non-Globally Sclerotic Glomeruli', C: 'Globally Sclerotic Glomeruli' },
+        spatialSegmentationLayer: { A: '__dummy__' },
+        spatialSegmentationChannel: { A: '__dummy__', B: '__dummy__', C: '__dummy__' },
+        obsType: {
+          A: 'Cortical Interstitia',
+          B: 'Non-Globally Sclerotic Glomeruli',
+          C: 'Globally Sclerotic Glomeruli',
+        },
       });
     });
 
@@ -391,11 +395,11 @@ describe('src/api/VitessceConfig.js', () => {
         datasets: [{ uid: 'A', name: 'My dataset', files: [] }],
         coordinationSpace: {
           dataset: { A: 'A' },
-          spatialImageLayer: { A: 'dummy' },
+          spatialImageLayer: { A: '__dummy__' },
           image: { A: 'S-1905-017737_bf', B: 'S-1905-017737' },
           spatialLayerVisible: { A: true, B: true },
           spatialLayerOpacity: { A: 1, B: 1 },
-          spatialImageChannel: { A: 'dummy', B: 'dummy' },
+          spatialImageChannel: { A: '__dummy__', B: '__dummy__' },
           spatialTargetC: {
             A: 0, B: 1, C: 0, D: 1, E: 2,
           },
@@ -406,8 +410,8 @@ describe('src/api/VitessceConfig.js', () => {
             D: [255, 0, 0],
             E: [255, 0, 0],
           },
-          spatialSegmentationLayer: { A: 'dummy' },
-          spatialSegmentationChannel: { A: 'dummy', B: 'dummy', C: 'dummy' },
+          spatialSegmentationLayer: { A: '__dummy__' },
+          spatialSegmentationChannel: { A: '__dummy__', B: '__dummy__', C: '__dummy__' },
           obsType: {
             A: 'Cortical Interstitia',
             B: 'Non-Globally Sclerotic Glomeruli',
@@ -519,11 +523,11 @@ describe('src/api/VitessceConfig.js', () => {
         datasets: [{ uid: 'A', name: 'My dataset', files: [] }],
         coordinationSpace: {
           dataset: { A: 'A' },
-          spatialImageLayer: { A: 'dummy' },
+          spatialImageLayer: { A: '__dummy__' },
           image: { A: 'S-1905-017737_bf', B: 'S-1905-017737' },
           spatialLayerVisible: { A: true, B: true },
           spatialLayerOpacity: { A: 1, B: 1 },
-          spatialImageChannel: { A: 'dummy', B: 'dummy' },
+          spatialImageChannel: { A: '__dummy__', B: '__dummy__' },
           spatialTargetC: {
             A: 0, B: 1, C: 0, D: 1, E: 2,
           },
@@ -534,8 +538,8 @@ describe('src/api/VitessceConfig.js', () => {
             D: [255, 0, 0],
             E: [255, 0, 0],
           },
-          spatialSegmentationLayer: { A: 'dummy' },
-          spatialSegmentationChannel: { A: 'dummy', B: 'dummy', C: 'dummy' },
+          spatialSegmentationLayer: { A: '__dummy__' },
+          spatialSegmentationChannel: { A: '__dummy__', B: '__dummy__', C: '__dummy__' },
           obsType: {
             A: 'Cortical Interstitia',
             B: 'Non-Globally Sclerotic Glomeruli',
