@@ -746,7 +746,7 @@ export class VitessceConfig {
             result[cType] = nextLevel.map((nextEl) => {
               const [dummyScope] = this.addCoordination(cType);
               // TODO: set a better initial value for dummy cases.
-              dummyScope.setValue('dummy');
+              dummyScope.setValue('__dummy__');
               return {
                 scope: dummyScope,
                 children: processLevel(nextEl),
