@@ -1,18 +1,16 @@
-const blinName = 'Blin et al., PLoS Biol 2019';
-const blinDescription = 'Mouse blastocysts imaged by confocal microscopy';
-export const blin2019 = {
+export const rgbOmeTiff = {
   version: '1.0.6',
-  name: blinName,
-  description: blinDescription,
+  name: 'HBM836.VTFP.364',
+  description: 'Periodic acid-Schiff stained microscopy collected from the right kidney.',
   public: true,
   datasets: [
     {
-      uid: 'idr0062-blin-nuclearsegmentation/6001240',
-      name: 'idr0062-blin-nuclearsegmentation/6001240',
+      uid: 'HBM836.VTFP.364',
+      name: 'HBM836.VTFP.364',
       files: [
         {
-          fileType: 'image.ome-zarr',
-          url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr',
+          fileType: 'image.ome-tiff',
+          url: 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif',
         },
       ],
     },
@@ -28,6 +26,9 @@ export const blin2019 = {
     },
     {
       component: 'layerController',
+      props: {
+        disableChannelsIfRgbDetected: true,
+      },
       x: 8,
       y: 0,
       w: 4,

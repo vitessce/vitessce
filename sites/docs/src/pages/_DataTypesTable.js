@@ -110,25 +110,21 @@ export default function DataTypesTable() {
           <td>
             <ul>
               <li>
-                <a href={useBaseUrl('/docs/data-file-types/#rasterome-zarr')}>
+                <a href={useBaseUrl('/docs/data-file-types/#imageome-zarr')}>
                   <code>image.ome-zarr</code>
                 </a>
-                <ul>
-                  <li>OME-NGFF</li>
-                </ul>
               </li>
               <li>
-                <a href={useBaseUrl('/docs/data-file-types/#imagerasterjson')}><code>image.raster.json</code></a>
-                <ul>
-                  <li>OME-TIFF</li>
-                  <li>Bioformats-Zarr (precursor to OME-NGFF)</li>
-                </ul>
+                <a href={useBaseUrl('/docs/data-file-types/#imageome-tiff')}>
+                  <code>image.ome-tiff</code>
+                </a>
               </li>
             </ul>
           </td>
           <td>
             <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#proprietary-image-formats')}>Proprietary Formats</a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#tiff-and-proprietary-image-formats')}>TIFF</a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#tiff-and-proprietary-image-formats')}>Proprietary Formats</a></li>
             </ul>
           </td>
         </tr>
@@ -182,6 +178,7 @@ export default function DataTypesTable() {
           </td>
           <td>
             <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsome-tiff')}><code>obsSegmentations.ome-tiff</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsjson')}><code>obsSegmentations.json</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsanndatazarr')}><code>obsSegmentations.anndata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsmudatazarr')}><code>obsSegmentations.mudata.zarr</code></a></li>
