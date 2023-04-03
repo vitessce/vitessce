@@ -12,7 +12,7 @@ import {
 import {
   TitleInfo,
   useDeckCanvasSize, useReady, useUrls,
-  useUint8ExpressionData,
+  useUint8FeatureSelection,
   useExpressionValueGetter,
   useObsSetsData,
   useFeatureSelection,
@@ -319,7 +319,7 @@ export function GatingSubscriber(props) {
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
-  const [uint8ExpressionData] = useUint8ExpressionData(expressionDataColor);
+  const [uint8ExpressionData] = useUint8FeatureSelection(expressionDataColor);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.

@@ -200,6 +200,17 @@ export function useClosestVitessceContainerSize(ref) {
   return [width, height];
 }
 
+/**
+ * Normalize an obsFeatureMatrix to a Uint8Array.
+ * @param {object} params
+ * @param {object} params.obsFeatureMatrix The obsFeatureMatrix
+ * returned by the useObsFeatureMatrix hook.
+ * @returns {array} A tuple [obsFeatureMatrix, dataExtent]
+ * where obsFeatureMatrix
+ * is a Uint8Array with the same shape as
+ * params.obsFeatureMatrix.data, and dataExtent is the
+ * [min, max] of the original data.
+ */
 export function useUint8ObsFeatureMatrix({ obsFeatureMatrix }) {
   return useMemo(() => {
     if (obsFeatureMatrix && obsFeatureMatrix.data) {
@@ -215,7 +226,18 @@ export function useUint8ObsFeatureMatrix({ obsFeatureMatrix }) {
   }, [obsFeatureMatrix]);
 }
 
-export function useUint8ExpressionData(expressionData) {
+/**
+ * Normalize a feature selection (data for selected
+ * columns of an obsFeatureMatrix) to a Uint8Array.
+ * @param {array|null} expressionData The expressionData
+ * returned by the useFeatureSelection hook,
+ * where each element corresponds to an
+ * array of values for a selected feature.
+ * @returns {array} A tuple [normData, extents] where
+ * normData is an array of Uint8Arrays (or null), and extents is
+ * an array of [min, max] values for each feature (or null).
+ */
+export function useUint8FeatureSelection(expressionData) {
   return useMemo(() => {
     if (expressionData && expressionData[0]) {
       const extents = expressionData.map(arr => extent(arr));
@@ -247,7 +269,6 @@ export function useExpressionValueGetter(
     }
     return null;
   }, [instanceObsIndex, matrixObsIndex]);
-
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.

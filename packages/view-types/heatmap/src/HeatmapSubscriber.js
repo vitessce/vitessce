@@ -124,7 +124,7 @@ export function HeatmapSubscriber(props) {
   ]);
 
   const [uint8ObsFeatureMatrix, obsFeatureMatrixExtent] = useUint8ObsFeatureMatrix(
-    { obsIndex, featureIndex, obsFeatureMatrix },
+    { obsFeatureMatrix },
   );
 
   const mergedCellSets = useMemo(() => mergeObsSets(

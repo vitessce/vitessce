@@ -12,7 +12,7 @@ import {
   useNeighborhoodsData,
   useObsLabelsData,
   useMultiObsLabels,
-  useUint8ExpressionData,
+  useUint8FeatureSelection,
   useExpressionValueGetter,
   useGetObsInfo,
   useCoordination,
@@ -333,7 +333,7 @@ export function SpatialSubscriber(props) {
     locationsCount,
   });
 
-  const [uint8ExpressionData, expressionExtents] = useUint8ExpressionData(expressionData);
+  const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(expressionData);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.

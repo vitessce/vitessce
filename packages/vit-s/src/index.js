@@ -14,7 +14,7 @@ export {
   useVitessceContainer,
   useDeckCanvasSize,
   useUint8ObsFeatureMatrix,
-  useUint8ExpressionData,
+  useUint8FeatureSelection,
   useExpressionValueGetter,
   useGetObsInfo,
   useClosestVitessceContainerSize,
