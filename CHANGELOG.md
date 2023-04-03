@@ -12,6 +12,7 @@
 - Implemented ability to select a gene by clicking on the heatmap rows for a given gene.
 - Added developer troubleshooting instructions to README.
 - Implemented ability to select an area on the Expression Histogram. On select, a new obs set selection is created. The new selection contains the ids of all obs that belong to the selected bars.
+- Added functions to the `VitessceConfig` object-oriented configuration APIs to support multi-level and meta (i.e., complex) coordination.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.

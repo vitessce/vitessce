@@ -279,6 +279,9 @@ export class VitessceConfigView {
   }
 
   useComplexCoordination(scopes) {
+    if (!this.view.coordinationScopes) {
+      this.view.coordinationScopes = {};
+    }
     if (!this.view.coordinationScopesBy) {
       this.view.coordinationScopesBy = {};
     }
@@ -298,14 +301,17 @@ export class VitessceConfigView {
    * @returns {VitessceConfigView} This, to allow chaining.
    */
   useMetaCoordination(metaScope) {
+    if (!this.view.coordinationScopes) {
+      this.view.coordinationScopes = {};
+    }
     // TODO: use CoordinationType constants.
     this.view.coordinationScopes['metaCoordinationScopes'] = [
       ...(this.view.coordinationScopes['metaCoordinationScopes'] || []),
-      metaScope.metaScope,
+      metaScope.metaScope.cScope,
     ];
     this.view.coordinationScopes['metaCoordinationScopesBy'] = [
       ...(this.view.coordinationScopes['metaCoordinationScopesBy'] || []),
-      metaScope.metaByScope,
+      metaScope.metaByScope.cScope,
     ];
     return this;
   }
@@ -457,6 +463,12 @@ export class VitessceConfigMetaCoordinationScope {
   }
 
   useComplexCoordination(scopes) {
+    if (!this.metaScope.cValue) {
+      this.metaScope.setValue({});
+    }
+    if (!this.metaByScope.cValue) {
+      this.metaByScope.setValue({});
+    }
     const [metaScopesVal, metaByScopesVal] = useComplexCoordinationHelper(
       scopes,
       this.metaScope.cValue,
