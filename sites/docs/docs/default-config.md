@@ -5,7 +5,7 @@ sidebar_label: Automatic Configuration
 slug: /default-config-json
 ---
 
-To allow quick and easy visualisation of an image or an AnnData object, Vitessce can now generate the __view config__ automatically, given the URLs to the datasets. This page explains how to use this feature and what dataset formats are supported.
+To allow quick and easy visualisation of an image or an AnnData object, Vitessce can generate a view config automatically, given the URLs to the data files. This page explains how to use this feature and which file formats are supported.
 
 
 ### Supported formats
