@@ -191,9 +191,8 @@ export default function ViewConfigEditor(props) {
         <div className={styles.viewConfigInputs}>
           <div className={styles.viewConfigInputUrlOrFile}>
             <p className={styles.viewConfigInputUrlOrFileText}>
-              Or paste the URLs of your datasets, using `;` as a separator, and a&nbsp;
-              <a href={defaultViewConfigDocsUrl}>default view config</a>
-                  &nbsp; will be displayed in the editor below. &nbsp;
+              Alternatively, enter the URLs to one or more data files (semicolon-separated) to populate the editor with a&nbsp;
+              <a href={defaultViewConfigDocsUrl}>default view config</a>.&nbsp;
               <button
                 type="button"
                 onClick={() => setDatasetUrls(exampleURL)}
