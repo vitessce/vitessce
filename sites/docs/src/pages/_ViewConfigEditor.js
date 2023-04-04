@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { useDropzone } from 'react-dropzone';
 import {
@@ -72,12 +72,12 @@ export default function ViewConfigEditor(props) {
 
   const [pendingUrl, setPendingUrl] = useState('');
   const [datasetUrls, setDatasetUrls] = useState('');
-  const [useExampleURL, setUseExampleURL] = useState(false);
   const [pendingFileContents, setPendingFileContents] = useState('');
 
   const [syntaxType, setSyntaxType] = useState('JSON');
   const [loadFrom, setLoadFrom] = useState('editor');
 
+  const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length === 1) {
@@ -121,14 +121,13 @@ export default function ViewConfigEditor(props) {
 
   function sanitiseURLs(urls) {
     return urls
-      .replace(/ /g, '')
       .split(/;/)
+      .map(url => url.trim())
       .filter(url => url.match(/^http/g));
   }
 
   async function handleConfigGeneration() {
     setError(null);
-    setUseExampleURL(false);
     const sanitisedUrls = sanitiseURLs(datasetUrls);
     await generateConfigs(sanitisedUrls)
       .then((configJson) => {
@@ -139,12 +138,6 @@ export default function ViewConfigEditor(props) {
         setError(e.message);
       });
   }
-
-  useEffect(() => {
-    if (useExampleURL) {
-      handleConfigGeneration();
-    }
-  }, [useExampleURL]);
 
   function handleUrlChange(event) {
     setPendingUrl(event.target.value);
@@ -157,12 +150,6 @@ export default function ViewConfigEditor(props) {
 
   function handleSyntaxChange(event) {
     setSyntaxType(event.target.value);
-  }
-
-  function tryExampleAutoConfig() {
-    const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
-    setDatasetUrls(exampleURL);
-    setUseExampleURL(true);
   }
 
   function tryExample() {
@@ -209,7 +196,7 @@ export default function ViewConfigEditor(props) {
                   &nbsp; will be displayed in the editor below. &nbsp;
               <button
                 type="button"
-                onClick={tryExampleAutoConfig}
+                onClick={() => setDatasetUrls(exampleURL)}
               >Try an example
               </button>
             </p>
