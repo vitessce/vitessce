@@ -184,6 +184,19 @@ describe('src/VitessceAutoConfig.js', () => {
                 obsFeatureMatrix: {
                   path: 'X',
                 },
+                obsSets: [
+                  {
+                    name: 'Cell Type',
+                    path: [
+                      'obs/cell_type',
+                      'obs/disease',
+                      'obs/leiden',
+                      'obs/organism',
+                      'obs/self_reported_ethnicity',
+                      'obs/sex',
+                      'obs/tissue'],
+                  },
+                ],
               },
             },
           ],
@@ -199,12 +212,22 @@ describe('src/VitessceAutoConfig.js', () => {
       },
       layout: [
         {
+          component: 'obsSets',
+          coordinationScopes: {
+            dataset: 'A',
+          },
+          x: 0,
+          y: 0,
+          w: 6,
+          h: 6,
+        },
+        {
           component: 'scatterplot',
           coordinationScopes: {
             dataset: 'A',
             embeddingType: 'A',
           },
-          x: 0,
+          x: 6,
           y: 0,
           w: 6,
           h: 6,
@@ -214,8 +237,8 @@ describe('src/VitessceAutoConfig.js', () => {
           coordinationScopes: {
             dataset: 'A',
           },
-          x: 6,
-          y: 0,
+          x: 0,
+          y: 6,
           w: 6,
           h: 6,
           props: {
@@ -227,7 +250,7 @@ describe('src/VitessceAutoConfig.js', () => {
           coordinationScopes: {
             dataset: 'A',
           },
-          x: 0,
+          x: 6,
           y: 6,
           w: 6,
           h: 6,

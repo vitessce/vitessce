@@ -115,12 +115,12 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     });
 
     const supportedObsSetsKeys = [
-      'cluster', 'cell_type', 'leiden', 'louvain', 'cell_type', 'disease', 'organism', 'self_reported_ethnicity', 'tissue', 'sex',
+      'cluster', 'cell_type', 'leiden', 'louvain', 'disease', 'organism', 'self_reported_ethnicity', 'tissue', 'sex',
     ];
 
     this.metadataSummary.obs.forEach((key) => {
       supportedObsSetsKeys.forEach((supportedKey) => {
-        if (key.toLowerCase().includes(supportedKey)) {
+        if (key.toLowerCase() === ['obs', supportedKey].join('/')) {
           if (!('obsSets' in options)) {
             options.obsSets = [
               {
@@ -200,8 +200,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
         .map(key => key.split('/.zarray')[0]);
 
       const obsKeysArr = Object.keys(metadataFile.metadata)
-        .filter(key => key.startsWith('obs/') && !key.includes('obs/.') && !key.includes('obs/__'))
-        .map(key => key.split('/.za')[0]);
+        .filter(key => key.startsWith('obs/')).map(key => key.split('/.za')[0]);
 
       function uniq(a) {
         return a.sort().filter((item, pos, ary) => !pos || item !== ary[pos - 1]);
