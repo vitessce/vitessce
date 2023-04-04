@@ -191,7 +191,8 @@ export default function ViewConfigEditor(props) {
         <div className={styles.viewConfigInputs}>
           <div className={styles.viewConfigInputUrlOrFile}>
             <p className={styles.viewConfigInputUrlOrFileText}>
-              Alternatively, enter the URLs to one or more data files (semicolon-separated) to populate the editor with a&nbsp;
+              Alternatively, enter the URLs to one or more data files
+              (semicolon-separated) to populate the editor with a&nbsp;
               <a href={defaultViewConfigDocsUrl}>default view config</a>.&nbsp;
               <button
                 type="button"
