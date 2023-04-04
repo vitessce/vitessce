@@ -33,14 +33,12 @@ export function VegaPlot(props) {
   } = props;
 
   const classes = useStyles();
-
-  console.log("&&& ", classes.customTooltip);
   
   const tooltipConfig = {
     theme: "custom",
     offsetX: 10,
-    offsetY: 10,
-    formatTooltip: (e) => `My custom tooltip is amazing ${e} ${classes.customTooltip}`
+    offsetY: 20,
+    // formatTooltip: (e) => `Cell Set size ${e}`
   };
 
   const tooltipHandler = new Handler(tooltipConfig);
@@ -55,9 +53,6 @@ export function VegaPlot(props) {
       : { name: DATASET_NAME }
     ),
   }), [partialSpec]);
-
-  console.log("***", DATASET_NAME);
-  console.log("***++", data);
 
   const vegaComponent = useMemo(() => (
     <ReactVega

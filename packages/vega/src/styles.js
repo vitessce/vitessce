@@ -1,16 +1,15 @@
 import { makeStyles } from '@material-ui/core/styles';
 
-export const useStyles = makeStyles({
+export const useStyles = makeStyles(theme => ({
     '@global': {
       '#vg-tooltip-element.vg-tooltip.custom-theme': {
-        color: 'green',
-        backgroundColor: 'gray',
-        borderCollapse: 'collapse'
+        backgroundColor: theme.palette.gridLayoutBackground,
+        color: theme.palette.secondaryForeground,
+        border: 'none',
+        opacity: 0.9,
+        fontSize: '80%',
+        padding: '5px'
       },
     },
-  });
-
-
-// '& #vg-tooltip-element.vg-tooltip.custom-theme': {
-//     color: '#e3116c',
-//   },
+  }));
+  
