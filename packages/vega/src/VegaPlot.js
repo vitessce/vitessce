@@ -2,7 +2,7 @@ import React, { Suspense, useMemo } from 'react';
 import { Handler } from 'vega-tooltip';
 import ReactVega from './ReactVega';
 import { DATASET_NAME } from './utils';
-import { tooltipStyles } from './customStyle';
+import { useStyles } from './styles';
 
 
 // TODO: React.lazy is not working with Vitessce in the portal-ui.
@@ -31,15 +31,20 @@ export function VegaPlot(props) {
     data,
     signalListeners,
   } = props;
-  
-  const classes = tooltipStyles();
 
+  const classes = useStyles();
+
+  console.log("&&& ", classes.customTooltip);
+  
   const tooltipConfig = {
-    theme: 'dark',
+    theme: "custom",
+    offsetX: 10,
+    offsetY: 10,
+    formatTooltip: (e) => `My custom tooltip is amazing ${e} ${classes.customTooltip}`
   };
 
   const tooltipHandler = new Handler(tooltipConfig);
-  
+
   const spec = useMemo(() => ({
     ...partialSpec,
     data: (isVega(partialSpec)
@@ -50,6 +55,9 @@ export function VegaPlot(props) {
       : { name: DATASET_NAME }
     ),
   }), [partialSpec]);
+
+  console.log("***", DATASET_NAME);
+  console.log("***++", data);
 
   const vegaComponent = useMemo(() => (
     <ReactVega
