@@ -66,7 +66,7 @@ export default function CellSetExpressionPlot(props) {
 
   const rectColor = (theme === 'dark' ? 'white' : 'black');
 
-  const captializedObsType = capitalize(obsType);
+  const captializedObsType = capitalize(featureValueType);
 
   const spec = {
     $schema: 'https://vega.github.io/schema/vega/v5.json',

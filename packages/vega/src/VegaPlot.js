@@ -30,8 +30,9 @@ export function VegaPlot(props) {
     signalListeners,
   } = props;
 
+  // eslint-disable-next-line no-unused-vars
   const classes = useStyles();
-  
+
   const generateCSS = () => `
     .tooltip-container {
       display: flex;
@@ -47,10 +48,10 @@ export function VegaPlot(props) {
   `;
 
   const tooltipConfig = {
-    theme: "custom",
+    theme: 'custom',
     offsetX: 10,
     offsetY: 10,
-    formatTooltip: (e) => `
+    formatTooltip: e => `
       <style>${generateCSS()}</style>
       <div class="tooltip-container">
         <span class="tooltip-item-name">${captializedObsType} Set </span><div class="tooltip-item-value">${e.name}</div>
@@ -65,10 +66,10 @@ export function VegaPlot(props) {
 
   const originalCall = tooltipHandler.call;
 
-  tooltipHandler.call = (handler, event, item, value) => {
+  tooltipHandler.call = (handler, event, item) => {
     if (item && item.datum) {
       const { name, size } = item.datum;
-      const modifiedValue = {"name": name, "size": size};
+      const modifiedValue = { name, size };
       originalCall.call(this, handler, event, item, modifiedValue);
     }
   };
