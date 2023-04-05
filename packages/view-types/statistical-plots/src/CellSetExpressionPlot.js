@@ -275,7 +275,7 @@ export default function CellSetExpressionPlot(props) {
     <VegaPlot
       data={data}
       spec={spec}
-      captializedObsType={captializedObsType}
+      setName={captializedObsType}
     />
   );
 }

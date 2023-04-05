@@ -4,6 +4,7 @@
 - Added a speaker icon to the documentation nav bar for using the International Phonetic Alphabet (IPA) notation to demonstrate how to pronounce Vitessce.
 - Added `image.ome-tiff` and `obsSegmentations.ome-tiff` file types.
 - Added `coordinateTransformation` file type options for `image.ome-tiff` and `image.ome-zarr`.
+- Modified the styling of the Vega-lite tooltips, so that it matches the scatterplot/spatial/heatmap tooltips.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
@@ -12,6 +13,9 @@
 - Added a new documentation page: `default-config.md` that describes the auto config generation functionality and how to use it.
 - Small changes to the layout of `_ViewConfigEditor.js` to accomodate the new functionality: added a space for pasting links and a "Generate Config" button.
 - Update Vitest configuration to only include test files contained within `src` directories.
+- Changed `VegaPlot.js` to accept prop called `setName` and overwrite the default tooltip style of vega-tooltip.
+- Added a new `styles.js` file that defines the style of the vega-tooltips.
+- Changed `CellSetSizesPlot.js` and `CellSetExpressionPlot.js` to pass in `setName` as props when calling `VegaPlot`.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 

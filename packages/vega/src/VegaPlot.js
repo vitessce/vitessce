@@ -26,7 +26,7 @@ export function VegaPlot(props) {
   const {
     spec: partialSpec,
     data,
-    captializedObsType,
+    setName,
     signalListeners,
   } = props;
 
@@ -54,10 +54,10 @@ export function VegaPlot(props) {
     formatTooltip: e => `
       <style>${generateCSS()}</style>
       <div class="tooltip-container">
-        <span class="tooltip-item-name">${captializedObsType} Set </span><div class="tooltip-item-value">${e.name}</div>
+        <span class="tooltip-item-name">${setName} Set </span><div class="tooltip-item-value">${e.name}</div>
       </div>
       <div class="tooltip-container">
-        <span class="tooltip-item-name">${captializedObsType} Set Size</span><div class="tooltip-item-value">${e.size}</div>
+        <span class="tooltip-item-name">${setName} Set Size</span><div class="tooltip-item-value">${e.size}</div>
       </div>
     `,
   };

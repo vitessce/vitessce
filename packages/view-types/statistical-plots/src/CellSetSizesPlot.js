@@ -93,7 +93,7 @@ export default function CellSetSizesPlot(props) {
     <VegaPlot
       data={data}
       spec={spec}
-      captializedObsType={captializedObsType}
+      setName={captializedObsType}
     />
   );
 }
