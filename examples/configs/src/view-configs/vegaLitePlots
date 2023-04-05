@@ -1,8 +1,0 @@
-featureValueHistogram
-obsSetFeatureValueDistribution --- there are no tultips (see codeluppi)
-obsSetSizes -- in Eng. et al. demo
-
-VegaPlot --- this is where the tooltip is configured
-CellSetExpressionPlot -- there are no tultips here
-CellSetSizesPlot (obsSetSizes)
-ExpressionHistogram -- there are no tultips here

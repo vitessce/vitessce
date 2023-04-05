@@ -15,9 +15,6 @@ function isVega(spec) {
   return spec.$schema === 'https://vega.github.io/schema/vega/v5.json';
 }
 
-// https://github.com/vega/vega-tooltip/blob/main/docs/customizing_your_tooltip.md
-// https://github.com/vega/vega-tooltip/blob/main/docs/APIs.md#options
-
 /**
  * A wrapper around the react-vega Vega component.
  * @param {object} props
