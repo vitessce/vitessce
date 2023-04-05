@@ -37,8 +37,15 @@ export function VegaPlot(props) {
   const tooltipConfig = {
     theme: "custom",
     offsetX: 10,
-    offsetY: 20,
-    formatTooltip: (e) => `Name: ${e.name} Size: ${e.size}`
+    offsetY: 10,
+    formatTooltip: (e) => `
+      <div style="display: flex; justify-content: space-between;">
+        <span style="margin-right: 10px; font-weight: bold;">Name</span><div style="margin-left: auto;">${e.name}</div>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span style="margin-right: 10px; font-weight: bold;">Size</span><div style="margin-left: auto;">${e.size}</div>
+      </div>
+    `
   };
 
   const tooltipHandler = new Handler(tooltipConfig);
