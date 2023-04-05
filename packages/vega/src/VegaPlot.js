@@ -38,10 +38,20 @@ export function VegaPlot(props) {
     theme: "custom",
     offsetX: 10,
     offsetY: 20,
-    // formatTooltip: (e) => `Cell Set size ${e}`
+    formatTooltip: (e) => `Name: ${e.name} Size: ${e.size}`
   };
 
   const tooltipHandler = new Handler(tooltipConfig);
+
+  const originalCall = tooltipHandler.call;
+
+  tooltipHandler.call = (handler, event, item, value) => {
+    if (item && item.datum) {
+      const { name, size } = item.datum;
+      const modifiedValue = {"name": name, "size": size};
+      originalCall.call(this, handler, event, item, modifiedValue);
+    }
+  };
 
   const spec = useMemo(() => ({
     ...partialSpec,
