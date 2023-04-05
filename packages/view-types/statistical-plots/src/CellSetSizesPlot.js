@@ -56,6 +56,8 @@ export default function CellSetSizesPlot(props) {
   // Get an array of keys for sorting purposes.
   const keys = data.map(d => d.keyName);
 
+  const captializedObsType = capitalize(obsType);
+
   const spec = {
     mark: { type: 'bar' },
     encoding: {
@@ -69,7 +71,7 @@ export default function CellSetSizesPlot(props) {
       y: {
         field: 'size',
         type: 'quantitative',
-        title: `${capitalize(obsType)} Set Size`,
+        title: `${captializedObsType} Set Size`,
       },
       color: {
         field: 'key',
@@ -91,6 +93,7 @@ export default function CellSetSizesPlot(props) {
     <VegaPlot
       data={data}
       spec={spec}
+      captializedObsType={captializedObsType}
     />
   );
 }

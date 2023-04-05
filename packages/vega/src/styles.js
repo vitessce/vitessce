@@ -8,8 +8,8 @@ export const useStyles = makeStyles(theme => ({
         border: 'none',
         opacity: 0.9,
         fontSize: '80%',
-        padding: '5px'
+        padding: '8px'
       },
-    },
+    }
   }));
   

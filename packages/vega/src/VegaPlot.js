@@ -29,23 +29,39 @@ export function VegaPlot(props) {
   const {
     spec: partialSpec,
     data,
+    captializedObsType,
     signalListeners,
   } = props;
 
   const classes = useStyles();
   
+  const generateCSS = () => `
+    .tooltip-container {
+      display: flex;
+      justify-content: space-between;
+    }
+    .tooltip-item-name {
+      margin-right: 10px;
+      font-weight: bold;
+    }
+    .tooltip-item-value {
+      margin-left: auto;
+    }
+  `;
+
   const tooltipConfig = {
     theme: "custom",
     offsetX: 10,
     offsetY: 10,
     formatTooltip: (e) => `
-      <div style="display: flex; justify-content: space-between;">
-        <span style="margin-right: 10px; font-weight: bold;">Name</span><div style="margin-left: auto;">${e.name}</div>
+      <style>${generateCSS()}</style>
+      <div class="tooltip-container">
+        <span class="tooltip-item-name">${captializedObsType} Set </span><div class="tooltip-item-value">${e.name}</div>
       </div>
-      <div style="display: flex; justify-content: space-between;">
-        <span style="margin-right: 10px; font-weight: bold;">Size</span><div style="margin-left: auto;">${e.size}</div>
+      <div class="tooltip-container">
+        <span class="tooltip-item-name">${captializedObsType} Set Size</span><div class="tooltip-item-value">${e.size}</div>
       </div>
-    `
+    `,
   };
 
   const tooltipHandler = new Handler(tooltipConfig);
