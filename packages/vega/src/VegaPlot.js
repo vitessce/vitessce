@@ -1,5 +1,7 @@
 import React, { Suspense, useMemo } from 'react';
 import { Handler } from 'vega-tooltip';
+import clsx from 'clsx';
+import { useTooltipStyles } from '@vitessce/tooltip';
 import ReactVega from './ReactVega';
 import { DATASET_NAME } from './utils';
 import { useStyles } from './styles';
@@ -32,32 +34,27 @@ export function VegaPlot(props) {
 
   // eslint-disable-next-line no-unused-vars
   const classes = useStyles();
-
-  const generateCSS = () => `
-    .tooltip-container {
-      display: flex;
-      justify-content: space-between;
-    }
-    .tooltip-item-name {
-      margin-right: 10px;
-      font-weight: bold;
-    }
-    .tooltip-item-value {
-      margin-left: auto;
-    }
-  `;
+  const tooltipClasses = useTooltipStyles();
 
   const tooltipConfig = {
     theme: 'custom',
     offsetX: 10,
     offsetY: 10,
+    // Use table element to match packages/tooltip/TooltipContent implementation.
     formatTooltip: e => `
-      <style>${generateCSS()}</style>
-      <div class="tooltip-container">
-        <span class="tooltip-item-name">${setName} Set </span><div class="tooltip-item-value">${e.name}</div>
-      </div>
-      <div class="tooltip-container">
-        <span class="tooltip-item-name">${setName} Set Size</span><div class="tooltip-item-value">${e.size}</div>
+      <div class="${clsx(classes.tooltipContainer, tooltipClasses.tooltipContent)}">
+        <table>
+          <tbody>
+            <tr>
+              <th>${setName} Set</th>
+              <td>${e.name}</td>
+            </tr>
+            <tr>
+              <th>${setName} Set Size</th>
+              <td>${e.size}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     `,
   };
