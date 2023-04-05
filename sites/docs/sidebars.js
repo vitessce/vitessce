@@ -21,6 +21,10 @@ module.exports = {
       id: 'view-config-json',
     },
     {
+      type: 'doc',
+      id: 'default-config-json',
+    },
+    {
       type: 'category',
       label: 'Data Preparation',
       items: [
