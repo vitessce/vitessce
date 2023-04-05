@@ -168,6 +168,7 @@ export function ObsSetsManagerSubscriber(props) {
 
   // The user wants to check or uncheck a cell set node.
   function onCheckNode(targetKey, checked) {
+    console.log("*** CHECK!");
     const targetPath = (Array.isArray(targetKey) ? targetKey : targetKey.split(PATH_SEP));
     if (!targetKey) {
       return;
@@ -448,6 +449,7 @@ export function ObsSetsManagerSubscriber(props) {
   // The user wants to view (i.e. select) a particular node,
   // or its expanded descendents.
   function onNodeView(targetPath) {
+    console.log("VIEW NODE!!!!");
     // If parent node is clicked, and if it is expanded,
     // then select the expanded descendent nodes.
     const setsToView = [];
@@ -576,6 +578,9 @@ export function ObsSetsManagerSubscriber(props) {
       FILE_EXTENSION_JSON,
     );
   }
+
+  console.log("*** CELL SET SELECTION:", cellSetSelection);
+
   return (
     <TitleInfo
       title={title}
