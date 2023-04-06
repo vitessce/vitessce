@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
 
-export const styles = makeStyles((theme) => ({
+export const styles = makeStyles(theme => ({
   tooltipAnchor: {
     position: 'relative',
     width: '0px',
@@ -24,7 +24,7 @@ export const styles = makeStyles((theme) => ({
       backgroundColor: theme.palette.gridLayoutBackground,
     },
     '& table > tr:nth-child(2)': {
-      backgroundColor: 'inherit !important'
+      backgroundColor: 'inherit !important',
     },
     '& table': {
       borderCollapse: 'collapse',

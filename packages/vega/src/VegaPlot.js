@@ -28,7 +28,7 @@ export function VegaPlot(props) {
   const {
     spec: partialSpec,
     data,
-    tooltipProps,
+    tooltipTextFunc,
     signalListeners,
   } = props;
 
@@ -38,8 +38,8 @@ export function VegaPlot(props) {
 
   let tooltipHandler = false;
 
-  const renderTooltipContents = (tooltipObj) => {
-    const tableRows = Object.entries(tooltipObj)
+  const renderTooltipContents = (tooltipText) => {
+    const tableRows = Object.entries(tooltipText)
       .map(([key, value]) => (
         `<tr key=${key}>
           <th>${key}</th>
@@ -55,30 +55,27 @@ export function VegaPlot(props) {
         </tbody>
       </table>`
     );
-  }
+  };
 
-  if (tooltipProps && Object.keys(tooltipProps).length > 0) {
+  if (typeof tooltipTextFunc === 'function') {
     const tooltipConfig = {
       theme: 'custom',
       offsetX: 10,
       offsetY: 10,
       // Use table element to match packages/tooltip/TooltipContent implementation.
-      formatTooltip: tooltipObj => `
+      formatTooltip: tooltipText => `
         <div class="${clsx(classes.tooltipContainer, tooltipClasses.tooltipContent)}">
-          ${renderTooltipContents(tooltipObj)}
+          ${renderTooltipContents(tooltipText)}
         </div>
       `,
     };
 
     tooltipHandler = new Handler(tooltipConfig);
     const originalCall = tooltipHandler.call;
-    tooltipHandler.call = (handler, event, item) => {      
+    tooltipHandler.call = (handler, event, item) => {
       if (item && item.datum) {
-        const tooltipObj = {}
-        Object.entries(tooltipProps.tooltipContents).map(([key, value]) => {
-          tooltipObj[key] = tooltipProps.tooltipValuesGetter(item, value);
-        });
-        originalCall.call(this, handler, event, item, tooltipObj);
+        const tooltipText = tooltipTextFunc(item);
+        originalCall.call(this, handler, event, item, tooltipText);
       }
     };
     tooltipHandler = tooltipHandler.call;
