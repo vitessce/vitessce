@@ -13,13 +13,19 @@ export const styles = makeStyles(() => ({
     padding: '5px',
     pointerEvents: 'none',
     '& table > tbody > tr > th, & table > tbody > tr > td': {
+      border: 'none',
       fontSize: '12px',
       opacity: 0.8,
       outline: 0,
       padding: '0 2px',
+      textAlign: 'left',
+    },
+    '& table > tr:nth-child(2)': {
+      backgroundColor: 'inherit !important',
     },
     '& table': {
       borderCollapse: 'collapse',
+      margin: '0px',
     },
   },
 }));

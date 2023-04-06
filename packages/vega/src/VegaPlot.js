@@ -49,11 +49,11 @@ export function VegaPlot(props) {
           <table>
             <tbody>
               <tr>
-                <th>${tooltipProps.tooltipKeys[0]} Set</th>
+                <th>${tooltipProps.tooltipKeys[0]}</th>
                 <td>${value[0]}</td>
               </tr>
               <tr>
-                <th>${tooltipProps.tooltipKeys[1]} Set Size</th>
+                <th>${tooltipProps.tooltipKeys[1]}</th>
                 <td>${value[1]}</td>
               </tr>
             </tbody>
