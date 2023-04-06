@@ -1,7 +1,10 @@
 import React, { Suspense, useMemo } from 'react';
 import { Handler } from 'vega-tooltip';
+import clsx from 'clsx';
+import { useTooltipStyles } from '@vitessce/tooltip';
 import ReactVega from './ReactVega';
 import { DATASET_NAME } from './utils';
+import { useStyles } from './styles';
 
 
 // TODO: React.lazy is not working with Vitessce in the portal-ui.
@@ -29,17 +32,44 @@ export function VegaPlot(props) {
     signalListeners,
   } = props;
 
+  // eslint-disable-next-line no-unused-vars
+  const classes = useStyles();
+  const tooltipClasses = useTooltipStyles();
+
   let tooltipHandler = false;
 
-  if (tooltipProps && 'config' in tooltipProps && 'handlerFunc' in tooltipProps) {
-    tooltipHandler = new Handler(tooltipProps.config);
-
-    const originalCall = tooltipHandler.call;
-
-    tooltipHandler.call = (handler, event, item) => {
-      tooltipProps.handlerFunc(handler, event, item, originalCall);
+  if (tooltipProps && Object.keys(tooltipProps).length > 0) {
+    const tooltipConfig = {
+      theme: 'custom',
+      offsetX: 10,
+      offsetY: 10,
+      // Use table element to match packages/tooltip/TooltipContent implementation.
+      formatTooltip: value => `
+        <div class="${clsx(classes.tooltipContainer, tooltipClasses.tooltipContent)}">
+          <table>
+            <tbody>
+              <tr>
+                <th>${tooltipProps.tooltipKeys[0]} Set</th>
+                <td>${value[0]}</td>
+              </tr>
+              <tr>
+                <th>${tooltipProps.tooltipKeys[1]} Set Size</th>
+                <td>${value[1]}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `,
     };
 
+    tooltipHandler = new Handler(tooltipConfig);
+    const originalCall = tooltipHandler.call;
+    tooltipHandler.call = (handler, event, item) => {
+      if (item && item.datum) {
+        const modifiedValue = tooltipProps.tooltipVals(item);
+        originalCall.call(this, handler, event, item, modifiedValue);
+      }
+    };
     tooltipHandler = tooltipHandler.call;
   }
 
