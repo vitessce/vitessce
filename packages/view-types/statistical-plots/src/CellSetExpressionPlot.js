@@ -163,7 +163,7 @@ export default function CellSetExpressionPlot(props) {
         scale: 'layout',
         tickCount: 5,
         zindex: 1,
-        title: `${capitalize(featureValueType)} Set`,
+        title: `${capitalize(obsType)} Set`,
         labelAngle: -45,
         labelAlign: 'right',
       },
