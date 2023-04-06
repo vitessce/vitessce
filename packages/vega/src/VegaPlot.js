@@ -28,7 +28,7 @@ export function VegaPlot(props) {
   const {
     spec: partialSpec,
     data,
-    setName,
+    tooltipProps,
     signalListeners,
   } = props;
 
@@ -36,40 +36,42 @@ export function VegaPlot(props) {
   const classes = useStyles();
   const tooltipClasses = useTooltipStyles();
 
-  const tooltipConfig = {
-    theme: 'custom',
-    offsetX: 10,
-    offsetY: 10,
-    // Use table element to match packages/tooltip/TooltipContent implementation.
-    formatTooltip: e => `
-      <div class="${clsx(classes.tooltipContainer, tooltipClasses.tooltipContent)}">
-        <table>
-          <tbody>
-            <tr>
-              <th>${setName} Set</th>
-              <td>${e.name}</td>
-            </tr>
-            <tr>
-              <th>${setName} Set Size</th>
-              <td>${e.size}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    `,
-  };
+  let tooltipHandler = false;
 
-  const tooltipHandler = new Handler(tooltipConfig);
+  if (tooltipProps && Object.keys(tooltipProps).length > 0) {
+    const tooltipConfig = {
+      theme: 'custom',
+      offsetX: 10,
+      offsetY: 10,
+      // Use table element to match packages/tooltip/TooltipContent implementation.
+      formatTooltip: value => `
+        <div class="${clsx(classes.tooltipContainer, tooltipClasses.tooltipContent)}">
+          <table>
+            <tbody>
+              <tr>
+                <th>${tooltipProps.tooltipKeys[0]} Set</th>
+                <td>${value[0]}</td>
+              </tr>
+              <tr>
+                <th>${tooltipProps.tooltipKeys[1]} Set Size</th>
+                <td>${value[1]}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `,
+    };
 
-  const originalCall = tooltipHandler.call;
-
-  tooltipHandler.call = (handler, event, item) => {
-    if (item && item.datum) {
-      const { name, size } = item.datum;
-      const modifiedValue = { name, size };
-      originalCall.call(this, handler, event, item, modifiedValue);
-    }
-  };
+    tooltipHandler = new Handler(tooltipConfig);
+    const originalCall = tooltipHandler.call;
+    tooltipHandler.call = (handler, event, item) => {
+      if (item && item.datum) {
+        const modifiedValue = tooltipProps.tooltipVals(item);
+        originalCall.call(this, handler, event, item, modifiedValue);
+      }
+    };
+    tooltipHandler = tooltipHandler.call;
+  }
 
   const spec = useMemo(() => ({
     ...partialSpec,
@@ -89,11 +91,11 @@ export function VegaPlot(props) {
         [DATASET_NAME]: data,
       }}
       signalListeners={signalListeners}
-      tooltip={tooltipHandler.call}
+      tooltip={tooltipHandler}
       renderer="canvas"
       scaleFactor={3}
     />
-  ), [spec, data, signalListeners]);
+  ), [spec, data, signalListeners, tooltipHandler]);
 
   return (
     spec && data && data.length > 0 ? (
