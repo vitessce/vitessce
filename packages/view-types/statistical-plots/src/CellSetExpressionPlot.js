@@ -66,8 +66,6 @@ export default function CellSetExpressionPlot(props) {
 
   const rectColor = (theme === 'dark' ? 'white' : 'black');
 
-  const captializedObsType = capitalize(featureValueType);
-
   const spec = {
     $schema: 'https://vega.github.io/schema/vega/v5.json',
     description: `A violin plot showing distributions of expression levels for selected ${obsType} sets.`,
@@ -157,15 +155,15 @@ export default function CellSetExpressionPlot(props) {
         scale: 'yscale',
         zindex: 1,
         title: (featureValueTransformName && featureValueTransformName !== 'None')
-          ? [`${featureValueTransformName}-Transformed`, `Normalized ${captializedObsType} Values`]
-          : `Normalized ${captializedObsType} Values`,
+          ? [`${featureValueTransformName}-Transformed`, `Normalized ${capitalize(featureValueType)} Values`]
+          : `Normalized ${capitalize(featureValueType)} Values`,
       },
       {
         orient: 'bottom',
         scale: 'layout',
         tickCount: 5,
         zindex: 1,
-        title: `${captializedObsType} Set`,
+        title: `${capitalize(featureValueType)} Set`,
         labelAngle: -45,
         labelAlign: 'right',
       },
@@ -275,7 +273,6 @@ export default function CellSetExpressionPlot(props) {
     <VegaPlot
       data={data}
       spec={spec}
-      setName={captializedObsType}
     />
   );
 }

@@ -2,7 +2,6 @@ import React, { Suspense, useMemo } from 'react';
 import { Handler } from 'vega-tooltip';
 import ReactVega from './ReactVega';
 import { DATASET_NAME } from './utils';
-import { useStyles } from './styles';
 
 
 // TODO: React.lazy is not working with Vitessce in the portal-ui.
@@ -26,53 +25,23 @@ export function VegaPlot(props) {
   const {
     spec: partialSpec,
     data,
-    setName,
+    tooltipProps,
     signalListeners,
   } = props;
 
-  // eslint-disable-next-line no-unused-vars
-  const classes = useStyles();
+  let tooltipHandler = false;
 
-  const generateCSS = () => `
-    .tooltip-container {
-      display: flex;
-      justify-content: space-between;
-    }
-    .tooltip-item-name {
-      margin-right: 10px;
-      font-weight: bold;
-    }
-    .tooltip-item-value {
-      margin-left: auto;
-    }
-  `;
+  if (tooltipProps && 'config' in tooltipProps && 'handlerFunc' in tooltipProps) {
+    tooltipHandler = new Handler(tooltipProps.config);
 
-  const tooltipConfig = {
-    theme: 'custom',
-    offsetX: 10,
-    offsetY: 10,
-    formatTooltip: e => `
-      <style>${generateCSS()}</style>
-      <div class="tooltip-container">
-        <span class="tooltip-item-name">${setName} Set </span><div class="tooltip-item-value">${e.name}</div>
-      </div>
-      <div class="tooltip-container">
-        <span class="tooltip-item-name">${setName} Set Size</span><div class="tooltip-item-value">${e.size}</div>
-      </div>
-    `,
-  };
+    const originalCall = tooltipHandler.call;
 
-  const tooltipHandler = new Handler(tooltipConfig);
+    tooltipHandler.call = (handler, event, item) => {
+      tooltipProps.handlerFunc(handler, event, item, originalCall);
+    };
 
-  const originalCall = tooltipHandler.call;
-
-  tooltipHandler.call = (handler, event, item) => {
-    if (item && item.datum) {
-      const { name, size } = item.datum;
-      const modifiedValue = { name, size };
-      originalCall.call(this, handler, event, item, modifiedValue);
-    }
-  };
+    tooltipHandler = tooltipHandler.call;
+  }
 
   const spec = useMemo(() => ({
     ...partialSpec,
@@ -92,11 +61,11 @@ export function VegaPlot(props) {
         [DATASET_NAME]: data,
       }}
       signalListeners={signalListeners}
-      tooltip={tooltipHandler.call}
+      tooltip={tooltipHandler}
       renderer="canvas"
       scaleFactor={3}
     />
-  ), [spec, data, signalListeners]);
+  ), [spec, data, signalListeners, tooltipHandler]);
 
   return (
     spec && data && data.length > 0 ? (

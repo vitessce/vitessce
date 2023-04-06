@@ -89,11 +89,53 @@ export default function CellSetSizesPlot(props) {
     config: VEGA_THEMES[theme],
   };
 
+  const tooltipCSS = () => `
+    .tooltip-container {
+      display: flex;
+      justify-content: space-between;
+    }
+    .tooltip-item-name {
+      margin-right: 10px;
+      font-weight: bold;
+    }
+    .tooltip-item-value {
+      margin-left: auto;
+    }
+  `;
+
+  const tooltipConfig = {
+    theme: 'custom',
+    offsetX: 10,
+    offsetY: 10,
+    formatTooltip: e => `
+      <style>${tooltipCSS()}</style>
+      <div class="tooltip-container">
+        <span class="tooltip-item-name">${captializedObsType} Set </span><div class="tooltip-item-value">${e.name}</div>
+      </div>
+      <div class="tooltip-container">
+        <span class="tooltip-item-name">${captializedObsType} Set Size</span><div class="tooltip-item-value">${e.size}</div>
+      </div>
+    `,
+  };
+
+  const tooltipHandlerFunc = (handler, event, item, originalHandlerFunc) => {
+    if (item && item.datum) {
+      const { name, size } = item.datum;
+      const modifiedValue = { name, size };
+      originalHandlerFunc.call(this, handler, event, item, modifiedValue);
+    }
+  };
+
+  const tooltipProps = {
+    config: tooltipConfig,
+    handlerFunc: tooltipHandlerFunc,
+  };
+
   return (
     <VegaPlot
       data={data}
       spec={spec}
-      setName={captializedObsType}
+      tooltipProps={tooltipProps}
     />
   );
 }
