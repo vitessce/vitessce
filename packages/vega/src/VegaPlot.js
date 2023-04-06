@@ -38,36 +38,47 @@ export function VegaPlot(props) {
 
   let tooltipHandler = false;
 
+  const renderTooltipContents = (tooltipObj) => {
+    const tableRows = Object.entries(tooltipObj)
+      .map(([key, value]) => (
+        `<tr key=${key}>
+          <th>${key}</th>
+          <td>${value}</td>
+        </tr>`
+      ))
+      .join('');
+
+    return (
+      `<table>
+        <tbody>
+          ${tableRows}
+        </tbody>
+      </table>`
+    );
+  }
+
   if (tooltipProps && Object.keys(tooltipProps).length > 0) {
     const tooltipConfig = {
       theme: 'custom',
       offsetX: 10,
       offsetY: 10,
       // Use table element to match packages/tooltip/TooltipContent implementation.
-      formatTooltip: value => `
+      formatTooltip: tooltipObj => `
         <div class="${clsx(classes.tooltipContainer, tooltipClasses.tooltipContent)}">
-          <table>
-            <tbody>
-              <tr>
-                <th>${tooltipProps.tooltipKeys[0]}</th>
-                <td>${value[0]}</td>
-              </tr>
-              <tr>
-                <th>${tooltipProps.tooltipKeys[1]}</th>
-                <td>${value[1]}</td>
-              </tr>
-            </tbody>
-          </table>
+          ${renderTooltipContents(tooltipObj)}
         </div>
       `,
     };
 
     tooltipHandler = new Handler(tooltipConfig);
     const originalCall = tooltipHandler.call;
-    tooltipHandler.call = (handler, event, item) => {
+    tooltipHandler.call = (handler, event, item) => {      
       if (item && item.datum) {
-        const modifiedValue = tooltipProps.tooltipVals(item);
-        originalCall.call(this, handler, event, item, modifiedValue);
+        const tooltipObj = {}
+        Object.entries(tooltipProps.tooltipContents).map(([key, value]) => {
+          tooltipObj[key] = tooltipProps.tooltipValuesGetter(item, value);
+        });
+        originalCall.call(this, handler, event, item, tooltipObj);
       }
     };
     tooltipHandler = tooltipHandler.call;
