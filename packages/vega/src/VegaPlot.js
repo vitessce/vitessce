@@ -72,10 +72,13 @@ export function VegaPlot(props) {
 
     tooltipHandler = new Handler(tooltipConfig);
     const originalCall = tooltipHandler.call;
-    tooltipHandler.call = (handler, event, item) => {
-      if (item && item.datum) {
+    tooltipHandler.call = (handler, event, item, value) => {
+      if (item && item.datum && value) {
         const tooltipText = tooltipTextFunc(item);
         originalCall.call(this, handler, event, item, tooltipText);
+      }
+      else {
+        originalCall.call(this, handler, event, item, value);
       }
     };
     tooltipHandler = tooltipHandler.call;
