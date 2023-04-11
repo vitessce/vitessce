@@ -58,28 +58,28 @@ export default function CellSetSizesPlot(props) {
   const keys = data.map(d => d.keyName);
 
   const spec = {
-    mark: { type: 'bar', stroke: "black", cursor: "pointer" },
+    mark: { type: 'bar', stroke: 'black', cursor: 'pointer' },
     params: [
       {
-        name: "highlight",
+        name: 'highlight',
         select: {
-          type: "point",
-          on: "mouseover"
-        }
+          type: 'point',
+          on: 'mouseover',
+        },
       },
       {
-        name: "select",
-        select: "point"
+        name: 'select',
+        select: 'point',
       },
       {
-        name: "bar_select",
+        name: 'bar_select',
         select: {
-          type: "point",
-          on: "click",
-          fields: ["keyName"],
-          empty: "none"
-        }
-      }
+          type: 'point',
+          on: 'click',
+          fields: ['keyName', 'labelName'],
+          empty: 'none',
+        },
+      },
     ],
     encoding: {
       x: {
@@ -106,26 +106,26 @@ export default function CellSetSizesPlot(props) {
       },
       fillOpacity: {
         condition: {
-          param: "select",
-          value: 1
+          param: 'select',
+          value: 1,
         },
-        value: 0.3
+        value: 0.3,
       },
       strokeWidth: {
         condition: [
           {
-            param: "select",
+            param: 'select',
             empty: false,
-            value: 1
+            value: 1,
           },
           {
-            param: "highlight",
+            param: 'highlight',
             empty: false,
-            value: 2
-          }
+            value: 2,
+          },
         ],
-        value: 0
-      }
+        value: 0,
+      },
     },
     width: clamp(width - marginRight, 10, Infinity),
     height: clamp(height - marginBottom, 10, Infinity),
@@ -134,13 +134,11 @@ export default function CellSetSizesPlot(props) {
 
   const handleSignal = (name, value) => {
     if (name === 'bar_select') {
-      console.log(value.keyName[0]);
-      const clusterName = value.keyName[0].slice(36);
-      onBarSelect(clusterName);
+      onBarSelect([value.labelName[0], value.keyName[0].slice(36)]);
     }
   };
 
-  const signalListeners = { "bar_select": handleSignal };
+  const signalListeners = { bar_select: handleSignal };
 
   return (
     <VegaPlot

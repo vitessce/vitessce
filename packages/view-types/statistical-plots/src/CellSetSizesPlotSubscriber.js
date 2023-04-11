@@ -69,19 +69,14 @@ export function CellSetSizesPlotSubscriber(props) {
 
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
-  const data = useMemo(() => {
-    if (mergedCellSets && cellSetSelection && cellSetColor) {
-    console.log("CellSetSizesPlotSubscriber DATA: ", treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme));
-    }
-    return (mergedCellSets && cellSetSelection && cellSetColor
+  const data = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
     ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme)
     : []
-  )}, [mergedCellSets, cellSetSelection, cellSetColor, theme]);
+  ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
 
-  const onBarSelect = (selectedCellSetKey) => {
-    console.log("I am so selected you have no idea:", selectedCellSetKey);
-    setCellSetSelection([['Leiden Clustering', selectedCellSetKey]]);
-  }
+  const onBarSelect = (newSetSelection) => {
+    setCellSetSelection([newSetSelection]);
+  };
 
   return (
     <TitleInfo

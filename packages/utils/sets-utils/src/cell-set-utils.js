@@ -531,6 +531,7 @@ export function treeToSetSizesBySetNames(currTree, selectedNamePaths, setColor, 
         name: node.name,
         size: nodeSet.length,
         color: nodeColor,
+        labelName: setNamePath[0],
       });
     }
   });
