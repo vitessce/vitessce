@@ -24,7 +24,7 @@ export function VegaPlot(props) {
   const {
     spec: partialSpec,
     data,
-    // signalListeners,
+    signalListeners,
   } = props;
 
   const spec = useMemo(() => ({
@@ -36,23 +36,7 @@ export function VegaPlot(props) {
       ]
       : { name: DATASET_NAME }
     ),
-    "selection": {
-      "bar_select": {
-        "type": "single",
-        "on": "click",
-        "fields": ["key"],
-        "empty": "none"
-      }
-    },
   }), [partialSpec]);
-
-  const handleSignal = (name, value) => {
-    if (name === 'bar_select') {
-      console.log("******** I CLICKED *********", value.key);
-    }
-  };
-
-  const signalListeners = { "bar_select": handleSignal };
 
   const vegaComponent = useMemo(() => (
     <ReactVega
