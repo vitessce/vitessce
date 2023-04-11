@@ -76,8 +76,7 @@ export function VegaPlot(props) {
       if (item && item.datum && value) {
         const tooltipText = tooltipTextFunc(item);
         originalCall.call(this, handler, event, item, tooltipText);
-      }
-      else {
+      } else {
         originalCall.call(this, handler, event, item, value);
       }
     };
