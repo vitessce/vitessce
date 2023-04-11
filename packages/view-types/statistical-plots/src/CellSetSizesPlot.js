@@ -33,6 +33,7 @@ export default function CellSetSizesPlot(props) {
     marginBottom = 120,
     keyLength = 36,
     obsType,
+    onBarSelect,
   } = props;
 
   // Add a property `keyName` which concatenates the key and the name,
@@ -75,7 +76,7 @@ export default function CellSetSizesPlot(props) {
         select: {
           type: "point",
           on: "click",
-          fields: ["key"],
+          fields: ["keyName"],
           empty: "none"
         }
       }
@@ -133,7 +134,9 @@ export default function CellSetSizesPlot(props) {
 
   const handleSignal = (name, value) => {
     if (name === 'bar_select') {
-      console.log("******** I CLICKED *********", value.key);
+      console.log(value.keyName[0]);
+      const clusterName = value.keyName[0].slice(36);
+      onBarSelect(clusterName);
     }
   };
 
