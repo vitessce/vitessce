@@ -99,7 +99,7 @@ export default function CellSetSizesPlot(props) {
     <VegaPlot
       data={data}
       spec={spec}
-      tooltipTextFunc={getTooltipText}
+      getTooltipText={getTooltipText}
     />
   );
 }

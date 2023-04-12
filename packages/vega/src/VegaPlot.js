@@ -28,7 +28,7 @@ export function VegaPlot(props) {
   const {
     spec: partialSpec,
     data,
-    tooltipTextFunc,
+    getTooltipText,
     signalListeners,
   } = props;
 
@@ -57,7 +57,7 @@ export function VegaPlot(props) {
     );
   };
 
-  if (typeof tooltipTextFunc === 'function') {
+  if (typeof getTooltipText === 'function') {
     const tooltipConfig = {
       theme: 'custom',
       offsetX: 10,
@@ -74,7 +74,7 @@ export function VegaPlot(props) {
     const originalCall = tooltipHandler.call;
     tooltipHandler.call = (handler, event, item, value) => {
       if (item && item.datum && value) {
-        const tooltipText = tooltipTextFunc(item);
+        const tooltipText = getTooltipText(item);
         originalCall.call(this, handler, event, item, tooltipText);
       } else {
         originalCall.call(this, handler, event, item, value);
