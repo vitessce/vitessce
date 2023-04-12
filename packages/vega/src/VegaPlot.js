@@ -57,31 +57,34 @@ export function VegaPlot(props) {
 
   let tooltipHandler = false;
 
-  if (typeof getTooltipText === 'function') {
-    const tooltipConfig = {
-      theme: 'custom',
-      offsetX: 10,
-      offsetY: 10,
-      // Use table element to match packages/tooltip/TooltipContent implementation.
-      formatTooltip: tooltipText => `
-        <div class="${clsx(classes.tooltipContainer, tooltipClasses.tooltipContent)}">
-          ${renderTooltipContents(tooltipText)}
-        </div>
-      `,
-    };
-
-    tooltipHandler = new Handler(tooltipConfig);
-    const originalCall = tooltipHandler.call;
-    tooltipHandler.call = (handler, event, item, value) => {
-      if (item && item.datum && value) {
-        const tooltipText = getTooltipText(item);
-        originalCall.call(this, handler, event, item, tooltipText);
-      } else {
-        originalCall.call(this, handler, event, item, value);
-      }
-    };
-    tooltipHandler = tooltipHandler.call;
-  }
+  const tooltipHandler = useMemo(() => {
+    if (typeof getTooltipText === 'function') {
+      const tooltipConfig = {
+        theme: 'custom',
+        offsetX: 10,
+        offsetY: 10,
+        // Use table element to match packages/tooltip/TooltipContent implementation.
+        formatTooltip: tooltipText => `
+          <div class="${clsx(classes.tooltipContainer, tooltipClasses.tooltipContent)}">
+            ${renderTooltipContents(tooltipText)}
+          </div>
+        `,
+      };
+  
+      tooltipHandler = new Handler(tooltipConfig);
+      const originalCall = tooltipHandler.call;
+      tooltipHandler.call = (handler, event, item, value) => {
+        if (item && item.datum && value) {
+          const tooltipText = getTooltipText(item);
+          originalCall.call(this, handler, event, item, tooltipText);
+        } else {
+          originalCall.call(this, handler, event, item, value);
+        }
+      };
+      tooltipHandler = tooltipHandler.call;
+    }
+    return false;
+  }, [getTooltipText]);
 
   const spec = useMemo(() => ({
     ...partialSpec,
