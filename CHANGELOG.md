@@ -5,6 +5,7 @@
 - Added `image.ome-tiff` and `obsSegmentations.ome-tiff` file types.
 - Added `coordinateTransformation` file type options for `image.ome-tiff` and `image.ome-zarr`.
 - Modified the styling of the Vega-lite tooltips, so that it matches the scatterplot/spatial/heatmap tooltips.
+- Fixed a small bug with the path configuration for the `obsSets` component when using zero config mode.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
