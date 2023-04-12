@@ -55,9 +55,7 @@ export function VegaPlot(props) {
   const classes = useStyles();
   const tooltipClasses = useTooltipStyles();
 
-  let tooltipHandler = false;
-
-  const tooltipHandler = useMemo(() => {
+  let tooltipHandler = useMemo(() => {
     if (typeof getTooltipText === 'function') {
       const tooltipConfig = {
         theme: 'custom',
@@ -70,7 +68,7 @@ export function VegaPlot(props) {
           </div>
         `,
       };
-  
+
       tooltipHandler = new Handler(tooltipConfig);
       const originalCall = tooltipHandler.call;
       tooltipHandler.call = (handler, event, item, value) => {
@@ -81,7 +79,7 @@ export function VegaPlot(props) {
           originalCall.call(this, handler, event, item, value);
         }
       };
-      tooltipHandler = tooltipHandler.call;
+      return tooltipHandler.call;
     }
     return false;
   }, [getTooltipText]);

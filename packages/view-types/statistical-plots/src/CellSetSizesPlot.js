@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import clamp from 'lodash/clamp';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 import { colorArrayToString } from '@vitessce/sets-utils';
