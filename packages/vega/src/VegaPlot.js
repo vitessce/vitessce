@@ -17,6 +17,25 @@ function isVega(spec) {
   return spec.$schema === 'https://vega.github.io/schema/vega/v5.json';
 }
 
+function renderTooltipContents(tooltipText) {
+  const tableRows = Object.entries(tooltipText)
+    .map(([key, value]) => (
+      `<tr key=${key}>
+        <th>${key}</th>
+        <td>${value}</td>
+      </tr>`
+    ))
+    .join('');
+
+  return (
+    `<table>
+      <tbody>
+        ${tableRows}
+      </tbody>
+    </table>`
+  );
+}
+
 /**
  * A wrapper around the react-vega Vega component.
  * @param {object} props
@@ -37,25 +56,6 @@ export function VegaPlot(props) {
   const tooltipClasses = useTooltipStyles();
 
   let tooltipHandler = false;
-
-  const renderTooltipContents = (tooltipText) => {
-    const tableRows = Object.entries(tooltipText)
-      .map(([key, value]) => (
-        `<tr key=${key}>
-          <th>${key}</th>
-          <td>${value}</td>
-        </tr>`
-      ))
-      .join('');
-
-    return (
-      `<table>
-        <tbody>
-          ${tableRows}
-        </tbody>
-      </table>`
-    );
-  };
 
   if (typeof getTooltipText === 'function') {
     const tooltipConfig = {
