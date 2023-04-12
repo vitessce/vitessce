@@ -16,6 +16,7 @@ export const styles = makeStyles(theme => ({
     '& table > tbody > tr > th, & table > tbody > tr > td': {
       border: 'none',
       fontSize: '12px',
+      lineHeight: 1.43,
       opacity: 0.8,
       outline: 0,
       padding: '0 2px !important',
