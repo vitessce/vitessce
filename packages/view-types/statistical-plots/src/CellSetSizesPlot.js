@@ -89,11 +89,11 @@ export default function CellSetSizesPlot(props) {
     config: VEGA_THEMES[theme],
   };
 
-  const getTooltipText = item => ({
+  const getTooltipText = useCallback(item => ({
     [`${captializedObsType} Set`]: item.datum.name,
     [`${captializedObsType} Set Size`]: item.datum.size,
   }
-  );
+  ), [captializedObsType]);
 
   return (
     <VegaPlot
