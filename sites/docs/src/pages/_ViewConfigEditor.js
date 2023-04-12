@@ -77,9 +77,7 @@ export default function ViewConfigEditor(props) {
   const [syntaxType, setSyntaxType] = useState('JSON');
   const [loadFrom, setLoadFrom] = useState('editor');
 
-  // const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
-
-  const exampleURL = 'http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr';
+  const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length === 1) {
