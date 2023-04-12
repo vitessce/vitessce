@@ -47,15 +47,19 @@ export default function CellSetSizesPlot(props) {
     colorString: colorArrayToString(d.color),
   }));
 
-  // Manually set the color scale so that Vega-Lite does
-  // not choose the colors automatically.
-  const colors = {
-    domain: data.map(d => d.key),
-    range: data.map(d => d.colorString),
-  };
-
   // Get an array of keys for sorting purposes.
   const keys = data.map(d => d.keyName);
+
+  const myScale = {
+    // Manually set the color scale so that Vega-Lite does
+    // not choose the colors automatically.
+    domain: data.map(d => d.key),
+    range: data.map(d => {
+      const [r, g, b] = d.color;
+      const opacity = d.shown ? 1 : 0.3; // adjust opacity based on shown value
+      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    })
+  };
 
   const spec = {
     mark: { type: 'bar', stroke: 'black', cursor: 'pointer' },
@@ -76,7 +80,7 @@ export default function CellSetSizesPlot(props) {
         select: {
           type: 'point',
           on: 'click',
-          fields: ['keyName', 'labelName'],
+          fields: ['keyName', 'labelName', 'shown'],
           empty: 'none',
         },
       },
@@ -97,7 +101,7 @@ export default function CellSetSizesPlot(props) {
       color: {
         field: 'key',
         type: 'nominal',
-        scale: colors,
+        scale: myScale,
         legend: null,
       },
       tooltip: {
@@ -134,7 +138,7 @@ export default function CellSetSizesPlot(props) {
 
   const handleSignal = (name, value) => {
     if (name === 'bar_select') {
-      onBarSelect([value.labelName[0], value.keyName[0].slice(36)]);
+      onBarSelect([value.labelName[0], value.keyName[0].slice(36)], value.shown[0]);
     }
   };
 

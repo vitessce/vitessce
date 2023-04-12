@@ -520,21 +520,45 @@ export function treeToCellPolygonsBySetNames(
  */
 export function treeToSetSizesBySetNames(currTree, selectedNamePaths, setColor, theme) {
   const sizes = [];
-  selectedNamePaths.forEach((setNamePath) => {
-    const node = treeFindNodeByNamePath(currTree, setNamePath);
+  const mySubtree = currTree.tree[0];
+  mySubtree.children.forEach((cellSetName) => {
+    const node = treeFindNodeByNamePath(currTree, [mySubtree.name, cellSetName.name]);
     if (node) {
       const nodeSet = nodeToSet(node);
-      const nodeColor = setColor?.find(d => isEqual(d.path, setNamePath))?.color
+      const nodeColor = setColor?.find(d => isEqual(d.path, [mySubtree.name, cellSetName.name]))?.color
         || getDefaultColor(theme);
-      sizes.push({
+      let nodeProps = {
         key: generateKey(),
         name: node.name,
         size: nodeSet.length,
         color: nodeColor,
-        labelName: setNamePath[0],
+        labelName: mySubtree.name,
+        shown: 0,
+      }
+      selectedNamePaths.forEach((namePath) => {
+        if (namePath[0] === mySubtree.name && namePath[1] === node.name) {
+          nodeProps["shown"] = 1;
+        }
       });
+      sizes.push(nodeProps);
     }
-  });
+  })
+  // selectedNamePaths.forEach((setNamePath) => {
+  //   const node = treeFindNodeByNamePath(currTree, setNamePath);
+  //   if (node) {
+  //     console.log("NODE!!!!! ", setNamePath);
+  //     const nodeSet = nodeToSet(node);
+  //     const nodeColor = setColor?.find(d => isEqual(d.path, setNamePath))?.color
+  //       || getDefaultColor(theme);
+  //     sizes.push({
+  //       key: generateKey(),
+  //       name: node.name,
+  //       size: nodeSet.length,
+  //       color: nodeColor,
+  //       labelName: setNamePath[0],
+  //     });
+  //   }
+  // });
   return sizes;
 }
 

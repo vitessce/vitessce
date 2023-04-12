@@ -215,6 +215,20 @@ export default function CellSetExpressionPlot(props) {
                 xc: { signal: 'bandWidth / 2' },
                 y2: { scale: 'yscale', field: 'value' },
                 y: { scale: 'yscale', value: 0 },
+                // stroke: [
+                //   {
+                //     test: "datum && datum.set === selectedSet.set",
+                //     value: "black"
+                //   },
+                //   { value: null }
+                // ],
+                // strokeWidth: [
+                //   {
+                //     test: "datum && datum.set === selectedSet.set",
+                //     value: 1
+                //   },
+                //   { value: null }
+                // ],
               },
             },
           },
@@ -231,6 +245,20 @@ export default function CellSetExpressionPlot(props) {
                 xc: { signal: 'bandWidth' },
                 y2: { scale: 'yscale', field: 'value' },
                 y: { scale: 'yscale', value: 0 },
+                // stroke: [
+                //   {
+                //     test: "datum && datum.set === selectedSet.set",
+                //     value: "black"
+                //   },
+                //   { value: null }
+                // ],
+                // strokeWidth: [
+                //   {
+                //     test: "datum && datum.set === selectedSet.set",
+                //     value: 1
+                //   },
+                //   { value: null }
+                // ],
               },
             },
           },
@@ -269,10 +297,20 @@ export default function CellSetExpressionPlot(props) {
     ],
   };
 
+  // const handleSignal = (value) => {
+  //   if (name === 'violin_select') {
+  //     console.log("***** signal on the violin plot:", value);
+  //   }
+  // }
+
+  // const signalListeners = { violin_select: handleSignal };
+
+
   return (
     <VegaPlot
       data={data}
       spec={spec}
+      // signalListeners={signalListeners}
     />
   );
 }

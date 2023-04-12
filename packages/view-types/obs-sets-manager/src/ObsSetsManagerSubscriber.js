@@ -577,6 +577,8 @@ export function ObsSetsManagerSubscriber(props) {
     );
   }
 
+  console.log("ADDITIONAL CELL SETS:", additionalCellSets);
+
   return (
     <TitleInfo
       title={title}

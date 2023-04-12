@@ -5,6 +5,7 @@ import {
   useUrls, useReady, useGridItemSize,
   useObsSetsData,
 } from '@vitessce/vit-s';
+import isEqual from 'lodash/isEqual';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { mergeObsSets, treeToSetSizesBySetNames } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
@@ -69,13 +70,23 @@ export function CellSetSizesPlotSubscriber(props) {
 
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
-  const data = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
+
+  const data = useMemo(() => (mergedCellSets && cellSets && cellSetSelection && cellSetColor
     ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme)
     : []
   ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
 
-  const onBarSelect = (newSetSelection) => {
-    setCellSetSelection([newSetSelection]);
+  // const areAllSelected = (subtreeName) => {
+  //   const all = cellSets.tree.filter((subtree) => subtree.name === subtreeName);
+  //   console.log(all);
+  // }
+
+  const onBarSelect = (targetPath, shownPrev) => {
+    if (shownPrev) {
+      setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, targetPath)));
+    } else {
+      setCellSetSelection([...cellSetSelection, targetPath]);
+    }
   };
 
   return (
