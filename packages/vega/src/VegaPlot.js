@@ -55,7 +55,7 @@ export function VegaPlot(props) {
   const classes = useStyles();
   const tooltipClasses = useTooltipStyles();
 
-  let tooltipHandler = useMemo(() => {
+  const tooltipHandler = useMemo(() => {
     if (typeof getTooltipText === 'function') {
       const tooltipConfig = {
         theme: 'custom',
@@ -69,9 +69,9 @@ export function VegaPlot(props) {
         `,
       };
 
-      tooltipHandler = new Handler(tooltipConfig);
-      const originalCall = tooltipHandler.call;
-      tooltipHandler.call = (handler, event, item, value) => {
+      const handlerInstance = new Handler(tooltipConfig);
+      const originalCall = handlerInstance.call;
+      handlerInstance.call = (handler, event, item, value) => {
         if (item && item.datum && value) {
           const tooltipText = getTooltipText(item);
           originalCall.call(this, handler, event, item, tooltipText);
@@ -79,7 +79,7 @@ export function VegaPlot(props) {
           originalCall.call(this, handler, event, item, value);
         }
       };
-      return tooltipHandler.call;
+      return handlerInstance.call;
     }
     return false;
   }, [getTooltipText]);
