@@ -76,7 +76,7 @@ export default function CellSetSizesPlot(props) {
         select: {
           type: 'point',
           on: 'click',
-          fields: ['keyName', 'labelName'],
+          fields: ['setNamePath'],
           empty: 'none',
         },
       },
@@ -134,7 +134,7 @@ export default function CellSetSizesPlot(props) {
 
   const handleSignal = (name, value) => {
     if (name === 'bar_select') {
-      onBarSelect([value.labelName[0], value.keyName[0].slice(36)]);
+      onBarSelect(value.setNamePath);
     }
   };
 

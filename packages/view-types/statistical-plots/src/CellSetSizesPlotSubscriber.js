@@ -74,8 +74,8 @@ export function CellSetSizesPlotSubscriber(props) {
     : []
   ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
 
-  const onBarSelect = (newSetSelection) => {
-    setCellSetSelection([newSetSelection]);
+  const onBarSelect = (setNamePath) => {
+    setCellSetSelection([setNamePath]);
   };
 
   return (
