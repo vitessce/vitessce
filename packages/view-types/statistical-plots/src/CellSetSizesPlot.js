@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import clamp from 'lodash/clamp';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 import { colorArrayToString } from '@vitessce/sets-utils';
@@ -56,6 +56,8 @@ export default function CellSetSizesPlot(props) {
   // Get an array of keys for sorting purposes.
   const keys = data.map(d => d.keyName);
 
+  const captializedObsType = capitalize(obsType);
+
   const spec = {
     mark: { type: 'bar' },
     encoding: {
@@ -69,7 +71,7 @@ export default function CellSetSizesPlot(props) {
       y: {
         field: 'size',
         type: 'quantitative',
-        title: `${capitalize(obsType)} Set Size`,
+        title: `${captializedObsType} Set Size`,
       },
       color: {
         field: 'key',
@@ -87,10 +89,17 @@ export default function CellSetSizesPlot(props) {
     config: VEGA_THEMES[theme],
   };
 
+  const getTooltipText = useCallback(item => ({
+    [`${captializedObsType} Set`]: item.datum.name,
+    [`${captializedObsType} Set Size`]: item.datum.size,
+  }
+  ), [captializedObsType]);
+
   return (
     <VegaPlot
       data={data}
       spec={spec}
+      getTooltipText={getTooltipText}
     />
   );
 }
