@@ -9,7 +9,8 @@
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
 - Fixes Go to Definition support in vscode (see https://github.com/microsoft/TypeScript/issues/49003#issuecomment-1164659854).
 - Update Vitest configuration to only include test files contained within `src` directories.
-
+- Upgrade `Viv` to `0.13.7`
+- Fix physical size scaling for non-square 2D pixels.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
