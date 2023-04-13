@@ -851,7 +851,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       viewState={viewState}
       onHover={onHover}
       useDevicePixels={useDevicePixels}
-      onClick={() => onHeatmapClick()}
+      onClick={onHeatmapClick}
     />
   );
 });
