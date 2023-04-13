@@ -33,6 +33,7 @@ export default function CellSetSizesPlot(props) {
     marginBottom = 120,
     keyLength = 36,
     obsType,
+    onBarSelect,
   } = props;
 
   // Add a property `keyName` which concatenates the key and the name,
@@ -59,7 +60,29 @@ export default function CellSetSizesPlot(props) {
   const captializedObsType = capitalize(obsType);
 
   const spec = {
-    mark: { type: 'bar' },
+    mark: { type: 'bar', stroke: 'black', cursor: 'pointer' },
+    params: [
+      {
+        name: 'highlight',
+        select: {
+          type: 'point',
+          on: 'mouseover',
+        },
+      },
+      {
+        name: 'select',
+        select: 'point',
+      },
+      {
+        name: 'bar_select',
+        select: {
+          type: 'point',
+          on: 'click',
+          fields: ['setNamePath'],
+          empty: 'none',
+        },
+      },
+    ],
     encoding: {
       x: {
         field: 'keyName',
@@ -83,12 +106,41 @@ export default function CellSetSizesPlot(props) {
         field: 'size',
         type: 'quantitative',
       },
+      fillOpacity: {
+        condition: {
+          param: 'select',
+          value: 1,
+        },
+        value: 0.3,
+      },
+      strokeWidth: {
+        condition: [
+          {
+            param: 'select',
+            empty: false,
+            value: 1,
+          },
+          {
+            param: 'highlight',
+            empty: false,
+            value: 2,
+          },
+        ],
+        value: 0,
+      },
     },
     width: clamp(width - marginRight, 10, Infinity),
     height: clamp(height - marginBottom, 10, Infinity),
     config: VEGA_THEMES[theme],
   };
 
+  const handleSignal = (name, value) => {
+    if (name === 'bar_select') {
+      onBarSelect(value.setNamePath);
+    }
+  };
+
+  const signalListeners = { bar_select: handleSignal };
   const getTooltipText = useCallback(item => ({
     [`${captializedObsType} Set`]: item.datum.name,
     [`${captializedObsType} Set Size`]: item.datum.size,
@@ -99,6 +151,7 @@ export default function CellSetSizesPlot(props) {
     <VegaPlot
       data={data}
       spec={spec}
+      signalListeners={signalListeners}
       getTooltipText={getTooltipText}
     />
   );
