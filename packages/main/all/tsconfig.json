@@ -2,10 +2,12 @@
   "extends": "../../../tsconfig.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": "dist-tsc",
+    "outDir": "dist",
     "rootDir": "src"
   },
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "exclude": [
     "dist",
     "scripts",

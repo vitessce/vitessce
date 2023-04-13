@@ -2,8 +2,11 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": "dist-tsc",
+    "outDir": "dist",
     "rootDir": "src"
   },
-  "include": ["src", "src/schemas/*.json"]
+  "include": [
+    "src",
+    "src/schemas/*.json"
+  ]
 }
