@@ -117,6 +117,10 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
     }
     // Find the ratio of the sizes to get the scaling factor.
     const scale = sizes.map((i, k) => divide(i, minPhysicalSize[k]));
+    if (sizes[0] !== sizes[1]) {
+      // Handle scaling in the Y direction for non-square pixels
+      scale[1] = divide(sizes[1], sizes[0]);
+    }
     // Add in z dimension needed for Matrix4 scale API.
     if (!scale[2]) {
       scale[2] = 1;
