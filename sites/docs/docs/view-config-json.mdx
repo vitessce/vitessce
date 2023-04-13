@@ -4,12 +4,11 @@ title: View Configs via JSON
 sidebar_label: View Configs via JSON
 slug: /view-config-json
 ---
-<!--import BrowserOnlyDiffViewConfigSchema from '../src/pages/_BrowserOnlyDiffViewConfigSchema';-->
-
-## Overview
 
 The Vitessce __view config__ defines datasets (and the URLs to their associated data files) and views that will be used to visualize and interact with the data.
 The view config also stores the [coordination space](/docs/coordination/) (i.e., the state of the views) and defines which views and properties are coordinated.
+
+We realise that having to construct a view config adds friction, for instance preventing quick visualization of an image or AnnData object. This is why for some file formats, Vitessce can generate a valid view config, using URLs to your datasets (see [Data Preparation](/docs/#data-preparation)). For more information, see the [automatic configuration](/docs/default-config-json/) page.
 
 ## Required properties
 
