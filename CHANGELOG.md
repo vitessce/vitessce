@@ -6,6 +6,7 @@
 - Added `coordinateTransformation` file type options for `image.ome-tiff` and `image.ome-zarr`.
 - Modified the styling of the Vega-lite tooltips, so that it matches the scatterplot/spatial/heatmap tooltips.
 - Fixed a small bug with the path configuration for the `obsSets` component when using zero config mode.
+- Add note about branch naming conventions to README
 - Added bidirectional interactions for the `CellSetSizesPlot` vega-lite plot to allow the Vitessce view to update and show the selected cluster on bar click.
 
 ### Changed
