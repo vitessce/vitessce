@@ -527,38 +527,23 @@ export function treeToSetSizesBySetNames(currTree, selectedNamePaths, setColor, 
       const nodeSet = nodeToSet(node);
       const nodeColor = setColor?.find(d => isEqual(d.path, [mySubtree.name, cellSetName.name]))?.color
         || getDefaultColor(theme);
-      let nodeProps = {
+      const nodeProps = {
         key: generateKey(),
         name: node.name,
         size: nodeSet.length,
         color: nodeColor,
-        labelName: mySubtree.name,
+        setNamePath: [mySubtree.name, cellSetName.name], 
+        // todo: this might not be supported by hierarchies. Try to use selectedPath
         shown: 0,
-      }
-      selectedNamePaths.forEach((namePath) => {
-        if (namePath[0] === mySubtree.name && namePath[1] === node.name) {
-          nodeProps["shown"] = 1;
+      };
+      selectedNamePaths.forEach((setNamePath) => {
+        if (setNamePath[0] === mySubtree.name && setNamePath[1] === node.name) {
+          nodeProps.shown = 1;
         }
       });
       sizes.push(nodeProps);
     }
-  })
-  // selectedNamePaths.forEach((setNamePath) => {
-  //   const node = treeFindNodeByNamePath(currTree, setNamePath);
-  //   if (node) {
-  //     console.log("NODE!!!!! ", setNamePath);
-  //     const nodeSet = nodeToSet(node);
-  //     const nodeColor = setColor?.find(d => isEqual(d.path, setNamePath))?.color
-  //       || getDefaultColor(theme);
-  //     sizes.push({
-  //       key: generateKey(),
-  //       name: node.name,
-  //       size: nodeSet.length,
-  //       color: nodeColor,
-  //       labelName: setNamePath[0],
-  //     });
-  //   }
-  // });
+  });
   return sizes;
 }
 

@@ -81,11 +81,11 @@ export function CellSetSizesPlotSubscriber(props) {
   //   console.log(all);
   // }
 
-  const onBarSelect = (targetPath, shownPrev) => {
+  const onBarSelect = (setNamePath, shownPrev) => {
     if (shownPrev) {
-      setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, targetPath)));
+      setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, setNamePath)));
     } else {
-      setCellSetSelection([...cellSetSelection, targetPath]);
+      setCellSetSelection([...cellSetSelection, setNamePath]);
     }
   };
 

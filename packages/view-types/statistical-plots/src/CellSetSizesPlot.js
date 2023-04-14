@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import clamp from 'lodash/clamp';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 import { colorArrayToString } from '@vitessce/sets-utils';
@@ -54,12 +54,13 @@ export default function CellSetSizesPlot(props) {
     // Manually set the color scale so that Vega-Lite does
     // not choose the colors automatically.
     domain: data.map(d => d.key),
-    range: data.map(d => {
+    range: data.map((d) => {
       const [r, g, b] = d.color;
       const opacity = d.shown ? 1 : 0.3; // adjust opacity based on shown value
       return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-    })
+    }),
   };
+  const captializedObsType = capitalize(obsType);
 
   const spec = {
     mark: { type: 'bar', stroke: 'black', cursor: 'pointer' },
@@ -80,7 +81,7 @@ export default function CellSetSizesPlot(props) {
         select: {
           type: 'point',
           on: 'click',
-          fields: ['keyName', 'labelName', 'shown'],
+          fields: ['setNamePath', 'shown'],
           empty: 'none',
         },
       },
@@ -96,7 +97,7 @@ export default function CellSetSizesPlot(props) {
       y: {
         field: 'size',
         type: 'quantitative',
-        title: `${capitalize(obsType)} Set Size`,
+        title: `${captializedObsType} Set Size`,
       },
       color: {
         field: 'key',
@@ -138,17 +139,23 @@ export default function CellSetSizesPlot(props) {
 
   const handleSignal = (name, value) => {
     if (name === 'bar_select') {
-      onBarSelect([value.labelName[0], value.keyName[0].slice(36)], value.shown[0]);
+      onBarSelect(value.setNamePath, value.shown[0]);
     }
   };
 
   const signalListeners = { bar_select: handleSignal };
+  const getTooltipText = useCallback(item => ({
+    [`${captializedObsType} Set`]: item.datum.name,
+    [`${captializedObsType} Set Size`]: item.datum.size,
+  }
+  ), [captializedObsType]);
 
   return (
     <VegaPlot
       data={data}
       spec={spec}
       signalListeners={signalListeners}
+      getTooltipText={getTooltipText}
     />
   );
 }

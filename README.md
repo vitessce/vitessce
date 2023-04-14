@@ -62,6 +62,16 @@ pnpm run start-demo
 
 The development server will refresh the browser as you edit the code.
 
+### Branches
+
+Please use one of the following naming conventions for new branches:
+- `{github-username}/{feature-name}`
+- `{github-username}/fix-{issue-num}`
+
+### Pull requests
+
+We use squash merging for pull requests.
+
 ### Monorepo organization
 
 #### Meta-updater script

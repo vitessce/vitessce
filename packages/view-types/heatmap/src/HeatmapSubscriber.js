@@ -77,6 +77,8 @@ export function HeatmapSubscriber(props) {
     setHeatmapTargetX: setTargetX,
     setHeatmapTargetY: setTargetY,
     setObsHighlight: setCellHighlight,
+    setFeatureSelection: setGeneSelection,
+    setObsColorEncoding: setCellColorEncoding,
     setFeatureHighlight: setGeneHighlight,
     setObsSetSelection: setCellSetSelection,
     setObsSetColor: setCellSetColor,
@@ -171,6 +173,11 @@ export function HeatmapSubscriber(props) {
     // logs in the console on every hover event.
   }, []);
 
+  const onHeatmapClick = () => {
+    setGeneSelection([geneHighlight]);
+    setCellColorEncoding('geneSelection');
+  };
+
   const cellColorLabels = useMemo(() => ([
     `${capitalize(observationsLabel)} Set`,
   ]), [observationsLabel]);
@@ -227,6 +234,7 @@ export function HeatmapSubscriber(props) {
         observationsDashes={false}
         cellColorLabels={cellColorLabels}
         useDevicePixels
+        onHeatmapClick={onHeatmapClick}
       />
       {!disableTooltip && (
       <HeatmapTooltipSubscriber

@@ -487,6 +487,8 @@ importers:
   packages/vega:
     specifiers:
       '@material-ui/core': ~4.12.3
+      '@vitessce/tooltip': workspace:*
+      clsx: ^1.1.1
       react: ^18.0.0
       react-vega: ^7.4.4
       vega: ^5.21.0
@@ -496,6 +498,8 @@ importers:
       vitest: ^0.23.4
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
+      '@vitessce/tooltip': link:../tooltip
+      clsx: 1.2.1
       react-vega: 7.6.0_owrgf5per7xuu6js62r2357ghm
       vega: 5.22.1
       vega-lite: 5.5.0_vega@5.22.1
