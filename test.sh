@@ -7,8 +7,6 @@ die() { set +v; echo "$*" 1>&2 ; sleep 1; exit 1; }
 
 start changelog
 if [[ "$1" == "--action" ]]; then
-  # Reference: https://github.com/changesets/changesets/issues/517#issuecomment-884778604
-  git pull -f origin main:main
   pnpm run changeset-status
 fi
 end changelog
