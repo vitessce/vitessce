@@ -25,7 +25,7 @@
     "meta-update": "cross-env META_UPDATER_MODE=write pnpm meta-updater",
     "meta-dryrun": "cross-env META_UPDATER_MODE=dryrun pnpm meta-updater",
     "meta-version-only": "cross-env META_UPDATER_MODE=versiononly pnpm meta-updater",
-    "changeset-status": "changeset status --since=main",
+    "changeset-status": "changeset status --since=origin/main",
     "changeset-version": "changeset version && pnpm install",
 		"changeset-publish": "changeset publish && pnpm publish --filter='./packages/**' --no-git-checks --access public"
   },
