@@ -15,8 +15,6 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - id: check-deploy
-        run: . ./check-deploy.sh --action
       - uses: pnpm/action-setup@v2.0.1
         name: Install pnpm
         id: pnpm-install
@@ -30,8 +28,15 @@ jobs:
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - run: ./test.sh --action
-      - name: Deploy to NPM
-        if: ${{ steps.check-deploy.outputs.needs-deploy == 'true' }}
-        run: pnpm publish --filter='./packages/**' --no-git-checks --access public
+      - name: Create Release Pull Request or Publish to npm
+        if: github.repository == 'vitessce/vitessce'
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          title: Create Release
+          # this expects you to have a npm script called changeset-version that runs some logic and then calls `changeset version`.
+          version: pnpm run changeset-version
+          # This expects you to have a script called changeset-release which does a build for the packages and calls `changeset publish`
+          publish: pnpm run changeset-release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

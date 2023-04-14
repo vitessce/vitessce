@@ -7,10 +7,7 @@ die() { set +v; echo "$*" 1>&2 ; sleep 1; exit 1; }
 
 start changelog
 if [[ "$1" == "--action" ]]; then
-  if [ "$GITHUB_REF" != 'refs/heads/main' ]; then
-    diff CHANGELOG.md <(curl https://raw.githubusercontent.com/vitessce/vitessce/main/CHANGELOG.md) \
-      && die 'Update CHANGELOG.md'
-  fi
+  pnpm run changeset-status
 fi
 end changelog
 
