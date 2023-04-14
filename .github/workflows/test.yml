@@ -23,6 +23,10 @@ jobs:
     
     steps:
       - uses: actions/checkout@v3
+        # Reference: https://github.com/changesets/changesets/issues/517#issuecomment-1182094769
+        with:
+          ref: ${{github.event.pull_request.head.sha}}
+          fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
@@ -39,6 +43,7 @@ jobs:
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - run: ./test.sh --action
+
   
   test-e2e-demo:
     runs-on: ubuntu-20.04

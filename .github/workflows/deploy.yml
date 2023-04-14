@@ -11,6 +11,7 @@ jobs:
     name: Deploy
     steps:
       - uses: actions/checkout@v3
+        # Reference: https://github.com/changesets/changesets/issues/517#issuecomment-1182094769
         with:
           ref: ${{github.event.pull_request.head.sha}}
           fetch-depth: 0
