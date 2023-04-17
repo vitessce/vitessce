@@ -62,6 +62,12 @@ pnpm run start-demo
 
 The development server will refresh the browser as you edit the code.
 
+### Changesets
+
+We use [changesets](https://github.com/changesets/changesets) to manage the changelog.
+Therefore, when making code changes, do not edit `CHANGELOG.md` directly.
+Instead, run `pnpm changeset`, follow the prompts, and commit the resulting markdown files along with the code changes.
+
 ### Branches
 
 Please use one of the following naming conventions for new branches:
@@ -109,21 +115,6 @@ To build the current branch and push the "minimal" demo and docs sites to S3, ru
 
 This will build the demo and docs, push both to S3, and finally open the docs deployment in your browser.
 
-### Production
-
-To make a production deployment of the dev site and docs site:
-
-```sh
-./scripts/deploy-release.sh
-```
-
-This script does the following:
-- Checks out a new branch for the release
-- Runs `npm version (major | minor | patch)` (depending on the first argument passed to the script)
-- Pushes staging demos via `./scripts/push-demos.sh`
-- Updates the CHANGELOG.md
-- Makes a pull request using the GitHub CLI `gh pr create`
-
 #### Publish staged development site
 
 After doing a [manual test](TESTING.md) of the deployment of the dev site,
@@ -154,18 +145,33 @@ Note: if you need to obtain this URL later:
 Copy docs to https://s3.amazonaws.com/vitessce-data/docs-root/$DATE/$HASH/index.html
 ```
 
-#### Publish the NPM package
+## Release
 
-From GitHub Actions:
+Releasing refers to publishing all sub-packages to NPM and creating a corresponding GitHub release.
 
-- The `vitessce` package is published to the NPM registry by GitHub Actions when the version in `package.json` has been updated and pushed to the `main` branch. To perform this update, make a pull request to merge from the release branch into `main`.
+Note: releasing does not currently result in automatic deployment of the documentation or development sites (see the [Deployment](#deployment) section above).
 
-From local machine:
+### From GitHub Actions
 
-  ```sh
-  pnpm run build
-  pnpm publish --filter='./packages/**' --no-git-checks --tag beta --access public --dry-run
-  ```
+When there are changesets on the `main` branch, the [`changesets/action`](https://github.com/changesets/action) bot will run `./scripts/changeset-version.sh --action` and make a pull request titled "Create release".
+
+- This pull request remains open until ready to make a release. The bot will update the pull request as new changesets are added to `main`.
+
+Once this "Create release" pull request is merged, the next time `release.yml` is executed on GitHub Actions, the following will occur:
+- [`changesets/action`](https://github.com/changesets/action) will run `./scripts/changeset-publish.sh --action`, which:
+  - publishes to NPM
+  - creates a new git tag for the release
+- [`softprops/action-gh-release`](https://github.com/softprops/action-gh-release) will generate a GitHub release based on the git tag, using the latest changelog entries for the release notes.
+
+### From local machine
+
+```sh
+pnpm run build
+pnpm run bundle
+
+./scripts/changeset-version.sh
+./scripts/changeset-publish.sh
+```
 
 ## Version bumps
 
