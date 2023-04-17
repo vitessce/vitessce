@@ -5,12 +5,6 @@ start() { echo travis_fold':'start:$1; echo $1; }
 end() { echo travis_fold':'end:$1; }
 die() { set +v; echo "$*" 1>&2 ; sleep 1; exit 1; }
 
-start changelog
-if [[ "$1" == "--action" ]]; then
-  pnpm run changeset-status
-fi
-end changelog
-
 start lint
 pnpm run lint || die 'eslint failed; try: pnpm run lint-fix'
 end lint
