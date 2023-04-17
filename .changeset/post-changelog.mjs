@@ -5,7 +5,6 @@ import fs from 'node:fs';
 import { join } from 'node:path';
 import { MAIN_PACKAGE_DIR } from './constants.mjs';
 
-// TODO: update path once in vitessce
 // Read the new changelog file,
 // removing the first line since it will always
 // contain the main package name.
