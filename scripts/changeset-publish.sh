@@ -2,17 +2,12 @@
 set -o errexit
 set -o pipefail
 
-# Reference: https://stackoverflow.com/a/37939589
-# Reference: https://stackoverflow.com/a/26314887
-function version { echo "$@" | tr -d '"' | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
-
 if [[ "$1" != "--action" ]]; then
   if ! command -v gh &> /dev/null
   then
       die "Requires the GitHub CLI (gh)."
   fi
 fi
-
 
 pnpm publish --filter='./packages/**' --no-git-checks --access public
 git tag v$(cat ./package.json | jq -r .version)
