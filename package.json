@@ -26,13 +26,12 @@
     "meta-dryrun": "cross-env META_UPDATER_MODE=dryrun pnpm meta-updater",
     "meta-version-only": "cross-env META_UPDATER_MODE=versiononly pnpm meta-updater",
     "changeset-status": "changeset status --since=origin/main",
-    "changeset-version": "changeset version && pnpm install",
-		"changeset-publish": "changeset publish && pnpm publish --filter='./packages/**' --no-git-checks --access public"
+    "changeset-version": "node .changeset/pre-changelog.mjs && changeset version && node .changeset/post-changelog.mjs && pnpm install",
+    "changeset-publish": "pnpm publish --filter='./packages/**' --no-git-checks --access public && git tag v$(cat ./package.json | jq -r .version) && git push --follow-tags && node .changeset/get-release-notes.mjs && echo \"should-release=true\" >> $GITHUB_OUTPUT",
+    "changeset-publish-dummy": "git tag v$(cat ./package.json | jq -r .version) && git push --follow-tags && node .changeset/get-release-notes.mjs && echo \"should-release=true\" >> $GITHUB_OUTPUT"
   },
   "devDependencies": {
     "@pnpm/meta-updater": "^0.0.6",
-    "@changesets/cli": "^2.17.0",
-    "@svitejs/changesets-changelog-github-compact": "^1.1.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/react-hooks": "^8.0.1",
@@ -58,7 +57,14 @@
     "vitest": "^0.23.4",
     "cross-env": "^7.0.0",
     "json-diff-ts": "^1.2.5",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "@changesets/cli": "^2.17.0",
+    "@changesets/get-github-info": "^0.5.2",
+    "gray-matter": "^4.0.3",
+    "mdast-util-to-string": "^1.0.6",
+    "remark-parse": "^7.0.1",
+    "remark-stringify": "^7.0.3",
+    "unified": "^8.3.2"
   },
   "pnpm": {
     "overrides": {

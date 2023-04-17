@@ -1,11 +1,12 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@2.3.0/schema.json",
   "changelog": [
-    "@svitejs/changesets-changelog-github-compact",
-    { "repo": "vitessce/vitessce" }
+    "./changesets-changelog.js",
+    { "repo": "keller-mark/pnpm-ts-react-example" }
   ],
-  "fixed": [["vitessce", "@vitessce/*"]],
+  "fixed": [["pnpm-ts-react-example", "@pnpm-ts-react-example/*"]],
   "commit": false,
   "access": "public",
-  "baseBranch": "main"
+  "baseBranch": "main",
+  "bumpVersionsWithWorkspaceProtocolOnly": true
 }

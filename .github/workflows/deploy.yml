@@ -11,9 +11,9 @@ jobs:
     name: Deploy
     steps:
       - uses: actions/checkout@v3
-        # Reference: https://github.com/changesets/changesets/issues/517#issuecomment-1182094769
         with:
-          ref: ${{github.event.pull_request.head.sha}}
+          # Reference: https://github.com/changesets/changesets/issues/517#issuecomment-1182094769
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
@@ -25,6 +25,7 @@ jobs:
         with:
           version: 7
           run_install: true
+      - run: pnpm run changeset-status
       - id: get-options
         run: . ./set-node-options.sh --action
         shell: bash
@@ -32,15 +33,25 @@ jobs:
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - run: ./test.sh --action
-      - name: Create Release Pull Request or Publish to npm
+      - name: Create release pull request or Publish to NPM
         if: github.repository == 'vitessce/vitessce'
         id: changesets
         uses: changesets/action@v1
         with:
-          title: Create Release
+          title: Create release
           # this expects you to have a npm script called changeset-version that runs some logic and then calls `changeset version`.
           version: pnpm run changeset-version
-          # This expects you to have a script called changeset-release which does a build for the packages and calls `changeset publish`
-          publish: pnpm run changeset-release
+          # This expects you to have a script called changeset-publish which does a build for the packages and calls `changeset publish`
+          publish: pnpm run changeset-publish
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      - id: get-tag
+        run: echo "tag=v$(cat ./package.json | jq -r .version)" >> $GITHUB_OUTPUT
+      - name: Create GitHub release if publish was successful
+        if: steps.changesets.outputs.should-release == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.get-tag.outputs.tag }}
+          body_path: RELEASE_NOTES.md
