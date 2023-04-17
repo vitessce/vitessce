@@ -49,7 +49,7 @@ First install [PNPM](https://pnpm.io/installation) v7. We develop and test again
 > **Note**
 > NodeJS may require the [`max_old_space_size`](https://stackoverflow.com/a/59572966) value to be increased.
   ```sh
-  . ./set-node-options.sh
+  . ./scripts/set-node-options.sh
   ```
 
 Checkout the project, `cd`, and then:
@@ -88,7 +88,7 @@ For the end-to-end tests, they depend on
 pnpm run build-demo
 ```
 
-- To run all the tests, both unit and e2e: `./test.sh`
+- To run all the tests, both unit and e2e: `./scripts/test.sh`
 - To run just the unit tests: `pnpm run test`
 
 
@@ -104,23 +104,23 @@ $ aws iam list-account-aliases --query 'AccountAliases[0]'
 
 To build the current branch and push the "minimal" demo and docs sites to S3, run this script:
 ```sh
-./push-demos.sh
+./scripts/push-demos.sh
 ```
 
 This will build the demo and docs, push both to S3, and finally open the docs deployment in your browser.
 
-### Release
+### Production
 
-To make a release of the dev site, docs site, and NPM package:
+To make a production deployment of the dev site and docs site:
 
 ```sh
-./create-release.sh patch
+./scripts/deploy-release.sh
 ```
 
 This script does the following:
 - Checks out a new branch for the release
 - Runs `npm version (major | minor | patch)` (depending on the first argument passed to the script)
-- Pushes staging demos via `./push-demos.sh`
+- Pushes staging demos via `./scripts/push-demos.sh`
 - Updates the CHANGELOG.md
 - Makes a pull request using the GitHub CLI `gh pr create`
 
@@ -130,7 +130,7 @@ After doing a [manual test](TESTING.md) of the deployment of the dev site,
 if it looks good, copy it to dev.vitessce.io:
 
 ```sh
-./copy-dev.sh https://{url returned by create-release.sh or push-demos.sh}
+./scripts/copy-dev.sh https://{url returned by scripts/deploy-release.sh or scripts/push-demos.sh}
 ```
 
 Note: if you need to obtain this URL later:
@@ -145,7 +145,7 @@ After doing a manual test of the deployment of the docs,
 if it looks good, copy it to vitessce.io:
 
 ```sh
-./copy-docs.sh https://{url returned by create-release.sh or push-demos.sh}
+./scripts/copy-docs.sh https://{url returned by scripts/deploy-release.sh or scripts/push-demos.sh}
 ```
 
 Note: if you need to obtain this URL later:

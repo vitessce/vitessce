@@ -26,12 +26,12 @@ jobs:
           version: 7
           run_install: true
       - id: get-options
-        run: . ./set-node-options.sh --action
+        run: . ./scripts/set-node-options.sh --action
         shell: bash
       - run: pnpm run build:ci && pnpm run bundle:ci
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
-      - run: ./test.sh --action
+      - run: ./scripts/test.sh --action
       - name: Create release pull request or Publish to NPM
         if: github.repository == 'vitessce/vitessce'
         id: changesets

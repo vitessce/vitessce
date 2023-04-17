@@ -38,12 +38,12 @@ jobs:
           run_install: true
       - run: pnpm run changeset-status
       - id: get-options
-        run: . ./set-node-options.sh --action
+        run: . ./scripts/set-node-options.sh --action
         shell: bash
       - run: pnpm run build:ci
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
-      - run: ./test.sh --action
+      - run: ./scripts/test.sh --action
 
   
   test-e2e-demo:
@@ -60,7 +60,7 @@ jobs:
           version: 7
           run_install: true
       - id: get-options
-        run: . ./set-node-options.sh --action
+        run: . ./scripts/set-node-options.sh --action
         shell: bash
       - run: |
           pnpm run build:ci
@@ -99,7 +99,7 @@ jobs:
           version: 7
           run_install: true
       - id: get-options
-        run: . ./set-node-options.sh --action
+        run: . ./scripts/set-node-options.sh --action
         shell: bash
       - run: pnpm run build:ci && pnpm run bundle:ci
         env:

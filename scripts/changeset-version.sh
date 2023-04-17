@@ -4,7 +4,7 @@ set -o pipefail
 
 node .changeset/pre-changelog.mjs
 
-if [[ "$1" ~= "--action" ]]; then
+if [[ "$1" != "--action" ]]; then
   export GITHUB_TOKEN=$(gh auth token)
 fi
 
