@@ -25,10 +25,7 @@
     "meta-update": "cross-env META_UPDATER_MODE=write pnpm meta-updater",
     "meta-dryrun": "cross-env META_UPDATER_MODE=dryrun pnpm meta-updater",
     "meta-version-only": "cross-env META_UPDATER_MODE=versiononly pnpm meta-updater",
-    "changeset-status": "changeset status --since=origin/main",
-    "changeset-version": "node .changeset/pre-changelog.mjs && changeset version && node .changeset/post-changelog.mjs && pnpm install",
-    "changeset-publish": "pnpm publish --filter='./packages/**' --no-git-checks --access public && git tag v$(cat ./package.json | jq -r .version) && git push --follow-tags && node .changeset/get-release-notes.mjs && echo \"should-release=true\" >> $GITHUB_OUTPUT",
-    "changeset-publish-dummy": "git tag v$(cat ./package.json | jq -r .version) && git push --follow-tags && node .changeset/get-release-notes.mjs && echo \"should-release=true\" >> $GITHUB_OUTPUT"
+    "changeset-status": "changeset status --since=origin/main"
   },
   "devDependencies": {
     "@pnpm/meta-updater": "^0.0.6",

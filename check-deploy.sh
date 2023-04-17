@@ -6,8 +6,8 @@ LOCAL_VERSION=`cat ./package.json | jq .version`
 function version { echo "$@" | tr -d '"' | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
 
 if [ $(version $LOCAL_VERSION) -gt $(version $REMOTE_VERSION) ]; then
-  echo "::set-output name=needs-deploy::true"
+  echo "needs-deploy=true" >> $GITHUB_OUTPUT
 else
-  echo "::set-output name=needs-deploy::false"
+  echo "needs-deploy=false" >> $GITHUB_OUTPUT
 fi
 

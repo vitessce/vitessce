@@ -1,12 +1,12 @@
 # Adapted from https://github.com/actions/starter-workflows/blob/e9e00b017736d3b3811cedf1ee2e8ceb3c48e3dd/ci/npm-publish.yml
-name: Deploy
+name: Release
 on:
   push:
     branches:
       - main
 
 jobs:
-  deploy:
+  release:
     runs-on: ubuntu-20.04
     name: Deploy
     steps:
@@ -39,9 +39,9 @@ jobs:
         with:
           title: Create release
           # this expects you to have a npm script called changeset-version that runs some logic and then calls `changeset version`.
-          version: pnpm run changeset-version
+          version: ./scripts/changeset-version.sh --action
           # This expects you to have a script called changeset-publish which does a build for the packages and calls `changeset publish`
-          publish: pnpm run changeset-publish
+          publish: ./scripts/changeset-publish.sh --action
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
