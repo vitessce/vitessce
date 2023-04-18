@@ -13,8 +13,4 @@ assignees: ''
 
 **Possible alternatives**
 
-**Use case**
- - [ ] Relevant to HuBMAP Consortium
- - [ ] Relevant to Kidney Precision Medicine Project
- - [ ] Relevant to Human Tumor Atlas Network
- - [ ] Other
+<!-- Please add the `cell-atlas` issue label if you are a member of HuBMAP, KPMP, HTAN, SenNet, or other cell atlas project. -->

@@ -27,6 +27,7 @@
 - Upgrade `Viv` to `0.13.7`
 - Fix physical size scaling for non-square 2D pixels.
 - Removes logic for `tsconfig.json` from the meta-updater script
+- Update issue template.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
