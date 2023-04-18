@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import {
   TitleInfo,
   useCoordination, useLoaders,
@@ -52,6 +52,10 @@ export function CellSetSizesPlotSubscriber(props) {
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl] = useUrls(loaders, dataset);
 
+  const [currentHierarchyName, setCurrentHierarchyName] = useState('');
+  const [cellSetSelectionLength, setCellSetSelectionLength] = useState(0);
+  const [lastCellSetSelection, setLastCellSetSelection] = useState([]);
+
   // Get data from loaders using the data hooks.
   const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
     loaders, dataset, addUrl, true,
@@ -68,13 +72,46 @@ export function CellSetSizesPlotSubscriber(props) {
     [cellSets, additionalCellSets],
   );
 
+  function findChangedHierarchy(arr1, arr2) {
+    const subarrayToString = subarray => subarray.toString();
+  
+    const arr1Strings = arr1.map(subarrayToString);
+    const arr2Strings = arr2.map(subarrayToString);
+  
+    const arr1UniqueStrings = arr1Strings.filter(subarrayStr => !arr2Strings.includes(subarrayStr));
+    const arr2UniqueStrings = arr2Strings.filter(subarrayStr => !arr1Strings.includes(subarrayStr));
+  
+    if (arr1UniqueStrings.length === 0 && arr2UniqueStrings.length === 0) {
+      return 'Leiden Clustering'; //todo
+    }
+  
+    if (arr2UniqueStrings.length > 0) {
+      const addedSubarray = arr2UniqueStrings[0].split(',').map(element => {
+        return isNaN(Number(element)) ? element : Number(element);
+      });
+      return addedSubarray[0]; // Return the hierarchy of the added clusters
+    } else {
+      const removedSubarray = arr1UniqueStrings[0].split(',').map(element => {
+        return isNaN(Number(element)) ? element : Number(element);
+      });
+      return removedSubarray[0]; // Return the hierarchy of the removed clusters
+    }
+  }
+
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
-
-  const data = useMemo(() => (mergedCellSets && cellSets && cellSetSelection && cellSetColor
-    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme)
+  const data = useMemo(() => {
+    let newHierarchy;
+    if (cellSetSelection) {
+      newHierarchy = findChangedHierarchy(lastCellSetSelection, cellSetSelection);
+      console.log("**** new hierarchy: ", newHierarchy);
+      setLastCellSetSelection(cellSetSelection);
+      setCurrentHierarchyName(newHierarchy);
+    }
+    return (mergedCellSets && cellSets && cellSetSelection && cellSetColor
+    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, newHierarchy, cellSetColor, theme)
     : []
-  ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
+  )}, [mergedCellSets, cellSetSelection, cellSetColor, theme]);
 
   // const areAllSelected = (subtreeName) => {
   //   const all = cellSets.tree.filter((subtree) => subtree.name === subtreeName);

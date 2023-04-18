@@ -518,26 +518,31 @@ export function treeToCellPolygonsBySetNames(
  * with the properties `name`, `size`, `key`,
  * and `color`.
  */
-export function treeToSetSizesBySetNames(currTree, selectedNamePaths, setColor, theme) {
+// TODO update docs and put a default for currentHierarchyName
+export function treeToSetSizesBySetNames(currTree, selectedNamePaths, currentHierarchyName, setColor, theme) {
   const sizes = [];
-  const mySubtree = currTree.tree[0];
-  mySubtree.children.forEach((cellSetName) => {
-    const node = treeFindNodeByNamePath(currTree, [mySubtree.name, cellSetName.name]);
+  console.log("treeToSetSizesBySetNames func:", currTree);
+  const allClustersInHierarchy = currTree.tree
+    .find((subtree) => subtree.name === currentHierarchyName)
+    .children.map((child) => child.name);
+  console.log("BLA: ", allClustersInHierarchy);
+  allClustersInHierarchy.forEach((cellSetName) => {
+    const node = treeFindNodeByNamePath(currTree, [currentHierarchyName, cellSetName]);
     if (node) {
       const nodeSet = nodeToSet(node);
-      const nodeColor = setColor?.find(d => isEqual(d.path, [mySubtree.name, cellSetName.name]))?.color
+      const nodeColor = setColor?.find(d => isEqual(d.path, [currentHierarchyName, cellSetName]))?.color
         || getDefaultColor(theme);
       const nodeProps = {
         key: generateKey(),
         name: node.name,
         size: nodeSet.length,
         color: nodeColor,
-        setNamePath: [mySubtree.name, cellSetName.name], 
+        setNamePath: [currentHierarchyName, cellSetName], 
         // todo: this might not be supported by hierarchies. Try to use selectedPath
         shown: 0,
       };
       selectedNamePaths.forEach((setNamePath) => {
-        if (setNamePath[0] === mySubtree.name && setNamePath[1] === node.name) {
+        if (setNamePath[0] === currentHierarchyName && setNamePath[1] === node.name) {
           nodeProps.shown = 1;
         }
       });
