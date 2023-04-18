@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import clamp from 'lodash/clamp';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 import { colorArrayToString } from '@vitessce/sets-utils';
-import { capitalize } from '@vitessce/utils';
+import { capitalize, getDefaultColor } from '@vitessce/utils';
 
 /**
  * Cell set sizes displayed as a bar chart,
@@ -55,9 +55,8 @@ export default function CellSetSizesPlot(props) {
     // not choose the colors automatically.
     domain: data.map(d => d.key),
     range: data.map((d) => {
-      const [r, g, b] = d.color;
-      const opacity = d.shown ? 1 : 0.3; // adjust opacity based on shown value
-      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+      const [r, g, b] = d.shown ? d.color : getDefaultColor(theme);
+      return `rgba(${r}, ${g}, ${b}, 1)`;
     }),
   };
   const captializedObsType = capitalize(obsType);
