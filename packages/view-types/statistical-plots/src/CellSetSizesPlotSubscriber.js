@@ -82,19 +82,19 @@ export function CellSetSizesPlotSubscriber(props) {
     const arr2UniqueStrings = arr2Strings.filter(subarrayStr => !arr1Strings.includes(subarrayStr));
   
     if (arr1UniqueStrings.length === 0 && arr2UniqueStrings.length === 0) {
-      return 'Leiden Clustering'; //todo
+      return 0;
     }
   
     if (arr2UniqueStrings.length > 0) {
       const addedSubarray = arr2UniqueStrings[0].split(',').map(element => {
         return isNaN(Number(element)) ? element : Number(element);
       });
-      return addedSubarray[0]; // Return the hierarchy of the added clusters
+      return addedSubarray.slice(0, -1); // Return the hierarchy of the added clusters
     } else {
       const removedSubarray = arr1UniqueStrings[0].split(',').map(element => {
         return isNaN(Number(element)) ? element : Number(element);
       });
-      return removedSubarray[0]; // Return the hierarchy of the removed clusters
+      return removedSubarray.slice(0, -1); // Return the hierarchy of the removed clusters
     }
   }
 
@@ -104,21 +104,23 @@ export function CellSetSizesPlotSubscriber(props) {
     let newHierarchy;
     if (cellSetSelection) {
       newHierarchy = findChangedHierarchy(lastCellSetSelection, cellSetSelection);
-      console.log("**** new hierarchy: ", newHierarchy);
-      setLastCellSetSelection(cellSetSelection);
-      setCurrentHierarchyName(newHierarchy);
+      if (newHierarchy !== 0) {
+        console.log("**** new hierarchy: ", newHierarchy);
+        setLastCellSetSelection(cellSetSelection);
+        setCurrentHierarchyName(newHierarchy);
+      } else if (newHierarchy === 0) {
+        newHierarchy = currentHierarchyName;
+      }
     }
+    console.log("the hierarchy we use: ", newHierarchy);
+    console.log("++++ cellSetSelection: ", cellSetSelection);
     return (mergedCellSets && cellSets && cellSetSelection && cellSetColor
     ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, newHierarchy, cellSetColor, theme)
     : []
   )}, [mergedCellSets, cellSetSelection, cellSetColor, theme]);
 
-  // const areAllSelected = (subtreeName) => {
-  //   const all = cellSets.tree.filter((subtree) => subtree.name === subtreeName);
-  //   console.log(all);
-  // }
-
   const onBarSelect = (setNamePath, shownPrev) => {
+    console.log("setNamePath: ", setNamePath);
     if (shownPrev) {
       setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, setNamePath)));
     } else {

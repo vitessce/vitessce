@@ -521,36 +521,102 @@ export function treeToCellPolygonsBySetNames(
 // TODO update docs and put a default for currentHierarchyName
 export function treeToSetSizesBySetNames(currTree, selectedNamePaths, currentHierarchyName, setColor, theme) {
   const sizes = [];
-  console.log("treeToSetSizesBySetNames func:", currTree);
-  const allClustersInHierarchy = currTree.tree
-    .find((subtree) => subtree.name === currentHierarchyName)
-    .children.map((child) => child.name);
-  console.log("BLA: ", allClustersInHierarchy);
-  allClustersInHierarchy.forEach((cellSetName) => {
-    const node = treeFindNodeByNamePath(currTree, [currentHierarchyName, cellSetName]);
-    if (node) {
-      const nodeSet = nodeToSet(node);
-      const nodeColor = setColor?.find(d => isEqual(d.path, [currentHierarchyName, cellSetName]))?.color
-        || getDefaultColor(theme);
-      const nodeProps = {
-        key: generateKey(),
-        name: node.name,
-        size: nodeSet.length,
-        color: nodeColor,
-        setNamePath: [currentHierarchyName, cellSetName], 
-        // todo: this might not be supported by hierarchies. Try to use selectedPath
-        shown: 0,
-      };
-      selectedNamePaths.forEach((setNamePath) => {
-        if (setNamePath[0] === currentHierarchyName && setNamePath[1] === node.name) {
-          nodeProps.shown = 1;
+  console.log("*** currTree: ", currTree);
+
+  const findClusters = (tree, hierarchy, path = []) => {
+    let result = [];
+  
+    tree.forEach(node => {
+      const newPath = [...path, node.name];
+  
+      if (node.children) {
+        result = [...result, ...findClusters(node.children, hierarchy, newPath)];
+      } else {
+        const isPartialMatch = hierarchy.every(
+          (hierarchyPart, index) => hierarchyPart === newPath[index]
+        );
+  
+        if (isPartialMatch) {
+          result.push(newPath);
         }
-      });
-      sizes.push(nodeProps);
-    }
+      }
+    });
+  
+    return result;
+  };
+
+  const isSubset = (arr1, arr2) => {
+    return arr2.every(element => arr1.includes(element));
+  };
+  
+  const allClusters = findClusters(currTree.tree, currentHierarchyName);
+  console.log("**** allClusters:", allClusters);
+  allClusters.forEach((clusterPath) => {
+      const node = treeFindNodeByNamePath(currTree, clusterPath);
+      if (node) {
+        const nodeSet = nodeToSet(node);
+        const nodeColor = setColor?.find(d => isEqual(d.path, clusterPath))?.color
+          || getDefaultColor(theme);
+        const nodeProps = {
+          key: generateKey(),
+          name: node.name,
+          size: nodeSet.length,
+          color: nodeColor,
+          setNamePath: clusterPath,
+          shown: 0,
+        };
+        selectedNamePaths.forEach((setNamePath) => {
+          if (isSubset(clusterPath, setNamePath)) {
+            nodeProps.shown = 1;
+          }
+        });
+        sizes.push(nodeProps);
+      }
   });
   return sizes;
 }
+
+// {
+//   "tree": [
+//       {
+//           "name": "Leiden Clustering",
+//           "children": [
+//               {
+//                   "name": "Cluster 1",
+//               }
+//           ]
+//       },
+//       {
+//           "name": "My Selections",
+//           "children": [
+//               {
+//                   "name": "Selection 1",
+
+//               },
+//               {
+//                   "name": "Selection 3",
+//               },
+//               {
+//                   "name": "Selection 5",
+//               },
+//               {
+//                   "name": "Iva",
+//                   "children": [
+//                       {
+//                           "name": "Selection 2",
+//                       },
+//                       {
+//                           "name": "Selection 4",
+//                       },
+//                       {
+//                           "name": "Selection 6",
+//                       }
+//                   ]
+//               }
+//           ]
+//       }
+//   ]
+// }
 
 /**
  * Find and remove a node from the descendants of the current node.
