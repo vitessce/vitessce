@@ -20,7 +20,7 @@ const OTHER_VERSIONS = {
   "uuid": "^3.3.2",
   "zarr": "0.5.1",
   "zustand": "^3.5.10",
-  "@hms-dbmi/viv": "~0.13.6",
+  "@hms-dbmi/viv": "~0.13.7",
   "clsx": "^1.1.1",
   "d3-array": "^2.4.0",
   "d3-dsv": "^1.1.1",
@@ -132,20 +132,5 @@ export default (workspaceDir) => {
       newJson = { ...newJson, version: meta.version };
       return processUpdate(prevJson, newJson, isDryrun || isVersionOnly, dir, 'package.json');
     },
-    'tsconfig.json': (prevJson, dir) => {
-      let newJson = cloneDeep(prevJson);
-      if(prevJson && dir !== workspaceDir) {
-        newJson = {
-          ...newJson,
-          compilerOptions: {
-            ...newJson?.compilerOptions,
-            outDir: 'dist',
-            rootDir: 'src',
-          },
-        };
-        return processUpdate(prevJson, newJson, isDryrun, dir, 'tsconfig.json');
-      }
-      return prevJson;
-    }
-  }
+  };
 }
