@@ -11,6 +11,16 @@ import {
 import { obsSetPath, rgbArray, obsSetsSchema } from './shared';
 
 export const COORDINATION_TYPE_SCHEMAS = [
+  new PluginCoordinationType(
+    CoordinationType.META_COORDINATION_SCOPES,
+    null,
+    z.record(z.any()).nullable(),
+  ),
+  new PluginCoordinationType(
+    CoordinationType.META_COORDINATION_SCOPES_BY,
+    null,
+    z.record(z.any()).nullable(),
+  ),
   new PluginCoordinationType(CoordinationType.DATASET, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.OBS_TYPE, 'cell', z.string()),
   new PluginCoordinationType(CoordinationType.FEATURE_TYPE, 'gene', z.string()),
