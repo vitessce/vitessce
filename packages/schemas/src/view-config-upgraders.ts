@@ -22,6 +22,7 @@ import {
   configSchema1_0_14,
   configSchema1_0_15,
   configSchema1_0_16,
+  configSchema1_0_17,
 } from './previous-base-schemas';
 import { componentCoordinationScopes, componentCoordinationScopesBy } from './shared';
 
@@ -736,4 +737,23 @@ export function upgradeFrom1_0_15(
     layout: newLayout,
     version: '1.0.16',
   };
+}
+
+// Added in version 1.0.17:
+// - Use multi-level coordination to
+// break up spatial layer coordination values
+// (from arrays and nested objects to primitives).
+export function upgradeFrom1_0_16(
+  config: z.infer<typeof configSchema1_0_16>,
+): z.infer<typeof configSchema1_0_17> {
+  const newConfig = cloneDeep(config);
+
+  
+
+  return {
+    ...newConfig,
+    layout: newLayout,
+    coordinationSpace: newCoordinationSpace,
+    version: '1.0.17',
+  }
 }

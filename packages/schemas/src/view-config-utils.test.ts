@@ -4,6 +4,7 @@ import {
   upgradeFrom0_1_0,
   upgradeFrom1_0_0,
   upgradeFrom1_0_15,
+  upgradeFrom1_0_16,
 } from './view-config-upgraders';
 import {
   legacyViewConfig0_1_0,
@@ -12,6 +13,8 @@ import {
   upgradedLegacyViewConfig1_0_0,
   implicitPerDatasetCoordinations,
   explicitPerDatasetCoordinations,
+  nestedSpatialLayers,
+  multiLevelSpatialLayers,
 } from './view-config-utils.test.fixtures';
 import {
   upgradeAndParse,
@@ -30,6 +33,10 @@ describe('src/app/view-config-utils.js', () => {
     it('upgrade view config from v1.0.9 to v1.0.16', () => {
       expect(upgradeFrom1_0_15(implicitPerDatasetCoordinations))
         .toEqual(explicitPerDatasetCoordinations);
+    });
+    it('upgrade view config from v1.0.16 to v1.0.17', () => {
+      expect(upgradeFrom1_0_16(nestedSpatialLayers))
+        .toEqual(multiLevelSpatialLayers);
     });
     it('upgrades more than once', () => {
       const latestConfig = upgradeAndParse(legacyViewConfig1_0_0);

@@ -256,7 +256,12 @@ export const configSchema1_0_16 = configSchema1_0_13.extend({
   ),
 });
 
-export const latestConfigSchema = configSchema1_0_16;
+// Only coordination type or behavioral changes.
+export const configSchema1_0_17 = configSchema1_0_16.extend({
+  version: z.literal('1.0.17'),
+});
+
+export const latestConfigSchema = configSchema1_0_17;
 
 export type AnyVersionConfig =
   z.infer<typeof configSchema0_1_0> |
@@ -276,6 +281,7 @@ export type AnyVersionConfig =
   z.infer<typeof configSchema1_0_13> |
   z.infer<typeof configSchema1_0_14> |
   z.infer<typeof configSchema1_0_15> |
-  z.infer<typeof configSchema1_0_16>;
+  z.infer<typeof configSchema1_0_16> |
+  z.infer<typeof configSchema1_0_17>;
 
 export type UpgradeFunction = (config: any) => AnyVersionConfig;
