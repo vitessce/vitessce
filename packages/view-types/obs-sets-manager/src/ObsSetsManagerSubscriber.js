@@ -576,6 +576,7 @@ export function ObsSetsManagerSubscriber(props) {
       FILE_EXTENSION_JSON,
     );
   }
+
   return (
     <TitleInfo
       title={title}

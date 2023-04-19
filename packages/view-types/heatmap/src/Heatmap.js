@@ -122,6 +122,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     useDevicePixels = 1,
     hideObservationLabels = false,
     hideVariableLabels = false,
+    onHeatmapClick,
   } = props;
 
   const viewState = {
@@ -850,6 +851,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       viewState={viewState}
       onHover={onHover}
       useDevicePixels={useDevicePixels}
+      onClick={onHeatmapClick}
     />
   );
 });
