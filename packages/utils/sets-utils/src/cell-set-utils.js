@@ -628,6 +628,15 @@ export function treeToSetSizesBySetNames(currTree, selectedNamePaths, currentHie
       const same = isSame(path, currentHierarchyName);
       const sameAsCurrentHierarchyName = isSame(path, [currentHierarchyName[path.length - 1]]);
       console.log("++++", path, !isPathMatching(path, cellSetExpansion));
+      if (cellSetExpansion.length > 0 && !isPathMatching([currentHierarchyName[0]], cellSetExpansion)) {
+        return match && !same && !sameAsCurrentHierarchyName;
+      }
+      else if (cellSetExpansion.length === 0) {
+        return match && !same && !sameAsCurrentHierarchyName;
+        // TODO: handle the case when something else is expanded, we have nested hierarchies and the bar plot shows both My Selections, Iva and the children of Iva. 
+        // it should show only Iva, no children. This works correctly when everything is not expanded
+        // todo: color selections while creating the nested hierarchies
+      }
       return match && (cellSetExpansion.length === 0 || (isPathMatching(path.slice(0, -1), cellSetExpansion) && !isPathMatching(path, cellSetExpansion))) && !same && !sameAsCurrentHierarchyName;
     });
   };
