@@ -244,7 +244,7 @@ importers:
       '@deck.gl/geo-layers': 8.8.20_e4gaidlky2vf4rkx76l7vfyxti
       '@deck.gl/layers': 8.8.20_snnu3edqbfe6dyy3jpp7evodsa
       '@deck.gl/mesh-layers': 8.8.20_welrkb5kgjlcqbkmp6ayvup7qy
-      '@deck.gl/react': 8.8.20_pe6xxt3ruipqla76eupor3nslu
+      '@deck.gl/react': 8.8.20_wppsrnmaqiuayjv5jkdly57q4a
       '@hms-dbmi/viv': 0.13.7_c5db6wcq5dn5x6xibqjjtjnrzm
       '@loaders.gl/3d-tiles': 3.2.10_@loaders.gl+core@3.2.10
       '@loaders.gl/core': 3.2.10
@@ -7346,7 +7346,7 @@ packages:
       '@deck.gl/react': ~8.8.6
       react: ^16.8.0 || ^17.0.0 || 18
     dependencies:
-      '@deck.gl/react': 8.8.20_pe6xxt3ruipqla76eupor3nslu
+      '@deck.gl/react': 8.8.20_wppsrnmaqiuayjv5jkdly57q4a
       '@vivjs/constants': 0.13.7
       '@vivjs/extensions': 0.13.7_@deck.gl+core@8.8.20
       '@vivjs/views': 0.13.7_eyd5bnsygdbmm6idrylcbxpwiq
