@@ -6,7 +6,7 @@ import {
   LiveProvider, LiveContext, LiveError, LivePreview,
 } from 'react-live';
 import {
-  VitessceConfig, hconcat, vconcat,
+  VitessceConfig, generateConfigs, hconcat, vconcat,
 } from '@vitessce/config';
 import {
   CoordinationType, ViewType, DataType, FileType,
@@ -68,12 +68,16 @@ export default function ViewConfigEditor(props) {
 
   const viewConfigDocsJsUrl = useBaseUrl('/docs/view-config-js/');
   const viewConfigDocsJsonUrl = useBaseUrl('/docs/view-config-json/');
+  const defaultViewConfigDocsUrl = useBaseUrl('/docs/default-config-json');
 
   const [pendingUrl, setPendingUrl] = useState('');
+  const [datasetUrls, setDatasetUrls] = useState('');
   const [pendingFileContents, setPendingFileContents] = useState('');
 
   const [syntaxType, setSyntaxType] = useState('JSON');
   const [loadFrom, setLoadFrom] = useState('editor');
+
+  const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length === 1) {
@@ -87,6 +91,7 @@ export default function ViewConfigEditor(props) {
     }
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, maxFiles: 1 });
+
 
   function validateConfig(nextConfig) {
     let upgradeSuccess;
@@ -123,9 +128,33 @@ export default function ViewConfigEditor(props) {
     setUrl(nextUrl);
   }
 
+  function sanitiseURLs(urls) {
+    return urls
+      .split(/;/)
+      .map(url => url.trim())
+      .filter(url => url.match(/^http/g));
+  }
+
+  async function handleConfigGeneration() {
+    setError(null);
+    const sanitisedUrls = sanitiseURLs(datasetUrls);
+    await generateConfigs(sanitisedUrls)
+      .then((configJson) => {
+        setPendingJson(JSON.stringify(configJson, null, 2));
+        setLoadFrom('editor');
+      })
+      .catch((e) => {
+        setError(e.message);
+      });
+  }
+
   function handleUrlChange(event) {
     setPendingUrl(event.target.value);
     setLoadFrom('url');
+  }
+
+  function handleDatasetUrlChange(event) {
+    setDatasetUrls(event.target.value);
   }
 
   function handleSyntaxChange(event) {
@@ -144,6 +173,7 @@ export default function ViewConfigEditor(props) {
   function resetEditor() {
     if (syntaxType === 'JSON') {
       setPendingJson(baseJson);
+      setDatasetUrls('');
     } else {
       setPendingJs(baseJs);
     }
@@ -166,6 +196,39 @@ export default function ViewConfigEditor(props) {
           <button type="button" onClick={tryExample}>Try an example</button>&nbsp;
           {showReset && <button type="button" onClick={resetEditor}>Reset the editor</button>}
         </p>
+
+        <div className={styles.viewConfigInputs}>
+          <div className={styles.viewConfigInputUrlOrFile}>
+            <p className={styles.viewConfigInputUrlOrFileText}>
+              Alternatively, enter the URLs to one or more data files
+              (semicolon-separated) to populate the editor with a&nbsp;
+              <a href={defaultViewConfigDocsUrl}>default view config</a>.&nbsp;
+              <button
+                type="button"
+                onClick={() => setDatasetUrls(exampleURL)}
+              >Try an example
+              </button>
+            </p>
+            <div className={styles.generateConfigInputUrl}>
+              <input
+                type="text"
+                className={styles.viewConfigUrlInput}
+                placeholder="One or more file URLs (semicolon-separated)"
+                value={datasetUrls}
+                onChange={handleDatasetUrlChange}
+              />
+            </div>
+          </div>
+          <div className={styles.viewConfigInputButton}>
+            <button
+              type="button"
+              className={styles.viewConfigGo}
+              onClick={handleConfigGeneration}
+            >Generate config
+            </button>
+          </div>
+        </div>
+
         <div className={styles.viewConfigEditorType}>
           <label htmlFor="editor-syntax">
             <select

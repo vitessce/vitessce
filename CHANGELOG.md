@@ -1,14 +1,34 @@
-
 ### Added
 - Added a legend for quantitative color scales in the `SpatialSubscriber` and `EmbeddingScatterplotSubscriber` views.
+- Support for automatic view config generation for OME-TIFF, Anndata-Zarr and OME-ZARR file formats.
 - Added a speaker icon to the documentation nav bar for using the International Phonetic Alphabet (IPA) notation to demonstrate how to pronounce Vitessce.
 - Added `image.ome-tiff` and `obsSegmentations.ome-tiff` file types.
 - Added `coordinateTransformation` file type options for `image.ome-tiff` and `image.ome-zarr`.
+- Modified the styling of the Vega-lite tooltips, so that it matches the scatterplot/spatial/heatmap tooltips.
+- Fixed a small bug with the path configuration for the `obsSets` component when using zero config mode.
+- Add notes about branch naming conventions and pull request merge process to README
+- Added bidirectional interactions for the `CellSetSizesPlot` vega-lite plot to allow the Vitessce view to update and show the selected cluster on bar click.
+- Implemented ability to select a gene by clicking on the heatmap rows for a given gene.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
 - Fixes Go to Definition support in vscode (see https://github.com/microsoft/TypeScript/issues/49003#issuecomment-1164659854).
+- Added a new file `VitessceAutoConfig.js` with methods and classes that can generate view config, given a list of dataset URLs.
+- Added a new documentation page: `default-config.md` that describes the auto config generation functionality and how to use it.
+- Small changes to the layout of `_ViewConfigEditor.js` to accomodate the new functionality: added a space for pasting links and a "Generate Config" button.
 - Update Vitest configuration to only include test files contained within `src` directories.
+- Added signals tracking and handling in the vega-lite schema for `CellSetSizesPlot` component.
+- Modified the `treeToSetSizesBySetNames` function to return the `setNamePath`, so we can track which hierarchy the cluster represented by the clicked bar belongs to.
+- Modified the `CellSetSizesPlotSubscriber` component to reset `cellSetSelection` to equal `setNamePath` when user clicks on a bar in the `CellSetSizesPlot` component.
+- Changed `VegaPlot.js` to accept prop called `setName` and overwrite the default tooltip style of vega-tooltip.
+- Added a new `styles.js` file that defines the style of the vega-tooltips.
+- Changed `CellSetSizesPlot.js` and `CellSetExpressionPlot.js` to pass in `setName` as props when calling `VegaPlot`.
+- Added handling for the `onClick` function in the `Heatmap` component. The `Heatmap` component calls the `onHeatmapClick` function, defined in the `HeatmapSubscriber`, every time a user clicks on the heatmap. The `onHeatmapClick` function sets the currently selected gene to be equal to the gene the user clicked at. It also sets the cell color encoding to `geneSelection`.
+- Upgrade `Viv` to `0.13.7`
+- Fix physical size scaling for non-square 2D pixels.
+- Removes logic for `tsconfig.json` from the meta-updater script
+- Update issue template.
+- Update documentation: fix broken links to source code, move Showcase to its own page from About page, replace Roadmap page with link to GitHub project.
 - Replace Ajv with Zod.
   - Add generic config schema.
   - Add builder function for generating plugin-specific config schema.

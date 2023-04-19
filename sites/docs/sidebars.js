@@ -21,6 +21,10 @@ module.exports = {
       id: 'view-config-json',
     },
     {
+      type: 'doc',
+      id: 'default-config-json',
+    },
+    {
       type: 'category',
       label: 'Data Preparation',
       items: [
@@ -52,8 +56,13 @@ module.exports = {
       ],
     },
     {
+      type: 'link',
+      label: 'Roadmap',
+      href: 'https://github.com/orgs/vitessce/projects/7',
+    },
+    {
       type: 'doc',
-      id: 'roadmap',
+      id: 'showcase',
     },
     {
       type: 'doc',

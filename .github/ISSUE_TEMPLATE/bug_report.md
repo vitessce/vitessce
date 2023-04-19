@@ -8,32 +8,26 @@ assignees: ''
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+<!-- A clear and concise description of what the bug is. -->
 
 **To Reproduce**
-Steps to reproduce the behavior:
+<!-- A list of steps to reproduce the behavior. -->
 
 **Data sharing**
-If needed, I am open to sharing my data files to help reproduce the bug?
-- [ ] Yes
-- [ ] No, the data is private or otherwise cannot be shared
+<!-- If relevant, please share any (non-sensitive) data files that may help reproduce the bug. -->
 
 **Expected behavior**
-A clear and concise description of what you expected to happen.
+<!-- A clear and concise description of what you expected to happen. -->
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
+<!-- If applicable, add screenshots to help explain your problem. -->
 
 **Configuration**
-If applicable, please share the [view configuration](http://vitessce.io/docs/troubleshooting/#what-is-the-current-view-config) to help reproduce the bug.
+<!-- If applicable, please share the [view configuration](http://vitessce.io/docs/troubleshooting/#what-is-the-current-view-config) to help reproduce the bug. -->
 
 **Environment:**
  - Release or git hash:
  - Browser:
  - Browser version:
 
-**Use case**
- - [ ] Relevant to HuBMAP Consortium
- - [ ] Relevant to Kidney Precision Medicine Project
- - [ ] Relevant to Human Tumor Atlas Network
- - [ ] Other
+<!-- Please add the `cell-atlas` issue label if you are a member of HuBMAP, KPMP, HTAN, SenNet, or other cell atlas project. -->
