@@ -230,6 +230,16 @@ export const baseJointFileTypes = [
 // TODO: should these schemas be imported from a common location in package/ rather than here in packages/main/?
 // That would allow view implementations to depend on them for type checking and their default values.
 export const baseCoordinationTypes = [
+  new PluginCoordinationType(
+    CoordinationType.META_COORDINATION_SCOPES,
+    null,
+    z.record(z.any()).nullable(),
+  ),
+  new PluginCoordinationType(
+    CoordinationType.META_COORDINATION_SCOPES_BY,
+    null,
+    z.record(z.any()).nullable(),
+  ),
   new PluginCoordinationType(CoordinationType.DATASET, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.OBS_TYPE, 'cell', z.string()),
   new PluginCoordinationType(CoordinationType.FEATURE_TYPE, 'gene', z.string()),
