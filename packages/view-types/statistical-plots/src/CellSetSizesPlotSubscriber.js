@@ -42,6 +42,7 @@ export function CellSetSizesPlotSubscriber(props) {
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
+    obsSetExpansion: cellSetExpansion,
   }, {
     setObsSetSelection: setCellSetSelection,
     setObsSetColor: setCellSetColor,
@@ -98,6 +99,10 @@ export function CellSetSizesPlotSubscriber(props) {
     }
   }
 
+
+  console.log("$$$$$ EXPANDED:", cellSetExpansion);
+
+
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
   const data = useMemo(() => {
@@ -115,9 +120,9 @@ export function CellSetSizesPlotSubscriber(props) {
     console.log("the hierarchy we use: ", newHierarchy);
     console.log("++++ cellSetSelection: ", cellSetSelection);
     return (mergedCellSets && cellSets && cellSetSelection && cellSetColor
-    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, newHierarchy, cellSetColor, theme)
+    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, newHierarchy, cellSetExpansion, cellSetColor, theme)
     : []
-  )}, [mergedCellSets, cellSetSelection, cellSetColor, theme]);
+  )}, [mergedCellSets, cellSetSelection, cellSetExpansion, cellSetColor, theme]);
 
   const onBarSelect = (setNamePath, shownPrev) => {
     console.log("setNamePath: ", setNamePath);
@@ -127,6 +132,10 @@ export function CellSetSizesPlotSubscriber(props) {
       setCellSetSelection([...cellSetSelection, setNamePath]);
     }
   };
+
+  const onSelectOnly = (setNamePath) => {
+    setCellSetSelection([setNamePath]);
+  }
 
   return (
     <TitleInfo
@@ -140,6 +149,7 @@ export function CellSetSizesPlotSubscriber(props) {
         <CellSetSizesPlot
           data={data}
           onBarSelect={onBarSelect}
+          onSelectOnly={onSelectOnly}
           theme={theme}
           width={width}
           height={height}

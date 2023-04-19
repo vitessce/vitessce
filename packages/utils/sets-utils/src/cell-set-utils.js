@@ -519,62 +519,37 @@ export function treeToCellPolygonsBySetNames(
  * and `color`.
  */
 // TODO update docs and put a default for currentHierarchyName
-export function treeToSetSizesBySetNames(currTree, selectedNamePaths, currentHierarchyName, setColor, theme) {
+export function treeToSetSizesBySetNames(currTree, selectedNamePaths, currentHierarchyName, cellSetExpansion, setColor, theme) {
   const sizes = [];
   console.log("*** currTree: ", currTree);
 
-  const findClusters = (tree, hierarchy, path = []) => {
-    let result = [];
+  // const findClusters = (tree, hierarchy, path = []) => {
+  //   let result = [];
   
-    tree.forEach(node => {
-      const newPath = [...path, node.name];
+  //   tree.forEach(node => {
+  //     const newPath = [...path, node.name];
   
-      if (node.children) {
-        result = [...result, ...findClusters(node.children, hierarchy, newPath)];
-      } else {
-        const isPartialMatch = hierarchy.every(
-          (hierarchyPart, index) => hierarchyPart === newPath[index]
-        );
+  //     if (node.children) {
+  //       result = [...result, ...findClusters(node.children, hierarchy, newPath)];
+  //     } else {
+  //       const isPartialMatch = hierarchy.every(
+  //         (hierarchyPart, index) => {
+  //           console.log("+++++", hierarchyPart, newPath, index); 
+  //           if (hierarchyPart === newPath[index]) {
+  //             return true;
+  //           }
+  //           return false;
+  //         }
+  //       );
   
-        if (isPartialMatch) {
-          result.push(newPath);
-        }
-      }
-    });
+  //       if (isPartialMatch) {
+  //         result.push(newPath);
+  //       }
+  //     }
+  //   });
   
-    return result;
-  };
-
-  const isSubset = (arr1, arr2) => {
-    return arr2.every(element => arr1.includes(element));
-  };
-  
-  const allClusters = findClusters(currTree.tree, currentHierarchyName);
-  console.log("**** allClusters:", allClusters);
-  allClusters.forEach((clusterPath) => {
-      const node = treeFindNodeByNamePath(currTree, clusterPath);
-      if (node) {
-        const nodeSet = nodeToSet(node);
-        const nodeColor = setColor?.find(d => isEqual(d.path, clusterPath))?.color
-          || getDefaultColor(theme);
-        const nodeProps = {
-          key: generateKey(),
-          name: node.name,
-          size: nodeSet.length,
-          color: nodeColor,
-          setNamePath: clusterPath,
-          shown: 0,
-        };
-        selectedNamePaths.forEach((setNamePath) => {
-          if (isSubset(clusterPath, setNamePath)) {
-            nodeProps.shown = 1;
-          }
-        });
-        sizes.push(nodeProps);
-      }
-  });
-  return sizes;
-}
+  //   return result;
+  // };
 
 // {
 //   "tree": [
@@ -617,6 +592,78 @@ export function treeToSetSizesBySetNames(currTree, selectedNamePaths, currentHie
 //       }
 //   ]
 // }
+
+  const isPathMatching = (path, arrOfPaths) => {
+    return arrOfPaths.some(p => {
+      if (p.length !== path.length) return false;
+      
+      return p.every((value, index) => value === path[index]);
+    });
+  };
+
+  const getPaths = (node, currentPath = [], paths = []) => {
+    if (node.children) {
+      for (const child of node.children) {
+        const newPath = [...currentPath, child.name];
+        paths.push(newPath);
+        getPaths(child, newPath, paths);
+      }
+    }
+    return paths;
+  };
+
+  const isSame = (arr1, arr2) => {
+    if (arr1.length !== arr2.length) {return false;}
+
+    const sortedArr1 = arr1.slice().sort();
+    const sortedArr2 = arr2.slice().sort();
+  
+    return sortedArr1.every((item, index) => item === sortedArr2[index]);
+  }
+
+  const filterPaths = (paths, currentHierarchyName) => {
+    return paths.filter(path => {
+      // const match = currentHierarchyName.every((item, index) => item === path[index]);
+      const match = path[0] === currentHierarchyName[0];
+      const same = isSame(path, currentHierarchyName);
+      const sameAsCurrentHierarchyName = isSame(path, [currentHierarchyName[path.length - 1]]);
+      console.log("++++", path, !isPathMatching(path, cellSetExpansion));
+      return match && (cellSetExpansion.length === 0 || (isPathMatching(path.slice(0, -1), cellSetExpansion) && !isPathMatching(path, cellSetExpansion))) && !same && !sameAsCurrentHierarchyName;
+    });
+  };
+
+  const isSubset = (arr1, arr2) => {
+    return arr2.every(element => arr1.includes(element));
+  };
+  
+  const allPaths = getPaths({ children: currTree.tree });
+  const allClusters = filterPaths(allPaths, currentHierarchyName);
+  // const allClusters = findClusters(currTree.tree, currentHierarchyName);
+  console.log("**** allClusters:", allClusters);
+  allClusters.forEach((clusterPath) => {
+      const node = treeFindNodeByNamePath(currTree, clusterPath);
+      if (node) {
+        const nodeSet = nodeToSet(node);
+        const nodeColor = setColor?.find(d => isEqual(d.path, clusterPath))?.color
+          || getDefaultColor(theme);
+        const nodeProps = {
+          key: generateKey(),
+          name: node.name,
+          size: nodeSet.length,
+          color: nodeColor,
+          setNamePath: clusterPath,
+          shown: 0,
+        };
+        selectedNamePaths.forEach((setNamePath) => {
+          if (isSubset(clusterPath, setNamePath)) {
+            nodeProps.shown = 1;
+          }
+        });
+        sizes.push(nodeProps);
+      }
+  });
+  return sizes;
+}
 
 /**
  * Find and remove a node from the descendants of the current node.

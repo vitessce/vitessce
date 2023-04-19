@@ -34,6 +34,7 @@ export default function CellSetSizesPlot(props) {
     keyLength = 36,
     obsType,
     onBarSelect,
+    onSelectOnly,
   } = props;
 
   // Add a property `keyName` which concatenates the key and the name,
@@ -79,7 +80,16 @@ export default function CellSetSizesPlot(props) {
         name: 'bar_select',
         select: {
           type: 'point',
-          on: 'click',
+          on: 'click[event.shiftKey === false]',
+          fields: ['setNamePath', 'shown'],
+          empty: 'none',
+        },
+      },
+      {
+        name: 'shift_bar_select',
+        select: {
+          type: 'point',
+          on: 'click[event.shiftKey]',
           fields: ['setNamePath', 'shown'],
           empty: 'none',
         },
@@ -138,11 +148,15 @@ export default function CellSetSizesPlot(props) {
 
   const handleSignal = (name, value) => {
     if (name === 'bar_select') {
+      console.log("+++++++++I just clicked selected!!!!! ", name, value);
       onBarSelect(value.setNamePath, value.shown[0]);
+    } else if (name === 'shift_bar_select') {
+      console.log("---------I shift bar selected!!!!! ", name, value);
+      onSelectOnly(value.setNamePath);
     }
   };
 
-  const signalListeners = { bar_select: handleSignal };
+  const signalListeners = { bar_select: handleSignal, shift_bar_select: handleSignal };
   const getTooltipText = useCallback(item => ({
     [`${captializedObsType} Set`]: item.datum.name,
     [`${captializedObsType} Set Size`]: item.datum.size,
