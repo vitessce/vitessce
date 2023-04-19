@@ -31,6 +31,7 @@
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/example-configs": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
+    "@vitessce/schemas": "workspace:*",
     "clsx": "^1.1.1",
     "copy-text-to-clipboard": "^2.2.0",
     "docusaurus-plugin-sass": "^0.2.1",

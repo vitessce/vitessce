@@ -1,12 +1,6 @@
 export { VitS } from './VitS';
 export { TitleInfo } from './TitleInfo';
 export { PopperMenu } from './shared-mui/components';
-export {
-  registerPluginViewType,
-  registerPluginCoordinationType,
-  registerPluginFileType,
-  registerPluginJointFileType,
-} from './plugins';
 // For plugin view types:
 export {
   useReady, useUrls,
@@ -65,40 +59,11 @@ export {
   DatasetNotFoundError,
   LoaderNotFoundError,
   LoaderValidationError,
-  OptionsValidationError,
   DataSourceFetchError,
 } from './errors/index';
-export {
-  // TODO(monorepo): should these be in here? or within file-types/
-  obsEmbeddingAnndataSchema,
-  obsLocationsAnndataSchema,
-  obsSegmentationsAnndataSchema,
-  obsSetsAnndataSchema,
-  obsFeatureMatrixAnndataSchema,
-  obsLabelsAnndataSchema,
-  featureLabelsAnndataSchema,
-  obsEmbeddingCsvSchema,
-  obsLocationsCsvSchema,
-  obsLabelsCsvSchema,
-  featureLabelsCsvSchema,
-  obsSetsCsvSchema,
-  anndataZarrSchema,
-  imageOmeTiffSchema,
-  imageOmeZarrSchema,
-  emptySchema,
-} from './file-options-schemas';
-export {
-  SCHEMA_HANDLERS,
-  LATEST_VERSION,
-} from './view-config-versions';
-export {
-  upgradeAndValidate,
-} from './view-config-utils';
 export {
   CellColorEncodingOption,
   OptionsContainer,
   OptionSelect,
   usePlotOptionsStyles,
 } from './shared-plot-options';
-// eslint-disable-next-line react-refresh/only-export-components
-export * from './json-schemas';

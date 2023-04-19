@@ -100,7 +100,7 @@ export function setObsSelection(cellSelection, additionalCellSets, cellSetColor,
     n => n.name === CELL_SELECTIONS_LEVEL_ZERO_NAME,
   );
   const nextAdditionalCellSets = {
-    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_OBS].latestVersion,
+    version: HIERARCHICAL_SCHEMAS.latestVersion,
     datatype: SETS_DATATYPE_OBS,
     tree: [...(additionalCellSets ? additionalCellSets.tree : [])],
   };
@@ -139,7 +139,7 @@ export function setObsSelection(cellSelection, additionalCellSets, cellSetColor,
 
 export function mergeObsSets(cellSets, additionalCellSets) {
   return {
-    version: HIERARCHICAL_SCHEMAS[SETS_DATATYPE_OBS].latestVersion,
+    version: HIERARCHICAL_SCHEMAS.latestVersion,
     datatype: SETS_DATATYPE_OBS,
     tree: [
       ...(cellSets ? cellSets.tree : []),

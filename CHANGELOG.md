@@ -30,6 +30,11 @@
 - Removes logic for `tsconfig.json` from the meta-updater script
 - Update issue template.
 - Update documentation: fix broken links to source code, move Showcase to its own page from About page, replace Roadmap page with link to GitHub project.
+- Replace Ajv with Zod.
+  - Add generic config schema.
+  - Add builder function for generating plugin-specific config schema.
+  - Reimplement config version upgrades.
+- Provide plugins as React props rather than registering them globally on `window`.
 
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01

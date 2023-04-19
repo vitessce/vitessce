@@ -164,6 +164,8 @@ From local machine:
 
   ```sh
   pnpm run build
+  pnpm run bundle
+  pnpm run build-json-schema
   pnpm publish --filter='./packages/**' --no-git-checks --tag beta --access public --dry-run
   ```
 

@@ -11,7 +11,7 @@ import {
 import {
   CoordinationType, ViewType, DataType, FileType,
 } from '@vitessce/constants';
-import { upgradeAndValidate } from '@vitessce/vit-s';
+import { upgradeAndParse } from '@vitessce/schemas';
 import ThemedControlledEditor from './_ThemedControlledEditor';
 import {
   baseJs, baseJson, exampleJs, exampleJson,
@@ -94,7 +94,16 @@ export default function ViewConfigEditor(props) {
 
 
   function validateConfig(nextConfig) {
-    const [failureReason, upgradeSuccess] = upgradeAndValidate(JSON.parse(nextConfig));
+    let upgradeSuccess;
+    let failureReason;
+    try {
+      failureReason = upgradeAndParse(JSON.parse(nextConfig));
+      upgradeSuccess = true;
+    } catch (e) {
+      upgradeSuccess = false;
+      failureReason = e.message;
+      console.error(e);
+    }
     return [upgradeSuccess, failureReason];
   }
 
@@ -178,7 +187,7 @@ export default function ViewConfigEditor(props) {
     ) : (
       <main className={styles.viewConfigEditorMain}>
         {error && (
-          <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error, null, 2)}</pre>
+          <pre className={styles.vitessceAppLoadError}>{error}</pre>
         )}
         <p className={styles.viewConfigEditorInfo}>
           To use Vitessce, enter a&nbsp;

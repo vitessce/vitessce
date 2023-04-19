@@ -1,5 +1,5 @@
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
-import cellsSchema from './schemas/cells.schema.json';
+import { cellsSchema } from './schemas/cells';
 import JsonLoader from '../json-loaders/JsonLoader';
 
 export default class CellsJsonAsObsEmbeddingLoader extends JsonLoader {

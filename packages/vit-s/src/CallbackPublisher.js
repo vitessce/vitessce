@@ -1,17 +1,12 @@
 import { useEffect } from 'react';
-import { SCHEMA_HANDLERS, LATEST_VERSION } from './view-config-versions';
 import { useViewConfigStoreApi, useLoaders, useWarning } from './state/hooks';
 
-function validateViewConfig(viewConfig) {
+
+function validateViewConfig(viewConfig, pluginSpecificConfigSchema) {
   // Need the try-catch here since Zustand will actually
   // just catch and ignore errors in its subscription callbacks.
   try {
-    const validate = SCHEMA_HANDLERS[LATEST_VERSION][0];
-    const valid = validate(viewConfig);
-    if (!valid) {
-      const failureReason = JSON.stringify(validate.errors, null, 2);
-      throw new Error(`Config validation failed: ${failureReason}`);
-    }
+    pluginSpecificConfigSchema.parse(viewConfig);
   } catch (e) {
     console.error(e);
   }
@@ -36,6 +31,7 @@ export default function CallbackPublisher(props) {
     onConfigChange,
     onLoaderChange,
     validateOnConfigChange,
+    pluginSpecificConfigSchema,
   } = props;
 
   const warning = useWarning();
@@ -51,7 +47,7 @@ export default function CallbackPublisher(props) {
     // The function to run on each publish.
     (viewConfig) => {
       if (validateOnConfigChange && viewConfig) {
-        validateViewConfig(viewConfig);
+        validateViewConfig(viewConfig, pluginSpecificConfigSchema);
       }
       if (onConfigChange && viewConfig) {
         onConfigChange(viewConfig);
@@ -60,7 +56,7 @@ export default function CallbackPublisher(props) {
     // The function to specify which part of the store
     // we want to subscribe to.
     state => state.viewConfig,
-  ), [onConfigChange, validateOnConfigChange, viewConfigStoreApi]);
+  ), [onConfigChange, validateOnConfigChange, viewConfigStoreApi, pluginSpecificConfigSchema]);
 
   // Emit updates to the warning message.
   useEffect(() => {

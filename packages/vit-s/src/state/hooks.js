@@ -32,7 +32,10 @@ export const useAuxiliaryStore = useAuxiliaryStoreLocal;
  * The useViewConfigStore hook is initialized via the zustand
  * create() function, which sets up both the state variables
  * and the reducer-type functions.
- * Reference: https://github.com/react-spring/zustand
+ * References:
+ * - https://github.com/react-spring/zustand
+ * - https://github.com/pmndrs/zustand/releases/tag/v3.6.0
+ * - https://github.com/pmndrs/zustand#using-subscribe-with-selector
  * @returns {function} The useStore hook.
  */
 export const createViewConfigStore = () => create(set => ({

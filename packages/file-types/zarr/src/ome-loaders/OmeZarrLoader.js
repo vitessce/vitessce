@@ -8,7 +8,6 @@ import {
   AbstractLoaderError,
   LoaderResult,
   AbstractTwoStepLoader,
-  imageOmeZarrSchema,
 } from '@vitessce/vit-s';
 
 function hexToRgb(hex) {
@@ -21,11 +20,6 @@ function hexToRgb(hex) {
 }
 
 export default class OmeZarrLoader extends AbstractTwoStepLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-    this.optionsSchema = imageOmeZarrSchema;
-  }
-
   async load() {
     const payload = await this.dataSource.getJson('.zattrs').catch(reason => Promise.resolve(reason));
     if (payload instanceof AbstractLoaderError) {

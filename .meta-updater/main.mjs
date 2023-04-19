@@ -13,7 +13,6 @@ const DECKGL_VERSION = '~8.8.6';
 const TURF_VERSION = "^6.5.0";
 const NEBULAGL_VERSION = "0.23.8";
 const OTHER_VERSIONS = {
-  "ajv": "^6.10.0",
   'lodash': '^4.17.21',
   'react-grid-layout-with-lodash': '^1.3.5',
   "internmap": "^2.0.3",
@@ -33,6 +32,8 @@ const OTHER_VERSIONS = {
   "math.gl": "^3.5.6",
   "@math.gl/core": "^3.5.6",
   "mathjs": "^9.2.0",
+  "zod": "^3.21.4",
+  "semver": "^7.3.8",
 
   // LumaGL
   "@luma.gl/constants": LUMAGL_VERSION,

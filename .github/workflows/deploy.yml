@@ -26,7 +26,7 @@ jobs:
       - id: get-options
         run: . ./set-node-options.sh --action
         shell: bash
-      - run: pnpm run build:ci && pnpm run bundle:ci
+      - run: pnpm run build:ci && pnpm run bundle:ci && pnpm run build-json-schema
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - run: ./test.sh --action
