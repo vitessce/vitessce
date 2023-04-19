@@ -304,13 +304,12 @@ export class VitessceConfigView {
     if (!this.view.coordinationScopes) {
       this.view.coordinationScopes = {};
     }
-    // TODO: use CoordinationType constants.
-    this.view.coordinationScopes['metaCoordinationScopes'] = [
-      ...(this.view.coordinationScopes['metaCoordinationScopes'] || []),
+    this.view.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES] = [
+      ...(this.view.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES] || []),
       metaScope.metaScope.cScope,
     ];
-    this.view.coordinationScopes['metaCoordinationScopesBy'] = [
-      ...(this.view.coordinationScopes['metaCoordinationScopesBy'] || []),
+    this.view.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY] = [
+      ...(this.view.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY] || []),
       metaScope.metaByScope.cScope,
     ];
     return this;
@@ -442,8 +441,14 @@ export class VitessceConfigMetaCoordinationScope {
    * @param {string} metaByScope The name of the coordination scope for metaCoordinationScopesBy.
    */
   constructor(metaScope, metaByScope) {
-    this.metaScope = new VitessceConfigCoordinationScope('metaCoordinationScopes', metaScope);
-    this.metaByScope = new VitessceConfigCoordinationScope('metaCoordinationScopesBy', metaByScope);
+    this.metaScope = new VitessceConfigCoordinationScope(
+      CoordinationType.META_COORDINATION_SCOPES,
+      metaScope,
+    );
+    this.metaByScope = new VitessceConfigCoordinationScope(
+      CoordinationType.META_COORDINATION_SCOPES_BY,
+      metaByScope,
+    );
   }
 
   /**
@@ -631,29 +636,30 @@ export class VitessceConfig {
   }
 
   addMetaCoordination() {
-    // TODO: use CoordinationType constants.
     const prevMetaScopes = (
-      this.config.coordinationSpace['metaCoordinationScopes']
-        ? Object.keys(this.config.coordinationSpace['metaCoordinationScopes'])
+      this.config.coordinationSpace[CoordinationType.META_COORDINATION_SCOPES]
+        ? Object.keys(this.config.coordinationSpace[CoordinationType.META_COORDINATION_SCOPES])
         : []
     );
     const prevMetaByScopes = (
-      this.config.coordinationSpace['metaCoordinationScopesBy']
-        ? Object.keys(this.config.coordinationSpace['metaCoordinationScopesBy'])
+      this.config.coordinationSpace[CoordinationType.META_COORDINATION_SCOPES_BY]
+        ? Object.keys(this.config.coordinationSpace[CoordinationType.META_COORDINATION_SCOPES_BY])
         : []
     );
     const metaContainer = new VitessceConfigMetaCoordinationScope(
       getNextScope(prevMetaScopes),
       getNextScope(prevMetaByScopes),
     );
-    if (!this.config.coordinationSpace['metaCoordinationScopes']) {
-      this.config.coordinationSpace['metaCoordinationScopes'] = {};
+    if (!this.config.coordinationSpace[CoordinationType.META_COORDINATION_SCOPES]) {
+      this.config.coordinationSpace[CoordinationType.META_COORDINATION_SCOPES] = {};
     }
-    if (!this.config.coordinationSpace['metaCoordinationScopesBy']) {
-      this.config.coordinationSpace['metaCoordinationScopesBy'] = {};
+    if (!this.config.coordinationSpace[CoordinationType.META_COORDINATION_SCOPES_BY]) {
+      this.config.coordinationSpace[CoordinationType.META_COORDINATION_SCOPES_BY] = {};
     }
-    this.config.coordinationSpace['metaCoordinationScopes'][metaContainer.metaScope.cScope] = metaContainer.metaScope;
-    this.config.coordinationSpace['metaCoordinationScopesBy'][metaContainer.metaByScope.cScope] = metaContainer.metaByScope;
+    // eslint-disable-next-line max-len
+    this.config.coordinationSpace[CoordinationType.META_COORDINATION_SCOPES][metaContainer.metaScope.cScope] = metaContainer.metaScope;
+    // eslint-disable-next-line max-len
+    this.config.coordinationSpace[CoordinationType.META_COORDINATION_SCOPES_BY][metaContainer.metaByScope.cScope] = metaContainer.metaByScope;
     return metaContainer;
   }
 
