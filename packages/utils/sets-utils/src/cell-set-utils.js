@@ -523,76 +523,6 @@ export function treeToSetSizesBySetNames(currTree, selectedNamePaths, currentHie
   const sizes = [];
   console.log("*** currTree: ", currTree);
 
-  // const findClusters = (tree, hierarchy, path = []) => {
-  //   let result = [];
-  
-  //   tree.forEach(node => {
-  //     const newPath = [...path, node.name];
-  
-  //     if (node.children) {
-  //       result = [...result, ...findClusters(node.children, hierarchy, newPath)];
-  //     } else {
-  //       const isPartialMatch = hierarchy.every(
-  //         (hierarchyPart, index) => {
-  //           console.log("+++++", hierarchyPart, newPath, index); 
-  //           if (hierarchyPart === newPath[index]) {
-  //             return true;
-  //           }
-  //           return false;
-  //         }
-  //       );
-  
-  //       if (isPartialMatch) {
-  //         result.push(newPath);
-  //       }
-  //     }
-  //   });
-  
-  //   return result;
-  // };
-
-// {
-//   "tree": [
-//       {
-//           "name": "Leiden Clustering",
-//           "children": [
-//               {
-//                   "name": "Cluster 1",
-//               }
-//           ]
-//       },
-//       {
-//           "name": "My Selections",
-//           "children": [
-//               {
-//                   "name": "Selection 1",
-
-//               },
-//               {
-//                   "name": "Selection 3",
-//               },
-//               {
-//                   "name": "Selection 5",
-//               },
-//               {
-//                   "name": "Iva",
-//                   "children": [
-//                       {
-//                           "name": "Selection 2",
-//                       },
-//                       {
-//                           "name": "Selection 4",
-//                       },
-//                       {
-//                           "name": "Selection 6",
-//                       }
-//                   ]
-//               }
-//           ]
-//       }
-//   ]
-// }
-
   const isPathMatching = (path, arrOfPaths) => {
     return arrOfPaths.some(p => {
       if (p.length !== path.length) return false;
@@ -623,11 +553,7 @@ export function treeToSetSizesBySetNames(currTree, selectedNamePaths, currentHie
 
   const filterPaths = (paths, currentHierarchyName) => {
     return paths.filter(path => {
-      // const match = currentHierarchyName.every((item, index) => item === path[index]);
-      const match = path[0] === currentHierarchyName[0];
-      const same = isSame(path, currentHierarchyName);
-      const sameAsCurrentHierarchyName = isSame(path, [currentHierarchyName[path.length - 1]]);
-      return match && !same && !sameAsCurrentHierarchyName;
+      return path[0] === currentHierarchyName[0];
     });
   };
 
@@ -708,14 +634,12 @@ export function treeToSetSizesBySetNames(currTree, selectedNamePaths, currentHie
       // clusterPath is not in selectedNamePaths, now we need to determine if we should keep it.
       if (!isPathMatching(clusterPath, selectedNamePaths)) {
 
-
         // clusterPath is a parent of some selected cell set and is not expanded:
         const longestSelectedChild = findLongestElementWithSubset(selectedNamePaths, clusterPath);
         if (longestSelectedChild.length > clusterPath.length) {
           console.log("** cluster path is not selected and not expanded");
           return;
-        }
-
+        }      
         const longestSubset = findLongestSubset(cellSetExpansion, clusterPath);
         // the clusterPath is too deep in the tree
         if (cellSetExpansion.length === 0 && clusterPath.length > 2) {
@@ -728,11 +652,7 @@ export function treeToSetSizesBySetNames(currTree, selectedNamePaths, currentHie
           return;
         }
       }
-      // clusterPath is in selectectedNamePaths. If it is a parent and expand it, discard. If it is a child, and not expanded, discard.
-      else if (isPathMatching(clusterPath, selectedNamePaths)) {
-          console.log("---- Cluster path is a subset of something selected");
-          // clusterPath is also expanded, which means it is a parent. We have to hide it and display its children
-      }
+
       console.log("---- Keep cluster path");
       // new code
       const node = treeFindNodeByNamePath(currTree, clusterPath);
