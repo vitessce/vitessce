@@ -523,33 +523,33 @@ export function treeToSetSizesBySetNames(currTree, selectedNamePaths, currentHie
   const sizes = [];
   console.log("*** currTree: ", currTree);
 
-  // const findClusters = (tree, hierarchy, path = []) => {
-  //   let result = [];
+  const findClusters = (tree, hierarchy, path = []) => {
+    let result = [];
   
-  //   tree.forEach(node => {
-  //     const newPath = [...path, node.name];
+    tree.forEach(node => {
+      const newPath = [...path, node.name];
   
-  //     if (node.children) {
-  //       result = [...result, ...findClusters(node.children, hierarchy, newPath)];
-  //     } else {
-  //       const isPartialMatch = hierarchy.every(
-  //         (hierarchyPart, index) => {
-  //           console.log("+++++", hierarchyPart, newPath, index); 
-  //           if (hierarchyPart === newPath[index]) {
-  //             return true;
-  //           }
-  //           return false;
-  //         }
-  //       );
+      if (node.children) {
+        result = [...result, ...findClusters(node.children, hierarchy, newPath)];
+      } else {
+        const isPartialMatch = hierarchy.every(
+          (hierarchyPart, index) => {
+            console.log("+++++", hierarchyPart, newPath, index); 
+            if (hierarchyPart === newPath[index]) {
+              return true;
+            }
+            return false;
+          }
+        );
   
-  //       if (isPartialMatch) {
-  //         result.push(newPath);
-  //       }
-  //     }
-  //   });
+        if (isPartialMatch) {
+          result.push(newPath);
+        }
+      }
+    });
   
-  //   return result;
-  // };
+    return result;
+  };
 
 // {
 //   "tree": [
@@ -593,63 +593,98 @@ export function treeToSetSizesBySetNames(currTree, selectedNamePaths, currentHie
 //   ]
 // }
 
-  const isPathMatching = (path, arrOfPaths) => {
-    return arrOfPaths.some(p => {
-      if (p.length !== path.length) return false;
+  // const isPathMatching = (path, arrOfPaths) => {
+  //   return arrOfPaths.some(p => {
+  //     if (p.length !== path.length) return false;
       
-      return p.every((value, index) => value === path[index]);
-    });
-  };
+  //     return p.every((value, index) => value === path[index]);
+  //   });
+  // };
 
-  const getPaths = (node, currentPath = [], paths = []) => {
-    if (node.children) {
-      for (const child of node.children) {
-        const newPath = [...currentPath, child.name];
-        paths.push(newPath);
-        getPaths(child, newPath, paths);
-      }
-    }
-    return paths;
-  };
+  // const getPaths = (node, currentPath = [], paths = []) => {
+  //   if (node.children) {
+  //     for (const child of node.children) {
+  //       const newPath = [...currentPath, child.name];
+  //       paths.push(newPath);
+  //       getPaths(child, newPath, paths);
+  //     }
+  //   }
+  //   return paths;
+  // };
 
-  const isSame = (arr1, arr2) => {
-    if (arr1.length !== arr2.length) {return false;}
+  // const isSame = (arr1, arr2) => {
+  //   if (arr1.length !== arr2.length) {return false;}
 
-    const sortedArr1 = arr1.slice().sort();
-    const sortedArr2 = arr2.slice().sort();
+  //   const sortedArr1 = arr1.slice().sort();
+  //   const sortedArr2 = arr2.slice().sort();
   
-    return sortedArr1.every((item, index) => item === sortedArr2[index]);
-  }
+  //   return sortedArr1.every((item, index) => item === sortedArr2[index]);
+  // }
 
-  const filterPaths = (paths, currentHierarchyName) => {
-    return paths.filter(path => {
-      // const match = currentHierarchyName.every((item, index) => item === path[index]);
-      const match = path[0] === currentHierarchyName[0];
-      const same = isSame(path, currentHierarchyName);
-      const sameAsCurrentHierarchyName = isSame(path, [currentHierarchyName[path.length - 1]]);
-      console.log("++++", path, !isPathMatching(path, cellSetExpansion));
-      if (cellSetExpansion.length > 0 && !isPathMatching([currentHierarchyName[0]], cellSetExpansion)) {
-        return match && !same && !sameAsCurrentHierarchyName;
-      }
-      else if (cellSetExpansion.length === 0) {
-        return match && !same && !sameAsCurrentHierarchyName;
-        // TODO: handle the case when something else is expanded, we have nested hierarchies and the bar plot shows both My Selections, Iva and the children of Iva. 
-        // it should show only Iva, no children. This works correctly when everything is not expanded
-        // todo: color selections while creating the nested hierarchies
-      }
-      return match && (cellSetExpansion.length === 0 || (isPathMatching(path.slice(0, -1), cellSetExpansion) && !isPathMatching(path, cellSetExpansion))) && !same && !sameAsCurrentHierarchyName;
-    });
-  };
+  // const filterPaths = (paths, currentHierarchyName) => {
+  //   return paths.filter(path => {
+  //     // const match = currentHierarchyName.every((item, index) => item === path[index]);
+  //     const match = path[0] === currentHierarchyName[0];
+  //     const same = isSame(path, currentHierarchyName);
+  //     const sameAsCurrentHierarchyName = isSame(path, [currentHierarchyName[path.length - 1]]);
+  //     console.log("++++", path, !isPathMatching(path, cellSetExpansion));
+  //     if (cellSetExpansion.length > 0 && !isPathMatching([currentHierarchyName[0]], cellSetExpansion)) {
+  //       return match && !same && !sameAsCurrentHierarchyName;
+  //     }
+  //     else if (cellSetExpansion.length === 0) {
+  //       return match && !same && !sameAsCurrentHierarchyName;
+  //       // TODO: handle the case when something else is expanded, we have nested hierarchies and the bar plot shows both My Selections, Iva and the children of Iva. 
+  //       // it should show only Iva, no children. This works correctly when everything is not expanded
+  //       // todo: color selections while creating the nested hierarchies
+  //     }
+  //     return match && (cellSetExpansion.length === 0 || (isPathMatching(path.slice(0, -1), cellSetExpansion) && !isPathMatching(path, cellSetExpansion))) && !same && !sameAsCurrentHierarchyName;
+  //   });
+  // };
 
   const isSubset = (arr1, arr2) => {
     return arr2.every(element => arr1.includes(element));
   };
   
-  const allPaths = getPaths({ children: currTree.tree });
-  const allClusters = filterPaths(allPaths, currentHierarchyName);
-  // const allClusters = findClusters(currTree.tree, currentHierarchyName);
+
+  // arr1 is big, arr2 is small
+  const findLongestSubset = (arr1, arr2) => {
+    let longestSubset = null;
+    let longestLength = 0;
+  
+    arr1.forEach(subArray => {
+      let subArrayIndex = 0;
+      let matchCount = 0;
+  
+      arr2.forEach(element => {
+        if (subArray[subArrayIndex] === element) {
+          matchCount++;
+          subArrayIndex++;
+        }
+        if (subArrayIndex === subArray.length) return;
+      });
+  
+      if (matchCount === subArray.length && subArray.length > longestLength) {
+        longestSubset = subArray;
+        longestLength = subArray.length;
+      }
+    });
+  
+    return longestLength > 0 ? longestSubset : [];
+  };
+
+  // const allPaths = getPaths({ children: currTree.tree });
+  // const allClusters = filterPaths(allPaths, currentHierarchyName);
+  const allClusters = findClusters(currTree.tree, currentHierarchyName);
   console.log("**** allClusters:", allClusters);
   allClusters.forEach((clusterPath) => {
+      // new code
+      const longestSubset = findLongestSubset(cellSetExpansion, clusterPath);
+      if (cellSetExpansion.length > 0 && longestSubset.length > 0 && longestSubset.length + 1 < clusterPath.length) {
+        console.log("** clusterPath goes too deep:", clusterPath, longestSubset);
+        return;
+      }
+      console.log("&&& clusterPath is ok: ",clusterPath, longestSubset);
+      // new code
       const node = treeFindNodeByNamePath(currTree, clusterPath);
       if (node) {
         const nodeSet = nodeToSet(node);
