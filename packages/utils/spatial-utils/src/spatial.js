@@ -280,6 +280,7 @@ export async function initializeRasterLayersAndChannels(
     const autoImageLayerDefPromise = initializeLayerChannels(loader)
       .then(channels => Promise.resolve({
         type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
+        // TODO: switch to using `image` property instead of `index` property.
         index: layerIndex,
         ...DEFAULT_RASTER_LAYER_PROPS,
         channels: channels.map((channel, j) => ({
@@ -302,6 +303,7 @@ export async function initializeRasterLayersAndChannels(
         // eslint-disable-next-line no-loop-func
         .then(channels => Promise.resolve({
           type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
+          // TODO: switch to using `image` property instead of `index` property.
           index: layerIndex,
           ...DEFAULT_RASTER_LAYER_PROPS,
           channels: channels.map((channel, j) => ({

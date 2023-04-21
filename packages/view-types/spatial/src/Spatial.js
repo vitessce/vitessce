@@ -368,11 +368,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
     let selections;
     const nextLoaderSelection = layerDef.channels.map(c => c.selection);
+    // TODO: switch to using `image` property instead of `index` property.
     const prevLoaderSelection = this.layerLoaderSelections[layerDef.index];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
       selections = prevLoaderSelection;
     } else {
       selections = nextLoaderSelection;
+      // TODO: switch to using `image` property instead of `index` property.
       this.layerLoaderSelections[layerDef.index] = nextLoaderSelection;
     }
     const useTransparentColor = (!layerDef.visible
@@ -421,6 +423,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       return new viv.MultiscaleImageLayer({
         // `bitmask` is used by the AbstractSpatialOrScatterplot
         // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
+        // TODO: switch to using `image` property instead of `index` property.
         id: `bitmask-layer-${layerDef.index}-${i}`,
         channelsVisible: layerProps.visibilities,
         opacity: layerProps.opacity,
@@ -459,6 +462,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
     return new Layer({
       loader: layerLoader,
+      // TODO: switch to using `image` property instead of `index` property.
       id: `${layerDef.use3d ? 'volume' : 'image'}-layer-${layerDef.index}-${i}`,
       colors: layerProps.colors,
       contrastLimits: layerProps.sliders,
@@ -501,6 +505,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       .filter(layer => (use3d ? layer.use3d === use3d : true))
       .map((layer, i) => this.createRasterLayer(
         { ...layer, callback: imageLayerCallbacks[use3d ? use3dIndex : i] },
+        // TODO: switch to using `image` property instead of `index` property.
         imageLayerLoaders[layer.index],
         i,
       ));
@@ -521,6 +526,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         .filter(layer => (use3d ? layer.use3d === use3d : true))
         .map((layer, i) => this.createRasterLayer(
           { ...layer, callback: segmentationLayerCallbacks[use3d ? use3dIndex : i] },
+          // TODO: switch to using `image` property instead of `index` property.
           loaders[layer.index],
           i,
         ));
