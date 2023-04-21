@@ -1,6 +1,7 @@
 /* eslint-disable no-plusplus */
 import shortNumber from 'short-number';
 import plur from 'plur';
+import { Matrix4 } from 'math.gl';
 import { viv, BitmaskLayer } from '@vitessce/gl';
 import { DEFAULT_LAYER_TYPE_ORDERING } from '@vitessce/spatial-utils';
 import { extent } from 'd3-array';
@@ -65,6 +66,7 @@ export function getInitialSpatialTargets({
   imageLayerLoaders,
   useRaster,
   use3d,
+  modelMatrices,
 }) {
   let initialTargetX = -Infinity;
   let initialTargetY = -Infinity;
@@ -80,6 +82,7 @@ export function getInitialSpatialTargets({
         viewSize,
         zoomBackoff,
         use3d,
+        new Matrix4(modelMatrices[i]),
       );
       if (target[0] > initialTargetX) {
         // eslint-disable-next-line prefer-destructuring
