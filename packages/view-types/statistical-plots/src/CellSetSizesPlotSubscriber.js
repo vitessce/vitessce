@@ -72,33 +72,6 @@ export function CellSetSizesPlotSubscriber(props) {
     [cellSets, additionalCellSets],
   );
 
-  function findChangedHierarchy(arr1, arr2) {
-    const subarrayToString = subarray => subarray.toString();
-
-    const arr1Strings = arr1.map(subarrayToString);
-    const arr2Strings = arr2.map(subarrayToString);
-
-    const arr1UniqueStrings = arr1Strings.filter(subarrayStr => !arr2Strings.includes(subarrayStr));
-    const arr2UniqueStrings = arr2Strings.filter(subarrayStr => !arr1Strings.includes(subarrayStr));
-
-    if (arr1UniqueStrings.length === 0 && arr2UniqueStrings.length === 0) {
-      return 0;
-    }
-
-    if (arr2UniqueStrings.length > 0) {
-      const addedSubarray = arr2UniqueStrings[0].split(',').map((element) => {
-        const num = Number(element);
-        return num === parseFloat(element) ? num : element;
-      });
-      return addedSubarray.slice(0, -1); // Return the hierarchy of the added clusters
-    }
-    const removedSubarray = arr1UniqueStrings[0].split(',').map((element) => {
-      const num = Number(element);
-      return num === parseFloat(element) ? num : element;
-    });
-    return removedSubarray.slice(0, -1); // Return the hierarchy of the removed clusters
-  }
-
   const getPaths = (node, currentPath = [], paths = []) => {
     if (node.children) {
       node.children.forEach((child) => {
@@ -168,35 +141,91 @@ export function CellSetSizesPlotSubscriber(props) {
     });
   };
 
-  const data = useMemo(() => {
-    let newHierarchy;
-    if (cellSetSelection) {
-      newHierarchy = findChangedHierarchy(lastCellSetSelection, cellSetSelection);
-      if (newHierarchy !== 0) {
-        setLastCellSetSelection(cellSetSelection);
-        setCurrentHierarchyName(newHierarchy);
-      } else if (newHierarchy === 0) {
-        newHierarchy = currentHierarchyName;
-      }
-    }
-    const allPaths = getPaths({ children: mergedCellSets.tree });
-    const allClusters = filterPaths(allPaths, newHierarchy);
-    return (mergedCellSets && cellSets && cellSetSelection && cellSetColor
-      ? treeToSetSizesBySetNames(mergedCellSets, allClusters, cellSetSelection, cellSetColor, theme)
-      : []
-    );
-  }, [mergedCellSets, cellSetSelection, cellSetExpansion, cellSetColor, theme]);
+  const getNewHierarchy = (lastSelection, currentSelection) => {
+    const findChangedHierarchy = (arr1, arr2) => {
+      const subarrayToString = subarray => subarray.toString();
 
-  const onBarSelect = (setNamePath, shownPrev) => {
-    if (shownPrev) {
-      setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, setNamePath)));
-    } else {
-      setCellSetSelection([...cellSetSelection, setNamePath]);
+      const arr1Strings = arr1.map(subarrayToString);
+      const arr2Strings = arr2.map(subarrayToString);
+
+      const arr1UniqueStrings = arr1Strings.filter(
+        subarrayStr => !arr2Strings.includes(subarrayStr),
+      );
+      const arr2UniqueStrings = arr2Strings.filter(
+        subarrayStr => !arr1Strings.includes(subarrayStr),
+      );
+
+      if (arr1UniqueStrings.length === 0 && arr2UniqueStrings.length === 0) {
+        return 0;
+      }
+
+      const changedSubarrayString = arr2UniqueStrings.length > 0
+        ? arr2UniqueStrings[0] : arr1UniqueStrings[0];
+
+      const convertSubarrayElements = subarray => subarray.split(',').map((element) => {
+        const num = Number(element);
+        return num === parseFloat(element) ? num : element;
+      });
+
+      const changedSubarray = convertSubarrayElements(changedSubarrayString);
+
+      return changedSubarray.slice(0, -1); // Return the hierarchy of the changed clusters
+    };
+
+    const changedHierarchy = findChangedHierarchy(lastSelection, currentSelection);
+
+    if (changedHierarchy !== 0) {
+      setLastCellSetSelection(currentSelection);
+      setCurrentHierarchyName(changedHierarchy);
+      return changedHierarchy;
+    } if (changedHierarchy === 0) {
+      return currentHierarchyName;
     }
+
+    return null;
   };
 
-  const onSelectOnly = (setNamePath) => {
-    setCellSetSelection([setNamePath]);
+  const getData = () => {
+    let newHierarchy;
+
+    if (cellSetSelection) {
+      newHierarchy = getNewHierarchy(lastCellSetSelection, cellSetSelection);
+    }
+
+    const allPaths = getPaths({ children: mergedCellSets.tree });
+    const allClusters = filterPaths(allPaths, newHierarchy);
+
+    if (mergedCellSets && cellSets && cellSetSelection && cellSetColor) {
+      return treeToSetSizesBySetNames(
+        mergedCellSets,
+        allClusters,
+        cellSetSelection,
+        cellSetColor,
+        theme,
+      );
+    }
+
+    return [];
+  };
+
+  const data = useMemo(getData, [
+    mergedCellSets,
+    cellSetSelection,
+    cellSetExpansion,
+    cellSetColor,
+    theme,
+  ]);
+
+  const onBarSelect = (setNamePath, shownPrev, isSelectOnly = false) => {
+    if (isSelectOnly) {
+      setCellSetSelection([setNamePath]);
+      return;
+    }
+    if (shownPrev === 1) {
+      setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, setNamePath)));
+    } else if (shownPrev === 0) {
+      setCellSetSelection([...cellSetSelection, setNamePath]);
+    }
   };
 
   return (
@@ -211,7 +240,6 @@ export function CellSetSizesPlotSubscriber(props) {
         <CellSetSizesPlot
           data={data}
           onBarSelect={onBarSelect}
-          onSelectOnly={onSelectOnly}
           theme={theme}
           width={width}
           height={height}

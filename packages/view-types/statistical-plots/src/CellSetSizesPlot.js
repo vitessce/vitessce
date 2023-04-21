@@ -34,7 +34,6 @@ export default function CellSetSizesPlot(props) {
     keyLength = 36,
     obsType,
     onBarSelect,
-    onSelectOnly,
   } = props;
 
   // Add a property `keyName` which concatenates the key and the name,
@@ -150,7 +149,7 @@ export default function CellSetSizesPlot(props) {
     if (name === 'bar_select') {
       onBarSelect(value.setNamePath, value.shown[0]);
     } else if (name === 'shift_bar_select') {
-      onSelectOnly(value.setNamePath);
+      onBarSelect(value.setNamePath, 1, true);
     }
   };
 
