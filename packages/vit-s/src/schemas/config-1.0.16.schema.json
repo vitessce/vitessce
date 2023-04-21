@@ -853,7 +853,7 @@
               "oneOf": [
                 {
                   "type": "null",
-                  "description": "If null is provided and auto cell set initialization is enabled, cell set selections will be automatically initialized."
+                  "description": "If null is provided and auto cell set initialization is enabled, cell set expansions will be automatically initialized."
                 },
                 { "type": "array" }
               ]
