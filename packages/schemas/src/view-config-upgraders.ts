@@ -25,6 +25,7 @@ import {
   configSchema1_0_17,
 } from './previous-base-schemas';
 import { componentCoordinationScopes, componentCoordinationScopesBy } from './shared';
+import { fromEntries } from '@vitessce/utils';
 
 
 interface ViewProps {
@@ -743,15 +744,253 @@ export function upgradeFrom1_0_15(
 // - Use multi-level coordination to
 // break up spatial layer coordination values
 // (from arrays and nested objects to primitives).
-export function upgradeFrom1_0_16(
+
+// TODO: support async upgrade functions.
+export async function upgradeFrom1_0_16(
   config: z.infer<typeof configSchema1_0_16>,
 ): z.infer<typeof configSchema1_0_17> {
   const newConfig = cloneDeep(config);
 
-  
+  const { datasets, layout, coordinationSpace = {} } = newConfig;
+
+  const imageScopes: string[] = [];
+
+  // First, update all image or obsSegmentations file definitions
+  // within .datasets[].files[],
+  // to ensure each file definition only maps to ONE image or segmentation file.
+  // Multi-image or multi-segmentation files will use the new "image"
+  // coordination type to specify which image or segmentation to use.
+  const newDatasets = await Promise.all(datasets.map(async (dataset) => {
+    const { files } = dataset;
+    const newFiles = await Promise.all(files.map(async (fileDef) => {
+      const {
+        url, requestInit, fileType,
+        options,
+        coordinationValues,
+      } = fileDef;
+
+      if (fileType === 'image.raster.json' || fileType === 'raster.json') {
+        let loadedOptions;
+        if (!options && url) {
+          loadedOptions = await fetch(url, (requestInit || {}) as any).then(r => r.json());
+        } else if (options) {
+          loadedOptions = options;
+        } else {
+          throw new Error('Expected either options or url for file definition, but found neither.');
+        }
+
+        // TODO: use renderLayers to determine which layers are visible/included, but only
+        // if a corresponding spatialImageLayer coordination value did not exist in the config.
+        const { images, renderLayers } = loadedOptions;
+
+        // Iterate over each image definition
+        // within the raster.json options object,
+        // and create new file definitions.
+        return images.filter(imageDef => (
+          imageDef.type === 'ome-tiff' && !imageDef.metadata?.isBitmask
+        )).map((imageDef) => {
+          const {
+            name, url: imageUrl, metadata,
+          } = imageDef;
+          const newFileDef = {
+            fileType: 'image.ome-tiff',
+            url: imageUrl,
+            coordinationValues: {
+              image: name,
+            },
+            ...(metadata?.omeTiffOffsetsUrl ? ({
+              options: {
+                offsetsUrl: metadata?.omeTiffOffsetsUrl,
+              },
+            }) : {}),
+          };
+          return newFileDef;
+        });
+      // TODO: add an image.deprecated-ome-zarr file type for bioformats-zarr precursor to OME-Zarr?
+      // or just do not support altogether.
+      }
+      if (
+        (fileType === 'image.ome-zarr' || fileType === 'image.ome-tiff')
+        && !coordinationValues?.image
+      ) {
+        // The file is a single-image fileType but lacks an image coordination value.
+        const nextImageScope = getNextScope(imageScopes);
+        imageScopes.push(nextImageScope);
+        return {
+          ...fileDef,
+          coordinationValues: {
+            ...(coordinationValues || {}),
+            image: nextImageScope,
+          },
+        };
+      }
+
+      // Keep the file definition as-is.
+      return fileDef;
+    }));
+
+    const flatNewFiles = newFiles.flat();
+
+    return {
+      ...dataset,
+      files: flatNewFiles,
+    };
+  }));
+
+  // Update layout.
+
+  // Map previous scope names to new meta-scope names.
+  const prevImageLayerScopes: Record<string, string> = {};
+  const prevSegmentationLayerScopes: Record<string, string> = {};
+  const prevPointLayerScopes: Record<string, string> = {};
+
+  const newLayout = layout.map((view) => {
+    const { coordinationScopes = {}, component } = view;
+    if (component === 'spatial' || component === 'layerController') {
+      if (coordinationScopes.spatialImageLayer) {
+        prevImageLayerScopes[coordinationScopes.spatialImageLayer as string] = getNextScope([
+          ...Object.keys(coordinationSpace.metaCoordinationScopes || {}),
+          ...Object.keys(coordinationSpace.metaCoordinationScopesBy || {}),
+          ...Object.values(prevImageLayerScopes),
+          ...Object.values(prevSegmentationLayerScopes),
+          ...Object.values(prevPointLayerScopes),
+        ]);
+        coordinationScopes.metaCoordinationScopes = [
+          ...(coordinationScopes.metaCoordinationScopes || []),
+          prevImageLayerScopes[coordinationScopes.spatialImageLayer as string],
+        ];
+        coordinationScopes.metaCoordinationScopesBy = [
+          ...(coordinationScopes.metaCoordinationScopesBy || []),
+          prevImageLayerScopes[coordinationScopes.spatialImageLayer as string],
+        ];
+        delete coordinationScopes.spatialImageLayer;
+      }
+      if (coordinationScopes.spatialSegmentationLayer) {
+        prevSegmentationLayerScopes[coordinationScopes.spatialSegmentationLayer as string] = getNextScope([
+          ...Object.keys(coordinationSpace.metaCoordinationScopes || {}),
+          ...Object.keys(coordinationSpace.metaCoordinationScopesBy || {}),
+          ...Object.values(prevImageLayerScopes),
+          ...Object.values(prevSegmentationLayerScopes),
+          ...Object.values(prevPointLayerScopes),
+        ]);
+        coordinationScopes.metaCoordinationScopes = [
+          ...(coordinationScopes.metaCoordinationScopes || []),
+          prevSegmentationLayerScopes[coordinationScopes.spatialSegmentationLayer as string],
+        ];
+        coordinationScopes.metaCoordinationScopesBy = [
+          ...(coordinationScopes.metaCoordinationScopesBy || []),
+          prevSegmentationLayerScopes[coordinationScopes.spatialSegmentationLayer as string],
+        ];
+        delete coordinationScopes.spatialSegmentationLayer;
+      }
+      if (coordinationScopes.spatialPointLayer) {
+        prevPointLayerScopes[coordinationScopes.spatialPointLayer as string] = getNextScope([
+          ...Object.keys(coordinationSpace.metaCoordinationScopes || {}),
+          ...Object.keys(coordinationSpace.metaCoordinationScopesBy || {}),
+          ...Object.values(prevImageLayerScopes),
+          ...Object.values(prevSegmentationLayerScopes),
+          ...Object.values(prevPointLayerScopes),
+        ]);
+        coordinationScopes.metaCoordinationScopes = [
+          ...(coordinationScopes.metaCoordinationScopes || []),
+          prevPointLayerScopes[coordinationScopes.spatialPointLayer as string],
+        ];
+        coordinationScopes.metaCoordinationScopesBy = [
+          ...(coordinationScopes.metaCoordinationScopesBy || []),
+          prevPointLayerScopes[coordinationScopes.spatialPointLayer as string],
+        ];
+        delete coordinationScopes.spatialPointLayer;
+      }
+    }
+    return view;
+  });
+
+  // Update coordinationSpace, using the above meta-coordination scope mapping.
+  const newCoordinationSpace: Record<string, Record<string, object>> = {
+    // Create empty metaCoordinationScopes
+    metaCoordinationScopes: {
+      ...coordinationSpace.metaCoordinationScopes,
+      ...fromEntries(
+        [
+          ...Object.values(prevImageLayerScopes),
+          ...Object.values(prevSegmentationLayerScopes),
+          ...Object.values(prevPointLayerScopes),
+        ].map(scope => ([scope, {}])),
+      ),
+    },
+    metaCoordinationScopesBy: {
+      ...coordinationSpace.metaCoordinationScopesBy,
+      ...fromEntries(
+        [
+          ...Object.values(prevImageLayerScopes),
+          ...Object.values(prevSegmentationLayerScopes),
+          ...Object.values(prevPointLayerScopes),
+        ].map(scope => ([scope, {}])),
+      ),
+    },
+  };
+  Object.entries(coordinationSpace).forEach(([coordinationType, coordinationSpaceDef]) => {
+    if (coordinationType === 'metaCoordinationScopes' || coordinationType === 'metaCoordinationScopesBy') {
+      // Do nothing.
+      // Already handled above the forEach.
+    } else if (coordinationType === 'spatialImageLayer') {
+      // Create empty spatialImageLayer coordination object.
+      newCoordinationSpace.spatialImageLayer = {};
+      newCoordinationSpace.image = {};
+      newCoordinationSpace.spatialLayerVisible = {};
+      newCoordinationSpace.spatialLayerOpacity = {};
+      newCoordinationSpace.spatialImageChannel = {};
+      newCoordinationSpace.spatialTargetC = {};
+      newCoordinationSpace.spatialTargetZ = {};
+      newCoordinationSpace.spatialTargetT = {};
+      newCoordinationSpace.spatialChannelVisible = {};
+      newCoordinationSpace.spatialChannelColor = {};
+      newCoordinationSpace.spatialChannelColormap = {};
+      newCoordinationSpace.spatialWindowSliderMode = {};
+      newCoordinationSpace.spatialTransparentColor = {};
+      newCoordinationSpace.spatialRenderingMode = {};
+      newCoordinationSpace.spatialImageVolumeRenderingMethod = {};
+      newCoordinationSpace.spatialChannelWindowRange = {};
+      newCoordinationSpace.spatialModelMatrix = {};
+      // Iterate over each previous spatialImageLayer.
+      Object.entries(coordinationSpaceDef).forEach(([scope, value]) => {
+        // Create a new dummy spatialImageLayer coordination scope
+        // for each element of the _old_ spatialImageLayer array of layer objects.
+        const spatialImageLayerDummyScopes: string[] = [];
+        if (Array.isArray(value)) {
+          value.forEach(() => {
+            const imageLayerDummyScope = getNextScope([
+              // Also need to consider any spatialImageLayer scope names
+              // that were added in a previous iteration.
+              ...Object.keys(newCoordinationSpace.spatialImageLayer || {}),
+              ...spatialImageLayerDummyScopes,
+            ]);
+            spatialImageLayerDummyScopes.push(imageLayerDummyScope);
+
+            // Set values in the coordination space for this image layer definition.
+            newCoordinationSpace.spatialImageLayer[imageLayerDummyScope] = '__dummy__';
+
+
+          });
+        }
+
+
+
+        
+        newCoordinationSpace.metaCoordinationScopes[prevImageLayerScopes[scope]] = {
+          spatialImageLayer: spatialImageLayerDummyScopes,
+        };
+      });
+    } else {
+      // Keep the coordination space definition as-is.
+      newCoordinationSpace[coordinationType] = coordinationSpaceDef;
+    }
+  });
+
 
   return {
     ...newConfig,
+    datasets: newDatasets,
     layout: newLayout,
     coordinationSpace: newCoordinationSpace,
     version: '1.0.17',

@@ -952,23 +952,8 @@ export const nestedSpatialLayers: z.infer<typeof configSchema1_0_16> = {
     dataset: {
       A: 'A',
     },
-    obsType: {
-      A: 'cell',
-    },
-    featureType: {
-      A: 'gene',
-    },
-    featureValueType: {
-      A: 'expression',
-    },
-    obsLabelsType: {
-      A: null,
-    },
     spatialZoom: {
       A: -4.4211074257069285,
-    },
-    spatialRotation: {
-      A: 0,
     },
     spatialTargetX: {
       A: 11092.812174766119,
@@ -978,57 +963,6 @@ export const nestedSpatialLayers: z.infer<typeof configSchema1_0_16> = {
     },
     spatialTargetZ: {
       A: null,
-    },
-    spatialRotationX: {
-      A: 0,
-    },
-    spatialRotationY: {
-      A: null,
-    },
-    spatialRotationZ: {
-      A: null,
-    },
-    spatialRotationOrbit: {
-      A: 0,
-    },
-    spatialOrbitAxis: {
-      A: null,
-    },
-    spatialAxisFixed: {
-      A: false,
-    },
-    obsFilter: {
-      A: null,
-    },
-    obsHighlight: {
-      A: null,
-    },
-    obsSetSelection: {
-      A: null,
-    },
-    obsSetHighlight: {
-      A: null,
-    },
-    obsSetColor: {
-      A: null,
-    },
-    featureHighlight: {
-      A: null,
-    },
-    featureSelection: {
-      A: null,
-    },
-    featureValueColormap: {
-      A: 'plasma',
-    },
-    featureValueColormapRange: {
-      A: [
-        0,
-        1,
-      ],
-    },
-    obsColorEncoding: {
-      A: 'cellSetSelection',
     },
     spatialImageLayer: {
       A: [
@@ -1378,52 +1312,19 @@ export const nestedSpatialLayers: z.infer<typeof configSchema1_0_16> = {
     spatialPointLayer: {
       A: null,
     },
-    spatialNeighborhoodLayer: {
-      A: null,
-    },
-    additionalObsSets: {
-      A: null,
-    },
-    moleculeHighlight: {
-      A: null,
-    },
   },
   layout: [
     {
       component: 'spatial',
       coordinationScopes: {
         dataset: 'A',
-        obsType: 'A',
-        featureType: 'A',
-        featureValueType: 'A',
-        obsLabelsType: 'A',
         spatialZoom: 'A',
-        spatialRotation: 'A',
         spatialTargetX: 'A',
         spatialTargetY: 'A',
         spatialTargetZ: 'A',
-        spatialRotationX: 'A',
-        spatialRotationY: 'A',
-        spatialRotationZ: 'A',
-        spatialRotationOrbit: 'A',
-        spatialOrbitAxis: 'A',
-        spatialAxisFixed: 'A',
-        obsFilter: 'A',
-        obsHighlight: 'A',
-        obsSetSelection: 'A',
-        obsSetHighlight: 'A',
-        obsSetColor: 'A',
-        featureHighlight: 'A',
-        featureSelection: 'A',
-        featureValueColormap: 'A',
-        featureValueColormapRange: 'A',
-        obsColorEncoding: 'A',
         spatialImageLayer: 'A',
         spatialSegmentationLayer: 'A',
         spatialPointLayer: 'A',
-        spatialNeighborhoodLayer: 'A',
-        additionalObsSets: 'A',
-        moleculeHighlight: 'A',
       },
       x: 0,
       y: 0,
@@ -1435,22 +1336,13 @@ export const nestedSpatialLayers: z.infer<typeof configSchema1_0_16> = {
       component: 'layerController',
       coordinationScopes: {
         dataset: 'A',
-        obsType: 'A',
-        featureType: 'A',
-        featureValueType: 'A',
         spatialZoom: 'A',
         spatialTargetX: 'A',
         spatialTargetY: 'A',
         spatialTargetZ: 'A',
-        spatialRotationX: 'A',
-        spatialRotationY: 'A',
-        spatialRotationZ: 'A',
-        spatialRotationOrbit: 'A',
-        spatialOrbitAxis: 'A',
         spatialImageLayer: 'A',
         spatialSegmentationLayer: 'A',
         spatialPointLayer: 'A',
-        spatialNeighborhoodLayer: 'A',
       },
       x: 9,
       y: 0,
@@ -1509,6 +1401,15 @@ export const multiLevelSpatialLayers: z.infer<typeof configSchema1_0_17> = {
   ],
   coordinationSpace: {
     dataset: { A: 'A' },
+    spatialZoom: {
+      A: -4.4211074257069285,
+    },
+    spatialTargetX: {
+      A: 11092.812174766119,
+    },
+    spatialTargetY: {
+      A: 15196.071341244067,
+    },
     spatialImageLayer: {
       A: '__dummy__', B: '__dummy__', C: '__dummy__', D: '__dummy__',
     },
@@ -1552,6 +1453,14 @@ export const multiLevelSpatialLayers: z.infer<typeof configSchema1_0_17> = {
       // eslint-disable-next-line object-property-newline
       K: 0, L: 1, M: 2, N: 3,
     },
+    spatialTargetZ: {
+      // Previously in spatialImageLayer[].channels[].selection.(z|Z|...):
+      A: 0, B: 1, C: 2, D: 0,
+    },
+    spatialTargetT: {
+      // Previously in spatialImageLayer[].channels[].selection.(t|T|temporal|...):
+      A: 0, B: 1, C: 2, D: 0,
+    },
     spatialChannelVisible: {
       // Previously in spatialImageLayer[].channels[].selection.(c|C|color|...):
       // eslint-disable-next-line object-property-newline
@@ -1593,10 +1502,10 @@ export const multiLevelSpatialLayers: z.infer<typeof configSchema1_0_17> = {
     },
     spatialWindowSliderMode: {
       // Previously in spatialImageLayer[].domainType:
-      A: 'extent', // Converted from 'Min/Max'
-      B: 'extent', // Converted from 'Min/Max'
-      C: 'extent', // Converted from 'Min/Max'
-      D: 'extent', // Converted from 'Min/Max'
+      A: 'Min/Max',
+      B: 'Min/Max',
+      C: 'Min/Max',
+      D: 'Min/Max',
     },
     spatialTransparentColor: {
       // Previously in spatialImageLayer[].transparentColor:
@@ -1604,6 +1513,20 @@ export const multiLevelSpatialLayers: z.infer<typeof configSchema1_0_17> = {
       B: [0, 0, 0],
       C: [0, 0, 0],
       D: [0, 0, 0],
+    },
+    spatialRenderingMode: {
+      // Previously in spatialImageLayer[].use3d:
+      A: '2D',
+      B: '2D',
+      C: '2D',
+      D: '2D',
+    },
+    spatialImageVolumeRenderingMethod: {
+      // Previously in spatialImageLayer[].renderingMode:
+      A: 'Additive',
+      B: 'Additive',
+      C: 'Additive',
+      D: 'Additive',
     },
     spatialChannelWindowRange: {
       // Previously in spatialImageLayer[].channels[].slider
@@ -1693,6 +1616,12 @@ export const multiLevelSpatialLayers: z.infer<typeof configSchema1_0_17> = {
           spatialTransparentColor: {
             A: 'A', B: 'B', C: 'C', D: 'D',
           },
+          spatialRenderingMode: {
+            A: 'A', B: 'B', C: 'C', D: 'D',
+          },
+          spatialImageVolumeRenderingMethod: {
+            A: 'A', B: 'B', C: 'C', D: 'D',
+          },
           spatialImageChannel: {
             A: ['A', 'B', 'C'],
             B: ['D', 'E', 'F'],
@@ -1714,6 +1643,18 @@ export const multiLevelSpatialLayers: z.infer<typeof configSchema1_0_17> = {
             K: 'K', L: 'L', M: 'M', N: 'N',
           },
           spatialChannelColormap: {
+            A: 'A', B: 'A', C: 'A',
+            D: 'B', E: 'B', F: 'B',
+            G: 'C', H: 'C', I: 'C', J: 'C',
+            K: 'D', L: 'D', M: 'D', N: 'D',
+          },
+          spatialTargetZ: {
+            A: 'A', B: 'A', C: 'A',
+            D: 'B', E: 'B', F: 'B',
+            G: 'C', H: 'C', I: 'C', J: 'C',
+            K: 'D', L: 'D', M: 'D', N: 'D',
+          },
+          spatialTargetT: {
             A: 'A', B: 'A', C: 'A',
             D: 'B', E: 'B', F: 'B',
             G: 'C', H: 'C', I: 'C', J: 'C',
@@ -1742,8 +1683,11 @@ export const multiLevelSpatialLayers: z.infer<typeof configSchema1_0_17> = {
       metaCoordinationScopes: ['A'],
       metaCoordinationScopesBy: ['A'],
     },
-    // eslint-disable-next-line object-property-newline
-    x: 0, y: 0, w: 1, h: 1,
+    x: 0,
+    y: 0,
+    w: 9,
+    h: 12,
+    uid: 'A',
   }, {
     component: 'layerController',
     coordinationScopes: {
@@ -1751,8 +1695,15 @@ export const multiLevelSpatialLayers: z.infer<typeof configSchema1_0_17> = {
       metaCoordinationScopes: ['A'],
       metaCoordinationScopesBy: ['A'],
     },
-    // eslint-disable-next-line object-property-newline
-    x: 0, y: 0, w: 1, h: 1,
+    x: 9,
+    y: 0,
+    w: 3,
+    h: 12,
+    props: {
+      globalDisable3d: true,
+      disableChannelsIfRgbDetected: true,
+    },
+    uid: 'B',
   }],
   initStrategy: 'auto',
 };
