@@ -1,6 +1,5 @@
 import React, {
   useEffect,
-  useState,
   useMemo,
 } from 'react';
 import isEqual from 'lodash/isEqual';
@@ -185,7 +184,9 @@ export function ObsSetsManagerSubscriber(props) {
     if (expanded) {
       setCellSetExpansion([...cellSetExpansion, targetKey.split(PATH_SEP)]);
     } else {
-      const newCellSetExpansion = cellSetExpansion.filter(d => !isEqual(d, targetKey.split(PATH_SEP)));
+      const newCellSetExpansion = cellSetExpansion.filter(
+        d => !isEqual(d, targetKey.split(PATH_SEP)),
+      );
       setCellSetExpansion(newCellSetExpansion);
     }
   }

@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   TitleInfo,
   useCoordination, useLoaders,
@@ -54,7 +54,6 @@ export function CellSetSizesPlotSubscriber(props) {
   const [urls, addUrl] = useUrls(loaders, dataset);
 
   const [currentHierarchyName, setCurrentHierarchyName] = useState('');
-  const [cellSetSelectionLength, setCellSetSelectionLength] = useState(0);
   const [lastCellSetSelection, setLastCellSetSelection] = useState([]);
 
   // Get data from loaders using the data hooks.
@@ -75,165 +74,120 @@ export function CellSetSizesPlotSubscriber(props) {
 
   function findChangedHierarchy(arr1, arr2) {
     const subarrayToString = subarray => subarray.toString();
-  
+
     const arr1Strings = arr1.map(subarrayToString);
     const arr2Strings = arr2.map(subarrayToString);
-  
+
     const arr1UniqueStrings = arr1Strings.filter(subarrayStr => !arr2Strings.includes(subarrayStr));
     const arr2UniqueStrings = arr2Strings.filter(subarrayStr => !arr1Strings.includes(subarrayStr));
-  
+
     if (arr1UniqueStrings.length === 0 && arr2UniqueStrings.length === 0) {
       return 0;
     }
-  
+
     if (arr2UniqueStrings.length > 0) {
-      const addedSubarray = arr2UniqueStrings[0].split(',').map(element => {
-        return isNaN(Number(element)) ? element : Number(element);
+      const addedSubarray = arr2UniqueStrings[0].split(',').map((element) => {
+        const num = Number(element);
+        return num === parseFloat(element) ? num : element;
       });
       return addedSubarray.slice(0, -1); // Return the hierarchy of the added clusters
-    } else {
-      const removedSubarray = arr1UniqueStrings[0].split(',').map(element => {
-        return isNaN(Number(element)) ? element : Number(element);
-      });
-      return removedSubarray.slice(0, -1); // Return the hierarchy of the removed clusters
     }
+    const removedSubarray = arr1UniqueStrings[0].split(',').map((element) => {
+      const num = Number(element);
+      return num === parseFloat(element) ? num : element;
+    });
+    return removedSubarray.slice(0, -1); // Return the hierarchy of the removed clusters
   }
-
-
-  console.log("$$$$$ EXPANDED:", cellSetExpansion);
 
   const getPaths = (node, currentPath = [], paths = []) => {
     if (node.children) {
-      for (const child of node.children) {
+      node.children.forEach((child) => {
         const newPath = [...currentPath, child.name];
         paths.push(newPath);
         getPaths(child, newPath, paths);
-      }
+      });
     }
     return paths;
   };
 
-  const filterPaths = (paths, currentHierarchyName) => {
+  const filterPaths = (paths, hierarchy) => {
+    const contains = (allPaths, path) => allPaths.some(p => p.toString() === path.toString());
 
-    const isPathMatching = (path, arrOfPaths) => {
-      return arrOfPaths.some(p => {
-        if (p.length !== path.length) return false;
-        
-        return p.every((value, index) => value === path[index]);
-      });
-    };
-
-    // arr1 is big, arr2 is small
-    // Returns the longest path in arr1 that is a subset of arr2
-    const findLongestSubset = (arr1, arr2) => {
-      let longestSubset = null;
-      let longestLength = 0;
-    
-      arr1.forEach(subArray => {
-        let subArrayIndex = 0;
-        let matchCount = 0;
-    
-        arr2.forEach(element => {
-          if (subArray[subArrayIndex] === element) {
-            matchCount++;
-            subArrayIndex++;
-          }
-          if (subArrayIndex === subArray.length) return;
-        });
-    
-        if (matchCount === subArray.length && subArray.length > longestLength) {
-          longestSubset = subArray;
+    /**
+     * Finds either the longest subset or the longest superset of path in
+     * arrOfPaths.
+     * @param {array} arrOfPaths An array of paths.
+     * @param {array} path An array of strings, representing a path
+     * @param {boolean} isSubset A boolean flag that indicates whether we are
+     * looking for the longest subset (true) or the longest superset (false).
+     */
+    const findLongest = (arrOfPaths, path, isSubset) => {
+      let longest = null; let
+        longestLength = 0;
+      arrOfPaths.forEach((subArray) => {
+        const matchCount = subArray.filter((v, i) => v === path[i]).length;
+        if (
+          matchCount === (isSubset ? subArray.length : path.length)
+            && subArray.length > longestLength
+        ) {
+          longest = subArray;
           longestLength = subArray.length;
         }
       });
-    
-      return longestLength > 0 ? longestSubset : [];
+      if (longestLength > 0) {
+        return longest;
+      } if (isSubset) {
+        return [];
+      }
+      return false;
     };
 
-    // returns the element with the longest length from arr1 that arr2 is a subset of.
-    const findLongestElementWithSubset = (arr1, arr2) => {
-      let longestElement = null;
-      let longestLength = 0;
-    
-      for (const subArray of arr1) {
-        let subArrayIndex = 0;
-        let matchCount = 0;
-    
-        for (const element of arr2) {
-          if (subArray[subArrayIndex] === element) {
-            matchCount++;
-            subArrayIndex++;
-          }
-          if (subArrayIndex === subArray.length) break;
+    return paths.filter((clusterPath) => {
+      // clusterPath is a parent of some selected cell set and is expanded. We should discard it.
+      if (contains(cellSetExpansion, clusterPath)) return false;
+
+      // clusterPath is not selected. Now we need to determine if we should keep it.
+      if (!contains(cellSetSelection, clusterPath)) {
+        /* This line checks if the longest super set of clusterPath in cellSetSelection is longer
+         than clusterPath itself. If true, it means clusterPath is a parent of some selected cell
+         set but not expanded and we should discard it. */
+        if (findLongest(cellSetSelection, clusterPath, false).length > clusterPath.length) {
+          return false;
         }
-    
-        if (matchCount === arr2.length && subArray.length > longestLength) {
-          longestElement = subArray;
-          longestLength = subArray.length;
+
+        // the clusterPath is too deep in the tree. We should discard it.
+        if (cellSetExpansion.length === 0 && clusterPath.length > 2) return false;
+
+        const longestSubset = findLongest(cellSetExpansion, clusterPath, true);
+        // another case of the clusterPath being deep in the tree. We should discard it.
+        if (cellSetExpansion.length > 0 && longestSubset.length + 1 < clusterPath.length) {
+          return false;
         }
       }
-    
-      return longestLength > 0 ? longestElement : false;
-    };
-
-    return paths.filter(clusterPath => {
-
-      // clusterPath is a parent of some cell sets and is expanded.
-        if (isPathMatching(clusterPath, cellSetExpansion)) {
-          console.log("---- Cluster path is expanded, discard it");
-          return;
-        }
-
-        // clusterPath is not in cellSetSelection, now we need to determine if we should keep it.
-        if (!isPathMatching(clusterPath, cellSetSelection)) {
-  
-          // clusterPath is a parent of some selected cell set and is not expanded:
-          const longestSelectedChild = findLongestElementWithSubset(cellSetSelection, clusterPath);
-          if (longestSelectedChild.length > clusterPath.length) {
-            console.log("** cluster path is not selected and not expanded");
-            return;
-          }      
-          const longestSubset = findLongestSubset(cellSetExpansion, clusterPath);
-          // the clusterPath is too deep in the tree
-          if (cellSetExpansion.length === 0 && clusterPath.length > 2) {
-            console.log("** clusterPath goes too deep 1:", clusterPath, longestSubset);
-            return;
-          }
-          // another case of the clusterPath being deep in the tree
-          if (cellSetExpansion.length > 0 && longestSubset.length + 1 < clusterPath.length) {
-            console.log("** clusterPath goes too deep 2:", clusterPath, longestSubset);
-            return;
-          }
-        }
-      return clusterPath[0] === currentHierarchyName[0];
+      return clusterPath[0] === hierarchy[0];
     });
   };
 
-  // From the cell sets hierarchy and the list of selected cell sets,
-  // generate the array of set sizes data points for the bar plot.
   const data = useMemo(() => {
     let newHierarchy;
     if (cellSetSelection) {
       newHierarchy = findChangedHierarchy(lastCellSetSelection, cellSetSelection);
       if (newHierarchy !== 0) {
-        console.log("**** new hierarchy: ", newHierarchy);
         setLastCellSetSelection(cellSetSelection);
         setCurrentHierarchyName(newHierarchy);
       } else if (newHierarchy === 0) {
         newHierarchy = currentHierarchyName;
       }
     }
-    console.log("the hierarchy we use: ", newHierarchy);
-    console.log("++++ cellSetSelection: ", cellSetSelection);
     const allPaths = getPaths({ children: mergedCellSets.tree });
     const allClusters = filterPaths(allPaths, newHierarchy);
     return (mergedCellSets && cellSets && cellSetSelection && cellSetColor
-    ? treeToSetSizesBySetNames(mergedCellSets, allClusters, cellSetSelection, cellSetColor, theme)
-    : []
-  )}, [mergedCellSets, cellSetSelection, cellSetExpansion, cellSetColor, theme]);
+      ? treeToSetSizesBySetNames(mergedCellSets, allClusters, cellSetSelection, cellSetColor, theme)
+      : []
+    );
+  }, [mergedCellSets, cellSetSelection, cellSetExpansion, cellSetColor, theme]);
 
   const onBarSelect = (setNamePath, shownPrev) => {
-    console.log("setNamePath: ", setNamePath);
     if (shownPrev) {
       setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, setNamePath)));
     } else {
@@ -243,7 +197,7 @@ export function CellSetSizesPlotSubscriber(props) {
 
   const onSelectOnly = (setNamePath) => {
     setCellSetSelection([setNamePath]);
-  }
+  };
 
   return (
     <TitleInfo

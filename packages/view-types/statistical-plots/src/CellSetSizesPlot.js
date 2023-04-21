@@ -148,10 +148,8 @@ export default function CellSetSizesPlot(props) {
 
   const handleSignal = (name, value) => {
     if (name === 'bar_select') {
-      console.log("+++++++++I just clicked selected!!!!! ", name, value);
       onBarSelect(value.setNamePath, value.shown[0]);
     } else if (name === 'shift_bar_select') {
-      console.log("---------I shift bar selected!!!!! ", name, value);
       onSelectOnly(value.setNamePath);
     }
   };

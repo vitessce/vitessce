@@ -509,8 +509,9 @@ export function treeToCellPolygonsBySetNames(
  * Given a tree with state, get the sizes of the
  * sets currently marked as "visible".
  * @param {object} currTree A tree object.
+ * @param {array} allNamePaths Array of all paths.
  * @param {array} selectedNamePaths Array of arrays of strings,
- * representing set "paths".
+ * representing selected paths.
  * @param {object[]} setColor Array of objects with the
  * properties `path` and `color`.
  * @param {string} theme "light" or "dark" for the vitessce theme
@@ -518,39 +519,36 @@ export function treeToCellPolygonsBySetNames(
  * with the properties `name`, `size`, `key`,
  * and `color`.
  */
-// TODO update docs and put a default for currentHierarchyName
 // TODO make it compatible with the violin plot
-export function treeToSetSizesBySetNames(currTree, allClusters, selectedNamePaths, setColor, theme) {
+export function treeToSetSizesBySetNames(
+  currTree, allNamePaths, selectedNamePaths, setColor, theme,
+) {
   const sizes = [];
 
-  const isSubset = (arr1, arr2) => {
-    return arr2.every(element => arr1.includes(element));
-  };
+  const contains = (path, paths) => paths.some((p) => {
+    if (p.length !== path.length) return false;
+    return p.every((value, index) => value === path[index]);
+  });
 
-  console.log("**** allClusters:", allClusters);
-  allClusters.forEach((clusterPath) => {
-      console.log("++++ clusterPath:", clusterPath)
-      // new code
-      const node = treeFindNodeByNamePath(currTree, clusterPath);
-      if (node) {
-        const nodeSet = nodeToSet(node);
-        const nodeColor = setColor?.find(d => isEqual(d.path, clusterPath))?.color
+  allNamePaths.forEach((clusterPath) => {
+    const node = treeFindNodeByNamePath(currTree, clusterPath);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      const nodeColor = setColor?.find(d => isEqual(d.path, clusterPath))?.color
           || getDefaultColor(theme);
-        const nodeProps = {
-          key: generateKey(),
-          name: node.name,
-          size: nodeSet.length,
-          color: nodeColor,
-          setNamePath: clusterPath,
-          shown: 0,
-        };
-        selectedNamePaths.forEach((setNamePath) => {
-          if (isSubset(clusterPath, setNamePath)) {
-            nodeProps.shown = 1;
-          }
-        });
-        sizes.push(nodeProps);
+      const nodeProps = {
+        key: generateKey(),
+        name: node.name,
+        size: nodeSet.length,
+        color: nodeColor,
+        setNamePath: clusterPath,
+        shown: 0,
+      };
+      if (contains(clusterPath, selectedNamePaths)) {
+        nodeProps.shown = 1;
       }
+      sizes.push(nodeProps);
+    }
   });
   return sizes;
 }
