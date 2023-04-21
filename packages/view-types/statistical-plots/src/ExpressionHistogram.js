@@ -36,29 +36,51 @@ export default function ExpressionHistogram(props) {
     : 'Total Normalized Transcript Count';
 
   const spec = {
-    mark: { type: 'bar' },
+    data: { values: data },
+    mark: "bar",
     encoding: {
       x: {
-        field: 'value',
-        type: 'quantitative',
+        field: "value",
+        type: "quantitative",
         bin: { maxbins: 50 },
         title: xTitle,
       },
       y: {
-        type: 'quantitative',
-        aggregate: 'count',
-        title: 'Number of Cells',
+        type: "quantitative",
+        aggregate: "count",
+        title: "Number of Cells",
       },
-      color: { value: 'gray' },
+      color: { value: "gray" },
+      opacity: {
+        condition: { selection: "brush", value: 1 },
+        value: 0.7,
+      },
     },
+    params: [
+      {
+        name: "brush",
+        select: { type: "interval", encodings: ["x"], fields: ['value'], // todo: value passed here is wrong. we need to somehow get the cell ids
+      },
+      },
+    ],
     width: clamp(width - marginRight, 10, Infinity),
     height: clamp(height - marginBottom, 10, Infinity),
     config: VEGA_THEMES[theme],
   };
 
+
+  const handleSignal = (name, value) => {
+    if (name === 'brush') {
+      console.log("**** SELECTED!!!!!! ", name, value);
+    }
+  };
+
+  const signalListeners = { brush: handleSignal };
+
   return (
     <VegaPlot
       data={data}
+      signalListeners={signalListeners}
       spec={spec}
     />
   );
