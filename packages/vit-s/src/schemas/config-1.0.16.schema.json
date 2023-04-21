@@ -81,7 +81,9 @@
         "additionalObsSets": { "$ref": "#/definitions/stringOrStringArray" },
         "moleculeHighlight": { "$ref": "#/definitions/stringOrStringArray" },
         "gatingFeatureSelectionX": { "$ref": "#/definitions/stringOrStringArray" },
-        "gatingFeatureSelectionY": { "$ref": "#/definitions/stringOrStringArray" }
+        "gatingFeatureSelectionY": { "$ref": "#/definitions/stringOrStringArray" },
+        "metaCoordinationScopes": { "$ref": "#/definitions/stringOrStringArray" },
+        "metaCoordinationScopesBy": { "$ref": "#/definitions/stringOrStringArray" }
       }
     },
     "componentCoordinationScopesBy": {
@@ -1065,6 +1067,18 @@
                 { "type": "string" }
               ]
             }
+          }
+        },
+        "metaCoordinationScopes": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "object" }
+          }
+        },
+        "metaCoordinationScopesBy": {
+          "type": "object",
+          "patternProperties": {
+            ".": { "type": "object" }
           }
         }
       }
