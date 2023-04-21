@@ -1358,11 +1358,12 @@ export const nestedSpatialLayers: z.infer<typeof configSchema1_0_16> = {
   initStrategy: 'auto',
 };
 
-export const multiLevelSpatialLayers: z.infer<typeof configSchema1_0_17> = {
-  version: '1.0.17',
+export const nestedSpatialLayersWithImageCoordinationValue: z.infer<typeof configSchema1_0_16> = {
+  version: '1.0.16',
   name: 'Spatial layers fixture',
   datasets: [
     {
+      // TODO: example with multiple datasets
       uid: 'A',
       name: 'My dataset',
       files: [
@@ -1400,7 +1401,9 @@ export const multiLevelSpatialLayers: z.infer<typeof configSchema1_0_17> = {
     },
   ],
   coordinationSpace: {
-    dataset: { A: 'A' },
+    dataset: {
+      A: 'A',
+    },
     spatialZoom: {
       A: -4.4211074257069285,
     },
@@ -1410,300 +1413,399 @@ export const multiLevelSpatialLayers: z.infer<typeof configSchema1_0_17> = {
     spatialTargetY: {
       A: 15196.071341244067,
     },
-    spatialImageLayer: {
-      A: '__dummy__', B: '__dummy__', C: '__dummy__', D: '__dummy__',
-    },
-    image: {
-      A: 'PAS', B: 'AF', C: 'IMS PosMode', D: 'IMS NegMode',
-    },
-    spatialLayerVisible: {
-      A: true, B: true, C: true, D: true,
-    },
-    spatialLayerOpacity: {
-      A: 1, B: 1, C: 1, D: 1,
-    },
-    spatialImageChannel: {
-      // PAS: RGB
-      A: '__dummy__',
-      B: '__dummy__',
-      C: '__dummy__',
-      // AF: 3 channels
-      D: '__dummy__',
-      E: '__dummy__',
-      F: '__dummy__',
-      // IMS PosMode: 4 channels
-      G: '__dummy__',
-      H: '__dummy__',
-      I: '__dummy__',
-      J: '__dummy__',
-      // IMS: NegMode: 4 channels
-      K: '__dummy__',
-      L: '__dummy__',
-      M: '__dummy__',
-      N: '__dummy__',
-    },
-    spatialTargetC: {
-      // Previously in spatialImageLayer[].channels[].selection.(c|C|color|...):
-      // eslint-disable-next-line object-property-newline
-      A: 0, B: 1, C: 2,
-      // eslint-disable-next-line object-property-newline
-      D: 0, E: 1, F: 2,
-      // eslint-disable-next-line object-property-newline
-      G: 0, H: 1, I: 2, J: 3,
-      // eslint-disable-next-line object-property-newline
-      K: 0, L: 1, M: 2, N: 3,
-    },
     spatialTargetZ: {
-      // Previously in spatialImageLayer[].channels[].selection.(z|Z|...):
-      A: 0, B: 1, C: 2, D: 0,
-    },
-    spatialTargetT: {
-      // Previously in spatialImageLayer[].channels[].selection.(t|T|temporal|...):
-      A: 0, B: 1, C: 2, D: 0,
-    },
-    spatialChannelVisible: {
-      // Previously in spatialImageLayer[].channels[].selection.(c|C|color|...):
-      // eslint-disable-next-line object-property-newline
-      A: true, B: true, C: true,
-      // eslint-disable-next-line object-property-newline
-      D: true, E: true, F: true,
-      // eslint-disable-next-line object-property-newline
-      G: true, H: true, I: true, J: true,
-      // eslint-disable-next-line object-property-newline
-      K: true, L: true, M: true, N: true,
-    },
-    spatialChannelColor: {
-      // Previously in spatialImageLayer[].channels[].color:
-      // RGB
-      A: [255, 0, 0],
-      B: [0, 255, 0],
-      C: [0, 0, 255],
-      // AF
-      D: [0, 0, 255],
-      E: [0, 255, 0],
-      F: [255, 0, 255],
-      // IMS PosMode
-      G: [0, 0, 255],
-      H: [0, 255, 0],
-      I: [255, 0, 255],
-      J: [255, 255, 0],
-      // IMS NegMode
-      K: [0, 0, 255],
-      L: [0, 255, 0],
-      M: [255, 0, 255],
-      N: [255, 255, 0],
-    },
-    spatialChannelColormap: {
-      // Previously in spatialImageLayer[].colormap:
       A: null,
-      B: null,
-      C: null,
-      D: null,
     },
-    spatialWindowSliderMode: {
-      // Previously in spatialImageLayer[].domainType:
-      A: 'Min/Max',
-      B: 'Min/Max',
-      C: 'Min/Max',
-      D: 'Min/Max',
-    },
-    spatialTransparentColor: {
-      // Previously in spatialImageLayer[].transparentColor:
-      A: null,
-      B: [0, 0, 0],
-      C: [0, 0, 0],
-      D: [0, 0, 0],
-    },
-    spatialRenderingMode: {
-      // Previously in spatialImageLayer[].use3d:
-      A: '2D',
-      B: '2D',
-      C: '2D',
-      D: '2D',
-    },
-    spatialImageVolumeRenderingMethod: {
-      // Previously in spatialImageLayer[].renderingMode:
-      A: 'Additive',
-      B: 'Additive',
-      C: 'Additive',
-      D: 'Additive',
-    },
-    spatialChannelWindowRange: {
-      // Previously in spatialImageLayer[].channels[].slider
-      // PAS
-      A: [0, 255],
-      B: [0, 255],
-      C: [0, 255],
-      // AF
-      D: [1024, 23753],
-      E: [373, 9848],
-      F: [326, 14084],
-      // IMS PosMode
-      G: [0.7109375, 2817.15283203125],
-      H: [7.094120025634766, 50509.515625],
-      I: [0.5399665832519531, 1078.9984130859375],
-      J: [0.28322410583496094, 1108.6363525390625],
-      // IMS NegMode
-      K: [1.335814118385315, 1839.003662109375],
-      L: [4.591888427734375, 5142.390625],
-      M: [0.2421875, 314.395751953125],
-      N: [0.4366779327392578, 390.0624084472656],
-    },
-    spatialModelMatrix: {
-      // Previously in spatialImageLayer[].modelMatrix
-      // IMS PosMode
+    spatialImageLayer: {
       A: [
-        20,
-        0,
-        0,
-        0,
-        0,
-        20,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-      ],
-      // IMS NegMode
-      B: [
-        20,
-        0,
-        0,
-        0,
-        0,
-        20,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
+        {
+          type: 'raster',
+          image: 'PAS',
+          visible: true,
+          colormap: null,
+          opacity: 1,
+          domainType: 'Min/Max',
+          transparentColor: null,
+          renderingMode: 'Additive',
+          use3d: false,
+          channels: [
+            {
+              selection: {
+                c: 0,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                0,
+                0,
+              ],
+              visible: true,
+              slider: [
+                0,
+                255,
+              ],
+            },
+            {
+              selection: {
+                c: 1,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                0,
+                255,
+              ],
+            },
+            {
+              selection: {
+                c: 2,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                0,
+                255,
+              ],
+            },
+          ],
+        },
+        {
+          type: 'raster',
+          image: 'AF',
+          visible: true,
+          colormap: null,
+          opacity: 1,
+          domainType: 'Min/Max',
+          transparentColor: [
+            0,
+            0,
+            0,
+          ],
+          renderingMode: 'Additive',
+          use3d: false,
+          channels: [
+            {
+              selection: {
+                c: 0,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                1024,
+                23753,
+              ],
+            },
+            {
+              selection: {
+                c: 1,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                373,
+                9848,
+              ],
+            },
+            {
+              selection: {
+                c: 2,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                326,
+                14084,
+              ],
+            },
+          ],
+        },
+        {
+          type: 'raster',
+          image: 'IMS PosMode',
+          visible: true,
+          colormap: null,
+          opacity: 1,
+          domainType: 'Min/Max',
+          transparentColor: [
+            0,
+            0,
+            0,
+          ],
+          renderingMode: 'Additive',
+          use3d: false,
+          channels: [
+            {
+              selection: {
+                c: 0,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                0.7109375,
+                2817.15283203125,
+              ],
+            },
+            {
+              selection: {
+                c: 1,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                7.094120025634766,
+                50509.515625,
+              ],
+            },
+            {
+              selection: {
+                c: 2,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                0.5399665832519531,
+                1078.9984130859375,
+              ],
+            },
+            {
+              selection: {
+                c: 3,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                0.28322410583496094,
+                1108.6363525390625,
+              ],
+            },
+          ],
+          modelMatrix: [
+            20,
+            0,
+            0,
+            0,
+            0,
+            20,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+          ],
+        },
+        {
+          type: 'raster',
+          image: 'IMS NegMode',
+          visible: true,
+          colormap: null,
+          opacity: 1,
+          domainType: 'Min/Max',
+          transparentColor: [
+            0,
+            0,
+            0,
+          ],
+          renderingMode: 'Additive',
+          use3d: false,
+          channels: [
+            {
+              selection: {
+                c: 0,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                1.335814118385315,
+                1839.003662109375,
+              ],
+            },
+            {
+              selection: {
+                c: 1,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                4.591888427734375,
+                5142.390625,
+              ],
+            },
+            {
+              selection: {
+                c: 2,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                0.2421875,
+                314.395751953125,
+              ],
+            },
+            {
+              selection: {
+                c: 3,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                0.4366779327392578,
+                390.0624084472656,
+              ],
+            },
+          ],
+          modelMatrix: [
+            20,
+            0,
+            0,
+            0,
+            0,
+            20,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+          ],
+        },
       ],
     },
-    metaCoordinationScopes: {
-      A: {
-        spatialImageLayer: ['A', 'B', 'C', 'D'],
-        // TODO: example with spatialSemgentationLayer (as bitmask)
-        // TODO: example with spatialSemgentationLayer (as polygon)
-        // TODO: example with spatialPointLayer
-      },
+    spatialSegmentationLayer: {
+      A: [],
     },
-    metaCoordinationScopesBy: {
-      A: {
-        spatialImageLayer: {
-          image: {
-            A: 'A', B: 'B', C: 'C', D: 'D',
-          },
-          spatialLayerVisible: {
-            A: 'A', B: 'B', C: 'C', D: 'D',
-          },
-          spatialLayerOpacity: {
-            A: 'A', B: 'B', C: 'C', D: 'D',
-          },
-          spatialWindowSliderMode: {
-            A: 'A', B: 'B', C: 'C', D: 'D',
-          },
-          spatialTransparentColor: {
-            A: 'A', B: 'B', C: 'C', D: 'D',
-          },
-          spatialRenderingMode: {
-            A: 'A', B: 'B', C: 'C', D: 'D',
-          },
-          spatialImageVolumeRenderingMethod: {
-            A: 'A', B: 'B', C: 'C', D: 'D',
-          },
-          spatialImageChannel: {
-            A: ['A', 'B', 'C'],
-            B: ['D', 'E', 'F'],
-            C: ['G', 'H', 'I', 'J'],
-            D: ['K', 'L', 'M', 'N'],
-          },
-        },
-        spatialImageChannel: {
-          spatialTargetC: {
-            A: 'A', B: 'B', C: 'C',
-            D: 'D', E: 'E', F: 'F',
-            G: 'G', H: 'H', I: 'I', J: 'J',
-            K: 'K', L: 'L', M: 'M', N: 'N',
-          },
-          spatialChannelColor: {
-            A: 'A', B: 'B', C: 'C',
-            D: 'D', E: 'E', F: 'F',
-            G: 'G', H: 'H', I: 'I', J: 'J',
-            K: 'K', L: 'L', M: 'M', N: 'N',
-          },
-          spatialChannelColormap: {
-            A: 'A', B: 'A', C: 'A',
-            D: 'B', E: 'B', F: 'B',
-            G: 'C', H: 'C', I: 'C', J: 'C',
-            K: 'D', L: 'D', M: 'D', N: 'D',
-          },
-          spatialTargetZ: {
-            A: 'A', B: 'A', C: 'A',
-            D: 'B', E: 'B', F: 'B',
-            G: 'C', H: 'C', I: 'C', J: 'C',
-            K: 'D', L: 'D', M: 'D', N: 'D',
-          },
-          spatialTargetT: {
-            A: 'A', B: 'A', C: 'A',
-            D: 'B', E: 'B', F: 'B',
-            G: 'C', H: 'C', I: 'C', J: 'C',
-            K: 'D', L: 'D', M: 'D', N: 'D',
-          },
-          spatialChannelVisible: {
-            A: 'A', B: 'A', C: 'A',
-            D: 'B', E: 'B', F: 'B',
-            G: 'C', H: 'C', I: 'C', J: 'C',
-            K: 'D', L: 'D', M: 'D', N: 'D',
-          },
-          spatialChannelWindowRange: {
-            A: 'A', B: 'A', C: 'A',
-            D: 'B', E: 'B', F: 'B',
-            G: 'C', H: 'C', I: 'C', J: 'C',
-            K: 'D', L: 'D', M: 'D', N: 'D',
-          },
-        },
-      },
+    spatialPointLayer: {
+      A: null,
     },
   },
-  layout: [{
-    component: 'spatial',
-    coordinationScopes: {
-      dataset: 'A',
-      metaCoordinationScopes: ['A'],
-      metaCoordinationScopesBy: ['A'],
+  layout: [
+    {
+      component: 'spatial',
+      coordinationScopes: {
+        dataset: 'A',
+        spatialZoom: 'A',
+        spatialTargetX: 'A',
+        spatialTargetY: 'A',
+        spatialTargetZ: 'A',
+        spatialImageLayer: 'A',
+        spatialSegmentationLayer: 'A',
+        spatialPointLayer: 'A',
+      },
+      x: 0,
+      y: 0,
+      w: 9,
+      h: 12,
+      uid: 'A',
     },
-    x: 0,
-    y: 0,
-    w: 9,
-    h: 12,
-    uid: 'A',
-  }, {
-    component: 'layerController',
-    coordinationScopes: {
-      dataset: 'A',
-      metaCoordinationScopes: ['A'],
-      metaCoordinationScopesBy: ['A'],
+    {
+      component: 'layerController',
+      coordinationScopes: {
+        dataset: 'A',
+        spatialZoom: 'A',
+        spatialTargetX: 'A',
+        spatialTargetY: 'A',
+        spatialTargetZ: 'A',
+        spatialImageLayer: 'A',
+        spatialSegmentationLayer: 'A',
+        spatialPointLayer: 'A',
+      },
+      x: 9,
+      y: 0,
+      w: 3,
+      h: 12,
+      props: {
+        globalDisable3d: true,
+        disableChannelsIfRgbDetected: true,
+      },
+      uid: 'B',
     },
-    x: 9,
-    y: 0,
-    w: 3,
-    h: 12,
-    props: {
-      globalDisable3d: true,
-      disableChannelsIfRgbDetected: true,
-    },
-    uid: 'B',
-  }],
+  ],
   initStrategy: 'auto',
 };

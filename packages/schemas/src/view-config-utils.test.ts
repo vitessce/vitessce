@@ -14,7 +14,7 @@ import {
   implicitPerDatasetCoordinations,
   explicitPerDatasetCoordinations,
   nestedSpatialLayers,
-  multiLevelSpatialLayers,
+  nestedSpatialLayersWithImageCoordinationValue,
 } from './view-config-utils.test.fixtures';
 import {
   upgradeAndParse,
@@ -36,7 +36,7 @@ describe('src/app/view-config-utils.js', () => {
     });
     it('upgrade view config from v1.0.16 to v1.0.17', () => {
       expect(upgradeFrom1_0_16(nestedSpatialLayers))
-        .toEqual(multiLevelSpatialLayers);
+        .toEqual(nestedSpatialLayersWithImageCoordinationValue);
     });
     it('upgrades more than once', () => {
       const latestConfig = upgradeAndParse(legacyViewConfig1_0_0);
