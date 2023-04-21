@@ -519,7 +519,6 @@ export function treeToCellPolygonsBySetNames(
  * with the properties `name`, `size`, `key`,
  * and `color`.
  */
-// TODO make it compatible with the violin plot
 export function treeToSetSizesBySetNames(
   currTree, allNamePaths, selectedNamePaths, setColor, theme,
 ) {

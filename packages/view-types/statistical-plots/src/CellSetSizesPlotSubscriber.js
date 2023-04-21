@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   TitleInfo,
   useCoordination, useLoaders,
@@ -141,7 +141,7 @@ export function CellSetSizesPlotSubscriber(props) {
     });
   };
 
-  const getNewHierarchy = (lastSelection, currentSelection) => {
+  const getNewHierarchy = useCallback((lastSelection, currentSelection) => {
     const findChangedHierarchy = (arr1, arr2) => {
       const subarrayToString = subarray => subarray.toString();
 
@@ -183,9 +183,9 @@ export function CellSetSizesPlotSubscriber(props) {
     }
 
     return null;
-  };
+  }, [currentHierarchyName]);
 
-  const getData = () => {
+  const getData = useCallback(() => {
     let newHierarchy;
 
     if (cellSetSelection) {
@@ -206,7 +206,7 @@ export function CellSetSizesPlotSubscriber(props) {
     }
 
     return [];
-  };
+  }, [cellSetSelection, cellSetColor, cellSets, mergedCellSets, theme]);
 
   const data = useMemo(getData, [
     mergedCellSets,
