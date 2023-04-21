@@ -19,6 +19,7 @@ import {
 import {
   upgradeAndParse,
 } from './view-config-versions';
+import { latestConfigSchema } from './previous-base-schemas';
 
 describe('src/app/view-config-utils.js', () => {
   describe('upgrade', () => {
@@ -40,7 +41,8 @@ describe('src/app/view-config-utils.js', () => {
     });
     it('upgrades more than once', () => {
       const latestConfig = upgradeAndParse(legacyViewConfig1_0_0);
-      expect(latestConfig.version).toEqual('1.0.16');
+      // eslint-disable-next-line no-underscore-dangle
+      expect(latestConfig.version).toEqual(latestConfigSchema.shape.version._def.value);
     });
   });
 });

@@ -1358,8 +1358,8 @@ export const nestedSpatialLayers: z.infer<typeof configSchema1_0_16> = {
   initStrategy: 'auto',
 };
 
-export const nestedSpatialLayersWithImageCoordinationValue: z.infer<typeof configSchema1_0_16> = {
-  version: '1.0.16',
+export const nestedSpatialLayersWithImageCoordinationValue: z.infer<typeof configSchema1_0_17> = {
+  version: '1.0.17',
   name: 'Spatial layers fixture',
   datasets: [
     {

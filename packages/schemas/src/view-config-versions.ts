@@ -25,6 +25,7 @@ import {
   AnyVersionConfig,
   UpgradeFunction,
   latestConfigSchema,
+  configSchema1_0_16,
 } from './previous-base-schemas';
 import {
   upgradeFrom0_1_0,
@@ -44,6 +45,7 @@ import {
   upgradeFrom1_0_13,
   upgradeFrom1_0_14,
   upgradeFrom1_0_15,
+  upgradeFrom1_0_16,
 } from './view-config-upgraders';
 
 const SCHEMA_HANDLERS: [string, z.ZodTypeAny, UpgradeFunction][] = [
@@ -64,6 +66,7 @@ const SCHEMA_HANDLERS: [string, z.ZodTypeAny, UpgradeFunction][] = [
   ['1.0.13', configSchema1_0_13, upgradeFrom1_0_13],
   ['1.0.14', configSchema1_0_14, upgradeFrom1_0_14],
   ['1.0.15', configSchema1_0_15, upgradeFrom1_0_15],
+  ['1.0.16', configSchema1_0_16, upgradeFrom1_0_16],
 ];
 
 export const VERSIONED_CONFIG_SCHEMAS: Record<string, z.ZodTypeAny> = {
