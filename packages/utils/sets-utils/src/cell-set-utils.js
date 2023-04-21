@@ -519,122 +519,14 @@ export function treeToCellPolygonsBySetNames(
  * and `color`.
  */
 // TODO update docs and put a default for currentHierarchyName
-export function treeToSetSizesBySetNames(currTree, selectedNamePaths, currentHierarchyName, cellSetExpansion, setColor, theme) {
+// TODO make it compatible with the violin plot
+export function treeToSetSizesBySetNames(currTree, allClusters, selectedNamePaths, setColor, theme) {
   const sizes = [];
-
-  const getPaths = (node, currentPath = [], paths = []) => {
-    if (node.children) {
-      for (const child of node.children) {
-        const newPath = [...currentPath, child.name];
-        paths.push(newPath);
-        getPaths(child, newPath, paths);
-      }
-    }
-    return paths;
-  };
-
-  const filterPaths = (paths, currentHierarchyName) => {
-
-    const isPathMatching = (path, arrOfPaths) => {
-      return arrOfPaths.some(p => {
-        if (p.length !== path.length) return false;
-        
-        return p.every((value, index) => value === path[index]);
-      });
-    };
-
-    // arr1 is big, arr2 is small
-    // Returns the longest path in arr1 that is a subset of arr2
-    const findLongestSubset = (arr1, arr2) => {
-      let longestSubset = null;
-      let longestLength = 0;
-    
-      arr1.forEach(subArray => {
-        let subArrayIndex = 0;
-        let matchCount = 0;
-    
-        arr2.forEach(element => {
-          if (subArray[subArrayIndex] === element) {
-            matchCount++;
-            subArrayIndex++;
-          }
-          if (subArrayIndex === subArray.length) return;
-        });
-    
-        if (matchCount === subArray.length && subArray.length > longestLength) {
-          longestSubset = subArray;
-          longestLength = subArray.length;
-        }
-      });
-    
-      return longestLength > 0 ? longestSubset : [];
-    };
-
-    // returns the element with the longest length from arr1 that arr2 is a subset of.
-    const findLongestElementWithSubset = (arr1, arr2) => {
-      let longestElement = null;
-      let longestLength = 0;
-    
-      for (const subArray of arr1) {
-        let subArrayIndex = 0;
-        let matchCount = 0;
-    
-        for (const element of arr2) {
-          if (subArray[subArrayIndex] === element) {
-            matchCount++;
-            subArrayIndex++;
-          }
-          if (subArrayIndex === subArray.length) break;
-        }
-    
-        if (matchCount === arr2.length && subArray.length > longestLength) {
-          longestElement = subArray;
-          longestLength = subArray.length;
-        }
-      }
-    
-      return longestLength > 0 ? longestElement : false;
-    };
-
-    return paths.filter(clusterPath => {
-
-      // clusterPath is a parent of some cell sets and is expanded.
-        if (isPathMatching(clusterPath, cellSetExpansion)) {
-          console.log("---- Cluster path is expanded, discard it");
-          return;
-        }
-
-        // clusterPath is not in selectedNamePaths, now we need to determine if we should keep it.
-        if (!isPathMatching(clusterPath, selectedNamePaths)) {
-  
-          // clusterPath is a parent of some selected cell set and is not expanded:
-          const longestSelectedChild = findLongestElementWithSubset(selectedNamePaths, clusterPath);
-          if (longestSelectedChild.length > clusterPath.length) {
-            console.log("** cluster path is not selected and not expanded");
-            return;
-          }      
-          const longestSubset = findLongestSubset(cellSetExpansion, clusterPath);
-          // the clusterPath is too deep in the tree
-          if (cellSetExpansion.length === 0 && clusterPath.length > 2) {
-            console.log("** clusterPath goes too deep 1:", clusterPath, longestSubset);
-            return;
-          }
-          // another case of the clusterPath being deep in the tree
-          if (cellSetExpansion.length > 0 && longestSubset.length + 1 < clusterPath.length) {
-            console.log("** clusterPath goes too deep 2:", clusterPath, longestSubset);
-            return;
-          }
-        }
-      return clusterPath[0] === currentHierarchyName[0];
-    });
-  };
 
   const isSubset = (arr1, arr2) => {
     return arr2.every(element => arr1.includes(element));
   };
 
-  const allPaths = getPaths({ children: currTree.tree });
-  const allClusters = filterPaths(allPaths, currentHierarchyName);
   console.log("**** allClusters:", allClusters);
   allClusters.forEach((clusterPath) => {
       console.log("++++ clusterPath:", clusterPath)
