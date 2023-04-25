@@ -204,7 +204,7 @@ export function SpatialSubscriber(props) {
     { spatialImageLayer: imageLayers },
     {}, // TODO: which properties to match on. Revisit after #830.
   );
-  const { loaders: imageLayerLoaders = [] } = image || {};
+  const { loaders: imageLayerLoaders = [], meta = [] } = image || {};
   const [neighborhoods, neighborhoodsStatus] = useNeighborhoodsData(
     loaders, dataset, addUrl, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
@@ -251,6 +251,7 @@ export function SpatialSubscriber(props) {
         imageLayerLoaders,
         useRaster: Boolean(hasImageData),
         use3d,
+        modelMatrices: meta.map(({ metadata }) => metadata?.transform?.matrix),
       });
       setTargetX(initialTargetX);
       setTargetY(initialTargetY);

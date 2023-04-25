@@ -74,6 +74,10 @@ export function CellSetSizesPlotSubscriber(props) {
     : []
   ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
 
+  const onBarSelect = (setNamePath) => {
+    setCellSetSelection([setNamePath]);
+  };
+
   return (
     <TitleInfo
       title={title}
@@ -85,6 +89,7 @@ export function CellSetSizesPlotSubscriber(props) {
       <div ref={containerRef} className={classes.vegaContainer}>
         <CellSetSizesPlot
           data={data}
+          onBarSelect={onBarSelect}
           theme={theme}
           width={width}
           height={height}

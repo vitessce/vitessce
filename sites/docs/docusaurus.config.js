@@ -18,8 +18,8 @@ module.exports = {
       disableSwitch: false,
     },
     prism: {
-      theme: require('prism-react-renderer/themes/github'),
-      darkTheme: require('prism-react-renderer/themes/dracula'),
+      theme: require('./src/pages/_prism-light-theme.cjs.js'),
+      darkTheme: require('./src/pages/_prism-dark-theme.cjs.js'),
     },
     navbar: {
       title: 'Vitessce',
@@ -136,7 +136,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/vitessce/vitessce/edit/main/docs/',
+          editUrl: 'https://github.com/vitessce/vitessce/edit/main/sites/docs/',
         },
         blog: {
           showReadingTime: true,
