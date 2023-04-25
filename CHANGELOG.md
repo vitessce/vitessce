@@ -14,6 +14,7 @@
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
 - Fixes Go to Definition support in vscode (see https://github.com/microsoft/TypeScript/issues/49003#issuecomment-1164659854).
+- Fixed syntax highlighting for code examples and editor in documentation.
 - Added a new file `VitessceAutoConfig.js` with methods and classes that can generate view config, given a list of dataset URLs.
 - Added a new documentation page: `default-config.md` that describes the auto config generation functionality and how to use it.
 - Small changes to the layout of `_ViewConfigEditor.js` to accomodate the new functionality: added a space for pasting links and a "Generate Config" button.
