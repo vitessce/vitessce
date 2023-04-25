@@ -155,8 +155,8 @@ export default function CellSetExpressionPlot(props) {
         scale: 'yscale',
         zindex: 1,
         title: (featureValueTransformName && featureValueTransformName !== 'None')
-          ? [`${featureValueTransformName}-Transformed`, `Normalized ${capitalize(featureValueType)} Values`]
-          : `Normalized ${capitalize(featureValueType)} Values`,
+          ? [`${featureValueTransformName}-Transformed`, `${capitalize(featureValueType)} Values`]
+          : `${capitalize(featureValueType)} Values`,
       },
       {
         orient: 'bottom',

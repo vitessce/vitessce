@@ -11,7 +11,9 @@ import {
 } from '@vitessce/utils';
 import {
   TitleInfo,
-  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
+  useDeckCanvasSize, useReady, useUrls,
+  useUint8FeatureSelection,
+  useExpressionValueGetter,
   useObsSetsData,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
@@ -317,12 +319,14 @@ export function GatingSubscriber(props) {
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
+  const [uint8ExpressionData] = useUint8FeatureSelection(expressionDataColor);
+
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useExpressionValueGetter({
     instanceObsIndex: obsIndex,
     matrixObsIndex: obsIndex,
-    expressionData: expressionDataColor,
+    expressionData: uint8ExpressionData,
   });
 
   // Puts the mapping values in the cell info tooltip.

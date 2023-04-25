@@ -232,7 +232,7 @@ export function useFeatureSelection(
             const geneIndex = featureIndex.indexOf(sel);
             const numGenes = featureIndex.length;
             const numCells = obsIndex.length;
-            const expressionData = new Uint8Array(numCells);
+            const expressionData = new Float32Array(numCells);
             for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
               expressionData[cellIndex] = obsFeatureMatrix.data[cellIndex * numGenes + geneIndex];
             }

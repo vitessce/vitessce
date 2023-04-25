@@ -10,6 +10,7 @@ import {
   useUrls,
   useObsSetsData,
   useObsFeatureMatrixData,
+  useUint8ObsFeatureMatrix,
   useMultiObsLabels,
   useFeatureLabelsData,
   useCoordination, useLoaders,
@@ -124,6 +125,10 @@ export function HeatmapSubscriber(props) {
     obsSetsStatus,
   ]);
 
+  const [uint8ObsFeatureMatrix, obsFeatureMatrixExtent] = useUint8ObsFeatureMatrix(
+    { obsFeatureMatrix },
+  );
+
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
@@ -152,18 +157,18 @@ export function HeatmapSubscriber(props) {
   }, [variablesLabel]);
 
   const expressionMatrix = useMemo(() => {
-    if (obsIndex && featureIndex && obsFeatureMatrix) {
+    if (obsIndex && featureIndex && uint8ObsFeatureMatrix) {
       return {
         rows: obsIndex,
         cols: (featureLabelsMap
           ? featureIndex.map(key => featureLabelsMap.get(key) || key)
           : featureIndex
         ),
-        matrix: obsFeatureMatrix.data,
+        matrix: uint8ObsFeatureMatrix.data,
       };
     }
     return null;
-  }, [obsIndex, featureIndex, obsFeatureMatrix, featureLabelsMap]);
+  }, [obsIndex, featureIndex, uint8ObsFeatureMatrix, featureLabelsMap]);
 
   const cellsCount = obsIndex ? obsIndex.length : 0;
   const genesCount = featureIndex ? featureIndex.length : 0;
@@ -258,6 +263,7 @@ export function HeatmapSubscriber(props) {
         featureSelection={geneSelection}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        extent={obsFeatureMatrixExtent}
       />
     </TitleInfo>
   );
