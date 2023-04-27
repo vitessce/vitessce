@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
+import uuidv4 from 'uuid/v4';
 import {
   deck, viv, getSelectionLayers, ScaledExpressionExtension,
 } from '@vitessce/gl';
@@ -8,6 +9,7 @@ import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
 import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
+import SpatialWorkerPool from './SpatialWorkerPool';
 
 const CELLS_LAYER_ID = 'cells-layer';
 const MOLECULES_LAYER_ID = 'molecules-layer';
@@ -100,6 +102,10 @@ function getVivLayerExtensions(use3d, colormap, renderingMode) {
 class Spatial extends AbstractSpatialOrScatterplot {
   constructor(props) {
     super(props);
+
+    this.workerPool = new SpatialWorkerPool();
+    this.state.backlog = []; // super(props) initializes this.state to an object.
+    this.state.colorsIteration = 0;
 
     // To avoid storing large arrays/objects
     // in React state, this component
@@ -418,6 +424,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
         geneExpressionColormapRange = [0.0, 1.0],
         cellColorEncoding,
       } = this.props;
+      const { backlog } = this.state;
+      if ((!this.color.data || backlog.length)) {
+        return null;
+      }
       return new viv.MultiscaleImageLayer({
         // `bitmask` is used by the AbstractSpatialOrScatterplot
         // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
@@ -597,31 +607,59 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
   }
 
-  onUpdateCellColors() {
-    const color = this.randomColorData;
+  onUpdateBacklog() {
+    const { backlog } = this.state;
+    const { cellColors } = this.props;
+    const uint8ColorData = this.color.data;
+
+    // When the backlog has updated, a new worker job can be submitted if:
+    // - the backlog has length >= 1 (at least one job is waiting), and
+    // - buffer.byteLength is not zero, so the worker does not currently "own" the buffer.
+    if (backlog.length < 1) {
+      // Nothing in the backlog
+      return;
+    }
+    const curr = backlog[backlog.length - 1];
+    if (uint8ColorData && uint8ColorData.buffer.byteLength && cellColors.size > 0) {
+      const promise = this.workerPool.process({
+        curr,
+        cellColors,
+        data: uint8ColorData.buffer.slice(),
+      });
+      const process = async () => {
+        const result = await promise;
+        this.setState(prev => ({
+          colorsIteration: prev.colorsIteration + 1,
+        }));
+        this.color.data = new Uint8Array(result.buffer);
+        const { curr: currWork } = result;
+        this.setState((prev) => {
+          const currIndex = prev.backlog.indexOf(currWork);
+          return {
+            backlog: prev.backlog.slice(currIndex + 1, prev.backlog.length),
+          };
+        });
+      };
+      process();
+    }
+
     /*
+    useEffect(() => {
+      setIsRendering(backlog.length > 0);
+    }, [backlog, setIsRendering]);
+    */
+  }
+
+  onUpdateCellColors() {
     const { size } = this.props.cellColors;
     if (typeof size === 'number') {
-      const cellIds = this.props.cellColors.keys();
-      color.data = new Uint8Array(color.height * color.width * 3).fill(
-        getDefaultColor(this.props.theme)[0],
-      );
-      // 0th cell id is the empty space of the image i.e black color.
-      color.data[0] = 0;
-      color.data[1] = 0;
-      color.data[2] = 0;
-      // eslint-disable-next-line no-restricted-syntax
-      for (const id of cellIds) {
-        if (id > 0) {
-          const cellColor = this.props.cellColors.get(id);
-          if (cellColor) {
-            color.data.set(cellColor.slice(0, 3), Number(id) * 3);
-          }
-        }
-      }
+      // If `cellColors` has changed,
+      // then new tiles need to be generated,
+      // so add a new task to the backlog.
+      this.setState(prev => ({
+        backlog: [...prev.backlog, uuidv4()],
+      }));
     }
-    this.color = color;
-    */
   }
 
   onUpdateExpressionData() {
@@ -712,10 +750,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
    * performance.
    * @param {object} prevProps The previous props to diff against.
    */
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     this.viewInfoDidUpdate();
 
     const shallowDiff = propName => prevProps[propName] !== this.props[propName];
+    const shallowStateDiff = propName => prevState[propName] !== this.state[propName];
     let forceUpdate = false;
     if (
       [
@@ -734,6 +773,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // Must come before onUpdateCellsLayer
       // since the new layer may use the new processed color data.
       this.onUpdateCellColors();
+      forceUpdate = true;
+    }
+
+    if (['cellColors'].some(shallowDiff) || ['backlog'].some(shallowStateDiff)) {
+      // Cells Color layer props changed.
+      // Must come before onUpdateCellsLayer
+      // since the new layer may use the new processed color data.
+      this.onUpdateBacklog();
       forceUpdate = true;
     }
 
@@ -763,6 +810,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'geneExpressionColormap',
         'segmentationLayerCallbacks',
       ].some(shallowDiff)
+      || ['colorsIteration'].some(shallowStateDiff)
     ) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();

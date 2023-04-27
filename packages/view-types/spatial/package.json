@@ -31,6 +31,7 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/legend": "workspace:*",
+    "@vitessce/workers": "workspace:*",
     "d3-array": "^2.4.0",
     "lodash": "^4.17.21",
     "math.gl": "^3.5.6",

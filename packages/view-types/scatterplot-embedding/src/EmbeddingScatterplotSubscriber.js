@@ -174,7 +174,6 @@ export function EmbeddingScatterplotSubscriber(props) {
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
   const cellColors = useMemo(() => {
-    console.log("starting getCellColors");
     const result = getCellColors({
       cellColorEncoding,
       expressionData: expressionData && expressionData[0],
@@ -185,7 +184,6 @@ export function EmbeddingScatterplotSubscriber(props) {
       obsIndex: matrixObsIndex,
       theme,
     });
-    console.log("done getCellColors");
     return result;
   }, [cellColorEncoding, geneSelection, mergedCellSets, theme,
     cellSetSelection, cellSetColor, expressionData, matrixObsIndex]);
