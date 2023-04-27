@@ -5,6 +5,10 @@ import {
   StylesProvider,
   createGenerateClassName,
 } from '@material-ui/core/styles';
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
 import isEqual from 'lodash/isEqual';
 import { META_VERSION } from '@vitessce/constants-internal';
 import { muiTheme } from './shared-mui/styles';
@@ -75,6 +79,15 @@ export function VitS(props) {
     // and allow setting a UID.
     productionPrefix: (uid ? `vit${uid}` : 'vit'),
   }), [uid]);
+
+  const queryClient = useMemo(() => new QueryClient({
+    // Reference: https://tanstack.com/query/latest/docs/react/guides/window-focus-refetching
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+    },
+  }), []);
 
   // Process the view config and memoize the result:
   // - Validate.
@@ -150,24 +163,26 @@ export function VitS(props) {
   return success ? (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
-        <ViewConfigProvider createStore={createViewConfigStore}>
-          <AuxiliaryProvider createStore={createAuxiliaryStore}>
-            <VitessceGrid
-              config={configOrWarning}
-              getComponent={getComponent}
-              rowHeight={rowHeight}
-              height={height}
-              theme={theme}
-              isBounded={isBounded}
-            />
-            <CallbackPublisher
-              onWarn={onWarn}
-              onConfigChange={onConfigChange}
-              onLoaderChange={onLoaderChange}
-              validateOnConfigChange={validateOnConfigChange}
-            />
-          </AuxiliaryProvider>
-        </ViewConfigProvider>
+        <QueryClientProvider client={queryClient}>
+          <ViewConfigProvider createStore={createViewConfigStore}>
+            <AuxiliaryProvider createStore={createAuxiliaryStore}>
+              <VitessceGrid
+                config={configOrWarning}
+                getComponent={getComponent}
+                rowHeight={rowHeight}
+                height={height}
+                theme={theme}
+                isBounded={isBounded}
+              />
+              <CallbackPublisher
+                onWarn={onWarn}
+                onConfigChange={onConfigChange}
+                onLoaderChange={onLoaderChange}
+                validateOnConfigChange={validateOnConfigChange}
+              />
+            </AuxiliaryProvider>
+          </ViewConfigProvider>
+        </QueryClientProvider>
       </ThemeProvider>
     </StylesProvider>
   ) : (

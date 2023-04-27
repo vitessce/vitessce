@@ -599,6 +599,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   onUpdateCellColors() {
     const color = this.randomColorData;
+    /*
     const { size } = this.props.cellColors;
     if (typeof size === 'number') {
       const cellIds = this.props.cellColors.keys();
@@ -620,6 +621,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       }
     }
     this.color = color;
+    */
   }
 
   onUpdateExpressionData() {
@@ -756,6 +758,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'cellSelection',
         'cellColors',
         'geneExpressionColormapRange',
+        'expressionData',
         'cellColorEncoding',
         'geneExpressionColormap',
         'segmentationLayerCallbacks',

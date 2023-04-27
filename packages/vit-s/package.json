@@ -25,6 +25,7 @@
     "@material-ui/icons": "~4.11.2",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/utils": "workspace:*",
+    "@tanstack/react-query": "^4.29.5",
     "ajv": "^6.10.0",
     "clsx": "^1.1.1",
     "d3-array": "^2.4.0",
