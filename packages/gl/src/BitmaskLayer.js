@@ -19,9 +19,17 @@ function padWithDefault(arr, defaultValue, padWidth) {
 
 const defaultProps = {
   hoveredCell: { type: 'number', value: null, compare: true },
-  cellColorData: { type: 'object', value: null, compare: true },
+  // We do not want to deep-compare cellColorData,
+  // as it is potentially a TypedArray with millions of elements.
+  cellColorData: { type: 'object', value: null, compare: false },
+  // Instead, we can provide a corresponding key to compare against,
+  // in this case it is the array of selected cell sets.
+  cellColorDataKey: { type: 'array', value: null, compare: true },
   colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
-  expressionData: { type: 'object', value: null, compare: true },
+  // Same as with cellColorData, we do not want to deep-compare expressionData,
+  // so we set compare: false and provide a key to compare against.
+  expressionData: { type: 'object', value: null, compare: false },
+  expressionDataKey: { type: 'string', value: null, compare: true },
 };
 
 /**
@@ -46,10 +54,14 @@ export default class BitmaskLayer extends XRLayer {
 
   updateState({ props, oldProps, changeFlags }) {
     super.updateState({ props, oldProps, changeFlags });
-    if (props.cellColorData !== oldProps.cellColorData) {
+    // Check the cellColorDataKey to determine whether
+    // to update the texture.
+    if (props.cellColorDataKey !== oldProps.cellColorDataKey) {
       this.setColorTexture();
     }
-    if (props.expressionData !== oldProps.expressionData) {
+    // Check the expressionDataKey to determine whether
+    // to update the texture.
+    if (props.expressionDataKey !== oldProps.expressionDataKey) {
       const { expressionData, cellTexHeight, cellTexWidth } = this.props;
       const expressionTex = this.dataToTexture(
         expressionData,
