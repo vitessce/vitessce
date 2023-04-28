@@ -8,10 +8,13 @@ import {
   useFeatureSelection,
   useImageData,
   useObsFeatureMatrixIndices,
+  useFeatureLabelsData,
   useNeighborhoodsData,
   useObsLabelsData,
   useMultiObsLabels,
-  useExpressionValueGetter, useGetObsInfo,
+  useUint8FeatureSelection,
+  useExpressionValueGetter,
+  useGetObsInfo,
   useCoordination,
   useLoaders,
   useSetComponentHover,
@@ -201,12 +204,17 @@ export function SpatialSubscriber(props) {
     { spatialImageLayer: imageLayers },
     {}, // TODO: which properties to match on. Revisit after #830.
   );
-  const { loaders: imageLayerLoaders = [] } = image || {};
+  const { loaders: imageLayerLoaders = [], meta = [] } = image || {};
   const [neighborhoods, neighborhoodsStatus] = useNeighborhoodsData(
     loaders, dataset, addUrl, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
+  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
+    loaders, dataset, addUrl, false, {}, {},
+    { featureType },
+  );
+
   const isReady = useReady([
     obsLocationsStatus,
     obsLabelsStatus,
@@ -217,6 +225,7 @@ export function SpatialSubscriber(props) {
     matrixIndicesStatus,
     imageStatus,
     neighborhoodsStatus,
+    featureLabelsStatus,
   ]);
 
   const obsLocationsFeatureIndex = useMemo(() => {
@@ -242,6 +251,7 @@ export function SpatialSubscriber(props) {
         imageLayerLoaders,
         useRaster: Boolean(hasImageData),
         use3d,
+        modelMatrices: meta.map(({ metadata }) => metadata?.transform?.matrix),
       });
       setTargetX(initialTargetX);
       setTargetY(initialTargetY);
@@ -324,6 +334,8 @@ export function SpatialSubscriber(props) {
     locationsCount,
   });
 
+  const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(expressionData);
+
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useExpressionValueGetter({
@@ -335,7 +347,7 @@ export function SpatialSubscriber(props) {
       : obsCentroidsIndex
     ),
     matrixObsIndex,
-    expressionData,
+    expressionData: uint8ExpressionData,
   });
   const canLoad3DLayers = imageLayerLoaders.some(loader => Boolean(
     Array.from({
@@ -472,8 +484,10 @@ export function SpatialSubscriber(props) {
         featureValueType={featureValueType}
         obsColorEncoding={cellColorEncoding}
         featureSelection={geneSelection}
+        featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        extent={expressionExtents?.[0]}
       />
     </TitleInfo>
   );
