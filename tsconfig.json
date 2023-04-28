@@ -2,11 +2,7 @@
   "compilerOptions": {
     "module": "ESNext",
     "target": "ESNext",
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ESNext"
-    ],
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "jsx": "react-jsx",
     "moduleResolution": "Node",
     "strict": true,
@@ -29,6 +25,7 @@
     { "path": "packages/file-types/json" },
     { "path": "packages/file-types/ome-tiff" },
     { "path": "packages/file-types/zarr" },
+    { "path": "packages/file-types/anndata" },
     { "path": "packages/gl" },
     { "path": "packages/legend" },
     { "path": "packages/main/all" },

@@ -1,12 +1,13 @@
-import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
-import { resolve, basename } from 'path';
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+import { resolve, basename } from "path";
+import { existsSync } from "fs";
 
 const cwd = process.cwd();
 
 // Need to make vit-s external for dependents (but vit-s is not dependent on itself),
 // otherwise there will be issues with Zustand stores.
-const moreExternals = basename(cwd) === 'vit-s' ? [] : ['@vitessce/vit-s'];
+const moreExternals = basename(cwd) === "vit-s" ? [] : ["@vitessce/vit-s"];
 
 // For bundling "sub-packages".
 export default defineConfig({
@@ -16,31 +17,31 @@ export default defineConfig({
     minify: false,
     sourcemap: false,
     lib: {
-      entry: resolve(cwd, 'src/index.js'),
-      fileName: 'index',
-      formats: ['es'],
+      entry: existsSync(resolve(cwd, "src/index.ts"))
+        ? resolve(cwd, "src/index.ts")
+        : resolve(cwd, "src/index.js"),
+      fileName: "index",
+      formats: ["es"],
     },
     rollupOptions: {
-      external: ['react', 'react-dom', ...moreExternals],
+      external: ["react", "react-dom", ...moreExternals],
       output: {
         globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
+          react: "React",
+          "react-dom": "ReactDOM",
         },
       },
     },
   },
   define: {
-    'process.env.NODE_ENV': `"${process.env.APP_ENV}"`,
+    "process.env.NODE_ENV": `"${process.env.APP_ENV}"`,
   },
-  plugins: [
-    react(),
-  ],
+  plugins: [react()],
   // To enable .js files that contain JSX to be imported.
   // Reference: https://github.com/vitest-dev/vitest/issues/1564
   esbuild: {
-    loader: 'jsx',
-    include: /src\/.*\.jsx?$/,
+    loader: "tsx",
+    include: /src\/.*\.[tj]sx?$/,
     // loader: "tsx",
     // include: /src\/.*\.[tj]sx?$/,
     exclude: [],

@@ -1,0 +1,34 @@
+{
+  "name": "@vitessce/anndata",
+  "version": "2.0.3",
+  "author": "Gehlenborg Lab",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.mjs"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "test": "pnpm exec vitest --run -r ../../../ --dir ."
+  },
+  "dependencies": {
+    "d3-array": "^2.4.0",
+    "lodash": "^4.17.21",
+    "node-fetch": "^3.3.1",
+    "zarrita": "0.2.3",
+    "numcodecs": "^0.2.2"
+  },
+  "devDependencies": {
+    "vite": "^3.0.0",
+    "vitest": "^0.23.4"
+  }
+}
