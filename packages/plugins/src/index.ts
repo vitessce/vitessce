@@ -1,14 +1,14 @@
-import React from 'react';
+import type { ComponentType } from 'react';
 import { z } from 'zod';
 
 export class PluginViewType {
   name: string;
 
-  component: React.Component;
+  component: ComponentType;
 
   coordinationTypes: string[];
 
-  constructor(name: string, component: React.Component, coordinationTypes: string[]) {
+  constructor(name: string, component: ComponentType, coordinationTypes: string[]) {
     this.name = name;
     this.component = component;
     this.coordinationTypes = coordinationTypes;

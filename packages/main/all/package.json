@@ -44,7 +44,8 @@
     "@vitessce/ome-tiff": "workspace:*"
   },
   "devDependencies": {
-    "react": "^18.0.0"
+    "react": "^18.0.0",
+    "@types/react": "^17.0.0"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0"

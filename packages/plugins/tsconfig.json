@@ -4,7 +4,6 @@
     "composite": true,
     "outDir": "dist-tsc",
     "rootDir": "src",
-    "allowSyntheticDefaultImports": true,
   },
   "include": ["src", "src/*.json"]
 }
