@@ -309,13 +309,6 @@
     transition: opacity 200ms ease-in-out;
 }
 
-:global(.monaco-editor .mtk8) {
-  color: #aac593;
-}
-
-:global(.monaco-editor .mtk20) {
-  color:#e3116c;
-}
 
 .demoHeaderContainer {
   margin: 1rem;

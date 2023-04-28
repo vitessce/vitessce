@@ -9,10 +9,13 @@
 - Add notes about branch naming conventions and pull request merge process to README
 - Added bidirectional interactions for the `CellSetSizesPlot` vega-lite plot to allow the Vitessce view to update and show the selected cluster on bar click.
 - Implemented ability to select a gene by clicking on the heatmap rows for a given gene.
+- Added developer troubleshooting instructions to README.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
 - Fixes Go to Definition support in vscode (see https://github.com/microsoft/TypeScript/issues/49003#issuecomment-1164659854).
+- Refactor `obsFeatureMatrix` normalization logic out of data loader classes and into custom hooks that can be used in view implementations as-needed.
+- Fixed syntax highlighting for code examples and editor in documentation.
 - Added a new file `VitessceAutoConfig.js` with methods and classes that can generate view config, given a list of dataset URLs.
 - Added a new documentation page: `default-config.md` that describes the auto config generation functionality and how to use it.
 - Small changes to the layout of `_ViewConfigEditor.js` to accomodate the new functionality: added a space for pasting links and a "Generate Config" button.

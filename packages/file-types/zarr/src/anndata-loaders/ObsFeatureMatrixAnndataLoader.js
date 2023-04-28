@@ -1,18 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 import { openArray, slice } from 'zarr';
-import { extent } from 'd3-array';
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
 
-const normalize = (arr) => {
-  const [min, max] = extent(arr);
-  const ratio = 255 / (max - min);
-  const data = new Uint8Array(
-    arr.map(i => Math.floor((i - min) * ratio)),
-  );
-  return { data };
-};
+// Put array of data into an object,
+// to match the expected format of the
+// value returned from the load function.
+const toObject = data => ({ data });
 
 const concatenateColumnVectors = (arr) => {
   const numCols = arr.length;
@@ -261,14 +256,14 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     const encodingType = this._matrixZattrs['encoding-type'];
     if (!matrixGeneFilter) {
       if (encodingType === 'csr_matrix') {
-        this.cellXGene = this._loadCSRSparseCellXGene().then(data => normalize(data));
+        this.cellXGene = this._loadCSRSparseCellXGene().then(data => toObject(data));
       } else if (encodingType === 'csc_matrix') {
-        this.cellXGene = this._loadCSCSparseCellXGene().then(data => normalize(data));
+        this.cellXGene = this._loadCSCSparseCellXGene().then(data => toObject(data));
       } else {
         if (!this.arr) {
           this.arr = openArray({ store, path: matrix, mode: 'r' });
         }
-        this.cellXGene = this.arr.then(z => z.getRaw(null).then(({ data }) => normalize(data)));
+        this.cellXGene = this.arr.then(z => z.getRaw(null).then(({ data }) => toObject(data)));
       }
     } else if (encodingType === 'csr_matrix') {
       this.cellXGene = this._loadCSRSparseCellXGene().then(
@@ -287,13 +282,13 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
               cellXGeneMatrixFiltered[j * numGenesFiltered + i] = cellXGene[j * numGenes + index];
             }
           }
-          return normalize(cellXGeneMatrixFiltered);
+          return toObject(cellXGeneMatrixFiltered);
         },
       );
     } else {
       const genes = await this._getFilteredGenes(matrixGeneFilter);
       this.cellXGene = this.loadGeneSelection({ selection: genes, shouldNormalize: false })
-        .then(({ data }) => (normalize(concatenateColumnVectors(data))));
+        .then(({ data }) => (toObject(concatenateColumnVectors(data))));
     }
     return this.cellXGene;
   }
@@ -327,7 +322,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
         indices.map(index => this.arr.then(z => z.get([null, index])).then(({ data }) => data)),
       );
     }
-    return { data: genes.map(i => (shouldNormalize ? normalize(i).data : i)), url: null };
+    return { data: genes.map(i => (shouldNormalize ? toObject(i).data : i)), url: null };
   }
 
   /**

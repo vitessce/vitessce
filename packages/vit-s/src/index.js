@@ -3,10 +3,16 @@ export { TitleInfo } from './TitleInfo';
 export { PopperMenu } from './shared-mui/components';
 // For plugin view types:
 export {
-  useReady, useUrls,
-  useVitessceContainer, useDeckCanvasSize,
-  useExpressionValueGetter, useGetObsInfo,
-  useClosestVitessceContainerSize, useWindowDimensions,
+  useReady,
+  useUrls,
+  useVitessceContainer,
+  useDeckCanvasSize,
+  useUint8ObsFeatureMatrix,
+  useUint8FeatureSelection,
+  useExpressionValueGetter,
+  useGetObsInfo,
+  useClosestVitessceContainerSize,
+  useWindowDimensions,
   useGridItemSize,
 } from './hooks';
 export {
