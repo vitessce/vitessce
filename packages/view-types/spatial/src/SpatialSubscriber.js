@@ -23,13 +23,14 @@ import {
   useHasLoader,
 } from '@vitessce/vit-s';
 import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
-import { canLoadResolution, getCellColors } from '@vitessce/utils';
+import { canLoadResolution } from '@vitessce/utils';
 import { Legend } from '@vitessce/legend';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType } from '@vitessce/constants-internal';
 import Spatial from './Spatial';
 import SpatialOptions from './SpatialOptions';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
 import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils';
+import { useCellColors } from './use-cell-colors';
 
 /**
  * A subscriber component for the spatial plot.
@@ -275,14 +276,12 @@ export function SpatialSubscriber(props) {
   }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
-  const cellColors = useMemo(() => getCellColors({
+  const [cellColors, uint8CellColors, cellColorDataKey] = useCellColors({
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
-    obsIndex: matrixObsIndex,
     theme,
-  }), [mergedCellSets, theme,
-    cellSetColor, cellSetSelection, matrixObsIndex]);
+  });
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
@@ -444,6 +443,7 @@ export function SpatialSubscriber(props) {
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}
         cellColors={cellColors}
+        uint8CellColors={uint8CellColors}
         neighborhoods={neighborhoods}
         imageLayerLoaders={imageLayerLoaders}
         setCellFilter={setCellFilter}
@@ -463,6 +463,8 @@ export function SpatialSubscriber(props) {
         cellColorEncoding={cellColorEncoding}
         getExpressionValue={getExpressionValue}
         theme={theme}
+        cellColorDataKey={cellColorDataKey}
+        expressionDataKey={loadedFeatureSelection}
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber

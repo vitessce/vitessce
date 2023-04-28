@@ -125,13 +125,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // Better for the bitmask layer when there is no color data to use this.
     // 2048 is best for performance and for stability (4096 texture size is not always supported).
     this.randomColorData = {
-      data: new Uint8Array(2048 * 2048 * 3)
-        .map((_, j) => (j < 4 ? 0 : Math.round(255 * Math.random()))),
+      //data: new Uint8Array(2048 * 2048 * 3)
+       // .map((_, j) => (j < 4 ? 0 : Math.round(255 * Math.random()))),
       // This buffer should be able to hold colors for 2048 x 2048 ~ 4 million cells.
       height: 2048,
       width: 2048,
     };
-    this.color = { ...this.randomColorData };
+    this.color = {
+      width: this.randomColorData.width,
+      height: this.randomColorData.height,
+    };
     this.expression = {
       data: new Uint8Array(2048 * 2048),
       // This buffer should be able to hold colors for 2048 x 2048 ~ 4 million cells.
@@ -423,9 +426,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
         geneExpressionColormap,
         geneExpressionColormapRange = [0.0, 1.0],
         cellColorEncoding,
+        uint8CellColors,
+        cellColorDataKey,
+        expressionDataKey,
       } = this.props;
-      const { backlog } = this.state;
-      if ((!this.color.data || backlog.length)) {
+      if (!uint8CellColors) {
         return null;
       }
       return new viv.MultiscaleImageLayer({
@@ -443,7 +448,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // unless these are separated out.  I don't think it's a bug, just
         // has to do with the fact that we don't have it in the `defaultProps`,
         // could be wrong though.
-        cellColorData: this.color.data,
+        cellColorData: uint8CellColors,
+        cellColorDataKey,
         cellTexHeight: this.color.height,
         cellTexWidth: this.color.width,
         excludeBackground: true,
@@ -453,6 +459,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         isExpressionMode: cellColorEncoding === 'geneSelection',
         colormap: geneExpressionColormap,
         expressionData: this.expression.data,
+        expressionDataKey,
         // There is no onHover here,
         // see the onHover method of AbstractSpatialOrScatterplot.
       });
@@ -608,66 +615,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateBacklog() {
-    const { backlog } = this.state;
-    const { cellColors } = this.props;
-    const uint8ColorData = this.color.data;
-
-    // When the backlog has updated, a new worker job can be submitted if:
-    // - the backlog has length >= 1 (at least one job is waiting), and
-    // - buffer.byteLength is not zero, so the worker does not currently "own" the buffer.
-    if (backlog.length < 1) {
-      // Nothing in the backlog
-      return;
-    }
-    const curr = backlog[backlog.length - 1];
-    if (uint8ColorData && uint8ColorData.buffer.byteLength && cellColors.size > 0) {
-      const promise = this.workerPool.process({
-        curr,
-        cellColors,
-        data: uint8ColorData.buffer.slice(),
-      });
-      const process = async () => {
-        const result = await promise;
-        this.setState(prev => ({
-          colorsIteration: prev.colorsIteration + 1,
-        }));
-        this.color.data = new Uint8Array(result.buffer);
-        const { curr: currWork } = result;
-        this.setState((prev) => {
-          const currIndex = prev.backlog.indexOf(currWork);
-          return {
-            backlog: prev.backlog.slice(currIndex + 1, prev.backlog.length),
-          };
-        });
-      };
-      process();
-    }
-
-    /*
-    useEffect(() => {
-      setIsRendering(backlog.length > 0);
-    }, [backlog, setIsRendering]);
-    */
   }
 
   onUpdateCellColors() {
-    const { size } = this.props.cellColors;
-    if (typeof size === 'number') {
-      // If `cellColors` has changed,
-      // then new tiles need to be generated,
-      // so add a new task to the backlog.
-      this.setState(prev => ({
-        backlog: [...prev.backlog, uuidv4()],
-      }));
-    }
   }
 
   onUpdateExpressionData() {
     const { expressionData } = this.props;
     if (expressionData[0]?.length) {
-      this.expression.data = new Uint8Array(
-        this.expression.height * this.expression.width,
-      );
       this.expression.data.set(expressionData[0]);
     }
   }
@@ -750,11 +705,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
    * performance.
    * @param {object} prevProps The previous props to diff against.
    */
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     this.viewInfoDidUpdate();
 
     const shallowDiff = propName => prevProps[propName] !== this.props[propName];
-    const shallowStateDiff = propName => prevState[propName] !== this.state[propName];
     let forceUpdate = false;
     if (
       [
@@ -765,22 +719,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ) {
       // Cells data changed.
       this.onUpdateCellsData();
-      forceUpdate = true;
-    }
-
-    if (['cellColors'].some(shallowDiff)) {
-      // Cells Color layer props changed.
-      // Must come before onUpdateCellsLayer
-      // since the new layer may use the new processed color data.
-      this.onUpdateCellColors();
-      forceUpdate = true;
-    }
-
-    if (['cellColors'].some(shallowDiff) || ['backlog'].some(shallowStateDiff)) {
-      // Cells Color layer props changed.
-      // Must come before onUpdateCellsLayer
-      // since the new layer may use the new processed color data.
-      this.onUpdateBacklog();
       forceUpdate = true;
     }
 
@@ -804,13 +742,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'cellFilter',
         'cellSelection',
         'cellColors',
+        'uint8CellColors',
         'geneExpressionColormapRange',
         'expressionData',
+        'expressionDataKey',
+        'cellColorDataKey',
         'cellColorEncoding',
         'geneExpressionColormap',
         'segmentationLayerCallbacks',
       ].some(shallowDiff)
-      || ['colorsIteration'].some(shallowStateDiff)
     ) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();

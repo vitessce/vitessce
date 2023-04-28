@@ -216,9 +216,7 @@ export function useFeatureSelection(
           const payload = await loader.loadGeneSelection({ selection });
           if (!payload) return null;
           const { data } = payload;
-          return data;
-          // TODO: still return loaded selection? Or include the queryKey in the return value?
-          // setLoadedGeneName(selection);
+          return { data, dataKey: selection };
         }
         // Loader does not implement loadGeneSelection.
         const payload = await loader.load();
@@ -235,22 +233,21 @@ export function useFeatureSelection(
           }
           return expressionData;
         });
-        return expressionDataForSelection;
+        return { data: expressionDataForSelection, dataKey: selection };
         // setLoadedGeneName(selection);
       }
       // No loader was found.
       if (isRequired) {
         throw new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
       } else {
-        return null;
+        return { data: null, dataKey: null };
       }
     },
     meta: { loaders },
   });
-  const { data: geneData, status } = featureQuery;
-
-  // TODO: remove loadedGeneName element from returned array.
-  const loadedGeneName = null;
+  const { data, status } = featureQuery;
+  const geneData = data?.data || null;
+  const loadedGeneName = data?.dataKey || null;
   return [geneData, loadedGeneName, status];
 }
 
