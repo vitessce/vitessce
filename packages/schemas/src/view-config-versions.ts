@@ -5,10 +5,15 @@ import { OldCoordinationType } from '@vitessce/constants';
 import { fromEntries } from '@vitessce/utils';
 import { SCHEMA_HANDLERS, latestConfigSchema, AnyVersionConfig } from './previous-config-meta';
 
-export const VERSIONED_CONFIG_SCHEMAS: Record<string, z.AnyZodObject> = {
+export function configSchemaToVersion<T extends z.ZodTypeAny>(zodSchema: T): string {
+  // eslint-disable-next-line no-underscore-dangle
+  return ((zodSchema as unknown) as z.AnyZodObject).shape.version._def.value;
+}
+
+export const VERSIONED_CONFIG_SCHEMAS: Record<string, z.ZodTypeAny> = {
   ...fromEntries(SCHEMA_HANDLERS.map(([zodSchema]) => {
     // eslint-disable-next-line no-underscore-dangle
-    const version = zodSchema.shape.version._def.value;
+    const version = configSchemaToVersion(zodSchema);
     return [version, zodSchema];
   })),
   // eslint-disable-next-line no-underscore-dangle
@@ -56,15 +61,16 @@ export function upgradeAndParse(
     return latestConfigSchema.parse(config);
   }
   // Otherwise, do an upgrade (potentially multiple).
-  const versions = SCHEMA_HANDLERS.map(d => d[0]);
+  // eslint-disable-next-line no-underscore-dangle
+  const versions: string[] = SCHEMA_HANDLERS.map(([zodSchema]) => configSchemaToVersion(zodSchema));
   if (versions.includes(config?.version)) {
     const versionIndex = versions.indexOf(config.version);
-    let upgradable = SCHEMA_HANDLERS[versionIndex][1];
+    let upgradable = SCHEMA_HANDLERS[versionIndex][0];
     SCHEMA_HANDLERS.slice(versionIndex, SCHEMA_HANDLERS.length).forEach((versionInfo) => {
       upgradable = upgradable
         .superRefine(refineCoordinationTypes)
         .transform((prevConfig) => {
-          const nextConfig = versionInfo[2](prevConfig);
+          const nextConfig = versionInfo[1](prevConfig);
           if (typeof onConfigUpgrade === 'function') {
             onConfigUpgrade(prevConfig, nextConfig);
           }

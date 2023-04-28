@@ -64,7 +64,7 @@ export type AnyVersionConfig =
 
 export type UpgradeFunction = (config: any) => AnyVersionConfig;
 
-export const SCHEMA_HANDLERS: [z.AnyZodObject, UpgradeFunction][] = [
+export const SCHEMA_HANDLERS: [z.ZodTypeAny, UpgradeFunction][] = [
   [configSchema0_1_0, upgradeFrom0_1_0],
   [configSchema1_0_0, upgradeFrom1_0_0],
   [configSchema1_0_1, upgradeFrom1_0_1],

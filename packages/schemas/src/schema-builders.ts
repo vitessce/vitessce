@@ -13,6 +13,7 @@ import {
   componentCoordinationScopesBy,
 } from './shared';
 import { latestConfigSchema } from './previous-config-meta';
+import { configSchemaToVersion } from './view-config-versions';
 
 /**
  * Convert an array of Zod schemas into a Zod union schema,
@@ -103,7 +104,7 @@ export function buildConfigSchema<
   // TODO: make this less redundant with latestSchema from ./previous-base-schemas
   return z.object({
     // eslint-disable-next-line no-underscore-dangle
-    version: z.literal(latestConfigSchema.shape.version._def.value)
+    version: z.literal(configSchemaToVersion(latestConfigSchema))
       .describe('The schema version for the view config.'),
     uid: z.string().optional(),
     name: z.string(),

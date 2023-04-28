@@ -31,6 +31,21 @@ Hopefully we can make this possible in the future.
 
 :::
 
+## Plugins via props
+
+Plugin view types, coordination types, and file types can be passed via props to the [`<Vitessce>`](/docs/js-react-vitessce/#pluginviewtypes) React component.
+
+```jsx
+<Vitessce
+  // ...
+  pluginViewTypes={/* array of PluginViewType */}
+  pluginFileTypes={/* array of PluginFileType */}
+  pluginJointFileTypes={/* array of PluginJointFileType */}
+  pluginCoordinationTypes={/* array of PluginCoordinationType */}
+/>
+```
+
+
 ## Plugin view types
 
 Plugin views must be implemented as React components.

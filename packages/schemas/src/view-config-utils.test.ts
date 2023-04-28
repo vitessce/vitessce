@@ -4,7 +4,7 @@ import {
   upgradeFrom0_1_0,
   upgradeFrom1_0_0,
   upgradeFrom1_0_15,
-} from './view-config-upgraders';
+} from './previous-config-upgraders';
 import {
   legacyViewConfig0_1_0,
   upgradedLegacyViewConfig0_1_0,
