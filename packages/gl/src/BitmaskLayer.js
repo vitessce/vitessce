@@ -29,7 +29,7 @@ const defaultProps = {
   // Same as with cellColorData, we do not want to deep-compare expressionData,
   // so we set compare: false and provide a key to compare against.
   expressionData: { type: 'object', value: null, compare: false },
-  expressionDataKey: { type: 'string', value: null, compare: true },
+  expressionDataKey: { type: 'array', value: null, compare: true },
 };
 
 /**
