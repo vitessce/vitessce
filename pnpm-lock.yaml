@@ -434,9 +434,9 @@ importers:
       vitest: ^0.23.4
       zod: ^3.21.4
     dependencies:
-      '@types/react': 18.0.28
       zod: 3.21.4
     devDependencies:
+      '@types/react': 18.0.28
       vite: 3.1.8
       vitest: 0.23.4
 
