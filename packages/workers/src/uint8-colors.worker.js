@@ -1,5 +1,8 @@
 /* eslint-disable no-restricted-globals */
-// Cannot import from @vitessce/sets-utils due to JSON.
+// Cannot import from @vitessce/sets-utils due to that package containing JSON.
+// TODO: after https://github.com/vitessce/vitessce/pull/1441
+// is merged, we should be able to import from @vitessce/sets-utils,
+// and remove the large chunks of copied code below.
 // import { treeToCellColorsBySetNames } from '@vitessce/sets-utils';
 import isNil from 'lodash/isNil';
 import isEqual from 'lodash/isEqual';
@@ -146,18 +149,13 @@ function getColors({
       cellSets, cellSetSelection, cellSetColor, defaultColor,
     );
   }
-  // TODO: always fill the entire array with the default color,
-  // to clear any previous color settings.
   const { size } = cellColors;
   if (typeof size === 'number') {
     const cellIds = cellColors.keys();
     const view = new Uint8Array(data);
-    /*
-    // TODO: do this in the main thread.
-    data = new Uint8Array(color.height * color.width * 3).fill(
-      defaultColor[0],
-    );
-    */
+    // Always fill the entire array with the default color,
+    // to clear any previous color settings.
+    view.fill(defaultColor[0]);
     // 0th cell id is the empty space of the image i.e black color.
     view[0] = 0;
     view[1] = 0;

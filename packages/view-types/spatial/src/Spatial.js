@@ -1,6 +1,5 @@
 import React, { forwardRef } from 'react';
 import isEqual from 'lodash/isEqual';
-import uuidv4 from 'uuid/v4';
 import {
   deck, viv, getSelectionLayers, ScaledExpressionExtension,
 } from '@vitessce/gl';
@@ -9,7 +8,7 @@ import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
 import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
-import SpatialWorkerPool from './SpatialWorkerPool';
+import { COLOR_ARRAY_BUFFER_SIZE } from './use-cell-colors';
 
 const CELLS_LAYER_ID = 'cells-layer';
 const MOLECULES_LAYER_ID = 'molecules-layer';
@@ -103,10 +102,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
   constructor(props) {
     super(props);
 
-    this.workerPool = new SpatialWorkerPool();
-    this.state.backlog = []; // super(props) initializes this.state to an object.
-    this.state.colorsIteration = 0;
-
     // To avoid storing large arrays/objects
     // in React state, this component
     // uses instance variables.
@@ -125,21 +120,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // Better for the bitmask layer when there is no color data to use this.
     // 2048 is best for performance and for stability (4096 texture size is not always supported).
     this.randomColorData = {
-      //data: new Uint8Array(2048 * 2048 * 3)
-       // .map((_, j) => (j < 4 ? 0 : Math.round(255 * Math.random()))),
+      // data: new Uint8Array(2048 * 2048 * 3)
+      // .map((_, j) => (j < 4 ? 0 : Math.round(255 * Math.random()))),
       // This buffer should be able to hold colors for 2048 x 2048 ~ 4 million cells.
-      height: 2048,
-      width: 2048,
+      height: COLOR_ARRAY_BUFFER_SIZE,
+      width: COLOR_ARRAY_BUFFER_SIZE,
     };
     this.color = {
-      width: this.randomColorData.width,
-      height: this.randomColorData.height,
+      width: COLOR_ARRAY_BUFFER_SIZE,
+      height: COLOR_ARRAY_BUFFER_SIZE,
     };
     this.expression = {
-      data: new Uint8Array(2048 * 2048),
+      data: new Uint8Array(COLOR_ARRAY_BUFFER_SIZE * COLOR_ARRAY_BUFFER_SIZE),
       // This buffer should be able to hold colors for 2048 x 2048 ~ 4 million cells.
-      height: 2048,
-      width: 2048,
+      height: COLOR_ARRAY_BUFFER_SIZE,
+      width: COLOR_ARRAY_BUFFER_SIZE,
     };
 
     // Initialize data and layers.
@@ -431,6 +426,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
         expressionDataKey,
       } = this.props;
       if (!uint8CellColors) {
+        // DeckGL does not recommend this practice,
+        // since it throws away the layer state,
+        // but we want to be sure the old colors
+        // are not shown for the new gene selection.
         return null;
       }
       return new viv.MultiscaleImageLayer({
@@ -612,12 +611,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } else {
       this.obsSegmentationsPolygonLayer = null;
     }
-  }
-
-  onUpdateBacklog() {
-  }
-
-  onUpdateCellColors() {
   }
 
   onUpdateExpressionData() {

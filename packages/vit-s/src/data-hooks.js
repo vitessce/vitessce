@@ -202,14 +202,20 @@ export function useFeatureSelection(
   matchOn,
 ) {
   const featureQuery = useQuery({
-    // TODO: useQueries instead, performing loadGeneSelection for each item in `selection` independently.
-    // Will require updating loadGeneSelection to consider one gene at a time vs. handing arrays internally.
+    // TODO: useQueries instead,
+    // performing loadGeneSelection for each item in `selection` independently.
+    // This will require updating loadGeneSelection functions
+    // to consider one gene at a time vs. handing arrays internally.
     enabled: !!selection,
     structuralSharing: false,
     placeholderData: null,
     queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn, selection],
+    // Query function should return an object
+    // { data, dataKey } where dataKey is the loaded gene selection.
     queryFn: async (ctx) => {
-      const loader = getMatchingLoader(ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2]);
+      const loader = getMatchingLoader(
+        ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2],
+      );
       if (loader) {
         const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
         if (implementsGeneSelection) {
@@ -234,7 +240,6 @@ export function useFeatureSelection(
           return expressionData;
         });
         return { data: expressionDataForSelection, dataKey: selection };
-        // setLoadedGeneName(selection);
       }
       // No loader was found.
       if (isRequired) {

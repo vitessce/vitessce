@@ -173,16 +173,13 @@ export function EmbeddingScatterplotSubscriber(props) {
   }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
-  const cellColors = useMemo(() => {
-    const result = getCellColors({
-      cellSets: mergedCellSets,
-      cellSetSelection,
-      cellSetColor,
-      obsIndex: matrixObsIndex,
-      theme,
-    });
-    return result;
-  }, [mergedCellSets, theme,
+  const cellColors = useMemo(() => getCellColors({
+    cellSets: mergedCellSets,
+    cellSetSelection,
+    cellSetColor,
+    obsIndex: matrixObsIndex,
+    theme,
+  }), [mergedCellSets, theme,
     cellSetSelection, cellSetColor, matrixObsIndex]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
@@ -347,7 +344,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         updateViewInfo={setComponentViewInfo}
         getExpressionValue={getExpressionValue}
         getCellIsSelected={getCellIsSelected}
-
+        geneSelection={loadedFeatureSelection}
       />
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber

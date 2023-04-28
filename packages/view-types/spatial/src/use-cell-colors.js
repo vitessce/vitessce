@@ -1,7 +1,15 @@
-import { useMemo, useState, useEffect, useReducer, useRef } from 'react';
+import {
+  useMemo,
+  useState,
+  useEffect,
+  useReducer,
+  useRef,
+} from 'react';
 import uuidv4 from 'uuid/v4';
 import { getDefaultColor } from '@vitessce/utils';
 import SpatialWorkerPool from './SpatialWorkerPool';
+
+export const COLOR_ARRAY_BUFFER_SIZE = 2048;
 
 export function useCellColors(params) {
   const {
@@ -13,7 +21,9 @@ export function useCellColors(params) {
 
   const workerPool = useMemo(() => new SpatialWorkerPool(), []);
 
-  const buffer = useMemo(() => new ArrayBuffer(2048 * 2048 * 3), []);
+  const buffer = useMemo(() => new ArrayBuffer(
+    COLOR_ARRAY_BUFFER_SIZE * COLOR_ARRAY_BUFFER_SIZE * 3,
+  ), []);
   const dataRef = useRef();
   const cellColorsRef = useRef();
 

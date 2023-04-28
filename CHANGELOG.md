@@ -32,6 +32,8 @@
 - Removes logic for `tsconfig.json` from the meta-updater script
 - Update issue template.
 - Update documentation: fix broken links to source code, move Showcase to its own page from About page, replace Roadmap page with link to GitHub project.
+- Moved cell color logic into worker to fix out-of-memory issues. Updated how TypedArrays are diff-ed in `BitmaskLayer`.
+- Added `react-query` for improved correctness and caching logic for `useFeatureSelection` hook, with intention to expand its usage in the future.
 
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
