@@ -689,8 +689,9 @@ const Heatmap = forwardRef((props, deckRef) => {
     matrixWidth, tileWidth, tileHeight, transpose]);
 
 
+  const showText = width > 0 && height > 0;
   const layers = heatmapLayers
-    .concat(textLayers)
+    .concat(showText ? textLayers : [])
     .concat(...cellColorsLayersList);
 
   // Set up the onHover function.

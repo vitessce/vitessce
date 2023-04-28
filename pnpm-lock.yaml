@@ -329,7 +329,7 @@ importers:
   packages/main/all:
     specifiers:
       '@material-ui/core': ~4.12.3
-      '@types/react': ^17.0.0
+      '@types/react': ^18.0.28
       '@vitessce/constants-internal': workspace:*
       '@vitessce/csv': workspace:*
       '@vitessce/description': workspace:*
@@ -351,7 +351,7 @@ importers:
       '@vitessce/zarr': workspace:*
       react: ^18.0.0
     dependencies:
-      '@material-ui/core': 4.12.4_latq7dd42slydnarmq2qltz6ai
+      '@material-ui/core': 4.12.4_zula6vjvt3wdocc4mwcxqa6nzi
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/csv': link:../../file-types/csv
       '@vitessce/description': link:../../view-types/description
@@ -372,7 +372,7 @@ importers:
       '@vitessce/vit-s': link:../../vit-s
       '@vitessce/zarr': link:../../file-types/zarr
     devDependencies:
-      '@types/react': 17.0.50
+      '@types/react': 18.0.28
       react: 18.2.0
 
   packages/main/dev:
@@ -4155,7 +4155,7 @@ packages:
       react-transition-group: 4.4.5_biqbaboplfbrettd7655fr4n2y
     dev: false
 
-  /@material-ui/core/4.12.4_latq7dd42slydnarmq2qltz6ai:
+  /@material-ui/core/4.12.4_zula6vjvt3wdocc4mwcxqa6nzi:
     resolution: {integrity: sha512-tr7xekNlM9LjA6pagJmL8QCgZXaubWUwkJnoYcMKd4gw/t4XiyvnTkjdGrUVicyB2BsdaAv1tvow45bPM4sSwQ==}
     engines: {node: '>=8.0.0'}
     deprecated: Material UI v4 doesn't receive active development since September 2021. See the guide https://mui.com/material-ui/migration/migration-v4/ to upgrade to v5.
@@ -4168,11 +4168,11 @@ packages:
         optional: true
     dependencies:
       '@babel/runtime': 7.19.4
-      '@material-ui/styles': 4.11.5_latq7dd42slydnarmq2qltz6ai
-      '@material-ui/system': 4.12.2_latq7dd42slydnarmq2qltz6ai
-      '@material-ui/types': 5.1.0_@types+react@17.0.50
+      '@material-ui/styles': 4.11.5_zula6vjvt3wdocc4mwcxqa6nzi
+      '@material-ui/system': 4.12.2_zula6vjvt3wdocc4mwcxqa6nzi
+      '@material-ui/types': 5.1.0_@types+react@18.0.28
       '@material-ui/utils': 4.11.3_biqbaboplfbrettd7655fr4n2y
-      '@types/react': 17.0.50
+      '@types/react': 18.0.28
       '@types/react-transition-group': 4.4.5
       clsx: 1.2.1
       hoist-non-react-statics: 3.3.2
@@ -4234,7 +4234,7 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
-  /@material-ui/styles/4.11.5_latq7dd42slydnarmq2qltz6ai:
+  /@material-ui/styles/4.11.5_zula6vjvt3wdocc4mwcxqa6nzi:
     resolution: {integrity: sha512-o/41ot5JJiUsIETME9wVLAJrmIWL3j0R0Bj2kCOLbSfqEkKf0fmaPt+5vtblUh5eXr2S+J/8J3DaCb10+CzPGA==}
     engines: {node: '>=8.0.0'}
     deprecated: Material UI v4 doesn't receive active development since September 2021. See the guide https://mui.com/material-ui/migration/migration-v4/ to upgrade to v5.
@@ -4248,9 +4248,9 @@ packages:
     dependencies:
       '@babel/runtime': 7.19.4
       '@emotion/hash': 0.8.0
-      '@material-ui/types': 5.1.0_@types+react@17.0.50
+      '@material-ui/types': 5.1.0_@types+react@18.0.28
       '@material-ui/utils': 4.11.3_biqbaboplfbrettd7655fr4n2y
-      '@types/react': 17.0.50
+      '@types/react': 18.0.28
       clsx: 1.2.1
       csstype: 2.6.21
       hoist-non-react-statics: 3.3.2
@@ -4286,7 +4286,7 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
-  /@material-ui/system/4.12.2_latq7dd42slydnarmq2qltz6ai:
+  /@material-ui/system/4.12.2_zula6vjvt3wdocc4mwcxqa6nzi:
     resolution: {integrity: sha512-6CSKu2MtmiJgcCGf6nBQpM8fLkuB9F55EKfbdTC80NND5wpTmKzwdhLYLH3zL4cLlK0gVaaltW7/wMuyTnN0Lw==}
     engines: {node: '>=8.0.0'}
     peerDependencies:
@@ -4299,7 +4299,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.19.4
       '@material-ui/utils': 4.11.3_biqbaboplfbrettd7655fr4n2y
-      '@types/react': 17.0.50
+      '@types/react': 18.0.28
       csstype: 2.6.21
       prop-types: 15.8.1
       react: 18.2.0
@@ -4315,7 +4315,7 @@ packages:
         optional: true
     dev: false
 
-  /@material-ui/types/5.1.0_@types+react@17.0.50:
+  /@material-ui/types/5.1.0_@types+react@18.0.28:
     resolution: {integrity: sha512-7cqRjrY50b8QzRSYyhSpx4WRw2YuO0KKIGQEVk5J8uoz2BanawykgZGoWEqKm7pVIbzFDN0SpPcVV4IhOFkl8A==}
     peerDependencies:
       '@types/react': '*'
@@ -4323,7 +4323,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@types/react': 17.0.50
+      '@types/react': 18.0.28
     dev: false
 
   /@material-ui/utils/4.11.3_biqbaboplfbrettd7655fr4n2y:
@@ -6018,6 +6018,7 @@ packages:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
       csstype: 3.1.1
+    dev: false
 
   /@types/react/18.0.28:
     resolution: {integrity: sha512-RD0ivG1kEztNBdoAK7lekI9M+azSnitIn85h4iOiaLjaTrMjzslhaqCGaI4IyCJ1RljWiLCEu4jyrLLgqxBTew==}
