@@ -9,12 +9,14 @@
   },
   "license": "MIT",
   "main": "dist-tsc/index.js",
+  "types": "dist-tsc/index.d.ts",
   "publishConfig": {
     "main": "dist/index.mjs"
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "dist-tsc"
   ],
   "scripts": {
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
