@@ -1,14 +1,45 @@
 import { UnicodeStringArray } from "zarrita/custom-arrays";
 import * as zarr from "zarrita/v2";
+import { get as getZarrita } from "zarrita/ops";
 import FetchStore from "zarrita/storage/fetch";
 
 import type { Codec } from "numcodecs";
-
+import type { DataType } from "zarrita";
 const readFloat32FromUint8 = (bytes: Uint8Array) => {
   if (bytes.length !== 4) {
     throw new Error("readFloat32 only takes in length 4 byte buffers");
   }
   return new Int32Array(bytes.buffer)[0];
+};
+const NUM_CHARS = 32;
+
+UnicodeStringArray.prototype.subarray = function subarray(
+  start: number,
+  end: number
+): UnicodeStringArray {
+  return new UnicodeStringArray(
+    this._data.subarray(start, end).buffer,
+    NUM_CHARS
+  );
+};
+
+UnicodeStringArray.prototype.set = function set(value, idx) {
+  if (typeof value == "string") {
+    const offset = this.chars * idx;
+    const view = this._data.subarray(offset, offset + this.chars);
+    view.fill(0);
+    view.set(this.encode(value));
+  } else {
+    const offset = this.chars * idx;
+    Array.from(value).forEach((v, ind) => {
+      const view = this._data.subarray(
+        offset + ind * this.chars,
+        offset + (ind + 1) * this.chars
+      );
+      view.fill(0);
+      view.set(this.encode(v));
+    });
+  }
 };
 
 const HEADER_LENGTH = 4;
@@ -46,13 +77,13 @@ function parseVlenUtf8(buffer: Uint8Array): string[] {
 const vLenUtf8Codec = {
   decode(bytes: Uint8Array) {
     const stringArr = parseVlenUtf8(bytes);
-    const unicodeArr = new UnicodeStringArray(stringArr.length, 32);
-    stringArr.forEach((s, ind) => unicodeArr.set(ind, s));
+    const unicodeArr = new UnicodeStringArray(stringArr.length, NUM_CHARS);
+    stringArr.forEach((s, ind) => unicodeArr.set(s, ind));
     return unicodeArr;
   },
   encode(bytes: Uint8Array) {
     console.warn("Encode not implemented, returning dummy array");
-    return new UnicodeStringArray(1, 32);
+    return new UnicodeStringArray(1, NUM_CHARS);
   },
 };
 
@@ -74,7 +105,7 @@ export class StringOverrideFetchStore extends FetchStore {
       const str = new TextDecoder().decode(res);
       const zarray = JSON.parse(str);
       const filters = Array.isArray(zarray.filters)
-        ? (zarray.filters)
+        ? zarray.filters
         : Array([]);
       if (zarray.dtype === "|O" && filters.some((i) => i.id === "vlen-utf8")) {
         zarray.dtype = "<U8";
@@ -85,3 +116,37 @@ export class StringOverrideFetchStore extends FetchStore {
   }
 }
 
+export class LazyCategoricalArray {
+  public codes: zarr.Array<"<U4", StringOverrideFetchStore>;
+
+  public categories: zarr.Array<"<U4", StringOverrideFetchStore>;
+
+  constructor(
+    codes: zarr.Array<"<U4", StringOverrideFetchStore>,
+    categories: zarr.Array<"<U4", StringOverrideFetchStore>
+  ) {
+    this.codes = codes;
+    this.categories = categories;
+  }
+}
+
+function isLazyCategoricalArray<D extends DataType>(
+  arr: LazyCategoricalArray | zarr.Array<D, StringOverrideFetchStore>
+): arr is LazyCategoricalArray {
+  return (arr as LazyCategoricalArray).categories !== undefined;
+}
+
+export async function get<D extends DataType>(
+  arr: LazyCategoricalArray | zarr.Array<D, StringOverrideFetchStore>
+) {
+  if (isLazyCategoricalArray(arr)) {
+    const codes = await getZarrita(arr.codes);
+    const categories = await getZarrita(arr.categories);
+    const unicodeArr = new UnicodeStringArray(codes.data.length, NUM_CHARS);
+    codes.data.forEach((val, ind) => {
+      unicodeArr.set(categories.data.get(val), ind);
+    });
+    return unicodeArr;
+  }
+  return getZarrita(arr);
+}

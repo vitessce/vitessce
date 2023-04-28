@@ -1,6 +1,6 @@
 import * as zarr from "zarrita/v2";
 import { describe, expect, it } from "vitest";
-import { StringOverrideFetchStore } from "./utils";
+import { StringOverrideFetchStore, LazyCategoricalArray, get } from "./utils";
 
 describe("StringOverrideFetchStore", () => {
   it("overrides .zarray when vlenutf8", async () => {
@@ -35,5 +35,25 @@ describe("String Arrays", () => {
     }
 
     await expect(test()).resolves.toEqual("APLP1");
+  });
+});
+
+describe("Categorical Array Arrays", () => {
+  it("custom vlenutf8 codecc provides correct results", async () => {
+    async function test() {
+      const store = new StringOverrideFetchStore(
+        "https://s3.amazonaws.com/vitessce-data/0.0.33/main/habib-2017/habib_2017_nature_methods.h5ad.zarr"
+      );
+      const categories = await zarr.get_array(
+        store,
+        "/obs/__categories/CellType"
+      );
+      const codes = await zarr.get_array(store, "/obs/CellType");
+      const arr = new LazyCategoricalArray(codes, categories);
+      const first = (await get(arr)).get(0);
+      return first;
+    }
+
+    await expect(test()).resolves.toEqual("exCA1");
   });
 });
