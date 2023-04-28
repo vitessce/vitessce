@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import cloneDeep from 'lodash/cloneDeep';
 import { getNextScope, capitalize } from '@vitessce/utils';
+import { componentCoordinationScopes, componentCoordinationScopesBy } from './shared';
 import {
   configSchema0_1_0,
   configSchema1_0_0,
@@ -22,8 +23,7 @@ import {
   configSchema1_0_14,
   configSchema1_0_15,
   configSchema1_0_16,
-} from './previous-base-schemas';
-import { componentCoordinationScopes, componentCoordinationScopesBy } from './shared';
+} from './previous-config-schemas';
 
 
 interface ViewProps {

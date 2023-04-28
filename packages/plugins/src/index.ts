@@ -15,24 +15,24 @@ export class PluginViewType {
   }
 }
 
-export interface IDataLoader {
+export interface DataLoader {
   load: () => Promise<any>;
 }
 
-export interface IDataSource {
+export interface DataSource {
 
 }
 
 export class PluginFileType<
-  T1 extends IDataLoader, T2 extends IDataSource, T3 extends z.ZodTypeAny,
+  T1 extends DataLoader, T2 extends DataSource, T3 extends z.ZodTypeAny,
 > {
   name: string;
 
   dataType: string;
 
-  dataLoaderClass: IDataLoader;
+  dataLoaderClass: DataLoader;
 
-  dataSourceClass: IDataSource;
+  dataSourceClass: DataSource;
 
   optionsSchema: T3;
 
@@ -46,12 +46,12 @@ export class PluginFileType<
     this.optionsSchema = optionsSchema;
   }
 
-  getSourceAndLoader(): [IDataSource, IDataLoader] {
+  getSourceAndLoader(): [DataSource, DataLoader] {
     return [this.dataSourceClass, this.dataLoaderClass];
   }
 }
 
-interface IFileDef<OptionsType> {
+interface FileDef<OptionsType> {
   fileType: string,
   url: string,
   requestInit: object,
@@ -59,7 +59,7 @@ interface IFileDef<OptionsType> {
   options: OptionsType,
 }
 
-type ExpandFunction<InOptionsType> = (a: IFileDef<InOptionsType>) => Array<IFileDef<any>>;
+type ExpandFunction<InOptionsType> = (a: FileDef<InOptionsType>) => Array<FileDef<any>>;
 
 export class PluginJointFileType<T1 extends z.ZodTypeAny> {
   name: string;

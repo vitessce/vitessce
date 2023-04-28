@@ -12,7 +12,15 @@ import {
   componentCoordinationScopes,
   componentCoordinationScopesBy,
 } from './shared';
+import { latestConfigSchema } from './previous-config-meta';
 
+/**
+ * Convert an array of Zod schemas into a Zod union schema,
+ * bypassing the need for the input array to have
+ * at least two elements.
+ * @param schemaArr Array of Zod schemas.
+ * @returns Zod union schema.
+ */
 function toUnion<T extends z.ZodTypeAny[]>(schemaArr: T) {
   if (schemaArr.length === 0) return z.null();
   if (schemaArr.length === 1) return schemaArr[0];
@@ -23,12 +31,29 @@ function toUnion<T extends z.ZodTypeAny[]>(schemaArr: T) {
   ]);
 }
 
+/**
+ * Convert an array of strings into a Zod enum schema,
+ * bypassing the need for the input array to have
+ * at least two elements.
+ * @param schemaArr Array of strings.
+ * @returns Zod enum schema.
+ */
 function toEnum(schemaArr: string[]) {
   if (schemaArr.length === 0) return z.null();
   if (schemaArr.length === 1) return z.literal(schemaArr[0]);
   return z.enum([schemaArr[0], ...schemaArr.slice(1, schemaArr.length)]);
 }
 
+/**
+ * Build a Zod schema for a file definition.
+ * The builder pattern allows the returned
+ * Zod schema to be typed despite not knowing
+ * the file type name or options sub-schema in advance,
+ * which is the case for plugin file types in particular.
+ * @param fileType The file type name.
+ * @param options Zod schema for the file definition options.
+ * @returns Zod object schema for the file definition.
+ */
 function buildFileDefSchema<T extends z.ZodTypeAny>(fileType: string, options: T) {
   return z.object({
     fileType: z.literal(fileType),
@@ -48,6 +73,18 @@ function buildFileDefSchema<T extends z.ZodTypeAny>(fileType: string, options: T
   });
 }
 
+/**
+ * Build a Zod schema for the latest Vitessce config,
+ * which is specific to any registered plugins.
+ * The builder pattern allows the returned
+ * Zod schema to be typed despite not knowing
+ * the plugin names or sub-schemas in advance.
+ * @param pluginFileTypes
+ * @param pluginJointFileTypes
+ * @param pluginCoordinationTypes
+ * @param pluginViewTypes
+ * @returns The Zod schema.
+ */
 export function buildConfigSchema<
   T1 extends PluginFileType<any, any, z.ZodTypeAny>,
   T2 extends PluginJointFileType<z.ZodTypeAny>,
@@ -65,7 +102,8 @@ export function buildConfigSchema<
 
   // TODO: make this less redundant with latestSchema from ./previous-base-schemas
   return z.object({
-    version: z.literal('1.0.16')
+    // eslint-disable-next-line no-underscore-dangle
+    version: z.literal(latestConfigSchema.shape.version._def.value)
       .describe('The schema version for the view config.'),
     uid: z.string().optional(),
     name: z.string(),

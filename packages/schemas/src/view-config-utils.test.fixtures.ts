@@ -6,7 +6,7 @@ import {
   configSchema1_0_1,
   configSchema1_0_15,
   configSchema1_0_16,
-} from "./previous-base-schemas";
+} from "./previous-config-schemas";
 
 /* eslint-disable camelcase */
 export const legacyViewConfig0_1_0: z.infer<typeof configSchema0_1_0> = {
