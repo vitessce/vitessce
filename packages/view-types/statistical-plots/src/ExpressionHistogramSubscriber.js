@@ -81,7 +81,7 @@ export function ExpressionHistogramSubscriber(props) {
         const values = obsFeatureMatrix.data
           .subarray(cellIndex * numGenes, (cellIndex + 1) * numGenes);
         const sumValue = sum(values) * 100 / 255;
-        return { value: sumValue, gene: null };
+        return { value: sumValue, gene: null, cellId: cellId };
       });
     }
     return null;

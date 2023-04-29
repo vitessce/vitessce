@@ -35,6 +35,10 @@ export default function ExpressionHistogram(props) {
     ? 'Normalized Expression Value'
     : 'Total Normalized Transcript Count';
 
+  if (data) {
+    console.log("**** DATA: ", data);
+  }
+
   const spec = {
     data: { values: data },
     mark: "bar",
@@ -59,7 +63,7 @@ export default function ExpressionHistogram(props) {
     params: [
       {
         name: "brush",
-        select: { type: "interval", encodings: ["x"], fields: ['value'], // todo: value passed here is wrong. we need to somehow get the cell ids
+        select: { type: "interval", encodings: ["x"], fields: ['cellId'], // todo: value passed here is wrong. we need to somehow get the cell ids
       },
       },
     ],
