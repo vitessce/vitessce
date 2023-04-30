@@ -227,6 +227,8 @@ export const baseJointFileTypes = [
   new PluginJointFileType(FileType.MOLECULES_JSON, expandMoleculesJson, z.null()),
 ];
 
+// TODO: should these schemas be imported from a common location in package/ rather than here in packages/main/?
+// That would allow view implementations to depend on them for type checking and their default values.
 export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.DATASET, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.OBS_TYPE, 'cell', z.string()),

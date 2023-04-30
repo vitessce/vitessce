@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import { z } from 'zod';
 
+
 export class PluginViewType {
   name: string;
 
@@ -51,24 +52,19 @@ export class PluginFileType<
   }
 }
 
-interface FileDef<OptionsType> {
-  fileType: string,
-  url: string,
-  requestInit: object,
-  coordinationValues: Record<string, any>,
-  options: OptionsType,
-}
-
-type ExpandFunction<InOptionsType> = (a: FileDef<InOptionsType>) => Array<FileDef<any>>;
+// TODO: clean up any type
+// and refactor latestFileDefSchema out of @vitessce/schemas to avoid circular dependency
+// eslint-disable-next-line no-unused-vars
+type ExpandFunction = (a: any) => Array<any>;
 
 export class PluginJointFileType<T1 extends z.ZodTypeAny> {
   name: string;
 
-  expandFunction: ExpandFunction<z.infer<T1>>;
+  expandFunction: ExpandFunction;
 
   optionsSchema: T1;
 
-  constructor(name: string, expandFunction: ExpandFunction<z.infer<T1>>, optionsSchema: T1) {
+  constructor(name: string, expandFunction: ExpandFunction, optionsSchema: T1) {
     this.name = name;
     this.expandFunction = expandFunction;
     this.optionsSchema = optionsSchema;

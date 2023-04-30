@@ -199,6 +199,16 @@ export const configSchema1_0_12 = configSchema1_0_10.extend({
   version: z.literal('1.0.12'),
 });
 
+export const latestFileDefSchema = z.object({
+  name: z.string().optional(),
+  fileType: z.string(),
+  url: z.string().optional(),
+  options: fileOptionsSchema.optional(),
+  requestInit: requestInit.optional(),
+  // New: file def can have coordinationValues.
+  coordinationValues: z.record(z.string()).optional(),
+});
+
 // Allow file definitions to have coordinationValues.
 const datasetsSchema1_0_13 = z.array(
   z.object({
@@ -206,15 +216,7 @@ const datasetsSchema1_0_13 = z.array(
     name: z.string().optional(),
     description: z.string().optional(),
     files: z.array(
-      z.object({
-        name: z.string().optional(),
-        fileType: z.string(),
-        url: z.string().optional(),
-        options: fileOptionsSchema.optional(),
-        requestInit: requestInit.optional(),
-        // New: file def can have coordinationValues.
-        coordinationValues: z.record(z.string()).optional(),
-      }),
+      latestFileDefSchema,
     ),
   }),
 );

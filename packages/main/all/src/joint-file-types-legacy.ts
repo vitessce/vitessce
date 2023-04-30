@@ -1,6 +1,12 @@
+import type { z } from 'zod';
+import type { latestFileDefSchema } from '@vitessce/schemas';
 import { FileType } from '@vitessce/constants-internal';
 
-export function expandMoleculesJson(fileDef) {
+type legacyFileDefSchema = z.infer<typeof latestFileDefSchema> & {
+  type?: string;
+};
+
+export function expandMoleculesJson(fileDef: legacyFileDefSchema) {
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
@@ -20,7 +26,7 @@ export function expandMoleculesJson(fileDef) {
   ];
 }
 
-export function expandExpressionMatrixZarr(fileDef) {
+export function expandExpressionMatrixZarr(fileDef: legacyFileDefSchema) {
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
@@ -38,7 +44,7 @@ export function expandExpressionMatrixZarr(fileDef) {
   ];
 }
 
-export function expandRasterJson(fileDef) {
+export function expandRasterJson(fileDef: legacyFileDefSchema) {
   // Validation already happens in the RasterJsonLoader.
   const baseFileDef = { ...fileDef };
   delete baseFileDef.type;
@@ -57,7 +63,7 @@ export function expandRasterJson(fileDef) {
   ];
 }
 
-export function expandRasterOmeZarr(fileDef) {
+export function expandRasterOmeZarr(fileDef: legacyFileDefSchema) {
   const baseFileDef = { ...fileDef };
   delete baseFileDef.type;
   return [
@@ -68,7 +74,7 @@ export function expandRasterOmeZarr(fileDef) {
   ];
 }
 
-export function expandCellSetsJson(fileDef) {
+export function expandCellSetsJson(fileDef: legacyFileDefSchema) {
   const baseFileDef = { ...fileDef };
   delete baseFileDef.type;
   return [
@@ -82,7 +88,7 @@ export function expandCellSetsJson(fileDef) {
   ];
 }
 
-export function expandCellsJson(fileDef) {
+export function expandCellsJson(fileDef: legacyFileDefSchema) {
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
@@ -107,7 +113,7 @@ export function expandCellsJson(fileDef) {
         obsType: baseFileDef.coordinationValues.obsType,
       },
     },
-    ...(fileDef.options?.embeddingTypes ? fileDef.options.embeddingTypes.map(et => ({
+    ...(fileDef.options?.embeddingTypes ? fileDef.options.embeddingTypes.map((et: string) => ({
       ...baseFileDef,
       fileType: FileType.OBS_EMBEDDING_CELLS_JSON,
       coordinationValues: {
@@ -115,7 +121,7 @@ export function expandCellsJson(fileDef) {
         embeddingType: et,
       },
     })) : []),
-    ...(fileDef.options?.obsLabelsTypes ? fileDef.options.obsLabelsTypes.map(key => ({
+    ...(fileDef.options?.obsLabelsTypes ? fileDef.options.obsLabelsTypes.map((key: string) => ({
       ...baseFileDef,
       fileType: FileType.OBS_LABELS_CELLS_JSON,
       coordinationValues: {
@@ -126,7 +132,7 @@ export function expandCellsJson(fileDef) {
   ];
 }
 
-export function expandClustersJson(fileDef) {
+export function expandClustersJson(fileDef: legacyFileDefSchema) {
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
@@ -144,7 +150,7 @@ export function expandClustersJson(fileDef) {
   ];
 }
 
-export function expandGenesJson(fileDef) {
+export function expandGenesJson(fileDef: legacyFileDefSchema) {
   const baseFileDef = {
     ...fileDef,
     coordinationValues: {
@@ -162,7 +168,7 @@ export function expandGenesJson(fileDef) {
   ];
 }
 
-function getAnndataBaseFileDef(fileDef) {
+function getAnndataBaseFileDef(fileDef: legacyFileDefSchema) {
   return {
     url: fileDef.url,
     requestInit: fileDef.requestInit,
@@ -175,7 +181,7 @@ function getAnndataBaseFileDef(fileDef) {
   };
 }
 
-export function expandAnndataCellsZarr(fileDef) {
+export function expandAnndataCellsZarr(fileDef: legacyFileDefSchema) {
   const baseFileDef = getAnndataBaseFileDef(fileDef);
   const { options = {} } = fileDef;
   const embeddingTypes = options.mappings ? Object.keys(options.mappings) : [];
@@ -213,7 +219,7 @@ export function expandAnndataCellsZarr(fileDef) {
         embeddingType: et,
       },
     })),
-    ...obsLabelsTypes.map(olt => ({
+    ...obsLabelsTypes.map((olt: string) => ({
       ...baseFileDef,
       fileType: FileType.OBS_LABELS_ANNDATA_ZARR,
       options: {
@@ -227,14 +233,15 @@ export function expandAnndataCellsZarr(fileDef) {
   ];
 }
 
-export function expandAnndataCellSetsZarr(fileDef) {
+export function expandAnndataCellSetsZarr(fileDef: legacyFileDefSchema) {
   const baseFileDef = getAnndataBaseFileDef(fileDef);
   const { options = [] } = fileDef;
   return [
     {
       ...baseFileDef,
       fileType: FileType.OBS_SETS_ANNDATA_ZARR,
-      options: options.map(option => ({
+      // TODO: clean up any type
+      options: options.map((option: any) => ({
         name: option.groupName,
         path: option.setName,
         scorePath: option.scoreName,
@@ -246,7 +253,7 @@ export function expandAnndataCellSetsZarr(fileDef) {
   ];
 }
 
-export function expandAnndataExpressionMatrixZarr(fileDef) {
+export function expandAnndataExpressionMatrixZarr(fileDef: legacyFileDefSchema) {
   const baseFileDef = getAnndataBaseFileDef(fileDef);
   const { options = {} } = fileDef;
   return [

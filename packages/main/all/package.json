@@ -24,6 +24,7 @@
     "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js"
   },
   "dependencies": {
+    "zod": "^3.21.4",
     "@material-ui/core": "~4.12.3",
     "@vitessce/schemas": "workspace:*",
     "@vitessce/plugins": "workspace:*",

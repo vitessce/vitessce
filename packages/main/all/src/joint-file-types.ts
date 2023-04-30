@@ -1,7 +1,15 @@
+import type { z } from 'zod';
+import type { latestFileDefSchema } from '@vitessce/schemas';
 import { FileType } from '@vitessce/constants-internal';
 
-export function expandAnndataZarr(fileDef) {
-  const baseFileDef = {
+type BaseFileDef = {
+  url?: string;
+  requestInit?: any;
+  coordinationValues: Record<string, string>;
+};
+
+export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) {
+  const baseFileDef: BaseFileDef = {
     url: fileDef.url,
     requestInit: fileDef.requestInit,
     coordinationValues: {
@@ -54,7 +62,8 @@ export function expandAnndataZarr(fileDef) {
     // obsEmbedding
     // eslint-disable-next-line no-nested-ternary
     ...(options.obsEmbedding ? (
-      Array.isArray(options.obsEmbedding) ? options.obsEmbedding.map(oe => ({
+      // TODO: clean up any type
+      Array.isArray(options.obsEmbedding) ? options.obsEmbedding.map((oe: any) => ({
         // obsEmbedding was an array, process each element.
         ...baseFileDef,
         fileType: FileType.OBS_EMBEDDING_ANNDATA_ZARR,
@@ -81,7 +90,8 @@ export function expandAnndataZarr(fileDef) {
     // obsLabels
     // eslint-disable-next-line no-nested-ternary
     ...(options.obsLabels ? (
-      Array.isArray(options.obsLabels) ? options.obsLabels.map(ol => ({
+      // TODO: clean up any type
+      Array.isArray(options.obsLabels) ? options.obsLabels.map((ol: any) => ({
         // obsLabels was an array, process each element.
         ...baseFileDef,
         fileType: FileType.OBS_LABELS_ANNDATA_ZARR,
@@ -107,7 +117,8 @@ export function expandAnndataZarr(fileDef) {
     // featureLabels
     // eslint-disable-next-line no-nested-ternary
     ...(options.featureLabels ? (
-      Array.isArray(options.featureLabels) ? options.featureLabels.map(fl => ({
+      // TODO: clean up any type
+      Array.isArray(options.featureLabels) ? options.featureLabels.map((fl: any) => ({
         // featureLabels was an array, process each element.
         ...baseFileDef,
         fileType: FileType.FEATURE_LABELS_ANNDATA_ZARR,

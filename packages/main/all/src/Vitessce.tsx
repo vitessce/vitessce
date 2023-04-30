@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import {
   VitS,
 } from '@vitessce/vit-s';
@@ -13,8 +13,8 @@ import {
   baseCoordinationTypes,
 } from './base-plugins';
 
-
-export function Vitessce(props) {
+// TODO: clean up any type
+export function Vitessce(props: any) {
   const {
     config,
     onConfigUpgrade,
@@ -36,7 +36,7 @@ export function Vitessce(props) {
       return [
         {
           title: 'Config validation or upgrade failed.',
-          unformatted: e.message,
+          unformatted: (e as any).message,
         },
         false,
       ];

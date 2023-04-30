@@ -1,5 +1,6 @@
 export { buildConfigSchema } from './schema-builders';
 export { latestConfigSchema } from './previous-config-meta';
+export { latestFileDefSchema } from './previous-config-schemas';
 export { upgradeAndParse, VERSIONED_CONFIG_SCHEMAS } from './view-config-versions';
 export { rasterJsonSchema } from './raster-json';
 export {
