@@ -13,7 +13,6 @@ import {
   baseCoordinationTypes,
 } from './base-plugins';
 
-// TODO: clean up any type
 export function Vitessce(props: any) {
   const {
     config,

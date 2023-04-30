@@ -44,3 +44,13 @@ overrides:
     rules:
       # Allow @theme/ and @docusaurus/ imports
       import/no-unresolved: [0]
+
+  - files: '**/*.{ts,tsx}'
+    extends:
+      - plugin:@typescript-eslint/eslint-recommended
+      - plugin:@typescript-eslint/recommended
+    rules:
+      # Allow importing js/ts files without extension
+      import/no-unresolved: [0]
+      import/extensions: [0]
+    

@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, {
+  useEffect, useRef, useState, useMemo,
+} from 'react';
 import { Vitessce } from 'vitessce';
 
 import { getConfig, listConfigs, getPlugins } from './api';
@@ -156,7 +158,8 @@ export function VitessceDemo() {
         width: 100%;
         overflow: hidden;
       }
-      `}</style>
+      `}
+      </style>
       {result}
     </>
   );

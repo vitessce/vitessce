@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
-import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach } from 'vitest';
 
 import React from 'react';
 import { PluginViewType } from '@vitessce/plugins';
@@ -11,7 +11,7 @@ import {
 } from './state/hooks';
 
 afterEach(() => {
-  cleanup()
+  cleanup();
 });
 
 describe('VitessceGrid.js', () => {

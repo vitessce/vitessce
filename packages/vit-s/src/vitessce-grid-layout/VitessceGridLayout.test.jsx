@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { cleanup, render, screen, waitForElement } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach } from 'vitest';
 
 import React from 'react';
@@ -19,10 +19,14 @@ const layoutJson = {
     600: [0, 2, 4, 8],
   },
   components: [
-    { component: 'FakeComponent',
+    {
+      component: 'FakeComponent',
       uid: 'fake',
       props: { text: 'Hello World' },
-      x: 0, y: 0, w: 2 },
+      x: 0,
+      y: 0,
+      w: 2,
+    },
   ],
 };
 

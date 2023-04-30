@@ -1,11 +1,11 @@
 import '@testing-library/jest-dom';
-import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach, expect } from 'vitest'
+import { cleanup, render } from '@testing-library/react';
+import { afterEach, expect } from 'vitest';
 
 import { IconButton } from './ToolMenu';
 
 afterEach(() => {
-  cleanup()
+  cleanup();
 });
 
 describe('ToolMenu.js', () => {

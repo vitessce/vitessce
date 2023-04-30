@@ -1,14 +1,16 @@
 import '@testing-library/jest-dom';
-import { cleanup, findByText, render, screen } from '@testing-library/react'
+import {
+  cleanup, render, screen,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach } from 'vitest'
-
-const user = userEvent.setup();
+import { afterEach } from 'vitest';
 
 import SelectableTable from './SelectableTable';
 
+const user = userEvent.setup();
+
 afterEach(() => {
-  cleanup()
+  cleanup();
 });
 
 const tableData = [
@@ -55,7 +57,7 @@ describe('SelectableTable.js', () => {
     });
 
     it('emits single selected object when allowMultiple is false', async () => {
-      const p = new Promise((resolve, reject) => {
+      const p = new Promise((resolve) => {
         render(
           <SelectableTable
             data={tableData}
@@ -78,7 +80,7 @@ describe('SelectableTable.js', () => {
     });
 
     it('emits an array of selected objects when allowMultiple is true', async () => {
-      const p = new Promise((resolve, reject) => {
+      const p = new Promise((resolve) => {
         render(
           <SelectableTable
             data={tableData}

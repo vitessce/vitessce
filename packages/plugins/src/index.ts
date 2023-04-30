@@ -20,6 +20,7 @@ export interface DataLoader {
   load: () => Promise<any>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface DataSource {
 
 }
@@ -52,8 +53,8 @@ export class PluginFileType<
   }
 }
 
-// TODO: clean up any type
-// and refactor latestFileDefSchema out of @vitessce/schemas to avoid circular dependency
+// TODO: cleaning up any type requires refactoring
+// latestFileDefSchema out of @vitessce/schemas to avoid circular dependency
 // eslint-disable-next-line no-unused-vars
 type ExpandFunction = (a: any) => Array<any>;
 

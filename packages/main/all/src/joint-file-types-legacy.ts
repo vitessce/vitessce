@@ -240,7 +240,6 @@ export function expandAnndataCellSetsZarr(fileDef: legacyFileDefSchema) {
     {
       ...baseFileDef,
       fileType: FileType.OBS_SETS_ANNDATA_ZARR,
-      // TODO: clean up any type
       options: options.map((option: any) => ({
         name: option.groupName,
         path: option.setName,

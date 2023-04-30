@@ -62,7 +62,6 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
     // obsEmbedding
     // eslint-disable-next-line no-nested-ternary
     ...(options.obsEmbedding ? (
-      // TODO: clean up any type
       Array.isArray(options.obsEmbedding) ? options.obsEmbedding.map((oe: any) => ({
         // obsEmbedding was an array, process each element.
         ...baseFileDef,
@@ -90,7 +89,6 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
     // obsLabels
     // eslint-disable-next-line no-nested-ternary
     ...(options.obsLabels ? (
-      // TODO: clean up any type
       Array.isArray(options.obsLabels) ? options.obsLabels.map((ol: any) => ({
         // obsLabels was an array, process each element.
         ...baseFileDef,
@@ -117,7 +115,6 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
     // featureLabels
     // eslint-disable-next-line no-nested-ternary
     ...(options.featureLabels ? (
-      // TODO: clean up any type
       Array.isArray(options.featureLabels) ? options.featureLabels.map((fl: any) => ({
         // featureLabels was an array, process each element.
         ...baseFileDef,

@@ -37,7 +37,7 @@ const annDataObsFeatureMatrix = z.object({
     .describe('If the feature index should be filtered, put a boolean column here (analogous to the previous geneFilter option). e.g., var/in_obsm_X_small_matrix'),
   initialFeatureFilterPath: z.string()
     .optional()
-    .describe('If only a subset of the matrix should be loaded initially, put a boolean column along the feature axis here (analogous to the previous matrixGeneFilter option). e.g., var/highly_variable')
+    .describe('If only a subset of the matrix should be loaded initially, put a boolean column along the feature axis here (analogous to the previous matrixGeneFilter option). e.g., var/highly_variable'),
 });
 
 const annDataObsSets = z.array(
