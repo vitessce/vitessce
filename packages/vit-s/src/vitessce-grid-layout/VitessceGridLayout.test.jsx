@@ -1,12 +1,13 @@
 import '@testing-library/jest-dom';
-import { cleanup, render, screen, waitForElement } from '@testing-library/react'
-import { afterEach } from 'vitest'
+import { cleanup, render, screen, waitForElement } from '@testing-library/react';
+import { afterEach } from 'vitest';
 
+import React from 'react';
 import { PluginViewType } from '@vitessce/plugins';
 import { VitessceGridLayout } from './VitessceGridLayout';
 
 afterEach(() => {
-  cleanup()
+  cleanup();
 });
 
 function FakeComponent(props) {
