@@ -34,6 +34,8 @@ const OTHER_VERSIONS = {
   "mathjs": "^9.2.0",
   "zod": "^3.21.4",
   "semver": "^7.3.8",
+  "vite": "^4.3.0",
+  "@vitejs/plugin-react": "^4.0.0",
 
   // LumaGL
   "@luma.gl/constants": LUMAGL_VERSION,

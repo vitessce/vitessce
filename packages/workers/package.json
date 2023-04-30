@@ -9,12 +9,13 @@
   },
   "license": "MIT",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
+  "exports": "./dist/index.mjs",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "pnpm run build-lib",
+    "build": "rimraf ./dist/ && pnpm run build-lib",
     "build-lib": "rollup --config rollup.config.js"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
     "@rollup/plugin-commonjs": "^23.0.0",
     "@rollup/plugin-node-resolve": "^15.0.0",
     "rollup": "^2.0.0",
-    "rollup-plugin-web-worker-loader": "^1.0.0"
+    "rollup-plugin-web-worker-loader": "^1.0.0",
+    "rimraf": "^3.0.2"
   }
 }

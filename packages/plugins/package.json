@@ -8,6 +8,7 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
+  "type": "module",
   "main": "dist-tsc/index.js",
   "types": "dist-tsc/index.d.ts",
   "publishConfig": {
@@ -26,7 +27,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "vite": "^3.0.0",
+    "vite": "^4.3.0",
     "vitest": "^0.23.4",
     "@types/react": "^18.0.28"
   }

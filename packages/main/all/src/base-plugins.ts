@@ -12,6 +12,8 @@ import {
   PluginJointFileType,
   PluginViewType,
   PluginCoordinationType,
+} from '@vitessce/plugins';
+import type {
   DataLoader,
   DataSource,
 } from '@vitessce/plugins';
@@ -140,8 +142,8 @@ function makeViewType(name: string, component: any) {
   return new PluginViewType(name, component as ComponentType, COMPONENT_COORDINATION_TYPES[name]);
 }
 
-function makeFileType(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodTypeAny) {
-  return new PluginFileType(name, dataType, dataLoaderClass as DataLoader, dataSourceClass as DataSource, optionsSchema);
+function makeFileType<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodTypeAny) {
+  return new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema);
 }
 
 export const baseViewTypes = [

@@ -31,9 +31,6 @@
     { "path": "packages/file-types/zarr" },
     { "path": "packages/gl" },
     { "path": "packages/legend" },
-    { "path": "packages/main/all" },
-    { "path": "packages/main/dev" },
-    { "path": "packages/main/prod" },
     { "path": "packages/plugins" },
     { "path": "packages/schemas" },
     { "path": "packages/tooltip" },
@@ -54,7 +51,10 @@
     { "path": "packages/view-types/scatterplot-gating" },
     { "path": "packages/view-types/spatial" },
     { "path": "packages/view-types/statistical-plots" },
-    { "path": "packages/view-types/status" }
+    { "path": "packages/view-types/status" },
+    { "path": "packages/main/all" },
+    { "path": "packages/main/dev" },
+    { "path": "packages/main/prod" }
   ],
   "files": []
 }
