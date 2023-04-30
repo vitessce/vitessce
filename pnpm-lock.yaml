@@ -350,6 +350,7 @@ importers:
       '@vitessce/vit-s': workspace:*
       '@vitessce/zarr': workspace:*
       react: ^18.0.0
+      zod: ^3.21.4
     dependencies:
       '@material-ui/core': 4.12.4_zula6vjvt3wdocc4mwcxqa6nzi
       '@vitessce/constants-internal': link:../../constants-internal
@@ -371,6 +372,7 @@ importers:
       '@vitessce/status': link:../../view-types/status
       '@vitessce/vit-s': link:../../vit-s
       '@vitessce/zarr': link:../../file-types/zarr
+      zod: 3.21.4
     devDependencies:
       '@types/react': 18.0.28
       react: 18.2.0
