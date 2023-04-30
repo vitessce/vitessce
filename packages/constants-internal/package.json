@@ -8,9 +8,11 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
+  "type": "module",
   "main": "dist-tsc/index.js",
   "publishConfig": {
-    "main": "dist/index.mjs"
+    "main": "dist/index.mjs",
+    "exports": "./dist/index.mjs"
   },
   "files": [
     "dist",
