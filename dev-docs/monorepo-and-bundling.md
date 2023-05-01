@@ -18,9 +18,9 @@ We make a distinction between three different types of transformations of code: 
 
 ### Build
 
-- When: Build refers to a transformation step required for __development__ within the monorepo.
-- How: This transformation is typically performed by running a `build` script (e.g., `pnpm run build`).
-- Why: Build is meant to get the "raw" code (i.e., what we write and track with git) into a state where the sibling packages and development sites (in `sites/`) can consume it.
+- __When__: Build refers to a transformation step required for __development__ within the monorepo.
+- __How__: This transformation is typically performed by running a `build` script (e.g., `pnpm run build`).
+- __Why__: Build is meant to get the "raw" code (i.e., what we write and track with git) into a state where the sibling packages and development sites (in `sites/`) can consume it.
 
 #### Non-standard imports
 
@@ -44,9 +44,9 @@ The result of building with TypeScript should be located in `dist-tsc/`.
 
 ### Start
 
-- When: Start refers to running Build plus re-running on code changes.
-- How: This transformation is typically performed by running a `start` script (e.g., `pnpm run start`).
-- Why: Hot-reloading during development.
+- __When__: Start refers to running Build plus re-running on code changes.
+- __How__: This transformation is typically performed by running a `start` script (e.g., `pnpm run start`).
+- __Why__: Hot-reloading during development.
 
 In practice, this is achieved by:
 - Running `tsc -b --watch` from the root of the repo to re-transform sub-packages
@@ -62,10 +62,16 @@ The following sub-packages are exceptions to the above (i.e., there is not curre
 
 ### Bundle
 
-- When: Bundle refers to running transforming code for publishing to NPM for consumption by other packages or applications.
-- How: This transformation is typically performed by running a `bundle` script (e.g., `pnpm run bundle`).
-- Why: When publishing to NPM, sub-packages need to be bundled with their dependencies (with the exceptions of React and ReactDOM which we externalize, as consumer React applications will have their own copies).
+- __When__: Bundle refers to running transforming code for publishing to NPM for consumption by other packages or applications.
+- __How__: This transformation is typically performed by running a `bundle` script (e.g., `pnpm run bundle`).
+- __Why__: When publishing to NPM, sub-packages need to be bundled with their dependencies (with the exceptions of React and ReactDOM which we externalize, as consumer React applications will have their own copies).
 
 The result of bundling should be located in `dist/`.
+
+#### End-to-end testing
+
+We test that the bundles can be imported in different environments using Cypress. We simulate a consumer package installing bundled and `npm pack`-ed sub-packages in the `consumer/` directory by running the `script/consumer-install.sh` script after `pnpm run build && pnpm run bundle`.
+
+#### Bundle size
 
 For each sub-package, the total payload that is pushed to NPM during publishing must remain below 50 MB, as this is the limit beyond which CDNs like Unpkg will serve the contents.
