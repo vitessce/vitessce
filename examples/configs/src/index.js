@@ -29,6 +29,7 @@ import { marshall2022iScience } from './view-configs/marshall_2022_iscience';
 import { meta2022azimuth } from './view-configs/meta_2022_azimuth';
 import { rgbOmeTiff } from './view-configs/rgb-ome-tiff';
 import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff';
+import { mri } from './view-configs/mri';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -71,6 +72,7 @@ export const configs = {
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
+  'mri': mri,
   ...coordinationTypeConfigs,
 };
 
@@ -86,4 +88,5 @@ export const publicConfigs = [
   'blin-2019',
   'rgb-ome-tiff',
   'segmentations-ome-tiff',
+  'mri',
 ];
