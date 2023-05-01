@@ -613,7 +613,10 @@ export function useComponentViewInfo(uuid) {
  */
 export function useSetComponentViewInfo(uuid) {
   const setViewInfoRef = useRef(useViewInfoStore.getState().setComponentViewInfo);
-  const setComponentViewInfo = viewInfo => setViewInfoRef.current(uuid, viewInfo);
+  const setComponentViewInfo = useCallback(
+    viewInfo => setViewInfoRef.current(uuid, viewInfo),
+    [uuid],
+  );
   return setComponentViewInfo;
 }
 

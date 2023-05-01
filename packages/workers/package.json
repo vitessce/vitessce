@@ -9,9 +9,15 @@
   },
   "license": "MIT",
   "type": "module",
-  "main": "dist/index.mjs",
-  "exports": "./dist/index.mjs",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
   "files": [
+    "src",
     "dist"
   ],
   "scripts": {

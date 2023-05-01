@@ -20,7 +20,7 @@ ${code}`;
 export default {
   input: ["src/index.js"],
   output: {
-    file: "dist/index.mjs",
+    file: "dist/index.js",
     format: "esm",
     sourcemap: true
   },
