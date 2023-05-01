@@ -9,7 +9,7 @@ export const humanLymphNode10xVisium = {
       files: [
         {
           fileType: 'anndata.zarr',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr',
           coordinationValues: {
             obsType: 'spot',
             featureType: 'gene',
@@ -17,8 +17,8 @@ export const humanLymphNode10xVisium = {
           },
           options: {
             obsFeatureMatrix: {
-              path: 'obsm/X_hvg',
-              featureFilterPath: 'var/highly_variable',
+              path: 'X',
+              initialFeatureFilterPath: 'var/highly_variable',
             },
             obsLocations: {
               path: 'obsm/spatial',
@@ -46,7 +46,7 @@ export const humanLymphNode10xVisium = {
         },
         {
           fileType: 'image.ome-zarr',
-          url: 'https://vitessce-data.storage.googleapis.com/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.ome.zarr',
+          url: 'https://vitessce-data.storage.googleapis.com/0.0.34/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.ome.zarr',
         },
       ],
     },

@@ -8,7 +8,7 @@ export const combat2022cell = {
     files: [
       {
         fileType: 'obsEmbedding.anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/combat-2022/combat_2022_cell.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
           embeddingType: 'UMAP',
@@ -19,7 +19,7 @@ export const combat2022cell = {
       },
       {
         fileType: 'obsSets.anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/combat-2022/combat_2022_cell.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
         },
@@ -36,27 +36,27 @@ export const combat2022cell = {
       },
       {
         fileType: 'obsFeatureMatrix.anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/combat-2022/combat_2022_cell.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
           featureType: 'gene',
           featureValueType: 'expression',
         },
         options: {
-          path: 'obsm/X_gene_expression',
+          path: 'obsm/X_gene_expression_uint8',
           featureFilterPath: 'var/is_gene_expression',
         },
       },
       {
         fileType: 'obsFeatureMatrix.anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/combat-2022/combat_2022_cell.h5ad.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/combat-2022/combat_2022_cell.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
           featureType: 'antibody',
           featureValueType: 'capture',
         },
         options: {
-          path: 'obsm/X_antibody_capture',
+          path: 'obsm/X_antibody_capture_uint8',
           featureFilterPath: 'var/is_antibody_capture',
         },
       },

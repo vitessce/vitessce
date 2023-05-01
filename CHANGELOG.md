@@ -66,6 +66,7 @@
 - Update parameters of MUI `createGenerateClassName` so that class names are deterministic
 - Fixed broken cell highlight crosshairs upon hover events in scatterplots/spatial/heatmap views by porting SCSS to MUI JSS.
 - Upgrade Viv to `0.13` and deck.gl to `8.8`
+- Move data to `0.0.34`.
 - Interleaved rgb images obey visibility prop
 - Added workaround in `Spatial` view for apparent bug in DeckGL `PolygonLayer` preventing passing polygon vertices via `Uint32Array`.
 

@@ -8,7 +8,7 @@ export const kuppe2022nature = {
     files: [
       {
         fileType: 'obsSets.anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.joint.h5ad.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/kuppe-2022/kuppe_2022_nature.joint.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
         },
@@ -33,7 +33,7 @@ export const kuppe2022nature = {
       },
       {
         fileType: 'anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.rna.h5ad.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/kuppe-2022/kuppe_2022_nature.rna.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
           featureType: 'gene',
@@ -60,7 +60,7 @@ export const kuppe2022nature = {
       },
       {
         fileType: 'anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.atac.h5ad.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/kuppe-2022/kuppe_2022_nature.atac.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
           featureType: 'gene',
@@ -83,7 +83,7 @@ export const kuppe2022nature = {
       },
       {
         fileType: 'anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.visium.h5ad.zarr',
+        url: 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/kuppe-2022/kuppe_2022_nature.visium.h5ad.zarr',
         coordinationValues: {
           obsType: 'spot',
           featureType: 'gene',
@@ -124,7 +124,7 @@ export const kuppe2022nature = {
       },
       {
         fileType: 'image.ome-zarr',
-        url: 'https://vitessce-data.storage.googleapis.com/0.0.33/main/kuppe-2022/kuppe_2022_nature.visium.ome.zarr',
+        url: 'https://vitessce-data.storage.googleapis.com/0.0.34/main/kuppe-2022/kuppe_2022_nature.visium.ome.zarr',
       },
     ],
   }],
@@ -342,6 +342,9 @@ export const kuppe2022nature = {
         obsType: 'B',
         spatialSegmentationLayer: 'A',
         spatialImageLayer: 'A',
+      },
+      props: {
+        disableChannelsIfRgbDetected: true,
       },
       h: 4,
       w: 3,

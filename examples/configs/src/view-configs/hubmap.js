@@ -8,7 +8,7 @@ function getConfig() {
     description: 'Large intestine snATAC-seq HuBMAP dataset with genomic data visualization powered by HiGlass',
   });
   // Add a dataset and its files.
-  const csvUrl = 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/sn-atac-seq-hubmap-2020/human_intestine_2020_hubmap.cells.csv';
+  const csvUrl = 'https://s3.amazonaws.com/vitessce-data/0.0.34/main/sn-atac-seq-hubmap-2020/human_intestine_2020_hubmap.cells.csv';
   const genomicProfilesUrl = 'https://vitessce-data.s3.amazonaws.com/0.0.32/master_release/human_intestine_2020_hubmap/human_intestine_2020_hubmap.genomic-profiles.zarr';
   const dataset = vc
     .addDataset('HBM485.TBWH.322', 'Human large intestine, snATAC-seq')
