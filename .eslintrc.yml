@@ -56,6 +56,3 @@ overrides:
     rules:
       # Allow importing js/ts files without extension
       import/no-unresolved: [0]
-      # Temporarily turn off no-explicit-any until ready to fix
-      '@typescript-eslint/no-explicit-any': [0]
-    
