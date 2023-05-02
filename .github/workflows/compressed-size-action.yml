@@ -27,7 +27,7 @@ jobs:
           minimum-change-threshold: 1000
           compression: "none"
           build-script: "build:ci"
-          clean-script: "clean-all"
+          clean-script: "clean"
           pattern: "./packages/main/prod/dist/**/*"
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
         env:
