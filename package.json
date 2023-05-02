@@ -22,6 +22,7 @@
     "lint-fix": "eslint --fix \"packages/**/src/**/*.{js,jsx,ts,tsx}\" \"sites/*/src/**/*.{js,jsx,ts,tsx}\" \"examples/*/src/**/*.{js,jsx,ts,tsx}\"",
     "clean": "pnpm -r exec -- rm -rf dist dist-tsc tsconfig.tsbuildinfo",
     "clean-deps": "pnpm -r exec -- rm -rf node_modules",
+    "clean-all": "pnpm run clean && pnpm run clean-deps",
     "meta-update": "cross-env META_UPDATER_MODE=write pnpm meta-updater",
     "meta-dryrun": "cross-env META_UPDATER_MODE=dryrun pnpm meta-updater",
     "meta-version-only": "cross-env META_UPDATER_MODE=versiononly pnpm meta-updater"
