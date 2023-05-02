@@ -46,7 +46,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_LOCATIONS_MOLECULES_JSON]: DataType.OBS_LOCATIONS,
   [FileType.OBS_LABELS_MOLECULES_JSON]: DataType.OBS_LABELS,
   [FileType.OBS_LABELS_MOLECULES_JSON]: DataType.OBS_LABELS,
-  // NIFTI
+  //NIFTI
   [FileType.NIFTI]: DataType.NIFTI_IMAGE,
   [FileType.NIFTI_COMPRESSED]: DataType.NIFTI_IMAGE,
   // For old file types

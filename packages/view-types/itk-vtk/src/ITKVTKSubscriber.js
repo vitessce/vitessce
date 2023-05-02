@@ -18,23 +18,17 @@ import {
   ViewType,
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
-import { makeStyles } from '@material-ui/core';
-import IconButton from '@material-ui/core/IconButton';
-import ChevronLeft from '@material-ui/icons/ChevronLeft';
-import ChevronRight from '@material-ui/icons/ChevronRight';
 import clsx from 'clsx';
 
 export function ITKVTK(props) {
   return (
-    <div className={classes.container}>
+    <div className="ITKVTK">
     </div>
   );
 }
 
 export function ITKVTKSubscriber(props) {
   const {
-    coordinationScopes,
-    removeGridComponent,
     theme,
     title = 'ITK-VTK',
   } = props;
@@ -60,6 +54,10 @@ export default class ITKVTKLoader extends AbstractTwoStepLoader {
   }
 }
 
+class AbstractSource {
+  // No-op
+}
+
 export function register() {
   registerPluginFileType(
     FileType.NIFTI,
@@ -67,9 +65,15 @@ export function register() {
     ITKVTKLoader,
     AbstractSource,
   );
+  registerPluginFileType(
+    FileType.NIFTI_COMPRESSED,
+    DataType.NIFTI_IMAGE,
+    ITKVTKLoader,
+    AbstractSource,
+  );
   registerPluginViewType(
     ViewType.ITK_VTK,
-    StaticFigureSubscriber,
+    ITKVTKSubscriber,
     COMPONENT_COORDINATION_TYPES[ViewType.ITK_VTK],
   );
   registerPluginCoordinationType(

@@ -72,7 +72,7 @@ export const mri = {
           },
         },
         {
-          fileType: 'image.nii',
+          fileType: 'image.nii.gz',
           url: "https://nifti.nimh.nih.gov/nifti-1/data/minimal.nii.gz",
         }
       ],
