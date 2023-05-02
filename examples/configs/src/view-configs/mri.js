@@ -130,6 +130,8 @@ export const mri = {
       component:'itk-vtk',
       x: 0,
       y: 2,
+      w: 5,
+      h: 3,
     },
     {
       component: 'status',

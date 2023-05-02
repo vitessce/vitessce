@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import 'itk-vtk-viewer/dist/itkVtkViewer.js';
+
 import {
   TitleInfo,
   useCoordination,
@@ -18,35 +20,65 @@ import {
   ViewType,
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
-import clsx from 'clsx';
+import { makeStyles } from '@material-ui/core';
+import { createViewerFromUrl, processURLParameters } from 'itk-vtk-viewer/src';
+
+const useStyles = makeStyles(() => ({
+  container: {
+    height: '100%',
+    position: 'relative',
+  }
+}));
 
 export function ITKVTK(props) {
-  return (
-    <div className="ITKVTK">
-    </div>
-  );
+  useEffect(() => {
+    const image = 'https://nifti.nimh.nih.gov/nifti-1/data/minimal.nii.gz';
+    const container = document.querySelector('#test');
+    itkVtkViewer.createViewerFromUrl(container, { fullscreen: false })
+      .then((viewer) => {
+        console.log("Here")
+        viewer.setBackgroundColor([0, 0, 0])
+      })
+  });
+
+  return (<div id={'test'} style={{height:'100%'}}></div>);
 }
 
 export function ITKVTKSubscriber(props) {
   const {
+    removeGridComponent,
     theme,
     title = 'ITK-VTK',
   } = props;
 
+  const classes = useStyles();
+
   return (
     <TitleInfo
       title={title}
+      isReady={isReady}
+      removeGridComponent={removeGridComponent}
       theme={theme}>
-      <ITKVTK/>
+      <div className={classes.container}>
+        <ITKVTK/>
+      </div>
     </TitleInfo>
   );
 }
 
+const isReady = true;
+
 export default class ITKVTKLoader extends AbstractTwoStepLoader {
   async load() {
-    const { url, options } = this;
+    const {
+      url,
+      options
+    } = this;
     const { caption } = options || {};
-    const result = { url, caption };
+    const result = {
+      url,
+      caption
+    };
     return Promise.resolve(new LoaderResult(
       result,
       url,

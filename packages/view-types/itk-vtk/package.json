@@ -37,7 +37,7 @@
     "mathjs": "^9.2.0",
     "plur": "^5.1.0",
     "short-number": "^1.0.6",
-    "itk-vtk-viewer": "^14.38.2"
+    "itk-vtk-viewer": "^14.38.0"
   },
   "devDependencies": {
     "react": "^18.0.0",
