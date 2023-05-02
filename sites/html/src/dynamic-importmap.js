@@ -1,28 +1,17 @@
 /* eslint-disable */
-window.esmsInitOptions = {
-  shimMode: true,
-  mapOverrides: true,
+import { importWithMap } from 'https://unpkg.com/dynamic-importmap@0.0.1';
+
+const importMap = {
+  imports: {
+    "react": "https://esm.sh/react@18.2.0?dev",
+    "react-dom": "https://esm.sh/react-dom@18.2.0?dev",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client?dev",
+    "vitessce": "http://localhost:3003/packages/main/dev/dist/index.mjs"
+  },
 };
 
-const script = Object.assign(document.createElement('script'), {
-  type: 'importmap-shim',
-  innerHTML: JSON.stringify({
-    "imports": {
-      "react": "https://esm.sh/react@18.2.0?dev",
-      "react-dom": "https://esm.sh/react-dom@18.2.0?dev",
-      "react-dom/client": "https://esm.sh/react-dom@18.2.0/client?dev",
-      "vitessce": "http://localhost:3003/packages/main/dev/dist/index.mjs"
-    }
-  }),
-});
-
-document.body.appendChild(script);
-
-const shims = await import('https://ga.jspm.io/npm:es-module-shims@1.6.1/dist/es-module-shims.js');
-
-const React = await importShim('react');
-const { createRoot } = await importShim('react-dom/client');
-
+const React = await importWithMap('react', importMap);
+const { createRoot } = await importWithMap('react-dom/client', importMap);
 
 
 function asEsModule(component) {
@@ -33,11 +22,9 @@ function asEsModule(component) {
 }
 
 const Vitessce = React.lazy(async () => {
-  const vitessce = await importShim('vitessce');
-
+  const vitessce = await importWithMap('vitessce', importMap);
   return asEsModule(vitessce.Vitessce);
 });
-
 
 const e = React.createElement;
 
