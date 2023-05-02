@@ -2,14 +2,14 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable max-len */
 import React, { useEffect, useCallback, useState } from 'react';
-import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
-import Table from 'react-virtualized/dist/commonjs/Table';
-import uuidv4 from 'uuid/v4';
-import union from 'lodash/union';
-import difference from 'lodash/difference';
-import isEqual from 'lodash/isEqual';
+import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer/index.js';
+import { Table } from 'react-virtualized/dist/commonjs/Table/index.js';
+import uuidv4 from 'uuid/v4.js';
+import union from 'lodash/union.js';
+import difference from 'lodash/difference.js';
+import isEqual from 'lodash/isEqual.js';
 import clsx from 'clsx';
-import { useStyles } from './styles';
+import { useStyles } from './styles.js';
 
 const SHIFT_KEYCODE = 16;
 

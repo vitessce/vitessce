@@ -1,4 +1,4 @@
-import range from 'lodash/range';
+import range from 'lodash/range.js';
 
 function sum(a) {
   return a.reduce((x, y) => x + y, 0);

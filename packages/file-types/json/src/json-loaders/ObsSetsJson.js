@@ -6,7 +6,7 @@ import {
 } from '@vitessce/sets-utils';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import { obsSetsSchema } from '@vitessce/schemas';
-import JsonLoader from './JsonLoader';
+import JsonLoader from './JsonLoader.js';
 
 export default class ObsSetsJsonLoader extends JsonLoader {
   constructor(dataSource, params) {

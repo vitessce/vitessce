@@ -4,9 +4,9 @@ import React, {
 } from 'react';
 import { Vitessce } from 'vitessce';
 
-import { getConfig, listConfigs, getPlugins } from './api';
-import { Welcome } from './welcome';
-import { Warning } from './warning';
+import { getConfig, listConfigs, getPlugins } from './api.js';
+import { Welcome } from './welcome.jsx';
+import { Warning } from './warning.jsx';
 
 import './index.scss';
 

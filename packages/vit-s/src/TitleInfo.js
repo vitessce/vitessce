@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
-import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
-import MenuItem from '@material-ui/core/MenuItem';
-import IconButton from '@material-ui/core/IconButton';
-import Link from '@material-ui/core/Link';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
-import SettingsIcon from '@material-ui/icons/Settings';
-import CloseIcon from '@material-ui/icons/Close';
+import { makeStyles } from '@material-ui/core/es/styles/index.js';
+import CloudDownloadIcon from '@material-ui/icons/esm/CloudDownload.js';
+import MenuItem from '@material-ui/core/es/MenuItem/index.js';
+import IconButton from '@material-ui/core/es/IconButton/index.js';
+import Link from '@material-ui/core/es/Link/index.js';
+import ArrowDropDownIcon from '@material-ui/icons/esm/ArrowDropDown.js';
+import ArrowDropUpIcon from '@material-ui/icons/esm/ArrowDropUp.js';
+import SettingsIcon from '@material-ui/icons/esm/Settings.js';
+import CloseIcon from '@material-ui/icons/esm/Close.js';
 
-import { TOOLTIP_ANCESTOR } from './classNames';
-import LoadingIndicator from './LoadingIndicator';
-import { PopperMenu } from './shared-mui/components';
-import { useTitleStyles } from './title-styles';
+import { TOOLTIP_ANCESTOR } from './classNames.js';
+import LoadingIndicator from './LoadingIndicator.js';
+import { PopperMenu } from './shared-mui/components.js';
+import { useTitleStyles } from './title-styles.js';
 
 const useStyles = makeStyles(theme => ({
   iconButton: {

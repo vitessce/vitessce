@@ -1,2 +1,2 @@
-export { SpatialSubscriber } from './SpatialSubscriber';
-export { default as Spatial } from './Spatial';
+export { SpatialSubscriber } from './SpatialSubscriber.js';
+export { default as Spatial } from './Spatial.js';

@@ -1,12 +1,12 @@
 import {
   useRef, useState, useEffect, useCallback, useMemo,
 } from 'react';
-import debounce from 'lodash/debounce';
-import every from 'lodash/every';
+import debounce from 'lodash/debounce.js';
+import every from 'lodash/every.js';
 import { extent } from 'd3-array';
 import { capitalize, fromEntries } from '@vitessce/utils';
-import { useGridResize, useEmitGridResize } from './state/hooks';
-import { VITESSCE_CONTAINER } from './classNames';
+import { useGridResize, useEmitGridResize } from './state/hooks.js';
+import { VITESSCE_CONTAINER } from './classNames.js';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;

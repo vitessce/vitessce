@@ -3,7 +3,7 @@
 import React, {
   useCallback, useRef, forwardRef,
 } from 'react';
-import Grid from '@material-ui/core/Grid';
+import Grid from '@material-ui/core/es/Grid/index.js';
 import {
   TitleInfo,
   useReady,
@@ -19,11 +19,11 @@ import {
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { capitalize } from '@vitessce/utils';
 import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/spatial-utils';
-import RasterChannelController from './RasterChannelController';
-import BitmaskChannelController from './BitmaskChannelController';
-import VectorLayerController from './VectorLayerController';
-import LayerController from './LayerController';
-import ImageAddButton from './ImageAddButton';
+import RasterChannelController from './RasterChannelController.js';
+import BitmaskChannelController from './BitmaskChannelController.js';
+import VectorLayerController from './VectorLayerController.js';
+import LayerController from './LayerController.js';
+import ImageAddButton from './ImageAddButton.js';
 
 // LayerController is memoized to prevent updates from prop changes that
 // are caused by view state updates i.e zooming and panning within

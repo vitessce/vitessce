@@ -1,5 +1,5 @@
 import { deck } from '@vitessce/gl';
-import clamp from 'lodash/clamp';
+import clamp from 'lodash/clamp.js';
 
 // Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
 // Reference: https://observablehq.com/@bmschmidt/dot-density-election-maps-with-webgl

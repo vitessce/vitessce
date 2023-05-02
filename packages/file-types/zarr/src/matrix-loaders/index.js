@@ -1,1 +1,1 @@
-export { default as MatrixZarrAsObsFeatureMatrixLoader } from './MatrixZarrAsObsFeatureMatrix';
+export { default as MatrixZarrAsObsFeatureMatrixLoader } from './MatrixZarrAsObsFeatureMatrix.js';

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import AddIcon from '@material-ui/icons/Add';
-import MenuItem from '@material-ui/core/MenuItem';
+import { makeStyles } from '@material-ui/core/es/styles/index.js';
+import AddIcon from '@material-ui/icons/esm/Add.js';
+import MenuItem from '@material-ui/core/es/MenuItem/index.js';
 import { PopperMenu } from '@vitessce/vit-s';
 
 const useStyles = makeStyles(() => ({

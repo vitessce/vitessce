@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import MenuItem from '@material-ui/core/MenuItem';
+import { makeStyles } from '@material-ui/core/es/styles/index.js';
+import MoreVertIcon from '@material-ui/icons/esm/MoreVert.js';
+import MenuItem from '@material-ui/core/es/MenuItem/index.js';
 import { PopperMenu } from '@vitessce/vit-s';
-import { MuiSpan } from './styles';
-import ColorPalette from './ColorPalette';
+import { MuiSpan } from './styles.js';
+import ColorPalette from './ColorPalette.js';
 
 const useStyles = makeStyles(() => ({
   menuButton: {

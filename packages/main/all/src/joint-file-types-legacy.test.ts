@@ -10,7 +10,7 @@ import {
   expandAnndataCellsZarr,
   expandAnndataCellSetsZarr,
   expandAnndataExpressionMatrixZarr,
-} from './joint-file-types-legacy';
+} from './joint-file-types-legacy.js';
 
 describe('src/app/joint-file-types-legacy.js', () => {
   describe('expandExpressionMatrixZarr', () => {

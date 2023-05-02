@@ -13,6 +13,9 @@ module.exports = function(context, options) {
         mergeStrategy: {
           'module.rules': 'prepend',
         },
+        resolve: {
+          enforceExtension: false,
+        },
         module: {
           rules: [
             // First, run the linter.
@@ -37,7 +40,7 @@ module.exports = function(context, options) {
             {
               test: /\.m?js/,
               resolve: {
-                fullySpecified: false
+                fullySpecified: false,
               }
             }
           ]

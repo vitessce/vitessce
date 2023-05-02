@@ -1,5 +1,5 @@
 import { quadtree } from 'd3-quadtree';
-import range from 'lodash/range';
+import range from 'lodash/range.js';
 
 /**
  * Create a d3-quadtree object for cells data points.

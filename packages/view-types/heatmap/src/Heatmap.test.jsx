@@ -4,8 +4,8 @@ import { cleanup, render } from '@testing-library/react';
 import { afterEach } from 'vitest';
 import React from 'react';
 
-import Heatmap from './Heatmap';
-import { expressionMatrix, cellColors } from './Heatmap.test.fixtures';
+import Heatmap from './Heatmap.js';
+import { expressionMatrix, cellColors } from './Heatmap.test.fixtures.js';
 
 afterEach(() => {
   cleanup();

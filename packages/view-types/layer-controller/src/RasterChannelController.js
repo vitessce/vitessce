@@ -1,18 +1,18 @@
 import React, { useCallback, useState, useEffect } from 'react';
 
-import Grid from '@material-ui/core/Grid';
-import Slider from '@material-ui/core/Slider';
-import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
+import Grid from '@material-ui/core/es/Grid/index.js';
+import Slider from '@material-ui/core/es/Slider/index.js';
+import debounce from 'lodash/debounce.js';
+import isEqual from 'lodash/isEqual.js';
 
 import { getSourceFromLoader } from '@vitessce/spatial-utils';
-import ChannelOptions from './ChannelOptions';
-import { DOMAINS } from './constants';
-import { getMultiSelectionStats, toRgbUIString } from './utils';
+import ChannelOptions from './ChannelOptions.js';
+import { DOMAINS } from './constants.js';
+import { getMultiSelectionStats, toRgbUIString } from './utils.js';
 import {
   ChannelSelectionDropdown,
   ChannelVisibilityCheckbox,
-} from './shared-channel-controls';
+} from './shared-channel-controls.js';
 
 function abbreviateNumber(value) {
   // Return an abbreviated representation of value, in 5 characters or less.

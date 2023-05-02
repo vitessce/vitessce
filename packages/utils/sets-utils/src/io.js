@@ -1,15 +1,15 @@
-import isNil from 'lodash/isNil';
+import isNil from 'lodash/isNil.js';
 import { dsvFormat } from 'd3-dsv';
 // TODO(monorepo): try to find a different package for this.
 // Reference: https://github.com/zemirco/json2csv/issues/539
-import { Parser } from 'json2csv/dist/json2csv.umd';
+import { Parser } from 'json2csv/dist/json2csv.umd.js';
 import { getDefaultColor } from '@vitessce/utils';
-import { colorArrayToString, colorStringToArray } from './utils';
+import { colorArrayToString, colorStringToArray } from './utils.js';
 import {
   HIERARCHICAL_SCHEMAS, TABULAR_SCHEMAS,
   MIME_TYPE_JSON, MIME_TYPE_TABULAR,
   SEPARATOR_TABULAR, NA_VALUE_TABULAR,
-} from './constants';
+} from './constants.js';
 
 /**
  * Check if an imported tree has an old schema version that we know how to

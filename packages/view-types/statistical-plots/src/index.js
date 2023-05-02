@@ -1,6 +1,6 @@
-export { CellSetExpressionPlotSubscriber } from './CellSetExpressionPlotSubscriber';
-export { CellSetSizesPlotSubscriber } from './CellSetSizesPlotSubscriber';
-export { ExpressionHistogramSubscriber } from './ExpressionHistogramSubscriber';
-export { default as CellSetSizesPlot } from './CellSetSizesPlot';
-export { default as CellSetExpressionPlot } from './CellSetExpressionPlot';
-export { default as ExpressionHistogram } from './ExpressionHistogram';
+export { CellSetExpressionPlotSubscriber } from './CellSetExpressionPlotSubscriber.js';
+export { CellSetSizesPlotSubscriber } from './CellSetSizesPlotSubscriber.js';
+export { ExpressionHistogramSubscriber } from './ExpressionHistogramSubscriber.js';
+export { default as CellSetSizesPlot } from './CellSetSizesPlot.js';
+export { default as CellSetExpressionPlot } from './CellSetExpressionPlot.js';
+export { default as ExpressionHistogram } from './ExpressionHistogram.js';

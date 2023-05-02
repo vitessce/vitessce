@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-globals */
-import { getGeneByCellTile, getCellByGeneTile } from './heatmap';
+import { getGeneByCellTile, getCellByGeneTile } from './heatmap.js';
 
 /**
  * Map a gene expression matrix onto multiple square array tiles,

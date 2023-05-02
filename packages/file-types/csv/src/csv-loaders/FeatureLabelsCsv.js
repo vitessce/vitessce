@@ -1,4 +1,4 @@
-import CsvLoader from './CsvLoader';
+import CsvLoader from './CsvLoader.js';
 
 export default class FeatureLabelsCsvLoader extends CsvLoader {
   loadFromCache(data) {

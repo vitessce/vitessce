@@ -4,7 +4,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import isEqual from 'lodash/isEqual';
+import isEqual from 'lodash/isEqual.js';
 import {
   useCoordination,
   useLoaders,
@@ -50,7 +50,7 @@ import {
   getNextNumberedNodeName,
 } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
-import SetsManager from './SetsManager';
+import SetsManager from './SetsManager.js';
 
 // TODO(monorepo): import package.json
 // import packageJson from '../../../package.json';

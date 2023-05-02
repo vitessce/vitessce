@@ -1,4 +1,4 @@
-import JsonLoader from './JsonLoader';
+import JsonLoader from './JsonLoader.js';
 import cellsGoodFixture from '../legacy-loaders/schemas/fixtures/cells.good.json';
 import cellsBadFixture from '../legacy-loaders/schemas/fixtures/cells.bad.json';
 

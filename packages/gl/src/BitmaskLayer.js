@@ -2,12 +2,12 @@ import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous
 import { project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { Texture2D, isWebGL2 } from '@luma.gl/core';
 import { XRLayer } from '@hms-dbmi/viv';
-import { fs, vs } from './bitmask-layer-shaders';
+import { fs, vs } from './bitmask-layer-shaders.js';
 import {
   GLSL_COLORMAPS,
   GLSL_COLORMAP_DEFAULT,
   COLORMAP_SHADER_PLACEHOLDER,
-} from './constants';
+} from './constants.js';
 
 function padWithDefault(arr, defaultValue, padWidth) {
   const newArr = [...arr];

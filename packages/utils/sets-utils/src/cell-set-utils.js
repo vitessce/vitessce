@@ -1,16 +1,16 @@
 /* eslint-disable no-underscore-dangle */
-import uuidv4 from 'uuid/v4';
-import isNil from 'lodash/isNil';
-import isEqual from 'lodash/isEqual';
-import range from 'lodash/range';
+import uuidv4 from 'uuid/v4.js';
+import isNil from 'lodash/isNil.js';
+import isEqual from 'lodash/isEqual.js';
+import range from 'lodash/range.js';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
 import centroid from '@turf/centroid';
 import concaveman from 'concaveman';
 import { getDefaultColor, PALETTE } from '@vitessce/utils';
 import {
   HIERARCHICAL_SCHEMAS,
-} from './constants';
-import { pathToKey } from './utils';
+} from './constants.js';
+import { pathToKey } from './utils.js';
 
 /**
  * Alias for the uuidv4 function to make code more readable.

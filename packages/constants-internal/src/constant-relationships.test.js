@@ -1,7 +1,7 @@
-import { DataType } from './constants';
+import { DataType } from './constants.js';
 import {
   DATA_TYPE_COORDINATION_VALUE_USAGE,
-} from './constant-relationships';
+} from './constant-relationships.js';
 
 describe('src/app/constant-relationships.js', () => {
   describe('DataType-to-CoordinationType usage mapping', () => {

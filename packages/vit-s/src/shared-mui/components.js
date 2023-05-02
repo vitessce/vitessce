@@ -1,12 +1,12 @@
 import React, { useRef } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Popper from '@material-ui/core/Popper';
-import IconButton from '@material-ui/core/IconButton';
-import MenuList from '@material-ui/core/MenuList';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import Fade from '@material-ui/core/Fade';
-import { useVitessceContainer } from '../hooks';
+import { makeStyles } from '@material-ui/core/es/styles/index.js';
+import Paper from '@material-ui/core/es/Paper/index.js';
+import Popper from '@material-ui/core/es/Popper/index.js';
+import IconButton from '@material-ui/core/es/IconButton/index.js';
+import MenuList from '@material-ui/core/es/MenuList/index.js';
+import ClickAwayListener from '@material-ui/core/es/ClickAwayListener/index.js';
+import Fade from '@material-ui/core/es/Fade/index.js';
+import { useVitessceContainer } from '../hooks.js';
 
 const useStyles = makeStyles(() => ({
   paper: {

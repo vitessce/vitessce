@@ -2,7 +2,7 @@ import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
 import { extent } from 'd3-array';
-import isEqual from 'lodash/isEqual';
+import isEqual from 'lodash/isEqual.js';
 import plur from 'plur';
 import {
   TitleInfo,

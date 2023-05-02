@@ -1,4 +1,4 @@
-import CsvLoader from './CsvLoader';
+import CsvLoader from './CsvLoader.js';
 
 export default class ObsLocationsCsvLoader extends CsvLoader {
   loadFromCache(data) {

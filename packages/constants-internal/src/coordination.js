@@ -1,4 +1,4 @@
-import { CoordinationType, ViewType } from './constants';
+import { CoordinationType, ViewType } from './constants.js';
 
 // The following coordination types should be
 // initialized to independent scopes when

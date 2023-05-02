@@ -13,13 +13,13 @@ import {
   nodeToLevelDescendantNamePaths,
   treeExport,
   filterNode,
-} from './cell-set-utils';
+} from './cell-set-utils.js';
 
 import {
   levelTwoNodeLeaf,
   levelZeroNode,
   tree,
-} from './cell-set-utils.test.fixtures';
+} from './cell-set-utils.test.fixtures.js';
 
 
 describe('Hierarchical sets cell-set-utils', () => {

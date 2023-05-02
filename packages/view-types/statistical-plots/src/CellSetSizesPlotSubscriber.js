@@ -8,8 +8,8 @@ import {
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { mergeObsSets, treeToSetSizesBySetNames } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
-import CellSetSizesPlot from './CellSetSizesPlot';
-import { useStyles } from './styles';
+import CellSetSizesPlot from './CellSetSizesPlot.js';
+import { useStyles } from './styles.js';
 
 /**
  * A subscriber component for `CellSetSizePlot`,

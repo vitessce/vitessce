@@ -1,6 +1,6 @@
 import {
   handleImportJSON, handleExportJSON, handleImportTabular, handleExportTabular,
-} from './io';
+} from './io.js';
 
 const treeV012 = {
   version: '0.1.2',

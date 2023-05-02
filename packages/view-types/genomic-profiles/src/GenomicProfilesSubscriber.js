@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import isEqual from 'lodash/isEqual';
+import isEqual from 'lodash/isEqual.js';
 import { sum } from 'd3-array';
 import {
   TitleInfo,
@@ -8,8 +8,8 @@ import {
   useGenomicProfilesData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import HiGlassLazy from './HiGlassLazy';
-import { useStyles } from './styles';
+import HiGlassLazy from './HiGlassLazy.js';
+import { useStyles } from './styles.js';
 
 const REFERENCE_TILESETS = {
   hg38: {

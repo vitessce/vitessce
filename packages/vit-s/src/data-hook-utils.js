@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { capitalize } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
-import { useMatchingLoader, useMatchingLoaders, useSetWarning } from './state/hooks';
+import { useMatchingLoader, useMatchingLoaders, useSetWarning } from './state/hooks.js';
 import {
   AbstractLoaderError,
   LoaderNotFoundError,
-} from './errors/index';
+} from './errors/index.js';
 
 /**
  * Warn via publishing to the console

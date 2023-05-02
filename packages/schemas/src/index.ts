@@ -1,8 +1,8 @@
-export { buildConfigSchema } from './schema-builders';
-export { latestConfigSchema } from './previous-config-meta';
-export { latestFileDefSchema } from './previous-config-schemas';
-export { upgradeAndParse, VERSIONED_CONFIG_SCHEMAS } from './view-config-versions';
-export { rasterJsonSchema } from './raster-json';
+export { buildConfigSchema } from './schema-builders.js';
+export { latestConfigSchema } from './previous-config-meta.js';
+export { latestFileDefSchema } from './previous-config-schemas.js';
+export { upgradeAndParse, VERSIONED_CONFIG_SCHEMAS } from './view-config-versions.js';
+export { rasterJsonSchema } from './raster-json.js';
 export {
   obsEmbeddingCsvSchema,
   obsSetsCsvSchema,
@@ -19,23 +19,23 @@ export {
   anndataZarrSchema,
   imageOmeZarrSchema,
   imageOmeTiffSchema,
-} from './file-def-options';
+} from './file-def-options.js';
 export {
   anndataCellsZarrSchema,
   anndataCellSetsZarrSchema,
   anndataExpressionMatrixZarrSchema,
   cellsJsonSchema,
-} from './file-def-options-legacy';
+} from './file-def-options-legacy.js';
 export {
   obsSetPath,
   rgbArray,
   obsSetsSchema,
   obsSetsTabularSchema,
-} from './shared';
+} from './shared.js';
 export {
   imageLayerObj,
   cellsLayerObj,
   neighborhoodsLayerObj,
   moleculesLayerObj,
-} from './spatial-layers';
+} from './spatial-layers.js';
 export { z } from 'zod';

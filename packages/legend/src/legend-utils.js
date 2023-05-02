@@ -6,7 +6,7 @@ import {
   piecewise,
 } from 'd3-interpolate';
 import { rgb } from 'd3-color';
-import colormaps from 'colormap/colorScale';
+import colormaps from 'colormap/colorScale.js';
 
 // Reference: https://observablehq.com/@mjmdavis/color-encoding
 function getInterpolateFunction(cmap) {

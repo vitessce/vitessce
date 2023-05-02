@@ -1,9 +1,9 @@
 /* eslint-disable camelcase */
 import { z } from 'zod';
-import semverGte from 'semver/functions/gte';
+import semverGte from 'semver/functions/gte.js';
 import { OldCoordinationType } from '@vitessce/constants';
 import { fromEntries } from '@vitessce/utils';
-import { SCHEMA_HANDLERS, latestConfigSchema, AnyVersionConfig } from './previous-config-meta';
+import { SCHEMA_HANDLERS, latestConfigSchema, AnyVersionConfig } from './previous-config-meta.js';
 
 export function configSchemaToVersion<T extends z.ZodTypeAny>(zodSchema: T): string {
   // eslint-disable-next-line no-underscore-dangle

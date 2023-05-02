@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 import { openArray } from 'zarr';
-import range from 'lodash/range';
-import { dirname } from './utils';
-import ZarrDataSource from './ZarrDataSource';
+import range from 'lodash/range.js';
+import { dirname } from './utils.js';
+import ZarrDataSource from './ZarrDataSource.js';
 
 const readFloat32FromUint8 = (bytes) => {
   if (bytes.length !== 4) {

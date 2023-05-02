@@ -1,8 +1,8 @@
-import range from 'lodash/range';
-import sum from 'lodash/sum';
+import range from 'lodash/range.js';
+import sum from 'lodash/sum.js';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
-import { moleculesSchema } from './schemas/molecules';
-import JsonLoader from '../json-loaders/JsonLoader';
+import { moleculesSchema } from './schemas/molecules.js';
+import JsonLoader from '../json-loaders/JsonLoader.js';
 
 export default class MoleculesJsonAsObsLabelsLoader extends JsonLoader {
   constructor(dataSource, params) {

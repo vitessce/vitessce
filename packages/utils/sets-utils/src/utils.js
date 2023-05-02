@@ -1,10 +1,10 @@
 import tinycolor from 'tinycolor2';
-import isEqual from 'lodash/isEqual';
+import isEqual from 'lodash/isEqual.js';
 import { PALETTE } from '@vitessce/utils';
 import {
   SETS_DATATYPE_OBS,
   HIERARCHICAL_SCHEMAS,
-} from './constants';
+} from './constants.js';
 
 /**
  * Execute a callback function based on a keypress event.

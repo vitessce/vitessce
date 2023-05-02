@@ -3,15 +3,15 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
 import { TreeNode as RcTreeNode } from 'rc-tree';
-import { getDataAndAria } from 'rc-tree/es/util';
-import range from 'lodash/range';
-import isEqual from 'lodash/isEqual';
+import { getDataAndAria } from 'rc-tree/es/util.js';
+import range from 'lodash/range.js';
+import isEqual from 'lodash/isEqual.js';
 import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from '@vitessce/sets-utils';
 import { MenuSVG } from '@vitessce/icons';
 import { getDefaultColor } from '@vitessce/utils';
-import HelpTooltip from './HelpTooltip';
-import PopoverMenu from './PopoverMenu';
-import { useStyles } from './styles';
+import HelpTooltip from './HelpTooltip.js';
+import PopoverMenu from './PopoverMenu.js';
+import { useStyles } from './styles.js';
 
 /**
  * Construct a `menuConfig` array for the PopoverMenu component.
@@ -487,6 +487,7 @@ export default class TreeNode extends RcTreeNode {
         })}
         style={style}
         role="treeitem"
+        aria-selected={selected}
         onDragEnter={draggable ? this.onDragEnter : undefined}
         onDragOver={draggable ? this.onDragOver : undefined}
         onDragLeave={draggable ? this.onDragLeave : undefined}

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { TwitterPicker } from 'react-color-with-lodash';
 import { colorArrayToString, callbackOnKeyPress } from '@vitessce/sets-utils';
 import { PALETTE } from '@vitessce/utils';
-import Popover from './Popover';
-import { useHelpTooltipStyles } from './styles';
+import Popover from './Popover.js';
+import { useHelpTooltipStyles } from './styles.js';
 
 /**
  * Wrapper around a button element that supports asking for confirmation.

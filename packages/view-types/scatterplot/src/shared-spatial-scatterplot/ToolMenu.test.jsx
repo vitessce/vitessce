@@ -3,7 +3,7 @@ import { cleanup, render } from '@testing-library/react';
 import { afterEach, expect } from 'vitest';
 import React from 'react';
 
-import { IconButton } from './ToolMenu';
+import { IconButton } from './ToolMenu.js';
 
 afterEach(() => {
   cleanup();

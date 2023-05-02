@@ -1,6 +1,6 @@
 import { LoaderResult, AbstractLoaderError } from '@vitessce/vit-s';
 import { initializeCellSetColor, treeToMembershipMap, dataToCellSetsTree } from '@vitessce/sets-utils';
-import CsvLoader from './CsvLoader';
+import CsvLoader from './CsvLoader.js';
 
 export default class ObsSetsCsvLoader extends CsvLoader {
   loadFromCache(data) {

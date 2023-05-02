@@ -1,2 +1,2 @@
-export { HeatmapSubscriber } from './HeatmapSubscriber';
-export { default as Heatmap } from './Heatmap';
+export { HeatmapSubscriber } from './HeatmapSubscriber.js';
+export { default as Heatmap } from './Heatmap.js';

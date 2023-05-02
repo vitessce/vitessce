@@ -1,6 +1,6 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable camelcase */
-import cloneDeep from 'lodash/cloneDeep';
+import cloneDeep from 'lodash/cloneDeep.js';
 import { fromEntries, getNextScope } from '@vitessce/utils';
 import {
   AUTO_INDEPENDENT_COORDINATION_TYPES,

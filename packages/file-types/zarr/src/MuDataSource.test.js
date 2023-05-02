@@ -1,5 +1,5 @@
-import range from 'lodash/range';
-import MuDataSource, { getObsPath, getVarPath } from './MuDataSource';
+import range from 'lodash/range.js';
+import MuDataSource, { getObsPath, getVarPath } from './MuDataSource.js';
 
 describe('sources/MuDataSource', () => {
   it('loadObsColumns returns ids for location in store, with joint-modality path', async () => {

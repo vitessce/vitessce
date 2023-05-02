@@ -3,24 +3,24 @@ import {
   ThemeProvider,
   StylesProvider,
   createGenerateClassName,
-} from '@material-ui/core/styles';
-import isEqual from 'lodash/isEqual';
+} from '@material-ui/core/es/styles/index.js';
+import isEqual from 'lodash/isEqual.js';
 import { META_VERSION } from '@vitessce/constants-internal';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
-import { muiTheme } from './shared-mui/styles';
+import { muiTheme } from './shared-mui/styles.js';
 import {
   ViewConfigProvider,
   createViewConfigStore,
   AuxiliaryProvider,
   createAuxiliaryStore,
-} from './state/hooks';
+} from './state/hooks.js';
 
-import VitessceGrid from './VitessceGrid';
-import { Warning } from './Warning';
-import CallbackPublisher from './CallbackPublisher';
+import VitessceGrid from './VitessceGrid.js';
+import { Warning } from './Warning.js';
+import CallbackPublisher from './CallbackPublisher.js';
 import {
   initialize,
-} from './view-config-utils';
+} from './view-config-utils.js';
 
 function logConfig(config, name) {
   console.groupCollapsed(`🚄 Vitessce (${META_VERSION.version}) ${name}`);

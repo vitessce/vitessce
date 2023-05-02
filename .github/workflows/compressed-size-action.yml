@@ -29,6 +29,7 @@ jobs:
           build-script: "build:ci"
           clean-script: "clean"
           pattern: "./packages/main/prod/dist/**/*"
+          strip-hash: "\\-(\\w{8})\\.js$"
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}

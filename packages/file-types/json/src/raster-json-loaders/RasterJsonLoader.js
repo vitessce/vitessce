@@ -3,7 +3,7 @@ import { initializeRasterLayersAndChannels } from '@vitessce/spatial-utils';
 import { openArray } from 'zarr';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import { rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
-import JsonLoader from '../json-loaders/JsonLoader';
+import JsonLoader from '../json-loaders/JsonLoader.js';
 
 async function initLoader(imageData) {
   const {

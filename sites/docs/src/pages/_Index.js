@@ -6,12 +6,12 @@ import {
 } from 'use-query-params';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { configs } from '@vitessce/example-configs';
-import { useHashParam, useSetHashParams } from './_use-hash-param';
-import Home from './_Home';
-import DemoHeader from './_DemoHeader';
-import ThemedVitessce from './_ThemedVitessce';
-import ViewConfigEditor from './_ViewConfigEditor';
-import { baseJs, baseJson } from './_live-editor-examples';
+import { useHashParam, useSetHashParams } from './_use-hash-param.js';
+import Home from './_Home.js';
+import DemoHeader from './_DemoHeader.js';
+import ThemedVitessce from './_ThemedVitessce.js';
+import ViewConfigEditor from './_ViewConfigEditor.js';
+import { baseJs, baseJson } from './_live-editor-examples.js';
 
 
 import styles from './styles.module.css';

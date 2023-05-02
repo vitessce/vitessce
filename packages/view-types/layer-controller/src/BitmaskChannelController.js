@@ -1,8 +1,8 @@
 import React from 'react';
-import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
-import IconButton from '@material-ui/core/IconButton';
-import Grid from '@material-ui/core/Grid';
-import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './shared-channel-controls';
+import RemoveCircleIcon from '@material-ui/icons/esm/RemoveCircle.js';
+import IconButton from '@material-ui/core/es/IconButton/index.js';
+import Grid from '@material-ui/core/es/Grid/index.js';
+import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './shared-channel-controls.js';
 
 /**
  * Controller for the handling the bitmask channels.

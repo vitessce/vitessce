@@ -8,14 +8,22 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
+  "type": "module",
   "main": "src/index.js",
   "publishConfig": {
-    "main": "dist/index.mjs",
-    "browser": "dist/index.umd.js"
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
   },
   "files": [
+    "src",
     "dist",
-    "src"
+    "dist-tsc"
   ],
   "scripts": {
     "build": "rimraf ./dist/ && pnpm run build-lib",

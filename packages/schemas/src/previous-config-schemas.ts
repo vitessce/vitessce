@@ -5,7 +5,7 @@ import {
   requestInit,
   componentCoordinationScopes,
   componentCoordinationScopesBy,
-} from './shared';
+} from './shared.js';
 
 // Base schemas for previous config versions.
 // These do not validate coordinationType, viewType, or fileType-related values;

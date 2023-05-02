@@ -1,5 +1,5 @@
 import React from 'react';
-import clamp from 'lodash/clamp';
+import clamp from 'lodash/clamp.js';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 
 /**

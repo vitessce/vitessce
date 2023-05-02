@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/es/styles/index.js';
 
 export const useStyles = makeStyles(theme => ({
   higlassTitleWrapper: {

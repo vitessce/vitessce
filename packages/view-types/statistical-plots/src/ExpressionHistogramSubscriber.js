@@ -7,8 +7,8 @@ import {
   useObsFeatureMatrixData, useFeatureSelection,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import ExpressionHistogram from './ExpressionHistogram';
-import { useStyles } from './styles';
+import ExpressionHistogram from './ExpressionHistogram.js';
+import { useStyles } from './styles.js';
 
 /**
  * A subscriber component for `ExpressionHistogram`,

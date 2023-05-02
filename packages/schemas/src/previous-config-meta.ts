@@ -19,7 +19,7 @@ import {
   configSchema1_0_14,
   configSchema1_0_15,
   configSchema1_0_16,
-} from './previous-config-schemas';
+} from './previous-config-schemas.js';
 import {
   upgradeFrom0_1_0,
   upgradeFrom1_0_0,
@@ -38,7 +38,7 @@ import {
   upgradeFrom1_0_13,
   upgradeFrom1_0_14,
   upgradeFrom1_0_15,
-} from './previous-config-upgraders';
+} from './previous-config-upgraders.js';
 
 export const latestConfigSchema = configSchema1_0_16;
 

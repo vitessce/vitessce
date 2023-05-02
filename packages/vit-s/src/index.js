@@ -1,6 +1,6 @@
-export { VitS } from './VitS';
-export { TitleInfo } from './TitleInfo';
-export { PopperMenu } from './shared-mui/components';
+export { VitS } from './VitS.js';
+export { TitleInfo } from './TitleInfo.js';
+export { PopperMenu } from './shared-mui/components.js';
 // For plugin view types:
 export {
   useReady,
@@ -14,7 +14,7 @@ export {
   useClosestVitessceContainerSize,
   useWindowDimensions,
   useGridItemSize,
-} from './hooks';
+} from './hooks.js';
 export {
   useCoordination,
   useComplexCoordination,
@@ -33,7 +33,7 @@ export {
   useSetWarning,
   useAuxiliaryCoordination,
   useComponentLayout,
-} from './state/hooks';
+} from './state/hooks.js';
 export {
   useDescription,
   useImageData,
@@ -51,25 +51,25 @@ export {
   useObsFeatureMatrixData,
   useFeatureLabelsData,
   useGenomicProfilesData,
-} from './data-hooks';
+} from './data-hooks.js';
 export {
   useHasLoader,
-} from './data-hook-utils';
+} from './data-hook-utils.js';
 export {
   AbstractLoader,
   AbstractTwoStepLoader,
   LoaderResult,
-} from './data/index';
+} from './data/index.js';
 export {
   AbstractLoaderError,
   DatasetNotFoundError,
   LoaderNotFoundError,
   LoaderValidationError,
   DataSourceFetchError,
-} from './errors/index';
+} from './errors/index.js';
 export {
   CellColorEncodingOption,
   OptionsContainer,
   OptionSelect,
   usePlotOptionsStyles,
-} from './shared-plot-options';
+} from './shared-plot-options/index.js';

@@ -7,9 +7,9 @@ import {
 } from '@vitessce/vit-s';
 
 import { obsSetsSchema, rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
-import { cellsSchema } from '../legacy-loaders/schemas/cells';
-import { moleculesSchema } from '../legacy-loaders/schemas/molecules';
-import { neighborhoodsSchema } from '../legacy-loaders/schemas/neighborhoods';
+import { cellsSchema } from '../legacy-loaders/schemas/cells.js';
+import { moleculesSchema } from '../legacy-loaders/schemas/molecules.js';
+import { neighborhoodsSchema } from '../legacy-loaders/schemas/neighborhoods.js';
 
 const fileTypeToSchema = {
   [FileType.CELLS_JSON]: cellsSchema,

@@ -1,8 +1,8 @@
 import React from 'react';
 
-import Checkbox from '@material-ui/core/Checkbox';
-import Select from '@material-ui/core/Select';
-import { useSelectStyles } from './styles';
+import Checkbox from '@material-ui/core/es/Checkbox/index.js';
+import Select from '@material-ui/core/es/Select/index.js';
+import { useSelectStyles } from './styles.js';
 
 /**
  * Dropdown for selecting a channel.

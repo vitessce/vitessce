@@ -26,10 +26,10 @@ import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
 import { canLoadResolution, getCellColors } from '@vitessce/utils';
 import { Legend } from '@vitessce/legend';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType } from '@vitessce/constants-internal';
-import Spatial from './Spatial';
-import SpatialOptions from './SpatialOptions';
-import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
-import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils';
+import Spatial from './Spatial.js';
+import SpatialOptions from './SpatialOptions.js';
+import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
+import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils.js';
 
 /**
  * A subscriber component for the spatial plot.
