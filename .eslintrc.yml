@@ -1,3 +1,6 @@
+# References:
+# - https://typescript-eslint.io/getting-started/#step-2-configuration
+# - https://stackoverflow.com/a/75108187
 root: true
 parser: '@typescript-eslint/parser'
 extends:
