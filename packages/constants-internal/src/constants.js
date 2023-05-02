@@ -14,6 +14,7 @@ export const ViewType = {
   GATING: 'gating',
   FEATURE_LIST: 'featureList',
   OBS_SETS: 'obsSets',
+  ITK_VTK:'itk-vtk',
   OBS_SET_SIZES: 'obsSetSizes',
   OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'obsSetFeatureValueDistribution',
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
@@ -27,6 +28,7 @@ export const DataType = {
   OBS_SETS: 'obsSets',
   FEATURE_LABELS: 'featureLabels',
   IMAGE: 'image',
+  NIFTI_IMAGE: 'nifti_image',
   OBS_SEGMENTATIONS: 'obsSegmentations',
   NEIGHBORHOODS: 'neighborhoods',
   GENOMIC_PROFILES: 'genomic-profiles',
@@ -99,6 +101,9 @@ export const FileType = {
   CLUSTERS_JSON: 'clusters.json',
   GENES_JSON: 'genes.json',
   ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
+
+  NIFTI: 'image.nii',
+  NIFTI_COMPRESSED: 'image.nii.gz'
 };
 
 /**

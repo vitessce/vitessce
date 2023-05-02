@@ -127,7 +127,7 @@ export const mri = {
       h: 2,
     },
     {
-      component:'spatial-nifti',
+      component:'itk-vtk',
       x: 0,
       y: 2,
     },

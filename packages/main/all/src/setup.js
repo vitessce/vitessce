@@ -9,6 +9,7 @@ import { register as registerScatterplotEmbedding } from '@vitessce/scatterplot-
 import { register as registerScatterplotGating } from '@vitessce/scatterplot-gating';
 import { register as registerSpatial } from '@vitessce/spatial';
 import { register as registerHeatmap } from '@vitessce/heatmap';
+import { register as registerITKVTK } from '@vitessce/itk-vtk';
 import { register as registerFeatureList } from '@vitessce/feature-list';
 import { register as registerLayerController } from '@vitessce/layer-controller';
 import { register as registerStatus } from '@vitessce/status';
@@ -89,6 +90,8 @@ function setup() {
   // Higlass
   registerHiglass();
   registerGenomicProfiles();
+  // ITK-VTK
+  registerITKVTK();
 
   // File types
   // All CSV file types
