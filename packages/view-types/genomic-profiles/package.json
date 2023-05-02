@@ -26,6 +26,7 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "d3-array": "^2.4.0",
+    "higlass-bigwig-datafetcher": "file:/Users/mkeller/research/dbmi/vitessce/higlass-bigwig-datafetcher/higlass-bigwig-datafetcher-0.1.3.tgz",
     "higlass-no-github-deps": "1.11.13",
     "higlass-register": "^0.3.0",
     "higlass-zarr-datafetchers": "^0.2.1",

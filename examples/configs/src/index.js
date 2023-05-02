@@ -29,6 +29,7 @@ import { marshall2022iScience } from './view-configs/marshall_2022_iscience';
 import { meta2022azimuth } from './view-configs/meta_2022_azimuth';
 import { rgbOmeTiff } from './view-configs/rgb-ome-tiff';
 import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff';
+import { justHiglassBigwig } from './view-configs/bigwig';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -46,6 +47,7 @@ export const configs = {
   'just-scatter-expression': justScatterExpression,
   'just-spatial': justSpatial,
   'just-higlass': justHiglass,
+  'just-higlass-bigwig': justHiglassBigwig,
   'codeluppi-2018': codeluppiViaCsv,
   'codeluppi-2018-via-zarr': codeluppiViaZarr,
   'combat-2022': combat2022cell,
