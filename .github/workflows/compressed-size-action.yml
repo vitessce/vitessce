@@ -1,3 +1,4 @@
+# Reference: https://github.com/pmndrs/zustand/blob/1808bf4d3dce944d054fa0cb9a605bd6d8e96d8d/.github/workflows/compressed-size-action.yml
 name: Compressed Size
 
 on: [ pull_request ]
@@ -9,6 +10,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - uses: pnpm/action-setup@v2.0.1
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: true
       - uses: preactjs/compressed-size-action@v2
         with:
           minimum-change-threshold: 1000
