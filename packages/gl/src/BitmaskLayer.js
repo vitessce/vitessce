@@ -17,20 +17,17 @@ function padWithDefault(arr, defaultValue, padWidth) {
   return newArr;
 }
 
-function shallowCompare(newValue, oldValue) {
-  // Returns true if the two prop values should be considered equal.
-  // Reference: https://deck.gl/docs/developer-guide/custom-layers/prop-types#property-types-1
-  return newValue === oldValue;
-}
-
 const defaultProps = {
   hoveredCell: { type: 'number', value: null, compare: true },
   // We do not want to deep-compare cellColorData,
   // as it is potentially a TypedArray with millions of elements.
-  cellColorData: { type: 'object', value: null, equal: shallowCompare },
+  // For `compare`: "if a number is supplied, indicates the maximum depth to deep-compare,
+  // where 0 is shallow comparison and -1 is infinite depth. true is equivalent to 1."
+  // Reference: https://deck.gl/docs/developer-guide/custom-layers/prop-types#array
+  cellColorData: { type: 'object', value: null, compare: 0 },
   colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
   // Same as with cellColorData, we do not want to deep-compare expressionData.
-  expressionData: { type: 'object', value: null, equal: shallowCompare },
+  expressionData: { type: 'object', value: null, compare: 0 },
 };
 
 /**
