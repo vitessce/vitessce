@@ -65,7 +65,7 @@ export function buildConfigSchema<
 
   // TODO: make this less redundant with latestSchema from ./previous-base-schemas
   return z.object({
-    version: z.literal('1.0.16')
+    version: z.literal('1.0.17')
       .describe('The schema version for the view config.'),
     uid: z.string().optional(),
     name: z.string(),

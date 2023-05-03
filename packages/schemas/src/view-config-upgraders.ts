@@ -747,7 +747,6 @@ export function upgradeFrom1_0_16(
   config: z.infer<typeof configSchema1_0_16>,
 ): z.infer<typeof configSchema1_0_17> {
   const newConfig = cloneDeep(config);
-
   const { datasets, layout, coordinationSpace = {} } = newConfig;
 
   const imageScopes: string[] = [];

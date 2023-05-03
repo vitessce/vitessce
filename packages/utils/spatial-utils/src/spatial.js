@@ -254,6 +254,7 @@ export async function initializeRasterLayersAndChannels(
   rasterLayers,
   rasterRenderLayers,
   usePhysicalSizeScaling,
+  imageCoordinationValue,
 ) {
   const nextImageLoaders = [];
   let nextImageMetaAndLayers = [];
@@ -281,7 +282,7 @@ export async function initializeRasterLayersAndChannels(
       .then(channels => Promise.resolve({
         type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
         // TODO: switch to using `image` property instead of `index` property.
-        index: layerIndex,
+        image: imageCoordinationValue,
         ...DEFAULT_RASTER_LAYER_PROPS,
         channels: channels.map((channel, j) => ({
           ...channel,
@@ -304,7 +305,7 @@ export async function initializeRasterLayersAndChannels(
         .then(channels => Promise.resolve({
           type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
           // TODO: switch to using `image` property instead of `index` property.
-          index: layerIndex,
+          image: imageCoordinationValue,
           ...DEFAULT_RASTER_LAYER_PROPS,
           channels: channels.map((channel, j) => ({
             ...channel,

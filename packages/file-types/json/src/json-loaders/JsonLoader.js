@@ -29,8 +29,12 @@ export default class JsonLoader extends AbstractTwoStepLoader {
 
   load() {
     const {
-      url, type, fileType,
+      url, type, fileType, options,
     } = this;
+    if (fileType === 'raster.json') {
+      // Special case for raster.json.
+      return Promise.resolve(options);
+    }
     if (this.data) {
       return this.data;
     }
