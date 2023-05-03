@@ -17,19 +17,20 @@ function padWithDefault(arr, defaultValue, padWidth) {
   return newArr;
 }
 
+function shallowCompare(newValue, oldValue) {
+  // Returns true if the two prop values should be considered equal.
+  // Reference: https://deck.gl/docs/developer-guide/custom-layers/prop-types#property-types-1
+  return newValue === oldValue;
+}
+
 const defaultProps = {
   hoveredCell: { type: 'number', value: null, compare: true },
   // We do not want to deep-compare cellColorData,
   // as it is potentially a TypedArray with millions of elements.
-  cellColorData: { type: 'object', value: null, compare: false },
-  // Instead, we can provide a corresponding key to compare against,
-  // in this case it is the array of selected cell sets.
-  cellColorDataKey: { type: 'array', value: null, compare: true },
+  cellColorData: { type: 'object', value: null, equal: shallowCompare },
   colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
-  // Same as with cellColorData, we do not want to deep-compare expressionData,
-  // so we set compare: false and provide a key to compare against.
-  expressionData: { type: 'object', value: null, compare: false },
-  expressionDataKey: { type: 'array', value: null, compare: true },
+  // Same as with cellColorData, we do not want to deep-compare expressionData.
+  expressionData: { type: 'object', value: null, equal: shallowCompare },
 };
 
 /**
@@ -54,14 +55,14 @@ export default class BitmaskLayer extends XRLayer {
 
   updateState({ props, oldProps, changeFlags }) {
     super.updateState({ props, oldProps, changeFlags });
-    // Check the cellColorDataKey to determine whether
+    // Check the cellColorData to determine whether
     // to update the texture.
-    if (props.cellColorDataKey !== oldProps.cellColorDataKey) {
+    if (props.cellColorData !== oldProps.cellColorData) {
       this.setColorTexture();
     }
-    // Check the expressionDataKey to determine whether
+    // Check the expressionData to determine whether
     // to update the texture.
-    if (props.expressionDataKey !== oldProps.expressionDataKey) {
+    if (props.expressionData !== oldProps.expressionData) {
       const { expressionData, cellTexHeight, cellTexWidth } = this.props;
       const expressionTex = this.dataToTexture(
         expressionData,

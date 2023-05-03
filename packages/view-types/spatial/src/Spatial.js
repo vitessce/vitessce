@@ -417,8 +417,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
         geneExpressionColormap,
         geneExpressionColormapRange = [0.0, 1.0],
         cellColorEncoding,
-        cellColorDataKey,
-        expressionDataKey,
       } = this.props;
       return new viv.MultiscaleImageLayer({
         // `bitmask` is used by the AbstractSpatialOrScatterplot
@@ -436,7 +434,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // has to do with the fact that we don't have it in the `defaultProps`,
         // could be wrong though.
         cellColorData: this.color.data,
-        cellColorDataKey,
         cellTexHeight: this.color.height,
         cellTexWidth: this.color.width,
         excludeBackground: true,
@@ -446,7 +443,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
         isExpressionMode: cellColorEncoding === 'geneSelection',
         colormap: geneExpressionColormap,
         expressionData: this.expression.data,
-        expressionDataKey,
         // There is no onHover here,
         // see the onHover method of AbstractSpatialOrScatterplot.
       });
@@ -760,8 +756,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'cellSelection',
         'geneExpressionColormapRange',
         'expressionData',
-        'expressionDataKey',
-        'cellColorDataKey',
         'cellColorEncoding',
         'geneExpressionColormap',
         'segmentationLayerCallbacks',

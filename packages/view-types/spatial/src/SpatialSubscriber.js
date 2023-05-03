@@ -463,8 +463,6 @@ export function SpatialSubscriber(props) {
         cellColorEncoding={cellColorEncoding}
         getExpressionValue={getExpressionValue}
         theme={theme}
-        cellColorDataKey={cellSetSelection}
-        expressionDataKey={loadedFeatureSelection}
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber
