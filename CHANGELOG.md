@@ -10,6 +10,7 @@
 - Added bidirectional interactions for the `CellSetSizesPlot` vega-lite plot to allow the Vitessce view to update and show the selected cluster on bar click.
 - Implemented ability to select a gene by clicking on the heatmap rows for a given gene.
 - Added developer troubleshooting instructions to README.
+- Add `useFullResolutionImage` to `Spatial` to allow for loading only full resolution image from pyramid.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
