@@ -53,6 +53,7 @@ export function SpatialSubscriber(props) {
     title = 'Spatial',
     disable3d,
     globalDisable3d,
+    useFullResolutionImage = {},
   } = props;
 
   const loaders = useLoaders();
@@ -400,6 +401,13 @@ export function SpatialSubscriber(props) {
     obsCentroids, obsCentroidsIndex,
   ]);
 
+  const resolutionFilteredImageLayerLoaders = useMemo(() => {
+    // eslint-disable-next-line max-len
+    const shouldUseFullData = (ll, index) => useFullResolutionImage[meta[index].name] && Array.isArray(ll.data);
+    // eslint-disable-next-line max-len
+    return imageLayerLoaders.map((ll, index) => (shouldUseFullData(ll, index) ? { ...ll, data: ll.data[0] } : ll));
+  }, [imageLayerLoaders, useFullResolutionImage, meta]);
+
   return (
     <TitleInfo
       title={title}
@@ -445,7 +453,7 @@ export function SpatialSubscriber(props) {
         cellHighlight={cellHighlight}
         cellColors={cellColors}
         neighborhoods={neighborhoods}
-        imageLayerLoaders={imageLayerLoaders}
+        imageLayerLoaders={resolutionFilteredImageLayerLoaders}
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
@@ -463,6 +471,7 @@ export function SpatialSubscriber(props) {
         cellColorEncoding={cellColorEncoding}
         getExpressionValue={getExpressionValue}
         theme={theme}
+        useFullResolutionImage={useFullResolutionImage}
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber
