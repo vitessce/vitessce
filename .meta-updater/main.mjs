@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import jsonDiff from 'json-diff-ts';
-import lodash from 'lodash';
+import cloneDeep from 'lodash/cloneDeep.js';
 
 const isDryrun = process.env.META_UPDATER_MODE === 'dryrun';
 const isVersionOnly = process.env.META_UPDATER_MODE === 'versiononly';
