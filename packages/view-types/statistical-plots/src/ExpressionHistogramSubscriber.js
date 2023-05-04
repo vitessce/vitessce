@@ -93,12 +93,16 @@ export function ExpressionHistogramSubscriber(props) {
         return { value: sumValue, gene: null, cellId: cellId };
       });
     }
+    console.log("* I AM TRIGGERED");
     return null;
   }, [obsIndex, featureIndex, obsFeatureMatrix, firstGeneSelected, expressionData]);
 
+  console.log("DATA: ", data);
+
   const onSelect = (value) => {
 
-    const getCellIdsInRange = (range, data) => {
+    console.log("*** on select ***", value);
+    const getCellIdsInRange = (range) => {
       const [lowerBound, upperBound] = range;
     
       return data
@@ -106,15 +110,15 @@ export function ExpressionHistogramSubscriber(props) {
         .map(item => item.cellId);
     };
 
-    console.log("**** selected yet again!!!!!! ", value);
-
-    const selectedCellIds = getCellIdsInRange(value, data);
-    setObsSelection(
-      selectedCellIds, additionalCellSets, cellSetColor,
-      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
-      setCellColorEncoding,
-      'Ivas Amazing Selection ',
-    );
+    if (data & value) {
+      const selectedCellIds = getCellIdsInRange(value);
+      setObsSelection(
+        selectedCellIds, additionalCellSets, cellSetColor,
+        setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+        setCellColorEncoding,
+        'Ivas Amazing Selection ',
+      );
+    }
   }
 
   return (

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import clamp from 'lodash/clamp';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
+import { debounce } from 'lodash';
 
 /**
  * Gene expression histogram displayed as a bar chart,
@@ -32,6 +33,8 @@ export default function ExpressionHistogram(props) {
     onSelect,
   } = props;
 
+  const [selectedRanges, setSelectedRanges] = useState([]);
+
   const xTitle = geneSelection && geneSelection.length >= 1
     ? 'Normalized Expression Value'
     : 'Total Normalized Transcript Count';
@@ -61,8 +64,16 @@ export default function ExpressionHistogram(props) {
       {
         name: "brush",
         select: { type: "interval", encodings: ["x"]},
-      },
+      }
     ],
+    // "selection": {
+    //   "point": {
+    //     "type": "single",
+    //     "on": "mouseup",
+    //     "empty": "none",
+    //     "clear": "mouseout"
+    //   }
+    // },
     width: clamp(width - marginRight, 10, Infinity),
     height: clamp(height - marginBottom, 10, Infinity),
     config: VEGA_THEMES[theme],
@@ -71,11 +82,35 @@ export default function ExpressionHistogram(props) {
 
   const handleSignal = (name, value) => {
     if (name === 'brush') {
-      onSelect(value.value);
+      console.log("++++ setting selected ranges ", value.value);
+      setSelectedRanges(value.value);
     }
   };
 
-  const signalListeners = { brush: handleSignal };
+
+  const debouncedOnSelectRef = useRef();
+
+  // Initialize the debounced function only on the first render
+  if (!debouncedOnSelectRef.current) {
+    debouncedOnSelectRef.current = debounce((ranges) => {
+      console.log("&&&& TRIGGERING after debouncing ", ranges);
+      onSelect(ranges);
+    }, 0);
+  }
+
+  useEffect(() => {
+    if (selectedRanges.length === 0) return;
+  
+    // Call the debounced function instead of directly calling onSelect
+    debouncedOnSelectRef.current(selectedRanges);
+  
+    // Clean up the debounce timer when the component unmounts or the dependency changes
+    return () => {
+      debouncedOnSelectRef.current.cancel();
+    };
+  }, [selectedRanges]);
+
+  const signalListeners = { brush: handleSignal};
 
   return (
     <VegaPlot
