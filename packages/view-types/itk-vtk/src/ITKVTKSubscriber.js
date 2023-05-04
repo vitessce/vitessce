@@ -47,9 +47,8 @@ export function ITKVTK(props) {
         let file = new File([data], 'data.nrrd');
         console.log('here');
         let container = document.querySelector('#test');
-        itkVtkViewer.createViewerFromUrl(container, {
+        itkVtkViewer.createViewerFromFiles(container, {
           fullscreen: false,
-          image: 'https://data.kitware.com/api/v1/file/5b8446868d777f43cc8d5ec1/download/data.nrrd'
         })
           .then((viewer) => {
             viewer.setBackgroundColor([0, 0, 0]);
