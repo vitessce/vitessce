@@ -29,15 +29,12 @@ export default function ExpressionHistogram(props) {
     height,
     marginRight = 90,
     marginBottom = 50,
+    onSelect,
   } = props;
 
   const xTitle = geneSelection && geneSelection.length >= 1
     ? 'Normalized Expression Value'
     : 'Total Normalized Transcript Count';
-
-  if (data) {
-    console.log("**** DATA: ", data);
-  }
 
   const spec = {
     data: { values: data },
@@ -63,8 +60,7 @@ export default function ExpressionHistogram(props) {
     params: [
       {
         name: "brush",
-        select: { type: "interval", encodings: ["x"], fields: ['cellId'], // todo: value passed here is wrong. we need to somehow get the cell ids
-      },
+        select: { type: "interval", encodings: ["x"]},
       },
     ],
     width: clamp(width - marginRight, 10, Infinity),
@@ -75,7 +71,7 @@ export default function ExpressionHistogram(props) {
 
   const handleSignal = (name, value) => {
     if (name === 'brush') {
-      console.log("**** SELECTED!!!!!! ", name, value);
+      onSelect(value.value);
     }
   };
 

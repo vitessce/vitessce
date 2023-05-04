@@ -272,6 +272,10 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_TYPE,
     CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.FEATURE_SELECTION,
+    CoordinationType.ADDITIONAL_OBS_SETS,
+    CoordinationType.OBS_SET_COLOR,
+    CoordinationType.OBS_COLOR_ENCODING,
+    CoordinationType.OBS_SET_SELECTION,
   ],
   [ViewType.LAYER_CONTROLLER]: [
     CoordinationType.DATASET,

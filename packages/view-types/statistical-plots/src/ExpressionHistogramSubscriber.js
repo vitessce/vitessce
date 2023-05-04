@@ -9,7 +9,7 @@ import {
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import ExpressionHistogram from './ExpressionHistogram';
 import { useStyles } from './styles';
-
+import { setObsSelection } from '@vitessce/sets-utils';
 /**
  * A subscriber component for `ExpressionHistogram`,
  * which listens for gene selection updates and
@@ -37,6 +37,15 @@ export function ExpressionHistogramSubscriber(props) {
     featureType,
     featureValueType,
     featureSelection: geneSelection,
+    additionalObsSets: additionalCellSets,
+    obsSetColor: cellSetColor,
+    obsColorEncoding: cellColorEncoding,
+    obsSetSelection: cellSetSelection,
+  }, {
+    setAdditionalObsSets: setAdditionalCellSets,
+    setObsSetColor: setCellSetColor,
+    setObsColorEncoding: setCellColorEncoding,
+    setObsSetSelection: setCellSetSelection,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_VALUE_HISTOGRAM],
     coordinationScopes,
@@ -87,6 +96,27 @@ export function ExpressionHistogramSubscriber(props) {
     return null;
   }, [obsIndex, featureIndex, obsFeatureMatrix, firstGeneSelected, expressionData]);
 
+  const onSelect = (value) => {
+
+    const getCellIdsInRange = (range, data) => {
+      const [lowerBound, upperBound] = range;
+    
+      return data
+        .filter(item => item.value >= lowerBound && item.value <= upperBound)
+        .map(item => item.cellId);
+    };
+
+    console.log("**** selected yet again!!!!!! ", value);
+
+    const selectedCellIds = getCellIdsInRange(value, data);
+    setObsSelection(
+      selectedCellIds, additionalCellSets, cellSetColor,
+      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      setCellColorEncoding,
+      'Ivas Amazing Selection ',
+    );
+  }
+
   return (
     <TitleInfo
       title={`Expression Histogram${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
@@ -98,6 +128,7 @@ export function ExpressionHistogramSubscriber(props) {
       <div ref={containerRef} className={classes.vegaContainer}>
         <ExpressionHistogram
           geneSelection={geneSelection}
+          onSelect={onSelect}
           data={data}
           theme={theme}
           width={width}
