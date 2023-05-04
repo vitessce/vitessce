@@ -17,8 +17,9 @@ export default defineConfig({
     sourcemap: false,
     lib: {
       entry: resolve(__dirname, 'src/index.js'),
+      name: 'vitessce',
       fileName: isProduction ? 'index.min' : 'index',
-      formats: ['es'],
+      formats: ['es', 'umd'],
     },
     rollupOptions: {
       external: ['react', 'react-dom'],
