@@ -229,16 +229,13 @@ export function GatingSubscriber(props) {
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
   const cellColors = useMemo(() => getCellColors({
-    cellColorEncoding,
-    expressionData: expressionDataColor && expressionDataColor[0],
-    geneSelection: gatingFeatureSelectionColor,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
     obsIndex,
     theme,
-  }), [cellColorEncoding, gatingFeatureSelectionColor, mergedCellSets, theme,
-    cellSetSelection, cellSetColor, expressionDataColor, obsIndex]);
+  }), [mergedCellSets, theme,
+    cellSetSelection, cellSetColor, obsIndex]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
