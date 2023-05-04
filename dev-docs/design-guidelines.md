@@ -27,3 +27,7 @@ An evolving set of guidelines to ensure that features remain maintainable, scala
 
 ### Parsing and validation of user input
 - Prefer [Zod](https://zod.dev/) schema over JSON schema - This improves the TypeScript development experience and follows the ["parse, don't validate"](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/) mantra.
+
+### Coordination type schemas
+- Prefer primitive values like numbers and strings over objects and arrays - Coordination values must be used entirely. Therefore, usage of objects and arrays prevent linking views on a subset of the object/array values.
+
