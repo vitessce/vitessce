@@ -21,7 +21,6 @@ import {
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
 import { makeStyles } from '@material-ui/core';
-import { createViewerFromUrl, processURLParameters } from 'itk-vtk-viewer/src';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -31,17 +30,39 @@ const useStyles = makeStyles(() => ({
 }));
 
 export function ITKVTK(props) {
-  useEffect(() => {
-    const image = 'https://nifti.nimh.nih.gov/nifti-1/data/minimal.nii.gz';
-    const container = document.querySelector('#test');
-    itkVtkViewer.createViewerFromUrl(container, { fullscreen: false })
-      .then((viewer) => {
-        console.log("Here")
-        viewer.setBackgroundColor([0, 0, 0])
-      })
-  });
+  const [viewerState, setViewerState] = useState(false);
+  const [viewer, setViewer] = useState(null);
 
-  return (<div id={'test'} style={{height:'100%'}}></div>);
+  useEffect(() => {
+    const fetchData = async () => {
+      // const image = 'https://nifti.nimh.nih.gov/nifti-1/data/minimal.nii.gz';
+      // const image = 'https://data.kitware.com/api/v1/file/564a65d58d777f7522dbfb61/download/data.nrrd';
+      const image = 'https://data.kitware.com/api/v1/file/5b8446868d777f43cc8d5ec1/download/data.nrrd';
+      const response = await fetch(image);
+      return await response.blob();
+    };
+    fetchData()
+      .then((data) => {
+        console.log('Got the dataaa');
+        let file = new File([data], 'data.nrrd');
+        console.log('here');
+        let container = document.querySelector('#test');
+        itkVtkViewer.createViewerFromUrl(container, {
+          fullscreen: false,
+          image: 'https://data.kitware.com/api/v1/file/5b8446868d777f43cc8d5ec1/download/data.nrrd'
+        })
+          .then((viewer) => {
+            viewer.setBackgroundColor([0, 0, 0]);
+            viewer.setUICollapsed(false);
+            viewer.setAnnotationsEnabled(false);
+            viewer.setCroppingPlanesEnabled(false);
+          });
+      })
+      .catch((error) => {
+        console.log('Here with an Error: ' + error);
+      });
+  }, [viewerState, viewer]);
+  return (<div id={'test'} style={{ height: '100%' }}></div>);
 }
 
 export function ITKVTKSubscriber(props) {
@@ -56,7 +77,7 @@ export function ITKVTKSubscriber(props) {
   return (
     <TitleInfo
       title={title}
-      isReady={isReady}
+      isReady={ready}
       removeGridComponent={removeGridComponent}
       theme={theme}>
       <div className={classes.container}>
@@ -66,7 +87,7 @@ export function ITKVTKSubscriber(props) {
   );
 }
 
-const isReady = true;
+const ready = true;
 
 export default class ITKVTKLoader extends AbstractTwoStepLoader {
   async load() {
