@@ -67,7 +67,7 @@ function ChannelSlider({
     debounce(handleChange, 3, { trailing: true }),
     [handleChange],
   );
-  const step = max - min < 500 && dtype === 'Float32' ? (max - min) / 500 : 1;
+  const step = max - min < 500 && dtype.startsWith('Float') ? (max - min) / 500 : 1;
   return (
     <Slider
       value={slider}
