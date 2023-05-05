@@ -8,7 +8,7 @@ import {
 import isEqual from 'lodash/isEqual';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { mergeObsSets, treeToSetSizesBySetNames } from '@vitessce/sets-utils';
-import { capitalize, filterPaths } from '@vitessce/utils';
+import { capitalize, generateCellSetPaths, findChangedHierarchy } from '@vitessce/utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
 import { useStyles } from './styles';
 
@@ -73,36 +73,6 @@ export function CellSetSizesPlotSubscriber(props) {
   );
 
   const getNewHierarchy = useCallback((lastSelection, currentSelection) => {
-    const findChangedHierarchy = (arr1, arr2) => {
-      const subarrayToString = subarray => subarray.toString();
-
-      const arr1Strings = arr1.map(subarrayToString);
-      const arr2Strings = arr2.map(subarrayToString);
-
-      const arr1UniqueStrings = arr1Strings.filter(
-        subarrayStr => !arr2Strings.includes(subarrayStr),
-      );
-      const arr2UniqueStrings = arr2Strings.filter(
-        subarrayStr => !arr1Strings.includes(subarrayStr),
-      );
-
-      if (arr1UniqueStrings.length === 0 && arr2UniqueStrings.length === 0) {
-        return 0;
-      }
-
-      const changedSubarrayString = arr2UniqueStrings.length > 0
-        ? arr2UniqueStrings[0] : arr1UniqueStrings[0];
-
-      const convertSubarrayElements = subarray => subarray.split(',').map((element) => {
-        const num = Number(element);
-        return num === parseFloat(element) ? num : element;
-      });
-
-      const changedSubarray = convertSubarrayElements(changedSubarrayString);
-
-      return changedSubarray.slice(0, -1); // Return the hierarchy of the changed clusters
-    };
-
     const changedHierarchy = findChangedHierarchy(lastSelection, currentSelection);
 
     if (changedHierarchy !== 0) {
@@ -123,12 +93,12 @@ export function CellSetSizesPlotSubscriber(props) {
       newHierarchy = getNewHierarchy(lastCellSetSelection, cellSetSelection);
     }
 
-    const allClusters = filterPaths(mergedCellSets.tree, newHierarchy, cellSetExpansion, cellSetSelection);
+    const cellSetPaths = generateCellSetPaths(mergedCellSets.tree, newHierarchy, cellSetExpansion, cellSetSelection);
 
     if (mergedCellSets && cellSets && cellSetSelection && cellSetColor) {
       return treeToSetSizesBySetNames(
         mergedCellSets,
-        allClusters,
+        cellSetPaths,
         cellSetSelection,
         cellSetColor,
         theme,
