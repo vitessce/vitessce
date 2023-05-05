@@ -546,11 +546,11 @@ export function treeToSetSizesBySetNames(
         size: nodeSet.length,
         color: nodeColor,
         setNamePath: clusterPath,
-        shown: false,
+        isGrayedOut: true,
       };
       // if the current path is selected, we need to show it
       if (contains(clusterPath, selectedNamePaths)) {
-        nodeProps.shown = true;
+        nodeProps.isGrayedOut = false;
       }
       sizes.push(nodeProps);
     }

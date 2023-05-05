@@ -55,7 +55,7 @@ export default function CellSetSizesPlot(props) {
     // not choose the colors automatically.
     domain: data.map(d => d.key),
     range: data.map((d) => {
-      const [r, g, b] = d.shown ? d.color : getDefaultColor(theme);
+      const [r, g, b] = !d.isGrayedOut ? d.color : getDefaultColor(theme);
       return `rgba(${r}, ${g}, ${b}, 1)`;
     }),
   };
@@ -80,7 +80,7 @@ export default function CellSetSizesPlot(props) {
         select: {
           type: 'point',
           on: 'click[event.shiftKey === false]',
-          fields: ['setNamePath', 'shown'],
+          fields: ['setNamePath', 'isGrayedOut'],
           empty: 'none',
         },
       },
@@ -89,7 +89,7 @@ export default function CellSetSizesPlot(props) {
         select: {
           type: 'point',
           on: 'click[event.shiftKey]',
-          fields: ['setNamePath', 'shown'],
+          fields: ['setNamePath', 'isGrayedOut'],
           empty: 'none',
         },
       },
@@ -147,9 +147,11 @@ export default function CellSetSizesPlot(props) {
 
   const handleSignal = (name, value) => {
     if (name === 'bar_select') {
-      onBarSelect(value.setNamePath, value.shown[0]);
+      onBarSelect(value.setNamePath, value.isGrayedOut[0]);
     } else if (name === 'shift_bar_select') {
-      onBarSelect(value.setNamePath, true, true);
+      const isGrayedOut = false;
+      const isSelectOnly = true;
+      onBarSelect(value.setNamePath, isGrayedOut, isSelectOnly);
     }
   };
 

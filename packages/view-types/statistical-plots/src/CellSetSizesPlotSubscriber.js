@@ -216,14 +216,14 @@ export function CellSetSizesPlotSubscriber(props) {
     theme,
   ]);
 
-  const onBarSelect = (setNamePath, shownPrev, isSelectOnly = false) => {
+  const onBarSelect = (setNamePath, wasGrayedOut, isSelectOnly = false) => {
     if (isSelectOnly) {
       setCellSetSelection([setNamePath]);
       return;
     }
-    if (shownPrev) {
+    if (!wasGrayedOut) {
       setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, setNamePath)));
-    } else if (!shownPrev) {
+    } else if (wasGrayedOut) {
       setCellSetSelection([...cellSetSelection, setNamePath]);
     }
   };
