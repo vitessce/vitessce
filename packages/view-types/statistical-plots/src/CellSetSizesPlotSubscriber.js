@@ -73,17 +73,19 @@ export function CellSetSizesPlotSubscriber(props) {
   );
 
   const getNewHierarchy = useCallback((lastSelection, currentSelection) => {
+
+    // Find the hierarchy, where the most recent change happened.
     const changedHierarchy = findChangedHierarchy(lastSelection, currentSelection);
 
-    if (changedHierarchy !== 0) {
-      setLastCellSetSelection(currentSelection);
-      setCurrentHierarchyName(changedHierarchy);
-      return changedHierarchy;
-    } if (changedHierarchy === 0) {
+    // do nothing if there was no change.
+    if (changedHierarchy === 0) {
       return currentHierarchyName;
     }
 
-    return null;
+    setLastCellSetSelection(currentSelection);
+    setCurrentHierarchyName(changedHierarchy);
+    return changedHierarchy;
+
   }, [currentHierarchyName]);
 
   const getData = useCallback(() => {

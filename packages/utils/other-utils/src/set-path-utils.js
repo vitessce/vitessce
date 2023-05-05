@@ -94,6 +94,7 @@ export function generateCellSetPaths(tree, hierarchy, cellSetExpansion, cellSetS
  * @param {array} lastSelection All selected cell sets prior to the modification.
  * @param {array} currentSelection All cell sets that are currently selected.
  * @returns The name of the hierarchy, within which the most recent change occured.
+ * If nothing changed, returns 0.
 */
 export function findChangedHierarchy(lastSelection, currentSelection){
   const subarrayToString = subarray => subarray.toString();
