@@ -546,7 +546,7 @@ export function treeToSetSizesBySetNames(
         size: nodeSet.length,
         color: nodeColor,
         setNamePath: clusterPath,
-        isGrayedOut: true,
+        isGrayedOut: true, // used by the CellSetSizesPlot to determine if the bar should be grayed out
       };
       // if the current path is selected, we need to show it
       if (contains(clusterPath, selectedNamePaths)) {
