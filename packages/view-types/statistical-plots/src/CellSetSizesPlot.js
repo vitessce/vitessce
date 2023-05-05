@@ -149,7 +149,7 @@ export default function CellSetSizesPlot(props) {
     if (name === 'bar_select') {
       onBarSelect(value.setNamePath, value.shown[0]);
     } else if (name === 'shift_bar_select') {
-      onBarSelect(value.setNamePath, 1, true);
+      onBarSelect(value.setNamePath, true, true);
     }
   };
 

@@ -524,6 +524,11 @@ export function treeToSetSizesBySetNames(
 ) {
   const sizes = [];
 
+  /**
+   * Checks if a path is contained in an array of paths.
+   * @param {array} path Array of strings, which compose the path.
+   * @param {array} paths Array of arrays of strings, which compose paths.
+  **/
   const contains = (path, paths) => paths.some((p) => {
     if (p.length !== path.length) return false;
     return p.every((value, index) => value === path[index]);
@@ -541,10 +546,11 @@ export function treeToSetSizesBySetNames(
         size: nodeSet.length,
         color: nodeColor,
         setNamePath: clusterPath,
-        shown: 0,
+        shown: false,
       };
+      // if the current path is selected, we need to show it
       if (contains(clusterPath, selectedNamePaths)) {
-        nodeProps.shown = 1;
+        nodeProps.shown = true;
       }
       sizes.push(nodeProps);
     }

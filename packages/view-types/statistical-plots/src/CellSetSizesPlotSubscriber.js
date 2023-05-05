@@ -221,9 +221,9 @@ export function CellSetSizesPlotSubscriber(props) {
       setCellSetSelection([setNamePath]);
       return;
     }
-    if (shownPrev === 1) {
+    if (shownPrev) {
       setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, setNamePath)));
-    } else if (shownPrev === 0) {
+    } else if (!shownPrev) {
       setCellSetSelection([...cellSetSelection, setNamePath]);
     }
   };
