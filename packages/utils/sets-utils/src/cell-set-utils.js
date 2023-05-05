@@ -528,7 +528,7 @@ export function treeToSetSizesBySetNames(
    * Checks if a path is contained in an array of paths.
    * @param {array} path Array of strings, which compose the path.
    * @param {array} paths Array of arrays of strings, which compose paths.
-  **/
+  * */
   const contains = (path, paths) => paths.some((p) => {
     if (p.length !== path.length) return false;
     return p.every((value, index) => value === path[index]);

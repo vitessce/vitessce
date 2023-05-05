@@ -8,7 +8,7 @@ import {
 import isEqual from 'lodash/isEqual';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { mergeObsSets, treeToSetSizesBySetNames } from '@vitessce/sets-utils';
-import { capitalize } from '@vitessce/utils';
+import { capitalize, filterPaths } from '@vitessce/utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
 import { useStyles } from './styles';
 
@@ -72,75 +72,6 @@ export function CellSetSizesPlotSubscriber(props) {
     [cellSets, additionalCellSets],
   );
 
-  const getPaths = (node, currentPath = [], paths = []) => {
-    if (node.children) {
-      node.children.forEach((child) => {
-        const newPath = [...currentPath, child.name];
-        paths.push(newPath);
-        getPaths(child, newPath, paths);
-      });
-    }
-    return paths;
-  };
-
-  const filterPaths = (paths, hierarchy) => {
-    const contains = (allPaths, path) => allPaths.some(p => p.toString() === path.toString());
-
-    /**
-     * Finds either the longest subset or the longest superset of path in
-     * arrOfPaths.
-     * @param {array} arrOfPaths An array of paths.
-     * @param {array} path An array of strings, representing a path
-     * @param {boolean} isSubset A boolean flag that indicates whether we are
-     * looking for the longest subset (true) or the longest superset (false).
-     */
-    const findLongest = (arrOfPaths, path, isSubset) => {
-      let longest = null; let
-        longestLength = 0;
-      arrOfPaths.forEach((subArray) => {
-        const matchCount = subArray.filter((v, i) => v === path[i]).length;
-        if (
-          matchCount === (isSubset ? subArray.length : path.length)
-            && subArray.length > longestLength
-        ) {
-          longest = subArray;
-          longestLength = subArray.length;
-        }
-      });
-      if (longestLength > 0) {
-        return longest;
-      } if (isSubset) {
-        return [];
-      }
-      return false;
-    };
-
-    return paths.filter((clusterPath) => {
-      // clusterPath is a parent of some selected cell set and is expanded. We should discard it.
-      if (contains(cellSetExpansion, clusterPath)) return false;
-
-      // clusterPath is not selected. Now we need to determine if we should keep it.
-      if (!contains(cellSetSelection, clusterPath)) {
-        /* This line checks if the longest super set of clusterPath in cellSetSelection is longer
-         than clusterPath itself. If true, it means clusterPath is a parent of some selected cell
-         set but not expanded and we should discard it. */
-        if (findLongest(cellSetSelection, clusterPath, false).length > clusterPath.length) {
-          return false;
-        }
-
-        // the clusterPath is too deep in the tree. We should discard it.
-        if (cellSetExpansion.length === 0 && clusterPath.length > 2) return false;
-
-        const longestSubset = findLongest(cellSetExpansion, clusterPath, true);
-        // another case of the clusterPath being deep in the tree. We should discard it.
-        if (cellSetExpansion.length > 0 && longestSubset.length + 1 < clusterPath.length) {
-          return false;
-        }
-      }
-      return clusterPath[0] === hierarchy[0];
-    });
-  };
-
   const getNewHierarchy = useCallback((lastSelection, currentSelection) => {
     const findChangedHierarchy = (arr1, arr2) => {
       const subarrayToString = subarray => subarray.toString();
@@ -192,8 +123,7 @@ export function CellSetSizesPlotSubscriber(props) {
       newHierarchy = getNewHierarchy(lastCellSetSelection, cellSetSelection);
     }
 
-    const allPaths = getPaths({ children: mergedCellSets.tree });
-    const allClusters = filterPaths(allPaths, newHierarchy);
+    const allClusters = filterPaths(mergedCellSets.tree, newHierarchy, cellSetExpansion, cellSetSelection);
 
     if (mergedCellSets && cellSets && cellSetSelection && cellSetColor) {
       return treeToSetSizesBySetNames(

@@ -117,9 +117,7 @@ describe('Hierarchical sets cell-set-utils', () => {
   });
 
   describe('Generate properties from paths', () => {
-
     it('treeToSetSizesBySetNames where one bar is selected', () => {
-
       const setColor = [
         {
           path: ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
@@ -128,14 +126,14 @@ describe('Hierarchical sets cell-set-utils', () => {
         {
           path: ['Cell Type Annotations', 'Vasculature'],
           color: [68, 119, 170],
-        }
-      ]
+        },
+      ];
       const setSizes = treeToSetSizesBySetNames(
-        tree, 
-        [['Cell Type Annotations', 'Vasculature', 'Endothelial'], ['Cell Type Annotations', 'Vasculature']], 
+        tree,
+        [['Cell Type Annotations', 'Vasculature', 'Endothelial'], ['Cell Type Annotations', 'Vasculature']],
         [['Cell Type Annotations', 'Vasculature', 'Endothelial']],
         setColor,
-        'dark'
+        'dark',
       );
 
       expect(setSizes.length).toEqual(2);
@@ -152,7 +150,6 @@ describe('Hierarchical sets cell-set-utils', () => {
     });
 
     it('treeToSetSizesBySetNames where nothing is selected', () => {
-
       const setColor = [
         {
           path: ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
@@ -161,14 +158,14 @@ describe('Hierarchical sets cell-set-utils', () => {
         {
           path: ['Cell Type Annotations', 'Vasculature'],
           color: [68, 119, 170],
-        }
-      ]
+        },
+      ];
       const setSizes = treeToSetSizesBySetNames(
-        tree, 
-        [['Cell Type Annotations', 'Vasculature', 'Endothelial'], ['Cell Type Annotations', 'Vasculature']], 
+        tree,
+        [['Cell Type Annotations', 'Vasculature', 'Endothelial'], ['Cell Type Annotations', 'Vasculature']],
         [],
         setColor,
-        'dark'
+        'dark',
       );
 
       expect(setSizes.length).toEqual(2);
@@ -182,6 +179,40 @@ describe('Hierarchical sets cell-set-utils', () => {
       expect(setSizes[1].size).toEqual(9);
       expect(setSizes[1].color).toEqual([68, 119, 170]);
       expect(setSizes[1].isGrayedOut).toEqual(true);
+      expect(setSizes[1].setNamePath).toEqual(['Cell Type Annotations', 'Vasculature']);
+    });
+
+    it('treeToSetSizesBySetNames where selected paths are not part of all paths', () => {
+      const setColor = [
+        {
+          path: ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
+          color: [255, 0, 0],
+        },
+        {
+          path: ['Cell Type Annotations', 'Vasculature'],
+          color: [68, 119, 170],
+        },
+      ];
+      const setSizes = treeToSetSizesBySetNames(
+        tree,
+        [['Cell Type Annotations', 'Vasculature', 'Endothelial'], ['Cell Type Annotations', 'Vasculature']],
+        [['Louvain Clusters', '0'], ['Louvain Clusters', '1']],
+        setColor,
+        'dark',
+      );
+
+      expect(setSizes.length).toEqual(2);
+      expect(setSizes[0].name).toEqual('Endothelial');
+      expect(setSizes[0].size).toEqual(3);
+      expect(setSizes[0].color).toEqual([255, 0, 0]);
+      expect(setSizes[0].isGrayedOut).toEqual(true);
+      expect(setSizes[0].setNamePath).toEqual(['Cell Type Annotations', 'Vasculature', 'Endothelial']);
+
+      expect(setSizes[1].name).toEqual('Vasculature');
+      expect(setSizes[1].size).toEqual(9);
+      expect(setSizes[1].color).toEqual([68, 119, 170]);
+      expect(setSizes[1].isGrayedOut).toEqual(true);
+      expect(setSizes[1].setNamePath).toEqual(['Cell Type Annotations', 'Vasculature']);
     });
   });
 
