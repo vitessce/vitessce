@@ -56,9 +56,9 @@ const findLongest = (arrOfPaths, path, isSubset) => {
  * @param {array} cellSetSelection An array of cell set paths that are selected.
  * @returns An array of paths that should be displayed.
  */
-export function generateCellSetPaths(tree, hierarchy, cellSetExpansion, cellSetSelection) {
+export function generateCellSetPaths(mergedCellSets, hierarchy, cellSetExpansion, cellSetSelection) {
 
-  const paths = getPaths({ children: tree });
+  const paths = getPaths({ children: mergedCellSets.tree });
 
   // returns true if path is contained in allPaths, false otherwise
   const contains = (allPaths, path) => allPaths.some(p => p.toString() === path.toString());
@@ -95,33 +95,41 @@ export function generateCellSetPaths(tree, hierarchy, cellSetExpansion, cellSetS
  * @param {array} currentSelection All cell sets that are currently selected.
  * @returns The name of the hierarchy, within which the most recent change occured.
  * If nothing changed, returns 0.
-*/
-export function findChangedHierarchy(lastSelection, currentSelection){
-  const subarrayToString = subarray => subarray.toString();
+ */
+export function findChangedHierarchy(prevSelectedPaths, currSelectedPaths){
 
-  const lastSelectionStrings = lastSelection.map(subarrayToString);
-  const currentSelectionStrings = currentSelection.map(subarrayToString);
+  const arrOfPathsToStr = subarray => subarray.toString();
 
-  const lastSelectionUniqueStrings = lastSelectionStrings.filter(
-    subarrayStr => !currentSelectionStrings.includes(subarrayStr),
-  );
-  const currentSelectionUniqueStrings = currentSelectionStrings.filter(
-    subarrayStr => !lastSelectionStrings.includes(subarrayStr),
-  );
-
-  if (lastSelectionUniqueStrings.length === 0 && currentSelectionUniqueStrings.length === 0) {
-    return 0;
-  }
-
-  const changedSubarrayString = currentSelectionUniqueStrings.length > 0
-    ? currentSelectionUniqueStrings[0] : lastSelectionUniqueStrings[0];
-
-  const convertSubarrayElements = subarray => subarray.split(',').map((element) => {
+  const strOfPathsToArr = subarray => subarray.split(',').map((element) => {
     const num = Number(element);
     return num === parseFloat(element) ? num : element;
   });
 
-  const changedSubarray = convertSubarrayElements(changedSubarrayString);
+  const prevPathsStrings = prevSelectedPaths.map(arrOfPathsToStr);
+  const currPathsStrings = currSelectedPaths.map(arrOfPathsToStr);
 
-  return changedSubarray.slice(0, -1); // Return the hierarchy of the changed clusters
+  const unselectedPathsStr = prevPathsStrings.filter(
+    pathAsStr => !currPathsStrings.includes(pathAsStr),
+  );
+  const newlySelectedPathsStr = currPathsStrings.filter(
+    pathAsStr => !prevPathsStrings.includes(pathAsStr),
+  );
+
+  // nothing was selected or unselected, therefore hierarchy stays the same
+  if (unselectedPathsStr.length === 0 && newlySelectedPathsStr.length === 0) {
+    return 0;
+  }
+
+  /**
+   * Picks a path from the array of paths that were either selected or unselected.
+   * Newly selected paths have priority over unselected paths.
+   */
+  const changedPathStr = newlySelectedPathsStr.length > 0
+    ? newlySelectedPathsStr[0] : unselectedPathsStr[0];
+
+  const changedPath = strOfPathsToArr(changedPathStr);
+
+  // we assume that the last element of a path is the leaf node.
+  // As leaf nodes do not hold hierarchy information, we can remove it.
+  return changedPath.slice(0, -1);
 };

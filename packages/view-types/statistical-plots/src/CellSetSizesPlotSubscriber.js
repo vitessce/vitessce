@@ -85,7 +85,7 @@ export function CellSetSizesPlotSubscriber(props) {
       }
     }
 
-    const cellSetPaths = generateCellSetPaths(mergedCellSets.tree, newHierarchy, cellSetExpansion, cellSetSelection);
+    const cellSetPaths = generateCellSetPaths(mergedCellSets, newHierarchy, cellSetExpansion, cellSetSelection);
 
     if (mergedCellSets && cellSets && cellSetSelection && cellSetColor) {
       return treeToSetSizesBySetNames(
