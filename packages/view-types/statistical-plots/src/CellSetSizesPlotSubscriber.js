@@ -72,27 +72,17 @@ export function CellSetSizesPlotSubscriber(props) {
     [cellSets, additionalCellSets],
   );
 
-  const getNewHierarchy = useCallback((lastSelection, currentSelection) => {
-
-    // Find the hierarchy, where the most recent change happened.
-    const changedHierarchy = findChangedHierarchy(lastSelection, currentSelection);
-
-    // do nothing if there was no change.
-    if (changedHierarchy === 0) {
-      return currentHierarchyName;
-    }
-
-    setLastCellSetSelection(currentSelection);
-    setCurrentHierarchyName(changedHierarchy);
-    return changedHierarchy;
-
-  }, [currentHierarchyName]);
-
   const getData = useCallback(() => {
-    let newHierarchy;
+    let newHierarchy = currentHierarchyName;
 
     if (cellSetSelection) {
-      newHierarchy = getNewHierarchy(lastCellSetSelection, cellSetSelection);
+      const changedHierarchy = findChangedHierarchy(lastCellSetSelection, cellSetSelection);
+      setLastCellSetSelection(cellSetSelection);
+
+      if (changedHierarchy !== 0) {
+        setCurrentHierarchyName(changedHierarchy);
+        newHierarchy = changedHierarchy;
+      }
     }
 
     const cellSetPaths = generateCellSetPaths(mergedCellSets.tree, newHierarchy, cellSetExpansion, cellSetSelection);
@@ -118,8 +108,8 @@ export function CellSetSizesPlotSubscriber(props) {
     theme,
   ]);
 
-  const onBarSelect = (setNamePath, wasGrayedOut, isSelectOnly = false) => {
-    if (isSelectOnly) {
+  const onBarSelect = (setNamePath, wasGrayedOut, selectOnlyEnabled = false) => {
+    if (selectOnlyEnabled) {
       setCellSetSelection([setNamePath]);
       return;
     }

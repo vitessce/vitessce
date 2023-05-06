@@ -150,8 +150,8 @@ export default function CellSetSizesPlot(props) {
       onBarSelect(value.setNamePath, value.isGrayedOut[0]);
     } else if (name === 'shift_bar_select') {
       const isGrayedOut = false;
-      const isSelectOnly = true;
-      onBarSelect(value.setNamePath, isGrayedOut, isSelectOnly);
+      const selectOnlyEnabled = true;
+      onBarSelect(value.setNamePath, isGrayedOut, selectOnlyEnabled);
     }
   };
 
