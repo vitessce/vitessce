@@ -124,8 +124,9 @@ export function findChangedHierarchy(prevSelectedPaths, currSelectedPaths) {
   }
 
   /**
-   * Picks a path from the array of paths that were either selected or unselected.
-   * Newly selected paths have priority over unselected paths.
+   * Picks the first path from newlySelectedPathsStr, if there is one,
+   * otherwise from unselectedPathsStr.
+   * This is going to be used as the new hierarchy.
    */
   const changedPathStr = newlySelectedPathsStr.length > 0
     ? newlySelectedPathsStr[0] : unselectedPathsStr[0];

@@ -53,8 +53,10 @@ export function CellSetSizesPlotSubscriber(props) {
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl] = useUrls(loaders, dataset);
 
-  const [currentHierarchyName, setCurrentHierarchyName] = useState('');
-  const [lastCellSetSelection, setLastCellSetSelection] = useState([]);
+  // the name of the hierarchy that was clicked on last
+  const [currentHierarchy, setCurrentHierarchy] = useState([]);
+  // the previous cell set that was selected
+  const [prevCellSetSelection, setPrevCellSetSelection] = useState([]);
 
   // Get data from loaders using the data hooks.
   const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
@@ -73,14 +75,14 @@ export function CellSetSizesPlotSubscriber(props) {
   );
 
   const data = useMemo(() => {
-    let newHierarchy = currentHierarchyName;
+    let newHierarchy = currentHierarchy;
 
     if (cellSetSelection) {
-      const changedHierarchy = findChangedHierarchy(lastCellSetSelection, cellSetSelection);
-      setLastCellSetSelection(cellSetSelection);
+      const changedHierarchy = findChangedHierarchy(prevCellSetSelection, cellSetSelection);
+      setPrevCellSetSelection(cellSetSelection);
 
       if (changedHierarchy !== 0) {
-        setCurrentHierarchyName(changedHierarchy);
+        setCurrentHierarchy(changedHierarchy);
         newHierarchy = changedHierarchy;
       }
     }
