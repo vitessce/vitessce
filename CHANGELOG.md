@@ -8,6 +8,7 @@
 - Fixed a small bug with the path configuration for the `obsSets` component when using zero config mode.
 - Add notes about branch naming conventions and pull request merge process to README
 - Added bidirectional interactions for the `CellSetSizesPlot` vega-lite plot to allow the Vitessce view to update and show the selected cluster on bar click.
+- Implemented a "select-only" option for the `CellSetSizesPlot` on shift+click. 
 - Implemented ability to select a gene by clicking on the heatmap rows for a given gene.
 
 ### Changed
@@ -23,13 +24,15 @@
 - Changed `VegaPlot.js` to accept prop called `setName` and overwrite the default tooltip style of vega-tooltip.
 - Added a new `styles.js` file that defines the style of the vega-tooltips.
 - Changed `CellSetSizesPlot.js` and `CellSetExpressionPlot.js` to pass in `setName` as props when calling `VegaPlot`.
+- Added more complex logic in `CellSetSizesPlotSubscriber.js` to determine which bars should be displayed in `CellSetSizesPlot.js`.
+- Added a new `set-path-utils` file with the functions containing the more complex logic around choosing which hierarchy to display on the `CellSetSizesPlot`.
+- Added one more prop under `data` in `CellSetSizesPlot`, called `isGrayedOut` and made vega-lite to color in gray bars where this property is set to true.
 - Added handling for the `onClick` function in the `Heatmap` component. The `Heatmap` component calls the `onHeatmapClick` function, defined in the `HeatmapSubscriber`, every time a user clicks on the heatmap. The `onHeatmapClick` function sets the currently selected gene to be equal to the gene the user clicked at. It also sets the cell color encoding to `geneSelection`.
 - Upgrade `Viv` to `0.13.7`
 - Fix physical size scaling for non-square 2D pixels.
 - Removes logic for `tsconfig.json` from the meta-updater script
 - Update issue template.
 - Update documentation: fix broken links to source code, move Showcase to its own page from About page, replace Roadmap page with link to GitHub project.
-
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
