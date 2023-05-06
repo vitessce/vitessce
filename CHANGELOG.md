@@ -27,6 +27,7 @@
 - Added more complex logic in `CellSetSizesPlotSubscriber.js` to determine which bars should be displayed in `CellSetSizesPlot.js`.
 - Added a new `set-path-utils` file with the functions containing the more complex logic around choosing which hierarchy to display on the `CellSetSizesPlot`.
 - Added one more prop under `data` in `CellSetSizesPlot`, called `isGrayedOut` and made vega-lite to color in gray bars where this property is set to true.
+- Added `obsSetExpansion` to coordination scope and started using it in `CellSetSizesPlotSubscriber.js`.
 - Added handling for the `onClick` function in the `Heatmap` component. The `Heatmap` component calls the `onHeatmapClick` function, defined in the `HeatmapSubscriber`, every time a user clicks on the heatmap. The `onHeatmapClick` function sets the currently selected gene to be equal to the gene the user clicked at. It also sets the cell color encoding to `geneSelection`.
 - Upgrade `Viv` to `0.13.7`
 - Fix physical size scaling for non-square 2D pixels.
