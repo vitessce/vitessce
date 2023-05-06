@@ -26,23 +26,23 @@ function getPaths(node, currentPath = [], paths = []) {
  * @returns The longest subset or superset of path in arrOfPaths.
 */
 const findLongest = (arrOfPaths, path, isSubset) => {
-  let longest = null; 
+  let longest = null;
   let longestLength = 0;
 
   arrOfPaths.forEach((subArray) => {
-      const matchCount = subArray.filter((v, i) => v === path[i]).length;
-      if (
+    const matchCount = subArray.filter((v, i) => v === path[i]).length;
+    if (
       matchCount === (isSubset ? subArray.length : path.length)
           && subArray.length > longestLength
-      ) {
+    ) {
       longest = subArray;
       longestLength = subArray.length;
-      }
+    }
   });
   if (longestLength > 0) {
-      return longest;
+    return longest;
   } if (isSubset) {
-      return [];
+    return [];
   }
   return false;
 };
@@ -56,8 +56,12 @@ const findLongest = (arrOfPaths, path, isSubset) => {
  * @param {array} cellSetSelection An array of cell set paths that are selected.
  * @returns An array of paths that should be displayed.
  */
-export function generateCellSetPaths(mergedCellSets, hierarchy, cellSetExpansion, cellSetSelection) {
-
+export function generateCellSetPaths(
+  mergedCellSets,
+  hierarchy,
+  cellSetExpansion,
+  cellSetSelection,
+) {
   const paths = getPaths({ children: mergedCellSets.tree });
 
   // returns true if path is contained in allPaths, false otherwise
@@ -96,8 +100,7 @@ export function generateCellSetPaths(mergedCellSets, hierarchy, cellSetExpansion
  * @returns The name of the hierarchy, within which the most recent change occured.
  * If nothing changed, returns 0.
  */
-export function findChangedHierarchy(prevSelectedPaths, currSelectedPaths){
-
+export function findChangedHierarchy(prevSelectedPaths, currSelectedPaths) {
   const arrOfPathsToStr = subarray => subarray.toString();
 
   const strOfPathsToArr = subarray => subarray.split(',').map((element) => {
@@ -132,4 +135,4 @@ export function findChangedHierarchy(prevSelectedPaths, currSelectedPaths){
   // we assume that the last element of a path is the leaf node.
   // As leaf nodes do not hold hierarchy information, we can remove it.
   return changedPath.slice(0, -1);
-};
+}

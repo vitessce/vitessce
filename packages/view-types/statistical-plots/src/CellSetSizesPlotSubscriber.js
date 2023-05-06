@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   TitleInfo,
   useCoordination, useLoaders,
@@ -72,7 +72,7 @@ export function CellSetSizesPlotSubscriber(props) {
     [cellSets, additionalCellSets],
   );
 
-  const getData = useCallback(() => {
+  const data = useMemo(() => {
     let newHierarchy = currentHierarchyName;
 
     if (cellSetSelection) {
@@ -85,7 +85,12 @@ export function CellSetSizesPlotSubscriber(props) {
       }
     }
 
-    const cellSetPaths = generateCellSetPaths(mergedCellSets, newHierarchy, cellSetExpansion, cellSetSelection);
+    const cellSetPaths = generateCellSetPaths(
+      mergedCellSets,
+      newHierarchy,
+      cellSetExpansion,
+      cellSetSelection,
+    );
 
     if (mergedCellSets && cellSets && cellSetSelection && cellSetColor) {
       return treeToSetSizesBySetNames(
@@ -96,11 +101,8 @@ export function CellSetSizesPlotSubscriber(props) {
         theme,
       );
     }
-
     return [];
-  }, [cellSetSelection, cellSetColor, cellSets, mergedCellSets, theme]);
-
-  const data = useMemo(getData, [
+  }, [
     mergedCellSets,
     cellSetSelection,
     cellSetExpansion,
