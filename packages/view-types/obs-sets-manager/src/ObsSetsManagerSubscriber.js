@@ -12,6 +12,7 @@ import {
   TitleInfo,
   useUrls, useReady,
   useObsSetsData,
+  useTermEdgesData,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType } from '@vitessce/constants-internal';
 import {
@@ -82,6 +83,7 @@ export function ObsSetsManagerSubscriber(props) {
   const [{
     dataset,
     obsType,
+    featureType,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
@@ -112,9 +114,18 @@ export function ObsSetsManagerSubscriber(props) {
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
+  const [{ termEdges }, termEdgesStatus] = useTermEdgesData(
+    loaders, dataset, addUrl, true,
+    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
+    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
+    { obsType, featureType },
+  );
   const isReady = useReady([
     obsSetsStatus,
+    termEdgesStatus,
   ]);
+
+  console.log(termEdges)
 
   // Validate and upgrade the additionalCellSets.
   useEffect(() => {
@@ -145,6 +156,8 @@ export function ObsSetsManagerSubscriber(props) {
     () => mergeObsSets(cellSets, additionalCellSets),
     [cellSets, additionalCellSets],
   );
+
+  console.log(cellSetSelection, mergedCellSets);
 
   // Infer the state of the "checked level" radio button based on the selected cell sets.
   const checkedLevel = useMemo(() => {

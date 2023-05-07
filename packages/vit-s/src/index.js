@@ -51,6 +51,7 @@ export {
   useObsFeatureMatrixData,
   useFeatureLabelsData,
   useGenomicProfilesData,
+  useTermEdgesData,
 } from './data-hooks.js';
 export {
   useHasLoader,

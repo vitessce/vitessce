@@ -157,6 +157,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   [ViewType.OBS_SETS]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,

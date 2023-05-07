@@ -84,4 +84,8 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
   [DataType.GENOMIC_PROFILES]: [],
   [DataType.IMAGE]: [],
   [DataType.NEIGHBORHOODS]: [],
+  [DataType.TERM_EDGES]: [
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+  ],
 };

@@ -30,6 +30,7 @@ export const DataType = {
   OBS_SEGMENTATIONS: 'obsSegmentations',
   NEIGHBORHOODS: 'neighborhoods',
   GENOMIC_PROFILES: 'genomic-profiles',
+  TERM_EDGES: 'termEdges',
 };
 
 
@@ -46,6 +47,7 @@ export const FileType = {
   OBS_SETS_CSV: 'obsSets.csv',
   OBS_SETS_JSON: 'obsSets.json',
   IMAGE_OME_ZARR: 'image.ome-zarr',
+  TERM_EDGES_JSON: 'termEdges.json',
   // AnnData
   OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
   OBS_SETS_ANNDATA_ZARR: 'obsSets.anndata.zarr',

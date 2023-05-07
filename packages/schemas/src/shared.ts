@@ -28,6 +28,7 @@ export const rgbArray = z.array(z.number())
 
 const treeNodeBase = z.object({
   name: z.string(),
+  term: z.string().nullable().optional(),
   color: rgbArray.optional(),
 });
 
@@ -144,6 +145,11 @@ export const obsSetsTabularSchema = z.array(z.object({
 }));
 
 export const obsSetPath = z.array(z.string());
+
+export const termEdgesSchema = z.array(z.object({
+  obsTerm: z.string(),
+  featureTerm: z.string(),
+}));
 
 export const requestInit = z.object({
   method: z.string().optional(),
