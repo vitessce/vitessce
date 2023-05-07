@@ -66,14 +66,6 @@ export default function ExpressionHistogram(props) {
         select: { type: "interval", encodings: ["x"]},
       }
     ],
-    // "selection": {
-    //   "point": {
-    //     "type": "single",
-    //     "on": "mouseup",
-    //     "empty": "none",
-    //     "clear": "mouseout"
-    //   }
-    // },
     width: clamp(width - marginRight, 10, Infinity),
     height: clamp(height - marginBottom, 10, Infinity),
     config: VEGA_THEMES[theme],
@@ -95,11 +87,11 @@ export default function ExpressionHistogram(props) {
     debouncedOnSelectRef.current = debounce((ranges) => {
       console.log("&&&& TRIGGERING after debouncing ", ranges);
       onSelect(ranges);
-    }, 0);
+    }, 1000);
   }
 
   useEffect(() => {
-    if (selectedRanges.length === 0) return;
+    if (!selectedRanges || selectedRanges.length === 0) return;
   
     // Call the debounced function instead of directly calling onSelect
     debouncedOnSelectRef.current(selectedRanges);

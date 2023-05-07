@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { sum } from 'd3-array';
 import {
   TitleInfo,
@@ -53,6 +53,8 @@ export function ExpressionHistogramSubscriber(props) {
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl] = useUrls(loaders, dataset);
+  const [iva, setIva] = useState(0);
+  const [ivasData, setIvasData] = useState([]);
 
   // Get data from loaders using the data hooks.
   const [{ obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus] = useObsFeatureMatrixData(
@@ -76,7 +78,9 @@ export function ExpressionHistogramSubscriber(props) {
   // From the expression matrix and the list of selected genes,
   // generate the array of data points for the histogram.
   const data = useMemo(() => {
+    console.log("* I AM TRIGGERED");
     if (firstGeneSelected && obsFeatureMatrix && expressionData) {
+      console.log("returned 1: ");
       // Create new cellColors map based on the selected gene.
       return Array.from(expressionData[0]).map((_, index) => {
         const value = expressionData[0][index];
@@ -86,39 +90,42 @@ export function ExpressionHistogramSubscriber(props) {
     }
     if (obsFeatureMatrix) {
       const numGenes = featureIndex.length;
+      console.log("returned 2: ");
       return obsIndex.map((cellId, cellIndex) => {
         const values = obsFeatureMatrix.data
           .subarray(cellIndex * numGenes, (cellIndex + 1) * numGenes);
         const sumValue = sum(values) * 100 / 255;
+        console.log("54543223");
+        ivasData.push({ value: sumValue, gene: null, cellId: cellId });
+        setIvasData(ivasData);
         return { value: sumValue, gene: null, cellId: cellId };
       });
     }
-    console.log("* I AM TRIGGERED");
+    console.log("returned 3: ");
     return null;
-  }, [obsIndex, featureIndex, obsFeatureMatrix, firstGeneSelected, expressionData]);
+  }, [obsIndex, featureIndex, obsFeatureMatrix, firstGeneSelected, expressionData, iva]);
 
-  console.log("DATA: ", data);
 
   const onSelect = (value) => {
 
-    console.log("*** on select ***", value);
+    setIva(iva + 1);
+
+    console.log("what's next ", ivasData);
     const getCellIdsInRange = (range) => {
       const [lowerBound, upperBound] = range;
     
-      return data
+      return ivasData
         .filter(item => item.value >= lowerBound && item.value <= upperBound)
         .map(item => item.cellId);
     };
 
-    if (data & value) {
-      const selectedCellIds = getCellIdsInRange(value);
-      setObsSelection(
-        selectedCellIds, additionalCellSets, cellSetColor,
-        setCellSetSelection, setAdditionalCellSets, setCellSetColor,
-        setCellColorEncoding,
-        'Ivas Amazing Selection ',
-      );
-    }
+    const selectedCellIds = getCellIdsInRange(value);
+    setObsSelection(
+      selectedCellIds, additionalCellSets, cellSetColor,
+      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      setCellColorEncoding,
+      'Ivas Amazing Selection ',
+    );
   }
 
   return (
