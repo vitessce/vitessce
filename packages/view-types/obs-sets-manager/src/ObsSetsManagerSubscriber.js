@@ -610,6 +610,7 @@ export function ObsSetsManagerSubscriber(props) {
     <SetsManager
       setColor={cellSetColor}
       sets={cellSets}
+      termEdges={termEdges}
       additionalSets={additionalCellSets}
       levelSelection={checkedLevel}
       setSelection={cellSetSelection}

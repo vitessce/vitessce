@@ -37,6 +37,32 @@ export function nodeToSet(currNode) {
 }
 
 /**
+ * Get the set associated with a particular node.
+ * Recursive.
+ * @param {object} currNode A node object.
+ * @param {object[]} termEdges The array of term edges, like
+ * [{ obsTerm, featureTerm }, ...].
+ * @param {string} termKey The key for the term used to match nodes - should
+ * correspond to the node entity type, e.g., 'obsTerm' if currNode is an obsSet.
+ * @returns {array} The array representing the set associated with the node.
+ */
+export function nodeToTerms(currNode, termEdges, termKey) {
+  if (!currNode) {
+    return [];
+  }
+  const matchingTermEdges = termEdges?.filter(edge => edge[termKey] === currNode.term);
+  if (!currNode.children) {
+    // This node has no children, so end recursion.
+    return (matchingTermEdges || []);
+  }
+  // This node has children, so recurse.
+  return [
+    ...matchingTermEdges,
+    ...currNode.children.flatMap(c => nodeToTerms(c, termEdges, termKey)),
+  ];
+}
+
+/**
  * Get the height of a node (the number of levels to reach a leaf).
  * @param {object} currNode A node object.
  * @param {number} level The level that the height will be computed relative to. By default, 0.
@@ -359,13 +385,15 @@ export function treeInitialize(datatype) {
  * @returns {object} An object containing properties required
  * by the TreeNode render functions.
  */
-export function nodeToRenderProps(node, path, cellSetColor) {
+export function nodeToRenderProps(node, path, cellSetColor, termEdges, termEdgeKey) {
   const level = path.length - 1;
   return {
     title: node.name,
+    term: node.term,
     nodeKey: pathToKey(path),
     path,
     size: getNodeLength(node),
+    matchingTermEdges: nodeToTerms(node, termEdges, termEdgeKey),
     color: cellSetColor?.find(d => isEqual(d.path, path))?.color,
     level,
     isLeaf: (!node.children || node.children.length === 0) && Boolean(node.set),

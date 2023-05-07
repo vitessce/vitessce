@@ -93,6 +93,8 @@ function NamedSetNodeStatic(props) {
   const {
     title,
     path,
+    term,
+    matchingTermEdges,
     nodeKey,
     level,
     height,
@@ -149,7 +151,7 @@ function NamedSetNodeStatic(props) {
           onKeyPress={e => callbackOnKeyPress(e, 'v', () => onNodeView(path))}
           className={classes.titleButton}
         >
-          {title}
+          {title} {term ? `(${term})` : null} {matchingTermEdges ? `(${matchingTermEdges.length})` : null}
         </button>
       </HelpTooltip>
       {popoverMenuConfig.length > 0 ? (

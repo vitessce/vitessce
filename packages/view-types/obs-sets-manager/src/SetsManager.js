@@ -92,6 +92,7 @@ export default function SetsManager(props) {
   const {
     theme,
     sets,
+    termEdges,
     additionalSets,
     setColor,
     levelSelection: checkedLevel,
@@ -170,7 +171,7 @@ export default function SetsManager(props) {
         <TreeNode
           theme={theme}
           key={pathToKey(newPath)}
-          {...nodeToRenderProps(node, newPath, setColor)}
+          {...nodeToRenderProps(node, newPath, setColor, termEdges, 'obsTerm')}
 
           isEditing={isEqual(isEditingNodeName, newPath)}
 
