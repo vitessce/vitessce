@@ -110,23 +110,25 @@ export function ExpressionHistogramSubscriber(props) {
   }, [obsIndex, featureIndex, obsFeatureMatrix, firstGeneSelected, expressionData]);
 
 
-  const onSelect = (value) => {
+  const onSelect = useCallback((value) => {
     const getCellIdsInRange = (range) => {
       const [lowerBound, upperBound] = range;
 
-      return dataOnSelect
+      return data
         .filter(item => item.value >= lowerBound && item.value <= upperBound)
         .map(item => item.cellId);
     };
 
     const selectedCellIds = getCellIdsInRange(value);
     setObsSelection(
-      selectedCellIds, additionalCellSetsRef.current, cellSetColor,
+      selectedCellIds, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
       setCellColorEncoding,
       'Selection based on transcript count',
     );
-  };
+  }, [additionalCellSets, cellSetColor, data, setAdditionalCellSets,
+    setCellColorEncoding, setCellSetColor, setCellSetSelection,
+  ]);
 
   return (
     <TitleInfo
