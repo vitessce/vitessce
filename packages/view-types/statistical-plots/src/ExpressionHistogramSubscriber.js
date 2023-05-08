@@ -1,5 +1,5 @@
 import React, {
-  useMemo, useState, useEffect, useRef,
+  useMemo, useState, useEffect, useRef, useCallback,
 } from 'react';
 import { sum } from 'd3-array';
 import {
@@ -109,7 +109,6 @@ export function ExpressionHistogramSubscriber(props) {
     return null;
   }, [obsIndex, featureIndex, obsFeatureMatrix, firstGeneSelected, expressionData]);
 
-
   const onSelect = useCallback((value) => {
     const getCellIdsInRange = (range) => {
       const [lowerBound, upperBound] = range;
@@ -119,12 +118,15 @@ export function ExpressionHistogramSubscriber(props) {
         .map(item => item.cellId);
     };
 
+    const geneName = firstGeneSelected ? [firstGeneSelected, 'values'].join(' ') : 'transcript count';
+
     const selectedCellIds = getCellIdsInRange(value);
     setObsSelection(
       selectedCellIds, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
       setCellColorEncoding,
-      'Selection based on transcript count',
+      '',
+      `Selection based on ${geneName} in range [${value[0].toFixed()}, ${value[1].toFixed()}].`,
     );
   }, [additionalCellSets, cellSetColor, data, setAdditionalCellSets,
     setCellColorEncoding, setCellSetColor, setCellSetSelection,

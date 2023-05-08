@@ -79,7 +79,7 @@ export default function ExpressionHistogram(props) {
   };
 
 
-// eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedOnSelect = useCallback(debounce((ranges, latestOnSelect) => {
     latestOnSelect(ranges);
     // We set a debounce timer of 1000ms: the assumption here is that the user has

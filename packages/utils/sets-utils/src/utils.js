@@ -93,7 +93,7 @@ export function getNextNumberedNodeName(nodes, prefix) {
  * @param {function} setCellSetSelection The setter function for cell set selections.
  * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
  */
-export function setObsSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ') {
+export function setObsSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ', nextName = null) {
   const CELL_SELECTIONS_LEVEL_ZERO_NAME = 'My Selections';
 
   const selectionsLevelZeroNode = additionalCellSets?.tree.find(
@@ -105,7 +105,9 @@ export function setObsSelection(cellSelection, additionalCellSets, cellSetColor,
     tree: [...(additionalCellSets ? additionalCellSets.tree : [])],
   };
 
-  const nextName = getNextNumberedNodeName(selectionsLevelZeroNode?.children, prefix);
+  if (nextName === null) {
+    nextName = getNextNumberedNodeName(selectionsLevelZeroNode?.children, prefix);
+  }
   let colorIndex = 0;
   if (selectionsLevelZeroNode) {
     colorIndex = selectionsLevelZeroNode.children.length;
