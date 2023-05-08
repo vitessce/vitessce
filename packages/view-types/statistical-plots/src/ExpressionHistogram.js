@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import clamp from 'lodash/clamp';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 
 /**
  * Gene expression histogram displayed as a bar chart,
