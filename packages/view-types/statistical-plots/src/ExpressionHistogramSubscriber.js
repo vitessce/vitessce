@@ -1,4 +1,6 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, {
+  useMemo, useState, useEffect, useRef,
+} from 'react';
 import { sum } from 'd3-array';
 import {
   TitleInfo,
@@ -7,9 +9,9 @@ import {
   useObsFeatureMatrixData, useFeatureSelection,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { setObsSelection } from '@vitessce/sets-utils';
 import ExpressionHistogram from './ExpressionHistogram';
 import { useStyles } from './styles';
-import { setObsSelection } from '@vitessce/sets-utils';
 /**
  * A subscriber component for `ExpressionHistogram`,
  * which listens for gene selection updates and
@@ -39,8 +41,6 @@ export function ExpressionHistogramSubscriber(props) {
     featureSelection: geneSelection,
     additionalObsSets: additionalCellSets,
     obsSetColor: cellSetColor,
-    obsColorEncoding: cellColorEncoding,
-    obsSetSelection: cellSetSelection,
   }, {
     setAdditionalObsSets: setAdditionalCellSets,
     setObsSetColor: setCellSetColor,
@@ -53,8 +53,7 @@ export function ExpressionHistogramSubscriber(props) {
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl] = useUrls(loaders, dataset);
-  const [iva, setIva] = useState(0);
-  const [ivasData, setIvasData] = useState([]);
+  const [dataOnSelect, setDataOnSelect] = useState([]);
   const additionalCellSetsRef = useRef(additionalCellSets);
 
   // Update the ref whenever additionalCellSets changes
@@ -84,43 +83,38 @@ export function ExpressionHistogramSubscriber(props) {
   // From the expression matrix and the list of selected genes,
   // generate the array of data points for the histogram.
   const data = useMemo(() => {
-    console.log("* I AM TRIGGERED");
     if (firstGeneSelected && obsFeatureMatrix && expressionData) {
-      console.log("returned 1: ");
       // Create new cellColors map based on the selected gene.
       return Array.from(expressionData[0]).map((_, index) => {
         const value = expressionData[0][index];
         const normValue = value * 100 / 255;
-        return { value: normValue, gene: firstGeneSelected };
+        const newItem = { value: normValue, gene: firstGeneSelected };
+        dataOnSelect.push(newItem);
+        setDataOnSelect(dataOnSelect);
+        return newItem;
       });
     }
     if (obsFeatureMatrix) {
       const numGenes = featureIndex.length;
-      console.log("returned 2: ");
       return obsIndex.map((cellId, cellIndex) => {
         const values = obsFeatureMatrix.data
           .subarray(cellIndex * numGenes, (cellIndex + 1) * numGenes);
         const sumValue = sum(values) * 100 / 255;
-        console.log("54543223");
-        ivasData.push({ value: sumValue, gene: null, cellId: cellId });
-        setIvasData(ivasData);
-        return { value: sumValue, gene: null, cellId: cellId };
+        const newItem = { value: sumValue, gene: null, cellId };
+        dataOnSelect.push(newItem);
+        setDataOnSelect(dataOnSelect);
+        return newItem;
       });
     }
-    console.log("returned 3: ");
     return null;
-  }, [obsIndex, featureIndex, obsFeatureMatrix, firstGeneSelected, expressionData, iva]);
+  }, [obsIndex, featureIndex, obsFeatureMatrix, firstGeneSelected, expressionData]);
 
 
   const onSelect = (value) => {
-
-    setIva(iva + 1);
-
-    console.log("what's next ", ivasData);
     const getCellIdsInRange = (range) => {
       const [lowerBound, upperBound] = range;
-    
-      return ivasData
+
+      return dataOnSelect
         .filter(item => item.value >= lowerBound && item.value <= upperBound)
         .map(item => item.cellId);
     };
@@ -130,9 +124,9 @@ export function ExpressionHistogramSubscriber(props) {
       selectedCellIds, additionalCellSetsRef.current, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
       setCellColorEncoding,
-      'Ivas Amazing Selection ',
+      'Selection based on transcript count',
     );
-  }
+  };
 
   return (
     <TitleInfo

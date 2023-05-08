@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import clamp from 'lodash/clamp';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 import { debounce } from 'lodash';
@@ -41,30 +41,30 @@ export default function ExpressionHistogram(props) {
 
   const spec = {
     data: { values: data },
-    mark: "bar",
+    mark: 'bar',
     encoding: {
       x: {
-        field: "value",
-        type: "quantitative",
+        field: 'value',
+        type: 'quantitative',
         bin: { maxbins: 50 },
         title: xTitle,
       },
       y: {
-        type: "quantitative",
-        aggregate: "count",
-        title: "Number of Cells",
+        type: 'quantitative',
+        aggregate: 'count',
+        title: 'Number of Cells',
       },
-      color: { value: "gray" },
+      color: { value: 'gray' },
       opacity: {
-        condition: { selection: "brush", value: 1 },
+        condition: { selection: 'brush', value: 1 },
         value: 0.7,
       },
     },
     params: [
       {
-        name: "brush",
-        select: { type: "interval", encodings: ["x"]},
-      }
+        name: 'brush',
+        select: { type: 'interval', encodings: ['x'] },
+      },
     ],
     width: clamp(width - marginRight, 10, Infinity),
     height: clamp(height - marginBottom, 10, Infinity),
@@ -74,7 +74,6 @@ export default function ExpressionHistogram(props) {
 
   const handleSignal = (name, value) => {
     if (name === 'brush') {
-      console.log("++++ setting selected ranges ", value.value);
       setSelectedRanges(value.value);
     }
   };
@@ -85,24 +84,23 @@ export default function ExpressionHistogram(props) {
   // Initialize the debounced function only on the first render
   if (!debouncedOnSelectRef.current) {
     debouncedOnSelectRef.current = debounce((ranges) => {
-      console.log("&&&& TRIGGERING after debouncing ", ranges);
       onSelect(ranges);
     }, 1000);
   }
 
   useEffect(() => {
-    if (!selectedRanges || selectedRanges.length === 0) return;
-  
+    if (!selectedRanges || selectedRanges.length === 0) return () => {};
+
     // Call the debounced function instead of directly calling onSelect
     debouncedOnSelectRef.current(selectedRanges);
-  
+
     // Clean up the debounce timer when the component unmounts or the dependency changes
     return () => {
       debouncedOnSelectRef.current.cancel();
     };
   }, [selectedRanges]);
 
-  const signalListeners = { brush: handleSignal};
+  const signalListeners = { brush: handleSignal };
 
   return (
     <VegaPlot
