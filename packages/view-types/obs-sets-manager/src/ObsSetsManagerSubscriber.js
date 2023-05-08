@@ -115,9 +115,7 @@ export function ObsSetsManagerSubscriber(props) {
     { obsType },
   );
   const [{ termEdges }, termEdgesStatus] = useTermEdgesData(
-    loaders, dataset, addUrl, true,
-    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
-    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
+    loaders, dataset, addUrl, false, {}, {},
     { obsType, featureType },
   );
   const isReady = useReady([

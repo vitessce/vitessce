@@ -22,6 +22,7 @@ export {
   getCellSetPolygons,
   treeToMembershipMap,
   nodeToSet,
+  nodeToTerms,
 } from './cell-set-utils.js';
 export {
   isEqualOrPrefix,

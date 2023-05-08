@@ -229,6 +229,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_ROTATION_Z,
     CoordinationType.SPATIAL_ROTATION_ORBIT,
     CoordinationType.SPATIAL_ORBIT_AXIS,
+    CoordinationType.OBS_SET_SELECTION,
+    CoordinationType.OBS_SET_COLOR,
   ],
   [ViewType.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,
