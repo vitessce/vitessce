@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { sum } from 'd3-array';
 import {
   TitleInfo,
@@ -55,6 +55,12 @@ export function ExpressionHistogramSubscriber(props) {
   const [urls, addUrl] = useUrls(loaders, dataset);
   const [iva, setIva] = useState(0);
   const [ivasData, setIvasData] = useState([]);
+  const additionalCellSetsRef = useRef(additionalCellSets);
+
+  // Update the ref whenever additionalCellSets changes
+  useEffect(() => {
+    additionalCellSetsRef.current = additionalCellSets;
+  }, [additionalCellSets]);
 
   // Get data from loaders using the data hooks.
   const [{ obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus] = useObsFeatureMatrixData(
@@ -121,7 +127,7 @@ export function ExpressionHistogramSubscriber(props) {
 
     const selectedCellIds = getCellIdsInRange(value);
     setObsSelection(
-      selectedCellIds, additionalCellSets, cellSetColor,
+      selectedCellIds, additionalCellSetsRef.current, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
       setCellColorEncoding,
       'Ivas Amazing Selection ',
