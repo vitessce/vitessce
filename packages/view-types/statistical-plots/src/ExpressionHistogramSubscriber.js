@@ -113,7 +113,7 @@ export function ExpressionHistogramSubscriber(props) {
     const getCellIdsInRange = (range) => {
       const [lowerBound, upperBound] = range;
 
-      return data
+      return dataOnSelect
         .filter(item => item.value >= lowerBound && item.value <= upperBound)
         .map(item => item.cellId);
     };
