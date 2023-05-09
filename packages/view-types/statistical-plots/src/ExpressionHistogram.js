@@ -6,7 +6,7 @@ import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
  * We use debounce, so that onSelect is called only after the user has finished the selection.
  * Due to vega-lite limitations, we cannot use the vega-lite signals to implement this.
  * See this issue: https://github.com/vega/vega-lite/issues/5728
- * See this for reference on what is supported: https://vega.github.io/vega-lite/docs/selection.html 
+ * See this for reference on what is supported: https://vega.github.io/vega-lite/docs/selection.html
  */
 import debounce from 'lodash/debounce';
 
