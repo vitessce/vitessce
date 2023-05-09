@@ -9,7 +9,7 @@ import {
   useObsFeatureMatrixData, useFeatureSelection,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { setObsSelection } from '@vitessce/sets-utils';
+import { setObsSelection, getObsInfoFromDataWithinRange } from '@vitessce/sets-utils';
 import ExpressionHistogram from './ExpressionHistogram';
 import { useStyles } from './styles';
 /**
@@ -55,11 +55,17 @@ export function ExpressionHistogramSubscriber(props) {
   const [urls, addUrl] = useUrls(loaders, dataset);
   const [dataOnSelect, setDataOnSelect] = useState([]);
   const additionalCellSetsRef = useRef(additionalCellSets);
+  const dataOnSelectRef = useRef(dataOnSelect);
 
   // Update the ref whenever additionalCellSets changes
   useEffect(() => {
     additionalCellSetsRef.current = additionalCellSets;
   }, [additionalCellSets]);
+
+  // Update the ref whenever additionalCellSets changes
+  useEffect(() => {
+    dataOnSelectRef.current = dataOnSelect;
+  }, [dataOnSelect]);
 
   // Get data from loaders using the data hooks.
   const [{ obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus] = useObsFeatureMatrixData(
@@ -83,44 +89,43 @@ export function ExpressionHistogramSubscriber(props) {
   // From the expression matrix and the list of selected genes,
   // generate the array of data points for the histogram.
   const data = useMemo(() => {
+    console.log("data is recomputed");
     if (firstGeneSelected && obsFeatureMatrix && expressionData) {
+      console.log("gene is defined");
+      console.log("** expression data: ", expressionData[0]);
       // Create new cellColors map based on the selected gene.
-      return Array.from(expressionData[0]).map((_, index) => {
+      const newData = Array.from(expressionData[0]).map((_, index) => {
         const value = expressionData[0][index];
         const normValue = value * 100 / 255;
         const newItem = { value: normValue, gene: firstGeneSelected };
-        dataOnSelect.push(newItem);
-        setDataOnSelect(dataOnSelect);
         return newItem;
       });
+      console.log("I want to return this data:", newData);
+      setDataOnSelect(newData);
+      return newData;
     }
     if (obsFeatureMatrix) {
+      console.log("gene is not defined");
+      console.log("** obsFeatureMatrix: ", obsFeatureMatrix.data);
       const numGenes = featureIndex.length;
-      return obsIndex.map((cellId, cellIndex) => {
+      const newData = obsIndex.map((cellId, cellIndex) => {
         const values = obsFeatureMatrix.data
           .subarray(cellIndex * numGenes, (cellIndex + 1) * numGenes);
         const sumValue = sum(values) * 100 / 255;
         const newItem = { value: sumValue, gene: null, cellId };
-        dataOnSelect.push(newItem);
-        setDataOnSelect(dataOnSelect);
         return newItem;
       });
+      setDataOnSelect(newData);
+      return newData;
     }
     return null;
   }, [obsIndex, featureIndex, obsFeatureMatrix, firstGeneSelected, expressionData]);
 
   const onSelect = useCallback((value) => {
-    const getCellIdsInRange = (range) => {
-      const [lowerBound, upperBound] = range;
-
-      return dataOnSelect
-        .filter(item => item.value >= lowerBound && item.value <= upperBound)
-        .map(item => item.cellId);
-    };
 
     const geneName = firstGeneSelected ? [firstGeneSelected, 'values'].join(' ') : 'transcript count';
 
-    const selectedCellIds = getCellIdsInRange(value);
+    const selectedCellIds = getObsInfoFromDataWithinRange(value, dataOnSelectRef.current);
     setObsSelection(
       selectedCellIds, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,

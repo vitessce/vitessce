@@ -152,3 +152,15 @@ export function mergeObsSets(cellSets, additionalCellSets) {
     ],
   };
 }
+
+export function getObsInfoFromDataWithinRange(range, data){
+  const [lowerBound, upperBound] = range;
+
+  console.log('data used in utils:', data);
+  const cellIds = data
+    .filter(item => item.value >= lowerBound && item.value <= upperBound)
+    .map(item => item.cellId);
+
+  console.log("*** cell ids: ", cellIds);
+  return cellIds;
+};
