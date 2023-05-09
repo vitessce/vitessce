@@ -91,6 +91,15 @@ pnpm run build-demo
 - To run all the tests, both unit and e2e: `./test.sh`
 - To run just the unit tests: `pnpm run test`
 
+### Troubleshooting
+
+The following commands can be helpful in case the local environment gets into a broken state:
+
+- `pnpm install`
+- `pnpm run clean`: removes build/bundle directories and all `tsconfig.tsbuildinfo` files (used by TypeScript's Project References). 
+  - `pnpm run build`: need to re-build subpackages after this type of cleanup.
+- `pnpm run clean-deps`: removes all `node_modules` directories, including those nested inside subpackages.
+  - `pnpm install`: need to re-install dependencies after this type of cleanup.
 
 ## Deployment
 
