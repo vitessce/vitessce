@@ -5,5 +5,4 @@
     "outDir": "dist-tsc",
     "rootDir": "src"
   },
-  "include": ["src"]
 }

@@ -10,4 +10,3 @@ export {
   getCellColors,
 } from './interpolate-colors';
 export { default as Pool } from './Pool';
-export { filterPathsByExpansionAndSelection, findChangedHierarchy } from './set-path-utils';

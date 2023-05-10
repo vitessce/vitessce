@@ -1,4 +1,4 @@
-import { filterPathsByExpansionAndSelection, findChangedHierarchy } from './set-path-utils';
+import { filterPathsByExpansionAndSelection, findChangedHierarchy } from '@vitessce/sets-utils/src/set-path-utils';
 
 describe('Tests for findChangedHierarchy', () => {
   it('Computes correct new hierarchy after new selection', () => {
