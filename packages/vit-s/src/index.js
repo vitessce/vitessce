@@ -9,10 +9,16 @@ export {
 } from './plugins';
 // For plugin view types:
 export {
-  useReady, useUrls,
-  useVitessceContainer, useDeckCanvasSize,
-  useExpressionValueGetter, useGetObsInfo,
-  useClosestVitessceContainerSize, useWindowDimensions,
+  useReady,
+  useUrls,
+  useVitessceContainer,
+  useDeckCanvasSize,
+  useUint8ObsFeatureMatrix,
+  useUint8FeatureSelection,
+  useExpressionValueGetter,
+  useGetObsInfo,
+  useClosestVitessceContainerSize,
+  useWindowDimensions,
   useGridItemSize,
 } from './hooks';
 export {

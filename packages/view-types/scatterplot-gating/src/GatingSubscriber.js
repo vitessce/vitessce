@@ -11,7 +11,9 @@ import {
 } from '@vitessce/utils';
 import {
   TitleInfo,
-  useDeckCanvasSize, useReady, useUrls, useExpressionValueGetter,
+  useDeckCanvasSize, useReady, useUrls,
+  useUint8FeatureSelection,
+  useExpressionValueGetter,
   useObsSetsData,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
@@ -227,16 +229,13 @@ export function GatingSubscriber(props) {
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
   const cellColors = useMemo(() => getCellColors({
-    cellColorEncoding,
-    expressionData: expressionDataColor && expressionDataColor[0],
-    geneSelection: gatingFeatureSelectionColor,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
     obsIndex,
     theme,
-  }), [cellColorEncoding, gatingFeatureSelectionColor, mergedCellSets, theme,
-    cellSetSelection, cellSetColor, expressionDataColor, obsIndex]);
+  }), [mergedCellSets, theme,
+    cellSetSelection, cellSetColor, obsIndex]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
@@ -317,12 +316,14 @@ export function GatingSubscriber(props) {
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
+  const [uint8ExpressionData] = useUint8FeatureSelection(expressionDataColor);
+
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useExpressionValueGetter({
     instanceObsIndex: obsIndex,
     matrixObsIndex: obsIndex,
-    expressionData: expressionDataColor,
+    expressionData: uint8ExpressionData,
   });
 
   // Puts the mapping values in the cell info tooltip.

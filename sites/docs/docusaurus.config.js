@@ -18,8 +18,8 @@ module.exports = {
       disableSwitch: false,
     },
     prism: {
-      theme: require('prism-react-renderer/themes/github'),
-      darkTheme: require('prism-react-renderer/themes/dracula'),
+      theme: require('./src/pages/_prism-light-theme.cjs.js'),
+      darkTheme: require('./src/pages/_prism-dark-theme.cjs.js'),
     },
     navbar: {
       title: 'Vitessce',

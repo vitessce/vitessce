@@ -67,11 +67,10 @@ function useExpressionByCellSet(
       const exprValues = cellObjects.map((cell) => {
         const cellIndex = cellIndices[cell.obsId];
         const value = expressionData[0][cellIndex];
-        const normValue = value * 100 / 255;
         const transformFunction = getValueTransformFunction(
           featureValueTransform, featureValueTransformCoefficient,
         );
-        const transformedValue = transformFunction(normValue);
+        const transformedValue = transformFunction(value);
         exprMax = Math.max(transformedValue, exprMax);
         return { value: transformedValue, gene: firstGeneSelected, set: cell.name };
       });
