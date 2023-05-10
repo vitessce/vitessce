@@ -403,7 +403,7 @@ export function SpatialSubscriber(props) {
 
   const resolutionFilteredImageLayerLoaders = useMemo(() => {
     // eslint-disable-next-line max-len
-    const shouldUseFullData = (ll, index) => useFullResolutionImage[meta[index].name] && Array.isArray(ll.data);
+    const shouldUseFullData = (ll, index) => Array.isArray(useFullResolutionImage) && useFullResolutionImage.includes(meta[index].name) && Array.isArray(ll.data);
     // eslint-disable-next-line max-len
     return imageLayerLoaders.map((ll, index) => (shouldUseFullData(ll, index) ? { ...ll, data: ll.data[0] } : ll));
   }, [imageLayerLoaders, useFullResolutionImage, meta]);
