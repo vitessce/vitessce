@@ -1,11 +1,11 @@
 import React from 'react';
-import range from 'lodash/range.js';
+import { range } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
-import Grid from '@material-ui/core/es/Grid/index.js';
-import Slider from '@material-ui/core/es/Slider/index.js';
-import InputLabel from '@material-ui/core/es/InputLabel/index.js';
-import Select from '@material-ui/core/es/Select/index.js';
-import Checkbox from '@material-ui/core/es/Checkbox/index.js';
+import { Grid } from '@material-ui/core';
+import { Slider } from '@material-ui/core';
+import { InputLabel } from '@material-ui/core';
+import { Select } from '@material-ui/core';
+import { Checkbox } from '@material-ui/core';
 import { viv } from '@vitessce/gl';
 import { DEFAULT_RASTER_DOMAIN_TYPE } from '@vitessce/spatial-utils';
 import {

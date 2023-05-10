@@ -2,8 +2,8 @@ import {
   useState, useEffect, useRef,
 } from 'react';
 import { InternMap } from 'internmap';
-import isEqual from 'lodash/isEqual.js';
-import pick from 'lodash/pick.js';
+import { isEqual } from 'lodash-es';
+import { pick } from 'lodash-es';
 import { fromEntries } from '@vitessce/utils';
 import { DATA_TYPE_COORDINATION_VALUE_USAGE } from '@vitessce/constants-internal';
 import { getSourceAndLoaderFromFileType, getDataTypeFromFileType } from './data/loader-registry.js';

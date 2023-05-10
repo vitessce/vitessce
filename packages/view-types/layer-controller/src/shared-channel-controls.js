@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Checkbox from '@material-ui/core/es/Checkbox/index.js';
-import Select from '@material-ui/core/es/Select/index.js';
+import { Checkbox } from '@material-ui/core';
+import { Select } from '@material-ui/core';
 import { useSelectStyles } from './styles.js';
 
 /**

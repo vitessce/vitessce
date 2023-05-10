@@ -1,4 +1,4 @@
-import range from 'lodash/range.js';
+import { range } from 'lodash-es';
 import { JsonLoader, JsonSource } from '@vitessce/json';
 import {
   LoaderResult,

@@ -25,7 +25,7 @@
     "build-lib": "rollup --config rollup.config.js"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^23.0.0",

@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useMemo } from 'react';
-import isEqual from 'lodash/isEqual.js';
+import { isEqual } from 'lodash-es';
 import { nodeToRenderProps, pathToKey } from '@vitessce/sets-utils';
 import { getDefaultColor } from '@vitessce/utils';
 import Tree from './Tree.js';

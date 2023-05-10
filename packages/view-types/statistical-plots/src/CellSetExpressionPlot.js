@@ -1,5 +1,5 @@
 import React from 'react';
-import clamp from 'lodash/clamp.js';
+import { clamp } from 'lodash-es';
 import { VegaPlot, VEGA_THEMES, DATASET_NAME } from '@vitessce/vega';
 import { colorArrayToString } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';

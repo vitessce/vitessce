@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import plur from 'plur';
 import { extent } from 'd3-array';
-import isEqual from 'lodash/isEqual.js';
+import { isEqual } from 'lodash-es';
 import {
   capitalize, commaNumber,
   getCellColors,

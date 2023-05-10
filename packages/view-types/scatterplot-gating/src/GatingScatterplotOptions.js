@@ -1,8 +1,8 @@
 import React from 'react';
 import plur from 'plur';
-import TableCell from '@material-ui/core/es/TableCell/index.js';
-import TableRow from '@material-ui/core/es/TableRow/index.js';
-import TextField from '@material-ui/core/es/TextField/index.js';
+import { TableCell } from '@material-ui/core';
+import { TableRow } from '@material-ui/core';
+import { TextField } from '@material-ui/core';
 import { usePlotOptionsStyles, OptionSelect } from '@vitessce/vit-s';
 import { capitalize } from '@vitessce/utils';
 

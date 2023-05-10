@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import isEqual from 'lodash/isEqual.js';
+import { isEqual } from 'lodash-es';
 import { PALETTE } from '@vitessce/utils';
 import {
   SETS_DATATYPE_OBS,

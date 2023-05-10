@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/es/styles/index.js';
+import { makeStyles } from '@material-ui/core';
 import Tooltip from './Tooltip.js';
 
 const useStyles = makeStyles(theme => ({

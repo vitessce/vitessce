@@ -4,10 +4,10 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer/index.js';
 import { Table } from 'react-virtualized/dist/commonjs/Table/index.js';
-import uuidv4 from 'uuid/v4.js';
-import union from 'lodash/union.js';
-import difference from 'lodash/difference.js';
-import isEqual from 'lodash/isEqual.js';
+import { v4 as uuidv4 } from 'uuid';
+import { union } from 'lodash-es';
+import { difference } from 'lodash-es';
+import { isEqual } from 'lodash-es';
 import clsx from 'clsx';
 import { useStyles } from './styles.js';
 

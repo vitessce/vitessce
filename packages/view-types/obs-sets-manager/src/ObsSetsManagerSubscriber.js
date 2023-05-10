@@ -4,7 +4,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import isEqual from 'lodash/isEqual.js';
+import { isEqual } from 'lodash-es';
 import {
   useCoordination,
   useLoaders,

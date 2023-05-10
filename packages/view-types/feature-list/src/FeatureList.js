@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import every from 'lodash/every.js';
-import { makeStyles } from '@material-ui/core/es/styles/index.js';
+import { every } from 'lodash-es';
+import { makeStyles } from '@material-ui/core';
 import { SelectableTable } from './selectable-table/index.js';
 
 const useStyles = makeStyles(() => ({

@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
-import cloneDeep from 'lodash/cloneDeep.js';
+import { cloneDeep } from 'lodash-es';
 import { getNextScope, capitalize } from '@vitessce/utils';
 import { componentCoordinationScopes, componentCoordinationScopesBy } from './shared.js';
 import {

@@ -4,7 +4,7 @@ import {
   StylesProvider,
   createGenerateClassName,
 } from '@material-ui/core/es/styles/index.js';
-import isEqual from 'lodash/isEqual.js';
+import { isEqual } from 'lodash-es';
 import { META_VERSION } from '@vitessce/constants-internal';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
 import { muiTheme } from './shared-mui/styles.js';

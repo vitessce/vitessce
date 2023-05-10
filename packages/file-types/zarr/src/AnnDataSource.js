@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { openArray } from 'zarr';
-import range from 'lodash/range.js';
+import { range } from 'lodash-es';
 import { dirname } from './utils.js';
 import ZarrDataSource from './ZarrDataSource.js';
 

@@ -57,7 +57,7 @@
     "vitest": "^0.23.4",
     "cross-env": "^7.0.0",
     "json-diff-ts": "^1.2.5",
-    "lodash": "^4.17.21"
+    "lodash-es": "^4.17.21"
   },
   "pnpm": {
     "overrides": {

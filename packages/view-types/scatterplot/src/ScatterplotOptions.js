@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
-import debounce from 'lodash/debounce.js';
-import Checkbox from '@material-ui/core/es/Checkbox/index.js';
-import Slider from '@material-ui/core/es/Slider/index.js';
-import TableCell from '@material-ui/core/es/TableCell/index.js';
-import TableRow from '@material-ui/core/es/TableRow/index.js';
+import { debounce } from 'lodash-es';
+import { Checkbox } from '@material-ui/core';
+import { Slider } from '@material-ui/core';
+import { TableCell } from '@material-ui/core';
+import { TableRow } from '@material-ui/core';
 import { capitalize } from '@vitessce/utils';
 import {
   usePlotOptionsStyles, CellColorEncodingOption, OptionsContainer, OptionSelect,

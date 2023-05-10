@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { makeStyles } from '@material-ui/core/es/styles/index.js';
+import { makeStyles } from '@material-ui/core';
 
 export const useStyles = makeStyles(theme => ({
   selectableTable: {

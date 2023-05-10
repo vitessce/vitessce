@@ -1,4 +1,4 @@
-import isEqual from 'lodash/isEqual.js';
+import { isEqual } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
 import { VIEWER_PALETTE } from '@vitessce/utils';

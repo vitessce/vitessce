@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import isEqual from 'lodash/isEqual.js';
+import { isEqual } from 'lodash-es';
 import {
   deck, viv, getSelectionLayers, ScaledExpressionExtension,
 } from '@vitessce/gl';
