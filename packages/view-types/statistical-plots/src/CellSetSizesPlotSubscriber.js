@@ -7,8 +7,8 @@ import {
 } from '@vitessce/vit-s';
 import isEqual from 'lodash/isEqual';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { mergeObsSets, treeToSetSizesBySetNames } from '@vitessce/sets-utils';
-import { capitalize, filterPathsByExpansionAndSelection, findChangedHierarchy } from '@vitessce/utils';
+import { mergeObsSets, treeToSetSizesBySetNames, filterPathsByExpansionAndSelection, findChangedHierarchy } from '@vitessce/sets-utils';
+import { capitalize } from '@vitessce/utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
 import { useStyles } from './styles';
 
