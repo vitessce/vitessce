@@ -85,7 +85,9 @@ function useExpressionByCellSet(
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
   const setArr = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
-    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme)
+    ? treeToSetSizesBySetNames(
+      mergedCellSets, cellSetSelection, cellSetSelection, cellSetColor, theme,
+    )
     : []
   ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
 
