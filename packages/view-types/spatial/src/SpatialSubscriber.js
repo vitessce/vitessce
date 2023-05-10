@@ -401,6 +401,8 @@ export function SpatialSubscriber(props) {
     obsCentroids, obsCentroidsIndex,
   ]);
 
+  // Without useMemo, this would propagate a change every time the component
+  // re - renders as opposed to when it has to.
   const resolutionFilteredImageLayerLoaders = useMemo(() => {
     // eslint-disable-next-line max-len
     const shouldUseFullData = (ll, index) => Array.isArray(useFullResolutionImage) && useFullResolutionImage.includes(meta[index].name) && Array.isArray(ll.data);
