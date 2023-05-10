@@ -45,7 +45,7 @@ describe('Tests for findChangedHierarchy', () => {
     expect(changedHierarchy).toEqual(['Cell Type Annotations']);
   });
 
-  it('Returns 0 when hierarchy was not changed', () => {
+  it('Returns null when hierarchy was not changed', () => {
     const prevSelectedPaths = [
       ['Louvain Clustering', 'Cluster 1'],
       ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
@@ -56,7 +56,7 @@ describe('Tests for findChangedHierarchy', () => {
     ];
 
     const changedHierarchy = findChangedHierarchy(prevSelectedPaths, currSelectedPaths);
-    expect(changedHierarchy).toEqual(0);
+    expect(changedHierarchy).toEqual(null);
   });
 
   it('Works when nothing was previously selected', () => {
