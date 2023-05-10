@@ -529,10 +529,7 @@ export function treeToSetSizesBySetNames(
    * @param {array} path Array of strings, which compose the path.
    * @param {array} paths Array of arrays of strings, which compose paths.
   * */
-  const contains = (path, paths) => paths.some((p) => {
-    if (p.length !== path.length) return false;
-    return p.every((value, index) => value === path[index]);
-  });
+  const contains = (path, paths) => paths.some(p => isEqual(p, path));
 
   allNamePaths.forEach((clusterPath) => {
     const node = treeFindNodeByNamePath(currTree, clusterPath);

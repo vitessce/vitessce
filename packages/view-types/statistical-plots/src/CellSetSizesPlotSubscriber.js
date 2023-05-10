@@ -81,7 +81,7 @@ export function CellSetSizesPlotSubscriber(props) {
       const changedHierarchy = findChangedHierarchy(prevCellSetSelection, cellSetSelection);
       setPrevCellSetSelection(cellSetSelection);
 
-      if (changedHierarchy !== 0) {
+      if (changedHierarchy) {
         setCurrentHierarchy(changedHierarchy);
         newHierarchy = changedHierarchy;
       }

@@ -50,7 +50,7 @@ export default function CellSetSizesPlot(props) {
   // Get an array of keys for sorting purposes.
   const keys = data.map(d => d.keyName);
 
-  const myScale = {
+  const colorScale = {
     // Manually set the color scale so that Vega-Lite does
     // not choose the colors automatically.
     domain: data.map(d => d.key),
@@ -110,7 +110,7 @@ export default function CellSetSizesPlot(props) {
       color: {
         field: 'key',
         type: 'nominal',
-        scale: myScale,
+        scale: colorScale,
         legend: null,
       },
       tooltip: {

@@ -51,7 +51,8 @@ const findLongest = (arrOfPaths, path, isSubset) => {
  * Generates paths by doing DFS of tree and filters out the ones that are irrelevant.
  * Filtering is based on the hierarchy, currently expanded and currently selected cell sets.
  * @param {object} tree The current tree.
- * @param {object} hierarchy The hierarchy object.
+ * @param {string[]} hierarchy Array of level-zero set names, like
+ * `['Louvain Clustering']`.
  * @param {array} cellSetExpansion An array of cell set paths that are expanded.
  * @param {array} cellSetSelection An array of cell set paths that are selected.
  * @returns An array of paths that should be displayed.
@@ -65,7 +66,7 @@ export function generateCellSetPaths(
   const paths = getPaths({ children: mergedCellSets.tree });
 
   // returns true if path is contained in allPaths, false otherwise
-  const contains = (allPaths, path) => allPaths.some(p => p.toString() === path.toString());
+  const contains = (allPaths, path) => allPaths.some(p => isEqual(p, path));
 
   return paths.filter((clusterPath) => {
     // clusterPath is a parent of some selected cell set and is expanded. We should discard it.
@@ -120,7 +121,7 @@ export function findChangedHierarchy(prevSelectedPaths, currSelectedPaths) {
 
   // nothing was selected or unselected, therefore hierarchy stays the same
   if (unselectedPathsStr.length === 0 && newlySelectedPathsStr.length === 0) {
-    return 0;
+    return null;
   }
 
   /**
