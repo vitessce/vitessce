@@ -53,19 +53,6 @@ export function ExpressionHistogramSubscriber(props) {
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl] = useUrls(loaders, dataset);
-  const [dataOnSelect, setDataOnSelect] = useState([]);
-  const additionalCellSetsRef = useRef(additionalCellSets);
-  const dataOnSelectRef = useRef(dataOnSelect);
-
-  // Update the ref whenever additionalCellSets changes
-  useEffect(() => {
-    additionalCellSetsRef.current = additionalCellSets;
-  }, [additionalCellSets]);
-
-  // Update the ref whenever additionalCellSets changes
-  useEffect(() => {
-    dataOnSelectRef.current = dataOnSelect;
-  }, [dataOnSelect]);
 
   // Get data from loaders using the data hooks.
   const [{ obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus] = useObsFeatureMatrixData(
@@ -97,7 +84,6 @@ export function ExpressionHistogramSubscriber(props) {
         const newItem = { value: normValue, gene: firstGeneSelected, cellId };
         return newItem;
       });
-      setDataOnSelect(newData);
       return newData;
     }
     if (obsFeatureMatrix) {
@@ -109,7 +95,6 @@ export function ExpressionHistogramSubscriber(props) {
         const newItem = { value: sumValue, gene: null, cellId };
         return newItem;
       });
-      setDataOnSelect(newData);
       return newData;
     }
     return null;
@@ -118,7 +103,7 @@ export function ExpressionHistogramSubscriber(props) {
   const onSelect = useCallback((value) => {
     const geneName = firstGeneSelected ? [firstGeneSelected, 'values'].join(' ') : 'transcript count';
 
-    const selectedCellIds = getObsInfoFromDataWithinRange(value, dataOnSelectRef.current);
+    const selectedCellIds = getObsInfoFromDataWithinRange(value, data);
     setObsSelection(
       selectedCellIds, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
@@ -127,7 +112,7 @@ export function ExpressionHistogramSubscriber(props) {
       `: based on ${geneName} in range [${value[0].toFixed(1)}, ${value[1].toFixed(1)}] `,
     );
   }, [additionalCellSets, cellSetColor, data, setAdditionalCellSets,
-    setCellColorEncoding, setCellSetColor, setCellSetSelection,
+    setCellColorEncoding, setCellSetColor, setCellSetSelection, firstGeneSelected,
   ]);
 
   return (
