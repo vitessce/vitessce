@@ -1,7 +1,6 @@
 import React from 'react';
-import IconButton from '@material-ui/core/es/IconButton/index.js';
-import LensIcon from '@material-ui/icons/esm/Lens.js';
-import { makeStyles } from '@material-ui/core/es/styles/index.js';
+import { IconButton, makeStyles } from '@material-ui/core';
+import { Lens as LensIcon } from '@material-ui/icons';
 import { VIEWER_PALETTE } from '@vitessce/utils';
 
 const useStyles = makeStyles(theme => ({

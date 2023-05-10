@@ -28,7 +28,8 @@
   "scripts": {
     "start": "pnpm -C ../../../ run start-tsc",
     "build": "pnpm -C ../../../ run build-tsc",
-    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js"
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "test": "pnpm exec vitest --run -r ../../../ --dir ."
   },
   "dependencies": {
     "zod": "^3.21.4",

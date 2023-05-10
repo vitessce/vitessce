@@ -2,7 +2,7 @@
 import React, {
   useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
 } from 'react';
-import uuidv4 from 'uuid/v4.js';
+import { v4 as uuidv4 } from 'uuid';
 import {
   deck, luma,
   HeatmapCompositeTextLayer,
@@ -17,9 +17,7 @@ import {
   DATA_TEXTURE_SIZE,
   PIXELATED_TEXTURE_PARAMETERS,
 } from '@vitessce/gl';
-import range from 'lodash/range.js';
-import clamp from 'lodash/clamp.js';
-import isEqual from 'lodash/isEqual.js';
+import { range, clamp, isEqual } from 'lodash-es';
 import {
   getLongestString,
   DEFAULT_GL_OPTIONS,

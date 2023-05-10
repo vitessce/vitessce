@@ -13,7 +13,7 @@ const annDataObsm = z.object({
 
 const annDataConvenienceObsLabelsItem = z.object({
   path: z.string(),
-  obsLabelType: z.string(),
+  obsLabelsType: z.string(),
 });
 
 const annDataConvenienceFeatureLabelsItem = z.object({

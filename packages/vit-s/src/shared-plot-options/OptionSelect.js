@@ -1,5 +1,5 @@
 import React from 'react';
-import Select from '@material-ui/core/es/Select/index.js';
+import { Select } from '@material-ui/core';
 import { useStyles } from './styles.js';
 
 export default function OptionSelect(props) {

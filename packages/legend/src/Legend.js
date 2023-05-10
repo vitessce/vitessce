@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/es/styles/index.js';
+import { makeStyles } from '@material-ui/core';
 import { capitalize } from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';

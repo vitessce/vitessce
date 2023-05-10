@@ -1,7 +1,5 @@
 import React from 'react';
-import TableCell from '@material-ui/core/es/TableCell/index.js';
-import TableRow from '@material-ui/core/es/TableRow/index.js';
-import TextField from '@material-ui/core/es/TextField/index.js';
+import { TableCell, TableRow, TextField } from '@material-ui/core';
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 
 export default function CellSetExpressionPlotOptions(props) {

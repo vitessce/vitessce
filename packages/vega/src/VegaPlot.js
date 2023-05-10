@@ -82,7 +82,7 @@ export function VegaPlot(props) {
       return handlerInstance.call;
     }
     return false;
-  }, [getTooltipText]);
+  }, [getTooltipText, classes.tooltipContainer, tooltipClasses.tooltipContent]);
 
   const spec = useMemo(() => ({
     ...partialSpec,

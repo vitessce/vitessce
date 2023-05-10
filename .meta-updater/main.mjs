@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import jsonDiff from 'json-diff-ts';
-import cloneDeep from 'lodash/cloneDeep.js';
+import { cloneDeep } from 'lodash-es';
 
 const isDryrun = process.env.META_UPDATER_MODE === 'dryrun';
 const isVersionOnly = process.env.META_UPDATER_MODE === 'versiononly';
@@ -12,10 +12,10 @@ const DECKGL_VERSION = '~8.8.6';
 const TURF_VERSION = "^6.5.0";
 const NEBULAGL_VERSION = "0.23.8";
 const OTHER_VERSIONS = {
-  'lodash': '^4.17.21',
+  'lodash-es': '^4.17.21',
   'react-grid-layout-with-lodash': '^1.3.5',
   "internmap": "^2.0.3",
-  "uuid": "^3.3.2",
+  "uuid": "^9.0.0",
   "zarr": "0.5.1",
   "zustand": "^3.5.10",
   "@hms-dbmi/viv": "~0.13.7",

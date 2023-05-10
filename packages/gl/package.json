@@ -63,7 +63,7 @@
     "@vitessce/utils": "workspace:*",
     "deck.gl": "~8.8.6",
     "glslify": "^7.0.0",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "math.gl": "^3.5.6",
     "mathjs": "^9.2.0",
     "nebula.gl": "0.23.8"

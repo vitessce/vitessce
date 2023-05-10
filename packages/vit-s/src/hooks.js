@@ -1,8 +1,7 @@
 import {
   useRef, useState, useEffect, useCallback, useMemo,
 } from 'react';
-import debounce from 'lodash/debounce.js';
-import every from 'lodash/every.js';
+import { debounce, every } from 'lodash-es';
 import { extent } from 'd3-array';
 import { capitalize, fromEntries } from '@vitessce/utils';
 import { useGridResize, useEmitGridResize } from './state/hooks.js';

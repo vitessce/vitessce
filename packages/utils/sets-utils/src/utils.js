@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import isEqual from 'lodash/isEqual.js';
+import { isEqual } from 'lodash-es';
 import { PALETTE } from '@vitessce/utils';
 import {
   SETS_DATATYPE_OBS,
@@ -74,16 +74,16 @@ export function pathToKey(path) {
 
 // Moved from src/components/utils.js
 
-export function getNextNumberedNodeName(nodes, prefix) {
+export function getNextNumberedNodeName(nodes, prefix, suffix) {
   let i = 1;
   if (nodes) {
     // eslint-disable-next-line no-loop-func
-    while (nodes.find(n => n.name === `${prefix}${i}`)) {
+    while (nodes.find(n => n.name.includes(`${prefix}${i}`))) {
       // eslint-disable-next-line no-plusplus
       i++;
     }
   }
-  return `${prefix}${i}`;
+  return `${prefix}${i}${suffix}`;
 }
 
 /**
@@ -93,7 +93,7 @@ export function getNextNumberedNodeName(nodes, prefix) {
  * @param {function} setCellSetSelection The setter function for cell set selections.
  * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
  */
-export function setObsSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ') {
+export function setObsSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ', suffix = '') {
   const CELL_SELECTIONS_LEVEL_ZERO_NAME = 'My Selections';
 
   const selectionsLevelZeroNode = additionalCellSets?.tree.find(
@@ -105,7 +105,8 @@ export function setObsSelection(cellSelection, additionalCellSets, cellSetColor,
     tree: [...(additionalCellSets ? additionalCellSets.tree : [])],
   };
 
-  const nextName = getNextNumberedNodeName(selectionsLevelZeroNode?.children, prefix);
+  const nextName = getNextNumberedNodeName(selectionsLevelZeroNode?.children, prefix, suffix);
+
   let colorIndex = 0;
   if (selectionsLevelZeroNode) {
     colorIndex = selectionsLevelZeroNode.children.length;
@@ -146,4 +147,14 @@ export function mergeObsSets(cellSets, additionalCellSets) {
       ...(additionalCellSets ? additionalCellSets.tree : []),
     ],
   };
+}
+
+export function getObsInfoFromDataWithinRange(range, data) {
+  const [lowerBound, upperBound] = range;
+
+  const cellIds = data
+    .filter(item => item.value >= lowerBound && item.value <= upperBound)
+    .map(item => item.cellId);
+
+  return cellIds;
 }

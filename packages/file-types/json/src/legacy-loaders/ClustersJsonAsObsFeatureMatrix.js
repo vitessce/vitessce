@@ -1,5 +1,5 @@
 import { extent } from 'd3-array';
-import range from 'lodash/range.js';
+import { range } from 'lodash-es';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import { clustersSchema } from './schemas/clusters.js';
 import JsonLoader from '../json-loaders/JsonLoader.js';

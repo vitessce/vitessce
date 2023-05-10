@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core/es/styles/index.js';
+import { makeStyles } from '@material-ui/core';
 
 export const useVitessceContainerStyles = makeStyles(theme => ({
   vitessceContainer: {

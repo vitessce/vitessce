@@ -4,8 +4,7 @@
 import tsconfig from '../tsconfig.json' assert { type: 'json' };
 import { dirname, basename, join } from 'node:path';
 import { readdir } from 'node:fs/promises';
-import lodash from 'lodash';
-const { difference } = lodash;
+import { difference } from 'lodash-es';
 
 // Walk subdirectories to find all non-root tsconfig.json files.
 // Reference: https://stackoverflow.com/a/45130990

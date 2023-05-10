@@ -91,6 +91,14 @@ pnpm run build-demo
 - To run all the tests, both unit and e2e: `./test.sh`
 - To run just the unit tests: `pnpm run test`
 
+### Linting
+
+```sh
+pnpm run lint
+```
+
+To allow the linter to perform automated fixes during linting: `pnpm run lint-fix`
+
 ### Troubleshooting
 
 The following commands can be helpful in case the local environment gets into a broken state:

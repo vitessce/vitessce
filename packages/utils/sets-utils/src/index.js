@@ -25,6 +25,10 @@ export {
   nodeToTerms,
 } from './cell-set-utils.js';
 export {
+  filterPathsByExpansionAndSelection,
+  findChangedHierarchy,
+} from './set-path-utils.js';
+export {
   isEqualOrPrefix,
   tryRenamePath,
   PATH_SEP,
@@ -35,6 +39,7 @@ export {
   callbackOnKeyPress,
   getLevelTooltipText,
   pathToKey,
+  getObsInfoFromDataWithinRange,
 } from './utils.js';
 export {
   downloadForUser,

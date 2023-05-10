@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import isEqual from 'lodash/isEqual.js';
+import { isEqual } from 'lodash-es';
 import { sum } from 'd3-array';
 import {
   TitleInfo,

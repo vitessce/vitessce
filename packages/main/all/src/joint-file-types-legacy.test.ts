@@ -206,10 +206,10 @@ describe('src/app/joint-file-types-legacy.js', () => {
   // cells
   describe('expandAnndataCellsZarr', () => {
     it('fails to expand when there are no options', () => {
-      expect(() => expandAnndataCellsZarr({
+      expect(expandAnndataCellsZarr({
         fileType: 'anndata-cells.zarr',
         url: 'http://localhost:8000/anndata.zarr',
-      })).toThrow();
+      })).toEqual([]);
     });
     it('expands when there are lots of options', () => {
       expect(expandAnndataCellsZarr({

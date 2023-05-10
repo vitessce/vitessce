@@ -22,7 +22,7 @@
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/plugins": "workspace:*",
     "@vitessce/schemas": "workspace:*",
-    "lodash": "^4.17.21"
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
     "react": "^18.0.0"

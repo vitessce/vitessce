@@ -16,23 +16,6 @@ import { latestConfigSchema } from './previous-config-meta.js';
 import { configSchemaToVersion } from './view-config-versions.js';
 
 /**
- * Convert an array of Zod schemas into a Zod union schema,
- * bypassing the need for the input array to have
- * at least two elements.
- * @param schemaArr Array of Zod schemas.
- * @returns Zod union schema.
- */
-function toUnion<T extends z.ZodTypeAny[]>(schemaArr: T) {
-  if (schemaArr.length === 0) return z.null();
-  if (schemaArr.length === 1) return schemaArr[0];
-  return z.union([
-    schemaArr[0],
-    schemaArr[1],
-    ...schemaArr.slice(2, schemaArr.length),
-  ]);
-}
-
-/**
  * Convert an array of strings into a Zod enum schema,
  * bypassing the need for the input array to have
  * at least two elements.
@@ -74,6 +57,25 @@ function buildFileDefSchema<T extends z.ZodTypeAny>(fileType: string, options: T
   });
 }
 
+type FileDefSchema = ReturnType<typeof buildFileDefSchema>;
+
+/**
+ * Convert an array of Zod schemas into a Zod union schema,
+ * bypassing the need for the input array to have
+ * at least two elements.
+ * @param schemaArr Array of Zod schemas.
+ * @returns Zod union schema.
+ */
+function toFileDefUnion<T extends FileDefSchema>(schemaArr: T[]) {
+  if (schemaArr.length === 0) return z.null();
+  if (schemaArr.length === 1) return schemaArr[0];
+  return z.discriminatedUnion('fileType', [
+    schemaArr[0],
+    schemaArr[1],
+    ...schemaArr.slice(2, schemaArr.length),
+  ]);
+}
+
 /**
  * Build a Zod schema for the latest Vitessce config,
  * which is specific to any registered plugins.
@@ -99,7 +101,7 @@ export function buildConfigSchema<
   const fileTypeSchemas = [...pluginFileTypes, ...pluginJointFileTypes]
     .map(ft => buildFileDefSchema(ft.name, ft.optionsSchema));
 
-  const fileDefs = toUnion(fileTypeSchemas);
+  const fileDefs = toFileDefUnion(fileTypeSchemas);
 
   // TODO: make this less redundant with latestSchema from ./previous-base-schemas
   return z.object({

@@ -1,4 +1,4 @@
-import range from 'lodash/range.js';
+import { range } from 'lodash-es';
 import MuDataSource, { getObsPath, getVarPath } from './MuDataSource.js';
 
 describe('sources/MuDataSource', () => {

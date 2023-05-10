@@ -41,9 +41,9 @@
     "fast-deep-equal": "^3.1.3",
     "internmap": "^2.0.3",
     "jss-plugin-global": "^10.9.2",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "react-grid-layout-with-lodash": "^1.3.5",
-    "uuid": "^3.3.2",
+    "uuid": "^9.0.0",
     "zustand": "^3.5.10"
   },
   "devDependencies": {

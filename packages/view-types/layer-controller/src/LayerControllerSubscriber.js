@@ -3,7 +3,7 @@
 import React, {
   useCallback, useRef, forwardRef, useMemo,
 } from 'react';
-import Grid from '@material-ui/core/es/Grid/index.js';
+import { Grid } from '@material-ui/core';
 import {
   TitleInfo,
   useReady,

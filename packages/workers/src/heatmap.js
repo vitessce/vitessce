@@ -1,4 +1,4 @@
-import range from 'lodash/range.js';
+import { range } from 'lodash-es';
 
 export function getGeneByCellTile(view, {
   tileSize, tileI, tileJ, numCells, numGenes, cellOrdering, expressionRowLookUp,
