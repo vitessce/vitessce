@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 
 import {
   nodeToRenderProps,
