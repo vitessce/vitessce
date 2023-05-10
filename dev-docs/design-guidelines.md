@@ -47,5 +47,9 @@ This section contains an evolving set of code style guidelines that are not curr
 - Prefer event handlers to side effects (from React docs: [You Might Not Need an Effect](https://react.dev/learn/you-might-not-need-an-effect))
   - Related: exercise caution when removing effect dependencies (from React docs: [Removing Effect Dependencies](https://react.dev/learn/removing-effect-dependencies))
 - Web workers should be [inlined](../packages/workers/rollup.config.js) so that they do not depend on relative paths that consumer applications and libraries would need to configure.
-- Use `.js` extensions for all relative imports, [even in TypeScript contexts](https://github.com/microsoft/TypeScript/issues/42151#issuecomment-914472944).
+- Use `.js` extensions for relative imports, [even in TypeScript contexts](https://github.com/microsoft/TypeScript/issues/42151#issuecomment-914472944).
+- Do not use `.js` extensions for third-party packages, unless either:
+  - The function or variable that needs to be accessed is not exported from the main entrypoint of the package.
+  - The package is published as CommonJS or UMD rather than ESM (or the ESM build is broken as with [json2csv](https://github.com/zemirco/json2csv/issues/539) and [react-virtualized](https://github.com/bvaughn/react-virtualized/issues/1632)).
+
 
