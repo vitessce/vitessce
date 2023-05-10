@@ -1,4 +1,4 @@
-import { generateCellSetPaths, findChangedHierarchy } from './set-path-utils';
+import { filterPathsByExpansionAndSelection, findChangedHierarchy } from './set-path-utils';
 
 describe('Tests for findChangedHierarchy', () => {
   it('Computes correct new hierarchy after new selection', () => {
@@ -80,7 +80,7 @@ describe('Tests for findChangedHierarchy', () => {
   });
 });
 
-describe('Tests for generateCellSetPaths', () => {
+describe('Tests for filterPathsByExpansionAndSelection', () => {
   const tree = {
     version: '0.1.3',
     datatype: 'cell',
@@ -150,7 +150,12 @@ describe('Tests for generateCellSetPaths', () => {
       ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
     ];
 
-    const cellSetPaths = generateCellSetPaths(tree, hierarchy, cellSetExpansion, cellSetSelection);
+    const cellSetPaths = filterPathsByExpansionAndSelection(
+      tree,
+      hierarchy,
+      cellSetExpansion,
+      cellSetSelection,
+    );
     expect(cellSetPaths).toEqual([
       ['Louvain Clustering', 'Cluster 1'],
       ['Louvain Clustering', 'Cluster 2'],
@@ -168,7 +173,12 @@ describe('Tests for generateCellSetPaths', () => {
       ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
     ];
 
-    const cellSetPaths = generateCellSetPaths(tree, hierarchy, cellSetExpansion, cellSetSelection);
+    const cellSetPaths = filterPathsByExpansionAndSelection(
+      tree,
+      hierarchy,
+      cellSetExpansion,
+      cellSetSelection,
+    );
     expect(cellSetPaths).toEqual([
       ['Louvain Clustering', 'Cluster 1'],
       ['Louvain Clustering', 'Cluster 2'],
@@ -188,7 +198,10 @@ describe('Tests for generateCellSetPaths', () => {
       ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
     ];
 
-    const cellSetPaths = generateCellSetPaths(tree, hierarchy, cellSetExpansion, cellSetSelection);
+    const cellSetPaths = filterPathsByExpansionAndSelection(tree,
+      hierarchy,
+      cellSetExpansion,
+      cellSetSelection);
     expect(cellSetPaths).toEqual([
       ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
       ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
@@ -206,7 +219,12 @@ describe('Tests for generateCellSetPaths', () => {
       ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
     ];
 
-    const cellSetPaths = generateCellSetPaths(tree, hierarchy, cellSetExpansion, cellSetSelection);
+    const cellSetPaths = filterPathsByExpansionAndSelection(
+      tree,
+      hierarchy,
+      cellSetExpansion,
+      cellSetSelection,
+    );
     expect(cellSetPaths).toEqual([
       ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
       ['Cell Type Annotations', 'Immune'],

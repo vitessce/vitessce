@@ -1,3 +1,5 @@
+import isEqual from 'lodash/isEqual';
+
 /**
  * Depth-first search of cell set tree, starting from node.
  * @param {*} node The node to start from.
@@ -57,7 +59,7 @@ const findLongest = (arrOfPaths, path, isSubset) => {
  * @param {array} cellSetSelection An array of cell set paths that are selected.
  * @returns An array of paths that should be displayed.
  */
-export function generateCellSetPaths(
+export function filterPathsByExpansionAndSelection(
   mergedCellSets,
   hierarchy,
   cellSetExpansion,

@@ -8,7 +8,7 @@ import {
 import isEqual from 'lodash/isEqual';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { mergeObsSets, treeToSetSizesBySetNames } from '@vitessce/sets-utils';
-import { capitalize, generateCellSetPaths, findChangedHierarchy } from '@vitessce/utils';
+import { capitalize, filterPathsByExpansionAndSelection, findChangedHierarchy } from '@vitessce/utils';
 import CellSetSizesPlot from './CellSetSizesPlot';
 import { useStyles } from './styles';
 
@@ -87,7 +87,7 @@ export function CellSetSizesPlotSubscriber(props) {
       }
     }
 
-    const cellSetPaths = generateCellSetPaths(
+    const cellSetPaths = filterPathsByExpansionAndSelection(
       mergedCellSets,
       newHierarchy,
       cellSetExpansion,
