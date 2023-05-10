@@ -23,6 +23,7 @@ export {
   treeToMembershipMap,
   nodeToSet,
 } from './cell-set-utils';
+export { filterPathsByExpansionAndSelection, findChangedHierarchy } from './set-path-utils';
 export {
   isEqualOrPrefix,
   tryRenamePath,

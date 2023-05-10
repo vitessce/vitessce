@@ -104,37 +104,23 @@ export function filterPathsByExpansionAndSelection(
  * If nothing changed, returns 0.
  */
 export function findChangedHierarchy(prevSelectedPaths, currSelectedPaths) {
-  const arrOfPathsToStr = subarray => subarray.toString();
-
-  const strOfPathsToArr = subarray => subarray.split(',').map((element) => {
-    const num = Number(element);
-    return num === parseFloat(element) ? num : element;
-  });
-
-  const prevPathsStrings = prevSelectedPaths.map(arrOfPathsToStr);
-  const currPathsStrings = currSelectedPaths.map(arrOfPathsToStr);
-
-  const unselectedPathsStr = prevPathsStrings.filter(
-    pathAsStr => !currPathsStrings.includes(pathAsStr),
+  const unselectedPaths = prevSelectedPaths.filter(
+    prevPath => !currSelectedPaths.find(currPath => isEqual(currPath, prevPath)),
   );
-  const newlySelectedPathsStr = currPathsStrings.filter(
-    pathAsStr => !prevPathsStrings.includes(pathAsStr),
+  const newlySelectedPaths = currSelectedPaths.filter(
+    currPath => !prevSelectedPaths.find(prevPath => isEqual(currPath, prevPath)),
   );
-
   // nothing was selected or unselected, therefore hierarchy stays the same
-  if (unselectedPathsStr.length === 0 && newlySelectedPathsStr.length === 0) {
+  if (unselectedPaths.length === 0 && newlySelectedPaths.length === 0) {
     return null;
   }
-
-  /**
+  /*
    * Picks the first path from newlySelectedPathsStr, if there is one,
    * otherwise from unselectedPathsStr.
    * This is going to be used as the new hierarchy.
    */
-  const changedPathStr = newlySelectedPathsStr.length > 0
-    ? newlySelectedPathsStr[0] : unselectedPathsStr[0];
-
-  const changedPath = strOfPathsToArr(changedPathStr);
+  const changedPath = newlySelectedPaths.length > 0
+    ? newlySelectedPaths[0] : unselectedPaths[0];
 
   // we assume that the last element of a path is the leaf node.
   // As leaf nodes do not hold hierarchy information, we can remove it.
