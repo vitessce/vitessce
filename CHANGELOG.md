@@ -11,6 +11,7 @@
 - Implemented a "select-only" option for the `CellSetSizesPlot` on shift+click. 
 - Implemented ability to select a gene by clicking on the heatmap rows for a given gene.
 - Added developer troubleshooting instructions to README.
+- Implemented ability to select an area on the Expression Histogram. On select, a new obs set selection is created. The new selection contains the ids of all obs that belong to the selected bars.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
@@ -38,6 +39,10 @@
 - Update issue template.
 - Update documentation: fix broken links to source code, move Showcase to its own page from About page, replace Roadmap page with link to GitHub project.
 - Updated how TypedArrays are diff-ed in `BitmaskLayer` to reduce memory usage.
+- Changed the `ExpressionHistogramSubscriber` component:
+  - Added ADDITIONAL_OBS_SETS, OBS_SET_COLOR, OBS_COLOR_ENCODING and OBS_SET_SELECTION coordination types to the Feature Histogram.
+  - Added a new function called `onSelect`, passed as props to `ExpressionHistogram`. On selection on `ExpressionHistogram`, the function computes what cell ids belong to that selection. Then calls the pre-existing `setObsSelection` function to create a new cell set with the cell ids.
+- Added a signal to `ExpressionHistogram` component, which calls `onSelect`, after 1 minute of debounce.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 

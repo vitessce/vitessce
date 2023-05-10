@@ -35,6 +35,7 @@ export {
   callbackOnKeyPress,
   getLevelTooltipText,
   pathToKey,
+  getObsInfoFromDataWithinRange,
 } from './utils';
 export {
   downloadForUser,
