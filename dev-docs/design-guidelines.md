@@ -6,6 +6,9 @@ An evolving set of guidelines to ensure that features remain maintainable, scala
 
 ## Design Guidelines
 
+### User experience decisions
+- When making decisions that affect user experience, prefer [consistency](http://vis.pku.edu.cn/research/publication/consistency.pdf).
+
 ### Tests
 
 - Prefer unit tests over end-to-end tests - Keep React components relatively "dumb" and put complex logic into utility functions that can be easily unit-tested.
@@ -31,3 +34,16 @@ An evolving set of guidelines to ensure that features remain maintainable, scala
 ### Coordination type schemas
 - Prefer primitive values like numbers and strings over objects and arrays - Coordination values must be used entirely. Therefore, usage of objects and arrays prevent linking views on a subset of the object/array values.
 
+
+## Code style guide
+
+> A good style guide defines not only superficial elements like naming conventions or whitespace rules but also how to use the features of the given programming language. JavaScript and Perl, for example, are packed with functionality — they offer many ways to implement the same logic. A style guide defines The One True Way of doing things so that you don’t end up with half your team using one set of language features while the other half uses a totally different set of features. -- [How to Do Code Reviews Like a Human](https://mtlynch.io/human-code-reviews-1/).
+
+This section contains an evolving set of code style guidelines that are not currently automated via linting.
+
+- Use MUI style utilities to define styles ([makeStyles](https://v4.mui.com/styles/api/#makestyles-styles-options-hook), at least until we migrate to MUI v5).
+- Use `false`, `null`, and `undefined` as false-y values unless the corresponding truth-y value is a number (to align with [JSX boolean handling](https://legacy.reactjs.org/docs/jsx-in-depth.html#booleans-null-and-undefined-are-ignored)).
+- Use `lodash/isEqual` for set path equality checks and comparisons.
+- Prefer more specific naming for utility functions (despite length/verbosity) to help readability.
+- Prefer event handlers to side effects (from React docs: [You Might Not Need an Effect](https://react.dev/learn/you-might-not-need-an-effect))
+  - Related: exercise caution when removing effect dependencies (from React docs: [Removing Effect Dependencies](https://react.dev/learn/removing-effect-dependencies))
