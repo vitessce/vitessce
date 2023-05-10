@@ -5,7 +5,7 @@ import {
   useUrls, useReady, useGridItemSize,
   useObsSetsData,
 } from '@vitessce/vit-s';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash-es';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import {
   mergeObsSets, treeToSetSizesBySetNames, filterPathsByExpansionAndSelection, findChangedHierarchy,
