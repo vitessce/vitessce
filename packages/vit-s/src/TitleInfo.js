@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core';
-import { CloudDownload as CloudDownloadIcon } from '@material-ui/icons';
-import { MenuItem } from '@material-ui/core';
-import { IconButton } from '@material-ui/core';
-import { Link } from '@material-ui/core';
-import { ArrowDropDown as ArrowDropDownIcon } from '@material-ui/icons';
-import { ArrowDropUp as ArrowDropUpIcon } from '@material-ui/icons';
-import { Settings as SettingsIcon } from '@material-ui/icons';
-import { Close as CloseIcon } from '@material-ui/icons';
+import { makeStyles, MenuItem, IconButton, Link } from '@material-ui/core';
+import {
+  CloudDownload as CloudDownloadIcon,
+  ArrowDropDown as ArrowDropDownIcon,
+  ArrowDropUp as ArrowDropUpIcon,
+  Settings as SettingsIcon,
+  Close as CloseIcon,
+} from '@material-ui/icons';
 
 import { TOOLTIP_ANCESTOR } from './classNames.js';
 import LoadingIndicator from './LoadingIndicator.js';

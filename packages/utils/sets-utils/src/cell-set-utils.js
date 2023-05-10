@@ -1,8 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { v4 as uuidv4 } from 'uuid';
-import { isNil } from 'lodash-es';
-import { isEqual } from 'lodash-es';
-import { range } from 'lodash-es';
+import { isNil, isEqual, range } from 'lodash-es';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
 import centroid from '@turf/centroid';
 import concaveman from 'concaveman';

@@ -1,9 +1,12 @@
-import { makeStyles, withStyles } from '@material-ui/core';
-import { AccordionSummary } from '@material-ui/core';
-import { AccordionDetails } from '@material-ui/core';
-import { InputLabel } from '@material-ui/core';
-import { Slider } from '@material-ui/core';
-import { Grid } from '@material-ui/core';
+import {
+  makeStyles,
+  withStyles,
+  AccordionSummary,
+  AccordionDetails,
+  InputLabel,
+  Slider,
+  Grid,
+} from '@material-ui/core';
 
 const useSpanStyles = makeStyles(() => ({
   span: {

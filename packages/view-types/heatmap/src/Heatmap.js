@@ -17,9 +17,7 @@ import {
   DATA_TEXTURE_SIZE,
   PIXELATED_TEXTURE_PARAMETERS,
 } from '@vitessce/gl';
-import { range } from 'lodash-es';
-import { clamp } from 'lodash-es';
-import { isEqual } from 'lodash-es';
+import { range, clamp, isEqual } from 'lodash-es';
 import {
   getLongestString,
   DEFAULT_GL_OPTIONS,

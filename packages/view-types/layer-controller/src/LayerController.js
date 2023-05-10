@@ -4,17 +4,14 @@ import {
   GLOBAL_LABELS, getSourceFromLoader, isRgb,
 } from '@vitessce/spatial-utils';
 
-import { Grid } from '@material-ui/core';
-import { Button } from '@material-ui/core';
-import { Add as AddIcon } from '@material-ui/icons';
-import { Slider } from '@material-ui/core';
-import { Tabs } from '@material-ui/core';
-import { Tab } from '@material-ui/core';
+import { Grid, Button, Slider, Tabs, Tab, Accordion } from '@material-ui/core';
+import {
+  Add as AddIcon,
+  ExpandMore as ExpandMoreIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+} from '@material-ui/icons';
 
-import { Accordion } from '@material-ui/core';
-import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
-import { Visibility as VisibilityIcon } from '@material-ui/icons';
-import { VisibilityOff as VisibilityOffIcon } from '@material-ui/icons';
 
 import { canLoadResolution } from '@vitessce/utils';
 import LayerOptions from './LayerOptions.js';

@@ -1,8 +1,5 @@
 import React from 'react';
-import { Box } from '@material-ui/core';
-import { Table } from '@material-ui/core';
-import { TableBody } from '@material-ui/core';
-import { TableContainer } from '@material-ui/core';
+import { Box, Table, TableBody, TableContainer } from '@material-ui/core';
 import { useStyles } from './styles.js';
 
 export default function OptionsContainer(props) {

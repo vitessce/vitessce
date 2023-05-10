@@ -1,9 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 
-import { Grid } from '@material-ui/core';
-import { Slider } from '@material-ui/core';
-import { debounce } from 'lodash-es';
-import { isEqual } from 'lodash-es';
+import { Grid, Slider } from '@material-ui/core';
+import { debounce, isEqual } from 'lodash-es';
 
 import { getSourceFromLoader } from '@vitessce/spatial-utils';
 import ChannelOptions from './ChannelOptions.js';

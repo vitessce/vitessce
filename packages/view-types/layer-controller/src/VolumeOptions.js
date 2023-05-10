@@ -1,13 +1,16 @@
 import React from 'react';
 import { Matrix4 } from 'math.gl';
-import { Grid } from '@material-ui/core';
-import { Typography } from '@material-ui/core';
-import { Button } from '@material-ui/core';
-import { makeStyles, createStyles } from '@material-ui/core';
-import { FormControl } from '@material-ui/core';
-import { Select } from '@material-ui/core';
-import { InputLabel } from '@material-ui/core';
-import { Slider } from '@material-ui/core';
+import {
+  Grid,
+  Typography,
+  Button,
+  makeStyles,
+  createStyles,
+  FormControl,
+  Select,
+  InputLabel,
+  Slider,
+} from '@material-ui/core';
 import { viv } from '@vitessce/gl';
 import { abbreviateNumber, getBoundingCube } from './utils.js';
 import { useSelectStyles } from './styles.js';

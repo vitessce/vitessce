@@ -1,5 +1,4 @@
-import { range } from 'lodash-es';
-import { sum } from 'lodash-es';
+import { range, sum } from 'lodash-es';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import { DEFAULT_MOLECULES_LAYER } from '@vitessce/spatial-utils';
 import { moleculesSchema } from './schemas/molecules.js';
