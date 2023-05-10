@@ -1,6 +1,5 @@
 import React, {
   useEffect,
-  useState,
   useMemo,
   useCallback,
 } from 'react';
@@ -83,6 +82,7 @@ export function ObsSetsManagerSubscriber(props) {
     dataset,
     obsType,
     obsSetSelection: cellSetSelection,
+    obsSetExpansion: cellSetExpansion,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
     obsColorEncoding: cellColorEncoding,
@@ -90,14 +90,13 @@ export function ObsSetsManagerSubscriber(props) {
     setObsSetSelection: setCellSetSelection,
     setObsColorEncoding: setCellColorEncoding,
     setObsSetColor: setCellSetColor,
+    setObsSetExpansion: setCellSetExpansion,
     setAdditionalObsSets: setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.OBS_SETS], coordinationScopes);
 
   const title = titleOverride || `${capitalize(obsType)} Sets`;
 
   const [urls, addUrl] = useUrls(loaders, dataset);
-
-  const [cellSetExpansion, setCellSetExpansion] = useState([]);
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
@@ -184,9 +183,12 @@ export function ObsSetsManagerSubscriber(props) {
   // The user wants to expand or collapse a node in the tree.
   const onExpandNode = useCallback((expandedKeys, targetKey, expanded) => {
     if (expanded) {
-      setCellSetExpansion(prev => ([...prev, targetKey.split(PATH_SEP)]));
+      setCellSetExpansion([...cellSetExpansion, targetKey.split(PATH_SEP)]);
     } else {
-      setCellSetExpansion(prev => prev.filter(d => !isEqual(d, targetKey.split(PATH_SEP))));
+      const newCellSetExpansion = cellSetExpansion.filter(
+        d => !isEqual(d, targetKey.split(PATH_SEP)),
+      );
+      setCellSetExpansion(newCellSetExpansion);
     }
   }, []);
 
@@ -633,6 +635,7 @@ export function ObsSetsManagerSubscriber(props) {
     onExportSetJSON, onImportTree, onIntersection, onNodeCheckNewName, onNodeRemove, onNodeSetColor,
     onNodeSetName, onNodeView, onUnion, setWarning, theme,
   ]);
+
 
   return (
     <TitleInfo

@@ -59,6 +59,7 @@
         "obsFilter": { "$ref": "#/definitions/stringOrStringArray" },
         "obsHighlight": { "$ref": "#/definitions/stringOrStringArray" },
         "obsSetSelection": { "$ref": "#/definitions/stringOrStringArray" },
+        "obsSetExpansion": { "$ref": "#/definitions/stringOrStringArray" },
         "obsSetHighlight": { "$ref": "#/definitions/stringOrStringArray" },
         "obsSetColor": { "$ref": "#/definitions/stringOrStringArray" },
         "featureFilter": { "$ref": "#/definitions/stringOrStringArray" },
@@ -839,6 +840,20 @@
                 {
                   "type": "null",
                   "description": "If null is provided and auto cell set initialization is enabled, cell set selections will be automatically initialized."
+                },
+                { "type": "array" }
+              ]
+            }
+          }
+        },
+        "obsSetExpansion": {
+          "type": "object",
+          "patternProperties": {
+            ".": {
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "If null is provided and auto cell set initialization is enabled, cell set expansions will be automatically initialized."
                 },
                 { "type": "array" }
               ]

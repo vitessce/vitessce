@@ -292,6 +292,11 @@ export const baseCoordinationTypes = [
     null,
     z.array(obsSetPath).nullable(),
   ),
+  new PluginCoordinationType(
+    CoordinationType.OBS_SET_EXPANSION,
+    null,
+    z.array(obsSetPath).nullable(),
+  ),
   new PluginCoordinationType(CoordinationType.OBS_SET_HIGHLIGHT, null, obsSetPath.nullable()),
   new PluginCoordinationType(
     CoordinationType.OBS_SET_COLOR,

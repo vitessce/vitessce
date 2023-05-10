@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import clamp from 'lodash/clamp';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 import { colorArrayToString } from '@vitessce/sets-utils';
-import { capitalize } from '@vitessce/utils';
+import { capitalize, getDefaultColor } from '@vitessce/utils';
 
 /**
  * Cell set sizes displayed as a bar chart,
@@ -47,16 +47,18 @@ export default function CellSetSizesPlot(props) {
     colorString: colorArrayToString(d.color),
   }));
 
-  // Manually set the color scale so that Vega-Lite does
-  // not choose the colors automatically.
-  const colors = {
-    domain: data.map(d => d.key),
-    range: data.map(d => d.colorString),
-  };
-
   // Get an array of keys for sorting purposes.
   const keys = data.map(d => d.keyName);
 
+  const colorScale = {
+    // Manually set the color scale so that Vega-Lite does
+    // not choose the colors automatically.
+    domain: data.map(d => d.key),
+    range: data.map((d) => {
+      const [r, g, b] = !d.isGrayedOut ? d.color : getDefaultColor(theme);
+      return `rgba(${r}, ${g}, ${b}, 1)`;
+    }),
+  };
   const captializedObsType = capitalize(obsType);
 
   const spec = {
@@ -77,8 +79,17 @@ export default function CellSetSizesPlot(props) {
         name: 'bar_select',
         select: {
           type: 'point',
-          on: 'click',
-          fields: ['setNamePath'],
+          on: 'click[event.shiftKey === false]',
+          fields: ['setNamePath', 'isGrayedOut'],
+          empty: 'none',
+        },
+      },
+      {
+        name: 'shift_bar_select',
+        select: {
+          type: 'point',
+          on: 'click[event.shiftKey]',
+          fields: ['setNamePath', 'isGrayedOut'],
           empty: 'none',
         },
       },
@@ -99,7 +110,7 @@ export default function CellSetSizesPlot(props) {
       color: {
         field: 'key',
         type: 'nominal',
-        scale: colors,
+        scale: colorScale,
         legend: null,
       },
       tooltip: {
@@ -136,11 +147,15 @@ export default function CellSetSizesPlot(props) {
 
   const handleSignal = (name, value) => {
     if (name === 'bar_select') {
-      onBarSelect(value.setNamePath);
+      onBarSelect(value.setNamePath, value.isGrayedOut[0]);
+    } else if (name === 'shift_bar_select') {
+      const isGrayedOut = false;
+      const selectOnlyEnabled = true;
+      onBarSelect(value.setNamePath, isGrayedOut, selectOnlyEnabled);
     }
   };
 
-  const signalListeners = { bar_select: handleSignal };
+  const signalListeners = { bar_select: handleSignal, shift_bar_select: handleSignal };
   const getTooltipText = useCallback(item => ({
     [`${captializedObsType} Set`]: item.datum.name,
     [`${captializedObsType} Set Size`]: item.datum.size,

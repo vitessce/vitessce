@@ -7,10 +7,10 @@ import {
 describe('src/app/joint-file-types.js', () => {
   describe('expandAnndataZarr', () => {
     it('fails to expand when there are no options', () => {
-      expect(() => expandAnndataZarr({
+      expect(expandAnndataZarr({
         fileType: 'anndata.zarr',
         url: 'http://localhost:8000/anndata.zarr',
-      })).toThrow();
+      })).toEqual([]);
     });
     it('expands when there is an obsEmbedding object', () => {
       expect(expandAnndataZarr({

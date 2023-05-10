@@ -174,16 +174,13 @@ export function EmbeddingScatterplotSubscriber(props) {
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
   const cellColors = useMemo(() => getCellColors({
-    cellColorEncoding,
-    expressionData: expressionData && expressionData[0],
-    geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
     obsIndex: matrixObsIndex,
     theme,
-  }), [cellColorEncoding, geneSelection, mergedCellSets, theme,
-    cellSetSelection, cellSetColor, expressionData, matrixObsIndex]);
+  }), [mergedCellSets, theme,
+    cellSetSelection, cellSetColor, matrixObsIndex]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
