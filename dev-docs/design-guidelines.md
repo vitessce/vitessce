@@ -47,3 +47,4 @@ This section contains an evolving set of code style guidelines that are not curr
 - Prefer more specific naming for utility functions (despite length/verbosity) to help readability.
 - Prefer event handlers to side effects (from React docs: [You Might Not Need an Effect](https://react.dev/learn/you-might-not-need-an-effect))
   - Related: exercise caution when removing effect dependencies (from React docs: [Removing Effect Dependencies](https://react.dev/learn/removing-effect-dependencies))
+- Web workers should be [inlined](../packages/workers/src/rollup.config.js) so that they do not depend on relative paths that consumer applications and libraries would need to configure.
