@@ -1,5 +1,5 @@
 import React, {
-  useMemo, useState, useEffect, useRef, useCallback,
+  useMemo, useCallback,
 } from 'react';
 import { sum } from 'd3-array';
 import {
@@ -77,25 +77,23 @@ export function ExpressionHistogramSubscriber(props) {
   // generate the array of data points for the histogram.
   const data = useMemo(() => {
     if (firstGeneSelected && obsFeatureMatrix && expressionData) {
-      const newData = obsIndex.map((cellId, cellIndex) => {
+      return obsIndex.map((cellId, cellIndex) => {
         const value = expressionData[0][cellIndex];
         // Create new cellColors map based on the selected gene.
         const normValue = value * 100 / 255;
         const newItem = { value: normValue, gene: firstGeneSelected, cellId };
         return newItem;
       });
-      return newData;
     }
     if (obsFeatureMatrix) {
       const numGenes = featureIndex.length;
-      const newData = obsIndex.map((cellId, cellIndex) => {
+      return obsIndex.map((cellId, cellIndex) => {
         const values = obsFeatureMatrix.data
           .subarray(cellIndex * numGenes, (cellIndex + 1) * numGenes);
         const sumValue = sum(values) * 100 / 255;
         const newItem = { value: sumValue, gene: null, cellId };
         return newItem;
       });
-      return newData;
     }
     return null;
   }, [obsIndex, featureIndex, obsFeatureMatrix, firstGeneSelected, expressionData]);
