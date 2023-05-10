@@ -89,24 +89,18 @@ export function ExpressionHistogramSubscriber(props) {
   // From the expression matrix and the list of selected genes,
   // generate the array of data points for the histogram.
   const data = useMemo(() => {
-    console.log("data is recomputed");
     if (firstGeneSelected && obsFeatureMatrix && expressionData) {
-      console.log("gene is defined");
-      console.log("** expression data: ", expressionData[0]);
-      // Create new cellColors map based on the selected gene.
-      const newData = Array.from(expressionData[0]).map((_, index) => {
-        const value = expressionData[0][index];
+      const newData = obsIndex.map((cellId, cellIndex) => {
+        const value = expressionData[0][cellIndex];
+        // Create new cellColors map based on the selected gene.
         const normValue = value * 100 / 255;
-        const newItem = { value: normValue, gene: firstGeneSelected };
+        const newItem = { value: normValue, gene: firstGeneSelected, cellId };
         return newItem;
       });
-      console.log("I want to return this data:", newData);
       setDataOnSelect(newData);
       return newData;
     }
     if (obsFeatureMatrix) {
-      console.log("gene is not defined");
-      console.log("** obsFeatureMatrix: ", obsFeatureMatrix.data);
       const numGenes = featureIndex.length;
       const newData = obsIndex.map((cellId, cellIndex) => {
         const values = obsFeatureMatrix.data
@@ -122,7 +116,6 @@ export function ExpressionHistogramSubscriber(props) {
   }, [obsIndex, featureIndex, obsFeatureMatrix, firstGeneSelected, expressionData]);
 
   const onSelect = useCallback((value) => {
-
     const geneName = firstGeneSelected ? [firstGeneSelected, 'values'].join(' ') : 'transcript count';
 
     const selectedCellIds = getObsInfoFromDataWithinRange(value, dataOnSelectRef.current);
@@ -130,8 +123,8 @@ export function ExpressionHistogramSubscriber(props) {
       selectedCellIds, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
       setCellColorEncoding,
-      '',
-      `Selection based on ${geneName} in range [${value[0].toFixed()}, ${value[1].toFixed()}].`,
+      'Selection ',
+      `: based on ${geneName} in range [${value[0].toFixed(1)}, ${value[1].toFixed(1)}] `,
     );
   }, [additionalCellSets, cellSetColor, data, setAdditionalCellSets,
     setCellColorEncoding, setCellSetColor, setCellSetSelection,
