@@ -507,8 +507,9 @@ export function treeToCellPolygonsBySetNames(
  * Given a tree with state, get the sizes of the
  * sets currently marked as "visible".
  * @param {object} currTree A tree object.
+ * @param {array} allNamePaths Array of all paths.
  * @param {array} selectedNamePaths Array of arrays of strings,
- * representing set "paths".
+ * representing selected paths.
  * @param {object[]} setColor Array of objects with the
  * properties `path` and `color`.
  * @param {string} theme "light" or "dark" for the vitessce theme
@@ -516,21 +517,38 @@ export function treeToCellPolygonsBySetNames(
  * with the properties `name`, `size`, `key`,
  * and `color`.
  */
-export function treeToSetSizesBySetNames(currTree, selectedNamePaths, setColor, theme) {
+export function treeToSetSizesBySetNames(
+  currTree, allNamePaths, selectedNamePaths, setColor, theme,
+) {
   const sizes = [];
-  selectedNamePaths.forEach((setNamePath) => {
-    const node = treeFindNodeByNamePath(currTree, setNamePath);
+
+  /**
+   * Checks if a path is contained in an array of paths.
+   * @param {array} path Array of strings, which compose the path.
+   * @param {array} paths Array of arrays of strings, which compose paths.
+  * */
+  const contains = (path, paths) => paths.some(p => isEqual(p, path));
+
+  allNamePaths.forEach((clusterPath) => {
+    const node = treeFindNodeByNamePath(currTree, clusterPath);
     if (node) {
       const nodeSet = nodeToSet(node);
-      const nodeColor = setColor?.find(d => isEqual(d.path, setNamePath))?.color
-        || getDefaultColor(theme);
-      sizes.push({
+      const nodeColor = setColor?.find(d => isEqual(d.path, clusterPath))?.color
+          || getDefaultColor(theme);
+      const nodeProps = {
         key: generateKey(),
         name: node.name,
         size: nodeSet.length,
         color: nodeColor,
-        setNamePath,
-      });
+        setNamePath: clusterPath,
+        // used by the CellSetSizesPlot to determine if the bar should be grayed out
+        isGrayedOut: true,
+      };
+      // if the current path is selected, we need to show it
+      if (contains(clusterPath, selectedNamePaths)) {
+        nodeProps.isGrayedOut = false;
+      }
+      sizes.push(nodeProps);
     }
   });
   return sizes;

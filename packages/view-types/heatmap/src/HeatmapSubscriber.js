@@ -134,15 +134,12 @@ export function HeatmapSubscriber(props) {
   ), [cellSets, additionalCellSets]);
 
   const cellColors = useMemo(() => getCellColors({
-    // Only show cell set selection on heatmap labels.
-    cellColorEncoding: 'cellSetSelection',
-    geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
     obsIndex,
     theme,
-  }), [mergedCellSets, geneSelection, theme,
+  }), [mergedCellSets, theme,
     cellSetColor, cellSetSelection, obsIndex]);
 
   const getObsInfo = useGetObsInfo(

@@ -1,12 +1,15 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   TitleInfo,
   useCoordination, useLoaders,
   useUrls, useReady, useGridItemSize,
   useObsSetsData,
 } from '@vitessce/vit-s';
+import isEqual from 'lodash/isEqual';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { mergeObsSets, treeToSetSizesBySetNames } from '@vitessce/sets-utils';
+import {
+  mergeObsSets, treeToSetSizesBySetNames, filterPathsByExpansionAndSelection, findChangedHierarchy,
+} from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
 import CellSetSizesPlot from './CellSetSizesPlot.js';
 import { useStyles } from './styles.js';
@@ -41,6 +44,7 @@ export function CellSetSizesPlotSubscriber(props) {
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
+    obsSetExpansion: cellSetExpansion,
   }, {
     setObsSetSelection: setCellSetSelection,
     setObsSetColor: setCellSetColor,
@@ -50,6 +54,11 @@ export function CellSetSizesPlotSubscriber(props) {
 
   const [width, height, containerRef] = useGridItemSize();
   const [urls, addUrl] = useUrls(loaders, dataset);
+
+  // the name of the hierarchy that was clicked on last
+  const [currentHierarchy, setCurrentHierarchy] = useState([]);
+  // the previous cell set that was selected
+  const [prevCellSetSelection, setPrevCellSetSelection] = useState([]);
 
   // Get data from loaders using the data hooks.
   const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
@@ -67,15 +76,54 @@ export function CellSetSizesPlotSubscriber(props) {
     [cellSets, additionalCellSets],
   );
 
-  // From the cell sets hierarchy and the list of selected cell sets,
-  // generate the array of set sizes data points for the bar plot.
-  const data = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
-    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme)
-    : []
-  ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
+  const data = useMemo(() => {
+    let newHierarchy = currentHierarchy;
 
-  const onBarSelect = (setNamePath) => {
-    setCellSetSelection([setNamePath]);
+    if (cellSetSelection) {
+      const changedHierarchy = findChangedHierarchy(prevCellSetSelection, cellSetSelection);
+      setPrevCellSetSelection(cellSetSelection);
+
+      if (changedHierarchy) {
+        setCurrentHierarchy(changedHierarchy);
+        newHierarchy = changedHierarchy;
+      }
+    }
+
+    const cellSetPaths = filterPathsByExpansionAndSelection(
+      mergedCellSets,
+      newHierarchy,
+      cellSetExpansion,
+      cellSetSelection,
+    );
+
+    if (mergedCellSets && cellSets && cellSetSelection && cellSetColor) {
+      return treeToSetSizesBySetNames(
+        mergedCellSets,
+        cellSetPaths,
+        cellSetSelection,
+        cellSetColor,
+        theme,
+      );
+    }
+    return [];
+  }, [
+    mergedCellSets,
+    cellSetSelection,
+    cellSetExpansion,
+    cellSetColor,
+    theme,
+  ]);
+
+  const onBarSelect = (setNamePath, wasGrayedOut, selectOnlyEnabled = false) => {
+    if (selectOnlyEnabled) {
+      setCellSetSelection([setNamePath]);
+      return;
+    }
+    if (!wasGrayedOut) {
+      setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, setNamePath)));
+    } else if (wasGrayedOut) {
+      setCellSetSelection([...cellSetSelection, setNamePath]);
+    }
   };
 
   return (

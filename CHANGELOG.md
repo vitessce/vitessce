@@ -8,8 +8,10 @@
 - Fixed a small bug with the path configuration for the `obsSets` component when using zero config mode.
 - Add notes about branch naming conventions and pull request merge process to README
 - Added bidirectional interactions for the `CellSetSizesPlot` vega-lite plot to allow the Vitessce view to update and show the selected cluster on bar click.
+- Implemented a "select-only" option for the `CellSetSizesPlot` on shift+click. 
 - Implemented ability to select a gene by clicking on the heatmap rows for a given gene.
 - Added developer troubleshooting instructions to README.
+- Implemented ability to select an area on the Expression Histogram. On select, a new obs set selection is created. The new selection contains the ids of all obs that belong to the selected bars.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
@@ -26,12 +28,21 @@
 - Changed `VegaPlot.js` to accept prop called `setName` and overwrite the default tooltip style of vega-tooltip.
 - Added a new `styles.js` file that defines the style of the vega-tooltips.
 - Changed `CellSetSizesPlot.js` and `CellSetExpressionPlot.js` to pass in `setName` as props when calling `VegaPlot`.
+- Added more complex logic in `CellSetSizesPlotSubscriber.js` to determine which bars should be displayed in `CellSetSizesPlot.js`.
+- Added a new `set-path-utils` file with the functions containing the more complex logic around choosing which hierarchy to display on the `CellSetSizesPlot`.
+- Added one more prop under `data` in `CellSetSizesPlot`, called `isGrayedOut` and made vega-lite to color in gray bars where this property is set to true.
+- Added `obsSetExpansion` to coordination scope and started using it in `CellSetSizesPlotSubscriber.js`.
 - Added handling for the `onClick` function in the `Heatmap` component. The `Heatmap` component calls the `onHeatmapClick` function, defined in the `HeatmapSubscriber`, every time a user clicks on the heatmap. The `onHeatmapClick` function sets the currently selected gene to be equal to the gene the user clicked at. It also sets the cell color encoding to `geneSelection`.
 - Upgrade `Viv` to `0.13.7`
 - Fix physical size scaling for non-square 2D pixels.
 - Removes logic for `tsconfig.json` from the meta-updater script
 - Update issue template.
 - Update documentation: fix broken links to source code, move Showcase to its own page from About page, replace Roadmap page with link to GitHub project.
+- Updated how TypedArrays are diff-ed in `BitmaskLayer` to reduce memory usage.
+- Changed the `ExpressionHistogramSubscriber` component:
+  - Added ADDITIONAL_OBS_SETS, OBS_SET_COLOR, OBS_COLOR_ENCODING and OBS_SET_SELECTION coordination types to the Feature Histogram.
+  - Added a new function called `onSelect`, passed as props to `ExpressionHistogram`. On selection on `ExpressionHistogram`, the function computes what cell ids belong to that selection. Then calls the pre-existing `setObsSelection` function to create a new cell set with the cell ids.
+- Added a signal to `ExpressionHistogram` component, which calls `onSelect`, after 1 minute of debounce.
 - Replace Ajv with Zod.
   - Add generic config schema.
   - Add builder function for generating plugin-specific config schema.
