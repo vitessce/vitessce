@@ -1,7 +1,6 @@
 import React, {
   useEffect,
   useMemo,
-  useCallback,
 } from 'react';
 import { isEqual } from 'lodash-es';
 import {
@@ -143,9 +142,9 @@ export function ObsSetsManagerSubscriber(props) {
 
   // A helper function for updating the encoding for cell colors,
   // which may have previously been set to 'geneSelection'.
-  const setCellSetColorEncoding = useCallback(() => {
+  function setCellSetColorEncoding() {
     setCellColorEncoding('cellSetSelection');
-  }, [setCellColorEncoding]);
+  }
 
   // Merged cell sets are only to be used for convenience when reading
   // (if writing: update either `cellSets` _or_ `additionalCellSets`).
@@ -168,17 +167,17 @@ export function ObsSetsManagerSubscriber(props) {
   // Callback functions
 
   // The user wants to select all nodes at a particular hierarchy level.
-  const onCheckLevel = useCallback((levelZeroName, levelIndex) => {
+  function onCheckLevel(levelZeroName, levelIndex) {
     const lzn = mergedCellSets.tree.find(n => n.name === levelZeroName);
     if (lzn) {
       const newCellSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
       setCellSetSelection(newCellSetSelection);
       setCellSetColorEncoding();
     }
-  }, [mergedCellSets, setCellSetColorEncoding, setCellSetSelection]);
+  }
 
   // The user wants to check or uncheck a cell set node.
-  const onCheckNode = useCallback((targetKey, checked) => {
+  function onCheckNode(targetKey, checked) {
     const targetPath = (Array.isArray(targetKey) ? targetKey : targetKey.split(PATH_SEP));
     if (!targetKey) {
       return;
@@ -189,10 +188,10 @@ export function ObsSetsManagerSubscriber(props) {
       setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, targetPath)));
     }
     setCellSetColorEncoding();
-  }, [cellSetSelection, setCellSetColorEncoding, setCellSetSelection]);
+  }
 
   // The user wants to expand or collapse a node in the tree.
-  const onExpandNode = useCallback((expandedKeys, targetKey, expanded) => {
+  function onExpandNode(expandedKeys, targetKey, expanded) {
     if (expanded) {
       setCellSetExpansion([...cellSetExpansion, targetKey.split(PATH_SEP)]);
     } else {
@@ -201,13 +200,13 @@ export function ObsSetsManagerSubscriber(props) {
       );
       setCellSetExpansion(newCellSetExpansion);
     }
-  }, []);
+  }
 
   // The user dragged a tree node and dropped it somewhere else in the tree
   // to re-arrange or re-order the nodes.
   // We need to verify that their drop target is valid, and if so, complete
   // the tree re-arrangement.
-  const onDropNode = useCallback((dropKey, dragKey, dropPosition, dropToGap) => {
+  function onDropNode(dropKey, dragKey, dropPosition, dropToGap) {
     const dropPath = dropKey.split(PATH_SEP);
     const dropNode = treeFindNodeByNamePath(additionalCellSets, dropPath);
     if (!dropNode.children && !dropToGap) {
@@ -352,12 +351,10 @@ export function ObsSetsManagerSubscriber(props) {
     );
     newCellSetColor.push(...newColors);
     setCellSetColor(newCellSetColor);
-  }, [additionalCellSets, cellSetColor, setAdditionalCellSets, setCellSetColor,
-    setCellSetSelection,
-  ]);
+  }
 
   // The user wants to change the color of a cell set node.
-  const onNodeSetColor = useCallback((targetPath, color) => {
+  function onNodeSetColor(targetPath, color) {
     // Replace the color if an array element for this path already exists.
     const prevNodeColor = cellSetColor?.find(d => isEqual(d.path, targetPath));
     if (!prevNodeColor) {
@@ -377,10 +374,10 @@ export function ObsSetsManagerSubscriber(props) {
         },
       ]);
     }
-  }, [cellSetColor, setCellSetColor]);
+  }
 
   // The user wants to change the name of a cell set node.
-  const onNodeSetName = useCallback((targetPath, name) => {
+  function onNodeSetName(targetPath, name) {
     const nextNamePath = [...targetPath];
     nextNamePath.pop();
     nextNamePath.push(name);
@@ -423,15 +420,13 @@ export function ObsSetsManagerSubscriber(props) {
     setCellSetColor(nextCellSetColor);
     setCellSetSelection(nextCellSetSelection);
     setCellSetExpansion(nextCellSetExpansion);
-  }, [additionalCellSets, cellSetColor, cellSetExpansion, cellSetSelection,
-    setAdditionalCellSets, setCellSetColor, setCellSetSelection,
-  ]);
+  }
 
   // Each time the user types while renaming a cell set node,
   // we need to check whether the potential new name conflicts
   // with any existing cell set node names.
   // If there are conflicts, we want to disable the "Save" button.
-  const onNodeCheckNewName = useCallback((targetPath, name) => {
+  function onNodeCheckNewName(targetPath, name) {
     const nextNamePath = [...targetPath];
     nextNamePath.pop();
     nextNamePath.push(name);
@@ -440,10 +435,10 @@ export function ObsSetsManagerSubscriber(props) {
       && treeFindNodeByNamePath(additionalCellSets, nextNamePath)
     );
     return hasConflicts;
-  }, [additionalCellSets]);
+  }
 
   // The user wants to delete a cell set node, and has confirmed their choice.
-  const onNodeRemove = useCallback((targetPath) => {
+  function onNodeRemove(targetPath) {
     // Recursively check whether each node path
     // matches the path of the node to delete.
     // If so, return null, and then always use
@@ -461,13 +456,11 @@ export function ObsSetsManagerSubscriber(props) {
     setCellSetColor(nextCellSetColor);
     setCellSetSelection(nextCellSetSelection);
     setCellSetExpansion(nextCellSetExpansion);
-  }, [additionalCellSets, cellSetColor, cellSetExpansion, cellSetSelection,
-    setAdditionalCellSets, setCellSetColor, setCellSetSelection,
-  ]);
+  }
 
   // The user wants to view (i.e. select) a particular node,
   // or its expanded descendents.
-  const onNodeView = useCallback((targetPath) => {
+  function onNodeView(targetPath) {
     // If parent node is clicked, and if it is expanded,
     // then select the expanded descendent nodes.
     const setsToView = [];
@@ -489,10 +482,10 @@ export function ObsSetsManagerSubscriber(props) {
     viewNode(targetNode, targetPath);
     setCellSetSelection(setsToView);
     setCellSetColorEncoding();
-  }, [cellSetExpansion, mergedCellSets, setCellSetColorEncoding, setCellSetSelection]);
+  }
 
   // The user wants to create a new level zero node.
-  const onCreateLevelZeroNode = useCallback(() => {
+  function onCreateLevelZeroNode() {
     const nextName = getNextNumberedNodeName(additionalCellSets?.tree, 'My hierarchy ');
     setAdditionalCellSets({
       ...(additionalCellSets || treeInitialize(SETS_DATATYPE_OBS)),
@@ -504,11 +497,11 @@ export function ObsSetsManagerSubscriber(props) {
         },
       ],
     });
-  }, [additionalCellSets, setAdditionalCellSets]);
+  }
 
   // The user wants to create a new node corresponding to
   // the union of the selected sets.
-  const onUnion = useCallback(() => {
+  function onUnion() {
     const newSet = treeToUnion(mergedCellSets, cellSetSelection);
     setObsSelection(
       newSet, additionalCellSets, cellSetColor,
@@ -516,13 +509,11 @@ export function ObsSetsManagerSubscriber(props) {
       setCellColorEncoding,
       'Union ',
     );
-  }, [additionalCellSets, cellSetColor, cellSetSelection, mergedCellSets,
-    setAdditionalCellSets, setCellColorEncoding, setCellSetColor, setCellSetSelection,
-  ]);
+  }
 
   // The user wants to create a new node corresponding to
   // the intersection of the selected sets.
-  const onIntersection = useCallback(() => {
+  function onIntersection() {
     const newSet = treeToIntersection(mergedCellSets, cellSetSelection);
     setObsSelection(
       newSet, additionalCellSets, cellSetColor,
@@ -530,13 +521,11 @@ export function ObsSetsManagerSubscriber(props) {
       setCellColorEncoding,
       'Intersection ',
     );
-  }, [additionalCellSets, cellSetColor, cellSetSelection, mergedCellSets,
-    setAdditionalCellSets, setCellColorEncoding, setCellSetColor, setCellSetSelection,
-  ]);
+  }
 
   // The user wants to create a new node corresponding to
   // the complement of the selected sets.
-  const onComplement = useCallback(() => {
+  function onComplement() {
     const newSet = treeToComplement(mergedCellSets, cellSetSelection, allCellIds);
     setObsSelection(
       newSet, additionalCellSets, cellSetColor,
@@ -544,14 +533,11 @@ export function ObsSetsManagerSubscriber(props) {
       setCellColorEncoding,
       'Complement ',
     );
-  }, [additionalCellSets, allCellIds, cellSetColor, cellSetSelection,
-    mergedCellSets, setAdditionalCellSets, setCellColorEncoding, setCellSetColor,
-    setCellSetSelection,
-  ]);
+  }
 
   // The user wants to import a cell set hierarchy,
   // probably from a CSV or JSON file.
-  const onImportTree = useCallback((treeToImport) => {
+  function onImportTree(treeToImport) {
     // Check for any naming conflicts with the current sets
     // (both user-defined and dataset-defined) before importing.
     const hasConflict = treesConflict(mergedCellSets, treeToImport);
@@ -570,12 +556,10 @@ export function ObsSetsManagerSubscriber(props) {
         ...importAutoSetColors,
       ]);
     }
-  }, [additionalCellSets, cellSetColor, mergedCellSets, setAdditionalCellSets,
-    setCellSetColor,
-  ]);
+  }
 
   // The user wants to download a particular hierarchy to a JSON file.
-  const onExportLevelZeroNodeJSON = useCallback((nodePath) => {
+  function onExportLevelZeroNodeJSON(nodePath) {
     const {
       treeToExport, nodeName,
     } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_OBS, cellSetColor, theme);
@@ -583,10 +567,10 @@ export function ObsSetsManagerSubscriber(props) {
       handleExportJSON(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_OBS}-hierarchy.${FILE_EXTENSION_JSON}`,
     );
-  }, [cellSetColor, mergedCellSets, theme]);
+  }
 
   // The user wants to download a particular hierarchy to a CSV file.
-  const onExportLevelZeroNodeTabular = useCallback((nodePath) => {
+  function onExportLevelZeroNodeTabular(nodePath) {
     const {
       treeToExport, nodeName,
     } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_OBS, cellSetColor, theme);
@@ -594,59 +578,17 @@ export function ObsSetsManagerSubscriber(props) {
       handleExportTabular(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_OBS}-hierarchy.${FILE_EXTENSION_TABULAR}`,
     );
-  }, [cellSetColor, mergedCellSets, theme]);
+  }
 
   // The user wants to download a particular set to a JSON file.
-  const onExportSetJSON = useCallback((nodePath) => {
+  function onExportSetJSON(nodePath) {
     const { setToExport, nodeName } = treeExportSet(mergedCellSets, nodePath);
     downloadForUser(
       handleExportJSON(setToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_OBS}-set.${FILE_EXTENSION_JSON}`,
       FILE_EXTENSION_JSON,
     );
-  }, [mergedCellSets]);
-
-  const manager = useMemo(() => (
-    <SetsManager
-      setColor={cellSetColor}
-      sets={cellSets}
-      termEdges={termEdges}
-      additionalSets={additionalCellSets}
-      levelSelection={checkedLevel}
-      setSelection={cellSetSelection}
-      setExpansion={cellSetExpansion}
-      hasColorEncoding={cellColorEncoding === 'cellSetSelection'}
-      draggable
-      datatype={SETS_DATATYPE_OBS}
-      onError={setWarning}
-      onCheckNode={onCheckNode}
-      onExpandNode={onExpandNode}
-      onDropNode={onDropNode}
-      onCheckLevel={onCheckLevel}
-      onNodeSetColor={onNodeSetColor}
-      onNodeSetName={onNodeSetName}
-      onNodeCheckNewName={onNodeCheckNewName}
-      onNodeRemove={onNodeRemove}
-      onNodeView={onNodeView}
-      onImportTree={onImportTree}
-      onCreateLevelZeroNode={onCreateLevelZeroNode}
-      onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
-      onExportLevelZeroNodeTabular={onExportLevelZeroNodeTabular}
-      onExportSetJSON={onExportSetJSON}
-      onUnion={onUnion}
-      onIntersection={onIntersection}
-      onComplement={onComplement}
-      hasCheckedSetsToUnion={cellSetSelection?.length > 1}
-      hasCheckedSetsToIntersect={cellSetSelection?.length > 1}
-      hasCheckedSetsToComplement={cellSetSelection?.length > 0}
-      theme={theme}
-    />
-  ), [additionalCellSets, cellColorEncoding, cellSetColor, cellSetExpansion, cellSetSelection,
-    cellSets, checkedLevel, onCheckLevel, onCheckNode, onComplement, onCreateLevelZeroNode,
-    onDropNode, onExpandNode, onExportLevelZeroNodeJSON, onExportLevelZeroNodeTabular,
-    onExportSetJSON, onImportTree, onIntersection, onNodeCheckNewName, onNodeRemove, onNodeSetColor,
-    onNodeSetName, onNodeView, onUnion, setWarning, theme,
-  ]);
+  }
 
 
   return (
@@ -658,7 +600,40 @@ export function ObsSetsManagerSubscriber(props) {
       theme={theme}
       isReady={isReady}
     >
-      {manager}
+      <SetsManager
+        setColor={cellSetColor}
+        sets={cellSets}
+        termEdges={termEdges}
+        additionalSets={additionalCellSets}
+        levelSelection={checkedLevel}
+        setSelection={cellSetSelection}
+        setExpansion={cellSetExpansion}
+        hasColorEncoding={cellColorEncoding === 'cellSetSelection'}
+        draggable
+        datatype={SETS_DATATYPE_OBS}
+        onError={setWarning}
+        onCheckNode={onCheckNode}
+        onExpandNode={onExpandNode}
+        onDropNode={onDropNode}
+        onCheckLevel={onCheckLevel}
+        onNodeSetColor={onNodeSetColor}
+        onNodeSetName={onNodeSetName}
+        onNodeCheckNewName={onNodeCheckNewName}
+        onNodeRemove={onNodeRemove}
+        onNodeView={onNodeView}
+        onImportTree={onImportTree}
+        onCreateLevelZeroNode={onCreateLevelZeroNode}
+        onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
+        onExportLevelZeroNodeTabular={onExportLevelZeroNodeTabular}
+        onExportSetJSON={onExportSetJSON}
+        onUnion={onUnion}
+        onIntersection={onIntersection}
+        onComplement={onComplement}
+        hasCheckedSetsToUnion={cellSetSelection?.length > 1}
+        hasCheckedSetsToIntersect={cellSetSelection?.length > 1}
+        hasCheckedSetsToComplement={cellSetSelection?.length > 0}
+        theme={theme}
+      />
     </TitleInfo>
   );
 }

@@ -62,6 +62,8 @@ pnpm run start-demo
 
 The development server will refresh the browser as you edit the code.
 
+Further details for internal developers can be found within [dev-docs](./dev-docs/).
+
 ### Branches
 
 Please use one of the following naming conventions for new branches:

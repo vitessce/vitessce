@@ -27,6 +27,10 @@ An evolving set of guidelines to ensure that features remain maintainable, scala
 - Avoid [circular dependencies](https://github.com/vitessce/vitessce/issues/1490) - If you find the need to import functions across view type- or file type- sub-packages, consider moving to a utility sub-package (i.e., `packages/utils/`).
 - Avoid complex dependencies in utility sub-packages - Where possible keep dependencies in utility sub-packages small and simple (e.g., `lodash`). If a large/complex dependency is needed for a utility function, consider refactoring that function into a new utility sub-package.
 
+### TypeScript
+
+- Consider implementing new sub-packages using TypeScript
+
 ### Parsing and validation of user input
 - Prefer [Zod](https://zod.dev/) schema over JSON schema - This improves the TypeScript development experience and follows the ["parse, don't validate"](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/) mantra.
 
