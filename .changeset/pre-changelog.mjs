@@ -1,5 +1,46 @@
 // Because we only want a single changelog for the entire monorepo,
 // we will manually edit the changeset frontmatter.
+
+/*
+The issue is that (in the monorepo case) each changeset can potentially list
+multiple different sub-packages, each sub-package with its own bump type.
+Reference: https://github.com/changesets/changesets/blob/main/docs/adding-a-changeset.md#i-am-in-a-multi-package-repository-a-mono-repo
+
+For example:
+
+```markdown
+---
+'@vitessce/sets-utils': patch
+'@vitessce/spatial-utils': minor
+---
+
+Something changed blah blah...
+```
+
+A changeset like this will cause changesets, by default, to write to two different CHANGELOG.md files:
+- `packages/utils/sets-utils/CHANGELOG.md` will get a new section titled `Patch Changes`
+- `packages/utils/spatial-utils/CHANGELOG.md` will get a new section titled `Minor Changes`
+
+This script script converts the above changeset markdown file to:
+
+```markdown
+---
+vitessce: minor
+---
+
+Something changed blah blah... (`@vitessce/sets-utils`, `@vitessce/spatial-utils`)
+```
+
+using the greatest bump-type as the one assigned to the `mainPkgName`
+(in this case `vitessce`) in the frontmatter.
+
+This effectively "tricks" changesets to write to a single `CHANGELOG.md`
+file at the root of the repo, despite being in a monorepo.
+
+This is what I meant by changesets being "too monorepo-oriented for my liking":
+I would prefer a single CHANGELOG despite the monorepo setup,
+but there is not a built-in option to do something like this.
+*/
 import matter from 'gray-matter';
 import fs from 'node:fs';
 import { join } from 'node:path';

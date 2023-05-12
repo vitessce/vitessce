@@ -9,6 +9,10 @@ if [[ "$1" != "--action" ]]; then
   fi
 fi
 
+# This is so that we can have nice release notes like https://github.com/d3/d3/releases in GitHub releases.
+# The RELEASE_NOTES.md file is temporarily created during CI in order to define the release notes,
+# but is not intended to be committed to the repo.
+
 # Temporarily copy the root README.md to packages/main/prod/README.md,
 # since the file at packages/main/prod will be shown for the main 'vitessce'
 # package on NPM.

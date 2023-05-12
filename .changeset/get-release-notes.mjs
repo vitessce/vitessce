@@ -1,5 +1,16 @@
 // Using the updated CHANGELOG.md file, get the release notes for the latest version.
 // Adapted from https://github.com/changesets/action/blob/595655c3eae7136ff5ba18200406898904362926/src/utils.ts
+// (the only modification was to convert from TS->JS - see commented out types).
+
+// The reasoning behind this script is that I want to use https://github.com/softprops/action-gh-release
+// to make one GitHub release for the whole monorepo.
+
+// Again here changesets was "too monorepo-oriented for my liking":
+// If we simply use https://github.com/changesets/action to do the release,
+// changesets will make separate releases for each sub-package.
+// (The "fixed" part of the changesets config causes package versions to be bumped together,
+// but will still result in changesets making a separate GitHub release per-sub-package.)
+
 import unified from "unified";
 import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
