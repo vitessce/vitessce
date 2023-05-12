@@ -48,6 +48,7 @@
   - Add builder function for generating plugin-specific config schema.
   - Reimplement config version upgrades.
 - Provide plugins as React props rather than registering them globally on `window`.
+- Define types via JSDoc rather than TypeScript
 
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
