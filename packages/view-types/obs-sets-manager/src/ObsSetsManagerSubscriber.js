@@ -121,7 +121,7 @@ export function ObsSetsManagerSubscriber(props) {
     termEdgesStatus,
   ]);
 
-  console.log(termEdges)
+  //console.log(termEdges)
 
   // Validate and upgrade the additionalCellSets.
   useEffect(() => {
@@ -153,7 +153,7 @@ export function ObsSetsManagerSubscriber(props) {
     [cellSets, additionalCellSets],
   );
 
-  console.log(cellSetSelection, mergedCellSets);
+  //console.log(cellSetSelection, mergedCellSets);
 
   // Infer the state of the "checked level" radio button based on the selected cell sets.
   const checkedLevel = useMemo(() => {

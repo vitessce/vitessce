@@ -532,7 +532,7 @@ export function LayerControllerSubscriber(props) {
   }, [cellSetSelection, termEdges, cellSets]);
 
   console.log('matchingEdges', matchingEdges);
-  console.log('rasterLayers', rasterLayers);
+  //console.log('rasterLayers', rasterLayers);
 
   const [matchingChannelsLoading, setMatchingChannelsLoading] = useState(false);
 

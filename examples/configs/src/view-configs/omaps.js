@@ -1,3 +1,4 @@
+const imageId = 'DON218-ND-52yM-T1A';
 export const pancreasOmap = {
   version: '1.0.16',
   name: 'Pancreas OMAP image',
@@ -9,16 +10,16 @@ export const pancreasOmap = {
       files: [
         {
           fileType: 'image.ome-tiff',
-          url: 'https://storage.googleapis.com/vitessce-demo-data/hubmap-arwg-may-2023/DON218-ND-52yM-T1A.pyramid.ome.tif',
+          url: `https://storage.googleapis.com/vitessce-demo-data/hubmap-arwg-may-2023/${imageId}.pyramid.ome.tif`,
           // url: 'https://storage.googleapis.com/vitessce-demo-data/hubmap-arwg-may-2023/Repeat_Test-2_Scan1.pyramid.ome.tif',
         },
         {
           fileType: 'obsSets.json',
-          url: 'https://storage.googleapis.com/vitessce-demo-data/hubmap-arwg-may-2023/cell_sets.json',
+          url: `https://storage.googleapis.com/vitessce-demo-data/hubmap-arwg-may-2023/${imageId}.cellSets.json`,
         },
         {
           fileType: 'termEdges.json',
-          url: 'https://storage.googleapis.com/vitessce-demo-data/hubmap-arwg-may-2023/term_mapping.json',
+          url: `https://storage.googleapis.com/vitessce-demo-data/hubmap-arwg-may-2023/${imageId}.termMapping.json`,
         },
       ],
     },

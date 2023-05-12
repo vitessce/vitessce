@@ -14,9 +14,7 @@ export default class TermEdgesJsonLoader extends JsonLoader {
     if (payload instanceof AbstractLoaderError) {
       return Promise.reject(payload);
     }
-    const { data: rawData, url } = payload;
-    console.log(rawData);
-    
+    const { data: rawData, url } = payload;    
     return Promise.resolve(new LoaderResult({
       termEdges: rawData,
     }, url));
