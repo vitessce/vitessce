@@ -48,10 +48,10 @@ export function nodeToTerms(currNode, termEdges, termKey) {
   if (!currNode) {
     return [];
   }
-  const matchingTermEdges = termEdges?.filter(edge => edge[termKey] === currNode.term);
+  const matchingTermEdges = termEdges?.filter(edge => edge[termKey] === currNode.term) || [];
   if (!currNode.children) {
     // This node has no children, so end recursion.
-    return (matchingTermEdges || []);
+    return matchingTermEdges;
   }
   // This node has children, so recurse.
   return [

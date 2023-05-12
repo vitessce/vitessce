@@ -7,19 +7,18 @@ export const pancreasOmap = {
       uid: 'OMAP 1',
       name: 'OMAP 1',
       files: [
-        /*{
+        {
           fileType: 'image.ome-tiff',
-          url: 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif',
+          url: 'https://storage.googleapis.com/vitessce-demo-data/hubmap-arwg-may-2023/DON218-ND-52yM-T1A.pyramid.ome.tif',
         },
-        */
-       {
-        fileType: 'obsSets.json',
-        url: 'http://localhost:8000/cell_sets.json',
-       },
-       {
-        fileType: 'termEdges.json',
-        url: 'http://localhost:8000/term_mapping.json',
-       },
+        {
+          fileType: 'obsSets.json',
+          url: 'https://storage.googleapis.com/vitessce-demo-data/hubmap-arwg-may-2023/cell_sets.json',
+        },
+        {
+          fileType: 'termEdges.json',
+          url: 'https://storage.googleapis.com/vitessce-demo-data/hubmap-arwg-may-2023/term_mapping.json',
+        },
       ],
     },
   ],
