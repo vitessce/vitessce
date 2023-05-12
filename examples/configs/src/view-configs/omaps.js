@@ -10,6 +10,7 @@ export const pancreasOmap = {
         {
           fileType: 'image.ome-tiff',
           url: 'https://storage.googleapis.com/vitessce-demo-data/hubmap-arwg-may-2023/DON218-ND-52yM-T1A.pyramid.ome.tif',
+          // url: 'https://storage.googleapis.com/vitessce-demo-data/hubmap-arwg-may-2023/Repeat_Test-2_Scan1.pyramid.ome.tif',
         },
         {
           fileType: 'obsSets.json',
