@@ -205,6 +205,7 @@ function RasterChannelController({
             handleChange={v => handlePropertyChange('selection', createSelection(v))
             }
             selectionIndex={selectionIndex}
+            channels={channels}
             channelOptions={channelOptions}
             disabled={isLoading}
           />

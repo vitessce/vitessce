@@ -117,6 +117,17 @@ export function useObsSetsData(
   );
 }
 
+export function useTermEdgesData(
+  loaders, dataset, addUrl, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.TERM_EDGES,
+    loaders, dataset, addUrl, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
 export function useObsFeatureMatrixData(
   loaders, dataset, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,

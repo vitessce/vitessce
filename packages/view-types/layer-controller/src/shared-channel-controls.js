@@ -13,6 +13,7 @@ import { useSelectStyles } from './styles.js';
 export function ChannelSelectionDropdown({
   handleChange,
   disabled,
+  channels,
   channelOptions,
   selectionIndex,
 }) {
@@ -26,7 +27,7 @@ export function ChannelSelectionDropdown({
     >
       {channelOptions.map((opt, i) => (
         <option disabled={disabled} key={opt} value={i}>
-          {opt}
+          {channels?.find(c => c.selection.c === i)?.markerName || opt}
         </option>
       ))}
     </Select>

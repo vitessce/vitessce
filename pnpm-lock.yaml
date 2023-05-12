@@ -707,6 +707,7 @@ importers:
       '@material-ui/icons': ~4.11.2
       '@vitessce/constants-internal': workspace:*
       '@vitessce/gl': workspace:*
+      '@vitessce/sets-utils': workspace:*
       '@vitessce/spatial-utils': workspace:*
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
@@ -720,6 +721,7 @@ importers:
       '@material-ui/icons': 4.11.3_jvx44q7qymyhf2qyoxemen5jw4
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/gl': link:../../gl
+      '@vitessce/sets-utils': link:../../utils/sets-utils
       '@vitessce/spatial-utils': link:../../utils/spatial-utils
       '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s

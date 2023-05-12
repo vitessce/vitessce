@@ -157,6 +157,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   [ViewType.OBS_SETS]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_EXPANSION,
     CoordinationType.OBS_SET_HIGHLIGHT,
@@ -234,6 +235,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_ROTATION_Z,
     CoordinationType.SPATIAL_ROTATION_ORBIT,
     CoordinationType.SPATIAL_ORBIT_AXIS,
+    CoordinationType.OBS_SET_SELECTION,
+    CoordinationType.OBS_SET_COLOR,
   ],
   [ViewType.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,

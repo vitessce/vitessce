@@ -40,7 +40,7 @@ export default class ObsSetsJsonLoader extends JsonLoader {
         .map(node => ([newAutoSetSelectionParentName, node.name]));
       // Create a list of cell set objects with color mappings.
       const newAutoSetColors = initializeCellSetColor(upgradedData, []);
-      coordinationValues.obsSetSelection = newAutoSetSelections;
+      //coordinationValues.obsSetSelection = newAutoSetSelections;
       coordinationValues.obsSetColor = newAutoSetColors;
 
       obsIndex = nodeToSet(tree[0]).map(d => d[0]);

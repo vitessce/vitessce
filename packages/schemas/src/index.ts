@@ -31,6 +31,7 @@ export {
   rgbArray,
   obsSetsSchema,
   obsSetsTabularSchema,
+  termEdgesSchema,
 } from './shared.js';
 export {
   imageLayerObj,

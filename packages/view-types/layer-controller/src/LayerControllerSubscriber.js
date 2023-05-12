@@ -1,7 +1,8 @@
 /* eslint-disable dot-notation */
 /* eslint-disable no-unused-vars */
 import React, {
-  useCallback, useRef, forwardRef,
+  useCallback, useRef, forwardRef, useMemo,
+  useEffect, useState,
 } from 'react';
 import { Grid } from '@material-ui/core';
 import {
@@ -11,19 +12,27 @@ import {
   useImageData,
   useObsLocationsData,
   useObsSegmentationsData,
+  useObsSetsData,
+  useTermEdgesData,
   useCoordination,
   useLoaders,
   useAuxiliaryCoordination,
   useComponentLayout,
+  useFeatureLabelsData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { capitalize } from '@vitessce/utils';
+import { VIEWER_PALETTE, capitalize, fromEntries } from '@vitessce/utils';
 import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/spatial-utils';
+import { treeFindNodeByNamePath, nodeToTerms } from '@vitessce/sets-utils';
 import RasterChannelController from './RasterChannelController.js';
 import BitmaskChannelController from './BitmaskChannelController.js';
 import VectorLayerController from './VectorLayerController.js';
 import LayerController from './LayerController.js';
 import ImageAddButton from './ImageAddButton.js';
+import { getMultiSelectionStats } from './utils.js';
+
+const addUrl = () => {};
+
 
 // LayerController is memoized to prevent updates from prop changes that
 // are caused by view state updates i.e zooming and panning within
@@ -36,6 +45,7 @@ const LayerControllerMemoized = React.memo(
       removeGridComponent,
       theme,
       isReady,
+      selectedCellSetNames,
       dataset,
       obsType,
       moleculesLayer,
@@ -268,6 +278,7 @@ const LayerControllerMemoized = React.memo(
                     spatialHeight={(componentHeight * (spatialLayout ? spatialLayout.h : 1)) / 12}
                     spatialWidth={(componentWidth * (spatialLayout ? spatialLayout.w : 1)) / 12}
                     shouldShowRemoveLayerButton={shouldShowImageLayerButton}
+                    selectedCellSetNames={selectedCellSetNames}
                   />
                 </Grid>
               ) : null;
@@ -322,9 +333,12 @@ export function LayerControllerSubscriber(props) {
     {
       dataset,
       obsType,
+      featureType,
       spatialImageLayer: rasterLayers,
       spatialSegmentationLayer: cellsLayer,
       spatialPointLayer: moleculesLayer,
+      obsSetSelection: cellSetSelection,
+      obsSetColor: cellSetColor,
     },
     {
       setSpatialImageLayer: setRasterLayers,
@@ -336,6 +350,8 @@ export function LayerControllerSubscriber(props) {
       setSpatialRotationX: setRotationX,
       setSpatialRotationOrbit: setRotationOrbit,
       setSpatialZoom: setZoom,
+      setObsSetSelection: setCellSetSelection,
+      setObsSetColor: setCellSetColor,
     },
   ] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER],
@@ -391,11 +407,131 @@ export function LayerControllerSubscriber(props) {
     {}, // TODO: which values to match on
   );
   const { loaders: imageLayerLoaders, meta: imageLayerMeta } = image || {};
+
+  // Get data from loaders using the data hooks.
+  const [{ obsIndex, obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
+    loaders, dataset, addUrl, true,
+    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
+    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
+    { obsType },
+  );
+  const [{ termEdges }, termEdgesStatus] = useTermEdgesData(
+    loaders, dataset, addUrl, false, {}, {},
+    { obsType, featureType },
+  );
+
+  const [{ featureIndex: markerNameFeatureIndex, featureLabels: markerNames }, markerNamesStatus] = useFeatureLabelsData(
+    loaders, dataset, addUrl, false, {}, {},
+    { featureType: "channel", featureLabelsType: "marker_name", },
+  );
+  const [{ featureIndex: channelIndexFeatureIndex, featureLabels: channelIndices }, channelIndexStatus] = useFeatureLabelsData(
+    loaders, dataset, addUrl, false, {}, {},
+    { featureType: "channel", featureLabelsType: "channel_index", },
+  );
+  console.log(markerNameFeatureIndex, markerNames, channelIndices);
+
+  //console.log('layerController', cellSets, termEdges, cellSetSelection);
+
+  // TODO: use featureIndex and featureLabels data types to map from matchingEdges to image channels.
+
   const isReady = useReady([
     obsLocationsStatus,
     obsSegmentationsStatus,
     imageStatus,
+    termEdgesStatus,
+    markerNamesStatus,
+    channelIndexStatus,
   ]);
+
+  
+
+  const [matchingEdges, selectedCellSetNames] = useMemo(() => {
+    if (!cellSetSelection || !termEdges || !cellSets) return [null, null];
+    // TODO: Get the nodes for the selected cell sets from the cellSets tree.
+    // TODO: For the selected nodes, compute their matching edges using nodeToEdges.
+    // TODO: Select the image channels with matching featureTerm values.
+
+    const selectedNodeNames = cellSetSelection.flatMap(selectedNamePath => {
+      const node = treeFindNodeByNamePath(cellSets, selectedNamePath);
+      return node.name;
+    });
+
+    const result = cellSetSelection.flatMap(selectedNamePath => {
+      const node = treeFindNodeByNamePath(cellSets, selectedNamePath);
+      const matchingEdges = nodeToTerms(node, termEdges, 'obsTerm');
+      return matchingEdges;
+    });
+    return [result, selectedNodeNames];
+  }, [cellSetSelection, termEdges, cellSets]);
+
+  console.log('matchingEdges', matchingEdges);
+  //console.log('rasterLayers', rasterLayers);
+
+  const [matchingChannelsLoading, setMatchingChannelsLoading] = useState(false);
+
+  useEffect(() => {
+    if(!matchingEdges || !imageLayerLoaders?.[0]) return;
+
+    setMatchingChannelsLoading(true);
+
+    const selections = [];
+    const featureTerms = [];
+    const prevChannelIndices = new Set();
+    matchingEdges.forEach(({ featureTerm }) => {
+      if(channelIndexFeatureIndex.includes(featureTerm)) {
+        const channelIndex = parseInt(channelIndices[channelIndexFeatureIndex.indexOf(featureTerm)]);
+        if(!prevChannelIndices.has(channelIndex) && selections.length < 6) {
+          selections.push({
+            "c": channelIndex,
+            "t": 0,
+            "z": 0
+          });
+          featureTerms.push(featureTerm);
+          prevChannelIndices.add(channelIndex);
+        }
+      }
+    });
+
+    const loader = imageLayerLoaders[0];
+
+
+    getMultiSelectionStats({
+      loader: loader.data,
+      selections,
+      use3d: false,
+    }).then(({ sliders }) => {
+      const channels = sliders.map((slider, i) => ({
+        selection: selections[i],
+        color: sliders.length === 1 ? [255, 255, 255] : VIEWER_PALETTE[i],
+        visible: true,
+        slider: slider,
+        markerName: markerNames[markerNameFeatureIndex.indexOf(featureTerms[i])],
+      }));
+      const newLayers = [
+        {
+          "type": "raster",
+          "index": 0,
+          "visible": true,
+          "colormap": null,
+          "opacity": 1,
+          "domainType": "Min/Max",
+          "transparentColor": null,
+          "renderingMode": "Additive",
+          "use3d": false,
+          "channels": channels,
+          "modelMatrix": [
+            1,0,0,0,
+            0,1,0,0,
+            0,0,1,0,
+            0,0,0,1,
+          ],
+        },
+      ];
+      setRasterLayers(newLayers);
+      setMatchingChannelsLoading(false);
+    });
+  }, [matchingEdges]);
+  console.log(rasterLayers);
 
   const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.loaders : null;
   const segmentationLayerMeta = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.meta : null;
@@ -452,7 +588,8 @@ export function LayerControllerSubscriber(props) {
       title={title}
       removeGridComponent={removeGridComponent}
       theme={theme}
-      isReady={isReady}
+      isReady={isReady && !matchingChannelsLoading}
+      selectedCellSetNames={selectedCellSetNames}
       moleculesLayer={moleculesLayer}
       dataset={dataset}
       obsType={obsType}

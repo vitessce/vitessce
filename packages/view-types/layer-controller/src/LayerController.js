@@ -101,6 +101,7 @@ export default function LayerController(props) {
     spatialWidth,
     disableChannelsIfRgbDetected,
     shouldShowRemoveLayerButton,
+    selectedCellSetNames,
   } = props;
 
   const {
@@ -443,6 +444,12 @@ export default function LayerController(props) {
         spatialWidth={spatialWidth}
         modelMatrix={modelMatrix}
       />
+      <p>
+        {selectedCellSetNames?.length ? <span><i>Channels based on</i>: </span> : null}
+        {selectedCellSetNames?.map((cellSetName, i) => (
+          <span key={cellSetName}>{cellSetName}{i < selectedCellSetNames.length - 1 ? ', ' : null}</span>
+        ))}
+      </p>
       {isRgb(loader, channels) && disableChannelsIfRgbDetected
         ? null
         : channelControllers}
