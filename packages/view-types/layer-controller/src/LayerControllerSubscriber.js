@@ -18,6 +18,7 @@ import {
   useLoaders,
   useAuxiliaryCoordination,
   useComponentLayout,
+  useFeatureLabelsData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { VIEWER_PALETTE, capitalize, fromEntries } from '@vitessce/utils';
@@ -32,96 +33,6 @@ import { getMultiSelectionStats } from './utils.js';
 
 const addUrl = () => {};
 
-// For DON218-ND-52yM-T1A.ome.tif
-const featureTermToChannelIndexMap = {
-  'uniprot:P10645': 15,
-  'uniprot:P01275': 6,
-  'uniprot:P01308': 13,
-  'uniprot:P01298': 20,
-  //'uniprot:P61278': 29,
-  'uniprot:P16284': 5,
-  'uniprot:P62736': 26,
-  'uniprot:O75355': 14,
-  //'uniprot:P01903': 28,
-  //'uniprot:P01911': 28,
-  'uniprot:P05023': 25,
-  'uniprot:Q9UBU3': 22,
-  'uniprot:P08247': 27,
-  ...fromEntries(
-    [
-      'P04264',
-      'P35908',
-      'P12035',
-      'P19013',
-      'P13647',
-      'P02538',
-      'P04259',
-      'P48668',
-      'P08729',
-      'P05787',
-      'P13645',
-      'P02533',
-      'P19012',
-      'P08779',
-      'P08727',
-    ].map((id) => ([`uniprot:${id}`, 7])),
-  ),
-  //'uniprot:P28906': 33,
-  //'uniprot:P15391': 30,
-  'uniprot:P20702': 3,
-  'uniprot:P08575': 1,
-  'uniprot:P01730': 9,
-  'uniprot:P01732': 4,
-  'uniprot:P07766': 21,
-  'uniprot:P55008': 12,
-  'uniprot:P43121': 16,
-};
-
-const featureTermToMarkerNameMap = {
-  'uniprot:P10645': 'Chromogranin A',
-  'uniprot:P01275': 'Glucagon',
-  'uniprot:P01308': 'C-peptide',
-  'uniprot:P01298': 'Pancreatic polypeptide',
-  'uniprot:P61278': 'Somatostatin',
-  'uniprot:P16284': 'Platelet endothelial cell adhesion molecule (PECAM-1)',
-  'uniprot:P62736': 'alpha-smooth muscle actin (ACTA2)',
-  'uniprot:O75355': 'Ectonucleoside triphosphate diphosphohydrolase 3 (NTPDase 3)',
-  'uniprot:P01903': 'HLA class II histocompatibility antigen',
-  'uniprot:P01911': 'HLA class II histocompatibility antigen',
-  'uniprot:P05023': 'Sodium/potassium-transporting ATPase subunit alpha-1 (Na+/K+ ATPase)',
-  'uniprot:Q9UBU3': 'Ghrelin',
-  'uniprot:P08247': 'Synaptophysin',
-  ...fromEntries(
-    [
-      'P04264',
-      'P35908',
-      'P12035',
-      'P19013',
-      'P13647',
-      'P02538',
-      'P04259',
-      'P48668',
-      'P08729',
-      'P05787',
-      'P13645',
-      'P02533',
-      'P19012',
-      'P08779',
-      'P08727',
-    ].map((id) => ([`uniprot:${id}`, 'Pan-cytokeratin'])),
-  ),
-  'uniprot:P28906': 'Hematopoietic progenitor cell antigen CD34',
-  'uniprot:P15391': 'B-lymphocyte antigen CD19',
-  'uniprot:P20702': 'Integrin alpha-X',
-  'uniprot:P08575': 'Receptor-type tyrosine-protein phosphatase C',
-  'uniprot:P01730': 'T-cell surface glycoprotein CD4',
-  'uniprot:P01732': 'T-cell surface glycoprotein CD8',
-  'uniprot:P07766': 'T-cell surface glycoprotein CD3',
-  'uniprot:P55008': 'Allograft inflammatory factor 1 (AIF-1)',
-  'uniprot:P43121': 'Melanoma cell adhesion molecule (CD146)',
-};
-
-
 
 // LayerController is memoized to prevent updates from prop changes that
 // are caused by view state updates i.e zooming and panning within
@@ -134,6 +45,7 @@ const LayerControllerMemoized = React.memo(
       removeGridComponent,
       theme,
       isReady,
+      selectedCellSetNames,
       dataset,
       obsType,
       moleculesLayer,
@@ -366,6 +278,7 @@ const LayerControllerMemoized = React.memo(
                     spatialHeight={(componentHeight * (spatialLayout ? spatialLayout.h : 1)) / 12}
                     spatialWidth={(componentWidth * (spatialLayout ? spatialLayout.w : 1)) / 12}
                     shouldShowRemoveLayerButton={shouldShowImageLayerButton}
+                    selectedCellSetNames={selectedCellSetNames}
                   />
                 </Grid>
               ) : null;
@@ -506,6 +419,17 @@ export function LayerControllerSubscriber(props) {
     loaders, dataset, addUrl, false, {}, {},
     { obsType, featureType },
   );
+
+  const [{ featureIndex: markerNameFeatureIndex, featureLabels: markerNames }, markerNamesStatus] = useFeatureLabelsData(
+    loaders, dataset, addUrl, false, {}, {},
+    { featureType: "channel", featureLabelsType: "marker_name", },
+  );
+  const [{ featureIndex: channelIndexFeatureIndex, featureLabels: channelIndices }, channelIndexStatus] = useFeatureLabelsData(
+    loaders, dataset, addUrl, false, {}, {},
+    { featureType: "channel", featureLabelsType: "channel_index", },
+  );
+  console.log(markerNameFeatureIndex, markerNames, channelIndices);
+
   //console.log('layerController', cellSets, termEdges, cellSetSelection);
 
   // TODO: use featureIndex and featureLabels data types to map from matchingEdges to image channels.
@@ -514,21 +438,30 @@ export function LayerControllerSubscriber(props) {
     obsLocationsStatus,
     obsSegmentationsStatus,
     imageStatus,
-    termEdgesStatus
+    termEdgesStatus,
+    markerNamesStatus,
+    channelIndexStatus,
   ]);
 
-  const matchingEdges = useMemo(() => {
-    if (!cellSetSelection || !termEdges || !cellSets) return null;
+  
+
+  const [matchingEdges, selectedCellSetNames] = useMemo(() => {
+    if (!cellSetSelection || !termEdges || !cellSets) return [null, null];
     // TODO: Get the nodes for the selected cell sets from the cellSets tree.
     // TODO: For the selected nodes, compute their matching edges using nodeToEdges.
     // TODO: Select the image channels with matching featureTerm values.
+
+    const selectedNodeNames = cellSetSelection.flatMap(selectedNamePath => {
+      const node = treeFindNodeByNamePath(cellSets, selectedNamePath);
+      return node.name;
+    });
 
     const result = cellSetSelection.flatMap(selectedNamePath => {
       const node = treeFindNodeByNamePath(cellSets, selectedNamePath);
       const matchingEdges = nodeToTerms(node, termEdges, 'obsTerm');
       return matchingEdges;
     });
-    return result;
+    return [result, selectedNodeNames];
   }, [cellSetSelection, termEdges, cellSets]);
 
   console.log('matchingEdges', matchingEdges);
@@ -545,11 +478,11 @@ export function LayerControllerSubscriber(props) {
     const featureTerms = [];
     const prevChannelIndices = new Set();
     matchingEdges.forEach(({ featureTerm }) => {
-      if(featureTerm in featureTermToChannelIndexMap) {
-        const channelIndex = featureTermToChannelIndexMap[featureTerm];
+      if(channelIndexFeatureIndex.includes(featureTerm)) {
+        const channelIndex = parseInt(channelIndices[channelIndexFeatureIndex.indexOf(featureTerm)]);
         if(!prevChannelIndices.has(channelIndex) && selections.length < 6) {
           selections.push({
-            "c": featureTermToChannelIndexMap[featureTerm],
+            "c": channelIndex,
             "t": 0,
             "z": 0
           });
@@ -572,7 +505,7 @@ export function LayerControllerSubscriber(props) {
         color: sliders.length === 1 ? [255, 255, 255] : VIEWER_PALETTE[i],
         visible: true,
         slider: slider,
-        markerName: featureTermToMarkerNameMap[featureTerms[i]],
+        markerName: markerNames[markerNameFeatureIndex.indexOf(featureTerms[i])],
       }));
       const newLayers = [
         {
@@ -656,6 +589,7 @@ export function LayerControllerSubscriber(props) {
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady && !matchingChannelsLoading}
+      selectedCellSetNames={selectedCellSetNames}
       moleculesLayer={moleculesLayer}
       dataset={dataset}
       obsType={obsType}

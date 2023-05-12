@@ -29,7 +29,7 @@ import { marshall2022iScience } from './view-configs/marshall_2022_iscience.js';
 import { meta2022azimuth } from './view-configs/meta_2022_azimuth.js';
 import { rgbOmeTiff } from './view-configs/rgb-ome-tiff.js';
 import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
-import { pancreasOmap } from './view-configs/omaps.js';
+import { pancreasOmap1, pancreasOmap2 } from './view-configs/omaps.js';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -72,7 +72,8 @@ export const configs = {
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
-  'pancreas-omap': pancreasOmap,
+  'pancreas-omap-1': pancreasOmap1,
+  'pancreas-omap-2': pancreasOmap2,
   ...coordinationTypeConfigs,
 };
 
