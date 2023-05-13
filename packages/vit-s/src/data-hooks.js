@@ -352,3 +352,24 @@ export function useMultiObsLabels(
   );
   return [obsLabelsTypes, obsLabelsData, obsLabelsDataStatus];
 }
+
+export function useMultiFigures(
+  coordinationScopes, loaders, dataset, addUrl,
+) {
+  const figureValues = useMultiCoordinationValues(
+    'figure',
+    coordinationScopes,
+  );
+  const obsLabelsMatchOnObj = useMemo(() => fromEntries(
+    Object.entries(figureValues).map(([scope, figureVal]) => ([
+      scope,
+      { figure: figureVal },
+    ])),
+  ), [figureValues]);
+  const [figuresData, figuresStatus] = useDataTypeMulti(
+    DataType.FIGURE, loaders, dataset,
+    addUrl, false, {}, {},
+    obsLabelsMatchOnObj,
+  );
+  return [figuresData, figuresStatus];
+}

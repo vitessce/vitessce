@@ -320,6 +320,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.DATASET,
     CoordinationType.SPATIAL_IMAGE_LAYER,
   ],
+  [ViewType.STATIC_FIGURE]: [
+    CoordinationType.DATASET,
+  ],
   higlass: [
     CoordinationType.DATASET,
     CoordinationType.GENOMIC_ZOOM_X,
