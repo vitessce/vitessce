@@ -13,7 +13,11 @@ import {
   baseCoordinationTypes,
 } from './base-plugins.js';
 
-export function Vitessce(props: any) {
+/**
+ * @param {any} props 
+ * @returns TODO: react functional component return value
+ */
+export function Vitessce(props) {
   const {
     config,
     onConfigUpgrade,
@@ -35,7 +39,7 @@ export function Vitessce(props: any) {
       return [
         {
           title: 'Config validation or upgrade failed.',
-          unformatted: (e as any).message,
+          unformatted: (/** @type {any} */ (e)).message,
         },
         false,
       ];

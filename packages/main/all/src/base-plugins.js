@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import type { ComponentType } from 'react';
+
 import {
   FileType,
   DataType,
@@ -12,10 +12,6 @@ import {
   PluginJointFileType,
   PluginViewType,
   PluginCoordinationType,
-} from '@vitessce/plugins';
-import type {
-  DataLoader,
-  DataSource,
 } from '@vitessce/plugins';
 import {
   z,
@@ -137,13 +133,43 @@ import {
   expandRasterOmeZarr,
 } from './joint-file-types-legacy.js';
 
-// Helper function to use COMPONENT_COORDINATION_TYPES.
-function makeViewType(name: string, component: any) {
-  return new PluginViewType(name, component as ComponentType, COMPONENT_COORDINATION_TYPES[name]);
+/** @typedef {import('react').ComponentType} ComponentType */
+/** @typedef {import('@vitessce/plugins').DataLoader} DataLoader */
+/** @typedef {import('@vitessce/plugins').DataSource} DataSource */
+/** @typedef {import('@vitessce/schemas').z.ZodTypeAny} ZodTypeAny */
+
+/**
+ * Helper function to use COMPONENT_COORDINATION_TYPES.
+ * @param {string} name
+ * @param {any} component
+ */
+function makeViewType(name, component) {
+  return new PluginViewType(
+    name,
+    /** @type {ComponentType} */ (component),
+    COMPONENT_COORDINATION_TYPES[name],
+  );
 }
 
-function makeFileType<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodTypeAny) {
-  return new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema);
+/**
+ * 
+ * @template {DataLoader} T1
+ * @template {DataSource} T2
+ * @param {string} name 
+ * @param {string} dataType 
+ * @param {any} dataLoaderClass 
+ * @param {any} dataSourceClass 
+ * @param {ZodTypeAny} optionsSchema 
+ * @returns 
+ */
+function makeFileType(name, dataType, dataLoaderClass, dataSourceClass, optionsSchema) {
+  return new PluginFileType(
+    name,
+    dataType,
+    /** @type {T1} */ (dataLoaderClass),
+    /** @type {T2} */ (dataSourceClass),
+    optionsSchema,
+  );
 }
 
 export const baseViewTypes = [

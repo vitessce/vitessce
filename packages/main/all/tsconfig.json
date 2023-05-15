@@ -4,6 +4,7 @@
     "composite": true,
     "outDir": "dist-tsc",
     "rootDir": "src",
+    "checkJs": true,
     "allowSyntheticDefaultImports": true
   },
   "include": ["src"],
