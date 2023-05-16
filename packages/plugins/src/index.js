@@ -1,5 +1,3 @@
-// @ts-check
-
 /** @typedef {import('react').ComponentType} ComponentType */
 /** @typedef {import('zod').ZodTypeAny} ZodTypeAny */
 

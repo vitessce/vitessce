@@ -1,15 +1,14 @@
 /* eslint-disable camelcase */
-import { z } from 'zod';
-import {
-  configSchema0_1_0,
-  configSchema1_0_0,
-  configSchema1_0_1,
-  configSchema1_0_15,
-  configSchema1_0_16,
-} from './previous-config-schemas.js';
+
+/** @typedef {typeof import('./previous-config-schemas').configSchema0_1_0} configSchema0_1_0 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_0} configSchema1_0_0 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_1} configSchema1_0_1 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_15} configSchema1_0_15 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_16} configSchema1_0_16 */
 
 /* eslint-disable camelcase */
-export const legacyViewConfig0_1_0: z.infer<typeof configSchema0_1_0> = {
+/** @type {import('zod').z.infer<configSchema0_1_0>} */
+export const legacyViewConfig0_1_0 = {
   version: '0.1.0',
   public: true,
   name: 'My config name',
@@ -63,7 +62,8 @@ export const legacyViewConfig0_1_0: z.infer<typeof configSchema0_1_0> = {
   }],
 };
 
-export const upgradedLegacyViewConfig0_1_0: z.infer<typeof configSchema1_0_0> = {
+/** @type {import('zod').z.infer<configSchema1_0_0>} */
+export const upgradedLegacyViewConfig0_1_0 = {
   version: '1.0.0',
   public: true,
   name: 'My config name',
@@ -170,7 +170,8 @@ export const upgradedLegacyViewConfig0_1_0: z.infer<typeof configSchema1_0_0> = 
   ],
 };
 
-export const legacyViewConfig1_0_0: z.infer<typeof configSchema1_0_0> = {
+/** @type {import('zod').z.infer<configSchema1_0_0>} */
+export const legacyViewConfig1_0_0 = {
   version: '1.0.0',
   public: true,
   name: 'My config name',
@@ -236,7 +237,8 @@ export const legacyViewConfig1_0_0: z.infer<typeof configSchema1_0_0> = {
   ],
 };
 
-export const upgradedLegacyViewConfig1_0_0: z.infer<typeof configSchema1_0_1> = {
+/** @type {import('zod').z.infer<configSchema1_0_1>} */
+export const upgradedLegacyViewConfig1_0_0 = {
   version: '1.0.1',
   public: true,
   name: 'My config name',
@@ -780,7 +782,8 @@ export const initializedViewConfig = {
   ],
 };
 
-export const implicitPerDatasetCoordinations: z.infer<typeof configSchema1_0_15> = {
+/** @type {import('zod').z.infer<configSchema1_0_15>} */
+export const implicitPerDatasetCoordinations = {
   version: '1.0.15',
   name: 'Per-dataset coordinations',
   description: 'My config description',
@@ -838,7 +841,8 @@ export const implicitPerDatasetCoordinations: z.infer<typeof configSchema1_0_15>
   ],
 };
 
-export const explicitPerDatasetCoordinations: z.infer<typeof configSchema1_0_16> = {
+/** @type {import('zod').z.infer<configSchema1_0_16>} */
+export const explicitPerDatasetCoordinations = {
   version: '1.0.16',
   name: 'Per-dataset coordinations',
   description: 'My config description',

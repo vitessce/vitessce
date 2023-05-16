@@ -1,40 +1,41 @@
 /* eslint-disable camelcase */
-import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash-es';
 import { getNextScope, capitalize } from '@vitessce/utils';
-import { componentCoordinationScopes, componentCoordinationScopesBy } from './shared.js';
-import {
-  configSchema0_1_0,
-  configSchema1_0_0,
-  configSchema1_0_1,
-  configSchema1_0_2,
-  configSchema1_0_3,
-  configSchema1_0_4,
-  configSchema1_0_5,
-  configSchema1_0_6,
-  configSchema1_0_7,
-  configSchema1_0_8,
-  configSchema1_0_9,
-  configSchema1_0_10,
-  configSchema1_0_11,
-  configSchema1_0_12,
-  configSchema1_0_13,
-  configSchema1_0_14,
-  configSchema1_0_15,
-  configSchema1_0_16,
-} from './previous-config-schemas.js';
 
+/** @typedef {typeof import('./shared').componentCoordinationScopes} componentCoordinationScopes */
+/** @typedef {typeof import('./shared').componentCoordinationScopesBy} componentCoordinationScopesBy */
 
-interface ViewProps {
-  target: [number, number];
-  zoom: number;
-}
+/** @typedef {typeof import('./previous-config-schemas').configSchema0_1_0} configSchema0_1_0 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_0} configSchema1_0_0 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_1} configSchema1_0_1 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_2} configSchema1_0_2 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_3} configSchema1_0_3 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_4} configSchema1_0_4 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_5} configSchema1_0_5 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_6} configSchema1_0_6 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_7} configSchema1_0_7 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_8} configSchema1_0_8 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_9} configSchema1_0_9 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_10} configSchema1_0_10 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_11} configSchema1_0_11 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_12} configSchema1_0_12 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_13} configSchema1_0_13 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_14} configSchema1_0_14 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_15} configSchema1_0_15 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_16} configSchema1_0_16 */
 
-const coordinationSpaceSchema1_0_0 = configSchema1_0_0
-  .shape.coordinationSpace.unwrap();
-const viewCoordinationScopes1_0_0 = configSchema1_0_0
-  .shape.layout.element.shape.coordinationScopes.unwrap();
+/**
+ * @typedef ViewProps
+ * @type {object}
+ * @property {[number, number]} target
+ * @property {number} zoom
+ */
+
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_0.shape.coordinationSpace._def.innerType} coordinationSpaceSchema1_0_0 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_0.shape.layout.element.shape.coordinationScopes._def.innerType} viewCoordinationScopes1_0_0 */
+/** @typedef {typeof import('./previous-config-schemas').configSchema1_0_0.shape.layout} layout1_0_0 */
+
 
 /**
  * A helper function for the `upgrade()` function,
@@ -42,17 +43,17 @@ const viewCoordinationScopes1_0_0 = configSchema1_0_0
  * into new coordination scopes, setting their values
  * in the coordination space and returning the new scope mappings.
  * This function does mutate the `coordinationSpace` parameter.
- * @param {string} prefix The coordination type prefix,
+ * @param {'embedding'|'spatial'} prefix The coordination type prefix,
  * either 'embedding' or 'spatial'.
- * @param {object} view The view prop object containing
+ * @param {ViewProps} view The view prop object containing
  * the properties `.target` and `.zoom`.
- * @param {object} coordinationSpace The coordination space.
- * @returns {object} The new coordination scope names.
+ * @param {import('zod').z.infer<coordinationSpaceSchema1_0_0>} coordinationSpace The coordination space.
+ * @returns {{ [x: string]: string }} The new coordination scope names.
  */
 function upgradeReplaceViewProp(
-  prefix: string,
-  view: ViewProps,
-  coordinationSpace: z.infer<typeof coordinationSpaceSchema1_0_0>,
+  prefix,
+  view,
+  coordinationSpace,
 ) {
   const prevZScopes = Object.keys(coordinationSpace[`${prefix}Zoom`]);
   const prevTXScopes = Object.keys(coordinationSpace[`${prefix}TargetX`]);
@@ -78,14 +79,16 @@ function upgradeReplaceViewProp(
 
 /**
  * Convert an older view config to a newer view config.
- * @param {object} config A v0.1.0 "legacy" view config.
- * @returns {object} A v1.0.0 "upgraded" view config.
+ * @param {import('zod').z.infer<configSchema0_1_0>} config A v0.1.0 "legacy" view config.
+ * @param {string|null} [datasetUid=null]
+ * @returns {import('zod').z.infer<configSchema1_0_0>} A v1.0.0 "upgraded" view config.
  */
 export function upgradeFrom0_1_0(
-  config: z.infer<typeof configSchema0_1_0>,
-  datasetUid: string | null = null,
-): z.infer<typeof configSchema1_0_0> {
-  const coordinationSpace: z.infer<typeof configSchema1_0_0.shape.coordinationSpace> = {
+  config,
+  datasetUid = null,
+) {
+  /** @type {import('zod').z.infer<coordinationSpaceSchema1_0_0>} */
+  const coordinationSpace = {
     embeddingType: {},
     embeddingZoom: {},
     embeddingTargetX: {},
@@ -95,7 +98,8 @@ export function upgradeFrom0_1_0(
     spatialTargetY: {},
   };
 
-  const layout: z.infer<typeof configSchema1_0_0.shape.layout> = [];
+  /** @type {import('zod').z.infer<layout1_0_0>} */
+  const layout = [];
   config.staticLayout.forEach((componentDef) => {
     let newComponentDef = {
       ...componentDef,
@@ -186,15 +190,23 @@ export function upgradeFrom0_1_0(
   };
 }
 
+/**
+ * @param {import('zod').z.infer<configSchema1_0_0>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_1>}
+ */
 export function upgradeFrom1_0_0(
-  config: z.infer<typeof configSchema1_0_0>,
-): z.infer<typeof configSchema1_0_1> {
+  config,
+) {
   const newConfig = cloneDeep(config);
   const { coordinationSpace } = newConfig;
 
+  /**
+   * @param {string} layerType 
+   * @param {import('zod').z.infer<coordinationSpaceSchema1_0_0>} cSpace 
+   */
   function replaceLayerType(
-    layerType: string,
-    cSpace: z.infer<typeof coordinationSpaceSchema1_0_0>,
+    layerType,
+    cSpace,
   ) {
     // Layer type could be one of a few things, bitmask or raster at the moment.
     const isRaster = layerType === 'raster';
@@ -231,9 +243,13 @@ export function upgradeFrom1_0_0(
   const layout = newConfig.layout.map((component) => {
     const newComponent = { ...component };
 
+    /**
+     * @param {string} layerType 
+     * @param {import('zod').z.infer<viewCoordinationScopes1_0_0>} cScopes 
+     */
     function replaceCoordinationScope(
-      layerType: string,
-      cScopes: z.infer<typeof viewCoordinationScopes1_0_0>,
+      layerType,
+      cScopes,
     ) {
       const isRaster = layerType === 'raster';
       if (
@@ -263,13 +279,19 @@ export function upgradeFrom1_0_0(
   };
 }
 
-interface SpatialRasterLayer1_0_0 {
-  type: 'bitmask' | 'raster';
-}
+/**
+ * @typedef SpatialRasterLayer1_0_0
+ * @type {object}
+ * @property {'bitmask'|'raster'} type
+ */
 
+/**
+ * @param {import('zod').z.infer<configSchema1_0_1>} config
+ * @returns {import('zod').z.infer<configSchema1_0_2>}
+ */
 export function upgradeFrom1_0_1(
-  config: z.infer<typeof configSchema1_0_1>,
-): z.infer<typeof configSchema1_0_2> {
+  config,
+) {
   // Need to add the globalDisable3d prop to any layer controller views,
   // to match the previous lack of 3D auto-detection behavior.
 
@@ -291,11 +313,17 @@ export function upgradeFrom1_0_1(
   Object.keys((newConfig?.coordinationSpace?.spatialRasterLayers || {})).forEach((key) => {
     if (newConfig.coordinationSpace?.spatialRasterLayers?.[key]) {
       newConfig.coordinationSpace.spatialRasterLayers[key]
-        .forEach((layer: SpatialRasterLayer1_0_0, index: number) => {
-          if (newConfig.coordinationSpace) {
-            newConfig.coordinationSpace.spatialRasterLayers[key][index].type = ['bitmask', 'raster'].includes(layer.type) ? layer.type : 'raster';
+        .forEach(
+          /**
+           * @param {SpatialRasterLayer1_0_0} layer 
+           * @param {number} index 
+           */
+          (layer, index) => {
+            if (newConfig.coordinationSpace) {
+              newConfig.coordinationSpace.spatialRasterLayers[key][index].type = ['bitmask', 'raster'].includes(layer.type) ? layer.type : 'raster';
+            }
           }
-        });
+        );
     }
   });
 
@@ -306,9 +334,13 @@ export function upgradeFrom1_0_1(
   };
 }
 
+/**
+ * @param {import('zod').z.infer<configSchema1_0_2>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_3>}
+ */
 export function upgradeFrom1_0_2(
-  config: z.infer<typeof configSchema1_0_2>,
-): z.infer<typeof configSchema1_0_3> {
+  config,
+) {
   // Need to add the globalDisable3d prop to any layer controller views,
   // to match the previous lack of 3D auto-detection behavior.
 
@@ -335,9 +367,14 @@ export function upgradeFrom1_0_2(
   };
 }
 
+/**
+ * 
+ * @param {import('zod').z.infer<configSchema1_0_3>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_4>}
+ */
 export function upgradeFrom1_0_3(
-  config: z.infer<typeof configSchema1_0_3>,
-): z.infer<typeof configSchema1_0_4> {
+  config,
+) {
   const newConfig = cloneDeep(config);
 
   return {
@@ -349,9 +386,13 @@ export function upgradeFrom1_0_3(
 // Added in version 1.0.5:
 // - Support for an array of strings in the setName property within options array items
 //   for the anndata-cell-sets.zarr file type.
-export function upgradeFrom1_0_4(
-  config: z.infer<typeof configSchema1_0_4>,
-): z.infer<typeof configSchema1_0_5> {
+
+/**
+ * 
+ * @param {import('zod').z.infer<configSchema1_0_4>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_5>}
+ */
+export function upgradeFrom1_0_4(config) {
   const newConfig = cloneDeep(config);
 
   return {
@@ -364,9 +405,15 @@ export function upgradeFrom1_0_4(
 // Added in version 1.0.6:
 // - Support for the scoreName property within options array items
 //   for the anndata-cell-sets.zarr file type.
+
+/**
+ * 
+ * @param {import('zod').z.infer<configSchema1_0_5>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_6>}
+ */
 export function upgradeFrom1_0_5(
-  config: z.infer<typeof configSchema1_0_5>,
-): z.infer<typeof configSchema1_0_6> {
+  config,
+) {
   const newConfig = cloneDeep(config);
 
   return {
@@ -378,9 +425,15 @@ export function upgradeFrom1_0_5(
 // Added in version 1.0.7:
 // - Support for aliasing the gene identifiers using a different var dataframe column
 // via a new `geneAlias` option for the `anndata-expression-matrix.zarr` fileType.
+
+/**
+ * 
+ * @param {import('zod').z.infer<configSchema1_0_6>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_7>}
+ */
 export function upgradeFrom1_0_6(
-  config: z.infer<typeof configSchema1_0_6>,
-): z.infer<typeof configSchema1_0_7> {
+  config,
+) {
   const newConfig = cloneDeep(config);
 
   return {
@@ -393,9 +446,15 @@ export function upgradeFrom1_0_6(
 // - Support for multiple `dataset` coordination scopes and
 // dataset-specific coordination scope mappings for all
 // other coordination types.
+
+/**
+ * 
+ * @param {import('zod').z.infer<configSchema1_0_7>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_8>}
+ */
 export function upgradeFrom1_0_7(
-  config: z.infer<typeof configSchema1_0_7>,
-): z.infer<typeof configSchema1_0_8> {
+  config,
+) {
   const newConfig = cloneDeep(config);
 
   return {
@@ -406,9 +465,15 @@ export function upgradeFrom1_0_7(
 
 // Added in version 1.0.9:
 // - Support for plugin coordination types.
+
+/**
+ * 
+ * @param {import('zod').z.infer<configSchema1_0_8>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_9>}
+ */
 export function upgradeFrom1_0_8(
-  config: z.infer<typeof configSchema1_0_8>,
-): z.infer<typeof configSchema1_0_9> {
+  config,
+) {
   const newConfig = cloneDeep(config);
 
   return {
@@ -419,9 +484,15 @@ export function upgradeFrom1_0_8(
 
 // Added in version 1.0.10:
 // - Support for the optional 'uid' property for views.
+
+/**
+ * 
+ * @param {import('zod').z.infer<configSchema1_0_9>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_10>}
+ */
 export function upgradeFrom1_0_9(
-  config: z.infer<typeof configSchema1_0_9>,
-): z.infer<typeof configSchema1_0_10> {
+  config,
+) {
   const newConfig = cloneDeep(config);
 
   return {
@@ -433,9 +504,15 @@ export function upgradeFrom1_0_9(
 // Added in version 1.0.11:
 // - Changes to spatial layer coordination type names.
 // - Cell -> Obs, Gene -> Feature in coordination type names.
+
+/**
+ * 
+ * @param {import('zod').z.infer<configSchema1_0_10>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_11>}
+ */
 export function upgradeFrom1_0_10(
-  config: z.infer<typeof configSchema1_0_10>,
-): z.infer<typeof configSchema1_0_11> {
+  config,
+) {
   const coordinationSpace = { ...config.coordinationSpace };
 
   const scopeAnalogies = {
@@ -502,9 +579,13 @@ export function upgradeFrom1_0_10(
 // Added in version 1.0.12:
 // - Added a fileType-to-dataType mapping
 // so that datasets[].files[].type is no longer required.
-export function upgradeFrom1_0_11(
-  config: z.infer<typeof configSchema1_0_11>,
-): z.infer<typeof configSchema1_0_12> {
+
+/**
+ * 
+ * @param {import('zod').z.infer<configSchema1_0_11>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_12>}
+ */
+export function upgradeFrom1_0_11(config) {
   const newConfig = cloneDeep(config);
 
   const {
@@ -543,43 +624,65 @@ export function upgradeFrom1_0_11(
 // - Adds the property `coordinationValues` for
 // view config file definitions but is not yet
 // used to do file matching/lookups.
+
+/**
+ * 
+ * @param {import('zod').z.infer<configSchema1_0_12>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_13>}
+ */
 export function upgradeFrom1_0_12(
-  config: z.infer<typeof configSchema1_0_12>,
-): z.infer<typeof configSchema1_0_13> {
+  config,
+) {
   const newConfig = cloneDeep(config);
 
   // Set up coordination scopes for anndata-cells.zarr's options.factors
   // in the coordination space, and create a new coordinationScopes.obsLabelsType array
   // for each component in the layout.
   const { datasets, coordinationSpace, layout } = newConfig;
-  const newCoordinationSpace: z.infer<typeof coordinationSpaceSchema1_0_0> = (
+
+  /** @type {import('zod').z.infer<coordinationSpaceSchema1_0_0>} */
+  const newCoordinationSpace = (
     coordinationSpace || {}
   );
-  const datasetUidToObsLabelsTypeScopes: Record<string, string[]> = {};
+  /** @type {Record<string, string[]>} */
+  const datasetUidToObsLabelsTypeScopes = {};
   datasets.forEach((dataset) => {
     const { files, uid } = dataset;
     files.forEach((fileDef) => {
       const { fileType, options } = fileDef;
       if (fileType === 'anndata-cells.zarr') {
         if (options && 'factors' in options && Array.isArray(options.factors)) {
-          const obsLabelsTypeScopes: string[] = [];
-          options.factors.forEach((olt: string) => {
-            const nextScope = getNextScope(Object.keys(coordinationSpace?.obsLabelsType || {}));
-            newCoordinationSpace.obsLabelsType = {
-              ...newCoordinationSpace.obsLabelsType,
-              // Need to remove the obs/ prefix.
-              [nextScope]: olt.split('/').at(-1),
-            };
-            obsLabelsTypeScopes.push(nextScope);
-          });
+          /** @type {string[]} */
+          const obsLabelsTypeScopes = [];
+          options.factors.forEach(
+            /**
+             * @param {string} olt 
+             */
+            (olt) => {
+              const nextScope = getNextScope(Object.keys(coordinationSpace?.obsLabelsType || {}));
+              newCoordinationSpace.obsLabelsType = {
+                ...newCoordinationSpace.obsLabelsType,
+                // Need to remove the obs/ prefix.
+                [nextScope]: olt.split('/').at(-1),
+              };
+              obsLabelsTypeScopes.push(nextScope);
+            }
+          );
           datasetUidToObsLabelsTypeScopes[uid] = obsLabelsTypeScopes;
         }
       }
     });
   });
+
+  /** @typedef {typeof import('./previous-config-schemas').configSchema1_0_12.shape.layout.element} layoutElement1_0_12 */
+  /**
+   * 
+   * @param {import('zod').z.infer<layoutElement1_0_12>} viewDef 
+   * @returns {string|null}
+   */
   function getDatasetUidForView(
-    viewDef: z.infer<typeof configSchema1_0_12.shape.layout.element>,
-  ): string|null {
+    viewDef,
+  ) {
     if (viewDef.coordinationScopes?.dataset && typeof viewDef.coordinationScopes?.dataset === 'string') {
       return newCoordinationSpace.dataset[viewDef.coordinationScopes.dataset];
     }
@@ -618,9 +721,15 @@ export function upgradeFrom1_0_12(
 // gatingFeatureSelectionX,
 // gatingFeatureSelectionY,
 // featureValueTransformCoefficient.
+
+/**
+ * 
+ * @param {import('zod').z.infer<configSchema1_0_13>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_14>}
+ */
 export function upgradeFrom1_0_13(
-  config: z.infer<typeof configSchema1_0_13>,
-): z.infer<typeof configSchema1_0_14> {
+  config,
+) {
   const newConfig = cloneDeep(config);
 
   return {
@@ -639,13 +748,20 @@ export function upgradeFrom1_0_13(
 // - Deprecates the props:
 //   - variablesLabelOverride
 //   - observationsLabelOverride
+
+/**
+ * 
+ * @param {import('zod').z.infer<configSchema1_0_14>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_15>}
+ */
 export function upgradeFrom1_0_14(
-  config: z.infer<typeof configSchema1_0_14>,
-): z.infer<typeof configSchema1_0_15> {
+  config,
+) {
   const newConfig = cloneDeep(config);
   const { layout } = newConfig;
 
-  const viewTypeAnalogies: Record<string, string> = {
+  /** @type {Record<string, string>} */
+  const viewTypeAnalogies = {
     genes: 'featureList',
     cellSets: 'obsSets',
     cellSetSizes: 'obsSetSizes',
@@ -687,49 +803,62 @@ export function upgradeFrom1_0_14(
 // - Explict coordinationScopesBy property for view definitions,
 // to replace the previous implicit mapping of per-dataset coordination
 // scopes.
-export function upgradeFrom1_0_15(
-  config: z.infer<typeof configSchema1_0_15>,
-): z.infer<typeof configSchema1_0_16> {
+
+/**
+ * 
+ * @param {import('zod').z.infer<configSchema1_0_15>} config 
+ * @returns {import('zod').z.infer<configSchema1_0_16>}
+ */
+export function upgradeFrom1_0_15(config) {
   const newConfig = cloneDeep(config);
 
   const { layout } = newConfig;
-  const newLayout = layout.map((view): z.infer<typeof configSchema1_0_16.shape.layout.element> => {
-    const { coordinationScopes } = view;
-    // Create a new coordinationScopes property that conforms to v1.0.16.
-    const newCoordinationScopes: z.infer<typeof componentCoordinationScopes> = {};
-    // Update coordinationScopes and coordinationScopesBy when required.
-    if (coordinationScopes?.dataset && Array.isArray(coordinationScopes.dataset)) {
-      const coordinationScopesBy: z.infer<typeof componentCoordinationScopesBy> = {
-        dataset: {},
-      };
-      Object.entries(coordinationScopes).forEach(([coordinationType, coordinationScope]) => {
-        if (!Array.isArray(coordinationScope) && typeof coordinationScope === 'object') {
-          if (coordinationType === 'dataset') {
-            console.error('Expected coordinationScopes.dataset value to be either string or string[], but got object.');
+  const newLayout = layout.map(
+
+    /** @typedef {typeof import('./previous-config-schemas').configSchema1_0_16.shape.layout.element} layoutElement1_0_16 */
+    /**
+     * @returns {import('zod').z.infer<layoutElement1_0_16>}
+     */
+    (view) => {
+      const { coordinationScopes } = view;
+      // Create a new coordinationScopes property that conforms to v1.0.16.
+      /** @type {import('zod').z.infer<componentCoordinationScopes>} */
+      const newCoordinationScopes = {};
+      // Update coordinationScopes and coordinationScopesBy when required.
+      if (coordinationScopes?.dataset && Array.isArray(coordinationScopes.dataset)) {
+        /** @type {import('zod').z.infer<componentCoordinationScopesBy>} */
+        const coordinationScopesBy = {
+          dataset: {},
+        };
+        Object.entries(coordinationScopes).forEach(([coordinationType, coordinationScope]) => {
+          if (!Array.isArray(coordinationScope) && typeof coordinationScope === 'object') {
+            if (coordinationType === 'dataset') {
+              console.error('Expected coordinationScopes.dataset value to be either string or string[], but got object.');
+            }
+            coordinationScopesBy.dataset[coordinationType] = coordinationScope;
+          } else if (Array.isArray(coordinationScope) || typeof coordinationScope === 'string') {
+            newCoordinationScopes[coordinationType] = coordinationScope;
           }
-          coordinationScopesBy.dataset[coordinationType] = coordinationScope;
-        } else if (Array.isArray(coordinationScope) || typeof coordinationScope === 'string') {
-          newCoordinationScopes[coordinationType] = coordinationScope;
-        }
-      });
+        });
+        return {
+          ...view,
+          coordinationScopes: newCoordinationScopes,
+          coordinationScopesBy,
+        };
+      }
+      if (coordinationScopes) {
+        Object.entries(coordinationScopes).forEach(([coordinationType, coordinationScope]) => {
+          if (Array.isArray(coordinationScope) || typeof coordinationScope === 'string') {
+            newCoordinationScopes[coordinationType] = coordinationScope;
+          }
+        });
+      }
       return {
         ...view,
         coordinationScopes: newCoordinationScopes,
-        coordinationScopesBy,
       };
     }
-    if (coordinationScopes) {
-      Object.entries(coordinationScopes).forEach(([coordinationType, coordinationScope]) => {
-        if (Array.isArray(coordinationScope) || typeof coordinationScope === 'string') {
-          newCoordinationScopes[coordinationType] = coordinationScope;
-        }
-      });
-    }
-    return {
-      ...view,
-      coordinationScopes: newCoordinationScopes,
-    };
-  });
+  );
 
   return {
     ...newConfig,

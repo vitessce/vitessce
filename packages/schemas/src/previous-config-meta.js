@@ -40,31 +40,13 @@ import {
   upgradeFrom1_0_15,
 } from './previous-config-upgraders.js';
 
+/** @typedef {import('zod').z.ZodTypeAny} ZodTypeAny */
+/** @typedef {import('./types').UpgradeFunction} UpgradeFunction */
+
 export const latestConfigSchema = configSchema1_0_16;
 
-export type AnyVersionConfig =
-  z.infer<typeof configSchema0_1_0> |
-  z.infer<typeof configSchema1_0_0> |
-  z.infer<typeof configSchema1_0_1> |
-  z.infer<typeof configSchema1_0_2> |
-  z.infer<typeof configSchema1_0_3> |
-  z.infer<typeof configSchema1_0_4> |
-  z.infer<typeof configSchema1_0_5> |
-  z.infer<typeof configSchema1_0_6> |
-  z.infer<typeof configSchema1_0_7> |
-  z.infer<typeof configSchema1_0_8> |
-  z.infer<typeof configSchema1_0_9> |
-  z.infer<typeof configSchema1_0_10> |
-  z.infer<typeof configSchema1_0_11> |
-  z.infer<typeof configSchema1_0_12> |
-  z.infer<typeof configSchema1_0_13> |
-  z.infer<typeof configSchema1_0_14> |
-  z.infer<typeof configSchema1_0_15> |
-  z.infer<typeof configSchema1_0_16>;
-
-export type UpgradeFunction = (config: any) => AnyVersionConfig;
-
-export const SCHEMA_HANDLERS: [z.ZodTypeAny, UpgradeFunction][] = [
+/** @type {[ZodTypeAny, UpgradeFunction][]} */
+export const SCHEMA_HANDLERS = [
   [configSchema0_1_0, upgradeFrom0_1_0],
   [configSchema1_0_0, upgradeFrom1_0_0],
   [configSchema1_0_1, upgradeFrom1_0_1],

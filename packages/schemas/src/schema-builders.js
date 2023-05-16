@@ -1,12 +1,6 @@
 import { z } from 'zod';
 import { fromEntries } from '@vitessce/utils';
 import {
-  PluginViewType,
-  PluginCoordinationType,
-  PluginFileType,
-  PluginJointFileType,
-} from '@vitessce/plugins';
-import {
   requestInit,
   coordinationScopeName,
   componentCoordinationScopes,
@@ -15,14 +9,18 @@ import {
 import { latestConfigSchema } from './previous-config-meta.js';
 import { configSchemaToVersion } from './view-config-versions.js';
 
+/** @typedef {import('@vitessce/plugins').PluginViewType} PluginViewType */
+/** @typedef {import('@vitessce/plugins').PluginCoordinationType<import('zod').z.ZodTypeAny>} PluginCoordinationType */
+/** @typedef {import('@vitessce/plugins').PluginFileType<any, any, import('zod').z.ZodTypeAny>} PluginFileType */
+/** @typedef {import('@vitessce/plugins').PluginJointFileType<import('zod').z.ZodTypeAny>} PluginJointFileType */
 /**
  * Convert an array of strings into a Zod enum schema,
  * bypassing the need for the input array to have
  * at least two elements.
- * @param schemaArr Array of strings.
+ * @param {string[]} schemaArr Array of strings.
  * @returns Zod enum schema.
  */
-function toEnum(schemaArr: string[]) {
+function toEnum(schemaArr) {
   if (schemaArr.length === 0) return z.null();
   if (schemaArr.length === 1) return z.literal(schemaArr[0]);
   return z.enum([schemaArr[0], ...schemaArr.slice(1, schemaArr.length)]);
@@ -34,11 +32,12 @@ function toEnum(schemaArr: string[]) {
  * Zod schema to be typed despite not knowing
  * the file type name or options sub-schema in advance,
  * which is the case for plugin file types in particular.
- * @param fileType The file type name.
- * @param options Zod schema for the file definition options.
+ * @template {import('zod').z.ZodTypeAny} T
+ * @param {string} fileType The file type name.
+ * @param {T} options Zod schema for the file definition options.
  * @returns Zod object schema for the file definition.
  */
-function buildFileDefSchema<T extends z.ZodTypeAny>(fileType: string, options: T) {
+function buildFileDefSchema(fileType, options) {
   return z.object({
     fileType: z.literal(fileType),
     options: options.optional(),
@@ -57,16 +56,17 @@ function buildFileDefSchema<T extends z.ZodTypeAny>(fileType: string, options: T
   });
 }
 
-type FileDefSchema = ReturnType<typeof buildFileDefSchema>;
+/** @typedef {ReturnType<typeof buildFileDefSchema>} FileDefSchema */
 
 /**
  * Convert an array of Zod schemas into a Zod union schema,
  * bypassing the need for the input array to have
  * at least two elements.
- * @param schemaArr Array of Zod schemas.
+ * @template {FileDefSchema} T
+ * @param {T[]} schemaArr Array of Zod schemas.
  * @returns Zod union schema.
  */
-function toFileDefUnion<T extends FileDefSchema>(schemaArr: T[]) {
+function toFileDefUnion(schemaArr) {
   if (schemaArr.length === 0) return z.null();
   if (schemaArr.length === 1) return schemaArr[0];
   return z.discriminatedUnion('fileType', [
@@ -82,21 +82,20 @@ function toFileDefUnion<T extends FileDefSchema>(schemaArr: T[]) {
  * The builder pattern allows the returned
  * Zod schema to be typed despite not knowing
  * the plugin names or sub-schemas in advance.
- * @param pluginFileTypes
- * @param pluginJointFileTypes
- * @param pluginCoordinationTypes
- * @param pluginViewTypes
+ * @template {PluginFileType} T1
+ * @template {PluginJointFileType} T2
+ * @template {PluginCoordinationType} T3
+ * @param {T1[]} pluginFileTypes
+ * @param {T2[]} pluginJointFileTypes
+ * @param {T3[]} pluginCoordinationTypes
+ * @param {PluginViewType[]} pluginViewTypes
  * @returns The Zod schema.
  */
-export function buildConfigSchema<
-  T1 extends PluginFileType<any, any, z.ZodTypeAny>,
-  T2 extends PluginJointFileType<z.ZodTypeAny>,
-  T3 extends PluginCoordinationType<z.ZodTypeAny>,
->(
-  pluginFileTypes: Array<T1>,
-  pluginJointFileTypes: Array<T2>,
-  pluginCoordinationTypes: Array<T3>,
-  pluginViewTypes: Array<PluginViewType>,
+export function buildConfigSchema(
+  pluginFileTypes,
+  pluginJointFileTypes,
+  pluginCoordinationTypes,
+  pluginViewTypes,
 ) {
   const fileTypeSchemas = [...pluginFileTypes, ...pluginJointFileTypes]
     .map(ft => buildFileDefSchema(ft.name, ft.optionsSchema));
