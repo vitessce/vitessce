@@ -35,13 +35,11 @@ const treeNodeLeaf = treeNodeBase.extend({
   set: z.array(z.string()),
 });
 
-type TreeNodeLeaf = z.input<typeof treeNodeLeaf>;
+/** @typedef {import('zod').z.input<typeof treeNodeLeaf>} TreeNodeLeaf */
+/** @typedef {import('zod').z.input<typeof treeNodeBase> & { children: Array<TreeNodeNonLeaf | TreeNodeLeaf> }} TreeNodeNonLeaf */
 
-type TreeNodeNonLeaf = z.input<typeof treeNodeBase> & {
-  children: Array<TreeNodeNonLeaf | TreeNodeLeaf>;
-};
-
-const treeNodeNonLeaf: z.ZodType<TreeNodeNonLeaf> = treeNodeBase.extend({
+/** @type {import('zod').z.ZodType<TreeNodeNonLeaf>} */
+const treeNodeNonLeaf = treeNodeBase.extend({
   children: z.lazy(() => z.array(z.union([treeNodeNonLeaf, treeNodeLeaf]))),
 });
 
@@ -54,13 +52,11 @@ const treeNodeLeafProbabilistic = treeNodeBase.extend({
   set: z.array(z.tuple([z.string(), z.number().nullable()])),
 });
 
-type TreeNodeLeafProbabilistic = z.infer<typeof treeNodeLeafProbabilistic>;
+/** @typedef {import('zod').z.infer<typeof treeNodeLeafProbabilistic>} TreeNodeLeafProbabilistic */
+/** @typedef {import('zod').z.infer<typeof treeNodeBase> & { children: Array<TreeNodeNonLeafProbabilistic | TreeNodeLeafProbabilistic> }} TreeNodeNonLeafProbabilistic */
 
-type TreeNodeNonLeafProbabilistic = (z.infer<typeof treeNodeBase> & {
-  children: Array<TreeNodeNonLeafProbabilistic | TreeNodeLeafProbabilistic>;
-});
-
-const treeNodeNonLeafProbabilistic: z.ZodType<TreeNodeNonLeafProbabilistic> = treeNodeBase
+/** @type {import('zod').z.ZodType<TreeNodeNonLeafProbabilistic>} */
+const treeNodeNonLeafProbabilistic = treeNodeBase
   .extend({
     children: z.lazy(() => z.array(
       z.union([treeNodeNonLeafProbabilistic, treeNodeLeafProbabilistic]),
@@ -72,32 +68,29 @@ const cellSets3 = z.object({
   tree: z.array(treeNodeNonLeafProbabilistic),
 });
 
-type TreeNode =
-  TreeNodeLeaf
-  | TreeNodeNonLeaf
-  | TreeNodeLeafProbabilistic
-  | TreeNodeNonLeafProbabilistic;
+/** @typedef {TreeNodeLeaf | TreeNodeNonLeaf | TreeNodeLeafProbabilistic | TreeNodeNonLeafProbabilistic} TreeNode */
 
 /**
  * Transform a node object using a transform function.
- * @param {object} node A node object.
- * @param {function} predicate Returns true if a node matches a condition of interest.
- * @param {function} transform Takes the node matching the predicate as input, returns
+ * @param {TreeNode} node A node object.
+ * @param {(a: TreeNode, b?: any) => boolean} predicate Returns true if a node matches a condition of interest.
+ * @param {(a: any, b?: any) => any} transform Takes the node matching the predicate as input, returns
  * a transformed version of the node.
- * @param {array} transformedPaths This array parameter is mutated. The path of
+ * @param {Array<string[]>} transformedPaths This array parameter is mutated. The path of
  * each transformed node is appended to this array.
- * @param {string[]} The current path of the node being updated, used internally
+ * @param {string[] | null} [currPath=null] The current path of the node being updated, used internally
  * during recursion.
- * @returns {object} The updated node.
+ * @returns {TreeNode} The updated node.
  */
 export function nodeTransform(
-  node: TreeNode,
-  predicate: (a: TreeNode, b?: any) => boolean,
-  transform: (a: any, b?: any) => any,
-  transformedPaths: Array<string[]>,
-  currPath: string[] | null = null,
-): TreeNode {
-  let newPath: string[];
+  node,
+  predicate,
+  transform,
+  transformedPaths,
+  currPath = null,
+) {
+  /** @type {string[]} */
+  let newPath;
   if (!currPath) {
     newPath = [node.name];
   } else {
@@ -108,30 +101,56 @@ export function nodeTransform(
     return transform(node, newPath);
   }
   if ('children' in node) {
-    return {
+    return /** @type {TreeNodeNonLeafProbabilistic} */ ({
       ...node,
-      children: node.children.map((child: TreeNode): TreeNode => nodeTransform(
-        child, predicate, transform, transformedPaths, newPath.concat([child.name]),
-      )),
-    } as TreeNodeNonLeafProbabilistic;
+      children: node.children.map(
+        /**
+         * 
+         * @param {TreeNode} child 
+         * @returns {TreeNode}
+         */
+        (child) => nodeTransform(
+          child, predicate, transform, transformedPaths, newPath.concat([child.name]),
+        )
+      ),
+    });
   }
   return node;
 }
 
 export const obsSetsSchema = z.union([cellSets3, cellSets2])
-  .transform((v): z.infer<typeof cellSets3> => {
+  .transform(
+    /**
+     * @param v 
+     * @returns {import('zod').z.infer<typeof cellSets3>}
+     */
+    (v) => {
     if (v.version === '0.1.3') return v;
     // To upgrade from cell-sets schema 0.1.2 to 0.1.3,
     // add a confidence value of null for each cell ID.
     return {
       ...v,
       version: '0.1.3',
-      tree: v.tree.map(levelZeroNode => nodeTransform(
+      tree: v.tree.map(levelZeroNode => /** @type {TreeNodeNonLeafProbabilistic} */ (nodeTransform(
         levelZeroNode,
-        (n: TreeNode) => !('children' in n) && Array.isArray(n.set),
-        (n: TreeNodeLeaf) => ({ ...n, set: n.set.map((itemId: string) => ([itemId, null])) }),
+        /**
+         * @param {TreeNode} n 
+         * @returns 
+         */
+        (n) => !('children' in n) && Array.isArray(n.set),
+        /**
+         * @param {TreeNodeLeaf} n 
+         * @returns 
+         */
+        (n) => ({ ...n, set: n.set.map(
+          /**
+           * @param {string} itemId 
+           * @returns 
+           */
+          (itemId) => ([itemId, null])
+        ) }),
         [],
-      ) as TreeNodeNonLeafProbabilistic),
+      ))),
     };
   });
 
