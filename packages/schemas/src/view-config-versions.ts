@@ -29,7 +29,7 @@ function refineCoordinationTypes(config: AnyVersionConfig, ctx: z.RefinementCtx)
   if ('version' in config) {
     const version = config?.version;
     const deprecatedCoordinationTypes = Object.entries(OldCoordinationType)
-      .filter(([prevConstant, v]) => semverGte(version, v[2]))
+      .filter(([prevConstant, v]) => semverGte(version, (v as string[])[2]))
       .map(([prevConstant]) => prevConstant);
     deprecatedCoordinationTypes.forEach((prevConstant) => {
       const newTypeName = (OldCoordinationType as Record<string, string[]>)[prevConstant][3];
