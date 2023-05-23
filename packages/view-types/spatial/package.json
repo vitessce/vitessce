@@ -41,7 +41,7 @@
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/legend": "workspace:*",
     "d3-array": "^2.4.0",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "math.gl": "^3.5.6",
     "mathjs": "^9.2.0",
     "plur": "^5.1.0",

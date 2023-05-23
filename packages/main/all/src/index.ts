@@ -1,4 +1,4 @@
-export { Vitessce } from './Vitessce';
+export { Vitessce } from './Vitessce.js';
 export {
   PluginFileType,
   PluginViewType,

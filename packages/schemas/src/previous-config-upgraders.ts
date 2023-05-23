@@ -1,9 +1,9 @@
 /* eslint-disable camelcase */
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
-import cloneDeep from 'lodash/cloneDeep';
+import { cloneDeep } from 'lodash-es';
 import { getNextScope, capitalize } from '@vitessce/utils';
-import { componentCoordinationScopes, componentCoordinationScopesBy } from './shared';
+import { componentCoordinationScopes, componentCoordinationScopesBy } from './shared.js';
 import {
   configSchema0_1_0,
   configSchema1_0_0,
@@ -23,7 +23,7 @@ import {
   configSchema1_0_14,
   configSchema1_0_15,
   configSchema1_0_16,
-} from './previous-config-schemas';
+} from './previous-config-schemas.js';
 
 
 interface ViewProps {

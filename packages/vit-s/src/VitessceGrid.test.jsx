@@ -4,11 +4,11 @@ import { afterEach } from 'vitest';
 
 import React from 'react';
 import { PluginViewType } from '@vitessce/plugins';
-import VitessceGrid from './VitessceGrid';
+import VitessceGrid from './VitessceGrid.js';
 import {
   ViewConfigProvider, createViewConfigStore,
   AuxiliaryProvider, createAuxiliaryStore,
-} from './state/hooks';
+} from './state/hooks.js';
 
 afterEach(() => {
   cleanup();

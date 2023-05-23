@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 
 import {
   nodeToRenderProps,
@@ -14,13 +14,13 @@ import {
   treeExport,
   filterNode,
   treeToSetSizesBySetNames,
-} from './cell-set-utils';
+} from './cell-set-utils.js';
 
 import {
   levelTwoNodeLeaf,
   levelZeroNode,
   tree,
-} from './cell-set-utils.test.fixtures';
+} from './cell-set-utils.test.fixtures.js';
 
 describe('Hierarchical sets cell-set-utils', () => {
   describe('Node rendering', () => {

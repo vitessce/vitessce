@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useViewConfigStoreApi, useLoaders, useWarning } from './state/hooks';
+import { useViewConfigStoreApi, useLoaders, useWarning } from './state/hooks.js';
 
 
 function validateViewConfig(viewConfig, pluginSpecificConfigSchema) {

@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach } from 'vitest';
 import React from 'react';
 
-import SelectableTable from './SelectableTable';
+import SelectableTable from './SelectableTable.js';
 
 const user = userEvent.setup();
 

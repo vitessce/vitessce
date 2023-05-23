@@ -3,9 +3,9 @@ import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous
 import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { Texture2D } from '@luma.gl/core';
-import { PIXELATED_TEXTURE_PARAMETERS, TILE_SIZE, DATA_TEXTURE_SIZE } from './heatmap-constants';
-import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from './constants';
-import { vertexShader, fragmentShader } from './padded-expression-heatmap-bitmap-layer-shaders';
+import { PIXELATED_TEXTURE_PARAMETERS, TILE_SIZE, DATA_TEXTURE_SIZE } from './heatmap-constants.js';
+import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from './constants.js';
+import { vertexShader, fragmentShader } from './padded-expression-heatmap-bitmap-layer-shaders.js';
 
 const defaultProps = {
   image: { type: 'object', value: null, async: true },

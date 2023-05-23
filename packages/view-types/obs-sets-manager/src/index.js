@@ -1,2 +1,2 @@
-export { ObsSetsManagerSubscriber } from './ObsSetsManagerSubscriber';
-export { default as SetsManager } from './SetsManager';
+export { ObsSetsManagerSubscriber } from './ObsSetsManagerSubscriber.js';
+export { default as SetsManager } from './SetsManager.js';

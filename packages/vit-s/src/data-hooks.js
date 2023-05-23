@@ -1,15 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal';
 import { fromEntries } from '@vitessce/utils';
-import { useMatchingLoader, useMultiCoordinationValues, useSetWarning } from './state/hooks';
+import { useMatchingLoader, useMultiCoordinationValues, useSetWarning } from './state/hooks.js';
 import {
   LoaderNotFoundError,
-} from './errors/index';
+} from './errors/index.js';
 import {
   warn,
   useDataType,
   useDataTypeMulti,
-} from './data-hook-utils';
+} from './data-hook-utils.js';
 
 /**
  * Get the dataset description string.

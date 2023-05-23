@@ -1,7 +1,4 @@
----
-id: dev-config-versioning
-title: Config schema versioning
----
+# Config schema versioning
 
 ## Motivation
 
@@ -26,4 +23,4 @@ A new config schema version should be added when:
 
 Config schemas are defined using [Zod](https://zod.dev/) in the `@vitessce/schemas` sub-package of the Vitessce monorepo.
 
-See the [README](https://github.com/vitessce/vitessce/tree/main/packages/schemas/README.md) for detailed instructions.
+See the [README](../packages/schemas/README.md) for detailed instructions.

@@ -1,1 +1,1 @@
-export { EmbeddingScatterplotSubscriber } from './EmbeddingScatterplotSubscriber';
+export { EmbeddingScatterplotSubscriber } from './EmbeddingScatterplotSubscriber.js';

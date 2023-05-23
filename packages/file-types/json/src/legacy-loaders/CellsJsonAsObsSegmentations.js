@@ -1,7 +1,7 @@
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import { DEFAULT_CELLS_LAYER, square } from '@vitessce/spatial-utils';
-import { cellsSchema } from './schemas/cells';
-import JsonLoader from '../json-loaders/JsonLoader';
+import { cellsSchema } from './schemas/cells.js';
+import JsonLoader from '../json-loaders/JsonLoader.js';
 
 export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
   constructor(dataSource, params) {

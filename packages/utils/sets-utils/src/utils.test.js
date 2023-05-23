@@ -1,4 +1,4 @@
-import { getObsInfoFromDataWithinRange } from './utils';
+import { getObsInfoFromDataWithinRange } from './utils.js';
 
 
 describe('getObsInfoFromDataWithinRange', () => {

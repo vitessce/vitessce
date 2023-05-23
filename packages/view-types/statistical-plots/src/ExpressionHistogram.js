@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import clamp from 'lodash/clamp';
+import { clamp, debounce } from 'lodash-es';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 
 /**
@@ -8,7 +8,6 @@ import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
  * See this issue: https://github.com/vega/vega-lite/issues/5728
  * See this for reference on what is supported: https://vega.github.io/vega-lite/docs/selection.html
  */
-import debounce from 'lodash/debounce';
 
 /**
  * Gene expression histogram displayed as a bar chart,

@@ -37,7 +37,7 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "clsx": "^1.1.1",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "rc-tooltip": "^5.2.2",
     "rc-tree": "2.1.0",
     "react-color-with-lodash": "^2.19.5"

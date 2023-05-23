@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout-with-lodash';
-import isEqual from 'lodash/isEqual';
-import { getMaxRows, resolveLayout } from './layout-utils';
+import { isEqual } from 'lodash-es';
+import { getMaxRows, resolveLayout } from './layout-utils.js';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 

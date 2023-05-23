@@ -1,8 +1,8 @@
 /* eslint-disable func-names */
 import { LoaderResult } from '@vitessce/vit-s';
-import ObsEmbeddingAnndataLoader from './ObsEmbeddingAnndataLoader';
-import AnnDataSource from '../AnnDataSource';
-import MuDataSource from '../MuDataSource';
+import ObsEmbeddingAnndataLoader from './ObsEmbeddingAnndataLoader.js';
+import AnnDataSource from '../AnnDataSource.js';
+import MuDataSource from '../MuDataSource.js';
 
 const createAnndataLoader = (url) => {
   const config = {

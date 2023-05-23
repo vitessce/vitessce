@@ -5,7 +5,7 @@ import { PluginViewType, PluginCoordinationType } from '@vitessce/plugins';
 import {
   getExistingScopesForCoordinationType,
   initialize,
-} from './view-config-utils';
+} from './view-config-utils.js';
 
 function FakeComponent(props) {
   const { text } = props;

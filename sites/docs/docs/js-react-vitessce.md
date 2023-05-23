@@ -9,8 +9,6 @@ The `vitessce` package exports the `Vitessce` React component. The component pro
 import React from 'react';
 import { Vitessce } from 'vitessce';
 import myViewConfig from './my-view-config';
-import 'vitessce/dist/es/production/static/css/index.css';
-import './index.css';
 
 export default function MyApp() {
     return (

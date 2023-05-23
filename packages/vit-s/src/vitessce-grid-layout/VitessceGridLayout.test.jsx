@@ -4,7 +4,7 @@ import { afterEach } from 'vitest';
 
 import React from 'react';
 import { PluginViewType } from '@vitessce/plugins';
-import { VitessceGridLayout } from './VitessceGridLayout';
+import { VitessceGridLayout } from './VitessceGridLayout.js';
 
 afterEach(() => {
   cleanup();

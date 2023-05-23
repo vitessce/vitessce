@@ -1,20 +1,20 @@
 // Selection Layers
-export { getSelectionLayers } from './selection-utils';
+export { getSelectionLayers } from './selection-utils.js';
 
 // Heatmap Layers
-export { default as HeatmapBitmapLayer } from './HeatmapBitmapLayer';
-export { default as PixelatedBitmapLayer } from './PixelatedBitmapLayer';
-export { default as HeatmapCompositeTextLayer } from './HeatmapCompositeTextLayer';
-export { default as PaddedExpressionHeatmapBitmapLayer } from './PaddedExpressionHeatmapBitmapLayer';
+export { default as HeatmapBitmapLayer } from './HeatmapBitmapLayer.js';
+export { default as PixelatedBitmapLayer } from './PixelatedBitmapLayer.js';
+export { default as HeatmapCompositeTextLayer } from './HeatmapCompositeTextLayer.js';
+export { default as PaddedExpressionHeatmapBitmapLayer } from './PaddedExpressionHeatmapBitmapLayer.js';
 
 export {
   GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, DEFAULT_GL_OPTIONS, SELECTION_TYPE,
-} from './constants';
+} from './constants.js';
 
 // Layer extensions
-export { default as ScaledExpressionExtension } from './ScaledExpressionExtension';
-export { default as SelectionExtension } from './SelectionExtension';
-export { default as BitmaskLayer } from './BitmaskLayer';
+export { default as ScaledExpressionExtension } from './ScaledExpressionExtension/index.js';
+export { default as SelectionExtension } from './SelectionExtension/index.js';
+export { default as BitmaskLayer } from './BitmaskLayer.js';
 
 export {
   TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
@@ -27,10 +27,10 @@ export {
   AXIS_PADDING,
   AXIS_MIN_SIZE,
   AXIS_MAX_SIZE,
-} from './heatmap-constants';
+} from './heatmap-constants.js';
 // eslint-disable-next-line react-refresh/only-export-components
-export * as viv from './viv';
+export * as viv from './viv.js';
 // eslint-disable-next-line react-refresh/only-export-components
-export * as luma from './luma';
+export * as luma from './luma.js';
 // eslint-disable-next-line react-refresh/only-export-components
-export * as deck from './deck';
+export * as deck from './deck.js';

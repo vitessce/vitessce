@@ -9,8 +9,6 @@ It contains:
   - `sites/html`: A plain HTML page that imports sub-packages for testing.
 - `examples/`: packages that consume the sub-packages but are just used internally (e.g., for the demo or docs web apps; not published to NPM)
 
-These are also specified in `pnpm-workspace.yaml` to let PNPM know which subdirectories contain packages.
-
 ## Code transformation
 
 This monorepo organization has implications for how code is "transformed".

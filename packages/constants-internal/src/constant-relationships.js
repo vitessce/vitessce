@@ -1,4 +1,4 @@
-import { FileType, DataType, CoordinationType } from './constants';
+import { FileType, DataType, CoordinationType } from './constants.js';
 
 /**
  * Mapping from file types to data types. Each file type

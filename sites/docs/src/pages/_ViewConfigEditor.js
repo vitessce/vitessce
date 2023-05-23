@@ -12,12 +12,12 @@ import {
   CoordinationType, ViewType, DataType, FileType,
 } from '@vitessce/constants';
 import { upgradeAndParse } from '@vitessce/schemas';
-import ThemedControlledEditor from './_ThemedControlledEditor';
+import ThemedControlledEditor from './_ThemedControlledEditor.js';
 import {
   baseJs, baseJson, exampleJs, exampleJson,
-} from './_live-editor-examples';
-import { JSON_TRANSLATION_KEY } from './_editor-utils';
-import JsonHighlight from './_JsonHighlight';
+} from './_live-editor-examples.js';
+import { JSON_TRANSLATION_KEY } from './_editor-utils.js';
+import JsonHighlight from './_JsonHighlight.js';
 
 
 import styles from './styles.module.css';

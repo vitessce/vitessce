@@ -1,13 +1,10 @@
----
-id: dev-add-loader
-title: File type implementation
----
+# File type implementation
 
 In order to load data from a particlar **file type**, two classes must be implemented: a _data loader_ class and a _data source_ class.
 
 ## The data loader class
 
-Each data loader class should inherit from [`AbstractTwoStepLoader`](https://github.com/vitessce/vitessce/blob/main/src/loaders/AbstractTwoStepLoader.js) which has two constructor parameters:
+Each data loader class should inherit from [`AbstractTwoStepLoader`](../packages/vit-s/src/data/AbstractTwoStepLoader.js) which has two constructor parameters:
 
 - `dataSource` (`any`) - A data source instance. See the [data source](#the-data-source) section below.
 - `fileDef` (`object`) - A file definition from view config `datasets[].files[]`.
@@ -22,7 +19,7 @@ Each loader class must implement its own `load()` method.
 
 ### The `load()` return value
 
-The `load()` method should return a promise that resolves to a [`LoaderResult`](https://github.com/vitessce/vitessce/blob/main/src/loaders/LoaderResult.js) instance.
+The `load()` method should return a promise that resolves to a [`LoaderResult`](../packages/vit-s/src/data/LoaderResult.js) instance.
 
 Depending on the **data type** of the **file type**, the `data` parameter of the `LoaderResult` constructor should be a JS object with the following structure:
 
@@ -70,10 +67,10 @@ class MyLoader extends AbstractTwoStepLoader {
 
 ## The file type registry
 
-Similar to the [view type registry](/docs/dev-add-component/#the-view-type-registry), there must be a mapping between a **file type** name and the actual data loader & data source class definitions to facilitate usage of the file type name as a string ([`datasets[].files[].fileType`](/docs/view-config-json/#datasets)) in the JSON view config. 
-The [file type registry](https://github.com/vitessce/vitessce/blob/main/src/loaders/types.js) maps file types to `[data source, data loader]` tuples.
-Every file type in the registry must be [mapped to a data type](https://github.com/vitessce/vitessce/blob/main/src/app/constant-relationships.js) as well.
+Similar to the [view type registry](./plugin-view-types.md#the-view-type-registry), there must be a mapping between a **file type** name and the actual data loader & data source class definitions to facilitate usage of the file type name as a string (`datasets[].files[].fileType`) in the JSON view config. 
+The [file type registry](../packages/main/all/src/base-plugins.ts) maps file types to `[data source, data loader]` tuples.
+Every file type in the registry must be [mapped to a data type](../packages/constants-internal/src/app/constant-relationships.js) as well.
 
 :::tip
-The plugin analog of the file type registry is the [`registerPluginFileType`](/docs/dev-plugins/#plugin-file-types) function.
+The plugin analog of the file type registry is the [`pluginFileTypes`](/docs/dev-plugins/#plugin-file-types) prop.
 :::

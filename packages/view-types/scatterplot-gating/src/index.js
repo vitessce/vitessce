@@ -1,1 +1,1 @@
-export { GatingSubscriber } from './GatingSubscriber';
+export { GatingSubscriber } from './GatingSubscriber.js';

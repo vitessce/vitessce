@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import plur from 'plur';
 import { extent } from 'd3-array';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash-es';
 import {
   capitalize, commaNumber,
   getCellColors,
@@ -30,7 +30,7 @@ import {
   EmptyMessage,
 } from '@vitessce/scatterplot';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import GatingScatterplotOptions from './GatingScatterplotOptions';
+import GatingScatterplotOptions from './GatingScatterplotOptions.js';
 
 /**
    * A subscriber component for the gating scatterplot.

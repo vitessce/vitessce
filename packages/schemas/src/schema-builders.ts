@@ -11,9 +11,9 @@ import {
   coordinationScopeName,
   componentCoordinationScopes,
   componentCoordinationScopesBy,
-} from './shared';
-import { latestConfigSchema } from './previous-config-meta';
-import { configSchemaToVersion } from './view-config-versions';
+} from './shared.js';
+import { latestConfigSchema } from './previous-config-meta.js';
+import { configSchemaToVersion } from './view-config-versions.js';
 
 /**
  * Convert an array of strings into a Zod enum schema,

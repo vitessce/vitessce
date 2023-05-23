@@ -1,17 +1,24 @@
+# References:
+# - https://typescript-eslint.io/getting-started/#step-2-configuration
+# - https://stackoverflow.com/a/75108187
 root: true
 parser: '@typescript-eslint/parser'
 extends:
   - eslint:recommended
+  - plugin:require-extensions/recommended
   - plugin:react/recommended
   - plugin:react-hooks/recommended
   - plugin:cypress/recommended
-  - airbnb
+  - plugin:jsx-a11y/recommended
 plugins:
   - '@typescript-eslint'
+  - require-extensions
   - react
   - react-hooks
   - cypress
   - react-refresh
+  - import
+  - jsx-a11y
 settings:
   react:
     version: detect
@@ -27,7 +34,6 @@ rules:
   react/jsx-one-expression-per-line: [0]  # Makes punctuation after tab awkward.
   react/prop-types: [0] # Re-enable: https://github.com/vitessce/vitessce/issues/144
   react/require-default-props: [0]
-  import/prefer-default-export: [0]  # Hit eslint error: SyntaxError: Unexpected token, expected {
   react/react-in-jsx-scope: [0]
   react/jsx-curly-newline: [0]
   react/jsx-no-bind: [0] # Allow passing functions as JSX props
@@ -35,16 +41,15 @@ rules:
   react/jsx-props-no-multi-spaces: [0]
   no-plusplus: [0]
   react-refresh/only-export-components: [2, { "checkJS": true }]
+  import/no-duplicates: [2]
 overrides:
-  - files: 'sites/docs/src/theme/**'
+  - files: 'sites/docs/src/{pages,theme}/**'
     rules:
       # Allow @theme/ and @docusaurus/ imports
-      import/no-unresolved: [0]
-  - files: 'sites/docs/src/pages/**'
-    rules:
-      # Allow @theme/ and @docusaurus/ imports
-      import/no-unresolved: [0]
-
+      #import/no-unresolved: [0]
+      #import/extensions: [0]
+      '@typescript-eslint/no-var-requires': [0]
+      no-undef: [0]
   - files: '**/*.{ts,tsx}'
     extends:
       - plugin:@typescript-eslint/eslint-recommended
@@ -52,5 +57,3 @@ overrides:
     rules:
       # Allow importing js/ts files without extension
       import/no-unresolved: [0]
-      import/extensions: [0]
-    

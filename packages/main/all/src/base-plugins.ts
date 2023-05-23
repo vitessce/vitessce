@@ -122,7 +122,7 @@ import {
 // Joint file types
 import {
   expandAnndataZarr,
-} from './joint-file-types';
+} from './joint-file-types.js';
 import {
   expandAnndataCellSetsZarr,
   expandAnndataCellsZarr,
@@ -135,7 +135,7 @@ import {
   expandMoleculesJson,
   expandRasterJson,
   expandRasterOmeZarr,
-} from './joint-file-types-legacy';
+} from './joint-file-types-legacy.js';
 
 // Helper function to use COMPONENT_COORDINATION_TYPES.
 function makeViewType(name: string, component: any) {

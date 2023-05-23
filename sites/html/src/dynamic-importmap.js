@@ -6,7 +6,7 @@ const importMap = {
     "react": "https://esm.sh/react@18.2.0?dev",
     "react-dom": "https://esm.sh/react-dom@18.2.0?dev",
     "react-dom/client": "https://esm.sh/react-dom@18.2.0/client?dev",
-    "vitessce": "http://localhost:3003/packages/main/dev/dist/index.mjs"
+    "vitessce": "http://localhost:3003/packages/main/dev/dist/index.js"
   },
 };
 

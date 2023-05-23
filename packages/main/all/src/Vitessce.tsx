@@ -11,7 +11,7 @@ import {
   baseFileTypes,
   baseJointFileTypes,
   baseCoordinationTypes,
-} from './base-plugins';
+} from './base-plugins.js';
 
 export function Vitessce(props: any) {
   const {

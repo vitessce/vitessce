@@ -3,9 +3,9 @@ import React, {
   useCallback,
 } from 'react';
 import clsx from 'clsx';
-import { VITESSCE_CONTAINER } from './classNames';
-import { VitessceGridLayout } from './vitessce-grid-layout';
-import { useRowHeight, createLoaders } from './vitessce-grid-utils';
+import { VITESSCE_CONTAINER } from './classNames.js';
+import { VitessceGridLayout } from './vitessce-grid-layout/index.js';
+import { useRowHeight, createLoaders } from './vitessce-grid-utils.js';
 import {
   useViewConfigStoreApi,
   useSetViewConfig,
@@ -14,12 +14,12 @@ import {
   useRemoveComponent,
   useChangeLayout,
   useLayout,
-} from './state/hooks';
+} from './state/hooks.js';
 import {
   useClosestVitessceContainerSize,
-} from './hooks';
-import { useVitessceContainerStyles } from './shared-mui/container';
-import { useTitleStyles } from './title-styles';
+} from './hooks.js';
+import { useVitessceContainerStyles } from './shared-mui/container.js';
+import { useTitleStyles } from './title-styles.js';
 
 const padding = 10;
 const margin = 5;

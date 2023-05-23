@@ -1,7 +1,7 @@
-import { pluginViewType, pluginViewTypeProps } from './plugins/plugin-view-type';
-import { pluginCoordinationType, pluginCoordinationTypeProps } from './plugins/plugin-coordination-type';
-import { pluginFileType, pluginFileTypeProps } from './plugins/plugin-file-type';
-import { pluginImageView, pluginImageViewProps } from './plugins/plugin-image-view';
+import { pluginViewType, pluginViewTypeProps } from './plugins/plugin-view-type.js';
+import { pluginCoordinationType, pluginCoordinationTypeProps } from './plugins/plugin-coordination-type.js';
+import { pluginFileType, pluginFileTypeProps } from './plugins/plugin-file-type.js';
+import { pluginImageView, pluginImageViewProps } from './plugins/plugin-image-view.js';
 
 export const configsWithPlugins = {
   'plugin-view-type': pluginViewType,

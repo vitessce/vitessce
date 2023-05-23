@@ -1,9 +1,9 @@
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
 import { VIEWER_PALETTE } from '@vitessce/utils';
 import { viv } from '@vitessce/gl';
-import { getMultiSelectionStats } from './layer-controller';
+import { getMultiSelectionStats } from './layer-controller.js';
 
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];

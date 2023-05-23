@@ -4,7 +4,7 @@ import {
   upgradeFrom0_1_0,
   upgradeFrom1_0_0,
   upgradeFrom1_0_15,
-} from './previous-config-upgraders';
+} from './previous-config-upgraders.js';
 import {
   legacyViewConfig0_1_0,
   upgradedLegacyViewConfig0_1_0,
@@ -12,10 +12,10 @@ import {
   upgradedLegacyViewConfig1_0_0,
   implicitPerDatasetCoordinations,
   explicitPerDatasetCoordinations,
-} from './view-config-utils.test.fixtures';
+} from './view-config-utils.test.fixtures.js';
 import {
   upgradeAndParse,
-} from './view-config-versions';
+} from './view-config-versions.js';
 
 describe('src/app/view-config-utils.js', () => {
   describe('upgrade', () => {

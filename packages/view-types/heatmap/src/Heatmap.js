@@ -2,7 +2,7 @@
 import React, {
   useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
 } from 'react';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import {
   deck, luma,
   HeatmapCompositeTextLayer,
@@ -17,9 +17,7 @@ import {
   DATA_TEXTURE_SIZE,
   PIXELATED_TEXTURE_PARAMETERS,
 } from '@vitessce/gl';
-import range from 'lodash/range';
-import clamp from 'lodash/clamp';
-import isEqual from 'lodash/isEqual';
+import { range, clamp, isEqual } from 'lodash-es';
 import {
   getLongestString,
   DEFAULT_GL_OPTIONS,
@@ -38,8 +36,8 @@ import {
   mouseToHeatmapPosition,
   heatmapToMousePosition,
   mouseToCellColorPosition,
-} from './utils';
-import HeatmapWorkerPool from './HeatmapWorkerPool';
+} from './utils.js';
+import HeatmapWorkerPool from './HeatmapWorkerPool.js';
 // Only allocate the memory once for the container
 const paddedExpressionContainer = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE);
 

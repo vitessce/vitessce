@@ -33,3 +33,5 @@ This can help to uncover incorrect URLs, cross-origin request (CORS) issues, AWS
 By default, Vitessce does not validate or log the view config on every coordination scope change (instead validation occurs only on initial load).
 However, by setting the parameter `debug=true` in the URL, you can enable this behavior.
 Note that this has a major performance impact.
+
+In the React context, you can use the [onConfigChange](/docs/js-react-vitessce/#onconfigchange) prop (e.g., set as `console.log` for equivalent behavior).

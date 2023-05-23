@@ -1,8 +1,8 @@
 import { extent } from 'd3-array';
-import range from 'lodash/range';
+import { range } from 'lodash-es';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
-import { clustersSchema } from './schemas/clusters';
-import JsonLoader from '../json-loaders/JsonLoader';
+import { clustersSchema } from './schemas/clusters.js';
+import JsonLoader from '../json-loaders/JsonLoader.js';
 
 export default class ClustersJsonAsObsFeatureMatrixLoader extends JsonLoader {
   constructor(dataSource, params) {

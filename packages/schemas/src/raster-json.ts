@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { requestInit } from './shared';
+import { requestInit } from './shared.js';
 
 const image = z.object({
   name: z.string(),

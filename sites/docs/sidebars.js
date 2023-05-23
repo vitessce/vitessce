@@ -41,24 +41,10 @@ module.exports = {
         'view-config-js',
         'constants',
         'js-react-vitessce',
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Developer Docs',
-      items: [
-        'dev-overview',
-        'dev-add-component',
-        'dev-add-loader',
         'dev-plugins',
-        'dev-config-versioning',
         'troubleshooting',
+        'upgrade-guide',
       ],
-    },
-    {
-      type: 'link',
-      label: 'Roadmap',
-      href: 'https://github.com/orgs/vitessce/projects/7',
     },
     {
       type: 'doc',
@@ -67,6 +53,16 @@ module.exports = {
     {
       type: 'doc',
       id: 'about',
+    },
+    {
+      type: 'link',
+      label: 'Roadmap',
+      href: 'https://github.com/orgs/vitessce/projects/7',
+    },
+    {
+      type: 'link',
+      label: 'Changelog',
+      href: 'https://github.com/vitessce/vitessce/tree/main/CHANGELOG.md',
     },
   ],
   tutorials: [

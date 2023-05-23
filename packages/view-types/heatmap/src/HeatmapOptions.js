@@ -1,8 +1,6 @@
 import React, { useCallback } from 'react';
-import debounce from 'lodash/debounce';
-import Slider from '@material-ui/core/Slider';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
+import { debounce } from 'lodash-es';
+import { Slider, TableCell, TableRow } from '@material-ui/core';
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 

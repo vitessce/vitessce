@@ -1,4 +1,4 @@
-import { interpolateRdBu, interpolatePlasma } from './interpolate-colors';
+import { interpolateRdBu, interpolatePlasma } from './interpolate-colors.js';
 
 const expectRgb = ([testR, testG, testB], [r, g, b]) => ([
   expect(testR).toBeCloseTo(r),

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   expandAnndataZarr,
-} from './joint-file-types';
+} from './joint-file-types.js';
 
 
 describe('src/app/joint-file-types.js', () => {

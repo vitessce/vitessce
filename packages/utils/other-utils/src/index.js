@@ -1,12 +1,12 @@
 // eslint-disable-next-line react-refresh/only-export-components
-export * from './root';
+export * from './root.js';
 // eslint-disable-next-line react-refresh/only-export-components
-export * from './components';
+export * from './components.js';
 export {
   getValueTransformFunction,
   VALUE_TRANSFORM_OPTIONS,
-} from './gating';
+} from './gating.js';
 export {
   getCellColors,
-} from './interpolate-colors';
-export { default as Pool } from './Pool';
+} from './interpolate-colors.js';
+export { default as Pool } from './Pool.js';

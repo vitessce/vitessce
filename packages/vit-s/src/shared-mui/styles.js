@@ -1,5 +1,6 @@
-import { createTheme } from '@material-ui/core/styles';
-import { grey } from '@material-ui/core/colors';
+import { createTheme, colors } from '@material-ui/core';
+
+const { grey } = colors;
 
 const globalColors = {
   white: '#FFFFFF',
