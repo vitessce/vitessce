@@ -12,3 +12,16 @@ pnpm run start-html
 ```
 
 Open http://localhost:3003/consumer/dist/index.html
+
+### Vite consumer site
+
+Related directories/files:
+- `src/`
+- `vite.config.js`
+
+### NextJS consumer site
+
+Related directories/files:
+- `components/`
+- `pages/`
+- `next.config.js`

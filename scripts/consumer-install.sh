@@ -29,25 +29,11 @@ cd consumer
 npm install react react-dom
 npm install --save-dev vite@3.0.0
 npm install $(ls ./vitessce-*.tgz)
-# Run vite to bundle the consumer HTML/JS.
+# Run Vite build to bundle the consumer HTML/JS.
 npm exec vite build
 
+
 echo "Done vite build. Starting NextJS build."
-
-# Delete existing packed packages
-# and start from a fresh directory.
-cd ../consumer-nextjs
-rm -f package.json
-rm -f package-lock.json
-rm -rf node_modules/
-# Set up new package.json in the directory
-npm init -y
-
-# Install packed tgz
-npm install react react-dom
 npm install next@13
-# Assumes ./consumer-install.sh has been run already.
-npm install $(ls ../consumer/vitessce-*.tgz)
-# Run build and export to bundle the HTML/JS as a static site.
+# Run NextJS build to bundle the consumer HTML/JS.
 npm exec next build
-npm exec next export

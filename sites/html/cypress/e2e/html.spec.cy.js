@@ -27,12 +27,12 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
     cy.contains('HiGlass');
     cy.get('.higlass .tiled-plot-div', { timeout: 5000 });
   });
-  it('Works for consumer package', () => {
+  it('Works for consumer site built with Vite', () => {
     cy.visit('/consumer/dist/index.html');
     cy.contains('Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH');
   });
-  it('Works for consumer package with NextJS', () => {
-    cy.visit('/consumer-nextjs/out/index.html');
+  it('Works for consumer site built with NextJS', () => {
+    cy.visit('/consumer/out/index.html');
     cy.contains('Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH');
   });
 });
