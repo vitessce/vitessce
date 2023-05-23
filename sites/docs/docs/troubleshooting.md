@@ -35,3 +35,35 @@ However, by setting the parameter `debug=true` in the URL, you can enable this b
 Note that this has a major performance impact.
 
 In the React context, you can use the [onConfigChange](/docs/js-react-vitessce/#onconfigchange) prop (e.g., set as `console.log` for equivalent behavior).
+
+### How can I view non-minified information in the browser console?
+
+Since v2 of the JS package, we publish both packages to NPM:
+- `vitessce`: production build
+- `@vitessce/dev`: development (non-minified) build
+
+For improved debugging, temporarily swap out `vitessce` for `@vitessce/dev` in `package.json` (dependencies/devDependencies) and import statements:
+
+```diff
+- import { Vitessce } from 'vitessce';
++ import { Vitessce } from '@vitessce/dev';
+```
+
+In a plain HTML setting, simply remap the URL for `vitessce` in the importmap:
+
+```diff {10-11}
+ <script type="importmap">
+ {
+   "imports": {
+-    "react": "https://esm.sh/react@18.2.0",
++    "react": "https://esm.sh/react@18.2.0?dev",
+-    "react-dom": "https://esm.sh/react-dom@18.2.0",
++    "react-dom": "https://esm.sh/react-dom@18.2.0?dev",
+-    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
++    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client?dev",
+-    "vitessce": "https://unpkg.com/vitessce@latest"
++    "vitessce": "https://unpkg.com/@vitessce/dev@latest"
+   }
+ }
+ </script>
+```
