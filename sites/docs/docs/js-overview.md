@@ -67,7 +67,17 @@ Vitessce can be used in a plain HTML page by including `<script/>` tags.
       import { Vitessce } from 'vitessce';
 
       const config = {
-        // Your Vitessce config here
+        version: '1.0.16',
+        name: 'Example configuration',
+        description: '',
+        datasets: [],
+        initStrategy: 'auto',
+        coordinationSpace: {},
+        layout: [{
+          component: 'description',
+          props: { description: 'Hello, world!' },
+          x: 0, y: 0, w: 6, h: 6,
+        }],
       };
 
       function MyApp() {

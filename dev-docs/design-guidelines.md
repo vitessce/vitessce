@@ -29,7 +29,7 @@ An evolving set of guidelines to ensure that features remain maintainable, scala
 
 ### TypeScript
 
-- Consider implementing new sub-packages using TypeScript
+- Implement new sub-packages using TypeScript to avoid creating tech debt.
 
 ### Parsing and validation of user input
 - Prefer [Zod](https://zod.dev/) schema over JSON schema - This improves the TypeScript development experience and follows the ["parse, don't validate"](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/) mantra.
