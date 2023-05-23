@@ -31,4 +31,8 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
     cy.visit('/consumer/dist/index.html');
     cy.contains('Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH');
   });
+  it('Works for consumer package with NextJS', () => {
+    cy.visit('/consumer-nextjs/out/index.html');
+    cy.contains('Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH');
+  });
 });
