@@ -33,7 +33,7 @@ const Tree = React.forwardRef((props, ref) => {
     </RcTree>
   ) : null);
 });
-
+Tree.displayName = 'Tree';
 Tree.defaultProps = {
   virtual: false,
   checkable: false,

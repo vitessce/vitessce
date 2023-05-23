@@ -1,4 +1,4 @@
-import { colormaps } from '../glsl/index';
+import { colormaps } from '../glsl/index.js';
 
 /**
  *

@@ -1,1 +1,1 @@
-export { default as SelectableTable } from './SelectableTable';
+export { default as SelectableTable } from './SelectableTable.js';

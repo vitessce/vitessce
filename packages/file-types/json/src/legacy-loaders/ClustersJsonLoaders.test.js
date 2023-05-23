@@ -1,6 +1,6 @@
 import { LoaderResult } from '@vitessce/vit-s';
-import ClustersJsonAsObsFeatureMatrixLoader from './ClustersJsonAsObsFeatureMatrix';
-import JsonSource from '../JsonSource';
+import ClustersJsonAsObsFeatureMatrixLoader from './ClustersJsonAsObsFeatureMatrix.js';
+import JsonSource from '../JsonSource.js';
 
 const createLoader = (ClassDef, config, url) => {
   const configWithUrl = {

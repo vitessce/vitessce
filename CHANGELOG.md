@@ -43,6 +43,11 @@
   - Added ADDITIONAL_OBS_SETS, OBS_SET_COLOR, OBS_COLOR_ENCODING and OBS_SET_SELECTION coordination types to the Feature Histogram.
   - Added a new function called `onSelect`, passed as props to `ExpressionHistogram`. On selection on `ExpressionHistogram`, the function computes what cell ids belong to that selection. Then calls the pre-existing `setObsSelection` function to create a new cell set with the cell ids.
 - Added a signal to `ExpressionHistogram` component, which calls `onSelect`, after 1 minute of debounce.
+- Replace Ajv with Zod.
+  - Add generic config schema.
+  - Add builder function for generating plugin-specific config schema.
+  - Reimplement config version upgrades.
+- Provide plugins as React props rather than registering them globally on `window`.
 - Use hooks in `ObsSetsManagerSubscriber` to improve controlled-component performance.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01

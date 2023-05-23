@@ -1,7 +1,7 @@
 import React from 'react';
 import { TitleInfo, useGridItemSize } from '@vitessce/vit-s';
-import HiGlassLazy from './HiGlassLazy';
-import { useStyles } from './styles';
+import HiGlassLazy from './HiGlassLazy.js';
+import { useStyles } from './styles.js';
 
 const urls = [];
 

@@ -8,7 +8,7 @@ import {
   useCoordination, useLoaders,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import FeatureList from './FeatureList';
+import FeatureList from './FeatureList.js';
 
 
 /**

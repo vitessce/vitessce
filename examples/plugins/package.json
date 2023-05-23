@@ -20,7 +20,9 @@
     "@vitessce/constants": "workspace:*",
     "@vitessce/json": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
-    "lodash": "^4.17.21"
+    "@vitessce/plugins": "workspace:*",
+    "@vitessce/schemas": "workspace:*",
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
     "react": "^18.0.0"

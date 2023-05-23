@@ -1,13 +1,6 @@
-import { obsEmbeddingCsvSchema } from '@vitessce/vit-s';
-import CsvLoader from './CsvLoader';
+import CsvLoader from './CsvLoader.js';
 
 export default class ObsEmbeddingCsvLoader extends CsvLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-
-    this.optionsSchema = obsEmbeddingCsvSchema;
-  }
-
   loadFromCache(data) {
     if (this.cachedResult) {
       return this.cachedResult;

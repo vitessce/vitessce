@@ -1,5 +1,5 @@
 import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsLabelsAnndataSchema,
+  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
 
 
@@ -7,11 +7,6 @@ import {
  * Loader for string arrays located in anndata.zarr stores.
  */
 export default class ObsLabelsAnndataLoader extends AbstractTwoStepLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-    this.optionsSchema = obsLabelsAnndataSchema;
-  }
-
   /**
    * Class method for loading observation string labels.
    * @returns {Promise} A promise for the array.

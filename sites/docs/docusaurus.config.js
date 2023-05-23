@@ -62,6 +62,12 @@ module.exports = {
           position: 'left',
         },
         {
+          type: 'doc',
+          docId: 'feedback',
+          label: 'Feedback',
+          position: 'right',
+        },
+        {
           to: 'blog',
           label: 'Blog',
           position: 'right',

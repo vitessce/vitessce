@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import every from 'lodash/every';
-import { makeStyles } from '@material-ui/core/styles';
-import { SelectableTable } from './selectable-table/index';
+import { every } from 'lodash-es';
+import { makeStyles } from '@material-ui/core';
+import { SelectableTable } from './selectable-table/index.js';
 
 const useStyles = makeStyles(() => ({
   searchBar: {

@@ -62,6 +62,8 @@ pnpm run start-demo
 
 The development server will refresh the browser as you edit the code.
 
+Further details for internal developers can be found within [dev-docs](./dev-docs/).
+
 ### Branches
 
 Please use one of the following naming conventions for new branches:
@@ -90,6 +92,14 @@ pnpm run build-demo
 
 - To run all the tests, both unit and e2e: `./test.sh`
 - To run just the unit tests: `pnpm run test`
+
+### Linting
+
+```sh
+pnpm run lint
+```
+
+To allow the linter to perform automated fixes during linting: `pnpm run lint-fix`
 
 ### Troubleshooting
 
@@ -173,6 +183,8 @@ From local machine:
 
   ```sh
   pnpm run build
+  pnpm run bundle
+  pnpm run build-json-schema
   pnpm publish --filter='./packages/**' --no-git-checks --tag beta --access public --dry-run
   ```
 

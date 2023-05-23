@@ -4,13 +4,16 @@ import React from 'react';
 import {
   TitleInfo,
   useCoordination,
-  registerPluginViewType,
 } from '@vitessce/vit-s';
 import {
   CoordinationType,
 } from '@vitessce/constants';
-// For plugin views to use:
+import {
+  PluginViewType,
+} from '@vitessce/plugins';
 
+
+// For plugin views to use:
 function MyPluginView(props) {
   const {
     spatialZoom,
@@ -66,15 +69,18 @@ function MyPluginViewSubscriber(props) {
   );
 }
 
-// Register the plugin view type.
-registerPluginViewType(
-  'myCustomZoomController',
-  MyPluginViewSubscriber,
-  [
-    CoordinationType.DATASET,
-    CoordinationType.SPATIAL_ZOOM,
+export const pluginViewTypeProps = {
+  pluginViewTypes: [
+    new PluginViewType(
+      'myCustomZoomController',
+      MyPluginViewSubscriber,
+      [
+        CoordinationType.DATASET,
+        CoordinationType.SPATIAL_ZOOM,
+      ],
+    ),
   ],
-);
+};
 
 // Use the plugin view in the configuration.
 export const pluginViewType = {

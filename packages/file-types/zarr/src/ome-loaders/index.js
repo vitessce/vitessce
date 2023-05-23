@@ -1,1 +1,1 @@
-export { default as OmeZarrLoader } from './OmeZarrLoader';
+export { default as OmeZarrLoader } from './OmeZarrLoader.js';

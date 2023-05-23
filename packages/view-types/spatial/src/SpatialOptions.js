@@ -1,11 +1,13 @@
 import React, { useCallback } from 'react';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash-es';
 
-import Checkbox from '@material-ui/core/Checkbox';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
-import Slider from '@material-ui/core/Slider';
-import { makeStyles } from '@material-ui/core/styles';
+import {
+  Checkbox,
+  TableCell,
+  TableRow,
+  Slider,
+  makeStyles,
+} from '@material-ui/core';
 import {
   usePlotOptionsStyles, OptionsContainer, CellColorEncodingOption, OptionSelect,
 } from '@vitessce/vit-s';

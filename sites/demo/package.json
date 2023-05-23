@@ -18,10 +18,10 @@
     "vitessce": "workspace:*"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^3.0.0-beta.0",
+    "@vitejs/plugin-react": "^4.0.0",
     "cypress": "^10.10.0",
     "sass": "^1.55.0",
-    "vite": "^3.0.0"
+    "vite": "^4.3.0"
   },
   "license": "MIT"
 }

@@ -5,7 +5,7 @@ import webWorkerLoader from 'rollup-plugin-web-worker-loader';
 export default {
   input: ["src/index.js"],
   output: {
-    dir: "dist",
+    file: "dist/index.js",
     format: "esm",
     sourcemap: true
   },

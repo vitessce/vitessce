@@ -1,16 +1,11 @@
 import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsEmbeddingAnndataSchema,
+  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
 
 /**
  * Loader for embedding arrays located in anndata.zarr stores.
  */
 export default class ObsEmbeddingAnndataLoader extends AbstractTwoStepLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-    this.optionsSchema = obsEmbeddingAnndataSchema;
-  }
-
   /**
    * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
    * @returns {Promise} A promise for an array of columns.

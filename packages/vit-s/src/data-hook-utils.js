@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
-import equal from 'fast-deep-equal';
 import { capitalize } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
-import { useMatchingLoader, useMatchingLoaders, useSetWarning } from './state/hooks';
+import { useMatchingLoader, useMatchingLoaders, useSetWarning } from './state/hooks.js';
 import {
   AbstractLoaderError,
   LoaderNotFoundError,
-} from './errors/index';
-import { getDefaultCoordinationValues } from './plugins';
+} from './errors/index.js';
 
 /**
  * Warn via publishing to the console
@@ -38,12 +36,12 @@ export function initCoordinationSpace(values, setters, initialValues) {
   if (!values || !setters) {
     return;
   }
-  const defaultCoordinationValues = getDefaultCoordinationValues();
   Object.entries(values).forEach(([coordinationType, value]) => {
     const setterName = `set${capitalize(coordinationType)}`;
     const setterFunc = setters[setterName];
     const initialValue = initialValues && initialValues[coordinationType];
-    const shouldInit = equal(initialValue, defaultCoordinationValues[coordinationType]);
+    // Interpret null as "uninitialized" and therefore needing initialization.
+    const shouldInit = initialValue === null;
     if (shouldInit && setterFunc) {
       setterFunc(value);
     }

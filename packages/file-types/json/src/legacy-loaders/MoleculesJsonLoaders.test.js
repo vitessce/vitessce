@@ -1,7 +1,7 @@
 import { LoaderResult } from '@vitessce/vit-s';
-import MoleculesJsonAsObsLocationsLoader from './MoleculesJsonAsObsLocations';
-import MoleculesJsonAsObsLabelsLoader from './MoleculesJsonAsObsLabels';
-import JsonSource from '../JsonSource';
+import MoleculesJsonAsObsLocationsLoader from './MoleculesJsonAsObsLocations.js';
+import MoleculesJsonAsObsLabelsLoader from './MoleculesJsonAsObsLabels.js';
+import JsonSource from '../JsonSource.js';
 
 const createLoader = (ClassDef, config, url) => {
   const configWithUrl = {

@@ -1,13 +1,7 @@
-import { AbstractLoaderError, LoaderResult, emptySchema } from '@vitessce/vit-s';
-import JsonLoader from './JsonLoader';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import JsonLoader from './JsonLoader.js';
 
 export default class ObsSegmentationsJsonLoader extends JsonLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-
-    this.optionsSchema = emptySchema;
-  }
-
   loadFromCache(data) {
     if (this.cachedResult) {
       return this.cachedResult;
