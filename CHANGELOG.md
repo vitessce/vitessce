@@ -49,7 +49,7 @@
   - Add builder function for generating plugin-specific config schema.
   - Reimplement config version upgrades.
 - Provide plugins as React props rather than registering them globally on `window`.
-
+- Use hooks in `ObsSetsManagerSubscriber` to improve controlled-component performance.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
@@ -658,6 +658,8 @@
 - Use a random `uuid` when upgrading `v0.1.0` view configs to `v1.0.0` to enable the data hook `dataset` dependency to detect dataset updates resulting from passing new view configs.
 - Fixed bug in `Status` component in which `cellHighlight` and `geneHighlight` were incorrectly expected to be objects.
 - Fix `Spatial` initialization bug.
+- Remove dead code from Rollup config in `packages/workers`.
+- Remove Showcase section from `About` page now that we have a standalone Showcase documentation page.
 
 ## [0.2.5](https://www.npmjs.com/package/vitessce/v/0.2.5) - 2020-08-31
 
