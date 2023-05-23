@@ -123,6 +123,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     hideObservationLabels = false,
     hideVariableLabels = false,
     onHeatmapClick,
+    setColorEncoding,
   } = props;
 
   const viewState = {
@@ -721,16 +722,18 @@ const Heatmap = forwardRef((props, deckRef) => {
       numCols: width,
     });
 
-    // this means we are hovering over a gene colored track
+    // we are hovering over a gene colored track
     if (trackI === null || trackColI === null) {
       setTrackHighlight(null);
+      setColorEncoding('geneSelection');
     } 
-    // this means we are hovering over a Cell color track
+    // we are hovering over a cell colored track
     else {
       const obsI = expression.rows.indexOf(axisTopLabels[trackColI]);
       const cellIndex = expression.rows[obsI];
       setTrackHighlight([cellIndex, trackI, mouseX, mouseY]);
       setCellHighlight(cellIndex);
+      setColorEncoding('cellSelection');
     }
 
     const [colI, rowI] = mouseToHeatmapPosition(mouseX, mouseY, {

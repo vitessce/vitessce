@@ -96,6 +96,7 @@ export function HeatmapSubscriber(props) {
   const variablesTitle = capitalize(variablesPluralLabel);
 
   const [isRendering, setIsRendering] = useState(false);
+  const [localColorEncoding, setLocalColorEncoding] = useState('geneSelection');
 
   const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -176,24 +177,23 @@ export function HeatmapSubscriber(props) {
   }, []);
 
   const onHeatmapClick = () => {
-    console.log("cellHighlight: ", cellHighlight);
-    console.log("geneHighlight: ", geneHighlight);
+    if (localColorEncoding === 'geneSelection') {
+      setGeneSelection([geneHighlight]);
+      setCellColorEncoding('geneSelection');
+    }
+    else if (localColorEncoding === 'cellSelection') {
+      const cellInfo = getObsInfo(cellHighlight);
+      console.log("cellInfo: ", cellInfo);
 
-    console.log("**** current cellSetSelection:", cellSetSelection);
-    const cellInfo = getObsInfo(cellHighlight);
-    console.log("cellInfo: ", cellInfo);
+  
+      console.log("*** ", `${capitalize(obsType)} ID`);
+      console.log("selectionToHighlight: ", selectionToHighlight);
+      const selectionToHighlight = obsSetsMembership.get(cellInfo[`${capitalize(obsType)} ID`]);
+      
+      setCellSetSelection(selectionToHighlight);
+      setCellColorEncoding('cellSelection');
+    }
 
-    const selectionToHighlight = cellSetSelection.find((setPath) => setPath.includes(cellInfo["Cell Type L1"]));
-
-    console.log("selectionToHighlight: ", selectionToHighlight);
-
-    setCellSetSelection([selectionToHighlight]);
-    setCellColorEncoding('cellSelection');
-
-    // todo: this needs to be uncommented out, so that the gene selection can also work
-    // we need to implement a way to distinguish between obs selection and gene selection
-    // setGeneSelection([geneHighlight]);
-    // setCellColorEncoding('geneSelection');
   };
 
   const cellColorLabels = useMemo(() => ([
@@ -253,6 +253,7 @@ export function HeatmapSubscriber(props) {
         cellColorLabels={cellColorLabels}
         useDevicePixels
         onHeatmapClick={onHeatmapClick}
+        setColorEncoding={setLocalColorEncoding}
       />
       {!disableTooltip && (
       <HeatmapTooltipSubscriber
