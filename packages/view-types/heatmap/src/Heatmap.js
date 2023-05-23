@@ -699,6 +699,9 @@ const Heatmap = forwardRef((props, deckRef) => {
       return;
     }
 
+    setCellHighlight(null);
+    setGeneHighlight(null);
+
     const { x: mouseX, y: mouseY } = event.offsetCenter;
 
     const [trackColI, trackI] = mouseToCellColorPosition(mouseX, mouseY, {
@@ -718,13 +721,16 @@ const Heatmap = forwardRef((props, deckRef) => {
       numCols: width,
     });
 
+    // this means we are hovering over a gene colored track
     if (trackI === null || trackColI === null) {
       setTrackHighlight(null);
-    } else {
+    } 
+    // this means we are hovering over a Cell color track
+    else {
       const obsI = expression.rows.indexOf(axisTopLabels[trackColI]);
       const cellIndex = expression.rows[obsI];
-
       setTrackHighlight([cellIndex, trackI, mouseX, mouseY]);
+      setCellHighlight(cellIndex);
     }
 
     const [colI, rowI] = mouseToHeatmapPosition(mouseX, mouseY, {
@@ -739,22 +745,6 @@ const Heatmap = forwardRef((props, deckRef) => {
       numCols: width,
     });
 
-    if (colI === null) {
-      if (transpose) {
-        setCellHighlight(null);
-      } else {
-        setGeneHighlight(null);
-      }
-    }
-
-    if (rowI === null) {
-      if (transpose) {
-        setGeneHighlight(null);
-      } else {
-        setCellHighlight(null);
-      }
-    }
-
     const obsI = expression.rows.indexOf(transpose
       ? axisTopLabels[colI]
       : axisLeftLabels[rowI]);
@@ -768,8 +758,13 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (setComponentHover) {
       setComponentHover();
     }
-    setCellHighlight(obsId || null);
-    setGeneHighlight(varId || null);
+
+    if (obsId) {
+      setCellHighlight(obsId);
+    }
+    if (varId) {
+      setGeneHighlight(varId);
+    }
   }
 
   const cellColorsViews = useMemo(() => {

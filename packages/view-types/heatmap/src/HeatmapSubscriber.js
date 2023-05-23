@@ -176,8 +176,24 @@ export function HeatmapSubscriber(props) {
   }, []);
 
   const onHeatmapClick = () => {
-    setGeneSelection([geneHighlight]);
-    setCellColorEncoding('geneSelection');
+    console.log("cellHighlight: ", cellHighlight);
+    console.log("geneHighlight: ", geneHighlight);
+
+    console.log("**** current cellSetSelection:", cellSetSelection);
+    const cellInfo = getObsInfo(cellHighlight);
+    console.log("cellInfo: ", cellInfo);
+
+    const selectionToHighlight = cellSetSelection.find((setPath) => setPath.includes(cellInfo["Cell Type L1"]));
+
+    console.log("selectionToHighlight: ", selectionToHighlight);
+
+    setCellSetSelection([selectionToHighlight]);
+    setCellColorEncoding('cellSelection');
+
+    // todo: this needs to be uncommented out, so that the gene selection can also work
+    // we need to implement a way to distinguish between obs selection and gene selection
+    // setGeneSelection([geneHighlight]);
+    // setCellColorEncoding('geneSelection');
   };
 
   const cellColorLabels = useMemo(() => ([
