@@ -2,7 +2,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import GL from '@luma.gl/constants';
 import { LayerExtension } from '@deck.gl/core';
-import module from './shader-module';
+import module from './shader-module.js';
 
 export default class SelectionExtension extends LayerExtension {
   // eslint-disable-next-line class-methods-use-this

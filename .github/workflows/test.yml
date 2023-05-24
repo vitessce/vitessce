@@ -44,7 +44,8 @@ jobs:
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - run: ./scripts/test.sh --action
-
+      - run: pnpm run bundle:ci
+      - run: pnpm run publint
   
   test-e2e-demo:
     runs-on: ubuntu-20.04

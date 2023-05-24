@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { useColorMode } from '@docusaurus/theme-common';
-import ScreenshotImage from './_ScreenshotImage';
+import ScreenshotImage from './_ScreenshotImage.js';
 import styles from './styles.module.css';
 
 const features = [

@@ -1,16 +1,19 @@
 import React from 'react';
 import { Matrix4 } from 'math.gl';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import { makeStyles, createStyles } from '@material-ui/core/styles';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import InputLabel from '@material-ui/core/InputLabel';
-import Slider from '@material-ui/core/Slider';
+import {
+  Grid,
+  Typography,
+  Button,
+  makeStyles,
+  createStyles,
+  FormControl,
+  Select,
+  InputLabel,
+  Slider,
+} from '@material-ui/core';
 import { viv } from '@vitessce/gl';
-import { abbreviateNumber, getBoundingCube } from './utils';
-import { useSelectStyles } from './styles';
+import { abbreviateNumber, getBoundingCube } from './utils.js';
+import { useSelectStyles } from './styles.js';
 
 const useSlicerStyles = makeStyles(theme => createStyles({
   enabled: {},

@@ -20,9 +20,9 @@ import { capitalize, commaNumber, getCellColors } from '@vitessce/utils';
 import { mergeObsSets } from '@vitessce/sets-utils';
 import { COMPONENT_COORDINATION_TYPES, ViewType } from '@vitessce/constants-internal';
 import { Legend } from '@vitessce/legend';
-import Heatmap from './Heatmap';
-import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber';
-import HeatmapOptions from './HeatmapOptions';
+import Heatmap from './Heatmap.js';
+import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber.js';
+import HeatmapOptions from './HeatmapOptions.js';
 
 
 /**
@@ -134,15 +134,12 @@ export function HeatmapSubscriber(props) {
   ), [cellSets, additionalCellSets]);
 
   const cellColors = useMemo(() => getCellColors({
-    // Only show cell set selection on heatmap labels.
-    cellColorEncoding: 'cellSetSelection',
-    geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
     obsIndex,
     theme,
-  }), [mergedCellSets, geneSelection, theme,
+  }), [mergedCellSets, theme,
     cellSetColor, cellSetSelection, obsIndex]);
 
   const getObsInfo = useGetObsInfo(

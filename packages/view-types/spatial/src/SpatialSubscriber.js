@@ -26,10 +26,10 @@ import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
 import { canLoadResolution, getCellColors } from '@vitessce/utils';
 import { Legend } from '@vitessce/legend';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType } from '@vitessce/constants-internal';
-import Spatial from './Spatial';
-import SpatialOptions from './SpatialOptions';
-import SpatialTooltipSubscriber from './SpatialTooltipSubscriber';
-import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils';
+import Spatial from './Spatial.js';
+import SpatialOptions from './SpatialOptions.js';
+import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
+import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils.js';
 
 /**
  * A subscriber component for the spatial plot.
@@ -276,33 +276,13 @@ export function SpatialSubscriber(props) {
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
   const cellColors = useMemo(() => getCellColors({
-    cellColorEncoding,
-    expressionData: expressionData && expressionData[0],
-    geneSelection,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
     obsIndex: matrixObsIndex,
     theme,
-  }), [cellColorEncoding, geneSelection, mergedCellSets, theme,
-    cellSetColor, cellSetSelection, expressionData, matrixObsIndex]);
-
-  // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
-  // where each cell id indexes into the array.
-  // Cell ids in `attrs.rows` do not necessaryily correspond to indices in that array, though,
-  // so we create a "shifted" array where this is the case.
-  const shiftedExpressionDataForBitmask = useMemo(() => {
-    if (matrixObsIndex && expressionData && obsSegmentationsType === 'bitmask') {
-      const maxId = matrixObsIndex.reduce((max, curr) => Math.max(max, Number(curr)));
-      const result = new Uint8Array(maxId + 1);
-      // eslint-disable-next-line no-plusplus
-      for (let i = 0; i < matrixObsIndex.length; i++) {
-        const id = matrixObsIndex[i];
-        result.set(expressionData[0].slice(i, i + 1), Number(id));
-      }
-      return [result];
-    } return [new Uint8Array()];
-  }, [matrixObsIndex, expressionData, obsSegmentationsType]);
+  }), [mergedCellSets, theme,
+    cellSetColor, cellSetSelection, matrixObsIndex]);
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
@@ -335,6 +315,23 @@ export function SpatialSubscriber(props) {
   });
 
   const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(expressionData);
+
+  // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
+  // where each cell id indexes into the array.
+  // Cell ids in `attrs.rows` do not necessaryily correspond to indices in that array, though,
+  // so we create a "shifted" array where this is the case.
+  const shiftedExpressionDataForBitmask = useMemo(() => {
+    if (matrixObsIndex && uint8ExpressionData && obsSegmentationsType === 'bitmask') {
+      const maxId = matrixObsIndex.reduce((max, curr) => Math.max(max, Number(curr)));
+      const result = new Uint8Array(maxId + 1);
+      // eslint-disable-next-line no-plusplus
+      for (let i = 0; i < matrixObsIndex.length; i++) {
+        const id = matrixObsIndex[i];
+        result.set(uint8ExpressionData[0].slice(i, i + 1), Number(id));
+      }
+      return [result];
+    } return [new Uint8Array()];
+  }, [matrixObsIndex, uint8ExpressionData, obsSegmentationsType]);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.

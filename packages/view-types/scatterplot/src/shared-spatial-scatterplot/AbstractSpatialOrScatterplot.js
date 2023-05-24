@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
-import ToolMenu from './ToolMenu';
-import { getCursor, getCursorWithTool } from './cursor';
+import ToolMenu from './ToolMenu.js';
+import { getCursor, getCursorWithTool } from './cursor.js';
 
 /**
  * Abstract class component intended to be inherited by

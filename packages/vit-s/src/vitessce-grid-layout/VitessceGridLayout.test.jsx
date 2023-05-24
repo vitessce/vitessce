@@ -1,11 +1,13 @@
 import '@testing-library/jest-dom';
-import { cleanup, render, screen, waitForElement } from '@testing-library/react'
-import { afterEach } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach } from 'vitest';
 
-import { VitessceGridLayout } from './VitessceGridLayout';
+import React from 'react';
+import { PluginViewType } from '@vitessce/plugins';
+import { VitessceGridLayout } from './VitessceGridLayout.js';
 
 afterEach(() => {
-  cleanup()
+  cleanup();
 });
 
 function FakeComponent(props) {
@@ -17,19 +19,24 @@ const layoutJson = {
     600: [0, 2, 4, 8],
   },
   components: [
-    { component: 'FakeComponent',
+    {
+      component: 'FakeComponent',
       uid: 'fake',
       props: { text: 'Hello World' },
-      x: 0, y: 0, w: 2 },
+      x: 0,
+      y: 0,
+      w: 2,
+    },
   ],
 };
 
 describe('VitessceGridLayout.js', () => {
   describe('<VitessceGridLayout />', () => {
     it('mount() works', async () => {
+      const viewTypes = [new PluginViewType('FakeComponent', FakeComponent, [])];
       const { container } = render(<VitessceGridLayout
         layout={layoutJson}
-        getComponent={() => FakeComponent}
+        viewTypes={viewTypes}
         draggableHandle=".my-handle"
       />);
 
@@ -43,9 +50,10 @@ describe('VitessceGridLayout.js', () => {
     });
 
     it('rowHeight works', () => {
+      const viewTypes = [new PluginViewType('FakeComponent', FakeComponent, [])];
       const { container } = render(<VitessceGridLayout
         layout={layoutJson}
-        getComponent={() => FakeComponent}
+        viewTypes={viewTypes}
         draggableHandle=".my-handle"
         rowHeight={123}
       />);

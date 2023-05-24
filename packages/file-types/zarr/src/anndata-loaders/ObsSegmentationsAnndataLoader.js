@@ -1,5 +1,5 @@
 import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsSegmentationsAnndataSchema,
+  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
 import { DEFAULT_CELLS_LAYER } from '@vitessce/spatial-utils';
 
@@ -8,11 +8,6 @@ import { DEFAULT_CELLS_LAYER } from '@vitessce/spatial-utils';
  * Loader for embedding arrays located in anndata.zarr stores.
  */
 export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-    this.optionsSchema = obsSegmentationsAnndataSchema;
-  }
-
   /**
    * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
    * @returns {Promise} A promise for an array of columns.

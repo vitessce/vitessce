@@ -1,4 +1,4 @@
-import AbstractLoader from './AbstractLoader';
+import AbstractLoader from './AbstractLoader.js';
 
 export default class AbstractTwoStepLoader extends AbstractLoader {
   constructor(dataSource, params) {

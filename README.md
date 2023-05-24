@@ -62,6 +62,9 @@ pnpm run start-demo
 
 The development server will refresh the browser as you edit the code.
 
+Further details for internal developers can be found within [dev-docs](./dev-docs/).
+
+
 ### Changesets
 
 We use [changesets](https://github.com/changesets/changesets) to manage the changelog.
@@ -96,6 +99,14 @@ pnpm run build-demo
 
 - To run all the tests, both unit and e2e: `./scripts/test.sh`
 - To run just the unit tests: `pnpm run test`
+
+### Linting
+
+```sh
+pnpm run lint
+```
+
+To allow the linter to perform automated fixes during linting: `pnpm run lint-fix`
 
 ### Troubleshooting
 
@@ -177,9 +188,10 @@ Once this "Create release" pull request is merged, the next time `release.yml` i
 ```sh
 pnpm run build
 pnpm run bundle
+pnpm run build-json-schema
 
 ./scripts/changeset-version.sh
-./scripts/changeset-publish.sh
+./scripts/changeset-publish.sh # runs pnpm publish internally
 ```
 
 ## Version bumps

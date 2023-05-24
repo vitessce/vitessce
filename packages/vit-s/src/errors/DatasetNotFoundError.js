@@ -1,4 +1,4 @@
-import AbstractLoaderError from './AbstractLoaderError';
+import AbstractLoaderError from './AbstractLoaderError.js';
 
 export default class DatasetNotFoundError extends AbstractLoaderError {
   constructor(datasetUid) {

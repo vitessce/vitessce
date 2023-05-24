@@ -1,6 +1,6 @@
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
-import { VITESSCE_CONTAINER } from './classNames';
+import { makeStyles } from '@material-ui/core';
+import { VITESSCE_CONTAINER } from './classNames.js';
 
 const useStyles = makeStyles(theme => ({
   warningLayout: {

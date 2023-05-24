@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
-import ObsFeatureMatrixAnndataLoader from './ObsFeatureMatrixAnndataLoader';
-import AnnDataSource from '../AnnDataSource';
-import MuDataSource from '../MuDataSource';
+import ObsFeatureMatrixAnndataLoader from './ObsFeatureMatrixAnndataLoader.js';
+import AnnDataSource from '../AnnDataSource.js';
+import MuDataSource from '../MuDataSource.js';
 
 
 const createAnndataLoader = (url) => {

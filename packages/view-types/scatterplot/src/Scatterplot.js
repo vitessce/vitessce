@@ -7,7 +7,7 @@ import {
 import { getDefaultColor } from '@vitessce/utils';
 import {
   AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback,
-} from './shared-spatial-scatterplot';
+} from './shared-spatial-scatterplot/index.js';
 
 const CELLS_LAYER_ID = 'scatterplot';
 const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
@@ -343,6 +343,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       'obsEmbeddingIndex', 'obsEmbedding', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
+      'getExpressionValue',
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
@@ -382,4 +383,5 @@ const ScatterplotWrapper = forwardRef((props, deckRef) => (
     deckRef={deckRef}
   />
 ));
+ScatterplotWrapper.displayName = 'ScatterplotWrapper';
 export default ScatterplotWrapper;
