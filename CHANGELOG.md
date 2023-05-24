@@ -12,6 +12,7 @@
 - Implemented ability to select a gene by clicking on the heatmap rows for a given gene.
 - Added developer troubleshooting instructions to README.
 - Implemented ability to select an area on the Expression Histogram. On select, a new obs set selection is created. The new selection contains the ids of all obs that belong to the selected bars.
+- Implemented bidirectional interactions for the cell set bar on the Heatmap. After a click on the bar, the code identifies which cell was clicked, then identifies which cluster it belongs to and highlights that cluster in all plots. 
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
@@ -44,6 +45,9 @@
   - Added a new function called `onSelect`, passed as props to `ExpressionHistogram`. On selection on `ExpressionHistogram`, the function computes what cell ids belong to that selection. Then calls the pre-existing `setObsSelection` function to create a new cell set with the cell ids.
 - Added a signal to `ExpressionHistogram` component, which calls `onSelect`, after 1 minute of debounce.
 - Use hooks in `ObsSetsManagerSubscriber` to improve controlled-component performance.
+- Adjust the code in `onHover` in `Heatmap.js` to track cell position also for cells that are on the cell set bar.
+- Add function `useGetObsMembership` in `hooks.js` to get the full path of the cell that was clicked.
+- Adjusted the `onHeatmapClick` function in `HeatmapSubscriber.js` to distinguish between clicks on the heatmap and clicks on the cell set bar and take according actions.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
