@@ -183,10 +183,10 @@ export function HeatmapSubscriber(props) {
   }, []);
 
   const onHeatmapClick = () => {
-    if (localColorEncoding === 'geneSelection') {
+    if (hoveredColorEncoding === 'geneSelection') {
       setGeneSelection([geneHighlight]);
       setCellColorEncoding('geneSelection');
-    } else if (localColorEncoding === 'cellSelection') {
+    } else if (hoveredColorEncoding === 'cellSelection') {
       const selectionToHighlight = getObsMembership(cellHighlight);
       setCellSetSelection(selectionToHighlight);
       setCellColorEncoding('cellSelection');
@@ -250,7 +250,7 @@ export function HeatmapSubscriber(props) {
         cellColorLabels={cellColorLabels}
         useDevicePixels
         onHeatmapClick={onHeatmapClick}
-        setColorEncoding={setLocalColorEncoding}
+        setColorEncoding={setHoveredColorEncoding}
       />
       {!disableTooltip && (
       <HeatmapTooltipSubscriber
