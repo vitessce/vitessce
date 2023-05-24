@@ -37,6 +37,7 @@ const tableColumns = [
   'Y',
   'Name',
 ];
+const columnLabels = ["Label 1", "Label 2", "Name"]
 
 describe('SelectableTable.js', () => {
   describe('<SelectableTable />', () => {
@@ -45,6 +46,7 @@ describe('SelectableTable.js', () => {
         <SelectableTable
           data={tableData}
           columns={tableColumns}
+          columnLabels={columnLabels}
           idKey={tableIdKey}
           testHeight={500}
           testWidth={500}
@@ -63,6 +65,7 @@ describe('SelectableTable.js', () => {
           <SelectableTable
             data={tableData}
             columns={tableColumns}
+            columnLabels={columnLabels}
             idKey={tableIdKey}
             onChange={(selection) => {
               expect(Array.isArray(selection)).toBe(false);
@@ -86,6 +89,7 @@ describe('SelectableTable.js', () => {
           <SelectableTable
             data={tableData}
             columns={tableColumns}
+            columnLabels={columnLabels}
             idKey={tableIdKey}
             allowMultiple
             onChange={(selection) => {
