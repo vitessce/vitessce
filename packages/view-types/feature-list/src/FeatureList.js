@@ -21,6 +21,7 @@ export default function FeatureList(props) {
     geneFilter = null,
     setGeneSelection,
     enableMultiSelect,
+    showTable,
   } = props;
 
   const classes = useStyles();
@@ -66,7 +67,15 @@ export default function FeatureList(props) {
     setSearchTerm(event.target.value);
   };
 
-  const columns = ['name', 'key'];
+  let columns, columnLabels;
+
+  if (showTable) {
+    columns = ['name', 'key'];
+    columnLabels = ['Gene Symbol', 'Ensembl ID'];
+  } else {
+    columns = ['name'];
+    columnLabels = ['Gene Symbol'];
+  }
 
   return (
     <>
@@ -79,6 +88,7 @@ export default function FeatureList(props) {
       />
       <SelectableTable
         columns={columns}
+        columnLabels={columnLabels}
         data={data}
         hasColorEncoding={hasColorEncoding}
         idKey="key"
@@ -86,7 +96,7 @@ export default function FeatureList(props) {
         onChange={onChange}
         allowMultiple={enableMultiSelect}
         allowUncheck={enableMultiSelect}
-        showTableHead={true}
+        showTableHead={columnLabels.length > 1? true: false}
       />
     </>
   );

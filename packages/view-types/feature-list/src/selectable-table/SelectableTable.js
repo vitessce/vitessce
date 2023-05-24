@@ -35,6 +35,7 @@ export default function SelectableTable(props) {
   const {
     hasColorEncoding,
     columns,
+    columnLabels,
     data,
     onChange,
     idKey = 'id',
@@ -208,14 +209,14 @@ export default function SelectableTable(props) {
     </div>
   );
 
-  const headerRowRenderer = ({ style }) => { 
-    console.log("I am here");
-    return (
+  const headerRowRenderer = ({ style }) => (
     <div className={clsx(classes.tableRow)} style={style}>
-        <div key="bla" className={`${classes.tableCell} ${classes.tableCellFirst}`} style={{fontWeight: 'bold'}}>Gene Symbol</div>
-        <div key="blabalbla" className={`${classes.tableCell} ${classes.tableCellSecond}`} style={{fontWeight: 'bold'}}>Ensembl ID</div>
+      {columnLabels.map((columnLabel, columnIndex) => {
+        const columnClass = columnIndex === 0 ? classes.tableCellFirst : classes.tableCellSecond;
+        return (<div key={columnLabel} className={`${classes.tableCell} ${columnClass}`} style={{fontWeight: 'bold'}}>{columnLabel}</div>)
+      })}
     </div>
-  )};
+  );
 
   return (
     <div className={classes.selectableTable}>
