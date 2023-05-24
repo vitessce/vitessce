@@ -12,6 +12,7 @@
 - Implemented ability to select a gene by clicking on the heatmap rows for a given gene.
 - Added developer troubleshooting instructions to README.
 - Implemented ability to select an area on the Expression Histogram. On select, a new obs set selection is created. The new selection contains the ids of all obs that belong to the selected bars.
+- Added option to disable tooltips on Heatmap and Scatterplot components. The option is available from the options control dropdown.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
@@ -49,6 +50,8 @@
   - Reimplement config version upgrades.
 - Provide plugins as React props rather than registering them globally on `window`.
 - Use hooks in `ObsSetsManagerSubscriber` to improve controlled-component performance.
+- Modified `HeatmapOptions` and `ScatterplotOptions` components - added a checkbox for disabling the tooltip and made the tooltip disappear when the checkbox checked.
+- Added a `tooltipDisabled` state variable to the `HeatmapSubscriber` and the `EmbeddingScatterplotSubscriber`. Modified the components to hide the tooltip if `tooltipDisabled` is true.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
