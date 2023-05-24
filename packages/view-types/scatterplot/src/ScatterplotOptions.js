@@ -21,6 +21,8 @@ export default function ScatterplotOptions(props) {
     setCellOpacityMode,
     cellSetLabelsVisible,
     setCellSetLabelsVisible,
+    tooltipDisabled,
+    setTooltipDisabled,
     cellSetLabelSize,
     setCellSetLabelSize,
     cellSetPolygonsVisible,
@@ -55,6 +57,10 @@ export default function ScatterplotOptions(props) {
 
   function handleLabelVisibilityChange(event) {
     setCellSetLabelsVisible(event.target.checked);
+  }
+
+  function handleTooltipVisibilityChange(event) {
+    setTooltipDisabled(event.target.checked);
   }
 
   function handleLabelSizeChange(event, value) {
@@ -94,6 +100,20 @@ export default function ScatterplotOptions(props) {
             className={classes.checkbox}
             checked={cellSetLabelsVisible}
             onChange={handleLabelVisibilityChange}
+            name="scatterplot-option-cell-set-labels"
+            color="default"
+          />
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell}>
+          Disable Tooltip
+        </TableCell>
+        <TableCell className={classes.inputCell}>
+          <Checkbox
+            className={classes.checkbox}
+            checked={tooltipDisabled}
+            onChange={handleTooltipVisibilityChange}
             name="scatterplot-option-cell-set-labels"
             color="default"
           />
