@@ -1,3 +1,3 @@
-import ScaledExpressionExtension from './ScaledExpressionExtension';
+import ScaledExpressionExtension from './ScaledExpressionExtension.js';
 
 export default ScaledExpressionExtension;

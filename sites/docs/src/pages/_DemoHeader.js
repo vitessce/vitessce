@@ -1,6 +1,6 @@
 import React from 'react';
-import DemoDescription from './_DemoDescription';
-import ErrorBoundary from './_ErrorBoundary';
+import DemoDescription from './_DemoDescription.js';
+import ErrorBoundary from './_ErrorBoundary.js';
 
 import styles from './styles.module.css';
 

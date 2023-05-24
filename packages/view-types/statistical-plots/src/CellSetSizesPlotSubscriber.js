@@ -5,14 +5,14 @@ import {
   useUrls, useReady, useGridItemSize,
   useObsSetsData,
 } from '@vitessce/vit-s';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash-es';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import {
   mergeObsSets, treeToSetSizesBySetNames, filterPathsByExpansionAndSelection, findChangedHierarchy,
 } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
-import CellSetSizesPlot from './CellSetSizesPlot';
-import { useStyles } from './styles';
+import CellSetSizesPlot from './CellSetSizesPlot.js';
+import { useStyles } from './styles.js';
 
 /**
  * A subscriber component for `CellSetSizePlot`,

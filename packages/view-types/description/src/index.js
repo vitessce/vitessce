@@ -1,3 +1,2 @@
-export { DescriptionSubscriber } from './DescriptionSubscriber';
-export { default as Description } from './Description';
-export { register } from './register';
+export { DescriptionSubscriber } from './DescriptionSubscriber.js';
+export { default as Description } from './Description.js';

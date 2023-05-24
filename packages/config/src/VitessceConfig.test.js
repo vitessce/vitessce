@@ -3,7 +3,7 @@ import {
   VitessceConfig,
   hconcat,
   vconcat,
-} from './VitessceConfig';
+} from './VitessceConfig.js';
 
 describe('src/api/VitessceConfig.js', () => {
   describe('VitessceConfig', () => {

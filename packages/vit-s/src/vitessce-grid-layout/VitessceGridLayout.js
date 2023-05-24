@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout-with-lodash';
-import isEqual from 'lodash/isEqual';
-import { getMaxRows, resolveLayout } from './layout-utils';
+import { isEqual } from 'lodash-es';
+import { getMaxRows, resolveLayout } from './layout-utils.js';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -16,18 +16,31 @@ class ResponsiveHeightGridLayout extends ResponsiveGridLayout {
 export function VitessceGridLayout(props) {
   const {
     layout,
-    getComponent, padding, margin, draggableHandle: draggableHandleClass,
+    viewTypes, padding, margin: marginProp, draggableHandle: draggableHandleClass,
     onResize, onResizeStop, rowHeight, theme, height,
     onRemoveComponent, onLayoutChange: onLayoutChangeProp,
     isBounded,
   } = props;
+
+  const getComponent = useCallback((viewType) => {
+    if (Array.isArray(viewTypes)) {
+      const matchingViewType = viewTypes.find(v => v.name === viewType);
+      if (matchingViewType) {
+        return matchingViewType.component;
+      }
+    }
+    return () => null;
+  }, [viewTypes]);
 
   const draggableHandle = `.${draggableHandleClass}`;
 
   // If layout changes, update grid components.
   const {
     cols: gridCols, layouts: gridLayouts, breakpoints: gridBreakpoints, components: gridComponents,
-  } = resolveLayout(layout);
+  } = useMemo(() => resolveLayout(layout), [layout]);
+
+  const containerPadding = useMemo(() => ([padding, padding]), [padding]);
+  const margin = useMemo(() => ([marginProp, marginProp]), [marginProp]);
 
   const maxRows = getMaxRows(gridLayouts);
 
@@ -62,7 +75,7 @@ export function VitessceGridLayout(props) {
   const [currentGridLayouts, setCurrentGridLayouts] = useState(gridLayouts);
   const [lastValidGridLayouts, setLastValidGridLayouts] = useState(gridLayouts);
 
-  const onValidLayoutChange = (newLayout) => {
+  const onValidLayoutChange = useCallback((newLayout) => {
     if (newLayout.length === Object.entries(gridComponents).length) {
       const newComponentProps = {};
       newLayout.forEach((nextC) => {
@@ -84,9 +97,9 @@ export function VitessceGridLayout(props) {
         onLayoutChangeProp(newComponentProps);
       }
     }
-  };
+  }, [gridComponents, onLayoutChangeProp]);
 
-  const onLayoutChange = (newLayout, allLayouts) => {
+  const onLayoutChange = useCallback((newLayout, allLayouts) => {
     setCurrentGridLayouts(allLayouts);
     if (!isBounded || getMaxRows({ ID: newLayout }) <= maxRows) {
       onValidLayoutChange(newLayout);
@@ -94,14 +107,13 @@ export function VitessceGridLayout(props) {
     } else {
       setCurrentGridLayouts(lastValidGridLayouts);
     }
-  };
+  }, [isBounded, lastValidGridLayouts, maxRows, onValidLayoutChange]);
 
-  const saveCurrentLayouts = () => {
+  const saveCurrentLayouts = useCallback(() => {
     setLastValidGridLayouts(currentGridLayouts);
-  };
+  }, [currentGridLayouts]);
 
-
-  const layoutChildren = Object.values(gridComponents).map((v) => {
+  const layoutChildren = useMemo(() => Object.values(gridComponents).map((v) => {
     const Component = getComponent(v.component);
 
     const removeGridComponent = () => {
@@ -120,7 +132,8 @@ export function VitessceGridLayout(props) {
         />
       </div>
     );
-  });
+  }), [gridComponents, getComponent, onRemoveComponent, theme]);
+
   return (currentGridLayouts && gridComponents && gridBreakpoints && gridCols) && (
     <>
       {style}
@@ -136,8 +149,8 @@ export function VitessceGridLayout(props) {
             (window.innerHeight - 2 * padding - (maxRows - 1) * margin)
             / maxRows
           )}
-        containerPadding={[padding, padding]}
-        margin={[margin, margin]}
+        containerPadding={containerPadding}
+        margin={margin}
         draggableHandle={draggableHandle}
         onLayoutChange={onLayoutChange}
         isBounded={isBounded}

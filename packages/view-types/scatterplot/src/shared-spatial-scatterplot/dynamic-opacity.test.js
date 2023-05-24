@@ -1,4 +1,4 @@
-import { getPointSizeDevicePixels, getPointOpacity } from './dynamic-opacity';
+import { getPointSizeDevicePixels, getPointOpacity } from './dynamic-opacity.js';
 
 describe('dynamic-opacity.js', () => {
   describe('getPointSizeDevicePixels', () => {

@@ -5,7 +5,7 @@ import register from 'higlass-register';
 import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
 import { useGridItemSize, useCoordination } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { useStyles } from './styles';
+import { useStyles } from './styles.js';
 
 // Temporary usage of the package 'higlass-no-github-deps'
 // rather than 'higlass' is discussed at

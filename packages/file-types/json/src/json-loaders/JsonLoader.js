@@ -1,17 +1,15 @@
-import Ajv from 'ajv';
 import { FileType } from '@vitessce/constants-internal';
 import {
   AbstractTwoStepLoader,
   LoaderValidationError,
   AbstractLoaderError,
   LoaderResult,
-  obsSetsSchema,
-  rasterSchema,
 } from '@vitessce/vit-s';
 
-import cellsSchema from '../legacy-loaders/schemas/cells.schema.json';
-import moleculesSchema from '../legacy-loaders/schemas/molecules.schema.json';
-import neighborhoodsSchema from '../legacy-loaders/schemas/neighborhoods.schema.json';
+import { obsSetsSchema, rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
+import { cellsSchema } from '../legacy-loaders/schemas/cells.js';
+import { moleculesSchema } from '../legacy-loaders/schemas/molecules.js';
+import { neighborhoodsSchema } from '../legacy-loaders/schemas/neighborhoods.js';
 
 const fileTypeToSchema = {
   [FileType.CELLS_JSON]: cellsSchema,
@@ -55,11 +53,11 @@ export default class JsonLoader extends AbstractTwoStepLoader {
     if (!schema) {
       return [true, null];
     }
-    const validate = new Ajv().compile(schema);
-    const valid = validate(data);
+    const result = schema.safeParse(data);
+    const valid = result.success;
     let failureReason;
     if (!valid) {
-      failureReason = validate.errors;
+      failureReason = result.error.message;
     }
     return [valid, failureReason];
   }

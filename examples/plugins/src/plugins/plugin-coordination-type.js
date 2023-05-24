@@ -1,16 +1,19 @@
 /* eslint-disable react-refresh/only-export-components */
 import React from 'react';
-import Slider from '@material-ui/core/Slider';
+import { Slider } from '@material-ui/core';
 import {
   TitleInfo,
   useCoordination,
-  registerPluginCoordinationType,
-  registerPluginViewType,
 } from '@vitessce/vit-s';
 import {
   CoordinationType,
 } from '@vitessce/constants';
-// For plugin views to use:
+import {
+  PluginCoordinationType,
+  PluginViewType,
+} from '@vitessce/plugins';
+import { z } from '@vitessce/schemas';
+
 
 function MyPluginSlider(props) {
   const {
@@ -71,20 +74,26 @@ function MyPluginSliderSubscriber(props) {
   );
 }
 
-registerPluginCoordinationType(
-  'myCustomCoordinationType',
-  0.75,
-);
-
-// Register the plugin view type.
-registerPluginViewType(
-  'myCustomSlider',
-  MyPluginSliderSubscriber,
-  [
-    CoordinationType.DATASET,
-    'myCustomCoordinationType',
+export const pluginCoordinationTypeProps = {
+  pluginCoordinationTypes: [
+    new PluginCoordinationType(
+      'myCustomCoordinationType',
+      0.75,
+      z.number(),
+    ),
   ],
-);
+  pluginViewTypes: [
+    new PluginViewType(
+      'myCustomSlider',
+      MyPluginSliderSubscriber,
+      [
+        CoordinationType.DATASET,
+        'myCustomCoordinationType',
+      ],
+    ),
+  ],
+};
+
 
 // Use the plugin view in the configuration.
 export const pluginCoordinationType = {

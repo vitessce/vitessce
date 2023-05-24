@@ -1,6 +1,6 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Tooltip from './Tooltip';
+import { makeStyles } from '@material-ui/core';
+import Tooltip from './Tooltip.js';
 
 const useStyles = makeStyles(theme => ({
   cellEmphasisCrosshair: {

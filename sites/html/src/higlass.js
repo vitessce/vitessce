@@ -1,8 +1,9 @@
 /* eslint-disable */
-'use strict';
+import React from 'react';
+import ReactDOM from 'react-dom'
+import { Vitessce } from 'vitessce';
 
 const e = React.createElement;
-const Vitessce = vitessce.Vitessce;
 
 // Config copied from examples/configs/src/view-configs/rao.js
 const justHiglass = {

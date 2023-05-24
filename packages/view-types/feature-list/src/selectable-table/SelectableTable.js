@@ -2,14 +2,15 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable max-len */
 import React, { useEffect, useCallback, useState } from 'react';
-import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
-import Table from 'react-virtualized/dist/commonjs/Table';
-import uuidv4 from 'uuid/v4';
-import union from 'lodash/union';
-import difference from 'lodash/difference';
-import isEqual from 'lodash/isEqual';
+// The CommonJS imports for react-virtualized are needed
+// because the ESM version is broken.
+// Reference: https://github.com/bvaughn/react-virtualized/issues/1632
+import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer/index.js';
+import { Table } from 'react-virtualized/dist/commonjs/Table/index.js';
+import { v4 as uuidv4 } from 'uuid';
+import { union, difference, isEqual } from 'lodash-es';
 import clsx from 'clsx';
-import { useStyles } from './styles';
+import { useStyles } from './styles.js';
 
 const SHIFT_KEYCODE = 16;
 

@@ -1,11 +1,7 @@
 import React from 'react';
 
-import Grid from '@material-ui/core/Grid';
-import Checkbox from '@material-ui/core/Checkbox';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import Slider from '@material-ui/core/Slider';
-import { useControllerSectionStyles } from './styles';
+import { Grid, Checkbox, Paper, Typography, Slider } from '@material-ui/core';
+import { useControllerSectionStyles } from './styles.js';
 
 export default function VectorLayerController(props) {
   const {

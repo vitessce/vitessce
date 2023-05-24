@@ -1,16 +1,14 @@
 /* eslint-disable no-underscore-dangle */
-import uuidv4 from 'uuid/v4';
-import isNil from 'lodash/isNil';
-import isEqual from 'lodash/isEqual';
-import range from 'lodash/range';
+import { v4 as uuidv4 } from 'uuid';
+import { isNil, isEqual, range } from 'lodash-es';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
 import centroid from '@turf/centroid';
 import concaveman from 'concaveman';
 import { getDefaultColor, PALETTE } from '@vitessce/utils';
 import {
   HIERARCHICAL_SCHEMAS,
-} from './constants';
-import { pathToKey } from './utils';
+} from './constants.js';
+import { pathToKey } from './utils.js';
 
 /**
  * Alias for the uuidv4 function to make code more readable.
@@ -291,7 +289,7 @@ export function nodeToLevelDescendantNamePaths(node, level, prevPath, stopEarly 
  */
 export function treeExport(currTree, datatype) {
   return {
-    version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
+    version: HIERARCHICAL_SCHEMAS.latestVersion,
     datatype,
     tree: currTree.tree,
   };
@@ -346,7 +344,7 @@ export function treeExportSet(currTree, nodePath) {
  */
 export function treeInitialize(datatype) {
   return {
-    version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
+    version: HIERARCHICAL_SCHEMAS.latestVersion,
     datatype,
     tree: [],
   };

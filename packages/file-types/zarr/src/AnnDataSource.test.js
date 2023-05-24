@@ -1,4 +1,4 @@
-import AnnDataSource from './AnnDataSource';
+import AnnDataSource from './AnnDataSource.js';
 
 describe('sources/AnnDataSource', () => {
   describe('AnnData v0.7', () => {

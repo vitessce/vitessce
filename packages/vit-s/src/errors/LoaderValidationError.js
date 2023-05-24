@@ -1,4 +1,4 @@
-import AbstractLoaderError from './AbstractLoaderError';
+import AbstractLoaderError from './AbstractLoaderError.js';
 
 export default class LoaderValidationError extends AbstractLoaderError {
   constructor(datasetType, datasetFileType, datasetUrl, reason) {

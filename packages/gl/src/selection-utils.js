@@ -1,6 +1,6 @@
 import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { DataFilterExtension } from '@deck.gl/extensions'; // eslint-disable-line import/no-extraneous-dependencies
-import SelectionLayer from './SelectionLayer';
+import SelectionLayer from './SelectionLayer.js';
 
 /**
  * Convert a DeckGL layer ID to a "base" layer ID for selection.
