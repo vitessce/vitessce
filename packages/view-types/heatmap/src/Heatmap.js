@@ -699,8 +699,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       return;
     }
 
-    setCellHighlight(null);
-    setGeneHighlight(null);
+    let highlightedCell = null;
+    let highlightedGene = null;
 
     const { x: mouseX, y: mouseY } = event.offsetCenter;
 
@@ -729,7 +729,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       const obsI = expression.rows.indexOf(axisTopLabels[trackColI]);
       const cellIndex = expression.rows[obsI];
       setTrackHighlight([cellIndex, trackI, mouseX, mouseY]);
-      setCellHighlight(cellIndex);
+      highlightedCell = cellIndex;
       setColorEncoding('cellSelection');
     }
 
@@ -760,11 +760,14 @@ const Heatmap = forwardRef((props, deckRef) => {
     }
 
     if (obsId) {
-      setCellHighlight(obsId);
+      highlightedCell = obsId;
     }
     if (varId) {
-      setGeneHighlight(varId);
+      highlightedGene = varId;
     }
+
+    setCellHighlight(highlightedCell);
+    setGeneHighlight(highlightedGene);
   }
 
   const cellColorsViews = useMemo(() => {
