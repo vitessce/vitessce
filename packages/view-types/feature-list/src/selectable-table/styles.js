@@ -29,7 +29,15 @@ export const useStyles = makeStyles(theme => ({
     },
   },
   tableCell: {
-    padding: '0 4px',
+    textAlign: 'right',
+    flexBasis: '0',
+    flexGrow: 1,
+  },
+  tableCellFirst: {
+    flex: 4.3,  // flex-grow factor is 4, will take 4 parts of the available space.
+  },
+  tableCellSecond: {
+      flex: 5.7,  // flex-grow factor is 6, will take 6 parts of the available space.
   },
   inputContainer: {
     width: '1em',

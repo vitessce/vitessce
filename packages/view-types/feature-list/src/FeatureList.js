@@ -66,6 +66,8 @@ export default function FeatureList(props) {
     setSearchTerm(event.target.value);
   };
 
+  const columns = ['name', 'key'];
+
   return (
     <>
       <input
@@ -76,7 +78,7 @@ export default function FeatureList(props) {
         onChange={handleChange}
       />
       <SelectableTable
-        columns={['name']}
+        columns={columns}
         data={data}
         hasColorEncoding={hasColorEncoding}
         idKey="key"
@@ -84,7 +86,7 @@ export default function FeatureList(props) {
         onChange={onChange}
         allowMultiple={enableMultiSelect}
         allowUncheck={enableMultiSelect}
-        showTableHead={false}
+        showTableHead={true}
       />
     </>
   );

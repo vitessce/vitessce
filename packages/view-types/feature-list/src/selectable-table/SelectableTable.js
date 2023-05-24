@@ -50,6 +50,23 @@ export default function SelectableTable(props) {
   const [selectedRows, setSelectedRows] = useState(null);
   const [isCheckingMultiple, setIsCheckingMultiple] = useState(false);
 
+  // const customData = [
+  //   {key: 'ENSG00000000003.15', name: 'AB', value: false},
+  //   {key: 'ENSG00000000005.6', name: 'CDAQW', value: false},
+  //   {key: 'ENSG00000000419.13', name: 'G12', value: false},
+  //   {key: 'ENSG00000000457.14', name: 'Rdd', value: false},
+  //   {key: 'ENSG00000000460.17', name: 'bkgieDDRddddd', value: false},
+  //   {key: 'ENSG00000000938.13', name: '5432', value: false},
+  //   {key: 'ENSG00000000971.16', name: 'A', value: false},
+  //   {key: 'ENSG00000001036.14', name: 'YTZ', value: false},
+  //   {key: 'ENSG00000001084.13', name: 'F12', value: false},
+  //   {key: 'ENSG00000001167.14', name: '98D', value: false},
+  //   {key: 'ENSG00000001460.18', name: 'TEW', value: false},
+  //   {key: 'ENSG00000001461.17', name: '23345A', value: false},
+  // ];
+
+  // const data = customData;
+
   // Enable selecting multiple rows while the shift key is down.
   useEffect(() => {
     function onKeyDown(event) {
@@ -178,24 +195,27 @@ export default function SelectableTable(props) {
           />
         </label>
       </div>
-      {columns.map(column => (
+      {columns.map((column, columnIndex) => {
+        const columnClass = columnIndex === 0 ? classes.tableCellFirst : classes.tableCellSecond;
+        return (
         <div
-          className={classes.tableCell}
+          className={`${classes.tableCell} ${columnClass}`}
           key={column}
         >
           {data[index][column]}
         </div>
-      ))}
+      )})}
     </div>
   );
 
-  const headerRowRenderer = ({ style }) => (
-    <div className={clsx({ [classes.hiddenInputColumn]: !showTableInputs }, classes.tableRow)} style={style}>
-      {columns.map(column => (
-        <div key={column}>{column}</div>
-      ))}
+  const headerRowRenderer = ({ style }) => { 
+    console.log("I am here");
+    return (
+    <div className={clsx(classes.tableRow)} style={style}>
+        <div key="bla" className={`${classes.tableCell} ${classes.tableCellFirst}`} style={{fontWeight: 'bold'}}>Gene Symbol</div>
+        <div key="blabalbla" className={`${classes.tableCell} ${classes.tableCellSecond}`} style={{fontWeight: 'bold'}}>Ensembl ID</div>
     </div>
-  );
+  )};
 
   return (
     <div className={classes.selectableTable}>
@@ -203,7 +223,7 @@ export default function SelectableTable(props) {
         {({ width, height }) => (
           <Table
             height={testHeight || height}
-            gridStyle={{ outline: 'none' }}
+            gridStyle={{ outline: 'none'}}
             rowCount={data.length}
             // 24 is 1 em + padding in either direction (see _selectable_table.scss).
             rowHeight={24}
