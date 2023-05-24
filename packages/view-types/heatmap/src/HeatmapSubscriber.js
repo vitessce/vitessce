@@ -5,6 +5,7 @@ import plur from 'plur';
 import {
   TitleInfo,
   useDeckCanvasSize,
+  useGetObsMembership,
   useGetObsInfo,
   useReady,
   useUrls,
@@ -147,6 +148,8 @@ export function HeatmapSubscriber(props) {
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
+  const getObsMembership = useGetObsMembership(obsSetsMembership);
+
   const getFeatureInfo = useCallback((featureId) => {
     if (featureId) {
       return { [`${capitalize(variablesLabel)} ID`]: featureId };
@@ -180,20 +183,11 @@ export function HeatmapSubscriber(props) {
     if (localColorEncoding === 'geneSelection') {
       setGeneSelection([geneHighlight]);
       setCellColorEncoding('geneSelection');
-    }
-    else if (localColorEncoding === 'cellSelection') {
-      const cellInfo = getObsInfo(cellHighlight);
-      console.log("cellInfo: ", cellInfo);
-
-  
-      console.log("*** ", `${capitalize(obsType)} ID`);
-      console.log("selectionToHighlight: ", selectionToHighlight);
-      const selectionToHighlight = obsSetsMembership.get(cellInfo[`${capitalize(obsType)} ID`]);
-      
+    } else if (localColorEncoding === 'cellSelection') {
+      const selectionToHighlight = getObsMembership(cellHighlight);
       setCellSetSelection(selectionToHighlight);
       setCellColorEncoding('cellSelection');
     }
-
   };
 
   const cellColorLabels = useMemo(() => ([

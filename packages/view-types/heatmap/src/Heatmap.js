@@ -726,9 +726,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (trackI === null || trackColI === null) {
       setTrackHighlight(null);
       setColorEncoding('geneSelection');
-    } 
-    // we are hovering over a cell colored track
-    else {
+    } else { // we are hovering over a cell colored track
       const obsI = expression.rows.indexOf(axisTopLabels[trackColI]);
       const cellIndex = expression.rows[obsI];
       setTrackHighlight([cellIndex, trackI, mouseX, mouseY]);
