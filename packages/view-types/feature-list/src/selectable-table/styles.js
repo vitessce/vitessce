@@ -34,10 +34,10 @@ export const useStyles = makeStyles(theme => ({
     flexGrow: 1,
   },
   tableCellFirst: {
-    flex: 4.3,  // flex-grow factor is 4, will take 4 parts of the available space.
+    flex: 4.3,
   },
   tableCellSecond: {
-      flex: 5.7,  // flex-grow factor is 6, will take 6 parts of the available space.
+      flex: 5.7,
   },
   inputContainer: {
     width: '1em',
