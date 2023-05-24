@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { debounce } from 'lodash-es';
-import { Slider, TableCell, TableRow } from '@material-ui/core';
+import { Checkbox, Slider, TableCell, TableRow } from '@material-ui/core';
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
@@ -10,12 +10,18 @@ export default function HeatmapOptions(props) {
     setGeneExpressionColormap,
     geneExpressionColormapRange,
     setGeneExpressionColormapRange,
+    tooltipDisabled,
+    setTooltipDisabled,
   } = props;
 
   const classes = usePlotOptionsStyles();
 
   function handleGeneExpressionColormapChange(event) {
     setGeneExpressionColormap(event.target.value);
+  }
+
+  function handleTooltipVisibilityChange(event) {
+    setTooltipDisabled(event.target.checked);
   }
 
   function handleColormapRangeChange(event, value) {
@@ -45,6 +51,20 @@ export default function HeatmapOptions(props) {
               <option key={cmap} value={cmap}>{cmap}</option>
             ))}
           </OptionSelect>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell}>
+          Disable Tooltip
+        </TableCell>
+        <TableCell className={classes.inputCell}>
+          <Checkbox
+            className={classes.checkbox}
+            checked={tooltipDisabled}
+            onChange={handleTooltipVisibilityChange}
+            name="scatterplot-option-cell-set-labels"
+            color="default"
+          />
         </TableCell>
       </TableRow>
       <TableRow>
