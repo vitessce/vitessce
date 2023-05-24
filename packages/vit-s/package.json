@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/vit-s",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -33,9 +33,9 @@
     "@material-ui/core": "~4.12.3",
     "@material-ui/icons": "~4.11.2",
     "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/utils": "workspace:*",
-    "@vitessce/schemas": "workspace:*",
     "@vitessce/plugins": "workspace:*",
+    "@vitessce/schemas": "workspace:*",
+    "@vitessce/utils": "workspace:*",
     "clsx": "^1.1.1",
     "d3-array": "^2.4.0",
     "fast-deep-equal": "^3.1.3",

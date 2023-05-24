@@ -1,3 +1,11 @@
+
+### Added
+
+### Changed
+
+## [3.0.0](https://www.npmjs.com/package/vitessce/v/3.0.0) - 2023-05-24
+
+
 ### Added
 - Added a legend for quantitative color scales in the `SpatialSubscriber` and `EmbeddingScatterplotSubscriber` views.
 - Support for automatic view config generation for OME-TIFF, Anndata-Zarr and OME-ZARR file formats.

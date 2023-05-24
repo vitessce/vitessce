@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/workers",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -30,8 +30,8 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^23.0.0",
     "@rollup/plugin-node-resolve": "^15.0.0",
+    "rimraf": "^3.0.2",
     "rollup": "^2.0.0",
-    "rollup-plugin-web-worker-loader": "^1.0.0",
-    "rimraf": "^3.0.2"
+    "rollup-plugin-web-worker-loader": "^1.0.0"
   }
 }
