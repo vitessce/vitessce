@@ -97,7 +97,10 @@ export function HeatmapSubscriber(props) {
   const variablesTitle = capitalize(variablesPluralLabel);
 
   const [isRendering, setIsRendering] = useState(false);
-  const [localColorEncoding, setLocalColorEncoding] = useState('geneSelection');
+  // We need to know whether the user is currently hovering over the expression part
+  // of the heatmap vs. the color bar part, which will affect whether we call
+  // setObsColorEncoding with 'geneSelection' or 'cellSetSelection' upon a click.
+  const [hoveredColorEncoding, setHoveredColorEncoding] = useState('geneSelection');
 
   const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
