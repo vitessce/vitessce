@@ -112,9 +112,9 @@ export default function ScatterplotOptions(props) {
         <TableCell className={classes.inputCell}>
           <Checkbox
             className={classes.checkbox}
-            checked={tooltipDisabled}
+            value={tooltipDisabled}
             onChange={handleTooltipVisibilityChange}
-            name="scatterplot-option-cell-set-labels"
+            name="scatterplot-option-toltip-visibility"
             color="default"
           />
         </TableCell>

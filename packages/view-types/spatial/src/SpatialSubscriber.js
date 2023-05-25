@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import {
   TitleInfo,
   useDeckCanvasSize, useReady, useUrls,
@@ -315,6 +315,7 @@ export function SpatialSubscriber(props) {
   });
 
   const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(expressionData);
+  const [tooltipDisabled, setTooltipDisabled] = useState(disableTooltip);
 
   // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
   // where each cell id indexes into the array.
@@ -367,6 +368,8 @@ export function SpatialSubscriber(props) {
           setSpatialAxisFixed={setSpatialAxisFixed}
           spatialAxisFixed={spatialAxisFixed}
           use3d={use3d}
+          tooltipDisabled={tooltipDisabled}
+          setTooltipDisabled={setTooltipDisabled}
           geneExpressionColormap={geneExpressionColormap}
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
@@ -384,7 +387,7 @@ export function SpatialSubscriber(props) {
     geneExpressionColormapRange, setGeneExpressionColormap,
     hasLocationsData, hasSegmentationsData, hasExpressionData,
     observationsLabel, setCellColorEncoding,
-    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d,
+    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d, tooltipDisabled
   ]);
 
   useEffect(() => {
@@ -464,7 +467,7 @@ export function SpatialSubscriber(props) {
         getExpressionValue={getExpressionValue}
         theme={theme}
       />
-      {!disableTooltip && (
+      {!tooltipDisabled && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}
           obsHighlight={cellHighlight}

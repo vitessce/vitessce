@@ -55,6 +55,8 @@ export default function SpatialOptions(props) {
     setSpatialAxisFixed,
     spatialAxisFixed,
     use3d,
+    tooltipDisabled,
+    setTooltipDisabled,
     geneExpressionColormap,
     setGeneExpressionColormap,
     geneExpressionColormapRange,
@@ -76,6 +78,10 @@ export default function SpatialOptions(props) {
     [handleColormapRangeChange],
   );
 
+  function handleTooltipVisibilityChange(event) {
+    setTooltipDisabled(event.target.checked);
+  }
+
   const classes = usePlotOptionsStyles();
 
   return (
@@ -94,6 +100,20 @@ export default function SpatialOptions(props) {
           use3d={use3d}
         />
       ) : null}
+      <TableRow>
+        <TableCell className={classes.labelCell}>
+          Disable Tooltip
+        </TableCell>
+        <TableCell className={classes.inputCell}>
+          <Checkbox
+            className={classes.checkbox}
+            value={tooltipDisabled}
+            onChange={handleTooltipVisibilityChange}
+            name="gene-expression-colormap-option-toltip-visibility"
+            color="default"
+          />
+        </TableCell>
+      </TableRow>
       {canShowExpressionOptions ? (
         <>
           <TableRow>

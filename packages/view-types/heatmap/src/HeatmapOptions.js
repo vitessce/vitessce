@@ -60,9 +60,9 @@ export default function HeatmapOptions(props) {
         <TableCell className={classes.inputCell}>
           <Checkbox
             className={classes.checkbox}
-            checked={tooltipDisabled}
+            value={tooltipDisabled}
             onChange={handleTooltipVisibilityChange}
-            name="scatterplot-option-cell-set-labels"
+            name="gene-expression-colormap-option-toltip-visibility"
             color="default"
           />
         </TableCell>
