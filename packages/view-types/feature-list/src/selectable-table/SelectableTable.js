@@ -181,11 +181,10 @@ export default function SelectableTable(props) {
           />
         </label>
       </div>
-      {columns.map((column, columnIndex) => {
-        const columnClass = columnIndex === 0 ? classes.tableCellFirst : classes.tableCellSecond;
+      {columns.map((column) => {
         return (
         <div
-          className={`${classes.tableCell} ${columnClass}`}
+          className={classes.tableCell}
           key={column}
         >
           {data[index][column]}
@@ -196,9 +195,8 @@ export default function SelectableTable(props) {
 
   const headerRowRenderer = ({ style }) => (
     <div className={classes.tableRow} style={style}>
-      {columnLabels.map((columnLabel, columnIndex) => {
-        const columnClass = columnIndex === 0 ? classes.tableCellFirst : classes.tableCellSecond;
-        return (<div key={columnLabel} className={`${classes.tableCell} ${columnClass}`} style={{fontWeight: 'bold'}}>{columnLabel}</div>)
+      {columnLabels.map((columnLabel) => {
+        return (<div key={columnLabel} className={classes.tableCell} style={{fontWeight: 'bold'}}>{columnLabel}</div>)
       })}
     </div>
   );
