@@ -100,6 +100,7 @@ export function FeatureListSubscriber(props) {
         showTable={showTable}
         geneList={geneList}
         featureLabelsMap={featureLabelsMap}
+        featureType={featureType}
         geneSelection={geneSelection}
         geneFilter={geneFilter}
         setGeneSelection={setGeneSelectionAndColorEncoding}

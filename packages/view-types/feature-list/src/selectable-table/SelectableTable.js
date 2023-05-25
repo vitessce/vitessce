@@ -17,6 +17,8 @@ const SHIFT_KEYCODE = 16;
 /**
  * A table with "selectable" rows.
  * @prop {string[]} columns An array of column names, corresponding to data object properties.
+ * @prop {string[]} columnLabels An array of labels to be used for the columns, corresponding to `columns`.
+ * columnLabels.length must be equal to columns.length.
  * @prop {object[]} data An array of data objects used to populate table rows.
  * @prop {function} onChange Callback function,
  * passed a selection object when `allowMultiple` is false (and `null` if `allowUncheck` is true),

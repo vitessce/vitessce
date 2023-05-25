@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { every } from 'lodash-es';
 import { makeStyles } from '@material-ui/core';
 import { SelectableTable } from './selectable-table/index.js';
+import { capitalize } from '@vitessce/utils';
 
 const useStyles = makeStyles(() => ({
   searchBar: {
@@ -17,6 +18,7 @@ export default function FeatureList(props) {
     hasColorEncoding,
     geneList = [],
     featureLabelsMap,
+    featureType,
     geneSelection = [],
     geneFilter = null,
     setGeneSelection,
@@ -67,14 +69,12 @@ export default function FeatureList(props) {
     setSearchTerm(event.target.value);
   };
 
-  let columns, columnLabels;
+  let columns = ['name'];
+  let columnLabels = [`${capitalize(featureType)} ID`];
 
   if (showTable) {
-    columns = ['name', 'key'];
-    columnLabels = ['Gene Symbol', 'Ensembl ID'];
-  } else {
-    columns = ['name'];
-    columnLabels = ['Gene Symbol'];
+    columns.push('key');
+    columnLabels.push('Alternate ID');
   }
 
   return (
