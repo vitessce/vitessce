@@ -95,10 +95,6 @@ export function getCellColors(params) {
     theme,
   } = params;
   if (cellSetSelection && cellSets) {
-    // Cell sets can potentially lack set colors since the color property
-    // is not a required part of the schema.
-    // The `initializeSets` function fills in any empty colors
-    // with defaults and returns the processed tree object.
     return treeToCellColorsBySetNames(cellSets, cellSetSelection, cellSetColor, theme);
   }
   if (obsIndex && theme) {

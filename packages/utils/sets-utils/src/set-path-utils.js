@@ -27,7 +27,7 @@ function getPaths(node, currentPath = [], paths = []) {
  * looking for the longest subset (true) or the longest superset (false).
  * @returns The longest subset or superset of path in arrOfPaths.
 */
-const findLongest = (arrOfPaths, path, isSubset) => {
+export function findLongestPath(arrOfPaths, path, isSubset){
   let longest = null;
   let longestLength = 0;
 
@@ -47,7 +47,7 @@ const findLongest = (arrOfPaths, path, isSubset) => {
     return [];
   }
   return false;
-};
+}
 
 /**
  * Generates paths by doing DFS of tree and filters out the ones that are irrelevant.
@@ -79,14 +79,14 @@ export function filterPathsByExpansionAndSelection(
       /* This line checks if the longest super set of clusterPath in cellSetSelection is longer
             than clusterPath itself. If true, it means clusterPath is a parent of some selected cell
             set but not expanded and we should discard it. */
-      if (findLongest(cellSetSelection, clusterPath, false).length > clusterPath.length) {
+      if (findLongestPath(cellSetSelection, clusterPath, false).length > clusterPath.length) {
         return false;
       }
 
       // the clusterPath is too deep in the tree. We should discard it.
       if (cellSetExpansion.length === 0 && clusterPath.length > 2) return false;
 
-      const longestSubset = findLongest(cellSetExpansion, clusterPath, true);
+      const longestSubset = findLongestPath(cellSetExpansion, clusterPath, true);
       // another case of the clusterPath being deep in the tree. We should discard it.
       if (cellSetExpansion.length > 0 && longestSubset.length + 1 < clusterPath.length) {
         return false;
