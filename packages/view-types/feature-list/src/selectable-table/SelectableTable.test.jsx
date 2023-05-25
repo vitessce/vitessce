@@ -52,6 +52,8 @@ describe('SelectableTable.js', () => {
           testWidth={500}
         />,
       );
+      expect(await screen.findByText('Label 1'));
+      expect(await screen.findByText('Label 2'));
       expect(await screen.findByText('Name'));
       // Since the button (although hidden) is also a table-cell, it has a blank string.
       expect(await screen.findAllByText('X1'));
@@ -107,6 +109,38 @@ describe('SelectableTable.js', () => {
         });
       });
       await p;
+    });
+
+    it('renders single column values', async () => {
+
+      const tableColumns = [
+        'Name',
+      ];
+      const columnLabels = ["Name"]
+
+      render(
+        <SelectableTable
+          data={tableData}
+          columns={tableColumns}
+          columnLabels={columnLabels}
+          idKey={tableIdKey}
+          testHeight={500}
+          testWidth={500}
+        />,
+      );
+      // write an expect statement to check that Label 1 is not rendered
+      const label1 = screen.queryByText('Label 1');
+      const label2 = screen.queryByText('Label 2');
+      const X1 = screen.queryByText('X1');
+      const Y2 = screen.queryByText('Y2');
+
+      expect(label1).toBeNull();
+      expect(label2).toBeNull();
+      expect(X1).toBeNull();
+      expect(Y2).toBeNull();
+
+      expect(await screen.findByText('Tile 3'));
+      expect(await screen.findByText('Name'));
     });
   });
 });
