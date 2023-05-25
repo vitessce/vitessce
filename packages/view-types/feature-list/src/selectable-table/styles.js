@@ -29,15 +29,9 @@ export const useStyles = makeStyles(theme => ({
     },
   },
   tableCell: {
-    textAlign: 'right',
-    flexBasis: '0',
+    textAlign: 'left',
+    flexBasis: 0,
     flexGrow: 1,
-  },
-  tableCellFirst: {
-    flex: 4.3,
-  },
-  tableCellSecond: {
-      flex: 5.7,
   },
   inputContainer: {
     width: '1em',
