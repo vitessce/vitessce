@@ -193,7 +193,7 @@ export default function SelectableTable(props) {
   );
 
   const headerRowRenderer = ({ style }) => (
-    <div className={clsx(classes.tableRow)} style={style}>
+    <div className={classes.tableRow} style={style}>
       {columnLabels.map((columnLabel, columnIndex) => {
         const columnClass = columnIndex === 0 ? classes.tableCellFirst : classes.tableCellSecond;
         return (<div key={columnLabel} className={`${classes.tableCell} ${columnClass}`} style={{fontWeight: 'bold'}}>{columnLabel}</div>)
