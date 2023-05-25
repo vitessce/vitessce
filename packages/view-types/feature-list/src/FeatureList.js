@@ -96,7 +96,7 @@ export default function FeatureList(props) {
         onChange={onChange}
         allowMultiple={enableMultiSelect}
         allowUncheck={enableMultiSelect}
-        showTableHead={columnLabels.length > 1? true: false}
+        showTableHead={columnLabels.length > 1}
       />
     </>
   );
