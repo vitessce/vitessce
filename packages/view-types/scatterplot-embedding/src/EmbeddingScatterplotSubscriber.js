@@ -160,6 +160,8 @@ export function EmbeddingScatterplotSubscriber(props) {
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
+  const [originalViewState, setOriginalViewState] = useState({});
+
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
@@ -247,6 +249,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         // Graphics rendering has the y-axis going south so we need to multiply by negative one.
         setTargetY(-newTargetY);
         setZoom(newZoom);
+        setOriginalViewState({"target": [newTargetX, -newTargetY, 0], "zoom": newZoom});
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -256,6 +259,8 @@ export function EmbeddingScatterplotSubscriber(props) {
   const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
+
+  console.log("*** originalViewState: ", originalViewState);
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
   const getCellIsSelected = useCallback((object, { index }) => (
@@ -320,6 +325,7 @@ export function EmbeddingScatterplotSubscriber(props) {
           setTargetY(target[1]);
           setTargetZ(target[2] || 0);
         }}
+        originalViewState={originalViewState}
         obsEmbeddingIndex={obsEmbeddingIndex}
         obsEmbedding={obsEmbedding}
         cellFilter={cellFilter}

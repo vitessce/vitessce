@@ -1,8 +1,9 @@
 import React from 'react';
 import clsx from 'clsx';
 import { SELECTION_TYPE } from '@vitessce/gl';
-import { PointerIconSVG, SelectRectangleIconSVG, SelectLassoIconSVG } from '@vitessce/icons';
+import { PointerIconSVG, SelectLassoIconSVG } from '@vitessce/icons';
 import { makeStyles } from '@material-ui/core';
+import { CenterFocusStrong } from '@material-ui/icons';
 
 const useStyles = makeStyles(() => ({
   tool: {
@@ -14,6 +15,11 @@ const useStyles = makeStyles(() => ({
     '&:hover': {
       opacity: '.90',
     },
+  },
+  iconButtonClicked: {
+    // Styles for the clicked state
+    boxShadow: 'none',
+    transform: 'scale(0.98)',  // make the button slightly smaller
   },
   iconButton: {
     // btn btn-outline-secondary mr-2 icon
@@ -40,6 +46,10 @@ const useStyles = makeStyles(() => ({
     '& > svg': {
       verticalAlign: 'middle',
     },
+    '&:active': {
+      extend: 'iconButtonClicked'
+    },
+
   },
   iconButtonActive: {
     // active
@@ -72,8 +82,15 @@ export default function ToolMenu(props) {
     setActiveTool,
     activeTool,
     visibleTools = { pan: true, selectRectangle: true, selectLasso: true },
+    customClickHandlers = {pan: null, selectRectangle: () => {}, selectLasso: null},
   } = props;
   const classes = useStyles();
+
+  const onRecenterButtonCLick = () => {
+    console.log('in the ToolMenu, trying to recenter');
+    customClickHandlers.selectRectangle();
+  }
+
   return (
     <div className={classes.tool}>
       {visibleTools.pan && (
@@ -84,14 +101,14 @@ export default function ToolMenu(props) {
       ><PointerIconSVG />
       </IconButton>
       )}
-      {visibleTools.selectRectangle ? (
+      {visibleTools.selectRectangle && (
         <IconButton
-          alt="select rectangle"
-          onClick={() => setActiveTool(SELECTION_TYPE.RECTANGLE)}
+          alt="recenter"
+          onClick={() => {setActiveTool(SELECTION_TYPE.RECTANGLE); onRecenterButtonCLick();}}
           isActive={activeTool === SELECTION_TYPE.RECTANGLE}
-        ><SelectRectangleIconSVG />
+        ><CenterFocusStrong />
         </IconButton>
-      ) : null}
+      )}
       {visibleTools.selectLasso ? (
         <IconButton
           alt="select lasso"

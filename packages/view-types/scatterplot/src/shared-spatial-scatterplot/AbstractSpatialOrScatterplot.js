@@ -19,12 +19,19 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     };
 
     this.viewport = null;
-
+    this.originalViewState = null;
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
     this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
     this.onToolChange = this.onToolChange.bind(this);
     this.onHover = this.onHover.bind(this);
+
+    console.log("In AbstractSpatialOrScatterplot");
+  }
+
+  recenter(){
+    console.log("I am really recentering now: ", this.originalViewState);
+    this.onViewStateChange(this.originalViewState);
   }
 
   /**
@@ -231,6 +238,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       )
     );
 
+    const customClickHandlers = {pan: null, selectRectangle: this.recenter, selectLasso: null};
+
     return (
       <>
         <ToolMenu
@@ -238,9 +247,10 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           setActiveTool={this.onToolChange}
           visibleTools={{
             pan: showPanTool && !hideTools,
-            selectRectangle: showCellSelectionTools && !hideTools,
+            selectRectangle: true,
             selectLasso: showCellSelectionTools && !hideTools,
           }}
+          customClickHandlers={customClickHandlers}
         />
         <deck.DeckGL
           id={`deckgl-overlay-${uuid}`}

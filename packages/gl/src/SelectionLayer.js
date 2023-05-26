@@ -21,6 +21,7 @@ const EDIT_TYPE_CLEAR = 'clearFeatures';
 class ClickableDrawRectangleMode extends DrawRectangleMode {
   // eslint-disable-next-line class-methods-use-this
   handleClick(event, props) {
+    console.log("I am here!!!!");
     props.onEdit({ editType: EDIT_TYPE_CLEAR });
   }
 }
@@ -28,6 +29,7 @@ class ClickableDrawRectangleMode extends DrawRectangleMode {
 class ClickableDrawPolygonByDraggingMode extends DrawPolygonByDraggingMode {
   // eslint-disable-next-line class-methods-use-this
   handleClick(event, props) {
+    console.log("I am here! POLYGON!!!");
     props.onEdit({ editType: EDIT_TYPE_CLEAR });
   }
 }
