@@ -32,6 +32,8 @@ export const useStyles = makeStyles(theme => ({
     textAlign: 'left',
     flexBasis: 0,
     flexGrow: 1,
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   inputContainer: {
     width: '1em',
