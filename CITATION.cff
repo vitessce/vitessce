@@ -19,11 +19,12 @@ authors:
     affiliation: "Biomage"
   - given-names: "Chuck"
     family-names: "McCallum"
-    affiliation: "Harvard Medical School"
     orcid: "https://orcid.org/0000-0003-4039-9768"
+     affiliation: "Harvard Medical School"
   - family-names: "Gehlenborg"
     given-names: "Nils"
     orcid: "https://orcid.org/0000-0003-0327-8297"
+    affiliation: "Harvard Medical School"
 url: "https://github.com/vitessce/vitessce"
 preferred-citation:
   type: article
