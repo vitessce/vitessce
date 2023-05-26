@@ -77,33 +77,35 @@ export function CellSetSizesPlotSubscriber(props) {
   );
 
   const data = useMemo(() => {
-    let newHierarchy = currentHierarchy;
+    if (cellSetSelection && cellSetExpansion && cellSetColor && mergedCellSets && cellSets) {
+      let newHierarchy = currentHierarchy;
 
-    if (cellSetSelection) {
-      const changedHierarchy = findChangedHierarchy(prevCellSetSelection, cellSetSelection);
-      setPrevCellSetSelection(cellSetSelection);
+      if (cellSetSelection) {
+        const changedHierarchy = findChangedHierarchy(prevCellSetSelection, cellSetSelection);
+        setPrevCellSetSelection(cellSetSelection);
 
-      if (changedHierarchy) {
-        setCurrentHierarchy(changedHierarchy);
-        newHierarchy = changedHierarchy;
+        if (changedHierarchy) {
+          setCurrentHierarchy(changedHierarchy);
+          newHierarchy = changedHierarchy;
+        }
       }
-    }
 
-    const cellSetPaths = filterPathsByExpansionAndSelection(
-      mergedCellSets,
-      newHierarchy,
-      cellSetExpansion,
-      cellSetSelection,
-    );
-
-    if (mergedCellSets && cellSets && cellSetSelection && cellSetColor) {
-      return treeToSetSizesBySetNames(
+      const cellSetPaths = filterPathsByExpansionAndSelection(
         mergedCellSets,
-        cellSetPaths,
+        newHierarchy,
+        cellSetExpansion,
         cellSetSelection,
-        cellSetColor,
-        theme,
       );
+
+      if (mergedCellSets && cellSets && cellSetSelection && cellSetColor) {
+        return treeToSetSizesBySetNames(
+          mergedCellSets,
+          cellSetPaths,
+          cellSetSelection,
+          cellSetColor,
+          theme,
+        );
+      }
     }
     return [];
   }, [
