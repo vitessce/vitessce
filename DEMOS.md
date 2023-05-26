@@ -134,3 +134,4 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2023-05-11: [keller-mark/file-exts](https://s3.amazonaws.com/vitessce-data/demos/2023-05-11/512964ad/index.html)
 - 2023-05-24: [release-v3.0.0](https://s3.amazonaws.com/vitessce-data/demos/2023-05-24/33c30b5b/index.html)
 - 2023-05-26: [release-v3.0.0](https://s3.amazonaws.com/vitessce-data/demos/2023-05-26/6b5d759f/index.html)
+- 2023-05-26: [release-v3.0.0](https://s3.amazonaws.com/vitessce-data/demos/2023-05-26/1f030acf/index.html)
