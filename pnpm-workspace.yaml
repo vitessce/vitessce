@@ -7,4 +7,3 @@ packages:
   - 'sites/*'
   - 'examples/*'
   - '!consumer'
-  - '!consumer-nextjs'
