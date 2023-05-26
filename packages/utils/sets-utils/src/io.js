@@ -17,6 +17,8 @@ import {
  * @param {object} currTree A hierarchical tree object with a .version property,
  * which has already passed schema validation, but may not have the latest schema version.
  * @param {string} datatype The data type of the items in the schema.
+ * @returns {[object, boolean]} The upgraded tree object and a boolean indicating
+ * whether the tree was upgraded.
  */
 // eslint-disable-next-line no-unused-vars
 export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
