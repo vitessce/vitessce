@@ -12,3 +12,20 @@ pnpm run start-html
 ```
 
 Open http://localhost:3003/consumer/dist/index.html
+
+## How to test in portal-ui
+
+```sh
+pnpm run build
+pnpm run bundle
+./scripts/consumer-install.sh
+
+cd ../portal-ui/context
+npm install
+
+# comment out `npm install` line in ./etc/dev-start.sh
+
+npm install $(ls ../../vitessce/consumer/vitessce-*.tgz)
+cd ..
+./etc/dev-start.sh # open http://localhost:5001
+```

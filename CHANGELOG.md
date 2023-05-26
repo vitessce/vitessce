@@ -55,6 +55,7 @@
 - Only set `additionalObsSets` in coordination space when upgrade was necessary to prevent infinite loop.
 - Fix bug causing cell set hierarchy created via `Create hierarchy` button to contain the string `undefined` (e.g., `My hierarchy 1undefined`)
 - Fix bug in `CellSetSizesPlotSubscriber` causing page to crash when no `obsSets` view is present (due to expectation of initialized `obsSetSelection` and `obsSetExpansion` coordination values).
+- Use `es2019` in Vite bundle targets for `packages/main/prod` and `packages/main/dev` to support HuBMAP portal-ui.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
