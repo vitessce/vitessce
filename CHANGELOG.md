@@ -11,6 +11,7 @@
 - Implemented a "select-only" option for the `CellSetSizesPlot` on shift+click. 
 - Implemented ability to select a gene by clicking on the heatmap rows for a given gene.
 - Added developer troubleshooting instructions to README.
+- Add `useFullResolutionImage` to `Spatial` to allow for loading only full resolution image from pyramid.
 - Implemented ability to select an area on the Expression Histogram. On select, a new obs set selection is created. The new selection contains the ids of all obs that belong to the selected bars.
 - Add integration test for consumer site built with NextJS.
 
@@ -50,6 +51,7 @@
   - Reimplement config version upgrades.
 - Provide plugins as React props rather than registering them globally on `window`.
 - Use hooks in `ObsSetsManagerSubscriber` to improve controlled-component performance.
+- Revert change that removed `airbnb` eslint config.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
