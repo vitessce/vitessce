@@ -50,6 +50,7 @@
   - Reimplement config version upgrades.
 - Provide plugins as React props rather than registering them globally on `window`.
 - Use hooks in `ObsSetsManagerSubscriber` to improve controlled-component performance.
+- Revert change that removed `airbnb` eslint config.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 

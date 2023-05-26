@@ -592,6 +592,8 @@ importers:
   packages/view-types/description:
     specifiers:
       '@material-ui/core': ~4.12.3
+      '@testing-library/jest-dom': ^5.16.4
+      '@testing-library/react': ^13.3.0
       '@vitessce/constants-internal': workspace:*
       '@vitessce/vit-s': workspace:*
       react: ^18.0.0
@@ -602,6 +604,8 @@ importers:
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/vit-s': link:../../vit-s
     devDependencies:
+      '@testing-library/jest-dom': 5.16.5
+      '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       vite: 4.3.3
       vitest: 0.23.4
@@ -609,6 +613,9 @@ importers:
   packages/view-types/feature-list:
     specifiers:
       '@material-ui/core': ~4.12.3
+      '@testing-library/jest-dom': ^5.16.4
+      '@testing-library/react': ^13.3.0
+      '@testing-library/user-event': ^14.2.1
       '@vitessce/constants-internal': workspace:*
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
@@ -631,6 +638,9 @@ importers:
       react-virtualized: 9.22.3_biqbaboplfbrettd7655fr4n2y
       uuid: 9.0.0
     devDependencies:
+      '@testing-library/jest-dom': 5.16.5
+      '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
+      '@testing-library/user-event': 14.4.3_aaq3sbffpfe3jnxzm2zngsddei
       react: 18.2.0
       vite: 4.3.3
       vitest: 0.23.4
@@ -669,6 +679,8 @@ importers:
   packages/view-types/heatmap:
     specifiers:
       '@material-ui/core': ~4.12.3
+      '@testing-library/jest-dom': ^5.16.4
+      '@testing-library/react': ^13.3.0
       '@vitessce/constants-internal': workspace:*
       '@vitessce/gl': workspace:*
       '@vitessce/legend': workspace:*
@@ -697,6 +709,8 @@ importers:
       plur: 5.1.0
       uuid: 9.0.0
     devDependencies:
+      '@testing-library/jest-dom': 5.16.5
+      '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       vite: 4.3.3
       vitest: 0.23.4
@@ -766,6 +780,8 @@ importers:
   packages/view-types/scatterplot:
     specifiers:
       '@material-ui/core': ~4.12.3
+      '@testing-library/jest-dom': ^5.16.4
+      '@testing-library/react': ^13.3.0
       '@vitessce/constants-internal': workspace:*
       '@vitessce/gl': workspace:*
       '@vitessce/icons': workspace:*
@@ -792,6 +808,8 @@ importers:
       d3-quadtree: 1.0.7
       lodash-es: 4.17.21
     devDependencies:
+      '@testing-library/jest-dom': 5.16.5
+      '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       vite: 4.3.3
       vitest: 0.23.4
@@ -929,6 +947,8 @@ importers:
   packages/view-types/status:
     specifiers:
       '@material-ui/core': ~4.12.3
+      '@testing-library/jest-dom': ^5.16.4
+      '@testing-library/react': ^13.3.0
       '@vitessce/constants-internal': workspace:*
       '@vitessce/vit-s': workspace:*
       clsx: ^1.1.1
@@ -941,6 +961,8 @@ importers:
       '@vitessce/vit-s': link:../../vit-s
       clsx: 1.2.1
     devDependencies:
+      '@testing-library/jest-dom': 5.16.5
+      '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       vite: 4.3.3
       vitest: 0.23.4
@@ -949,6 +971,8 @@ importers:
     specifiers:
       '@material-ui/core': ~4.12.3
       '@material-ui/icons': ~4.11.2
+      '@testing-library/jest-dom': ^5.16.4
+      '@testing-library/react': ^13.3.0
       '@vitessce/constants-internal': workspace:*
       '@vitessce/plugins': workspace:*
       '@vitessce/schemas': workspace:*
@@ -982,6 +1006,8 @@ importers:
       uuid: 9.0.0
       zustand: 3.7.2_react@18.2.0
     devDependencies:
+      '@testing-library/jest-dom': 5.16.5
+      '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       vite: 4.3.3
       vitest: 0.23.4
@@ -6681,9 +6707,9 @@ packages:
     engines: {node: '>=8', npm: '>=6', yarn: '>=1'}
     dependencies:
       '@adobe/css-tools': 4.0.1
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.21.5
       '@types/testing-library__jest-dom': 5.14.5
-      aria-query: 5.0.2
+      aria-query: 5.1.3
       chalk: 3.0.0
       css.escape: 1.5.1
       dom-accessibility-api: 0.5.14
@@ -6720,7 +6746,7 @@ packages:
       react: ^18.0.0 || 18
       react-dom: ^18.0.0 || 18
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.21.5
       '@testing-library/dom': 8.19.0
       '@types/react-dom': 18.0.6
       react: 18.2.0
@@ -8364,11 +8390,6 @@ packages:
       commander: 2.20.3
     dev: true
 
-  /aria-query/5.0.2:
-    resolution: {integrity: sha512-eigU3vhqSO+Z8BKDnVLN/ompjhf3pYzecKXz8+whRy+9gZu8n1TCGfwzQUUPnqdHl9ax1Hr9031orZ+UOEYr7Q==}
-    engines: {node: '>=6.0'}
-    dev: true
-
   /aria-query/5.1.3:
     resolution: {integrity: sha512-R5iJ5lkuHybztUfuOAznmboyjWq8O6sqNqtK7CLOqdydi54VNbORp49mb14KbWgG1QD3JFO9hJdZ+y4KutfdOQ==}
     dependencies:
@@ -8436,9 +8457,9 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.1.4
+      define-properties: 1.2.0
       es-abstract: 1.20.4
-      get-intrinsic: 1.1.3
+      get-intrinsic: 1.2.0
       is-string: 1.0.7
     dev: true
 
@@ -8505,7 +8526,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.1.4
+      define-properties: 1.2.0
       es-abstract: 1.20.4
       es-shim-unscopables: 1.0.0
     dev: true
@@ -9204,7 +9225,7 @@ packages:
     resolution: {integrity: sha512-7O+FbCihrB5WGbFYesctwmTKae6rOiIzmz1icreWJ+0aA7LJfuqhEso2T9ncpcFtzMQtzXf2QGGueWJGTYsqrA==}
     dependencies:
       function-bind: 1.1.1
-      get-intrinsic: 1.1.3
+      get-intrinsic: 1.2.0
 
   /call-me-maybe/1.0.2:
     resolution: {integrity: sha512-HpX65o1Hnr9HH25ojC1YGs7HCQLq0GCOibSaWER0eNpgJ/Z1MZv2mTc7+xh6WOPxbRVcmgbv4hGU+uSQ/2xFZQ==}
@@ -10853,6 +10874,7 @@ packages:
     dependencies:
       has-property-descriptors: 1.0.0
       object-keys: 1.1.1
+    dev: false
 
   /define-properties/1.2.0:
     resolution: {integrity: sha512-xvqAVKGfT1+UAvPwKTVw/njhdQ8ZhXK4lI0bCIuCMrp2up9nPnaDftrLtmpTazqd1o+UY4zgzU+avtMbDP+ldA==}
@@ -11366,12 +11388,12 @@ packages:
       es-to-primitive: 1.2.1
       function-bind: 1.1.1
       function.prototype.name: 1.1.5
-      get-intrinsic: 1.1.3
+      get-intrinsic: 1.2.0
       get-symbol-description: 1.0.0
       has: 1.0.3
       has-property-descriptors: 1.0.0
       has-symbols: 1.0.3
-      internal-slot: 1.0.3
+      internal-slot: 1.0.5
       is-callable: 1.2.7
       is-negative-zero: 2.0.2
       is-regex: 1.1.4
@@ -11381,7 +11403,7 @@ packages:
       object-inspect: 1.12.2
       object-keys: 1.1.1
       object.assign: 4.1.4
-      regexp.prototype.flags: 1.4.3
+      regexp.prototype.flags: 1.5.0
       safe-regex-test: 1.0.0
       string.prototype.trimend: 1.0.5
       string.prototype.trimstart: 1.0.5
@@ -12998,7 +13020,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.1.4
+      define-properties: 1.2.0
       es-abstract: 1.20.4
       functions-have-names: 1.2.3
 
@@ -13061,13 +13083,6 @@ packages:
   /get-func-name/2.0.0:
     resolution: {integrity: sha512-Hm0ixYtaSZ/V7C8FJrtZIuBBI+iSgL+1Aq82zSu8VQNB4S3Gk8e7Qs3VwBDJAhmRZcFqkl3tQu36g/Foh5I5ig==}
     dev: true
-
-  /get-intrinsic/1.1.3:
-    resolution: {integrity: sha512-QJVz1Tj7MS099PevUG5jvnt9tSkXN8K14dxQlikJuPt4uD9hHAHjLyLBiLR5zELelBdD9QNRAXZzsJx0WaDL9A==}
-    dependencies:
-      function-bind: 1.1.1
-      has: 1.0.3
-      has-symbols: 1.0.3
 
   /get-intrinsic/1.2.0:
     resolution: {integrity: sha512-L049y6nFOuom5wGyRc3/gdTLO94dySVKRACj1RmJZBQXlbTMhtNIgkWkUHq+jYmZvKf14EW1EoJnnjbmoHij0Q==}
@@ -14059,14 +14074,6 @@ packages:
       strip-ansi: 6.0.1
       through: 2.3.8
 
-  /internal-slot/1.0.3:
-    resolution: {integrity: sha512-O0DB1JC/sPyZl7cIo78n5dR7eUSwwpYPiXRhTzNxZVAMUuB8vlnRFyLxdrVToks6XPLVnFfbzaVd5WLjhgg+vA==}
-    engines: {node: '>= 0.4'}
-    dependencies:
-      get-intrinsic: 1.2.0
-      has: 1.0.3
-      side-channel: 1.0.4
-
   /internal-slot/1.0.5:
     resolution: {integrity: sha512-Y+R5hJrzs52QCG2laLn4udYVnxsfny9CpOhNhUvk/SSSVyF6T27FzRbF0sroPidSu3X8oEAkOn2K804mjpt6UQ==}
     engines: {node: '>= 0.4'}
@@ -14074,7 +14081,6 @@ packages:
       get-intrinsic: 1.2.0
       has: 1.0.3
       side-channel: 1.0.4
-    dev: true
 
   /internmap/1.0.1:
     resolution: {integrity: sha512-lDB5YccMydFBtasVtxnZ3MRBHuaoE8GKsppq+EchKL2U4nK/DmEpPHNH8MZe5HkMtpSiTSOZwfN0tzYjO/lJEw==}
@@ -16053,7 +16059,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.1.4
+      define-properties: 1.2.0
 
   /object-keys/1.1.1:
     resolution: {integrity: sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==}
@@ -16071,7 +16077,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.1.4
+      define-properties: 1.2.0
       has-symbols: 1.0.3
       object-keys: 1.1.1
 
@@ -16089,7 +16095,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.1.4
+      define-properties: 1.2.0
       es-abstract: 1.20.4
 
   /object.fromentries/2.0.5:
@@ -16106,7 +16112,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.1.4
+      define-properties: 1.2.0
       es-abstract: 1.20.4
 
   /object.hasown/1.1.1:
@@ -18703,6 +18709,7 @@ packages:
       call-bind: 1.0.2
       define-properties: 1.1.4
       functions-have-names: 1.2.3
+    dev: false
 
   /regexp.prototype.flags/1.5.0:
     resolution: {integrity: sha512-0SutC3pNudRKgquxGoRGIz946MZVHqbNfPjBdxeOhBrdgDKlRoXmYLQN9xRbrR09ZXWeGAdPuif7egofn6v5LA==}
@@ -18711,7 +18718,6 @@ packages:
       call-bind: 1.0.2
       define-properties: 1.2.0
       functions-have-names: 1.2.3
-    dev: true
 
   /regexpp/2.0.1:
     resolution: {integrity: sha512-lv0M6+TkDVniA3aD1Eg0DVpfU/booSu7Eev3TDO/mZKHBfVjgCGTV4t4buppESEYDtkArYFOxTJWv6S5C+iaNw==}
@@ -19913,14 +19919,14 @@ packages:
     resolution: {integrity: sha512-I7RGvmjV4pJ7O3kdf+LXFpVfdNOxtCW/2C8f6jNiW4+PQchwxkCDzlk1/7p+Wl4bqFIZeF47qAHXLuHHWKAxog==}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.1.4
+      define-properties: 1.2.0
       es-abstract: 1.20.4
 
   /string.prototype.trimstart/1.0.5:
     resolution: {integrity: sha512-THx16TJCGlsN0o6dl2o6ncWUsdgnLRSA23rRE5pyGBw/mLr3Ej/R2LaqCtgP8VNMGZsvMWnf9ooZPyY2bHvUFg==}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.1.4
+      define-properties: 1.2.0
       es-abstract: 1.20.4
 
   /string_decoder/0.10.31:
