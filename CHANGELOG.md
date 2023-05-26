@@ -21,6 +21,7 @@
 - Added developer troubleshooting instructions to README.
 - Add `useFullResolutionImage` to `Spatial` to allow for loading only full resolution image from pyramid.
 - Implemented ability to select an area on the Expression Histogram. On select, a new obs set selection is created. The new selection contains the ids of all obs that belong to the selected bars.
+- Add `CITATION.cff`
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
@@ -58,6 +59,10 @@
   - Reimplement config version upgrades.
 - Provide plugins as React props rather than registering them globally on `window`.
 - Use hooks in `ObsSetsManagerSubscriber` to improve controlled-component performance.
+- Revert change that removed `airbnb` eslint config.
+- Only set `additionalObsSets` in coordination space when upgrade was necessary to prevent infinite loop.
+- Fix bug causing cell set hierarchy created via `Create hierarchy` button to contain the string `undefined` (e.g., `My hierarchy 1undefined`)
+- Fix bug in `CellSetSizesPlotSubscriber` causing page to crash when no `obsSets` view is present (due to expectation of initialized `obsSetSelection` and `obsSetExpansion` coordination values).
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
