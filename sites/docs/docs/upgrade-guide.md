@@ -56,15 +56,8 @@ export function registerPluginJointFileType(pluginObj) {
   PLUGINS.jointFileTypes.push(pluginObj);
 }
 
-<<<<<<< HEAD
-/**
- * React component which wraps <Vitessce/>
- * to provide the globally-registered plugins via props.
- */
-=======
 // React component which wraps <Vitessce/>
 // to provide the globally-registered plugins via props.
->>>>>>> 0c32ba380c7f19f3177d868da8c3e5ad8dc2c9de
 export function VitessceWithGlobalPlugins(props) {
   return (
     <Vitessce
@@ -78,8 +71,6 @@ export function VitessceWithGlobalPlugins(props) {
 }
 ```
 
-<<<<<<< HEAD
-=======
 ### Fully-resolved JS imports
 
 If you were previously importing from the package using a full JS filepath, it may need to be updated.
@@ -94,7 +85,6 @@ import React from 'react';
 ```
 
 For background, we corrected the previous lack of `"type": "module"` in the published `package.json`, meaning that Vite then uses the `.js` extension rather than `.mjs` for the ESM bundle.
->>>>>>> 0c32ba380c7f19f3177d868da8c3e5ad8dc2c9de
 
 
 
@@ -117,11 +107,7 @@ import 'vitessce/dist/es/production/static/css/index.css';
 
 ### Fully-resolved JS imports
 
-<<<<<<< HEAD
-If you were previously importing from the package using a full JS filepath, it will need to be updated.
-=======
 If you were previously importing from the package using a full JS filepath, it may need to be updated.
->>>>>>> 0c32ba380c7f19f3177d868da8c3e5ad8dc2c9de
 
 ```js
 import React from 'react';
