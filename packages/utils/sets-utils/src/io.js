@@ -21,14 +21,17 @@ import {
 // eslint-disable-next-line no-unused-vars
 export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
   const zodSchema = HIERARCHICAL_SCHEMAS.schema;
+  const latestSchemaVersion = HIERARCHICAL_SCHEMAS.latestVersion;
   const parseResult = zodSchema.safeParse(currTree);
   const valid = parseResult.success;
   if (!valid) {
     const failureReason = JSON.stringify(parseResult.error.message, null, 2);
     throw new Error(`Tree validation failed: ${failureReason}`);
   }
-  // Zod will not only validate, but also will upgrade from v0.1.2 to v0.1.3.
-  return parseResult.data;
+  // Zod will not only validate, but also will upgrade from v0.1.2 to v0.1.3 via transform.
+  // We also want to return a boolean indicating whether the tree was upgraded.
+  const didUpgrade = (currTree.version !== latestSchemaVersion);
+  return [parseResult.data, didUpgrade];
 }
 
 /**
@@ -43,7 +46,7 @@ export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
 export function handleImportJSON(result, datatype, theme) {
   let importData = JSON.parse(result);
   // Validate the imported file.
-  importData = tryUpgradeTreeToLatestSchema(importData, datatype);
+  [importData] = tryUpgradeTreeToLatestSchema(importData, datatype);
   return importData;
 }
 
