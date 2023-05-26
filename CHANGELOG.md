@@ -14,6 +14,7 @@
 - Add `useFullResolutionImage` to `Spatial` to allow for loading only full resolution image from pyramid.
 - Implemented ability to select an area on the Expression Histogram. On select, a new obs set selection is created. The new selection contains the ids of all obs that belong to the selected bars.
 - Add integration test for consumer site built with NextJS.
+- Add `CITATION.cff`
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
