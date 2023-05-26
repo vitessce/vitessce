@@ -16,7 +16,7 @@ const eng2019 = {
     {
       component: 'description',
       props: {
-        description: 'Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH'
+        description: 'Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH',
       },
       x: 9,
       y: 0,
