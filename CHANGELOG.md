@@ -11,7 +11,9 @@
 - Implemented a "select-only" option for the `CellSetSizesPlot` on shift+click. 
 - Implemented ability to select a gene by clicking on the heatmap rows for a given gene.
 - Added developer troubleshooting instructions to README.
+- Add `useFullResolutionImage` to `Spatial` to allow for loading only full resolution image from pyramid.
 - Implemented ability to select an area on the Expression Histogram. On select, a new obs set selection is created. The new selection contains the ids of all obs that belong to the selected bars.
+- Add `CITATION.cff`
 - Implemented ability to show two columns in the feature-list view when each feature has a second identifer associated.
 
 ### Changed
@@ -50,6 +52,11 @@
   - Reimplement config version upgrades.
 - Provide plugins as React props rather than registering them globally on `window`.
 - Use hooks in `ObsSetsManagerSubscriber` to improve controlled-component performance.
+- Revert change that removed `airbnb` eslint config.
+- Only set `additionalObsSets` in coordination space when upgrade was necessary to prevent infinite loop.
+- Fix bug causing cell set hierarchy created via `Create hierarchy` button to contain the string `undefined` (e.g., `My hierarchy 1undefined`)
+- Fix bug in `CellSetSizesPlotSubscriber` causing page to crash when no `obsSets` view is present (due to expectation of initialized `obsSetSelection` and `obsSetExpansion` coordination values).
+- Fix bug causing incorrect gene selection upon heatmap click when `featureLabels` are used (such as in the case of gene aliases used in the HuBMAP data portal view configs).
 - Added a new prop to `FeatureListSubscriber` to read in `showTable`, having it false by default.
 - Modified the `FeatureList` component to pass in 2 columns and 2 column labels if `showTable` is true, otherwise just 1 column and 1 columnLabel if `showTable` is false.
 - Modified the `SelectableTable` component and the table styles to handle showing 2 cells per row.

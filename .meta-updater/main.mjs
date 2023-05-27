@@ -35,6 +35,10 @@ const OTHER_VERSIONS = {
   "semver": "^7.3.8",
   "vite": "^4.3.0",
   "@vitejs/plugin-react": "^4.0.0",
+  "@testing-library/jest-dom": "^5.16.4",
+  "@testing-library/react": "^13.3.0",
+  "@testing-library/react-hooks": "^8.0.1",
+  "@testing-library/user-event": "^14.2.1",
 
   // LumaGL
   "@luma.gl/constants": LUMAGL_VERSION,

@@ -22,7 +22,7 @@ export default class ObsSetsJsonLoader extends JsonLoader {
     }
     const { data: rawData, url } = payload;
     const datatype = this.fileType.endsWith('cell-sets.json') ? 'cell' : 'obs';
-    const upgradedData = tryUpgradeTreeToLatestSchema(rawData, datatype);
+    const [upgradedData] = tryUpgradeTreeToLatestSchema(rawData, datatype);
     let obsIndex = [];
     const coordinationValues = {
       obsSetSelection: [],
