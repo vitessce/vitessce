@@ -60,7 +60,12 @@ export default function HeatmapOptions(props) {
         <TableCell className={classes.inputCell}>
           <Checkbox
             className={classes.checkbox}
-            value={tooltipDisabled}
+            /**
+             * We have to use "checked" here, not "value". 
+             * The checkbox state is not persisting with value.
+             * For reference, https://v4.mui.com/api/checkbox/
+             */
+            checked={tooltipDisabled}
             onChange={handleTooltipVisibilityChange}
             name="gene-expression-colormap-option-toltip-visibility"
             color="default"
