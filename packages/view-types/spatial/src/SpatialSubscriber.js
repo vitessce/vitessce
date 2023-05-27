@@ -389,7 +389,8 @@ export function SpatialSubscriber(props) {
     geneExpressionColormapRange, setGeneExpressionColormap,
     hasLocationsData, hasSegmentationsData, hasExpressionData,
     observationsLabel, setCellColorEncoding,
-    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d, tooltipsVisible,
+    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d,
+    tooltipsVisible, setTooltipsVisible,
   ]);
 
   useEffect(() => {
@@ -479,7 +480,7 @@ export function SpatialSubscriber(props) {
         theme={theme}
         useFullResolutionImage={useFullResolutionImage}
       />
-      {tooltipsVisible && (
+      {!disableTooltip && tooltipsVisible && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}
           obsHighlight={cellHighlight}

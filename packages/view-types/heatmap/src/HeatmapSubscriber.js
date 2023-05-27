@@ -187,8 +187,6 @@ export function HeatmapSubscriber(props) {
     `${capitalize(observationsLabel)} Set`,
   ]), [observationsLabel]);
 
-  console.log("TOOLTIPS VISIBLE: ", tooltipsVisible);
-
   const selectedCount = cellColors.size;
   return (
     <TitleInfo
