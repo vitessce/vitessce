@@ -96,7 +96,7 @@ export function HeatmapSubscriber(props) {
   const variablesTitle = capitalize(variablesPluralLabel);
 
   const [isRendering, setIsRendering] = useState(false);
-  const [tooltipDisabled, setTooltipDisabled] = useState(disableTooltip);
+  const [tooltipVisible, setTooltipVisible] = useState(!disableTooltip);
 
   const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -201,8 +201,8 @@ export function HeatmapSubscriber(props) {
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
-          tooltipDisabled={tooltipDisabled}
-          setTooltipDisabled={setTooltipDisabled}
+          tooltipVisible={tooltipVisible}
+          setTooltipVisible={setTooltipVisible}
         />
       )}
     >
@@ -241,7 +241,7 @@ export function HeatmapSubscriber(props) {
         useDevicePixels
         onHeatmapClick={onHeatmapClick}
       />
-      {!tooltipDisabled && (
+      {tooltipVisible && (
       <HeatmapTooltipSubscriber
         parentUuid={uuid}
         width={width}

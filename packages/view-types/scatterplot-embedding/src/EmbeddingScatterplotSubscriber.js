@@ -159,7 +159,7 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
-  const [tooltipDisabled, setTooltipDisabled] = useState(disableTooltip);
+  const [tooltipVisible, setTooltipVisible] = useState(!disableTooltip);
 
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
@@ -297,8 +297,8 @@ export function EmbeddingScatterplotSubscriber(props) {
           setCellOpacityMode={setCellOpacityMode}
           cellSetLabelsVisible={cellSetLabelsVisible}
           setCellSetLabelsVisible={setCellSetLabelsVisible}
-          tooltipDisabled={tooltipDisabled}
-          setTooltipDisabled={setTooltipDisabled}
+          tooltipVisible={tooltipVisible}
+          setTooltipVisible={setTooltipVisible}
           cellSetLabelSize={cellSetLabelSize}
           setCellSetLabelSize={setCellSetLabelSize}
           cellSetPolygonsVisible={cellSetPolygonsVisible}
@@ -349,7 +349,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         getCellIsSelected={getCellIsSelected}
 
       />
-      {!tooltipDisabled && (
+      {tooltipVisible && (
       <ScatterplotTooltipSubscriber
         parentUuid={uuid}
         obsHighlight={cellHighlight}

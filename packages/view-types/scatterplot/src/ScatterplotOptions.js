@@ -21,8 +21,8 @@ export default function ScatterplotOptions(props) {
     setCellOpacityMode,
     cellSetLabelsVisible,
     setCellSetLabelsVisible,
-    tooltipDisabled,
-    setTooltipDisabled,
+    tooltipVisible,
+    setTooltipVisible,
     cellSetLabelSize,
     setCellSetLabelSize,
     cellSetPolygonsVisible,
@@ -60,7 +60,7 @@ export default function ScatterplotOptions(props) {
   }
 
   function handleTooltipVisibilityChange(event) {
-    setTooltipDisabled(event.target.checked);
+    setTooltipVisible(event.target.checked);
   }
 
   function handleLabelSizeChange(event, value) {
@@ -107,7 +107,7 @@ export default function ScatterplotOptions(props) {
       </TableRow>
       <TableRow>
         <TableCell className={classes.labelCell}>
-          Disable Tooltip
+          Tooltip Visible
         </TableCell>
         <TableCell className={classes.inputCell}>
           <Checkbox
@@ -117,7 +117,7 @@ export default function ScatterplotOptions(props) {
              * The checkbox state is not persisting with value.
              * For reference, https://v4.mui.com/api/checkbox/
              */
-            checked={tooltipDisabled}
+            checked={tooltipVisible}
             onChange={handleTooltipVisibilityChange}
             name="scatterplot-option-toltip-visibility"
             color="default"

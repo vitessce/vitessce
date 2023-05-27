@@ -315,7 +315,7 @@ export function SpatialSubscriber(props) {
   });
 
   const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(expressionData);
-  const [tooltipDisabled, setTooltipDisabled] = useState(disableTooltip);
+  const [tooltipVisible, setTooltipVisible] = useState(!disableTooltip);
 
   // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
   // where each cell id indexes into the array.
@@ -368,8 +368,8 @@ export function SpatialSubscriber(props) {
           setSpatialAxisFixed={setSpatialAxisFixed}
           spatialAxisFixed={spatialAxisFixed}
           use3d={use3d}
-          tooltipDisabled={tooltipDisabled}
-          setTooltipDisabled={setTooltipDisabled}
+          tooltipVisible={tooltipVisible}
+          setTooltipVisible={setTooltipVisible}
           geneExpressionColormap={geneExpressionColormap}
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
@@ -387,7 +387,7 @@ export function SpatialSubscriber(props) {
     geneExpressionColormapRange, setGeneExpressionColormap,
     hasLocationsData, hasSegmentationsData, hasExpressionData,
     observationsLabel, setCellColorEncoding,
-    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d, tooltipDisabled
+    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d, tooltipVisible
   ]);
 
   useEffect(() => {
@@ -467,7 +467,7 @@ export function SpatialSubscriber(props) {
         getExpressionValue={getExpressionValue}
         theme={theme}
       />
-      {!tooltipDisabled && (
+      {tooltipVisible && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}
           obsHighlight={cellHighlight}
