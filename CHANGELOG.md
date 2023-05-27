@@ -17,6 +17,10 @@
 - Added option to disable tooltips on Heatmap and Scatterplot components. The option is available from the options control dropdown.
 =======
 - Add `CITATION.cff`
+<<<<<<< HEAD
+>>>>>>> main
+=======
+- Implemented ability to show two columns in the feature-list view when each feature has a second identifer associated.
 >>>>>>> main
 
 ### Changed
@@ -60,8 +64,11 @@
 - Fix bug causing cell set hierarchy created via `Create hierarchy` button to contain the string `undefined` (e.g., `My hierarchy 1undefined`)
 - Fix bug in `CellSetSizesPlotSubscriber` causing page to crash when no `obsSets` view is present (due to expectation of initialized `obsSetSelection` and `obsSetExpansion` coordination values).
 - Fix bug causing incorrect gene selection upon heatmap click when `featureLabels` are used (such as in the case of gene aliases used in the HuBMAP data portal view configs).
+- Added a new prop to `FeatureListSubscriber` to read in `showTable`, having it false by default.
+- Modified the `FeatureList` component to pass in 2 columns and 2 column labels if `showTable` is true, otherwise just 1 column and 1 columnLabel if `showTable` is false.
+- Modified the `SelectableTable` component and the table styles to handle showing 2 cells per row.
 - Modified `HeatmapOptions`, `SpatialOptions` and `ScatterplotOptions` components - added a checkbox for making the tooltip not visible.
-- Added a `tooltipDisabled` state variable to `HeatmapSubscriber`, `SpatialSubscriber` and `EmbeddingScatterplotSubscriber`. Modified the components to hide the tooltip if `tooltipVisible` is false.
+- Added a `tooltipsVisible` to the coordination scope for `Heatmap`, `Spatial` and `Scatterplot` coordination types. Its default value is true. Modified the components to hide the tooltip if `tooltipVsisible` is false.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
