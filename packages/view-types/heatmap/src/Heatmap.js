@@ -122,6 +122,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     hideVariableLabels = false,
     onHeatmapClick,
     setColorEncoding,
+    featureIndex,
   } = props;
 
   const viewState = {
@@ -755,7 +756,13 @@ const Heatmap = forwardRef((props, deckRef) => {
       : axisTopLabels[colI]);
 
     const obsId = expression.rows[obsI];
-    const varId = expression.cols[varI];
+
+    // We need to use featureIndex here,
+    // because expression.cols may be mapped to
+    // use featureLabels (if those were available in the dataset).
+    // Highlights and selections are assumed to be in terms of
+    // obsIndex/featureIndex (as opposed to obsLabels/featureLabels).
+    const varId = featureIndex[varI];
 
     if (setComponentHover) {
       setComponentHover();

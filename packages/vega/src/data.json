@@ -1,0 +1,341 @@
+{
+    "mark": {"type": "bar"},
+    "encoding": {
+      "x": {
+        "field": "keyName",
+        "type": "nominal",
+        "axis": {"labelExpr": "substring(datum.label, 36)"},
+        "title": "Cell Set",
+        "sort": [
+          "be13b955-3db2-413e-b589-a7ed6820f00bCluster 1",
+          "edf26584-1473-4772-9716-61d24ebe713fCluster 2",
+          "fc047411-2a66-4537-ad47-4b3fe8b72d1aCluster 3",
+          "bc071c9d-7a7f-467c-a772-2646b29c3815Cluster 4",
+          "7a15cfe4-4b39-4318-a233-3746511478c8Cluster 5",
+          "fa3d663d-3e94-4bea-9326-9dbb687b6964Cluster 6",
+          "ed7e98de-2679-4aec-ad56-a9733cb93180Cluster 7",
+          "7695108a-7af4-4427-87be-13ab379abc65Cluster 8",
+          "f2790a65-dcd7-4f87-9ca9-a9d38353367bCluster 9"
+        ]
+      },
+      "y": {"field": "size", "type": "quantitative", "title": "Cell Set Size"},
+      "color": {
+        "field": "key",
+        "type": "nominal",
+        "scale": {
+          "domain": [
+            "be13b955-3db2-413e-b589-a7ed6820f00b",
+            "edf26584-1473-4772-9716-61d24ebe713f",
+            "fc047411-2a66-4537-ad47-4b3fe8b72d1a",
+            "bc071c9d-7a7f-467c-a772-2646b29c3815",
+            "7a15cfe4-4b39-4318-a233-3746511478c8",
+            "fa3d663d-3e94-4bea-9326-9dbb687b6964",
+            "ed7e98de-2679-4aec-ad56-a9733cb93180",
+            "7695108a-7af4-4427-87be-13ab379abc65",
+            "f2790a65-dcd7-4f87-9ca9-a9d38353367b"
+          ],
+          "range": [
+            "#4477aa",
+            "#88ccee",
+            "#44aa99",
+            "#117733",
+            "#999933",
+            "#ddcc77",
+            "#cc6677",
+            "#882255",
+            "#aa4499"
+          ]
+        },
+        "legend": null
+      },
+      "tooltip": [ {"field": "name", "type": "nominal", "title": "Cluster Name"},
+        {"field": "size", "type": "quantitative", "title": "Cell Set Size"}]
+    },
+    "width": 151,
+    "height": 284.8125,
+    "data": {"name": "table", "values": [
+      {
+          "key": "be13b955-3db2-413e-b589-a7ed6820f00b",
+          "name": "Cluster 1",
+          "size": 119,
+          "color": [
+              68,
+              119,
+              170
+          ],
+          "keyName": "be13b955-3db2-413e-b589-a7ed6820f00bCluster 1",
+          "colorString": "#4477aa"
+      },
+      {
+          "key": "edf26584-1473-4772-9716-61d24ebe713f",
+          "name": "Cluster 2",
+          "size": 88,
+          "color": [
+              136,
+              204,
+              238
+          ],
+          "keyName": "edf26584-1473-4772-9716-61d24ebe713fCluster 2",
+          "colorString": "#88ccee"
+      },
+      {
+          "key": "fc047411-2a66-4537-ad47-4b3fe8b72d1a",
+          "name": "Cluster 3",
+          "size": 76,
+          "color": [
+              68,
+              170,
+              153
+          ],
+          "keyName": "fc047411-2a66-4537-ad47-4b3fe8b72d1aCluster 3",
+          "colorString": "#44aa99"
+      },
+      {
+          "key": "bc071c9d-7a7f-467c-a772-2646b29c3815",
+          "name": "Cluster 4",
+          "size": 69,
+          "color": [
+              17,
+              119,
+              51
+          ],
+          "keyName": "bc071c9d-7a7f-467c-a772-2646b29c3815Cluster 4",
+          "colorString": "#117733"
+      },
+      {
+          "key": "7a15cfe4-4b39-4318-a233-3746511478c8",
+          "name": "Cluster 5",
+          "size": 50,
+          "color": [
+              153,
+              153,
+              51
+          ],
+          "keyName": "7a15cfe4-4b39-4318-a233-3746511478c8Cluster 5",
+          "colorString": "#999933"
+      },
+      {
+          "key": "fa3d663d-3e94-4bea-9326-9dbb687b6964",
+          "name": "Cluster 6",
+          "size": 44,
+          "color": [
+              221,
+              204,
+              119
+          ],
+          "keyName": "fa3d663d-3e94-4bea-9326-9dbb687b6964Cluster 6",
+          "colorString": "#ddcc77"
+      },
+      {
+          "key": "ed7e98de-2679-4aec-ad56-a9733cb93180",
+          "name": "Cluster 7",
+          "size": 34,
+          "color": [
+              204,
+              102,
+              119
+          ],
+          "keyName": "ed7e98de-2679-4aec-ad56-a9733cb93180Cluster 7",
+          "colorString": "#cc6677"
+      },
+      {
+          "key": "7695108a-7af4-4427-87be-13ab379abc65",
+          "name": "Cluster 8",
+          "size": 31,
+          "color": [
+              136,
+              34,
+              85
+          ],
+          "keyName": "7695108a-7af4-4427-87be-13ab379abc65Cluster 8",
+          "colorString": "#882255"
+      },
+      {
+          "key": "f2790a65-dcd7-4f87-9ca9-a9d38353367b",
+          "name": "Cluster 9",
+          "size": 12,
+          "color": [
+              170,
+              68,
+              153
+          ],
+          "keyName": "f2790a65-dcd7-4f87-9ca9-a9d38353367bCluster 9",
+          "colorString": "#aa4499"
+      }
+  ]}
+  }
+
+
+  {
+    "version": "1.0.15",
+    "name": "An automatically generated config. Adjust values and add layout components if needed.",
+    "description": "Populate with text relevant to this visualisation.",
+    "datasets": [
+      {
+        "uid": "A",
+        "name": "codeluppi_2018_nature_methods.cells.h5ad.zarr",
+        "files": [
+          {
+            "url": "http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr",
+            "fileType": "anndata.zarr",
+            "coordinationValues": {
+              "obsType": "cell",
+              "featureType": "gene",
+              "featureValueType": "expression"
+            },
+            "options": {
+              "obsEmbedding": [
+                {
+                  "path": "obsm/X_pca",
+                  "embeddingType": "PCA"
+                },
+                {
+                  "path": "obsm/X_tsne",
+                  "embeddingType": "t-SNE"
+                },
+                {
+                  "path": "obsm/X_umap",
+                  "embeddingType": "UMAP"
+                }
+              ],
+              "obsFeatureMatrix": {
+                "path": "X"
+              },
+              "obsSegmentations": {
+                "path": "obsm/X_segmentations"
+              },
+              "obsLocations": {
+                "path": "obsm/X_spatial"
+              },
+              "obsSets": [
+                {
+                  "name": "Cell Type",
+                  "path": [
+                    "obs/Cluster",
+                    "obs/Subcluster"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "coordinationSpace": {
+      "dataset": {
+        "A": "A"
+      },
+      "embeddingType": {
+        "A": "PCA",
+        "B": "t-SNE",
+        "C": "UMAP"
+      },
+      "spatialZoom": {
+        "A": -5.5
+      },
+      "spatialTargetX": {
+        "A": 16000
+      },
+      "spatialTargetY": {
+        "A": 20000
+      },
+      "spatialSegmentationLayer": {
+        "A": {
+          "opacity": 1,
+          "radius": 0,
+          "visible": true,
+          "stroked": false
+        }
+      }
+    },
+    "layout": [
+      {
+        "component": "obsSets",
+        "coordinationScopes": {
+          "dataset": "A"
+        },
+        "x": 0,
+        "y": 0,
+        "w": 4,
+        "h": 4
+      },
+      {
+        "component": "scatterplot",
+        "coordinationScopes": {
+          "dataset": "A",
+          "embeddingType": "A"
+        },
+        "x": 4,
+        "y": 0,
+        "w": 4,
+        "h": 4
+      },
+       {
+      "component": "featureValueHistogram",
+        "x": 8,
+        "y": 0,
+        "w": 4,
+        "h": 4
+    },
+      {
+        "component": "spatial",
+        "coordinationScopes": {
+          "dataset": "A",
+          "spatialZoom": "A",
+          "spatialTargetX": "A",
+          "spatialTargetY": "A",
+          "spatialSegmentationLayer": "A"
+        },
+        "x": 0,
+        "y": 4,
+        "w": 4,
+        "h": 4
+      },
+      {
+        "component": "scatterplot",
+        "coordinationScopes": {
+          "dataset": "A",
+          "embeddingType": "B"
+        },
+        "x": 4,
+        "y": 4,
+        "w": 4,
+        "h": 4
+      },
+      {
+        "component": "scatterplot",
+        "coordinationScopes": {
+          "dataset": "A",
+          "embeddingType": "C"
+        },
+        "x": 8,
+        "y": 4,
+        "w": 4,
+        "h": 4
+      },
+      {
+        "component": "heatmap",
+        "coordinationScopes": {
+          "dataset": "A"
+        },
+        "x": 0,
+        "y": 8,
+        "w": 4,
+        "h": 4,
+        "props": {
+          "transpose": true
+        }
+      },
+      {
+        "component": "featureList",
+        "coordinationScopes": {
+          "dataset": "A"
+        },
+        "x": 4,
+        "y": 8,
+        "w": 4,
+        "h": 4
+      }
+    ],
+    "initStrategy": "auto"
+  }
