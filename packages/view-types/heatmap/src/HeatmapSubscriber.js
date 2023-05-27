@@ -148,10 +148,11 @@ export function HeatmapSubscriber(props) {
 
   const getFeatureInfo = useCallback((featureId) => {
     if (featureId) {
-      return { [`${capitalize(variablesLabel)} ID`]: featureId };
+      const featureLabel = featureLabelsMap?.get(featureId) || featureId;
+      return { [`${capitalize(variablesLabel)} ID`]: featureLabel };
     }
     return null;
-  }, [variablesLabel]);
+  }, [variablesLabel, featureLabelsMap]);
 
   const expressionMatrix = useMemo(() => {
     if (obsIndex && featureIndex && uint8ObsFeatureMatrix) {
@@ -225,6 +226,7 @@ export function HeatmapSubscriber(props) {
         setIsRendering={setIsRendering}
         setCellHighlight={setCellHighlight}
         setGeneHighlight={setGeneHighlight}
+        featureIndex={featureIndex}
         setTrackHighlight={setTrackHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);
