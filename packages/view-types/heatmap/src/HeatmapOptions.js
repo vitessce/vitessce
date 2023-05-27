@@ -61,7 +61,7 @@ export default function HeatmapOptions(props) {
           <Checkbox
             className={classes.checkbox}
             /**
-             * We have to use "checked" here, not "value". 
+             * We have to use "checked" here, not "value".
              * The checkbox state is not persisting with value.
              * For reference, https://v4.mui.com/api/checkbox/
              */

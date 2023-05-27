@@ -388,7 +388,7 @@ export function SpatialSubscriber(props) {
     geneExpressionColormapRange, setGeneExpressionColormap,
     hasLocationsData, hasSegmentationsData, hasExpressionData,
     observationsLabel, setCellColorEncoding,
-    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d, tooltipVisible
+    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d, tooltipVisible,
   ]);
 
   useEffect(() => {
