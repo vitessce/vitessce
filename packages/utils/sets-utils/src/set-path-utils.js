@@ -27,7 +27,7 @@ function getPaths(node, currentPath = [], paths = []) {
  * looking for the longest subset (true) or the longest superset (false).
  * @returns {array} The longest subset or superset of path in arrOfPaths.
 */
-export function findLongestPath(arrOfPaths, path, isSubset){
+export function findLongestPath(arrOfPaths, path, isSubset) {
   if (Array.isArray(arrOfPaths)) {
     let longest = null;
     let longestLength = 0;
