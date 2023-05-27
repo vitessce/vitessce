@@ -55,8 +55,8 @@ export default function SpatialOptions(props) {
     setSpatialAxisFixed,
     spatialAxisFixed,
     use3d,
-    tooltipVisible,
-    setTooltipVisible,
+    tooltipsVisible,
+    setTooltipsVisible,
     geneExpressionColormap,
     setGeneExpressionColormap,
     geneExpressionColormapRange,
@@ -78,8 +78,8 @@ export default function SpatialOptions(props) {
     [handleColormapRangeChange],
   );
 
-  function handleTooltipVisibilityChange(event) {
-    setTooltipVisible(event.target.checked);
+  function handleTooltipsVisibilityChange(event) {
+    setTooltipsVisible(event.target.checked);
   }
 
   const classes = usePlotOptionsStyles();
@@ -102,7 +102,7 @@ export default function SpatialOptions(props) {
       ) : null}
       <TableRow>
         <TableCell className={classes.labelCell}>
-          Tooltip Visible
+          Tooltips Visible
         </TableCell>
         <TableCell className={classes.inputCell}>
           <Checkbox
@@ -112,8 +112,8 @@ export default function SpatialOptions(props) {
              * The checkbox state is not persisting with value.
              * For reference, https://v4.mui.com/api/checkbox/
              */
-            checked={tooltipVisible}
-            onChange={handleTooltipVisibilityChange}
+            checked={tooltipsVisible}
+            onChange={handleTooltipsVisibilityChange}
             name="gene-expression-colormap-option-toltip-visibility"
             color="default"
           />

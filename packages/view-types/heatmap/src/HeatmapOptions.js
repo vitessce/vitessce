@@ -10,8 +10,8 @@ export default function HeatmapOptions(props) {
     setGeneExpressionColormap,
     geneExpressionColormapRange,
     setGeneExpressionColormapRange,
-    tooltipVisible,
-    setTooltipVisible,
+    tooltipsVisible,
+    setTooltipsVisible,
   } = props;
 
   const classes = usePlotOptionsStyles();
@@ -21,7 +21,7 @@ export default function HeatmapOptions(props) {
   }
 
   function handleTooltipVisibilityChange(event) {
-    setTooltipVisible(event.target.checked);
+    setTooltipsVisible(event.target.checked);
   }
 
   function handleColormapRangeChange(event, value) {
@@ -55,7 +55,7 @@ export default function HeatmapOptions(props) {
       </TableRow>
       <TableRow>
         <TableCell className={classes.labelCell}>
-          Tooltip Visible
+          Tooltips Visible
         </TableCell>
         <TableCell className={classes.inputCell}>
           <Checkbox
@@ -65,7 +65,7 @@ export default function HeatmapOptions(props) {
              * The checkbox state is not persisting with value.
              * For reference, https://v4.mui.com/api/checkbox/
              */
-            checked={tooltipVisible}
+            checked={tooltipsVisible}
             onChange={handleTooltipVisibilityChange}
             name="gene-expression-colormap-option-toltip-visibility"
             color="default"

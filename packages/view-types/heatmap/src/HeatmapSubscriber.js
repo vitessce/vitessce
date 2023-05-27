@@ -72,6 +72,7 @@ export function HeatmapSubscriber(props) {
     additionalObsSets: additionalCellSets,
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
+    tooltipsVisible,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
@@ -85,6 +86,7 @@ export function HeatmapSubscriber(props) {
     setObsSetColor: setCellSetColor,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setFeatureValueColormap: setGeneExpressionColormap,
+    setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.HEATMAP], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
@@ -96,7 +98,6 @@ export function HeatmapSubscriber(props) {
   const variablesTitle = capitalize(variablesPluralLabel);
 
   const [isRendering, setIsRendering] = useState(false);
-  const [tooltipVisible, setTooltipVisible] = useState(!disableTooltip);
 
   const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -186,6 +187,8 @@ export function HeatmapSubscriber(props) {
     `${capitalize(observationsLabel)} Set`,
   ]), [observationsLabel]);
 
+  console.log("TOOLTIPS VISIBLE: ", tooltipsVisible);
+
   const selectedCount = cellColors.size;
   return (
     <TitleInfo
@@ -202,8 +205,8 @@ export function HeatmapSubscriber(props) {
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
-          tooltipVisible={tooltipVisible}
-          setTooltipVisible={setTooltipVisible}
+          tooltipsVisible={tooltipsVisible}
+          setTooltipsVisible={setTooltipsVisible}
         />
       )}
     >
@@ -243,7 +246,7 @@ export function HeatmapSubscriber(props) {
         useDevicePixels
         onHeatmapClick={onHeatmapClick}
       />
-      {tooltipVisible && (
+      {!disableTooltip && tooltipsVisible && (
       <HeatmapTooltipSubscriber
         parentUuid={uuid}
         width={width}

@@ -90,6 +90,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     embeddingObsOpacityMode: cellOpacityMode,
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
+    tooltipsVisible,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -110,6 +111,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     setEmbeddingObsOpacityMode: setCellOpacityMode,
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
+    setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
@@ -159,7 +161,6 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
-  const [tooltipVisible, setTooltipVisible] = useState(!disableTooltip);
 
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
@@ -297,8 +298,8 @@ export function EmbeddingScatterplotSubscriber(props) {
           setCellOpacityMode={setCellOpacityMode}
           cellSetLabelsVisible={cellSetLabelsVisible}
           setCellSetLabelsVisible={setCellSetLabelsVisible}
-          tooltipVisible={tooltipVisible}
-          setTooltipVisible={setTooltipVisible}
+          tooltipsVisible={tooltipsVisible}
+          setTooltipsVisible={setTooltipsVisible}
           cellSetLabelSize={cellSetLabelSize}
           setCellSetLabelSize={setCellSetLabelSize}
           cellSetPolygonsVisible={cellSetPolygonsVisible}
@@ -349,7 +350,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         getCellIsSelected={getCellIsSelected}
 
       />
-      {tooltipVisible && (
+      {!disableTooltip && tooltipsVisible && (
       <ScatterplotTooltipSubscriber
         parentUuid={uuid}
         obsHighlight={cellHighlight}

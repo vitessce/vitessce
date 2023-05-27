@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import {
   TitleInfo,
   useDeckCanvasSize, useReady, useUrls,
@@ -89,6 +89,7 @@ export function SpatialSubscriber(props) {
     spatialAxisFixed,
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
+    tooltipsVisible,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -111,6 +112,7 @@ export function SpatialSubscriber(props) {
     setSpatialAxisFixed,
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
+    setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
@@ -316,7 +318,6 @@ export function SpatialSubscriber(props) {
   });
 
   const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(expressionData);
-  const [tooltipVisible, setTooltipVisible] = useState(!disableTooltip);
 
   // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
   // where each cell id indexes into the array.
@@ -369,8 +370,8 @@ export function SpatialSubscriber(props) {
           setSpatialAxisFixed={setSpatialAxisFixed}
           spatialAxisFixed={spatialAxisFixed}
           use3d={use3d}
-          tooltipVisible={tooltipVisible}
-          setTooltipVisible={setTooltipVisible}
+          tooltipsVisible={tooltipsVisible}
+          setTooltipsVisible={setTooltipsVisible}
           geneExpressionColormap={geneExpressionColormap}
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
@@ -388,7 +389,7 @@ export function SpatialSubscriber(props) {
     geneExpressionColormapRange, setGeneExpressionColormap,
     hasLocationsData, hasSegmentationsData, hasExpressionData,
     observationsLabel, setCellColorEncoding,
-    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d, tooltipVisible,
+    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d, tooltipsVisible,
   ]);
 
   useEffect(() => {
@@ -478,7 +479,7 @@ export function SpatialSubscriber(props) {
         theme={theme}
         useFullResolutionImage={useFullResolutionImage}
       />
-      {tooltipVisible && (
+      {tooltipsVisible && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}
           obsHighlight={cellHighlight}

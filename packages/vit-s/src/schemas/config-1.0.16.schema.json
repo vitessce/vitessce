@@ -81,7 +81,8 @@
         "additionalObsSets": { "$ref": "#/definitions/stringOrStringArray" },
         "moleculeHighlight": { "$ref": "#/definitions/stringOrStringArray" },
         "gatingFeatureSelectionX": { "$ref": "#/definitions/stringOrStringArray" },
-        "gatingFeatureSelectionY": { "$ref": "#/definitions/stringOrStringArray" }
+        "gatingFeatureSelectionY": { "$ref": "#/definitions/stringOrStringArray" },
+        "tooltipsVisible": { "type": "boolean", "default": true }
       }
     },
     "componentCoordinationScopesBy": {
@@ -1066,6 +1067,10 @@
               ]
             }
           }
+        },
+        "tooltipsVisible": {
+          "type": "boolean",
+          "default": true
         }
       }
     },
