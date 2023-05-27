@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { every } from 'lodash-es';
 import { makeStyles } from '@material-ui/core';
-import { SelectableTable } from './selectable-table/index.js';
 import { capitalize } from '@vitessce/utils';
+import { SelectableTable } from './selectable-table/index.js';
 
 const useStyles = makeStyles(() => ({
   searchBar: {
@@ -69,8 +69,8 @@ export default function FeatureList(props) {
     setSearchTerm(event.target.value);
   };
 
-  let columns = ['name'];
-  let columnLabels = [`${capitalize(featureType)} ID`];
+  const columns = ['name'];
+  const columnLabels = [`${capitalize(featureType)} ID`];
 
   if (showTable) {
     columns.push('key');

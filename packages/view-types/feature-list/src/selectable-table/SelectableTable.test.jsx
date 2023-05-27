@@ -37,7 +37,7 @@ const tableColumns = [
   'Y',
   'Name',
 ];
-const columnLabels = ["Label 1", "Label 2", "Name"]
+const columnLabels = ['Label 1', 'Label 2', 'Name'];
 
 describe('SelectableTable.js', () => {
   describe('<SelectableTable />', () => {
@@ -112,17 +112,16 @@ describe('SelectableTable.js', () => {
     });
 
     it('renders single column values', async () => {
-
-      const tableColumns = [
+      const customTableColumns = [
         'Name',
       ];
-      const columnLabels = ["Name"]
+      const customColumnLabels = ['Name'];
 
       render(
         <SelectableTable
           data={tableData}
-          columns={tableColumns}
-          columnLabels={columnLabels}
+          columns={customTableColumns}
+          columnLabels={customColumnLabels}
           idKey={tableIdKey}
           testHeight={500}
           testWidth={500}

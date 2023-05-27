@@ -181,23 +181,20 @@ export default function SelectableTable(props) {
           />
         </label>
       </div>
-      {columns.map((column) => {
-        return (
+      {columns.map(column => (
         <div
           className={classes.tableCell}
           key={column}
         >
           {data[index][column]}
         </div>
-      )})}
+      ))}
     </div>
   );
 
   const headerRowRenderer = ({ style }) => (
     <div className={classes.tableRow} style={style}>
-      {columnLabels.map((columnLabel) => {
-        return (<div key={columnLabel} className={classes.tableCell} style={{fontWeight: 'bold'}}>{columnLabel}</div>)
-      })}
+      {columnLabels.map(columnLabel => (<div key={columnLabel} className={classes.tableCell} style={{ fontWeight: 'bold' }}>{columnLabel}</div>))}
     </div>
   );
 
