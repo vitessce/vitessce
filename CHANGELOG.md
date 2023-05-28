@@ -13,15 +13,9 @@
 - Added developer troubleshooting instructions to README.
 - Add `useFullResolutionImage` to `Spatial` to allow for loading only full resolution image from pyramid.
 - Implemented ability to select an area on the Expression Histogram. On select, a new obs set selection is created. The new selection contains the ids of all obs that belong to the selected bars.
-<<<<<<< HEAD
-- Added option to disable tooltips on Heatmap and Scatterplot components. The option is available from the options control dropdown.
-=======
 - Add `CITATION.cff`
-<<<<<<< HEAD
->>>>>>> main
-=======
 - Implemented ability to show two columns in the feature-list view when each feature has a second identifer associated.
->>>>>>> main
+- Added option to disable tooltips on Heatmap and Scatterplot components. The option is available from the options control dropdown.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.

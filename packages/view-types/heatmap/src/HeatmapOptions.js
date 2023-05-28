@@ -20,7 +20,7 @@ export default function HeatmapOptions(props) {
     setGeneExpressionColormap(event.target.value);
   }
 
-  function handleTooltipVisibilityChange(event) {
+  function handleTooltipsVisibilityChange(event) {
     setTooltipsVisible(event.target.checked);
   }
 
@@ -66,7 +66,7 @@ export default function HeatmapOptions(props) {
              * For reference, https://v4.mui.com/api/checkbox/
              */
             checked={tooltipsVisible}
-            onChange={handleTooltipVisibilityChange}
+            onChange={handleTooltipsVisibilityChange}
             name="gene-expression-colormap-option-toltip-visibility"
             color="default"
           />
