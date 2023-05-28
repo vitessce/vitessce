@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import {
   TitleInfo,
   useDeckCanvasSize, useReady, useUrls,
@@ -238,6 +238,8 @@ export function SpatialSubscriber(props) {
   const moleculesCount = obsLocationsFeatureIndex?.length || 0;
   const locationsCount = obsLocationsIndex?.length || 0;
 
+  const [originalViewState, setOriginalViewState] = useState({});
+
   useEffect(() => {
     if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
       const {
@@ -258,6 +260,10 @@ export function SpatialSubscriber(props) {
       setTargetY(initialTargetY);
       setTargetZ(initialTargetZ);
       setZoom(initialZoom);
+
+      console.log("setting the original view state for Spatial");
+      setOriginalViewState({"target": [initialTargetX, initialTargetY, initialTargetZ], "zoom": initialZoom});
+
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageLayerLoaders, targetX, targetY, setTargetX, setTargetY,
@@ -436,6 +442,7 @@ export function SpatialSubscriber(props) {
           orbitAxis,
         }}
         setViewState={setViewState}
+        originalViewState={originalViewState}
         imageLayerDefs={imageLayers}
         obsSegmentationsLayerDefs={cellsLayer}
         obsLocationsLayerDefs={moleculesLayer}

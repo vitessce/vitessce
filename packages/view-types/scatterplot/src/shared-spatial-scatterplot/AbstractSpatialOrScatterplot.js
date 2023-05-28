@@ -235,8 +235,6 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       )
     );
 
-    console.log("Is it tool??? ", tool);
-
     return (
       <>
         <ToolMenu
@@ -244,7 +242,6 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           setActiveTool={this.onToolChange}
           visibleTools={{
             pan: showPanTool && !hideTools,
-            selectRectangle: true,
             selectLasso: showCellSelectionTools && !hideTools,
           }}
           recenterOnClick={this.recenter}

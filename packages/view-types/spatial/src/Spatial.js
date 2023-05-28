@@ -701,6 +701,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
     );
   }
 
+  recenter() {
+    const { originalViewState, setViewState } = this.props;
+    console.log("**** recentering ****", originalViewState);
+    setViewState(originalViewState);
+  }
+
   /**
    * Here, asynchronously check whether props have
    * updated which require re-computing memoized variables,
@@ -827,6 +833,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   // render() is implemented in the abstract parent class.
 }
+
 
 /**
  * Need this wrapper function here,

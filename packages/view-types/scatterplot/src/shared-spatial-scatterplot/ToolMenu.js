@@ -83,7 +83,7 @@ function IconTool(props) {
   );
 }
 
-function IconButton(props) {
+function IconButton (props) {
   const {
     alt, onClick, children,
   } = props;
@@ -133,7 +133,7 @@ export default function ToolMenu(props) {
       ) : null}
       <IconButton
         alt="click to recenter"
-        onClick={() => {onRecenterButtonCLick();}}
+        onClick={ () => onRecenterButtonCLick() }
       ><CenterFocusStrong />
       </IconButton>
     </div>
