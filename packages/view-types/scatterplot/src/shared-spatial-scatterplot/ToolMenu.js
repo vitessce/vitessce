@@ -82,13 +82,13 @@ export default function ToolMenu(props) {
     setActiveTool,
     activeTool,
     visibleTools = { pan: true, selectRectangle: true, selectLasso: true },
-    customClickHandlers = {pan: null, selectRectangle: () => {}, selectLasso: null},
+    recenterOnClick = () => {},
   } = props;
   const classes = useStyles();
 
   const onRecenterButtonCLick = () => {
     console.log('in the ToolMenu, trying to recenter');
-    customClickHandlers.selectRectangle();
+    recenterOnClick();
   }
 
   return (

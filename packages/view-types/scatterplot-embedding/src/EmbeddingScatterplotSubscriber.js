@@ -114,6 +114,8 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const observationsLabel = observationsLabelOverride || obsType;
 
+  console.log("In EmbeddingScatterplotSubscriber.js");
+
   const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
 
@@ -280,6 +282,18 @@ export function EmbeddingScatterplotSubscriber(props) {
     expressionData: uint8ExpressionData,
   });
 
+  const setViewState = ({ zoom: newZoom, target }) => {
+    setZoom(newZoom);
+    setTargetX(target[0]);
+    setTargetY(target[1]);
+    setTargetZ(target[2] || 0);
+  }
+
+  const recenter = () => {
+    console.log("***** recentering...", originalViewState);
+    setViewState(originalViewState);
+  }
+
   return (
     <TitleInfo
       title={title}
@@ -319,13 +333,8 @@ export function EmbeddingScatterplotSubscriber(props) {
         uuid={uuid}
         theme={theme}
         viewState={{ zoom, target: [targetX, targetY, targetZ] }}
-        setViewState={({ zoom: newZoom, target }) => {
-          setZoom(newZoom);
-          setTargetX(target[0]);
-          setTargetY(target[1]);
-          setTargetZ(target[2] || 0);
-        }}
-        originalViewState={originalViewState}
+        setViewState={setViewState}
+        recenter={recenter}
         obsEmbeddingIndex={obsEmbeddingIndex}
         obsEmbedding={obsEmbedding}
         cellFilter={cellFilter}

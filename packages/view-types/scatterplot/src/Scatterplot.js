@@ -86,7 +86,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();
     this.onUpdateCellSetsLayers();
-    console.log("*** in scatterplot:", props.originalViewState);
+    console.log("*** in scatterplot:", props);
   }
 
   createCellsLayer() {
