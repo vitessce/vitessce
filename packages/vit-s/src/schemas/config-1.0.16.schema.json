@@ -82,7 +82,7 @@
         "moleculeHighlight": { "$ref": "#/definitions/stringOrStringArray" },
         "gatingFeatureSelectionX": { "$ref": "#/definitions/stringOrStringArray" },
         "gatingFeatureSelectionY": { "$ref": "#/definitions/stringOrStringArray" },
-        "tooltipsVisible": { "type": "boolean", "default": true }
+        "tooltipsVisible": { "type": "boolean" }
       }
     },
     "componentCoordinationScopesBy": {
