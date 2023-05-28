@@ -368,9 +368,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   recenter() {
-    console.log("HERERERER ", this.props);
     const { originalViewState, setViewState } = this.props;
-    console.log("***** recentering in Scatterplot ...", originalViewState);
     setViewState(originalViewState);
   }
 

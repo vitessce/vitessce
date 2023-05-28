@@ -21,7 +21,6 @@ const EDIT_TYPE_CLEAR = 'clearFeatures';
 class ClickableDrawRectangleMode extends DrawRectangleMode {
   // eslint-disable-next-line class-methods-use-this
   handleClick(event, props) {
-    console.log("I am here!!!!");
     props.onEdit({ editType: EDIT_TYPE_CLEAR });
   }
 }
@@ -35,12 +34,12 @@ class ClickableDrawPolygonByDraggingMode extends DrawPolygonByDraggingMode {
 }
 
 const MODE_MAP = {
-  [SELECTION_TYPE.RECTANGLE]: ClickableDrawRectangleMode,
+  // [SELECTION_TYPE.RECTANGLE]: ClickableDrawRectangleMode,
   [SELECTION_TYPE.POLYGON]: ClickableDrawPolygonByDraggingMode,
 };
 
 const defaultProps = {
-  selectionType: SELECTION_TYPE.RECTANGLE,
+  // selectionType: SELECTION_TYPE.RECTANGLE,
   layerIds: [],
   onSelect: () => {},
 };

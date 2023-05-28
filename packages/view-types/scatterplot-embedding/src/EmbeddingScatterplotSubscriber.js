@@ -114,8 +114,6 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const observationsLabel = observationsLabelOverride || obsType;
 
-  console.log("In EmbeddingScatterplotSubscriber.js");
-
   const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
 
@@ -261,8 +259,6 @@ export function EmbeddingScatterplotSubscriber(props) {
   const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
-
-  console.log("*** originalViewState: ", originalViewState);
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
   const getCellIsSelected = useCallback((object, { index }) => (

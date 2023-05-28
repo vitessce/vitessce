@@ -6,6 +6,12 @@ import { makeStyles } from '@material-ui/core';
 import { CenterFocusStrong } from '@material-ui/icons';
 
 const useStyles = makeStyles(() => ({
+  iconButton: {
+   display: 'inline-flex',
+    '&:active': {
+      opacity: '.90',
+    },
+  },
   tool: {
     position: 'absolute',
     display: 'inline',
@@ -16,12 +22,12 @@ const useStyles = makeStyles(() => ({
       opacity: '.90',
     },
   },
-  iconButtonClicked: {
+  iconToolClicked: {
     // Styles for the clicked state
     boxShadow: 'none',
     transform: 'scale(0.98)',  // make the button slightly smaller
   },
-  iconButton: {
+  icon: {
     // btn btn-outline-secondary mr-2 icon
     padding: '0',
     height: '2em',
@@ -47,11 +53,11 @@ const useStyles = makeStyles(() => ({
       verticalAlign: 'middle',
     },
     '&:active': {
-      extend: 'iconButtonClicked'
+      extend: 'iconToolClicked'
     },
 
   },
-  iconButtonActive: {
+  iconToolActive: {
     // active
     color: '#fff',
     backgroundColor: '#6c757d',
@@ -60,14 +66,31 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export function IconButton(props) {
+function IconTool(props) {
   const {
     alt, onClick, isActive, children,
   } = props;
   const classes = useStyles();
   return (
     <button
-      className={clsx(classes.iconButton, { [classes.iconButtonActive]: isActive })}
+      className={clsx(classes.icon, { [classes.iconToolActive]: isActive })}
+      onClick={onClick}
+      type="button"
+      title={alt}
+    >
+      {children}
+    </button>
+  );
+}
+
+function IconButton(props) {
+  const {
+    alt, onClick, children,
+  } = props;
+  const classes = useStyles();
+  return (
+    <button
+      className={clsx(classes.icon, classes.iconButton)}
       onClick={onClick}
       type="button"
       title={alt}
@@ -81,42 +104,38 @@ export default function ToolMenu(props) {
   const {
     setActiveTool,
     activeTool,
-    visibleTools = { pan: true, selectRectangle: true, selectLasso: true },
+    visibleTools = { pan: true, selectLasso: true },
     recenterOnClick = () => {},
   } = props;
   const classes = useStyles();
 
   const onRecenterButtonCLick = () => {
-    console.log('in the ToolMenu, trying to recenter');
     recenterOnClick();
   }
 
   return (
     <div className={classes.tool}>
       {visibleTools.pan && (
-      <IconButton
+      <IconTool
         alt="pointer tool"
         onClick={() => setActiveTool(null)}
         isActive={activeTool === null}
       ><PointerIconSVG />
-      </IconButton>
-      )}
-      {visibleTools.selectRectangle && (
-        <IconButton
-          alt="recenter"
-          onClick={() => {setActiveTool(SELECTION_TYPE.RECTANGLE); onRecenterButtonCLick();}}
-          isActive={activeTool === SELECTION_TYPE.RECTANGLE}
-        ><CenterFocusStrong />
-        </IconButton>
+      </IconTool>
       )}
       {visibleTools.selectLasso ? (
-        <IconButton
+        <IconTool
           alt="select lasso"
           onClick={() => setActiveTool(SELECTION_TYPE.POLYGON)}
           isActive={activeTool === SELECTION_TYPE.POLYGON}
         ><SelectLassoIconSVG />
-        </IconButton>
+        </IconTool>
       ) : null}
+      <IconButton
+        alt="click to recenter"
+        onClick={() => {onRecenterButtonCLick();}}
+      ><CenterFocusStrong />
+      </IconButton>
     </div>
   );
 }

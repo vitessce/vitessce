@@ -26,7 +26,6 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     this.onToolChange = this.onToolChange.bind(this);
     this.onHover = this.onHover.bind(this);
     this.recenter = this.recenter.bind(this);
-    console.log("In AbstractSpatialOrScatterplot");
   }
 
   /**
@@ -235,6 +234,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
         || this.obsLocationsData?.shape?.[1] < 100000
       )
     );
+
+    console.log("Is it tool??? ", tool);
 
     return (
       <>
