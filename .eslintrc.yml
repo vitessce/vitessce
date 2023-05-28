@@ -10,6 +10,7 @@ extends:
   - plugin:react-hooks/recommended
   - plugin:cypress/recommended
   - plugin:jsx-a11y/recommended
+  - airbnb
 plugins:
   - '@typescript-eslint'
   - require-extensions
@@ -36,18 +37,19 @@ rules:
   react/require-default-props: [0]
   react/react-in-jsx-scope: [0]
   react/jsx-curly-newline: [0]
+  object-curly-newline: [0]
   react/jsx-no-bind: [0] # Allow passing functions as JSX props
-  import/no-extraneous-dependencies: [1]
+  import/no-extraneous-dependencies: [1, { "devDependencies": ["**/*.test.{ts,js,jsx,tsx}", "**/*.spec.{ts,js,jsx,tsx}"] }]
   react/jsx-props-no-multi-spaces: [0]
   no-plusplus: [0]
   react-refresh/only-export-components: [2, { "checkJS": true }]
   import/no-duplicates: [2]
+  import/extensions: [0] # Using require-extensions instead.
+  import/prefer-default-export: [0]
 overrides:
   - files: 'sites/docs/src/{pages,theme}/**'
     rules:
-      # Allow @theme/ and @docusaurus/ imports
-      #import/no-unresolved: [0]
-      #import/extensions: [0]
+      import/no-unresolved: [0] # Allow @theme/ and @docusaurus/ imports
       '@typescript-eslint/no-var-requires': [0]
       no-undef: [0]
   - files: '**/*.{ts,tsx}'

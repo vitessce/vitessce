@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { every } from 'lodash-es';
 import { makeStyles } from '@material-ui/core';
+import { capitalize } from '@vitessce/utils';
 import { SelectableTable } from './selectable-table/index.js';
 
 const useStyles = makeStyles(() => ({
@@ -17,10 +18,12 @@ export default function FeatureList(props) {
     hasColorEncoding,
     geneList = [],
     featureLabelsMap,
+    featureType,
     geneSelection = [],
     geneFilter = null,
     setGeneSelection,
     enableMultiSelect,
+    showTable,
   } = props;
 
   const classes = useStyles();
@@ -66,6 +69,14 @@ export default function FeatureList(props) {
     setSearchTerm(event.target.value);
   };
 
+  const columns = ['name'];
+  const columnLabels = [`${capitalize(featureType)} ID`];
+
+  if (showTable) {
+    columns.push('key');
+    columnLabels.push('Alternate ID');
+  }
+
   return (
     <>
       <input
@@ -76,7 +87,8 @@ export default function FeatureList(props) {
         onChange={handleChange}
       />
       <SelectableTable
-        columns={['name']}
+        columns={columns}
+        columnLabels={columnLabels}
         data={data}
         hasColorEncoding={hasColorEncoding}
         idKey="key"
@@ -84,7 +96,7 @@ export default function FeatureList(props) {
         onChange={onChange}
         allowMultiple={enableMultiSelect}
         allowUncheck={enableMultiSelect}
-        showTableHead={false}
+        showTableHead={columnLabels.length > 1}
       />
     </>
   );

@@ -119,13 +119,18 @@ export function ObsSetsManagerSubscriber(props) {
   useEffect(() => {
     if (additionalCellSets) {
       let upgradedCellSets;
+      let didUpgrade;
       try {
-        upgradedCellSets = tryUpgradeTreeToLatestSchema(additionalCellSets, SETS_DATATYPE_OBS);
+        [upgradedCellSets, didUpgrade] = tryUpgradeTreeToLatestSchema(
+          additionalCellSets, SETS_DATATYPE_OBS,
+        );
       } catch (e) {
         setWarning(e.message);
         return;
       }
-      setAdditionalCellSets(upgradedCellSets);
+      if (didUpgrade) {
+        setAdditionalCellSets(upgradedCellSets);
+      }
     }
   }, [additionalCellSets, setAdditionalCellSets, setWarning]);
 
@@ -488,7 +493,7 @@ export function ObsSetsManagerSubscriber(props) {
 
   // The user wants to create a new level zero node.
   const onCreateLevelZeroNode = useCallback(() => {
-    const nextName = getNextNumberedNodeName(additionalCellSets?.tree, 'My hierarchy ');
+    const nextName = getNextNumberedNodeName(additionalCellSets?.tree, 'My hierarchy ', '');
     setAdditionalCellSets({
       ...(additionalCellSets || treeInitialize(SETS_DATATYPE_OBS)),
       tree: [
