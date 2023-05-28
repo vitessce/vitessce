@@ -289,11 +289,6 @@ export function EmbeddingScatterplotSubscriber(props) {
     setTargetZ(target[2] || 0);
   }
 
-  const recenter = () => {
-    console.log("***** recentering...", originalViewState);
-    setViewState(originalViewState);
-  }
-
   return (
     <TitleInfo
       title={title}
@@ -334,7 +329,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         theme={theme}
         viewState={{ zoom, target: [targetX, targetY, targetZ] }}
         setViewState={setViewState}
-        recenter={recenter}
+        originalViewState={originalViewState}
         obsEmbeddingIndex={obsEmbeddingIndex}
         obsEmbedding={obsEmbedding}
         cellFilter={cellFilter}

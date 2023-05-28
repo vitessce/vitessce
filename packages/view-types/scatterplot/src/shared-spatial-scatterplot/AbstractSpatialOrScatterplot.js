@@ -25,8 +25,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
     this.onToolChange = this.onToolChange.bind(this);
     this.onHover = this.onHover.bind(this);
-    this.recenter = () => {};
-
+    this.recenter = this.recenter.bind(this);
     console.log("In AbstractSpatialOrScatterplot");
   }
 
@@ -200,6 +199,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   componentDidUpdate() {
 
   }
+
+  /** Intended to be overridden by descendants. */
+  recenter() {}
 
   /**
    * Intended to be overridden by descendants.

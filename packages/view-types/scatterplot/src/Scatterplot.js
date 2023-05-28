@@ -86,7 +86,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();
     this.onUpdateCellSetsLayers();
-    console.log("*** in scatterplot:", props);
   }
 
   createCellsLayer() {
@@ -366,6 +365,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     if (forceUpdate) {
       this.forceUpdate();
     }
+  }
+
+  recenter() {
+    console.log("HERERERER ", this.props);
+    const { originalViewState, setViewState } = this.props;
+    console.log("***** recentering in Scatterplot ...", originalViewState);
+    setViewState(originalViewState);
   }
 
   // render() is implemented in the abstract parent class.
