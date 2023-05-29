@@ -66,6 +66,8 @@ const getPosition = (object, { index, data, target }) => {
  * @param {function} props.onToolChange Callback for tool changes
  * (lasso/pan selection tools).
  * @param {function} props.onCellClick Getter function for cell layer onClick.
+ * @param {object} props.originalViewState A viewState object to pass to
+ * setViewState upon clicking the recenter button.
  */
 class Scatterplot extends AbstractSpatialOrScatterplot {
   constructor(props) {
