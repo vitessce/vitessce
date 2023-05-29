@@ -19,7 +19,6 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     };
 
     this.viewport = null;
-    this.originalViewState = {};
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
     this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
@@ -199,7 +198,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
 
   }
 
-  /** Intended to be overridden by descendants. */
+  /** Intended to be overridden by descendants.
+   * Resets the view type to its original position.
+  */
   // eslint-disable-next-line class-methods-use-this
   recenter() {}
 

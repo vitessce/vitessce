@@ -95,10 +95,10 @@ Select cells:
 - On the heatmap, only selected cells should appear.
 
 Recenter the view:
-- Repeat the following steps, once for `plot` equal to Spatial plot and once for `plot` equal to Scatterplot.
-- Go to `plot` and zoom in.
-- Click on the `CenterFocusStrong` button on the top left of the `plot`.
-- `plot` should return back to its original position.
+- Repeat the following steps, once for Spatial view type and once for Scatterplot view type.
+- Go to the respective view type and zoom in.
+- Click on the `CenterFocusStrong` button on the top left of the view type.
+- The view type should return back to its original position.
 
 Color the cells:
 - Leave a subset of cells selected.

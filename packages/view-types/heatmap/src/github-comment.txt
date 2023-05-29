@@ -1,5 +1,0 @@
-these is a corner case here, which is that if the user sets in the view config `disableTooltip` to `true`, `tooltipsVisible` will still be equal to true and the checkbox will be checked, even though in reality no tooltips will appear. Ultimately, if `disableTooltip` is set to `true`, it will take precedence over the checkbox and it may seem to the user that the checkbox is broken, because it will never show the tooltips. I can think of two ways to solve this:
-1. Remove `disableTooltip` prop and only allow changing tooltip visibility settings from the menus of the plots. Potential problem here is that all view configs that set this prop will stop working. And users will need to set this every time they load their dataset, which could be annoying.
-2. Make the initial default value of `tooltipsVisible` equal to `!disableTooltip`. This solves the problems above, looks like a better solution to me. I don't know if it is possible to do though. The fact that `disableTooltip` value can be different for each view type, but `tooltipsVisible` is shared will be another cause for edge cases.
-
-What do you think @keller-mark?  
