@@ -22,8 +22,8 @@ const configs = [
         },
         x: 0,
         y: 0,
-        w: 6,
-        h: 6,
+        w: 12,
+        h: 12,
       },
     ],
   },
@@ -79,23 +79,25 @@ const configs = [
     layout: [
       {
         component: 'description',
+        uid: '1',
         props: {
           description: 'Third config, first view',
         },
         x: 0,
         y: 0,
-        w: 6,
-        h: 6,
+        w: 3,
+        h: 3,
       },
       {
         component: 'description',
+        uid: '2',
         props: {
           description: 'Third config, second view',
         },
-        x: 6,
+        x: 3,
         y: 0,
-        w: 6,
-        h: 6,
+        w: 3,
+        h: 3,
       },
     ],
   },
@@ -108,14 +110,16 @@ function App() {
     setConfigIndex(parseInt(event.target.value));
   };
 
-  console.log(configIndex);
+  // Note that width and height are tested using Cypress.
+  const width = 800;
+  const height = 800;
 
-  return e('div', {}, [
+  return e('div', { style: { width: `${width}px` }}, [
     e('select', { onChange: handleSelectChange },
       configs.map((config, i) => e('option', { value: i }, `Config ${i}`))
     ),
     e(Vitessce,
-      { config: configs[configIndex], height: 500, theme: 'light' },
+      { config: configs[configIndex], height: height, theme: 'light' },
       null
     ),
   ]);
