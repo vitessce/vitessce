@@ -238,7 +238,9 @@ export function SpatialSubscriber(props) {
   const moleculesCount = obsLocationsFeatureIndex?.length || 0;
   const locationsCount = obsLocationsIndex?.length || 0;
 
-  const [originalViewState, setOriginalViewState] = useState({});
+  const [originalViewState, setOriginalViewState] = useState(
+    { target: [targetX, targetY, targetZ], zoom },
+  );
 
   useEffect(() => {
     if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
@@ -260,10 +262,9 @@ export function SpatialSubscriber(props) {
       setTargetY(initialTargetY);
       setTargetZ(initialTargetZ);
       setZoom(initialZoom);
-
-      console.log("setting the original view state for Spatial");
-      setOriginalViewState({"target": [initialTargetX, initialTargetY, initialTargetZ], "zoom": initialZoom});
-
+      setOriginalViewState(
+        { target: [initialTargetX, initialTargetY, initialTargetZ], zoom: initialZoom },
+      );
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageLayerLoaders, targetX, targetY, setTargetX, setTargetY,

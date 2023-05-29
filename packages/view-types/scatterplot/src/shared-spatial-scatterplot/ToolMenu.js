@@ -7,7 +7,7 @@ import { CenterFocusStrong } from '@material-ui/icons';
 
 const useStyles = makeStyles(() => ({
   iconButton: {
-   display: 'inline-flex',
+    display: 'inline-flex',
     '&:active': {
       opacity: '.90',
     },
@@ -25,7 +25,7 @@ const useStyles = makeStyles(() => ({
   iconToolClicked: {
     // Styles for the clicked state
     boxShadow: 'none',
-    transform: 'scale(0.98)',  // make the button slightly smaller
+    transform: 'scale(0.98)', // make the button slightly smaller
   },
   icon: {
     // btn btn-outline-secondary mr-2 icon
@@ -53,7 +53,7 @@ const useStyles = makeStyles(() => ({
       verticalAlign: 'middle',
     },
     '&:active': {
-      extend: 'iconToolClicked'
+      extend: 'iconToolClicked',
     },
 
   },
@@ -66,7 +66,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function IconTool(props) {
+export function IconTool(props) {
   const {
     alt, onClick, isActive, children,
   } = props;
@@ -83,7 +83,7 @@ function IconTool(props) {
   );
 }
 
-function IconButton (props) {
+export function IconButton(props) {
   const {
     alt, onClick, children,
   } = props;
@@ -111,7 +111,7 @@ export default function ToolMenu(props) {
 
   const onRecenterButtonCLick = () => {
     recenterOnClick();
-  }
+  };
 
   return (
     <div className={classes.tool}>
@@ -133,7 +133,7 @@ export default function ToolMenu(props) {
       ) : null}
       <IconButton
         alt="click to recenter"
-        onClick={ () => onRecenterButtonCLick() }
+        onClick={() => onRecenterButtonCLick()}
       ><CenterFocusStrong />
       </IconButton>
     </div>

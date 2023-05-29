@@ -703,7 +703,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   recenter() {
     const { originalViewState, setViewState } = this.props;
-    console.log("**** recentering ****", originalViewState);
     setViewState(originalViewState);
   }
 

@@ -249,7 +249,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         // Graphics rendering has the y-axis going south so we need to multiply by negative one.
         setTargetY(-newTargetY);
         setZoom(newZoom);
-        setOriginalViewState({"target": [newTargetX, -newTargetY, 0], "zoom": newZoom});
+        setOriginalViewState({ target: [newTargetX, -newTargetY, 0], zoom: newZoom });
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -283,7 +283,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     setTargetX(target[0]);
     setTargetY(target[1]);
     setTargetZ(target[2] || 0);
-  }
+  };
 
   return (
     <TitleInfo

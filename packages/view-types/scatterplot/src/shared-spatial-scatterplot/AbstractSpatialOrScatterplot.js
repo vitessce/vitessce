@@ -200,6 +200,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   }
 
   /** Intended to be overridden by descendants. */
+  // eslint-disable-next-line class-methods-use-this
   recenter() {}
 
   /**
