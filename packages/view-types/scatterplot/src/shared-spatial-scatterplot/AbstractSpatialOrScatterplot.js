@@ -19,12 +19,12 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     };
 
     this.viewport = null;
-
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
     this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
     this.onToolChange = this.onToolChange.bind(this);
     this.onHover = this.onHover.bind(this);
+    this.recenter = this.recenter.bind(this);
   }
 
   /**
@@ -198,6 +198,12 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
 
   }
 
+  /** Intended to be overridden by descendants.
+   * Resets the view type to its original position.
+  */
+  // eslint-disable-next-line class-methods-use-this
+  recenter() {}
+
   /**
    * Intended to be overridden by descendants.
    * @returns {boolean} Whether or not any layers are 3D.
@@ -238,9 +244,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           setActiveTool={this.onToolChange}
           visibleTools={{
             pan: showPanTool && !hideTools,
-            selectRectangle: showCellSelectionTools && !hideTools,
             selectLasso: showCellSelectionTools && !hideTools,
           }}
+          recenterOnClick={this.recenter}
         />
         <deck.DeckGL
           id={`deckgl-overlay-${uuid}`}
