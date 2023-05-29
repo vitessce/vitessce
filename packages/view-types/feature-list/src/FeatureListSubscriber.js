@@ -35,7 +35,8 @@ export function FeatureListSubscriber(props) {
     theme,
     title: titleOverride,
     enableMultiSelect = false,
-    showTable = false,
+    showTable = true,
+    sort = 'alphabetical',
   } = props;
 
   const loaders = useLoaders();
@@ -99,6 +100,7 @@ export function FeatureListSubscriber(props) {
         hasColorEncoding={cellColorEncoding === 'geneSelection'}
         showTable={showTable}
         geneList={geneList}
+        sort={sort}
         featureLabelsMap={featureLabelsMap}
         featureType={featureType}
         geneSelection={geneSelection}

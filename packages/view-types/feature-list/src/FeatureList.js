@@ -24,6 +24,7 @@ export default function FeatureList(props) {
     setGeneSelection,
     enableMultiSelect,
     showTable,
+    sort,
   } = props;
 
   const classes = useStyles();
@@ -54,7 +55,7 @@ export default function FeatureList(props) {
     }
   }
 
-  const data = searchResults
+  let data = searchResults
     .filter(gene => (geneFilter ? geneFilter.includes(gene) : true))
     .map(
       gene => ({
@@ -62,8 +63,11 @@ export default function FeatureList(props) {
         name: featureLabelsMap?.get(gene) || gene,
         value: (geneSelection ? geneSelection.includes(gene) : false),
       }),
-    )
-    .sort((a, b) => a.name.localeCompare(b.name));
+    );
+
+  if (sort === 'alphabetical') {
+    data = data.sort((a, b) => a.name.localeCompare(b.name));
+  }
 
   const handleChange = (event) => {
     setSearchTerm(event.target.value);
