@@ -52,6 +52,7 @@ const useStyles = makeStyles(() => ({
 
     '& > svg': {
       verticalAlign: 'middle',
+      color: 'black',
     },
     '&:active': {
       extend: 'iconClicked',
