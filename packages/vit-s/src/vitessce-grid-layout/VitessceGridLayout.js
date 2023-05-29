@@ -1,9 +1,15 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout-with-lodash';
 import { isEqual } from 'lodash-es';
-import { getMaxRows, resolveLayout } from './layout-utils.js';
+import { fromEntries } from '@vitessce/utils';
+import { getMaxRows } from './layout-utils.js';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
+
+const BREAKPOINT_ID = 'ID'; // If responsive, this would be something like 'sm' or 'lg'.
+const gridCols = { [BREAKPOINT_ID]: 12 };
+const gridBreakpoints = { [BREAKPOINT_ID]: 1000 };
+const maxRows = 12;
 
 class ResponsiveHeightGridLayout extends ResponsiveGridLayout {
   componentDidUpdate(prevProps) {
@@ -15,7 +21,7 @@ class ResponsiveHeightGridLayout extends ResponsiveGridLayout {
 
 export function VitessceGridLayout(props) {
   const {
-    layout,
+    layout: configLayout,
     viewTypes, padding, margin: marginProp, draggableHandle: draggableHandleClass,
     onResize, onResizeStop, rowHeight, theme, height,
     onRemoveComponent, onLayoutChange: onLayoutChangeProp,
@@ -35,14 +41,31 @@ export function VitessceGridLayout(props) {
   const draggableHandle = `.${draggableHandleClass}`;
 
   // If layout changes, update grid components.
-  const {
-    cols: gridCols, layouts: gridLayouts, breakpoints: gridBreakpoints, components: gridComponents,
-  } = useMemo(() => resolveLayout(layout), [layout]);
+  const [gridLayouts, gridComponents] = useMemo(() => {
+    const gridComponentsResult = fromEntries(configLayout.map(def => ([
+      def.uid,
+      {
+        uid: def.uid,
+        component: def.component,
+        props: def.props || {},
+        coordinationScopes: def.coordinationScopes || {},
+        coordinationScopesBy: def.coordinationScopesBy || {},
+      },
+    ])));
+    const gridLayoutResult = {
+      [BREAKPOINT_ID]: configLayout.map(def => ({
+        i: def.uid,
+        x: def.x,
+        y: def.y,
+        w: def.w,
+        h: def.h,
+      })),
+    };
+    return [gridLayoutResult, gridComponentsResult];
+  }, [configLayout]);
 
   const containerPadding = useMemo(() => ([padding, padding]), [padding]);
   const margin = useMemo(() => ([marginProp, marginProp]), [marginProp]);
-
-  const maxRows = getMaxRows(gridLayouts);
 
   // Inline CSS is generally avoided, but this saves the end-user a little work,
   // and prevents class names from getting out of sync.
@@ -72,7 +95,7 @@ export function VitessceGridLayout(props) {
   //
   // See the following GitHub issue for more information.
   // https://github.com/react-grid-layout/react-grid-layout/issues/1104#issuecomment-827785217
-  const [currentGridLayouts, setCurrentGridLayouts] = useState(gridLayouts);
+  const [tempGridLayouts, setTempGridLayouts] = useState(null);
   const [lastValidGridLayouts, setLastValidGridLayouts] = useState(gridLayouts);
 
   const onValidLayoutChange = useCallback((newLayout) => {
@@ -100,18 +123,27 @@ export function VitessceGridLayout(props) {
   }, [gridComponents, onLayoutChangeProp]);
 
   const onLayoutChange = useCallback((newLayout, allLayouts) => {
-    setCurrentGridLayouts(allLayouts);
-    if (!isBounded || getMaxRows({ ID: newLayout }) <= maxRows) {
-      onValidLayoutChange(newLayout);
-      setLastValidGridLayouts(allLayouts);
-    } else {
-      setCurrentGridLayouts(lastValidGridLayouts);
-    }
-  }, [isBounded, lastValidGridLayouts, maxRows, onValidLayoutChange]);
+    // Due to bug in react-grid-layout,
+    // we first need to set the new layout to the potentially-invalid allLayouts.
+    // Reference: https://github.com/react-grid-layout/react-grid-layout/issues/1104#issuecomment-827785217
+    setTempGridLayouts(allLayouts);
+    // Then we wait 50ms and validate/set the new layout.
+    setTimeout(() => {
+      if (!isBounded || getMaxRows(newLayout) <= maxRows) {
+        // Good, new layout was valid with respect to isBounded, so set in parent.
+        onValidLayoutChange(newLayout);
+        setLastValidGridLayouts(allLayouts);
+      } else {
+        // Bad, new layout was not valid with respect to isBounded.
+        onValidLayoutChange(lastValidGridLayouts);
+      }
+      setTempGridLayouts(null);
+    }, 50);
+  }, [isBounded, lastValidGridLayouts, onValidLayoutChange]);
 
   const saveCurrentLayouts = useCallback(() => {
-    setLastValidGridLayouts(currentGridLayouts);
-  }, [currentGridLayouts]);
+    setLastValidGridLayouts(gridLayouts);
+  }, [gridLayouts]);
 
   const layoutChildren = useMemo(() => Object.values(gridComponents).map((v) => {
     const Component = getComponent(v.component);
@@ -134,13 +166,13 @@ export function VitessceGridLayout(props) {
     );
   }), [gridComponents, getComponent, onRemoveComponent, theme]);
 
-  return (currentGridLayouts && gridComponents && gridBreakpoints && gridCols) && (
+  return (gridLayouts && gridComponents && gridBreakpoints && gridCols) && (
     <>
       {style}
       <ResponsiveHeightGridLayout
         className="layout"
         cols={gridCols}
-        layouts={currentGridLayouts}
+        layouts={tempGridLayouts || gridLayouts}
         breakpoints={gridBreakpoints}
         height={height}
         rowHeight={

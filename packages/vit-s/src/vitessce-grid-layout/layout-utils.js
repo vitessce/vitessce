@@ -18,13 +18,9 @@ export function makeGridLayout(colXs, colLayout) {
   }));
 }
 
-export function getMaxRows(layouts) {
+export function getMaxRows(layout) {
   return Math.max(
-    ...Object.values(layouts).map(
-      layout => Math.max(
-        ...layout.map(xywh => xywh.y + xywh.h),
-      ),
-    ),
+    ...layout.map(xywh => xywh.y + xywh.h),
   );
 }
 
