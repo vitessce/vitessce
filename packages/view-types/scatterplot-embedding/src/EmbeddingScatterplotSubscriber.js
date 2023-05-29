@@ -310,6 +310,7 @@ export function EmbeddingScatterplotSubscriber(props) {
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
+          disableTooltip={disableTooltip}
         />
       )}
     >

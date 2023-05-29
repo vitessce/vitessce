@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { debounce } from 'lodash-es';
-import { Checkbox, Slider, TableCell, TableRow } from '@material-ui/core';
+import { Checkbox, Slider, TableCell, TableRow, Tooltip } from '@material-ui/core';
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
@@ -12,6 +12,7 @@ export default function HeatmapOptions(props) {
     setGeneExpressionColormapRange,
     tooltipsVisible,
     setTooltipsVisible,
+    disableTooltip,
   } = props;
 
   const classes = usePlotOptionsStyles();
@@ -57,20 +58,26 @@ export default function HeatmapOptions(props) {
         <TableCell className={classes.labelCell}>
           Tooltips Visible
         </TableCell>
-        <TableCell className={classes.inputCell}>
-          <Checkbox
-            className={classes.checkbox}
-            /**
-             * We have to use "checked" here, not "value".
-             * The checkbox state is not persisting with value.
-             * For reference, https://v4.mui.com/api/checkbox/
-             */
-            checked={tooltipsVisible}
-            onChange={handleTooltipsVisibilityChange}
-            name="gene-expression-colormap-option-toltip-visibility"
-            color="default"
-          />
-        </TableCell>
+        <Tooltip
+          visible={disableTooltip.toString()}
+          title="Tooltip settings not available when `disableTooltip` is set to true from view config."
+        >
+          <TableCell className={classes.inputCell}>
+            <Checkbox
+              disabled={disableTooltip}
+              className={classes.checkbox}
+              /**
+               * We have to use "checked" here, not "value".
+               * The checkbox state is not persisting with value.
+               * For reference, https://v4.mui.com/api/checkbox/
+               */
+              checked={tooltipsVisible}
+              onChange={handleTooltipsVisibilityChange}
+              name="gene-expression-colormap-option-toltip-visibility"
+              color="default"
+            />
+          </TableCell>
+        </Tooltip>
       </TableRow>
       <TableRow>
         <TableCell className={classes.labelCell}>

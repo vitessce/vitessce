@@ -381,6 +381,7 @@ export function SpatialSubscriber(props) {
             (hasLocationsData || hasSegmentationsData) && hasExpressionData
           }
           canShow3DOptions={canShow3DOptions}
+          disableTooltip={disableTooltip}
         />
       );
     }
@@ -390,7 +391,7 @@ export function SpatialSubscriber(props) {
     hasLocationsData, hasSegmentationsData, hasExpressionData,
     observationsLabel, setCellColorEncoding,
     setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d,
-    tooltipsVisible, setTooltipsVisible,
+    tooltipsVisible, setTooltipsVisible, disableTooltip,
   ]);
 
   useEffect(() => {

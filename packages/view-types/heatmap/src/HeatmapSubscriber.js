@@ -205,6 +205,7 @@ export function HeatmapSubscriber(props) {
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
           tooltipsVisible={tooltipsVisible}
           setTooltipsVisible={setTooltipsVisible}
+          disableTooltip={disableTooltip}
         />
       )}
     >
