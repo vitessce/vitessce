@@ -255,7 +255,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       } else if (!originalViewState) {
         // originalViewState has not yet been set and
         // the view config defined an initial viewState.
-        setOriginalViewState({ target: [targetX, -targetY, 0], zoom });
+        setOriginalViewState({ target: [targetX, targetY, 0], zoom });
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
