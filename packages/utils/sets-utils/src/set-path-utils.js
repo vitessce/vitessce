@@ -27,7 +27,7 @@ function getPaths(node, currentPath = [], paths = []) {
  * looking for the longest subset (true) or the longest superset (false).
  * @returns {array} The longest subset or superset of path in arrOfPaths.
 */
-export function findLongestPath(arrOfPaths, path, isSubset) {
+function findLongestPath(arrOfPaths, path, isSubset) {
   if (Array.isArray(arrOfPaths)) {
     let longest = null;
     let longestLength = 0;
@@ -48,6 +48,30 @@ export function findLongestPath(arrOfPaths, path, isSubset) {
     }
   }
   return [];
+}
+
+/**
+ * Returns a path that belongs to cellSetSelection and is the longest path
+ * found in paths.
+ * @param {array of paths} arrOfPaths contains all paths we are interested in
+ * @param {array of paths} cellSetSelection contains the paths of the selected cell sets
+ * @returns
+ */
+export function findLongestCommonPath(arrOfPaths, cellSetSelection) {
+  let maxCount = 0;
+  let commonPath = [];
+
+  cellSetSelection.forEach((currentCellSet) => {
+    // Find the longest common path
+    const longestPath = findLongestPath(arrOfPaths, currentCellSet, false);
+
+    if (longestPath.length > maxCount) {
+      maxCount = longestPath.length;
+      commonPath = currentCellSet;
+    }
+  });
+
+  return commonPath;
 }
 
 /**

@@ -18,7 +18,7 @@ import {
   useSetComponentHover, useSetComponentViewInfo,
 } from '@vitessce/vit-s';
 import { capitalize, commaNumber, getCellColors } from '@vitessce/utils';
-import { mergeObsSets, findLongestPath } from '@vitessce/sets-utils';
+import { mergeObsSets, findLongestCommonPath } from '@vitessce/sets-utils';
 import { COMPONENT_COORDINATION_TYPES, ViewType } from '@vitessce/constants-internal';
 import { Legend } from '@vitessce/legend';
 import Heatmap from './Heatmap.js';
@@ -189,7 +189,7 @@ export function HeatmapSubscriber(props) {
       setCellColorEncoding('geneSelection');
     } else if (hoveredColorEncoding === 'cellSelection') {
       const selectionFullPath = getObsMembership(cellHighlight);
-      const selectionToHighlight = findLongestPath(cellSetSelection, ...selectionFullPath, true);
+      const selectionToHighlight = findLongestCommonPath(selectionFullPath, cellSetSelection);
       if (selectionToHighlight) {
         setCellSetSelection([selectionToHighlight]);
         setCellColorEncoding('cellSelection');
