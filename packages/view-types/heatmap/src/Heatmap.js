@@ -851,7 +851,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       ]}
       layers={layers}
       layerFilter={layerFilter}
-      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
+      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'pointer')}
       glOptions={DEFAULT_GL_OPTIONS}
       onViewStateChange={onViewStateChange}
       viewState={viewState}
