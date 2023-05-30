@@ -35,8 +35,6 @@ import HeatmapOptions from './HeatmapOptions.js';
  * @param {string} props.title The component title.
  * @param {boolean} props.transpose Whether to
  * render as cell-by-gene or gene-by-cell.
- * @param {boolean} props.disableTooltip Whether to disable the
- * tooltip on mouse hover.
  */
 export function HeatmapSubscriber(props) {
   const {
@@ -47,7 +45,6 @@ export function HeatmapSubscriber(props) {
     transpose,
     observationsLabelOverride,
     variablesLabelOverride,
-    disableTooltip = false,
     title = 'Heatmap',
   } = props;
 
@@ -72,6 +69,7 @@ export function HeatmapSubscriber(props) {
     additionalObsSets: additionalCellSets,
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
+    tooltipsVisible,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
@@ -85,6 +83,7 @@ export function HeatmapSubscriber(props) {
     setObsSetColor: setCellSetColor,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setFeatureValueColormap: setGeneExpressionColormap,
+    setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.HEATMAP], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
@@ -201,6 +200,8 @@ export function HeatmapSubscriber(props) {
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
+          tooltipsVisible={tooltipsVisible}
+          setTooltipsVisible={setTooltipsVisible}
         />
       )}
     >
@@ -240,7 +241,7 @@ export function HeatmapSubscriber(props) {
         useDevicePixels
         onHeatmapClick={onHeatmapClick}
       />
-      {!disableTooltip && (
+      {tooltipsVisible && (
       <HeatmapTooltipSubscriber
         parentUuid={uuid}
         width={width}

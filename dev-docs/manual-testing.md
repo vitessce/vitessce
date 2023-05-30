@@ -89,10 +89,16 @@ Hover:
 - Hover over a cell in the spatial plot and confirm that the crosshair appears over a cell with the same color in the scatterplot.
 
 Select cells:
-- Click on the marquee tool, and drag a rectangle over the middle of the view.
-- When you release the mouse, the cells contained in your rectangle should be brighter.
+- Click on the lasso tool, and make a selection over the middle of the view.
+- When you release the mouse, the cells contained in your selection should be brighter.
 - The corresponding points in the scatterplots should also be brighter.
 - On the heatmap, only selected cells should appear.
+
+Recenter the view:
+- Repeat the following steps, once for Spatial view type and once for Scatterplot view type.
+- Go to the respective view type and zoom in.
+- Click on the `CenterFocusStrong` button on the top left of the view type.
+- The view type should return back to its original position.
 
 Color the cells:
 - Leave a subset of cells selected.

@@ -329,6 +329,11 @@ export const baseCoordinationTypes = [
     z.number(),
   ),
   new PluginCoordinationType(
+    CoordinationType.TOOLTIPS_VISIBLE,
+    true,
+    z.boolean(),
+  ),
+  new PluginCoordinationType(
     CoordinationType.FEATURE_VALUE_COLORMAP,
     'plasma',
     z.string().nullable(),
