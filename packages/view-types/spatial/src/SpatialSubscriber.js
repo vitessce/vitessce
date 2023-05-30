@@ -49,7 +49,6 @@ export function SpatialSubscriber(props) {
     observationsLabelOverride,
     subobservationsLabelOverride: subobservationsLabel = 'molecule',
     theme,
-    disableTooltip = false,
     title = 'Spatial',
     disable3d,
     globalDisable3d,
@@ -89,6 +88,7 @@ export function SpatialSubscriber(props) {
     spatialAxisFixed,
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
+    tooltipsVisible,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -111,6 +111,7 @@ export function SpatialSubscriber(props) {
     setSpatialAxisFixed,
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
+    setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
@@ -375,6 +376,8 @@ export function SpatialSubscriber(props) {
           setSpatialAxisFixed={setSpatialAxisFixed}
           spatialAxisFixed={spatialAxisFixed}
           use3d={use3d}
+          tooltipsVisible={tooltipsVisible}
+          setTooltipsVisible={setTooltipsVisible}
           geneExpressionColormap={geneExpressionColormap}
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
@@ -393,6 +396,7 @@ export function SpatialSubscriber(props) {
     hasLocationsData, hasSegmentationsData, hasExpressionData,
     observationsLabel, setCellColorEncoding,
     setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d,
+    tooltipsVisible, setTooltipsVisible,
   ]);
 
   useEffect(() => {
@@ -483,7 +487,7 @@ export function SpatialSubscriber(props) {
         theme={theme}
         useFullResolutionImage={useFullResolutionImage}
       />
-      {!disableTooltip && (
+      {tooltipsVisible && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}
           obsHighlight={cellHighlight}

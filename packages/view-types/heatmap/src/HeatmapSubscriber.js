@@ -5,6 +5,7 @@ import plur from 'plur';
 import {
   TitleInfo,
   useDeckCanvasSize,
+  useGetObsMembership,
   useGetObsInfo,
   useReady,
   useUrls,
@@ -17,7 +18,7 @@ import {
   useSetComponentHover, useSetComponentViewInfo,
 } from '@vitessce/vit-s';
 import { capitalize, commaNumber, getCellColors } from '@vitessce/utils';
-import { mergeObsSets } from '@vitessce/sets-utils';
+import { mergeObsSets, findLongestCommonPath } from '@vitessce/sets-utils';
 import { COMPONENT_COORDINATION_TYPES, ViewType } from '@vitessce/constants-internal';
 import { Legend } from '@vitessce/legend';
 import Heatmap from './Heatmap.js';
@@ -35,8 +36,6 @@ import HeatmapOptions from './HeatmapOptions.js';
  * @param {string} props.title The component title.
  * @param {boolean} props.transpose Whether to
  * render as cell-by-gene or gene-by-cell.
- * @param {boolean} props.disableTooltip Whether to disable the
- * tooltip on mouse hover.
  */
 export function HeatmapSubscriber(props) {
   const {
@@ -47,7 +46,6 @@ export function HeatmapSubscriber(props) {
     transpose,
     observationsLabelOverride,
     variablesLabelOverride,
-    disableTooltip = false,
     title = 'Heatmap',
   } = props;
 
@@ -72,6 +70,7 @@ export function HeatmapSubscriber(props) {
     additionalObsSets: additionalCellSets,
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
+    tooltipsVisible,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
@@ -85,6 +84,7 @@ export function HeatmapSubscriber(props) {
     setObsSetColor: setCellSetColor,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setFeatureValueColormap: setGeneExpressionColormap,
+    setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.HEATMAP], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
@@ -96,6 +96,10 @@ export function HeatmapSubscriber(props) {
   const variablesTitle = capitalize(variablesPluralLabel);
 
   const [isRendering, setIsRendering] = useState(false);
+  // We need to know whether the user is currently hovering over the expression part
+  // of the heatmap vs. the color bar part, which will affect whether we call
+  // setObsColorEncoding with 'geneSelection' or 'cellSetSelection' upon a click.
+  const [hoveredColorEncoding, setHoveredColorEncoding] = useState('geneSelection');
 
   const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -146,6 +150,8 @@ export function HeatmapSubscriber(props) {
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
+  const getObsMembership = useGetObsMembership(obsSetsMembership);
+
   const getFeatureInfo = useCallback((featureId) => {
     if (featureId) {
       const featureLabel = featureLabelsMap?.get(featureId) || featureId;
@@ -177,8 +183,19 @@ export function HeatmapSubscriber(props) {
   }, []);
 
   const onHeatmapClick = () => {
-    setGeneSelection([geneHighlight]);
-    setCellColorEncoding('geneSelection');
+    if (hoveredColorEncoding === 'geneSelection' && geneHighlight) {
+      setGeneSelection([geneHighlight]);
+      setCellColorEncoding('geneSelection');
+    } else if (hoveredColorEncoding === 'cellSelection' && cellSetSelection) {
+      const selectionFullPath = getObsMembership(cellHighlight);
+      if (selectionFullPath?.length > 0) {
+        const selectionToHighlight = findLongestCommonPath(selectionFullPath, cellSetSelection);
+        if (selectionToHighlight) {
+          setCellSetSelection([selectionToHighlight]);
+          setCellColorEncoding('cellSelection');
+        }
+      }
+    }
   };
 
   const cellColorLabels = useMemo(() => ([
@@ -201,6 +218,8 @@ export function HeatmapSubscriber(props) {
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
+          tooltipsVisible={tooltipsVisible}
+          setTooltipsVisible={setTooltipsVisible}
         />
       )}
     >
@@ -239,8 +258,9 @@ export function HeatmapSubscriber(props) {
         cellColorLabels={cellColorLabels}
         useDevicePixels
         onHeatmapClick={onHeatmapClick}
+        setColorEncoding={setHoveredColorEncoding}
       />
-      {!disableTooltip && (
+      {tooltipsVisible && (
       <HeatmapTooltipSubscriber
         parentUuid={uuid}
         width={width}
