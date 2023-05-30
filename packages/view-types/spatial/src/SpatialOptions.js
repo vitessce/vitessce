@@ -7,7 +7,6 @@ import {
   TableRow,
   Slider,
   makeStyles,
-  Tooltip,
 } from '@material-ui/core';
 import {
   usePlotOptionsStyles, OptionsContainer, CellColorEncodingOption, OptionSelect,
@@ -65,7 +64,6 @@ export default function SpatialOptions(props) {
     canShowExpressionOptions,
     canShowColorEncodingOption,
     canShow3DOptions,
-    disableTooltip,
   } = props;
 
   function handleGeneExpressionColormapChange(event) {
@@ -106,26 +104,20 @@ export default function SpatialOptions(props) {
         <TableCell className={classes.labelCell}>
           Tooltips Visible
         </TableCell>
-        <Tooltip
-          visible={disableTooltip.toString()}
-          title="Tooltip settings not available when `disableTooltip` is set to true from view config."
-        >
-          <TableCell className={classes.inputCell}>
-            <Checkbox
-              disabled={disableTooltip}
-              className={classes.checkbox}
+        <TableCell className={classes.inputCell}>
+          <Checkbox
+            className={classes.checkbox}
               /**
                * We have to use "checked" here, not "value".
                * The checkbox state is not persisting with value.
                * For reference, https://v4.mui.com/api/checkbox/
                */
-              checked={tooltipsVisible}
-              onChange={handleTooltipsVisibilityChange}
-              name="gene-expression-colormap-option-toltip-visibility"
-              color="default"
-            />
-          </TableCell>
-        </Tooltip>
+            checked={tooltipsVisible}
+            onChange={handleTooltipsVisibilityChange}
+            name="gene-expression-colormap-option-toltip-visibility"
+            color="default"
+          />
+        </TableCell>
       </TableRow>
       {canShowExpressionOptions ? (
         <>

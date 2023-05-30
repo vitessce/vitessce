@@ -39,7 +39,6 @@ import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-inte
  * @param {string} props.theme The current theme name.
  * @param {object} props.coordinationScopes The mapping from coordination types to coordination
  * scopes.
- * @param {boolean} props.disableTooltip Should the tooltip be disabled?
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title An override value for the component title.
@@ -52,7 +51,6 @@ export function EmbeddingScatterplotSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    disableTooltip = false,
     observationsLabelOverride,
     title: titleOverride,
     // Average fill density for dynamic opacity calculation.
@@ -320,7 +318,6 @@ export function EmbeddingScatterplotSubscriber(props) {
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
-          disableTooltip={disableTooltip}
         />
       )}
     >
@@ -357,7 +354,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         getCellIsSelected={getCellIsSelected}
 
       />
-      {!disableTooltip && tooltipsVisible && (
+      {tooltipsVisible && (
       <ScatterplotTooltipSubscriber
         parentUuid={uuid}
         obsHighlight={cellHighlight}

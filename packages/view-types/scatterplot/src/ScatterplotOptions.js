@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { debounce } from 'lodash-es';
-import { Checkbox, Slider, TableCell, TableRow, Tooltip } from '@material-ui/core';
+import { Checkbox, Slider, TableCell, TableRow } from '@material-ui/core';
 import { capitalize } from '@vitessce/utils';
 import {
   usePlotOptionsStyles, CellColorEncodingOption, OptionsContainer, OptionSelect,
@@ -33,7 +33,6 @@ export default function ScatterplotOptions(props) {
     setGeneExpressionColormap,
     geneExpressionColormapRange,
     setGeneExpressionColormapRange,
-    disableTooltip,
   } = props;
 
   const observationsLabelNice = capitalize(observationsLabel);
@@ -110,26 +109,20 @@ export default function ScatterplotOptions(props) {
         <TableCell className={classes.labelCell}>
           Tooltips Visible
         </TableCell>
-        <Tooltip
-          visible={disableTooltip.toString()}
-          title="Tooltip settings not available when `disableTooltip` is set to true from view config."
-        >
-          <TableCell className={classes.inputCell}>
-            <Checkbox
-              disabled={disableTooltip}
-              className={classes.checkbox}
+        <TableCell className={classes.inputCell}>
+          <Checkbox
+            className={classes.checkbox}
               /**
                * We have to use "checked" here, not "value".
                * The checkbox state is not persisting with value.
                * For reference, https://v4.mui.com/api/checkbox/
                */
-              checked={tooltipsVisible}
-              onChange={handleTooltipsVisibilityChange}
-              name="scatterplot-option-toltip-visibility"
-              color="default"
-            />
-          </TableCell>
-        </Tooltip>
+            checked={tooltipsVisible}
+            onChange={handleTooltipsVisibilityChange}
+            name="scatterplot-option-toltip-visibility"
+            color="default"
+          />
+        </TableCell>
       </TableRow>
       <TableRow>
         <TableCell className={classes.labelCell}>
