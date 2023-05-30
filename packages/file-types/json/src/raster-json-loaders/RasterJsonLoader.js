@@ -9,15 +9,6 @@ import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import { rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
 import JsonLoader from '../json-loaders/JsonLoader.js';
 
-function hexToRgb(hex) {
-  const result = /^#?([A-F\d]{2})([A-F\d]{2})([A-F\d]{2})$/i.exec(hex);
-  return [
-    parseInt(result[1].toLowerCase(), 16),
-    parseInt(result[2].toLowerCase(), 16),
-    parseInt(result[3].toLowerCase(), 16),
-  ];
-}
-
 async function initLoader(imageData) {
   const {
     type, url, metadata, requestInit,

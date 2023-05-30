@@ -10,8 +10,6 @@ export default class RasterJsonAsImageLoader extends RasterLoader {
     const { data = {}, url: urls, coordinationValues } = loaderResult;
     const { loaders: allLoaders = [], meta: allMeta = [] } = data;
 
-    console.log(data, loaderResult)
-
     const loaders = [];
     const meta = [];
 
