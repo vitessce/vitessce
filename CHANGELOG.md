@@ -1,5 +1,6 @@
 ### Added
 - Added a legend for quantitative color scales in the `SpatialSubscriber` and `EmbeddingScatterplotSubscriber` views.
+- Added functions to the `VitessceConfig` object-oriented configuration APIs to support multi-level and meta (i.e., complex) coordination.
 - Support for automatic view config generation for OME-TIFF, Anndata-Zarr and OME-ZARR file formats.
 - Added a speaker icon to the documentation nav bar for using the International Phonetic Alphabet (IPA) notation to demonstrate how to pronounce Vitessce.
 - Added `image.ome-tiff` and `obsSegmentations.ome-tiff` file types.
