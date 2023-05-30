@@ -78,6 +78,7 @@
 - Adjust the code in `onHover` in `Heatmap.js` to track cell position also for cells that are on the cell set bar.
 - Add function `useGetObsMembership` in `hooks.js` to get the full path of the cell that was clicked.
 - Adjusted the `onHeatmapClick` function in `HeatmapSubscriber.js` to distinguish between clicks on the heatmap and clicks on the cell set bar and take according actions.
+- Made the cursor type to `pointer` when the user is hovering over the heatmap.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
