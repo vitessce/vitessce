@@ -39,7 +39,6 @@ import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-inte
  * @param {string} props.theme The current theme name.
  * @param {object} props.coordinationScopes The mapping from coordination types to coordination
  * scopes.
- * @param {boolean} props.disableTooltip Should the tooltip be disabled?
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title An override value for the component title.
@@ -52,7 +51,6 @@ export function EmbeddingScatterplotSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    disableTooltip = false,
     observationsLabelOverride,
     title: titleOverride,
     // Average fill density for dynamic opacity calculation.
@@ -90,6 +88,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     embeddingObsOpacityMode: cellOpacityMode,
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
+    tooltipsVisible,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -110,6 +109,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     setEmbeddingObsOpacityMode: setCellOpacityMode,
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
+    setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
@@ -306,6 +306,8 @@ export function EmbeddingScatterplotSubscriber(props) {
           setCellOpacityMode={setCellOpacityMode}
           cellSetLabelsVisible={cellSetLabelsVisible}
           setCellSetLabelsVisible={setCellSetLabelsVisible}
+          tooltipsVisible={tooltipsVisible}
+          setTooltipsVisible={setTooltipsVisible}
           cellSetLabelSize={cellSetLabelSize}
           setCellSetLabelSize={setCellSetLabelSize}
           cellSetPolygonsVisible={cellSetPolygonsVisible}
@@ -352,7 +354,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         getCellIsSelected={getCellIsSelected}
 
       />
-      {!disableTooltip && (
+      {tooltipsVisible && (
       <ScatterplotTooltipSubscriber
         parentUuid={uuid}
         obsHighlight={cellHighlight}

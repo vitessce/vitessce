@@ -17,7 +17,7 @@
 - Add `CITATION.cff`
 - Added a button to recenter and rescale data to default for Scatterplot and Spatial views. 
 - Removed the Select Rectangle button from Scatterplot and Spatial views.
-- Implemented bidirectional interactions for the cell set bar on the Heatmap. After a click on the bar, the code identifies which cell was clicked, then identifies which cluster it belongs to and highlights that cluster in all plots. 
+- Added option to disable tooltips on Heatmap and Scatterplot components. The option is available from the options control dropdown.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
@@ -72,6 +72,9 @@
 - Removed the `select rectangle` tool and all references to it.
 - Added a state variable called `originalViewState` in `SpatialSubscriber` and `EmbeddingScatterplotSubscriber`.
   - `originalViewState` holds the value of the initial position of the view and is used for recentering.
+- Modified `HeatmapOptions`, `SpatialOptions` and `ScatterplotOptions` components - added a checkbox for making the tooltip not visible.
+- Added a `tooltipsVisible` to the coordination scope for `Heatmap`, `Spatial` and `Scatterplot` coordination types. Its default value is true. Modified the components to hide the tooltip if `tooltipVsisible` is false.
+- Removed `disableTooltip` from `props`.
 - Adjust the code in `onHover` in `Heatmap.js` to track cell position also for cells that are on the cell set bar.
 - Add function `useGetObsMembership` in `hooks.js` to get the full path of the cell that was clicked.
 - Adjusted the `onHeatmapClick` function in `HeatmapSubscriber.js` to distinguish between clicks on the heatmap and clicks on the cell set bar and take according actions.
