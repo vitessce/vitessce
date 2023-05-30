@@ -18,6 +18,7 @@
 - Added a button to recenter and rescale data to default for Scatterplot and Spatial views. 
 - Removed the Select Rectangle button from Scatterplot and Spatial views.
 - Added option to disable tooltips on Heatmap and Scatterplot components. The option is available from the options control dropdown.
+- Added an option to skip sorting features alphabetically in feature list.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
@@ -75,9 +76,12 @@
 - Modified `HeatmapOptions`, `SpatialOptions` and `ScatterplotOptions` components - added a checkbox for making the tooltip not visible.
 - Added a `tooltipsVisible` to the coordination scope for `Heatmap`, `Spatial` and `Scatterplot` coordination types. Its default value is true. Modified the components to hide the tooltip if `tooltipVsisible` is false.
 - Removed `disableTooltip` from `props`.
+- Fix bug that may cause `originalViewState.target` to not be an array as expected.
 - Adjust the code in `onHover` in `Heatmap.js` to track cell position also for cells that are on the cell set bar.
 - Add function `useGetObsMembership` in `hooks.js` to get the full path of the cell that was clicked.
 - Adjusted the `onHeatmapClick` function in `HeatmapSubscriber.js` to distinguish between clicks on the heatmap and clicks on the cell set bar and take according actions.
+- Added a prop `sort` in `FeatureListSubscriber`, with default value equal to `alphabetical`.
+- Modified component `FeatureList` so that if sort is not equal to `alphabetical`, then sorting of data is skipped and the order of feature listis the same as original.
 - Made the cursor type to `pointer` when the user is hovering over the heatmap.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01

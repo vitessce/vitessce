@@ -371,7 +371,9 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
   recenter() {
     const { originalViewState, setViewState } = this.props;
-    setViewState(originalViewState);
+    if (Array.isArray(originalViewState?.target) && typeof originalViewState?.zoom === 'number') {
+      setViewState(originalViewState);
+    }
   }
 
   // render() is implemented in the abstract parent class.
