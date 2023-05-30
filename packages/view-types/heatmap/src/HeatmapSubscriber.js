@@ -183,15 +183,17 @@ export function HeatmapSubscriber(props) {
   }, []);
 
   const onHeatmapClick = () => {
-    if (hoveredColorEncoding === 'geneSelection') {
+    if (hoveredColorEncoding === 'geneSelection' && geneHighlight) {
       setGeneSelection([geneHighlight]);
       setCellColorEncoding('geneSelection');
-    } else if (hoveredColorEncoding === 'cellSelection') {
+    } else if (hoveredColorEncoding === 'cellSelection' && cellSetSelection) {
       const selectionFullPath = getObsMembership(cellHighlight);
-      const selectionToHighlight = findLongestCommonPath(selectionFullPath, cellSetSelection);
-      if (selectionToHighlight) {
-        setCellSetSelection([selectionToHighlight]);
-        setCellColorEncoding('cellSelection');
+      if (selectionFullPath?.length > 0) {
+        const selectionToHighlight = findLongestCommonPath(selectionFullPath, cellSetSelection);
+        if (selectionToHighlight) {
+          setCellSetSelection([selectionToHighlight]);
+          setCellColorEncoding('cellSelection');
+        }
       }
     }
   };
