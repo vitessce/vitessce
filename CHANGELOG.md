@@ -75,6 +75,7 @@
 - Modified `HeatmapOptions`, `SpatialOptions` and `ScatterplotOptions` components - added a checkbox for making the tooltip not visible.
 - Added a `tooltipsVisible` to the coordination scope for `Heatmap`, `Spatial` and `Scatterplot` coordination types. Its default value is true. Modified the components to hide the tooltip if `tooltipVsisible` is false.
 - Removed `disableTooltip` from `props`.
+- Fix bug that may cause `originalViewState.target` to not be an array as expected.
 - Adjust the code in `onHover` in `Heatmap.js` to track cell position also for cells that are on the cell set bar.
 - Add function `useGetObsMembership` in `hooks.js` to get the full path of the cell that was clicked.
 - Adjusted the `onHeatmapClick` function in `HeatmapSubscriber.js` to distinguish between clicks on the heatmap and clicks on the cell set bar and take according actions.

@@ -160,7 +160,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
-  const [originalViewState, setOriginalViewState] = useState({});
+  const [originalViewState, setOriginalViewState] = useState(null);
 
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
@@ -242,6 +242,8 @@ export function EmbeddingScatterplotSubscriber(props) {
       setDynamicCellOpacity(nextCellOpacityScale);
 
       if (typeof targetX !== 'number' || typeof targetY !== 'number') {
+        // The view config did not define an initial viewState so
+        // we calculate one based on the data and set it.
         const newTargetX = xExtent[0] + xRange / 2;
         const newTargetY = yExtent[0] + yRange / 2;
         const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
@@ -250,6 +252,10 @@ export function EmbeddingScatterplotSubscriber(props) {
         setTargetY(-newTargetY);
         setZoom(newZoom);
         setOriginalViewState({ target: [newTargetX, -newTargetY, 0], zoom: newZoom });
+      } else if (!originalViewState) {
+        // originalViewState has not yet been set and
+        // the view config defined an initial viewState.
+        setOriginalViewState({ target: [targetX, targetY, 0], zoom });
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
