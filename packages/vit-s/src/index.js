@@ -10,6 +10,7 @@ export {
   useUint8ObsFeatureMatrix,
   useUint8FeatureSelection,
   useExpressionValueGetter,
+  useGetObsMembership,
   useGetObsInfo,
   useClosestVitessceContainerSize,
   useWindowDimensions,
