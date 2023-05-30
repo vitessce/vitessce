@@ -6,6 +6,7 @@ import {
   configSchema1_0_1,
   configSchema1_0_15,
   configSchema1_0_16,
+  configSchema1_0_17,
 } from './previous-config-schemas.js';
 
 /* eslint-disable camelcase */
@@ -898,4 +899,913 @@ export const explicitPerDatasetCoordinations: z.infer<typeof configSchema1_0_16>
       y: 2,
     },
   ],
+};
+
+// TODO: another example with a segmentation bitmask
+export const nestedSpatialLayers: z.infer<typeof configSchema1_0_16> = {
+  version: '1.0.16',
+  name: 'Spatial layers fixture',
+  datasets: [
+    {
+      uid: 'A',
+      name: 'My dataset',
+      files: [
+        {
+          fileType: 'image.raster.json',
+          options: {
+            schemaVersion: '0.0.2',
+            images: [
+              {
+                name: 'PAS',
+                type: 'ome-tiff',
+                url: 'https://assets.hubmapconsortium.org/f4188a148e4c759092d19369d310883b/ometiff-pyramids/processedMicroscopy/VAN0006-LK-2-85-PAS_images/VAN0006-LK-2-85-PAS_registered.ome.tif?token=',
+              },
+              {
+                name: 'AF',
+                type: 'ome-tiff',
+                url: 'https://assets.hubmapconsortium.org/2130d5f91ce61d7157a42c0497b06de8/ometiff-pyramids/processedMicroscopy/VAN0006-LK-2-85-AF_preIMS_images/VAN0006-LK-2-85-AF_preIMS_registered.ome.tif?token=',
+              },
+              {
+                name: 'IMS PosMode',
+                type: 'ome-tiff',
+                url: 'https://assets.hubmapconsortium.org/be503a021ed910c0918842e318e6efa2/ometiff-pyramids/ometiffs/VAN0006-LK-2-85-IMS_PosMode_multilayer.ome.tif?token=',
+              },
+              {
+                name: 'IMS NegMode',
+                type: 'ome-tiff',
+                url: 'https://assets.hubmapconsortium.org/ca886a630b2038997a4cfbbf4abfd283/ometiff-pyramids/ometiffs/VAN0006-LK-2-85-IMS_NegMode_multilayer.ome.tif?token=',
+              },
+            ],
+            usePhysicalSizeScaling: true,
+            renderLayers: [
+              'PAS',
+              'AF',
+              'IMS PosMode',
+              'IMS NegMode',
+            ],
+          },
+        },
+      ],
+    },
+  ],
+  coordinationSpace: {
+    dataset: {
+      A: 'A',
+    },
+    spatialZoom: {
+      A: -4.4211074257069285,
+    },
+    spatialTargetX: {
+      A: 11092.812174766119,
+    },
+    spatialTargetY: {
+      A: 15196.071341244067,
+    },
+    spatialTargetZ: {
+      A: null,
+    },
+    spatialImageLayer: {
+      A: [
+        {
+          type: 'raster',
+          index: 0,
+          visible: true,
+          colormap: null,
+          opacity: 1,
+          domainType: 'Min/Max',
+          transparentColor: null,
+          renderingMode: 'Additive',
+          use3d: false,
+          channels: [
+            {
+              selection: {
+                c: 0,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                0,
+                0,
+              ],
+              visible: true,
+              slider: [
+                0,
+                255,
+              ],
+            },
+            {
+              selection: {
+                c: 1,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                0,
+                255,
+              ],
+            },
+            {
+              selection: {
+                c: 2,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                0,
+                255,
+              ],
+            },
+          ],
+        },
+        {
+          type: 'raster',
+          index: 1,
+          visible: true,
+          colormap: null,
+          opacity: 1,
+          domainType: 'Min/Max',
+          transparentColor: [
+            0,
+            0,
+            0,
+          ],
+          renderingMode: 'Additive',
+          use3d: false,
+          channels: [
+            {
+              selection: {
+                c: 0,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                1024,
+                23753,
+              ],
+            },
+            {
+              selection: {
+                c: 1,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                373,
+                9848,
+              ],
+            },
+            {
+              selection: {
+                c: 2,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                326,
+                14084,
+              ],
+            },
+          ],
+        },
+        {
+          type: 'raster',
+          index: 2,
+          visible: true,
+          colormap: null,
+          opacity: 1,
+          domainType: 'Min/Max',
+          transparentColor: [
+            0,
+            0,
+            0,
+          ],
+          renderingMode: 'Additive',
+          use3d: false,
+          channels: [
+            {
+              selection: {
+                c: 0,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                0.7109375,
+                2817.15283203125,
+              ],
+            },
+            {
+              selection: {
+                c: 1,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                7.094120025634766,
+                50509.515625,
+              ],
+            },
+            {
+              selection: {
+                c: 2,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                0.5399665832519531,
+                1078.9984130859375,
+              ],
+            },
+            {
+              selection: {
+                c: 3,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                0.28322410583496094,
+                1108.6363525390625,
+              ],
+            },
+          ],
+          modelMatrix: [
+            20,
+            0,
+            0,
+            0,
+            0,
+            20,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+          ],
+        },
+        {
+          type: 'raster',
+          index: 3,
+          visible: true,
+          colormap: null,
+          opacity: 1,
+          domainType: 'Min/Max',
+          transparentColor: [
+            0,
+            0,
+            0,
+          ],
+          renderingMode: 'Additive',
+          use3d: false,
+          channels: [
+            {
+              selection: {
+                c: 0,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                1.335814118385315,
+                1839.003662109375,
+              ],
+            },
+            {
+              selection: {
+                c: 1,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                4.591888427734375,
+                5142.390625,
+              ],
+            },
+            {
+              selection: {
+                c: 2,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                0.2421875,
+                314.395751953125,
+              ],
+            },
+            {
+              selection: {
+                c: 3,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                0.4366779327392578,
+                390.0624084472656,
+              ],
+            },
+          ],
+          modelMatrix: [
+            20,
+            0,
+            0,
+            0,
+            0,
+            20,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+          ],
+        },
+      ],
+    },
+    spatialSegmentationLayer: {
+      A: [],
+    },
+    spatialPointLayer: {
+      A: null,
+    },
+  },
+  layout: [
+    {
+      component: 'spatial',
+      coordinationScopes: {
+        dataset: 'A',
+        spatialZoom: 'A',
+        spatialTargetX: 'A',
+        spatialTargetY: 'A',
+        spatialTargetZ: 'A',
+        spatialImageLayer: 'A',
+        spatialSegmentationLayer: 'A',
+        spatialPointLayer: 'A',
+      },
+      x: 0,
+      y: 0,
+      w: 9,
+      h: 12,
+      uid: 'A',
+    },
+    {
+      component: 'layerController',
+      coordinationScopes: {
+        dataset: 'A',
+        spatialZoom: 'A',
+        spatialTargetX: 'A',
+        spatialTargetY: 'A',
+        spatialTargetZ: 'A',
+        spatialImageLayer: 'A',
+        spatialSegmentationLayer: 'A',
+        spatialPointLayer: 'A',
+      },
+      x: 9,
+      y: 0,
+      w: 3,
+      h: 12,
+      props: {
+        globalDisable3d: true,
+        disableChannelsIfRgbDetected: true,
+      },
+      uid: 'B',
+    },
+  ],
+  initStrategy: 'auto',
+};
+
+export const nestedSpatialLayersWithImageCoordinationValue: z.infer<typeof configSchema1_0_17> = {
+  version: '1.0.17',
+  name: 'Spatial layers fixture',
+  datasets: [
+    {
+      // TODO: example with multiple datasets
+      uid: 'A',
+      name: 'My dataset',
+      files: [
+        {
+          fileType: 'image.ome-tiff',
+          url: 'https://assets.hubmapconsortium.org/f4188a148e4c759092d19369d310883b/ometiff-pyramids/processedMicroscopy/VAN0006-LK-2-85-PAS_images/VAN0006-LK-2-85-PAS_registered.ome.tif?token=',
+          coordinationValues: {
+            image: 'PAS',
+          },
+        },
+        {
+          fileType: 'image.ome-tiff',
+          url: 'https://assets.hubmapconsortium.org/2130d5f91ce61d7157a42c0497b06de8/ometiff-pyramids/processedMicroscopy/VAN0006-LK-2-85-AF_preIMS_images/VAN0006-LK-2-85-AF_preIMS_registered.ome.tif?token=',
+          coordinationValues: {
+            image: 'AF',
+          },
+        },
+        {
+          fileType: 'image.ome-tiff',
+          url: 'https://assets.hubmapconsortium.org/be503a021ed910c0918842e318e6efa2/ometiff-pyramids/ometiffs/VAN0006-LK-2-85-IMS_PosMode_multilayer.ome.tif?token=',
+          coordinationValues: {
+            image: 'IMS PosMode',
+          },
+        },
+        {
+          fileType: 'image.ome-tiff',
+          url: 'https://assets.hubmapconsortium.org/ca886a630b2038997a4cfbbf4abfd283/ometiff-pyramids/ometiffs/VAN0006-LK-2-85-IMS_NegMode_multilayer.ome.tif?token=',
+          coordinationValues: {
+            image: 'IMS NegMode',
+          },
+        },
+        // TODO: example with obsSegmentations.ome-tiff (bitmask)
+        // TODO: example with obsSegmentations.json (polygons)
+      ],
+    },
+  ],
+  coordinationSpace: {
+    dataset: {
+      A: 'A',
+    },
+    spatialZoom: {
+      A: -4.4211074257069285,
+    },
+    spatialTargetX: {
+      A: 11092.812174766119,
+    },
+    spatialTargetY: {
+      A: 15196.071341244067,
+    },
+    spatialTargetZ: {
+      A: null,
+    },
+    spatialImageLayer: {
+      A: [
+        {
+          type: 'raster',
+          image: 'PAS',
+          visible: true,
+          colormap: null,
+          opacity: 1,
+          domainType: 'Min/Max',
+          transparentColor: null,
+          renderingMode: 'Additive',
+          use3d: false,
+          channels: [
+            {
+              selection: {
+                c: 0,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                0,
+                0,
+              ],
+              visible: true,
+              slider: [
+                0,
+                255,
+              ],
+            },
+            {
+              selection: {
+                c: 1,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                0,
+                255,
+              ],
+            },
+            {
+              selection: {
+                c: 2,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                0,
+                255,
+              ],
+            },
+          ],
+        },
+        {
+          type: 'raster',
+          image: 'AF',
+          visible: true,
+          colormap: null,
+          opacity: 1,
+          domainType: 'Min/Max',
+          transparentColor: [
+            0,
+            0,
+            0,
+          ],
+          renderingMode: 'Additive',
+          use3d: false,
+          channels: [
+            {
+              selection: {
+                c: 0,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                1024,
+                23753,
+              ],
+            },
+            {
+              selection: {
+                c: 1,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                373,
+                9848,
+              ],
+            },
+            {
+              selection: {
+                c: 2,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                326,
+                14084,
+              ],
+            },
+          ],
+        },
+        {
+          type: 'raster',
+          image: 'IMS PosMode',
+          visible: true,
+          colormap: null,
+          opacity: 1,
+          domainType: 'Min/Max',
+          transparentColor: [
+            0,
+            0,
+            0,
+          ],
+          renderingMode: 'Additive',
+          use3d: false,
+          channels: [
+            {
+              selection: {
+                c: 0,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                0.7109375,
+                2817.15283203125,
+              ],
+            },
+            {
+              selection: {
+                c: 1,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                7.094120025634766,
+                50509.515625,
+              ],
+            },
+            {
+              selection: {
+                c: 2,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                0.5399665832519531,
+                1078.9984130859375,
+              ],
+            },
+            {
+              selection: {
+                c: 3,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                0.28322410583496094,
+                1108.6363525390625,
+              ],
+            },
+          ],
+          modelMatrix: [
+            20,
+            0,
+            0,
+            0,
+            0,
+            20,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+          ],
+        },
+        {
+          type: 'raster',
+          image: 'IMS NegMode',
+          visible: true,
+          colormap: null,
+          opacity: 1,
+          domainType: 'Min/Max',
+          transparentColor: [
+            0,
+            0,
+            0,
+          ],
+          renderingMode: 'Additive',
+          use3d: false,
+          channels: [
+            {
+              selection: {
+                c: 0,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                1.335814118385315,
+                1839.003662109375,
+              ],
+            },
+            {
+              selection: {
+                c: 1,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                0,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                4.591888427734375,
+                5142.390625,
+              ],
+            },
+            {
+              selection: {
+                c: 2,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                0,
+                255,
+              ],
+              visible: true,
+              slider: [
+                0.2421875,
+                314.395751953125,
+              ],
+            },
+            {
+              selection: {
+                c: 3,
+                z: 0,
+                t: 0,
+              },
+              color: [
+                255,
+                255,
+                0,
+              ],
+              visible: true,
+              slider: [
+                0.4366779327392578,
+                390.0624084472656,
+              ],
+            },
+          ],
+          modelMatrix: [
+            20,
+            0,
+            0,
+            0,
+            0,
+            20,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+          ],
+        },
+      ],
+    },
+    spatialSegmentationLayer: {
+      A: [],
+    },
+    spatialPointLayer: {
+      A: null,
+    },
+  },
+  layout: [
+    {
+      component: 'spatial',
+      coordinationScopes: {
+        dataset: 'A',
+        spatialZoom: 'A',
+        spatialTargetX: 'A',
+        spatialTargetY: 'A',
+        spatialTargetZ: 'A',
+        spatialImageLayer: 'A',
+        spatialSegmentationLayer: 'A',
+        spatialPointLayer: 'A',
+      },
+      x: 0,
+      y: 0,
+      w: 9,
+      h: 12,
+      uid: 'A',
+    },
+    {
+      component: 'layerController',
+      coordinationScopes: {
+        dataset: 'A',
+        spatialZoom: 'A',
+        spatialTargetX: 'A',
+        spatialTargetY: 'A',
+        spatialTargetZ: 'A',
+        spatialImageLayer: 'A',
+        spatialSegmentationLayer: 'A',
+        spatialPointLayer: 'A',
+      },
+      x: 9,
+      y: 0,
+      w: 3,
+      h: 12,
+      props: {
+        globalDisable3d: true,
+        disableChannelsIfRgbDetected: true,
+      },
+      uid: 'B',
+    },
+  ],
+  initStrategy: 'auto',
 };

@@ -21,8 +21,10 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const { url, requestInit } = this;
+    const { url, requestInit, coordinationValues } = this;
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
+
+    console.log(coordinationValues);
 
     // Get image name and URL tuples.
     const urls = [
@@ -87,13 +89,14 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
         imagesWithLoaderCreators,
         renderLayers,
         usePhysicalSizeScaling,
+        coordinationValues.image,
       );
     }
 
     return this.autoImageCache.then((autoImages) => {
       const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = autoImages;
 
-      const coordinationValues = {
+      const coordinationValuesForView = {
         spatialImageLayer: autoImageLayers,
       };
       return new LoaderResult(
@@ -102,7 +105,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
           featureIndex: channels,
         },
         urls,
-        coordinationValues,
+        coordinationValuesForView,
       );
     });
   }

@@ -2,7 +2,7 @@
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash-es';
-import { getNextScope, capitalize } from '@vitessce/utils';
+import { getNextScope, capitalize, fromEntries } from '@vitessce/utils';
 import { componentCoordinationScopes, componentCoordinationScopesBy } from './shared.js';
 import {
   configSchema0_1_0,
@@ -23,6 +23,7 @@ import {
   configSchema1_0_14,
   configSchema1_0_15,
   configSchema1_0_16,
+  configSchema1_0_17,
 } from './previous-config-schemas.js';
 
 
@@ -735,5 +736,152 @@ export function upgradeFrom1_0_15(
     ...newConfig,
     layout: newLayout,
     version: '1.0.16',
+  };
+}
+
+// Added in version 1.0.17:
+// - Deprecate image.raster.json
+// TODO: Deprecate obsSegmentations.raster.json
+export function upgradeFrom1_0_16(
+  config: z.infer<typeof configSchema1_0_16>,
+): z.infer<typeof configSchema1_0_17> {
+  const newConfig = cloneDeep(config);
+  const { datasets, layout, coordinationSpace = {} } = newConfig;
+
+  const imageScopes: string[] = [];
+
+  const DATASET_IMAGE_VALUES: Record<string, string[]> = {};
+
+  // First, update all image or obsSegmentations file definitions
+  // within .datasets[].files[],
+  // to ensure each file definition only maps to ONE image or segmentation file.
+  // Multi-image or multi-segmentation files will use the new "image"
+  // coordination type to specify which image or segmentation to use.
+  const newDatasets = datasets.map((dataset) => {
+    const { files, uid } = dataset;
+    DATASET_IMAGE_VALUES[uid] = [];
+    const newFiles = files.map((fileDef) => {
+      const {
+        url, fileType,
+        options,
+        coordinationValues,
+      } = fileDef;
+
+      if (fileType === 'image.raster.json' || fileType === 'raster.json') {
+        if (!options && url) {
+          throw new Error('Passing raster.json via URL is no longer supported. Please migrate to the options property of the file definition instead.');
+        } else if (!options && !url) {
+          throw new Error('Expected either options or url for file definition, but found neither.');
+        }
+
+        // TODO: use renderLayers to determine which layers are visible/included?
+        const { images, renderLayers } = options;
+
+        // Iterate over each image definition
+        // within the raster.json options object,
+        // and create new file definitions.
+        return images.filter((imageDef: any) => (
+          imageDef.type === 'ome-tiff' && !imageDef.metadata?.isBitmask
+        )).map((imageDef: any) => {
+          const {
+            name, url: imageUrl, metadata,
+          } = imageDef;
+          const newFileDef = {
+            fileType: 'image.ome-tiff',
+            url: imageUrl,
+            coordinationValues: {
+              image: name,
+            },
+            ...(metadata?.omeTiffOffsetsUrl ? ({
+              options: {
+                offsetsUrl: metadata?.omeTiffOffsetsUrl,
+              },
+            }) : {}),
+          };
+          DATASET_IMAGE_VALUES[uid].push(name);
+          return newFileDef;
+        });
+      // TODO: add an image.deprecated-ome-zarr file type for bioformats-zarr precursor to OME-Zarr?
+      // Or drop support altogether?
+      }
+      if (
+        (fileType === 'image.ome-zarr' || fileType === 'image.ome-tiff')
+        && !coordinationValues?.image
+      ) {
+        // The file is a single-image fileType but lacks an image coordination value.
+        const nextImageScope = getNextScope(imageScopes);
+        imageScopes.push(nextImageScope);
+        DATASET_IMAGE_VALUES[uid].push(nextImageScope);
+        return {
+          ...fileDef,
+          coordinationValues: {
+            ...(coordinationValues || {}),
+            image: nextImageScope,
+          },
+        };
+      }
+
+      // Keep the file definition as-is.
+      return fileDef;
+    });
+
+    const flatNewFiles = newFiles.flat();
+
+    return {
+      ...dataset,
+      files: flatNewFiles,
+    };
+  });
+
+  layout.forEach((view) => {
+    const { coordinationScopes = {}, component } = view;
+    if (component === 'spatial' || component === 'layerController') {
+      if (coordinationScopes.spatialImageLayer) {
+        // This view has an explicit spatialImageLayer coordination scope mapping.
+        // Otherwise, we will let the loader handle things,
+        // and do not need to worry about spatialImageLayer.index.
+        if (
+          Array.isArray(coordinationScopes.spatialImageLayer)
+          || Array.isArray(coordinationScopes.dataset)
+        ) {
+          throw new Error('Did not expect coordinationScopes.spatialImageLayer to be an array.');
+        } else {
+          const prevValue = coordinationSpace
+            .spatialImageLayer[coordinationScopes.spatialImageLayer];
+
+          // We need to check if this is the first time
+          // we are encountering this spatialImageLayer coordination scope,
+          // since it might correspond to multiple views.
+          if (!prevValue.some((layerDef: any) => layerDef.image)) {
+            // This coordination value has not yet been updated.
+            let imageValues = Object.values(DATASET_IMAGE_VALUES)?.[0];
+            if (coordinationScopes.dataset) {
+              const datasetUid = coordinationSpace.dataset[coordinationScopes.dataset];
+
+              imageValues = DATASET_IMAGE_VALUES[datasetUid];
+            }
+
+            const nextValue = prevValue.map((layerDef: any) => {
+              const nextLayerDef = {
+                ...layerDef,
+                // Convert layerDef.index to layerDef.image.
+                image: imageValues[layerDef.index],
+              };
+              // Remove the usage of layerDef.index.
+              delete nextLayerDef.index;
+              return nextLayerDef;
+            });
+            coordinationSpace.spatialImageLayer[coordinationScopes.spatialImageLayer] = nextValue;
+          }
+        }
+      }
+    }
+  });
+
+  return {
+    ...newConfig,
+    datasets: newDatasets,
+    coordinationSpace,
+    version: '1.0.17',
   };
 }
