@@ -149,8 +149,6 @@ export default class RasterLoader extends JsonLoader {
       loaderCreator: async () => initLoader(image),
     }));
 
-
-
     // TODO: use options for initial selection of channels
     // which omit domain/slider ranges.
     if (!this.autoImageCache) {
@@ -167,7 +165,6 @@ export default class RasterLoader extends JsonLoader {
       const coordinationValues = {
         spatialImageLayer: autoImageLayers,
       };
-      console.log(autoImageLayers)
       return new LoaderResult(
         { loaders: imageLayerLoaders, meta: imageLayerMeta },
         urls,
