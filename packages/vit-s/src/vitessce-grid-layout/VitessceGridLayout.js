@@ -2,7 +2,6 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout-with-lodash';
 import { isEqual } from 'lodash-es';
 import { fromEntries } from '@vitessce/utils';
-import { getMaxRows } from './layout-utils.js';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -10,6 +9,12 @@ const BREAKPOINT_ID = 'ID'; // If responsive, this would be something like 'sm' 
 const gridCols = { [BREAKPOINT_ID]: 12 };
 const gridBreakpoints = { [BREAKPOINT_ID]: 1000 };
 const maxRows = 12;
+
+function getMaxRows(layout) {
+  return Math.max(
+    ...layout.map(xywh => xywh.y + xywh.h),
+  );
+}
 
 class ResponsiveHeightGridLayout extends ResponsiveGridLayout {
   componentDidUpdate(prevProps) {

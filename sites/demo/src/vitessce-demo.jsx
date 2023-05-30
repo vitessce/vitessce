@@ -91,18 +91,6 @@ function validateTheme(theme) {
   return (['light', 'dark'].includes(theme) ? theme : 'dark');
 }
 
-export function ConfigSelect(props) {
-  const { showAll } = props;
-
-  return (
-    <select>
-      {listConfigs(showAll).map(configInfo => (
-        <option key={configInfo.id} value={configInfo.id}>{configInfo.name}</option>
-      ))}
-    </select>
-  );
-}
-
 export function VitessceDemo() {
   const result = useMemo(() => {
     const { rowHeight = null } = {};

@@ -60,6 +60,7 @@
 - Added a new prop to `FeatureListSubscriber` to read in `showTable`, having it false by default.
 - Modified the `FeatureList` component to pass in 2 columns and 2 column labels if `showTable` is true, otherwise just 1 column and 1 columnLabel if `showTable` is false.
 - Modified the `SelectableTable` component and the table styles to handle showing 2 cells per row.
+- Fix bug preventing correct view sizing upon `config` prop change when `<Vitessce/>` used as a controlled component.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
