@@ -282,6 +282,15 @@ export function useExpressionValueGetter(
   return getExpressionValue;
 }
 
+export function useGetObsMembership(obsSetsMembership) {
+  return useCallback((obsId) => {
+    if (obsId) {
+      return obsSetsMembership?.get(obsId) || [];
+    }
+    return [];
+  }, [obsSetsMembership]);
+}
+
 export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership) {
   return useCallback((obsId) => {
     if (obsId) {

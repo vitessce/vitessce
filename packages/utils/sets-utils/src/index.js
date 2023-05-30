@@ -24,6 +24,7 @@ export {
   nodeToSet,
 } from './cell-set-utils.js';
 export {
+  findLongestCommonPath,
   filterPathsByExpansionAndSelection,
   findChangedHierarchy,
 } from './set-path-utils.js';
