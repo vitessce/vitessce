@@ -5,6 +5,7 @@ import plur from 'plur';
 import {
   TitleInfo,
   useDeckCanvasSize,
+  useGetObsMembership,
   useGetObsInfo,
   useReady,
   useUrls,
@@ -17,7 +18,7 @@ import {
   useSetComponentHover, useSetComponentViewInfo,
 } from '@vitessce/vit-s';
 import { capitalize, commaNumber, getCellColors } from '@vitessce/utils';
-import { mergeObsSets } from '@vitessce/sets-utils';
+import { mergeObsSets, findLongestCommonPath } from '@vitessce/sets-utils';
 import { COMPONENT_COORDINATION_TYPES, ViewType } from '@vitessce/constants-internal';
 import { Legend } from '@vitessce/legend';
 import Heatmap from './Heatmap.js';
@@ -95,6 +96,10 @@ export function HeatmapSubscriber(props) {
   const variablesTitle = capitalize(variablesPluralLabel);
 
   const [isRendering, setIsRendering] = useState(false);
+  // We need to know whether the user is currently hovering over the expression part
+  // of the heatmap vs. the color bar part, which will affect whether we call
+  // setObsColorEncoding with 'geneSelection' or 'cellSetSelection' upon a click.
+  const [hoveredColorEncoding, setHoveredColorEncoding] = useState('geneSelection');
 
   const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -145,6 +150,8 @@ export function HeatmapSubscriber(props) {
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
+  const getObsMembership = useGetObsMembership(obsSetsMembership);
+
   const getFeatureInfo = useCallback((featureId) => {
     if (featureId) {
       const featureLabel = featureLabelsMap?.get(featureId) || featureId;
@@ -176,8 +183,19 @@ export function HeatmapSubscriber(props) {
   }, []);
 
   const onHeatmapClick = () => {
-    setGeneSelection([geneHighlight]);
-    setCellColorEncoding('geneSelection');
+    if (hoveredColorEncoding === 'geneSelection' && geneHighlight) {
+      setGeneSelection([geneHighlight]);
+      setCellColorEncoding('geneSelection');
+    } else if (hoveredColorEncoding === 'cellSelection' && cellSetSelection) {
+      const selectionFullPath = getObsMembership(cellHighlight);
+      if (selectionFullPath?.length > 0) {
+        const selectionToHighlight = findLongestCommonPath(selectionFullPath, cellSetSelection);
+        if (selectionToHighlight) {
+          setCellSetSelection([selectionToHighlight]);
+          setCellColorEncoding('cellSelection');
+        }
+      }
+    }
   };
 
   const cellColorLabels = useMemo(() => ([
@@ -240,6 +258,7 @@ export function HeatmapSubscriber(props) {
         cellColorLabels={cellColorLabels}
         useDevicePixels
         onHeatmapClick={onHeatmapClick}
+        setColorEncoding={setHoveredColorEncoding}
       />
       {tooltipsVisible && (
       <HeatmapTooltipSubscriber
