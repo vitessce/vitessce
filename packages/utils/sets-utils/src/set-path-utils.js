@@ -52,7 +52,7 @@ function findLongestPath(arrOfPaths, path, isSubset) {
 
 /**
  * Returns a path that belongs to cellSetSelection and is the longest path
- * found in paths.
+ * found in at least one of the paths in arrOfPaths.
  * @param {array of paths} arrOfPaths contains all paths we are interested in
  * @param {array of paths} cellSetSelection contains the paths of the selected cell sets
  * @returns
