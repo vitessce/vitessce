@@ -32,6 +32,7 @@ export default function FeatureList(props) {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState(geneList);
 
+
   useEffect(() => {
     const results = geneList
       .filter(gene => (
