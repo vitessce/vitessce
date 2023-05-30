@@ -1,3 +1,4 @@
+// Reference: https://idr.github.io/ome-ngff-samples/
 const blinName = 'Blin et al., PLoS Biol 2019';
 const blinDescription = 'Mouse blastocysts imaged by confocal microscopy';
 export const blin2019 = {
@@ -13,6 +14,16 @@ export const blin2019 = {
         {
           fileType: 'image.ome-zarr',
           url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr',
+          coordinationValues: {
+            image: 'idr0062A',
+          },
+        },
+        {
+          fileType: 'image.ome-zarr',
+          url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0056B/7361.zarr',
+          coordinationValues: {
+            image: 'idr0056B',
+          },
         },
       ],
     },

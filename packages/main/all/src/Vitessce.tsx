@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 import React, { useMemo } from 'react';
+import { META_VERSION } from '@vitessce/constants-internal';
 import {
   VitS,
 } from '@vitessce/vit-s';
@@ -12,6 +13,13 @@ import {
   baseJointFileTypes,
   baseCoordinationTypes,
 } from './base-plugins.js';
+
+function logConfig(config: any, name: string) {
+  console.groupCollapsed(`🚄 Vitessce (${META_VERSION.version}) ${name}`);
+  console.info(`data:,${JSON.stringify(config)}`);
+  console.info(JSON.stringify(config, null, 2));
+  console.groupEnd();
+}
 
 export function Vitessce(props: any) {
   const {
@@ -28,7 +36,9 @@ export function Vitessce(props: any) {
 
   const [configOrWarning, success] = useMemo(() => {
     try {
+      logConfig(config, 'input view config');
       const validConfig = upgradeAndParse(config, onConfigUpgrade);
+      logConfig(validConfig, 'upgraded view config');
       return [validConfig, true];
     } catch (e) {
       console.error(e);

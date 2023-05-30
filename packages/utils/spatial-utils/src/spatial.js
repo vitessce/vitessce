@@ -77,21 +77,26 @@ export function isRgb(loader, channels) {
 
 // From spatial/utils.js
 
-function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
-  // Do not fill in transformation matrices if any of the layers specify one.
-  const sources = imageLoaders.map(loader => getSourceFromLoader(loader));
+/**
+ * 
+ * @param {ImageWrapper[]} imageWrappers Array of ImageWrapper objects.
+ * @returns {ImageWrapper[]} imageWrappers with computedMetadata potentially set.
+ */
+function getMetaWithTransformMatrices(imageWrappers) {
+  // Do not fill in transformation matrices if the layer specifies one.
   if (
-    imageMeta.map(meta => meta?.metadata?.transform?.matrix
-      || meta?.metadata?.transform?.scale
-      || meta?.metadata?.transform?.translate).some(Boolean)
-    || sources.every(
-      source => !source.meta?.physicalSizes?.x || !source.meta?.physicalSizes?.y,
+    imageWrappers.map(w => w?.metadata?.transform?.matrix
+      || w?.metadata?.transform?.scale
+      || w?.metadata?.transform?.translate).some(Boolean)
+    || imageWrappers.every(
+      w => !w.source?.meta?.physicalSizes?.x || !w.source?.meta?.physicalSizes?.y,
     )
   ) {
-    return imageMeta;
+    return imageWrappers;
   }
   // Get the minimum physical among all the current images.
-  const minPhysicalSize = sources.reduce((acc, source) => {
+  const minPhysicalSize = imageWrappers.reduce((acc, w) => {
+    const { source } = w;
     const hasZPhyscialSize = source.meta?.physicalSizes?.z?.size;
     const sizes = [
       unit(`${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
@@ -105,8 +110,8 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
     acc[2] = (acc[2] === undefined || compare(sizes[2], acc[2]) === -1) ? sizes[2] : acc[2];
     return acc;
   }, []);
-  const imageMetaWithTransform = imageMeta.map((meta, j) => {
-    const source = sources[j];
+  const imageMetaWithTransform = imageWrappers.map((w) => {
+    const { source } = w;
     const hasZPhyscialSize = source.meta?.physicalSizes?.z?.size;
     const sizes = [
       unit(`${source.meta?.physicalSizes.x.size} ${source.meta?.physicalSizes.x.unit}`.replace('µ', 'u')),
@@ -127,17 +132,15 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
     }
     // no need to store/use identity scaling
     if (isEqual(scale, [1, 1, 1])) {
-      return meta;
+      return w;
     }
     // Make sure to scale the z direction by one.
     const matrix = new Matrix4().scale([...scale]);
-    const newMeta = { ...meta };
-    newMeta.metadata = {
-      ...newMeta.metadata,
-      // We don't want to store matrix objects in the view config.
-      transform: { matrix: matrix.toArray() },
-    };
-    return newMeta;
+    const newMeta = { ...w.metadata };
+    // We don't want to store matrix objects in the view config.
+    newMeta.transform = { matrix: matrix.toArray() };
+    w.setComputedMetadata(newMeta);
+    return w;
   });
   return imageMetaWithTransform;
 }
@@ -251,77 +254,42 @@ export async function initializeLayerChannels(loader, use3d) {
  * @param {(string[]|null)} rasterRenderLayers A list of default raster layers. Optional.
  */
 export async function initializeRasterLayersAndChannels(
-  rasterLayers,
+  imageWrapper,
   rasterRenderLayers,
   usePhysicalSizeScaling,
   imageCoordinationValue,
 ) {
-  const nextImageLoaders = [];
-  let nextImageMetaAndLayers = [];
-  const autoImageLayerDefPromises = [];
 
   // Start all loader creators immediately.
   // Reference: https://eslint.org/docs/rules/no-await-in-loop
-  const loaders = await Promise.all(rasterLayers.map(layer => layer.loaderCreator()));
+  const loader = await imageWrapper.loaderCreator();
+  imageWrapper.setLoader(loader);
 
-  for (let i = 0; i < rasterLayers.length; i++) {
-    const layer = rasterLayers[i];
-    const loader = loaders[i];
-    nextImageLoaders[i] = loader;
-    nextImageMetaAndLayers[i] = layer;
-  }
-  if (usePhysicalSizeScaling) {
-    nextImageMetaAndLayers = getMetaWithTransformMatrices(nextImageMetaAndLayers, nextImageLoaders);
-  }
-  // No layers were pre-defined so set up the default image layers.
-  if (!rasterRenderLayers) {
-    // Midpoint of images list as default image to show.
-    const layerIndex = Math.floor(rasterLayers.length / 2);
-    const loader = nextImageLoaders[layerIndex];
-    const autoImageLayerDefPromise = initializeLayerChannels(loader)
-      .then(channels => Promise.resolve({
-        type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
-        // TODO: switch to using `image` property instead of `index` property.
-        image: imageCoordinationValue,
-        ...DEFAULT_RASTER_LAYER_PROPS,
-        channels: channels.map((channel, j) => ({
-          ...channel,
-          ...(nextImageMetaAndLayers[layerIndex].channels
-            ? nextImageMetaAndLayers[layerIndex].channels[j] : []),
-        })),
-        modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
-        transparentColor: layerIndex > 0 ? [0, 0, 0] : null,
-      }));
-    autoImageLayerDefPromises.push(autoImageLayerDefPromise);
-  } else {
-    // The renderLayers parameter is a list of layer names to show by default.
-    const globalIndicesOfRenderLayers = rasterRenderLayers
-      .map(imageName => rasterLayers.findIndex(image => image.name === imageName));
-    for (let i = 0; i < globalIndicesOfRenderLayers.length; i++) {
-      const layerIndex = globalIndicesOfRenderLayers[i];
-      const loader = nextImageLoaders[layerIndex];
-      const autoImageLayerDefPromise = initializeLayerChannels(loader)
-        // eslint-disable-next-line no-loop-func
-        .then(channels => Promise.resolve({
-          type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
-          // TODO: switch to using `image` property instead of `index` property.
-          image: imageCoordinationValue,
-          ...DEFAULT_RASTER_LAYER_PROPS,
-          channels: channels.map((channel, j) => ({
-            ...channel,
-            ...(nextImageMetaAndLayers[layerIndex].channels
-              ? nextImageMetaAndLayers[layerIndex].channels[j] : []),
-          })),
-          domainType: 'Min/Max',
-          modelMatrix: nextImageMetaAndLayers[layerIndex]?.metadata?.transform?.matrix,
-          transparentColor: i > 0 ? [0, 0, 0] : null,
-        }));
-      autoImageLayerDefPromises.push(autoImageLayerDefPromise);
-    }
-  }
+  const source = getSourceFromLoader(loader);
+  imageWrapper.setSource(source);
 
-  const autoImageLayerDefs = await Promise.all(autoImageLayerDefPromises);
-  return [autoImageLayerDefs, nextImageLoaders, nextImageMetaAndLayers];
+
+  // TODO: getMetaWithTransformMatrices requires knowledge of all ImageWrappers that will be rendered.
+  // Move this logic into the <Spatial/> component.
+  //if (usePhysicalSizeScaling) {
+  //  nextImageMetaAndLayers = getMetaWithTransformMatrices(imageWrapper);
+  //}
+
+  const autoImageLayerDefPromise = initializeLayerChannels(loader)
+    .then(channels => Promise.resolve({
+      type: imageWrapper.metadata?.isBitmask ? 'bitmask' : 'raster',
+      // TODO: switch to using `image` property instead of `index` property.
+      image: imageCoordinationValue,
+      ...DEFAULT_RASTER_LAYER_PROPS,
+      channels: channels.map((channel, j) => ({
+        ...channel,
+        ...(imageWrapper.channels ? imageWrapper.channels[j] : []),
+      })),
+      modelMatrix: imageWrapper.metadata?.transform?.matrix,
+      transparentColor: null, // TODO: what to do with this? // layerIndex > 0 ? [0, 0, 0] : null,
+    }));
+
+  return autoImageLayerDefPromise;
 }
 
 function getDefaultAxisType(name) {

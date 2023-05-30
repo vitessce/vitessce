@@ -206,6 +206,7 @@ export function SpatialSubscriber(props) {
     { spatialImageLayer: imageLayers },
     {}, // TODO: which properties to match on. Revisit after #830.
   );
+  // TODO: change this, since `image` is now an ImageWrapper instance
   const { loaders: imageLayerLoaders = [], meta = [] } = image || {};
   const [neighborhoods, neighborhoodsStatus] = useNeighborhoodsData(
     loaders, dataset, addUrl, false,

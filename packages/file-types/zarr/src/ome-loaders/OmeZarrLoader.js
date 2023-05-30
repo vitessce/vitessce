@@ -3,6 +3,7 @@ import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,
   getNgffAxes,
+  ImageWrapper,
 } from '@vitessce/spatial-utils';
 import {
   AbstractLoaderError,
@@ -25,6 +26,10 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     if (payload instanceof AbstractLoaderError) {
       return Promise.reject(payload);
     }
+
+    const { coordinationValues } = this;
+
+    console.log(coordinationValues);
 
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
@@ -76,40 +81,38 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       return sel;
     };
 
-    const imagesWithLoaderCreators = [
-      {
-        name: omeroName || 'Image',
-        channels: channels.map((channel, i) => ({
-          selection: filterSelection({ z, t, c: i }),
-          slider: [channel.window.start, channel.window.end],
-          color: hexToRgb(channel.color),
-        })),
-        ...(transformMatrix ? {
-          metadata: {
-            transform: {
-              matrix: transformMatrix,
-            },
+    
+
+    const imageWrapper = new ImageWrapper(
+      omeroName || 'Image',
+      channels.map((channel, i) => ({
+        selection: filterSelection({ z, t, c: i }),
+        slider: [channel.window.start, channel.window.end],
+        color: hexToRgb(channel.color),
+      })),
+      (transformMatrix ? {
+        metadata: {
+          transform: {
+            matrix: transformMatrix,
           },
-        } : {}),
-        loaderCreator: async () => ({ ...loader, channels: channels.map(c => c.label) }),
-      },
-    ];
+        },
+      } : {}),
+      async () => ({ ...loader, channels: channels.map(c => c.label) }),
+    );
 
     // TODO: use options for initial selection of channels
     // which omit domain/slider ranges.
-    const [
-      autoImageLayers, imageLayerLoaders, imageLayerMeta,
-    ] = await initializeRasterLayersAndChannels(
-      imagesWithLoaderCreators, undefined,
+    const autoImageLayers = await initializeRasterLayersAndChannels(
+      imageWrapper, undefined, false, coordinationValues.image,
     );
 
-    const coordinationValues = {
-      spatialImageLayer: autoImageLayers,
+    const coordinationValuesForView = {
+      spatialImageLayer: [ autoImageLayers ],
     };
     return Promise.resolve(new LoaderResult(
-      { image: { loaders: imageLayerLoaders, meta: imageLayerMeta } },
+      { image: imageWrapper },
       [],
-      coordinationValues,
+      coordinationValuesForView,
     ));
   }
 }

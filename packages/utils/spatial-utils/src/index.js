@@ -16,3 +16,4 @@ export {
   getNgffAxesForTiff,
   coordinateTransformationsToMatrix,
 } from './spatial.js';
+export { ImageWrapper } from './image-wrapper.js';

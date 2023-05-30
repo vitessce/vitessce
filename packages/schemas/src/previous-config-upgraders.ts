@@ -777,6 +777,11 @@ export function upgradeFrom1_0_16(
         // TODO: use renderLayers to determine which layers are visible/included?
         const { images, renderLayers } = options;
 
+        const numBioformatsZarr = images.filter((imageDef: any) => imageDef.type === 'zarr').length;
+        if (numBioformatsZarr > 0) {
+          console.warn(`[DEPRECATED] Found ${numBioformatsZarr} Bioformats-Zarr images, which are deprecated. Please migrate to OME-Zarr.`);
+        }
+
         // Iterate over each image definition
         // within the raster.json options object,
         // and create new file definitions.
@@ -801,8 +806,6 @@ export function upgradeFrom1_0_16(
           DATASET_IMAGE_VALUES[uid].push(name);
           return newFileDef;
         });
-      // TODO: add an image.deprecated-ome-zarr file type for bioformats-zarr precursor to OME-Zarr?
-      // Or drop support altogether?
       }
       if (
         (fileType === 'image.ome-zarr' || fileType === 'image.ome-tiff')
