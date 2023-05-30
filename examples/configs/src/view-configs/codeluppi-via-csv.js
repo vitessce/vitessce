@@ -214,6 +214,9 @@ export const codeluppiViaCsv = {
     },
     {
       component: 'featureList',
+      props: {
+        sort: null
+      },
       x: 9,
       y: 0,
       w: 3,

@@ -1,9 +1,22 @@
 import { viv } from '@vitessce/gl';
-import { initializeRasterLayersAndChannels } from '@vitessce/spatial-utils';
+import {
+  initializeRasterLayersAndChannels,
+  coordinateTransformationsToMatrix,
+  getNgffAxes,
+} from '@vitessce/spatial-utils';
 import { openArray } from 'zarr';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import { rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
 import JsonLoader from '../json-loaders/JsonLoader.js';
+
+function hexToRgb(hex) {
+  const result = /^#?([A-F\d]{2})([A-F\d]{2})([A-F\d]{2})$/i.exec(hex);
+  return [
+    parseInt(result[1].toLowerCase(), 16),
+    parseInt(result[2].toLowerCase(), 16),
+    parseInt(result[3].toLowerCase(), 16),
+  ];
+}
 
 async function initLoader(imageData) {
   const {
@@ -66,6 +79,49 @@ async function initLoader(imageData) {
         : [Channels.Name || `Channel ${0}`];
       return { ...loader, channels };
     }
+    case ('ome-zarr'): {
+      // Reference: https://github.com/vitessce/vitessce-python/issues/242#issuecomment-1517930964
+      // Most of the following has been copied from OmeZarrLoader.js.
+      // Reference: https://github.com/vitessce/vitessce/blob/fb0e7f/packages/file-types/zarr/src/ome-loaders/OmeZarrLoader.js#L29
+      const { coordinateTransformations: coordinateTransformationsFromOptions } = metadata || {};
+
+      const loader = await viv.loadOmeZarr(url, { fetchOptions: requestInit, type: 'multiscales' });
+      const { metadata: loaderMetadata } = loader;
+
+      const { omero, multiscales } = loaderMetadata;
+
+      if (!Array.isArray(multiscales) || multiscales.length === 0) {
+        console.error('Multiscales array must exist and have at least one element');
+      }
+      const { coordinateTransformations } = multiscales[0];
+
+      // Axes in v0.4 format.
+      const axes = getNgffAxes(multiscales[0].axes);
+
+      const transformMatrixFromOptions = coordinateTransformationsToMatrix(
+        coordinateTransformationsFromOptions, axes,
+      );
+      const transformMatrixFromFile = coordinateTransformationsToMatrix(
+        coordinateTransformations, axes,
+      );
+
+      const transformMatrix = transformMatrixFromFile.multiplyLeft(transformMatrixFromOptions);
+
+      const { channels, name: omeroName } = omero;
+
+      return {
+        name: omeroName || 'Image',
+        channels: channels.map((c, i) => c.label || `Channel ${i}`),
+        ...(transformMatrix ? {
+          metadata: {
+            transform: {
+              matrix: transformMatrix,
+            },
+          },
+        } : {}),
+        ...loader,
+      };
+    }
     default: {
       throw Error(`Image type (${type}) is not supported`);
     }
@@ -102,6 +158,8 @@ export default class RasterLoader extends JsonLoader {
       loaderCreator: async () => initLoader(image),
     }));
 
+
+
     // TODO: use options for initial selection of channels
     // which omit domain/slider ranges.
     if (!this.autoImageCache) {
@@ -118,6 +176,7 @@ export default class RasterLoader extends JsonLoader {
       const coordinationValues = {
         spatialImageLayer: autoImageLayers,
       };
+      console.log(autoImageLayers)
       return new LoaderResult(
         { loaders: imageLayerLoaders, meta: imageLayerMeta },
         urls,
