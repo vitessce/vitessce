@@ -47,6 +47,9 @@ export function VitessceGridLayout(props) {
 
   // If layout changes, update grid components.
   const [gridLayouts, gridComponents] = useMemo(() => {
+    if (!configLayout) {
+      return [{}, { [BREAKPOINT_ID]: [] }];
+    }
     const gridComponentsResult = fromEntries(configLayout.map(def => ([
       def.uid,
       {
