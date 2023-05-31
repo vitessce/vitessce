@@ -168,6 +168,7 @@ export const CoordinationType = {
   GATING_FEATURE_SELECTION_X: 'gatingFeatureSelectionX',
   GATING_FEATURE_SELECTION_Y: 'gatingFeatureSelectionY',
   FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'featureValueTransformCoefficient',
+  TOOLTIPS_VISIBLE: 'tooltipsVisible',
 };
 
 export const STATUS = {

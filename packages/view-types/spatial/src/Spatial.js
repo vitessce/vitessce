@@ -703,7 +703,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   recenter() {
     const { originalViewState, setViewState } = this.props;
-    setViewState(originalViewState);
+    if (Array.isArray(originalViewState?.target) && typeof originalViewState?.zoom === 'number') {
+      setViewState(originalViewState);
+    }
   }
 
   /**
