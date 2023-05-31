@@ -263,9 +263,9 @@ export function SpatialSubscriber(props) {
       setTargetY(initialTargetY);
       setTargetZ(initialTargetZ);
       setZoom(initialZoom);
-      setOriginalViewState(
+      /*setOriginalViewState(
         { target: [initialTargetX, initialTargetY, initialTargetZ], zoom: initialZoom },
-      );
+      );*/
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageLayerLoaders, targetX, targetY, setTargetX, setTargetY,
