@@ -780,6 +780,7 @@ importers:
   packages/view-types/scatterplot:
     specifiers:
       '@material-ui/core': ~4.12.3
+      '@material-ui/icons': ~4.11.2
       '@testing-library/jest-dom': ^5.16.4
       '@testing-library/react': ^13.3.0
       '@vitessce/constants-internal': workspace:*
@@ -797,6 +798,7 @@ importers:
       vitest: ^0.23.4
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
+      '@material-ui/icons': 4.11.3_jvx44q7qymyhf2qyoxemen5jw4
       '@vitessce/constants-internal': link:../../constants-internal
       '@vitessce/gl': link:../../gl
       '@vitessce/icons': link:../../icons

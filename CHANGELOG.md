@@ -14,7 +14,12 @@
 - Add `useFullResolutionImage` to `Spatial` to allow for loading only full resolution image from pyramid.
 - Implemented ability to select an area on the Expression Histogram. On select, a new obs set selection is created. The new selection contains the ids of all obs that belong to the selected bars.
 - Add integration test for consumer site built with NextJS.
+- Implemented ability to show two columns in the feature-list view when each feature has a second identifer associated.
 - Add `CITATION.cff`
+- Added a button to recenter and rescale data to default for Scatterplot and Spatial views. 
+- Removed the Select Rectangle button from Scatterplot and Spatial views.
+- Added option to disable tooltips on Heatmap and Scatterplot components. The option is available from the options control dropdown.
+- Added an option to skip sorting features alphabetically in feature list.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
@@ -53,6 +58,32 @@
 - Provide plugins as React props rather than registering them globally on `window`.
 - Use hooks in `ObsSetsManagerSubscriber` to improve controlled-component performance.
 - Revert change that removed `airbnb` eslint config.
+- Only set `additionalObsSets` in coordination space when upgrade was necessary to prevent infinite loop.
+- Fix bug causing cell set hierarchy created via `Create hierarchy` button to contain the string `undefined` (e.g., `My hierarchy 1undefined`)
+- Fix bug in `CellSetSizesPlotSubscriber` causing page to crash when no `obsSets` view is present (due to expectation of initialized `obsSetSelection` and `obsSetExpansion` coordination values).
+- Fix bug causing incorrect gene selection upon heatmap click when `featureLabels` are used (such as in the case of gene aliases used in the HuBMAP data portal view configs).
+- Added a new prop to `FeatureListSubscriber` to read in `showTable`, having it false by default.
+- Modified the `FeatureList` component to pass in 2 columns and 2 column labels if `showTable` is true, otherwise just 1 column and 1 columnLabel if `showTable` is false.
+- Modified the `SelectableTable` component and the table styles to handle showing 2 cells per row.
+- Changes in `ToolMenu`:
+  - Added a new button that calls `onRecenterButtonCLick` function on click.
+  - Added css for the new button and introduced differentiation between a button and a tool.
+- Added a new function `recenter` to `AbstractSpatialOrScatterplot` that gets overriden by descendants.
+  - Added an implementation of that function in `Spatial` and `Scatterplot`.
+  - The function is passed to `ToolMenu` as prop by `AbstractSpatialOrScatterplot` and called on click.
+- Removed the `select rectangle` tool and all references to it.
+- Added a state variable called `originalViewState` in `SpatialSubscriber` and `EmbeddingScatterplotSubscriber`.
+  - `originalViewState` holds the value of the initial position of the view and is used for recentering.
+- Fix bug preventing correct view sizing upon `config` prop change when `<Vitessce/>` used as a controlled component.
+- Modified `HeatmapOptions`, `SpatialOptions` and `ScatterplotOptions` components - added a checkbox for making the tooltip not visible.
+- Added a `tooltipsVisible` to the coordination scope for `Heatmap`, `Spatial` and `Scatterplot` coordination types. Its default value is true. Modified the components to hide the tooltip if `tooltipVsisible` is false.
+- Removed `disableTooltip` from `props`.
+- Fix bug that may cause `originalViewState.target` to not be an array as expected.
+- Adjust the code in `onHover` in `Heatmap.js` to track cell position also for cells that are on the cell set bar.
+- Add function `useGetObsMembership` in `hooks.js` to get the full path of the cell that was clicked.
+- Adjusted the `onHeatmapClick` function in `HeatmapSubscriber.js` to distinguish between clicks on the heatmap and clicks on the cell set bar and take according actions.
+- Added a prop `sort` in `FeatureListSubscriber`, with default value equal to `alphabetical`.
+- Modified component `FeatureList` so that if sort is not equal to `alphabetical`, then sorting of data is skipped and the order of feature listis the same as original.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 

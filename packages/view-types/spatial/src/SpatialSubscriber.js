@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import {
   TitleInfo,
   useDeckCanvasSize, useReady, useUrls,
@@ -49,7 +49,6 @@ export function SpatialSubscriber(props) {
     observationsLabelOverride,
     subobservationsLabelOverride: subobservationsLabel = 'molecule',
     theme,
-    disableTooltip = false,
     title = 'Spatial',
     disable3d,
     globalDisable3d,
@@ -89,6 +88,7 @@ export function SpatialSubscriber(props) {
     spatialAxisFixed,
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
+    tooltipsVisible,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -111,6 +111,7 @@ export function SpatialSubscriber(props) {
     setSpatialAxisFixed,
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
+    setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
@@ -238,6 +239,10 @@ export function SpatialSubscriber(props) {
   const moleculesCount = obsLocationsFeatureIndex?.length || 0;
   const locationsCount = obsLocationsIndex?.length || 0;
 
+  const [originalViewState, setOriginalViewState] = useState(
+    { target: [targetX, targetY, targetZ], zoom },
+  );
+
   useEffect(() => {
     if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
       const {
@@ -258,6 +263,9 @@ export function SpatialSubscriber(props) {
       setTargetY(initialTargetY);
       setTargetZ(initialTargetZ);
       setZoom(initialZoom);
+      setOriginalViewState(
+        { target: [initialTargetX, initialTargetY, initialTargetZ], zoom: initialZoom },
+      );
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageLayerLoaders, targetX, targetY, setTargetX, setTargetY,
@@ -368,6 +376,8 @@ export function SpatialSubscriber(props) {
           setSpatialAxisFixed={setSpatialAxisFixed}
           spatialAxisFixed={spatialAxisFixed}
           use3d={use3d}
+          tooltipsVisible={tooltipsVisible}
+          setTooltipsVisible={setTooltipsVisible}
           geneExpressionColormap={geneExpressionColormap}
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
@@ -386,6 +396,7 @@ export function SpatialSubscriber(props) {
     hasLocationsData, hasSegmentationsData, hasExpressionData,
     observationsLabel, setCellColorEncoding,
     setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d,
+    tooltipsVisible, setTooltipsVisible,
   ]);
 
   useEffect(() => {
@@ -436,6 +447,7 @@ export function SpatialSubscriber(props) {
           orbitAxis,
         }}
         setViewState={setViewState}
+        originalViewState={originalViewState}
         imageLayerDefs={imageLayers}
         obsSegmentationsLayerDefs={cellsLayer}
         obsLocationsLayerDefs={moleculesLayer}
@@ -475,7 +487,7 @@ export function SpatialSubscriber(props) {
         theme={theme}
         useFullResolutionImage={useFullResolutionImage}
       />
-      {!disableTooltip && (
+      {tooltipsVisible && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}
           obsHighlight={cellHighlight}

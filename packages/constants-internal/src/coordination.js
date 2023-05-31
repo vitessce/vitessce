@@ -62,6 +62,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
+    CoordinationType.TOOLTIPS_VISIBLE,
   ],
   [ViewType.GATING]: [
     CoordinationType.DATASET,
@@ -130,6 +131,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.MOLECULE_HIGHLIGHT,
+    CoordinationType.TOOLTIPS_VISIBLE,
   ],
   [ViewType.HEATMAP]: [
     CoordinationType.DATASET,
@@ -153,6 +155,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
+    CoordinationType.TOOLTIPS_VISIBLE,
   ],
   [ViewType.OBS_SETS]: [
     CoordinationType.DATASET,
