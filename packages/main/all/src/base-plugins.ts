@@ -54,9 +54,11 @@ import { ObsSetsManagerSubscriber } from '@vitessce/obs-sets-manager';
 import { EmbeddingScatterplotSubscriber } from '@vitessce/scatterplot-embedding';
 import { GatingSubscriber } from '@vitessce/scatterplot-gating';
 import { SpatialSubscriber } from '@vitessce/spatial';
+import { SpatialBetaSubscriber } from '@vitessce/spatial-beta';
 import { HeatmapSubscriber } from '@vitessce/heatmap';
 import { FeatureListSubscriber } from '@vitessce/feature-list';
 import { LayerControllerSubscriber } from '@vitessce/layer-controller';
+import { LayerControllerBetaSubscriber } from '@vitessce/layer-controller-beta';
 import { StatusSubscriber } from '@vitessce/status';
 import { HiGlassSubscriber, GenomicProfilesSubscriber } from '@vitessce/genomic-profiles';
 import {
@@ -152,9 +154,11 @@ export const baseViewTypes = [
   makeViewType(ViewType.SCATTERPLOT, EmbeddingScatterplotSubscriber),
   makeViewType(ViewType.GATING, GatingSubscriber),
   makeViewType(ViewType.SPATIAL, SpatialSubscriber),
+  makeViewType(ViewType.SPATIAL_BETA, SpatialBetaSubscriber),
   makeViewType(ViewType.HEATMAP, HeatmapSubscriber),
   makeViewType(ViewType.FEATURE_LIST, FeatureListSubscriber),
   makeViewType(ViewType.LAYER_CONTROLLER, LayerControllerSubscriber),
+  makeViewType(ViewType.LAYER_CONTROLLER_BETA, LayerControllerBetaSubscriber),
   makeViewType(ViewType.STATUS, StatusSubscriber),
   makeViewType(ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION, CellSetExpressionPlotSubscriber),
   makeViewType(ViewType.OBS_SET_SIZES, CellSetSizesPlotSubscriber),
@@ -230,6 +234,16 @@ export const baseJointFileTypes = [
 // TODO: should these schemas be imported from a common location in package/ rather than here in packages/main/?
 // That would allow view implementations to depend on them for type checking and their default values.
 export const baseCoordinationTypes = [
+  new PluginCoordinationType(
+    CoordinationType.META_COORDINATION_SCOPES,
+    null,
+    z.record(z.any()).nullable(),
+  ),
+  new PluginCoordinationType(
+    CoordinationType.META_COORDINATION_SCOPES_BY,
+    null,
+    z.record(z.any()).nullable(),
+  ),
   new PluginCoordinationType(CoordinationType.DATASET, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.OBS_TYPE, 'cell', z.string()),
   new PluginCoordinationType(CoordinationType.FEATURE_TYPE, 'gene', z.string()),
@@ -359,4 +373,11 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.GENOMIC_TARGET_Y, 1549999999.5, z.number()),
   new PluginCoordinationType(CoordinationType.ADDITIONAL_OBS_SETS, null, obsSetsSchema.nullable()),
   new PluginCoordinationType(CoordinationType.MOLECULE_HIGHLIGHT, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.IMAGE, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_C, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_VISIBLE, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_OPACITY, 1.0, z.number()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_COLOR, null, z.array(z.number()).length(3).nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SEGMENTATION_FILLED, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH, 1.0, z.number()),
 ];

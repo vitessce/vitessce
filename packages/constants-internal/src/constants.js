@@ -8,8 +8,10 @@ export const ViewType = {
   STATUS: 'status',
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
+  SPATIAL_BETA: 'spatialBeta',
   HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
+  LAYER_CONTROLLER_BETA: 'layerControllerBeta',
   GENOMIC_PROFILES: 'genomicProfiles',
   GATING: 'gating',
   FEATURE_LIST: 'featureList',
@@ -106,6 +108,8 @@ export const FileType = {
  * to help prevent typos.
  */
 export const CoordinationType = {
+  META_COORDINATION_SCOPES: 'metaCoordinationScopes',
+  META_COORDINATION_SCOPES_BY: 'metaCoordinationScopesBy',
   DATASET: 'dataset',
   // Entity types
   OBS_TYPE: 'obsType',
@@ -169,6 +173,17 @@ export const CoordinationType = {
   GATING_FEATURE_SELECTION_Y: 'gatingFeatureSelectionY',
   FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'featureValueTransformCoefficient',
   TOOLTIPS_VISIBLE: 'tooltipsVisible',
+  IMAGE: 'image', // TODO: change to fileUid?
+  SPATIAL_IMAGE_CHANNEL: 'spatialImageChannel',
+  SPATIAL_SEGMENTATION_CHANNEL: 'spatialSegmentationChannel',
+  SPATIAL_TARGET_C: 'spatialTargetC',
+  SPATIAL_LAYER_VISIBLE: 'spatialLayerVisible',
+  SPATIAL_LAYER_OPACITY: 'spatialLayerOpacity',
+  SPATIAL_SEGMENTATION_FILLED: 'spatialSegmentationFilled',
+  SPATIAL_SEGMENTATION_STROKE_WIDTH: 'spatialSegmentationStrokeWidth',
+  SPATIAL_CHANNEL_COLOR: 'spatialChannelColor',
+  SPATIAL_CHANNEL_VISIBLE: 'spatialChannelVisible',
+  SPATIAL_CHANNEL_OPACITY: 'spatialChannelOpacity',
 };
 
 export const STATUS = {
