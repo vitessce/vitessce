@@ -121,6 +121,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     hideObservationLabels = false,
     hideVariableLabels = false,
     onHeatmapClick,
+    setColorEncoding,
+    featureIndex,
   } = props;
 
   const viewState = {
@@ -698,6 +700,9 @@ const Heatmap = forwardRef((props, deckRef) => {
       return;
     }
 
+    let highlightedCell = null;
+    let highlightedGene = null;
+
     const { x: mouseX, y: mouseY } = event.offsetCenter;
 
     const [trackColI, trackI] = mouseToCellColorPosition(mouseX, mouseY, {
@@ -717,13 +722,18 @@ const Heatmap = forwardRef((props, deckRef) => {
       numCols: width,
     });
 
+    // we are hovering over a gene colored track
     if (trackI === null || trackColI === null) {
       setTrackHighlight(null);
-    } else {
-      const obsI = expression.rows.indexOf(axisTopLabels[trackColI]);
+      setColorEncoding('geneSelection');
+    } else { // we are hovering over a cell colored track
+      const obsI = expression.rows.indexOf(transpose
+        ? axisTopLabels[trackColI]
+        : axisLeftLabels[trackColI]);
       const cellIndex = expression.rows[obsI];
-
       setTrackHighlight([cellIndex, trackI, mouseX, mouseY]);
+      highlightedCell = cellIndex;
+      setColorEncoding('cellSelection');
     }
 
     const [colI, rowI] = mouseToHeatmapPosition(mouseX, mouseY, {
@@ -738,22 +748,6 @@ const Heatmap = forwardRef((props, deckRef) => {
       numCols: width,
     });
 
-    if (colI === null) {
-      if (transpose) {
-        setCellHighlight(null);
-      } else {
-        setGeneHighlight(null);
-      }
-    }
-
-    if (rowI === null) {
-      if (transpose) {
-        setGeneHighlight(null);
-      } else {
-        setCellHighlight(null);
-      }
-    }
-
     const obsI = expression.rows.indexOf(transpose
       ? axisTopLabels[colI]
       : axisLeftLabels[rowI]);
@@ -762,13 +756,27 @@ const Heatmap = forwardRef((props, deckRef) => {
       : axisTopLabels[colI]);
 
     const obsId = expression.rows[obsI];
-    const varId = expression.cols[varI];
+
+    // We need to use featureIndex here,
+    // because expression.cols may be mapped to
+    // use featureLabels (if those were available in the dataset).
+    // Highlights and selections are assumed to be in terms of
+    // obsIndex/featureIndex (as opposed to obsLabels/featureLabels).
+    const varId = featureIndex[varI];
 
     if (setComponentHover) {
       setComponentHover();
     }
-    setCellHighlight(obsId || null);
-    setGeneHighlight(varId || null);
+
+    if (obsId) {
+      highlightedCell = obsId;
+    }
+    if (varId) {
+      highlightedGene = varId;
+    }
+
+    setCellHighlight(highlightedCell);
+    setGeneHighlight(highlightedGene);
   }
 
   const cellColorsViews = useMemo(() => {

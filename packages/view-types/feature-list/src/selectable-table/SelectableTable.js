@@ -17,6 +17,8 @@ const SHIFT_KEYCODE = 16;
 /**
  * A table with "selectable" rows.
  * @prop {string[]} columns An array of column names, corresponding to data object properties.
+ * @prop {string[]} columnLabels An array of labels to be used for the columns, corresponding to `columns`.
+ * columnLabels.length must be equal to columns.length.
  * @prop {object[]} data An array of data objects used to populate table rows.
  * @prop {function} onChange Callback function,
  * passed a selection object when `allowMultiple` is false (and `null` if `allowUncheck` is true),
@@ -35,6 +37,7 @@ export default function SelectableTable(props) {
   const {
     hasColorEncoding,
     columns,
+    columnLabels,
     data,
     onChange,
     idKey = 'id',
@@ -190,10 +193,8 @@ export default function SelectableTable(props) {
   );
 
   const headerRowRenderer = ({ style }) => (
-    <div className={clsx({ [classes.hiddenInputColumn]: !showTableInputs }, classes.tableRow)} style={style}>
-      {columns.map(column => (
-        <div key={column}>{column}</div>
-      ))}
+    <div className={classes.tableRow} style={style}>
+      {columnLabels.map(columnLabel => (<div key={columnLabel} className={classes.tableCell} style={{ fontWeight: 'bold' }}>{columnLabel}</div>))}
     </div>
   );
 

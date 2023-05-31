@@ -26,6 +26,10 @@ import FeatureList from './FeatureList.js';
  * form of the name of the variable.
  * @param {boolean} props.enableMultiSelect If true, allow
  * shift-clicking to select multiple genes.
+ * @param {boolean} props.showTable If true, shows a table with the feature name and id.
+ * @param {string} props.sort The sort order of the genes. If sort is defined and
+ * it is not equal to `alphabetical`, the genes will be displayed in the feature list in
+ * the original order.
  */
 export function FeatureListSubscriber(props) {
   const {
@@ -35,6 +39,8 @@ export function FeatureListSubscriber(props) {
     theme,
     title: titleOverride,
     enableMultiSelect = false,
+    showTable = false,
+    sort = 'alphabetical',
   } = props;
 
   const loaders = useLoaders();
@@ -96,8 +102,11 @@ export function FeatureListSubscriber(props) {
     >
       <FeatureList
         hasColorEncoding={cellColorEncoding === 'geneSelection'}
+        showTable={showTable}
         geneList={geneList}
+        sort={sort}
         featureLabelsMap={featureLabelsMap}
+        featureType={featureType}
         geneSelection={geneSelection}
         geneFilter={geneFilter}
         setGeneSelection={setGeneSelectionAndColorEncoding}
