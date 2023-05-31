@@ -7,7 +7,7 @@ const Vitessce = dynamic(() => import('./VitessceWrapper'), {
 
 const eng2019 = {
   name: 'Eng et al., Nature 2019',
-  version: '1.0.16', // Must be the latest version because using VitS rather than Vitessce
+  version: '1.0.16',
   description: '',
   datasets: [],
   initStrategy: 'auto',
