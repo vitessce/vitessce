@@ -147,6 +147,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   const [axisLeftLabels, setAxisLeftLabels] = useState([]);
   const [axisTopLabels, setAxisTopLabels] = useState([]);
   const [numCellColorTracks, setNumCellColorTracks] = useState([]);
+  const [cursorType, setCursorType] = useState('default');
 
 
   // Since we are storing the tile data in a ref,
@@ -777,6 +778,11 @@ const Heatmap = forwardRef((props, deckRef) => {
 
     setCellHighlight(highlightedCell);
     setGeneHighlight(highlightedGene);
+    if (highlightedCell !== null || highlightedGene !== null) {
+      setCursorType('pointer');
+    } else {
+      setCursorType('default');
+    }
   }
 
   const cellColorsViews = useMemo(() => {
@@ -852,7 +858,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       ]}
       layers={layers}
       layerFilter={layerFilter}
-      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'pointer')}
+      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : cursorType)}
       glOptions={DEFAULT_GL_OPTIONS}
       onViewStateChange={onViewStateChange}
       viewState={viewState}
