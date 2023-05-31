@@ -11,4 +11,19 @@ pnpm run bundle
 pnpm run start-html
 ```
 
+### Vite consumer site
+
+Related directories/files:
+- `src/`
+- `vite.config.js`
+
 Open http://localhost:3003/consumer/dist/index.html
+
+### NextJS consumer site
+
+Related directories/files:
+- `components/`
+- `pages/`
+- `next.config.js`
+
+Open http://localhost:3003/consumer/out/index.html

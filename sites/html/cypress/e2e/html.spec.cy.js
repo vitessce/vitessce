@@ -78,10 +78,13 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
     cy.get('.react-grid-layout .react-grid-item').eq(0).should('have.css', 'height', '780px');
     cy.get('.react-grid-layout .react-grid-item').eq(1).should('have.css', 'height', '780px');
   });
-
-
-  it('Works for consumer package', () => {
+  // Consumer site tests
+  it('Works for consumer site built with Vite', () => {
     cy.visit('/consumer/dist/index.html');
+    cy.contains('Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH');
+  });
+  it('Works for consumer site built with NextJS', () => {
+    cy.visit('/consumer/out/index.html');
     cy.contains('Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH');
   });
 });
