@@ -85,6 +85,7 @@
 - Adjusted the `onHeatmapClick` function in `HeatmapSubscriber.js` to distinguish between clicks on the heatmap and clicks on the cell set bar and take according actions.
 - Added a prop `sort` in `FeatureListSubscriber`, with default value equal to `alphabetical`.
 - Modified component `FeatureList` so that if sort is not equal to `alphabetical`, then sorting of data is skipped and the order of feature listis the same as original.
+- Fixed equality check when creating default model matrices for `sizes`
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
