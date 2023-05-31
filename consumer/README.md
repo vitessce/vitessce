@@ -27,3 +27,23 @@ Related directories/files:
 - `next.config.js`
 
 Open http://localhost:3003/consumer/out/index.html
+
+
+## How to test in portal-ui
+
+Instructions as of 5/26/2023 (commit hash [hubmapconsortium/portal-ui#fc8a881f](https://github.com/hubmapconsortium/portal-ui/commit/fc8a881ff6f793b4a0dbbeed60f2186fe9d880c4))
+
+```sh
+pnpm run build
+pnpm run bundle
+./scripts/consumer-install.sh
+
+cd ../portal-ui/context
+npm install
+
+# comment out `npm install` line in ./etc/dev/dev-start.sh
+
+npm install $(ls ../../vitessce/consumer/vitessce-*.tgz)
+cd ..
+./etc/dev/dev-start.sh # open http://localhost:5001
+```

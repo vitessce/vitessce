@@ -65,6 +65,7 @@
 - Added a new prop to `FeatureListSubscriber` to read in `showTable`, having it false by default.
 - Modified the `FeatureList` component to pass in 2 columns and 2 column labels if `showTable` is true, otherwise just 1 column and 1 columnLabel if `showTable` is false.
 - Modified the `SelectableTable` component and the table styles to handle showing 2 cells per row.
+- Use `es2019` in Vite bundle targets for `packages/main/prod` and `packages/main/dev` to support HuBMAP portal-ui.
 - Changes in `ToolMenu`:
   - Added a new button that calls `onRecenterButtonCLick` function on click.
   - Added css for the new button and introduced differentiation between a button and a tool.
