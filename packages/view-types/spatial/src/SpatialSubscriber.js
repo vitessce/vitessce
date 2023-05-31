@@ -243,33 +243,49 @@ export function SpatialSubscriber(props) {
     { target: [targetX, targetY, targetZ], zoom },
   );
 
+  // Compute initial viewState values to use if targetX and targetY are not
+  // defined in the initial configuration.
+  const {
+    initialTargetX, initialTargetY, initialTargetZ, initialZoom,
+  } = useMemo(() => getInitialSpatialTargets({
+    width,
+    height,
+    obsCentroids,
+    obsSegmentations,
+    obsSegmentationsType,
+    // TODO: use obsLocations (molecules) here too.
+    imageLayerLoaders,
+    useRaster: Boolean(hasImageData),
+    use3d,
+    modelMatrices: meta.map(({ metadata }) => metadata?.transform?.matrix),
+  }),
+  // Deliberate dependency omissions: width/height - technically then
+  // these initial values will be "wrong" after resizing, but it shouldn't be far enough
+  // off to be noticeable.
+  // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
+  // an indirect dependency instead.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [image, use3d, hasImageData, obsCentroids, obsSegmentations, obsSegmentationsType]);
+
   useEffect(() => {
-    if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
-      const {
-        initialTargetX, initialTargetY, initialTargetZ, initialZoom,
-      } = getInitialSpatialTargets({
-        width,
-        height,
-        obsCentroids,
-        obsSegmentations,
-        obsSegmentationsType,
-        // TODO: use obsLocations (molecules) here too.
-        imageLayerLoaders,
-        useRaster: Boolean(hasImageData),
-        use3d,
-        modelMatrices: meta.map(({ metadata }) => metadata?.transform?.matrix),
-      });
+    // If it has not already been set, set the initial view state using
+    // the auto-computed values from the useMemo above.
+    if (
+      (typeof targetX !== 'number' || typeof targetY !== 'number')
+    ) {
       setTargetX(initialTargetX);
       setTargetY(initialTargetY);
       setTargetZ(initialTargetZ);
       setZoom(initialZoom);
-      /*setOriginalViewState(
+      // Save these values to originalViewState so that we can reset to them later.
+      setOriginalViewState(
         { target: [initialTargetX, initialTargetY, initialTargetZ], zoom: initialZoom },
-      );*/
+      );
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageLayerLoaders, targetX, targetY, setTargetX, setTargetY,
-    setZoom, use3d, hasImageData, obsCentroids, obsSegmentations, obsSegmentationsType]);
+    // Deliberate dependency omissions: targetX, targetY
+    // since we do not this to re-run on every single zoom/pan interaction.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialTargetX, initialTargetY, initialTargetZ, initialZoom]);
 
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,

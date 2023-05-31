@@ -86,6 +86,7 @@
 - Added a prop `sort` in `FeatureListSubscriber`, with default value equal to `alphabetical`.
 - Modified component `FeatureList` so that if sort is not equal to `alphabetical`, then sorting of data is skipped and the order of feature listis the same as original.
 - Fixed equality check when creating default model matrices for `sizes`
+- Split useEffect into useMemo + useEffect in SpatialSubscriber to fix infinite loop for `neumann-2020` demo on the docs site.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
