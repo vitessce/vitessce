@@ -100,6 +100,7 @@ export function VitessceDemo() {
     const datasetUrl = urlParams.get('url');
     const showAll = urlParams.get('show') === 'all';
     const theme = validateTheme(urlParams.get('theme'));
+    const isBounded = urlParams.get('isBounded') === 'true';
 
     if (datasetId) {
       const config = getConfig(datasetId);
@@ -112,6 +113,7 @@ export function VitessceDemo() {
           onConfigChange={debug ? console.log : undefined}
           onConfigUpgrade={debug ? logConfigUpgrade : undefined}
           validateOnConfigChange={debug}
+          isBounded={isBounded}
           {...pluginProps}
         />
       );

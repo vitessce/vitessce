@@ -73,6 +73,7 @@
 - Removed the `select rectangle` tool and all references to it.
 - Added a state variable called `originalViewState` in `SpatialSubscriber` and `EmbeddingScatterplotSubscriber`.
   - `originalViewState` holds the value of the initial position of the view and is used for recentering.
+- Fix bug preventing correct view sizing upon `config` prop change when `<Vitessce/>` used as a controlled component.
 - Modified `HeatmapOptions`, `SpatialOptions` and `ScatterplotOptions` components - added a checkbox for making the tooltip not visible.
 - Added a `tooltipsVisible` to the coordination scope for `Heatmap`, `Spatial` and `Scatterplot` coordination types. Its default value is true. Modified the components to hide the tooltip if `tooltipVsisible` is false.
 - Removed `disableTooltip` from `props`.
