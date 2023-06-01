@@ -20,6 +20,7 @@
 - Removed the Select Rectangle button from Scatterplot and Spatial views.
 - Added option to disable tooltips on Heatmap and Scatterplot components. The option is available from the options control dropdown.
 - Added an option to skip sorting features alphabetically in feature list.
+- Added a dropdown in `FeatureList` to enable the user to select between `alphabetical` and `original` ordering for the feature list.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
@@ -87,6 +88,8 @@
 - Modified component `FeatureList` so that if sort is not equal to `alphabetical`, then sorting of data is skipped and the order of feature listis the same as original.
 - Fixed equality check when creating default model matrices for `sizes`
 - Split useEffect into useMemo + useEffect in SpatialSubscriber to fix infinite loop for `neumann-2020` demo on the docs site.
+- Create `FeatureListOptions` component, which allows the user to change the sorting order of the feature list.
+- Implemented the functionality required to re-order the feature list, based on the selection from the dropdown.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
