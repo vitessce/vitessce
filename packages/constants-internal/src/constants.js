@@ -174,8 +174,10 @@ export const CoordinationType = {
   FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'featureValueTransformCoefficient',
   TOOLTIPS_VISIBLE: 'tooltipsVisible',
   IMAGE: 'image', // TODO: change to fileUid?
-  SPATIAL_IMAGE_CHANNEL: 'spatialImageChannel',
-  SPATIAL_SEGMENTATION_CHANNEL: 'spatialSegmentationChannel',
+  IMAGE_LAYER: 'imageLayer',
+  IMAGE_CHANNEL: 'imageChannel',
+  SEGMENTATION_LAYER: 'segmentationLayer',
+  SEGMENTATION_CHANNEL: 'segmentationChannel',
   SPATIAL_TARGET_C: 'spatialTargetC',
   SPATIAL_LAYER_VISIBLE: 'spatialLayerVisible',
   SPATIAL_LAYER_OPACITY: 'spatialLayerOpacity',

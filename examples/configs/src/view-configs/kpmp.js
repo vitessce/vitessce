@@ -113,18 +113,18 @@ export const kpmp2023 = {
       bitmask: 'S-1905-017737',
       rgb: 'S-1905-017737_bf',
     },
-    spatialImageLayer: {
+    imageLayer: {
       histology: 'histology',
     },
-    spatialImageChannel: {
+    imageChannel: {
       R: 'R',
       G: 'G',
       B: 'B',
     },
-    spatialSegmentationLayer: {
+    segmentationLayer: {
       ml: 'ml',
     },
-    spatialSegmentationChannel: {
+    segmentationChannel: {
       ci: 'ci',
       ngsg: 'ngsg',
       gsg: 'gsg',
@@ -283,17 +283,17 @@ export const kpmp2023 = {
         // i.e., additional level of coordination. This should make it more clear that the different
         // segmentations are coming from different channels in the image file.
         // Also, a segmentation layer should correspond to a single bitmask file.
-        spatialSegmentationLayer: ['ml'],
-        spatialImageLayer: ['histology'],
+        segmentationLayer: ['ml'],
+        imageLayer: ['histology'],
       },
     },
     metaCoordinationScopesBy: {
       metaA: {
-        spatialImageLayer: {
+        imageLayer: {
           image: {
             histology: 'rgb',
           },
-          spatialImageChannel: {
+          imageChannel: {
             histology: ['R', 'G', 'B'],
           },
           spatialLayerVisible: {
@@ -303,7 +303,7 @@ export const kpmp2023 = {
             histology: 'image',
           },
         },
-        spatialImageChannel: {
+        imageChannel: {
           spatialTargetC: {
             R: 'imageR',
             G: 'imageG',
@@ -325,11 +325,11 @@ export const kpmp2023 = {
             B: 'imageB',
           },
         },
-        spatialSegmentationLayer: {
+        segmentationLayer: {
           image: {
             ml: 'bitmask',
           },
-          spatialSegmentationChannel: {
+          segmentationChannel: {
             ml: ['ci', 'ngsg', 'gsg', 't', 'a', 'ifta', 'ptc'],
           },
           spatialLayerVisible: {
@@ -339,7 +339,7 @@ export const kpmp2023 = {
             ml: 'bitmask',
           },
         },
-        spatialSegmentationChannel: {
+        segmentationChannel: {
           obsType: {
             ci: 'ci',
             ngsg: 'ngsg',
@@ -463,7 +463,7 @@ export const kpmp2023 = {
   },
   layout: [
     {
-      component: 'spatial',
+      component: 'spatialBeta',
       coordinationScopes: {
         metaCoordinationScopes: ['metaA'],
         metaCoordinationScopesBy: ['metaA'],
@@ -477,7 +477,7 @@ export const kpmp2023 = {
       h: 8,
     },
     {
-      component: 'layerController',
+      component: 'layerControllerBeta',
       props: {
         disableChannelsIfRgbDetected: true,
       },
@@ -586,68 +586,6 @@ export const kpmp2023 = {
       w: 2,
       h: 2,
     },
-    // Cortical interstitia
-    /*{
-      component: 'featureList',
-      coordinationScopes: {
-        obsType: 'ci',
-        featureType: 'global',
-        featureValueType: 'global',
-        featureSelection: 'ci',
-        obsColorEncoding: 'ci',
-      },
-      x: 0,
-      y: 8,
-      w: 3,
-      h: 2,
-    },
-    {
-      component: 'featureValueHistogram',
-      coordinationScopes: {
-        obsType: 'ci',
-        featureType: 'global',
-        featureValueType: 'global',
-        featureSelection: 'ci',
-      },
-      props: {
-        aggregateFeatureValues: false,
-      },
-      x: 0,
-      y: 8,
-      w: 3,
-      h: 2,
-    },
-    // IFTA
-    {
-      component: 'featureList',
-      coordinationScopes: {
-        obsType: 'ifta',
-        featureType: 'global',
-        featureValueType: 'global',
-        featureSelection: 'ifta',
-        obsColorEncoding: 'ifta',
-      },
-      x: 3,
-      y: 8,
-      w: 3,
-      h: 2,
-    },
-    {
-      component: 'featureValueHistogram',
-      coordinationScopes: {
-        obsType: 'ifta',
-        featureType: 'global',
-        featureValueType: 'global',
-        featureSelection: 'ifta',
-      },
-      props: {
-        aggregateFeatureValues: false,
-      },
-      x: 3,
-      y: 8,
-      w: 3,
-      h: 2,
-    },*/
     // PTC
     {
       component: 'featureList',
@@ -682,80 +620,5 @@ export const kpmp2023 = {
       w: 2,
       h: 2,
     },
-    // Violin plots
-    {
-      component: 'stratifiedFeatureValueDistribution',
-      coordinationScopes: {
-        obsType: 'ptc',
-        featureType: 'global',
-        featureValueType: 'global',
-        featureSelection: 'ptc',
-      },
-      props: {
-        // Feature columns to use for filtering and grouping,
-        filterBy: 'PTC in Cortex',
-        groupBy: 'PTC in IFTA',
-      },
-      x: 8,
-      y: 8,
-      w: 4,
-      h: 4,
-    },
-    /*{
-      component: 'obsDensity',
-      coordinationScopes: {
-        obsType: ['ptc', 'ci', 'ifta'],
-        featureType: 'global',
-        featureValueType: 'global',
-        spatialLayerVisible: 'ptc',
-      },
-      props: {
-        title: 'Density of Cortical Peritubular Capillaries',
-      },
-      x: 8,
-      y: 4,
-      w: 2,
-      h: 4,
-    },
-    {
-      component: 'obsDensity',
-      coordinationScopes: {
-        obsType: ['t', 'ci', 'ifta'],
-        featureType: 'global',
-        featureValueType: 'global',
-        spatialLayerVisible: 't',
-      },
-      props: {
-        title: 'Density of Tubules',
-      },
-      x: 10,
-      y: 4,
-      w: 1,
-      h: 4,
-    },
-    {
-      component: 'obsArea',
-      coordinationScopes: {
-        obsType: ['ifta', 'ci'],
-        featureType: 'global',
-        featureValueType: 'global',
-        spatialLayerVisible: 'ifta',
-      },
-      props: {
-        title: 'Areas of IFTA and non-IFTA',
-      },
-      x: 11,
-      y: 4,
-      w: 1,
-      h: 4,
-    },*/
-    // Status
-    /*{
-      component: 'status',
-      x: 12,
-      y: 12,
-      w: 1,
-      h: 1,
-    },*/
   ],
 };

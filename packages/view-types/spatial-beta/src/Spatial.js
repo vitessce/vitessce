@@ -7,6 +7,7 @@ import { getSourceFromLoader, isInterleaved } from '@vitessce/spatial-utils';
 import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
+import { CoordinationType } from '@vitessce/constants-internal';
 import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils.js';
 
 const CELLS_LAYER_ID = 'cells-layer';
@@ -115,7 +116,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.obsLocationsLayer = null;
     this.neighborhoodsLayer = null;
 
-    this.layerLoaderSelections = {};
+    this.imageLayerLoaderSelections = {};
+    this.segmentationLayerLoaderSelections = {};
     // Better for the bitmask layer when there is no color data to use this.
     // 2048 is best for performance and for stability (4096 texture size is not always supported).
     this.randomColorData = {
@@ -354,178 +356,252 @@ class Spatial extends AbstractSpatialOrScatterplot {
     return null;
   }
 
-  createRasterLayer(rawLayerDef, loader, i) {
-    const layerDef = {
-      ...rawLayerDef,
-      channels: rawLayerDef.channels.filter(
-        channel => channel.selection && channel.color && channel.slider,
-      ),
-    };
+  use3d() {
+    const {
+      imageLayerDefs,
+
+      imageLayerScopes,
+      imageLayerCoordination,
+    } = this.props;
+    // TODO: use imageLayerCoordination rather than imageLayerDefs here
+    return false;
+    return (imageLayerDefs || []).some(i => i.use3d);
+  }
+
+  // New createImageLayer function.
+  createSegmentationLayer(layerScope, layerCoordination, channelScopes, channelCoordination, image, use3d, layerFeatureValues) {
+    const { data, metadata } = image?.obsSegmentations?.loaders?.[0] || {};
+    if (!data) {
+      return null;
+    }
+
+    const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
+
+    const layerDefModelMatrix = null; // TODO(CoordinationType): per-layer modelMatrix
+    let modelMatrix;
+    const { transform } = metadata || {};
+    if (transform) {
+      const { scale, translate } = transform;
+      modelMatrix = new Matrix4()
+        .translate([translate.x, translate.y, 0])
+        .scale(scale);
+    } else if (layerDefModelMatrix) {
+      // eslint-disable-next-line prefer-destructuring
+      modelMatrix = new Matrix4(layerDefModelMatrix);
+    }
 
     // We need to keep the same selections array reference,
     // otherwise the Viv layer will not be re-used as we want it to,
     // since selections is one of its `updateTriggers`.
     // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
     let selections;
-    const nextLoaderSelection = layerDef.channels.map(c => c.selection);
-    const prevLoaderSelection = this.layerLoaderSelections[layerDef.index];
+    const nextLoaderSelection = channelScopes
+      .map(cScope => ({
+        // TODO: Z, T
+        // TODO: keys (if not always 'c', 'z', 't')
+        z: 0,
+        t: 0,
+        c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+      }));
+    const prevLoaderSelection = this.segmentationLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
       selections = prevLoaderSelection;
     } else {
       selections = nextLoaderSelection;
-      this.layerLoaderSelections[layerDef.index] = nextLoaderSelection;
+      this.segmentationLayerLoaderSelections[layerScope] = nextLoaderSelection;
     }
-    const useTransparentColor = (!layerDef.visible
-      && typeof layerDef.visible === 'boolean')
-      || Boolean(layerDef.transparentColor);
+
+
+    return new viv.MultiscaleImageLayer({
+      // `bitmask` is used by the AbstractSpatialOrScatterplot
+      // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
+      id: `bitmask-layer-${layerScope}`,
+      channelsVisible: channelScopes
+        .map(cScope => visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]),
+      channelOpacities: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_OPACITY]),
+      channelsFilled: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_SEGMENTATION_FILLED]),
+      opacity: layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY],
+      channelColors: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]),
+      channelStrokeWidths: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH]),
+      channelFeatureValueColormaps: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.FEATURE_VALUE_COLORMAP]),
+      channelFeatureValueColormapRanges: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.FEATURE_VALUE_COLORMAP_RANGE]),
+      channelIsStaticColorMode: channelScopes
+        .map(cScope => channelCoordination[cScope][CoordinationType.OBS_COLOR_ENCODING] === 'spatialChannelColor'),
+      modelMatrix,
+      hoveredCell: Number(this.props.cellHighlight),
+      multiFeatureValues: channelScopes.map(cScope => (layerFeatureValues?.[cScope]?.[0] || [])),
+      renderSubLayers: renderSubBitmaskLayers,
+      loader: data,
+      selections,
+      // For some reason, deck.gl doesn't recognize the prop diffing
+      // unless these are separated out.  I don't think it's a bug, just
+      // has to do with the fact that we don't have it in the `defaultProps`,
+      // could be wrong though.
+      cellColorData: this.color.data,
+      cellTexHeight: this.color.height,
+      cellTexWidth: this.color.width,
+      excludeBackground: true,
+      onViewportLoad: () => {}, // layerProps.callback, // TODO: figure out callback implementation
+      colorScaleLo: 0, // TODO: check if these can be removed?
+      colorScaleHi: 1, // TODO: check if these can be removed?
+      isExpressionMode: false, // TODO: check if these can be removed?
+      colormap: null, // TODO: check if these can be removed?
+      expressionData: this.expression.data,
+      // There is no onHover here,
+      // see the onHover method of AbstractSpatialOrScatterplot.
+    });
+  }
+
+  // New createImageLayer function.
+  createImageLayer(layerScope, layerCoordination, channelScopes, channelCoordination, image, use3d) {
+    // TODO: always using 0th loader here, create joint file type to split existing multi-image
+    // raster.json when necessary.
+    const { data, metadata } = image?.image?.loaders?.[0] || {};
+    if (!data) {
+      return null;
+    }
+
+    const [Layer, layerLoader] = getLayerLoaderTuple(data, use3d);
+
+    const colormap = null; // TODO(CoordinationType): per-layer colormap
+    const renderingMode = null; // TODO(CoordinationType): global or per-layer renderingMode (used in 3d mode)
+    const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
+
+    const layerDefTransparentColor = null; // TODO(CoordinationType): per-layer transparentColor
+    const useTransparentColor = (!visible && typeof visible === 'boolean') || Boolean(layerDefTransparentColor);
     const transparentColor = useTransparentColor ? [0, 0, 0] : null;
-    const layerProps = {
-      colormap: layerDef.colormap,
-      opacity: layerDef.opacity,
-      useTransparentColor,
-      transparentColor,
-      colors: layerDef.channels.map(c => c.color),
-      sliders: layerDef.channels.map(c => c.slider),
-      resolution: layerDef.resolution,
-      renderingMode: layerDef.renderingMode,
-      xSlice: layerDef.xSlice,
-      ySlice: layerDef.ySlice,
-      zSlice: layerDef.zSlice,
-      callback: layerDef.callback,
-      visibilities: layerDef.channels.map(c => (!layerDef.visible && typeof layerDef.visible === 'boolean'
-        ? false
-        : c.visible)),
-      excludeBackground: useTransparentColor,
-    };
-    if (!loader || !layerProps) return null;
-    const {
-      metadata: { transform },
-      data,
-    } = loader;
+
+    const extensions = getVivLayerExtensions(
+      use3d, colormap, renderingMode,
+    );
+
+    // Safer to only use this prop when we have an interleaved image i.e not multiple channels.
+    const rgbInterleavedProps = {};
+    if (isInterleaved((Array.isArray(data) ? data[0] : data).shape)) {
+      rgbInterleavedProps.visible = visible;
+    }
+
+    const layerDefModelMatrix = null; // TODO(CoordinationType): per-layer modelMatrix
     let modelMatrix;
+    const { transform } = metadata || {};
     if (transform) {
       const { scale, translate } = transform;
       modelMatrix = new Matrix4()
         .translate([translate.x, translate.y, 0])
         .scale(scale);
-    } else if (layerDef.modelMatrix) {
+    } else if (layerDefModelMatrix) {
       // eslint-disable-next-line prefer-destructuring
-      modelMatrix = new Matrix4(layerDef.modelMatrix);
+      modelMatrix = new Matrix4(layerDefModelMatrix);
     }
-    if (rawLayerDef.type === 'bitmask') {
-      const {
-        geneExpressionColormap,
-        geneExpressionColormapRange = [0.0, 1.0],
-        cellColorEncoding,
-      } = this.props;
-      return new viv.MultiscaleImageLayer({
-        // `bitmask` is used by the AbstractSpatialOrScatterplot
-        // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
-        id: `bitmask-layer-${layerDef.index}-${i}`,
-        channelsVisible: layerProps.visibilities,
-        opacity: layerProps.opacity,
-        modelMatrix,
-        hoveredCell: Number(this.props.cellHighlight),
-        renderSubLayers: renderSubBitmaskLayers,
-        loader: data,
-        selections,
-        // For some reason, deck.gl doesn't recognize the prop diffing
-        // unless these are separated out.  I don't think it's a bug, just
-        // has to do with the fact that we don't have it in the `defaultProps`,
-        // could be wrong though.
-        cellColorData: this.color.data,
-        cellTexHeight: this.color.height,
-        cellTexWidth: this.color.width,
-        excludeBackground: true,
-        onViewportLoad: layerProps.callback,
-        colorScaleLo: geneExpressionColormapRange[0],
-        colorScaleHi: geneExpressionColormapRange[1],
-        isExpressionMode: cellColorEncoding === 'geneSelection',
-        colormap: geneExpressionColormap,
-        expressionData: this.expression.data,
-        // There is no onHover here,
-        // see the onHover method of AbstractSpatialOrScatterplot.
-      });
-    }
-    const [Layer, layerLoader] = getLayerLoaderTuple(data, layerDef.use3d);
 
-    const extensions = getVivLayerExtensions(
-      layerDef.use3d, layerProps.colormap, layerProps.renderingMode,
-    );
-    // Safer to only use this prop when we have an interleaved image i.e not multiple channels.
-    const rgbInterleavedProps = {};
-    if (isInterleaved((Array.isArray(data) ? data[0] : data).shape)) {
-      rgbInterleavedProps.visible = layerDef.visible;
+    // We need to keep the same selections array reference,
+    // otherwise the Viv layer will not be re-used as we want it to,
+    // since selections is one of its `updateTriggers`.
+    // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
+    let selections;
+    const nextLoaderSelection = channelScopes
+      .map(cScope => ({
+        // TODO: Z, T
+        // TODO: keys (if not always 'c', 'z', 't')
+        z: 0,
+        t: 0,
+        c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+      }));
+    const prevLoaderSelection = this.imageLayerLoaderSelections[layerScope];
+    if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
+      selections = prevLoaderSelection;
+    } else {
+      selections = nextLoaderSelection;
+      this.imageLayerLoaderSelections[layerScope] = nextLoaderSelection;
     }
+
+    const colors = channelScopes
+      .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]);
+    const contrastLimits = channelScopes
+      .map(cScope => ([0, 255])); // TODO(CoordinationType): per-channel sliders
+
     return new Layer({
       loader: layerLoader,
-      id: `${layerDef.use3d ? 'volume' : 'image'}-layer-${layerDef.index}-${i}`,
-      colors: layerProps.colors,
-      contrastLimits: layerProps.sliders,
+      id: `${use3d ? 'volume' : 'image'}-layer-${layerScope}`,
+      colors,
+      contrastLimits,
       selections,
-      channelsVisible: layerProps.visibilities,
-      opacity: layerProps.opacity,
-      colormap: layerProps.colormap,
+      channelsVisible: channelScopes
+        .map(cScope => visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]),
+      opacity: layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY],
+      colormap,
       modelMatrix,
-      transparentColor: layerProps.transparentColor,
-      useTransparentColor: layerProps.useTransparentColor,
-      resolution: layerProps.resolution,
-      renderingMode: layerProps.renderingMode,
+      transparentColor,
+      useTransparentColor,
+      resolution: null, // layerProps.resolution, // TODO(CoordinationType): global or per-layer resolution (used in 3d mode)
+      renderingMode,
       pickable: false,
-      xSlice: layerProps.xSlice,
-      ySlice: layerProps.ySlice,
-      zSlice: layerProps.zSlice,
-      onViewportLoad: layerProps.callback,
-      excludeBackground: layerProps.excludeBackground,
+      xSlice: [0, 1], // layerProps.xSlice, // TODO(CoordinationType): global or per-layer xSlice (used in 3d mode)
+      ySlice: [0, 1], // layerProps.ySlice, // TODO(CoordinationType)
+      zSlice: [0, 1], // layerProps.zSlice, // TODO(CoordinationType)
+      onViewportLoad: () => {}, // layerProps.callback, // TODO: figure out callback implementation
+      excludeBackground: useTransparentColor,
       extensions,
       ...rgbInterleavedProps,
     });
   }
 
-  use3d() {
-    const {
-      imageLayerDefs,
-    } = this.props;
-    return (imageLayerDefs || []).some(i => i.use3d);
-  }
-
   createImageLayers() {
     const {
-      imageLayerDefs,
-      imageLayerLoaders = {},
       imageLayerCallbacks = [],
+
+      images = {},
+      imageLayerScopes,
+      imageLayerCoordination,
+
+      imageChannelScopesByLayer,
+      imageChannelCoordination,
     } = this.props;
+    // TODO: check for 3D.
     const use3d = this.use3d();
-    const use3dIndex = (imageLayerDefs || []).findIndex(i => i.use3d);
-    return (imageLayerDefs || [])
-      .filter(layer => (use3d ? layer.use3d === use3d : true))
-      .map((layer, i) => this.createRasterLayer(
-        { ...layer, callback: imageLayerCallbacks[use3d ? use3dIndex : i] },
-        imageLayerLoaders[layer.index],
-        i,
-      ));
+    return imageLayerScopes.map(layerScope => this.createImageLayer(
+      layerScope,
+      imageLayerCoordination[0][layerScope],
+      imageChannelScopesByLayer[layerScope],
+      imageChannelCoordination[0][layerScope],
+      images[layerScope],
+      use3d,
+    ));
   }
 
   createBitmaskLayers() {
     const {
-      obsSegmentationsLayerDefs,
-      obsSegmentations,
+      obsSegmentations = {},
+      segmentationLayerScopes,
+      segmentationLayerCoordination,
+
+      segmentationChannelScopesByLayer,
+      segmentationChannelCoordination,
+
       obsSegmentationsType,
       segmentationLayerCallbacks = [],
+
+      multiExpressionData,
     } = this.props;
-    if (obsSegmentations && obsSegmentationsType === 'bitmask' && Array.isArray(obsSegmentationsLayerDefs)) {
-      const { loaders = [] } = obsSegmentations;
-      const use3d = obsSegmentationsLayerDefs.some(i => i.use3d);
-      const use3dIndex = obsSegmentationsLayerDefs.findIndex(i => i.use3d);
-      return obsSegmentationsLayerDefs
-        .filter(layer => (use3d ? layer.use3d === use3d : true))
-        .map((layer, i) => this.createRasterLayer(
-          { ...layer, callback: segmentationLayerCallbacks[use3d ? use3dIndex : i] },
-          loaders[layer.index],
-          i,
-        ));
-    }
-    return [];
+    // TODO: support polygon layers
+    // TODO: check for 3D.
+    const use3d = this.use3d();
+    return segmentationLayerScopes.map(layerScope => this.createSegmentationLayer(
+      layerScope,
+      segmentationLayerCoordination[0][layerScope],
+      segmentationChannelScopesByLayer[layerScope],
+      segmentationChannelCoordination[0][layerScope],
+      obsSegmentations[layerScope],
+      use3d,
+      multiExpressionData?.[layerScope],
+      // TODO: pass down layer-specific multiExpressionData
+    ));
   }
 
   getLayers() {
@@ -701,13 +777,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     );
   }
 
-  recenter() {
-    const { originalViewState, setViewState } = this.props;
-    if (Array.isArray(originalViewState?.target) && typeof originalViewState?.zoom === 'number') {
-      setViewState(originalViewState);
-    }
-  }
-
   /**
    * Here, asynchronously check whether props have
    * updated which require re-computing memoized variables,
@@ -761,11 +830,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'hasSegmentations',
         'cellFilter',
         'cellSelection',
+        'cellColors',
         'geneExpressionColormapRange',
-        'expressionData',
         'cellColorEncoding',
         'geneExpressionColormap',
         'segmentationLayerCallbacks',
+        'segmentationLayerScopes',
+        'segmentationLayerCoordination',
+        'segmentationChannelScopesByLayer',
+        'segmentationChannelCoordination',
+        'multiExpressionData', // TODO: should this be here?
       ].some(shallowDiff)
     ) {
       // Cells layer props changed.
@@ -821,6 +895,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'expressionData',
         'imageLayerCallbacks',
         'geneExpressionColormap',
+
+        'images',
+        'imageLayerScopes',
+        'imageLayerCoordination',
+
+        'imageChannelScopesByLayer',
+        'imageChannelCoordination',
       ].some(shallowDiff)
     ) {
       // Image layers changed.
@@ -835,7 +916,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
   // render() is implemented in the abstract parent class.
 }
 
-
 /**
  * Need this wrapper function here,
  * since we want to pass a forwardRef
@@ -846,5 +926,4 @@ class Spatial extends AbstractSpatialOrScatterplot {
 const SpatialWrapper = forwardRef((props, deckRef) => (
   <Spatial {...props} deckRef={deckRef} />
 ));
-SpatialWrapper.displayName = 'SpatialWrapper';
 export default SpatialWrapper;

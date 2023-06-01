@@ -37,8 +37,11 @@
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
+    "@vitessce/sets-utils": "workspace:*",
     "lodash-es": "^4.17.21",
-    "math.gl": "^3.5.6"
+    "math.gl": "^3.5.6",
+    "plur": "^5.1.0",
+    "react-color-with-lodash": "^2.19.5"
   },
   "devDependencies": {
     "react": "^18.0.0",

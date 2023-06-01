@@ -17,8 +17,13 @@ export {
   useGridItemSize,
 } from './hooks.js';
 export {
+  useCoordinationScopes,
+  useCoordinationScopesBy,
   useCoordination,
   useComplexCoordination,
+  useComplexCoordinationSecondary,
+  useMultiCoordinationScopes,
+  useMultiCoordinationScopesSecondary,
   useMultiCoordinationValues,
   useMultiDatasetCoordination,
   useDatasetUids,
@@ -43,6 +48,10 @@ export {
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useMultiObsLabels,
+  useMultiObsSegmentations,
+  useMultiImages,
+  useMultiFeatureSelection,
+  useMultiObsFeatureMatrixIndices,
 
   useObsLocationsData,
   useObsSegmentationsData,
