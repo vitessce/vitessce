@@ -1,4 +1,11 @@
 package.json
 package-lock.json
 *.tgz
+
+# Vite site
 dist/
+
+# NextJS site
+out/
+build/
+.next/
