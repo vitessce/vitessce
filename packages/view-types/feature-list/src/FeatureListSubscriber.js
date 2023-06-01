@@ -89,6 +89,7 @@ export function FeatureListSubscriber(props) {
   }
 
   const [featureListSort, setFeatureListSort] = useState(sort);
+  const [showFeatureTable, setShowFeatureTable] = useState(showTable);
 
   return (
     <TitleInfo
@@ -106,12 +107,14 @@ export function FeatureListSubscriber(props) {
         <FeatureListOptions
           featureListSort={featureListSort}
           setFeatureListSort={setFeatureListSort}
+          showFeatureTable={showFeatureTable}
+          setShowFeatureTable={setShowFeatureTable}
         />
       )}
     >
       <FeatureList
         hasColorEncoding={cellColorEncoding === 'geneSelection'}
-        showTable={showTable}
+        showFeatureTable={showFeatureTable}
         geneList={geneList}
         featureListSort={featureListSort}
         featureLabelsMap={featureLabelsMap}

@@ -23,7 +23,7 @@ export default function FeatureList(props) {
     geneFilter = null,
     setGeneSelection,
     enableMultiSelect,
-    showTable,
+    showFeatureTable,
     featureListSort,
   } = props;
 
@@ -83,7 +83,7 @@ export default function FeatureList(props) {
   const columns = ['name'];
   const columnLabels = [`${capitalize(featureType)} ID`];
 
-  if (showTable) {
+  if (showFeatureTable) {
     columns.push('key');
     columnLabels.push('Alternate ID');
   }

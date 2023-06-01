@@ -1,6 +1,6 @@
 import React from 'react';
 import { OptionsContainer, OptionSelect, usePlotOptionsStyles } from '@vitessce/vit-s';
-import { TableCell, TableRow } from '@material-ui/core';
+import { TableCell, TableRow, Checkbox } from '@material-ui/core';
 import { FEATURELIST_SORT_OPTIONS } from './constants.js';
 
 
@@ -9,10 +9,16 @@ export default function FeatureListOptions(props) {
     children,
     featureListSort,
     setFeatureListSort,
+    showFeatureTable,
+    setShowFeatureTable,
   } = props;
 
-  function handleSortChange(event) {
+  function handleFeatureListSortChange(event) {
     setFeatureListSort(event.target.value);
+  }
+
+  function handleShowTableChange(event) {
+    setShowFeatureTable(event.target.checked);
   }
 
   const classes = usePlotOptionsStyles();
@@ -28,7 +34,7 @@ export default function FeatureListOptions(props) {
           <OptionSelect
             className={classes.select}
             value={featureListSort}
-            onChange={handleSortChange}
+            onChange={handleFeatureListSortChange}
             inputProps={{
               id: 'feature-list-sort-option-select',
             }}
@@ -37,6 +43,20 @@ export default function FeatureListOptions(props) {
               <option key={option} value={option}>{option}</option>
             ))}
           </OptionSelect>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell}>
+          Show table
+        </TableCell>
+        <TableCell className={classes.inputCell}>
+          <Checkbox
+            className={classes.checkbox}
+            checked={showFeatureTable}
+            onChange={handleShowTableChange}
+            name="feature-list-show-table"
+            color="default"
+          />
         </TableCell>
       </TableRow>
     </OptionsContainer>
