@@ -102,12 +102,12 @@ export function FeatureListSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       urls={urls}
-      options={
+      options={(
         <FeatureListOptions
           featureListSort={featureListSort}
           setFeatureListSort={setFeatureListSort}
         />
-      }
+      )}
     >
       <FeatureList
         hasColorEncoding={cellColorEncoding === 'geneSelection'}

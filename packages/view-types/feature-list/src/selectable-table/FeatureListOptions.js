@@ -1,30 +1,32 @@
 import React from 'react';
-import { OptionsContainer, OptionSelect } from '@vitessce/vit-s';
+import { OptionsContainer, OptionSelect, usePlotOptionsStyles } from '@vitessce/vit-s';
 import { TableCell, TableRow } from '@material-ui/core';
 import { FEATURELIST_SORT_OPTIONS } from './constants.js';
 
 
 export default function FeatureListOptions(props) {
   const {
+    children,
     featureListSort,
     setFeatureListSort,
   } = props;
 
-  function handleSortChange(event){
+  function handleSortChange(event) {
     setFeatureListSort(event.target.value);
   }
 
+  const classes = usePlotOptionsStyles();
 
   return (
     <OptionsContainer>
-      {/* {children} */}
+      {children}
       <TableRow>
-        <TableCell /*className={classes.labelCell}*/ htmlFor="feature-list-sort-option-select">
+        <TableCell className={classes.labelCell} htmlFor="feature-list-sort-option-select">
           Sort features by
         </TableCell>
-        <TableCell /*className={classes.inputCell}*/>
+        <TableCell>
           <OptionSelect
-            // className={classes.select}
+            className={classes.select}
             value={featureListSort}
             onChange={handleSortChange}
             inputProps={{

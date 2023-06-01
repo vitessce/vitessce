@@ -56,22 +56,22 @@ export default function FeatureList(props) {
     }
   }
 
-  const generateData = () => {
+  function generateData() {
     const preSortedData = searchResults
-    .filter(gene => (geneFilter ? geneFilter.includes(gene) : true))
-    .map(
-      gene => ({
-        key: gene,
-        name: featureLabelsMap?.get(gene) || gene,
-        value: (geneSelection ? geneSelection.includes(gene) : false),
-      }),
-    );
+      .filter(gene => (geneFilter ? geneFilter.includes(gene) : true))
+      .map(
+        gene => ({
+          key: gene,
+          name: featureLabelsMap?.get(gene) || gene,
+          value: (geneSelection ? geneSelection.includes(gene) : false),
+        }),
+      );
 
     if (featureListSort === 'alphabetical') {
       return preSortedData.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (featureListSort === 'original') {
-      return preSortedData;
     }
+
+    return preSortedData;
   }
 
   const data = generateData();
