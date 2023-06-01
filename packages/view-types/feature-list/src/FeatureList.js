@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { every } from 'lodash-es';
 import { makeStyles } from '@material-ui/core';
 import { capitalize } from '@vitessce/utils';
@@ -56,7 +56,7 @@ export default function FeatureList(props) {
     }
   }
 
-  function generateData() {
+  const data = useMemo(() => {
     const preSortedData = searchResults
       .filter(gene => (geneFilter ? geneFilter.includes(gene) : true))
       .map(
@@ -72,9 +72,13 @@ export default function FeatureList(props) {
     }
 
     return preSortedData;
-  }
-
-  const data = generateData();
+  }, [
+    featureListSort,
+    searchResults,
+    geneFilter,
+    featureLabelsMap,
+    geneSelection,
+  ]);
 
   const handleChange = (event) => {
     setSearchTerm(event.target.value);
