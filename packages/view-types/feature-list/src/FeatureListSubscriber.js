@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import plur from 'plur';
 import { capitalize, commaNumber } from '@vitessce/utils';
 import {
@@ -9,6 +9,7 @@ import {
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import FeatureList from './FeatureList.js';
+import FeatureListOptions from './selectable-table/FeatureListOptions.js';
 
 
 /**
@@ -87,6 +88,8 @@ export function FeatureListSubscriber(props) {
     setCellColorEncoding('geneSelection');
   }
 
+  const [featureListSort, setFeatureListSort] = useState(sort);
+
   return (
     <TitleInfo
       title={title}
@@ -99,12 +102,18 @@ export function FeatureListSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       urls={urls}
+      options={
+        <FeatureListOptions
+          featureListSort={featureListSort}
+          setFeatureListSort={setFeatureListSort}
+        />
+      }
     >
       <FeatureList
         hasColorEncoding={cellColorEncoding === 'geneSelection'}
         showTable={showTable}
         geneList={geneList}
-        sort={sort}
+        featureListSort={featureListSort}
         featureLabelsMap={featureLabelsMap}
         featureType={featureType}
         geneSelection={geneSelection}
