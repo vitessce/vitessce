@@ -230,4 +230,28 @@ describe('Tests for filterPathsByExpansionAndSelection', () => {
       ['Cell Type Annotations', 'Immune'],
     ]);
   });
+
+  it('Uses paths in cellSetSelection when cellSetExpansion is null', () => {
+    const hierarchy = ['Louvain Clustering'];
+    const cellSetExpansion = null;
+    const cellSetSelection = [
+      ['Louvain Clustering', 'Cluster 1'],
+      ['Louvain Clustering', 'Cluster 2'],
+      ['Louvain Clustering', 'Cluster 3'],
+      ['Louvain Clustering', 'Cluster 4'],
+    ];
+
+    const cellSetPaths = filterPathsByExpansionAndSelection(
+      tree,
+      hierarchy,
+      cellSetExpansion,
+      cellSetSelection,
+    );
+    expect(cellSetPaths).toEqual([
+      ['Louvain Clustering', 'Cluster 1'],
+      ['Louvain Clustering', 'Cluster 2'],
+      ['Louvain Clustering', 'Cluster 3'],
+      ['Louvain Clustering', 'Cluster 4'],
+    ]);
+  });
 });
