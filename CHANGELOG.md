@@ -20,6 +20,7 @@
 - Removed the Select Rectangle button from Scatterplot and Spatial views.
 - Added option to disable tooltips on Heatmap and Scatterplot components. The option is available from the options control dropdown.
 - Added an option to skip sorting features alphabetically in feature list.
+- Added support for generating view-config for Anndata-Zarr files that don't have .zmetadata file in the folder.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
@@ -88,6 +89,9 @@
 - Fixed equality check when creating default model matrices for `sizes`
 - Split useEffect into useMemo + useEffect in SpatialSubscriber to fix infinite loop for `neumann-2020` demo on the docs site.
 - Made the cursor type to `pointer` when the user is hovering over the heatmap.
+- Modified the `AnndataZarrAutoConfig` class:
+  - added a parser function that generates metadata summary without reading `.zmetadata` file.
+  - the class calls the parser function if no `.zmetadata` file is present in the given URL.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
