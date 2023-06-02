@@ -185,7 +185,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     return views;
   }
 
-  async setMetadataSummaryWithZmetadata(response) {
+  async setMetadataSummaryWithZmetadata(response) { /* eslint-disable-line class-methods-use-this */
     const metadataFile = await response.json();
     if (!metadataFile.metadata) {
       throw new Error('Could not generate config: .zmetadata file is not valid.');
@@ -213,46 +213,45 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
   }
 
   async setMetadataSummaryWithoutZmetadata() {
-
-    const obsm_suffxes = [
-      "/obsm/X_pca/.zarray", 
-      "/obsm/X_umap/.zarray", 
-      "/obsm/X_tsne/.zarray", 
-      "/obsm/X_spatial/.zarray", 
-      "/obsm/X_segmentations/.zarray",
+    const suffixes = [
+      '/obsm/X_pca/.zarray',
+      '/obsm/X_umap/.zarray',
+      '/obsm/X_tsne/.zarray',
+      '/obsm/X_spatial/.zarray',
+      '/obsm/X_segmentations/.zarray',
+      '/obs/.zattrs',
+      '/X/.zarray',
     ];
 
-    const promises = obsm_suffxes.map((suffix) => fetch(this.fileUrl + suffix));
-    const jsons = await Promise.all(promises);
-    const obsm_meta = jsons
-      .filter((j) => j.ok)
-      .map((j) => j.url.replace(this.fileUrl, "").replace("/", "").replace("/.zarray", ""));
-        
-    const obs_suffix = "/obs/.zattrs";
+    const promises = suffixes.map(suffix => fetch(this.fileUrl + suffix));
 
-    const obs_json = await fetch(this.fileUrl + obs_suffix).then((response) => {
-      if (response.ok) {
-        return response.json();
-      }
-      return {"column-order": []};
-    })
-    
-    const obs_meta = obs_json["column-order"].map((key) => "obs/" + key);
+    const results = await Promise.all(promises);
+    const metadataSummary = {
+      obsm: [],
+      obs: [],
+      X: false,
+    };
 
-    const x_suffix = "/X/.zarray";
-    const x = await fetch(this.fileUrl + x_suffix).then((response) => {
-      if (response.ok) {
-        return true;
-      } else {
-        return false;
-      }
-    })
+    const obsJson = results.find(j => j.ok && j.url.startsWith(`${this.fileUrl}/obs/.zattrs`));
 
-    return {
-      obsm: obsm_meta,
-      obs: obs_meta,
-      X: x
+    if (obsJson) {
+      const obsColumns = await obsJson.json();
+      obsColumns['column-order'].forEach(key => metadataSummary.obs.push(`obs/${key}`));
     }
+
+    results
+      .filter(j => j.ok)
+      .forEach((j) => {
+        if (j.url.startsWith(`${this.fileUrl}/obsm`)) {
+          metadataSummary.obsm.push(
+            j.url.replace(this.fileUrl, '').replace('/', '').replace('/.zarray', ''),
+          );
+        } else if (j.url.startsWith(`${this.fileUrl}/X`)) {
+          metadataSummary.X = true;
+        }
+      });
+
+    return metadataSummary;
   }
 
   async setMetadataSummary() {
@@ -261,14 +260,15 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     }
 
     const metadataExtension = '.zmetadata';
-      const url = [this.fileUrl, metadataExtension].join('/');
-      return fetch(url).then((response) => {
-        if (response.ok) {
-          return this.setMetadataSummaryWithZmetadata(response);
-        } else if (response.status === 404) {
-          return this.setMetadataSummaryWithoutZmetadata();
-        }
-      });
+    const url = [this.fileUrl, metadataExtension].join('/');
+    return fetch(url).then((response) => {
+      if (response.ok) {
+        return this.setMetadataSummaryWithZmetadata(response);
+      } if (response.status === 404) {
+        return this.setMetadataSummaryWithoutZmetadata();
+      }
+      throw new Error(`Could not generate config: ${response.statusText}`);
+    });
   }
 }
 
