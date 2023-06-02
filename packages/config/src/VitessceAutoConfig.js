@@ -221,6 +221,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       '/obsm/X_segmentations/.zarray',
       '/obs/.zattrs',
       '/X/.zarray',
+      '/X/data/.zarray',
     ];
 
     const promises = suffixes.map(suffix => fetch(this.fileUrl + suffix));
