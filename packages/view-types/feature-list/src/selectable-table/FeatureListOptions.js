@@ -1,7 +1,7 @@
 import React from 'react';
 import { OptionsContainer, OptionSelect, usePlotOptionsStyles } from '@vitessce/vit-s';
 import { TableCell, TableRow, Checkbox } from '@material-ui/core';
-import { FEATURELIST_SORT_OPTIONS } from './constants.js';
+import { FEATURELIST_SORT_OPTIONS, FEATURELIST_SORT_KEYS } from './constants.js';
 
 
 export default function FeatureListOptions(props) {
@@ -9,12 +9,18 @@ export default function FeatureListOptions(props) {
     children,
     featureListSort,
     setFeatureListSort,
+    featureListSortKey,
+    setFeatureListSortKey,
     showFeatureTable,
     setShowFeatureTable,
   } = props;
 
   function handleFeatureListSortChange(event) {
     setFeatureListSort(event.target.value);
+  }
+
+  function handleFeatureListSortKeyChange(event) {
+    setFeatureListSortKey(event.target.value);
   }
 
   function handleShowTableChange(event) {
@@ -40,6 +46,26 @@ export default function FeatureListOptions(props) {
             }}
           >
             {FEATURELIST_SORT_OPTIONS.map(option => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </OptionSelect>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell} htmlFor="feature-list-sort-key-select">
+          Sort Key
+        </TableCell>
+        <TableCell>
+          <OptionSelect
+            className={classes.select}
+            disabled={featureListSort === 'original'}
+            value={featureListSortKey}
+            onChange={handleFeatureListSortKeyChange}
+            inputProps={{
+              id: 'feature-list-sort-key-select',
+            }}
+          >
+            {FEATURELIST_SORT_KEYS.map(option => (
               <option key={option} value={option}>{option}</option>
             ))}
           </OptionSelect>

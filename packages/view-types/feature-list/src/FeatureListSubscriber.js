@@ -89,6 +89,7 @@ export function FeatureListSubscriber(props) {
   }
 
   const [featureListSort, setFeatureListSort] = useState(sort);
+  const [featureListSortKey, setFeatureListSortKey] = useState('Gene ID');
   const [showFeatureTable, setShowFeatureTable] = useState(showTable);
 
   return (
@@ -107,6 +108,8 @@ export function FeatureListSubscriber(props) {
         <FeatureListOptions
           featureListSort={featureListSort}
           setFeatureListSort={setFeatureListSort}
+          featureListSortKey={featureListSortKey}
+          setFeatureListSortKey={setFeatureListSortKey}
           showFeatureTable={showFeatureTable}
           setShowFeatureTable={setShowFeatureTable}
         />
@@ -117,6 +120,7 @@ export function FeatureListSubscriber(props) {
         showFeatureTable={showFeatureTable}
         geneList={geneList}
         featureListSort={featureListSort}
+        featureListSortKey={featureListSortKey}
         featureLabelsMap={featureLabelsMap}
         featureType={featureType}
         geneSelection={geneSelection}

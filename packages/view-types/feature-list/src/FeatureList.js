@@ -25,6 +25,7 @@ export default function FeatureList(props) {
     enableMultiSelect,
     showFeatureTable,
     featureListSort,
+    featureListSortKey,
   } = props;
 
   const classes = useStyles();
@@ -67,13 +68,19 @@ export default function FeatureList(props) {
         }),
       );
 
-    if (featureListSort === 'alphabetical') {
-      return preSortedData.sort((a, b) => a.name.localeCompare(b.name));
+    if (featureListSort === 'alphabetical' && preSortedData.length > 0) {
+      if (featureListSortKey === 'Alternate ID') {
+        return preSortedData.sort((a, b) => a.key.localeCompare(b.key));
+      }
+      if (featureListSortKey === 'Gene ID') {
+        return preSortedData.sort((a, b) => a.name.localeCompare(b.name));
+      }
     }
 
     return preSortedData;
   }, [
     featureListSort,
+    featureListSortKey,
     searchResults,
     geneFilter,
     featureLabelsMap,
