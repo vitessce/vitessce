@@ -1,13 +1,6 @@
-import { emptySchema } from '@vitessce/vit-s';
-import CsvLoader from './CsvLoader';
+import CsvLoader from './CsvLoader.js';
 
 export default class ObsFeatureMatrixCsvLoader extends CsvLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-
-    this.optionsSchema = emptySchema;
-  }
-
   loadFromCache(data) {
     if (this.cachedResult) {
       return this.cachedResult;

@@ -1,9 +1,8 @@
 import React from 'react';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
+import { TableCell, TableRow } from '@material-ui/core';
 import { capitalize } from '@vitessce/utils';
-import OptionSelect from './OptionSelect';
-import { useStyles } from './styles';
+import OptionSelect from './OptionSelect.js';
+import { useStyles } from './styles.js';
 
 export default function CellColorEncodingOption(props) {
   const {

@@ -8,13 +8,22 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
+  "type": "module",
   "main": "dist-tsc/index.js",
   "publishConfig": {
-    "main": "dist/index.mjs"
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
   },
   "files": [
+    "src",
     "dist",
-    "src"
+    "dist-tsc"
   ],
   "scripts": {
     "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
@@ -24,14 +33,13 @@
     "@turf/centroid": "^6.5.0",
     "@turf/helpers": "^6.5.0",
     "@vitessce/utils": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
-    "ajv": "^6.10.0",
+    "@vitessce/schemas": "workspace:*",
     "concaveman": "^1.2.1",
     "d3-dsv": "^1.1.1",
     "internmap": "^2.0.3",
     "json2csv": "^5.0.0",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "tinycolor2": "^1.4.1",
-    "uuid": "^3.3.2"
+    "uuid": "^9.0.0"
   }
 }

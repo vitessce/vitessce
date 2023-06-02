@@ -66,7 +66,7 @@ function DemoList(props) {
             <a href={baseUrl + key} className={styles.demoGridItemLink}>{d.name}</a>
             <p className={styles.demoGridItemDescription}>{d.description}</p>
             {configAttrs[key] ? configAttrs[key].map(attrVal => (
-              <span className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])}>
+              <span key={`${key}-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])}>
                 {attrVal}
               </span>
             )) : null}

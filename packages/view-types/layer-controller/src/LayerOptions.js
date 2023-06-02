@@ -1,11 +1,7 @@
 import React from 'react';
-import range from 'lodash/range';
+import { range } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
-import Grid from '@material-ui/core/Grid';
-import Slider from '@material-ui/core/Slider';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import Checkbox from '@material-ui/core/Checkbox';
+import { Grid, Slider, InputLabel, Select, Checkbox } from '@material-ui/core';
 import { viv } from '@vitessce/gl';
 import { DEFAULT_RASTER_DOMAIN_TYPE } from '@vitessce/spatial-utils';
 import {
@@ -16,8 +12,8 @@ import {
 } from '@vitessce/utils';
 import {
   getBoundingCube, getMultiSelectionStats,
-} from './utils';
-import { StyledSelectionSlider, useSelectStyles } from './styles';
+} from './utils.js';
+import { StyledSelectionSlider, useSelectStyles } from './styles.js';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
 

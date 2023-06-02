@@ -14,7 +14,7 @@ import {
   DataType as DataTypeOld,
   FileType as FileTypeOld,
   CoordinationType as CoordinationTypeOld,
-} from './constants-old';
+} from './constants-old.js';
 
 function makeConstantWithDeprecationMessage(currObj, oldObj) {
   const handler = {
@@ -27,6 +27,7 @@ function makeConstantWithDeprecationMessage(currObj, oldObj) {
       return obj[prop];
     },
   };
+  // eslint-disable-next-line no-undef
   const objWithMessage = new Proxy(currObj, handler);
   return objWithMessage;
 }

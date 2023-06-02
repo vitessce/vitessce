@@ -62,6 +62,8 @@ pnpm run start-demo
 
 The development server will refresh the browser as you edit the code.
 
+Further details for internal developers can be found within [dev-docs](./dev-docs/).
+
 ### Branches
 
 Please use one of the following naming conventions for new branches:
@@ -90,6 +92,14 @@ pnpm run build-demo
 
 - To run all the tests, both unit and e2e: `./test.sh`
 - To run just the unit tests: `pnpm run test`
+
+### Linting
+
+```sh
+pnpm run lint
+```
+
+To allow the linter to perform automated fixes during linting: `pnpm run lint-fix`
 
 ### Troubleshooting
 
@@ -173,6 +183,8 @@ From local machine:
 
   ```sh
   pnpm run build
+  pnpm run bundle
+  pnpm run build-json-schema
   pnpm publish --filter='./packages/**' --no-git-checks --tag beta --access public --dry-run
   ```
 
@@ -232,3 +244,31 @@ Changes to the directory structure or filenames in the `dist/` directory that co
 - [May 2019: Harvard IT Summit](https://docs.google.com/presentation/d/1eYDMedzhQtcClB2cIBo17hlaSSAu_-vzkG4LY_mGGQ8/edit#slide=id.p)
 - [May 2019: Misc. tools](https://docs.google.com/presentation/d/1TaC68-r6bosnwi05BZ5bNh9tzeXsxyqmBo1gFZDxhGM/edit#slide=id.p)
 - [April 2019: Software engineering](https://docs.google.com/presentation/d/1uW3J83LYaa67M9ZKe15AQw_h06QiFJBzpBickbRFcCY/edit#slide=id.p)
+
+## Citation
+
+To cite Vitessce in your work, please use:
+
+```bibtex
+@article{keller2021vitessce,
+  title = {{Vitessce: a framework for integrative visualization of multi-modal and spatially-resolved single-cell data}},
+  author = {Keller, Mark S. and Gold, Ilan and McCallum, Chuck and Manz, Trevor and Kharchenko, Peter V. and Gehlenborg, Nils},
+  journal = {OSF Preprints},
+  year = {2021},
+  month = oct,
+  doi = {10.31219/osf.io/y8thv}
+}
+```
+
+If you use the image rendering functionality, please additionally cite Viv:
+
+```bibtex
+@article{manz2022viv,
+  title = {{Viv: multiscale visualization of high-resolution multiplexed bioimaging data on the web}},
+  author = {Manz, Trevor and Gold, Ilan and Patterson, Nathan Heath and McCallum, Chuck and Keller, Mark S. and Herr, II, Bruce W. and Börner, Kay and Spraggins, Jeffrey M. and Gehlenborg, Nils},
+  journal = {Nature Methods},
+  year = {2022},
+  month = may,
+  doi = {10.1038/s41592-022-01482-7}
+}
+```

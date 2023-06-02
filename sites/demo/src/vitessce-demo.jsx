@@ -1,10 +1,12 @@
 /* eslint-disable no-console */
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, {
+  useEffect, useRef, useState, useMemo,
+} from 'react';
 import { Vitessce } from 'vitessce';
 
-import { getConfig, listConfigs } from './api';
-import { Welcome } from './welcome';
-import { Warning } from './warning';
+import { getConfig, listConfigs, getPlugins } from './api.js';
+import { Welcome } from './welcome.jsx';
+import { Warning } from './warning.jsx';
 
 import './index.scss';
 
@@ -98,9 +100,11 @@ export function VitessceDemo() {
     const datasetUrl = urlParams.get('url');
     const showAll = urlParams.get('show') === 'all';
     const theme = validateTheme(urlParams.get('theme'));
+    const isBounded = urlParams.get('isBounded') === 'true';
 
     if (datasetId) {
       const config = getConfig(datasetId);
+      const pluginProps = getPlugins(datasetId);
       return (
         <Vitessce
           config={config}
@@ -109,6 +113,8 @@ export function VitessceDemo() {
           onConfigChange={debug ? console.log : undefined}
           onConfigUpgrade={debug ? logConfigUpgrade : undefined}
           validateOnConfigChange={debug}
+          isBounded={isBounded}
+          {...pluginProps}
         />
       );
     }
@@ -154,7 +160,8 @@ export function VitessceDemo() {
         width: 100%;
         overflow: hidden;
       }
-      `}</style>
+      `}
+      </style>
       {result}
     </>
   );

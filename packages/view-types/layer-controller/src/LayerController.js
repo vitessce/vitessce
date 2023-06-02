@@ -4,31 +4,28 @@ import {
   GLOBAL_LABELS, getSourceFromLoader, isRgb,
 } from '@vitessce/spatial-utils';
 
-import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import AddIcon from '@material-ui/icons/Add';
-import Slider from '@material-ui/core/Slider';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import { Grid, Button, Slider, Tabs, Tab, Accordion } from '@material-ui/core';
+import {
+  Add as AddIcon,
+  ExpandMore as ExpandMoreIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+} from '@material-ui/icons';
 
-import Accordion from '@material-ui/core/Accordion';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 
 import { canLoadResolution } from '@vitessce/utils';
-import LayerOptions from './LayerOptions';
-import VolumeOptions from './VolumeOptions';
+import LayerOptions from './LayerOptions.js';
+import VolumeOptions from './VolumeOptions.js';
 import {
   useControllerSectionStyles,
   StyledAccordionDetails,
   StyledAccordionSummary,
   StyledInputLabel,
   OverflowEllipsisGrid,
-} from './styles';
-import { getMultiSelectionStats } from './utils';
+} from './styles.js';
+import { getMultiSelectionStats } from './utils.js';
 
-import { DOMAINS } from './constants';
+import { DOMAINS } from './constants.js';
 
 function TabPanel(props) {
   const {

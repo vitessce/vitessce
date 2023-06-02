@@ -1,10 +1,10 @@
 import React, { useRef, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core';
 import { capitalize } from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
-import { getXlinkHref } from './legend-utils';
+import { getXlinkHref } from './legend-utils.js';
 
 const useStyles = makeStyles(() => ({
   legend: {

@@ -1,18 +1,16 @@
 import React, { useCallback, useState, useEffect } from 'react';
 
-import Grid from '@material-ui/core/Grid';
-import Slider from '@material-ui/core/Slider';
-import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
+import { Grid, Slider } from '@material-ui/core';
+import { debounce, isEqual } from 'lodash-es';
 
 import { getSourceFromLoader } from '@vitessce/spatial-utils';
-import ChannelOptions from './ChannelOptions';
-import { DOMAINS } from './constants';
-import { getMultiSelectionStats, toRgbUIString } from './utils';
+import ChannelOptions from './ChannelOptions.js';
+import { DOMAINS } from './constants.js';
+import { getMultiSelectionStats, toRgbUIString } from './utils.js';
 import {
   ChannelSelectionDropdown,
   ChannelVisibilityCheckbox,
-} from './shared-channel-controls';
+} from './shared-channel-controls.js';
 
 function abbreviateNumber(value) {
   // Return an abbreviated representation of value, in 5 characters or less.
@@ -67,7 +65,7 @@ function ChannelSlider({
     debounce(handleChange, 3, { trailing: true }),
     [handleChange],
   );
-  const step = max - min < 500 && dtype === 'Float32' ? (max - min) / 500 : 1;
+  const step = max - min < 500 && dtype.startsWith('Float') ? (max - min) / 500 : 1;
   return (
     <Slider
       value={slider}

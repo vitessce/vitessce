@@ -5,14 +5,14 @@ import {
   useUrls, useReady, useGridItemSize,
   useObsSetsData,
 } from '@vitessce/vit-s';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash-es';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import {
   mergeObsSets, treeToSetSizesBySetNames, filterPathsByExpansionAndSelection, findChangedHierarchy,
 } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
-import CellSetSizesPlot from './CellSetSizesPlot';
-import { useStyles } from './styles';
+import CellSetSizesPlot from './CellSetSizesPlot.js';
+import { useStyles } from './styles.js';
 
 /**
  * A subscriber component for `CellSetSizePlot`,
@@ -77,33 +77,35 @@ export function CellSetSizesPlotSubscriber(props) {
   );
 
   const data = useMemo(() => {
-    let newHierarchy = currentHierarchy;
+    if (cellSetSelection && cellSetExpansion && cellSetColor && mergedCellSets && cellSets) {
+      let newHierarchy = currentHierarchy;
 
-    if (cellSetSelection) {
-      const changedHierarchy = findChangedHierarchy(prevCellSetSelection, cellSetSelection);
-      setPrevCellSetSelection(cellSetSelection);
+      if (cellSetSelection) {
+        const changedHierarchy = findChangedHierarchy(prevCellSetSelection, cellSetSelection);
+        setPrevCellSetSelection(cellSetSelection);
 
-      if (changedHierarchy) {
-        setCurrentHierarchy(changedHierarchy);
-        newHierarchy = changedHierarchy;
+        if (changedHierarchy) {
+          setCurrentHierarchy(changedHierarchy);
+          newHierarchy = changedHierarchy;
+        }
       }
-    }
 
-    const cellSetPaths = filterPathsByExpansionAndSelection(
-      mergedCellSets,
-      newHierarchy,
-      cellSetExpansion,
-      cellSetSelection,
-    );
-
-    if (mergedCellSets && cellSets && cellSetSelection && cellSetColor) {
-      return treeToSetSizesBySetNames(
+      const cellSetPaths = filterPathsByExpansionAndSelection(
         mergedCellSets,
-        cellSetPaths,
+        newHierarchy,
+        cellSetExpansion,
         cellSetSelection,
-        cellSetColor,
-        theme,
       );
+
+      if (mergedCellSets && cellSets && cellSetSelection && cellSetColor) {
+        return treeToSetSizesBySetNames(
+          mergedCellSets,
+          cellSetPaths,
+          cellSetSelection,
+          cellSetColor,
+          theme,
+        );
+      }
     }
     return [];
   }, [

@@ -1,17 +1,15 @@
-import Ajv from 'ajv';
-import isNil from 'lodash/isNil';
+import { isNil } from 'lodash-es';
 import { dsvFormat } from 'd3-dsv';
 // TODO(monorepo): try to find a different package for this.
 // Reference: https://github.com/zemirco/json2csv/issues/539
-import { Parser } from 'json2csv/dist/json2csv.umd';
+import { Parser } from 'json2csv/dist/json2csv.umd.js';
 import { getDefaultColor } from '@vitessce/utils';
-import { colorArrayToString, colorStringToArray } from './utils';
-import { nodeTransform } from './cell-set-utils';
+import { colorArrayToString, colorStringToArray } from './utils.js';
 import {
   HIERARCHICAL_SCHEMAS, TABULAR_SCHEMAS,
   MIME_TYPE_JSON, MIME_TYPE_TABULAR,
   SEPARATOR_TABULAR, NA_VALUE_TABULAR,
-} from './constants';
+} from './constants.js';
 
 /**
  * Check if an imported tree has an old schema version that we know how to
@@ -19,32 +17,23 @@ import {
  * @param {object} currTree A hierarchical tree object with a .version property,
  * which has already passed schema validation, but may not have the latest schema version.
  * @param {string} datatype The data type of the items in the schema.
+ * @returns {[object, boolean]} The upgraded tree object and a boolean indicating
+ * whether the tree was upgraded.
  */
+// eslint-disable-next-line no-unused-vars
 export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
-  const validate = new Ajv().compile(HIERARCHICAL_SCHEMAS[datatype].schema);
-  const valid = validate(currTree);
+  const zodSchema = HIERARCHICAL_SCHEMAS.schema;
+  const latestSchemaVersion = HIERARCHICAL_SCHEMAS.latestVersion;
+  const parseResult = zodSchema.safeParse(currTree);
+  const valid = parseResult.success;
   if (!valid) {
-    const failureReason = JSON.stringify(validate.errors, null, 2);
+    const failureReason = JSON.stringify(parseResult.error.message, null, 2);
     throw new Error(`Tree validation failed: ${failureReason}`);
-  } else if (currTree.datatype !== datatype) {
-    throw new Error(
-      `The data type does not match the expected data type of '${datatype}'.`,
-    );
   }
-  if (currTree.version === '0.1.2') {
-    // To upgrade from cell-sets schema 0.1.2 to 0.1.3,
-    // add a confidence value of null for each cell ID.
-    return {
-      ...currTree,
-      version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
-      tree: currTree.tree.map(levelZeroNode => nodeTransform(
-        levelZeroNode,
-        n => !n.children && Array.isArray(n.set),
-        n => ({ ...n, set: n.set.map(itemId => ([itemId, null])) }), [],
-      )),
-    };
-  }
-  return currTree;
+  // Zod will not only validate, but also will upgrade from v0.1.2 to v0.1.3 via transform.
+  // We also want to return a boolean indicating whether the tree was upgraded.
+  const didUpgrade = (currTree.version !== latestSchemaVersion);
+  return [parseResult.data, didUpgrade];
 }
 
 /**
@@ -59,7 +48,7 @@ export function tryUpgradeTreeToLatestSchema(currTree, datatype) {
 export function handleImportJSON(result, datatype, theme) {
   let importData = JSON.parse(result);
   // Validate the imported file.
-  importData = tryUpgradeTreeToLatestSchema(importData, datatype);
+  [importData] = tryUpgradeTreeToLatestSchema(importData, datatype);
   return importData;
 }
 
@@ -88,25 +77,26 @@ export function handleImportTabular(result, datatype, theme) {
     ),
   }));
   // Validate the imported file.
-  const validate = new Ajv().compile(TABULAR_SCHEMAS[datatype].schema);
-  const valid = validate(importData);
+  const zodSchema = TABULAR_SCHEMAS.schema;
+  const parseResult = zodSchema.safeParse(importData);
+  const valid = parseResult.success;
   if (!valid) {
-    const failureReason = JSON.stringify(validate.errors, null, 2);
+    const failureReason = JSON.stringify(parseResult.error.message, null, 2);
     throw new Error(`Import validation failed: ${failureReason}`);
   } else {
+    const parsedData = parseResult.data;
     // Convert the validated array to a tree representation.
     const treeToImport = {
-      version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
-      datatype,
+      version: HIERARCHICAL_SCHEMAS.latestVersion,
       tree: [],
     };
-    const uniqueGroupNames = Array.from(new Set(importData.map(d => d.groupName)));
+    const uniqueGroupNames = Array.from(new Set(parsedData.map(d => d.groupName)));
     uniqueGroupNames.forEach((groupName) => {
       const levelZeroNode = {
         name: groupName,
         children: [],
       };
-      const groupRows = importData.filter(d => d.groupName === groupName);
+      const groupRows = parsedData.filter(d => d.groupName === groupName);
       const uniqueSetNames = Array.from(new Set(groupRows.map(d => d.setName)));
       uniqueSetNames.forEach((setName) => {
         const setRows = groupRows.filter(d => d.setName === setName);

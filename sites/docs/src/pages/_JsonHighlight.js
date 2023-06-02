@@ -1,10 +1,11 @@
+/* eslint-disable react/jsx-key */
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { useColorMode } from '@docusaurus/theme-common';
 import Highlight, { defaultProps } from 'prism-react-renderer';
 import copy from 'copy-text-to-clipboard';
-import { getHighlightTheme } from './_highlight-theme';
-import { JSON_TRANSLATION_KEY } from './_editor-utils';
+import { getHighlightTheme } from './_highlight-theme.js';
+import { JSON_TRANSLATION_KEY } from './_editor-utils.js';
 
 import styles from './styles.module.css';
 

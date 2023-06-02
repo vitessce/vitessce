@@ -22,8 +22,12 @@ export {
   getCellSetPolygons,
   treeToMembershipMap,
   nodeToSet,
-} from './cell-set-utils';
-export { filterPathsByExpansionAndSelection, findChangedHierarchy } from './set-path-utils';
+} from './cell-set-utils.js';
+export {
+  findLongestCommonPath,
+  filterPathsByExpansionAndSelection,
+  findChangedHierarchy,
+} from './set-path-utils.js';
 export {
   isEqualOrPrefix,
   tryRenamePath,
@@ -36,7 +40,7 @@ export {
   getLevelTooltipText,
   pathToKey,
   getObsInfoFromDataWithinRange,
-} from './utils';
+} from './utils.js';
 export {
   downloadForUser,
   handleExportJSON,
@@ -44,14 +48,14 @@ export {
   tryUpgradeTreeToLatestSchema,
   handleImportJSON,
   handleImportTabular,
-} from './io';
+} from './io.js';
 export {
   FILE_EXTENSION_JSON,
   FILE_EXTENSION_TABULAR,
   SETS_DATATYPE_OBS,
   MIME_TYPE_JSON,
   MIME_TYPE_TABULAR,
-} from './constants';
+} from './constants.js';
 export {
   dataToCellSetsTree,
-} from './CellSetsZarrLoader';
+} from './CellSetsZarrLoader.js';

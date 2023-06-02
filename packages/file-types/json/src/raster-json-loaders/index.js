@@ -1,2 +1,2 @@
-export { default as RasterJsonAsImageLoader } from './RasterJsonAsImageLoader';
-export { default as RasterJsonAsObsSegmentationsLoader } from './RasterJsonAsObsSegmentationsLoader';
+export { default as RasterJsonAsImageLoader } from './RasterJsonAsImageLoader.js';
+export { default as RasterJsonAsObsSegmentationsLoader } from './RasterJsonAsObsSegmentationsLoader.js';

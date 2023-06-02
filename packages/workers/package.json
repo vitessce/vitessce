@@ -10,20 +10,28 @@
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
   "files": [
+    "src",
     "dist"
   ],
   "scripts": {
-    "build": "pnpm run build-lib",
+    "build": "rimraf ./dist/ && pnpm run build-lib",
     "build-lib": "rollup --config rollup.config.js"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^23.0.0",
     "@rollup/plugin-node-resolve": "^15.0.0",
     "rollup": "^2.0.0",
-    "rollup-plugin-web-worker-loader": "^1.0.0"
+    "rollup-plugin-web-worker-loader": "^1.0.0",
+    "rimraf": "^3.0.2"
   }
 }

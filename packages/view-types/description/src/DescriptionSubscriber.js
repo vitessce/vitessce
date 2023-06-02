@@ -6,7 +6,7 @@ import {
   useDescription, useImageData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import Description from './Description';
+import Description from './Description.js';
 
 const addUrl = () => {}; // noop
 

@@ -1,4 +1,4 @@
-import JsonLoader from './JsonLoader';
+import JsonLoader from './JsonLoader.js';
 import cellsGoodFixture from '../legacy-loaders/schemas/fixtures/cells.good.json';
 import cellsBadFixture from '../legacy-loaders/schemas/fixtures/cells.bad.json';
 
@@ -22,7 +22,7 @@ describe('loaders/JsonLoader', () => {
       expect(loader.schema).toBeDefined();
       const [valid, reason] = loader.validate(cellsBadFixture);
       expect(valid).toBeFalsy();
-      expect(reason[0].message).toEqual('should NOT have additional properties');
+      expect(JSON.parse(reason)[0].message).toEqual("Unrecognized key(s) in object: 'tsne'");
     });
   });
 });

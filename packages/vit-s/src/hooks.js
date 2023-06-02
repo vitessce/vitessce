@@ -1,12 +1,11 @@
 import {
   useRef, useState, useEffect, useCallback, useMemo,
 } from 'react';
-import debounce from 'lodash/debounce';
-import every from 'lodash/every';
+import { debounce, every } from 'lodash-es';
 import { extent } from 'd3-array';
 import { capitalize, fromEntries } from '@vitessce/utils';
-import { useGridResize, useEmitGridResize } from './state/hooks';
-import { VITESSCE_CONTAINER } from './classNames';
+import { useGridResize, useEmitGridResize } from './state/hooks.js';
+import { VITESSCE_CONTAINER } from './classNames.js';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -281,6 +280,15 @@ export function useExpressionValueGetter(
     return 0;
   }, [toMatrixIndexMap, expressionData]);
   return getExpressionValue;
+}
+
+export function useGetObsMembership(obsSetsMembership) {
+  return useCallback((obsId) => {
+    if (obsId) {
+      return obsSetsMembership?.get(obsId) || [];
+    }
+    return [];
+  }, [obsSetsMembership]);
 }
 
 export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership) {
