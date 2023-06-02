@@ -28,7 +28,7 @@ export default function FeatureListOptions(props) {
       {children}
       <TableRow>
         <TableCell className={classes.labelCell} htmlFor="feature-list-sort-option-select">
-          Sort features by
+          Sort Ordering
         </TableCell>
         <TableCell>
           <OptionSelect
@@ -47,7 +47,7 @@ export default function FeatureListOptions(props) {
       </TableRow>
       <TableRow>
         <TableCell className={classes.labelCell}>
-          Show table
+          Show Alternate IDs
         </TableCell>
         <TableCell className={classes.inputCell}>
           <Checkbox
