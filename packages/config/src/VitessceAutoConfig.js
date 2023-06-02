@@ -185,54 +185,89 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     return views;
   }
 
+  async setMetadataSummaryWithZmetadata(response) {
+    const metadataFile = await response.json();
+    if (!metadataFile.metadata) {
+      throw new Error('Could not generate config: .zmetadata file is not valid.');
+    }
+
+    const obsmKeys = Object.keys(metadataFile.metadata)
+      .filter(key => key.startsWith('obsm/X_'))
+      .map(key => key.split('/.zarray')[0]);
+
+    const obsKeysArr = Object.keys(metadataFile.metadata)
+      .filter(key => key.startsWith('obs/')).map(key => key.split('/.za')[0]);
+
+    function uniq(a) {
+      return a.sort().filter((item, pos, ary) => !pos || item !== ary[pos - 1]);
+    }
+    const obsKeys = uniq(obsKeysArr);
+
+    const X = Object.keys(metadataFile.metadata).filter(key => key.startsWith('X'));
+
+    return {
+      obsm: obsmKeys,
+      obs: obsKeys,
+      X: X.length > 0,
+    };
+  }
+
+  async setMetadataSummaryWithoutZmetadata() {
+
+    const obsm_suffxes = [
+      "/obsm/X_pca/.zarray", 
+      "/obsm/X_umap/.zarray", 
+      "/obsm/X_tsne/.zarray", 
+      "/obsm/X_spatial/.zarray", 
+      "/obsm/X_segmentations/.zarray",
+    ];
+
+    const promises = obsm_suffxes.map((suffix) => fetch(this.fileUrl + suffix));
+    const jsons = await Promise.all(promises);
+    const obsm_meta = jsons
+      .filter((j) => j.ok)
+      .map((j) => j.url.replace(this.fileUrl, "").replace("/", "").replace("/.zarray", ""));
+        
+    const obs_suffix = "/obs/.zattrs";
+
+    const obs_json = await fetch(this.fileUrl + obs_suffix).then((response) => {
+      if (response.ok) {
+        return response.json();
+      }
+      return {"column-order": []};
+    })
+    
+    const obs_meta = obs_json["column-order"].map((key) => "obs/" + key);
+
+    const x_suffix = "/X/.zarray";
+    const x = await fetch(this.fileUrl + x_suffix).then((response) => {
+      if (response.ok) {
+        return true;
+      } else {
+        return false;
+      }
+    })
+
+    return {
+      obsm: obsm_meta,
+      obs: obs_meta,
+      X: x
+    }
+  }
+
   async setMetadataSummary() {
     if (Object.keys(this.metadataSummary).length > 0) {
       return this.metadataSummary;
     }
 
-    const parseMetadataFile = (metadataFile) => {
-      if (!metadataFile.metadata) {
-        throw new Error('Could not generate config: .zmetadata file is not valid.');
-      }
-
-      const obsmKeys = Object.keys(metadataFile.metadata)
-        .filter(key => key.startsWith('obsm/X_'))
-        .map(key => key.split('/.zarray')[0]);
-
-      const obsKeysArr = Object.keys(metadataFile.metadata)
-        .filter(key => key.startsWith('obs/')).map(key => key.split('/.za')[0]);
-
-      function uniq(a) {
-        return a.sort().filter((item, pos, ary) => !pos || item !== ary[pos - 1]);
-      }
-      const obsKeys = uniq(obsKeysArr);
-
-      const X = Object.keys(metadataFile.metadata).filter(key => key.startsWith('X'));
-
-      const out = {
-        obsm: obsmKeys,
-        obs: obsKeys,
-        X: X.length > 0,
-      };
-
-      return out;
-    };
-
     const metadataExtension = '.zmetadata';
-    const url = [this.fileUrl, metadataExtension].join('/');
-    return fetch(url).then((response) => {
-      if (response.ok) {
-        return response.json();
-      }
-      return Promise.reject(response);
-    })
-      .then(responseJson => parseMetadataFile(responseJson))
-      .catch((error) => {
-        if (error.status === 404) {
-          const errorMssg = `Could not generate config. File ${metadataExtension} not found in supplied file URL. Check docs for more explanation.`;
-          return Promise.reject(new Error(errorMssg));
+      const url = [this.fileUrl, metadataExtension].join('/');
+      return fetch(url).then((response) => {
+        if (response.ok) {
+          return this.setMetadataSummaryWithZmetadata(response);
+        } else if (response.status === 404) {
+          return this.setMetadataSummaryWithoutZmetadata();
         }
-        return Promise.reject(error);
       });
   }
 }
