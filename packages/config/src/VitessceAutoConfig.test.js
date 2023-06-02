@@ -448,7 +448,7 @@ describe('src/VitessceAutoConfig.js', () => {
 
 
   it('Does the parsing when .zmetadata file not present in folder', async () => {
-    const urls = ['http://localhost:51204/@fixtures/zarr/partials/anndata-csr.adata.zarr'];
+    const urls = ['http://localhost:51204/@fixtures/zarr/anndata-0.8/anndata-csr.adata.zarr'];
     const expectedName = urls[0].split('/').at(-1);
     const expectedConfig = {
       version: '1.0.15',
