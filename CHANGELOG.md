@@ -90,6 +90,7 @@
 - Modified component `FeatureList` so that if sort is not equal to `alphabetical`, then sorting of data is skipped and the order of feature listis the same as original.
 - Fixed equality check when creating default model matrices for `sizes`
 - Split useEffect into useMemo + useEffect in SpatialSubscriber to fix infinite loop for `neumann-2020` demo on the docs site.
+- Made the cursor type to `pointer` when the user is hovering over the heatmap.
 - Created `FeatureListOptions` component, which allows the user to change the sorting order of the feature list.
 - Implemented the functionality required to re-order the feature list, based on the selection from the dropdown:
   - added state variables `featureListSort` and `showFeatureTable`.
