@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal';
 import { fromEntries } from '@vitessce/utils';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueries } from '@tanstack/react-query';
 import {
   getMatchingLoader,
   useMatchingLoader,
@@ -199,59 +199,58 @@ export function useFeatureSelection(
   selection,
   matchOn,
 ) {
-  const featureQuery = useQuery({
-    // TODO: useQueries instead,
-    // performing loadGeneSelection for each item in `selection` independently.
-    // This will require updating loadGeneSelection functions
-    // to consider one gene at a time vs. handing arrays internally.
-    enabled: !!selection,
-    structuralSharing: false,
-    placeholderData: null,
-    queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn, selection, 'useFeatureSelection'],
-    // Query function should return an object
-    // { data, dataKey } where dataKey is the loaded gene selection.
-    queryFn: async (ctx) => {
-      const loader = getMatchingLoader(
-        ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2],
-      );
-      if (loader) {
-        const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
-        if (implementsGeneSelection) {
-          const payload = await loader.loadGeneSelection({ selection });
+  const featureQueries = useQueries({
+    queries: selection?.map(featureId => ({
+      structuralSharing: false,
+      placeholderData: null,
+      queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn, featureId, 'useFeatureSelection'],
+      // Query function should return an object
+      // { data, dataKey } where dataKey is the loaded gene selection.
+      queryFn: async (ctx) => {
+        const loader = getMatchingLoader(
+          ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2],
+        );
+        if (loader) {
+          const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
+          if (implementsGeneSelection) {
+            const payload = await loader.loadGeneSelection({ selection: [featureId] });
+            if (!payload) return null;
+            const { data } = payload;
+            return { data: data[0], dataKey: selection };
+          }
+          // Loader does not implement loadGeneSelection.
+          const payload = await loader.load();
           if (!payload) return null;
           const { data } = payload;
-          return { data, dataKey: selection };
-        }
-        // Loader does not implement loadGeneSelection.
-        const payload = await loader.load();
-        if (!payload) return null;
-        const { data } = payload;
-        const { obsIndex, featureIndex, obsFeatureMatrix } = data;
-        const expressionDataForSelection = selection.map((sel) => {
-          const geneIndex = featureIndex.indexOf(sel);
+          const { obsIndex, featureIndex, obsFeatureMatrix } = data;
+          // Compute expressionData
+          const geneIndex = featureIndex.indexOf(featureId);
           const numGenes = featureIndex.length;
           const numCells = obsIndex.length;
           const expressionData = new Float32Array(numCells);
           for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
             expressionData[cellIndex] = obsFeatureMatrix.data[cellIndex * numGenes + geneIndex];
           }
-          return expressionData;
-        });
-        return { data: expressionDataForSelection, dataKey: selection };
-      }
-      // No loader was found.
-      if (isRequired) {
-        throw new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
-      } else {
-        return { data: null, dataKey: null };
-      }
-    },
-    meta: { loaders },
+          return { data: expressionData, dataKey: featureId };
+        }
+        // No loader was found.
+        if (isRequired) {
+          throw new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
+        } else {
+          return { data: null, dataKey: null };
+        }
+      },
+      meta: { loaders },
+    })) || [],
   });
-  const { data, status, isFetching } = featureQuery;
-  const dataStatus = isFetching ? STATUS.LOADING : status;
-  const geneData = data?.data || null;
-  const loadedGeneName = data?.dataKey || null;
+
+  const anyLoading = featureQueries.some(q => q.isFetching);
+  const anyError = featureQueries.some(q => q.isError);
+  // eslint-disable-next-line no-nested-ternary
+  const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
+  const isSuccess = dataStatus === STATUS.SUCCESS;
+  const geneData = isSuccess ? featureQueries.map(q => q.data?.data || null) : null;
+  const loadedGeneName = isSuccess ?  featureQueries.map(q => q.data?.dataKey || null) : null;
   return [geneData, loadedGeneName, dataStatus];
 }
 
