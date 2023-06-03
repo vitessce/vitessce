@@ -248,10 +248,11 @@ export function useFeatureSelection(
     },
     meta: { loaders },
   });
-  const { data, status } = featureQuery;
+  const { data, status, isFetching } = featureQuery;
+  const dataStatus = isFetching ? STATUS.LOADING : status;
   const geneData = data?.data || null;
   const loadedGeneName = data?.dataKey || null;
-  return [geneData, loadedGeneName, status];
+  return [geneData, loadedGeneName, dataStatus];
 }
 
 /**
@@ -336,11 +337,13 @@ export function useObsFeatureMatrixIndices(
     },
     meta: { loaders },
   });
-  const { data, status } = indicesQuery;
+  const { data, status, isFetching } = indicesQuery;
   const loadedData = data?.data || placeholderObject;
+
+  const dataStatus = isFetching ? STATUS.LOADING : status;
+
   // TODO: set warning
-  // TODO: ensure the status constants are correct.
-  return [loadedData, status];
+  return [loadedData, dataStatus];
 }
 
 export function useMultiObsLabels(

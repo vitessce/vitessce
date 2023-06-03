@@ -97,6 +97,7 @@ export function useDataType(
         ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2],
       );
       if (loader) {
+        // TODO: can cacheing logic be removed from all loaders?
         const payload = await loader.load();
         if (!payload) return placeholderObject; // TODO: throw error instead?
         const { data, url, coordinationValues } = payload;
@@ -127,10 +128,12 @@ export function useDataType(
     },
     meta: { loaders },
   });
-  const { data, status } = dataQuery;
+  const { data, status, isFetching } = dataQuery;
   const loadedData = data?.data || placeholderObject;
-  // TODO: set warning
-  return [loadedData, status];
+
+  const dataStatus = isFetching ? STATUS.LOADING : status;
+  // TODO: set warning on error or return error message.
+  return [loadedData, dataStatus];
 }
 
 /**
