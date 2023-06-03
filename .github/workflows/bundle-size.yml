@@ -24,6 +24,7 @@ jobs:
         shell: bash
       - uses: preactjs/compressed-size-action@v2
         with:
+          minimum-change-threshold: 1000
           compression: "none"
           build-script: "build:ci"
           clean-script: "clean"
