@@ -207,7 +207,7 @@ export function useFeatureSelection(
     enabled: !!selection,
     structuralSharing: false,
     placeholderData: null,
-    queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn, selection],
+    queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn, selection, 'useFeatureSelection'],
     // Query function should return an object
     // { data, dataKey } where dataKey is the loaded gene selection.
     queryFn: async (ctx) => {
@@ -281,9 +281,12 @@ export function useObsFeatureMatrixIndices(
   const indicesQuery = useQuery({
     structuralSharing: false,
     placeholderData: placeholderObject,
-    queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn],
+    // Include the hook name in the queryKey to prevent the case in which an identical queryKey
+    // in a different hook would cause an accidental cache hit.
+    queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn, 'useObsFeatureMatrixIndices'],
     // Query function should return an object
     // { data, dataKey } where dataKey is the loaded gene selection.
+    // TODO: use TypeScript to type the return value?
     queryFn: async (ctx) => {
       const loader = getMatchingLoader(
         ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2],
@@ -303,32 +306,29 @@ export function useObsFeatureMatrixIndices(
             },
             urls: [[url, DataType.OBS_FEATURE_MATRIX]],
           };
-        } else {
-          // No loadAttrs function.
-          const payload = await loader.load();
-          if (!payload) return placeholderObject;
-          const { data: payloadData, url } = payload;
-          return {
-            data: {
-              obsIndex: payloadData.obsIndex,
-              featureIndex: payloadData.featureIndex,
-            },
-            urls: [[url, DataType.OBS_FEATURE_MATRIX]],
-          };
         }
-      } else {
-        // No loader was found.
-        if (isRequired) {
-          // Status: error
-          throw new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
-        } else {
-          // Status: success
-        return { data: placeholderObject, dataKey: null };
-        }
+        // No loadAttrs function.
+        const payload = await loader.load();
+        if (!payload) return placeholderObject;
+        const { data: payloadData, url } = payload;
+        return {
+          data: {
+            obsIndex: payloadData.obsIndex,
+            featureIndex: payloadData.featureIndex,
+          },
+          urls: [[url, DataType.OBS_FEATURE_MATRIX]],
+        };
       }
-
+      // No loader was found.
+      if (isRequired) {
+        // Status: error
+        throw new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
+      } else {
+        // Status: success
+        return { data: placeholderObject, dataKey: null };
+      }
     },
-    onSuccess: ({ coordinationValues, namedUrls }) => {
+    onSuccess: ({ namedUrls }) => {
       // TODO: refactor to simply return the list of URLs rather than using a callback.
       namedUrls?.forEach(([url, name]) => {
         addUrl(url, name);
@@ -339,6 +339,7 @@ export function useObsFeatureMatrixIndices(
   const { data, status } = indicesQuery;
   const loadedData = data?.data || placeholderObject;
   // TODO: set warning
+  // TODO: ensure the status constants are correct.
   return [loadedData, status];
 }
 

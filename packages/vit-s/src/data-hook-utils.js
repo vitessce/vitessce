@@ -87,7 +87,9 @@ export function useDataType(
   const dataQuery = useQuery({
     structuralSharing: false,
     placeholderData: placeholderObject,
-    queryKey: [dataset, dataType, matchOn],
+    // Include the hook name in the queryKey to prevent the case in which an identical queryKey
+    // in a different hook would cause an accidental cache hit.
+    queryKey: [dataset, dataType, matchOn, 'useDataType'],
     // Query function should return an object
     // { data, dataKey } where dataKey is the loaded gene selection.
     queryFn: async (ctx) => {
