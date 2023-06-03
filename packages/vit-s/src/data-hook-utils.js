@@ -1,7 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { capitalize } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
-import { useMatchingLoader, useMatchingLoaders, useSetWarning } from './state/hooks.js';
+import { useQuery } from '@tanstack/react-query';
+import {
+  getMatchingLoader,
+  useMatchingLoader,
+  useMatchingLoaders,
+  useSetWarning,
+} from './state/hooks.js';
 import {
   AbstractLoaderError,
   LoaderNotFoundError,
@@ -76,19 +82,25 @@ export function useDataType(
   dataType, loaders, dataset, addUrl, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
-  const [data, setData] = useState({});
-  const [status, setStatus] = useState(STATUS.LOADING);
-
   const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, dataType, matchOn);
-
-  useEffect(() => {
-    if (loader) {
-      setStatus(STATUS.LOADING);
-      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data: payloadData, url, coordinationValues } = payload;
-        setData(payloadData);
+  const placeholderObject = useMemo(() => ({}), []);
+  const dataQuery = useQuery({
+    structuralSharing: false,
+    placeholderData: placeholderObject,
+    queryKey: [dataset, dataType, matchOn],
+    // Query function should return an object
+    // { data, dataKey } where dataKey is the loaded gene selection.
+    queryFn: async (ctx) => {
+      const loader = getMatchingLoader(
+        ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2],
+      );
+      if (loader) {
+        const payload = await loader.load();
+        if (!payload) return placeholderObject; // TODO: throw error instead?
+        const { data, url, coordinationValues } = payload;
+        // Status: success
+        // TODO: return URL or URLs
+        /*
         if (Array.isArray(url)) {
           url.forEach(([val, name]) => {
             addUrl(val, name);
@@ -96,26 +108,31 @@ export function useDataType(
         } else if (url) {
           addUrl(url, dataType);
         }
-        initCoordinationSpace(
-          coordinationValues,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
-        setStatus(STATUS.SUCCESS);
-      });
-    } else {
-      setData({});
-      if (isRequired) {
-        warn(new LoaderNotFoundError(loaders, dataset, dataType, matchOn), setWarning);
-        setStatus(STATUS.ERROR);
-      } else {
-        setStatus(STATUS.SUCCESS);
+        */
+        return { data, dataKey: null, coordinationValues };
       }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loader]);
-
-  return [data, status];
+      // No loader was found.
+      if (isRequired) {
+        // Status: error
+        throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
+      } else {
+        // Status: success
+        return { data: placeholderObject, dataKey: null };
+      }
+    },
+    onSuccess: ({ coordinationValues }) => {
+      initCoordinationSpace(
+        coordinationValues,
+        coordinationSetters,
+        initialCoordinationValues,
+      );
+    },
+    meta: { loaders },
+  });
+  const { data, status } = dataQuery;
+  const loadedData = data?.data || placeholderObject;
+  // TODO: set warning
+  return [loadedData, status];
 }
 
 /**

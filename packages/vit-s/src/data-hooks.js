@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal';
 import { fromEntries } from '@vitessce/utils';
+import { useQuery } from '@tanstack/react-query';
 import { useMatchingLoader, useMultiCoordinationValues, useSetWarning } from './state/hooks.js';
 import {
   LoaderNotFoundError,

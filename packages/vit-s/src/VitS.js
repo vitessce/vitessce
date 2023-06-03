@@ -4,6 +4,10 @@ import {
   StylesProvider,
   createGenerateClassName,
 } from '@material-ui/core/es/styles/index.js';
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
 import { isEqual } from 'lodash-es';
 import { META_VERSION } from '@vitessce/constants-internal';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
@@ -157,6 +161,15 @@ export function VitS(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configUid, configVersion, pluginSpecificConfigSchema, warning]);
 
+  const queryClient = useMemo(() => new QueryClient({
+    // Reference: https://tanstack.com/query/latest/docs/react/guides/window-focus-refetching
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+    },
+  }), [configUid]);
+
   // Emit the upgraded/initialized view config
   // to onConfigChange if necessary.
   useEffect(() => {
@@ -169,27 +182,29 @@ export function VitS(props) {
   return success ? (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
-        <ViewConfigProvider createStore={createViewConfigStore}>
-          <AuxiliaryProvider createStore={createAuxiliaryStore}>
-            <VitessceGrid
-              viewTypes={viewTypes}
-              fileTypes={fileTypes}
-              coordinationTypes={coordinationTypes}
-              config={configOrWarning}
-              rowHeight={rowHeight}
-              height={height}
-              theme={theme}
-              isBounded={isBounded}
-            />
-            <CallbackPublisher
-              onWarn={onWarn}
-              onConfigChange={onConfigChange}
-              onLoaderChange={onLoaderChange}
-              validateOnConfigChange={validateOnConfigChange}
-              pluginSpecificConfigSchema={pluginSpecificConfigSchema}
-            />
-          </AuxiliaryProvider>
-        </ViewConfigProvider>
+        <QueryClientProvider client={queryClient}>
+          <ViewConfigProvider createStore={createViewConfigStore}>
+            <AuxiliaryProvider createStore={createAuxiliaryStore}>
+              <VitessceGrid
+                viewTypes={viewTypes}
+                fileTypes={fileTypes}
+                coordinationTypes={coordinationTypes}
+                config={configOrWarning}
+                rowHeight={rowHeight}
+                height={height}
+                theme={theme}
+                isBounded={isBounded}
+              />
+              <CallbackPublisher
+                onWarn={onWarn}
+                onConfigChange={onConfigChange}
+                onLoaderChange={onLoaderChange}
+                validateOnConfigChange={validateOnConfigChange}
+                pluginSpecificConfigSchema={pluginSpecificConfigSchema}
+              />
+            </AuxiliaryProvider>
+          </ViewConfigProvider>
+        </QueryClientProvider>
       </ThemeProvider>
     </StylesProvider>
   ) : (

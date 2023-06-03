@@ -973,6 +973,7 @@ importers:
     specifiers:
       '@material-ui/core': ~4.12.3
       '@material-ui/icons': ~4.11.2
+      '@tanstack/react-query': ^4.29.12
       '@testing-library/jest-dom': ^5.16.4
       '@testing-library/react': ^13.3.0
       '@vitessce/constants-internal': workspace:*
@@ -994,6 +995,7 @@ importers:
     dependencies:
       '@material-ui/core': 4.12.4_biqbaboplfbrettd7655fr4n2y
       '@material-ui/icons': 4.11.3_jvx44q7qymyhf2qyoxemen5jw4
+      '@tanstack/react-query': 4.29.12_biqbaboplfbrettd7655fr4n2y
       '@vitessce/constants-internal': link:../constants-internal
       '@vitessce/plugins': link:../plugins
       '@vitessce/schemas': link:../schemas
@@ -6688,6 +6690,28 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       defer-to-connect: 1.1.3
+    dev: false
+
+  /@tanstack/query-core/4.29.11:
+    resolution: {integrity: sha512-8C+hF6SFAb/TlFZyS9FItgNwrw4PMa7YeX+KQYe2ZAiEz6uzg6yIr+QBzPkUwZ/L0bXvGd1sufTm3wotoz+GwQ==}
+    dev: false
+
+  /@tanstack/react-query/4.29.12_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-zhcN6+zF6cxprxhTHQajHGlvxgK8npnp9uLe9yaWhGc6sYcPWXzyO4raL4HomUzQOPzu3jLvkriJQ7BOrDM8vA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@tanstack/query-core': 4.29.11
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      use-sync-external-store: 1.2.0_react@18.2.0
     dev: false
 
   /@testing-library/dom/8.19.0:
