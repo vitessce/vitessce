@@ -14,13 +14,13 @@ export default defineConfig({
   build: {
     emptyOutDir: false,
     minify: isProduction ? 'esbuild' : false,
-    sourcemap: false,
+    sourcemap: true,
     target: 'es2019', // portal-ui cannot handle the nullish coalescing output by ESNext
     lib: {
       entry: resolve(__dirname, 'src/index.js'),
       name: 'vitessce',
       fileName: isProduction ? 'index.min' : 'index',
-      formats: ['es', 'umd'],
+      formats: ['es'],
     },
     rollupOptions: {
       external: ['react', 'react-dom'],
