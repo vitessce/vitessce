@@ -2,7 +2,12 @@ import { useState, useEffect, useMemo } from 'react';
 import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal';
 import { fromEntries } from '@vitessce/utils';
 import { useQuery } from '@tanstack/react-query';
-import { useMatchingLoader, useMultiCoordinationValues, useSetWarning } from './state/hooks.js';
+import {
+  getMatchingLoader,
+  useMatchingLoader,
+  useMultiCoordinationValues,
+  useSetWarning,
+} from './state/hooks.js';
 import {
   LoaderNotFoundError,
 } from './errors/index.js';
@@ -194,72 +199,58 @@ export function useFeatureSelection(
   selection,
   matchOn,
 ) {
-  const [geneData, setGeneData] = useState();
-  const [status, setStatus] = useState(STATUS.LOADING);
-  const [loadedGeneName, setLoadedGeneName] = useState(null);
-
-  const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
-
-  useEffect(() => {
-    if (!selection) {
-      setGeneData(null);
-      setLoadedGeneName(null);
-      setStatus(STATUS.SUCCESS);
-      return;
-    }
-    if (loader) {
-      setGeneData(null);
-      setLoadedGeneName(null);
-      setStatus(STATUS.LOADING);
-      const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
-      if (implementsGeneSelection) {
-        loader
-          .loadGeneSelection({ selection })
-          .catch(e => warn(e, setWarning))
-          .then((payload) => {
-            if (!payload) return;
-            const { data } = payload;
-            setGeneData(data);
-            setStatus(STATUS.SUCCESS);
-            setLoadedGeneName(selection);
-          });
-      } else {
-        loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-          if (!payload) return;
+  const featureQuery = useQuery({
+    // TODO: useQueries instead,
+    // performing loadGeneSelection for each item in `selection` independently.
+    // This will require updating loadGeneSelection functions
+    // to consider one gene at a time vs. handing arrays internally.
+    enabled: !!selection,
+    structuralSharing: false,
+    placeholderData: null,
+    queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn, selection],
+    // Query function should return an object
+    // { data, dataKey } where dataKey is the loaded gene selection.
+    queryFn: async (ctx) => {
+      const loader = getMatchingLoader(
+        ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2],
+      );
+      if (loader) {
+        const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
+        if (implementsGeneSelection) {
+          const payload = await loader.loadGeneSelection({ selection });
+          if (!payload) return null;
           const { data } = payload;
-          const { obsIndex, featureIndex, obsFeatureMatrix } = data;
-          const expressionDataForSelection = selection.map((sel) => {
-            const geneIndex = featureIndex.indexOf(sel);
-            const numGenes = featureIndex.length;
-            const numCells = obsIndex.length;
-            const expressionData = new Float32Array(numCells);
-            for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
-              expressionData[cellIndex] = obsFeatureMatrix.data[cellIndex * numGenes + geneIndex];
-            }
-            return expressionData;
-          });
-          setGeneData(expressionDataForSelection);
-          setStatus(STATUS.SUCCESS);
-          setLoadedGeneName(selection);
+          return { data, dataKey: selection };
+        }
+        // Loader does not implement loadGeneSelection.
+        const payload = await loader.load();
+        if (!payload) return null;
+        const { data } = payload;
+        const { obsIndex, featureIndex, obsFeatureMatrix } = data;
+        const expressionDataForSelection = selection.map((sel) => {
+          const geneIndex = featureIndex.indexOf(sel);
+          const numGenes = featureIndex.length;
+          const numCells = obsIndex.length;
+          const expressionData = new Float32Array(numCells);
+          for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
+            expressionData[cellIndex] = obsFeatureMatrix.data[cellIndex * numGenes + geneIndex];
+          }
+          return expressionData;
         });
+        return { data: expressionDataForSelection, dataKey: selection };
       }
-    } else {
-      setGeneData(null);
-      setLoadedGeneName(null);
+      // No loader was found.
       if (isRequired) {
-        warn(
-          new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn),
-          setWarning,
-        );
-        setStatus(STATUS.ERROR);
+        throw new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
       } else {
-        setStatus(STATUS.SUCCESS);
+        return { data: null, dataKey: null };
       }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loader, selection]);
-
+    },
+    meta: { loaders },
+  });
+  const { data, status } = featureQuery;
+  const geneData = data?.data || null;
+  const loadedGeneName = data?.dataKey || null;
   return [geneData, loadedGeneName, status];
 }
 
@@ -282,55 +273,73 @@ export function useFeatureSelection(
 export function useObsFeatureMatrixIndices(
   loaders, dataset, addUrl, isRequired, matchOn,
 ) {
-  const [data, setData] = useState({});
-  const [status, setStatus] = useState(STATUS.LOADING);
-
+  // TODO: use setwarning
   const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
 
-  useEffect(() => {
-    if (loader) {
-      setStatus(STATUS.LOADING);
-      const implementsLoadAttrs = typeof loader.loadAttrs === 'function';
-      if (implementsLoadAttrs) {
-        loader.loadAttrs().catch(e => warn(e, setWarning)).then((payload) => {
-          if (!payload) return;
-          const { data: payloadData, url } = payload;
-          setData({
-            obsIndex: payloadData.rows,
-            featureIndex: payloadData.cols,
-          });
-          addUrl(url, DataType.OBS_FEATURE_MATRIX);
-          setStatus(STATUS.SUCCESS);
-        });
-      } else {
-        loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-          if (!payload) return;
-          const { data: payloadData, url } = payload;
-          setData({
-            obsIndex: payloadData.obsIndex,
-            featureIndex: payloadData.featureIndex,
-          });
-          addUrl(url, DataType.OBS_FEATURE_MATRIX);
-          setStatus(STATUS.SUCCESS);
-        });
-      }
-    } else {
-      setData({});
-      if (isRequired) {
-        warn(
-          new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn),
-          setWarning,
-        );
-        setStatus(STATUS.ERROR);
-      } else {
-        setStatus(STATUS.SUCCESS);
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loader]);
+  const placeholderObject = useMemo(() => ({}), []);
 
-  return [data, status];
+  const indicesQuery = useQuery({
+    structuralSharing: false,
+    placeholderData: placeholderObject,
+    queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn],
+    // Query function should return an object
+    // { data, dataKey } where dataKey is the loaded gene selection.
+    queryFn: async (ctx) => {
+      const loader = getMatchingLoader(
+        ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2],
+      );
+      if (loader) {
+        const implementsLoadAttrs = typeof loader.loadAttrs === 'function';
+        if (implementsLoadAttrs) {
+          // Has loadAttrs function.
+          const payload = await loader.loadAttrs();
+          if (!payload) return placeholderObject;
+          const { data: payloadData, url } = payload;
+
+          return {
+            data: {
+              obsIndex: payloadData.rows,
+              featureIndex: payloadData.cols,
+            },
+            urls: [[url, DataType.OBS_FEATURE_MATRIX]],
+          };
+        } else {
+          // No loadAttrs function.
+          const payload = await loader.load();
+          if (!payload) return placeholderObject;
+          const { data: payloadData, url } = payload;
+          return {
+            data: {
+              obsIndex: payloadData.obsIndex,
+              featureIndex: payloadData.featureIndex,
+            },
+            urls: [[url, DataType.OBS_FEATURE_MATRIX]],
+          };
+        }
+      } else {
+        // No loader was found.
+        if (isRequired) {
+          // Status: error
+          throw new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
+        } else {
+          // Status: success
+        return { data: placeholderObject, dataKey: null };
+        }
+      }
+
+    },
+    onSuccess: ({ coordinationValues, namedUrls }) => {
+      // TODO: refactor to simply return the list of URLs rather than using a callback.
+      namedUrls?.forEach(([url, name]) => {
+        addUrl(url, name);
+      });
+    },
+    meta: { loaders },
+  });
+  const { data, status } = indicesQuery;
+  const loadedData = data?.data || placeholderObject;
+  // TODO: set warning
+  return [loadedData, status];
 }
 
 export function useMultiObsLabels(

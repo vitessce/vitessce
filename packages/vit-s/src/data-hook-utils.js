@@ -99,17 +99,9 @@ export function useDataType(
         if (!payload) return placeholderObject; // TODO: throw error instead?
         const { data, url, coordinationValues } = payload;
         // Status: success
-        // TODO: return URL or URLs
-        /*
-        if (Array.isArray(url)) {
-          url.forEach(([val, name]) => {
-            addUrl(val, name);
-          });
-        } else if (url) {
-          addUrl(url, dataType);
-        }
-        */
-        return { data, dataKey: null, coordinationValues };
+        // Array of tuples like [url, name].
+        const namedUrls = Array.isArray(url) ? url : [[url, dataType]];
+        return { data, dataKey: null, coordinationValues, namedUrls };
       }
       // No loader was found.
       if (isRequired) {
@@ -120,12 +112,16 @@ export function useDataType(
         return { data: placeholderObject, dataKey: null };
       }
     },
-    onSuccess: ({ coordinationValues }) => {
+    onSuccess: ({ coordinationValues, namedUrls }) => {
       initCoordinationSpace(
         coordinationValues,
         coordinationSetters,
         initialCoordinationValues,
       );
+      // TODO: refactor to simply return the list of URLs rather than using a callback.
+      namedUrls?.forEach(([url, name]) => {
+        addUrl(url, name);
+      });
     },
     meta: { loaders },
   });

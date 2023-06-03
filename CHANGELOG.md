@@ -88,6 +88,7 @@
 - Fixed equality check when creating default model matrices for `sizes`
 - Split useEffect into useMemo + useEffect in SpatialSubscriber to fix infinite loop for `neumann-2020` demo on the docs site.
 - Made the cursor type to `pointer` when the user is hovering over the heatmap.
+- Use `@tanstack/react-query` for data fetching.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
