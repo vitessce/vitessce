@@ -115,21 +115,25 @@ export function useDataType(
         return { data: placeholderObject, dataKey: null };
       }
     },
-    onSuccess: ({ coordinationValues, namedUrls }) => {
-      initCoordinationSpace(
-        coordinationValues,
-        coordinationSetters,
-        initialCoordinationValues,
-      );
-      // TODO: refactor to simply return the list of URLs rather than using a callback.
-      namedUrls?.forEach(([url, name]) => {
-        addUrl(url, name);
-      });
-    },
     meta: { loaders },
   });
   const { data, status, isFetching } = dataQuery;
   const loadedData = data?.data || placeholderObject;
+
+  const coordinationValues = data?.coordinationValues;
+  const namedUrls = data?.namedUrls;
+
+  useEffect(() => {
+    initCoordinationSpace(
+      coordinationValues,
+      coordinationSetters,
+      initialCoordinationValues,
+    );
+    // TODO: refactor to simply return the list of URLs rather than using a callback.
+    namedUrls?.forEach(([url, name]) => {
+      addUrl(url, name);
+    });
+  }, [coordinationValues, namedUrls]);
 
   const dataStatus = isFetching ? STATUS.LOADING : status;
   // TODO: set warning on error or return error message.
