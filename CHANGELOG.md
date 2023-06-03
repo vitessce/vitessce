@@ -20,6 +20,7 @@
 - Removed the Select Rectangle button from Scatterplot and Spatial views.
 - Added option to disable tooltips on Heatmap and Scatterplot components. The option is available from the options control dropdown.
 - Added an option to skip sorting features alphabetically in feature list.
+- Add GitHub Action workflow to report bundle size in PRs.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
