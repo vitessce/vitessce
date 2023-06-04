@@ -1,5 +1,5 @@
-import { vapi } from '../../utils';
-import { getEngViewConfig } from '../eng';
+import { vapi } from '../../utils.js';
+import { getEngViewConfig } from '../eng.js';
 
 function getConfig() {
   const [vc, dataset] = getEngViewConfig(`Coordination Type: ${vapi.ct.EMBEDDING_OBS_SET_POLYGONS_VISIBLE}`, 'Visibility of polygon overlays is coordinated in the top two scatterplots, and independent in the bottom two. Try clicking the gear above each plot and toggling the "Cell Set Polygons Visible" checkboxes.');

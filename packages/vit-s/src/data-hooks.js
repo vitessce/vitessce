@@ -1,15 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal';
 import { fromEntries } from '@vitessce/utils';
-import { useMatchingLoader, useMultiCoordinationValues, useSetWarning } from './state/hooks';
+import { useMatchingLoader, useMultiCoordinationValues, useSetWarning } from './state/hooks.js';
 import {
   LoaderNotFoundError,
-} from './errors/index';
+} from './errors/index.js';
 import {
   warn,
   useDataType,
   useDataTypeMulti,
-} from './data-hook-utils';
+} from './data-hook-utils.js';
 
 /**
  * Get the dataset description string.
@@ -232,7 +232,7 @@ export function useFeatureSelection(
             const geneIndex = featureIndex.indexOf(sel);
             const numGenes = featureIndex.length;
             const numCells = obsIndex.length;
-            const expressionData = new Uint8Array(numCells);
+            const expressionData = new Float32Array(numCells);
             for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
               expressionData[cellIndex] = obsFeatureMatrix.data[cellIndex * numGenes + geneIndex];
             }

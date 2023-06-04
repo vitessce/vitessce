@@ -1,5 +1,6 @@
-import { createTheme } from '@material-ui/core/styles';
-import { grey } from '@material-ui/core/colors';
+import { createTheme, colors } from '@material-ui/core';
+
+const { grey } = colors;
 
 const globalColors = {
   white: '#FFFFFF',
@@ -78,6 +79,7 @@ export const muiTheme = {
       secondaryForeground: '#D3D3D3',
       gridLayoutBackground: '#333333',
       cardBorder: 'rgba(0, 0, 0, 0.125)',
+      tooltipText: '#FFFFFF',
       ...globalColors,
     },
     ...sharedThemeOptions,
@@ -103,6 +105,7 @@ export const muiTheme = {
       secondaryForeground: '#222222',
       gridLayoutBackground: '#FFFFFF',
       cardBorder: 'rgba(241, 241, 241, 0.125)',
+      tooltipText: 'rgba(0, 0, 0, 0.87)',
       ...globalColors,
     },
     ...sharedThemeOptions,

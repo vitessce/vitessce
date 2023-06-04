@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// TODO: no longer exported by vit-s package
 import { SCHEMA_HANDLERS, LATEST_VERSION } from '@vitessce/vit-s';
 
 const viewConfigVersions = Object.keys(SCHEMA_HANDLERS);

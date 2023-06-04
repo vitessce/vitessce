@@ -1,1 +1,1 @@
-export { default as Legend } from './Legend';
+export { default as Legend } from './Legend.js';

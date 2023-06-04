@@ -1,5 +1,5 @@
 import React from 'react';
-import HelpTooltip from './HelpTooltip';
+import HelpTooltip from './HelpTooltip.js';
 
 /**
  * This is a wrapper around the HelpTooltip component, to style it as a popover,

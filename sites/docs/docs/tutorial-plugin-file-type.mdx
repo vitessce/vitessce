@@ -4,13 +4,13 @@ title: 'Tutorial: Develop a plugin file type'
 sidebar_label: Plugin File Type
 ---
 
-See the [file type implementation](/docs/dev-add-loader/) and [plugin file type development](/docs/dev-plugins/#plugin-file-types) documentation for more details.
+See the [file type implementation](/docs/dev-add-loader/) and [plugin file type development](https://github.com/vitessce/vitessce/blob/main/dev-docs/plugin-file-types.md) documentation for more details.
 
 
 ### Minimal example
 
 ```js
-import range from 'lodash/range';
+import { range } from 'lodash-es';
 import fromEntries from 'object.fromentries';
 import {
   Vitessce,

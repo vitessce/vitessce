@@ -1,11 +1,11 @@
 import {
   useRef, useState, useEffect, useCallback, useMemo,
 } from 'react';
-import debounce from 'lodash/debounce';
-import every from 'lodash/every';
+import { debounce, every } from 'lodash-es';
+import { extent } from 'd3-array';
 import { capitalize, fromEntries } from '@vitessce/utils';
-import { useGridResize, useEmitGridResize } from './state/hooks';
-import { VITESSCE_CONTAINER } from './classNames';
+import { useGridResize, useEmitGridResize } from './state/hooks.js';
+import { VITESSCE_CONTAINER } from './classNames.js';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -199,7 +199,63 @@ export function useClosestVitessceContainerSize(ref) {
   return [width, height];
 }
 
-export function useExpressionValueGetter({ instanceObsIndex, matrixObsIndex, expressionData }) {
+/**
+ * Normalize an obsFeatureMatrix to a Uint8Array.
+ * @param {object} params
+ * @param {object} params.obsFeatureMatrix The obsFeatureMatrix
+ * returned by the useObsFeatureMatrix hook.
+ * @returns {array} A tuple [obsFeatureMatrix, dataExtent]
+ * where obsFeatureMatrix
+ * is a Uint8Array with the same shape as
+ * params.obsFeatureMatrix.data, and dataExtent is the
+ * [min, max] of the original data.
+ */
+export function useUint8ObsFeatureMatrix({ obsFeatureMatrix }) {
+  return useMemo(() => {
+    if (obsFeatureMatrix && obsFeatureMatrix.data) {
+      const dataExtent = extent(obsFeatureMatrix.data);
+      const [min, max] = dataExtent;
+      const ratio = 255 / (max - min);
+      const data = new Uint8Array(
+        obsFeatureMatrix.data.map(i => Math.floor((i - min) * ratio)),
+      );
+      return [{ data }, dataExtent];
+    }
+    return [null, null];
+  }, [obsFeatureMatrix]);
+}
+
+/**
+ * Normalize a feature selection (data for selected
+ * columns of an obsFeatureMatrix) to a Uint8Array.
+ * @param {array|null} expressionData The expressionData
+ * returned by the useFeatureSelection hook,
+ * where each element corresponds to an
+ * array of values for a selected feature.
+ * @returns {array} A tuple [normData, extents] where
+ * normData is an array of Uint8Arrays (or null), and extents is
+ * an array of [min, max] values for each feature (or null).
+ */
+export function useUint8FeatureSelection(expressionData) {
+  return useMemo(() => {
+    if (expressionData && expressionData[0]) {
+      const extents = expressionData.map(arr => extent(arr));
+      const normData = expressionData.map((arr, i) => {
+        const [min, max] = extents[i];
+        const ratio = 255 / (max - min);
+        return new Uint8Array(
+          arr.map(j => Math.floor((j - min) * ratio)),
+        );
+      });
+      return [normData, extents];
+    }
+    return [null, null];
+  }, [expressionData]);
+}
+
+export function useExpressionValueGetter(
+  { instanceObsIndex, matrixObsIndex, expressionData },
+) {
   // Get a mapping from cell ID to row index in the gene expression matrix.
   // Since the two obsIndices (instanceObsIndex = the obsIndex from obsEmbedding)
   // may be ordered differently (matrixObsIndex = the obsIndex from obsFeatureMatrix),
@@ -224,6 +280,15 @@ export function useExpressionValueGetter({ instanceObsIndex, matrixObsIndex, exp
     return 0;
   }, [toMatrixIndexMap, expressionData]);
   return getExpressionValue;
+}
+
+export function useGetObsMembership(obsSetsMembership) {
+  return useCallback((obsId) => {
+    if (obsId) {
+      return obsSetsMembership?.get(obsId) || [];
+    }
+    return [];
+  }, [obsSetsMembership]);
 }
 
 export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership) {

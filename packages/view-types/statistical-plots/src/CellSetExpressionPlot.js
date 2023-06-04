@@ -1,5 +1,5 @@
 import React from 'react';
-import clamp from 'lodash/clamp';
+import { clamp } from 'lodash-es';
 import { VegaPlot, VEGA_THEMES, DATASET_NAME } from '@vitessce/vega';
 import { colorArrayToString } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
@@ -155,8 +155,8 @@ export default function CellSetExpressionPlot(props) {
         scale: 'yscale',
         zindex: 1,
         title: (featureValueTransformName && featureValueTransformName !== 'None')
-          ? [`${featureValueTransformName}-Transformed`, `Normalized ${capitalize(featureValueType)} Values`]
-          : `Normalized ${capitalize(featureValueType)} Values`,
+          ? [`${featureValueTransformName}-Transformed`, `${capitalize(featureValueType)} Values`]
+          : `${capitalize(featureValueType)} Values`,
       },
       {
         orient: 'bottom',

@@ -11,19 +11,10 @@ import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import { SELECTION_TYPE } from 'nebula.gl';
 import { EditableGeoJsonLayer } from '@nebula.gl/layers';
-import { DrawRectangleMode, DrawPolygonByDraggingMode, ViewMode } from '@nebula.gl/edit-modes';
+import { DrawPolygonByDraggingMode, ViewMode } from '@nebula.gl/edit-modes';
 
 const EDIT_TYPE_ADD = 'addFeature';
 const EDIT_TYPE_CLEAR = 'clearFeatures';
-
-// Customize the click handlers for the rectangle and polygon tools,
-// so that clicking triggers the `onEdit` callback.
-class ClickableDrawRectangleMode extends DrawRectangleMode {
-  // eslint-disable-next-line class-methods-use-this
-  handleClick(event, props) {
-    props.onEdit({ editType: EDIT_TYPE_CLEAR });
-  }
-}
 
 class ClickableDrawPolygonByDraggingMode extends DrawPolygonByDraggingMode {
   // eslint-disable-next-line class-methods-use-this
@@ -33,12 +24,10 @@ class ClickableDrawPolygonByDraggingMode extends DrawPolygonByDraggingMode {
 }
 
 const MODE_MAP = {
-  [SELECTION_TYPE.RECTANGLE]: ClickableDrawRectangleMode,
   [SELECTION_TYPE.POLYGON]: ClickableDrawPolygonByDraggingMode,
 };
 
 const defaultProps = {
-  selectionType: SELECTION_TYPE.RECTANGLE,
   layerIds: [],
   onSelect: () => {},
 };

@@ -1,13 +1,6 @@
-import { obsLabelsCsvSchema } from '@vitessce/vit-s';
-import CsvLoader from './CsvLoader';
+import CsvLoader from './CsvLoader.js';
 
 export default class ObsLabelsCsvLoader extends CsvLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-
-    this.optionsSchema = obsLabelsCsvSchema;
-  }
-
   loadFromCache(data) {
     if (this.cachedResult) {
       return this.cachedResult;

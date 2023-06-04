@@ -145,6 +145,7 @@ export const CoordinationType = {
   OBS_HIGHLIGHT: 'obsHighlight',
   OBS_SET_SELECTION: 'obsSetSelection',
   OBS_SET_HIGHLIGHT: 'obsSetHighlight',
+  OBS_SET_EXPANSION: 'obsSetExpansion',
   OBS_SET_COLOR: 'obsSetColor',
   FEATURE_FILTER: 'featureFilter',
   FEATURE_HIGHLIGHT: 'featureHighlight',
@@ -167,6 +168,7 @@ export const CoordinationType = {
   GATING_FEATURE_SELECTION_X: 'gatingFeatureSelectionX',
   GATING_FEATURE_SELECTION_Y: 'gatingFeatureSelectionY',
   FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'featureValueTransformCoefficient',
+  TOOLTIPS_VISIBLE: 'tooltipsVisible',
 };
 
 export const STATUS = {

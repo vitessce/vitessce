@@ -4,14 +4,9 @@ import {
   coordinateTransformationsToMatrix,
   getNgffAxesForTiff,
 } from '@vitessce/spatial-utils';
-import { AbstractTwoStepLoader, imageOmeTiffSchema, LoaderResult } from '@vitessce/vit-s';
+import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/vit-s';
 
 export default class OmeTiffLoader extends AbstractTwoStepLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-    this.optionsSchema = imageOmeTiffSchema;
-  }
-
   async loadOffsets() {
     const { offsetsUrl } = this.options || {};
     if (offsetsUrl) {

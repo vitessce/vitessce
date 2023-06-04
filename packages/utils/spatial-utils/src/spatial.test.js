@@ -1,4 +1,4 @@
-import { square, coordinateTransformationsToMatrix } from './spatial';
+import { square, coordinateTransformationsToMatrix } from './spatial.js';
 
 const defaultAxes = [
   { type: 'time', name: 't' },

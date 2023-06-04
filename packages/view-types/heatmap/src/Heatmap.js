@@ -2,7 +2,7 @@
 import React, {
   useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
 } from 'react';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import {
   deck, luma,
   HeatmapCompositeTextLayer,
@@ -17,9 +17,7 @@ import {
   DATA_TEXTURE_SIZE,
   PIXELATED_TEXTURE_PARAMETERS,
 } from '@vitessce/gl';
-import range from 'lodash/range';
-import clamp from 'lodash/clamp';
-import isEqual from 'lodash/isEqual';
+import { range, clamp, isEqual } from 'lodash-es';
 import {
   getLongestString,
   DEFAULT_GL_OPTIONS,
@@ -38,8 +36,8 @@ import {
   mouseToHeatmapPosition,
   heatmapToMousePosition,
   mouseToCellColorPosition,
-} from './utils';
-import HeatmapWorkerPool from './HeatmapWorkerPool';
+} from './utils.js';
+import HeatmapWorkerPool from './HeatmapWorkerPool.js';
 // Only allocate the memory once for the container
 const paddedExpressionContainer = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE);
 
@@ -125,6 +123,9 @@ const Heatmap = forwardRef((props, deckRef) => {
     useDevicePixels = 1,
     hideObservationLabels = false,
     hideVariableLabels = false,
+    onHeatmapClick,
+    setColorEncoding,
+    featureIndex,
   } = props;
 
   const viewState = {
@@ -149,6 +150,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   const [axisLeftLabels, setAxisLeftLabels] = useState([]);
   const [axisTopLabels, setAxisTopLabels] = useState([]);
   const [numCellColorTracks, setNumCellColorTracks] = useState([]);
+  const [cursorType, setCursorType] = useState('default');
 
 
   // Since we are storing the tile data in a ref,
@@ -691,8 +693,9 @@ const Heatmap = forwardRef((props, deckRef) => {
     matrixWidth, tileWidth, tileHeight, transpose]);
 
 
+  const showText = width > 0 && height > 0;
   const layers = heatmapLayers
-    .concat(textLayers)
+    .concat(showText ? textLayers : [])
     .concat(...cellColorsLayersList);
 
   // Set up the onHover function.
@@ -700,6 +703,9 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (!expression) {
       return;
     }
+
+    let highlightedCell = null;
+    let highlightedGene = null;
 
     const { x: mouseX, y: mouseY } = event.offsetCenter;
 
@@ -720,13 +726,18 @@ const Heatmap = forwardRef((props, deckRef) => {
       numCols: width,
     });
 
+    // we are hovering over a gene colored track
     if (trackI === null || trackColI === null) {
       setTrackHighlight(null);
-    } else {
-      const obsI = expression.rows.indexOf(axisTopLabels[trackColI]);
+      setColorEncoding('geneSelection');
+    } else { // we are hovering over a cell colored track
+      const obsI = expression.rows.indexOf(transpose
+        ? axisTopLabels[trackColI]
+        : axisLeftLabels[trackColI]);
       const cellIndex = expression.rows[obsI];
-
       setTrackHighlight([cellIndex, trackI, mouseX, mouseY]);
+      highlightedCell = cellIndex;
+      setColorEncoding('cellSelection');
     }
 
     const [colI, rowI] = mouseToHeatmapPosition(mouseX, mouseY, {
@@ -741,22 +752,6 @@ const Heatmap = forwardRef((props, deckRef) => {
       numCols: width,
     });
 
-    if (colI === null) {
-      if (transpose) {
-        setCellHighlight(null);
-      } else {
-        setGeneHighlight(null);
-      }
-    }
-
-    if (rowI === null) {
-      if (transpose) {
-        setGeneHighlight(null);
-      } else {
-        setCellHighlight(null);
-      }
-    }
-
     const obsI = expression.rows.indexOf(transpose
       ? axisTopLabels[colI]
       : axisLeftLabels[rowI]);
@@ -765,13 +760,32 @@ const Heatmap = forwardRef((props, deckRef) => {
       : axisTopLabels[colI]);
 
     const obsId = expression.rows[obsI];
-    const varId = expression.cols[varI];
+
+    // We need to use featureIndex here,
+    // because expression.cols may be mapped to
+    // use featureLabels (if those were available in the dataset).
+    // Highlights and selections are assumed to be in terms of
+    // obsIndex/featureIndex (as opposed to obsLabels/featureLabels).
+    const varId = featureIndex[varI];
 
     if (setComponentHover) {
       setComponentHover();
     }
-    setCellHighlight(obsId || null);
-    setGeneHighlight(varId || null);
+
+    if (obsId) {
+      highlightedCell = obsId;
+    }
+    if (varId) {
+      highlightedGene = varId;
+    }
+
+    setCellHighlight(highlightedCell);
+    setGeneHighlight(highlightedGene);
+    if (highlightedCell !== null || highlightedGene !== null) {
+      setCursorType('pointer');
+    } else {
+      setCursorType('default');
+    }
   }
 
   const cellColorsViews = useMemo(() => {
@@ -847,12 +861,13 @@ const Heatmap = forwardRef((props, deckRef) => {
       ]}
       layers={layers}
       layerFilter={layerFilter}
-      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
+      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : cursorType)}
       glOptions={DEFAULT_GL_OPTIONS}
       onViewStateChange={onViewStateChange}
       viewState={viewState}
       onHover={onHover}
       useDevicePixels={useDevicePixels}
+      onClick={onHeatmapClick}
     />
   );
 });

@@ -1,6 +1,12 @@
-import range from 'lodash/range';
+import { range } from 'lodash-es';
 import { JsonLoader, JsonSource } from '@vitessce/json';
-import { LoaderResult, registerPluginFileType } from '@vitessce/vit-s';
+import {
+  LoaderResult,
+} from '@vitessce/vit-s';
+import {
+  PluginFileType,
+} from '@vitessce/plugins';
+import { z } from '@vitessce/schemas';
 
 const numCells = 60;
 const numGenes = 90;
@@ -44,10 +50,15 @@ class InMemoryMatrixLoader extends JsonLoader {
   }
 }
 
-registerPluginFileType(
-  'in-memory-matrix', 'obsFeatureMatrix',
-  InMemoryMatrixLoader, JsonSource,
-);
+export const pluginFileTypeProps = {
+  pluginFileTypes: [
+    new PluginFileType(
+      'in-memory-matrix', 'obsFeatureMatrix',
+      InMemoryMatrixLoader, JsonSource,
+      z.null(),
+    ),
+  ],
+};
 
 // Use the plugin file type in the configuration.
 export const pluginFileType = {

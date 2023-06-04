@@ -4,12 +4,11 @@ title: View Configs via JSON
 sidebar_label: View Configs via JSON
 slug: /view-config-json
 ---
-<!--import BrowserOnlyDiffViewConfigSchema from '../src/pages/_BrowserOnlyDiffViewConfigSchema';-->
-
-## Overview
 
 The Vitessce __view config__ defines datasets (and the URLs to their associated data files) and views that will be used to visualize and interact with the data.
 The view config also stores the [coordination space](/docs/coordination/) (i.e., the state of the views) and defines which views and properties are coordinated.
+
+We realise that having to construct a view config adds friction, for instance preventing quick visualization of an image or AnnData object. This is why for some file formats, Vitessce can generate a valid view config, using URLs to your datasets (see [Data Preparation](/docs/#data-preparation)). For more information, see the [automatic configuration](/docs/default-config-json/) page.
 
 ## Required properties
 
@@ -23,6 +22,19 @@ The full view config JSON schema can be found [here](https://github.com/vitessce
 - Type: `string`
 
 A name for the view config. Although this field is required, you are welcome to use the empty string.
+
+#### `uid`
+- Type: `string`
+
+A unique ID for the config. Optional.
+
+
+Intended to be used in situations where `<Vitessce/>` is used as a [controlled component](https://legacy.reactjs.org/docs/forms.html#controlled-components)
+(i.e., a parent component is the source of truth for the `config` prop and likely also uses the `onConfigChange` prop).
+For example, if a change in `config.uid` is detected, the configuration will be re-validated (which might not occur on other changes to `config` for performance reasons). 
+
+
+Note that this `config.uid` property has a different function from the `uid` prop on the `<Vitessce/>` component.
 
 ### `version`
 
@@ -48,6 +60,7 @@ The view config schema version. The documentation pages here are based on the la
 | `1.0.13`| Support for the property `datasets[].files[].coordinationValues`. |
 | `1.0.14`| Adds the coordination types `gatingFeatureSelectionX`, `gatingFeatureSelectionY`, and `featureValueTransformCoefficient`. |
 | `1.0.15`| View type names were changed in this version to move towards support for feature-observation matrices (FOM). |
+| `1.0.16` | Support for `coordinationScopesBy` for multiple per-coordination-type coordination scopes. |
 
 <!--<BrowserOnlyDiffViewConfigSchema />-->
 

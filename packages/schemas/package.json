@@ -1,0 +1,52 @@
+{
+  "name": "@vitessce/schemas",
+  "version": "2.0.3",
+  "author": "Gehlenborg Lab",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "dist-tsc"
+  ],
+  "scripts": {
+    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
+    "test": "pnpm exec vitest --run -r ../../ --dir ."
+  },
+  "dependencies": {
+    "zod": "^3.21.4",
+    "@vitessce/constants": "workspace:*",
+    "@vitessce/utils": "workspace:*",
+    "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/plugins": "workspace:*",
+    "uuid": "^9.0.0",
+    "lodash-es": "^4.17.21",
+    "semver": "^7.3.8",
+    "@types/lodash": "^4.14.191",
+    "@types/uuid": "^9.0.1",
+    "@types/semver": "^7.3.13",
+    "@types/lodash-es": "^4.17.7"
+  },
+  "devDependencies": {
+    "vite": "^4.3.0",
+    "vitest": "^0.23.4",
+    "zod-to-json-schema": "^3.20.4",
+    "json-schema-to-zod": "^0.6.3"
+  }
+}

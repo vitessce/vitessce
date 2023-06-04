@@ -21,6 +21,10 @@ module.exports = {
       id: 'view-config-json',
     },
     {
+      type: 'doc',
+      id: 'default-config-json',
+    },
+    {
       type: 'category',
       label: 'Data Preparation',
       items: [
@@ -37,26 +41,28 @@ module.exports = {
         'view-config-js',
         'constants',
         'js-react-vitessce',
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Developer Docs',
-      items: [
-        'dev-overview',
-        'dev-add-component',
-        'dev-add-loader',
         'dev-plugins',
         'troubleshooting',
+        'upgrade-guide',
       ],
     },
     {
       type: 'doc',
-      id: 'roadmap',
+      id: 'showcase',
     },
     {
       type: 'doc',
       id: 'about',
+    },
+    {
+      type: 'link',
+      label: 'Roadmap',
+      href: 'https://github.com/orgs/vitessce/projects/7',
+    },
+    {
+      type: 'link',
+      label: 'Changelog',
+      href: 'https://github.com/vitessce/vitessce/tree/main/CHANGELOG.md',
     },
   ],
   tutorials: [

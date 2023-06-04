@@ -5,7 +5,7 @@ import {
   coordinateTransformationsToMatrix,
   getNgffAxesForTiff,
 } from '@vitessce/spatial-utils';
-import OmeTiffLoader from './OmeTiffLoader';
+import OmeTiffLoader from './OmeTiffLoader.js';
 
 export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
   async load() {

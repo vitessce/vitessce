@@ -1,34 +1,34 @@
-import { vapi } from './utils';
+import { vapi } from './utils.js';
 import {
   justScatter, justScatterExpression, justSpatial,
   codeluppi2018,
   codeluppiGating,
-} from './view-configs/codeluppi';
-import { eng2019 } from './view-configs/eng';
-import { wang2018 } from './view-configs/wang';
-import { spraggins2020, neumann2020 } from './view-configs/spraggins';
-import { satija2020 } from './view-configs/satija';
-import { justHiglass } from './view-configs/rao';
-import { scAtacSeq10xPbmc } from './view-configs/tenx';
-import { blin2019 } from './view-configs/blin';
-import { omeNgffLegacy } from './view-configs/ome-ngff-legacy';
-import { hubmapIntestineSnAtacSeq } from './view-configs/hubmap';
+} from './view-configs/codeluppi.js';
+import { eng2019 } from './view-configs/eng.js';
+import { wang2018 } from './view-configs/wang.js';
+import { spraggins2020, neumann2020 } from './view-configs/spraggins.js';
+import { satija2020 } from './view-configs/satija.js';
+import { justHiglass } from './view-configs/rao.js';
+import { scAtacSeq10xPbmc } from './view-configs/tenx.js';
+import { blin2019 } from './view-configs/blin.js';
+import { omeNgffLegacy } from './view-configs/ome-ngff-legacy.js';
+import { hubmapIntestineSnAtacSeq } from './view-configs/hubmap.js';
 import {
   embeddingZoomConfig,
   embeddingTargetXConfig,
   embeddingTargetYConfig,
   embeddingCellSetPolygonsVisibleConfig,
-} from './view-configs/coordination-types/index';
-import { codeluppiViaCsv } from './view-configs/codeluppi-via-csv';
-import { codeluppiViaZarr } from './view-configs/codeluppi-via-zarr';
-import { combat2022cell } from './view-configs/combat_2022_cell';
-import { habib2017natureMethods } from './view-configs/habib_2017_nature_methods';
-import { humanLymphNode10xVisium } from './view-configs/human_lymph_node_10x_visium';
-import { kuppe2022nature } from './view-configs/kuppe_2022_nature';
-import { marshall2022iScience } from './view-configs/marshall_2022_iscience';
-import { meta2022azimuth } from './view-configs/meta_2022_azimuth';
-import { rgbOmeTiff } from './view-configs/rgb-ome-tiff';
-import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff';
+} from './view-configs/coordination-types/index.js';
+import { codeluppiViaCsv } from './view-configs/codeluppi-via-csv.js';
+import { codeluppiViaZarr } from './view-configs/codeluppi-via-zarr.js';
+import { combat2022cell } from './view-configs/combat_2022_cell.js';
+import { habib2017natureMethods } from './view-configs/habib_2017_nature_methods.js';
+import { humanLymphNode10xVisium } from './view-configs/human_lymph_node_10x_visium.js';
+import { kuppe2022nature } from './view-configs/kuppe_2022_nature.js';
+import { marshall2022iScience } from './view-configs/marshall_2022_iscience.js';
+import { meta2022azimuth } from './view-configs/meta_2022_azimuth.js';
+import { rgbOmeTiff } from './view-configs/rgb-ome-tiff.js';
+import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,

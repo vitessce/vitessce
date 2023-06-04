@@ -1,9 +1,9 @@
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
 import { VIEWER_PALETTE } from '@vitessce/utils';
 import { viv } from '@vitessce/gl';
-import { getMultiSelectionStats } from './layer-controller';
+import { getMultiSelectionStats } from './layer-controller.js';
 
 export function square(x, y, r) {
   return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
@@ -117,6 +117,11 @@ function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
     }
     // Find the ratio of the sizes to get the scaling factor.
     const scale = sizes.map((i, k) => divide(i, minPhysicalSize[k]));
+    // sizes are special objects with own equals method - see `unit` in declaration
+    if (!sizes[0].equals(sizes[1])) {
+      // Handle scaling in the Y direction for non-square pixels
+      scale[1] = divide(sizes[1], sizes[0]);
+    }
     // Add in z dimension needed for Matrix4 scale API.
     if (!scale[2]) {
       scale[2] = 1;

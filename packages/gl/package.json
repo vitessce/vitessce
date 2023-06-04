@@ -8,13 +8,22 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
+  "type": "module",
   "main": "dist-tsc/index.js",
   "publishConfig": {
-    "main": "dist/index.mjs"
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
   },
   "files": [
+    "src",
     "dist",
-    "src"
+    "dist-tsc"
   ],
   "scripts": {
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
@@ -29,7 +38,7 @@
     "@deck.gl/layers": "~8.8.6",
     "@deck.gl/mesh-layers": "~8.8.6",
     "@deck.gl/react": "~8.8.6",
-    "@hms-dbmi/viv": "~0.13.6",
+    "@hms-dbmi/viv": "~0.13.7",
     "@loaders.gl/3d-tiles": "^3.0.0",
     "@loaders.gl/core": "^3.0.0",
     "@loaders.gl/images": "^3.0.0",
@@ -54,7 +63,7 @@
     "@vitessce/utils": "workspace:*",
     "deck.gl": "~8.8.6",
     "glslify": "^7.0.0",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "math.gl": "^3.5.6",
     "mathjs": "^9.2.0",
     "nebula.gl": "0.23.8"
