@@ -87,7 +87,7 @@ export const codeluppiViaCsv = {
         },
         {
           fileType: 'obsFeatureMatrix.csv',
-          url: 'https://s3.amazonaws.com/vitessce-dta/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.matrix.csv',
+          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.matrix.csv',
           coordinationValues: {
             obsType: 'cell',
             featureType: 'gene',

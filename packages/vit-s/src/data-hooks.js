@@ -256,7 +256,7 @@ export function useFeatureSelection(
     });
   // Deliberate dependency omissions: use indirect dependencies for efficiency.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [anyError]);
+  }, [anyError, setWarning]);
 
   return [geneData, loadedGeneName, dataStatus];
 }
