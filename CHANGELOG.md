@@ -90,6 +90,7 @@
 - Split useEffect into useMemo + useEffect in SpatialSubscriber to fix infinite loop for `neumann-2020` demo on the docs site.
 - Delay computing the initial view state longer in EmbeddingScatterplotSubscriber to ensure the view width/height is finished animating.
 - Made the cursor type to `pointer` when the user is hovering over the heatmap.
+- Add a URL param option to the demo site to wrap `<Vitessce/>` in `<React.StrictMode/>`
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
