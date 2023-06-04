@@ -166,6 +166,7 @@ export function VitS(props) {
     defaultOptions: {
       queries: {
         refetchOnWindowFocus: false,
+        retry: 2,
       },
     },
   }), [configUid]);
