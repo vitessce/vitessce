@@ -489,6 +489,7 @@ export function useMatchingLoader(loaders, dataset, dataType, viewCoordinationVa
  * coordination values (mapping from coordination types to coordination values).
  * Uses lodash/isMatch to perform matching against the file definition's
  * coordination value mapping.
+ * TODO: can this function be removed?
  * @param {object} loaders The value returned by useLoaders.
  * @param {string} dataset The dataset UID.
  * @param {string} dataType The data type for the matching file.

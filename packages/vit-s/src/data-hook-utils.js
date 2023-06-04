@@ -1,11 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { capitalize, fromEntries } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
 import { useQuery, useQueries } from '@tanstack/react-query';
 import {
   getMatchingLoader,
   useMatchingLoader,
-  useMatchingLoaders,
   useSetWarning,
 } from './state/hooks.js';
 import {
@@ -222,9 +221,6 @@ export function useDataTypeMulti(
   // Deliberate dependency omissions: matchOnEntries, since dataQueries depends on it.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   ), [dataQueries]);
-
-  // TODO: support multi-level matchOnObj with arbitrary depth?
-
   return [data, dataStatus];
 }
 
