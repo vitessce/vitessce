@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import { capitalize } from '@vitessce/utils';
+import { capitalize, fromEntries } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueries } from '@tanstack/react-query';
 import {
   getMatchingLoader,
   useMatchingLoader,
@@ -55,6 +55,31 @@ export function initCoordinationSpace(values, setters, initialValues) {
 }
 
 
+async function dataQueryFn(ctx) {
+  const { placeholderObject, loaders } = ctx.meta;
+  // This ordering of the queryKey must match.
+  const [dataset, dataType, matchOn, isRequired] = ctx.queryKey;
+  const loader = getMatchingLoader(loaders, dataset, dataType, matchOn);
+  if (loader) {
+    // TODO: can cacheing logic be removed from all loaders?
+    const payload = await loader.load();
+    if (!payload) return placeholderObject; // TODO: throw error instead?
+    const { data, url, coordinationValues } = payload;
+    // Status: success
+    // Array of objects like  { url, name }.
+    const urls = Array.isArray(url) ? url : [{ url, name: dataType }];
+    return { data, coordinationValues, urls };
+  }
+  // No loader was found.
+  if (isRequired) {
+    // Status: error
+    throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
+  } else {
+    // Status: success
+    return { data: placeholderObject };
+  }
+}
+
 /**
  * Get data from a cells data type loader,
  * updating "ready" and URL state appropriately.
@@ -88,33 +113,11 @@ export function useDataType(
     placeholderData: placeholderObject,
     // Include the hook name in the queryKey to prevent the case in which an identical queryKey
     // in a different hook would cause an accidental cache hit.
-    queryKey: [dataset, dataType, matchOn, 'useDataType'],
+    queryKey: [dataset, dataType, matchOn, isRequired, 'useDataType'],
     // Query function should return an object
     // { data, dataKey } where dataKey is the loaded gene selection.
-    queryFn: async (ctx) => {
-      const loader = getMatchingLoader(
-        ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2],
-      );
-      if (loader) {
-        // TODO: can cacheing logic be removed from all loaders?
-        const payload = await loader.load();
-        if (!payload) return placeholderObject; // TODO: throw error instead?
-        const { data, url, coordinationValues } = payload;
-        // Status: success
-        // Array of objects like  { url, name }.
-        const urls = Array.isArray(url) ? url : [{ url, name: dataType }];
-        return { data, coordinationValues, urls };
-      }
-      // No loader was found.
-      if (isRequired) {
-        // Status: error
-        throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
-      } else {
-        // Status: success
-        return { data: placeholderObject };
-      }
-    },
-    meta: { loaders },
+    queryFn: dataQueryFn,
+    meta: { loaders, placeholderObject },
   });
   const { data, status, isFetching, error } = dataQuery;
   const loadedData = data?.data || placeholderObject;
@@ -165,48 +168,64 @@ export function useDataTypeMulti(
   dataType, loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOnObj,
 ) {
-  // TODO: react-query
-  const [data, setData] = useState({});
-  const [status, setStatus] = useState(STATUS.LOADING);
-
+  const placeholderObject = useMemo(() => ({}), []);
   const setWarning = useSetWarning();
-  const matchingLoaders = useMatchingLoaders(loaders, dataset, dataType, matchOnObj);
+
+  const matchOnEntries = matchOnObj ? Object.entries(matchOnObj) : [];
+  const dataQueries = useQueries({
+    // eslint-disable-next-line no-unused-vars
+    queries: matchOnEntries.map(([scopeKey, matchOn]) => ({
+      structuralSharing: false,
+      placeholderData: placeholderObject,
+      // Query key should match useDataType for shared cacheing
+      // and correctness of dataQueryFn.
+      queryKey: [dataset, dataType, matchOn, isRequired, 'useDataType'],
+      // Query function should return an object
+      // { data, dataKey } where dataKey is the loaded gene selection.
+      queryFn: dataQueryFn,
+      meta: { loaders, placeholderObject },
+    })),
+  });
+
+  const anyLoading = dataQueries.some(q => q.isFetching);
+  const anyError = dataQueries.some(q => q.isError);
+  // eslint-disable-next-line no-nested-ternary
+  const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
+  const isSuccess = dataStatus === STATUS.SUCCESS;
 
   useEffect(() => {
-    if (matchingLoaders) {
-      setStatus(STATUS.LOADING);
-      Object.entries(matchingLoaders).forEach(([scopeKey, loader]) => {
-        if (loader) {
-          loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-            if (!payload) return;
-            const { data: payloadData, coordinationValues } = payload;
-            setData((prev) => {
-              // eslint-disable-next-line no-param-reassign
-              prev[scopeKey] = payloadData;
-              return prev;
-            });
-            initCoordinationSpace(
-              coordinationValues,
-              coordinationSetters,
-              initialCoordinationValues,
-            );
-            setStatus(STATUS.SUCCESS);
-          });
-        }
+    dataQueries
+      .map(q => q.data?.coordinationValues)
+      .filter(v => Boolean(v))
+      .forEach((coordinationValues) => {
+        initCoordinationSpace(
+          coordinationValues,
+          coordinationSetters,
+          initialCoordinationValues,
+        );
       });
-    } else {
-      setData({});
-      if (isRequired) {
-        warn(new LoaderNotFoundError(loaders, dataset, dataType, matchOnObj), setWarning);
-        setStatus(STATUS.ERROR);
-      } else {
-        setStatus(STATUS.SUCCESS);
-      }
-    }
+  // Deliberate dependency omissions: use indirect dependencies for efficiency.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchingLoaders]);
+  }, [isSuccess]);
 
-  return [data, status];
+  useEffect(() => {
+    dataQueries.map(q => q.error).filter(e => Boolean(e)).forEach((error) => {
+      warn(error, setWarning);
+    });
+  // Deliberate dependency omissions: use indirect dependencies for efficiency.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [anyError, setWarning]);
+
+  // Convert data to object keyed by scopeKey.
+  const data = useMemo(() => fromEntries(
+    matchOnEntries.map(([scopeKey], i) => ([scopeKey, dataQueries[i].data?.data])),
+  // Deliberate dependency omissions: matchOnEntries, since dataQueries depends on it.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ), [dataQueries]);
+
+  // TODO: support multi-level matchOnObj with arbitrary depth?
+
+  return [data, dataStatus];
 }
 
 export function useHasLoader(loaders, dataset, dataType, matchOn) {

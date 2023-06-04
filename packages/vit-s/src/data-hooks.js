@@ -250,9 +250,12 @@ export function useFeatureSelection(
   const loadedGeneName = isSuccess ? featureQueries.map(q => q.data?.dataKey || null) : null;
 
   useEffect(() => {
-    featureQueries.map(q => q.error).filter(e => Boolean(e)).forEach((error) => {
-      warn(error, setWarning);
-    });
+    featureQueries
+      .map(q => q.error)
+      .filter(e => Boolean(e))
+      .forEach((error) => {
+        warn(error, setWarning);
+      });
   // Deliberate dependency omissions: use indirect dependencies for efficiency.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [anyError, setWarning]);
