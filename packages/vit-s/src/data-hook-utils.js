@@ -132,7 +132,7 @@ export function useDataType(
 
   useEffect(() => {
     if (error) {
-      setWarning(error.message);
+      warn(error, setWarning);
     }
   }, [error, setWarning]);
 
