@@ -2,7 +2,7 @@
 import shortNumber from 'short-number';
 import plur from 'plur';
 import { Matrix4 } from 'math.gl';
-import { viv, BitmaskLayer } from '@vitessce/gl';
+import { viv, BitmaskLayerBeta as BitmaskLayer } from '@vitessce/gl';
 import { DEFAULT_LAYER_TYPE_ORDERING } from '@vitessce/spatial-utils';
 import { extent } from 'd3-array';
 import {
