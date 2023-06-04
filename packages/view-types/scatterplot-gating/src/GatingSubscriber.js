@@ -120,7 +120,6 @@ export function GatingSubscriber(props) {
     coordinationScopes,
   );
 
-  const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
 
   const title = useMemo(() => {
@@ -141,8 +140,8 @@ export function GatingSubscriber(props) {
   ), [gatingFeatureSelectionY]);
 
   // Get data from loaders using the data hooks.
-  const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
-    loaders, dataset, addUrl, false,
+  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+    loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
@@ -162,8 +161,10 @@ export function GatingSubscriber(props) {
     loaders, dataset, false, featureSelectionY,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsIndex, featureIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
-    loaders, dataset, addUrl, false,
+  const [
+    { obsIndex, featureIndex }, matrixIndicesStatus, matrixIndicesUrls,
+  ] = useObsFeatureMatrixIndices(
+    loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
   const cellsCount = obsIndex?.length || 0;
@@ -174,6 +175,10 @@ export function GatingSubscriber(props) {
     featureSelectionXStatus,
     featureSelectionYStatus,
     matrixIndicesStatus,
+  ]);
+  const urls = useUrls([
+    obsSetsUrls,
+    matrixIndicesUrls,
   ]);
 
   // Generate a new cells object with a mapping added for the user selected genes.

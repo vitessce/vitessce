@@ -128,11 +128,10 @@ export function SpatialSubscriber(props) {
 
   const use3d = imageLayers?.some(l => l.use3d);
 
-  const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
 
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
-    coordinationScopes, obsType, loaders, dataset, addUrl,
+    coordinationScopes, obsType, loaders, dataset,
   );
 
   const hasExpressionData = useHasLoader(
@@ -156,37 +155,37 @@ export function SpatialSubscriber(props) {
   const [{
     obsIndex: obsLocationsIndex,
     obsLocations,
-  }, obsLocationsStatus] = useObsLocationsData(
-    loaders, dataset, addUrl, false,
+  }, obsLocationsStatus, obsLocationsUrls] = useObsLocationsData(
+    loaders, dataset, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
     { obsType: 'molecule' }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
   );
   const [{
     obsLabels: obsLocationsLabels,
-  }, obsLabelsStatus] = useObsLabelsData(
-    loaders, dataset, addUrl, false, {}, {},
+  }, obsLabelsStatus, obsLabelsUrls] = useObsLabelsData(
+    loaders, dataset, false, {}, {},
     { obsType: 'molecule' }, // TODO: use obsType in matchOn once #1240 is merged.
   );
   const [{
     obsIndex: obsCentroidsIndex,
     obsLocations: obsCentroids,
-  }, obsCentroidsStatus] = useObsLocationsData(
-    loaders, dataset, addUrl, false, {}, {},
+  }, obsCentroidsStatus, obsCentroidsUrls] = useObsLocationsData(
+    loaders, dataset, false, {}, {},
     { obsType }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
   );
   const [{
     obsIndex: obsSegmentationsIndex,
     obsSegmentations,
     obsSegmentationsType,
-  }, obsSegmentationsStatus] = useObsSegmentationsData(
-    loaders, dataset, addUrl, false,
+  }, obsSegmentationsStatus, obsSegmentationsUrls] = useObsSegmentationsData(
+    loaders, dataset, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
     { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
   );
-  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus] = useObsSetsData(
-    loaders, dataset, addUrl, false,
+  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+    loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
@@ -196,24 +195,26 @@ export function SpatialSubscriber(props) {
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsIndex: matrixObsIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
-    loaders, dataset, addUrl, false,
+  const [
+    { obsIndex: matrixObsIndex }, matrixIndicesStatus, matrixIndicesUrls,
+  ] = useObsFeatureMatrixIndices(
+    loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ image }, imageStatus] = useImageData(
-    loaders, dataset, addUrl, false,
+  const [{ image }, imageStatus, imageUrls] = useImageData(
+    loaders, dataset, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: imageLayers },
     {}, // TODO: which properties to match on. Revisit after #830.
   );
   const { loaders: imageLayerLoaders = [], meta = [] } = image || {};
-  const [neighborhoods, neighborhoodsStatus] = useNeighborhoodsData(
-    loaders, dataset, addUrl, false,
+  const [neighborhoods, neighborhoodsStatus, neighborhoodsUrls] = useNeighborhoodsData(
+    loaders, dataset, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
-  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
-    loaders, dataset, addUrl, false, {}, {},
+  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+    loaders, dataset, false, {}, {},
     { featureType },
   );
 
@@ -228,6 +229,17 @@ export function SpatialSubscriber(props) {
     imageStatus,
     neighborhoodsStatus,
     featureLabelsStatus,
+  ]);
+  const urls = useUrls([
+    obsLocationsUrls,
+    obsLabelsUrls,
+    obsCentroidsUrls,
+    obsSegmentationsUrls,
+    obsSetsUrls,
+    matrixIndicesUrls,
+    imageUrls,
+    neighborhoodsUrls,
+    featureLabelsUrls,
   ]);
 
   const obsLocationsFeatureIndex = useMemo(() => {

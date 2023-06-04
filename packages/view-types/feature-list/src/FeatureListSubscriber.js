@@ -63,21 +63,23 @@ export function FeatureListSubscriber(props) {
 
   const title = titleOverride || `${capitalize(variablesLabel)} List`;
 
-  const [urls, addUrl] = useUrls(loaders, dataset);
-
   // Get data from loaders using the data hooks.
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
-    loaders, dataset, addUrl, false, {}, {},
+  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+    loaders, dataset, false, {}, {},
     { featureType },
   );
-  const [{ featureIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
-    loaders, dataset, addUrl, true,
+  const [{ featureIndex }, matrixIndicesStatus, obsFeatureMatrixUrls] = useObsFeatureMatrixIndices(
+    loaders, dataset, true,
     { featureType },
   );
   const isReady = useReady([
     featureLabelsStatus,
     matrixIndicesStatus,
+  ]);
+  const urls = useUrls([
+    featureLabelsUrls,
+    obsFeatureMatrixUrls,
   ]);
   const geneList = featureIndex || [];
   const numGenes = geneList.length;

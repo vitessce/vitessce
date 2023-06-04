@@ -54,8 +54,6 @@ export function useDescription(loaders, dataset) {
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
  * used to identify which loader to use.
- * @param {function} addUrl A function to call to update
- * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
  * @param {object} coordinationSetters Object where
@@ -69,111 +67,111 @@ export function useDescription(loaders, dataset) {
  * number of items in the cells object.
  */
 export function useObsEmbeddingData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_EMBEDDING,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsLocationsData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_LOCATIONS,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsLabelsData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_LABELS,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsSegmentationsData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_SEGMENTATIONS,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsSetsData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_SETS,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsFeatureMatrixData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_FEATURE_MATRIX,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useFeatureLabelsData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.FEATURE_LABELS,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useImageData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.IMAGE,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useGenomicProfilesData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.GENOMIC_PROFILES,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useNeighborhoodsData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.NEIGHBORHOODS,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
@@ -199,6 +197,7 @@ export function useFeatureSelection(
   selection,
   matchOn,
 ) {
+  const setWarning = useSetWarning();
   const featureQueries = useQueries({
     queries: selection?.map(featureId => ({
       structuralSharing: false,
@@ -243,14 +242,22 @@ export function useFeatureSelection(
       meta: { loaders },
     })) || [],
   });
-
   const anyLoading = featureQueries.some(q => q.isFetching);
   const anyError = featureQueries.some(q => q.isError);
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
   const isSuccess = dataStatus === STATUS.SUCCESS;
   const geneData = isSuccess ? featureQueries.map(q => q.data?.data || null) : null;
-  const loadedGeneName = isSuccess ?  featureQueries.map(q => q.data?.dataKey || null) : null;
+  const loadedGeneName = isSuccess ? featureQueries.map(q => q.data?.dataKey || null) : null;
+
+  useEffect(() => {
+    featureQueries.map(q => q.error).filter(e => Boolean(e)).forEach((error) => {
+      setWarning(error.message);
+    });
+  // Deliberate dependency omissions: use indirect dependencies for efficiency.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [anyError]);
+
   return [geneData, loadedGeneName, dataStatus];
 }
 
@@ -264,21 +271,17 @@ export function useFeatureSelection(
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
  * used to identify which loader to use.
- * @param {function} addUrl A function to call to update
- * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
  * @returns {object} [attrs] { rows, cols } object containing cell and gene names.
  */
 export function useObsFeatureMatrixIndices(
-  loaders, dataset, addUrl, isRequired, matchOn,
+  loaders, dataset, isRequired, matchOn,
 ) {
-  // TODO: use setwarning
   const setWarning = useSetWarning();
-
   const placeholderObject = useMemo(() => ({}), []);
-
   const indicesQuery = useQuery({
+    // TODO: only enable once `loaders` is available?
     structuralSharing: false,
     placeholderData: placeholderObject,
     // Include the hook name in the queryKey to prevent the case in which an identical queryKey
@@ -304,7 +307,7 @@ export function useObsFeatureMatrixIndices(
               obsIndex: payloadData.rows,
               featureIndex: payloadData.cols,
             },
-            urls: [[url, DataType.OBS_FEATURE_MATRIX]],
+            urls: [{ url, name: DataType.OBS_FEATURE_MATRIX }],
           };
         }
         // No loadAttrs function.
@@ -316,7 +319,7 @@ export function useObsFeatureMatrixIndices(
             obsIndex: payloadData.obsIndex,
             featureIndex: payloadData.featureIndex,
           },
-          urls: [[url, DataType.OBS_FEATURE_MATRIX]],
+          urls: [{ url, name: DataType.OBS_FEATURE_MATRIX }],
         };
       }
       // No loader was found.
@@ -328,25 +331,25 @@ export function useObsFeatureMatrixIndices(
         return { data: placeholderObject, dataKey: null };
       }
     },
-    onSuccess: ({ namedUrls }) => {
-      // TODO: refactor to simply return the list of URLs rather than using a callback.
-      namedUrls?.forEach(([url, name]) => {
-        addUrl(url, name);
-      });
-    },
     meta: { loaders },
   });
-  const { data, status, isFetching } = indicesQuery;
+  const { data, status, isFetching, error } = indicesQuery;
   const loadedData = data?.data || placeholderObject;
 
   const dataStatus = isFetching ? STATUS.LOADING : status;
+  const urls = data?.urls;
 
-  // TODO: set warning
-  return [loadedData, dataStatus];
+  useEffect(() => {
+    if (error) {
+      setWarning(error.message);
+    }
+  }, [error, setWarning]);
+
+  return [loadedData, dataStatus, urls];
 }
 
 export function useMultiObsLabels(
-  coordinationScopes, obsType, loaders, dataset, addUrl,
+  coordinationScopes, obsType, loaders, dataset,
 ) {
   const obsLabelsTypes = useMultiCoordinationValues(
     CoordinationType.OBS_LABELS_TYPE,
@@ -360,8 +363,9 @@ export function useMultiObsLabels(
   ), [obsLabelsTypes, obsType]);
   const [obsLabelsData, obsLabelsDataStatus] = useDataTypeMulti(
     DataType.OBS_LABELS, loaders, dataset,
-    addUrl, false, {}, {},
+    false, {}, {},
     obsLabelsMatchOnObj,
   );
-  return [obsLabelsTypes, obsLabelsData, obsLabelsDataStatus];
+  const urls = null; // TODO?
+  return [obsLabelsTypes, obsLabelsData, obsLabelsDataStatus, urls];
 }

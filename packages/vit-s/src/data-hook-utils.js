@@ -64,8 +64,6 @@ export function initCoordinationSpace(values, setters, initialValues) {
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
  * used to identify which loader to use.
- * @param {function} addUrl A function to call to update
- * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
  * @param {object} coordinationSetters Object where
@@ -74,17 +72,18 @@ export function initCoordinationSpace(values, setters, initialValues) {
  * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
- * @returns {array} [cells, cellsCount] where
+ * @returns {array} [data, status, urls] where
  * cells is an object and cellsCount is the
  * number of items in the cells object.
  */
 export function useDataType(
-  dataType, loaders, dataset, addUrl, isRequired,
+  dataType, loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   const setWarning = useSetWarning();
   const placeholderObject = useMemo(() => ({}), []);
   const dataQuery = useQuery({
+    // TODO: only enable when loaders has been initialized?
     structuralSharing: false,
     placeholderData: placeholderObject,
     // Include the hook name in the queryKey to prevent the case in which an identical queryKey
@@ -102,9 +101,9 @@ export function useDataType(
         if (!payload) return placeholderObject; // TODO: throw error instead?
         const { data, url, coordinationValues } = payload;
         // Status: success
-        // Array of tuples like [url, name].
-        const namedUrls = Array.isArray(url) ? url : [[url, dataType]];
-        return { data, dataKey: null, coordinationValues, namedUrls };
+        // Array of objects like  { url, name }.
+        const urls = Array.isArray(url) ? url : [{ url, name: dataType }];
+        return { data, coordinationValues, urls };
       }
       // No loader was found.
       if (isRequired) {
@@ -112,16 +111,16 @@ export function useDataType(
         throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
       } else {
         // Status: success
-        return { data: placeholderObject, dataKey: null };
+        return { data: placeholderObject };
       }
     },
     meta: { loaders },
   });
-  const { data, status, isFetching } = dataQuery;
+  const { data, status, isFetching, error } = dataQuery;
   const loadedData = data?.data || placeholderObject;
 
   const coordinationValues = data?.coordinationValues;
-  const namedUrls = data?.namedUrls;
+  const urls = data?.urls;
 
   useEffect(() => {
     initCoordinationSpace(
@@ -129,15 +128,16 @@ export function useDataType(
       coordinationSetters,
       initialCoordinationValues,
     );
-    // TODO: refactor to simply return the list of URLs rather than using a callback.
-    namedUrls?.forEach(([url, name]) => {
-      addUrl(url, name);
-    });
-  }, [coordinationValues, namedUrls]);
+  }, [coordinationValues]);
+
+  useEffect(() => {
+    if (error) {
+      setWarning(error.message);
+    }
+  }, [error, setWarning]);
 
   const dataStatus = isFetching ? STATUS.LOADING : status;
-  // TODO: set warning on error or return error message.
-  return [loadedData, dataStatus];
+  return [loadedData, dataStatus, urls];
 }
 
 /**
@@ -149,8 +149,6 @@ export function useDataType(
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
  * used to identify which loader to use.
- * @param {function} addUrl A function to call to update
- * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
  * @param {object} coordinationSetters Object where
@@ -164,9 +162,10 @@ export function useDataType(
  * number of items in the cells object.
  */
 export function useDataTypeMulti(
-  dataType, loaders, dataset, addUrl, isRequired,
+  dataType, loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOnObj,
 ) {
+  // TODO: react-query
   const [data, setData] = useState({});
   const [status, setStatus] = useState(STATUS.LOADING);
 
@@ -180,13 +179,12 @@ export function useDataTypeMulti(
         if (loader) {
           loader.load().catch(e => warn(e, setWarning)).then((payload) => {
             if (!payload) return;
-            const { data: payloadData, url, coordinationValues } = payload;
+            const { data: payloadData, coordinationValues } = payload;
             setData((prev) => {
               // eslint-disable-next-line no-param-reassign
               prev[scopeKey] = payloadData;
               return prev;
             });
-            addUrl(url, dataType);
             initCoordinationSpace(
               coordinationValues,
               coordinationSetters,
