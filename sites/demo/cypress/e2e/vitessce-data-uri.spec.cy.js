@@ -73,7 +73,8 @@ describe('Vitessce Data URIs', () => {
     // Wait for initial request by react-query
     cy.wait('@badUrl');
     // We use a retry: 2 and the default exponential backoff function,
-    // so we wait 1s here for that to be triggered.
+    // so we wait 1s here for that second request to be triggered
+    // after which the error will be rendered.
     cy.wait(1000);
     cy.contains('JsonSource Error HTTP Status fetching from https://example.com/bad-url.json');
   });
