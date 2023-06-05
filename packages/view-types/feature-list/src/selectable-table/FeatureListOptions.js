@@ -1,7 +1,7 @@
 import React from 'react';
 import { OptionsContainer, OptionSelect, usePlotOptionsStyles } from '@vitessce/vit-s';
 import { TableCell, TableRow, Checkbox } from '@material-ui/core';
-import { FEATURELIST_SORT_OPTIONS, FEATURELIST_SORT_KEYS } from './constants.js';
+import { FEATURELIST_SORT_OPTIONS } from './constants.js';
 
 
 export default function FeatureListOptions(props) {
@@ -53,8 +53,8 @@ export default function FeatureListOptions(props) {
           </OptionSelect>
         </TableCell>
       </TableRow>
-      {hasFeatureLabels && 
-        (
+      {hasFeatureLabels
+        && (
           <TableRow>
             <TableCell className={classes.labelCell} htmlFor="feature-list-sort-key-select">
               Sort Key

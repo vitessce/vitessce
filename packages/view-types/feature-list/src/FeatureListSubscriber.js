@@ -91,9 +91,9 @@ export function FeatureListSubscriber(props) {
   const defaultColumnTitle = 'name';
   const defaultColumnName = `${capitalize(featureType)} ID`;
   const featureListTableKeys = {
-    'name': defaultColumnName,
-    'key': 'Alternate ID',
-  }
+    name: defaultColumnName,
+    key: 'Alternate ID',
+  };
   const [featureListSort, setFeatureListSort] = useState(sort);
   const [featureListSortKey, setFeatureListSortKey] = useState(defaultColumnTitle);
   const [showFeatureTable, setShowFeatureTable] = useState(showTable);

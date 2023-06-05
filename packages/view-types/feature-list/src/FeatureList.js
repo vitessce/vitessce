@@ -69,7 +69,9 @@ export default function FeatureList(props) {
       );
 
     if (preSortedData && featureListSortKey && featureListSort === 'alphabetical' && preSortedData.length > 0) {
-      return preSortedData.sort((a, b) => a[featureListSortKey].localeCompare(b[featureListSortKey]));
+      return preSortedData.sort(
+        (a, b) => a[featureListSortKey].localeCompare(b[featureListSortKey]),
+      );
     }
 
     return preSortedData;
