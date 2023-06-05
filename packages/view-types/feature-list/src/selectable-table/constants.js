@@ -4,6 +4,6 @@ export const FEATURELIST_SORT_OPTIONS = [
 ];
 
 export const FEATURELIST_SORT_KEYS = [
-  'Gene ID',
-  'Alternate ID',
+  'featureIndex',
+  'featureLabels',
 ];
