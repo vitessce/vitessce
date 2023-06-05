@@ -1,12 +1,17 @@
 
 ### Added
 - Add a URL param option to the demo site to wrap `<Vitessce/>` in `<React.StrictMode/>`
+- Added a dropdown in `FeatureList` that allows the user to:
+  - select between `alphabetical` and `original` ordering for the feature list.
+  - show two columns in the feature list if the feature has a second identifier associated.
 
 ### Changed
 - Fix Material UI import statement.
+- Implemented the functionality required to re-order the feature list, based on the selection from the dropdown:
+  - added state variables `featureListSort` and `showFeatureTable`.
+  - hooked the state variables to `FeatureListOptions` and to `FeatureList`.
 
 ## [3.0.0](https://www.npmjs.com/package/vitessce/v/3.0.0) - 2023-05-24
-
 
 ### Added
 - Added a legend for quantitative color scales in the `SpatialSubscriber` and `EmbeddingScatterplotSubscriber` views.
@@ -31,10 +36,6 @@
 - Added option to disable tooltips on Heatmap and Scatterplot components. The option is available from the options control dropdown.
 - Added an option to skip sorting features alphabetically in feature list.
 - Add GitHub Action workflow to report bundle size in PRs.
-- Added a dropdown in `FeatureList` that allows the user to:
-  - select between `alphabetical` and `original` ordering for the feature list.
-  - show two columns in the feature list if the feature has a second identifier associated.
-
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
@@ -106,9 +107,6 @@
 - Made the cursor type to `pointer` when the user is hovering over the heatmap.
 - Fixed a bug in `CellSetSizesPlotSubscriber` plot causing rending of empty `CellSetSizesPlot` when there is no `obsSets` view (due to expectation of initialised `cellSetExpanded` coordination value).
 - Created `FeatureListOptions` component, which allows the user to change the sorting order of the feature list.
-- Implemented the functionality required to re-order the feature list, based on the selection from the dropdown:
-  - added state variables `featureListSort` and `showFeatureTable`.
-  - hooked the state variables to `FeatureListOptions` and to `FeatureList`.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
