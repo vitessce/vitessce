@@ -1,5 +1,6 @@
 
 ### Added
+- Add a URL param option to the demo site to wrap `<Vitessce/>` in `<React.StrictMode/>`
 
 ### Changed
 
