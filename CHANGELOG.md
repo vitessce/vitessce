@@ -1,3 +1,12 @@
+
+### Added
+
+### Changed
+- Fix Material UI import statement.
+
+## [3.0.0](https://www.npmjs.com/package/vitessce/v/3.0.0) - 2023-05-24
+
+
 ### Added
 - Added a legend for quantitative color scales in the `SpatialSubscriber` and `EmbeddingScatterplotSubscriber` views.
 - Support for automatic view config generation for OME-TIFF, Anndata-Zarr and OME-ZARR file formats.
@@ -90,7 +99,7 @@
 - Split useEffect into useMemo + useEffect in SpatialSubscriber to fix infinite loop for `neumann-2020` demo on the docs site.
 - Delay computing the initial view state longer in EmbeddingScatterplotSubscriber to ensure the view width/height is finished animating.
 - Made the cursor type to `pointer` when the user is hovering over the heatmap.
-- Fix Material UI import statement.
+- Fixed a bug in `CellSetSizesPlotSubscriber` plot causing rending of empty `CellSetSizesPlot` when there is no `obsSets` view (due to expectation of initialised `cellSetExpanded` coordination value).
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
