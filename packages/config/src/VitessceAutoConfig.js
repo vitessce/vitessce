@@ -213,7 +213,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
   }
 
   async setMetadataSummaryWithoutZmetadata() {
-    const suffixes = [
+    const knownMetadataFileSuffixes = [
       '/obsm/X_pca/.zarray',
       '/obsm/X_umap/.zarray',
       '/obsm/X_tsne/.zarray',
@@ -224,30 +224,30 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       '/X/data/.zarray',
     ];
 
-    const promises = suffixes.map(suffix => fetch(this.fileUrl + suffix));
+    const promises = knownMetadataFileSuffixes.map(suffix => fetch(`${this.fileUrl}${suffix}`));
 
-    const results = await Promise.all(promises);
+    const fetchResults = await Promise.all(promises);
+    const okFetchResults = fetchResults.filter(j => j.ok);
     const metadataSummary = {
       obsm: [],
       obs: [],
       X: false,
     };
 
-    const obsJson = results.find(j => j.ok && j.url.startsWith(`${this.fileUrl}/obs/.zattrs`));
+    const obsJson = okFetchResults.find(r => r.url.startsWith(`${this.fileUrl}/obs/.zattrs`));
 
     if (obsJson) {
       const obsColumns = await obsJson.json();
       obsColumns['column-order'].forEach(key => metadataSummary.obs.push(`obs/${key}`));
     }
 
-    results
-      .filter(j => j.ok)
-      .forEach((j) => {
-        if (j.url.startsWith(`${this.fileUrl}/obsm`)) {
+    okFetchResults
+      .forEach((r) => {
+        if (r.url.startsWith(`${this.fileUrl}/obsm`)) {
           metadataSummary.obsm.push(
-            j.url.replace(this.fileUrl, '').replace('/', '').replace('/.zarray', ''),
+            r.url.replace(this.fileUrl, '').replace('/', '').replace('/.zarray', ''),
           );
-        } else if (j.url.startsWith(`${this.fileUrl}/X`)) {
+        } else if (r.url.startsWith(`${this.fileUrl}/X`)) {
           metadataSummary.X = true;
         }
       });
