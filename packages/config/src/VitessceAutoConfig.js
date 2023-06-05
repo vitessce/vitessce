@@ -206,8 +206,11 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     const X = Object.keys(metadataFile.metadata).filter(key => key.startsWith('X'));
 
     return {
+      // Array of keys in obsm that are found by the fetches above
       obsm: obsmKeys,
+      // Array of keys in obs that are found by the fetches above
       obs: obsKeys,
+      // Boolean indicating whether the X array was found by the fetches above
       X: X.length > 0,
     };
   }
@@ -221,7 +224,6 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       '/obsm/X_segmentations/.zarray',
       '/obs/.zattrs',
       '/X/.zarray',
-      '/X/data/.zarray',
     ];
 
     const promises = knownMetadataFileSuffixes.map(suffix => fetch(`${this.fileUrl}${suffix}`));
@@ -237,10 +239,12 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       X: false,
     };
 
-    const obsJson = okFetchResults.find(r => r.url.startsWith(`${this.fileUrl}/obs/.zattrs`));
+    const obsPromiseResult = okFetchResults.find(
+      r => r.url === (`${this.fileUrl}/obs/.zattrs`),
+    );
 
-    if (obsJson) {
-      const obsColumns = await obsJson.json();
+    if (obsPromiseResult) {
+      const obsColumns = await obsPromiseResult.json();
       obsColumns['column-order'].forEach(key => metadataSummary.obs.push(`obs/${key}`));
     }
 
