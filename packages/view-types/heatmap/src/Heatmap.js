@@ -122,6 +122,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     hideVariableLabels = false,
     onHeatmapClick,
     setColorEncoding,
+    obsIndex,
     featureIndex,
   } = props;
 
@@ -275,8 +276,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     updateViewInfo({
       uuid,
       project: (cellId, geneId) => {
-        const colI = transpose ? axisTopLabels.indexOf(cellId) : axisTopLabels.indexOf(geneId);
-        const rowI = transpose ? axisLeftLabels.indexOf(geneId) : axisLeftLabels.indexOf(cellId);
+        const colI = transpose ? obsIndex.indexOf(cellId) : featureIndex.indexOf(geneId);
+        const rowI = transpose ? featureIndex.indexOf(geneId) : obsIndex.indexOf(cellId);
         return heatmapToMousePosition(
           colI, rowI, {
             offsetLeft,
@@ -292,7 +293,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         );
       },
     });
-  }, [uuid, updateViewInfo, transpose, axisTopLabels, axisLeftLabels, offsetLeft,
+  }, [uuid, updateViewInfo, transpose, obsIndex, featureIndex, offsetLeft,
     offsetTop, viewState, scaleFactor, matrixWidth, matrixHeight, height, width]);
 
 
@@ -756,7 +757,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       ? axisLeftLabels[rowI]
       : axisTopLabels[colI]);
 
-    const obsId = expression.rows[obsI];
+    const obsId = obsIndex[obsI];
 
     // We need to use featureIndex here,
     // because expression.cols may be mapped to

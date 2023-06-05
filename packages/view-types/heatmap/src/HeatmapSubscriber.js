@@ -163,6 +163,8 @@ export function HeatmapSubscriber(props) {
   const expressionMatrix = useMemo(() => {
     if (obsIndex && featureIndex && uint8ObsFeatureMatrix) {
       return {
+        // TODO: use obsIndex and featureIndex instead of .rows and .cols everywhere
+        // TODO: pass featureLabelsMap to Heatmap and only do the mapping at the last step (for presentation purposes ONLY).
         rows: obsIndex,
         cols: (featureLabelsMap
           ? featureIndex.map(key => featureLabelsMap.get(key) || key)
@@ -245,6 +247,7 @@ export function HeatmapSubscriber(props) {
         setIsRendering={setIsRendering}
         setCellHighlight={setCellHighlight}
         setGeneHighlight={setGeneHighlight}
+        obsIndex={obsIndex}
         featureIndex={featureIndex}
         setTrackHighlight={setTrackHighlight}
         setComponentHover={() => {
