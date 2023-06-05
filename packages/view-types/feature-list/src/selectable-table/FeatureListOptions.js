@@ -13,6 +13,7 @@ export default function FeatureListOptions(props) {
     setFeatureListSortKey,
     showFeatureTable,
     setShowFeatureTable,
+    featureListTableKeys,
   } = props;
 
   function handleFeatureListSortChange(event) {
@@ -65,8 +66,8 @@ export default function FeatureListOptions(props) {
               id: 'feature-list-sort-key-select',
             }}
           >
-            {FEATURELIST_SORT_KEYS.map(option => (
-              <option key={option} value={option}>{option}</option>
+            {Object.keys(featureListTableKeys).map(k => (
+              <option key={featureListTableKeys[k]} value={k}>{featureListTableKeys[k]}</option>
             ))}
           </OptionSelect>
         </TableCell>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { every } from 'lodash-es';
 import { makeStyles } from '@material-ui/core';
-import { capitalize } from '@vitessce/utils';
 import { SelectableTable } from './selectable-table/index.js';
 
 const useStyles = makeStyles(() => ({
@@ -18,7 +17,6 @@ export default function FeatureList(props) {
     hasColorEncoding,
     geneList = [],
     featureLabelsMap,
-    featureType,
     geneSelection = [],
     geneFilter = null,
     setGeneSelection,
@@ -26,6 +24,8 @@ export default function FeatureList(props) {
     showFeatureTable,
     featureListSort,
     featureListSortKey,
+    featureListTableKeys,
+    defaultColumnTitle,
   } = props;
 
   const classes = useStyles();
@@ -68,13 +68,8 @@ export default function FeatureList(props) {
         }),
       );
 
-    if (featureListSort === 'alphabetical' && preSortedData.length > 0) {
-      if (featureListSortKey === 'Alternate ID') {
-        return preSortedData.sort((a, b) => a.key.localeCompare(b.key));
-      }
-      if (featureListSortKey === 'Gene ID') {
-        return preSortedData.sort((a, b) => a.name.localeCompare(b.name));
-      }
+    if (preSortedData && featureListSortKey && featureListSort === 'alphabetical' && preSortedData.length > 0) {
+      return preSortedData.sort((a, b) => a[featureListSortKey].localeCompare(b[featureListSortKey]));
     }
 
     return preSortedData;
@@ -91,12 +86,13 @@ export default function FeatureList(props) {
     setSearchTerm(event.target.value);
   };
 
-  const columns = ['name'];
-  const columnLabels = [`${capitalize(featureType)} ID`];
 
-  if (showFeatureTable) {
-    columns.push('key');
-    columnLabels.push('Alternate ID');
+  let columns = Object.keys(featureListTableKeys);
+  let columnLabels = Object.values(featureListTableKeys);
+
+  if (!showFeatureTable) {
+    columns = [defaultColumnTitle];
+    columnLabels = [featureListTableKeys[defaultColumnTitle]];
   }
 
   return (

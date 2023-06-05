@@ -88,8 +88,14 @@ export function FeatureListSubscriber(props) {
     setCellColorEncoding('geneSelection');
   }
 
+  const defaultColumnTitle = 'name';
+  const defaultColumnName = `${capitalize(featureType)} ID`;
+  const featureListTableKeys = {
+    'name': defaultColumnName,
+    'key': 'Alternate ID',
+  }
   const [featureListSort, setFeatureListSort] = useState(sort);
-  const [featureListSortKey, setFeatureListSortKey] = useState('Gene ID');
+  const [featureListSortKey, setFeatureListSortKey] = useState(defaultColumnTitle);
   const [showFeatureTable, setShowFeatureTable] = useState(showTable);
 
   return (
@@ -112,6 +118,7 @@ export function FeatureListSubscriber(props) {
           setFeatureListSortKey={setFeatureListSortKey}
           showFeatureTable={showFeatureTable}
           setShowFeatureTable={setShowFeatureTable}
+          featureListTableKeys={featureListTableKeys}
         />
       )}
     >
@@ -129,6 +136,8 @@ export function FeatureListSubscriber(props) {
         setGeneFilter={setGeneFilter}
         setGeneHighlight={setGeneHighlight}
         enableMultiSelect={enableMultiSelect}
+        featureListTableKeys={featureListTableKeys}
+        defaultColumnTitle={defaultColumnTitle}
       />
     </TitleInfo>
   );
