@@ -229,8 +229,11 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     const fetchResults = await Promise.all(promises);
     const okFetchResults = fetchResults.filter(j => j.ok);
     const metadataSummary = {
+      // Array of keys in obsm that are found by the fetches above
       obsm: [],
+      // Array of keys in obs that are found by the fetches above
       obs: [],
+      // Boolean indicating whether the X array was found by the fetches above
       X: false,
     };
 
@@ -265,7 +268,8 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     return fetch(url).then((response) => {
       if (response.ok) {
         return this.setMetadataSummaryWithZmetadata(response);
-      } if (response.status === 404) {
+      }
+      if (response.status === 404) {
         return this.setMetadataSummaryWithoutZmetadata();
       }
       throw new Error(`Could not generate config: ${response.statusText}`);
