@@ -13,6 +13,7 @@ export default function FeatureListOptions(props) {
     setFeatureListSortKey,
     showFeatureTable,
     setShowFeatureTable,
+    hasFeatureLabels,
     featureListTableKeys,
   } = props;
 
@@ -52,26 +53,30 @@ export default function FeatureListOptions(props) {
           </OptionSelect>
         </TableCell>
       </TableRow>
-      <TableRow>
-        <TableCell className={classes.labelCell} htmlFor="feature-list-sort-key-select">
-          Sort Key
-        </TableCell>
-        <TableCell>
-          <OptionSelect
-            className={classes.select}
-            disabled={featureListSort === 'original'}
-            value={featureListSortKey}
-            onChange={handleFeatureListSortKeyChange}
-            inputProps={{
-              id: 'feature-list-sort-key-select',
-            }}
-          >
-            {Object.keys(featureListTableKeys).map(k => (
-              <option key={featureListTableKeys[k]} value={k}>{featureListTableKeys[k]}</option>
-            ))}
-          </OptionSelect>
-        </TableCell>
-      </TableRow>
+      {hasFeatureLabels && 
+        (
+          <TableRow>
+            <TableCell className={classes.labelCell} htmlFor="feature-list-sort-key-select">
+              Sort Key
+            </TableCell>
+            <TableCell>
+              <OptionSelect
+                className={classes.select}
+                disabled={featureListSort === 'original'}
+                value={featureListSortKey}
+                onChange={handleFeatureListSortKeyChange}
+                inputProps={{
+                  id: 'feature-list-sort-key-select',
+                }}
+              >
+                {Object.keys(featureListTableKeys).map(k => (
+                  <option key={featureListTableKeys[k]} value={k}>{featureListTableKeys[k]}</option>
+                ))}
+              </OptionSelect>
+            </TableCell>
+          </TableRow>
+        )
+      }
       <TableRow>
         <TableCell className={classes.labelCell}>
           Show Alternate IDs

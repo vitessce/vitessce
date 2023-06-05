@@ -118,6 +118,7 @@ export function FeatureListSubscriber(props) {
           setFeatureListSortKey={setFeatureListSortKey}
           showFeatureTable={showFeatureTable}
           setShowFeatureTable={setShowFeatureTable}
+          hasFeatureLabels={Boolean(featureLabelsMap)}
           featureListTableKeys={featureListTableKeys}
         />
       )}
