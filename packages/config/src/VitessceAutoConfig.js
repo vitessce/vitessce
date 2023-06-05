@@ -226,6 +226,24 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       '/X/.zarray',
     ];
 
+    const supportedObsmKeys = [
+      'obsm/X_pca',
+      'obsm/X_umap',
+      'obsm/X_tsne',
+      'obsm/X_spatial',
+      'obsm/X_segmentations',
+    ];
+
+    const getObsmKey = (url) => {
+      let obsmKey = false;
+      supportedObsmKeys.forEach((key) => {
+        if (url.includes(key)) {
+          obsmKey = key;
+        }
+      });
+      return obsmKey;
+    };
+
     const promises = knownMetadataFileSuffixes.map(suffix => fetch(`${this.fileUrl}${suffix}`));
 
     const fetchResults = await Promise.all(promises);
@@ -251,9 +269,10 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     okFetchResults
       .forEach((r) => {
         if (r.url.startsWith(`${this.fileUrl}/obsm`)) {
-          metadataSummary.obsm.push(
-            r.url.replace(this.fileUrl, '').replace('/', '').replace('/.zarray', ''),
-          );
+          const obsmKey = getObsmKey(r.url);
+          if (obsmKey) {
+            metadataSummary.obsm.push(obsmKey);
+          }
         } else if (r.url.startsWith(`${this.fileUrl}/X`)) {
           metadataSummary.X = true;
         }
