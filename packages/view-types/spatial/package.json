@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/spatial",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -33,13 +33,13 @@
     "@material-ui/core": "~4.12.3",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/gl": "workspace:*",
+    "@vitessce/legend": "workspace:*",
     "@vitessce/scatterplot": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/tooltip": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
-    "@vitessce/legend": "workspace:*",
     "d3-array": "^2.4.0",
     "lodash-es": "^4.17.21",
     "math.gl": "^3.5.6",
