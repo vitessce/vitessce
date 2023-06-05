@@ -101,21 +101,26 @@ export function VitessceDemo() {
     const showAll = urlParams.get('show') === 'all';
     const theme = validateTheme(urlParams.get('theme'));
     const isBounded = urlParams.get('isBounded') === 'true';
+    const strictMode = urlParams.get('strictMode') === 'true';
+
+    const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
     if (datasetId) {
       const config = getConfig(datasetId);
       const pluginProps = getPlugins(datasetId);
       return (
-        <Vitessce
-          config={config}
-          rowHeight={rowHeight}
-          theme={theme}
-          onConfigChange={debug ? console.log : undefined}
-          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-          validateOnConfigChange={debug}
-          isBounded={isBounded}
-          {...pluginProps}
-        />
+        <ContainerComponent>
+          <Vitessce
+            config={config}
+            rowHeight={rowHeight}
+            theme={theme}
+            onConfigChange={debug ? console.log : undefined}
+            onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+            validateOnConfigChange={debug}
+            isBounded={isBounded}
+            {...pluginProps}
+          />
+        </ContainerComponent>
       );
     }
     if (datasetUrl) {
@@ -129,7 +134,9 @@ export function VitessceDemo() {
           />
         )));
       return (
-        <AwaitResponse response={responsePromise} theme={theme} />
+        <ContainerComponent>
+          <AwaitResponse response={responsePromise} theme={theme} />
+        </ContainerComponent>
       );
     }
     const configs = listConfigs(showAll);
