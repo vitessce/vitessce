@@ -652,7 +652,7 @@ importers:
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
       d3-array: ^2.4.0
-      higlass-bigwig-datafetcher: file:/Users/mkeller/research/dbmi/vitessce/higlass-bigwig-datafetcher/higlass-bigwig-datafetcher-0.1.3.tgz
+      higlass-bigwig-datafetcher: 0.2.0
       higlass-no-github-deps: 1.11.13
       higlass-register: ^0.3.0
       higlass-zarr-datafetchers: ^0.2.1
@@ -667,7 +667,7 @@ importers:
       '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
-      higlass-bigwig-datafetcher: file:../higlass-bigwig-datafetcher/higlass-bigwig-datafetcher-0.1.3.tgz
+      higlass-bigwig-datafetcher: 0.2.0
       higlass-no-github-deps: 1.11.13_ywwie34tdztbqf5ti6itikxkja
       higlass-register: 0.3.0
       higlass-zarr-datafetchers: 0.2.1
@@ -1296,7 +1296,7 @@ packages:
     engines: {node: '>=6.0.0'}
     dependencies:
       '@jridgewell/gen-mapping': 0.1.1
-      '@jridgewell/trace-mapping': 0.3.18
+      '@jridgewell/trace-mapping': 0.3.16
 
   /@apidevtools/json-schema-ref-parser/9.1.2:
     resolution: {integrity: sha512-r1w81DpR+KyRWd3f+rk6TNqMgedmAxZP5v5KWlXQWlgMUUtyEJch0DKEci1SorPMiSeM8XPl7MZ3miJ60JIpQg==}
@@ -5224,8 +5224,8 @@ packages:
   /@jridgewell/sourcemap-codec/1.4.14:
     resolution: {integrity: sha512-XPSJHWmi394fuUuzDnGz1wiKqWfo1yXecHQMRf2l6hztTO+nPru658AyDngaBe7isIxEkRsPR3FZh+s7iVa4Uw==}
 
-  /@jridgewell/trace-mapping/0.3.18:
-    resolution: {integrity: sha512-w+niJYzMHdd7USdiH2U6869nqhD2nbfZXND5Yp93qIbEmnDNk7PD48o+YchRVpzMU7M6jVCbenTR7PA1FLQ9pA==}
+  /@jridgewell/trace-mapping/0.3.16:
+    resolution: {integrity: sha512-LCQ+NeThyJ4k1W2d+vIKdxuSt9R3pQSZ4P92m7EakaYuXcVWbHuT5bjNcqLd4Rdgi6xYWYDvBJZJLZSLanjDcA==}
     dependencies:
       '@jridgewell/resolve-uri': 3.1.0
       '@jridgewell/sourcemap-codec': 1.4.14
@@ -9185,13 +9185,6 @@ packages:
       base64-js: 1.5.1
       ieee754: 1.2.1
     dev: true
-
-  /buffer/6.0.3:
-    resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
-    dependencies:
-      base64-js: 1.5.1
-      ieee754: 1.2.1
-    dev: false
 
   /builtin-modules/3.3.0:
     resolution: {integrity: sha512-zhaCDicdLuWN5UbN5IMnFqNMhNfo919sH85y2/ea+5Yg9TsTkeZxpL+JLbp6cgYFS4sRLp3YV4S6yDuqVWHYOw==}
@@ -13663,6 +13656,18 @@ packages:
   /he/1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
+
+  /higlass-bigwig-datafetcher/0.2.0:
+    resolution: {integrity: sha512-R6Q74E9u9DKI6E7DwVmmbqCYJ9F5mOSDiFST3dePpP1JUIreKdFAjwQt703Iydg6ycKJd4stFlZdzBOkZ5N/HQ==}
+    dependencies:
+      '@gmod/bbi': 3.0.1
+      d3-dsv: 3.0.1
+      d3-request: 1.0.6
+      d3-scale: 1.0.7
+      generic-filehandle: 3.0.1
+      higlass-register: 0.3.0
+      slugid: 3.2.0
+    dev: false
 
   /higlass-no-github-deps/1.11.13_ywwie34tdztbqf5ti6itikxkja:
     resolution: {integrity: sha512-Kw+6B6jmUIpkyjqw+iMNIeQ/9qIVU9TnxnuzCsuE4Iu3RnzL2/1W1Agz3dHr+qK1P4MMSNnAO+yMo5O77cyelQ==}
@@ -22374,19 +22379,4 @@ packages:
 
   /zwitch/1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
-    dev: false
-
-  file:../higlass-bigwig-datafetcher/higlass-bigwig-datafetcher-0.1.3.tgz:
-    resolution: {integrity: sha512-dUbImT4jPipUNSp8FeREjAq+swo8HzhD839C8XczbwE1DGVBlzYxZNV6L1hoIK6Dpt//3s9lJsVQe5WbI3XI+w==, tarball: file:../higlass-bigwig-datafetcher/higlass-bigwig-datafetcher-0.1.3.tgz}
-    name: higlass-bigwig-datafetcher
-    version: 0.1.3
-    dependencies:
-      '@gmod/bbi': 3.0.1
-      buffer: 6.0.3
-      d3-dsv: 3.0.1
-      d3-request: 1.0.6
-      d3-scale: 1.0.7
-      generic-filehandle: 3.0.1
-      higlass-register: 0.3.0
-      slugid: 3.2.0
     dev: false
