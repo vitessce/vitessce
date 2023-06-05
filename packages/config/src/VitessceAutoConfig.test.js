@@ -507,31 +507,8 @@ describe('src/VitessceAutoConfig.js', () => {
           },
           x: 0,
           y: 0,
-          w: 6,
-          h: 6,
-        },
-        {
-          component: 'heatmap',
-          coordinationScopes: {
-            dataset: 'A',
-          },
-          x: 6,
-          y: 0,
-          w: 6,
-          h: 6,
-          props: {
-            transpose: true,
-          },
-        },
-        {
-          component: 'featureList',
-          coordinationScopes: {
-            dataset: 'A',
-          },
-          x: 0,
-          y: 6,
-          w: 6,
-          h: 6,
+          w: 12,
+          h: 12,
         },
       ],
       initStrategy: 'auto',

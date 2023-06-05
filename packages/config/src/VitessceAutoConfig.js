@@ -261,9 +261,19 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       r => r.url === (`${this.fileUrl}/obs/.zattrs`),
     );
 
+    const isObsValid = obsAttr => Object.keys(obsAttr).includes('column-order')
+      && Object.keys(obsAttr).includes('encoding-version')
+      && Object.keys(obsAttr).includes('encoding-type')
+      && obsAttr['encoding-type'] === 'dataframe'
+      && (obsAttr['encoding-version'] === '0.1.0' || obsAttr['encoding-version'] === '0.2.0');
+
     if (obsPromiseResult) {
-      const obsColumns = await obsPromiseResult.json();
-      obsColumns['column-order'].forEach(key => metadataSummary.obs.push(`obs/${key}`));
+      const obsAttrs = await obsPromiseResult.json();
+      if (isObsValid(obsAttrs)) {
+        obsAttrs['column-order'].forEach(key => metadataSummary.obs.push(`obs/${key}`));
+      } else {
+        throw new Error('Could not generate config: /obs/.zattrs file is not valid.');
+      }
     }
 
     okFetchResults
