@@ -1,4 +1,4 @@
-import { obsSetsSchema, obsSetsTabularSchema } from '@vitessce/vit-s';
+import { obsSetsSchema, obsSetsTabularSchema } from '@vitessce/schemas';
 
 export const FILE_EXTENSION_JSON = 'json';
 export const MIME_TYPE_JSON = 'application/json';
@@ -12,21 +12,10 @@ export const NA_VALUE_TABULAR = 'NA';
 
 export const SETS_DATATYPE_OBS = 'obs';
 export const HIERARCHICAL_SCHEMAS = {
-  cell: {
-    latestVersion: '0.1.3',
-    schema: obsSetsSchema,
-  },
-  obs: {
-    latestVersion: '0.1.3',
-    schema: obsSetsSchema,
-  },
+  latestVersion: '0.1.3',
+  schema: obsSetsSchema,
 };
 
 export const TABULAR_SCHEMAS = {
-  cell: {
-    schema: obsSetsTabularSchema,
-  },
-  obs: {
-    schema: obsSetsTabularSchema,
-  },
+  schema: obsSetsTabularSchema,
 };

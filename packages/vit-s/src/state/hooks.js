@@ -3,7 +3,7 @@ import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
 import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
-import isMatch from 'lodash/isMatch';
+import { isMatch } from 'lodash-es';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { fromEntries, capitalize } from '@vitessce/utils';
 
@@ -32,7 +32,10 @@ export const useAuxiliaryStore = useAuxiliaryStoreLocal;
  * The useViewConfigStore hook is initialized via the zustand
  * create() function, which sets up both the state variables
  * and the reducer-type functions.
- * Reference: https://github.com/react-spring/zustand
+ * References:
+ * - https://github.com/react-spring/zustand
+ * - https://github.com/pmndrs/zustand/releases/tag/v3.6.0
+ * - https://github.com/pmndrs/zustand#using-subscribe-with-selector
  * @returns {function} The useStore hook.
  */
 export const createViewConfigStore = () => create(set => ({
@@ -610,7 +613,10 @@ export function useComponentViewInfo(uuid) {
  */
 export function useSetComponentViewInfo(uuid) {
   const setViewInfoRef = useRef(useViewInfoStore.getState().setComponentViewInfo);
-  const setComponentViewInfo = viewInfo => setViewInfoRef.current(uuid, viewInfo);
+  const setComponentViewInfo = useCallback(
+    viewInfo => setViewInfoRef.current(uuid, viewInfo),
+    [uuid],
+  );
   return setComponentViewInfo;
 }
 

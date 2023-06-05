@@ -1,8 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import jsonDiff from 'json-diff-ts';
-import lodash from 'lodash';
-const { cloneDeep } = lodash;
+import { cloneDeep } from 'lodash-es';
 
 const isDryrun = process.env.META_UPDATER_MODE === 'dryrun';
 const isVersionOnly = process.env.META_UPDATER_MODE === 'versiononly';
@@ -13,11 +12,10 @@ const DECKGL_VERSION = '~8.8.6';
 const TURF_VERSION = "^6.5.0";
 const NEBULAGL_VERSION = "0.23.8";
 const OTHER_VERSIONS = {
-  "ajv": "^6.10.0",
-  'lodash': '^4.17.21',
+  'lodash-es': '^4.17.21',
   'react-grid-layout-with-lodash': '^1.3.5',
   "internmap": "^2.0.3",
-  "uuid": "^3.3.2",
+  "uuid": "^9.0.0",
   "zarr": "0.5.1",
   "zustand": "^3.5.10",
   "@hms-dbmi/viv": "~0.13.7",
@@ -33,6 +31,14 @@ const OTHER_VERSIONS = {
   "math.gl": "^3.5.6",
   "@math.gl/core": "^3.5.6",
   "mathjs": "^9.2.0",
+  "zod": "^3.21.4",
+  "semver": "^7.3.8",
+  "vite": "^4.3.0",
+  "@vitejs/plugin-react": "^4.0.0",
+  "@testing-library/jest-dom": "^5.16.4",
+  "@testing-library/react": "^13.3.0",
+  "@testing-library/react-hooks": "^8.0.1",
+  "@testing-library/user-event": "^14.2.1",
 
   // LumaGL
   "@luma.gl/constants": LUMAGL_VERSION,

@@ -1,4 +1,4 @@
-import AnnDataSource from './AnnDataSource';
+import AnnDataSource from './AnnDataSource.js';
 
 // If the array path starts with mod/something/rest
 // capture mod/something.

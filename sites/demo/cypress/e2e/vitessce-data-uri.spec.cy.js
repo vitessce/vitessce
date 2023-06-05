@@ -75,15 +75,13 @@ describe('Vitessce Data URIs', () => {
   it('handles errors from bad view config v0.1.0', () => {
     const config = {'bad': 'config', 'version': '0.1.0'};
     loadConfig(config);
-    cy.contains('Config validation failed');
-    cy.contains('"additionalProperty": "bad"');
+    cy.contains('Config validation or upgrade failed');
   });
 
   it('handles errors from bad view config v1.0.0', () => {
     const config = {'bad': 'config', 'version': '1.0.0'};
     loadConfig(config);
-    cy.contains('Config validation failed');
-    cy.contains('"additionalProperty": "bad"');
+    cy.contains('Config validation or upgrade failed');
   });
 
   it('handles errors from bad view config missing version', () => {

@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
 import { treeToCellColorsBySetNames } from '@vitessce/sets-utils';
-import { getDefaultColor } from './components';
+import { getDefaultColor } from './components.js';
 
 // The functions defined here have been adapted from d3-interpolate,
 // d3-color, and d3-scale-chromatic.
@@ -77,39 +77,24 @@ export const interpolatePlasma = interpolateSequentialMulti(schemePlasma);
  * Get a mapping of cell IDs to cell colors based on
  * gene / cell set selection coordination state.
  * @param {object} params
- * @param {object} params.expressionMatrix { rows, cols, matrix }
- * @param {array} params.geneSelection Array of selected gene IDs.
- * @param {object} params.cellSets The cell sets tree.
- * @param {object} params.cellSetSelection Selected cell sets.
- * @param {string} params.cellColorEncoding Which to use for
- * coloring: gene expression or cell sets?
+ * @param {array[]} params.cellSetSelection Selected cell sets.
+ * @param {object[]} params.cellSetColor Array of cell set color
+ * objects, each containing a path and color [r, g, b].
+ * @param {string[]} params.obsIndex Array of cell IDs,
+ * in order to initialize all cells to the default color.
+ * @param {string} params.theme The current theme,
+ * in order to get the theme-based default color.
  * @returns {Map} Mapping from cell IDs to [r, g, b] color arrays.
  */
 export function getCellColors(params) {
   const {
-    cellColorEncoding,
-    expressionData,
-    cellSets, cellSetSelection,
+    cellSets,
+    cellSetSelection,
     cellSetColor,
     obsIndex,
     theme,
   } = params;
-  if (cellColorEncoding === 'geneSelection' && expressionData && obsIndex) {
-    // TODO: allow other color maps.
-    const geneExpColormap = interpolatePlasma;
-    const colors = new Map();
-    for (let i = 0; i < expressionData.length; i += 1) {
-      const value = expressionData[i];
-      const cellColor = geneExpColormap(value / 255);
-      colors.set(obsIndex[i], cellColor);
-    }
-    return colors;
-  }
-  if (cellColorEncoding === 'cellSetSelection' && cellSetSelection && cellSets) {
-    // Cell sets can potentially lack set colors since the color property
-    // is not a required part of the schema.
-    // The `initializeSets` function fills in any empty colors
-    // with defaults and returns the processed tree object.
+  if (cellSetSelection && cellSets) {
     return treeToCellColorsBySetNames(cellSets, cellSetSelection, cellSetColor, theme);
   }
   if (obsIndex && theme) {

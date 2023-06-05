@@ -1,1 +1,1 @@
-export { default as GenomicProfilesZarrLoader } from './GenomicProfilesZarrLoader';
+export { default as GenomicProfilesZarrLoader } from './GenomicProfilesZarrLoader.js';

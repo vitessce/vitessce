@@ -1,7 +1,7 @@
 import { CoordinationType, FileType } from '@vitessce/constants-internal';
 import {
   VitessceConfig,
-} from './VitessceConfig';
+} from './VitessceConfig.js';
 
 
 class AbstractAutoConfig {

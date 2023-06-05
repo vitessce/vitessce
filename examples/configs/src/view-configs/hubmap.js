@@ -1,4 +1,4 @@
-import { vapi } from '../utils';
+import { vapi } from '../utils.js';
 
 function getConfig() {
   // Instantiate a view config object.

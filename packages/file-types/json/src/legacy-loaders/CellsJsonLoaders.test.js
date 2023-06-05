@@ -1,8 +1,8 @@
 import { LoaderResult } from '@vitessce/vit-s';
-import CellsJsonAsObsEmbeddingLoader from './CellsJsonAsObsEmbedding';
-import CellsJsonAsObsLabelsLoader from './CellsJsonAsObsLabels';
-import CellsJsonAsObsSegmentationsLoader from './CellsJsonAsObsSegmentations';
-import JsonSource from '../JsonSource';
+import CellsJsonAsObsEmbeddingLoader from './CellsJsonAsObsEmbedding.js';
+import CellsJsonAsObsLabelsLoader from './CellsJsonAsObsLabels.js';
+import CellsJsonAsObsSegmentationsLoader from './CellsJsonAsObsSegmentations.js';
+import JsonSource from '../JsonSource.js';
 
 const createLoader = (ClassDef, config, url) => {
   const configWithUrl = {

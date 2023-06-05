@@ -3,7 +3,7 @@ import {
   TitleInfo, useCoordination, useWarning,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import Status from './Status';
+import Status from './Status.js';
 
 /**
  * A subscriber component for the status component,

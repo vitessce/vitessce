@@ -1,11 +1,13 @@
 import React, { useCallback } from 'react';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash-es';
 
-import Checkbox from '@material-ui/core/Checkbox';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
-import Slider from '@material-ui/core/Slider';
-import { makeStyles } from '@material-ui/core/styles';
+import {
+  Checkbox,
+  TableCell,
+  TableRow,
+  Slider,
+  makeStyles,
+} from '@material-ui/core';
 import {
   usePlotOptionsStyles, OptionsContainer, CellColorEncodingOption, OptionSelect,
 } from '@vitessce/vit-s';
@@ -53,6 +55,8 @@ export default function SpatialOptions(props) {
     setSpatialAxisFixed,
     spatialAxisFixed,
     use3d,
+    tooltipsVisible,
+    setTooltipsVisible,
     geneExpressionColormap,
     setGeneExpressionColormap,
     geneExpressionColormapRange,
@@ -74,6 +78,10 @@ export default function SpatialOptions(props) {
     [handleColormapRangeChange],
   );
 
+  function handleTooltipsVisibilityChange(event) {
+    setTooltipsVisible(event.target.checked);
+  }
+
   const classes = usePlotOptionsStyles();
 
   return (
@@ -92,6 +100,25 @@ export default function SpatialOptions(props) {
           use3d={use3d}
         />
       ) : null}
+      <TableRow>
+        <TableCell className={classes.labelCell}>
+          Tooltips Visible
+        </TableCell>
+        <TableCell className={classes.inputCell}>
+          <Checkbox
+            className={classes.checkbox}
+              /**
+               * We have to use "checked" here, not "value".
+               * The checkbox state is not persisting with value.
+               * For reference, https://v4.mui.com/api/checkbox/
+               */
+            checked={tooltipsVisible}
+            onChange={handleTooltipsVisibilityChange}
+            name="gene-expression-colormap-option-toltip-visibility"
+            color="default"
+          />
+        </TableCell>
+      </TableRow>
       {canShowExpressionOptions ? (
         <>
           <TableRow>

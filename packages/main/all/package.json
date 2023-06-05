@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/all",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -8,18 +8,28 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
+  "type": "module",
   "main": "dist-tsc/index.js",
   "publishConfig": {
-    "main": "dist/index.mjs"
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
   },
   "files": [
+    "src",
     "dist",
-    "src"
+    "dist-tsc"
   ],
   "scripts": {
     "start": "pnpm -C ../../../ run start-tsc",
     "build": "pnpm -C ../../../ run build-tsc",
-    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js"
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "test": "pnpm exec vitest --run -r ../../../ --dir ."
   },
   "dependencies": {
     "@material-ui/core": "~4.12.3",
@@ -32,17 +42,22 @@
     "@vitessce/json": "workspace:*",
     "@vitessce/layer-controller": "workspace:*",
     "@vitessce/obs-sets-manager": "workspace:*",
+    "@vitessce/ome-tiff": "workspace:*",
+    "@vitessce/plugins": "workspace:*",
     "@vitessce/scatterplot-embedding": "workspace:*",
     "@vitessce/scatterplot-gating": "workspace:*",
+    "@vitessce/schemas": "workspace:*",
     "@vitessce/spatial": "workspace:*",
     "@vitessce/statistical-plots": "workspace:*",
     "@vitessce/status": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/zarr": "workspace:*",
-    "@vitessce/ome-tiff": "workspace:*"
+    "zod": "^3.21.4"
   },
   "devDependencies": {
-    "react": "^18.0.0"
+    "@types/react": "^18.0.28",
+    "react": "^18.0.0",
+    "vitest": "^0.23.4"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0"

@@ -1,4 +1,4 @@
-export { default as CellColorEncodingOption } from './CellColorEncodingOption';
-export { default as OptionsContainer } from './OptionsContainer';
-export { default as OptionSelect } from './OptionSelect';
-export { useStyles as usePlotOptionsStyles } from './styles';
+export { default as CellColorEncodingOption } from './CellColorEncodingOption.js';
+export { default as OptionsContainer } from './OptionsContainer.js';
+export { default as OptionSelect } from './OptionSelect.js';
+export { useStyles as usePlotOptionsStyles } from './styles.js';

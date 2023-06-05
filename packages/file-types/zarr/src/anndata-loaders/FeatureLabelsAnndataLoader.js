@@ -1,26 +1,9 @@
 import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError } from '@vitessce/vit-s';
 
-const optionsSchema = {
-  $schema: 'http://json-schema.org/draft-07/schema#',
-  $id: 'https://github.com/vitessce/vitessce/#cells',
-  title: 'obsEmbedding.anndata.zarr options',
-  type: 'object',
-  additionalProperties: false,
-  required: ['path'],
-  properties: {
-    path: { type: 'string' },
-  },
-};
-
 /**
  * Loader for string arrays located in anndata.zarr stores.
  */
 export default class FeatureLabelsAnndataLoader extends AbstractTwoStepLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-    this.optionsSchema = optionsSchema;
-  }
-
   /**
    * Class method for loading feature string labels.
    * @returns {Promise} A promise for the array.

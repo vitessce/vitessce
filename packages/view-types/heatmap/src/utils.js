@@ -1,4 +1,4 @@
-import clamp from 'lodash/clamp';
+import { clamp } from 'lodash-es';
 import {
   AXIS_LABEL_TEXT_SIZE,
   AXIS_FONT_FAMILY,

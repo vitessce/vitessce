@@ -1,4 +1,4 @@
-import { toRgbUIString } from './utils';
+import { toRgbUIString } from './utils.js';
 
 const GREY = [220, 220, 220];
 

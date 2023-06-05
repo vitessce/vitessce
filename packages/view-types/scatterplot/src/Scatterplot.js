@@ -7,7 +7,7 @@ import {
 import { getDefaultColor } from '@vitessce/utils';
 import {
   AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback,
-} from './shared-spatial-scatterplot';
+} from './shared-spatial-scatterplot/index.js';
 
 const CELLS_LAYER_ID = 'scatterplot';
 const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
@@ -64,8 +64,10 @@ const getPosition = (object, { index, data, target }) => {
  * @param {function} props.setCellHighlight
  * @param {function} props.updateViewInfo
  * @param {function} props.onToolChange Callback for tool changes
- * (lasso/pan/rectangle selection tools).
+ * (lasso/pan selection tools).
  * @param {function} props.onCellClick Getter function for cell layer onClick.
+ * @param {object} props.originalViewState A viewState object to pass to
+ * setViewState upon clicking the recenter button.
  */
 class Scatterplot extends AbstractSpatialOrScatterplot {
   constructor(props) {
@@ -343,6 +345,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       'obsEmbeddingIndex', 'obsEmbedding', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
+      'getExpressionValue',
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
@@ -366,6 +369,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     }
   }
 
+  recenter() {
+    const { originalViewState, setViewState } = this.props;
+    if (Array.isArray(originalViewState?.target) && typeof originalViewState?.zoom === 'number') {
+      setViewState(originalViewState);
+    }
+  }
+
   // render() is implemented in the abstract parent class.
 }
 
@@ -382,4 +392,5 @@ const ScatterplotWrapper = forwardRef((props, deckRef) => (
     deckRef={deckRef}
   />
 ));
+ScatterplotWrapper.displayName = 'ScatterplotWrapper';
 export default ScatterplotWrapper;

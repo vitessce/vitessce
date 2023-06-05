@@ -1,4 +1,4 @@
-import { vapi } from '../utils';
+import { vapi } from '../utils.js';
 
 export const eng2019 = {
   name: 'Eng et al., Nature 2019',

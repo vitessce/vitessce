@@ -1,9 +1,6 @@
 import React, { useCallback } from 'react';
-import debounce from 'lodash/debounce';
-import Checkbox from '@material-ui/core/Checkbox';
-import Slider from '@material-ui/core/Slider';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
+import { debounce } from 'lodash-es';
+import { Checkbox, Slider, TableCell, TableRow } from '@material-ui/core';
 import { capitalize } from '@vitessce/utils';
 import {
   usePlotOptionsStyles, CellColorEncodingOption, OptionsContainer, OptionSelect,
@@ -24,6 +21,8 @@ export default function ScatterplotOptions(props) {
     setCellOpacityMode,
     cellSetLabelsVisible,
     setCellSetLabelsVisible,
+    tooltipsVisible,
+    setTooltipsVisible,
     cellSetLabelSize,
     setCellSetLabelSize,
     cellSetPolygonsVisible,
@@ -58,6 +57,10 @@ export default function ScatterplotOptions(props) {
 
   function handleLabelVisibilityChange(event) {
     setCellSetLabelsVisible(event.target.checked);
+  }
+
+  function handleTooltipsVisibilityChange(event) {
+    setTooltipsVisible(event.target.checked);
   }
 
   function handleLabelSizeChange(event, value) {
@@ -98,6 +101,25 @@ export default function ScatterplotOptions(props) {
             checked={cellSetLabelsVisible}
             onChange={handleLabelVisibilityChange}
             name="scatterplot-option-cell-set-labels"
+            color="default"
+          />
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell}>
+          Tooltips Visible
+        </TableCell>
+        <TableCell className={classes.inputCell}>
+          <Checkbox
+            className={classes.checkbox}
+              /**
+               * We have to use "checked" here, not "value".
+               * The checkbox state is not persisting with value.
+               * For reference, https://v4.mui.com/api/checkbox/
+               */
+            checked={tooltipsVisible}
+            onChange={handleTooltipsVisibilityChange}
+            name="scatterplot-option-toltip-visibility"
             color="default"
           />
         </TableCell>

@@ -2,12 +2,12 @@ import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous
 import { project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { Texture2D, isWebGL2 } from '@luma.gl/core';
 import { XRLayer } from '@hms-dbmi/viv';
-import { fs, vs } from './bitmask-layer-shaders';
+import { fs, vs } from './bitmask-layer-shaders.js';
 import {
   GLSL_COLORMAPS,
   GLSL_COLORMAP_DEFAULT,
   COLORMAP_SHADER_PLACEHOLDER,
-} from './constants';
+} from './constants.js';
 
 function padWithDefault(arr, defaultValue, padWidth) {
   const newArr = [...arr];
@@ -19,9 +19,15 @@ function padWithDefault(arr, defaultValue, padWidth) {
 
 const defaultProps = {
   hoveredCell: { type: 'number', value: null, compare: true },
-  cellColorData: { type: 'object', value: null, compare: true },
+  // We do not want to deep-compare cellColorData,
+  // as it is potentially a TypedArray with millions of elements.
+  // For `compare`: "if a number is supplied, indicates the maximum depth to deep-compare,
+  // where 0 is shallow comparison and -1 is infinite depth. true is equivalent to 1."
+  // Reference: https://deck.gl/docs/developer-guide/custom-layers/prop-types#array
+  cellColorData: { type: 'object', value: null, compare: 0 },
   colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
-  expressionData: { type: 'object', value: null, compare: true },
+  // Same as with cellColorData, we do not want to deep-compare expressionData.
+  expressionData: { type: 'object', value: null, compare: 0 },
 };
 
 /**
@@ -46,9 +52,13 @@ export default class BitmaskLayer extends XRLayer {
 
   updateState({ props, oldProps, changeFlags }) {
     super.updateState({ props, oldProps, changeFlags });
+    // Check the cellColorData to determine whether
+    // to update the texture.
     if (props.cellColorData !== oldProps.cellColorData) {
       this.setColorTexture();
     }
+    // Check the expressionData to determine whether
+    // to update the texture.
     if (props.expressionData !== oldProps.expressionData) {
       const { expressionData, cellTexHeight, cellTexWidth } = this.props;
       const expressionTex = this.dataToTexture(

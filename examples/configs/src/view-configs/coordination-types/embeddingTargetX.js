@@ -1,5 +1,5 @@
-import { vapi } from '../../utils';
-import { getCodeluppiViewConfig } from '../codeluppi';
+import { vapi } from '../../utils.js';
+import { getCodeluppiViewConfig } from '../codeluppi.js';
 
 function getConfig() {
   const [vc, dataset] = getCodeluppiViewConfig(`Coordination Type: ${vapi.ct.EMBEDDING_TARGET_X}`, 'Panning along the x-axis of the scatterplots is coordinated.');

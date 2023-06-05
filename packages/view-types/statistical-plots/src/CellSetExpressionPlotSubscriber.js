@@ -10,9 +10,9 @@ import {
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS, capitalize, getValueTransformFunction } from '@vitessce/utils';
 import { treeToObjectsBySetNames, treeToSetSizesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
-import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
-import CellSetExpressionPlot from './CellSetExpressionPlot';
-import { useStyles } from './styles';
+import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions.js';
+import CellSetExpressionPlot from './CellSetExpressionPlot.js';
+import { useStyles } from './styles.js';
 
 /**
  * Get expression data for the cells
@@ -85,7 +85,9 @@ function useExpressionByCellSet(
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
   const setArr = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
-    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme)
+    ? treeToSetSizesBySetNames(
+      mergedCellSets, cellSetSelection, cellSetSelection, cellSetColor, theme,
+    )
     : []
   ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
 

@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
@@ -30,11 +30,12 @@
     "@vitessce/constants": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/example-configs": "workspace:*",
+    "@vitessce/schemas": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "clsx": "^1.1.1",
     "copy-text-to-clipboard": "^2.2.0",
     "docusaurus-plugin-sass": "^0.2.1",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "monaco-editor": "^0.28.0",
     "monaco-editor-webpack-plugin": "^4.0.0",
     "prism-react-renderer": "^1.1.1",

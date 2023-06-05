@@ -1,10 +1,12 @@
 /* eslint-disable no-console */
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, {
+  useEffect, useRef, useState, useMemo,
+} from 'react';
 import { Vitessce } from 'vitessce';
 
-import { getConfig, listConfigs } from './api';
-import { Welcome } from './welcome';
-import { Warning } from './warning';
+import { getConfig, listConfigs, getPlugins } from './api.js';
+import { Welcome } from './welcome.jsx';
+import { Warning } from './warning.jsx';
 
 import './index.scss';
 
@@ -98,18 +100,27 @@ export function VitessceDemo() {
     const datasetUrl = urlParams.get('url');
     const showAll = urlParams.get('show') === 'all';
     const theme = validateTheme(urlParams.get('theme'));
+    const isBounded = urlParams.get('isBounded') === 'true';
+    const strictMode = urlParams.get('strictMode') === 'true';
+
+    const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
     if (datasetId) {
       const config = getConfig(datasetId);
+      const pluginProps = getPlugins(datasetId);
       return (
-        <Vitessce
-          config={config}
-          rowHeight={rowHeight}
-          theme={theme}
-          onConfigChange={debug ? console.log : undefined}
-          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-          validateOnConfigChange={debug}
-        />
+        <ContainerComponent>
+          <Vitessce
+            config={config}
+            rowHeight={rowHeight}
+            theme={theme}
+            onConfigChange={debug ? console.log : undefined}
+            onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+            validateOnConfigChange={debug}
+            isBounded={isBounded}
+            {...pluginProps}
+          />
+        </ContainerComponent>
       );
     }
     if (datasetUrl) {
@@ -123,7 +134,9 @@ export function VitessceDemo() {
           />
         )));
       return (
-        <AwaitResponse response={responsePromise} theme={theme} />
+        <ContainerComponent>
+          <AwaitResponse response={responsePromise} theme={theme} />
+        </ContainerComponent>
       );
     }
     const configs = listConfigs(showAll);
@@ -154,7 +167,8 @@ export function VitessceDemo() {
         width: 100%;
         overflow: hidden;
       }
-      `}</style>
+      `}
+      </style>
       {result}
     </>
   );

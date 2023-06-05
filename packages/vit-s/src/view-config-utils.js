@@ -1,20 +1,10 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable camelcase */
-import difference from 'lodash/difference';
-import cloneDeep from 'lodash/cloneDeep';
-import { getNextScope } from '@vitessce/utils';
+import { cloneDeep } from 'lodash-es';
+import { fromEntries, getNextScope } from '@vitessce/utils';
 import {
   AUTO_INDEPENDENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
-import { getViewTypes } from './component-registry';
-import {
-  getComponentCoordinationTypes,
-  getDefaultCoordinationValues,
-  getCoordinationTypes,
-  getFileTypes,
-  getJointFileTypes,
-} from './plugins';
-import { SCHEMA_HANDLERS } from './view-config-versions';
 
 /**
  * Get a list of all unique scope names for a
@@ -40,8 +30,10 @@ export function getExistingScopesForCoordinationType(config, coordinationType) {
  * to set in the coordination space.
  * @returns {object} The new view config.
  */
-function coordinateComponentsTogether(config, coordinationType, scopeValue) {
-  const componentCoordinationTypes = getComponentCoordinationTypes();
+function coordinateComponentsTogether(config, coordinationType, scopeValue, viewTypes) {
+  const componentCoordinationTypes = fromEntries(
+    viewTypes.map(vt => ([vt.name, vt.coordinationTypes])),
+  );
   const scopeName = getNextScope(getExistingScopesForCoordinationType(config, coordinationType));
   const newConfig = {
     ...config,
@@ -82,8 +74,10 @@ function coordinateComponentsTogether(config, coordinationType, scopeValue) {
  * to set in the coordination space.
  * @returns {object} The new view config.
  */
-function coordinateComponentsIndependent(config, coordinationType, scopeValue) {
-  const componentCoordinationTypes = getComponentCoordinationTypes();
+function coordinateComponentsIndependent(config, coordinationType, scopeValue, viewTypes) {
+  const componentCoordinationTypes = fromEntries(
+    viewTypes.map(vt => ([vt.name, vt.coordinationTypes])),
+  );
   const newConfig = {
     ...config,
     layout: [...config.layout],
@@ -120,13 +114,24 @@ function coordinateComponentsIndependent(config, coordinationType, scopeValue) {
   return newConfig;
 }
 
-function initializeAuto(config) {
+/**
+ * Perform initialization using initStrategy: "auto".
+ * @param {object} config The view config.
+ * @param {PluginCoordinationType[]} coordinationTypeObjs
+ * @param {PluginViewType[]} viewTypeObjs
+ * @returns {object} The config.
+ */
+function initializeAuto(config, coordinationTypeObjs, viewTypeObjs) {
   let newConfig = config;
   const { layout, datasets } = newConfig;
 
-  const componentCoordinationTypes = getComponentCoordinationTypes();
-  const defaultCoordinationValues = getDefaultCoordinationValues();
-  const coordinationTypes = getCoordinationTypes();
+  const componentCoordinationTypes = fromEntries(
+    viewTypeObjs.map(vt => ([vt.name, vt.coordinationTypes])),
+  );
+  const defaultCoordinationValues = fromEntries(
+    coordinationTypeObjs.map(ct => ([ct.name, ct.defaultValue])),
+  );
+  const coordinationTypes = coordinationTypeObjs.map(ct => ct.name);
 
   // For each coordination type, check whether it requires initialization.
   coordinationTypes.forEach((coordinationType) => {
@@ -153,43 +158,18 @@ function initializeAuto(config) {
       // a unique scope for every component ("independent")
       // vs. the same scope for every component ("together").
       if (AUTO_INDEPENDENT_COORDINATION_TYPES.includes(coordinationType)) {
-        newConfig = coordinateComponentsIndependent(newConfig, coordinationType, defaultValue);
+        newConfig = coordinateComponentsIndependent(
+          newConfig, coordinationType, defaultValue, viewTypeObjs,
+        );
       } else {
-        newConfig = coordinateComponentsTogether(newConfig, coordinationType, defaultValue);
+        newConfig = coordinateComponentsTogether(
+          newConfig, coordinationType, defaultValue, viewTypeObjs,
+        );
       }
     }
   });
 
   return newConfig;
-}
-
-export function checkTypes(config) {
-  // Add a log message when there are additionalProperties in the coordination space that
-  // do not appear in the view config JSON schema,
-  // with a note that this indicates either a mistake or custom coordination type usage.
-  const coordinationTypesInConfig = Object.keys(config.coordinationSpace || {});
-  const allCoordinationTypes = getCoordinationTypes();
-  const unknownCoordinationTypes = difference(coordinationTypesInConfig, allCoordinationTypes);
-  if (unknownCoordinationTypes.length > 0) {
-    return [false, `The following coordination types are not recognized: [${unknownCoordinationTypes}].\nIf these are plugin coordination types, ensure that they have been properly registered.`];
-  }
-  // Add a log message when there are views in the layout that are neither
-  // core views nor registered plugin views.
-  const viewTypesInConfig = config.layout.map(c => c.component);
-  const allViewTypes = getViewTypes();
-  const unknownViewTypes = difference(viewTypesInConfig, allViewTypes);
-  if (unknownViewTypes.length > 0) {
-    return [false, `The following view types are not recognized: [${unknownViewTypes}].\nIf these are plugin view types, ensure that they have been properly registered.`];
-  }
-  // Add a log message when there are file definitions with neither
-  // core nor registered plugin file types.
-  const fileTypesInConfig = config.datasets.flatMap(d => d.files.map(f => f.fileType));
-  const allFileTypes = getFileTypes();
-  const unknownFileTypes = difference(fileTypesInConfig, allFileTypes);
-  if (unknownFileTypes.length > 0) {
-    return [false, `The following file types are not recognized: [${unknownFileTypes}].\nIf these are plugin file types, ensure that they have been properly registered.`];
-  }
-  return [true, 'All view types, coordination types, and file types that appear in the view config are recognized.'];
 }
 
 /**
@@ -200,7 +180,7 @@ export function checkTypes(config) {
  * @returns The updated view config.
  */
 function assignViewUids(config) {
-  const { layout } = config;
+  const { uid, layout } = config;
   const usedIds = layout.map(view => view.uid);
   layout.forEach((view, i) => {
     // Assign uids for views where they are not present.
@@ -210,8 +190,10 @@ function assignViewUids(config) {
       usedIds.push(nextUid);
     }
   });
+  const newUid = uid || getNextScope([]);
   return {
     ...config,
+    uid: newUid,
     layout,
   };
 }
@@ -224,8 +206,10 @@ function assignViewUids(config) {
  * convenience file types.
  * @returns The view config containing expanded minimal file types.
  */
-function expandConvenienceFileDefs(config) {
-  const convenienceFileTypes = getJointFileTypes();
+function expandConvenienceFileDefs(config, jointFileTypes) {
+  const convenienceFileTypes = fromEntries(
+    jointFileTypes.map(ft => ([ft.name, ft.expandFunction])),
+  );
   const { datasets: currDatasets } = config;
   const datasets = cloneDeep(currDatasets);
   currDatasets.forEach((dataset, i) => {
@@ -262,54 +246,18 @@ function expandConvenienceFileDefs(config) {
  * Should be "stable": if run on the same view config twice, the return value the second
  * time should be identical to the return value the first time.
  * @param {object} config The view config prop.
+ * @param {PluginJointFileType[]} jointFileTypes
+ * @param {PluginCoordinationType[]} coordinationTypes
+ * @param {PluginViewType[]} viewTypes
  * @returns The initialized view config.
  */
-export function initialize(config) {
+export function initialize(config, jointFileTypes, coordinationTypes, viewTypes) {
   let newConfig = cloneDeep(config);
   if (newConfig.initStrategy === 'auto') {
-    newConfig = initializeAuto(config);
+    // TODO: pass coordination types with defaults
+    // TODO: pass view types with per-view coordination type lists
+    newConfig = initializeAuto(config, coordinationTypes, viewTypes);
   }
-  newConfig = expandConvenienceFileDefs(newConfig);
+  newConfig = expandConvenienceFileDefs(newConfig, jointFileTypes);
   return assignViewUids(newConfig);
-}
-
-export function upgradeAndValidate(oldConfig, onConfigUpgrade = null) {
-  // oldConfig object must have a `version` property.
-  let nextConfig = oldConfig;
-  let fromVersion;
-  let upgradeFunction; let
-    validateFunction;
-
-  do {
-    fromVersion = nextConfig.version;
-
-    if (!Object.keys(SCHEMA_HANDLERS).includes(fromVersion)) {
-      return [{
-        title: 'Config validation failed',
-        preformatted: 'Unknown config version.',
-      }, false];
-    }
-
-    [validateFunction, upgradeFunction] = SCHEMA_HANDLERS[fromVersion];
-
-    // Validate under the legacy schema before upgrading.
-    const validLegacy = validateFunction(nextConfig);
-    if (!validLegacy) {
-      const failureReason = JSON.stringify(validateFunction.errors, null, 2);
-      return [{
-        title: 'Config validation failed',
-        preformatted: failureReason,
-      }, false];
-    }
-
-    if (upgradeFunction) {
-      const prevConfig = nextConfig;
-      nextConfig = upgradeFunction(nextConfig);
-      if (onConfigUpgrade) {
-        onConfigUpgrade(prevConfig, nextConfig);
-      }
-    }
-  } while (upgradeFunction);
-
-  return [nextConfig, true];
 }
