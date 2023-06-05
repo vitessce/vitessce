@@ -9,7 +9,7 @@ import {
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import FeatureList from './FeatureList.js';
-import FeatureListOptions from './selectable-table/FeatureListOptions.js';
+import FeatureListOptions from './FeatureListOptions.js';
 
 
 /**
@@ -28,9 +28,10 @@ import FeatureListOptions from './selectable-table/FeatureListOptions.js';
  * @param {boolean} props.enableMultiSelect If true, allow
  * shift-clicking to select multiple genes.
  * @param {boolean} props.showTable If true, shows a table with the feature name and id.
- * @param {string} props.sort The sort order of the genes. If sort is defined and
+ * @param {'alphabetical'|'original'} props.sort The sort order of the genes. If sort is defined and
  * it is not equal to `alphabetical`, the genes will be displayed in the feature list in
  * the original order.
+ * @param {'featureIndex'|'featureLabels'|null} props.sortKey The information to use for sorting.
  */
 export function FeatureListSubscriber(props) {
   const {
@@ -42,6 +43,7 @@ export function FeatureListSubscriber(props) {
     enableMultiSelect = false,
     showTable = false,
     sort = 'alphabetical',
+    sortKey = null,
   } = props;
 
   const loaders = useLoaders();
@@ -82,21 +84,18 @@ export function FeatureListSubscriber(props) {
   ]);
   const geneList = featureIndex || [];
   const numGenes = geneList.length;
+  const hasFeatureLabels = Boolean(featureLabelsMap);
 
   function setGeneSelectionAndColorEncoding(newSelection) {
     setGeneSelection(newSelection);
     setCellColorEncoding('geneSelection');
   }
-
-  const defaultColumnTitle = 'name';
-  const defaultColumnName = `${capitalize(featureType)} ID`;
-  const featureListTableKeys = {
-    name: defaultColumnName,
-    key: 'Alternate ID',
-  };
-  const [featureListSort, setFeatureListSort] = useState(sort);
-  const [featureListSortKey, setFeatureListSortKey] = useState(defaultColumnTitle);
   const [showFeatureTable, setShowFeatureTable] = useState(showTable);
+  const [featureListSort, setFeatureListSort] = useState(sort);
+  const [featureListSortKey, setFeatureListSortKey] = useState(null);
+  const initialSortKey = sortKey || (hasFeatureLabels ? 'featureLabels' : 'featureIndex');
+
+  const primaryColumnName = `${capitalize(featureType)} ID`;
 
   return (
     <TitleInfo
@@ -114,12 +113,12 @@ export function FeatureListSubscriber(props) {
         <FeatureListOptions
           featureListSort={featureListSort}
           setFeatureListSort={setFeatureListSort}
-          featureListSortKey={featureListSortKey}
+          featureListSortKey={featureListSortKey || initialSortKey}
           setFeatureListSortKey={setFeatureListSortKey}
           showFeatureTable={showFeatureTable}
           setShowFeatureTable={setShowFeatureTable}
           hasFeatureLabels={Boolean(featureLabelsMap)}
-          featureListTableKeys={featureListTableKeys}
+          primaryColumnName={primaryColumnName}
         />
       )}
     >
@@ -128,7 +127,7 @@ export function FeatureListSubscriber(props) {
         showFeatureTable={showFeatureTable}
         geneList={geneList}
         featureListSort={featureListSort}
-        featureListSortKey={featureListSortKey}
+        featureListSortKey={featureListSortKey || initialSortKey}
         featureLabelsMap={featureLabelsMap}
         featureType={featureType}
         geneSelection={geneSelection}
@@ -137,8 +136,8 @@ export function FeatureListSubscriber(props) {
         setGeneFilter={setGeneFilter}
         setGeneHighlight={setGeneHighlight}
         enableMultiSelect={enableMultiSelect}
-        featureListTableKeys={featureListTableKeys}
-        defaultColumnTitle={defaultColumnTitle}
+        hasFeatureLabels={Boolean(featureLabelsMap)}
+        primaryColumnName={primaryColumnName}
       />
     </TitleInfo>
   );

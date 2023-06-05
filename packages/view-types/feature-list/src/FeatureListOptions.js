@@ -1,7 +1,7 @@
 import React from 'react';
 import { OptionsContainer, OptionSelect, usePlotOptionsStyles } from '@vitessce/vit-s';
 import { TableCell, TableRow, Checkbox } from '@material-ui/core';
-import { FEATURELIST_SORT_OPTIONS } from './constants.js';
+import { FEATURELIST_SORT_OPTIONS, ALT_COLNAME } from './constants.js';
 
 
 export default function FeatureListOptions(props) {
@@ -14,7 +14,7 @@ export default function FeatureListOptions(props) {
     showFeatureTable,
     setShowFeatureTable,
     hasFeatureLabels,
-    featureListTableKeys,
+    primaryColumnName,
   } = props;
 
   function handleFeatureListSortChange(event) {
@@ -53,8 +53,8 @@ export default function FeatureListOptions(props) {
           </OptionSelect>
         </TableCell>
       </TableRow>
-      {hasFeatureLabels
-        && (
+      {hasFeatureLabels ? (
+        <>
           <TableRow>
             <TableCell className={classes.labelCell} htmlFor="feature-list-sort-key-select">
               Sort Key
@@ -69,28 +69,33 @@ export default function FeatureListOptions(props) {
                   id: 'feature-list-sort-key-select',
                 }}
               >
-                {Object.keys(featureListTableKeys).map(k => (
-                  <option key={featureListTableKeys[k]} value={k}>{featureListTableKeys[k]}</option>
-                ))}
+                {hasFeatureLabels ? (
+                  <>
+                    <option value="featureLabels">{primaryColumnName}</option>
+                    <option value="featureIndex">{ALT_COLNAME}</option>
+                  </>
+                ) : (
+                  <option value="featureIndex">{primaryColumnName}</option>
+                )}
               </OptionSelect>
             </TableCell>
           </TableRow>
-        )
-      }
-      <TableRow>
-        <TableCell className={classes.labelCell}>
-          Show Alternate IDs
-        </TableCell>
-        <TableCell className={classes.inputCell}>
-          <Checkbox
-            className={classes.checkbox}
-            checked={showFeatureTable}
-            onChange={handleShowTableChange}
-            name="feature-list-show-table"
-            color="default"
-          />
-        </TableCell>
-      </TableRow>
+          <TableRow>
+            <TableCell className={classes.labelCell}>
+              Show Alternate IDs
+            </TableCell>
+            <TableCell className={classes.inputCell}>
+              <Checkbox
+                className={classes.checkbox}
+                checked={showFeatureTable}
+                onChange={handleShowTableChange}
+                name="feature-list-show-table"
+                color="default"
+              />
+            </TableCell>
+          </TableRow>
+        </>
+      ) : null}
     </OptionsContainer>
   );
 }
