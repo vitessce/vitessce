@@ -94,6 +94,7 @@
 - Split useEffect into useMemo + useEffect in SpatialSubscriber to fix infinite loop for `neumann-2020` demo on the docs site.
 - Delay computing the initial view state longer in EmbeddingScatterplotSubscriber to ensure the view width/height is finished animating.
 - Made the cursor type to `pointer` when the user is hovering over the heatmap.
+- Fixed a bug in `CellSetSizesPlotSubscriber` plot causing rending of empty `CellSetSizesPlot` when there is no `obsSets` view (due to expectation of initialised `cellSetExpanded` coordination value).
 - Created `FeatureListOptions` component, which allows the user to change the sorting order of the feature list.
 - Implemented the functionality required to re-order the feature list, based on the selection from the dropdown:
   - added state variables `featureListSort` and `showFeatureTable`.
