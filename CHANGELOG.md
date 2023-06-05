@@ -20,6 +20,7 @@
 - Removed the Select Rectangle button from Scatterplot and Spatial views.
 - Added option to disable tooltips on Heatmap and Scatterplot components. The option is available from the options control dropdown.
 - Added an option to skip sorting features alphabetically in feature list.
+- Add GitHub Action workflow to report bundle size in PRs.
 - Added support for generating view-config for Anndata-Zarr files that don't have .zmetadata file in the folder.
 
 ### Changed
@@ -88,7 +89,9 @@
 - Modified component `FeatureList` so that if sort is not equal to `alphabetical`, then sorting of data is skipped and the order of feature listis the same as original.
 - Fixed equality check when creating default model matrices for `sizes`
 - Split useEffect into useMemo + useEffect in SpatialSubscriber to fix infinite loop for `neumann-2020` demo on the docs site.
+- Delay computing the initial view state longer in EmbeddingScatterplotSubscriber to ensure the view width/height is finished animating.
 - Made the cursor type to `pointer` when the user is hovering over the heatmap.
+- Fixed a bug in `CellSetSizesPlotSubscriber` plot causing rending of empty `CellSetSizesPlot` when there is no `obsSets` view (due to expectation of initialised `cellSetExpanded` coordination value).
 - Modified the `AnndataZarrAutoConfig` class:
   - added a parser function that generates metadata summary without reading `.zmetadata` file.
   - the class calls the parser function if no `.zmetadata` file is present in the given URL.
