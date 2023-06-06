@@ -47,6 +47,8 @@ describe('VitessceGrid.js', () => {
         <ViewConfigProvider createStore={createViewConfigStoreClosure}>
           <AuxiliaryProvider createStore={createAuxiliaryStore}>
             <VitessceGrid
+              success
+              configKey={null}
               config={config}
               viewTypes={viewTypes}
               fileTypes={fileTypes}

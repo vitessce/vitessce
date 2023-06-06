@@ -8,6 +8,7 @@ const e = React.createElement;
 const configs = [
   {
     name: 'First config',
+    uid: 'config-0',
     version: '1.0.16',
     description: '',
     datasets: [],
@@ -28,6 +29,7 @@ const configs = [
   },
   {
     name: 'Second config',
+    uid: 'config-1',
     version: '1.0.16',
     description: '',
     datasets: [],
@@ -68,6 +70,7 @@ const configs = [
   },
   {
     name: 'Third config',
+    uid: 'config-2',
     version: '1.0.16',
     description: '',
     datasets: [],
