@@ -5,8 +5,11 @@ import React, {
 import clsx from 'clsx';
 import { VITESSCE_CONTAINER } from './classNames.js';
 import { VitessceGridLayout } from './vitessce-grid-layout/index.js';
-import { useRowHeight } from './vitessce-grid-utils.js';
+import { useRowHeight, createLoaders } from './vitessce-grid-utils.js';
 import {
+  useViewConfigStoreApi,
+  useSetViewConfig,
+  useSetLoaders,
   useEmitGridResize,
   useRemoveComponent,
   useChangeLayout,
@@ -33,12 +36,16 @@ const margin = 5;
  */
 export default function VitessceGrid(props) {
   const {
+    success,
+    configKey,
     rowHeight: initialRowHeight,
     config,
     theme,
     height,
     isBounded,
     viewTypes,
+    fileTypes,
+    coordinationTypes,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
@@ -54,6 +61,9 @@ export default function VitessceGrid(props) {
     onResize();
   }, [rowHeight, onResize]);
 
+  const viewConfigStoreApi = useViewConfigStoreApi();
+  const setViewConfig = useSetViewConfig(viewConfigStoreApi);
+  const setLoaders = useSetLoaders();
   const removeComponent = useRemoveComponent();
   const changeLayout = useChangeLayout();
   const layout = useLayout();
@@ -64,12 +74,33 @@ export default function VitessceGrid(props) {
     }
   }, [changeLayout, componentWidth]);
 
+  // Update the view config and loaders in the global state.
+  // This effect is needed for the controlled component case in which
+  // the store has already been initialized with a view config,
+  // and we want to replace it with a new view config.
+  useEffect(() => {
+    let newLoaders = null;
+    let newConfig = null;
+    if (success) {
+      newLoaders = createLoaders(
+        config.datasets,
+        config.description,
+        fileTypes,
+        coordinationTypes,
+      );
+      newConfig = config;
+    }
+    setViewConfig(newConfig);
+    setLoaders(newLoaders);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [success, configKey]);
+
   return (
     <div
       ref={containerRef}
       className={clsx(VITESSCE_CONTAINER, classes.vitessceContainer)}
     >
-      {layout && (
+      {layout ? (
         <VitessceGridLayout
           layout={layout}
           height={height}
@@ -85,7 +116,7 @@ export default function VitessceGrid(props) {
           onResize={onResize}
           onResizeStop={onResize}
         />
-      )}
+      ) : null}
     </div>
   );
 }

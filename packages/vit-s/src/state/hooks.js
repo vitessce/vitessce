@@ -50,6 +50,8 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
   loaders: initialLoaders,
   // Reducer functions which update the state
   // (although technically also part of state):
+  setViewConfig: viewConfig => set({ viewConfig, initialViewConfig: viewConfig }),
+  setLoaders: loaders => set({ loaders }),
   setCoordinationValue: ({ parameter, scope, value }) => set(state => ({
     viewConfig: {
       ...state.viewConfig,
@@ -555,6 +557,28 @@ export function useRemoveComponent() {
  */
 export function useChangeLayout() {
   return useViewConfigStore(state => state.changeLayout);
+}
+
+/**
+ * Obtain the loaders setter function from
+ * the global app state.
+ * @returns {function} The loaders setter function
+ * in the `useViewConfigStore` store.
+ */
+export function useSetLoaders() {
+  return useViewConfigStore(state => state.setLoaders);
+}
+
+/**
+ * Obtain the view config setter function from
+ * the global app state.
+ * @returns {function} The view config setter function
+ * in the `useViewConfigStore` store.
+ */
+export function useSetViewConfig(viewConfigStoreApi) {
+  const setViewConfigRef = useRef(viewConfigStoreApi.getState().setViewConfig);
+  const setViewConfig = setViewConfigRef.current;
+  return setViewConfig;
 }
 
 /**

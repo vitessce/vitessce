@@ -195,7 +195,11 @@ export function VitS(props) {
         <ViewConfigProvider createStore={createViewConfigStoreClosure}>
           <AuxiliaryProvider createStore={createAuxiliaryStore}>
             <VitessceGrid
+              success={success}
+              configKey={configKey}
               viewTypes={viewTypes}
+              fileTypes={fileTypes}
+              coordinationTypes={coordinationTypes}
               config={configOrWarning}
               rowHeight={rowHeight}
               height={height}
