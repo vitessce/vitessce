@@ -239,7 +239,14 @@ export function EmbeddingScatterplotSubscriber(props) {
   // compute the cell radius scale based on the
   // extents of the cell coordinates on the x/y axes.
   useEffect(() => {
-    if (xRange && yRange) {
+    // We do not really need isReady here, since the above useMemo that
+    // computes xRange and yRange will only run after obsEmbedding has loaded anyway.
+    // However, we include it here to ensure this effect waits as long as possible to run;
+    // For some reason, otherwise, in some cases this effect will run before the react-grid-layout
+    // initialization animation has finished,
+    // prior to `height` and `width` reaching their ultimate values, resulting in
+    // an initial viewState for that small view size, which looks bad.
+    if (xRange && yRange && isReady) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(
         window.devicePixelRatio, zoom, xRange, yRange, width, height,
       );
@@ -268,7 +275,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [xRange, yRange, xExtent, yExtent, numCells,
+  }, [xRange, yRange, isReady, xExtent, yExtent, numCells,
     width, height, zoom, averageFillDensity]);
 
   const getObsInfo = useGetObsInfo(

@@ -75,7 +75,7 @@ export function CellSetSizesPlotSubscriber(props) {
   );
 
   const data = useMemo(() => {
-    if (cellSetSelection && cellSetExpansion && cellSetColor && mergedCellSets && cellSets) {
+    if (cellSetSelection && cellSetColor && mergedCellSets && cellSets) {
       let newHierarchy = currentHierarchy;
 
       if (cellSetSelection) {
