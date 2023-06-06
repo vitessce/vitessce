@@ -4,6 +4,9 @@
 - Added a dropdown in `FeatureList` that allows the user to:
   - select between `alphabetical` and `original` ordering for the feature list.
   - show two columns in the feature list if the feature has a second identifier associated.
+- Add `useInitialCoordination` hook to get the values of the coordination space from the initial config, which can be used for viewState reset buttons.
+- Use `config` object reference as hook dependency when no `config.uid` is present (to support both controlled and un-controlled component cases).
+- Initialize Zustand store using closure over `createViewConfigStore` function, rather than via `useEffect`.
 
 ### Changed
 - Fix Material UI import statement.

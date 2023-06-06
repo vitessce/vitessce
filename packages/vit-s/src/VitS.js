@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import {
   ThemeProvider,
   StylesProvider,
@@ -21,6 +21,8 @@ import CallbackPublisher from './CallbackPublisher.js';
 import {
   initialize,
 } from './view-config-utils.js';
+import { createLoaders } from './vitessce-grid-utils.js';
+
 
 function logConfig(config, name) {
   console.groupCollapsed(`🚄 Vitessce (${META_VERSION.version}) ${name}`);
@@ -97,6 +99,11 @@ export function VitS(props) {
   const configUid = config?.uid;
   const configVersion = config?.version;
 
+  // If config.uid exists, then use it for hook dependencies to detect changes
+  // (controlled component case). If not, then use the config object itself
+  // and assume the un-controlled component case.
+  const configKey = configUid || config;
+
   const pluginSpecificConfigSchema = useMemo(() => buildConfigSchema(
     fileTypes,
     jointFileTypes,
@@ -155,7 +162,7 @@ export function VitS(props) {
       unformatted: result.error.message,
     }, result.success];
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [configUid, configVersion, pluginSpecificConfigSchema, warning]);
+  }, [configKey, configVersion, pluginSpecificConfigSchema, warning]);
 
   // Emit the upgraded/initialized view config
   // to onConfigChange if necessary.
@@ -164,17 +171,31 @@ export function VitS(props) {
       onConfigChange(configOrWarning);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [success, configUid, configOrWarning, onConfigChange]);
+  }, [success, configKey, configOrWarning, onConfigChange]);
+
+  // Initialize the view config and loaders in the global state.
+  const createViewConfigStoreClosure = useCallback(() => {
+    if (success) {
+      const loaders = createLoaders(
+        configOrWarning.datasets,
+        configOrWarning.description,
+        fileTypes,
+        coordinationTypes,
+      );
+      return createViewConfigStore(loaders, configOrWarning);
+    }
+    // No config found, so clear the loaders.
+    return createViewConfigStore(null, null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [success, configKey]);
 
   return success ? (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
-        <ViewConfigProvider createStore={createViewConfigStore}>
+        <ViewConfigProvider createStore={createViewConfigStoreClosure}>
           <AuxiliaryProvider createStore={createAuxiliaryStore}>
             <VitessceGrid
               viewTypes={viewTypes}
-              fileTypes={fileTypes}
-              coordinationTypes={coordinationTypes}
               config={configOrWarning}
               rowHeight={rowHeight}
               height={height}

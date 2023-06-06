@@ -5,11 +5,8 @@ import React, {
 import clsx from 'clsx';
 import { VITESSCE_CONTAINER } from './classNames.js';
 import { VitessceGridLayout } from './vitessce-grid-layout/index.js';
-import { useRowHeight, createLoaders } from './vitessce-grid-utils.js';
+import { useRowHeight } from './vitessce-grid-utils.js';
 import {
-  useViewConfigStoreApi,
-  useSetViewConfig,
-  useSetLoaders,
   useEmitGridResize,
   useRemoveComponent,
   useChangeLayout,
@@ -33,8 +30,6 @@ const margin = 5;
  * @param {number} props.height Total height for grid. Optional.
  * @param {function} props.onWarn A callback for warning messages. Optional.
  * @param {PluginViewType[]} props.viewTypes
- * @param {PluginFileType[]} props.fileTypes
- * @param {PluginCoordinationType[]} props.coordinationTypes
  */
 export default function VitessceGrid(props) {
   const {
@@ -44,8 +39,6 @@ export default function VitessceGrid(props) {
     height,
     isBounded,
     viewTypes,
-    fileTypes,
-    coordinationTypes,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
@@ -61,9 +54,6 @@ export default function VitessceGrid(props) {
     onResize();
   }, [rowHeight, onResize]);
 
-  const viewConfigStoreApi = useViewConfigStoreApi();
-  const setViewConfig = useSetViewConfig(viewConfigStoreApi);
-  const setLoaders = useSetLoaders();
   const removeComponent = useRemoveComponent();
   const changeLayout = useChangeLayout();
   const layout = useLayout();
@@ -73,23 +63,6 @@ export default function VitessceGrid(props) {
       changeLayout(newComponentProps);
     }
   }, [changeLayout, componentWidth]);
-
-  // Update the view config and loaders in the global state.
-  useEffect(() => {
-    if (config) {
-      setViewConfig(config);
-      const loaders = createLoaders(
-        config.datasets,
-        config.description,
-        fileTypes,
-        coordinationTypes,
-      );
-      setLoaders(loaders);
-    } else {
-      // No config found, so clear the loaders.
-      setLoaders({});
-    }
-  }, [config, setViewConfig, setLoaders, fileTypes, coordinationTypes]);
 
   return (
     <div
