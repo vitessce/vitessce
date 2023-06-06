@@ -23,7 +23,10 @@ export function Vitessce(props: any) {
     pluginJointFileTypes: pluginJointFileTypesProp,
   } = props;
 
-  const configUid = config?.uid;
+  // If config.uid exists, then use it for hook dependencies to detect changes
+  // (controlled component case). If not, then use the config object itself
+  // and assume the un-controlled component case.
+  const configUid = config?.uid || config;
   const configVersion = config?.version;
 
   const [configOrWarning, success] = useMemo(() => {

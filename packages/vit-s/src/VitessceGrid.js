@@ -33,6 +33,8 @@ const margin = 5;
  * @param {number} props.height Total height for grid. Optional.
  * @param {function} props.onWarn A callback for warning messages. Optional.
  * @param {PluginViewType[]} props.viewTypes
+ * @param {PluginFileType[]} props.fileTypes
+ * @param {PluginCoordinationType[]} props.coordinationTypes
  */
 export default function VitessceGrid(props) {
   const {
