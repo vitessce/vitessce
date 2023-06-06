@@ -10,8 +10,6 @@ export default function HeatmapTooltipSubscriber(props) {
     obsHighlight, featureHighlight,
   } = props;
 
-  console.log(featureHighlight);
-
   const sourceUuid = useComponentHover();
   const viewInfo = useComponentViewInfo(parentUuid);
 

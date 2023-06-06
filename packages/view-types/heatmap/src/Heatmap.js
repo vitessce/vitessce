@@ -124,6 +124,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     setColorEncoding,
     obsIndex,
     featureIndex,
+    featureLabelsMap,
   } = props;
 
   const viewState = {
@@ -176,12 +177,12 @@ const Heatmap = forwardRef((props, deckRef) => {
   // for example if the cells "selected" (technically just colored)
   // have changed.
   useEffect(() => {
-    if (!expression) {
+    if (!obsIndex) {
       return;
     }
 
     const newCellOrdering = (!cellColors || cellColors.size === 0
-      ? expression.rows
+      ? obsIndex
       : Array.from(cellColors.keys())
     );
 
@@ -194,41 +195,41 @@ const Heatmap = forwardRef((props, deckRef) => {
         setAxisLeftLabels(newCellOrdering);
       }
     }
-  }, [expression, cellColors, axisTopLabels, axisLeftLabels, transpose]);
+  }, [obsIndex, cellColors, axisTopLabels, axisLeftLabels, transpose]);
 
   // Set the genes ordering.
   useEffect(() => {
-    if (!expression) {
+    if (!featureIndex) {
       return;
     }
     if (transpose) {
-      setAxisLeftLabels(expression.cols);
+      setAxisLeftLabels(featureIndex);
     } else {
-      setAxisTopLabels(expression.cols);
+      setAxisTopLabels(featureIndex);
     }
-  }, [expression, transpose]);
+  }, [featureIndex, transpose]);
 
   const [longestCellLabel, longestGeneLabel] = useMemo(() => {
-    if (!expression) {
+    if (!obsIndex || !featureIndex) {
       return ['', ''];
     }
 
     return [
-      getLongestString(expression.rows),
-      getLongestString([...expression.cols, ...cellColorLabels]),
+      getLongestString(obsIndex),
+      getLongestString([...featureIndex, ...cellColorLabels]),
     ];
-  }, [expression, cellColorLabels]);
+  }, [featureIndex, cellColorLabels, obsIndex]);
 
   // Creating a look up dictionary once is faster than calling indexOf many times
   // i.e when cell ordering changes.
   const expressionRowLookUp = useMemo(() => {
     const lookUp = new Map();
-    if (expression?.rows) {
+    if (obsIndex) {
       // eslint-disable-next-line no-return-assign
-      expression.rows.forEach((cell, j) => (lookUp.set(cell, j)));
+      obsIndex.forEach((cell, j) => (lookUp.set(cell, j)));
     }
     return lookUp;
-  }, [expression]);
+  }, [obsIndex]);
 
   const width = axisTopLabels.length;
   const height = axisLeftLabels.length;
@@ -276,8 +277,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     updateViewInfo({
       uuid,
       project: (cellId, geneId) => {
-        const colI = transpose ? obsIndex.indexOf(cellId) : featureIndex.indexOf(geneId);
-        const rowI = transpose ? featureIndex.indexOf(geneId) : obsIndex.indexOf(cellId);
+        const colI = transpose ? axisTopLabels.indexOf(cellId) : axisTopLabels.indexOf(geneId);
+        const rowI = transpose ? axisLeftLabels.indexOf(geneId) : axisLeftLabels.indexOf(cellId);
         return heatmapToMousePosition(
           colI, rowI, {
             offsetLeft,
@@ -293,7 +294,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         );
       },
     });
-  }, [uuid, updateViewInfo, transpose, obsIndex, featureIndex, offsetLeft,
+  }, [uuid, updateViewInfo, transpose, axisTopLabels, axisLeftLabels, offsetLeft,
     offsetTop, viewState, scaleFactor, matrixWidth, matrixHeight, height, width]);
 
 
@@ -350,14 +351,14 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (dataRef.current
       && dataRef.current.buffer.byteLength && expressionRowLookUp.size > 0
       && !shouldUsePaddedImplementation(dataRef.current.length)) {
-      const { cols, matrix } = expression;
+      const { matrix } = expression;
       const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.process({
         curr,
         tileI: i,
         tileJ: j,
         tileSize: TILE_SIZE,
         cellOrdering: transpose ? axisTopLabels : axisLeftLabels,
-        cols,
+        cols: featureIndex,
         transpose,
         data: matrix.buffer.slice(),
         expressionRowLookUp,
@@ -376,7 +377,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       process();
     }
   }, [axisLeftLabels, axisTopLabels, backlog, expression, transpose,
-    xTiles, yTiles, workerPool, expressionRowLookUp]);
+    xTiles, yTiles, workerPool, expressionRowLookUp, featureIndex]);
 
   useEffect(() => {
     setIsRendering(backlog.length > 0);
@@ -398,10 +399,10 @@ const Heatmap = forwardRef((props, deckRef) => {
         const cellIndex = expressionRowLookUp.get(cell);
         for (
           let geneIndex = 0;
-          geneIndex < expression.cols.length;
+          geneIndex < featureIndex.length;
           geneIndex += 1
         ) {
-          const index = cellIndex * expression.cols.length + geneIndex;
+          const index = cellIndex * featureIndex.length + geneIndex;
           paddedExpressionContainer[
             newIndex % (DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE)
           ] = expression.matrix[index];
@@ -446,7 +447,6 @@ const Heatmap = forwardRef((props, deckRef) => {
       const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
       // eslint-disable-next-line no-inner-declarations, no-shadow
       function getLayer(i, j) {
-        const { cols } = expression;
         return new PaddedExpressionHeatmapBitmapLayer({
           id: `heatmapLayer-${i}-${j}`,
           image: paddedExpressions,
@@ -461,8 +461,8 @@ const Heatmap = forwardRef((props, deckRef) => {
           numXTiles: xTiles,
           numYTiles: yTiles,
           origDataSize: transpose
-            ? [cols.length, cellOrdering.length]
-            : [cellOrdering.length, cols.length],
+            ? [featureIndex.length, cellOrdering.length]
+            : [cellOrdering.length, featureIndex.length],
           aggSizeX,
           aggSizeY,
           colormap,
@@ -506,14 +506,22 @@ const Heatmap = forwardRef((props, deckRef) => {
     return layers;
   }, [expression, backlog.length, transpose, axisTopLabels, axisLeftLabels, yTiles, xTiles,
     paddedExpressions, matrixLeft, tileWidth, matrixTop, tileHeight,
-    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration]);
+    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration, featureIndex]);
   const axisLeftDashes = (transpose ? variablesDashes : observationsDashes);
   const axisTopDashes = (transpose ? observationsDashes : variablesDashes);
 
   // Map cell and gene names to arrays with indices,
   // to prepare to render the names in TextLayers.
-  const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, (axisTopDashes ? `- ${d}` : d)]), [axisTopLabels, axisTopDashes]);
-  const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, (axisLeftDashes ? `${d} -` : d)]), [axisLeftLabels, axisLeftDashes]);
+  // We do the mapping with featureLabelsMap here at one of the final steps before rendering
+  // since it is for presentational purposes.
+  const axisTopLabelData = useMemo(() => (!transpose && featureLabelsMap
+    ? axisTopLabels.map(d => featureLabelsMap.get(d) || d)
+    : axisTopLabels
+  ).map((d, i) => [i, (axisTopDashes ? `- ${d}` : d)]), [axisTopLabels, axisTopDashes, transpose, featureLabelsMap]);
+  const axisLeftLabelData = useMemo(() => (transpose && featureLabelsMap
+    ? axisLeftLabels.map(d => featureLabelsMap.get(d) || d)
+    : axisLeftLabels
+  ).map((d, i) => [i, (axisLeftDashes ? `${d} -` : d)]), [axisLeftLabels, axisLeftDashes, transpose, featureLabelsMap]);
   const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d && (transpose ? `${d} -` : `- ${d}`)]), [cellColorLabels, transpose]);
 
   const hideTopLabels = (transpose ? hideObservationLabels : hideVariableLabels);
@@ -729,10 +737,10 @@ const Heatmap = forwardRef((props, deckRef) => {
       setTrackHighlight(null);
       setColorEncoding('geneSelection');
     } else { // we are hovering over a cell colored track
-      const obsI = expression.rows.indexOf(transpose
+      const obsI = obsIndex.indexOf(transpose
         ? axisTopLabels[trackColI]
         : axisLeftLabels[trackColI]);
-      const cellIndex = expression.rows[obsI];
+      const cellIndex = obsIndex[obsI];
       setTrackHighlight([cellIndex, trackI, mouseX, mouseY]);
       highlightedCell = cellIndex;
       setColorEncoding('cellSelection');
@@ -750,17 +758,17 @@ const Heatmap = forwardRef((props, deckRef) => {
       numCols: width,
     });
 
-    const obsI = expression.rows.indexOf(transpose
+    const obsI = obsIndex.indexOf(transpose
       ? axisTopLabels[colI]
       : axisLeftLabels[rowI]);
-    const varI = expression.cols.indexOf(transpose
+    const varI = featureIndex.indexOf(transpose
       ? axisLeftLabels[rowI]
       : axisTopLabels[colI]);
 
     const obsId = obsIndex[obsI];
 
     // We need to use featureIndex here,
-    // because expression.cols may be mapped to
+    // because featureIndex may be mapped to
     // use featureLabels (if those were available in the dataset).
     // Highlights and selections are assumed to be in terms of
     // obsIndex/featureIndex (as opposed to obsLabels/featureLabels).

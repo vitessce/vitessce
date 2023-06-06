@@ -4,6 +4,7 @@
 
 ### Changed
 - Fix Material UI import statement.
+- Fix Heatmap bug causing incorrect positioning of tooltip when using `featureLabels` mapping.
 
 ## [3.0.0](https://www.npmjs.com/package/vitessce/v/3.0.0) - 2023-05-24
 

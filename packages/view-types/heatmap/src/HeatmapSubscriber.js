@@ -163,18 +163,12 @@ export function HeatmapSubscriber(props) {
   const expressionMatrix = useMemo(() => {
     if (obsIndex && featureIndex && uint8ObsFeatureMatrix) {
       return {
-        // TODO: use obsIndex and featureIndex instead of .rows and .cols everywhere
-        // TODO: pass featureLabelsMap to Heatmap and only do the mapping at the last step (for presentation purposes ONLY).
-        rows: obsIndex,
-        cols: (featureLabelsMap
-          ? featureIndex.map(key => featureLabelsMap.get(key) || key)
-          : featureIndex
-        ),
+        // TODO: use uint8ObsFeatureMatrix directly without extra wrapper object.
         matrix: uint8ObsFeatureMatrix.data,
       };
     }
     return null;
-  }, [obsIndex, featureIndex, uint8ObsFeatureMatrix, featureLabelsMap]);
+  }, [obsIndex, featureIndex, uint8ObsFeatureMatrix]);
 
   const cellsCount = obsIndex ? obsIndex.length : 0;
   const genesCount = featureIndex ? featureIndex.length : 0;
@@ -247,6 +241,7 @@ export function HeatmapSubscriber(props) {
         setIsRendering={setIsRendering}
         setCellHighlight={setCellHighlight}
         setGeneHighlight={setGeneHighlight}
+        featureLabelsMap={featureLabelsMap}
         obsIndex={obsIndex}
         featureIndex={featureIndex}
         setTrackHighlight={setTrackHighlight}
