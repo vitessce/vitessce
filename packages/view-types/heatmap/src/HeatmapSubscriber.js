@@ -160,16 +160,6 @@ export function HeatmapSubscriber(props) {
     return null;
   }, [variablesLabel, featureLabelsMap]);
 
-  const expressionMatrix = useMemo(() => {
-    if (obsIndex && featureIndex && uint8ObsFeatureMatrix) {
-      return {
-        // TODO: use uint8ObsFeatureMatrix directly without extra wrapper object.
-        matrix: uint8ObsFeatureMatrix.data,
-      };
-    }
-    return null;
-  }, [obsIndex, featureIndex, uint8ObsFeatureMatrix]);
-
   const cellsCount = obsIndex ? obsIndex.length : 0;
   const genesCount = featureIndex ? featureIndex.length : 0;
 
@@ -235,7 +225,7 @@ export function HeatmapSubscriber(props) {
         width={width}
         theme={theme}
         uuid={uuid}
-        expressionMatrix={expressionMatrix}
+        uint8ObsFeatureMatrix={uint8ObsFeatureMatrix?.data}
         cellColors={cellColors}
         colormap={geneExpressionColormap}
         setIsRendering={setIsRendering}
