@@ -6,12 +6,20 @@ import {
 import {
   upgradeAndParse,
 } from '@vitessce/schemas';
+import { META_VERSION } from '@vitessce/constants-internal';
 import {
   baseViewTypes,
   baseFileTypes,
   baseJointFileTypes,
   baseCoordinationTypes,
 } from './base-plugins.js';
+
+function logConfig(config: any, name: string) {
+  console.groupCollapsed(`🚄 Vitessce (${META_VERSION.version}) ${name}`);
+  console.info(`data:,${JSON.stringify(config)}`);
+  console.info(JSON.stringify(config, null, 2));
+  console.groupEnd();
+}
 
 export function Vitessce(props: any) {
   const {
@@ -28,6 +36,7 @@ export function Vitessce(props: any) {
 
   const [configOrWarning, success] = useMemo(() => {
     try {
+      logConfig(config, 'input view config');
       const validConfig = upgradeAndParse(config, onConfigUpgrade);
       return [validConfig, true];
     } catch (e) {
