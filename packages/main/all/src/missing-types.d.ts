@@ -1,1 +1,1 @@
-declare module '@vitessce/constants-internal';
+declare module '@vitessce/vit-s';
