@@ -15,7 +15,7 @@ export default defineConfig({
   build: {
     emptyOutDir: true,
     minify: false,
-    sourcemap: true,
+    sourcemap: false,
     lib: {
       entry: existsSync(resolve(cwd, 'src/index.ts')) ? resolve(cwd, 'src/index.ts') : resolve(cwd, 'src/index.js'),
       // The file extension used by Vite depends on whether the package.json contains "type": "module".

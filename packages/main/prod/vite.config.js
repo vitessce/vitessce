@@ -14,7 +14,7 @@ export default defineConfig({
   build: {
     emptyOutDir: false,
     minify: isProduction ? 'esbuild' : false,
-    sourcemap: true,
+    sourcemap: false,
     target: 'es2019', // portal-ui cannot handle the nullish coalescing output by ESNext
     lib: {
       entry: resolve(__dirname, 'src/index.js'),
