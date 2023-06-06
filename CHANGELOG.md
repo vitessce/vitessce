@@ -10,7 +10,7 @@
 - Implemented the functionality required to re-order the feature list, based on the selection from the dropdown:
   - added state variables `featureListSort` and `showFeatureTable`.
   - hooked the state variables to `FeatureListOptions` and to `FeatureList`.
-- se `@tanstack/react-query` for data fetching.
+- Use `@tanstack/react-query` for data fetching.
 
 ## [3.0.0](https://www.npmjs.com/package/vitessce/v/3.0.0) - 2023-05-24
 
