@@ -10,6 +10,8 @@
 - Implemented the functionality required to re-order the feature list, based on the selection from the dropdown:
   - added state variables `featureListSort` and `showFeatureTable`.
   - hooked the state variables to `FeatureListOptions` and to `FeatureList`.
+- Only generate ESM builds for `vitessce` and `@vitessce/dev`.
+- Enable sourcemap generation for `vitessce` and `@vitessce/dev`.
 
 ## [3.0.0](https://www.npmjs.com/package/vitessce/v/3.0.0) - 2023-05-24
 

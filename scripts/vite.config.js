@@ -15,7 +15,7 @@ export default defineConfig({
   build: {
     emptyOutDir: true,
     minify: false,
-    sourcemap: false,
+    sourcemap: true,
     lib: {
       entry: existsSync(resolve(cwd, 'src/index.ts')) ? resolve(cwd, 'src/index.ts') : resolve(cwd, 'src/index.js'),
       // The file extension used by Vite depends on whether the package.json contains "type": "module".
@@ -25,12 +25,16 @@ export default defineConfig({
     },
     rollupOptions: {
       external: ['react', 'react-dom', ...moreExternals],
+      // output.globals required for UMD builds
+      // (e.g., no longer used since only generating ESM build)
+      /*
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
         },
       },
+      */
     },
   },
   define: {
