@@ -5,10 +5,13 @@ import { Vitessce } from 'vitessce';
 
 const e = React.createElement;
 
+const params = new URLSearchParams(document.location.search);
+const withUid = params.get("withUid") === 'true';
+
 const configs = [
   {
     name: 'First config',
-    uid: 'config-0',
+    uid: (withUid ? 'config-0' : undefined),
     version: '1.0.16',
     description: '',
     datasets: [],
@@ -29,7 +32,7 @@ const configs = [
   },
   {
     name: 'Second config',
-    uid: 'config-1',
+    uid: (withUid ? 'config-1' : undefined),
     version: '1.0.16',
     description: '',
     datasets: [],
@@ -70,7 +73,7 @@ const configs = [
   },
   {
     name: 'Third config',
-    uid: 'config-2',
+    uid: (withUid ? 'config-2' : undefined),
     version: '1.0.16',
     description: '',
     datasets: [],
