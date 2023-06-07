@@ -226,14 +226,6 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       '/X/.zarray',
     ];
 
-    const supportedObsmKeys = [
-      'obsm/X_pca',
-      'obsm/X_umap',
-      'obsm/X_tsne',
-      'obsm/X_spatial',
-      'obsm/X_segmentations',
-    ];
-
     const getObsmKey = (url) => {
       // Get the substring "X_pca" from a URL like
       // http://example.com/foo/adata.zarr/obsm/X_pca/.zarray
