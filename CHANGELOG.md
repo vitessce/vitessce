@@ -4,12 +4,16 @@
 - Added a dropdown in `FeatureList` that allows the user to:
   - select between `alphabetical` and `original` ordering for the feature list.
   - show two columns in the feature list if the feature has a second identifier associated.
+- Added support for generating view-config for Anndata-Zarr files that don't have .zmetadata file in the folder.
 
 ### Changed
 - Fix Material UI import statement.
 - Implemented the functionality required to re-order the feature list, based on the selection from the dropdown:
   - added state variables `featureListSort` and `showFeatureTable`.
   - hooked the state variables to `FeatureListOptions` and to `FeatureList`.
+- Modified the `AnndataZarrAutoConfig` class:
+  - added a parser function that generates metadata summary without reading `.zmetadata` file.
+  - the class calls the parser function if no `.zmetadata` file is present in the given URL.
 
 ## [3.0.0](https://www.npmjs.com/package/vitessce/v/3.0.0) - 2023-05-24
 
