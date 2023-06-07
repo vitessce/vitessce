@@ -3,7 +3,7 @@ import {
   ThemeProvider,
   StylesProvider,
   createGenerateClassName,
-} from '@material-ui/core/es/styles/index.js';
+} from '@material-ui/core';
 import { isEqual } from 'lodash-es';
 import { META_VERSION } from '@vitessce/constants-internal';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';

@@ -18,6 +18,9 @@ An evolving set of guidelines to ensure that features remain maintainable, scala
 
 - Prefer minimal data types - If you can imagine reasonably storing data in multiple files (e.g., using formats like CSV or JSON), then consider splitting into multiple simpler data types. [Joint file types](http://vitessce.io/docs/data-types-file-types/#joint-file-types) can be used in cases where data is stored in the same file.
 
+### Data transformations
+- Defer (in the code) expensive transformations that are mostly presentational (e.g., normalizing an expression matrix or mapping ENSEMBL IDs to gene symbols) until necessary, to be able to rely on the original representation in more places.
+
 ### Scripting for development
 
 - Prefer NodeJS scripts over complex Shell scripts.
@@ -30,6 +33,9 @@ An evolving set of guidelines to ensure that features remain maintainable, scala
 ### TypeScript
 
 - Implement new sub-packages using TypeScript to avoid creating tech debt.
+
+### JSX
+- Prefer ternary with explicit null case `return (someCondition ? (<SomeComponent/>) : null)` over `return (someCondition && <SomeComponent/>)`.
 
 ### Parsing and validation of user input
 - Prefer [Zod](https://zod.dev/) schema over JSON schema - This improves the TypeScript development experience and follows the ["parse, don't validate"](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/) mantra.

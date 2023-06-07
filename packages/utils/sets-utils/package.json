@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/sets-utils",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -32,8 +32,8 @@
   "dependencies": {
     "@turf/centroid": "^6.5.0",
     "@turf/helpers": "^6.5.0",
-    "@vitessce/utils": "workspace:*",
     "@vitessce/schemas": "workspace:*",
+    "@vitessce/utils": "workspace:*",
     "concaveman": "^1.2.1",
     "d3-dsv": "^1.1.1",
     "internmap": "^2.0.3",
