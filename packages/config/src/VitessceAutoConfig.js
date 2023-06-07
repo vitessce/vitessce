@@ -237,7 +237,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     const getObsmKey = (url) => {
       // Get the substring "X_pca" from a URL like
       // http://example.com/foo/adata.zarr/obsm/X_pca/.zarray
-      const obsmKeyStartIndex = `${this.fileUrl}/obsm/`.length;
+      const obsmKeyStartIndex = `${this.fileUrl}/`.length;
       const obsmKeyEndIndex = url.length - '/.zarray'.length;
       return url.substring(obsmKeyStartIndex, obsmKeyEndIndex);
     };
