@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { useDropzone } from 'react-dropzone';
 import {
@@ -18,11 +18,8 @@ import {
 } from './_live-editor-examples.js';
 import { JSON_TRANSLATION_KEY } from './_editor-utils.js';
 import JsonHighlight from './_JsonHighlight.js';
-import { OptionsContainer, OptionSelect, usePlotOptionsStyles } from '@vitessce/vit-s';
-import { TableCell, TableRow, RadioGroup, FormControl, FormLabel, FormControlLabel, Radio } from '@material-ui/core';
-
+import { RadioGroup, FormControl, FormLabel, FormControlLabel, Radio } from '@material-ui/core';
 import styles from './styles.module.css';
-const classes = usePlotOptionsStyles();
 
 
 // To simplify the JS editor, the user only needs to write
@@ -259,18 +256,22 @@ export default function ViewConfigEditor(props) {
 
   const showReset = (syntaxType === 'JSON' && pendingJson !== baseJson) || (syntaxType === 'JS' && pendingJs !== baseJs);
 
-  const getHintConfig = () => {
-    const sanitisedUrls = sanitiseURLs(datasetUrls);
-    const fileTypes = getFileTypes(sanitisedUrls);
+  const [debouncedHintsClass, setDebouncedHintsClass] = useState(null);
 
-    const hintType = Object.keys(hintsConfig).find((key) => {
-      return hintsConfig[key].fileTypes.every((fileType) => {
-        return fileTypes.includes(fileType);
-      }) && hintsConfig[key].fileTypes.length === fileTypes.length;
-    });
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      const sanitisedUrls = sanitiseURLs(datasetUrls);
+      const fileTypes = getFileTypes(sanitisedUrls);
+      const newHintsClass = Object.keys(hintsConfig).find((key) => {
+        return hintsConfig[key].fileTypes.every((fileType) => {
+          return fileTypes.includes(fileType);
+        }) && hintsConfig[key].fileTypes.length === fileTypes.length;
+      });
+      setDebouncedHintsClass(newHintsClass);
+    }, 500);
 
-    return hintsConfig[hintType];
-  }
+    return () => clearTimeout(handle);
+  }, [datasetUrls]);
 
   const [hintsKey, setHintsKey] = useState(1);
 
@@ -279,18 +280,25 @@ export default function ViewConfigEditor(props) {
     setHintsKey(Number(event.target.value)); 
   }
 
-  const renderHints = () => (               
-    <div style={{backgroundColor: "white"}}>
-      <FormControl component="fieldset">
-        <FormLabel component="legend">Select hint type</FormLabel>
-        <RadioGroup aria-label="gender" name="gender1" value={hintsKey} onChange={handleHintChoice}>
-          {getHintConfig().hints.map((hint) => (
-            <FormControlLabel value={hint.key} control={<Radio />} label={hint.title} />
-          ))}
-        </RadioGroup>
-      </FormControl>
-    </div>
-  );
+  const renderHints = () => {  
+  
+    if (!debouncedHintsClass) {
+      // show some default state while waiting
+      return <div>Loading hints ...</div>;
+    }
+    return (
+      <div style={{backgroundColor: "white"}}>
+        <FormControl component="fieldset">
+          <FormLabel component="legend">Select hint type</FormLabel>
+          <RadioGroup aria-label="gender" name="gender1" value={hintsKey} onChange={handleHintChoice}>
+            {hintsConfig[debouncedHintsClass].hints.map((hint) => (
+              <FormControlLabel value={hint.key} control={<Radio />} label={hint.title} />
+            ))}
+          </RadioGroup>
+        </FormControl>
+      </div>
+    )
+  }
 
   return (
     loading ? (
