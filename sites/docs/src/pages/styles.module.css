@@ -169,6 +169,11 @@
   height: 100%;
 }
 
+.viewConfigGo:disabled {
+  opacity: 0.5; /* You can adjust this value according to your design needs */
+  cursor: not-allowed;
+}
+
 .viewConfigInputUrlOrFileSplit {
   display: grid;
   grid-template-columns: 4fr 1fr;

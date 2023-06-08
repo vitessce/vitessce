@@ -6,7 +6,7 @@ import {
   LiveProvider, LiveContext, LiveError, LivePreview,
 } from 'react-live';
 import {
-  VitessceConfig, generateConfigs, getFileTypes, hconcat, vconcat,
+  VitessceConfig, generateConfigs, HINTS_CONFIG, getHintType, hconcat, vconcat,
 } from '@vitessce/config';
 import {
   CoordinationType, ViewType, DataType, FileType,
@@ -20,6 +20,7 @@ import { JSON_TRANSLATION_KEY } from './_editor-utils.js';
 import JsonHighlight from './_JsonHighlight.js';
 import { RadioGroup, FormControl, FormLabel, FormControlLabel, Radio } from '@material-ui/core';
 import styles from './styles.module.css';
+import { set } from 'lodash-es';
 
 
 // To simplify the JS editor, the user only needs to write
@@ -72,87 +73,33 @@ export default function ViewConfigEditor(props) {
   const [pendingUrl, setPendingUrl] = useState('');
   const [datasetUrls, setDatasetUrls] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr');
   const [pendingFileContents, setPendingFileContents] = useState('');
+  const [generateConfigButtonDisabled, setGenerateConfigButtonDisabled] = useState(false);
 
   const [syntaxType, setSyntaxType] = useState('JSON');
   const [loadFrom, setLoadFrom] = useState('editor');
 
   const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
 
-  const hintsConfig = {
-    "E": {
-      "fileTypes": ['AnnData-Zarr'],
-      "hints": [
-        {
-          "title": "Transcriptomics / scRNA-seq (with heatmap)",
-          "key": 5,
-        },
-        {
-          "title": "Transcriptomics / scRNA-seq (without heatmap)",
-          "key": 2,
-        },
-        {
-          "title": "Spatial transcriptomics (with polygon cell segmentations)",
-          "key": 3,
-        },
-        {
-          "title": "Chromatin accessibility / scATAC-seq (with heatmap)",
-          "key": 4,
-        },
-        {
-          "title": "No hints",
-          "key": 1,
-        }
-      ]
-    },
-    "B": {
-      "fileTypes": ['OME-Zarr', 'AnnData-Zarr'],
-      "hints": [
-        {
-          "title": "Spatial transcriptomics (with histology image and polygon cell segmentations)",
-          "key": 2,
-        },
-        {
-          "title": "No hints",
-          "key": 1,
-        }
-      ]
-    },
-    "C": {
-      "fileTypes": ['OME-Zarr'],
-      "hints": [
-        {
-          "A": "Image",
-          "key": 2,
-        },
-        {
-          "title": "No hints",
-          "key": 1,
-        }
-      ]
-    },
-    "D": {
-      "fileTypes": ['OME-TIFF'],
-      "key": 3,
-      "hints": [
-        {
-          "title": "Image",
-          "key": 2,
-        },
-        {
-          "title": "No hints",
-          "key": 1,
-        }
-      ]
-    },
-    "A": {
-      "fileTypes": [],
-      "key": 4,
-      "hints": [{
-        "title": "No hints available for this dataset type",
-        "key": 1,
-      }]
-    }
-  };
+  const [debouncedHintsClass, setDebouncedHintsClass] = useState(null);
+  const [hintsKey, setHintsKey] = useState("1");
+
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      const sanitisedUrls = sanitiseURLs(datasetUrls);
+      const hintTypes = getHintType(sanitisedUrls);
+      const newHintsClass = Object.keys(HINTS_CONFIG).find((key) => {
+        return HINTS_CONFIG[key].hintType.every((fileType) => {
+          return hintTypes.includes(fileType);
+        }) && HINTS_CONFIG[key].hintType.length === hintTypes.length;
+      });
+      setDebouncedHintsClass(newHintsClass);
+      setHintsKey("1");
+      setPendingJson(baseJson);
+      setGenerateConfigButtonDisabled(false);
+    }, 500);
+
+    return () => clearTimeout(handle);
+  }, [datasetUrls]);
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length === 1) {
@@ -161,6 +108,7 @@ export default function ViewConfigEditor(props) {
         const { result } = reader;
         setPendingFileContents(result);
         setLoadFrom('file');
+        setGenerateConfigButtonDisabled(false);
       });
       reader.readAsText(acceptedFiles[0]);
     }
@@ -213,9 +161,10 @@ export default function ViewConfigEditor(props) {
   async function handleConfigGeneration() {
     setError(null);
     const sanitisedUrls = sanitiseURLs(datasetUrls);
-    await generateConfigs(sanitisedUrls)
+    await generateConfigs(sanitisedUrls, {hintsClass: debouncedHintsClass, hintsKey})
       .then((configJson) => {
         setPendingJson(JSON.stringify(configJson, null, 2));
+        setGenerateConfigButtonDisabled(true);
         setLoadFrom('editor');
       })
       .catch((e) => {
@@ -256,43 +205,25 @@ export default function ViewConfigEditor(props) {
 
   const showReset = (syntaxType === 'JSON' && pendingJson !== baseJson) || (syntaxType === 'JS' && pendingJs !== baseJs);
 
-  const [debouncedHintsClass, setDebouncedHintsClass] = useState(null);
-
-  useEffect(() => {
-    const handle = setTimeout(() => {
-      const sanitisedUrls = sanitiseURLs(datasetUrls);
-      const fileTypes = getFileTypes(sanitisedUrls);
-      const newHintsClass = Object.keys(hintsConfig).find((key) => {
-        return hintsConfig[key].fileTypes.every((fileType) => {
-          return fileTypes.includes(fileType);
-        }) && hintsConfig[key].fileTypes.length === fileTypes.length;
-      });
-      setDebouncedHintsClass(newHintsClass);
-    }, 500);
-
-    return () => clearTimeout(handle);
-  }, [datasetUrls]);
-
-  const [hintsKey, setHintsKey] = useState(1);
-
   function handleHintChoice(event){
-    console.log("selected: ", event.target.value);
-    setHintsKey(Number(event.target.value)); 
+    setHintsKey(event.target.value); 
+    setPendingJson(baseJson);
+    setGenerateConfigButtonDisabled(false);
   }
 
   const renderHints = () => {  
   
     if (!debouncedHintsClass) {
       // show some default state while waiting
-      return <div>Loading hints ...</div>;
+      return <pre>Loading hints ...</pre>;
     }
     return (
       <div style={{backgroundColor: "white"}}>
         <FormControl component="fieldset">
           <FormLabel component="legend">Select hint type</FormLabel>
           <RadioGroup aria-label="gender" name="gender1" value={hintsKey} onChange={handleHintChoice}>
-            {hintsConfig[debouncedHintsClass].hints.map((hint) => (
-              <FormControlLabel value={hint.key} control={<Radio />} label={hint.title} />
+            {Object.keys(HINTS_CONFIG[debouncedHintsClass].hints).map((hintKey) => (
+              <FormControlLabel value={hintKey} control={<Radio />} label={HINTS_CONFIG[debouncedHintsClass].hints[hintKey].title} />
             ))}
           </RadioGroup>
         </FormControl>
@@ -343,6 +274,8 @@ export default function ViewConfigEditor(props) {
               type="button"
               className={styles.viewConfigGo}
               onClick={handleConfigGeneration}
+              disabled={generateConfigButtonDisabled}
+              
             >Generate config
             </button>
           </div>

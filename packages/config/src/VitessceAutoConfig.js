@@ -3,6 +3,7 @@ import {
   VitessceConfig,
 } from './VitessceConfig.js';
 
+import { HINTS_CONFIG } from './constants.js';
 
 class AbstractAutoConfig {
   async composeViewsConfig() { /* eslint-disable-line class-methods-use-this */
@@ -64,7 +65,6 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
       ['description'],
       ['spatial'],
       ['layerController'],
-      ['status'],
     ];
   }
 
@@ -424,7 +424,7 @@ async function generateConfig(url, vc) {
 
 // http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr, http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.ome.tiff
 
-export function getFileTypes(fileUrls) {
+export function getHintType(fileUrls) {
   let fileTypes = [];
 
   // todo: this function is broken
@@ -442,12 +442,18 @@ export function getFileTypes(fileUrls) {
   return fileTypes; // todo: we need to make these unique
 }
 
-export async function generateConfigs(fileUrls) {
+export async function generateConfigs(fileUrls, hintsInfo) {
   const vc = new VitessceConfig({
     schemaVersion: '1.0.15',
     name: 'An automatically generated config. Adjust values and add layout components if needed.',
     description: 'Populate with text relevant to this visualisation.',
   });
+
+  console.log("Hints info!!!!!!: ", hintsInfo);
+
+  const requiredViews = HINTS_CONFIG[hintsInfo.hintsClass];
+
+  console.log("requiredViews: ", requiredViews)
 
   const allViews = [];
 
@@ -457,7 +463,7 @@ export async function generateConfigs(fileUrls) {
 
   return Promise.all(allViews).then((views) => {
     const flattenedViews = views.flat();
-
+    console.log("Flattened views: ", flattenedViews);
     const coord = calculateCoordinates(flattenedViews.length);
 
     for (let i = 0; i < flattenedViews.length; i++) {
