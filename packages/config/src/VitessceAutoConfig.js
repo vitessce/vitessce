@@ -304,14 +304,17 @@ const configClasses = [
   {
     extensions: ['.ome.tif', '.ome.tiff', '.ome.tf2', '.ome.tf8'],
     class: OmeTiffAutoConfig,
+    name: 'OME-TIFF',
   },
   {
     extensions: ['.h5ad.zarr', '.adata.zarr', '.anndata.zarr'],
     class: AnndataZarrAutoConfig,
+    name: 'AnnData-Zarr',
   },
   {
     extensions: ['ome.zarr'],
     class: OmeZarrAutoConfig,
+    name: 'OME-Zarr',
   },
 ];
 
@@ -322,7 +325,7 @@ function getFileType(url) {
   if (!match) {
     throw new Error(`Could not generate config for URL: ${url}. This file type is not supported.`);
   }
-  return match.class;
+  return match;
 }
 
 function calculateCoordinates(viewsNumb) {
@@ -346,7 +349,8 @@ function calculateCoordinates(viewsNumb) {
 async function generateConfig(url, vc) {
   let ConfigClassName;
   try {
-    ConfigClassName = getFileType(url);
+    ConfigClassName = getFileType(url).class;
+    console.log(`**** Generating config for ${url} using ${ConfigClassName.name}`);
   } catch (err) {
     return Promise.reject(err);
   }
@@ -416,6 +420,26 @@ async function generateConfig(url, vc) {
   }
 
   return views;
+}
+
+// http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr, http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.ome.tiff
+
+export function getFileTypes(fileUrls) {
+  let fileTypes = [];
+
+  // todo: this function is broken
+  fileUrls.forEach((url) => {
+    try {
+      const match = getFileType(url);
+      fileTypes.push(match.name);
+    } catch (err) {
+      console.error("not supported file type, but ignoring the error");
+    }
+  });
+
+  console.log("File types: ", fileTypes);
+
+  return fileTypes; // todo: we need to make these unique
 }
 
 export async function generateConfigs(fileUrls) {

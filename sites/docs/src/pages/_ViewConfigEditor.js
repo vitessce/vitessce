@@ -6,7 +6,7 @@ import {
   LiveProvider, LiveContext, LiveError, LivePreview,
 } from 'react-live';
 import {
-  VitessceConfig, generateConfigs, hconcat, vconcat,
+  VitessceConfig, generateConfigs, getFileTypes, hconcat, vconcat,
 } from '@vitessce/config';
 import {
   CoordinationType, ViewType, DataType, FileType,
@@ -18,9 +18,11 @@ import {
 } from './_live-editor-examples.js';
 import { JSON_TRANSLATION_KEY } from './_editor-utils.js';
 import JsonHighlight from './_JsonHighlight.js';
-
+import { OptionsContainer, OptionSelect, usePlotOptionsStyles } from '@vitessce/vit-s';
+import { TableCell, TableRow, RadioGroup, FormControl, FormLabel, FormControlLabel, Radio } from '@material-ui/core';
 
 import styles from './styles.module.css';
+const classes = usePlotOptionsStyles();
 
 
 // To simplify the JS editor, the user only needs to write
@@ -71,13 +73,89 @@ export default function ViewConfigEditor(props) {
   const defaultViewConfigDocsUrl = useBaseUrl('/docs/default-config-json');
 
   const [pendingUrl, setPendingUrl] = useState('');
-  const [datasetUrls, setDatasetUrls] = useState('');
+  const [datasetUrls, setDatasetUrls] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr');
   const [pendingFileContents, setPendingFileContents] = useState('');
 
   const [syntaxType, setSyntaxType] = useState('JSON');
   const [loadFrom, setLoadFrom] = useState('editor');
 
   const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
+
+  const hintsConfig = {
+    "E": {
+      "fileTypes": ['AnnData-Zarr'],
+      "hints": [
+        {
+          "title": "Transcriptomics / scRNA-seq (with heatmap)",
+          "key": 5,
+        },
+        {
+          "title": "Transcriptomics / scRNA-seq (without heatmap)",
+          "key": 2,
+        },
+        {
+          "title": "Spatial transcriptomics (with polygon cell segmentations)",
+          "key": 3,
+        },
+        {
+          "title": "Chromatin accessibility / scATAC-seq (with heatmap)",
+          "key": 4,
+        },
+        {
+          "title": "No hints",
+          "key": 1,
+        }
+      ]
+    },
+    "B": {
+      "fileTypes": ['OME-Zarr', 'AnnData-Zarr'],
+      "hints": [
+        {
+          "title": "Spatial transcriptomics (with histology image and polygon cell segmentations)",
+          "key": 2,
+        },
+        {
+          "title": "No hints",
+          "key": 1,
+        }
+      ]
+    },
+    "C": {
+      "fileTypes": ['OME-Zarr'],
+      "hints": [
+        {
+          "A": "Image",
+          "key": 2,
+        },
+        {
+          "title": "No hints",
+          "key": 1,
+        }
+      ]
+    },
+    "D": {
+      "fileTypes": ['OME-TIFF'],
+      "key": 3,
+      "hints": [
+        {
+          "title": "Image",
+          "key": 2,
+        },
+        {
+          "title": "No hints",
+          "key": 1,
+        }
+      ]
+    },
+    "A": {
+      "fileTypes": [],
+      "key": 4,
+      "hints": [{
+        "title": "No hints available for this dataset type",
+        "key": 1,
+      }]
+    }
+  };
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length === 1) {
@@ -181,6 +259,39 @@ export default function ViewConfigEditor(props) {
 
   const showReset = (syntaxType === 'JSON' && pendingJson !== baseJson) || (syntaxType === 'JS' && pendingJs !== baseJs);
 
+  const getHintConfig = () => {
+    const sanitisedUrls = sanitiseURLs(datasetUrls);
+    const fileTypes = getFileTypes(sanitisedUrls);
+
+    const hintType = Object.keys(hintsConfig).find((key) => {
+      return hintsConfig[key].fileTypes.every((fileType) => {
+        return fileTypes.includes(fileType);
+      }) && hintsConfig[key].fileTypes.length === fileTypes.length;
+    });
+
+    return hintsConfig[hintType];
+  }
+
+  const [hintsKey, setHintsKey] = useState(1);
+
+  function handleHintChoice(event){
+    console.log("selected: ", event.target.value);
+    setHintsKey(Number(event.target.value)); 
+  }
+
+  const renderHints = () => (               
+    <div style={{backgroundColor: "white"}}>
+      <FormControl component="fieldset">
+        <FormLabel component="legend">Select hint type</FormLabel>
+        <RadioGroup aria-label="gender" name="gender1" value={hintsKey} onChange={handleHintChoice}>
+          {getHintConfig().hints.map((hint) => (
+            <FormControlLabel value={hint.key} control={<Radio />} label={hint.title} />
+          ))}
+        </RadioGroup>
+      </FormControl>
+    </div>
+  );
+
   return (
     loading ? (
       <pre>Loading...</pre>
@@ -245,7 +356,7 @@ export default function ViewConfigEditor(props) {
         <div className={styles.viewConfigEditorInputsSplit}>
           <div className={styles.viewConfigEditor}>
             {syntaxType === 'JSON' ? (
-              <>
+              <div className={styles.viewConfigEditorPreviewJSSplit}>
                 <ThemedControlledEditor
                   value={pendingJson}
                   onChange={(value) => {
@@ -254,7 +365,8 @@ export default function ViewConfigEditor(props) {
                   }}
                   language="json"
                 />
-              </>
+                {renderHints()}
+              </div>
             ) : (
               <div className={styles.viewConfigEditorPreviewJSSplit}>
                 <LiveProvider code={pendingJs} scope={scope} transformCode={transformCode}>
