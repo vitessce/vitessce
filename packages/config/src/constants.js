@@ -1,10 +1,18 @@
+const TRANSCRIPTOMICS_WITH_HEATMAP_VIEWS = {
+  "obsSets": [4, 0, 4, 4],
+  "obsSetSizes": [8, 0, 4, 4],
+  "scatterplot": [0, 0, 4, 4],
+  "heatmap": [0, 4, 8, 4],
+  "featureList": [8, 4, 4, 4]
+}
+
 export const HINTS_CONFIG = {
   "E": {
     "hintType": ['AnnData-Zarr'],
     "hints": {
       "6": {
         "title": "Transcriptomics / scRNA-seq (with heatmap)",
-        "views": ["scatterplot", "obsSets", "obsSetSizes", "heatmap", "featureList"]
+        "views": TRANSCRIPTOMICS_WITH_HEATMAP_VIEWS,
       },
       "5": {
         "title": "Transcriptomics / scRNA-seq (without heatmap)",
@@ -44,10 +52,12 @@ export const HINTS_CONFIG = {
     "hintType": ['OME-Zarr', 'AnnData-Zarr'],
     "hints": {
       "2": {
-        "title": "Spatial transcriptomics (with histology image and polygon cell segmentations)"
+        "title": "Spatial transcriptomics (with histology image and polygon cell segmentations)",
+        "views": ["spatial", "spatial", "layerController", "obsSets", "featureList", "heatmap"]
       },
       "1": {
         "title": "Don't use any hints",
+        "views": [],
       }
     }
   },
@@ -55,10 +65,12 @@ export const HINTS_CONFIG = {
     "hintType": ['OME-Zarr'],
     "hints": {
       "2": {
-        "title": "Image"
+        "title": "Image",
+        "views": [],
       },
       "1": {
         "title": "Don't use any hints",
+        "views": [],
       }
     }
   },
@@ -66,10 +78,12 @@ export const HINTS_CONFIG = {
     "hintType": ['OME-TIFF'],
     "hints": {
       "2": {
-        "title": "Image"
+        "title": "Image",
+        "views": [],
       },
       "1": {
         "title": "Don't use any hints",
+        "views": [],
       }
     }
   },
@@ -77,10 +91,13 @@ export const HINTS_CONFIG = {
     "hintType": [],
     "hints": {
       "2": {
-        "title": "Image"
+        "title": "Image",
+        "views": [],
+
       },
       "1": {
         "title": "No hints available for this dataset type",
+        "views": [],
       }
     }
   }

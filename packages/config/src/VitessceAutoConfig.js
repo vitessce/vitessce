@@ -5,6 +5,15 @@ import {
 
 import { HINTS_CONFIG } from './constants.js';
 
+
+const hintsContainsView = (hints, viewType) => {
+  const hintsViews = Object.keys(hints);
+  if (hintsViews.length === 0) {
+    return true;
+  }
+  return hintsViews.includes(viewType);
+}
+
 class AbstractAutoConfig {
   async composeViewsConfig() { /* eslint-disable-line class-methods-use-this */
     throw new Error('The composeViewsConfig() method has not been implemented.');
@@ -23,7 +32,7 @@ class OmeTiffAutoConfig extends AbstractAutoConfig {
   }
 
 
-  async composeViewsConfig() { /* eslint-disable-line class-methods-use-this */
+  async composeViewsConfig(requiredViews) { /* eslint-disable-line class-methods-use-this */
     return [
       ['description'],
       ['spatial'],
@@ -60,7 +69,7 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
     this.fileName = fileUrl.split('/').at(-1);
   }
 
-  async composeViewsConfig() { /* eslint-disable-line class-methods-use-this */
+  async composeViewsConfig(requiredViews) { /* eslint-disable-line class-methods-use-this */
     return [
       ['description'],
       ['spatial'],
@@ -147,7 +156,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     };
   }
 
-  async composeViewsConfig() {
+  async composeViewsConfig(hintsViewsConfig) {
     this.metadataSummary = await this.setMetadataSummary();
 
     const views = [];
@@ -160,26 +169,34 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     }
 
     this.metadataSummary.obsm.forEach((key) => {
-      if (key.toLowerCase().includes('obsm/x_umap')) {
+      if (hintsContainsView(hintsViewsConfig, "scatterplot") && key.toLowerCase().includes('obsm/x_umap')) {
         views.push(['scatterplot', { mapping: 'UMAP' }]);
       }
-      if (key.toLowerCase().includes('obsm/x_tsne')) {
-        views.push(['scatterplot', { mapping: 't-SNE' }]);
-      }
-      if (key.toLowerCase().includes('obsm/x_pca')) {
-        views.push(['scatterplot', { mapping: 'PCA' }]);
-      }
-      if (key.toLowerCase().includes(('obsm/x_segmentations'))) {
+      // if (hintsContainsView(hintsViewsConfig, "scatterplot") && key.toLowerCase().includes('obsm/x_tsne')) {
+      //   views.push(['scatterplot', { mapping: 't-SNE' }]);
+      // }
+      // if (hintsContainsView(hintsViewsConfig, "scatterplot") && key.toLowerCase().includes('obsm/x_pca')) {
+      //   views.push(['scatterplot', { mapping: 'PCA' }]);
+      // }
+      if (hintsContainsView(hintsViewsConfig, "layerController") && key.toLowerCase().includes(('obsm/x_segmentations'))) {
         views.push(['layerController']);
       }
-      if (key.toLowerCase().includes(('obsm/x_spatial'))) {
+      if (hintsContainsView(hintsViewsConfig, "spatial") && key.toLowerCase().includes(('obsm/x_spatial'))) {
         views.push(['spatial']);
       }
     });
 
+    if (hintsContainsView(hintsViewsConfig, "obsSetSizes")) {
+      views.push(['obsSetSizes']);
+    }
+
     if (this.metadataSummary.X) {
-      views.push(['heatmap']);
-      views.push(['featureList']);
+      if (hintsContainsView(hintsViewsConfig, "heatmap")) {
+        views.push(['heatmap']);
+      }
+      if (hintsContainsView(hintsViewsConfig, "featureList")) {
+        views.push(['featureList']);
+      }
     }
 
     return views;
@@ -346,7 +363,7 @@ function calculateCoordinates(viewsNumb) {
   return coords;
 }
 
-async function generateConfig(url, vc) {
+async function generateConfig(url, requiredViews, vc) {
   let ConfigClassName;
   try {
     ConfigClassName = getFileType(url).class;
@@ -360,7 +377,7 @@ async function generateConfig(url, vc) {
   let viewsConfig;
   try {
     fileConfig = await configInstance.composeFileConfig();
-    viewsConfig = await configInstance.composeViewsConfig();
+    viewsConfig = await configInstance.composeViewsConfig(requiredViews);
   } catch (error) {
     console.error(error);
     return Promise.reject(error);
@@ -451,23 +468,33 @@ export async function generateConfigs(fileUrls, hintsInfo) {
 
   console.log("Hints info!!!!!!: ", hintsInfo);
 
-  const requiredViews = HINTS_CONFIG[hintsInfo.hintsClass];
+  const hintsViews = HINTS_CONFIG[hintsInfo.hintsClass].hints[hintsInfo.hintsKey].views;
 
-  console.log("requiredViews: ", requiredViews)
+  console.log("requiredViews: ", hintsViews)
 
   const allViews = [];
 
   fileUrls.forEach((url) => {
-    allViews.push(generateConfig(url, vc));
+    allViews.push(generateConfig(url, hintsViews, vc));
   });
 
   return Promise.all(allViews).then((views) => {
     const flattenedViews = views.flat();
-    console.log("Flattened views: ", flattenedViews);
-    const coord = calculateCoordinates(flattenedViews.length);
 
-    for (let i = 0; i < flattenedViews.length; i++) {
-      flattenedViews[i].setXYWH(...coord[i]);
+    if (Object.keys(hintsViews).length === 0) {
+      const coord = calculateCoordinates(flattenedViews.length);
+
+      console.log("coordinates: ", coord);
+
+      for (let i = 0; i < flattenedViews.length; i++) {
+        flattenedViews[i].setXYWH(...coord[i]);
+      }
+    } else {
+      flattenedViews.forEach((vitessceConfigView) => {
+        const viewCoordinates = hintsViews[vitessceConfigView.view.component];
+        console.log("view coordinates: ", viewCoordinates);
+        vitessceConfigView.setXYWH(...viewCoordinates);
+      });
     }
 
     return vc.toJSON();
