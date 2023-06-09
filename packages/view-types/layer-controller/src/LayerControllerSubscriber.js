@@ -111,6 +111,7 @@ const LayerControllerMemoized = React.memo(
           )}
           {/* Segmentation bitmask layers: */}
           {cellsLayer && obsSegmentationsType === 'bitmask'
+            && Array.isArray(cellsLayer)
             && cellsLayer.map((layer, i) => {
               const { index } = layer;
               const loader = segmentationLayerLoaders?.[index];
