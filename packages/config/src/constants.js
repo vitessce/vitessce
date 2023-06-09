@@ -22,26 +22,48 @@ const SPATIAL_TRANSCRIPTOMICS_VIEWS = {
   "obsSetFeatureValueDistribution": [6, 4, 6, 4],
 }
 
+const SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS = {
+  "spatial": [0, 0, 6, 6],
+  "spatial": [6, 0, 6, 6],
+  "heatmap": [6, 6, 6, 6],
+  "layerController": [0, 6, 2, 6],
+  "obsSets": [2, 6, 2, 6],
+  "featureList": [4, 6, 2, 6],
+}
+
+const IMAGE_VIEWS = {
+  "spatial": [0, 0, 8, 12],
+  "layerController": [8, 0, 4, 7],
+  "description": [8, 9, 4, 5],
+}
+
+const DEFAULT_CONFIG = {
+  "title": "Don't use any hints",
+  "views": {},
+  "coordinationValues": {}
+}
+
 export const HINTS_CONFIG = {
   "E": {
     "hintType": ['AnnData-Zarr'],
     "hints": {
       "6": {
+        ...DEFAULT_CONFIG,
         "title": "Transcriptomics / scRNA-seq (with heatmap)",
         "views": SINGLE_CELL_WITH_HEATMAP_VIEWS,
-        "coordinationValues": {},
       },
       "5": {
+        ...DEFAULT_CONFIG,
         "title": "Transcriptomics / scRNA-seq (without heatmap)",
         "views": SINGLE_CELL_WITHOUT_HEATMAP_VIEWS,
-        "coordinationValues": {},
       },
       "4": {
+        ...DEFAULT_CONFIG,
         "title": "Spatial transcriptomics (with polygon cell segmentations)",
         "views": SPATIAL_TRANSCRIPTOMICS_VIEWS,
-        "coordinationValues": {},
       },
       "3": {
+        ...DEFAULT_CONFIG,
         "title": "Chromatin accessibility / scATAC-seq (with heatmap)",
         "views": SINGLE_CELL_WITH_HEATMAP_VIEWS, 
         "coordinationValues": {
@@ -49,76 +71,55 @@ export const HINTS_CONFIG = {
         }
       },
       "2": {
+        ...DEFAULT_CONFIG,
         "title": "Chromatin accessibility / scATAC-seq (without heatmap)",
         "views": SINGLE_CELL_WITHOUT_HEATMAP_VIEWS, 
         "coordinationValues": {
           "featureType": "peak",
         }
         },
-      "1": {
-        "title": "Don't use any hints",
-        "views": [],
-        "coordinationValues": {},
-      },
+      "1": DEFAULT_CONFIG,
     }
   },
   "B": {
     "hintType": ['OME-Zarr', 'AnnData-Zarr'],
     "hints": {
       "2": {
+        ...DEFAULT_CONFIG,
         "title": "Spatial transcriptomics (with histology image and polygon cell segmentations)",
-        "views": ["spatial", "spatial", "layerController", "obsSets", "featureList", "heatmap"],
-        "coordinationValues": {},
+        "views": SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS,
       },
-      "1": {
-        "title": "Don't use any hints",
-        "views": [],
-        "coordinationValues": {},
-      }
+      "1": DEFAULT_CONFIG,
     }
   },
   "C": {
     "hintType": ['OME-Zarr'],
     "hints": {
       "2": {
+        ...DEFAULT_CONFIG,
         "title": "Image",
-        "views": [],
-        "coordinationValues": {},
+        "views": IMAGE_VIEWS,
       },
-      "1": {
-        "title": "Don't use any hints",
-        "views": [],
-        "coordinationValues": {},
-      }
+      "1": DEFAULT_CONFIG,
     }
   },
   "D": {
     "hintType": ['OME-TIFF'],
     "hints": {
       "2": {
+        ...DEFAULT_CONFIG,
         "title": "Image",
-        "views": [],
-        "coordinationValues": {},
+        "views": IMAGE_VIEWS,
       },
-      "1": {
-        "title": "Don't use any hints",
-        "views": [],
-        "coordinationValues": {},
-      }
+      "1": DEFAULT_CONFIG,
     }
   },
   "A": {
     "hintType": [],
     "hints": {
-      "2": {
-        "title": "Image",
-        "views": [],
-        "coordinationValues": {},
-      },
       "1": {
+        ...DEFAULT_CONFIG,
         "title": "No hints available for this dataset type",
-        "views": [],
-        "coordinationValues": {},
       }
     }
   }
