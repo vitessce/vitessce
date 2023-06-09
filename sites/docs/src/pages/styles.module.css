@@ -169,6 +169,11 @@
   height: 100%;
 }
 
+.viewConfigGo:active {
+  box-shadow: none;
+  transform: scale(0.98);
+}
+
 .viewConfigInputUrlOrFileSplit {
   display: grid;
   grid-template-columns: 4fr 1fr;

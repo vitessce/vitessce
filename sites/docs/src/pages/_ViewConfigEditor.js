@@ -18,9 +18,8 @@ import {
 } from './_live-editor-examples.js';
 import { JSON_TRANSLATION_KEY } from './_editor-utils.js';
 import JsonHighlight from './_JsonHighlight.js';
-import { FormControl, FormLabel } from '@material-ui/core';
 import styles from './styles.module.css';
-
+import {Box, List, ListItem, ListItemText, ListSubheader} from "@material-ui/core";
 
 // To simplify the JS editor, the user only needs to write
 // the inner part of the createConfig() function,
@@ -204,21 +203,27 @@ export default function ViewConfigEditor(props) {
       // show some default state while waiting
       return <pre>Loading hints ...</pre>;
     }
-
+    
     return (
-      <div style={{backgroundColor: "white"}}>
-        <FormControl component="fieldset">
-          <FormLabel component="legend">Generate config with hints:</FormLabel>
-            {Object.keys(HINTS_CONFIG[debouncedHintsClass].hints).map((hintKey) => (
-              <button 
-                type="button"
-                onClick={() => handleConfigGeneration(hintKey)}
-              >
-                { HINTS_CONFIG[debouncedHintsClass].hints[hintKey].title }
-                </button>
-            ))}
-        </FormControl>
-      </div>
+      <List
+        subheader={
+          <ListSubheader component="div" id="nested-list-subheader" style = {{ color: 'white'}}>
+            Generate config with hints:
+          </ListSubheader>
+        }
+      >
+        {Object.keys(HINTS_CONFIG[debouncedHintsClass].hints).map((hintKey) => (
+          <ListItem disablePadding>
+            <button 
+              type="button"
+              className={styles.viewConfigGo}
+              onClick={() => handleConfigGeneration(hintKey)}
+            >
+              <ListItemText primary={ HINTS_CONFIG[debouncedHintsClass].hints[hintKey].title} />
+            </button>
+          </ListItem>
+        ))}
+      </List>
     )
   }
 
