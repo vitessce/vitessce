@@ -70,7 +70,7 @@ export default function ViewConfigEditor(props) {
   const defaultViewConfigDocsUrl = useBaseUrl('/docs/default-config-json');
 
   const [pendingUrl, setPendingUrl] = useState('');
-  const [datasetUrls, setDatasetUrls] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr');
+  const [datasetUrls, setDatasetUrls] = useState('https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr; https://vitessce-data.storage.googleapis.com/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.ome.zarr');
   const [pendingFileContents, setPendingFileContents] = useState('');
 
   const [syntaxType, setSyntaxType] = useState('JSON');

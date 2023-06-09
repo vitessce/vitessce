@@ -33,11 +33,17 @@ class OmeTiffAutoConfig extends AbstractAutoConfig {
 
 
   async composeViewsConfig(hintsViews = {}) { /* eslint-disable-line class-methods-use-this */
-    return [
-      ['description'],
-      ['spatial'],
-      ['layerController'],
-    ];
+    const views = [];
+    if (hintsContainsView(hintsViews, 'description')) {
+      views.push(['description']);
+    }
+    if (hintsContainsView(hintsViews, 'spatial')) {
+      views.push(['spatial']);
+    }
+    if (hintsContainsView(hintsViews, 'layerController')) {
+      views.push(['layerController']);
+    }
+    return views;
   }
 
   async composeFileConfig(hintsCoordinationValues) {
@@ -69,12 +75,18 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
     this.fileName = fileUrl.split('/').at(-1);
   }
 
-  async composeViewsConfig(hintsViews) { /* eslint-disable-line class-methods-use-this */
-    return [
-      ['description'],
-      ['spatial'],
-      ['layerController'],
-    ];
+  async composeViewsConfig(hintsViews = {}) { /* eslint-disable-line class-methods-use-this */
+    const views = [];
+    if (hintsContainsView(hintsViews, 'description')) {
+      views.push(['description']);
+    }
+    if (hintsContainsView(hintsViews, 'spatial')) {
+      views.push(['spatial']);
+    }
+    if (hintsContainsView(hintsViews, 'layerController')) {
+      views.push(['layerController']);
+    }
+    return views;
   }
 
   async composeFileConfig(hintsCoordinationValues) {
@@ -167,6 +179,8 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
   async composeViewsConfig(hintsViewsConfig) {
     this.metadataSummary = await this.setMetadataSummary();
 
+    console.log("Metadata summary: ", this.metadataSummary);
+
     const views = [];
 
     const hasCellSetData = this.metadataSummary.obs
@@ -207,6 +221,8 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       views.push(['obsSetFeatureValueDistribution']);
     }
 
+    // this is commented out, because for https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr
+    // X is false
     if (this.metadataSummary.X) {
       if (hintsContainsView(hintsViewsConfig, "heatmap")) {
         views.push(['heatmap']);
@@ -258,6 +274,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       '/obsm/X_segmentations/.zarray',
       '/obs/.zattrs',
       '/X/.zarray',
+      '/X/data/.zarray' // for https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr
     ];
 
     const getObsmKey = (url) => {
@@ -380,7 +397,7 @@ function calculateCoordinates(viewsNumb) {
   return coords;
 }
 
-async function generateConfig(url, hintsConfig, vc) {
+async function generateConfig(url, hintsConfig, vc, dataset) {
   let ConfigClassName;
   try {
     ConfigClassName = getFileType(url).class;
@@ -400,9 +417,7 @@ async function generateConfig(url, hintsConfig, vc) {
     return Promise.reject(error);
   }
 
-  const dataset = vc
-    .addDataset(configInstance.fileName)
-    .addFile(fileConfig);
+  dataset.addFile(fileConfig);
 
   let layerControllerView = false;
   let spatialView = false;
@@ -465,7 +480,12 @@ export function getHintType(fileUrls) {
   fileUrls.forEach((url) => {
     try {
       const match = getFileType(url);
-      fileTypes.push(match.name);
+      if (match.name === "OME-Zarr") { // the hints config only has OME-TIFF, because settings are the same for both OME-TIFF and OME-Zarr
+        fileTypes.push("OME-TIFF");
+      }
+      else {
+        fileTypes.push(match.name);
+      }
     } catch (err) {
       console.error("not supported file type, but ignoring the error");
     }
@@ -483,16 +503,16 @@ export async function generateConfigs(fileUrls, hintsInfo) {
     description: 'Populate with text relevant to this visualisation.',
   });
 
-  console.log("Hints info!!!!!!: ", hintsInfo, HINTS_CONFIG[hintsInfo.hintsClass]);
-
   const hintsConfig = HINTS_CONFIG[hintsInfo.hintsClass].hints[hintsInfo.hintsKey];
-
-  console.log("hintsConfig: ", hintsConfig)
 
   const allViews = [];
 
+
+  const dataset = vc.addDataset(`${hintsConfig.title} dataset.`);
+
+
   fileUrls.forEach((url) => {
-    allViews.push(generateConfig(url, hintsConfig, vc));
+    allViews.push(generateConfig(url, hintsConfig, vc, dataset));
   });
 
   return Promise.all(allViews).then((views) => {

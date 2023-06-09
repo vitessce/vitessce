@@ -82,7 +82,7 @@ export const HINTS_CONFIG = {
     }
   },
   "B": {
-    "hintType": ['OME-Zarr', 'AnnData-Zarr'],
+    "hintType": ['OME-TIFF', 'AnnData-Zarr'],
     "hints": {
       "2": {
         ...DEFAULT_CONFIG,
@@ -93,17 +93,6 @@ export const HINTS_CONFIG = {
     }
   },
   "C": {
-    "hintType": ['OME-Zarr'],
-    "hints": {
-      "2": {
-        ...DEFAULT_CONFIG,
-        "title": "Image",
-        "views": IMAGE_VIEWS,
-      },
-      "1": DEFAULT_CONFIG,
-    }
-  },
-  "D": {
     "hintType": ['OME-TIFF'],
     "hints": {
       "2": {
@@ -114,7 +103,7 @@ export const HINTS_CONFIG = {
       "1": DEFAULT_CONFIG,
     }
   },
-  "A": {
+  "D": {
     "hintType": [],
     "hints": {
       "1": {
