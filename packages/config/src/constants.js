@@ -1,4 +1,4 @@
-const TRANSCRIPTOMICS_WITH_HEATMAP_VIEWS = {
+const SINGLE_CELL_WITH_HEATMAP_VIEWS = {
   "obsSets": [4, 0, 4, 4],
   "obsSetSizes": [8, 0, 4, 4],
   "scatterplot": [0, 0, 4, 4],
@@ -6,7 +6,7 @@ const TRANSCRIPTOMICS_WITH_HEATMAP_VIEWS = {
   "featureList": [8, 4, 4, 4]
 }
 
-const TRANSCRIPTOMICS_WITHOUT_HEATMAP_VIEWS = {
+const SINGLE_CELL_WITHOUT_HEATMAP_VIEWS = {
   "obsSets": [10, 6, 2, 6],
   "obsSetSizes": [8, 1, 4, 6],
   "scatterplot": [0, 0, 8, 12],
@@ -28,39 +28,37 @@ export const HINTS_CONFIG = {
     "hints": {
       "6": {
         "title": "Transcriptomics / scRNA-seq (with heatmap)",
-        "views": TRANSCRIPTOMICS_WITH_HEATMAP_VIEWS,
+        "views": SINGLE_CELL_WITH_HEATMAP_VIEWS,
+        "coordinationValues": {},
       },
       "5": {
         "title": "Transcriptomics / scRNA-seq (without heatmap)",
-        "views": TRANSCRIPTOMICS_WITHOUT_HEATMAP_VIEWS,
+        "views": SINGLE_CELL_WITHOUT_HEATMAP_VIEWS,
+        "coordinationValues": {},
       },
       "4": {
         "title": "Spatial transcriptomics (with polygon cell segmentations)",
         "views": SPATIAL_TRANSCRIPTOMICS_VIEWS,
+        "coordinationValues": {},
       },
       "3": {
         "title": "Chromatin accessibility / scATAC-seq (with heatmap)",
-        "views": ["scatterplot", "obsSets", "obsSetSizes", "heatmap", "featureList", 
-          {
-            "coordinationValues": {
-              "featureType": "peak",
-            }
-          }
-        ]
+        "views": SINGLE_CELL_WITH_HEATMAP_VIEWS, 
+        "coordinationValues": {
+          "featureType": "peak",
+        }
       },
       "2": {
         "title": "Chromatin accessibility / scATAC-seq (without heatmap)",
-        "views": ["scatterplot", "obsSets", "obsSetSizes", "featureList", 
-          {
-            "coordinationValues": {
-              "featureType": "peak",
-            }
-          }
-        ]
+        "views": SINGLE_CELL_WITHOUT_HEATMAP_VIEWS, 
+        "coordinationValues": {
+          "featureType": "peak",
+        }
         },
       "1": {
         "title": "Don't use any hints",
         "views": [],
+        "coordinationValues": {},
       },
     }
   },
@@ -69,11 +67,13 @@ export const HINTS_CONFIG = {
     "hints": {
       "2": {
         "title": "Spatial transcriptomics (with histology image and polygon cell segmentations)",
-        "views": ["spatial", "spatial", "layerController", "obsSets", "featureList", "heatmap"]
+        "views": ["spatial", "spatial", "layerController", "obsSets", "featureList", "heatmap"],
+        "coordinationValues": {},
       },
       "1": {
         "title": "Don't use any hints",
         "views": [],
+        "coordinationValues": {},
       }
     }
   },
@@ -83,10 +83,12 @@ export const HINTS_CONFIG = {
       "2": {
         "title": "Image",
         "views": [],
+        "coordinationValues": {},
       },
       "1": {
         "title": "Don't use any hints",
         "views": [],
+        "coordinationValues": {},
       }
     }
   },
@@ -96,10 +98,12 @@ export const HINTS_CONFIG = {
       "2": {
         "title": "Image",
         "views": [],
+        "coordinationValues": {},
       },
       "1": {
         "title": "Don't use any hints",
         "views": [],
+        "coordinationValues": {},
       }
     }
   },
@@ -109,11 +113,12 @@ export const HINTS_CONFIG = {
       "2": {
         "title": "Image",
         "views": [],
-
+        "coordinationValues": {},
       },
       "1": {
         "title": "No hints available for this dataset type",
         "views": [],
+        "coordinationValues": {},
       }
     }
   }

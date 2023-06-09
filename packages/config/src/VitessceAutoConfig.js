@@ -15,11 +15,11 @@ const hintsContainsView = (hints, viewType) => {
 }
 
 class AbstractAutoConfig {
-  async composeViewsConfig() { /* eslint-disable-line class-methods-use-this */
+  async composeViewsConfig(hintsViews) { /* eslint-disable-line class-methods-use-this */
     throw new Error('The composeViewsConfig() method has not been implemented.');
   }
 
-  async composeFileConfig() { /* eslint-disable-line class-methods-use-this */
+  async composeFileConfig(hintsCoordinationValues) { /* eslint-disable-line class-methods-use-this */
     throw new Error('The composeFileConfig() method has not been implemented.');
   }
 }
@@ -32,7 +32,7 @@ class OmeTiffAutoConfig extends AbstractAutoConfig {
   }
 
 
-  async composeViewsConfig(requiredViews) { /* eslint-disable-line class-methods-use-this */
+  async composeViewsConfig(hintsViews = {}) { /* eslint-disable-line class-methods-use-this */
     return [
       ['description'],
       ['spatial'],
@@ -40,7 +40,7 @@ class OmeTiffAutoConfig extends AbstractAutoConfig {
     ];
   }
 
-  async composeFileConfig() {
+  async composeFileConfig(hintsCoordinationValues) {
     return {
       fileType: this.fileType,
       options: {
@@ -69,7 +69,7 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
     this.fileName = fileUrl.split('/').at(-1);
   }
 
-  async composeViewsConfig(requiredViews) { /* eslint-disable-line class-methods-use-this */
+  async composeViewsConfig(hintsViews) { /* eslint-disable-line class-methods-use-this */
     return [
       ['description'],
       ['spatial'],
@@ -77,7 +77,7 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
     ];
   }
 
-  async composeFileConfig() {
+  async composeFileConfig(hintsCoordinationValues) {
     return {
       fileType: this.fileType,
       type: 'raster',
@@ -95,7 +95,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     this.metadataSummary = {};
   }
 
-  async composeFileConfig() {
+  async composeFileConfig(hintsCoordinationValues) {
     this.metadataSummary = await this.setMetadataSummary();
 
     const options = {
@@ -144,7 +144,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       });
     });
 
-    return {
+    const defaultFileConfig = {
       options,
       fileType: this.fileType,
       url: this.fileUrl,
@@ -153,6 +153,14 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
         featureType: 'gene',
         featureValueType: 'expression',
       },
+    };
+
+    return {
+      ...defaultFileConfig,
+      coordinationValues: {
+        ...defaultFileConfig.coordinationValues,
+        ...hintsCoordinationValues
+      }
     };
   }
 
@@ -372,7 +380,7 @@ function calculateCoordinates(viewsNumb) {
   return coords;
 }
 
-async function generateConfig(url, requiredViews, vc) {
+async function generateConfig(url, hintsConfig, vc) {
   let ConfigClassName;
   try {
     ConfigClassName = getFileType(url).class;
@@ -385,8 +393,8 @@ async function generateConfig(url, requiredViews, vc) {
   let fileConfig;
   let viewsConfig;
   try {
-    fileConfig = await configInstance.composeFileConfig();
-    viewsConfig = await configInstance.composeViewsConfig(requiredViews);
+    fileConfig = await configInstance.composeFileConfig(hintsConfig.coordinationValues);
+    viewsConfig = await configInstance.composeViewsConfig(hintsConfig.views);
   } catch (error) {
     console.error(error);
     return Promise.reject(error);
@@ -475,22 +483,22 @@ export async function generateConfigs(fileUrls, hintsInfo) {
     description: 'Populate with text relevant to this visualisation.',
   });
 
-  console.log("Hints info!!!!!!: ", hintsInfo);
+  console.log("Hints info!!!!!!: ", hintsInfo, HINTS_CONFIG[hintsInfo.hintsClass]);
 
-  const hintsViews = HINTS_CONFIG[hintsInfo.hintsClass].hints[hintsInfo.hintsKey].views;
+  const hintsConfig = HINTS_CONFIG[hintsInfo.hintsClass].hints[hintsInfo.hintsKey];
 
-  console.log("requiredViews: ", hintsViews)
+  console.log("hintsConfig: ", hintsConfig)
 
   const allViews = [];
 
   fileUrls.forEach((url) => {
-    allViews.push(generateConfig(url, hintsViews, vc));
+    allViews.push(generateConfig(url, hintsConfig, vc));
   });
 
   return Promise.all(allViews).then((views) => {
     const flattenedViews = views.flat();
 
-    if (Object.keys(hintsViews).length === 0) {
+    if (Object.keys(hintsConfig.views).length === 0) {
       const coord = calculateCoordinates(flattenedViews.length);
 
       console.log("coordinates: ", coord);
@@ -500,7 +508,7 @@ export async function generateConfigs(fileUrls, hintsInfo) {
       }
     } else {
       flattenedViews.forEach((vitessceConfigView) => {
-        const viewCoordinates = hintsViews[vitessceConfigView.view.component];
+        const viewCoordinates = hintsConfig.views[vitessceConfigView.view.component];
         console.log("view coordinates: ", viewCoordinates);
         vitessceConfigView.setXYWH(...viewCoordinates);
       });

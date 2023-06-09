@@ -18,9 +18,8 @@ import {
 } from './_live-editor-examples.js';
 import { JSON_TRANSLATION_KEY } from './_editor-utils.js';
 import JsonHighlight from './_JsonHighlight.js';
-import { RadioGroup, FormControl, FormLabel, FormControlLabel, Radio } from '@material-ui/core';
+import { FormControl, FormLabel } from '@material-ui/core';
 import styles from './styles.module.css';
-import { set } from 'lodash-es';
 
 
 // To simplify the JS editor, the user only needs to write
@@ -73,7 +72,6 @@ export default function ViewConfigEditor(props) {
   const [pendingUrl, setPendingUrl] = useState('');
   const [datasetUrls, setDatasetUrls] = useState('http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr');
   const [pendingFileContents, setPendingFileContents] = useState('');
-  const [generateConfigButtonDisabled, setGenerateConfigButtonDisabled] = useState(false);
 
   const [syntaxType, setSyntaxType] = useState('JSON');
   const [loadFrom, setLoadFrom] = useState('editor');
@@ -81,7 +79,6 @@ export default function ViewConfigEditor(props) {
   const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
 
   const [debouncedHintsClass, setDebouncedHintsClass] = useState(null);
-  const [hintsKey, setHintsKey] = useState("1");
 
   useEffect(() => {
     const handle = setTimeout(() => {
@@ -92,10 +89,8 @@ export default function ViewConfigEditor(props) {
           return hintTypes.includes(fileType);
         }) && HINTS_CONFIG[key].hintType.length === hintTypes.length;
       });
-      setDebouncedHintsClass(newHintsClass);
-      setHintsKey("1");
       setPendingJson(baseJson);
-      setGenerateConfigButtonDisabled(false);
+      setDebouncedHintsClass(newHintsClass);
     }, 500);
 
     return () => clearTimeout(handle);
@@ -108,7 +103,6 @@ export default function ViewConfigEditor(props) {
         const { result } = reader;
         setPendingFileContents(result);
         setLoadFrom('file');
-        setGenerateConfigButtonDisabled(false);
       });
       reader.readAsText(acceptedFiles[0]);
     }
@@ -158,13 +152,12 @@ export default function ViewConfigEditor(props) {
       .filter(url => url.match(/^http/g));
   }
 
-  async function handleConfigGeneration() {
+  async function handleConfigGeneration(hintsKey) {
     setError(null);
     const sanitisedUrls = sanitiseURLs(datasetUrls);
     await generateConfigs(sanitisedUrls, {hintsClass: debouncedHintsClass, hintsKey})
       .then((configJson) => {
         setPendingJson(JSON.stringify(configJson, null, 2));
-        setGenerateConfigButtonDisabled(true);
         setLoadFrom('editor');
       })
       .catch((e) => {
@@ -205,27 +198,25 @@ export default function ViewConfigEditor(props) {
 
   const showReset = (syntaxType === 'JSON' && pendingJson !== baseJson) || (syntaxType === 'JS' && pendingJs !== baseJs);
 
-  function handleHintChoice(event){
-    setHintsKey(event.target.value); 
-    setPendingJson(baseJson);
-    setGenerateConfigButtonDisabled(false);
-  }
-
   const renderHints = () => {  
   
     if (!debouncedHintsClass) {
       // show some default state while waiting
       return <pre>Loading hints ...</pre>;
     }
+
     return (
       <div style={{backgroundColor: "white"}}>
         <FormControl component="fieldset">
-          <FormLabel component="legend">Select hint type</FormLabel>
-          <RadioGroup aria-label="gender" name="gender1" value={hintsKey} onChange={handleHintChoice}>
+          <FormLabel component="legend">Generate config with hints:</FormLabel>
             {Object.keys(HINTS_CONFIG[debouncedHintsClass].hints).map((hintKey) => (
-              <FormControlLabel value={hintKey} control={<Radio />} label={HINTS_CONFIG[debouncedHintsClass].hints[hintKey].title} />
+              <button 
+                type="button"
+                onClick={() => handleConfigGeneration(hintKey)}
+              >
+                { HINTS_CONFIG[debouncedHintsClass].hints[hintKey].title }
+                </button>
             ))}
-          </RadioGroup>
         </FormControl>
       </div>
     )
@@ -268,16 +259,6 @@ export default function ViewConfigEditor(props) {
                 onChange={handleDatasetUrlChange}
               />
             </div>
-          </div>
-          <div className={styles.viewConfigInputButton}>
-            <button
-              type="button"
-              className={styles.viewConfigGo}
-              onClick={handleConfigGeneration}
-              disabled={generateConfigButtonDisabled}
-              
-            >Generate config
-            </button>
           </div>
         </div>
 
