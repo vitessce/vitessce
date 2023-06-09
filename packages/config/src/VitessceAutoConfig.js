@@ -164,20 +164,25 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     const hasCellSetData = this.metadataSummary.obs
       .filter(key => key.toLowerCase().includes('cluster') || key.toLowerCase().includes('cell_type'));
 
-    if (hasCellSetData.length > 0) {
+    if (hintsContainsView(hintsViewsConfig, "obsSets") && hasCellSetData.length > 0) {
       views.push(['obsSets']);
     }
 
+    let addedScatterplot = false;
+
     this.metadataSummary.obsm.forEach((key) => {
-      if (hintsContainsView(hintsViewsConfig, "scatterplot") && key.toLowerCase().includes('obsm/x_umap')) {
+      if (hintsContainsView(hintsViewsConfig, "scatterplot") && key.toLowerCase().includes('obsm/x_umap') && !addedScatterplot) {
         views.push(['scatterplot', { mapping: 'UMAP' }]);
+        addedScatterplot = true;
       }
-      // if (hintsContainsView(hintsViewsConfig, "scatterplot") && key.toLowerCase().includes('obsm/x_tsne')) {
-      //   views.push(['scatterplot', { mapping: 't-SNE' }]);
-      // }
-      // if (hintsContainsView(hintsViewsConfig, "scatterplot") && key.toLowerCase().includes('obsm/x_pca')) {
-      //   views.push(['scatterplot', { mapping: 'PCA' }]);
-      // }
+      if (hintsContainsView(hintsViewsConfig, "scatterplot") && key.toLowerCase().includes('obsm/x_tsne') && !addedScatterplot) {
+        views.push(['scatterplot', { mapping: 't-SNE' }]);
+        addedScatterplot = true;
+      }
+      if (hintsContainsView(hintsViewsConfig, "scatterplot") && key.toLowerCase().includes('obsm/x_pca') && !addedScatterplot) {
+        views.push(['scatterplot', { mapping: 'PCA' }]);
+        addedScatterplot = true;
+      }
       if (hintsContainsView(hintsViewsConfig, "layerController") && key.toLowerCase().includes(('obsm/x_segmentations'))) {
         views.push(['layerController']);
       }
@@ -188,6 +193,10 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
 
     if (hintsContainsView(hintsViewsConfig, "obsSetSizes")) {
       views.push(['obsSetSizes']);
+    }
+
+    if (hintsContainsView(hintsViewsConfig, "obsSetFeatureValueDistribution")) {
+      views.push(['obsSetFeatureValueDistribution']);
     }
 
     if (this.metadataSummary.X) {

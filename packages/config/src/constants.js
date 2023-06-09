@@ -6,6 +6,22 @@ const TRANSCRIPTOMICS_WITH_HEATMAP_VIEWS = {
   "featureList": [8, 4, 4, 4]
 }
 
+const TRANSCRIPTOMICS_WITHOUT_HEATMAP_VIEWS = {
+  "obsSets": [10, 6, 2, 6],
+  "obsSetSizes": [8, 1, 4, 6],
+  "scatterplot": [0, 0, 8, 12],
+  "featureList": [8, 6, 2, 6]
+}
+
+const SPATIAL_TRANSCRIPTOMICS_VIEWS = {
+  "scatterplot": [0, 0, 3, 4],
+  "spatial": [3, 0, 5, 4],
+  "obsSets": [8, 0, 4, 2],
+  "featureList": [8, 0, 4, 2],
+  "heatmap": [0, 4, 6, 4],
+  "obsSetFeatureValueDistribution": [6, 4, 6, 4],
+}
+
 export const HINTS_CONFIG = {
   "E": {
     "hintType": ['AnnData-Zarr'],
@@ -16,11 +32,11 @@ export const HINTS_CONFIG = {
       },
       "5": {
         "title": "Transcriptomics / scRNA-seq (without heatmap)",
-        "views": ["scatterplot", "obsSets", "obsSetSizes", "featureList"]
+        "views": TRANSCRIPTOMICS_WITHOUT_HEATMAP_VIEWS,
       },
       "4": {
         "title": "Spatial transcriptomics (with polygon cell segmentations)",
-        "views": ["scatterplot", "spatial", "obsSets", "obsSetSizes", "featureList", "heatmap"]
+        "views": SPATIAL_TRANSCRIPTOMICS_VIEWS,
       },
       "3": {
         "title": "Chromatin accessibility / scATAC-seq (with heatmap)",
