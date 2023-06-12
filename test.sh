@@ -37,4 +37,11 @@ start schema
 ./packages/vit-s/src/schemas/schema-schema.sh
 end schema
 
+# Check that the root tsconfig.json file
+# references all subdirectories that contain tsconfig.json files,
+# since we are using TypeScript project references.
 node scripts/check-tsconfig-references.mjs
+
+# Check that there are no duplicate keys in the objects
+# returned in the parameter to MUI makeStyles.
+pnpm run check-makestyles-keys
