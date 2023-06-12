@@ -37,7 +37,7 @@ const sharedControllerStyles = {
 };
 
 export const useControllerSectionStyles = makeStyles(() => ({
-  root: {
+  layerControllerSectionRoot: {
     ...sharedControllerStyles,
     padding: '0px 8px',
   },
