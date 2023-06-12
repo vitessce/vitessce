@@ -26,7 +26,8 @@
     "meta-update": "cross-env META_UPDATER_MODE=write pnpm meta-updater",
     "meta-dryrun": "cross-env META_UPDATER_MODE=dryrun pnpm meta-updater",
     "meta-version-only": "cross-env META_UPDATER_MODE=versiononly pnpm meta-updater",
-    "publint": "pnpm -r --filter \"./packages/**\" exec publint"
+    "publint": "pnpm -r --filter \"./packages/**\" exec publint",
+    "check-makestyles-keys": "pnpm exec sg scan --json | ./scripts/check-makestyles-keys.mjs"
   },
   "devDependencies": {
     "@pnpm/meta-updater": "^0.0.6",
@@ -59,7 +60,8 @@
     "cross-env": "^7.0.0",
     "json-diff-ts": "^1.2.5",
     "lodash-es": "^4.17.21",
-    "publint": "^0.1.11"
+    "publint": "^0.1.11",
+    "@ast-grep/cli": "^0.6.3"
   },
   "pnpm": {
     "overrides": {

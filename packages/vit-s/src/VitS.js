@@ -2,7 +2,6 @@ import React, { useEffect, useMemo } from 'react';
 import {
   ThemeProvider,
   StylesProvider,
-  createGenerateClassName,
 } from '@material-ui/core';
 import { isEqual } from 'lodash-es';
 import { META_VERSION } from '@vitessce/constants-internal';
@@ -21,6 +20,7 @@ import CallbackPublisher from './CallbackPublisher.js';
 import {
   initialize,
 } from './view-config-utils.js';
+import { createGenerateClassName } from './mui-utils.js';
 
 function logConfig(config, name) {
   console.groupCollapsed(`🚄 Vitessce (${META_VERSION.version}) ${name}`);
@@ -28,6 +28,7 @@ function logConfig(config, name) {
   console.info(JSON.stringify(config, null, 2));
   console.groupEnd();
 }
+
 
 /**
  * The Vitessce component.
@@ -87,12 +88,7 @@ export function VitS(props) {
     [coordinationTypesProp],
   );
 
-  const generateClassName = useMemo(() => createGenerateClassName({
-    disableGlobal: false, // Class names need to be deterministic
-    // Avoid conflicts with portal-ui MUI class names,
-    // and allow setting a UID.
-    productionPrefix: (uid ? `vit${uid}` : 'vit'),
-  }), [uid]);
+  const generateClassName = useMemo(() => createGenerateClassName(), [uid]);
 
   const configUid = config?.uid;
   const configVersion = config?.version;
