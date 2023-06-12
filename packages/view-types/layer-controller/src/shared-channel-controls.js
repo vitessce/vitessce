@@ -19,7 +19,7 @@ export function ChannelSelectionDropdown({
   const classes = useSelectStyles();
   return (
     <Select
-      classes={{ root: classes.selectRoot }}
+      classes={{ root: classes.layerControllerSelectRoot }}
       native
       value={selectionIndex}
       onChange={e => handleChange(Number(e.target.value))}

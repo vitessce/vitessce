@@ -222,7 +222,7 @@ export const useStyles = makeStyles(theme => ({
       paddingLeft: '18px',
     },
   },
-  plusButton: {
+  setsManagerPlusButton: {
     border: '0',
     backgroundColor: 'transparent',
     color: theme.palette.primaryForegroundL5,
@@ -280,7 +280,7 @@ export const useStyles = makeStyles(theme => ({
   levelRadioButtonChecked: {
     backgroundClip: 'unset',
   },
-  titleButton: {
+  treeNodeTitleButton: {
     padding: 0,
     margin: 0,
     height: `${nodeHeight - 8}px`,
@@ -293,14 +293,14 @@ export const useStyles = makeStyles(theme => ({
     fontSize: '14px',
     cursor: 'pointer',
   },
-  titleButtonWithInput: {
+  treeNodeTitleButtonWithInput: {
     padding: 0,
     margin: 0,
     display: 'block',
     height: `${nodeHeight - 6}px`,
     boxSizing: 'border-box',
   },
-  titleInput: {
+  treeNodeTitleInput: {
     fontSize: '14px',
     height: `${nodeHeight - 8}px`,
     lineHeight: `${nodeHeight - 8}px`,
@@ -316,7 +316,7 @@ export const useStyles = makeStyles(theme => ({
       border: `1px solid ${theme.palette.primaryForegroundActive}`,
     },
   },
-  titleSaveButton: {
+  treeNodeTitleSaveButton: {
     backgroundColor: theme.palette.grayDark,
     border: `1px solid ${theme.palette.grayDark}`,
     color: theme.palette.grayLight,

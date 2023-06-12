@@ -125,7 +125,7 @@ function VolumeDropdown({
           e.target.value === '2D' ? e.target.value : Number(e.target.value),
         )
         }
-        classes={{ root: classes.selectRoot }}
+        classes={{ root: classes.layerControllerSelectRoot }}
       >
         <option key="2D" value="2D">
           2D Visualization
@@ -181,7 +181,7 @@ function ColormapSelect({ value, inputId, handleChange }) {
       value={value}
       inputProps={{ name: 'colormap', id: inputId }}
       style={{ width: '100%' }}
-      classes={{ root: classes.selectRoot }}
+      classes={{ root: classes.layerControllerSelectRoot }}
     >
       <option aria-label="None" value="">None</option>
       {COLORMAP_OPTIONS.map(name => (
@@ -246,7 +246,7 @@ function SliderDomainSelector({ value, inputId, handleChange }) {
       value={value}
       inputProps={{ name: 'domain-selector', id: inputId }}
       style={{ width: '100%' }}
-      classes={{ root: classes.selectRoot }}
+      classes={{ root: classes.layerControllerSelectRoot }}
     >
       {DOMAIN_OPTIONS.map(name => (
         <option key={name} value={name}>

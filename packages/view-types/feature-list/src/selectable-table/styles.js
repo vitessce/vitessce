@@ -6,12 +6,12 @@ export const useStyles = makeStyles(theme => ({
     flex: '1 1 auto',
     outline: 'none',
   },
-  tableRow: {
+  selectableTableRow: {
     display: 'flex',
     flexDirection: 'row',
     borderBottom: `1px solid ${theme.palette.secondaryBackgroundDim}`, // map-get($theme-colors, "secondary-background-dim");
   },
-  tableItem: {
+  selectableTableItem: {
     cursor: 'pointer',
     userSelect: 'none',
 
@@ -28,14 +28,14 @@ export const useStyles = makeStyles(theme => ({
       */
     },
   },
-  tableCell: {
+  selectableTableCell: {
     textAlign: 'left',
     flexBasis: 0,
     flexGrow: 1,
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
-  inputContainer: {
+  selectableTableInputContainer: {
     width: '1em',
     '& label': {
       display: 'block',
@@ -46,11 +46,11 @@ export const useStyles = makeStyles(theme => ({
       cursor: 'pointer',
     },
   },
-  hiddenInputColumn: {
+  selectableTableHiddenInputColumn: {
     // Class for first column of inputs, to hide them if desired.
     display: 'none',
   },
-  radioOrCheckbox: {
+  selectableTableRadioOrCheckbox: {
     appearance: 'none',
     /* create custom radiobutton appearance */
     display: 'inline-block',
@@ -66,10 +66,10 @@ export const useStyles = makeStyles(theme => ({
       backgroundClip: 'unset',
     },
   },
-  radio: {
+  selectableTableRadio: {
     borderRadius: '50%',
   },
-  checkbox: {
+  selectableTableCheckbox: {
     borderRadius: '2px',
   },
 }));

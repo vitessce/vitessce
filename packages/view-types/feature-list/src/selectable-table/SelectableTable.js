@@ -160,7 +160,7 @@ export default function SelectableTable(props) {
     // eslint-disable-next-line jsx-a11y/interactive-supports-focus
     <div
       key={data[index][idKey]}
-      className={clsx(classes.tableItem, classes.tableRow, { 'row-checked': isSelected(data[index][idKey]) })}
+      className={clsx(classes.selectableTableItem, classes.selectableTableRow, { 'row-checked': isSelected(data[index][idKey]) })}
       style={style}
       role="button"
       onClick={() => onSelectRow(
@@ -168,12 +168,12 @@ export default function SelectableTable(props) {
         !isSelected(data[index][idKey]) || !hasColorEncoding,
       )}
     >
-      <div className={clsx(classes.inputContainer, classes.tableCell, { [classes.hiddenInputColumn]: !showTableInputs })}>
+      <div className={clsx(classes.selectableTableInputContainer, classes.selectableTableCell, { [classes.selectableTableHiddenInputColumn]: !showTableInputs })}>
         <label htmlFor={`${inputUuid}_${data[index][idKey]}`}>
           <input
             id={`${inputUuid}_${data[index][idKey]}`}
             type="checkbox"
-            className={clsx(classes.radioOrCheckbox, isCheckingMultiple ? classes.checkbox : classes.radio)}
+            className={clsx(classes.selectableTableRadioOrCheckbox, isCheckingMultiple ? classes.selectableTableCheckbox : classes.selectableTableRadio)}
             name={inputUuid}
             value={data[index][idKey]}
             onChange={handleInputChange}
@@ -183,7 +183,7 @@ export default function SelectableTable(props) {
       </div>
       {columns.map(column => (
         <div
-          className={classes.tableCell}
+          className={classes.selectableTableCell}
           key={column}
         >
           {data[index][column]}
@@ -193,8 +193,8 @@ export default function SelectableTable(props) {
   );
 
   const headerRowRenderer = ({ style }) => (
-    <div className={classes.tableRow} style={style}>
-      {columnLabels.map(columnLabel => (<div key={columnLabel} className={classes.tableCell} style={{ fontWeight: 'bold' }}>{columnLabel}</div>))}
+    <div className={classes.selectableTableRow} style={style}>
+      {columnLabels.map(columnLabel => (<div key={columnLabel} className={classes.selectableTableCell} style={{ fontWeight: 'bold' }}>{columnLabel}</div>))}
     </div>
   );
 

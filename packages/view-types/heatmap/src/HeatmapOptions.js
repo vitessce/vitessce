@@ -35,10 +35,10 @@ export default function HeatmapOptions(props) {
   return (
     <OptionsContainer>
       <TableRow>
-        <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
+        <TableCell className={classes.plotOptionsLabelCell} htmlFor="gene-expression-colormap-select">
           Gene Expression Colormap
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <OptionSelect
             className={classes.select}
             value={geneExpressionColormap}
@@ -54,12 +54,12 @@ export default function HeatmapOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           Tooltips Visible
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <Checkbox
-            className={classes.checkbox}
+            className={classes.plotOptionsCheckbox}
               /**
                * We have to use "checked" here, not "value".
                * The checkbox state is not persisting with value.
@@ -73,12 +73,12 @@ export default function HeatmapOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           Gene Expression Colormap Range
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <Slider
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            classes={{ root: classes.plotOptionsSlider, valueLabel: classes.plotOptionsSliderValueLabel }}
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
             aria-labelledby="gene-expression-colormap-range-slider"

@@ -11,11 +11,11 @@ import {
 import { useVitessceContainer } from '../hooks.js';
 
 const useStyles = makeStyles(() => ({
-  paper: {
+  popperPaper: {
     maxHeight: 200,
     overflow: 'auto',
   },
-  container: {
+  popperContainer: {
     position: 'relative',
     left: 0,
     top: 0,
@@ -48,7 +48,7 @@ export function PopperMenu(props) {
   const getTooltipContainer = useVitessceContainer(anchorRef);
 
   return (
-    <div ref={anchorRef} className={classes.container}>
+    <div ref={anchorRef} className={classes.popperContainer}>
       <IconButton
         aria-describedby={id}
         onClick={handleClick}
@@ -69,7 +69,7 @@ export function PopperMenu(props) {
         {({ TransitionProps }) => (
           <ClickAwayListener onClickAway={handleClose}>
             <Fade {...TransitionProps} timeout={100}>
-              <Paper elevation={4} className={classes.paper}>
+              <Paper elevation={4} className={classes.popperPaper}>
                 <MenuList>{children}</MenuList>
               </Paper>
             </Fade>

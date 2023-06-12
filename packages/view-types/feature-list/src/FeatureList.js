@@ -5,7 +5,7 @@ import { SelectableTable } from './selectable-table/index.js';
 import { ALT_COLNAME } from './constants.js';
 
 const useStyles = makeStyles(() => ({
-  searchBar: {
+  featureListSearchBar: {
     marginBottom: '4px',
     border: '0',
     padding: '2px',
@@ -105,7 +105,7 @@ export default function FeatureList(props) {
   return (
     <>
       <input
-        className={classes.searchBar}
+        className={classes.featureListSearchBar}
         type="text"
         placeholder="Search"
         value={searchTerm}

@@ -92,12 +92,12 @@ export default function ScatterplotOptions(props) {
         setCellColorEncoding={setCellColorEncoding}
       />
       <TableRow>
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           {observationsLabelNice} Set Labels Visible
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <Checkbox
-            className={classes.checkbox}
+            className={classes.plotOptionsCheckbox}
             checked={cellSetLabelsVisible}
             onChange={handleLabelVisibilityChange}
             name="scatterplot-option-cell-set-labels"
@@ -106,12 +106,12 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           Tooltips Visible
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <Checkbox
-            className={classes.checkbox}
+            className={classes.plotOptionsCheckbox}
               /**
                * We have to use "checked" here, not "value".
                * The checkbox state is not persisting with value.
@@ -125,13 +125,13 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           {observationsLabelNice} Set Label Size
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <Slider
             disabled={!cellSetLabelsVisible}
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            classes={{ root: classes.plotOptionsSlider, valueLabel: classes.plotOptionsSliderValueLabel }}
             value={cellSetLabelSize}
             onChange={handleLabelSizeChange}
             aria-labelledby="cell-set-label-size-slider"
@@ -143,12 +143,12 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           {observationsLabelNice} Set Polygons Visible
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <Checkbox
-            className={classes.checkbox}
+            className={classes.plotOptionsCheckbox}
             checked={cellSetPolygonsVisible}
             onChange={handlePolygonVisibilityChange}
             name="scatterplot-option-cell-set-polygons"
@@ -157,12 +157,12 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.labelCell} htmlFor="cell-radius-mode-select">
+        <TableCell className={classes.plotOptionsLabelCell} htmlFor="cell-radius-mode-select">
           {observationsLabelNice} Radius Mode
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <OptionSelect
-            className={classes.select}
+            className={classes.plotOptionsSelect}
             value={cellRadiusMode}
             onChange={handleCellRadiusModeChange}
             inputProps={{
@@ -175,13 +175,13 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           {observationsLabelNice} Radius
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <Slider
             disabled={cellRadiusMode !== 'manual'}
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            classes={{ root: classes.plotOptionsSlider, valueLabel: classes.plotOptionsSliderValueLabel }}
             value={cellRadius}
             onChange={handleRadiusChange}
             aria-labelledby="cell-radius-slider"
@@ -193,12 +193,12 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.labelCell} htmlFor="cell-opacity-mode-select">
+        <TableCell className={classes.plotOptionsLabelCell} htmlFor="cell-opacity-mode-select">
           {observationsLabelNice} Opacity Mode
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <OptionSelect
-            className={classes.select}
+            className={classes.plotOptionsSelect}
             value={cellOpacityMode}
             onChange={handleCellOpacityModeChange}
             inputProps={{
@@ -211,13 +211,13 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           {observationsLabelNice} Opacity
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <Slider
             disabled={cellOpacityMode !== 'manual'}
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            classes={{ root: classes.plotOptionsSlider, valueLabel: classes.plotOptionsSliderValueLabel }}
             value={cellOpacity}
             onChange={handleOpacityChange}
             aria-labelledby="cell-opacity-slider"
@@ -229,12 +229,12 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
+        <TableCell className={classes.plotOptionsLabelCell} htmlFor="gene-expression-colormap-select">
           Gene Expression Colormap
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <OptionSelect
-            className={classes.select}
+            className={classes.plotOptionsSelect}
             value={geneExpressionColormap}
             onChange={handleGeneExpressionColormapChange}
             inputProps={{
@@ -248,12 +248,12 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           Gene Expression Colormap Range
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <Slider
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            classes={{ root: classes.plotOptionsSlider, valueLabel: classes.plotOptionsSliderValueLabel }}
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
             aria-labelledby="gene-expression-colormap-range-slider"

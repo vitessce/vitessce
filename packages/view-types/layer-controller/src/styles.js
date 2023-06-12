@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core';
 
 const useSpanStyles = makeStyles(() => ({
-  span: {
+  layerControllerSpan: {
     width: '70px',
     textAlign: 'center',
     paddingLeft: '2px',
@@ -20,36 +20,14 @@ const useSpanStyles = makeStyles(() => ({
 export function MuiSpan(props) {
   const { children } = props;
   const classes = useSpanStyles();
-  return <span className={classes.span}>{children}</span>;
+  return <span className={classes.layerControllerSpan}>{children}</span>;
 }
 
 export const useSelectStyles = makeStyles(() => ({
-  selectRoot: {
+  layerControllerSelectRoot: {
     padding: 0,
     height: 'auto',
     margin: '4px 0',
-  },
-}));
-
-export const useOptionStyles = withStyles(theme => ({
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-  },
-  span: {
-    width: '70px',
-    textAlign: 'center',
-    paddingLeft: '2px',
-    paddingRight: '2px',
-  },
-  colors: {
-    '&:hover': {
-      backgroundColor: 'transparent',
-    },
-    paddingLeft: '2px',
-    paddingRight: '2px',
-  },
-  popper: {
-    zIndex: 4,
   },
 }));
 

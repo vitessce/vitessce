@@ -6,10 +6,10 @@ import { MuiSpan } from './styles.js';
 import ColorPalette from './ColorPalette.js';
 
 const useStyles = makeStyles(() => ({
-  menuButton: {
+  channelOptionsMenuButton: {
     backgroundColor: 'transparent',
   },
-  colors: {
+  channelOptionsColors: {
     '&:hover': {
       backgroundColor: 'transparent',
     },
@@ -43,7 +43,7 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUp
       open={open}
       setOpen={setOpen}
       buttonIcon={<MoreVertIcon fontSize="small" />}
-      buttonClassName={classes.menuButton}
+      buttonClassName={classes.channelOptionsMenuButton}
     >
       <MenuItem dense disableGutters onClick={handleRemove}>
         <MuiSpan>Remove</MuiSpan>
@@ -51,7 +51,7 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUp
       <MenuItem dense disableGutters onClick={handleIQRUpdate}>
         <MuiSpan>Use IQR</MuiSpan>
       </MenuItem>
-      <MenuItem dense disableGutters className={classes.colors}>
+      <MenuItem dense disableGutters className={classes.channelOptionsColors}>
         <ColorPalette handleChange={handleColorSelect} />
       </MenuItem>
     </PopperMenu>

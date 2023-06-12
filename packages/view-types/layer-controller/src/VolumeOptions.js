@@ -16,8 +16,8 @@ import { abbreviateNumber, getBoundingCube } from './utils.js';
 import { useSelectStyles } from './styles.js';
 
 const useSlicerStyles = makeStyles(theme => createStyles({
-  enabled: {},
-  disabled: {
+  volumeOptionsSlicerEnabled: {},
+  volumeOptionsSlicerDisabled: {
     color: theme.palette.text.disabled,
     // Because of the .5 opacity of the disabled color in the theme, and the fact
     // that there are multiple overlaid parts to the slider,
@@ -72,7 +72,7 @@ const Slicer = ({
       >
         <Grid item xs={1}>
           <Typography
-            className={!use3d ? classes.disabled : classes.enabled}
+            className={!use3d ? classes.volumeOptionsSlicerDisabled : classes.volumeOptionsSlicerEnabled}
             style={{ marginBottom: 0 }}
           >
             {label}:
@@ -81,7 +81,7 @@ const Slicer = ({
         <Grid item xs={11}>
           <Slider
             disabled={!use3d}
-            className={!use3d ? classes.disabled : classes.enabled}
+            className={!use3d ? classes.volumeOptionsSlicerDisabled : classes.volumeOptionsSlicerEnabled}
             value={val}
             onChange={(e, v) => setVal(v)}
             valueLabelDisplay="auto"
@@ -99,7 +99,7 @@ const Slicer = ({
   return (
     <>
       <Typography
-        className={!use3d ? classes.disabled : classes.enabled}
+        className={!use3d ? classes.volumeOptionsSlicerDisabled : classes.volumeOptionsSlicerEnabled}
         style={{ marginTop: 16, marginBottom: 0 }}
       >
         Clipping Planes:{' '}
@@ -131,7 +131,7 @@ function RenderingModeSelect({
           id: 'rendering-mode-select',
         }}
         disabled={!use3d}
-        classes={{ root: classes.selectRoot }}
+        classes={{ root: classes.layerControllerSelectRoot }}
       >
         {options.map(name => (
           <option key={name} value={name}>

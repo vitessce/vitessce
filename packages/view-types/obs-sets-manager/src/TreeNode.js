@@ -146,7 +146,7 @@ function NamedSetNodeStatic(props) {
           type="button"
           onClick={onClick}
           onKeyPress={e => callbackOnKeyPress(e, 'v', () => onNodeView(path))}
-          className={classes.titleButton}
+          className={classes.treeNodeTitleButton}
         >
           {title}
         </button>
@@ -190,11 +190,11 @@ function NamedSetNodeEditing(props) {
   }
   const classes = useStyles();
   return (
-    <span className={classes.titleButtonWithInput}>
+    <span className={classes.treeNodeTitleButtonWithInput}>
       <input
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
-        className={classes.titleInput}
+        className={classes.treeNodeTitleInput}
         type="text"
         value={currentTitle}
         onChange={(e) => { setCurrentTitle(e.target.value); }}
@@ -208,7 +208,7 @@ function NamedSetNodeEditing(props) {
       {!hasConflicts && (
         <button
           type="button"
-          className={classes.titleSaveButton}
+          className={classes.treeNodeTitleSaveButton}
           onClick={trySetName}
         >
           Save

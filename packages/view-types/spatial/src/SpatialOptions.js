@@ -14,14 +14,11 @@ import {
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
 const useToggleStyles = makeStyles(() => ({
-  cameraLabel: {
+  toggleCameraLabel: {
     padding: '0px 0px 0px 16px',
   },
-  box: {
+  toggleBox: {
     padding: '0px',
-  },
-  button: {
-    padding: '0px 0px 0px 8px',
   },
 }));
 
@@ -33,10 +30,10 @@ const ToggleFixedAxisButton = ({
   const classes = useToggleStyles();
   return (
     <TableRow>
-      <TableCell className={classes.cameraLabel}>
+      <TableCell className={classes.toggleCameraLabel}>
         Fix Camera Axis
       </TableCell>
-      <TableCell className={classes.box}>
+      <TableCell className={classes.toggleBox}>
         <Checkbox
           onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
           disabled={!use3d}
@@ -101,12 +98,12 @@ export default function SpatialOptions(props) {
         />
       ) : null}
       <TableRow>
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           Tooltips Visible
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <Checkbox
-            className={classes.checkbox}
+            className={classes.plotOptionsCheckbox}
               /**
                * We have to use "checked" here, not "value".
                * The checkbox state is not persisting with value.
@@ -122,12 +119,12 @@ export default function SpatialOptions(props) {
       {canShowExpressionOptions ? (
         <>
           <TableRow>
-            <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
+            <TableCell className={classes.plotOptionsLabelCell} htmlFor="gene-expression-colormap-select">
               Gene Expression Colormap
             </TableCell>
-            <TableCell className={classes.inputCell}>
+            <TableCell className={classes.plotOptionsInputCell}>
               <OptionSelect
-                className={classes.select}
+                className={classes.plotOptionsSelect}
                 value={geneExpressionColormap}
                 onChange={handleGeneExpressionColormapChange}
                 inputProps={{
@@ -141,12 +138,12 @@ export default function SpatialOptions(props) {
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell className={classes.labelCell}>
+            <TableCell className={classes.plotOptionsLabelCell}>
               Gene Expression Colormap Range
             </TableCell>
-            <TableCell className={classes.inputCell}>
+            <TableCell className={classes.plotOptionsInputCell}>
               <Slider
-                classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+                classes={{ root: classes.plotOptionsSlider, valueLabel: classes.plotOptionsSliderValueLabel }}
                 value={geneExpressionColormapRange}
                 onChange={handleColormapRangeChangeDebounced}
                 aria-labelledby="gene-expression-colormap-range-slider"

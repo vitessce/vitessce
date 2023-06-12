@@ -6,11 +6,11 @@ import { makeStyles } from '@material-ui/core';
 import { CenterFocusStrong } from '@material-ui/icons';
 
 const useStyles = makeStyles(() => ({
-  button: {
+  toolMenuButton: {
     display: 'inline-flex',
     '&:active': {
       opacity: '.65',
-      extend: 'iconClicked',
+      extend: 'toolMenuIconClicked',
     },
   },
   tool: {
@@ -23,12 +23,12 @@ const useStyles = makeStyles(() => ({
       opacity: '.90',
     },
   },
-  iconClicked: {
+  toolMenuIconClicked: {
     // Styles for the clicked state
     boxShadow: 'none',
     transform: 'scale(0.98)', // make the button slightly smaller
   },
-  icon: {
+  toolMenuIcon: {
     // btn btn-outline-secondary mr-2 icon
     padding: '0',
     height: '2em',
@@ -55,7 +55,7 @@ const useStyles = makeStyles(() => ({
       color: 'black',
     },
     '&:active': {
-      extend: 'iconClicked',
+      extend: 'toolMenuIconClicked',
     },
 
   },
@@ -75,7 +75,7 @@ export function IconTool(props) {
   const classes = useStyles();
   return (
     <button
-      className={clsx(classes.icon, { [classes.toolActive]: isActive })}
+      className={clsx(classes.toolMenuIcon, { [classes.toolActive]: isActive })}
       onClick={onClick}
       type="button"
       title={alt}
@@ -92,7 +92,7 @@ export function IconButton(props) {
   const classes = useStyles();
   return (
     <button
-      className={clsx(classes.icon, classes.button)}
+      className={clsx(classes.toolMenuIcon, classes.toolMenuButton)}
       onClick={onClick}
       type="button"
       title={alt}

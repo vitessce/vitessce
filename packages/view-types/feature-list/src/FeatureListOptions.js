@@ -35,12 +35,12 @@ export default function FeatureListOptions(props) {
     <OptionsContainer>
       {children}
       <TableRow>
-        <TableCell className={classes.labelCell} htmlFor="feature-list-sort-option-select">
+        <TableCell className={classes.plotOptionsLabelCell} htmlFor="feature-list-sort-option-select">
           Sort Ordering
         </TableCell>
         <TableCell>
           <OptionSelect
-            className={classes.select}
+            className={classes.plotOptionsSelect}
             value={featureListSort}
             onChange={handleFeatureListSortChange}
             inputProps={{
@@ -56,12 +56,12 @@ export default function FeatureListOptions(props) {
       {hasFeatureLabels ? (
         <>
           <TableRow>
-            <TableCell className={classes.labelCell} htmlFor="feature-list-sort-key-select">
+            <TableCell className={classes.plotOptionsLabelCell} htmlFor="feature-list-sort-key-select">
               Sort Key
             </TableCell>
             <TableCell>
               <OptionSelect
-                className={classes.select}
+                className={classes.plotOptionsSelect}
                 disabled={featureListSort === 'original'}
                 value={featureListSortKey}
                 onChange={handleFeatureListSortKeyChange}
@@ -81,12 +81,12 @@ export default function FeatureListOptions(props) {
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell className={classes.labelCell}>
+            <TableCell className={classes.plotOptionsLabelCell}>
               Show Alternate IDs
             </TableCell>
-            <TableCell className={classes.inputCell}>
+            <TableCell className={classes.plotOptionsInputCell}>
               <Checkbox
-                className={classes.checkbox}
+                className={classes.plotOptionsCheckbox}
                 checked={showFeatureTable}
                 onChange={handleShowTableChange}
                 name="feature-list-show-table"

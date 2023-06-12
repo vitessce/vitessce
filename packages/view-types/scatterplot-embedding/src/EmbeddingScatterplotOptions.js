@@ -20,13 +20,13 @@ export default function EmbeddingScatterplotOptions(props) {
   return mappingSelectEnabled
     ? (
       <TableRow key="mapping-option-row">
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           Embedding Type
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <OptionSelect
             key="scatterplot-mapping-select"
-            className={classes.select}
+            className={classes.plotOptionsSelect}
             value={selectedMapping}
             onChange={handleSelectedMappingChange}
             inputProps={{

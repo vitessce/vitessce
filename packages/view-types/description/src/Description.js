@@ -16,7 +16,7 @@ const useStyles = makeStyles(theme => ({
       cursor: 'pointer',
     },
   },
-  metadataContainer: {
+  descriptionMetadataContainer: {
     paddingLeft: '14px',
     '& table': {
       width: '100%',
@@ -49,7 +49,7 @@ export default function Description(props) {
           metadataRecord && Object.entries(metadataRecord).length > 0 ? (
             <details key={layerIndex}>
               <summary>{layerName}</summary>
-              <div className={classes.metadataContainer}>
+              <div className={classes.descriptionMetadataContainer}>
                 <table>
                   <tbody>
                     {Object.entries(metadataRecord)

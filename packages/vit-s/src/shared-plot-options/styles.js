@@ -1,10 +1,10 @@
 import { makeStyles } from '@material-ui/core';
 
 export const useStyles = makeStyles(theme => ({
-  box: {
+  plotOptionsBox: {
     boxSizing: 'border-box',
   },
-  checkbox: {
+  plotOptionsCheckbox: {
     padding: '3px',
     color: theme.palette.primaryForeground,
     '&:checked': {
@@ -14,35 +14,35 @@ export const useStyles = makeStyles(theme => ({
       height: '100%',
     },
   },
-  slider: {
+  plotOptionsSlider: {
     color: theme.palette.primaryForeground,
     minWidth: '60px',
     padding: '10px 0 10px 0',
   },
-  sliderValueLabel: {
+  plotOptionsSliderValueLabel: {
     '& span': {
       '& span': {
         color: theme.palette.primaryBackground,
       },
     },
   },
-  tableContainer: {
+  plotOptionsTableContainer: {
     overflow: 'hidden',
     overflowX: 'hidden !important',
   },
-  labelCell: {
+  plotOptionsLabelCell: {
     padding: '2px 8px 2px 16px',
   },
-  inputCell: {
+  plotOptionsInputCell: {
     padding: '2px 16px 2px 8px',
     overflow: 'visible',
   },
-  select: {
+  plotOptionsSelect: {
     '& select': {
       fontSize: '14px',
     },
   },
-  selectRoot: {
+  plotOptionsSelectRoot: {
     padding: 0,
     height: 'auto',
   },

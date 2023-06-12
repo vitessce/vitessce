@@ -33,11 +33,11 @@ export default function CellSetExpressionPlotOptions(props) {
   return (
     <OptionsContainer>
       <TableRow>
-        <TableCell className={classes.labelCell}>Transform</TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>Transform</TableCell>
+        <TableCell className={classes.plotOptionsInputCell}>
           <OptionSelect
             key="gating-transform-select"
-            className={classes.select}
+            className={classes.plotOptionsSelect}
             value={featureValueTransform === null ? '' : featureValueTransform}
             onChange={handleTransformChange}
             inputProps={{
@@ -53,10 +53,10 @@ export default function CellSetExpressionPlotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow key="transform-coefficient-option-row">
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           Transform Coefficient
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <TextField
             label="Number"
             type="number"

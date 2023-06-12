@@ -97,7 +97,7 @@ export function PlusButton(props) {
     <PopoverMenu
       menuConfig={menuConfig}
     >
-      <button className={classes.plusButton} type="submit">+</button>
+      <button className={classes.setsManagerPlusButton} type="submit">+</button>
     </PopoverMenu>
   ) : null);
 }

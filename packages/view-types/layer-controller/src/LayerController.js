@@ -463,7 +463,7 @@ export default function LayerController(props) {
   );
   return (
     <Accordion
-      className={controllerSectionClasses.root}
+      className={controllerSectionClasses.layerControllerSectionRoot}
       onChange={(e, expanded) => !disabled
         && setIsExpanded(
           expanded && e?.target?.attributes?.role?.value === 'presentation',

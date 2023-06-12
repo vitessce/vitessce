@@ -15,7 +15,7 @@ import { PopperMenu } from './shared-mui/components.js';
 import { useTitleStyles } from './title-styles.js';
 
 const useStyles = makeStyles(theme => ({
-  iconButton: {
+  titleIconButton: {
     border: 'none',
     marginLeft: 0,
     background: 'none',
@@ -39,7 +39,7 @@ const useStyles = makeStyles(theme => ({
       overflow: 'visible',
     },
   },
-  downloadLink: {
+  titleDownloadLink: {
     color: theme.palette.primaryForeground,
   },
 }));
@@ -62,7 +62,7 @@ function PlotOptions(props) {
       open={open}
       setOpen={setOpen}
       buttonIcon={<SettingsIconWithArrow open={open} />}
-      buttonClassName={classes.iconButton}
+      buttonClassName={classes.titleIconButton}
       placement="bottom-end"
     >
       {options}
@@ -88,12 +88,12 @@ function DownloadOptions(props) {
       open={open}
       setOpen={setOpen}
       buttonIcon={<CloudDownloadIconWithArrow open={open} />}
-      buttonClassName={classes.iconButton}
+      buttonClassName={classes.titleIconButton}
       placement="bottom-end"
     >
       {urls.map(({ url, name }) => (
         <MenuItem dense key={`${url}_${name}`}>
-          <Link underline="none" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
+          <Link underline="none" href={url} target="_blank" rel="noopener" className={classes.titleDownloadLink}>
             Download {name}
           </Link>
         </MenuItem>
@@ -109,7 +109,7 @@ function ClosePaneButton(props) {
     <IconButton
       onClick={removeGridComponent}
       size="small"
-      className={classes.iconButton}
+      className={classes.titleIconButton}
       title="close"
     >
       <CloseIcon />

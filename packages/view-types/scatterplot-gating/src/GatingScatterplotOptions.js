@@ -63,14 +63,14 @@ export default function GatingScatterplotOptions(props) {
   return (
     <>
       <TableRow key="gene-option-row">
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           {capitalize(plur(featureType, geneSelectOptions?.length))}
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <OptionSelect
             key="gating-gene-select"
             multiple
-            className={classes.select}
+            className={classes.plotOptionsSelect}
             value={[gatingFeatureSelectionX, gatingFeatureSelectionY].filter(v => v)}
             onChange={handleGeneSelectChange}
             inputProps={{
@@ -86,13 +86,13 @@ export default function GatingScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow key="transform-option-row">
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           Transform
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <OptionSelect
             key="gating-transform-select"
-            className={classes.select}
+            className={classes.plotOptionsSelect}
             value={gatingFeatureValueTransform === null ? '' : gatingFeatureValueTransform}
             onChange={handleTransformChange}
             inputProps={{
@@ -108,10 +108,10 @@ export default function GatingScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow key="transform-coefficient-option-row">
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.plotOptionsLabelCell}>
           Transform Coefficient
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.plotOptionsInputCell}>
           <TextField
             label="Number"
             type="number"
