@@ -36,14 +36,14 @@ const SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS = {
     }
   },
   "heatmap": {
-    "coordinates": [6, 6, 6, 6],
+    "coordinates": [0, 6, 8, 6],
     "coordinationScopes": {
       "obsType": "A",
       "obsColorEncoding": "A"
     },
   },
   "layerController": {
-    "coordinates": [0, 6, 2, 6],
+    "coordinates": [8, 6, 4, 6],
     "coordinationScopes": {
       "obsType": "A",
       "spatialImageLayer": "A",
@@ -51,14 +51,14 @@ const SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS = {
     }
   },
   "obsSets": {
-    "coordinates": [2, 6, 2, 6],
+    "coordinates": [9, 0, 3, 6],
     "coordinationScopes": {
       "obsType": "A",
       "obsColorEncoding": "A"
     },
   },
   "featureList": {
-    "coordinates": [4, 6, 2, 6],
+    "coordinates": [6, 0, 3, 6],
     "coordinationScopes": {
       "obsType": "A",
       "obsColorEncoding": "B",
