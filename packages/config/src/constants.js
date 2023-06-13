@@ -26,42 +26,29 @@ const SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS = {
   "spatial": {
     "coordinates": [0, 0, 6, 6],
     "coordinationScopes": {
-      "obsType": "A",
       "spatialImageLayer": "A",
       "spatialSegmentationLayer": "A",
       "spatialZoom": "A",
       "spatialTargetX": "A",
       "spatialTargetY": "A",
-      "obsColorEncoding": "B"
     }
   },
   "heatmap": {
     "coordinates": [0, 6, 8, 6],
-    "coordinationScopes": {
-      "obsType": "A",
-      "obsColorEncoding": "A"
-    },
   },
   "layerController": {
     "coordinates": [8, 6, 4, 6],
     "coordinationScopes": {
-      "obsType": "A",
       "spatialImageLayer": "A",
       "spatialSegmentationLayer": "A"
     }
   },
   "obsSets": {
     "coordinates": [9, 0, 3, 6],
-    "coordinationScopes": {
-      "obsType": "A",
-      "obsColorEncoding": "A"
-    },
   },
   "featureList": {
     "coordinates": [6, 0, 3, 6],
     "coordinationScopes": {
-      "obsType": "A",
-      "obsColorEncoding": "B",
       "featureSelection": "A"
     }
   },
@@ -124,11 +111,6 @@ export const HINTS_CONFIG = {
         ...DEFAULT_CONFIG,
         "title": "Spatial transcriptomics (with histology image and polygon cell segmentations)",
         "views": SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS,
-        "coordinationValues": { // todo: check if we can remove this
-          "obsType": "spot",
-          "featureType": "gene",
-          "featureValueType": "expression"
-        },
         "options": { // todo: this should be deleted, but leaving them for this specifig config for now
           "obsFeatureMatrix": {
             "path": "obsm/X_hvg",

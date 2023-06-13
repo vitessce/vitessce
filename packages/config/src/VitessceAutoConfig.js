@@ -393,26 +393,19 @@ function insertCoordinationSpace(hintsType, views, vc) {
   }
 
   const [
-    obsType, 
     spatialSegmentationLayer,
     spatialImageLayer,
-    obsColorEncoding1,
-    obsColorEncoding2,
     spatialZoom,
     spatialTargetX,
     spatialTargetY,
   ] = vc.addCoordination(
-    ct.OBS_TYPE,
     ct.SPATIAL_SEGMENTATION_LAYER,
     ct.SPATIAL_IMAGE_LAYER,
-    ct.OBS_COLOR_ENCODING,
-    ct.OBS_COLOR_ENCODING,
     ct.SPATIAL_ZOOM,
     ct.SPATIAL_TARGET_X,
     ct.SPATIAL_TARGET_Y,
   );
   
-  obsType.setValue('spot');
   spatialSegmentationLayer.setValue({
     "radius": 65,
     "stroked": true,
@@ -476,34 +469,20 @@ function insertCoordinationSpace(hintsType, views, vc) {
       ]
     }
   ]);
-  obsColorEncoding1.setValue("cellSetSelection");
-  obsColorEncoding2.setValue("geneSelection");
   spatialZoom.setValue(-2.598);
   spatialTargetX.setValue(1008.88);
   spatialTargetY.setValue(1004.69);
 
   views.forEach((view) => {
-    view.useCoordination(obsType);
     if (view.view.component === 'spatial') {
       view.useCoordination(spatialImageLayer);
       view.useCoordination(spatialSegmentationLayer);
       view.useCoordination(spatialZoom);
       view.useCoordination(spatialTargetX);
       view.useCoordination(spatialTargetY);
-      view.useCoordination(obsColorEncoding2);
-    } else if (view.view.component === 'heatmap') {
-      view.useCoordination(obsType);
-      view.useCoordination(obsColorEncoding1);
-    } else if (view.view.component === 'obsSets') {
-      view.useCoordination(obsType);
-      view.useCoordination(obsColorEncoding1);
     } else if (view.view.component === 'layerController') {
-      view.useCoordination(obsType);
       view.useCoordination(spatialImageLayer);
       view.useCoordination(spatialSegmentationLayer);
-    } else if (view.view.component === 'featureList') {
-      view.useCoordination(obsType);
-      view.useCoordination(obsColorEncoding2);
     }
   });
 }
