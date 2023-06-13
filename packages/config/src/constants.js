@@ -1,34 +1,70 @@
 const SINGLE_CELL_WITH_HEATMAP_VIEWS = {
-  "obsSets": [4, 0, 4, 4],
-  "obsSetSizes": [8, 0, 4, 4],
-  "scatterplot": [0, 0, 4, 4],
-  "heatmap": [0, 4, 8, 4],
-  "featureList": [8, 4, 4, 4]
+  "obsSets": {"coordinates": [4, 0, 4, 4]},
+  "obsSetSizes": {"coordinates": [8, 0, 4, 4]},
+  "scatterplot": {"coordinates": [0, 0, 4, 4]},
+  "heatmap": {"coordinates": [0, 4, 8, 4]},
+  "featureList": {"coordinates": [8, 4, 4, 4]}
 }
 
 const SINGLE_CELL_WITHOUT_HEATMAP_VIEWS = {
-  "obsSets": [10, 6, 2, 6],
-  "obsSetSizes": [8, 1, 4, 6],
-  "scatterplot": [0, 0, 8, 12],
-  "featureList": [8, 6, 2, 6]
+  "obsSets": {"coordinates": [10, 6, 2, 6]},
+  "obsSetSizes": {"coordinates": [8, 1, 4, 6]},
+  "scatterplot": {"coordinates": [0, 0, 8, 12]},
+  "featureList": {"coordinates": [8, 6, 2, 6]}
 }
 
 const SPATIAL_TRANSCRIPTOMICS_VIEWS = {
-  "scatterplot": [0, 0, 3, 4],
-  "spatial": [3, 0, 5, 4],
-  "obsSets": [8, 0, 4, 2],
-  "featureList": [8, 0, 4, 2],
-  "heatmap": [0, 4, 6, 4],
-  "obsSetFeatureValueDistribution": [6, 4, 6, 4],
+  "scatterplot": {"coordinates": [0, 0, 3, 4]},
+  "spatial": {"coordinates": [3, 0, 5, 4]},
+  "obsSets": {"coordinates": [8, 0, 4, 2]},
+  "featureList": {"coordinates": [8, 0, 4, 2]},
+  "heatmap": {"coordinates": [0, 4, 6, 4]},
+  "obsSetFeatureValueDistribution": {"coordinates": [6, 4, 6, 4]}
 }
 
 const SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS = {
-  "spatial": [0, 0, 6, 6],
-  "spatial": [6, 0, 6, 6],
-  "heatmap": [6, 6, 6, 6],
-  "layerController": [0, 6, 2, 6],
-  "obsSets": [2, 6, 2, 6],
-  "featureList": [4, 6, 2, 6],
+  "spatial": {
+    "coordinates": [0, 0, 6, 6],
+    "coordinationScopes": {
+      "obsType": "A",
+      "spatialImageLayer": "A",
+      "spatialSegmentationLayer": "A",
+      "spatialZoom": "A",
+      "spatialTargetX": "A",
+      "spatialTargetY": "A",
+      "obsColorEncoding": "A"
+    }
+  },
+  "heatmap": {
+    "coordinates": [6, 6, 6, 6],
+    "coordinationScopes": {
+      "obsType": "A",
+      "obsColorEncoding": "A"
+    },
+  },
+  "layerController": {
+    "coordinates": [0, 6, 2, 6],
+    "coordinationScopes": {
+      "obsType": "A",
+      "spatialImageLayer": "A",
+      "spatialSegmentationLayer": "A"
+    }
+  },
+  "obsSets": {
+    "coordinates": [2, 6, 2, 6],
+    "coordinationScopes": {
+      "obsType": "A",
+      "obsColorEncoding": "A"
+    },
+  },
+  "featureList": {
+    "coordinates": [4, 6, 2, 6],
+    "coordinationScopes": {
+      "obsType": "A",
+      "obsColorEncoding": "B",
+      "featureSelection": "A"
+    }
+  },
 }
 
 const IMAGE_VIEWS = {
@@ -88,6 +124,113 @@ export const HINTS_CONFIG = {
         ...DEFAULT_CONFIG,
         "title": "Spatial transcriptomics (with histology image and polygon cell segmentations)",
         "views": SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS,
+        "coordinationValues": { // todo: check if we can remove this
+          "obsType": "spot",
+          "featureType": "gene",
+          "featureValueType": "expression"
+        },
+        "coordinationSpace": {
+          "obsType": {
+            "A": "spot"
+          },
+          "spatialSegmentationLayer": {
+            "A": {
+              "radius": 65,
+              "stroked": true,
+              "visible": true,
+              "opacity": 1
+            }
+          },
+          "spatialImageLayer": {
+            "A": [
+              {
+                "type": "raster",
+                "index": 0,
+                "colormap": null,
+                "transparentColor": null,
+                "opacity": 1,
+                "domainType": "Min/Max",
+                "channels": [
+                  {
+                    "selection": {
+                      "c": 0
+                    },
+                    "color": [
+                      255,
+                      0,
+                      0
+                    ],
+                    "visible": true,
+                    "slider": [
+                      0,
+                      255
+                    ]
+                  },
+                  {
+                    "selection": {
+                      "c": 1
+                    },
+                    "color": [
+                      0,
+                      255,
+                      0
+                    ],
+                    "visible": true,
+                    "slider": [
+                      0,
+                      255
+                    ]
+                  },
+                  {
+                    "selection": {
+                      "c": 2
+                    },
+                    "color": [
+                      0,
+                      0,
+                      255
+                    ],
+                    "visible": true,
+                    "slider": [
+                      0,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "obsColorEncoding": {
+            "A": "cellSetSelection",
+            "B": "geneSelection"
+          },
+          "spatialZoom": {
+            "A": -2.598
+          },
+          "spatialTargetX": {
+            "A": 1008.88
+          },
+          "spatialTargetY": {
+            "A": 1004.69
+          },
+          "featureSelection": {
+            "A": [
+              "CR2"
+            ]
+          }
+        },
+        "options": { // todo: this should be deleted
+          "obsFeatureMatrix": {
+            "path": "obsm/X_hvg",
+            "featureFilterPath": "var/highly_variable"
+          },
+          "obsLocations": {
+            "path": "obsm/spatial"
+          },
+          "obsSegmentations": {
+            "path": "obsm/segmentations"
+          }
+        }
       },
       "1": DEFAULT_CONFIG,
     }

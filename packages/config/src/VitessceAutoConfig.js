@@ -1,4 +1,4 @@
-import { CoordinationType, FileType } from '@vitessce/constants-internal';
+import { CoordinationType as ct, FileType } from '@vitessce/constants-internal';
 import {
   VitessceConfig,
 } from './VitessceConfig.js';
@@ -75,15 +75,15 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
     this.fileName = fileUrl.split('/').at(-1);
   }
 
-  async composeViewsConfig(hintsViews = {}) { /* eslint-disable-line class-methods-use-this */
+  async composeViewsConfig(hintsViewsConfig) { /* eslint-disable-line class-methods-use-this */
     const views = [];
-    if (hintsContainsView(hintsViews, 'description')) {
+    if (hintsContainsView(hintsViewsConfig, 'description')) {
       views.push(['description']);
     }
-    if (hintsContainsView(hintsViews, 'spatial')) {
+    if (hintsContainsView(hintsViewsConfig, 'spatial')) {
       views.push(['spatial']);
     }
-    if (hintsContainsView(hintsViews, 'layerController')) {
+    if (hintsContainsView(hintsViewsConfig, 'layerController')) {
       views.push(['layerController']);
     }
     return views;
@@ -107,7 +107,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     this.metadataSummary = {};
   }
 
-  async composeFileConfig(hintsCoordinationValues) {
+  async composeFileConfig(hintsCoordinationValues, hintsOptions) {
     this.metadataSummary = await this.setMetadataSummary();
 
     const options = {
@@ -136,7 +136,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     });
 
     const supportedObsSetsKeys = [
-      'cluster', 'subcluster', 'cell_type', 'leiden', 'louvain', 'disease', 'organism', 'self_reported_ethnicity', 'tissue', 'sex',
+      'cluster', 'clusters', 'subcluster', 'cell_type', 'leiden', 'louvain', 'disease', 'organism', 'self_reported_ethnicity', 'tissue', 'sex',
     ];
 
     this.metadataSummary.obs.forEach((key) => {
@@ -146,10 +146,11 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
             options.obsSets = [
               {
                 name: 'Cell Type',
-                path: [key],
+                path: key,
               },
             ];
           } else {
+            options.obsSets[0].path = [options.obsSets[0].path]; // todo test this
             options.obsSets[0].path.push(key);
           }
         }
@@ -169,6 +170,11 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
 
     return {
       ...defaultFileConfig,
+      options: {
+        ...defaultFileConfig.options,
+        ...hintsOptions,
+
+      },
       coordinationValues: {
         ...defaultFileConfig.coordinationValues,
         ...hintsCoordinationValues
@@ -186,48 +192,40 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     const hasCellSetData = this.metadataSummary.obs
       .filter(key => key.toLowerCase().includes('cluster') || key.toLowerCase().includes('cell_type'));
 
-    if (hintsContainsView(hintsViewsConfig, "obsSets") && hasCellSetData.length > 0) {
+    if (hasCellSetData.length > 0) {
       views.push(['obsSets']);
     }
 
-    let addedScatterplot = false;
-
     this.metadataSummary.obsm.forEach((key) => {
-      if (hintsContainsView(hintsViewsConfig, "scatterplot") && key.toLowerCase().includes('obsm/x_umap') && !addedScatterplot) {
+      if (hintsContainsView(hintsViewsConfig, 'scatterplot') && key.toLowerCase().includes('obsm/x_umap')) {
         views.push(['scatterplot', { mapping: 'UMAP' }]);
-        addedScatterplot = true;
       }
-      if (hintsContainsView(hintsViewsConfig, "scatterplot") && key.toLowerCase().includes('obsm/x_tsne') && !addedScatterplot) {
+      if (hintsContainsView(hintsViewsConfig, 'scatterplot') && key.toLowerCase().includes('obsm/x_tsne')) {
         views.push(['scatterplot', { mapping: 't-SNE' }]);
-        addedScatterplot = true;
       }
-      if (hintsContainsView(hintsViewsConfig, "scatterplot") && key.toLowerCase().includes('obsm/x_pca') && !addedScatterplot) {
+      if (hintsContainsView(hintsViewsConfig, 'scatterplot') && key.toLowerCase().includes('obsm/x_pca')) {
         views.push(['scatterplot', { mapping: 'PCA' }]);
-        addedScatterplot = true;
       }
-      if (hintsContainsView(hintsViewsConfig, "layerController") && key.toLowerCase().includes(('obsm/x_segmentations'))) {
+      if (hintsContainsView(hintsViewsConfig, 'layerController') && key.toLowerCase().includes(('obsm/x_segmentations'))) {
         views.push(['layerController']);
       }
-      if (hintsContainsView(hintsViewsConfig, "spatial") && key.toLowerCase().includes(('obsm/x_spatial'))) {
+      if (hintsContainsView(hintsViewsConfig, 'spatial') && key.toLowerCase().includes(('obsm/x_spatial'))) {
         views.push(['spatial']);
       }
     });
 
-    if (hintsContainsView(hintsViewsConfig, "obsSetSizes")) {
+    if (hintsContainsView(hintsViewsConfig, 'obsSetSizes')) {
       views.push(['obsSetSizes']);
     }
-
-    if (hintsContainsView(hintsViewsConfig, "obsSetFeatureValueDistribution")) {
+    if (hintsContainsView(hintsViewsConfig, 'obsSetFeatureValueDistribution')) {
       views.push(['obsSetFeatureValueDistribution']);
     }
 
-    // this is commented out, because for https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr
-    // X is false
     if (this.metadataSummary.X) {
-      if (hintsContainsView(hintsViewsConfig, "heatmap")) {
+      if (hintsContainsView(hintsViewsConfig, 'heatmap')) {
         views.push(['heatmap']);
       }
-      if (hintsContainsView(hintsViewsConfig, "featureList")) {
+      if (hintsContainsView(hintsViewsConfig, 'featureList')) {
         views.push(['featureList']);
       }
     }
@@ -410,7 +408,7 @@ async function generateConfig(url, hintsConfig, vc, dataset) {
   let fileConfig;
   let viewsConfig;
   try {
-    fileConfig = await configInstance.composeFileConfig(hintsConfig.coordinationValues);
+    fileConfig = await configInstance.composeFileConfig(hintsConfig.coordinationValues, hintsConfig.options);
     viewsConfig = await configInstance.composeViewsConfig(hintsConfig.views);
   } catch (error) {
     console.error(error);
@@ -422,6 +420,105 @@ async function generateConfig(url, hintsConfig, vc, dataset) {
   let layerControllerView = false;
   let spatialView = false;
 
+  // ********* TO CODE PROPERRLY *********
+  const [
+    obsType, 
+    spatialSegmentationLayer,
+    spatialImageLayer,
+    obsColorEncoding1,
+    obsColorEncoding2,
+    spatialZoom,
+    spatialTargetX,
+    spatialTargetY,
+    featureSelection,
+  ] = vc.addCoordination(
+    ct.OBS_TYPE,
+    ct.SPATIAL_SEGMENTATION_LAYER,
+    ct.SPATIAL_IMAGE_LAYER,
+    ct.OBS_COLOR_ENCODING,
+    ct.OBS_COLOR_ENCODING,
+    ct.SPATIAL_ZOOM,
+    ct.SPATIAL_TARGET_X,
+    ct.SPATIAL_TARGET_Y,
+    ct.FEATURE_SELECTION,
+  );
+  
+  obsType.setValue('spot');
+  spatialSegmentationLayer.setValue({
+    "radius": 65,
+    "stroked": true,
+    "visible": true,
+    "opacity": 1
+  });
+  spatialImageLayer.setValue([
+    {
+      "type": "raster",
+      "index": 0,
+      "colormap": null,
+      "transparentColor": null,
+      "opacity": 1,
+      "domainType": "Min/Max",
+      "channels": [
+        {
+          "selection": {
+            "c": 0
+          },
+          "color": [
+            255,
+            0,
+            0
+          ],
+          "visible": true,
+          "slider": [
+            0,
+            255
+          ]
+        },
+        {
+          "selection": {
+            "c": 1
+          },
+          "color": [
+            0,
+            255,
+            0
+          ],
+          "visible": true,
+          "slider": [
+            0,
+            255
+          ]
+        },
+        {
+          "selection": {
+            "c": 2
+          },
+          "color": [
+            0,
+            0,
+            255
+          ],
+          "visible": true,
+          "slider": [
+            0,
+            255
+          ]
+        }
+      ]
+    }
+  ]);
+  obsColorEncoding1.setValue("cellSetSelection");
+  obsColorEncoding2.setValue("geneSelection");
+  spatialZoom.setValue(-2.598);
+  spatialTargetX.setValue(1008.88);
+  spatialTargetY.setValue(1004.69);
+  featureSelection.setValue([
+    "CR2"
+  ]);
+
+  // ********* TO CODE PROPERRLY *********
+
+
   const views = [];
 
   viewsConfig.forEach((v) => {
@@ -431,6 +528,15 @@ async function generateConfig(url, hintsConfig, vc, dataset) {
     }
     if (v[0] === 'spatial') {
       spatialView = view;
+      // *** TO CODE PROPERRLY ***
+      view.useCoordination(spatialImageLayer);
+      view.useCoordination(spatialSegmentationLayer);
+      view.useCoordination(spatialZoom);
+      view.useCoordination(spatialTargetX);
+      view.useCoordination(spatialTargetY);
+      view.useCoordination(obsColorEncoding2);
+      view.useCoordination(featureSelection);
+      // *** END OF TO CODE PROPERRLY ***
     }
     // this piece of code can be removed once these props are added by default to layerController
     // see this issue: https://github.com/vitessce/vitessce/issues/1454
@@ -443,7 +549,31 @@ async function generateConfig(url, hintsConfig, vc, dataset) {
     // transpose the heatmap by default
     if (v[0] === 'heatmap' && configInstance instanceof AnndataZarrAutoConfig) {
       view.setProps({ transpose: true });
+      // *** TO CODE PROPERRLY ***
+      view.useCoordination(obsType);
+      view.useCoordination(obsColorEncoding1);
+      // *** END OF TO CODE PROPERRLY ***
     }
+
+    // *** TO CODE PROPERRLY ***
+    if (v[0] === "obsSets") {
+      view.useCoordination(obsType);
+      view.useCoordination(obsColorEncoding1);
+    }
+
+    if (v[0] === "layerController") {
+      view.setProps({"disableChannelsIfRgbDetected": true});
+      view.useCoordination(obsType);
+      view.useCoordination(spatialImageLayer);
+      view.useCoordination(spatialSegmentationLayer);
+    }
+
+    if (v[0] === "featureList") {
+      view.useCoordination(obsType);
+      view.useCoordination(obsColorEncoding2);
+      view.useCoordination(featureSelection);
+    }
+    // *** END OF TO CODE PROPERRLY ***
 
     views.push(view);
   });
@@ -459,14 +589,18 @@ async function generateConfig(url, hintsConfig, vc, dataset) {
     vc.linkViews(
       [spatialView, layerControllerView],
       [
-        CoordinationType.SPATIAL_ZOOM,
-        CoordinationType.SPATIAL_TARGET_X,
-        CoordinationType.SPATIAL_TARGET_Y,
-        CoordinationType.SPATIAL_SEGMENTATION_LAYER,
+        ct.SPATIAL_ZOOM,
+        ct.SPATIAL_TARGET_X,
+        ct.SPATIAL_TARGET_Y,
+        ct.SPATIAL_SEGMENTATION_LAYER,
       ],
       [-5.5, 16000, 20000, spatialSegmentationLayerValue],
     );
   }
+
+  views.forEach((v) => {
+    v.useCoordination(obsType);
+  });
 
   return views;
 }
@@ -510,7 +644,6 @@ export async function generateConfigs(fileUrls, hintsInfo) {
 
   const dataset = vc.addDataset(`${hintsConfig.title} dataset.`);
 
-
   fileUrls.forEach((url) => {
     allViews.push(generateConfig(url, hintsConfig, vc, dataset));
   });
@@ -521,19 +654,15 @@ export async function generateConfigs(fileUrls, hintsInfo) {
     if (Object.keys(hintsConfig.views).length === 0) {
       const coord = calculateCoordinates(flattenedViews.length);
 
-      console.log("coordinates: ", coord);
-
       for (let i = 0; i < flattenedViews.length; i++) {
         flattenedViews[i].setXYWH(...coord[i]);
       }
     } else {
-      flattenedViews.forEach((vitessceConfigView) => {
-        const viewCoordinates = hintsConfig.views[vitessceConfigView.view.component];
-        console.log("view coordinates: ", viewCoordinates);
+        flattenedViews.forEach((vitessceConfigView) => {
+        const viewCoordinates = hintsConfig.views[vitessceConfigView.view.component].coordinates;
         vitessceConfigView.setXYWH(...viewCoordinates);
       });
     }
-
     return vc.toJSON();
   });
 }
