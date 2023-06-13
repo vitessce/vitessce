@@ -1,57 +1,33 @@
 const SINGLE_CELL_WITH_HEATMAP_VIEWS = {
-  "obsSets": {"coordinates": [4, 0, 4, 4]},
-  "obsSetSizes": {"coordinates": [8, 0, 4, 4]},
-  "scatterplot": {"coordinates": [0, 0, 4, 4]},
-  "heatmap": {"coordinates": [0, 4, 8, 4]},
-  "featureList": {"coordinates": [8, 4, 4, 4]}
+  "obsSets": [4, 0, 4, 4],
+  "obsSetSizes": [8, 0, 4, 4],
+  "scatterplot": [0, 0, 4, 4],
+  "heatmap": [0, 4, 8, 4],
+  "featureList": [8, 4, 4, 4]
 }
 
 const SINGLE_CELL_WITHOUT_HEATMAP_VIEWS = {
-  "obsSets": {"coordinates": [10, 6, 2, 6]},
-  "obsSetSizes": {"coordinates": [8, 1, 4, 6]},
-  "scatterplot": {"coordinates": [0, 0, 8, 12]},
-  "featureList": {"coordinates": [8, 6, 2, 6]}
+  "obsSets": [10, 6, 2, 6],
+  "obsSetSizes": [8, 1, 4, 6],
+  "scatterplot": [0, 0, 8, 12],
+  "featureList": [8, 6, 2, 6]
 }
 
 const SPATIAL_TRANSCRIPTOMICS_VIEWS = {
-  "scatterplot": {"coordinates": [0, 0, 3, 4]},
-  "spatial": {"coordinates": [3, 0, 5, 4]},
-  "obsSets": {"coordinates": [8, 0, 4, 2]},
-  "featureList": {"coordinates": [8, 0, 4, 2]},
-  "heatmap": {"coordinates": [0, 4, 6, 4]},
-  "obsSetFeatureValueDistribution": {"coordinates": [6, 4, 6, 4]}
+  "scatterplot": [0, 0, 3, 4],
+  "spatial": [3, 0, 5, 4],
+  "obsSets": [8, 0, 4, 2],
+  "featureList": [8, 0, 4, 2],
+  "heatmap": [0, 4, 6, 4],
+  "obsSetFeatureValueDistribution": [6, 4, 6, 4]
 }
 
 const SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS = {
-  "spatial": {
-    "coordinates": [0, 0, 6, 6],
-    "coordinationScopes": {
-      "spatialImageLayer": "A",
-      "spatialSegmentationLayer": "A",
-      "spatialZoom": "A",
-      "spatialTargetX": "A",
-      "spatialTargetY": "A",
-    }
-  },
-  "heatmap": {
-    "coordinates": [0, 6, 8, 6],
-  },
-  "layerController": {
-    "coordinates": [8, 6, 4, 6],
-    "coordinationScopes": {
-      "spatialImageLayer": "A",
-      "spatialSegmentationLayer": "A"
-    }
-  },
-  "obsSets": {
-    "coordinates": [9, 0, 3, 6],
-  },
-  "featureList": {
-    "coordinates": [6, 0, 3, 6],
-    "coordinationScopes": {
-      "featureSelection": "A"
-    }
-  },
+  "spatial": [0, 0, 6, 6],
+  "heatmap": [0, 6, 8, 6],
+  "layerController": [8, 6, 4, 6],
+  "obsSets": [9, 0, 3, 6],
+  "featureList": [6, 0, 3, 6],
 }
 
 const IMAGE_VIEWS = {

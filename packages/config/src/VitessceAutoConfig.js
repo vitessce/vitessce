@@ -8,12 +8,13 @@ import { HINTS_CONFIG } from './constants.js';
 
 const matchViews = (possibleViews, requiredViews) => {
   const resultViews = [];
-
+  let viewTypeIsAdded;
   requiredViews.forEach(requiredView => {
+    viewTypeIsAdded = false;
     possibleViews.forEach(possibleView => {
-      if (possibleView[0] === requiredView) {
+      if (possibleView[0] === requiredView && !viewTypeIsAdded) {
+        viewTypeIsAdded = true;
         resultViews.push(possibleView);
-        return;
       }
     });
   });
@@ -372,6 +373,13 @@ function calculateCoordinates(viewsNumb) {
   return coords;
 }
 
+const spatialSegmentationLayerValue = {
+  "radius": 65,
+  "stroked": true,
+  "visible": true,
+  "opacity": 1
+};
+
 function insertCoordinationSpace(hintsType, views, vc) {
   function hintofTypeAnndataAndOME(arr1) {
     const arr2 = ['OME-TIFF', 'AnnData-Zarr'];
@@ -406,12 +414,7 @@ function insertCoordinationSpace(hintsType, views, vc) {
     ct.SPATIAL_TARGET_Y,
   );
   
-  spatialSegmentationLayer.setValue({
-    "radius": 65,
-    "stroked": true,
-    "visible": true,
-    "opacity": 1
-  });
+  spatialSegmentationLayer.setValue(spatialSegmentationLayerValue);
   spatialImageLayer.setValue([
     {
       "type": "raster",
@@ -538,13 +541,6 @@ async function generateConfig(url, hintsConfig, hintsType, vc, dataset) {
   });
 
   if (layerControllerView && spatialView && configInstance instanceof AnndataZarrAutoConfig) {
-    const spatialSegmentationLayerValue = {
-      opacity: 1,
-      radius: 0,
-      visible: true,
-      stroked: false,
-    };
-
     vc.linkViews(
       [spatialView, layerControllerView],
       [
@@ -624,8 +620,7 @@ export async function generateConfigs(fileUrls, hintsInfo) {
       }
     } else {
         flattenedViews.forEach((vitessceConfigView) => {
-        const viewCoordinates = hintsConfig.views[vitessceConfigView.view.component].coordinates;
-        vitessceConfigView.setXYWH(...viewCoordinates);
+        vitessceConfigView.setXYWH(...hintsConfig.views[vitessceConfigView.view.component]);
       });
     }
     return vc.toJSON();
