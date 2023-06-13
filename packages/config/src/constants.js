@@ -32,7 +32,7 @@ const SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS = {
       "spatialZoom": "A",
       "spatialTargetX": "A",
       "spatialTargetY": "A",
-      "obsColorEncoding": "A"
+      "obsColorEncoding": "B"
     }
   },
   "heatmap": {
@@ -129,97 +129,7 @@ export const HINTS_CONFIG = {
           "featureType": "gene",
           "featureValueType": "expression"
         },
-        "coordinationSpace": {
-          "obsType": {
-            "A": "spot"
-          },
-          "spatialSegmentationLayer": {
-            "A": {
-              "radius": 65,
-              "stroked": true,
-              "visible": true,
-              "opacity": 1
-            }
-          },
-          "spatialImageLayer": {
-            "A": [
-              {
-                "type": "raster",
-                "index": 0,
-                "colormap": null,
-                "transparentColor": null,
-                "opacity": 1,
-                "domainType": "Min/Max",
-                "channels": [
-                  {
-                    "selection": {
-                      "c": 0
-                    },
-                    "color": [
-                      255,
-                      0,
-                      0
-                    ],
-                    "visible": true,
-                    "slider": [
-                      0,
-                      255
-                    ]
-                  },
-                  {
-                    "selection": {
-                      "c": 1
-                    },
-                    "color": [
-                      0,
-                      255,
-                      0
-                    ],
-                    "visible": true,
-                    "slider": [
-                      0,
-                      255
-                    ]
-                  },
-                  {
-                    "selection": {
-                      "c": 2
-                    },
-                    "color": [
-                      0,
-                      0,
-                      255
-                    ],
-                    "visible": true,
-                    "slider": [
-                      0,
-                      255
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          "obsColorEncoding": {
-            "A": "cellSetSelection",
-            "B": "geneSelection"
-          },
-          "spatialZoom": {
-            "A": -2.598
-          },
-          "spatialTargetX": {
-            "A": 1008.88
-          },
-          "spatialTargetY": {
-            "A": 1004.69
-          },
-          "featureSelection": {
-            "A": [
-              "CR2"
-            ]
-          }
-        },
-        "options": { // todo: this should be deleted
+        "options": { // todo: this should be deleted, but leaving them for this specifig config for now
           "obsFeatureMatrix": {
             "path": "obsm/X_hvg",
             "featureFilterPath": "var/highly_variable"

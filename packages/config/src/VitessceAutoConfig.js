@@ -6,12 +6,19 @@ import {
 import { HINTS_CONFIG } from './constants.js';
 
 
-const hintsContainsView = (hints, viewType) => {
-  const hintsViews = Object.keys(hints);
-  if (hintsViews.length === 0) {
-    return true;
-  }
-  return hintsViews.includes(viewType);
+const matchViews = (possibleViews, requiredViews) => {
+  const resultViews = [];
+
+  requiredViews.forEach(requiredView => {
+    possibleViews.forEach(possibleView => {
+      if (possibleView[0] === requiredView) {
+        resultViews.push(possibleView);
+        return;
+      }
+    });
+  });
+
+  return resultViews;
 }
 
 class AbstractAutoConfig {
@@ -31,19 +38,12 @@ class OmeTiffAutoConfig extends AbstractAutoConfig {
     this.fileName = fileUrl.split('/').at(-1);
   }
 
-
-  async composeViewsConfig(hintsViews = {}) { /* eslint-disable-line class-methods-use-this */
-    const views = [];
-    if (hintsContainsView(hintsViews, 'description')) {
-      views.push(['description']);
-    }
-    if (hintsContainsView(hintsViews, 'spatial')) {
-      views.push(['spatial']);
-    }
-    if (hintsContainsView(hintsViews, 'layerController')) {
-      views.push(['layerController']);
-    }
-    return views;
+  async composeViewsConfig(hintsViewsConfig = {}) { /* eslint-disable-line class-methods-use-this */
+    const possibleViews = [
+      ['description'], ['spatial'], ['layerController'],
+    ];
+    const requiredViews = Object.keys(hintsViewsConfig);
+    return matchViews(possibleViews, requiredViews);
   }
 
   async composeFileConfig(hintsCoordinationValues) {
@@ -76,17 +76,11 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
   }
 
   async composeViewsConfig(hintsViewsConfig) { /* eslint-disable-line class-methods-use-this */
-    const views = [];
-    if (hintsContainsView(hintsViewsConfig, 'description')) {
-      views.push(['description']);
-    }
-    if (hintsContainsView(hintsViewsConfig, 'spatial')) {
-      views.push(['spatial']);
-    }
-    if (hintsContainsView(hintsViewsConfig, 'layerController')) {
-      views.push(['layerController']);
-    }
-    return views;
+    const possibleViews = [
+      ['description'], ['spatial'], ['layerController'],
+    ];
+    const requiredViews = Object.keys(hintsViewsConfig);
+    return matchViews(possibleViews, requiredViews);
   }
 
   async composeFileConfig(hintsCoordinationValues) {
@@ -187,50 +181,43 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
 
     console.log("Metadata summary: ", this.metadataSummary);
 
-    const views = [];
+    const requiredViews = Object.keys(hintsViewsConfig);
+    const possibleViews = [];
 
     const hasCellSetData = this.metadataSummary.obs
       .filter(key => key.toLowerCase().includes('cluster') || key.toLowerCase().includes('cell_type'));
 
     if (hasCellSetData.length > 0) {
-      views.push(['obsSets']);
+      possibleViews.push(['obsSets']);
     }
 
     this.metadataSummary.obsm.forEach((key) => {
-      if (hintsContainsView(hintsViewsConfig, 'scatterplot') && key.toLowerCase().includes('obsm/x_umap')) {
-        views.push(['scatterplot', { mapping: 'UMAP' }]);
+      if (key.toLowerCase().includes('obsm/x_umap')) {
+        possibleViews.push(['scatterplot', { mapping: 'UMAP' }]);
       }
-      if (hintsContainsView(hintsViewsConfig, 'scatterplot') && key.toLowerCase().includes('obsm/x_tsne')) {
-        views.push(['scatterplot', { mapping: 't-SNE' }]);
+      if (key.toLowerCase().includes('obsm/x_tsne')) {
+        possibleViews.push(['scatterplot', { mapping: 't-SNE' }]);
       }
-      if (hintsContainsView(hintsViewsConfig, 'scatterplot') && key.toLowerCase().includes('obsm/x_pca')) {
-        views.push(['scatterplot', { mapping: 'PCA' }]);
+      if (key.toLowerCase().includes('obsm/x_pca')) {
+        possibleViews.push(['scatterplot', { mapping: 'PCA' }]);
       }
-      if (hintsContainsView(hintsViewsConfig, 'layerController') && key.toLowerCase().includes(('obsm/x_segmentations'))) {
-        views.push(['layerController']);
+      if (key.toLowerCase().includes(('obsm/x_segmentations'))) {
+        possibleViews.push(['layerController']);
       }
-      if (hintsContainsView(hintsViewsConfig, 'spatial') && key.toLowerCase().includes(('obsm/x_spatial'))) {
-        views.push(['spatial']);
+      if (key.toLowerCase().includes(('obsm/x_spatial'))) {
+        possibleViews.push(['spatial']);
       }
     });
 
-    if (hintsContainsView(hintsViewsConfig, 'obsSetSizes')) {
-      views.push(['obsSetSizes']);
-    }
-    if (hintsContainsView(hintsViewsConfig, 'obsSetFeatureValueDistribution')) {
-      views.push(['obsSetFeatureValueDistribution']);
-    }
+    possibleViews.push(['obsSetSizes']);
+    possibleViews.push(['obsSetFeatureValueDistribution']);
 
     if (this.metadataSummary.X) {
-      if (hintsContainsView(hintsViewsConfig, 'heatmap')) {
-        views.push(['heatmap']);
-      }
-      if (hintsContainsView(hintsViewsConfig, 'featureList')) {
-        views.push(['featureList']);
-      }
+      possibleViews.push(['heatmap']);
+      possibleViews.push(['featureList']);
     }
 
-    return views;
+    return matchViews(possibleViews, requiredViews);
   }
 
   async setMetadataSummaryWithZmetadata(response) { /* eslint-disable-line class-methods-use-this */
@@ -367,16 +354,6 @@ const configClasses = [
   },
 ];
 
-function getFileType(url) {
-  const match = configClasses.find(obj => obj.extensions.filter(
-    ext => url.endsWith(ext),
-  ).length === 1);
-  if (!match) {
-    throw new Error(`Could not generate config for URL: ${url}. This file type is not supported.`);
-  }
-  return match;
-}
-
 function calculateCoordinates(viewsNumb) {
   const rows = Math.ceil(Math.sqrt(viewsNumb));
   const cols = Math.ceil(viewsNumb / rows);
@@ -395,32 +372,26 @@ function calculateCoordinates(viewsNumb) {
   return coords;
 }
 
-async function generateConfig(url, hintsConfig, vc, dataset) {
-  let ConfigClassName;
-  try {
-    ConfigClassName = getFileType(url).class;
-    console.log(`**** Generating config for ${url} using ${ConfigClassName.name}`);
-  } catch (err) {
-    return Promise.reject(err);
+function insertCoordinationSpace(hintsType, views, vc) {
+  function hintofTypeAnndataAndOME(arr1) {
+    const arr2 = ['OME-TIFF', 'AnnData-Zarr'];
+    if (arr1.length !== arr2.length) {
+      return false;
+    }
+    arr1.forEach((item) => {
+      if (!arr2.includes(item)) {
+        return false;
+      }
+    });
+    
+    return true;
   }
 
-  const configInstance = new ConfigClassName(url);
-  let fileConfig;
-  let viewsConfig;
-  try {
-    fileConfig = await configInstance.composeFileConfig(hintsConfig.coordinationValues, hintsConfig.options);
-    viewsConfig = await configInstance.composeViewsConfig(hintsConfig.views);
-  } catch (error) {
-    console.error(error);
-    return Promise.reject(error);
+  // we insert coordination space only for datasets of type Anndata-Zarr + OME-TIFF/OME-Zarr
+  if (!hintofTypeAnndataAndOME(hintsType)) {
+    return;
   }
 
-  dataset.addFile(fileConfig);
-
-  let layerControllerView = false;
-  let spatialView = false;
-
-  // ********* TO CODE PROPERRLY *********
   const [
     obsType, 
     spatialSegmentationLayer,
@@ -430,7 +401,6 @@ async function generateConfig(url, hintsConfig, vc, dataset) {
     spatialZoom,
     spatialTargetX,
     spatialTargetY,
-    featureSelection,
   ] = vc.addCoordination(
     ct.OBS_TYPE,
     ct.SPATIAL_SEGMENTATION_LAYER,
@@ -440,7 +410,6 @@ async function generateConfig(url, hintsConfig, vc, dataset) {
     ct.SPATIAL_ZOOM,
     ct.SPATIAL_TARGET_X,
     ct.SPATIAL_TARGET_Y,
-    ct.FEATURE_SELECTION,
   );
   
   obsType.setValue('spot');
@@ -512,13 +481,57 @@ async function generateConfig(url, hintsConfig, vc, dataset) {
   spatialZoom.setValue(-2.598);
   spatialTargetX.setValue(1008.88);
   spatialTargetY.setValue(1004.69);
-  featureSelection.setValue([
-    "CR2"
-  ]);
 
-  // ********* TO CODE PROPERRLY *********
+  views.forEach((view) => {
+    view.useCoordination(obsType);
+    if (view.view.component === 'spatial') {
+      view.useCoordination(spatialImageLayer);
+      view.useCoordination(spatialSegmentationLayer);
+      view.useCoordination(spatialZoom);
+      view.useCoordination(spatialTargetX);
+      view.useCoordination(spatialTargetY);
+      view.useCoordination(obsColorEncoding2);
+    } else if (view.view.component === 'heatmap') {
+      view.useCoordination(obsType);
+      view.useCoordination(obsColorEncoding1);
+    } else if (view.view.component === 'obsSets') {
+      view.useCoordination(obsType);
+      view.useCoordination(obsColorEncoding1);
+    } else if (view.view.component === 'layerController') {
+      view.useCoordination(obsType);
+      view.useCoordination(spatialImageLayer);
+      view.useCoordination(spatialSegmentationLayer);
+    } else if (view.view.component === 'featureList') {
+      view.useCoordination(obsType);
+      view.useCoordination(obsColorEncoding2);
+    }
+  });
+}
 
+async function generateConfig(url, hintsConfig, hintsType, vc, dataset) {
+  let ConfigClassName;
+  try {
+    ConfigClassName = getFileType(url).class;
+    console.log(`**** Generating config for ${url} using ${ConfigClassName.name}`);
+  } catch (err) {
+    return Promise.reject(err);
+  }
 
+  const configInstance = new ConfigClassName(url);
+  let fileConfig;
+  let viewsConfig;
+  try {
+    fileConfig = await configInstance.composeFileConfig(hintsConfig.coordinationValues, hintsConfig.options);
+    viewsConfig = await configInstance.composeViewsConfig(hintsConfig.views);
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(error);
+  }
+
+  dataset.addFile(fileConfig);
+
+  let layerControllerView = false;
+  let spatialView = false;
   const views = [];
 
   viewsConfig.forEach((v) => {
@@ -528,19 +541,10 @@ async function generateConfig(url, hintsConfig, vc, dataset) {
     }
     if (v[0] === 'spatial') {
       spatialView = view;
-      // *** TO CODE PROPERRLY ***
-      view.useCoordination(spatialImageLayer);
-      view.useCoordination(spatialSegmentationLayer);
-      view.useCoordination(spatialZoom);
-      view.useCoordination(spatialTargetX);
-      view.useCoordination(spatialTargetY);
-      view.useCoordination(obsColorEncoding2);
-      view.useCoordination(featureSelection);
-      // *** END OF TO CODE PROPERRLY ***
     }
     // this piece of code can be removed once these props are added by default to layerController
     // see this issue: https://github.com/vitessce/vitessce/issues/1454
-    if (v[0] === 'layerController' && configInstance instanceof OmeTiffAutoConfig) {
+    if (v[0] === 'layerController') {
       view.setProps({
         disable3d: [],
         disableChannelsIfRgbDetected: true,
@@ -549,31 +553,7 @@ async function generateConfig(url, hintsConfig, vc, dataset) {
     // transpose the heatmap by default
     if (v[0] === 'heatmap' && configInstance instanceof AnndataZarrAutoConfig) {
       view.setProps({ transpose: true });
-      // *** TO CODE PROPERRLY ***
-      view.useCoordination(obsType);
-      view.useCoordination(obsColorEncoding1);
-      // *** END OF TO CODE PROPERRLY ***
     }
-
-    // *** TO CODE PROPERRLY ***
-    if (v[0] === "obsSets") {
-      view.useCoordination(obsType);
-      view.useCoordination(obsColorEncoding1);
-    }
-
-    if (v[0] === "layerController") {
-      view.setProps({"disableChannelsIfRgbDetected": true});
-      view.useCoordination(obsType);
-      view.useCoordination(spatialImageLayer);
-      view.useCoordination(spatialSegmentationLayer);
-    }
-
-    if (v[0] === "featureList") {
-      view.useCoordination(obsType);
-      view.useCoordination(obsColorEncoding2);
-      view.useCoordination(featureSelection);
-    }
-    // *** END OF TO CODE PROPERRLY ***
 
     views.push(view);
   });
@@ -598,15 +578,22 @@ async function generateConfig(url, hintsConfig, vc, dataset) {
     );
   }
 
-  views.forEach((v) => {
-    v.useCoordination(obsType);
-  });
+  insertCoordinationSpace(hintsType, views, vc);
 
   return views;
 }
 
-// http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr, http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.ome.tiff
+function getFileType(url) {
+  const match = configClasses.find(obj => obj.extensions.filter(
+    ext => url.endsWith(ext),
+  ).length === 1);
+  if (!match) {
+    throw new Error(`Could not generate config for URL: ${url}. This file type is not supported.`);
+  }
+  return match;
+}
 
+// http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr, http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.ome.tiff
 export function getHintType(fileUrls) {
   let fileTypes = [];
 
@@ -625,8 +612,6 @@ export function getHintType(fileUrls) {
     }
   });
 
-  console.log("File types: ", fileTypes);
-
   return fileTypes; // todo: we need to make these unique
 }
 
@@ -638,6 +623,7 @@ export async function generateConfigs(fileUrls, hintsInfo) {
   });
 
   const hintsConfig = HINTS_CONFIG[hintsInfo.hintsClass].hints[hintsInfo.hintsKey];
+  const hintsType = HINTS_CONFIG[hintsInfo.hintsClass].hintType;
 
   const allViews = [];
 
@@ -645,7 +631,7 @@ export async function generateConfigs(fileUrls, hintsInfo) {
   const dataset = vc.addDataset(`${hintsConfig.title} dataset.`);
 
   fileUrls.forEach((url) => {
-    allViews.push(generateConfig(url, hintsConfig, vc, dataset));
+    allViews.push(generateConfig(url, hintsConfig, hintsType, vc, dataset));
   });
 
   return Promise.all(allViews).then((views) => {
