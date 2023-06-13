@@ -519,7 +519,7 @@ export default function LayerController(props) {
               <Grid item xs={6}>
                 <InputLabel
                   htmlFor={`layer-${name}-opacity-closed`}
-                  classes={{ root: inputLabelClasses.inputLabelRoot}}
+                  classes={{ root: inputLabelClasses.inputLabelRoot }}
                 >
                   Opacity:
                 </InputLabel>

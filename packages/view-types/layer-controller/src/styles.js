@@ -35,7 +35,7 @@ export const useControllerSectionStyles = makeStyles(() => ({
   },
 }));
 
-export const useAccordionStyles = makeStyles((theme) => ({
+export const useAccordionStyles = makeStyles(theme => ({
   accordionDetailsRoot: {
     ...sharedControllerStyles,
     padding: '8px 8px 24px 8px',
