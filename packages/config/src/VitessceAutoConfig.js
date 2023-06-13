@@ -141,15 +141,21 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
             options.obsSets = [
               {
                 name: 'Cell Type',
-                path: key,
+                path: [key],
               },
             ];
           } else {
-            options.obsSets[0].path = [options.obsSets[0].path]; // todo test this
             options.obsSets[0].path.push(key);
           }
         }
       });
+    });
+
+    // if length of path is 1, storing the value as an array doesn't work
+    options.obsSets.map((obsSet) => {
+      if (obsSet.path.length === 1) {
+        obsSet.path = obsSet.path[0];
+      }
     });
 
     const defaultFileConfig = {
