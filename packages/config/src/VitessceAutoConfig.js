@@ -9,9 +9,9 @@ import { HINTS_CONFIG } from './constants.js';
 const matchViews = (possibleViews, requiredViews) => {
   const resultViews = [];
   let viewTypeIsAdded;
-  requiredViews.forEach(requiredView => {
+  requiredViews.forEach((requiredView) => {
     viewTypeIsAdded = false;
-    possibleViews.forEach(possibleView => {
+    possibleViews.forEach((possibleView) => {
       if (possibleView[0] === requiredView && !viewTypeIsAdded) {
         viewTypeIsAdded = true;
         resultViews.push(possibleView);
@@ -20,14 +20,14 @@ const matchViews = (possibleViews, requiredViews) => {
   });
 
   return resultViews;
-}
+};
 
 class AbstractAutoConfig {
-  async composeViewsConfig(hintsViews) { /* eslint-disable-line class-methods-use-this */
+  async composeViewsConfig() { /* eslint-disable-line class-methods-use-this */
     throw new Error('The composeViewsConfig() method has not been implemented.');
   }
 
-  async composeFileConfig(hintsCoordinationValues) { /* eslint-disable-line class-methods-use-this */
+  async composeFileConfig() { /* eslint-disable-line class-methods-use-this */
     throw new Error('The composeFileConfig() method has not been implemented.');
   }
 }
@@ -47,7 +47,7 @@ class OmeTiffAutoConfig extends AbstractAutoConfig {
     return matchViews(possibleViews, requiredViews);
   }
 
-  async composeFileConfig(hintsCoordinationValues) {
+  async composeFileConfig(hintsCoordinationValues) { /* eslint-disable-line no-unused-vars */
     return {
       fileType: this.fileType,
       options: {
@@ -84,7 +84,7 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
     return matchViews(possibleViews, requiredViews);
   }
 
-  async composeFileConfig(hintsCoordinationValues) {
+  async composeFileConfig(hintsCoordinationValues) { /* eslint-disable-line no-unused-vars */
     return {
       fileType: this.fileType,
       type: 'raster',
@@ -152,9 +152,10 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     });
 
     // if length of path is 1, storing the value as an array doesn't work
-    options.obsSets.map((obsSet) => {
+    options.obsSets.forEach((obsSet) => {
       if (obsSet.path.length === 1) {
-        obsSet.path = obsSet.path[0];
+        // eslint-disable-next-line no-param-reassign
+        [obsSet.path] = obsSet.path;
       }
     });
 
@@ -178,16 +179,13 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       },
       coordinationValues: {
         ...defaultFileConfig.coordinationValues,
-        ...hintsCoordinationValues
-      }
+        ...hintsCoordinationValues,
+      },
     };
   }
 
   async composeViewsConfig(hintsViewsConfig) {
     this.metadataSummary = await this.setMetadataSummary();
-
-    console.log("Metadata summary: ", this.metadataSummary);
-
     const requiredViews = Object.keys(hintsViewsConfig);
     const possibleViews = [];
 
@@ -266,7 +264,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       '/obsm/X_segmentations/.zarray',
       '/obs/.zattrs',
       '/X/.zarray',
-      '/X/data/.zarray' // for https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr
+      '/X/data/.zarray', // for https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr
     ];
 
     const getObsmKey = (url) => {
@@ -380,10 +378,10 @@ function calculateCoordinates(viewsNumb) {
 }
 
 const spatialSegmentationLayerValue = {
-  "radius": 65,
-  "stroked": true,
-  "visible": true,
-  "opacity": 1
+  radius: 65,
+  stroked: true,
+  visible: true,
+  opacity: 1,
 };
 
 function insertCoordinationSpace(hintsType, views, vc) {
@@ -392,13 +390,7 @@ function insertCoordinationSpace(hintsType, views, vc) {
     if (arr1.length !== arr2.length) {
       return false;
     }
-    arr1.forEach((item) => {
-      if (!arr2.includes(item)) {
-        return false;
-      }
-    });
-    
-    return true;
+    return arr1.every(item => arr2.includes(item));
   }
 
   // we insert coordination space only for datasets of type Anndata-Zarr + OME-TIFF/OME-Zarr
@@ -419,64 +411,64 @@ function insertCoordinationSpace(hintsType, views, vc) {
     ct.SPATIAL_TARGET_X,
     ct.SPATIAL_TARGET_Y,
   );
-  
+
   spatialSegmentationLayer.setValue(spatialSegmentationLayerValue);
   spatialImageLayer.setValue([
     {
-      "type": "raster",
-      "index": 0,
-      "colormap": null,
-      "transparentColor": null,
-      "opacity": 1,
-      "domainType": "Min/Max",
-      "channels": [
+      type: 'raster',
+      index: 0,
+      colormap: null,
+      transparentColor: null,
+      opacity: 1,
+      domainType: 'Min/Max',
+      channels: [
         {
-          "selection": {
-            "c": 0
+          selection: {
+            c: 0,
           },
-          "color": [
+          color: [
             255,
             0,
-            0
-          ],
-          "visible": true,
-          "slider": [
             0,
-            255
-          ]
-        },
-        {
-          "selection": {
-            "c": 1
-          },
-          "color": [
+          ],
+          visible: true,
+          slider: [
             0,
             255,
-            0
           ],
-          "visible": true,
-          "slider": [
-            0,
-            255
-          ]
         },
         {
-          "selection": {
-            "c": 2
+          selection: {
+            c: 1,
           },
-          "color": [
+          color: [
             0,
+            255,
             0,
-            255
           ],
-          "visible": true,
-          "slider": [
+          visible: true,
+          slider: [
             0,
-            255
-          ]
-        }
-      ]
-    }
+            255,
+          ],
+        },
+        {
+          selection: {
+            c: 2,
+          },
+          color: [
+            0,
+            0,
+            255,
+          ],
+          visible: true,
+          slider: [
+            0,
+            255,
+          ],
+        },
+      ],
+    },
   ]);
   spatialZoom.setValue(-2.598);
   spatialTargetX.setValue(1008.88);
@@ -496,11 +488,20 @@ function insertCoordinationSpace(hintsType, views, vc) {
   });
 }
 
+function getFileType(url) {
+  const match = configClasses.find(obj => obj.extensions.filter(
+    ext => url.endsWith(ext),
+  ).length === 1);
+  if (!match) {
+    throw new Error(`Could not generate config for URL: ${url}. This file type is not supported.`);
+  }
+  return match;
+}
+
 async function generateConfig(url, hintsConfig, hintsType, vc, dataset) {
   let ConfigClassName;
   try {
     ConfigClassName = getFileType(url).class;
-    console.log(`**** Generating config for ${url} using ${ConfigClassName.name}`);
   } catch (err) {
     return Promise.reject(err);
   }
@@ -509,7 +510,10 @@ async function generateConfig(url, hintsConfig, hintsType, vc, dataset) {
   let fileConfig;
   let viewsConfig;
   try {
-    fileConfig = await configInstance.composeFileConfig(hintsConfig.coordinationValues, hintsConfig.options);
+    fileConfig = await configInstance.composeFileConfig(
+      hintsConfig.coordinationValues,
+      hintsConfig.options,
+    );
     viewsConfig = await configInstance.composeViewsConfig(hintsConfig.views);
   } catch (error) {
     console.error(error);
@@ -564,32 +568,21 @@ async function generateConfig(url, hintsConfig, hintsType, vc, dataset) {
   return views;
 }
 
-function getFileType(url) {
-  const match = configClasses.find(obj => obj.extensions.filter(
-    ext => url.endsWith(ext),
-  ).length === 1);
-  if (!match) {
-    throw new Error(`Could not generate config for URL: ${url}. This file type is not supported.`);
-  }
-  return match;
-}
-
 // http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr, http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.ome.tiff
 export function getHintType(fileUrls) {
-  let fileTypes = [];
+  const fileTypes = [];
 
   // todo: this function is broken
   fileUrls.forEach((url) => {
     try {
       const match = getFileType(url);
-      if (match.name === "OME-Zarr") { // the hints config only has OME-TIFF, because settings are the same for both OME-TIFF and OME-Zarr
-        fileTypes.push("OME-TIFF");
-      }
-      else {
+      if (match.name === 'OME-Zarr') { // the hints config only has OME-TIFF, because settings are the same for both OME-TIFF and OME-Zarr
+        fileTypes.push('OME-TIFF');
+      } else {
         fileTypes.push(match.name);
       }
     } catch (err) {
-      console.error("not supported file type, but ignoring the error");
+      console.error('not supported file type, but ignoring the error');
     }
   });
 
@@ -625,7 +618,7 @@ export async function generateConfigs(fileUrls, hintsInfo) {
         flattenedViews[i].setXYWH(...coord[i]);
       }
     } else {
-        flattenedViews.forEach((vitessceConfigView) => {
+      flattenedViews.forEach((vitessceConfigView) => {
         vitessceConfigView.setXYWH(...hintsConfig.views[vitessceConfigView.view.component]);
       });
     }

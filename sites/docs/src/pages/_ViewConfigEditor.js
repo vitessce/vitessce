@@ -12,6 +12,7 @@ import {
   CoordinationType, ViewType, DataType, FileType,
 } from '@vitessce/constants';
 import { upgradeAndParse } from '@vitessce/schemas';
+import { List, ListItem, ListItemText } from '@material-ui/core';
 import ThemedControlledEditor from './_ThemedControlledEditor.js';
 import {
   baseJs, baseJson, exampleJs, exampleJson,
@@ -19,7 +20,6 @@ import {
 import { JSON_TRANSLATION_KEY } from './_editor-utils.js';
 import JsonHighlight from './_JsonHighlight.js';
 import styles from './styles.module.css';
-import {List, ListItem, ListItemText} from "@material-ui/core";
 
 // To simplify the JS editor, the user only needs to write
 // the inner part of the createConfig() function,
@@ -79,21 +79,27 @@ export default function ViewConfigEditor(props) {
 
   const [debouncedHintsClass, setDebouncedHintsClass] = useState(null);
 
+  function sanitiseURLs(urls) {
+    return urls
+      .split(/;/)
+      .map(url => url.trim())
+      .filter(url => url.match(/^http/g));
+  }
+
   useEffect(() => {
     const handle = setTimeout(() => {
       const sanitisedUrls = sanitiseURLs(datasetUrls);
       const hintTypes = getHintType(sanitisedUrls);
-      const newHintsClass = Object.keys(HINTS_CONFIG).find((key) => {
-        return HINTS_CONFIG[key].hintType.every((fileType) => {
-          return hintTypes.includes(fileType);
-        }) && HINTS_CONFIG[key].hintType.length === hintTypes.length;
-      });
+      const newHintsClass = Object.keys(HINTS_CONFIG)
+        .find(key => HINTS_CONFIG[key].hintType
+          .every(fileType => hintTypes.includes(fileType))
+          && HINTS_CONFIG[key].hintType.length === hintTypes.length);
       setPendingJson(baseJson);
       setDebouncedHintsClass(newHintsClass);
     }, 500);
 
     return () => clearTimeout(handle);
-  }, [datasetUrls]);
+  }, [datasetUrls, setPendingJson]);
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length === 1) {
@@ -144,17 +150,10 @@ export default function ViewConfigEditor(props) {
     setUrl(nextUrl);
   }
 
-  function sanitiseURLs(urls) {
-    return urls
-      .split(/;/)
-      .map(url => url.trim())
-      .filter(url => url.match(/^http/g));
-  }
-
   async function handleConfigGeneration(hintsKey) {
     setError(null);
     const sanitisedUrls = sanitiseURLs(datasetUrls);
-    await generateConfigs(sanitisedUrls, {hintsClass: debouncedHintsClass, hintsKey})
+    await generateConfigs(sanitisedUrls, { hintsClass: debouncedHintsClass, hintsKey })
       .then((configJson) => {
         setPendingJson(JSON.stringify(configJson, null, 2));
         setLoadFrom('editor');
@@ -197,33 +196,33 @@ export default function ViewConfigEditor(props) {
 
   const showReset = (syntaxType === 'JSON' && pendingJson !== baseJson) || (syntaxType === 'JS' && pendingJs !== baseJs);
 
-  const renderHints = () => {  
-  
+  const renderHints = () => {
     if (!debouncedHintsClass) {
       // show some default state while waiting
       return <pre>Loading hints ...</pre>;
     }
-    
+
     return (
       <List
-        subheader={
+        subheader={(
           <p id="nested-list-subheader" className={styles.viewConfigEditorInfo}>
             Generate config with hints:
           </p>
-        }
+        )}
       >
-        {Object.keys(HINTS_CONFIG[debouncedHintsClass].hints).map((hintKey) => (
+        {Object.keys(HINTS_CONFIG[debouncedHintsClass].hints).map(hintKey => (
           <ListItem disablePadding>
-            <button 
+            <button
+              type="button"
               onClick={() => handleConfigGeneration(hintKey)}
             >
-              <ListItemText primary={ HINTS_CONFIG[debouncedHintsClass].hints[hintKey].title} />
+              <ListItemText primary={HINTS_CONFIG[debouncedHintsClass].hints[hintKey].title} />
             </button>
           </ListItem>
         ))}
       </List>
-    )
-  }
+    );
+  };
 
   return (
     loading ? (
