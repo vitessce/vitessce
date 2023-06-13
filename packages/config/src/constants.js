@@ -36,7 +36,7 @@ const IMAGE_VIEWS = {
   description: [8, 9, 4, 5],
 };
 
-const DEFAULT_CONFIG = {
+export const NO_HINTS_CONFIG = {
   title: "Don't use any hints",
   views: {},
   coordinationValues: {},
@@ -47,22 +47,22 @@ export const HINTS_CONFIG = {
     hintType: ['AnnData-Zarr'],
     hints: {
       6: {
-        ...DEFAULT_CONFIG,
+        ...NO_HINTS_CONFIG,
         title: 'Transcriptomics / scRNA-seq (with heatmap)',
         views: SINGLE_CELL_WITH_HEATMAP_VIEWS,
       },
       5: {
-        ...DEFAULT_CONFIG,
+        ...NO_HINTS_CONFIG,
         title: 'Transcriptomics / scRNA-seq (without heatmap)',
         views: SINGLE_CELL_WITHOUT_HEATMAP_VIEWS,
       },
       4: {
-        ...DEFAULT_CONFIG,
+        ...NO_HINTS_CONFIG,
         title: 'Spatial transcriptomics (with polygon cell segmentations)',
         views: SPATIAL_TRANSCRIPTOMICS_VIEWS,
       },
       3: {
-        ...DEFAULT_CONFIG,
+        ...NO_HINTS_CONFIG,
         title: 'Chromatin accessibility / scATAC-seq (with heatmap)',
         views: SINGLE_CELL_WITH_HEATMAP_VIEWS,
         coordinationValues: {
@@ -70,21 +70,21 @@ export const HINTS_CONFIG = {
         },
       },
       2: {
-        ...DEFAULT_CONFIG,
+        ...NO_HINTS_CONFIG,
         title: 'Chromatin accessibility / scATAC-seq (without heatmap)',
         views: SINGLE_CELL_WITHOUT_HEATMAP_VIEWS,
         coordinationValues: {
           featureType: 'peak',
         },
       },
-      1: DEFAULT_CONFIG,
+      1: NO_HINTS_CONFIG,
     },
   },
   B: {
     hintType: ['OME-TIFF', 'AnnData-Zarr'],
     hints: {
       2: {
-        ...DEFAULT_CONFIG,
+        ...NO_HINTS_CONFIG,
         title: 'Spatial transcriptomics (with histology image and polygon cell segmentations)',
         views: SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS,
         options: { // todo delete this
@@ -100,25 +100,25 @@ export const HINTS_CONFIG = {
           },
         },
       },
-      1: DEFAULT_CONFIG,
+      1: NO_HINTS_CONFIG,
     },
   },
   C: {
     hintType: ['OME-TIFF'],
     hints: {
       2: {
-        ...DEFAULT_CONFIG,
+        ...NO_HINTS_CONFIG,
         title: 'Image',
         views: IMAGE_VIEWS,
       },
-      1: DEFAULT_CONFIG,
+      1: NO_HINTS_CONFIG,
     },
   },
   D: {
     hintType: [],
     hints: {
       1: {
-        ...DEFAULT_CONFIG,
+        ...NO_HINTS_CONFIG,
         title: 'No hints available for this dataset type',
       },
     },

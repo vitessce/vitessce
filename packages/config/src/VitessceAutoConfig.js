@@ -3,9 +3,6 @@ import {
   VitessceConfig,
 } from './VitessceConfig.js';
 
-import { HINTS_CONFIG } from './constants.js';
-
-
 const matchViews = (possibleViews, requiredViews) => {
   const resultViews = [];
   let viewTypeIsAdded;
@@ -31,23 +28,29 @@ class AbstractAutoConfig {
     throw new Error('The composeFileConfig() method has not been implemented.');
   }
 }
+
 class OmeTiffAutoConfig extends AbstractAutoConfig {
-  constructor(fileUrl) {
+  constructor(fileUrl, hintsConfig, hintsType, useHints) {
     super();
     this.fileUrl = fileUrl;
     this.fileType = FileType.RASTER_JSON;
     this.fileName = fileUrl.split('/').at(-1);
+    this.hintsConfig = hintsConfig;
+    this.hintsType = hintsType;
+    this.useHints = useHints;
   }
 
-  async composeViewsConfig(hintsViewsConfig = {}) { /* eslint-disable-line class-methods-use-this */
+  async composeViewsConfig() {
     const possibleViews = [
       ['description'], ['spatial'], ['layerController'],
     ];
-    const requiredViews = Object.keys(hintsViewsConfig);
-    return matchViews(possibleViews, requiredViews);
+    if (!this.useHints) {
+      return possibleViews;
+    }
+    return matchViews(possibleViews, Object.keys(this.hintsConfig.views));
   }
 
-  async composeFileConfig(hintsCoordinationValues) { /* eslint-disable-line no-unused-vars */
+  async composeFileConfig() {
     return {
       fileType: this.fileType,
       options: {
@@ -69,22 +72,28 @@ class OmeTiffAutoConfig extends AbstractAutoConfig {
 }
 
 class OmeZarrAutoConfig extends AbstractAutoConfig {
-  constructor(fileUrl) {
+  constructor(fileUrl, hintsConfig, hintsType, useHints) {
     super();
     this.fileUrl = fileUrl;
     this.fileType = FileType.RASTER_OME_ZARR;
     this.fileName = fileUrl.split('/').at(-1);
+    this.hintsConfig = hintsConfig;
+    this.hintsType = hintsType;
+    this.useHints = useHints;
   }
 
-  async composeViewsConfig(hintsViewsConfig) { /* eslint-disable-line class-methods-use-this */
+  async composeViewsConfig() {
     const possibleViews = [
       ['description'], ['spatial'], ['layerController'],
     ];
-    const requiredViews = Object.keys(hintsViewsConfig);
-    return matchViews(possibleViews, requiredViews);
+
+    if (!this.useHints) {
+      return possibleViews;
+    }
+    return matchViews(possibleViews, Object.keys(this.hintsConfig.views));
   }
 
-  async composeFileConfig(hintsCoordinationValues) { /* eslint-disable-line no-unused-vars */
+  async composeFileConfig() {
     return {
       fileType: this.fileType,
       type: 'raster',
@@ -94,15 +103,18 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
 }
 
 class AnndataZarrAutoConfig extends AbstractAutoConfig {
-  constructor(fileUrl) {
+  constructor(fileUrl, hintsConfig, hintsType, useHints) {
     super();
     this.fileUrl = fileUrl;
     this.fileType = FileType.ANNDATA_ZARR;
     this.fileName = fileUrl.split('/').at(-1);
+    this.hintsConfig = hintsConfig;
+    this.hintsType = hintsType;
+    this.useHints = useHints;
     this.metadataSummary = {};
   }
 
-  async composeFileConfig(hintsCoordinationValues, hintsOptions) {
+  async composeFileConfig() {
     this.metadataSummary = await this.setMetadataSummary();
 
     const options = {
@@ -174,19 +186,14 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       ...defaultFileConfig,
       options: {
         ...defaultFileConfig.options,
-        ...hintsOptions,
+        ...this.hintsConfig.options,
 
-      },
-      coordinationValues: {
-        ...defaultFileConfig.coordinationValues,
-        ...hintsCoordinationValues,
       },
     };
   }
 
-  async composeViewsConfig(hintsViewsConfig) {
+  async composeViewsConfig() {
     this.metadataSummary = await this.setMetadataSummary();
-    const requiredViews = Object.keys(hintsViewsConfig);
     const possibleViews = [];
 
     const hasCellSetData = this.metadataSummary.obs
@@ -222,7 +229,11 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       possibleViews.push(['featureList']);
     }
 
-    return matchViews(possibleViews, requiredViews);
+    if (!this.useHints) {
+      return possibleViews;
+    }
+
+    return matchViews(possibleViews, Object.keys(this.hintsConfig.views));
   }
 
   async setMetadataSummaryWithZmetadata(response) { /* eslint-disable-line class-methods-use-this */
@@ -497,8 +508,7 @@ function getFileType(url) {
   }
   return match;
 }
-
-async function generateConfig(url, hintsConfig, hintsType, vc, dataset) {
+async function generateConfig(url, vc, dataset, hintsConfig, hintsType, useHints) {
   let ConfigClassName;
   try {
     ConfigClassName = getFileType(url).class;
@@ -506,15 +516,12 @@ async function generateConfig(url, hintsConfig, hintsType, vc, dataset) {
     return Promise.reject(err);
   }
 
-  const configInstance = new ConfigClassName(url);
+  const configInstance = new ConfigClassName(url, hintsConfig, hintsType, useHints);
   let fileConfig;
   let viewsConfig;
   try {
-    fileConfig = await configInstance.composeFileConfig(
-      hintsConfig.coordinationValues,
-      hintsConfig.options,
-    );
-    viewsConfig = await configInstance.composeViewsConfig(hintsConfig.views);
+    fileConfig = await configInstance.composeFileConfig();
+    viewsConfig = await configInstance.composeViewsConfig();
   } catch (error) {
     console.error(error);
     return Promise.reject(error);
@@ -563,8 +570,10 @@ async function generateConfig(url, hintsConfig, hintsType, vc, dataset) {
     );
   }
 
-  insertCoordinationSpace(hintsType, views, vc);
-
+  // if the user has selected no hints option, don't insert coordination space
+  if (useHints) {
+    insertCoordinationSpace(hintsType, views, vc);
+  }
   return views;
 }
 
@@ -589,31 +598,26 @@ export function getHintType(fileUrls) {
   return fileTypes; // todo: we need to make these unique
 }
 
-export async function generateConfigs(fileUrls, hintsInfo) {
+export async function generateConfigs(fileUrls, hintsConfig, hintsType, useHints) {
   const vc = new VitessceConfig({
     schemaVersion: '1.0.15',
     name: 'An automatically generated config. Adjust values and add layout components if needed.',
     description: 'Populate with text relevant to this visualisation.',
   });
 
-  const hintsConfig = HINTS_CONFIG[hintsInfo.hintsClass].hints[hintsInfo.hintsKey];
-  const hintsType = HINTS_CONFIG[hintsInfo.hintsClass].hintType;
-
   const allViews = [];
-
 
   const dataset = vc.addDataset(`${hintsConfig.title} dataset.`);
 
   fileUrls.forEach((url) => {
-    allViews.push(generateConfig(url, hintsConfig, hintsType, vc, dataset));
+    allViews.push(generateConfig(url, vc, dataset, hintsConfig, hintsType, useHints));
   });
 
   return Promise.all(allViews).then((views) => {
     const flattenedViews = views.flat();
 
-    if (Object.keys(hintsConfig.views).length === 0) {
+    if (!useHints) {
       const coord = calculateCoordinates(flattenedViews.length);
-
       for (let i = 0; i < flattenedViews.length; i++) {
         flattenedViews[i].setXYWH(...coord[i]);
       }
