@@ -19,7 +19,7 @@ import {
 import { JSON_TRANSLATION_KEY } from './_editor-utils.js';
 import JsonHighlight from './_JsonHighlight.js';
 import styles from './styles.module.css';
-import {Box, List, ListItem, ListItemText, ListSubheader} from "@material-ui/core";
+import {List, ListItem, ListItemText} from "@material-ui/core";
 
 // To simplify the JS editor, the user only needs to write
 // the inner part of the createConfig() function,
@@ -207,16 +207,14 @@ export default function ViewConfigEditor(props) {
     return (
       <List
         subheader={
-          <ListSubheader component="div" id="nested-list-subheader" style = {{ color: 'white'}}>
+          <p id="nested-list-subheader" className={styles.viewConfigEditorInfo}>
             Generate config with hints:
-          </ListSubheader>
+          </p>
         }
       >
         {Object.keys(HINTS_CONFIG[debouncedHintsClass].hints).map((hintKey) => (
           <ListItem disablePadding>
             <button 
-              type="button"
-              className={styles.viewConfigGo}
               onClick={() => handleConfigGeneration(hintKey)}
             >
               <ListItemText primary={ HINTS_CONFIG[debouncedHintsClass].hints[hintKey].title} />
