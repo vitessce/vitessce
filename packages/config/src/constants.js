@@ -39,7 +39,6 @@ const IMAGE_VIEWS = {
 export const NO_HINTS_CONFIG = {
   title: "Don't use any hints",
   views: {},
-  coordinationValues: {},
 };
 
 export const HINTS_CONFIG = {
