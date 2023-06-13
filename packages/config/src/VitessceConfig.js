@@ -443,7 +443,6 @@ export class VitessceConfig {
    * @returns {object} The view config as a JSON object.
    */
   toJSON() {
-    console.log("*** coordSpace: ", this.config.coordinationSpace);
     return {
       ...this.config,
       datasets: this.config.datasets.map(d => d.toJSON()),
