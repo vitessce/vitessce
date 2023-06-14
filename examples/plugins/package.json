@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/example-plugins",
   "private": true,
-  "version": "2.0.3",
+  "version": "3.0.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -14,15 +14,14 @@
     "dist-tsc",
     "src"
   ],
-  "scripts": {
-  },
+  "scripts": {},
   "dependencies": {
     "@material-ui/core": "~4.12.3",
     "@vitessce/constants": "workspace:*",
     "@vitessce/json": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
     "@vitessce/plugins": "workspace:*",
     "@vitessce/schemas": "workspace:*",
+    "@vitessce/vit-s": "workspace:*",
     "lodash-es": "^4.17.21"
   },
   "devDependencies": {

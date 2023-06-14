@@ -39,7 +39,6 @@ import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-inte
  * @param {string} props.theme The current theme name.
  * @param {object} props.coordinationScopes The mapping from coordination types to coordination
  * scopes.
- * @param {boolean} props.disableTooltip Should the tooltip be disabled?
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title An override value for the component title.
@@ -52,7 +51,6 @@ export function EmbeddingScatterplotSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    disableTooltip = false,
     observationsLabelOverride,
     title: titleOverride,
     // Average fill density for dynamic opacity calculation.
@@ -90,6 +88,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     embeddingObsOpacityMode: cellOpacityMode,
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
+    tooltipsVisible,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -110,6 +109,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     setEmbeddingObsOpacityMode: setCellOpacityMode,
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
+    setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
@@ -159,6 +159,8 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
+
+  const [originalViewState, setOriginalViewState] = useState(null);
 
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
@@ -228,7 +230,14 @@ export function EmbeddingScatterplotSubscriber(props) {
   // compute the cell radius scale based on the
   // extents of the cell coordinates on the x/y axes.
   useEffect(() => {
-    if (xRange && yRange) {
+    // We do not really need isReady here, since the above useMemo that
+    // computes xRange and yRange will only run after obsEmbedding has loaded anyway.
+    // However, we include it here to ensure this effect waits as long as possible to run;
+    // For some reason, otherwise, in some cases this effect will run before the react-grid-layout
+    // initialization animation has finished,
+    // prior to `height` and `width` reaching their ultimate values, resulting in
+    // an initial viewState for that small view size, which looks bad.
+    if (xRange && yRange && isReady) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(
         window.devicePixelRatio, zoom, xRange, yRange, width, height,
       );
@@ -240,6 +249,8 @@ export function EmbeddingScatterplotSubscriber(props) {
       setDynamicCellOpacity(nextCellOpacityScale);
 
       if (typeof targetX !== 'number' || typeof targetY !== 'number') {
+        // The view config did not define an initial viewState so
+        // we calculate one based on the data and set it.
         const newTargetX = xExtent[0] + xRange / 2;
         const newTargetY = yExtent[0] + yRange / 2;
         const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
@@ -247,10 +258,15 @@ export function EmbeddingScatterplotSubscriber(props) {
         // Graphics rendering has the y-axis going south so we need to multiply by negative one.
         setTargetY(-newTargetY);
         setZoom(newZoom);
+        setOriginalViewState({ target: [newTargetX, -newTargetY, 0], zoom: newZoom });
+      } else if (!originalViewState) {
+        // originalViewState has not yet been set and
+        // the view config defined an initial viewState.
+        setOriginalViewState({ target: [targetX, targetY, 0], zoom });
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [xRange, yRange, xExtent, yExtent, numCells,
+  }, [xRange, yRange, isReady, xExtent, yExtent, numCells,
     width, height, zoom, averageFillDensity]);
 
   const getObsInfo = useGetObsInfo(
@@ -275,6 +291,13 @@ export function EmbeddingScatterplotSubscriber(props) {
     expressionData: uint8ExpressionData,
   });
 
+  const setViewState = ({ zoom: newZoom, target }) => {
+    setZoom(newZoom);
+    setTargetX(target[0]);
+    setTargetY(target[1]);
+    setTargetZ(target[2] || 0);
+  };
+
   return (
     <TitleInfo
       title={title}
@@ -296,6 +319,8 @@ export function EmbeddingScatterplotSubscriber(props) {
           setCellOpacityMode={setCellOpacityMode}
           cellSetLabelsVisible={cellSetLabelsVisible}
           setCellSetLabelsVisible={setCellSetLabelsVisible}
+          tooltipsVisible={tooltipsVisible}
+          setTooltipsVisible={setTooltipsVisible}
           cellSetLabelSize={cellSetLabelSize}
           setCellSetLabelSize={setCellSetLabelSize}
           cellSetPolygonsVisible={cellSetPolygonsVisible}
@@ -314,12 +339,8 @@ export function EmbeddingScatterplotSubscriber(props) {
         uuid={uuid}
         theme={theme}
         viewState={{ zoom, target: [targetX, targetY, targetZ] }}
-        setViewState={({ zoom: newZoom, target }) => {
-          setZoom(newZoom);
-          setTargetX(target[0]);
-          setTargetY(target[1]);
-          setTargetZ(target[2] || 0);
-        }}
+        setViewState={setViewState}
+        originalViewState={originalViewState}
         obsEmbeddingIndex={obsEmbeddingIndex}
         obsEmbedding={obsEmbedding}
         cellFilter={cellFilter}
@@ -346,7 +367,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         getCellIsSelected={getCellIsSelected}
 
       />
-      {!disableTooltip && (
+      {tooltipsVisible && (
       <ScatterplotTooltipSubscriber
         parentUuid={uuid}
         obsHighlight={cellHighlight}

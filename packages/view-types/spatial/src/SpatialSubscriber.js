@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import {
   TitleInfo,
   useDeckCanvasSize, useReady, useUrls,
@@ -49,10 +49,10 @@ export function SpatialSubscriber(props) {
     observationsLabelOverride,
     subobservationsLabelOverride: subobservationsLabel = 'molecule',
     theme,
-    disableTooltip = false,
     title = 'Spatial',
     disable3d,
     globalDisable3d,
+    useFullResolutionImage = {},
   } = props;
 
   const loaders = useLoaders();
@@ -88,6 +88,7 @@ export function SpatialSubscriber(props) {
     spatialAxisFixed,
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
+    tooltipsVisible,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -110,6 +111,7 @@ export function SpatialSubscriber(props) {
     setSpatialAxisFixed,
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
+    setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
@@ -237,30 +239,53 @@ export function SpatialSubscriber(props) {
   const moleculesCount = obsLocationsFeatureIndex?.length || 0;
   const locationsCount = obsLocationsIndex?.length || 0;
 
+  const [originalViewState, setOriginalViewState] = useState(
+    { target: [targetX, targetY, targetZ], zoom },
+  );
+
+  // Compute initial viewState values to use if targetX and targetY are not
+  // defined in the initial configuration.
+  const {
+    initialTargetX, initialTargetY, initialTargetZ, initialZoom,
+  } = useMemo(() => getInitialSpatialTargets({
+    width,
+    height,
+    obsCentroids,
+    obsSegmentations,
+    obsSegmentationsType,
+    // TODO: use obsLocations (molecules) here too.
+    imageLayerLoaders,
+    useRaster: Boolean(hasImageData),
+    use3d,
+    modelMatrices: meta.map(({ metadata }) => metadata?.transform?.matrix),
+  }),
+  // Deliberate dependency omissions: width/height - technically then
+  // these initial values will be "wrong" after resizing, but it shouldn't be far enough
+  // off to be noticeable.
+  // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
+  // an indirect dependency instead.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [image, use3d, hasImageData, obsCentroids, obsSegmentations, obsSegmentationsType]);
+
   useEffect(() => {
-    if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
-      const {
-        initialTargetX, initialTargetY, initialTargetZ, initialZoom,
-      } = getInitialSpatialTargets({
-        width,
-        height,
-        obsCentroids,
-        obsSegmentations,
-        obsSegmentationsType,
-        // TODO: use obsLocations (molecules) here too.
-        imageLayerLoaders,
-        useRaster: Boolean(hasImageData),
-        use3d,
-        modelMatrices: meta.map(({ metadata }) => metadata?.transform?.matrix),
-      });
+    // If it has not already been set, set the initial view state using
+    // the auto-computed values from the useMemo above.
+    if (
+      (typeof targetX !== 'number' || typeof targetY !== 'number')
+    ) {
       setTargetX(initialTargetX);
       setTargetY(initialTargetY);
       setTargetZ(initialTargetZ);
       setZoom(initialZoom);
+      // Save these values to originalViewState so that we can reset to them later.
+      setOriginalViewState(
+        { target: [initialTargetX, initialTargetY, initialTargetZ], zoom: initialZoom },
+      );
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageLayerLoaders, targetX, targetY, setTargetX, setTargetY,
-    setZoom, use3d, hasImageData, obsCentroids, obsSegmentations, obsSegmentationsType]);
+    // Deliberate dependency omissions: targetX, targetY
+    // since we do not this to re-run on every single zoom/pan interaction.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialTargetX, initialTargetY, initialTargetZ, initialZoom]);
 
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
@@ -367,6 +392,8 @@ export function SpatialSubscriber(props) {
           setSpatialAxisFixed={setSpatialAxisFixed}
           spatialAxisFixed={spatialAxisFixed}
           use3d={use3d}
+          tooltipsVisible={tooltipsVisible}
+          setTooltipsVisible={setTooltipsVisible}
           geneExpressionColormap={geneExpressionColormap}
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
@@ -385,6 +412,7 @@ export function SpatialSubscriber(props) {
     hasLocationsData, hasSegmentationsData, hasExpressionData,
     observationsLabel, setCellColorEncoding,
     setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d,
+    tooltipsVisible, setTooltipsVisible,
   ]);
 
   useEffect(() => {
@@ -399,6 +427,15 @@ export function SpatialSubscriber(props) {
   }, [hasSegmentationsData, cellsLayer, obsSegmentations, obsSegmentationsIndex,
     obsCentroids, obsCentroidsIndex,
   ]);
+
+  // Without useMemo, this would propagate a change every time the component
+  // re - renders as opposed to when it has to.
+  const resolutionFilteredImageLayerLoaders = useMemo(() => {
+    // eslint-disable-next-line max-len
+    const shouldUseFullData = (ll, index) => Array.isArray(useFullResolutionImage) && useFullResolutionImage.includes(meta[index].name) && Array.isArray(ll.data);
+    // eslint-disable-next-line max-len
+    return imageLayerLoaders.map((ll, index) => (shouldUseFullData(ll, index) ? { ...ll, data: ll.data[0] } : ll));
+  }, [imageLayerLoaders, useFullResolutionImage, meta]);
 
   return (
     <TitleInfo
@@ -426,6 +463,7 @@ export function SpatialSubscriber(props) {
           orbitAxis,
         }}
         setViewState={setViewState}
+        originalViewState={originalViewState}
         imageLayerDefs={imageLayers}
         obsSegmentationsLayerDefs={cellsLayer}
         obsLocationsLayerDefs={moleculesLayer}
@@ -445,7 +483,7 @@ export function SpatialSubscriber(props) {
         cellHighlight={cellHighlight}
         cellColors={cellColors}
         neighborhoods={neighborhoods}
-        imageLayerLoaders={imageLayerLoaders}
+        imageLayerLoaders={resolutionFilteredImageLayerLoaders}
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
@@ -463,8 +501,9 @@ export function SpatialSubscriber(props) {
         cellColorEncoding={cellColorEncoding}
         getExpressionValue={getExpressionValue}
         theme={theme}
+        useFullResolutionImage={useFullResolutionImage}
       />
-      {!disableTooltip && (
+      {tooltipsVisible && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}
           obsHighlight={cellHighlight}

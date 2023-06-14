@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/vega",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -31,12 +31,12 @@
   },
   "dependencies": {
     "@material-ui/core": "~4.12.3",
+    "@vitessce/tooltip": "workspace:*",
+    "clsx": "^1.1.1",
     "react-vega": "^7.4.4",
     "vega": "^5.21.0",
     "vega-lite": "^5.1.1",
-    "vega-tooltip": "^0.27.0",
-    "clsx": "^1.1.1",
-    "@vitessce/tooltip": "workspace:*"
+    "vega-tooltip": "^0.27.0"
   },
   "devDependencies": {
     "react": "^18.0.0",

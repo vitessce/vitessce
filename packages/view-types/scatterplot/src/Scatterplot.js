@@ -64,8 +64,10 @@ const getPosition = (object, { index, data, target }) => {
  * @param {function} props.setCellHighlight
  * @param {function} props.updateViewInfo
  * @param {function} props.onToolChange Callback for tool changes
- * (lasso/pan/rectangle selection tools).
+ * (lasso/pan selection tools).
  * @param {function} props.onCellClick Getter function for cell layer onClick.
+ * @param {object} props.originalViewState A viewState object to pass to
+ * setViewState upon clicking the recenter button.
  */
 class Scatterplot extends AbstractSpatialOrScatterplot {
   constructor(props) {
@@ -364,6 +366,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     }
     if (forceUpdate) {
       this.forceUpdate();
+    }
+  }
+
+  recenter() {
+    const { originalViewState, setViewState } = this.props;
+    if (Array.isArray(originalViewState?.target) && typeof originalViewState?.zoom === 'number') {
+      setViewState(originalViewState);
     }
   }
 

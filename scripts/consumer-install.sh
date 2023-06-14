@@ -9,10 +9,6 @@ set -o pipefail
 
 die() { set +v; echo "$*" 1>&2 ; exit 1; }
 
-# Get the current version of the vit-s and description sub-packages,
-# which should be the same as the root package version.
-LOCAL_VERSION=`cat ./package.json | jq .version | tr -d '"'`
-
 # Delete existing packed packages
 # and start from a fresh directory.
 cd consumer
@@ -37,5 +33,11 @@ cd consumer
 npm install react react-dom
 npm install --save-dev vite@3.0.0
 npm install $(ls ./vitessce-*.tgz)
-# Run vite to bundle the consumer HTML/JS.
+# Run Vite build to bundle the consumer HTML/JS.
 npm exec vite build
+
+
+echo "Done vite build. Starting NextJS build."
+npm install next@13
+# Run NextJS build to bundle the consumer HTML/JS.
+npm exec next build
