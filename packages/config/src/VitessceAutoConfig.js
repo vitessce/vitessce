@@ -3,17 +3,13 @@ import {
   VitessceConfig,
 } from './VitessceConfig.js';
 
+
 const matchViews = (possibleViews, requiredViews) => {
   const resultViews = [];
-  let viewTypeIsAdded;
+
   requiredViews.forEach((requiredView) => {
-    viewTypeIsAdded = false;
-    possibleViews.forEach((possibleView) => {
-      if (possibleView[0] === requiredView && !viewTypeIsAdded) {
-        viewTypeIsAdded = true;
-        resultViews.push(possibleView);
-      }
-    });
+    const match = possibleViews.find(possibleView => possibleView[0] === requiredView);
+    if (match) resultViews.push(match);
   });
 
   return resultViews;
@@ -164,7 +160,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     });
 
     // if length of path is 1, storing the value as an array doesn't work
-    options.obsSets.forEach((obsSet) => {
+    options.obsSets?.forEach((obsSet) => {
       if (obsSet.path.length === 1) {
         // eslint-disable-next-line no-param-reassign
         [obsSet.path] = obsSet.path;
@@ -382,7 +378,14 @@ function calculateCoordinates(viewsNumb) {
     const col = i % cols;
     const x = col * width;
     const y = row * height;
-    coords.push([x, y, width, height]);
+
+    // The coordinates have to be integer values:
+    coords.push([
+      Math.floor(x),
+      Math.floor(y),
+      Math.floor(width),
+      Math.floor(height),
+    ]);
   }
 
   return coords;
@@ -395,20 +398,7 @@ const spatialSegmentationLayerValue = {
   opacity: 1,
 };
 
-function insertCoordinationSpace(hintsType, views, vc) {
-  function hintofTypeAnndataAndOME(arr1) {
-    const arr2 = ['OME-TIFF', 'AnnData-Zarr'];
-    if (arr1.length !== arr2.length) {
-      return false;
-    }
-    return arr1.every(item => arr2.includes(item));
-  }
-
-  // we insert coordination space only for datasets of type Anndata-Zarr + OME-TIFF/OME-Zarr
-  if (!hintofTypeAnndataAndOME(hintsType)) {
-    return;
-  }
-
+function insertCoordinationSpace(views, vc) {
   const [
     spatialSegmentationLayer,
     spatialImageLayer,
@@ -570,33 +560,42 @@ async function generateConfig(url, vc, dataset, hintsConfig, hintsType, useHints
     );
   }
 
-  // if the user has selected no hints option, don't insert coordination space
-  if (useHints) {
-    insertCoordinationSpace(hintsType, views, vc);
+  function isHintofTypeAnndataAndOME(arr1) {
+    const arr2 = ['OME-TIFF', 'AnnData-Zarr'];
+    if (arr1.length !== arr2.length) {
+      return false;
+    }
+    return arr1.every(item => arr2.includes(item));
   }
+
+  // if the user is using hints and fileType is [Anndata-Zarr, OME], insert coordination space
+  if (useHints && isHintofTypeAnndataAndOME(hintsType)) {
+    insertCoordinationSpace(views, vc);
+  }
+
   return views;
 }
 
-// http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.h5ad.zarr, http://localhost:9000/example_files/codeluppi_2018_nature_methods.cells.ome.tiff
 export function getHintType(fileUrls) {
-  const fileTypes = [];
+  const fileTypes = {};
 
-  // todo: this function is broken
   fileUrls.forEach((url) => {
     try {
       const match = getFileType(url);
-      if (match.name === 'OME-Zarr') { // the hints config only has OME-TIFF, because settings are the same for both OME-TIFF and OME-Zarr
-        fileTypes.push('OME-TIFF');
+      // hints config only has OME-TIFF, since settings are the same for both OME-TIFF and OME-Zarr
+      if (match.name === 'OME-Zarr') {
+        fileTypes['OME-TIFF'] = true;
       } else {
-        fileTypes.push(match.name);
+        fileTypes[match.name] = true;
       }
     } catch (err) {
       console.error('not supported file type, but ignoring the error');
     }
   });
 
-  return fileTypes; // todo: we need to make these unique
+  return Object.keys(fileTypes);
 }
+
 
 export async function generateConfigs(fileUrls, hintsConfig, hintsType, useHints) {
   const vc = new VitessceConfig({
