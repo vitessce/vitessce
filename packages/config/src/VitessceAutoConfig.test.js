@@ -1,9 +1,9 @@
 import { generateConfigs } from './VitessceAutoConfig.js';
+import { /* HINTS_CONFIG, */ NO_HINTS_CONFIG } from './constants.js';
 
-describe('src/VitessceAutoConfig.js', () => {
+describe('src/VitessceAutoConfig.js with no hints', () => {
   it('generates config for OME-TIFF file correctly', async () => {
     const urls = ['somefile.ome.tif'];
-    const expectedName = urls[0].split('/').at(-1);
     const expectedConfig = {
       version: '1.0.15',
       name: 'An automatically generated config. Adjust values and add layout components if needed.',
@@ -11,7 +11,7 @@ describe('src/VitessceAutoConfig.js', () => {
       datasets: [
         {
           uid: 'A',
-          name: expectedName,
+          name: "Don't use any hints dataset.",
           files: [
             {
               fileType: 'raster.json',
@@ -21,7 +21,7 @@ describe('src/VitessceAutoConfig.js', () => {
                     metadata: {
                       isBitmask: false,
                     },
-                    name: expectedName,
+                    name: 'somefile.ome.tif',
                     type: 'ome-tiff',
                     url: urls[0],
                   },
@@ -77,13 +77,12 @@ describe('src/VitessceAutoConfig.js', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfigs(urls);
+    const config = await generateConfigs(urls, NO_HINTS_CONFIG, '', false);
     expect(config).toEqual(expectedConfig);
   });
 
   it('generates config for OME-ZARR file correctly', async () => {
     const urls = ['anotherfile.ome.zarr'];
-    const expectedName = urls[0].split('/').at(-1);
     const expectedConfig = {
       version: '1.0.15',
       name: 'An automatically generated config. Adjust values and add layout components if needed.',
@@ -91,7 +90,7 @@ describe('src/VitessceAutoConfig.js', () => {
       datasets: [
         {
           uid: 'A',
-          name: expectedName,
+          name: "Don't use any hints dataset.",
           files: [
             {
               url: urls[0],
@@ -135,28 +134,21 @@ describe('src/VitessceAutoConfig.js', () => {
           y: 6,
           w: 6,
           h: 6,
-        },
-        {
-          component: 'status',
-          coordinationScopes: {
-            dataset: 'A',
+          props: {
+            disable3d: [],
+            disableChannelsIfRgbDetected: true,
           },
-          x: 6,
-          y: 6,
-          w: 6,
-          h: 6,
         },
       ],
       initStrategy: 'auto',
     };
 
-    const config = await generateConfigs(urls);
+    const config = await generateConfigs(urls, NO_HINTS_CONFIG, '', false);
     expect(config).toEqual(expectedConfig);
   });
 
   it('generates config for Anndata-ZARR file correctly', async () => {
     const urls = ['http://localhost:51204/@fixtures/zarr/partials/.anndata.zarr'];
-    const expectedName = urls[0].split('/').at(-1);
     const expectedConfig = {
       version: '1.0.15',
       name: 'An automatically generated config. Adjust values and add layout components if needed.',
@@ -164,7 +156,7 @@ describe('src/VitessceAutoConfig.js', () => {
       datasets: [
         {
           uid: 'A',
-          name: expectedName,
+          name: "Don't use any hints dataset.",
           files: [
             {
               url: urls[0],
@@ -219,7 +211,7 @@ describe('src/VitessceAutoConfig.js', () => {
           x: 0,
           y: 0,
           w: 6,
-          h: 6,
+          h: 4,
         },
         {
           component: 'scatterplot',
@@ -230,7 +222,27 @@ describe('src/VitessceAutoConfig.js', () => {
           x: 6,
           y: 0,
           w: 6,
-          h: 6,
+          h: 4,
+        },
+        {
+          component: 'obsSetSizes',
+          coordinationScopes: {
+            dataset: 'A',
+          },
+          h: 4,
+          w: 6,
+          x: 0,
+          y: 4,
+        },
+        {
+          component: 'obsSetFeatureValueDistribution',
+          coordinationScopes: {
+            dataset: 'A',
+          },
+          h: 4,
+          w: 6,
+          x: 6,
+          y: 4,
         },
         {
           component: 'heatmap',
@@ -238,9 +250,9 @@ describe('src/VitessceAutoConfig.js', () => {
             dataset: 'A',
           },
           x: 0,
-          y: 6,
+          y: 8,
           w: 6,
-          h: 6,
+          h: 4,
           props: {
             transpose: true,
           },
@@ -251,21 +263,20 @@ describe('src/VitessceAutoConfig.js', () => {
             dataset: 'A',
           },
           x: 6,
-          y: 6,
+          y: 8,
           w: 6,
-          h: 6,
+          h: 4,
         },
       ],
       initStrategy: 'auto',
     };
 
-    const config = await generateConfigs(urls);
+    const config = await generateConfigs(urls, NO_HINTS_CONFIG, '', false);
     expect(config).toEqual(expectedConfig);
   });
 
-  it('generates empty config for Anndata-ZARR file with empty .zmetadata', async () => {
+  it('generates correct config for Anndata-ZARR file with empty .zmetadata', async () => {
     const urls = ['http://localhost:51204/@fixtures/zarr/partials/emptymeta.h5ad.zarr'];
-    const expectedName = urls[0].split('/').at(-1);
     const expectedConfig = {
       version: '1.0.15',
       name: 'An automatically generated config. Adjust values and add layout components if needed.',
@@ -273,7 +284,7 @@ describe('src/VitessceAutoConfig.js', () => {
       datasets: [
         {
           uid: 'A',
-          name: expectedName,
+          name: "Don't use any hints dataset.",
           files: [
             {
               url: urls[0],
@@ -298,18 +309,39 @@ describe('src/VitessceAutoConfig.js', () => {
           A: 'A',
         },
       },
-      layout: [],
+      layout: [
+        {
+          component: 'obsSetSizes',
+          coordinationScopes: {
+            dataset: 'A',
+          },
+          h: 6,
+          w: 12,
+          x: 0,
+          y: 0,
+        },
+        {
+          component: 'obsSetFeatureValueDistribution',
+          coordinationScopes: {
+            dataset: 'A',
+          },
+          h: 6,
+          w: 12,
+          x: 0,
+          y: 6,
+        },
+      ],
       initStrategy: 'auto',
     };
 
-    const config = await generateConfigs(urls);
+    const config = await generateConfigs(urls, NO_HINTS_CONFIG, '', false);
     expect(config).toEqual(expectedConfig);
   });
 
   it('raises an error for Anndata-ZARR file with misconfigured .zmetadata', async () => {
     const urls = ['http://localhost:51204/@fixtures/zarr/partials/invalidmeta.adata.zarr'];
 
-    await generateConfigs(urls).catch(
+    await generateConfigs(urls, NO_HINTS_CONFIG, '', false).catch(
       e => expect(e.message).toContain('Could not generate config: .zmetadata file is not valid.'),
     );
   });
@@ -325,7 +357,7 @@ describe('src/VitessceAutoConfig.js', () => {
       datasets: [
         {
           uid: 'A',
-          name: expectedNames[0],
+          name: "Don't use any hints dataset.",
           files: [
             {
               fileType: 'raster.json',
@@ -344,12 +376,6 @@ describe('src/VitessceAutoConfig.js', () => {
                 usePhysicalSizeScaling: false,
               },
             },
-          ],
-        },
-        {
-          uid: 'B',
-          name: expectedNames[1],
-          files: [
             {
               url: urls[1],
               fileType: 'raster.ome-zarr',
@@ -360,7 +386,6 @@ describe('src/VitessceAutoConfig.js', () => {
       coordinationSpace: {
         dataset: {
           A: 'A',
-          B: 'B',
         },
       },
       layout: [
@@ -371,7 +396,7 @@ describe('src/VitessceAutoConfig.js', () => {
           },
           x: 0,
           y: 0,
-          w: 4,
+          w: 6,
           h: 4,
         },
         {
@@ -379,9 +404,9 @@ describe('src/VitessceAutoConfig.js', () => {
           coordinationScopes: {
             dataset: 'A',
           },
-          x: 4,
+          x: 6,
           y: 0,
-          w: 4,
+          w: 6,
           h: 4,
         },
         {
@@ -389,9 +414,9 @@ describe('src/VitessceAutoConfig.js', () => {
           coordinationScopes: {
             dataset: 'A',
           },
-          x: 8,
-          y: 0,
-          w: 4,
+          x: 0,
+          y: 4,
+          w: 6,
           h: 4,
           props: {
             disable3d: [],
@@ -401,55 +426,48 @@ describe('src/VitessceAutoConfig.js', () => {
         {
           component: 'description',
           coordinationScopes: {
-            dataset: 'B',
+            dataset: 'A',
           },
-          x: 0,
+          x: 6,
           y: 4,
-          w: 4,
+          w: 6,
           h: 4,
         },
         {
           component: 'spatial',
           coordinationScopes: {
-            dataset: 'B',
+            dataset: 'A',
           },
-          x: 4,
-          y: 4,
-          w: 4,
+          x: 0,
+          y: 8,
+          w: 6,
           h: 4,
         },
         {
           component: 'layerController',
           coordinationScopes: {
-            dataset: 'B',
+            dataset: 'A',
           },
-          x: 8,
-          y: 4,
-          w: 4,
-          h: 4,
-        },
-        {
-          component: 'status',
-          coordinationScopes: {
-            dataset: 'B',
+          props: {
+            disable3d: [],
+            disableChannelsIfRgbDetected: true,
           },
-          x: 0,
+          x: 6,
           y: 8,
-          w: 4,
+          w: 6,
           h: 4,
         },
       ],
       initStrategy: 'auto',
     };
 
-    const config = await generateConfigs(urls);
+    const config = await generateConfigs(urls, NO_HINTS_CONFIG, '', false);
     expect(config).toEqual(expectedConfig);
   });
 
 
   it('Does the parsing when .zmetadata file not present in folder', async () => {
     const urls = ['http://localhost:51204/@fixtures/zarr/anndata-0.8/anndata-csr.adata.zarr'];
-    const expectedName = urls[0].split('/').at(-1);
     const expectedConfig = {
       version: '1.0.15',
       name: 'An automatically generated config. Adjust values and add layout components if needed.',
@@ -457,7 +475,7 @@ describe('src/VitessceAutoConfig.js', () => {
       datasets: [
         {
           uid: 'A',
-          name: expectedName,
+          name: "Don't use any hints dataset.",
           files: [
             {
               url: urls[0],
@@ -480,9 +498,7 @@ describe('src/VitessceAutoConfig.js', () => {
                 obsSets: [
                   {
                     name: 'Cell Type',
-                    path: [
-                      'obs/leiden',
-                    ],
+                    path: 'obs/leiden',
                   },
                 ],
               },
@@ -507,21 +523,64 @@ describe('src/VitessceAutoConfig.js', () => {
           },
           x: 0,
           y: 0,
-          w: 12,
-          h: 12,
+          w: 6,
+          h: 4,
+        },
+        {
+          component: 'obsSetSizes',
+          coordinationScopes: {
+            dataset: 'A',
+          },
+          h: 4,
+          w: 6,
+          x: 6,
+          y: 0,
+        },
+        {
+          component: 'obsSetFeatureValueDistribution',
+          coordinationScopes: {
+            dataset: 'A',
+          },
+          h: 4,
+          w: 6,
+          x: 0,
+          y: 4,
+        },
+        {
+          component: 'heatmap',
+          coordinationScopes: {
+            dataset: 'A',
+          },
+          h: 4,
+          props: {
+            transpose: true,
+          },
+          w: 6,
+          x: 6,
+          y: 4,
+        },
+        {
+          component: 'featureList',
+          coordinationScopes: {
+            dataset: 'A',
+          },
+          h: 4,
+          w: 6,
+          x: 0,
+          y: 8,
         },
       ],
       initStrategy: 'auto',
     };
 
-    const config = await generateConfigs(urls);
+    const config = await generateConfigs(urls, NO_HINTS_CONFIG, '', false);
     expect(config).toEqual(expectedConfig);
   });
 
   it('raises an error when URL with unsupported file format is passed', async () => {
     const urls = ['http://localhost:51204/@fixtures/zarr/anndata-0.7/somefile.zarr'];
 
-    await generateConfigs(urls).catch(
+    await generateConfigs(urls, NO_HINTS_CONFIG, '', false).catch(
       e => expect(e.message).toContain('This file type is not supported.'),
     );
   });
