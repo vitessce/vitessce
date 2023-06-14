@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/legend",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -33,10 +33,10 @@
     "@material-ui/core": "~4.12.3",
     "@vitessce/utils": "workspace:*",
     "colormap": "^2.3.2",
-    "d3-scale": "^3.2.3",
-    "d3-interpolate": "^2.0.1",
-    "d3-color": "^1.4.0",
     "d3-axis": "^3.0.0",
+    "d3-color": "^1.4.0",
+    "d3-interpolate": "^2.0.1",
+    "d3-scale": "^3.2.3",
     "d3-selection": "^3.0.0"
   },
   "devDependencies": {

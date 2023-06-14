@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/scatterplot-embedding",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -32,11 +32,11 @@
   "dependencies": {
     "@material-ui/core": "~4.12.3",
     "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/legend": "workspace:*",
     "@vitessce/scatterplot": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
-    "@vitessce/legend": "workspace:*",
     "d3-array": "^2.4.0",
     "lodash-es": "^4.17.21",
     "plur": "^5.1.0"

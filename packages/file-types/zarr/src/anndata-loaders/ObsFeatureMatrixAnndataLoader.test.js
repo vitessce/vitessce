@@ -69,7 +69,7 @@ describe('loaders/ObsFeatureMatrixAnndataLoader', () => {
 
     it('loadGeneSelection matches across storage methods', async () => {
       const selection = { selection: ['gene_1', 'gene_5'] };
-      const loaderCsr = createAnndataLoader('http://localhost:51204/@fixtures/zarr/anndata-0.8/anndata-csr.zarr');
+      const loaderCsr = createAnndataLoader('http://localhost:51204/@fixtures/zarr/anndata-0.8/anndata-csr.adata.zarr');
       const csrSelection = await loaderCsr.loadGeneSelection(selection);
       const loaderDense = createAnndataLoader('http://localhost:51204/@fixtures/zarr/anndata-0.8/anndata-dense.zarr');
       const denseSelection = await loaderDense.loadGeneSelection(selection);
@@ -80,7 +80,7 @@ describe('loaders/ObsFeatureMatrixAnndataLoader', () => {
     });
 
     it('loadCellXGene matches across storage methods', async () => {
-      const loaderCsr = createAnndataLoader('http://localhost:51204/@fixtures/zarr/anndata-0.8/anndata-csr.zarr');
+      const loaderCsr = createAnndataLoader('http://localhost:51204/@fixtures/zarr/anndata-0.8/anndata-csr.adata.zarr');
       const csrMatrix = await loaderCsr.loadCellXGene();
       const loaderDense = createAnndataLoader('http://localhost:51204/@fixtures/zarr/anndata-0.8/anndata-dense.zarr');
       const denseMatrix = await loaderDense.loadCellXGene();
