@@ -5,6 +5,7 @@
   - select between `alphabetical` and `original` ordering for the feature list.
   - show two columns in the feature list if the feature has a second identifier associated.
 - Added support for generating view-config for Anndata-Zarr files that don't have .zmetadata file in the folder.
+- Added a list of hints that user will select from, when using the zero config mode feature.
 
 ### Changed
 - Fix Material UI import statement.
@@ -14,6 +15,13 @@
 - Modified the `AnndataZarrAutoConfig` class:
   - added a parser function that generates metadata summary without reading `.zmetadata` file.
   - the class calls the parser function if no `.zmetadata` file is present in the given URL.
+- Modified the user interface, defined in `_ViewConfigEditor.js`:
+  - Defined a list of hints, which depend on the types of the files the user pastes URLs for.
+  - Removed the `Generate Config` button. Now each hint is a button that generates the view config when pressed.
+- Created a new file `constants.js` in `packages/config` that defines the range of supported hints, along with the name and coordinates of the desired layers.
+- Modified `VitessceAutoConfig.js`:
+  - Added a function to return the type of files the user pasted the URLs for. The function is used in `_ViewConfigEditor.js` to determine what set of hints to display.
+  - Adapted the existing code to take selected hint into an account, when creating the view config.
 
 ## [3.0.0](https://www.npmjs.com/package/vitessce/v/3.0.0) - 2023-05-24
 
