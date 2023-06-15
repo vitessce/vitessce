@@ -6,7 +6,7 @@ import {
   LiveProvider, LiveContext, LiveError, LivePreview,
 } from 'react-live';
 import {
-  VitessceConfig, generateConfigs, HINTS_CONFIG, NO_HINTS_CONFIG, getHintType, hconcat, vconcat,
+  VitessceConfig, generateConfigs, HINTS_CONFIG, NO_HINTS_CONFIG, getDatasetType, hconcat, vconcat,
 } from '@vitessce/config';
 import {
   CoordinationType, ViewType, DataType, FileType,
@@ -89,7 +89,7 @@ export default function ViewConfigEditor(props) {
   useEffect(() => {
     const handle = setTimeout(() => {
       const sanitisedUrls = sanitiseURLs(datasetUrls);
-      const hintTypes = getHintType(sanitisedUrls);
+      const hintTypes = getDatasetType(sanitisedUrls);
       const newHintsClass = Object.keys(HINTS_CONFIG)
         .find(key => HINTS_CONFIG[key].hintType
           .every(fileType => hintTypes.includes(fileType))

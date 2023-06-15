@@ -576,7 +576,7 @@ async function generateConfig(url, vc, dataset, hintsConfig, hintsType, useHints
   return views;
 }
 
-export function getHintType(fileUrls) {
+export function getDatasetType(fileUrls) {
   const fileTypes = {};
 
   fileUrls.forEach((url) => {
