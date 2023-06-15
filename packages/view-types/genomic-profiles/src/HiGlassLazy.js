@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import register from 'higlass-register';
 import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
+import { BigwigDataFetcher } from 'higlass-bigwig-datafetcher';
 import { useGridItemSize, useCoordination } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { useStyles } from './styles.js';
@@ -22,6 +23,11 @@ const HIGLASS_CSS_URL = `https://unpkg.com/${HIGLASS_PKG_NAME}@${HIGLASS_BUNDLE_
 // https://github.com/higlass/higlass-zarr-datafetchers
 register(
   { dataFetcher: ZarrMultivecDataFetcher, config: ZarrMultivecDataFetcher.config },
+  { pluginType: 'dataFetcher' },
+);
+
+register(
+  { dataFetcher: BigwigDataFetcher, config: BigwigDataFetcher.config },
   { pluginType: 'dataFetcher' },
 );
 

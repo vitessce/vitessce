@@ -652,6 +652,7 @@ importers:
       '@vitessce/utils': workspace:*
       '@vitessce/vit-s': workspace:*
       d3-array: ^2.4.0
+      higlass-bigwig-datafetcher: 0.2.0
       higlass-no-github-deps: 1.11.13
       higlass-register: ^0.3.0
       higlass-zarr-datafetchers: ^0.2.1
@@ -666,6 +667,7 @@ importers:
       '@vitessce/utils': link:../../utils/other-utils
       '@vitessce/vit-s': link:../../vit-s
       d3-array: 2.12.1
+      higlass-bigwig-datafetcher: 0.2.0
       higlass-no-github-deps: 1.11.13_ywwie34tdztbqf5ti6itikxkja
       higlass-register: 0.3.0
       higlass-zarr-datafetchers: 0.2.1
@@ -5094,6 +5096,18 @@ packages:
       - supports-color
     dev: true
 
+  /@gmod/bbi/3.0.1:
+    resolution: {integrity: sha512-DjvRj/qPPWBSjEjgVsadQmmWBK+EmtYr9xLZ4y7IsnuuHiE+sDgbnSA51OKiKNGLM3srydq22pynNLqswB1XjQ==}
+    engines: {node: '>=6'}
+    dependencies:
+      abortable-promise-cache: 1.5.0
+      binary-parser: 2.2.1
+      generic-filehandle: 3.0.1
+      pako: 2.0.4
+      quick-lru: 4.0.1
+      rxjs: 7.8.1
+    dev: false
+
   /@hapi/hoek/9.3.0:
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
     dev: false
@@ -6250,7 +6264,7 @@ packages:
       pretty-ms: 7.0.1
       ramda: 0.27.2
       right-pad: 1.0.1
-      rxjs: 7.5.7
+      rxjs: 7.8.1
       semver: 7.3.8
       stacktracey: 2.1.8
       string-length: 4.0.2
@@ -8047,6 +8061,17 @@ packages:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
     dev: true
 
+  /abortable-promise-cache/1.5.0:
+    resolution: {integrity: sha512-S2FfvU1As7Fve6ObCEsuOiE22UR7k91ytM+m4bzG6eAf+fb4TOAVEGZGAzlRfCo7/bZamL9d3ZeXc08MPm3azA==}
+    engines: {node: '>=6'}
+    dependencies:
+      abortcontroller-polyfill: 1.7.5
+    dev: false
+
+  /abortcontroller-polyfill/1.7.5:
+    resolution: {integrity: sha512-JMJ5soJWP18htbbxJjG7bG6yuI6pRhgJ0scHHTfkUjf6wjP912xZWvM+A4sJK3gqd9E8fcPbDnOefbA9Th/FIQ==}
+    dev: false
+
   /accepts/1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
     engines: {node: '>= 0.6'}
@@ -8901,6 +8926,11 @@ packages:
   /binary-extensions/2.2.0:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
+
+  /binary-parser/2.2.1:
+    resolution: {integrity: sha512-5ATpz/uPDgq5GgEDxTB4ouXCde7q2lqAQlSdBRQVl/AJnxmQmhIfyxJx+0MGu//D5rHQifkfGbWWlaysG0o9NA==}
+    engines: {node: '>=12'}
+    dev: false
 
   /bindings/1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
@@ -11453,6 +11483,10 @@ packages:
     resolution: {integrity: sha512-HHb0vydCpoclpd0ySPkRXMmBw80MRt1wM4RBJBlXkux97K7gleabZdsR0gvE1nNPM9mgOZIBTzjjXiPxf4lIqQ==}
     dev: false
 
+  /es6-promisify/6.1.1:
+    resolution: {integrity: sha512-HBL8I3mIki5C1Cc9QjKUenHtnG0A5/xA8Q/AllRcfiwl2CZFXGK7ddBiCoRwAix4i2KxcQfjtIVcrVbB3vbmwg==}
+    dev: false
+
   /esbuild-android-64/0.15.10:
     resolution: {integrity: sha512-UI7krF8OYO1N7JYTgLT9ML5j4+45ra3amLZKx7LO3lmLt1Ibn8t3aZbX5Pu4BjWiqDuJ3m/hsvhPhK/5Y/YpnA==}
     engines: {node: '>=12'}
@@ -13040,6 +13074,13 @@ packages:
     resolution: {integrity: sha512-r3pTgKHZx/rol90v2cezrNhfMhq3yHWCnBYyETNIJkvnJk+cwx/D/ZVgAy1SX8zwtnfvYQmFbqlpbh2f4t0h2w==}
     dev: false
 
+  /generic-filehandle/3.0.1:
+    resolution: {integrity: sha512-E0eVkls2Ni7fUQ47VxYJN45/ow821pITHcgyaMZXBUt1czZUionT6HSqE0t+bcAozt5MYeJCxVxIrlTxoASXuQ==}
+    engines: {node: '>=6'}
+    dependencies:
+      es6-promisify: 6.1.1
+    dev: false
+
   /gensync/1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
     engines: {node: '>=6.9.0'}
@@ -13615,6 +13656,18 @@ packages:
   /he/1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
+
+  /higlass-bigwig-datafetcher/0.2.0:
+    resolution: {integrity: sha512-R6Q74E9u9DKI6E7DwVmmbqCYJ9F5mOSDiFST3dePpP1JUIreKdFAjwQt703Iydg6ycKJd4stFlZdzBOkZ5N/HQ==}
+    dependencies:
+      '@gmod/bbi': 3.0.1
+      d3-dsv: 3.0.1
+      d3-request: 1.0.6
+      d3-scale: 1.0.7
+      generic-filehandle: 3.0.1
+      higlass-register: 0.3.0
+      slugid: 3.2.0
+    dev: false
 
   /higlass-no-github-deps/1.11.13_ywwie34tdztbqf5ti6itikxkja:
     resolution: {integrity: sha512-Kw+6B6jmUIpkyjqw+iMNIeQ/9qIVU9TnxnuzCsuE4Iu3RnzL2/1W1Agz3dHr+qK1P4MMSNnAO+yMo5O77cyelQ==}
@@ -15069,7 +15122,7 @@ packages:
       log-update: 4.0.0
       p-map: 4.0.0
       rfdc: 1.3.0
-      rxjs: 7.5.7
+      rxjs: 7.8.1
       through: 2.3.8
       wrap-ansi: 7.0.0
     dev: true
@@ -17767,6 +17820,11 @@ packages:
       inherits: 2.0.4
     dev: false
 
+  /quick-lru/4.0.1:
+    resolution: {integrity: sha512-ARhCpm70fzdcvNQfPoy49IaanKkTlRWF2JMzqhcJbhSFRZv7nPTvZJdcY7301IPmvW+/p0RgIWnQDLJxifsQ7g==}
+    engines: {node: '>=8'}
+    dev: false
+
   /quick-lru/5.1.1:
     resolution: {integrity: sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==}
     engines: {node: '>=10'}
@@ -19152,8 +19210,8 @@ packages:
     dependencies:
       tslib: 1.14.1
 
-  /rxjs/7.5.7:
-    resolution: {integrity: sha512-z9MzKh/UcOqB3i20H6rtrlaE/CgjLOvheWK/9ILrbhROGTweAi1BaFsTT9FbwZi5Trr1qNRs+MXkhmR06awzQA==}
+  /rxjs/7.8.1:
+    resolution: {integrity: sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==}
     dependencies:
       tslib: 2.4.0
 
@@ -19587,6 +19645,13 @@ packages:
     resolution: {integrity: sha512-sgB+DBlsDW4wjLLulp5GsyY0s1C2E9G9DbhYxEDIgqo63g8n6JKweBew6bH8f9+ZPQvqZeR/GJYO//mSmrC2Hg==}
     dependencies:
       uuid: 2.0.3
+    dev: false
+
+  /slugid/3.2.0:
+    resolution: {integrity: sha512-f0vZb6VyjUdZG5kaxd9CNpfhy+eUUTC8RnbDolC3ZLjYa7n5AdPkQnqnIjmoZYoPS9dWMOXQdoBREAGQqdZb9A==}
+    engines: {node: '>=6.0'}
+    dependencies:
+      uuid: 8.3.2
     dev: false
 
   /snapdragon-node/2.1.1:
@@ -21715,7 +21780,7 @@ packages:
       joi: 17.6.3
       lodash: 4.17.21
       minimist: 1.2.7
-      rxjs: 7.5.7
+      rxjs: 7.8.1
     transitivePeerDependencies:
       - debug
     dev: false
