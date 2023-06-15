@@ -20,7 +20,7 @@ jobs:
           version: 7
           run_install: true
       - id: get-options
-        run: . ./set-node-options.sh --action
+        run: . ./scripts/set-node-options.sh --action
         shell: bash
       - uses: preactjs/compressed-size-action@v2
         with:
