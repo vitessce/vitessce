@@ -7,12 +7,16 @@
 - Add `useInitialCoordination` hook to get the values of the coordination space from the initial config, which can be used for viewState reset buttons.
 - Use `config` object reference as hook dependency when no `config.uid` is present (to support both controlled and un-controlled component cases).
 - Initialize Zustand store using closure over `createViewConfigStore` function, rather than via `useEffect`.
+- Added support for generating view-config for Anndata-Zarr files that don't have .zmetadata file in the folder.
 
 ### Changed
 - Fix Material UI import statement.
 - Implemented the functionality required to re-order the feature list, based on the selection from the dropdown:
   - added state variables `featureListSort` and `showFeatureTable`.
   - hooked the state variables to `FeatureListOptions` and to `FeatureList`.
+- Modified the `AnndataZarrAutoConfig` class:
+  - added a parser function that generates metadata summary without reading `.zmetadata` file.
+  - the class calls the parser function if no `.zmetadata` file is present in the given URL.
 
 ## [3.0.0](https://www.npmjs.com/package/vitessce/v/3.0.0) - 2023-05-24
 
