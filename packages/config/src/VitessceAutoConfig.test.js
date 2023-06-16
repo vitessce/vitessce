@@ -823,12 +823,6 @@ describe('generateConfigs with hints', () => {
             visible: true,
             opacity: 1,
           },
-          B: {
-            radius: 65,
-            stroked: true,
-            visible: true,
-            opacity: 1,
-          },
         },
         spatialImageLayer: {
           A: [
@@ -888,75 +882,15 @@ describe('generateConfigs with hints', () => {
               ],
             },
           ],
-          B: [
-            {
-              type: 'raster',
-              index: 0,
-              colormap: null,
-              transparentColor: null,
-              opacity: 1,
-              domainType: 'Min/Max',
-              channels: [
-                {
-                  selection: {
-                    c: 0,
-                  },
-                  color: [
-                    255,
-                    0,
-                    0,
-                  ],
-                  visible: true,
-                  slider: [
-                    0,
-                    255,
-                  ],
-                },
-                {
-                  selection: {
-                    c: 1,
-                  },
-                  color: [
-                    0,
-                    255,
-                    0,
-                  ],
-                  visible: true,
-                  slider: [
-                    0,
-                    255,
-                  ],
-                },
-                {
-                  selection: {
-                    c: 2,
-                  },
-                  color: [
-                    0,
-                    0,
-                    255,
-                  ],
-                  visible: true,
-                  slider: [
-                    0,
-                    255,
-                  ],
-                },
-              ],
-            },
-          ],
         },
         spatialZoom: {
           A: -2.598,
-          B: -2.598,
         },
         spatialTargetX: {
           A: 1008.88,
-          B: 1008.88,
         },
         spatialTargetY: {
           A: 1004.69,
-          B: 1004.69,
         },
       },
       layout: [

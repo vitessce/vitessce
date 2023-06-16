@@ -561,19 +561,6 @@ async function generateConfig(url, vc, dataset, hintsConfig, hintsType, useHints
     );
   }
 
-  function isHintofTypeAnndataAndOME(arr1) {
-    const arr2 = ['OME-TIFF', 'AnnData-Zarr'];
-    if (arr1.length !== arr2.length) {
-      return false;
-    }
-    return arr1.every(item => arr2.includes(item));
-  }
-
-  // if the user is using hints and fileType is [Anndata-Zarr, OME], insert coordination space
-  if (useHints && isHintofTypeAnndataAndOME(hintsType)) {
-    insertCoordinationSpace(views, vc);
-  }
-
   return views;
 }
 
@@ -609,8 +596,21 @@ export async function generateConfigs(fileUrls, hintsConfig, hintsType, useHints
     allViews.push(generateConfig(url, vc, dataset, hintsConfig, hintsType, useHints));
   });
 
+  function isHintofTypeAnndataAndOME(arr1) {
+    const arr2 = ['OME-TIFF', 'AnnData-Zarr'];
+    if (arr1.length !== arr2.length) {
+      return false;
+    }
+    return arr1.every(item => arr2.includes(item));
+  }
+
   return Promise.all(allViews).then((views) => {
     const flattenedViews = views.flat();
+
+    // if the user is using hints and fileType is [Anndata-Zarr, OME], insert coordination space
+    if (useHints && isHintofTypeAnndataAndOME(hintsType)) {
+      insertCoordinationSpace(flattenedViews, vc);
+    }
 
     if (!useHints) {
       const coord = calculateCoordinates(flattenedViews.length);
