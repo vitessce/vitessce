@@ -89,6 +89,7 @@ export default function ViewConfigEditor(props) {
   useEffect(() => {
     const handle = setTimeout(() => {
       const sanitisedUrls = sanitiseURLs(datasetUrls);
+      if (sanitisedUrls.length === 0) return;
       try {
         const hintTypes = getDatasetType(sanitisedUrls);
         setError(null);
@@ -190,6 +191,7 @@ export default function ViewConfigEditor(props) {
     } else {
       setPendingJs(exampleJs);
     }
+    setDatasetUrls('');
     setLoadFrom('editor');
   }
 
@@ -200,6 +202,7 @@ export default function ViewConfigEditor(props) {
     } else {
       setPendingJs(baseJs);
     }
+    setDatasetUrls('');
   }
 
   const showReset = (syntaxType === 'JSON' && pendingJson !== baseJson) || (syntaxType === 'JS' && pendingJs !== baseJs);
@@ -210,7 +213,7 @@ export default function ViewConfigEditor(props) {
       return <pre>Loading hints ...</pre>;
     }
 
-    return !error && (
+    return !error && datasetUrls !== '' && (
       <List
         subheader={(
           <p id="nested-list-subheader" className={styles.viewConfigEditorInfo}>
