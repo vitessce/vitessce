@@ -35,6 +35,6 @@
   "devDependencies": {
     "@types/react": "^18.0.28",
     "vite": "^4.3.0",
-    "vitest": "^0.23.4"
+    "vitest": "^0.32.2"
   }
 }

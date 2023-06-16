@@ -60,6 +60,9 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: [resolve(__dirname, './vitest.setup.js')],
+    deps: {
+      inline: ['vitest-canvas-mock'],
+    },
     environmentOptions: {
       jsdom: {
         resources: 'usable',
@@ -67,6 +70,11 @@ export default defineConfig({
     },
     // Only run test files that are within src/
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    // Coverage
+    coverage: {
+      reporter: ['text', 'json-summary', 'json'],
+      provider: 'v8',
+    },
   },
   // To enable .js files that contain JSX to be imported by Vitest tests.
   // Reference: https://github.com/vitest-dev/vitest/issues/1564
