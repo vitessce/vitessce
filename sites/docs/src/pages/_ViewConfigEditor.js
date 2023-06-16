@@ -89,17 +89,22 @@ export default function ViewConfigEditor(props) {
   useEffect(() => {
     const handle = setTimeout(() => {
       const sanitisedUrls = sanitiseURLs(datasetUrls);
-      const hintTypes = getDatasetType(sanitisedUrls);
-      const newHintsClass = Object.keys(HINTS_CONFIG)
-        .find(key => HINTS_CONFIG[key].hintType
-          .every(fileType => hintTypes.includes(fileType))
+      try {
+        const hintTypes = getDatasetType(sanitisedUrls);
+        setError(null);
+        const newHintsClass = Object.keys(HINTS_CONFIG)
+          .find(key => HINTS_CONFIG[key].hintType
+            .every(fileType => hintTypes.includes(fileType))
           && HINTS_CONFIG[key].hintType.length === hintTypes.length);
-      setPendingJson(baseJson);
-      setDebouncedHintsClass(newHintsClass);
+        setPendingJson(baseJson);
+        setDebouncedHintsClass(newHintsClass);
+      } catch (e) {
+        setError(e.message);
+      }
     }, 500);
 
     return () => clearTimeout(handle);
-  }, [datasetUrls, setPendingJson]);
+  }, [datasetUrls, setPendingJson, setError]);
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length === 1) {
@@ -205,7 +210,7 @@ export default function ViewConfigEditor(props) {
       return <pre>Loading hints ...</pre>;
     }
 
-    return (
+    return !error && (
       <List
         subheader={(
           <p id="nested-list-subheader" className={styles.viewConfigEditorInfo}>

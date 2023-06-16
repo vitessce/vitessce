@@ -494,10 +494,11 @@ function getFileType(url) {
     ext => url.endsWith(ext),
   ).length === 1);
   if (!match) {
-    throw new Error(`Could not generate config for URL: ${url}. This file type is not supported.`);
+    throw new Error('One or more of the URLs provided point to unsupported file types.');
   }
   return match;
 }
+
 async function generateConfig(url, vc, dataset, hintsConfig, hintsType, useHints) {
   let ConfigClassName;
   try {
@@ -580,16 +581,12 @@ export function getDatasetType(fileUrls) {
   const fileTypes = {};
 
   fileUrls.forEach((url) => {
-    try {
-      const match = getFileType(url);
-      // hints config only has OME-TIFF, since settings are the same for both OME-TIFF and OME-Zarr
-      if (match.name === 'OME-Zarr') {
-        fileTypes['OME-TIFF'] = true;
-      } else {
-        fileTypes[match.name] = true;
-      }
-    } catch (err) {
-      console.error('not supported file type, but ignoring the error');
+    const match = getFileType(url);
+    // hints config only has OME-TIFF, since settings are the same for both OME-TIFF and OME-Zarr
+    if (match.name === 'OME-Zarr') {
+      fileTypes['OME-TIFF'] = true;
+    } else {
+      fileTypes[match.name] = true;
     }
   });
 

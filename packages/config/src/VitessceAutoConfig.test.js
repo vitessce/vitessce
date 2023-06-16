@@ -581,7 +581,7 @@ describe('generateConfigs with no hints', () => {
     const urls = ['http://localhost:51204/@fixtures/zarr/anndata-0.7/somefile.zarr'];
 
     await generateConfigs(urls, NO_HINTS_CONFIG, '', false).catch(
-      e => expect(e.message).toContain('This file type is not supported.'),
+      e => expect(e.message).toContain('One or more of the URLs provided point to unsupported file types.'),
     );
   });
 });
@@ -1038,9 +1038,28 @@ describe('generateConfigs with hints', () => {
 });
 
 describe('getDatasetType tests', () => {
-  it.only('correctly identifies Anndata-Zarr file types', () => {
+  it('correctly identifies Anndata-Zarr file types', () => {
     const urls = ['somefile.anndata.zarr', 'anotheranndatafile.adata.zarr'];
     const datasetType = getDatasetType(urls);
     expect(datasetType).toEqual(['AnnData-Zarr']);
+  });
+  it('correctly identifies OME-Zarr file types', () => {
+    const urls = ['somefile.ome.zarr'];
+    const datasetType = getDatasetType(urls);
+    expect(datasetType).toEqual(['OME-TIFF']);
+  });
+  it('correctly identifies OME-TIFF file types', () => {
+    const urls = ['somefile.ome.tif'];
+    const datasetType = getDatasetType(urls);
+    expect(datasetType).toEqual(['OME-TIFF']);
+  });
+  it('correctly identifies [Anndata-Zarr, OME-TIFF] file types', () => {
+    const urls = ['somefile.ome.tif', 'anotheranndatafile.adata.zarr'];
+    const datasetType = getDatasetType(urls);
+    expect(datasetType.sort()).toEqual(['AnnData-Zarr', 'OME-TIFF'].sort());
+  });
+  it('one or more of the URLs provided contain unsupported file types', () => {
+    const urls = ['somefile.ome.tif', 'anotheranndatafile.bla.bla.bla'];
+    expect(() => getDatasetType(urls)).toThrow('One or more of the URLs provided point to unsupported file types.');
   });
 });

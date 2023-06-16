@@ -119,7 +119,7 @@ export const HINTS_CONFIG = {
     hints: {
       1: {
         ...NO_HINTS_CONFIG,
-        title: 'No hints available for this dataset type',
+        title: 'No hints are available. Generate config with no hints.',
       },
     },
   },
