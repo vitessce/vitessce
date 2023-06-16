@@ -87,18 +87,6 @@ export const HINTS_CONFIG = {
         ...NO_HINTS_CONFIG,
         title: 'Spatial transcriptomics (with histology image and polygon cell segmentations)',
         views: SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS,
-        options: { // todo delete this
-          obsFeatureMatrix: {
-            path: 'obsm/X_hvg',
-            featureFilterPath: 'var/highly_variable',
-          },
-          obsLocations: {
-            path: 'obsm/spatial',
-          },
-          obsSegmentations: {
-            path: 'obsm/segmentations',
-          },
-        },
       },
       1: NO_HINTS_CONFIG,
     },

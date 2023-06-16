@@ -167,7 +167,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       }
     });
 
-    const defaultFileConfig = {
+    return {
       options,
       fileType: this.fileType,
       url: this.fileUrl,
@@ -175,15 +175,6 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
         obsType: 'cell',
         featureType: 'gene',
         featureValueType: 'expression',
-      },
-    };
-
-    return {
-      ...defaultFileConfig,
-      options: {
-        ...defaultFileConfig.options,
-        ...this.hintsConfig.options,
-
       },
     };
   }

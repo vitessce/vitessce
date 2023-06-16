@@ -778,14 +778,7 @@ describe('generateConfigs with hints', () => {
               fileType: 'anndata.zarr',
               options: {
                 obsFeatureMatrix: {
-                  featureFilterPath: 'var/highly_variable',
-                  path: 'obsm/X_hvg',
-                },
-                obsLocations: {
-                  path: 'obsm/spatial',
-                },
-                obsSegmentations: {
-                  path: 'obsm/segmentations',
+                  path: 'X',
                 },
                 obsEmbedding: [
                   {
