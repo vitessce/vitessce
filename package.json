@@ -17,7 +17,7 @@
     "build-tsc": "tsc --build",
     "bundle:ci": "pnpm -r --workspace-concurrency 1 bundle",
     "bundle": "pnpm -r bundle",
-    "test": "pnpm -r --workspace-concurrency 1 test",
+    "test": "pnpm exec vitest --run --coverage",
     "lint": "eslint \"packages/**/src/**/*.{js,jsx,ts,tsx}\" \"sites/*/src/**/*.{js,jsx,ts,tsx}\" \"examples/*/src/**/*.{js,jsx,ts,tsx}\"",
     "lint-fix": "eslint --fix \"packages/**/src/**/*.{js,jsx,ts,tsx}\" \"sites/*/src/**/*.{js,jsx,ts,tsx}\" \"examples/*/src/**/*.{js,jsx,ts,tsx}\"",
     "clean": "pnpm -r exec -- rm -rf dist dist-tsc tsconfig.tsbuildinfo",

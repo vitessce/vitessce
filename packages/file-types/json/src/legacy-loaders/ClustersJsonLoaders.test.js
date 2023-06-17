@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { LoaderResult } from '@vitessce/vit-s';
 import ClustersJsonAsObsFeatureMatrixLoader from './ClustersJsonAsObsFeatureMatrix.js';
 import JsonSource from '../JsonSource.js';

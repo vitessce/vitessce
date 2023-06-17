@@ -36,8 +36,6 @@ const OTHER_VERSIONS = {
   "vite": "^4.3.0",
   "@vitejs/plugin-react": "^4.0.0",
   "vitest": "^0.32.2",
-  "@vitest/ui": "^0.16.0",
-  "@vitest/coverage-v8": "^0.32.2",
   "@testing-library/jest-dom": "^5.16.4",
   "@testing-library/react": "^13.3.0",
   "@testing-library/react-hooks": "^8.0.1",

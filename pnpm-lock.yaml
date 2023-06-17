@@ -1394,12 +1394,6 @@ importers:
       '@testing-library/react':
         specifier: ^13.3.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
-      '@vitest/coverage-v8':
-        specifier: ^0.32.2
-        version: 0.32.2(vitest@0.32.2)
-      '@vitest/ui':
-        specifier: ^0.16.0
-        version: 0.16.0
       react:
         specifier: ^18.0.0
         version: 18.2.0

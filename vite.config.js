@@ -74,6 +74,15 @@ export default defineConfig({
     coverage: {
       reporter: ['text', 'json-summary', 'json'],
       provider: 'v8',
+      include: [
+        // Do not include hits from dist-tsc/ files
+        // (e.g., from sibling sub-packages) in the coverage report.
+        '**/src/**',
+      ],
+      exclude: [
+        // Exclude test fixtures.
+        '**/*.{test,spec}.fixtures.?(c|m)[jt]s?(x)'
+      ]
     },
   },
   // To enable .js files that contain JSX to be imported by Vitest tests.

@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { generateConfigs } from './VitessceAutoConfig.js';
 
 describe('src/VitessceAutoConfig.js', () => {

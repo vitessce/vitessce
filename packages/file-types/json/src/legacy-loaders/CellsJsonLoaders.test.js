@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { LoaderResult } from '@vitessce/vit-s';
 import CellsJsonAsObsEmbeddingLoader from './CellsJsonAsObsEmbedding.js';
 import CellsJsonAsObsLabelsLoader from './CellsJsonAsObsLabels.js';

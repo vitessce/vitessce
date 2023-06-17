@@ -20,6 +20,12 @@ jobs:
             node: 16
     
     name: Test on ${{ matrix.os }} with Node ${{ matrix.node }}
+
+    permissions:
+      # Permissions required for the vitest-coverage-report action
+      # to be able to leave a comment on the pull request
+      contents: read
+      pull-requests: write
     
     steps:
       - uses: actions/checkout@v3
@@ -41,6 +47,10 @@ jobs:
       - run: ./test.sh --action
       - run: pnpm run bundle:ci
       - run: pnpm run publint
+      - name: Report coverage
+        if: always() # Generage coverage report even when tests fail
+        uses: davelosert/vitest-coverage-report-action@v2
+
   
   test-e2e-demo:
     runs-on: ubuntu-20.04

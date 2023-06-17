@@ -1,4 +1,5 @@
 /* eslint-disable func-names */
+import { describe, it, expect } from 'vitest';
 import { LoaderResult } from '@vitessce/vit-s';
 import ObsEmbeddingAnndataLoader from './ObsEmbeddingAnndataLoader.js';
 import AnnDataSource from '../AnnDataSource.js';
