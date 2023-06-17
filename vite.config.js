@@ -72,7 +72,8 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     // Coverage
     coverage: {
-      reporter: ['text', 'json-summary', 'json'],
+      enabled: true,
+      reporter: ['text', 'json-summary', 'json', 'html'],
       provider: 'v8',
       include: [
         // Do not include hits from dist-tsc/ files

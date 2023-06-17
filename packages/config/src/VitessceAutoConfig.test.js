@@ -310,9 +310,12 @@ describe('src/VitessceAutoConfig.js', () => {
   it('raises an error for Anndata-ZARR file with misconfigured .zmetadata', async () => {
     const urls = ['http://localhost:51204/@fixtures/zarr/partials/invalidmeta.adata.zarr'];
 
-    await generateConfigs(urls).catch(
-      e => expect(e.message).toContain('Could not generate config: .zmetadata file is not valid.'),
-    );
+    // References:
+    // - https://vitest.dev/api/expect.html#tothrowerror
+    // - https://vitest.dev/api/expect.html#rejects
+    await expect(() => generateConfigs(urls))
+      .rejects
+      .toThrowError('Could not generate config: .zmetadata file is not valid.');
   });
 
   it('generates config for multiple files correctly', async () => {
