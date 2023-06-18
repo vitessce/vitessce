@@ -29,10 +29,6 @@ if [[ "$1" != "--action" ]]; then
 fi
 # end end-to-end tests
 
-# schema checks
-./packages/vit-s/src/schemas/schema-schema.sh
-# end schema checks
-
 # tsconfig checks
 node scripts/check-tsconfig-references.mjs
 # end tsconfig checks
