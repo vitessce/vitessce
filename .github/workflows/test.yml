@@ -36,7 +36,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 7
+          version: 8
           run_install: true
       - id: get-options
         run: . ./set-node-options.sh --action
@@ -67,7 +67,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 7
+          version: 8
           run_install: true
       - id: get-options
         run: . ./set-node-options.sh --action
@@ -106,7 +106,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 7
+          version: 8
           run_install: true
       - id: get-options
         run: . ./set-node-options.sh --action
