@@ -29,7 +29,7 @@
     "start": "pnpm -C ../../../ run start-tsc",
     "build": "pnpm -C ../../../ run build-tsc",
     "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
-    "test": "pnpm exec vitest --coverage --run -r ../../../ --dir ."
+    "test": "pnpm exec vitest --run -r ../../../ --dir ."
   },
   "dependencies": {
     "@material-ui/core": "~4.12.3",
