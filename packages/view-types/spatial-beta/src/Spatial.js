@@ -469,7 +469,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     const [Layer, layerLoader] = getLayerLoaderTuple(data, use3d);
 
-    const colormap = null; // TODO(CoordinationType): per-layer colormap
+    const colormap = layerCoordination[CoordinationType.SPATIAL_LAYER_COLORMAP];
+    console.log(colormap)
     const renderingMode = null; // TODO(CoordinationType): global or per-layer renderingMode (used in 3d mode)
     const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
 

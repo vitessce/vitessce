@@ -205,6 +205,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.IMAGE_CHANNEL,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.SPATIAL_LAYER_COLORMAP,
     ],
     coordinationScopes,
     coordinationScopesBy,

@@ -157,11 +157,13 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.IMAGE_CHANNEL,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.SPATIAL_LAYER_COLORMAP,
     ],
     coordinationScopes,
     coordinationScopesBy,
     CoordinationType.IMAGE_LAYER,
   );
+  console.log(imageLayerCoordination)
 
   // Object keys are coordination scope names for spatialImageChannel.
   const imageChannelCoordination = useComplexCoordinationSecondary(

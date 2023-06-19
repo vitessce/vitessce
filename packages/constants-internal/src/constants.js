@@ -181,6 +181,7 @@ export const CoordinationType = {
   SPATIAL_TARGET_C: 'spatialTargetC',
   SPATIAL_LAYER_VISIBLE: 'spatialLayerVisible',
   SPATIAL_LAYER_OPACITY: 'spatialLayerOpacity',
+  SPATIAL_LAYER_COLORMAP: 'spatialLayerColormap',
   SPATIAL_SEGMENTATION_FILLED: 'spatialSegmentationFilled',
   SPATIAL_SEGMENTATION_STROKE_WIDTH: 'spatialSegmentationStrokeWidth',
   SPATIAL_CHANNEL_COLOR: 'spatialChannelColor',

@@ -10,6 +10,8 @@ import {
   MenuItem,
   Button,
   SvgIcon,
+  Select,
+  InputLabel,
 } from '@material-ui/core';
 import {
   MoreVert as MoreVertIcon,
@@ -24,13 +26,20 @@ import {
 import { PopperMenu } from '@vitessce/vit-s';
 import { TwitterPicker } from 'react-color-with-lodash';
 import { colorArrayToString } from '@vitessce/sets-utils';
-import { PATHOLOGY_PALETTE, LARGE_PATHOLOGY_PALETTE } from '@vitessce/utils';
+import { PATHOLOGY_PALETTE, LARGE_PATHOLOGY_PALETTE, COLORMAP_OPTIONS } from '@vitessce/utils';
 import { CoordinationType } from '@vitessce/constants-internal';
 
-import { useControllerSectionStyles } from './styles.js';
+import { useControllerSectionStyles, useSelectStyles } from './styles.js';
 
 const useStyles = makeStyles(() => ({
-  
+  layerRowLabel: {
+    textAlign: 'right !important',
+  },
+  inputLabel: {
+    margin: '4px 0',
+    fontSize: '14px',
+    lineHeight: '21px',
+  },
 }));
 
 export default function SplitImageLayerController(props) {
@@ -45,16 +54,20 @@ export default function SplitImageLayerController(props) {
     use3d, /* TODO */
   } = props;
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const {
     spatialLayerVisible: visible,
     spatialLayerOpacity: opacity,
+    spatialLayerColormap: colormap,
   } = layerCoordination;
   const {
     setSpatialLayerVisible: setVisible,
     setSpatialLayerOpacity: setOpacity,
+    setSpatialLayerColormap: setColormap,
   } = setLayerCoordination;
+
+  console.log(layerCoordination);
 
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
@@ -62,12 +75,18 @@ export default function SplitImageLayerController(props) {
   // TODO: does this work for non-OME-TIFF?
   const label = image?.image?.loaders?.[0]?.metadata?.Name;
 
-  // console.log(image);
+  const colormapInputId = `${layerScope}-colormap`;
 
-  const classes = useControllerSectionStyles();
+  function handleColormapChange(newColormapName) {
+    setColormap(newColormapName);
+  }
+
+  const classes = useStyles();
+  const controllerSectionClasses = useControllerSectionStyles();
+  const selectClasses = useSelectStyles();
   return (
     <Grid item style={{ marginTop: '10px' }}>
-      <Paper className={classes.root}>
+      <Paper className={controllerSectionClasses.root}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={1}>
             <Button
@@ -135,7 +154,51 @@ export default function SplitImageLayerController(props) {
         </Grid>
         {open ? (
           <Grid container direction="column" justifyContent="space-between">
-            <p>TODO</p>
+
+            <Grid item container direction="row">
+              <Grid item xs={2} className={classes.layerRowLabel}>
+                <InputLabel htmlFor={colormapInputId} className={classes.inputLabel}>Colormap:</InputLabel>
+              </Grid>
+              <Grid item xs={10}>
+                <Select
+                  native
+                  onChange={e => handleColormapChange(e.target.value === '' ? null : e.target.value)}
+                  value={colormap}
+                  inputProps={{ name: 'colormap', id: colormapInputId }}
+                  style={{ width: '100%', fontSize: '14px' }}
+                  classes={{ root: selectClasses.selectRoot }}
+                >
+                  <option aria-label="None" value="">None</option>
+                  {COLORMAP_OPTIONS.map(name => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </Select>
+              </Grid>
+            </Grid>
+
+            {channelScopes.map((cScope) => {
+              console.log(channelCoordination);
+              const {
+                spatialTargetC,
+                spatialChannelVisible,
+                spatialChannelOpacity,
+                spatialChannelColor,
+              } = channelCoordination[cScope];
+              const {
+                setSpatialTargetC,
+                setSpatialChannelVisible,
+                setSpatialChannelOpacity,
+                setSpatialChannelColor,
+              } = setChannelCoordination[cScope];
+
+              console.log(image);
+
+              return (
+                <p>{cScope}</p>
+              );
+            })}
           </Grid>
         ) : null}
       </Paper>

@@ -105,7 +105,7 @@ export default function SplitLayerController(props) {
     enableLayerButtonsWithOneLayer || imageLayerLoaders?.length > 1,
   );
   return (
-    <div className="layer-controller-container">
+    <div>
       {/*moleculesLayer && (
         <VectorLayerController
           key={`${dataset}-molecules`}

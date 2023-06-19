@@ -381,6 +381,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_C, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_OPACITY, 1.0, z.number()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_COLORMAP, null, z.string().nullable()), // TODO: enum to be more strict
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_OPACITY, 1.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_COLOR, null, z.array(z.number()).length(3).nullable()),
