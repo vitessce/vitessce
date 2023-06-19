@@ -560,6 +560,10 @@ async function generateViewDefinition(url, vc, dataset, hintsConfig) {
   return views;
 }
 
+/**
+ * @param {Array} fileUrls containing urls of files to be loaded into Vitessce
+ * @returns the hints available for these file URLs
+ */
 export function getDatasetHintsConfig(fileUrls) {
   const fileTypes = {};
 
