@@ -894,13 +894,13 @@ describe('generateConfig', () => {
           ],
         },
         spatialZoom: {
-          A: -2.598,
+          A: null,
         },
         spatialTargetX: {
-          A: 1008.88,
+          A: null,
         },
         spatialTargetY: {
-          A: 1004.69,
+          A: null,
         },
       },
       layout: [
