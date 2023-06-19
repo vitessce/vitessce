@@ -77,7 +77,7 @@ export default function ViewConfigEditor(props) {
 
   const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
 
-  const [debouncedHintsConfig, setDebouncedHintsConfig] = useState(0);
+  const [debouncedHintsConfig, setDebouncedHintsConfig] = useState({});
 
   function sanitiseURLs(urls) {
     return urls
@@ -207,7 +207,7 @@ export default function ViewConfigEditor(props) {
   const showReset = (syntaxType === 'JSON' && pendingJson !== baseJson) || (syntaxType === 'JS' && pendingJs !== baseJs);
 
   const renderHints = () => {
-    if (!debouncedHintsConfig) {
+    if (Object.keys(debouncedHintsConfig).length === 0) {
       // show some default state while waiting
       return <pre>Loading hints ...</pre>;
     }
@@ -220,11 +220,12 @@ export default function ViewConfigEditor(props) {
           </p>
         )}
       >
-        {debouncedHintsConfig.hints.map(hintConfig => (
-          <ListItem disablePadding>
+        {debouncedHintsConfig.hints.map((hintConfig, index) => (
+          <ListItem key={index}>
             <button
               type="button"
               onClick={() => handleConfigGeneration(hintConfig)}
+              key={index}
             >
               <ListItemText primary={hintConfig.title} />
             </button>
