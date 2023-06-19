@@ -162,11 +162,13 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     // if length of path is 1, storing the value as an array doesn't work
     // es-lint-disable-next-line max-len
     // Example: https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr
-    options.obsSets?.forEach((obsSet) => {
+    options.obsSets = options.obsSets?.map((obsSet) => {
       if (obsSet.path.length === 1) {
-        // eslint-disable-next-line no-param-reassign
-        [obsSet.path] = obsSet.path;
-      }
+        return {
+          ...obsSet,
+          path: obsSet.path[0],
+        };
+      return obsSet;
     });
 
     return {
