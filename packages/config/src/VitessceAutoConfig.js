@@ -27,22 +27,21 @@ class AbstractAutoConfig {
 }
 
 class OmeTiffAutoConfig extends AbstractAutoConfig {
-  constructor(fileUrl, hintsConfig) {
+  constructor(fileUrl) {
     super();
     this.fileUrl = fileUrl;
     this.fileType = FileType.RASTER_JSON;
     this.fileName = fileUrl.split('/').at(-1);
-    this.hintsConfig = hintsConfig;
   }
 
-  async composeViewsConfig() {
+  async composeViewsConfig(hintsConfig) { /* eslint-disable-line class-methods-use-this */
     const possibleViews = [
       ['description'], ['spatial'], ['layerController'],
     ];
-    if (Object.keys(this.hintsConfig).length === 0) {
+    if (Object.keys(hintsConfig).length === 0) {
       return possibleViews;
     }
-    return matchViews(possibleViews, Object.keys(this.hintsConfig.views));
+    return matchViews(possibleViews, Object.keys(hintsConfig.views));
   }
 
   async composeFileConfig() {
@@ -67,23 +66,22 @@ class OmeTiffAutoConfig extends AbstractAutoConfig {
 }
 
 class OmeZarrAutoConfig extends AbstractAutoConfig {
-  constructor(fileUrl, hintsConfig) {
+  constructor(fileUrl) {
     super();
     this.fileUrl = fileUrl;
     this.fileType = FileType.RASTER_OME_ZARR;
     this.fileName = fileUrl.split('/').at(-1);
-    this.hintsConfig = hintsConfig;
   }
 
-  async composeViewsConfig() {
+  async composeViewsConfig(hintsConfig) { /* eslint-disable-line class-methods-use-this */
     const possibleViews = [
       ['description'], ['spatial'], ['layerController'],
     ];
 
-    if (Object.keys(this.hintsConfig).length === 0) {
+    if (Object.keys(hintsConfig).length === 0) {
       return possibleViews;
     }
-    return matchViews(possibleViews, Object.keys(this.hintsConfig.views));
+    return matchViews(possibleViews, Object.keys(hintsConfig.views));
   }
 
   async composeFileConfig() {
@@ -96,12 +94,11 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
 }
 
 class AnndataZarrAutoConfig extends AbstractAutoConfig {
-  constructor(fileUrl, hintsConfig) {
+  constructor(fileUrl) {
     super();
     this.fileUrl = fileUrl;
     this.fileType = FileType.ANNDATA_ZARR;
     this.fileName = fileUrl.split('/').at(-1);
-    this.hintsConfig = hintsConfig;
     this.metadataSummary = {};
   }
 
@@ -179,7 +176,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     };
   }
 
-  async composeViewsConfig() {
+  async composeViewsConfig(hintsConfig) {
     this.metadataSummary = await this.setMetadataSummary();
     const possibleViews = [];
 
@@ -216,11 +213,11 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       possibleViews.push(['featureList']);
     }
 
-    if (Object.keys(this.hintsConfig).length === 0) {
+    if (Object.keys(hintsConfig).length === 0) {
       return possibleViews;
     }
 
-    return matchViews(possibleViews, Object.keys(this.hintsConfig.views));
+    return matchViews(possibleViews, Object.keys(hintsConfig.views));
   }
 
   async setMetadataSummaryWithZmetadata(response) { /* eslint-disable-line class-methods-use-this */
@@ -498,12 +495,12 @@ async function generateViewDefinition(url, vc, dataset, hintsConfig) {
     return Promise.reject(err);
   }
 
-  const configInstance = new ConfigClassName(url, hintsConfig);
+  const configInstance = new ConfigClassName(url);
   let fileConfig;
   let viewsConfig;
   try {
     fileConfig = await configInstance.composeFileConfig();
-    viewsConfig = await configInstance.composeViewsConfig();
+    viewsConfig = await configInstance.composeViewsConfig(hintsConfig);
   } catch (error) {
     console.error(error);
     return Promise.reject(error);

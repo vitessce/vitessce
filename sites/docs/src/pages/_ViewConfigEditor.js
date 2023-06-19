@@ -220,12 +220,12 @@ export default function ViewConfigEditor(props) {
           </p>
         )}
       >
-        {debouncedHintsConfig.hints.map((hintConfig, index) => (
-          <ListItem key={index}>
+        {debouncedHintsConfig.hints.map(hintConfig => (
+          <ListItem key={hintConfig.title}>
             <button
               type="button"
               onClick={() => handleConfigGeneration(hintConfig)}
-              key={index}
+              key={hintConfig.title}
             >
               <ListItemText primary={hintConfig.title} />
             </button>
