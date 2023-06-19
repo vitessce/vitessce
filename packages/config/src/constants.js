@@ -1,39 +1,39 @@
 const SINGLE_CELL_WITH_HEATMAP_VIEWS = {
-  obsSets: [4, 0, 4, 4],
-  obsSetSizes: [8, 0, 4, 4],
-  scatterplot: [0, 0, 4, 4],
-  heatmap: [0, 4, 8, 4],
-  featureList: [8, 4, 4, 4],
+  obsSets: { x: 4, y: 0, w: 4, h: 4 },
+  obsSetSizes: { x: 8, y: 0, w: 4, h: 4 },
+  scatterplot: { x: 0, y: 0, w: 4, h: 4 },
+  heatmap: { x: 0, y: 4, w: 8, h: 4 },
+  featureList: { x: 8, y: 4, w: 4, h: 4 },
 };
 
 const SINGLE_CELL_WITHOUT_HEATMAP_VIEWS = {
-  obsSets: [10, 6, 2, 6],
-  obsSetSizes: [8, 1, 4, 6],
-  scatterplot: [0, 0, 8, 12],
-  featureList: [8, 6, 2, 6],
+  obsSets: { x: 10, y: 6, w: 2, h: 6 },
+  obsSetSizes: { x: 8, y: 1, w: 4, h: 6 },
+  scatterplot: { x: 0, y: 0, w: 8, h: 12 },
+  featureList: { x: 8, y: 6, w: 2, h: 6 },
 };
 
 const SPATIAL_TRANSCRIPTOMICS_VIEWS = {
-  scatterplot: [0, 0, 3, 4],
-  spatial: [3, 0, 5, 4],
-  obsSets: [8, 0, 4, 2],
-  featureList: [8, 0, 4, 2],
-  heatmap: [0, 4, 6, 4],
-  obsSetFeatureValueDistribution: [6, 4, 6, 4],
+  scatterplot: { x: 0, y: 0, w: 3, h: 4 },
+  spatial: { x: 3, y: 0, w: 5, h: 4 },
+  obsSets: { x: 8, y: 0, w: 4, h: 2 },
+  featureList: { x: 8, y: 0, w: 4, h: 2 },
+  heatmap: { x: 0, y: 4, w: 6, h: 4 },
+  obsSetFeatureValueDistribution: { x: 6, y: 4, w: 6, h: 4 },
 };
 
 const SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS = {
-  spatial: [0, 0, 6, 6],
-  heatmap: [0, 6, 8, 6],
-  layerController: [8, 6, 4, 6],
-  obsSets: [9, 0, 3, 6],
-  featureList: [6, 0, 3, 6],
+  spatial: { x: 0, y: 0, w: 6, h: 6 },
+  heatmap: { x: 0, y: 6, w: 8, h: 6 },
+  layerController: { x: 8, y: 6, w: 4, h: 6 },
+  obsSets: { x: 9, y: 0, w: 3, h: 6 },
+  featureList: { x: 6, y: 0, w: 3, h: 6 },
 };
 
 const IMAGE_VIEWS = {
-  spatial: [0, 0, 8, 12],
-  layerController: [8, 0, 4, 7],
-  description: [8, 9, 4, 5],
+  spatial: { x: 0, y: 0, w: 8, h: 12 },
+  layerController: { x: 8, y: 0, w: 4, h: 7 },
+  description: { x: 8, y: 9, w: 4, h: 5 },
 };
 
 export const NO_HINTS_CONFIG = {

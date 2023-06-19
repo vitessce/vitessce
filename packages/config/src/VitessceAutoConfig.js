@@ -610,7 +610,8 @@ export async function generateConfigs(fileUrls, hintsConfig, hintsType, useHints
       }
     } else {
       flattenedViews.forEach((vitessceConfigView) => {
-        vitessceConfigView.setXYWH(...hintsConfig.views[vitessceConfigView.view.component]);
+        const coordinates = Object.values(hintsConfig.views[vitessceConfigView.view.component]);
+        vitessceConfigView.setXYWH(...coordinates);
       });
     }
     return vc.toJSON();
