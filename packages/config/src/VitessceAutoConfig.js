@@ -5,7 +5,13 @@ import {
 
 import { HINTS_CONFIG, NO_HINTS_CONFIG } from './constants.js';
 
-const matchViews = (possibleViews, requiredViews) => {
+/**
+ *
+ * @param {Array} possibleViews All possible views for a given file type
+ * @param {Array} requiredViews Views that are required by the hints config
+ * @returns {Array} of the required views that are contained in possibleViews
+ */
+const filterViews = (possibleViews, requiredViews) => {
   const resultViews = [];
 
   requiredViews.forEach((requiredView) => {
@@ -41,7 +47,7 @@ class OmeTiffAutoConfig extends AbstractAutoConfig {
     if (Object.keys(hintsConfig).length === 0) {
       return possibleViews;
     }
-    return matchViews(possibleViews, Object.keys(hintsConfig.views));
+    return filterViews(possibleViews, Object.keys(hintsConfig.views));
   }
 
   async composeFileConfig() {
@@ -81,7 +87,7 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
     if (Object.keys(hintsConfig).length === 0) {
       return possibleViews;
     }
-    return matchViews(possibleViews, Object.keys(hintsConfig.views));
+    return filterViews(possibleViews, Object.keys(hintsConfig.views));
   }
 
   async composeFileConfig() {
@@ -217,7 +223,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       return possibleViews;
     }
 
-    return matchViews(possibleViews, Object.keys(hintsConfig.views));
+    return filterViews(possibleViews, Object.keys(hintsConfig.views));
   }
 
   async setMetadataSummaryWithZmetadata(response) { /* eslint-disable-line class-methods-use-this */
@@ -386,6 +392,11 @@ const spatialSegmentationLayerValue = {
   opacity: 1,
 };
 
+/**
+ * Inserts the spatial coordination space into the VitessceConfig views.
+ * @param {Array of VitessceConfigView} of views
+ * @param {VitessceConfig} vc instance
+ */
 function insertCoordinationSpace(views, vc) {
   const [
     spatialSegmentationLayer,
@@ -459,9 +470,6 @@ function insertCoordinationSpace(views, vc) {
       ],
     },
   ]);
-  spatialZoom.setValue(-2.598);
-  spatialTargetX.setValue(1008.88);
-  spatialTargetY.setValue(1004.69);
 
   views.forEach((view) => {
     if (view.view.component === 'spatial') {
@@ -575,7 +583,12 @@ export function getDatasetHintsConfig(fileUrls) {
   );
 }
 
-
+/**
+ *
+ * @param {Array} fileUrls containing urls of files to be loaded into Vitessce
+ * @param {Object} the hints config to be used for the dataset
+ * @returns ViewConfig as JSON
+ */
 export async function generateConfig(fileUrls, config) {
   const vc = new VitessceConfig({
     schemaVersion: '1.0.15',
