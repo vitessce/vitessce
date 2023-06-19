@@ -1,7 +1,7 @@
-import { generateConfigs, getDatasetType } from './VitessceAutoConfig.js';
+import { generateConfig, getDatasetType } from './VitessceAutoConfig.js';
 import { HINTS_CONFIG, NO_HINTS_CONFIG } from './constants.js';
 
-describe('generateConfigs with no hints', () => {
+describe('generateConfig with no hints', () => {
   it('generates config for OME-TIFF file correctly', async () => {
     const urls = ['somefile.ome.tif'];
     const expectedConfig = {
@@ -77,7 +77,7 @@ describe('generateConfigs with no hints', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfigs(urls, NO_HINTS_CONFIG, '', false);
+    const config = await generateConfig(urls, NO_HINTS_CONFIG, '', false);
     expect(config).toEqual(expectedConfig);
   });
 
@@ -143,7 +143,7 @@ describe('generateConfigs with no hints', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfigs(urls, NO_HINTS_CONFIG, '', false);
+    const config = await generateConfig(urls, NO_HINTS_CONFIG, '', false);
     expect(config).toEqual(expectedConfig);
   });
 
@@ -271,7 +271,7 @@ describe('generateConfigs with no hints', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfigs(urls, NO_HINTS_CONFIG, '', false);
+    const config = await generateConfig(urls, NO_HINTS_CONFIG, '', false);
     expect(config).toEqual(expectedConfig);
   });
 
@@ -334,14 +334,14 @@ describe('generateConfigs with no hints', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfigs(urls, NO_HINTS_CONFIG, '', false);
+    const config = await generateConfig(urls, NO_HINTS_CONFIG, '', false);
     expect(config).toEqual(expectedConfig);
   });
 
   it('raises an error for Anndata-ZARR file with misconfigured .zmetadata', async () => {
     const urls = ['http://localhost:51204/@fixtures/zarr/partials/invalidmeta.adata.zarr'];
 
-    await generateConfigs(urls, NO_HINTS_CONFIG, '', false).catch(
+    await generateConfig(urls, NO_HINTS_CONFIG, '', false).catch(
       e => expect(e.message).toContain('Could not generate config: .zmetadata file is not valid.'),
     );
   });
@@ -461,7 +461,7 @@ describe('generateConfigs with no hints', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfigs(urls, NO_HINTS_CONFIG, '', false);
+    const config = await generateConfig(urls, NO_HINTS_CONFIG, '', false);
     expect(config).toEqual(expectedConfig);
   });
 
@@ -573,20 +573,20 @@ describe('generateConfigs with no hints', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfigs(urls, NO_HINTS_CONFIG, '', false);
+    const config = await generateConfig(urls, NO_HINTS_CONFIG, '', false);
     expect(config).toEqual(expectedConfig);
   });
 
   it('raises an error when URL with unsupported file format is passed', async () => {
     const urls = ['http://localhost:51204/@fixtures/zarr/anndata-0.7/somefile.zarr'];
 
-    await generateConfigs(urls, NO_HINTS_CONFIG, '', false).catch(
+    await generateConfig(urls, NO_HINTS_CONFIG, '', false).catch(
       e => expect(e.message).toContain('One or more of the URLs provided point to unsupported file types.'),
     );
   });
 });
 
-describe('generateConfigs with hints', () => {
+describe('generateConfig with hints', () => {
   it('generates config with hints for OME-TIFF dataset types correctly', async () => {
     const urls = ['somefile.ome.tif'];
     const expectedConfig = {
@@ -665,7 +665,7 @@ describe('generateConfigs with hints', () => {
     const hintsConfig = HINTS_CONFIG.C.hints['2'];
     const hintsType = HINTS_CONFIG.C.hintType;
 
-    const config = await generateConfigs(urls, hintsConfig, hintsType, true);
+    const config = await generateConfig(urls, hintsConfig, hintsType, true);
     expect(config).toEqual(expectedConfig);
   });
 
@@ -734,7 +734,7 @@ describe('generateConfigs with hints', () => {
     const hintsConfig = HINTS_CONFIG.C.hints['2'];
     const hintsType = HINTS_CONFIG.C.hintType;
 
-    const config = await generateConfigs(urls, hintsConfig, hintsType, true);
+    const config = await generateConfig(urls, hintsConfig, hintsType, true);
     expect(config).toEqual(expectedConfig);
   });
 
@@ -958,7 +958,7 @@ describe('generateConfigs with hints', () => {
     const hintsConfig = HINTS_CONFIG.B.hints['2'];
     const hintsType = HINTS_CONFIG.B.hintType;
 
-    const config = await generateConfigs(urls, hintsConfig, hintsType, true);
+    const config = await generateConfig(urls, hintsConfig, hintsType, true);
 
     expect(config).toEqual(expectedConfig);
   });

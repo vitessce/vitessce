@@ -490,7 +490,7 @@ function getFileType(url) {
   return match;
 }
 
-async function generateConfig(url, vc, dataset, hintsConfig, hintsType, useHints) {
+async function generateViewDefinition(url, vc, dataset, hintsConfig, hintsType, useHints) {
   let ConfigClassName;
   try {
     ConfigClassName = getFileType(url).class;
@@ -572,7 +572,7 @@ export function getDatasetType(fileUrls) {
 }
 
 
-export async function generateConfigs(fileUrls, hintsConfig, hintsType, useHints) {
+export async function generateConfig(fileUrls, hintsConfig, hintsType, useHints) {
   const vc = new VitessceConfig({
     schemaVersion: '1.0.15',
     name: 'An automatically generated config. Adjust values and add layout components if needed.',
@@ -584,7 +584,7 @@ export async function generateConfigs(fileUrls, hintsConfig, hintsType, useHints
   const dataset = vc.addDataset(`${hintsConfig.title} dataset.`);
 
   fileUrls.forEach((url) => {
-    allViews.push(generateConfig(url, vc, dataset, hintsConfig, hintsType, useHints));
+    allViews.push(generateViewDefinition(url, vc, dataset, hintsConfig, hintsType, useHints));
   });
 
   function isHintofTypeAnndataAndOME(arr1) {

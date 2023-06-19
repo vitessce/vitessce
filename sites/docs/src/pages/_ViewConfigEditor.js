@@ -6,7 +6,7 @@ import {
   LiveProvider, LiveContext, LiveError, LivePreview,
 } from 'react-live';
 import {
-  VitessceConfig, generateConfigs, HINTS_CONFIG, NO_HINTS_CONFIG, getDatasetType, hconcat, vconcat,
+  VitessceConfig, generateConfig, HINTS_CONFIG, NO_HINTS_CONFIG, getDatasetType, hconcat, vconcat,
 } from '@vitessce/config';
 import {
   CoordinationType, ViewType, DataType, FileType,
@@ -162,7 +162,7 @@ export default function ViewConfigEditor(props) {
     const hintsConfig = HINTS_CONFIG[debouncedHintsClass].hints[hintsKey];
     const hintsType = HINTS_CONFIG[debouncedHintsClass].hintType;
     const useHints = hintsConfig.title !== NO_HINTS_CONFIG.title;
-    await generateConfigs(sanitisedUrls, hintsConfig, hintsType, useHints)
+    await generateConfig(sanitisedUrls, hintsConfig, hintsType, useHints)
       .then((configJson) => {
         setPendingJson(JSON.stringify(configJson, null, 2));
         setLoadFrom('editor');
