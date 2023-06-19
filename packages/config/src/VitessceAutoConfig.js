@@ -372,10 +372,10 @@ function calculateCoordinates(viewsNumb) {
 
     // The coordinates have to be integer values:
     coords.push([
-      Math.floor(x),
-      Math.floor(y),
-      Math.floor(width),
-      Math.floor(height),
+      Math.ceil(x),
+      Math.ceil(y),
+      Math.ceil(width),
+      Math.ceil(height),
     ]);
   }
 
