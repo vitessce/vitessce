@@ -3,6 +3,7 @@ import {
   VitessceConfig,
 } from './VitessceConfig.js';
 
+import { HINTS_CONFIG, NO_HINTS_CONFIG } from './constants.js';
 
 const matchViews = (possibleViews, requiredViews) => {
   const resultViews = [];
@@ -26,21 +27,19 @@ class AbstractAutoConfig {
 }
 
 class OmeTiffAutoConfig extends AbstractAutoConfig {
-  constructor(fileUrl, hintsConfig, hintsType, useHints) {
+  constructor(fileUrl, hintsConfig) {
     super();
     this.fileUrl = fileUrl;
     this.fileType = FileType.RASTER_JSON;
     this.fileName = fileUrl.split('/').at(-1);
     this.hintsConfig = hintsConfig;
-    this.hintsType = hintsType;
-    this.useHints = useHints;
   }
 
   async composeViewsConfig() {
     const possibleViews = [
       ['description'], ['spatial'], ['layerController'],
     ];
-    if (!this.useHints) {
+    if (Object.keys(this.hintsConfig).length === 0) {
       return possibleViews;
     }
     return matchViews(possibleViews, Object.keys(this.hintsConfig.views));
@@ -68,14 +67,12 @@ class OmeTiffAutoConfig extends AbstractAutoConfig {
 }
 
 class OmeZarrAutoConfig extends AbstractAutoConfig {
-  constructor(fileUrl, hintsConfig, hintsType, useHints) {
+  constructor(fileUrl, hintsConfig) {
     super();
     this.fileUrl = fileUrl;
     this.fileType = FileType.RASTER_OME_ZARR;
     this.fileName = fileUrl.split('/').at(-1);
     this.hintsConfig = hintsConfig;
-    this.hintsType = hintsType;
-    this.useHints = useHints;
   }
 
   async composeViewsConfig() {
@@ -83,7 +80,7 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
       ['description'], ['spatial'], ['layerController'],
     ];
 
-    if (!this.useHints) {
+    if (Object.keys(this.hintsConfig).length === 0) {
       return possibleViews;
     }
     return matchViews(possibleViews, Object.keys(this.hintsConfig.views));
@@ -99,14 +96,12 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
 }
 
 class AnndataZarrAutoConfig extends AbstractAutoConfig {
-  constructor(fileUrl, hintsConfig, hintsType, useHints) {
+  constructor(fileUrl, hintsConfig) {
     super();
     this.fileUrl = fileUrl;
     this.fileType = FileType.ANNDATA_ZARR;
     this.fileName = fileUrl.split('/').at(-1);
     this.hintsConfig = hintsConfig;
-    this.hintsType = hintsType;
-    this.useHints = useHints;
     this.metadataSummary = {};
   }
 
@@ -168,6 +163,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
           ...obsSet,
           path: obsSet.path[0],
         };
+      }
       return obsSet;
     });
 
@@ -220,7 +216,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       possibleViews.push(['featureList']);
     }
 
-    if (!this.useHints) {
+    if (Object.keys(this.hintsConfig).length === 0) {
       return possibleViews;
     }
 
@@ -494,7 +490,7 @@ function getFileType(url) {
   return match;
 }
 
-async function generateViewDefinition(url, vc, dataset, hintsConfig, hintsType, useHints) {
+async function generateViewDefinition(url, vc, dataset, hintsConfig) {
   let ConfigClassName;
   try {
     ConfigClassName = getFileType(url).class;
@@ -502,7 +498,7 @@ async function generateViewDefinition(url, vc, dataset, hintsConfig, hintsType, 
     return Promise.reject(err);
   }
 
-  const configInstance = new ConfigClassName(url, hintsConfig, hintsType, useHints);
+  const configInstance = new ConfigClassName(url, hintsConfig);
   let fileConfig;
   let viewsConfig;
   try {
@@ -559,7 +555,7 @@ async function generateViewDefinition(url, vc, dataset, hintsConfig, hintsType, 
   return views;
 }
 
-export function getDatasetType(fileUrls) {
+export function getDatasetHintsConfig(fileUrls) {
   const fileTypes = {};
 
   fileUrls.forEach((url) => {
@@ -572,11 +568,18 @@ export function getDatasetType(fileUrls) {
     }
   });
 
-  return Object.keys(fileTypes);
+  const datasetTypes = Object.keys(fileTypes);
+
+  return HINTS_CONFIG.find(
+    (element, index) => HINTS_CONFIG[index].hintType.every(
+      fileType => datasetTypes.includes(fileType),
+    )
+    && HINTS_CONFIG[index].hintType.length === datasetTypes.length,
+  );
 }
 
 
-export async function generateConfig(fileUrls, hintsConfig, hintsType, useHints) {
+export async function generateConfig(fileUrls, config) {
   const vc = new VitessceConfig({
     schemaVersion: '1.0.15',
     name: 'An automatically generated config. Adjust values and add layout components if needed.',
@@ -585,19 +588,14 @@ export async function generateConfig(fileUrls, hintsConfig, hintsType, useHints)
 
   const allViews = [];
 
-  const dataset = vc.addDataset(`${hintsConfig.title} dataset.`);
+  const dataset = vc.addDataset('An automatically generated view config for dataset. Adjust values and add layout components if needed.');
+
+  const hintsConfig = config.title === NO_HINTS_CONFIG.title ? {} : config;
+  const useHints = Object.keys(hintsConfig).length > 0;
 
   fileUrls.forEach((url) => {
-    allViews.push(generateViewDefinition(url, vc, dataset, hintsConfig, hintsType, useHints));
+    allViews.push(generateViewDefinition(url, vc, dataset, hintsConfig));
   });
-
-  function isHintofTypeAnndataAndOME(arr1) {
-    const arr2 = ['OME-TIFF', 'AnnData-Zarr'];
-    if (arr1.length !== arr2.length) {
-      return false;
-    }
-    return arr1.every(item => arr2.includes(item));
-  }
 
   return Promise.all(allViews).then((views) => {
     const flattenedViews = views.flat();
@@ -607,7 +605,7 @@ export async function generateConfig(fileUrls, hintsConfig, hintsType, useHints)
     // containing both a histology image and polygon cell segmentations.
     // We need to manually initialize the coordination values for the image and
     // segmentation layers which will be visualized in the spatial/layer controller views.
-    if (useHints && hintsType.includes('OME-TIFF') && hintsType.includes('AnnData-Zarr')) {
+    if (useHints && hintsConfig.hintsType.includes('OME-TIFF') && hintsConfig.hintsType.includes('AnnData-Zarr')) {
       insertCoordinationSpace(flattenedViews, vc);
     }
 

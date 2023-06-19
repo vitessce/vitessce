@@ -6,7 +6,7 @@ import {
   LiveProvider, LiveContext, LiveError, LivePreview,
 } from 'react-live';
 import {
-  VitessceConfig, generateConfig, HINTS_CONFIG, NO_HINTS_CONFIG, getDatasetType, hconcat, vconcat,
+  VitessceConfig, generateConfig, getDatasetHintsConfig, hconcat, vconcat,
 } from '@vitessce/config';
 import {
   CoordinationType, ViewType, DataType, FileType,
@@ -77,7 +77,7 @@ export default function ViewConfigEditor(props) {
 
   const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
 
-  const [debouncedHintsClass, setDebouncedHintsClass] = useState(null);
+  const [debouncedHintsConfig, setDebouncedHintsConfig] = useState(0);
 
   function sanitiseURLs(urls) {
     return urls
@@ -91,14 +91,10 @@ export default function ViewConfigEditor(props) {
       const sanitisedUrls = sanitiseURLs(datasetUrls);
       if (sanitisedUrls.length === 0) return;
       try {
-        const hintTypes = getDatasetType(sanitisedUrls);
+        const newHintsConfig = getDatasetHintsConfig(sanitisedUrls);
         setError(null);
-        const newHintsClass = Object.keys(HINTS_CONFIG)
-          .find(key => HINTS_CONFIG[key].hintType
-            .every(fileType => hintTypes.includes(fileType))
-          && HINTS_CONFIG[key].hintType.length === hintTypes.length);
         setPendingJson(baseJson);
-        setDebouncedHintsClass(newHintsClass);
+        setDebouncedHintsConfig(newHintsConfig);
       } catch (e) {
         setError(e.message);
       }
@@ -156,13 +152,16 @@ export default function ViewConfigEditor(props) {
     setUrl(nextUrl);
   }
 
-  async function handleConfigGeneration(hintsKey) {
+  async function handleConfigGeneration(hintConfig) {
     setError(null);
     const sanitisedUrls = sanitiseURLs(datasetUrls);
-    const hintsConfig = HINTS_CONFIG[debouncedHintsClass].hints[hintsKey];
-    const hintsType = HINTS_CONFIG[debouncedHintsClass].hintType;
-    const useHints = hintsConfig.title !== NO_HINTS_CONFIG.title;
-    await generateConfig(sanitisedUrls, hintsConfig, hintsType, useHints)
+
+    const config = {
+      hintsType: debouncedHintsConfig.hintType,
+      ...hintConfig,
+    };
+
+    await generateConfig(sanitisedUrls, config)
       .then((configJson) => {
         setPendingJson(JSON.stringify(configJson, null, 2));
         setLoadFrom('editor');
@@ -208,7 +207,7 @@ export default function ViewConfigEditor(props) {
   const showReset = (syntaxType === 'JSON' && pendingJson !== baseJson) || (syntaxType === 'JS' && pendingJs !== baseJs);
 
   const renderHints = () => {
-    if (!debouncedHintsClass) {
+    if (!debouncedHintsConfig) {
       // show some default state while waiting
       return <pre>Loading hints ...</pre>;
     }
@@ -221,13 +220,13 @@ export default function ViewConfigEditor(props) {
           </p>
         )}
       >
-        {Object.keys(HINTS_CONFIG[debouncedHintsClass].hints).map(hintKey => (
+        {debouncedHintsConfig.hints.map(hintConfig => (
           <ListItem disablePadding>
             <button
               type="button"
-              onClick={() => handleConfigGeneration(hintKey)}
+              onClick={() => handleConfigGeneration(hintConfig)}
             >
-              <ListItemText primary={HINTS_CONFIG[debouncedHintsClass].hints[hintKey].title} />
+              <ListItemText primary={hintConfig.title} />
             </button>
           </ListItem>
         ))}

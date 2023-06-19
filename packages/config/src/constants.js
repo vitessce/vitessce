@@ -42,26 +42,36 @@ export const NO_HINTS_CONFIG = {
   coordinationValues: {},
 };
 
-export const HINTS_CONFIG = {
-  E: {
+export const HINTS_CONFIG = [
+  {
+    hintType: [],
+    hints: [
+      {
+        ...NO_HINTS_CONFIG,
+        title: 'No hints are available. Generate config with no hints.',
+      },
+    ],
+  },
+  {
     hintType: ['AnnData-Zarr'],
-    hints: {
-      6: {
+    hints: [
+      NO_HINTS_CONFIG,
+      {
         ...NO_HINTS_CONFIG,
         title: 'Transcriptomics / scRNA-seq (with heatmap)',
         views: SINGLE_CELL_WITH_HEATMAP_VIEWS,
       },
-      5: {
+      {
         ...NO_HINTS_CONFIG,
         title: 'Transcriptomics / scRNA-seq (without heatmap)',
         views: SINGLE_CELL_WITHOUT_HEATMAP_VIEWS,
       },
-      4: {
+      {
         ...NO_HINTS_CONFIG,
         title: 'Spatial transcriptomics (with polygon cell segmentations)',
         views: SPATIAL_TRANSCRIPTOMICS_VIEWS,
       },
-      3: {
+      {
         ...NO_HINTS_CONFIG,
         title: 'Chromatin accessibility / scATAC-seq (with heatmap)',
         views: SINGLE_CELL_WITH_HEATMAP_VIEWS,
@@ -69,7 +79,7 @@ export const HINTS_CONFIG = {
           featureType: 'peak',
         },
       },
-      2: {
+      {
         ...NO_HINTS_CONFIG,
         title: 'Chromatin accessibility / scATAC-seq (without heatmap)',
         views: SINGLE_CELL_WITHOUT_HEATMAP_VIEWS,
@@ -77,38 +87,28 @@ export const HINTS_CONFIG = {
           featureType: 'peak',
         },
       },
-      1: NO_HINTS_CONFIG,
-    },
+    ],
   },
-  B: {
+  {
     hintType: ['OME-TIFF', 'AnnData-Zarr'],
-    hints: {
-      2: {
+    hints: [
+      NO_HINTS_CONFIG,
+      {
         ...NO_HINTS_CONFIG,
         title: 'Spatial transcriptomics (with histology image and polygon cell segmentations)',
         views: SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS,
       },
-      1: NO_HINTS_CONFIG,
-    },
+    ],
   },
-  C: {
+  {
     hintType: ['OME-TIFF'],
-    hints: {
-      2: {
+    hints: [
+      NO_HINTS_CONFIG,
+      {
         ...NO_HINTS_CONFIG,
         title: 'Image',
         views: IMAGE_VIEWS,
       },
-      1: NO_HINTS_CONFIG,
-    },
+    ],
   },
-  D: {
-    hintType: [],
-    hints: {
-      1: {
-        ...NO_HINTS_CONFIG,
-        title: 'No hints are available. Generate config with no hints.',
-      },
-    },
-  },
-};
+];

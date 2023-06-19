@@ -1,7 +1,7 @@
-import { generateConfig, getDatasetType } from './VitessceAutoConfig.js';
+import { generateConfig, getDatasetHintsConfig } from './VitessceAutoConfig.js';
 import { HINTS_CONFIG, NO_HINTS_CONFIG } from './constants.js';
 
-describe('generateConfig with no hints', () => {
+describe('generateConfig', () => {
   it('generates config for OME-TIFF file correctly', async () => {
     const urls = ['somefile.ome.tif'];
     const expectedConfig = {
@@ -11,7 +11,7 @@ describe('generateConfig with no hints', () => {
       datasets: [
         {
           uid: 'A',
-          name: "Don't use any hints dataset.",
+          name: 'An automatically generated view config for dataset. Adjust values and add layout components if needed.',
           files: [
             {
               fileType: 'raster.json',
@@ -77,7 +77,7 @@ describe('generateConfig with no hints', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfig(urls, NO_HINTS_CONFIG, '', false);
+    const config = await generateConfig(urls, {});
     expect(config).toEqual(expectedConfig);
   });
 
@@ -90,7 +90,7 @@ describe('generateConfig with no hints', () => {
       datasets: [
         {
           uid: 'A',
-          name: "Don't use any hints dataset.",
+          name: 'An automatically generated view config for dataset. Adjust values and add layout components if needed.',
           files: [
             {
               url: urls[0],
@@ -143,7 +143,7 @@ describe('generateConfig with no hints', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfig(urls, NO_HINTS_CONFIG, '', false);
+    const config = await generateConfig(urls, {});
     expect(config).toEqual(expectedConfig);
   });
 
@@ -156,7 +156,7 @@ describe('generateConfig with no hints', () => {
       datasets: [
         {
           uid: 'A',
-          name: "Don't use any hints dataset.",
+          name: 'An automatically generated view config for dataset. Adjust values and add layout components if needed.',
           files: [
             {
               url: urls[0],
@@ -271,7 +271,7 @@ describe('generateConfig with no hints', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfig(urls, NO_HINTS_CONFIG, '', false);
+    const config = await generateConfig(urls, {});
     expect(config).toEqual(expectedConfig);
   });
 
@@ -284,7 +284,7 @@ describe('generateConfig with no hints', () => {
       datasets: [
         {
           uid: 'A',
-          name: "Don't use any hints dataset.",
+          name: 'An automatically generated view config for dataset. Adjust values and add layout components if needed.',
           files: [
             {
               url: urls[0],
@@ -334,14 +334,14 @@ describe('generateConfig with no hints', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfig(urls, NO_HINTS_CONFIG, '', false);
+    const config = await generateConfig(urls, {});
     expect(config).toEqual(expectedConfig);
   });
 
   it('raises an error for Anndata-ZARR file with misconfigured .zmetadata', async () => {
     const urls = ['http://localhost:51204/@fixtures/zarr/partials/invalidmeta.adata.zarr'];
 
-    await generateConfig(urls, NO_HINTS_CONFIG, '', false).catch(
+    await generateConfig(urls, {}).catch(
       e => expect(e.message).toContain('Could not generate config: .zmetadata file is not valid.'),
     );
   });
@@ -357,7 +357,7 @@ describe('generateConfig with no hints', () => {
       datasets: [
         {
           uid: 'A',
-          name: "Don't use any hints dataset.",
+          name: 'An automatically generated view config for dataset. Adjust values and add layout components if needed.',
           files: [
             {
               fileType: 'raster.json',
@@ -461,7 +461,7 @@ describe('generateConfig with no hints', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfig(urls, NO_HINTS_CONFIG, '', false);
+    const config = await generateConfig(urls, {});
     expect(config).toEqual(expectedConfig);
   });
 
@@ -475,7 +475,7 @@ describe('generateConfig with no hints', () => {
       datasets: [
         {
           uid: 'A',
-          name: "Don't use any hints dataset.",
+          name: 'An automatically generated view config for dataset. Adjust values and add layout components if needed.',
           files: [
             {
               url: urls[0],
@@ -573,7 +573,7 @@ describe('generateConfig with no hints', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfig(urls, NO_HINTS_CONFIG, '', false);
+    const config = await generateConfig(urls, {});
     expect(config).toEqual(expectedConfig);
   });
 
@@ -584,11 +584,12 @@ describe('generateConfig with no hints', () => {
       e => expect(e.message).toContain('One or more of the URLs provided point to unsupported file types.'),
     );
   });
-});
 
-describe('generateConfig with hints', () => {
+  // ********** TESTS WITH HINTS **********
+
   it('generates config with hints for OME-TIFF dataset types correctly', async () => {
     const urls = ['somefile.ome.tif'];
+    const datasetType = ['OME-TIFF'];
     const expectedConfig = {
       version: '1.0.15',
       name: 'An automatically generated config. Adjust values and add layout components if needed.',
@@ -596,7 +597,7 @@ describe('generateConfig with hints', () => {
       datasets: [
         {
           uid: 'A',
-          name: 'Image dataset.',
+          name: 'An automatically generated view config for dataset. Adjust values and add layout components if needed.',
           files: [
             {
               fileType: 'raster.json',
@@ -662,15 +663,24 @@ describe('generateConfig with hints', () => {
       initStrategy: 'auto',
     };
 
-    const hintsConfig = HINTS_CONFIG.C.hints['2'];
-    const hintsType = HINTS_CONFIG.C.hintType;
+    const hintsConfig = getDatasetHintsConfig(urls);
+    const expectedHintsConfig = HINTS_CONFIG.find(c => c.hintType.length === 1
+      && c.hintType.includes(...datasetType));
+    expect(hintsConfig).toEqual(expectedHintsConfig);
 
-    const config = await generateConfig(urls, hintsConfig, hintsType, true);
-    expect(config).toEqual(expectedConfig);
+    const config = {
+      hintsType: datasetType,
+      ...expectedHintsConfig.hints[1],
+    };
+
+    const viewConfig = await generateConfig(urls, config);
+    expect(viewConfig).toEqual(expectedConfig);
   });
 
   it('generates config with hints for OME-ZARR dataset types correctly', async () => {
     const urls = ['somefile.ome.zarr'];
+    const datasetType = ['OME-TIFF'];
+
     const expectedConfig = {
       version: '1.0.15',
       name: 'An automatically generated config. Adjust values and add layout components if needed.',
@@ -678,7 +688,7 @@ describe('generateConfig with hints', () => {
       datasets: [
         {
           uid: 'A',
-          name: 'Image dataset.',
+          name: 'An automatically generated view config for dataset. Adjust values and add layout components if needed.',
           files: [
             {
               fileType: 'raster.ome-zarr',
@@ -731,16 +741,23 @@ describe('generateConfig with hints', () => {
       initStrategy: 'auto',
     };
 
-    const hintsConfig = HINTS_CONFIG.C.hints['2'];
-    const hintsType = HINTS_CONFIG.C.hintType;
+    const hintsConfig = getDatasetHintsConfig(urls);
+    const expectedHintsConfig = HINTS_CONFIG.find(c => c.hintType.length === 1
+      && c.hintType.includes(...datasetType));
+    expect(hintsConfig).toEqual(expectedHintsConfig);
 
-    const config = await generateConfig(urls, hintsConfig, hintsType, true);
-    expect(config).toEqual(expectedConfig);
+    const config = {
+      hintsType: datasetType,
+      ...expectedHintsConfig.hints[1],
+    };
+    const viewConfig = await generateConfig(urls, config);
+    expect(viewConfig).toEqual(expectedConfig);
   });
 
   it('generates config hints for Anndata-Zarr, OME-TIFF dataset types correctly', async () => {
     const urls = ['somefile.ome.tif', 'http://localhost:51204/@fixtures/zarr/partials/.anndata.zarr'];
     const expectedNames = [urls[0].split('/').at(-1), urls[1].split('/').at(-1)];
+    const datasetType = ['OME-TIFF', 'AnnData-Zarr'];
 
     const expectedConfig = {
       version: '1.0.15',
@@ -749,7 +766,7 @@ describe('generateConfig with hints', () => {
       datasets: [
         {
           uid: 'A',
-          name: 'Spatial transcriptomics (with histology image and polygon cell segmentations) dataset.',
+          name: 'An automatically generated view config for dataset. Adjust values and add layout components if needed.',
           files: [
             {
               fileType: 'raster.json',
@@ -955,38 +972,19 @@ describe('generateConfig with hints', () => {
       initStrategy: 'auto',
     };
 
-    const hintsConfig = HINTS_CONFIG.B.hints['2'];
-    const hintsType = HINTS_CONFIG.B.hintType;
+    const hintsConfig = getDatasetHintsConfig(urls);
+    const expectedHintsConfig = HINTS_CONFIG.find(c => c.hintType.length === 2
+      && c.hintType.includes(datasetType[0])
+      && c.hintType.includes(datasetType[1]));
+    expect(hintsConfig).toEqual(expectedHintsConfig);
 
-    const config = await generateConfig(urls, hintsConfig, hintsType, true);
+    const config = {
+      hintsType: datasetType,
+      ...expectedHintsConfig.hints[1],
+    };
 
-    expect(config).toEqual(expectedConfig);
-  });
-});
+    const viewConfig = await generateConfig(urls, config);
 
-describe('getDatasetType tests', () => {
-  it('correctly identifies Anndata-Zarr file types', () => {
-    const urls = ['somefile.anndata.zarr', 'anotheranndatafile.adata.zarr'];
-    const datasetType = getDatasetType(urls);
-    expect(datasetType).toEqual(['AnnData-Zarr']);
-  });
-  it('correctly identifies OME-Zarr file types', () => {
-    const urls = ['somefile.ome.zarr'];
-    const datasetType = getDatasetType(urls);
-    expect(datasetType).toEqual(['OME-TIFF']);
-  });
-  it('correctly identifies OME-TIFF file types', () => {
-    const urls = ['somefile.ome.tif'];
-    const datasetType = getDatasetType(urls);
-    expect(datasetType).toEqual(['OME-TIFF']);
-  });
-  it('correctly identifies [Anndata-Zarr, OME-TIFF] file types', () => {
-    const urls = ['somefile.ome.tif', 'anotheranndatafile.adata.zarr'];
-    const datasetType = getDatasetType(urls);
-    expect(datasetType.sort()).toEqual(['AnnData-Zarr', 'OME-TIFF'].sort());
-  });
-  it('one or more of the URLs provided contain unsupported file types', () => {
-    const urls = ['somefile.ome.tif', 'anotheranndatafile.bla.bla.bla'];
-    expect(() => getDatasetType(urls)).toThrow('One or more of the URLs provided point to unsupported file types.');
+    expect(viewConfig).toEqual(expectedConfig);
   });
 });
