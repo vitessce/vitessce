@@ -397,7 +397,7 @@ const spatialSegmentationLayerValue = {
  * @param {Array of VitessceConfigView} of views
  * @param {VitessceConfig} vc instance
  */
-function insertCoordinationSpace(views, vc) {
+function insertCoordinationSpaceForSpatial(views, vc) {
   const [
     spatialSegmentationLayer,
     spatialImageLayer,
@@ -616,7 +616,7 @@ export async function generateConfig(fileUrls, config) {
     // We need to manually initialize the coordination values for the image and
     // segmentation layers which will be visualized in the spatial/layer controller views.
     if (useHints && hintsConfig.hintsType.includes('OME-TIFF') && hintsConfig.hintsType.includes('AnnData-Zarr')) {
-      insertCoordinationSpace(flattenedViews, vc);
+      insertCoordinationSpaceForSpatial(flattenedViews, vc);
     }
 
     if (!useHints) {
