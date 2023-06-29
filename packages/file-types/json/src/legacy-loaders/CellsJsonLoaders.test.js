@@ -22,7 +22,7 @@ describe('loaders/cells-json-loaders', () => {
         coordinationValues: {
           embeddingType: 'PCA',
         },
-      }, 'http://localhost:51204/@fixtures/json-legacy/cells.good.json');
+      }, 'http://localhost:4204/@fixtures/json-legacy/cells.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;
@@ -39,7 +39,7 @@ describe('loaders/cells-json-loaders', () => {
         coordinationValues: {
           obsLabelsType: 'cluster',
         },
-      }, 'http://localhost:51204/@fixtures/json-legacy/cells.good.json');
+      }, 'http://localhost:4204/@fixtures/json-legacy/cells.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;
@@ -52,7 +52,7 @@ describe('loaders/cells-json-loaders', () => {
     it('can load obsSegmentations', async () => {
       const loader = createLoader(CellsJsonAsObsSegmentationsLoader, {
         fileType: 'obsSegmentations.cells.json',
-      }, 'http://localhost:51204/@fixtures/json-legacy/cells.good.json');
+      }, 'http://localhost:4204/@fixtures/json-legacy/cells.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;

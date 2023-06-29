@@ -156,7 +156,7 @@ describe('src/VitessceAutoConfig.js', () => {
   });
 
   it('generates config for Anndata-ZARR file correctly', async () => {
-    const urls = ['http://localhost:51204/@fixtures/zarr/partials/.anndata.zarr'];
+    const urls = ['http://localhost:4204/@fixtures/zarr/partials/.anndata.zarr'];
     const expectedName = urls[0].split('/').at(-1);
     const expectedConfig = {
       version: '1.0.15',
@@ -265,7 +265,7 @@ describe('src/VitessceAutoConfig.js', () => {
   });
 
   it('generates empty config for Anndata-ZARR file with empty .zmetadata', async () => {
-    const urls = ['http://localhost:51204/@fixtures/zarr/partials/emptymeta.h5ad.zarr'];
+    const urls = ['http://localhost:4204/@fixtures/zarr/partials/emptymeta.h5ad.zarr'];
     const expectedName = urls[0].split('/').at(-1);
     const expectedConfig = {
       version: '1.0.15',
@@ -308,7 +308,7 @@ describe('src/VitessceAutoConfig.js', () => {
   });
 
   it('raises an error for Anndata-ZARR file with misconfigured .zmetadata', async () => {
-    const urls = ['http://localhost:51204/@fixtures/zarr/partials/invalidmeta.adata.zarr'];
+    const urls = ['http://localhost:4204/@fixtures/zarr/partials/invalidmeta.adata.zarr'];
 
     // References:
     // - https://vitest.dev/api/expect.html#tothrowerror
@@ -452,7 +452,7 @@ describe('src/VitessceAutoConfig.js', () => {
 
 
   it('Does the parsing when .zmetadata file not present in folder', async () => {
-    const urls = ['http://localhost:51204/@fixtures/zarr/anndata-0.8/anndata-csr.adata.zarr'];
+    const urls = ['http://localhost:4204/@fixtures/zarr/anndata-0.8/anndata-csr.adata.zarr'];
     const expectedName = urls[0].split('/').at(-1);
     const expectedConfig = {
       version: '1.0.15',
@@ -523,7 +523,7 @@ describe('src/VitessceAutoConfig.js', () => {
   });
 
   it('raises an error when URL with unsupported file format is passed', async () => {
-    const urls = ['http://localhost:51204/@fixtures/zarr/anndata-0.7/somefile.zarr'];
+    const urls = ['http://localhost:4204/@fixtures/zarr/anndata-0.7/somefile.zarr'];
 
     await generateConfigs(urls).catch(
       e => expect(e.message).toContain('This file type is not supported.'),

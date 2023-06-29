@@ -18,7 +18,7 @@ describe('loaders/molecules-json-loaders', () => {
     it('can load obsLocations', async () => {
       const loader = createLoader(MoleculesJsonAsObsLocationsLoader, {
         fileType: 'obsLocations.molecules.json',
-      }, 'http://localhost:51204/@fixtures/json-legacy/molecules.good.json');
+      }, 'http://localhost:4204/@fixtures/json-legacy/molecules.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;
@@ -35,7 +35,7 @@ describe('loaders/molecules-json-loaders', () => {
         coordinationValues: {
           obsLabelsType: 'gene',
         },
-      }, 'http://localhost:51204/@fixtures/json-legacy/molecules.good.json');
+      }, 'http://localhost:4204/@fixtures/json-legacy/molecules.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;

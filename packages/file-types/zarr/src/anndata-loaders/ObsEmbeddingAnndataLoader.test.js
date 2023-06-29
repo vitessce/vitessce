@@ -38,7 +38,7 @@ const createMudataLoader = (url) => {
 describe('loaders/ObsEmbeddingAnndataLoader for AnnData', () => {
   it('load returns obsIndex and obsEmbedding', async () => {
     const loader = createAnndataLoader(
-      'http://localhost:51204/@fixtures/zarr/anndata-0.7/anndata-dense.zarr',
+      'http://localhost:4204/@fixtures/zarr/anndata-0.7/anndata-dense.zarr',
     );
     const result = await loader.load();
     expect(result).toBeInstanceOf(LoaderResult);
@@ -52,7 +52,7 @@ describe('loaders/ObsEmbeddingAnndataLoader for AnnData', () => {
 
   it('load returns obsIndex and obsEmbedding for MuData', async () => {
     const loader = createMudataLoader(
-      'http://localhost:51204/@fixtures/zarr/mudata-0.2/mudata-dense.zarr',
+      'http://localhost:4204/@fixtures/zarr/mudata-0.2/mudata-dense.zarr',
     );
     const result = await loader.load();
     expect(result).toBeInstanceOf(LoaderResult);
@@ -66,7 +66,7 @@ describe('loaders/ObsEmbeddingAnndataLoader for AnnData', () => {
 
   it('load returns obsIndex and obsEmbedding for updated MuData', async () => {
     const loader = createMudataLoader(
-      'http://localhost:51204/@fixtures/zarr/mudata-0.2/mudata-dense-updated.zarr',
+      'http://localhost:4204/@fixtures/zarr/mudata-0.2/mudata-dense-updated.zarr',
     );
     const result = await loader.load();
     expect(result).toBeInstanceOf(LoaderResult);
