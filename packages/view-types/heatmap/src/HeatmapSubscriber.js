@@ -129,9 +129,13 @@ export function HeatmapSubscriber(props) {
     obsSetsStatus,
   ]);
 
+  console.log("***** obsFeatureMatrix: ", obsFeatureMatrix);
+
   const [uint8ObsFeatureMatrix, obsFeatureMatrixExtent] = useUint8ObsFeatureMatrix(
     { obsFeatureMatrix },
   );
+
+  console.log("***** uint8ObsFeatureMatrix: ", uint8ObsFeatureMatrix);
 
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
@@ -161,6 +165,7 @@ export function HeatmapSubscriber(props) {
   }, [variablesLabel, featureLabelsMap]);
 
   const expressionMatrix = useMemo(() => {
+    console.log('HeatmapSubscriber: expressionMatrix useMemo: ', obsIndex, featureIndex, uint8ObsFeatureMatrix);
     if (obsIndex && featureIndex && uint8ObsFeatureMatrix) {
       return {
         rows: obsIndex,
@@ -201,6 +206,8 @@ export function HeatmapSubscriber(props) {
   const cellColorLabels = useMemo(() => ([
     `${capitalize(observationsLabel)} Set`,
   ]), [observationsLabel]);
+
+  console.log("In heatmap, geneExpressionColormap: ", geneExpressionColormap);
 
   const selectedCount = cellColors.size;
   return (

@@ -210,14 +210,17 @@ export function useClosestVitessceContainerSize(ref) {
  * params.obsFeatureMatrix.data, and dataExtent is the
  * [min, max] of the original data.
  */
+// TODO: the data becomes all zeros after this function
 export function useUint8ObsFeatureMatrix({ obsFeatureMatrix }) {
   return useMemo(() => {
     if (obsFeatureMatrix && obsFeatureMatrix.data) {
       const dataExtent = extent(obsFeatureMatrix.data);
       const [min, max] = dataExtent;
       const ratio = 255 / (max - min);
+      console.log("++++++++ Heatmap: ", min, max, ratio);
+      console.log("++++++++ Heatmap: ", obsFeatureMatrix.data)
       const data = new Uint8Array(
-        obsFeatureMatrix.data.map(i => Math.floor((i - min) * ratio)),
+        obsFeatureMatrix.data.map(i => {/*console.log("+++++++++", i, min, ratio, Math.floor((i - min) * ratio)); */return Math.floor((i - min) * ratio)}),
       );
       return [{ data }, dataExtent];
     }
@@ -243,8 +246,10 @@ export function useUint8FeatureSelection(expressionData) {
       const normData = expressionData.map((arr, i) => {
         const [min, max] = extents[i];
         const ratio = 255 / (max - min);
+        console.log("++++++++++ Embedding: ", min, max, ratio);
+        console.log("++++++++++ Embedding: ", arr);
         return new Uint8Array(
-          arr.map(j => Math.floor((j - min) * ratio)),
+          arr.map(j => {/*console.log("^^^ ", j, min, ratio, Math.floor((j - min) * ratio));*/ return Math.floor((j - min) * ratio)}),
         );
       });
       return [normData, extents];

@@ -375,7 +375,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       setViewState(originalViewState);
     }
   }
-
   // render() is implemented in the abstract parent class.
 }
 

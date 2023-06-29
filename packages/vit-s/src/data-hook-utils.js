@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { capitalize } from '@vitessce/utils';
-import { STATUS } from '@vitessce/constants-internal';
+import { STATUS, DataType } from '@vitessce/constants-internal';
 import { useMatchingLoader, useMatchingLoaders, useSetWarning } from './state/hooks.js';
 import {
   AbstractLoaderError,
@@ -87,6 +87,12 @@ export function useDataType(
       setStatus(STATUS.LOADING);
       loader.load().catch(e => warn(e, setWarning)).then((payload) => {
         if (!payload) return;
+        if (dataType === DataType.OBS_FEATURE_MATRIX) {
+          console.log("***** Heatmap payload data: ", payload.data);
+        }
+        if (dataType === DataType.OBS_EMBEDDING) {
+          console.log("***** Scatterplot payload data: ", payload.data);
+        }
         const { data: payloadData, url, coordinationValues } = payload;
         setData(payloadData);
         if (Array.isArray(url)) {

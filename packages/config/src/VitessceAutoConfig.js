@@ -115,7 +115,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     });
 
     const supportedObsSetsKeys = [
-      'cluster', 'subcluster', 'cell_type', 'leiden', 'louvain', 'disease', 'organism', 'self_reported_ethnicity', 'tissue', 'sex',
+      'cluster', 'subcluster', 'celltype', 'cell_type', 'leiden', 'louvain', 'disease', 'organism', 'self_reported_ethnicity', 'tissue', 'sex',
     ];
 
     this.metadataSummary.obs.forEach((key) => {
@@ -153,7 +153,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     const views = [];
 
     const hasCellSetData = this.metadataSummary.obs
-      .filter(key => key.toLowerCase().includes('cluster') || key.toLowerCase().includes('cell_type'));
+      .filter(key => key.toLowerCase().includes('cluster') || key.toLowerCase().includes('cell_type') || key.toLowerCase().includes('celltype'));
 
     if (hasCellSetData.length > 0) {
       views.push(['obsSets']);
