@@ -4,7 +4,6 @@ import {
   StylesProvider,
 } from '@material-ui/core';
 import { isEqual } from 'lodash-es';
-import { META_VERSION } from '@vitessce/constants-internal';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
 import { muiTheme } from './shared-mui/styles.js';
 import {
@@ -19,15 +18,9 @@ import { Warning } from './Warning.js';
 import CallbackPublisher from './CallbackPublisher.js';
 import {
   initialize,
+  logConfig,
 } from './view-config-utils.js';
 import { createGenerateClassName } from './mui-utils.js';
-
-function logConfig(config, name) {
-  console.groupCollapsed(`🚄 Vitessce (${META_VERSION.version}) ${name}`);
-  console.info(`data:,${JSON.stringify(config)}`);
-  console.info(JSON.stringify(config, null, 2));
-  console.groupEnd();
-}
 
 
 /**
@@ -113,7 +106,7 @@ export function VitS(props) {
     const result = latestConfigSchema.safeParse(config);
     if (result.success) {
       const upgradedConfig = result.data;
-      logConfig(upgradedConfig, 'upgraded view config');
+      logConfig(upgradedConfig, 'parsed view config');
       // Perform second round of parsing against plugin-specific config schema.
       const pluginSpecificResult = pluginSpecificConfigSchema.safeParse(upgradedConfig);
       // Initialize the view config according to the initStrategy.
