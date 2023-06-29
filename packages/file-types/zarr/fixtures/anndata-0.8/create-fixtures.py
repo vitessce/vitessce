@@ -31,7 +31,7 @@ def create_zarr_anndata(output_dir, **kwargs):
         adata.write_zarr(output_dir / 'anndata-csc.zarr')
       else:
         adata.X = sparse.csr_matrix(adata.X)
-        adata.write_zarr(output_dir / 'anndata-csr.zarr')
+        adata.write_zarr(output_dir / 'anndata-csr.adata.zarr')
     else:
       adata.write_zarr(output_dir / 'anndata-dense.zarr')
 

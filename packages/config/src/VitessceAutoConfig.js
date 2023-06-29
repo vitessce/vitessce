@@ -185,55 +185,118 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     return views;
   }
 
+  async setMetadataSummaryWithZmetadata(response) { /* eslint-disable-line class-methods-use-this */
+    const metadataFile = await response.json();
+    if (!metadataFile.metadata) {
+      throw new Error('Could not generate config: .zmetadata file is not valid.');
+    }
+
+    const obsmKeys = Object.keys(metadataFile.metadata)
+      .filter(key => key.startsWith('obsm/X_'))
+      .map(key => key.split('/.zarray')[0]);
+
+    const obsKeysArr = Object.keys(metadataFile.metadata)
+      .filter(key => key.startsWith('obs/')).map(key => key.split('/.za')[0]);
+
+    function uniq(a) {
+      return a.sort().filter((item, pos, ary) => !pos || item !== ary[pos - 1]);
+    }
+    const obsKeys = uniq(obsKeysArr);
+
+    const X = Object.keys(metadataFile.metadata).filter(key => key.startsWith('X'));
+
+    return {
+      // Array of keys in obsm that are found by the fetches above
+      obsm: obsmKeys,
+      // Array of keys in obs that are found by the fetches above
+      obs: obsKeys,
+      // Boolean indicating whether the X array was found by the fetches above
+      X: X.length > 0,
+    };
+  }
+
+  async setMetadataSummaryWithoutZmetadata() {
+    const knownMetadataFileSuffixes = [
+      '/obsm/X_pca/.zarray',
+      '/obsm/X_umap/.zarray',
+      '/obsm/X_tsne/.zarray',
+      '/obsm/X_spatial/.zarray',
+      '/obsm/X_segmentations/.zarray',
+      '/obs/.zattrs',
+      '/X/.zarray',
+    ];
+
+    const getObsmKey = (url) => {
+      // Get the substring "X_pca" from a URL like
+      // http://example.com/foo/adata.zarr/obsm/X_pca/.zarray
+      const obsmKeyStartIndex = `${this.fileUrl}/`.length;
+      const obsmKeyEndIndex = url.length - '/.zarray'.length;
+      return url.substring(obsmKeyStartIndex, obsmKeyEndIndex);
+    };
+
+    const promises = knownMetadataFileSuffixes.map(suffix => fetch(`${this.fileUrl}${suffix}`));
+
+    const fetchResults = await Promise.all(promises);
+    const okFetchResults = fetchResults.filter(j => j.ok);
+    const metadataSummary = {
+      // Array of keys in obsm that are found by the fetches above
+      obsm: [],
+      // Array of keys in obs that are found by the fetches above
+      obs: [],
+      // Boolean indicating whether the X array was found by the fetches above
+      X: false,
+    };
+
+    const obsPromiseResult = okFetchResults.find(
+      r => r.url === (`${this.fileUrl}/obs/.zattrs`),
+    );
+
+    const isObsValid = obsAttr => Object.keys(obsAttr).includes('column-order')
+      && Object.keys(obsAttr).includes('encoding-version')
+      && Object.keys(obsAttr).includes('encoding-type')
+      && obsAttr['encoding-type'] === 'dataframe'
+      && (obsAttr['encoding-version'] === '0.1.0' || obsAttr['encoding-version'] === '0.2.0');
+
+    if (obsPromiseResult) {
+      const obsAttrs = await obsPromiseResult.json();
+      if (isObsValid(obsAttrs)) {
+        obsAttrs['column-order'].forEach(key => metadataSummary.obs.push(`obs/${key}`));
+      } else {
+        throw new Error('Could not generate config: /obs/.zattrs file is not valid.');
+      }
+    }
+
+    okFetchResults
+      .forEach((r) => {
+        if (r.url.startsWith(`${this.fileUrl}/obsm`)) {
+          const obsmKey = getObsmKey(r.url);
+          if (obsmKey) {
+            metadataSummary.obsm.push(obsmKey);
+          }
+        } else if (r.url.startsWith(`${this.fileUrl}/X`)) {
+          metadataSummary.X = true;
+        }
+      });
+
+    return metadataSummary;
+  }
+
   async setMetadataSummary() {
     if (Object.keys(this.metadataSummary).length > 0) {
       return this.metadataSummary;
     }
 
-    const parseMetadataFile = (metadataFile) => {
-      if (!metadataFile.metadata) {
-        throw new Error('Could not generate config: .zmetadata file is not valid.');
-      }
-
-      const obsmKeys = Object.keys(metadataFile.metadata)
-        .filter(key => key.startsWith('obsm/X_'))
-        .map(key => key.split('/.zarray')[0]);
-
-      const obsKeysArr = Object.keys(metadataFile.metadata)
-        .filter(key => key.startsWith('obs/')).map(key => key.split('/.za')[0]);
-
-      function uniq(a) {
-        return a.sort().filter((item, pos, ary) => !pos || item !== ary[pos - 1]);
-      }
-      const obsKeys = uniq(obsKeysArr);
-
-      const X = Object.keys(metadataFile.metadata).filter(key => key.startsWith('X'));
-
-      const out = {
-        obsm: obsmKeys,
-        obs: obsKeys,
-        X: X.length > 0,
-      };
-
-      return out;
-    };
-
     const metadataExtension = '.zmetadata';
     const url = [this.fileUrl, metadataExtension].join('/');
     return fetch(url).then((response) => {
       if (response.ok) {
-        return response.json();
+        return this.setMetadataSummaryWithZmetadata(response);
       }
-      return Promise.reject(response);
-    })
-      .then(responseJson => parseMetadataFile(responseJson))
-      .catch((error) => {
-        if (error.status === 404) {
-          const errorMssg = `Could not generate config. File ${metadataExtension} not found in supplied file URL. Check docs for more explanation.`;
-          return Promise.reject(new Error(errorMssg));
-        }
-        return Promise.reject(error);
-      });
+      if (response.status === 404) {
+        return this.setMetadataSummaryWithoutZmetadata();
+      }
+      throw new Error(`Could not generate config: ${response.statusText}`);
+    });
   }
 }
 
