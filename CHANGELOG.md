@@ -4,16 +4,22 @@
 - Added a dropdown in `FeatureList` that allows the user to:
   - select between `alphabetical` and `original` ordering for the feature list.
   - show two columns in the feature list if the feature has a second identifier associated.
+- Add initial config logging in `<Vitessce/>` for the pre-upgrade view config.
 - Added support for generating view-config for Anndata-Zarr files that don't have .zmetadata file in the folder.
+- Turn on unit test coverage in Vitest config.
 
 ### Changed
 - Fix Material UI import statement.
 - Implemented the functionality required to re-order the feature list, based on the selection from the dropdown:
   - added state variables `featureListSort` and `showFeatureTable`.
   - hooked the state variables to `FeatureListOptions` and to `FeatureList`.
+- Fix Heatmap bug causing incorrect positioning of tooltip when using `featureLabels` mapping.
 - Modified the `AnndataZarrAutoConfig` class:
   - added a parser function that generates metadata summary without reading `.zmetadata` file.
   - the class calls the parser function if no `.zmetadata` file is present in the given URL.
+- Implement custom createGenerateClassName without random numbers involved to ensure deterministic class names.
+  - Rename `makeStyles` keys to be more specific to avoid conflicts.
+- Only generate ESM builds for `vitessce` and `@vitessce/dev`.
 - Use `@tanstack/react-query` for data fetching.
 
 

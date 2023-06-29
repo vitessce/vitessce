@@ -40,8 +40,7 @@ export const useAuxiliaryStore = useAuxiliaryStoreLocal;
  */
 export const createViewConfigStore = () => create(set => ({
   // State:
-  // The viewConfig is an object which must conform to the schema
-  // found in src/schemas/config.schema.json.
+  // The viewConfig is an object which must conform to the schema.
   viewConfig: null,
   // The loaders object is a mapping from dataset ID to
   // data type to loader object instance.

@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { mouseToHeatmapPosition, heatmapToMousePosition } from './utils.js';
 
 describe('heatmap tooltip utils', () => {

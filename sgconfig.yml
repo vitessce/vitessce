@@ -1,0 +1,3 @@
+# Reference: https://ast-grep.github.io/reference/sgconfig.html
+ruleDirs:
+- scripts/ast-grep-rules

@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { dataToCellSetsTree } from './CellSetsZarrLoader.js';
 
 describe('loaders/CellSetsZarrLoader', () => {
