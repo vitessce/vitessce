@@ -44,6 +44,7 @@ jobs:
       - run: pnpm run build:ci
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
+      - run: netsh int ipv4 show excludedportrange protocol=tcp
       - run: ./test.sh --action
         shell: bash
       - run: pnpm run bundle:ci
