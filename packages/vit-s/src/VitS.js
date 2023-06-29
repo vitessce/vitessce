@@ -39,6 +39,9 @@ import { createGenerateClassName } from './mui-utils.js';
  * updates. Optional.
  * @param {function} props.onLoaderChange A callback for loader
  * updates. Optional.
+ * @param {boolean} props.bypassValidation Whether to validate or not. Only to be
+ * used in controlled component situations, where the parent knows the config
+ * is already valid (e.g., it originated from onConfigChange). By default, false.
  * @param {boolean} props.validateOnConfigChange Whether to validate
  * against the view config schema when publishing changes. Use for debugging
  * purposes, as this may have a performance impact. By default, false.
@@ -61,6 +64,7 @@ export function VitS(props) {
     onWarn,
     onConfigChange,
     onLoaderChange,
+    validateConfig = true,
     validateOnConfigChange = false,
     isBounded = false,
     uid = null,
@@ -109,6 +113,9 @@ export function VitS(props) {
       return [warning, false];
     }
     logConfig(config, 'input view config');
+    if(!validateConfig) {
+      return [config, true];
+    }
     const result = latestConfigSchema.safeParse(config);
     if (result.success) {
       const upgradedConfig = result.data;
