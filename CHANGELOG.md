@@ -14,6 +14,7 @@
 - Modified the `AnndataZarrAutoConfig` class:
   - added a parser function that generates metadata summary without reading `.zmetadata` file.
   - the class calls the parser function if no `.zmetadata` file is present in the given URL.
+- Fixed a bug in SetManager popover menu, where the text is not visible in vitessce.io in dark mode.
 
 ## [3.0.0](https://www.npmjs.com/package/vitessce/v/3.0.0) - 2023-05-24
 
