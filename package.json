@@ -30,7 +30,7 @@
     "meta-dryrun": "cross-env META_UPDATER_MODE=dryrun pnpm meta-updater",
     "meta-version-only": "cross-env META_UPDATER_MODE=versiononly pnpm meta-updater",
     "publint": "pnpm -r --filter \"./packages/**\" exec publint",
-    "check-makestyles-keys": "pnpm exec sg scan --json | ./scripts/check-makestyles-keys.mjs"
+    "check-makestyles-keys": "pnpm exec sg scan --json | node ./scripts/check-makestyles-keys.mjs"
   },
   "devDependencies": {
     "@pnpm/meta-updater": "^0.0.6",
