@@ -47,6 +47,11 @@ function App() {
       
       return () => {
         setCurrentConfig(prevConfig => {
+          // TODO: add test that is expected to fail when the reference to prevConfig is the same object reference (i.e., no spread operator usage)
+          // (i.e., the views would not be expected to update because the <Vitessce/> prop for config has the same object reference).
+
+          // TODO: add test using plugin view type and file type which fakes a delay in loading some (also fake) data.
+          // would expect no loading indicators if the data is already loaded.
           const nextConfig = { ...prevConfig };
           nextConfig.uid = `config-${seconds}`;
           nextConfig.layout[0].props.description = `Timestamp: ${seconds}`;
