@@ -48,5 +48,5 @@ export function createGenerateClassName(customPrefix) {
       return `${seedPrefix}${classNamePrefix}-${ruleKey}`;
     }
     return `${seedPrefix}${ruleKey}`;
-  }
+  };
 }
