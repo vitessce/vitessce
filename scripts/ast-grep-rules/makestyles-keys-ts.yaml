@@ -1,0 +1,22 @@
+# This file is a copy of ./makestyles-keys-js.yaml with the language changed to TypeScript.
+id: makeStyles-keys-ts
+language: TypeScript
+rule:
+  all:
+    - kind: property_identifier
+    - inside:
+        all:
+          - kind: pair
+          - inside:
+              all:
+                - kind: object
+                - inside:
+                    all:
+                      - kind: parenthesized_expression
+                      - inside:
+                          stopBy: 'end'
+                          all:
+                            - pattern: 'makeStyles($$$)'
+
+   
+            
