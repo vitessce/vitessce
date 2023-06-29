@@ -44,7 +44,7 @@ For more details, please visit the [documentation](http://vitessce.io/docs/js-ov
 
 ## Development
 
-First install [PNPM](https://pnpm.io/installation) v7. We develop and test against NodeJS `v18.6.0` and NPM `8.13.2`.
+First install [PNPM](https://pnpm.io/installation) v8. We develop and test against NodeJS `v18.6.0` and NPM `8.13.2`.
 
 > **Note**
 > NodeJS may require the [`max_old_space_size`](https://stackoverflow.com/a/59572966) value to be increased.

@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { CoordinationType } from '@vitessce/constants-internal';
 import {
   VitessceConfig,
