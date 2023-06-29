@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import {
   VitS,
+  logConfig,
 } from '@vitessce/vit-s';
 import {
   upgradeAndParse,
@@ -28,6 +29,7 @@ export function Vitessce(props: any) {
 
   const [configOrWarning, success] = useMemo(() => {
     try {
+      logConfig(config, 'pre-upgrade view config');
       const validConfig = upgradeAndParse(config, onConfigUpgrade);
       return [validConfig, true];
     } catch (e) {

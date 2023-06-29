@@ -4,6 +4,7 @@
 - Added a dropdown in `FeatureList` that allows the user to:
   - select between `alphabetical` and `original` ordering for the feature list.
   - show two columns in the feature list if the feature has a second identifier associated.
+- Add initial config logging in `<Vitessce/>` for the pre-upgrade view config.
 - Added support for generating view-config for Anndata-Zarr files that don't have .zmetadata file in the folder.
 
 ### Changed
