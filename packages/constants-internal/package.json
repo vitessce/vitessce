@@ -27,10 +27,10 @@
   ],
   "scripts": {
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
-    "test": "pnpm exec vitest --run -r ../../ --dir ."
+    "test": "pnpm exec vitest --run"
   },
   "devDependencies": {
     "vite": "^4.3.0",
-    "vitest": "^0.23.4"
+    "vitest": "^0.32.2"
   }
 }

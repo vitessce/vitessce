@@ -6,6 +6,7 @@
   - show two columns in the feature list if the feature has a second identifier associated.
 - Add initial config logging in `<Vitessce/>` for the pre-upgrade view config.
 - Added support for generating view-config for Anndata-Zarr files that don't have .zmetadata file in the folder.
+- Turn on unit test coverage in Vitest config.
 
 ### Changed
 - Fix Material UI import statement.

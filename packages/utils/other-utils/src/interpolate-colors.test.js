@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { interpolateRdBu, interpolatePlasma } from './interpolate-colors.js';
 
 const expectRgb = ([testR, testG, testB], [r, g, b]) => ([

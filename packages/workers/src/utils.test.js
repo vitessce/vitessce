@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { getCellByGeneTile, getGeneByCellTile } from './heatmap.js';
 import { expressionMatrix, cellColors } from './Heatmap.test.fixtures.js';
 
