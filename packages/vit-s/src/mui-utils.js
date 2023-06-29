@@ -22,7 +22,6 @@ const stateClasses = [
 ];
 
 const defaultPrefix = 'vit-';
-const disableGlobal = false;
 
 export function createGenerateClassName(customPrefix) {
   return (rule, styleSheet) => {
@@ -36,7 +35,7 @@ export function createGenerateClassName(customPrefix) {
     const seedPrefix = customPrefix ? `${customPrefix}-` : defaultPrefix;
 
     // Is a global static MUI style?
-    if (styleSheetName && styleSheetName.indexOf('Mui') === 0 && !styleSheetLink && !disableGlobal) {
+    if (styleSheetName && styleSheetName.indexOf('Mui') === 0 && !styleSheetLink) {
       // We can use a shorthand class name, we never use the keys to style the components.
       if (stateClasses.indexOf(ruleKey) !== -1) {
         return `Mui-${ruleKey}`;
