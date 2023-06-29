@@ -21,29 +21,33 @@ const stateClasses = [
   'selected',
 ];
 
-const seedPrefix = 'vit-';
+const defaultPrefix = 'vit-';
 const disableGlobal = false;
 
-export function generateClassName(rule, styleSheet) {
-  const {
-    name: styleSheetName,
-    link: styleSheetLink,
-    classNamePrefix,
-  } = styleSheet.options;
+export function createGenerateClassName(customPrefix) {
+  return (rule, styleSheet) => {
+    const {
+      name: styleSheetName,
+      link: styleSheetLink,
+      classNamePrefix,
+    } = styleSheet.options;
+    const { key: ruleKey } = rule;
 
-  // Is a global static MUI style?
-  if (styleSheetName && styleSheetName.indexOf('Mui') === 0 && !styleSheetLink && !disableGlobal) {
-    // We can use a shorthand class name, we never use the keys to style the components.
-    if (stateClasses.indexOf(rule.key) !== -1) {
-      return `Mui-${rule.key}`;
+    const seedPrefix = customPrefix ? `${customPrefix}-` : defaultPrefix;
+
+    // Is a global static MUI style?
+    if (styleSheetName && styleSheetName.indexOf('Mui') === 0 && !styleSheetLink && !disableGlobal) {
+      // We can use a shorthand class name, we never use the keys to style the components.
+      if (stateClasses.indexOf(ruleKey) !== -1) {
+        return `Mui-${ruleKey}`;
+      }
+      const prefix = `${seedPrefix}${styleSheetName}-${ruleKey}`;
+      return prefix;
     }
-    const prefix = `${seedPrefix}${styleSheetName}-${rule.key}`;
-    return prefix;
+    // Help with debuggability.
+    if (classNamePrefix) {
+      return `${seedPrefix}${classNamePrefix}-${ruleKey}`;
+    }
+    return `${seedPrefix}${ruleKey}`;
   }
-  const suffix = rule.key;
-  // Help with debuggability.
-  if (classNamePrefix) {
-    return `${seedPrefix}${classNamePrefix}-${suffix}`;
-  }
-  return `${seedPrefix}${suffix}`;
 }
