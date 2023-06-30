@@ -25,9 +25,6 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
       },
     } = loader.metadata;
 
-    // Get image name and URL tuples.
-    const urls = [url, 'OME-TIFF'];
-
     const transformMatrixFromOptions = coordinateTransformationsToMatrix(
       coordinateTransformationsFromOptions, getNgffAxesForTiff(DimensionOrder),
     );
@@ -53,6 +50,9 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
         } : {}),
       },
     };
+
+    // Get image name and URL tuples.
+    const urls = [{ url, name: image.name }];
 
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = [

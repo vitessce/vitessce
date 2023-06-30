@@ -141,7 +141,7 @@ export default class RasterLoader extends JsonLoader {
     // Get image name and URL tuples.
     const urls = images
       .filter(image => !image.url.includes('zarr'))
-      .map(image => ([image.url, image.name]));
+      .map(image => ({ url: image.url, name: image.name }));
 
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = images.map(image => ({

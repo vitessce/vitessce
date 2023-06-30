@@ -17,6 +17,7 @@ export {
   useGridItemSize,
 } from './hooks.js';
 export {
+  useInitialCoordination,
   useCoordination,
   useComplexCoordination,
   useMultiCoordinationValues,
@@ -74,3 +75,4 @@ export {
   OptionSelect,
   usePlotOptionsStyles,
 } from './shared-plot-options/index.js';
+export { logConfig } from './view-config-utils.js';

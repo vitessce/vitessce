@@ -1,6 +1,6 @@
+import { describe, it, expect, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
 import { cleanup, render, screen } from '@testing-library/react';
-import { afterEach, expect } from 'vitest';
 import React from 'react';
 
 import Status from './Status.js';

@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { forceSimulation } from 'd3-force';
 import { forceCollideRects } from './force-collide-rects.js';
 

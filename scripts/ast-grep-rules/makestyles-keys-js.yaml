@@ -1,0 +1,25 @@
+# Match the keys of the object returned by the arrow-function argument to MUI makeStyles.
+# We use the returned list of keys to check for uniqueness / prevent key conflicts.
+# Reference: https://ast-grep.github.io/reference/yaml.html
+id: makeStyles-keys-js
+# We want to check JS and TS but ast-grep doesn't support multiple languages in a single rule.
+language: JavaScript
+rule:
+  all:
+    - kind: property_identifier
+    - inside:
+        all:
+          - kind: pair
+          - inside:
+              all:
+                - kind: object
+                - inside:
+                    all:
+                      - kind: parenthesized_expression
+                      - inside:
+                          stopBy: 'end'
+                          all:
+                            - pattern: 'makeStyles($$$)'
+
+   
+            
