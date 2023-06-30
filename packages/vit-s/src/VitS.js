@@ -93,13 +93,12 @@ export function VitS(props) {
 
   const generateClassName = useMemo(() => createGenerateClassName(uid), [uid]);
 
-  const configUid = config?.uid;
   const configVersion = config?.version;
 
   // If config.uid exists, then use it for hook dependencies to detect changes
   // (controlled component case). If not, then use the config object itself
   // and assume the un-controlled component case.
-  const configKey = configUid || config;
+  const configKey = config?.uid || config;
 
   const pluginSpecificConfigSchema = useMemo(() => buildConfigSchema(
     fileTypes,
@@ -172,7 +171,7 @@ export function VitS(props) {
         retry: 2,
       },
     },
-  }), [configUid]);
+  }), [configKey]);
 
   // Emit the upgraded/initialized view config
   // to onConfigChange if necessary.
