@@ -343,14 +343,17 @@ export function useMultiCoordinationScopesSecondary(
 ) {
   return useMemo(() => {
     const scopes = getParameterScope(byType, coordinationScopes);
-    const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
-    return [scopesArr, fromEntries(scopesArr.map((scope) => {
-      const secondaryScopes = coordinationScopesBy[byType][parameter][scope];
-      const secondaryScopesArr = Array.isArray(secondaryScopes)
-        ? secondaryScopes
-        : [secondaryScopes];
-      return [scope, secondaryScopesArr];
-    }))];
+    if (scopes && coordinationScopesBy?.[byType]?.[parameter]) {
+      const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
+      return [scopesArr, fromEntries(scopesArr.map((scope) => {
+        const secondaryScopes = coordinationScopesBy[byType][parameter][scope];
+        const secondaryScopesArr = Array.isArray(secondaryScopes)
+          ? secondaryScopes
+          : [secondaryScopes];
+        return [scope, secondaryScopesArr];
+      }))];
+    }
+    return [[], {}];
   }, [parameter, byType, coordinationScopes, coordinationScopesBy]);
 }
 
@@ -407,49 +410,53 @@ export function useComplexCoordination(
   const values = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
     const typeScopes = getParameterScope(byType, coordinationScopes);
-
-    // Convert a single scope to an array of scopes to be consistent.
-    const typeScopesArr = Array.isArray(typeScopes) ? typeScopes : [typeScopes];
-    return fromEntries(typeScopesArr.map((datasetScope) => {
-      const datasetValues = fromEntries(parameters.map((parameter) => {
-        if (coordinationSpace && coordinationSpace[parameter]) {
-          const parameterSpace = coordinationSpace[parameter];
-          const parameterScope = getParameterScopeBy(
-            parameter,
-            byType,
-            datasetScope,
-            coordinationScopes,
-            coordinationScopesBy,
-          );
-          const value = parameterSpace[parameterScope];
-          return [parameter, value];
-        }
-        return [parameter, undefined];
+    if (typeScopes) {
+      // Convert a single scope to an array of scopes to be consistent.
+      const typeScopesArr = Array.isArray(typeScopes) ? typeScopes : [typeScopes];
+      return fromEntries(typeScopesArr.map((datasetScope) => {
+        const datasetValues = fromEntries(parameters.map((parameter) => {
+          if (coordinationSpace && coordinationSpace[parameter]) {
+            const parameterSpace = coordinationSpace[parameter];
+            const parameterScope = getParameterScopeBy(
+              parameter,
+              byType,
+              datasetScope,
+              coordinationScopes,
+              coordinationScopesBy,
+            );
+            const value = parameterSpace[parameterScope];
+            return [parameter, value];
+          }
+          return [parameter, undefined];
+        }));
+        return [datasetScope, datasetValues];
       }));
-      return [datasetScope, datasetValues];
-    }));
+    }
+    return {};
   }, shallow);
 
   const setters = useMemo(() => {
     const typeScopes = getParameterScope(byType, coordinationScopes);
-
-    // Convert a single scope to an array of scopes to be consistent.
-    const typeScopesArr = Array.isArray(typeScopes) ? typeScopes : [typeScopes];
-    return fromEntries(typeScopesArr.map((datasetScope) => {
-      const datasetSetters = fromEntries(parameters.map((parameter) => {
-        const setterName = `set${capitalize(parameter)}`;
-        const setterFunc = value => setCoordinationValue({
-          parameter,
-          byType,
-          typeScope: datasetScope,
-          coordinationScopes,
-          coordinationScopesBy,
-          value,
-        });
-        return [setterName, setterFunc];
+    if (typeScopes) {
+      // Convert a single scope to an array of scopes to be consistent.
+      const typeScopesArr = Array.isArray(typeScopes) ? typeScopes : [typeScopes];
+      return fromEntries(typeScopesArr.map((datasetScope) => {
+        const datasetSetters = fromEntries(parameters.map((parameter) => {
+          const setterName = `set${capitalize(parameter)}`;
+          const setterFunc = value => setCoordinationValue({
+            parameter,
+            byType,
+            typeScope: datasetScope,
+            coordinationScopes,
+            coordinationScopesBy,
+            value,
+          });
+          return [setterName, setterFunc];
+        }));
+        return [datasetScope, datasetSetters];
       }));
-      return [datasetScope, datasetSetters];
-    }));
+    }
+    return {};
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [parameters, coordinationScopes]);
 
@@ -507,23 +514,30 @@ export function useCoordinationScopesBy(coordinationScopes, coordinationScopesBy
 export function useComplexCoordinationSecondary(
   parameters, coordinationScopesBy, primaryType, secondaryType,
 ) {
-  const coordinationScopesFake = useMemo(() => ({
-    [secondaryType]: Object.values(coordinationScopesBy[primaryType][secondaryType]).flat(),
-  }), [coordinationScopesBy, primaryType, secondaryType]);
+  const coordinationScopesFake = useMemo(() => {
+    if (coordinationScopesBy?.[primaryType]?.[secondaryType]) {
+      return {
+        [secondaryType]: Object.values(coordinationScopesBy[primaryType][secondaryType]).flat(),
+      };
+    }
+    return { [secondaryType]: [] };
+  }, [coordinationScopesBy, primaryType, secondaryType]);
   const flatResult = useComplexCoordination(
     parameters, coordinationScopesFake, coordinationScopesBy, secondaryType,
   );
   // Re-nest
   const result = [{}, {}];
-  Object.entries(coordinationScopesBy[primaryType][secondaryType])
-    .forEach(([layerScope, channelScopes]) => {
-      result[0][layerScope] = {};
-      result[1][layerScope] = {};
-      channelScopes.forEach((channelScope) => {
-        result[0][layerScope][channelScope] = flatResult[0][channelScope];
-        result[1][layerScope][channelScope] = flatResult[1][channelScope];
+  if (coordinationScopesBy?.[primaryType]?.[secondaryType]) {
+    Object.entries(coordinationScopesBy[primaryType][secondaryType])
+      .forEach(([layerScope, channelScopes]) => {
+        result[0][layerScope] = {};
+        result[1][layerScope] = {};
+        channelScopes.forEach((channelScope) => {
+          result[0][layerScope][channelScope] = flatResult[0][channelScope];
+          result[1][layerScope][channelScope] = flatResult[1][channelScope];
+        });
       });
-    });
+  }
   return result;
 }
 
