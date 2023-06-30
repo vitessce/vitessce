@@ -41,7 +41,12 @@ export default function VectorLayerController(props) {
         </Typography>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={2}>
-            <Checkbox color="primary" checked={isOn} onChange={(e, v) => handleCheckBoxChange(v)} />
+            <Checkbox
+              color="primary"
+              checked={isOn}
+              onChange={(e, v) => handleCheckBoxChange(v)}
+              inputProps={{ 'aria-label': 'Checkbox for showing/hiding vector layer.' }}
+            />
           </Grid>
           <Grid item xs={9} style={{ paddingRight: '8px' }}>
             <Slider
@@ -52,6 +57,7 @@ export default function VectorLayerController(props) {
               onChange={(e, v) => handleSliderChange(v)}
               style={{ marginTop: '7px' }}
               orientation="horizontal"
+              getAriaLabel={() => `${label} layer controller slider`}
             />
           </Grid>
         </Grid>

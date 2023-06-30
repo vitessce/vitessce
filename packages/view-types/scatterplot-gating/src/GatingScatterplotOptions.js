@@ -62,19 +62,19 @@ export default function GatingScatterplotOptions(props) {
 
   return (
     <>
-      <TableRow key="gene-option-row">
-        <TableCell className={classes.labelCell}>
+      <TableRow key="scatterplot-gating-gene-select">
+        <TableCell className={classes.labelCell} variant="head" scope="row">
           {capitalize(plur(featureType, geneSelectOptions?.length))}
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
-            key="gating-gene-select"
+            key="scatterplot-gating-gene-select"
             multiple
             className={classes.select}
             value={[gatingFeatureSelectionX, gatingFeatureSelectionY].filter(v => v)}
             onChange={handleGeneSelectChange}
             inputProps={{
-              id: 'scatterplot-gene-select',
+              id: 'scatterplot-gating-gene-select',
             }}
           >
             {geneSelectOptions.map(name => (
@@ -85,18 +85,18 @@ export default function GatingScatterplotOptions(props) {
           </OptionSelect>
         </TableCell>
       </TableRow>
-      <TableRow key="transform-option-row">
-        <TableCell className={classes.labelCell}>
+      <TableRow key="scatterplot-gating-transform-select">
+        <TableCell className={classes.labelCell} variant="head" scope="row">
           Transform
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
-            key="gating-transform-select"
+            key="scatterplot-gating-transform-select"
             className={classes.select}
             value={gatingFeatureValueTransform === null ? '' : gatingFeatureValueTransform}
             onChange={handleTransformChange}
             inputProps={{
-              id: 'scatterplot-transform-select',
+              id: 'scatterplot-gating-transform-select',
             }}
           >
             {transformOptions.map(opt => (
@@ -107,19 +107,20 @@ export default function GatingScatterplotOptions(props) {
           </OptionSelect>
         </TableCell>
       </TableRow>
-      <TableRow key="transform-coefficient-option-row">
-        <TableCell className={classes.labelCell}>
+      <TableRow key="scatterplot-gating-transform-coefficient">
+        <TableCell className={classes.labelCell} variant="head" scope="row">
           Transform Coefficient
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.inputCell} variant="body">
           <TextField
-            label="Number"
+            label="Trasnform Coefficient"
             type="number"
             onChange={handleTransformCoefficientChange}
             value={gatingFeatureValueTransformCoefficient}
             InputLabelProps={{
               shrink: true,
             }}
+            id="scatterplot-gating-transform-coefficient"
           />
         </TableCell>
       </TableRow>

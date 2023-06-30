@@ -82,6 +82,7 @@ const LayerControllerMemoized = React.memo(
     const shouldShowImageLayerButton = Boolean(
       enableLayerButtonsWithOneLayer || imageLayerLoaders?.length > 1,
     );
+
     return (
       <TitleInfo
         title={title}

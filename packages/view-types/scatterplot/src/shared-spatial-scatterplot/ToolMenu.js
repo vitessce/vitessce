@@ -136,6 +136,7 @@ export default function ToolMenu(props) {
       <IconButton
         alt="click to recenter"
         onClick={() => onRecenterButtonCLick()}
+        aria-label="View recenter button"
       ><CenterFocusStrong />
       </IconButton>
     </div>

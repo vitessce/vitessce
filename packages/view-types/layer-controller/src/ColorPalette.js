@@ -33,6 +33,7 @@ const ColorPalette = ({ handleChange }) => {
           className={classes.button}
           key={color}
           onClick={() => handleChange(color)}
+          aria-label="Change colour"
         >
           <LensIcon
             fontSize="small"

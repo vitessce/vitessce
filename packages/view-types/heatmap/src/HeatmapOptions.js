@@ -34,17 +34,18 @@ export default function HeatmapOptions(props) {
 
   return (
     <OptionsContainer>
-      <TableRow>
-        <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
+      <TableRow key="heatmap-gene-expression-colormap">
+        <TableCell className={classes.labelCell} variant="head" scope="row">
           Gene Expression Colormap
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
             className={classes.select}
             value={geneExpressionColormap}
             onChange={handleGeneExpressionColormapChange}
             inputProps={{
-              id: 'gene-expression-colormap-select',
+              'aria-label': 'Select gene expression colormap.',
+              id: 'heatmap-gene-expression-colormap',
             }}
           >
             {GLSL_COLORMAPS.map(cmap => (
@@ -53,11 +54,11 @@ export default function HeatmapOptions(props) {
           </OptionSelect>
         </TableCell>
       </TableRow>
-      <TableRow>
-        <TableCell className={classes.labelCell}>
+      <TableRow key="heatmap-gene-expression-colormap-change-tooltip-visibility">
+        <TableCell className={classes.labelCell} variant="head" scope="row">
           Tooltips Visible
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.inputCell} variant="body">
           <Checkbox
             className={classes.checkbox}
               /**
@@ -69,19 +70,23 @@ export default function HeatmapOptions(props) {
             onChange={handleTooltipsVisibilityChange}
             name="gene-expression-colormap-option-toltip-visibility"
             color="default"
+            inputProps={{
+              'aria-label': 'Checkbox for showing or hiding tooltips.',
+              id: 'gene-expression-colormap-option-toltip-visibility',
+            }}
           />
         </TableCell>
       </TableRow>
-      <TableRow>
-        <TableCell className={classes.labelCell}>
+      <TableRow key="heatmap-gene-expression-colormap-range">
+        <TableCell className={classes.labelCell} variant="head" scope="row">
           Gene Expression Colormap Range
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.inputCell} variant="body">
           <Slider
             classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
-            aria-labelledby="gene-expression-colormap-range-slider"
+            aria-labelledby="heatmap-gene-expression-colormap-range"
             valueLabelDisplay="auto"
             step={0.005}
             min={0.0}

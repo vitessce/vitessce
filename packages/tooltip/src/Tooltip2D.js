@@ -53,6 +53,7 @@ export default function Tooltip2D(props) {
           y={y}
           parentWidth={parentWidth}
           parentHeight={parentHeight}
+          aria-describedby="tooltip-popper-id"
         >
           {children}
         </Tooltip>

@@ -20,12 +20,13 @@ export default function CellColorEncodingOption(props) {
   }
 
   return (
-    <TableRow>
-      <TableCell className={classes.labelCell} htmlFor="cell-color-encoding-select">
+    <TableRow key="cell-color-encoding">
+      <TableCell className={classes.labelCell} variant="head" scope="row">
         {observationsLabelNice} Color Encoding
       </TableCell>
-      <TableCell className={classes.inputCell}>
+      <TableCell className={classes.inputCell} variant="body">
         <OptionSelect
+          key="cell-color-encoding-select"
           className={classes.select}
           value={cellColorEncoding}
           onChange={handleColorEncodingChange}

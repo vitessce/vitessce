@@ -471,6 +471,8 @@ export default function LayerController(props) {
       }
       TransitionProps={{ enter: false }}
       expanded={!disabled && isExpanded}
+      aria-controls="layer-controls options"
+      id="layer-controls-accordion"
     >
       <StyledAccordionSummary
         expandIcon={<ExpandMoreIcon role="presentation" />}
@@ -533,11 +535,12 @@ export default function LayerController(props) {
             <Tabs
               value={tab}
               onChange={handleTabChange}
-              aria-label="simple tabs example"
+              aria-label="Change the layer tab type."
               style={{ height: '24px', minHeight: '24px' }}
             >
               <Tab
                 label="Channels"
+                aria-label="Channels tab"
                 style={{
                   fontSize: '.75rem',
                   bottom: 12,
@@ -548,6 +551,7 @@ export default function LayerController(props) {
               />
               <Tab
                 label="Volume"
+                aria-label="Volume tab"
                 style={{
                   fontSize: '.75rem',
                   bottom: 12,

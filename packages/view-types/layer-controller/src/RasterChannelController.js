@@ -72,7 +72,8 @@ function ChannelSlider({
       valueLabelFormat={abbreviateNumber}
       onChange={(e, v) => handleChangeDebounced(v)}
       valueLabelDisplay="auto"
-      getAriaLabel={() => `${color}-${slider}`}
+      getAriaLabel={() => 'Slider for controlling current colormap.'}
+      getAriaValueText={() => `Current colormap values: ${color}-${slider}.`}
       min={min}
       max={max}
       step={step}

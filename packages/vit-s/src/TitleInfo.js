@@ -92,8 +92,8 @@ function DownloadOptions(props) {
       placement="bottom-end"
     >
       {urls.map(({ url, name }) => (
-        <MenuItem dense key={`${url}_${name}`}>
-          <Link underline="none" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
+        <MenuItem dense key={`${url}_${name}`} aria-label={`Click to download ${name}`}>
+          <Link underline="always" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
             Download {name}
           </Link>
         </MenuItem>
@@ -111,6 +111,7 @@ function ClosePaneButton(props) {
       size="small"
       className={classes.iconButton}
       title="close"
+      aria-label="Close panel button"
     >
       <CloseIcon />
     </IconButton>

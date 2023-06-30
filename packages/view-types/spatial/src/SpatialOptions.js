@@ -31,16 +31,16 @@ const ToggleFixedAxisButton = ({
   use3d,
 }) => {
   const classes = useToggleStyles();
-  return (
-    <TableRow>
-      <TableCell className={classes.cameraLabel}>
+  return use3d && (
+    <TableRow key="spatial-fix-camera-axis">
+      <TableCell className={classes.cameraLabel} variant="head" scope="row">
         Fix Camera Axis
       </TableCell>
-      <TableCell className={classes.box}>
+      <TableCell className={classes.box} variant="body">
         <Checkbox
           onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
-          disabled={!use3d}
           checked={Boolean(spatialAxisFixed)}
+          inputProps={{ 'aria-label': 'Checkbox for fixing/not fixing spatial axis.' }}
         />
       </TableCell>
     </TableRow>
@@ -86,25 +86,25 @@ export default function SpatialOptions(props) {
 
   return (
     <OptionsContainer>
-      {canShowColorEncodingOption ? (
+      {canShowColorEncodingOption && (
         <CellColorEncodingOption
           observationsLabel={observationsLabel}
           cellColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
         />
-      ) : null}
-      {canShow3DOptions ? (
+      )}
+      {canShow3DOptions && (
         <ToggleFixedAxisButton
           setSpatialAxisFixed={setSpatialAxisFixed}
           spatialAxisFixed={spatialAxisFixed}
           use3d={use3d}
         />
-      ) : null}
-      <TableRow>
-        <TableCell className={classes.labelCell}>
+      )}
+      <TableRow key="spatial-tooltips-visible">
+        <TableCell className={classes.labelCell} variant="head" scope="row">
           Tooltips Visible
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.inputCell} variant="body">
           <Checkbox
             className={classes.checkbox}
               /**
@@ -116,17 +116,19 @@ export default function SpatialOptions(props) {
             onChange={handleTooltipsVisibilityChange}
             name="gene-expression-colormap-option-toltip-visibility"
             color="default"
+            inputProps={{ 'aria-label': 'Enable or disable tooltips.' }}
           />
         </TableCell>
       </TableRow>
-      {canShowExpressionOptions ? (
+      {canShowExpressionOptions && (
         <>
-          <TableRow>
-            <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
+          <TableRow key="spatial-gene-expression-colormap">
+            <TableCell className={classes.labelCell} variant="head" scope="row">
               Gene Expression Colormap
             </TableCell>
-            <TableCell className={classes.inputCell}>
+            <TableCell className={classes.inputCell} variant="body">
               <OptionSelect
+                key="gene-expression-colormap-select"
                 className={classes.select}
                 value={geneExpressionColormap}
                 onChange={handleGeneExpressionColormapChange}
@@ -140,11 +142,11 @@ export default function SpatialOptions(props) {
               </OptionSelect>
             </TableCell>
           </TableRow>
-          <TableRow>
-            <TableCell className={classes.labelCell}>
+          <TableRow key="spatial-gene-expression-colormap-range">
+            <TableCell className={classes.labelCell} variant="head" scope="row">
               Gene Expression Colormap Range
             </TableCell>
-            <TableCell className={classes.inputCell}>
+            <TableCell className={classes.inputCell} variant="body">
               <Slider
                 classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
                 value={geneExpressionColormapRange}
@@ -158,7 +160,7 @@ export default function SpatialOptions(props) {
             </TableCell>
           </TableRow>
         </>
-      ) : null}
+      )}
     </OptionsContainer>
   );
 }

@@ -114,7 +114,14 @@ function Footer() {
             {logo && (logo.src || logo.srcDark) && (
               <div className="margin-bottom--sm">
                 {logo.href ? (
-                  <Link href={logo.href} className={styles.footerLogoLink}>
+                  <Link
+                    href={logo.href}
+                    className={styles.footerLogoLink}
+                    underline="none"
+                    aria-label="Visit Vitessce home page"
+                    target="_blank"
+                    rel="noopener"
+                  >
                     <FooterLogo
                       alt={logo.alt}
                       sources={sources}

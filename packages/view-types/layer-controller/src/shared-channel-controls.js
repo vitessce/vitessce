@@ -23,6 +23,7 @@ export function ChannelSelectionDropdown({
       native
       value={selectionIndex}
       onChange={e => handleChange(Number(e.target.value))}
+      aria-label="Dropdown for selecting a channel."
     >
       {channelOptions.map((opt, i) => (
         <option disabled={disabled} key={opt} value={i}>
@@ -49,6 +50,7 @@ export function ChannelVisibilityCheckbox({
       checked={checked}
       disabled={disabled}
       style={{ color, '&$checked': { color } }}
+      inputProps={{ 'aria-label': 'Checkbox for toggling on/off a channel.' }}
     />
   );
 }

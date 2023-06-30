@@ -32,9 +32,11 @@ export default function CellSetExpressionPlotOptions(props) {
 
   return (
     <OptionsContainer>
-      <TableRow>
-        <TableCell className={classes.labelCell}>Transform</TableCell>
-        <TableCell className={classes.inputCell}>
+      <TableRow key="expression-plot-transform">
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          Transform
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
             key="gating-transform-select"
             className={classes.select}
@@ -53,18 +55,19 @@ export default function CellSetExpressionPlotOptions(props) {
         </TableCell>
       </TableRow>
       <TableRow key="transform-coefficient-option-row">
-        <TableCell className={classes.labelCell}>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
           Transform Coefficient
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.inputCell} variant="body">
           <TextField
-            label="Number"
+            label="Transform Coefficient"
             type="number"
             onChange={handleTransformCoefficientChange}
             value={featureValueTransformCoefficient}
             InputLabelProps={{
               shrink: true,
             }}
+            id="expression-plot-transform-coefficient"
           />
         </TableCell>
       </TableRow>
