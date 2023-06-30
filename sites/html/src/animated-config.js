@@ -5,6 +5,9 @@ import { Vitessce } from 'vitessce';
 
 const e = React.createElement;
 
+const params = new URLSearchParams(document.location.search);
+const withSameObjectReference = params.get("withSameObjectReference") === 'true';
+
 const config = {
   name: 'Animated config',
   version: '1.0.16',
@@ -25,6 +28,9 @@ const config = {
     },
   ],
 };
+
+// TODO: add test using plugin view type and file type which fakes a delay in loading some (also fake) data.
+// would expect no loading indicators if the data is already loaded.
 
 function App() {
 
@@ -47,12 +53,11 @@ function App() {
       
       return () => {
         setCurrentConfig(prevConfig => {
-          // TODO: add test that is expected to fail when the reference to prevConfig is the same object reference (i.e., no spread operator usage)
-          // (i.e., the views would not be expected to update because the <Vitessce/> prop for config has the same object reference).
-
-          // TODO: add test using plugin view type and file type which fakes a delay in loading some (also fake) data.
-          // would expect no loading indicators if the data is already loaded.
-          const nextConfig = { ...prevConfig };
+          // When `withSameObjectReference` is true, the test would be expected to fail.
+          // (i.e., the views would not be expected to update because the <Vitessce/> prop
+          // for `config` has the same object reference so it does not re-render).
+          const nextConfig = withSameObjectReference ? prevConfig : { ...prevConfig };
+          
           nextConfig.uid = `config-${seconds}`;
           nextConfig.layout[0].props.description = `Timestamp: ${seconds}`;
     
@@ -83,7 +88,7 @@ function App() {
 
   return e('div', { style: { width: `${width}px` }}, 
     e(Vitessce,
-      { config: currentConfig, onConfigChange, validateConfig, height: height, theme: 'light' },
+      { config: currentConfig, onConfigChange, validateConfig, height, theme: 'light' },
       null
     ),
   );
