@@ -210,12 +210,12 @@ export function LayerControllerSubscriber(props) {
   const [imageData, imageDataStatus] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
   );
-  // console.log(imageData, imageDataStatus);
+  console.log(imageData, imageDataStatus);
 
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
   const [obsLocationsData, obsLocationsStatus] = useObsLocationsData(
-    loaders, dataset, () => {}, false,
+    loaders, dataset, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
     {}, // TODO: use obsType once #1240 is merged.

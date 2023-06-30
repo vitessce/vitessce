@@ -18,7 +18,7 @@ describe('loaders/json-loaders/ObsSetsJson', () => {
     it('can load obsSets', async () => {
       const loader = createLoader(ObsSetsJsonLoader, {
         fileType: 'obsSets.cells.json',
-      }, 'http://localhost:51204/@fixtures/vit-s/obsSets.good.json');
+      }, 'http://localhost:4204/@fixtures/vit-s/obsSets.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;

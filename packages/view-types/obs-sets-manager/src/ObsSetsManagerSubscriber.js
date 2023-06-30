@@ -96,8 +96,6 @@ export function ObsSetsManagerSubscriber(props) {
 
   const title = titleOverride || `${capitalize(obsType)} Sets`;
 
-  const [urls, addUrl] = useUrls(loaders, dataset);
-
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
     setCellSetExpansion([]);
@@ -105,15 +103,14 @@ export function ObsSetsManagerSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [{ obsIndex, obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
-    loaders, dataset, addUrl, true,
+  const [{ obsIndex, obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+    loaders, dataset, true,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
-  const isReady = useReady([
-    obsSetsStatus,
-  ]);
+  const isReady = useReady([obsSetsStatus]);
+  const urls = useUrls([obsSetsUrls]);
 
   // Validate and upgrade the additionalCellSets.
   useEffect(() => {

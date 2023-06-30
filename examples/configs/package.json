@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/example-configs",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -13,8 +13,7 @@
     "dist-tsc",
     "src"
   ],
-  "scripts": {
-  },
+  "scripts": {},
   "dependencies": {
     "@vitessce/config": "workspace:*",
     "@vitessce/constants": "workspace:*"

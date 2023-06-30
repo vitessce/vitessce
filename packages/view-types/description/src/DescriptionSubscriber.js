@@ -8,8 +8,6 @@ import {
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import Description from './Description.js';
 
-const addUrl = () => {}; // noop
-
 /**
  * A subscriber component for a text description component.
  * Also renders a table containing image metadata.
@@ -41,7 +39,7 @@ export function DescriptionSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [description] = useDescription(loaders, dataset);
   const [{ image }, imageStatus] = useImageData(
-    loaders, dataset, addUrl, false, {}, {},
+    loaders, dataset, false, {}, {},
     {}, // TODO: which properties to match on. Revisit after #830.
   );
   const { loaders: imageLayerLoaders = [], meta: imageLayerMeta = [] } = image || {};

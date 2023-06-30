@@ -19,6 +19,7 @@ export {
 export {
   useCoordinationScopes,
   useCoordinationScopesBy,
+  useInitialCoordination,
   useCoordination,
   useComplexCoordination,
   useComplexCoordinationSecondary,
@@ -83,3 +84,4 @@ export {
   OptionSelect,
   usePlotOptionsStyles,
 } from './shared-plot-options/index.js';
+export { logConfig } from './view-config-utils.js';
