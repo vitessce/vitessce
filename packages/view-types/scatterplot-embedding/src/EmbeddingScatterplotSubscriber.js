@@ -21,6 +21,7 @@ import {
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
+  useInitialCoordination,
 } from '@vitessce/vit-s';
 import { setObsSelection, mergeObsSets, getCellSetPolygons } from '@vitessce/sets-utils';
 import { getCellColors, commaNumber } from '@vitessce/utils';
@@ -111,6 +112,14 @@ export function EmbeddingScatterplotSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
+
+  const {
+    embeddingZoom: initialZoom,
+    embeddingTargetX: initialTargetX,
+    embeddingTargetY: initialTargetY,
+  } = useInitialCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
+  );
 
   const observationsLabel = observationsLabelOverride || obsType;
 
@@ -239,14 +248,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   // compute the cell radius scale based on the
   // extents of the cell coordinates on the x/y axes.
   useEffect(() => {
-    // We do not really need isReady here, since the above useMemo that
-    // computes xRange and yRange will only run after obsEmbedding has loaded anyway.
-    // However, we include it here to ensure this effect waits as long as possible to run;
-    // For some reason, otherwise, in some cases this effect will run before the react-grid-layout
-    // initialization animation has finished,
-    // prior to `height` and `width` reaching their ultimate values, resulting in
-    // an initial viewState for that small view size, which looks bad.
-    if (xRange && yRange && isReady) {
+    if (xRange && yRange) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(
         window.devicePixelRatio, zoom, xRange, yRange, width, height,
       );
@@ -257,26 +259,30 @@ export function EmbeddingScatterplotSubscriber(props) {
       );
       setDynamicCellOpacity(nextCellOpacityScale);
 
-      if (typeof targetX !== 'number' || typeof targetY !== 'number') {
+      if (typeof initialTargetX !== 'number' || typeof initialTargetY !== 'number') {
         // The view config did not define an initial viewState so
         // we calculate one based on the data and set it.
         const newTargetX = xExtent[0] + xRange / 2;
         const newTargetY = yExtent[0] + yRange / 2;
         const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
-        setTargetX(newTargetX);
-        // Graphics rendering has the y-axis going south so we need to multiply by negative one.
-        setTargetY(-newTargetY);
-        setZoom(newZoom);
+        const notYetInitialized = (typeof targetX !== 'number' || typeof targetY !== 'number');
+        const stillDefaultInitialized = (targetX === newTargetX && targetY === -newTargetY);
+        if (notYetInitialized || stillDefaultInitialized) {
+          setTargetX(newTargetX);
+          // Graphics rendering has the y-axis going south so we need to multiply by negative one.
+          setTargetY(-newTargetY);
+          setZoom(newZoom);
+        }
         setOriginalViewState({ target: [newTargetX, -newTargetY, 0], zoom: newZoom });
       } else if (!originalViewState) {
         // originalViewState has not yet been set and
         // the view config defined an initial viewState.
-        setOriginalViewState({ target: [targetX, targetY, 0], zoom });
+        setOriginalViewState({ target: [initialTargetX, initialTargetY, 0], zoom: initialZoom });
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [xRange, yRange, isReady, xExtent, yExtent, numCells,
-    width, height, zoom, averageFillDensity]);
+  }, [xRange, yRange, xExtent, yExtent, numCells,
+    width, height, initialZoom, zoom, initialTargetX, initialTargetY, averageFillDensity]);
 
   const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,

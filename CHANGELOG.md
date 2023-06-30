@@ -7,6 +7,9 @@
 - Add initial config logging in `<Vitessce/>` for the pre-upgrade view config.
 - Added support for generating view-config for Anndata-Zarr files that don't have .zmetadata file in the folder.
 - Turn on unit test coverage in Vitest config.
+- Add `useInitialCoordination` hook to get the values of the coordination space from the initial config, which can be used for viewState reset buttons.
+- Use `config` object reference as hook dependency when no `config.uid` is present (to support both controlled and un-controlled component cases).
+- Initialize Zustand store using closure over `createViewConfigStore` function, rather than via `useEffect`.
 
 ### Changed
 - Fix Material UI import statement.

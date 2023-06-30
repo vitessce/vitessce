@@ -15,6 +15,7 @@ import {
   useUint8FeatureSelection,
   useExpressionValueGetter,
   useGetObsInfo,
+  useInitialCoordination,
   useCoordination,
   useLoaders,
   useSetComponentHover,
@@ -113,6 +114,15 @@ export function SpatialSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
+
+  const {
+    spatialZoom: initialZoom,
+    spatialTargetX: initialTargetX,
+    spatialTargetY: initialTargetY,
+    spatialTargetZ: initialTargetZ,
+  } = useInitialCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes,
+  );
 
   const observationsLabel = observationsLabelOverride || obsType;
 
@@ -251,14 +261,13 @@ export function SpatialSubscriber(props) {
   const moleculesCount = obsLocationsFeatureIndex?.length || 0;
   const locationsCount = obsLocationsIndex?.length || 0;
 
-  const [originalViewState, setOriginalViewState] = useState(
-    { target: [targetX, targetY, targetZ], zoom },
-  );
+  const [originalViewState, setOriginalViewState] = useState(null);
 
   // Compute initial viewState values to use if targetX and targetY are not
   // defined in the initial configuration.
   const {
-    initialTargetX, initialTargetY, initialTargetZ, initialZoom,
+    initialTargetX: defaultTargetX, initialTargetY: defaultTargetY,
+    initialTargetZ: defaultTargetZ, initialZoom: defaultZoom,
   } = useMemo(() => getInitialSpatialTargets({
     width,
     height,
@@ -271,33 +280,41 @@ export function SpatialSubscriber(props) {
     use3d,
     modelMatrices: meta.map(({ metadata }) => metadata?.transform?.matrix),
   }),
-  // Deliberate dependency omissions: width/height - technically then
-  // these initial values will be "wrong" after resizing, but it shouldn't be far enough
-  // off to be noticeable.
   // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
   // an indirect dependency instead.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  [image, use3d, hasImageData, obsCentroids, obsSegmentations, obsSegmentationsType]);
+  [image, use3d, hasImageData, obsCentroids, obsSegmentations, obsSegmentationsType,
+    width, height,
+  ]);
 
   useEffect(() => {
     // If it has not already been set, set the initial view state using
     // the auto-computed values from the useMemo above.
-    if (
-      (typeof targetX !== 'number' || typeof targetY !== 'number')
-    ) {
-      setTargetX(initialTargetX);
-      setTargetY(initialTargetY);
-      setTargetZ(initialTargetZ);
-      setZoom(initialZoom);
-      // Save these values to originalViewState so that we can reset to them later.
+    if (typeof initialTargetX !== 'number' || typeof initialTargetY !== 'number') {
+      const notYetInitialized = (typeof targetX !== 'number' || typeof targetY !== 'number');
+      const stillDefaultInitialized = (targetX === defaultTargetX && targetY === defaultTargetY);
+      if (notYetInitialized || stillDefaultInitialized) {
+        setTargetX(defaultTargetX);
+        setTargetY(defaultTargetY);
+        setTargetZ(defaultTargetZ);
+        setZoom(defaultZoom);
+      }
       setOriginalViewState(
-        { target: [initialTargetX, initialTargetY, initialTargetZ], zoom: initialZoom },
+        { target: [defaultTargetX, defaultTargetY, defaultTargetZ], zoom: defaultZoom },
       );
+    } else if (!originalViewState) {
+      // originalViewState has not yet been set and
+      // the view config defined an initial viewState.
+      setOriginalViewState({
+        target: [initialTargetX, initialTargetY, initialTargetZ], zoom: initialZoom,
+      });
     }
     // Deliberate dependency omissions: targetX, targetY
     // since we do not this to re-run on every single zoom/pan interaction.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialTargetX, initialTargetY, initialTargetZ, initialZoom]);
+  }, [defaultTargetX, defaultTargetY, defaultTargetZ, defaultZoom,
+    initialTargetX, initialTargetY, initialTargetZ, initialZoom,
+  ]);
 
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,

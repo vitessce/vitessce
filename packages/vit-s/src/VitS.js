@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import {
   ThemeProvider,
   StylesProvider,
@@ -24,6 +24,7 @@ import {
   initialize,
   logConfig,
 } from './view-config-utils.js';
+import { createLoaders } from './vitessce-grid-utils.js';
 import { createGenerateClassName } from './mui-utils.js';
 
 
@@ -42,6 +43,10 @@ import { createGenerateClassName } from './mui-utils.js';
  * updates. Optional.
  * @param {function} props.onLoaderChange A callback for loader
  * updates. Optional.
+ * @param {boolean} props.validateConfig Whether to validate or not. Only to be
+ * set to false in controlled component situations, where bypassing validation
+ * is required for performance, and the parent knows the config
+ * is already valid (e.g., it originated from onConfigChange). By default, true.
  * @param {boolean} props.validateOnConfigChange Whether to validate
  * against the view config schema when publishing changes. Use for debugging
  * purposes, as this may have a performance impact. By default, false.
@@ -64,6 +69,7 @@ export function VitS(props) {
     onWarn,
     onConfigChange,
     onLoaderChange,
+    validateConfig = true,
     validateOnConfigChange = false,
     isBounded = false,
     uid = null,
@@ -87,8 +93,12 @@ export function VitS(props) {
 
   const generateClassName = useMemo(() => createGenerateClassName(uid), [uid]);
 
-  const configUid = config?.uid;
   const configVersion = config?.version;
+
+  // If config.uid exists, then use it for hook dependencies to detect changes
+  // (controlled component case). If not, then use the config object itself
+  // and assume the un-controlled component case.
+  const configKey = config?.uid || config;
 
   const pluginSpecificConfigSchema = useMemo(() => buildConfigSchema(
     fileTypes,
@@ -107,6 +117,9 @@ export function VitS(props) {
       return [warning, false];
     }
     logConfig(config, 'input view config');
+    if (!validateConfig) {
+      return [config, true];
+    }
     const result = latestConfigSchema.safeParse(config);
     if (result.success) {
       const upgradedConfig = result.data;
@@ -148,7 +161,7 @@ export function VitS(props) {
       unformatted: result.error.message,
     }, result.success];
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [configUid, configVersion, pluginSpecificConfigSchema, warning]);
+  }, [configKey, configVersion, pluginSpecificConfigSchema, warning]);
 
   const queryClient = useMemo(() => new QueryClient({
     // Reference: https://tanstack.com/query/latest/docs/react/guides/window-focus-refetching
@@ -158,7 +171,7 @@ export function VitS(props) {
         retry: 2,
       },
     },
-  }), [configUid]);
+  }), [configKey]);
 
   // Emit the upgraded/initialized view config
   // to onConfigChange if necessary.
@@ -167,15 +180,33 @@ export function VitS(props) {
       onConfigChange(configOrWarning);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [success, configUid, configOrWarning, onConfigChange]);
+  }, [success, configKey, configOrWarning, onConfigChange]);
+
+  // Initialize the view config and loaders in the global state.
+  const createViewConfigStoreClosure = useCallback(() => {
+    if (success) {
+      const loaders = createLoaders(
+        configOrWarning.datasets,
+        configOrWarning.description,
+        fileTypes,
+        coordinationTypes,
+      );
+      return createViewConfigStore(loaders, configOrWarning);
+    }
+    // No config found, so clear the loaders.
+    return createViewConfigStore(null, null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [success, configKey]);
 
   return success ? (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
         <QueryClientProvider client={queryClient}>
-          <ViewConfigProvider createStore={createViewConfigStore}>
+          <ViewConfigProvider createStore={createViewConfigStoreClosure}>
             <AuxiliaryProvider createStore={createAuxiliaryStore}>
               <VitessceGrid
+                success={success}
+                configKey={configKey}
                 viewTypes={viewTypes}
                 fileTypes={fileTypes}
                 coordinationTypes={coordinationTypes}

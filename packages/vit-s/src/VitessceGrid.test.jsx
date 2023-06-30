@@ -33,6 +33,10 @@ describe('VitessceGrid.js', () => {
         ],
       };
 
+      function createViewConfigStoreClosure() {
+        return createViewConfigStore(null, config);
+      }
+
       function FakeComponent() {
         return <p>FakeComponent!</p>;
       }
@@ -40,9 +44,11 @@ describe('VitessceGrid.js', () => {
       const fileTypes = [];
       const coordinationTypes = [];
       render(
-        <ViewConfigProvider createStore={createViewConfigStore}>
+        <ViewConfigProvider createStore={createViewConfigStoreClosure}>
           <AuxiliaryProvider createStore={createAuxiliaryStore}>
             <VitessceGrid
+              success
+              configKey={null}
               config={config}
               viewTypes={viewTypes}
               fileTypes={fileTypes}

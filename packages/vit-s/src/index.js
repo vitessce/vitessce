@@ -17,6 +17,7 @@ export {
   useGridItemSize,
 } from './hooks.js';
 export {
+  useInitialCoordination,
   useCoordination,
   useComplexCoordination,
   useMultiCoordinationValues,
