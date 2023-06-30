@@ -52,11 +52,12 @@ export function ExpressionHistogramSubscriber(props) {
   );
 
   const [width, height, containerRef] = useGridItemSize();
-  const [urls, addUrl] = useUrls(loaders, dataset);
 
   // Get data from loaders using the data hooks.
-  const [{ obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus] = useObsFeatureMatrixData(
-    loaders, dataset, addUrl, true, {}, {},
+  const [
+    { obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus, matrixUrls,
+  ] = useObsFeatureMatrixData(
+    loaders, dataset, true, {}, {},
     { obsType, featureType, featureValueType },
   );
   // eslint-disable-next-line no-unused-vars
@@ -67,6 +68,9 @@ export function ExpressionHistogramSubscriber(props) {
   const isReady = useReady([
     matrixStatus,
     featureSelectionStatus,
+  ]);
+  const urls = useUrls([
+    matrixUrls,
   ]);
 
   const firstGeneSelected = geneSelection && geneSelection.length >= 1

@@ -3,6 +3,10 @@ import {
   ThemeProvider,
   StylesProvider,
 } from '@material-ui/core';
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
 import { isEqual } from 'lodash-es';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
 import { muiTheme } from './shared-mui/styles.js';
@@ -39,9 +43,10 @@ import { createGenerateClassName } from './mui-utils.js';
  * updates. Optional.
  * @param {function} props.onLoaderChange A callback for loader
  * updates. Optional.
- * @param {boolean} props.bypassValidation Whether to validate or not. Only to be
- * used in controlled component situations, where the parent knows the config
- * is already valid (e.g., it originated from onConfigChange). By default, false.
+ * @param {boolean} props.validateConfig Whether to validate or not. Only to be
+ * set to false in controlled component situations, where bypassing validation
+ * is required for performance, and the parent knows the config
+ * is already valid (e.g., it originated from onConfigChange). By default, true.
  * @param {boolean} props.validateOnConfigChange Whether to validate
  * against the view config schema when publishing changes. Use for debugging
  * purposes, as this may have a performance impact. By default, false.
@@ -159,6 +164,16 @@ export function VitS(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configKey, configVersion, pluginSpecificConfigSchema, warning]);
 
+  const queryClient = useMemo(() => new QueryClient({
+    // Reference: https://tanstack.com/query/latest/docs/react/guides/window-focus-refetching
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        retry: 2,
+      },
+    },
+  }), [configUid]);
+
   // Emit the upgraded/initialized view config
   // to onConfigChange if necessary.
   useEffect(() => {
@@ -187,29 +202,31 @@ export function VitS(props) {
   return success ? (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
-        <ViewConfigProvider createStore={createViewConfigStoreClosure}>
-          <AuxiliaryProvider createStore={createAuxiliaryStore}>
-            <VitessceGrid
-              success={success}
-              configKey={configKey}
-              viewTypes={viewTypes}
-              fileTypes={fileTypes}
-              coordinationTypes={coordinationTypes}
-              config={configOrWarning}
-              rowHeight={rowHeight}
-              height={height}
-              theme={theme}
-              isBounded={isBounded}
-            />
-            <CallbackPublisher
-              onWarn={onWarn}
-              onConfigChange={onConfigChange}
-              onLoaderChange={onLoaderChange}
-              validateOnConfigChange={validateOnConfigChange}
-              pluginSpecificConfigSchema={pluginSpecificConfigSchema}
-            />
-          </AuxiliaryProvider>
-        </ViewConfigProvider>
+        <QueryClientProvider client={queryClient}>
+          <ViewConfigProvider createStore={createViewConfigStoreClosure}>
+            <AuxiliaryProvider createStore={createAuxiliaryStore}>
+              <VitessceGrid
+                success={success}
+                configKey={configKey}
+                viewTypes={viewTypes}
+                fileTypes={fileTypes}
+                coordinationTypes={coordinationTypes}
+                config={configOrWarning}
+                rowHeight={rowHeight}
+                height={height}
+                theme={theme}
+                isBounded={isBounded}
+              />
+              <CallbackPublisher
+                onWarn={onWarn}
+                onConfigChange={onConfigChange}
+                onLoaderChange={onLoaderChange}
+                validateOnConfigChange={validateOnConfigChange}
+                pluginSpecificConfigSchema={pluginSpecificConfigSchema}
+              />
+            </AuxiliaryProvider>
+          </ViewConfigProvider>
+        </QueryClientProvider>
       </ThemeProvider>
     </StylesProvider>
   ) : (

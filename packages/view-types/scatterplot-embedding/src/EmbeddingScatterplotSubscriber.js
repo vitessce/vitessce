@@ -123,23 +123,24 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const observationsLabel = observationsLabelOverride || obsType;
 
-  const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
 
   const title = titleOverride || `Scatterplot (${mapping})`;
 
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
-    coordinationScopes, obsType, loaders, dataset, addUrl,
+    coordinationScopes, obsType, loaders, dataset,
   );
 
   // Get data from loaders using the data hooks.
-  const [{ obsIndex: obsEmbeddingIndex, obsEmbedding }, obsEmbeddingStatus] = useObsEmbeddingData(
-    loaders, dataset, addUrl, true, {}, {},
+  const [
+    { obsIndex: obsEmbeddingIndex, obsEmbedding }, obsEmbeddingStatus, obsEmbeddingUrls,
+  ] = useObsEmbeddingData(
+    loaders, dataset, true, {}, {},
     { obsType, embeddingType: mapping },
   );
   const cellsCount = obsEmbeddingIndex?.length || 0;
-  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus] = useObsSetsData(
-    loaders, dataset, addUrl, false,
+  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+    loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
@@ -149,12 +150,14 @@ export function EmbeddingScatterplotSubscriber(props) {
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsIndex: matrixObsIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
-    loaders, dataset, addUrl, false,
+  const [
+    { obsIndex: matrixObsIndex }, matrixIndicesStatus, matrixIndicesUrls,
+  ] = useObsFeatureMatrixIndices(
+    loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
-    loaders, dataset, addUrl, false, {}, {},
+  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+    loaders, dataset, false, {}, {},
     { featureType },
   );
 
@@ -164,6 +167,12 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureSelectionStatus,
     featureLabelsStatus,
     matrixIndicesStatus,
+  ]);
+  const urls = useUrls([
+    obsEmbeddingUrls,
+    obsSetsUrls,
+    matrixIndicesUrls,
+    featureLabelsUrls,
   ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
