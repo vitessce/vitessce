@@ -11,6 +11,7 @@ import {
   ChannelSelectionDropdown,
   ChannelVisibilityCheckbox,
 } from './shared-channel-controls.js';
+import { channelSliderStyles } from './styles.js';
 
 function abbreviateNumber(value) {
   // Return an abbreviated representation of value, in 5 characters or less.
@@ -65,9 +66,13 @@ function ChannelSlider({
     debounce(handleChange, 3, { trailing: true }),
     [handleChange],
   );
+
+  const classes = channelSliderStyles();
+
   const step = max - min < 500 && dtype.startsWith('Float') ? (max - min) / 500 : 1;
   return (
     <Slider
+      classes={{ valueLabel: classes.valueLabel }}
       value={slider}
       valueLabelFormat={abbreviateNumber}
       onChange={(e, v) => handleChangeDebounced(v)}
@@ -124,6 +129,7 @@ function RasterChannelController({
   const [selection, setSelection] = useState([
     { ...channels[channelId].selection },
   ]);
+
   const rgbColor = toRgbUIString(colormapOn, color, theme);
 
   useEffect(() => {

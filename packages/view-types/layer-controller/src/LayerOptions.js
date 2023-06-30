@@ -13,7 +13,7 @@ import {
 import {
   getBoundingCube, getMultiSelectionStats,
 } from './utils.js';
-import { StyledSelectionSlider, useSelectStyles } from './styles.js';
+import { StyledSelectionSlider, useSelectStyles, channelSliderStyles } from './styles.js';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
 
@@ -219,8 +219,11 @@ function TransparentColorCheckbox({ value, handleChange }) {
  * @prop {function} handleChange Callback for every change in opacity.
  */
 function OpacitySlider({ value, handleChange }) {
+  const classes = channelSliderStyles();
+
   return (
     <Slider
+      classes={{ valueLabel: classes.valueLabel }}
       value={value}
       onChange={(e, v) => handleChange(v)}
       valueLabelDisplay="auto"
@@ -229,7 +232,6 @@ function OpacitySlider({ value, handleChange }) {
       max={1}
       step={0.01}
       orientation="horizontal"
-      style={{ marginTop: '7px' }}
     />
   );
 }

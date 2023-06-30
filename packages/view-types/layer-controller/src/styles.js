@@ -17,6 +17,16 @@ const useSpanStyles = makeStyles(() => ({
   },
 }));
 
+export const channelSliderStyles = makeStyles(theme => ({
+  valueLabel: {
+    marginTop: '7px',
+    '& *': {
+      color: theme.palette.secondaryForeground, // Change color here
+      backgroundColor: theme.palette.secondaryBackgroundDim, // Change color here
+    },
+  },
+}));
+
 export function MuiSpan(props) {
   const { children } = props;
   const classes = useSpanStyles();
