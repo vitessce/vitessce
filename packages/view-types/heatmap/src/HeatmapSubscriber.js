@@ -101,24 +101,25 @@ export function HeatmapSubscriber(props) {
   // setObsColorEncoding with 'geneSelection' or 'cellSetSelection' upon a click.
   const [hoveredColorEncoding, setHoveredColorEncoding] = useState('geneSelection');
 
-  const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
 
   // Get data from loaders using the data hooks.
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
-    coordinationScopes, obsType, loaders, dataset, addUrl,
+    coordinationScopes, obsType, loaders, dataset,
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
-    loaders, dataset, addUrl, false, {}, {},
+  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+    loaders, dataset, false, {}, {},
     { featureType },
   );
-  const [{ obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus] = useObsFeatureMatrixData(
-    loaders, dataset, addUrl, true, {}, {},
+  const [
+    { obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus, matrixUrls,
+  ] = useObsFeatureMatrixData(
+    loaders, dataset, true, {}, {},
     { obsType, featureType, featureValueType },
   );
-  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus] = useObsSetsData(
-    loaders, dataset, addUrl, false,
+  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+    loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
@@ -127,6 +128,11 @@ export function HeatmapSubscriber(props) {
     featureLabelsStatus,
     matrixStatus,
     obsSetsStatus,
+  ]);
+  const urls = useUrls([
+    featureLabelsUrls,
+    matrixUrls,
+    obsSetsUrls,
   ]);
 
   const [uint8ObsFeatureMatrix, obsFeatureMatrixExtent] = useUint8ObsFeatureMatrix(
@@ -159,20 +165,6 @@ export function HeatmapSubscriber(props) {
     }
     return null;
   }, [variablesLabel, featureLabelsMap]);
-
-  const expressionMatrix = useMemo(() => {
-    if (obsIndex && featureIndex && uint8ObsFeatureMatrix) {
-      return {
-        rows: obsIndex,
-        cols: (featureLabelsMap
-          ? featureIndex.map(key => featureLabelsMap.get(key) || key)
-          : featureIndex
-        ),
-        matrix: uint8ObsFeatureMatrix.data,
-      };
-    }
-    return null;
-  }, [obsIndex, featureIndex, uint8ObsFeatureMatrix, featureLabelsMap]);
 
   const cellsCount = obsIndex ? obsIndex.length : 0;
   const genesCount = featureIndex ? featureIndex.length : 0;
@@ -239,12 +231,14 @@ export function HeatmapSubscriber(props) {
         width={width}
         theme={theme}
         uuid={uuid}
-        expressionMatrix={expressionMatrix}
+        uint8ObsFeatureMatrix={uint8ObsFeatureMatrix?.data}
         cellColors={cellColors}
         colormap={geneExpressionColormap}
         setIsRendering={setIsRendering}
         setCellHighlight={setCellHighlight}
         setGeneHighlight={setGeneHighlight}
+        featureLabelsMap={featureLabelsMap}
+        obsIndex={obsIndex}
         featureIndex={featureIndex}
         setTrackHighlight={setTrackHighlight}
         setComponentHover={() => {

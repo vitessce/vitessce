@@ -40,8 +40,7 @@ export const useAuxiliaryStore = useAuxiliaryStoreLocal;
  */
 export const createViewConfigStore = () => create(set => ({
   // State:
-  // The viewConfig is an object which must conform to the schema
-  // found in src/schemas/config.schema.json.
+  // The viewConfig is an object which must conform to the schema.
   viewConfig: null,
   // The loaders object is a mapping from dataset ID to
   // data type to loader object instance.
@@ -434,6 +433,37 @@ export function useLoaders() {
   return useViewConfigStore(state => state.loaders);
 }
 
+
+/**
+ * Find a specific loader instance for a particular dataset, data type, and view
+ * coordination values (mapping from coordination types to coordination values).
+ * Uses lodash/isMatch to perform matching against the file definition's
+ * coordination value mapping.
+ * @param {object} loaders The value returned by useLoaders.
+ * @param {string} dataset The dataset UID.
+ * @param {string} dataType The data type for the matching file.
+ * @param {object} viewCoordinationValues Current coordination values
+ * from the view. Match these against a subset of file definition coordination
+ * values.
+ * @returns The matching loader instance or `null`.
+ */
+export function getMatchingLoader(loaders, dataset, dataType, viewCoordinationValues) {
+  if (!loaders[dataset]) {
+    return null;
+  }
+  const loaderInternMap = loaders[dataset].loaders[dataType];
+  if (!loaderInternMap) {
+    return null;
+  }
+  const loaderKeys = Array.from(loaderInternMap.keys());
+  const matchingKey = loaderKeys
+    .find(fileCoordinationValues => isMatch(fileCoordinationValues, viewCoordinationValues));
+  if (!matchingKey) {
+    return null;
+  }
+  return loaderInternMap.get(matchingKey);
+}
+
 /**
  * Find a specific loader instance for a particular dataset, data type, and view
  * coordination values (mapping from coordination types to coordination values).
@@ -448,22 +478,9 @@ export function useLoaders() {
  * @returns The matching loader instance or `null`.
  */
 export function useMatchingLoader(loaders, dataset, dataType, viewCoordinationValues) {
-  return useMemo(() => {
-    if (!loaders[dataset]) {
-      return null;
-    }
-    const loaderInternMap = loaders[dataset].loaders[dataType];
-    if (!loaderInternMap) {
-      return null;
-    }
-    const loaderKeys = Array.from(loaderInternMap.keys());
-    const matchingKey = loaderKeys
-      .find(fileCoordinationValues => isMatch(fileCoordinationValues, viewCoordinationValues));
-    if (!matchingKey) {
-      return null;
-    }
-    return loaderInternMap.get(matchingKey);
-  }, [loaders, dataset, dataType, viewCoordinationValues]);
+  return useMemo(() => getMatchingLoader(
+    loaders, dataset, dataType, viewCoordinationValues,
+  ), [loaders, dataset, dataType, viewCoordinationValues]);
 }
 
 /**
@@ -471,6 +488,7 @@ export function useMatchingLoader(loaders, dataset, dataType, viewCoordinationVa
  * coordination values (mapping from coordination types to coordination values).
  * Uses lodash/isMatch to perform matching against the file definition's
  * coordination value mapping.
+ * TODO: can this function be removed?
  * @param {object} loaders The value returned by useLoaders.
  * @param {string} dataset The dataset UID.
  * @param {string} dataType The data type for the matching file.

@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { DataType } from './constants.js';
 import {
   DATA_TYPE_COORDINATION_VALUE_USAGE,

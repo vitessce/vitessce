@@ -27,7 +27,7 @@
   ],
   "scripts": {
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
-    "test": "pnpm exec vitest --run -r ../../ --dir .",
+    "test": "pnpm exec vitest --run",
     "glslify": "cat src/glsl/colormaps.in.glsl | glslify > src/glsl/colormaps.out.glsl"
   },
   "dependencies": {
