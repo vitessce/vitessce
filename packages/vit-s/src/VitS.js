@@ -118,7 +118,7 @@ export function VitS(props) {
       return [warning, false];
     }
     logConfig(config, 'input view config');
-    if(!validateConfig) {
+    if (!validateConfig) {
       return [config, true];
     }
     const result = latestConfigSchema.safeParse(config);
