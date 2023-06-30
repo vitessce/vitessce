@@ -24,7 +24,7 @@
   - Rename `makeStyles` keys to be more specific to avoid conflicts.
 - Only generate ESM builds for `vitessce` and `@vitessce/dev`.
 - Use `@tanstack/react-query` for data fetching.
-
+- Fixed a bug in SetManager popover menu, where the text is not visible in vitessce.io in dark mode.
 
 ## [3.0.0](https://www.npmjs.com/package/vitessce/v/3.0.0) - 2023-05-24
 
