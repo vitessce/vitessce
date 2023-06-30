@@ -250,12 +250,12 @@ export function EmbeddingScatterplotSubscriber(props) {
   useEffect(() => {
     if (xRange && yRange) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(
-        window.devicePixelRatio, initialZoom, xRange, yRange, width, height,
+        window.devicePixelRatio, zoom, xRange, yRange, width, height,
       );
       setDynamicCellRadius(pointSizeDevicePixels);
 
       const nextCellOpacityScale = getPointOpacity(
-        initialZoom, xRange, yRange, width, height, numCells, averageFillDensity,
+        zoom, xRange, yRange, width, height, numCells, averageFillDensity,
       );
       setDynamicCellOpacity(nextCellOpacityScale);
 
@@ -282,7 +282,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [xRange, yRange, xExtent, yExtent, numCells,
-    width, height, initialZoom, initialTargetX, initialTargetY, averageFillDensity]);
+    width, height, initialZoom, zoom, initialTargetX, initialTargetY, averageFillDensity]);
 
   const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
