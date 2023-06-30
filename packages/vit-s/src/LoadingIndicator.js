@@ -19,14 +19,23 @@ const useStyles = makeStyles(() => ({
     width: '100%',
     height: '100%',
   },
+  visuallyHidden: {
+    position: 'absolute',
+    height: '1px',
+    width: '1px',
+    overflow: 'hidden',
+    clip: 'rect(1px, 1px, 1px, 1px)',
+    whiteSpace: 'nowrap',
+  },
 }));
 
 export default function LoadingIndicator() {
   const classes = useStyles();
   return (
     <div className={classes.loadingIndicatorBackdrop}>
-      <div className={classes.loadingIndicatorContainer}>
+      <div className={classes.loadingIndicatorContainer} role="status" aria-live="polite">
         <CircularProgress />
+        <span className={classes.visuallyHidden}>Loading...</span>
       </div>
     </div>
   );

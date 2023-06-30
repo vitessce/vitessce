@@ -64,6 +64,7 @@ function PlotOptions(props) {
       buttonIcon={<SettingsIconWithArrow open={open} />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      ariaLabel="Open plot options menu"
     >
       {options}
     </PopperMenu>
@@ -90,6 +91,7 @@ function DownloadOptions(props) {
       buttonIcon={<CloudDownloadIconWithArrow open={open} />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      ariaLabel="Open download options menu."
     >
       {urls.map(({ url, name }) => (
         <MenuItem dense key={`${url}_${name}`} aria-label={`Click to download ${name}`}>
@@ -129,14 +131,14 @@ export function TitleInfo(props) {
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
     <>
-      <div className={classes.title}>
-        <div className={classes.titleLeft}>
+      <div className={classes.title} role="banner">
+        <div className={classes.titleLeft} role="heading" aria-level="1">
           {title}
         </div>
-        <div className={classes.titleInfo} title={info}>
+        <div className={classes.titleInfo} title={info} role="note">
           {info}
         </div>
-        <div className={classes.titleButtons}>
+        <div className={classes.titleButtons} role="toolbar" aria-label="Plot options and controls.">
           <PlotOptions
             options={options}
           />
@@ -158,6 +160,8 @@ export function TitleInfo(props) {
             [classes.noScrollCard]: !isScroll && !isSpatial,
           },
         )}
+        aria-busy={!isReady}
+        role="main"
       >
         { !isReady && <LoadingIndicator /> }
         {children}
