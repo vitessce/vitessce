@@ -333,6 +333,10 @@ export function useFeatureSelectionMulti(
 /**
  * Get a flat list of tuples like (queryKey, scopeInfo)
  * where scopeInfo is an object like { levelScopes, featureIndex, numFeatures }.
+ * Selections and matchOnObj are assumed to be objects with the same keys,
+ * both nested to the specified depth. For example, if depth is 2,
+ * the first level of keys might be for image layer scopes,
+ * and the second level of keys might be for channel scopes.
  * @param {object} selections 
  * @param {object} matchOnObj 
  * @param {number} depth 
@@ -340,7 +344,10 @@ export function useFeatureSelectionMulti(
  * @param {string} dataType 
  * @returns 
  */
-function getQueryKeyScopeTuples(selections, matchOnObj, depth, dataset, dataType) {
+export function getQueryKeyScopeTuples(
+  selections, matchOnObj, depth,
+  dataset, dataType, isRequired,
+) {
   // Begin recursion.
   return getQueryKeyScopeTuplesAux(
     selections,
@@ -348,6 +355,7 @@ function getQueryKeyScopeTuples(selections, matchOnObj, depth, dataset, dataType
     depth,
     dataset,
     dataType,
+    isRequired,
     [],
     selections,
     matchOnObj,
@@ -355,15 +363,16 @@ function getQueryKeyScopeTuples(selections, matchOnObj, depth, dataset, dataType
 }
 
 function getQueryKeyScopeTuplesAux(
-  allSelections, allMatchOnObj, depth, dataset, dataType,
-  prevLevelScopes, currSelection, currMatchOn
+  allSelections, allMatchOnObj, depth, dataset, dataType, isRequired,
+  prevLevelScopes, currSelection, currMatchOn,
 ) {
   // Base case
   if(depth === 0) {
     return currSelection
       ?.map((featureId, featureIndex) => ([
         // queryKey:
-        [dataset, dataType, currMatchOn, featureId, 'useFeatureSelectionMultiLevel'], // TODO: use same key as useFeatureSelection for shared cache?
+        // TODO: use same key suffix as useFeatureSelection for shared caching?
+        [dataset, dataType, currMatchOn, featureId, isRequired, 'useFeatureSelectionMultiLevel'],
         // scope info (for rolling up later)
         { levelScopes: prevLevelScopes, featureIndex, numFeatures: currSelection.length },
       ])) || [];
@@ -376,10 +385,100 @@ function getQueryKeyScopeTuplesAux(
       depth - 1,
       dataset,
       dataType,
+      isRequired,
       [...prevLevelScopes, levelScope],
       levelSelections,
       currMatchOn?.[levelScope],
     )) || [];
+}
+
+/**
+ * For a list of paths into a nested object,
+ * initialize the object if the object keys do not yet exist.
+ * For the first level, the object is initialized to the return
+ * value of getBaseValue. For example, this allows initializing
+ * to an empty array (without reusing the same array object reference).
+ * @param {string[]} levelScopes 
+ * @param {object} currObj 
+ * @param {function} getBaseValue 
+ * @returns The value at the end of the path specified by `levelScopes`.
+ */
+export function initializeNestedObject(levelScopes, currObj, getBaseValue) {
+  // Begin recursion.
+  return initializeNestedObjectAux(levelScopes, currObj, getBaseValue, 0);
+}
+
+function initializeNestedObjectAux(levelScopes, currObj, getBaseValue, currLevel) {
+  const currScope = levelScopes[currLevel];
+  const depthRemaining = levelScopes.length - currLevel;
+  // Base case.
+  if(depthRemaining === 0) {
+    return currObj;
+  }
+  // Recursive case.
+  if(!currObj[currScope]) {
+    if(depthRemaining === 1) {
+      currObj[currScope] = getBaseValue();
+    } else {
+      currObj[currScope] = {};
+    }
+  }
+  return initializeNestedObjectAux(levelScopes, currObj[currScope], getBaseValue, currLevel + 1);
+}
+
+/**
+ * Nest query results.
+ * @param {array} queryKeyScopeTuples
+ * @param {array} flatQueryResults Return value of useQueries,
+ * after .map() to get inner data elements.
+ * @returns The nested object.
+ */
+export function nestQueryResults(queryKeyScopeTuples, flatQueryResults) {
+  const nestedData = {};
+
+  // eslint-disable-next-line no-unused-vars
+  queryKeyScopeTuples.forEach(([queryKey, { levelScopes, featureIndex, numFeatures }], i) => {
+    const getBaseValue = () => new Array(numFeatures);
+    const subObj = initializeNestedObject(levelScopes, nestedData, getBaseValue);
+    subObj[featureIndex] = flatQueryResults?.[i];
+  });
+  return nestedData;
+}
+
+async function featureSelectionQueryFn(ctx) {
+  // (copied from  useFeatureSelection queryFn)
+  const { loaders } = ctx.meta;
+  const [dataset, dataType, matchOn, featureId, isRequired] = ctx.queryKey;
+  const loader = getMatchingLoader(loaders, dataset, dataType, matchOn);
+  if (loader) {
+    const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
+    if (implementsGeneSelection) {
+      const payload = await loader.loadGeneSelection({ selection: [featureId] });
+      if (!payload) return null;
+      const { data } = payload;
+      return { data: data[0], dataKey: featureId };
+    }
+    // Loader does not implement loadGeneSelection.
+    const payload = await loader.load();
+    if (!payload) return null;
+    const { data } = payload;
+    const { obsIndex, featureIndex, obsFeatureMatrix } = data;
+    // Compute expressionData
+    const geneIndex = featureIndex.indexOf(featureId);
+    const numGenes = featureIndex.length;
+    const numCells = obsIndex.length;
+    const expressionData = new Float32Array(numCells);
+    for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
+      expressionData[cellIndex] = obsFeatureMatrix.data[cellIndex * numGenes + geneIndex];
+    }
+    return { data: expressionData, dataKey: featureId };
+  }
+  // No loader was found.
+  if (isRequired) {
+    throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
+  } else {
+    return { data: null, dataKey: null };
+  }
 }
 
 // TODO: conveert to support a `numLevels` parameter for arbitrary depth.
@@ -390,57 +489,18 @@ export function useFeatureSelectionMultiLevel(
   const setWarning = useSetWarning();
 
   // Create a flat list of tuples (queryKey, scopeInfo).
-  const queryKeyScopeTuples = getQueryKeyScopeTuples(
-    selections, matchOnObj, depth, dataset, DataType.OBS_FEATURE_MATRIX,
-  );
-  console.log(queryKeyScopeTuples);
-    
-  // Create the list of queries to pass to useQueries.
-  const queries = queryKeyScopeTuples.map(([queryKey]) => ({
-    structuralSharing: false,
-    placeholderData: null,
-    queryKey,
-    queryFn: async (ctx) => {
-      // (copied from  useFeatureSelection queryFn)
-      const loader = getMatchingLoader(
-        ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2]
-      );
-      const featureId = ctx.queryKey[3];
-      if (loader) {
-        const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
-        if (implementsGeneSelection) {
-          const payload = await loader.loadGeneSelection({ selection: [featureId] });
-          if (!payload) return null;
-          const { data } = payload;
-          return { data: data[0], dataKey: featureId };
-        }
-        // Loader does not implement loadGeneSelection.
-        const payload = await loader.load();
-        if (!payload) return null;
-        const { data } = payload;
-        const { obsIndex, featureIndex, obsFeatureMatrix } = data;
-        // Compute expressionData
-        const geneIndex = featureIndex.indexOf(featureId);
-        const numGenes = featureIndex.length;
-        const numCells = obsIndex.length;
-        const expressionData = new Float32Array(numCells);
-        for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
-          expressionData[cellIndex] = obsFeatureMatrix.data[cellIndex * numGenes + geneIndex];
-        }
-        return { data: expressionData, dataKey: featureId };
-      }
-      // No loader was found.
-      if (isRequired) {
-        throw new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
-      } else {
-        return { data: null, dataKey: null };
-      }
-    },
-    meta: { loaders },
-  }));
+  const queryKeyScopeTuples = useMemo(() => getQueryKeyScopeTuples(
+    selections, matchOnObj, depth, dataset, DataType.OBS_FEATURE_MATRIX, isRequired,
+  ), [selections, matchOnObj, depth, dataset]);
 
   const featureQueries = useQueries({
-    queries,
+    queries: queryKeyScopeTuples.map(([queryKey]) => ({
+      structuralSharing: false,
+      placeholderData: null,
+      queryKey,
+      queryFn: featureSelectionQueryFn,
+      meta: { loaders },
+    })),
   });
 
   const anyLoading = featureQueries.some(q => q.isFetching);
@@ -464,30 +524,19 @@ export function useFeatureSelectionMultiLevel(
 
   // Need to re-nest the geneData and the loadedGeneName info.
   const [geneData, loadedGeneName] = useMemo(() => {
-    // TODO: ensure this useMemo does not execute every render.
-    const nestedGeneData = {};
-    const nestedLoadedGeneName = {};
-
-    // eslint-disable-next-line no-unused-vars
-    queryKeyScopeTuples.forEach(([queryKey, { levelScopes, featureIndex, numFeatures }], i) => {
-      // TODO: generalize to arbitrary depth.
-      const layerScope = levelScopes[0];
-      const channelScope = levelScopes[1];
-
-      if(!nestedGeneData[layerScope] && !nestedLoadedGeneName[layerScope]) {
-        nestedGeneData[layerScope] = {};
-        nestedLoadedGeneName[layerScope] = {};
-      }
-      if(!nestedGeneData[layerScope][channelScope] && !nestedLoadedGeneName[layerScope][channelScope]) {
-        nestedGeneData[layerScope][channelScope] = new Array(numFeatures);
-        nestedLoadedGeneName[layerScope][channelScope] = new Array(numFeatures);
-      }
-      nestedGeneData[layerScope][channelScope][featureIndex] = flatGeneData?.[i];
-      nestedLoadedGeneName[layerScope][channelScope][featureIndex] = flatLoadedGeneName?.[i];
-    });
+    const nestedGeneData = nestQueryResults(queryKeyScopeTuples, flatGeneData);
+    const nestedLoadedGeneName = nestQueryResults(queryKeyScopeTuples, flatLoadedGeneName);
     return [nestedGeneData, nestedLoadedGeneName];
-  }, [featureQueries]);
   
+  // We do not want this useMemo to execute on every re-render, only when the
+  // featureQueries results change. Unfortunately, the featureQueries array
+  // reference is not stable on each re-render, so we use dataUpdatedAt instead.
+  // We use .reduce to ensure the number of dependencies is stable
+  // (i.e., a single number, despite possibly different numbers of queries).
+  // Reference: https://github.com/TanStack/query/issues/3049#issuecomment-1253201068
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [featureQueries.reduce((a, h) => a + h.dataUpdatedAt, 0)]);
+
   return [geneData, loadedGeneName, dataStatus];
 }
 
