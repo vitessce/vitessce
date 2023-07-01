@@ -218,7 +218,7 @@ export function useFeatureSelection(
             const payload = await loader.loadGeneSelection({ selection: [featureId] });
             if (!payload) return null;
             const { data } = payload;
-            return { data: data[0], dataKey: selection };
+            return { data: data[0], dataKey: featureId };
           }
           // Loader does not implement loadGeneSelection.
           const payload = await loader.load();
@@ -469,6 +469,7 @@ export function useMultiFeatureSelection(
   const [featureData, loadedSelections, featureStatus] = useFeatureSelectionMultiSecondary(
     loaders, dataset, false, matchOnObj, selections,
   );
+  console.log(featureData, loadedSelections);
   return [featureData, loadedSelections, featureStatus];
 }
 

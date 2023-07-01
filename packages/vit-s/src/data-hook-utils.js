@@ -330,115 +330,115 @@ export function useFeatureSelectionMulti(
   return [geneData, loadedGeneNames, status];
 }
 
+// TODO: conveert to support a `numLevels` parameter for arbitrary depth.
 export function useFeatureSelectionMultiSecondary(
-  loaders, dataset, isRequired, matchOnObj,
-  selections,
+  loaders, dataset, isRequired, matchOnObj, selections,
 ) {
-  const [geneData, setGeneData] = useState({});
-  // TODO: per-scopeKey status values
-  const [status, setStatus] = useState(STATUS.LOADING);
-  const [loadedGeneNames, setLoadedGeneNames] = useState({});
-
   const setWarning = useSetWarning();
-  const matchingLoaders = useMatchingLoadersSecondary(
-    loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOnObj,
-  );
+
+  // Create a flat list of tuples (queryKey, scopeInfo).
+  const queryKeyScopeTuples = Object.entries(selections)
+    ?.flatMap(([layerScope, channelSelections]) => Object.entries(channelSelections)
+      ?.flatMap(([channelScope, channelSelection]) => channelSelection
+        ?.map((featureId, featureIndex) => ([
+          // queryKey:
+          [dataset, DataType.OBS_FEATURE_MATRIX, matchOnObj?.[layerScope]?.[channelScope], featureId, 'useFeatureSelectionMultiSecondary'], // TODO: use same key as useFeatureSelection for shared cache?
+          // scope info (for rolling up later)
+          [layerScope, channelScope, featureIndex, channelSelection.length],
+        ])) || [],
+      ) || [],
+    ) || [];
+    
+  // Create the list of queries to pass to useQueries.
+  const queries = queryKeyScopeTuples.map(([queryKey]) => ({
+    structuralSharing: false,
+    placeholderData: null,
+    queryKey,
+    queryFn: async (ctx) => {
+      // (copied from  useFeatureSelection queryFn)
+      const loader = getMatchingLoader(
+        ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2]
+      );
+      const featureId = ctx.queryKey[3];
+      if (loader) {
+        const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
+        if (implementsGeneSelection) {
+          const payload = await loader.loadGeneSelection({ selection: [featureId] });
+          if (!payload) return null;
+          const { data } = payload;
+          return { data: data[0], dataKey: featureId };
+        }
+        // Loader does not implement loadGeneSelection.
+        const payload = await loader.load();
+        if (!payload) return null;
+        const { data } = payload;
+        const { obsIndex, featureIndex, obsFeatureMatrix } = data;
+        // Compute expressionData
+        const geneIndex = featureIndex.indexOf(featureId);
+        const numGenes = featureIndex.length;
+        const numCells = obsIndex.length;
+        const expressionData = new Float32Array(numCells);
+        for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
+          expressionData[cellIndex] = obsFeatureMatrix.data[cellIndex * numGenes + geneIndex];
+        }
+        return { data: expressionData, dataKey: featureId };
+      }
+      // No loader was found.
+      if (isRequired) {
+        throw new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
+      } else {
+        return { data: null, dataKey: null };
+      }
+    },
+    meta: { loaders },
+  }));
+
+  const featureQueries = useQueries({
+    queries,
+  });
+
+  const anyLoading = featureQueries.some(q => q.isFetching);
+  const anyError = featureQueries.some(q => q.isError);
+  // eslint-disable-next-line no-nested-ternary
+  const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
+  const isSuccess = dataStatus === STATUS.SUCCESS;
+  const flatGeneData = featureQueries.map(q => q.data?.data || null);
+  const flatLoadedGeneName = featureQueries.map(q => q.data?.dataKey || null);
 
   useEffect(() => {
-    if (!selections) {
-      setGeneData({});
-      setLoadedGeneNames({});
-      setStatus(STATUS.SUCCESS);
-      return;
-    }
-    if (matchingLoaders) {
-      setGeneData({});
-      setLoadedGeneNames({});
-      setStatus(STATUS.LOADING);
-      Object.entries(matchingLoaders).forEach(([layerScope, layerMatchingLoaders]) => {
-        Object.entries(layerMatchingLoaders).forEach(([channelScope, loader]) => {
-          if (loader) {
-            const selection = selections[layerScope][channelScope];
-            if (selection) {
-              const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
-              if (implementsGeneSelection) {
-                loader
-                  .loadGeneSelection({ selection })
-                  .catch(e => warn(e, setWarning))
-                  .then((payload) => {
-                    if (!payload) return;
-                    const { data: payloadData } = payload;
-                    setGeneData(prev => ({
-                      ...prev,
-                      // eslint-disable-next-line no-param-reassign
-                      [layerScope]: {
-                        ...(prev[layerScope] || {}),
-                        [channelScope]: payloadData,
-                      },
-                    }));
-                    setStatus(STATUS.SUCCESS);
-                    setLoadedGeneNames(prev => ({
-                      ...prev,
-                      [layerScope]: {
-                        ...(prev[layerScope] || {}),
-                        [channelScope]: selection,
-                      },
-                    }));
-                  });
-              } else {
-                loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-                  if (!payload) return;
-                  const { data } = payload;
-                  const { obsIndex, featureIndex, obsFeatureMatrix } = data;
-                  const expressionDataForSelection = selection.map((sel) => {
-                    const geneIndex = featureIndex.indexOf(sel);
-                    const numGenes = featureIndex.length;
-                    const numCells = obsIndex.length;
-                    const expressionData = new Float32Array(numCells);
-                    for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
-                      expressionData[cellIndex] = obsFeatureMatrix
-                        .data[cellIndex * numGenes + geneIndex];
-                    }
-                    return expressionData;
-                  });
-                  setGeneData(prev => ({
-                    ...prev,
-                    [layerScope]: {
-                      ...(prev[layerScope] || {}),
-                      [channelScope]: expressionDataForSelection,
-                    },
-                  }));
-                  setStatus(STATUS.SUCCESS);
-                  setLoadedGeneNames(prev => ({
-                    ...prev,
-                    [layerScope]: {
-                      ...(prev[layerScope] || {}),
-                      [channelScope]: selection,
-                    },
-                  }));
-                });
-              }
-            }
-          }
-        });
+    featureQueries
+      .map(q => q.error)
+      .filter(e => Boolean(e))
+      .forEach((error) => {
+        warn(error, setWarning);
       });
-    } else {
-      setGeneData({});
-      setLoadedGeneNames({});
-      if (isRequired) {
-        warn(
-          new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOnObj),
-          setWarning,
-        );
-        setStatus(STATUS.ERROR);
-      } else {
-        setStatus(STATUS.SUCCESS);
-      }
-    }
+  // Deliberate dependency omissions: use indirect dependencies for efficiency.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchingLoaders, selections]);
+  }, [anyError, setWarning]);
 
-  return [geneData, loadedGeneNames, status];
+  // Need to re-nest the geneData and the loadedGeneName info.
+  const [geneData, loadedGeneName] = useMemo(() => {
+    // TODO: ensure this useMemo does not execute every render.
+    const nestedGeneData = {};
+    const nestedLoadedGeneName = {};
+
+    // eslint-disable-next-line no-unused-vars
+    queryKeyScopeTuples.forEach(([queryKey, [layerScope, channelScope, featureIndex, numFeatures]], i) => {
+      if(!nestedGeneData[layerScope] && !nestedLoadedGeneName[layerScope]) {
+        nestedGeneData[layerScope] = {};
+        nestedLoadedGeneName[layerScope] = {};
+      }
+      if(!nestedGeneData[layerScope][channelScope] && !nestedLoadedGeneName[layerScope][channelScope]) {
+        nestedGeneData[layerScope][channelScope] = new Array(numFeatures);
+        nestedLoadedGeneName[layerScope][channelScope] = new Array(numFeatures);
+      }
+      nestedGeneData[layerScope][channelScope][featureIndex] = flatGeneData?.[i];
+      nestedLoadedGeneName[layerScope][channelScope][featureIndex] = flatLoadedGeneName?.[i];
+    });
+    return [nestedGeneData, nestedLoadedGeneName];
+  }, [featureQueries]);
+  
+  return [geneData, loadedGeneName, dataStatus];
 }
 
 export function useObsFeatureMatrixIndicesMulti(
