@@ -231,105 +231,6 @@ export function useHasLoader(loaders, dataset, dataType, matchOn) {
   return loader !== null;
 }
 
-// Multi-obsFeatureMatrix analog of useFeatureSelection
-export function useFeatureSelectionMulti(
-  loaders, dataset, isRequired, matchOnObj,
-  selections,
-) {
-  const [geneData, setGeneData] = useState({});
-  // TODO: per-scopeKey status values
-  const [status, setStatus] = useState(STATUS.LOADING);
-  const [loadedGeneNames, setLoadedGeneNames] = useState({});
-
-  const setWarning = useSetWarning();
-  const matchingLoaders = useMatchingLoaders(
-    loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOnObj,
-  );
-
-  useEffect(() => {
-    if (!selections) {
-      setGeneData({});
-      setLoadedGeneNames({});
-      setStatus(STATUS.SUCCESS);
-      return;
-    }
-    if (matchingLoaders) {
-      setGeneData({});
-      setLoadedGeneNames({});
-      setStatus(STATUS.LOADING);
-      Object.entries(matchingLoaders).forEach(([scopeKey, loader]) => {
-        if (loader) {
-          const selection = selections[scopeKey];
-          if (selection) {
-            const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
-            if (implementsGeneSelection) {
-              loader
-                .loadGeneSelection({ selection })
-                .catch(e => warn(e, setWarning))
-                .then((payload) => {
-                  if (!payload) return;
-                  const { data: payloadData } = payload;
-                  setGeneData(prev => ({
-                    ...prev,
-                    // eslint-disable-next-line no-param-reassign
-                    [scopeKey]: payloadData,
-                  }));
-                  setStatus(STATUS.SUCCESS);
-                  setLoadedGeneNames(prev => ({
-                    ...prev,
-                    [scopeKey]: selection,
-                  }));
-                });
-            } else {
-              loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-                if (!payload) return;
-                const { data } = payload;
-                const { obsIndex, featureIndex, obsFeatureMatrix } = data;
-                const expressionDataForSelection = selection.map((sel) => {
-                  const geneIndex = featureIndex.indexOf(sel);
-                  const numGenes = featureIndex.length;
-                  const numCells = obsIndex.length;
-                  const expressionData = new Float32Array(numCells);
-                  for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
-                    expressionData[cellIndex] = obsFeatureMatrix
-                      .data[cellIndex * numGenes + geneIndex];
-                  }
-                  return expressionData;
-                });
-                setGeneData(prev => ({
-                  ...prev,
-                  // eslint-disable-next-line no-param-reassign
-                  [scopeKey]: expressionDataForSelection,
-                }));
-                setStatus(STATUS.SUCCESS);
-                setLoadedGeneNames(prev => ({
-                  ...prev,
-                  [scopeKey]: selection,
-                }));
-              });
-            }
-          }
-        }
-      });
-    } else {
-      setGeneData({});
-      setLoadedGeneNames({});
-      if (isRequired) {
-        warn(
-          new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOnObj),
-          setWarning,
-        );
-        setStatus(STATUS.ERROR);
-      } else {
-        setStatus(STATUS.SUCCESS);
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchingLoaders, selections]);
-
-  return [geneData, loadedGeneNames, status];
-}
-
 /**
  * Get a flat list of tuples like (queryKey, scopeInfo)
  * where scopeInfo is an object like { levelScopes, featureIndex, numFeatures }.
@@ -481,7 +382,6 @@ async function featureSelectionQueryFn(ctx) {
   }
 }
 
-// TODO: conveert to support a `numLevels` parameter for arbitrary depth.
 export function useFeatureSelectionMultiLevel(
   loaders, dataset, isRequired, matchOnObj, selections,
   depth,

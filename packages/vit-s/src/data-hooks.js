@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal';
 import { fromEntries } from '@vitessce/utils';
-import { useMatchingLoader, useMultiCoordinationValues, useComplexCoordination, useSetWarning, useComplexCoordinationSecondary } from './state/hooks.js';
+import { useMultiCoordinationValues, useComplexCoordination, useSetWarning, useComplexCoordinationSecondary } from './state/hooks.js';
 import { useQuery, useQueries } from '@tanstack/react-query';
 import {
   getMatchingLoader,
@@ -15,7 +15,6 @@ import {
   warn,
   useDataType,
   useDataTypeMulti,
-  useFeatureSelectionMulti,
   useObsFeatureMatrixIndicesMulti,
   useFeatureSelectionMultiLevel,
 } from './data-hook-utils.js';
