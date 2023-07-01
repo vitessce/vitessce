@@ -330,24 +330,70 @@ export function useFeatureSelectionMulti(
   return [geneData, loadedGeneNames, status];
 }
 
+/**
+ * Get a flat list of tuples like (queryKey, scopeInfo)
+ * where scopeInfo is an object like { levelScopes, featureIndex, numFeatures }.
+ * @param {object} selections 
+ * @param {object} matchOnObj 
+ * @param {number} depth 
+ * @param {string} dataset 
+ * @param {string} dataType 
+ * @returns 
+ */
+function getQueryKeyScopeTuples(selections, matchOnObj, depth, dataset, dataType) {
+  // Begin recursion.
+  return getQueryKeyScopeTuplesAux(
+    selections,
+    matchOnObj,
+    depth,
+    dataset,
+    dataType,
+    [],
+    selections,
+    matchOnObj,
+  );
+}
+
+function getQueryKeyScopeTuplesAux(
+  allSelections, allMatchOnObj, depth, dataset, dataType,
+  prevLevelScopes, currSelection, currMatchOn
+) {
+  // Base case
+  if(depth === 0) {
+    return currSelection
+      ?.map((featureId, featureIndex) => ([
+        // queryKey:
+        [dataset, dataType, currMatchOn, featureId, 'useFeatureSelectionMultiLevel'], // TODO: use same key as useFeatureSelection for shared cache?
+        // scope info (for rolling up later)
+        { levelScopes: prevLevelScopes, featureIndex, numFeatures: currSelection.length },
+      ])) || [];
+  }
+  // Recursive case
+  return Object.entries(currSelection)
+    ?.flatMap(([levelScope, levelSelections]) => getQueryKeyScopeTuplesAux(
+      allSelections,
+      allMatchOnObj,
+      depth - 1,
+      dataset,
+      dataType,
+      [...prevLevelScopes, levelScope],
+      levelSelections,
+      currMatchOn?.[levelScope],
+    )) || [];
+}
+
 // TODO: conveert to support a `numLevels` parameter for arbitrary depth.
-export function useFeatureSelectionMultiSecondary(
+export function useFeatureSelectionMultiLevel(
   loaders, dataset, isRequired, matchOnObj, selections,
+  depth,
 ) {
   const setWarning = useSetWarning();
 
   // Create a flat list of tuples (queryKey, scopeInfo).
-  const queryKeyScopeTuples = Object.entries(selections)
-    ?.flatMap(([layerScope, channelSelections]) => Object.entries(channelSelections)
-      ?.flatMap(([channelScope, channelSelection]) => channelSelection
-        ?.map((featureId, featureIndex) => ([
-          // queryKey:
-          [dataset, DataType.OBS_FEATURE_MATRIX, matchOnObj?.[layerScope]?.[channelScope], featureId, 'useFeatureSelectionMultiSecondary'], // TODO: use same key as useFeatureSelection for shared cache?
-          // scope info (for rolling up later)
-          [layerScope, channelScope, featureIndex, channelSelection.length],
-        ])) || [],
-      ) || [],
-    ) || [];
+  const queryKeyScopeTuples = getQueryKeyScopeTuples(
+    selections, matchOnObj, depth, dataset, DataType.OBS_FEATURE_MATRIX,
+  );
+  console.log(queryKeyScopeTuples);
     
   // Create the list of queries to pass to useQueries.
   const queries = queryKeyScopeTuples.map(([queryKey]) => ({
@@ -423,7 +469,11 @@ export function useFeatureSelectionMultiSecondary(
     const nestedLoadedGeneName = {};
 
     // eslint-disable-next-line no-unused-vars
-    queryKeyScopeTuples.forEach(([queryKey, [layerScope, channelScope, featureIndex, numFeatures]], i) => {
+    queryKeyScopeTuples.forEach(([queryKey, { levelScopes, featureIndex, numFeatures }], i) => {
+      // TODO: generalize to arbitrary depth.
+      const layerScope = levelScopes[0];
+      const channelScope = levelScopes[1];
+
       if(!nestedGeneData[layerScope] && !nestedLoadedGeneName[layerScope]) {
         nestedGeneData[layerScope] = {};
         nestedLoadedGeneName[layerScope] = {};
