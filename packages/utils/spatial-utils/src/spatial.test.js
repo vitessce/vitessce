@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { square, coordinateTransformationsToMatrix } from './spatial.js';
 
 const defaultAxes = [

@@ -25,12 +25,16 @@ export default defineConfig({
     },
     rollupOptions: {
       external: ['react', 'react-dom', ...moreExternals],
+      // output.globals required for UMD builds
+      // (e.g., no longer used since only generating ESM build)
+      /*
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
         },
       },
+      */
     },
   },
   define: {

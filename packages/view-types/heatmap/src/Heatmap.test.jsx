@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
+import { describe, it, expect, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
 import { cleanup, render } from '@testing-library/react';
-import { afterEach } from 'vitest';
 import React from 'react';
 
 import Heatmap from './Heatmap.js';

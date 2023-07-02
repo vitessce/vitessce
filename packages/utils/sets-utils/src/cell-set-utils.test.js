@@ -1,4 +1,5 @@
 /* eslint-disable no-underscore-dangle */
+import { describe, it, expect } from 'vitest';
 import { cloneDeep } from 'lodash-es';
 
 import {

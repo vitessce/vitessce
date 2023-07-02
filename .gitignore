@@ -16,3 +16,4 @@ packages/**/CHANGELOG.md
 sites/**/CHANGELOG.md
 examples/**/CHANGELOG.md
 RELEASE_NOTES.md
+coverage/

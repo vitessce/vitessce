@@ -2,7 +2,7 @@
 // from the root tsconfig.json.
 // Reference: https://www.typescriptlang.org/docs/handbook/project-references.html
 import tsconfig from '../tsconfig.json' assert { type: 'json' };
-import { dirname, basename, join } from 'node:path';
+import { dirname, basename, join, normalize } from 'node:path';
 import { readdir } from 'node:fs/promises';
 import { difference } from 'lodash-es';
 
@@ -21,7 +21,7 @@ async function* getFiles(dir) {
 }
 
 // Get the list of subdirectories referenced from the root tsconfig.json.
-const tsconfigReferences = tsconfig.references.map(r => r.path);
+const tsconfigReferences = tsconfig.references.map(r => normalize(r.path));
 // Get the list of subdirectories that actually have tsconfig.json files.
 const tsconfigDirs = [];
 for await (const f of getFiles('.')) {
