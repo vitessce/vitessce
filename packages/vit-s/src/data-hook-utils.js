@@ -273,6 +273,7 @@ function getQueryKeyScopeTuplesAux(
       ?.map((featureId, featureIndex) => ([
         // queryKey:
         // TODO: use same key suffix as useFeatureSelection for shared caching?
+        // TODO: rename the function to denote that it is specific to featureSelection?
         [dataset, dataType, currMatchOn, featureId, isRequired, 'useFeatureSelectionMultiLevel'],
         // scope info (for rolling up later)
         { levelScopes: prevLevelScopes, featureIndex, numFeatures: currSelection.length },

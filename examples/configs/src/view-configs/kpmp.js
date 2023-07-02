@@ -491,7 +491,7 @@ export const kpmp2023 = {
       x: 8,
       y: 0,
       w: 4,
-      h: 4,
+      h: 12,
     },
     // Tubules
     {
