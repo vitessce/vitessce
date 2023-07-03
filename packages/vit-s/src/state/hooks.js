@@ -3,7 +3,7 @@ import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
 import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
-import { isMatch } from 'lodash-es';
+import { isMatch, cloneDeep } from 'lodash-es';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { fromEntries, capitalize } from '@vitessce/utils';
 
@@ -38,17 +38,19 @@ export const useAuxiliaryStore = useAuxiliaryStoreLocal;
  * - https://github.com/pmndrs/zustand#using-subscribe-with-selector
  * @returns {function} The useStore hook.
  */
-export const createViewConfigStore = () => create(set => ({
+export const createViewConfigStore = (initialLoaders, initialConfig) => create(set => ({
   // State:
   // The viewConfig is an object which must conform to the schema
   // found in src/schemas/config.schema.json.
-  viewConfig: null,
+  viewConfig: initialConfig,
+  // Store the initial config so that its values can be used for resetting.
+  initialViewConfig: cloneDeep(initialConfig),
   // The loaders object is a mapping from dataset ID to
   // data type to loader object instance.
-  loaders: null,
+  loaders: initialLoaders,
   // Reducer functions which update the state
   // (although technically also part of state):
-  setViewConfig: viewConfig => set({ viewConfig }),
+  setViewConfig: viewConfig => set({ viewConfig, initialViewConfig: viewConfig }),
   setLoaders: loaders => set({ loaders }),
   setCoordinationValue: ({ parameter, scope, value }) => set(state => ({
     viewConfig: {
@@ -180,6 +182,30 @@ const useGridSizeStore = create(set => ({
     resizeCount: state.resizeCount + 1,
   })),
 }));
+
+/**
+ * This hook uses the same logic as for the `values` part of
+ * the useCoordination hook, with the difference that it
+ * gets its values from the _initial_ view config rather
+ * than the current view config.
+ * @param {string[]} parameters Array of coordination types.
+ * @param {object} coordinationScopes Mapping of coordination types
+ * to scope names.
+ * @returns {object} Object containing all coordination values.
+ */
+export function useInitialCoordination(parameters, coordinationScopes) {
+  const values = useViewConfigStore((state) => {
+    const { coordinationSpace } = state.initialViewConfig;
+    return fromEntries(parameters.map((parameter) => {
+      if (coordinationSpace && coordinationSpace[parameter]) {
+        const value = coordinationSpace[parameter][coordinationScopes[parameter]];
+        return [parameter, value];
+      }
+      return [parameter, undefined];
+    }));
+  }, shallow);
+  return values;
+}
 
 /**
  * The useCoordination hook returns both the
@@ -434,6 +460,37 @@ export function useLoaders() {
   return useViewConfigStore(state => state.loaders);
 }
 
+
+/**
+ * Find a specific loader instance for a particular dataset, data type, and view
+ * coordination values (mapping from coordination types to coordination values).
+ * Uses lodash/isMatch to perform matching against the file definition's
+ * coordination value mapping.
+ * @param {object} loaders The value returned by useLoaders.
+ * @param {string} dataset The dataset UID.
+ * @param {string} dataType The data type for the matching file.
+ * @param {object} viewCoordinationValues Current coordination values
+ * from the view. Match these against a subset of file definition coordination
+ * values.
+ * @returns The matching loader instance or `null`.
+ */
+export function getMatchingLoader(loaders, dataset, dataType, viewCoordinationValues) {
+  if (!loaders[dataset]) {
+    return null;
+  }
+  const loaderInternMap = loaders[dataset].loaders[dataType];
+  if (!loaderInternMap) {
+    return null;
+  }
+  const loaderKeys = Array.from(loaderInternMap.keys());
+  const matchingKey = loaderKeys
+    .find(fileCoordinationValues => isMatch(fileCoordinationValues, viewCoordinationValues));
+  if (!matchingKey) {
+    return null;
+  }
+  return loaderInternMap.get(matchingKey);
+}
+
 /**
  * Find a specific loader instance for a particular dataset, data type, and view
  * coordination values (mapping from coordination types to coordination values).
@@ -448,22 +505,9 @@ export function useLoaders() {
  * @returns The matching loader instance or `null`.
  */
 export function useMatchingLoader(loaders, dataset, dataType, viewCoordinationValues) {
-  return useMemo(() => {
-    if (!loaders[dataset]) {
-      return null;
-    }
-    const loaderInternMap = loaders[dataset].loaders[dataType];
-    if (!loaderInternMap) {
-      return null;
-    }
-    const loaderKeys = Array.from(loaderInternMap.keys());
-    const matchingKey = loaderKeys
-      .find(fileCoordinationValues => isMatch(fileCoordinationValues, viewCoordinationValues));
-    if (!matchingKey) {
-      return null;
-    }
-    return loaderInternMap.get(matchingKey);
-  }, [loaders, dataset, dataType, viewCoordinationValues]);
+  return useMemo(() => getMatchingLoader(
+    loaders, dataset, dataType, viewCoordinationValues,
+  ), [loaders, dataset, dataType, viewCoordinationValues]);
 }
 
 /**
@@ -471,6 +515,7 @@ export function useMatchingLoader(loaders, dataset, dataType, viewCoordinationVa
  * coordination values (mapping from coordination types to coordination values).
  * Uses lodash/isMatch to perform matching against the file definition's
  * coordination value mapping.
+ * TODO: can this function be removed?
  * @param {object} loaders The value returned by useLoaders.
  * @param {string} dataset The dataset UID.
  * @param {string} dataType The data type for the matching file.

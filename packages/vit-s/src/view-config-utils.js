@@ -4,7 +4,15 @@ import { cloneDeep } from 'lodash-es';
 import { fromEntries, getNextScope } from '@vitessce/utils';
 import {
   AUTO_INDEPENDENT_COORDINATION_TYPES,
+  META_VERSION,
 } from '@vitessce/constants-internal';
+
+export function logConfig(config, name) {
+  console.groupCollapsed(`🚄 VitS (${META_VERSION.version}) ${name}`);
+  console.info(`data:,${JSON.stringify(config)}`);
+  console.info(JSON.stringify(config, null, 2));
+  console.groupEnd();
+}
 
 /**
  * Get a list of all unique scope names for a

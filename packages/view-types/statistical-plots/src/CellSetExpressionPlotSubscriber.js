@@ -136,7 +136,6 @@ export function CellSetExpressionPlotSubscriber(props) {
   );
 
   const [width, height, containerRef] = useGridItemSize();
-  const [urls, addUrl] = useUrls(loaders, dataset);
 
   const transformOptions = VALUE_TRANSFORM_OPTIONS;
 
@@ -147,16 +146,16 @@ export function CellSetExpressionPlotSubscriber(props) {
     { obsType, featureType, featureValueType },
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
-    loaders, dataset, addUrl, false, {}, {},
+  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+    loaders, dataset, false, {}, {},
     { featureType },
   );
-  const [{ obsIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
-    loaders, dataset, addUrl, false,
+  const [{ obsIndex }, matrixIndicesStatus, matrixIndicesUrls] = useObsFeatureMatrixIndices(
+    loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
-    loaders, dataset, addUrl, true, {}, {},
+  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+    loaders, dataset, true, {}, {},
     { obsType },
   );
   const isReady = useReady([
@@ -164,6 +163,11 @@ export function CellSetExpressionPlotSubscriber(props) {
     matrixIndicesStatus,
     obsSetsStatus,
     featureLabelsStatus,
+  ]);
+  const urls = useUrls([
+    featureLabelsUrls,
+    matrixIndicesUrls,
+    obsSetsUrls,
   ]);
 
   const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(

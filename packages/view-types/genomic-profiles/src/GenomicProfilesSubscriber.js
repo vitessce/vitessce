@@ -77,13 +77,12 @@ export function GenomicProfilesSubscriber(props) {
     coordinationScopes,
   );
 
-  const [urls, addUrl] = useUrls(loaders, dataset);
-
-  const [genomicProfilesAttrs, genomicProfilesStatus] = useGenomicProfilesData(
-    loaders, dataset, addUrl, true, {}, {},
+  const [genomicProfilesAttrs, genomicProfilesStatus, genomicProfilesUrls] = useGenomicProfilesData(
+    loaders, dataset, true, {}, {},
     {},
   );
   const isReady = useReady([genomicProfilesStatus]);
+  const urls = useUrls([genomicProfilesUrls]);
 
   const hgViewConfig = useMemo(() => {
     if (!genomicProfilesAttrs || urls.length !== 1) {

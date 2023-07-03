@@ -4,7 +4,13 @@
 - Added a dropdown in `FeatureList` that allows the user to:
   - select between `alphabetical` and `original` ordering for the feature list.
   - show two columns in the feature list if the feature has a second identifier associated.
+- Add initial config logging in `<Vitessce/>` for the pre-upgrade view config.
 - Added support for generating view-config for Anndata-Zarr files that don't have .zmetadata file in the folder.
+- Turn on unit test coverage in Vitest config.
+- Add `useInitialCoordination` hook to get the values of the coordination space from the initial config, which can be used for viewState reset buttons.
+- Use `config` object reference as hook dependency when no `config.uid` is present (to support both controlled and un-controlled component cases).
+- Initialize Zustand store using closure over `createViewConfigStore` function, rather than via `useEffect`.
+- Implement basic solution for multi `ome-zarr` images via `image.raster.json`
 - Added a list of hints that user will select from, when using the zero config mode feature.
 
 ### Changed
@@ -12,9 +18,15 @@
 - Implemented the functionality required to re-order the feature list, based on the selection from the dropdown:
   - added state variables `featureListSort` and `showFeatureTable`.
   - hooked the state variables to `FeatureListOptions` and to `FeatureList`.
+- Fix Heatmap bug causing incorrect positioning of tooltip when using `featureLabels` mapping.
 - Modified the `AnndataZarrAutoConfig` class:
   - added a parser function that generates metadata summary without reading `.zmetadata` file.
   - the class calls the parser function if no `.zmetadata` file is present in the given URL.
+- Implement custom createGenerateClassName without random numbers involved to ensure deterministic class names.
+  - Rename `makeStyles` keys to be more specific to avoid conflicts.
+- Only generate ESM builds for `vitessce` and `@vitessce/dev`.
+- Use `@tanstack/react-query` for data fetching.
+- Fixed a bug in SetManager popover menu, where the text is not visible in vitessce.io in dark mode.
 - Modified the user interface, defined in `_ViewConfigEditor.js`:
   - Defined a list of hints, which depend on the types of the files the user pastes URLs for.
   - Removed the `Generate Config` button. Now each hint is a button that generates the view config when pressed.
@@ -22,7 +34,6 @@
 - Modified `VitessceAutoConfig.js`:
   - Added a function to return the type of files the user pasted the URLs for. The function is used in `_ViewConfigEditor.js` to determine what set of hints to display.
   - Adapted the existing code to take selected hint into an account, when creating the view config.
-
 ## [3.0.0](https://www.npmjs.com/package/vitessce/v/3.0.0) - 2023-05-24
 
 ### Added

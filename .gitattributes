@@ -1,0 +1,15 @@
+# We need to configure git to handle line endings properly,
+# otherwise, when running ESLint on Windows, it will fail because
+# it expects Unix line endings, but git has converted them to Windows line endings.
+# References:
+# - https://docs.github.com/en/get-started/getting-started-with-git/configuring-git-to-handle-line-endings
+# - https://eslint.org/docs/latest/rules/linebreak-style#using-this-rule-with-version-control-systems
+
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Declare files that will always have LF (unix-style) line endings on checkout.
+*.js text eol=lf
+*.ts text eol=lf
+*.jsx text eol=lf
+*.tsx text eol=lf

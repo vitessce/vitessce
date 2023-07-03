@@ -1,5 +1,6 @@
 import { generateConfig, getDatasetHintsConfig } from './VitessceAutoConfig.js';
 import { HINTS_CONFIG, NO_HINTS_CONFIG } from './constants.js';
+import { describe, it, expect } from 'vitest';
 
 describe('generateConfig', () => {
   it('generates config for OME-TIFF file correctly', async () => {
@@ -148,7 +149,7 @@ describe('generateConfig', () => {
   });
 
   it('generates config for Anndata-ZARR file correctly', async () => {
-    const urls = ['http://localhost:51204/@fixtures/zarr/partials/.anndata.zarr'];
+    const urls = ['http://localhost:4204/@fixtures/zarr/partials/.anndata.zarr'];
     const expectedConfig = {
       version: '1.0.15',
       name: 'An automatically generated config. Adjust values and add layout components if needed.',
@@ -276,7 +277,7 @@ describe('generateConfig', () => {
   });
 
   it('generates correct config for Anndata-ZARR file with empty .zmetadata', async () => {
-    const urls = ['http://localhost:51204/@fixtures/zarr/partials/emptymeta.h5ad.zarr'];
+    const urls = ['http://localhost:4204/@fixtures/zarr/partials/emptymeta.h5ad.zarr'];
     const expectedConfig = {
       version: '1.0.15',
       name: 'An automatically generated config. Adjust values and add layout components if needed.',
@@ -339,11 +340,13 @@ describe('generateConfig', () => {
   });
 
   it('raises an error for Anndata-ZARR file with misconfigured .zmetadata', async () => {
-    const urls = ['http://localhost:51204/@fixtures/zarr/partials/invalidmeta.adata.zarr'];
-
-    await generateConfig(urls, {}).catch(
-      e => expect(e.message).toContain('Could not generate config: .zmetadata file is not valid.'),
-    );
+    const urls = ['http://localhost:4204/@fixtures/zarr/partials/invalidmeta.adata.zarr'];
+    // References:
+    // - https://vitest.dev/api/expect.html#tothrowerror
+    // - https://vitest.dev/api/expect.html#rejects
+    await expect(() => generateConfig(urls))
+      .rejects
+      .toThrowError('Could not generate config: .zmetadata file is not valid.');
   });
 
   it('generates config for multiple files correctly', async () => {
@@ -467,7 +470,7 @@ describe('generateConfig', () => {
 
 
   it('Does the parsing when .zmetadata file not present in folder', async () => {
-    const urls = ['http://localhost:51204/@fixtures/zarr/anndata-0.8/anndata-csr.adata.zarr'];
+    const urls = ['http://localhost:4204/@fixtures/zarr/anndata-0.8/anndata-csr.adata.zarr'];
     const expectedConfig = {
       version: '1.0.15',
       name: 'An automatically generated config. Adjust values and add layout components if needed.',
@@ -578,7 +581,7 @@ describe('generateConfig', () => {
   });
 
   it('raises an error when URL with unsupported file format is passed', async () => {
-    const urls = ['http://localhost:51204/@fixtures/zarr/anndata-0.7/somefile.zarr'];
+    const urls = ['http://localhost:4204/@fixtures/zarr/anndata-0.7/somefile.zarr'];
 
     await generateConfig(urls, NO_HINTS_CONFIG, '', false).catch(
       e => expect(e.message).toContain('One or more of the URLs provided point to unsupported file types.'),

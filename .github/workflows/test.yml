@@ -13,24 +13,30 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [16, 18]
-        os: [ubuntu-20.04]
+        node: [16, 18, 20]
+        os: [ubuntu-latest]
         include:
           - os: windows-2022
-            node: 16
+            node: 18
     
     name: Test on ${{ matrix.os }} with Node ${{ matrix.node }}
+
+    permissions:
+      # Permissions required for the vitest-coverage-report action
+      # to be able to leave a comment on the pull request
+      contents: read
+      pull-requests: write
     
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-      - uses: pnpm/action-setup@v2.0.1
+      - uses: pnpm/action-setup@v2.2.4
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 7
+          version: 8
           run_install: true
       - id: get-options
         run: . ./set-node-options.sh --action
@@ -39,21 +45,29 @@ jobs:
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - run: ./test.sh --action
+        shell: bash
       - run: pnpm run bundle:ci
       - run: pnpm run publint
+      - name: Report coverage
+        # Generage coverage report even when tests fail,
+        # but only generate a coverage report once per matrix.
+        # (Here, we just pick ubuntu and node 18, a bit arbitrarily).
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.node == 18 && always() }}
+        uses: davelosert/vitest-coverage-report-action@v2
+
   
   test-e2e-demo:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-      - uses: pnpm/action-setup@v2.0.1
+      - uses: pnpm/action-setup@v2.2.4
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 7
+          version: 8
           run_install: true
       - id: get-options
         run: . ./set-node-options.sh --action
@@ -82,17 +96,17 @@ jobs:
           headed: false
   
   test-e2e-html:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-      - uses: pnpm/action-setup@v2.0.1
+      - uses: pnpm/action-setup@v2.2.4
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 7
+          version: 8
           run_install: true
       - id: get-options
         run: . ./set-node-options.sh --action

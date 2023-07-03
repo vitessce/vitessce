@@ -4,6 +4,7 @@ import {
 import { debounce, every } from 'lodash-es';
 import { extent } from 'd3-array';
 import { capitalize, fromEntries } from '@vitessce/utils';
+import { STATUS } from '@vitessce/constants-internal';
 import { useGridResize, useEmitGridResize } from './state/hooks.js';
 import { VITESSCE_CONTAINER } from './classNames.js';
 
@@ -137,34 +138,23 @@ export function useDeckCanvasSize() {
  */
 export function useReady(statusValues) {
   return useMemo(() => every(
-    statusValues, val => val === 'success',
+    statusValues, val => val !== STATUS.LOADING,
   // eslint-disable-next-line react-hooks/exhaustive-deps
   ), statusValues);
 }
 
 /**
  * This hook helps manage a list of URLs.
- * @param {object} loaders The loaders dependency.
- * @param {string} dataset The dataset UID dependency.
- * @returns {array} An array
- * [urls, addUrl]
- * where urls is the array of URL objects,
- * and addUrl is a function for adding a URL to the array.
+ * @param {(null|object[])[]} urls Array of (null or array of { url, name }).
+ * @returns {array} An array of { url, name } objects (flattened from the input).
  */
-export function useUrls(loaders, dataset) {
-  const [urls, setUrls] = useState([]);
-
-  const addUrl = useCallback((url, name) => {
-    if (url) {
-      setUrls(prev => ([...prev, { url, name }]));
-    }
-  }, [setUrls]);
-
-  useEffect(() => {
-    setUrls([]);
-  }, [loaders, dataset]);
-
-  return [urls, addUrl];
+export function useUrls(urls) {
+  const mergedUrls = useMemo(
+    () => urls.filter(a => Array.isArray(a)).flat(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    urls,
+  );
+  return mergedUrls;
 }
 
 /**
