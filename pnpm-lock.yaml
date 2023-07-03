@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 overrides:
   zarr: 0.5.1
   jest-canvas-mock: 2.5.0
@@ -107,7 +103,7 @@ importers:
         version: 4.8.4
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9(sass@1.55.0)(terser@5.15.1)
       vitest:
         specifier: ^0.32.2
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
@@ -128,7 +124,7 @@ importers:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/constants':
         specifier: workspace:*
         version: link:../../packages/constants
@@ -171,10 +167,10 @@ importers:
     devDependencies:
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/file-types/csv:
     dependencies:
@@ -418,7 +414,7 @@ importers:
         version: 3.0.2
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vite-plugin-svgr:
         specifier: ^2.2.1
         version: 2.2.2(@babel/core@7.22.0)(vite@4.3.9)
@@ -436,7 +432,7 @@ importers:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../utils/other-utils
@@ -464,10 +460,10 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/main/all:
     dependencies:
@@ -543,7 +539,7 @@ importers:
         version: 18.2.0
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/main/dev:
     dependencies:
@@ -577,7 +573,7 @@ importers:
         version: 3.0.2
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
 
   packages/main/prod:
     dependencies:
@@ -614,7 +610,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
 
   packages/plugins:
     dependencies:
@@ -627,10 +623,10 @@ importers:
         version: 18.2.7
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/schemas:
     dependencies:
@@ -676,10 +672,10 @@ importers:
         version: 0.6.3
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
       zod-to-json-schema:
         specifier: ^3.20.4
         version: 3.21.1(zod@3.21.4)
@@ -688,7 +684,7 @@ importers:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../vit-s
@@ -698,10 +694,10 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/utils/export-utils:
     dependencies:
@@ -785,7 +781,7 @@ importers:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/tooltip':
         specifier: workspace:*
         version: link:../tooltip
@@ -810,16 +806,16 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/view-types/description:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -838,16 +834,16 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/view-types/feature-list:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -887,16 +883,16 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/view-types/genomic-profiles:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -930,16 +926,16 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/view-types/heatmap:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -985,16 +981,16 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/view-types/layer-controller:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@material-ui/icons':
         specifier: ~4.11.2
         version: 4.11.3(@material-ui/core@4.12.4)(react-dom@18.2.0)(react@18.2.0)
@@ -1025,16 +1021,16 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/view-types/obs-sets-manager:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -1071,16 +1067,16 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/view-types/scatterplot:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@material-ui/icons':
         specifier: ~4.11.2
         version: 4.11.3(@material-ui/core@4.12.4)(react-dom@18.2.0)(react@18.2.0)
@@ -1126,16 +1122,16 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/view-types/scatterplot-embedding:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -1169,16 +1165,16 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/view-types/scatterplot-gating:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -1209,16 +1205,16 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/view-types/spatial:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -1270,16 +1266,16 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/view-types/statistical-plots:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -1307,16 +1303,16 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/view-types/status:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -1338,16 +1334,16 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/vit-s:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
       '@material-ui/icons':
         specifier: ~4.11.2
         version: 4.11.3(@material-ui/core@4.12.4)(react-dom@18.2.0)(react@18.2.0)
@@ -1405,10 +1401,10 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2
 
   packages/workers:
     dependencies:
@@ -1464,7 +1460,7 @@ importers:
         version: 1.55.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9(sass@1.55.0)
 
   sites/docs:
     dependencies:
@@ -1507,6 +1503,9 @@ importers:
       '@docusaurus/utils-validation':
         specifier: 2.3.1
         version: 2.3.1(@docusaurus/types@2.3.1)
+      '@material-ui/core':
+        specifier: ~4.12.3
+        version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0)(react@18.2.0)
       '@mdx-js/react':
         specifier: ^1.6.21
         version: 1.6.22(react@18.2.0)
@@ -1855,7 +1854,7 @@ packages:
       '@babel/traverse': 7.22.0
       '@babel/types': 7.22.0
       convert-source-map: 1.9.0
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       lodash: 4.17.21
@@ -1881,7 +1880,7 @@ packages:
       '@babel/traverse': 7.22.0
       '@babel/types': 7.22.0
       convert-source-map: 1.9.0
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.0
@@ -1904,7 +1903,7 @@ packages:
       '@babel/traverse': 7.22.0
       '@babel/types': 7.22.0
       convert-source-map: 1.9.0
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.0
@@ -2063,7 +2062,7 @@ packages:
       '@babel/core': 7.20.5
       '@babel/helper-compilation-targets': 7.21.5(@babel/core@7.20.5)
       '@babel/helper-plugin-utils': 7.21.5
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       lodash.debounce: 4.0.8
       resolve: 1.22.1
       semver: 6.3.0
@@ -2079,7 +2078,7 @@ packages:
       '@babel/core': 7.22.0
       '@babel/helper-compilation-targets': 7.21.5(@babel/core@7.22.0)
       '@babel/helper-plugin-utils': 7.21.5
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       lodash.debounce: 4.0.8
       resolve: 1.22.1
       semver: 6.3.0
@@ -4238,7 +4237,7 @@ packages:
       '@babel/helper-split-export-declaration': 7.18.6
       '@babel/parser': 7.22.0
       '@babel/types': 7.22.0
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -4256,7 +4255,7 @@ packages:
       '@babel/helper-split-export-declaration': 7.18.6
       '@babel/parser': 7.22.0
       '@babel/types': 7.22.0
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -5584,7 +5583,7 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
       ajv: 6.12.6
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       espree: 9.4.0
       globals: 13.17.0
       ignore: 5.2.0
@@ -5633,7 +5632,7 @@ packages:
     engines: {node: '>=10.10.0'}
     dependencies:
       '@humanwhocodes/object-schema': 1.2.1
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -5974,6 +5973,35 @@ packages:
       '@mapbox/point-geometry': 0.1.0
     dev: false
 
+  /@material-ui/core@4.12.4(@types/react@17.0.50)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-tr7xekNlM9LjA6pagJmL8QCgZXaubWUwkJnoYcMKd4gw/t4XiyvnTkjdGrUVicyB2BsdaAv1tvow45bPM4sSwQ==}
+    engines: {node: '>=8.0.0'}
+    deprecated: Material UI v4 doesn't receive active development since September 2021. See the guide https://mui.com/material-ui/migration/migration-v4/ to upgrade to v5.
+    peerDependencies:
+      '@types/react': ^16.8.6 || ^17.0.0
+      react: ^16.8.0 || ^17.0.0 || 18
+      react-dom: ^16.8.0 || ^17.0.0 || 18
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.19.4
+      '@material-ui/styles': 4.11.5(@types/react@17.0.50)(react-dom@18.2.0)(react@18.2.0)
+      '@material-ui/system': 4.12.2(@types/react@17.0.50)(react-dom@18.2.0)(react@18.2.0)
+      '@material-ui/types': 5.1.0(@types/react@17.0.50)
+      '@material-ui/utils': 4.11.3(react-dom@18.2.0)(react@18.2.0)
+      '@types/react': 17.0.50
+      '@types/react-transition-group': 4.4.5
+      clsx: 1.2.1
+      hoist-non-react-statics: 3.3.2
+      popper.js: 1.16.1-lts
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      react-is: 17.0.2
+      react-transition-group: 4.4.5(react-dom@18.2.0)(react@18.2.0)
+    dev: false
+
   /@material-ui/core@4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-tr7xekNlM9LjA6pagJmL8QCgZXaubWUwkJnoYcMKd4gw/t4XiyvnTkjdGrUVicyB2BsdaAv1tvow45bPM4sSwQ==}
     engines: {node: '>=8.0.0'}
@@ -6003,6 +6031,34 @@ packages:
       react-transition-group: 4.4.5(react-dom@18.2.0)(react@18.2.0)
     dev: false
 
+  /@material-ui/core@4.12.4(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-tr7xekNlM9LjA6pagJmL8QCgZXaubWUwkJnoYcMKd4gw/t4XiyvnTkjdGrUVicyB2BsdaAv1tvow45bPM4sSwQ==}
+    engines: {node: '>=8.0.0'}
+    deprecated: Material UI v4 doesn't receive active development since September 2021. See the guide https://mui.com/material-ui/migration/migration-v4/ to upgrade to v5.
+    peerDependencies:
+      '@types/react': ^16.8.6 || ^17.0.0
+      react: ^16.8.0 || ^17.0.0 || 18
+      react-dom: ^16.8.0 || ^17.0.0 || 18
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.19.4
+      '@material-ui/styles': 4.11.5(react-dom@18.2.0)(react@18.2.0)
+      '@material-ui/system': 4.12.2(react-dom@18.2.0)(react@18.2.0)
+      '@material-ui/types': 5.1.0
+      '@material-ui/utils': 4.11.3(react-dom@18.2.0)(react@18.2.0)
+      '@types/react-transition-group': 4.4.5
+      clsx: 1.2.1
+      hoist-non-react-statics: 3.3.2
+      popper.js: 1.16.1-lts
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      react-is: 17.0.2
+      react-transition-group: 4.4.5(react-dom@18.2.0)(react@18.2.0)
+    dev: false
+
   /@material-ui/icons@4.11.3(@material-ui/core@4.12.4)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-IKHlyx6LDh8n19vzwH5RtHIOHl9Tu90aAAxcbWME6kp4dmvODM3UvOHJeMIDzUbd4muuJKHmlNoBN+mDY4XkBA==}
     engines: {node: '>=8.0.0'}
@@ -6016,7 +6072,40 @@ packages:
         optional: true
     dependencies:
       '@babel/runtime': 7.19.4
-      '@material-ui/core': 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+      '@material-ui/core': 4.12.4(react-dom@18.2.0)(react@18.2.0)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /@material-ui/styles@4.11.5(@types/react@17.0.50)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-o/41ot5JJiUsIETME9wVLAJrmIWL3j0R0Bj2kCOLbSfqEkKf0fmaPt+5vtblUh5eXr2S+J/8J3DaCb10+CzPGA==}
+    engines: {node: '>=8.0.0'}
+    deprecated: Material UI v4 doesn't receive active development since September 2021. See the guide https://mui.com/material-ui/migration/migration-v4/ to upgrade to v5.
+    peerDependencies:
+      '@types/react': ^16.8.6 || ^17.0.0
+      react: ^16.8.0 || ^17.0.0 || 18
+      react-dom: ^16.8.0 || ^17.0.0 || 18
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.19.4
+      '@emotion/hash': 0.8.0
+      '@material-ui/types': 5.1.0(@types/react@17.0.50)
+      '@material-ui/utils': 4.11.3(react-dom@18.2.0)(react@18.2.0)
+      '@types/react': 17.0.50
+      clsx: 1.2.1
+      csstype: 2.6.21
+      hoist-non-react-statics: 3.3.2
+      jss: 10.9.2
+      jss-plugin-camel-case: 10.9.2
+      jss-plugin-default-unit: 10.9.2
+      jss-plugin-global: 10.9.2
+      jss-plugin-nested: 10.9.2
+      jss-plugin-props-sort: 10.9.2
+      jss-plugin-rule-value-function: 10.9.2
+      jss-plugin-vendor-prefixer: 10.9.2
+      prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
@@ -6054,6 +6143,58 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
+  /@material-ui/styles@4.11.5(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-o/41ot5JJiUsIETME9wVLAJrmIWL3j0R0Bj2kCOLbSfqEkKf0fmaPt+5vtblUh5eXr2S+J/8J3DaCb10+CzPGA==}
+    engines: {node: '>=8.0.0'}
+    deprecated: Material UI v4 doesn't receive active development since September 2021. See the guide https://mui.com/material-ui/migration/migration-v4/ to upgrade to v5.
+    peerDependencies:
+      '@types/react': ^16.8.6 || ^17.0.0
+      react: ^16.8.0 || ^17.0.0 || 18
+      react-dom: ^16.8.0 || ^17.0.0 || 18
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.19.4
+      '@emotion/hash': 0.8.0
+      '@material-ui/types': 5.1.0
+      '@material-ui/utils': 4.11.3(react-dom@18.2.0)(react@18.2.0)
+      clsx: 1.2.1
+      csstype: 2.6.21
+      hoist-non-react-statics: 3.3.2
+      jss: 10.9.2
+      jss-plugin-camel-case: 10.9.2
+      jss-plugin-default-unit: 10.9.2
+      jss-plugin-global: 10.9.2
+      jss-plugin-nested: 10.9.2
+      jss-plugin-props-sort: 10.9.2
+      jss-plugin-rule-value-function: 10.9.2
+      jss-plugin-vendor-prefixer: 10.9.2
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /@material-ui/system@4.12.2(@types/react@17.0.50)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-6CSKu2MtmiJgcCGf6nBQpM8fLkuB9F55EKfbdTC80NND5wpTmKzwdhLYLH3zL4cLlK0gVaaltW7/wMuyTnN0Lw==}
+    engines: {node: '>=8.0.0'}
+    peerDependencies:
+      '@types/react': ^16.8.6 || ^17.0.0
+      react: ^16.8.0 || ^17.0.0 || 18
+      react-dom: ^16.8.0 || ^17.0.0 || 18
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.19.4
+      '@material-ui/utils': 4.11.3(react-dom@18.2.0)(react@18.2.0)
+      '@types/react': 17.0.50
+      csstype: 2.6.21
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
   /@material-ui/system@4.12.2(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-6CSKu2MtmiJgcCGf6nBQpM8fLkuB9F55EKfbdTC80NND5wpTmKzwdhLYLH3zL4cLlK0gVaaltW7/wMuyTnN0Lw==}
     engines: {node: '>=8.0.0'}
@@ -6074,6 +6215,45 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
+  /@material-ui/system@4.12.2(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-6CSKu2MtmiJgcCGf6nBQpM8fLkuB9F55EKfbdTC80NND5wpTmKzwdhLYLH3zL4cLlK0gVaaltW7/wMuyTnN0Lw==}
+    engines: {node: '>=8.0.0'}
+    peerDependencies:
+      '@types/react': ^16.8.6 || ^17.0.0
+      react: ^16.8.0 || ^17.0.0 || 18
+      react-dom: ^16.8.0 || ^17.0.0 || 18
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.19.4
+      '@material-ui/utils': 4.11.3(react-dom@18.2.0)(react@18.2.0)
+      csstype: 2.6.21
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /@material-ui/types@5.1.0:
+    resolution: {integrity: sha512-7cqRjrY50b8QzRSYyhSpx4WRw2YuO0KKIGQEVk5J8uoz2BanawykgZGoWEqKm7pVIbzFDN0SpPcVV4IhOFkl8A==}
+    peerDependencies:
+      '@types/react': '*'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dev: false
+
+  /@material-ui/types@5.1.0(@types/react@17.0.50):
+    resolution: {integrity: sha512-7cqRjrY50b8QzRSYyhSpx4WRw2YuO0KKIGQEVk5J8uoz2BanawykgZGoWEqKm7pVIbzFDN0SpPcVV4IhOFkl8A==}
+    peerDependencies:
+      '@types/react': '*'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@types/react': 17.0.50
+    dev: false
+
   /@material-ui/types@5.1.0(@types/react@18.2.7):
     resolution: {integrity: sha512-7cqRjrY50b8QzRSYyhSpx4WRw2YuO0KKIGQEVk5J8uoz2BanawykgZGoWEqKm7pVIbzFDN0SpPcVV4IhOFkl8A==}
     peerDependencies:
@@ -6092,7 +6272,7 @@ packages:
       react: ^16.8.0 || ^17.0.0 || 18
       react-dom: ^16.8.0 || ^17.0.0 || 18
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -7953,7 +8133,7 @@ packages:
       '@typescript-eslint/scope-manager': 5.59.7
       '@typescript-eslint/type-utils': 5.59.7(eslint@8.25.0)(typescript@4.8.4)
       '@typescript-eslint/utils': 5.59.7(eslint@8.25.0)(typescript@4.8.4)
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       eslint: 8.25.0
       grapheme-splitter: 1.0.4
       ignore: 5.2.0
@@ -8014,7 +8194,7 @@ packages:
       '@typescript-eslint/scope-manager': 5.59.7
       '@typescript-eslint/types': 5.59.7
       '@typescript-eslint/typescript-estree': 5.59.7(typescript@4.8.4)
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       eslint: 8.25.0
       typescript: 4.8.4
     transitivePeerDependencies:
@@ -8041,7 +8221,7 @@ packages:
     dependencies:
       '@typescript-eslint/typescript-estree': 5.59.7(typescript@4.8.4)
       '@typescript-eslint/utils': 5.59.7(eslint@8.25.0)(typescript@4.8.4)
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       eslint: 8.25.0
       tsutils: 3.21.0(typescript@4.8.4)
       typescript: 4.8.4
@@ -8063,7 +8243,7 @@ packages:
       typescript:
         optional: true
     dependencies:
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       eslint-visitor-keys: 1.3.0
       glob: 7.2.3
       is-glob: 4.0.3
@@ -8086,7 +8266,7 @@ packages:
     dependencies:
       '@typescript-eslint/types': 5.59.7
       '@typescript-eslint/visitor-keys': 5.59.7
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       globby: 11.1.0
       is-glob: 4.0.3
       semver: 7.3.8
@@ -8134,7 +8314,7 @@ packages:
       '@babel/plugin-transform-react-jsx-self': 7.21.0(@babel/core@7.22.0)
       '@babel/plugin-transform-react-jsx-source': 7.19.6(@babel/core@7.22.0)
       react-refresh: 0.14.0
-      vite: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+      vite: 4.3.9
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -8654,7 +8834,7 @@ packages:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
     engines: {node: '>= 6.0.0'}
     dependencies:
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -11235,6 +11415,17 @@ packages:
     dependencies:
       ms: 2.0.0
 
+  /debug@3.2.7:
+    resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+    dependencies:
+      ms: 2.1.3
+    dev: true
+
   /debug@3.2.7(supports-color@8.1.1):
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
     peerDependencies:
@@ -11247,6 +11438,17 @@ packages:
       supports-color: 8.1.1
     dev: true
 
+  /debug@4.3.4:
+    resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+    dependencies:
+      ms: 2.1.2
+
   /debug@4.3.4(supports-color@8.1.1):
     resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
     engines: {node: '>=6.0'}
@@ -11258,6 +11460,7 @@ packages:
     dependencies:
       ms: 2.1.2
       supports-color: 8.1.1
+    dev: true
 
   /decamelize-keys@1.1.0:
     resolution: {integrity: sha512-ocLWuYzRPoS9bfiSdDd3cxvrzovVMZnRDVEzAs+hWIVXGDbHxWMECij2OBuyB/An0FFW/nLuq6Kv1i/YC5Qfzg==}
@@ -11508,7 +11711,7 @@ packages:
     hasBin: true
     dependencies:
       address: 1.2.1
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -12124,7 +12327,7 @@ packages:
   /eslint-import-resolver-node@0.3.6:
     resolution: {integrity: sha512-0En0w03NRVMn9Uiyn8YRPDKvWjxCWkslUEhGNTdGx15RvPJYQ+lbOlqrlNI2vEAs4pDYK4f/HN2TbDmk5TP0iw==}
     dependencies:
-      debug: 3.2.7(supports-color@8.1.1)
+      debug: 3.2.7
       resolve: 1.22.1
     transitivePeerDependencies:
       - supports-color
@@ -12133,7 +12336,7 @@ packages:
   /eslint-import-resolver-node@0.3.7:
     resolution: {integrity: sha512-gozW2blMLJCeFpBwugLTGyvVjNoeo1knonXAcatC6bjPBZitotxdWf7Gimr25N4c0AAOo4eOUfaG82IJPDpqCA==}
     dependencies:
-      debug: 3.2.7(supports-color@8.1.1)
+      debug: 3.2.7
       is-core-module: 2.12.1
       resolve: 1.22.1
     transitivePeerDependencies:
@@ -12179,7 +12382,7 @@ packages:
         optional: true
     dependencies:
       '@typescript-eslint/parser': 2.34.0(eslint@6.8.0)(typescript@4.8.4)
-      debug: 3.2.7(supports-color@8.1.1)
+      debug: 3.2.7
       eslint: 6.8.0
       eslint-import-resolver-node: 0.3.6
     transitivePeerDependencies:
@@ -12208,7 +12411,7 @@ packages:
         optional: true
     dependencies:
       '@typescript-eslint/parser': 5.59.7(eslint@8.25.0)(typescript@4.8.4)
-      debug: 3.2.7(supports-color@8.1.1)
+      debug: 3.2.7
       eslint: 8.25.0
       eslint-import-resolver-node: 0.3.7
     transitivePeerDependencies:
@@ -12278,7 +12481,7 @@ packages:
       array-includes: 3.1.6
       array.prototype.flat: 1.3.1
       array.prototype.flatmap: 1.3.1
-      debug: 3.2.7(supports-color@8.1.1)
+      debug: 3.2.7
       doctrine: 2.1.0
       eslint: 8.25.0
       eslint-import-resolver-node: 0.3.7
@@ -12485,7 +12688,7 @@ packages:
       ajv: 6.12.6
       chalk: 2.4.2
       cross-spawn: 6.0.5
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       doctrine: 3.0.0
       eslint-scope: 5.1.1
       eslint-utils: 1.4.3
@@ -12532,7 +12735,7 @@ packages:
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.3
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       doctrine: 3.0.0
       escape-string-regexp: 4.0.0
       eslint-scope: 7.1.1
@@ -14166,7 +14369,7 @@ packages:
     dependencies:
       '@tootallnate/once': 2.0.0
       agent-base: 6.0.2
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -14241,7 +14444,7 @@ packages:
     engines: {node: '>= 6'}
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -14929,7 +15132,7 @@ packages:
     resolution: {integrity: sha512-n3s8EwkdFIJCG3BPKBYvskgXGoy88ARzvegkitk60NxRdwltLOTaH7CUiMRXvwYorl0Q712iEjcWB+fK/MrWVw==}
     engines: {node: '>=10'}
     dependencies:
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       istanbul-lib-coverage: 3.2.0
       source-map: 0.6.1
     transitivePeerDependencies:
@@ -17159,7 +17362,7 @@ packages:
     engines: {node: '>= 0.12.0'}
     dependencies:
       async: 2.6.4
-      debug: 3.2.7(supports-color@8.1.1)
+      debug: 3.2.7
       mkdirp: 0.5.6
     transitivePeerDependencies:
       - supports-color
@@ -20126,7 +20329,7 @@ packages:
   /spdy-transport@3.0.0:
     resolution: {integrity: sha512-hsLVFE5SjA6TCisWeJXFKniGGOpBgMLmerfO2aCyCU5s7nJ/rpAepqmFifv/GCbSbueEeAJJnmSQ2rKC/g8Fcw==}
     dependencies:
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       detect-node: 2.1.0
       hpack.js: 2.1.6
       obuf: 1.1.2
@@ -20140,7 +20343,7 @@ packages:
     resolution: {integrity: sha512-r46gZQZQV+Kl9oItvl1JZZqJKGr+oEkB08A6BzkiR7593/7IbtuncXHd2YoYeTsG4157ZssMu9KYvUHLcjcDoA==}
     engines: {node: '>=6.0.0'}
     dependencies:
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       handle-thing: 2.0.1
       http-deceiver: 1.2.7
       select-hose: 2.0.0
@@ -21873,13 +22076,34 @@ packages:
       '@math.gl/web-mercator': 3.6.3
     dev: false
 
+  /vite-node@0.32.2(@types/node@18.8.5):
+    resolution: {integrity: sha512-dTQ1DCLwl2aEseov7cfQ+kDMNJpM1ebpyMMMwWzBvLbis8Nla/6c9WQcqpPssTwS6Rp/+U6KwlIj8Eapw4bLdA==}
+    engines: {node: '>=v14.18.0'}
+    hasBin: true
+    dependencies:
+      cac: 6.7.14
+      debug: 4.3.4
+      mlly: 1.4.0
+      pathe: 1.1.1
+      picocolors: 1.0.0
+      vite: 4.3.9(@types/node@18.8.5)
+    transitivePeerDependencies:
+      - '@types/node'
+      - less
+      - sass
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+    dev: true
+
   /vite-node@0.32.2(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1):
     resolution: {integrity: sha512-dTQ1DCLwl2aEseov7cfQ+kDMNJpM1ebpyMMMwWzBvLbis8Nla/6c9WQcqpPssTwS6Rp/+U6KwlIj8Eapw4bLdA==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
     dependencies:
       cac: 6.7.14
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       mlly: 1.4.0
       pathe: 1.1.1
       picocolors: 1.0.0
@@ -21901,11 +22125,76 @@ packages:
     dependencies:
       '@rollup/pluginutils': 5.0.1
       '@svgr/core': 6.4.0(@babel/core@7.22.0)
-      vite: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+      vite: 4.3.9
     transitivePeerDependencies:
       - '@babel/core'
       - rollup
       - supports-color
+    dev: true
+
+  /vite@4.3.9:
+    resolution: {integrity: sha512-qsTNZjO9NoJNW7KnOrgYwczm0WctJ8m/yqYAMAK9Lxt4SoySUfS5S8ia9K7JHpa3KEeMfyF8LoJ3c5NeBJy6pg==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.17.19
+      postcss: 8.4.23
+      rollup: 3.23.0
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
+  /vite@4.3.9(@types/node@18.8.5):
+    resolution: {integrity: sha512-qsTNZjO9NoJNW7KnOrgYwczm0WctJ8m/yqYAMAK9Lxt4SoySUfS5S8ia9K7JHpa3KEeMfyF8LoJ3c5NeBJy6pg==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      '@types/node': 18.8.5
+      esbuild: 0.17.19
+      postcss: 8.4.23
+      rollup: 3.23.0
+    optionalDependencies:
+      fsevents: 2.3.2
     dev: true
 
   /vite@4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1):
@@ -21943,6 +22232,73 @@ packages:
       fsevents: 2.3.2
     dev: true
 
+  /vite@4.3.9(sass@1.55.0):
+    resolution: {integrity: sha512-qsTNZjO9NoJNW7KnOrgYwczm0WctJ8m/yqYAMAK9Lxt4SoySUfS5S8ia9K7JHpa3KEeMfyF8LoJ3c5NeBJy6pg==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.17.19
+      postcss: 8.4.23
+      rollup: 3.23.0
+      sass: 1.55.0
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
+  /vite@4.3.9(sass@1.55.0)(terser@5.15.1):
+    resolution: {integrity: sha512-qsTNZjO9NoJNW7KnOrgYwczm0WctJ8m/yqYAMAK9Lxt4SoySUfS5S8ia9K7JHpa3KEeMfyF8LoJ3c5NeBJy6pg==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.17.19
+      postcss: 8.4.23
+      rollup: 3.23.0
+      sass: 1.55.0
+      terser: 5.15.1
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
   /vitest-canvas-mock@0.3.0(vitest@0.32.2):
     resolution: {integrity: sha512-47Xzmj70/VQ4BLjKpMLgcK164xzGi4vCC4fDi4uatERBRFwsQJSVuXHQpW1nQoPQfp/XV6mZ/iT0sP57o/E2Jw==}
     peerDependencies:
@@ -21950,6 +22306,71 @@ packages:
     dependencies:
       jest-canvas-mock: 2.5.0
       vitest: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+    dev: true
+
+  /vitest@0.32.2:
+    resolution: {integrity: sha512-hU8GNNuQfwuQmqTLfiKcqEhZY72Zxb7nnN07koCUNmntNxbKQnVbeIS6sqUgR3eXSlbOpit8+/gr1KpqoMgWCQ==}
+    engines: {node: '>=v14.18.0'}
+    hasBin: true
+    peerDependencies:
+      '@edge-runtime/vm': '*'
+      '@vitest/browser': '*'
+      '@vitest/ui': '*'
+      happy-dom: '*'
+      jsdom: '*'
+      playwright: '*'
+      safaridriver: '*'
+      webdriverio: '*'
+    peerDependenciesMeta:
+      '@edge-runtime/vm':
+        optional: true
+      '@vitest/browser':
+        optional: true
+      '@vitest/ui':
+        optional: true
+      happy-dom:
+        optional: true
+      jsdom:
+        optional: true
+      playwright:
+        optional: true
+      safaridriver:
+        optional: true
+      webdriverio:
+        optional: true
+    dependencies:
+      '@types/chai': 4.3.5
+      '@types/chai-subset': 1.3.3
+      '@types/node': 18.8.5
+      '@vitest/expect': 0.32.2
+      '@vitest/runner': 0.32.2
+      '@vitest/snapshot': 0.32.2
+      '@vitest/spy': 0.32.2
+      '@vitest/utils': 0.32.2
+      acorn: 8.9.0
+      acorn-walk: 8.2.0
+      cac: 6.7.14
+      chai: 4.3.7
+      concordance: 5.0.4
+      debug: 4.3.4
+      local-pkg: 0.4.3
+      magic-string: 0.30.0
+      pathe: 1.1.1
+      picocolors: 1.0.0
+      std-env: 3.3.3
+      strip-literal: 1.0.1
+      tinybench: 2.5.0
+      tinypool: 0.5.0
+      vite: 4.3.9(@types/node@18.8.5)
+      vite-node: 0.32.2(@types/node@18.8.5)
+      why-is-node-running: 2.2.2
+    transitivePeerDependencies:
+      - less
+      - sass
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
     dev: true
 
   /vitest@0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1):
@@ -21997,7 +22418,7 @@ packages:
       cac: 6.7.14
       chai: 4.3.7
       concordance: 5.0.4
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       jsdom: 20.0.1
       local-pkg: 0.4.3
       magic-string: 0.30.0
@@ -22666,3 +23087,7 @@ packages:
   /zwitch@1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: false
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false

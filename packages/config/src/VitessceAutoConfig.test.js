@@ -1,6 +1,6 @@
+import { describe, it, expect } from 'vitest';
 import { generateConfig, getDatasetHintsConfig } from './VitessceAutoConfig.js';
 import { HINTS_CONFIG, NO_HINTS_CONFIG } from './constants.js';
-import { describe, it, expect } from 'vitest';
 
 describe('generateConfig', () => {
   it('generates config for OME-TIFF file correctly', async () => {
@@ -344,7 +344,7 @@ describe('generateConfig', () => {
     // References:
     // - https://vitest.dev/api/expect.html#tothrowerror
     // - https://vitest.dev/api/expect.html#rejects
-    await expect(() => generateConfig(urls))
+    await expect(() => generateConfig(urls, {}))
       .rejects
       .toThrowError('Could not generate config: .zmetadata file is not valid.');
   });
@@ -758,7 +758,7 @@ describe('generateConfig', () => {
   });
 
   it('generates config hints for Anndata-Zarr, OME-TIFF dataset types correctly', async () => {
-    const urls = ['somefile.ome.tif', 'http://localhost:51204/@fixtures/zarr/partials/.anndata.zarr'];
+    const urls = ['somefile.ome.tif', 'http://localhost:4204/@fixtures/zarr/partials/.anndata.zarr'];
     const expectedNames = [urls[0].split('/').at(-1), urls[1].split('/').at(-1)];
     const datasetType = ['OME-TIFF', 'AnnData-Zarr'];
 
