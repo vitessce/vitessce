@@ -2,6 +2,7 @@
 ### Added
 
 ### Changed
+- Fix duplicate URLs appearing in download dropdown by filtering based on names.
 
 ## [3.0.1](https://www.npmjs.com/package/vitessce/v/3.0.1) - 2023-06-30
 
