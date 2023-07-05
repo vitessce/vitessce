@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ColorPalette = ({ handleChange }) => {
+const ColorPalette = ({ setColor }) => {
   const classes = useStyles();
   return (
     <div className={classes.container} aria-label="color-swatch">
@@ -32,7 +32,7 @@ const ColorPalette = ({ handleChange }) => {
         <IconButton
           className={classes.button}
           key={color}
-          onClick={() => handleChange(color)}
+          onClick={() => setColor(color)}
         >
           <LensIcon
             fontSize="small"

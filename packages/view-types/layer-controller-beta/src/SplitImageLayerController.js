@@ -186,13 +186,14 @@ export default function SplitImageLayerController(props) {
                 spatialChannelVisible,
                 spatialChannelOpacity,
                 spatialChannelColor,
-                // TODO: windowing
+                spatialChannelWindow,
               } = channelCoordination[cScope];
               const {
                 setSpatialTargetC,
                 setSpatialChannelVisible,
                 setSpatialChannelOpacity,
                 setSpatialChannelColor,
+                setSpatialChannelWindow,
               } = setChannelCoordination[cScope];
 
               console.log('image', image);
@@ -208,6 +209,8 @@ export default function SplitImageLayerController(props) {
                   setOpacity={setSpatialChannelOpacity}
                   color={spatialChannelColor}
                   setColor={setSpatialChannelColor}
+                  window={spatialChannelWindow}
+                  setWindow={setSpatialChannelWindow}
                   colormapOn={colormap !== null}
                   featureIndex={image?.featureIndex}
                 />

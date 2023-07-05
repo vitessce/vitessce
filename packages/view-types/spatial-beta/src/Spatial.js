@@ -524,7 +524,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const colors = channelScopes
       .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]);
     const contrastLimits = channelScopes
-      .map(cScope => ([0, 255])); // TODO(CoordinationType): per-channel sliders
+      .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_WINDOW] || ([0, 255])); // TODO: is [0, 255] the right fallback?
+
 
     return new Layer({
       loader: layerLoader,

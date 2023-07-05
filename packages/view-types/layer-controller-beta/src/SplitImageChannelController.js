@@ -54,9 +54,10 @@ export default function SplitImageChannelController(props) {
     setOpacity,
     color,
     setColor,
+    window,
+    setWindow,
     colormapOn,
     featureIndex, // The channel names.
-    // TODO: windowing
   } = props;
 
   const classes = useStyles();
@@ -67,6 +68,10 @@ export default function SplitImageChannelController(props) {
 
   function toggleVisible() {
     setVisible(!visible);
+  }
+
+  function onRemove() {
+
   }
 
   return (
@@ -81,12 +86,14 @@ export default function SplitImageChannelController(props) {
           />
         </Grid>
         <Grid item xs={1} style={{ marginTop: '4px' }}>
-          {/*<ChannelOptions
-            handlePropertyChange={handlePropertyChange}
-            handleChannelRemove={handleChannelRemove}
-            handleIQRUpdate={handleIQRUpdate}
+          <ChannelOptions
+            color={color}
+            setColor={setColor}
+            onRemove={onRemove}
+            domainType={'min/max'}
+            setDomainType={() => {}}
             disabled={isLoading}
-          />*/}
+          />
         </Grid>
       </Grid>
       <Grid container direction="row" justifyContent="space-between">

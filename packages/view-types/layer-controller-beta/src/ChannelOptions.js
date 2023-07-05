@@ -24,19 +24,26 @@ const useStyles = makeStyles(() => ({
  * @prop {function} handleChannelRemove Callback for channel removal.
  * @prop {function} handleIQRUpdate Callback for IQR slider update.
  */
-function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUpdate }) {
+function ChannelOptions(props) {
+  const {
+    color,
+    setColor,
+    onRemove,
+    domainType,
+    setDomainType,
+  } = props;
   const [open, setOpen] = useState(false);
 
   const classes = useStyles();
 
-  const handleColorSelect = (color) => {
-    handlePropertyChange('color', color);
-  };
-
-  const handleRemove = () => {
+  function handleRemove() {
     setOpen(false);
-    handleChannelRemove();
-  };
+    onRemove();
+  }
+
+  function handleIQRUpdate() {
+    setDomainType(); // TODO
+  }
 
   return (
     <PopperMenu
@@ -52,7 +59,7 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUp
         <MuiSpan>Use IQR</MuiSpan>
       </MenuItem>
       <MenuItem dense disableGutters className={classes.colors}>
-        <ColorPalette handleChange={handleColorSelect} />
+        <ColorPalette setColor={setColor} />
       </MenuItem>
     </PopperMenu>
   );

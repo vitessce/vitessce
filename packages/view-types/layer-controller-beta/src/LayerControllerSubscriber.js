@@ -139,6 +139,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_CHANNEL_VISIBLE,
       CoordinationType.SPATIAL_CHANNEL_OPACITY,
       CoordinationType.SPATIAL_CHANNEL_COLOR,
+      CoordinationType.SPATIAL_CHANNEL_WINDOW,
       CoordinationType.SPATIAL_SEGMENTATION_FILLED,
       CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,

@@ -181,6 +181,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SEGMENTATION_CHANNEL,
     CoordinationType.SPATIAL_CHANNEL_VISIBLE,
     CoordinationType.SPATIAL_CHANNEL_OPACITY,
+    CoordinationType.SPATIAL_CHANNEL_WINDOW,
   ],
   [ViewType.HEATMAP]: [
     CoordinationType.DATASET,
@@ -317,6 +318,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SEGMENTATION_CHANNEL,
     CoordinationType.SPATIAL_CHANNEL_VISIBLE,
     CoordinationType.SPATIAL_CHANNEL_OPACITY,
+    CoordinationType.SPATIAL_CHANNEL_WINDOW,
   ],
   [ViewType.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,
