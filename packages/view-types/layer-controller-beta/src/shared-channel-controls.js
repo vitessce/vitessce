@@ -11,26 +11,26 @@ import { useSelectStyles } from './styles.js';
  * @prop {number} selectionIndex Current numeric index of a selection.
  */
 export function ChannelSelectionDropdown({
-  handleChange,
+  featureIndex,
+  targetC,
+  setTargetC,
   disabled,
-  channelOptions,
-  selectionIndex,
 }) {
   const classes = useSelectStyles();
-  return (
+  return (Array.isArray(featureIndex) ? (
     <Select
       classes={{ root: classes.selectRoot }}
       native
-      value={selectionIndex}
-      onChange={e => handleChange(Number(e.target.value))}
+      value={targetC === null ? '' : targetC}
+      onChange={e => setTargetC(e.target.value === '' ? null : Number(e.target.value))}
     >
-      {channelOptions.map((opt, i) => (
-        <option disabled={disabled} key={opt} value={i}>
-          {opt}
+      {featureIndex.map((channelName, channelIndex) => (
+        <option disabled={disabled} key={channelName} value={channelIndex}>
+          {channelName}
         </option>
       ))}
     </Select>
-  );
+  ) : null);
 }
 
 /**

@@ -30,6 +30,7 @@ import { PATHOLOGY_PALETTE, LARGE_PATHOLOGY_PALETTE, COLORMAP_OPTIONS } from '@v
 import { CoordinationType } from '@vitessce/constants-internal';
 
 import { useControllerSectionStyles, useSelectStyles } from './styles.js';
+import SplitImageChannelController from './SplitImageChannelController.js';
 
 const useStyles = makeStyles(() => ({
   layerRowLabel: {
@@ -185,6 +186,7 @@ export default function SplitImageLayerController(props) {
                 spatialChannelVisible,
                 spatialChannelOpacity,
                 spatialChannelColor,
+                // TODO: windowing
               } = channelCoordination[cScope];
               const {
                 setSpatialTargetC,
@@ -193,10 +195,22 @@ export default function SplitImageLayerController(props) {
                 setSpatialChannelColor,
               } = setChannelCoordination[cScope];
 
-              console.log(image);
+              console.log('image', image);
 
               return (
-                <p>{cScope}</p>
+                <SplitImageChannelController
+                  key={cScope}
+                  targetC={spatialTargetC}
+                  setTargetC={setSpatialTargetC}
+                  visible={spatialChannelVisible}
+                  setVisible={setSpatialChannelVisible}
+                  opacity={spatialChannelOpacity}
+                  setOpacity={setSpatialChannelOpacity}
+                  color={spatialChannelColor}
+                  setColor={setSpatialChannelColor}
+                  colormapOn={colormap !== null}
+                  featureIndex={image?.featureIndex}
+                />
               );
             })}
           </Grid>
