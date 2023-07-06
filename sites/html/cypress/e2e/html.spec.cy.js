@@ -32,9 +32,9 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
     cy.visit('/sites/html/src/controlled-component.html');
     cy.contains('First config, first view');
   });
-  it('Controlled component: can select a different config', () => {
-    cy.visit('/sites/html/src/controlled-component.html');
 
+  // Define function that can be re-used in both controlled component tests below.
+  function controlConfigs() {
     // Initially renders first config
     cy.contains('First config, first view');
 
@@ -77,6 +77,63 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
     // Heights of views are as expected.
     cy.get('.react-grid-layout .react-grid-item').eq(0).should('have.css', 'height', '780px');
     cy.get('.react-grid-layout .react-grid-item').eq(1).should('have.css', 'height', '780px');
+  }
+  it('Controlled component: can select a different config with UIDs', () => {
+    cy.visit('/sites/html/src/controlled-component.html?withUid=true');
+    controlConfigs();
+  });
+  it('Controlled component: can select a different config without UIDs', () => {
+    cy.visit('/sites/html/src/controlled-component.html?withUid=false');
+    controlConfigs();
+  });
+  it('Animated controlled component: views update each second for five seconds', () => {
+    cy.visit('/sites/html/src/animated-config.html?withSameObjectReference=false');
+
+    // Initially renders first view
+    cy.contains('Timestamp: 0');
+    cy.contains('View 2').should('not.exist');
+
+    cy.wait(1100);
+    cy.contains('Timestamp: 1');
+    cy.contains('View 2').should('not.exist');
+
+    cy.wait(1100);
+    cy.contains('Timestamp: 2');
+    cy.contains('View 2').should('exist');
+    cy.contains('View 3').should('not.exist');
+
+    cy.wait(1100);
+    cy.contains('Timestamp: 3');
+    cy.contains('View 2').should('exist');
+    cy.contains('View 3').should('exist');
+    cy.contains('View 4').should('not.exist');
+
+    cy.wait(1100);
+    cy.contains('Timestamp: 4');
+    cy.contains('View 2').should('exist');
+    cy.contains('View 3').should('exist');
+    cy.contains('View 4').should('exist');
+    cy.contains('View 5').should('not.exist');
+  });
+  it('Animated controlled component: views do not update when same config object reference is used', () => {
+    cy.visit('/sites/html/src/animated-config.html?withSameObjectReference=true');
+
+    // Initially renders first view
+    cy.contains('Timestamp: 0');
+    cy.contains('View 2').should('not.exist');
+
+    // Waiting should not change anything; new views should not appear.
+    cy.wait(1500);
+    cy.contains('Timestamp: 0');
+    cy.contains('Timestamp: 1').should('not.exist');
+    cy.contains('Timestamp: 2').should('not.exist');
+    cy.contains('Timestamp: 3').should('not.exist');
+    cy.contains('Timestamp: 4').should('not.exist');
+    cy.contains('Timestamp: 5').should('not.exist');
+    cy.contains('View 2').should('not.exist');
+    cy.contains('View 3').should('not.exist');
+    cy.contains('View 4').should('not.exist');
+    cy.contains('View 5').should('not.exist');
   });
   // Consumer site tests
   it('Works for consumer site built with Vite', () => {

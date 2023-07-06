@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { toRgbUIString } from './utils.js';
 
 const GREY = [220, 220, 220];

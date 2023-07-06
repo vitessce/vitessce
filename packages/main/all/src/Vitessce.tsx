@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import {
   VitS,
+  logConfig,
 } from '@vitessce/vit-s';
 import {
   upgradeAndParse,
@@ -23,11 +24,15 @@ export function Vitessce(props: any) {
     pluginJointFileTypes: pluginJointFileTypesProp,
   } = props;
 
-  const configUid = config?.uid;
+  // If config.uid exists, then use it for hook dependencies to detect changes
+  // (controlled component case). If not, then use the config object itself
+  // and assume the un-controlled component case.
+  const configKey = config?.uid || config;
   const configVersion = config?.version;
 
   const [configOrWarning, success] = useMemo(() => {
     try {
+      logConfig(config, 'pre-upgrade view config');
       const validConfig = upgradeAndParse(config, onConfigUpgrade);
       return [validConfig, true];
     } catch (e) {
@@ -41,7 +46,7 @@ export function Vitessce(props: any) {
       ];
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [configUid, configVersion]);
+  }, [configKey, configVersion]);
 
   const mergedPluginViewTypes = useMemo(() => ([
     ...baseViewTypes, ...(pluginViewTypesProp || []),

@@ -11,7 +11,7 @@ export default function OptionSelect(props) {
       disableUnderline
       {...props}
       classes={{
-        root: classes.selectRoot,
+        root: classes.optionSelectRoot,
         ...classesProp,
       }}
     />

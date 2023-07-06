@@ -66,10 +66,10 @@ export const useStyles = makeStyles(theme => ({
       backgroundClip: 'unset',
     },
   },
-  radio: {
+  tableRadio: {
     borderRadius: '50%',
   },
-  checkbox: {
+  tableCheckbox: {
     borderRadius: '2px',
   },
 }));
