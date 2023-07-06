@@ -4,7 +4,7 @@
 V_OPTIONS="--max_old_space_size=4096"
 
 if [[ "$1" == "--action" ]]; then
-  echo "::set-output name=node-options::$V_OPTIONS"
+  echo "node-options=$V_OPTIONS" >> $GITHUB_OUTPUT
 else
   unset NODE_OPTIONS
   export NODE_OPTIONS=$V_OPTIONS
