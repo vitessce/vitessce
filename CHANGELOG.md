@@ -3,6 +3,7 @@
 
 ### Changed
 - Fix duplicate URLs appearing in download dropdown by filtering based on names.
+- When there is not per-observation centroids, fall back to using the mouse position for tooltips in the spatial view.
 
 ## [3.0.1](https://www.npmjs.com/package/vitessce/v/3.0.1) - 2023-06-30
 
@@ -71,7 +72,6 @@
 - Added a new documentation page: `default-config.md` that describes the auto config generation functionality and how to use it.
 - Small changes to the layout of `_ViewConfigEditor.js` to accomodate the new functionality: added a space for pasting links and a "Generate Config" button.
 - Update Vitest configuration to only include test files contained within `src` directories.
-- When there is not per-observation centroids, fall back to using the mouse position for tooltips in the spatial view.
 - Added signals tracking and handling in the vega-lite schema for `CellSetSizesPlot` component.
 - Modified the `treeToSetSizesBySetNames` function to return the `setNamePath`, so we can track which hierarchy the cluster represented by the clicked bar belongs to.
 - Modified the `CellSetSizesPlotSubscriber` component to reset `cellSetSelection` to equal `setNamePath` when user clicks on a bar in the `CellSetSizesPlot` component.
