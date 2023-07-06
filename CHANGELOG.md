@@ -1,13 +1,7 @@
 
-### Added
 
-### Changed
-- Fix duplicate URLs appearing in download dropdown by filtering based on names.
-- When there is not per-observation centroids, fall back to using the mouse position for tooltips in the spatial view.
 
 ## [3.0.1](https://www.npmjs.com/package/vitessce/v/3.0.1) - 2023-06-30
-
-
 
 ### Added
 - Add a URL param option to the demo site to wrap `<Vitessce/>` in `<React.StrictMode/>`
