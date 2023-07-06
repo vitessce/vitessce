@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@2.3.0/schema.json",
+  "changelog": [
+    "./changesets-changelog.js",
+    { "repo": "vitessce/vitessce" }
+  ],
+  "fixed": [["vitessce", "@vitessce/*"]],
+  "commit": false,
+  "access": "public",
+  "baseBranch": "main",
+  "bumpVersionsWithWorkspaceProtocolOnly": true
+}

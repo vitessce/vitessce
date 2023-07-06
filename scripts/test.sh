@@ -1,15 +1,6 @@
 #!/usr/bin/env bash
 set -o errexit
 
-# changelog check
-if [[ "$1" == "--action" ]]; then
-  if [ "$GITHUB_REF" != 'refs/heads/main' ]; then
-    diff CHANGELOG.md <(curl https://raw.githubusercontent.com/vitessce/vitessce/main/CHANGELOG.md) \
-      && die 'Update CHANGELOG.md'
-  fi
-fi
-# end changelog check
-
 # linting
 pnpm run lint || die 'eslint failed; try: pnpm run lint-fix'
 # end linting
