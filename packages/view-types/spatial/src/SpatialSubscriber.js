@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import { debounce } from 'lodash-es';
 import {
   TitleInfo,
   useDeckCanvasSize, useReady, useUrls,
@@ -344,6 +345,31 @@ export function SpatialSubscriber(props) {
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
+  const [hoverData, setHoverData] = useState(null);
+  const [hoverCoord, setHoverCoord] = useState(null);
+
+  // Should hover position be used for tooltips?
+  // If there are centroids for each observation, then we can use those
+  // to position tooltips. However if there are not centroids,
+  // the other option is to use the mouse location.
+  const useHoverInfoForTooltip = !obsCentroids;
+
+  const setHoverInfo = useCallback(debounce((data, coord) => {
+    setHoverData(data);
+    setHoverCoord(coord);
+  }, 10, { trailing: true }), [setHoverData, setHoverCoord, useHoverInfoForTooltip]);
+
+  const getObsIdFromHoverData = useCallback((data) => {
+    if (useHoverInfoForTooltip) {
+      // TODO: When there is support for multiple segmentation channels that may
+      // contain different obsTypes, then do not hard-code the zeroth channel.
+      const spatialTargetC = 0;
+      const obsId = data?.[spatialTargetC];
+      return obsId;
+    }
+    return null;
+  }, [useHoverInfoForTooltip]);
+
   const setViewState = ({
     zoom: newZoom,
     target,
@@ -516,6 +542,7 @@ export function SpatialSubscriber(props) {
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
+        setHoverInfo={setHoverInfo}
         setMoleculeHighlight={setMoleculeHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);
@@ -539,6 +566,10 @@ export function SpatialSubscriber(props) {
           width={width}
           height={height}
           getObsInfo={getObsInfo}
+          useHoverInfoForTooltip={useHoverInfoForTooltip}
+          hoverData={hoverData}
+          hoverCoord={hoverCoord}
+          getObsIdFromHoverData={getObsIdFromHoverData}
         />
       )}
       <Legend
