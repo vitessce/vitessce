@@ -73,3 +73,11 @@ We test that the bundles can be imported in different environments using Cypress
 #### Bundle size
 
 For each sub-package, the total payload that is pushed to NPM during publishing must remain below 50 MB, as this is the limit beyond which CDNs like Unpkg will serve the contents.
+
+## Changesets
+
+We use changesets for automated management of changelogs and versioning/releases.
+
+<a href="https://docs.google.com/drawings/d/1SOVlMQenNFR4s9Yw-1YvhoriNsaWPlpozVJd2CJK1Pg/edit?usp=sharing">
+  <img src="https://docs.google.com/drawings/d/e/2PACX-1vRngHjctoUQnHxpZXVTK4mYomM097LKW7zJMFANwUEPWYEpX-T59UZQPOsiIcQC0a8Z_fjAIHs-i7WS/pub?w=1787&amp;h=1447">
+</a>

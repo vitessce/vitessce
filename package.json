@@ -1,5 +1,6 @@
 {
-  "name": "vitessce",
+  "name": "vitessce-monorepo",
+  "private": true,
   "version": "3.0.1",
   "description": "Vitessce app and React component library",
   "author": "Gehlenborg Lab",
@@ -30,6 +31,7 @@
     "meta-dryrun": "cross-env META_UPDATER_MODE=dryrun pnpm meta-updater",
     "meta-version-only": "cross-env META_UPDATER_MODE=versiononly pnpm meta-updater",
     "publint": "pnpm -r --filter \"./packages/**\" exec publint",
+    "changeset-status": "changeset status --since=origin/main",
     "check-makestyles-keys": "pnpm exec sg scan --json | node ./scripts/check-makestyles-keys.mjs"
   },
   "devDependencies": {
@@ -64,6 +66,13 @@
     "vitest": "^0.32.2",
     "cross-env": "^7.0.0",
     "json-diff-ts": "^1.2.5",
+    "@changesets/cli": "^2.17.0",
+    "@changesets/get-github-info": "^0.5.2",
+    "gray-matter": "^4.0.3",
+    "mdast-util-to-string": "^1.0.6",
+    "remark-parse": "^7.0.1",
+    "remark-stringify": "^7.0.3",
+    "unified": "^8.3.2",
     "lodash-es": "^4.17.21",
     "publint": "^0.1.11",
     "@ast-grep/cli": "^0.6.3"
@@ -80,8 +89,5 @@
       }
     }
   },
-  "keywords": [
-    "react-component"
-  ],
   "license": "MIT"
 }
