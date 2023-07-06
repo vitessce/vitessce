@@ -3,7 +3,6 @@
 
 ### Changed
 - Fix duplicate URLs appearing in download dropdown by filtering based on names.
-- Added functions to the `VitessceConfig` object-oriented configuration APIs to support multi-level and meta (i.e., complex) coordination.
 
 ## [3.0.1](https://www.npmjs.com/package/vitessce/v/3.0.1) - 2023-06-30
 
