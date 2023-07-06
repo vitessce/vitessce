@@ -66,6 +66,11 @@ purposes only, as this has a performance impact.
 
 If set to `true` then users cannot resize or move components beyond the initial borders of the grid. By default, `false`.
 
+### `uid`
+- Type: `null|string`
+
+A unique ID string which can be used to ensure that dynamically-generated CSS class names are unique for a given `<Vitessce/>` component. By default, `null`.
+
 ### `pluginViewTypes`
 - Type: `PluginViewType[]`
 

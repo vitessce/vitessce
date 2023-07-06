@@ -173,7 +173,7 @@ export default function SelectableTable(props) {
           <input
             id={`${inputUuid}_${data[index][idKey]}`}
             type="checkbox"
-            className={clsx(classes.radioOrCheckbox, isCheckingMultiple ? classes.checkbox : classes.radio)}
+            className={clsx(classes.radioOrCheckbox, isCheckingMultiple ? classes.tableCheckbox : classes.tableRadio)}
             name={inputUuid}
             value={data[index][idKey]}
             onChange={handleInputChange}

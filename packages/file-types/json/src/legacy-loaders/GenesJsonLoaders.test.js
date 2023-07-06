@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { LoaderResult } from '@vitessce/vit-s';
 import GenesJsonAsObsFeatureMatrixLoader from './GenesJsonAsObsFeatureMatrix.js';
 import JsonSource from '../JsonSource.js';
@@ -16,7 +17,7 @@ describe('loaders/genes-json-loaders', () => {
     it('can load obsFeatureMatrix', async () => {
       const loader = createLoader(GenesJsonAsObsFeatureMatrixLoader, {
         fileType: 'obsFeatureMatrix.genes.json',
-      }, 'http://localhost:51204/@fixtures/json-legacy/genes.good.json');
+      }, 'http://localhost:4204/@fixtures/json-legacy/genes.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;

@@ -15,6 +15,7 @@ import {
   useUint8FeatureSelection,
   useExpressionValueGetter,
   useGetObsInfo,
+  useInitialCoordination,
   useCoordination,
   useLoaders,
   useSetComponentHover,
@@ -114,6 +115,15 @@ export function SpatialSubscriber(props) {
     setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
 
+  const {
+    spatialZoom: initialZoom,
+    spatialTargetX: initialTargetX,
+    spatialTargetY: initialTargetY,
+    spatialTargetZ: initialTargetZ,
+  } = useInitialCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes,
+  );
+
   const observationsLabel = observationsLabelOverride || obsType;
 
   const [
@@ -128,11 +138,10 @@ export function SpatialSubscriber(props) {
 
   const use3d = imageLayers?.some(l => l.use3d);
 
-  const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
 
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
-    coordinationScopes, obsType, loaders, dataset, addUrl,
+    coordinationScopes, obsType, loaders, dataset,
   );
 
   const hasExpressionData = useHasLoader(
@@ -156,37 +165,37 @@ export function SpatialSubscriber(props) {
   const [{
     obsIndex: obsLocationsIndex,
     obsLocations,
-  }, obsLocationsStatus] = useObsLocationsData(
-    loaders, dataset, addUrl, false,
+  }, obsLocationsStatus, obsLocationsUrls] = useObsLocationsData(
+    loaders, dataset, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
     { obsType: 'molecule' }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
   );
   const [{
     obsLabels: obsLocationsLabels,
-  }, obsLabelsStatus] = useObsLabelsData(
-    loaders, dataset, addUrl, false, {}, {},
+  }, obsLabelsStatus, obsLabelsUrls] = useObsLabelsData(
+    loaders, dataset, false, {}, {},
     { obsType: 'molecule' }, // TODO: use obsType in matchOn once #1240 is merged.
   );
   const [{
     obsIndex: obsCentroidsIndex,
     obsLocations: obsCentroids,
-  }, obsCentroidsStatus] = useObsLocationsData(
-    loaders, dataset, addUrl, false, {}, {},
+  }, obsCentroidsStatus, obsCentroidsUrls] = useObsLocationsData(
+    loaders, dataset, false, {}, {},
     { obsType }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
   );
   const [{
     obsIndex: obsSegmentationsIndex,
     obsSegmentations,
     obsSegmentationsType,
-  }, obsSegmentationsStatus] = useObsSegmentationsData(
-    loaders, dataset, addUrl, false,
+  }, obsSegmentationsStatus, obsSegmentationsUrls] = useObsSegmentationsData(
+    loaders, dataset, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
     { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
   );
-  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus] = useObsSetsData(
-    loaders, dataset, addUrl, false,
+  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+    loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
@@ -196,24 +205,26 @@ export function SpatialSubscriber(props) {
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsIndex: matrixObsIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
-    loaders, dataset, addUrl, false,
+  const [
+    { obsIndex: matrixObsIndex }, matrixIndicesStatus, matrixIndicesUrls,
+  ] = useObsFeatureMatrixIndices(
+    loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ image }, imageStatus] = useImageData(
-    loaders, dataset, addUrl, false,
+  const [{ image }, imageStatus, imageUrls] = useImageData(
+    loaders, dataset, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: imageLayers },
     {}, // TODO: which properties to match on. Revisit after #830.
   );
   const { loaders: imageLayerLoaders = [], meta = [] } = image || {};
-  const [neighborhoods, neighborhoodsStatus] = useNeighborhoodsData(
-    loaders, dataset, addUrl, false,
+  const [neighborhoods, neighborhoodsStatus, neighborhoodsUrls] = useNeighborhoodsData(
+    loaders, dataset, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
-  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
-    loaders, dataset, addUrl, false, {}, {},
+  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+    loaders, dataset, false, {}, {},
     { featureType },
   );
 
@@ -229,6 +240,17 @@ export function SpatialSubscriber(props) {
     neighborhoodsStatus,
     featureLabelsStatus,
   ]);
+  const urls = useUrls([
+    obsLocationsUrls,
+    obsLabelsUrls,
+    obsCentroidsUrls,
+    obsSegmentationsUrls,
+    obsSetsUrls,
+    matrixIndicesUrls,
+    imageUrls,
+    neighborhoodsUrls,
+    featureLabelsUrls,
+  ]);
 
   const obsLocationsFeatureIndex = useMemo(() => {
     if (obsLocationsLabels) {
@@ -239,37 +261,60 @@ export function SpatialSubscriber(props) {
   const moleculesCount = obsLocationsFeatureIndex?.length || 0;
   const locationsCount = obsLocationsIndex?.length || 0;
 
-  const [originalViewState, setOriginalViewState] = useState(
-    { target: [targetX, targetY, targetZ], zoom },
-  );
+  const [originalViewState, setOriginalViewState] = useState(null);
+
+  // Compute initial viewState values to use if targetX and targetY are not
+  // defined in the initial configuration.
+  const {
+    initialTargetX: defaultTargetX, initialTargetY: defaultTargetY,
+    initialTargetZ: defaultTargetZ, initialZoom: defaultZoom,
+  } = useMemo(() => getInitialSpatialTargets({
+    width,
+    height,
+    obsCentroids,
+    obsSegmentations,
+    obsSegmentationsType,
+    // TODO: use obsLocations (molecules) here too.
+    imageLayerLoaders,
+    useRaster: Boolean(hasImageData),
+    use3d,
+    modelMatrices: meta.map(({ metadata }) => metadata?.transform?.matrix),
+  }),
+  // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
+  // an indirect dependency instead.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [image, use3d, hasImageData, obsCentroids, obsSegmentations, obsSegmentationsType,
+    width, height,
+  ]);
 
   useEffect(() => {
-    if ((typeof targetX !== 'number' || typeof targetY !== 'number')) {
-      const {
-        initialTargetX, initialTargetY, initialTargetZ, initialZoom,
-      } = getInitialSpatialTargets({
-        width,
-        height,
-        obsCentroids,
-        obsSegmentations,
-        obsSegmentationsType,
-        // TODO: use obsLocations (molecules) here too.
-        imageLayerLoaders,
-        useRaster: Boolean(hasImageData),
-        use3d,
-        modelMatrices: meta.map(({ metadata }) => metadata?.transform?.matrix),
-      });
-      setTargetX(initialTargetX);
-      setTargetY(initialTargetY);
-      setTargetZ(initialTargetZ);
-      setZoom(initialZoom);
+    // If it has not already been set, set the initial view state using
+    // the auto-computed values from the useMemo above.
+    if (typeof initialTargetX !== 'number' || typeof initialTargetY !== 'number') {
+      const notYetInitialized = (typeof targetX !== 'number' || typeof targetY !== 'number');
+      const stillDefaultInitialized = (targetX === defaultTargetX && targetY === defaultTargetY);
+      if (notYetInitialized || stillDefaultInitialized) {
+        setTargetX(defaultTargetX);
+        setTargetY(defaultTargetY);
+        setTargetZ(defaultTargetZ);
+        setZoom(defaultZoom);
+      }
       setOriginalViewState(
-        { target: [initialTargetX, initialTargetY, initialTargetZ], zoom: initialZoom },
+        { target: [defaultTargetX, defaultTargetY, defaultTargetZ], zoom: defaultZoom },
       );
+    } else if (!originalViewState) {
+      // originalViewState has not yet been set and
+      // the view config defined an initial viewState.
+      setOriginalViewState({
+        target: [initialTargetX, initialTargetY, initialTargetZ], zoom: initialZoom,
+      });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageLayerLoaders, targetX, targetY, setTargetX, setTargetY,
-    setZoom, use3d, hasImageData, obsCentroids, obsSegmentations, obsSegmentationsType]);
+    // Deliberate dependency omissions: targetX, targetY
+    // since we do not this to re-run on every single zoom/pan interaction.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultTargetX, defaultTargetY, defaultTargetZ, defaultZoom,
+    initialTargetX, initialTargetY, initialTargetZ, initialZoom,
+  ]);
 
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,

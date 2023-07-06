@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/schemas",
-  "version": "2.0.3",
+  "version": "3.0.1",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -27,26 +27,26 @@
   ],
   "scripts": {
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
-    "test": "pnpm exec vitest --run -r ../../ --dir ."
+    "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "zod": "^3.21.4",
+    "@types/lodash": "^4.14.191",
+    "@types/lodash-es": "^4.17.7",
+    "@types/semver": "^7.3.13",
+    "@types/uuid": "^9.0.1",
     "@vitessce/constants": "workspace:*",
-    "@vitessce/utils": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/plugins": "workspace:*",
-    "uuid": "^9.0.0",
+    "@vitessce/utils": "workspace:*",
     "lodash-es": "^4.17.21",
     "semver": "^7.3.8",
-    "@types/lodash": "^4.14.191",
-    "@types/uuid": "^9.0.1",
-    "@types/semver": "^7.3.13",
-    "@types/lodash-es": "^4.17.7"
+    "uuid": "^9.0.0",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
+    "json-schema-to-zod": "^0.6.3",
     "vite": "^4.3.0",
-    "vitest": "^0.23.4",
-    "zod-to-json-schema": "^3.20.4",
-    "json-schema-to-zod": "^0.6.3"
+    "vitest": "^0.32.2",
+    "zod-to-json-schema": "^3.20.4"
   }
 }

@@ -21,6 +21,7 @@ import {
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
+  useInitialCoordination,
 } from '@vitessce/vit-s';
 import { setObsSelection, mergeObsSets, getCellSetPolygons } from '@vitessce/sets-utils';
 import { getCellColors, commaNumber } from '@vitessce/utils';
@@ -112,25 +113,34 @@ export function EmbeddingScatterplotSubscriber(props) {
     setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
 
+  const {
+    embeddingZoom: initialZoom,
+    embeddingTargetX: initialTargetX,
+    embeddingTargetY: initialTargetY,
+  } = useInitialCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
+  );
+
   const observationsLabel = observationsLabelOverride || obsType;
 
-  const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
 
   const title = titleOverride || `Scatterplot (${mapping})`;
 
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
-    coordinationScopes, obsType, loaders, dataset, addUrl,
+    coordinationScopes, obsType, loaders, dataset,
   );
 
   // Get data from loaders using the data hooks.
-  const [{ obsIndex: obsEmbeddingIndex, obsEmbedding }, obsEmbeddingStatus] = useObsEmbeddingData(
-    loaders, dataset, addUrl, true, {}, {},
+  const [
+    { obsIndex: obsEmbeddingIndex, obsEmbedding }, obsEmbeddingStatus, obsEmbeddingUrls,
+  ] = useObsEmbeddingData(
+    loaders, dataset, true, {}, {},
     { obsType, embeddingType: mapping },
   );
   const cellsCount = obsEmbeddingIndex?.length || 0;
-  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus] = useObsSetsData(
-    loaders, dataset, addUrl, false,
+  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+    loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
@@ -140,12 +150,14 @@ export function EmbeddingScatterplotSubscriber(props) {
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsIndex: matrixObsIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
-    loaders, dataset, addUrl, false,
+  const [
+    { obsIndex: matrixObsIndex }, matrixIndicesStatus, matrixIndicesUrls,
+  ] = useObsFeatureMatrixIndices(
+    loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
-    loaders, dataset, addUrl, false, {}, {},
+  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+    loaders, dataset, false, {}, {},
     { featureType },
   );
 
@@ -155,6 +167,12 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureSelectionStatus,
     featureLabelsStatus,
     matrixIndicesStatus,
+  ]);
+  const urls = useUrls([
+    obsEmbeddingUrls,
+    obsSetsUrls,
+    matrixIndicesUrls,
+    featureLabelsUrls,
   ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
@@ -241,26 +259,30 @@ export function EmbeddingScatterplotSubscriber(props) {
       );
       setDynamicCellOpacity(nextCellOpacityScale);
 
-      if (typeof targetX !== 'number' || typeof targetY !== 'number') {
+      if (typeof initialTargetX !== 'number' || typeof initialTargetY !== 'number') {
         // The view config did not define an initial viewState so
         // we calculate one based on the data and set it.
         const newTargetX = xExtent[0] + xRange / 2;
         const newTargetY = yExtent[0] + yRange / 2;
         const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
-        setTargetX(newTargetX);
-        // Graphics rendering has the y-axis going south so we need to multiply by negative one.
-        setTargetY(-newTargetY);
-        setZoom(newZoom);
+        const notYetInitialized = (typeof targetX !== 'number' || typeof targetY !== 'number');
+        const stillDefaultInitialized = (targetX === newTargetX && targetY === -newTargetY);
+        if (notYetInitialized || stillDefaultInitialized) {
+          setTargetX(newTargetX);
+          // Graphics rendering has the y-axis going south so we need to multiply by negative one.
+          setTargetY(-newTargetY);
+          setZoom(newZoom);
+        }
         setOriginalViewState({ target: [newTargetX, -newTargetY, 0], zoom: newZoom });
       } else if (!originalViewState) {
         // originalViewState has not yet been set and
         // the view config defined an initial viewState.
-        setOriginalViewState({ target: [targetX, targetY, 0], zoom });
+        setOriginalViewState({ target: [initialTargetX, initialTargetY, 0], zoom: initialZoom });
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [xRange, yRange, xExtent, yExtent, numCells,
-    width, height, zoom, averageFillDensity]);
+    width, height, initialZoom, zoom, initialTargetX, initialTargetY, averageFillDensity]);
 
   const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,

@@ -66,13 +66,13 @@ export function VitessceGridLayout(props) {
   //
   // Additionally, react-grid-layout doesn't revert if you don't save a new/changed layouts. If you
   // wish to do this, first you have to save the new layouts and render the grid with it, and then
-  // you can revert to the original layouts. Thus, we need one state for the current grid layouts,
+  // you can revert to the original layouts. Thus, we need one state for a temporary grid layout,
   // which gets called on every onLayoutChange. If the grid height is still valid, we then call
-  // onValidLayoutChange, otherwise we reset currentGridLayouts to lastValidGridLayouts.
+  // onValidLayoutChange, otherwise we call onValidLayoutChange with lastValidGridLayouts.
   //
   // See the following GitHub issue for more information.
   // https://github.com/react-grid-layout/react-grid-layout/issues/1104#issuecomment-827785217
-  const [currentGridLayouts, setCurrentGridLayouts] = useState(gridLayouts);
+  const [tempGridLayouts, setTempGridLayouts] = useState(null);
   const [lastValidGridLayouts, setLastValidGridLayouts] = useState(gridLayouts);
 
   const onValidLayoutChange = useCallback((newLayout) => {
@@ -100,18 +100,26 @@ export function VitessceGridLayout(props) {
   }, [gridComponents, onLayoutChangeProp]);
 
   const onLayoutChange = useCallback((newLayout, allLayouts) => {
-    setCurrentGridLayouts(allLayouts);
-    if (!isBounded || getMaxRows({ ID: newLayout }) <= maxRows) {
-      onValidLayoutChange(newLayout);
-      setLastValidGridLayouts(allLayouts);
-    } else {
-      setCurrentGridLayouts(lastValidGridLayouts);
-    }
+    // We first need to set the new layout to the potentially-invalid allLayouts
+    // (see comments above about react-grid-layout limitations).
+    setTempGridLayouts(allLayouts);
+    // Then we wait 50ms and validate/set the new layout.
+    setTimeout(() => {
+      if (!isBounded || getMaxRows({ ID: newLayout }) <= maxRows) {
+        // Good, new layout was valid with respect to isBounded, so set in parent.
+        onValidLayoutChange(newLayout);
+        setLastValidGridLayouts(allLayouts);
+      } else {
+        // Bad, new layout was not valid with respect to isBounded.
+        onValidLayoutChange(lastValidGridLayouts);
+      }
+      setTempGridLayouts(null);
+    }, 50);
   }, [isBounded, lastValidGridLayouts, maxRows, onValidLayoutChange]);
 
   const saveCurrentLayouts = useCallback(() => {
-    setLastValidGridLayouts(currentGridLayouts);
-  }, [currentGridLayouts]);
+    setLastValidGridLayouts(gridLayouts);
+  }, [gridLayouts]);
 
   const layoutChildren = useMemo(() => Object.values(gridComponents).map((v) => {
     const Component = getComponent(v.component);
@@ -134,13 +142,13 @@ export function VitessceGridLayout(props) {
     );
   }), [gridComponents, getComponent, onRemoveComponent, theme]);
 
-  return (currentGridLayouts && gridComponents && gridBreakpoints && gridCols) && (
+  return (gridLayouts && gridComponents && gridBreakpoints && gridCols) && (
     <>
       {style}
       <ResponsiveHeightGridLayout
         className="layout"
         cols={gridCols}
-        layouts={currentGridLayouts}
+        layouts={tempGridLayouts || gridLayouts}
         breakpoints={gridBreakpoints}
         height={height}
         rowHeight={

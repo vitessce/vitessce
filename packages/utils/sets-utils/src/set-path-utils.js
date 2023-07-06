@@ -108,13 +108,15 @@ export function filterPathsByExpansionAndSelection(
         return false;
       }
 
-      // the clusterPath is too deep in the tree. We should discard it.
-      if (cellSetExpansion.length === 0 && clusterPath.length > 2) return false;
+      if (cellSetExpansion) {
+        // the clusterPath is too deep in the tree. We should discard it.
+        if (cellSetExpansion.length === 0 && clusterPath.length > 2) return false;
 
-      const longestSubset = findLongestPath(cellSetExpansion, clusterPath, true);
-      // another case of the clusterPath being deep in the tree. We should discard it.
-      if (cellSetExpansion.length > 0 && longestSubset.length + 1 < clusterPath.length) {
-        return false;
+        const longestSubset = findLongestPath(cellSetExpansion, clusterPath, true);
+        // another case of the clusterPath being deep in the tree. We should discard it.
+        if (cellSetExpansion.length > 0 && longestSubset.length + 1 < clusterPath.length) {
+          return false;
+        }
       }
     }
     return clusterPath[0] === hierarchy[0];

@@ -53,7 +53,6 @@ export function CellSetSizesPlotSubscriber(props) {
   const title = titleOverride || `${capitalize(obsType)} Set Sizes`;
 
   const [width, height, containerRef] = useGridItemSize();
-  const [urls, addUrl] = useUrls(loaders, dataset);
 
   // the name of the hierarchy that was clicked on last
   const [currentHierarchy, setCurrentHierarchy] = useState([]);
@@ -61,15 +60,14 @@ export function CellSetSizesPlotSubscriber(props) {
   const [prevCellSetSelection, setPrevCellSetSelection] = useState([]);
 
   // Get data from loaders using the data hooks.
-  const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
-    loaders, dataset, addUrl, true,
+  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+    loaders, dataset, true,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
-  const isReady = useReady([
-    obsSetsStatus,
-  ]);
+  const isReady = useReady([obsSetsStatus]);
+  const urls = useUrls([obsSetsUrls]);
 
   const mergedCellSets = useMemo(
     () => mergeObsSets(cellSets, additionalCellSets),
@@ -77,7 +75,7 @@ export function CellSetSizesPlotSubscriber(props) {
   );
 
   const data = useMemo(() => {
-    if (cellSetSelection && cellSetExpansion && cellSetColor && mergedCellSets && cellSets) {
+    if (cellSetSelection && cellSetColor && mergedCellSets && cellSets) {
       let newHierarchy = currentHierarchy;
 
       if (cellSetSelection) {

@@ -14,24 +14,29 @@ export default defineConfig({
     emptyOutDir: false,
     minify: isProduction ? 'esbuild' : false,
     sourcemap: false,
+    target: 'es2019', // portal-ui cannot handle the nullish coalescing output by ESNext
     lib: {
       entry: resolve(__dirname, 'src/index.js'),
-      name: 'vitessce',
       fileName: isProduction ? 'index.min' : 'index',
-      formats: ['es', 'umd'],
+      formats: ['es'],
+      // name: 'vitessce', // Used for UMD builds
     },
     rollupOptions: {
       external: ['react', 'react-dom'],
+      // output.globals required for UMD builds
+      // (e.g., no longer used since only generating ESM build)
+      /*
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
         },
-      }
-    }
+      },
+      */
+    },
   },
   define: {
     'process.env.NODE_ENV': `"${process.env.APP_ENV}"`,
   },
-  plugins: [react()]
+  plugins: [react()],
 });

@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     name: Deploy
     steps:
       - uses: actions/checkout@v3
@@ -17,11 +17,11 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - id: check-deploy
         run: . ./check-deploy.sh --action
-      - uses: pnpm/action-setup@v2.0.1
+      - uses: pnpm/action-setup@v2.2.4
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 7
+          version: 8
           run_install: true
       - id: get-options
         run: . ./set-node-options.sh --action
