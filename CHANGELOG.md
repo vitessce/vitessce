@@ -15,7 +15,6 @@
 - Use `config` object reference as hook dependency when no `config.uid` is present (to support both controlled and un-controlled component cases).
 - Initialize Zustand store using closure over `createViewConfigStore` function, rather than via `useEffect`.
 - Implement basic solution for multi `ome-zarr` images via `image.raster.json`
-- Added a list of hints that user will select from, when using the zero config mode feature.
 
 ### Changed
 - Fix Material UI import statement.
@@ -31,13 +30,6 @@
 - Only generate ESM builds for `vitessce` and `@vitessce/dev`.
 - Use `@tanstack/react-query` for data fetching.
 - Fixed a bug in SetManager popover menu, where the text is not visible in vitessce.io in dark mode.
-- Modified the user interface, defined in `_ViewConfigEditor.js`:
-  - Defined a list of hints, which depend on the types of the files the user pastes URLs for.
-  - Removed the `Generate Config` button. Now each hint is a button that generates the view config when pressed.
-- Created a new file `constants.js` in `packages/config` that defines the range of supported hints, along with the name and coordinates of the desired layers.
-- Modified `VitessceAutoConfig.js`:
-  - Added a function to return the type of files the user pasted the URLs for. The function is used in `_ViewConfigEditor.js` to determine what set of hints to display.
-  - Adapted the existing code to take selected hint into an account, when creating the view config.
 ## [3.0.0](https://www.npmjs.com/package/vitessce/v/3.0.0) - 2023-05-24
 
 ### Added
