@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { generateConfig, getDatasetHintsConfig } from './VitessceAutoConfig.js';
-import { HINTS_CONFIG, NO_HINTS_CONFIG } from './constants.js';
+import { HINTS_CONFIG } from './constants.js';
 
 describe('generateConfig', () => {
   it('generates config for OME-TIFF file correctly', async () => {
@@ -583,9 +583,11 @@ describe('generateConfig', () => {
   it('raises an error when URL with unsupported file format is passed', async () => {
     const urls = ['http://localhost:4204/@fixtures/zarr/anndata-0.7/somefile.zarr'];
 
-    await generateConfig(urls, NO_HINTS_CONFIG, '', false).catch(
-      e => expect(e.message).toContain('One or more of the URLs provided point to unsupported file types.'),
-    );
+    try {
+      getDatasetHintsConfig(urls);
+    } catch (e) {
+      expect(e.message).toContain('One or more of the URLs provided point to unsupported file types.');
+    }
   });
 
   // ********** TESTS WITH HINTS **********
@@ -928,6 +930,9 @@ describe('generateConfig', () => {
             dataset: 'A',
             spatialImageLayer: 'A',
             spatialSegmentationLayer: 'A',
+            spatialTargetX: 'A',
+            spatialTargetY: 'A',
+            spatialZoom: 'A',
           },
           h: 6,
           props: {

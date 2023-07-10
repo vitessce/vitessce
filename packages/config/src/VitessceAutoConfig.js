@@ -6,18 +6,22 @@ import {
 import { HINTS_CONFIG, NO_HINTS_CONFIG } from './constants.js';
 
 /**
+ * @param {Object} hintsConfig. The hints config for the given dataset.
  *
  * @param {Array} possibleViews. All views for a given file type, supported by the dataset.
  * The array contains arrays of strings, each of size >= 1, where the first element of each string
  * is a VitessceConfig view name ('description', 'spatial', 'layerController', etc.)
  *
- * @param {Array of strings} requiredViews. Views that are required by the hints config.
- * Each string is a VitessceConfig view name ('description', 'spatial', 'layerController', etc.).
- *
  * @returns {Array of strings} the intersection of VitessceConfig view names in
  * possibleViews and requiredViews.
  */
-const filterViews = (possibleViews, requiredViews) => {
+const filterViews = (hintsConfig, possibleViews) => {
+  if (Object.keys(hintsConfig).length === 0) {
+    return possibleViews;
+  }
+
+  const requiredViews = Object.keys(hintsConfig.views);
+
   const resultViews = [];
 
   requiredViews.forEach((requiredView) => {
@@ -47,13 +51,10 @@ class OmeTiffAutoConfig extends AbstractAutoConfig {
   }
 
   async composeViewsConfig(hintsConfig) { /* eslint-disable-line class-methods-use-this */
-    const possibleViews = [
-      ['description'], ['spatial'], ['layerController'],
-    ];
-    if (Object.keys(hintsConfig).length === 0) {
-      return possibleViews;
-    }
-    return filterViews(possibleViews, Object.keys(hintsConfig.views));
+    return filterViews(
+      hintsConfig,
+      [['description'], ['spatial'], ['layerController']],
+    );
   }
 
   async composeFileConfig() {
@@ -86,14 +87,10 @@ class OmeZarrAutoConfig extends AbstractAutoConfig {
   }
 
   async composeViewsConfig(hintsConfig) { /* eslint-disable-line class-methods-use-this */
-    const possibleViews = [
-      ['description'], ['spatial'], ['layerController'],
-    ];
-
-    if (Object.keys(hintsConfig).length === 0) {
-      return possibleViews;
-    }
-    return filterViews(possibleViews, Object.keys(hintsConfig.views));
+    return filterViews(
+      hintsConfig,
+      [['description'], ['spatial'], ['layerController']],
+    );
   }
 
   async composeFileConfig() {
@@ -225,11 +222,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       possibleViews.push(['featureList']);
     }
 
-    if (Object.keys(hintsConfig).length === 0) {
-      return possibleViews;
-    }
-
-    return filterViews(possibleViews, Object.keys(hintsConfig.views));
+    return filterViews(hintsConfig, possibleViews);
   }
 
   async setMetadataSummaryWithZmetadata(response) { /* eslint-disable-line class-methods-use-this */
@@ -493,6 +486,13 @@ function insertCoordinationSpaceForSpatial(views, vc) {
   });
 }
 
+/**
+ * Returns the type of the file, based on the file extension.
+ * @param {string} url of the file.
+ * @returns {object} An element from the `configClasses` array, which will be an object with
+ * the properties `extensions: string[]`, `class` (an AutoConfig class definition) and
+ * `name`: string.
+ */
 function getFileType(url) {
   const match = configClasses.find(obj => obj.extensions.filter(
     ext => url.endsWith(ext),
@@ -566,6 +566,7 @@ async function generateViewDefinition(url, vc, dataset, hintsConfig) {
 }
 
 /**
+ * Returns the hints that are available for the given file URLs, depending on their types.
  * @param {Array} fileUrls containing urls of files to be loaded into Vitessce
  * @returns the hints available for these file URLs
  */
@@ -585,7 +586,7 @@ export function getDatasetHintsConfig(fileUrls) {
   const datasetTypes = Object.keys(fileTypes);
 
   return HINTS_CONFIG.find(
-    (element) => element.hintType.every(
+    element => element.hintType.every(
       fileType => datasetTypes.includes(fileType),
     )
     && element.hintType.length === datasetTypes.length,
