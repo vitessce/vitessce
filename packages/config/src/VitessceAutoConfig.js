@@ -419,7 +419,11 @@ function insertCoordinationSpaceForSpatial(views, vc) {
     ct.SPATIAL_TARGET_Y,
   );
 
+  // Note: this always assumes the segmentation is polygon-based.
+  // In the future, we may want to support both polygon-based and bitmask-based.
   spatialSegmentationLayer.setValue(spatialSegmentationLayerValue);
+  // Note: this always assumes the image is RGB.
+  // In the future, we may want to support both RGB and multi-channel.
   spatialImageLayer.setValue([
     {
       type: 'raster',
@@ -479,15 +483,12 @@ function insertCoordinationSpaceForSpatial(views, vc) {
   ]);
 
   views.forEach((view) => {
-    if (view.view.component === 'spatial') {
+    if (view.view.component === 'spatial' || view.view.component === 'layerController') {
       view.useCoordination(spatialImageLayer);
       view.useCoordination(spatialSegmentationLayer);
       view.useCoordination(spatialZoom);
       view.useCoordination(spatialTargetX);
       view.useCoordination(spatialTargetY);
-    } else if (view.view.component === 'layerController') {
-      view.useCoordination(spatialImageLayer);
-      view.useCoordination(spatialSegmentationLayer);
     }
   });
 }
@@ -555,12 +556,9 @@ async function generateViewDefinition(url, vc, dataset, hintsConfig) {
     vc.linkViews(
       [spatialView, layerControllerView],
       [
-        ct.SPATIAL_ZOOM,
-        ct.SPATIAL_TARGET_X,
-        ct.SPATIAL_TARGET_Y,
         ct.SPATIAL_SEGMENTATION_LAYER,
       ],
-      [-5.5, 16000, 20000, spatialSegmentationLayerValue],
+      [spatialSegmentationLayerValue],
     );
   }
 
@@ -587,10 +585,10 @@ export function getDatasetHintsConfig(fileUrls) {
   const datasetTypes = Object.keys(fileTypes);
 
   return HINTS_CONFIG.find(
-    (element, index) => HINTS_CONFIG[index].hintType.every(
+    (element) => element.hintType.every(
       fileType => datasetTypes.includes(fileType),
     )
-    && HINTS_CONFIG[index].hintType.length === datasetTypes.length,
+    && element.hintType.length === datasetTypes.length,
   );
 }
 
