@@ -99,6 +99,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     } = info;
     const {
       setCellHighlight, cellHighlight, setComponentHover, layers,
+      setHoverInfo,
     } = this.props;
     const hasBitmask = (layers || []).some(l => l.type === 'bitmask');
     if (!setCellHighlight || !tile) {
@@ -107,6 +108,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     if (!layer || !coordinate) {
       if (cellHighlight && hasBitmask) {
         setCellHighlight(null);
+      }
+      if (setHoverInfo) {
+        setHoverInfo(null, null);
       }
       return null;
     }
@@ -118,6 +122,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     if (!content) {
       if (cellHighlight && hasBitmask) {
         setCellHighlight(null);
+      }
+      if (setHoverInfo) {
+        setHoverInfo(null, null);
       }
       return null;
     }
@@ -158,6 +165,13 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
         // eslint-disable-next-line no-unused-expressions
         setCellHighlight(cellId ? String(cellId) : null);
       }
+      if (setHoverInfo) {
+        if (cellId) {
+          setHoverInfo(hoverData, coordinate);
+        } else {
+          setHoverInfo(null, null);
+        }
+      }
     }
   }
 
@@ -173,7 +187,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     if (updateViewInfo && viewport) {
       updateViewInfo({
         uuid,
-        project: (obsId) => {
+        project: viewport.project,
+        projectFromId: (obsId) => {
           try {
             if (obsIndex && obsLocations) {
               const getObsCoords = makeGetObsCoords(obsLocations);
