@@ -1068,6 +1068,9 @@ importers:
       '@material-ui/icons':
         specifier: ~4.11.2
         version: 4.11.3(@material-ui/core@4.12.4)(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/react-query':
+        specifier: ^4.29.12
+        version: 4.29.12(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal

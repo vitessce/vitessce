@@ -567,6 +567,12 @@ export function SpatialSubscriber(props) {
   const [hoverData, setHoverData] = useState(null);
   const [hoverCoord, setHoverCoord] = useState(null);
 
+  // Should hover position be used for tooltips?
+  // If there are centroids for each observation, then we can use those
+  // to position tooltips. However if there are not centroids,
+  // the other option is to use the mouse location.
+  const useHoverInfoForTooltip = !obsCentroids;
+
   const getObsInfo = useCallback((channelData) => {
     if (channelData) {
       const result = {};
@@ -614,6 +620,17 @@ export function SpatialSubscriber(props) {
     setHoverData(a);
     setHoverCoord(b);
   }, 10, { trailing: true }), [setHoverData, setHoverCoord]);
+
+  const getObsIdFromHoverData = useCallback((data) => {
+    if (useHoverInfoForTooltip) {
+      // TODO: When there is support for multiple segmentation channels that may
+      // contain different obsTypes, then do not hard-code the zeroth channel.
+      const spatialTargetC = 0;
+      const obsId = data?.[spatialTargetC];
+      return obsId;
+    }
+    return null;
+  }, [useHoverInfoForTooltip]);
 
   // Without useMemo, this would propagate a change every time the component
   // re - renders as opposed to when it has to.
@@ -725,8 +742,10 @@ export function SpatialSubscriber(props) {
           width={width}
           height={height}
           getObsInfo={getObsInfo}
+          useHoverInfoForTooltip={useHoverInfoForTooltip}
           hoverData={hoverData}
           hoverCoord={hoverCoord}
+          getObsIdFromHoverData={getObsIdFromHoverData}
         />
       )}
       {/*<Legend
