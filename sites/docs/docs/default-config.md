@@ -23,8 +23,9 @@ To use this functionality, go to the [App](/#?edit=true) page of this website an
 
 This functionality relies on file extensions to infer file formats, so ensure that each data file is of supported format and complies with the [requirements](#requirements).
 
-The currently supported hints for each dataset type can be found in `constants.js` file under https://github.com/vitessce/vitessce/tree/main/packages/config/src.   
+The currently supported hints for each dataset type can be found in `constants.js` file under https://github.com/vitessce/vitessce/tree/main/packages/config/src.
 
+NOTE: In some cases, the automatically generated view config might need small manual adjustments. For instance, when using hint `Spatial transcriptomics (with histology image and polygon cell segmentations)`, you will need to manually adjust the coordination values for the image and the segmentation layer, which are set to `null` by default, to match your particular files.
 ### Requirements
 
 You will need one or more URLs, where each points to a static file to visualize. Each URL must end with one of the supported file extensions listed below.
