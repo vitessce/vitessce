@@ -523,6 +523,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     const colors = channelScopes
       .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]);
+    // TODO: figure out how to initialize the channel windows in the loader.
     const contrastLimits = channelScopes
       .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_WINDOW] || ([0, 255])); // TODO: is [0, 255] the right fallback?
 

@@ -30,6 +30,7 @@ import { PATHOLOGY_PALETTE, LARGE_PATHOLOGY_PALETTE, COLORMAP_OPTIONS } from '@v
 import { CoordinationType } from '@vitessce/constants-internal';
 import { getSourceFromLoader } from '@vitessce/spatial-utils';
 import ChannelOptions from './ChannelOptions.js';
+import ChannelSlider from './ChannelSlider.js';
 import { DOMAINS } from './constants.js';
 
 import { useControllerSectionStyles, useSelectStyles } from './styles.js';
@@ -58,6 +59,7 @@ export default function SplitImageChannelController(props) {
     setWindow,
     colormapOn,
     featureIndex, // The channel names.
+    image, // To get the channel window extent using image metadata.
   } = props;
 
   const classes = useStyles();
@@ -71,7 +73,7 @@ export default function SplitImageChannelController(props) {
   }
 
   function onRemove() {
-
+    // TODO
   }
 
   return (
@@ -90,8 +92,8 @@ export default function SplitImageChannelController(props) {
             color={color}
             setColor={setColor}
             onRemove={onRemove}
-            domainType={'min/max'}
-            setDomainType={() => {}}
+            domainType={'min/max'} // TODO
+            setDomainType={() => {}} // TODO
             disabled={isLoading}
           />
         </Grid>
@@ -106,14 +108,16 @@ export default function SplitImageChannelController(props) {
           />
         </Grid>
         <Grid item xs={9}>
-          {/*<ChannelSlider
+          <ChannelSlider
+            image={image}
+            targetC={targetC}
             color={rgbColor}
-            slider={slider}
-            domain={domain || DOMAINS[dtype]}
-            dtype={dtype}
-            handleChange={v => handlePropertyChange('slider', v)}
+            window={window}
+            setWindow={setWindow}
+            /*domain={domain || DOMAINS[dtype]}
+            dtype={dtype}*/
             disabled={isLoading}
-          />*/}
+          />
         </Grid>
       </Grid>
     </Grid>

@@ -4,7 +4,7 @@ import { Lens as LensIcon } from '@material-ui/icons';
 import { VIEWER_PALETTE } from '@vitessce/utils';
 
 const useStyles = makeStyles(theme => ({
-  container: {
+  colorPaletteContainer: {
     width: '70px',
     height: '40px',
     display: 'flex',
@@ -12,11 +12,11 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     flexWrap: 'wrap',
   },
-  button: {
+  colorPaletteButton: {
     padding: '3px',
     width: '16px',
   },
-  icon: {
+  colorPaletteIcon: {
     width: '17px',
     height: '17px',
     stroke: theme.palette.action.selected,
@@ -27,17 +27,17 @@ const useStyles = makeStyles(theme => ({
 const ColorPalette = ({ setColor }) => {
   const classes = useStyles();
   return (
-    <div className={classes.container} aria-label="color-swatch">
+    <div className={classes.colorPaletteContainer} aria-label="color-swatch">
       {VIEWER_PALETTE.map(color => (
         <IconButton
-          className={classes.button}
+          className={classes.colorPaletteButton}
           key={color}
           onClick={() => setColor(color)}
         >
           <LensIcon
             fontSize="small"
             style={{ color: `rgb(${color})` }}
-            className={classes.icon}
+            className={classes.colorPaletteIcon}
           />
         </IconButton>
       ))}

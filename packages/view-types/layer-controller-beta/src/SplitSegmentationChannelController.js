@@ -240,7 +240,7 @@ export default function SplitVectorLayerController(props) {
   const classes = useControllerSectionStyles();
   return (
     <Grid item style={{ marginTop: '10px' }}>
-      <Paper className={classes.root}>
+      <Paper className={classes.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={1}>
             <Button

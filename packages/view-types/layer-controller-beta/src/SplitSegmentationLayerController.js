@@ -14,8 +14,6 @@ export default function SplitSegmentationLayerController(props) {
     use3d, // TODO
   } = props;
 
-  // console.log(layerCoordination, channelCoordination);
-
   const {
     spatialLayerVisible,
     spatialLayerOpacity,

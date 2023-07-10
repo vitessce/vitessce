@@ -68,8 +68,6 @@ export default function SplitImageLayerController(props) {
     setSpatialLayerColormap: setColormap,
   } = setLayerCoordination;
 
-  console.log(layerCoordination);
-
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
 
@@ -87,7 +85,7 @@ export default function SplitImageLayerController(props) {
   const selectClasses = useSelectStyles();
   return (
     <Grid item style={{ marginTop: '10px' }}>
-      <Paper className={controllerSectionClasses.root}>
+      <Paper className={controllerSectionClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={1}>
             <Button
@@ -155,7 +153,6 @@ export default function SplitImageLayerController(props) {
         </Grid>
         {open ? (
           <Grid container direction="column" justifyContent="space-between">
-
             <Grid item container direction="row">
               <Grid item xs={2} className={classes.layerRowLabel}>
                 <InputLabel htmlFor={colormapInputId} className={classes.inputLabel}>Colormap:</InputLabel>
@@ -164,7 +161,7 @@ export default function SplitImageLayerController(props) {
                 <Select
                   native
                   onChange={e => handleColormapChange(e.target.value === '' ? null : e.target.value)}
-                  value={colormap}
+                  value={colormap === null ? '' : colormap}
                   inputProps={{ name: 'colormap', id: colormapInputId }}
                   style={{ width: '100%', fontSize: '14px' }}
                   classes={{ root: selectClasses.selectRoot }}
@@ -178,9 +175,7 @@ export default function SplitImageLayerController(props) {
                 </Select>
               </Grid>
             </Grid>
-
             {channelScopes.map((cScope) => {
-              console.log(channelCoordination);
               const {
                 spatialTargetC,
                 spatialChannelVisible,
@@ -195,8 +190,6 @@ export default function SplitImageLayerController(props) {
                 setSpatialChannelColor,
                 setSpatialChannelWindow,
               } = setChannelCoordination[cScope];
-
-              console.log('image', image);
 
               return (
                 <SplitImageChannelController
@@ -213,6 +206,7 @@ export default function SplitImageLayerController(props) {
                   setWindow={setSpatialChannelWindow}
                   colormapOn={colormap !== null}
                   featureIndex={image?.featureIndex}
+                  image={image?.image}
                 />
               );
             })}

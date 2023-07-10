@@ -467,7 +467,6 @@ export function useMultiFeatureSelection(
   const [featureData, loadedSelections, featureStatus] = useFeatureSelectionMultiLevel(
     loaders, dataset, false, matchOnObj, selections, 2,
   );
-  console.log(featureData, loadedSelections);
   return [featureData, loadedSelections, featureStatus];
 }
 

@@ -1,17 +1,13 @@
 /* eslint-disable max-len */
 /* eslint-disable dot-notation */
 /* eslint-disable no-unused-vars */
-import React, {
-  useCallback, useRef, forwardRef, useMemo,
-} from 'react';
-import { Grid } from '@material-ui/core';
+import React, { useRef } from 'react';
 import {
   TitleInfo,
   useReady,
-  useClosestVitessceContainerSize, useWindowDimensions,
-  useImageData,
+  useClosestVitessceContainerSize,
+  useWindowDimensions,
   useObsLocationsData,
-  useObsSegmentationsData,
   useCoordination,
   useLoaders,
   useAuxiliaryCoordination,
@@ -20,20 +16,16 @@ import {
   useMultiImages,
   useComplexCoordination,
   useMultiCoordinationValues,
-  useMultiCoordinationScopes,
   useMultiCoordinationScopesSecondary,
   useComplexCoordinationSecondary,
   useCoordinationScopes,
   useCoordinationScopesBy,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES, STATUS, CoordinationType } from '@vitessce/constants-internal';
-import { capitalize, pluralize } from '@vitessce/utils';
-import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/spatial-utils';
-import RasterChannelController from './RasterChannelController.js';
-import BitmaskChannelController from './BitmaskChannelController.js';
-import VectorLayerController from './VectorLayerController.js';
-import LayerController from './LayerController.js';
-import ImageAddButton from './ImageAddButton.js';
+import {
+  ViewType,
+  CoordinationType,
+  COMPONENT_COORDINATION_TYPES,
+} from '@vitessce/constants-internal';
 import SplitLayerController from './SplitLayerController.js';
 
 /**
@@ -116,8 +108,6 @@ export function LayerControllerSubscriber(props) {
     coordinationScopesBy,
   );
 
-  // console.log(imageLayerScopes, imageChannelScopesByLayer);
-
   // Object keys are coordination scope names for spatialSegmentationLayer.
   const segmentationLayerCoordination = useComplexCoordination(
     [
@@ -139,7 +129,6 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_CHANNEL_VISIBLE,
       CoordinationType.SPATIAL_CHANNEL_OPACITY,
       CoordinationType.SPATIAL_CHANNEL_COLOR,
-      CoordinationType.SPATIAL_CHANNEL_WINDOW,
       CoordinationType.SPATIAL_SEGMENTATION_FILLED,
       CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,
@@ -164,7 +153,6 @@ export function LayerControllerSubscriber(props) {
     coordinationScopesBy,
     CoordinationType.IMAGE_LAYER,
   );
-  console.log(imageLayerCoordination)
 
   // Object keys are coordination scope names for spatialImageChannel.
   const imageChannelCoordination = useComplexCoordinationSecondary(
@@ -172,13 +160,12 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_TARGET_C,
       CoordinationType.SPATIAL_CHANNEL_VISIBLE,
       CoordinationType.SPATIAL_CHANNEL_COLOR,
+      CoordinationType.SPATIAL_CHANNEL_WINDOW,
     ],
     coordinationScopesBy,
     CoordinationType.IMAGE_LAYER,
     CoordinationType.IMAGE_CHANNEL,
   );
-
-  // console.log(imageLayerCoordination, imageChannelCoordination);
 
   const [
     {
@@ -211,7 +198,6 @@ export function LayerControllerSubscriber(props) {
   const [imageData, imageDataStatus] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
   );
-  console.log(imageData, imageDataStatus);
 
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
