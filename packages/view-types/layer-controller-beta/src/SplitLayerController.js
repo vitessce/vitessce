@@ -1,60 +1,13 @@
 /* eslint-disable dot-notation */
 /* eslint-disable no-unused-vars */
-import React, {
-  useCallback, useRef, forwardRef, useMemo,
-} from 'react';
-import {Grid} from '@material-ui/core';
-import {
-  TitleInfo,
-  useReady,
-  useClosestVitessceContainerSize, useWindowDimensions,
-  useImageData,
-  useObsLocationsData,
-  useObsSegmentationsData,
-  useCoordination,
-  useLoaders,
-  useAuxiliaryCoordination,
-  useComponentLayout,
-  registerPluginViewType,
-  useMultiObsSegmentations,
-  useMultiImages,
-  useComplexCoordination,
-  useMultiCoordinationValues,
-  useMultiCoordinationScopes,
-  useMultiCoordinationScopesSecondary,
-  useComplexCoordinationSecondary,
-  useCoordinationScopes,
-  useCoordinationScopesBy,
-} from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES, STATUS, CoordinationType } from '@vitessce/constants-internal';
-import { capitalize, pluralize } from '@vitessce/utils';
-import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/spatial-utils';
-import RasterChannelController from './RasterChannelController.js';
-import BitmaskChannelController from './BitmaskChannelController.js';
-import VectorLayerController from './VectorLayerController.js';
-import LayerController from './LayerController.js';
+import React from 'react';
+import { Grid } from '@material-ui/core';
 import ImageAddButton from './ImageAddButton.js';
 import SplitSegmentationLayerController from './SplitSegmentationLayerController.js';
 import SplitImageLayerController from './SplitImageLayerController.js';
 
-
 export default function SplitLayerController(props) {
   const {
-    dataset,
-    obsType: obsTypeProp,
-    moleculesLayer,
-    setMoleculesLayer,
-    cellsLayer, // May be one polygon layer object or an array of bitmask layers.
-    setCellsLayer,
-
-    rasterLayers,
-
-    imageLayerCallbacks,
-    setImageLayerCallbacks,
-    areLoadingImageChannels,
-    setAreLoadingImageChannels,
-    handleRasterLayerChange,
-    handleRasterLayerRemove,
 
     segmentationLayerScopes,
     segmentationLayerValues,
@@ -66,36 +19,11 @@ export default function SplitLayerController(props) {
     images,
     imageLayerScopes,
     imageLayerCoordination,
+    photometricInterpretation,
 
     imageChannelScopesByLayer,
     imageChannelCoordination,
 
-    obsTypes,
-    obsSegmentationsStatus,
-    obsSegmentationsData,
-    obsSegmentationsType,
-    segmentationLayerLoaders,
-    segmentationLayerMeta,
-    segmentationLayerCallbacks,
-    setSegmentationLayerCallbacks,
-    areLoadingSegmentationChannels,
-    setAreLoadingSegmentationChannels,
-    handleSegmentationLayerChange,
-    handleSegmentationLayerRemove,
-
-    disable3d,
-    globalDisable3d,
-    disableChannelsIfRgbDetected,
-    layerIs3DIndex,
-    setZoom,
-    setTargetX,
-    setTargetY,
-    setTargetZ,
-    setRotationX,
-    setRotationOrbit,
-    componentHeight,
-    componentWidth,
-    spatialLayout,
     handleImageAdd,
     enableLayerButtonsWithOneLayer,
   } = props;
@@ -150,6 +78,7 @@ export default function SplitLayerController(props) {
           setChannelCoordination={imageChannelCoordination[1][layerScope]}
           image={images[layerScope]}
           use3d={false} /* TODO */
+          photometricInterpretation={photometricInterpretation}
         />
       ))}
       {shouldShowImageLayerButton

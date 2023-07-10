@@ -1,5 +1,5 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
-
 import {
   makeStyles,
   Grid,
@@ -15,17 +15,12 @@ import {
   MoreVert as MoreVertIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-  ColorLens,
-  Image as ImageIcon,
-  ExpandMore,
-  ExpandLess,
 } from '@material-ui/icons';
 
 import { PopperMenu } from '@vitessce/vit-s';
-
 import { TwitterPicker } from 'react-color-with-lodash';
 import { colorArrayToString } from '@vitessce/sets-utils';
-import { PATHOLOGY_PALETTE, LARGE_PATHOLOGY_PALETTE } from '@vitessce/utils';
+import { PATHOLOGY_PALETTE } from '@vitessce/utils';
 
 import { useControllerSectionStyles } from './styles.js';
 
@@ -118,7 +113,9 @@ function ColorPickerMenu(props) {
 
   const classes = useStyles();
 
-  const currentColor = color ? colorArrayToString(color) : colorArrayToString([0, 0, 0]);
+  const currentColor = color
+    ? colorArrayToString(color)
+    : colorArrayToString([0, 0, 0]);
 
   return (
     <PopperMenu
@@ -172,7 +169,11 @@ function EllipsisMenu(props) {
     >
       <MenuItem dense disableGutters>
         <span style={{ margin: '0 5px' }}>Filled: </span>
-        <Checkbox color="primary" checked={filled} onChange={(e, v) => setFilled(v)} />
+        <Checkbox
+          color="primary"
+          checked={filled}
+          onChange={(e, v) => setFilled(v)}
+        />
       </MenuItem>
       <MenuItem dense disableGutters>
         <span style={{ margin: '0 5px' }}>Stroke width: </span>
@@ -235,7 +236,6 @@ export default function SplitVectorLayerController(props) {
   const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
 
   const isStaticColor = obsColorEncoding === 'spatialChannelColor';
-
 
   const classes = useControllerSectionStyles();
   return (

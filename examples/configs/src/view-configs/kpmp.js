@@ -479,7 +479,7 @@ export const kpmp2023 = {
     {
       component: 'layerControllerBeta',
       props: {
-        disableChannelsIfRgbDetected: true,
+        photometricInterpretation: 2,
       },
       coordinationScopes: {
         metaCoordinationScopes: ['metaA'],

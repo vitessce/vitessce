@@ -376,7 +376,7 @@ export function useMultiObsLabels(
 }
 
 export function useMultiObsSegmentations(
-  coordinationScopes, coordinationScopesBy, loaders, dataset, addUrl,
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
   const imageCoordination = useComplexCoordination(
     [
@@ -400,7 +400,7 @@ export function useMultiObsSegmentations(
 }
 
 export function useMultiImages(
-  coordinationScopes, coordinationScopesBy, loaders, dataset, addUrl,
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
   // TODO: delegate the generation of matchOnObj to a different hoook and pass as a parameter?
   // (in all of the useMulti data hooks)?

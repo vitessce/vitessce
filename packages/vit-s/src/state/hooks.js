@@ -432,7 +432,6 @@ export function useComplexCoordination(
 ) {
   const setCoordinationValue = useViewConfigStore(state => state.setCoordinationValue);
 
-
   const values = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
     const typeScopes = getParameterScope(byType, coordinationScopes);

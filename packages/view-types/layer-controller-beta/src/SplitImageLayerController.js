@@ -1,34 +1,23 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
-
 import {
   makeStyles,
   Grid,
-  Checkbox,
   Paper,
   Typography,
   Slider,
-  MenuItem,
   Button,
-  SvgIcon,
   Select,
   InputLabel,
 } from '@material-ui/core';
 import {
-  MoreVert as MoreVertIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-  ColorLens,
   Image as ImageIcon,
   ExpandMore,
   ExpandLess,
 } from '@material-ui/icons';
-
-import { PopperMenu } from '@vitessce/vit-s';
-import { TwitterPicker } from 'react-color-with-lodash';
-import { colorArrayToString } from '@vitessce/sets-utils';
-import { PATHOLOGY_PALETTE, LARGE_PATHOLOGY_PALETTE, COLORMAP_OPTIONS } from '@vitessce/utils';
-import { CoordinationType } from '@vitessce/constants-internal';
-
+import { COLORMAP_OPTIONS } from '@vitessce/utils';
 import { useControllerSectionStyles, useSelectStyles } from './styles.js';
 import SplitImageChannelController from './SplitImageChannelController.js';
 
@@ -53,6 +42,7 @@ export default function SplitImageLayerController(props) {
     setChannelCoordination,
     image,
     use3d, /* TODO */
+    photometricInterpretation,
   } = props;
 
   const [open, setOpen] = useState(true);
@@ -76,8 +66,8 @@ export default function SplitImageLayerController(props) {
 
   const colormapInputId = `${layerScope}-colormap`;
 
-  function handleColormapChange(newColormapName) {
-    setColormap(newColormapName);
+  function handleColormapChange(event) {
+    setColormap(event.target.value === '' ? null : event.target.value);
   }
 
   const classes = useStyles();
@@ -133,34 +123,41 @@ export default function SplitImageLayerController(props) {
           </Grid>
           <Grid item xs={2} container direction="row" justifyContent="flex-end">
             <ImageIcon style={{ marginTop: '8px' }} />
-            <Button
-              onClick={(e) => {
-                // Needed to prevent affecting the expansion panel from changing
-                e.stopPropagation();
-                setOpen(prev => !prev);
-              }}
-              style={{
-                display: 'inline-block',
-                margin: 0,
-                padding: 0,
-                minWidth: 0,
-                lineHeight: 1,
-              }}
-            >
-              {open ? <ExpandLess /> : <ExpandMore />}
-            </Button>
+            {photometricInterpretation !==  2 /* RGB */ ? (
+              <Button
+                onClick={(e) => {
+                  // Needed to prevent affecting the expansion panel from changing
+                  e.stopPropagation();
+                  setOpen(prev => !prev);
+                }}
+                style={{
+                  display: 'inline-block',
+                  margin: 0,
+                  padding: 0,
+                  minWidth: 0,
+                  lineHeight: 1,
+                }}
+              >
+                {open ? <ExpandLess /> : <ExpandMore />}
+              </Button>
+            ) : null}
           </Grid>
         </Grid>
-        {open ? (
+        {photometricInterpretation !== 2 && open ? (
           <Grid container direction="column" justifyContent="space-between">
             <Grid item container direction="row">
               <Grid item xs={2} className={classes.layerRowLabel}>
-                <InputLabel htmlFor={colormapInputId} className={classes.inputLabel}>Colormap:</InputLabel>
+                <InputLabel
+                  htmlFor={colormapInputId}
+                  className={classes.inputLabel}
+                >
+                  Colormap:
+                </InputLabel>
               </Grid>
               <Grid item xs={10}>
                 <Select
                   native
-                  onChange={e => handleColormapChange(e.target.value === '' ? null : e.target.value)}
+                  onChange={handleColormapChange}
                   value={colormap === null ? '' : colormap}
                   inputProps={{ name: 'colormap', id: colormapInputId }}
                   style={{ width: '100%', fontSize: '14px' }}

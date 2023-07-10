@@ -247,10 +247,10 @@ export function SpatialSubscriber(props) {
   );
 
   const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
-    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
   const [imageData, imageDataStatus] = useMultiImages(
-    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   const [multiExpressionData, multiLoadedFeatureSelection, multiFeatureSelectionStatus] = useMultiFeatureSelection(

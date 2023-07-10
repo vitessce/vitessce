@@ -1,49 +1,16 @@
-import React, { useState } from 'react';
-
+/* eslint-disable no-unused-vars */
+import React from 'react';
 import {
-  makeStyles,
   Grid,
-  Checkbox,
-  Paper,
-  Typography,
-  Slider,
-  MenuItem,
-  Button,
-  SvgIcon,
-  Select,
-  InputLabel,
 } from '@material-ui/core';
-import {
-  MoreVert as MoreVertIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-  ColorLens,
-  Image as ImageIcon,
-  ExpandMore,
-  ExpandLess,
-} from '@material-ui/icons';
-
-import { PopperMenu } from '@vitessce/vit-s';
-import { TwitterPicker } from 'react-color-with-lodash';
-import { colorArrayToString } from '@vitessce/sets-utils';
-import { PATHOLOGY_PALETTE, LARGE_PATHOLOGY_PALETTE, COLORMAP_OPTIONS } from '@vitessce/utils';
-import { CoordinationType } from '@vitessce/constants-internal';
-import { getSourceFromLoader } from '@vitessce/spatial-utils';
 import ChannelOptions from './ChannelOptions.js';
 import ChannelSlider from './ChannelSlider.js';
-import { DOMAINS } from './constants.js';
-
-import { useControllerSectionStyles, useSelectStyles } from './styles.js';
-import { getMultiSelectionStats, toRgbUIString } from './utils.js';
+import { toRgbUIString } from './utils.js';
 import {
   ChannelSelectionDropdown,
   ChannelVisibilityCheckbox,
 } from './shared-channel-controls.js';
 
-
-const useStyles = makeStyles(() => ({
-  
-}));
 
 export default function SplitImageChannelController(props) {
   const {
@@ -62,7 +29,6 @@ export default function SplitImageChannelController(props) {
     image, // To get the channel window extent using image metadata.
   } = props;
 
-  const classes = useStyles();
   const isLoading = false; // TODO
   const theme = 'light'; //  TODO
 
@@ -114,8 +80,6 @@ export default function SplitImageChannelController(props) {
             color={rgbColor}
             window={window}
             setWindow={setWindow}
-            /*domain={domain || DOMAINS[dtype]}
-            dtype={dtype}*/
             disabled={isLoading}
           />
         </Grid>

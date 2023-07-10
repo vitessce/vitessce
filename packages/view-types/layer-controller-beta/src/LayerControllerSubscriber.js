@@ -37,12 +37,8 @@ import SplitLayerController from './SplitLayerController.js';
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
- * @param {Object} props.disable3d Which layers should have 3D disabled (from `raster.json` names).
- * @param {boolean} props.globalDisable3d Disable 3D for all layers. Overrides the `disable3d` prop.
- * @param {boolean} props.disableChannelsIfRgbDetected Disable channel controls if an
- * RGB image is detected i.e 3 channel 8 bit.
- * @param {boolean} props.enableLayerButtonsWithOneLayer If there is only one layer,
- * show the the layer add/remove buttons.
+ * @param {Object} props.photometricInterpretation Override the photometric interpretation
+ * defined in the image metadata.
  */
 export function LayerControllerSubscriber(props) {
   const {
@@ -51,11 +47,7 @@ export function LayerControllerSubscriber(props) {
     removeGridComponent,
     theme,
     title = 'Spatial Layers',
-    disable3d,
-    globalDisable3d,
-    disableChannelsIfRgbDetected,
-    enableLayerButtonsWithOneLayer,
-    obsSegmentationsMatchOn = 'image', // use obsType if split across multiple files or using polygons
+    photometricInterpretation = null, // https://www.awaresystems.be/imaging/tiff/tifftags/photometricinterpretation.html
   } = props;
 
   const loaders = useLoaders();
@@ -193,10 +185,10 @@ export function LayerControllerSubscriber(props) {
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
   const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
-    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
   const [imageData, imageDataStatus] = useMultiImages(
-    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   // Get data from loaders using the data hooks.
@@ -232,6 +224,7 @@ export function LayerControllerSubscriber(props) {
         images={imageData}
         imageLayerScopes={imageLayerScopes}
         imageLayerCoordination={imageLayerCoordination}
+        photometricInterpretation={photometricInterpretation}
 
         imageChannelScopesByLayer={imageChannelScopesByLayer}
         imageChannelCoordination={imageChannelCoordination}
