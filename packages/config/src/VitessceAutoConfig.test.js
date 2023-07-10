@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { generateConfig } from './VitessceAutoConfig.js';
+import { generateConfig, getHintOptions } from './VitessceAutoConfig.js';
+import { HINT_TYPE_TO_FILE_TYPE_MAP } from './constants.js';
 
 describe('generateConfig', () => {
   it('generates config for OME-TIFF file correctly', async () => {
@@ -961,5 +962,54 @@ describe('generateConfig', () => {
     );
 
     expect(viewConfig).toEqual(expectedConfig);
+  });
+
+  it('raises an error if the supplied dataset URLs and hint do not have any compatible views', async () => {
+    const urls = ['http://localhost:4204/@fixtures/zarr/partials/.anndata.zarr'];
+    const hint = 'Image';
+
+    await generateConfig(urls, hint).catch(
+      e => expect(e.message).toContain('No views found that are compatible with the supplied dataset URLs and hint.'),
+    );
+  });
+
+  it('raises an error if no views are found for the supplied hint string', async () => {
+    const urls = ['http://localhost:4204/@fixtures/zarr/partials/.anndata.zarr'];
+    const hint = 'I do not exist';
+
+    await generateConfig(urls, hint).catch(
+      e => expect(e.message).toContain('Hints config not found for the supplied hint: I do not exist'),
+    );
+  });
+
+  // ********** TESTS OF GET HINTS OPTIONS **********
+
+  it('returns a list of hints options for the supplied dataset URLs', async () => {
+    const urls = ['http://localhost:4204/@fixtures/zarr/partials/.anndata.zarr'];
+    const actualHintOptions = getHintOptions(urls);
+
+    expect(actualHintOptions).toEqual(HINT_TYPE_TO_FILE_TYPE_MAP['AnnData-Zarr']);
+  });
+
+  it('returns a list of hints options for the supplied dataset URLs', async () => {
+    const urls = [
+      'http://localhost:4204/@fixtures/zarr/partials/.anndata.zarr',
+      'somefile.ome.zarr',
+      'http://localhost:4204/@fixtures/zarr/partials/.adata.zarr',
+      'somefile.ome.tiff',
+    ];
+    const actualHintOptions = getHintOptions(urls);
+
+    expect(actualHintOptions).toEqual(HINT_TYPE_TO_FILE_TYPE_MAP['AnnData-Zarr,OME-TIFF']);
+  });
+
+  it('raises an error if no hints options are found for the supplied dataset URLs', async () => {
+    const urls = ['unsupportedfiletype.txt', 'unsupportedfiletype2.ome.tiff'];
+
+    try {
+      getHintOptions(urls);
+    } catch (e) {
+      expect(e.message).toContain('One or more of the URLs provided point to unsupported file types.');
+    }
   });
 });

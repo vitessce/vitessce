@@ -29,6 +29,9 @@ const filterViews = (hintsConfig, possibleViews) => {
     if (match) resultViews.push(match);
   });
 
+  if (resultViews.length === 0) {
+    throw new Error('No views found that are compatible with the supplied dataset URLs and hint.');
+  }
   return resultViews;
 };
 
@@ -606,9 +609,8 @@ export async function generateConfig(fileUrls, hintTitle) {
   const dataset = vc.addDataset('An automatically generated view config for dataset. Adjust values and add layout components if needed.');
 
   const hintsConfig = hintTitle === '' ? {} : HINTS_CONFIG?.[hintTitle];
-  // todo: write a unit test for this.
   if (!hintsConfig) {
-    throw new Error(`Hints config not found for ${hintTitle}.`);
+    throw new Error(`Hints config not found for the supplied hint: ${hintTitle}.`);
   }
 
   const useHints = Object.keys(hintsConfig).length > 0;
