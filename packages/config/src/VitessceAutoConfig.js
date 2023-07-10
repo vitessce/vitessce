@@ -340,6 +340,8 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
         return this.setMetadataSummaryWithoutZmetadata();
       }
       throw new Error(`Could not generate config: ${response.statusText}`);
+    }).catch((error) => {
+      throw new Error(`Could not generate config for URL ${this.fileUrl}: ${error}`);
     });
   }
 }
