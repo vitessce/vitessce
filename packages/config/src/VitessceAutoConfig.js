@@ -3,7 +3,7 @@ import {
   VitessceConfig,
 } from './VitessceConfig.js';
 
-import { HINTS_CONFIG, NO_HINTS_CONFIG } from './constants.js';
+import { HINTS_CONFIG, HINT_TYPE_TO_FILE_TYPE_MAP } from './constants.js';
 
 /**
  * @param {Object} hintsConfig. The hints config for the given dataset.
@@ -570,7 +570,7 @@ async function generateViewDefinition(url, vc, dataset, hintsConfig) {
  * @param {Array} fileUrls containing urls of files to be loaded into Vitessce
  * @returns the hints available for these file URLs
  */
-export function getDatasetHintsConfig(fileUrls) {
+export function getHintOptions(fileUrls) {
   const fileTypes = {};
 
   fileUrls.forEach((url) => {
@@ -583,14 +583,9 @@ export function getDatasetHintsConfig(fileUrls) {
     }
   });
 
-  const datasetTypes = Object.keys(fileTypes);
+  const datasetType = Object.keys(fileTypes).sort().join(',');
 
-  return HINTS_CONFIG.find(
-    element => element.hintType.every(
-      fileType => datasetTypes.includes(fileType),
-    )
-    && element.hintType.length === datasetTypes.length,
-  );
+  return HINT_TYPE_TO_FILE_TYPE_MAP?.[datasetType] || [];
 }
 
 /**
@@ -599,7 +594,7 @@ export function getDatasetHintsConfig(fileUrls) {
  * @param {Object} the hints config to be used for the dataset
  * @returns ViewConfig as JSON
  */
-export async function generateConfig(fileUrls, config) {
+export async function generateConfig(fileUrls, hintTitle) {
   const vc = new VitessceConfig({
     schemaVersion: '1.0.15',
     name: 'An automatically generated config. Adjust values and add layout components if needed.',
@@ -610,7 +605,12 @@ export async function generateConfig(fileUrls, config) {
 
   const dataset = vc.addDataset('An automatically generated view config for dataset. Adjust values and add layout components if needed.');
 
-  const hintsConfig = config.title === NO_HINTS_CONFIG.title ? {} : config;
+  const hintsConfig = hintTitle === '' ? {} : HINTS_CONFIG?.[hintTitle];
+  // todo: write a unit test for this.
+  if (!hintsConfig) {
+    throw new Error(`Hints config not found for ${hintTitle}.`);
+  }
+
   const useHints = Object.keys(hintsConfig).length > 0;
 
   fileUrls.forEach((url) => {
@@ -625,7 +625,7 @@ export async function generateConfig(fileUrls, config) {
     // containing both a histology image and polygon cell segmentations.
     // We need to manually initialize the coordination values for the image and
     // segmentation layers which will be visualized in the spatial/layer controller views.
-    if (useHints && hintsConfig.hintsType.includes('OME-TIFF') && hintsConfig.hintsType.includes('AnnData-Zarr')) {
+    if (useHints && hintsConfig?.coordinationSpaceRequired) {
       insertCoordinationSpaceForSpatial(flattenedViews, vc);
     }
 

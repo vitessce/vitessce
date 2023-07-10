@@ -37,78 +37,58 @@ const IMAGE_VIEWS = {
 };
 
 export const NO_HINTS_CONFIG = {
-  title: "Don't use any hints",
   views: {},
   coordinationValues: {},
 };
 
-export const HINTS_CONFIG = [
-  {
-    hintType: [],
-    hints: [
-      {
-        ...NO_HINTS_CONFIG,
-        title: 'No hints are available. Generate config with no hints.',
-      },
-    ],
+export const HINTS_CONFIG = {
+  'No hints are available. Generate config with no hints.': NO_HINTS_CONFIG,
+  "Don't use any hints": NO_HINTS_CONFIG,
+  'Transcriptomics / scRNA-seq (with heatmap)': {
+    views: SINGLE_CELL_WITH_HEATMAP_VIEWS,
   },
-  {
-    hintType: ['AnnData-Zarr'],
-    hints: [
-      NO_HINTS_CONFIG,
-      {
-        ...NO_HINTS_CONFIG,
-        title: 'Transcriptomics / scRNA-seq (with heatmap)',
-        views: SINGLE_CELL_WITH_HEATMAP_VIEWS,
-      },
-      {
-        ...NO_HINTS_CONFIG,
-        title: 'Transcriptomics / scRNA-seq (without heatmap)',
-        views: SINGLE_CELL_WITHOUT_HEATMAP_VIEWS,
-      },
-      {
-        ...NO_HINTS_CONFIG,
-        title: 'Spatial transcriptomics (with polygon cell segmentations)',
-        views: SPATIAL_TRANSCRIPTOMICS_VIEWS,
-      },
-      {
-        ...NO_HINTS_CONFIG,
-        title: 'Chromatin accessibility / scATAC-seq (with heatmap)',
-        views: SINGLE_CELL_WITH_HEATMAP_VIEWS,
-        coordinationValues: {
-          featureType: 'peak',
-        },
-      },
-      {
-        ...NO_HINTS_CONFIG,
-        title: 'Chromatin accessibility / scATAC-seq (without heatmap)',
-        views: SINGLE_CELL_WITHOUT_HEATMAP_VIEWS,
-        coordinationValues: {
-          featureType: 'peak',
-        },
-      },
-    ],
+  'Transcriptomics / scRNA-seq (without heatmap)': {
+    views: SINGLE_CELL_WITHOUT_HEATMAP_VIEWS,
   },
-  {
-    hintType: ['OME-TIFF', 'AnnData-Zarr'],
-    hints: [
-      NO_HINTS_CONFIG,
-      {
-        ...NO_HINTS_CONFIG,
-        title: 'Spatial transcriptomics (with histology image and polygon cell segmentations)',
-        views: SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS,
-      },
-    ],
+  'Spatial transcriptomics (with polygon cell segmentations)': {
+    views: SPATIAL_TRANSCRIPTOMICS_VIEWS,
   },
-  {
-    hintType: ['OME-TIFF'],
-    hints: [
-      NO_HINTS_CONFIG,
-      {
-        ...NO_HINTS_CONFIG,
-        title: 'Image',
-        views: IMAGE_VIEWS,
-      },
-    ],
+  'Chromatin accessibility / scATAC-seq (with heatmap)': {
+    views: SINGLE_CELL_WITH_HEATMAP_VIEWS,
+    coordinationValues: {
+      featureType: 'peak',
+    },
   },
-];
+  'Chromatin accessibility / scATAC-seq (without heatmap)': {
+    views: SINGLE_CELL_WITHOUT_HEATMAP_VIEWS,
+    coordinationValues: {
+      featureType: 'peak',
+    },
+  },
+  'Spatial transcriptomics (with histology image and polygon cell segmentations)': {
+    views: SPATIAL_TRANSCRIPTOMICS_WITH_HSITOLOGY_VIEWS,
+    coordinationSpaceRequired: true,
+  },
+  Image: {
+    views: IMAGE_VIEWS,
+  },
+};
+
+export const HINT_TYPE_TO_FILE_TYPE_MAP = {
+  'AnnData-Zarr': [
+    "Don't use any hints",
+    'Transcriptomics / scRNA-seq (with heatmap)',
+    'Transcriptomics / scRNA-seq (without heatmap)',
+    'Spatial transcriptomics (with polygon cell segmentations)',
+    'Chromatin accessibility / scATAC-seq (with heatmap)',
+    'Chromatin accessibility / scATAC-seq (without heatmap)',
+  ],
+  'OME-TIFF': [
+    "Don't use any hints",
+    'Image',
+  ],
+  'AnnData-Zarr,OME-TIFF': [
+    "Don't use any hints",
+    'Spatial transcriptomics (with histology image and polygon cell segmentations)',
+  ],
+};

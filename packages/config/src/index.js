@@ -1,3 +1,3 @@
 export { VitessceConfig, vconcat, hconcat } from './VitessceConfig.js';
-export { generateConfig, getDatasetHintsConfig } from './VitessceAutoConfig.js';
-export { HINTS_CONFIG, NO_HINTS_CONFIG } from './constants.js';
+export { generateConfig, getHintOptions } from './VitessceAutoConfig.js';
+export { HINTS_CONFIG, HINT_TYPE_TO_FILE_TYPE_MAP } from './constants.js';
