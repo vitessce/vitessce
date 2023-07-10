@@ -7,9 +7,15 @@ import { HINTS_CONFIG, NO_HINTS_CONFIG } from './constants.js';
 
 /**
  *
- * @param {Array} possibleViews All possible views for a given file type
- * @param {Array} requiredViews Views that are required by the hints config
- * @returns {Array} of the required views that are contained in possibleViews
+ * @param {Array} possibleViews. All views for a given file type, supported by the dataset.
+ * The array contains arrays of strings, each of size >= 1, where the first element of each string
+ * is a VitessceConfig view name ('description', 'spatial', 'layerController', etc.)
+ *
+ * @param {Array of strings} requiredViews. Views that are required by the hints config.
+ * Each string is a VitessceConfig view name ('description', 'spatial', 'layerController', etc.).
+ *
+ * @returns {Array of strings} the intersection of VitessceConfig view names in
+ * possibleViews and requiredViews.
  */
 const filterViews = (possibleViews, requiredViews) => {
   const resultViews = [];
@@ -375,10 +381,11 @@ function calculateCoordinates(viewsNumb) {
 
     // The coordinates have to be integer values:
     coords.push([
-      Math.ceil(x),
-      Math.ceil(y),
-      Math.ceil(width),
-      Math.ceil(height),
+      Math.floor(x),
+      Math.floor(y),
+      // Ensure width/height is at least 1.
+      Math.max(1, Math.floor(width)),
+      Math.max(1, Math.floor(height)),
     ]);
   }
 
