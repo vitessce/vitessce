@@ -624,12 +624,11 @@ export async function generateConfig(fileUrls, hintTitle) {
   return Promise.all(allViews).then((views) => {
     const flattenedViews = views.flat();
 
-    // If the user is using hints and fileType is [Anndata-Zarr, OME], insert coordination space
-    // The hint is assumed to be for a spatial transcriptomics dataset
-    // containing both a histology image and polygon cell segmentations.
-    // We need to manually initialize the coordination values for the image and
+    // If coordinationSpaceRequired field is set to true in the HINTS_CONFIG,
+    // then insert coordination space.
+    // NOTE: the user needs to manually add the coordination values for the image and
     // segmentation layers which will be visualized in the spatial/layer controller views.
-    if (useHints && hintsConfig?.coordinationSpaceRequired) {
+    if (hintsConfig?.coordinationSpaceRequired) {
       insertCoordinationSpaceForSpatial(flattenedViews, vc);
     }
 
