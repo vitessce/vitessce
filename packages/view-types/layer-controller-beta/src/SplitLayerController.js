@@ -34,7 +34,7 @@ export default function SplitLayerController(props) {
   );
   return (
     <div>
-      {/*moleculesLayer && (
+      {/* moleculesLayer && (
         <VectorLayerController
           key={`${dataset}-molecules`}
           label="Molecules"
@@ -42,8 +42,8 @@ export default function SplitLayerController(props) {
           layer={moleculesLayer}
           handleLayerChange={setMoleculesLayer}
         />
-      )*/}
-      {/*cellsLayer && obsSegmentationsType === 'polygon' && (
+      ) */}
+      {/* cellsLayer && obsSegmentationsType === 'polygon' && (
         <VectorLayerController
           key={`${dataset}-cells`}
           label={`${capitalize(obsTypeProp)} Segmentations`}
@@ -51,7 +51,7 @@ export default function SplitLayerController(props) {
           layer={cellsLayer}
           handleLayerChange={setCellsLayer}
         />
-      )*/}
+      ) */}
       {/* Segmentation layers: */}
       {segmentationLayerScopes && segmentationLayerScopes.map(layerScope => (
         <SplitSegmentationLayerController

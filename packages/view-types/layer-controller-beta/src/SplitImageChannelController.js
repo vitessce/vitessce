@@ -58,7 +58,7 @@ export default function SplitImageChannelController(props) {
             color={color}
             setColor={setColor}
             onRemove={onRemove}
-            domainType={'min/max'} // TODO
+            domainType="min/max" // TODO
             setDomainType={() => {}} // TODO
             disabled={isLoading}
           />

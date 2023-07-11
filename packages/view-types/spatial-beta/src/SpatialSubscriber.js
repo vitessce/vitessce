@@ -38,22 +38,22 @@ import {
 import { canLoadResolution, commaNumber, getCellColors } from '@vitessce/utils';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, CoordinationType } from '@vitessce/constants-internal';
 import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
-//import { Legend } from '@vitessce/legend';
+// import { Legend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils.js';
-//import MultiLegend from './MultiLegend.js';
+// import MultiLegend from './MultiLegend.js';
 
 const tempLayer = [{
   index: 0,
   colormap: null,
-  domainType: "Min/Max",
+  domainType: 'Min/Max',
   modelMatrix: undefined,
   opacity: 1,
-  renderingMode: "Additive",
+  renderingMode: 'Additive',
   transparentColor: null,
-  type: "bitmask",
+  type: 'bitmask',
   use3d: false,
   visible: true,
   channels: [
@@ -236,7 +236,7 @@ export function SpatialSubscriber(props) {
     COMPONENT_COORDINATION_TYPES.layerController,
     coordinationScopes,
   );
-  
+
   const imageLayers = []; // TODO: remove
   const use3d = imageLayers?.some(l => l.use3d);
 
@@ -449,9 +449,9 @@ export function SpatialSubscriber(props) {
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
-  /*const getObsInfo = useGetObsInfo(
+  /* const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
-  );*/
+  ); */
 
   const setViewState = ({
     zoom: newZoom,
@@ -517,7 +517,7 @@ export function SpatialSubscriber(props) {
   // Only show 3D options if we can theoretically load the data and it is allowed to be loaded.
   const canShow3DOptions = canLoad3DLayers
     && !(disable3d?.length === imageLayerLoaders.length) && !globalDisable3d;
-  
+
   const options = useMemo(() => {
     // Only show button if there is expression or 3D data because only cells data
     // does not have any options (i.e for color encoding, you need to switch to expression data)
@@ -695,7 +695,7 @@ export function SpatialSubscriber(props) {
         imageChannelCoordination={imageChannelCoordination}
 
         obsSegmentations={obsSegmentationsData}
-        obsSegmentationsType={"bitmask"}
+        obsSegmentationsType="bitmask"
         obsCentroids={obsCentroids}
         obsCentroidsIndex={obsCentroidsIndex}
         cellFilter={cellFilter}
@@ -726,7 +726,7 @@ export function SpatialSubscriber(props) {
         useFullResolutionImage={useFullResolutionImage}
         hideTools
       />
-      {/*<MultiLegend
+      {/* <MultiLegend
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerCoordination={segmentationLayerCoordination}
 
@@ -734,7 +734,7 @@ export function SpatialSubscriber(props) {
         segmentationChannelCoordination={segmentationChannelCoordination}
 
         multiExpressionData={multiExpressionData}
-      />*/}
+      /> */}
       {!disableTooltip && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}
@@ -748,7 +748,7 @@ export function SpatialSubscriber(props) {
           getObsIdFromHoverData={getObsIdFromHoverData}
         />
       )}
-      {/*<Legend
+      {/* <Legend
         visible
         // Fix to dark theme due to black background of spatial plot.
         theme="dark"
@@ -760,7 +760,7 @@ export function SpatialSubscriber(props) {
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
         extent={expressionExtents?.[0]}
-      />*/}
+      /> */}
     </TitleInfo>
   );
 }

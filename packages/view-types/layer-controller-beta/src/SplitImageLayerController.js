@@ -123,7 +123,7 @@ export default function SplitImageLayerController(props) {
           </Grid>
           <Grid item xs={2} container direction="row" justifyContent="flex-end">
             <ImageIcon style={{ marginTop: '8px' }} />
-            {photometricInterpretation !==  2 /* RGB */ ? (
+            {photometricInterpretation !== 2 /* RGB */ ? (
               <Button
                 onClick={(e) => {
                   // Needed to prevent affecting the expansion panel from changing

@@ -6,7 +6,6 @@ import {
   getMatchingLoader,
   useMatchingLoader,
   useMatchingLoaders,
-  useMatchingLoadersSecondary,
   useSetWarning,
 } from './state/hooks.js';
 import {
@@ -231,44 +230,12 @@ export function useHasLoader(loaders, dataset, dataType, matchOn) {
   return loader !== null;
 }
 
-/**
- * Get a flat list of tuples like (queryKey, scopeInfo)
- * where scopeInfo is an object like { levelScopes, featureIndex, numFeatures }.
- * Selections and matchOnObj are assumed to be objects with the same keys,
- * both nested to the specified depth. For example, if depth is 2,
- * the first level of keys might be for image layer scopes,
- * and the second level of keys might be for channel scopes.
- * @param {object} selections 
- * @param {object} matchOnObj 
- * @param {number} depth 
- * @param {string} dataset 
- * @param {string} dataType 
- * @returns 
- */
-export function getQueryKeyScopeTuples(
-  selections, matchOnObj, depth,
-  dataset, dataType, isRequired,
-) {
-  // Begin recursion.
-  return getQueryKeyScopeTuplesAux(
-    selections,
-    matchOnObj,
-    depth,
-    dataset,
-    dataType,
-    isRequired,
-    [],
-    selections,
-    matchOnObj,
-  );
-}
-
 function getQueryKeyScopeTuplesAux(
   allSelections, allMatchOnObj, depth, dataset, dataType, isRequired,
   prevLevelScopes, currSelection, currMatchOn,
 ) {
   // Base case
-  if(depth === 0) {
+  if (depth === 0) {
     return currSelection
       ?.map((featureId, featureIndex) => ([
         // queryKey:
@@ -295,37 +262,71 @@ function getQueryKeyScopeTuplesAux(
 }
 
 /**
- * For a list of paths into a nested object,
- * initialize the object if the object keys do not yet exist.
- * For the first level, the object is initialized to the return
- * value of getBaseValue. For example, this allows initializing
- * to an empty array (without reusing the same array object reference).
- * @param {string[]} levelScopes 
- * @param {object} currObj 
- * @param {function} getBaseValue 
- * @returns The value at the end of the path specified by `levelScopes`.
+ * Get a flat list of tuples like (queryKey, scopeInfo)
+ * where scopeInfo is an object like { levelScopes, featureIndex, numFeatures }.
+ * Selections and matchOnObj are assumed to be objects with the same keys,
+ * both nested to the specified depth. For example, if depth is 2,
+ * the first level of keys might be for image layer scopes,
+ * and the second level of keys might be for channel scopes.
+ * @param {object} selections
+ * @param {object} matchOnObj
+ * @param {number} depth
+ * @param {string} dataset
+ * @param {string} dataType
+ * @returns
  */
-export function initializeNestedObject(levelScopes, currObj, getBaseValue) {
+export function getQueryKeyScopeTuples(
+  selections, matchOnObj, depth,
+  dataset, dataType, isRequired,
+) {
   // Begin recursion.
-  return initializeNestedObjectAux(levelScopes, currObj, getBaseValue, 0);
+  return getQueryKeyScopeTuplesAux(
+    selections,
+    matchOnObj,
+    depth,
+    dataset,
+    dataType,
+    isRequired,
+    [],
+    selections,
+    matchOnObj,
+  );
 }
 
 function initializeNestedObjectAux(levelScopes, currObj, getBaseValue, currLevel) {
   const currScope = levelScopes[currLevel];
   const depthRemaining = levelScopes.length - currLevel;
   // Base case.
-  if(depthRemaining === 0) {
+  if (depthRemaining === 0) {
     return currObj;
   }
   // Recursive case.
-  if(!currObj[currScope]) {
-    if(depthRemaining === 1) {
+  if (!currObj[currScope]) {
+    if (depthRemaining === 1) {
+      // eslint-disable-next-line no-param-reassign
       currObj[currScope] = getBaseValue();
     } else {
+      // eslint-disable-next-line no-param-reassign
       currObj[currScope] = {};
     }
   }
   return initializeNestedObjectAux(levelScopes, currObj[currScope], getBaseValue, currLevel + 1);
+}
+
+/**
+ * For a list of paths into a nested object,
+ * initialize the object if the object keys do not yet exist.
+ * For the first level, the object is initialized to the return
+ * value of getBaseValue. For example, this allows initializing
+ * to an empty array (without reusing the same array object reference).
+ * @param {string[]} levelScopes
+ * @param {object} currObj
+ * @param {function} getBaseValue
+ * @returns The value at the end of the path specified by `levelScopes`.
+ */
+export function initializeNestedObject(levelScopes, currObj, getBaseValue) {
+  // Begin recursion.
+  return initializeNestedObjectAux(levelScopes, currObj, getBaseValue, 0);
 }
 
 /**
@@ -408,7 +409,6 @@ export function useFeatureSelectionMultiLevel(
   const anyError = featureQueries.some(q => q.isError);
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
-  const isSuccess = dataStatus === STATUS.SUCCESS;
   const flatGeneData = featureQueries.map(q => q.data?.data || null);
   const flatLoadedGeneName = featureQueries.map(q => q.data?.dataKey || null);
 
@@ -428,7 +428,7 @@ export function useFeatureSelectionMultiLevel(
     const nestedGeneData = nestQueryResults(queryKeyScopeTuples, flatGeneData);
     const nestedLoadedGeneName = nestQueryResults(queryKeyScopeTuples, flatLoadedGeneName);
     return [nestedGeneData, nestedLoadedGeneName];
-  
+
   // We do not want this useMemo to execute on every re-render, only when the
   // featureQueries results change. Unfortunately, the featureQueries array
   // reference is not stable on each re-render, so we use dataUpdatedAt instead.

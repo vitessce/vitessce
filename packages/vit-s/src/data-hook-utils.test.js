@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import { initializeNestedObject, nestQueryResults, getQueryKeyScopeTuples } from './data-hook-utils.js';
 
 describe('recursive data hook utilities for nesting and un-nesting multi-level queries', () => {
-
   describe('initializeNestedObject', () => {
     it('should initialize an empty nested object', () => {
       const nestedObject = {};
@@ -58,18 +57,18 @@ describe('recursive data hook utilities for nesting and un-nesting multi-level q
         [
           ['someDataset', 'someDataType', { obsType: 'cell', featureType: 'gene' }, 'geneA', true, 'useFeatureSelectionMultiLevel'],
           // scope info (for rolling up later)
-          { levelScopes: ['a', 'b', 'c'], featureIndex: 0, numFeatures: 3 }
+          { levelScopes: ['a', 'b', 'c'], featureIndex: 0, numFeatures: 3 },
         ],
         [
           ['someDataset', 'someDataType', { obsType: 'cell', featureType: 'gene' }, 'geneB', true, 'useFeatureSelectionMultiLevel'],
           // scope info (for rolling up later)
-          { levelScopes: ['a', 'b', 'c'], featureIndex: 1, numFeatures: 3 }
+          { levelScopes: ['a', 'b', 'c'], featureIndex: 1, numFeatures: 3 },
         ],
         [
           ['someDataset', 'someDataType', { obsType: 'cell', featureType: 'gene' }, 'geneC', true, 'useFeatureSelectionMultiLevel'],
           // scope info (for rolling up later)
-          { levelScopes: ['a', 'b', 'c'], featureIndex: 2, numFeatures: 3 }
-        ]
+          { levelScopes: ['a', 'b', 'c'], featureIndex: 2, numFeatures: 3 },
+        ],
       ]);
     });
   });

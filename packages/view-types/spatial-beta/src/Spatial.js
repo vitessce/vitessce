@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
 import {
@@ -363,13 +364,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
       imageLayerScopes,
       imageLayerCoordination,
     } = this.props;
+    // TODO: support 3D.
     // TODO: use imageLayerCoordination rather than imageLayerDefs here
     return false;
-    return (imageLayerDefs || []).some(i => i.use3d);
+    // return (imageLayerDefs || []).some(i => i.use3d);
   }
 
   // New createImageLayer function.
-  createSegmentationLayer(layerScope, layerCoordination, channelScopes, channelCoordination, image, use3d, layerFeatureValues) {
+  createSegmentationLayer(
+    layerScope, layerCoordination, channelScopes, channelCoordination,
+    image, use3d, layerFeatureValues,
+  ) {
     const { data, metadata } = image?.obsSegmentations?.loaders?.[0] || {};
     if (!data) {
       return null;
@@ -417,7 +422,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
       id: `bitmask-layer-${layerScope}`,
       channelsVisible: channelScopes
-        .map(cScope => visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]),
+        .map(cScope => (
+          // Layer visible AND channel visible
+          visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]
+        )),
       channelOpacities: channelScopes
         .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_OPACITY]),
       channelsFilled: channelScopes
@@ -426,13 +434,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
       channelColors: channelScopes
         .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]),
       channelStrokeWidths: channelScopes
-        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH]),
+        .map(cScope => (
+          channelCoordination[cScope][CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH]
+        )),
       channelFeatureValueColormaps: channelScopes
         .map(cScope => channelCoordination[cScope][CoordinationType.FEATURE_VALUE_COLORMAP]),
       channelFeatureValueColormapRanges: channelScopes
         .map(cScope => channelCoordination[cScope][CoordinationType.FEATURE_VALUE_COLORMAP_RANGE]),
       channelIsStaticColorMode: channelScopes
-        .map(cScope => channelCoordination[cScope][CoordinationType.OBS_COLOR_ENCODING] === 'spatialChannelColor'),
+        .map(cScope => (
+          channelCoordination[cScope][CoordinationType.OBS_COLOR_ENCODING] === 'spatialChannelColor'
+        )),
       modelMatrix,
       hoveredCell: Number(this.props.cellHighlight),
       multiFeatureValues: channelScopes.map(cScope => (layerFeatureValues?.[cScope]?.[0] || [])),
@@ -459,7 +471,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   // New createImageLayer function.
-  createImageLayer(layerScope, layerCoordination, channelScopes, channelCoordination, image, use3d) {
+  createImageLayer(
+    layerScope, layerCoordination, channelScopes, channelCoordination,
+    image, use3d,
+  ) {
     // TODO: always using 0th loader here, create joint file type to split existing multi-image
     // raster.json when necessary.
     const { data, metadata } = image?.image?.loaders?.[0] || {};
@@ -470,11 +485,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const [Layer, layerLoader] = getLayerLoaderTuple(data, use3d);
 
     const colormap = layerCoordination[CoordinationType.SPATIAL_LAYER_COLORMAP];
-    const renderingMode = null; // TODO(CoordinationType): global or per-layer renderingMode (used in 3d mode)
+    // TODO(CoordinationType): global or per-layer renderingMode (used in 3d mode)
+    const renderingMode = null;
     const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
 
     const layerDefTransparentColor = null; // TODO(CoordinationType): per-layer transparentColor
-    const useTransparentColor = (!visible && typeof visible === 'boolean') || Boolean(layerDefTransparentColor);
+    const useTransparentColor = (
+      (!visible && typeof visible === 'boolean')
+      || Boolean(layerDefTransparentColor)
+    );
     const transparentColor = useTransparentColor ? [0, 0, 0] : null;
 
     const extensions = getVivLayerExtensions(
@@ -524,8 +543,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const colors = channelScopes
       .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]);
     // TODO: figure out how to initialize the channel windows in the loader.
-    const contrastLimits = channelScopes
-      .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_WINDOW] || ([0, 255])); // TODO: is [0, 255] the right fallback?
+    // TODO: is [0, 255] the right fallback?
+    const contrastLimits = channelScopes.map(cScope => (
+      channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_WINDOW]
+      || ([0, 255])
+    ));
 
 
     return new Layer({
@@ -535,18 +557,23 @@ class Spatial extends AbstractSpatialOrScatterplot {
       contrastLimits,
       selections,
       channelsVisible: channelScopes
-        .map(cScope => visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]),
+        .map(cScope => (
+          // Layer visible AND channel visible
+          visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]
+        )),
       opacity: layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY],
       colormap,
       modelMatrix,
       transparentColor,
       useTransparentColor,
-      resolution: null, // layerProps.resolution, // TODO(CoordinationType): global or per-layer resolution (used in 3d mode)
+      // TODO(CoordinationType): global or per-layer resolution (used in 3d mode)
+      resolution: null, // layerProps.resolution,
       renderingMode,
       pickable: false,
-      xSlice: [0, 1], // layerProps.xSlice, // TODO(CoordinationType): global or per-layer xSlice (used in 3d mode)
-      ySlice: [0, 1], // layerProps.ySlice, // TODO(CoordinationType)
-      zSlice: [0, 1], // layerProps.zSlice, // TODO(CoordinationType)
+      // TODO(CoordinationType): global or per-layer slicing (used in 3d mode)
+      xSlice: [0, 1], // layerProps.xSlice,
+      ySlice: [0, 1], // layerProps.ySlice,
+      zSlice: [0, 1], // layerProps.zSlice,
       onViewportLoad: () => {}, // layerProps.callback, // TODO: figure out callback implementation
       excludeBackground: useTransparentColor,
       extensions,

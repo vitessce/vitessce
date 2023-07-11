@@ -51,12 +51,12 @@ export default function SplitSegmentationLayerController(props) {
 
         const obsTypeName = obsType;
 
-        //const index = 0;
-        //const loader = obsTypeData?.obsSegmentations?.loaders?.[index];
-        //const layerMeta = obsTypeData?.obsSegmentations?.meta?.[index];
-        //const loader = null;
-        //const layerMeta = null;
-        //const channelIndex = segmentationLayerCoordination[0][layerScope].spatialTargetC;
+        // const index = 0;
+        // const loader = obsTypeData?.obsSegmentations?.loaders?.[index];
+        // const layerMeta = obsTypeData?.obsSegmentations?.meta?.[index];
+        // const loader = null;
+        // const layerMeta = null;
+        // const channelIndex = segmentationLayerCoordination[0][layerScope].spatialTargetC;
 
         return (
           <SplitSegmentationChannelController

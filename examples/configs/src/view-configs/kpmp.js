@@ -1,5 +1,6 @@
-// Serve kpmp/OME-TIFF folder
+/* eslint-disable no-unused-vars */
 
+// Serve kpmp/OME-TIFF folder
 const localBaseUrl = 'http://localhost:8000';
 const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/kpmp-f2f-march-2023';
 

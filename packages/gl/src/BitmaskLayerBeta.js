@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 import { project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { Texture2D, isWebGL2 } from '@luma.gl/core';
@@ -134,7 +135,9 @@ export default class BitmaskLayer extends XRLayer {
       channelOpacities,
       channelColors,
       channelsVisible,
-      channelFeatureValueColormaps, // TODO: use in shader, figure out how to call multiple GLSL colormap functions
+      // TODO: use `channelFeatureValueColormaps` in shader,
+      // figure out how to call multiple GLSL colormap functions
+      channelFeatureValueColormaps,
       channelFeatureValueColormapRanges,
       channelIsStaticColorMode,
       hoveredCell,
@@ -209,9 +212,9 @@ export default class BitmaskLayer extends XRLayer {
               // There are six texture entries on the shaders
               MAX_CHANNELS - channelsVisible.length,
             ),
-            //uColorScaleRange: [colorScaleLo, colorScaleHi],
-            //uIsExpressionMode: isExpressionMode,
-            //uIsOutlined: false,
+            // uColorScaleRange: [colorScaleLo, colorScaleHi],
+            // uIsExpressionMode: isExpressionMode,
+            // uIsOutlined: false,
             scaleFactor,
           }),
         )

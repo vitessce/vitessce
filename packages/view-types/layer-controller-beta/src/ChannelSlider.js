@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useCallback, useState, useEffect } from 'react';
 
 import { Grid, Slider } from '@material-ui/core';
@@ -55,7 +56,7 @@ export default function ChannelSlider(props) {
     domainType = 'Full',
     disabled: disabledProp,
   } = props;
-  
+
 
   const loader = image?.loaders?.[0];
   const { dtype } = loader ? getSourceFromLoader(loader) : {};
