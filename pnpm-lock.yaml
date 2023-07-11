@@ -1077,6 +1077,9 @@ importers:
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl
+      '@vitessce/layer-controller':
+        specifier: workspace:*
+        version: link:../layer-controller
       '@vitessce/sets-utils':
         specifier: workspace:*
         version: link:../../utils/sets-utils

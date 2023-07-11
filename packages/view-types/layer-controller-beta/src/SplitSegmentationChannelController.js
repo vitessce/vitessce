@@ -25,15 +25,8 @@ import { PATHOLOGY_PALETTE } from '@vitessce/utils';
 import { useControllerSectionStyles } from './styles.js';
 
 const useStyles = makeStyles(() => ({
-  menuButton: {
+  segmentationChannelMenuButton: {
     backgroundColor: 'transparent',
-  },
-  colors: {
-    '&:hover': {
-      backgroundColor: 'transparent',
-    },
-    paddingLeft: '2px',
-    paddingRight: '2px',
   },
   colorIcon: {
     width: '18px !important',
@@ -129,7 +122,7 @@ function ColorPickerMenu(props) {
           <div className={classes.colorIcon} />
         )
       }
-      buttonClassName={classes.menuButton}
+      buttonClassName={classes.segmentationChannelMenuButton}
       withPaper={false}
     >
       <TwitterPicker
@@ -163,7 +156,7 @@ function EllipsisMenu(props) {
       open={open}
       setOpen={setOpen}
       buttonIcon={<MoreVertIcon />}
-      buttonClassName={classes.menuButton}
+      buttonClassName={classes.segmentationChannelMenuButton}
       containerClassName={classes.popperContainer}
       withPaper
     >

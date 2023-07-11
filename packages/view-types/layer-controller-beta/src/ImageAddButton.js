@@ -4,7 +4,7 @@ import { Add as AddIcon } from '@material-ui/icons';
 import { PopperMenu } from '@vitessce/vit-s';
 
 const useStyles = makeStyles(() => ({
-  addButton: {
+  addButtonBeta: {
     marginTop: '10px',
     marginBottom: '10px',
     fontWeight: 400,
@@ -35,7 +35,7 @@ function ImageAddButton({ imageOptions, handleImageAdd }) {
       open={open}
       setOpen={setOpen}
       buttonIcon={<ImageAddIcon />}
-      buttonClassName={classes.addButton}
+      buttonClassName={classes.addButtonBeta}
       placement="bottom-start"
     >
       {imageOptions.map((imgData, i) => (

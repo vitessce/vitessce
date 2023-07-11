@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core';
 
-const useSpanStyles = makeStyles(() => ({
+export const useSpanStyles = makeStyles(() => ({
   span: {
     width: '70px',
     textAlign: 'center',
@@ -23,21 +23,18 @@ export const useSelectStyles = makeStyles(() => ({
   },
 }));
 
-const sharedControllerStyles = {
-  width: '100%',
-  flexDirection: 'column',
-};
-
 export const useControllerSectionStyles = makeStyles(() => ({
   layerControllerRoot: {
-    ...sharedControllerStyles,
+    width: '100%',
+    flexDirection: 'column',
     padding: '0px 8px',
   },
 }));
 
 export const useAccordionStyles = makeStyles(theme => ({
   accordionDetailsRoot: {
-    ...sharedControllerStyles,
+    width: '100%',
+    flexDirection: 'column',
     padding: '8px 8px 24px 8px',
   },
   accordionSummaryRoot: {

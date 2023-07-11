@@ -14,14 +14,11 @@ import {
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
 const useToggleStyles = makeStyles(() => ({
-  cameraLabel: {
+  cameraLabelBeta: {
     padding: '0px 0px 0px 16px',
   },
-  box: {
+  toggleBoxBeta: {
     padding: '0px',
-  },
-  button: {
-    padding: '0px 0px 0px 8px',
   },
 }));
 
@@ -33,10 +30,10 @@ const ToggleFixedAxisButton = ({
   const classes = useToggleStyles();
   return (
     <TableRow>
-      <TableCell className={classes.cameraLabel}>
+      <TableCell className={classes.cameraLabelBeta}>
         Fix Camera Axis
       </TableCell>
-      <TableCell className={classes.box}>
+      <TableCell className={classes.toggleBoxBeta}>
         <Checkbox
           onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
           disabled={!use3d}
