@@ -1,72 +1,23 @@
 import {
   getParameterScope,
   getParameterScopeBy,
+  getScopes,
+  getScopesBy,
 } from './hooks.js';
 
 describe('vit-s/state/hooks.js', () => {
   describe('getParameterScope', () => {
-    it('works without metaCoordinationScopes', () => {
+    it('works', () => {
       expect(getParameterScope(
         'obsType',
         {
           obsType: 'A',
-        },
-        {
-          obsType: {
-            A: 'cell',
-            B: 'molecule',
-          },
         },
       )).toEqual('A');
     });
-    it('works with one metaCoordinationScopes', () => {
-      expect(getParameterScope(
-        'obsType',
-        {
-          // meta match should take precedence
-          metaCoordinationScopes: 'metaA',
-          obsType: 'A',
-        },
-        {
-          obsType: {
-            A: 'cell',
-            B: 'molecule',
-          },
-          metaCoordinationScopes: {
-            metaA: {
-              obsType: 'B',
-            },
-          },
-        },
-      )).toEqual('B');
-    });
-    it('works with multiple metaCoordinationScopes', () => {
-      expect(getParameterScope(
-        'obsType',
-        {
-          // first meta match should take precedence
-          metaCoordinationScopes: ['metaA', 'metaB'],
-          obsType: 'A',
-        },
-        {
-          obsType: {
-            A: 'cell',
-            B: 'molecule',
-          },
-          metaCoordinationScopes: {
-            metaA: {
-              featureType: 'D',
-            },
-            metaB: {
-              obsType: 'C',
-            },
-          },
-        },
-      )).toEqual('C');
-    });
   });
   describe('getParameterScopeBy', () => {
-    it('works without metaCoordinationScopesBy', () => {
+    it('works', () => {
       expect(getParameterScopeBy(
         'spatialTargetC',
         'spatialSegmentationLayer',
@@ -94,11 +45,79 @@ describe('vit-s/state/hooks.js', () => {
         },
       )).toEqual('A');
     });
+  });
+  describe('getScopes', () => {
+    it('works without metaCoordinationScopes', () => {
+      expect(getScopes(
+        {
+          obsType: 'A',
+        },
+        {
+          obsType: {
+            A: 'cell',
+            B: 'molecule',
+          },
+        },
+      )).toEqual({
+        obsType: 'A',
+      });
+    });
+    it('works with one metaCoordinationScopes', () => {
+      expect(getScopes(
+        {
+          // meta match should take precedence
+          metaCoordinationScopes: 'metaA',
+          obsType: 'A',
+        },
+        {
+          obsType: {
+            A: 'cell',
+            B: 'molecule',
+          },
+          metaCoordinationScopes: {
+            metaA: {
+              obsType: 'B',
+            },
+          },
+        },
+      )).toEqual({
+        // meta match should take precedence
+        metaCoordinationScopes: 'metaA',
+        obsType: 'B',
+      },);
+    });
+    it('works with multiple metaCoordinationScopes', () => {
+      expect(getScopes(
+        {
+          // first meta match should take precedence
+          metaCoordinationScopes: ['metaA', 'metaB'],
+          obsType: 'A',
+        },
+        {
+          obsType: {
+            A: 'cell',
+            B: 'molecule',
+          },
+          metaCoordinationScopes: {
+            metaA: {
+              featureType: 'D',
+            },
+            metaB: {
+              obsType: 'C',
+            },
+          },
+        },
+      )).toEqual({
+        // first meta match should take precedence
+        metaCoordinationScopes: ['metaA', 'metaB'],
+        featureType: 'D',
+        obsType: 'C',
+      });
+    });
+  });
+  describe('getScopesBy', () => {
     it('works with one metaCoordinationScopesBy', () => {
-      expect(getParameterScopeBy(
-        'spatialTargetC',
-        'spatialSegmentationLayer',
-        'glomerulus',
+      expect(getScopesBy(
         {
           metaCoordinationScopesBy: 'metaA',
           spatialSegmentationLayer: ['abc', 'def'],
@@ -131,13 +150,17 @@ describe('vit-s/state/hooks.js', () => {
             },
           },
         },
-      )).toEqual('A');
+      )).toEqual({
+        spatialSegmentationLayer: {
+          spatialTargetC: {
+            glomerulus: 'A',
+            tubule: 'B',
+          },
+        },
+      });
     });
     it('works with multiple metaCoordinationScopes', () => {
-      expect(getParameterScopeBy(
-        'spatialTargetC',
-        'spatialSegmentationLayer',
-        'glomerulus',
+      expect(getScopesBy(
         {
           metaCoordinationScopesBy: ['metaA', 'metaB'],
           spatialSegmentationLayer: ['abc', 'def'],
@@ -178,7 +201,18 @@ describe('vit-s/state/hooks.js', () => {
             },
           },
         },
-      )).toEqual('A');
+      )).toEqual({
+        spatialSegmentationLayer: {
+          spatialLayerOpacity: {
+            glomerulus: 'C',
+            tubule: 'D',
+          },
+          spatialTargetC: {
+            glomerulus: 'A',
+            tubule: 'B',
+          },
+        },
+      });
     });
   });
 });
