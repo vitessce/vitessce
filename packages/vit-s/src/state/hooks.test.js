@@ -84,7 +84,7 @@ describe('vit-s/state/hooks.js', () => {
         // meta match should take precedence
         metaCoordinationScopes: 'metaA',
         obsType: 'B',
-      },);
+      });
     });
     it('works with multiple metaCoordinationScopes', () => {
       expect(getScopes(
