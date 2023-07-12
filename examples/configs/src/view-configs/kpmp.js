@@ -480,7 +480,7 @@ export const kpmp2023 = {
     {
       component: 'layerControllerBeta',
       props: {
-        photometricInterpretation: 2,
+        photometricInterpretation: 1, // Temporary; TODO: change back to 2 for RGB
       },
       coordinationScopes: {
         metaCoordinationScopes: ['metaA'],

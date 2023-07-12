@@ -3,6 +3,8 @@ import {
   getParameterScopeBy,
   getScopes,
   getScopesBy,
+  getMetaScope,
+  getMetaScopeBy,
 } from './hooks.js';
 
 describe('vit-s/state/hooks.js', () => {
@@ -213,6 +215,139 @@ describe('vit-s/state/hooks.js', () => {
           },
         },
       });
+    });
+  });
+  describe('getMetaScope', () => {
+    it('works without metaCoordinationScopes', () => {
+      expect(getMetaScope(
+        {
+          obsType: 'A',
+        },
+        {
+          obsType: {
+            A: 'cell',
+            B: 'molecule',
+          },
+        },
+        'obsType'
+      )).toEqual(undefined);
+    });
+    it('works with one metaCoordinationScopes', () => {
+      expect(getMetaScope(
+        {
+          // meta match should take precedence
+          metaCoordinationScopes: 'metaA',
+          obsType: 'A',
+        },
+        {
+          obsType: {
+            A: 'cell',
+            B: 'molecule',
+          },
+          metaCoordinationScopes: {
+            metaA: {
+              obsType: 'B',
+            },
+          },
+        },
+        'obsType',
+      )).toEqual('metaA');
+    });
+    it('works with multiple metaCoordinationScopes', () => {
+      expect(getMetaScope(
+        {
+          // first meta match should take precedence
+          metaCoordinationScopes: ['metaA', 'metaB'],
+          obsType: 'A',
+        },
+        {
+          obsType: {
+            A: 'cell',
+            B: 'molecule',
+          },
+          metaCoordinationScopes: {
+            metaA: {
+              featureType: 'D',
+            },
+            metaB: {
+              obsType: 'C',
+            },
+          },
+        },
+        'obsType',
+      )).toEqual('metaB');
+    });
+  });
+  describe('getMetaScopeBy', () => {
+    it('works with one metaCoordinationScopesBy', () => {
+      expect(getMetaScopeBy(
+        {
+          metaCoordinationScopesBy: 'metaA',
+          spatialSegmentationLayer: ['abc', 'def'],
+        },
+        {
+          spatialSegmentationLayer: {
+            glomerulus: 'glomerulus',
+            tubule: 'tubule',
+          },
+          spatialTargetC: {
+            A: 1,
+            B: 2,
+          },
+          metaCoordinationScopesBy: {
+            metaA: {
+              spatialSegmentationLayer: {
+                spatialTargetC: {
+                  glomerulus: 'A',
+                  tubule: 'B',
+                },
+              },
+            },
+          },
+        },
+        'spatialSegmentationLayer',
+        'spatialTargetC',
+        'glomerulus',
+      )).toEqual('metaA');
+    });
+    it('works with multiple metaCoordinationScopes', () => {
+      expect(getMetaScopeBy(
+        {
+          metaCoordinationScopesBy: ['metaA', 'metaB'],
+          spatialSegmentationLayer: ['abc', 'def'],
+        },
+        {
+          spatialSegmentationLayer: {
+            glomerulus: 'glomerulus',
+            tubule: 'tubule',
+          },
+          spatialTargetC: {
+            A: 1,
+            B: 2,
+          },
+          metaCoordinationScopesBy: {
+            metaA: {
+              spatialSegmentationLayer: {
+                spatialLayerOpacity: {
+                  glomerulus: 'C',
+                  tubule: 'D',
+                },
+              },
+            },
+            metaB: {
+              spatialSegmentationLayer: {
+                spatialTargetC: {
+                  glomerulus: 'A',
+                  tubule: 'B',
+                },
+              },
+            },
+          },
+        },
+        'spatialSegmentationLayer',
+        'spatialLayerOpacity',
+        'tubule',
+      )).toEqual('metaA');
     });
   });
 });

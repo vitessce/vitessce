@@ -20,6 +20,7 @@ import {
   useComplexCoordinationSecondary,
   useCoordinationScopes,
   useCoordinationScopesBy,
+  useUpdateMetaCoordinationScopes,
 } from '@vitessce/vit-s';
 import {
   ViewType,
@@ -79,6 +80,18 @@ export function LayerControllerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER_BETA],
     coordinationScopes,
   );
+
+  const updateMetaCoordinationScopes = useUpdateMetaCoordinationScopes();
+
+  function onClick() {    
+    updateMetaCoordinationScopes(coordinationScopesRaw, coordinationScopesByRaw, {
+      name: 'removeImageChannel',
+      payload: {
+        imageLayer: 'histology',
+        imageChannel: 'B',
+      },
+    });
+  }
 
   // Normalize arrays and non-arrays to always be arrays.
   const segmentationLayerValues = useMultiCoordinationValues(
@@ -213,6 +226,7 @@ export function LayerControllerSubscriber(props) {
       theme={theme}
       isReady={isReady}
     >
+      <button onClick={onClick}>Update coordination</button>
       <SplitLayerController
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerValues={segmentationLayerValues}

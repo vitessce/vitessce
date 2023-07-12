@@ -40,6 +40,7 @@ export {
   useSetWarning,
   useAuxiliaryCoordination,
   useComponentLayout,
+  useUpdateMetaCoordinationScopes,
 } from './state/hooks.js';
 export {
   useDescription,
