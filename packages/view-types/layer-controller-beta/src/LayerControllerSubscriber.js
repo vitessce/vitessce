@@ -84,13 +84,17 @@ export function LayerControllerSubscriber(props) {
   const updateMetaCoordinationScopes = useUpdateMetaCoordinationScopes();
 
   function onClick() {    
-    updateMetaCoordinationScopes(coordinationScopesRaw, coordinationScopesByRaw, {
-      name: 'removeImageChannel',
-      payload: {
-        imageLayer: 'histology',
-        imageChannel: 'B',
+    updateMetaCoordinationScopes(
+      coordinationScopesRaw,
+      coordinationScopesByRaw,
+      {
+        name: 'removeImageChannel',
+        payload: {
+          imageLayer: 'histology',
+          imageChannel: 'B',
+        },
       },
-    });
+    );
   }
 
   // Normalize arrays and non-arrays to always be arrays.
@@ -226,7 +230,7 @@ export function LayerControllerSubscriber(props) {
       theme={theme}
       isReady={isReady}
     >
-      <button onClick={onClick}>Update coordination</button>
+      {/*<button onClick={onClick}>Update coordination</button>*/}
       <SplitLayerController
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerValues={segmentationLayerValues}
