@@ -16,11 +16,11 @@ import { HINTS_CONFIG, HINT_TYPE_TO_FILE_TYPE_MAP } from './constants.js';
  * possibleViews and requiredViews.
  */
 const filterViews = (hintsConfig, possibleViews) => {
-  if (Object.keys(hintsConfig).length === 0) {
+  const requiredViews = Object.keys(hintsConfig.views);
+
+  if (requiredViews.length === 0) {
     return possibleViews;
   }
-
-  const requiredViews = Object.keys(hintsConfig.views);
 
   const resultViews = [];
 
@@ -225,7 +225,8 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       possibleViews.push(['featureList']);
     }
 
-    return filterViews(hintsConfig, possibleViews);
+    const views = filterViews(hintsConfig, possibleViews);
+    return views;
   }
 
   async setMetadataSummaryWithZmetadata(response) { /* eslint-disable-line class-methods-use-this */
@@ -615,7 +616,7 @@ export async function generateConfig(fileUrls, hintTitle) {
     throw new Error(`Hints config not found for the supplied hint: ${hintTitle}.`);
   }
 
-  const useHints = Object.keys(hintsConfig).length > 0;
+  const useHints = Object.keys(hintsConfig?.views).length > 0;
 
   fileUrls.forEach((url) => {
     allViews.push(generateViewDefinition(url, vc, dataset, hintsConfig));
