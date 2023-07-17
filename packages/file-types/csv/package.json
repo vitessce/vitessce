@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/csv",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -27,7 +27,7 @@
   ],
   "scripts": {
     "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
-    "test": "pnpm exec vitest --run -r ../../../ --dir ."
+    "test": "pnpm exec vitest --run"
   },
   "dependencies": {
     "@vitessce/constants-internal": "workspace:*",

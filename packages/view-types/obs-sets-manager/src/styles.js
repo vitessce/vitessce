@@ -488,6 +488,7 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
       cursor: 'pointer',
       width: '100%',
       backgroundColor: 'transparent',
+      color: theme.palette.grayDarkD15,
       borderRadius: '2px',
       '&:hover': {
         backgroundColor: theme.palette.grayLightL10,

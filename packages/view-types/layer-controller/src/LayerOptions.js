@@ -13,7 +13,8 @@ import {
 import {
   getBoundingCube, getMultiSelectionStats,
 } from './utils.js';
-import { StyledSelectionSlider, useSelectStyles, channelSliderStyles } from './styles.js';
+
+import { useSelectionSliderStyles, useSelectStyles } from './styles.js';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
 
@@ -276,8 +277,10 @@ function GlobalSelectionSlider({
   handleChange,
   possibleValues,
 }) {
+  const classes = useSelectionSliderStyles();
   return (
-    <StyledSelectionSlider
+    <Slider
+      classes={{ root: classes.selectionSliderRoot, markActive: classes.markActive }}
       value={value}
       // See https://github.com/hms-dbmi/viv/issues/176 for why
       // we have the two handlers.

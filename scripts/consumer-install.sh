@@ -18,6 +18,10 @@ rm -f package-lock.json
 rm -rf node_modules/
 # Set up new package.json in the directory
 npm init -y
+# Set private: true to prevent changesets from trying to publish this as a package.
+# Reference: https://stackoverflow.com/a/61049639
+contents="$(jq '.private = true' package.json)" && echo -E "${contents}" > package.json
+
 cd -
 
 # Pack all sub-packages

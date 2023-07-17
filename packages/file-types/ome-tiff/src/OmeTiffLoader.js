@@ -24,11 +24,6 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
     const { url, requestInit } = this;
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
-    // Get image name and URL tuples.
-    const urls = [
-      [url, 'image'],
-    ];
-
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
     const {
@@ -69,6 +64,11 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
         },
       } : {}),
     };
+
+    // Get image name and URL tuples.
+    const urls = [
+      { url, name: image.name },
+    ];
 
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = [

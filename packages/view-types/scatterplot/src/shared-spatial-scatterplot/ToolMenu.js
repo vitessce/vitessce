@@ -6,7 +6,7 @@ import { makeStyles } from '@material-ui/core';
 import { CenterFocusStrong } from '@material-ui/icons';
 
 const useStyles = makeStyles(() => ({
-  button: {
+  toolButton: {
     display: 'inline-flex',
     '&:active': {
       opacity: '.65',
@@ -28,7 +28,7 @@ const useStyles = makeStyles(() => ({
     boxShadow: 'none',
     transform: 'scale(0.98)', // make the button slightly smaller
   },
-  icon: {
+  toolIcon: {
     // btn btn-outline-secondary mr-2 icon
     padding: '0',
     height: '2em',
@@ -75,7 +75,7 @@ export function IconTool(props) {
   const classes = useStyles();
   return (
     <button
-      className={clsx(classes.icon, { [classes.toolActive]: isActive })}
+      className={clsx(classes.toolIcon, { [classes.toolActive]: isActive })}
       onClick={onClick}
       type="button"
       title={alt}
@@ -92,7 +92,7 @@ export function IconButton(props) {
   const classes = useStyles();
   return (
     <button
-      className={clsx(classes.icon, classes.button)}
+      className={clsx(classes.toolIcon, classes.toolButton)}
       onClick={onClick}
       type="button"
       title={alt}

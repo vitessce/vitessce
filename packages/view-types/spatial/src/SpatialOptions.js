@@ -17,11 +17,8 @@ const useToggleStyles = makeStyles(() => ({
   cameraLabel: {
     padding: '0px 0px 0px 16px',
   },
-  box: {
+  toggleBox: {
     padding: '0px',
-  },
-  button: {
-    padding: '0px 0px 0px 8px',
   },
 }));
 
@@ -36,7 +33,7 @@ const ToggleFixedAxisButton = ({
       <TableCell className={classes.cameraLabel} variant="head" scope="row">
         Fix Camera Axis
       </TableCell>
-      <TableCell className={classes.box} variant="body">
+      <TableCell className={classes.toggleBox} variant="body">
         <Checkbox
           onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
           checked={Boolean(spatialAxisFixed)}

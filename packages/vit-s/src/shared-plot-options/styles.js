@@ -42,7 +42,7 @@ export const useStyles = makeStyles(theme => ({
       fontSize: '14px',
     },
   },
-  selectRoot: {
+  optionSelectRoot: {
     padding: 0,
     height: 'auto',
   },

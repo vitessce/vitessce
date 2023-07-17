@@ -30,7 +30,7 @@ export default function VectorLayerController(props) {
   const classes = useControllerSectionStyles();
   return (
     <Grid item style={{ marginTop: '10px' }}>
-      <Paper className={classes.root}>
+      <Paper className={classes.layerControllerRoot}>
         <Typography
           style={{
             padding: '15px 8px 0px 8px',

@@ -89,7 +89,7 @@ export default function FeatureListOptions(props) {
             </TableCell>
             <TableCell className={classes.inputCell} variant="body">
               <Checkbox
-                className={classes.checkbox}
+                className={classes.tableCheckbox}
                 checked={showFeatureTable}
                 onChange={handleShowTableChange}
                 name="feature-list-show-table"

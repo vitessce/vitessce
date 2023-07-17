@@ -371,7 +371,7 @@ export function LayerControllerSubscriber(props) {
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
   const [obsLocationsData, obsLocationsStatus] = useObsLocationsData(
-    loaders, dataset, () => {}, false,
+    loaders, dataset, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
     {}, // TODO: use obsType once #1240 is merged.
@@ -380,13 +380,13 @@ export function LayerControllerSubscriber(props) {
     { obsSegmentations, obsSegmentationsType },
     obsSegmentationsStatus,
   ] = useObsSegmentationsData(
-    loaders, dataset, () => {}, false,
+    loaders, dataset, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
     {}, // TODO: use obsType once #1240 is merged.
   );
   const [{ image }, imageStatus] = useImageData(
-    loaders, dataset, () => {}, false,
+    loaders, dataset, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: rasterLayers },
     {}, // TODO: which values to match on
