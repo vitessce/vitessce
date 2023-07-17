@@ -613,7 +613,7 @@ export async function generateConfig(fileUrls, hintTitle) {
 
   const dataset = vc.addDataset('An automatically generated view config for dataset. Adjust values and add layout components if needed.');
 
-  const hintsConfig = hintTitle === '' ? {} : HINTS_CONFIG?.[hintTitle];
+  const hintsConfig = hintTitle === '' ? { views: {} } : HINTS_CONFIG?.[hintTitle];
   if (!hintsConfig) {
     throw new Error(`Hints config not found for the supplied hint: ${hintTitle}.`);
   }
