@@ -43,7 +43,7 @@ export const NO_HINTS_CONFIG = {
 
 export const HINTS_CONFIG = {
   'No hints are available. Generate config with no hints.': NO_HINTS_CONFIG,
-  'Basic': NO_HINTS_CONFIG,
+  Basic: NO_HINTS_CONFIG,
   'Transcriptomics / scRNA-seq (with heatmap)': {
     views: SINGLE_CELL_WITH_HEATMAP_VIEWS,
   },
