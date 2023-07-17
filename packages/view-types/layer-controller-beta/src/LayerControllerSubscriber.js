@@ -83,7 +83,7 @@ export function LayerControllerSubscriber(props) {
 
   const updateMetaCoordinationScopes = useUpdateMetaCoordinationScopes();
 
-  function onClick() {    
+  function onClick() {
     updateMetaCoordinationScopes(
       coordinationScopesRaw,
       coordinationScopesByRaw,
@@ -230,7 +230,7 @@ export function LayerControllerSubscriber(props) {
       theme={theme}
       isReady={isReady}
     >
-      {/*<button onClick={onClick}>Update coordination</button>*/}
+      {/* <button onClick={onClick}>Update coordination</button> */}
       <SplitLayerController
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerValues={segmentationLayerValues}

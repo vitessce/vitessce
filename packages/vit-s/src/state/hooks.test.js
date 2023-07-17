@@ -229,7 +229,7 @@ describe('vit-s/state/hooks.js', () => {
             B: 'molecule',
           },
         },
-        'obsType'
+        'obsType',
       )).toEqual(undefined);
     });
     it('works with one metaCoordinationScopes', () => {
