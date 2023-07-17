@@ -16,3 +16,11 @@ export {
   getNgffAxesForTiff,
   coordinateTransformationsToMatrix,
 } from './spatial.js';
+export {
+  toRgbUIString,
+  getSingleSelectionStats,
+  getMultiSelectionStats,
+  getPhysicalSizeScalingMatrix,
+  getBoundingCube,
+  abbreviateNumber,
+} from './layer-controller.js';

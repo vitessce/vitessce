@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { viv } from '@vitessce/gl';
 import {
-  GLOBAL_LABELS, getSourceFromLoader, isRgb,
+  GLOBAL_LABELS,
+  getSourceFromLoader,
+  isRgb,
+  getMultiSelectionStats,
 } from '@vitessce/spatial-utils';
 
 import {
@@ -25,7 +28,6 @@ import {
   useOverflowEllipsisGridStyles,
   useAccordionStyles,
 } from './styles.js';
-import { getMultiSelectionStats } from './utils.js';
 
 import { DOMAINS } from './constants.js';
 

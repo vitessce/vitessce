@@ -6,9 +6,9 @@ import {
 import {
   useRemoveImageChannelInMetaCoordinationScopes,
 } from '@vitessce/vit-s';
+import { toRgbUIString } from '@vitessce/spatial-utils';
 import ChannelOptions from './ChannelOptions.js';
 import ChannelSlider from './ChannelSlider.js';
-import { toRgbUIString } from './utils.js';
 import {
   ChannelSelectionDropdown,
   ChannelVisibilityCheckbox,
