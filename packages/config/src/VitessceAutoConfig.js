@@ -599,10 +599,10 @@ export function getHintOptions(fileUrls) {
 /**
  *
  * @param {Array} fileUrls containing urls of files to be loaded into Vitessce
- * @param {Object} the hints config to be used for the dataset
+ * @param {String} the hints config to be used for the dataset. Null by default
  * @returns ViewConfig as JSON
  */
-export async function generateConfig(fileUrls, hintTitle) {
+export async function generateConfig(fileUrls, hintTitle = null) {
   const vc = new VitessceConfig({
     schemaVersion: '1.0.15',
     name: 'An automatically generated config. Adjust values and add layout components if needed.',
@@ -613,12 +613,12 @@ export async function generateConfig(fileUrls, hintTitle) {
 
   const dataset = vc.addDataset('An automatically generated view config for dataset. Adjust values and add layout components if needed.');
 
-  const hintsConfig = hintTitle === '' ? { views: {} } : HINTS_CONFIG?.[hintTitle];
+  const hintsConfig = !hintTitle ? { views: {} } : HINTS_CONFIG?.[hintTitle];
   if (!hintsConfig) {
     throw new Error(`Hints config not found for the supplied hint: ${hintTitle}.`);
   }
 
-  const useHints = Object.keys(hintsConfig?.views).length > 0;
+  const useHints = hintsConfig?.views.length > 0;
 
   fileUrls.forEach((url) => {
     allViews.push(generateViewDefinition(url, vc, dataset, hintsConfig));

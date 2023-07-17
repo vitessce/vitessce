@@ -78,7 +78,7 @@ describe('generateConfig', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfig(urls, '');
+    const config = await generateConfig(urls);
     expect(config).toEqual(expectedConfig);
   });
 
@@ -144,7 +144,7 @@ describe('generateConfig', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfig(urls, '');
+    const config = await generateConfig(urls);
     expect(config).toEqual(expectedConfig);
   });
 
@@ -272,7 +272,7 @@ describe('generateConfig', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfig(urls, '');
+    const config = await generateConfig(urls);
     expect(config).toEqual(expectedConfig);
   });
 
@@ -335,7 +335,7 @@ describe('generateConfig', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfig(urls, '');
+    const config = await generateConfig(urls);
     expect(config).toEqual(expectedConfig);
   });
 
@@ -344,7 +344,7 @@ describe('generateConfig', () => {
     // References:
     // - https://vitest.dev/api/expect.html#tothrowerror
     // - https://vitest.dev/api/expect.html#rejects
-    await expect(() => generateConfig(urls, ''))
+    await expect(() => generateConfig(urls))
       .rejects
       .toThrowError('Could not generate config: .zmetadata file is not valid.');
   });
@@ -464,7 +464,7 @@ describe('generateConfig', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfig(urls, '');
+    const config = await generateConfig(urls);
     expect(config).toEqual(expectedConfig);
   });
 
@@ -576,7 +576,7 @@ describe('generateConfig', () => {
       initStrategy: 'auto',
     };
 
-    const config = await generateConfig(urls, '');
+    const config = await generateConfig(urls);
     expect(config).toEqual(expectedConfig);
   });
 
