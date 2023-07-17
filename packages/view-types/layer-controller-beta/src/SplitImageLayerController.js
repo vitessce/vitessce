@@ -11,12 +11,17 @@ import {
   InputLabel,
 } from '@material-ui/core';
 import {
+  Add as AddIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
   Image as ImageIcon,
   ExpandMore,
   ExpandLess,
 } from '@material-ui/icons';
+import { viv } from '@vitessce/gl';
+import {
+  useAddImageChannelInMetaCoordinationScopes,
+} from '@vitessce/vit-s';
 import { COLORMAP_OPTIONS } from '@vitessce/utils';
 import { useControllerSectionStyles, useSelectStyles } from './styles.js';
 import SplitImageChannelController from './SplitImageChannelController.js';
@@ -30,10 +35,16 @@ const useStyles = makeStyles(() => ({
     fontSize: '14px',
     lineHeight: '21px',
   },
+  imageLayerButton: {
+    borderStyle: 'dashed',
+    marginTop: '10px',
+    fontWeight: 400,
+  },
 }));
 
 export default function SplitImageLayerController(props) {
   const {
+    coordinationScopesRaw,
     layerScope,
     layerCoordination,
     setLayerCoordination,
@@ -58,16 +69,26 @@ export default function SplitImageLayerController(props) {
     setSpatialLayerColormap: setColormap,
   } = setLayerCoordination;
 
+  const addChannel = useAddImageChannelInMetaCoordinationScopes();
+
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
 
   // TODO: does this work for non-OME-TIFF?
   const label = image?.image?.loaders?.[0]?.metadata?.Name;
+  const imageNumChannels = image?.image?.loaders?.[0]?.channels?.length;
 
   const colormapInputId = `${layerScope}-colormap`;
 
   function handleColormapChange(event) {
     setColormap(event.target.value === '' ? null : event.target.value);
+  }
+
+  function handleChannelAdd() {
+    addChannel(
+      coordinationScopesRaw,
+      layerScope,
+    );
   }
 
   const classes = useStyles();
@@ -191,6 +212,9 @@ export default function SplitImageLayerController(props) {
               return (
                 <SplitImageChannelController
                   key={cScope}
+                  coordinationScopesRaw={coordinationScopesRaw}
+                  layerScope={layerScope}
+                  channelScope={cScope}
                   targetC={spatialTargetC}
                   setTargetC={setSpatialTargetC}
                   visible={spatialChannelVisible}
@@ -207,6 +231,20 @@ export default function SplitImageLayerController(props) {
                 />
               );
             })}
+            <Button
+              disabled={(
+                channelScopes.length === viv.MAX_CHANNELS
+                || channelScopes.length === imageNumChannels
+              )}
+              onClick={handleChannelAdd}
+              fullWidth
+              variant="outlined"
+              className={classes.imageLayerButton}
+              startIcon={<AddIcon />}
+              size="small"
+            >
+              Add Channel
+            </Button>
           </Grid>
         ) : null}
       </Paper>

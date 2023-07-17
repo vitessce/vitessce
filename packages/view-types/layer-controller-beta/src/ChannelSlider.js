@@ -5,6 +5,7 @@ import { Grid, Slider } from '@material-ui/core';
 import { debounce, isEqual } from 'lodash-es';
 import { useQuery } from '@tanstack/react-query';
 import { getSourceFromLoader } from '@vitessce/spatial-utils';
+import { STATUS } from '@vitessce/constants-internal';
 import ChannelOptions from './ChannelOptions.js';
 import { DOMAINS } from './constants.js';
 import { getMultiSelectionStats, toRgbUIString } from './utils.js';
@@ -71,6 +72,7 @@ export default function ChannelSlider(props) {
 
   const minMaxQuery = useQuery({
     enabled: !!loader && !disabledProp,
+    structuralSharing: false,
     queryKey: ['minMaxDomain', image?.meta?.[0].name, selection],
     queryFn: async (ctx) => {
       const selections = [selection];
@@ -87,7 +89,7 @@ export default function ChannelSlider(props) {
   });
 
   const minMaxDomain = minMaxQuery.data;
-  const disabled = disabledProp || minMaxQuery.isFetching;
+  const disabled = disabledProp || minMaxQuery.isLoading;
 
   const [min, max] = (domainType === 'Full' ? fullDomain : minMaxDomain) || [0, 0];
   const step = max - min < 500 && dtype?.startsWith('Float') ? (max - min) / 500 : 1;

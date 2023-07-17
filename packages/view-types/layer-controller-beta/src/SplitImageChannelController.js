@@ -3,6 +3,9 @@ import React from 'react';
 import {
   Grid,
 } from '@material-ui/core';
+import {
+  useRemoveImageChannelInMetaCoordinationScopes,
+} from '@vitessce/vit-s';
 import ChannelOptions from './ChannelOptions.js';
 import ChannelSlider from './ChannelSlider.js';
 import { toRgbUIString } from './utils.js';
@@ -14,6 +17,9 @@ import {
 
 export default function SplitImageChannelController(props) {
   const {
+    coordinationScopesRaw,
+    layerScope,
+    channelScope,
     targetC,
     setTargetC,
     visible,
@@ -29,6 +35,8 @@ export default function SplitImageChannelController(props) {
     image, // To get the channel window extent using image metadata.
   } = props;
 
+  const removeChannel = useRemoveImageChannelInMetaCoordinationScopes();
+
   const isLoading = false; // TODO
   const theme = 'light'; //  TODO
 
@@ -39,7 +47,11 @@ export default function SplitImageChannelController(props) {
   }
 
   function onRemove() {
-    // TODO
+    removeChannel(
+      coordinationScopesRaw,
+      layerScope,
+      channelScope,
+    );
   }
 
   return (

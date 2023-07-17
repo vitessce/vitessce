@@ -40,7 +40,8 @@ export {
   useSetWarning,
   useAuxiliaryCoordination,
   useComponentLayout,
-  useUpdateMetaCoordinationScopes,
+  useRemoveImageChannelInMetaCoordinationScopes,
+  useAddImageChannelInMetaCoordinationScopes,
 } from './state/hooks.js';
 export {
   useDescription,

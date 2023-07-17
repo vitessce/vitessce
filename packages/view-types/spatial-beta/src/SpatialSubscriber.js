@@ -348,7 +348,7 @@ export function SpatialSubscriber(props) {
     obsCentroidsStatus,
     obsSegmentationsStatus,
     obsSetsStatus,
-    featureSelectionStatus,
+    multiFeatureSelectionStatus,
     matrixIndicesStatus,
     imageStatus,
     neighborhoodsStatus,

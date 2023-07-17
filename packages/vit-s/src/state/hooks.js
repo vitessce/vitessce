@@ -7,6 +7,10 @@ import shallow from 'zustand/shallow';
 import { isMatch, merge, cloneDeep } from 'lodash-es';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { fromEntries, capitalize } from '@vitessce/utils';
+import {
+  removeImageChannelInMetaCoordinationScopesHelper,
+  addImageChannelInMetaCoordinationScopesHelper,
+} from './spatial-reducers.js';
 
 // Reference: https://github.com/pmndrs/zustand#react-context
 // Reference: https://github.com/pmndrs/zustand/blob/e47ea03/tests/context.test.tsx#L60
@@ -116,72 +120,6 @@ export function getParameterScopeBy(
   return parameterScopeGlobal;
 }
 
-/**
- * Get the name of the metaCoordinationScopes coordination scope
- * for a particular non-meta coordination scope, after accounting for
- * meta-coordination.
- * @param {*} coordinationScopes The coordinationScopes for a view.
- * @param {*} coordinationSpace The coordinationSpace for a config.
- * @param {string} parameter The parameter for which to get the metaScope.
- * @returns {string|undefined} The metaCoordinationScopes coordination scope name.
- */
-export function getMetaScope(coordinationScopes, coordinationSpace, parameter) {
-  let latestMetaScope;
-  // Check if there is a matching meta-scope.
-  if (coordinationSpace) {
-    // Determine if there is a meta-scope that would take precedence.
-    const metaScopes = coordinationScopes[CoordinationType.META_COORDINATION_SCOPES];
-    const metaSpace = coordinationSpace[CoordinationType.META_COORDINATION_SCOPES];
-    if (metaScopes && metaSpace) {
-      // The view.coordinationScopes.metaCoordinationScopes might be an array or a string.
-      // Convert to an array.
-      const metaScopesArr = Array.isArray(metaScopes) ? metaScopes : [metaScopes];
-      metaScopesArr.forEach((metaScope) => {
-        // Merge the original coordinationScopes with the matching meta-coordinationScopes
-        // from the coordinationSpace.
-        if (metaSpace[metaScope][parameter]) {
-          latestMetaScope = metaScope;
-        }
-      });
-    }
-  }
-  return latestMetaScope;
-}
-
-/**
- * Get the name of the metaCoordinationScopesBy coordination scope
- * for a particular non-meta coordination scope, after accounting for
- * meta-coordination.
- * @param {*} coordinationScopes The coordinationScopes for a view.
- * @param {*} coordinationSpace The coordinationSpace for a config.
- * @param {string} byParameter The byParameter for which to get the metaScope.
- * @param {string} parameter The parameter for which to get the metaScope.
- * @param {string} byScope The byScope for the byParameter in which to look for the metaScope.
- * @returns {string|undefined} The metaCoordinationScopesBy coordination scope name.
- */
-export function getMetaScopeBy(coordinationScopes, coordinationSpace, byParameter, parameter, byScope) {
-  let latestMetaScope;
-  // Check if there is a matching meta-scope.
-  if (coordinationSpace) {
-    // Determine if there is a meta-scope that would take precedence.
-    const metaScopesBy = coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY];
-    const metaSpaceBy = coordinationSpace[CoordinationType.META_COORDINATION_SCOPES_BY];
-    if (metaSpaceBy && metaScopesBy) {
-      // The view.coordinationScopes.metaCoordinationScopes might be an array or a string.
-      // Convert to an array.
-      const metaScopesArr = Array.isArray(metaScopesBy) ? metaScopesBy : [metaScopesBy];
-      metaScopesArr.forEach((metaScope) => {
-        // Merge the original coordinationScopesBy with the matching meta-coordinationScopesBy
-        // from the coordinationSpace.
-        if (metaSpaceBy[metaScope]?.[byParameter]?.[parameter]?.[byScope]) {
-          latestMetaScope = metaScope;
-        }
-      });
-    }
-  }
-  return latestMetaScope;
-}
-
 
 /**
  * The useViewConfigStore hook is initialized via the zustand
@@ -233,50 +171,30 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
       },
     };
   }),
-  updateMetaCoordinationScopes: (coordinationScopesRaw, coordinationScopesByRaw, action) => set((state) => {
+  removeImageChannelInMetaCoordinationScopes: (coordinationScopesRaw, layerScope, channelScope) => set((state) => {
     const { coordinationSpace } = state.viewConfig;
-    const metaCoordinationScopes = coordinationSpace[CoordinationType.META_COORDINATION_SCOPES];
-    const metaCoordinationScopesBy = coordinationSpace[CoordinationType.META_COORDINATION_SCOPES_BY];
-    const { name, payload } = action;
-
-    let newMetaCoordinationScopesBy = metaCoordinationScopesBy;
-
-    if (name === 'removeImageChannel') {
-      // const layerMetaScope = getMetaScope(coordinationScopesRaw, coordinationSpace, 'imageLayer');
-      const channelMetaScopeBy = getMetaScopeBy(
-        coordinationScopesRaw,
-        coordinationSpace,
-        'imageLayer',
-        'imageChannel',
-        payload.imageLayer,
-      );
-
-      const prevChannels = metaCoordinationScopesBy?.[channelMetaScopeBy]?.imageLayer?.imageChannel?.[payload.imageLayer];
-      const nextChannels = prevChannels.filter(channel => channel !== payload.imageChannel);
-
-      newMetaCoordinationScopesBy = {
-        ...metaCoordinationScopesBy,
-        [channelMetaScopeBy]: {
-          ...metaCoordinationScopesBy?.[channelMetaScopeBy],
-          imageLayer: {
-            ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.imageLayer,
-            imageChannel: {
-              ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.imageLayer?.imageChannel,
-              [payload.imageLayer]: nextChannels,
-            },
-          },
-        },
-      };
-    }
-
     return {
       viewConfig: {
         ...state.viewConfig,
-        coordinationSpace: {
-          ...coordinationSpace,
-          [CoordinationType.META_COORDINATION_SCOPES]: metaCoordinationScopes,
-          [CoordinationType.META_COORDINATION_SCOPES_BY]: newMetaCoordinationScopesBy,
-        },
+        coordinationSpace: removeImageChannelInMetaCoordinationScopesHelper(
+          coordinationScopesRaw,
+          layerScope,
+          channelScope,
+          coordinationSpace,
+        ),
+      },
+    };
+  }),
+  addImageChannelInMetaCoordinationScopes: (coordinationScopesRaw, layerScope) => set((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    return {
+      viewConfig: {
+        ...state.viewConfig,
+        coordinationSpace: addImageChannelInMetaCoordinationScopesHelper(
+          coordinationScopesRaw,
+          layerScope,
+          coordinationSpace,
+        ),
       },
     };
   }),
@@ -933,8 +851,18 @@ export function useRemoveComponent() {
  * @returns {function} The remove component function
  * in the `useViewInfoStore` store.
  */
-export function useUpdateMetaCoordinationScopes() {
-  return useViewConfigStore(state => state.updateMetaCoordinationScopes);
+export function useRemoveImageChannelInMetaCoordinationScopes() {
+  return useViewConfigStore(state => state.removeImageChannelInMetaCoordinationScopes);
+}
+
+/**
+ * Obtain the component removal function from
+ * the global app state.
+ * @returns {function} The remove component function
+ * in the `useViewInfoStore` store.
+ */
+export function useAddImageChannelInMetaCoordinationScopes() {
+  return useViewConfigStore(state => state.addImageChannelInMetaCoordinationScopes);
 }
 
 /**

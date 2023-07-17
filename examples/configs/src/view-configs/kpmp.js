@@ -281,6 +281,11 @@ export const kpmp2023 = {
       rgb: 'RGB',
       multiChannel: 'BlackIsZero',
     },
+    spatialChannelWindow: {
+      imageR: [0, 255],
+      imageG: [0, 255],
+      imageB: [0, 255],
+    },
     metaCoordinationScopes: {
       metaA: {
         obsType: ['ci', 'ngsg', 'gsg', 't', 'a', 'ifta', 'ptc'],
@@ -308,7 +313,7 @@ export const kpmp2023 = {
             histology: 'image',
           },
           photometricInterpretation: {
-            histology: 'rgb', // alternatively: 'multiChannel'
+            histology: 'multiChannel', // alternatively: 'multiChannel'
           },
         },
         imageChannel: {
@@ -328,6 +333,11 @@ export const kpmp2023 = {
             B: 'imageB',
           },
           spatialChannelOpacity: { // TODO: implement
+            R: 'imageR',
+            G: 'imageG',
+            B: 'imageB',
+          },
+          spatialChannelWindow: {
             R: 'imageR',
             G: 'imageG',
             B: 'imageB',

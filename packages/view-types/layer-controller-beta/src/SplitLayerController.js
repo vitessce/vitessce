@@ -8,6 +8,7 @@ import SplitImageLayerController from './SplitImageLayerController.js';
 
 export default function SplitLayerController(props) {
   const {
+    coordinationScopesRaw,
 
     segmentationLayerScopes,
     segmentationLayerValues,
@@ -69,6 +70,7 @@ export default function SplitLayerController(props) {
       {imageLayerScopes && imageLayerScopes.map(layerScope => (
         <SplitImageLayerController
           key={layerScope}
+          coordinationScopesRaw={coordinationScopesRaw}
           layerScope={layerScope}
           layerCoordination={imageLayerCoordination[0][layerScope]}
           setLayerCoordination={imageLayerCoordination[1][layerScope]}
