@@ -38,8 +38,6 @@ import SplitLayerController from './SplitLayerController.js';
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
- * @param {Object} props.photometricInterpretation Override the photometric interpretation
- * defined in the image metadata.
  */
 export function LayerControllerSubscriber(props) {
   const {
@@ -48,7 +46,6 @@ export function LayerControllerSubscriber(props) {
     removeGridComponent,
     theme,
     title = 'Spatial Layers',
-    photometricInterpretation = null, // https://www.awaresystems.be/imaging/tiff/tifftags/photometricinterpretation.html
   } = props;
 
   const loaders = useLoaders();
@@ -157,6 +154,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_LAYER_COLORMAP,
+      CoordinationType.PHOTOMETRIC_INTERPRETATION,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -242,7 +240,6 @@ export function LayerControllerSubscriber(props) {
         images={imageData}
         imageLayerScopes={imageLayerScopes}
         imageLayerCoordination={imageLayerCoordination}
-        photometricInterpretation={photometricInterpretation}
 
         imageChannelScopesByLayer={imageChannelScopesByLayer}
         imageChannelCoordination={imageChannelCoordination}

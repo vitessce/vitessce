@@ -187,7 +187,8 @@ export const CoordinationType = {
   SPATIAL_CHANNEL_COLOR: 'spatialChannelColor',
   SPATIAL_CHANNEL_VISIBLE: 'spatialChannelVisible',
   SPATIAL_CHANNEL_OPACITY: 'spatialChannelOpacity',
-  SPATIAL_CHANNEL_WINDOW: 'spatialChannelWindow', // TODO: use
+  SPATIAL_CHANNEL_WINDOW: 'spatialChannelWindow',
+  PHOTOMETRIC_INTERPRETATION: 'photometricInterpretation',
 };
 
 export const STATUS = {

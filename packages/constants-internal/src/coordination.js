@@ -319,6 +319,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_VISIBLE,
     CoordinationType.SPATIAL_CHANNEL_OPACITY,
     CoordinationType.SPATIAL_CHANNEL_WINDOW,
+    CoordinationType.PHOTOMETRIC_INTERPRETATION,
   ],
   [ViewType.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,

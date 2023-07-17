@@ -277,6 +277,10 @@ export const kpmp2023 = {
     spatialZoom: {
       A: -4.60703913795,
     },
+    photometricInterpretation: {
+      rgb: 'RGB',
+      multiChannel: 'BlackIsZero',
+    },
     metaCoordinationScopes: {
       metaA: {
         obsType: ['ci', 'ngsg', 'gsg', 't', 'a', 'ifta', 'ptc'],
@@ -302,6 +306,9 @@ export const kpmp2023 = {
           },
           spatialLayerOpacity: {
             histology: 'image',
+          },
+          photometricInterpretation: {
+            histology: 'rgb', // alternatively: 'multiChannel'
           },
         },
         imageChannel: {
@@ -479,9 +486,6 @@ export const kpmp2023 = {
     },
     {
       component: 'layerControllerBeta',
-      props: {
-        photometricInterpretation: 1, // Temporary; TODO: change back to 2 for RGB
-      },
       coordinationScopes: {
         metaCoordinationScopes: ['metaA'],
         metaCoordinationScopesBy: ['metaA'],

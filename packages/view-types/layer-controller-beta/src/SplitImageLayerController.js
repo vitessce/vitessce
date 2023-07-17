@@ -42,7 +42,6 @@ export default function SplitImageLayerController(props) {
     setChannelCoordination,
     image,
     use3d, /* TODO */
-    photometricInterpretation,
   } = props;
 
   const [open, setOpen] = useState(true);
@@ -51,6 +50,7 @@ export default function SplitImageLayerController(props) {
     spatialLayerVisible: visible,
     spatialLayerOpacity: opacity,
     spatialLayerColormap: colormap,
+    photometricInterpretation,
   } = layerCoordination;
   const {
     setSpatialLayerVisible: setVisible,
@@ -123,7 +123,7 @@ export default function SplitImageLayerController(props) {
           </Grid>
           <Grid item xs={2} container direction="row" justifyContent="flex-end">
             <ImageIcon style={{ marginTop: '8px' }} />
-            {photometricInterpretation !== 2 /* RGB */ ? (
+            {photometricInterpretation !== 'RGB' ? (
               <Button
                 onClick={(e) => {
                   // Needed to prevent affecting the expansion panel from changing
@@ -143,7 +143,7 @@ export default function SplitImageLayerController(props) {
             ) : null}
           </Grid>
         </Grid>
-        {photometricInterpretation !== 2 && open ? (
+        {photometricInterpretation !== 'RGB' && open ? (
           <Grid container direction="column" justifyContent="space-between">
             <Grid item container direction="row">
               <Grid item xs={2} className={classes.layerRowLabel}>

@@ -19,7 +19,6 @@ export default function SplitLayerController(props) {
     images,
     imageLayerScopes,
     imageLayerCoordination,
-    photometricInterpretation,
 
     imageChannelScopesByLayer,
     imageChannelCoordination,
@@ -78,7 +77,6 @@ export default function SplitLayerController(props) {
           setChannelCoordination={imageChannelCoordination[1][layerScope]}
           image={images[layerScope]}
           use3d={false} /* TODO */
-          photometricInterpretation={photometricInterpretation}
         />
       ))}
       {shouldShowImageLayerButton
