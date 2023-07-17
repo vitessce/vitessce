@@ -43,7 +43,7 @@ export const NO_HINTS_CONFIG = {
 
 export const HINTS_CONFIG = {
   'No hints are available. Generate config with no hints.': NO_HINTS_CONFIG,
-  "Don't use any hints": NO_HINTS_CONFIG,
+  'Basic': NO_HINTS_CONFIG,
   'Transcriptomics / scRNA-seq (with heatmap)': {
     views: SINGLE_CELL_WITH_HEATMAP_VIEWS,
   },
@@ -76,7 +76,7 @@ export const HINTS_CONFIG = {
 
 export const HINT_TYPE_TO_FILE_TYPE_MAP = {
   'AnnData-Zarr': [
-    "Don't use any hints",
+    'Basic',
     'Transcriptomics / scRNA-seq (with heatmap)',
     'Transcriptomics / scRNA-seq (without heatmap)',
     'Spatial transcriptomics (with polygon cell segmentations)',
@@ -84,11 +84,11 @@ export const HINT_TYPE_TO_FILE_TYPE_MAP = {
     'Chromatin accessibility / scATAC-seq (without heatmap)',
   ],
   'OME-TIFF': [
-    "Don't use any hints",
+    'Basic',
     'Image',
   ],
   'AnnData-Zarr,OME-TIFF': [
-    "Don't use any hints",
+    'Basic',
     'Spatial transcriptomics (with histology image and polygon cell segmentations)',
   ],
 };

@@ -69,15 +69,16 @@ export default function ViewConfigEditor(props) {
   const defaultViewConfigDocsUrl = useBaseUrl('/docs/default-config-json');
 
   const [pendingUrl, setPendingUrl] = useState('');
-  const [datasetUrls, setDatasetUrls] = useState('https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr; https://vitessce-data.storage.googleapis.com/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.ome.zarr');
+  const [datasetUrls, setDatasetUrls] = useState('');
   const [pendingFileContents, setPendingFileContents] = useState('');
+  const [generateConfigError, setGenerateConfigError] = useState(null);
 
   const [syntaxType, setSyntaxType] = useState('JSON');
   const [loadFrom, setLoadFrom] = useState('editor');
 
   const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
 
-  const [debouncedHintOptions, setDebouncedHintOptions] = useState([]);
+  const [hintOptions, setHintOptions] = useState([]);
 
   function sanitiseURLs(urls) {
     return urls
@@ -85,23 +86,6 @@ export default function ViewConfigEditor(props) {
       .map(url => url.trim())
       .filter(url => url.match(/^http/g));
   }
-
-  useEffect(() => {
-    const handle = setTimeout(() => {
-      const sanitisedUrls = sanitiseURLs(datasetUrls);
-      if (sanitisedUrls.length === 0) return;
-      try {
-        const newHintsOptions = getHintOptions(sanitisedUrls);
-        setError(null);
-        setPendingJson(baseJson);
-        setDebouncedHintOptions(newHintsOptions);
-      } catch (e) {
-        setError(e.message);
-      }
-    }, 500);
-
-    return () => clearTimeout(handle);
-  }, [datasetUrls, setPendingJson, setError]);
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length === 1) {
@@ -153,7 +137,7 @@ export default function ViewConfigEditor(props) {
   }
 
   async function handleConfigGeneration(hintOption) {
-    setError(null);
+    setGenerateConfigError(null);
     const sanitisedUrls = sanitiseURLs(datasetUrls);
 
     await generateConfig(sanitisedUrls, hintOption)
@@ -162,7 +146,7 @@ export default function ViewConfigEditor(props) {
         setLoadFrom('editor');
       })
       .catch((e) => {
-        setError(e.message);
+        setGenerateConfigError(e.message);
       });
   }
 
@@ -171,8 +155,18 @@ export default function ViewConfigEditor(props) {
     setLoadFrom('url');
   }
 
-  function handleDatasetUrlChange(event) {
-    setDatasetUrls(event.target.value);
+  function handleDatasetUrlChange(newDatasetUrls) {
+    setDatasetUrls(newDatasetUrls);
+    const sanitisedUrls = sanitiseURLs(newDatasetUrls);
+    if (sanitisedUrls.length === 0) return;
+    try {
+      const newHintsOptions = getHintOptions(sanitisedUrls);
+      setGenerateConfigError(null);
+      setPendingJson(baseJson);
+      setHintOptions(newHintsOptions);
+    } catch (e) {
+      setGenerateConfigError(e.message);
+    }
   }
 
   function handleSyntaxChange(event) {
@@ -201,35 +195,6 @@ export default function ViewConfigEditor(props) {
 
   const showReset = (syntaxType === 'JSON' && pendingJson !== baseJson) || (syntaxType === 'JS' && pendingJs !== baseJs);
 
-  const renderHints = () => {
-    if (debouncedHintOptions.length === 0) {
-      // show some default state while waiting
-      return <pre>Loading hints ...</pre>;
-    }
-
-    return !error && datasetUrls !== '' && (
-      <List
-        subheader={(
-          <p id="nested-list-subheader" className={styles.viewConfigEditorInfo}>
-            Generate config with hints:
-          </p>
-        )}
-      >
-        {debouncedHintOptions.map(hintOption => (
-          <ListItem key={hintOption}>
-            <button
-              type="button"
-              onClick={() => handleConfigGeneration(hintOption)}
-              key={hintOption}
-            >
-              <ListItemText primary={hintOption} />
-            </button>
-          </ListItem>
-        ))}
-      </List>
-    );
-  };
-
   return (
     loading ? (
       <pre>Loading...</pre>
@@ -245,31 +210,6 @@ export default function ViewConfigEditor(props) {
           <button type="button" onClick={tryExample}>Try an example</button>&nbsp;
           {showReset && <button type="button" onClick={resetEditor}>Reset the editor</button>}
         </p>
-
-        <div className={styles.viewConfigInputs}>
-          <div className={styles.viewConfigInputUrlOrFile}>
-            <p className={styles.viewConfigInputUrlOrFileText}>
-              Alternatively, enter the URLs to one or more data files
-              (semicolon-separated) to populate the editor with a&nbsp;
-              <a href={defaultViewConfigDocsUrl}>default view config</a>.&nbsp;
-              <button
-                type="button"
-                onClick={() => setDatasetUrls(exampleURL)}
-              >Try an example
-              </button>
-            </p>
-            <div className={styles.generateConfigInputUrl}>
-              <input
-                type="text"
-                className={styles.viewConfigUrlInput}
-                placeholder="One or more file URLs (semicolon-separated)"
-                value={datasetUrls}
-                onChange={handleDatasetUrlChange}
-              />
-            </div>
-          </div>
-        </div>
-
         <div className={styles.viewConfigEditorType}>
           <label htmlFor="editor-syntax">
             <select
@@ -295,7 +235,59 @@ export default function ViewConfigEditor(props) {
                   }}
                   language="json"
                 />
-                {renderHints()}
+
+                <div>
+                  <div className={styles.viewConfigInputs}>
+                    <div className={styles.viewConfigInputUrlOrFile}>
+                      <p className={styles.viewConfigInputUrlOrFileText}>
+                        Alternatively, enter the URLs to one or more data files
+                        (semicolon-separated) to populate the editor with a&nbsp;
+                        <a href={defaultViewConfigDocsUrl}>default view config</a>.&nbsp;
+                        <button
+                          type="button"
+                          onClick={() => handleDatasetUrlChange(exampleURL)}
+                        >Try an example
+                        </button>
+                      </p>
+                      <div className={styles.generateConfigInputUrl}>
+                        <textarea
+                          type="text"
+                          className={styles.viewConfigUrlTextarea}
+                          placeholder="One or more file URLs (semicolon-separated)"
+                          value={datasetUrls}
+                          onChange={e => handleDatasetUrlChange(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  {datasetUrls !== '' ? (
+                    !generateConfigError ? (
+                      <List
+                        subheader={(
+                          <p id="nested-list-subheader" className={styles.viewConfigEditorInfo}>
+                            Select a view layout for the provided URLs:
+                          </p>
+                        )}
+                      >
+                        {hintOptions.map(hintOption => (
+                          <ListItem key={hintOption}>
+                            <button
+                              type="button"
+                              onClick={() => handleConfigGeneration(hintOption)}
+                              key={hintOption}
+                            >
+                              <ListItemText primary={hintOption} />
+                            </button>
+                          </ListItem>
+                        ))}
+                      </List>
+                    ) : (
+                      <pre className={styles.vitessceAppLoadError}>
+                        {generateConfigError}
+                      </pre>
+                    )
+                  ) : null}
+                </div>
               </div>
             ) : (
               <div className={styles.viewConfigEditorPreviewJSSplit}>

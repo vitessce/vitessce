@@ -193,7 +193,7 @@
   margin-left: 20px;
 }
 
-.viewConfigUrlInput {
+.viewConfigUrlInput, .viewConfigUrlTextarea {
   padding: 0.5rem 1rem;
   font-size: 16px;
   margin: 0.5rem 0 0.5rem 20px;
@@ -205,7 +205,11 @@
   box-sizing: border-box;
 }
 
-.viewConfigUrlInput::placeholder {
+.viewConfigUrlTextarea {
+  height: 200px;
+}
+
+.viewConfigUrlInput::placeholder, .viewConfigUrlTextarea::placeholder {
   color: var(--dropzone);
   opacity: 1;
 }
