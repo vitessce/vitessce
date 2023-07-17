@@ -40,6 +40,12 @@ const useStyles = makeStyles(() => ({
     marginTop: '10px',
     fontWeight: 400,
   },
+  imageLayerControllerGridContainer: {
+    marginTop: '10px',
+  },
+  imageChannelControllerGrid: {
+    padding: '8px 8px 24px 8px',
+  },
 }));
 
 export default function SplitImageLayerController(props) {
@@ -95,7 +101,7 @@ export default function SplitImageLayerController(props) {
   const controllerSectionClasses = useControllerSectionStyles();
   const selectClasses = useSelectStyles();
   return (
-    <Grid item style={{ marginTop: '10px' }}>
+    <Grid item className={classes.imageLayerControllerGridContainer}>
       <Paper className={controllerSectionClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={1}>
@@ -165,7 +171,7 @@ export default function SplitImageLayerController(props) {
           </Grid>
         </Grid>
         {photometricInterpretation !== 'RGB' && open ? (
-          <Grid container direction="column" justifyContent="space-between">
+          <Grid container direction="column" justifyContent="space-between" className={classes.imageChannelControllerGrid}>
             <Grid item container direction="row">
               <Grid item xs={2} className={classes.layerRowLabel}>
                 <InputLabel
