@@ -19,11 +19,17 @@ Vitessce currently supports automatic view config generation for the following f
 
 ### How to use
 
-To use this functionality, go to the [App](/#?edit=true) page of this website and paste the URL of the file(s) to visualize, separating multiple URLs with semicolon (`;`). All files will be treated as part of one dataset. Vitessce check the extensions of the URLs and will display a list of hints, available for the respective file types. Click on one of the displayed hint options and Vitessce will display the generated view config in the editor. Then, you can either launch Vitessce with the generated configuration directly, or customize the configuration before launching.
+To use this functionality, go to the [App](/#?edit=true) page of this website and paste the URL of the file(s) to visualize, separating multiple URLs with semicolon (`;`).
+
+Upon entering URLs, a list of layout options that are available for the respective file types will be displayed.
+Upon clicking  one of the layout options, the JSON editor will be populated with the generated view config.
+Then, you can either launch Vitessce with the generated configuration directly, or customize the configuration before launching.
 
 This functionality relies on file extensions to infer file formats, so ensure that each data file is of supported format and complies with the [requirements](#requirements).
+Note that all files will be treated as part of the same dataset (i.e., one element in `config.datasets[]`).
 
-The currently supported hints for each dataset type can be found in `constants.js` file under https://github.com/vitessce/vitessce/tree/main/packages/config/src.
+
+The currently-supported layout options (also referred to as user-provided "hints" to guide the config generation) for each dataset type can be found in `constants.js` file under https://github.com/vitessce/vitessce/tree/main/packages/config/src.
 
 NOTE: In some cases, the automatically generated view config might need small manual adjustments. For instance, when using hint `Spatial transcriptomics (with histology image and polygon cell segmentations)`, you will need to manually adjust the coordination values for the image and the segmentation layer, which are set to `null` by default, to match your particular files.
 ### Requirements
