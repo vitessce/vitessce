@@ -90,7 +90,6 @@ export function SpatialSubscriber(props) {
     disable3d,
     globalDisable3d,
     useFullResolutionImage = {},
-    obsSegmentationsMatchOn = 'image',
   } = props;
 
   const loaders = useLoaders();
@@ -259,8 +258,9 @@ export function SpatialSubscriber(props) {
 
   // TODO: update the useMultiObsFeatureMatrixIndices hook to reflect change from layer -> channel paradigm
   const [multiIndicesData, multiIndicesDataStatus] = useMultiObsFeatureMatrixIndices(
-    coordinationScopes, coordinationScopesBy, loaders, dataset, () => {},
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
+  console.log(multiIndicesData)
 
   const hasExpressionData = useHasLoader(
     loaders, dataset, DataType.OBS_FEATURE_MATRIX,
@@ -449,10 +449,6 @@ export function SpatialSubscriber(props) {
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
-  /* const getObsInfo = useGetObsInfo(
-    observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
-  ); */
-
   const setViewState = ({
     zoom: newZoom,
     target,
@@ -573,40 +569,35 @@ export function SpatialSubscriber(props) {
   // the other option is to use the mouse location.
   const useHoverInfoForTooltip = !obsCentroids;
 
-  const getObsInfo = useCallback((channelData) => {
-    if (channelData) {
+  const getObsInfo = useCallback((hoveredChannelData) => {
+    console.log(hoveredChannelData);
+    if (hoveredChannelData) {
       const result = {};
       let hasObsInfo = false;
-      segmentationLayerScopes.forEach((layerScope) => {
+      hoveredChannelData.forEach((channelEl) => {
+        const { obsId, obsI, channelScope, layerScope } = channelEl;
         const {
           spatialLayerVisible,
         } = segmentationLayerCoordination[0][layerScope];
-
-        const channelScopes = segmentationChannelScopesByLayer[layerScope];
         const channelCoordination = segmentationChannelCoordination[0][layerScope];
-        channelScopes.forEach((channelScope) => {
-          const {
-            spatialChannelVisible,
-            obsType: layerObsType,
-            spatialTargetC,
-          } = channelCoordination[channelScope];
-          if (spatialLayerVisible && spatialChannelVisible && channelData[spatialTargetC] > 0) {
-            hasObsInfo = true;
-            result[`${layerObsType} ID`] = channelData[spatialTargetC];
-            if (multiExpressionData?.[layerScope]?.[channelScope] && multiLoadedFeatureSelection?.[layerScope]?.[channelScope]) {
-              const channelFeature = multiLoadedFeatureSelection?.[layerScope]?.[channelScope]?.[0];
-              const channelFeatureData = multiExpressionData?.[layerScope]?.[channelScope];
-              const unitSuffix = channelFeature.endsWith('Area') ? ' microns squared' : (
-                channelFeature.endsWith('Thickness') ? ' microns' : ''
-              );
-              // TODO: use multiIndicesData to obtain an index into the obsFeatureMatrix data
-              // using the bitmask channel value.
-              // For the sake of time, here I am assuming the off-by-one alignment.
-              const channelFeatureValue = channelFeatureData[0][channelData[spatialTargetC] - 1];
-              result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue) + unitSuffix;
-            }
+        const {
+          spatialChannelVisible,
+          obsType: layerObsType,
+          spatialTargetC,
+        } = channelCoordination[channelScope];
+        if (spatialLayerVisible && spatialChannelVisible) {
+          hasObsInfo = true;
+          result[`${layerObsType} ID`] = obsId;
+          if (multiExpressionData?.[layerScope]?.[channelScope] && multiLoadedFeatureSelection?.[layerScope]?.[channelScope]) {
+            const channelFeature = multiLoadedFeatureSelection?.[layerScope]?.[channelScope]?.[0];
+            const channelFeatureData = multiExpressionData?.[layerScope]?.[channelScope];
+            // TODO: use multiIndicesData to obtain an index into the obsFeatureMatrix data
+            // using the bitmask channel value.
+            // For the sake of time, here I am assuming the off-by-one alignment.
+            const channelFeatureValue = channelFeatureData[0][obsI];
+            result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue);
           }
-        });
+        }
       });
       return hasObsInfo ? result : null;
     }
@@ -616,21 +607,43 @@ export function SpatialSubscriber(props) {
     multiExpressionData, multiLoadedFeatureSelection, multiIndicesData,
   ]);
 
-  const setMultiObsHighlight = useCallback(debounce((a, b) => {
-    setHoverData(a);
-    setHoverCoord(b);
-  }, 10, { trailing: true }), [setHoverData, setHoverCoord]);
+  const setHoverInfo = useCallback(debounce((data, coord) => {
+    setHoverData(data);
+    setHoverCoord(coord);
+  }, 10, { trailing: true }), [setHoverData, setHoverCoord, useHoverInfoForTooltip]);
+
+  const segmentationLayerScopeChannelScopeTuples = useMemo(() => {
+    const result = [];
+    segmentationLayerScopes.forEach((layerScope) => {
+      segmentationChannelScopesByLayer[layerScope].forEach((channelScope) => {
+        result.push([layerScope, channelScope]);
+      });
+    });
+    return result;
+  }, [segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
   const getObsIdFromHoverData = useCallback((data) => {
     if (useHoverInfoForTooltip) {
-      // TODO: When there is support for multiple segmentation channels that may
-      // contain different obsTypes, then do not hard-code the zeroth channel.
-      const spatialTargetC = 0;
-      const obsId = data?.[spatialTargetC];
-      return obsId;
+      // Get the obsId associated with the hovered observation index
+      // for each segmentation channel.
+      const targetCObsITuples = data?.map((v, i) => ([i, (v - 1)]))
+        .filter(([targetC, obsI]) => obsI > 0)
+        .map(([targetC, obsI]) => {
+          const [layerScope, channelScope] = segmentationLayerScopeChannelScopeTuples[targetC];
+          const { obsIndex, featureIndex } = multiIndicesData?.[layerScope]?.[channelScope];
+
+          return {
+            layerScope,
+            channelScope,
+            targetC,
+            obsI,
+            obsId: obsIndex?.[obsI],
+          };
+        });
+      return targetCObsITuples;
     }
     return null;
-  }, [useHoverInfoForTooltip]);
+  }, [useHoverInfoForTooltip, multiIndicesData, segmentationLayerScopeChannelScopeTuples]);
 
   // Without useMemo, this would propagate a change every time the component
   // re - renders as opposed to when it has to.
@@ -707,8 +720,7 @@ export function SpatialSubscriber(props) {
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
-        multiObsHighlight={hoverData}
-        setMultiObsHighlight={setMultiObsHighlight}
+        setHoverInfo={setHoverInfo}
         setMoleculeHighlight={setMoleculeHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);

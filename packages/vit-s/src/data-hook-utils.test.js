@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { initializeNestedObject, nestQueryResults, getQueryKeyScopeTuples } from './data-hook-utils.js';
+import {
+  initializeNestedObject,
+  nestFeatureSelectionQueryResults,
+  getFeatureSelectionQueryKeyScopeTuples,
+} from './data-hook-utils.js';
 
 describe('recursive data hook utilities for nesting and un-nesting multi-level queries', () => {
   describe('initializeNestedObject', () => {
@@ -30,7 +34,7 @@ describe('recursive data hook utilities for nesting and un-nesting multi-level q
       });
     });
   });
-  describe('nestQueryResults', () => {
+  describe('nestFeatureSelectionQueryResults', () => {
     it('should nest flat query results', () => {
       const queryKeyScopeTuples = [
         [['someQueryKey', 'abc'], { levelScopes: ['a', 'b', 'c'], featureIndex: 0, numFeatures: 3 }],
@@ -42,17 +46,17 @@ describe('recursive data hook utilities for nesting and un-nesting multi-level q
         'abc1',
         'abd0',
       ];
-      const nestedData = nestQueryResults(queryKeyScopeTuples, flatQueryResults);
+      const nestedData = nestFeatureSelectionQueryResults(queryKeyScopeTuples, flatQueryResults);
       expect(nestedData).toEqual({
         a: { b: { c: ['abc0', 'abc1', undefined], d: ['abd0', undefined] } },
       });
     });
   });
-  describe('getQueryKeyScopeTuples', () => {
+  describe('getFeatureSelectionQueryKeyScopeTuples', () => {
     it('should convert nested selections and matchOn objects to array of tuples', () => {
       const selections = { a: { b: { c: ['geneA', 'geneB', 'geneC'] } } };
       const matchOn = { a: { b: { c: { obsType: 'cell', featureType: 'gene' } } } };
-      const queryKeyScopeTuples = getQueryKeyScopeTuples(selections, matchOn, 3, 'someDataset', 'someDataType', true);
+      const queryKeyScopeTuples = getFeatureSelectionQueryKeyScopeTuples(selections, matchOn, 3, 'someDataset', 'someDataType', true);
       expect(queryKeyScopeTuples).toEqual([
         [
           ['someDataset', 'someDataType', { obsType: 'cell', featureType: 'gene' }, 'geneA', true, 'useFeatureSelectionMultiLevel'],

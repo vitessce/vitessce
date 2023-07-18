@@ -16,7 +16,7 @@ import {
   warn,
   useDataType,
   useDataTypeMulti,
-  useObsFeatureMatrixIndicesMulti,
+  useObsFeatureMatrixIndicesMultiLevel,
   useFeatureSelectionMultiLevel,
 } from './data-hook-utils.js';
 
@@ -472,37 +472,25 @@ export function useMultiFeatureSelection(
 }
 
 export function useMultiObsFeatureMatrixIndices(
-  coordinationScopes, coordinationScopesBy, loaders, dataset, addUrl,
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
-  // TODO: delegate the generation of matchOnObj to a different hoook and pass as a parameter?
-  // (in all of the useMulti data hooks)?
-  const obsFeatureMatrixCoordination = useComplexCoordination(
+  const obsFeatureMatrixCoordination = useComplexCoordinationSecondary(
     [
       CoordinationType.OBS_TYPE,
       CoordinationType.FEATURE_TYPE,
       CoordinationType.FEATURE_VALUE_TYPE,
-      CoordinationType.FEATURE_SELECTION,
     ],
-    coordinationScopes,
     coordinationScopesBy,
     CoordinationType.SEGMENTATION_LAYER,
+    CoordinationType.SEGMENTATION_CHANNEL,
   );
-  const matchOnObj = useMemo(() => fromEntries(Object.entries(obsFeatureMatrixCoordination[0])
-    .map(([key, val]) => ([
-      key,
-      {
-        obsType: val.obsType,
-        featureType: val.featureType,
-        featureValueType: val.featureValueType,
-      },
-    ]))),
-  // obsFeatureMatrixCoordination reference changes each render,
-  // use coordinationScopes and coordinationScopesBy which are
-  // indirect dependencies here.
-  [coordinationScopes, coordinationScopesBy]);
-  const [indicesData, indicesDataStatus] = useObsFeatureMatrixIndicesMulti(
-    loaders, dataset,
-    addUrl, false, matchOnObj,
+  const matchOnObj = useMemo(() => obsFeatureMatrixCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [indicesData, indicesDataStatus] = useObsFeatureMatrixIndicesMultiLevel(
+    loaders, dataset, false, matchOnObj, 2,
   );
   return [indicesData, indicesDataStatus];
 }
