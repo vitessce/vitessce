@@ -14,7 +14,7 @@ import {
   getBoundingCube, getMultiSelectionStats,
 } from './utils.js';
 
-import { useSelectionSliderStyles, useSelectStyles } from './styles.js';
+import { useSelectionSliderStyles, useSelectStyles, channelSliderStyles } from './styles.js';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
 
