@@ -256,11 +256,9 @@ export function SpatialSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
-  // TODO: update the useMultiObsFeatureMatrixIndices hook to reflect change from layer -> channel paradigm
   const [multiIndicesData, multiIndicesDataStatus] = useMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
-  console.log(multiIndicesData)
 
   const hasExpressionData = useHasLoader(
     loaders, dataset, DataType.OBS_FEATURE_MATRIX,
@@ -570,7 +568,6 @@ export function SpatialSubscriber(props) {
   const useHoverInfoForTooltip = !obsCentroids;
 
   const getObsInfo = useCallback((hoveredChannelData) => {
-    console.log(hoveredChannelData);
     if (hoveredChannelData) {
       const result = {};
       let hasObsInfo = false;
@@ -630,16 +627,21 @@ export function SpatialSubscriber(props) {
         .filter(([targetC, obsI]) => obsI > 0)
         .map(([targetC, obsI]) => {
           const [layerScope, channelScope] = segmentationLayerScopeChannelScopeTuples[targetC];
-          const { obsIndex, featureIndex } = multiIndicesData?.[layerScope]?.[channelScope];
-
-          return {
-            layerScope,
-            channelScope,
-            targetC,
-            obsI,
-            obsId: obsIndex?.[obsI],
-          };
-        });
+          if (multiIndicesData && layerScope && channelScope) {
+            const { obsIndex, featureIndex } = multiIndicesData[layerScope][channelScope];
+            if (obsIndex) {
+              return {
+                layerScope,
+                channelScope,
+                targetC,
+                obsI,
+                obsId: obsIndex?.[obsI],
+              };
+            }
+          }
+          return null;
+        })
+        .filter(Boolean);
       return targetCObsITuples;
     }
     return null;

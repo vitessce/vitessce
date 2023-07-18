@@ -1,11 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { capitalize, fromEntries } from '@vitessce/utils';
 import { DataType, STATUS } from '@vitessce/constants-internal';
 import { useQuery, useQueries } from '@tanstack/react-query';
 import {
   getMatchingLoader,
   useMatchingLoader,
-  useMatchingLoaders,
   useSetWarning,
 } from './state/hooks.js';
 import {
@@ -501,7 +500,9 @@ export function useFeatureSelectionMultiLevel(
   // Need to re-nest the geneData and the loadedGeneName info.
   const [geneData, loadedGeneName] = useMemo(() => {
     const nestedGeneData = nestFeatureSelectionQueryResults(queryKeyScopeTuples, flatGeneData);
-    const nestedLoadedGeneName = nestFeatureSelectionQueryResults(queryKeyScopeTuples, flatLoadedGeneName);
+    const nestedLoadedGeneName = nestFeatureSelectionQueryResults(
+      queryKeyScopeTuples, flatLoadedGeneName,
+    );
     return [nestedGeneData, nestedLoadedGeneName];
 
   // We do not want this useMemo to execute on every re-render, only when the
@@ -526,7 +527,7 @@ async function matrixIndicesQueryFn(ctx) {
     if (implementsLoadAttrs) {
       const payload = await loader.loadAttrs();
       if (!payload) return null;
-      const { data: payloadData, url } = payload;
+      const { data: payloadData } = payload;
       return {
         data: {
           obsIndex: payloadData.rows,
@@ -537,7 +538,7 @@ async function matrixIndicesQueryFn(ctx) {
     // Loader does not implement loadAttrs.
     const payload = await loader.load();
     if (!payload) return null;
-    const { data: payloadData, url } = payload;
+    const { data: payloadData } = payload;
     return {
       data: {
         obsIndex: payloadData.obsIndex,
