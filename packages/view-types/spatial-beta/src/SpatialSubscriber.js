@@ -580,7 +580,6 @@ export function SpatialSubscriber(props) {
         const {
           spatialChannelVisible,
           obsType: layerObsType,
-          spatialTargetC,
         } = channelCoordination[channelScope];
         if (spatialLayerVisible && spatialChannelVisible) {
           hasObsInfo = true;
@@ -588,11 +587,13 @@ export function SpatialSubscriber(props) {
           if (multiExpressionData?.[layerScope]?.[channelScope] && multiLoadedFeatureSelection?.[layerScope]?.[channelScope]) {
             const channelFeature = multiLoadedFeatureSelection?.[layerScope]?.[channelScope]?.[0];
             const channelFeatureData = multiExpressionData?.[layerScope]?.[channelScope];
-            // TODO: use multiIndicesData to obtain an index into the obsFeatureMatrix data
-            // using the bitmask channel value.
-            // For the sake of time, here I am assuming the off-by-one alignment.
-            const channelFeatureValue = channelFeatureData[0][obsI];
-            result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue);
+            if (channelFeatureData && channelFeatureData[0]) {
+              // TODO: use multiIndicesData to obtain an index into the obsFeatureMatrix data
+              // using the bitmask channel value.
+              // For the sake of time, here I am assuming the off-by-one alignment.
+              const channelFeatureValue = channelFeatureData[0][obsI];
+              result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue);
+            }
           }
         }
       });
@@ -623,7 +624,7 @@ export function SpatialSubscriber(props) {
     if (useHoverInfoForTooltip) {
       // Get the obsId associated with the hovered observation index
       // for each segmentation channel.
-      const targetCObsITuples = data?.map((v, i) => ([i, (v - 1)]))
+      const perChannelObsInfo = data?.map((v, i) => ([i, (v - 1)]))
         .filter(([targetC, obsI]) => obsI > 0)
         .map(([targetC, obsI]) => {
           const [layerScope, channelScope] = segmentationLayerScopeChannelScopeTuples[targetC];
@@ -633,7 +634,6 @@ export function SpatialSubscriber(props) {
               return {
                 layerScope,
                 channelScope,
-                targetC,
                 obsI,
                 obsId: obsIndex?.[obsI],
               };
@@ -642,7 +642,7 @@ export function SpatialSubscriber(props) {
           return null;
         })
         .filter(Boolean);
-      return targetCObsITuples;
+      return perChannelObsInfo;
     }
     return null;
   }, [useHoverInfoForTooltip, multiIndicesData, segmentationLayerScopeChannelScopeTuples]);
