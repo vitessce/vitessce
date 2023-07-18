@@ -618,7 +618,7 @@ export async function generateConfig(fileUrls, hintTitle = null) {
     throw new Error(`Hints config not found for the supplied hint: ${hintTitle}.`);
   }
 
-  const useHints = hintsConfig?.views.length > 0;
+  const useHints = Object.keys(hintsConfig?.views)?.length > 0;
 
   fileUrls.forEach((url) => {
     allViews.push(generateViewDefinition(url, vc, dataset, hintsConfig));
