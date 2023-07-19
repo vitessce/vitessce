@@ -38,12 +38,12 @@ import {
 import { canLoadResolution, commaNumber, getCellColors } from '@vitessce/utils';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, CoordinationType } from '@vitessce/constants-internal';
 import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
-// import { Legend } from '@vitessce/legend';
+import { MultiLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils.js';
-// import MultiLegend from './MultiLegend.js';
+
 
 const tempLayer = [{
   index: 0,
@@ -740,15 +740,6 @@ export function SpatialSubscriber(props) {
         useFullResolutionImage={useFullResolutionImage}
         hideTools
       />
-      {/* <MultiLegend
-        segmentationLayerScopes={segmentationLayerScopes}
-        segmentationLayerCoordination={segmentationLayerCoordination}
-
-        segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
-        segmentationChannelCoordination={segmentationChannelCoordination}
-
-        multiExpressionData={multiExpressionData}
-      /> */}
       {!disableTooltip && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}
@@ -762,19 +753,17 @@ export function SpatialSubscriber(props) {
           getObsIdFromHoverData={getObsIdFromHoverData}
         />
       )}
-      {/* <Legend
-        visible
+      <MultiLegend
         // Fix to dark theme due to black background of spatial plot.
         theme="dark"
-        featureType={featureType}
-        featureValueType={featureValueType}
-        obsColorEncoding={cellColorEncoding}
-        featureSelection={geneSelection}
-        featureLabelsMap={featureLabelsMap}
-        featureValueColormap={geneExpressionColormap}
-        featureValueColormapRange={geneExpressionColormapRange}
-        extent={expressionExtents?.[0]}
-      /> */}
+        segmentationLayerScopes={segmentationLayerScopes}
+        segmentationLayerCoordination={segmentationLayerCoordination}
+
+        segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+        segmentationChannelCoordination={segmentationChannelCoordination}
+
+        multiExpressionData={multiExpressionData}
+      />
     </TitleInfo>
   );
 }

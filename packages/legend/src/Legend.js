@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core';
 import { capitalize } from '@vitessce/utils';
 import { select } from 'd3-selection';
@@ -6,16 +7,15 @@ import { scaleLinear } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
 import { getXlinkHref } from './legend-utils.js';
 
+
 const useStyles = makeStyles(() => ({
   legend: {
-    position: 'absolute',
     top: '2px',
     right: '2px',
     zIndex: '100',
     fontSize: '10px !important',
-    display: 'flex',
     flexDirection: 'column',
-    backgroundColor: 'rgba(215, 215, 215, 0.2)',
+    backgroundColor: 'rgba(215, 215, 215, 0.7)',
     borderRadius: '4px',
     padding: '2px',
     lineHeight: '10px !important',
@@ -25,8 +25,25 @@ const useStyles = makeStyles(() => ({
       position: 'relative',
     },
   },
+  legendAbsolute: {
+    position: 'absolute',
+    display: 'inline-block',
+  },
+  legendRelative: {
+    position: 'relative',
+    marginBottom: '2px',
+    display: 'block',
+  },
+  legendHighContrast: {
+    backgroundColor: 'rgba(215, 215, 215, 0.7)',
+  },
+  legendLowContrast: {
+    backgroundColor: 'rgba(215, 215, 215, 0.2)',
+  },
+  legendInvisible: {
+    display: 'none',
+  }
 }));
-
 
 const titleHeight = 10;
 const rectHeight = 8;
@@ -34,6 +51,8 @@ const rectHeight = 8;
 export default function Legend(props) {
   const {
     visible: visibleProp,
+    positionRelative = false,
+    highContrast = false,
     obsType,
     featureValueType,
     considerSelections = true,
@@ -42,30 +61,38 @@ export default function Legend(props) {
     featureLabelsMap,
     featureValueColormap,
     featureValueColormapRange,
+    spatialChannelColor,
     extent,
     width = 100,
     height = 36,
     theme,
+    showObsLabel = false,
   } = props;
 
   const svgRef = useRef();
   const classes = useStyles();
 
   const isDarkTheme = theme === 'dark';
+  const isStaticColor = obsColorEncoding === 'spatialChannelColor';
 
   const visible = (visibleProp && (
-    !considerSelections || (
-      obsColorEncoding === 'geneSelection'
-      && featureSelection
-      && Array.isArray(featureSelection)
-      && featureSelection.length === 1
+    (
+      !considerSelections || (
+        obsColorEncoding === 'geneSelection'
+        && featureSelection
+        && Array.isArray(featureSelection)
+        && featureSelection.length === 1
+      )
     )
+    || isStaticColor
   ));
 
   useEffect(() => {
     const domElement = svgRef.current;
 
-    const foregroundColor = isDarkTheme ? 'white' : 'black';
+    const foregroundColor = highContrast ? 'black' : (
+      isDarkTheme ? 'white' : 'black'
+    );
 
     const svg = select(domElement);
     svg.selectAll('g').remove();
@@ -113,34 +140,73 @@ export default function Legend(props) {
       axisTicks.selectAll('text')
         .attr('text-anchor', (d, i) => (i === 0 ? 'start' : 'end'));
     }
+    if (isStaticColor && Array.isArray(spatialChannelColor)) {
+      g.append("rect")
+        .attr("x", 0)
+        .attr("y", titleHeight)
+        .attr("width", width)
+        .attr("height", rectHeight)
+        .attr("fill", `rgb(${spatialChannelColor[0]},${spatialChannelColor[1]},${spatialChannelColor[2]})`);
+    }
 
-    const featureLabel = featureSelection && featureSelection.length >= 1
+    const featureSelectionLabel = (
+      featureSelection
+      && featureSelection.length >= 1
+      && !isStaticColor
+    )
       ? (featureLabelsMap?.get(featureSelection[0]) || featureSelection[0])
       : null;
+
+    // Include obsType in the label text (perhaps only when multi-obsType).
+    const obsLabel = capitalize(obsType);
 
     // If the parent component wants to consider selections, then
     // use the selected feature for the label. Otherwise,
     // show the feature type.
-    const legendLabel = considerSelections
-      ? (featureLabel || capitalize(featureValueType))
+    const featureLabel = considerSelections
+      ? (featureSelectionLabel || capitalize(featureValueType))
       : capitalize(featureValueType);
-
+    
+    const mainLabel = showObsLabel ? obsLabel : featureLabel;
+    const subLabel = showObsLabel ? featureLabel : null;
+    const hasSubLabel = subLabel !== null;
+    
     g
       .append('text')
-      .attr('text-anchor', 'end')
+      .attr('text-anchor', hasSubLabel ? 'start' : 'end')
       .attr('dominant-baseline', 'hanging')
-      .attr('x', width)
+      .attr('x', hasSubLabel ? 0 : width)
       .attr('y', 0)
-      .text(legendLabel)
+      .text(mainLabel)
       .style('font-size', '10px')
       .style('fill', foregroundColor);
+    
+    if (hasSubLabel) {
+      g
+        .append('text')
+        .attr('text-anchor', 'end')
+        .attr('dominant-baseline', 'hanging')
+        .attr('x', width)
+        .attr('y', titleHeight)
+        .text(subLabel)
+        .style('font-size', '9px')
+        .style('fill', foregroundColor);
+    }
   }, [width, height, featureValueColormap, featureValueColormapRange, considerSelections,
     obsType, obsColorEncoding, featureSelection, isDarkTheme, featureValueType, extent,
     featureLabelsMap,
   ]);
 
   return (
-    <div className={classes.legend} style={{ display: visible ? 'inline-block' : 'none' }}>
+    <div
+      className={clsx(classes.legend, {
+        [classes.legendRelative]: positionRelative,
+        [classes.legendAbsolute]: !positionRelative,
+        [classes.legendHighContrast]: highContrast,
+        [classes.legendLowContrast]: !highContrast,
+        [classes.legendInvisible]: !visible,
+      })}
+    >
       <svg
         ref={svgRef}
         style={{
