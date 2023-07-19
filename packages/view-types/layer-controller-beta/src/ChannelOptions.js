@@ -4,7 +4,6 @@ import { makeStyles, MenuItem } from '@material-ui/core';
 import { MoreVert as MoreVertIcon } from '@material-ui/icons';
 import { PopperMenu } from '@vitessce/vit-s';
 import { useSpanStyles } from './styles.js';
-import ColorPalette from './ColorPalette.js';
 
 const useStyles = makeStyles(() => ({
   channelMenuButton: {
@@ -38,8 +37,6 @@ function MuiSpan(props) {
  */
 function ChannelOptions(props) {
   const {
-    color,
-    setColor,
     onRemove,
     domainType,
     setDomainType,
@@ -68,12 +65,6 @@ function ChannelOptions(props) {
     >
       <MenuItem dense disableGutters onClick={handleRemove}>
         <MuiSpan>Remove</MuiSpan>
-      </MenuItem>
-      <MenuItem dense disableGutters onClick={handleIQRUpdate}>
-        <MuiSpan>Use IQR</MuiSpan>
-      </MenuItem>
-      <MenuItem dense disableGutters className={classes.channelColors}>
-        <ColorPalette setColor={setColor} />
       </MenuItem>
     </PopperMenu>
   );

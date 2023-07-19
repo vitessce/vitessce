@@ -1,17 +1,26 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
 import {
+  makeStyles,
   Grid,
+  Checkbox,
+  Paper,
+  Typography,
+  Slider,
+  MenuItem,
+  Button,
+  SvgIcon,
 } from '@material-ui/core';
 import {
   useRemoveImageChannelInMetaCoordinationScopes,
 } from '@vitessce/vit-s';
-import { toRgbUIString } from '@vitessce/spatial-utils';
+import { VIEWER_PALETTE } from '@vitessce/utils';
 import ChannelOptions from './ChannelOptions.js';
 import ChannelSlider from './ChannelSlider.js';
 import {
-  ChannelSelectionDropdown,
   ChannelVisibilityCheckbox,
+  ChannelColorPickerMenu,
+  ChannelSelectionDropdown,
 } from './shared-channel-controls.js';
 
 
@@ -38,13 +47,7 @@ export default function SplitImageChannelController(props) {
   const removeChannel = useRemoveImageChannelInMetaCoordinationScopes();
 
   const isLoading = false; // TODO
-  const theme = 'light'; //  TODO
-
-  const rgbColor = toRgbUIString(colormapOn, color, theme);
-
-  function toggleVisible() {
-    setVisible(!visible);
-  }
+  const theme = 'dark'; // TODO
 
   function onRemove() {
     removeChannel(
@@ -55,46 +58,59 @@ export default function SplitImageChannelController(props) {
   }
 
   return (
-    <Grid container direction="column" m={1} justifyContent="center">
-      <Grid container direction="row" justifyContent="space-between">
-        <Grid item xs={10}>
-          <ChannelSelectionDropdown
-            featureIndex={featureIndex}
-            targetC={targetC}
-            setTargetC={setTargetC}
-            disabled={isLoading}
-          />
-        </Grid>
-        <Grid item xs={1} style={{ marginTop: '4px' }}>
-          <ChannelOptions
-            color={color}
-            setColor={setColor}
-            onRemove={onRemove}
-            domainType="min/max" // TODO
-            setDomainType={() => {}} // TODO
-            disabled={isLoading}
-          />
-        </Grid>
+    <Grid container direction="row" justifyContent="space-between">
+      <Grid item xs={1}>
+        <ChannelVisibilityCheckbox
+          color={color}
+          setColor={setColor}
+          visible={visible}
+          setVisible={setVisible}
+          disabled={isLoading}
+          theme={theme}
+          colormapOn={colormapOn}
+        />
       </Grid>
-      <Grid container direction="row" justifyContent="space-between">
-        <Grid item xs={2}>
-          <ChannelVisibilityCheckbox
-            color={rgbColor}
-            checked={visible}
-            toggle={toggleVisible}
-            disabled={isLoading}
-          />
-        </Grid>
-        <Grid item xs={9}>
-          <ChannelSlider
-            image={image}
-            targetC={targetC}
-            color={rgbColor}
-            window={window}
-            setWindow={setWindow}
-            disabled={isLoading}
-          />
-        </Grid>
+      <Grid item xs={1}>
+        <ChannelColorPickerMenu
+          color={color}
+          setColor={setColor}
+          visible={visible}
+          setVisible={setVisible}
+          disabled={isLoading}
+          theme={theme}
+          colormapOn={colormapOn}
+          palette={VIEWER_PALETTE}
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <ChannelSelectionDropdown
+          featureIndex={featureIndex}
+          targetC={targetC}
+          setTargetC={setTargetC}
+          disabled={isLoading}
+        />
+      </Grid>
+      
+      <Grid item xs={3}>
+        <ChannelSlider
+          image={image}
+          targetC={targetC}
+          window={window}
+          setWindow={setWindow}
+          disabled={isLoading}
+          theme={theme}
+          colormapOn={colormapOn}
+        />
+      </Grid>
+      <Grid item xs={1} style={{ marginTop: '4px' }} justifyContent="flex-end">
+        <ChannelOptions
+          color={color}
+          setColor={setColor}
+          onRemove={onRemove}
+          domainType="min/max" // TODO
+          setDomainType={() => {}} // TODO
+          disabled={isLoading}
+        />
       </Grid>
     </Grid>
   );

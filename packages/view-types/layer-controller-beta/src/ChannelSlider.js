@@ -8,6 +8,7 @@ import {
   getSourceFromLoader,
   getMultiSelectionStats,
   abbreviateNumber,
+  toRgbUIString,
 } from '@vitessce/spatial-utils';
 import { STATUS } from '@vitessce/constants-internal';
 import ChannelOptions from './ChannelOptions.js';
@@ -20,7 +21,7 @@ import {
 
 /**
  * Slider for controlling current colormap.
- * @prop {string} color Current color for this channel.
+ * @prop {number[]} color Current color for this channel.
  * @prop {arry} slider Current value of the slider.
  * @prop {function} handleChange Callback for each slider change.
  * @prop {array} domain Current max/min allowable slider values.
@@ -34,7 +35,11 @@ export default function ChannelSlider(props) {
     setWindow,
     domainType = 'Full',
     disabled: disabledProp,
+    colormapOn,
+    theme,
   } = props;
+
+  const rgbColor = toRgbUIString(colormapOn, color, theme);
 
 
   const loader = image?.loaders?.[0];
@@ -84,12 +89,12 @@ export default function ChannelSlider(props) {
       valueLabelFormat={abbreviateNumber}
       onChange={(e, v) => handleChangeDebounced(v)}
       valueLabelDisplay="auto"
-      getAriaLabel={() => `${color}-${window}`}
+      getAriaLabel={() => `${rgbColor}-${window}`}
       min={min}
       max={max}
       step={step}
       orientation="horizontal"
-      style={{ color, marginTop: '7px' }}
+      style={{ color: rgbColor, marginTop: '7px' }}
       disabled={disabled}
     />
   );

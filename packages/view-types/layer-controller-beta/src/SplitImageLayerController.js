@@ -9,6 +9,8 @@ import {
   Button,
   Select,
   InputLabel,
+  Checkbox,
+  MenuItem,
 } from '@material-ui/core';
 import {
   Add as AddIcon,
@@ -17,14 +19,17 @@ import {
   Image as ImageIcon,
   ExpandMore,
   ExpandLess,
+  MoreVert as MoreVertIcon,
 } from '@material-ui/icons';
 import { viv } from '@vitessce/gl';
 import {
   useAddImageChannelInMetaCoordinationScopes,
+  PopperMenu,
 } from '@vitessce/vit-s';
 import { COLORMAP_OPTIONS } from '@vitessce/utils';
 import { useControllerSectionStyles, useSelectStyles } from './styles.js';
 import SplitImageChannelController from './SplitImageChannelController.js';
+
 
 const useStyles = makeStyles(() => ({
   layerRowLabel: {
@@ -44,9 +49,66 @@ const useStyles = makeStyles(() => ({
     marginTop: '10px',
   },
   imageChannelControllerGrid: {
-    padding: '8px 8px 24px 8px',
+    padding: '10px 0',
+  },
+  imageLayerMenuButton: {
+    backgroundColor: 'transparent',
+    padding: '3px 0',
+  },
+  imageLayerPopperContainer: {
+    display: 'flex',
+    marginTop: '5px',
+    justifyContent: 'space-around',
   },
 }));
+
+function ImageLayerEllipsisMenu(props) {
+  const {
+    colormap,
+    setColormap,
+    photometricInterpretation,
+  } = props;
+  const [open, setOpen] = useState(false);
+  const classes = useStyles();
+  const selectClasses = useSelectStyles();
+
+
+  function handleColormapChange(event) {
+    setColormap(event.target.value === '' ? null : event.target.value);
+  }
+
+  return (
+    <PopperMenu
+      open={open}
+      setOpen={setOpen}
+      buttonIcon={<MoreVertIcon />}
+      buttonClassName={classes.imageLayerMenuButton}
+      containerClassName={classes.imageLayerPopperContainer}
+      withPaper
+    >
+      <MenuItem dense disableGutters>
+        <span style={{ margin: '0 5px' }}>Colormap: </span>
+        <Select
+          native
+          disabled={photometricInterpretation === 'RGB'}
+          onChange={handleColormapChange}
+          value={colormap === null ? '' : colormap}
+          inputProps={{ name: 'colormap' }}
+          style={{ width: '100%', fontSize: '14px' }}
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          <option aria-label="None" value="">None</option>
+          {COLORMAP_OPTIONS.map(name => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+        </Select>
+      </MenuItem>
+      {/* TODO: select or checkbox for per-layer photometricInterpretation? */}
+    </PopperMenu>
+  );
+}
 
 export default function SplitImageLayerController(props) {
   const {
@@ -84,12 +146,6 @@ export default function SplitImageLayerController(props) {
   const label = image?.image?.loaders?.[0]?.metadata?.Name;
   const imageNumChannels = image?.image?.loaders?.[0]?.channels?.length;
 
-  const colormapInputId = `${layerScope}-colormap`;
-
-  function handleColormapChange(event) {
-    setColormap(event.target.value === '' ? null : event.target.value);
-  }
-
   function handleChannelAdd() {
     addChannel(
       coordinationScopesRaw,
@@ -99,7 +155,6 @@ export default function SplitImageLayerController(props) {
 
   const classes = useStyles();
   const controllerSectionClasses = useControllerSectionStyles();
-  const selectClasses = useSelectStyles();
   return (
     <Grid item className={classes.imageLayerControllerGridContainer}>
       <Paper className={controllerSectionClasses.layerControllerRoot}>
@@ -148,8 +203,15 @@ export default function SplitImageLayerController(props) {
               orientation="horizontal"
             />
           </Grid>
-          <Grid item xs={2} container direction="row" justifyContent="flex-end">
-            <ImageIcon style={{ marginTop: '8px' }} />
+          <Grid item xs={1}>
+            <ImageLayerEllipsisMenu
+              colormap={colormap}
+              setColormap={setColormap}
+              photometricInterpretation={photometricInterpretation}
+            />
+          </Grid>
+          <Grid item xs={1} container direction="row" justifyContent="flex-end">
+            <ImageIcon style={{ marginTop: '8px', width: '50%' }} />
             {photometricInterpretation !== 'RGB' ? (
               <Button
                 onClick={(e) => {
@@ -163,6 +225,7 @@ export default function SplitImageLayerController(props) {
                   padding: 0,
                   minWidth: 0,
                   lineHeight: 1,
+                  width: '50%',
                 }}
               >
                 {open ? <ExpandLess /> : <ExpandMore />}
@@ -172,33 +235,6 @@ export default function SplitImageLayerController(props) {
         </Grid>
         {photometricInterpretation !== 'RGB' && open ? (
           <Grid container direction="column" justifyContent="space-between" className={classes.imageChannelControllerGrid}>
-            <Grid item container direction="row">
-              <Grid item xs={2} className={classes.layerRowLabel}>
-                <InputLabel
-                  htmlFor={colormapInputId}
-                  className={classes.inputLabel}
-                >
-                  Colormap:
-                </InputLabel>
-              </Grid>
-              <Grid item xs={10}>
-                <Select
-                  native
-                  onChange={handleColormapChange}
-                  value={colormap === null ? '' : colormap}
-                  inputProps={{ name: 'colormap', id: colormapInputId }}
-                  style={{ width: '100%', fontSize: '14px' }}
-                  classes={{ root: selectClasses.selectRoot }}
-                >
-                  <option aria-label="None" value="">None</option>
-                  {COLORMAP_OPTIONS.map(name => (
-                    <option key={name} value={name}>
-                      {name}
-                    </option>
-                  ))}
-                </Select>
-              </Grid>
-            </Grid>
             {channelScopes.map((cScope) => {
               const {
                 spatialTargetC,

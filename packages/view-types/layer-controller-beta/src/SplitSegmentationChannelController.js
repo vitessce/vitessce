@@ -18,11 +18,9 @@ import {
 } from '@material-ui/icons';
 
 import { PopperMenu } from '@vitessce/vit-s';
-import { TwitterPicker } from 'react-color-with-lodash';
-import { colorArrayToString } from '@vitessce/sets-utils';
-import { PATHOLOGY_PALETTE } from '@vitessce/utils';
 
 import { useControllerSectionStyles } from './styles.js';
+import { ChannelColorPickerMenu } from './shared-channel-controls.js';
 
 const useStyles = makeStyles(() => ({
   segmentationChannelMenuButton: {
@@ -76,67 +74,6 @@ function VectorIcon(props) {
   );
 }
 
-/**
- * Dropdown for options for a channel on the three dots button.
- * @prop {function} handlePropertyChange Callback for changing property (color, IQR of sliders).
- * @prop {function} handleChannelRemove Callback for channel removal.
- * @prop {function} handleIQRUpdate Callback for IQR slider update.
- */
-function ColorPickerMenu(props) {
-  const {
-    color,
-    setColor,
-    palette = null,
-    isStaticColor,
-    visible,
-  } = props;
-
-  const defaultPalette = palette
-    ? palette.map(colorArrayToString)
-    : PATHOLOGY_PALETTE.map(colorArrayToString);
-
-  const [open, setOpen] = useState(false);
-
-  function handleColorChange({ rgb }) {
-    if (rgb && setColor) {
-      setColor([rgb.r, rgb.g, rgb.b]);
-      // TODO: set obsColorEncoding when user changes color also
-    }
-  }
-
-  const classes = useStyles();
-
-  const currentColor = color
-    ? colorArrayToString(color)
-    : colorArrayToString([0, 0, 0]);
-
-  return (
-    <PopperMenu
-      open={open}
-      setOpen={setOpen}
-      buttonIcon={
-        isStaticColor && visible ? (
-          <div className={classes.colorIcon} style={{ backgroundColor: currentColor }} />
-        ) : (
-          // TODO: show quantitative colormap in color box when (visible && !isStaticColor)
-          <div className={classes.colorIcon} />
-        )
-      }
-      buttonClassName={classes.segmentationChannelMenuButton}
-      withPaper={false}
-    >
-      <TwitterPicker
-        className={classes.colorPicker}
-        disableAlpha
-        width={108}
-        triangle="hide"
-        colors={defaultPalette}
-        color={currentColor}
-        onChangeComplete={handleColorChange}
-      />
-    </PopperMenu>
-  );
-}
 
 function EllipsisMenu(props) {
   const {
@@ -256,7 +193,7 @@ export default function SplitVectorLayerController(props) {
             </Button>
           </Grid>
           <Grid item xs={1}>
-            <ColorPickerMenu
+            <ChannelColorPickerMenu
               color={color}
               setColor={setColor}
               palette={palette}
