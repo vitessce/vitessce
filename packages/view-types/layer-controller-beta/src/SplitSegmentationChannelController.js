@@ -25,38 +25,6 @@ const useStyles = makeStyles(() => ({
   segmentationChannelMenuButton: {
     backgroundColor: 'transparent',
   },
-  colorIcon: {
-    width: '18px !important',
-    height: '18px !important',
-    cursor: 'pointer',
-    position: 'relative',
-    outline: 'none',
-    float: 'left',
-    borderRadius: '4px',
-    margin: '8px',
-  },
-  colorPicker: {
-    boxShadow: 'none !important',
-    margin: '0 auto',
-    /* Sets margins around color picker and centers */
-    '& > div:nth-child(3)': {
-      padding: '6px !important',
-      transform: 'translate(2px, 0)',
-    },
-    '& > div > div:nth-of-type(1)': {
-      fontSize: '12px',
-      width: '20px !important',
-    },
-    '& input': {
-      width: '60px !important',
-      fontSize: '12px',
-    },
-    /* Sets smaller color squares */
-    '& > div > span > div': {
-      width: '18px !important',
-      height: '18px !important',
-    },
-  },
   popperContainer: {
     display: 'flex',
     marginTop: '5px',
