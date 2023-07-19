@@ -1,8 +1,5 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core';
-import {
-  useUint8FeatureSelection,
-} from '@vitessce/vit-s';
 import Legend from './Legend.js';
 
 
@@ -21,7 +18,7 @@ export default function MultiLegend(props) {
     segmentationLayerCoordination,
     segmentationChannelScopesByLayer,
     segmentationChannelCoordination,
-    multiExpressionData,
+    multiExpressionExtents,
   } = props;
 
   const classes = useStyles();
@@ -49,12 +46,10 @@ export default function MultiLegend(props) {
             featureValueType,
             featureSelection,
           } = channelCoordination[cScope];
-          const channelExpressionData = multiExpressionData?.[layerScope]?.[cScope];
-          // eslint-disable-next-line no-unused-vars
-          const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(
-            channelExpressionData,
-          );
-
+          const expressionExtents = multiExpressionExtents?.[layerScope]?.[cScope];
+          // There can potentially be multiple features/genes selected, but we
+          // are only using the first one for now here.
+          const firstExpressionExtent = expressionExtents?.[0];
           const isStaticColor = obsColorEncoding === 'spatialChannelColor';
           const height = isStaticColor ? 20 : 36;
 
@@ -74,7 +69,7 @@ export default function MultiLegend(props) {
               // featureLabelsMap={featureLabelsMap} // TODO
               featureValueColormap={featureValueColormap}
               featureValueColormapRange={featureValueColormapRange}
-              extent={expressionExtents?.[0]}
+              extent={firstExpressionExtent}
               height={height}
 
               spatialChannelColor={spatialChannelColor}

@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from 'react';
+import { useQuery, useQueries } from '@tanstack/react-query';
+import { extent } from 'd3-array';
 import { capitalize, fromEntries } from '@vitessce/utils';
 import { DataType, STATUS } from '@vitessce/constants-internal';
-import { useQuery, useQueries } from '@tanstack/react-query';
 import {
   getMatchingLoader,
   useMatchingLoader,
@@ -433,7 +434,20 @@ async function featureSelectionQueryFn(ctx) {
       const payload = await loader.loadGeneSelection({ selection: [featureId] });
       if (!payload) return null;
       const { data } = payload;
-      return { data: data[0], dataKey: featureId };
+      const expressionData = data[0];
+      // Compute [min, max] extent of the data, and also a normalized version.
+      const dataExtent = extent(expressionData);
+      const [min, max] = dataExtent;
+      const ratio = 255 / (max - min);
+      const normData = new Uint8Array(
+        expressionData.map(j => Math.floor((j - min) * ratio)),
+      );
+      return {
+        data: expressionData,
+        normData,
+        dataExtent,
+        dataKey: featureId,
+      };
     }
     // Loader does not implement loadGeneSelection.
     const payload = await loader.load();
@@ -448,7 +462,19 @@ async function featureSelectionQueryFn(ctx) {
     for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
       expressionData[cellIndex] = obsFeatureMatrix.data[cellIndex * numGenes + geneIndex];
     }
-    return { data: expressionData, dataKey: featureId };
+    // Compute [min, max] extent of the data, and also a normalized version.
+    const dataExtent = extent(expressionData);
+    const [min, max] = dataExtent;
+    const ratio = 255 / (max - min);
+    const normData = new Uint8Array(
+      expressionData.map(j => Math.floor((j - min) * ratio)),
+    );
+    return {
+      data: expressionData,
+      normData,
+      dataExtent,
+      dataKey: featureId,
+    };
   }
   // No loader was found.
   if (isRequired) {
@@ -485,6 +511,8 @@ export function useFeatureSelectionMultiLevel(
   const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
   const flatGeneData = featureQueries.map(q => q.data?.data || null);
   const flatLoadedGeneName = featureQueries.map(q => q.data?.dataKey || null);
+  const flatExtents = featureQueries.map(q => q.data?.dataExtent || null);
+  const flatNormData = featureQueries.map(q => q.data?.normData || null);
 
   useEffect(() => {
     featureQueries
@@ -498,12 +526,14 @@ export function useFeatureSelectionMultiLevel(
   }, [anyError, setWarning]);
 
   // Need to re-nest the geneData and the loadedGeneName info.
-  const [geneData, loadedGeneName] = useMemo(() => {
+  const [geneData, loadedGeneName, extents, normData] = useMemo(() => {
     const nestedGeneData = nestFeatureSelectionQueryResults(queryKeyScopeTuples, flatGeneData);
     const nestedLoadedGeneName = nestFeatureSelectionQueryResults(
       queryKeyScopeTuples, flatLoadedGeneName,
     );
-    return [nestedGeneData, nestedLoadedGeneName];
+    const nestedExtents = nestFeatureSelectionQueryResults(queryKeyScopeTuples, flatExtents);
+    const nestedNormData = nestFeatureSelectionQueryResults(queryKeyScopeTuples, flatNormData);
+    return [nestedGeneData, nestedLoadedGeneName, nestedExtents, nestedNormData];
 
   // We do not want this useMemo to execute on every re-render, only when the
   // featureQueries results change. Unfortunately, the featureQueries array
@@ -514,7 +544,7 @@ export function useFeatureSelectionMultiLevel(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [featureQueries.reduce((a, h) => a + h.dataUpdatedAt, 0)]);
 
-  return [geneData, loadedGeneName, dataStatus];
+  return [geneData, loadedGeneName, extents, normData, dataStatus];
 }
 
 async function matrixIndicesQueryFn(ctx) {

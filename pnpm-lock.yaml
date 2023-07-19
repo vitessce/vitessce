@@ -464,9 +464,6 @@ importers:
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../utils/other-utils
-      '@vitessce/vit-s':
-        specifier: workspace:*
-        version: link:../vit-s
       clsx:
         specifier: ^1.1.1
         version: 1.2.1

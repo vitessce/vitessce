@@ -252,7 +252,12 @@ export function SpatialSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
-  const [multiExpressionData, multiLoadedFeatureSelection, multiFeatureSelectionStatus] = useMultiFeatureSelection(
+  const [
+    multiExpressionData, multiLoadedFeatureSelection,
+    // eslint-disable-next-line no-unused-vars
+    multiExpressionExtents, multiExpressionNormData,
+    multiFeatureSelectionStatus,
+  ] = useMultiFeatureSelection(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -762,7 +767,7 @@ export function SpatialSubscriber(props) {
         segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
         segmentationChannelCoordination={segmentationChannelCoordination}
 
-        multiExpressionData={multiExpressionData}
+        multiExpressionExtents={multiExpressionExtents}
       />
     </TitleInfo>
   );

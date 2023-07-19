@@ -518,6 +518,9 @@ export const kpmp2023 = {
         featureSelection: 't',
         obsColorEncoding: 't',
       },
+      props: {
+        title: 'Tubules'
+      },
       x: 4,
       y: 8,
       w: 2,
@@ -549,6 +552,9 @@ export const kpmp2023 = {
         featureSelection: 'ngsg',
         obsColorEncoding: 'ngsg',
       },
+      props: {
+        title: 'Non-Globally Sclerotic Glomeruli'
+      },
       x: 0,
       y: 8,
       w: 2,
@@ -579,6 +585,9 @@ export const kpmp2023 = {
         featureValueType: 'global',
         featureSelection: 'gsg',
         obsColorEncoding: 'gsg',
+      },
+      props: {
+        title: 'Globally Sclerotic Glomeruli'
       },
       x: 2,
       y: 8,
@@ -613,6 +622,7 @@ export const kpmp2023 = {
       },
       props: {
         omitFeatures: ['PTC in Cortex', 'PTC in IFTA'],
+        title: 'Peritubular Capillaries',
       },
       x: 6,
       y: 8,

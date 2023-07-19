@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "@material-ui/core": "~4.12.3",
-    "@vitessce/vit-s": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "clsx": "^1.1.1",
     "colormap": "^2.3.2",
