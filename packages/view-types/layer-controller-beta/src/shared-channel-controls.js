@@ -5,11 +5,11 @@ import {
   Select,
 } from '@material-ui/core';
 import { toRgbUIString } from '@vitessce/spatial-utils';
-import { useSelectStyles } from './styles.js';
 import { PopperMenu } from '@vitessce/vit-s';
 import { TwitterPicker } from 'react-color-with-lodash';
 import { colorArrayToString } from '@vitessce/sets-utils';
 import { PATHOLOGY_PALETTE } from '@vitessce/utils';
+import { useSelectStyles } from './styles.js';
 
 
 const useStyles = makeStyles(() => ({
@@ -97,7 +97,7 @@ export function ChannelSelectionDropdown({
  * @prop {function} toggle Callback for toggling on/off.
  */
 export function ChannelVisibilityCheckbox({
-  color, setColor, visible, setVisible, disabled,
+  color, visible, setVisible, disabled,
   theme, colormapOn,
 }) {
   const rgbColor = toRgbUIString(colormapOn, color, theme);

@@ -90,7 +90,7 @@ export default function SplitImageChannelController(props) {
           disabled={isLoading}
         />
       </Grid>
-      
+
       <Grid item xs={3}>
         <ChannelSlider
           image={image}
