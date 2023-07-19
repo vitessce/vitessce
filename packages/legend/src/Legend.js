@@ -108,7 +108,7 @@ export default function Legend(props) {
 
 
     if (!considerSelections || obsColorEncoding === 'geneSelection') {
-      if(featureValueColormap) {
+      if (featureValueColormap) {
         const xlinkHref = getXlinkHref(featureValueColormap);
         g.append('image')
           .attr('x', 0)

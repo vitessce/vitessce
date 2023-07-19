@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+/* eslint-disable no-param-reassign */
 import { VitessceConfig, CoordinationLevel as CL, hconcat } from '@vitessce/config';
 
 // Serve kpmp/OME-TIFF folder
@@ -39,62 +40,67 @@ function generateKpmpConfig() {
       featureType: 'feature',
       featureValueType: 'value',
     },
-  }).addFile({
-    fileType: 'obsFeatureMatrix.anndata.zarr',
-    url: `${baseUrl}/S-1905-017737/Glomeruli.adata.zarr`,
-    options: {
-      path: 'X',
-    },
-    coordinationValues: {
-      obsType: 'Non-Globally Sclerotic Glomeruli',
-      featureType: 'feature',
-      featureValueType: 'value',
-    },
-  }).addFile({
-    fileType: 'obsFeatureMatrix.anndata.zarr',
-    url: `${baseUrl}/S-1905-017737/Globally Sclerotic Glomeruli.adata.zarr`,
-    options: {
-      path: 'X',
-    },
-    coordinationValues: {
-      obsType: 'Globally Sclerotic Glomeruli',
-      featureType: 'feature',
-      featureValueType: 'value',
-    },
-  }).addFile({
-    fileType: 'obsFeatureMatrix.anndata.zarr',
-    url: `${baseUrl}/S-1905-017737/Tubules with Area non infinity.adata.zarr`,
-    options: {
-      path: 'X',
-    },
-    coordinationValues: {
-      obsType: 'Tubules',
-      featureType: 'feature',
-      featureValueType: 'value',
-    },
-  }).addFile({
-    fileType: 'obsFeatureMatrix.anndata.zarr',
-    url: `${baseUrl}/S-1905-017737/IFTA.adata.zarr`,
-    options: {
-      path: 'X',
-    },
-    coordinationValues: {
-      obsType: 'Interstitial Fibrosis and Tubular Atrophy',
-      featureType: 'feature',
-      featureValueType: 'value',
-    },
-  }).addFile({
-    fileType: 'obsFeatureMatrix.anndata.zarr',
-    url: `${baseUrl}/S-1905-017737/Peritubular Capillaries renamed.adata.zarr`,
-    options: {
-      path: 'X',
-    },
-    coordinationValues: {
-      obsType: 'Peritubular Capillaries',
-      featureType: 'feature',
-      featureValueType: 'value',
-    },
-  });
+  })
+    .addFile({
+      fileType: 'obsFeatureMatrix.anndata.zarr',
+      url: `${baseUrl}/S-1905-017737/Glomeruli.adata.zarr`,
+      options: {
+        path: 'X',
+      },
+      coordinationValues: {
+        obsType: 'Non-Globally Sclerotic Glomeruli',
+        featureType: 'feature',
+        featureValueType: 'value',
+      },
+    })
+    .addFile({
+      fileType: 'obsFeatureMatrix.anndata.zarr',
+      url: `${baseUrl}/S-1905-017737/Globally Sclerotic Glomeruli.adata.zarr`,
+      options: {
+        path: 'X',
+      },
+      coordinationValues: {
+        obsType: 'Globally Sclerotic Glomeruli',
+        featureType: 'feature',
+        featureValueType: 'value',
+      },
+    })
+    .addFile({
+      fileType: 'obsFeatureMatrix.anndata.zarr',
+      url: `${baseUrl}/S-1905-017737/Tubules with Area non infinity.adata.zarr`,
+      options: {
+        path: 'X',
+      },
+      coordinationValues: {
+        obsType: 'Tubules',
+        featureType: 'feature',
+        featureValueType: 'value',
+      },
+    })
+    .addFile({
+      fileType: 'obsFeatureMatrix.anndata.zarr',
+      url: `${baseUrl}/S-1905-017737/IFTA.adata.zarr`,
+      options: {
+        path: 'X',
+      },
+      coordinationValues: {
+        obsType: 'Interstitial Fibrosis and Tubular Atrophy',
+        featureType: 'feature',
+        featureValueType: 'value',
+      },
+    })
+    .addFile({
+      fileType: 'obsFeatureMatrix.anndata.zarr',
+      url: `${baseUrl}/S-1905-017737/Peritubular Capillaries renamed.adata.zarr`,
+      options: {
+        path: 'X',
+      },
+      coordinationValues: {
+        obsType: 'Peritubular Capillaries',
+        featureType: 'feature',
+        featureValueType: 'value',
+      },
+    });
 
   const scopes = config.addComplexCoordination({
     imageLayer: CL([
@@ -196,11 +202,11 @@ function generateKpmpConfig() {
       },
     ]),
   });
-  
+
   const [featureTypeScope, featureValueScope, opacityScope] = config.addCoordination(
     'featureType',
     'featureValueType',
-    'spatialChannelOpacity'
+    'spatialChannelOpacity',
   );
   featureTypeScope.setValue('feature');
   featureValueScope.setValue('value');
@@ -208,8 +214,8 @@ function generateKpmpConfig() {
 
   // Manually inject coordination scopes to be shared across certain channels.
   // TODO: create a more user-friendly/"public"/documented API for this.
-  scopes.segmentationLayer[0].children.segmentationChannel.forEach(channelObj => {
-    if(channelObj.children.obsType.scope.cValue !== 'Cortical Interstitia') {
+  scopes.segmentationLayer[0].children.segmentationChannel.forEach((channelObj) => {
+    if (channelObj.children.obsType.scope.cValue !== 'Cortical Interstitia') {
       // Coordinate all non-interstitia channels on their
       // featureType, featureValueType, and opacity values.
       channelObj.children.featureType = { scope: featureTypeScope };
