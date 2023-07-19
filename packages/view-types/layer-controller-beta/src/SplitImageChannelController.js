@@ -1,15 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
 import {
-  makeStyles,
   Grid,
-  Checkbox,
-  Paper,
-  Typography,
-  Slider,
-  MenuItem,
-  Button,
-  SvgIcon,
 } from '@material-ui/core';
 import {
   useRemoveImageChannelInMetaCoordinationScopes,
@@ -17,11 +9,9 @@ import {
 import { VIEWER_PALETTE } from '@vitessce/utils';
 import ChannelOptions from './ChannelOptions.js';
 import ChannelSlider from './ChannelSlider.js';
-import {
-  ChannelVisibilityCheckbox,
-  ChannelColorPickerMenu,
-  ChannelSelectionDropdown,
-} from './shared-channel-controls.js';
+import ChannelVisibilityCheckbox from './ChannelVisibilityCheckbox.js';
+import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
+import ChannelSelectionDropdown from './ChannelSelectionDropdown.js';
 
 
 export default function SplitImageChannelController(props) {
@@ -78,7 +68,7 @@ export default function SplitImageChannelController(props) {
           setVisible={setVisible}
           disabled={isLoading}
           theme={theme}
-          colormapOn={colormapOn}
+          isStaticColor={!colormapOn}
           palette={VIEWER_PALETTE}
         />
       </Grid>
@@ -98,11 +88,12 @@ export default function SplitImageChannelController(props) {
           window={window}
           setWindow={setWindow}
           disabled={isLoading}
+          color={color}
           theme={theme}
           colormapOn={colormapOn}
         />
       </Grid>
-      <Grid item xs={1} style={{ marginTop: '4px' }} justifyContent="flex-end">
+      <Grid item xs={1} style={{ marginTop: '4px' }}>
         <ChannelOptions
           color={color}
           setColor={setColor}

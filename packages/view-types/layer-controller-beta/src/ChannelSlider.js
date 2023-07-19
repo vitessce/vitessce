@@ -1,8 +1,7 @@
-/* eslint-disable no-unused-vars */
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback } from 'react';
 
-import { Grid, Slider } from '@material-ui/core';
-import { debounce, isEqual } from 'lodash-es';
+import { Slider } from '@material-ui/core';
+import { debounce } from 'lodash-es';
 import { useQuery } from '@tanstack/react-query';
 import {
   getSourceFromLoader,
@@ -10,13 +9,7 @@ import {
   abbreviateNumber,
   toRgbUIString,
 } from '@vitessce/spatial-utils';
-import { STATUS } from '@vitessce/constants-internal';
-import ChannelOptions from './ChannelOptions.js';
 import { DOMAINS } from './constants.js';
-import {
-  ChannelSelectionDropdown,
-  ChannelVisibilityCheckbox,
-} from './shared-channel-controls.js';
 
 
 /**
@@ -40,7 +33,6 @@ export default function ChannelSlider(props) {
   } = props;
 
   const rgbColor = toRgbUIString(colormapOn, color, theme);
-
 
   const loader = image?.loaders?.[0];
   const { dtype } = loader ? getSourceFromLoader(loader) : {};
@@ -81,7 +73,6 @@ export default function ChannelSlider(props) {
     debounce(setWindow || (() => {}), 3, { trailing: true }),
     [setWindow],
   );
-
 
   return (
     <Slider

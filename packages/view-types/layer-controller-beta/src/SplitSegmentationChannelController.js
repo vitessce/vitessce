@@ -16,11 +16,10 @@ import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
 } from '@material-ui/icons';
-
 import { PopperMenu } from '@vitessce/vit-s';
-
 import { useControllerSectionStyles } from './styles.js';
-import { ChannelColorPickerMenu } from './shared-channel-controls.js';
+import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
+
 
 const useStyles = makeStyles(() => ({
   segmentationChannelMenuButton: {
