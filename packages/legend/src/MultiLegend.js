@@ -1,12 +1,12 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core';
 import {
-    useUint8FeatureSelection,
+  useUint8FeatureSelection,
 } from '@vitessce/vit-s';
 import Legend from './Legend.js';
 
 
-export const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(() => ({
   multiLegend: {
     position: 'absolute',
     top: '0px',
@@ -51,7 +51,9 @@ export default function MultiLegend(props) {
           } = channelCoordination[cScope];
           const channelExpressionData = multiExpressionData?.[layerScope]?.[cScope];
           // eslint-disable-next-line no-unused-vars
-          const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(channelExpressionData);
+          const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(
+            channelExpressionData,
+          );
 
           const isStaticColor = obsColorEncoding === 'spatialChannelColor';
           const height = isStaticColor ? 20 : 36;

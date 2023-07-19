@@ -42,7 +42,7 @@ const useStyles = makeStyles(() => ({
   },
   legendInvisible: {
     display: 'none',
-  }
+  },
 }));
 
 const titleHeight = 10;
@@ -90,6 +90,7 @@ export default function Legend(props) {
   useEffect(() => {
     const domElement = svgRef.current;
 
+    // eslint-disable-next-line no-nested-ternary
     const foregroundColor = highContrast ? 'black' : (
       isDarkTheme ? 'white' : 'black'
     );
@@ -141,12 +142,12 @@ export default function Legend(props) {
         .attr('text-anchor', (d, i) => (i === 0 ? 'start' : 'end'));
     }
     if (isStaticColor && Array.isArray(spatialChannelColor)) {
-      g.append("rect")
-        .attr("x", 0)
-        .attr("y", titleHeight)
-        .attr("width", width)
-        .attr("height", rectHeight)
-        .attr("fill", `rgb(${spatialChannelColor[0]},${spatialChannelColor[1]},${spatialChannelColor[2]})`);
+      g.append('rect')
+        .attr('x', 0)
+        .attr('y', titleHeight)
+        .attr('width', width)
+        .attr('height', rectHeight)
+        .attr('fill', `rgb(${spatialChannelColor[0]},${spatialChannelColor[1]},${spatialChannelColor[2]})`);
     }
 
     const featureSelectionLabel = (
@@ -166,11 +167,11 @@ export default function Legend(props) {
     const featureLabel = considerSelections
       ? (featureSelectionLabel || capitalize(featureValueType))
       : capitalize(featureValueType);
-    
+
     const mainLabel = showObsLabel ? obsLabel : featureLabel;
     const subLabel = showObsLabel ? featureLabel : null;
     const hasSubLabel = subLabel !== null;
-    
+
     g
       .append('text')
       .attr('text-anchor', hasSubLabel ? 'start' : 'end')
@@ -180,7 +181,7 @@ export default function Legend(props) {
       .text(mainLabel)
       .style('font-size', '10px')
       .style('fill', foregroundColor);
-    
+
     if (hasSubLabel) {
       g
         .append('text')
