@@ -20,14 +20,14 @@ export const PALETTE = [
 ];
 
 export const VIEWER_PALETTE = [
-  [255, 0, 0],
-  [0, 255, 0],
   [0, 0, 255],
+  [0, 255, 0],
   [255, 0, 255],
   [255, 255, 0],
   [0, 255, 255],
   [255, 255, 255],
   [255, 128, 0],
+  [255, 0, 0],
 ];
 
 export const PATHOLOGY_PALETTE = [
