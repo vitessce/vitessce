@@ -105,7 +105,7 @@ export function VitS(props) {
     jointFileTypes,
     coordinationTypes,
     viewTypes,
-  ), [viewTypes, fileTypes, jointFileTypes, coordinationTypes]);
+  ), [viewTypes, fileTypes, jointFileTypes, coordinationTypes, configKey]);
 
   // Process the view config and memoize the result:
   // - Validate.
@@ -202,7 +202,7 @@ export function VitS(props) {
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
         <QueryClientProvider client={queryClient}>
-          <ViewConfigProvider createStore={createViewConfigStoreClosure}>
+          <ViewConfigProvider key={configKey} createStore={createViewConfigStoreClosure}>
             <AuxiliaryProvider createStore={createAuxiliaryStore}>
               <VitessceGrid
                 success={success}
