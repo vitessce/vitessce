@@ -519,7 +519,7 @@ export const kpmp2023 = {
         obsColorEncoding: 't',
       },
       props: {
-        title: 'Tubules'
+        title: 'Tubules',
       },
       x: 4,
       y: 8,
@@ -553,7 +553,7 @@ export const kpmp2023 = {
         obsColorEncoding: 'ngsg',
       },
       props: {
-        title: 'Non-Globally Sclerotic Glomeruli'
+        title: 'Non-Globally Sclerotic Glomeruli',
       },
       x: 0,
       y: 8,
@@ -587,7 +587,7 @@ export const kpmp2023 = {
         obsColorEncoding: 'gsg',
       },
       props: {
-        title: 'Globally Sclerotic Glomeruli'
+        title: 'Globally Sclerotic Glomeruli',
       },
       x: 2,
       y: 8,
