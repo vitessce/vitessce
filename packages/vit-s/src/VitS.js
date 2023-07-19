@@ -105,7 +105,7 @@ export function VitS(props) {
     jointFileTypes,
     coordinationTypes,
     viewTypes,
-  ), [viewTypes, fileTypes, jointFileTypes, coordinationTypes, configKey]);
+  ), [viewTypes, fileTypes, jointFileTypes, coordinationTypes]);
 
   // Process the view config and memoize the result:
   // - Validate.
