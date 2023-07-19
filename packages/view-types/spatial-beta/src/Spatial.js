@@ -806,6 +806,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     );
   }
 
+  recenter() {
+    const { originalViewState, setViewState } = this.props;
+    if (Array.isArray(originalViewState?.target) && typeof originalViewState?.zoom === 'number') {
+      setViewState(originalViewState);
+    }
+  }
+
   /**
    * Here, asynchronously check whether props have
    * updated which require re-computing memoized variables,
