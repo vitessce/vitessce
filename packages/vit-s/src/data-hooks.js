@@ -465,7 +465,9 @@ export function useMultiFeatureSelection(
     ...Object.values(featureSelectionCoordination[0] || {})
       .flatMap(layerVal => Object.values(layerVal).map(cVal => cVal.featureSelection)),
   ]);
-  const [featureData, loadedSelections, extents, normData, featureStatus] = useFeatureSelectionMultiLevel(
+  const [
+    featureData, loadedSelections, extents, normData, featureStatus,
+  ] = useFeatureSelectionMultiLevel(
     loaders, dataset, false, matchOnObj, selections, 2,
   );
   return [featureData, loadedSelections, extents, normData, featureStatus];
