@@ -106,16 +106,18 @@ export default function Legend(props) {
       .attr('width', width)
       .attr('height', height);
 
-    const xlinkHref = getXlinkHref(featureValueColormap);
 
     if (!considerSelections || obsColorEncoding === 'geneSelection') {
-      g.append('image')
-        .attr('x', 0)
-        .attr('y', titleHeight)
-        .attr('width', width)
-        .attr('height', rectHeight)
-        .attr('preserveAspectRatio', 'none')
-        .attr('href', xlinkHref);
+      if(featureValueColormap) {
+        const xlinkHref = getXlinkHref(featureValueColormap);
+        g.append('image')
+          .attr('x', 0)
+          .attr('y', titleHeight)
+          .attr('width', width)
+          .attr('height', rectHeight)
+          .attr('preserveAspectRatio', 'none')
+          .attr('href', xlinkHref);
+      }
 
       const [xMin, xMax] = extent || [0, 1];
       const [rMin, rMax] = featureValueColormapRange;

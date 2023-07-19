@@ -210,7 +210,7 @@ export default function SplitImageLayerController(props) {
               photometricInterpretation={photometricInterpretation}
             />
           </Grid>
-          <Grid item xs={1} container direction="row" justifyContent="flex-end">
+          <Grid item xs={1} container direction="row">
             <ImageIcon style={{ marginTop: '8px', width: '50%' }} />
             {photometricInterpretation !== 'RGB' ? (
               <Button

@@ -30,6 +30,7 @@ import { meta2022azimuth } from './view-configs/meta_2022_azimuth.js';
 import { rgbOmeTiff } from './view-configs/rgb-ome-tiff.js';
 import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
 import { kpmp2023 } from './view-configs/kpmp.js';
+import { kpmpOop2023 } from './view-configs/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/kpmp-auto-init.js';
 
 export const coordinationTypeConfigs = {
@@ -62,6 +63,7 @@ export const configs = {
   'neumann-2020': neumann2020,
   'satija-2020': satija2020,
   'kpmp-2023': kpmp2023,
+  'kpmp-oop-2023': kpmpOop2023,
   'kpmp-auto-init': kpmpAutoInit2023,
   'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
