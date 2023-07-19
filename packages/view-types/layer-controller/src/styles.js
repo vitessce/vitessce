@@ -9,12 +9,6 @@ export const useSpanStyles = makeStyles(() => ({
   },
 }));
 
-export function MuiSpan(props) {
-  const { children } = props;
-  const classes = useSpanStyles();
-  return <span className={classes.span}>{children}</span>;
-}
-
 export const useSelectStyles = makeStyles(() => ({
   selectRoot: {
     padding: 0,

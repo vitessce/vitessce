@@ -1,8 +1,6 @@
 /* eslint-disable dot-notation */
 /* eslint-disable no-unused-vars */
 import React from 'react';
-import { Grid } from '@material-ui/core';
-import ImageAddButton from './ImageAddButton.js';
 import SplitSegmentationLayerController from './SplitSegmentationLayerController.js';
 import SplitImageLayerController from './SplitImageLayerController.js';
 
@@ -23,15 +21,7 @@ export default function SplitLayerController(props) {
 
     imageChannelScopesByLayer,
     imageChannelCoordination,
-
-    handleImageAdd,
-    enableLayerButtonsWithOneLayer,
   } = props;
-  const { loaders: imageLayerLoaders, meta: imageLayerMeta } = {}; // TODO
-  // TODO
-  const shouldShowImageLayerButton = Boolean(
-    enableLayerButtonsWithOneLayer || imageLayerLoaders?.length > 1,
-  );
   return (
     <div>
       {/* moleculesLayer && (
@@ -81,15 +71,6 @@ export default function SplitLayerController(props) {
           use3d={false} /* TODO */
         />
       ))}
-      {shouldShowImageLayerButton
-        ? (/* TODO */
-          <Grid item>
-            <ImageAddButton
-              imageOptions={imageLayerMeta}
-              handleImageAdd={handleImageAdd}
-            />
-          </Grid>
-        ) : null}
     </div>
   );
 }

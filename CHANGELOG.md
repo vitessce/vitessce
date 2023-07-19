@@ -55,7 +55,6 @@
 - Removed the Select Rectangle button from Scatterplot and Spatial views.
 - Added option to disable tooltips on Heatmap and Scatterplot components. The option is available from the options control dropdown.
 - Added an option to skip sorting features alphabetically in feature list.
-- Add `spatialBeta` and `layerControllerBeta` views.
 - Add GitHub Action workflow to report bundle size in PRs.
 
 ### Changed
