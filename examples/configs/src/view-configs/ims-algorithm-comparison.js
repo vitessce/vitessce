@@ -74,12 +74,12 @@ function generateImsConfig() {
   targetC1Scope.setValue(0);
   targetC2Scope.setValue(1);
   channelColor1Scope.setValue([255, 255, 255]);
-  channelColor2Scope.setValue([255, 0, 0]);
+  channelColor2Scope.setValue([0, 0, 255]);
   channelVisible1Scope.setValue(true);
   channelVisible2Scope.setValue(true);
   channelOpacity1Scope.setValue(1);
   channelOpacity2Scope.setValue(1);
-  channelWindow1Scope.setValue([0, 1000]);
+  channelWindow1Scope.setValue([0, 1341]);
   channelWindow2Scope.setValue([0, 1000]);
 
   const simpleScopes = config.addComplexCoordination({
@@ -96,6 +96,26 @@ function generateImsConfig() {
     imageLayer: CL([
       {
         image: 'GAUSSIAN',
+        spatialLayerVisible: true,
+        spatialLayerOpacity: 1,
+        photometricInterpretation: 'BlackIsZero',
+      },
+    ]),
+  });
+  const areaScopes = config.addComplexCoordination({
+    imageLayer: CL([
+      {
+        image: 'AREA',
+        spatialLayerVisible: true,
+        spatialLayerOpacity: 1,
+        photometricInterpretation: 'BlackIsZero',
+      },
+    ]),
+  });
+  const linearScopes = config.addComplexCoordination({
+    imageLayer: CL([
+      {
+        image: 'LINEAR',
         spatialLayerVisible: true,
         spatialLayerOpacity: 1,
         photometricInterpretation: 'BlackIsZero',
@@ -121,32 +141,54 @@ function generateImsConfig() {
     ]),
   });
 
-  const metaCoordinationScope1 = config.addMetaCoordination();
-  metaCoordinationScope1.useComplexCoordination(simpleScopes);
+  const metaCoordinationScopeSimple = config.addMetaCoordination();
+  metaCoordinationScopeSimple.useComplexCoordination(simpleScopes);
 
-  const metaCoordinationScope2 = config.addMetaCoordination();
-  metaCoordinationScope2.useComplexCoordination(gaussianScopes);
+  const metaCoordinationScopeGaussian = config.addMetaCoordination();
+  metaCoordinationScopeGaussian.useComplexCoordination(gaussianScopes);
+
+  const metaCoordinationScopeArea = config.addMetaCoordination();
+  metaCoordinationScopeArea.useComplexCoordination(areaScopes);
+
+  const metaCoordinationScopeLinear = config.addMetaCoordination();
+  metaCoordinationScopeLinear.useComplexCoordination(linearScopes);
 
   const metaCoordinationScopeShared = config.addMetaCoordination();
   metaCoordinationScopeShared.useComplexCoordination(sharedScopes);
 
-  const spatialView1 = config.addView(dataset, 'spatialBeta');
-  const spatialView2 = config.addView(dataset, 'spatialBeta');
-  const lcView1 = config.addView(dataset, 'layerControllerBeta');
-  const lcView2 = config.addView(dataset, 'layerControllerBeta');
-  spatialView1.useMetaCoordination(metaCoordinationScope1);
-  spatialView2.useMetaCoordination(metaCoordinationScope2);
-  spatialView1.useMetaCoordination(metaCoordinationScopeShared);
-  spatialView2.useMetaCoordination(metaCoordinationScopeShared);
-  lcView1.useMetaCoordination(metaCoordinationScope1);
-  lcView2.useMetaCoordination(metaCoordinationScope2);
-  lcView1.useMetaCoordination(metaCoordinationScopeShared);
-  lcView2.useMetaCoordination(metaCoordinationScopeShared);
+  const spatialViewSimple = config.addView(dataset, 'spatialBeta');
+  const spatialViewGaussian = config.addView(dataset, 'spatialBeta');
+  const spatialViewArea = config.addView(dataset, 'spatialBeta');
+  const spatialViewLinear = config.addView(dataset, 'spatialBeta');
+  const lcViewSimple = config.addView(dataset, 'layerControllerBeta');
+  const lcViewGaussian = config.addView(dataset, 'layerControllerBeta');
+  const lcViewArea = config.addView(dataset, 'layerControllerBeta');
+  const lcViewLinear = config.addView(dataset, 'layerControllerBeta');
+  
+  spatialViewSimple.useMetaCoordination(metaCoordinationScopeSimple);
+  spatialViewGaussian.useMetaCoordination(metaCoordinationScopeGaussian);
+  spatialViewArea.useMetaCoordination(metaCoordinationScopeArea);
+  spatialViewLinear.useMetaCoordination(metaCoordinationScopeLinear);
+
+  lcViewSimple.useMetaCoordination(metaCoordinationScopeSimple);
+  lcViewGaussian.useMetaCoordination(metaCoordinationScopeGaussian);
+  lcViewArea.useMetaCoordination(metaCoordinationScopeArea);
+  lcViewLinear.useMetaCoordination(metaCoordinationScopeLinear);
+
+  spatialViewSimple.useMetaCoordination(metaCoordinationScopeShared);
+  spatialViewGaussian.useMetaCoordination(metaCoordinationScopeShared);
+  spatialViewArea.useMetaCoordination(metaCoordinationScopeShared);
+  spatialViewLinear.useMetaCoordination(metaCoordinationScopeShared);
+
+  lcViewSimple.useMetaCoordination(metaCoordinationScopeShared);
+  lcViewGaussian.useMetaCoordination(metaCoordinationScopeShared);
+  lcViewArea.useMetaCoordination(metaCoordinationScopeShared);
+  lcViewLinear.useMetaCoordination(metaCoordinationScopeShared);
 
   config.layout(
     vconcat(
-      hconcat(spatialView1, spatialView2),
-      hconcat(lcView1, lcView2),
+      hconcat(spatialViewSimple, spatialViewGaussian, spatialViewArea, spatialViewLinear),
+      hconcat(lcViewSimple, lcViewGaussian, lcViewArea, lcViewLinear),
     ),
   );
 
