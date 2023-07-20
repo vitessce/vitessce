@@ -492,7 +492,7 @@ describe('spatial-reducers.js', () => {
             ],
             imageChannel: [
               'R', 'G', 'B',
-            ]
+            ],
           },
         },
         metaCoordinationScopesBy: {
