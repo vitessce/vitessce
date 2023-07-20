@@ -100,7 +100,7 @@ export function removeImageChannelInMetaCoordinationScopesHelper(coordinationSco
 
   const nextChannels = prevChannels.filter(channel => channel !== channelScope);
 
-  if(hasPerLayerChannels) {
+  if (hasPerLayerChannels) {
     newMetaCoordinationScopesBy = {
       ...metaCoordinationScopesBy,
       [channelMetaScopeBy]: {
@@ -150,7 +150,7 @@ export function addImageChannelInMetaCoordinationScopesHelper(coordinationScopes
   // Only used in fallback case.
   const channelMetaScope = getMetaScope(coordinationScopesRaw, coordinationSpace, CoordinationType.IMAGE_CHANNEL);
   const hasPerLayerChannels = !!channelMetaScopeBy;
-  
+
   const prevChannels = hasPerLayerChannels
     ? metaCoordinationScopesBy // Per-layer channels case.
       ?.[channelMetaScopeBy]
@@ -205,7 +205,7 @@ export function addImageChannelInMetaCoordinationScopesHelper(coordinationScopes
     },
   };
 
-  if(hasPerLayerChannels) {
+  if (hasPerLayerChannels) {
     // Per-layer channels case.
     newMetaCoordinationScopesBy = {
       ...metaCoordinationScopesBy,

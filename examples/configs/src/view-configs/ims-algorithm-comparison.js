@@ -35,18 +35,19 @@ function generateImsConfig() {
     coordinationValues: {
       image: 'AREA',
     },
-  }).addFile({
-    fileType: 'image.ome-tiff',
-    url: 'https://assets.hubmapconsortium.org/2ced91fd6d543e79af90313e52ada57d/data/ims/D/0/c2bece1d-1027-4076-a7dc-e661870c3749',
-    options: {
-      offsetsUrl: 'https://assets.hubmapconsortium.org/2ced91fd6d543e79af90313e52ada57d/data/ims/D/0/aea71c16-a9ab-4c79-98ce-a412b4aa9223',
-    },
-    coordinationValues: {
-      image: 'LINEAR',
-    },
-  });
+  })
+    .addFile({
+      fileType: 'image.ome-tiff',
+      url: 'https://assets.hubmapconsortium.org/2ced91fd6d543e79af90313e52ada57d/data/ims/D/0/c2bece1d-1027-4076-a7dc-e661870c3749',
+      options: {
+        offsetsUrl: 'https://assets.hubmapconsortium.org/2ced91fd6d543e79af90313e52ada57d/data/ims/D/0/aea71c16-a9ab-4c79-98ce-a412b4aa9223',
+      },
+      coordinationValues: {
+        image: 'LINEAR',
+      },
+    });
 
-  
+
   const [
     targetC1Scope,
     targetC2Scope,
@@ -58,7 +59,7 @@ function generateImsConfig() {
     channelOpacity2Scope,
     channelWindow1Scope,
     channelWindow2Scope,
-] = config.addCoordination(
+  ] = config.addCoordination(
     'spatialTargetC',
     'spatialTargetC',
     'spatialChannelColor',
@@ -146,7 +147,7 @@ function generateImsConfig() {
     vconcat(
       hconcat(spatialView1, spatialView2),
       hconcat(lcView1, lcView2),
-    )
+    ),
   );
 
   const configJSON = config.toJSON();

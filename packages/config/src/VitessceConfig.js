@@ -396,19 +396,19 @@ export function vconcat(...views) {
 class CoordinationLevel {
   constructor(value) {
     this.value = value;
-    this._computed = null;
+    this.computed = null;
   }
 
   setComputed(processedLevel) {
-    this._computed = processedLevel;
+    this.computed = processedLevel;
   }
 
   getComputed() {
-    return this._computed;
+    return this.computed;
   }
 
   isComputed() {
-    return this._computed !== null;
+    return this.computed !== null;
   }
 }
 

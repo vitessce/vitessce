@@ -411,7 +411,7 @@ export function useMultiCoordinationScopesSecondary(
       }))];
     }
     // Fallback from fine-grained to coarse-grained.
-    if(scopes && !coordinationScopesBy?.[byType]?.[parameter] && coordinationScopes?.[parameter]) {
+    if (scopes && !coordinationScopesBy?.[byType]?.[parameter] && coordinationScopes?.[parameter]) {
       const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
       return [scopesArr, fromEntries(scopesArr.map((scope) => {
         const secondaryScopes = coordinationScopes?.[parameter];
@@ -616,11 +616,13 @@ export function useComplexCoordinationSecondary(
     // Re-nesting for fallback case.
     const layerScopes = coordinationScopes[primaryType];
     layerScopes.forEach((layerScope) => {
+      // eslint-disable-next-line prefer-destructuring
       result[0][layerScope] = flatResult[0];
+      // eslint-disable-next-line prefer-destructuring
       result[1][layerScope] = flatResult[1];
     });
   }
-  
+
 
   return result;
 }
