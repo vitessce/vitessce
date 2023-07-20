@@ -101,7 +101,7 @@ function generateKpmpConfig() {
         featureValueType: 'value',
       },
     });
-  
+
   const [featureTypeScope, featureValueScope, opacityScope] = config.addCoordination(
     'featureType',
     'featureValueType',
@@ -198,8 +198,6 @@ function generateKpmpConfig() {
             featureValueType: featureValueScope,
             spatialChannelVisible: true,
             obsColorEncoding: 'spatialChannelColor',
-            featureType: 'feature',
-            featureValueType: 'value',
           },
           {
             obsType: 'Interstitial Fibrosis and Tubular Atrophy',
