@@ -73,6 +73,7 @@ export function removeImageChannelInMetaCoordinationScopesHelper(coordinationSco
   const metaCoordinationScopes = coordinationSpace[CoordinationType.META_COORDINATION_SCOPES];
   const metaCoordinationScopesBy = coordinationSpace[CoordinationType.META_COORDINATION_SCOPES_BY];
 
+  let newMetaCoordinationScopes = metaCoordinationScopes;
   let newMetaCoordinationScopesBy = metaCoordinationScopesBy;
 
   // const layerMetaScope = getMetaScope(coordinationScopesRaw, coordinationSpace, CoordinationType.IMAGE_LAYER);
@@ -83,31 +84,49 @@ export function removeImageChannelInMetaCoordinationScopesHelper(coordinationSco
     CoordinationType.IMAGE_CHANNEL,
     layerScope,
   );
+  // Only used in fallback case.
+  const channelMetaScope = getMetaScope(coordinationScopesRaw, coordinationSpace, CoordinationType.IMAGE_CHANNEL);
+  const hasPerLayerChannels = !!channelMetaScopeBy;
 
-  const prevChannels = metaCoordinationScopesBy
-    ?.[channelMetaScopeBy]
-    ?.[CoordinationType.IMAGE_LAYER]
-    ?.[CoordinationType.IMAGE_CHANNEL]
-    ?.[layerScope];
+  const prevChannels = hasPerLayerChannels
+    ? metaCoordinationScopesBy // Per-layer channels case.
+      ?.[channelMetaScopeBy]
+      ?.[CoordinationType.IMAGE_LAYER]
+      ?.[CoordinationType.IMAGE_CHANNEL]
+      ?.[layerScope]
+    : metaCoordinationScopes // Fallback case.
+      ?.[channelMetaScope]
+      ?.[CoordinationType.IMAGE_CHANNEL];
+
   const nextChannels = prevChannels.filter(channel => channel !== channelScope);
 
-  newMetaCoordinationScopesBy = {
-    ...metaCoordinationScopesBy,
-    [channelMetaScopeBy]: {
-      ...metaCoordinationScopesBy?.[channelMetaScopeBy],
-      [CoordinationType.IMAGE_LAYER]: {
-        ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_LAYER],
-        [CoordinationType.IMAGE_CHANNEL]: {
-          ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_LAYER]?.[CoordinationType.IMAGE_CHANNEL],
-          [layerScope]: nextChannels,
+  if(hasPerLayerChannels) {
+    newMetaCoordinationScopesBy = {
+      ...metaCoordinationScopesBy,
+      [channelMetaScopeBy]: {
+        ...metaCoordinationScopesBy?.[channelMetaScopeBy],
+        [CoordinationType.IMAGE_LAYER]: {
+          ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_LAYER],
+          [CoordinationType.IMAGE_CHANNEL]: {
+            ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_LAYER]?.[CoordinationType.IMAGE_CHANNEL],
+            [layerScope]: nextChannels,
+          },
         },
       },
-    },
-  };
+    };
+  } else {
+    newMetaCoordinationScopes = {
+      ...metaCoordinationScopes,
+      [channelMetaScope]: {
+        ...metaCoordinationScopes?.[channelMetaScope],
+        [CoordinationType.IMAGE_CHANNEL]: nextChannels,
+      },
+    };
+  }
 
   return {
     ...coordinationSpace,
-    [CoordinationType.META_COORDINATION_SCOPES]: metaCoordinationScopes,
+    [CoordinationType.META_COORDINATION_SCOPES]: newMetaCoordinationScopes,
     [CoordinationType.META_COORDINATION_SCOPES_BY]: newMetaCoordinationScopesBy,
   };
 }
@@ -116,6 +135,7 @@ export function addImageChannelInMetaCoordinationScopesHelper(coordinationScopes
   const metaCoordinationScopes = coordinationSpace[CoordinationType.META_COORDINATION_SCOPES];
   const metaCoordinationScopesBy = coordinationSpace[CoordinationType.META_COORDINATION_SCOPES_BY];
 
+  let newMetaCoordinationScopes = metaCoordinationScopes;
   let newMetaCoordinationScopesBy = metaCoordinationScopesBy;
 
   // const layerMetaScope = getMetaScope(coordinationScopesRaw, coordinationSpace, CoordinationType.IMAGE_LAYER);
@@ -127,11 +147,19 @@ export function addImageChannelInMetaCoordinationScopesHelper(coordinationScopes
     layerScope,
   );
 
-  const prevChannels = metaCoordinationScopesBy
-    ?.[channelMetaScopeBy]
-    ?.[CoordinationType.IMAGE_LAYER]
-    ?.[CoordinationType.IMAGE_CHANNEL]
-    ?.[layerScope];
+  // Only used in fallback case.
+  const channelMetaScope = getMetaScope(coordinationScopesRaw, coordinationSpace, CoordinationType.IMAGE_CHANNEL);
+  const hasPerLayerChannels = !!channelMetaScopeBy;
+  
+  const prevChannels = hasPerLayerChannels
+    ? metaCoordinationScopesBy // Per-layer channels case.
+      ?.[channelMetaScopeBy]
+      ?.[CoordinationType.IMAGE_LAYER]
+      ?.[CoordinationType.IMAGE_CHANNEL]
+      ?.[layerScope]
+    : metaCoordinationScopes // Fallback case.
+      ?.[channelMetaScope]
+      ?.[CoordinationType.IMAGE_CHANNEL];
 
   const allPrevChannelScopes = Object.keys(coordinationSpace[CoordinationType.IMAGE_CHANNEL] || {});
   const nextChannelScope = getNextScope(allPrevChannelScopes);
@@ -157,7 +185,7 @@ export function addImageChannelInMetaCoordinationScopesHelper(coordinationScopes
     },
     [CoordinationType.SPATIAL_TARGET_C]: {
       ...coordinationSpace[CoordinationType.SPATIAL_TARGET_C],
-      [nextTargetCScope]: 0, // Use the default value for each coordination type.
+      [nextTargetCScope]: 0, // TODO: Use the default values for each coordination type.
     },
     [CoordinationType.SPATIAL_CHANNEL_COLOR]: {
       ...coordinationSpace[CoordinationType.SPATIAL_CHANNEL_COLOR],
@@ -177,46 +205,87 @@ export function addImageChannelInMetaCoordinationScopesHelper(coordinationScopes
     },
   };
 
-  newMetaCoordinationScopesBy = {
-    ...metaCoordinationScopesBy,
-    [channelMetaScopeBy]: {
-      ...metaCoordinationScopesBy?.[channelMetaScopeBy],
-      [CoordinationType.IMAGE_LAYER]: {
-        ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_LAYER],
+  if(hasPerLayerChannels) {
+    // Per-layer channels case.
+    newMetaCoordinationScopesBy = {
+      ...metaCoordinationScopesBy,
+      [channelMetaScopeBy]: {
+        ...metaCoordinationScopesBy?.[channelMetaScopeBy],
+        [CoordinationType.IMAGE_LAYER]: {
+          ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_LAYER],
+          [CoordinationType.IMAGE_CHANNEL]: {
+            ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_LAYER]?.[CoordinationType.IMAGE_CHANNEL],
+            [layerScope]: nextChannels,
+          },
+        },
         [CoordinationType.IMAGE_CHANNEL]: {
-          ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_LAYER]?.[CoordinationType.IMAGE_CHANNEL],
-          [layerScope]: nextChannels,
+          ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_CHANNEL],
+          [CoordinationType.SPATIAL_TARGET_C]: {
+            ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_TARGET_C],
+            [nextChannelScope]: nextTargetCScope,
+          },
+          [CoordinationType.SPATIAL_CHANNEL_COLOR]: {
+            ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_CHANNEL_COLOR],
+            [nextChannelScope]: nextColorScope,
+          },
+          [CoordinationType.SPATIAL_CHANNEL_WINDOW]: {
+            ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_CHANNEL_WINDOW],
+            [nextChannelScope]: nextWindowScope,
+          },
+          [CoordinationType.SPATIAL_CHANNEL_VISIBLE]: {
+            ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_CHANNEL_VISIBLE],
+            [nextChannelScope]: nextVisibleScope,
+          },
+          [CoordinationType.SPATIAL_CHANNEL_OPACITY]: {
+            ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_CHANNEL_OPACITY],
+            [nextChannelScope]: nextOpacityScope,
+          },
         },
       },
-      [CoordinationType.IMAGE_CHANNEL]: {
-        ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_CHANNEL],
-        [CoordinationType.SPATIAL_TARGET_C]: {
-          ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_TARGET_C],
-          [nextChannelScope]: nextTargetCScope,
-        },
-        [CoordinationType.SPATIAL_CHANNEL_COLOR]: {
-          ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_CHANNEL_COLOR],
-          [nextChannelScope]: nextColorScope,
-        },
-        [CoordinationType.SPATIAL_CHANNEL_WINDOW]: {
-          ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_CHANNEL_WINDOW],
-          [nextChannelScope]: nextWindowScope,
-        },
-        [CoordinationType.SPATIAL_CHANNEL_VISIBLE]: {
-          ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_CHANNEL_VISIBLE],
-          [nextChannelScope]: nextVisibleScope,
-        },
-        [CoordinationType.SPATIAL_CHANNEL_OPACITY]: {
-          ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_CHANNEL_OPACITY],
-          [nextChannelScope]: nextOpacityScope,
+    };
+  } else {
+    // Fallback case.
+    newMetaCoordinationScopes = {
+      ...metaCoordinationScopes,
+      [channelMetaScope]: {
+        ...metaCoordinationScopes?.[channelMetaScope],
+        [CoordinationType.IMAGE_CHANNEL]: nextChannels,
+      },
+    };
+    newMetaCoordinationScopesBy = {
+      ...metaCoordinationScopesBy,
+      [channelMetaScope]: {
+        ...metaCoordinationScopesBy?.[channelMetaScope],
+        [CoordinationType.IMAGE_CHANNEL]: {
+          ...metaCoordinationScopesBy?.[channelMetaScope]?.[CoordinationType.IMAGE_CHANNEL],
+          [CoordinationType.SPATIAL_TARGET_C]: {
+            ...metaCoordinationScopesBy?.[channelMetaScope]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_TARGET_C],
+            [nextChannelScope]: nextTargetCScope,
+          },
+          [CoordinationType.SPATIAL_CHANNEL_COLOR]: {
+            ...metaCoordinationScopesBy?.[channelMetaScope]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_CHANNEL_COLOR],
+            [nextChannelScope]: nextColorScope,
+          },
+          [CoordinationType.SPATIAL_CHANNEL_WINDOW]: {
+            ...metaCoordinationScopesBy?.[channelMetaScope]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_CHANNEL_WINDOW],
+            [nextChannelScope]: nextWindowScope,
+          },
+          [CoordinationType.SPATIAL_CHANNEL_VISIBLE]: {
+            ...metaCoordinationScopesBy?.[channelMetaScope]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_CHANNEL_VISIBLE],
+            [nextChannelScope]: nextVisibleScope,
+          },
+          [CoordinationType.SPATIAL_CHANNEL_OPACITY]: {
+            ...metaCoordinationScopesBy?.[channelMetaScope]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_CHANNEL_OPACITY],
+            [nextChannelScope]: nextOpacityScope,
+          },
         },
       },
-    },
-  };
+    };
+  }
 
   return {
     ...newCoordinationSpace,
-    [CoordinationType.META_COORDINATION_SCOPES]: metaCoordinationScopes,
+    [CoordinationType.META_COORDINATION_SCOPES]: newMetaCoordinationScopes,
     [CoordinationType.META_COORDINATION_SCOPES_BY]: newMetaCoordinationScopesBy,
   };
 }

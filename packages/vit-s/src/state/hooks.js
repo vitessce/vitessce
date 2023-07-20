@@ -410,6 +410,17 @@ export function useMultiCoordinationScopesSecondary(
         return [scope, secondaryScopesArr];
       }))];
     }
+    // Fallback from fine-grained to coarse-grained.
+    if(scopes && !coordinationScopesBy?.[byType]?.[parameter] && coordinationScopes?.[parameter]) {
+      const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
+      return [scopesArr, fromEntries(scopesArr.map((scope) => {
+        const secondaryScopes = coordinationScopes?.[parameter];
+        const secondaryScopesArr = Array.isArray(secondaryScopes)
+          ? secondaryScopes
+          : [secondaryScopes];
+        return [scope, secondaryScopesArr];
+      }))];
+    }
     return [[], {}];
   }, [parameter, byType, coordinationScopes, coordinationScopesBy]);
 }
@@ -568,7 +579,7 @@ export function useCoordinationScopesBy(coordinationScopes, coordinationScopesBy
  * @returns The results of useComplexCoordination.
  */
 export function useComplexCoordinationSecondary(
-  parameters, coordinationScopesBy, primaryType, secondaryType,
+  parameters, coordinationScopes, coordinationScopesBy, primaryType, secondaryType,
 ) {
   const coordinationScopesFake = useMemo(() => {
     if (coordinationScopesBy?.[primaryType]?.[secondaryType]) {
@@ -576,6 +587,14 @@ export function useComplexCoordinationSecondary(
         [secondaryType]: Object.values(coordinationScopesBy[primaryType][secondaryType]).flat(),
       };
     }
+    // First fallback: try coarser (_Channel -> _Layer -> view)
+    // coordination values when finer ones are null/undefined.
+    if (coordinationScopes?.[secondaryType] && Array.isArray(coordinationScopes[secondaryType])) {
+      return {
+        [secondaryType]: coordinationScopes[secondaryType],
+      };
+    }
+    // Finally, fall back to empty array.
     return { [secondaryType]: [] };
   }, [coordinationScopesBy, primaryType, secondaryType]);
   const flatResult = useComplexCoordination(
@@ -593,7 +612,16 @@ export function useComplexCoordinationSecondary(
           result[1][layerScope][channelScope] = flatResult[1][channelScope];
         });
       });
+  } else if (coordinationScopes?.[secondaryType] && Array.isArray(coordinationScopes[secondaryType])) {
+    // Re-nesting for fallback case.
+    const layerScopes = coordinationScopes[primaryType];
+    layerScopes.forEach((layerScope) => {
+      result[0][layerScope] = flatResult[0];
+      result[1][layerScope] = flatResult[1];
+    });
   }
+  
+
   return result;
 }
 

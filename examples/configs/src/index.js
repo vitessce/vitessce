@@ -32,6 +32,7 @@ import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
 import { kpmp2023 } from './view-configs/kpmp.js';
 import { kpmpOop2023 } from './view-configs/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/kpmp-auto-init.js';
+import { imsAlgorithmComparison } from './view-configs/ims-algorithm-comparison.js';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -64,6 +65,7 @@ export const configs = {
   'satija-2020': satija2020,
   'kpmp-2023': kpmp2023,
   'kpmp-oop-2023': kpmpOop2023,
+  'ims-algorithm-comparison': imsAlgorithmComparison,
   'kpmp-auto-init': kpmpAutoInit2023,
   'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,

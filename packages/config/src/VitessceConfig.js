@@ -396,6 +396,19 @@ export function vconcat(...views) {
 class CoordinationLevel {
   constructor(value) {
     this.value = value;
+    this._computed = null;
+  }
+
+  setComputed(processedLevel) {
+    this._computed = processedLevel;
+  }
+
+  getComputed() {
+    return this._computed;
+  }
+
+  isComputed() {
+    return this._computed !== null;
   }
 }
 
@@ -749,15 +762,21 @@ export class VitessceConfig {
         if (nextLevelOrInitialValue instanceof CoordinationLevel) {
           const nextLevel = nextLevelOrInitialValue.value;
           if (Array.isArray(nextLevel)) {
-            result[cType] = nextLevel.map((nextEl) => {
-              const [dummyScope] = this.addCoordination(cType);
-              // TODO: set a better initial value for dummy cases.
-              dummyScope.setValue('__dummy__');
-              return {
-                scope: dummyScope,
-                children: processLevel(nextEl),
-              };
-            });
+            if (nextLevelOrInitialValue.isComputed()) {
+              result[cType] = nextLevelOrInitialValue.getComputed();
+            } else {
+              const processedLevel = nextLevel.map((nextEl) => {
+                const [dummyScope] = this.addCoordination(cType);
+                // TODO: set a better initial value for dummy cases.
+                dummyScope.setValue('__dummy__');
+                return {
+                  scope: dummyScope,
+                  children: processLevel(nextEl),
+                };
+              });
+              nextLevelOrInitialValue.setComputed(processedLevel);
+              result[cType] = processedLevel;
+            }
           } else {
             throw new Error('Expected CoordinationLevel.value to be an array.');
           }

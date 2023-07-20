@@ -25,7 +25,7 @@ export default function MultiLegend(props) {
 
   return (
     <div className={classes.multiLegend}>
-      {segmentationLayerScopes.flatMap((layerScope) => {
+      {segmentationLayerScopes ? segmentationLayerScopes.flatMap((layerScope) => {
         const layerCoordination = segmentationLayerCoordination[0][layerScope];
         const channelScopes = segmentationChannelScopesByLayer[layerScope];
         const channelCoordination = segmentationChannelCoordination[0][layerScope];
@@ -34,7 +34,7 @@ export default function MultiLegend(props) {
           spatialLayerVisible,
         } = layerCoordination;
 
-        return channelScopes.map((cScope) => {
+        return (channelCoordination && channelScopes ? channelScopes.map((cScope) => {
           const {
             spatialChannelVisible,
             spatialChannelColor,
@@ -75,8 +75,8 @@ export default function MultiLegend(props) {
               spatialChannelColor={spatialChannelColor}
             />
           ) : null;
-        });
-      })}
+        }) : null);
+      }) : null}
     </div>
   );
 }

@@ -109,7 +109,7 @@ function generateKpmpConfig() {
   );
   featureTypeScope.setValue('feature');
   featureValueScope.setValue('value');
-  opacityScope.setValue(0.5);
+  opacityScope.setValue(0.7);
 
   const scopes = config.addComplexCoordination({
     imageLayer: CL([

@@ -279,7 +279,7 @@ export const kpmp2023 = {
     },
     photometricInterpretation: {
       rgb: 'RGB',
-      multiChannel: 'BlackIsZero',
+      multiChannel: 'RGB',
     },
     spatialChannelWindow: {
       imageR: [0, 255],

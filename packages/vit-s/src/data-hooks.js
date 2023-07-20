@@ -435,6 +435,7 @@ export function useMultiFeatureSelection(
       CoordinationType.FEATURE_TYPE,
       CoordinationType.FEATURE_VALUE_TYPE,
     ],
+    coordinationScopes,
     coordinationScopesBy,
     CoordinationType.SEGMENTATION_LAYER,
     CoordinationType.SEGMENTATION_CHANNEL,
@@ -443,6 +444,7 @@ export function useMultiFeatureSelection(
     [
       CoordinationType.FEATURE_SELECTION,
     ],
+    coordinationScopes,
     coordinationScopesBy,
     CoordinationType.SEGMENTATION_LAYER,
     CoordinationType.SEGMENTATION_CHANNEL,
@@ -482,6 +484,7 @@ export function useMultiObsFeatureMatrixIndices(
       CoordinationType.FEATURE_TYPE,
       CoordinationType.FEATURE_VALUE_TYPE,
     ],
+    coordinationScopes,
     coordinationScopesBy,
     CoordinationType.SEGMENTATION_LAYER,
     CoordinationType.SEGMENTATION_CHANNEL,
