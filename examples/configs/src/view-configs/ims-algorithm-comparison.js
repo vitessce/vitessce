@@ -164,7 +164,7 @@ function generateImsConfig() {
   const lcViewGaussian = config.addView(dataset, 'layerControllerBeta');
   const lcViewArea = config.addView(dataset, 'layerControllerBeta');
   const lcViewLinear = config.addView(dataset, 'layerControllerBeta');
-  
+
   spatialViewSimple.useMetaCoordination(metaCoordinationScopeSimple);
   spatialViewGaussian.useMetaCoordination(metaCoordinationScopeGaussian);
   spatialViewArea.useMetaCoordination(metaCoordinationScopeArea);
