@@ -342,6 +342,13 @@ describe('src/api/VitessceConfig.js', () => {
       });
       const dataset = config.addDataset('My dataset');
 
+      // Coordinate all segmentation channels on the same color,
+      // to test out the use of a coordination scope instance as a value.
+      const [colorScope] = config.addCoordination(
+        'spatialChannelColor',
+      );
+      colorScope.setValue([255, 0, 0]);
+
       const scopes = config.addComplexCoordination({
         spatialImageLayer: CL([
           {
@@ -351,11 +358,11 @@ describe('src/api/VitessceConfig.js', () => {
             spatialImageChannel: CL([
               {
                 spatialTargetC: 0,
-                spatialChannelColor: [255, 0, 0],
+                spatialChannelColor: [0, 255, 0],
               },
               {
                 spatialTargetC: 1,
-                spatialChannelColor: [0, 255, 0],
+                spatialChannelColor: [0, 0, 255],
               },
             ]),
           },
@@ -369,17 +376,17 @@ describe('src/api/VitessceConfig.js', () => {
               {
                 obsType: 'Cortical Interstitia',
                 spatialTargetC: 0,
-                spatialChannelColor: [255, 0, 0],
+                spatialChannelColor: colorScope,
               },
               {
                 obsType: 'Non-Globally Sclerotic Glomeruli',
                 spatialTargetC: 1,
-                spatialChannelColor: [255, 0, 0],
+                spatialChannelColor: colorScope,
               },
               {
                 obsType: 'Globally Sclerotic Glomeruli',
                 spatialTargetC: 2,
-                spatialChannelColor: [255, 0, 0],
+                spatialChannelColor: colorScope,
               },
             ]),
           },
@@ -407,9 +414,7 @@ describe('src/api/VitessceConfig.js', () => {
           spatialChannelColor: {
             A: [255, 0, 0],
             B: [0, 255, 0],
-            C: [255, 0, 0],
-            D: [255, 0, 0],
-            E: [255, 0, 0],
+            C: [0, 0, 255],
           },
           spatialSegmentationLayer: { A: '__dummy__' },
           spatialSegmentationChannel: { A: '__dummy__', B: '__dummy__', C: '__dummy__' },
@@ -435,7 +440,7 @@ describe('src/api/VitessceConfig.js', () => {
             },
             spatialImageChannel: {
               spatialTargetC: { A: 'A', B: 'B' },
-              spatialChannelColor: { A: 'A', B: 'B' },
+              spatialChannelColor: { A: 'B', B: 'C' },
             },
             spatialSegmentationLayer: {
               image: { A: 'B' },
@@ -446,7 +451,7 @@ describe('src/api/VitessceConfig.js', () => {
             spatialSegmentationChannel: {
               obsType: { A: 'A', B: 'B', C: 'C' },
               spatialTargetC: { A: 'C', B: 'D', C: 'E' },
-              spatialChannelColor: { A: 'C', B: 'D', C: 'E' },
+              spatialChannelColor: { A: 'A', B: 'A', C: 'A' },
             },
           },
           x: 0,

@@ -764,9 +764,13 @@ export class VitessceConfig {
         } else {
           // Base case.
           const initialValue = nextLevelOrInitialValue;
-          const [scope] = this.addCoordination(cType);
-          scope.setValue(initialValue);
-          result[cType] = { scope };
+          if (initialValue instanceof VitessceConfigCoordinationScope) {
+            result[cType] = { scope: initialValue };
+          } else {
+            const [scope] = this.addCoordination(cType);
+            scope.setValue(initialValue);
+            result[cType] = { scope };
+          }
         }
       });
       return result;

@@ -101,6 +101,15 @@ function generateKpmpConfig() {
         featureValueType: 'value',
       },
     });
+  
+  const [featureTypeScope, featureValueScope, opacityScope] = config.addCoordination(
+    'featureType',
+    'featureValueType',
+    'spatialChannelOpacity',
+  );
+  featureTypeScope.setValue('feature');
+  featureValueScope.setValue('value');
+  opacityScope.setValue(0.5);
 
   const scopes = config.addComplexCoordination({
     imageLayer: CL([
@@ -145,6 +154,8 @@ function generateKpmpConfig() {
             spatialTargetC: 0,
             spatialChannelColor: [255, 255, 255],
             spatialChannelOpacity: 0.1,
+            featureType: featureTypeScope,
+            featureValueType: featureValueScope,
             spatialChannelVisible: false,
             obsColorEncoding: 'spatialChannelColor',
           },
@@ -152,7 +163,9 @@ function generateKpmpConfig() {
             obsType: 'Non-Globally Sclerotic Glomeruli',
             spatialTargetC: 1,
             spatialChannelColor: [91, 181, 231],
-            // spatialChannelOpacity: 0.9,
+            spatialChannelOpacity: opacityScope,
+            featureType: featureTypeScope,
+            featureValueType: featureValueScope,
             spatialChannelVisible: true,
             obsColorEncoding: 'spatialChannelColor',
           },
@@ -160,7 +173,9 @@ function generateKpmpConfig() {
             obsType: 'Globally Sclerotic Glomeruli',
             spatialTargetC: 2,
             spatialChannelColor: [22, 157, 116],
-            // spatialChannelOpacity: 0.9,
+            spatialChannelOpacity: opacityScope,
+            featureType: featureTypeScope,
+            featureValueType: featureValueScope,
             spatialChannelVisible: true,
             obsColorEncoding: 'spatialChannelColor',
           },
@@ -168,7 +183,9 @@ function generateKpmpConfig() {
             obsType: 'Tubules',
             spatialTargetC: 3,
             spatialChannelColor: [239, 226, 82],
-            // spatialChannelOpacity: 0.9,
+            spatialChannelOpacity: opacityScope,
+            featureType: featureTypeScope,
+            featureValueType: featureValueScope,
             spatialChannelVisible: true,
             obsColorEncoding: 'spatialChannelColor',
           },
@@ -176,7 +193,9 @@ function generateKpmpConfig() {
             obsType: 'Arteries/Arterioles',
             spatialTargetC: 4,
             spatialChannelColor: [16, 115, 176],
-            // spatialChannelOpacity: 0.9,
+            spatialChannelOpacity: opacityScope,
+            featureType: featureTypeScope,
+            featureValueType: featureValueScope,
             spatialChannelVisible: true,
             obsColorEncoding: 'spatialChannelColor',
             featureType: 'feature',
@@ -186,7 +205,9 @@ function generateKpmpConfig() {
             obsType: 'Interstitial Fibrosis and Tubular Atrophy',
             spatialTargetC: 5,
             spatialChannelColor: [211, 94, 26],
-            // spatialChannelOpacity: 0.9,
+            spatialChannelOpacity: opacityScope,
+            featureType: featureTypeScope,
+            featureValueType: featureValueScope,
             spatialChannelVisible: true,
             obsColorEncoding: 'spatialChannelColor',
           },
@@ -194,34 +215,15 @@ function generateKpmpConfig() {
             obsType: 'Peritubular Capillaries',
             spatialTargetC: 6,
             spatialChannelColor: [202, 122, 166],
-            // spatialChannelOpacity: 0.9,
+            spatialChannelOpacity: opacityScope,
+            featureType: featureTypeScope,
+            featureValueType: featureValueScope,
             spatialChannelVisible: true,
             obsColorEncoding: 'spatialChannelColor',
           },
         ]),
       },
     ]),
-  });
-
-  const [featureTypeScope, featureValueScope, opacityScope] = config.addCoordination(
-    'featureType',
-    'featureValueType',
-    'spatialChannelOpacity',
-  );
-  featureTypeScope.setValue('feature');
-  featureValueScope.setValue('value');
-  opacityScope.setValue(0.5);
-
-  // Manually inject coordination scopes to be shared across certain channels.
-  // TODO: create a more user-friendly/"public"/documented API for this.
-  scopes.segmentationLayer[0].children.segmentationChannel.forEach((channelObj) => {
-    if (channelObj.children.obsType.scope.cValue !== 'Cortical Interstitia') {
-      // Coordinate all non-interstitia channels on their
-      // featureType, featureValueType, and opacity values.
-      channelObj.children.featureType = { scope: featureTypeScope };
-      channelObj.children.featureValueType = { scope: featureValueScope };
-      channelObj.children.spatialChannelOpacity = { scope: opacityScope };
-    }
   });
 
   const metaCoordinationScope = config.addMetaCoordination();
