@@ -48,6 +48,7 @@ function EllipsisMenu(props) {
     setStrokeWidth,
     filled,
     setFilled,
+    featureSelection,
     obsColorEncoding,
     setObsColorEncoding,
     featureValueColormapRange,
@@ -87,7 +88,14 @@ function EllipsisMenu(props) {
       </MenuItem>
       <MenuItem dense disableGutters>
         <span style={{ margin: '0 5px' }}>Quantitative Colormap: </span>
-        <Checkbox color="primary" checked={obsColorEncoding === 'geneSelection'} onChange={(e, v) => setObsColorEncoding(v ? 'geneSelection' : 'spatialChannelColor')} />
+        <Checkbox
+          // Do not disable if there are selected quantitative features.
+          // Also, do not disable if the checkbox is currently checked, to allow un-checking.
+          disabled={!((Array.isArray(featureSelection) && featureSelection.length > 0) || obsColorEncoding === 'geneSelection')}
+          color="primary"
+          checked={obsColorEncoding === 'geneSelection'}
+          onChange={(e, v) => setObsColorEncoding(v ? 'geneSelection' : 'spatialChannelColor')}
+        />
       </MenuItem>
       <MenuItem dense disableGutters>
         <span style={{ margin: '0 5px' }}>Colormap Range: </span>
@@ -121,6 +129,7 @@ export default function SplitVectorLayerController(props) {
     strokeWidth,
     setStrokeWidth,
 
+    featureSelection,
     obsColorEncoding,
     featureValueColormap,
     featureValueColormapRange,
@@ -197,6 +206,7 @@ export default function SplitVectorLayerController(props) {
               setStrokeWidth={setStrokeWidth}
               filled={filled}
               setFilled={setFilled}
+              featureSelection={featureSelection}
               obsColorEncoding={obsColorEncoding}
               setObsColorEncoding={setObsColorEncoding}
               featureValueColormapRange={featureValueColormapRange}

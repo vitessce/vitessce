@@ -35,6 +35,7 @@ export default function SplitSegmentationLayerController(props) {
           spatialSegmentationFilled: filled,
           spatialSegmentationStrokeWidth: strokeWidth,
           obsColorEncoding,
+          featureSelection,
           featureValueColormap,
           featureValueColormapRange,
         } = channelCoordination[cScope];
@@ -75,6 +76,7 @@ export default function SplitSegmentationLayerController(props) {
             setStrokeWidth={setStrokeWidth}
 
             obsColorEncoding={obsColorEncoding}
+            featureSelection={featureSelection}
             featureValueColormap={featureValueColormap}
             featureValueColormapRange={featureValueColormapRange}
             setObsColorEncoding={setObsColorEncoding}

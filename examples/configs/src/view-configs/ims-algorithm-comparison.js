@@ -1,6 +1,10 @@
 /* eslint-disable no-unused-vars */
-/* eslint-disable no-param-reassign */
-import { VitessceConfig, CoordinationLevel as CL, hconcat, vconcat } from '@vitessce/config';
+import {
+  VitessceConfig,
+  CoordinationLevel as CL,
+  hconcat,
+  vconcat,
+} from '@vitessce/config';
 
 
 function generateImsConfig() {
@@ -83,60 +87,39 @@ function generateImsConfig() {
   channelWindow2Scope.setValue([0, 1000]);
 
   const simpleScopes = config.addComplexCoordination({
-    imageLayer: CL([
-      {
-        image: 'SIMPLE',
-        spatialLayerVisible: true,
-        spatialLayerOpacity: 1,
-        photometricInterpretation: 'BlackIsZero',
-      },
-    ]),
+    image: 'SIMPLE',
   });
   const gaussianScopes = config.addComplexCoordination({
-    imageLayer: CL([
-      {
-        image: 'GAUSSIAN',
-        spatialLayerVisible: true,
-        spatialLayerOpacity: 1,
-        photometricInterpretation: 'BlackIsZero',
-      },
-    ]),
+    image: 'GAUSSIAN',
   });
   const areaScopes = config.addComplexCoordination({
-    imageLayer: CL([
-      {
-        image: 'AREA',
-        spatialLayerVisible: true,
-        spatialLayerOpacity: 1,
-        photometricInterpretation: 'BlackIsZero',
-      },
-    ]),
+    image: 'AREA',
   });
   const linearScopes = config.addComplexCoordination({
-    imageLayer: CL([
-      {
-        image: 'LINEAR',
-        spatialLayerVisible: true,
-        spatialLayerOpacity: 1,
-        photometricInterpretation: 'BlackIsZero',
-      },
-    ]),
+    image: 'LINEAR',
   });
   const sharedScopes = config.addComplexCoordination({
-    imageChannel: CL([
+    imageLayer: CL([
       {
-        spatialTargetC: targetC1Scope,
-        spatialChannelColor: channelColor1Scope,
-        spatialChannelVisible: channelVisible1Scope,
-        spatialChannelOpacity: channelOpacity1Scope,
-        spatialChannelWindow: channelWindow1Scope,
-      },
-      {
-        spatialTargetC: targetC2Scope,
-        spatialChannelColor: channelColor2Scope,
-        spatialChannelVisible: channelVisible2Scope,
-        spatialChannelOpacity: channelOpacity2Scope,
-        spatialChannelWindow: channelWindow2Scope,
+        spatialLayerOpacity: 1,
+        spatialLayerVisible: true,
+        photometricInterpretation: 'BlackIsZero',
+        imageChannel: CL([
+          {
+            spatialTargetC: targetC1Scope,
+            spatialChannelColor: channelColor1Scope,
+            spatialChannelVisible: channelVisible1Scope,
+            spatialChannelOpacity: channelOpacity1Scope,
+            spatialChannelWindow: channelWindow1Scope,
+          },
+          {
+            spatialTargetC: targetC2Scope,
+            spatialChannelColor: channelColor2Scope,
+            spatialChannelVisible: channelVisible2Scope,
+            spatialChannelOpacity: channelOpacity2Scope,
+            spatialChannelWindow: channelWindow2Scope,
+          },
+        ]),
       },
     ]),
   });

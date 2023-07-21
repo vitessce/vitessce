@@ -102,16 +102,27 @@ function generateKpmpConfig() {
       },
     });
 
-  const [featureTypeScope, featureValueScope, opacityScope] = config.addCoordination(
+  const [
+    featureTypeScope,
+    featureValueScope,
+    opacityScope,
+    filledScope,
+    strokeScope,
+  ] = config.addCoordination(
     'featureType',
     'featureValueType',
     'spatialChannelOpacity',
+    'spatialSegmentationFilled',
+    'spatialSegmentationStrokeWidth',
   );
   featureTypeScope.setValue('feature');
   featureValueScope.setValue('value');
   opacityScope.setValue(0.7);
+  filledScope.setValue(true);
+  strokeScope.setValue(1);
 
   const scopes = config.addComplexCoordination({
+    featureValueColormapRange: [0, 1],
     imageLayer: CL([
       {
         image: 'S-1905-017737_bf',
@@ -158,6 +169,8 @@ function generateKpmpConfig() {
             featureValueType: featureValueScope,
             spatialChannelVisible: false,
             obsColorEncoding: 'spatialChannelColor',
+            spatialSegmentationFilled: true,
+            spatialSegmentationStrokeWidth: strokeScope,
           },
           {
             obsType: 'Non-Globally Sclerotic Glomeruli',
@@ -168,6 +181,8 @@ function generateKpmpConfig() {
             featureValueType: featureValueScope,
             spatialChannelVisible: true,
             obsColorEncoding: 'spatialChannelColor',
+            spatialSegmentationFilled: filledScope,
+            spatialSegmentationStrokeWidth: strokeScope,
           },
           {
             obsType: 'Globally Sclerotic Glomeruli',
@@ -178,6 +193,8 @@ function generateKpmpConfig() {
             featureValueType: featureValueScope,
             spatialChannelVisible: true,
             obsColorEncoding: 'spatialChannelColor',
+            spatialSegmentationFilled: filledScope,
+            spatialSegmentationStrokeWidth: strokeScope,
           },
           {
             obsType: 'Tubules',
@@ -188,6 +205,8 @@ function generateKpmpConfig() {
             featureValueType: featureValueScope,
             spatialChannelVisible: true,
             obsColorEncoding: 'spatialChannelColor',
+            spatialSegmentationFilled: filledScope,
+            spatialSegmentationStrokeWidth: strokeScope,
           },
           {
             obsType: 'Arteries/Arterioles',
@@ -198,6 +217,8 @@ function generateKpmpConfig() {
             featureValueType: featureValueScope,
             spatialChannelVisible: true,
             obsColorEncoding: 'spatialChannelColor',
+            spatialSegmentationFilled: filledScope,
+            spatialSegmentationStrokeWidth: strokeScope,
           },
           {
             obsType: 'Interstitial Fibrosis and Tubular Atrophy',
@@ -208,16 +229,20 @@ function generateKpmpConfig() {
             featureValueType: featureValueScope,
             spatialChannelVisible: true,
             obsColorEncoding: 'spatialChannelColor',
+            spatialSegmentationFilled: false,
+            spatialSegmentationStrokeWidth: strokeScope,
           },
           {
             obsType: 'Peritubular Capillaries',
             spatialTargetC: 6,
-            spatialChannelColor: [202, 122, 166],
-            spatialChannelOpacity: opacityScope,
+            spatialChannelColor: [255, 0, 0],
+            spatialChannelOpacity: 1.0,
             featureType: featureTypeScope,
             featureValueType: featureValueScope,
             spatialChannelVisible: true,
             obsColorEncoding: 'spatialChannelColor',
+            spatialSegmentationFilled: true,
+            spatialSegmentationStrokeWidth: strokeScope,
           },
         ]),
       },

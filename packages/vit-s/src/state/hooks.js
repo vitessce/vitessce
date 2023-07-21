@@ -157,6 +157,10 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
       scope = getParameterScopeBy(
         parameter, byType, typeScope, coordinationScopes, coordinationScopesBy,
       );
+      if(!scope) {
+        // Fall back to using the view-level scope. 
+        scope = getParameterScope(parameter, coordinationScopes);
+      }
     }
     return {
       viewConfig: {
@@ -491,8 +495,14 @@ export function useComplexCoordination(
               coordinationScopes,
               coordinationScopesBy,
             );
-            const value = parameterSpace[parameterScope];
-            return [parameter, value];
+            if(parameterScope) {
+              const value = parameterSpace[parameterScope];
+              return [parameter, value];
+            }
+            // Fall back to global scope for this parameter.
+            const globalParameterScope = getParameterScope(parameter, coordinationScopes);
+            const globalValue = parameterSpace[globalParameterScope];
+            return [parameter, globalValue];
           }
           return [parameter, undefined];
         }));
@@ -584,6 +594,7 @@ export function useComplexCoordinationSecondary(
   const coordinationScopesFake = useMemo(() => {
     if (coordinationScopesBy?.[primaryType]?.[secondaryType]) {
       return {
+        ...coordinationScopes, // TODO: this is needed for falling back to view-level coordination scopes, but does it affect performance?
         [secondaryType]: Object.values(coordinationScopesBy[primaryType][secondaryType]).flat(),
       };
     }
@@ -591,6 +602,7 @@ export function useComplexCoordinationSecondary(
     // coordination values when finer ones are null/undefined.
     if (coordinationScopes?.[secondaryType] && Array.isArray(coordinationScopes[secondaryType])) {
       return {
+        ...coordinationScopes, // TODO: this is needed for falling back to view-level coordination scopes, but does it affect performance?
         [secondaryType]: coordinationScopes[secondaryType],
       };
     }
