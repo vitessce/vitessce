@@ -69,7 +69,7 @@ export default function ChannelSlider(props) {
   useEffect(() => {
     // If the `window` value is null, then assume it should be
     // auto-initialized using the min/max domain. This can occur
-    // upon first load, or when the channel targetT is changed.
+    // upon first load, or when the channel is changed.
     if (!window && !disabled && Array.isArray(minMaxDomain)) {
       setWindow(minMaxDomain);
     }
