@@ -157,8 +157,8 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
       scope = getParameterScopeBy(
         parameter, byType, typeScope, coordinationScopes, coordinationScopesBy,
       );
-      if(!scope) {
-        // Fall back to using the view-level scope. 
+      if (!scope) {
+        // Fall back to using the view-level scope.
         scope = getParameterScope(parameter, coordinationScopes);
       }
     }
@@ -495,7 +495,7 @@ export function useComplexCoordination(
               coordinationScopes,
               coordinationScopesBy,
             );
-            if(parameterScope) {
+            if (parameterScope) {
               const value = parameterSpace[parameterScope];
               return [parameter, value];
             }
