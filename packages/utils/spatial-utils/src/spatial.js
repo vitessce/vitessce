@@ -77,6 +77,38 @@ export function isRgb(loader, channels) {
 
 // From spatial/utils.js
 
+export function physicalSizeToMatrix(xSize, ySize, zSize, xUnit, yUnit, zUnit) {
+  let mat = (new Matrix4()).identity();
+  const hasZPhyscialSize = !!sizeZ;
+  const sizes = [
+    unit(`${xSize} ${xUnit}`.replace('µ', 'u')),
+    unit(`${ySize} ${yUnit}`.replace('µ', 'u')),
+  ];
+  if (hasZPhyscialSize) {
+    sizes.push(unit(`${zSize} ${zUnit}`.replace('µ', 'u')));
+  }
+  // Find the ratio of the sizes to get the scaling factor.
+  const scale = sizes.map((i) => divide(i, unit('1 um')));
+  
+  // TODO: is this still needed
+  // sizes are special objects with own equals method - see `unit` in declaration
+  if (!sizes[0].equals(sizes[1])) {
+    // Handle scaling in the Y direction for non-square pixels
+    scale[1] = divide(sizes[1], sizes[0]);
+  }
+  // END TODO: is this still needed
+  
+  // Add in z dimension needed for Matrix4 scale API.
+  if (!scale[2]) {
+    scale[2] = 1;
+  }
+  // no need to store/use identity scaling
+  if (isEqual(scale, [1, 1, 1])) {
+    return (new Matrix4()).identity();
+  }
+  return new Matrix4().scale([...scale]);
+}
+
 function getMetaWithTransformMatrices(imageMeta, imageLoaders) {
   // Do not fill in transformation matrices if any of the layers specify one.
   const sources = imageLoaders.map(loader => getSourceFromLoader(loader));
