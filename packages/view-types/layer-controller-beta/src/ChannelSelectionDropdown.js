@@ -26,17 +26,24 @@ export default function ChannelSelectionDropdown(props) {
     featureIndex,
     targetC,
     setTargetC,
+    setWindow,
     disabled,
   } = props;
   const classes = useStyles();
   const selectClasses = useSelectStyles();
+
+  function handleChange(event) {
+    setTargetC(event.target.value === '' ? null : Number(event.target.value));
+    setWindow(null); // Clear the window value so that it can be re-auto-calculated.
+    // TODO: also clear the window and re-calculate upon change of Z/T.
+  }
   return (Array.isArray(featureIndex) ? (
     <Select
       classes={{ root: selectClasses.selectRoot }}
       className={classes.oneLineChannelSelect}
       native
       value={targetC === null ? '' : targetC}
-      onChange={e => setTargetC(e.target.value === '' ? null : Number(e.target.value))}
+      onChange={handleChange}
     >
       {featureIndex.map((channelName, channelIndex) => (
         <option disabled={disabled} key={channelName} value={channelIndex}>

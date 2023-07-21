@@ -77,6 +77,7 @@ export default function SplitImageChannelController(props) {
           featureIndex={featureIndex}
           targetC={targetC}
           setTargetC={setTargetC}
+          setWindow={setWindow}
           disabled={isLoading}
         />
       </Grid>

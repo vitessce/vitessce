@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import { Slider } from '@material-ui/core';
 import { debounce } from 'lodash-es';
@@ -24,9 +24,9 @@ export default function ChannelSlider(props) {
     image,
     targetC,
     color,
-    window = [0, 0],
+    window,
     setWindow,
-    domainType = 'Full',
+    domainType = 'Min/Max',
     disabled: disabledProp,
     colormapOn,
     theme,
@@ -66,6 +66,15 @@ export default function ChannelSlider(props) {
   const minMaxDomain = minMaxQuery.data;
   const disabled = disabledProp || minMaxQuery.isLoading;
 
+  useEffect(() => {
+    // If the `window` value is null, then assume it should be
+    // auto-initialized using the min/max domain. This can occur
+    // upon first load, or when the channel targetT is changed.
+    if (!window && !disabled && Array.isArray(minMaxDomain)) {
+      setWindow(minMaxDomain);
+    }
+  }, [minMaxDomain, window, disabled]);
+
   const [min, max] = (domainType === 'Full' ? fullDomain : minMaxDomain) || [0, 0];
   const step = max - min < 500 && dtype?.startsWith('Float') ? (max - min) / 500 : 1;
 
@@ -76,7 +85,7 @@ export default function ChannelSlider(props) {
 
   return (
     <Slider
-      value={window}
+      value={window || [0, 0]}
       valueLabelFormat={abbreviateNumber}
       onChange={(e, v) => handleChangeDebounced(v)}
       valueLabelDisplay="auto"
