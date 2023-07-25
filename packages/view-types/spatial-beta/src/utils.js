@@ -78,7 +78,7 @@ export function getInitialSpatialTargets({
     for (let i = 0; i < imageLayerLoaders.length; i += 1) {
       const viewSize = { height, width };
       const { target, zoom: newViewStateZoom } = viv.getDefaultInitialViewState(
-        imageLayerLoaders[i].data,
+        imageLayerLoaders[i],
         viewSize,
         zoomBackoff,
         use3d,

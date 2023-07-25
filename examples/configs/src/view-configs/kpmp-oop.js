@@ -128,7 +128,7 @@ function generateKpmpConfig() {
         image: 'S-1905-017737_bf',
         spatialLayerVisible: true,
         spatialLayerOpacity: 1,
-        photometricInterpretation: 'RGB',
+        photometricInterpretation: 'BlackIsZero',
         imageChannel: CL([
           {
             spatialTargetC: 0,

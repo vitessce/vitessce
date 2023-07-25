@@ -219,6 +219,8 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_LAYER_COLORMAP,
+      CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR,
+      CoordinationType.SPATIAL_LAYER_MODEL_MATRIX,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -409,10 +411,14 @@ export function SpatialSubscriber(props) {
     obsSegmentations,
     obsSegmentationsType,
     // TODO: use obsLocations (molecules) here too.
-    imageLayerLoaders: imageData?.[imageLayerScopes?.[0]]?.image?.loaders || [], // TODO: which imageLayerLoaders?
+    imageLayerLoaders: Object.values(imageData || {})
+      .map(layerData => layerData?.image?.instance.getData())
+      .filter(Boolean),
     useRaster: Boolean(hasImageData),
     use3d,
-    modelMatrices: imageData?.[imageLayerScopes?.[0]]?.image?.meta?.map(({ metadata }) => metadata?.transform?.matrix) || [], // TODO: which meta?
+    modelMatrices: Object.values(imageData || {})
+      .map(layerData => layerData?.image?.instance.getModelMatrix())
+      .filter(Boolean),
   }),
   // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
   // an indirect dependency instead.

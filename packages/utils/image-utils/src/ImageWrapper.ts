@@ -85,8 +85,12 @@ export default class ImageWrapper<S extends string[]> {
     return this.vivLoader.data;
   }
 
-  getTransformMatrix(): number[] {
+  getModelMatrix(): number[] {
+    // The user can always provide an additional transform matrix
+    // via the file definition options property.
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options;
+    // We combine any user-provided transform matrix with the one
+    // from the image file.
     if ('multiscales' in this.vivLoader.metadata) {
       // OME-Zarr case.
       const {
@@ -109,6 +113,7 @@ export default class ImageWrapper<S extends string[]> {
       return transformMatrix;
     }
     if ('Pixels' in this.vivLoader.metadata) {
+      // OME-TIFF case.
       const {
         Pixels: {
           PhysicalSizeX,
@@ -125,6 +130,8 @@ export default class ImageWrapper<S extends string[]> {
       const transformMatrixFromOptions = coordinateTransformationsToMatrix(
         coordinateTransformationsFromOptions, ngffAxes,
       );
+      // For the OME-TIFF case, we convert the size and unit information
+      // to a transformation matrix.
       const transformMatrixFromFile = physicalSizeToMatrix(
         PhysicalSizeX, PhysicalSizeY, PhysicalSizeZ,
         PhysicalSizeXUnit, PhysicalSizeYUnit, PhysicalSizeZUnit,

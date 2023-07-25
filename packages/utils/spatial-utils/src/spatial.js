@@ -112,7 +112,12 @@ export function isRgb(loader, channels) {
 // From spatial/utils.js
 
 export function physicalSizeToMatrix(xSize, ySize, zSize, xUnit, yUnit, zUnit) {
-  const hasZPhyscialSize = !!zSize;
+  const hasZPhyscialSize = Boolean(zSize) && Boolean(zUnit);
+  const hasYPhyscialSize = Boolean(ySize) && Boolean(yUnit);
+  const hasXPhyscialSize = Boolean(xSize) && Boolean(xUnit);
+  if (!hasXPhyscialSize || !hasYPhyscialSize) {
+    return (new Matrix4()).identity();
+  }
   const sizes = [
     unit(`${xSize} ${xUnit}`.replace('µ', 'u')),
     unit(`${ySize} ${yUnit}`.replace('µ', 'u')),

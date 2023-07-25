@@ -375,25 +375,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
     layerScope, layerCoordination, channelScopes, channelCoordination,
     image, use3d, layerFeatureValues,
   ) {
-    const { data, metadata } = image?.obsSegmentations?.loaders?.[0] || {};
+    const data = image?.obsSegmentations?.instance?.getData();
     if (!data) {
       return null;
     }
 
     const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
 
-    const layerDefModelMatrix = null; // TODO(CoordinationType): per-layer modelMatrix
-    let modelMatrix;
-    const { transform } = metadata || {};
-    if (transform) {
-      const { scale, translate } = transform;
-      modelMatrix = new Matrix4()
-        .translate([translate.x, translate.y, 0])
-        .scale(scale);
-    } else if (layerDefModelMatrix) {
-      // eslint-disable-next-line prefer-destructuring
-      modelMatrix = new Matrix4(layerDefModelMatrix);
-    }
+    // TODO(CoordinationType): per-layer modelMatrix
+    const layerDefModelMatrix = image?.obsSegmentations?.instance?.getModelMatrix();
 
     // We need to keep the same selections array reference,
     // otherwise the Viv layer will not be re-used as we want it to,
@@ -445,7 +435,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         .map(cScope => (
           channelCoordination[cScope][CoordinationType.OBS_COLOR_ENCODING] === 'spatialChannelColor'
         )),
-      modelMatrix,
+      modelMatrix: layerDefModelMatrix,
       hoveredCell: Number(this.props.cellHighlight),
       multiFeatureValues: channelScopes.map(cScope => (layerFeatureValues?.[cScope]?.[0] || [])),
       renderSubLayers: renderSubBitmaskLayers,
@@ -477,7 +467,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   ) {
     // TODO: always using 0th loader here, create joint file type to split existing multi-image
     // raster.json when necessary.
-    const { data, metadata } = image?.image?.loaders?.[0] || {};
+    const data = image?.image?.instance?.getData();
     if (!data) {
       return null;
     }
@@ -488,13 +478,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // TODO(CoordinationType): global or per-layer renderingMode (used in 3d mode)
     const renderingMode = null;
     const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
-
-    const layerDefTransparentColor = null; // TODO(CoordinationType): per-layer transparentColor
-    const useTransparentColor = (
-      (!visible && typeof visible === 'boolean')
-      || Boolean(layerDefTransparentColor)
-    );
-    const transparentColor = useTransparentColor ? [0, 0, 0] : null;
+    const transparentColor = layerCoordination[CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR];
+    const useTransparentColor = Array.isArray(transparentColor) && transparentColor.length === 3;
 
     const extensions = getVivLayerExtensions(
       use3d, colormap, renderingMode,
@@ -506,18 +491,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       rgbInterleavedProps.visible = visible;
     }
 
-    const layerDefModelMatrix = null; // TODO(CoordinationType): per-layer modelMatrix
-    let modelMatrix;
-    const { transform } = metadata || {};
-    if (transform) {
-      const { scale, translate } = transform;
-      modelMatrix = new Matrix4()
-        .translate([translate.x, translate.y, 0])
-        .scale(scale);
-    } else if (layerDefModelMatrix) {
-      // eslint-disable-next-line prefer-destructuring
-      modelMatrix = new Matrix4(layerDefModelMatrix);
-    }
+    // TODO: support model matrix from coordination space also.
+    const layerDefModelMatrix = image?.image?.instance?.getModelMatrix() || {};
 
     // We need to keep the same selections array reference,
     // otherwise the Viv layer will not be re-used as we want it to,
@@ -563,7 +538,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         )),
       opacity: layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY],
       colormap,
-      modelMatrix,
+      modelMatrix: layerDefModelMatrix,
       transparentColor,
       useTransparentColor,
       // TODO(CoordinationType): global or per-layer resolution (used in 3d mode)

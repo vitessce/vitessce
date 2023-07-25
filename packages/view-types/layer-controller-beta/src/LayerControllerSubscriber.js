@@ -138,6 +138,8 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_LAYER_COLORMAP,
+      CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR,
+      CoordinationType.SPATIAL_LAYER_MODEL_MATRIX,
       CoordinationType.PHOTOMETRIC_INTERPRETATION,
     ],
     coordinationScopes,
