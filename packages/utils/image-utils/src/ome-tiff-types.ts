@@ -68,11 +68,7 @@ type Channel = {
   ID: string;
   SamplesPerPixel: number;
   Name?: string;
-} | {
-  ID: string;
-  SamplesPerPixel: number;
-  Name?: string;
-  Color: number[]; // [R, G, B, A]
+  Color?: number[]; // [R, G, B, A]
 };
 
 type Pixels = {

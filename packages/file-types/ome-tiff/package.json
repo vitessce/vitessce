@@ -34,6 +34,7 @@
     "@vitessce/gl": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/spatial-utils": "workspace:*",
+    "@vitessce/image-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "ajv": "^6.10.0",

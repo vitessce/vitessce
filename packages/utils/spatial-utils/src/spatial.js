@@ -78,8 +78,7 @@ export function isRgb(loader, channels) {
 // From spatial/utils.js
 
 export function physicalSizeToMatrix(xSize, ySize, zSize, xUnit, yUnit, zUnit) {
-  let mat = (new Matrix4()).identity();
-  const hasZPhyscialSize = !!sizeZ;
+  const hasZPhyscialSize = !!zSize;
   const sizes = [
     unit(`${xSize} ${xUnit}`.replace('µ', 'u')),
     unit(`${ySize} ${yUnit}`.replace('µ', 'u')),
@@ -88,8 +87,8 @@ export function physicalSizeToMatrix(xSize, ySize, zSize, xUnit, yUnit, zUnit) {
     sizes.push(unit(`${zSize} ${zUnit}`.replace('µ', 'u')));
   }
   // Find the ratio of the sizes to get the scaling factor.
-  const scale = sizes.map((i) => divide(i, unit('1 um')));
-  
+  const scale = sizes.map(i => divide(i, unit('1 um')));
+
   // TODO: is this still needed
   // sizes are special objects with own equals method - see `unit` in declaration
   if (!sizes[0].equals(sizes[1])) {
@@ -97,7 +96,7 @@ export function physicalSizeToMatrix(xSize, ySize, zSize, xUnit, yUnit, zUnit) {
     scale[1] = divide(sizes[1], sizes[0]);
   }
   // END TODO: is this still needed
-  
+
   // Add in z dimension needed for Matrix4 scale API.
   if (!scale[2]) {
     scale[2] = 1;
@@ -399,11 +398,11 @@ export function getNgffAxesForTiff(dimOrder) {
 /**
  * Convert an array of coordinateTransformations objects to a 16-element
  * plain JS array using Matrix4 linear algebra transformation functions.
- * @param {object[]} coordinateTransformations List of objects matching the
+ * @param {object[]|undefined} coordinateTransformations List of objects matching the
  * OME-NGFF v0.4 coordinateTransformations spec.
- * @param {object[]} axes Axes in OME-NGFF v0.4 format, objects
+ * @param {object[]|undefined} axes Axes in OME-NGFF v0.4 format, objects
  * with { type, name }.
- * @returns {Array<number>} Array of 16 numbers representing the Matrix4.
+ * @returns {Matrix4} Array of 16 numbers representing the Matrix4.
  */
 export function coordinateTransformationsToMatrix(coordinateTransformations, axes) {
   let mat = (new Matrix4()).identity();
@@ -447,4 +446,13 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
     });
   }
   return mat;
+}
+
+export function hexToRgb(hex) {
+  const result = /^#?([A-F\d]{2})([A-F\d]{2})([A-F\d]{2})$/i.exec(hex);
+  return [
+    parseInt(result[1].toLowerCase(), 16),
+    parseInt(result[2].toLowerCase(), 16),
+    parseInt(result[3].toLowerCase(), 16),
+  ];
 }

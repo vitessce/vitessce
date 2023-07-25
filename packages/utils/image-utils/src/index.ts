@@ -1,1 +1,1 @@
-export { default as ImageWrapper } from './ImageWrapper';
+export { default as ImageWrapper } from './ImageWrapper.js';

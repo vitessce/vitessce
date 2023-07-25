@@ -1,17 +1,20 @@
 
-import type { LoadOmeTiffReturnValue } from './ome-tiff-types';
-import type { LoadOmeZarrReturnValue } from './ome-zarr-types';
+/* eslint-disable */
 import {
   coordinateTransformationsToMatrix,
   getNgffAxes,
   getNgffAxesForTiff,
   physicalSizeToMatrix,
+  hexToRgb,
 } from '@vitessce/spatial-utils';
+import type { LoadOmeTiffReturnValue } from './ome-tiff-types.js';
+import type { LoadOmeZarrReturnValue } from './ome-zarr-types.js';
 
 
 type VivLoaderType<S extends string[]> = LoadOmeTiffReturnValue<S> | LoadOmeZarrReturnValue<S>;
+type VivLoaderDataType<S extends string[]> = VivLoaderType<S>['data'];
 type ImageOptions = {
-  coordinateTransformations?: number[];
+  coordinateTransformations?: object[]; // TODO: stricter type
   offsetsUrl?: string;
 };
 
@@ -21,10 +24,13 @@ type ChannelObject = {
   defaultWindow?: [number, number];
 };
 
-
+/**
+ * A wrapper around the Viv loader, to provide a common interface for
+ * all image file types.
+ */
 export default class ImageWrapper<S extends string[]> {
-
   vivLoader: VivLoaderType<S>;
+
   options: ImageOptions;
 
   constructor(vivLoader: VivLoaderType<S>, options: ImageOptions) {
@@ -57,7 +63,7 @@ export default class ImageWrapper<S extends string[]> {
         PhysicalSizeX
         && PhysicalSizeXUnit
         && PhysicalSizeY
-        && PhysicalSizeYUnit
+        && PhysicalSizeYUnit,
       );
     }
     // This is the OME-Zarr case.
@@ -65,21 +71,21 @@ export default class ImageWrapper<S extends string[]> {
     return true;
   }
 
-  getData() {
+  getData(): VivLoaderDataType<S> {
     return this.vivLoader.data;
   }
 
   getTransformMatrix(): number[] {
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options;
-    if('multiscales' in this.vivLoader.metadata) {
+    if ('multiscales' in this.vivLoader.metadata) {
       // OME-Zarr case.
       const {
         multiscales: [
           {
             coordinateTransformations,
             axes,
-          }
-        ]
+          },
+        ],
       } = this.vivLoader.metadata;
       // Axes in v0.4 format.
       const ngffAxes = getNgffAxes(axes);
@@ -104,7 +110,7 @@ export default class ImageWrapper<S extends string[]> {
           DimensionOrder,
         },
       } = this.vivLoader.metadata;
-      
+
       const ngffAxes = getNgffAxesForTiff(DimensionOrder);
       const transformMatrixFromOptions = coordinateTransformationsToMatrix(
         coordinateTransformationsFromOptions, ngffAxes,
@@ -158,7 +164,7 @@ export default class ImageWrapper<S extends string[]> {
       } = this.vivLoader.metadata;
       result = Name;
     }
-    if('omero' in this.vivLoader.metadata){
+    if ('omero' in this.vivLoader.metadata) {
       // This is the OME-Zarr case.
       const {
         omero: {
@@ -167,7 +173,7 @@ export default class ImageWrapper<S extends string[]> {
       } = this.vivLoader.metadata;
       result = name;
     }
-    if(!result) {
+    if (!result) {
       // Fallback to a default name.
       result = 'Image';
     }
@@ -189,13 +195,43 @@ export default class ImageWrapper<S extends string[]> {
           channels,
         },
       } = this.vivLoader.metadata;
-      return channels.map(c => c.label);
+      return channels.map((channel, i) => channel.label || `Channel ${i}`);
     }
     return [];
   }
 
   getChannelObjects(): ChannelObject[] {
-    // TODO
+    if ('omero' in this.vivLoader.metadata) {
+      // This is the OME-Zarr case.
+      const {
+        omero: {
+          channels,
+        },
+      } = this.vivLoader.metadata;
+      return channels.map((channel, i) => ({
+        name: channel.label || `Channel ${i}`,
+        defaultColor: channel.color
+          ? hexToRgb(channel.color)
+          : undefined,
+        defaultWindow: channel.window
+          ? [channel.window.start, channel.window.end]
+          : undefined,
+      }));
+    }
+    if ('Pixels' in this.vivLoader.metadata) {
+      const {
+        Pixels: {
+          Channels,
+        },
+      } = this.vivLoader.metadata;
+      return Channels.map((channel, i) => ({
+        name: channel.Name || `Channel ${i}`,
+        defaultColor: channel.Color
+          ? channel.Color
+          : undefined,
+        defaultWindow: undefined, // TODO: does OME-TIFF support this?
+      }));
+    }
+    return [];
   }
-
 }

@@ -4,6 +4,7 @@ import {
   coordinateTransformationsToMatrix,
   getNgffAxesForTiff,
 } from '@vitessce/spatial-utils';
+import { ImageWrapper } from '@vitessce/image-utils';
 import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/vit-s';
 
 export default class OmeTiffLoader extends AbstractTwoStepLoader {
@@ -26,6 +27,9 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
+
+    const imageWrapper = new ImageWrapper(loader, this.options);
+
     const {
       Name: imageName,
       Pixels: {
@@ -98,7 +102,11 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       };
       return new LoaderResult(
         {
-          image: { loaders: imageLayerLoaders, meta: imageLayerMeta },
+          image: {
+            loaders: imageLayerLoaders, // TODO: replace with imageWrapper
+            meta: imageLayerMeta, // TODO: replace with imageWrapper
+            instance: imageWrapper, // TODO: make this the root value of LoaderResult.image.
+          },
           featureIndex: channels,
         },
         urls,

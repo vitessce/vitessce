@@ -33,7 +33,7 @@ type Multiscale = {
   datasets: { path: string }[];
   axes?: string[] | Axis[];
   version?: string;
-  coordinateTransformations?: number[];
+  coordinateTransformations?: object[]; // TODO: stricter type
 }
 
 type RootAttrs = {

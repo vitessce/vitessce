@@ -16,6 +16,7 @@ export {
   getNgffAxesForTiff,
   coordinateTransformationsToMatrix,
   physicalSizeToMatrix,
+  hexToRgb,
 } from './spatial.js';
 export {
   toRgbUIString,
