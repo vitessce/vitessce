@@ -24,7 +24,7 @@ const useStyles = makeStyles(() => ({
   },
   spanButton: {
     padding: '4px',
-  }
+  },
 }));
 
 /**
@@ -51,7 +51,7 @@ function ChannelOptions(props) {
   }
 
   function handleDomainTypeChange(event) {
-    setShowValueExtent(event.target.value === "Value Min/Max" ? true : false);
+    setShowValueExtent(event.target.value === 'Value Min/Max');
   }
 
   return (
@@ -69,7 +69,7 @@ function ChannelOptions(props) {
         <Select
           native
           onChange={handleDomainTypeChange}
-          value={showValueExtent ? "Value Min/Max" : "Dtype Min/Max"}
+          value={showValueExtent ? 'Value Min/Max' : 'Dtype Min/Max'}
           inputProps={{ name: 'domainType' }}
           style={{ width: '100%', fontSize: '14px' }}
           classes={{ root: selectClasses.selectRoot }}

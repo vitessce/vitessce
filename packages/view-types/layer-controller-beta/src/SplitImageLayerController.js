@@ -99,7 +99,9 @@ function ImageLayerEllipsisMenu(props) {
   }
 
   function handleResolutionChange(event) {
-    setSpatialTargetResolution(event.target.value !== null ? parseInt(event.target.value) : null);
+    setSpatialTargetResolution(
+      event.target.value !== null ? parseInt(event.target.value, 10) : null,
+    );
   }
 
   return (

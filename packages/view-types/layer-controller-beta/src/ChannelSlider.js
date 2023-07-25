@@ -2,9 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 
 import { Slider } from '@material-ui/core';
 import { debounce } from 'lodash-es';
-import { useQuery } from '@tanstack/react-query';
 import {
-  getMultiSelectionStats,
   abbreviateNumber,
   toRgbUIString,
   DOMAINS,
@@ -21,9 +19,6 @@ import {
 export default function ChannelSlider(props) {
   const {
     image,
-    targetT,
-    targetZ,
-    targetC,
     color,
     window,
     setWindow,
