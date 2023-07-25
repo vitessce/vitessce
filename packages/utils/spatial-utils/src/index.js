@@ -17,6 +17,8 @@ export {
   coordinateTransformationsToMatrix,
   physicalSizeToMatrix,
   hexToRgb,
+  getStatsForResolution,
+  canLoadResolution,
 } from './spatial.js';
 export {
   toRgbUIString,
@@ -26,3 +28,6 @@ export {
   getBoundingCube,
   abbreviateNumber,
 } from './layer-controller.js';
+export {
+  DOMAINS,
+} from './constants.js';

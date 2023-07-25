@@ -5,6 +5,8 @@ import {
   getSourceFromLoader,
   isRgb,
   getMultiSelectionStats,
+  DOMAINS,
+  canLoadResolution,
 } from '@vitessce/spatial-utils';
 
 import {
@@ -18,8 +20,6 @@ import {
   VisibilityOff as VisibilityOffIcon,
 } from '@material-ui/icons';
 
-
-import { canLoadResolution } from '@vitessce/utils';
 import LayerOptions from './LayerOptions.js';
 import VolumeOptions from './VolumeOptions.js';
 import {
@@ -29,7 +29,6 @@ import {
   useAccordionStyles,
 } from './styles.js';
 
-import { DOMAINS } from './constants.js';
 
 function TabPanel(props) {
   const {

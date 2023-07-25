@@ -6,6 +6,9 @@ import {
   getNgffAxesForTiff,
   physicalSizeToMatrix,
   hexToRgb,
+  getSourceFromLoader,
+  canLoadResolution,
+  getStatsForResolution,
 } from '@vitessce/spatial-utils';
 import type { LoadOmeTiffReturnValue } from './ome-tiff-types.js';
 import type { LoadOmeZarrReturnValue } from './ome-zarr-types.js';
@@ -22,6 +25,13 @@ type ChannelObject = {
   name: string;
   defaultColor?: number[];
   defaultWindow?: [number, number];
+};
+
+type ResolutionObject = {
+  height: number;
+  width: number;
+  depthDownsampled: number;
+  totalBytes: number;
 };
 
 /**
@@ -180,6 +190,26 @@ export default class ImageWrapper<S extends string[]> {
     return result;
   }
 
+  getNumChannels(): number {
+    if ('Pixels' in this.vivLoader.metadata) {
+      const {
+        Pixels: {
+          Channels,
+        },
+      } = this.vivLoader.metadata;
+      return Channels.length;
+    }
+    if ('omero' in this.vivLoader.metadata) {
+      const {
+        omero: {
+          channels,
+        },
+      } = this.vivLoader.metadata;
+      return channels.length;
+    }
+    return 0;
+  }
+
   getChannelNames(): string[] {
     if ('Pixels' in this.vivLoader.metadata) {
       const {
@@ -233,5 +263,60 @@ export default class ImageWrapper<S extends string[]> {
       }));
     }
     return [];
+  }
+
+  getDtype(): string | undefined {
+    const loader = this.vivLoader;
+    const source = getSourceFromLoader(loader) as any;
+    if ('dtype' in source) {
+      return source.dtype as string;
+    }
+    return undefined;
+  }
+
+  hasZStack(): boolean {
+    const loader = this.vivLoader;
+    const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    const hasZStack = shape[labels.indexOf('z')] > 1;
+    return hasZStack;
+  }
+
+  hasTStack(): boolean {
+    const loader = this.vivLoader;
+    const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    const hasTStack = shape[labels.indexOf('t')] > 1;
+    return hasTStack;
+  }
+
+  isMultiResolution(): boolean {
+    const loader = this.vivLoader;
+    const hasViewableResolutions = Boolean(
+      Array.from({
+        length: loader.data.length,
+      }).filter((_, resolution) => canLoadResolution(loader.data, resolution)).length,
+    );
+    return hasViewableResolutions;
+  }
+
+  getMultiResolutionStats(): ResolutionObject[] {
+    const loader = this.vivLoader;
+    return Array.from({ length: loader.data.length })
+      .fill(0)
+      // eslint-disable-next-line no-unused-vars
+      .filter((_, resolution) => (loader.data && canLoadResolution(loader.data, resolution)))
+      .map((_, resolution) => {
+        const {
+          height,
+          width,
+          depthDownsampled,
+          totalBytes,
+        } = getStatsForResolution(loader.data, resolution);
+        return {
+          height,
+          width,
+          depthDownsampled,
+          totalBytes,
+        };
+      });
   }
 }

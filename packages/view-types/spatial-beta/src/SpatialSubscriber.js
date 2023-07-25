@@ -36,7 +36,8 @@ import {
   useCoordinationScopes,
   useCoordinationScopesBy,
 } from '@vitessce/vit-s';
-import { canLoadResolution, commaNumber, getCellColors } from '@vitessce/utils';
+import { commaNumber, getCellColors } from '@vitessce/utils';
+import { canLoadResolution } from '@vitessce/spatial-utils';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, CoordinationType } from '@vitessce/constants-internal';
 import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
 import { MultiLegend } from '@vitessce/legend';
@@ -341,6 +342,8 @@ export function SpatialSubscriber(props) {
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
+
+
   const [{ image }, imageStatus, imageUrls] = useImageData(
     loaders, dataset, false,
     {},
@@ -348,6 +351,9 @@ export function SpatialSubscriber(props) {
     {}, // TODO: which properties to match on. Revisit after #830.
   );
   const { loaders: imageLayerLoaders = [], meta = [] } = image || {};
+  // console.log('multiImage', imageData, 'singleImage', image);
+
+
   const [neighborhoods, neighborhoodsStatus, neighborhoodsUrls] = useNeighborhoodsData(
     loaders, dataset, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
@@ -528,14 +534,10 @@ export function SpatialSubscriber(props) {
     matrixObsIndex,
     expressionData: uint8ExpressionData,
   });
-  const canLoad3DLayers = imageLayerLoaders.some(loader => Boolean(
-    Array.from({
-      length: loader.data.length,
-    }).filter((_, res) => canLoadResolution(loader.data, res)).length,
-  ));
+  const canLoad3DLayers = Object.values(imageData || {})
+    .some(layerData => layerData?.image?.instance.hasZStack());
   // Only show 3D options if we can theoretically load the data and it is allowed to be loaded.
-  const canShow3DOptions = canLoad3DLayers
-    && !(disable3d?.length === imageLayerLoaders.length) && !globalDisable3d;
+  const canShow3DOptions = canLoad3DLayers && !globalDisable3d;
 
   const options = useMemo(() => {
     // Only show button if there is expression or 3D data because only cells data

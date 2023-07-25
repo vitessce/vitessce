@@ -67,7 +67,8 @@ export default function SplitLayerController(props) {
           channelScopes={imageChannelScopesByLayer[layerScope]}
           channelCoordination={imageChannelCoordination[0][layerScope]}
           setChannelCoordination={imageChannelCoordination[1][layerScope]}
-          image={images[layerScope]}
+          image={images[layerScope]?.image?.instance} /* TODO: remove extra instance accessor */
+          featureIndex={images[layerScope]?.featureIndex}
           use3d={false} /* TODO */
         />
       ))}

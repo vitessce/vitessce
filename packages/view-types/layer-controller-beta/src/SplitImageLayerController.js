@@ -120,6 +120,7 @@ export default function SplitImageLayerController(props) {
     channelCoordination,
     setChannelCoordination,
     image,
+    featureIndex,
     use3d, /* TODO */
   } = props;
 
@@ -142,9 +143,8 @@ export default function SplitImageLayerController(props) {
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
 
-  // TODO: does this work for non-OME-TIFF?
-  const label = image?.image?.loaders?.[0]?.metadata?.Name;
-  const imageNumChannels = image?.image?.loaders?.[0]?.channels?.length;
+  const label = image?.getName();
+  const imageNumChannels = image?.getNumChannels();
 
   function handleChannelAdd() {
     addChannel(
@@ -268,8 +268,8 @@ export default function SplitImageLayerController(props) {
                   window={spatialChannelWindow}
                   setWindow={setSpatialChannelWindow}
                   colormapOn={colormap !== null}
-                  featureIndex={image?.featureIndex}
-                  image={image?.image}
+                  featureIndex={featureIndex}
+                  image={image}
                 />
               );
             })}

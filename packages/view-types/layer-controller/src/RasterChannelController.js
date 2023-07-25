@@ -8,9 +8,9 @@ import {
   getMultiSelectionStats,
   toRgbUIString,
   abbreviateNumber,
+  DOMAINS,
 } from '@vitessce/spatial-utils';
 import ChannelOptions from './ChannelOptions.js';
-import { DOMAINS } from './constants.js';
 import {
   ChannelSelectionDropdown,
   ChannelVisibilityCheckbox,

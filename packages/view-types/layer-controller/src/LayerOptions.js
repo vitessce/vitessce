@@ -7,12 +7,12 @@ import {
   getBoundingCube,
   getMultiSelectionStats,
   DEFAULT_RASTER_DOMAIN_TYPE,
+  canLoadResolution,
+  getStatsForResolution,
 } from '@vitessce/spatial-utils';
 import {
   COLORMAP_OPTIONS,
-  canLoadResolution,
   formatBytes,
-  getStatsForResolution,
 } from '@vitessce/utils';
 import { useSelectionSliderStyles, useSelectStyles } from './styles.js';
 

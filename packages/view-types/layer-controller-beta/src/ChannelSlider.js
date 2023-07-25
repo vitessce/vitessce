@@ -4,12 +4,11 @@ import { Slider } from '@material-ui/core';
 import { debounce } from 'lodash-es';
 import { useQuery } from '@tanstack/react-query';
 import {
-  getSourceFromLoader,
   getMultiSelectionStats,
   abbreviateNumber,
   toRgbUIString,
+  DOMAINS,
 } from '@vitessce/spatial-utils';
-import { DOMAINS } from './constants.js';
 
 
 /**
@@ -34,8 +33,8 @@ export default function ChannelSlider(props) {
 
   const rgbColor = toRgbUIString(colormapOn, color, theme);
 
-  const loader = image?.loaders?.[0];
-  const { dtype } = loader ? getSourceFromLoader(loader) : {};
+  const dtype = image?.getDtype();
+
   const selection = {
     // TODO: Z, T
     // TODO: keys (if not always 'c', 'z', 't')
@@ -46,13 +45,13 @@ export default function ChannelSlider(props) {
   const fullDomain = dtype ? DOMAINS[dtype] : [0, 0];
 
   const minMaxQuery = useQuery({
-    enabled: !!loader && !disabledProp,
+    enabled: Boolean(image?.getData()) && !disabledProp,
     structuralSharing: false,
-    queryKey: ['minMaxDomain', image?.meta?.[0].name, selection],
+    queryKey: ['minMaxDomain', image?.getName(), selection],
     queryFn: async (ctx) => {
       const selections = [selection];
       const stats = await getMultiSelectionStats({
-        loader: ctx.meta.loader.data,
+        loader: ctx.meta.image?.getData(),
         selections,
         use3d: false, // TODO: support 3D
       });
@@ -60,7 +59,7 @@ export default function ChannelSlider(props) {
       const [newDomain] = stats.domains;
       return newDomain;
     },
-    meta: { loader },
+    meta: { image },
   });
 
   const minMaxDomain = minMaxQuery.data;
