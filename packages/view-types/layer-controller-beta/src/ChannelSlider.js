@@ -27,8 +27,9 @@ export default function ChannelSlider(props) {
     color,
     window,
     setWindow,
-    domainType = 'Min/Max',
-    disabled: disabledProp,
+    showValueExtent,
+    disabled,
+    minMaxDomain,
     colormapOn,
     theme,
   } = props;
@@ -36,33 +37,7 @@ export default function ChannelSlider(props) {
   const rgbColor = toRgbUIString(colormapOn, color, theme);
 
   const dtype = image?.getDtype();
-
   const fullDomain = dtype ? DOMAINS[dtype] : [0, 0];
-
-  const minMaxQuery = useQuery({
-    enabled: Boolean(image?.getData()) && !disabledProp,
-    structuralSharing: false,
-    queryKey: ['minMaxDomain', image?.getName(), targetT, targetZ, targetC],
-    queryFn: async (ctx) => {
-      const selection = {
-        t: ctx.queryKey[2],
-        z: ctx.queryKey[3],
-        c: ctx.queryKey[4],
-      };
-      const stats = await getMultiSelectionStats({
-        loader: ctx.meta.image?.getData(),
-        selections: [selection],
-        use3d: false, // TODO: support 3D
-      });
-      // eslint-disable-next-line prefer-destructuring
-      const [newDomain] = stats.domains;
-      return newDomain;
-    },
-    meta: { image },
-  });
-
-  const minMaxDomain = minMaxQuery.data;
-  const disabled = disabledProp || minMaxQuery.isLoading;
 
   useEffect(() => {
     // If the `window` value is null, then assume it should be
@@ -73,7 +48,7 @@ export default function ChannelSlider(props) {
     }
   }, [minMaxDomain, window, disabled]);
 
-  const [min, max] = (domainType === 'Full' ? fullDomain : minMaxDomain) || [0, 0];
+  const [min, max] = (showValueExtent ? minMaxDomain : fullDomain) || [0, 0];
   const step = max - min < 500 && dtype?.startsWith('Float') ? (max - min) / 500 : 1;
 
   const handleChangeDebounced = useCallback(

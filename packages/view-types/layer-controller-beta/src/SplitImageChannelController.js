@@ -1,12 +1,17 @@
 /* eslint-disable no-unused-vars */
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Grid,
 } from '@material-ui/core';
+import { useQuery } from '@tanstack/react-query';
+import {
+  getMultiSelectionStats,
+} from '@vitessce/spatial-utils';
 import {
   useRemoveImageChannelInMetaCoordinationScopes,
 } from '@vitessce/vit-s';
 import { VIEWER_PALETTE } from '@vitessce/utils';
+
 import ChannelOptions from './ChannelOptions.js';
 import ChannelSlider from './ChannelSlider.js';
 import ChannelVisibilityCheckbox from './ChannelVisibilityCheckbox.js';
@@ -34,12 +39,15 @@ export default function SplitImageChannelController(props) {
     colormapOn,
     featureIndex, // The channel names.
     image, // To get the channel window extent using image metadata.
+    spatialRenderingMode,
   } = props;
 
   const removeChannel = useRemoveImageChannelInMetaCoordinationScopes();
+  const [showValueExtent, setShowValueExtent] = useState(true);
 
   const isLoading = false; // TODO
   const theme = 'dark'; // TODO
+  const is3dMode = spatialRenderingMode === '3D';
 
   function onRemove() {
     removeChannel(
@@ -47,6 +55,37 @@ export default function SplitImageChannelController(props) {
       layerScope,
       channelScope,
     );
+  }
+
+  const minMaxQuery = useQuery({
+    enabled: Boolean(image?.getData()) && !isLoading,
+    structuralSharing: false,
+    queryKey: ['minMaxDomain', image?.getName(), targetT, targetZ, targetC, is3dMode],
+    queryFn: async (ctx) => {
+      const selection = {
+        t: ctx.queryKey[2],
+        z: ctx.queryKey[3],
+        c: ctx.queryKey[4],
+      };
+      const stats = await getMultiSelectionStats({
+        loader: ctx.meta.image?.getData(),
+        selections: [selection],
+        use3d: ctx.queryKey[5],
+      });
+      // eslint-disable-next-line prefer-destructuring
+      const [newDomain] = stats.domains;
+      return newDomain;
+    },
+    meta: { image },
+  });
+
+  const minMaxDomain = minMaxQuery.data;
+  const disabled = isLoading || minMaxQuery.isLoading;
+
+  function handleResetWindowUsingIQR() {
+    if (!disabled) {
+      setWindow(minMaxDomain);
+    }
   }
 
   return (
@@ -92,20 +131,20 @@ export default function SplitImageChannelController(props) {
           targetC={targetC}
           window={window}
           setWindow={setWindow}
-          disabled={isLoading}
+          disabled={disabled}
           color={color}
           theme={theme}
           colormapOn={colormapOn}
+          showValueExtent={showValueExtent}
+          minMaxDomain={minMaxDomain}
         />
       </Grid>
       <Grid item xs={1} style={{ marginTop: '4px' }}>
         <ChannelOptions
-          color={color}
-          setColor={setColor}
           onRemove={onRemove}
-          domainType="min/max" // TODO
-          setDomainType={() => {}} // TODO
-          disabled={isLoading}
+          showValueExtent={showValueExtent}
+          setShowValueExtent={setShowValueExtent}
+          onResetWindowUsingIQR={handleResetWindowUsingIQR}
         />
       </Grid>
     </Grid>

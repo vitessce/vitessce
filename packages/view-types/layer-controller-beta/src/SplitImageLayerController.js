@@ -26,7 +26,7 @@ import {
   useAddImageChannelInMetaCoordinationScopes,
   PopperMenu,
 } from '@vitessce/vit-s';
-import { COLORMAP_OPTIONS } from '@vitessce/utils';
+import { COLORMAP_OPTIONS, formatBytes } from '@vitessce/utils';
 import { useControllerSectionStyles, useSelectStyles } from './styles.js';
 import SplitImageChannelController from './SplitImageChannelController.js';
 
@@ -67,14 +67,39 @@ function ImageLayerEllipsisMenu(props) {
     colormap,
     setColormap,
     photometricInterpretation,
+    setPhotometricInterpretation,
+    spatialTargetResolution,
+    setSpatialTargetResolution,
+    volumetricRenderingAlgorithm,
+    setVolumetricRenderingAlgorithm,
+    spatialLayerTransparentColor,
+    setSpatialLayerTransparentColor,
+    spatialRenderingMode,
+    image,
   } = props;
   const [open, setOpen] = useState(false);
   const classes = useStyles();
   const selectClasses = useSelectStyles();
 
+  const is3dMode = spatialRenderingMode === '3D';
+  const isMultiResolution = image?.isMultiResolution();
+  const multiResolutionStats = image?.getMultiResolutionStats();
+
 
   function handleColormapChange(event) {
     setColormap(event.target.value === '' ? null : event.target.value);
+  }
+
+  function handleInterpretationChange(event) {
+    setPhotometricInterpretation(event.target.value);
+  }
+
+  function handleVolumetricChange(event) {
+    setVolumetricRenderingAlgorithm(event.target.value);
+  }
+
+  function handleResolutionChange(event) {
+    setSpatialTargetResolution(event.target.value !== null ? parseInt(event.target.value) : null);
   }
 
   return (
@@ -105,7 +130,66 @@ function ImageLayerEllipsisMenu(props) {
           ))}
         </Select>
       </MenuItem>
-      {/* TODO: select or checkbox for per-layer photometricInterpretation? */}
+      <MenuItem dense disableGutters>
+        <span style={{ margin: '0 5px' }}>Photometric Interpretation: </span>
+        <Select
+          native
+          onChange={handleInterpretationChange}
+          value={photometricInterpretation}
+          inputProps={{ name: 'interpretation' }}
+          style={{ width: '100%', fontSize: '14px' }}
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          <option aria-label="RGB" value="RGB">RGB</option>
+          <option aria-label="BlackIsZero" value="BlackIsZero">BlackIsZero</option>
+        </Select>
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <span style={{ margin: '0 5px' }}>Zero Transparent: </span>
+        <Checkbox
+          color="primary"
+          checked={spatialLayerTransparentColor !== null}
+          onChange={(e, v) => setSpatialLayerTransparentColor(v ? ([0, 0, 0]) : null)}
+        />
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <span style={{ margin: '0 5px' }}>Volumetric Rendering: </span>
+        <Select
+          native
+          onChange={handleVolumetricChange}
+          value={volumetricRenderingAlgorithm}
+          inputProps={{ name: 'volumetric' }}
+          style={{ width: '100%', fontSize: '14px' }}
+          classes={{ root: selectClasses.selectRoot }}
+          disabled={!is3dMode}
+        >
+          <option aria-label="Additive" value="additive">Additive</option>
+          <option aria-label="Maximum Intensity Projection" value="maximumIntensityProjection">Maximum Intensity Projection</option>
+        </Select>
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <span style={{ margin: '0 5px' }}>Volume Resolution: </span>
+        <Select
+          native
+          disabled={!is3dMode || !isMultiResolution}
+          onChange={handleResolutionChange}
+          value={spatialTargetResolution === null ? '0' : String(spatialTargetResolution)}
+          inputProps={{ name: 'colormap' }}
+          style={{ width: '100%', fontSize: '14px' }}
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          {Array.isArray(multiResolutionStats) ? multiResolutionStats.map((stats, resolution) => (
+            <option
+              key={`(${stats.height}, ${stats.width}, ${stats.depthDownsampled})`}
+              value={resolution}
+            >
+              {`3D: ${resolution}x Downsampled, ~${formatBytes(
+                stats.totalBytes,
+              )} per channel, (${stats.height}, ${stats.width}, ${stats.depthDownsampled})`}
+            </option>
+          )) : null}
+        </Select>
+      </MenuItem>
     </PopperMenu>
   );
 }
@@ -121,9 +205,9 @@ export default function SplitImageLayerController(props) {
     setChannelCoordination,
     image,
     featureIndex,
-    use3d, /* TODO */
     targetT,
     targetZ,
+    spatialRenderingMode,
   } = props;
 
   const [open, setOpen] = useState(true);
@@ -133,11 +217,18 @@ export default function SplitImageLayerController(props) {
     spatialLayerOpacity: opacity,
     spatialLayerColormap: colormap,
     photometricInterpretation,
+    spatialTargetResolution,
+    volumetricRenderingAlgorithm,
+    spatialLayerTransparentColor,
   } = layerCoordination;
   const {
     setSpatialLayerVisible: setVisible,
     setSpatialLayerOpacity: setOpacity,
     setSpatialLayerColormap: setColormap,
+    setPhotometricInterpretation,
+    setSpatialTargetResolution,
+    setVolumetricRenderingAlgorithm,
+    setSpatialLayerTransparentColor,
   } = setLayerCoordination;
 
   const addChannel = useAddImageChannelInMetaCoordinationScopes();
@@ -210,6 +301,15 @@ export default function SplitImageLayerController(props) {
               colormap={colormap}
               setColormap={setColormap}
               photometricInterpretation={photometricInterpretation}
+              setPhotometricInterpretation={setPhotometricInterpretation}
+              spatialTargetResolution={spatialTargetResolution}
+              setSpatialTargetResolution={setSpatialTargetResolution}
+              volumetricRenderingAlgorithm={volumetricRenderingAlgorithm}
+              setVolumetricRenderingAlgorithm={setVolumetricRenderingAlgorithm}
+              spatialLayerTransparentColor={spatialLayerTransparentColor}
+              setSpatialLayerTransparentColor={setSpatialLayerTransparentColor}
+              spatialRenderingMode={spatialRenderingMode}
+              image={image}
             />
           </Grid>
           <Grid item xs={1} container direction="row">
@@ -274,7 +374,7 @@ export default function SplitImageLayerController(props) {
                   colormapOn={colormap !== null}
                   featureIndex={featureIndex}
                   image={image}
-
+                  spatialRenderingMode={spatialRenderingMode}
                 />
               );
             })}

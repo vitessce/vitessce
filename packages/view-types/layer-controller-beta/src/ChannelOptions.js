@@ -1,13 +1,14 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
-import { makeStyles, MenuItem } from '@material-ui/core';
+import { makeStyles, MenuItem, Select } from '@material-ui/core';
 import { MoreVert as MoreVertIcon } from '@material-ui/icons';
 import { PopperMenu } from '@vitessce/vit-s';
-import { useSpanStyles } from './styles.js';
+import { useSelectStyles } from './styles.js';
 
 const useStyles = makeStyles(() => ({
   channelMenuButton: {
     backgroundColor: 'transparent',
+    padding: '3px 0',
   },
   channelColors: {
     '&:hover': {
@@ -21,13 +22,10 @@ const useStyles = makeStyles(() => ({
     marginTop: '5px',
     justifyContent: 'space-around',
   },
+  spanButton: {
+    padding: '4px',
+  }
 }));
-
-function MuiSpan(props) {
-  const { children } = props;
-  const classes = useSpanStyles();
-  return <span className={classes.span}>{children}</span>;
-}
 
 /**
  * Dropdown for options for a channel on the three dots button.
@@ -38,20 +36,22 @@ function MuiSpan(props) {
 function ChannelOptions(props) {
   const {
     onRemove,
-    domainType,
-    setDomainType,
+    onResetWindowUsingIQR,
+    showValueExtent,
+    setShowValueExtent,
   } = props;
   const [open, setOpen] = useState(false);
 
   const classes = useStyles();
+  const selectClasses = useSelectStyles();
 
   function handleRemove() {
     setOpen(false);
     onRemove();
   }
 
-  function handleIQRUpdate() {
-    setDomainType(); // TODO
+  function handleDomainTypeChange(event) {
+    setShowValueExtent(event.target.value === "Value Min/Max" ? true : false);
   }
 
   return (
@@ -62,9 +62,27 @@ function ChannelOptions(props) {
       buttonClassName={classes.channelMenuButton}
       containerClassName={classes.channelPopperContainer}
       placement="bottom-end"
+      withPaper
     >
+      <MenuItem dense disableGutters>
+        <span style={{ margin: '0 5px' }}>Slider Extent: </span>
+        <Select
+          native
+          onChange={handleDomainTypeChange}
+          value={showValueExtent ? "Value Min/Max" : "Dtype Min/Max"}
+          inputProps={{ name: 'domainType' }}
+          style={{ width: '100%', fontSize: '14px' }}
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          <option value="Value Min/Max">Value Min/Max</option>
+          <option value="Dtype Min/Max">Dtype Min/Max</option>
+        </Select>
+      </MenuItem>
+      <MenuItem dense disableGutters onClick={onResetWindowUsingIQR}>
+        <span className={classes.spanButton}>Reset window using IQR</span>
+      </MenuItem>
       <MenuItem dense disableGutters onClick={handleRemove}>
-        <MuiSpan>Remove</MuiSpan>
+        <span className={classes.spanButton}>Remove channel</span>
       </MenuItem>
     </PopperMenu>
   );

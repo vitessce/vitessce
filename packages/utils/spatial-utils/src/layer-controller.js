@@ -39,17 +39,18 @@ async function getSingleSelectionStats2D({ loader, selection }) {
 
 async function getSingleSelectionStats3D({ loader, selection }) {
   const lowResSource = loader[loader.length - 1];
+  const filteredSelection = filterSelection(lowResSource, selection);
   const { shape, labels } = lowResSource;
   // eslint-disable-next-line no-bitwise
   const sizeZ = shape[labels.indexOf('z')] >> (loader.length - 1);
   const raster0 = await lowResSource.getRaster({
-    selection: { ...selection, z: 0 },
+    selection: { ...filteredSelection, z: 0 },
   });
   const rasterMid = await lowResSource.getRaster({
-    selection: { ...selection, z: Math.floor(sizeZ / 2) },
+    selection: { ...filteredSelection, z: Math.floor(sizeZ / 2) },
   });
   const rasterTop = await lowResSource.getRaster({
-    selection: { ...selection, z: Math.max(0, sizeZ - 1) },
+    selection: { ...filteredSelection, z: Math.max(0, sizeZ - 1) },
   });
   const stats0 = viv.getChannelStats(raster0.data);
   const statsMid = viv.getChannelStats(rasterMid.data);

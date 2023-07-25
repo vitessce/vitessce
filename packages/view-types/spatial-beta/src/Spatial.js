@@ -15,6 +15,12 @@ const CELLS_LAYER_ID = 'cells-layer';
 const MOLECULES_LAYER_ID = 'molecules-layer';
 const NEIGHBORHOODS_LAYER_ID = 'neighborhoods-layer';
 
+const VIV_RENDERING_MODES = {
+  maximumIntensityProjection: 'Maximum Intensity Projection',
+  minimumIntensityProjection: 'Minimum Intensity Projection',
+  additive: 'Additive',
+};
+
 // Default getter function props.
 const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { index }) => {
   const [r, g, b, a] = (
@@ -42,19 +48,19 @@ function getVivLayerExtensions(use3d, colormap, renderingMode) {
     // Is 3d
     if (colormap) {
       // Colormap: use AdditiveColormap extensions
-      if (renderingMode === 'Minimum Intensity Projection') {
+      if (renderingMode === 'minimumIntensityProjection') {
         return [new viv.AdditiveColormap3DExtensions.MinimumIntensityProjectionExtension()];
       }
-      if (renderingMode === 'Maximum Intensity Projection') {
+      if (renderingMode === 'maximumIntensityProjection') {
         return [new viv.AdditiveColormap3DExtensions.MaximumIntensityProjectionExtension()];
       }
       return [new viv.AdditiveColormap3DExtensions.AdditiveBlendExtension()];
     }
     // No colormap: use ColorPalette extensions
-    if (renderingMode === 'Minimum Intensity Projection') {
+    if (renderingMode === 'minimumIntensityProjection') {
       return [new viv.ColorPalette3DExtensions.MinimumIntensityProjectionExtension()];
     }
-    if (renderingMode === 'Maximum Intensity Projection') {
+    if (renderingMode === 'maximumIntensityProjection') {
       return [new viv.ColorPalette3DExtensions.MaximumIntensityProjectionExtension()];
     }
     return [new viv.ColorPalette3DExtensions.AdditiveBlendExtension()];
@@ -475,8 +481,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const [Layer, layerLoader] = getLayerLoaderTuple(data, is3dMode);
 
     const colormap = layerCoordination[CoordinationType.SPATIAL_LAYER_COLORMAP];
-    // TODO(CoordinationType): global or per-layer renderingMode (used in 3d mode)
-    const renderingMode = null;
+    const renderingMode = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM];
     const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
     const transparentColor = layerCoordination[CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR];
     const useTransparentColor = Array.isArray(transparentColor) && transparentColor.length === 3;
@@ -539,11 +544,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       modelMatrix: layerDefModelMatrix,
       transparentColor,
       useTransparentColor,
-      // TODO(CoordinationType): global or per-layer resolution (used in 3d mode)
       resolution: layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION],
-      renderingMode,
+      renderingMode: VIV_RENDERING_MODES[renderingMode],
       pickable: false,
-      // TODO(CoordinationType): global or per-layer slicing (used in 3d mode)
       xSlice: layerCoordination[CoordinationType.SPATIAL_SLICE_X],
       ySlice: layerCoordination[CoordinationType.SPATIAL_SLICE_Y],
       zSlice: layerCoordination[CoordinationType.SPATIAL_SLICE_Z],

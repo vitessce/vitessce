@@ -92,7 +92,6 @@ export default function SplitLayerController(props) {
           channelCoordination={segmentationChannelCoordination[0][layerScope]}
           setChannelCoordination={segmentationChannelCoordination[1][layerScope]}
           // obsSegmentations={obsSegmentations[layerScope]} // TODO?
-          use3d={false} /* TODO */
         />
       ))}
       {/* Image layers: */}
@@ -108,9 +107,9 @@ export default function SplitLayerController(props) {
           setChannelCoordination={imageChannelCoordination[1][layerScope]}
           image={images[layerScope]?.image?.instance} /* TODO: remove extra instance accessor */
           featureIndex={images[layerScope]?.featureIndex}
-          use3d={false} /* TODO */
           targetT={targetT}
           targetZ={targetZ}
+          spatialRenderingMode={spatialRenderingMode}
         />
       ))}
     </div>
