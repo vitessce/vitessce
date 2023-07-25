@@ -39,6 +39,7 @@
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/layer-controller": "workspace:*",
+    "@vitessce/icons": "workspace:*",
     "lodash-es": "^4.17.21",
     "math.gl": "^3.5.6",
     "plur": "^5.1.0",

@@ -122,6 +122,8 @@ export default function SplitImageLayerController(props) {
     image,
     featureIndex,
     use3d, /* TODO */
+    targetT,
+    targetZ,
   } = props;
 
   const [open, setOpen] = useState(true);
@@ -257,6 +259,8 @@ export default function SplitImageLayerController(props) {
                   coordinationScopesRaw={coordinationScopesRaw}
                   layerScope={layerScope}
                   channelScope={cScope}
+                  targetT={targetT}
+                  targetZ={targetZ}
                   targetC={spatialTargetC}
                   setTargetC={setSpatialTargetC}
                   visible={spatialChannelVisible}
@@ -270,6 +274,7 @@ export default function SplitImageLayerController(props) {
                   colormapOn={colormap !== null}
                   featureIndex={featureIndex}
                   image={image}
+
                 />
               );
             })}

@@ -27,6 +27,7 @@ export {
   getPhysicalSizeScalingMatrix,
   getBoundingCube,
   abbreviateNumber,
+  filterSelection,
 } from './layer-controller.js';
 export {
   DOMAINS,

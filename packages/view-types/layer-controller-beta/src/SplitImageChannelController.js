@@ -19,6 +19,8 @@ export default function SplitImageChannelController(props) {
     coordinationScopesRaw,
     layerScope,
     channelScope,
+    targetT,
+    targetZ,
     targetC,
     setTargetC,
     visible,
@@ -85,6 +87,8 @@ export default function SplitImageChannelController(props) {
       <Grid item xs={3}>
         <ChannelSlider
           image={image}
+          targetT={targetT}
+          targetZ={targetZ}
           targetC={targetC}
           window={window}
           setWindow={setWindow}

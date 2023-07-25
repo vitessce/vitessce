@@ -759,6 +759,9 @@ importers:
       '@vitessce/spatial-utils':
         specifier: workspace:*
         version: link:../spatial-utils
+      '@vitessce/utils':
+        specifier: workspace:*
+        version: link:../other-utils
     devDependencies:
       vite:
         specifier: ^4.3.0
@@ -1102,6 +1105,9 @@ importers:
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl
+      '@vitessce/icons':
+        specifier: workspace:*
+        version: link:../../icons
       '@vitessce/layer-controller':
         specifier: workspace:*
         version: link:../layer-controller

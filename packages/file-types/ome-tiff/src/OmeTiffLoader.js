@@ -107,7 +107,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
             meta: imageLayerMeta, // TODO: replace with imageWrapper
             instance: imageWrapper, // TODO: make this the root value of LoaderResult.image.
           },
-          featureIndex: channels,
+          featureIndex: imageWrapper.getChannelNames(),
         },
         urls,
         coordinationValues,

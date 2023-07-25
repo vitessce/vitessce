@@ -135,6 +135,7 @@ export const CoordinationType = {
   SPATIAL_TARGET_X: 'spatialTargetX',
   SPATIAL_TARGET_Y: 'spatialTargetY',
   SPATIAL_TARGET_Z: 'spatialTargetZ',
+  SPATIAL_TARGET_T: 'spatialTargetT',
   SPATIAL_ROTATION_X: 'spatialRotationX',
   SPATIAL_ROTATION_Y: 'spatialRotationY',
   SPATIAL_ROTATION_Z: 'spatialRotationZ',
@@ -191,6 +192,14 @@ export const CoordinationType = {
   SPATIAL_CHANNEL_OPACITY: 'spatialChannelOpacity',
   SPATIAL_CHANNEL_WINDOW: 'spatialChannelWindow',
   PHOTOMETRIC_INTERPRETATION: 'photometricInterpretation',
+  // For 3D volume rendering
+  SPATIAL_RENDERING_MODE: 'spatialRenderingMode', // For whole spatial view
+  VOLUMETRIC_RENDERING_ALGORITHM: 'volumetricRenderingAlgorithm', // Could be per-image-layer
+  SPATIAL_TARGET_RESOLUTION: 'spatialTargetResolution', // Per-spatial-layer
+  // For clipping plane sliders
+  SPATIAL_SLICE_X: 'spatialSliceX',
+  SPATIAL_SLICE_Y: 'spatialSliceY',
+  SPATIAL_SLICE_Z: 'spatialSliceZ',
 };
 
 export const STATUS = {

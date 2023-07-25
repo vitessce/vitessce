@@ -112,6 +112,8 @@ export function SpatialSubscriber(props) {
     spatialTargetX: targetX,
     spatialTargetY: targetY,
     spatialTargetZ: targetZ,
+    spatialTargetT: targetT,
+    spatialRenderingMode,
     spatialRotationX: rotationX,
     spatialRotationY: rotationY,
     spatialRotationZ: rotationZ,
@@ -221,6 +223,11 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_COLORMAP,
       CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR,
       CoordinationType.SPATIAL_LAYER_MODEL_MATRIX,
+      CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM,
+      CoordinationType.SPATIAL_TARGET_RESOLUTION,
+      CoordinationType.SPATIAL_SLICE_X,
+      CoordinationType.SPATIAL_SLICE_Y,
+      CoordinationType.SPATIAL_SLICE_Z,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -494,7 +501,7 @@ export function SpatialSubscriber(props) {
     setZoom(newZoom);
     setTargetX(target[0]);
     setTargetY(target[1]);
-    setTargetZ(target[2] || null);
+    // setTargetZ(target[2] || null);
     setRotationX(newRotationX);
     setRotationOrbit(newRotationOrbit);
     setOrbitAxis(newOrbitAxis || null);
@@ -738,6 +745,9 @@ export function SpatialSubscriber(props) {
         images={imageData}
         imageLayerScopes={imageLayerScopes}
         imageLayerCoordination={imageLayerCoordination}
+        targetT={targetT}
+        targetZ={targetZ}
+        spatialRenderingMode={spatialRenderingMode}
 
         imageChannelScopesByLayer={imageChannelScopesByLayer}
         imageChannelCoordination={imageChannelCoordination}

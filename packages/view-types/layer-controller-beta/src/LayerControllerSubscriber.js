@@ -60,6 +60,9 @@ export function LayerControllerSubscriber(props) {
       imageLayer: rasterLayers,
       segmentationLayer: cellsLayer,
       spatialPointLayer: moleculesLayer,
+      spatialTargetT: targetT,
+      spatialTargetZ: targetZ,
+      spatialRenderingMode,
     },
     {
       setImageLayer: setRasterLayers,
@@ -68,9 +71,11 @@ export function LayerControllerSubscriber(props) {
       setSpatialTargetX: setTargetX,
       setSpatialTargetY: setTargetY,
       setSpatialTargetZ: setTargetZ,
+      setSpatialTargetT: setTargetT,
       setSpatialRotationX: setRotationX,
       setSpatialRotationOrbit: setRotationOrbit,
       setSpatialZoom: setZoom,
+      setSpatialRenderingMode,
     },
   ] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER_BETA],
@@ -141,6 +146,11 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR,
       CoordinationType.SPATIAL_LAYER_MODEL_MATRIX,
       CoordinationType.PHOTOMETRIC_INTERPRETATION,
+      CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM,
+      CoordinationType.SPATIAL_TARGET_RESOLUTION,
+      CoordinationType.SPATIAL_SLICE_X,
+      CoordinationType.SPATIAL_SLICE_Y,
+      CoordinationType.SPATIAL_SLICE_Z,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -228,6 +238,12 @@ export function LayerControllerSubscriber(props) {
         images={imageData}
         imageLayerScopes={imageLayerScopes}
         imageLayerCoordination={imageLayerCoordination}
+        targetT={targetT}
+        targetZ={targetZ}
+        setTargetT={setTargetT}
+        setTargetZ={setTargetZ}
+        spatialRenderingMode={spatialRenderingMode}
+        setSpatialRenderingMode={setSpatialRenderingMode}
 
         imageChannelScopesByLayer={imageChannelScopesByLayer}
         imageChannelCoordination={imageChannelCoordination}

@@ -10,6 +10,7 @@ import {
   canLoadResolution,
   getStatsForResolution,
 } from '@vitessce/spatial-utils';
+import { VIEWER_PALETTE } from '@vitessce/utils';
 import type { LoadOmeTiffReturnValue } from './ome-tiff-types.js';
 import type { LoadOmeZarrReturnValue } from './ome-zarr-types.js';
 
@@ -23,8 +24,12 @@ type ImageOptions = {
 
 type ChannelObject = {
   name: string;
+  // Defaults that originate from image file contents (takes precedence over automatic defaults below)
   defaultColor?: number[];
   defaultWindow?: [number, number];
+  // Defaults for automatic initialization (if defaults above are null or not provided).
+  // TODO: should autoDefaultColor be exposed as a separate value? or just set as the value of defaultColor when applicable?
+  autoDefaultColor?: number[];
 };
 
 type ResolutionObject = {
@@ -253,6 +258,7 @@ export default class ImageWrapper<S extends string[]> {
         defaultWindow: channel.window
           ? [channel.window.start, channel.window.end]
           : undefined,
+        autoDefaultColor: VIEWER_PALETTE[i % VIEWER_PALETTE.length],
       }));
     }
     if ('Pixels' in this.vivLoader.metadata) {
@@ -267,6 +273,7 @@ export default class ImageWrapper<S extends string[]> {
           ? channel.Color
           : undefined,
         defaultWindow: undefined, // TODO: does OME-TIFF support this?
+        autoDefaultColor: VIEWER_PALETTE[i % VIEWER_PALETTE.length],
       }));
     }
     return [];
@@ -293,6 +300,18 @@ export default class ImageWrapper<S extends string[]> {
     const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
     const hasTStack = shape[labels.indexOf('t')] > 1;
     return hasTStack;
+  }
+
+  getNumZ(): number {
+    const loader = this.vivLoader;
+    const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    return shape[labels.indexOf('z')];
+  }
+
+  getNumT(): number {
+    const loader = this.vivLoader;
+    const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    return shape[labels.indexOf('t')];
   }
 
   isMultiResolution(): boolean {

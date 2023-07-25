@@ -4,7 +4,7 @@ import { isEqual } from 'lodash-es';
 import {
   deck, viv, getSelectionLayers, ScaledExpressionExtension,
 } from '@vitessce/gl';
-import { getSourceFromLoader, isInterleaved } from '@vitessce/spatial-utils';
+import { getSourceFromLoader, isInterleaved, filterSelection } from '@vitessce/spatial-utils';
 import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
@@ -359,21 +359,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   use3d() {
     const {
-      imageLayerDefs,
-
-      imageLayerScopes,
-      imageLayerCoordination,
+      spatialRenderingMode,
     } = this.props;
-    // TODO: support 3D.
-    // TODO: use imageLayerCoordination rather than imageLayerDefs here
-    return false;
-    // return (imageLayerDefs || []).some(i => i.use3d);
+    return spatialRenderingMode === '3D';
   }
 
   // New createImageLayer function.
   createSegmentationLayer(
     layerScope, layerCoordination, channelScopes, channelCoordination,
-    image, use3d, layerFeatureValues,
+    image, layerFeatureValues,
   ) {
     const data = image?.obsSegmentations?.instance?.getData();
     if (!data) {
@@ -462,9 +456,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   // New createImageLayer function.
   createImageLayer(
-    layerScope, layerCoordination, channelScopes, channelCoordination,
-    image, use3d,
+    layerScope, layerCoordination, channelScopes, channelCoordination, image,
   ) {
+    const {
+      targetT,
+      targetZ,
+      spatialRenderingMode,
+    } = this.props;
     // TODO: always using 0th loader here, create joint file type to split existing multi-image
     // raster.json when necessary.
     const data = image?.image?.instance?.getData();
@@ -472,7 +470,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       return null;
     }
 
-    const [Layer, layerLoader] = getLayerLoaderTuple(data, use3d);
+    const is3dMode = spatialRenderingMode === '3D';
+
+    const [Layer, layerLoader] = getLayerLoaderTuple(data, is3dMode);
 
     const colormap = layerCoordination[CoordinationType.SPATIAL_LAYER_COLORMAP];
     // TODO(CoordinationType): global or per-layer renderingMode (used in 3d mode)
@@ -482,7 +482,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const useTransparentColor = Array.isArray(transparentColor) && transparentColor.length === 3;
 
     const extensions = getVivLayerExtensions(
-      use3d, colormap, renderingMode,
+      is3dMode, colormap, renderingMode,
     );
 
     // Safer to only use this prop when we have an interleaved image i.e not multiple channels.
@@ -500,11 +500,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
     let selections;
     const nextLoaderSelection = channelScopes
-      .map(cScope => ({
-        // TODO: Z, T
-        // TODO: keys (if not always 'c', 'z', 't')
-        z: 0,
-        t: 0,
+      .map(cScope => filterSelection(data, {
+        z: targetZ,
+        t: targetT,
         c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
       }));
     const prevLoaderSelection = this.imageLayerLoaderSelections[layerScope];
@@ -527,7 +525,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     return new Layer({
       loader: layerLoader,
-      id: `${use3d ? 'volume' : 'image'}-layer-${layerScope}`,
+      id: `${is3dMode ? 'volume' : 'image'}-layer-${layerScope}`,
       colors,
       contrastLimits,
       selections,
@@ -542,13 +540,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
       transparentColor,
       useTransparentColor,
       // TODO(CoordinationType): global or per-layer resolution (used in 3d mode)
-      resolution: null, // layerProps.resolution,
+      resolution: layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION],
       renderingMode,
       pickable: false,
       // TODO(CoordinationType): global or per-layer slicing (used in 3d mode)
-      xSlice: [0, 1], // layerProps.xSlice,
-      ySlice: [0, 1], // layerProps.ySlice,
-      zSlice: [0, 1], // layerProps.zSlice,
+      xSlice: layerCoordination[CoordinationType.SPATIAL_SLICE_X],
+      ySlice: layerCoordination[CoordinationType.SPATIAL_SLICE_Y],
+      zSlice: layerCoordination[CoordinationType.SPATIAL_SLICE_Z],
       onViewportLoad: () => {}, // layerProps.callback, // TODO: figure out callback implementation
       excludeBackground: useTransparentColor,
       extensions,
@@ -567,15 +565,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
       imageChannelScopesByLayer,
       imageChannelCoordination,
     } = this.props;
-    // TODO: check for 3D.
-    const use3d = this.use3d();
     return imageLayerScopes.map(layerScope => this.createImageLayer(
       layerScope,
       imageLayerCoordination[0][layerScope],
       imageChannelScopesByLayer[layerScope],
       imageChannelCoordination[0][layerScope],
       images[layerScope],
-      use3d,
     ));
   }
 
@@ -602,7 +597,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       segmentationChannelScopesByLayer[layerScope],
       segmentationChannelCoordination[0][layerScope],
       obsSegmentations[layerScope],
-      use3d,
       multiExpressionData?.[layerScope],
       // TODO: pass down layer-specific multiExpressionData
     ));

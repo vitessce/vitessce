@@ -379,6 +379,8 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SEGMENTATION_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SEGMENTATION_CHANNEL, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_C, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_Z, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_T, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_OPACITY, 1.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_COLORMAP, null, z.string().nullable()), // TODO: enum to be more strict
@@ -392,4 +394,10 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH, 1.0, z.number()),
   // Reference: https://www.awaresystems.be/imaging/tiff/tifftags/photometricinterpretation.html
   new PluginCoordinationType(CoordinationType.PHOTOMETRIC_INTERPRETATION, null, z.enum(['BlackIsZero', 'RGB']).nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_RENDERING_MODE, '2D', z.enum(['2D', '3D']).nullable()),
+  new PluginCoordinationType(CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM, 'additive', z.enum(['maximumIntensityProjection', 'additive'])),
+  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_RESOLUTION, 0, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SLICE_X, null, z.array(z.number()).length(2).nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SLICE_Y, null, z.array(z.number()).length(2).nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SLICE_Z, null, z.array(z.number()).length(2).nullable()),
 ];

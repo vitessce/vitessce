@@ -1,4 +1,5 @@
 import { viv } from '@vitessce/gl';
+import { fromEntries } from '@vitessce/utils';
 import { Matrix4 } from 'math.gl';
 
 // Returns an rgb string for display, and changes the color (arr)
@@ -10,9 +11,27 @@ export const toRgbUIString = (on, arr, theme) => {
   return `rgb(${color})`;
 };
 
+/**
+ * Ensure that the channel selection object does not have
+ * extra dimension keys, as this will cause Viv functions
+ * to throw errors about not being able to access the data.
+ * @param {*} loader
+ * @param {object} selection Mapping from dimension label to slice index.
+ * @returns {object} The filtered selection.
+ */
+export function filterSelection(loader, selection) {
+  if (!selection) {
+    return selection;
+  }
+  const data = Array.isArray(loader) ? loader[loader.length - 1] : loader;
+  const { labels } = data;
+  return fromEntries(Object.entries(selection).filter(([key]) => labels.includes(key)));
+}
+
 async function getSingleSelectionStats2D({ loader, selection }) {
   const data = Array.isArray(loader) ? loader[loader.length - 1] : loader;
-  const raster = await data.getRaster({ selection });
+  const filteredSelection = filterSelection(loader, selection);
+  const raster = await data.getRaster({ selection: filteredSelection });
   const selectionStats = viv.getChannelStats(raster.data);
   const { domain, contrastLimits: slider } = selectionStats;
   return { domain, slider };

@@ -3,6 +3,7 @@
 import React from 'react';
 import SplitSegmentationLayerController from './SplitSegmentationLayerController.js';
 import SplitImageLayerController from './SplitImageLayerController.js';
+import GlobalDimensionSlider from './GlobalDimensionSlider.js';
 
 export default function SplitLayerController(props) {
   const {
@@ -18,10 +19,29 @@ export default function SplitLayerController(props) {
     images,
     imageLayerScopes,
     imageLayerCoordination,
+    targetT,
+    targetZ,
+    setTargetT,
+    setTargetZ,
+    spatialRenderingMode,
+    setSpatialRenderingMode,
 
     imageChannelScopesByLayer,
     imageChannelCoordination,
   } = props;
+
+  const anyLayerHasT = Object.values(images || {})
+    .some(image => image?.image?.instance.hasTStack());
+  const anyLayerHasZ = Object.values(images || {})
+    .some(image => image?.image?.instance.hasZStack());
+
+  const maxT = Object.values(images || {})
+    .reduce((a, h) => Math.max(a, h?.image?.instance.getNumT()), 1) - 1;
+  const maxZ = Object.values(images || {})
+    .reduce((a, h) => Math.max(a, h?.image?.instance.getNumZ()), 1) - 1;
+
+  const is3dMode = spatialRenderingMode === '3D';
+
   return (
     <div>
       {/* moleculesLayer && (
@@ -42,6 +62,25 @@ export default function SplitLayerController(props) {
           handleLayerChange={setCellsLayer}
         />
       ) */}
+      {/* Global T and Z sliders */}
+      {anyLayerHasZ ? (
+        <GlobalDimensionSlider
+          label="Z"
+          targetValue={targetZ}
+          setTargetValue={setTargetZ}
+          max={maxZ}
+          spatialRenderingMode={spatialRenderingMode}
+          setSpatialRenderingMode={setSpatialRenderingMode}
+        />
+      ) : null}
+      {anyLayerHasT ? (
+        <GlobalDimensionSlider
+          label="T"
+          targetValue={targetT}
+          setTargetValue={setTargetT}
+          max={maxT}
+        />
+      ) : null}
       {/* Segmentation layers: */}
       {segmentationLayerScopes && segmentationLayerScopes.map(layerScope => (
         <SplitSegmentationLayerController
@@ -70,6 +109,8 @@ export default function SplitLayerController(props) {
           image={images[layerScope]?.image?.instance} /* TODO: remove extra instance accessor */
           featureIndex={images[layerScope]?.featureIndex}
           use3d={false} /* TODO */
+          targetT={targetT}
+          targetZ={targetZ}
         />
       ))}
     </div>

@@ -21,6 +21,8 @@ import {
 export default function ChannelSlider(props) {
   const {
     image,
+    targetT,
+    targetZ,
     targetC,
     color,
     window,
@@ -35,24 +37,21 @@ export default function ChannelSlider(props) {
 
   const dtype = image?.getDtype();
 
-  const selection = {
-    // TODO: Z, T
-    // TODO: keys (if not always 'c', 'z', 't')
-    z: 0,
-    t: 0,
-    c: targetC,
-  };
   const fullDomain = dtype ? DOMAINS[dtype] : [0, 0];
 
   const minMaxQuery = useQuery({
     enabled: Boolean(image?.getData()) && !disabledProp,
     structuralSharing: false,
-    queryKey: ['minMaxDomain', image?.getName(), selection],
+    queryKey: ['minMaxDomain', image?.getName(), targetT, targetZ, targetC],
     queryFn: async (ctx) => {
-      const selections = [selection];
+      const selection = {
+        t: ctx.queryKey[2],
+        z: ctx.queryKey[3],
+        c: ctx.queryKey[4],
+      };
       const stats = await getMultiSelectionStats({
         loader: ctx.meta.image?.getData(),
-        selections,
+        selections: [selection],
         use3d: false, // TODO: support 3D
       });
       // eslint-disable-next-line prefer-destructuring

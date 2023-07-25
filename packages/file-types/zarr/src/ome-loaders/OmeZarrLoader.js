@@ -112,6 +112,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
           meta: imageLayerMeta, // TODO: replace with imageWrapper
           instance: imageWrapper, // TODO: make this the root value of LoaderResult.image.
         },
+        featureIndex: imageWrapper.getChannelNames(),
       },
       [],
       coordinationValues,
