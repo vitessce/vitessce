@@ -396,19 +396,19 @@ export function vconcat(...views) {
 class CoordinationLevel {
   constructor(value) {
     this.value = value;
-    this.computed = null;
+    this.cachedValue = null;
   }
 
-  setComputed(processedLevel) {
-    this.computed = processedLevel;
+  setCached(processedLevel) {
+    this.cachedValue = processedLevel;
   }
 
-  getComputed() {
-    return this.computed;
+  getCached() {
+    return this.cachedValue;
   }
 
-  isComputed() {
-    return this.computed !== null;
+  isCached() {
+    return this.cachedValue !== null;
   }
 }
 
@@ -762,8 +762,8 @@ export class VitessceConfig {
         if (nextLevelOrInitialValue instanceof CoordinationLevel) {
           const nextLevel = nextLevelOrInitialValue.value;
           if (Array.isArray(nextLevel)) {
-            if (nextLevelOrInitialValue.isComputed()) {
-              result[cType] = nextLevelOrInitialValue.getComputed();
+            if (nextLevelOrInitialValue.isCached()) {
+              result[cType] = nextLevelOrInitialValue.getCached();
             } else {
               const processedLevel = nextLevel.map((nextEl) => {
                 const [dummyScope] = this.addCoordination(cType);
@@ -774,7 +774,7 @@ export class VitessceConfig {
                   children: processLevel(nextEl),
                 };
               });
-              nextLevelOrInitialValue.setComputed(processedLevel);
+              nextLevelOrInitialValue.setCached(processedLevel);
               result[cType] = processedLevel;
             }
           } else {

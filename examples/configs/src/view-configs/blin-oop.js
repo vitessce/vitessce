@@ -1,9 +1,7 @@
-/* eslint-disable no-unused-vars */
 import {
   VitessceConfig,
   CoordinationLevel as CL,
   hconcat,
-  vconcat,
 } from '@vitessce/config';
 
 

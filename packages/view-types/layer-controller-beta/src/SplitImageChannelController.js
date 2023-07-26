@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import {
   Grid,
@@ -30,8 +29,8 @@ export default function SplitImageChannelController(props) {
     setTargetC,
     visible,
     setVisible,
-    opacity,
-    setOpacity,
+    // opacity, // TODO: support per-channel opacity?
+    // setOpacity,
     color,
     setColor,
     window,

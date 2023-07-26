@@ -1,25 +1,14 @@
-/* eslint-disable no-unused-vars */
-import React, { useState } from 'react';
+import React from 'react';
 import {
   makeStyles,
   Grid,
-  Checkbox,
   Paper,
   Typography,
   Slider,
-  MenuItem,
-  Button,
-  SvgIcon,
   FormGroup,
   FormControlLabel,
   Switch,
 } from '@material-ui/core';
-
-import {
-  MoreVert as MoreVertIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-} from '@material-ui/icons';
 import {
   DimensionsSVG,
 } from '@vitessce/icons';

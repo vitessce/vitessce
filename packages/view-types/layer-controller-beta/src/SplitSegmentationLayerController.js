@@ -11,9 +11,9 @@ export default function SplitSegmentationLayerController(props) {
     channelScopes,
     channelCoordination,
     setChannelCoordination,
-    obsSegmentations, // TODO?
   } = props;
 
+  // TODO: support per-layer opacity controls?
   const {
     spatialLayerVisible,
     spatialLayerOpacity,
@@ -50,13 +50,6 @@ export default function SplitSegmentationLayerController(props) {
         } = setChannelCoordination[cScope];
 
         const obsTypeName = obsType;
-
-        // const index = 0;
-        // const loader = obsTypeData?.obsSegmentations?.loaders?.[index];
-        // const layerMeta = obsTypeData?.obsSegmentations?.meta?.[index];
-        // const loader = null;
-        // const layerMeta = null;
-        // const channelIndex = segmentationLayerCoordination[0][layerScope].spatialTargetC;
 
         return (
           <SplitSegmentationChannelController

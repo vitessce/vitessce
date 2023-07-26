@@ -1,6 +1,9 @@
 /* eslint-disable no-unused-vars */
-/* eslint-disable no-param-reassign */
-import { VitessceConfig, CoordinationLevel as CL, hconcat } from '@vitessce/config';
+import {
+  VitessceConfig,
+  CoordinationLevel as CL,
+  hconcat,
+} from '@vitessce/config';
 
 // Serve kpmp/OME-TIFF folder
 const localBaseUrl = 'http://localhost:8000';

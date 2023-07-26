@@ -1,5 +1,3 @@
-/* eslint-disable dot-notation */
-/* eslint-disable no-unused-vars */
 import React from 'react';
 import SplitSegmentationLayerController from './SplitSegmentationLayerController.js';
 import SplitImageLayerController from './SplitImageLayerController.js';
@@ -10,7 +8,7 @@ export default function SplitLayerController(props) {
     coordinationScopesRaw,
 
     segmentationLayerScopes,
-    segmentationLayerValues,
+    // segmentationLayerValues,
     segmentationLayerCoordination,
 
     segmentationChannelScopesByLayer,
@@ -39,8 +37,6 @@ export default function SplitLayerController(props) {
     .reduce((a, h) => Math.max(a, h?.image?.instance.getNumT()), 1) - 1;
   const maxZ = Object.values(images || {})
     .reduce((a, h) => Math.max(a, h?.image?.instance.getNumZ()), 1) - 1;
-
-  const is3dMode = spatialRenderingMode === '3D';
 
   return (
     <div>
@@ -91,7 +87,6 @@ export default function SplitLayerController(props) {
           channelScopes={segmentationChannelScopesByLayer[layerScope]}
           channelCoordination={segmentationChannelCoordination[0][layerScope]}
           setChannelCoordination={segmentationChannelCoordination[1][layerScope]}
-          // obsSegmentations={obsSegmentations[layerScope]} // TODO?
         />
       ))}
       {/* Image layers: */}

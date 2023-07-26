@@ -1,5 +1,3 @@
-
-/* eslint-disable */
 import {
   coordinateTransformationsToMatrix,
   getNgffAxes,
@@ -24,11 +22,14 @@ type ImageOptions = {
 
 type ChannelObject = {
   name: string;
-  // Defaults that originate from image file contents (takes precedence over automatic defaults below)
+  // Defaults that originate from image file contents
+  // (takes precedence over automatic defaults below)
   defaultColor?: number[];
   defaultWindow?: [number, number];
-  // Defaults for automatic initialization (if defaults above are null or not provided).
-  // TODO: should autoDefaultColor be exposed as a separate value? or just set as the value of defaultColor when applicable?
+  // Defaults for automatic initialization
+  // (if defaults above are null or not provided).
+  // TODO: should autoDefaultColor be exposed as a separate value?
+  // or just set as the value of defaultColor when applicable?
   autoDefaultColor?: number[];
 };
 

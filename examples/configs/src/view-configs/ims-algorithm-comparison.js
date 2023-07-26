@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import {
   VitessceConfig,
   CoordinationLevel as CL,
