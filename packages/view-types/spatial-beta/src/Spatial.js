@@ -335,9 +335,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       width,
       height,
       imageLayerLoaders = {},
-      imageLayerDefs,
     } = this.props;
-    const use3d = (imageLayerDefs || []).some(i => i.use3d);
+    const use3d = this.use3d();
     // Just get the first layer/loader since they should all be spatially
     // resolved and therefore have the same unit size scale.
     const loaders = Object.values(imageLayerLoaders);
@@ -592,8 +591,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       multiExpressionData,
     } = this.props;
     // TODO: support polygon layers
-    // TODO: check for 3D.
-    const use3d = this.use3d();
     return segmentationLayerScopes.map(layerScope => this.createSegmentationLayer(
       layerScope,
       segmentationLayerCoordination[0][layerScope],

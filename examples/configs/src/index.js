@@ -11,7 +11,7 @@ import { satija2020 } from './view-configs/satija.js';
 import { justHiglass } from './view-configs/rao.js';
 import { scAtacSeq10xPbmc } from './view-configs/tenx.js';
 import { blin2019, multipleOmeZarrViaRasterJson } from './view-configs/blin.js';
-import { blinOop2019 } from './view-configs/blin-oop.js';
+import { blinOop2019, blinSideBySide2019 } from './view-configs/blin-oop.js';
 import { omeNgffLegacy } from './view-configs/ome-ngff-legacy.js';
 import { hubmapIntestineSnAtacSeq } from './view-configs/hubmap.js';
 import {
@@ -75,6 +75,7 @@ export const configs = {
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
   'blin-2019': blin2019,
   'blin-oop-2019': blinOop2019,
+  'blin-two-2019': blinSideBySide2019,
   'ome-ngff-multi': multipleOmeZarrViaRasterJson,
   'ome-ngff-v0.1': omeNgffLegacy,
   'rgb-ome-tiff': rgbOmeTiff,

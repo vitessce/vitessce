@@ -47,6 +47,16 @@ import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils.js';
 
 
+// Reference: https://deck.gl/docs/api-reference/core/orbit-view#view-state
+const DEFAULT_VIEW_STATE = {
+  zoom: 0,
+  target: [0, 0, 0],
+  rotationX: 0,
+  rotationOrbit: 0,
+};
+const SET_VIEW_STATE_NOOP = () => {};
+
+
 const tempLayer = [{
   index: 0,
   colormap: null,
@@ -115,8 +125,6 @@ export function SpatialSubscriber(props) {
     spatialTargetT: targetT,
     spatialRenderingMode,
     spatialRotationX: rotationX,
-    spatialRotationY: rotationY,
-    spatialRotationZ: rotationZ,
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
     segmentationLayer: cellsLayer,
@@ -258,8 +266,8 @@ export function SpatialSubscriber(props) {
     coordinationScopes,
   );
 
+  const is3dMode = spatialRenderingMode === '3D';
   const imageLayers = []; // TODO: remove
-  const use3d = imageLayers?.some(l => l.use3d);
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
@@ -422,7 +430,7 @@ export function SpatialSubscriber(props) {
       .map(layerData => layerData?.image?.instance.getData())
       .filter(Boolean),
     useRaster: Boolean(hasImageData),
-    use3d,
+    use3d: is3dMode,
     modelMatrices: Object.values(imageData || {})
       .map(layerData => layerData?.image?.instance.getModelMatrix())
       .filter(Boolean),
@@ -430,7 +438,7 @@ export function SpatialSubscriber(props) {
   // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
   // an indirect dependency instead.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  [imageData, imageLayerScopes, use3d, hasImageData,
+  [imageData, imageLayerScopes, is3dMode, hasImageData,
     obsCentroids, obsSegmentations, obsSegmentationsType,
     width, height,
   ]);
@@ -438,24 +446,26 @@ export function SpatialSubscriber(props) {
   useEffect(() => {
     // If it has not already been set, set the initial view state using
     // the auto-computed values from the useMemo above.
-    if (typeof initialTargetX !== 'number' || typeof initialTargetY !== 'number') {
-      const notYetInitialized = (typeof targetX !== 'number' || typeof targetY !== 'number');
-      const stillDefaultInitialized = (targetX === defaultTargetX && targetY === defaultTargetY);
-      if (notYetInitialized || stillDefaultInitialized) {
-        setTargetX(defaultTargetX);
-        setTargetY(defaultTargetY);
-        setTargetZ(defaultTargetZ);
-        setZoom(defaultZoom);
+    if (width && height) {
+      if (typeof initialTargetX !== 'number' || typeof initialTargetY !== 'number') {
+        const notYetInitialized = (typeof targetX !== 'number' || typeof targetY !== 'number');
+        const stillDefaultInitialized = (targetX === defaultTargetX && targetY === defaultTargetY);
+        if (notYetInitialized || stillDefaultInitialized) {
+          setTargetX(defaultTargetX);
+          setTargetY(defaultTargetY);
+          setTargetZ(defaultTargetZ);
+          setZoom(defaultZoom);
+        }
+        setOriginalViewState(
+          { target: [defaultTargetX, defaultTargetY, defaultTargetZ], zoom: defaultZoom },
+        );
+      } else if (!originalViewState) {
+        // originalViewState has not yet been set and
+        // the view config defined an initial viewState.
+        setOriginalViewState({
+          target: [initialTargetX, initialTargetY, initialTargetZ], zoom: initialZoom,
+        });
       }
-      setOriginalViewState(
-        { target: [defaultTargetX, defaultTargetY, defaultTargetZ], zoom: defaultZoom },
-      );
-    } else if (!originalViewState) {
-      // originalViewState has not yet been set and
-      // the view config defined an initial viewState.
-      setOriginalViewState({
-        target: [initialTargetX, initialTargetY, initialTargetZ], zoom: initialZoom,
-      });
     }
     // Deliberate dependency omissions: targetX, targetY
     // since we do not this to re-run on every single zoom/pan interaction.
@@ -501,10 +511,14 @@ export function SpatialSubscriber(props) {
     setZoom(newZoom);
     setTargetX(target[0]);
     setTargetY(target[1]);
-    // setTargetZ(target[2] || null);
-    setRotationX(newRotationX);
-    setRotationOrbit(newRotationOrbit);
-    setOrbitAxis(newOrbitAxis || null);
+    if (is3dMode) {
+      if (target[2] !== undefined) {
+        setTargetZ(target[2]);
+      }
+      setRotationX(newRotationX);
+      setRotationOrbit(newRotationOrbit);
+      setOrbitAxis(newOrbitAxis);
+    }
   };
 
   const subtitle = makeSpatialSubtitle({
@@ -564,7 +578,7 @@ export function SpatialSubscriber(props) {
           setCellColorEncoding={setCellColorEncoding}
           setSpatialAxisFixed={setSpatialAxisFixed}
           spatialAxisFixed={spatialAxisFixed}
-          use3d={use3d}
+          use3d={is3dMode}
           geneExpressionColormap={geneExpressionColormap}
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
@@ -582,7 +596,7 @@ export function SpatialSubscriber(props) {
     geneExpressionColormapRange, setGeneExpressionColormap,
     hasLocationsData, hasSegmentationsData, hasExpressionData,
     observationsLabel, setCellColorEncoding,
-    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d,
+    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, is3dMode,
   ]);
 
   useEffect(() => {
@@ -696,6 +710,15 @@ export function SpatialSubscriber(props) {
     return imageLayerLoaders.map((ll, index) => (shouldUseFullData(ll, index) ? { ...ll, data: ll.data[0] } : ll));
   }, [imageLayerLoaders, useFullResolutionImage, meta]);
 
+  // Passing an invalid viewState (e.g., with null values) will cause DeckGL
+  // to throw a mercator projection assertion error (in 3D mode / when using OrbitView).
+  const isValidViewState = is3dMode
+    ? (
+      zoom !== null && targetX !== null && targetY !== null && targetZ !== null
+      && rotationX !== null && rotationOrbit !== null && orbitAxis !== null
+    )
+    : zoom !== null && targetX !== null && targetY !== null;
+
   return (
     <TitleInfo
       title={title}
@@ -712,16 +735,14 @@ export function SpatialSubscriber(props) {
         uuid={uuid}
         width={width}
         height={height}
-        viewState={{
+        viewState={isValidViewState ? ({
           zoom,
           target: [targetX, targetY, targetZ],
           rotationX,
-          rotationY,
-          rotationZ,
           rotationOrbit,
-          orbitAxis,
-        }}
-        setViewState={setViewState}
+        }) : DEFAULT_VIEW_STATE}
+        orbigAxis={orbitAxis}
+        setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
         originalViewState={originalViewState}
         imageLayerDefs={imageLayers}
         obsSegmentationsLayerDefs={tempLayer}

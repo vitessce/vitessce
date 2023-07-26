@@ -69,4 +69,84 @@ function generateBlinConfig() {
   return configJSON;
 }
 
+function generateSideBySideConfig() {
+  const config = new VitessceConfig({
+    schemaVersion: '1.0.16',
+    name: 'My config',
+  });
+  const dataset = config.addDataset('My dataset').addFile({
+    fileType: 'image.ome-zarr',
+    url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr',
+    coordinationValues: {
+      image: 'idr0062-blin-nuclearsegmentation',
+    },
+  });
+
+  const additiveScopes = config.addComplexCoordination({
+    volumetricRenderingAlgorithm: 'additive',
+  });
+  const mipScopes = config.addComplexCoordination({
+    volumetricRenderingAlgorithm: 'maximumIntensityProjection',
+  });
+
+  const imageScopes = config.addComplexCoordination({
+    spatialTargetZ: 0,
+    spatialTargetT: 0,
+    spatialRenderingMode: '3D',
+    imageLayer: CL([
+      {
+        image: 'idr0062-blin-nuclearsegmentation',
+        spatialLayerOpacity: 1,
+        spatialLayerVisible: true,
+        photometricInterpretation: 'BlackIsZero',
+        spatialTargetResolution: 1,
+        imageChannel: CL([
+          {
+            spatialTargetC: 0,
+            spatialChannelColor: [255, 0, 0],
+            spatialChannelVisible: true,
+            spatialChannelOpacity: 1.0,
+            spatialChannelWindow: null,
+          },
+          {
+            spatialTargetC: 1,
+            spatialChannelColor: [0, 255, 0],
+            spatialChannelVisible: true,
+            spatialChannelOpacity: 1.0,
+            spatialChannelWindow: null,
+          },
+        ]),
+      },
+    ]),
+  });
+
+  const metaCoordinationScope = config.addMetaCoordination();
+  metaCoordinationScope.useComplexCoordination(imageScopes);
+
+  const metaCoordinationScopeAdditive = config.addMetaCoordination();
+  metaCoordinationScopeAdditive.useComplexCoordination(additiveScopes);
+
+  const metaCoordinationScopeMip = config.addMetaCoordination();
+  metaCoordinationScopeMip.useComplexCoordination(mipScopes);
+
+
+  const spatialLeft = config.addView(dataset, 'spatialBeta');
+  const spatialRight = config.addView(dataset, 'spatialBeta');
+  const lcView = config.addView(dataset, 'layerControllerBeta');
+
+
+  spatialLeft.useMetaCoordination(metaCoordinationScope);
+  spatialRight.useMetaCoordination(metaCoordinationScope);
+  lcView.useMetaCoordination(metaCoordinationScope);
+
+  spatialLeft.useMetaCoordination(metaCoordinationScopeAdditive);
+  spatialRight.useMetaCoordination(metaCoordinationScopeMip);
+
+  config.layout(hconcat(spatialLeft, spatialRight, lcView));
+
+  const configJSON = config.toJSON();
+  return configJSON;
+}
+
 export const blinOop2019 = generateBlinConfig();
+export const blinSideBySide2019 = generateSideBySideConfig();
