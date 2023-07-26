@@ -14,6 +14,8 @@ export const useSelectStyles = makeStyles(() => ({
     padding: 0,
     height: 'auto',
     margin: '4px 0',
+    fontSize: '14px',
+    width: '100%',
   },
 }));
 
@@ -22,6 +24,9 @@ export const useControllerSectionStyles = makeStyles(() => ({
     width: '100%',
     flexDirection: 'column',
     padding: '0px 8px',
+  },
+  layerControllerGrid: {
+    marginTop: '10px',
   },
 }));
 

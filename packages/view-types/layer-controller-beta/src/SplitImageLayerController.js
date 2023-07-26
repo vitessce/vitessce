@@ -1,5 +1,6 @@
-/* eslint-disable no-unused-vars */
-import React, { useState } from 'react';
+/* eslint-disable jsx-a11y/label-has-associated-control */
+// eslint gets confused by the "id" being within MUI's inputProps.
+import React, { useState, useId } from 'react';
 import {
   makeStyles,
   Grid,
@@ -8,7 +9,6 @@ import {
   Slider,
   Button,
   Select,
-  InputLabel,
   Checkbox,
   MenuItem,
 } from '@material-ui/core';
@@ -27,38 +27,34 @@ import {
   PopperMenu,
 } from '@vitessce/vit-s';
 import { COLORMAP_OPTIONS, formatBytes } from '@vitessce/utils';
-import { useControllerSectionStyles, useSelectStyles } from './styles.js';
+import {
+  useControllerSectionStyles,
+  useSelectStyles,
+  useEllipsisMenuStyles,
+} from './styles.js';
 import SplitImageChannelController from './SplitImageChannelController.js';
 
 
 const useStyles = makeStyles(() => ({
-  layerRowLabel: {
-    textAlign: 'right !important',
-  },
-  inputLabel: {
-    margin: '4px 0',
-    fontSize: '14px',
-    lineHeight: '21px',
-  },
   imageLayerButton: {
     borderStyle: 'dashed',
     marginTop: '10px',
     fontWeight: 400,
   },
-  imageLayerControllerGridContainer: {
-    marginTop: '10px',
-  },
   imageChannelControllerGrid: {
     padding: '10px 0',
   },
-  imageLayerMenuButton: {
-    backgroundColor: 'transparent',
-    padding: '3px 0',
+  channelExpansionButton: {
+    display: 'inline-block',
+    margin: 0,
+    padding: 0,
+    minWidth: 0,
+    lineHeight: 1,
+    width: '50%',
   },
-  imageLayerPopperContainer: {
-    display: 'flex',
-    marginTop: '5px',
-    justifyContent: 'space-around',
+  layerTypeImageIcon: {
+    marginTop: '8px',
+    width: '50%',
   },
 }));
 
@@ -78,8 +74,8 @@ function ImageLayerEllipsisMenu(props) {
     image,
   } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
   const selectClasses = useSelectStyles();
+  const menuClasses = useEllipsisMenuStyles();
 
   const is3dMode = spatialRenderingMode === '3D';
   const isMultiResolution = image?.isMultiResolution();
@@ -104,24 +100,31 @@ function ImageLayerEllipsisMenu(props) {
     );
   }
 
+  const colormapId = useId();
+  const interpretationId = useId();
+  const transparentId = useId();
+  const volumetricId = useId();
+  const resolutionId = useId();
+
   return (
     <PopperMenu
       open={open}
       setOpen={setOpen}
       buttonIcon={<MoreVertIcon />}
-      buttonClassName={classes.imageLayerMenuButton}
-      containerClassName={classes.imageLayerPopperContainer}
+      buttonClassName={menuClasses.imageLayerMenuButton}
+      containerClassName={menuClasses.imageLayerPopperContainer}
       withPaper
     >
       <MenuItem dense disableGutters>
-        <span style={{ margin: '0 5px' }}>Colormap: </span>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapId}>
+          Colormap:&nbsp;
+        </label>
         <Select
           native
           disabled={photometricInterpretation === 'RGB'}
           onChange={handleColormapChange}
           value={colormap === null ? '' : colormap}
-          inputProps={{ name: 'colormap' }}
-          style={{ width: '100%', fontSize: '14px' }}
+          inputProps={{ id: colormapId }}
           classes={{ root: selectClasses.selectRoot }}
         >
           <option aria-label="None" value="">None</option>
@@ -133,13 +136,14 @@ function ImageLayerEllipsisMenu(props) {
         </Select>
       </MenuItem>
       <MenuItem dense disableGutters>
-        <span style={{ margin: '0 5px' }}>Photometric Interpretation: </span>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={interpretationId}>
+          Photometric Interpretation:&nbsp;
+        </label>
         <Select
           native
           onChange={handleInterpretationChange}
           value={photometricInterpretation}
-          inputProps={{ name: 'interpretation' }}
-          style={{ width: '100%', fontSize: '14px' }}
+          inputProps={{ id: interpretationId }}
           classes={{ root: selectClasses.selectRoot }}
         >
           <option aria-label="RGB" value="RGB">RGB</option>
@@ -147,21 +151,25 @@ function ImageLayerEllipsisMenu(props) {
         </Select>
       </MenuItem>
       <MenuItem dense disableGutters>
-        <span style={{ margin: '0 5px' }}>Zero Transparent: </span>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={transparentId}>
+          Zero Transparent:&nbsp;
+        </label>
         <Checkbox
           color="primary"
           checked={spatialLayerTransparentColor !== null}
           onChange={(e, v) => setSpatialLayerTransparentColor(v ? ([0, 0, 0]) : null)}
+          inputProps={{ id: transparentId }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
-        <span style={{ margin: '0 5px' }}>Volumetric Rendering: </span>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={volumetricId}>
+          Volumetric Rendering:&nbsp;
+        </label>
         <Select
           native
           onChange={handleVolumetricChange}
           value={volumetricRenderingAlgorithm}
-          inputProps={{ name: 'volumetric' }}
-          style={{ width: '100%', fontSize: '14px' }}
+          inputProps={{ id: volumetricId }}
           classes={{ root: selectClasses.selectRoot }}
           disabled={!is3dMode}
         >
@@ -170,14 +178,15 @@ function ImageLayerEllipsisMenu(props) {
         </Select>
       </MenuItem>
       <MenuItem dense disableGutters>
-        <span style={{ margin: '0 5px' }}>Volume Resolution: </span>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={resolutionId}>
+          Volume Resolution:&nbsp;
+        </label>
         <Select
           native
           disabled={!is3dMode || !isMultiResolution}
           onChange={handleResolutionChange}
           value={spatialTargetResolution === null ? '0' : String(spatialTargetResolution)}
-          inputProps={{ name: 'colormap' }}
-          style={{ width: '100%', fontSize: '14px' }}
+          inputProps={{ id: resolutionId }}
           classes={{ root: selectClasses.selectRoot }}
         >
           {Array.isArray(multiResolutionStats) ? multiResolutionStats.map((stats, resolution) => (
@@ -248,42 +257,29 @@ export default function SplitImageLayerController(props) {
     );
   }
 
+  function handleVisibleChange() {
+    const nextVisible = typeof visible === 'boolean' ? !visible : false;
+    setVisible(nextVisible);
+  }
+
   const classes = useStyles();
+  const menuClasses = useEllipsisMenuStyles();
   const controllerSectionClasses = useControllerSectionStyles();
   return (
-    <Grid item className={classes.imageLayerControllerGridContainer}>
+    <Grid item className={controllerSectionClasses.layerControllerGrid}>
       <Paper className={controllerSectionClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={1}>
             <Button
-              onClick={(e) => {
-                // Needed to prevent affecting the expansion panel from changing
-                e.stopPropagation();
-                const nextVisible = typeof visible === 'boolean' ? !visible : false;
-                setVisible(nextVisible);
-              }}
-              style={{
-                marginRight: 8,
-                marginBottom: 2,
-                marginLeft: 8,
-                marginTop: 8,
-                padding: 0,
-                minWidth: 0,
-              }}
+              className={menuClasses.imageLayerVisibleButton}
+              onClick={handleVisibleChange}
             >
               <Visibility />
             </Button>
           </Grid>
           <Grid item xs={1} />
           <Grid item xs={6}>
-            <Typography
-              style={{
-                padding: 0,
-                marginBottom: 0,
-                marginLeft: '4px',
-                marginTop: '10px',
-              }}
-            >
+            <Typography className={menuClasses.imageLayerName}>
               {label}
             </Typography>
           </Grid>
@@ -294,7 +290,7 @@ export default function SplitImageLayerController(props) {
               max={1}
               step={0.001}
               onChange={(e, v) => setOpacity(v)}
-              style={{ marginTop: '7px' }}
+              className={menuClasses.imageLayerOpacitySlider}
               orientation="horizontal"
             />
           </Grid>
@@ -315,22 +311,11 @@ export default function SplitImageLayerController(props) {
             />
           </Grid>
           <Grid item xs={1} container direction="row">
-            <ImageIcon style={{ marginTop: '8px', width: '50%' }} />
+            <ImageIcon className={classes.layerTypeImageIcon} />
             {photometricInterpretation !== 'RGB' ? (
               <Button
-                onClick={(e) => {
-                  // Needed to prevent affecting the expansion panel from changing
-                  e.stopPropagation();
-                  setOpen(prev => !prev);
-                }}
-                style={{
-                  display: 'inline-block',
-                  margin: 0,
-                  padding: 0,
-                  minWidth: 0,
-                  lineHeight: 1,
-                  width: '50%',
-                }}
+                onClick={() => setOpen(prev => !prev)}
+                className={classes.channelExpansionButton}
               >
                 {open ? <ExpandLess /> : <ExpandMore />}
               </Button>
@@ -338,7 +323,12 @@ export default function SplitImageLayerController(props) {
           </Grid>
         </Grid>
         {photometricInterpretation !== 'RGB' && open ? (
-          <Grid container direction="column" justifyContent="space-between" className={classes.imageChannelControllerGrid}>
+          <Grid
+            container
+            direction="column"
+            justifyContent="space-between"
+            className={classes.imageChannelControllerGrid}
+          >
             {channelScopes.map((cScope) => {
               const {
                 spatialTargetC,

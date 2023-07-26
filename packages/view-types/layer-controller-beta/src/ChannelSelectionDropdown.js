@@ -39,9 +39,9 @@ export default function ChannelSelectionDropdown(props) {
   }
   return (Array.isArray(featureIndex) ? (
     <Select
+      native
       classes={{ root: selectClasses.selectRoot }}
       className={classes.oneLineChannelSelect}
-      native
       value={targetC === null ? '' : targetC}
       onChange={handleChange}
     >

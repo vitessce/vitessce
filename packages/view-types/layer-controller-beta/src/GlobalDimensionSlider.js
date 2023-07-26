@@ -38,6 +38,14 @@ const useStyles = makeStyles(theme => ({
     float: 'right',
     marginTop: '3px',
   },
+  dimensionLabel: {
+    padding: 0,
+    marginBottom: '0 !important',
+    marginTop: '12px !important',
+  },
+  dimensionSlider: {
+    marginTop: '9px',
+  },
 }));
 
 export default function GlobalDimensionSlider(props) {
@@ -57,23 +65,22 @@ export default function GlobalDimensionSlider(props) {
 
   function handleRenderingModeChange(event) {
     setSpatialRenderingMode(event.target.checked ? '3D' : '2D');
+    if (!event.target.checked) {
+      // From 3D to 2D
+      // Need to make sure that the targetZ is an integer
+      setTargetValue(Math.floor(targetValue));
+    }
   }
 
   return (
-    <Grid item style={{ marginTop: '10px' }}>
+    <Grid item className={lcClasses.layerControllerGrid}>
       <Paper className={lcClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={1}>
             <DimensionsSVG className={classes.dimensionsIcon} />
           </Grid>
           <Grid item xs={1}>
-            <Typography
-              style={{
-                padding: 0,
-                marginBottom: 0,
-                marginTop: '12px',
-              }}
-            >
+            <Typography className={classes.dimensionLabel}>
               {label}
             </Typography>
           </Grid>
@@ -84,7 +91,7 @@ export default function GlobalDimensionSlider(props) {
               max={max}
               step={1}
               onChange={(e, v) => setTargetValue(v)}
-              style={{ marginTop: '9px' }}
+              className={classes.dimensionSlider}
               valueLabelDisplay="auto"
               orientation="horizontal"
               disabled={spatialRenderingMode === '3D'}

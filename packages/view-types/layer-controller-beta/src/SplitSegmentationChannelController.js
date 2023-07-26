@@ -1,5 +1,6 @@
-/* eslint-disable no-unused-vars */
-import React, { useState } from 'react';
+/* eslint-disable jsx-a11y/label-has-associated-control */
+// eslint gets confused by the "id" being within MUI's inputProps.
+import React, { useState, useId } from 'react';
 import {
   makeStyles,
   Grid,
@@ -17,18 +18,20 @@ import {
   VisibilityOff as VisibilityOffIcon,
 } from '@material-ui/icons';
 import { PopperMenu } from '@vitessce/vit-s';
-import { useControllerSectionStyles } from './styles.js';
+import {
+  useControllerSectionStyles,
+  useEllipsisMenuStyles,
+} from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
 
 const useStyles = makeStyles(() => ({
-  segmentationChannelMenuButton: {
-    backgroundColor: 'transparent',
+  menuItemSlider: {
+    width: '100px',
   },
-  popperContainer: {
-    display: 'flex',
-    marginTop: '5px',
-    justifyContent: 'space-around',
+  layerTypeSegmentationIcon: {
+    marginTop: '10px',
+    marginLeft: '8px',
   },
 }));
 
@@ -42,7 +45,7 @@ function VectorIcon(props) {
 }
 
 
-function EllipsisMenu(props) {
+function SegmentationChannelEllipsisMenu(props) {
   const {
     strokeWidth,
     setStrokeWidth,
@@ -56,25 +59,37 @@ function EllipsisMenu(props) {
   } = props;
   const [open, setOpen] = useState(false);
   const classes = useStyles();
+  const menuClasses = useEllipsisMenuStyles();
+
+  const filledId = useId();
+  const strokeWidthId = useId();
+  const quantitativeColormapId = useId();
+  const colormapRangeId = useId();
+
   return (
     <PopperMenu
       open={open}
       setOpen={setOpen}
       buttonIcon={<MoreVertIcon />}
-      buttonClassName={classes.segmentationChannelMenuButton}
-      containerClassName={classes.popperContainer}
+      buttonClassName={menuClasses.imageLayerMenuButton}
+      containerClassName={menuClasses.imageLayerPopperContainer}
       withPaper
     >
       <MenuItem dense disableGutters>
-        <span style={{ margin: '0 5px' }}>Filled: </span>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={filledId}>
+          Filled:&nbsp;
+        </label>
         <Checkbox
           color="primary"
           checked={filled}
           onChange={(e, v) => setFilled(v)}
+          inputProps={{ id: filledId }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
-        <span style={{ margin: '0 5px' }}>Stroke width: </span>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={strokeWidthId}>
+          Stroke width:
+        </label>
         <Slider
           disabled={filled}
           value={strokeWidth}
@@ -82,12 +97,15 @@ function EllipsisMenu(props) {
           max={5.0}
           step={0.1}
           onChange={(e, v) => setStrokeWidth(v)}
-          style={{ marginTop: '7px', width: '100px' }}
+          classes={{ root: classes.menuItemSlider }}
           orientation="horizontal"
+          inputProps={{ id: strokeWidthId }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
-        <span style={{ margin: '0 5px' }}>Quantitative Colormap: </span>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
+          Quantitative Colormap:&nbsp;
+        </label>
         <Checkbox
           // Do not disable if there are selected quantitative features.
           // Also, do not disable if the checkbox is currently checked, to allow un-checking.
@@ -95,10 +113,13 @@ function EllipsisMenu(props) {
           color="primary"
           checked={obsColorEncoding === 'geneSelection'}
           onChange={(e, v) => setObsColorEncoding(v ? 'geneSelection' : 'spatialChannelColor')}
+          inputProps={{ id: quantitativeColormapId }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
-        <span style={{ margin: '0 5px' }}>Colormap Range: </span>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapRangeId}>
+          Colormap Range:&nbsp;
+        </label>
         <Slider
           disabled={obsColorEncoding !== 'geneSelection'}
           value={featureValueColormapRange}
@@ -106,8 +127,9 @@ function EllipsisMenu(props) {
           max={1.0}
           step={0.01}
           onChange={(e, v) => setFeatureValueColormapRange(v)}
-          style={{ marginTop: '7px', width: '100px' }}
+          className={classes.menuItemSlider}
           orientation="horizontal"
+          inputProps={{ id: colormapRangeId }}
         />
       </MenuItem>
     </PopperMenu>
@@ -131,10 +153,10 @@ export default function SplitVectorLayerController(props) {
 
     featureSelection,
     obsColorEncoding,
-    featureValueColormap,
+    // featureValueColormap, // TODO
     featureValueColormapRange,
     setObsColorEncoding,
-    setFeatureValueColormap,
+    // setFeatureValueColormap, // TODO
     setFeatureValueColormapRange,
   } = props;
 
@@ -144,26 +166,21 @@ export default function SplitVectorLayerController(props) {
   const isStaticColor = obsColorEncoding === 'spatialChannelColor';
 
   const classes = useControllerSectionStyles();
+  const menuClasses = useEllipsisMenuStyles();
+
+  function handleVisibleChange() {
+    const nextVisible = typeof visible === 'boolean' ? !visible : false;
+    setVisible(nextVisible);
+  }
+
   return (
-    <Grid item style={{ marginTop: '10px' }}>
+    <Grid item className={classes.layerControllerGrid}>
       <Paper className={classes.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={1}>
             <Button
-              onClick={(e) => {
-                // Needed to prevent affecting the expansion panel from changing
-                e.stopPropagation();
-                const nextVisible = typeof visible === 'boolean' ? !visible : false;
-                setVisible(nextVisible);
-              }}
-              style={{
-                marginRight: 8,
-                marginBottom: 2,
-                marginLeft: 8,
-                marginTop: 8,
-                padding: 0,
-                minWidth: 0,
-              }}
+              onClick={handleVisibleChange}
+              className={menuClasses.imageLayerVisibleButton}
             >
               <Visibility />
             </Button>
@@ -178,14 +195,7 @@ export default function SplitVectorLayerController(props) {
             />
           </Grid>
           <Grid item xs={6}>
-            <Typography
-              style={{
-                padding: 0,
-                marginBottom: 0,
-                marginLeft: '4px',
-                marginTop: '10px',
-              }}
-            >
+            <Typography className={menuClasses.imageLayerName}>
               {label}
             </Typography>
           </Grid>
@@ -196,12 +206,12 @@ export default function SplitVectorLayerController(props) {
               max={1}
               step={0.001}
               onChange={(e, v) => setOpacity(v)}
-              style={{ marginTop: '7px' }}
+              className={menuClasses.imageLayerOpacitySlider}
               orientation="horizontal"
             />
           </Grid>
           <Grid item xs={1}>
-            <EllipsisMenu
+            <SegmentationChannelEllipsisMenu
               strokeWidth={strokeWidth}
               setStrokeWidth={setStrokeWidth}
               filled={filled}
@@ -214,7 +224,7 @@ export default function SplitVectorLayerController(props) {
             />
           </Grid>
           <Grid item xs={1}>
-            <VectorIcon style={{ marginTop: '10px', marginLeft: '8px' }} />
+            <VectorIcon className={classes.layerTypeSegmentationIcon} />
           </Grid>
         </Grid>
       </Paper>

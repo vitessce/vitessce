@@ -1,29 +1,20 @@
-/* eslint-disable no-unused-vars */
-import React, { useState } from 'react';
+/* eslint-disable jsx-a11y/label-has-associated-control */
+// eslint gets confused by the "id" being within MUI's inputProps.
+import React, { useState, useId } from 'react';
 import { makeStyles, MenuItem, Select } from '@material-ui/core';
 import { MoreVert as MoreVertIcon } from '@material-ui/icons';
 import { PopperMenu } from '@vitessce/vit-s';
-import { useSelectStyles } from './styles.js';
+import { useSelectStyles, useEllipsisMenuStyles } from './styles.js';
 
 const useStyles = makeStyles(() => ({
   channelMenuButton: {
     backgroundColor: 'transparent',
     padding: '3px 0',
+    marginTop: '3px',
   },
-  channelColors: {
-    '&:hover': {
-      backgroundColor: 'transparent',
-    },
-    paddingLeft: '2px',
-    paddingRight: '2px',
-  },
-  channelPopperContainer: {
-    display: 'flex',
-    marginTop: '5px',
-    justifyContent: 'space-around',
-  },
-  spanButton: {
-    padding: '4px',
+  menuItemButton: {
+    padding: '5px',
+    width: '100%',
   },
 }));
 
@@ -44,6 +35,7 @@ function ChannelOptions(props) {
 
   const classes = useStyles();
   const selectClasses = useSelectStyles();
+  const menuClasses = useEllipsisMenuStyles();
 
   function handleRemove() {
     setOpen(false);
@@ -54,35 +46,50 @@ function ChannelOptions(props) {
     setShowValueExtent(event.target.value === 'Value Min/Max');
   }
 
+  const domainTypeId = useId();
+
   return (
     <PopperMenu
       open={open}
       setOpen={setOpen}
       buttonIcon={<MoreVertIcon fontSize="small" />}
       buttonClassName={classes.channelMenuButton}
-      containerClassName={classes.channelPopperContainer}
+      containerClassName={menuClasses.imageLayerPopperContainer}
       placement="bottom-end"
       withPaper
     >
       <MenuItem dense disableGutters>
-        <span style={{ margin: '0 5px' }}>Slider Extent: </span>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={domainTypeId}>
+          Slider Extent:&nbsp;
+        </label>
         <Select
           native
           onChange={handleDomainTypeChange}
           value={showValueExtent ? 'Value Min/Max' : 'Dtype Min/Max'}
-          inputProps={{ name: 'domainType' }}
-          style={{ width: '100%', fontSize: '14px' }}
+          inputProps={{ id: domainTypeId }}
           classes={{ root: selectClasses.selectRoot }}
         >
           <option value="Value Min/Max">Value Min/Max</option>
           <option value="Dtype Min/Max">Dtype Min/Max</option>
         </Select>
       </MenuItem>
-      <MenuItem dense disableGutters onClick={onResetWindowUsingIQR}>
-        <span className={classes.spanButton}>Reset window using IQR</span>
+      <MenuItem
+        dense
+        disableGutters
+        component="button"
+        onClick={onResetWindowUsingIQR}
+        className={classes.menuItemButton}
+      >
+        Reset window using IQR
       </MenuItem>
-      <MenuItem dense disableGutters onClick={handleRemove}>
-        <span className={classes.spanButton}>Remove channel</span>
+      <MenuItem
+        dense
+        disableGutters
+        component="button"
+        onClick={handleRemove}
+        className={classes.menuItemButton}
+      >
+        Remove channel
       </MenuItem>
     </PopperMenu>
   );

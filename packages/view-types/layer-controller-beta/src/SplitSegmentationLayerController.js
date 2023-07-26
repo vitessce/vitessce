@@ -12,7 +12,6 @@ export default function SplitSegmentationLayerController(props) {
     channelCoordination,
     setChannelCoordination,
     obsSegmentations, // TODO?
-    use3d, // TODO
   } = props;
 
   const {

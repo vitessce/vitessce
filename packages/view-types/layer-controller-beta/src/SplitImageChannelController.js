@@ -139,7 +139,7 @@ export default function SplitImageChannelController(props) {
           minMaxDomain={minMaxDomain}
         />
       </Grid>
-      <Grid item xs={1} style={{ marginTop: '4px' }}>
+      <Grid item xs={1}>
         <ChannelOptions
           onRemove={onRemove}
           showValueExtent={showValueExtent}
