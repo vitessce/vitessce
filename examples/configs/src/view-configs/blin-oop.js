@@ -27,7 +27,7 @@ function generateBlinConfig() {
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
         photometricInterpretation: 'BlackIsZero',
-        spatialTargetResolution: 1,
+        spatialTargetResolution: null,
         imageChannel: CL([
           {
             spatialTargetC: 0,
@@ -97,7 +97,7 @@ function generateSideBySideConfig() {
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
         photometricInterpretation: 'BlackIsZero',
-        spatialTargetResolution: 1,
+        spatialTargetResolution: null,
         imageChannel: CL([
           {
             spatialTargetC: 0,
@@ -128,8 +128,10 @@ function generateSideBySideConfig() {
   metaCoordinationScopeMip.useComplexCoordination(mipScopes);
 
 
-  const spatialLeft = config.addView(dataset, 'spatialBeta');
-  const spatialRight = config.addView(dataset, 'spatialBeta');
+  const spatialLeft = config.addView(dataset, 'spatialBeta')
+    .setProps({ title: 'Additive' });
+  const spatialRight = config.addView(dataset, 'spatialBeta')
+    .setProps({ title: 'MIP' });
   const lcView = config.addView(dataset, 'layerControllerBeta');
 
 

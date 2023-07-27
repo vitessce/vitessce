@@ -374,6 +374,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
     layerScope, layerCoordination, channelScopes, channelCoordination,
     image, layerFeatureValues,
   ) {
+    const {
+      targetT,
+      targetZ,
+    } = this.props;
+
     const data = image?.obsSegmentations?.instance?.getData();
     if (!data) {
       return null;
@@ -390,11 +395,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
     let selections;
     const nextLoaderSelection = channelScopes
-      .map(cScope => ({
-        // TODO: Z, T
-        // TODO: keys (if not always 'c', 'z', 't')
-        z: 0,
-        t: 0,
+      .map(cScope => filterSelection(data, {
+        z: targetZ,
+        t: targetT,
         c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
       }));
     const prevLoaderSelection = this.segmentationLayerLoaderSelections[layerScope];
@@ -527,6 +530,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ));
 
 
+    const autoTargetResolution = image?.image?.instance?.getAutoTargetResolution();
+    const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION];
+
+
     return new Layer({
       loader: layerLoader,
       id: `${is3dMode ? 'volume' : 'image'}-layer-${layerScope}`,
@@ -543,7 +550,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       modelMatrix: layerDefModelMatrix,
       transparentColor,
       useTransparentColor,
-      resolution: layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION],
+      resolution: targetResolution === null ? autoTargetResolution : targetResolution,
       renderingMode: VIV_RENDERING_MODES[renderingMode],
       pickable: false,
       xSlice: layerCoordination[CoordinationType.SPATIAL_SLICE_X],

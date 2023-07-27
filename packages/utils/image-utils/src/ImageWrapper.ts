@@ -346,4 +346,25 @@ export default class ImageWrapper<S extends string[]> {
         };
       });
   }
+
+  /**
+   * Compute an index of an array element returned by getMultiResolutionStats()
+   * which corresponds to a "good" automatic target resolution to select.
+   * In the future, we could make this more sophisticated, for example
+   * to take into account the network speed.
+   */
+  getAutoTargetResolution(): number {
+    const multiResStats = this.getMultiResolutionStats();
+    let nextTargetResolution = -1;
+    let totalBytes = Infinity;
+    do {
+      nextTargetResolution += 1;
+      // eslint-disable-next-line prefer-destructuring
+      totalBytes = multiResStats[nextTargetResolution].totalBytes;
+
+      // Stop if we have reached the lowest (final) resolution,
+      // or if we have reached a resolution that is less than 100MB.
+    } while (totalBytes > 1e8 && nextTargetResolution < multiResStats.length - 1);
+    return nextTargetResolution;
+  }
 }
