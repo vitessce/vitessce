@@ -14,10 +14,8 @@ export const useEllipsisMenuStyles = makeStyles(() => ({
     justifyContent: 'space-around',
   },
   imageLayerVisibleButton: {
-    marginRight: 8,
-    marginBottom: 2,
     marginLeft: 8,
-    marginTop: 8,
+    height: '100%',
     padding: 0,
     minWidth: 0,
   },

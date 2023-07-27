@@ -53,7 +53,7 @@ const useStyles = makeStyles(() => ({
     width: '50%',
   },
   layerTypeImageIcon: {
-    marginTop: '8px',
+    height: '100%',
     width: '50%',
   },
 }));
@@ -265,6 +265,7 @@ export default function SplitImageLayerController(props) {
   const classes = useStyles();
   const menuClasses = useEllipsisMenuStyles();
   const controllerSectionClasses = useControllerSectionStyles();
+  const isMultiChannel = photometricInterpretation !== 'RGB';
   return (
     <Grid item className={controllerSectionClasses.layerControllerGrid}>
       <Paper className={controllerSectionClasses.layerControllerRoot}>
@@ -312,7 +313,7 @@ export default function SplitImageLayerController(props) {
           </Grid>
           <Grid item xs={1} container direction="row">
             <ImageIcon className={classes.layerTypeImageIcon} />
-            {photometricInterpretation !== 'RGB' ? (
+            {isMultiChannel ? (
               <Button
                 onClick={() => setOpen(prev => !prev)}
                 className={classes.channelExpansionButton}
@@ -322,7 +323,7 @@ export default function SplitImageLayerController(props) {
             ) : null}
           </Grid>
         </Grid>
-        {photometricInterpretation !== 'RGB' && open ? (
+        {isMultiChannel && open ? (
           <Grid
             container
             direction="column"

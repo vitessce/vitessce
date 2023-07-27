@@ -20,7 +20,7 @@ export const kpmp2023 = {
             offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2.offsets.json`,
           },
           coordinationValues: {
-            image: 'S-1905-017737',
+            fileUid: 'S-1905-017737',
           },
         },
         {
@@ -30,7 +30,7 @@ export const kpmp2023 = {
             offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2_bf.offsets.json`,
           },
           coordinationValues: {
-            image: 'S-1905-017737_bf',
+            fileUid: 'S-1905-017737_bf',
           },
         },
         {
@@ -110,7 +110,7 @@ export const kpmp2023 = {
   ],
   initStrategy: 'auto',
   coordinationSpace: {
-    image: {
+    fileUid: {
       bitmask: 'S-1905-017737',
       rgb: 'S-1905-017737_bf',
     },
@@ -300,7 +300,7 @@ export const kpmp2023 = {
     metaCoordinationScopesBy: {
       metaA: {
         imageLayer: {
-          image: {
+          fileUid: {
             histology: 'rgb',
           },
           imageChannel: {
@@ -344,7 +344,7 @@ export const kpmp2023 = {
           },
         },
         segmentationLayer: {
-          image: {
+          fileUid: {
             ml: 'bitmask',
           },
           segmentationChannel: {

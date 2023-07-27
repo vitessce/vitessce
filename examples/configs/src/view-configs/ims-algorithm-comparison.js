@@ -18,7 +18,7 @@ function generateImsConfig() {
       offsetsUrl: 'https://assets.hubmapconsortium.org/2ced91fd6d543e79af90313e52ada57d/data/ims/A/0/fd45d077-b163-488d-b5b7-cd5a44b5f66f',
     },
     coordinationValues: {
-      image: 'SIMPLE',
+      fileUid: 'SIMPLE',
     },
   }).addFile({
     fileType: 'image.ome-tiff',
@@ -27,7 +27,7 @@ function generateImsConfig() {
       offsetsUrl: 'https://assets.hubmapconsortium.org/2ced91fd6d543e79af90313e52ada57d/data/ims/B/0/e55efb60-0c85-4fd5-b50c-ddd185820453',
     },
     coordinationValues: {
-      image: 'GAUSSIAN',
+      fileUid: 'GAUSSIAN',
     },
   }).addFile({
     fileType: 'image.ome-tiff',
@@ -36,7 +36,7 @@ function generateImsConfig() {
       offsetsUrl: 'https://assets.hubmapconsortium.org/2ced91fd6d543e79af90313e52ada57d/data/ims/C/0/10a8c76a-84fb-4963-a97e-be8eae0648e7',
     },
     coordinationValues: {
-      image: 'AREA',
+      fileUid: 'AREA',
     },
   })
     .addFile({
@@ -46,7 +46,7 @@ function generateImsConfig() {
         offsetsUrl: 'https://assets.hubmapconsortium.org/2ced91fd6d543e79af90313e52ada57d/data/ims/D/0/aea71c16-a9ab-4c79-98ce-a412b4aa9223',
       },
       coordinationValues: {
-        image: 'LINEAR',
+        fileUid: 'LINEAR',
       },
     });
 
@@ -86,16 +86,16 @@ function generateImsConfig() {
   channelWindow2Scope.setValue([0, 1000]);
 
   const simpleScopes = config.addComplexCoordination({
-    image: 'SIMPLE',
+    fileUid: 'SIMPLE',
   });
   const gaussianScopes = config.addComplexCoordination({
-    image: 'GAUSSIAN',
+    fileUid: 'GAUSSIAN',
   });
   const areaScopes = config.addComplexCoordination({
-    image: 'AREA',
+    fileUid: 'AREA',
   });
   const linearScopes = config.addComplexCoordination({
-    image: 'LINEAR',
+    fileUid: 'LINEAR',
   });
   const sharedScopes = config.addComplexCoordination({
     imageLayer: CL([

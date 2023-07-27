@@ -353,8 +353,11 @@ export default class ImageWrapper<S extends string[]> {
    * In the future, we could make this more sophisticated, for example
    * to take into account the network speed.
    */
-  getAutoTargetResolution(): number {
+  getAutoTargetResolution(): number|null {
     const multiResStats = this.getMultiResolutionStats();
+    if (multiResStats.length === 0) {
+      return null;
+    }
     let nextTargetResolution = -1;
     let totalBytes = Infinity;
     do {

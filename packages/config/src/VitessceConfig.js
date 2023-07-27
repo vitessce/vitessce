@@ -111,7 +111,7 @@ function useComplexCoordinationHelper(scopes, coordinationScopes, coordinationSc
         {
           scope: imageLayerScope,
           children: {
-            [CoordinationType.IMAGE]: { scope: imageScope },
+            [CoordinationType.FILE_UID]: { scope: imageScope },
             [CoordinationType.SPATIAL_LAYER_VISIBLE]: { scope: imageVisibleScope },
             [CoordinationType.SPATIAL_LAYER_OPACITY]: { scope: imageOpacityScope },
             [CoordinationType.SPATIAL_IMAGE_CHANNEL]: [
@@ -143,7 +143,7 @@ function useComplexCoordinationHelper(scopes, coordinationScopes, coordinationSc
     };
     this.coordinationScopesBy = {
       [CoordinationType.SPATIAL_IMAGE_LAYER]: {
-        [CoordinationType.IMAGE]: {
+        [CoordinationType.FILE_UID]: {
           [imageLayerScope.cScope]: imageScope.cScope,
         },
         [CoordinationType.SPATIAL_LAYER_VISIBLE]: {
@@ -682,7 +682,7 @@ export class VitessceConfig {
       {
         [CoordinationType.SPATIAL_IMAGE_LAYER]: CL([
           {
-            [CoordinationType.IMAGE]: 'S-1905-017737_bf',
+            [CoordinationType.FILE_UID]: 'S-1905-017737_bf',
             [CoordinationType.SPATIAL_LAYER_VISIBLE]: true,
             [CoordinationType.SPATIAL_LAYER_OPACITY]: 1,
             [CoordinationType.SPATIAL_IMAGE_CHANNEL]: CL([
@@ -699,7 +699,7 @@ export class VitessceConfig {
         ]),
         [CoordinationType.SPATIAL_SEGMENTATION_LAYER]: CL([
           {
-            [CoordinationType.IMAGE]: 'S-1905-017737',
+            [CoordinationType.FILE_UID]: 'S-1905-017737',
             [CoordinationType.SPATIAL_LAYER_VISIBLE]: true,
             [CoordinationType.SPATIAL_LAYER_OPACITY]: 1,
             [CoordinationType.SPATIAL_SEGMENTATION_CHANNEL]: CL([
@@ -729,7 +729,7 @@ export class VitessceConfig {
           {
             scope: imageLayerScope,
             children: {
-              [CoordinationType.IMAGE]: { scope: imageScope },
+              [CoordinationType.FILE_UID]: { scope: imageScope },
               [CoordinationType.SPATIAL_LAYER_VISIBLE]: { scope: imageVisibleScope },
               [CoordinationType.SPATIAL_LAYER_OPACITY]: { scope: imageOpacityScope },
               [CoordinationType.SPATIAL_IMAGE_CHANNEL]: [

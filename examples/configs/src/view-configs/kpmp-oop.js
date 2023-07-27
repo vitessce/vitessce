@@ -21,7 +21,7 @@ function generateKpmpConfig() {
       offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2.offsets.json`,
     },
     coordinationValues: {
-      image: 'S-1905-017737',
+      fileUid: 'S-1905-017737',
     },
   }).addFile({
     fileType: 'image.ome-tiff',
@@ -30,7 +30,7 @@ function generateKpmpConfig() {
       offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2_bf.offsets.json`,
     },
     coordinationValues: {
-      image: 'S-1905-017737_bf',
+      fileUid: 'S-1905-017737_bf',
     },
   }).addFile({
     fileType: 'obsFeatureMatrix.anndata.zarr',
@@ -128,7 +128,7 @@ function generateKpmpConfig() {
     featureValueColormapRange: [0, 1],
     imageLayer: CL([
       {
-        image: 'S-1905-017737_bf',
+        fileUid: 'S-1905-017737_bf',
         spatialLayerVisible: true,
         spatialLayerOpacity: 1,
         photometricInterpretation: 'BlackIsZero',
@@ -159,7 +159,7 @@ function generateKpmpConfig() {
     ]),
     segmentationLayer: CL([
       {
-        image: 'S-1905-017737',
+        fileUid: 'S-1905-017737',
         spatialLayerVisible: true,
         spatialLayerOpacity: 1,
         segmentationChannel: CL([

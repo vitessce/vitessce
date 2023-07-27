@@ -381,7 +381,7 @@ export function useMultiObsSegmentations(
 ) {
   const imageCoordination = useComplexCoordination(
     [
-      CoordinationType.IMAGE,
+      CoordinationType.FILE_UID,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -407,7 +407,7 @@ export function useMultiImages(
   // (in all of the useMulti data hooks)?
   const imageCoordination = useComplexCoordination(
     [
-      CoordinationType.IMAGE,
+      CoordinationType.FILE_UID,
     ],
     coordinationScopes,
     coordinationScopesBy,

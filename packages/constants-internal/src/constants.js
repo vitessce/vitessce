@@ -174,7 +174,7 @@ export const CoordinationType = {
   GATING_FEATURE_SELECTION_Y: 'gatingFeatureSelectionY',
   FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'featureValueTransformCoefficient',
   TOOLTIPS_VISIBLE: 'tooltipsVisible',
-  IMAGE: 'image',
+  FILE_UID: 'fileUid',
   IMAGE_LAYER: 'imageLayer',
   IMAGE_CHANNEL: 'imageChannel',
   SEGMENTATION_LAYER: 'segmentationLayer',

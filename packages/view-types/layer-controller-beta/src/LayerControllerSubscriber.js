@@ -105,7 +105,7 @@ export function LayerControllerSubscriber(props) {
   // Object keys are coordination scope names for spatialSegmentationLayer.
   const segmentationLayerCoordination = useComplexCoordination(
     [
-      CoordinationType.IMAGE,
+      CoordinationType.FILE_UID,
       CoordinationType.SEGMENTATION_CHANNEL,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
@@ -138,7 +138,7 @@ export function LayerControllerSubscriber(props) {
 
   const imageLayerCoordination = useComplexCoordination(
     [
-      CoordinationType.IMAGE,
+      CoordinationType.FILE_UID,
       CoordinationType.IMAGE_CHANNEL,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,

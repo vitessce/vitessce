@@ -373,7 +373,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.GENOMIC_TARGET_Y, 1549999999.5, z.number()),
   new PluginCoordinationType(CoordinationType.ADDITIONAL_OBS_SETS, null, obsSetsSchema.nullable()),
   new PluginCoordinationType(CoordinationType.MOLECULE_HIGHLIGHT, null, z.string().nullable()),
-  new PluginCoordinationType(CoordinationType.IMAGE, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.FILE_UID, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.IMAGE_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.IMAGE_CHANNEL, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SEGMENTATION_LAYER, null, z.string().nullable()),

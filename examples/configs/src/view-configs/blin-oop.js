@@ -14,7 +14,7 @@ function generateBlinConfig() {
     fileType: 'image.ome-zarr',
     url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr',
     coordinationValues: {
-      image: 'idr0062-blin-nuclearsegmentation',
+      fileUid: 'idr0062-blin-nuclearsegmentation',
     },
   });
 
@@ -23,7 +23,7 @@ function generateBlinConfig() {
     spatialTargetT: 0,
     imageLayer: CL([
       {
-        image: 'idr0062-blin-nuclearsegmentation',
+        fileUid: 'idr0062-blin-nuclearsegmentation',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
         photometricInterpretation: 'BlackIsZero',
@@ -76,7 +76,7 @@ function generateSideBySideConfig() {
     fileType: 'image.ome-zarr',
     url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr',
     coordinationValues: {
-      image: 'idr0062-blin-nuclearsegmentation',
+      fileUid: 'idr0062-blin-nuclearsegmentation',
     },
   });
 
@@ -93,7 +93,7 @@ function generateSideBySideConfig() {
     spatialRenderingMode: '3D',
     imageLayer: CL([
       {
-        image: 'idr0062-blin-nuclearsegmentation',
+        fileUid: 'idr0062-blin-nuclearsegmentation',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
         photometricInterpretation: 'BlackIsZero',
