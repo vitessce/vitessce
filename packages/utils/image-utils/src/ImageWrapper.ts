@@ -7,6 +7,7 @@ import {
   getSourceFromLoader,
   canLoadResolution,
   getStatsForResolution,
+  getBoundingCube,
 } from '@vitessce/spatial-utils';
 import { VIEWER_PALETTE } from '@vitessce/utils';
 import type { LoadOmeTiffReturnValue } from './ome-tiff-types.js';
@@ -39,6 +40,12 @@ type ResolutionObject = {
   depthDownsampled: number;
   totalBytes: number;
 };
+
+type BoundingCube = [
+  [number, number],
+  [number, number],
+  [number, number]
+];
 
 /**
  * A wrapper around the Viv loader, to provide a common interface for
@@ -369,5 +376,19 @@ export default class ImageWrapper<S extends string[]> {
       // or if we have reached a resolution that is less than 100MB.
     } while (totalBytes > 1e8 && nextTargetResolution < multiResStats.length - 1);
     return nextTargetResolution;
+  }
+
+  getBoundingCube(): BoundingCube {
+    const loader = this.vivLoader;
+    const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+
+    const physicalSizeScalingMatrix = this.getModelMatrix();
+    const xSlice: [number, number] = [0, physicalSizeScalingMatrix[0] * shape[labels.indexOf('x')]];
+    const ySlice: [number, number] = [0, physicalSizeScalingMatrix[5] * shape[labels.indexOf('y')]];
+    const zSlice: [number, number] = [
+      0,
+      physicalSizeScalingMatrix[10] * shape[labels.indexOf('z')],
+    ];
+    return [xSlice, ySlice, zSlice];
   }
 }

@@ -33,6 +33,7 @@ import {
   useEllipsisMenuStyles,
 } from './styles.js';
 import SplitImageChannelController from './SplitImageChannelController.js';
+import ClippingSliders from './ClippingSliders.js';
 
 
 const useStyles = makeStyles(() => ({
@@ -43,6 +44,7 @@ const useStyles = makeStyles(() => ({
   },
   imageChannelControllerGrid: {
     padding: '10px 0',
+    flexWrap: 'nowrap',
   },
   channelExpansionButton: {
     display: 'inline-block',
@@ -55,6 +57,13 @@ const useStyles = makeStyles(() => ({
   layerTypeImageIcon: {
     height: '100%',
     width: '50%',
+  },
+  clippingPanesLabel: {
+    marginBottom: '0 !important',
+  },
+  clippingSliders: {
+    padding: '0 8px',
+
   },
 }));
 
@@ -231,6 +240,9 @@ export default function SplitImageLayerController(props) {
     spatialTargetResolution,
     volumetricRenderingAlgorithm,
     spatialLayerTransparentColor,
+    spatialSliceX,
+    spatialSliceY,
+    spatialSliceZ,
   } = layerCoordination;
   const {
     setSpatialLayerVisible: setVisible,
@@ -240,6 +252,9 @@ export default function SplitImageLayerController(props) {
     setSpatialTargetResolution,
     setVolumetricRenderingAlgorithm,
     setSpatialLayerTransparentColor,
+    setSpatialSliceX,
+    setSpatialSliceY,
+    setSpatialSliceZ,
   } = setLayerCoordination;
 
   const addChannel = useAddImageChannelInMetaCoordinationScopes();
@@ -249,6 +264,7 @@ export default function SplitImageLayerController(props) {
 
   const label = image?.getName();
   const imageNumChannels = image?.getNumChannels();
+  const is3dMode = spatialRenderingMode === '3D';
 
   function handleChannelAdd() {
     addChannel(
@@ -385,6 +401,27 @@ export default function SplitImageLayerController(props) {
             >
               Add Channel
             </Button>
+          </Grid>
+        ) : null}
+        {is3dMode && image ? (
+          <Grid
+            container
+            direction="column"
+            justifyContent="space-between"
+            className={classes.imageChannelControllerGrid}
+          >
+            <Typography className={classes.clippingPanesLabel}>Clipping planes:</Typography>
+            <Grid item xs={12} className={classes.clippingSliders}>
+              <ClippingSliders
+                image={image}
+                spatialSliceX={spatialSliceX}
+                spatialSliceY={spatialSliceY}
+                spatialSliceZ={spatialSliceZ}
+                setSpatialSliceX={setSpatialSliceX}
+                setSpatialSliceY={setSpatialSliceY}
+                setSpatialSliceZ={setSpatialSliceZ}
+              />
+            </Grid>
           </Grid>
         ) : null}
       </Paper>

@@ -59,15 +59,16 @@ export default function SplitImageChannelController(props) {
   const minMaxQuery = useQuery({
     enabled: Boolean(image?.getData()) && !isLoading,
     structuralSharing: false,
-    queryKey: ['minMaxDomain', image?.getName(), targetT, targetZ, targetC, is3dMode],
+    queryKey: ['minMaxDomain', image?.getName(), targetT, targetC, is3dMode ? 0 : targetZ, is3dMode],
     queryFn: async (ctx) => {
+      const loader = ctx.meta.image?.getData();
       const selection = {
         t: ctx.queryKey[2],
-        z: ctx.queryKey[3],
-        c: ctx.queryKey[4],
+        c: ctx.queryKey[3],
+        z: Math.floor(ctx.queryKey[4]),
       };
       const stats = await getMultiSelectionStats({
-        loader: ctx.meta.image?.getData(),
+        loader,
         selections: [selection],
         use3d: ctx.queryKey[5],
       });
