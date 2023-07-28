@@ -19,6 +19,9 @@ const useStyles = makeStyles(() => ({
     borderRadius: '4px',
     margin: '8px',
   },
+  colorIconButton: {
+    height: '100%',
+  },
   colorPicker: {
     boxShadow: 'none !important',
     margin: '0 auto',
@@ -83,7 +86,7 @@ export default function ChannelColorPickerMenu(props) {
           <div className={classes.colorIcon} />
         )
       }
-      buttonClassName={classes.segmentationChannelMenuButton}
+      buttonClassName={classes.colorIconButton}
       withPaper={false}
     >
       <TwitterPicker

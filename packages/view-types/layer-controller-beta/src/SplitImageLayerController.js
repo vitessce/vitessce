@@ -40,10 +40,11 @@ const useStyles = makeStyles(() => ({
   imageLayerButton: {
     borderStyle: 'dashed',
     marginTop: '10px',
+    marginBottom: '10px',
     fontWeight: 400,
   },
   imageChannelControllerGrid: {
-    padding: '10px 0',
+    padding: '0',
     flexWrap: 'nowrap',
   },
   channelExpansionButton: {
@@ -57,6 +58,7 @@ const useStyles = makeStyles(() => ({
   layerTypeImageIcon: {
     height: '100%',
     width: '50%',
+    maxWidth: '24px',
   },
   clippingPanesLabel: {
     marginBottom: '0 !important',

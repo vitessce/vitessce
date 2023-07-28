@@ -35,6 +35,7 @@ const useStyles = makeStyles(() => ({
     fill: 'currentColor',
     fontSize: '24px',
     width: '50%',
+    maxWidth: '24px',
   },
 }));
 
