@@ -87,13 +87,13 @@ function SegmentationChannelEllipsisMenu(props) {
         <Slider
           disabled={filled}
           value={strokeWidth}
-          min={0.5}
+          min={0.01}
           max={5.0}
-          step={0.1}
+          step={0.01}
           onChange={(e, v) => setStrokeWidth(v)}
           classes={{ root: classes.menuItemSlider }}
           orientation="horizontal"
-          inputProps={{ id: strokeWidthId }}
+          id={strokeWidthId}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -123,7 +123,7 @@ function SegmentationChannelEllipsisMenu(props) {
           onChange={(e, v) => setFeatureValueColormapRange(v)}
           className={classes.menuItemSlider}
           orientation="horizontal"
-          inputProps={{ id: colormapRangeId }}
+          id={colormapRangeId}
         />
       </MenuItem>
     </PopperMenu>

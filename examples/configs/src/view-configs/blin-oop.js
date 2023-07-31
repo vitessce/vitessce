@@ -18,7 +18,7 @@ function generateBlinConfig() {
     },
   });
 
-  const imageScopes = config.addComplexCoordination({
+  const imageScopes = config.addCoordinationByObject({
     spatialTargetZ: 0,
     spatialTargetT: 0,
     imageLayer: CL([
@@ -49,7 +49,7 @@ function generateBlinConfig() {
   });
 
   const metaCoordinationScope = config.addMetaCoordination();
-  metaCoordinationScope.useComplexCoordination(imageScopes);
+  metaCoordinationScope.useCoordinationByObject(imageScopes);
 
 
   const spatialViewSimple = config.addView(dataset, 'spatialBeta');
@@ -80,14 +80,14 @@ function generateSideBySideConfig() {
     },
   });
 
-  const additiveScopes = config.addComplexCoordination({
+  const additiveScopes = config.addCoordinationByObject({
     volumetricRenderingAlgorithm: 'additive',
   });
-  const mipScopes = config.addComplexCoordination({
+  const mipScopes = config.addCoordinationByObject({
     volumetricRenderingAlgorithm: 'maximumIntensityProjection',
   });
 
-  const imageScopes = config.addComplexCoordination({
+  const imageScopes = config.addCoordinationByObject({
     spatialTargetZ: 0,
     spatialTargetT: 0,
     spatialRenderingMode: '3D',
@@ -119,13 +119,13 @@ function generateSideBySideConfig() {
   });
 
   const metaCoordinationScope = config.addMetaCoordination();
-  metaCoordinationScope.useComplexCoordination(imageScopes);
+  metaCoordinationScope.useCoordinationByObject(imageScopes);
 
   const metaCoordinationScopeAdditive = config.addMetaCoordination();
-  metaCoordinationScopeAdditive.useComplexCoordination(additiveScopes);
+  metaCoordinationScopeAdditive.useCoordinationByObject(additiveScopes);
 
   const metaCoordinationScopeMip = config.addMetaCoordination();
-  metaCoordinationScopeMip.useComplexCoordination(mipScopes);
+  metaCoordinationScopeMip.useCoordinationByObject(mipScopes);
 
 
   const spatialLeft = config.addView(dataset, 'spatialBeta')

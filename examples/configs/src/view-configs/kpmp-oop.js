@@ -124,7 +124,7 @@ function generateKpmpConfig() {
   filledScope.setValue(true);
   strokeScope.setValue(1);
 
-  const scopes = config.addComplexCoordination({
+  const scopes = config.addCoordinationByObject({
     featureValueColormapRange: [0, 1],
     imageLayer: CL([
       {
@@ -253,7 +253,7 @@ function generateKpmpConfig() {
   });
 
   const metaCoordinationScope = config.addMetaCoordination();
-  metaCoordinationScope.useComplexCoordination(scopes);
+  metaCoordinationScope.useCoordinationByObject(scopes);
 
   const spatialView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta');

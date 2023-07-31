@@ -14,33 +14,33 @@ function generateImsConfig() {
     fileType: 'image.ome-tiff',
     url: 'https://assets.hubmapconsortium.org/f4188a148e4c759092d19369d310883b/ometiff-pyramids/processedMicroscopy/VAN0006-LK-2-85-PAS_images/VAN0006-LK-2-85-PAS_registered.ome.tif?token=',
     coordinationValues: {
-      image: 'PAS',
+      fileUid: 'PAS',
     },
   }).addFile({
     fileType: 'image.ome-tiff',
     url: 'https://assets.hubmapconsortium.org/2130d5f91ce61d7157a42c0497b06de8/ometiff-pyramids/processedMicroscopy/VAN0006-LK-2-85-AF_preIMS_images/VAN0006-LK-2-85-AF_preIMS_registered.ome.tif?token=',
     coordinationValues: {
-      image: 'AF',
+      fileUid: 'AF',
     },
   }).addFile({
     fileType: 'image.ome-tiff',
     url: 'https://assets.hubmapconsortium.org/be503a021ed910c0918842e318e6efa2/ometiff-pyramids/ometiffs/VAN0006-LK-2-85-IMS_PosMode_multilayer.ome.tif?token=',
     coordinationValues: {
-      image: 'IMS PosMode',
+      fileUid: 'IMS PosMode',
     },
   })
     .addFile({
       fileType: 'image.ome-tiff',
       url: 'https://assets.hubmapconsortium.org/ca886a630b2038997a4cfbbf4abfd283/ometiff-pyramids/ometiffs/VAN0006-LK-2-85-IMS_NegMode_multilayer.ome.tif?token=',
       coordinationValues: {
-        image: 'IMS NegMode',
+        fileUid: 'IMS NegMode',
       },
     });
 
-  const imageScopes = config.addComplexCoordination({
+  const imageScopes = config.addCoordinationByObject({
     imageLayer: CL([
       {
-        image: 'PAS',
+        fileUid: 'PAS',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
         photometricInterpretation: 'RGB',
@@ -69,7 +69,7 @@ function generateImsConfig() {
         ]),
       },
       {
-        image: 'AF',
+        fileUid: 'AF',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
         spatialLayerTransparentColor: [0, 0, 0],
@@ -99,7 +99,7 @@ function generateImsConfig() {
         ]),
       },
       {
-        image: 'IMS PosMode',
+        fileUid: 'IMS PosMode',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
         spatialLayerTransparentColor: [0, 0, 0],
@@ -129,7 +129,7 @@ function generateImsConfig() {
         ]),
       },
       {
-        image: 'IMS NegMode',
+        fileUid: 'IMS NegMode',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
         spatialLayerTransparentColor: [0, 0, 0],
@@ -162,7 +162,7 @@ function generateImsConfig() {
   });
 
   const metaCoordinationScope = config.addMetaCoordination();
-  metaCoordinationScope.useComplexCoordination(imageScopes);
+  metaCoordinationScope.useCoordinationByObject(imageScopes);
 
 
   const spatialViewSimple = config.addView(dataset, 'spatialBeta');

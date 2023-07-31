@@ -155,7 +155,7 @@ Add scope(s) for new coordination type(s) to the config. See also `VitessceConfi
 #### Returns:
 - Type: `VitessceConfigCoordinationScope[]`
 
-Returns the instances for the new scope objects corresponding to each coordination type. These can be linked to views via the `VitessceConfigView.use_coordination()` method.
+Returns the instances for the new scope objects corresponding to each coordination type. These can be linked to views via the `VitessceConfigView.useCoordination()` method.
 
 ```js {7-11}
 import { VitessceConfig, ViewType as vt, CoordinationType as ct } from 'vitessce';
@@ -175,6 +175,77 @@ zoomScope.setValue(2);
 xScope.setValue(0);
 yScope.setValue(0);
 ```
+
+### `addCoordinationByObject(obj)`
+
+Set up the initial values for multi-level coordination in the coordination space.
+Get a reference to these values to pass to the `useCoordinationByObject` method
+of either view or meta coordination scope instances.
+
+#### Parameters:
+- `obj` (`object`) - A (potentially nested) object with coordination types as keys
+and values being either the initial coordination value, a `VitessceConfigCoordinationScope`
+instance, or a `CoordinationLevel` instance.
+The `CL` function takes an array of objects as its argument, and returns a `CoordinationLevel`
+instance, to support nesting.
+
+#### Returns:
+- Type: `object`
+
+A (potentially nested) object with coordination types as keys and values
+being either { scope }, { scope, children }, or an array of these. Not intended to be
+manipulated before being passed to a `useCoordinationByObject` function.
+
+```js {10-28}
+import { VitessceConfig, CoordinationLevel as CL, CoordinationType as ct } from 'vitessce';
+
+const vc = new VitessceConfig({ schemaVersion: "1.0.16", name: "My config" });
+const dataset = vc.addDataset("My dataset").addFile({
+    fileType: 'image.ome-tiff',
+    url: 'https://assets.hubmapconsortium.org/2130d5f91ce61d7157a42c0497b06de8/ometiff-pyramids/processedMicroscopy/VAN0006-LK-2-85-AF_preIMS_images/VAN0006-LK-2-85-AF_preIMS_registered.ome.tif?token=',
+    coordinationValues: { [ct.FILE_UID]: 'AF' },
+});
+
+const imageScopes = vc.addCoordinationByObject({
+    [ct.IMAGE_LAYER]: CL([
+        {
+            [ct.FILE_UID]: 'AF',
+            [ct.SPATIAL_LAYER_OPACITY]: 1,
+            [ct.SPATIAL_LAYER_VISIBLE]: true,
+            [ct.PHOTOMETRIC_INTERPRETATION]: 'BlackIsZero',
+            [ct.IMAGE_CHANNEL]: CL([
+                {
+                    [ct.SPATIAL_TARGET_C]: 0,
+                    [ct.SPATIAL_CHANNEL_COLOR]: [255, 0, 0],
+                    [ct.SPATIAL_CHANNEL_VISIBLE]: true,
+                    [ct.SPATIAL_CHANNEL_OPACITY]: 1.0,
+                    [ct.SPATIAL_CHANNEL_WINDOW]: null,
+                },
+            ]),
+        },
+    ]),
+});
+
+const metaCoordinationScope = vc.addMetaCoordination();
+metaCoordinationScope.useCoordinationByObject(imageScopes);
+
+const v1 = vc.addView(dataset, vt.SPATIAL);
+const v2 = vc.addView(dataset, vt.SPATIAL);
+v1.useMetaCoordination(metaCoordinationScope);
+v2.useMetaCoordination(metaCoordinationScope);
+```
+
+
+### `addMetaCoordination()`
+
+Add a meta-coordination scope to the config.
+
+
+#### Returns:
+- Type: `VitessceConfigMetaCoordinationScope`
+
+Returns an instance for the new meta-scope object. This can be linked to views via the `VitessceConfigView.useMetaCoordination()` method. See above code snippet for `addCoordinationByObject` method for an example.
+
 
 
 ### `toJSON()`
@@ -442,6 +513,32 @@ Attach coordination scopes to this view instance. All views using the same coord
 
 Returns `this` to allow chaining.
 
+
+### `useCoordinationByObject(obj)`
+
+Attach potentially multi-level coordination scopes to this view.
+
+#### Parameters:
+- `obj` (`object`) - A value returned by `VitessceConfig.addCoordinationByObject`. Not intended to be a manually-constructed object.
+
+#### Returns:
+- Type: `VitessceConfigView`
+
+Returns `this` to allow chaining.
+
+
+### `useMetaCoordination(metaScope)`
+
+Attach coordination scopes to this view instance. All views using the same coordination scope for a particular coordination type will effectively be linked together.
+
+#### Parameters:
+- `metaScope` (`VitessceConfigMetaCoordinationScope`) - A meta coordination scope instance, such as the return value of `VitessceConfig.addMetaCoordination`.
+
+#### Returns:
+- Type: `VitessceConfigView`
+
+Returns `this` to allow chaining.
+
 ### `setProps(props)`
 
 Set extra props for this view. Mostly for debugging.
@@ -478,3 +575,44 @@ Set the coordination value of the coordination scope.
 - Type: `VitessceConfigCoordinationScope`
 
 Returns `this` to allow chaining.
+
+
+## `VitessceConfigMetaCoordinationScope`
+
+Class to represent a pair of `metaCoordinationScopes` and `metaCoordinationScopesBy` coordination scopes in the coordination space.
+
+This class is not meant to be instantiated directly, but instances will be created and returned by the `VitessceConfig.addMetaCoordination()` method.
+
+### `useCoordination(...cScopes)`
+
+Attach coordination scopes to this meta-scopes instance.
+
+#### Parameters:
+- `...cScopes` (variable number of `VitessceConfigCoordinationScope`) - A variable number of coordination scope instances.
+
+#### Returns:
+- Type: `VitessceConfigMetaCoordinationScope`
+
+Returns `this` to allow chaining.
+
+
+### `useCoordinationByObject(obj)`
+
+Attach potentially multi-level coordination scopes to this meta-scopes instance.
+
+#### Parameters:
+- `obj` (`object`) - A value returned by `VitessceConfig.addCoordinationByObject`. Not intended to be a manually-constructed object.
+
+#### Returns:
+- Type: `VitessceConfigMetaCoordinationScope`
+
+Returns `this` to allow chaining.
+
+
+## `CoordinationLevel`
+
+Function to enable configuration of multi-level coordination. Acts as a flag to indicate that values in the object passed to `VitessceConfig.addCoordinationByObject()` are a new level of coordination objects (as opposed to a coordination value for the coordination type key). Alias the import as `CL` for brevity.
+
+```js
+import { CoordinationLevel as CL } from 'vitessce';
+```

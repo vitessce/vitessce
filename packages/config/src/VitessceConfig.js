@@ -102,7 +102,7 @@ export class VitessceConfigDataset {
   }
 }
 
-function useComplexCoordinationHelper(scopes, coordinationScopes, coordinationScopesBy) {
+function useCoordinationByObjectHelper(scopes, coordinationScopes, coordinationScopesBy) {
   // Set this.coordinationScopes and this.coordinationScopesBy by recursion on `scopes`.
   /*
     // Destructured, `scopes` might look like:
@@ -278,14 +278,20 @@ export class VitessceConfigView {
     return this;
   }
 
-  useComplexCoordination(scopes) {
+  /**
+   * Attach potentially multi-level coordination scopes to this view.
+   * @param {object} scopes A value returned by `VitessceConfig.addCoordinationByObject`.
+   * Not intended to be a manually-constructed object.
+   * @returns {VitessceConfigView} This, to allow chaining.
+   */
+  useCoordinationByObject(scopes) {
     if (!this.view.coordinationScopes) {
       this.view.coordinationScopes = {};
     }
     if (!this.view.coordinationScopesBy) {
       this.view.coordinationScopesBy = {};
     }
-    const [nextCoordinationScopes, nextCoordinationScopesBy] = useComplexCoordinationHelper(
+    const [nextCoordinationScopes, nextCoordinationScopesBy] = useCoordinationByObjectHelper(
       scopes,
       this.view.coordinationScopes,
       this.view.coordinationScopesBy,
@@ -480,30 +486,27 @@ export class VitessceConfigMetaCoordinationScope {
     return this;
   }
 
-  useComplexCoordination(scopes) {
+  /**
+   * Attach potentially multi-level coordination scopes to this meta coordination
+   * scope instance.
+   * @param {object} scopes A value returned by `VitessceConfig.addCoordinationByObject`.
+   * Not intended to be a manually-constructed object.
+   * @returns {VitessceConfigView} This, to allow chaining.
+   */
+  useCoordinationByObject(scopes) {
     if (!this.metaScope.cValue) {
       this.metaScope.setValue({});
     }
     if (!this.metaByScope.cValue) {
       this.metaByScope.setValue({});
     }
-    const [metaScopesVal, metaByScopesVal] = useComplexCoordinationHelper(
+    const [metaScopesVal, metaByScopesVal] = useCoordinationByObjectHelper(
       scopes,
       this.metaScope.cValue,
       this.metaByScope.cValue,
     );
     this.metaScope.setValue(metaScopesVal);
     this.metaByScope.setValue(metaByScopesVal);
-    return this;
-  }
-
-  /**
-   * Set the coordination value of the coordination scope.
-   * @param {any} cValue The value to set.
-   * @returns {VitessceConfigCoordinationScope} This, to allow chaining.
-   */
-  setValue(cValue) {
-    this.cValue = cValue;
     return this;
   }
 }
@@ -648,6 +651,11 @@ export class VitessceConfig {
     return result;
   }
 
+  /**
+   * Initialize a new meta coordination scope in the coordination space,
+   * and get a reference to it in the form of a meta coordination scope instance.
+   * @returns {VitessceConfigMetaCoordinationScope} A new meta coordination scope instance.
+   */
   addMetaCoordination() {
     const prevMetaScopes = (
       this.config.coordinationSpace[CoordinationType.META_COORDINATION_SCOPES]
@@ -676,7 +684,20 @@ export class VitessceConfig {
     return metaContainer;
   }
 
-  addComplexCoordination(input) {
+  /**
+   * Set up the initial values for multi-level coordination in the coordination space.
+   * Get a reference to these values to pass to the `useCoordinationByObject` method
+   * of either view or meta coordination scope instances.
+   * @param {object} input A (potentially nested) object with coordination types as keys
+   * and values being either the initial coordination value, a `VitessceConfigCoordinationScope`
+   * instance, or a `CoordinationLevel` instance.
+   * The CL function takes an array of objects as its argument, and returns a CoordinationLevel
+   * instance, to support nesting.
+   * @returns {object} A (potentially nested) object with coordination types as keys and values
+   * being either { scope }, { scope, children }, or an array of these. Not intended to be
+   * manipulated before being passed to a `useCoordinationByObject` function.
+   */
+  addCoordinationByObject(input) {
     /*
       // The value for `input` might look like:
       {
@@ -723,7 +744,7 @@ export class VitessceConfig {
         ]),
       }
       // Which would correspond to this `output`,
-      // a valid input for `VitessceConfigMetaCoordinationScope.useComplexCoordination()`:
+      // a valid input for `VitessceConfigMetaCoordinationScope.useCoordinationByObject()`:
       {
         [CoordinationType.SPATIAL_IMAGE_LAYER]: [
           {

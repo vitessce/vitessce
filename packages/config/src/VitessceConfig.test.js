@@ -269,7 +269,7 @@ describe('src/api/VitessceConfig.js', () => {
         schemaVersion: '1.0.16',
         name: 'My config',
       });
-      config.addComplexCoordination({
+      config.addCoordinationByObject({
         spatialImageLayer: CL([
           {
             image: 'S-1905-017737_bf',
@@ -349,7 +349,7 @@ describe('src/api/VitessceConfig.js', () => {
       );
       colorScope.setValue([255, 0, 0]);
 
-      const scopes = config.addComplexCoordination({
+      const scopes = config.addCoordinationByObject({
         spatialImageLayer: CL([
           {
             image: 'S-1905-017737_bf',
@@ -394,7 +394,7 @@ describe('src/api/VitessceConfig.js', () => {
       });
 
       const spatialView = config.addView(dataset, 'spatial');
-      spatialView.useComplexCoordination(scopes);
+      spatialView.useCoordinationByObject(scopes);
 
       const configJSON = config.toJSON();
       expect(configJSON).toEqual({
@@ -470,7 +470,7 @@ describe('src/api/VitessceConfig.js', () => {
       });
       const dataset = config.addDataset('My dataset');
 
-      const scopes = config.addComplexCoordination({
+      const scopes = config.addCoordinationByObject({
         spatialImageLayer: CL([
           {
             image: 'S-1905-017737_bf',
@@ -515,7 +515,7 @@ describe('src/api/VitessceConfig.js', () => {
       });
 
       const metaCoordinationScope = config.addMetaCoordination();
-      metaCoordinationScope.useComplexCoordination(scopes);
+      metaCoordinationScope.useCoordinationByObject(scopes);
 
       const spatialView = config.addView(dataset, 'spatial');
       const lcView = config.addView(dataset, 'layerController');

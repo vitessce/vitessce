@@ -85,19 +85,19 @@ function generateImsConfig() {
   channelWindow1Scope.setValue([0, 1341]);
   channelWindow2Scope.setValue([0, 1000]);
 
-  const simpleScopes = config.addComplexCoordination({
+  const simpleScopes = config.addCoordinationByObject({
     fileUid: 'SIMPLE',
   });
-  const gaussianScopes = config.addComplexCoordination({
+  const gaussianScopes = config.addCoordinationByObject({
     fileUid: 'GAUSSIAN',
   });
-  const areaScopes = config.addComplexCoordination({
+  const areaScopes = config.addCoordinationByObject({
     fileUid: 'AREA',
   });
-  const linearScopes = config.addComplexCoordination({
+  const linearScopes = config.addCoordinationByObject({
     fileUid: 'LINEAR',
   });
-  const sharedScopes = config.addComplexCoordination({
+  const sharedScopes = config.addCoordinationByObject({
     imageLayer: CL([
       {
         spatialLayerOpacity: 1,
@@ -124,19 +124,19 @@ function generateImsConfig() {
   });
 
   const metaCoordinationScopeSimple = config.addMetaCoordination();
-  metaCoordinationScopeSimple.useComplexCoordination(simpleScopes);
+  metaCoordinationScopeSimple.useCoordinationByObject(simpleScopes);
 
   const metaCoordinationScopeGaussian = config.addMetaCoordination();
-  metaCoordinationScopeGaussian.useComplexCoordination(gaussianScopes);
+  metaCoordinationScopeGaussian.useCoordinationByObject(gaussianScopes);
 
   const metaCoordinationScopeArea = config.addMetaCoordination();
-  metaCoordinationScopeArea.useComplexCoordination(areaScopes);
+  metaCoordinationScopeArea.useCoordinationByObject(areaScopes);
 
   const metaCoordinationScopeLinear = config.addMetaCoordination();
-  metaCoordinationScopeLinear.useComplexCoordination(linearScopes);
+  metaCoordinationScopeLinear.useCoordinationByObject(linearScopes);
 
   const metaCoordinationScopeShared = config.addMetaCoordination();
-  metaCoordinationScopeShared.useComplexCoordination(sharedScopes);
+  metaCoordinationScopeShared.useCoordinationByObject(sharedScopes);
 
   const spatialViewSimple = config.addView(dataset, 'spatialBeta');
   const spatialViewGaussian = config.addView(dataset, 'spatialBeta');
