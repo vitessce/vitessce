@@ -334,32 +334,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
       viewState,
       width,
       height,
-      imageLayerLoaders = {},
     } = this.props;
     const use3d = this.use3d();
     // Just get the first layer/loader since they should all be spatially
     // resolved and therefore have the same unit size scale.
-    const loaders = Object.values(imageLayerLoaders);
-    if (!viewState || !width || !height || loaders.length < 1) return null;
-    const loader = loaders[0];
-    if (!loader) return null;
-    const source = getSourceFromLoader(loader);
-    if (!source.meta) return null;
-    const { physicalSizes } = source.meta;
-    if (physicalSizes && !use3d) {
-      const { x } = physicalSizes;
-      const { unit, size } = x;
-      if (unit && size) {
-        return new viv.ScaleBarLayer({
-          id: 'scalebar-layer',
-          unit,
-          size,
-          viewState: { ...viewState, width, height },
-        });
-      }
-      return null;
-    }
-    return null;
+    if (!viewState || !width || !height || use3d) return null;
+    return new viv.ScaleBarLayer({
+      id: 'scalebar-layer',
+      unit: 'um',
+      size: 1,
+      viewState: { ...viewState, width, height },
+    });
   }
 
   use3d() {

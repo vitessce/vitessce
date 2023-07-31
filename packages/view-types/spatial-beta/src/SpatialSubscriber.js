@@ -506,7 +506,6 @@ export function SpatialSubscriber(props) {
     target,
     rotationX: newRotationX,
     rotationOrbit: newRotationOrbit,
-    orbitAxis: newOrbitAxis,
   }) => {
     setZoom(newZoom);
     setTargetX(target[0]);
@@ -517,7 +516,6 @@ export function SpatialSubscriber(props) {
       }
       setRotationX(newRotationX);
       setRotationOrbit(newRotationOrbit);
-      setOrbitAxis(newOrbitAxis);
     }
   };
 
@@ -741,7 +739,7 @@ export function SpatialSubscriber(props) {
           rotationX,
           rotationOrbit,
         }) : DEFAULT_VIEW_STATE}
-        orbigAxis={orbitAxis}
+        orbitAxis={orbitAxis}
         setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
         originalViewState={originalViewState}
         imageLayerDefs={imageLayers}

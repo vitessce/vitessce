@@ -196,11 +196,12 @@ function ImageLayerEllipsisMenu(props) {
           native
           disabled={!is3dMode || !isMultiResolution}
           onChange={handleResolutionChange}
-          value={spatialTargetResolution === null ? '0' : String(spatialTargetResolution)}
+          value={spatialTargetResolution === null ? 'auto' : spatialTargetResolution}
           inputProps={{ id: resolutionId }}
           classes={{ root: selectClasses.selectRoot }}
         >
-          {Array.isArray(multiResolutionStats) ? multiResolutionStats.map((stats, resolution) => (
+          <option value="auto">Auto</option>
+          {Array.isArray(multiResolutionStats) ? multiResolutionStats.map((stats, resolution) => (stats.canLoad ? (
             <option
               key={`(${stats.height}, ${stats.width}, ${stats.depthDownsampled})`}
               value={resolution}
@@ -209,7 +210,7 @@ function ImageLayerEllipsisMenu(props) {
                 stats.totalBytes,
               )} per channel, (${stats.height}, ${stats.width}, ${stats.depthDownsampled})`}
             </option>
-          )) : null}
+          ) : null)) : null}
         </Select>
       </MenuItem>
     </PopperMenu>

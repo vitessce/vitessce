@@ -197,7 +197,7 @@ export default function Legend(props) {
     }
   }, [width, height, featureValueColormap, featureValueColormapRange, considerSelections,
     obsType, obsColorEncoding, featureSelection, isDarkTheme, featureValueType, extent,
-    featureLabelsMap,
+    featureLabelsMap, spatialChannelColor,
   ]);
 
   return (

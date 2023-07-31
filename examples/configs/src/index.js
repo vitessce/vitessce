@@ -36,6 +36,7 @@ import { kpmpAutoInit2023 } from './view-configs/kpmp-auto-init.js';
 import { imsAlgorithmComparison } from './view-configs/ims-algorithm-comparison.js';
 import { neumanOop2023 } from './view-configs/neumann-oop.js';
 import { codexOop2023 } from './view-configs/codex-oop.js';
+import { lightsheetOop2023 } from './view-configs/lightsheet-oop.js';
 
 
 export const coordinationTypeConfigs = {
@@ -72,6 +73,7 @@ export const configs = {
   'ims-algorithm-comparison': imsAlgorithmComparison,
   'neumann-oop-2023': neumanOop2023,
   'codex-oop-2023': codexOop2023,
+  'lightsheet-oop-2023': lightsheetOop2023,
   'kpmp-auto-init': kpmpAutoInit2023,
   'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,

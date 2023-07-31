@@ -39,6 +39,7 @@ type ResolutionObject = {
   width: number;
   depthDownsampled: number;
   totalBytes: number;
+  canLoad: boolean;
 };
 
 type BoundingCube = [
@@ -337,7 +338,6 @@ export default class ImageWrapper<S extends string[]> {
     return Array.from({ length: loader.data.length })
       .fill(0)
       // eslint-disable-next-line no-unused-vars
-      .filter((_, resolution) => (loader.data && canLoadResolution(loader.data, resolution)))
       .map((_, resolution) => {
         const {
           height,
@@ -346,6 +346,7 @@ export default class ImageWrapper<S extends string[]> {
           totalBytes,
         } = getStatsForResolution(loader.data, resolution);
         return {
+          canLoad: canLoadResolution(loader.data, resolution),
           height,
           width,
           depthDownsampled,
@@ -367,14 +368,11 @@ export default class ImageWrapper<S extends string[]> {
     }
     let nextTargetResolution = -1;
     let totalBytes = Infinity;
-    do {
+    while (totalBytes > 5e7 && nextTargetResolution < multiResStats.length - 1) {
       nextTargetResolution += 1;
       // eslint-disable-next-line prefer-destructuring
       totalBytes = multiResStats[nextTargetResolution].totalBytes;
-
-      // Stop if we have reached the lowest (final) resolution,
-      // or if we have reached a resolution that is less than 100MB.
-    } while (totalBytes > 1e8 && nextTargetResolution < multiResStats.length - 1);
+    }
     return nextTargetResolution;
   }
 

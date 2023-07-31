@@ -4,6 +4,7 @@ import {
   hconcat,
 } from '@vitessce/config';
 
+// Reference: https://portal.hubmapconsortium.org/browse/dataset/8d86e6c899e80d0f5f95604eb4ad492e
 
 function generateCodexConfig() {
   const config = new VitessceConfig({
@@ -24,6 +25,16 @@ function generateCodexConfig() {
     url: 'https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/ometiff-pyramids/pipeline_output/mask/reg001_mask.ome.tif?token=',
     options: {
       offsetsUrl: 'https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/output_offsets/pipeline_output/mask/reg001_mask.offsets.json?token=',
+      coordinateTransformations: [
+        {
+          type: 'scale',
+          // The mask does not specify PhysicalSizeX or PhysicalSizeY,
+          // but the image does (377.44nm x 377.44nm),
+          // so we need to scale the mask despite it having the same
+          // pixel dimensions as the image.
+          scale: [377.44/1000, 377.44/1000, 1, 1, 1],
+        }
+      ]
     },
     coordinationValues: {
       fileUid: 'reg001_mask',
