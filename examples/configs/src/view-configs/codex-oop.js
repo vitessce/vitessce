@@ -4,7 +4,7 @@ import {
   hconcat,
 } from '@vitessce/config';
 
-  
+
 function generateCodexConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
@@ -14,7 +14,7 @@ function generateCodexConfig() {
     fileType: 'image.ome-tiff',
     url: 'https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/ometiff-pyramids/pipeline_output/expr/reg001_expr.ome.tif?token=',
     options: {
-      offsetsUrl: 'https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/output_offsets/pipeline_output/expr/reg001_expr.offsets.json?token='
+      offsetsUrl: 'https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/output_offsets/pipeline_output/expr/reg001_expr.offsets.json?token=',
     },
     coordinationValues: {
       fileUid: 'reg001_expr',
@@ -23,7 +23,7 @@ function generateCodexConfig() {
     fileType: 'obsSegmentations.ome-tiff',
     url: 'https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/ometiff-pyramids/pipeline_output/mask/reg001_mask.ome.tif?token=',
     options: {
-      offsetsUrl: 'https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/output_offsets/pipeline_output/mask/reg001_mask.offsets.json?token='
+      offsetsUrl: 'https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/output_offsets/pipeline_output/mask/reg001_mask.offsets.json?token=',
     },
     coordinationValues: {
       fileUid: 'reg001_mask',
@@ -110,6 +110,4 @@ function generateCodexConfig() {
 }
 
 
-
 export const codexOop2023 = generateCodexConfig();
-  
