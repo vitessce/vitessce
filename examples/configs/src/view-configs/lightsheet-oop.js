@@ -31,6 +31,7 @@ function generateLightsheetConfig() {
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
         photometricInterpretation: 'BlackIsZero',
+        volumetricRenderingAlgorithm: 'maximumIntensityProjection',
         spatialTargetResolution: null,
         imageChannel: CL([
           {
