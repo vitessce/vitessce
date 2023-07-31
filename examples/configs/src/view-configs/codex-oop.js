@@ -32,9 +32,9 @@ function generateCodexConfig() {
           // but the image does (377.44nm x 377.44nm),
           // so we need to scale the mask despite it having the same
           // pixel dimensions as the image.
-          scale: [377.44/1000, 377.44/1000, 1, 1, 1],
-        }
-      ]
+          scale: [377.44 / 1000, 377.44 / 1000, 1, 1, 1],
+        },
+      ],
     },
     coordinationValues: {
       fileUid: 'reg001_mask',

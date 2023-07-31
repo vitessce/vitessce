@@ -201,16 +201,18 @@ function ImageLayerEllipsisMenu(props) {
           classes={{ root: selectClasses.selectRoot }}
         >
           <option value="auto">Auto</option>
-          {Array.isArray(multiResolutionStats) ? multiResolutionStats.map((stats, resolution) => (stats.canLoad ? (
-            <option
-              key={`(${stats.height}, ${stats.width}, ${stats.depthDownsampled})`}
-              value={resolution}
-            >
-              {`3D: ${resolution}x Downsampled, ~${formatBytes(
-                stats.totalBytes,
-              )} per channel, (${stats.height}, ${stats.width}, ${stats.depthDownsampled})`}
-            </option>
-          ) : null)) : null}
+          {Array.isArray(multiResolutionStats) ? multiResolutionStats.map((stats, resolution) => (
+            stats.canLoad ? (
+              <option
+                key={`(${stats.height}, ${stats.width}, ${stats.depthDownsampled})`}
+                value={resolution}
+              >
+                {`3D: ${resolution}x Downsampled, ~${formatBytes(
+                  stats.totalBytes,
+                )} per channel, (${stats.height}, ${stats.width}, ${stats.depthDownsampled})`}
+              </option>
+            ) : null)
+          ) : null}
         </Select>
       </MenuItem>
     </PopperMenu>
