@@ -368,11 +368,11 @@ export default class ImageWrapper<S extends string[]> {
     }
     let nextTargetResolution = -1;
     let totalBytes = Infinity;
-    while (totalBytes > 5e7 && nextTargetResolution < multiResStats.length - 1) {
+    do {
       nextTargetResolution += 1;
       // eslint-disable-next-line prefer-destructuring
       totalBytes = multiResStats[nextTargetResolution].totalBytes;
-    }
+    } while (totalBytes > 5e7 && nextTargetResolution < multiResStats.length - 1);
     return nextTargetResolution;
   }
 
