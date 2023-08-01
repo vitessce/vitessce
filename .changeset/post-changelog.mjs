@@ -31,5 +31,5 @@ const versionJson = {
   date: (new Date()).toISOString().split('T')[0],
   branch: await git.currentBranch({ fs, dir: '.' }),
   hash: (await git.resolveRef({ fs, dir: '.', ref: 'HEAD' })).substring(0, 8),
-}
+};
 fs.writeFileSync('packages/constants-internal/src/version.json', JSON.stringify(versionJson, null, 2));
