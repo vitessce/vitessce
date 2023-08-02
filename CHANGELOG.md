@@ -1,4 +1,17 @@
 
+## 3.1.1
+
+### Patch Changes
+
+- Updated changeset version script to write the version.json file containing the new package version. (`@vitessce/constants-internal`) ([#1625](https://github.com/vitessce/vitessce/pull/1625))
+
+- Fix formatting of config.uid view-config-json docs. (`docs`) ([#1626](https://github.com/vitessce/vitessce/pull/1626))
+
+- Remove extra version.json update now that it is done via changeset-version script. (`vitessce`) ([#1630](https://github.com/vitessce/vitessce/pull/1630))
+
+- Stringify passed config object to use as key when uid is missing (`@vitessce/vit-s`) ([#1629](https://github.com/vitessce/vitessce/pull/1629))
+
+
 ## 3.1.0
 
 ### Minor Changes
