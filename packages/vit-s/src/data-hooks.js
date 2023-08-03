@@ -80,6 +80,28 @@ export function useObsEmbeddingData(
   );
 }
 
+export function useObsSpotsData(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_SPOTS,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+export function useObsPointsData(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_POINTS,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
 export function useObsLocationsData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,

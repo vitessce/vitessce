@@ -41,6 +41,24 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
         obsType: baseFileDef.coordinationValues.obsType,
       },
     }] : []),
+    // obsSpots
+    ...(options.obsSpots ? [{
+      ...baseFileDef,
+      fileType: FileType.OBS_SPOTS_ANNDATA_ZARR,
+      options: options.obsSpots,
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
+    }] : []),
+    // obsPoints
+    ...(options.obsPoints ? [{
+      ...baseFileDef,
+      fileType: FileType.OBS_POINTS_ANNDATA_ZARR,
+      options: options.obsPoints,
+      coordinationValues: {
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
+    }] : []),
     // obsLocations
     ...(options.obsLocations ? [{
       ...baseFileDef,

@@ -56,6 +56,8 @@ export {
   useMultiFeatureSelection,
   useMultiObsFeatureMatrixIndices,
 
+  useObsSpotsData,
+  useObsPointsData,
   useObsLocationsData,
   useObsSegmentationsData,
   useNeighborhoodsData,
