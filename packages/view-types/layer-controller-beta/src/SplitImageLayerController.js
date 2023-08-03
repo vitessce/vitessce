@@ -211,8 +211,7 @@ function ImageLayerEllipsisMenu(props) {
                   stats.totalBytes,
                 )} per channel, (${stats.height}, ${stats.width}, ${stats.depthDownsampled})`}
               </option>
-            ) : null)
-          ) : null}
+            ) : null)) : null}
         </Select>
       </MenuItem>
     </PopperMenu>
