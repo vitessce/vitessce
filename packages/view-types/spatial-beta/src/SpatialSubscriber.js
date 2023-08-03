@@ -236,6 +236,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_SLICE_X,
       CoordinationType.SPATIAL_SLICE_Y,
       CoordinationType.SPATIAL_SLICE_Z,
+      CoordinationType.PHOTOMETRIC_INTERPRETATION,
     ],
     coordinationScopes,
     coordinationScopesBy,

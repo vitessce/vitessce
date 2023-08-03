@@ -464,14 +464,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
 
     const is3dMode = spatialRenderingMode === '3D';
+    const isRgb = layerCoordination[CoordinationType.PHOTOMETRIC_INTERPRETATION] === 'RGB';
 
     const [Layer, layerLoader] = getLayerLoaderTuple(data, is3dMode);
 
-    const colormap = layerCoordination[CoordinationType.SPATIAL_LAYER_COLORMAP];
+    const colormap = isRgb ? null : layerCoordination[CoordinationType.SPATIAL_LAYER_COLORMAP];
     const renderingMode = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM];
     const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
     const transparentColor = layerCoordination[CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR];
     const useTransparentColor = Array.isArray(transparentColor) && transparentColor.length === 3;
+
 
     const extensions = getVivLayerExtensions(
       is3dMode, colormap, renderingMode,
@@ -491,7 +493,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // since selections is one of its `updateTriggers`.
     // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
     let selections;
-    const nextLoaderSelection = channelScopes
+    // If RGB, we ignore the channelScopes and use RGB channels (R=0, G=1, B=2).
+    const nextLoaderSelection = isRgb ? ([0, 1, 2])
+      .map(targetC => filterSelection(data, {
+        z: targetZ,
+        t: targetT,
+        c: targetC,
+      })) : channelScopes
       .map(cScope => filterSelection(data, {
         z: targetZ,
         t: targetT,
@@ -505,19 +513,36 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.imageLayerLoaderSelections[layerScope] = nextLoaderSelection;
     }
 
-    const colors = channelScopes
-      .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]);
+    const colors = isRgb ? ([
+      [255, 0, 0],
+      [0, 255, 0],
+      [0, 0, 255],
+    ]) : channelScopes.map(cScope => (
+      channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]
+    ));
     // TODO: figure out how to initialize the channel windows in the loader.
     // TODO: is [0, 255] the right fallback?
-    const contrastLimits = channelScopes.map(cScope => (
+    const contrastLimits = isRgb ? ([
+      [0, 255],
+      [0, 255],
+      [0, 255],
+    ]) : channelScopes.map(cScope => (
       channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_WINDOW]
       || ([0, 255])
     ));
 
+    const channelsVisible = isRgb ? ([
+      // Layer visible AND channel visible
+      visible && true,
+      visible && true,
+      visible && true,
+    ]) : channelScopes.map(cScope => (
+      // Layer visible AND channel visible
+      visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]
+    ));
 
     const autoTargetResolution = image?.image?.instance?.getAutoTargetResolution();
     const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION];
-
 
     return new Layer({
       loader: layerLoader,
@@ -525,11 +550,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       colors,
       contrastLimits,
       selections,
-      channelsVisible: channelScopes
-        .map(cScope => (
-          // Layer visible AND channel visible
-          visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]
-        )),
+      channelsVisible,
       opacity: layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY],
       colormap,
       modelMatrix: layerDefModelMatrix,
