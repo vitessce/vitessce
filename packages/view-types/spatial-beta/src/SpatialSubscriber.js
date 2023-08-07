@@ -433,16 +433,25 @@ export function SpatialSubscriber(props) {
     loaders, dataset, false, {}, {},
     { featureType },
   );
+
+  const isReadyToComputeInitialViewState = useReady([
+    obsSpotsDataStatus,
+    obsSegmentationsDataStatus,
+    imageDataStatus,
+  ]);
+
   const isReady = useReady([
-    obsLocationsStatus,
-    obsLabelsStatus,
-    obsCentroidsStatus,
-    obsSegmentationsStatus,
-    obsSetsStatus,
+    // Spots
+    obsSpotsDataStatus,
+    obsSpotsSetsDataStatus,
+    spotMultiFeatureSelectionStatus,
+    spotMultiIndicesDataStatus,
+    // Segmentations
+    obsSegmentationsDataStatus,
+    multiIndicesDataStatus,
     multiFeatureSelectionStatus,
-    matrixIndicesStatus,
-    imageStatus,
-    neighborhoodsStatus,
+    // Images
+    imageDataStatus,
   ]);
   const urls = useUrls([
     obsLocationsUrls,
@@ -475,25 +484,19 @@ export function SpatialSubscriber(props) {
   } = useMemo(() => getInitialSpatialTargets({
     width,
     height,
-    obsCentroids,
-    obsSegmentations,
-    obsSegmentationsType,
-    // TODO: use obsLocations (molecules) here too.
-    imageLayerLoaders: Object.values(imageData || {})
-      .map(layerData => layerData?.image?.instance.getData())
-      .filter(Boolean),
-    useRaster: Boolean(hasImageData),
-    use3d: is3dMode,
-    modelMatrices: Object.values(imageData || {})
-      .map(layerData => layerData?.image?.instance.getModelMatrix())
-      .filter(Boolean),
+    // TODO: obsPoints
+    // TODO: obsLocations for obsSegmentations
+    obsSpots: obsSpotsData,
+    obsSegmentations: obsSegmentationsData,
+    images: imageData,
+    is3dMode,
+    isReady: isReadyToComputeInitialViewState
   }),
   // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
   // an indirect dependency instead.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  [imageData, imageLayerScopes, is3dMode, hasImageData,
-    obsCentroids, obsSegmentations, obsSegmentationsType,
-    width, height,
+  [imageData, is3dMode, obsSegmentationsData,
+    width, height, obsSpotsData, isReadyToComputeInitialViewState,
   ]);
 
   useEffect(() => {

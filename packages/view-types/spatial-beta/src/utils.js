@@ -60,83 +60,154 @@ export function makeSpatialSubtitle({
 export function getInitialSpatialTargets({
   width,
   height,
-  obsCentroids,
+  // TODO: obsPoints,
+  obsSpots,
   obsSegmentations,
-  obsSegmentationsType,
-  imageLayerLoaders,
-  useRaster,
-  use3d,
-  modelMatrices,
+  images,
+  is3dMode: use3d,
+  isReady,
 }) {
-  let initialTargetX = -Infinity;
-  let initialTargetY = -Infinity;
-  let initialTargetZ = -Infinity;
-  let initialZoom = -Infinity;
+  let globalXMin = null;
+  let globalXMax = null;
+  let globalYMin = null;
+  let globalYMax = null;
+  let globalZMin = null;
+  let globalZMax = null;
+  
+
   // Some backoff from completely filling the screen.
   const zoomBackoff = use3d ? 1.5 : 0.1;
-  if (imageLayerLoaders.length > 0 && useRaster) {
-    for (let i = 0; i < imageLayerLoaders.length; i += 1) {
+
+  Object.values(images || {}).forEach((layerData) => {
+    const imageLayerLoader = layerData?.image?.instance.getData();
+    const modelMatrix = layerData?.image?.instance.getModelMatrix();
+
+    if(imageLayerLoader) {
       const viewSize = { height, width };
       const { target, zoom: newViewStateZoom } = viv.getDefaultInitialViewState(
-        imageLayerLoaders[i],
+        imageLayerLoader,
         viewSize,
         zoomBackoff,
         use3d,
-        new Matrix4(modelMatrices[i]),
+        new Matrix4(modelMatrix),
       );
-      if (target[0] > initialTargetX) {
-        // eslint-disable-next-line prefer-destructuring
-        initialTargetX = target[0];
-        initialZoom = newViewStateZoom;
+
+      const maxExtent = Math.max(width / 2**newViewStateZoom, height / 2**newViewStateZoom);
+      const xMin = target[0] - maxExtent/2;
+      const xMax = target[0] + maxExtent/2;
+      const yMin = target[1] - maxExtent/2;
+      const yMax = target[1] + maxExtent/2;
+      const zMin = target[2];
+      const zMax = target[2];
+      globalXMin = globalXMin === null ? xMin : Math.min(globalXMin, xMin);
+      globalXMax = globalXMax === null ? xMax : Math.max(globalXMax, xMax);
+      globalYMin = globalYMin === null ? yMin : Math.min(globalYMin, yMin);
+      globalYMax = globalYMax === null ? yMax : Math.max(globalYMax, yMax);
+      globalZMin = globalZMin === null ? zMin : Math.min(globalZMin, zMin);
+      globalZMax = globalZMax === null ? zMax : Math.max(globalZMax, zMax);
+    }
+  });
+
+  // Segmentations
+  Object.values(obsSegmentations || {}).forEach((layerData) => {
+    if(layerData?.obsSegmentations && layerData?.obsSegmentationsType) {
+      const { obsSegmentationsType } = layerData;
+      // TODO: use obsLocations if available.
+      const hasObsLocations = false;
+      if (obsSegmentationsType === 'polygon') {
+        if (hasObsLocations) {
+          // TODO
+
+        } else {
+          // The fall back is the cells' polygon coordinates, if the original range
+          // is 0 i.e the centroids are all on the same axis.
+          const [xMin, xMax] = extent(layerData.obsSegmentations.data, poly => poly[0][0]);
+
+          // The fall back is the first cells' polygon coordinates, if the original range
+          // is 0 i.e the centroids are all on the same axis.
+          const [yMin, yMax] = extent(layerData.obsSegmentations.data, poly => poly[0][1]);
+
+          // TODO: support Z axis for polygon segmentations?
+
+          globalXMin = globalXMin === null ? xMin : Math.min(globalXMin, xMin);
+          globalXMax = globalXMax === null ? xMax : Math.max(globalXMax, xMax);
+          globalYMin = globalYMin === null ? yMin : Math.min(globalYMin, yMin);
+          globalYMax = globalYMax === null ? yMax : Math.max(globalYMax, yMax);
+        }
+      } else if(obsSegmentationsType === 'bitmask') {
+        if (hasObsLocations) {
+          // TODO
+        } else {
+          const imageLayerLoader = layerData?.obsSegmentations?.instance.getData();
+          const modelMatrix = layerData?.obsSegmentations?.instance.getModelMatrix();
+          if(imageLayerLoader) {
+            const viewSize = { height, width };
+            const { target, zoom: newViewStateZoom } = viv.getDefaultInitialViewState(
+              imageLayerLoader,
+              viewSize,
+              zoomBackoff,
+              use3d,
+              new Matrix4(modelMatrix),
+            );
+            const maxExtent = Math.max(width / 2**newViewStateZoom, height / 2**newViewStateZoom);
+            const xMin = target[0] - maxExtent/2;
+            const xMax = target[0] + maxExtent/2;
+            const yMin = target[1] - maxExtent/2;
+            const yMax = target[1] + maxExtent/2;
+            const zMin = target[2];
+            const zMax = target[2];
+            globalXMin = globalXMin === null ? xMin : Math.min(globalXMin, xMin);
+            globalXMax = globalXMax === null ? xMax : Math.max(globalXMax, xMax);
+            globalYMin = globalYMin === null ? yMin : Math.min(globalYMin, yMin);
+            globalYMax = globalYMax === null ? yMax : Math.max(globalYMax, yMax);
+            globalZMin = globalZMin === null ? zMin : Math.min(globalZMin, zMin);
+            globalZMax = globalZMax === null ? zMax : Math.max(globalZMax, zMax);
+          }
+        }
       }
-      if (target[1] > initialTargetY) {
-        // eslint-disable-next-line prefer-destructuring
-        initialTargetY = target[1];
-        initialZoom = newViewStateZoom;
-      }
-      if (target[2] > initialTargetZ) {
-        // eslint-disable-next-line prefer-destructuring
-        initialTargetZ = target[2];
-        initialZoom = newViewStateZoom;
-      } else {
-        initialTargetZ = null;
-      }
     }
-  } else if (!useRaster && (
-    (obsSegmentationsType === 'polygon' && obsSegmentations)
-    || (!obsSegmentations && obsCentroids) // For backwards compatibility (diamond case).
-  )) {
-    let xExtent;
-    let yExtent;
-    let xRange;
-    let yRange;
-    if (obsCentroids) {
-      xExtent = extent(obsCentroids.data[0]);
-      yExtent = extent(obsCentroids.data[1]);
-      xRange = xExtent[1] - xExtent[0];
-      yRange = yExtent[1] - yExtent[0];
+  });
+
+  // Spots
+  Object.values(obsSpots || {}).forEach((layerData) => {
+    if(layerData?.obsSpots) {
+      const [xMin, xMax] = extent(layerData.obsSpots.data[0]);
+      const [yMin, yMax] = extent(layerData.obsSpots.data[1]);
+      // TODO: support Z axis for spots?
+
+      globalXMin = globalXMin === null ? xMin : Math.min(globalXMin, xMin);
+      globalXMax = globalXMax === null ? xMax : Math.max(globalXMax, xMax);
+      globalYMin = globalYMin === null ? yMin : Math.min(globalYMin, yMin);
+      globalYMax = globalYMax === null ? yMax : Math.max(globalYMax, yMax);
     }
-    if (!obsCentroids || xRange === 0) {
-      // The fall back is the cells' polygon coordinates, if the original range
-      // is 0 i.e the centroids are all on the same axis.
-      xExtent = extent(obsSegmentations.data, poly => poly[0][0]);
-      xRange = xExtent[1] - xExtent[0];
-    }
-    if (!obsCentroids || yRange === 0) {
-      // The fall back is the first cells' polygon coordinates, if the original range
-      // is 0 i.e the centroids are all on the same axis.
-      yExtent = extent(obsSegmentations.data, poly => poly[0][1]);
-      yRange = yExtent[1] - yExtent[0];
-    }
-    initialTargetX = xExtent[0] + xRange / 2;
-    initialTargetY = yExtent[0] + yRange / 2;
-    initialTargetZ = null;
-    initialZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
-  } else {
+  });
+
+  if(
+    !isReady
+    || globalXMin === null
+    || globalXMax === null
+    || globalYMin === null
+    || globalYMax === null
+  ) {
     return {
-      initialTargetX: null, initialTargetY: null, initialTargetZ: null, initialZoom: null,
+      initialTargetX: null,
+      initialTargetY: null,
+      initialTargetZ: null,
+      initialZoom: null,
     };
   }
+
+  const xRange = globalXMax - globalXMin;
+  const yRange = globalYMax - globalYMin;
+  const zRange = globalZMax - globalZMin;
+
+  const initialTargetX = globalXMin + xRange / 2;
+  const initialTargetY = globalYMin + yRange / 2;
+  const initialTargetZ = (globalZMin === null || globalZMax === null)
+    ? null
+    : (globalZMin + zRange / 2);
+  const initialZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
+
   return {
     initialTargetX, initialTargetY, initialZoom, initialTargetZ,
   };
