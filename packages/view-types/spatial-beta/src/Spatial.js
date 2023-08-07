@@ -89,8 +89,6 @@ function getVivLayerExtensions(use3d, colormap, renderingMode) {
  * @param {object} props.neighborhoods Neighborhoods data.
  * @param {number} props.lineWidthScale Width of cell border in view space (deck.gl).
  * @param {number} props.lineWidthMaxPixels Max width of the cell border in pixels (deck.gl).
- * @param {object} props.imageLayerLoaders An object mapping raster layer index to Viv loader
- * instances.
  * @param {object} props.cellColors Map from cell IDs to colors [r, g, b].
  * @param {function} props.getCellCoords Getter function for cell coordinates
  * (used by the selection layer).
@@ -914,6 +912,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.obsSegmentationsLayers = this.createSegmentationLayers();
   }
 
+  /*
   onUpdateExpressionData() {
     const { expressionData } = this.props;
     if (expressionData[0]?.length) {
@@ -923,6 +922,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.expression.data.set(expressionData[0]);
     }
   }
+  */
 
   onUpdatePointsData() {
     const {
@@ -1124,19 +1124,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     if (
       [
-        'obsSegmentationsLayerDefs',
         'obsSegmentations',
         'obsSegmentationsIndex',
         'obsCentroids',
         'obsCentroidsIndex',
-        'hasSegmentations',
         'cellFilter',
         'cellSelection',
-        'cellColors',
-        'geneExpressionColormapRange',
-        'cellColorEncoding',
-        'geneExpressionColormap',
-        'segmentationLayerCallbacks',
         'segmentationLayerScopes',
         'segmentationLayerCoordination',
         'segmentationChannelScopesByLayer',
@@ -1189,15 +1182,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     if (
       [
-        'imageLayerDefs',
-        'imageLayerLoaders',
-        'cellColors',
-        'cellHighlight',
-        'geneExpressionColormapRange',
-        'expressionData',
-        'imageLayerCallbacks',
-        'geneExpressionColormap',
-
         'images',
         'imageLayerScopes',
         'imageLayerCoordination',

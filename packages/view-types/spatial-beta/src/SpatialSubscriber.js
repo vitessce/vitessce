@@ -198,6 +198,8 @@ export function SpatialSubscriber(props) {
     coordinationScopes,
   );
 
+  const hasObsLayers = segmentationLayerScopes.length > 0 || spotLayerScopes.length > 0;
+
   // Object keys are coordination scope names for spatialSegmentationLayer.
   const segmentationLayerCoordination = useComplexCoordination(
     [
@@ -287,7 +289,8 @@ export function SpatialSubscriber(props) {
     coordinationScopesBy,
     CoordinationType.SPOT_LAYER,
   );
-
+  
+  /*
   const [
     {
       imageLayerCallbacks,
@@ -297,6 +300,7 @@ export function SpatialSubscriber(props) {
     COMPONENT_COORDINATION_TYPES.layerController,
     coordinationScopes,
   );
+  */
 
   const is3dMode = spatialRenderingMode === '3D';
   const imageLayers = []; // TODO: remove
@@ -307,7 +311,7 @@ export function SpatialSubscriber(props) {
     coordinationScopes, obsType, loaders, dataset,
   );
 
-  const [obsSpotsData, obsSpotsDataStatus] = useMultiObsSpots(
+  const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useMultiObsSpots(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -315,10 +319,10 @@ export function SpatialSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
-  const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
+  const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
-  const [imageData, imageDataStatus] = useMultiImages(
+  const [imageData, imageDataStatus, imageUrls] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -348,6 +352,8 @@ export function SpatialSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+
+  /*
   const hasExpressionData = useHasLoader(
     loaders, dataset, DataType.OBS_FEATURE_MATRIX,
     { obsType, featureType, featureValueType },
@@ -362,6 +368,7 @@ export function SpatialSubscriber(props) {
     loaders, dataset, DataType.IMAGE,
     {}, // TODO: which properties to match on. Revisit after #830.
   );
+  */
   // Get data from loaders using the data hooks.
   const [{
     obsIndex: obsLocationsIndex,
@@ -389,7 +396,7 @@ export function SpatialSubscriber(props) {
     obsIndex: obsSegmentationsIndex,
     obsSegmentations,
     obsSegmentationsType,
-  }, obsSegmentationsStatus, obsSegmentationsUrls] = useObsSegmentationsData(
+  }, obsSegmentationsStatus] = useObsSegmentationsData(
     loaders, dataset, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
@@ -413,15 +420,14 @@ export function SpatialSubscriber(props) {
     { obsType, featureType, featureValueType },
   );
 
-
-  const [{ image }, imageStatus, imageUrls] = useImageData(
+  /*
+  const [{ image }, imageStatus] = useImageData(
     loaders, dataset, false,
     {},
     {},
     {}, // TODO: which properties to match on. Revisit after #830.
   );
-  const { loaders: imageLayerLoaders = [], meta = [] } = image || {};
-  // console.log('multiImage', imageData, 'singleImage', image);
+  */
 
 
   const [neighborhoods, neighborhoodsStatus, neighborhoodsUrls] = useNeighborhoodsData(
@@ -454,15 +460,11 @@ export function SpatialSubscriber(props) {
     imageDataStatus,
   ]);
   const urls = useUrls([
-    obsLocationsUrls,
-    obsLabelsUrls,
-    obsCentroidsUrls,
-    obsSegmentationsUrls,
-    obsSetsUrls,
-    matrixIndicesUrls,
-    imageUrls,
-    neighborhoodsUrls,
-    featureLabelsUrls,
+    Object.values(imageUrls || {}).flat(),
+    Object.values(obsSpotsUrls || {}).flat(),
+    Object.values(obsSegmentationsUrls || {}).flat(),
+    // TODO: more urls
+    // TODO: a bit of memoization
   ]);
 
   const obsLocationsFeatureIndex = useMemo(() => {
@@ -584,12 +586,15 @@ export function SpatialSubscriber(props) {
     locationsCount,
   });
 
+  /*
   const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(expressionData);
+  */
 
   // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
   // where each cell id indexes into the array.
   // Cell ids in `attrs.rows` do not necessaryily correspond to indices in that array, though,
   // so we create a "shifted" array where this is the case.
+  /*
   const shiftedExpressionDataForBitmask = useMemo(() => {
     if (matrixObsIndex && uint8ExpressionData && obsSegmentationsType === 'bitmask') {
       const maxId = matrixObsIndex.reduce((max, curr) => Math.max(max, Number(curr)));
@@ -602,9 +607,11 @@ export function SpatialSubscriber(props) {
       return [result];
     } return [new Uint8Array()];
   }, [matrixObsIndex, uint8ExpressionData, obsSegmentationsType]);
+  */
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
+  /*
   const getExpressionValue = useExpressionValueGetter({
     // eslint-disable-next-line no-unneeded-ternary
     instanceObsIndex: (obsSegmentationsIndex
@@ -616,44 +623,8 @@ export function SpatialSubscriber(props) {
     matrixObsIndex,
     expressionData: uint8ExpressionData,
   });
-  const canLoad3DLayers = Object.values(imageData || {})
-    .some(layerData => layerData?.image?.instance.hasZStack());
-  // Only show 3D options if we can theoretically load the data and it is allowed to be loaded.
-  const canShow3DOptions = canLoad3DLayers && !globalDisable3d;
-
-  const options = useMemo(() => {
-    // Only show button if there is expression or 3D data because only cells data
-    // does not have any options (i.e for color encoding, you need to switch to expression data)
-    // TODO: show options if there are featureSelections (use results of useSegmentationMultiFeatureSelection)
-    if (canShow3DOptions || hasExpressionData) {
-      return (
-        <SpatialOptions
-          observationsLabel={observationsLabel}
-          cellColorEncoding={cellColorEncoding}
-          setCellColorEncoding={setCellColorEncoding}
-          setSpatialAxisFixed={setSpatialAxisFixed}
-          spatialAxisFixed={spatialAxisFixed}
-          use3d={is3dMode}
-          geneExpressionColormap={geneExpressionColormap}
-          setGeneExpressionColormap={setGeneExpressionColormap}
-          geneExpressionColormapRange={geneExpressionColormapRange}
-          setGeneExpressionColormapRange={setGeneExpressionColormapRange}
-          canShowExpressionOptions={hasExpressionData}
-          canShowColorEncodingOption={
-            (hasLocationsData || hasSegmentationsData) && hasExpressionData
-          }
-          canShow3DOptions={canShow3DOptions}
-        />
-      );
-    }
-    return null;
-  }, [canShow3DOptions, cellColorEncoding, geneExpressionColormap,
-    geneExpressionColormapRange, setGeneExpressionColormap,
-    hasLocationsData, hasSegmentationsData, hasExpressionData,
-    observationsLabel, setCellColorEncoding,
-    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, is3dMode,
-  ]);
-
+  */
+  /*
   useEffect(() => {
     // For backwards compatibility (diamond case).
     // Log to the console to alert the user that the auto-generated diamonds are being used.
@@ -666,6 +637,7 @@ export function SpatialSubscriber(props) {
   }, [hasSegmentationsData, cellsLayer, obsSegmentations, obsSegmentationsIndex,
     obsCentroids, obsCentroidsIndex,
   ]);
+  */
 
   const [hoverData, setHoverData] = useState(null);
   const [hoverCoord, setHoverCoord] = useState(null);
@@ -758,12 +730,14 @@ export function SpatialSubscriber(props) {
 
   // Without useMemo, this would propagate a change every time the component
   // re - renders as opposed to when it has to.
+  /*
   const resolutionFilteredImageLayerLoaders = useMemo(() => {
     // eslint-disable-next-line max-len
     const shouldUseFullData = (ll, index) => Array.isArray(useFullResolutionImage) && useFullResolutionImage.includes(meta[index].name) && Array.isArray(ll.data);
     // eslint-disable-next-line max-len
     return imageLayerLoaders.map((ll, index) => (shouldUseFullData(ll, index) ? { ...ll, data: ll.data[0] } : ll));
   }, [imageLayerLoaders, useFullResolutionImage, meta]);
+  */
 
   // Passing an invalid viewState (e.g., with null values) will cause DeckGL
   // to throw a mercator projection assertion error (in 3D mode / when using OrbitView).
@@ -783,7 +757,6 @@ export function SpatialSubscriber(props) {
       theme={theme}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
-      options={options}
     >
       <Spatial
         ref={deckRef}
@@ -829,8 +802,6 @@ export function SpatialSubscriber(props) {
         obsSegmentations={obsSegmentationsData}
 
 
-        imageLayerDefs={imageLayers}
-        obsSegmentationsLayerDefs={tempLayer}
         obsLocationsLayerDefs={moleculesLayer}
         neighborhoodLayerDefs={neighborhoodsLayer}
         obsLocationsIndex={obsLocationsIndex}
@@ -838,15 +809,12 @@ export function SpatialSubscriber(props) {
         obsLocations={obsLocations}
         obsLocationsLabels={obsLocationsLabels}
         obsLocationsFeatureIndex={obsLocationsFeatureIndex}
-        hasSegmentations={hasSegmentationsData}
         obsCentroids={obsCentroids}
         obsCentroidsIndex={obsCentroidsIndex}
         cellFilter={cellFilter}
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}
-        cellColors={cellColors}
         neighborhoods={neighborhoods}
-        imageLayerLoaders={resolutionFilteredImageLayerLoaders}
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
@@ -856,17 +824,12 @@ export function SpatialSubscriber(props) {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
-        imageLayerCallbacks={imageLayerCallbacks}
-        segmentationLayerCallbacks={segmentationLayerCallbacks}
+        //imageLayerCallbacks={imageLayerCallbacks}
+        //segmentationLayerCallbacks={segmentationLayerCallbacks}
         spatialAxisFixed={spatialAxisFixed}
-        geneExpressionColormap={geneExpressionColormap}
-        geneExpressionColormapRange={geneExpressionColormapRange}
-        expressionData={shiftedExpressionDataForBitmask}
-        cellColorEncoding={cellColorEncoding}
-        getExpressionValue={getExpressionValue}
         theme={theme}
-        useFullResolutionImage={useFullResolutionImage}
-        hideTools
+        //useFullResolutionImage={useFullResolutionImage}
+        hideTools // TODO: value?
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber
@@ -896,9 +859,9 @@ export function SpatialSubscriber(props) {
         // Spots
         spotLayerScopes={spotLayerScopes}
         spotLayerCoordination={spotLayerCoordination}
-
         spotMultiExpressionExtents={spotMultiExpressionExtents}
 
+        // TODO: Points
       />
     </TitleInfo>
   );

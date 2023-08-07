@@ -151,7 +151,7 @@ export function useReady(statusValues) {
 export function useUrls(urls) {
   const mergedUrls = useMemo(
     () => urls.filter(a => Array.isArray(a)).flat().filter((url, index, array) => {
-      const firstIndex = array.findIndex(u => u.name === url.name);
+      const firstIndex = array.findIndex(u => u && url && u.name === url.name);
       return index === firstIndex;
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps

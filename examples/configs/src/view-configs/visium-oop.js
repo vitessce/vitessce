@@ -56,22 +56,18 @@ import {
       spatialTargetT: 0,
       obsType: 'spot', // TODO: remove this after auto-initialization is supported per-layer/per-layer-channel.
       // For now, cheating by allowing the spotLayer to fall back to the auto-initialized values for the view.
-      imageLayer: CL([
-        {
-          fileUid: 'histology-image',
-          spatialLayerOpacity: 1,
-          spatialLayerVisible: true,
-          photometricInterpretation: 'RGB',
-        },
-      ]),
-      spotLayer: CL([
-        {
-          obsType: 'spot',
-          spatialLayerVisible: true,
-          spatialLayerOpacity: 0.5,
-          spatialSpotRadius: 10.0,
-        },
-      ]),
+      imageLayer: CL({
+        fileUid: 'histology-image',
+        spatialLayerOpacity: 1,
+        spatialLayerVisible: true,
+        photometricInterpretation: 'RGB',
+      }),
+      spotLayer: CL({
+        obsType: 'spot',
+        spatialLayerVisible: true,
+        spatialLayerOpacity: 0.5,
+        spatialSpotRadius: 10.0,
+      }),
     });
   
     const metaCoordinationScope = config.addMetaCoordination();

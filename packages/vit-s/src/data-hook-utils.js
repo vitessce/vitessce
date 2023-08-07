@@ -222,7 +222,15 @@ export function useDataTypeMulti(
   // Deliberate dependency omissions: matchOnEntries, since dataQueries depends on it.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   ), [dataQueries]);
-  return [data, dataStatus];
+
+  // Convert data to object keyed by scopeKey.
+  const urls = useMemo(() => fromEntries(
+    matchOnEntries.map(([scopeKey], i) => ([scopeKey, dataQueries[i].data?.urls])),
+  // Deliberate dependency omissions: matchOnEntries, since dataQueries depends on it.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ), [dataQueries]);
+
+  return [data, dataStatus, urls];
 }
 
 export function useHasLoader(loaders, dataset, dataType, matchOn) {
