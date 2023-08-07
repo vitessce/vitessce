@@ -399,6 +399,25 @@ export function useMultiCoordinationScopes(parameter, coordinationScopes) {
   }, [parameter, coordinationScopes]);
 }
 
+export function useMultiCoordinationScopesNonNull(parameter, coordinationScopes) {
+  const scopes = getParameterScope(parameter, coordinationScopes);
+
+  // Return array of coordination scopes,
+  // but filter out any whose value is null / falsey.
+  const nonNullScopes = useViewConfigStore((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    // Convert a single scope to an array of scopes to be consistent.
+    const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
+    return scopesArr.filter((scope) => {
+      if (coordinationSpace && coordinationSpace[parameter]) {
+        const value = coordinationSpace[parameter][scope];
+        return value !== null;
+      }
+    });
+  }, shallow);
+  return nonNullScopes;
+}
+
 export function useMultiCoordinationScopesSecondary(
   parameter, byType, coordinationScopes, coordinationScopesBy,
 ) {

@@ -2,6 +2,7 @@ import {
     VitessceConfig,
     CoordinationLevel as CL,
     hconcat,
+    vconcat,
   } from '@vitessce/config';
   
   // Reference: https://portal.hubmapconsortium.org/browse/dataset/8d86e6c899e80d0f5f95604eb4ad492e
@@ -9,7 +10,7 @@ import {
   function generateVisiumConfig() {
     const config = new VitessceConfig({
       schemaVersion: '1.0.16',
-      name: 'My config',
+      name: 'Visium OOP',
     });
     const dataset = config.addDataset('My dataset').addFile({
       fileType: 'image.ome-zarr',
@@ -53,6 +54,8 @@ import {
     const scopes = config.addCoordinationByObject({
       spatialTargetZ: 0,
       spatialTargetT: 0,
+      obsType: 'spot', // TODO: remove this after auto-initialization is supported per-layer/per-layer-channel.
+      // For now, cheating by allowing the spotLayer to fall back to the auto-initialized values for the view.
       imageLayer: CL([
         {
           fileUid: 'histology-image',
@@ -65,7 +68,7 @@ import {
         {
           obsType: 'spot',
           spatialLayerVisible: true,
-          spatialLayerOpacity: 1,
+          spatialLayerOpacity: 0.5,
           spatialSpotRadius: 10.0,
         },
       ]),
@@ -77,11 +80,15 @@ import {
   
     const spatialViewSimple = config.addView(dataset, 'spatialBeta');
     const lcViewSimple = config.addView(dataset, 'layerControllerBeta');
+    const obsSets = config.addView(dataset, 'obsSets');
+    const featureList = config.addView(dataset, 'featureList');
   
     spatialViewSimple.useMetaCoordination(metaCoordinationScope);
     lcViewSimple.useMetaCoordination(metaCoordinationScope);
+
+    config.linkViews([obsSets, featureList], ['obsType'], ['spot']);
   
-    config.layout(hconcat(spatialViewSimple, lcViewSimple));
+    config.layout(hconcat(spatialViewSimple, vconcat(lcViewSimple, obsSets, featureList)));
   
     const configJSON = config.toJSON();
     return configJSON;

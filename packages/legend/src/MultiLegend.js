@@ -14,11 +14,16 @@ const useStyles = makeStyles(() => ({
 export default function MultiLegend(props) {
   const {
     theme,
+    // Segmentations
     segmentationLayerScopes,
     segmentationLayerCoordination,
     segmentationChannelScopesByLayer,
     segmentationChannelCoordination,
     multiExpressionExtents,
+    // Spots
+    spotLayerScopes,
+    spotLayerCoordination,
+    spotMultiExpressionExtents,
   } = props;
 
   const classes = useStyles();
@@ -76,6 +81,48 @@ export default function MultiLegend(props) {
             />
           ) : null;
         }) : null);
+      }) : null}
+      {spotLayerScopes ? spotLayerScopes.flatMap((layerScope) => {
+        const layerCoordination = spotLayerCoordination[0][layerScope];
+      
+        const {
+          spatialLayerVisible,
+          obsColorEncoding,
+          featureValueColormap,
+          featureValueColormapRange,
+          obsType,
+          featureType,
+          featureValueType,
+          featureSelection,
+        } = layerCoordination;
+
+        const expressionExtents = multiExpressionExtents?.[layerScope];
+        // There can potentially be multiple features/genes selected, but we
+        // are only using the first one for now here.
+        const firstExpressionExtent = expressionExtents?.[0];
+        const isStaticColor = obsColorEncoding === 'spatialChannelColor';
+        const height = isStaticColor ? 20 : 36;
+
+        return spatialLayerVisible ? (
+          <Legend
+            key={layerScope}
+            positionRelative
+            highContrast
+            showObsLabel
+            visible={spatialLayerVisible}
+            theme={theme}
+            obsType={obsType}
+            featureType={featureType}
+            featureValueType={featureValueType}
+            obsColorEncoding={obsColorEncoding}
+            featureSelection={featureSelection}
+            // featureLabelsMap={featureLabelsMap} // TODO
+            featureValueColormap={featureValueColormap}
+            featureValueColormapRange={featureValueColormapRange}
+            extent={firstExpressionExtent}
+            height={height}
+          />
+        ) : null;
       }) : null}
     </div>
   );

@@ -17,6 +17,7 @@ import {
   useComplexCoordination,
   useMultiCoordinationValues,
   useMultiCoordinationScopes,
+  useMultiCoordinationScopesNonNull,
   useMultiCoordinationScopesSecondary,
   useComplexCoordinationSecondary,
   useCoordinationScopes,
@@ -98,7 +99,7 @@ export function LayerControllerSubscriber(props) {
     coordinationScopesBy,
   );
 
-  const spotLayerScopes = useMultiCoordinationScopes(
+  const spotLayerScopes = useMultiCoordinationScopesNonNull(
     CoordinationType.SPOT_LAYER,
     coordinationScopes,
   );

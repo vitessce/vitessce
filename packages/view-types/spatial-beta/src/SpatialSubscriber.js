@@ -17,10 +17,13 @@ import {
   useObsLabelsData,
   useMultiObsLabels,
   useMultiObsSpots,
+  useMultiObsSets,
   useMultiObsSegmentations,
   useMultiImages,
-  useMultiFeatureSelection,
-  useMultiObsFeatureMatrixIndices,
+  useSpotMultiFeatureSelection,
+  useSpotMultiObsFeatureMatrixIndices,
+  useSegmentationMultiFeatureSelection,
+  useSegmentationMultiObsFeatureMatrixIndices,
   useUint8FeatureSelection,
   useExpressionValueGetter,
   useInitialCoordination,
@@ -32,6 +35,7 @@ import {
   useHasLoader,
   useComplexCoordination,
   useMultiCoordinationScopes,
+  useMultiCoordinationScopesNonNull,
   useMultiCoordinationScopesSecondary,
   useComplexCoordinationSecondary,
   useCoordinationScopes,
@@ -189,7 +193,7 @@ export function SpatialSubscriber(props) {
     coordinationScopesBy,
   );
 
-  const spotLayerScopes = useMultiCoordinationScopes(
+  const spotLayerScopes = useMultiCoordinationScopesNonNull(
     CoordinationType.SPOT_LAYER,
     coordinationScopes,
   );
@@ -221,6 +225,8 @@ export function SpatialSubscriber(props) {
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+      CoordinationType.OBS_SET_COLOR,
+      CoordinationType.OBS_SET_SELECTION,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -274,6 +280,8 @@ export function SpatialSubscriber(props) {
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+      CoordinationType.OBS_SET_COLOR,
+      CoordinationType.OBS_SET_SELECTION,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -303,6 +311,10 @@ export function SpatialSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+  const [obsSpotsSetsData, obsSpotsSetsDataStatus] = useMultiObsSets(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
   const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
@@ -311,15 +323,28 @@ export function SpatialSubscriber(props) {
   );
 
   const [
+    spotMultiExpressionData, spotMultiLoadedFeatureSelection,
+    // eslint-disable-next-line no-unused-vars
+    spotMultiExpressionExtents, spotMultiExpressionNormData,
+    spotMultiFeatureSelectionStatus,
+  ] = useSpotMultiFeatureSelection(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [spotMultiIndicesData, spotMultiIndicesDataStatus] = useSpotMultiObsFeatureMatrixIndices(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [
     multiExpressionData, multiLoadedFeatureSelection,
     // eslint-disable-next-line no-unused-vars
     multiExpressionExtents, multiExpressionNormData,
     multiFeatureSelectionStatus,
-  ] = useMultiFeatureSelection(
+  ] = useSegmentationMultiFeatureSelection(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
-  const [multiIndicesData, multiIndicesDataStatus] = useMultiObsFeatureMatrixIndices(
+  const [multiIndicesData, multiIndicesDataStatus] = useSegmentationMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -515,6 +540,7 @@ export function SpatialSubscriber(props) {
   }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
+  // TODO: refactor by moving into Spatial.js
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionData: expressionData && expressionData[0],
@@ -595,7 +621,7 @@ export function SpatialSubscriber(props) {
   const options = useMemo(() => {
     // Only show button if there is expression or 3D data because only cells data
     // does not have any options (i.e for color encoding, you need to switch to expression data)
-    // TODO: show options if there are featureSelections (use results of useMultiFeatureSelection)
+    // TODO: show options if there are featureSelections (use results of useSegmentationMultiFeatureSelection)
     if (canShow3DOptions || hasExpressionData) {
       return (
         <SpatialOptions
@@ -777,7 +803,7 @@ export function SpatialSubscriber(props) {
         segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
         segmentationChannelCoordination={segmentationChannelCoordination}
 
-        multiExpressionData={multiExpressionData}
+        segmentationMultiExpressionData={multiExpressionData}
 
         images={imageData}
         imageLayerScopes={imageLayerScopes}
@@ -792,6 +818,10 @@ export function SpatialSubscriber(props) {
         obsSpots={obsSpotsData}
         spotLayerScopes={spotLayerScopes}
         spotLayerCoordination={spotLayerCoordination}
+        obsSpotsSets={obsSpotsSetsData}
+
+        spotMatrixIndices={spotMultiIndicesData}
+        spotMultiExpressionData={spotMultiExpressionNormData}
 
         obsSegmentations={obsSegmentationsData}
 
@@ -851,6 +881,7 @@ export function SpatialSubscriber(props) {
       <MultiLegend
         // Fix to dark theme due to black background of spatial plot.
         theme="dark"
+        // Segmentations
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerCoordination={segmentationLayerCoordination}
 
@@ -858,6 +889,13 @@ export function SpatialSubscriber(props) {
         segmentationChannelCoordination={segmentationChannelCoordination}
 
         multiExpressionExtents={multiExpressionExtents}
+
+        // Spots
+        spotLayerScopes={spotLayerScopes}
+        spotLayerCoordination={spotLayerCoordination}
+
+        spotMultiExpressionExtents={spotMultiExpressionExtents}
+
       />
     </TitleInfo>
   );
