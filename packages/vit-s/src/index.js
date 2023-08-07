@@ -51,6 +51,7 @@ export {
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useMultiObsLabels,
+  useMultiObsSpots,
   useMultiObsSegmentations,
   useMultiImages,
   useMultiFeatureSelection,

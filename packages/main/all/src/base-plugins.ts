@@ -414,4 +414,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_SLICE_X, null, z.array(z.number()).length(2).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SLICE_Y, null, z.array(z.number()).length(2).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SLICE_Z, null, z.array(z.number()).length(2).nullable()),
+  new PluginCoordinationType(CoordinationType.SPOT_LAYER, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.POINT_LAYER, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_RADIUS, 25.0, z.number().nullable()),
 ];

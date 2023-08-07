@@ -16,6 +16,7 @@ import {
   useNeighborhoodsData,
   useObsLabelsData,
   useMultiObsLabels,
+  useMultiObsSpots,
   useMultiObsSegmentations,
   useMultiImages,
   useMultiFeatureSelection,
@@ -188,6 +189,11 @@ export function SpatialSubscriber(props) {
     coordinationScopesBy,
   );
 
+  const spotLayerScopes = useMultiCoordinationScopes(
+    CoordinationType.SPOT_LAYER,
+    coordinationScopes,
+  );
+
   // Object keys are coordination scope names for spatialSegmentationLayer.
   const segmentationLayerCoordination = useComplexCoordination(
     [
@@ -257,6 +263,23 @@ export function SpatialSubscriber(props) {
     CoordinationType.IMAGE_CHANNEL,
   );
 
+  // Spot layer
+  const spotLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.SPATIAL_SPOT_RADIUS,
+      CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_VALUE_COLORMAP,
+      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPOT_LAYER,
+  );
+
   const [
     {
       imageLayerCallbacks,
@@ -274,6 +297,10 @@ export function SpatialSubscriber(props) {
 
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
     coordinationScopes, obsType, loaders, dataset,
+  );
+
+  const [obsSpotsData, obsSpotsDataStatus] = useMultiObsSpots(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
@@ -743,16 +770,6 @@ export function SpatialSubscriber(props) {
         orbitAxis={orbitAxis}
         setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
         originalViewState={originalViewState}
-        imageLayerDefs={imageLayers}
-        obsSegmentationsLayerDefs={tempLayer}
-        obsLocationsLayerDefs={moleculesLayer}
-        neighborhoodLayerDefs={neighborhoodsLayer}
-        obsLocationsIndex={obsLocationsIndex}
-        obsSegmentationsIndex={obsSegmentationsIndex}
-        obsLocations={obsLocations}
-        obsLocationsLabels={obsLocationsLabels}
-        obsLocationsFeatureIndex={obsLocationsFeatureIndex}
-        hasSegmentations={hasSegmentationsData}
 
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerCoordination={segmentationLayerCoordination}
@@ -772,8 +789,23 @@ export function SpatialSubscriber(props) {
         imageChannelScopesByLayer={imageChannelScopesByLayer}
         imageChannelCoordination={imageChannelCoordination}
 
+        obsSpots={obsSpotsData}
+        spotLayerScopes={spotLayerScopes}
+        spotLayerCoordination={spotLayerCoordination}
+
         obsSegmentations={obsSegmentationsData}
-        obsSegmentationsType="bitmask"
+
+
+        imageLayerDefs={imageLayers}
+        obsSegmentationsLayerDefs={tempLayer}
+        obsLocationsLayerDefs={moleculesLayer}
+        neighborhoodLayerDefs={neighborhoodsLayer}
+        obsLocationsIndex={obsLocationsIndex}
+        obsSegmentationsIndex={obsSegmentationsIndex}
+        obsLocations={obsLocations}
+        obsLocationsLabels={obsLocationsLabels}
+        obsLocationsFeatureIndex={obsLocationsFeatureIndex}
+        hasSegmentations={hasSegmentationsData}
         obsCentroids={obsCentroids}
         obsCentroidsIndex={obsCentroidsIndex}
         cellFilter={cellFilter}

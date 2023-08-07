@@ -208,6 +208,10 @@ export const CoordinationType = {
   SPATIAL_SLICE_X: 'spatialSliceX',
   SPATIAL_SLICE_Y: 'spatialSliceY',
   SPATIAL_SLICE_Z: 'spatialSliceZ',
+  // For spatial spot and point layers
+  SPOT_LAYER: 'spotLayer',
+  POINT_LAYER: 'pointLayer',
+  SPATIAL_SPOT_RADIUS: 'spatialSpotRadius', // In micrometers?
 };
 
 export const STATUS = {

@@ -113,14 +113,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // in React state, this component
     // uses instance variables.
     // All instance variables used in this class:
-    this.obsSegmentationsQuadTree = null;
-    this.obsSegmentationsData = null;
-    this.obsLocationsData = null;
+    this.obsSegmentationsQuadTree = null; // TODO: is this used?
+    this.obsSegmentationsData = null; // TODO: is this used?
+    this.obsLocationsData = null; // TODO: is this used?
+    this.obsSpotsQuadTree = {}; // Keys: spotLayer scopes
+    this.obsSpotsData = {}; // Keys: spotLayer scopes
+    this.obsPointsData = null; // TODO: is this used?
 
     this.imageLayers = [];
-    this.obsSegmentationsBitmaskLayers = [];
-    this.obsSegmentationsPolygonLayer = null;
-    this.obsLocationsLayer = null;
+    this.obsSegmentationsLayers = [];
+    this.obsSpotsLayers = [];
+    this.obsPointsLayers = [];
     this.neighborhoodsLayer = null;
 
     this.imageLayerLoaderSelections = {};
@@ -143,19 +146,31 @@ class Spatial extends AbstractSpatialOrScatterplot {
     };
 
     // Initialize data and layers.
-    this.onUpdateCellsData();
-    this.onUpdateCellsLayer();
-    this.onUpdateMoleculesData();
-    this.onUpdateMoleculesLayer();
-    this.onUpdateNeighborhoodsData();
+    this.onUpdateSegmentationsData(); // TODO: is this used?
+    this.onUpdateSegmentationsLayer();
+    this.onUpdatePointsData(); // TODO: is this used?
+    this.onUpdatePointsLayer();
+    this.onUpdateSpotsData();
+    this.onUpdateSpotsLayer();
+    this.onUpdateNeighborhoodsData(); // TODO: is this used?
     this.onUpdateNeighborhoodsLayer();
     this.onUpdateImages();
   }
 
-  createPolygonSegmentationsLayer(layerDef, hasExplicitPolygons) {
-    const {
-      stroked, visible, opacity, radius,
-    } = layerDef;
+  createPolygonSegmentationLayer(
+    layerScope, layerCoordination, channelScopes, channelCoordination,
+    layerObsSegmentations, layerFeatureValues,
+  ) {
+    // TODO
+    const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
+    const opacity = layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY];
+    const strokeWidth = layerCoordination[CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH];
+    const filled = layerCoordination[CoordinationType.SPATIAL_SEGMENTATION_FILLED];
+
+    console.log(layerObsSegmentations);
+    return null;
+
+    /*
     const {
       obsCentroidsIndex,
       obsSegmentationsIndex,
@@ -234,9 +249,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
       isExpressionMode: cellColorEncoding === 'geneSelection',
       colormap: geneExpressionColormap,
     });
+    */
   }
 
-  createMoleculesLayer(layerDef) {
+  createPointsLayer(layerDef) {
     const {
       obsLocations,
       obsLocationsFeatureIndex: obsLabelsTypes,
@@ -283,6 +299,115 @@ class Spatial extends AbstractSpatialOrScatterplot {
         getFillColor: [obsLabelsTypes],
       },
     });
+  }
+
+  createSpotLayer(layerScope, layerCoordination, layerObsSpots, layerFeatureData) {
+    const {
+      obsSpotsData,
+    } = this;
+    const {
+      setSpotHighlight, // TODO
+    } = this.props;
+    const getSpotColor = (object, { data, index }) => {
+      return [255, 0, 0];
+      /*
+      const i = data.src.obsLabelsTypes.indexOf(data.src.obsLabels[index]);
+      return data.src.PALETTE[i % data.src.PALETTE.length];
+      */
+    };
+    const {
+      spatialLayerVisible,
+      spatialLayerOpacity,
+      spatialSpotRadius,
+      obsColorEncoding,
+      featureSelection,
+      featureValueColormap,
+      featureValueColormapRange,
+    } = layerCoordination;
+    return new deck.ScatterplotLayer({
+      id: `spot-layer-${layerScope}`,
+      data: this.obsSpotsData[layerScope],
+      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+      pickable: true,
+      autoHighlight: true,
+      opacity: spatialLayerOpacity,
+      visible: spatialLayerVisible,
+      getRadius: spatialSpotRadius,
+      getPosition: (object, { data, index, target }) => {
+        // eslint-disable-next-line no-param-reassign
+        target[0] = data.src.obsSpots.data[0][index];
+        // eslint-disable-next-line no-param-reassign
+        target[1] = data.src.obsSpots.data[1][index];
+        // eslint-disable-next-line no-param-reassign
+        target[2] = 0;
+        return target;
+      },
+      getLineColor: getSpotColor,
+      getFillColor: getSpotColor,
+      onHover: (info) => {
+        if (setSpotHighlight) {
+          if (info.object) {
+            setSpotHighlight(info.object[3]);
+          } else {
+            setSpotHighlight(null);
+          }
+        }
+      },
+      updateTriggers: {
+        getRadius: [spatialSpotRadius],
+        //getPosition: [obsSpots],
+        //getLineColor: [obsLabelsTypes],
+        //getFillColor: [obsLabelsTypes],
+      },
+    });
+    /*
+    const {
+      obsLocations,
+      obsLocationsFeatureIndex: obsLabelsTypes,
+      setMoleculeHighlight,
+    } = this.props;
+    const getMoleculeColor = (object, { data, index }) => {
+      const i = data.src.obsLabelsTypes.indexOf(data.src.obsLabels[index]);
+      return data.src.PALETTE[i % data.src.PALETTE.length];
+    };
+    return new deck.ScatterplotLayer({
+      id: MOLECULES_LAYER_ID,
+      data: this.obsLocationsData,
+      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+      pickable: true,
+      autoHighlight: true,
+      radiusMaxPixels: 3,
+      opacity: layerDef.opacity,
+      visible: layerDef.visible,
+      getRadius: layerDef.radius,
+      getPosition: (object, { data, index, target }) => {
+        // eslint-disable-next-line no-param-reassign
+        target[0] = data.src.obsLocations.data[0][index];
+        // eslint-disable-next-line no-param-reassign
+        target[1] = data.src.obsLocations.data[1][index];
+        // eslint-disable-next-line no-param-reassign
+        target[2] = 0;
+        return target;
+      },
+      getLineColor: getMoleculeColor,
+      getFillColor: getMoleculeColor,
+      onHover: (info) => {
+        if (setMoleculeHighlight) {
+          if (info.object) {
+            setMoleculeHighlight(info.object[3]);
+          } else {
+            setMoleculeHighlight(null);
+          }
+        }
+      },
+      updateTriggers: {
+        getRadius: [layerDef],
+        getPosition: [obsLocations],
+        getLineColor: [obsLabelsTypes],
+        getFillColor: [obsLabelsTypes],
+      },
+    });
+    */
   }
 
   createNeighborhoodsLayer(layerDef) {
@@ -355,7 +480,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   // New createImageLayer function.
-  createSegmentationLayer(
+  createBitmaskSegmentationLayer(
     layerScope, layerCoordination, channelScopes, channelCoordination,
     image, layerFeatureValues,
   ) {
@@ -589,7 +714,28 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ));
   }
 
-  createBitmaskLayers() {
+  createSpotLayers() {
+    const {
+      obsSpots = {},
+      spotLayerScopes,
+      spotLayerCoordination,
+
+      multiExpressionData, // TODO: spot-specific multiExpressionData?
+    } = this.props;
+    return spotLayerScopes.map((layerScope) => {
+      if (obsSpots[layerScope]) {
+        return this.createSpotLayer(
+          layerScope,
+          spotLayerCoordination[0][layerScope],
+          obsSpots[layerScope],
+          multiExpressionData?.[layerScope],
+        );
+      }
+      return null;
+    });
+  }
+
+  createSegmentationLayers() {
     const {
       obsSegmentations = {},
       segmentationLayerScopes,
@@ -598,35 +744,50 @@ class Spatial extends AbstractSpatialOrScatterplot {
       segmentationChannelScopesByLayer,
       segmentationChannelCoordination,
 
-      obsSegmentationsType,
       segmentationLayerCallbacks = [],
 
       multiExpressionData,
     } = this.props;
-    // TODO: support polygon layers
-    return segmentationLayerScopes.map(layerScope => this.createSegmentationLayer(
-      layerScope,
-      segmentationLayerCoordination[0][layerScope],
-      segmentationChannelScopesByLayer[layerScope],
-      segmentationChannelCoordination[0][layerScope],
-      obsSegmentations[layerScope],
-      multiExpressionData?.[layerScope],
-      // TODO: pass down layer-specific multiExpressionData
-    ));
+    return segmentationLayerScopes.map((layerScope) => {
+      if (obsSegmentations[layerScope]) {
+        const { obsSegmentationsType } = obsSegmentations[layerScope];
+        if (obsSegmentationsType === 'bitmask') {
+          return this.createBitmaskSegmentationLayer(
+            layerScope,
+            segmentationLayerCoordination[0][layerScope],
+            segmentationChannelScopesByLayer[layerScope],
+            segmentationChannelCoordination[0][layerScope],
+            obsSegmentations[layerScope],
+            multiExpressionData?.[layerScope],
+          );
+        }
+        if (obsSegmentationsType === 'polygon') {
+          return this.createPolygonSegmentationLayer(
+            layerScope,
+            segmentationLayerCoordination[0][layerScope],
+            segmentationChannelScopesByLayer[layerScope],
+            segmentationChannelCoordination[0][layerScope],
+            obsSegmentations[layerScope],
+            multiExpressionData?.[layerScope],
+          );
+        }
+      }
+      return null;
+    });
   }
 
   getLayers() {
     const {
       imageLayers,
-      obsSegmentationsPolygonLayer,
+      obsSpotsLayers,
+      obsSegmentationsLayers,
       neighborhoodsLayer,
       obsLocationsLayer,
-      obsSegmentationsBitmaskLayers,
     } = this;
     return [
       ...imageLayers,
-      ...obsSegmentationsBitmaskLayers,
-      obsSegmentationsPolygonLayer,
+      ...obsSegmentationsLayers,
+      ...obsSpotsLayers,
       neighborhoodsLayer,
       obsLocationsLayer,
       this.createScaleBarLayer(),
@@ -634,7 +795,30 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ];
   }
 
-  onUpdateCellsData() {
+  onUpdateSpotsData() {
+    const {
+      obsSpots,
+      spotLayerScopes,
+    } = this.props;
+    if (obsSpots && Array.isArray(spotLayerScopes)) {
+      spotLayerScopes.forEach((layerScope) => {
+        const spotsData = obsSpots[layerScope];
+        if (spotsData) {
+          const { obsSpots: layerObsSpots } = spotsData;
+          const getCellCoords = makeDefaultGetObsCoords(layerObsSpots);
+          this.obsSpotsQuadTree[layerScope] = createQuadTree(layerObsSpots, getCellCoords);
+          this.obsSpotsData[layerScope] = {
+            src: {
+              obsSpots: layerObsSpots,
+            },
+            length: layerObsSpots.shape[1],
+          };
+        }
+      })
+    }
+  }
+
+  onUpdateSegmentationsData() {
     const {
       obsSegmentations,
       obsSegmentationsType,
@@ -655,33 +839,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
   }
 
-  onUpdateCellsLayer() {
-    const {
-      obsSegmentationsLayerDefs: obsSegmentationsLayerDef,
-      obsSegmentationsIndex,
-      obsSegmentations,
-      obsSegmentationsType,
-      obsCentroids,
-      obsCentroidsIndex,
-      hasSegmentations,
-    } = this.props;
-    if (obsSegmentationsLayerDef && obsSegmentationsIndex && obsSegmentations && obsSegmentationsType === 'polygon') {
-      this.obsSegmentationsPolygonLayer = this.createPolygonSegmentationsLayer(
-        obsSegmentationsLayerDef, true,
-      );
-    } else if (obsSegmentationsLayerDef && obsSegmentations && obsSegmentationsType === 'bitmask') {
-      this.obsSegmentationsBitmaskLayers = this.createBitmaskLayers();
-    } else if (!hasSegmentations
-      && obsSegmentationsLayerDef && !obsSegmentations && !obsSegmentationsIndex
-      && obsCentroids && obsCentroidsIndex
-    ) {
-      // For backwards compatibility (diamond case).
-      this.obsSegmentationsPolygonLayer = this.createPolygonSegmentationsLayer(
-        obsSegmentationsLayerDef, false,
-      );
-    } else {
-      this.obsSegmentationsPolygonLayer = null;
-    }
+  onUpdateSpotsLayer() {
+    this.obsSpotsLayers = this.createSpotLayers();
+  }
+
+  onUpdateSegmentationsLayer() {
+    this.obsSegmentationsLayers = this.createSegmentationLayers();
   }
 
   onUpdateCellColors() {
@@ -719,7 +882,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
   }
 
-  onUpdateMoleculesData() {
+  onUpdatePointsData() {
     const {
       obsLocations,
       obsLocationsLabels: obsLabels,
@@ -738,7 +901,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
   }
 
-  onUpdateMoleculesLayer() {
+  onUpdatePointsLayer() {
     const {
       obsLocationsLayerDefs: obsLocationsLayerDef,
       obsLocations,
@@ -751,7 +914,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       && obsLocations?.data && obsLocationsIndex
       && obsLocationsLabels && obsLocationsFeatureIndex
     ) {
-      this.obsLocationsLayer = this.createMoleculesLayer(obsLocationsLayerDef);
+      this.obsLocationsLayer = this.createPointsLayer(obsLocationsLayerDef);
     } else {
       this.obsLocationsLayer = null;
     }
@@ -812,18 +975,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (
       [
         'obsSegmentations',
-        'obsSegmentationsType',
         'obsCentroids',
       ].some(shallowDiff)
     ) {
       // Cells data changed.
-      this.onUpdateCellsData();
+      this.onUpdateSegmentationsData();
       forceUpdate = true;
     }
 
     if (['cellColors'].some(shallowDiff)) {
       // Cells Color layer props changed.
-      // Must come before onUpdateCellsLayer
+      // Must come before onUpdateSegmentationsLayer
       // since the new layer may use the new processed color data.
       this.onUpdateCellColors();
       forceUpdate = true;
@@ -831,9 +993,33 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     if (['expressionData'].some(shallowDiff)) {
       // Expression data prop changed.
-      // Must come before onUpdateCellsLayer
+      // Must come before onUpdateSegmentationsLayer
       // since the new layer may use the new processed expression data.
       this.onUpdateExpressionData();
+      forceUpdate = true;
+    }
+
+    if (
+      [
+        'obsSpots',
+        'spotLayerScopes',
+      ].some(shallowDiff)
+    ) {
+      this.onUpdateSpotsData();
+      forceUpdate = true;
+    }
+
+    if (
+      [
+        'obsSpots',
+        'spotLayerScopes',
+        'spotLayerCoordination',
+      ].some(shallowDiff)
+    ) {
+      // Expression data prop changed.
+      // Must come before onUpdateSegmentationsLayer
+      // since the new layer may use the new processed expression data.
+      this.onUpdateSpotsLayer();
       forceUpdate = true;
     }
 
@@ -842,7 +1028,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'obsSegmentationsLayerDefs',
         'obsSegmentations',
         'obsSegmentationsIndex',
-        'obsSegmentationsType',
         'obsCentroids',
         'obsCentroidsIndex',
         'hasSegmentations',
@@ -861,7 +1046,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ].some(shallowDiff)
     ) {
       // Cells layer props changed.
-      this.onUpdateCellsLayer();
+      this.onUpdateSegmentationsLayer();
       forceUpdate = true;
     }
 
@@ -873,7 +1058,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ].some(shallowDiff)
     ) {
       // Molecules data props changed.
-      this.onUpdateMoleculesData();
+      this.onUpdatePointsData();
       forceUpdate = true;
     }
 
@@ -887,7 +1072,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ].some(shallowDiff)
     ) {
       // Molecules layer props changed.
-      this.onUpdateMoleculesLayer();
+      this.onUpdatePointsLayer();
       forceUpdate = true;
     }
 

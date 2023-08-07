@@ -1,6 +1,7 @@
 import React from 'react';
 import SplitSegmentationLayerController from './SplitSegmentationLayerController.js';
 import SplitImageLayerController from './SplitImageLayerController.js';
+import SplitSpotLayerController from './SplitSpotLayerController.js';
 import GlobalDimensionSlider from './GlobalDimensionSlider.js';
 
 export default function SplitLayerController(props) {
@@ -8,7 +9,6 @@ export default function SplitLayerController(props) {
     coordinationScopesRaw,
 
     segmentationLayerScopes,
-    // segmentationLayerValues,
     segmentationLayerCoordination,
 
     segmentationChannelScopesByLayer,
@@ -26,6 +26,9 @@ export default function SplitLayerController(props) {
 
     imageChannelScopesByLayer,
     imageChannelCoordination,
+
+    spotLayerScopes,
+    spotLayerCoordination,
   } = props;
 
   const anyLayerHasT = Object.values(images || {})
@@ -77,6 +80,15 @@ export default function SplitLayerController(props) {
           max={maxT}
         />
       ) : null}
+      {/* Spot layers: */}
+      {spotLayerScopes && spotLayerScopes.map(layerScope => (
+        <SplitSpotLayerController
+          key={layerScope}
+          layerScope={layerScope}
+          layerCoordination={spotLayerCoordination[0][layerScope]}
+          setLayerCoordination={spotLayerCoordination[1][layerScope]}
+        />
+      ))}
       {/* Segmentation layers: */}
       {segmentationLayerScopes && segmentationLayerScopes.map(layerScope => (
         <SplitSegmentationLayerController

@@ -376,6 +376,30 @@ export function useObsFeatureMatrixIndices(
   return [loadedData, dataStatus, urls];
 }
 
+export function useMultiObsSpots(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const obsTypeCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPOT_LAYER,
+  );
+  const matchOnObj = useMemo(() => obsTypeCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [obsSegmentationsData, obsSegmentationsDataStatus] = useDataTypeMulti(
+    DataType.OBS_SPOTS, loaders, dataset,
+    false, {}, {},
+    matchOnObj,
+  );
+  return [obsSegmentationsData, obsSegmentationsDataStatus];
+}
+
 export function useMultiObsLabels(
   coordinationScopes, obsType, loaders, dataset,
 ) {

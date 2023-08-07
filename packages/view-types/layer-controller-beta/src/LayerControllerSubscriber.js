@@ -16,6 +16,7 @@ import {
   useMultiImages,
   useComplexCoordination,
   useMultiCoordinationValues,
+  useMultiCoordinationScopes,
   useMultiCoordinationScopesSecondary,
   useComplexCoordinationSecondary,
   useCoordinationScopes,
@@ -83,11 +84,6 @@ export function LayerControllerSubscriber(props) {
   );
 
   // Normalize arrays and non-arrays to always be arrays.
-  const segmentationLayerValues = useMultiCoordinationValues(
-    CoordinationType.SEGMENTATION_LAYER,
-    coordinationScopes,
-  );
-
   const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
     CoordinationType.SEGMENTATION_CHANNEL,
     CoordinationType.SEGMENTATION_LAYER,
@@ -100,6 +96,11 @@ export function LayerControllerSubscriber(props) {
     CoordinationType.IMAGE_LAYER,
     coordinationScopes,
     coordinationScopesBy,
+  );
+
+  const spotLayerScopes = useMultiCoordinationScopes(
+    CoordinationType.SPOT_LAYER,
+    coordinationScopes,
   );
 
   // Object keys are coordination scope names for spatialSegmentationLayer.
@@ -171,6 +172,25 @@ export function LayerControllerSubscriber(props) {
     CoordinationType.IMAGE_CHANNEL,
   );
 
+  // Spot layer
+  const spotLayerCoordination = useComplexCoordination(
+    [
+      // CoordinationType.FILE_UID,
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.SPATIAL_SPOT_RADIUS,
+      CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_VALUE_COLORMAP,
+      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPOT_LAYER,
+  );
+  // console.log(spotLayerScopes, spotLayerCoordination);
+
   const [
     {
       imageLayerCallbacks,
@@ -229,7 +249,6 @@ export function LayerControllerSubscriber(props) {
         coordinationScopesRaw={coordinationScopesRaw}
 
         segmentationLayerScopes={segmentationLayerScopes}
-        segmentationLayerValues={segmentationLayerValues}
         segmentationLayerCoordination={segmentationLayerCoordination}
 
         segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
@@ -247,6 +266,9 @@ export function LayerControllerSubscriber(props) {
 
         imageChannelScopesByLayer={imageChannelScopesByLayer}
         imageChannelCoordination={imageChannelCoordination}
+
+        spotLayerScopes={spotLayerScopes}
+        spotLayerCoordination={spotLayerCoordination}
       />
     </TitleInfo>
   );

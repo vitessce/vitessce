@@ -69,6 +69,12 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
     CoordinationType.OBS_TYPE,
     CoordinationType.EMBEDDING_TYPE,
   ],
+  [DataType.OBS_SPOTS]: [
+    CoordinationType.OBS_TYPE,
+  ],
+  [DataType.OBS_POINTS]: [
+    CoordinationType.OBS_TYPE,
+  ],
   [DataType.OBS_LOCATIONS]: [
     CoordinationType.OBS_TYPE,
   ],
