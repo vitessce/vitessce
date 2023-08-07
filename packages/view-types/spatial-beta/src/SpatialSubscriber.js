@@ -658,7 +658,7 @@ export function SpatialSubscriber(props) {
   // If there are centroids for each observation, then we can use those
   // to position tooltips. However if there are not centroids,
   // the other option is to use the mouse location.
-  const useHoverInfoForTooltip = !obsCentroids;
+  const useHoverInfoForTooltip = true; // TODO: use per-segmentation-channel obsLocations
 
   const getObsInfo = useCallback((hoveredChannelData) => {
     if (hoveredChannelData) {
@@ -676,17 +676,23 @@ export function SpatialSubscriber(props) {
         } = channelCoordination[channelScope];
         if (spatialLayerVisible && spatialChannelVisible) {
           hasObsInfo = true;
-          result[`${layerObsType} ID`] = obsId;
-          if (multiExpressionData?.[layerScope]?.[channelScope] && multiLoadedFeatureSelection?.[layerScope]?.[channelScope]) {
-            const channelFeature = multiLoadedFeatureSelection?.[layerScope]?.[channelScope]?.[0];
-            const channelFeatureData = multiExpressionData?.[layerScope]?.[channelScope];
-            if (channelFeatureData && channelFeatureData[0]) {
-              // TODO: use multiIndicesData to obtain an index into the obsFeatureMatrix data
-              // using the bitmask channel value.
-              // For the sake of time, here I am assuming the off-by-one alignment.
-              const channelFeatureValue = channelFeatureData[0][obsI];
-              result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue);
+          if(obsId !== null) {
+            result[`${layerObsType} ID`] = obsId;
+            if (obsId && multiExpressionData?.[layerScope]?.[channelScope] && multiLoadedFeatureSelection?.[layerScope]?.[channelScope]) {
+              const channelFeature = multiLoadedFeatureSelection?.[layerScope]?.[channelScope]?.[0];
+              const channelFeatureData = multiExpressionData?.[layerScope]?.[channelScope];
+              if (channelFeatureData && channelFeatureData[0]) {
+                // TODO: use multiIndicesData to obtain an index into the obsFeatureMatrix data
+                // using the bitmask channel value.
+                // For the sake of time, here I am assuming the off-by-one alignment.
+                const channelFeatureValue = channelFeatureData[0][obsI];
+                result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue);
+              }
             }
+          } else {
+            // obsId was null, so we are probably missing a corresponding obsIndex.
+            // We cannot get any more information about this obs.
+            result[`${layerObsType} index`] = obsI;
           }
         }
       });
@@ -732,9 +738,15 @@ export function SpatialSubscriber(props) {
               };
             }
           }
-          return null;
-        })
-        .filter(Boolean);
+          return {
+            layerScope,
+            channelScope,
+            obsI,
+            // We do not have a corresponding obsIndex,
+            // so we cannot get an obsId.
+            obsId: null,
+          };
+        });
       return perChannelObsInfo;
     }
     return null;

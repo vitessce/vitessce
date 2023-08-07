@@ -25,7 +25,8 @@ function generateCodexConfig() {
     url: 'https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/ometiff-pyramids/pipeline_output/mask/reg001_mask.ome.tif?token=',
     options: {
       offsetsUrl: 'https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/output_offsets/pipeline_output/mask/reg001_mask.offsets.json?token=',
-      coordinateTransformations: [
+      // TODO: figure out why tooltips are not working with this.
+      /*coordinateTransformations: [
         {
           type: 'scale',
           // The mask does not specify PhysicalSizeX or PhysicalSizeY,
@@ -34,7 +35,7 @@ function generateCodexConfig() {
           // pixel dimensions as the image.
           scale: [377.44 / 1000, 377.44 / 1000, 1, 1, 1],
         },
-      ],
+      ],*/
     },
     coordinationValues: {
       fileUid: 'reg001_mask',
