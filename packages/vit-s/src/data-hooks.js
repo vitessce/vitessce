@@ -18,6 +18,7 @@ import {
   useDataTypeMulti,
   useObsFeatureMatrixIndicesMultiLevel,
   useFeatureSelectionMultiLevel,
+  useObsLocationsMultiLevel,
 } from './data-hook-utils.js';
 
 /**
@@ -314,7 +315,9 @@ export function useObsFeatureMatrixIndices(
     placeholderData: placeholderObject,
     // Include the hook name in the queryKey to prevent the case in which an identical queryKey
     // in a different hook would cause an accidental cache hit.
-    queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn, 'useObsFeatureMatrixIndices'],
+    // Note: this uses the same key structure/suffix as
+      // getMatrixIndicesQueryKeyScopeTuplesAux for shared caching.
+    queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn, isRequired, 'useObsFeatureMatrixIndices'],
     // Query function should return an object
     // { data, dataKey } where dataKey is the loaded gene selection.
     // TODO: use TypeScript to type the return value?
@@ -374,6 +377,30 @@ export function useObsFeatureMatrixIndices(
   }, [error, setWarning]);
 
   return [loadedData, dataStatus, urls];
+}
+
+export function useMultiObsPoints(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const obsTypeCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.POINT_LAYER,
+  );
+  const matchOnObj = useMemo(() => obsTypeCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useDataTypeMulti(
+    DataType.OBS_POINTS, loaders, dataset,
+    false, {}, {},
+    matchOnObj,
+  );
+  return [obsPointsData, obsPointsDataStatus, obsPointsUrls];
 }
 
 export function useMultiObsSpots(
@@ -637,6 +664,29 @@ export function useSpotMultiObsFeatureMatrixIndices(
     [coordinationScopes, coordinationScopesBy]);
   const [indicesData, indicesDataStatus] = useObsFeatureMatrixIndicesMultiLevel(
     loaders, dataset, false, matchOnObj, 1,
+  );
+  return [indicesData, indicesDataStatus];
+}
+
+export function useSegmentationMultiObsLocations(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const obsLocationsCoordination = useComplexCoordinationSecondary(
+    [
+      CoordinationType.OBS_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SEGMENTATION_LAYER,
+    CoordinationType.SEGMENTATION_CHANNEL,
+  );
+  const matchOnObj = useMemo(() => obsLocationsCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [indicesData, indicesDataStatus] = useObsLocationsMultiLevel(
+    loaders, dataset, false, matchOnObj, 2,
   );
   return [indicesData, indicesDataStatus];
 }

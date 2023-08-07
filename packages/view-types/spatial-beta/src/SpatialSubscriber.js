@@ -17,6 +17,7 @@ import {
   useObsLabelsData,
   useMultiObsLabels,
   useMultiObsSpots,
+  useMultiObsPoints,
   useMultiObsSets,
   useMultiObsSegmentations,
   useMultiImages,
@@ -24,6 +25,7 @@ import {
   useSpotMultiObsFeatureMatrixIndices,
   useSegmentationMultiFeatureSelection,
   useSegmentationMultiObsFeatureMatrixIndices,
+  useSegmentationMultiObsLocations,
   useUint8FeatureSelection,
   useExpressionValueGetter,
   useInitialCoordination,
@@ -311,6 +313,10 @@ export function SpatialSubscriber(props) {
     coordinationScopes, obsType, loaders, dataset,
   );
 
+  const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useMultiObsPoints(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
   const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useMultiObsSpots(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
@@ -319,9 +325,15 @@ export function SpatialSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+  const [obsSegmentationsLocationsData, obsSegmentationsLocationsDataStatus] = useSegmentationMultiObsLocations(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+  // TODO: use locations for lasso selection of bitmask/polygon segmentations.
+
   const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
+
   const [imageData, imageDataStatus, imageUrls] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
