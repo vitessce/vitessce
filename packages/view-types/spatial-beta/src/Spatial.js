@@ -117,12 +117,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.obsSpotsData = {}; // Keys: spotLayer scopes
     this.obsSpotsQuadTree = {}; // Keys: spotLayer scopes
     this.obsPointsData = {}; // Keys: pointLayer scopes
+    this.obsPointsQuadTree = {}; // Keys: pointLayer scopes
 
     this.imageLayers = [];
     this.obsSegmentationsLayers = [];
     this.obsSpotsLayers = [];
     this.obsPointsLayers = [];
-    this.neighborhoodsLayer = null;
+    //this.neighborhoodsLayer = null;
 
     this.spotToMatrixIndexMap = {} // Keys: spotLayer scopes
     this.spotColors = {}; // Keys: spotLayer scopes
@@ -160,15 +161,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.onUpdateAllSegmentationsIndexData();
     this.onUpdateAllSegmentationsExpressionData();
     this.onUpdateSegmentationsLayer();
-    this.onUpdatePointsData(); // TODO: is this used?
+    this.onUpdateAllPointsData();
     this.onUpdatePointsLayer();
     this.onUpdateAllSpotsData();
     this.onUpdateAllSpotsSetsData();
     this.onUpdateAllSpotsIndexData();
     this.onUpdateAllSpotsExpressionData();
     this.onUpdateSpotsLayer();
-    this.onUpdateNeighborhoodsData(); // TODO: is this used?
-    this.onUpdateNeighborhoodsLayer();
+    //this.onUpdateNeighborhoodsData(); // TODO: is this used?
+    //this.onUpdateNeighborhoodsLayer();
     this.onUpdateImages();
   }
 
@@ -256,6 +257,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     });
   }
 
+  /*
   createPointsLayer(layerDef) {
     const {
       obsLocations,
@@ -304,6 +306,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       },
     });
   }
+  */
 
   createSpotLayer(layerScope, layerCoordination, layerObsSpots, layerFeatureData) {
     const {
@@ -367,6 +370,70 @@ class Spatial extends AbstractSpatialOrScatterplot {
         getExpressionValue,
         getFillColor: [obsColorEncoding, cellColors],
         getLineColor: [obsColorEncoding, cellColors],
+      },
+    });
+  }
+
+  createPointLayer(layerScope, layerCoordination, layerObsPoints) {
+    const {
+      theme,
+    } = this.props;
+
+    const {
+      spatialLayerVisible,
+      spatialLayerOpacity,
+      obsColorEncoding,
+    } = layerCoordination;
+
+    const getMoleculeColor = (object, { data, index }) => {
+      // TODO
+      //const i = data.src.obsLabelsTypes.indexOf(data.src.obsLabels[index]);
+      //return data.src.PALETTE[i % data.src.PALETTE.length];
+      return [255, 0, 0];
+    };
+    return new deck.ScatterplotLayer({
+      id: `point-layer-${layerScope}`,
+      data: this.obsPointsData[layerScope],
+      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+      pickable: true,
+      autoHighlight: true,
+      radiusMaxPixels: 3,
+      opacity: spatialLayerOpacity,
+      visible: spatialLayerVisible,
+      getRadius: 300,
+      getPosition: (object, { data, index, target }) => {
+        // eslint-disable-next-line no-param-reassign
+        target[0] = data.src.obsPoints.data[0][index];
+        // eslint-disable-next-line no-param-reassign
+        target[1] = data.src.obsPoints.data[1][index];
+        // eslint-disable-next-line no-param-reassign
+        target[2] = 0; // TODO
+        return target;
+      },
+      getLineColor: getMoleculeColor,
+      getFillColor: getMoleculeColor,
+      onHover: (info) => {
+        /*
+        if (setMoleculeHighlight) {
+          if (info.object) {
+            setMoleculeHighlight(info.object[3]);
+          } else {
+            setMoleculeHighlight(null);
+          }
+        }
+        */
+      },
+      updateTriggers: {
+        getRadius: [],
+        getFillColor: [obsColorEncoding],
+        getLineColor: [obsColorEncoding],
+
+        /*
+        getRadius: [layerDef],
+        getPosition: [obsLocations],
+        getLineColor: [obsLabelsTypes],
+        getFillColor: [obsLabelsTypes],
+        */
       },
     });
   }
@@ -699,6 +766,24 @@ class Spatial extends AbstractSpatialOrScatterplot {
     });
   }
 
+  createPointLayers() {
+    const {
+      obsPoints = {},
+      pointLayerScopes,
+      pointLayerCoordination,
+    } = this.props;
+    return pointLayerScopes.map((layerScope) => {
+      if (obsPoints[layerScope]) {
+        return this.createPointLayer(
+          layerScope,
+          pointLayerCoordination[0][layerScope],
+          obsPoints[layerScope],
+        );
+      }
+      return null;
+    });
+  }
+
   createSegmentationLayers() {
     const {
       obsSegmentations = {},
@@ -744,16 +829,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const {
       imageLayers,
       obsSpotsLayers,
+      obsPointsLayers,
       obsSegmentationsLayers,
-      neighborhoodsLayer,
-      obsLocationsLayer,
+      //neighborhoodsLayer,
+      //obsLocationsLayer,
     } = this;
     return [
       ...imageLayers,
       ...obsSegmentationsLayers,
       ...obsSpotsLayers,
-      neighborhoodsLayer,
-      obsLocationsLayer,
+      ...obsPointsLayers,
+      //neighborhoodsLayer,
+      //obsLocationsLayer,
       this.createScaleBarLayer(),
       ...this.createSelectionLayers(),
     ];
@@ -896,7 +983,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       segmentationChannelCoordination,
       theme,
     } = this.props;
-    // console.log(segmentationLayerCoordination, segmentationChannelCoordination, obsSegmentationsSets);
     const { obsSets: layerSets, obsIndex: layerIndex } = obsSegmentationsSets?.[layerScope]?.[channelScope] || {};
     if(layerSets && layerIndex) {
       const { obsSetColor, obsColorEncoding, obsSetSelection, featureSelection } = segmentationChannelCoordination[0][layerScope][channelScope];
@@ -1089,9 +1175,36 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
   */
 
+  onUpdatePointsData(layerScope) {
+    const {
+      obsPoints,
+    } = this.props;
+    const { obsPoints: layerObsPoints } = obsPoints?.[layerScope] || {};
+    if (layerObsPoints) {
+      const getCellCoords = makeDefaultGetObsCoords(layerObsPoints);
+      this.obsPointsQuadTree[layerScope] = createQuadTree(layerObsPoints, getCellCoords);
+      this.obsPointsData[layerScope] = {
+        src: {
+          obsPoints: layerObsPoints,
+        },
+        length: layerObsPoints.shape[1],
+      };
+    }
+  }
+
+  onUpdateAllPointsData() {
+    const {
+      pointLayerScopes,
+    } = this.props;
+    pointLayerScopes?.forEach((layerScope) => {
+      this.onUpdatePointsData(layerScope);
+    });
+  }
+
+  /*
   onUpdatePointsData() {
     const {
-      obsLocations,
+      obsPoints,
       obsLocationsLabels: obsLabels,
       obsLocationsFeatureIndex: obsLabelsTypes,
     } = this.props;
@@ -1107,26 +1220,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
       };
     }
   }
+  */
 
   onUpdatePointsLayer() {
-    const {
-      obsLocationsLayerDefs: obsLocationsLayerDef,
-      obsLocations,
-      obsLocationsIndex,
-      obsLocationsLabels,
-      obsLocationsFeatureIndex,
-    } = this.props;
-    if (
-      obsLocationsLayerDef
-      && obsLocations?.data && obsLocationsIndex
-      && obsLocationsLabels && obsLocationsFeatureIndex
-    ) {
-      this.obsLocationsLayer = this.createPointsLayer(obsLocationsLayerDef);
-    } else {
-      this.obsLocationsLayer = null;
-    }
+    this.obsPointsLayers = this.createPointLayers();
   }
 
+  /*
   onUpdateNeighborhoodsData() {
     const { neighborhoods = {} } = this.props;
     const neighborhoodsEntries = Object.entries(neighborhoods);
@@ -1141,6 +1241,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.neighborhoodsLayer = null;
     }
   }
+  */
 
   onUpdateImages() {
     this.imageLayers = this.createImageLayers();
@@ -1387,32 +1488,33 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
 
     // Points.
-    if (
-      [
-        'obsLocations',
-        'obsLocationsLabels',
-        'obsLocationsFeatureIndex',
-      ].some(shallowDiff)
-    ) {
-      // Molecules data props changed.
-      this.onUpdatePointsData();
+    if(shallowDiff('pointLayerScopes')) {
+      // Force update for all layers since the layerScopes array changed.
+      this.onUpdateAllPointsData();
       forceUpdate = true;
+    } else {
+      this.props.pointLayerScopes.forEach((layerScope) => {
+        if(
+          shallowDiffByLayer('obsPoints', layerScope)
+        ) {
+          this.onUpdatePointsData(layerScope);
+          forceUpdate = true;
+        }
+      });
     }
 
     if (
       [
-        'obsLocationsLayerDefs',
-        'obsLocations',
-        'obsLocationsIndex',
-        'obsLocationsLabels',
-        'obsLocationsFeatureIndex',
+        'obsPoints',
+        'pointLayerScopes',
+        'pointLayerCoordination',
       ].some(shallowDiff)
     ) {
-      // Molecules layer props changed.
       this.onUpdatePointsLayer();
       forceUpdate = true;
     }
 
+    /*
     if (['neighborhoods'].some(shallowDiff)) {
       // Neighborhoods data changed.
       this.onUpdateNeighborhoodsData();
@@ -1424,6 +1526,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.onUpdateNeighborhoodsLayer();
       forceUpdate = true;
     }
+    */
 
     if (
       [

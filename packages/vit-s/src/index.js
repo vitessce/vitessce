@@ -26,6 +26,7 @@ export {
   useMultiCoordinationScopes,
   useMultiCoordinationScopesNonNull,
   useMultiCoordinationScopesSecondary,
+  useMultiCoordinationScopesSecondaryNonNull,
   useMultiCoordinationValues,
   useMultiDatasetCoordination,
   useDatasetUids,

@@ -12,6 +12,8 @@ import {
   useLoaders,
   useAuxiliaryCoordination,
   useComponentLayout,
+  useMultiObsSpots,
+  useMultiObsPoints,
   useMultiObsSegmentations,
   useMultiImages,
   useComplexCoordination,
@@ -19,6 +21,7 @@ import {
   useMultiCoordinationScopes,
   useMultiCoordinationScopesNonNull,
   useMultiCoordinationScopesSecondary,
+  useMultiCoordinationScopesSecondaryNonNull,
   useComplexCoordinationSecondary,
   useCoordinationScopes,
   useCoordinationScopesBy,
@@ -85,14 +88,14 @@ export function LayerControllerSubscriber(props) {
   );
 
   // Normalize arrays and non-arrays to always be arrays.
-  const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
+  const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
     CoordinationType.SEGMENTATION_CHANNEL,
     CoordinationType.SEGMENTATION_LAYER,
     coordinationScopes,
     coordinationScopesBy,
   );
 
-  const [imageLayerScopes, imageChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
+  const [imageLayerScopes, imageChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
     CoordinationType.IMAGE_CHANNEL,
     CoordinationType.IMAGE_LAYER,
     coordinationScopes,
@@ -101,6 +104,11 @@ export function LayerControllerSubscriber(props) {
 
   const spotLayerScopes = useMultiCoordinationScopesNonNull(
     CoordinationType.SPOT_LAYER,
+    coordinationScopes,
+  );
+
+  const pointLayerScopes = useMultiCoordinationScopesNonNull(
+    CoordinationType.POINT_LAYER,
     coordinationScopes,
   );
 
@@ -176,7 +184,6 @@ export function LayerControllerSubscriber(props) {
   // Spot layer
   const spotLayerCoordination = useComplexCoordination(
     [
-      // CoordinationType.FILE_UID,
       CoordinationType.OBS_TYPE,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
@@ -189,6 +196,23 @@ export function LayerControllerSubscriber(props) {
     coordinationScopes,
     coordinationScopesBy,
     CoordinationType.SPOT_LAYER,
+  );
+
+  // Point layer
+  const pointLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.SPATIAL_SPOT_RADIUS,
+      CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_VALUE_COLORMAP,
+      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.POINT_LAYER,
   );
 
   const [
@@ -222,17 +246,16 @@ export function LayerControllerSubscriber(props) {
   const [imageData, imageDataStatus] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
-
-  // Get data from loaders using the data hooks.
-  // eslint-disable-next-line no-unused-vars
-  const [obsLocationsData, obsLocationsStatus] = useObsLocationsData(
-    loaders, dataset, false,
-    { setSpatialPointLayer: setMoleculesLayer },
-    { spatialPointLayer: moleculesLayer },
-    {}, // TODO: use obsType once #1240 is merged.
+  const [obsSpotsData, obsSpotsDataStatus] = useMultiObsSpots(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
+  const [obsPointsData, obsPointsDataStatus] = useMultiObsPoints(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
   const isReady = useReady([
-    obsLocationsStatus,
+    obsSpotsDataStatus,
+    obsPointsDataStatus,
     obsSegmentationsDataStatus,
     imageDataStatus,
   ]);
@@ -269,6 +292,9 @@ export function LayerControllerSubscriber(props) {
 
         spotLayerScopes={spotLayerScopes}
         spotLayerCoordination={spotLayerCoordination}
+
+        pointLayerScopes={pointLayerScopes}
+        pointLayerCoordination={pointLayerCoordination}
       />
     </TitleInfo>
   );

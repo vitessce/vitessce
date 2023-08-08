@@ -40,6 +40,7 @@ import {
   useMultiCoordinationScopes,
   useMultiCoordinationScopesNonNull,
   useMultiCoordinationScopesSecondary,
+  useMultiCoordinationScopesSecondaryNonNull,
   useComplexCoordinationSecondary,
   useCoordinationScopes,
   useCoordinationScopesBy,
@@ -182,14 +183,14 @@ export function SpatialSubscriber(props) {
 
   const observationsLabel = observationsLabelOverride || obsType;
 
-  const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
+  const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
     CoordinationType.SEGMENTATION_CHANNEL,
     CoordinationType.SEGMENTATION_LAYER,
     coordinationScopes,
     coordinationScopesBy,
   );
 
-  const [imageLayerScopes, imageChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
+  const [imageLayerScopes, imageChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
     CoordinationType.IMAGE_CHANNEL,
     CoordinationType.IMAGE_LAYER,
     coordinationScopes,
@@ -198,6 +199,11 @@ export function SpatialSubscriber(props) {
 
   const spotLayerScopes = useMultiCoordinationScopesNonNull(
     CoordinationType.SPOT_LAYER,
+    coordinationScopes,
+  );
+
+  const pointLayerScopes = useMultiCoordinationScopesNonNull(
+    CoordinationType.POINT_LAYER,
     coordinationScopes,
   );
 
@@ -292,6 +298,22 @@ export function SpatialSubscriber(props) {
     coordinationScopesBy,
     CoordinationType.SPOT_LAYER,
   );
+
+  // Point layer
+  const pointLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_VALUE_COLORMAP,
+      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.POINT_LAYER,
+  );
   
   /*
   const [
@@ -314,32 +336,17 @@ export function SpatialSubscriber(props) {
     coordinationScopes, obsType, loaders, dataset,
   );
 
+  // Points data
   const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useMultiObsPoints(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
-
+  
+  // Spots data
   const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useMultiObsSpots(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   const [obsSpotsSetsData, obsSpotsSetsDataStatus] = useSpotMultiObsSets(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
-  );
-
-  const [obsSegmentationsLocationsData, obsSegmentationsLocationsDataStatus] = useSegmentationMultiObsLocations(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
-  );
-  // TODO: use locations for lasso selection of bitmask/polygon segmentations.
-
-  const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls] = useMultiObsSegmentations(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
-  );
-
-  const [obsSegmentationsSetsData, obsSegmentationsSetsDataStatus] = useSegmentationMultiObsSets(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
-  );
-
-  const [imageData, imageDataStatus, imageUrls] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -357,10 +364,22 @@ export function SpatialSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+  // Segmentations data
+  const [obsSegmentationsLocationsData, obsSegmentationsLocationsDataStatus] = useSegmentationMultiObsLocations(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls] = useMultiObsSegmentations(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [obsSegmentationsSetsData, obsSegmentationsSetsDataStatus] = useSegmentationMultiObsSets(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
   const [
     segmentationMultiExpressionData,
     segmentationMultiLoadedFeatureSelection,
-    // eslint-disable-next-line no-unused-vars
     segmentationMultiExpressionExtents,
     segmentationMultiExpressionNormData,
     segmentationMultiFeatureSelectionStatus,
@@ -369,6 +388,11 @@ export function SpatialSubscriber(props) {
   );
 
   const [segmentationMultiIndicesData, segmentationMultiIndicesDataStatus] = useSegmentationMultiObsFeatureMatrixIndices(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  // Image data
+  const [imageData, imageDataStatus, imageUrls] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -455,10 +479,14 @@ export function SpatialSubscriber(props) {
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
+
+  // TODO: per-layer featureLabels
+  /*
   const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
+  */
 
   const isReadyToComputeInitialViewState = useReady([
     obsSpotsDataStatus,
@@ -472,30 +500,25 @@ export function SpatialSubscriber(props) {
     obsSpotsSetsDataStatus,
     spotMultiFeatureSelectionStatus,
     spotMultiIndicesDataStatus,
+    // Points
+    obsPointsDataStatus,
     // Segmentations
     obsSegmentationsDataStatus,
     obsSegmentationsSetsDataStatus,
     segmentationMultiFeatureSelectionStatus,
     segmentationMultiIndicesDataStatus,
+    obsSegmentationsLocationsDataStatus,
     // Images
     imageDataStatus,
   ]);
   const urls = useUrls([
-    Object.values(imageUrls || {}).flat(),
     Object.values(obsSpotsUrls || {}).flat(),
+    Object.values(obsPointsUrls || {}).flat(),
     Object.values(obsSegmentationsUrls || {}).flat(),
+    Object.values(imageUrls || {}).flat(),
     // TODO: more urls
     // TODO: a bit of memoization
   ]);
-
-  const obsLocationsFeatureIndex = useMemo(() => {
-    if (obsLocationsLabels) {
-      return Array.from(new Set(obsLocationsLabels));
-    }
-    return null;
-  }, [obsLocationsLabels]);
-  const moleculesCount = obsLocationsFeatureIndex?.length || 0;
-  const locationsCount = obsLocationsIndex?.length || 0;
 
   const [originalViewState, setOriginalViewState] = useState(null);
 
@@ -553,6 +576,17 @@ export function SpatialSubscriber(props) {
     initialTargetX, initialTargetY, initialTargetZ, initialZoom,
   ]);
 
+
+
+  const obsLocationsFeatureIndex = useMemo(() => {
+    if (obsLocationsLabels) {
+      return Array.from(new Set(obsLocationsLabels));
+    }
+    return null;
+  }, [obsLocationsLabels]);
+  const moleculesCount = obsLocationsFeatureIndex?.length || 0;
+  const locationsCount = obsLocationsIndex?.length || 0;
+
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
@@ -566,7 +600,7 @@ export function SpatialSubscriber(props) {
   }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
-  // TODO: refactor by moving into Spatial.js
+  /*
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionData: expressionData && expressionData[0],
@@ -580,6 +614,7 @@ export function SpatialSubscriber(props) {
     cellSetColor, cellSetSelection, expressionData, matrixObsIndex]);
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
+  */
 
   const setViewState = ({
     zoom: newZoom,
@@ -810,6 +845,20 @@ export function SpatialSubscriber(props) {
         originalViewState={originalViewState}
         spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
 
+        // Spots
+        obsSpots={obsSpotsData}
+        spotLayerScopes={spotLayerScopes}
+        spotLayerCoordination={spotLayerCoordination}
+        obsSpotsSets={obsSpotsSetsData}
+
+        spotMatrixIndices={spotMultiIndicesData}
+        spotMultiExpressionData={spotMultiExpressionNormData}
+
+        // Points
+        obsPoints={obsPointsData}
+        pointLayerScopes={pointLayerScopes}
+        pointLayerCoordination={pointLayerCoordination}
+
         // Segmentations
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerCoordination={segmentationLayerCoordination}
@@ -830,17 +879,6 @@ export function SpatialSubscriber(props) {
         imageChannelScopesByLayer={imageChannelScopesByLayer}
         imageChannelCoordination={imageChannelCoordination}
 
-        // Spots
-        obsSpots={obsSpotsData}
-        spotLayerScopes={spotLayerScopes}
-        spotLayerCoordination={spotLayerCoordination}
-        obsSpotsSets={obsSpotsSetsData}
-
-        spotMatrixIndices={spotMultiIndicesData}
-        spotMultiExpressionData={spotMultiExpressionNormData}
-
-        // Points
-
         
 
         // OLD
@@ -853,8 +891,8 @@ export function SpatialSubscriber(props) {
         obsLocationsFeatureIndex={obsLocationsFeatureIndex}
         obsCentroids={obsCentroids}
         obsCentroidsIndex={obsCentroidsIndex}
-        cellFilter={cellFilter}
-        cellSelection={cellSelection}
+        // cellFilter={cellFilter}
+        // cellSelection={cellSelection}
         cellHighlight={cellHighlight}
         neighborhoods={neighborhoods}
         setCellFilter={setCellFilter}

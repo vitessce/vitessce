@@ -1,7 +1,8 @@
 import React from 'react';
+import SplitSpotLayerController from './SplitSpotLayerController.js';
+import SplitPointLayerController from './SplitPointLayerController.js';
 import SplitSegmentationLayerController from './SplitSegmentationLayerController.js';
 import SplitImageLayerController from './SplitImageLayerController.js';
-import SplitSpotLayerController from './SplitSpotLayerController.js';
 import GlobalDimensionSlider from './GlobalDimensionSlider.js';
 
 export default function SplitLayerController(props) {
@@ -29,6 +30,9 @@ export default function SplitLayerController(props) {
 
     spotLayerScopes,
     spotLayerCoordination,
+
+    pointLayerScopes,
+    pointLayerCoordination,
   } = props;
 
   const anyLayerHasT = Object.values(images || {})
@@ -43,24 +47,6 @@ export default function SplitLayerController(props) {
 
   return (
     <div>
-      {/* moleculesLayer && (
-        <VectorLayerController
-          key={`${dataset}-molecules`}
-          label="Molecules"
-          layerType="molecules"
-          layer={moleculesLayer}
-          handleLayerChange={setMoleculesLayer}
-        />
-      ) */}
-      {/* cellsLayer && obsSegmentationsType === 'polygon' && (
-        <VectorLayerController
-          key={`${dataset}-cells`}
-          label={`${capitalize(obsTypeProp)} Segmentations`}
-          layerType="cells"
-          layer={cellsLayer}
-          handleLayerChange={setCellsLayer}
-        />
-      ) */}
       {/* Global T and Z sliders */}
       {anyLayerHasZ ? (
         <GlobalDimensionSlider
@@ -80,6 +66,15 @@ export default function SplitLayerController(props) {
           max={maxT}
         />
       ) : null}
+      {/* Point layers: */}
+      {pointLayerScopes && pointLayerScopes.map(layerScope => (
+        <SplitPointLayerController
+          key={layerScope}
+          layerScope={layerScope}
+          layerCoordination={pointLayerCoordination[0][layerScope]}
+          setLayerCoordination={pointLayerCoordination[1][layerScope]}
+        />
+      ))}
       {/* Spot layers: */}
       {spotLayerScopes && spotLayerScopes.map(layerScope => (
         <SplitSpotLayerController

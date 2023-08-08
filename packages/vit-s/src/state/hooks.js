@@ -448,6 +448,61 @@ export function useMultiCoordinationScopesSecondary(
   }, [parameter, byType, coordinationScopes, coordinationScopesBy]);
 }
 
+export function useMultiCoordinationScopesSecondaryNonNull(
+  parameter, byType, coordinationScopes, coordinationScopesBy,
+) {
+  const scopes = getParameterScope(byType, coordinationScopes);
+  return useViewConfigStore((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    if (scopes && coordinationScopesBy?.[byType]?.[parameter]) {
+      const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
+      const scopesNonNull = scopesArr.filter((scope) => {
+        if (coordinationSpace && coordinationSpace[byType]) {
+          const value = coordinationSpace[byType][scope];
+          return value !== null;
+        }
+      });
+      return [scopesNonNull, fromEntries(scopesNonNull.map((scope) => {
+        const secondaryScopes = coordinationScopesBy[byType][parameter][scope];
+        const secondaryScopesArr = Array.isArray(secondaryScopes)
+          ? secondaryScopes
+          : [secondaryScopes];
+        const secondaryScopesNonNull = secondaryScopesArr.filter((scope) => {
+          if (coordinationSpace && coordinationSpace[parameter]) {
+            const value = coordinationSpace[parameter][scope];
+            return value !== null;
+          }
+        });
+        return [scope, secondaryScopesNonNull];
+      }))];
+    }
+    // Fallback from fine-grained to coarse-grained.
+    if (scopes && !coordinationScopesBy?.[byType]?.[parameter] && coordinationScopes?.[parameter]) {
+      const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
+      const scopesNonNull = scopesArr.filter((scope) => {
+        if (coordinationSpace && coordinationSpace[byType]) {
+          const value = coordinationSpace[byType][scope];
+          return value !== null;
+        }
+      });
+      return [scopesNonNull, fromEntries(scopesNonNull.map((scope) => {
+        const secondaryScopes = coordinationScopes?.[parameter];
+        const secondaryScopesArr = Array.isArray(secondaryScopes)
+          ? secondaryScopes
+          : [secondaryScopes];
+        const secondaryScopesNonNull = secondaryScopesArr.filter((scope) => {
+          if (coordinationSpace && coordinationSpace[parameter]) {
+            const value = coordinationSpace[parameter][scope];
+            return value !== null;
+          }
+        });
+        return [scope, secondaryScopesNonNull];
+      }))];
+    }
+    return [[], {}];
+  }, shallow);
+}
+
 export function useMultiCoordinationValues(parameter, coordinationScopes) {
   const scopes = getParameterScope(parameter, coordinationScopes);
 

@@ -29,6 +29,9 @@ import {
         obsSpots: {
           path: 'obsm/spatial',
         },
+        obsPoints: {
+          path: 'obsm/spatial',
+        },
         obsLocations: {
           path: 'obsm/spatial',
         },
@@ -69,9 +72,15 @@ import {
         spatialLayerVisible: true,
         photometricInterpretation: 'RGB',
       }),
-      spotLayer: CL({
+      pointLayer: CL({
         obsType: 'spot',
         spatialLayerVisible: true,
+        spatialLayerOpacity: 0.5,
+        spatialSpotRadius: 10.0,
+      }),
+      spotLayer: CL({
+        obsType: 'spot',
+        spatialLayerVisible: false,
         spatialLayerOpacity: 0.5,
         spatialSpotRadius: 10.0,
       }),
@@ -83,7 +92,7 @@ import {
           segmentationChannel: CL([
             {
               obsType: 'spot',
-              spatialChannelVisible: true,
+              spatialChannelVisible: false,
               spatialChannelOpacity: 1.0,
             }
           ]),

@@ -83,6 +83,7 @@ function ImageLayerEllipsisMenu(props) {
     setSpatialLayerTransparentColor,
     spatialRenderingMode,
     image,
+    channelScopes,
   } = props;
   const [open, setOpen] = useState(false);
   const selectClasses = useSelectStyles();
@@ -91,7 +92,6 @@ function ImageLayerEllipsisMenu(props) {
   const is3dMode = spatialRenderingMode === '3D';
   const isMultiResolution = image?.isMultiResolution();
   const multiResolutionStats = image?.getMultiResolutionStats();
-
 
   function handleColormapChange(event) {
     setColormap(event.target.value === '' ? null : event.target.value);
@@ -158,7 +158,9 @@ function ImageLayerEllipsisMenu(props) {
           classes={{ root: selectClasses.selectRoot }}
         >
           <option aria-label="RGB" value="RGB">RGB</option>
-          <option aria-label="BlackIsZero" value="BlackIsZero">BlackIsZero</option>
+          {channelScopes.length > 0 ? (
+            <option aria-label="BlackIsZero" value="BlackIsZero">BlackIsZero</option>
+          ) : null}
         </Select>
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -329,6 +331,7 @@ export default function SplitImageLayerController(props) {
               setSpatialLayerTransparentColor={setSpatialLayerTransparentColor}
               spatialRenderingMode={spatialRenderingMode}
               image={image}
+              channelScopes={channelScopes}
             />
           </Grid>
           <Grid item xs={1} container direction="row">
