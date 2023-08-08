@@ -28,6 +28,8 @@ export default function SplitSegmentationLayerController(props) {
       {channelScopes.map((cScope) => {
         const {
           obsType,
+          featureType,
+          featureValueType,
           spatialChannelVisible,
           spatialChannelOpacity,
           spatialChannelColor: color,
@@ -56,6 +58,9 @@ export default function SplitSegmentationLayerController(props) {
             key={`${layerScope}-${cScope}`}
             layerScope={layerScope}
             label={obsTypeName}
+            obsType={obsType}
+            featureType={featureType}
+            featureValueType={featureValueType}
             opacity={spatialChannelOpacity}
             setOpacity={setSpatialChannelOpacity}
             visible={spatialChannelVisible}

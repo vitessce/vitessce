@@ -934,7 +934,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // TODO: mergeObsSets
     if(layerSets && layerIndex) {
       const { obsSetColor, obsColorEncoding, obsSetSelection, featureSelection } = segmentationChannelCoordination[0][layerScope][channelScope];
-
       const prevSetColor = this.prevSegmentationSetColor?.[layerScope]?.[channelScope];
       if (obsSetColor !== prevSetColor || true) {
         // The set array reference changed, so update the color data.

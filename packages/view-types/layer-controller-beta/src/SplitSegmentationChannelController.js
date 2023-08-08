@@ -10,19 +10,23 @@ import {
   Slider,
   MenuItem,
   Button,
+  Select,
 } from '@material-ui/core';
 import {
   MoreVert as MoreVertIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
 } from '@material-ui/icons';
+import plur from 'plur';
 import { PopperMenu } from '@vitessce/vit-s';
 import { VectorIconSVG } from '@vitessce/icons';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
+  useSelectStyles,
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
+import { capitalize } from '@vitessce/utils';
 
 
 const useStyles = makeStyles(() => ({
@@ -41,6 +45,9 @@ const useStyles = makeStyles(() => ({
 
 function SegmentationChannelEllipsisMenu(props) {
   const {
+    obsType,
+    featureType,
+    featureValueType,
     strokeWidth,
     setStrokeWidth,
     filled,
@@ -53,6 +60,7 @@ function SegmentationChannelEllipsisMenu(props) {
   } = props;
   const [open, setOpen] = useState(false);
   const classes = useStyles();
+  const selectClasses = useSelectStyles();
   const menuClasses = useEllipsisMenuStyles();
 
   const filledId = useId();
@@ -98,17 +106,21 @@ function SegmentationChannelEllipsisMenu(props) {
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
-          Quantitative Colormap:&nbsp;
+          Color Encoding:&nbsp;
         </label>
-        <Checkbox
-          // Do not disable if there are selected quantitative features.
-          // Also, do not disable if the checkbox is currently checked, to allow un-checking.
-          disabled={!((Array.isArray(featureSelection) && featureSelection.length > 0) || obsColorEncoding === 'geneSelection')}
-          color="primary"
-          checked={obsColorEncoding === 'geneSelection'}
-          onChange={(e, v) => setObsColorEncoding(v ? 'geneSelection' : 'spatialChannelColor')}
+        <Select
+          native
+          //disabled={!((Array.isArray(featureSelection) && featureSelection.length > 0) || obsColorEncoding === 'geneSelection')}
+          onChange={(e) => setObsColorEncoding(e.target.value)}
+          value={obsColorEncoding}
           inputProps={{ id: quantitativeColormapId }}
-        />
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          <option value="spatialChannelColor">Static Color</option>
+          <option value="geneSelection">Feature Value</option>
+          <option value="cellSetSelection">Set Selection</option>
+        </Select>
+
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapRangeId}>
@@ -133,6 +145,9 @@ function SegmentationChannelEllipsisMenu(props) {
 export default function SplitVectorLayerController(props) {
   const {
     label,
+    obsType,
+    featureType,
+    featureValueType,
     opacity,
     setOpacity,
     visible,
@@ -191,7 +206,8 @@ export default function SplitVectorLayerController(props) {
           </Grid>
           <Grid item xs={6}>
             <Typography className={menuClasses.imageLayerName}>
-              {label}
+              {capitalize(label)}
+              {/*capitalize(plur(label, 2))*/}
             </Typography>
           </Grid>
           <Grid item xs={2}>
@@ -207,6 +223,9 @@ export default function SplitVectorLayerController(props) {
           </Grid>
           <Grid item xs={1}>
             <SegmentationChannelEllipsisMenu
+              obsType={obsType}
+              featureType={featureType}
+              featureValueType={featureValueType}
               strokeWidth={strokeWidth}
               setStrokeWidth={setStrokeWidth}
               filled={filled}

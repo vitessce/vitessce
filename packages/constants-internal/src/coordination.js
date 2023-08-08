@@ -344,6 +344,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPOT_LAYER,
     CoordinationType.POINT_LAYER,
     CoordinationType.SPATIAL_SPOT_RADIUS,
+    CoordinationType.OBS_COLOR_ENCODING,
   ],
   [ViewType.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,
