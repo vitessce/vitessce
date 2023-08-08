@@ -91,5 +91,5 @@ import {
   }
   
   
-  export const visiumOop2023 = generateVisiumConfig();
+  export const visiumSpotsOop2023 = generateVisiumConfig();
   

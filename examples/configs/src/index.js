@@ -37,7 +37,8 @@ import { imsAlgorithmComparison } from './view-configs/ims-algorithm-comparison.
 import { neumanOop2023 } from './view-configs/neumann-oop.js';
 import { codexOop2023 } from './view-configs/codex-oop.js';
 import { lightsheetOop2023 } from './view-configs/lightsheet-oop.js';
-import { visiumOop2023 } from './view-configs/visium-oop.js';
+import { visiumSpotsOop2023 } from './view-configs/visium-spots-oop.js';
+import { visiumPolygonsOop2023 } from './view-configs/visium-polygons-oop.js';
 
 
 export const coordinationTypeConfigs = {
@@ -75,7 +76,8 @@ export const configs = {
   'neumann-oop-2023': neumanOop2023,
   'codex-oop-2023': codexOop2023,
   'lightsheet-oop-2023': lightsheetOop2023,
-  'visium-oop-2023': visiumOop2023,
+  'visium-spots-oop-2023': visiumSpotsOop2023,
+  'visium-polygons-oop-2023': visiumPolygonsOop2023,
   'kpmp-auto-init': kpmpAutoInit2023,
   'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,

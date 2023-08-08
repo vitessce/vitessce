@@ -19,6 +19,7 @@ import {
   useObsFeatureMatrixIndicesMultiLevel,
   useFeatureSelectionMultiLevel,
   useObsLocationsMultiLevel,
+  useObsSetsMultiLevel,
 } from './data-hook-utils.js';
 
 /**
@@ -427,7 +428,7 @@ export function useMultiObsSpots(
   return [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls];
 }
 
-export function useMultiObsSets(
+export function useSpotMultiObsSets(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
   const obsTypeCoordination = useComplexCoordination(
@@ -671,7 +672,7 @@ export function useSpotMultiObsFeatureMatrixIndices(
 export function useSegmentationMultiObsLocations(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
-  const obsLocationsCoordination = useComplexCoordinationSecondary(
+  const obsTypeCoordination = useComplexCoordinationSecondary(
     [
       CoordinationType.OBS_TYPE,
     ],
@@ -680,12 +681,35 @@ export function useSegmentationMultiObsLocations(
     CoordinationType.SEGMENTATION_LAYER,
     CoordinationType.SEGMENTATION_CHANNEL,
   );
-  const matchOnObj = useMemo(() => obsLocationsCoordination[0],
+  const matchOnObj = useMemo(() => obsTypeCoordination[0],
     // imageCoordination reference changes each render,
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
   const [indicesData, indicesDataStatus] = useObsLocationsMultiLevel(
+    loaders, dataset, false, matchOnObj, 2,
+  );
+  return [indicesData, indicesDataStatus];
+}
+
+export function useSegmentationMultiObsSets(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const obsTypeCoordination = useComplexCoordinationSecondary(
+    [
+      CoordinationType.OBS_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SEGMENTATION_LAYER,
+    CoordinationType.SEGMENTATION_CHANNEL,
+  );
+  const matchOnObj = useMemo(() => obsTypeCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [indicesData, indicesDataStatus] = useObsSetsMultiLevel(
     loaders, dataset, false, matchOnObj, 2,
   );
   return [indicesData, indicesDataStatus];

@@ -482,19 +482,17 @@ export function nestFeatureSelectionQueryResults(queryKeyScopeTuples, flatQueryR
  * @param {array} queryKeyScopeTuples
  * @param {array} flatQueryResults Return value of useQueries,
  * after .map() to get inner data elements.
- * @param {string[]} outKeys The keys to use for the innermost nesting, such as
- * ['obsIndex', 'featureIndex']. Should be present in the flatQueryResults.
  * @returns The nested object.
  */
-export function nestQueryResults(queryKeyScopeTuples, flatQueryResults, outKeys) {
+export function nestQueryResults(queryKeyScopeTuples, flatQueryResults) {
   const nestedData = {};
 
   // eslint-disable-next-line no-unused-vars
   queryKeyScopeTuples.forEach(([queryKey, { levelScopes }], i) => {
     const getBaseValue = () => ({});
     const subObj = initializeNestedObject(levelScopes, nestedData, getBaseValue);
-    outKeys.forEach((key) => {
-      subObj[key] = flatQueryResults?.[i]?.[key];
+    Object.entries(flatQueryResults?.[i] || {}).forEach(([key, value]) => {
+      subObj[key] = value;
     });
   });
   return nestedData;
@@ -701,7 +699,7 @@ export function useObsFeatureMatrixIndicesMultiLevel(
 
   // Need to re-nest the geneData and the loadedGeneName info.
   const indicesData = useMemo(() => {
-    const nestedIndicesData = nestQueryResults(queryKeyScopeTuples, flatIndicesData, ['obsIndex', 'featureIndex']);
+    const nestedIndicesData = nestQueryResults(queryKeyScopeTuples, flatIndicesData);
     return nestedIndicesData;
 
   // We do not want this useMemo to execute on every re-render, only when the
@@ -716,15 +714,15 @@ export function useObsFeatureMatrixIndicesMultiLevel(
   return [indicesData, dataStatus];
 }
 
-export function useObsLocationsMultiLevel(
+export function useDataTypeMultiLevel(
   loaders, dataset, isRequired, matchOnObj,
-  depth,
+  depth, dataType,
 ) {
   const setWarning = useSetWarning();
 
   // Create a flat list of tuples (queryKey, scopeInfo).
   const queryKeyScopeTuples = useMemo(() => getQueryKeyScopeTuples(
-    matchOnObj, depth, dataset, DataType.OBS_LOCATIONS, isRequired,
+    matchOnObj, depth, dataset, dataType, isRequired,
   ), [matchOnObj, depth, dataset]);
 
   const locationsQueries = useQueries({
@@ -756,7 +754,7 @@ export function useObsLocationsMultiLevel(
 
   // Need to re-nest the geneData and the loadedGeneName info.
   const locationsData = useMemo(() => {
-    const nestedIndicesData = nestQueryResults(queryKeyScopeTuples, flatIndicesData, ['obsIndex', 'obsLocations']);
+    const nestedIndicesData = nestQueryResults(queryKeyScopeTuples, flatIndicesData);
     return nestedIndicesData;
 
   // We do not want this useMemo to execute on every re-render, only when the
@@ -769,4 +767,24 @@ export function useObsLocationsMultiLevel(
   }, [locationsQueries.reduce((a, h) => a + h.dataUpdatedAt, 0)]);
 
   return [locationsData, dataStatus];
+}
+
+export function useObsLocationsMultiLevel(
+  loaders, dataset, isRequired, matchOnObj,
+  depth,
+) {
+  return useDataTypeMultiLevel(
+    loaders, dataset, isRequired, matchOnObj,
+    depth, DataType.OBS_LOCATIONS,
+  )
+}
+
+export function useObsSetsMultiLevel(
+  loaders, dataset, isRequired, matchOnObj,
+  depth,
+) {
+  return useDataTypeMultiLevel(
+    loaders, dataset, isRequired, matchOnObj,
+    depth, DataType.OBS_SETS,
+  )
 }

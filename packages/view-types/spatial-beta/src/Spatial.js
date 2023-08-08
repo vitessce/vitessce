@@ -111,12 +111,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // in React state, this component
     // uses instance variables.
     // All instance variables used in this class:
-    this.obsSegmentationsQuadTree = null; // TODO: is this used?
-    this.obsSegmentationsData = null; // TODO: is this used?
-    this.obsLocationsData = null; // TODO: is this used?
-    this.obsSpotsQuadTree = {}; // Keys: spotLayer scopes
+    this.obsSegmentationsData = {}; // Keys: segmentationLayer scopes
+    this.obsSegmentationsQuadTree = {}; // Keys: segmentationLayer.segmentationChannel scopes
+    //this.obsLocationsData = null; // TODO: is this used?
     this.obsSpotsData = {}; // Keys: spotLayer scopes
-    this.obsPointsData = null; // TODO: is this used?
+    this.obsSpotsQuadTree = {}; // Keys: spotLayer scopes
+    this.obsPointsData = {}; // Keys: pointLayer scopes
 
     this.imageLayers = [];
     this.obsSegmentationsLayers = [];
@@ -128,6 +128,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.spotColors = {}; // Keys: spotLayer scopes
     this.spotExpressionGetters = {}; // Keys: spotLayer scopes
     this.prevSpotSetColor = {}; // Keys: spotLayer scopes. Used for diffing to detect changes.
+
+    this.segmentationToMatrixIndexMap = {} // Keys: segmentationLayer.segmentationChannel scopes
+    this.segmentationColors = {}; // Keys: segmentationLayer.segmentationChannel scopes
+    this.segmentationExpressionGetters = {}; // Keys: segmentationLayer.segmentationChannel scopes
+    this.prevSegmentationSetColor = {}; // Keys: segmentationLayer.segmentationChannel scopes. Used for diffing to detect changes.
 
     this.imageLayerLoaderSelections = {};
     this.segmentationLayerLoaderSelections = {};
@@ -149,7 +154,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
     };
 
     // Initialize data and layers.
-    this.onUpdateSegmentationsData(); // TODO: is this used?
+    this.onUpdateAllSegmentationsData();
+    this.onUpdateAllSegmentationsLocationsData();
+    this.onUpdateAllSegmentationsSetsData();
+    this.onUpdateAllSegmentationsIndexData();
+    this.onUpdateAllSegmentationsExpressionData();
     this.onUpdateSegmentationsLayer();
     this.onUpdatePointsData(); // TODO: is this used?
     this.onUpdatePointsLayer();
@@ -164,98 +173,90 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   createPolygonSegmentationLayer(
-    layerScope, layerCoordination, channelScopes, channelCoordination,
+    layerScope, layerCoordination, channelScopes, channelCoordinations,
     layerObsSegmentations, layerFeatureValues,
   ) {
-    // TODO
-    const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
-    const opacity = layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY];
-    const strokeWidth = layerCoordination[CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH];
-    const filled = layerCoordination[CoordinationType.SPATIAL_SEGMENTATION_FILLED];
+    const { theme } = this.props;
+    const layerVisible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
+    const layerOpacity = layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY];
 
-    console.log(layerObsSegmentations);
-    return null;
+    // Assume there is a single channel for polygon-based segmentations.
+    if(!channelScopes.length === 1) {
+      return null;
+    }
+    const channelScope = channelScopes[0];
+    const channelCoordination = channelCoordinations[channelScope];
+    if(!channelCoordination) {
+      return null;
+    }
 
-    /*
     const {
-      obsCentroidsIndex,
-      obsSegmentationsIndex,
-    } = this.props;
-    const obsIndex = (hasExplicitPolygons ? obsSegmentationsIndex : obsCentroidsIndex);
-    const {
-      theme,
-      // cellFilter,
-      cellSelection,
-      setCellHighlight,
-      setComponentHover,
-      getCellIsSelected = makeDefaultGetCellIsSelected(
-        obsIndex.length === cellSelection.length ? null : cellSelection,
-      ),
-      cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, obsIndex, theme),
-      onCellClick,
-      lineWidthScale = 10,
-      lineWidthMaxPixels = 2,
-      geneExpressionColormapRange,
-      cellColorEncoding,
-      getExpressionValue,
-      geneExpressionColormap,
-    } = this.props;
-    const getPolygon = hasExplicitPolygons
-      ? (object, { index, data }) => data.src.obsSegmentations.data[index]
-      : (object, { index, data }) => {
-        const x = data.src.obsCentroids.data[0][index];
-        const y = data.src.obsCentroids.data[1][index];
-        const r = radius;
-        return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
-      };
+      obsColorEncoding,
+      spatialChannelColor,
+      spatialChannelOpacity,
+      spatialChannelVisible,
+      spatialSegmentationFilled,
+      spatialSegmentationStrokeWidth,
+      featureValueColormap,
+      featureValueColormapRange,
+
+    } = channelCoordination;
+
+    const { obsIndex } = layerObsSegmentations;
+    const layerData = this.obsSegmentationsData?.[layerScope];
+    const layerQuadTree = this.obsSegmentationsQuadTree?.[layerScope]?.[channelScope];
+    const layerColors = this.segmentationColors?.[layerScope]?.[channelScope];
+    const getExpressionValue = this.segmentationExpressionGetters?.[layerScope]?.[channelScope];
+
+    const visible = layerVisible && spatialChannelVisible;
+    const opacity = layerOpacity * spatialChannelOpacity;
+
+    //console.log(layerData, layerQuadTree, layerColors, getExpressionValue);
+    
+    const getCellColor = makeDefaultGetCellColors(layerColors, obsIndex, theme);
+    const getPolygon = (object, { index, data }) => data.src.obsSegmentations.data[index];
+
     return new deck.PolygonLayer({
-      id: CELLS_LAYER_ID,
-      data: this.obsSegmentationsData,
+      id: `polygon-segmentation-layer-${layerScope}-${channelScope}`,
+      data: layerData,
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
       autoHighlight: true,
-      filled: true,
-      stroked: true,
+      filled: spatialSegmentationFilled,
+      stroked: !spatialSegmentationFilled,
       backgroundColor: [0, 0, 0],
-      isSelected: getCellIsSelected,
+      // isSelected: getCellIsSelected,
       getPolygon,
       updateTriggers: {
+        /*
         getLineWidth: [stroked],
         isSelected: cellSelection,
         getExpressionValue,
         getFillColor: [opacity, cellColorEncoding, cellSelection, cellColors],
         getLineColor: [cellColorEncoding, cellSelection, cellColors],
         getPolygon: [radius],
+        */
       },
-      getFillColor: (object, { index }) => {
-        const color = getCellColor(object, { index });
-        color[3] = opacity * 255;
-        return color;
-      },
-      getLineColor: (object, { index }) => {
-        const color = getCellColor(object, { index });
-        color[3] = 255;
-        return color;
-      },
+      getFillColor: getCellColor,
+      getLineColor: getCellColor,
       onClick: (info) => {
-        if (onCellClick) {
+        /*if (onCellClick) {
           onCellClick(info);
-        }
+        }*/
       },
-      onHover: getOnHoverCallback(obsIndex, setCellHighlight, setComponentHover),
+      // onHover: getOnHoverCallback(obsIndex, setCellHighlight, setComponentHover),
       visible,
-      getLineWidth: stroked ? 1 : 0,
-      lineWidthScale,
-      lineWidthMaxPixels,
+      opacity,
+      getLineWidth: !spatialSegmentationFilled ? spatialSegmentationStrokeWidth : 0,
+      //lineWidthScale,
+      //lineWidthMaxPixels,
       getExpressionValue,
       extensions: [new ScaledExpressionExtension()],
-      colorScaleLo: geneExpressionColormapRange[0],
-      colorScaleHi: geneExpressionColormapRange[1],
-      isExpressionMode: cellColorEncoding === 'geneSelection',
-      colormap: geneExpressionColormap,
+      colorScaleLo: featureValueColormapRange[0],
+      colorScaleHi: featureValueColormapRange[1],
+      isExpressionMode: obsColorEncoding === 'geneSelection',
+      colormap: featureValueColormap,
     });
-    */
   }
 
   createPointsLayer(layerDef) {
@@ -398,6 +399,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   createSelectionLayers() {
+    // TODO: support multiple types of layers, and multiple obsTypes.
+    // Perhaps the user needs to decide which obsType to use for selection? (before or after selection?)
+    // Or simply make selections across all obsTypes?
     const { obsCentroidsIndex, obsCentroids } = this.props;
     const {
       viewState,
@@ -758,6 +762,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ];
   }
 
+  // onUpdate functions:
+
+  // - Spots data onUpdate functions:
   onUpdateSpotsSetsData(layerScope) {
     const {
       obsSpots,
@@ -765,19 +772,19 @@ class Spatial extends AbstractSpatialOrScatterplot {
       spotLayerCoordination,
       theme,
     } = this.props;
-    const layerSets = obsSpotsSets[layerScope];
-    if(layerSets) {
+    const { obsSets: layerSets, obsIndex: layerIndex } = obsSpotsSets?.[layerScope] || {};
+    if(layerSets && layerIndex) {
       const { obsSetColor, obsColorEncoding, obsSetSelection, featureSelection } = spotLayerCoordination[0][layerScope];
       const prevSetColor = this.prevSpotSetColor[layerScope];
       if (obsSetColor !== prevSetColor || true) {
         // The set array reference changed, so update the color data.
         const obsColors = getCellColors({
           cellColorEncoding: obsColorEncoding,
-          cellSets: layerSets.obsSets,
+          cellSets: layerSets,
           cellSetColor: obsSetColor,
           cellSetSelection: obsSetSelection,
           theme,
-          obsIndex: layerSets.obsIndex,
+          obsIndex: layerIndex,
         });
         this.spotColors[layerScope] = obsColors;
         this.prevSpotSetColor[layerScope] = obsSetColor;
@@ -800,8 +807,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsSpots,
       spotMatrixIndices,
     } = this.props;
-    const { obsIndex: instanceObsIndex } = obsSpots[layerScope] || {};
-    const { obsIndex: matrixObsIndex } = spotMatrixIndices[layerScope] || {};
+    const { obsIndex: instanceObsIndex } = obsSpots?.[layerScope] || {};
+    const { obsIndex: matrixObsIndex } = spotMatrixIndices?.[layerScope] || {};
 
     // Get a mapping from cell ID to row index in the gene expression matrix.
     // Since the two obsIndices (instanceObsIndex = the obsIndex from obsEmbedding)
@@ -860,9 +867,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const {
       obsSpots,
     } = this.props;
-    const spotsData = obsSpots[layerScope];
-    if (spotsData) {
-      const { obsSpots: layerObsSpots } = spotsData;
+    const { obsSpots: layerObsSpots } = obsSpots?.[layerScope] || {};
+    if (layerObsSpots) {
       const getCellCoords = makeDefaultGetObsCoords(layerObsSpots);
       this.obsSpotsQuadTree[layerScope] = createQuadTree(layerObsSpots, getCellCoords);
       this.obsSpotsData[layerScope] = {
@@ -883,25 +889,188 @@ class Spatial extends AbstractSpatialOrScatterplot {
     });
   }
 
-  onUpdateSegmentationsData() {
+  // - Segmentations data onUpdate functions:
+
+  onUpdateSegmentationsSetsData(layerScope, channelScope) {
     const {
       obsSegmentations,
-      obsSegmentationsType,
-      obsCentroids,
+      obsSegmentationsSets,
+      segmentationLayerCoordination,
+      segmentationChannelCoordination,
+      theme,
     } = this.props;
-    if ((obsSegmentations && obsSegmentationsType === 'polygon')
-      || (!obsSegmentations && obsCentroids)
-    ) {
-      const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
-      this.obsSegmentationsQuadTree = createQuadTree(obsCentroids, getCellCoords);
-      this.obsSegmentationsData = {
+    // console.log(segmentationLayerCoordination, segmentationChannelCoordination, obsSegmentationsSets);
+    const { obsSets: layerSets, obsIndex: layerIndex } = obsSegmentationsSets?.[layerScope]?.[channelScope] || {};
+    if(layerSets && layerIndex) {
+      const { obsSetColor, obsColorEncoding, obsSetSelection, featureSelection } = segmentationChannelCoordination[0][layerScope][channelScope];
+
+      const prevSetColor = this.prevSegmentationSetColor?.[layerScope]?.[channelScope];
+      if (obsSetColor !== prevSetColor || true) {
+        // The set array reference changed, so update the color data.
+        const obsColors = getCellColors({
+          cellColorEncoding: obsColorEncoding,
+          cellSets: layerSets,
+          cellSetColor: obsSetColor,
+          cellSetSelection: obsSetSelection,
+          theme,
+          obsIndex: layerIndex,
+        });
+
+        // Initialize layer-level objects if necessary.
+        if(!this.segmentationColors[layerScope]) {
+          this.segmentationColors[layerScope] = {};
+        }
+        if(!this.prevSegmentationSetColor[layerScope]) {
+          this.prevSegmentationSetColor[layerScope] = {};
+        }
+        this.segmentationColors[layerScope][channelScope] = obsColors;
+        this.prevSegmentationSetColor[layerScope][channelScope] = obsSetColor;
+      }
+    }
+  }
+
+  onUpdateAllSegmentationsSetsData() {
+    const {
+      segmentationLayerScopes,
+      segmentationChannelScopesByLayer,
+    } = this.props;
+    segmentationLayerScopes?.forEach((layerScope) => {
+      segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
+        this.onUpdateSegmentationsSetsData(layerScope, channelScope);
+      });
+    });
+  }
+
+  // Dependencies: `obsSegmentations`, `segmentationMatrixIndices`
+  onUpdateSegmentationsIndexData(layerScope, channelScope) {
+    const {
+      obsSegmentations,
+      segmentationMatrixIndices,
+    } = this.props;
+    const { obsIndex: instanceObsIndex } = obsSegmentations?.[layerScope] || {};
+    const { obsIndex: matrixObsIndex } = segmentationMatrixIndices?.[layerScope]?.[channelScope] || {};
+
+    // Get a mapping from cell ID to row index in the gene expression matrix.
+    // Since the two obsIndices (instanceObsIndex = the obsIndex from obsEmbedding)
+    // may be ordered differently (matrixObsIndex = the obsIndex from obsFeatureMatrix),
+    // we need a way to look up an obsFeatureMatrix obsIndex index
+    // given an obsEmbedding obsIndex index.
+
+    if (instanceObsIndex && matrixObsIndex) {
+      const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => ([key, i])));
+      // Initialize layer-level objects if necessary.
+      if(!this.segmentationToMatrixIndexMap[layerScope]) {
+        this.segmentationToMatrixIndexMap[layerScope] = {};
+      }
+      this.segmentationToMatrixIndexMap[layerScope][channelScope] = instanceObsIndex.map(key => matrixIndexMap.get(key));
+    }
+  }
+
+  onUpdateAllSegmentationsIndexData() {
+    const {
+      segmentationLayerScopes,
+      segmentationChannelScopesByLayer,
+    } = this.props;
+    segmentationLayerScopes?.forEach((layerScope) => {
+      segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
+        this.onUpdateSegmentationsIndexData(layerScope, channelScope);
+      });
+    });
+  }
+
+  // Dependencies: same as `this.onUpdateSpotsIndexData()` plus `spotMultiExpressionData`
+  onUpdateSegmentationsExpressionData(layerScope, channelScope) {
+    const {
+      segmentationMultiExpressionData,
+    } = this.props;
+    const expressionData = segmentationMultiExpressionData?.[layerScope]?.[channelScope];
+    const toMatrixIndexMap = this.segmentationToMatrixIndexMap?.[layerScope]?.[channelScope];
+
+    // Set up a getter function for gene expression values, to be used
+    // by the DeckGL layer to obtain values for instanced attributes.
+    const getExpressionValue = (entry, { index: instanceIndex }) => {
+      if (toMatrixIndexMap && expressionData && expressionData[0]) {
+        const rowIndex = toMatrixIndexMap[instanceIndex];
+        const val = expressionData[0][rowIndex];
+        return val;
+      }
+      return 0;
+    };
+    // Initialize layer-level objects if necessary.
+    if(!this.segmentationExpressionGetters[layerScope]) {
+      this.segmentationExpressionGetters[layerScope] = {};
+    }
+    this.segmentationExpressionGetters[layerScope][channelScope] = getExpressionValue;
+  }
+
+  onUpdateAllSegmentationsExpressionData() {
+    const {
+      segmentationLayerScopes,
+      segmentationChannelScopesByLayer,
+    } = this.props;
+    segmentationLayerScopes?.forEach((layerScope) => {
+      segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
+        this.onUpdateSegmentationsExpressionData(layerScope, channelScope);
+      });
+    });
+  }
+
+  onUpdateSegmentationsLocationsData(layerScope, channelScope) {
+    const {
+      obsSegmentations,
+      obsSegmentationsLocations,
+    } = this.props;
+    const { obsSegmentations: layerObsSegmentations, obsSegmentationsType } = obsSegmentations?.[layerScope] || {};
+    const { obsLocations: layerObsLocations } = obsSegmentationsLocations?.[layerScope]?.[channelScope] || {};
+    if (layerObsSegmentations && obsSegmentationsType === 'polygon') {
+      if(layerObsLocations && layerObsLocations.shape[1] === layerObsSegmentations.shape[0]) {
+        // If we have per-observation locations (e.g., centroids of each cell), we can use
+        // them for picking/lasso/etc.
+        const getCellCoords = makeDefaultGetObsCoords(layerObsSegmentations);
+        // Initialize layer-level objects if necessary.
+        if(!this.obsSegmentationsQuadTree[layerScope]) {
+          this.obsSegmentationsQuadTree[layerScope] = {};
+        }
+        this.obsSegmentationsQuadTree[layerScope][channelScope] = createQuadTree(layerObsSegmentations, getCellCoords);
+      }
+    }
+  }
+
+  onUpdateAllSegmentationsLocationsData() {
+    const {
+      segmentationLayerScopes,
+      segmentationChannelScopesByLayer,
+    } = this.props;
+    segmentationLayerScopes?.forEach((layerScope) => {
+      segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
+        this.onUpdateSegmentationsLocationsData(layerScope, channelScope);
+      });
+    });
+  }
+
+  onUpdateSegmentationsData(layerScope) {
+    const {
+      obsSegmentations,
+    } = this.props;
+    const { obsSegmentations: layerObsSegmentations, obsSegmentationsType } = obsSegmentations?.[layerScope] || {};
+    if (layerObsSegmentations && obsSegmentationsType === 'polygon') {
+      this.obsSegmentationsData[layerScope] = {
         src: {
-          obsSegmentations,
-          obsCentroids,
+          obsSegmentations: layerObsSegmentations,
         },
-        length: obsSegmentations ? obsSegmentations.shape[0] : obsCentroids.shape[1],
+        length: layerObsSegmentations.shape[0],
       };
     }
+  }
+
+  onUpdateAllSegmentationsData() {
+    const {
+      segmentationLayerScopes,
+    } = this.props;
+    segmentationLayerScopes?.forEach((layerScope) => {
+
+      this.onUpdateSegmentationsData(layerScope);
+    });
   }
 
   onUpdateSpotsLayer() {
@@ -1013,18 +1182,115 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.viewInfoDidUpdate();
 
     const shallowDiff = propName => prevProps[propName] !== this.props[propName];
-    const shallowDiffBy = (propName, scopeName) => prevProps[propName][scopeName] !== this.props[propName][scopeName];
-    const shallowDiffByFirst = (propName, scopeName) => prevProps[propName][0][scopeName] !== this.props[propName][0][scopeName];
+    const shallowDiffBy = (propName, scopeName) => prevProps?.[propName]?.[scopeName] !== this.props?.[propName]?.[scopeName];
+    const shallowDiffByFirst = (propName, scopeName) => prevProps?.[propName]?.[0]?.[scopeName] !== this.props?.[propName]?.[0]?.[scopeName];
     let forceUpdate = false;
-    
+
+    // Segmentations.
+    // Segmentations data.
+    if(shallowDiff('segmentationLayerScopes')) {
+      // Force update for all layers since the layerScopes array changed.
+      this.onUpdateAllSegmentationsData();
+      forceUpdate = true;
+    } else {
+      this.props.segmentationLayerScopes.forEach((layerScope) => {
+        if(
+          shallowDiffBy('obsSegmentations', layerScope)
+        ) {
+          this.onUpdateSegmentationsData(layerScope);
+          forceUpdate = true;
+        }
+      });
+    }
+
+    // Segmentations locations data. // TODO: per-channel
+    if(shallowDiff('segmentationLayerScopes')) {
+      // Force update for all layers since the layerScopes array changed.
+      this.onUpdateAllSegmentationsLocationsData();
+      forceUpdate = true;
+    } else {
+      this.props.segmentationLayerScopes.forEach((layerScope) => {
+        if(
+          shallowDiffBy('obsSegmentations', layerScope)
+          || shallowDiffBy('obsSegmentationsLocations', layerScope)
+        ) {
+          this.onUpdateSegmentationsLocationsData(layerScope);
+          forceUpdate = true;
+        }
+      });
+    }
+
+    // Segmentation sets data. // TODO: per-channel
+    if(shallowDiff('segmentationLayerScopes')) {
+      // Force update for all layers since the layerScopes array changed.
+      this.onUpdateAllSegmentationsSetsData();
+      forceUpdate = true;
+    } else {
+      this.props.segmentationLayerScopes.forEach((layerScope) => {
+        if(
+          shallowDiffBy('obsSegmentationsSets', layerScope)
+          || shallowDiffBy('obsSegmentations', layerScope)
+          || shallowDiffByFirst('segmentationLayerCoordination', layerScope)
+        ) {
+          this.onUpdateSegmentationsSetsData(layerScope);
+          forceUpdate = true;
+        }
+      });
+    }
+
+    // Segmentation index data (pre-requisite for below Segmentation expression data). // TODO: per-channel
+    if(shallowDiff('segmentationLayerScopes')) {
+      // Force update for all layers since the layerScopes array changed.
+      this.onUpdateAllSegmentationsIndexData();
+      forceUpdate = true;
+    } else {
+      this.props.segmentationLayerScopes.forEach((layerScope) => {
+        if(
+          shallowDiffBy('segmentationMatrixIndices', layerScope)
+          || shallowDiffBy('obsSegmentations', layerScope)
+        ) {
+          this.onUpdateSegmentationsIndexData(layerScope);
+          forceUpdate = true;
+        }
+      });
+    }
+
+    // Segmentation expression data. // TODO: per-channel
+    if(shallowDiff('segmentationLayerScopes')) {
+      // Force update for all layers since the layerScopes array changed.
+      this.onUpdateAllSegmentationsExpressionData();
+      forceUpdate = true;
+    } else {
+      this.props.segmentationLayerScopes.forEach((layerScope) => {
+        if(
+          shallowDiffBy('segmentationMatrixIndices', layerScope)
+          || shallowDiffBy('obsSegmentations', layerScope)
+          || shallowDiffBy('segmentationMultiExpressionData', layerScope)
+        ) {
+          this.onUpdateSegmentationsExpressionData(layerScope);
+          forceUpdate = true;
+        }
+      });
+    }
+
+
     if (
       [
         'obsSegmentations',
+        'obsSegmentationsIndex',
         'obsCentroids',
+        'obsCentroidsIndex',
+        'cellFilter',
+        'cellSelection',
+        'segmentationLayerScopes',
+        'segmentationLayerCoordination',
+        'segmentationChannelScopesByLayer',
+        'segmentationChannelCoordination',
+        'segmentationMultiExpressionData', // TODO: should this be here?
       ].some(shallowDiff)
     ) {
-      // Cells data changed.
-      this.onUpdateSegmentationsData();
+      // Cells layer props changed.
+      this.onUpdateSegmentationsLayer();
       forceUpdate = true;
     }
 
@@ -1038,6 +1304,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
     */
 
+    // Spots.
     // Spots data.
     if(shallowDiff('spotLayerScopes')) {
       // Force update for all layers since the layerScopes array changed.
@@ -1122,26 +1389,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       forceUpdate = true;
     }
 
-    if (
-      [
-        'obsSegmentations',
-        'obsSegmentationsIndex',
-        'obsCentroids',
-        'obsCentroidsIndex',
-        'cellFilter',
-        'cellSelection',
-        'segmentationLayerScopes',
-        'segmentationLayerCoordination',
-        'segmentationChannelScopesByLayer',
-        'segmentationChannelCoordination',
-        'segmentationMultiExpressionData', // TODO: should this be here?
-      ].some(shallowDiff)
-    ) {
-      // Cells layer props changed.
-      this.onUpdateSegmentationsLayer();
-      forceUpdate = true;
-    }
-
+    // Points.
     if (
       [
         'obsLocations',

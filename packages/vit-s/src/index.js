@@ -54,7 +54,7 @@ export {
   useMultiObsLabels,
   useMultiObsSpots,
   useMultiObsPoints,
-  useMultiObsSets,
+  useSpotMultiObsSets,
   useMultiObsSegmentations,
   useMultiImages,
   useSpotMultiFeatureSelection,
@@ -62,6 +62,7 @@ export {
   useSegmentationMultiFeatureSelection,
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsLocations,
+  useSegmentationMultiObsSets,
 
   useObsSpotsData,
   useObsPointsData,

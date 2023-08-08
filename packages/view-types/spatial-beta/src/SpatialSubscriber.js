@@ -18,7 +18,7 @@ import {
   useMultiObsLabels,
   useMultiObsSpots,
   useMultiObsPoints,
-  useMultiObsSets,
+  useSpotMultiObsSets,
   useMultiObsSegmentations,
   useMultiImages,
   useSpotMultiFeatureSelection,
@@ -26,6 +26,7 @@ import {
   useSegmentationMultiFeatureSelection,
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsLocations,
+  useSegmentationMultiObsSets,
   useUint8FeatureSelection,
   useExpressionValueGetter,
   useInitialCoordination,
@@ -321,7 +322,7 @@ export function SpatialSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
-  const [obsSpotsSetsData, obsSpotsSetsDataStatus] = useMultiObsSets(
+  const [obsSpotsSetsData, obsSpotsSetsDataStatus] = useSpotMultiObsSets(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -331,6 +332,10 @@ export function SpatialSubscriber(props) {
   // TODO: use locations for lasso selection of bitmask/polygon segmentations.
 
   const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls] = useMultiObsSegmentations(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [obsSegmentationsSetsData, obsSegmentationsSetsDataStatus] = useSegmentationMultiObsSets(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -803,8 +808,13 @@ export function SpatialSubscriber(props) {
         segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
         segmentationChannelCoordination={segmentationChannelCoordination}
 
+        obsSegmentations={obsSegmentationsData}
+        obsSegmentationsLocations={obsSegmentationsLocationsData}
+        obsSegmentationsSets={obsSegmentationsSetsData}
+        segmentationMatrixIndices={multiIndicesData}
         segmentationMultiExpressionData={multiExpressionData}
 
+        
         images={imageData}
         imageLayerScopes={imageLayerScopes}
         imageLayerCoordination={imageLayerCoordination}
@@ -823,7 +833,7 @@ export function SpatialSubscriber(props) {
         spotMatrixIndices={spotMultiIndicesData}
         spotMultiExpressionData={spotMultiExpressionNormData}
 
-        obsSegmentations={obsSegmentationsData}
+        
 
 
         obsLocationsLayerDefs={moleculesLayer}
