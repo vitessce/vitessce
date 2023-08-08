@@ -257,57 +257,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     });
   }
 
-  /*
-  createPointsLayer(layerDef) {
-    const {
-      obsLocations,
-      obsLocationsFeatureIndex: obsLabelsTypes,
-      setMoleculeHighlight,
-    } = this.props;
-    const getMoleculeColor = (object, { data, index }) => {
-      const i = data.src.obsLabelsTypes.indexOf(data.src.obsLabels[index]);
-      return data.src.PALETTE[i % data.src.PALETTE.length];
-    };
-    return new deck.ScatterplotLayer({
-      id: MOLECULES_LAYER_ID,
-      data: this.obsLocationsData,
-      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
-      pickable: true,
-      autoHighlight: true,
-      radiusMaxPixels: 3,
-      opacity: layerDef.opacity,
-      visible: layerDef.visible,
-      getRadius: layerDef.radius,
-      getPosition: (object, { data, index, target }) => {
-        // eslint-disable-next-line no-param-reassign
-        target[0] = data.src.obsLocations.data[0][index];
-        // eslint-disable-next-line no-param-reassign
-        target[1] = data.src.obsLocations.data[1][index];
-        // eslint-disable-next-line no-param-reassign
-        target[2] = 0;
-        return target;
-      },
-      getLineColor: getMoleculeColor,
-      getFillColor: getMoleculeColor,
-      onHover: (info) => {
-        if (setMoleculeHighlight) {
-          if (info.object) {
-            setMoleculeHighlight(info.object[3]);
-          } else {
-            setMoleculeHighlight(null);
-          }
-        }
-      },
-      updateTriggers: {
-        getRadius: [layerDef],
-        getPosition: [obsLocations],
-        getLineColor: [obsLabelsTypes],
-        getFillColor: [obsLabelsTypes],
-      },
-    });
-  }
-  */
-
   createSpotLayer(layerScope, layerCoordination, layerObsSpots, layerFeatureData) {
     const {
       theme,
@@ -428,16 +377,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
         getFillColor: [obsColorEncoding],
         getLineColor: [obsColorEncoding],
 
-        /*
-        getRadius: [layerDef],
-        getPosition: [obsLocations],
-        getLineColor: [obsLabelsTypes],
-        getFillColor: [obsLabelsTypes],
-        */
       },
     });
   }
 
+  /*
   createNeighborhoodsLayer(layerDef) {
     const {
       getNeighborhoodPolygon = (neighborhoodsEntry) => {
@@ -461,7 +405,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       visible: layerDef.visible,
     });
   }
+  */
 
+  // TODO
   createSelectionLayers() {
     // TODO: support multiple types of layers, and multiple obsTypes.
     // Perhaps the user needs to decide which obsType to use for selection? (before or after selection?)
@@ -857,6 +803,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       theme,
     } = this.props;
     const { obsSets: layerSets, obsIndex: layerIndex } = obsSpotsSets?.[layerScope] || {};
+    // TODO: mergeObsSets
     if(layerSets && layerIndex) {
       const { obsSetColor, obsColorEncoding, obsSetSelection, featureSelection } = spotLayerCoordination[0][layerScope];
       const prevSetColor = this.prevSpotSetColor[layerScope];
@@ -984,6 +931,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       theme,
     } = this.props;
     const { obsSets: layerSets, obsIndex: layerIndex } = obsSegmentationsSets?.[layerScope]?.[channelScope] || {};
+    // TODO: mergeObsSets
     if(layerSets && layerIndex) {
       const { obsSetColor, obsColorEncoding, obsSetSelection, featureSelection } = segmentationChannelCoordination[0][layerScope][channelScope];
 
@@ -1248,6 +1196,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   viewInfoDidUpdate() {
+    // TODO
     const {
       obsCentroidsIndex,
       obsCentroids,

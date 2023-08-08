@@ -138,17 +138,17 @@ export function SpatialSubscriber(props) {
     spatialOrbitAxis: orbitAxis,
     segmentationLayer: cellsLayer,
     spatialPointLayer: moleculesLayer,
-    spatialNeighborhoodLayer: neighborhoodsLayer,
-    obsFilter: cellFilter,
+    //spatialNeighborhoodLayer: neighborhoodsLayer,
+    //obsFilter: cellFilter,
     obsHighlight: cellHighlight,
-    featureSelection: geneSelection,
+    //featureSelection: geneSelection,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
-    obsColorEncoding: cellColorEncoding,
+    //obsColorEncoding: cellColorEncoding,
     additionalObsSets: additionalCellSets,
     spatialAxisFixed,
-    featureValueColormap: geneExpressionColormap,
-    featureValueColormapRange: geneExpressionColormapRange,
+    //featureValueColormap: geneExpressionColormap,
+    //featureValueColormapRange: geneExpressionColormapRange,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -156,20 +156,20 @@ export function SpatialSubscriber(props) {
     setSpatialTargetZ: setTargetZ,
     setSpatialRotationX: setRotationX,
     setSpatialRotationOrbit: setRotationOrbit,
-    setSpatialOrbitAxis: setOrbitAxis,
+    //setSpatialOrbitAxis: setOrbitAxis,
     setSegmentationLayer: setCellsLayer,
     setSpatialPointLayer: setMoleculesLayer,
-    setSpatialNeighborhoodLayer: setNeighborhoodsLayer,
+    //setSpatialNeighborhoodLayer: setNeighborhoodsLayer,
     setObsFilter: setCellFilter,
     setObsSetSelection: setCellSetSelection,
-    setObsHighlight: setCellHighlight,
+    //setObsHighlight: setCellHighlight,
     setObsSetColor: setCellSetColor,
     setObsColorEncoding: setCellColorEncoding,
     setAdditionalObsSets: setAdditionalCellSets,
-    setMoleculeHighlight,
-    setSpatialAxisFixed,
-    setFeatureValueColormap: setGeneExpressionColormap,
-    setFeatureValueColormapRange: setGeneExpressionColormapRange,
+    //setMoleculeHighlight,
+    //setSpatialAxisFixed,
+    //setFeatureValueColormap: setGeneExpressionColormap,
+    //setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
 
   const {
@@ -238,6 +238,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
       CoordinationType.OBS_SET_COLOR,
       CoordinationType.OBS_SET_SELECTION,
+      CoordinationType.ADDITIONAL_OBS_SETS,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -293,6 +294,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
       CoordinationType.OBS_SET_COLOR,
       CoordinationType.OBS_SET_SELECTION,
+      CoordinationType.ADDITIONAL_OBS_SETS,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -452,11 +454,13 @@ export function SpatialSubscriber(props) {
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
+  /*
   // eslint-disable-next-line no-unused-vars
   const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
+  */
   const [
     { obsIndex: matrixObsIndex }, matrixIndicesStatus, matrixIndicesUrls,
   ] = useObsFeatureMatrixIndices(
@@ -473,12 +477,13 @@ export function SpatialSubscriber(props) {
   );
   */
 
-
+  /*
   const [neighborhoods, neighborhoodsStatus, neighborhoodsUrls] = useNeighborhoodsData(
     loaders, dataset, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
+  */
 
   // TODO: per-layer featureLabels
   /*
@@ -831,6 +836,8 @@ export function SpatialSubscriber(props) {
         uuid={uuid}
         width={width}
         height={height}
+        theme={theme}
+        hideTools // TODO: value?
         // Global view state
         targetT={targetT}
         targetZ={targetZ}
@@ -841,10 +848,16 @@ export function SpatialSubscriber(props) {
           rotationOrbit,
         }) : DEFAULT_VIEW_STATE}
         orbitAxis={orbitAxis}
+        spatialAxisFixed={spatialAxisFixed}
         setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
         originalViewState={originalViewState}
         spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
-
+        setHoverInfo={setHoverInfo}
+        setComponentHover={() => {
+          setComponentHover(uuid);
+        }}
+        updateViewInfo={setComponentViewInfo}
+        
         // Spots
         obsSpots={obsSpotsData}
         spotLayerScopes={spotLayerScopes}
@@ -871,6 +884,8 @@ export function SpatialSubscriber(props) {
         segmentationMatrixIndices={segmentationMultiIndicesData}
         segmentationMultiExpressionData={segmentationMultiExpressionNormData}
 
+        // TODO: setObsHighlight functions (per-obsType)
+
         // Images
         images={imageData}
         imageLayerScopes={imageLayerScopes}
@@ -879,37 +894,29 @@ export function SpatialSubscriber(props) {
         imageChannelScopesByLayer={imageChannelScopesByLayer}
         imageChannelCoordination={imageChannelCoordination}
 
+        // TODO: useFullResolutionImage={useFullResolutionImage}
+
         
 
         // OLD
-        obsLocationsLayerDefs={moleculesLayer}
-        neighborhoodLayerDefs={neighborhoodsLayer}
-        obsLocationsIndex={obsLocationsIndex}
-        obsSegmentationsIndex={obsSegmentationsIndex}
-        obsLocations={obsLocations}
-        obsLocationsLabels={obsLocationsLabels}
-        obsLocationsFeatureIndex={obsLocationsFeatureIndex}
+        //obsLocationsLayerDefs={moleculesLayer}
+        //neighborhoodLayerDefs={neighborhoodsLayer}
+        //obsLocationsIndex={obsLocationsIndex}
+        //obsSegmentationsIndex={obsSegmentationsIndex}
+        //obsLocations={obsLocations}
+        //obsLocationsLabels={obsLocationsLabels}
+        //obsLocationsFeatureIndex={obsLocationsFeatureIndex}
         obsCentroids={obsCentroids}
         obsCentroidsIndex={obsCentroidsIndex}
         // cellFilter={cellFilter}
         // cellSelection={cellSelection}
         cellHighlight={cellHighlight}
-        neighborhoods={neighborhoods}
+        //neighborhoods={neighborhoods}
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
-        setCellHighlight={setCellHighlight}
-        setHoverInfo={setHoverInfo}
-        setMoleculeHighlight={setMoleculeHighlight}
-        setComponentHover={() => {
-          setComponentHover(uuid);
-        }}
-        updateViewInfo={setComponentViewInfo}
-        //imageLayerCallbacks={imageLayerCallbacks}
-        //segmentationLayerCallbacks={segmentationLayerCallbacks}
-        spatialAxisFixed={spatialAxisFixed}
-        theme={theme}
-        //useFullResolutionImage={useFullResolutionImage}
-        hideTools // TODO: value?
+        //setCellHighlight={setCellHighlight}
+        //setMoleculeHighlight={setMoleculeHighlight}
+        
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber
