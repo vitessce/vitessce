@@ -190,7 +190,6 @@ export function LayerControllerSubscriber(props) {
     coordinationScopesBy,
     CoordinationType.SPOT_LAYER,
   );
-  // console.log(spotLayerScopes, spotLayerCoordination);
 
   const [
     {

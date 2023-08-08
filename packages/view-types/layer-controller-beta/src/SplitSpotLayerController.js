@@ -18,7 +18,7 @@ import {
 } from '@material-ui/icons';
 import plur from 'plur';
 import { PopperMenu } from '@vitessce/vit-s';
-import { VectorIconSVG } from '@vitessce/icons';
+import { SpotsIconSVG } from '@vitessce/icons';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
@@ -29,13 +29,13 @@ const useStyles = makeStyles(() => ({
   menuItemSlider: {
     width: '100px',
   },
-  layerTypeSegmentationIcon: {
+  layerTypeSpotIcon: {
     height: '100%',
     marginLeft: '1px',
     fill: 'currentColor',
-    fontSize: '24px',
+    fontSize: '20px',
     width: '50%',
-    maxWidth: '24px',
+    maxWidth: '20px',
   },
 }));
 
@@ -178,7 +178,7 @@ export default function SplitSpotLayerController(props) {
             />
           </Grid>
           <Grid item xs={1}>
-            <VectorIconSVG className={classes.layerTypeSegmentationIcon} />
+            <SpotsIconSVG className={classes.layerTypeSpotIcon} />
           </Grid>
         </Grid>
       </Paper>

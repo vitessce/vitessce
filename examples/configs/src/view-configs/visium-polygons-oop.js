@@ -26,6 +26,9 @@ import {
           path: 'obsm/X_hvg',
           featureFilterPath: 'var/highly_variable',
         },
+        obsSpots: {
+          path: 'obsm/spatial',
+        },
         obsLocations: {
           path: 'obsm/spatial',
         },
@@ -65,6 +68,12 @@ import {
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
         photometricInterpretation: 'RGB',
+      }),
+      spotLayer: CL({
+        obsType: 'spot',
+        spatialLayerVisible: true,
+        spatialLayerOpacity: 0.5,
+        spatialSpotRadius: 10.0,
       }),
       segmentationLayer: CL([
         {
