@@ -344,9 +344,10 @@ export function SpatialSubscriber(props) {
   );
 
   const [
-    spotMultiExpressionData, spotMultiLoadedFeatureSelection,
-    // eslint-disable-next-line no-unused-vars
-    spotMultiExpressionExtents, spotMultiExpressionNormData,
+    spotMultiExpressionData,
+    spotMultiLoadedFeatureSelection,
+    spotMultiExpressionExtents,
+    spotMultiExpressionNormData,
     spotMultiFeatureSelectionStatus,
   ] = useSpotMultiFeatureSelection(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
@@ -357,15 +358,17 @@ export function SpatialSubscriber(props) {
   );
 
   const [
-    multiExpressionData, multiLoadedFeatureSelection,
+    segmentationMultiExpressionData,
+    segmentationMultiLoadedFeatureSelection,
     // eslint-disable-next-line no-unused-vars
-    multiExpressionExtents, multiExpressionNormData,
-    multiFeatureSelectionStatus,
+    segmentationMultiExpressionExtents,
+    segmentationMultiExpressionNormData,
+    segmentationMultiFeatureSelectionStatus,
   ] = useSegmentationMultiFeatureSelection(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
-  const [multiIndicesData, multiIndicesDataStatus] = useSegmentationMultiObsFeatureMatrixIndices(
+  const [segmentationMultiIndicesData, segmentationMultiIndicesDataStatus] = useSegmentationMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -471,8 +474,9 @@ export function SpatialSubscriber(props) {
     spotMultiIndicesDataStatus,
     // Segmentations
     obsSegmentationsDataStatus,
-    multiIndicesDataStatus,
-    multiFeatureSelectionStatus,
+    obsSegmentationsSetsDataStatus,
+    segmentationMultiFeatureSelectionStatus,
+    segmentationMultiIndicesDataStatus,
     // Images
     imageDataStatus,
   ]);
@@ -683,11 +687,11 @@ export function SpatialSubscriber(props) {
           hasObsInfo = true;
           if(obsId !== null) {
             result[`${layerObsType} ID`] = obsId;
-            if (obsId && multiExpressionData?.[layerScope]?.[channelScope] && multiLoadedFeatureSelection?.[layerScope]?.[channelScope]) {
-              const channelFeature = multiLoadedFeatureSelection?.[layerScope]?.[channelScope]?.[0];
-              const channelFeatureData = multiExpressionData?.[layerScope]?.[channelScope];
+            if (obsId && segmentationMultiExpressionData?.[layerScope]?.[channelScope] && segmentationMultiLoadedFeatureSelection?.[layerScope]?.[channelScope]) {
+              const channelFeature = segmentationMultiLoadedFeatureSelection?.[layerScope]?.[channelScope]?.[0];
+              const channelFeatureData = segmentationMultiExpressionData?.[layerScope]?.[channelScope];
               if (channelFeatureData && channelFeatureData[0]) {
-                // TODO: use multiIndicesData to obtain an index into the obsFeatureMatrix data
+                // TODO: use segmentationMultiIndicesData to obtain an index into the obsFeatureMatrix data
                 // using the bitmask channel value.
                 // For the sake of time, here I am assuming the off-by-one alignment.
                 const channelFeatureValue = channelFeatureData[0][obsI];
@@ -706,7 +710,7 @@ export function SpatialSubscriber(props) {
     return null;
   }, [segmentationLayerScopes, segmentationLayerCoordination,
     segmentationChannelScopesByLayer, segmentationChannelCoordination,
-    multiExpressionData, multiLoadedFeatureSelection, multiIndicesData,
+    segmentationMultiExpressionData, segmentationMultiLoadedFeatureSelection, segmentationMultiIndicesData,
   ]);
 
   const setHoverInfo = useCallback(debounce((data, coord) => {
@@ -732,8 +736,8 @@ export function SpatialSubscriber(props) {
         .filter(([targetC, obsI]) => obsI > 0)
         .map(([targetC, obsI]) => {
           const [layerScope, channelScope] = segmentationLayerScopeChannelScopeTuples[targetC];
-          if (multiIndicesData && layerScope && channelScope) {
-            const { obsIndex, featureIndex } = multiIndicesData[layerScope][channelScope];
+          if (segmentationMultiIndicesData && layerScope && channelScope) {
+            const { obsIndex, featureIndex } = segmentationMultiIndicesData[layerScope][channelScope];
             if (obsIndex) {
               return {
                 layerScope,
@@ -755,7 +759,7 @@ export function SpatialSubscriber(props) {
       return perChannelObsInfo;
     }
     return null;
-  }, [useHoverInfoForTooltip, multiIndicesData, segmentationLayerScopeChannelScopeTuples]);
+  }, [useHoverInfoForTooltip, segmentationMultiIndicesData, segmentationLayerScopeChannelScopeTuples]);
 
   // Without useMemo, this would propagate a change every time the component
   // re - renders as opposed to when it has to.
@@ -792,6 +796,9 @@ export function SpatialSubscriber(props) {
         uuid={uuid}
         width={width}
         height={height}
+        // Global view state
+        targetT={targetT}
+        targetZ={targetZ}
         viewState={isValidViewState ? ({
           zoom,
           target: [targetX, targetY, targetZ],
@@ -801,30 +808,29 @@ export function SpatialSubscriber(props) {
         orbitAxis={orbitAxis}
         setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
         originalViewState={originalViewState}
+        spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
 
+        // Segmentations
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerCoordination={segmentationLayerCoordination}
-
         segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
         segmentationChannelCoordination={segmentationChannelCoordination}
 
         obsSegmentations={obsSegmentationsData}
         obsSegmentationsLocations={obsSegmentationsLocationsData}
         obsSegmentationsSets={obsSegmentationsSetsData}
-        segmentationMatrixIndices={multiIndicesData}
-        segmentationMultiExpressionData={multiExpressionData}
+        segmentationMatrixIndices={segmentationMultiIndicesData}
+        segmentationMultiExpressionData={segmentationMultiExpressionNormData}
 
-        
+        // Images
         images={imageData}
         imageLayerScopes={imageLayerScopes}
         imageLayerCoordination={imageLayerCoordination}
-        targetT={targetT}
-        targetZ={targetZ}
-        spatialRenderingMode={spatialRenderingMode}
 
         imageChannelScopesByLayer={imageChannelScopesByLayer}
         imageChannelCoordination={imageChannelCoordination}
 
+        // Spots
         obsSpots={obsSpotsData}
         spotLayerScopes={spotLayerScopes}
         spotLayerCoordination={spotLayerCoordination}
@@ -833,9 +839,11 @@ export function SpatialSubscriber(props) {
         spotMatrixIndices={spotMultiIndicesData}
         spotMultiExpressionData={spotMultiExpressionNormData}
 
+        // Points
+
         
 
-
+        // OLD
         obsLocationsLayerDefs={moleculesLayer}
         neighborhoodLayerDefs={neighborhoodsLayer}
         obsLocationsIndex={obsLocationsIndex}
@@ -888,7 +896,7 @@ export function SpatialSubscriber(props) {
         segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
         segmentationChannelCoordination={segmentationChannelCoordination}
 
-        multiExpressionExtents={multiExpressionExtents}
+        segmentationMultiExpressionExtents={segmentationMultiExpressionExtents}
 
         // Spots
         spotLayerScopes={spotLayerScopes}

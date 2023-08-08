@@ -199,7 +199,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       spatialSegmentationStrokeWidth,
       featureValueColormap,
       featureValueColormapRange,
-
     } = channelCoordination;
 
     const { obsIndex } = layerObsSegmentations;
@@ -210,8 +209,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     const visible = layerVisible && spatialChannelVisible;
     const opacity = layerOpacity * spatialChannelOpacity;
-
-    //console.log(layerData, layerQuadTree, layerColors, getExpressionValue);
     
     const getCellColor = makeDefaultGetCellColors(layerColors, obsIndex, theme);
     const getPolygon = (object, { index, data }) => data.src.obsSegmentations.data[index];
@@ -915,7 +912,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
           theme,
           obsIndex: layerIndex,
         });
-
         // Initialize layer-level objects if necessary.
         if(!this.segmentationColors[layerScope]) {
           this.segmentationColors[layerScope] = {};
@@ -1182,8 +1178,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.viewInfoDidUpdate();
 
     const shallowDiff = propName => prevProps[propName] !== this.props[propName];
-    const shallowDiffBy = (propName, scopeName) => prevProps?.[propName]?.[scopeName] !== this.props?.[propName]?.[scopeName];
-    const shallowDiffByFirst = (propName, scopeName) => prevProps?.[propName]?.[0]?.[scopeName] !== this.props?.[propName]?.[0]?.[scopeName];
+    const shallowDiffByLayer = (propName, scopeName) => prevProps?.[propName]?.[scopeName] !== this.props?.[propName]?.[scopeName];
+    const shallowDiffByChannel = (propName, firstName, secondName) => prevProps?.[propName]?.[firstName]?.[secondName] !== this.props?.[propName]?.[firstName]?.[secondName];
+    const shallowDiffByLayerCoordination = (propName, layerScope) => prevProps?.[propName]?.[0]?.[layerScope] !== this.props?.[propName]?.[0]?.[layerScope];
+    const shallowDiffByChannelCoordination = (propName, layerScope, channelScope) => prevProps?.[propName]?.[0]?.[layerScope]?.[channelScope] !== this.props?.[propName]?.[0]?.[layerScope]?.[channelScope];
     let forceUpdate = false;
 
     // Segmentations.
@@ -1193,9 +1191,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.onUpdateAllSegmentationsData();
       forceUpdate = true;
     } else {
-      this.props.segmentationLayerScopes.forEach((layerScope) => {
+      this.props.segmentationLayerScopes?.forEach((layerScope) => {
         if(
-          shallowDiffBy('obsSegmentations', layerScope)
+          shallowDiffByLayer('obsSegmentations', layerScope)
         ) {
           this.onUpdateSegmentationsData(layerScope);
           forceUpdate = true;
@@ -1203,90 +1201,89 @@ class Spatial extends AbstractSpatialOrScatterplot {
       });
     }
 
-    // Segmentations locations data. // TODO: per-channel
-    if(shallowDiff('segmentationLayerScopes')) {
+    // Segmentations locations data.
+    if(['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(shallowDiff)) {
       // Force update for all layers since the layerScopes array changed.
       this.onUpdateAllSegmentationsLocationsData();
       forceUpdate = true;
     } else {
-      this.props.segmentationLayerScopes.forEach((layerScope) => {
-        if(
-          shallowDiffBy('obsSegmentations', layerScope)
-          || shallowDiffBy('obsSegmentationsLocations', layerScope)
-        ) {
-          this.onUpdateSegmentationsLocationsData(layerScope);
-          forceUpdate = true;
-        }
+      this.props.segmentationLayerScopes?.forEach((layerScope) => {
+          this.props.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
+            if(
+              shallowDiffByChannel('obsSegmentationsLocations', layerScope, channelScope)
+            ) {
+              this.onUpdateSegmentationsLocationsData(layerScope, channelScope);
+              forceUpdate = true;
+            }
+          });
       });
     }
 
-    // Segmentation sets data. // TODO: per-channel
-    if(shallowDiff('segmentationLayerScopes')) {
+    // Segmentation sets data.
+    if(['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(shallowDiff)) {
       // Force update for all layers since the layerScopes array changed.
       this.onUpdateAllSegmentationsSetsData();
       forceUpdate = true;
     } else {
-      this.props.segmentationLayerScopes.forEach((layerScope) => {
-        if(
-          shallowDiffBy('obsSegmentationsSets', layerScope)
-          || shallowDiffBy('obsSegmentations', layerScope)
-          || shallowDiffByFirst('segmentationLayerCoordination', layerScope)
-        ) {
-          this.onUpdateSegmentationsSetsData(layerScope);
-          forceUpdate = true;
-        }
+      this.props.segmentationLayerScopes?.forEach((layerScope) => {
+        this.props.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
+          if(
+            shallowDiffByChannel('obsSegmentationsSets', layerScope, channelScope)
+            || shallowDiffByChannelCoordination('segmentationChannelCoordination', layerScope, channelScope)
+          ) {
+            this.onUpdateSegmentationsSetsData(layerScope, channelScope);
+            forceUpdate = true;
+          }
+        });
       });
     }
 
-    // Segmentation index data (pre-requisite for below Segmentation expression data). // TODO: per-channel
-    if(shallowDiff('segmentationLayerScopes')) {
+    // Segmentation index data (pre-requisite for below Segmentation expression data).
+    if(['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(shallowDiff)) {
       // Force update for all layers since the layerScopes array changed.
       this.onUpdateAllSegmentationsIndexData();
       forceUpdate = true;
     } else {
-      this.props.segmentationLayerScopes.forEach((layerScope) => {
-        if(
-          shallowDiffBy('segmentationMatrixIndices', layerScope)
-          || shallowDiffBy('obsSegmentations', layerScope)
-        ) {
-          this.onUpdateSegmentationsIndexData(layerScope);
-          forceUpdate = true;
-        }
+      this.props.segmentationLayerScopes?.forEach((layerScope) => {
+        this.props.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
+          if(
+            shallowDiffByChannel('segmentationMatrixIndices', layerScope, channelScope)
+          ) {
+            this.onUpdateSegmentationsIndexData(layerScope, channelScope);
+            forceUpdate = true;
+          }
+        });
       });
     }
 
-    // Segmentation expression data. // TODO: per-channel
-    if(shallowDiff('segmentationLayerScopes')) {
+    // Segmentation expression data.
+    if(['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(shallowDiff)) {
       // Force update for all layers since the layerScopes array changed.
       this.onUpdateAllSegmentationsExpressionData();
       forceUpdate = true;
     } else {
       this.props.segmentationLayerScopes.forEach((layerScope) => {
-        if(
-          shallowDiffBy('segmentationMatrixIndices', layerScope)
-          || shallowDiffBy('obsSegmentations', layerScope)
-          || shallowDiffBy('segmentationMultiExpressionData', layerScope)
-        ) {
-          this.onUpdateSegmentationsExpressionData(layerScope);
-          forceUpdate = true;
-        }
+        this.props.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
+          if(
+            shallowDiffByChannel('segmentationMatrixIndices', layerScope, channelScope)
+            || shallowDiffByChannel('segmentationMultiExpressionData', layerScope, channelScope)
+          ) {
+            this.onUpdateSegmentationsExpressionData(layerScope, channelScope);
+            forceUpdate = true;
+          }
+        });
       });
     }
 
 
     if (
       [
-        'obsSegmentations',
-        'obsSegmentationsIndex',
-        'obsCentroids',
-        'obsCentroidsIndex',
-        'cellFilter',
-        'cellSelection',
+        //'cellFilter',
+        //'cellSelection',
         'segmentationLayerScopes',
         'segmentationLayerCoordination',
         'segmentationChannelScopesByLayer',
         'segmentationChannelCoordination',
-        'segmentationMultiExpressionData', // TODO: should this be here?
       ].some(shallowDiff)
     ) {
       // Cells layer props changed.
@@ -1313,7 +1310,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } else {
       this.props.spotLayerScopes.forEach((layerScope) => {
         if(
-          shallowDiffBy('obsSpots', layerScope)
+          shallowDiffByLayer('obsSpots', layerScope)
         ) {
           this.onUpdateSpotsData(layerScope);
           forceUpdate = true;
@@ -1329,9 +1326,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } else {
       this.props.spotLayerScopes.forEach((layerScope) => {
         if(
-          shallowDiffBy('obsSpotsSets', layerScope)
-          || shallowDiffBy('obsSpots', layerScope)
-          || shallowDiffByFirst('spotLayerCoordination', layerScope)
+          shallowDiffByLayer('obsSpotsSets', layerScope)
+          || shallowDiffByLayer('obsSpots', layerScope)
+          || shallowDiffByLayerCoordination('spotLayerCoordination', layerScope)
         ) {
           this.onUpdateSpotsSetsData(layerScope);
           forceUpdate = true;
@@ -1347,8 +1344,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } else {
       this.props.spotLayerScopes.forEach((layerScope) => {
         if(
-          shallowDiffBy('spotMatrixIndices', layerScope)
-          || shallowDiffBy('obsSpots', layerScope)
+          shallowDiffByLayer('spotMatrixIndices', layerScope)
+          || shallowDiffByLayer('obsSpots', layerScope)
         ) {
           this.onUpdateSpotsIndexData(layerScope);
           forceUpdate = true;
@@ -1364,9 +1361,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } else {
       this.props.spotLayerScopes.forEach((layerScope) => {
         if(
-          shallowDiffBy('spotMatrixIndices', layerScope)
-          || shallowDiffBy('obsSpots', layerScope)
-          || shallowDiffBy('spotMultiExpressionData', layerScope)
+          shallowDiffByLayer('spotMatrixIndices', layerScope)
+          || shallowDiffByLayer('obsSpots', layerScope)
+          || shallowDiffByLayer('spotMultiExpressionData', layerScope)
         ) {
           this.onUpdateSpotsExpressionData(layerScope);
           forceUpdate = true;
