@@ -10,18 +10,19 @@ import {
   Slider,
   MenuItem,
   Button,
+  Select,
 } from '@material-ui/core';
 import {
   MoreVert as MoreVertIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
 } from '@material-ui/icons';
-import plur from 'plur';
 import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
+  useSelectStyles,
 } from './styles.js';
 import { capitalize } from '@vitessce/utils';
 
@@ -49,6 +50,7 @@ function PointLayerEllipsisMenu(props) {
   } = props;
   const [open, setOpen] = useState(false);
   const classes = useStyles();
+  const selectClasses = useSelectStyles();
   const menuClasses = useEllipsisMenuStyles();
 
   const quantitativeColormapId = useId();
@@ -65,17 +67,20 @@ function PointLayerEllipsisMenu(props) {
     >
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
-          Quantitative Colormap:&nbsp;
+          Color Encoding:&nbsp;
         </label>
-        <Checkbox
-          // Do not disable if there are selected quantitative features.
-          // Also, do not disable if the checkbox is currently checked, to allow un-checking.
-          disabled={!((Array.isArray(featureSelection) && featureSelection.length > 0) || obsColorEncoding === 'geneSelection')}
-          color="primary"
-          checked={obsColorEncoding === 'geneSelection'}
-          onChange={(e, v) => setObsColorEncoding(v ? 'geneSelection' : 'spatialChannelColor')}
+        <Select
+          native
+          //disabled={!((Array.isArray(featureSelection) && featureSelection.length > 0) || obsColorEncoding === 'geneSelection')}
+          onChange={(e) => setObsColorEncoding(e.target.value)}
+          value={obsColorEncoding}
           inputProps={{ id: quantitativeColormapId }}
-        />
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          <option value="spatialChannelColor">Static Color</option>
+          <option value="geneSelection">Feature Value</option>
+          <option value="cellSetSelection">Set Selection</option>
+        </Select>
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapRangeId}>
@@ -124,7 +129,7 @@ export default function SplitPointLayerController(props) {
     setFeatureValueColormapRange,
   } = setLayerCoordination;
 
-  const label = capitalize(plur(obsType, 2));
+  const label = capitalize(obsType);
 
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;

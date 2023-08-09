@@ -17,7 +17,6 @@ import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
 } from '@material-ui/icons';
-import plur from 'plur';
 import { PopperMenu } from '@vitessce/vit-s';
 import { VectorIconSVG } from '@vitessce/icons';
 import {
