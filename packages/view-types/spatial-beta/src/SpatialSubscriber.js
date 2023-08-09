@@ -288,6 +288,8 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_SPOT_RADIUS,
+      CoordinationType.SPATIAL_SPOT_FILLED,
+      CoordinationType.SPATIAL_SPOT_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.FEATURE_VALUE_COLORMAP,
@@ -295,6 +297,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.OBS_SET_COLOR,
       CoordinationType.OBS_SET_SELECTION,
       CoordinationType.ADDITIONAL_OBS_SETS,
+      CoordinationType.SPATIAL_LAYER_COLOR,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -311,6 +314,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+      CoordinationType.SPATIAL_LAYER_COLOR,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -948,7 +952,9 @@ export function SpatialSubscriber(props) {
         spotLayerCoordination={spotLayerCoordination}
         spotMultiExpressionExtents={spotMultiExpressionExtents}
 
-        // TODO: Points
+        // Points
+        pointLayerScopes={pointLayerScopes}
+        pointLayerCoordination={pointLayerCoordination}
       />
     </TitleInfo>
   );

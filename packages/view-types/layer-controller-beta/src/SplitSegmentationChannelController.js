@@ -119,7 +119,6 @@ function SegmentationChannelEllipsisMenu(props) {
           <option value="geneSelection">Feature Value</option>
           <option value="cellSetSelection">Set Selection</option>
         </Select>
-
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapRangeId}>
@@ -144,6 +143,7 @@ function SegmentationChannelEllipsisMenu(props) {
 export default function SplitVectorLayerController(props) {
   const {
     label,
+    theme,
     obsType,
     featureType,
     featureValueType,
@@ -196,6 +196,7 @@ export default function SplitVectorLayerController(props) {
           </Grid>
           <Grid item xs={1}>
             <ChannelColorPickerMenu
+              theme={theme}
               color={color}
               setColor={setColor}
               palette={palette}

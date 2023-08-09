@@ -222,6 +222,7 @@ function ImageLayerEllipsisMenu(props) {
 
 export default function SplitImageLayerController(props) {
   const {
+    theme,
     coordinationScopesRaw,
     layerScope,
     layerCoordination,
@@ -372,6 +373,7 @@ export default function SplitImageLayerController(props) {
               return (
                 <SplitImageChannelController
                   key={cScope}
+                  theme={theme}
                   coordinationScopesRaw={coordinationScopesRaw}
                   layerScope={layerScope}
                   channelScope={cScope}

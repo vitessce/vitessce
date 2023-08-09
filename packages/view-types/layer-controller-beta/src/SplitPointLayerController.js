@@ -25,6 +25,7 @@ import {
   useSelectStyles,
 } from './styles.js';
 import { capitalize } from '@vitessce/utils';
+import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
 const useStyles = makeStyles(() => ({
   menuItemSlider: {
@@ -77,7 +78,7 @@ function PointLayerEllipsisMenu(props) {
           inputProps={{ id: quantitativeColormapId }}
           classes={{ root: selectClasses.selectRoot }}
         >
-          <option value="spatialChannelColor">Static Color</option>
+          <option value="spatialLayerColor">Static Color</option>
           <option value="geneSelection">Feature Value</option>
           <option value="cellSetSelection">Set Selection</option>
         </Select>
@@ -104,9 +105,11 @@ function PointLayerEllipsisMenu(props) {
 
 export default function SplitPointLayerController(props) {
   const {
+    theme,
     layerScope,
     layerCoordination,
     setLayerCoordination,
+    palette = null,
   } = props;
 
   const {
@@ -118,6 +121,7 @@ export default function SplitPointLayerController(props) {
     featureSelection,
     featureValueColormap,
     featureValueColormapRange,
+    spatialLayerColor: color,
   } = layerCoordination;
   const {
     setSpatialLayerVisible: setVisible,
@@ -127,12 +131,15 @@ export default function SplitPointLayerController(props) {
     setFeatureSelection,
     setFeatureValueColormap,
     setFeatureValueColormapRange,
+    setSpatialLayerColor: setColor,
   } = setLayerCoordination;
 
   const label = capitalize(obsType);
 
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
+
+  const isStaticColor = obsColorEncoding === 'spatialLayerColor';
 
   const classes = useStyles();
   const lcClasses = useControllerSectionStyles();
@@ -156,6 +163,14 @@ export default function SplitPointLayerController(props) {
             </Button>
           </Grid>
           <Grid item xs={1}>
+            <ChannelColorPickerMenu
+              theme={theme}
+              color={color}
+              setColor={setColor}
+              palette={palette}
+              isStaticColor={isStaticColor}
+              visible={visible}
+            />
           </Grid>
           <Grid item xs={6}>
             <Typography className={menuClasses.imageLayerName}>

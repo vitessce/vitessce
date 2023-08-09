@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core';
-import { capitalize } from '@vitessce/utils';
+import { capitalize, getDefaultColor } from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
@@ -62,6 +62,7 @@ export default function Legend(props) {
     featureValueColormap,
     featureValueColormapRange,
     spatialChannelColor,
+    spatialLayerColor,
     extent,
     width = 100,
     height = 36,
@@ -73,7 +74,14 @@ export default function Legend(props) {
   const classes = useStyles();
 
   const isDarkTheme = theme === 'dark';
-  const isStaticColor = obsColorEncoding === 'spatialChannelColor';
+  const isStaticColor = obsColorEncoding === 'spatialChannelColor' || obsColorEncoding === 'spatialLayerColor';
+  const layerColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
+    ? spatialLayerColor
+    : getDefaultColor(theme);
+  const channelColor = Array.isArray(spatialChannelColor) && spatialChannelColor.length === 3
+    ? spatialChannelColor
+    : getDefaultColor(theme);
+  const staticColor = obsColorEncoding === 'spatialChannelColor' ? channelColor : layerColor;
 
   const visible = (visibleProp && (
     (
@@ -143,13 +151,13 @@ export default function Legend(props) {
       axisTicks.selectAll('text')
         .attr('text-anchor', (d, i) => (i === 0 ? 'start' : 'end'));
     }
-    if (isStaticColor && Array.isArray(spatialChannelColor)) {
+    if (isStaticColor) {
       g.append('rect')
         .attr('x', 0)
         .attr('y', titleHeight)
         .attr('width', width)
         .attr('height', rectHeight)
-        .attr('fill', `rgb(${spatialChannelColor[0]},${spatialChannelColor[1]},${spatialChannelColor[2]})`);
+        .attr('fill', `rgb(${staticColor[0]},${staticColor[1]},${staticColor[2]})`);
     }
 
     const featureSelectionLabel = (

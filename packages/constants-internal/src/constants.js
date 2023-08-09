@@ -212,6 +212,9 @@ export const CoordinationType = {
   SPOT_LAYER: 'spotLayer',
   POINT_LAYER: 'pointLayer',
   SPATIAL_SPOT_RADIUS: 'spatialSpotRadius', // In micrometers?
+  SPATIAL_SPOT_FILLED: 'spatialSpotFilled',
+  SPATIAL_SPOT_STROKE_WIDTH: 'spatialSpotStrokeWidth',
+  SPATIAL_LAYER_COLOR: 'spatialLayerColor',
 };
 
 export const STATUS = {

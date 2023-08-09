@@ -25,6 +25,7 @@ import {
   useSelectStyles,
 } from './styles.js';
 import { capitalize } from '@vitessce/utils';
+import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
 const useStyles = makeStyles(() => ({
   menuItemSlider: {
@@ -42,6 +43,10 @@ const useStyles = makeStyles(() => ({
 
 function SpotLayerEllipsisMenu(props) {
   const {
+    strokeWidth,
+    setStrokeWidth,
+    filled,
+    setFilled,
     featureSelection,
     obsColorEncoding,
     setObsColorEncoding,
@@ -53,6 +58,8 @@ function SpotLayerEllipsisMenu(props) {
   const selectClasses = useSelectStyles();
   const menuClasses = useEllipsisMenuStyles();
 
+  const filledId = useId();
+  const strokeWidthId = useId();
   const quantitativeColormapId = useId();
   const colormapRangeId = useId();
 
@@ -66,6 +73,33 @@ function SpotLayerEllipsisMenu(props) {
       withPaper
     >
       <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={filledId}>
+          Filled:&nbsp;
+        </label>
+        <Checkbox
+          color="primary"
+          checked={filled}
+          onChange={(e, v) => setFilled(v)}
+          inputProps={{ id: filledId }}
+        />
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={strokeWidthId}>
+          Stroke width:
+        </label>
+        <Slider
+          disabled={filled}
+          value={strokeWidth}
+          min={0.01}
+          max={5.0}
+          step={0.01}
+          onChange={(e, v) => setStrokeWidth(v)}
+          classes={{ root: classes.menuItemSlider }}
+          orientation="horizontal"
+          id={strokeWidthId}
+        />
+      </MenuItem>
+      <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
           Color Encoding:&nbsp;
         </label>
@@ -77,7 +111,7 @@ function SpotLayerEllipsisMenu(props) {
           inputProps={{ id: quantitativeColormapId }}
           classes={{ root: selectClasses.selectRoot }}
         >
-          <option value="spatialChannelColor">Static Color</option>
+          <option value="spatialLayerColor">Static Color</option>
           <option value="geneSelection">Feature Value</option>
           <option value="cellSetSelection">Set Selection</option>
         </Select>
@@ -104,9 +138,11 @@ function SpotLayerEllipsisMenu(props) {
 
 export default function SplitSpotLayerController(props) {
   const {
+    theme,
     layerScope,
     layerCoordination,
     setLayerCoordination,
+    palette = null,
   } = props;
 
   const {
@@ -114,6 +150,10 @@ export default function SplitSpotLayerController(props) {
     spatialLayerVisible: visible,
     spatialLayerOpacity: opacity,
     spatialSpotRadius: radius,
+    spatialSpotFilled: filled,
+    spatialSpotStrokeWidth: strokeWidth,
+    spatialLayerColor: color,
+
     obsColorEncoding,
     featureSelection,
     featureValueColormap,
@@ -123,6 +163,9 @@ export default function SplitSpotLayerController(props) {
     setSpatialLayerVisible: setVisible,
     setSpatialLayerOpacity: setOpacity,
     setSpatialSpotRadius: setRadius,
+    setSpatialSpotFilled: setFilled,
+    setSpatialSpotStrokeWidth: setStrokeWidth,
+    setSpatialLayerColor: setColor,
     setObsColorEncoding,
     setFeatureSelection,
     setFeatureValueColormap,
@@ -133,6 +176,7 @@ export default function SplitSpotLayerController(props) {
 
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
+  const isStaticColor = obsColorEncoding === 'spatialLayerColor';
 
   const classes = useStyles();
   const lcClasses = useControllerSectionStyles();
@@ -156,6 +200,14 @@ export default function SplitSpotLayerController(props) {
             </Button>
           </Grid>
           <Grid item xs={1}>
+            <ChannelColorPickerMenu
+              theme={theme}
+              color={color}
+              setColor={setColor}
+              palette={palette}
+              isStaticColor={isStaticColor}
+              visible={visible}
+            />
           </Grid>
           <Grid item xs={6}>
             <Typography className={menuClasses.imageLayerName}>
@@ -175,6 +227,10 @@ export default function SplitSpotLayerController(props) {
           </Grid>
           <Grid item xs={1}>
             <SpotLayerEllipsisMenu
+              filled={filled}
+              setFilled={setFilled}
+              strokeWidth={strokeWidth}
+              setStrokeWidth={setStrokeWidth}
               featureSelection={featureSelection}
               obsColorEncoding={obsColorEncoding}
               setObsColorEncoding={setObsColorEncoding}

@@ -337,7 +337,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(
     CoordinationType.OBS_COLOR_ENCODING,
     'cellSetSelection',
-    z.enum(['geneSelection', 'cellSetSelection', 'spatialChannelColor']),
+    z.enum(['geneSelection', 'cellSetSelection', 'spatialChannelColor', 'spatialLayerColor']),
   ),
   new PluginCoordinationType(CoordinationType.FEATURE_FILTER, null, z.array(z.string()).nullable()),
   new PluginCoordinationType(CoordinationType.FEATURE_HIGHLIGHT, null, z.string().nullable()),
@@ -417,4 +417,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPOT_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.POINT_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_RADIUS, 25.0, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_FILLED, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_STROKE_WIDTH, 1.0, z.number()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_COLOR, null, z.array(z.number()).length(3).nullable()),
 ];

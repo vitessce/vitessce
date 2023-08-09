@@ -194,6 +194,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPOT_LAYER,
     CoordinationType.POINT_LAYER,
     CoordinationType.SPATIAL_SPOT_RADIUS,
+    CoordinationType.SPATIAL_SPOT_FILLED,
+    CoordinationType.SPATIAL_SPOT_STROKE_WIDTH,
+    CoordinationType.SPATIAL_LAYER_COLOR,
   ],
   [ViewType.HEATMAP]: [
     CoordinationType.DATASET,
@@ -344,6 +347,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPOT_LAYER,
     CoordinationType.POINT_LAYER,
     CoordinationType.SPATIAL_SPOT_RADIUS,
+    CoordinationType.SPATIAL_SPOT_FILLED,
+    CoordinationType.SPATIAL_SPOT_STROKE_WIDTH,
+    CoordinationType.SPATIAL_LAYER_COLOR,
     CoordinationType.OBS_COLOR_ENCODING,
   ],
   [ViewType.GENOMIC_PROFILES]: [

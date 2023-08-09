@@ -4,16 +4,19 @@ import { isEqual } from 'lodash-es';
 import {
   deck, viv, getSelectionLayers, ScaledExpressionExtension,
 } from '@vitessce/gl';
-import { getSourceFromLoader, isInterleaved, filterSelection } from '@vitessce/spatial-utils';
-import { Matrix4 } from 'math.gl';
-import { PALETTE, getCellColors, getDefaultColor } from '@vitessce/utils';
+import { filterSelection } from '@vitessce/spatial-utils';
+import { getCellColors, getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils.js';
 
+const POINT_LAYER_PREFIX = 'point-layer-';
+const SPOT_LAYER_PREFIX = 'spot-layer-';
+const SEGMENTATION_LAYER_PREFIX = 'segmentation-layer-';
+const IMAGE_LAYER_PREFIX = 'image-layer-';
+const VOLUME_LAYER_PREFIX = 'volume-layer-';
+
 const CELLS_LAYER_ID = 'cells-layer';
-const MOLECULES_LAYER_ID = 'molecules-layer';
-const NEIGHBORHOODS_LAYER_ID = 'neighborhoods-layer';
 
 const VIV_RENDERING_MODES = {
   maximumIntensityProjection: 'Maximum Intensity Projection',
@@ -210,12 +213,20 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     const visible = layerVisible && spatialChannelVisible;
     const opacity = layerOpacity * spatialChannelOpacity;
+
+    const isStaticColor = obsColorEncoding === 'spatialChannelColor';
+    const staticColor = Array.isArray(spatialChannelColor) && spatialChannelColor.length === 3
+      ? spatialChannelColor
+      : getDefaultColor(theme);
     
     const getCellColor = makeDefaultGetCellColors(layerColors, obsIndex, theme);
     const getPolygon = (object, { index, data }) => data.src.obsSegmentations.data[index];
 
     return new deck.PolygonLayer({
-      id: `polygon-segmentation-layer-${layerScope}-${channelScope}`,
+      // We do not include channelScope in the ID so that it matches the ID
+      // of the equivalent bitmask-based segmentation layer. We also assume
+      // only one polygon-based segmentation channel per layer.
+      id: `${SEGMENTATION_LAYER_PREFIX}${layerScope}`,
       data: layerData,
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
@@ -225,18 +236,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       backgroundColor: [0, 0, 0],
       // isSelected: getCellIsSelected,
       getPolygon,
-      updateTriggers: {
-        /*
-        getLineWidth: [stroked],
-        isSelected: cellSelection,
-        getExpressionValue,
-        getFillColor: [opacity, cellColorEncoding, cellSelection, cellColors],
-        getLineColor: [cellColorEncoding, cellSelection, cellColors],
-        getPolygon: [radius],
-        */
-      },
-      getFillColor: getCellColor,
-      getLineColor: getCellColor,
+      getFillColor: isStaticColor ? staticColor : getCellColor,
+      getLineColor: isStaticColor ? staticColor : getCellColor,
       onClick: (info) => {
         /*if (onCellClick) {
           onCellClick(info);
@@ -254,6 +255,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
       colorScaleHi: featureValueColormapRange[1],
       isExpressionMode: obsColorEncoding === 'geneSelection',
       colormap: featureValueColormap,
+      updateTriggers: {
+        getFillColor: [obsColorEncoding, staticColor, layerColors],
+        getLineColor: [obsColorEncoding, staticColor, layerColors],
+        /*
+        getLineWidth: [stroked],
+        isSelected: cellSelection,
+        getExpressionValue,
+        getFillColor: [opacity, cellColorEncoding, cellSelection, cellColors],
+        getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        getPolygon: [radius],
+        */
+      },
     });
   }
 
@@ -272,18 +285,29 @@ class Spatial extends AbstractSpatialOrScatterplot {
       spatialLayerVisible,
       spatialLayerOpacity,
       spatialSpotRadius,
+      spatialSpotFilled,
+      spatialSpotStrokeWidth,
       obsColorEncoding,
       featureValueColormap,
       featureValueColormapRange,
+      spatialLayerColor,
     } = layerCoordination;
 
+    const isStaticColor = obsColorEncoding === 'spatialLayerColor';
+    const staticColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
+      ? spatialLayerColor
+      : getDefaultColor(theme);
+
     return new deck.ScatterplotLayer({
-      id: `spot-layer-${layerScope}`,
+      id: `${SPOT_LAYER_PREFIX}${layerScope}`,
       data: this.obsSpotsData[layerScope],
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
       autoHighlight: true,
       opacity: spatialLayerOpacity,
+      filled: spatialSpotFilled,
+      stroked: !spatialSpotFilled,
+      getLineWidth: !spatialSpotFilled ? spatialSpotStrokeWidth : 0,
       visible: spatialLayerVisible,
       getRadius: spatialSpotRadius,
       getPosition: (object, { data, index, target }) => {
@@ -295,8 +319,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         target[2] = 0;
         return target;
       },
-      getLineColor: getSpotColor,
-      getFillColor: getSpotColor,
+      getLineColor: isStaticColor ? staticColor : getSpotColor,
+      getFillColor: isStaticColor ? staticColor : getSpotColor,
       onHover: (info) => {
         if (setSpotHighlight) {
           if (info.object) {
@@ -317,8 +341,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       updateTriggers: {
         getRadius: [spatialSpotRadius],
         getExpressionValue,
-        getFillColor: [obsColorEncoding, cellColors],
-        getLineColor: [obsColorEncoding, cellColors],
+        getFillColor: [obsColorEncoding, cellColors, staticColor],
+        getLineColor: [obsColorEncoding, cellColors, staticColor],
       },
     });
   }
@@ -332,7 +356,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
       spatialLayerVisible,
       spatialLayerOpacity,
       obsColorEncoding,
+      spatialLayerColor,
     } = layerCoordination;
+
+    const isStaticColor = obsColorEncoding === 'spatialLayerColor';
+    const staticColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
+      ? spatialLayerColor
+      : getDefaultColor(theme);
 
     const getMoleculeColor = (object, { data, index }) => {
       // TODO
@@ -341,7 +371,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       return [255, 0, 0];
     };
     return new deck.ScatterplotLayer({
-      id: `point-layer-${layerScope}`,
+      id: `${POINT_LAYER_PREFIX}${layerScope}`,
       data: this.obsPointsData[layerScope],
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
@@ -359,8 +389,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         target[2] = 0; // TODO
         return target;
       },
-      getLineColor: getMoleculeColor,
-      getFillColor: getMoleculeColor,
+      getLineColor: isStaticColor ? staticColor : getMoleculeColor,
+      getFillColor: isStaticColor ? staticColor : getMoleculeColor,
       onHover: (info) => {
         /*
         if (setMoleculeHighlight) {
@@ -374,9 +404,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       },
       updateTriggers: {
         getRadius: [],
-        getFillColor: [obsColorEncoding],
-        getLineColor: [obsColorEncoding],
-
+        getFillColor: [obsColorEncoding, staticColor],
+        getLineColor: [obsColorEncoding, staticColor],
       },
     });
   }
@@ -499,7 +528,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     return new viv.MultiscaleImageLayer({
       // `bitmask` is used by the AbstractSpatialOrScatterplot
       // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
-      id: `bitmask-layer-${layerScope}`,
+      id: `${SEGMENTATION_LAYER_PREFIX}${layerScope}`,
       channelsVisible: channelScopes
         .map(cScope => (
           // Layer visible AND channel visible
@@ -564,6 +593,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (!data) {
       return null;
     }
+    const imageWrapperInstance = image.image.instance;
 
     const is3dMode = spatialRenderingMode === '3D';
     const isRgb = layerCoordination[CoordinationType.PHOTOMETRIC_INTERPRETATION] === 'RGB';
@@ -583,7 +613,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     // Safer to only use this prop when we have an interleaved image i.e not multiple channels.
     const rgbInterleavedProps = {};
-    if (isInterleaved((Array.isArray(data) ? data[0] : data).shape)) {
+    if (imageWrapperInstance.isInterleaved()) {
       rgbInterleavedProps.visible = visible;
     }
 
@@ -643,12 +673,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
       visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]
     ));
 
-    const autoTargetResolution = image?.image?.instance?.getAutoTargetResolution();
+    const autoTargetResolution = imageWrapperInstance.getAutoTargetResolution();
     const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION];
 
     return new Layer({
       loader: layerLoader,
-      id: `${is3dMode ? 'volume' : 'image'}-layer-${layerScope}`,
+      id: `${is3dMode ? VOLUME_LAYER_PREFIX : IMAGE_LAYER_PREFIX}${layerScope}`,
       colors,
       contrastLimits,
       selections,

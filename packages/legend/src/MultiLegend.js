@@ -19,17 +19,105 @@ export default function MultiLegend(props) {
     segmentationLayerCoordination,
     segmentationChannelScopesByLayer,
     segmentationChannelCoordination,
-    multiExpressionExtents,
+    segmentationMultiExpressionExtents,
     // Spots
     spotLayerScopes,
     spotLayerCoordination,
     spotMultiExpressionExtents,
+    // Points
+    pointLayerScopes,
+    pointLayerCoordination,
   } = props;
 
   const classes = useStyles();
 
   return (
     <div className={classes.multiLegend}>
+      {/* Points */}
+      {pointLayerScopes ? pointLayerScopes.flatMap((layerScope) => {
+        const layerCoordination = pointLayerCoordination[0][layerScope];
+      
+        const {
+          spatialLayerVisible,
+          obsColorEncoding,
+          obsType,
+          featureType,
+          featureValueType,
+          spatialLayerColor,
+        } = layerCoordination;
+
+        const isStaticColor = obsColorEncoding === 'spatialLayerColor';
+        const height = isStaticColor ? 20 : 36;
+
+        return spatialLayerVisible ? (
+          <Legend
+            key={layerScope}
+            positionRelative
+            highContrast
+            showObsLabel
+            visible={spatialLayerVisible}
+            theme={theme}
+            obsType={obsType}
+            featureType={featureType}
+            featureValueType={featureValueType}
+            obsColorEncoding={obsColorEncoding}
+            spatialLayerColor={spatialLayerColor}
+            featureSelection={null}
+            // featureLabelsMap={featureLabelsMap} // TODO
+            featureValueColormap={null}
+            featureValueColormapRange={null}
+            extent={null}
+            height={height}
+          />
+        ) : null;
+      }) : null}
+      {/* Spots */}
+      {spotLayerScopes ? spotLayerScopes.flatMap((layerScope) => {
+        const layerCoordination = spotLayerCoordination[0][layerScope];
+      
+        const {
+          spatialLayerVisible,
+          obsColorEncoding,
+          featureValueColormap,
+          featureValueColormapRange,
+          obsType,
+          featureType,
+          featureValueType,
+          featureSelection,
+          spatialLayerColor,
+        } = layerCoordination;
+
+        const expressionExtents = spotMultiExpressionExtents?.[layerScope];
+        // There can potentially be multiple features/genes selected, but we
+        // are only using the first one for now here.
+        const firstExpressionExtent = expressionExtents?.[0];
+
+        const isStaticColor = obsColorEncoding === 'spatialLayerColor';
+        const height = isStaticColor ? 20 : 36;
+
+        return spatialLayerVisible ? (
+          <Legend
+            key={layerScope}
+            positionRelative
+            highContrast
+            showObsLabel
+            visible={spatialLayerVisible}
+            theme={theme}
+            obsType={obsType}
+            featureType={featureType}
+            featureValueType={featureValueType}
+            obsColorEncoding={obsColorEncoding}
+            spatialLayerColor={spatialLayerColor}
+            featureSelection={featureSelection}
+            // featureLabelsMap={featureLabelsMap} // TODO
+            featureValueColormap={featureValueColormap}
+            featureValueColormapRange={featureValueColormapRange}
+            extent={firstExpressionExtent}
+            height={height}
+          />
+        ) : null;
+      }) : null}
+      {/* Segmentations */}
       {segmentationLayerScopes ? segmentationLayerScopes.flatMap((layerScope) => {
         const layerCoordination = segmentationLayerCoordination[0][layerScope];
         const channelScopes = segmentationChannelScopesByLayer[layerScope];
@@ -51,7 +139,7 @@ export default function MultiLegend(props) {
             featureValueType,
             featureSelection,
           } = channelCoordination[cScope];
-          const expressionExtents = multiExpressionExtents?.[layerScope]?.[cScope];
+          const expressionExtents = segmentationMultiExpressionExtents?.[layerScope]?.[cScope];
           // There can potentially be multiple features/genes selected, but we
           // are only using the first one for now here.
           const firstExpressionExtent = expressionExtents?.[0];
@@ -81,48 +169,6 @@ export default function MultiLegend(props) {
             />
           ) : null;
         }) : null);
-      }) : null}
-      {spotLayerScopes ? spotLayerScopes.flatMap((layerScope) => {
-        const layerCoordination = spotLayerCoordination[0][layerScope];
-      
-        const {
-          spatialLayerVisible,
-          obsColorEncoding,
-          featureValueColormap,
-          featureValueColormapRange,
-          obsType,
-          featureType,
-          featureValueType,
-          featureSelection,
-        } = layerCoordination;
-
-        const expressionExtents = multiExpressionExtents?.[layerScope];
-        // There can potentially be multiple features/genes selected, but we
-        // are only using the first one for now here.
-        const firstExpressionExtent = expressionExtents?.[0];
-        const isStaticColor = obsColorEncoding === 'spatialChannelColor';
-        const height = isStaticColor ? 20 : 36;
-
-        return spatialLayerVisible ? (
-          <Legend
-            key={layerScope}
-            positionRelative
-            highContrast
-            showObsLabel
-            visible={spatialLayerVisible}
-            theme={theme}
-            obsType={obsType}
-            featureType={featureType}
-            featureValueType={featureValueType}
-            obsColorEncoding={obsColorEncoding}
-            featureSelection={featureSelection}
-            // featureLabelsMap={featureLabelsMap} // TODO
-            featureValueColormap={featureValueColormap}
-            featureValueColormapRange={featureValueColormapRange}
-            extent={firstExpressionExtent}
-            height={height}
-          />
-        ) : null;
       }) : null}
     </div>
   );

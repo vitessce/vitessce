@@ -77,12 +77,16 @@ import {
         spatialLayerVisible: true,
         spatialLayerOpacity: 0.5,
         spatialSpotRadius: 10.0,
+        spatialLayerColor: [0, 255, 0],
+        obsColorEncoding: 'spatialLayerColor',
       }),
       spotLayer: CL({
         obsType: 'spot',
         spatialLayerVisible: false,
         spatialLayerOpacity: 0.5,
         spatialSpotRadius: 10.0,
+        spatialLayerColor: [255, 0, 0],
+        obsColorEncoding: 'spatialLayerColor',
       }),
       segmentationLayer: CL([
         {
@@ -94,6 +98,7 @@ import {
               obsType: 'spot',
               spatialChannelVisible: false,
               spatialChannelOpacity: 1.0,
+              obsColorEncoding: 'spatialChannelColor',
             }
           ]),
         }
