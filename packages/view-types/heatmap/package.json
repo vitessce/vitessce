@@ -40,7 +40,6 @@
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/workers": "workspace:*",
     "lodash-es": "^4.17.21",
-    "plur": "^5.1.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

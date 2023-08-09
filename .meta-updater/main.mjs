@@ -25,7 +25,7 @@ const OTHER_VERSIONS = {
   "d3-force": "^2.1.1",
   "d3-quadtree": "^1.0.7",
   "d3-scale-chromatic": "^1.3.3",
-  "plur": "^5.1.0",
+  "pluralize": "^8.0.0",
   "@material-ui/core": "~4.12.3",
   "@material-ui/icons": "~4.11.2",
   "math.gl": "^3.5.6",

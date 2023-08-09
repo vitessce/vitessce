@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import plur from 'plur';
-import { capitalize, commaNumber } from '@vitessce/utils';
+import { pluralize as plur, capitalize, commaNumber } from '@vitessce/utils';
 import {
   TitleInfo,
   useReady, useUrls,

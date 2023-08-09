@@ -36,7 +36,6 @@
     "@vitessce/vit-s": "workspace:*",
     "clsx": "^1.1.1",
     "lodash-es": "^4.17.21",
-    "plur": "^5.1.0",
     "react-virtualized": "^9.22.2",
     "uuid": "^9.0.0"
   },
