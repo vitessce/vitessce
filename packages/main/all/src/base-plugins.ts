@@ -54,6 +54,7 @@ import { ObsSetsManagerSubscriber } from '@vitessce/obs-sets-manager';
 import { EmbeddingScatterplotSubscriber } from '@vitessce/scatterplot-embedding';
 import { GatingSubscriber } from '@vitessce/scatterplot-gating';
 import { SpatialSubscriber } from '@vitessce/spatial';
+import { ThreeSubscriber } from '@vitessce/spatial-three';
 import { HeatmapSubscriber } from '@vitessce/heatmap';
 import { FeatureListSubscriber } from '@vitessce/feature-list';
 import { LayerControllerSubscriber } from '@vitessce/layer-controller';
@@ -152,6 +153,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.SCATTERPLOT, EmbeddingScatterplotSubscriber),
   makeViewType(ViewType.GATING, GatingSubscriber),
   makeViewType(ViewType.SPATIAL, SpatialSubscriber),
+  makeViewType(ViewType.SPATIAL_THREE, ThreeSubscriber),
   makeViewType(ViewType.HEATMAP, HeatmapSubscriber),
   makeViewType(ViewType.FEATURE_LIST, FeatureListSubscriber),
   makeViewType(ViewType.LAYER_CONTROLLER, LayerControllerSubscriber),

@@ -543,6 +543,9 @@ importers:
       '@vitessce/spatial':
         specifier: workspace:*
         version: link:../../view-types/spatial
+      '@vitessce/spatial-three':
+        specifier: workspace:*
+        version: link:../../view-types/spatial-three
       '@vitessce/statistical-plots':
         specifier: workspace:*
         version: link:../../view-types/statistical-plots
@@ -1277,6 +1280,34 @@ importers:
         specifier: ^1.0.6
         version: 1.0.7
     devDependencies:
+      react:
+        specifier: ^18.0.0
+        version: 18.2.0
+      vite:
+        specifier: ^4.3.0
+        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+      vitest:
+        specifier: ^0.32.2
+        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+
+  packages/view-types/spatial-three:
+    dependencies:
+      '@material-ui/core':
+        specifier: ~4.12.3
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
+      '@vitessce/constants-internal':
+        specifier: workspace:*
+        version: link:../../constants-internal
+      '@vitessce/vit-s':
+        specifier: workspace:*
+        version: link:../../vit-s
+    devDependencies:
+      '@testing-library/jest-dom':
+        specifier: ^5.16.4
+        version: 5.16.5
+      '@testing-library/react':
+        specifier: ^13.3.0
+        version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18.0.0
         version: 18.2.0
@@ -6324,7 +6355,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       '@emotion/hash': 0.8.0
       '@material-ui/types': 5.1.0(@types/react@17.0.50)
       '@material-ui/utils': 4.11.3(react-dom@18.2.0)(react@18.2.0)
@@ -6357,7 +6388,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       '@emotion/hash': 0.8.0
       '@material-ui/types': 5.1.0(@types/react@18.2.7)
       '@material-ui/utils': 4.11.3(react-dom@18.2.0)(react@18.2.0)
@@ -6390,7 +6421,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       '@emotion/hash': 0.8.0
       '@material-ui/types': 5.1.0(@types/react@17.0.50)
       '@material-ui/utils': 4.11.3(react-dom@18.2.0)(react@18.2.0)
@@ -6421,7 +6452,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       '@material-ui/utils': 4.11.3(react-dom@18.2.0)(react@18.2.0)
       '@types/react': 17.0.50
       csstype: 2.6.21
@@ -6441,7 +6472,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       '@material-ui/utils': 4.11.3(react-dom@18.2.0)(react@18.2.0)
       '@types/react': 18.2.7
       csstype: 2.6.21
@@ -17143,7 +17174,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.1.4
+      define-properties: 1.2.0
       es-abstract: 1.20.4
 
   /obuf@1.1.2:
@@ -19514,7 +19545,7 @@ packages:
       react: '>=16.6.0 || 18'
       react-dom: '>=16.6.0 || 18'
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1

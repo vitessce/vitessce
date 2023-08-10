@@ -52,6 +52,7 @@
     "@vitessce/status": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/zarr": "workspace:*",
+    "@vitessce/spatial-three": "workspace:*",
     "zod": "^3.21.4"
   },
   "devDependencies": {
