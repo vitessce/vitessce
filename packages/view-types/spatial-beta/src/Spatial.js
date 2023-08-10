@@ -344,6 +344,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   createPointLayer(layerScope, layerCoordination, layerObsPoints) {
     const {
       theme,
+      delegateHover,
     } = this.props;
 
     const {

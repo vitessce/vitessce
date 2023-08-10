@@ -81,7 +81,7 @@ uniform float opacity;
 
 varying vec2 vTexCoord;
 
-vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelColor, float channelOpacity, bool isFilled, bool isStaticColorMode, float strokeWidth, float featureOffset, float rangeStart, float rangeEnd) {
+vec3 sampleAndGetData(sampler2D dataTex, vec2 coord, bool isFilled, float strokeWidth, bool isOn) {
   float sampledData = texture(dataTex, coord).r;
   float clampedSampledData = max(0., min(sampledData, 1.));
 
@@ -106,6 +106,15 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelCol
 
     isEdge = (pixN != sampledData || pixS != sampledData || pixW != sampledData || pixE != sampledData || pixNW != sampledData || pixNE != sampledData || pixSW != sampledData || pixSE != sampledData);
   }
+  // Return a tuple of (sampledData, isEdge)
+  return vec3(clampedSampledData * float(isOn), sampledData, float(isEdge));
+}
+
+vec4 dataToColor(vec3 sampledDataAndIsEdge, bool isStaticColorMode, vec3 channelColor, float channelOpacity, float featureOffset, float rangeStart, float rangeEnd) {
+  float clampedSampledDataAndIsOn = sampledDataAndIsEdge.x;
+  float sampledData = sampledDataAndIsEdge.y;
+  float isEdge = sampledDataAndIsEdge.z;
+  
 
   vec4 hoveredColor = float(sampledData == hovered && sampledData > 0. && hovered > 0.) * vec4(0., 0., 1., 1.);
   
@@ -119,37 +128,34 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelCol
   vec4 sampledColor = (1. - float(isStaticColorMode)) * vec4(COLORMAP_FUNC(clamp(scaledExpressionValue, 0.0, 1.0)).rgb, channelOpacity) + float(isStaticColorMode) * vec4(channelColor.rgb, channelOpacity);
   // Only return a color if the data is non-zero.
   
-  vec4 result = clampedSampledData * float(isEdge) * float(isOn) * sampledColor;
-  if(!isEdge && isOn && clampedSampledData != 0.) {
-    // Flag to indicate there was data, but we are in non-filled mode, in order to determine whether or not to discard for picking/tooltips.
-    result.a = 0.001;
-  }
-  return result;
+  return clampedSampledDataAndIsOn * isEdge * sampledColor;
 }
 
 void main() {
 
   // Get the color and alpha value for each channel.
-  vec4 val0 = sampleAndGetColor(channel0, vTexCoord, channelsVisible[0], color0, channelOpacities[0], channelsFilled[0], channelIsStaticColorMode[0], channelStrokeWidths[0], offsets[0], channelColormapRangeStarts[0], channelColormapRangeEnds[0]);
-  vec4 val1 = sampleAndGetColor(channel1, vTexCoord, channelsVisible[1], color1, channelOpacities[1], channelsFilled[1], channelIsStaticColorMode[1],  channelStrokeWidths[1], offsets[1], channelColormapRangeStarts[1], channelColormapRangeEnds[1]);
-  vec4 val2 = sampleAndGetColor(channel2, vTexCoord, channelsVisible[2], color2, channelOpacities[2], channelsFilled[2], channelIsStaticColorMode[2],  channelStrokeWidths[2], offsets[2], channelColormapRangeStarts[2], channelColormapRangeEnds[2]);
-  vec4 val3 = sampleAndGetColor(channel3, vTexCoord, channelsVisible[3], color3, channelOpacities[3], channelsFilled[3], channelIsStaticColorMode[3],  channelStrokeWidths[3], offsets[3], channelColormapRangeStarts[3], channelColormapRangeEnds[3]);
-  vec4 val4 = sampleAndGetColor(channel4, vTexCoord, channelsVisible[4], color4, channelOpacities[4], channelsFilled[4], channelIsStaticColorMode[4],  channelStrokeWidths[4], offsets[4], channelColormapRangeStarts[4], channelColormapRangeEnds[4]);
-  vec4 val5 = sampleAndGetColor(channel5, vTexCoord, channelsVisible[5], color5, channelOpacities[5], channelsFilled[5], channelIsStaticColorMode[5],  channelStrokeWidths[5], offsets[5], channelColormapRangeStarts[5], channelColormapRangeEnds[5]);
-  vec4 val6 = sampleAndGetColor(channel6, vTexCoord, channelsVisible[6], color6, channelOpacities[6], channelsFilled[6], channelIsStaticColorMode[6],  channelStrokeWidths[6], offsets[6], channelColormapRangeStarts[6], channelColormapRangeEnds[6]);
-
-  vec4 emptyPixel = vec4(0.);
-  vec4 nonEmptyInnerPixel = vec4(0., 0., 0., 0.001);
-  if(val0 == emptyPixel && val0 != nonEmptyInnerPixel && val1 == emptyPixel && val1 != nonEmptyInnerPixel) {
+  vec3 dat0 = sampleAndGetData(channel0, vTexCoord, channelsFilled[0], channelStrokeWidths[0], channelsVisible[0]);
+  vec3 dat1 = sampleAndGetData(channel1, vTexCoord, channelsFilled[1], channelStrokeWidths[1], channelsVisible[1]);
+  vec3 dat2 = sampleAndGetData(channel2, vTexCoord, channelsFilled[2], channelStrokeWidths[2], channelsVisible[2]);
+  vec3 dat3 = sampleAndGetData(channel3, vTexCoord, channelsFilled[3], channelStrokeWidths[3], channelsVisible[3]);
+  vec3 dat4 = sampleAndGetData(channel4, vTexCoord, channelsFilled[4], channelStrokeWidths[4], channelsVisible[4]);
+  vec3 dat5 = sampleAndGetData(channel5, vTexCoord, channelsFilled[5], channelStrokeWidths[5], channelsVisible[5]);
+  vec3 dat6 = sampleAndGetData(channel6, vTexCoord, channelsFilled[6], channelStrokeWidths[6], channelsVisible[6]);
+  
+  vec4 val0 = dataToColor(dat0, channelIsStaticColorMode[0], color0, channelOpacities[0], offsets[0], channelColormapRangeStarts[0], channelColormapRangeEnds[0]);
+  vec4 val1 = dataToColor(dat1, channelIsStaticColorMode[1], color1, channelOpacities[1], offsets[1], channelColormapRangeStarts[1], channelColormapRangeEnds[1]);
+  vec4 val2 = dataToColor(dat2, channelIsStaticColorMode[2], color2, channelOpacities[2], offsets[2], channelColormapRangeStarts[2], channelColormapRangeEnds[2]);
+  vec4 val3 = dataToColor(dat3, channelIsStaticColorMode[3], color3, channelOpacities[3], offsets[3], channelColormapRangeStarts[3], channelColormapRangeEnds[3]);
+  vec4 val4 = dataToColor(dat4, channelIsStaticColorMode[4], color4, channelOpacities[4], offsets[4], channelColormapRangeStarts[4], channelColormapRangeEnds[4]);
+  vec4 val5 = dataToColor(dat5, channelIsStaticColorMode[5], color5, channelOpacities[5], offsets[5], channelColormapRangeStarts[5], channelColormapRangeEnds[5]);
+  vec4 val6 = dataToColor(dat6, channelIsStaticColorMode[6], color6, channelOpacities[6], offsets[6], channelColormapRangeStarts[6], channelColormapRangeEnds[6]);
+  
+  // If all of the channels are "empty", then discard this pixel so that it is not considered during picking.
+  float emptyDat = 0.;
+  if(dat0.x == emptyDat && dat1.x == emptyDat && dat2.x == emptyDat && dat3.x == emptyDat && dat4.x == emptyDat && dat5.x == emptyDat && dat6.x == emptyDat) {
     discard;
-  } else {
-    if(val0 == nonEmptyInnerPixel) {
-      val0.a = 0.;
-    }
-    if(val1 == nonEmptyInnerPixel) {
-      val1.a = 0.;
-    }
   }
+  
   // If the next channel color and the currently stored color (gl_FragColor) are identical,
   // or the next channel color is transparent black,
   // just use the currently stored color. Repeat this for all channels.

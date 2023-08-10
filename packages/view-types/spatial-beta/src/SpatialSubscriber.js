@@ -872,7 +872,7 @@ export function SpatialSubscriber(props) {
             const coords = dataCoords[1] * width + dataCoords[0];
             const hoverData = data.map(d => d[coords]);
             const cellId = hoverData.find(i => i > 0);
-            console.log(layerType, hoverData, coordinate);
+            //console.log(layerType, hoverData, coordinate);
             return true;
           }
         }
