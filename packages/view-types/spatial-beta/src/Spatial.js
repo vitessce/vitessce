@@ -18,6 +18,8 @@ const VOLUME_LAYER_PREFIX = 'volume-layer-';
 
 const CELLS_LAYER_ID = 'cells-layer';
 
+const AUTO_HIGHLIGHT = false;
+
 const VIV_RENDERING_MODES = {
   maximumIntensityProjection: 'Maximum Intensity Projection',
   minimumIntensityProjection: 'Minimum Intensity Projection',
@@ -180,7 +182,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     layerScope, layerCoordination, channelScopes, channelCoordinations,
     layerObsSegmentations, layerFeatureValues,
   ) {
-    const { theme } = this.props;
+    const { theme, delegateHover } = this.props;
     const layerVisible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
     const layerOpacity = layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY];
 
@@ -230,7 +232,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       data: layerData,
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
-      autoHighlight: true,
+      autoHighlight: AUTO_HIGHLIGHT,
       filled: spatialSegmentationFilled,
       stroked: !spatialSegmentationFilled,
       backgroundColor: [0, 0, 0],
@@ -243,7 +245,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           onCellClick(info);
         }*/
       },
-      // onHover: getOnHoverCallback(obsIndex, setCellHighlight, setComponentHover),
+      onHover: (info) => delegateHover(info, 'segmentation-polygon', layerScope),
       visible,
       opacity,
       getLineWidth: !spatialSegmentationFilled ? spatialSegmentationStrokeWidth : 0,
@@ -273,7 +275,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   createSpotLayer(layerScope, layerCoordination, layerObsSpots, layerFeatureData) {
     const {
       theme,
-      setSpotHighlight, // TODO
+      delegateHover,
     } = this.props;
 
     const cellColors = this.spotColors[layerScope];
@@ -303,7 +305,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       data: this.obsSpotsData[layerScope],
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
-      autoHighlight: true,
+      autoHighlight: AUTO_HIGHLIGHT,
       opacity: spatialLayerOpacity,
       filled: spatialSpotFilled,
       stroked: !spatialSpotFilled,
@@ -321,15 +323,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       },
       getLineColor: isStaticColor ? staticColor : getSpotColor,
       getFillColor: isStaticColor ? staticColor : getSpotColor,
-      onHover: (info) => {
-        if (setSpotHighlight) {
-          if (info.object) {
-            setSpotHighlight(info.object[3]);
-          } else {
-            setSpotHighlight(null);
-          }
-        }
-      },
+      onHover: (info) => delegateHover(info, 'spot', layerScope),
       // Expression color mapping extension props
       extensions: [new ScaledExpressionExtension()],
       getExpressionValue,
@@ -375,7 +369,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       data: this.obsPointsData[layerScope],
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
-      autoHighlight: true,
+      autoHighlight: AUTO_HIGHLIGHT,
       radiusMaxPixels: 3,
       opacity: spatialLayerOpacity,
       visible: spatialLayerVisible,
@@ -391,17 +385,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       },
       getLineColor: isStaticColor ? staticColor : getMoleculeColor,
       getFillColor: isStaticColor ? staticColor : getMoleculeColor,
-      onHover: (info) => {
-        /*
-        if (setMoleculeHighlight) {
-          if (info.object) {
-            setMoleculeHighlight(info.object[3]);
-          } else {
-            setMoleculeHighlight(null);
-          }
-        }
-        */
-      },
+      onHover: (info) => delegateHover(info, 'point', layerScope),
       updateTriggers: {
         getRadius: [],
         getFillColor: [obsColorEncoding, staticColor],
@@ -491,6 +475,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     image, layerFeatureValues,
   ) {
     const {
+      delegateHover,
       targetT,
       targetZ,
     } = this.props;
@@ -575,6 +560,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       expressionData: this.expression.data,
       // There is no onHover here,
       // see the onHover method of AbstractSpatialOrScatterplot.
+      pickable: true,
+      onHover: (info) => delegateHover(info, 'segmentation-bitmask', layerScope),
     });
   }
 
@@ -583,6 +570,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     layerScope, layerCoordination, channelScopes, channelCoordination, image,
   ) {
     const {
+      delegateHover,
       targetT,
       targetZ,
       spatialRenderingMode,
@@ -690,13 +678,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
       useTransparentColor,
       resolution: targetResolution === null ? autoTargetResolution : targetResolution,
       renderingMode: VIV_RENDERING_MODES[renderingMode],
-      pickable: false,
       xSlice: layerCoordination[CoordinationType.SPATIAL_SLICE_X],
       ySlice: layerCoordination[CoordinationType.SPATIAL_SLICE_Y],
       zSlice: layerCoordination[CoordinationType.SPATIAL_SLICE_Z],
       onViewportLoad: () => {}, // layerProps.callback, // TODO: figure out callback implementation
       excludeBackground: useTransparentColor,
       extensions,
+      // Picking / onHover does not seem to work when there is a bitmask segmentation layer "above"
+      //the image layer. This is likely due to the fact that the bitmask layer is overlapping despite
+      //having transparent / zero-valued pixels. Instead, we can get the hover info from 
+      pickable: true,
+      onHover: (info) => delegateHover(info, 'image', layerScope),
+      /*
+      pickable: true,
+      onHover: (info) => delegateHover(info, 'image', layerScope),
+      */
       ...rgbInterleavedProps,
     });
   }

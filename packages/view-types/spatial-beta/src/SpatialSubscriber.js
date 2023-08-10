@@ -239,6 +239,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.OBS_SET_COLOR,
       CoordinationType.OBS_SET_SELECTION,
       CoordinationType.ADDITIONAL_OBS_SETS,
+      CoordinationType.OBS_HIGHLIGHT,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -298,6 +299,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.OBS_SET_SELECTION,
       CoordinationType.ADDITIONAL_OBS_SETS,
       CoordinationType.SPATIAL_LAYER_COLOR,
+      CoordinationType.OBS_HIGHLIGHT,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -315,6 +317,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
       CoordinationType.SPATIAL_LAYER_COLOR,
+      CoordinationType.OBS_HIGHLIGHT,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -824,6 +827,83 @@ export function SpatialSubscriber(props) {
       && rotationX !== null && rotationOrbit !== null && orbitAxis !== null
     )
     : zoom !== null && targetX !== null && targetY !== null;
+      
+  /**
+   * @param {object} hoverInfo The hoverInfo object passed to the DeckGL layer's onHover callback.
+   * @param {'spot'|'point'|'segmentation-polygon'|'segmentation-bitmask'|'image'} layerType
+   * @param {string} layerScope
+   */
+  const delegateHover = useCallback((hoverInfo, layerType, layerScope) => {
+    //console.log(hoverInfo, layerType, layerScope, hoverInfo.color);
+
+    if(layerType === 'segmentation-bitmask' || layerType === 'image') {
+      const {
+        coordinate, sourceLayer: layer, tile,
+      } = hoverInfo;
+      if(coordinate && layer) {
+        if (layer.id.startsWith('Tiled') && tile) {
+          // Adapted from https://github.com/hms-dbmi/viv/blob/2b28cc1db6ad1dacb44e6b1cd145ae90c46a2ef3/packages/viewers/src/VivViewer.jsx#L209
+          const {
+            content,
+            bbox,
+            index: { z },
+          } = tile;
+          if(content) {
+            const { data, width, height } = content;
+            const {
+              left, right, top, bottom,
+            } = bbox;
+            const bounds = [
+              left,
+              data.height < layer.tileSize ? height : bottom,
+              data.width < layer.tileSize ? width : right,
+              top,
+            ];
+            // Tiled layer needs a custom layerZoomScale.
+            // The zoomed out layer needs to use the fixed zoom at which it is rendered.
+            const layerZoomScale = Math.max(
+              1,
+              2 ** Math.round(-z),
+            );
+            const dataCoords = [
+              Math.floor((coordinate[0] - bounds[0]) / layerZoomScale),
+              Math.floor((coordinate[1] - bounds[3]) / layerZoomScale),
+            ];
+            const coords = dataCoords[1] * width + dataCoords[0];
+            const hoverData = data.map(d => d[coords]);
+            const cellId = hoverData.find(i => i > 0);
+            console.log(layerType, hoverData, coordinate);
+            return true;
+          }
+        }
+        if(layer.id.startsWith('Background')) {
+          // Adapted from https://github.com/hms-dbmi/viv/blob/2b28cc1db6ad1dacb44e6b1cd145ae90c46a2ef3/packages/viewers/src/VivViewer.jsx#L245
+          const { data, width, height } = layer.state;
+            if(data && width && height) {
+            const bounds = [0, height, width, 0];
+            // Using floor means that as we zoom out, we are scaling by the zoom just passed, not the one coming.
+            const { zoom } = layer.context.viewport;
+            const layerZoomScale = Math.max(1, 2 ** Math.floor(-zoom));
+            // TODO: fix these coordinates.
+            const dataCoords = [
+              Math.floor((coordinate[0] - bounds[0]) / layerZoomScale),
+              Math.floor((coordinate[1] - bounds[3]) / layerZoomScale)
+            ];
+            const coords = dataCoords[1] * width + dataCoords[0];
+            const hoverData = data.map(d => d[coords]);
+            //console.log(layerType, hoverData, coordinate, data, dataCoords, coords, bounds, zoom);
+            return true;
+          }
+        }
+      }
+    }
+
+    // "If this callback returns a truthy value,
+    // the hover event is marked as handled and
+    // will not bubble up to the onHover callback of the DeckGL canvas."
+    // Reference: https://deck.gl/docs/api-reference/core/layer#interaction-properties
+    return false;
+  });
 
   return (
     <TitleInfo
@@ -861,6 +941,8 @@ export function SpatialSubscriber(props) {
           setComponentHover(uuid);
         }}
         updateViewInfo={setComponentViewInfo}
+
+        delegateHover={delegateHover}
         
         // Spots
         obsSpots={obsSpotsData}

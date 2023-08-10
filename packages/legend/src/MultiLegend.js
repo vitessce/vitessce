@@ -64,8 +64,8 @@ export default function MultiLegend(props) {
             spatialLayerColor={spatialLayerColor}
             featureSelection={null}
             // featureLabelsMap={featureLabelsMap} // TODO
-            featureValueColormap={null}
-            featureValueColormapRange={null}
+            featureValueColormap={'viridis'}
+            featureValueColormapRange={[0, 1]}
             extent={null}
             height={height}
           />

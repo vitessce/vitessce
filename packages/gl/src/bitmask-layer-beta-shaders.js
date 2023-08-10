@@ -83,6 +83,7 @@ varying vec2 vTexCoord;
 
 vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelColor, float channelOpacity, bool isFilled, bool isStaticColorMode, float strokeWidth, float featureOffset, float rangeStart, float rangeEnd) {
   float sampledData = texture(dataTex, coord).r;
+  float clampedSampledData = max(0., min(sampledData, 1.));
 
   bool isEdge = true;
 
@@ -117,7 +118,13 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn, vec3 channelCol
   float scaledExpressionValue = (expressionValue - rangeStart) / max(0.005, (rangeEnd - rangeStart));
   vec4 sampledColor = (1. - float(isStaticColorMode)) * vec4(COLORMAP_FUNC(clamp(scaledExpressionValue, 0.0, 1.0)).rgb, channelOpacity) + float(isStaticColorMode) * vec4(channelColor.rgb, channelOpacity);
   // Only return a color if the data is non-zero.
-  return max(0., min(sampledData, 1.)) * float(isEdge) * float(isOn) * sampledColor;
+  
+  vec4 result = clampedSampledData * float(isEdge) * float(isOn) * sampledColor;
+  if(!isEdge && isOn && clampedSampledData != 0.) {
+    // Flag to indicate there was data, but we are in non-filled mode, in order to determine whether or not to discard for picking/tooltips.
+    result.a = 0.001;
+  }
+  return result;
 }
 
 void main() {
@@ -131,6 +138,18 @@ void main() {
   vec4 val5 = sampleAndGetColor(channel5, vTexCoord, channelsVisible[5], color5, channelOpacities[5], channelsFilled[5], channelIsStaticColorMode[5],  channelStrokeWidths[5], offsets[5], channelColormapRangeStarts[5], channelColormapRangeEnds[5]);
   vec4 val6 = sampleAndGetColor(channel6, vTexCoord, channelsVisible[6], color6, channelOpacities[6], channelsFilled[6], channelIsStaticColorMode[6],  channelStrokeWidths[6], offsets[6], channelColormapRangeStarts[6], channelColormapRangeEnds[6]);
 
+  vec4 emptyPixel = vec4(0.);
+  vec4 nonEmptyInnerPixel = vec4(0., 0., 0., 0.001);
+  if(val0 == emptyPixel && val0 != nonEmptyInnerPixel && val1 == emptyPixel && val1 != nonEmptyInnerPixel) {
+    discard;
+  } else {
+    if(val0 == nonEmptyInnerPixel) {
+      val0.a = 0.;
+    }
+    if(val1 == nonEmptyInnerPixel) {
+      val1.a = 0.;
+    }
+  }
   // If the next channel color and the currently stored color (gl_FragColor) are identical,
   // or the next channel color is transparent black,
   // just use the currently stored color. Repeat this for all channels.
@@ -144,6 +163,8 @@ void main() {
   gl_FragColor = (val4 == gl_FragColor || val4 == vec4(0.)) ? gl_FragColor : vec4(mix(gl_FragColor, val4, val4.a).rgb, max(gl_FragColor.a, val4.a));
   gl_FragColor = (val5 == gl_FragColor || val5 == vec4(0.)) ? gl_FragColor : vec4(mix(gl_FragColor, val5, val5.a).rgb, max(gl_FragColor.a, val5.a));
   gl_FragColor = (val6 == gl_FragColor || val6 == vec4(0.)) ? gl_FragColor : vec4(mix(gl_FragColor, val6, val6.a).rgb, max(gl_FragColor.a, val6.a));
+
+  
 
   // TODO: multiply the resulting channel-level opacity value by the layer-level opacity value.
 
