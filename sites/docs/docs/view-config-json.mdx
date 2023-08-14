@@ -23,19 +23,6 @@ The full view config JSON schema can be found [here](https://github.com/vitessce
 
 A name for the view config. Although this field is required, you are welcome to use the empty string.
 
-#### `uid`
-- Type: `string`
-
-A unique ID for the config. Optional.
-
-
-Intended to be used in situations where `<Vitessce/>` is used as a [controlled component](https://legacy.reactjs.org/docs/forms.html#controlled-components)
-(i.e., a parent component is the source of truth for the `config` prop and likely also uses the `onConfigChange` prop).
-For example, if a change in `config.uid` is detected, the configuration will be re-validated (which might not occur on other changes to `config` for performance reasons). 
-
-
-Note that this `config.uid` property has a different function from the `uid` prop on the `<Vitessce/>` component.
-
 ### `version`
 
 - Type: `string`
@@ -203,6 +190,20 @@ When the coordination space is entirely or partially omitted from the view confi
 - Type: `string`
 
 An optional description for the view config.
+
+
+### `uid`
+- Type: `string`
+
+A unique ID for the config. Optional.
+
+
+Intended to be used in situations where `<Vitessce/>` is used as a [controlled component](https://legacy.reactjs.org/docs/forms.html#controlled-components)
+(i.e., a parent component is the source of truth for the `config` prop and likely also uses the `onConfigChange` prop).
+For example, if a change in `config.uid` is detected, the configuration will be re-validated (which might not occur on other changes to `config` for performance reasons). 
+
+
+Note that this `config.uid` property has a different function from the `uid` prop on the `<Vitessce/>` component.
 
 
 :::tip

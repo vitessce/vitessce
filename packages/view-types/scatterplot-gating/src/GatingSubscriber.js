@@ -1,10 +1,10 @@
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
-import plur from 'plur';
 import { extent } from 'd3-array';
 import { isEqual } from 'lodash-es';
 import {
+  pluralize as plur,
   capitalize, commaNumber,
   getCellColors,
   getValueTransformFunction, VALUE_TRANSFORM_OPTIONS,

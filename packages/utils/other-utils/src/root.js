@@ -1,5 +1,9 @@
 /* eslint-disable no-plusplus */
 // Originally in src/utils.js
+import plur from 'pluralize';
+
+plur.addPluralRule('glomerulus', 'glomeruli');
+plur.addPluralRule('interstitium', 'interstitia');
 
 // Adapted from https://github.com/feross/fromentries/blob/29b52a850bb3a47c390937631c2638edf3443942/index.js
 export function fromEntries(iterable) {
@@ -19,6 +23,15 @@ export function commaNumber(n) {
  */
 export function capitalize(word) {
   return word ? word.charAt(0).toUpperCase() + word.slice(1) : '';
+}
+
+/**
+ * Capitalize a the first letter of a string.
+ * @param {string} word A string to capitalize.
+ * @returns {string} The word parameter with the first letter capitalized.
+ */
+export function pluralize(word, count = null) {
+  return plur(word, count);
 }
 
 /**

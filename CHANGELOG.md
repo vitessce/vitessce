@@ -1,4 +1,47 @@
 
+## 3.1.1
+
+### Patch Changes
+
+- Updated changeset version script to write the version.json file containing the new package version. (`@vitessce/constants-internal`) ([#1625](https://github.com/vitessce/vitessce/pull/1625))
+
+- Fix formatting of config.uid view-config-json docs. (`docs`) ([#1626](https://github.com/vitessce/vitessce/pull/1626))
+
+- Remove extra version.json update now that it is done via changeset-version script. (`vitessce`) ([#1630](https://github.com/vitessce/vitessce/pull/1630))
+
+- Stringify passed config object to use as key when uid is missing (`@vitessce/vit-s`) ([#1629](https://github.com/vitessce/vitessce/pull/1629))
+
+
+## 3.1.0
+
+### Minor Changes
+
+- Regenerate View Config store on configKey change (`@vitessce/vit-s`) ([#1617](https://github.com/vitessce/vitessce/pull/1617))
+
+### Patch Changes
+
+- When there is not per-observation centroids, fall back to using the mouse position for tooltips in the spatial view. (`@vitessce/spatial`) ([#1458](https://github.com/vitessce/vitessce/pull/1458))
+
+- Fix duplicate URLs appearing in download dropdown by filtering based on names. (`@vitessce/vit-s`) ([#1458](https://github.com/vitessce/vitessce/pull/1458))
+
+- Added functions to the `VitessceConfig` object-oriented configuration APIs to support multi-level and meta (i.e., complex) coordination. (`@vitessce/config`) ([#1561](https://github.com/vitessce/vitessce/pull/1561))
+
+- Implement hints for zero config mode. (`@vitessce/config`, `docs`) ([#1597](https://github.com/vitessce/vitessce/pull/1597))
+
+  - Added a list of hints that user will select from, when using the zero config mode feature.
+  - Modified the user interface, defined in `_ViewConfigEditor.js`:
+    - Defined a list of hints, which depend on the types of the files the user pastes URLs for.
+    - Removed the `Generate Config` button. Now each hint is a button that generates the view config when pressed.
+  - Created a new file `constants.js` in `packages/config` that defines the range of supported hints, along with the name and coordinates of the desired layers.
+  - Modified `VitessceAutoConfig.js`:
+    - Added a function to return the type of files the user pasted the URLs for. The function is used in `_ViewConfigEditor.js` to determine what set of hints to display.
+    - Adapted the existing code to take selected hint into an account, when creating the view config.
+
+- Update styling of UI for auto-config layout hints in App page of docs. (`docs`) ([#1597](https://github.com/vitessce/vitessce/pull/1597))
+
+- Make example packages private to prevent changesets from publishing to NPM (`@vitessce/example-configs`, `@vitessce/example-plugins`) ([#1496](https://github.com/vitessce/vitessce/pull/1496))
+
+
 
 
 ## [3.0.1](https://www.npmjs.com/package/vitessce/v/3.0.1) - 2023-06-30
