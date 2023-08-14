@@ -86,7 +86,7 @@ export default function HeatmapOptions(props) {
             classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
-            getAriaLabel={(index) => (index === 0 ? 'Low value slider' : 'High value slider')}
+            getAriaLabel={index => (index === 0 ? 'Low value slider' : 'High value slider')}
             valueLabelDisplay="auto"
             step={0.005}
             min={0.0}
