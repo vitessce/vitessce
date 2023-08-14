@@ -112,7 +112,7 @@ export default function GatingScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <TextField
-            label="Trasnform Coefficient"
+            label="Transform Coefficient"
             type="number"
             onChange={handleTransformCoefficientChange}
             value={gatingFeatureValueTransformCoefficient}

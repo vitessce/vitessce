@@ -111,7 +111,7 @@ export default function SpatialOptions(props) {
                */
             checked={tooltipsVisible}
             onChange={handleTooltipsVisibilityChange}
-            name="gene-expression-colormap-option-toltip-visibility"
+            name="gene-expression-colormap-option-tooltip-visibility"
             color="default"
             inputProps={{ 'aria-label': 'Enable or disable tooltips.' }}
           />
