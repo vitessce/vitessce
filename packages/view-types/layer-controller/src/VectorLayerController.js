@@ -57,7 +57,10 @@ export default function VectorLayerController(props) {
               onChange={(e, v) => handleSliderChange(v)}
               style={{ marginTop: '7px' }}
               orientation="horizontal"
-              getAriaLabel={() => `${label} layer controller slider`}
+              getAriaLabel={(index) => {
+                const labelPrefix = index === 0 ? 'Low value slider' : 'High value slider';
+                return `${labelPrefix} for ${label} layer controller.`;
+              }}
             />
           </Grid>
         </Grid>
