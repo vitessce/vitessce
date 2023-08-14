@@ -83,20 +83,20 @@ export default function SpatialOptions(props) {
 
   return (
     <OptionsContainer>
-      {canShowColorEncodingOption && (
+      {canShowColorEncodingOption ? (
         <CellColorEncodingOption
           observationsLabel={observationsLabel}
           cellColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
         />
-      )}
-      {canShow3DOptions && (
+      ) : null}
+      {canShow3DOptions ? (
         <ToggleFixedAxisButton
           setSpatialAxisFixed={setSpatialAxisFixed}
           spatialAxisFixed={spatialAxisFixed}
           use3d={use3d}
         />
-      )}
+      ) : null}
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Tooltips Visible
@@ -117,7 +117,7 @@ export default function SpatialOptions(props) {
           />
         </TableCell>
       </TableRow>
-      {canShowExpressionOptions && (
+      {canShowExpressionOptions ? (
         <>
           <TableRow>
             <TableCell className={classes.labelCell} variant="head" scope="row">
@@ -157,7 +157,7 @@ export default function SpatialOptions(props) {
             </TableCell>
           </TableRow>
         </>
-      )}
+      ) : null}
     </OptionsContainer>
   );
 }
