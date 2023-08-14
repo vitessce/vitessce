@@ -142,7 +142,7 @@ export default function ScatterplotOptions(props) {
             disabled={!cellSetLabelsVisible}
             value={cellSetLabelSize}
             onChange={handleLabelSizeChange}
-            aria-labelledby="scatterplot-set-label-size"
+            getAriaLabel={() => 'Scatterplot label size slider'}
             valueLabelDisplay="auto"
             step={1}
             min={8}
@@ -197,7 +197,7 @@ export default function ScatterplotOptions(props) {
             disabled={cellRadiusMode !== 'manual'}
             value={cellRadius}
             onChange={handleRadiusChange}
-            aria-labelledby="scatterplot-set-radius-size"
+            getAriaLabel={() => 'Scatterplot radius size slider'}
             valueLabelDisplay="auto"
             step={0.01}
             min={0.01}
@@ -234,7 +234,7 @@ export default function ScatterplotOptions(props) {
             disabled={cellOpacityMode !== 'manual'}
             value={cellOpacity}
             onChange={handleOpacityChange}
-            aria-labelledby="scatterplot-set-opacity-level"
+            getAriaLabel={() => 'Scatterplot opacity level slider'}
             valueLabelDisplay="auto"
             step={0.05}
             min={0.0}
@@ -271,7 +271,7 @@ export default function ScatterplotOptions(props) {
             classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
-            aria-labelledby="scatterplot-gene-expression-colormap-range"
+            getAriaLabel={() => 'Scatterplot gene expression colormap range slider'}
             valueLabelDisplay="auto"
             step={0.005}
             min={0.0}

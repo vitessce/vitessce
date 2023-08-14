@@ -149,7 +149,7 @@ export default function SpatialOptions(props) {
                 classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
                 value={geneExpressionColormapRange}
                 onChange={handleColormapRangeChangeDebounced}
-                aria-labelledby="gene-expression-colormap-range-slider"
+                getAriaLabel={() => 'Spatial gene expression colormap range slider'}
                 valueLabelDisplay="auto"
                 step={0.005}
                 min={0.0}
