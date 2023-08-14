@@ -187,25 +187,24 @@ export default function ScatterplotOptions(props) {
           </OptionSelect>
         </TableCell>
       </TableRow>
-      { cellRadiusMode === 'manual' && (
-        <TableRow>
-          <TableCell className={classes.labelCell} variant="head" scope="row">
-            {observationsLabelNice} Radius Size
-          </TableCell>
-          <TableCell className={classes.inputCell} variant="body">
-            <Slider
-              classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
-              value={cellRadius}
-              onChange={handleRadiusChange}
-              aria-labelledby="scatterplot-set-radius-size"
-              valueLabelDisplay="auto"
-              step={0.01}
-              min={0.01}
-              max={10}
-            />
-          </TableCell>
-        </TableRow>
-      )}
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          {observationsLabelNice} Radius Size
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <Slider
+            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            disabled={cellRadiusMode !== 'manual'}
+            value={cellRadius}
+            onChange={handleRadiusChange}
+            aria-labelledby="scatterplot-set-radius-size"
+            valueLabelDisplay="auto"
+            step={0.01}
+            min={0.01}
+            max={10}
+          />
+        </TableCell>
+      </TableRow>
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           {observationsLabelNice} Opacity Mode
@@ -225,25 +224,24 @@ export default function ScatterplotOptions(props) {
           </OptionSelect>
         </TableCell>
       </TableRow>
-      { cellOpacityMode === 'manual' && (
-        <TableRow>
-          <TableCell className={classes.labelCell} variant="head" scope="row">
-            {observationsLabelNice} Opacity Level
-          </TableCell>
-          <TableCell className={classes.inputCell} variant="body">
-            <Slider
-              classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
-              value={cellOpacity}
-              onChange={handleOpacityChange}
-              aria-labelledby="scatterplot-set-opacity-level"
-              valueLabelDisplay="auto"
-              step={0.05}
-              min={0.0}
-              max={1.0}
-            />
-          </TableCell>
-        </TableRow>
-      )}
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          {observationsLabelNice} Opacity Level
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <Slider
+            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            disabled={cellOpacityMode !== 'manual'}
+            value={cellOpacity}
+            onChange={handleOpacityChange}
+            aria-labelledby="scatterplot-set-opacity-level"
+            valueLabelDisplay="auto"
+            step={0.05}
+            min={0.0}
+            max={1.0}
+          />
+        </TableCell>
+      </TableRow>
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Gene Expression Colormap
