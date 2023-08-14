@@ -197,6 +197,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_SPOT_FILLED,
     CoordinationType.SPATIAL_SPOT_STROKE_WIDTH,
     CoordinationType.SPATIAL_LAYER_COLOR,
+    CoordinationType.PIXEL_HIGHLIGHT,
   ],
   [ViewType.HEATMAP]: [
     CoordinationType.DATASET,

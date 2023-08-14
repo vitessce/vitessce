@@ -87,6 +87,62 @@ const tempLayer = [{
   ],
 }];
 
+function getHoverData(hoverInfo, layerType) {
+  const { coordinate, sourceLayer: layer, tile } = hoverInfo;
+  if(layerType === 'segmentation-bitmask' || layerType === 'image') {
+    if(coordinate && layer) {
+      if (layer.id.startsWith('Tiled') && tile) {
+        // Adapted from https://github.com/hms-dbmi/viv/blob/2b28cc1db6ad1dacb44e6b1cd145ae90c46a2ef3/packages/viewers/src/VivViewer.jsx#L209
+        const {
+          content,
+          bbox,
+          index: { z },
+        } = tile;
+        if(content) {
+          const { data, width, height } = content;
+          const {
+            left, right, top, bottom,
+          } = bbox;
+          const bounds = [
+            left,
+            data.height < layer.tileSize ? height : bottom,
+            data.width < layer.tileSize ? width : right,
+            top,
+          ];
+          // Tiled layer needs a custom layerZoomScale.
+          // The zoomed out layer needs to use the fixed zoom at which it is rendered.
+          const layerZoomScale = Math.max(
+            1,
+            2 ** Math.round(-z),
+          );
+          const dataCoords = [
+            Math.floor((coordinate[0] - bounds[0]) / layerZoomScale),
+            Math.floor((coordinate[1] - bounds[3]) / layerZoomScale),
+          ];
+          const coords = dataCoords[1] * width + dataCoords[0];
+          const hoverData = data.map(d => d[coords]);
+          return hoverData;
+        }
+      }
+    }
+  }
+  if(layerType === 'segmentation-polygon' || layerType === 'spot' || layerType === 'point') {
+    if(hoverInfo.index) {
+      if(layerType === 'segmentation-polygon') {
+        // To match 'segmentation-bitmask', we return an array of one index per channel.
+        // For 'segmentation-polygon', we assume one channel per layer.
+        return [hoverInfo.index];
+      } else {
+        return hoverInfo.index;
+      }
+    }
+  }
+  // TODO: point
+  // TODO: spot
+  // TODO: polygon segmentations
+  return null;
+}
+
 /**
  * A subscriber component for the spatial plot.
  * @param {object} props
@@ -262,6 +318,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_SLICE_Y,
       CoordinationType.SPATIAL_SLICE_Z,
       CoordinationType.PHOTOMETRIC_INTERPRETATION,
+      CoordinationType.PIXEL_HIGHLIGHT,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -707,7 +764,7 @@ export function SpatialSubscriber(props) {
   ]);
   */
 
-  const [hoverData, setHoverData] = useState(null);
+  //const [hoverData, setHoverData] = useState(null);
   const [hoverCoord, setHoverCoord] = useState(null);
 
   // Should hover position be used for tooltips?
@@ -716,6 +773,7 @@ export function SpatialSubscriber(props) {
   // the other option is to use the mouse location.
   const useHoverInfoForTooltip = true; // TODO: use per-segmentation-channel obsLocations
 
+  /*
   const getObsInfo = useCallback((hoveredChannelData) => {
     if (hoveredChannelData) {
       const result = {};
@@ -759,12 +817,16 @@ export function SpatialSubscriber(props) {
     segmentationChannelScopesByLayer, segmentationChannelCoordination,
     segmentationMultiExpressionData, segmentationMultiLoadedFeatureSelection, segmentationMultiIndicesData,
   ]);
+  */
 
+  /*
   const setHoverInfo = useCallback(debounce((data, coord) => {
     setHoverData(data);
     setHoverCoord(coord);
   }, 10, { trailing: true }), [setHoverData, setHoverCoord, useHoverInfoForTooltip]);
+  */
 
+  /*
   const segmentationLayerScopeChannelScopeTuples = useMemo(() => {
     const result = [];
     segmentationLayerScopes.forEach((layerScope) => {
@@ -807,6 +869,7 @@ export function SpatialSubscriber(props) {
     }
     return null;
   }, [useHoverInfoForTooltip, segmentationMultiIndicesData, segmentationLayerScopeChannelScopeTuples]);
+  */
 
   // Without useMemo, this would propagate a change every time the component
   // re - renders as opposed to when it has to.
@@ -835,67 +898,73 @@ export function SpatialSubscriber(props) {
    */
   const delegateHover = useCallback((hoverInfo, layerType, layerScope) => {
     //console.log(hoverInfo, layerType, layerScope, hoverInfo.color);
+    const { coordinate } = hoverInfo;
+    let showAnyTooltip = false;
 
-    if(layerType === 'segmentation-bitmask' || layerType === 'image') {
-      const {
-        coordinate, sourceLayer: layer, tile,
-      } = hoverInfo;
-      if(coordinate && layer) {
-        if (layer.id.startsWith('Tiled') && tile) {
-          // Adapted from https://github.com/hms-dbmi/viv/blob/2b28cc1db6ad1dacb44e6b1cd145ae90c46a2ef3/packages/viewers/src/VivViewer.jsx#L209
-          const {
-            content,
-            bbox,
-            index: { z },
-          } = tile;
-          if(content) {
-            const { data, width, height } = content;
-            const {
-              left, right, top, bottom,
-            } = bbox;
-            const bounds = [
-              left,
-              data.height < layer.tileSize ? height : bottom,
-              data.width < layer.tileSize ? width : right,
-              top,
-            ];
-            // Tiled layer needs a custom layerZoomScale.
-            // The zoomed out layer needs to use the fixed zoom at which it is rendered.
-            const layerZoomScale = Math.max(
-              1,
-              2 ** Math.round(-z),
-            );
-            const dataCoords = [
-              Math.floor((coordinate[0] - bounds[0]) / layerZoomScale),
-              Math.floor((coordinate[1] - bounds[3]) / layerZoomScale),
-            ];
-            const coords = dataCoords[1] * width + dataCoords[0];
-            const hoverData = data.map(d => d[coords]);
-            const cellId = hoverData.find(i => i > 0);
-            //console.log(layerType, hoverData, coordinate);
-            return true;
-          }
-        }
-        if(layer.id.startsWith('Background')) {
-          // Adapted from https://github.com/hms-dbmi/viv/blob/2b28cc1db6ad1dacb44e6b1cd145ae90c46a2ef3/packages/viewers/src/VivViewer.jsx#L245
-          const { data, width, height } = layer.state;
-            if(data && width && height) {
-            const bounds = [0, height, width, 0];
-            // Using floor means that as we zoom out, we are scaling by the zoom just passed, not the one coming.
-            const { zoom } = layer.context.viewport;
-            const layerZoomScale = Math.max(1, 2 ** Math.floor(-zoom));
-            // TODO: fix these coordinates.
-            const dataCoords = [
-              Math.floor((coordinate[0] - bounds[0]) / layerZoomScale),
-              Math.floor((coordinate[1] - bounds[3]) / layerZoomScale)
-            ];
-            const coords = dataCoords[1] * width + dataCoords[0];
-            const hoverData = data.map(d => d[coords]);
-            //console.log(layerType, hoverData, coordinate, data, dataCoords, coords, bounds, zoom);
-            return true;
-          }
-        }
+    const hoverData = getHoverData(hoverInfo, layerType);
+
+    // We always iterate over everything because we want to clear
+    // any highlights that are not the current hover.
+    imageLayerScopes?.forEach((imageLayerScope) => {
+      const { setPixelHighlight } = imageLayerCoordination?.[1]?.[imageLayerScope];
+      if(hoverData && layerType === 'image' && layerScope === imageLayerScope) {
+        showAnyTooltip = true;
+        setPixelHighlight(hoverData);
+      } else {
+        setPixelHighlight(null);
       }
+    });
+    
+    segmentationLayerScopes?.forEach(segmentationLayerScope => {
+      const channelScopes = segmentationChannelScopesByLayer?.[segmentationLayerScope];
+      channelScopes?.forEach((channelScope, channelI) => {
+        const { setObsHighlight } = segmentationChannelCoordination[1][segmentationLayerScope][channelScope];
+        if(hoverData && ['segmentation-bitmask', 'segmentation-polygon'].includes(layerType) && layerScope === segmentationLayerScope) {
+          const channelValue = hoverData[channelI];
+          const obsI = channelValue - 1; // We subtract one because we use 0 to represent background.
+          if(channelValue > 0) {
+            const { obsIndex } = segmentationMultiIndicesData?.[segmentationLayerScope]?.[channelScope];
+            const obsId = obsIndex?.[obsI];
+            if(obsId) {
+              showAnyTooltip = true;
+              setObsHighlight(obsId);
+            } else {
+              setObsHighlight(null);
+            }
+          } else {
+            setObsHighlight(null);
+          }
+          console.log(obsI);
+        } else {
+          setObsHighlight(null);
+        }
+      });
+    });
+    
+    spotLayerScopes?.forEach(spotLayerScope => {
+      const { setObsHighlight } = spotLayerCoordination?.[1]?.[spotLayerScope];
+      if(hoverData && layerType === 'spot' && layerScope === spotLayerScope) {
+        showAnyTooltip = true;
+        setObsHighlight(hoverData);
+      } else {
+        setObsHighlight(null);
+      }
+    });
+    pointLayerScopes?.forEach(pointLayerScope => {
+      const { setObsHighlight } = pointLayerCoordination?.[1]?.[pointLayerScope];
+      if(hoverData && layerType === 'point' && layerScope === pointLayerScope) {
+        showAnyTooltip = true;
+        setObsHighlight(hoverData);
+      } else {
+        setObsHighlight(null);
+      }
+    });
+
+    if(showAnyTooltip) {
+      setHoverCoord(coordinate);
+      setComponentHover(uuid);
+    } else {
+      setHoverCoord(null);
     }
 
     // "If this callback returns a truthy value,
@@ -936,10 +1005,11 @@ export function SpatialSubscriber(props) {
         setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
         originalViewState={originalViewState}
         spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
-        setHoverInfo={setHoverInfo}
-        setComponentHover={() => {
+        //setHoverInfo={setHoverInfo}
+        /*setComponentHover={() => {
           setComponentHover(uuid);
         }}
+        */
         updateViewInfo={setComponentViewInfo}
 
         delegateHover={delegateHover}
@@ -1007,14 +1077,25 @@ export function SpatialSubscriber(props) {
       {!disableTooltip && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}
-          obsHighlight={cellHighlight}
           width={width}
           height={height}
-          getObsInfo={getObsInfo}
-          useHoverInfoForTooltip={useHoverInfoForTooltip}
-          hoverData={hoverData}
           hoverCoord={hoverCoord}
-          getObsIdFromHoverData={getObsIdFromHoverData}
+          useHoverInfoForTooltip={useHoverInfoForTooltip}
+
+          // TODO: point
+
+          // TODO: spot
+
+          segmentationLayerScopes={segmentationLayerScopes}
+          segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+          segmentationChannelCoordination={segmentationChannelCoordination}
+
+          imageLayerScopes={imageLayerScopes}
+          imageLayerCoordination={imageLayerCoordination}
+
+          //getObsInfo={getObsInfo}
+          //hoverData={hoverData}
+          //getObsIdFromHoverData={getObsIdFromHoverData}
         />
       )}
       <MultiLegend

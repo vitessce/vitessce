@@ -215,6 +215,7 @@ export const CoordinationType = {
   SPATIAL_SPOT_FILLED: 'spatialSpotFilled',
   SPATIAL_SPOT_STROKE_WIDTH: 'spatialSpotStrokeWidth',
   SPATIAL_LAYER_COLOR: 'spatialLayerColor',
+  PIXEL_HIGHLIGHT: 'pixelHighlight', // Per-image-layer
 };
 
 export const STATUS = {
