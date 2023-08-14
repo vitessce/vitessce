@@ -132,25 +132,24 @@ export default function ScatterplotOptions(props) {
           />
         </TableCell>
       </TableRow>
-      { cellSetLabelsVisible && (
-        <TableRow>
-          <TableCell className={classes.labelCell} variant="head" scope="row">
-            {observationsLabelNice} Set Label Size
-          </TableCell>
-          <TableCell className={classes.inputCell} variant="body">
-            <Slider
-              classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
-              value={cellSetLabelSize}
-              onChange={handleLabelSizeChange}
-              aria-labelledby="scatterplot-set-label-size"
-              valueLabelDisplay="auto"
-              step={1}
-              min={8}
-              max={36}
-            />
-          </TableCell>
-        </TableRow>
-      )}
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          {observationsLabelNice} Set Label Size
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <Slider
+            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            disabled={!cellSetLabelsVisible}
+            value={cellSetLabelSize}
+            onChange={handleLabelSizeChange}
+            aria-labelledby="scatterplot-set-label-size"
+            valueLabelDisplay="auto"
+            step={1}
+            min={8}
+            max={36}
+          />
+        </TableCell>
+      </TableRow>
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           {observationsLabelNice} Set Polygons Visible

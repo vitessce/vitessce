@@ -28,7 +28,7 @@ const ToggleFixedAxisButton = ({
   use3d,
 }) => {
   const classes = useToggleStyles();
-  return use3d && (
+  return (
     <TableRow>
       <TableCell className={classes.cameraLabel} variant="head" scope="row">
         Fix Camera Axis
@@ -36,6 +36,7 @@ const ToggleFixedAxisButton = ({
       <TableCell className={classes.toggleBox} variant="body">
         <Checkbox
           onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
+          disabled={!use3d}
           checked={Boolean(spatialAxisFixed)}
           inputProps={{ 'aria-label': 'Checkbox for fixing/not fixing spatial axis.' }}
         />
