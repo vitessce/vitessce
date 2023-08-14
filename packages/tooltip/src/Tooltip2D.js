@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { makeStyles } from '@material-ui/core';
 import Tooltip from './Tooltip.js';
 
@@ -44,6 +44,7 @@ export default function Tooltip2D(props) {
   }
   // Show tooltip or crosshair?
   const isTooltipVisible = (parentUuid === sourceUuid);
+  const tooltipId = useId();
   const crosshairWidth = 1;
   return (
     <>
@@ -53,7 +54,7 @@ export default function Tooltip2D(props) {
           y={y}
           parentWidth={parentWidth}
           parentHeight={parentHeight}
-          aria-describedby="tooltip-popper-id"
+          tooltipId
         >
           {children}
         </Tooltip>
