@@ -12,7 +12,7 @@ const useSpanStyles = makeStyles(() => ({
 export const channelSliderStyles = makeStyles(theme => ({
   valueLabel: {
     marginTop: '7px',
-    '& *': {
+    '& span': {
       color: theme.palette.secondaryForeground, // Change color here
       backgroundColor: theme.palette.secondaryBackgroundDim, // Change color here
     },
