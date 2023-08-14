@@ -123,7 +123,7 @@ export default function ScatterplotOptions(props) {
                */
             checked={tooltipsVisible}
             onChange={handleTooltipsVisibilityChange}
-            name="scatterplot-option-toltip-visibility"
+            name="scatterplot-option-tooltip-visibility"
             color="default"
             inputProps={{
               'aria-label': 'Checkbox for showing/hiding tooltips.',
