@@ -49,7 +49,7 @@ export default function FeatureListOptions(props) {
             }}
           >
             {FEATURELIST_SORT_OPTIONS.map(option => (
-              <option key={option} value={option}>{option}</option>
+              <option id={option} value={option}>{option}</option>
             ))}
           </OptionSelect>
         </TableCell>
@@ -74,11 +74,11 @@ export default function FeatureListOptions(props) {
               >
                 {hasFeatureLabels ? (
                   <>
-                    <option key={`featureLabels-${primaryColumnName}-key`} value="featureLabels">{primaryColumnName}</option>
-                    <option key={`featureIndex-${ALT_COLNAME}-key`} value="featureIndex">{ALT_COLNAME}</option>
+                    <option id={`featureLabels-${primaryColumnName}-key`} value="featureLabels">{primaryColumnName}</option>
+                    <option id={`featureIndex-${ALT_COLNAME}-key`} value="featureIndex">{ALT_COLNAME}</option>
                   </>
                 ) : (
-                  <option key={`featureIndex-${primaryColumnName}-key`} value="featureIndex">{primaryColumnName}</option>
+                  <option id={`featureIndex-${primaryColumnName}-key`} value="featureIndex">{primaryColumnName}</option>
                 )}
               </OptionSelect>
             </TableCell>
