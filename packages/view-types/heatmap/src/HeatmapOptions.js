@@ -68,11 +68,11 @@ export default function HeatmapOptions(props) {
                */
             checked={tooltipsVisible}
             onChange={handleTooltipsVisibilityChange}
-            name="gene-expression-colormap-option-toltip-visibility"
+            name="gene-expression-colormap-option-tooltip-visibility"
             color="default"
             inputProps={{
               'aria-label': 'Checkbox for showing or hiding tooltips.',
-              id: 'gene-expression-colormap-option-toltip-visibility',
+              id: 'gene-expression-colormap-option-tooltip-visibility',
             }}
           />
         </TableCell>

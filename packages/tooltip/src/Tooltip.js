@@ -43,7 +43,7 @@ export default function Tooltip(props) {
           container={getTooltipContainer}
           transition
           placement={`${placementY}-${placementX}`}
-          id={tooltipId}
+          // id={tooltipId}
         >
           <Paper elevation={4} className={classes.tooltipContent}>
             {children}

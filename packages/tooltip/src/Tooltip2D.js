@@ -37,6 +37,7 @@ export default function Tooltip2D(props) {
   } = props;
 
   const classes = useStyles();
+  const tooltipId = useId();
 
   // Check if out of bounds.
   if (x < 0 || x > parentWidth || y < 0 || y > parentHeight) {
@@ -44,7 +45,6 @@ export default function Tooltip2D(props) {
   }
   // Show tooltip or crosshair?
   const isTooltipVisible = (parentUuid === sourceUuid);
-  const tooltipId = useId();
   const crosshairWidth = 1;
   return (
     <>
@@ -54,7 +54,7 @@ export default function Tooltip2D(props) {
           y={y}
           parentWidth={parentWidth}
           parentHeight={parentHeight}
-          tooltipId
+          tooltipId={tooltipId}
         >
           {children}
         </Tooltip>
