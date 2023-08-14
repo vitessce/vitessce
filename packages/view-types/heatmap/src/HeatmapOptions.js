@@ -34,7 +34,7 @@ export default function HeatmapOptions(props) {
 
   return (
     <OptionsContainer>
-      <TableRow key="heatmap-gene-expression-colormap">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Gene Expression Colormap
         </TableCell>
@@ -54,7 +54,7 @@ export default function HeatmapOptions(props) {
           </OptionSelect>
         </TableCell>
       </TableRow>
-      <TableRow key="heatmap-gene-expression-colormap-change-tooltip-visibility">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Tooltips Visible
         </TableCell>
@@ -77,7 +77,7 @@ export default function HeatmapOptions(props) {
           />
         </TableCell>
       </TableRow>
-      <TableRow key="heatmap-gene-expression-colormap-range">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Gene Expression Colormap Range
         </TableCell>

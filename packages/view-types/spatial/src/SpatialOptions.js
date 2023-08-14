@@ -29,7 +29,7 @@ const ToggleFixedAxisButton = ({
 }) => {
   const classes = useToggleStyles();
   return use3d && (
-    <TableRow key="spatial-fix-camera-axis">
+    <TableRow>
       <TableCell className={classes.cameraLabel} variant="head" scope="row">
         Fix Camera Axis
       </TableCell>
@@ -97,7 +97,7 @@ export default function SpatialOptions(props) {
           use3d={use3d}
         />
       )}
-      <TableRow key="spatial-tooltips-visible">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Tooltips Visible
         </TableCell>
@@ -119,7 +119,7 @@ export default function SpatialOptions(props) {
       </TableRow>
       {canShowExpressionOptions && (
         <>
-          <TableRow key="spatial-gene-expression-colormap">
+          <TableRow>
             <TableCell className={classes.labelCell} variant="head" scope="row">
               Gene Expression Colormap
             </TableCell>
@@ -139,7 +139,7 @@ export default function SpatialOptions(props) {
               </OptionSelect>
             </TableCell>
           </TableRow>
-          <TableRow key="spatial-gene-expression-colormap-range">
+          <TableRow>
             <TableCell className={classes.labelCell} variant="head" scope="row">
               Gene Expression Colormap Range
             </TableCell>

@@ -19,7 +19,7 @@ export default function EmbeddingScatterplotOptions(props) {
 
   return mappingSelectEnabled
     ? (
-      <TableRow key="scatterplot-mapping-select">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Embedding Type
         </TableCell>

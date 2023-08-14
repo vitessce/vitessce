@@ -20,7 +20,7 @@ export default function CellColorEncodingOption(props) {
   }
 
   return (
-    <TableRow key="cell-color-encoding">
+    <TableRow>
       <TableCell className={classes.labelCell} variant="head" scope="row">
         {observationsLabelNice} Color Encoding
       </TableCell>

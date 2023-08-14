@@ -91,7 +91,7 @@ export default function ScatterplotOptions(props) {
         cellColorEncoding={cellColorEncoding}
         setCellColorEncoding={setCellColorEncoding}
       />
-      <TableRow key="scatterplot-set-labels-visible">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           {observationsLabelNice} Set Labels Visible
         </TableCell>
@@ -109,7 +109,7 @@ export default function ScatterplotOptions(props) {
           />
         </TableCell>
       </TableRow>
-      <TableRow key="scatterplot-set-tooltip-visible">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Tooltips Visible
         </TableCell>
@@ -133,7 +133,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       { cellSetLabelsVisible && (
-        <TableRow key="scatterplot-set-label-size">
+        <TableRow>
           <TableCell className={classes.labelCell} variant="head" scope="row">
             {observationsLabelNice} Set Label Size
           </TableCell>
@@ -151,7 +151,7 @@ export default function ScatterplotOptions(props) {
           </TableCell>
         </TableRow>
       )}
-      <TableRow key="scatterplot-set-polygons-visible">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           {observationsLabelNice} Set Polygons Visible
         </TableCell>
@@ -169,7 +169,7 @@ export default function ScatterplotOptions(props) {
           />
         </TableCell>
       </TableRow>
-      <TableRow key="scatterplot-set-radius-mode">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           {observationsLabelNice} Radius Mode
         </TableCell>
@@ -189,7 +189,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       { cellRadiusMode === 'manual' && (
-        <TableRow key="scatterplot-set-radius-size">
+        <TableRow>
           <TableCell className={classes.labelCell} variant="head" scope="row">
             {observationsLabelNice} Radius Size
           </TableCell>
@@ -207,7 +207,7 @@ export default function ScatterplotOptions(props) {
           </TableCell>
         </TableRow>
       )}
-      <TableRow key="scatterplot-set-opacity-mode">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           {observationsLabelNice} Opacity Mode
         </TableCell>
@@ -227,7 +227,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
       </TableRow>
       { cellOpacityMode === 'manual' && (
-        <TableRow key="scatterplot-set-opacity-level">
+        <TableRow>
           <TableCell className={classes.labelCell} variant="head" scope="row">
             {observationsLabelNice} Opacity Level
           </TableCell>
@@ -245,7 +245,7 @@ export default function ScatterplotOptions(props) {
           </TableCell>
         </TableRow>
       )}
-      <TableRow key="scatterplot-gene-expression-colormap">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Gene Expression Colormap
         </TableCell>
@@ -265,7 +265,7 @@ export default function ScatterplotOptions(props) {
           </OptionSelect>
         </TableCell>
       </TableRow>
-      <TableRow key="scatterplot-gene-expression-colormap-range">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Gene Expression Colormap Range
         </TableCell>

@@ -61,7 +61,7 @@ export default function GatingScatterplotOptions(props) {
 
   return (
     <>
-      <TableRow key="scatterplot-gating-gene-select">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           {capitalize(plur(featureType, geneSelectOptions?.length))}
         </TableCell>
@@ -84,7 +84,7 @@ export default function GatingScatterplotOptions(props) {
           </OptionSelect>
         </TableCell>
       </TableRow>
-      <TableRow key="scatterplot-gating-transform-select">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Transform
         </TableCell>
@@ -106,7 +106,7 @@ export default function GatingScatterplotOptions(props) {
           </OptionSelect>
         </TableCell>
       </TableRow>
-      <TableRow key="scatterplot-gating-transform-coefficient">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Transform Coefficient
         </TableCell>

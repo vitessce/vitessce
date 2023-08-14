@@ -32,7 +32,7 @@ export default function CellSetExpressionPlotOptions(props) {
 
   return (
     <OptionsContainer>
-      <TableRow key="expression-plot-transform">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Transform
         </TableCell>
@@ -54,7 +54,7 @@ export default function CellSetExpressionPlotOptions(props) {
           </OptionSelect>
         </TableCell>
       </TableRow>
-      <TableRow key="transform-coefficient-option-row">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Transform Coefficient
         </TableCell>

@@ -34,7 +34,7 @@ export default function FeatureListOptions(props) {
   return (
     <OptionsContainer>
       {children}
-      <TableRow key="feature-list-sort-option">
+      <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           Sort Ordering
         </TableCell>
@@ -56,7 +56,7 @@ export default function FeatureListOptions(props) {
       </TableRow>
       {hasFeatureLabels ? (
         <>
-          <TableRow key="feature-list-sort-key">
+          <TableRow>
             <TableCell className={classes.labelCell} variant="head" scope="row">
               Sort Key
             </TableCell>
@@ -83,7 +83,7 @@ export default function FeatureListOptions(props) {
               </OptionSelect>
             </TableCell>
           </TableRow>
-          <TableRow key="feature-list-show-alternative-ids">
+          <TableRow>
             <TableCell className={classes.labelCell} variant="head" scope="row">
               Show Alternate IDs
             </TableCell>
