@@ -29,9 +29,6 @@ import {
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
 const useStyles = makeStyles(() => ({
-  menuItemSlider: {
-    width: '100px',
-  },
   layerTypeSpotIcon: {
     height: '100%',
     marginLeft: '1px',
@@ -95,7 +92,7 @@ function SpotLayerEllipsisMenu(props) {
           max={5.0}
           step={0.01}
           onChange={(e, v) => setStrokeWidth(v)}
-          classes={{ root: classes.menuItemSlider }}
+          className={menuClasses.menuItemSlider}
           orientation="horizontal"
           id={strokeWidthId}
         />
@@ -127,7 +124,7 @@ function SpotLayerEllipsisMenu(props) {
           max={1.0}
           step={0.01}
           onChange={(e, v) => setFeatureValueColormapRange(v)}
-          className={classes.menuItemSlider}
+          className={menuClasses.menuItemSlider}
           orientation="horizontal"
           id={colormapRangeId}
         />

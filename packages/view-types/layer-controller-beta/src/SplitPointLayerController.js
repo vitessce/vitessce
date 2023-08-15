@@ -28,9 +28,6 @@ import {
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
 const useStyles = makeStyles(() => ({
-  menuItemSlider: {
-    width: '100px',
-  },
   layerTypePointIcon: {
     height: '100%',
     marginLeft: '1px',
@@ -50,7 +47,6 @@ function PointLayerEllipsisMenu(props) {
     setFeatureValueColormapRange,
   } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
   const selectClasses = useSelectStyles();
   const menuClasses = useEllipsisMenuStyles();
 
@@ -93,7 +89,7 @@ function PointLayerEllipsisMenu(props) {
           max={1.0}
           step={0.01}
           onChange={(e, v) => setFeatureValueColormapRange(v)}
-          className={classes.menuItemSlider}
+          className={menuClasses.menuItemSlider}
           orientation="horizontal"
           id={colormapRangeId}
         />

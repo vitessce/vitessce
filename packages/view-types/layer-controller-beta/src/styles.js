@@ -28,6 +28,9 @@ export const useEllipsisMenuStyles = makeStyles(() => ({
   imageLayerOpacitySlider: {
     marginTop: '7px',
   },
+  menuItemSlider: {
+    width: '100px',
+  },
 }));
 
 export {
