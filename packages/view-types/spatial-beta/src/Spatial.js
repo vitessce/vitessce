@@ -1222,14 +1222,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   viewInfoDidUpdate() {
-    // TODO
-    const {
-      obsCentroidsIndex,
-      obsCentroids,
-    } = this.props;
+    // TODO: remove extra parameters from parent once no longer used by Spatial/Scatterplot.
     super.viewInfoDidUpdate(
-      obsCentroidsIndex,
-      obsCentroids,
+      null,
+      null,
       makeDefaultGetObsCoords,
     );
   }

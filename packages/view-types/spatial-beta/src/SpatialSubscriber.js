@@ -137,9 +137,6 @@ function getHoverData(hoverInfo, layerType) {
       }
     }
   }
-  // TODO: point
-  // TODO: spot
-  // TODO: polygon segmentations
   return null;
 }
 
@@ -1027,11 +1024,6 @@ export function SpatialSubscriber(props) {
         setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
         originalViewState={originalViewState}
         spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
-        //setHoverInfo={setHoverInfo}
-        /*setComponentHover={() => {
-          setComponentHover(uuid);
-        }}
-        */
         updateViewInfo={setComponentViewInfo}
 
         delegateHover={delegateHover}
@@ -1062,8 +1054,6 @@ export function SpatialSubscriber(props) {
         segmentationMatrixIndices={segmentationMultiIndicesData}
         segmentationMultiExpressionData={segmentationMultiExpressionNormData}
 
-        // TODO: setObsHighlight functions (per-obsType)
-
         // Images
         images={imageData}
         imageLayerScopes={imageLayerScopes}
@@ -1074,7 +1064,6 @@ export function SpatialSubscriber(props) {
 
         // TODO: useFullResolutionImage={useFullResolutionImage}
 
-        
 
         // OLD
         //obsLocationsLayerDefs={moleculesLayer}
@@ -1122,10 +1111,6 @@ export function SpatialSubscriber(props) {
           // Images
           imageLayerScopes={imageLayerScopes}
           imageLayerCoordination={imageLayerCoordination}
-
-          //getObsInfo={getObsInfo}
-          //hoverData={hoverData}
-          //getObsIdFromHoverData={getObsIdFromHoverData}
         />
       )}
       <MultiLegend
