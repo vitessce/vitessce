@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useId } from 'react';
 import { debounce } from 'lodash-es';
 import { Checkbox, Slider, TableCell, TableRow } from '@material-ui/core';
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
@@ -15,6 +15,7 @@ export default function HeatmapOptions(props) {
   } = props;
 
   const classes = usePlotOptionsStyles();
+  const heatmapOptionsId = useId();
 
   function handleGeneExpressionColormapChange(event) {
     setGeneExpressionColormap(event.target.value);
@@ -45,7 +46,7 @@ export default function HeatmapOptions(props) {
             onChange={handleGeneExpressionColormapChange}
             inputProps={{
               'aria-label': 'Select gene expression colormap.',
-              id: 'heatmap-gene-expression-colormap',
+              id: ['heatmap-gene-expression-colormap', heatmapOptionsId].join('-'),
             }}
           >
             {GLSL_COLORMAPS.map(cmap => (
@@ -72,7 +73,7 @@ export default function HeatmapOptions(props) {
             color="default"
             inputProps={{
               'aria-label': 'Checkbox for showing or hiding tooltips.',
-              id: 'gene-expression-colormap-option-tooltip-visibility',
+              id: ['gene-expression-colormap-option-tooltip-visibility', heatmapOptionsId].join('-'),
             }}
           />
         </TableCell>

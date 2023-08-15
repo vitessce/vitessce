@@ -11,7 +11,7 @@ import {
   ChannelSelectionDropdown,
   ChannelVisibilityCheckbox,
 } from './shared-channel-controls.js';
-import { channelSliderStyles } from './styles.js';
+import { useChannelSliderStyles } from './styles.js';
 
 function abbreviateNumber(value) {
   // Return an abbreviated representation of value, in 5 characters or less.
@@ -67,7 +67,7 @@ function ChannelSlider({
     [handleChange],
   );
 
-  const classes = channelSliderStyles();
+  const classes = useChannelSliderStyles();
 
   const step = max - min < 500 && dtype.startsWith('Float') ? (max - min) / 500 : 1;
   return (

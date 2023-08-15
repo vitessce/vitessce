@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { OptionsContainer, OptionSelect, usePlotOptionsStyles } from '@vitessce/vit-s';
 import { TableCell, TableRow, Checkbox } from '@material-ui/core';
 import { FEATURELIST_SORT_OPTIONS, ALT_COLNAME } from './constants.js';
@@ -16,6 +16,8 @@ export default function FeatureListOptions(props) {
     hasFeatureLabels,
     primaryColumnName,
   } = props;
+
+  const featureListId = useId();
 
   function handleFeatureListSortChange(event) {
     setFeatureListSort(event.target.value);
@@ -49,7 +51,7 @@ export default function FeatureListOptions(props) {
             }}
           >
             {FEATURELIST_SORT_OPTIONS.map(option => (
-              <option id={option} value={option}>{option}</option>
+              <option key={option} value={option}>{option}</option>
             ))}
           </OptionSelect>
         </TableCell>
@@ -62,23 +64,22 @@ export default function FeatureListOptions(props) {
             </TableCell>
             <TableCell variant="body">
               <OptionSelect
-                key="feature-list-sort-key-select"
                 className={classes.select}
                 disabled={featureListSort === 'original'}
                 value={featureListSortKey}
                 onChange={handleFeatureListSortKeyChange}
                 inputProps={{
                   'aria-label': 'Select the feature list sort key',
-                  id: 'feature-list-sort-key',
+                  id: ['feature-list-sort-key', featureListId].join('-'),
                 }}
               >
                 {hasFeatureLabels ? (
                   <>
-                    <option id={`featureLabels-${primaryColumnName}-key`} value="featureLabels">{primaryColumnName}</option>
-                    <option id={`featureIndex-${ALT_COLNAME}-key`} value="featureIndex">{ALT_COLNAME}</option>
+                    <option value="featureLabels">{primaryColumnName}</option>
+                    <option value="featureIndex">{ALT_COLNAME}</option>
                   </>
                 ) : (
-                  <option id={`featureIndex-${primaryColumnName}-key`} value="featureIndex">{primaryColumnName}</option>
+                  <option value="featureIndex">{primaryColumnName}</option>
                 )}
               </OptionSelect>
             </TableCell>
@@ -96,7 +97,7 @@ export default function FeatureListOptions(props) {
                 color="default"
                 inputProps={{
                   'aria-label': 'Checkbox for showing or hiding alternative feature ids.',
-                  id: 'feature-list-show-alternative-ids',
+                  id: ['feature-list-show-alternative-ids', featureListId].join('-'),
                 }}
               />
             </TableCell>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useId } from 'react';
 import { viv } from '@vitessce/gl';
 import {
   GLOBAL_LABELS, getSourceFromLoader, isRgb,
@@ -127,6 +127,7 @@ export default function LayerController(props) {
     return undefined;
   }, [channels]);
 
+  const layerControlsId = useId();
   const firstSelection = channels[0]?.selection || {};
 
   const { data, channels: channelOptions } = loader;
@@ -477,7 +478,7 @@ export default function LayerController(props) {
       TransitionProps={{ enter: false }}
       expanded={!disabled && isExpanded}
       aria-controls="layer-controls options"
-      id="layer-controls-accordion"
+      id={['layer-controls-accordion', layerControlsId].join('-')}
     >
       <AccordionSummary
         classes={{

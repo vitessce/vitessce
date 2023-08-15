@@ -9,7 +9,7 @@ const useSpanStyles = makeStyles(() => ({
   },
 }));
 
-export const channelSliderStyles = makeStyles(theme => ({
+export const useChannelSliderStyles = makeStyles(theme => ({
   valueLabel: {
     marginTop: '7px',
     '& span': {

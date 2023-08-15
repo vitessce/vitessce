@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { TableCell, TableRow, TextField } from '@material-ui/core';
 import { usePlotOptionsStyles, OptionSelect } from '@vitessce/vit-s';
 import { capitalize, pluralize as plur } from '@vitessce/utils';
@@ -17,6 +17,8 @@ export default function GatingScatterplotOptions(props) {
     geneSelectOptions,
     transformOptions,
   } = props;
+
+  const gatingScatterplotOptionsId = useId();
 
   const classes = usePlotOptionsStyles();
 
@@ -73,7 +75,7 @@ export default function GatingScatterplotOptions(props) {
             value={[gatingFeatureSelectionX, gatingFeatureSelectionY].filter(v => v)}
             onChange={handleGeneSelectChange}
             inputProps={{
-              id: 'scatterplot-gating-gene-select',
+              id: ['scatterplot-gating-gene-select', gatingScatterplotOptionsId].join('-'),
             }}
           >
             {geneSelectOptions.map(name => (

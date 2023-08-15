@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useId } from 'react';
 import { debounce } from 'lodash-es';
 import { Checkbox, Slider, TableCell, TableRow } from '@material-ui/core';
 import { capitalize } from '@vitessce/utils';
@@ -34,6 +34,8 @@ export default function ScatterplotOptions(props) {
     geneExpressionColormapRange,
     setGeneExpressionColormapRange,
   } = props;
+
+  const scatterplotOptionsId = useId();
 
   const observationsLabelNice = capitalize(observationsLabel);
 
@@ -104,7 +106,7 @@ export default function ScatterplotOptions(props) {
             color="default"
             inputProps={{
               'aria-label': 'Checkbox for showing/hiding set labels.',
-              id: 'scatterplot-set-labels-visible',
+              id: ['scatterplot-set-labels-visible', scatterplotOptionsId].join('-'),
             }}
           />
         </TableCell>
@@ -127,7 +129,7 @@ export default function ScatterplotOptions(props) {
             color="default"
             inputProps={{
               'aria-label': 'Checkbox for showing/hiding tooltips.',
-              id: 'scatterplot-set-tooltips-visible',
+              id: ['scatterplot-set-tooltips-visible', scatterplotOptionsId].join('-'),
             }}
           />
         </TableCell>
@@ -179,7 +181,7 @@ export default function ScatterplotOptions(props) {
             value={cellRadiusMode}
             onChange={handleCellRadiusModeChange}
             inputProps={{
-              id: 'set-radius-mode-select',
+              id: ['set-radius-mode-select', scatterplotOptionsId].join('-'),
             }}
           >
             <option value="auto">Auto</option>

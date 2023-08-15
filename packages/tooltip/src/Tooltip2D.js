@@ -1,4 +1,4 @@
-import React, { useId } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core';
 import Tooltip from './Tooltip.js';
 
@@ -37,8 +37,6 @@ export default function Tooltip2D(props) {
   } = props;
 
   const classes = useStyles();
-  const tooltipId = useId();
-
   // Check if out of bounds.
   if (x < 0 || x > parentWidth || y < 0 || y > parentHeight) {
     return null;
@@ -54,7 +52,6 @@ export default function Tooltip2D(props) {
           y={y}
           parentWidth={parentWidth}
           parentHeight={parentHeight}
-          tooltipId={tooltipId}
         >
           {children}
         </Tooltip>

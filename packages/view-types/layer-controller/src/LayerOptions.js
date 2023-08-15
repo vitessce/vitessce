@@ -14,7 +14,7 @@ import {
   getBoundingCube, getMultiSelectionStats,
 } from './utils.js';
 
-import { useSelectionSliderStyles, useSelectStyles, channelSliderStyles } from './styles.js';
+import { useSelectionSliderStyles, useSelectStyles, useChannelSliderStyles } from './styles.js';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
 
@@ -220,7 +220,7 @@ function TransparentColorCheckbox({ value, handleChange }) {
  * @prop {function} handleChange Callback for every change in opacity.
  */
 function OpacitySlider({ value, handleChange }) {
-  const classes = channelSliderStyles();
+  const classes = useChannelSliderStyles();
 
   return (
     <Slider
