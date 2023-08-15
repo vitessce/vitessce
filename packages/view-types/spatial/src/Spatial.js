@@ -528,72 +528,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     return [];
   }
 
-  getChannelNames() {
-    const {
-      obsSegmentations,
-      obsSegmentationsType,
-      obsSegmentationsLayerDefs,
-      imageLayerLoaders,
-    } = this.props;
-    const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.loaders : null;
-    let channelNames;
-    if (obsSegmentationsLayerDefs && obsSegmentationsType === 'bitmask') {
-      channelNames = obsSegmentationsLayerDefs.map((layer, i) => {
-        const { index } = layer;
-        channelNames = segmentationLayerLoaders?.[index];
-      });
-    }
-    else {
-    channelNames = imageLayerLoaders?.[0];
-    }
-    return channelNames;
-  }
-
-  createChannelNamesText() {
-    const {
-      obsCentroids,
-      width,
-      height,
-      viewState,
-    } = this.props;
-    const channelNames = this.getChannelNames();
-    console.log("****** channelNames: ", channelNames);
-  }
-
-  createChannelNamesLayer() {
-    const {
-      obsCentroids,
-      width,
-      height,
-      viewState,
-    } = this.props;
-    const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
-    const channelNames = this.getChannelNames();
-    console.log("****** channelNames: ", channelNames, getCellCoords);
-
-
-    const data = [
-      {name: 'Colma (COLM)', address: '365 D Street, Colma CA 94014', coordinates: [0, 0]},
-      {name: 'Another thing', address: '365 D Street, Colma CA 94014', coordinates: [0, 10]},
-    ]
-
-    console.log("******* originalViewState: ", height, width, viewState);
-
-    return new deck.TextLayer({
-      id: 'I am awesome',
-      data: data,
-      getPosition: d => d.coordinates,
-      getText: d => d.name,
-      getSize: 18 ,
-      getAngle: 0,
-      getTextAnchor: 'middle',
-      getAlignmentBaseline: 'center',
-      getColor: [255,0,255],
-      background: [255, 255, 255],
-      backgroundPadding: [5, 5, 5, 5]
-    });
-  }
-
   getLayers() {
     const {
       imageLayers,
@@ -610,7 +544,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsLocationsLayer,
       this.createScaleBarLayer(),
       ...this.createSelectionLayers(),
-      // this.createChannelNamesLayer(),
     ];
   }
 

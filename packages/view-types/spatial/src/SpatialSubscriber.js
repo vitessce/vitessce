@@ -496,21 +496,24 @@ export function SpatialSubscriber(props) {
   const getChannelNames = () => {
     let channelNames = [];
     let channelColors = [];
-    if (cellsLayer && obsSegmentationsType === 'bitmask') {
-      console.log("***** cellsLayer: ", cellsLayer);  
-      channelNames = cellsLayer.map((layer, i) => segmentationLayerLoaders?.[layer.index])[0]?.channels;
-      channelColors = cellsLayer[0].channels.map((layer, i) => "rgb(".concat((layer.color).join(), ")"));
+    const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.loaders : null;
+    if (cellsLayer && obsSegmentationsType === 'bitmask' && cellsLayer.length > 0) {
+      channelNames = cellsLayer.map(layer => segmentationLayerLoaders?.[layer.index])[0]?.channels;
+      channelColors = cellsLayer[0].channels.map(layer => 'rgb('.concat((layer.color).join(), ')'));
     } else if (imageLayers) {
-      console.log("****** imageLayers: ", imageLayers);
-      channelNames = imageLayers.map((layer, i) => imageLayerLoaders?.[layer.index])[0]?.channels;
-      channelColors = imageLayers[0].channels.map((layer, i) => "rgb(".concat((layer.color).join(), ")"));
+      channelNames = imageLayers.map(layer => imageLayerLoaders?.[layer.index])[0]?.channels;
+      channelColors = imageLayers[0].channels.map(layer => 'rgb('.concat((layer.color).join(), ')'));
     }
-    console.log("+++++++++++ channelNames: ", channelNames, channelColors);
-    return { channelNames, channelColors };
-  }
+
+    // in cases where there are more names than colors, we cut the names to match the colors
+    const desiredSize = Math.min(channelNames.length, channelColors.length);
+    return {
+      channelNames: channelNames.slice(0, desiredSize),
+      channelColors: channelColors.slice(0, desiredSize),
+    };
+  };
 
   const { channelNames, channelColors } = getChannelNames();
-  console.log("+++++++++++ names: ", channelNames);
 
   return (
     <TitleInfo
@@ -524,7 +527,12 @@ export function SpatialSubscriber(props) {
       options={options}
     >
       {channelNames && channelNames.map((name, i) => (
-          <p key={i} style={{textAlign: "right", color: channelColors[i], fontSize: 20}}>{name}</p>
+        <p
+          key={[name, i].join('-')}
+          style={{ textAlign: 'right', color: channelColors[i], fontSize: 20, zIndex: 6 }}
+        >
+          {name}
+        </p>
       ))}
       <Spatial
         ref={deckRef}
