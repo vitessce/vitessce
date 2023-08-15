@@ -28,6 +28,7 @@ import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
 import { canLoadResolution, getCellColors } from '@vitessce/utils';
 import { Legend } from '@vitessce/legend';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType } from '@vitessce/constants-internal';
+import { Typography } from '@material-ui/core';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
@@ -527,12 +528,17 @@ export function SpatialSubscriber(props) {
       options={options}
     >
       {channelNames && channelNames.map((name, i) => (
-        <p
+        <Typography
+          variant="h6"
           key={[name, i].join('-')}
-          style={{ textAlign: 'right', color: channelColors[i], fontSize: 20, zIndex: 6 }}
+          style={{
+            textAlign: 'right',
+            color: channelColors[i],
+            zIndex: 6,
+          }}
         >
           {name}
-        </p>
+        </Typography>
       ))}
       <Spatial
         ref={deckRef}
