@@ -1,10 +1,10 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable no-unused-vars */
 // eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState, useId } from 'react';
 import {
   makeStyles,
   Grid,
-  Checkbox,
   Paper,
   Typography,
   Slider,
@@ -72,7 +72,6 @@ function PointLayerEllipsisMenu(props) {
         </label>
         <Select
           native
-          // disabled={!((Array.isArray(featureSelection) && featureSelection.length > 0) || obsColorEncoding === 'geneSelection')}
           onChange={e => setObsColorEncoding(e.target.value)}
           value={obsColorEncoding}
           inputProps={{ id: quantitativeColormapId }}
@@ -116,7 +115,6 @@ export default function SplitPointLayerController(props) {
     obsType,
     spatialLayerVisible: visible,
     spatialLayerOpacity: opacity,
-    spatialSpotRadius: radius,
     obsColorEncoding,
     featureSelection,
     featureValueColormap,
@@ -126,7 +124,6 @@ export default function SplitPointLayerController(props) {
   const {
     setSpatialLayerVisible: setVisible,
     setSpatialLayerOpacity: setOpacity,
-    setSpatialSpotRadius: setRadius,
     setObsColorEncoding,
     setFeatureSelection,
     setFeatureValueColormap,

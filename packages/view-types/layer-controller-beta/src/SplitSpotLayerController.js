@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable no-unused-vars */
 // eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState, useId } from 'react';
 import {
@@ -105,7 +106,6 @@ function SpotLayerEllipsisMenu(props) {
         </label>
         <Select
           native
-          // disabled={!((Array.isArray(featureSelection) && featureSelection.length > 0) || obsColorEncoding === 'geneSelection')}
           onChange={e => setObsColorEncoding(e.target.value)}
           value={obsColorEncoding}
           inputProps={{ id: quantitativeColormapId }}
