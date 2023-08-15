@@ -113,16 +113,18 @@ import {
   
   
     const spatialViewSimple = config.addView(dataset, 'spatialBeta');
+    const spatialView2 = config.addView(dataset, 'spatialBeta');
     const lcViewSimple = config.addView(dataset, 'layerControllerBeta');
     const obsSets = config.addView(dataset, 'obsSets');
     const featureList = config.addView(dataset, 'featureList');
   
     spatialViewSimple.useMetaCoordination(metaCoordinationScope);
+    spatialView2.useMetaCoordination(metaCoordinationScope);
     lcViewSimple.useMetaCoordination(metaCoordinationScope);
 
     config.linkViews([obsSets, featureList], ['obsType'], ['spot']);
   
-    config.layout(hconcat(spatialViewSimple, vconcat(lcViewSimple, obsSets, featureList)));
+    config.layout(hconcat(spatialViewSimple, spatialView2, vconcat(lcViewSimple, obsSets, featureList)));
   
     const configJSON = config.toJSON();
     return configJSON;

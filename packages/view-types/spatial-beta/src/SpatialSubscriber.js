@@ -767,12 +767,7 @@ export function SpatialSubscriber(props) {
   //const [hoverData, setHoverData] = useState(null);
   const [hoverCoord, setHoverCoord] = useState(null);
 
-  // Should hover position be used for tooltips?
-  // If there are centroids for each observation, then we can use those
-  // to position tooltips. However if there are not centroids,
-  // the other option is to use the mouse location.
-  const useHoverInfoForTooltip = true; // TODO: use per-segmentation-channel obsLocations
-
+  
   /*
   const getObsInfo = useCallback((hoveredChannelData) => {
     if (hoveredChannelData) {
@@ -920,11 +915,18 @@ export function SpatialSubscriber(props) {
         const { setObsHighlight } = segmentationChannelCoordination[1][segmentationLayerScope][channelScope];
         if(hoverData && ['segmentation-bitmask', 'segmentation-polygon'].includes(layerType) && layerScope === segmentationLayerScope) {
           const channelValue = hoverData[channelI];
-          const obsI = channelValue - 1; // We subtract one because we use 0 to represent background.
+          let obsI = channelValue;
           if(channelValue > 0) {
-            const { obsIndex } = segmentationMultiIndicesData?.[segmentationLayerScope]?.[channelScope];
+            let obsIndex;
+            if(layerType === 'segmentation-bitmask') {
+              obsIndex = segmentationMultiIndicesData?.[segmentationLayerScope]?.[channelScope]?.obsIndex;
+              // We subtract one because we use 0 to represent background.
+              obsI -= 1;
+            } else {
+              obsIndex = obsSegmentationsData?.[segmentationLayerScope]?.obsIndex;
+            }
             const obsId = obsIndex?.[obsI];
-            if(obsId) {
+            if(obsIndex && obsId) {
               showAnyTooltip = true;
               setObsHighlight(obsId);
             } else {
@@ -1011,6 +1013,11 @@ export function SpatialSubscriber(props) {
         updateViewInfo={setComponentViewInfo}
 
         delegateHover={delegateHover}
+
+        // Points
+        obsPoints={obsPointsData}
+        pointLayerScopes={pointLayerScopes}
+        pointLayerCoordination={pointLayerCoordination}
         
         // Spots
         obsSpots={obsSpotsData}
@@ -1020,11 +1027,6 @@ export function SpatialSubscriber(props) {
 
         spotMatrixIndices={spotMultiIndicesData}
         spotMultiExpressionData={spotMultiExpressionNormData}
-
-        // Points
-        obsPoints={obsPointsData}
-        pointLayerScopes={pointLayerScopes}
-        pointLayerCoordination={pointLayerCoordination}
 
         // Segmentations
         segmentationLayerScopes={segmentationLayerScopes}
@@ -1078,17 +1080,19 @@ export function SpatialSubscriber(props) {
           width={width}
           height={height}
           hoverCoord={hoverCoord}
-          useHoverInfoForTooltip={useHoverInfoForTooltip}
 
           // Points
+          obsPoints={obsPointsData}
           pointLayerScopes={pointLayerScopes}
           pointLayerCoordination={pointLayerCoordination}
 
           // Spots
+          obsSpots={obsSpotsData}
           spotLayerScopes={spotLayerScopes}
           spotLayerCoordination={spotLayerCoordination}
 
           // Segmentations
+          obsSegmentationsLocations={obsSegmentationsLocationsData}
           segmentationLayerScopes={segmentationLayerScopes}
           segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
           segmentationChannelCoordination={segmentationChannelCoordination}

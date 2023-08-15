@@ -27,18 +27,20 @@ export default function SpatialTooltipSubscriber(props) {
     //getObsInfo,
     //hoverData,
     hoverCoord,
-    useHoverInfoForTooltip,
     //getObsIdFromHoverData,
 
     // Points
+    obsPoints,
     pointLayerScopes,
     pointLayerCoordination,
 
     // Spots
+    obsSpots,
     spotLayerScopes,
     spotLayerCoordination,
     
     // Segmentations
+    obsSegmentationsLocations,
     segmentationLayerScopes,
     segmentationChannelScopesByLayer,
     segmentationChannelCoordination,
@@ -51,7 +53,13 @@ export default function SpatialTooltipSubscriber(props) {
   const sourceUuid = useComponentHover();
   const viewInfo = useComponentViewInfo(parentUuid);
 
-  const projectedHoverCoord = useHoverInfoForTooltip && hoverCoord ? viewInfo?.project(hoverCoord) : null;
+  // Should hover position be used for tooltips?
+  // If there are centroids for each observation, then we can use those
+  // to position tooltips. However if there are not centroids,
+  // the other option is to use the mouse location.
+  const useHoverInfoForTooltip = sourceUuid === parentUuid && hoverCoord;
+  const projectedHoverCoord = useHoverInfoForTooltip ? viewInfo?.project(hoverCoord) : null;
+
 
   /*
   let [cellInfo, x, y] = [null, null, null];
@@ -82,9 +90,9 @@ export default function SpatialTooltipSubscriber(props) {
 
   let yOffset = -30;
 
-  return (hoverCoord ? (
+  return (
     <>
-      {imageLayerScopes?.map(layerScope => {
+      {projectedHoverCoord && imageLayerScopes?.map(layerScope => {
         const { pixelHighlight } = imageLayerCoordination?.[0]?.[layerScope];
         return (pixelHighlight ? (
           <TooltipChild
@@ -103,8 +111,17 @@ export default function SpatialTooltipSubscriber(props) {
       })}
       {segmentationLayerScopes?.flatMap(layerScope => (
         segmentationChannelScopesByLayer?.[layerScope]?.map(channelScope => {
-          const { obsType, obsHighlight } = segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope];
-          return (obsHighlight ? (
+          const { obsType, obsHighlight } = segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope] || {};
+          if(!obsHighlight) return null;
+          const { obsIndex, obsLocations } = obsSegmentationsLocations?.[layerScope]?.[channelScope] || {};
+          const hasObsCoordinates = useHoverInfoForTooltip ? true : obsLocations;
+          const obsI = obsIndex?.indexOf(obsHighlight);
+          if(hasObsCoordinates && obsI < 0) return null;
+          const obsCoord = [obsLocations?.data[0][obsI], obsLocations?.data[1][obsI], 0];
+          const projectedObsCoord = viewInfo?.project(obsCoord);
+          const x = useHoverInfoForTooltip ? projectedHoverCoord?.[0] : projectedObsCoord?.[0];
+          const y = useHoverInfoForTooltip ? projectedHoverCoord?.[1] : projectedObsCoord?.[1];
+          return (obsHighlight && hasObsCoordinates ? (
             <TooltipChild
               key={`${layerScope}-${channelScope}`}
               parentUuid={parentUuid}
@@ -114,8 +131,8 @@ export default function SpatialTooltipSubscriber(props) {
               info={{
                 [`${obsType} ID`]: obsHighlight,
               }}
-              x={projectedHoverCoord?.[0]}
-              y={projectedHoverCoord?.[1] + (yOffset += 30)}
+              x={x}
+              y={y + (yOffset += 30)}
             />
           ) : null);
         })
@@ -155,5 +172,5 @@ export default function SpatialTooltipSubscriber(props) {
         ) : null);
       })}
     </>
-  ) : null);
+  );
 }
