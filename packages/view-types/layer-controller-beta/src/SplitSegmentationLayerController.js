@@ -5,6 +5,7 @@ import SplitSegmentationChannelController from './SplitSegmentationChannelContro
 
 export default function SplitSegmentationLayerController(props) {
   const {
+    theme,
     layerScope,
     layerCoordination,
     setLayerCoordination,
@@ -28,6 +29,8 @@ export default function SplitSegmentationLayerController(props) {
       {channelScopes.map((cScope) => {
         const {
           obsType,
+          featureType,
+          featureValueType,
           spatialChannelVisible,
           spatialChannelOpacity,
           spatialChannelColor: color,
@@ -54,8 +57,12 @@ export default function SplitSegmentationLayerController(props) {
         return (
           <SplitSegmentationChannelController
             key={`${layerScope}-${cScope}`}
+            theme={theme}
             layerScope={layerScope}
             label={obsTypeName}
+            obsType={obsType}
+            featureType={featureType}
+            featureValueType={featureValueType}
             opacity={spatialChannelOpacity}
             setOpacity={setSpatialChannelOpacity}
             visible={spatialChannelVisible}

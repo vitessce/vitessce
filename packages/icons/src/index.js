@@ -6,3 +6,5 @@ export { ReactComponent as PointerIconSVG } from './assets/tools/near_me.svg';
 export { ReactComponent as SelectLassoIconSVG } from './assets/tools/selection_lasso.svg';
 export { ReactComponent as DimensionsSVG } from './assets/dimensions.svg';
 export { ReactComponent as VectorIconSVG } from './assets/vector.svg';
+export { ReactComponent as SpotsIconSVG } from './assets/spots.svg';
+export { ReactComponent as PointsIconSVG } from './assets/points.svg';

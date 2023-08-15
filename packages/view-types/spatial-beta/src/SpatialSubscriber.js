@@ -16,10 +16,17 @@ import {
   useNeighborhoodsData,
   useObsLabelsData,
   useMultiObsLabels,
+  useMultiObsSpots,
+  useMultiObsPoints,
+  useSpotMultiObsSets,
   useMultiObsSegmentations,
   useMultiImages,
-  useMultiFeatureSelection,
-  useMultiObsFeatureMatrixIndices,
+  useSpotMultiFeatureSelection,
+  useSpotMultiObsFeatureMatrixIndices,
+  useSegmentationMultiFeatureSelection,
+  useSegmentationMultiObsFeatureMatrixIndices,
+  useSegmentationMultiObsLocations,
+  useSegmentationMultiObsSets,
   useUint8FeatureSelection,
   useExpressionValueGetter,
   useInitialCoordination,
@@ -31,7 +38,9 @@ import {
   useHasLoader,
   useComplexCoordination,
   useMultiCoordinationScopes,
+  useMultiCoordinationScopesNonNull,
   useMultiCoordinationScopesSecondary,
+  useMultiCoordinationScopesSecondaryNonNull,
   useComplexCoordinationSecondary,
   useCoordinationScopes,
   useCoordinationScopesBy,
@@ -77,6 +86,58 @@ const tempLayer = [{
     },
   ],
 }];
+
+function getHoverData(hoverInfo, layerType) {
+  const { coordinate, sourceLayer: layer, tile } = hoverInfo;
+  if (layerType === 'segmentation-bitmask' || layerType === 'image') {
+    if (coordinate && layer) {
+      if (layer.id.startsWith('Tiled') && tile) {
+        // Adapted from https://github.com/hms-dbmi/viv/blob/2b28cc1db6ad1dacb44e6b1cd145ae90c46a2ef3/packages/viewers/src/VivViewer.jsx#L209
+        const {
+          content,
+          bbox,
+          index: { z },
+        } = tile;
+        if (content) {
+          const { data, width, height } = content;
+          const {
+            left, right, top, bottom,
+          } = bbox;
+          const bounds = [
+            left,
+            data.height < layer.tileSize ? height : bottom,
+            data.width < layer.tileSize ? width : right,
+            top,
+          ];
+          // Tiled layer needs a custom layerZoomScale.
+          // The zoomed out layer needs to use the fixed zoom at which it is rendered.
+          const layerZoomScale = Math.max(
+            1,
+            2 ** Math.round(-z),
+          );
+          const dataCoords = [
+            Math.floor((coordinate[0] - bounds[0]) / layerZoomScale),
+            Math.floor((coordinate[1] - bounds[3]) / layerZoomScale),
+          ];
+          const coords = dataCoords[1] * width + dataCoords[0];
+          const hoverData = data.map(d => d[coords]);
+          return hoverData;
+        }
+      }
+    }
+  }
+  if (layerType === 'segmentation-polygon' || layerType === 'spot' || layerType === 'point') {
+    if (hoverInfo.index) {
+      if (layerType === 'segmentation-polygon') {
+        // To match 'segmentation-bitmask', we return an array of one index per channel.
+        // For 'segmentation-polygon', we assume one channel per layer.
+        return [hoverInfo.index];
+      }
+      return hoverInfo.index;
+    }
+  }
+  return null;
+}
 
 /**
  * A subscriber component for the spatial plot.
@@ -129,17 +190,17 @@ export function SpatialSubscriber(props) {
     spatialOrbitAxis: orbitAxis,
     segmentationLayer: cellsLayer,
     spatialPointLayer: moleculesLayer,
-    spatialNeighborhoodLayer: neighborhoodsLayer,
-    obsFilter: cellFilter,
+    // spatialNeighborhoodLayer: neighborhoodsLayer,
+    // obsFilter: cellFilter,
     obsHighlight: cellHighlight,
-    featureSelection: geneSelection,
+    // featureSelection: geneSelection,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
-    obsColorEncoding: cellColorEncoding,
+    // obsColorEncoding: cellColorEncoding,
     additionalObsSets: additionalCellSets,
     spatialAxisFixed,
-    featureValueColormap: geneExpressionColormap,
-    featureValueColormapRange: geneExpressionColormapRange,
+    // featureValueColormap: geneExpressionColormap,
+    // featureValueColormapRange: geneExpressionColormapRange,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -147,20 +208,20 @@ export function SpatialSubscriber(props) {
     setSpatialTargetZ: setTargetZ,
     setSpatialRotationX: setRotationX,
     setSpatialRotationOrbit: setRotationOrbit,
-    setSpatialOrbitAxis: setOrbitAxis,
+    // setSpatialOrbitAxis: setOrbitAxis,
     setSegmentationLayer: setCellsLayer,
     setSpatialPointLayer: setMoleculesLayer,
-    setSpatialNeighborhoodLayer: setNeighborhoodsLayer,
+    // setSpatialNeighborhoodLayer: setNeighborhoodsLayer,
     setObsFilter: setCellFilter,
     setObsSetSelection: setCellSetSelection,
-    setObsHighlight: setCellHighlight,
+    // setObsHighlight: setCellHighlight,
     setObsSetColor: setCellSetColor,
     setObsColorEncoding: setCellColorEncoding,
     setAdditionalObsSets: setAdditionalCellSets,
-    setMoleculeHighlight,
-    setSpatialAxisFixed,
-    setFeatureValueColormap: setGeneExpressionColormap,
-    setFeatureValueColormapRange: setGeneExpressionColormapRange,
+    // setMoleculeHighlight,
+    // setSpatialAxisFixed,
+    // setFeatureValueColormap: setGeneExpressionColormap,
+    // setFeatureValueColormapRange: setGeneExpressionColormapRange,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
 
   const {
@@ -174,19 +235,31 @@ export function SpatialSubscriber(props) {
 
   const observationsLabel = observationsLabelOverride || obsType;
 
-  const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
+  const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
     CoordinationType.SEGMENTATION_CHANNEL,
     CoordinationType.SEGMENTATION_LAYER,
     coordinationScopes,
     coordinationScopesBy,
   );
 
-  const [imageLayerScopes, imageChannelScopesByLayer] = useMultiCoordinationScopesSecondary(
+  const [imageLayerScopes, imageChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
     CoordinationType.IMAGE_CHANNEL,
     CoordinationType.IMAGE_LAYER,
     coordinationScopes,
     coordinationScopesBy,
   );
+
+  const spotLayerScopes = useMultiCoordinationScopesNonNull(
+    CoordinationType.SPOT_LAYER,
+    coordinationScopes,
+  );
+
+  const pointLayerScopes = useMultiCoordinationScopesNonNull(
+    CoordinationType.POINT_LAYER,
+    coordinationScopes,
+  );
+
+  const hasObsLayers = segmentationLayerScopes.length > 0 || spotLayerScopes.length > 0;
 
   // Object keys are coordination scope names for spatialSegmentationLayer.
   const segmentationLayerCoordination = useComplexCoordination(
@@ -215,6 +288,10 @@ export function SpatialSubscriber(props) {
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+      CoordinationType.OBS_SET_COLOR,
+      CoordinationType.OBS_SET_SELECTION,
+      CoordinationType.ADDITIONAL_OBS_SETS,
+      CoordinationType.OBS_HIGHLIGHT,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -237,6 +314,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_SLICE_Y,
       CoordinationType.SPATIAL_SLICE_Z,
       CoordinationType.PHOTOMETRIC_INTERPRETATION,
+      CoordinationType.PIXEL_HIGHLIGHT,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -257,6 +335,49 @@ export function SpatialSubscriber(props) {
     CoordinationType.IMAGE_CHANNEL,
   );
 
+  // Spot layer
+  const spotLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.SPATIAL_SPOT_RADIUS,
+      CoordinationType.SPATIAL_SPOT_FILLED,
+      CoordinationType.SPATIAL_SPOT_STROKE_WIDTH,
+      CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_VALUE_COLORMAP,
+      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+      CoordinationType.OBS_SET_COLOR,
+      CoordinationType.OBS_SET_SELECTION,
+      CoordinationType.ADDITIONAL_OBS_SETS,
+      CoordinationType.SPATIAL_LAYER_COLOR,
+      CoordinationType.OBS_HIGHLIGHT,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPOT_LAYER,
+  );
+
+  // Point layer
+  const pointLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_VALUE_COLORMAP,
+      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+      CoordinationType.SPATIAL_LAYER_COLOR,
+      CoordinationType.OBS_HIGHLIGHT,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.POINT_LAYER,
+  );
+
+  /*
   const [
     {
       imageLayerCallbacks,
@@ -266,6 +387,7 @@ export function SpatialSubscriber(props) {
     COMPONENT_COORDINATION_TYPES.layerController,
     coordinationScopes,
   );
+  */
 
   const is3dMode = spatialRenderingMode === '3D';
   const imageLayers = []; // TODO: remove
@@ -276,26 +398,68 @@ export function SpatialSubscriber(props) {
     coordinationScopes, obsType, loaders, dataset,
   );
 
-  const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
+  // Points data
+  const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useMultiObsPoints(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
-  const [imageData, imageDataStatus] = useMultiImages(
+
+  // Spots data
+  const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useMultiObsSpots(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [obsSpotsSetsData, obsSpotsSetsDataStatus] = useSpotMultiObsSets(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   const [
-    multiExpressionData, multiLoadedFeatureSelection,
-    // eslint-disable-next-line no-unused-vars
-    multiExpressionExtents, multiExpressionNormData,
-    multiFeatureSelectionStatus,
-  ] = useMultiFeatureSelection(
+    spotMultiExpressionData,
+    spotMultiLoadedFeatureSelection,
+    spotMultiExpressionExtents,
+    spotMultiExpressionNormData,
+    spotMultiFeatureSelectionStatus,
+  ] = useSpotMultiFeatureSelection(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
-  const [multiIndicesData, multiIndicesDataStatus] = useMultiObsFeatureMatrixIndices(
+  const [spotMultiIndicesData, spotMultiIndicesDataStatus] = useSpotMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+  // Segmentations data
+  const [obsSegmentationsLocationsData, obsSegmentationsLocationsDataStatus] = useSegmentationMultiObsLocations(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls] = useMultiObsSegmentations(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [obsSegmentationsSetsData, obsSegmentationsSetsDataStatus] = useSegmentationMultiObsSets(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [
+    segmentationMultiExpressionData,
+    segmentationMultiLoadedFeatureSelection,
+    segmentationMultiExpressionExtents,
+    segmentationMultiExpressionNormData,
+    segmentationMultiFeatureSelectionStatus,
+  ] = useSegmentationMultiFeatureSelection(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [segmentationMultiIndicesData, segmentationMultiIndicesDataStatus] = useSegmentationMultiObsFeatureMatrixIndices(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  // Image data
+  const [imageData, imageDataStatus, imageUrls] = useMultiImages(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+
+  /*
   const hasExpressionData = useHasLoader(
     loaders, dataset, DataType.OBS_FEATURE_MATRIX,
     { obsType, featureType, featureValueType },
@@ -310,6 +474,7 @@ export function SpatialSubscriber(props) {
     loaders, dataset, DataType.IMAGE,
     {}, // TODO: which properties to match on. Revisit after #830.
   );
+  */
   // Get data from loaders using the data hooks.
   const [{
     obsIndex: obsLocationsIndex,
@@ -337,7 +502,7 @@ export function SpatialSubscriber(props) {
     obsIndex: obsSegmentationsIndex,
     obsSegmentations,
     obsSegmentationsType,
-  }, obsSegmentationsStatus, obsSegmentationsUrls] = useObsSegmentationsData(
+  }, obsSegmentationsStatus] = useObsSegmentationsData(
     loaders, dataset, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
@@ -349,11 +514,13 @@ export function SpatialSubscriber(props) {
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
+  /*
   // eslint-disable-next-line no-unused-vars
   const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
+  */
   const [
     { obsIndex: matrixObsIndex }, matrixIndicesStatus, matrixIndicesUrls,
   ] = useObsFeatureMatrixIndices(
@@ -361,57 +528,62 @@ export function SpatialSubscriber(props) {
     { obsType, featureType, featureValueType },
   );
 
-
-  const [{ image }, imageStatus, imageUrls] = useImageData(
+  /*
+  const [{ image }, imageStatus] = useImageData(
     loaders, dataset, false,
     {},
     {},
     {}, // TODO: which properties to match on. Revisit after #830.
   );
-  const { loaders: imageLayerLoaders = [], meta = [] } = image || {};
-  // console.log('multiImage', imageData, 'singleImage', image);
+  */
 
-
+  /*
   const [neighborhoods, neighborhoodsStatus, neighborhoodsUrls] = useNeighborhoodsData(
     loaders, dataset, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
+  */
+
+  // TODO: per-layer featureLabels
+  /*
   const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
-  const isReady = useReady([
-    obsLocationsStatus,
-    obsLabelsStatus,
-    obsCentroidsStatus,
-    obsSegmentationsStatus,
-    obsSetsStatus,
-    multiFeatureSelectionStatus,
-    matrixIndicesStatus,
-    imageStatus,
-    neighborhoodsStatus,
-  ]);
-  const urls = useUrls([
-    obsLocationsUrls,
-    obsLabelsUrls,
-    obsCentroidsUrls,
-    obsSegmentationsUrls,
-    obsSetsUrls,
-    matrixIndicesUrls,
-    imageUrls,
-    neighborhoodsUrls,
-    featureLabelsUrls,
+  */
+
+  const isReadyToComputeInitialViewState = useReady([
+    obsSpotsDataStatus,
+    obsSegmentationsDataStatus,
+    imageDataStatus,
   ]);
 
-  const obsLocationsFeatureIndex = useMemo(() => {
-    if (obsLocationsLabels) {
-      return Array.from(new Set(obsLocationsLabels));
-    }
-    return null;
-  }, [obsLocationsLabels]);
-  const moleculesCount = obsLocationsFeatureIndex?.length || 0;
-  const locationsCount = obsLocationsIndex?.length || 0;
+  const isReady = useReady([
+    // Spots
+    obsSpotsDataStatus,
+    obsSpotsSetsDataStatus,
+    spotMultiFeatureSelectionStatus,
+    spotMultiIndicesDataStatus,
+    // Points
+    obsPointsDataStatus,
+    // Segmentations
+    obsSegmentationsDataStatus,
+    obsSegmentationsSetsDataStatus,
+    segmentationMultiFeatureSelectionStatus,
+    segmentationMultiIndicesDataStatus,
+    obsSegmentationsLocationsDataStatus,
+    // Images
+    imageDataStatus,
+  ]);
+  const urls = useUrls([
+    Object.values(obsSpotsUrls || {}).flat(),
+    Object.values(obsPointsUrls || {}).flat(),
+    Object.values(obsSegmentationsUrls || {}).flat(),
+    Object.values(imageUrls || {}).flat(),
+    // TODO: more urls
+    // TODO: a bit of memoization
+  ]);
 
   const [originalViewState, setOriginalViewState] = useState(null);
 
@@ -423,25 +595,22 @@ export function SpatialSubscriber(props) {
   } = useMemo(() => getInitialSpatialTargets({
     width,
     height,
-    obsCentroids,
-    obsSegmentations,
-    obsSegmentationsType,
-    // TODO: use obsLocations (molecules) here too.
-    imageLayerLoaders: Object.values(imageData || {})
-      .map(layerData => layerData?.image?.instance.getData())
-      .filter(Boolean),
-    useRaster: Boolean(hasImageData),
-    use3d: is3dMode,
-    modelMatrices: Object.values(imageData || {})
-      .map(layerData => layerData?.image?.instance.getModelMatrix())
-      .filter(Boolean),
+    obsPoints: obsPointsData,
+    obsSpots: obsSpotsData,
+    obsSegmentations: obsSegmentationsData,
+    obsSegmentationsLocations: obsSegmentationsLocationsData,
+    segmentationChannelScopesByLayer,
+    images: imageData,
+    is3dMode,
+    isReady: isReadyToComputeInitialViewState,
   }),
   // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
   // an indirect dependency instead.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  [imageData, imageLayerScopes, is3dMode, hasImageData,
-    obsCentroids, obsSegmentations, obsSegmentationsType,
-    width, height,
+  [imageData, is3dMode, obsSegmentationsData,
+    width, height, obsSpotsData, isReadyToComputeInitialViewState,
+    obsSegmentationsLocationsData, obsPointsData,
+    segmentationChannelScopesByLayer,
   ]);
 
   useEffect(() => {
@@ -475,6 +644,16 @@ export function SpatialSubscriber(props) {
     initialTargetX, initialTargetY, initialTargetZ, initialZoom,
   ]);
 
+
+  const obsLocationsFeatureIndex = useMemo(() => {
+    if (obsLocationsLabels) {
+      return Array.from(new Set(obsLocationsLabels));
+    }
+    return null;
+  }, [obsLocationsLabels]);
+  const moleculesCount = obsLocationsFeatureIndex?.length || 0;
+  const locationsCount = obsLocationsIndex?.length || 0;
+
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
@@ -488,6 +667,7 @@ export function SpatialSubscriber(props) {
   }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
+  /*
   const cellColors = useMemo(() => getCellColors({
     cellColorEncoding,
     expressionData: expressionData && expressionData[0],
@@ -501,6 +681,7 @@ export function SpatialSubscriber(props) {
     cellSetColor, cellSetSelection, expressionData, matrixObsIndex]);
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
+  */
 
   const setViewState = ({
     zoom: newZoom,
@@ -528,12 +709,15 @@ export function SpatialSubscriber(props) {
     locationsCount,
   });
 
+  /*
   const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(expressionData);
+  */
 
   // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
   // where each cell id indexes into the array.
   // Cell ids in `attrs.rows` do not necessaryily correspond to indices in that array, though,
   // so we create a "shifted" array where this is the case.
+  /*
   const shiftedExpressionDataForBitmask = useMemo(() => {
     if (matrixObsIndex && uint8ExpressionData && obsSegmentationsType === 'bitmask') {
       const maxId = matrixObsIndex.reduce((max, curr) => Math.max(max, Number(curr)));
@@ -546,9 +730,11 @@ export function SpatialSubscriber(props) {
       return [result];
     } return [new Uint8Array()];
   }, [matrixObsIndex, uint8ExpressionData, obsSegmentationsType]);
+  */
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
+  /*
   const getExpressionValue = useExpressionValueGetter({
     // eslint-disable-next-line no-unneeded-ternary
     instanceObsIndex: (obsSegmentationsIndex
@@ -560,44 +746,8 @@ export function SpatialSubscriber(props) {
     matrixObsIndex,
     expressionData: uint8ExpressionData,
   });
-  const canLoad3DLayers = Object.values(imageData || {})
-    .some(layerData => layerData?.image?.instance.hasZStack());
-  // Only show 3D options if we can theoretically load the data and it is allowed to be loaded.
-  const canShow3DOptions = canLoad3DLayers && !globalDisable3d;
-
-  const options = useMemo(() => {
-    // Only show button if there is expression or 3D data because only cells data
-    // does not have any options (i.e for color encoding, you need to switch to expression data)
-    // TODO: show options if there are featureSelections (use results of useMultiFeatureSelection)
-    if (canShow3DOptions || hasExpressionData) {
-      return (
-        <SpatialOptions
-          observationsLabel={observationsLabel}
-          cellColorEncoding={cellColorEncoding}
-          setCellColorEncoding={setCellColorEncoding}
-          setSpatialAxisFixed={setSpatialAxisFixed}
-          spatialAxisFixed={spatialAxisFixed}
-          use3d={is3dMode}
-          geneExpressionColormap={geneExpressionColormap}
-          setGeneExpressionColormap={setGeneExpressionColormap}
-          geneExpressionColormapRange={geneExpressionColormapRange}
-          setGeneExpressionColormapRange={setGeneExpressionColormapRange}
-          canShowExpressionOptions={hasExpressionData}
-          canShowColorEncodingOption={
-            (hasLocationsData || hasSegmentationsData) && hasExpressionData
-          }
-          canShow3DOptions={canShow3DOptions}
-        />
-      );
-    }
-    return null;
-  }, [canShow3DOptions, cellColorEncoding, geneExpressionColormap,
-    geneExpressionColormapRange, setGeneExpressionColormap,
-    hasLocationsData, hasSegmentationsData, hasExpressionData,
-    observationsLabel, setCellColorEncoding,
-    setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, is3dMode,
-  ]);
-
+  */
+  /*
   useEffect(() => {
     // For backwards compatibility (diamond case).
     // Log to the console to alert the user that the auto-generated diamonds are being used.
@@ -610,16 +760,13 @@ export function SpatialSubscriber(props) {
   }, [hasSegmentationsData, cellsLayer, obsSegmentations, obsSegmentationsIndex,
     obsCentroids, obsCentroidsIndex,
   ]);
+  */
 
-  const [hoverData, setHoverData] = useState(null);
+  // const [hoverData, setHoverData] = useState(null);
   const [hoverCoord, setHoverCoord] = useState(null);
 
-  // Should hover position be used for tooltips?
-  // If there are centroids for each observation, then we can use those
-  // to position tooltips. However if there are not centroids,
-  // the other option is to use the mouse location.
-  const useHoverInfoForTooltip = !obsCentroids;
 
+  /*
   const getObsInfo = useCallback((hoveredChannelData) => {
     if (hoveredChannelData) {
       const result = {};
@@ -636,17 +783,23 @@ export function SpatialSubscriber(props) {
         } = channelCoordination[channelScope];
         if (spatialLayerVisible && spatialChannelVisible) {
           hasObsInfo = true;
-          result[`${layerObsType} ID`] = obsId;
-          if (multiExpressionData?.[layerScope]?.[channelScope] && multiLoadedFeatureSelection?.[layerScope]?.[channelScope]) {
-            const channelFeature = multiLoadedFeatureSelection?.[layerScope]?.[channelScope]?.[0];
-            const channelFeatureData = multiExpressionData?.[layerScope]?.[channelScope];
-            if (channelFeatureData && channelFeatureData[0]) {
-              // TODO: use multiIndicesData to obtain an index into the obsFeatureMatrix data
-              // using the bitmask channel value.
-              // For the sake of time, here I am assuming the off-by-one alignment.
-              const channelFeatureValue = channelFeatureData[0][obsI];
-              result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue);
+          if(obsId !== null) {
+            result[`${layerObsType} ID`] = obsId;
+            if (obsId && segmentationMultiExpressionData?.[layerScope]?.[channelScope] && segmentationMultiLoadedFeatureSelection?.[layerScope]?.[channelScope]) {
+              const channelFeature = segmentationMultiLoadedFeatureSelection?.[layerScope]?.[channelScope]?.[0];
+              const channelFeatureData = segmentationMultiExpressionData?.[layerScope]?.[channelScope];
+              if (channelFeatureData && channelFeatureData[0]) {
+                // TODO: use segmentationMultiIndicesData to obtain an index into the obsFeatureMatrix data
+                // using the bitmask channel value.
+                // For the sake of time, here I am assuming the off-by-one alignment.
+                const channelFeatureValue = channelFeatureData[0][obsI];
+                result[`${layerObsType} ${channelFeature}`] = commaNumber(channelFeatureValue);
+              }
             }
+          } else {
+            // obsId was null, so we are probably missing a corresponding obsIndex.
+            // We cannot get any more information about this obs.
+            result[`${layerObsType} index`] = obsI;
           }
         }
       });
@@ -655,14 +808,18 @@ export function SpatialSubscriber(props) {
     return null;
   }, [segmentationLayerScopes, segmentationLayerCoordination,
     segmentationChannelScopesByLayer, segmentationChannelCoordination,
-    multiExpressionData, multiLoadedFeatureSelection, multiIndicesData,
+    segmentationMultiExpressionData, segmentationMultiLoadedFeatureSelection, segmentationMultiIndicesData,
   ]);
+  */
 
+  /*
   const setHoverInfo = useCallback(debounce((data, coord) => {
     setHoverData(data);
     setHoverCoord(coord);
   }, 10, { trailing: true }), [setHoverData, setHoverCoord, useHoverInfoForTooltip]);
+  */
 
+  /*
   const segmentationLayerScopeChannelScopeTuples = useMemo(() => {
     const result = [];
     segmentationLayerScopes.forEach((layerScope) => {
@@ -681,8 +838,8 @@ export function SpatialSubscriber(props) {
         .filter(([targetC, obsI]) => obsI > 0)
         .map(([targetC, obsI]) => {
           const [layerScope, channelScope] = segmentationLayerScopeChannelScopeTuples[targetC];
-          if (multiIndicesData && layerScope && channelScope) {
-            const { obsIndex, featureIndex } = multiIndicesData[layerScope][channelScope];
+          if (segmentationMultiIndicesData && layerScope && channelScope) {
+            const { obsIndex, featureIndex } = segmentationMultiIndicesData[layerScope][channelScope];
             if (obsIndex) {
               return {
                 layerScope,
@@ -692,22 +849,31 @@ export function SpatialSubscriber(props) {
               };
             }
           }
-          return null;
-        })
-        .filter(Boolean);
+          return {
+            layerScope,
+            channelScope,
+            obsI,
+            // We do not have a corresponding obsIndex,
+            // so we cannot get an obsId.
+            obsId: null,
+          };
+        });
       return perChannelObsInfo;
     }
     return null;
-  }, [useHoverInfoForTooltip, multiIndicesData, segmentationLayerScopeChannelScopeTuples]);
+  }, [useHoverInfoForTooltip, segmentationMultiIndicesData, segmentationLayerScopeChannelScopeTuples]);
+  */
 
   // Without useMemo, this would propagate a change every time the component
   // re - renders as opposed to when it has to.
+  /*
   const resolutionFilteredImageLayerLoaders = useMemo(() => {
     // eslint-disable-next-line max-len
     const shouldUseFullData = (ll, index) => Array.isArray(useFullResolutionImage) && useFullResolutionImage.includes(meta[index].name) && Array.isArray(ll.data);
     // eslint-disable-next-line max-len
     return imageLayerLoaders.map((ll, index) => (shouldUseFullData(ll, index) ? { ...ll, data: ll.data[0] } : ll));
   }, [imageLayerLoaders, useFullResolutionImage, meta]);
+  */
 
   // Passing an invalid viewState (e.g., with null values) will cause DeckGL
   // to throw a mercator projection assertion error (in 3D mode / when using OrbitView).
@@ -718,6 +884,116 @@ export function SpatialSubscriber(props) {
     )
     : zoom !== null && targetX !== null && targetY !== null;
 
+  /**
+   * @param {object} hoverInfo The hoverInfo object passed to the DeckGL layer's onHover callback.
+   * @param {'spot'|'point'|'segmentation-polygon'|'segmentation-bitmask'|'image'} layerType
+   * @param {string} layerScope
+   */
+  const delegateHover = useCallback((hoverInfo, layerType, layerScope) => {
+    const { coordinate } = hoverInfo;
+    let showAnyTooltip = false;
+
+    const hoverData = getHoverData(hoverInfo, layerType);
+
+    // We always iterate over everything because we want to clear
+    // any highlights that are not the current hover.
+    imageLayerScopes?.forEach((imageLayerScope) => {
+      const { setPixelHighlight } = imageLayerCoordination?.[1]?.[imageLayerScope] || {};
+      if (hoverData && layerType === 'image' && layerScope === imageLayerScope) {
+        showAnyTooltip = true;
+        setPixelHighlight(hoverData);
+      } else {
+        setPixelHighlight(null);
+      }
+    });
+
+    segmentationLayerScopes?.forEach((segmentationLayerScope) => {
+      const channelScopes = segmentationChannelScopesByLayer?.[segmentationLayerScope];
+      channelScopes?.forEach((channelScope, channelI) => {
+        const { setObsHighlight } = segmentationChannelCoordination[1][segmentationLayerScope][channelScope];
+        if (hoverData && ['segmentation-bitmask', 'segmentation-polygon'].includes(layerType) && layerScope === segmentationLayerScope) {
+          const channelValue = hoverData[channelI];
+          let obsI = channelValue;
+          if (channelValue > 0) {
+            let obsId;
+            if (layerType === 'segmentation-bitmask') {
+              const { obsIndex } = segmentationMultiIndicesData?.[segmentationLayerScope]?.[channelScope] || {};
+              // We subtract one because we use 0 to represent background.
+              obsI -= 1;
+              if (obsIndex) {
+                obsId = obsIndex?.[obsI];
+              } else {
+                // When there is not a corresponding obsIndex to use,
+                // fall back to the observation index (based on the pixel value).
+                obsId = String(obsI);
+              }
+            } else {
+              const { obsIndex } = obsSegmentationsData?.[segmentationLayerScope] || {};
+              obsId = obsIndex?.[obsI];
+            }
+
+            if (obsId) {
+              showAnyTooltip = true;
+              setObsHighlight(obsId);
+            } else {
+              setObsHighlight(null);
+            }
+          } else {
+            setObsHighlight(null);
+          }
+        } else {
+          setObsHighlight(null);
+        }
+      });
+    });
+
+    spotLayerScopes?.forEach((spotLayerScope) => {
+      const { setObsHighlight } = spotLayerCoordination?.[1]?.[spotLayerScope] || {};
+      if (hoverData && layerType === 'spot' && layerScope === spotLayerScope) {
+        const obsI = hoverData;
+        const { obsIndex } = obsSpotsData?.[spotLayerScope] || {};
+        const obsId = obsIndex?.[obsI];
+        if (obsIndex && obsId) {
+          showAnyTooltip = true;
+          setObsHighlight(obsId);
+        } else {
+          setObsHighlight(null);
+        }
+      } else {
+        setObsHighlight(null);
+      }
+    });
+    pointLayerScopes?.forEach((pointLayerScope) => {
+      const { setObsHighlight } = pointLayerCoordination?.[1]?.[pointLayerScope] || {};
+      if (hoverData && layerType === 'point' && layerScope === pointLayerScope) {
+        const obsI = hoverData;
+        const { obsIndex } = obsPointsData?.[pointLayerScope] || {};
+        const obsId = obsIndex?.[obsI];
+        if (obsIndex && obsId) {
+          showAnyTooltip = true;
+          setObsHighlight(obsId);
+        } else {
+          setObsHighlight(null);
+        }
+      } else {
+        setObsHighlight(null);
+      }
+    });
+
+    if (showAnyTooltip) {
+      setHoverCoord(coordinate);
+      setComponentHover(uuid);
+    } else {
+      setHoverCoord(null);
+    }
+
+    // "If this callback returns a truthy value,
+    // the hover event is marked as handled and
+    // will not bubble up to the onHover callback of the DeckGL canvas."
+    // Reference: https://deck.gl/docs/api-reference/core/layer#interaction-properties
+    return false;
+  });
+
   return (
     <TitleInfo
       title={title}
@@ -727,13 +1003,17 @@ export function SpatialSubscriber(props) {
       theme={theme}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
-      options={options}
     >
       <Spatial
         ref={deckRef}
         uuid={uuid}
         width={width}
         height={height}
+        theme={theme}
+        hideTools // TODO: value?
+        // Global view state
+        targetT={targetT}
+        targetZ={targetZ}
         viewState={isValidViewState ? ({
           zoom,
           target: [targetX, targetY, targetZ],
@@ -741,91 +1021,119 @@ export function SpatialSubscriber(props) {
           rotationOrbit,
         }) : DEFAULT_VIEW_STATE}
         orbitAxis={orbitAxis}
+        spatialAxisFixed={spatialAxisFixed}
         setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
         originalViewState={originalViewState}
-        imageLayerDefs={imageLayers}
-        obsSegmentationsLayerDefs={tempLayer}
-        obsLocationsLayerDefs={moleculesLayer}
-        neighborhoodLayerDefs={neighborhoodsLayer}
-        obsLocationsIndex={obsLocationsIndex}
-        obsSegmentationsIndex={obsSegmentationsIndex}
-        obsLocations={obsLocations}
-        obsLocationsLabels={obsLocationsLabels}
-        obsLocationsFeatureIndex={obsLocationsFeatureIndex}
-        hasSegmentations={hasSegmentationsData}
+        spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
+        updateViewInfo={setComponentViewInfo}
 
+        delegateHover={delegateHover}
+
+        // Points
+        obsPoints={obsPointsData}
+        pointLayerScopes={pointLayerScopes}
+        pointLayerCoordination={pointLayerCoordination}
+
+        // Spots
+        obsSpots={obsSpotsData}
+        spotLayerScopes={spotLayerScopes}
+        spotLayerCoordination={spotLayerCoordination}
+        obsSpotsSets={obsSpotsSetsData}
+
+        spotMatrixIndices={spotMultiIndicesData}
+        spotMultiExpressionData={spotMultiExpressionNormData}
+
+        // Segmentations
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerCoordination={segmentationLayerCoordination}
-
         segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
         segmentationChannelCoordination={segmentationChannelCoordination}
 
-        multiExpressionData={multiExpressionData}
+        obsSegmentations={obsSegmentationsData}
+        obsSegmentationsLocations={obsSegmentationsLocationsData}
+        obsSegmentationsSets={obsSegmentationsSetsData}
+        segmentationMatrixIndices={segmentationMultiIndicesData}
+        segmentationMultiExpressionData={segmentationMultiExpressionNormData}
 
+        // Images
         images={imageData}
         imageLayerScopes={imageLayerScopes}
         imageLayerCoordination={imageLayerCoordination}
-        targetT={targetT}
-        targetZ={targetZ}
-        spatialRenderingMode={spatialRenderingMode}
 
         imageChannelScopesByLayer={imageChannelScopesByLayer}
         imageChannelCoordination={imageChannelCoordination}
 
-        obsSegmentations={obsSegmentationsData}
-        obsSegmentationsType="bitmask"
+        // TODO: useFullResolutionImage={useFullResolutionImage}
+
+
+        // OLD
+        // obsLocationsLayerDefs={moleculesLayer}
+        // neighborhoodLayerDefs={neighborhoodsLayer}
+        // obsLocationsIndex={obsLocationsIndex}
+        // obsSegmentationsIndex={obsSegmentationsIndex}
+        // obsLocations={obsLocations}
+        // obsLocationsLabels={obsLocationsLabels}
+        // obsLocationsFeatureIndex={obsLocationsFeatureIndex}
         obsCentroids={obsCentroids}
         obsCentroidsIndex={obsCentroidsIndex}
-        cellFilter={cellFilter}
-        cellSelection={cellSelection}
+        // cellFilter={cellFilter}
+        // cellSelection={cellSelection}
         cellHighlight={cellHighlight}
-        cellColors={cellColors}
-        neighborhoods={neighborhoods}
-        imageLayerLoaders={resolutionFilteredImageLayerLoaders}
+        // neighborhoods={neighborhoods}
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
-        setCellHighlight={setCellHighlight}
-        setHoverInfo={setHoverInfo}
-        setMoleculeHighlight={setMoleculeHighlight}
-        setComponentHover={() => {
-          setComponentHover(uuid);
-        }}
-        updateViewInfo={setComponentViewInfo}
-        imageLayerCallbacks={imageLayerCallbacks}
-        segmentationLayerCallbacks={segmentationLayerCallbacks}
-        spatialAxisFixed={spatialAxisFixed}
-        geneExpressionColormap={geneExpressionColormap}
-        geneExpressionColormapRange={geneExpressionColormapRange}
-        expressionData={shiftedExpressionDataForBitmask}
-        cellColorEncoding={cellColorEncoding}
-        getExpressionValue={getExpressionValue}
-        theme={theme}
-        useFullResolutionImage={useFullResolutionImage}
-        hideTools
+        // setCellHighlight={setCellHighlight}
+        // setMoleculeHighlight={setMoleculeHighlight}
+
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}
-          obsHighlight={cellHighlight}
           width={width}
           height={height}
-          getObsInfo={getObsInfo}
-          useHoverInfoForTooltip={useHoverInfoForTooltip}
-          hoverData={hoverData}
           hoverCoord={hoverCoord}
-          getObsIdFromHoverData={getObsIdFromHoverData}
+
+          // Points
+          obsPoints={obsPointsData}
+          pointLayerScopes={pointLayerScopes}
+          pointLayerCoordination={pointLayerCoordination}
+
+          // Spots
+          obsSpots={obsSpotsData}
+          spotLayerScopes={spotLayerScopes}
+          spotLayerCoordination={spotLayerCoordination}
+
+          // Segmentations
+          obsSegmentationsLocations={obsSegmentationsLocationsData}
+          segmentationLayerScopes={segmentationLayerScopes}
+          segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+          segmentationChannelCoordination={segmentationChannelCoordination}
+
+          // Images
+          imageLayerScopes={imageLayerScopes}
+          imageLayerCoordination={imageLayerCoordination}
         />
       )}
       <MultiLegend
         // Fix to dark theme due to black background of spatial plot.
         theme="dark"
+        // Segmentations
         segmentationLayerScopes={segmentationLayerScopes}
         segmentationLayerCoordination={segmentationLayerCoordination}
 
         segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
         segmentationChannelCoordination={segmentationChannelCoordination}
 
-        multiExpressionExtents={multiExpressionExtents}
+        segmentationMultiExpressionExtents={segmentationMultiExpressionExtents}
+
+        // Spots
+        spotLayerScopes={spotLayerScopes}
+        spotLayerCoordination={spotLayerCoordination}
+        spotMultiExpressionExtents={spotMultiExpressionExtents}
+
+        // Points
+        pointLayerScopes={pointLayerScopes}
+        pointLayerCoordination={pointLayerCoordination}
       />
     </TitleInfo>
   );

@@ -1,14 +1,16 @@
 import React from 'react';
+import SplitSpotLayerController from './SplitSpotLayerController.js';
+import SplitPointLayerController from './SplitPointLayerController.js';
 import SplitSegmentationLayerController from './SplitSegmentationLayerController.js';
 import SplitImageLayerController from './SplitImageLayerController.js';
 import GlobalDimensionSlider from './GlobalDimensionSlider.js';
 
 export default function SplitLayerController(props) {
   const {
+    theme,
     coordinationScopesRaw,
 
     segmentationLayerScopes,
-    // segmentationLayerValues,
     segmentationLayerCoordination,
 
     segmentationChannelScopesByLayer,
@@ -26,6 +28,12 @@ export default function SplitLayerController(props) {
 
     imageChannelScopesByLayer,
     imageChannelCoordination,
+
+    spotLayerScopes,
+    spotLayerCoordination,
+
+    pointLayerScopes,
+    pointLayerCoordination,
   } = props;
 
   const anyLayerHasT = Object.values(images || {})
@@ -40,24 +48,6 @@ export default function SplitLayerController(props) {
 
   return (
     <div>
-      {/* moleculesLayer && (
-        <VectorLayerController
-          key={`${dataset}-molecules`}
-          label="Molecules"
-          layerType="molecules"
-          layer={moleculesLayer}
-          handleLayerChange={setMoleculesLayer}
-        />
-      ) */}
-      {/* cellsLayer && obsSegmentationsType === 'polygon' && (
-        <VectorLayerController
-          key={`${dataset}-cells`}
-          label={`${capitalize(obsTypeProp)} Segmentations`}
-          layerType="cells"
-          layer={cellsLayer}
-          handleLayerChange={setCellsLayer}
-        />
-      ) */}
       {/* Global T and Z sliders */}
       {anyLayerHasZ ? (
         <GlobalDimensionSlider
@@ -77,10 +67,31 @@ export default function SplitLayerController(props) {
           max={maxT}
         />
       ) : null}
+      {/* Point layers: */}
+      {pointLayerScopes && pointLayerScopes.map(layerScope => (
+        <SplitPointLayerController
+          key={layerScope}
+          theme={theme}
+          layerScope={layerScope}
+          layerCoordination={pointLayerCoordination[0][layerScope]}
+          setLayerCoordination={pointLayerCoordination[1][layerScope]}
+        />
+      ))}
+      {/* Spot layers: */}
+      {spotLayerScopes && spotLayerScopes.map(layerScope => (
+        <SplitSpotLayerController
+          key={layerScope}
+          theme={theme}
+          layerScope={layerScope}
+          layerCoordination={spotLayerCoordination[0][layerScope]}
+          setLayerCoordination={spotLayerCoordination[1][layerScope]}
+        />
+      ))}
       {/* Segmentation layers: */}
       {segmentationLayerScopes && segmentationLayerScopes.map(layerScope => (
         <SplitSegmentationLayerController
           key={layerScope}
+          theme={theme}
           layerScope={layerScope}
           layerCoordination={segmentationLayerCoordination[0][layerScope]}
           setLayerCoordination={segmentationLayerCoordination[1][layerScope]}
@@ -93,6 +104,8 @@ export default function SplitLayerController(props) {
       {imageLayerScopes && imageLayerScopes.map(layerScope => (
         <SplitImageLayerController
           key={layerScope}
+          // Fix to dark theme due to black background of spatial plot.
+          theme="dark"
           coordinationScopesRaw={coordinationScopesRaw}
           layerScope={layerScope}
           layerCoordination={imageLayerCoordination[0][layerScope]}

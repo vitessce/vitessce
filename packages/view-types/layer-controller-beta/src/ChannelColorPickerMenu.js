@@ -5,7 +5,7 @@ import {
 import { PopperMenu } from '@vitessce/vit-s';
 import { TwitterPicker } from 'react-color-with-lodash';
 import { colorArrayToString } from '@vitessce/sets-utils';
-import { PATHOLOGY_PALETTE } from '@vitessce/utils';
+import { PATHOLOGY_PALETTE, getDefaultColor } from '@vitessce/utils';
 
 
 const useStyles = makeStyles(() => ({
@@ -48,6 +48,7 @@ const useStyles = makeStyles(() => ({
 
 export default function ChannelColorPickerMenu(props) {
   const {
+    theme,
     color,
     setColor,
     palette = null,
@@ -72,7 +73,7 @@ export default function ChannelColorPickerMenu(props) {
 
   const currentColor = color
     ? colorArrayToString(color)
-    : colorArrayToString([0, 0, 0]);
+    : colorArrayToString(getDefaultColor(theme));
 
   return (
     <PopperMenu

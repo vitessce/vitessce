@@ -20,6 +20,7 @@ import ChannelSelectionDropdown from './ChannelSelectionDropdown.js';
 
 export default function SplitImageChannelController(props) {
   const {
+    theme,
     coordinationScopesRaw,
     layerScope,
     channelScope,
@@ -45,7 +46,6 @@ export default function SplitImageChannelController(props) {
   const [showValueExtent, setShowValueExtent] = useState(true);
 
   const isLoading = false; // TODO
-  const theme = 'dark'; // TODO
   const is3dMode = spatialRenderingMode === '3D';
 
   function onRemove() {

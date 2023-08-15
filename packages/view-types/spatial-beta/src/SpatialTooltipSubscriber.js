@@ -1,60 +1,180 @@
+/* eslint-disable no-return-assign */
 import React from 'react';
 import { Tooltip2D, TooltipContent } from '@vitessce/tooltip';
 import { useComponentHover, useComponentViewInfo } from '@vitessce/vit-s';
+import { capitalize } from '@vitessce/utils';
+
+function TooltipChild(props) {
+  const { x, y, parentUuid, sourceUuid, width, height, info } = props;
+
+  return (
+    <Tooltip2D
+      x={x}
+      y={y}
+      parentUuid={parentUuid}
+      sourceUuid={sourceUuid}
+      parentWidth={width}
+      parentHeight={height}
+    >
+      <TooltipContent info={info} />
+    </Tooltip2D>
+  );
+}
+
+function getXY(
+  obsHighlight, viewInfo, obsIndex, obsLocations,
+  useHoverInfoForTooltip, projectedHoverCoord,
+) {
+  const hasObsCoordinates = useHoverInfoForTooltip ? true : (obsIndex && obsLocations);
+  if (!hasObsCoordinates) return null;
+  const obsI = obsIndex?.indexOf(obsHighlight);
+  if (obsI < 0) return null;
+  if (useHoverInfoForTooltip) {
+    return [projectedHoverCoord?.[0], projectedHoverCoord?.[1]];
+  }
+  const obsCoord = [obsLocations?.data[0][obsI], obsLocations?.data[1][obsI], 0];
+  const projectedObsCoord = viewInfo?.project(obsCoord);
+  return [projectedObsCoord?.[0], projectedObsCoord?.[1]];
+}
 
 export default function SpatialTooltipSubscriber(props) {
   const {
     parentUuid,
-    obsHighlight,
     width,
     height,
-    getObsInfo,
-    hoverData,
     hoverCoord,
-    useHoverInfoForTooltip,
-    getObsIdFromHoverData,
+
+    // Points
+    obsPoints,
+    pointLayerScopes,
+    pointLayerCoordination,
+
+    // Spots
+    obsSpots,
+    spotLayerScopes,
+    spotLayerCoordination,
+
+    // Segmentations
+    obsSegmentationsLocations,
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
+    segmentationChannelCoordination,
+
+    // Images
+    imageLayerScopes,
+    imageLayerCoordination,
   } = props;
 
   const sourceUuid = useComponentHover();
   const viewInfo = useComponentViewInfo(parentUuid);
 
-  let [cellInfo, x, y] = [null, null, null];
-  if (
-    useHoverInfoForTooltip && getObsIdFromHoverData
-    && hoverData && hoverCoord
-    && parentUuid === sourceUuid
-  ) {
-    // No observation centroid coordinates were provided, so use
-    // the mouse hover info to position the tooltip.
-    const obsId = getObsIdFromHoverData(hoverData);
-    if (obsId) {
-      [cellInfo, x, y] = [
-        getObsInfo(obsId),
-        ...(viewInfo && viewInfo.project ? viewInfo.project(hoverCoord) : [null, null]),
-      ];
-    }
-  } else if (!useHoverInfoForTooltip && getObsInfo && obsHighlight) {
-    // Observation centroid coordinates were provided, so use
-    // those coordinates to position the tooltip.
-    const obsId = obsHighlight;
-    [cellInfo, x, y] = [
-      getObsInfo(obsId),
-      ...(viewInfo && viewInfo.projectFromId ? viewInfo.projectFromId(obsId) : [null, null]),
-    ];
-  }
+  // Should hover position be used for tooltips?
+  // If there are centroids for each observation, then we can use those
+  // to position tooltips. However if there are not centroids,
+  // the other option is to use the mouse location.
+  const useHoverInfoForTooltip = sourceUuid === parentUuid && hoverCoord;
+  const projectedHoverCoord = useHoverInfoForTooltip ? viewInfo?.project(hoverCoord) : null;
+
+  let yOffset = -30;
 
   return (
-    (cellInfo ? (
-      <Tooltip2D
-        x={x}
-        y={y}
-        parentUuid={parentUuid}
-        sourceUuid={sourceUuid}
-        parentWidth={width}
-        parentHeight={height}
-      >
-        <TooltipContent info={cellInfo} />
-      </Tooltip2D>
-    ) : null)
+    <>
+      {projectedHoverCoord && imageLayerScopes?.map((layerScope) => {
+        const { pixelHighlight } = imageLayerCoordination?.[0]?.[layerScope] || {};
+        return (pixelHighlight ? (
+          <TooltipChild
+            key={layerScope}
+            parentUuid={parentUuid}
+            sourceUuid={sourceUuid}
+            width={width}
+            height={height}
+            info={{
+              'Pixel Value': JSON.stringify(pixelHighlight),
+            }}
+            x={projectedHoverCoord?.[0]}
+            y={projectedHoverCoord?.[1] + (yOffset += 30)}
+          />
+        ) : null);
+      })}
+      {segmentationLayerScopes?.flatMap(layerScope => (
+        segmentationChannelScopesByLayer?.[layerScope]?.map((channelScope) => {
+          const { obsType, obsHighlight } = segmentationChannelCoordination?.[0]
+            ?.[layerScope]?.[channelScope] || {};
+          if (!obsHighlight) return null;
+          const { obsIndex, obsLocations } = obsSegmentationsLocations
+            ?.[layerScope]?.[channelScope] || {};
+          const xy = getXY(
+            obsHighlight, viewInfo, obsIndex, obsLocations,
+            useHoverInfoForTooltip, projectedHoverCoord,
+          );
+          if (!xy) return null;
+          const [x, y] = xy;
+          return (
+            <TooltipChild
+              key={`${layerScope}-${channelScope}`}
+              parentUuid={parentUuid}
+              sourceUuid={sourceUuid}
+              width={width}
+              height={height}
+              info={{
+                [`${capitalize(obsType)} ID`]: obsHighlight,
+              }}
+              x={x}
+              y={y + (yOffset += 30)}
+            />
+          );
+        })
+      ))}
+      {spotLayerScopes?.map((layerScope) => {
+        const { obsType, obsHighlight } = spotLayerCoordination?.[0]?.[layerScope] || {};
+        if (!obsHighlight) return null;
+        const { obsIndex, obsSpots: obsLocations } = obsSpots?.[layerScope] || {};
+        const xy = getXY(
+          obsHighlight, viewInfo, obsIndex, obsLocations,
+          useHoverInfoForTooltip, projectedHoverCoord,
+        );
+        if (!xy) return null;
+        const [x, y] = xy;
+        return (
+          <TooltipChild
+            key={layerScope}
+            parentUuid={parentUuid}
+            sourceUuid={sourceUuid}
+            width={width}
+            height={height}
+            info={{
+              [`${capitalize(obsType)} ID`]: obsHighlight,
+            }}
+            x={x}
+            y={y + (yOffset += 30)}
+          />
+        );
+      })}
+      {pointLayerScopes?.map((layerScope) => {
+        const { obsType, obsHighlight } = pointLayerCoordination?.[0]?.[layerScope] || {};
+        if (!obsHighlight) return null;
+        const { obsIndex, obsPoints: obsLocations } = obsPoints?.[layerScope] || {};
+        const xy = getXY(
+          obsHighlight, viewInfo, obsIndex, obsLocations,
+          useHoverInfoForTooltip, projectedHoverCoord,
+        );
+        if (!xy) return null;
+        const [x, y] = xy;
+        return (
+          <TooltipChild
+            key={layerScope}
+            parentUuid={parentUuid}
+            sourceUuid={sourceUuid}
+            width={width}
+            height={height}
+            info={{
+              [`${capitalize(obsType)} ID`]: obsHighlight,
+            }}
+            x={x}
+            y={y + (yOffset += 30)}
+          />
+        );
+      })}
+    </>
   );
 }

@@ -125,6 +125,9 @@ function generateKpmpConfig() {
   strokeScope.setValue(1);
 
   const scopes = config.addCoordinationByObject({
+    spatialTargetX: 19375.01239458,
+    spatialTargetY: 18524.67196937,
+    spatialZoom: -4.60703913795,
     featureValueColormapRange: [0, 1],
     imageLayer: CL([
       {
@@ -174,6 +177,7 @@ function generateKpmpConfig() {
             obsColorEncoding: 'spatialChannelColor',
             spatialSegmentationFilled: true,
             spatialSegmentationStrokeWidth: strokeScope,
+            obsHighlight: null,
           },
           {
             obsType: 'Non-Globally Sclerotic Glomeruli',
@@ -186,6 +190,7 @@ function generateKpmpConfig() {
             obsColorEncoding: 'spatialChannelColor',
             spatialSegmentationFilled: filledScope,
             spatialSegmentationStrokeWidth: strokeScope,
+            obsHighlight: null,
           },
           {
             obsType: 'Globally Sclerotic Glomeruli',
@@ -198,6 +203,7 @@ function generateKpmpConfig() {
             obsColorEncoding: 'spatialChannelColor',
             spatialSegmentationFilled: filledScope,
             spatialSegmentationStrokeWidth: strokeScope,
+            obsHighlight: null,
           },
           {
             obsType: 'Tubules',
@@ -210,6 +216,7 @@ function generateKpmpConfig() {
             obsColorEncoding: 'spatialChannelColor',
             spatialSegmentationFilled: filledScope,
             spatialSegmentationStrokeWidth: strokeScope,
+            obsHighlight: null,
           },
           {
             obsType: 'Arteries/Arterioles',
@@ -222,6 +229,7 @@ function generateKpmpConfig() {
             obsColorEncoding: 'spatialChannelColor',
             spatialSegmentationFilled: filledScope,
             spatialSegmentationStrokeWidth: strokeScope,
+            obsHighlight: null,
           },
           {
             obsType: 'Interstitial Fibrosis and Tubular Atrophy',
@@ -234,6 +242,7 @@ function generateKpmpConfig() {
             obsColorEncoding: 'spatialChannelColor',
             spatialSegmentationFilled: false,
             spatialSegmentationStrokeWidth: strokeScope,
+            obsHighlight: null,
           },
           {
             obsType: 'Peritubular Capillaries',
@@ -246,6 +255,7 @@ function generateKpmpConfig() {
             obsColorEncoding: 'spatialChannelColor',
             spatialSegmentationFilled: true,
             spatialSegmentationStrokeWidth: strokeScope,
+            obsHighlight: null,
           },
         ]),
       },

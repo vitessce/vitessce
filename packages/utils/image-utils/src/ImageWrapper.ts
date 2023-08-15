@@ -8,6 +8,7 @@ import {
   canLoadResolution,
   getStatsForResolution,
   getBoundingCube,
+  isInterleaved as isInterleavedUtil,
 } from '@vitessce/spatial-utils';
 import { VIEWER_PALETTE } from '@vitessce/utils';
 import type { LoadOmeTiffReturnValue } from './ome-tiff-types.js';
@@ -388,5 +389,11 @@ export default class ImageWrapper<S extends string[]> {
       physicalSizeScalingMatrix[10] * shape[labels.indexOf('z')],
     ];
     return [xSlice, ySlice, zSlice];
+  }
+
+  isInterleaved(): boolean {
+    const loader = this.vivLoader;
+    const { shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    return isInterleavedUtil(shape);
   }
 }

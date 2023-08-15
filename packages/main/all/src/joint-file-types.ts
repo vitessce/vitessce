@@ -8,6 +8,12 @@ type BaseFileDef = {
   coordinationValues: Record<string, string>;
 };
 
+const expectedCoordinationTypes = [
+  'obsType', 'featureType', 'featureValueType',
+  'featureLabelsType', 'obsLabelsType',
+  'embeddingType',
+];
+
 export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) {
   const baseFileDef: BaseFileDef = {
     url: fileDef.url,
@@ -19,6 +25,12 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
       featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
     },
   };
+  const extraCoordinationValues: Record<string, any> = {};
+  Object.entries(baseFileDef.coordinationValues).forEach(([key, value]) => {
+    if (!expectedCoordinationTypes.includes(key)) {
+      extraCoordinationValues[key] = value;
+    }
+  });
   const { options = {} } = fileDef;
   return [
     // obsFeatureMatrix
@@ -27,6 +39,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
       fileType: FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR,
       options: options.obsFeatureMatrix,
       coordinationValues: {
+        ...extraCoordinationValues,
         obsType: baseFileDef.coordinationValues.obsType,
         featureType: baseFileDef.coordinationValues.featureType,
         featureValueType: baseFileDef.coordinationValues.featureValueType,
@@ -38,6 +51,27 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
       fileType: FileType.OBS_SETS_ANNDATA_ZARR,
       options: options.obsSets,
       coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
+    }] : []),
+    // obsSpots
+    ...(options.obsSpots ? [{
+      ...baseFileDef,
+      fileType: FileType.OBS_SPOTS_ANNDATA_ZARR,
+      options: options.obsSpots,
+      coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
+    }] : []),
+    // obsPoints
+    ...(options.obsPoints ? [{
+      ...baseFileDef,
+      fileType: FileType.OBS_POINTS_ANNDATA_ZARR,
+      options: options.obsPoints,
+      coordinationValues: {
+        ...extraCoordinationValues,
         obsType: baseFileDef.coordinationValues.obsType,
       },
     }] : []),
@@ -47,6 +81,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
       fileType: FileType.OBS_LOCATIONS_ANNDATA_ZARR,
       options: options.obsLocations,
       coordinationValues: {
+        ...extraCoordinationValues,
         obsType: baseFileDef.coordinationValues.obsType,
       },
     }] : []),
@@ -56,6 +91,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
       fileType: FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR,
       options: options.obsSegmentations,
       coordinationValues: {
+        ...extraCoordinationValues,
         obsType: baseFileDef.coordinationValues.obsType,
       },
     }] : []),
@@ -71,6 +107,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
           dims: oe.dims,
         },
         coordinationValues: {
+          ...extraCoordinationValues,
           obsType: baseFileDef.coordinationValues.obsType,
           // Move embedding type property out of options and into coordinationValues.
           embeddingType: oe.embeddingType,
@@ -81,6 +118,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
         fileType: FileType.OBS_EMBEDDING_ANNDATA_ZARR,
         options: options.obsEmbedding,
         coordinationValues: {
+          ...extraCoordinationValues,
           obsType: baseFileDef.coordinationValues.obsType,
           embeddingType: baseFileDef.coordinationValues.embeddingType,
         },
@@ -97,6 +135,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
           path: ol.path,
         },
         coordinationValues: {
+          ...extraCoordinationValues,
           obsType: baseFileDef.coordinationValues.obsType,
           // Move obsLabels type property out of options and into coordinationValues.
           obsLabelsType: ol.obsLabelsType,
@@ -107,6 +146,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
         fileType: FileType.OBS_LABELS_ANNDATA_ZARR,
         options: options.obsLabels,
         coordinationValues: {
+          ...extraCoordinationValues,
           obsType: baseFileDef.coordinationValues.obsType,
           obsLabelsType: baseFileDef.coordinationValues.obsLabelsType,
         },
@@ -123,6 +163,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
           path: fl.path,
         },
         coordinationValues: {
+          ...extraCoordinationValues,
           featureType: baseFileDef.coordinationValues.featureType,
           // Move featureLabels type property out of options and into coordinationValues.
           featureLabelsType: fl.featureLabelsType,
@@ -133,6 +174,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
         fileType: FileType.FEATURE_LABELS_ANNDATA_ZARR,
         options: options.featureLabels,
         coordinationValues: {
+          ...extraCoordinationValues,
           featureType: baseFileDef.coordinationValues.featureType,
           featureLabelsType: baseFileDef.coordinationValues.featureLabelsType,
         },

@@ -19,7 +19,7 @@ import {
   VisibilityOff as VisibilityOffIcon,
 } from '@material-ui/icons';
 import { PopperMenu } from '@vitessce/vit-s';
-import { VectorIconSVG } from '@vitessce/icons';
+import { SpotsIconSVG } from '@vitessce/icons';
 import { capitalize } from '@vitessce/utils';
 import {
   useControllerSectionStyles,
@@ -28,23 +28,19 @@ import {
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
-
 const useStyles = makeStyles(() => ({
-  layerTypeSegmentationIcon: {
+  layerTypeSpotIcon: {
     height: '100%',
     marginLeft: '1px',
     fill: 'currentColor',
-    fontSize: '24px',
+    fontSize: '20px',
     width: '50%',
-    maxWidth: '24px',
+    maxWidth: '20px',
   },
 }));
 
-function SegmentationChannelEllipsisMenu(props) {
+function SpotLayerEllipsisMenu(props) {
   const {
-    obsType,
-    featureType,
-    featureValueType,
     strokeWidth,
     setStrokeWidth,
     filled,
@@ -112,7 +108,7 @@ function SegmentationChannelEllipsisMenu(props) {
           inputProps={{ id: quantitativeColormapId }}
           classes={{ root: selectClasses.selectRoot }}
         >
-          <option value="spatialChannelColor">Static Color</option>
+          <option value="spatialLayerColor">Static Color</option>
           <option value="geneSelection">Feature Value</option>
           <option value="cellSetSelection">Set Selection</option>
         </Select>
@@ -137,38 +133,47 @@ function SegmentationChannelEllipsisMenu(props) {
   );
 }
 
-export default function SplitVectorLayerController(props) {
+export default function SplitSpotLayerController(props) {
   const {
-    label,
     theme,
-    obsType,
-    featureType,
-    featureValueType,
-    opacity,
-    setOpacity,
-    visible,
-    setVisible,
-    color,
-    setColor,
+    layerScope,
+    layerCoordination,
+    setLayerCoordination,
     palette = null,
-    filled,
-    setFilled,
-    strokeWidth,
-    setStrokeWidth,
-
-    featureSelection,
-    obsColorEncoding,
-    // featureValueColormap, // TODO
-    featureValueColormapRange,
-    setObsColorEncoding,
-    // setFeatureValueColormap, // TODO
-    setFeatureValueColormapRange,
   } = props;
+
+  const {
+    obsType,
+    spatialLayerVisible: visible,
+    spatialLayerOpacity: opacity,
+    spatialSpotRadius: radius,
+    spatialSpotFilled: filled,
+    spatialSpotStrokeWidth: strokeWidth,
+    spatialLayerColor: color,
+
+    obsColorEncoding,
+    featureSelection,
+    featureValueColormap,
+    featureValueColormapRange,
+  } = layerCoordination;
+  const {
+    setSpatialLayerVisible: setVisible,
+    setSpatialLayerOpacity: setOpacity,
+    setSpatialSpotRadius: setRadius,
+    setSpatialSpotFilled: setFilled,
+    setSpatialSpotStrokeWidth: setStrokeWidth,
+    setSpatialLayerColor: setColor,
+    setObsColorEncoding,
+    setFeatureSelection,
+    setFeatureValueColormap,
+    setFeatureValueColormapRange,
+  } = setLayerCoordination;
+
+  const label = capitalize(obsType);
 
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
-
-  const isStaticColor = obsColorEncoding === 'spatialChannelColor';
+  const isStaticColor = obsColorEncoding === 'spatialLayerColor';
 
   const classes = useStyles();
   const lcClasses = useControllerSectionStyles();
@@ -203,8 +208,7 @@ export default function SplitVectorLayerController(props) {
           </Grid>
           <Grid item xs={6}>
             <Typography className={menuClasses.imageLayerName}>
-              {capitalize(label)}
-              {/* capitalize(plur(label, 2)) */}
+              {label}
             </Typography>
           </Grid>
           <Grid item xs={2}>
@@ -219,14 +223,11 @@ export default function SplitVectorLayerController(props) {
             />
           </Grid>
           <Grid item xs={1}>
-            <SegmentationChannelEllipsisMenu
-              obsType={obsType}
-              featureType={featureType}
-              featureValueType={featureValueType}
-              strokeWidth={strokeWidth}
-              setStrokeWidth={setStrokeWidth}
+            <SpotLayerEllipsisMenu
               filled={filled}
               setFilled={setFilled}
+              strokeWidth={strokeWidth}
+              setStrokeWidth={setStrokeWidth}
               featureSelection={featureSelection}
               obsColorEncoding={obsColorEncoding}
               setObsColorEncoding={setObsColorEncoding}
@@ -235,7 +236,7 @@ export default function SplitVectorLayerController(props) {
             />
           </Grid>
           <Grid item xs={1}>
-            <VectorIconSVG className={classes.layerTypeSegmentationIcon} />
+            <SpotsIconSVG className={classes.layerTypeSpotIcon} />
           </Grid>
         </Grid>
       </Paper>

@@ -92,6 +92,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     return [];
   }
 
+  // TODO: remove this method and use the layer-level onHover instead.
+  // (e.g., see delegateHover in spatial-beta/SpatialSubscriber.js).
   // eslint-disable-next-line consistent-return
   onHover(info) {
     const {
