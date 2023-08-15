@@ -36,7 +36,7 @@ export default function MultiLegend(props) {
       {/* Points */}
       {pointLayerScopes ? pointLayerScopes.flatMap((layerScope) => {
         const layerCoordination = pointLayerCoordination[0][layerScope];
-      
+
         const {
           spatialLayerVisible,
           obsColorEncoding,
@@ -64,7 +64,7 @@ export default function MultiLegend(props) {
             spatialLayerColor={spatialLayerColor}
             featureSelection={null}
             // featureLabelsMap={featureLabelsMap} // TODO
-            featureValueColormap={'viridis'}
+            featureValueColormap="viridis"
             featureValueColormapRange={[0, 1]}
             extent={null}
             height={height}
@@ -74,7 +74,7 @@ export default function MultiLegend(props) {
       {/* Spots */}
       {spotLayerScopes ? spotLayerScopes.flatMap((layerScope) => {
         const layerCoordination = spotLayerCoordination[0][layerScope];
-      
+
         const {
           spatialLayerVisible,
           obsColorEncoding,

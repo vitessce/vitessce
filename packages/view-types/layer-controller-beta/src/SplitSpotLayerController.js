@@ -19,12 +19,12 @@ import {
 } from '@material-ui/icons';
 import { PopperMenu } from '@vitessce/vit-s';
 import { SpotsIconSVG } from '@vitessce/icons';
+import { capitalize } from '@vitessce/utils';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
   useSelectStyles,
 } from './styles.js';
-import { capitalize } from '@vitessce/utils';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
 const useStyles = makeStyles(() => ({
@@ -105,8 +105,8 @@ function SpotLayerEllipsisMenu(props) {
         </label>
         <Select
           native
-          //disabled={!((Array.isArray(featureSelection) && featureSelection.length > 0) || obsColorEncoding === 'geneSelection')}
-          onChange={(e) => setObsColorEncoding(e.target.value)}
+          // disabled={!((Array.isArray(featureSelection) && featureSelection.length > 0) || obsColorEncoding === 'geneSelection')}
+          onChange={e => setObsColorEncoding(e.target.value)}
           value={obsColorEncoding}
           inputProps={{ id: quantitativeColormapId }}
           classes={{ root: selectClasses.selectRoot }}

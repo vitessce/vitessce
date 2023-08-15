@@ -60,9 +60,11 @@ export function makeSpatialSubtitle({
 export function getInitialSpatialTargets({
   width,
   height,
-  // TODO: obsPoints,
+  obsPoints,
   obsSpots,
   obsSegmentations,
+  obsSegmentationsLocations,
+  segmentationChannelScopesByLayer,
   images,
   is3dMode: use3d,
   isReady,
@@ -73,7 +75,7 @@ export function getInitialSpatialTargets({
   let globalYMax = null;
   let globalZMin = null;
   let globalZMax = null;
-  
+
 
   // Some backoff from completely filling the screen.
   const zoomBackoff = use3d ? 1.5 : 0.1;
@@ -82,7 +84,7 @@ export function getInitialSpatialTargets({
     const imageLayerLoader = layerData?.image?.instance.getData();
     const modelMatrix = layerData?.image?.instance.getModelMatrix();
 
-    if(imageLayerLoader) {
+    if (imageLayerLoader) {
       const viewSize = { height, width };
       const { target, zoom: newViewStateZoom } = viv.getDefaultInitialViewState(
         imageLayerLoader,
@@ -92,11 +94,14 @@ export function getInitialSpatialTargets({
         new Matrix4(modelMatrix),
       );
 
-      const maxExtent = Math.max(width / 2**newViewStateZoom, height / 2**newViewStateZoom);
-      const xMin = target[0] - maxExtent/2;
-      const xMax = target[0] + maxExtent/2;
-      const yMin = target[1] - maxExtent/2;
-      const yMax = target[1] + maxExtent/2;
+      const maxExtent = Math.max(
+        width / (2 ** newViewStateZoom),
+        height / (2 ** newViewStateZoom),
+      );
+      const xMin = target[0] - maxExtent / 2;
+      const xMax = target[0] + maxExtent / 2;
+      const yMin = target[1] - maxExtent / 2;
+      const yMax = target[1] + maxExtent / 2;
       const zMin = target[2];
       const zMax = target[2];
       globalXMin = globalXMin === null ? xMin : Math.min(globalXMin, xMin);
@@ -109,15 +114,23 @@ export function getInitialSpatialTargets({
   });
 
   // Segmentations
-  Object.values(obsSegmentations || {}).forEach((layerData) => {
-    if(layerData?.obsSegmentations && layerData?.obsSegmentationsType) {
+  Object.entries(obsSegmentations || {}).forEach(([layerScope, layerData]) => {
+    if (layerData?.obsSegmentations && layerData?.obsSegmentationsType) {
       const { obsSegmentationsType } = layerData;
-      // TODO: use obsLocations if available.
-      const hasObsLocations = false;
       if (obsSegmentationsType === 'polygon') {
+        // Use obsLocations if available.
+        const firstChannel = segmentationChannelScopesByLayer?.[layerScope]?.[0];
+        const { obsLocations } = obsSegmentationsLocations?.[layerScope]?.[firstChannel] || {};
+        const hasObsLocations = Boolean(obsLocations);
         if (hasObsLocations) {
-          // TODO
+          const [xMin, xMax] = extent(obsLocations.data[0]);
+          const [yMin, yMax] = extent(obsLocations.data[1]);
+          // TODO: support Z axis for obsLocations?
 
+          globalXMin = globalXMin === null ? xMin : Math.min(globalXMin, xMin);
+          globalXMax = globalXMax === null ? xMax : Math.max(globalXMax, xMax);
+          globalYMin = globalYMin === null ? yMin : Math.min(globalYMin, yMin);
+          globalYMax = globalYMax === null ? yMax : Math.max(globalYMax, yMax);
         } else {
           // The fall back is the cells' polygon coordinates, if the original range
           // is 0 i.e the centroids are all on the same axis.
@@ -134,13 +147,14 @@ export function getInitialSpatialTargets({
           globalYMin = globalYMin === null ? yMin : Math.min(globalYMin, yMin);
           globalYMax = globalYMax === null ? yMax : Math.max(globalYMax, yMax);
         }
-      } else if(obsSegmentationsType === 'bitmask') {
+      } else if (obsSegmentationsType === 'bitmask') {
+        const hasObsLocations = false;
         if (hasObsLocations) {
-          // TODO
+          // TODO: use obsLocations if available.
         } else {
           const imageLayerLoader = layerData?.obsSegmentations?.instance.getData();
           const modelMatrix = layerData?.obsSegmentations?.instance.getModelMatrix();
-          if(imageLayerLoader) {
+          if (imageLayerLoader) {
             const viewSize = { height, width };
             const { target, zoom: newViewStateZoom } = viv.getDefaultInitialViewState(
               imageLayerLoader,
@@ -149,11 +163,14 @@ export function getInitialSpatialTargets({
               use3d,
               new Matrix4(modelMatrix),
             );
-            const maxExtent = Math.max(width / 2**newViewStateZoom, height / 2**newViewStateZoom);
-            const xMin = target[0] - maxExtent/2;
-            const xMax = target[0] + maxExtent/2;
-            const yMin = target[1] - maxExtent/2;
-            const yMax = target[1] + maxExtent/2;
+            const maxExtent = Math.max(
+              width / (2 ** newViewStateZoom),
+              height / (2 ** newViewStateZoom),
+            );
+            const xMin = target[0] - maxExtent / 2;
+            const xMax = target[0] + maxExtent / 2;
+            const yMin = target[1] - maxExtent / 2;
+            const yMax = target[1] + maxExtent / 2;
             const zMin = target[2];
             const zMax = target[2];
             globalXMin = globalXMin === null ? xMin : Math.min(globalXMin, xMin);
@@ -168,9 +185,23 @@ export function getInitialSpatialTargets({
     }
   });
 
+  // Points
+  Object.values(obsPoints || {}).forEach((layerData) => {
+    if (layerData?.obsPoints) {
+      const [xMin, xMax] = extent(layerData.obsPoints.data[0]);
+      const [yMin, yMax] = extent(layerData.obsPoints.data[1]);
+      // TODO: support Z axis for points?
+
+      globalXMin = globalXMin === null ? xMin : Math.min(globalXMin, xMin);
+      globalXMax = globalXMax === null ? xMax : Math.max(globalXMax, xMax);
+      globalYMin = globalYMin === null ? yMin : Math.min(globalYMin, yMin);
+      globalYMax = globalYMax === null ? yMax : Math.max(globalYMax, yMax);
+    }
+  });
+
   // Spots
   Object.values(obsSpots || {}).forEach((layerData) => {
-    if(layerData?.obsSpots) {
+    if (layerData?.obsSpots) {
       const [xMin, xMax] = extent(layerData.obsSpots.data[0]);
       const [yMin, yMax] = extent(layerData.obsSpots.data[1]);
       // TODO: support Z axis for spots?
@@ -182,7 +213,7 @@ export function getInitialSpatialTargets({
     }
   });
 
-  if(
+  if (
     !isReady
     || globalXMin === null
     || globalXMax === null

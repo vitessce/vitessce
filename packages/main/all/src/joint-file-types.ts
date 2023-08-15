@@ -21,7 +21,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
   };
   const extraCoordinationValues: Record<string, any> = {};
   Object.entries(baseFileDef.coordinationValues).forEach(([key, value]) => {
-    if(!['obsType', 'featureType', 'featureValueType'].includes(key)) {
+    if (!['obsType', 'featureType', 'featureValueType'].includes(key)) {
       extraCoordinationValues[key] = value;
     }
   });

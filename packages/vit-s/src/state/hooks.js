@@ -413,6 +413,7 @@ export function useMultiCoordinationScopesNonNull(parameter, coordinationScopes)
         const value = coordinationSpace[parameter][scope];
         return value !== null;
       }
+      return false;
     });
   }, shallow);
   return nonNullScopes;
@@ -461,17 +462,19 @@ export function useMultiCoordinationScopesSecondaryNonNull(
           const value = coordinationSpace[byType][scope];
           return value !== null;
         }
+        return false;
       });
       return [scopesNonNull, fromEntries(scopesNonNull.map((scope) => {
         const secondaryScopes = coordinationScopesBy[byType][parameter][scope];
         const secondaryScopesArr = Array.isArray(secondaryScopes)
           ? secondaryScopes
           : [secondaryScopes];
-        const secondaryScopesNonNull = secondaryScopesArr.filter((scope) => {
+        const secondaryScopesNonNull = secondaryScopesArr.filter((innerScope) => {
           if (coordinationSpace && coordinationSpace[parameter]) {
-            const value = coordinationSpace[parameter][scope];
+            const value = coordinationSpace[parameter][innerScope];
             return value !== null;
           }
+          return false;
         });
         return [scope, secondaryScopesNonNull];
       }))];
@@ -484,17 +487,19 @@ export function useMultiCoordinationScopesSecondaryNonNull(
           const value = coordinationSpace[byType][scope];
           return value !== null;
         }
+        return false;
       });
       return [scopesNonNull, fromEntries(scopesNonNull.map((scope) => {
         const secondaryScopes = coordinationScopes?.[parameter];
         const secondaryScopesArr = Array.isArray(secondaryScopes)
           ? secondaryScopes
           : [secondaryScopes];
-        const secondaryScopesNonNull = secondaryScopesArr.filter((scope) => {
+        const secondaryScopesNonNull = secondaryScopesArr.filter((innerScope) => {
           if (coordinationSpace && coordinationSpace[parameter]) {
-            const value = coordinationSpace[parameter][scope];
+            const value = coordinationSpace[parameter][innerScope];
             return value !== null;
           }
+          return false;
         });
         return [scope, secondaryScopesNonNull];
       }))];

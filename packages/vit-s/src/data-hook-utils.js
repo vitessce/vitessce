@@ -114,8 +114,8 @@ export function useDataType(
     // Include the hook name in the queryKey to prevent the case in which an identical queryKey
     // in a different hook would cause an accidental cache hit.
     // Note: same key structure/suffix as
-      // useDataTypeMulti() and getQueryKeyScopeTuplesAux()
-      // for shared caching.
+    // useDataTypeMulti() and getQueryKeyScopeTuplesAux()
+    // for shared caching.
     queryKey: [dataset, dataType, matchOn, isRequired, 'useDataType'],
     // Query function should return an object
     // { data, dataKey } where dataKey is the loaded gene selection.
@@ -776,7 +776,7 @@ export function useObsLocationsMultiLevel(
   return useDataTypeMultiLevel(
     loaders, dataset, isRequired, matchOnObj,
     depth, DataType.OBS_LOCATIONS,
-  )
+  );
 }
 
 export function useObsSetsMultiLevel(
@@ -786,5 +786,5 @@ export function useObsSetsMultiLevel(
   return useDataTypeMultiLevel(
     loaders, dataset, isRequired, matchOnObj,
     depth, DataType.OBS_SETS,
-  )
+  );
 }

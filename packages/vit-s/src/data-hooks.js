@@ -317,7 +317,7 @@ export function useObsFeatureMatrixIndices(
     // Include the hook name in the queryKey to prevent the case in which an identical queryKey
     // in a different hook would cause an accidental cache hit.
     // Note: this uses the same key structure/suffix as
-      // getMatrixIndicesQueryKeyScopeTuplesAux for shared caching.
+    // getMatrixIndicesQueryKeyScopeTuplesAux for shared caching.
     queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn, isRequired, 'useObsFeatureMatrixIndices'],
     // Query function should return an object
     // { data, dataKey } where dataKey is the loaded gene selection.
@@ -437,7 +437,7 @@ export function useSpotMultiObsSets(
     ],
     coordinationScopes,
     coordinationScopesBy,
-    CoordinationType.SPOT_LAYER, // TODO: obs sets by segmentation layer, segmentation layer->channel, point layer?
+    CoordinationType.SPOT_LAYER,
   );
   const matchOnObj = useMemo(() => obsTypeCoordination[0],
     // imageCoordination reference changes each render,

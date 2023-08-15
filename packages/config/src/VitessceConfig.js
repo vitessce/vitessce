@@ -784,31 +784,29 @@ export class VitessceConfig {
           const nextLevel = nextLevelOrInitialValue.value;
           if (nextLevelOrInitialValue.isCached()) {
             result[cType] = nextLevelOrInitialValue.getCached();
-          } else {
-            if (Array.isArray(nextLevel)) {
-              const processedLevel = nextLevel.map((nextEl) => {
-                const [dummyScope] = this.addCoordination(cType);
-                // TODO: set a better initial value for dummy cases.
-                dummyScope.setValue('__dummy__');
-                return {
-                  scope: dummyScope,
-                  children: processLevel(nextEl),
-                };
-              });
-              nextLevelOrInitialValue.setCached(processedLevel);
-              result[cType] = processedLevel;
-            } else {
-              const nextEl = nextLevel;
+          } else if (Array.isArray(nextLevel)) {
+            const processedLevel = nextLevel.map((nextEl) => {
               const [dummyScope] = this.addCoordination(cType);
               // TODO: set a better initial value for dummy cases.
               dummyScope.setValue('__dummy__');
-              const processedLevel =  {
+              return {
                 scope: dummyScope,
                 children: processLevel(nextEl),
               };
-              nextLevelOrInitialValue.setCached(processedLevel);
-              result[cType] = processedLevel;
-            }
+            });
+            nextLevelOrInitialValue.setCached(processedLevel);
+            result[cType] = processedLevel;
+          } else {
+            const nextEl = nextLevel;
+            const [dummyScope] = this.addCoordination(cType);
+            // TODO: set a better initial value for dummy cases.
+            dummyScope.setValue('__dummy__');
+            const processedLevel = {
+              scope: dummyScope,
+              children: processLevel(nextEl),
+            };
+            nextLevelOrInitialValue.setCached(processedLevel);
+            result[cType] = processedLevel;
           }
         } else {
           // Base case.

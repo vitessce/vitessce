@@ -19,13 +19,13 @@ import {
 } from '@material-ui/icons';
 import { PopperMenu } from '@vitessce/vit-s';
 import { VectorIconSVG } from '@vitessce/icons';
+import { capitalize } from '@vitessce/utils';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
   useSelectStyles,
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
-import { capitalize } from '@vitessce/utils';
 
 
 const useStyles = makeStyles(() => ({
@@ -109,8 +109,8 @@ function SegmentationChannelEllipsisMenu(props) {
         </label>
         <Select
           native
-          //disabled={!((Array.isArray(featureSelection) && featureSelection.length > 0) || obsColorEncoding === 'geneSelection')}
-          onChange={(e) => setObsColorEncoding(e.target.value)}
+          // disabled={!((Array.isArray(featureSelection) && featureSelection.length > 0) || obsColorEncoding === 'geneSelection')}
+          onChange={e => setObsColorEncoding(e.target.value)}
           value={obsColorEncoding}
           inputProps={{ id: quantitativeColormapId }}
           classes={{ root: selectClasses.selectRoot }}
@@ -207,7 +207,7 @@ export default function SplitVectorLayerController(props) {
           <Grid item xs={6}>
             <Typography className={menuClasses.imageLayerName}>
               {capitalize(label)}
-              {/*capitalize(plur(label, 2))*/}
+              {/* capitalize(plur(label, 2)) */}
             </Typography>
           </Grid>
           <Grid item xs={2}>

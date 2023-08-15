@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign */
 import React from 'react';
 import { Tooltip2D, TooltipContent } from '@vitessce/tooltip';
 import { useComponentHover, useComponentViewInfo } from '@vitessce/vit-s';
@@ -20,12 +21,15 @@ function TooltipChild(props) {
   );
 }
 
-function getXY(obsHighlight, viewInfo, obsIndex, obsLocations, useHoverInfoForTooltip, projectedHoverCoord) {
+function getXY(
+  obsHighlight, viewInfo, obsIndex, obsLocations,
+  useHoverInfoForTooltip, projectedHoverCoord,
+) {
   const hasObsCoordinates = useHoverInfoForTooltip ? true : (obsIndex && obsLocations);
-  if(!hasObsCoordinates) return null;
+  if (!hasObsCoordinates) return null;
   const obsI = obsIndex?.indexOf(obsHighlight);
-  if(obsI < 0) return null;
-  if(useHoverInfoForTooltip) {
+  if (obsI < 0) return null;
+  if (useHoverInfoForTooltip) {
     return [projectedHoverCoord?.[0], projectedHoverCoord?.[1]];
   }
   const obsCoord = [obsLocations?.data[0][obsI], obsLocations?.data[1][obsI], 0];
@@ -49,13 +53,13 @@ export default function SpatialTooltipSubscriber(props) {
     obsSpots,
     spotLayerScopes,
     spotLayerCoordination,
-    
+
     // Segmentations
     obsSegmentationsLocations,
     segmentationLayerScopes,
     segmentationChannelScopesByLayer,
     segmentationChannelCoordination,
-    
+
     // Images
     imageLayerScopes,
     imageLayerCoordination,
@@ -75,8 +79,8 @@ export default function SpatialTooltipSubscriber(props) {
 
   return (
     <>
-      {projectedHoverCoord && imageLayerScopes?.map(layerScope => {
-        const { pixelHighlight } = imageLayerCoordination?.[0]?.[layerScope];
+      {projectedHoverCoord && imageLayerScopes?.map((layerScope) => {
+        const { pixelHighlight } = imageLayerCoordination?.[0]?.[layerScope] || {};
         return (pixelHighlight ? (
           <TooltipChild
             key={layerScope}
@@ -85,7 +89,7 @@ export default function SpatialTooltipSubscriber(props) {
             width={width}
             height={height}
             info={{
-              'Pixel Value': JSON.stringify(pixelHighlight)
+              'Pixel Value': JSON.stringify(pixelHighlight),
             }}
             x={projectedHoverCoord?.[0]}
             y={projectedHoverCoord?.[1] + (yOffset += 30)}
@@ -93,12 +97,17 @@ export default function SpatialTooltipSubscriber(props) {
         ) : null);
       })}
       {segmentationLayerScopes?.flatMap(layerScope => (
-        segmentationChannelScopesByLayer?.[layerScope]?.map(channelScope => {
-          const { obsType, obsHighlight } = segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope] || {};
-          if(!obsHighlight) return null;
-          const { obsIndex, obsLocations } = obsSegmentationsLocations?.[layerScope]?.[channelScope] || {};
-          const xy = getXY(obsHighlight, viewInfo, obsIndex, obsLocations, useHoverInfoForTooltip, projectedHoverCoord);
-          if(!xy) return null;
+        segmentationChannelScopesByLayer?.[layerScope]?.map((channelScope) => {
+          const { obsType, obsHighlight } = segmentationChannelCoordination?.[0]
+            ?.[layerScope]?.[channelScope] || {};
+          if (!obsHighlight) return null;
+          const { obsIndex, obsLocations } = obsSegmentationsLocations
+            ?.[layerScope]?.[channelScope] || {};
+          const xy = getXY(
+            obsHighlight, viewInfo, obsIndex, obsLocations,
+            useHoverInfoForTooltip, projectedHoverCoord,
+          );
+          if (!xy) return null;
           const [x, y] = xy;
           return (
             <TooltipChild
@@ -116,12 +125,15 @@ export default function SpatialTooltipSubscriber(props) {
           );
         })
       ))}
-      {spotLayerScopes?.map(layerScope => {
-        const { obsType, obsHighlight } = spotLayerCoordination?.[0]?.[layerScope];
-        if(!obsHighlight) return null;
+      {spotLayerScopes?.map((layerScope) => {
+        const { obsType, obsHighlight } = spotLayerCoordination?.[0]?.[layerScope] || {};
+        if (!obsHighlight) return null;
         const { obsIndex, obsSpots: obsLocations } = obsSpots?.[layerScope] || {};
-        const xy = getXY(obsHighlight, viewInfo, obsIndex, obsLocations, useHoverInfoForTooltip, projectedHoverCoord);
-        if(!xy) return null;
+        const xy = getXY(
+          obsHighlight, viewInfo, obsIndex, obsLocations,
+          useHoverInfoForTooltip, projectedHoverCoord,
+        );
+        if (!xy) return null;
         const [x, y] = xy;
         return (
           <TooltipChild
@@ -138,12 +150,15 @@ export default function SpatialTooltipSubscriber(props) {
           />
         );
       })}
-      {pointLayerScopes?.map(layerScope => {
-        const { obsType, obsHighlight } = pointLayerCoordination?.[0]?.[layerScope];
-        if(!obsHighlight) return null;
+      {pointLayerScopes?.map((layerScope) => {
+        const { obsType, obsHighlight } = pointLayerCoordination?.[0]?.[layerScope] || {};
+        if (!obsHighlight) return null;
         const { obsIndex, obsPoints: obsLocations } = obsPoints?.[layerScope] || {};
-        const xy = getXY(obsHighlight, viewInfo, obsIndex, obsLocations, useHoverInfoForTooltip, projectedHoverCoord);
-        if(!xy) return null;
+        const xy = getXY(
+          obsHighlight, viewInfo, obsIndex, obsLocations,
+          useHoverInfoForTooltip, projectedHoverCoord,
+        );
+        if (!xy) return null;
         const [x, y] = xy;
         return (
           <TooltipChild

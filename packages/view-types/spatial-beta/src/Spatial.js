@@ -118,7 +118,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // All instance variables used in this class:
     this.obsSegmentationsData = {}; // Keys: segmentationLayer scopes
     this.obsSegmentationsQuadTree = {}; // Keys: segmentationLayer.segmentationChannel scopes
-    //this.obsLocationsData = null; // TODO: is this used?
+    // this.obsLocationsData = null; // TODO: is this used?
     this.obsSpotsData = {}; // Keys: spotLayer scopes
     this.obsSpotsQuadTree = {}; // Keys: spotLayer scopes
     this.obsPointsData = {}; // Keys: pointLayer scopes
@@ -128,14 +128,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.obsSegmentationsLayers = [];
     this.obsSpotsLayers = [];
     this.obsPointsLayers = [];
-    //this.neighborhoodsLayer = null;
+    // this.neighborhoodsLayer = null;
 
-    this.spotToMatrixIndexMap = {} // Keys: spotLayer scopes
+    this.spotToMatrixIndexMap = {}; // Keys: spotLayer scopes
     this.spotColors = {}; // Keys: spotLayer scopes
     this.spotExpressionGetters = {}; // Keys: spotLayer scopes
     this.prevSpotSetColor = {}; // Keys: spotLayer scopes. Used for diffing to detect changes.
 
-    this.segmentationToMatrixIndexMap = {} // Keys: segmentationLayer.segmentationChannel scopes
+    this.segmentationToMatrixIndexMap = {}; // Keys: segmentationLayer.segmentationChannel scopes
     this.segmentationColors = {}; // Keys: segmentationLayer.segmentationChannel scopes
     this.segmentationExpressionGetters = {}; // Keys: segmentationLayer.segmentationChannel scopes
     this.prevSegmentationSetColor = {}; // Keys: segmentationLayer.segmentationChannel scopes. Used for diffing to detect changes.
@@ -173,8 +173,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.onUpdateAllSpotsIndexData();
     this.onUpdateAllSpotsExpressionData();
     this.onUpdateSpotsLayer();
-    //this.onUpdateNeighborhoodsData(); // TODO: is this used?
-    //this.onUpdateNeighborhoodsLayer();
+    // this.onUpdateNeighborhoodsData(); // TODO: is this used?
+    // this.onUpdateNeighborhoodsLayer();
     this.onUpdateImages();
   }
 
@@ -187,12 +187,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const layerOpacity = layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY];
 
     // Assume there is a single channel for polygon-based segmentations.
-    if(!channelScopes.length === 1) {
+    if (!channelScopes.length === 1) {
       return null;
     }
     const channelScope = channelScopes[0];
     const channelCoordination = channelCoordinations[channelScope];
-    if(!channelCoordination) {
+    if (!channelCoordination) {
       return null;
     }
 
@@ -220,7 +220,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const staticColor = Array.isArray(spatialChannelColor) && spatialChannelColor.length === 3
       ? spatialChannelColor
       : getDefaultColor(theme);
-    
+
     const getCellColor = makeDefaultGetCellColors(layerColors, obsIndex, theme);
     const getPolygon = (object, { index, data }) => data.src.obsSegmentations.data[index];
 
@@ -241,16 +241,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getFillColor: isStaticColor ? staticColor : getCellColor,
       getLineColor: isStaticColor ? staticColor : getCellColor,
       onClick: (info) => {
-        /*if (onCellClick) {
+        /* if (onCellClick) {
           onCellClick(info);
-        }*/
+        } */
       },
-      onHover: (info) => delegateHover(info, 'segmentation-polygon', layerScope),
+      onHover: info => delegateHover(info, 'segmentation-polygon', layerScope),
       visible,
       opacity,
       getLineWidth: !spatialSegmentationFilled ? spatialSegmentationStrokeWidth : 0,
-      //lineWidthScale,
-      //lineWidthMaxPixels,
+      // lineWidthScale,
+      // lineWidthMaxPixels,
       getExpressionValue,
       extensions: [new ScaledExpressionExtension()],
       colorScaleLo: featureValueColormapRange[0],
@@ -323,7 +323,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       },
       getLineColor: isStaticColor ? staticColor : getSpotColor,
       getFillColor: isStaticColor ? staticColor : getSpotColor,
-      onHover: (info) => delegateHover(info, 'spot', layerScope),
+      onHover: info => delegateHover(info, 'spot', layerScope),
       // Expression color mapping extension props
       extensions: [new ScaledExpressionExtension()],
       getExpressionValue,
@@ -331,7 +331,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       colorScaleHi: featureValueColormapRange[1],
       isExpressionMode: obsColorEncoding === 'geneSelection',
       colormap: featureValueColormap,
-      
+
       updateTriggers: {
         getRadius: [spatialSpotRadius],
         getExpressionValue,
@@ -359,12 +359,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ? spatialLayerColor
       : getDefaultColor(theme);
 
-    const getMoleculeColor = (object, { data, index }) => {
+    const getMoleculeColor = (object, { data, index }) =>
       // TODO
-      //const i = data.src.obsLabelsTypes.indexOf(data.src.obsLabels[index]);
-      //return data.src.PALETTE[i % data.src.PALETTE.length];
-      return [255, 0, 0];
-    };
+      // const i = data.src.obsLabelsTypes.indexOf(data.src.obsLabels[index]);
+      // return data.src.PALETTE[i % data.src.PALETTE.length];
+      [255, 0, 0];
     return new deck.ScatterplotLayer({
       id: `${POINT_LAYER_PREFIX}${layerScope}`,
       data: this.obsPointsData[layerScope],
@@ -386,7 +385,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       },
       getLineColor: isStaticColor ? staticColor : getMoleculeColor,
       getFillColor: isStaticColor ? staticColor : getMoleculeColor,
-      onHover: (info) => delegateHover(info, 'point', layerScope),
+      onHover: info => delegateHover(info, 'point', layerScope),
       updateTriggers: {
         getRadius: [],
         getFillColor: [obsColorEncoding, staticColor],
@@ -562,7 +561,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // There is no onHover here,
       // see the onHover method of AbstractSpatialOrScatterplot.
       pickable: true,
-      onHover: (info) => delegateHover(info, 'segmentation-bitmask', layerScope),
+      onHover: info => delegateHover(info, 'segmentation-bitmask', layerScope),
     });
   }
 
@@ -686,10 +685,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
       excludeBackground: useTransparentColor,
       extensions,
       // Picking / onHover does not seem to work when there is a bitmask segmentation layer "above"
-      //the image layer. This is likely due to the fact that the bitmask layer is overlapping despite
-      //having transparent / zero-valued pixels. Instead, we can get the hover info from 
+      // the image layer. This is likely due to the fact that the bitmask layer is overlapping despite
+      // having transparent / zero-valued pixels. Instead, we can get the hover info from
       pickable: true,
-      onHover: (info) => delegateHover(info, 'image', layerScope),
+      onHover: info => delegateHover(info, 'image', layerScope),
       /*
       pickable: true,
       onHover: (info) => delegateHover(info, 'image', layerScope),
@@ -804,16 +803,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsSpotsLayers,
       obsPointsLayers,
       obsSegmentationsLayers,
-      //neighborhoodsLayer,
-      //obsLocationsLayer,
+      // neighborhoodsLayer,
+      // obsLocationsLayer,
     } = this;
     return [
       ...imageLayers,
       ...obsSegmentationsLayers,
       ...obsSpotsLayers,
       ...obsPointsLayers,
-      //neighborhoodsLayer,
-      //obsLocationsLayer,
+      // neighborhoodsLayer,
+      // obsLocationsLayer,
       this.createScaleBarLayer(),
       ...this.createSelectionLayers(),
     ];
@@ -831,7 +830,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } = this.props;
     const { obsSets: layerSets, obsIndex: layerIndex } = obsSpotsSets?.[layerScope] || {};
     // TODO: mergeObsSets
-    if(layerSets && layerIndex) {
+    if (layerSets && layerIndex) {
       const { obsSetColor, obsColorEncoding, obsSetSelection, featureSelection } = spotLayerCoordination[0][layerScope];
       const prevSetColor = this.prevSpotSetColor[layerScope];
       if (obsSetColor !== prevSetColor || true) {
@@ -959,7 +958,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } = this.props;
     const { obsSets: layerSets, obsIndex: layerIndex } = obsSegmentationsSets?.[layerScope]?.[channelScope] || {};
     // TODO: mergeObsSets
-    if(layerSets && layerIndex) {
+    if (layerSets && layerIndex) {
       const { obsSetColor, obsColorEncoding, obsSetSelection, featureSelection } = segmentationChannelCoordination[0][layerScope][channelScope];
       const prevSetColor = this.prevSegmentationSetColor?.[layerScope]?.[channelScope];
       if (obsSetColor !== prevSetColor || true) {
@@ -973,10 +972,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
           obsIndex: layerIndex,
         });
         // Initialize layer-level objects if necessary.
-        if(!this.segmentationColors[layerScope]) {
+        if (!this.segmentationColors[layerScope]) {
           this.segmentationColors[layerScope] = {};
         }
-        if(!this.prevSegmentationSetColor[layerScope]) {
+        if (!this.prevSegmentationSetColor[layerScope]) {
           this.prevSegmentationSetColor[layerScope] = {};
         }
         this.segmentationColors[layerScope][channelScope] = obsColors;
@@ -1015,7 +1014,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (instanceObsIndex && matrixObsIndex) {
       const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => ([key, i])));
       // Initialize layer-level objects if necessary.
-      if(!this.segmentationToMatrixIndexMap[layerScope]) {
+      if (!this.segmentationToMatrixIndexMap[layerScope]) {
         this.segmentationToMatrixIndexMap[layerScope] = {};
       }
       this.segmentationToMatrixIndexMap[layerScope][channelScope] = instanceObsIndex.map(key => matrixIndexMap.get(key));
@@ -1053,7 +1052,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       return 0;
     };
     // Initialize layer-level objects if necessary.
-    if(!this.segmentationExpressionGetters[layerScope]) {
+    if (!this.segmentationExpressionGetters[layerScope]) {
       this.segmentationExpressionGetters[layerScope] = {};
     }
     this.segmentationExpressionGetters[layerScope][channelScope] = getExpressionValue;
@@ -1079,12 +1078,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const { obsSegmentations: layerObsSegmentations, obsSegmentationsType } = obsSegmentations?.[layerScope] || {};
     const { obsLocations: layerObsLocations } = obsSegmentationsLocations?.[layerScope]?.[channelScope] || {};
     if (layerObsSegmentations && obsSegmentationsType === 'polygon') {
-      if(layerObsLocations && layerObsLocations.shape[1] === layerObsSegmentations.shape[0]) {
+      if (layerObsLocations && layerObsLocations.shape[1] === layerObsSegmentations.shape[0]) {
         // If we have per-observation locations (e.g., centroids of each cell), we can use
         // them for picking/lasso/etc.
         const getCellCoords = makeDefaultGetObsCoords(layerObsSegmentations);
         // Initialize layer-level objects if necessary.
-        if(!this.obsSegmentationsQuadTree[layerScope]) {
+        if (!this.obsSegmentationsQuadTree[layerScope]) {
           this.obsSegmentationsQuadTree[layerScope] = {};
         }
         this.obsSegmentationsQuadTree[layerScope][channelScope] = createQuadTree(layerObsSegmentations, getCellCoords);
@@ -1124,7 +1123,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       segmentationLayerScopes,
     } = this.props;
     segmentationLayerScopes?.forEach((layerScope) => {
-
       this.onUpdateSegmentationsData(layerScope);
     });
   }
@@ -1258,13 +1256,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     // Segmentations.
     // Segmentations data.
-    if(shallowDiff('segmentationLayerScopes')) {
+    if (shallowDiff('segmentationLayerScopes')) {
       // Force update for all layers since the layerScopes array changed.
       this.onUpdateAllSegmentationsData();
       forceUpdate = true;
     } else {
       this.props.segmentationLayerScopes?.forEach((layerScope) => {
-        if(
+        if (
           shallowDiffByLayer('obsSegmentations', layerScope)
         ) {
           this.onUpdateSegmentationsData(layerScope);
@@ -1274,32 +1272,32 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
 
     // Segmentations locations data.
-    if(['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(shallowDiff)) {
+    if (['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(shallowDiff)) {
       // Force update for all layers since the layerScopes array changed.
       this.onUpdateAllSegmentationsLocationsData();
       forceUpdate = true;
     } else {
       this.props.segmentationLayerScopes?.forEach((layerScope) => {
-          this.props.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
-            if(
-              shallowDiffByChannel('obsSegmentationsLocations', layerScope, channelScope)
-            ) {
-              this.onUpdateSegmentationsLocationsData(layerScope, channelScope);
-              forceUpdate = true;
-            }
-          });
+        this.props.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
+          if (
+            shallowDiffByChannel('obsSegmentationsLocations', layerScope, channelScope)
+          ) {
+            this.onUpdateSegmentationsLocationsData(layerScope, channelScope);
+            forceUpdate = true;
+          }
+        });
       });
     }
 
     // Segmentation sets data.
-    if(['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(shallowDiff)) {
+    if (['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(shallowDiff)) {
       // Force update for all layers since the layerScopes array changed.
       this.onUpdateAllSegmentationsSetsData();
       forceUpdate = true;
     } else {
       this.props.segmentationLayerScopes?.forEach((layerScope) => {
         this.props.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
-          if(
+          if (
             shallowDiffByChannel('obsSegmentationsSets', layerScope, channelScope)
             || shallowDiffByChannelCoordination('segmentationChannelCoordination', layerScope, channelScope)
           ) {
@@ -1311,14 +1309,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
 
     // Segmentation index data (pre-requisite for below Segmentation expression data).
-    if(['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(shallowDiff)) {
+    if (['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(shallowDiff)) {
       // Force update for all layers since the layerScopes array changed.
       this.onUpdateAllSegmentationsIndexData();
       forceUpdate = true;
     } else {
       this.props.segmentationLayerScopes?.forEach((layerScope) => {
         this.props.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
-          if(
+          if (
             shallowDiffByChannel('segmentationMatrixIndices', layerScope, channelScope)
           ) {
             this.onUpdateSegmentationsIndexData(layerScope, channelScope);
@@ -1329,14 +1327,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
 
     // Segmentation expression data.
-    if(['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(shallowDiff)) {
+    if (['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(shallowDiff)) {
       // Force update for all layers since the layerScopes array changed.
       this.onUpdateAllSegmentationsExpressionData();
       forceUpdate = true;
     } else {
       this.props.segmentationLayerScopes.forEach((layerScope) => {
         this.props.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
-          if(
+          if (
             shallowDiffByChannel('segmentationMatrixIndices', layerScope, channelScope)
             || shallowDiffByChannel('segmentationMultiExpressionData', layerScope, channelScope)
           ) {
@@ -1350,8 +1348,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     if (
       [
-        //'cellFilter',
-        //'cellSelection',
+        // 'cellFilter',
+        // 'cellSelection',
         'segmentationLayerScopes',
         'segmentationLayerCoordination',
         'segmentationChannelScopesByLayer',
@@ -1375,13 +1373,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     // Spots.
     // Spots data.
-    if(shallowDiff('spotLayerScopes')) {
+    if (shallowDiff('spotLayerScopes')) {
       // Force update for all layers since the layerScopes array changed.
       this.onUpdateAllSpotsData();
       forceUpdate = true;
     } else {
       this.props.spotLayerScopes.forEach((layerScope) => {
-        if(
+        if (
           shallowDiffByLayer('obsSpots', layerScope)
         ) {
           this.onUpdateSpotsData(layerScope);
@@ -1391,13 +1389,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
 
     // Spot sets data.
-    if(shallowDiff('spotLayerScopes')) {
+    if (shallowDiff('spotLayerScopes')) {
       // Force update for all layers since the layerScopes array changed.
       this.onUpdateAllSpotsSetsData();
       forceUpdate = true;
     } else {
       this.props.spotLayerScopes.forEach((layerScope) => {
-        if(
+        if (
           shallowDiffByLayer('obsSpotsSets', layerScope)
           || shallowDiffByLayer('obsSpots', layerScope)
           || shallowDiffByLayerCoordination('spotLayerCoordination', layerScope)
@@ -1409,13 +1407,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
 
     // Spot index data (pre-requisite for below Spot expression data).
-    if(shallowDiff('spotLayerScopes')) {
+    if (shallowDiff('spotLayerScopes')) {
       // Force update for all layers since the layerScopes array changed.
       this.onUpdateAllSpotsIndexData();
       forceUpdate = true;
     } else {
       this.props.spotLayerScopes.forEach((layerScope) => {
-        if(
+        if (
           shallowDiffByLayer('spotMatrixIndices', layerScope)
           || shallowDiffByLayer('obsSpots', layerScope)
         ) {
@@ -1426,13 +1424,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
 
     // Spot expression data.
-    if(shallowDiff('spotLayerScopes')) {
+    if (shallowDiff('spotLayerScopes')) {
       // Force update for all layers since the layerScopes array changed.
       this.onUpdateAllSpotsExpressionData();
       forceUpdate = true;
     } else {
       this.props.spotLayerScopes.forEach((layerScope) => {
-        if(
+        if (
           shallowDiffByLayer('spotMatrixIndices', layerScope)
           || shallowDiffByLayer('obsSpots', layerScope)
           || shallowDiffByLayer('spotMultiExpressionData', layerScope)
@@ -1448,7 +1446,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'obsSpots',
         'spotLayerScopes',
         'spotLayerCoordination',
-        'spotMultiExpressionData'
+        'spotMultiExpressionData',
       ].some(shallowDiff)
     ) {
       // Expression data prop changed.
@@ -1459,13 +1457,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
 
     // Points.
-    if(shallowDiff('pointLayerScopes')) {
+    if (shallowDiff('pointLayerScopes')) {
       // Force update for all layers since the layerScopes array changed.
       this.onUpdateAllPointsData();
       forceUpdate = true;
     } else {
       this.props.pointLayerScopes.forEach((layerScope) => {
-        if(
+        if (
           shallowDiffByLayer('obsPoints', layerScope)
         ) {
           this.onUpdatePointsData(layerScope);
