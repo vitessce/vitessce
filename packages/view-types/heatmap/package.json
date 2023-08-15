@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/heatmap",
-  "version": "3.0.1",
+  "version": "3.1.1",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -40,7 +40,6 @@
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/workers": "workspace:*",
     "lodash-es": "^4.17.21",
-    "plur": "^5.1.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

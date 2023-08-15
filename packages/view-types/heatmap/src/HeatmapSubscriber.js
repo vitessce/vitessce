@@ -1,7 +1,6 @@
 import React, {
   useState, useCallback, useMemo,
 } from 'react';
-import plur from 'plur';
 import {
   TitleInfo,
   useDeckCanvasSize,
@@ -17,7 +16,7 @@ import {
   useCoordination, useLoaders,
   useSetComponentHover, useSetComponentViewInfo,
 } from '@vitessce/vit-s';
-import { capitalize, commaNumber, getCellColors } from '@vitessce/utils';
+import { pluralize as plur, capitalize, commaNumber, getCellColors } from '@vitessce/utils';
 import { mergeObsSets, findLongestCommonPath } from '@vitessce/sets-utils';
 import { COMPONENT_COORDINATION_TYPES, ViewType } from '@vitessce/constants-internal';
 import { Legend } from '@vitessce/legend';

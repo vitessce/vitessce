@@ -3,7 +3,6 @@ import React, {
 } from 'react';
 import { extent } from 'd3-array';
 import { isEqual } from 'lodash-es';
-import plur from 'plur';
 import {
   TitleInfo,
   useReady, useUrls,
@@ -24,7 +23,7 @@ import {
   useInitialCoordination,
 } from '@vitessce/vit-s';
 import { setObsSelection, mergeObsSets, getCellSetPolygons } from '@vitessce/sets-utils';
-import { getCellColors, commaNumber } from '@vitessce/utils';
+import { pluralize as plur, getCellColors, commaNumber } from '@vitessce/utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
   getPointSizeDevicePixels,

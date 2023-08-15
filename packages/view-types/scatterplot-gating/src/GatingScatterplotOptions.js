@@ -1,8 +1,7 @@
 import React from 'react';
-import plur from 'plur';
 import { TableCell, TableRow, TextField } from '@material-ui/core';
 import { usePlotOptionsStyles, OptionSelect } from '@vitessce/vit-s';
-import { capitalize } from '@vitessce/utils';
+import { capitalize, pluralize as plur } from '@vitessce/utils';
 
 export default function GatingScatterplotOptions(props) {
   const {
