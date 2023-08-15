@@ -8,6 +8,12 @@ type BaseFileDef = {
   coordinationValues: Record<string, string>;
 };
 
+const expectedCoordinationTypes = [
+  'obsType', 'featureType', 'featureValueType',
+  'featureLabelsType', 'obsLabelsType',
+  'embeddingType',
+];
+
 export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) {
   const baseFileDef: BaseFileDef = {
     url: fileDef.url,
@@ -21,7 +27,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
   };
   const extraCoordinationValues: Record<string, any> = {};
   Object.entries(baseFileDef.coordinationValues).forEach(([key, value]) => {
-    if (!['obsType', 'featureType', 'featureValueType'].includes(key)) {
+    if (!expectedCoordinationTypes.includes(key)) {
       extraCoordinationValues[key] = value;
     }
   });
