@@ -492,6 +492,26 @@ export function SpatialSubscriber(props) {
     return imageLayerLoaders.map((ll, index) => (shouldUseFullData(ll, index) ? { ...ll, data: ll.data[0] } : ll));
   }, [imageLayerLoaders, useFullResolutionImage, meta]);
 
+
+  const getChannelNames = () => {
+    let channelNames = [];
+    let channelColors = [];
+    if (cellsLayer && obsSegmentationsType === 'bitmask') {
+      console.log("***** cellsLayer: ", cellsLayer);  
+      channelNames = cellsLayer.map((layer, i) => segmentationLayerLoaders?.[layer.index])[0]?.channels;
+      channelColors = cellsLayer[0].channels.map((layer, i) => "rgb(".concat((layer.color).join(), ")"));
+    } else if (imageLayers) {
+      console.log("****** imageLayers: ", imageLayers);
+      channelNames = imageLayers.map((layer, i) => imageLayerLoaders?.[layer.index])[0]?.channels;
+      channelColors = imageLayers[0].channels.map((layer, i) => "rgb(".concat((layer.color).join(), ")"));
+    }
+    console.log("+++++++++++ channelNames: ", channelNames, channelColors);
+    return { channelNames, channelColors };
+  }
+
+  const { channelNames, channelColors } = getChannelNames();
+  console.log("+++++++++++ names: ", channelNames);
+
   return (
     <TitleInfo
       title={title}
@@ -503,6 +523,9 @@ export function SpatialSubscriber(props) {
       isReady={isReady}
       options={options}
     >
+      {channelNames && channelNames.map((name, i) => (
+          <p key={i} style={{textAlign: "right", color: channelColors[i], fontSize: 20}}>{name}</p>
+      ))}
       <Spatial
         ref={deckRef}
         uuid={uuid}
