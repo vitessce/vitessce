@@ -29,10 +29,21 @@ export default function SpatialTooltipSubscriber(props) {
     hoverCoord,
     useHoverInfoForTooltip,
     //getObsIdFromHoverData,
+
+    // Points
+    pointLayerScopes,
+    pointLayerCoordination,
+
+    // Spots
+    spotLayerScopes,
+    spotLayerCoordination,
+    
+    // Segmentations
     segmentationLayerScopes,
     segmentationChannelScopesByLayer,
     segmentationChannelCoordination,
-
+    
+    // Images
     imageLayerScopes,
     imageLayerCoordination,
   } = props;
@@ -41,9 +52,6 @@ export default function SpatialTooltipSubscriber(props) {
   const viewInfo = useComponentViewInfo(parentUuid);
 
   const projectedHoverCoord = useHoverInfoForTooltip && hoverCoord ? viewInfo?.project(hoverCoord) : null;
-  console.log(hoverCoord, projectedHoverCoord, viewInfo, segmentationLayerScopes,
-    segmentationChannelScopesByLayer,
-    segmentationChannelCoordination,);
 
   /*
   let [cellInfo, x, y] = [null, null, null];
@@ -112,6 +120,40 @@ export default function SpatialTooltipSubscriber(props) {
           ) : null);
         })
       ))}
+      {spotLayerScopes?.map(layerScope => {
+        const { obsType, obsHighlight } = spotLayerCoordination?.[0]?.[layerScope];
+        return (obsHighlight ? (
+          <TooltipChild
+            key={layerScope}
+            parentUuid={parentUuid}
+            sourceUuid={sourceUuid}
+            width={width}
+            height={height}
+            info={{
+              [`${obsType} ID`]: obsHighlight,
+            }}
+            x={projectedHoverCoord?.[0]}
+            y={projectedHoverCoord?.[1] + (yOffset += 30)}
+          />
+        ) : null);
+      })}
+      {pointLayerScopes?.map(layerScope => {
+        const { obsType, obsHighlight } = pointLayerCoordination?.[0]?.[layerScope];
+        return (obsHighlight ? (
+          <TooltipChild
+            key={layerScope}
+            parentUuid={parentUuid}
+            sourceUuid={sourceUuid}
+            width={width}
+            height={height}
+            info={{
+              [`${obsType} ID`]: obsHighlight,
+            }}
+            x={projectedHoverCoord?.[0]}
+            y={projectedHoverCoord?.[1] + (yOffset += 30)}
+          />
+        ) : null);
+      })}
     </>
   ) : null);
 }

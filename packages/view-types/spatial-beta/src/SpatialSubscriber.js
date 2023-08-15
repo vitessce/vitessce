@@ -897,7 +897,6 @@ export function SpatialSubscriber(props) {
    * @param {string} layerScope
    */
   const delegateHover = useCallback((hoverInfo, layerType, layerScope) => {
-    //console.log(hoverInfo, layerType, layerScope, hoverInfo.color);
     const { coordinate } = hoverInfo;
     let showAnyTooltip = false;
 
@@ -934,7 +933,6 @@ export function SpatialSubscriber(props) {
           } else {
             setObsHighlight(null);
           }
-          console.log(obsI);
         } else {
           setObsHighlight(null);
         }
@@ -1082,14 +1080,20 @@ export function SpatialSubscriber(props) {
           hoverCoord={hoverCoord}
           useHoverInfoForTooltip={useHoverInfoForTooltip}
 
-          // TODO: point
+          // Points
+          pointLayerScopes={pointLayerScopes}
+          pointLayerCoordination={pointLayerCoordination}
 
-          // TODO: spot
+          // Spots
+          spotLayerScopes={spotLayerScopes}
+          spotLayerCoordination={spotLayerCoordination}
 
+          // Segmentations
           segmentationLayerScopes={segmentationLayerScopes}
           segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
           segmentationChannelCoordination={segmentationChannelCoordination}
 
+          // Images
           imageLayerScopes={imageLayerScopes}
           imageLayerCoordination={imageLayerCoordination}
 
