@@ -835,6 +835,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   // render() is implemented in the abstract parent class.
 }
 
+
 /**
  * Need this wrapper function here,
  * since we want to pass a forwardRef
@@ -843,9 +844,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
  * but we are using a class component.
  */
 const SpatialWrapper = forwardRef((props, deckRef) => (
-  <>
-    <Spatial {...props} deckRef={deckRef} />
-  </>
+  <Spatial {...props} deckRef={deckRef} />
 ));
 SpatialWrapper.displayName = 'SpatialWrapper';
 export default SpatialWrapper;
