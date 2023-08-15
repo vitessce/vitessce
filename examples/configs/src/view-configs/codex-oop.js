@@ -26,7 +26,7 @@ function generateCodexConfig() {
     options: {
       offsetsUrl: 'https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/output_offsets/pipeline_output/mask/reg001_mask.offsets.json?token=',
       // TODO: figure out why tooltips are not working with this.
-      /*coordinateTransformations: [
+      coordinateTransformations: [
         {
           type: 'scale',
           // The mask does not specify PhysicalSizeX or PhysicalSizeY,
@@ -35,7 +35,7 @@ function generateCodexConfig() {
           // pixel dimensions as the image.
           scale: [377.44 / 1000, 377.44 / 1000, 1, 1, 1],
         },
-      ],*/
+      ],
     },
     coordinationValues: {
       fileUid: 'reg001_mask',
@@ -87,6 +87,7 @@ function generateCodexConfig() {
             obsColorEncoding: 'spatialChannelColor',
             spatialSegmentationFilled: false,
             spatialSegmentationStrokeWidth: 0.01,
+            obsHighlight: null,
           },
           {
             obsType: 'nucleus',
@@ -99,6 +100,7 @@ function generateCodexConfig() {
             obsColorEncoding: 'spatialChannelColor',
             spatialSegmentationFilled: true,
             spatialSegmentationStrokeWidth: 1,
+            obsHighlight: null,
           },
         ]),
       },

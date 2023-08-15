@@ -917,16 +917,24 @@ export function SpatialSubscriber(props) {
           const channelValue = hoverData[channelI];
           let obsI = channelValue;
           if(channelValue > 0) {
-            let obsIndex;
+            let obsId;
             if(layerType === 'segmentation-bitmask') {
-              obsIndex = segmentationMultiIndicesData?.[segmentationLayerScope]?.[channelScope]?.obsIndex;
+              const { obsIndex } = segmentationMultiIndicesData?.[segmentationLayerScope]?.[channelScope] || {};
               // We subtract one because we use 0 to represent background.
               obsI -= 1;
+              if(obsIndex) {
+                obsId = obsIndex?.[obsI];
+              } else {
+                // When there is not a corresponding obsIndex to use,
+                // fall back to the observation index (based on the pixel value).
+                obsId = String(obsI);
+              }
             } else {
-              obsIndex = obsSegmentationsData?.[segmentationLayerScope]?.obsIndex;
+              const { obsIndex } = obsSegmentationsData?.[segmentationLayerScope] || {};
+              obsId = obsIndex?.[obsI];
             }
-            const obsId = obsIndex?.[obsI];
-            if(obsIndex && obsId) {
+            
+            if(obsId) {
               showAnyTooltip = true;
               setObsHighlight(obsId);
             } else {
@@ -944,8 +952,15 @@ export function SpatialSubscriber(props) {
     spotLayerScopes?.forEach(spotLayerScope => {
       const { setObsHighlight } = spotLayerCoordination?.[1]?.[spotLayerScope];
       if(hoverData && layerType === 'spot' && layerScope === spotLayerScope) {
-        showAnyTooltip = true;
-        setObsHighlight(hoverData);
+        const obsI = hoverData;
+        const { obsIndex } = obsSpotsData?.[spotLayerScope] || {};
+        const obsId = obsIndex?.[obsI];
+        if(obsIndex && obsId) {
+          showAnyTooltip = true;
+          setObsHighlight(obsId);
+        } else {
+          setObsHighlight(null);
+        }
       } else {
         setObsHighlight(null);
       }
@@ -953,8 +968,15 @@ export function SpatialSubscriber(props) {
     pointLayerScopes?.forEach(pointLayerScope => {
       const { setObsHighlight } = pointLayerCoordination?.[1]?.[pointLayerScope];
       if(hoverData && layerType === 'point' && layerScope === pointLayerScope) {
-        showAnyTooltip = true;
-        setObsHighlight(hoverData);
+        const obsI = hoverData;
+        const { obsIndex } = obsPointsData?.[pointLayerScope] || {};
+        const obsId = obsIndex?.[obsI];
+        if(obsIndex && obsId) {
+          showAnyTooltip = true;
+          setObsHighlight(obsId);
+        } else {
+          setObsHighlight(null);
+        }
       } else {
         setObsHighlight(null);
       }
