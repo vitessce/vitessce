@@ -2,4 +2,4 @@
 "@vitessce/spatial": major
 ---
 
-Display the channel names in Spatials plot
+Display the image channel names in Spatial plot
