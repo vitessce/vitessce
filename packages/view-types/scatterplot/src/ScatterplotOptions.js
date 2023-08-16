@@ -182,7 +182,7 @@ export default function ScatterplotOptions(props) {
             color="default"
             inputProps={{
               'aria-label': 'Checkbox for showing/hiding polygons.',
-              id: 'scatterplot-set-polygons-visible',
+              id: ['scatterplot-set-polygons-visible', scatterplotOptionsId].join('-'),
             }}
           />
         </TableCell>
