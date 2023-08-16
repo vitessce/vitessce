@@ -527,19 +527,24 @@ export function SpatialSubscriber(props) {
       isReady={isReady}
       options={options}
     >
-      {channelNames && channelNames.map((name, i) => (
-        <Typography
-          variant="h6"
-          key={[name, i].join('-')}
-          style={{
-            textAlign: 'right',
-            color: channelColors[i],
-            zIndex: 6,
-          }}
-        >
-          {name}
-        </Typography>
-      ))}
+      <div style={{
+        position: 'absolute', 
+        bottom: '5px', 
+        left: '5px',
+        zIndex: 6
+      }}>
+        {channelNames && channelNames.map((name, i) => (
+          <Typography
+            variant="h6"
+            key={[name, i].join('-')}
+            style={{
+              color: channelColors[i],
+            }}
+          >
+            {name}
+          </Typography>
+        ))}
+      </div>
       <Spatial
         ref={deckRef}
         uuid={uuid}
