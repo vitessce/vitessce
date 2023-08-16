@@ -46,7 +46,7 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUp
       buttonClassName={classes.menuButton}
       ariaLabel="Open channel options menu."
     >
-      <MenuItem dense disableGutters onClick={handleRemove} aria-label="Click to remove handle channel">
+      <MenuItem dense disableGutters onClick={handleRemove} aria-label="Click to remove channel">
         <MuiSpan>Remove</MuiSpan>
       </MenuItem>
       <MenuItem
