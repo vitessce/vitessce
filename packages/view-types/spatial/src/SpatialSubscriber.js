@@ -538,6 +538,7 @@ export function SpatialSubscriber(props) {
             key={[name, i].join('-')}
             style={{
               color: arrayToRGB(channelColors[i]),
+              fontSize: '14px',
             }}
           >
             {name}
