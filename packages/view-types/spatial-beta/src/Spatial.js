@@ -2,7 +2,7 @@
 import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
 import {
-  deck, viv, getSelectionLayers, ScaledExpressionExtension,
+  deck, viv, getMultiSelectionLayer, ScaledExpressionExtension,
 } from '@vitessce/gl';
 import { filterSelection } from '@vitessce/spatial-utils';
 import { getCellColors, getDefaultColor } from '@vitessce/utils';
@@ -419,28 +419,69 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
   */
 
-  // TODO
-  createSelectionLayers() {
+  createSelectionLayer() {
     // TODO: support multiple types of layers, and multiple obsTypes.
     // Perhaps the user needs to decide which obsType to use for selection?
     // (before or after selection?)
     // Or simply make selections across all obsTypes?
-    const { obsCentroidsIndex, obsCentroids } = this.props;
+    const {
+      // Spots
+      spotLayerScopes,
+      obsSpots,
+      spotLayerCoordination,
+      // Points
+      pointLayerScopes,
+      obsPoints,
+      pointLayerCoordination,
+      // Segmentations
+      segmentationLayerScopes,
+      segmentationChannelScopesByLayer,
+      obsSegmentationsLocations,
+      segmentationLayerCoordination,
+      segmentationChannelCoordination,
+    } = this.props;
     const {
       viewState,
-      setCellSelection,
     } = this.props;
     const { tool } = this.state;
-    const { obsSegmentationsQuadTree } = this;
-    const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
-    return getSelectionLayers(
+    // const { obsSegmentationsQuadTree } = this;
+    // const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
+    return getMultiSelectionLayer(
       tool,
       viewState.zoom,
-      CELLS_LAYER_ID,
-      getCellCoords,
-      obsCentroidsIndex,
-      setCellSelection,
-      obsSegmentationsQuadTree,
+      'nothing',
+      [
+        ...pointLayerScopes
+          .filter(layerScope => pointLayerCoordination?.[0]?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE])
+          .map(layerScope => ({
+            getObsCoords: makeDefaultGetObsCoords(obsPoints?.[layerScope]?.obsPoints),
+            obsIndex: obsPoints?.[layerScope]?.obsIndex,
+            obsQuadTree: this.obsPointsQuadTree?.[layerScope],
+            onSelect: (obsIds) => console.log("point", layerScope, obsIds),
+          })),
+        ...spotLayerScopes
+          .filter(layerScope => spotLayerCoordination?.[0]?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE])
+          .map(layerScope => ({
+            getObsCoords: makeDefaultGetObsCoords(obsSpots?.[layerScope]?.obsSpots),
+            obsIndex: obsSpots?.[layerScope]?.obsIndex,
+            obsQuadTree: this.obsSpotsQuadTree?.[layerScope],
+            onSelect: (obsIds) => console.log("spot", layerScope, obsIds),
+          })),
+        ...segmentationLayerScopes
+          .filter(layerScope => segmentationLayerCoordination?.[0]?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE])
+          .flatMap(layerScope => segmentationChannelScopesByLayer[layerScope]
+            .filter(channelScope => (
+              segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope]?.[CoordinationType.SPATIAL_CHANNEL_VISIBLE]
+              && obsSegmentationsLocations?.[layerScope]?.[channelScope]
+            ))
+            .map(channelScope => ({
+              getObsCoords: makeDefaultGetObsCoords(obsSegmentationsLocations?.[layerScope]?.[channelScope]?.obsLocations),
+              obsIndex: obsSegmentationsLocations?.[layerScope]?.[channelScope]?.obsIndex,
+              obsQuadTree: this.obsSegmentationsQuadTree?.[layerScope]?.[channelScope],
+              onSelect: (obsIds) => console.log("segmentation", layerScope, channelScope, obsIds),
+            }))
+          ),
+      ],
     );
   }
 
@@ -815,7 +856,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // neighborhoodsLayer,
       // obsLocationsLayer,
       this.createScaleBarLayer(),
-      ...this.createSelectionLayers(),
+      this.createSelectionLayer(),
     ];
   }
 
@@ -1095,13 +1136,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
       if (layerObsLocations && layerObsLocations.shape[1] === layerObsSegmentations.shape[0]) {
         // If we have per-observation locations (e.g., centroids of each cell), we can use
         // them for picking/lasso/etc.
-        const getCellCoords = makeDefaultGetObsCoords(layerObsSegmentations);
+        const getCellCoords = makeDefaultGetObsCoords(layerObsLocations);
         // Initialize layer-level objects if necessary.
         if (!this.obsSegmentationsQuadTree[layerScope]) {
           this.obsSegmentationsQuadTree[layerScope] = {};
         }
         this.obsSegmentationsQuadTree[layerScope][channelScope] = createQuadTree(
-          layerObsSegmentations, getCellCoords,
+          layerObsLocations, getCellCoords,
         );
       }
     }

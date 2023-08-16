@@ -994,6 +994,15 @@ export function SpatialSubscriber(props) {
     return false;
   });
 
+  const isSelectable = (
+    spotLayerScopes.length > 0
+    || pointLayerScopes.length > 0
+    || segmentationLayerScopes
+      .flatMap((layerScope) => segmentationChannelScopesByLayer[layerScope]
+        .map(channelScope => obsSegmentationsLocationsData?.[layerScope]?.[channelScope])
+      ).length > 0
+  );
+
   return (
     <TitleInfo
       title={title}
@@ -1010,7 +1019,7 @@ export function SpatialSubscriber(props) {
         width={width}
         height={height}
         theme={theme}
-        hideTools // TODO: value?
+        hideTools={!isSelectable}
         // Global view state
         targetT={targetT}
         targetZ={targetZ}

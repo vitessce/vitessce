@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
 import {
-  deck, viv, getSelectionLayers, ScaledExpressionExtension,
+  deck, viv, getSelectionLayer, ScaledExpressionExtension,
 } from '@vitessce/gl';
 import { getSourceFromLoader, isInterleaved } from '@vitessce/spatial-utils';
 import { Matrix4 } from 'math.gl';
@@ -300,7 +300,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     });
   }
 
-  createSelectionLayers() {
+  createSelectionLayer() {
     const { obsCentroidsIndex, obsCentroids } = this.props;
     const {
       viewState,
@@ -309,7 +309,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const { tool } = this.state;
     const { obsSegmentationsQuadTree } = this;
     const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
-    return getSelectionLayers(
+    return getSelectionLayer(
       tool,
       viewState.zoom,
       CELLS_LAYER_ID,
@@ -543,7 +543,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       neighborhoodsLayer,
       obsLocationsLayer,
       this.createScaleBarLayer(),
-      ...this.createSelectionLayers(),
+      this.createSelectionLayer(),
     ];
   }
 
