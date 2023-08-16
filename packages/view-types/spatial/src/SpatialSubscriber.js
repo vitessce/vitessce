@@ -497,11 +497,7 @@ export function SpatialSubscriber(props) {
     let channelNames = [];
     let channelColors = [];
 
-    const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.loaders : null;
-    if (cellsLayer && obsSegmentationsType === 'bitmask' && cellsLayer.length > 0) {
-      channelNames = cellsLayer.map(layer => segmentationLayerLoaders?.[layer.index])[0]?.channels;
-      channelColors = cellsLayer[0].channels.map(layer => layer.color) || [];
-    } else if (imageLayers) {
+    if (imageLayers) {
       channelNames = imageLayers.map(layer => imageLayerLoaders?.[layer.index])[0]?.channels;
       channelColors = imageLayers[0]?.channels.map(layer => layer.color);
     }
