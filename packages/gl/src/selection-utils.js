@@ -47,7 +47,7 @@ export function getSelectionLayer(
   const editHandlePointRadius = 5 / (zoom + 16);
 
   return new SelectionLayer({
-    id: 'multi-selection',
+    id: 'selection',
     flipY,
     obsLayers,
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
