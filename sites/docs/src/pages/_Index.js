@@ -189,7 +189,7 @@ function IndexWithHashParams() {
   ) : validConfig ? (
     <div>
       <div style={{ display: 'flex' }}>
-        <div style={{ flex: 7 }}>
+        <div style={{ flex: 11 }}>
           {demo && Object.keys(configs).includes(demo) ? (
             <>
               <DemoStyles />
