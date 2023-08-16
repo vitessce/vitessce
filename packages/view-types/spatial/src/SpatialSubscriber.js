@@ -56,6 +56,7 @@ export function SpatialSubscriber(props) {
     disable3d,
     globalDisable3d,
     useFullResolutionImage = {},
+    channelNamesVisible = false,
   } = props;
 
   const loaders = useLoaders();
@@ -532,7 +533,7 @@ export function SpatialSubscriber(props) {
         zIndex: 6,
       }}
       >
-        {channelNames && channelNames.map((name, i) => (
+        {channelNamesVisible && channelNames && channelNames.map((name, i) => (
           <Typography
             variant="h6"
             key={[name, i].join('-')}
