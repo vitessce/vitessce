@@ -216,9 +216,12 @@
 
 
 .vitessceClear {
-  text-align: center;
+  text-align: right;
   width: 100%;
-  margin-bottom: 10px;
+  padding: 10px;
+  display: 'flex';
+  flex: 1;
+  margin-top: auto;
 }
 
 .vitessceClearButton {
@@ -234,7 +237,7 @@
   font-size: 14px;
   font-weight: 700;
   padding: 5px 10px;
-  margin-top: 5px;
+  margin: 5px;
   cursor: pointer;
 }
 

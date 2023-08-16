@@ -188,24 +188,20 @@ function IndexWithHashParams() {
     </>
   ) : validConfig ? (
     <div>
-      {demo && Object.keys(configs).includes(demo) ? (
-        <>
-          <DemoStyles />
-          <DemoHeader
-            demo={demo}
-            config={configs[demo]}
-          />
-        </>
-      ) : (
-        <AppStyles dimNavbar />
-      )}
-      <main className="vitessce-app">
-        <ThemedVitessce
-          validateOnConfigChange={debug}
-          onConfigChange={debug ? console.log : undefined}
-          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-          config={validConfig}
-        />
+      <div style={{ display: 'flex' }}>
+        <div style={{ flex: 7 }}>
+          {demo && Object.keys(configs).includes(demo) ? (
+            <>
+              <DemoStyles />
+              <DemoHeader
+                demo={demo}
+                config={configs[demo]}
+              />
+            </>
+          ) : (
+            <AppStyles dimNavbar />
+          )}
+          </div>
         <div className={styles.vitessceClear}>
           <button
             type="button"
@@ -214,7 +210,21 @@ function IndexWithHashParams() {
           >
             Edit
           </button>
+          <button
+            type="button"
+            className={styles.vitessceClearButton}
+          > 
+            Expand
+          </button>
         </div>
+      </div>
+      <main className="vitessce-app">
+        <ThemedVitessce
+          validateOnConfigChange={debug}
+          onConfigChange={debug ? console.log : undefined}
+          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+          config={validConfig}
+        />
       </main>
     </div>
   ) : (!loading ? (
