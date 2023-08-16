@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { makeStyles } from '@material-ui/core';
 import Legend from './Legend.js';
 
@@ -31,10 +31,20 @@ export default function MultiLegend(props) {
 
   const classes = useStyles();
 
+  const reversedSegmentationLayerScopes = useMemo(() => (
+    [...(segmentationLayerScopes || [])].reverse()
+  ), [segmentationLayerScopes]);
+  const reversedSpotLayerScopes = useMemo(() => (
+    [...(spotLayerScopes || [])].reverse()
+  ), [spotLayerScopes]);
+  const reversedPointLayerScopes = useMemo(() => (
+    [...(pointLayerScopes || [])].reverse()
+  ), [pointLayerScopes]);
+
   return (
     <div className={classes.multiLegend}>
       {/* Points */}
-      {pointLayerScopes ? pointLayerScopes.flatMap((layerScope) => {
+      {pointLayerScopes ? reversedPointLayerScopes.flatMap((layerScope) => {
         const layerCoordination = pointLayerCoordination[0][layerScope];
 
         const {
@@ -72,7 +82,7 @@ export default function MultiLegend(props) {
         ) : null;
       }) : null}
       {/* Spots */}
-      {spotLayerScopes ? spotLayerScopes.flatMap((layerScope) => {
+      {spotLayerScopes ? reversedSpotLayerScopes.flatMap((layerScope) => {
         const layerCoordination = spotLayerCoordination[0][layerScope];
 
         const {
@@ -118,7 +128,7 @@ export default function MultiLegend(props) {
         ) : null;
       }) : null}
       {/* Segmentations */}
-      {segmentationLayerScopes ? segmentationLayerScopes.flatMap((layerScope) => {
+      {segmentationLayerScopes ? reversedSegmentationLayerScopes.flatMap((layerScope) => {
         const layerCoordination = segmentationLayerCoordination[0][layerScope];
         const channelScopes = segmentationChannelScopesByLayer[layerScope];
         const channelCoordination = segmentationChannelCoordination[0][layerScope];
@@ -127,7 +137,9 @@ export default function MultiLegend(props) {
           spatialLayerVisible,
         } = layerCoordination;
 
-        return (channelCoordination && channelScopes ? channelScopes.map((cScope) => {
+        const reversedChannelScopes = [...(channelScopes || [])].reverse();
+
+        return (channelCoordination && channelScopes ? reversedChannelScopes.map((cScope) => {
           const {
             spatialChannelVisible,
             spatialChannelColor,

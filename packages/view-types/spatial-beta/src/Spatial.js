@@ -7,7 +7,7 @@ import {
 import { filterSelection } from '@vitessce/spatial-utils';
 import { getCellColors, getDefaultColor } from '@vitessce/utils';
 import { setObsSelection as setObsSelectionHelper } from '@vitessce/sets-utils';
-import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
+import { AbstractSpatialOrScatterplot, createQuadTree } from '@vitessce/scatterplot';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils.js';
 
@@ -117,7 +117,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // All instance variables used in this class:
     this.obsSegmentationsData = {}; // Keys: segmentationLayer scopes
     this.obsSegmentationsQuadTree = {}; // Keys: segmentationLayer.segmentationChannel scopes
-    // this.obsLocationsData = null; // TODO: is this used?
     this.obsSpotsData = {}; // Keys: spotLayer scopes
     this.obsSpotsQuadTree = {}; // Keys: spotLayer scopes
     this.obsPointsData = {}; // Keys: pointLayer scopes
@@ -127,7 +126,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.obsSegmentationsLayers = [];
     this.obsSpotsLayers = [];
     this.obsPointsLayers = [];
-    // this.neighborhoodsLayer = null;
 
     this.spotToMatrixIndexMap = {}; // Keys: spotLayer scopes
     this.spotColors = {}; // Keys: spotLayer scopes
@@ -143,6 +141,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     this.imageLayerLoaderSelections = {};
     this.segmentationLayerLoaderSelections = {};
+
+    // TODO: are these color arrays/textures used?
     // Better for the bitmask layer when there is no color data to use this.
     // 2048 is best for performance and for stability (4096 texture size is not always supported).
     this.randomColorData = {
@@ -174,8 +174,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.onUpdateAllSpotsIndexData();
     this.onUpdateAllSpotsExpressionData();
     this.onUpdateSpotsLayer();
-    // this.onUpdateNeighborhoodsData(); // TODO: is this used?
-    // this.onUpdateNeighborhoodsLayer();
     this.onUpdateImages();
   }
 
@@ -393,32 +391,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       },
     });
   }
-
-  /*
-  createNeighborhoodsLayer(layerDef) {
-    const {
-      getNeighborhoodPolygon = (neighborhoodsEntry) => {
-        const neighborhood = neighborhoodsEntry[1];
-        return neighborhood.poly;
-      },
-    } = this.props;
-    const { neighborhoodsEntries } = this;
-
-    return new deck.PolygonLayer({
-      id: NEIGHBORHOODS_LAYER_ID,
-      getPolygon: getNeighborhoodPolygon,
-      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
-      data: neighborhoodsEntries,
-      pickable: true,
-      autoHighlight: true,
-      stroked: true,
-      filled: false,
-      getElevation: 0,
-      getLineWidth: 10,
-      visible: layerDef.visible,
-    });
-  }
-  */
 
   createSelectionLayer() {
     const {
@@ -1250,18 +1222,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.obsSegmentationsLayers = this.createSegmentationLayers();
   }
 
-  /*
-  onUpdateExpressionData() {
-    const { expressionData } = this.props;
-    if (expressionData[0]?.length) {
-      this.expression.data = new Uint8Array(
-        this.expression.height * this.expression.width,
-      );
-      this.expression.data.set(expressionData[0]);
-    }
-  }
-  */
-
   onUpdatePointsData(layerScope) {
     const {
       obsPoints,
@@ -1287,27 +1247,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.onUpdatePointsData(layerScope);
     });
   }
-
-  /*
-  onUpdatePointsData() {
-    const {
-      obsPoints,
-      obsLocationsLabels: obsLabels,
-      obsLocationsFeatureIndex: obsLabelsTypes,
-    } = this.props;
-    if (obsLocations && obsLabels && obsLabelsTypes) {
-      this.obsLocationsData = {
-        src: {
-          obsLabels,
-          obsLocations,
-          obsLabelsTypes,
-          PALETTE,
-        },
-        length: obsLocations.shape[1],
-      };
-    }
-  }
-  */
 
   onUpdatePointsLayer() {
     this.obsPointsLayers = this.createPointLayers();
@@ -1487,16 +1426,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       forceUpdate = true;
     }
 
-    /*
-    if (['expressionData'].some(shallowDiff)) {
-      // Expression data prop changed.
-      // Must come before onUpdateSegmentationsLayer
-      // since the new layer may use the new processed expression data.
-      this.onUpdateExpressionData();
-      forceUpdate = true;
-    }
-    */
-
     // Spots.
     // Spots data.
     if (shallowDiff('spotLayerScopes')) {
@@ -1608,20 +1537,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.onUpdatePointsLayer();
       forceUpdate = true;
     }
-
-    /*
-    if (['neighborhoods'].some(shallowDiff)) {
-      // Neighborhoods data changed.
-      this.onUpdateNeighborhoodsData();
-      forceUpdate = true;
-    }
-
-    if (['neighborhoodLayerDefsDefs', 'neighborhoods'].some(shallowDiff)) {
-      // Neighborhoods layer props changed.
-      this.onUpdateNeighborhoodsLayer();
-      forceUpdate = true;
-    }
-    */
 
     if (
       [

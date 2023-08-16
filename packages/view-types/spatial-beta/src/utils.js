@@ -3,27 +3,8 @@ import shortNumber from 'short-number';
 import plur from 'plur';
 import { Matrix4 } from 'math.gl';
 import { viv, BitmaskLayerBeta as BitmaskLayer } from '@vitessce/gl';
-import { DEFAULT_LAYER_TYPE_ORDERING } from '@vitessce/spatial-utils';
 import { extent } from 'd3-array';
-import {
-  commaNumber,
-} from '@vitessce/utils';
-
-/**
- * Sort spatial layer definition array,
- * to keep the ordering in the layer controller
- * consistent.
- * Intended to be used with auto-initialized layer
- * definition arrays only, as a pre-defined layer array
- * should not be re-ordered.
- * @param {object[]} layers Array of layer definition objects.
- * Object must have a .type property.
- */
-export function sortLayers(layers) {
-  return layers.sort((a, b) => (
-    DEFAULT_LAYER_TYPE_ORDERING.indexOf(a.type) - DEFAULT_LAYER_TYPE_ORDERING.indexOf(b.type)
-  ));
-}
+import { commaNumber } from '@vitessce/utils';
 
 /**
  * Make a subtitle for the spatial component.
