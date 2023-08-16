@@ -1,5 +1,5 @@
 // Selection Layers
-export { getSelectionLayers } from './selection-utils.js';
+export { getSelectionLayer } from './selection-utils.js';
 
 // Heatmap Layers
 export { default as HeatmapBitmapLayer } from './HeatmapBitmapLayer.js';
