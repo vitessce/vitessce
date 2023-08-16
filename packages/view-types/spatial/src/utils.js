@@ -196,3 +196,12 @@ export function renderSubBitmaskLayers(props) {
     tileId: { x, y, z },
   });
 }
+
+/**
+ * Convert an array of numbers to an rgb string.
+ * @param {number[]} arr Array of numbers. Must be valid rgb values.
+ * @returns {string} rgb string composed of the array values.
+ */
+export function arrayToRGB(arr) {
+  return 'rgb('.concat((arr).join(), ')');
+}

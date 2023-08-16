@@ -32,7 +32,7 @@ import { Typography } from '@material-ui/core';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
-import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils.js';
+import { makeSpatialSubtitle, getInitialSpatialTargets, arrayToRGB } from './utils.js';
 
 /**
  * A subscriber component for the spatial plot.
@@ -493,28 +493,30 @@ export function SpatialSubscriber(props) {
     return imageLayerLoaders.map((ll, index) => (shouldUseFullData(ll, index) ? { ...ll, data: ll.data[0] } : ll));
   }, [imageLayerLoaders, useFullResolutionImage, meta]);
 
-
-  const getChannelNames = () => {
+  const getChannelLabels = useMemo(() => {
     let channelNames = [];
     let channelColors = [];
+
     const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.loaders : null;
     if (cellsLayer && obsSegmentationsType === 'bitmask' && cellsLayer.length > 0) {
       channelNames = cellsLayer.map(layer => segmentationLayerLoaders?.[layer.index])[0]?.channels;
-      channelColors = cellsLayer[0].channels.map(layer => 'rgb('.concat((layer.color).join(), ')'));
+      channelColors = cellsLayer[0].channels.map(layer => layer.color) || [];
     } else if (imageLayers) {
       channelNames = imageLayers.map(layer => imageLayerLoaders?.[layer.index])[0]?.channels;
-      channelColors = imageLayers[0].channels.map(layer => 'rgb('.concat((layer.color).join(), ')'));
+      channelColors = imageLayers[0]?.channels.map(layer => layer.color);
     }
 
-    // in cases where there are more names than colors, we cut the names to match the colors
+    // in cases where there are more names than colors,
+    // we cut the number of names to match the number of available colors
     const desiredSize = Math.min(channelNames.length, channelColors.length);
+
     return {
       channelNames: channelNames.slice(0, desiredSize),
       channelColors: channelColors.slice(0, desiredSize),
     };
-  };
+  }, [cellsLayer, imageLayers, obsSegmentations, obsSegmentationsType, imageLayerLoaders]);
 
-  const { channelNames, channelColors } = getChannelNames();
+  const { channelNames, channelColors } = getChannelLabels;
 
   return (
     <TitleInfo
@@ -528,17 +530,18 @@ export function SpatialSubscriber(props) {
       options={options}
     >
       <div style={{
-        position: 'absolute', 
-        bottom: '5px', 
+        position: 'absolute',
+        bottom: '5px',
         left: '5px',
-        zIndex: 6
-      }}>
+        zIndex: 6,
+      }}
+      >
         {channelNames && channelNames.map((name, i) => (
           <Typography
             variant="h6"
             key={[name, i].join('-')}
             style={{
-              color: channelColors[i],
+              color: arrayToRGB(channelColors[i]),
             }}
           >
             {name}
