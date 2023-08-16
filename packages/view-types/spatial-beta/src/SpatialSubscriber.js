@@ -656,7 +656,7 @@ export function SpatialSubscriber(props) {
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
-  
+
   /*
   const setCellSelectionProp = useCallback((v) => {
     setObsSelection(
@@ -999,9 +999,8 @@ export function SpatialSubscriber(props) {
     spotLayerScopes.length > 0
     || pointLayerScopes.length > 0
     || segmentationLayerScopes
-      .flatMap((layerScope) => segmentationChannelScopesByLayer[layerScope]
-        .map(channelScope => obsSegmentationsLocationsData?.[layerScope]?.[channelScope])
-      ).length > 0
+      .flatMap(layerScope => segmentationChannelScopesByLayer[layerScope]
+        .map(channelScope => obsSegmentationsLocationsData?.[layerScope]?.[channelScope])).length > 0
   );
 
   return (

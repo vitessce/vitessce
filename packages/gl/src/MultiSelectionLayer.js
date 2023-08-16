@@ -70,10 +70,7 @@ const PASS_THROUGH_PROPS = [
 export default class MultiSelectionLayer extends CompositeLayer {
   _selectPolygonObjects(coordinates) {
     const {
-      onSelect,
       flipY,
-      // getCellCoords,
-      // cellsQuadTree,
       obsLayers,
     } = this.props;
 
@@ -103,11 +100,11 @@ export default class MultiSelectionLayer extends CompositeLayer {
       obsQuadTree.visit((node, x0, y0, x1, y1) => {
         const nodePoints = [[[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]];
         const nodePolygon = turfPolygon(nodePoints);
-  
+
         const nodePolygonContainsSelectedPolygon = booleanContains(nodePolygon, selectedPolygon);
         const nodePolygonWithinSelectedPolygon = booleanWithin(nodePolygon, selectedPolygon);
         const nodePolygonOverlapsSelectedPolgyon = booleanOverlap(nodePolygon, selectedPolygon);
-  
+
         if (!nodePolygonContainsSelectedPolygon
           && !nodePolygonWithinSelectedPolygon
           && !nodePolygonOverlapsSelectedPolgyon) {
@@ -115,10 +112,10 @@ export default class MultiSelectionLayer extends CompositeLayer {
           // so return true because we are done with this node.
           return true;
         }
-  
+
         // This node made it past the above return statement, so it must either
         // contain, be within, or overlap with the selected polygon.
-  
+
         // Check if this is a leaf node.
         if (node.data
           && booleanPointInPolygon(
@@ -129,22 +126,25 @@ export default class MultiSelectionLayer extends CompositeLayer {
           // and we have verified that the point is in the selected polygon.
           pickingInfos.push(node.data);
         }
-  
+
         // Return false because we are not done.
         // We want to visit the children of this node.
         return false;
       });
       const pickingIds = pickingInfos.map(obsI => obsIndex[obsI]);
       layerOnSelect(pickingIds);
-    })
+    });
+  }
 
-    const allPickingInfos = []; // TODO
-
-    onSelect({ pickingInfos: allPickingInfos });
+  _selectEmpty() {
+    const { obsLayers } = this.props;
+    obsLayers.forEach((obsLayer) => {
+      const { onSelect: layerOnSelect } = obsLayer;
+      layerOnSelect([]);
+    });
   }
 
   renderLayers() {
-    const { onSelect } = this.props;
     const mode = MODE_MAP[this.props.selectionType] || ViewMode;
 
     const inheritedProps = {};
@@ -168,7 +168,7 @@ export default class MultiSelectionLayer extends CompositeLayer {
               this._selectPolygonObjects(coordinates);
             } else if (editType === EDIT_TYPE_CLEAR) {
               // We want to select an empty array to clear any previous selection.
-              onSelect({ pickingInfos: [] });
+              this._selectEmpty();
             }
           },
           _subLayerProps: {

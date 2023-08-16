@@ -461,7 +461,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
             getObsCoords: makeDefaultGetObsCoords(obsPoints?.[layerScope]?.obsPoints),
             obsIndex: obsPoints?.[layerScope]?.obsIndex,
             obsQuadTree: this.obsPointsQuadTree?.[layerScope],
-            onSelect: (obsIds) => console.log("point", layerScope, obsIds),
+            // eslint-disable-next-line no-unused-vars
+            onSelect: (obsIds) => {
+              // TODO: should points be selectable?
+              // console.log('point', layerScope, obsIds)
+            },
           })),
         ...spotLayerScopes
           .filter(layerScope => (
@@ -476,13 +480,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
               const {
                 obsSetColor,
                 additionalObsSets,
-              } = spotLayerCoordination?.[0]?.[layerScope];
+              } = spotLayerCoordination?.[0]?.[layerScope] || {};
               const {
                 setObsSetSelection,
                 setObsColorEncoding,
                 setObsSetColor,
                 setAdditionalObsSets,
-              } = spotLayerCoordination?.[1]?.[layerScope];
+              } = spotLayerCoordination?.[1]?.[layerScope] || {};
 
               setObsSelectionHelper(
                 obsIds, additionalObsSets, obsSetColor,
@@ -512,22 +516,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
                 const {
                   obsSetColor,
                   additionalObsSets,
-                } = segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope];
+                } = segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope] || {};
                 const {
                   setObsSetSelection,
                   setObsColorEncoding,
                   setObsSetColor,
                   setAdditionalObsSets,
-                } = segmentationChannelCoordination?.[1]?.[layerScope]?.[channelScope];
-  
+                } = segmentationChannelCoordination?.[1]?.[layerScope]?.[channelScope] || {};
+
                 setObsSelectionHelper(
                   obsIds, additionalObsSets, obsSetColor,
                   setObsSetSelection, setAdditionalObsSets, setObsSetColor,
                   setObsColorEncoding,
                 );
               },
-            }))
-          ),
+            }))),
       ],
     );
   }

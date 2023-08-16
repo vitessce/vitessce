@@ -20,6 +20,9 @@ function getSelectedLayerId(layerId) {
   return `selected-${layerId}`;
 }
 
+// eslint-disable-next-line no-unused-vars
+const onSelectNoop = ({ pickingInfos }) => {};
+
 /**
  * Construct DeckGL selection layers.
  * @param {string} tool
@@ -49,9 +52,9 @@ export function getMultiSelectionLayer(
     obsLayers,
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     selectionType: tool,
-    onSelect: ({ pickingInfos }) => {
-      console.log(pickingInfos);
-    },
+    // This onSelect is no longer used since
+    // the obsLayers each have their own onSelect.
+    onSelect: onSelectNoop,
     layerIds: [cellBaseLayerId],
     getTentativeFillColor: () => [255, 255, 255, 95],
     getTentativeLineColor: () => [143, 143, 143, 255],
