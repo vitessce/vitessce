@@ -2,7 +2,7 @@
 import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
 import {
-  deck, viv, getMultiSelectionLayer, ScaledExpressionExtension,
+  deck, viv, getSelectionLayer, ScaledExpressionExtension,
 } from '@vitessce/gl';
 import { filterSelection } from '@vitessce/spatial-utils';
 import { getCellColors, getDefaultColor } from '@vitessce/utils';
@@ -447,7 +447,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // TODO: Would it be better to force the user
     //  to decide which layers or `obsType`s to be selected?
     // (before or after selection?)
-    return getMultiSelectionLayer(
+    return getSelectionLayer(
       tool,
       viewState.zoom,
       'nothing',

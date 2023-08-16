@@ -1,6 +1,6 @@
 import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { DataFilterExtension } from '@deck.gl/extensions'; // eslint-disable-line import/no-extraneous-dependencies
-import MultiSelectionLayer from './MultiSelectionLayer.js';
+import SelectionLayer from './SelectionLayer.js';
 
 /**
  * Convert a DeckGL layer ID to a "base" layer ID for selection.
@@ -32,7 +32,7 @@ const onSelectNoop = ({ pickingInfos }) => {};
  * getObsCoords, obsIndex, obsQuadTree, onSelect.
  * @returns {object[]} The array of DeckGL selection layers.
  */
-export function getMultiSelectionLayer(
+export function getSelectionLayer(
   tool,
   zoom,
   layerId,
@@ -46,7 +46,7 @@ export function getMultiSelectionLayer(
   const cellBaseLayerId = getBaseLayerId(layerId);
   const editHandlePointRadius = 5 / (zoom + 16);
 
-  return new MultiSelectionLayer({
+  return new SelectionLayer({
     id: 'multi-selection',
     flipY,
     obsLayers,

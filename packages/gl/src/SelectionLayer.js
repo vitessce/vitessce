@@ -67,7 +67,7 @@ const PASS_THROUGH_PROPS = [
   'modeHandlers',
 ];
 
-export default class MultiSelectionLayer extends CompositeLayer {
+export default class SelectionLayer extends CompositeLayer {
   _selectPolygonObjects(coordinates) {
     const {
       flipY,
@@ -198,5 +198,5 @@ export default class MultiSelectionLayer extends CompositeLayer {
   }
 }
 
-MultiSelectionLayer.layerName = 'MultiSelectionLayer';
-MultiSelectionLayer.defaultProps = defaultProps;
+SelectionLayer.layerName = 'SelectionLayer';
+SelectionLayer.defaultProps = defaultProps;

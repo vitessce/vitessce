@@ -2,7 +2,7 @@
 import React, { forwardRef } from 'react';
 import { forceSimulation } from 'd3-force';
 import {
-  deck, getMultiSelectionLayer, ScaledExpressionExtension, SelectionExtension,
+  deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
 } from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
 import {
@@ -233,7 +233,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const { cellsQuadTree } = this;
     const flipYTooltip = true;
     const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
-    return getMultiSelectionLayer(
+    return getSelectionLayer(
       tool,
       viewState.zoom,
       CELLS_LAYER_ID,
