@@ -38,7 +38,7 @@ export default function CellSetExpressionPlotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['cellset-expression-transform-select', cellSetExpressionPlotOptionsId].join('-')}
+            htmlFor={`cellset-expression-transform-select-${cellSetExpressionPlotOptionsId}`}
           >
             Transform
           </label>
@@ -50,7 +50,7 @@ export default function CellSetExpressionPlotOptions(props) {
             value={featureValueTransform === null ? '' : featureValueTransform}
             onChange={handleTransformChange}
             inputProps={{
-              id: ['cellset-expression-transform-select', cellSetExpressionPlotOptionsId].join('-'),
+              id: `cellset-expression-transform-select-${cellSetExpressionPlotOptionsId}`,
             }}
           >
             {transformOptions.map(opt => (
@@ -64,7 +64,7 @@ export default function CellSetExpressionPlotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['cellset-expression-transform-select', cellSetExpressionPlotOptionsId].join('-')}
+            htmlFor={`cellset-expression-transform-coeff-${cellSetExpressionPlotOptionsId}`}
           >
             Transform Coefficient
           </label>
@@ -78,7 +78,7 @@ export default function CellSetExpressionPlotOptions(props) {
             InputLabelProps={{
               shrink: true,
             }}
-            id={['cellset-expression-transform-select', cellSetExpressionPlotOptionsId].join('-')}
+            id={`cellset-expression-transform-coeff-${cellSetExpressionPlotOptionsId}`}
           />
         </TableCell>
       </TableRow>

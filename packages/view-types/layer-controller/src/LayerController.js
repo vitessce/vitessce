@@ -478,7 +478,7 @@ export default function LayerController(props) {
       TransitionProps={{ enter: false }}
       expanded={!disabled && isExpanded}
       aria-controls="layer-controls options"
-      id={['layer-controls-accordion', layerControlsId].join('-')}
+      id={`layer-controls-accordion-${layerControlsId}`}
     >
       <AccordionSummary
         classes={{

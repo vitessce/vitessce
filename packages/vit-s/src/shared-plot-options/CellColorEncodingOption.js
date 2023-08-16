@@ -25,7 +25,7 @@ export default function CellColorEncodingOption(props) {
     <TableRow>
       <TableCell className={classes.labelCell} variant="head" scope="row">
         <label
-          htmlFor={['cell-color-encoding-select', cellColorEncodingId].join('-')}
+          htmlFor={`cell-color-encoding-select-${cellColorEncodingId}`}
         >
           {observationsLabelNice} Color Encoding
         </label>
@@ -37,7 +37,7 @@ export default function CellColorEncodingOption(props) {
           value={cellColorEncoding}
           onChange={handleColorEncodingChange}
           inputProps={{
-            id: ['cell-color-encoding-select', cellColorEncodingId].join('-'),
+            id: `cell-color-encoding-select-${cellColorEncodingId}`,
           }}
         >
           <option value="cellSetSelection">Cell Sets</option>

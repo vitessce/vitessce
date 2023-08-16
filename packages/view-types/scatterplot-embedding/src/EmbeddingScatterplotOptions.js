@@ -24,7 +24,7 @@ export default function EmbeddingScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['scatterplot-mapping-select', scatterplotOptionsId].join('-')}
+            htmlFor={`scatterplot-mapping-select-${scatterplotOptionsId}`}
           >
             Embedding Type
           </label>
@@ -36,7 +36,7 @@ export default function EmbeddingScatterplotOptions(props) {
             value={selectedMapping}
             onChange={handleSelectedMappingChange}
             inputProps={{
-              id: ['scatterplot-mapping-select', scatterplotOptionsId].join('-'),
+              id: `scatterplot-mapping-select-${scatterplotOptionsId}`,
             }}
           >
             {mappings.map(name => (

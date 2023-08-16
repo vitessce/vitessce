@@ -66,7 +66,7 @@ export default function GatingScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['scatterplot-gating-gene-select', gatingScatterplotOptionsId].join('-')}
+            htmlFor={`scatterplot-gating-gene-select-${gatingScatterplotOptionsId}`}
           >
             {capitalize(plur(featureType, geneSelectOptions?.length))}
           </label>
@@ -79,7 +79,7 @@ export default function GatingScatterplotOptions(props) {
             value={[gatingFeatureSelectionX, gatingFeatureSelectionY].filter(v => v)}
             onChange={handleGeneSelectChange}
             inputProps={{
-              id: ['scatterplot-gating-gene-select', gatingScatterplotOptionsId].join('-'),
+              id: `scatterplot-gating-gene-select-${gatingScatterplotOptionsId}`,
             }}
           >
             {geneSelectOptions.map(name => (
@@ -93,7 +93,7 @@ export default function GatingScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['scatterplot-gating-transform-select', gatingScatterplotOptionsId].join('-')}
+            htmlFor={`scatterplot-gating-transform-select-${gatingScatterplotOptionsId}`}
           >
             Transform
           </label>
@@ -105,7 +105,7 @@ export default function GatingScatterplotOptions(props) {
             value={gatingFeatureValueTransform === null ? '' : gatingFeatureValueTransform}
             onChange={handleTransformChange}
             inputProps={{
-              id: ['scatterplot-gating-transform-select', gatingScatterplotOptionsId].join('-'),
+              id: `scatterplot-gating-transform-select-${gatingScatterplotOptionsId}`,
             }}
           >
             {transformOptions.map(opt => (
@@ -119,7 +119,7 @@ export default function GatingScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['scatterplot-gating-transform-coefficient', gatingScatterplotOptionsId].join('-')}
+            htmlFor={`scatterplot-gating-transform-coefficient-${gatingScatterplotOptionsId}`}
           >
             Transform Coefficient
           </label>
@@ -133,7 +133,7 @@ export default function GatingScatterplotOptions(props) {
             InputLabelProps={{
               shrink: true,
             }}
-            id={['scatterplot-gating-transform-coefficient', gatingScatterplotOptionsId].join('-')}
+            id={`scatterplot-gating-transform-coefficient-${gatingScatterplotOptionsId}`}
           />
         </TableCell>
       </TableRow>

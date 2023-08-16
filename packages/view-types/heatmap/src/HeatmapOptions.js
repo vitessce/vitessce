@@ -37,7 +37,7 @@ export default function HeatmapOptions(props) {
     <OptionsContainer>
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
-          <label htmlFor={['heatmap-gene-expression-colormap', heatmapOptionsId].join('-')}>Gene Expression Colormap</label>
+          <label htmlFor={`heatmap-gene-expression-colormap-${heatmapOptionsId}`}>Gene Expression Colormap</label>
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
@@ -46,7 +46,7 @@ export default function HeatmapOptions(props) {
             onChange={handleGeneExpressionColormapChange}
             inputProps={{
               'aria-label': 'Select gene expression colormap.',
-              id: ['heatmap-gene-expression-colormap', heatmapOptionsId].join('-'),
+              id: `heatmap-gene-expression-colormap-${heatmapOptionsId}`,
             }}
           >
             {GLSL_COLORMAPS.map(cmap => (
@@ -58,7 +58,7 @@ export default function HeatmapOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['heatmap-gene-expression-colormap-tooltip-visibility', heatmapOptionsId].join('-')}
+            htmlFor={`heatmap-gene-expression-colormap-tooltip-visibility-${heatmapOptionsId}`}
           >
             Tooltips Visible
           </label>
@@ -66,18 +66,18 @@ export default function HeatmapOptions(props) {
         <TableCell className={classes.inputCell} variant="body">
           <Checkbox
             className={classes.checkbox}
-              /**
-               * We have to use "checked" here, not "value".
-               * The checkbox state is not persisting with value.
-               * For reference, https://v4.mui.com/api/checkbox/
-               */
+            /**
+             * We have to use "checked" here, not "value".
+             * The checkbox state is not persisting with value.
+             * For reference, https://v4.mui.com/api/checkbox/
+             */
             checked={tooltipsVisible}
             onChange={handleTooltipsVisibilityChange}
             name="heatmap-gene-expression-colormap-tooltip-visibility"
             color="default"
             inputProps={{
               'aria-label': 'Checkbox for showing or hiding tooltips.',
-              id: ['heatmap-gene-expression-colormap-tooltip-visibility', heatmapOptionsId].join('-'),
+              id: `heatmap-gene-expression-colormap-tooltip-visibility-${heatmapOptionsId}`,
             }}
           />
         </TableCell>
@@ -85,7 +85,7 @@ export default function HeatmapOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['heatmap-gene-expression-colormap-range', heatmapOptionsId].join('-')}
+            htmlFor={`heatmap-gene-expression-colormap-range-${heatmapOptionsId}`}
           >
             Gene Expression Colormap Range
           </label>
@@ -96,7 +96,7 @@ export default function HeatmapOptions(props) {
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
             getAriaLabel={index => (index === 0 ? 'Low value colormap range slider' : 'High value colormap range slider')}
-            id={['heatmap-gene-expression-colormap-range', heatmapOptionsId].join('-')}
+            id={`heatmap-gene-expression-colormap-range-${heatmapOptionsId}`}
             valueLabelDisplay="auto"
             step={0.005}
             min={0.0}

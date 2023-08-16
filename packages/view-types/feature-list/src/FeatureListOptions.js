@@ -38,7 +38,7 @@ export default function FeatureListOptions(props) {
       {children}
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
-          <label htmlFor={['feature-list-sort-option', featureListId].join('-')}>Sort Ordering</label>
+          <label htmlFor={`feature-list-sort-option-${featureListId}`}>Sort Ordering</label>
         </TableCell>
         <TableCell variant="body">
           <OptionSelect
@@ -47,7 +47,7 @@ export default function FeatureListOptions(props) {
             value={featureListSort}
             onChange={handleFeatureListSortChange}
             inputProps={{
-              id: ['feature-list-sort-option', featureListId].join('-'),
+              id: `feature-list-sort-option-${featureListId}`,
             }}
           >
             {FEATURELIST_SORT_OPTIONS.map(option => (
@@ -60,7 +60,7 @@ export default function FeatureListOptions(props) {
         <>
           <TableRow>
             <TableCell className={classes.labelCell} variant="head" scope="row">
-              <label htmlFor={['feature-list-sort-key', featureListId].join('-')}>Sort Key</label>
+              <label htmlFor={`feature-list-sort-key-${featureListId}`}>Sort Key</label>
             </TableCell>
             <TableCell variant="body">
               <OptionSelect
@@ -70,7 +70,7 @@ export default function FeatureListOptions(props) {
                 onChange={handleFeatureListSortKeyChange}
                 inputProps={{
                   'aria-label': 'Select the feature list sort key',
-                  id: ['feature-list-sort-key', featureListId].join('-'),
+                  id: `${'feature-list-sort-key'}-${featureListId}`,
                 }}
               >
                 {hasFeatureLabels ? (
@@ -86,7 +86,7 @@ export default function FeatureListOptions(props) {
           </TableRow>
           <TableRow>
             <TableCell className={classes.labelCell} variant="head" scope="row">
-              <label htmlFor={['feature-list-show-alternative-ids', featureListId].join('-')}>Show Alternate IDs</label>
+              <label htmlFor={`${'feature-list-show-alternative-ids'}-${featureListId}`}>Show Alternate IDs</label>
             </TableCell>
             <TableCell className={classes.inputCell} variant="body">
               <Checkbox
@@ -97,7 +97,7 @@ export default function FeatureListOptions(props) {
                 color="default"
                 inputProps={{
                   'aria-label': 'Checkbox for showing or hiding alternative feature ids.',
-                  id: ['feature-list-show-alternative-ids', featureListId].join('-'),
+                  id: `${'feature-list-show-alternative-ids'}-${featureListId}`,
                 }}
               />
             </TableCell>

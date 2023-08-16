@@ -33,7 +33,7 @@ const ToggleFixedAxisButton = ({
     <TableRow>
       <TableCell className={classes.cameraLabel} variant="head" scope="row">
         <label
-          htmlFor={['spatial-camera-axis', toggleAxisId].join('-')}
+          htmlFor={`spatial-camera-axis-${toggleAxisId}`}
         >
           Fix Camera Axis
         </label>
@@ -45,7 +45,7 @@ const ToggleFixedAxisButton = ({
           checked={Boolean(spatialAxisFixed)}
           inputProps={{
             'aria-label': 'Checkbox for fixing/not fixing spatial axis.',
-            id: ['spatial-camera-axis', toggleAxisId].join('-'),
+            id: `spatial-camera-axis-${toggleAxisId}`,
           }}
         />
       </TableCell>
@@ -111,7 +111,7 @@ export default function SpatialOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['gene-expression-colormap-option-tooltip-visibility', spatialOptionsId].join('-')}
+            htmlFor={`gene-expression-colormap-option-tooltip-visibility-${spatialOptionsId}`}
           >
             Tooltips Visible
           </label>
@@ -130,7 +130,7 @@ export default function SpatialOptions(props) {
             color="default"
             inputProps={{
               'aria-label': 'Enable or disable tooltips.',
-              id: ['gene-expression-colormap-option-tooltip-visibility', spatialOptionsId].join('-'),
+              id: `gene-expression-colormap-option-tooltip-visibility-${spatialOptionsId}`,
             }}
           />
         </TableCell>
@@ -140,7 +140,7 @@ export default function SpatialOptions(props) {
           <TableRow>
             <TableCell className={classes.labelCell} variant="head" scope="row">
               <label
-                htmlFor={['gene-expression-colormap-select', spatialOptionsId].join('-')}
+                htmlFor={`gene-expression-colormap-select-${spatialOptionsId}`}
               >
                 Gene Expression Colormap
               </label>
@@ -152,7 +152,7 @@ export default function SpatialOptions(props) {
                 value={geneExpressionColormap}
                 onChange={handleGeneExpressionColormapChange}
                 inputProps={{
-                  id: 'gene-expression-colormap-select',
+                  id: `gene-expression-colormap-select-${spatialOptionsId}`,
                 }}
               >
                 {GLSL_COLORMAPS.map(cmap => (
@@ -164,7 +164,7 @@ export default function SpatialOptions(props) {
           <TableRow>
             <TableCell className={classes.labelCell} variant="head" scope="row">
               <label
-                htmlFor={['gene-expression-colormap-range', spatialOptionsId].join('-')}
+                htmlFor={`gene-expression-colormap-range-${spatialOptionsId}`}
               >
                 Gene Expression Colormap Range
               </label>
@@ -178,7 +178,7 @@ export default function SpatialOptions(props) {
                   const labelPrefix = index === 0 ? 'Low value slider' : 'High value slider';
                   return `${labelPrefix} for spatial gene expression colormap range.`;
                 }}
-                id={['gene-expression-colormap-range', spatialOptionsId].join('-')}
+                id={`gene-expression-colormap-range-${spatialOptionsId}`}
                 valueLabelDisplay="auto"
                 step={0.005}
                 min={0.0}
