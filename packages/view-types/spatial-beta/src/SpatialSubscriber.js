@@ -2,7 +2,6 @@
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
-import { debounce } from 'lodash-es';
 import {
   TitleInfo,
   useDeckCanvasSize, useReady, useUrls,
@@ -657,7 +656,8 @@ export function SpatialSubscriber(props) {
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
-
+  
+  /*
   const setCellSelectionProp = useCallback((v) => {
     setObsSelection(
       v, additionalCellSets, cellSetColor,
@@ -666,6 +666,7 @@ export function SpatialSubscriber(props) {
     );
   }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
+  */
 
   /*
   const cellColors = useMemo(() => getCellColors({
@@ -1073,27 +1074,6 @@ export function SpatialSubscriber(props) {
         imageChannelCoordination={imageChannelCoordination}
 
         // TODO: useFullResolutionImage={useFullResolutionImage}
-
-
-        // OLD
-        // obsLocationsLayerDefs={moleculesLayer}
-        // neighborhoodLayerDefs={neighborhoodsLayer}
-        // obsLocationsIndex={obsLocationsIndex}
-        // obsSegmentationsIndex={obsSegmentationsIndex}
-        // obsLocations={obsLocations}
-        // obsLocationsLabels={obsLocationsLabels}
-        // obsLocationsFeatureIndex={obsLocationsFeatureIndex}
-        obsCentroids={obsCentroids}
-        obsCentroidsIndex={obsCentroidsIndex}
-        // cellFilter={cellFilter}
-        // cellSelection={cellSelection}
-        cellHighlight={cellHighlight}
-        // neighborhoods={neighborhoods}
-        setCellFilter={setCellFilter}
-        setCellSelection={setCellSelectionProp}
-        // setCellHighlight={setCellHighlight}
-        // setMoleculeHighlight={setMoleculeHighlight}
-
       />
       {!disableTooltip && (
         <SpatialTooltipSubscriber

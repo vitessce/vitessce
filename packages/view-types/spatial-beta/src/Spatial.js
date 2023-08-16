@@ -6,6 +6,7 @@ import {
 } from '@vitessce/gl';
 import { filterSelection } from '@vitessce/spatial-utils';
 import { getCellColors, getDefaultColor } from '@vitessce/utils';
+import { setObsSelection as setObsSelectionHelper } from '@vitessce/sets-utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils.js';
@@ -15,8 +16,6 @@ const SPOT_LAYER_PREFIX = 'spot-layer-';
 const SEGMENTATION_LAYER_PREFIX = 'segmentation-layer-';
 const IMAGE_LAYER_PREFIX = 'image-layer-';
 const VOLUME_LAYER_PREFIX = 'volume-layer-';
-
-const CELLS_LAYER_ID = 'cells-layer';
 
 const AUTO_HIGHLIGHT = false;
 
@@ -133,12 +132,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.spotToMatrixIndexMap = {}; // Keys: spotLayer scopes
     this.spotColors = {}; // Keys: spotLayer scopes
     this.spotExpressionGetters = {}; // Keys: spotLayer scopes
-    this.prevSpotSetColor = {}; // Keys: spotLayer scopes. Used for diffing to detect changes.
+    this.prevSpotSetColor = {}; // Keys: spotLayer scopes. Used for diffing.
+    this.prevSpotSetSelection = {}; // Keys: spotLayer scopes. Used for diffing.
 
     this.segmentationToMatrixIndexMap = {}; // Keys: segmentationLayer.segmentationChannel scopes
     this.segmentationColors = {}; // Keys: segmentationLayer.segmentationChannel scopes
     this.segmentationExpressionGetters = {}; // Keys: segmentationLayer.segmentationChannel scopes
     this.prevSegmentationSetColor = {}; // Keys: segmentationLayer.segmentationChannel scopes
+    this.prevSegmentationSetSelection = {}; // Keys: segmentationLayer.segmentationChannel scopes
 
     this.imageLayerLoaderSelections = {};
     this.segmentationLayerLoaderSelections = {};
@@ -420,10 +421,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
   */
 
   createSelectionLayer() {
-    // TODO: support multiple types of layers, and multiple obsTypes.
-    // Perhaps the user needs to decide which obsType to use for selection?
-    // (before or after selection?)
-    // Or simply make selections across all obsTypes?
     const {
       // Spots
       spotLayerScopes,
@@ -444,15 +441,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
       viewState,
     } = this.props;
     const { tool } = this.state;
-    // const { obsSegmentationsQuadTree } = this;
-    // const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
+    // Needs to support multiple types of layers, with per-layer obsType.
+    // We will try to select entities in all visible layers.
+
+    // TODO: Would it be better to force the user
+    //  to decide which layers or `obsType`s to be selected?
+    // (before or after selection?)
     return getMultiSelectionLayer(
       tool,
       viewState.zoom,
       'nothing',
       [
         ...pointLayerScopes
-          .filter(layerScope => pointLayerCoordination?.[0]?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE])
+          .filter(layerScope => (
+            pointLayerCoordination?.[0]
+              ?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE]
+          ))
           .map(layerScope => ({
             getObsCoords: makeDefaultGetObsCoords(obsPoints?.[layerScope]?.obsPoints),
             obsIndex: obsPoints?.[layerScope]?.obsIndex,
@@ -460,25 +464,68 @@ class Spatial extends AbstractSpatialOrScatterplot {
             onSelect: (obsIds) => console.log("point", layerScope, obsIds),
           })),
         ...spotLayerScopes
-          .filter(layerScope => spotLayerCoordination?.[0]?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE])
+          .filter(layerScope => (
+            spotLayerCoordination?.[0]
+              ?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE]
+          ))
           .map(layerScope => ({
             getObsCoords: makeDefaultGetObsCoords(obsSpots?.[layerScope]?.obsSpots),
             obsIndex: obsSpots?.[layerScope]?.obsIndex,
             obsQuadTree: this.obsSpotsQuadTree?.[layerScope],
-            onSelect: (obsIds) => console.log("spot", layerScope, obsIds),
+            onSelect: (obsIds) => {
+              const {
+                obsSetColor,
+                additionalObsSets,
+              } = spotLayerCoordination?.[0]?.[layerScope];
+              const {
+                setObsSetSelection,
+                setObsColorEncoding,
+                setObsSetColor,
+                setAdditionalObsSets,
+              } = spotLayerCoordination?.[1]?.[layerScope];
+
+              setObsSelectionHelper(
+                obsIds, additionalObsSets, obsSetColor,
+                setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+                setObsColorEncoding,
+              );
+            },
           })),
         ...segmentationLayerScopes
-          .filter(layerScope => segmentationLayerCoordination?.[0]?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE])
+          .filter(layerScope => (
+            segmentationLayerCoordination?.[0]
+              ?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE]
+          ))
           .flatMap(layerScope => segmentationChannelScopesByLayer[layerScope]
             .filter(channelScope => (
-              segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope]?.[CoordinationType.SPATIAL_CHANNEL_VISIBLE]
+              segmentationChannelCoordination?.[0]
+                ?.[layerScope]?.[channelScope]?.[CoordinationType.SPATIAL_CHANNEL_VISIBLE]
               && obsSegmentationsLocations?.[layerScope]?.[channelScope]
             ))
             .map(channelScope => ({
-              getObsCoords: makeDefaultGetObsCoords(obsSegmentationsLocations?.[layerScope]?.[channelScope]?.obsLocations),
+              getObsCoords: makeDefaultGetObsCoords(
+                obsSegmentationsLocations?.[layerScope]?.[channelScope]?.obsLocations,
+              ),
               obsIndex: obsSegmentationsLocations?.[layerScope]?.[channelScope]?.obsIndex,
               obsQuadTree: this.obsSegmentationsQuadTree?.[layerScope]?.[channelScope],
-              onSelect: (obsIds) => console.log("segmentation", layerScope, channelScope, obsIds),
+              onSelect: (obsIds) => {
+                const {
+                  obsSetColor,
+                  additionalObsSets,
+                } = segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope];
+                const {
+                  setObsSetSelection,
+                  setObsColorEncoding,
+                  setObsSetColor,
+                  setAdditionalObsSets,
+                } = segmentationChannelCoordination?.[1]?.[layerScope]?.[channelScope];
+  
+                setObsSelectionHelper(
+                  obsIds, additionalObsSets, obsSetColor,
+                  setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+                  setObsColorEncoding,
+                );
+              },
             }))
           ),
       ],
@@ -580,7 +627,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           channelCoordination[cScope][CoordinationType.OBS_COLOR_ENCODING] === 'spatialChannelColor'
         )),
       modelMatrix: layerDefModelMatrix,
-      hoveredCell: Number(this.props.cellHighlight),
+      // hoveredCell: Number(this.props.cellHighlight),
       multiFeatureValues: channelScopes.map(cScope => (layerFeatureValues?.[cScope]?.[0] || [])),
       renderSubLayers: renderSubBitmaskLayers,
       loader: data,
@@ -879,7 +926,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         obsSetSelection,
       } = spotLayerCoordination[0][layerScope];
       const prevSetColor = this.prevSpotSetColor[layerScope];
-      if (obsSetColor !== prevSetColor) {
+      const prevSetSelection = this.prevSpotSetSelection[layerScope];
+      if (obsSetColor !== prevSetColor || obsSetSelection !== prevSetSelection) {
         // The set array reference changed, so update the color data.
         const obsColors = getCellColors({
           cellColorEncoding: obsColorEncoding,
@@ -891,6 +939,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         });
         this.spotColors[layerScope] = obsColors;
         this.prevSpotSetColor[layerScope] = obsSetColor;
+        this.prevSpotSetColor[layerScope] = obsSetSelection;
       }
     }
   }
@@ -1012,7 +1061,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         obsSetSelection,
       } = segmentationChannelCoordination[0][layerScope][channelScope];
       const prevSetColor = this.prevSegmentationSetColor?.[layerScope]?.[channelScope];
-      if (obsSetColor !== prevSetColor) {
+      const prevSetSelection = this.prevSegmentationSetSelection?.[layerScope]?.[channelScope];
+      if (obsSetColor !== prevSetColor || obsSetSelection !== prevSetSelection) {
         // The set array reference changed, so update the color data.
         const obsColors = getCellColors({
           cellColorEncoding: obsColorEncoding,
@@ -1029,8 +1079,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
         if (!this.prevSegmentationSetColor[layerScope]) {
           this.prevSegmentationSetColor[layerScope] = {};
         }
+        if (!this.prevSegmentationSetSelection[layerScope]) {
+          this.prevSegmentationSetSelection[layerScope] = {};
+        }
         this.segmentationColors[layerScope][channelScope] = obsColors;
         this.prevSegmentationSetColor[layerScope][channelScope] = obsSetColor;
+        this.prevSegmentationSetSelection[layerScope][channelScope] = obsSetSelection;
       }
     }
   }
