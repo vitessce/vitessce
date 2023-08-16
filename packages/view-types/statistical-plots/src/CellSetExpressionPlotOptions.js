@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { TableCell, TableRow, TextField } from '@material-ui/core';
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 
@@ -10,6 +10,9 @@ export default function CellSetExpressionPlotOptions(props) {
     setFeatureValueTransformCoefficient,
     transformOptions,
   } = props;
+
+  const cellSetExpressionPlotOptionsId = useId();
+
   const classes = usePlotOptionsStyles();
 
   const handleTransformChange = (event) => {
@@ -34,7 +37,11 @@ export default function CellSetExpressionPlotOptions(props) {
     <OptionsContainer>
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
-          Transform
+          <label
+            htmlFor={['cellset-expression-transform-select', cellSetExpressionPlotOptionsId].join('-')}
+          >
+            Transform
+          </label>
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
@@ -43,7 +50,7 @@ export default function CellSetExpressionPlotOptions(props) {
             value={featureValueTransform === null ? '' : featureValueTransform}
             onChange={handleTransformChange}
             inputProps={{
-              id: 'scatterplot-transform-select',
+              id: ['cellset-expression-transform-select', cellSetExpressionPlotOptionsId].join('-'),
             }}
           >
             {transformOptions.map(opt => (
@@ -56,7 +63,11 @@ export default function CellSetExpressionPlotOptions(props) {
       </TableRow>
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
-          Transform Coefficient
+          <label
+            htmlFor={['cellset-expression-transform-select', cellSetExpressionPlotOptionsId].join('-')}
+          >
+            Transform Coefficient
+          </label>
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <TextField
@@ -67,7 +78,7 @@ export default function CellSetExpressionPlotOptions(props) {
             InputLabelProps={{
               shrink: true,
             }}
-            id="expression-plot-transform-coefficient"
+            id={['cellset-expression-transform-select', cellSetExpressionPlotOptionsId].join('-')}
           />
         </TableCell>
       </TableRow>

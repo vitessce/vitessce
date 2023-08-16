@@ -38,7 +38,7 @@ export default function FeatureListOptions(props) {
       {children}
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
-          Sort Ordering
+          <label htmlFor={['feature-list-sort-option', featureListId].join('-')}>Sort Ordering</label>
         </TableCell>
         <TableCell variant="body">
           <OptionSelect
@@ -47,7 +47,7 @@ export default function FeatureListOptions(props) {
             value={featureListSort}
             onChange={handleFeatureListSortChange}
             inputProps={{
-              id: 'feature-list-sort-option',
+              id: ['feature-list-sort-option', featureListId].join('-'),
             }}
           >
             {FEATURELIST_SORT_OPTIONS.map(option => (
@@ -60,7 +60,7 @@ export default function FeatureListOptions(props) {
         <>
           <TableRow>
             <TableCell className={classes.labelCell} variant="head" scope="row">
-              Sort Key
+              <label htmlFor={['feature-list-sort-key', featureListId].join('-')}>Sort Key</label>
             </TableCell>
             <TableCell variant="body">
               <OptionSelect
@@ -86,7 +86,7 @@ export default function FeatureListOptions(props) {
           </TableRow>
           <TableRow>
             <TableCell className={classes.labelCell} variant="head" scope="row">
-              Show Alternate IDs
+              <label htmlFor={['feature-list-show-alternative-ids', featureListId].join('-')}>Show Alternate IDs</label>
             </TableCell>
             <TableCell className={classes.inputCell} variant="body">
               <Checkbox

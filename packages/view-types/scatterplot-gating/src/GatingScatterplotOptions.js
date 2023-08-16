@@ -65,7 +65,11 @@ export default function GatingScatterplotOptions(props) {
     <>
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
-          {capitalize(plur(featureType, geneSelectOptions?.length))}
+          <label
+            htmlFor={['scatterplot-gating-gene-select', gatingScatterplotOptionsId].join('-')}
+          >
+            {capitalize(plur(featureType, geneSelectOptions?.length))}
+          </label>
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
@@ -88,7 +92,11 @@ export default function GatingScatterplotOptions(props) {
       </TableRow>
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
-          Transform
+          <label
+            htmlFor={['scatterplot-gating-transform-select', gatingScatterplotOptionsId].join('-')}
+          >
+            Transform
+          </label>
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
@@ -97,7 +105,7 @@ export default function GatingScatterplotOptions(props) {
             value={gatingFeatureValueTransform === null ? '' : gatingFeatureValueTransform}
             onChange={handleTransformChange}
             inputProps={{
-              id: 'scatterplot-gating-transform-select',
+              id: ['scatterplot-gating-transform-select', gatingScatterplotOptionsId].join('-'),
             }}
           >
             {transformOptions.map(opt => (
@@ -110,7 +118,11 @@ export default function GatingScatterplotOptions(props) {
       </TableRow>
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
-          Transform Coefficient
+          <label
+            htmlFor={['scatterplot-gating-transform-coefficient', gatingScatterplotOptionsId].join('-')}
+          >
+            Transform Coefficient
+          </label>
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <TextField
@@ -121,7 +133,7 @@ export default function GatingScatterplotOptions(props) {
             InputLabelProps={{
               shrink: true,
             }}
-            id="scatterplot-gating-transform-coefficient"
+            id={['scatterplot-gating-transform-coefficient', gatingScatterplotOptionsId].join('-')}
           />
         </TableCell>
       </TableRow>

@@ -37,7 +37,7 @@ export default function HeatmapOptions(props) {
     <OptionsContainer>
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
-          Gene Expression Colormap
+          <label htmlFor={['heatmap-gene-expression-colormap', heatmapOptionsId].join('-')}>Gene Expression Colormap</label>
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
@@ -57,7 +57,11 @@ export default function HeatmapOptions(props) {
       </TableRow>
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
-          Tooltips Visible
+          <label
+            htmlFor={['heatmap-gene-expression-colormap-tooltip-visibility', heatmapOptionsId].join('-')}
+          >
+            Tooltips Visible
+          </label>
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Checkbox
@@ -69,18 +73,22 @@ export default function HeatmapOptions(props) {
                */
             checked={tooltipsVisible}
             onChange={handleTooltipsVisibilityChange}
-            name="gene-expression-colormap-option-tooltip-visibility"
+            name="heatmap-gene-expression-colormap-tooltip-visibility"
             color="default"
             inputProps={{
               'aria-label': 'Checkbox for showing or hiding tooltips.',
-              id: ['gene-expression-colormap-option-tooltip-visibility', heatmapOptionsId].join('-'),
+              id: ['heatmap-gene-expression-colormap-tooltip-visibility', heatmapOptionsId].join('-'),
             }}
           />
         </TableCell>
       </TableRow>
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
-          Gene Expression Colormap Range
+          <label
+            htmlFor={['heatmap-gene-expression-colormap-range', heatmapOptionsId].join('-')}
+          >
+            Gene Expression Colormap Range
+          </label>
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
@@ -88,6 +96,7 @@ export default function HeatmapOptions(props) {
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
             getAriaLabel={index => (index === 0 ? 'Low value colormap range slider' : 'High value colormap range slider')}
+            id={['heatmap-gene-expression-colormap-range', heatmapOptionsId].join('-')}
             valueLabelDisplay="auto"
             step={0.005}
             min={0.0}

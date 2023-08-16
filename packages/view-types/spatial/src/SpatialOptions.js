@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useId } from 'react';
 import { debounce } from 'lodash-es';
 
 import {
@@ -27,18 +27,26 @@ const ToggleFixedAxisButton = ({
   spatialAxisFixed,
   use3d,
 }) => {
+  const toggleAxisId = useId();
   const classes = useToggleStyles();
   return (
     <TableRow>
       <TableCell className={classes.cameraLabel} variant="head" scope="row">
-        Fix Camera Axis
+        <label
+          htmlFor={['spatial-camera-axis', toggleAxisId].join('-')}
+        >
+          Fix Camera Axis
+        </label>
       </TableCell>
       <TableCell className={classes.toggleBox} variant="body">
         <Checkbox
           onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
           disabled={!use3d}
           checked={Boolean(spatialAxisFixed)}
-          inputProps={{ 'aria-label': 'Checkbox for fixing/not fixing spatial axis.' }}
+          inputProps={{
+            'aria-label': 'Checkbox for fixing/not fixing spatial axis.',
+            id: ['spatial-camera-axis', toggleAxisId].join('-'),
+          }}
         />
       </TableCell>
     </TableRow>
@@ -63,6 +71,8 @@ export default function SpatialOptions(props) {
     canShowColorEncodingOption,
     canShow3DOptions,
   } = props;
+
+  const spatialOptionsId = useId();
 
   function handleGeneExpressionColormapChange(event) {
     setGeneExpressionColormap(event.target.value);
@@ -100,7 +110,11 @@ export default function SpatialOptions(props) {
       ) : null}
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
-          Tooltips Visible
+          <label
+            htmlFor={['gene-expression-colormap-option-tooltip-visibility', spatialOptionsId].join('-')}
+          >
+            Tooltips Visible
+          </label>
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Checkbox
@@ -114,7 +128,10 @@ export default function SpatialOptions(props) {
             onChange={handleTooltipsVisibilityChange}
             name="gene-expression-colormap-option-tooltip-visibility"
             color="default"
-            inputProps={{ 'aria-label': 'Enable or disable tooltips.' }}
+            inputProps={{
+              'aria-label': 'Enable or disable tooltips.',
+              id: ['gene-expression-colormap-option-tooltip-visibility', spatialOptionsId].join('-'),
+            }}
           />
         </TableCell>
       </TableRow>
@@ -122,7 +139,11 @@ export default function SpatialOptions(props) {
         <>
           <TableRow>
             <TableCell className={classes.labelCell} variant="head" scope="row">
-              Gene Expression Colormap
+              <label
+                htmlFor={['gene-expression-colormap-select', spatialOptionsId].join('-')}
+              >
+                Gene Expression Colormap
+              </label>
             </TableCell>
             <TableCell className={classes.inputCell} variant="body">
               <OptionSelect
@@ -142,14 +163,22 @@ export default function SpatialOptions(props) {
           </TableRow>
           <TableRow>
             <TableCell className={classes.labelCell} variant="head" scope="row">
-              Gene Expression Colormap Range
+              <label
+                htmlFor={['gene-expression-colormap-range', spatialOptionsId].join('-')}
+              >
+                Gene Expression Colormap Range
+              </label>
             </TableCell>
             <TableCell className={classes.inputCell} variant="body">
               <Slider
                 classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
                 value={geneExpressionColormapRange}
                 onChange={handleColormapRangeChangeDebounced}
-                getAriaLabel={() => 'Spatial gene expression colormap range slider'}
+                getAriaLabel={(index) => {
+                  const labelPrefix = index === 0 ? 'Low value slider' : 'High value slider';
+                  return `${labelPrefix} for spatial gene expression colormap range.`;
+                }}
+                id={['gene-expression-colormap-range', spatialOptionsId].join('-')}
                 valueLabelDisplay="auto"
                 step={0.005}
                 min={0.0}
