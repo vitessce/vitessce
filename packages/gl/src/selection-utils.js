@@ -1,6 +1,5 @@
 import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { DataFilterExtension } from '@deck.gl/extensions'; // eslint-disable-line import/no-extraneous-dependencies
-import SelectionLayer from './SelectionLayer.js';
 import MultiSelectionLayer from './MultiSelectionLayer.js';
 
 /**
@@ -26,54 +25,10 @@ function getSelectedLayerId(layerId) {
  * @param {string} tool
  * @param {number} zoom
  * @param {string} cellBaseLayerId
- * @param {function} getCellCoords
- * @param {function} updateCellsSelection
+ * @param {object[]} obsLayers Objects with properties
+ * getObsCoords, obsIndex, obsQuadTree, onSelect.
  * @returns {object[]} The array of DeckGL selection layers.
  */
-export function getSelectionLayer(
-  tool,
-  zoom,
-  layerId,
-  getCellCoords,
-  obsIndex,
-  updateCellsSelection,
-  cellsQuadTree,
-  flipY = false,
-) {
-  if (!tool) {
-    return [];
-  }
-
-  const cellBaseLayerId = getBaseLayerId(layerId);
-  const editHandlePointRadius = 5 / (zoom + 16);
-
-  return new SelectionLayer({
-    id: 'selection',
-    flipY,
-    cellsQuadTree,
-    getCellCoords,
-    coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-    selectionType: tool,
-    onSelect: ({ pickingInfos }) => {
-      const cellIds = pickingInfos.map(i => obsIndex[i]);
-      if (updateCellsSelection) {
-        updateCellsSelection(cellIds);
-      }
-    },
-    layerIds: [cellBaseLayerId],
-    getTentativeFillColor: () => [255, 255, 255, 95],
-    getTentativeLineColor: () => [143, 143, 143, 255],
-    getTentativeLineDashArray: () => [7, 4],
-    lineWidthMinPixels: 2,
-    lineWidthMaxPixels: 2,
-    getEditHandlePointColor: () => [0xff, 0xff, 0xff, 0xff],
-    getEditHandlePointRadius: () => editHandlePointRadius,
-    editHandlePointRadiusScale: 1,
-    editHandlePointRadiusMinPixels: editHandlePointRadius,
-    editHandlePointRadiusMaxPixels: 2 * editHandlePointRadius,
-  });
-}
-
 export function getMultiSelectionLayer(
   tool,
   zoom,
@@ -96,12 +51,6 @@ export function getMultiSelectionLayer(
     selectionType: tool,
     onSelect: ({ pickingInfos }) => {
       console.log(pickingInfos);
-      /*
-      const cellIds = pickingInfos.map(i => obsIndex[i]);
-      if (updateCellsSelection) {
-        updateCellsSelection(cellIds);
-      }
-      */
     },
     layerIds: [cellBaseLayerId],
     getTentativeFillColor: () => [255, 255, 255, 95],
