@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React from 'react';
+import React, { useMemo } from 'react';
 import SplitSegmentationChannelController from './SplitSegmentationChannelController.js';
 
 
@@ -24,9 +24,13 @@ export default function SplitSegmentationLayerController(props) {
     setSpatialLayerOpacity,
   } = setLayerCoordination;
 
+  const reversedChannelScopes = useMemo(() => (
+    [...(channelScopes || [])].reverse()
+  ), [channelScopes]);
+
   return (
     <>
-      {channelScopes.map((cScope) => {
+      {reversedChannelScopes.map((cScope) => {
         const {
           obsType,
           featureType,

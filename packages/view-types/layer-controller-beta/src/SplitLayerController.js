@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import SplitSpotLayerController from './SplitSpotLayerController.js';
 import SplitPointLayerController from './SplitPointLayerController.js';
 import SplitSegmentationLayerController from './SplitSegmentationLayerController.js';
@@ -46,6 +46,19 @@ export default function SplitLayerController(props) {
   const maxZ = Object.values(images || {})
     .reduce((a, h) => Math.max(a, h?.image?.instance.getNumZ()), 1) - 1;
 
+  const reversedImageLayerScopes = useMemo(() => (
+    [...(imageLayerScopes || [])].reverse()
+  ), [imageLayerScopes]);
+  const reversedSegmentationLayerScopes = useMemo(() => (
+    [...(segmentationLayerScopes || [])].reverse()
+  ), [segmentationLayerScopes]);
+  const reversedSpotLayerScopes = useMemo(() => (
+    [...(spotLayerScopes || [])].reverse()
+  ), [spotLayerScopes]);
+  const reversedPointLayerScopes = useMemo(() => (
+    [...(pointLayerScopes || [])].reverse()
+  ), [pointLayerScopes]);
+
   return (
     <div>
       {/* Global T and Z sliders */}
@@ -68,7 +81,7 @@ export default function SplitLayerController(props) {
         />
       ) : null}
       {/* Point layers: */}
-      {pointLayerScopes && pointLayerScopes.map(layerScope => (
+      {pointLayerScopes && reversedPointLayerScopes.map(layerScope => (
         <SplitPointLayerController
           key={layerScope}
           theme={theme}
@@ -78,7 +91,7 @@ export default function SplitLayerController(props) {
         />
       ))}
       {/* Spot layers: */}
-      {spotLayerScopes && spotLayerScopes.map(layerScope => (
+      {spotLayerScopes && reversedSpotLayerScopes.map(layerScope => (
         <SplitSpotLayerController
           key={layerScope}
           theme={theme}
@@ -88,7 +101,7 @@ export default function SplitLayerController(props) {
         />
       ))}
       {/* Segmentation layers: */}
-      {segmentationLayerScopes && segmentationLayerScopes.map(layerScope => (
+      {segmentationLayerScopes && reversedSegmentationLayerScopes.map(layerScope => (
         <SplitSegmentationLayerController
           key={layerScope}
           theme={theme}
@@ -101,7 +114,7 @@ export default function SplitLayerController(props) {
         />
       ))}
       {/* Image layers: */}
-      {imageLayerScopes && imageLayerScopes.map(layerScope => (
+      {imageLayerScopes && reversedImageLayerScopes.map(layerScope => (
         <SplitImageLayerController
           key={layerScope}
           // Fix to dark theme due to black background of spatial plot.
