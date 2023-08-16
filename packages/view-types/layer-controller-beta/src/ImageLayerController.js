@@ -32,7 +32,7 @@ import {
   useSelectStyles,
   useEllipsisMenuStyles,
 } from './styles.js';
-import SplitImageChannelController from './SplitImageChannelController.js';
+import ImageChannelController from './ImageChannelController.js';
 import ClippingSliders from './ClippingSliders.js';
 
 
@@ -220,7 +220,7 @@ function ImageLayerEllipsisMenu(props) {
   );
 }
 
-export default function SplitImageLayerController(props) {
+export default function ImageLayerController(props) {
   const {
     theme,
     coordinationScopesRaw,
@@ -371,7 +371,7 @@ export default function SplitImageLayerController(props) {
               } = setChannelCoordination[cScope];
 
               return (
-                <SplitImageChannelController
+                <ImageChannelController
                   key={cScope}
                   theme={theme}
                   coordinationScopesRaw={coordinationScopesRaw}

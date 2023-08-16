@@ -18,7 +18,7 @@ import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 import ChannelSelectionDropdown from './ChannelSelectionDropdown.js';
 
 
-export default function SplitImageChannelController(props) {
+export default function ImageChannelController(props) {
   const {
     theme,
     coordinationScopesRaw,

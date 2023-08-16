@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
-import SplitSpotLayerController from './SplitSpotLayerController.js';
-import SplitPointLayerController from './SplitPointLayerController.js';
-import SplitSegmentationLayerController from './SplitSegmentationLayerController.js';
-import SplitImageLayerController from './SplitImageLayerController.js';
+import SpotLayerController from './SpotLayerController.js';
+import PointLayerController from './PointLayerController.js';
+import SegmentationLayerController from './SegmentationLayerController.js';
+import ImageLayerController from './ImageLayerController.js';
 import GlobalDimensionSlider from './GlobalDimensionSlider.js';
 
-export default function SplitLayerController(props) {
+export default function LayerController(props) {
   const {
     theme,
     coordinationScopesRaw,
@@ -82,7 +82,7 @@ export default function SplitLayerController(props) {
       ) : null}
       {/* Point layers: */}
       {pointLayerScopes && reversedPointLayerScopes.map(layerScope => (
-        <SplitPointLayerController
+        <PointLayerController
           key={layerScope}
           theme={theme}
           layerScope={layerScope}
@@ -92,7 +92,7 @@ export default function SplitLayerController(props) {
       ))}
       {/* Spot layers: */}
       {spotLayerScopes && reversedSpotLayerScopes.map(layerScope => (
-        <SplitSpotLayerController
+        <SpotLayerController
           key={layerScope}
           theme={theme}
           layerScope={layerScope}
@@ -102,7 +102,7 @@ export default function SplitLayerController(props) {
       ))}
       {/* Segmentation layers: */}
       {segmentationLayerScopes && reversedSegmentationLayerScopes.map(layerScope => (
-        <SplitSegmentationLayerController
+        <SegmentationLayerController
           key={layerScope}
           theme={theme}
           layerScope={layerScope}
@@ -115,7 +115,7 @@ export default function SplitLayerController(props) {
       ))}
       {/* Image layers: */}
       {imageLayerScopes && reversedImageLayerScopes.map(layerScope => (
-        <SplitImageLayerController
+        <ImageLayerController
           key={layerScope}
           // Fix to dark theme due to black background of spatial plot.
           theme="dark"

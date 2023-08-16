@@ -133,7 +133,7 @@ function SpotLayerEllipsisMenu(props) {
   );
 }
 
-export default function SplitSpotLayerController(props) {
+export default function SpotLayerController(props) {
   const {
     theme,
     layerScope,

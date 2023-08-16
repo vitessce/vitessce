@@ -16,10 +16,8 @@ const useStyles = makeStyles(() => ({
 
 /**
  * Dropdown for selecting a channel.
- * @prop {function} handleChange Callback for each new selection.
- * @prop {array} channelOptions List of available selections, like ['DAPI', 'FITC', ...].
  * @prop {boolean} disabled Whether or not the component is disabled.
- * @prop {number} selectionIndex Current numeric index of a selection.
+ * @prop {string[]} featureIndex The feature index.
  */
 export default function ChannelSelectionDropdown(props) {
   const {

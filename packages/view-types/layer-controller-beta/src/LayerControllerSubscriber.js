@@ -31,7 +31,7 @@ import {
   CoordinationType,
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
-import SplitLayerController from './SplitLayerController.js';
+import LayerController from './LayerController.js';
 
 /**
  * A subscriber component for the spatial layer controller.
@@ -61,18 +61,11 @@ export function LayerControllerSubscriber(props) {
   const [
     {
       dataset,
-      obsType,
-      imageLayer: rasterLayers,
-      segmentationLayer: cellsLayer,
-      spatialPointLayer: moleculesLayer,
       spatialTargetT: targetT,
       spatialTargetZ: targetZ,
       spatialRenderingMode,
     },
     {
-      setImageLayer: setRasterLayers,
-      setSegmentationLayer: setCellsLayer,
-      setSpatialPointLayer: setMoleculesLayer,
       setSpatialTargetX: setTargetX,
       setSpatialTargetY: setTargetY,
       setSpatialTargetZ: setTargetZ,
@@ -272,7 +265,7 @@ export function LayerControllerSubscriber(props) {
       theme={theme}
       isReady={isReady}
     >
-      <SplitLayerController
+      <LayerController
         theme={theme}
         coordinationScopesRaw={coordinationScopesRaw}
 

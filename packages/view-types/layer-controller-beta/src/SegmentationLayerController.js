@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
 import React, { useMemo } from 'react';
-import SplitSegmentationChannelController from './SplitSegmentationChannelController.js';
+import SegmentationChannelController from './SegmentationChannelController.js';
 
 
-export default function SplitSegmentationLayerController(props) {
+export default function SegmentationLayerController(props) {
   const {
     theme,
     layerScope,
@@ -59,7 +59,7 @@ export default function SplitSegmentationLayerController(props) {
         const obsTypeName = obsType;
 
         return (
-          <SplitSegmentationChannelController
+          <SegmentationChannelController
             key={`${layerScope}-${cScope}`}
             theme={theme}
             layerScope={layerScope}

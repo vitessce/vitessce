@@ -20,11 +20,8 @@ const useStyles = makeStyles(() => ({
 
 /**
  * Dropdown for options for a channel on the three dots button.
- * @prop {function} handlePropertyChange Callback for changing property (color, IQR of sliders).
- * @prop {function} handleChannelRemove Callback for channel removal.
- * @prop {function} handleIQRUpdate Callback for IQR slider update.
  */
-function ChannelOptions(props) {
+export default function ChannelOptions(props) {
   const {
     onRemove,
     onResetWindowUsingIQR,
@@ -94,5 +91,3 @@ function ChannelOptions(props) {
     </PopperMenu>
   );
 }
-
-export default ChannelOptions;
