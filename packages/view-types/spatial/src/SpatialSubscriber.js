@@ -24,7 +24,7 @@ import {
   useAuxiliaryCoordination,
   useHasLoader,
 } from '@vitessce/vit-s';
-import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
+import { setObsSelection, mergeObsSets, colorArrayToString } from '@vitessce/sets-utils';
 import { canLoadResolution, getCellColors } from '@vitessce/utils';
 import { Legend } from '@vitessce/legend';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType } from '@vitessce/constants-internal';
@@ -32,7 +32,7 @@ import { Typography } from '@material-ui/core';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
-import { makeSpatialSubtitle, getInitialSpatialTargets, arrayToRGB } from './utils.js';
+import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils.js';
 
 /**
  * A subscriber component for the spatial plot.
@@ -494,26 +494,21 @@ export function SpatialSubscriber(props) {
     return imageLayerLoaders.map((ll, index) => (shouldUseFullData(ll, index) ? { ...ll, data: ll.data[0] } : ll));
   }, [imageLayerLoaders, useFullResolutionImage, meta]);
 
-  const getChannelLabels = useMemo(() => {
-    let channelNames = [];
-    let channelColors = [];
+  const [channelNames, channelColors] = useMemo(() => {
+    let names = [];
+    let colors = [];
 
     if (imageLayers) {
-      channelNames = imageLayers.map(layer => imageLayerLoaders?.[layer.index])[0]?.channels;
-      channelColors = imageLayers[0]?.channels.map(layer => layer.color);
+      names = imageLayers.map(layer => imageLayerLoaders?.[layer.index])[0]?.channels;
+      colors = imageLayers[0]?.channels.map(layer => layer.color);
     }
 
     // in cases where there are more names than colors,
     // we cut the number of names to match the number of available colors
-    const desiredSize = Math.min(channelNames.length, channelColors.length);
+    const desiredSize = Math.min(names.length, colors.length);
 
-    return {
-      channelNames: channelNames.slice(0, desiredSize),
-      channelColors: channelColors.slice(0, desiredSize),
-    };
+    return [names.slice(0, desiredSize), colors.slice(0, desiredSize)];
   }, [imageLayers, imageLayerLoaders]);
-
-  const { channelNames, channelColors } = getChannelLabels;
 
   return (
     <TitleInfo
@@ -533,18 +528,18 @@ export function SpatialSubscriber(props) {
         zIndex: 6,
       }}
       >
-        {channelNamesVisible && channelNames && channelNames.map((name, i) => (
+        {channelNamesVisible && channelNames ? channelNames.map((name, i) => (
           <Typography
             variant="h6"
-            key={[name, i].join('-')}
+            key={name}
             style={{
-              color: arrayToRGB(channelColors[i]),
+              color: colorArrayToString(channelColors[i]),
               fontSize: '14px',
             }}
           >
             {name}
           </Typography>
-        ))}
+        )) : null}
       </div>
       <Spatial
         ref={deckRef}
