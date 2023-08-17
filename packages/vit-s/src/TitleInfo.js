@@ -138,7 +138,7 @@ export function TitleInfo(props) {
         <div className={classes.titleInfo} title={info} role="note">
           {info}
         </div>
-        <div className={classes.titleButtons} role="toolbar" aria-label="Plot options and controls.">
+        <div className={classes.titleButtons} role="toolbar" aria-label="Plot options and controls">
           <PlotOptions
             options={options}
           />

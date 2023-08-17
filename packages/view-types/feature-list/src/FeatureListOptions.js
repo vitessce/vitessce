@@ -96,7 +96,7 @@ export default function FeatureListOptions(props) {
                 name="feature-list-show-table"
                 color="default"
                 inputProps={{
-                  'aria-label': 'Checkbox for showing or hiding alternative feature ids.',
+                  'aria-label': 'Show or hide alternative feature ids',
                   id: `${'feature-list-show-alternative-ids'}-${featureListId}`,
                 }}
               />

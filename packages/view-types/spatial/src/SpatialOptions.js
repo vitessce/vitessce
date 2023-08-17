@@ -44,7 +44,7 @@ const ToggleFixedAxisButton = ({
           disabled={!use3d}
           checked={Boolean(spatialAxisFixed)}
           inputProps={{
-            'aria-label': 'Checkbox for fixing/not fixing spatial axis.',
+            'aria-label': 'Fix or not fix spatial camera axis',
             id: `spatial-camera-axis-${toggleAxisId}`,
           }}
         />
@@ -129,7 +129,7 @@ export default function SpatialOptions(props) {
             name="gene-expression-colormap-option-tooltip-visibility"
             color="default"
             inputProps={{
-              'aria-label': 'Enable or disable tooltips.',
+              'aria-label': 'Enable or disable tooltips',
               id: `gene-expression-colormap-option-tooltip-visibility-${spatialOptionsId}`,
             }}
           />
@@ -176,7 +176,7 @@ export default function SpatialOptions(props) {
                 onChange={handleColormapRangeChangeDebounced}
                 getAriaLabel={(index) => {
                   const labelPrefix = index === 0 ? 'Low value slider' : 'High value slider';
-                  return `${labelPrefix} for spatial gene expression colormap range.`;
+                  return `${labelPrefix} for spatial gene expression colormap range`;
                 }}
                 id={`gene-expression-colormap-range-${spatialOptionsId}`}
                 valueLabelDisplay="auto"

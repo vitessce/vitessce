@@ -15,7 +15,7 @@ export default function OptionsContainer(props) {
         <Table
           className={classes.table}
           size="small"
-          aria-label="Table displaying menu of options available for the view."
+          aria-label="Menu of options available for the view"
         >
           <TableBody>
             {children}

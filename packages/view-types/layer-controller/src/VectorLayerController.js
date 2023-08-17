@@ -45,7 +45,7 @@ export default function VectorLayerController(props) {
               color="primary"
               checked={isOn}
               onChange={(e, v) => handleCheckBoxChange(v)}
-              inputProps={{ 'aria-label': 'Checkbox for showing/hiding vector layer.' }}
+              inputProps={{ 'aria-label': 'Show or hide vector layer' }}
             />
           </Grid>
           <Grid item xs={9} style={{ paddingRight: '8px' }}>
@@ -59,7 +59,7 @@ export default function VectorLayerController(props) {
               orientation="horizontal"
               getAriaLabel={(index) => {
                 const labelPrefix = index === 0 ? 'Low value slider' : 'High value slider';
-                return `${labelPrefix} for ${label} layer controller.`;
+                return `${labelPrefix} for ${label} layer controller`;
               }}
             />
           </Grid>

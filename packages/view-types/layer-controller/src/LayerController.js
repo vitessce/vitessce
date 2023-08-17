@@ -554,7 +554,7 @@ export default function LayerController(props) {
             <Tabs
               value={tab}
               onChange={handleTabChange}
-              aria-label="Change the layer tab type."
+              aria-label="Change the layer tab type"
               style={{ height: '24px', minHeight: '24px' }}
             >
               <Tab

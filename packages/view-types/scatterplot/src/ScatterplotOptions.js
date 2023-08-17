@@ -109,7 +109,7 @@ export default function ScatterplotOptions(props) {
             name="scatterplot-option-cell-set-labels"
             color="default"
             inputProps={{
-              'aria-label': 'Checkbox for showing/hiding set labels.',
+              'aria-label': 'Show or hide set labels',
               id: ['scatterplot-set-labels-visible', scatterplotOptionsId].join('-'),
             }}
           />
@@ -136,7 +136,7 @@ export default function ScatterplotOptions(props) {
             name="scatterplot-option-tooltip-visibility"
             color="default"
             inputProps={{
-              'aria-label': 'Checkbox for showing/hiding tooltips.',
+              'aria-label': 'Show or hide tooltips',
               id: ['scatterplot-set-tooltips-visible', scatterplotOptionsId].join('-'),
             }}
           />
@@ -181,7 +181,7 @@ export default function ScatterplotOptions(props) {
             name="scatterplot-option-cell-set-polygons"
             color="default"
             inputProps={{
-              'aria-label': 'Checkbox for showing/hiding polygons.',
+              'aria-label': 'Show or hide polygons',
               id: ['scatterplot-set-polygons-visible', scatterplotOptionsId].join('-'),
             }}
           />
@@ -318,7 +318,7 @@ export default function ScatterplotOptions(props) {
             onChange={handleColormapRangeChangeDebounced}
             getAriaLabel={(index) => {
               const labelPrefix = index === 0 ? 'Low value slider' : 'High value slider';
-              return `${labelPrefix} for scatterplot gene expression colormap range.`;
+              return `${labelPrefix} for scatterplot gene expression colormap range`;
             }}
             id={['scatterplot-gene-expression-colormap-range', scatterplotOptionsId].join('-')}
             valueLabelDisplay="auto"

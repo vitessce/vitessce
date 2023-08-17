@@ -45,7 +45,7 @@ export default function HeatmapOptions(props) {
             value={geneExpressionColormap}
             onChange={handleGeneExpressionColormapChange}
             inputProps={{
-              'aria-label': 'Select gene expression colormap.',
+              'aria-label': 'Select gene expression colormap',
               id: `heatmap-gene-expression-colormap-${heatmapOptionsId}`,
             }}
           >
@@ -76,7 +76,7 @@ export default function HeatmapOptions(props) {
             name="heatmap-gene-expression-colormap-tooltip-visibility"
             color="default"
             inputProps={{
-              'aria-label': 'Checkbox for showing or hiding tooltips.',
+              'aria-label': 'Show or hide tooltips',
               id: `heatmap-gene-expression-colormap-tooltip-visibility-${heatmapOptionsId}`,
             }}
           />

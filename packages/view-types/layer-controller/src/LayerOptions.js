@@ -209,7 +209,7 @@ function TransparentColorCheckbox({ value, handleChange }) {
         }
       }}
       checked={Boolean(value)}
-      inputProps={{ 'aria-label': 'Checkbox for enabling or disabling color transparency.' }}
+      inputProps={{ 'aria-label': 'Enable or disable color transparency' }}
     />
   );
 }
