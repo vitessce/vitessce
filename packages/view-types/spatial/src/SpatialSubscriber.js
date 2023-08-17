@@ -511,7 +511,7 @@ export function SpatialSubscriber(props) {
       channelNames: channelNames.slice(0, desiredSize),
       channelColors: channelColors.slice(0, desiredSize),
     };
-  }, [cellsLayer, imageLayers, obsSegmentations, obsSegmentationsType, imageLayerLoaders]);
+  }, [imageLayers, imageLayerLoaders]);
 
   const { channelNames, channelColors } = getChannelLabels;
 
