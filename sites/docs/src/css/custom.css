@@ -58,6 +58,14 @@
   flex: 1;
 }
 
+.footer {
+  display: none;
+}
+
+.navbar {
+  display: none;
+}
+
 .vitessce-app .vitessce-container {
   height: calc(100vh - var(--ifm-navbar-height));
   width: 100%;
