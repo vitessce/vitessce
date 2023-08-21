@@ -1,5 +1,4 @@
 const path = require('path');
-
 module.exports = {
   title: 'Vitessce',
   tagline: 'Visual integration tool for exploration of spatial single cell experiments',
@@ -85,7 +84,7 @@ module.exports = {
           className: 'header-github-link',
           'aria-label': 'GitHub repository',
         },
-      ]
+      ],
     },
     footer: {
       links: [
