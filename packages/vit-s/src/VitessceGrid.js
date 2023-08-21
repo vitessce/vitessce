@@ -68,11 +68,6 @@ export default function VitessceGrid(props) {
     } else {
       document.documentElement.setAttribute('data-expanded', 'collapsed');
     }
-
-    // Optionally, you can clean up the attribute when the component is unmounted
-    return () => {
-      document.documentElement.removeAttribute('data-expanded');
-    };
   }, [isExpanded]);
 
   // When the row height has changed, publish a GRID_RESIZE event.
