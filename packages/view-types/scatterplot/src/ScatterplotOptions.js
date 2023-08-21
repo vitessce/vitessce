@@ -202,7 +202,7 @@ export default function ScatterplotOptions(props) {
             value={cellRadiusMode}
             onChange={handleCellRadiusModeChange}
             inputProps={{
-              id: ['scatterplot-set-radius-mode-select', scatterplotOptionsId].join('-'),
+              id: `scatterplot-set-radius-mode-select-${scatterplotOptionsId}`,
             }}
           >
             <option value="auto">Auto</option>
@@ -213,7 +213,7 @@ export default function ScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['scatterplot-set-radius-size-select', scatterplotOptionsId].join('-')}
+            htmlFor={`scatterplot-set-radius-size-select-${scatterplotOptionsId}`}
           >
             {observationsLabelNice} Radius Size
           </label>
@@ -225,7 +225,7 @@ export default function ScatterplotOptions(props) {
             value={cellRadius}
             onChange={handleRadiusChange}
             getAriaLabel={() => 'Scatterplot radius size slider'}
-            id={['scatterplot-set-radius-size-select', scatterplotOptionsId].join('-')}
+            id={`scatterplot-set-radius-size-select-${scatterplotOptionsId}`}
             valueLabelDisplay="auto"
             step={0.01}
             min={0.01}
@@ -236,7 +236,7 @@ export default function ScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['scatterplot-set-opacity-mode', scatterplotOptionsId].join('-')}
+            htmlFor={`scatterplot-set-opacity-mode-${scatterplotOptionsId}`}
           >
             {observationsLabelNice} Opacity Mode
           </label>
@@ -248,7 +248,7 @@ export default function ScatterplotOptions(props) {
             value={cellOpacityMode}
             onChange={handleCellOpacityModeChange}
             inputProps={{
-              id: 'scatterplot-set-opacity-mode',
+              id: `scatterplot-set-opacity-mode-${scatterplotOptionsId}`,
             }}
           >
             <option value="auto">Auto</option>
@@ -259,7 +259,7 @@ export default function ScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['scatterplot-set-opacity-level', scatterplotOptionsId].join('-')}
+            htmlFor={`scatterplot-set-opacity-level-${scatterplotOptionsId}`}
           >
             {observationsLabelNice} Opacity Level
           </label>
@@ -271,7 +271,7 @@ export default function ScatterplotOptions(props) {
             value={cellOpacity}
             onChange={handleOpacityChange}
             getAriaLabel={() => 'Scatterplot opacity level slider'}
-            id={['scatterplot-set-opacity-level', scatterplotOptionsId].join('-')}
+            id={`scatterplot-set-opacity-level-${scatterplotOptionsId}`}
             valueLabelDisplay="auto"
             step={0.05}
             min={0.0}
@@ -282,7 +282,7 @@ export default function ScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['scatterplot-gene-expression-colormap', scatterplotOptionsId].join('-')}
+            htmlFor={`scatterplot-gene-expression-colormap-${scatterplotOptionsId}`}
           >
             Gene Expression Colormap
           </label>
@@ -294,7 +294,7 @@ export default function ScatterplotOptions(props) {
             value={geneExpressionColormap}
             onChange={handleGeneExpressionColormapChange}
             inputProps={{
-              id: 'scatterplot-gene-expression-colormap',
+              id: `scatterplot-gene-expression-colormap-${scatterplotOptionsId}`,
             }}
           >
             {GLSL_COLORMAPS.map(cmap => (
@@ -306,7 +306,7 @@ export default function ScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['scatterplot-gene-expression-colormap-range', scatterplotOptionsId].join('-')}
+            htmlFor={`scatterplot-gene-expression-colormap-range-${scatterplotOptionsId}`}
           >
             Gene Expression Colormap Range
           </label>
@@ -320,7 +320,7 @@ export default function ScatterplotOptions(props) {
               const labelPrefix = index === 0 ? 'Low value slider' : 'High value slider';
               return `${labelPrefix} for scatterplot gene expression colormap range`;
             }}
-            id={['scatterplot-gene-expression-colormap-range', scatterplotOptionsId].join('-')}
+            id={`scatterplot-gene-expression-colormap-range-${scatterplotOptionsId}`}
             valueLabelDisplay="auto"
             step={0.005}
             min={0.0}
