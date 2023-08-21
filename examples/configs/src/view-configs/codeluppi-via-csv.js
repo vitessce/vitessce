@@ -207,6 +207,9 @@ export const codeluppiViaCsv = {
         spatialSegmentationLayer: 'A',
         spatialPointLayer: 'A',
       },
+      props: {
+        channelNamesVisible: true,
+      },
       x: 2,
       y: 0,
       w: 4,
