@@ -58,9 +58,8 @@
   flex: 1;
 }
 
-/* Add this part */
 [data-expanded='expanded'] .vitessce-app {
-  position: fixed;  /* Makes the container fixed */
+  position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
