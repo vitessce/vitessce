@@ -57,22 +57,23 @@ export default function VitessceGrid(props) {
   const [componentWidth] = useClosestVitessceContainerSize(containerRef);
 
   const classes = useVitessceContainerStyles();
+
   const titleClasses = useTitleStyles();
 
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     if (isExpanded) {
-        document.documentElement.setAttribute('data-expanded', 'expanded');
+      document.documentElement.setAttribute('data-expanded', 'expanded');
     } else {
-        document.documentElement.setAttribute('data-expanded', 'collapsed');
+      document.documentElement.setAttribute('data-expanded', 'collapsed');
     }
 
     // Optionally, you can clean up the attribute when the component is unmounted
     return () => {
-        document.documentElement.removeAttribute('data-expanded');
+      document.documentElement.removeAttribute('data-expanded');
     };
-}, [isExpanded]);
+  }, [isExpanded]);
 
   // When the row height has changed, publish a GRID_RESIZE event.
   useEffect(() => {
@@ -120,43 +121,30 @@ export default function VitessceGrid(props) {
     >
       {layout ? (
         <>
-         <button 
-          onClick={() => setIsExpanded(!isExpanded)}
-          style={{
-            display: 'inline-block',
-            right: '20px',
-            border: '2px solid var(--ifm-color-primary)',
-            color: 'var(--ifm-color-primary)',
-            backgroundColor: 'transparent',
-            lineHeight: '1.2em',
-            textDecoration: 'none !important',
-            textTransform: 'uppercase',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '700',
-            padding: '5px',
-            margin: '5px',
-            cursor: 'pointer',
-            zIndex: '1000',
-          }}
-        >
-          { isExpanded? 'Collapse': 'Expand' }
-        </button>
-        <VitessceGridLayout
-          layout={layout}
-          height={height}
-          rowHeight={rowHeight}
-          theme={theme}
-          viewTypes={viewTypes}
-          draggableHandle={titleClasses.title}
-          margin={margin}
-          padding={padding}
-          onRemoveComponent={removeComponent}
-          onLayoutChange={changeLayoutPostMount}
-          isBounded={isBounded}
-          onResize={onResize}
-          onResizeStop={onResize}
-        />
+          <div className={classes.expandButtonContainer}>
+            <button
+              type="button"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className={classes.expandButton}
+            >
+              { isExpanded ? 'Collapse' : 'Expand' }
+            </button>
+          </div>
+          <VitessceGridLayout
+            layout={layout}
+            height={height}
+            rowHeight={rowHeight}
+            theme={theme}
+            viewTypes={viewTypes}
+            draggableHandle={titleClasses.title}
+            margin={margin}
+            padding={padding}
+            onRemoveComponent={removeComponent}
+            onLayoutChange={changeLayoutPostMount}
+            isBounded={isBounded}
+            onResize={onResize}
+            onResizeStop={onResize}
+          />
         </>
       ) : null}
     </div>

@@ -201,7 +201,7 @@ function IndexWithHashParams() {
           ) : (
             <AppStyles dimNavbar />
           )}
-          </div>
+        </div>
         <div className={styles.vitessceClear}>
           <button
             type="button"
@@ -218,6 +218,7 @@ function IndexWithHashParams() {
           onConfigChange={debug ? console.log : undefined}
           onConfigUpgrade={debug ? logConfigUpgrade : undefined}
           config={validConfig}
+          handleEdit={handleEdit}
         />
       </main>
     </div>

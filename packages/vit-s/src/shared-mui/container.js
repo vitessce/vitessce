@@ -27,6 +27,7 @@ export const useVitessceContainerStyles = makeStyles(theme => ({
       transition: 'height 200ms ease',
       // Custom
       height: 'auto',
+      marginTop: '30px',
       position: 'absolute',
       width: '100%',
     },
@@ -208,5 +209,23 @@ export const useVitessceContainerStyles = makeStyles(theme => ({
         Not part of mixin because acts outside of .vitessce-container. */
       userSelect: 'none !important',
     },
+  },
+  expandButtonContainer: {
+    position: 'absolute',
+    right: '20px',
+  },
+  expandButton: {
+    border: '2px solid var(--ifm-color-primary)',
+    color: 'var(--ifm-color-primary)',
+    backgroundColor: 'transparent',
+    lineHeight: '1.2em',
+    textDecoration: 'none !important',
+    textTransform: 'uppercase',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '700',
+    padding: '5px',
+    margin: '5px',
+    cursor: 'pointer',
   },
 }));
