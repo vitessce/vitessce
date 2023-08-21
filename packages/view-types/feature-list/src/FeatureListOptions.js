@@ -70,7 +70,7 @@ export default function FeatureListOptions(props) {
                 onChange={handleFeatureListSortKeyChange}
                 inputProps={{
                   'aria-label': 'Select the feature list sort key',
-                  id: `${'feature-list-sort-key'}-${featureListId}`,
+                  id: `feature-list-sort-key-${featureListId}`,
                 }}
               >
                 {hasFeatureLabels ? (
