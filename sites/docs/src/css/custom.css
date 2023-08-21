@@ -58,13 +58,17 @@
   flex: 1;
 }
 
-.footer {
-  display: none;
+.navigation-with-keyboard.disable-scroll {
+  overflow: hidden !important;
 }
 
-.navbar {
+/* .navigation-with-keyboard {
+  overflow: hidden !important;
+} */
+
+/* .footer {
   display: none;
-}
+} */
 
 .vitessce-app .vitessce-container {
   height: calc(100vh - var(--ifm-navbar-height));

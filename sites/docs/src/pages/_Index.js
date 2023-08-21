@@ -172,20 +172,7 @@ function IndexWithHashParams() {
   }
 
   return (
-    <div style={{height: "100vh", display: 'flex', flexDirection: 'column', overflow: 'hidden'}}>
-      <div style={{ display: 'flex', minHeight: 'max-content' }}>
-        <div style={{ flex: 11, marginTop: '5px' }}>
-          <h2>{configs[demo].name}</h2>
-        </div>
-        <div style={{ flex: 1, marginTop: '5px' }}>
-          <button
-            type="button"
-            className={styles.vitessceClearButton}
-          > 
-            Collapse
-          </button>
-        </div>
-      </div>
+    <div style={{height: "100vh", display: 'flex', flexDirection: 'column'}}>
       <main className="vitessce-app">
           <ThemedVitessce
             validateOnConfigChange={debug}

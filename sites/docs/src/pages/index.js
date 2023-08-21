@@ -21,3 +21,5 @@ export default function WrappedIndex() {
     </Layout>
   );
 }
+
+export { CustomNavbar } from './CustomNavbar';
