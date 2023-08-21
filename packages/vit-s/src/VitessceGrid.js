@@ -1,7 +1,6 @@
 import React, {
   useEffect,
   useCallback,
-  useState,
 } from 'react';
 import clsx from 'clsx';
 import { VITESSCE_CONTAINER } from './classNames.js';
@@ -60,16 +59,6 @@ export default function VitessceGrid(props) {
 
   const titleClasses = useTitleStyles();
 
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  useEffect(() => {
-    if (isExpanded) {
-      document.documentElement.setAttribute('data-expanded', 'expanded');
-    } else {
-      document.documentElement.setAttribute('data-expanded', 'collapsed');
-    }
-  }, [isExpanded]);
-
   // When the row height has changed, publish a GRID_RESIZE event.
   useEffect(() => {
     onResize();
@@ -115,32 +104,21 @@ export default function VitessceGrid(props) {
       className={clsx(VITESSCE_CONTAINER, classes.vitessceContainer)}
     >
       {layout ? (
-        <>
-          <div className={classes.expandButtonContainer}>
-            <button
-              type="button"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className={classes.expandButton}
-            >
-              { isExpanded ? 'Collapse' : 'Expand' }
-            </button>
-          </div>
-          <VitessceGridLayout
-            layout={layout}
-            height={height}
-            rowHeight={rowHeight}
-            theme={theme}
-            viewTypes={viewTypes}
-            draggableHandle={titleClasses.title}
-            margin={margin}
-            padding={padding}
-            onRemoveComponent={removeComponent}
-            onLayoutChange={changeLayoutPostMount}
-            isBounded={isBounded}
-            onResize={onResize}
-            onResizeStop={onResize}
-          />
-        </>
+        <VitessceGridLayout
+          layout={layout}
+          height={height}
+          rowHeight={rowHeight}
+          theme={theme}
+          viewTypes={viewTypes}
+          draggableHandle={titleClasses.title}
+          margin={margin}
+          padding={padding}
+          onRemoveComponent={removeComponent}
+          onLayoutChange={changeLayoutPostMount}
+          isBounded={isBounded}
+          onResize={onResize}
+          onResizeStop={onResize}
+        />
       ) : null}
     </div>
   );

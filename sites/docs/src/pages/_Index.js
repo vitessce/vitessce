@@ -84,6 +84,16 @@ function IndexWithHashParams() {
     setPendingJs(baseJs);
   }
 
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    if (isExpanded) {
+      document.documentElement.setAttribute('data-expanded', 'expanded');
+    } else {
+      document.documentElement.setAttribute('data-expanded', 'collapsed');
+    }
+  }, [isExpanded]);
+
   useEffect(() => {
     let unmounted = false;
     async function processParams() {
@@ -188,8 +198,7 @@ function IndexWithHashParams() {
     </>
   ) : validConfig ? (
     <div>
-      <div style={{ display: 'flex' }}>
-        <div style={{ flex: 11 }}>
+        <div>
           {demo && Object.keys(configs).includes(demo) ? (
             <>
               <DemoStyles />
@@ -202,7 +211,7 @@ function IndexWithHashParams() {
             <AppStyles dimNavbar />
           )}
         </div>
-        <div className={styles.vitessceClear}>
+        <main className="vitessce-app">
           <button
             type="button"
             className={styles.vitessceClearButton}
@@ -210,17 +219,21 @@ function IndexWithHashParams() {
           >
             Edit
           </button>
-        </div>
-      </div>
-      <main className="vitessce-app">
-        <ThemedVitessce
-          validateOnConfigChange={debug}
-          onConfigChange={debug ? console.log : undefined}
-          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-          config={validConfig}
-          handleEdit={handleEdit}
-        />
-      </main>
+          <button
+            type="button"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={styles.vitessceClearButton}
+          >
+            { isExpanded ? 'Collapse' : 'Expand' }
+          </button>
+          <ThemedVitessce
+            validateOnConfigChange={debug}
+            onConfigChange={debug ? console.log : undefined}
+            onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+            config={validConfig}
+            handleEdit={handleEdit}
+          />
+        </main>
     </div>
   ) : (!loading ? (
     <Home />
