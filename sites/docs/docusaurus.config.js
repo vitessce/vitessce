@@ -1,71 +1,5 @@
 const path = require('path');
 
-navbarItemsBasic = [
-  {
-    href: '/#?edit=true',
-    label: 'App',
-    position: 'left',
-  },
-  {
-    to: 'examples',
-    label: 'Examples',
-    position: 'left',
-  },
-  {
-    type: 'doc',
-    docId: 'introduction',
-    label: 'Docs',
-    position: 'left',
-  },
-  {
-    type: 'doc',
-    docId: 'tutorials',
-    label: 'Tutorials',
-    position: 'left',
-  },
-  {
-    href: 'https://vitessce.github.io/vitessce-python/',
-    label: 'For Python',
-    position: 'left',
-  },
-  {
-    href: 'https://vitessce.github.io/vitessceR/',
-    label: 'For R',
-    position: 'left',
-  },
-  {
-    type: 'doc',
-    docId: 'feedback',
-    label: 'Feedback',
-    position: 'right',
-  },
-  {
-    to: 'blog',
-    label: 'Blog',
-    position: 'right',
-  },
-  {
-    href: 'http://ipa-reader.xyz/?text=v%C9%AAt-%C9%9Bs',
-    position: 'right',
-    className: 'header-pronunciation-link',
-    'aria-label': 'Pronunciation',
-  },
-  {
-    href: 'https://github.com/vitessce/',
-    position: 'right',
-    className: 'header-github-link',
-    'aria-label': 'GitHub repository',
-  },
-],
-
-navbarItemsExpanded = [
-  {
-    href: '/#?edit=true',
-    label: 'Exit full screen mode',
-    position: 'right',
-  },
-]
-
 module.exports = {
   title: 'Vitessce',
   tagline: 'Visual integration tool for exploration of spatial single cell experiments',
@@ -88,15 +22,71 @@ module.exports = {
       theme: require('./src/pages/_prism-light-theme.cjs.js'),
       darkTheme: require('./src/pages/_prism-dark-theme.cjs.js'),
     },
-    // navbar: {
-    //   title: 'Vitessce',
-    //   logo: {
-    //     href: '/',
-    //     alt: 'Vitessce Logo',
-    //     src: 'img/logo-v.png',
-    //   },
-    //   items: navbarItemsExpanded
-    // },
+    navbar: {
+      title: 'Vitessce',
+      logo: {
+        href: '/',
+        alt: 'Vitessce Logo',
+        src: 'img/logo-v.png',
+      },
+      items: [
+        {
+          href: '/#?edit=true',
+          label: 'App',
+          position: 'left',
+        },
+        {
+          to: 'examples',
+          label: 'Examples',
+          position: 'left',
+        },
+        {
+          type: 'doc',
+          docId: 'introduction',
+          label: 'Docs',
+          position: 'left',
+        },
+        {
+          type: 'doc',
+          docId: 'tutorials',
+          label: 'Tutorials',
+          position: 'left',
+        },
+        {
+          href: 'https://vitessce.github.io/vitessce-python/',
+          label: 'For Python',
+          position: 'left',
+        },
+        {
+          href: 'https://vitessce.github.io/vitessceR/',
+          label: 'For R',
+          position: 'left',
+        },
+        {
+          type: 'doc',
+          docId: 'feedback',
+          label: 'Feedback',
+          position: 'right',
+        },
+        {
+          to: 'blog',
+          label: 'Blog',
+          position: 'right',
+        },
+        {
+          href: 'http://ipa-reader.xyz/?text=v%C9%AAt-%C9%9Bs',
+          position: 'right',
+          className: 'header-pronunciation-link',
+          'aria-label': 'Pronunciation',
+        },
+        {
+          href: 'https://github.com/vitessce/',
+          position: 'right',
+          className: 'header-github-link',
+          'aria-label': 'GitHub repository',
+        },
+      ]
+    },
     footer: {
       links: [
         {

@@ -171,19 +171,6 @@ function IndexWithHashParams() {
     });
   }
 
-  return (
-    <div style={{height: "100vh", display: 'flex', flexDirection: 'column'}}>
-      <main className="vitessce-app">
-          <ThemedVitessce
-            validateOnConfigChange={debug}
-            onConfigChange={debug ? console.log : undefined}
-            onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-            config={validConfig}
-          />
-        </main>
-    </div>
-  )
-
   return (edit ? (
     <>
       <AppStyles />
@@ -222,12 +209,6 @@ function IndexWithHashParams() {
             onClick={handleEdit}
           >
             Edit
-          </button>
-          <button
-            type="button"
-            className={styles.vitessceClearButton}
-          > 
-            Expand
           </button>
         </div>
       </div>

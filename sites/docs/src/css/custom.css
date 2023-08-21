@@ -58,17 +58,14 @@
   flex: 1;
 }
 
-.navigation-with-keyboard.disable-scroll {
-  overflow: hidden !important;
+/* Add this part */
+[data-expanded='expanded'] .vitessce-app {
+  position: fixed;  /* Makes the container fixed */
+  top: 5;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
-
-/* .navigation-with-keyboard {
-  overflow: hidden !important;
-} */
-
-/* .footer {
-  display: none;
-} */
 
 .vitessce-app .vitessce-container {
   height: calc(100vh - var(--ifm-navbar-height));
