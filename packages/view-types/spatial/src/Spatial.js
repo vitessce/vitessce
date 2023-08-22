@@ -8,6 +8,7 @@ import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
 import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils.js';
+import ScaleBarLayer from './ScaleBarLayer.js';
 
 const CELLS_LAYER_ID = 'cells-layer';
 const MOLECULES_LAYER_ID = 'molecules-layer';
@@ -34,6 +35,64 @@ const makeDefaultGetObsCoords = obsLocations => i => ([
   obsLocations.data[1][i],
   0,
 ]);
+
+import { COORDINATE_SYSTEM, OrthographicView } from '@deck.gl/core';
+import { LineLayer, TextLayer } from '@deck.gl/layers';
+
+function range(len) {
+  return [...Array(len).keys()];
+}
+
+function makeBoundingBox(viewState) {
+  const viewport = new OrthographicView().makeViewport({
+    // From the current `detail` viewState, we need its projection matrix (actually the inverse).
+    viewState,
+    height: viewState.height,
+    width: viewState.width
+  });
+  // Use the inverse of the projection matrix to map screen to the view space.
+  return [
+    viewport.unproject([0, 0]),
+    viewport.unproject([viewport.width, 0]),
+    viewport.unproject([viewport.width, viewport.height]),
+    viewport.unproject([0, viewport.height])
+  ];
+}
+
+function getMyPosition(boundingBox, position, length) {
+  const viewLength = boundingBox[2][0] - boundingBox[0][0];
+  console.log("***** Getting inside position 1", viewLength, position);
+  switch (position.value) {
+    case 'bottom-right': {
+      console.log("***** Getting inside position");
+      const yCoord =
+        boundingBox[2][1] - (boundingBox[2][1] - boundingBox[0][1]) * length;
+      const xLeftCoord = boundingBox[2][0] - viewLength * length;
+      console.log("***** Getting inside position 2", yCoord, xLeftCoord);
+      return [yCoord, xLeftCoord];
+    }
+    case 'top-right': {
+      const yCoord = (boundingBox[2][1] - boundingBox[0][1]) * length;
+      const xLeftCoord = boundingBox[2][0] - viewLength * length;
+      return [yCoord, xLeftCoord];
+    }
+    case 'top-left': {
+      const yCoord = (boundingBox[2][1] - boundingBox[0][1]) * length;
+      const xLeftCoord = viewLength * length;
+      return [yCoord, xLeftCoord];
+    }
+    case 'bottom-left': {
+      const yCoord =
+        boundingBox[2][1] - (boundingBox[2][1] - boundingBox[0][1]) * length;
+      const xLeftCoord = viewLength * length;
+      return [yCoord, xLeftCoord];
+    }
+    default: {
+      throw new Error(`Position ${position} not found`);
+    }
+  }
+}
+
 
 function getVivLayerExtensions(use3d, colormap, renderingMode) {
   if (use3d) {
@@ -342,11 +401,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       const { x } = physicalSizes;
       const { unit, size } = x;
       if (unit && size) {
-        return new viv.ScaleBarLayer({
+        return new ScaleBarLayer({
           id: 'scalebar-layer',
           unit,
           size,
-          viewState: { ...viewState, width, height },
+          viewState: {...viewState, width, height}
         });
       }
       return null;
@@ -538,12 +597,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } = this;
     return [
       ...imageLayers,
-      ...obsSegmentationsBitmaskLayers,
-      obsSegmentationsPolygonLayer,
-      neighborhoodsLayer,
-      obsLocationsLayer,
+      // ...obsSegmentationsBitmaskLayers,
+      // obsSegmentationsPolygonLayer,
+      // neighborhoodsLayer,
+      // obsLocationsLayer,
       this.createScaleBarLayer(),
-      ...this.createSelectionLayers(),
+      // ...this.createSelectionLayers(),
     ];
   }
 
