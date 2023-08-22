@@ -81,7 +81,7 @@ function ChannelSlider({
         const labelPrefix = index === 0 ? 'Low value slider' : 'High value slider';
         return `${labelPrefix} for ${color} colormap channel.`;
       }}
-      getAriaValueText={() => `Current colormap values: ${color}-${slider}.`}
+      getAriaValueText={() => `Current colormap values: ${color}-${slider}`}
       min={min}
       max={max}
       step={step}
