@@ -126,7 +126,7 @@ function VolumeDropdown({
           e.target.value === '2D' ? e.target.value : Number(e.target.value),
         )
         }
-        inputProps={{ 'aria-label': 'Resolution selector'}}
+        inputProps={{ 'aria-label': 'Resolution selector' }}
         classes={{ root: classes.selectRoot }}
       >
         <option key="2D" value="2D">
