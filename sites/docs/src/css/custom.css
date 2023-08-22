@@ -63,9 +63,10 @@
   left: 0;
   right: 0;
   bottom: 0;
+  top: var(--ifm-navbar-height);
 }
 
-.vitessce-app .vitessce-container {
+[data-expanded='collapsed'] .vitessce-app .vitessce-container {
   height: calc(100vh - var(--ifm-navbar-height));
   width: 100%;
   overflow: hidden;

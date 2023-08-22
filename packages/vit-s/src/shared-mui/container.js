@@ -27,7 +27,6 @@ export const useVitessceContainerStyles = makeStyles(theme => ({
       transition: 'height 200ms ease',
       // Custom
       height: 'auto',
-      marginTop: '30px',
       position: 'absolute',
       width: '100%',
     },

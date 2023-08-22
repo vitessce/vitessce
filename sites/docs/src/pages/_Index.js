@@ -85,6 +85,7 @@ function IndexWithHashParams() {
   }
 
   const [isExpanded, setIsExpanded] = useState(false);
+  document.documentElement.setAttribute('data-expanded', 'collapsed');
 
   useEffect(() => {
     if (isExpanded) {
@@ -198,42 +199,42 @@ function IndexWithHashParams() {
     </>
   ) : validConfig ? (
     <div>
-        <div>
-          {demo && Object.keys(configs).includes(demo) ? (
-            <>
-              <DemoStyles />
-              <DemoHeader
-                demo={demo}
-                config={configs[demo]}
-              />
-            </>
-          ) : (
-            <AppStyles dimNavbar />
-          )}
-        </div>
-        <main className="vitessce-app">
-          <button
-            type="button"
-            className={styles.vitessceClearButton}
-            onClick={handleEdit}
-          >
-            Edit
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className={styles.vitessceClearButton}
-          >
-            { isExpanded ? 'Collapse' : 'Expand' }
-          </button>
-          <ThemedVitessce
-            validateOnConfigChange={debug}
-            onConfigChange={debug ? console.log : undefined}
-            onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-            config={validConfig}
-            handleEdit={handleEdit}
-          />
-        </main>
+      <div>
+        {!isExpanded && demo && Object.keys(configs).includes(demo) ? (
+          <>
+            <DemoStyles />
+            <DemoHeader
+              demo={demo}
+              config={configs[demo]}
+            />
+          </>
+        ) : (
+          <AppStyles dimNavbar />
+        )}
+      </div>
+      <main className="vitessce-app">
+        <button
+          type="button"
+          className={styles.vitessceClearButton}
+          onClick={handleEdit}
+        >
+          Edit
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className={styles.vitessceClearButton}
+        >
+          { isExpanded ? 'Collapse' : 'Expand' }
+        </button>
+        <ThemedVitessce
+          validateOnConfigChange={debug}
+          onConfigChange={debug ? console.log : undefined}
+          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+          config={validConfig}
+          handleEdit={handleEdit}
+        />
+      </main>
     </div>
   ) : (!loading ? (
     <Home />
