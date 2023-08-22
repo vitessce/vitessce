@@ -42,7 +42,6 @@ export default function FeatureListOptions(props) {
         </TableCell>
         <TableCell variant="body">
           <OptionSelect
-            key="feature-list-sort-option-select"
             className={classes.select}
             value={featureListSort}
             onChange={handleFeatureListSortChange}

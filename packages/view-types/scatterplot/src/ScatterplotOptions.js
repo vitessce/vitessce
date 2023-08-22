@@ -197,7 +197,6 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
-            key="scatterplot-set-radius-mode-select"
             className={classes.select}
             value={cellRadiusMode}
             onChange={handleCellRadiusModeChange}
@@ -243,7 +242,6 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
-            key="scatterplot-set-opacity-mode-select"
             className={classes.select}
             value={cellOpacityMode}
             onChange={handleCellOpacityModeChange}
@@ -289,7 +287,6 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
-            key="scatterplot-gene-expression-colormap"
             className={classes.select}
             value={geneExpressionColormap}
             onChange={handleGeneExpressionColormapChange}

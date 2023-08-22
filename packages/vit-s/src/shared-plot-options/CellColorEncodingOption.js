@@ -32,7 +32,6 @@ export default function CellColorEncodingOption(props) {
       </TableCell>
       <TableCell className={classes.inputCell} variant="body">
         <OptionSelect
-          key="cell-color-encoding-select"
           className={classes.select}
           value={cellColorEncoding}
           onChange={handleColorEncodingChange}

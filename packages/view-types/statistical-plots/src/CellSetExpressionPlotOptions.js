@@ -45,7 +45,6 @@ export default function CellSetExpressionPlotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
-            key="gating-transform-select"
             className={classes.select}
             value={featureValueTransform === null ? '' : featureValueTransform}
             onChange={handleTransformChange}

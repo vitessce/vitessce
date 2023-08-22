@@ -31,7 +31,6 @@ export default function EmbeddingScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
-            key="scatterplot-mapping-select"
             className={classes.select}
             value={selectedMapping}
             onChange={handleSelectedMappingChange}

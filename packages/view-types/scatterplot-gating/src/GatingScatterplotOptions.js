@@ -73,7 +73,6 @@ export default function GatingScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
-            key="scatterplot-gating-gene-select"
             multiple
             className={classes.select}
             value={[gatingFeatureSelectionX, gatingFeatureSelectionY].filter(v => v)}
@@ -100,7 +99,6 @@ export default function GatingScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
-            key="scatterplot-gating-transform-select"
             className={classes.select}
             value={gatingFeatureValueTransform === null ? '' : gatingFeatureValueTransform}
             onChange={handleTransformChange}
