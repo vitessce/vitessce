@@ -56,7 +56,6 @@ export default function VitessceGrid(props) {
   const [componentWidth] = useClosestVitessceContainerSize(containerRef);
 
   const classes = useVitessceContainerStyles();
-
   const titleClasses = useTitleStyles();
 
   // When the row height has changed, publish a GRID_RESIZE event.

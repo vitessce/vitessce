@@ -199,19 +199,17 @@ function IndexWithHashParams() {
     </>
   ) : validConfig ? (
     <div>
-      <div>
-        {!isExpanded && demo && Object.keys(configs).includes(demo) ? (
-          <>
-            <DemoStyles />
-            <DemoHeader
-              demo={demo}
-              config={configs[demo]}
-            />
-          </>
-        ) : (
-          <AppStyles dimNavbar />
-        )}
-      </div>
+      {!isExpanded && demo && Object.keys(configs).includes(demo) ? (
+        <>
+          <DemoStyles />
+          <DemoHeader
+            demo={demo}
+            config={configs[demo]}
+          />
+        </>
+      ) : (
+        <AppStyles dimNavbar />
+      )}
       <main className="vitessce-app">
         <div className={styles.vitessceClear}>
           <button

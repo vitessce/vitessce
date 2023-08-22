@@ -222,16 +222,8 @@
   height: auto;
 }
 
-/* Clearfix */
-.vitessceClear::after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
 .vitessceClearButton {
   float: right;
-  z-index: 1000;
   border: 2px solid var(--ifm-color-primary);
   color: var(--ifm-color-primary);
   background-color: transparent;

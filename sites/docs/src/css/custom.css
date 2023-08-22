@@ -57,7 +57,7 @@
 .vitessce-app {
   flex: 1;
   position: relative;
-  padding-top: 40px;
+  padding-top: 40px; /* so that the Edit and Expand/Collapse buttons are not hidden */
 }
 
 [data-expanded='expanded'] .vitessce-app {
