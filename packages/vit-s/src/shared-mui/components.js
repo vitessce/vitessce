@@ -56,7 +56,7 @@ export function PopperMenu(props) {
         onTouchEnd={handleClick}
         size="small"
         className={buttonClassName}
-        getArialLabel={() => ariaLabel}
+        aria-label={ariaLabel}
       >
         {buttonIcon}
       </IconButton>

@@ -156,7 +156,7 @@ export default function ScatterplotOptions(props) {
             disabled={!cellSetLabelsVisible}
             value={cellSetLabelSize}
             onChange={handleLabelSizeChange}
-            getAriaLabel={() => 'Scatterplot label size slider'}
+            aria-label="Scatterplot label size slider"
             id={`scatterplot-set-label-size-${scatterplotOptionsId}`}
             valueLabelDisplay="auto"
             step={1}
@@ -223,7 +223,7 @@ export default function ScatterplotOptions(props) {
             disabled={cellRadiusMode !== 'manual'}
             value={cellRadius}
             onChange={handleRadiusChange}
-            getAriaLabel={() => 'Scatterplot radius size slider'}
+            aria-label="Scatterplot radius size slider"
             id={`scatterplot-set-radius-size-select-${scatterplotOptionsId}`}
             valueLabelDisplay="auto"
             step={0.01}
@@ -268,7 +268,7 @@ export default function ScatterplotOptions(props) {
             disabled={cellOpacityMode !== 'manual'}
             value={cellOpacity}
             onChange={handleOpacityChange}
-            getAriaLabel={() => 'Scatterplot opacity level slider'}
+            aria-label="Scatterplot opacity level slider"
             id={`scatterplot-set-opacity-level-${scatterplotOptionsId}`}
             valueLabelDisplay="auto"
             step={0.05}

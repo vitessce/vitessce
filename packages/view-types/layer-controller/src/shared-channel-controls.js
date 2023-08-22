@@ -23,7 +23,7 @@ export function ChannelSelectionDropdown({
       native
       value={selectionIndex}
       onChange={e => handleChange(Number(e.target.value))}
-      getAriaLabel={() => 'Select a channel'}
+      inputProps={{ 'aria-label': 'Select a channel' }}
     >
       {channelOptions.map((opt, i) => (
         <option disabled={disabled} key={opt} value={i}>

@@ -126,7 +126,7 @@ function VolumeDropdown({
           e.target.value === '2D' ? e.target.value : Number(e.target.value),
         )
         }
-        getAriaLabel={() => 'Resolution selector'}
+        inputProps={{ 'aria-label': 'Resolution selector'}}
         classes={{ root: classes.selectRoot }}
       >
         <option key="2D" value="2D">
@@ -181,10 +181,9 @@ function ColormapSelect({ value, inputId, handleChange }) {
       native
       onChange={e => handleChange(e.target.value === '' ? null : e.target.value)}
       value={value}
-      inputProps={{ name: 'colormap', id: inputId }}
+      inputProps={{ name: 'colormap', id: inputId, 'aria-label': 'Colormap selector' }}
       style={{ width: '100%' }}
       classes={{ root: classes.selectRoot }}
-      getAriaLabel={() => 'Colormap selector'}
     >
       <option aria-label="None" value="">None</option>
       {COLORMAP_OPTIONS.map(name => (
@@ -228,7 +227,7 @@ function OpacitySlider({ value, handleChange }) {
       value={value}
       onChange={(e, v) => handleChange(v)}
       valueLabelDisplay="auto"
-      getAriaLabel={() => 'Layer opacity slider'}
+      aria-label="Layer opacity slider"
       min={0}
       max={1}
       step={0.01}
@@ -250,10 +249,9 @@ function SliderDomainSelector({ value, inputId, handleChange }) {
       native
       onChange={e => handleChange(e.target.value)}
       value={value}
-      inputProps={{ name: 'domain-selector', id: inputId }}
+      inputProps={{ name: 'domain-selector', id: inputId, 'aria-label': 'Domain type selector' }}
       style={{ width: '100%' }}
       classes={{ root: classes.selectRoot }}
-      getAriaLabel={() => 'Domain type selector'}
     >
       {DOMAIN_OPTIONS.map(name => (
         <option key={name} value={name}>
@@ -295,7 +293,7 @@ function GlobalSelectionSlider({
         }
       }
       valueLabelDisplay="auto"
-      getAriaLabel={() => `${field} slider`}
+      aria-label={`${field} slider`}
       marks={possibleValues.map(val => ({ value: val }))}
       min={Number(possibleValues[0])}
       max={Number(possibleValues.slice(-1))}
