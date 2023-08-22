@@ -96,7 +96,7 @@ export default function ScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['scatterplot-set-labels-visible', scatterplotOptionsId].join('-')}
+            htmlFor={`scatterplot-set-labels-visible-${scatterplotOptionsId}`}
           >
             {observationsLabelNice} Set Labels Visible
           </label>

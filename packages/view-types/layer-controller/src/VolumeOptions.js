@@ -135,7 +135,7 @@ function RenderingModeSelect({
         }}
         disabled={!use3d}
         classes={{ root: classes.selectRoot }}
-        aria-label="Select rendering mode option"
+        getAriaLabel={() => 'Select rendering mode option'}
       >
         {options.map(name => (
           <option key={name} value={name}>

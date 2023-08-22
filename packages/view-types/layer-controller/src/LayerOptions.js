@@ -126,7 +126,7 @@ function VolumeDropdown({
           e.target.value === '2D' ? e.target.value : Number(e.target.value),
         )
         }
-        aria-label="Resolution selector"
+        getAriaLabel={() => 'Resolution selector'}
         classes={{ root: classes.selectRoot }}
       >
         <option key="2D" value="2D">
@@ -184,7 +184,7 @@ function ColormapSelect({ value, inputId, handleChange }) {
       inputProps={{ name: 'colormap', id: inputId }}
       style={{ width: '100%' }}
       classes={{ root: classes.selectRoot }}
-      aria-label="Colormap selector"
+      getAriaLabel={() => 'Colormap selector'}
     >
       <option aria-label="None" value="">None</option>
       {COLORMAP_OPTIONS.map(name => (
@@ -253,7 +253,7 @@ function SliderDomainSelector({ value, inputId, handleChange }) {
       inputProps={{ name: 'domain-selector', id: inputId }}
       style={{ width: '100%' }}
       classes={{ root: classes.selectRoot }}
-      aria-label="Domain type selector"
+      getAriaLabel={() => 'Domain type selector'}
     >
       {DOMAIN_OPTIONS.map(name => (
         <option key={name} value={name}>

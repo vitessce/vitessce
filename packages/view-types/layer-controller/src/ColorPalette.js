@@ -27,13 +27,13 @@ const useStyles = makeStyles(theme => ({
 const ColorPalette = ({ handleChange }) => {
   const classes = useStyles();
   return (
-    <div className={classes.paletteContainer} aria-label="color-swatch">
+    <div className={classes.paletteContainer} getAriaLabel={() => 'Color swatch'}>
       {VIEWER_PALETTE.map(color => (
         <IconButton
           className={classes.button}
           key={color}
           onClick={() => handleChange(color)}
-          aria-label="Change color"
+          getAriaLabel={() => `Change color to ${color}`}
         >
           <LensIcon
             fontSize="small"

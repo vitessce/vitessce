@@ -97,7 +97,7 @@ export default function FeatureListOptions(props) {
                 color="default"
                 inputProps={{
                   'aria-label': 'Show or hide alternative feature ids',
-                  id: `${'feature-list-show-alternative-ids'}-${featureListId}`,
+                  id: `feature-list-show-alternative-ids-${featureListId}`,
                 }}
               />
             </TableCell>

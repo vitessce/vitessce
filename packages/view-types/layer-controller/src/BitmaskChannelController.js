@@ -54,7 +54,7 @@ function BitmaskChannelController({
         <IconButton
           onClick={handleChannelRemove}
           style={{ padding: '6px 6px 6px 0px' }}
-          aria-label="Remove channel"
+          getAriaLabel={() => 'Remove channel'}
         >
           <RemoveCircleIcon />
         </IconButton>
