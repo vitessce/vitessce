@@ -56,6 +56,8 @@
 
 .vitessce-app {
   flex: 1;
+  position: relative;
+  padding-top: 40px;
 }
 
 [data-expanded='expanded'] .vitessce-app {

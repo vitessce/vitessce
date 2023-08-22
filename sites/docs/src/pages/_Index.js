@@ -213,20 +213,22 @@ function IndexWithHashParams() {
         )}
       </div>
       <main className="vitessce-app">
-        <button
-          type="button"
-          className={styles.vitessceClearButton}
-          onClick={handleEdit}
-        >
-          Edit
-        </button>
-        <button
-          type="button"
-          onClick={() => setIsExpanded(!isExpanded)}
-          className={styles.vitessceClearButton}
-        >
-          { isExpanded ? 'Collapse' : 'Expand' }
-        </button>
+        <div className={styles.vitessceClear}>
+          <button
+            type="button"
+            className={styles.vitessceClearButton}
+            onClick={handleEdit}
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={styles.vitessceClearButton}
+          >
+            { isExpanded ? 'Collapse' : 'Expand' }
+          </button>
+        </div>
         <ThemedVitessce
           validateOnConfigChange={debug}
           onConfigChange={debug ? console.log : undefined}

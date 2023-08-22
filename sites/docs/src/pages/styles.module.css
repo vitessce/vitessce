@@ -215,17 +215,23 @@
 }
 
 .vitessceClear {
-  text-align: right;
-  width: 100%;
-  padding: 10px;
-  display: 'flex';
-  flex: 1;
-  margin-top: auto;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  height: auto;
+}
+
+/* Clearfix */
+.vitessceClear::after {
+  content: "";
+  display: table;
+  clear: both;
 }
 
 .vitessceClearButton {
-  display: inline-block;
-  right: 20px;
+  float: right;
+  z-index: 1000;
   border: 2px solid var(--ifm-color-primary);
   color: var(--ifm-color-primary);
   background-color: transparent;
