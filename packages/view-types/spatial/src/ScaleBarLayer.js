@@ -142,10 +142,18 @@ const ScaleBarLayer = class extends CompositeLayer {
       getWidth: 2,
       getColor: [220, 220, 220]
     });
-    console.log("lalalalalalala ", xLeftCoord + barLength * 0.5, yCoord + barHeight * 4);
     
+    function snapToRound(value) {
+      const magnitude = Math.pow(10, Math.floor(Math.log10(value)));
+      const leadingDigit = Math.round(value / magnitude);
+      
+      return leadingDigit * magnitude;
+    }
+    
+    const numUnitsRounded = snapToRound(numUnits);
+
     const data = [{
-      text: numUnits.toPrecision(3) + unit,
+      text: numUnitsRounded + unit,
       position: [xLeftCoord + barLength * 0.5, yCoord + barHeight * 4]
     }]
     const textLayer = new TextLayer({
