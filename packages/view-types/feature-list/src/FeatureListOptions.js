@@ -86,7 +86,7 @@ export default function FeatureListOptions(props) {
           </TableRow>
           <TableRow>
             <TableCell className={classes.labelCell} variant="head" scope="row">
-              <label htmlFor={`${'feature-list-show-alternative-ids'}-${featureListId}`}>Show Alternate IDs</label>
+              <label htmlFor={`feature-list-show-alternative-ids-${featureListId}`}>Show Alternate IDs</label>
             </TableCell>
             <TableCell className={classes.inputCell} variant="body">
               <Checkbox

@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
 const ColorPalette = ({ handleChange }) => {
   const classes = useStyles();
   return (
-    <div className={classes.paletteContainer} getAriaLabel={() => 'Color swatch'}>
+    <div className={classes.paletteContainer} aria-label="Color swatch">
       {VIEWER_PALETTE.map(color => (
         <IconButton
           className={classes.button}

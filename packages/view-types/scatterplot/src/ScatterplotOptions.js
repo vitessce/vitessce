@@ -110,7 +110,7 @@ export default function ScatterplotOptions(props) {
             color="default"
             inputProps={{
               'aria-label': 'Show or hide set labels',
-              id: `scatterplot-set-labels-visible-${scatterplotOptionsId}`
+              id: `scatterplot-set-labels-visible-${scatterplotOptionsId}`,
             }}
           />
         </TableCell>
