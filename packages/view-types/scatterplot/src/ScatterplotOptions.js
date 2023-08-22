@@ -110,7 +110,7 @@ export default function ScatterplotOptions(props) {
             color="default"
             inputProps={{
               'aria-label': 'Show or hide set labels',
-              id: ['scatterplot-set-labels-visible', scatterplotOptionsId].join('-'),
+              id: `scatterplot-set-labels-visible-${scatterplotOptionsId}`
             }}
           />
         </TableCell>
@@ -118,7 +118,7 @@ export default function ScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['scatterplot-set-tooltips-visible', scatterplotOptionsId].join('-')}
+            htmlFor={`scatterplot-set-tooltips-visible-${scatterplotOptionsId}`}
           >
             Tooltips Visible
           </label>
@@ -137,7 +137,7 @@ export default function ScatterplotOptions(props) {
             color="default"
             inputProps={{
               'aria-label': 'Show or hide tooltips',
-              id: ['scatterplot-set-tooltips-visible', scatterplotOptionsId].join('-'),
+              id: `scatterplot-set-tooltips-visible-${scatterplotOptionsId}`,
             }}
           />
         </TableCell>
@@ -145,7 +145,7 @@ export default function ScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['scatterplot-set-label-size', scatterplotOptionsId].join('-')}
+            htmlFor={`scatterplot-set-label-size-${scatterplotOptionsId}`}
           >
             {observationsLabelNice} Set Label Size
           </label>
@@ -157,7 +157,7 @@ export default function ScatterplotOptions(props) {
             value={cellSetLabelSize}
             onChange={handleLabelSizeChange}
             getAriaLabel={() => 'Scatterplot label size slider'}
-            id={['scatterplot-set-label-size', scatterplotOptionsId].join('-')}
+            id={`scatterplot-set-label-size-${scatterplotOptionsId}`}
             valueLabelDisplay="auto"
             step={1}
             min={8}
@@ -168,7 +168,7 @@ export default function ScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['scatterplot-set-polygons-visible', scatterplotOptionsId].join('-')}
+            htmlFor={`scatterplot-set-polygons-visible-${scatterplotOptionsId}`}
           >
             {observationsLabelNice} Set Polygons Visible
           </label>
@@ -182,7 +182,7 @@ export default function ScatterplotOptions(props) {
             color="default"
             inputProps={{
               'aria-label': 'Show or hide polygons',
-              id: ['scatterplot-set-polygons-visible', scatterplotOptionsId].join('-'),
+              id: `scatterplot-set-polygons-visible-${scatterplotOptionsId}`,
             }}
           />
         </TableCell>
@@ -190,7 +190,7 @@ export default function ScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={['scatterplot-set-radius-mode-select', scatterplotOptionsId].join('-')}
+            htmlFor={`scatterplot-set-radius-mode-select-${scatterplotOptionsId}`}
           >
             {observationsLabelNice} Radius Mode
           </label>

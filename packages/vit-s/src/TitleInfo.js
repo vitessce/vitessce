@@ -94,7 +94,7 @@ function DownloadOptions(props) {
       ariaLabel="Open download options menu."
     >
       {urls.map(({ url, name }) => (
-        <MenuItem dense key={`${url}_${name}`} aria-label={`Click to download ${name}`}>
+        <MenuItem dense key={`${url}_${name}`} getArialLabel={() => `Click to download ${name}`}>
           <Link underline="always" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
             Download {name}
           </Link>
@@ -113,7 +113,7 @@ function ClosePaneButton(props) {
       size="small"
       className={classes.iconButton}
       title="close"
-      aria-label="Close panel button"
+      getAriaLabel={() => 'Close panel button'}
     >
       <CloseIcon />
     </IconButton>
