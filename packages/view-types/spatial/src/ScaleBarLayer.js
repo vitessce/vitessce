@@ -23,14 +23,11 @@ function makeBoundingBox(viewState) {
 
 function getPosition(boundingBox, position, length) {
   const viewLength = boundingBox[2][0] - boundingBox[0][0];
-  console.log("***** I am here!!!!! ", position);
   switch (position) {
     case 'bottom-right': {
       const yCoord =
         boundingBox[2][1] - (boundingBox[2][1] - boundingBox[0][1]) * length;
       const xLeftCoord = boundingBox[2][0] - viewLength * length;
-
-      console.log("******* I go inside ", yCoord, xLeftCoord);
       return [yCoord, xLeftCoord];
     }
     case 'top-right': {
@@ -84,28 +81,30 @@ const defaultProps = {
  * @ignore
  */
 const ScaleBarLayer = class extends CompositeLayer {
+
   renderLayers() {
-    const { id, unit, size, position, viewState, length } = this.props;
+    const { id, unit, size, position, viewState, length, scaleFactor } = this.props;
     const boundingBox = makeBoundingBox(viewState);
     const { zoom } = viewState;
     const viewLength = boundingBox[2][0] - boundingBox[0][0];
     const barLength = viewLength * 0.05;
+
     // This is a good heuristic for stopping the bar tick marks from getting too small
     // and/or the text squishing up into the bar.
     const barHeight = Math.max(
       2 ** (-zoom + 1.5),
       (boundingBox[2][1] - boundingBox[0][1]) * 0.007
     );
-
-    console.log("***** I am here!!!!!");
+    
     const numUnits = barLength * size;
     const [yCoord, xLeftCoord] = getPosition(boundingBox, position, length);
+
     const lengthBar = new LineLayer({
       id: `scale-bar-length-${id}`,
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: [
         [
-          [xLeftCoord, yCoord],
+          [xLeftCoord - scaleFactor, yCoord],
           [xLeftCoord + barLength, yCoord]
         ]
       ],
@@ -119,10 +118,11 @@ const ScaleBarLayer = class extends CompositeLayer {
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: [
         [
-          [xLeftCoord, yCoord - barHeight],
-          [xLeftCoord, yCoord + barHeight]
+          [xLeftCoord - scaleFactor, yCoord - barHeight],
+          [xLeftCoord - scaleFactor, yCoord + barHeight]
         ]
       ],
+
       getSourcePosition: d => d[0],
       getTargetPosition: d => d[1],
       getWidth: 2,
@@ -164,17 +164,19 @@ const ScaleBarLayer = class extends CompositeLayer {
       getPosition: d => d.position,
       getText: d => d.text,
       getSize: 12,
-      sizeUnits: 'meters',
-      sizeScale: 2 ** -zoom,
-      characterSet: [
-        ...unit.split(''),
-        ...range(10).map(i => String(i)),
-        '.',
-        'e',
-        '+'
-      ],
+      // sizeUnits: 'meters',
+      // sizeScale: 2 ** -zoom,
+      // characterSet: [
+      //   ...unit.split(''),
+      //   ...range(10).map(i => String(i)),
+      //   '.',
+      //   'e',
+      //   '+'
+      // ],
       getColor: [220, 220, 220, 255]
     });
+
+
     return [lengthBar, tickBoundsLeft, tickBoundsRight, textLayer];
   }
 };
