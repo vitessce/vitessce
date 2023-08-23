@@ -30,7 +30,7 @@ export function PopperMenu(props) {
     children,
     buttonClassName,
     placement = 'bottom-end',
-    ariaLabel,
+    'aria-label': ariaLabel,
   } = props;
   const classes = useStyles();
 
