@@ -64,7 +64,7 @@ function PlotOptions(props) {
       buttonIcon={<SettingsIconWithArrow open={open} />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
-      ariaLabel="Open plot options menu"
+      aria-label="Open plot options menu"
     >
       {options}
     </PopperMenu>
@@ -91,7 +91,7 @@ function DownloadOptions(props) {
       buttonIcon={<CloudDownloadIconWithArrow open={open} />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
-      ariaLabel="Open download options menu"
+      aria-label="Open download options menu"
     >
       {urls.map(({ url, name }) => (
         <MenuItem dense key={`${url}_${name}`} getArialLabel={() => `Click to download ${name}`}>
