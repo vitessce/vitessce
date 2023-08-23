@@ -37,6 +37,7 @@ export default function Tooltip2D(props) {
   } = props;
 
   const classes = useStyles();
+
   // Check if out of bounds.
   if (x < 0 || x > parentWidth || y < 0 || y > parentHeight) {
     return null;
