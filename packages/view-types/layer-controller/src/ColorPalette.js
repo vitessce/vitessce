@@ -33,7 +33,7 @@ const ColorPalette = ({ handleChange }) => {
           className={classes.button}
           key={color}
           onClick={() => handleChange(color)}
-          getAriaLabel={() => `Change color to ${color}`}
+          aria-label={`Change color to ${color}`}
         >
           <LensIcon
             fontSize="small"

@@ -136,7 +136,7 @@ export default function ToolMenu(props) {
       <IconButton
         alt="click to recenter"
         onClick={() => onRecenterButtonCLick()}
-        getAriaLabel={() => 'Recenter scatterplot view'}
+        aria-label="Recenter scatterplot view"
       ><CenterFocusStrong />
       </IconButton>
     </div>

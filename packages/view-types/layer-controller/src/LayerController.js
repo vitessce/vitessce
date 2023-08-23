@@ -493,7 +493,7 @@ export default function LayerController(props) {
         <Grid container direction="column" m={1} justifyContent="center">
           <Grid item classes={{ item: overflowEllipsisGridClasses.item }}>
             <Button
-              getAriaLabel={() => 'Toggle layer visibility'}
+              aria-label="Toggle layer visibility"
               onClick={(e) => {
                 if (!disabled) {
                   // Needed to prevent affecting the expansion panel from changing
@@ -534,7 +534,7 @@ export default function LayerController(props) {
                   value={opacity}
                   onChange={(e, v) => setOpacity(v)}
                   valueLabelDisplay="auto"
-                  getAriaLabel={() => `Adjust opacity for layer ${name}`}
+                  aria-label={`Adjust opacity for layer ${name}`}
                   min={0}
                   max={1}
                   step={0.01}
@@ -554,12 +554,12 @@ export default function LayerController(props) {
             <Tabs
               value={tab}
               onChange={handleTabChange}
-              getAriaLabel={() => 'Change the layer tab type'}
+              aria-label="Change the layer tab type"
               style={{ height: '24px', minHeight: '24px' }}
             >
               <Tab
                 label="Channels"
-                getAriaLabel={() => 'Channels tab'}
+                aria-label="Channels tab"
                 style={{
                   fontSize: '.75rem',
                   bottom: 12,
@@ -570,7 +570,7 @@ export default function LayerController(props) {
               />
               <Tab
                 label="Volume"
-                getAriaLabel={() => 'Volume tab'}
+                aria-label="Volume tab"
                 style={{
                   fontSize: '.75rem',
                   bottom: 12,

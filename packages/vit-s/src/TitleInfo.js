@@ -91,7 +91,7 @@ function DownloadOptions(props) {
       buttonIcon={<CloudDownloadIconWithArrow open={open} />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
-      ariaLabel="Open download options menu."
+      ariaLabel="Open download options menu"
     >
       {urls.map(({ url, name }) => (
         <MenuItem dense key={`${url}_${name}`} getArialLabel={() => `Click to download ${name}`}>
@@ -113,7 +113,7 @@ function ClosePaneButton(props) {
       size="small"
       className={classes.iconButton}
       title="close"
-      getAriaLabel={() => 'Close panel button'}
+      aria-label="Close panel button"
     >
       <CloseIcon />
     </IconButton>

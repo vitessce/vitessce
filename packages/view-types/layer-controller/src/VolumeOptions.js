@@ -88,7 +88,7 @@ const Slicer = ({
             onChange={(e, v) => setVal(v)}
             valueLabelDisplay="auto"
             valueLabelFormat={v => abbreviateNumber(v)}
-            getAriaLabel={() => `Volume options ${label} slider`}
+            aria-label={`Volume options ${label} slider`}
             min={min}
             max={max}
             step={0.005}
@@ -132,10 +132,10 @@ function RenderingModeSelect({
         inputProps={{
           name: 'rendering-mode',
           id: 'rendering-mode-select',
+          'aria-label': 'Select rendering mode option',
         }}
         disabled={!use3d}
         classes={{ root: classes.selectRoot }}
-        getAriaLabel={() => 'Select rendering mode option'}
       >
         {options.map(name => (
           <option key={name} value={name}>

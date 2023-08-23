@@ -30,7 +30,7 @@ export function PopperMenu(props) {
     children,
     buttonClassName,
     placement = 'bottom-end',
-    ariaLabel,
+    'aria-label': ariaLabel,
   } = props;
   const classes = useStyles();
 
@@ -56,7 +56,7 @@ export function PopperMenu(props) {
         onTouchEnd={handleClick}
         size="small"
         className={buttonClassName}
-        getArialLabel={() => ariaLabel}
+        aria-label={ariaLabel}
       >
         {buttonIcon}
       </IconButton>
