@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import {
   QueryParamProvider, useQueryParam, StringParam,
 } from 'use-query-params';
+import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { configs } from '@vitessce/example-configs';
 import { useHashParam, useSetHashParams } from './_use-hash-param.js';
@@ -13,8 +14,6 @@ import ThemedVitessce from './_ThemedVitessce.js';
 import ViewConfigEditor from './_ViewConfigEditor.js';
 import { baseJs, baseJson } from './_live-editor-examples.js';
 
-
-import styles from './styles.module.css';
 
 function logConfigUpgrade(prevConfig, nextConfig) {
   // eslint-disable-next-line no-console
@@ -84,15 +83,17 @@ function IndexWithHashParams() {
     setPendingJs(baseJs);
   }
 
+  const isDemo = demo && Object.keys(configs).includes(demo);
+  // Initialize to collapsed if this is a demo.
+  // Otherwise, initialize to expanded.
   const [isExpanded, setIsExpanded] = useState(false);
-  document.documentElement.setAttribute('data-expanded', 'collapsed');
 
   useEffect(() => {
-    if (isExpanded) {
-      document.documentElement.setAttribute('data-expanded', 'expanded');
-    } else {
-      document.documentElement.setAttribute('data-expanded', 'collapsed');
-    }
+    setIsExpanded(!isDemo);
+  }, [isDemo]);
+
+  useEffect(() => {
+    window.dispatchEvent(new Event('resize'));
   }, [isExpanded]);
 
   useEffect(() => {
@@ -199,42 +200,47 @@ function IndexWithHashParams() {
     </>
   ) : validConfig ? (
     <div>
-      {!isExpanded && demo && Object.keys(configs).includes(demo) ? (
-        <>
+      {isDemo ? (
+        <div className={clsx('demo-header', { 'vitessce-expanded': isExpanded })}>
           <DemoStyles />
           <DemoHeader
             demo={demo}
             config={configs[demo]}
           />
-        </>
+        </div>
       ) : (
         <AppStyles dimNavbar />
       )}
-      <main className="vitessce-app">
-        <div className={styles.changeView}>
-          <button
-            type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className={styles.changeViewButtons}
-          >
-            { isExpanded ? 'Collapse' : 'Expand' }
-          </button>
-          <button
-            type="button"
-            className={styles.changeViewButtons}
-            onClick={handleEdit}
-          >
-            Edit
-          </button>
+      <div className={clsx('vitessce-and-toolbar', { 'vitessce-expanded': isExpanded })}>
+        <div className={clsx('vitessce-toolbar', { 'vitessce-expanded': isExpanded })}>
+          <div className={clsx('vitessce-toolbar-buttons', { 'vitessce-expanded': isExpanded })}>
+            {isDemo ? (
+              <button
+                type="button"
+                onClick={() => setIsExpanded(prev => !prev)}
+              >
+                { isExpanded ? 'Collapse' : 'Expand' }
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={handleEdit}
+            >
+              Edit
+            </button>
+          </div>
         </div>
-        <ThemedVitessce
-          validateOnConfigChange={debug}
-          onConfigChange={debug ? console.log : undefined}
-          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-          config={validConfig}
-          handleEdit={handleEdit}
-        />
-      </main>
+        <main className={clsx('vitessce-app', { 'vitessce-expanded': isExpanded })}>
+          <ThemedVitessce
+            validateOnConfigChange={debug}
+            onConfigChange={debug ? console.log : undefined}
+            onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+            config={validConfig}
+            handleEdit={handleEdit}
+            height={isExpanded ? undefined : 800}
+          />
+        </main>
+      </div>
     </div>
   ) : (!loading ? (
     <Home />
