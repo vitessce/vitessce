@@ -137,7 +137,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.state = {
       ...this.state,
       scaleBarSizeFactor: 0,
-      scaleBarIsRaising: true,
     };
 
     // Initialize data and layers.
