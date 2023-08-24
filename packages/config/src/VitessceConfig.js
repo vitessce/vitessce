@@ -864,7 +864,7 @@ export class VitessceConfig {
    */
   linkViewsByObject(views, input, meta = true) {
     const scopes = this.addCoordinationByObject(input);
-    if(meta) {
+    if (meta) {
       const metaScope = this.addMetaCoordination();
       metaScope.useCoordinationByObject(scopes);
 
