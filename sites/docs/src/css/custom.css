@@ -64,8 +64,8 @@
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
   top: var(--ifm-navbar-height);
+  transform: scaleY(0.96);
 }
 
 [data-expanded='collapsed'] .vitessce-app .vitessce-container {
