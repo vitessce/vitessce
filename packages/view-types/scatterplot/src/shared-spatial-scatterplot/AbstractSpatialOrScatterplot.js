@@ -25,6 +25,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     this.onToolChange = this.onToolChange.bind(this);
     this.onHover = this.onHover.bind(this);
     this.recenter = this.recenter.bind(this);
+    this.resizeScaleBar = this.resizeScaleBar.bind(this);
   }
 
   /**
@@ -40,6 +41,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       setViewState, viewState, layers, spatialAxisFixed,
     } = this.props;
     const use3d = layers?.some(l => l.use3d);
+    this.resizeScaleBar();
     setViewState({
       ...nextViewState,
       // If the axis is fixed, just use the current target in state i.e don't change target.
@@ -218,6 +220,12 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   */
   // eslint-disable-next-line class-methods-use-this
   recenter() {}
+
+  /** Intended to be overridden by descendants.
+   * Resets the view type to its original position.
+  */
+  // eslint-disable-next-line class-methods-use-this
+  resizeScaleBar() {}
 
   /**
    * Intended to be overridden by descendants.

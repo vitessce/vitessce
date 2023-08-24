@@ -89,6 +89,8 @@ const ScaleBarLayer = class extends CompositeLayer {
     const viewLength = boundingBox[2][0] - boundingBox[0][0];
     const barLength = viewLength * 0.05;
 
+    const adjustment = barLength * scaleFactor;
+
     // This is a good heuristic for stopping the bar tick marks from getting too small
     // and/or the text squishing up into the bar.
     const barHeight = Math.max(
@@ -104,7 +106,7 @@ const ScaleBarLayer = class extends CompositeLayer {
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: [
         [
-          [xLeftCoord - scaleFactor, yCoord],
+          [xLeftCoord - adjustment, yCoord],
           [xLeftCoord + barLength, yCoord]
         ]
       ],
@@ -118,8 +120,8 @@ const ScaleBarLayer = class extends CompositeLayer {
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       data: [
         [
-          [xLeftCoord - scaleFactor, yCoord - barHeight],
-          [xLeftCoord - scaleFactor, yCoord + barHeight]
+          [xLeftCoord - adjustment, yCoord - barHeight],
+          [xLeftCoord - adjustment, yCoord + barHeight]
         ]
       ],
 
@@ -164,15 +166,15 @@ const ScaleBarLayer = class extends CompositeLayer {
       getPosition: d => d.position,
       getText: d => d.text,
       getSize: 12,
-      // sizeUnits: 'meters',
-      // sizeScale: 2 ** -zoom,
-      // characterSet: [
-      //   ...unit.split(''),
-      //   ...range(10).map(i => String(i)),
-      //   '.',
-      //   'e',
-      //   '+'
-      // ],
+      sizeUnits: 'meters',
+      sizeScale: 2 ** -zoom,
+      characterSet: [
+        ...unit.split(''),
+        ...range(10).map(i => String(i)),
+        '.',
+        'e',
+        '+'
+      ],
       getColor: [220, 220, 220, 255]
     });
 

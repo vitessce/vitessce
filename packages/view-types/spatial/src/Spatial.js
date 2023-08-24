@@ -134,6 +134,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
       width: 2048,
     };
 
+    this.state = {
+      ...this.state,
+      scaleBarSizeFactor: 0,
+      scaleBarIsRaising: true,
+    }
+
     // Initialize data and layers.
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();
@@ -342,14 +348,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (physicalSizes && !use3d) {
       const { x } = physicalSizes;
       const { unit, size } = x;
-      const scaleFactor = 200;
       if (unit && size) {
         return new ScaleBarLayer({
           id: 'scalebar-layer',
           unit,
           size,
           viewState: {...viewState, width, height},
-          scaleFactor,
+          scaleFactor: this.state.scaleBarSizeFactor,
         });
       }
       return null;
@@ -710,6 +715,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
       setViewState(originalViewState);
     }
   }
+
+  resizeScaleBar() {
+    if (this.state.scaleBarSizeFactor > 1.5) {
+      return;
+    }
+    this.setState({ scaleBarSizeFactor: this.state.scaleBarSizeFactor + 0.1 }, () => {
+        setTimeout(() => {
+            this.setState({ scaleBarSizeFactor: this.state.scaleBarSizeFactor - 0.1 });
+        }, 40);
+    });
+}
 
   /**
    * Here, asynchronously check whether props have
