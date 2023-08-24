@@ -20,7 +20,7 @@
   --ifm-code-font-size: 95%;
 
   --ifm-navbar-height: 3.0rem;
-  --ifm-expand-buttons-height: 4.0rem;
+  --ifm-expand-buttons-height: 4.3rem;
 
   --vit-input-foreground: #0451a5;
   --vit-input-background: #ffffff;
@@ -58,7 +58,7 @@
 .vitessce-app {
   flex: 1;
   position: relative;
-  padding-top: 40px; /* so that the Edit and Expand/Collapse buttons are not hidden */
+  padding-top: 40px; /* so that buttons in changeView css class are not hidden */
 }
 
 [data-expanded='expanded'] .vitessce-app .vitessce-container {

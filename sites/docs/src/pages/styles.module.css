@@ -214,7 +214,7 @@
   opacity: 1;
 }
 
-.vitessceClear {
+.changeView {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -222,7 +222,7 @@
   height: auto;
 }
 
-.vitessceClearButton {
+.changeViewButtons {
   float: right;
   border: 2px solid var(--ifm-color-primary);
   color: var(--ifm-color-primary);

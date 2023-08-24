@@ -211,20 +211,20 @@ function IndexWithHashParams() {
         <AppStyles dimNavbar />
       )}
       <main className="vitessce-app">
-        <div className={styles.vitessceClear}>
-          <button
-            type="button"
-            className={styles.vitessceClearButton}
-            onClick={handleEdit}
-          >
-            Edit
-          </button>
+        <div className={styles.changeView}>
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className={styles.vitessceClearButton}
+            className={styles.changeViewButtons}
           >
             { isExpanded ? 'Collapse' : 'Expand' }
+          </button>
+          <button
+            type="button"
+            className={styles.changeViewButtons}
+            onClick={handleEdit}
+          >
+            Edit
           </button>
         </div>
         <ThemedVitessce
