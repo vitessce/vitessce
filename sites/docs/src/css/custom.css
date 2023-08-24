@@ -20,6 +20,7 @@
   --ifm-code-font-size: 95%;
 
   --ifm-navbar-height: 3.0rem;
+  --ifm-expand-buttons-height: 4.0rem;
 
   --vit-input-foreground: #0451a5;
   --vit-input-background: #ffffff;
@@ -60,12 +61,11 @@
   padding-top: 40px; /* so that the Edit and Expand/Collapse buttons are not hidden */
 }
 
-[data-expanded='expanded'] .vitessce-app {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: var(--ifm-navbar-height);
-  transform: scaleY(0.96);
+[data-expanded='expanded'] .vitessce-app .vitessce-container {
+  height: calc(100vh - var(--ifm-navbar-height)); /* so that react-grid-layout resizing works */
+  position: fixed; /* so that the scrollbar doesn't appear */
+  top: var(--ifm-expand-buttons-height);
+  transform: scaleY(0.98);
 }
 
 [data-expanded='collapsed'] .vitessce-app .vitessce-container {
