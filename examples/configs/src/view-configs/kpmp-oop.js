@@ -124,7 +124,10 @@ function generateKpmpConfig() {
   filledScope.setValue(true);
   strokeScope.setValue(1);
 
-  const scopes = config.addCoordinationByObject({
+  const spatialView = config.addView(dataset, 'spatialBeta');
+  const lcView = config.addView(dataset, 'layerControllerBeta');
+
+  config.linkViewsByObject([spatialView, lcView], {
     spatialTargetX: 19375.01239458,
     spatialTargetY: 18524.67196937,
     spatialZoom: -4.60703913795,
@@ -261,14 +264,6 @@ function generateKpmpConfig() {
       },
     ]),
   });
-
-  const metaCoordinationScope = config.addMetaCoordination();
-  metaCoordinationScope.useCoordinationByObject(scopes);
-
-  const spatialView = config.addView(dataset, 'spatialBeta');
-  const lcView = config.addView(dataset, 'layerControllerBeta');
-  spatialView.useMetaCoordination(metaCoordinationScope);
-  lcView.useMetaCoordination(metaCoordinationScope);
 
   config.layout(hconcat(spatialView, lcView));
 

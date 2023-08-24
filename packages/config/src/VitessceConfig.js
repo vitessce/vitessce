@@ -851,6 +851,35 @@ export class VitessceConfig {
   }
 
   /**
+   * A convenience function for setting up multi-level and meta-coordination scopes
+   * across a set of views.
+   * @param {VitessceConfigView[]} views An array of view objects to link together.
+   * @param {object} input A (potentially nested) object with coordination types as keys
+   * and values being either the initial coordination value, a `VitessceConfigCoordinationScope`
+   * instance, or a `CoordinationLevel` instance.
+   * The CL function takes an array of objects as its argument, and returns a CoordinationLevel
+   * instance, to support nesting.
+   * @param {boolean} meta Should meta-coordination be used? Optional. By default, true.
+   * @returns {VitessceConfig} This, to allow chaining.
+   */
+  linkViewsByObject(views, input, meta = true) {
+    const scopes = this.addCoordinationByObject(input);
+    if(meta) {
+      const metaScope = this.addMetaCoordination();
+      metaScope.useCoordinationByObject(scopes);
+
+      views.forEach((view) => {
+        view.useMetaCoordination(metaScope);
+      });
+    } else {
+      views.forEach((view) => {
+        view.useCoordinationByObject(scopes);
+      });
+    }
+    return this;
+  }
+
+  /**
    * Set the layout of views.
    * @param {VitessceConfigView|VitessceConfigViewHConcat|VitessceConfigViewVConcat} viewConcat A
    * view or a concatenation of views.

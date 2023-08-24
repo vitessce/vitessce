@@ -235,6 +235,52 @@ v1.useMetaCoordination(metaCoordinationScope);
 v2.useMetaCoordination(metaCoordinationScope);
 ```
 
+### `linkViewsByObject(views, obj, meta=true)`
+
+Convenience function to simultaneously set up the initial values for multi-level coordination in the coordination space
+and link an array of views on the resulting coordination scopes.
+
+#### Parameters:
+- `views` (`VitessceConfigView[]`) - Array of one or more view instances.
+- `obj` (`object`) - A (potentially nested) object with coordination types as keys
+and values being either the initial coordination value, a `VitessceConfigCoordinationScope`
+instance, or a `CoordinationLevel` instance.
+The `CL` function takes an array of objects as its argument, and returns a `CoordinationLevel`
+instance, to support nesting.
+Internally, this will be passed to `VitessceConfig.addCoordinationByObject`.
+- `meta` (`boolean`) - Whether or not to use meta-coordination. Optional. By default, `true`.
+
+#### Returns:
+- Type: `VitessceConfig`
+
+Returns `this` to allow chaining.
+
+```js {13-22}
+import { VitessceConfig, CoordinationLevel as CL, CoordinationType as ct } from 'vitessce';
+
+const vc = new VitessceConfig({ schemaVersion: "1.0.16", name: "My config" });
+const dataset = vc.addDataset("My dataset").addFile({
+    fileType: 'image.ome-tiff',
+    url: 'https://assets.hubmapconsortium.org/2130d5f91ce61d7157a42c0497b06de8/ometiff-pyramids/processedMicroscopy/VAN0006-LK-2-85-AF_preIMS_images/VAN0006-LK-2-85-AF_preIMS_registered.ome.tif?token=',
+    coordinationValues: { [ct.FILE_UID]: 'AF' },
+});
+
+const v1 = vc.addView(dataset, vt.SPATIAL);
+const v2 = vc.addView(dataset, vt.SPATIAL);
+
+vc.linkViewsByObject([v1, v2], {
+    [ct.IMAGE_LAYER]: CL([
+        {
+            [ct.FILE_UID]: 'AF',
+            [ct.SPATIAL_LAYER_OPACITY]: 1,
+            [ct.SPATIAL_LAYER_VISIBLE]: true,
+            [ct.PHOTOMETRIC_INTERPRETATION]: 'RGB',
+        },
+    ]),
+});
+```
+
+
 
 ### `addMetaCoordination()`
 
