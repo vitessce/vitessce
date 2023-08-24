@@ -214,29 +214,6 @@
   opacity: 1;
 }
 
-.changeView {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  height: auto;
-}
-
-.changeViewButtons {
-  float: right;
-  border: 2px solid var(--ifm-color-primary);
-  color: var(--ifm-color-primary);
-  background-color: transparent;
-  line-height: 1.2em;
-  text-decoration: none !important;
-  text-transform: uppercase;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 700;
-  padding: 5px 10px;
-  margin: 5px;
-  cursor: pointer;
-}
 
 .vitessceAppLoadError {
   background-color: lightcoral;
