@@ -64,6 +64,7 @@ function PlotOptions(props) {
       buttonIcon={<SettingsIconWithArrow open={open} />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      aria-label="Open plot options menu"
     >
       {options}
     </PopperMenu>
@@ -90,10 +91,11 @@ function DownloadOptions(props) {
       buttonIcon={<CloudDownloadIconWithArrow open={open} />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      aria-label="Open download options menu"
     >
       {urls.map(({ url, name }) => (
-        <MenuItem dense key={`${url}_${name}`}>
-          <Link underline="none" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
+        <MenuItem dense key={`${url}_${name}`} getArialLabel={() => `Click to download ${name}`}>
+          <Link underline="always" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
             Download {name}
           </Link>
         </MenuItem>
@@ -111,6 +113,7 @@ function ClosePaneButton(props) {
       size="small"
       className={classes.iconButton}
       title="close"
+      aria-label="Close panel button"
     >
       <CloseIcon />
     </IconButton>
@@ -128,14 +131,14 @@ export function TitleInfo(props) {
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
     <>
-      <div className={classes.title}>
-        <div className={classes.titleLeft}>
+      <div className={classes.title} role="banner">
+        <div className={classes.titleLeft} role="heading" aria-level="1">
           {title}
         </div>
-        <div className={classes.titleInfo} title={info}>
+        <div className={classes.titleInfo} title={info} role="note">
           {info}
         </div>
-        <div className={classes.titleButtons}>
+        <div className={classes.titleButtons} role="toolbar" aria-label="Plot options and controls">
           <PlotOptions
             options={options}
           />
@@ -157,6 +160,8 @@ export function TitleInfo(props) {
             [classes.noScrollCard]: !isScroll && !isSpatial,
           },
         )}
+        aria-busy={!isReady}
+        role="main"
       >
         { !isReady && <LoadingIndicator /> }
         {children}

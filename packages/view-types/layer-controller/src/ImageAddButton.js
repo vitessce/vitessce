@@ -37,6 +37,7 @@ function ImageAddButton({ imageOptions, handleImageAdd }) {
       buttonIcon={<ImageAddIcon />}
       buttonClassName={classes.addButton}
       placement="bottom-start"
+      aria-label="Add image menu"
     >
       {imageOptions.map((imgData, i) => (
         <MenuItem dense key={imgData.name} onClick={() => handleAdd(i)}>

@@ -18,6 +18,7 @@ export default function MatchingDiagramTabs() {
             { label: 'Spatial', value: 'spatial' },
             { label: 'Hide matches', value: 'none' },
           ]}
+          aria-label="View configuration tabs"
         >
           {['heatmap', 'scatterplot', 'spatial', 'none'].map(val => (
             <TabItem value={val} key={val}>

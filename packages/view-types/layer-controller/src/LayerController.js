@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useId } from 'react';
 import { viv } from '@vitessce/gl';
 import {
   GLOBAL_LABELS, getSourceFromLoader, isRgb,
@@ -127,6 +127,7 @@ export default function LayerController(props) {
     return undefined;
   }, [channels]);
 
+  const layerControlsId = useId();
   const firstSelection = channels[0]?.selection || {};
 
   const { data, channels: channelOptions } = loader;
@@ -476,6 +477,7 @@ export default function LayerController(props) {
       }
       TransitionProps={{ enter: false }}
       expanded={!disabled && isExpanded}
+      id={`layer-controls-accordion-${layerControlsId}`}
     >
       <AccordionSummary
         classes={{
@@ -486,10 +488,12 @@ export default function LayerController(props) {
         }}
         expandIcon={<ExpandMoreIcon role="presentation" />}
         aria-controls={`layer-${name}-controls`}
+        aria-expanded={isExpanded}
       >
         <Grid container direction="column" m={1} justifyContent="center">
           <Grid item classes={{ item: overflowEllipsisGridClasses.item }}>
             <Button
+              aria-label="Toggle layer visibility"
               onClick={(e) => {
                 if (!disabled) {
                   // Needed to prevent affecting the expansion panel from changing
@@ -530,7 +534,7 @@ export default function LayerController(props) {
                   value={opacity}
                   onChange={(e, v) => setOpacity(v)}
                   valueLabelDisplay="auto"
-                  getAriaLabel={() => 'opacity slider'}
+                  aria-label={`Adjust opacity for layer ${name}`}
                   min={0}
                   max={1}
                   step={0.01}
@@ -541,17 +545,21 @@ export default function LayerController(props) {
           )}
         </Grid>
       </AccordionSummary>
-      <AccordionDetails classes={{ root: accordionClasses.accordionDetailsRoot }}>
+      <AccordionDetails
+        classes={{ root: accordionClasses.accordionDetailsRoot }}
+        id={`layer-${name}-controls`}
+      >
         {useVolumeTabs ? (
           <>
             <Tabs
               value={tab}
               onChange={handleTabChange}
-              aria-label="simple tabs example"
+              aria-label="Change the layer tab type"
               style={{ height: '24px', minHeight: '24px' }}
             >
               <Tab
                 label="Channels"
+                aria-label="Channels tab"
                 style={{
                   fontSize: '.75rem',
                   bottom: 12,
@@ -562,6 +570,7 @@ export default function LayerController(props) {
               />
               <Tab
                 label="Volume"
+                aria-label="Volume tab"
                 style={{
                   fontSize: '.75rem',
                   bottom: 12,
