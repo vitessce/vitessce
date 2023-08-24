@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { CompositeLayer, COORDINATE_SYSTEM, OrthographicView } from '@deck.gl/core';
 import { LineLayer, TextLayer } from '@deck.gl/layers';
 
@@ -10,14 +11,14 @@ function makeBoundingBox(viewState) {
     // From the current `detail` viewState, we need its projection matrix (actually the inverse).
     viewState,
     height: viewState.height,
-    width: viewState.width
+    width: viewState.width,
   });
   // Use the inverse of the projection matrix to map screen to the view space.
   return [
     viewport.unproject([0, 0]),
     viewport.unproject([viewport.width, 0]),
     viewport.unproject([viewport.width, viewport.height]),
-    viewport.unproject([0, viewport.height])
+    viewport.unproject([0, viewport.height]),
   ];
 }
 
@@ -25,8 +26,7 @@ function getPosition(boundingBox, position, length) {
   const viewLength = boundingBox[2][0] - boundingBox[0][0];
   switch (position) {
     case 'bottom-right': {
-      const yCoord =
-        boundingBox[2][1] - (boundingBox[2][1] - boundingBox[0][1]) * length;
+      const yCoord = boundingBox[2][1] - (boundingBox[2][1] - boundingBox[0][1]) * length;
       const xLeftCoord = boundingBox[2][0] - viewLength * length;
       return [yCoord, xLeftCoord];
     }
@@ -41,8 +41,7 @@ function getPosition(boundingBox, position, length) {
       return [yCoord, xLeftCoord];
     }
     case 'bottom-left': {
-      const yCoord =
-        boundingBox[2][1] - (boundingBox[2][1] - boundingBox[0][1]) * length;
+      const yCoord = boundingBox[2][1] - (boundingBox[2][1] - boundingBox[0][1]) * length;
       const xLeftCoord = viewLength * length;
       return [yCoord, xLeftCoord];
     }
@@ -57,12 +56,12 @@ const defaultProps = {
   viewState: {
     type: 'object',
     value: { zoom: 0, target: [0, 0, 0] },
-    compare: true
+    compare: true,
   },
   unit: { type: 'string', value: '', compare: true },
   size: { type: 'number', value: 1, compare: true },
   position: { type: 'string', value: 'bottom-right', compare: true },
-  length: { type: 'number', value: 0.085, compare: true }
+  length: { type: 'number', value: 0.085, compare: true },
 };
 /**
  * @typedef LayerProps
@@ -81,7 +80,6 @@ const defaultProps = {
  * @ignore
  */
 const ScaleBarLayer = class extends CompositeLayer {
-
   renderLayers() {
     const { id, unit, size, position, viewState, length, scaleFactor } = this.props;
     const boundingBox = makeBoundingBox(viewState);
@@ -95,9 +93,9 @@ const ScaleBarLayer = class extends CompositeLayer {
     // and/or the text squishing up into the bar.
     const barHeight = Math.max(
       2 ** (-zoom + 1.5),
-      (boundingBox[2][1] - boundingBox[0][1]) * 0.007
+      (boundingBox[2][1] - boundingBox[0][1]) * 0.007,
     );
-    
+
     const numUnits = barLength * size;
     const [yCoord, xLeftCoord] = getPosition(boundingBox, position, length);
 
@@ -107,13 +105,13 @@ const ScaleBarLayer = class extends CompositeLayer {
       data: [
         [
           [xLeftCoord - adjustment, yCoord],
-          [xLeftCoord + barLength, yCoord]
-        ]
+          [xLeftCoord + barLength, yCoord],
+        ],
       ],
       getSourcePosition: d => d[0],
       getTargetPosition: d => d[1],
       getWidth: 2,
-      getColor: [220, 220, 220]
+      getColor: [220, 220, 220],
     });
     const tickBoundsLeft = new LineLayer({
       id: `scale-bar-height-left-${id}`,
@@ -121,14 +119,14 @@ const ScaleBarLayer = class extends CompositeLayer {
       data: [
         [
           [xLeftCoord - adjustment, yCoord - barHeight],
-          [xLeftCoord - adjustment, yCoord + barHeight]
-        ]
+          [xLeftCoord - adjustment, yCoord + barHeight],
+        ],
       ],
 
       getSourcePosition: d => d[0],
       getTargetPosition: d => d[1],
       getWidth: 2,
-      getColor: [220, 220, 220]
+      getColor: [220, 220, 220],
     });
     const tickBoundsRight = new LineLayer({
       id: `scale-bar-height-right-${id}`,
@@ -136,28 +134,28 @@ const ScaleBarLayer = class extends CompositeLayer {
       data: [
         [
           [xLeftCoord + barLength, yCoord - barHeight],
-          [xLeftCoord + barLength, yCoord + barHeight]
-        ]
+          [xLeftCoord + barLength, yCoord + barHeight],
+        ],
       ],
       getSourcePosition: d => d[0],
       getTargetPosition: d => d[1],
       getWidth: 2,
-      getColor: [220, 220, 220]
+      getColor: [220, 220, 220],
     });
-    
+
     function snapToRound(value) {
       const magnitude = Math.pow(10, Math.floor(Math.log10(value)));
       const leadingDigit = Math.round(value / magnitude);
-      
+
       return leadingDigit * magnitude;
     }
-    
+
     const numUnitsRounded = snapToRound(numUnits);
 
     const data = [{
       text: numUnitsRounded + unit,
-      position: [xLeftCoord + barLength * 0.5, yCoord + barHeight * 4]
-    }]
+      position: [xLeftCoord + barLength * 0.5, yCoord + barHeight * 4],
+    }];
     const textLayer = new TextLayer({
       id: 'text-layer',
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
@@ -173,9 +171,9 @@ const ScaleBarLayer = class extends CompositeLayer {
         ...range(10).map(i => String(i)),
         '.',
         'e',
-        '+'
+        '+',
       ],
-      getColor: [220, 220, 220, 255]
+      getColor: [220, 220, 220, 255],
     });
 
 
