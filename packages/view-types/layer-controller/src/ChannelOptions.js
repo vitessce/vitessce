@@ -44,14 +44,25 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUp
       setOpen={setOpen}
       buttonIcon={<MoreVertIcon fontSize="small" />}
       buttonClassName={classes.menuButton}
+      aria-label="Open channel options menu"
     >
-      <MenuItem dense disableGutters onClick={handleRemove}>
+      <MenuItem dense disableGutters onClick={handleRemove} aria-label="Click to remove channel">
         <MuiSpan>Remove</MuiSpan>
       </MenuItem>
-      <MenuItem dense disableGutters onClick={handleIQRUpdate}>
+      <MenuItem
+        dense
+        disableGutters
+        onClick={handleIQRUpdate}
+        aria-label="Click to use IQR for channel"
+      >
         <MuiSpan>Use IQR</MuiSpan>
       </MenuItem>
-      <MenuItem dense disableGutters className={classes.colors}>
+      <MenuItem
+        dense
+        disableGutters
+        className={classes.colors}
+        aria-label="Click to select color for channel"
+      >
         <ColorPalette handleChange={handleColorSelect} />
       </MenuItem>
     </PopperMenu>

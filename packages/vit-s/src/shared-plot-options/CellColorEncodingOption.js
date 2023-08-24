@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { TableCell, TableRow } from '@material-ui/core';
 import { capitalize } from '@vitessce/utils';
 import OptionSelect from './OptionSelect.js';
@@ -13,6 +13,8 @@ export default function CellColorEncodingOption(props) {
 
   const classes = useStyles();
 
+  const cellColorEncodingId = useId();
+
   const observationsLabelNice = capitalize(observationsLabel);
 
   function handleColorEncodingChange(event) {
@@ -21,16 +23,20 @@ export default function CellColorEncodingOption(props) {
 
   return (
     <TableRow>
-      <TableCell className={classes.labelCell} htmlFor="cell-color-encoding-select">
-        {observationsLabelNice} Color Encoding
+      <TableCell className={classes.labelCell} variant="head" scope="row">
+        <label
+          htmlFor={`cell-color-encoding-select-${cellColorEncodingId}`}
+        >
+          {observationsLabelNice} Color Encoding
+        </label>
       </TableCell>
-      <TableCell className={classes.inputCell}>
+      <TableCell className={classes.inputCell} variant="body">
         <OptionSelect
           className={classes.select}
           value={cellColorEncoding}
           onChange={handleColorEncodingChange}
           inputProps={{
-            id: 'cell-color-encoding-select',
+            id: `cell-color-encoding-select-${cellColorEncodingId}`,
           }}
         >
           <option value="cellSetSelection">Cell Sets</option>

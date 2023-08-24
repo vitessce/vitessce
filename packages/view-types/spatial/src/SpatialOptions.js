@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useId } from 'react';
 import { debounce } from 'lodash-es';
 
 import {
@@ -27,17 +27,26 @@ const ToggleFixedAxisButton = ({
   spatialAxisFixed,
   use3d,
 }) => {
+  const toggleAxisId = useId();
   const classes = useToggleStyles();
   return (
     <TableRow>
-      <TableCell className={classes.cameraLabel}>
-        Fix Camera Axis
+      <TableCell className={classes.cameraLabel} variant="head" scope="row">
+        <label
+          htmlFor={`spatial-camera-axis-${toggleAxisId}`}
+        >
+          Fix Camera Axis
+        </label>
       </TableCell>
-      <TableCell className={classes.toggleBox}>
+      <TableCell className={classes.toggleBox} variant="body">
         <Checkbox
           onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
           disabled={!use3d}
           checked={Boolean(spatialAxisFixed)}
+          inputProps={{
+            'aria-label': 'Fix or not fix spatial camera axis',
+            id: `spatial-camera-axis-${toggleAxisId}`,
+          }}
         />
       </TableCell>
     </TableRow>
@@ -62,6 +71,8 @@ export default function SpatialOptions(props) {
     canShowColorEncodingOption,
     canShow3DOptions,
   } = props;
+
+  const spatialOptionsId = useId();
 
   function handleGeneExpressionColormapChange(event) {
     setGeneExpressionColormap(event.target.value);
@@ -98,10 +109,14 @@ export default function SpatialOptions(props) {
         />
       ) : null}
       <TableRow>
-        <TableCell className={classes.labelCell}>
-          Tooltips Visible
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`gene-expression-colormap-option-tooltip-visibility-${spatialOptionsId}`}
+          >
+            Tooltips Visible
+          </label>
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.inputCell} variant="body">
           <Checkbox
             className={classes.checkbox}
               /**
@@ -111,24 +126,33 @@ export default function SpatialOptions(props) {
                */
             checked={tooltipsVisible}
             onChange={handleTooltipsVisibilityChange}
-            name="gene-expression-colormap-option-toltip-visibility"
+            name="gene-expression-colormap-option-tooltip-visibility"
             color="default"
+            inputProps={{
+              'aria-label': 'Enable or disable tooltips',
+              id: `gene-expression-colormap-option-tooltip-visibility-${spatialOptionsId}`,
+            }}
           />
         </TableCell>
       </TableRow>
       {canShowExpressionOptions ? (
         <>
           <TableRow>
-            <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
-              Gene Expression Colormap
+            <TableCell className={classes.labelCell} variant="head" scope="row">
+              <label
+                htmlFor={`gene-expression-colormap-select-${spatialOptionsId}`}
+              >
+                Gene Expression Colormap
+              </label>
             </TableCell>
-            <TableCell className={classes.inputCell}>
+            <TableCell className={classes.inputCell} variant="body">
               <OptionSelect
+                key="gene-expression-colormap-select"
                 className={classes.select}
                 value={geneExpressionColormap}
                 onChange={handleGeneExpressionColormapChange}
                 inputProps={{
-                  id: 'gene-expression-colormap-select',
+                  id: `gene-expression-colormap-select-${spatialOptionsId}`,
                 }}
               >
                 {GLSL_COLORMAPS.map(cmap => (
@@ -138,15 +162,23 @@ export default function SpatialOptions(props) {
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell className={classes.labelCell}>
-              Gene Expression Colormap Range
+            <TableCell className={classes.labelCell} variant="head" scope="row">
+              <label
+                htmlFor={`gene-expression-colormap-range-${spatialOptionsId}`}
+              >
+                Gene Expression Colormap Range
+              </label>
             </TableCell>
-            <TableCell className={classes.inputCell}>
+            <TableCell className={classes.inputCell} variant="body">
               <Slider
                 classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
                 value={geneExpressionColormapRange}
                 onChange={handleColormapRangeChangeDebounced}
-                aria-labelledby="gene-expression-colormap-range-slider"
+                getAriaLabel={(index) => {
+                  const labelPrefix = index === 0 ? 'Low value slider' : 'High value slider';
+                  return `${labelPrefix} for spatial gene expression colormap range`;
+                }}
+                id={`gene-expression-colormap-range-${spatialOptionsId}`}
                 valueLabelDisplay="auto"
                 step={0.005}
                 min={0.0}
