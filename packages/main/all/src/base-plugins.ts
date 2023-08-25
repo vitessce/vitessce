@@ -192,6 +192,7 @@ export const baseFileTypes = [
   makeFileType(FileType.FEATURE_LABELS_MUDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, MuDataSource, featureLabelsAnndataSchema),
   // All OME file types
   makeFileType(FileType.IMAGE_OME_ZARR, DataType.IMAGE, OmeZarrLoader, ZarrDataSource, imageOmeZarrSchema),
+  makeFileType(FileType.IMAGE_SPATIALDATA, DataType.IMAGE, OmeZarrLoader, ZarrDataSource, imageOmeZarrSchema),
   makeFileType(FileType.IMAGE_OME_TIFF, DataType.IMAGE, OmeTiffLoader, OmeTiffSource, imageOmeTiffSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, imageOmeZarrSchema),
   // All legacy file types
