@@ -24,11 +24,16 @@ import {
   useAuxiliaryCoordination,
   useHasLoader,
 } from '@vitessce/vit-s';
-import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
+import {
+  setObsSelection,
+  mergeObsSets,
+  colorArrayToString,
+} from '@vitessce/sets-utils';
 import { getCellColors } from '@vitessce/utils';
 import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType } from '@vitessce/constants-internal';
+import { Typography } from '@material-ui/core';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
@@ -56,6 +61,7 @@ export function SpatialSubscriber(props) {
     disable3d,
     globalDisable3d,
     useFullResolutionImage = {},
+    channelNamesVisible = false,
   } = props;
 
   const loaders = useLoaders();
@@ -493,6 +499,22 @@ export function SpatialSubscriber(props) {
     return imageLayerLoaders.map((ll, index) => (shouldUseFullData(ll, index) ? { ...ll, data: ll.data[0] } : ll));
   }, [imageLayerLoaders, useFullResolutionImage, meta]);
 
+  const [channelNames, channelColors] = useMemo(() => {
+    let names = [];
+    let colors = [];
+
+    if (imageLayers) {
+      names = imageLayers.map(layer => imageLayerLoaders?.[layer.index])[0]?.channels;
+      colors = imageLayers[0]?.channels.map(layer => layer.color);
+    }
+
+    // in cases where there are more names than colors,
+    // we cut the number of names to match the number of available colors
+    const desiredSize = Math.min(names.length, colors.length);
+
+    return [names.slice(0, desiredSize), colors.slice(0, desiredSize)];
+  }, [imageLayers, imageLayerLoaders]);
+
   return (
     <TitleInfo
       title={title}
@@ -504,6 +526,26 @@ export function SpatialSubscriber(props) {
       isReady={isReady}
       options={options}
     >
+      <div style={{
+        position: 'absolute',
+        bottom: '5px',
+        left: '5px',
+        zIndex: 6,
+      }}
+      >
+        {channelNamesVisible && channelNames ? channelNames.map((name, i) => (
+          <Typography
+            variant="h6"
+            key={name}
+            style={{
+              color: colorArrayToString(channelColors[i]),
+              fontSize: '14px',
+            }}
+          >
+            {name}
+          </Typography>
+        )) : null}
+      </div>
       <Spatial
         ref={deckRef}
         uuid={uuid}

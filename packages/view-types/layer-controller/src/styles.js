@@ -9,6 +9,16 @@ export const useSpanStyles = makeStyles(() => ({
   },
 }));
 
+export const useChannelSliderStyles = makeStyles(theme => ({
+  valueLabel: {
+    marginTop: '7px',
+    '& span': {
+      color: theme.palette.secondaryForeground, // Change color here
+      backgroundColor: theme.palette.secondaryBackgroundDim, // Change color here
+    },
+  },
+}));
+
 export const useSelectStyles = makeStyles(() => ({
   selectRoot: {
     padding: 0,

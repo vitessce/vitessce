@@ -14,6 +14,7 @@ export default function OptionSelect(props) {
         root: classes.optionSelectRoot,
         ...classesProp,
       }}
+      aria-label="Select an option"
     />
   );
 }

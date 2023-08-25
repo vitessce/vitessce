@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { range } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
 import { Grid, Slider, InputLabel, Select, Checkbox } from '@material-ui/core';
@@ -14,7 +14,15 @@ import {
   COLORMAP_OPTIONS,
   formatBytes,
 } from '@vitessce/utils';
-import { useSelectionSliderStyles, useSelectStyles } from './styles.js';
+import {
+  getBoundingCube,
+  getMultiSelectionStats,
+} from './utils.js';
+import {
+  useSelectionSliderStyles,
+  useSelectStyles,
+  useChannelSliderStyles,
+} from './styles.js';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
 
@@ -126,6 +134,7 @@ function VolumeDropdown({
           e.target.value === '2D' ? e.target.value : Number(e.target.value),
         )
         }
+        inputProps={{ 'aria-label': 'Resolution selector' }}
         classes={{ root: classes.selectRoot }}
       >
         <option key="2D" value="2D">
@@ -180,7 +189,7 @@ function ColormapSelect({ value, inputId, handleChange }) {
       native
       onChange={e => handleChange(e.target.value === '' ? null : e.target.value)}
       value={value}
-      inputProps={{ name: 'colormap', id: inputId }}
+      inputProps={{ name: 'colormap', id: inputId, 'aria-label': 'Colormap selector' }}
       style={{ width: '100%' }}
       classes={{ root: classes.selectRoot }}
     >
@@ -194,7 +203,7 @@ function ColormapSelect({ value, inputId, handleChange }) {
   );
 }
 
-function TransparentColorCheckbox({ value, handleChange }) {
+function TransparentColorCheckbox({ value, inputId, handleChange }) {
   return (
     <Checkbox
       style={{ float: 'left', padding: 0 }}
@@ -207,6 +216,8 @@ function TransparentColorCheckbox({ value, handleChange }) {
         }
       }}
       checked={Boolean(value)}
+      id={inputId}
+      inputProps={{ 'aria-label': 'Enable or disable color transparency' }}
     />
   );
 }
@@ -216,18 +227,21 @@ function TransparentColorCheckbox({ value, handleChange }) {
  * @prop {string} value Currently selected value between 0 and 1.
  * @prop {function} handleChange Callback for every change in opacity.
  */
-function OpacitySlider({ value, handleChange }) {
+function OpacitySlider({ value, inputId, handleChange }) {
+  const classes = useChannelSliderStyles();
+
   return (
     <Slider
+      classes={{ valueLabel: classes.valueLabel }}
       value={value}
       onChange={(e, v) => handleChange(v)}
       valueLabelDisplay="auto"
-      getAriaLabel={() => 'opacity slider'}
+      aria-label="Layer opacity slider"
+      id={inputId}
       min={0}
       max={1}
       step={0.01}
       orientation="horizontal"
-      style={{ marginTop: '7px' }}
     />
   );
 }
@@ -245,7 +259,8 @@ function SliderDomainSelector({ value, inputId, handleChange }) {
       native
       onChange={e => handleChange(e.target.value)}
       value={value}
-      inputProps={{ name: 'domain-selector', id: inputId }}
+      id={inputId}
+      inputProps={{ name: 'domain-selector', 'aria-label': 'Domain type selector' }}
       style={{ width: '100%' }}
       classes={{ root: classes.selectRoot }}
     >
@@ -268,6 +283,7 @@ function SliderDomainSelector({ value, inputId, handleChange }) {
 function GlobalSelectionSlider({
   field,
   value,
+  inputId,
   handleChange,
   possibleValues,
 }) {
@@ -289,7 +305,8 @@ function GlobalSelectionSlider({
         }
       }
       valueLabelDisplay="auto"
-      getAriaLabel={() => `${field} slider`}
+      aria-label={`${field} slider`}
+      id={inputId}
       marks={possibleValues.map(val => ({ value: val }))}
       min={Number(possibleValues[0])}
       max={Number(possibleValues.slice(-1))}
@@ -370,6 +387,12 @@ function LayerOptions({
   const hasViewableResolutions = Boolean(Array.from({
     length: loader.data.length,
   }).filter((_, res) => canLoadResolution(loader.data, res)).length);
+
+  const globalSelectionSliderId = useId();
+  const colormapSelectId = useId();
+  const domainSelectorId = useId();
+  const opacitySliderId = useId();
+  const zeroTransparentId = useId();
   return (
     <Grid container direction="column" style={{ width: '100%' }}>
       {hasZStack
@@ -398,9 +421,10 @@ function LayerOptions({
         && !use3d
         && globalControlLabels.map(
           field => shape[labels.indexOf(field)] > 1 && (
-          <LayerOption name={field} inputId={`${field}-slider`} key={field}>
+          <LayerOption name={field} inputId={`${field}-${globalSelectionSliderId}`} key={field}>
             <GlobalSelectionSlider
               field={field}
+              inputId={`${field}-${globalSelectionSliderId}`}
               value={globalLabelValues[field]}
               handleChange={handleGlobalChannelsSelectionChange}
               possibleValues={range(shape[labels.indexOf(field)])}
@@ -412,10 +436,10 @@ function LayerOptions({
         <>
           {shouldShowColormap && (
             <Grid item>
-              <LayerOption name="Colormap" inputId="colormap-select">
+              <LayerOption name="Colormap" inputId={colormapSelectId}>
                 <ColormapSelect
                   value={colormap || ''}
-                  inputId="colormap-select"
+                  inputId={colormapSelectId}
                   handleChange={handleColormapChange}
                 />
               </LayerOption>
@@ -423,9 +447,10 @@ function LayerOptions({
           )}
           {shouldShowDomain && (
             <Grid item>
-              <LayerOption name="Domain" inputId="domain-selector">
+              <LayerOption name="Domain" inputId={domainSelectorId}>
                 <SliderDomainSelector
                   value={domainType || DEFAULT_RASTER_DOMAIN_TYPE}
+                  inputId={domainSelectorId}
                   handleChange={(value) => {
                     handleDomainChange(value);
                   }}
@@ -437,8 +462,12 @@ function LayerOptions({
       ) : null}
       {!use3d && (
         <Grid item>
-          <LayerOption name="Opacity" inputId="opacity-slider">
-            <OpacitySlider value={opacity} handleChange={handleOpacityChange} />
+          <LayerOption name="Opacity" inputId={opacitySliderId}>
+            <OpacitySlider
+              value={opacity}
+              handleChange={handleOpacityChange}
+              inputId={opacitySliderId}
+            />
           </LayerOption>
         </Grid>
       )}
@@ -446,11 +475,12 @@ function LayerOptions({
         <Grid item>
           <LayerOption
             name="Zero Transparent"
-            inputId="transparent-color-selector"
+            inputId={zeroTransparentId}
           >
             <TransparentColorCheckbox
               value={transparentColor}
               handleChange={handleTransparentColorChange}
+              inputId={zeroTransparentId}
             />
           </LayerOption>
         </Grid>

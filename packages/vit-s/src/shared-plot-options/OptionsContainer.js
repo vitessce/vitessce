@@ -12,7 +12,11 @@ export default function OptionsContainer(props) {
   return (
     <Box className={classes.box}>
       <TableContainer className={classes.tableContainer}>
-        <Table className={classes.table} size="small">
+        <Table
+          className={classes.table}
+          size="small"
+          aria-label="Menu of options available for the view"
+        >
           <TableBody>
             {children}
           </TableBody>

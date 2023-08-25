@@ -15,6 +15,7 @@ import {
   ChannelSelectionDropdown,
   ChannelVisibilityCheckbox,
 } from './shared-channel-controls.js';
+import { useChannelSliderStyles } from './styles.js';
 
 /**
  * Slider for controlling current colormap.
@@ -43,14 +44,22 @@ function ChannelSlider({
     debounce(handleChange, 3, { trailing: true }),
     [handleChange],
   );
+
+  const classes = useChannelSliderStyles();
+
   const step = max - min < 500 && dtype.startsWith('Float') ? (max - min) / 500 : 1;
   return (
     <Slider
+      classes={{ valueLabel: classes.valueLabel }}
       value={slider}
       valueLabelFormat={abbreviateNumber}
       onChange={(e, v) => handleChangeDebounced(v)}
       valueLabelDisplay="auto"
-      getAriaLabel={() => `${color}-${slider}`}
+      getAriaLabel={(index) => {
+        const labelPrefix = index === 0 ? 'Low value slider' : 'High value slider';
+        return `${labelPrefix} for ${color} colormap channel`;
+      }}
+      getAriaValueText={() => `Current colormap values: ${color}-${slider}`}
       min={min}
       max={max}
       step={step}
@@ -101,6 +110,7 @@ function RasterChannelController({
   const [selection, setSelection] = useState([
     { ...channels[channelId].selection },
   ]);
+
   const rgbColor = toRgbUIString(colormapOn, color, theme);
 
   useEffect(() => {

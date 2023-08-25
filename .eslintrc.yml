@@ -47,6 +47,9 @@ rules:
   import/extensions: [0] # Using require-extensions instead.
   import/prefer-default-export: [0]
   jsx-a11y/label-has-for: [0] # Deprecated
+  jsx-a11y/label-has-associated-control: [ 2, {
+    "depth": 2,
+  }]
 overrides:
   - files: 'sites/docs/src/{pages,theme}/**'
     rules:

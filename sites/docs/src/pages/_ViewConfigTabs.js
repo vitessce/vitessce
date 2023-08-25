@@ -31,6 +31,7 @@ export default function ViewConfigTabs(props) {
             { label: 'JSON', value: 'json' },
             { label: 'JS API', value: 'js' },
           ]}
+          aria-label="View configuration tabs"
         >
           <TabItem value="json">
             <CodeBlock className="language-javascript">{(forData ? jsonPrefix : '') + json.trim() + (forData ? jsonSuffix : '')}</CodeBlock>
