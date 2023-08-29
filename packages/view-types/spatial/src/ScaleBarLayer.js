@@ -23,6 +23,34 @@ function makeBoundingBox(viewState) {
   ];
 }
 
+function snapValue(value) {
+  const targets = [1, 5, 10, 20, 25, 50, 100, 200, 250, 500];
+  const minTarget = targets[0];
+  const maxTarget = targets[targets.length - 1];
+  
+  let magnitude = 0;
+
+  if(value < minTarget) {
+    // Change units
+    magnitude = Math.ceil(Math.log10(minTarget / value));
+  } else if(value > maxTarget) {
+    // Change units
+    magnitude = -1 * Math.ceil(Math.log10(value / maxTarget));
+  }
+
+  const adjustedValue = value * 10 ** magnitude;
+
+  const targetNewUnits = targets.find(t => t > adjustedValue);
+  const targetOrigUnits = targetNewUnits / 10 ** magnitude;
+
+  // TODO: return:
+  // - snapped value in original units
+  // - snapped value in new units
+  // - new units, or unit prefix/exponent (with respect to meters)
+
+  return [targetOrigUnits, targetNewUnits];
+}
+
 function getPosition(boundingBox, position, length) {
   const viewLength = boundingBox[2][0] - boundingBox[0][0];
   switch (position) {
@@ -78,24 +106,6 @@ const defaultProps = {
  * @property {number=} length Value from 0 to 1 representing the portion of the view to be used for the length part of the scale bar.
  */
 
-function snapValue(value) {
-  const targets = [5, 10, 20, 25, 50, 100, 200, 250, 500];
-  const minTarget = targets[0];
-  const maxTarget = targets[targets.length - 1];
-  
-  if(value < minTarget) {
-    // TODO: Change units
-    return minTarget;
-  } else if(value > maxTarget) {
-    // TODO: Change units
-    return maxTarget;
-  }
-
-  const target = targets.find(t => t > value);
-
-  return target;
-}
-
 /**
  * @type {{ new(...props: LayerProps[]) }}
  * @ignore
@@ -115,9 +125,9 @@ const ScaleBarLayer = class extends deck.CompositeLayer {
     );
     const numUnits = barLength * size;
     // TODO: account for different units returned by snapValue
-    const snappedNumUnits = snapValue(numUnits);
+    const [snappedOrigUnits, snappedNewUnits] = snapValue(numUnits);
     // Get snapped value in original units and new units.
-    const adjustedBarLength = (numUnits * (snappedNumUnits / numUnits)) / size;
+    const adjustedBarLength = (numUnits * (snappedOrigUnits / numUnits)) / size;
 
 
     const [yCoord, xRightCoordPartial] = getPosition(boundingBox, position, length);
@@ -169,7 +179,7 @@ const ScaleBarLayer = class extends deck.CompositeLayer {
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       data: [
         {
-          text: snappedNumUnits + unit,
+          text: snappedOrigUnits + unit,
           position: [xRightCoord - adjustedBarLength * 0.5, yCoord + barHeight * 4]
         }
       ],
