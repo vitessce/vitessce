@@ -26,21 +26,21 @@ function snapValue(value) {
   const targets = [1, 5, 10, 20, 25, 50, 100, 200, 250, 500];
   const minTarget = targets[0];
   const maxTarget = targets[targets.length - 1];
-  
+
   let magnitude = 0;
 
-  if(value < minTarget) {
+  if (value < minTarget) {
     // Change units
     magnitude = Math.ceil(Math.log10(minTarget / value));
-  } else if(value > maxTarget) {
+  } else if (value > maxTarget) {
     // Change units
     magnitude = -1 * Math.ceil(Math.log10(value / maxTarget));
   }
 
-  const adjustedValue = value * 10 ** magnitude;
+  const adjustedValue = value * (10 ** magnitude);
 
   const targetNewUnits = targets.find(t => t > adjustedValue);
-  const targetOrigUnits = targetNewUnits / 10 ** magnitude;
+  const targetOrigUnits = targetNewUnits / (10 ** magnitude);
 
   // TODO: return:
   // - snapped value in original units
@@ -54,8 +54,7 @@ function getPosition(boundingBox, position, length) {
   const viewLength = boundingBox[2][0] - boundingBox[0][0];
   switch (position) {
     case 'bottom-right': {
-      const yCoord =
-        boundingBox[2][1] - (boundingBox[2][1] - boundingBox[0][1]) * length;
+      const yCoord = boundingBox[2][1] - (boundingBox[2][1] - boundingBox[0][1]) * length;
       const xLeftCoord = boundingBox[2][0] - viewLength * length;
       return [yCoord, xLeftCoord];
     }
@@ -70,8 +69,7 @@ function getPosition(boundingBox, position, length) {
       return [yCoord, xLeftCoord];
     }
     case 'bottom-left': {
-      const yCoord =
-        boundingBox[2][1] - (boundingBox[2][1] - boundingBox[0][1]) * length;
+      const yCoord = boundingBox[2][1] - (boundingBox[2][1] - boundingBox[0][1]) * length;
       const xLeftCoord = viewLength * length;
       return [yCoord, xLeftCoord];
     }
@@ -86,23 +84,25 @@ const defaultProps = {
   viewState: {
     type: 'object',
     value: { zoom: 0, target: [0, 0, 0] },
-    compare: true
+    compare: true,
   },
   unit: { type: 'string', value: '', compare: true },
   size: { type: 'number', value: 1, compare: true },
   position: { type: 'string', value: 'bottom-right', compare: true },
-  length: { type: 'number', value: 0.085, compare: true }
+  length: { type: 'number', value: 0.085, compare: true },
 };
 /**
  * @typedef LayerProps
  * @type {Object}
  * @property {String} unit Physical unit size per pixel at full resolution.
  * @property {Number} size Physical size of a pixel.
- * @property {Object} viewState The current viewState for the desired view.  We cannot internally use this.context.viewport because it is one frame behind:
+ * @property {Object} viewState The current viewState for the desired view.
+ * We cannot internally use this.context.viewport because it is one frame behind:
  * https://github.com/visgl/deck.gl/issues/4504
  * @property {Array=} boundingBox Boudning box of the view in which this should render.
  * @property {string=} id Id from the parent layer.
- * @property {number=} length Value from 0 to 1 representing the portion of the view to be used for the length part of the scale bar.
+ * @property {number=} length Value from 0 to 1 representing the portion of the view to
+ * be used for the length part of the scale bar.
  */
 
 /**
@@ -120,10 +120,11 @@ const ScaleBarLayer = class extends deck.CompositeLayer {
     // and/or the text squishing up into the bar.
     const barHeight = Math.max(
       2 ** (-zoom + 1.5),
-      (boundingBox[2][1] - boundingBox[0][1]) * 0.007
+      (boundingBox[2][1] - boundingBox[0][1]) * 0.007,
     );
     const numUnits = barLength * size;
     // TODO: account for different units returned by snapValue
+    // eslint-disable-next-line no-unused-vars
     const [snappedOrigUnits, snappedNewUnits] = snapValue(numUnits);
     // Get snapped value in original units and new units.
     const adjustedBarLength = (numUnits * (snappedOrigUnits / numUnits)) / size;
@@ -137,13 +138,13 @@ const ScaleBarLayer = class extends deck.CompositeLayer {
       data: [
         [
           [xRightCoord - adjustedBarLength, yCoord],
-          [xRightCoord, yCoord]
-        ]
+          [xRightCoord, yCoord],
+        ],
       ],
       getSourcePosition: d => d[0],
       getTargetPosition: d => d[1],
       getWidth: 2,
-      getColor: [220, 220, 220]
+      getColor: [220, 220, 220],
     });
     const tickBoundsLeft = new deck.LineLayer({
       id: `scale-bar-height-left-${id}`,
@@ -151,13 +152,13 @@ const ScaleBarLayer = class extends deck.CompositeLayer {
       data: [
         [
           [xRightCoord - adjustedBarLength, yCoord - barHeight],
-          [xRightCoord - adjustedBarLength, yCoord + barHeight]
-        ]
+          [xRightCoord - adjustedBarLength, yCoord + barHeight],
+        ],
       ],
       getSourcePosition: d => d[0],
       getTargetPosition: d => d[1],
       getWidth: 2,
-      getColor: [220, 220, 220]
+      getColor: [220, 220, 220],
     });
     const tickBoundsRight = new deck.LineLayer({
       id: `scale-bar-height-right-${id}`,
@@ -165,13 +166,13 @@ const ScaleBarLayer = class extends deck.CompositeLayer {
       data: [
         [
           [xRightCoord, yCoord - barHeight],
-          [xRightCoord, yCoord + barHeight]
-        ]
+          [xRightCoord, yCoord + barHeight],
+        ],
       ],
       getSourcePosition: d => d[0],
       getTargetPosition: d => d[1],
       getWidth: 2,
-      getColor: [220, 220, 220]
+      getColor: [220, 220, 220],
     });
     const textLayer = new deck.TextLayer({
       id: `units-label-layer-${id}`,
@@ -179,8 +180,8 @@ const ScaleBarLayer = class extends deck.CompositeLayer {
       data: [
         {
           text: snappedOrigUnits + unit,
-          position: [xRightCoord - adjustedBarLength * 0.5, yCoord + barHeight * 4]
-        }
+          position: [xRightCoord - barLength * 0.5, yCoord + barHeight * 4],
+        },
       ],
       getColor: [220, 220, 220, 255],
       getSize: 12,
@@ -192,8 +193,8 @@ const ScaleBarLayer = class extends deck.CompositeLayer {
         ...range(10).map(i => String(i)),
         '.',
         'e',
-        '+'
-      ]
+        '+',
+      ],
     });
     return [lengthBar, tickBoundsLeft, tickBoundsRight, textLayer];
   }
