@@ -716,13 +716,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   resizeScaleBar() {
-    if (this.state.scaleBarSizeFactor > 1.5) {
+    if (this.state.scaleBarSizeFactor > 2) {
       return;
     }
     this.setState({ scaleBarSizeFactor: this.state.scaleBarSizeFactor + 0.1 }, () => {
-      // setTimeout(() => {
-      //   this.setState({ scaleBarSizeFactor: this.state.scaleBarSizeFactor - 0.1 });
-      // }, 40);
+      setTimeout(() => {
+        this.setState({ scaleBarSizeFactor: this.state.scaleBarSizeFactor - 0.1 });
+      }, 40);
     });
   }
 

@@ -63,6 +63,20 @@ const defaultProps = {
   position: { type: 'string', value: 'bottom-right', compare: true },
   length: { type: 'number', value: 0.085, compare: true },
 };
+
+
+const snapToRound = (value) => {
+  const snapSeq = [5, 10, 20, 25, 50, 100, 200, 250, 500];
+  if (value <= 5) {
+    return 5;
+  }
+  if (value >= 500) {
+    return 500;
+  }
+  const snapped = snapSeq.filter((sq) => sq >= value);
+  return snapped[0];
+}
+
 /**
  * @typedef LayerProps
  * @type {Object}
@@ -87,18 +101,6 @@ const ScaleBarLayer = class extends CompositeLayer {
     const viewLength = boundingBox[2][0] - boundingBox[0][0];
     const barLength = viewLength * 0.05;
 
-    const snapToRound = (value) => {
-      const snapSeq = [5, 10, 20, 25, 50, 100, 200, 250, 500];
-      if (value <= 5) {
-        return 5;
-      }
-      if (value >= 500) {
-        return 500;
-      }
-      const snapped = snapSeq.filter((sq) => sq >= value);
-      return snapped[0];
-    }
-
     const numUnits = barLength * size;
     const numUnitsRounded = snapToRound(numUnits);
 
@@ -109,17 +111,9 @@ const ScaleBarLayer = class extends CompositeLayer {
       (boundingBox[2][1] - boundingBox[0][1]) * 0.007,
     );
 
-    const adjustment = (barLength + numUnitsRounded) * scaleFactor;
+    const adjustment = barLength * scaleFactor;
 
     const [yCoord, xLeftCoord] = getPosition(boundingBox, position, length);
-
-    // Project the start and end coordinates to screen space
-    const screenStart = this.project([xLeftCoord - adjustment, yCoord]);
-    const screenEnd = this.project([xLeftCoord + barLength, yCoord]);
-
-    console.log("**** Trying to project start: ", screenStart, xLeftCoord - adjustment);
-    console.log("**** Trying to project end: ", screenEnd, xLeftCoord + barLength);
-    console.log("numUnitsRounded: ", numUnitsRounded, adjustment);
 
     const lengthBar = new LineLayer({
       id: `scale-bar-length-${id}`,

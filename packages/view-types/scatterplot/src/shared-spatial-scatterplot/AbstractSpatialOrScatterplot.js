@@ -41,7 +41,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       setViewState, viewState, layers, spatialAxisFixed,
     } = this.props;
     const use3d = layers?.some(l => l.use3d);
-    this.resizeScaleBar();
+    if (viewState.zoom !== nextViewState.zoom) {
+      this.resizeScaleBar();
+    }
     setViewState({
       ...nextViewState,
       // If the axis is fixed, just use the current target in state i.e don't change target.
