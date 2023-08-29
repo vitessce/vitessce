@@ -7,7 +7,6 @@ export {
   RENDERING_MODES,
   MAX_CHANNELS,
   getDefaultInitialViewState,
-  ScaleBarLayer,
   MultiscaleImageLayer,
   AdditiveColormapExtension,
   ColorPaletteExtension,
@@ -15,6 +14,8 @@ export {
   VolumeLayer,
   AdditiveColormap3DExtensions,
   ColorPalette3DExtensions,
+  // TODO: merge ScaleBarLayer changes back into Viv
+  // ScaleBarLayer,
   // TODO: deprecated
   DTYPE_VALUES,
 } from '@hms-dbmi/viv';
