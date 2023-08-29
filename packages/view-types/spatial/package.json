@@ -44,9 +44,7 @@
     "lodash-es": "^4.17.21",
     "math.gl": "^3.5.6",
     "mathjs": "^9.2.0",
-    "short-number": "^1.0.6",
-    "@deck.gl/core": "~8.8.6",
-    "@deck.gl/layers": "~8.8.6"
+    "short-number": "^1.0.6"
   },
   "devDependencies": {
     "react": "^18.0.0",
