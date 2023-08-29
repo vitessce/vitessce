@@ -134,11 +134,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       width: 2048,
     };
 
-    this.state = {
-      ...this.state,
-      scaleBarSizeFactor: 0,
-    };
-
     // Initialize data and layers.
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();
@@ -353,7 +348,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
           unit,
           size,
           viewState: { ...viewState, width, height },
-          scaleFactor: this.state.scaleBarSizeFactor,
         });
       }
       return null;
@@ -713,17 +707,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (Array.isArray(originalViewState?.target) && typeof originalViewState?.zoom === 'number') {
       setViewState(originalViewState);
     }
-  }
-
-  resizeScaleBar() {
-    if (this.state.scaleBarSizeFactor > 2) {
-      return;
-    }
-    this.setState({ scaleBarSizeFactor: this.state.scaleBarSizeFactor + 0.1 }, () => {
-      setTimeout(() => {
-        this.setState({ scaleBarSizeFactor: this.state.scaleBarSizeFactor - 0.1 });
-      }, 40);
-    });
   }
 
   /**
