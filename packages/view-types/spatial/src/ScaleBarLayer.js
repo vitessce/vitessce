@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { deck } from '@vitessce/gl';
 
 const DEFAULT_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
