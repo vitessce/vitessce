@@ -197,10 +197,14 @@ export function SpatialSubscriber(props) {
     { spatialSegmentationLayer: cellsLayer },
     { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
   );
+  // In the case of obsSegmentations.raster.json files that have been
+  // auto-upgraded from raster.json in older config versions,
+  // it is possible to have an obsSegmentations file type in the dataset,
+  // but one that returns `null` if all of the raster layers end up being
+  // images rather than segmentation bitmasks.
   const hasSegmentationsData = hasSegmentationsLoader && !(
     obsSegmentationsStatus === STATUS.SUCCESS
-    && obsSegmentations
-    && obsSegmentationsType
+    && !(obsSegmentations || obsSegmentationsType)
   );
   const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
     loaders, dataset, false,
