@@ -198,7 +198,9 @@ export function SpatialSubscriber(props) {
     { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
   );
   const hasSegmentationsData = hasSegmentationsLoader && !(
-    obsSegmentationsStatus === STATUS.SUCCESS && obsSegmentations === undefined
+    obsSegmentationsStatus === STATUS.SUCCESS
+    && obsSegmentations
+    && obsSegmentationsType
   );
   const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
     loaders, dataset, false,
