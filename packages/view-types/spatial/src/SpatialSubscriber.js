@@ -27,7 +27,7 @@ import {
 import { setObsSelection, mergeObsSets, colorArrayToString } from '@vitessce/sets-utils';
 import { canLoadResolution, getCellColors } from '@vitessce/utils';
 import { Legend } from '@vitessce/legend';
-import { COMPONENT_COORDINATION_TYPES, ViewType, DataType } from '@vitessce/constants-internal';
+import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS } from '@vitessce/constants-internal';
 import { Typography } from '@material-ui/core';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
@@ -152,7 +152,7 @@ export function SpatialSubscriber(props) {
     { obsType, featureType, featureValueType },
     // TODO: get per-spatialLayerType expression data once #1240 is merged.
   );
-  const hasSegmentationsData = useHasLoader(
+  const hasSegmentationsLoader = useHasLoader(
     loaders, dataset, DataType.OBS_SEGMENTATIONS,
     { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
   );
@@ -196,6 +196,9 @@ export function SpatialSubscriber(props) {
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
     { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
+  );
+  const hasSegmentationsData = hasSegmentationsLoader && !(
+    obsSegmentationsStatus === STATUS.SUCCESS && obsSegmentations === undefined
   );
   const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
     loaders, dataset, false,
