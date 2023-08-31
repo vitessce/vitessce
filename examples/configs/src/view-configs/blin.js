@@ -21,6 +21,9 @@ export const blin2019 = {
   layout: [
     {
       component: 'spatial',
+      props: {
+        channelNamesVisible: true,
+      },
       x: 0,
       y: 0,
       w: 8,

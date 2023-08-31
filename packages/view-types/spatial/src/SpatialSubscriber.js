@@ -507,16 +507,28 @@ export function SpatialSubscriber(props) {
     let names = [];
     let colors = [];
 
-    if (imageLayers) {
-      names = imageLayers.map(layer => imageLayerLoaders?.[layer.index])[0]?.channels;
-      colors = imageLayers[0]?.channels.map(layer => layer.color);
+    if (
+      imageLayers && imageLayers.length > 0
+      && imageLayerLoaders && imageLayerLoaders.length > 0
+    ) {
+      const firstImageLayer = imageLayers[0];
+      const firstImageLayerLoader = imageLayerLoaders?.[firstImageLayer?.index];
+      if (
+        firstImageLayer && !firstImageLayer.colormap && firstImageLayer.channels
+        && firstImageLayerLoader
+      ) {
+        const allChannels = firstImageLayerLoader.channels;
+        // Bioformats-Zarr uses selection.channel but OME-TIFF and OME-Zarr use selection.c
+        names = firstImageLayer.channels
+          .map(c => allChannels[
+            c.selection.channel === undefined ? c.selection.c : c.selection.channel
+          ]);
+        colors = firstImageLayer
+          .channels.map(c => c.color);
+      }
     }
 
-    // in cases where there are more names than colors,
-    // we cut the number of names to match the number of available colors
-    const desiredSize = Math.min(names.length, colors.length);
-
-    return [names.slice(0, desiredSize), colors.slice(0, desiredSize)];
+    return [names, colors];
   }, [imageLayers, imageLayerLoaders]);
 
   return (
@@ -540,7 +552,7 @@ export function SpatialSubscriber(props) {
         {channelNamesVisible && channelNames ? channelNames.map((name, i) => (
           <Typography
             variant="h6"
-            key={name}
+            key={`${name}-${colorArrayToString(channelColors[i])}`}
             style={{
               color: colorArrayToString(channelColors[i]),
               fontSize: '14px',
