@@ -15,10 +15,6 @@ import {
   formatBytes,
 } from '@vitessce/utils';
 import {
-  getBoundingCube,
-  getMultiSelectionStats,
-} from './utils.js';
-import {
   useSelectionSliderStyles,
   useSelectStyles,
   useChannelSliderStyles,
