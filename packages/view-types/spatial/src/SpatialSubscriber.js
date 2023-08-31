@@ -498,14 +498,22 @@ export function SpatialSubscriber(props) {
     let names = [];
     let colors = [];
 
-    if (imageLayers && imageLayers.length > 0 && imageLayerLoaders && imageLayerLoaders.length > 0) {
+    if (
+      imageLayers && imageLayers.length > 0
+      && imageLayerLoaders && imageLayerLoaders.length > 0
+    ) {
       const firstImageLayer = imageLayers[0];
       const firstImageLayerLoader = imageLayerLoaders?.[firstImageLayer?.index];
-      if(firstImageLayer && !firstImageLayer.colormap && firstImageLayer.channels && firstImageLayerLoader) {
+      if (
+        firstImageLayer && !firstImageLayer.colormap && firstImageLayer.channels
+        && firstImageLayerLoader
+      ) {
         const allChannels = firstImageLayerLoader.channels;
         // Bioformats-Zarr uses selection.channel but OME-TIFF and OME-Zarr use selection.c
         names = firstImageLayer.channels
-          .map(c => allChannels[c.selection.channel === undefined ? c.selection.c : c.selection.channel]);
+          .map(c => allChannels[
+            c.selection.channel === undefined ? c.selection.c : c.selection.channel
+          ]);
         colors = firstImageLayer
           .channels.map(c => c.color);
       }
