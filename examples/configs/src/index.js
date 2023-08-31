@@ -29,6 +29,7 @@ import { marshall2022iScience } from './view-configs/marshall_2022_iscience.js';
 import { meta2022azimuth } from './view-configs/meta_2022_azimuth.js';
 import { rgbOmeTiff } from './view-configs/rgb-ome-tiff.js';
 import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
+import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -69,6 +70,7 @@ export const configs = {
   // Keys which enable backwards compatibility with old links.
   'codeluppi-2018-via-json': codeluppi2018,
   'linnarsson-2018': codeluppi2018,
+  'visium-spatial-viewer': visiumSpatialViewer,
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
