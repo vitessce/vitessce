@@ -41,8 +41,6 @@ uniform sampler2D channel5;
 uniform sampler2D channel6;
 
 // Color texture
-// uniform float colorTexHeight;
-// uniform float colorTexWidth;
 uniform float hovered;
 
 // Channel-specific properties

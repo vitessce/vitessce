@@ -32,7 +32,9 @@ const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { ind
   ) || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
-const makeDefaultGetCellColorsFromIndices = (setColorObj, obsIndex, theme) => (object, { index }) => {
+const makeDefaultGetCellColorsFromIndices = (
+  setColorObj, obsIndex, theme,
+) => (object, { index }) => {
   // setColorIndices is a JS Map() from cell ID to color index.
   // setColors is an array of { path, color: [r, g, b] }.
   const { setColorIndices, setColors } = setColorObj || {};

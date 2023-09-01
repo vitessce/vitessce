@@ -164,19 +164,21 @@ export default class BitmaskLayer extends XRLayer {
       colorScaleLo,
       colorScaleHi,
       isExpressionMode,
-      cellTexHeight,
-      cellTexWidth,
       zoom,
       minZoom,
       maxZoom,
       zoomOffset, // TODO: figure out if this needs to be used or not
     } = this.props;
     const {
-      textures, model,
+      textures,
+      model,
       // Expression and set index (and colors) textures with offsets
-      valueTex, colorTex,
-      valueTexOffsets, colorTexOffsets,
-      valueTexHeight, colorTexHeight,
+      valueTex,
+      colorTex,
+      valueTexOffsets,
+      colorTexOffsets,
+      valueTexHeight,
+      colorTexHeight,
     } = this.state;
     // Render the image
     if (textures && model) {
@@ -191,11 +193,19 @@ export default class BitmaskLayer extends XRLayer {
             multiFeatureTexSize: MULTI_FEATURE_TEX_SIZE,
             // Expression textures with offsets
             valueTex,
-            valueTexOffsets: padWithDefault(valueTexOffsets, 0, MAX_CHANNELS - valueTexOffsets.length),
+            valueTexOffsets: padWithDefault(
+              valueTexOffsets,
+              0,
+              MAX_CHANNELS - valueTexOffsets.length,
+            ),
             valueTexHeight,
             // Set indices and colors textures with offsets
             colorTex,
-            colorTexOffsets: padWithDefault(colorTexOffsets, 0, MAX_CHANNELS - colorTexOffsets.length),
+            colorTexOffsets: padWithDefault(
+              colorTexOffsets,
+              0,
+              MAX_CHANNELS - colorTexOffsets.length,
+            ),
             colorTexHeight,
             // Visualization properties
             channelsFilled: padWithDefault(
@@ -241,8 +251,6 @@ export default class BitmaskLayer extends XRLayer {
               MAX_CHANNELS - channelIsSetColorMode.length,
             ),
             hovered: hoveredCell || 0,
-            colorTexHeight: cellTexHeight,
-            colorTexWidth: cellTexWidth,
             channelsVisible: padWithDefault(
               channelsVisible,
               false,
@@ -291,12 +299,12 @@ export default class BitmaskLayer extends XRLayer {
     let totalValuesLength = 0;
     let totalColorsLength = 0;
 
-    channelIsSetColorMode.forEach((isSetColorMode, i) => {
+    channelIsSetColorMode.forEach((isSetColorMode, channelIndex) => {
       if (isSetColorMode) {
-        totalValuesLength += setColorValues[i]?.obsIndex?.length || 0;
-        totalColorsLength += (setColorValues[i]?.setColors?.length || 0) * 3;
+        totalValuesLength += setColorValues[channelIndex]?.obsIndex?.length || 0;
+        totalColorsLength += (setColorValues[channelIndex]?.setColors?.length || 0) * 3;
       } else {
-        totalValuesLength += multiFeatureValues[i]?.length || 0;
+        totalValuesLength += multiFeatureValues[channelIndex]?.length || 0;
       }
     });
 
@@ -320,20 +328,22 @@ export default class BitmaskLayer extends XRLayer {
     let indexOffset = 0;
     let colorOffset = 0;
     // Iterate over the data for each channel.
-    channelIsSetColorMode.forEach((isSetColorMode, i) => {
+    channelIsSetColorMode.forEach((isSetColorMode, channelIndex) => {
       if (isSetColorMode) {
-        const { setColorIndices, setColors, obsIndex } = setColorValues[i] || {};
+        const { setColorIndices, setColors, obsIndex } = setColorValues[channelIndex] || {};
         if (setColorIndices && setColors && obsIndex) {
           for (let i = 0; i < obsIndex.length; i++) {
-            // TODO: should one be added here to account for background pixel value?
-            // TODO: should another one be added to account for "null" (i.e., a cell that does not belong to any selected set).
+            // We add one here to account for i being 0-based but the pixel values being 1-based
+            // (to account for zero indicating the background of the segmentation bitmask).
             const colorIndex = setColorIndices.get(String(i + 1));
+            // Add one to the color index, so that we can use zero to indicate a "null" set color.
             totalData[indexOffset + i] = colorIndex === undefined ? 0 : colorIndex + 1;
           }
           for (let i = 0; i < setColors.length; i++) {
-            totalColors[(colorOffset + i) * 3 + 0] = setColors[i].color[0];
-            totalColors[(colorOffset + i) * 3 + 1] = setColors[i].color[1];
-            totalColors[(colorOffset + i) * 3 + 2] = setColors[i].color[2];
+            const { color: [r, g, b] } = setColors[i];
+            totalColors[(colorOffset + i) * 3 + 0] = r;
+            totalColors[(colorOffset + i) * 3 + 1] = g;
+            totalColors[(colorOffset + i) * 3 + 2] = b;
           }
         }
         indicesOffsets.push(indexOffset);
@@ -341,7 +351,7 @@ export default class BitmaskLayer extends XRLayer {
         indexOffset += (obsIndex?.length || 0);
         colorOffset += (setColors?.length || 0);
       } else {
-        const featureArr = multiFeatureValues[i];
+        const featureArr = multiFeatureValues[channelIndex];
         // TODO: use normalized values
         totalData.set(normalize(featureArr), indexOffset);
         indicesOffsets.push(indexOffset);
