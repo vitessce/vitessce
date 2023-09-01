@@ -62,6 +62,12 @@ function generateVisiumConfig() {
     },
   });
 
+  const [
+    obsSetColorScope,
+    obsSetSelectionScope,
+    additionalObsSetsScope,
+  ] = config.addCoordination('obsSetColor', 'obsSetSelection', 'additionalObsSets');
+
   const scopes = config.addCoordinationByObject({
     spatialTargetZ: 0,
     spatialTargetT: 0,
@@ -90,6 +96,9 @@ function generateVisiumConfig() {
       spatialLayerColor: [255, 0, 0],
       obsColorEncoding: 'spatialLayerColor',
       obsHighlight: null,
+      obsSetColor: obsSetColorScope,
+      obsSetSelection: obsSetSelectionScope,
+      additionalObsSets: additionalObsSetsScope,
     }),
     segmentationLayer: CL([
       {
@@ -103,6 +112,9 @@ function generateVisiumConfig() {
             spatialChannelOpacity: 1.0,
             obsColorEncoding: 'spatialChannelColor',
             obsHighlight: null,
+            obsSetColor: obsSetColorScope,
+            obsSetSelection: obsSetSelectionScope,
+            additionalObsSets: additionalObsSetsScope,
           },
         ]),
       },
@@ -124,6 +136,8 @@ function generateVisiumConfig() {
   lcViewSimple.useMetaCoordination(metaCoordinationScope);
 
   config.linkViews([obsSets, featureList], ['obsType'], ['spot']);
+
+  obsSets.useCoordination(obsSetColorScope, obsSetSelectionScope, additionalObsSetsScope);
 
   config.layout(hconcat(spatialViewSimple, spatialView2, vconcat(lcViewSimple, obsSets, featureList)));
 

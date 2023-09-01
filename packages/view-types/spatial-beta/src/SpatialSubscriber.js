@@ -38,7 +38,6 @@ import {
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
 import { commaNumber } from '@vitessce/utils';
-import { mergeObsSets } from '@vitessce/sets-utils';
 import { MultiLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';

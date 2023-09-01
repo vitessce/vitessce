@@ -6,7 +6,11 @@ import {
 } from '@vitessce/gl';
 import { filterSelection } from '@vitessce/spatial-utils';
 import { getCellColors, getDefaultColor } from '@vitessce/utils';
-import { setObsSelection as setObsSelectionHelper, treeToCellSetColorIndicesBySetNames } from '@vitessce/sets-utils';
+import {
+  setObsSelection as setObsSelectionHelper,
+  treeToCellSetColorIndicesBySetNames,
+  mergeObsSets,
+} from '@vitessce/sets-utils';
 import { AbstractSpatialOrScatterplot, createQuadTree } from '@vitessce/scatterplot';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils.js';
@@ -911,20 +915,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
       theme,
     } = this.props;
     const { obsSets: layerSets, obsIndex: layerIndex } = obsSpotsSets?.[layerScope] || {};
-    // TODO: mergeObsSets
     if (layerSets && layerIndex) {
       const {
         obsSetColor,
         obsColorEncoding,
         obsSetSelection,
+        additionalObsSets,
       } = spotLayerCoordination[0][layerScope];
+      const mergedLayerSets = mergeObsSets(layerSets, additionalObsSets); // TODO: cacheing
       const prevSetColor = this.prevSpotSetColor[layerScope];
       const prevSetSelection = this.prevSpotSetSelection[layerScope];
       if (obsSetColor !== prevSetColor || obsSetSelection !== prevSetSelection) {
         // The set array reference changed, so update the color data.
         const obsColors = getCellColors({
           cellColorEncoding: obsColorEncoding,
-          cellSets: layerSets,
+          cellSets: mergedLayerSets,
           cellSetColor: obsSetColor,
           cellSetSelection: obsSetSelection,
           theme,
@@ -1046,29 +1051,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
     } = this.props;
     const { obsSets: layerSets, obsIndex: layerIndex } = obsSegmentationsSets
       ?.[layerScope]?.[channelScope] || {};
-    // TODO: mergeObsSets
     if (layerSets && layerIndex) {
       const {
         obsSetColor,
         obsColorEncoding,
         obsSetSelection,
+        additionalObsSets,
       } = segmentationChannelCoordination[0][layerScope][channelScope];
+      const mergedLayerSets = mergeObsSets(layerSets, additionalObsSets); // TODO: cacheing
       const prevSetColor = this.prevSegmentationSetColor?.[layerScope]?.[channelScope];
       const prevSetSelection = this.prevSegmentationSetSelection?.[layerScope]?.[channelScope];
       if (obsSetColor !== prevSetColor || obsSetSelection !== prevSetSelection) {
         // The set array reference changed, so update the color data.
-        /*
-        const obsColors = getCellColors({
-          cellColorEncoding: obsColorEncoding,
-          cellSets: layerSets,
-          cellSetColor: obsSetColor,
-          cellSetSelection: obsSetSelection,
-          theme,
-          obsIndex: layerIndex,
-        });
-        */
+        // To make the values optimized and able to be passed to the WebGL shader,
+        // we use the color indices array.
         const obsColorIndices = treeToCellSetColorIndicesBySetNames(
-          layerSets,
+          mergedLayerSets,
           obsSetSelection,
           obsSetColor,
         );
