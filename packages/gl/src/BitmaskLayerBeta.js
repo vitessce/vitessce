@@ -332,8 +332,8 @@ export default class BitmaskLayer extends XRLayer {
 
   multiSetsToTexture(data) {
     const isWebGL2On = isWebGL2(this.context.gl);
-    const totalIndicesLength = data.reduce((a, h) => a + h.setColorIndices.size, 0); // Throw error if too large
-    const totalColorLength = data.reduce((a, h) => a + h.setColors.length * 3, 0); // Throw error if too large
+    const totalIndicesLength = data.reduce((a, h) => a + (h?.setColorIndices?.size || 0), 0); // Throw error if too large
+    const totalColorLength = data.reduce((a, h) => a + (h?.setColors?.length || 0) * 3, 0); // Throw error if too large
     const texIndicesHeight = Math.max(2, Math.ceil(totalIndicesLength / MULTI_FEATURE_TEX_SIZE));
     const texColorHeight = Math.max(2, Math.ceil(totalColorLength / MULTI_FEATURE_TEX_SIZE));
     if (texIndicesHeight > MULTI_FEATURE_TEX_SIZE) {
@@ -350,21 +350,23 @@ export default class BitmaskLayer extends XRLayer {
     let colorOffset = 0;
     // Iterate over the data for each channel.
     data.forEach((dataObj) => {
-      const { setColorIndices, setColors } = dataObj;
-      for(let i = 0; i < setColorIndices.size; i ++) {
-        // TODO: should one be added here to account for background pixel value?
-        // TODO: should another one be added to account for "null" (i.e., a cell that does not belong to any selected set).
-        totalData[indexOffset + i] = setColorIndices.get(String(i+1));
-      }
-      for(let i = 0; i < setColors.length; i ++) {
-        totalColors[(colorOffset + i) * 3 + 0] = setColors[i].color[0];
-        totalColors[(colorOffset + i) * 3 + 1] = setColors[i].color[1];
-        totalColors[(colorOffset + i) * 3 + 2] = setColors[i].color[2];
+      const { setColorIndices, setColors } = dataObj || {};
+      if(setColorIndices && setColors) {
+        for(let i = 0; i < setColorIndices.size; i ++) {
+          // TODO: should one be added here to account for background pixel value?
+          // TODO: should another one be added to account for "null" (i.e., a cell that does not belong to any selected set).
+          totalData[indexOffset + i] = setColorIndices.get(String(i+1));
+        }
+        for(let i = 0; i < setColors.length; i ++) {
+          totalColors[(colorOffset + i) * 3 + 0] = setColors[i].color[0];
+          totalColors[(colorOffset + i) * 3 + 1] = setColors[i].color[1];
+          totalColors[(colorOffset + i) * 3 + 2] = setColors[i].color[2];
+        }
       }
       indicesOffsets.push(indexOffset);
       colorsOffsets.push(colorOffset);
-      indexOffset += setColorIndices.size;
-      colorOffset += setColors.length;
+      indexOffset += (setColorIndices?.size || 0);
+      colorOffset += (setColors?.length || 0);
     });
 
     return [
