@@ -1,4 +1,21 @@
 
+## 3.1.2
+
+### Patch Changes
+
+- Use pluralize instead of plur package for pluralization. Wrap in @vitessce/utils. (`@vitessce/utils`) ([#1638](https://github.com/vitessce/vitessce/pull/1638))
+
+- Fix bug causing crash of Vitessce upon gene selection when earlier configs with both raster.json and expression data are used with pseudo-segmentation diamonds in the spatial view. (`@vitessce/spatial`) ([#1669](https://github.com/vitessce/vitessce/pull/1669))
+
+- Display the image channel names in Spatial plot (`@vitessce/spatial`) ([#1647](https://github.com/vitessce/vitessce/pull/1647))
+
+- Implemented expand/collapse button for vitessce.io (`docs`) ([#1651](https://github.com/vitessce/vitessce/pull/1651))
+
+- Improved accessibility of React components (`@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/layer-controller`, `@vitessce/feature-list`, `@vitessce/scatterplot`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/tooltip`, `@vitessce/vit-s`) ([#1612](https://github.com/vitessce/vitessce/pull/1612))
+
+- Fix bug causing crash during image channel name/color mapping for text rendering. (`@vitessce/spatial`) ([#1670](https://github.com/vitessce/vitessce/pull/1670))
+
+
 ## 3.1.1
 
 ### Patch Changes
