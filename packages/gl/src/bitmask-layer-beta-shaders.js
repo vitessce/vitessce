@@ -142,23 +142,28 @@ vec4 dataToColor(vec3 sampledDataAndIsEdge, bool isStaticColorMode, vec3 channel
   vec2 setIndicesTexCoord = vec2(mod(offsetSampledData, multiFeatureTexSize) / multiFeatureTexSize, floor(offsetSampledData / multiFeatureTexSize) / (setIndicesTexHeight - 1.));
   float setColorIndex = texture(setIndicesTex, setIndicesTexCoord).r;
 
-  float setColorOffsetR = (setColorIndex + setColorOffset) * 3.0 + 0.0;
-  vec2 setColorTexCoordR = vec2(mod(setColorOffsetR, multiFeatureTexSize) / multiFeatureTexSize, floor(setColorOffsetR / multiFeatureTexSize) / (setColorTexHeight - 1.));
-  float setColorR = texture(setColorTex, setColorTexCoordR).r / 255.;
+  // Initialize to the default "null" color.
+  vec3 setColor = vec3(200. / 255., 200. / 255., 200. / 255.);
+  if(setColorIndex != 0.) {
+    // Subtract one from setColorIndex because we have already checked for the "null" value.
+    setColorIndex = setColorIndex - 1.;
 
-  float setColorOffsetG = (setColorIndex + setColorOffset) * 3.0 + 1.0;
-  vec2 setColorTexCoordG = vec2(mod(setColorOffsetG, multiFeatureTexSize) / multiFeatureTexSize, floor(setColorOffsetG / multiFeatureTexSize) / (setColorTexHeight - 1.));
-  float setColorG = texture(setColorTex, setColorTexCoordG).r / 255.;
+    float setColorOffsetR = (setColorIndex + setColorOffset) * 3.0 + 0.0;
+    vec2 setColorTexCoordR = vec2(mod(setColorOffsetR, multiFeatureTexSize) / multiFeatureTexSize, floor(setColorOffsetR / multiFeatureTexSize) / (setColorTexHeight - 1.));
+    float setColorR = texture(setColorTex, setColorTexCoordR).r / 255.;
 
-  float setColorOffsetB = (setColorIndex + setColorOffset) * 3.0 + 2.0;
-  vec2 setColorTexCoordB = vec2(mod(setColorOffsetB, multiFeatureTexSize) / multiFeatureTexSize, floor(setColorOffsetB / multiFeatureTexSize) / (setColorTexHeight - 1.));
-  float setColorB = texture(setColorTex, setColorTexCoordB).r / 255.;
+    float setColorOffsetG = (setColorIndex + setColorOffset) * 3.0 + 1.0;
+    vec2 setColorTexCoordG = vec2(mod(setColorOffsetG, multiFeatureTexSize) / multiFeatureTexSize, floor(setColorOffsetG / multiFeatureTexSize) / (setColorTexHeight - 1.));
+    float setColorG = texture(setColorTex, setColorTexCoordG).r / 255.;
 
-  vec3 setColor = vec3(setColorR, setColorG, setColorB);
+    float setColorOffsetB = (setColorIndex + setColorOffset) * 3.0 + 2.0;
+    vec2 setColorTexCoordB = vec2(mod(setColorOffsetB, multiFeatureTexSize) / multiFeatureTexSize, floor(setColorOffsetB / multiFeatureTexSize) / (setColorTexHeight - 1.));
+    float setColorB = texture(setColorTex, setColorTexCoordB).r / 255.;
+
+    setColor = vec3(setColorR, setColorG, setColorB);
+  }
+
   
-
-
-
   vec4 sampledColor = (1. - (float(isStaticColorMode) + float(isSetColorMode))) * vec4(COLORMAP_FUNC(clamp(scaledExpressionValue, 0.0, 1.0)).rgb, channelOpacity) + float(isStaticColorMode) * vec4(channelColor.rgb, channelOpacity) + float(isSetColorMode) * vec4(setColor, channelOpacity);
   // Only return a color if the data is non-zero.
   

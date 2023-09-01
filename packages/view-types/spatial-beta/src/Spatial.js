@@ -1059,7 +1059,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
           obsSetSelection,
           obsSetColor,
         );
-        console.log(obsColorIndices, obsSetColor);
         // Initialize layer-level objects if necessary.
         if (!this.segmentationColors[layerScope]) {
           this.segmentationColors[layerScope] = {};
@@ -1073,6 +1072,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         this.segmentationColors[layerScope][channelScope] = {
           setColorIndices: obsColorIndices, // The Map from cell ID to color index.
           setColors: obsSetColor, // The array with [{ path, color: [r, g, b] }, ...].
+          obsIndex: layerIndex, // TODO: how to ensure this obsIndex.length matches the number of cells? Would obsFeatureMatrix obsIndex be better (if it is available in the dataset)?
         };
         this.prevSegmentationSetColor[layerScope][channelScope] = obsSetColor;
         this.prevSegmentationSetSelection[layerScope][channelScope] = obsSetSelection;
