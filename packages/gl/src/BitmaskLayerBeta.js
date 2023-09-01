@@ -50,6 +50,7 @@ const defaultProps = {
   channelFeatureValueColormaps: { type: 'array', value: null, compare: true },
   channelFeatureValueColormapRanges: { type: 'array', value: null, compare: true },
   channelIsStaticColorMode: { type: 'array', value: null, compare: true },
+  channelIsSetColorMode: { type: 'array', value: null, compare: true },
 };
 
 /**
@@ -107,30 +108,27 @@ export default class BitmaskLayer extends XRLayer {
 
   updateState({ props, oldProps, changeFlags }) {
     super.updateState({ props, oldProps, changeFlags });
-    if (props.multiFeatureValues !== oldProps.multiFeatureValues) {
-      const { multiFeatureValues } = this.props;
+    if (
+      props.multiFeatureValues !== oldProps.multiFeatureValues
+      || props.setColorValues !== oldProps.setColorValues
+      || props.channelIsSetColorMode !== oldProps.channelIsSetColorMode
+    ) {
+      const { multiFeatureValues, setColorValues, channelIsSetColorMode } = this.props;
       // Use one expressionTex for all channels,
       // using an offset mechanism.
-      const [expressionTex, expressionTexOffsets, expressionTexHeight] = this.multiDataToTexture(
-        multiFeatureValues,
-      );
-      this.setState({ expressionTex, expressionTexOffsets, expressionTexHeight });
-    }
-    if (props.setColorValues !== oldProps.setColorValues) {
-      const { setColorValues } = this.props;
-      // Use one setColorIndexTex for all channels,
-      // using an offset mechanism.
       const [
-        setIndicesTex, setColorTex,
-        setIndicesOffsets, setColorOffsets,
-        setIndicesTexHeight, setColorTexHeight,
+        valueTex, colorTex,
+        valueTexOffsets, colorTexOffsets,
+        valueTexHeight, colorTexHeight,
       ] = this.multiSetsToTexture(
+        multiFeatureValues,
         setColorValues,
+        channelIsSetColorMode,
       );
       this.setState({
-        setIndicesTex, setColorTex,
-        setIndicesOffsets, setColorOffsets,
-        setIndicesTexHeight, setColorTexHeight,
+        valueTex, colorTex,
+        valueTexOffsets, colorTexOffsets,
+        valueTexHeight, colorTexHeight,
       });
     }
     if (props.colormap !== oldProps.colormap) {
@@ -172,12 +170,10 @@ export default class BitmaskLayer extends XRLayer {
     } = this.props;
     const {
       textures, model,
-      // Expression textures with offsets
-      expressionTex, expressionTexOffsets, expressionTexHeight,
-      // Set indices and colors textures with offsets
-      setIndicesTex, setColorTex,
-      setIndicesOffsets, setColorOffsets,
-      setIndicesTexHeight, setColorTexHeight,
+      // Expression and set index (and colors) textures with offsets
+      valueTex, colorTex,
+      valueTexOffsets, colorTexOffsets,
+      valueTexHeight, colorTexHeight,
     } = this.state;
     // Render the image
     if (textures && model) {
@@ -191,16 +187,13 @@ export default class BitmaskLayer extends XRLayer {
             ...textures,
             multiFeatureTexSize: MULTI_FEATURE_TEX_SIZE,
             // Expression textures with offsets
-            expressionTex,
-            expressionTexOffsets: padWithDefault(expressionTexOffsets, 0, MAX_CHANNELS - expressionTexOffsets.length),
-            expressionTexHeight,
+            valueTex,
+            valueTexOffsets: padWithDefault(valueTexOffsets, 0, MAX_CHANNELS - valueTexOffsets.length),
+            valueTexHeight,
             // Set indices and colors textures with offsets
-            setIndicesTex,
-            setColorTex,
-            setIndicesOffsets: padWithDefault(setIndicesOffsets, 0, MAX_CHANNELS - setIndicesOffsets.length),
-            setColorOffsets: padWithDefault(setColorOffsets, 0, MAX_CHANNELS - setColorOffsets.length),
-            setIndicesTexHeight,
-            setColorTexHeight,
+            colorTex,
+            colorTexOffsets: padWithDefault(colorTexOffsets, 0, MAX_CHANNELS - colorTexOffsets.length),
+            colorTexHeight,
             // Visualization properties
             channelsFilled: padWithDefault(
               channelsFilled,
@@ -289,92 +282,75 @@ export default class BitmaskLayer extends XRLayer {
     });
   }
 
-  multiDataToTexture(data) {
+  multiSetsToTexture(multiFeatureValues, setColorValues, channelIsSetColorMode) {
     const isWebGL2On = isWebGL2(this.context.gl);
-    const totalLength = data.reduce((a, h) => a + h.length, 0); // Throw error if too large
-    const texHeight = Math.max(2, Math.ceil(totalLength / MULTI_FEATURE_TEX_SIZE));
-    if (texHeight > MULTI_FEATURE_TEX_SIZE) {
+
+    let totalValuesLength = 0;
+    let totalColorsLength = 0;
+
+    channelIsSetColorMode.forEach((isSetColorMode, i) => {
+      if(isSetColorMode) {
+        totalValuesLength += setColorValues[i]?.obsIndex?.length || 0;
+        totalColorsLength += (setColorValues[i]?.setColors?.length || 0) * 3;
+      } else {
+        totalValuesLength += multiFeatureValues[i]?.length || 0;
+      }
+    });
+
+    const valueTexHeight = Math.max(2, Math.ceil(totalValuesLength / MULTI_FEATURE_TEX_SIZE));
+    const colorTexHeight = Math.max(2, Math.ceil(totalColorsLength / MULTI_FEATURE_TEX_SIZE));
+
+    if (valueTexHeight > MULTI_FEATURE_TEX_SIZE) {
       console.error('Error: length of concatenated quantitative feature values larger than maximum texture size');
     }
-    const totalData = new Uint8Array(MULTI_FEATURE_TEX_SIZE * texHeight);
-    const offsets = [];
-    let offset = 0;
-    data.forEach((featureArr) => {
-      // TODO: use normalized values
-      totalData.set(normalize(featureArr), offset);
-      offsets.push(offset);
-      offset += featureArr.length;
-    });
-    return [
-      new Texture2D(this.context.gl, {
-        width: MULTI_FEATURE_TEX_SIZE,
-        height: texHeight,
-        // Only use Float32 so we don't have to write two shaders
-        data: new Float32Array(totalData),
-        // we don't want or need mimaps
-        mipmaps: false,
-        parameters: {
-          // NEAREST for integer data
-          [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-          [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
-          // CLAMP_TO_EDGE to remove tile artifacts
-          [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-          [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
-        },
-        format: isWebGL2On ? GL.R32F : GL.LUMINANCE,
-        dataFormat: isWebGL2On ? GL.RED : GL.LUMINANCE,
-        type: GL.FLOAT,
-      }),
-      offsets,
-      texHeight,
-    ];
-  }
-
-  multiSetsToTexture(data) {
-    const isWebGL2On = isWebGL2(this.context.gl);
-    const totalIndicesLength = data.reduce((a, h) => a + (h?.obsIndex?.length || 0), 0); // Throw error if too large
-    const totalColorLength = data.reduce((a, h) => a + (h?.setColors?.length || 0) * 3, 0); // Throw error if too large
-    const texIndicesHeight = Math.max(2, Math.ceil(totalIndicesLength / MULTI_FEATURE_TEX_SIZE));
-    const texColorHeight = Math.max(2, Math.ceil(totalColorLength / MULTI_FEATURE_TEX_SIZE));
-    if (texIndicesHeight > MULTI_FEATURE_TEX_SIZE) {
+    if (colorTexHeight > MULTI_FEATURE_TEX_SIZE) {
       console.error('Error: length of concatenated quantitative feature values larger than maximum texture size');
     }
     // Array for texture containing color indices.
-    const totalData = new Uint8Array(MULTI_FEATURE_TEX_SIZE * texIndicesHeight);
+    const totalData = new Uint8Array(MULTI_FEATURE_TEX_SIZE * valueTexHeight);
     // Array for texture containing color RGB values.
-    const totalColors = new Uint8Array(MULTI_FEATURE_TEX_SIZE * texColorHeight);
+    const totalColors = new Uint8Array(MULTI_FEATURE_TEX_SIZE * colorTexHeight);
+
     // Per-channel offsets into the texture arrays.
     const indicesOffsets = [];
     const colorsOffsets = []; // Color offsets need to be multiplied by 3 in the shader.
     let indexOffset = 0;
     let colorOffset = 0;
     // Iterate over the data for each channel.
-    data.forEach((dataObj) => {
-      const { setColorIndices, setColors, obsIndex } = dataObj || {};
-      if(setColorIndices && setColors && obsIndex) {
-        for(let i = 0; i < obsIndex.length; i ++) {
-          // TODO: should one be added here to account for background pixel value?
-          // TODO: should another one be added to account for "null" (i.e., a cell that does not belong to any selected set).
-          const colorIndex = setColorIndices.get(String(i+1));
-          totalData[indexOffset + i] = colorIndex === undefined ? 0 : colorIndex + 1;
+    channelIsSetColorMode.forEach((isSetColorMode, i) => {
+      if(isSetColorMode) {
+        const { setColorIndices, setColors, obsIndex } = setColorValues[i] || {};
+        if(setColorIndices && setColors && obsIndex) {
+          for(let i = 0; i < obsIndex.length; i ++) {
+            // TODO: should one be added here to account for background pixel value?
+            // TODO: should another one be added to account for "null" (i.e., a cell that does not belong to any selected set).
+            const colorIndex = setColorIndices.get(String(i+1));
+            totalData[indexOffset + i] = colorIndex === undefined ? 0 : colorIndex + 1;
+          }
+          for(let i = 0; i < setColors.length; i ++) {
+            totalColors[(colorOffset + i) * 3 + 0] = setColors[i].color[0];
+            totalColors[(colorOffset + i) * 3 + 1] = setColors[i].color[1];
+            totalColors[(colorOffset + i) * 3 + 2] = setColors[i].color[2];
+          }
         }
-        for(let i = 0; i < setColors.length; i ++) {
-          totalColors[(colorOffset + i) * 3 + 0] = setColors[i].color[0];
-          totalColors[(colorOffset + i) * 3 + 1] = setColors[i].color[1];
-          totalColors[(colorOffset + i) * 3 + 2] = setColors[i].color[2];
-        }
+        indicesOffsets.push(indexOffset);
+        colorsOffsets.push(colorOffset);
+        indexOffset += (obsIndex?.length || 0);
+        colorOffset += (setColors?.length || 0);
+      } else {
+        const featureArr = multiFeatureValues[i];
+        // TODO: use normalized values
+        totalData.set(normalize(featureArr), indexOffset);
+        indicesOffsets.push(indexOffset);
+        indexOffset += featureArr.length;
       }
-      indicesOffsets.push(indexOffset);
-      colorsOffsets.push(colorOffset);
-      indexOffset += (obsIndex?.length || 0);
-      colorOffset += (setColors?.length || 0);
     });
 
     return [
       // Color indices texture
       new Texture2D(this.context.gl, {
         width: MULTI_FEATURE_TEX_SIZE,
-        height: texIndicesHeight,
+        height: valueTexHeight,
         // Only use Float32 so we don't have to write two shaders
         data: new Float32Array(totalData),
         // we don't want or need mimaps
@@ -394,7 +370,7 @@ export default class BitmaskLayer extends XRLayer {
       // Colors texture
       new Texture2D(this.context.gl, {
         width: MULTI_FEATURE_TEX_SIZE,
-        height: texColorHeight,
+        height: colorTexHeight,
         // Only use Float32 so we don't have to write two shaders
         data: new Float32Array(totalColors),
         // we don't want or need mimaps
@@ -415,8 +391,8 @@ export default class BitmaskLayer extends XRLayer {
       indicesOffsets,
       colorsOffsets,
       // Texture heights
-      texIndicesHeight,
-      texColorHeight,
+      valueTexHeight,
+      colorTexHeight,
     ];
   }
 }
