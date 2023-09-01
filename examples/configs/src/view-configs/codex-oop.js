@@ -2,6 +2,7 @@ import {
   VitessceConfig,
   CoordinationLevel as CL,
   hconcat,
+  vconcat,
 } from '@vitessce/config';
 
 // Reference: https://portal.hubmapconsortium.org/browse/dataset/8d86e6c899e80d0f5f95604eb4ad492e
@@ -40,9 +41,86 @@ function generateCodexConfig() {
     coordinationValues: {
       fileUid: 'reg001_mask',
     },
+  }).addFile({
+    fileType: "anndata.zarr",
+    options: {
+      /*
+      "obsEmbedding": [
+        {
+          "dims": [
+            0,
+            1
+          ],
+          "embeddingType": "t-SNE",
+          "path": "obsm/tsne"
+        }
+      ],
+      "obsFeatureMatrix": {
+        "path": "X"
+      },
+      "obsLocations": {
+        "path": "obsm/xy"
+      },
+      */
+      "obsSets": [
+        {
+          "name": "Cell K-Means",
+          "path": "obs/Cell K-Means [tSNE_All_Features]"
+        },
+        /*
+        {
+          "name": "Cell K-Means [Mean-All-SubRegions] Expression",
+          "path": "obs/Cell K-Means [Mean-All-SubRegions] Expression"
+        },
+        {
+          "name": "Cell K-Means [Mean] Expression",
+          "path": "obs/Cell K-Means [Mean] Expression"
+        },
+        {
+          "name": "Cell K-Means [Shape-Vectors]",
+          "path": "obs/Cell K-Means [Shape-Vectors]"
+        },
+        {
+          "name": "Cell K-Means [Texture]",
+          "path": "obs/Cell K-Means [Texture]"
+        },
+        {
+          "name": "Cell K-Means [Total] Expression",
+          "path": "obs/Cell K-Means [Total] Expression"
+        },
+        {
+          "name": "Cell K-Means [Covariance] Expression",
+          "path": "obs/Cell K-Means [Covariance] Expression"
+        }
+        */
+      ]
+    },
+    url: "https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/anndata-zarr/reg001_expr-anndata.zarr"
+  }).addFile({
+    fileType: "anndata.zarr",
+    options: {
+      "obsSets": [
+        {
+          "name": "Cell K-Means",
+          "path": "obs/Cell K-Means [tSNE_All_Features]"
+        },
+      ]
+    },
+    url: "https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/anndata-zarr/reg001_expr-anndata.zarr",
+    coordinationValues: {
+      obsType: 'nucleus'
+    }
   });
 
-  const imageScopes = config.addCoordinationByObject({
+  const spatialView = config.addView(dataset, 'spatialBeta');
+  const lcView = config.addView(dataset, 'layerControllerBeta');
+  const obsSetsView = config.addView(dataset, 'obsSets');
+
+  const [selectionScope, colorScope] = config.addCoordination('obsSetSelection', 'obsSetColor');
+
+  obsSetsView.useCoordination(selectionScope, colorScope);
+
+  config.linkViewsByObject([spatialView, lcView], {
     spatialTargetZ: 0,
     spatialTargetT: 0,
     imageLayer: CL([
@@ -88,6 +166,8 @@ function generateCodexConfig() {
             spatialSegmentationFilled: false,
             spatialSegmentationStrokeWidth: 0.01,
             obsHighlight: null,
+            obsSetSelection: selectionScope,
+            obsSetColor: colorScope,
           },
           {
             obsType: 'nucleus',
@@ -101,23 +181,15 @@ function generateCodexConfig() {
             spatialSegmentationFilled: true,
             spatialSegmentationStrokeWidth: 1,
             obsHighlight: null,
+            obsSetSelection: selectionScope,
+            obsSetColor: colorScope,
           },
         ]),
       },
     ]),
   });
 
-  const metaCoordinationScope = config.addMetaCoordination();
-  metaCoordinationScope.useCoordinationByObject(imageScopes);
-
-
-  const spatialViewSimple = config.addView(dataset, 'spatialBeta');
-  const lcViewSimple = config.addView(dataset, 'layerControllerBeta');
-
-  spatialViewSimple.useMetaCoordination(metaCoordinationScope);
-  lcViewSimple.useMetaCoordination(metaCoordinationScope);
-
-  config.layout(hconcat(spatialViewSimple, lcViewSimple));
+  config.layout(hconcat(spatialView, vconcat(lcView, obsSetsView)));
 
   const configJSON = config.toJSON();
   return configJSON;

@@ -6,7 +6,7 @@ import {
 } from '@vitessce/gl';
 import { filterSelection } from '@vitessce/spatial-utils';
 import { getCellColors, getDefaultColor } from '@vitessce/utils';
-import { setObsSelection as setObsSelectionHelper } from '@vitessce/sets-utils';
+import { setObsSelection as setObsSelectionHelper, treeToCellSetColorIndicesBySetNames } from '@vitessce/sets-utils';
 import { AbstractSpatialOrScatterplot, createQuadTree } from '@vitessce/scatterplot';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils.js';
@@ -220,7 +220,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ? spatialChannelColor
       : getDefaultColor(theme);
 
-    const getCellColor = makeDefaultGetCellColors(layerColors, obsIndex, theme);
+    const getCellColor = makeDefaultGetCellColors(layerColors, obsIndex, theme); // TODO: update now that layerColors is an object with indices and the setColor array.
     const getPolygon = (object, { index, data }) => data.src.obsSegmentations.data[index];
 
     return new deck.PolygonLayer({
@@ -601,9 +601,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
         .map(cScope => (
           channelCoordination[cScope][CoordinationType.OBS_COLOR_ENCODING] === 'spatialChannelColor'
         )),
+      channelIsSetColorMode: channelScopes
+        .map(cScope => (
+          channelCoordination[cScope][CoordinationType.OBS_COLOR_ENCODING] === 'cellSetSelection'
+        )),
       modelMatrix: layerDefModelMatrix,
       // hoveredCell: Number(this.props.cellHighlight),
       multiFeatureValues: channelScopes.map(cScope => (layerFeatureValues?.[cScope]?.[0] || [])),
+      setColorValues: channelScopes.map(cScope => (this.segmentationColors?.[layerScope]?.[cScope] || [])),
       renderSubLayers: renderSubBitmaskLayers,
       loader: data,
       selections,
@@ -1039,6 +1044,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       const prevSetSelection = this.prevSegmentationSetSelection?.[layerScope]?.[channelScope];
       if (obsSetColor !== prevSetColor || obsSetSelection !== prevSetSelection) {
         // The set array reference changed, so update the color data.
+        /*
         const obsColors = getCellColors({
           cellColorEncoding: obsColorEncoding,
           cellSets: layerSets,
@@ -1047,6 +1053,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
           theme,
           obsIndex: layerIndex,
         });
+        */
+        const obsColorIndices = treeToCellSetColorIndicesBySetNames(
+          layerSets,
+          obsSetSelection,
+          obsSetColor,
+        );
+        console.log(obsColorIndices, obsSetColor);
         // Initialize layer-level objects if necessary.
         if (!this.segmentationColors[layerScope]) {
           this.segmentationColors[layerScope] = {};
@@ -1057,7 +1070,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
         if (!this.prevSegmentationSetSelection[layerScope]) {
           this.prevSegmentationSetSelection[layerScope] = {};
         }
-        this.segmentationColors[layerScope][channelScope] = obsColors;
+        this.segmentationColors[layerScope][channelScope] = {
+          setColorIndices: obsColorIndices, // The Map from cell ID to color index.
+          setColors: obsSetColor, // The array with [{ path, color: [r, g, b] }, ...].
+        };
         this.prevSegmentationSetColor[layerScope][channelScope] = obsSetColor;
         this.prevSegmentationSetSelection[layerScope][channelScope] = obsSetSelection;
       }
