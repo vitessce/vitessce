@@ -117,9 +117,12 @@ export default class BitmaskLayer extends XRLayer {
       // Use one expressionTex for all channels,
       // using an offset mechanism.
       const [
-        valueTex, colorTex,
-        valueTexOffsets, colorTexOffsets,
-        valueTexHeight, colorTexHeight,
+        valueTex,
+        colorTex,
+        valueTexOffsets,
+        colorTexOffsets,
+        valueTexHeight,
+        colorTexHeight,
       ] = this.multiSetsToTexture(
         multiFeatureValues,
         setColorValues,
