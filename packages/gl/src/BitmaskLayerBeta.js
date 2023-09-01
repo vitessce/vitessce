@@ -126,9 +126,12 @@ export default class BitmaskLayer extends XRLayer {
         channelIsSetColorMode,
       );
       this.setState({
-        valueTex, colorTex,
-        valueTexOffsets, colorTexOffsets,
-        valueTexHeight, colorTexHeight,
+        valueTex,
+        colorTex,
+        valueTexOffsets,
+        colorTexOffsets,
+        valueTexHeight,
+        colorTexHeight,
       });
     }
     if (props.colormap !== oldProps.colormap) {
@@ -289,7 +292,7 @@ export default class BitmaskLayer extends XRLayer {
     let totalColorsLength = 0;
 
     channelIsSetColorMode.forEach((isSetColorMode, i) => {
-      if(isSetColorMode) {
+      if (isSetColorMode) {
         totalValuesLength += setColorValues[i]?.obsIndex?.length || 0;
         totalColorsLength += (setColorValues[i]?.setColors?.length || 0) * 3;
       } else {
@@ -318,16 +321,16 @@ export default class BitmaskLayer extends XRLayer {
     let colorOffset = 0;
     // Iterate over the data for each channel.
     channelIsSetColorMode.forEach((isSetColorMode, i) => {
-      if(isSetColorMode) {
+      if (isSetColorMode) {
         const { setColorIndices, setColors, obsIndex } = setColorValues[i] || {};
-        if(setColorIndices && setColors && obsIndex) {
-          for(let i = 0; i < obsIndex.length; i ++) {
+        if (setColorIndices && setColors && obsIndex) {
+          for (let i = 0; i < obsIndex.length; i++) {
             // TODO: should one be added here to account for background pixel value?
             // TODO: should another one be added to account for "null" (i.e., a cell that does not belong to any selected set).
-            const colorIndex = setColorIndices.get(String(i+1));
+            const colorIndex = setColorIndices.get(String(i + 1));
             totalData[indexOffset + i] = colorIndex === undefined ? 0 : colorIndex + 1;
           }
-          for(let i = 0; i < setColors.length; i ++) {
+          for (let i = 0; i < setColors.length; i++) {
             totalColors[(colorOffset + i) * 3 + 0] = setColors[i].color[0];
             totalColors[(colorOffset + i) * 3 + 1] = setColors[i].color[1];
             totalColors[(colorOffset + i) * 3 + 2] = setColors[i].color[2];

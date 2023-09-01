@@ -32,6 +32,15 @@ const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { ind
   ) || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
+const makeDefaultGetCellColorsFromIndices = (setColorObj, obsIndex, theme) => (object, { index }) => {
+  // setColorIndices is a JS Map() from cell ID to color index.
+  // setColors is an array of { path, color: [r, g, b] }.
+  const { setColorIndices, setColors } = setColorObj || {};
+  const [r, g, b, a] = (
+    setColorIndices && obsIndex && setColors?.[setColorIndices?.get(obsIndex[index])]?.color
+  ) || getDefaultColor(theme);
+  return [r, g, b, 255 * (a || 1)];
+};
 const makeDefaultGetCellIsSelected = (cellSelection) => {
   if (cellSelection) {
     // For performance, convert the Array to a Set instance.
@@ -220,7 +229,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ? spatialChannelColor
       : getDefaultColor(theme);
 
-    const getCellColor = makeDefaultGetCellColors(layerColors, obsIndex, theme); // TODO: update now that layerColors is an object with indices and the setColor array.
+    const getCellColor = makeDefaultGetCellColorsFromIndices(layerColors, obsIndex, theme);
     const getPolygon = (object, { index, data }) => data.src.obsSegmentations.data[index];
 
     return new deck.PolygonLayer({
@@ -607,8 +616,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
         )),
       modelMatrix: layerDefModelMatrix,
       // hoveredCell: Number(this.props.cellHighlight),
-      multiFeatureValues: channelScopes.map(cScope => (layerFeatureValues?.[cScope]?.[0] || [])),
-      setColorValues: channelScopes.map(cScope => (this.segmentationColors?.[layerScope]?.[cScope] || [])),
+      multiFeatureValues: channelScopes
+        .map(cScope => (layerFeatureValues?.[cScope]?.[0] || [])),
+      setColorValues: channelScopes
+        .map(cScope => (this.segmentationColors?.[layerScope]?.[cScope] || [])),
       renderSubLayers: renderSubBitmaskLayers,
       loader: data,
       selections,
@@ -1072,7 +1083,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         this.segmentationColors[layerScope][channelScope] = {
           setColorIndices: obsColorIndices, // The Map from cell ID to color index.
           setColors: obsSetColor, // The array with [{ path, color: [r, g, b] }, ...].
-          obsIndex: layerIndex, // TODO: how to ensure this obsIndex.length matches the number of cells? Would obsFeatureMatrix obsIndex be better (if it is available in the dataset)?
+          obsIndex: layerIndex, // TODO: how to ensure obsIndex.length matches the number of cells
         };
         this.prevSegmentationSetColor[layerScope][channelScope] = obsSetColor;
         this.prevSegmentationSetSelection[layerScope][channelScope] = obsSetSelection;

@@ -42,7 +42,7 @@ function generateCodexConfig() {
       fileUid: 'reg001_mask',
     },
   }).addFile({
-    fileType: "anndata.zarr",
+    fileType: 'anndata.zarr',
     options: {
       /*
       "obsEmbedding": [
@@ -62,10 +62,10 @@ function generateCodexConfig() {
         "path": "obsm/xy"
       },
       */
-      "obsSets": [
+      obsSets: [
         {
-          "name": "Cell K-Means",
-          "path": "obs/Cell K-Means [tSNE_All_Features]"
+          name: 'Cell K-Means',
+          path: 'obs/Cell K-Means [tSNE_All_Features]',
         },
         /*
         {
@@ -93,24 +93,25 @@ function generateCodexConfig() {
           "path": "obs/Cell K-Means [Covariance] Expression"
         }
         */
-      ]
+      ],
     },
-    url: "https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/anndata-zarr/reg001_expr-anndata.zarr"
-  }).addFile({
-    fileType: "anndata.zarr",
-    options: {
-      "obsSets": [
-        {
-          "name": "Cell K-Means",
-          "path": "obs/Cell K-Means [tSNE_All_Features]"
-        },
-      ]
-    },
-    url: "https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/anndata-zarr/reg001_expr-anndata.zarr",
-    coordinationValues: {
-      obsType: 'nucleus'
-    }
-  });
+    url: 'https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/anndata-zarr/reg001_expr-anndata.zarr',
+  })
+    .addFile({
+      fileType: 'anndata.zarr',
+      options: {
+        obsSets: [
+          {
+            name: 'Cell K-Means',
+            path: 'obs/Cell K-Means [tSNE_All_Features]',
+          },
+        ],
+      },
+      url: 'https://assets.hubmapconsortium.org/8d86e6c899e80d0f5f95604eb4ad492e/anndata-zarr/reg001_expr-anndata.zarr',
+      coordinationValues: {
+        obsType: 'nucleus',
+      },
+    });
 
   const spatialView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta');
