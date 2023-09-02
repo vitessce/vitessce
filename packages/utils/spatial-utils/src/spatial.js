@@ -421,8 +421,9 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
  * Normalize coordinate transformations to the OME-NGFF v0.4 format,
  * despite potentially being in the new format proposed in
  * https://github.com/ome/ngff/pull/138 (As of 2023-09-02).
- * @param {object[]|undefined} coordinateTransformations Value of multiscales[0].coordinateTransformations
- * in either OME-NGFF v0.4 format or that proposed in https://github.com/ome/ngff/pull/138.
+ * @param {object[]|undefined} coordinateTransformations Value of
+ * multiscales[0].coordinateTransformations in either OME-NGFF v0.4 format
+ * or that proposed in https://github.com/ome/ngff/pull/138.
  * @param {object[]} datasets Value of multiscales[0].datasets in OME-NGFF v0.4 format.
  * @returns {object[]} Array of coordinateTransformations in OME-NGFF v0.4 format.
  */
