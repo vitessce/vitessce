@@ -27,7 +27,7 @@ import {
 import { setObsSelection, mergeObsSets, colorArrayToString } from '@vitessce/sets-utils';
 import { canLoadResolution, getCellColors } from '@vitessce/utils';
 import { Legend } from '@vitessce/legend';
-import { COMPONENT_COORDINATION_TYPES, ViewType, DataType } from '@vitessce/constants-internal';
+import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS } from '@vitessce/constants-internal';
 import { Typography } from '@material-ui/core';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
@@ -152,7 +152,7 @@ export function SpatialSubscriber(props) {
     { obsType, featureType, featureValueType },
     // TODO: get per-spatialLayerType expression data once #1240 is merged.
   );
-  const hasSegmentationsData = useHasLoader(
+  const hasSegmentationsLoader = useHasLoader(
     loaders, dataset, DataType.OBS_SEGMENTATIONS,
     { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
   );
@@ -196,6 +196,15 @@ export function SpatialSubscriber(props) {
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
     { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
+  );
+  // In the case of obsSegmentations.raster.json files that have been
+  // auto-upgraded from raster.json in older config versions,
+  // it is possible to have an obsSegmentations file type in the dataset,
+  // but one that returns `null` if all of the raster layers end up being
+  // images rather than segmentation bitmasks.
+  const hasSegmentationsData = hasSegmentationsLoader && !(
+    obsSegmentationsStatus === STATUS.SUCCESS
+    && !(obsSegmentations || obsSegmentationsType)
   );
   const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
     loaders, dataset, false,
@@ -498,16 +507,28 @@ export function SpatialSubscriber(props) {
     let names = [];
     let colors = [];
 
-    if (imageLayers) {
-      names = imageLayers.map(layer => imageLayerLoaders?.[layer.index])[0]?.channels;
-      colors = imageLayers[0]?.channels.map(layer => layer.color);
+    if (
+      imageLayers && imageLayers.length > 0
+      && imageLayerLoaders && imageLayerLoaders.length > 0
+    ) {
+      const firstImageLayer = imageLayers[0];
+      const firstImageLayerLoader = imageLayerLoaders?.[firstImageLayer?.index];
+      if (
+        firstImageLayer && !firstImageLayer.colormap && firstImageLayer.channels
+        && firstImageLayerLoader
+      ) {
+        const allChannels = firstImageLayerLoader.channels;
+        // Bioformats-Zarr uses selection.channel but OME-TIFF and OME-Zarr use selection.c
+        names = firstImageLayer.channels
+          .map(c => allChannels[
+            c.selection.channel === undefined ? c.selection.c : c.selection.channel
+          ]);
+        colors = firstImageLayer
+          .channels.map(c => c.color);
+      }
     }
 
-    // in cases where there are more names than colors,
-    // we cut the number of names to match the number of available colors
-    const desiredSize = Math.min(names.length, colors.length);
-
-    return [names.slice(0, desiredSize), colors.slice(0, desiredSize)];
+    return [names, colors];
   }, [imageLayers, imageLayerLoaders]);
 
   return (
@@ -531,7 +552,7 @@ export function SpatialSubscriber(props) {
         {channelNamesVisible && channelNames ? channelNames.map((name, i) => (
           <Typography
             variant="h6"
-            key={name}
+            key={`${name}-${colorArrayToString(channelColors[i])}`}
             style={{
               color: colorArrayToString(channelColors[i]),
               fontSize: '14px',
