@@ -424,7 +424,7 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
   // Reference: https://ngff.openmicroscopy.org/0.4/index.html#trafo-md
   let result = [];
 
-  if(Array.isArray(coordinateTransformations)) {
+  if (Array.isArray(coordinateTransformations)) {
     result = coordinateTransformations.map((transform) => {
       if (transform.input && transform.output) {
         // This is a new-style coordinate transformation.
@@ -442,7 +442,7 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
             scale: transform.scale,
           };
         }
-        if(type === 'identity') {
+        if (type === 'identity') {
           return { type };
         }
         console.warn(`Coordinate transformation type "${type}" is not supported.`);
@@ -453,8 +453,10 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
   }
 
   if (Array.isArray(datasets?.[0]?.coordinateTransformations)) {
-    // "Datasets SHOULD define a transformation from array space to their "native physical space."
-    // This transformation SHOULD describe physical pixel spacing and origin only, and therefore SHOULD consist of
+    // "Datasets SHOULD define a transformation from array space
+    // to their "native physical space."
+    // This transformation SHOULD describe physical pixel spacing
+    // and origin only, and therefore SHOULD consist of
     // `scale` and/or `translation` types only.""
     // Reference: https://github.com/ome/ngff/blob/b92f540dc95440f2d6b7012185b09c2b862aa744/latest/transform-details.bs#L99
 

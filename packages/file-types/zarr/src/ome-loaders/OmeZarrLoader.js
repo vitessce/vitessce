@@ -110,17 +110,17 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       channelLabels = channels.map(c => c.label);
     } else {
       const { rdefs, channels } = omero;
-      if(typeof rdefs.defaultT === 'number') {
+      if (typeof rdefs.defaultT === 'number') {
         initialTargetT = rdefs.defaultT;
       }
-      if(typeof rdefs.defaultZ === 'number') {
+      if (typeof rdefs.defaultZ === 'number') {
         initialTargetZ = rdefs.defaultZ;
       }
       channelObjects = channels.map((channel, i) => ({
         selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: i }),
         slider: [channel.window.start, channel.window.end],
         color: hexToRgb(channel.color),
-      }))
+      }));
       channelLabels = channels.map(c => c.label);
     }
 

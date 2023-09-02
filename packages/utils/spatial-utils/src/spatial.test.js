@@ -51,47 +51,47 @@ describe('Spatial.js', () => {
     it('does nothing for OME-NGFF v0.4 input', () => {
       const datasets = [
         {
-          "coordinateTransformations": [
+          coordinateTransformations: [
             {
-              "scale": [
+              scale: [
                 1,
                 0.5002025531914894,
                 0.3603981534640209,
-                0.3603981534640209
+                0.3603981534640209,
               ],
-              "type": "scale"
-            }
+              type: 'scale',
+            },
           ],
-          "path": "0"
+          path: '0',
         },
         {
-          "coordinateTransformations": [
+          coordinateTransformations: [
             {
-              "scale": [
+              scale: [
                 1,
                 0.5002025531914894,
                 0.7207963069280418,
-                0.7207963069280418
+                0.7207963069280418,
               ],
-              "type": "scale"
-            }
+              type: 'scale',
+            },
           ],
-          "path": "1"
+          path: '1',
         },
         {
-          "coordinateTransformations": [
+          coordinateTransformations: [
             {
-              "scale": [
+              scale: [
                 1,
                 0.5002025531914894,
                 1.4415926138560835,
-                1.4415926138560835
+                1.4415926138560835,
               ],
-              "type": "scale"
-            }
+              type: 'scale',
+            },
           ],
-          "path": "2"
-        }
+          path: '2',
+        },
       ];
       expect(normalizeCoordinateTransformations(undefined, datasets)).toEqual([
         // Here, we expect only the first dataset to be used.
@@ -99,79 +99,79 @@ describe('Spatial.js', () => {
         // specified for each dataset individually,
         // since there could in theory be irregular ways of downsampling.
         {
-          "scale": [
+          scale: [
             1,
             0.5002025531914894,
             0.3603981534640209,
-            0.3603981534640209
+            0.3603981534640209,
           ],
-          "type": "scale"
+          type: 'scale',
         },
-      ])
+      ]);
     });
     it('transforms SpatialData input', () => {
       const newCoordinateTransformations = [
         {
-          "input": {
-              "axes": [
-                  {
-                      "name": "c",
-                      "type": "channel"
-                  },
-                  {
-                      "name": "y",
-                      "type": "space",
-                      "unit": "unit"
-                  },
-                  {
-                      "name": "x",
-                      "type": "space",
-                      "unit": "unit"
-                  }
-              ],
-              "name": "cyx"
+          input: {
+            axes: [
+              {
+                name: 'c',
+                type: 'channel',
+              },
+              {
+                name: 'y',
+                type: 'space',
+                unit: 'unit',
+              },
+              {
+                name: 'x',
+                type: 'space',
+                unit: 'unit',
+              },
+            ],
+            name: 'cyx',
           },
-          "output": {
-              "axes": [
-                  {
-                      "name": "c",
-                      "type": "channel"
-                  },
-                  {
-                      "name": "y",
-                      "type": "space",
-                      "unit": "unit"
-                  },
-                  {
-                      "name": "x",
-                      "type": "space",
-                      "unit": "unit"
-                  }
-              ],
-              "name": "ST8059048"
+          output: {
+            axes: [
+              {
+                name: 'c',
+                type: 'channel',
+              },
+              {
+                name: 'y',
+                type: 'space',
+                unit: 'unit',
+              },
+              {
+                name: 'x',
+                type: 'space',
+                unit: 'unit',
+              },
+            ],
+            name: 'ST8059048',
           },
-          "scale": [
-              1.0,
-              8.670500183814605,
-              8.670500183814605
+          scale: [
+            1.0,
+            8.670500183814605,
+            8.670500183814605,
           ],
-          "type": "scale"
-        }
+          type: 'scale',
+        },
       ];
       const datasets = [
         {
-          "coordinateTransformations": [
-              {
-                  "scale": [
-                      1.0,
-                      1.0,
-                      1.0
-                  ],
-                  "type": "scale"
-              }
+          coordinateTransformations: [
+            {
+              scale: [
+                1.0,
+                1.0,
+                1.0,
+              ],
+              type: 'scale',
+            },
           ],
-          "path": "0"
-      }
+          path: '0',
+        },
       ];
       expect(normalizeCoordinateTransformations(newCoordinateTransformations, datasets)).toEqual([
         // Here, we expect only the first dataset to be used.
@@ -179,26 +179,27 @@ describe('Spatial.js', () => {
         // specified for each dataset individually,
         // since there could in theory be irregular ways of downsampling.
         {
-          "scale": [
-              1.0,
-              1.0,
-              1.0
+          scale: [
+            1.0,
+            1.0,
+            1.0,
           ],
-          "type": "scale"
+          type: 'scale',
         },
-        // We expect the dataset transform to be prepended to the newCoordinateTransformations items.
+        // We expect the dataset transform to be prepended
+        // to the newCoordinateTransformations items.
         // We do not check the input/output coordinate systems, but we should eventually allow
         // the user to specify this somehow and use that information to filter which transforms
         // are included here.
         {
-          "scale": [
+          scale: [
             1.0,
             8.670500183814605,
-            8.670500183814605
+            8.670500183814605,
           ],
-          "type": "scale"
-        }
-      ])
+          type: 'scale',
+        },
+      ]);
     });
   });
 });

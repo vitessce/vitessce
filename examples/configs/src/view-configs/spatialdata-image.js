@@ -12,7 +12,7 @@ export const spatialDataImage = {
       files: [
         {
           fileType: 'image.ome-zarr',
-          url: 'http://localhost:8000/visium.zarr/images/ST8059048_image'
+          url: 'http://localhost:8000/visium.zarr/images/ST8059048_image',
           // The s3 bucket does not allow CORS access
           // url: 'https://s3.embl.de/spatialdata/developers_resources/storage_format/transformation_identity.zarr/images/blobs_image',
         },
