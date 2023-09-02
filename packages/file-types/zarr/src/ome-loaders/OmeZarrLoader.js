@@ -3,6 +3,7 @@ import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,
   getNgffAxes,
+  normalizeCoordinateTransformations,
 } from '@vitessce/spatial-utils';
 import {
   AbstractLoaderError,
@@ -45,16 +46,28 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       console.error('Multiscales array must exist and have at least one element');
     }
 
-    const { coordinateTransformations, name: imageName } = multiscales[0];
+    const {
+      datasets,
+      coordinateTransformations: coordinateTransformationsFromFile,
+      name: imageName,
+    } = multiscales[0];
 
     // Axes in v0.4 format.
     const axes = getNgffAxes(multiscales[0].axes);
+
+    // SpatialData uses the new coordinateTransformations spec.
+    // Reference: https://github.com/ome/ngff/pull/138
+
+    // This new spec is very flexible, so here we will attepmpt to convert it back to the old spec.
+    const normCoordinateTransformationsFromFile = normalizeCoordinateTransformations(
+      coordinateTransformationsFromFile, datasets,
+    );
 
     const transformMatrixFromOptions = coordinateTransformationsToMatrix(
       coordinateTransformationsFromOptions, axes,
     );
     const transformMatrixFromFile = coordinateTransformationsToMatrix(
-      coordinateTransformations, axes,
+      normCoordinateTransformationsFromFile, axes,
     );
 
     const transformMatrix = transformMatrixFromFile.multiplyLeft(transformMatrixFromOptions);
@@ -81,6 +94,13 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     let initialTargetT = 0;
     let initialTargetZ = 0;
     if (isSpatialData) {
+      // TODO: Consider removing support for `channels_metadata` once OME-NGFF loosens
+      // requirements for channel metadata fields such as `window` and `color`.
+      // (Unclear if we will need to keep this around for backwards compatibility with
+      // those SpatialData objects generated in the meantime though.)
+      // References:
+      // - https://github.com/ome/ngff/issues/192
+      // - https://github.com/ome/ome-zarr-py/pull/261
       const { channels } = spatialDataChannels;
       channelObjects = channels.map((channel, i) => ({
         selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: i }),
@@ -103,8 +123,6 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       }))
       channelLabels = channels.map(c => c.label);
     }
-
-
 
     const imagesWithLoaderCreators = [
       {
