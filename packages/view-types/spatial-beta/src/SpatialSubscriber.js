@@ -11,12 +11,12 @@ import {
   useObsSegmentationsData,
   useObsFeatureMatrixIndices,
   useObsLabelsData,
-  useMultiObsLabels,
   useMultiObsSpots,
   useMultiObsPoints,
   useSpotMultiObsSets,
   useMultiObsSegmentations,
   useMultiImages,
+  usePointMultiObsLabels,
   useSpotMultiFeatureSelection,
   useSpotMultiObsFeatureMatrixIndices,
   useSegmentationMultiFeatureSelection,
@@ -329,12 +329,12 @@ export function SpatialSubscriber(props) {
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
-  const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
-    coordinationScopes, obsType, loaders, dataset,
-  );
-
   // Points data
   const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useMultiObsPoints(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [pointMultiObsLabelsData, pointMultiObsLabelsDataStatus] = usePointMultiObsLabels(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -360,6 +360,7 @@ export function SpatialSubscriber(props) {
   const [spotMultiIndicesData, spotMultiIndicesDataStatus] = useSpotMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
+
 
   // Segmentations data
   const [obsSegmentationsLocationsData, obsSegmentationsLocationsDataStatus] = useSegmentationMultiObsLocations(
@@ -446,6 +447,7 @@ export function SpatialSubscriber(props) {
   */
 
   const isReadyToComputeInitialViewState = useReady([
+    obsPointsDataStatus,
     obsSpotsDataStatus,
     obsSegmentationsDataStatus,
     imageDataStatus,
@@ -459,6 +461,7 @@ export function SpatialSubscriber(props) {
     spotMultiIndicesDataStatus,
     // Points
     obsPointsDataStatus,
+    pointMultiObsLabelsDataStatus,
     // Segmentations
     obsSegmentationsDataStatus,
     obsSegmentationsSetsDataStatus,
@@ -545,13 +548,6 @@ export function SpatialSubscriber(props) {
   }, [obsLocationsLabels]);
   const moleculesCount = obsLocationsFeatureIndex?.length || 0;
   const locationsCount = obsLocationsIndex?.length || 0;
-
-  // TODO: refactor into Spatial.js
-  /*
-  const mergedCellSets = useMemo(() => mergeObsSets(
-    cellSets, additionalCellSets,
-  ), [cellSets, additionalCellSets]);
-  */
 
   const setViewState = ({
     zoom: newZoom,
@@ -758,6 +754,8 @@ export function SpatialSubscriber(props) {
         obsPoints={obsPointsData}
         pointLayerScopes={pointLayerScopes}
         pointLayerCoordination={pointLayerCoordination}
+
+        pointMultiObsLabels={pointMultiObsLabelsData}
 
         // Spots
         obsSpots={obsSpotsData}

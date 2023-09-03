@@ -337,7 +337,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(
     CoordinationType.OBS_COLOR_ENCODING,
     'cellSetSelection',
-    z.enum(['geneSelection', 'cellSetSelection', 'spatialChannelColor', 'spatialLayerColor']),
+    z.enum(['geneSelection', 'cellSetSelection', 'spatialChannelColor', 'spatialLayerColor', 'obsLabels']),
   ),
   new PluginCoordinationType(CoordinationType.FEATURE_FILTER, null, z.array(z.string()).nullable()),
   new PluginCoordinationType(CoordinationType.FEATURE_HIGHLIGHT, null, z.string().nullable()),

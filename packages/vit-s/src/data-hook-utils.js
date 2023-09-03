@@ -788,3 +788,13 @@ export function useObsSetsMultiLevel(
     depth, DataType.OBS_SETS,
   );
 }
+
+export function useObsLabelsMultiLevel(
+  loaders, dataset, isRequired, matchOnObj,
+  depth,
+) {
+  return useDataTypeMultiLevel(
+    loaders, dataset, isRequired, matchOnObj,
+    depth, DataType.OBS_LABELS,
+  );
+}

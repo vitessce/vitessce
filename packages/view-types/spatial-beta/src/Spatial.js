@@ -5,7 +5,7 @@ import {
   deck, viv, getSelectionLayer, ScaledExpressionExtension,
 } from '@vitessce/gl';
 import { filterSelection } from '@vitessce/spatial-utils';
-import { getCellColors, getDefaultColor } from '@vitessce/utils';
+import { PALETTE, getCellColors, getDefaultColor } from '@vitessce/utils';
 import {
   setObsSelection as setObsSelectionHelper,
   treeToCellSetColorIndicesBySetNames,
@@ -141,6 +141,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.obsSegmentationsLayers = [];
     this.obsSpotsLayers = [];
     this.obsPointsLayers = [];
+
+    this.obsPointsLabelsData = {}; // Keys: pointLayer scopes.
 
     this.spotToMatrixIndexMap = {}; // Keys: spotLayer scopes
     this.spotColors = {}; // Keys: spotLayer scopes
@@ -373,10 +375,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ? spatialLayerColor
       : getDefaultColor(theme);
 
-    const getMoleculeColor = (object, { data, index }) => ([255, 0, 0]);
-    // TODO: getMoleculeColor
-    //    const i = data.src.obsLabelsTypes.indexOf(data.src.obsLabels[index]);
-    //    return data.src.PALETTE[i % data.src.PALETTE.length];
+    const getMoleculeColor = (object, { data, index, target }) => {
+      const obsId = data.src.obsIndex[index];
+      if (data.src.obsLabelsMap && data.src.uniqueObsLabels) {
+        const obsLabel = data.src.obsLabelsMap.get(obsId);
+        const labelIndex = data.src.uniqueObsLabels.indexOf(obsLabel);
+
+        // eslint-disable-next-line no-param-reassign, prefer-destructuring
+        target[0] = data.src.PALETTE[labelIndex % data.src.PALETTE.length][0];
+        // eslint-disable-next-line no-param-reassign, prefer-destructuring
+        target[1] = data.src.PALETTE[labelIndex % data.src.PALETTE.length][1];
+        // eslint-disable-next-line no-param-reassign, prefer-destructuring
+        target[2] = data.src.PALETTE[labelIndex % data.src.PALETTE.length][2];
+      }
+      return target;
+    };
+
     return new deck.ScatterplotLayer({
       id: `${POINT_LAYER_PREFIX}${layerScope}`,
       data: this.obsPointsData[layerScope],
@@ -1252,17 +1266,28 @@ class Spatial extends AbstractSpatialOrScatterplot {
   onUpdatePointsData(layerScope) {
     const {
       obsPoints,
+      pointMultiObsLabels,
     } = this.props;
-    const { obsPoints: layerObsPoints } = obsPoints?.[layerScope] || {};
+    const { obsIndex, obsPoints: layerObsPoints } = obsPoints?.[layerScope] || {};
+    const { obsIndex: obsLabelsIndex, obsLabels } = pointMultiObsLabels?.[layerScope] || {};
     if (layerObsPoints) {
       const getCellCoords = makeDefaultGetObsCoords(layerObsPoints);
       this.obsPointsQuadTree[layerScope] = createQuadTree(layerObsPoints, getCellCoords);
       this.obsPointsData[layerScope] = {
         src: {
+          obsIndex,
           obsPoints: layerObsPoints,
         },
         length: layerObsPoints.shape[1],
       };
+
+      if (obsLabels) {
+        const obsLabelsMap = new Map(obsLabelsIndex.map((key, i) => ([key, obsLabels[i]])));
+        const uniqueObsLabels = [...new Set(obsLabels)];
+        this.obsPointsData[layerScope].src.obsLabelsMap = obsLabelsMap;
+        this.obsPointsData[layerScope].src.uniqueObsLabels = uniqueObsLabels;
+        this.obsPointsData[layerScope].src.PALETTE = PALETTE;
+      }
     }
   }
 
@@ -1547,6 +1572,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.props.pointLayerScopes.forEach((layerScope) => {
         if (
           shallowDiffByLayer('obsPoints', layerScope)
+          || shallowDiffByLayer('pointMultiObsLabels', layerScope)
         ) {
           this.onUpdatePointsData(layerScope);
           forceUpdate = true;
@@ -1559,6 +1585,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'obsPoints',
         'pointLayerScopes',
         'pointLayerCoordination',
+        'pointMultiObsLabels',
       ].some(shallowDiff)
     ) {
       this.onUpdatePointsLayer();

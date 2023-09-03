@@ -40,6 +40,7 @@ import { codexOop2023 } from './view-configs/codex-oop.js';
 import { lightsheetOop2023 } from './view-configs/lightsheet-oop.js';
 import { visiumSpotsOop2023 } from './view-configs/visium-spots-oop.js';
 import { visiumPolygonsOop2023 } from './view-configs/visium-polygons-oop.js';
+import { codeluppiOop2018 } from './view-configs/codeluppi-oop.js';
 
 
 export const coordinationTypeConfigs = {
@@ -89,6 +90,7 @@ export const configs = {
   'ome-ngff-v0.1': omeNgffLegacy,
   'rgb-ome-tiff': rgbOmeTiff,
   'segmentations-ome-tiff': segmentationsOmeTiff,
+  'codeluppi-2018-oop': codeluppiOop2018,
   // Keys which enable backwards compatibility with old links.
   'codeluppi-2018-via-json': codeluppi2018,
   'linnarsson-2018': codeluppi2018,

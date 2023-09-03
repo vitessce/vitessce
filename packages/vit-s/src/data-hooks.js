@@ -20,6 +20,7 @@ import {
   useFeatureSelectionMultiLevel,
   useObsLocationsMultiLevel,
   useObsSetsMultiLevel,
+  useObsLabelsMultiLevel,
 } from './data-hook-utils.js';
 
 /**
@@ -664,6 +665,29 @@ export function useSpotMultiObsFeatureMatrixIndices(
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
   const [indicesData, indicesDataStatus] = useObsFeatureMatrixIndicesMultiLevel(
+    loaders, dataset, false, matchOnObj, 1,
+  );
+  return [indicesData, indicesDataStatus];
+}
+
+export function usePointMultiObsLabels(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const obsLabelsCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.OBS_LABELS_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.POINT_LAYER,
+  );
+  const matchOnObj = useMemo(() => obsLabelsCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [indicesData, indicesDataStatus] = useObsLabelsMultiLevel(
     loaders, dataset, false, matchOnObj, 1,
   );
   return [indicesData, indicesDataStatus];
