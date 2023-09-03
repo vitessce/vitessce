@@ -74,8 +74,7 @@ function PointLayerEllipsisMenu(props) {
           classes={{ root: selectClasses.selectRoot }}
         >
           <option value="spatialLayerColor">Static Color</option>
-          <option value="geneSelection">Feature Value</option>
-          <option value="cellSetSelection">Set Selection</option>
+          <option value="obsLabels">Label Value</option>
         </Select>
       </MenuItem>
       <MenuItem dense disableGutters>

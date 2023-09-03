@@ -55,10 +55,14 @@ function generateVisiumConfig() {
           path: 'obs/clusters',
         },
       ],
+      obsLabels: {
+        path: 'obs/clusters',
+      },
     },
     coordinationValues: {
       fileUid: 'spot-segmentations',
       obsType: 'spot',
+      obsLabelsType: 'cluster',
     },
   });
 
@@ -87,6 +91,7 @@ function generateVisiumConfig() {
       spatialLayerColor: [0, 255, 0],
       obsColorEncoding: 'spatialLayerColor',
       obsHighlight: null,
+      obsLabelsType: 'cluster',
     }),
     spotLayer: CL({
       obsType: 'spot',
