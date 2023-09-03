@@ -360,7 +360,7 @@ export function SpatialSubscriber(props) {
   const [spotMultiIndicesData, spotMultiIndicesDataStatus] = useSpotMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
-  
+
 
   // Segmentations data
   const [obsSegmentationsLocationsData, obsSegmentationsLocationsDataStatus] = useSegmentationMultiObsLocations(

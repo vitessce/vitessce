@@ -376,16 +376,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
       : getDefaultColor(theme);
 
     const getMoleculeColor = (object, { data, index, target }) => {
-
       const obsId = data.src.obsIndex[index];
       const obsLabel = data.src.obsLabelsMap.get(obsId);
       const labelIndex = data.src.uniqueObsLabels.indexOf(obsLabel);
 
-      // eslint-disable-next-line no-param-reassign
+      // eslint-disable-next-line no-param-reassign, prefer-destructuring
       target[0] = data.src.PALETTE[labelIndex % data.src.PALETTE.length][0];
-      // eslint-disable-next-line no-param-reassign
+      // eslint-disable-next-line no-param-reassign, prefer-destructuring
       target[1] = data.src.PALETTE[labelIndex % data.src.PALETTE.length][1];
-      // eslint-disable-next-line no-param-reassign
+      // eslint-disable-next-line no-param-reassign, prefer-destructuring
       target[2] = data.src.PALETTE[labelIndex % data.src.PALETTE.length][2];
       return target;
     };
@@ -1280,7 +1279,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         length: layerObsPoints.shape[1],
       };
 
-      if(obsLabels) {
+      if (obsLabels) {
         const obsLabelsMap = new Map(obsLabelsIndex.map((key, i) => ([key, obsLabels[i]])));
         const uniqueObsLabels = [...new Set(obsLabels)];
         this.obsPointsData[layerScope].src.obsLabelsMap = obsLabelsMap;
