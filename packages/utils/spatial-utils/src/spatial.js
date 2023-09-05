@@ -416,3 +416,62 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
   }
   return mat;
 }
+
+/**
+ * Normalize coordinate transformations to the OME-NGFF v0.4 format,
+ * despite potentially being in the new format proposed in
+ * https://github.com/ome/ngff/pull/138 (As of 2023-09-02).
+ * @param {object[]|undefined} coordinateTransformations Value of
+ * multiscales[0].coordinateTransformations in either OME-NGFF v0.4 format
+ * or that proposed in https://github.com/ome/ngff/pull/138.
+ * @param {object[]} datasets Value of multiscales[0].datasets in OME-NGFF v0.4 format.
+ * @returns {object[]} Array of coordinateTransformations in OME-NGFF v0.4 format.
+ */
+export function normalizeCoordinateTransformations(coordinateTransformations, datasets) {
+  // "The transformations in the list are applied sequentially and in order."
+  // Reference: https://ngff.openmicroscopy.org/0.4/index.html#trafo-md
+  let result = [];
+
+  if (Array.isArray(coordinateTransformations)) {
+    result = coordinateTransformations.map((transform) => {
+      if (transform.input && transform.output) {
+        // This is a new-style coordinate transformation.
+        // (As proposed in https://github.com/ome/ngff/pull/138)
+        const { type } = transform;
+        if (type === 'translation') {
+          return {
+            type,
+            translation: transform.translation,
+          };
+        }
+        if (type === 'scale') {
+          return {
+            type,
+            scale: transform.scale,
+          };
+        }
+        if (type === 'identity') {
+          return { type };
+        }
+        console.warn(`Coordinate transformation type "${type}" is not supported.`);
+      }
+      // Assume it was already an old-style (NGFF v0.4) coordinate transformation.
+      return transform;
+    });
+  }
+
+  if (Array.isArray(datasets?.[0]?.coordinateTransformations)) {
+    // "Datasets SHOULD define a transformation from array space
+    // to their "native physical space."
+    // This transformation SHOULD describe physical pixel spacing
+    // and origin only, and therefore SHOULD consist of
+    // `scale` and/or `translation` types only.""
+    // Reference: https://github.com/ome/ngff/blob/b92f540dc95440f2d6b7012185b09c2b862aa744/latest/transform-details.bs#L99
+
+    result = [
+      ...datasets[0].coordinateTransformations,
+      ...result,
+    ];
+  }
+  return result;
+}

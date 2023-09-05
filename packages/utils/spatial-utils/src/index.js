@@ -15,4 +15,5 @@ export {
   getNgffAxes,
   getNgffAxesForTiff,
   coordinateTransformationsToMatrix,
+  normalizeCoordinateTransformations,
 } from './spatial.js';
