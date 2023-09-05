@@ -58,13 +58,6 @@ export {
   useSpotMultiObsSets,
   useMultiObsSegmentations,
   useMultiImages,
-  usePointMultiObsLabels,
-  useSpotMultiFeatureSelection,
-  useSpotMultiObsFeatureMatrixIndices,
-  useSegmentationMultiFeatureSelection,
-  useSegmentationMultiObsFeatureMatrixIndices,
-  useSegmentationMultiObsLocations,
-  useSegmentationMultiObsSets,
 
   useObsSpotsData,
   useObsPointsData,
@@ -77,6 +70,15 @@ export {
   useFeatureLabelsData,
   useGenomicProfilesData,
 } from './data-hooks.js';
+export {
+  usePointMultiObsLabels,
+  useSpotMultiFeatureSelection,
+  useSpotMultiObsFeatureMatrixIndices,
+  useSegmentationMultiFeatureSelection,
+  useSegmentationMultiObsFeatureMatrixIndices,
+  useSegmentationMultiObsLocations,
+  useSegmentationMultiObsSets,
+} from './data-hooks-multilevel.js';
 export {
   useHasLoader,
 } from './data-hook-utils.js';

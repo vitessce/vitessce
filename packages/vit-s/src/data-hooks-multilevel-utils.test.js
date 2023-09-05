@@ -5,7 +5,7 @@ import {
   getFeatureSelectionQueryKeyScopeTuples,
   nestQueryResults,
   getQueryKeyScopeTuples,
-} from './data-hook-utils.js';
+} from './data-hooks-multilevel-utils.js';
 
 describe('recursive data hook utilities for nesting and un-nesting multi-level queries', () => {
   describe('initializeNestedObject', () => {
