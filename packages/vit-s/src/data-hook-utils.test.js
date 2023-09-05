@@ -3,6 +3,8 @@ import {
   initializeNestedObject,
   nestFeatureSelectionQueryResults,
   getFeatureSelectionQueryKeyScopeTuples,
+  nestQueryResults,
+  getQueryKeyScopeTuples,
 } from './data-hook-utils.js';
 
 describe('recursive data hook utilities for nesting and un-nesting multi-level queries', () => {
@@ -72,6 +74,35 @@ describe('recursive data hook utilities for nesting and un-nesting multi-level q
           ['someDataset', 'someDataType', { obsType: 'cell', featureType: 'gene' }, 'geneC', true, 'useFeatureSelectionMultiLevel'],
           // scope info (for rolling up later)
           { levelScopes: ['a', 'b', 'c'], featureIndex: 2, numFeatures: 3 },
+        ],
+      ]);
+    });
+  });
+  describe('nestQueryResults', () => {
+    it('should nest flat query results', () => {
+      const queryKeyScopeTuples = [
+        [['someQueryKey', 'abc'], { levelScopes: ['a', 'b', 'c'] }],
+        [['someQueryKey', 'abd'], { levelScopes: ['a', 'b', 'd'] }],
+      ];
+      const flatQueryResults = [
+        { someKey: 'abc0' },
+        { someKey: 'abd0' },
+      ];
+      const nestedData = nestQueryResults(queryKeyScopeTuples, flatQueryResults);
+      expect(nestedData).toEqual({
+        a: { b: { c: { someKey: 'abc0' }, d: { someKey: 'abd0' } } },
+      });
+    });
+  });
+  describe('getQueryKeyScopeTuples', () => {
+    it('should convert nested selections and matchOn objects to array of tuples', () => {
+      const matchOn = { a: { b: { c: { obsType: 'cell', featureType: 'gene' } } } };
+      const queryKeyScopeTuples = getQueryKeyScopeTuples(matchOn, 3, 'someDataset', 'someDataType', true);
+      expect(queryKeyScopeTuples).toEqual([
+        [
+          ['someDataset', 'someDataType', { obsType: 'cell', featureType: 'gene' }, true, 'useDataType'],
+          // scope info (for rolling up later)
+          { levelScopes: ['a', 'b', 'c'] },
         ],
       ]);
     });

@@ -11,7 +11,6 @@ import { satija2020 } from './view-configs/satija.js';
 import { justHiglass } from './view-configs/rao.js';
 import { scAtacSeq10xPbmc } from './view-configs/tenx.js';
 import { blin2019, multipleOmeZarrViaRasterJson } from './view-configs/blin.js';
-import { blinOop2019, blinSideBySide2019 } from './view-configs/blin-oop.js';
 import { omeNgffLegacy } from './view-configs/ome-ngff-legacy.js';
 import { hubmapIntestineSnAtacSeq } from './view-configs/hubmap.js';
 import {
@@ -41,6 +40,7 @@ import { lightsheetOop2023 } from './view-configs/lightsheet-oop.js';
 import { visiumSpotsOop2023 } from './view-configs/visium-spots-oop.js';
 import { visiumPolygonsOop2023 } from './view-configs/visium-polygons-oop.js';
 import { codeluppiOop2018 } from './view-configs/codeluppi-oop.js';
+import { blinOop2019, blinSideBySide2019 } from './view-configs/blin-oop.js';
 
 
 export const coordinationTypeConfigs = {
@@ -72,6 +72,22 @@ export const configs = {
   'spraggins-2020': spraggins2020,
   'neumann-2020': neumann2020,
   'satija-2020': satija2020,
+  'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
+  'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
+  'blin-2019': blin2019,
+  'ome-ngff-multi': multipleOmeZarrViaRasterJson,
+  'ome-ngff-v0.1': omeNgffLegacy,
+  'rgb-ome-tiff': rgbOmeTiff,
+  'segmentations-ome-tiff': segmentationsOmeTiff,
+  'codeluppi-2018-oop': codeluppiOop2018,
+  // Keys which enable backwards compatibility with old links.
+  'linnarsson-2018': codeluppi2018,
+  'visium-spatial-viewer': visiumSpatialViewer,
+  gating: codeluppiGating,
+  vanderbilt: spraggins2020,
+  'dries-2019': eng2019,
+
+  // Object-oriented / multi-level coordination:
   'kpmp-2023': kpmp2023,
   'kpmp-oop-2023': kpmpOop2023,
   'ims-algorithm-comparison': imsAlgorithmComparison,
@@ -81,23 +97,11 @@ export const configs = {
   'visium-spots-oop-2023': visiumSpotsOop2023,
   'visium-polygons-oop-2023': visiumPolygonsOop2023,
   'kpmp-auto-init': kpmpAutoInit2023,
-  'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
-  'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
-  'blin-2019': blin2019,
+  'codeluppi-2018-via-json': codeluppi2018,
   'blin-oop-2019': blinOop2019,
   'blin-two-2019': blinSideBySide2019,
-  'ome-ngff-multi': multipleOmeZarrViaRasterJson,
-  'ome-ngff-v0.1': omeNgffLegacy,
-  'rgb-ome-tiff': rgbOmeTiff,
-  'segmentations-ome-tiff': segmentationsOmeTiff,
-  'codeluppi-2018-oop': codeluppiOop2018,
-  // Keys which enable backwards compatibility with old links.
-  'codeluppi-2018-via-json': codeluppi2018,
-  'linnarsson-2018': codeluppi2018,
-  'visium-spatial-viewer': visiumSpatialViewer,
-  gating: codeluppiGating,
-  vanderbilt: spraggins2020,
-  'dries-2019': eng2019,
+
+  // For documentation of coordination types:
   ...coordinationTypeConfigs,
 };
 
