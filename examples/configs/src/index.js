@@ -30,7 +30,6 @@ import { meta2022azimuth } from './view-configs/meta_2022_azimuth.js';
 import { rgbOmeTiff } from './view-configs/rgb-ome-tiff.js';
 import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
 import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
-import { spatialDataImage } from './view-configs/spatialdata-image.js';
 
 
 export const coordinationTypeConfigs = {
@@ -73,7 +72,6 @@ export const configs = {
   'codeluppi-2018-via-json': codeluppi2018,
   'linnarsson-2018': codeluppi2018,
   'visium-spatial-viewer': visiumSpatialViewer,
-  'spatialdata-image': spatialDataImage,
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
