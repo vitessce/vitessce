@@ -1,42 +1,8 @@
 /* eslint-disable no-plusplus */
-import shortNumber from 'short-number';
-import plur from 'plur';
 import { Matrix4 } from 'math.gl';
 import { viv, BitmaskLayerBeta as BitmaskLayer } from '@vitessce/gl';
 import { extent } from 'd3-array';
-import { commaNumber } from '@vitessce/utils';
 
-/**
- * Make a subtitle for the spatial component.
- * @param {object} params
- * @param {number} params.observationsCount
- * @param {string} params.observationsLabel
- * @param {string} params.observationsPluralLabel
- * @param {number} params.subobservationsCount
- * @param {string} params.subobservationsLabel
- * @param {string} params.subobservationsPluralLabel
- * @param {number} params.locationsCount
- * @returns {string} The subtitle string,
- * with info about items with zero counts omitted.
- */
-export function makeSpatialSubtitle({
-  observationsCount, observationsLabel,
-  subobservationsCount, subobservationsLabel,
-  locationsCount,
-}) {
-  const parts = [];
-  if (subobservationsCount > 0) {
-    let part = `${commaNumber(subobservationsCount)} ${plur(subobservationsLabel, subobservationsCount)}`;
-    if (locationsCount > 0) {
-      part += ` at ${shortNumber(locationsCount)} locations`;
-    }
-    parts.push(part);
-  }
-  if (observationsCount > 0) {
-    parts.push(`${commaNumber(observationsCount)} ${plur(observationsLabel, observationsCount)}`);
-  }
-  return parts.join(', ');
-}
 
 export function getInitialSpatialTargets({
   width,

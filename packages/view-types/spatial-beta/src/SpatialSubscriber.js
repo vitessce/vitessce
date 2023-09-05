@@ -7,10 +7,6 @@ import {
   useDeckCanvasSize,
   useReady,
   useUrls,
-  useObsLocationsData,
-  useObsSegmentationsData,
-  useObsFeatureMatrixIndices,
-  useObsLabelsData,
   useMultiObsSpots,
   useMultiObsPoints,
   useSpotMultiObsSets,
@@ -37,12 +33,11 @@ import {
   useCoordinationScopesBy,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
-import { commaNumber } from '@vitessce/utils';
+import { commaNumber, pluralize } from '@vitessce/utils';
 import { MultiLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
-import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
-import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils.js';
+import { getInitialSpatialTargets } from './utils.js';
 
 
 // Reference: https://deck.gl/docs/api-reference/core/orbit-view#view-state
@@ -395,41 +390,6 @@ export function SpatialSubscriber(props) {
   );
 
 
-  // Get data from loaders using the data hooks.
-  const [{
-    obsIndex: obsLocationsIndex,
-    obsLocations,
-  }, obsLocationsStatus, obsLocationsUrls] = useObsLocationsData(
-    loaders, dataset, false,
-    {},
-    {},
-    { obsType: 'molecule' }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
-  );
-  const [{
-    obsLabels: obsLocationsLabels,
-  }, obsLabelsStatus, obsLabelsUrls] = useObsLabelsData(
-    loaders, dataset, false, {}, {},
-    { obsType: 'molecule' }, // TODO: use obsType in matchOn once #1240 is merged.
-  );
-
-  const [{
-    obsIndex: obsSegmentationsIndex,
-    obsSegmentations,
-    obsSegmentationsType,
-  }, obsSegmentationsStatus] = useObsSegmentationsData(
-    loaders, dataset, false,
-    {},
-    {},
-    { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
-  );
-
-  const [
-    { obsIndex: matrixObsIndex }, matrixIndicesStatus, matrixIndicesUrls,
-  ] = useObsFeatureMatrixIndices(
-    loaders, dataset, false,
-    { obsType, featureType, featureValueType },
-  );
-
   /*
   const [neighborhoods, neighborhoodsStatus, neighborhoodsUrls] = useNeighborhoodsData(
     loaders, dataset, false,
@@ -540,15 +500,6 @@ export function SpatialSubscriber(props) {
   ]);
 
 
-  const obsLocationsFeatureIndex = useMemo(() => {
-    if (obsLocationsLabels) {
-      return Array.from(new Set(obsLocationsLabels));
-    }
-    return null;
-  }, [obsLocationsLabels]);
-  const moleculesCount = obsLocationsFeatureIndex?.length || 0;
-  const locationsCount = obsLocationsIndex?.length || 0;
-
   const setViewState = ({
     zoom: newZoom,
     target,
@@ -567,13 +518,48 @@ export function SpatialSubscriber(props) {
     }
   };
 
-  const subtitle = makeSpatialSubtitle({
-    observationsCount: obsSegmentationsIndex?.length || matrixObsIndex?.length,
-    observationsLabel,
-    subobservationsCount: moleculesCount,
-    subobservationsLabel,
-    locationsCount,
-  });
+  // Make subtitle text based on the aggregate number of items in each type of spatial layer.
+  const subtitle = useMemo(() => {
+    const totalNumPoints = Object.values(obsPointsData || {})
+      .reduce((a, h) => a + (h?.obsIndex?.length || 0), 0);
+    const totalNumSpots = Object.values(obsSpotsData || {})
+      .reduce((a, h) => a + (h?.obsIndex?.length || 0), 0);
+    const totalNumSegmentations = segmentationLayerScopes
+      .map(layerScope => segmentationChannelScopesByLayer[layerScope]
+        .map(channelScope => ([layerScope, channelScope])))
+      .flat(1)
+      .map(([layerScope, channelScope]) => {
+        let obsIndex = obsSegmentationsLocationsData?.[layerScope]?.[channelScope]?.obsIndex;
+        if (!obsIndex) {
+          obsIndex = obsSegmentationsSetsData?.[layerScope]?.[channelScope]?.obsIndex;
+          if (!obsIndex) {
+            obsIndex = segmentationMultiIndicesData?.[layerScope]?.[channelScope]?.obsIndex;
+          }
+        }
+        return obsIndex;
+      })
+      .reduce((a, h) => a + (h?.length || 0), 0);
+    const totalNumImages = imageLayerScopes?.length || 0;
+
+    return [
+      [totalNumPoints, 'point'],
+      [totalNumSpots, 'spot'],
+      [totalNumSegmentations, 'segmentation'],
+      [totalNumImages, 'image'],
+    ]
+      .filter(([numItems]) => numItems > 0)
+      .map(([numItems, layerType]) => `${commaNumber(numItems)} ${pluralize(layerType, numItems)}`)
+      .join(', ');
+  }, [
+    obsPointsData,
+    obsSpotsData,
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
+    obsSegmentationsLocationsData,
+    obsSegmentationsSetsData,
+    segmentationMultiIndicesData,
+    imageLayerScopes,
+  ]);
 
   const [hoverCoord, setHoverCoord] = useState(null);
 
