@@ -4,6 +4,7 @@ import {
   coordinateTransformationsToMatrix,
   getNgffAxes,
   hexToRgb,
+  normalizeCoordinateTransformations,
 } from '@vitessce/spatial-utils';
 import {
   ImageWrapper,
@@ -30,34 +31,46 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
 
     const { metadata, data } = loader;
 
-    const { omero, multiscales } = metadata;
+    const { omero, multiscales, channels_metadata: spatialDataChannels } = metadata;
 
-    if (!omero) {
-      console.error('Path for image not valid');
+    // Crude way to check if this is a SpatialData OME-NGFF.
+    const isSpatialData = !!spatialDataChannels;
+
+    if (!isSpatialData && !omero) {
+      console.error('image.ome-zarr must have omero metadata in attributes.');
       return Promise.reject(payload);
     }
 
     if (!Array.isArray(multiscales) || multiscales.length === 0) {
       console.error('Multiscales array must exist and have at least one element');
     }
-    const { coordinateTransformations } = multiscales[0];
+
+    const {
+      datasets,
+      coordinateTransformations: coordinateTransformationsFromFile,
+      name: imageName,
+    } = multiscales[0];
 
     // Axes in v0.4 format.
     const axes = getNgffAxes(multiscales[0].axes);
+
+    // SpatialData uses the new coordinateTransformations spec.
+    // Reference: https://github.com/ome/ngff/pull/138
+
+    // This new spec is very flexible, so here we will attepmpt to convert it back to the old spec.
+    const normCoordinateTransformationsFromFile = normalizeCoordinateTransformations(
+      coordinateTransformationsFromFile, datasets,
+    );
 
     const transformMatrixFromOptions = coordinateTransformationsToMatrix(
       coordinateTransformationsFromOptions, axes,
     );
     const transformMatrixFromFile = coordinateTransformationsToMatrix(
-      coordinateTransformations, axes,
+      normCoordinateTransformationsFromFile, axes,
     );
 
     const transformMatrix = transformMatrixFromFile.multiplyLeft(transformMatrixFromOptions);
 
-    const { rdefs, channels, name: omeroName } = omero;
-
-    const t = rdefs.defaultT ?? 0;
-    const z = rdefs.defaultZ ?? 0;
 
     const filterSelection = (sel) => {
       // Remove selection keys for which there is no dimension.
@@ -75,14 +88,45 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       return sel;
     };
 
+    let channelObjects;
+    let channelLabels = [];
+    let initialTargetT = 0;
+    let initialTargetZ = 0;
+    if (isSpatialData) {
+      // TODO: Consider removing support for `channels_metadata` once OME-NGFF loosens
+      // requirements for channel metadata fields such as `window` and `color`.
+      // (Unclear if we will need to keep this around for backwards compatibility with
+      // those SpatialData objects generated in the meantime though.)
+      // References:
+      // - https://github.com/ome/ngff/issues/192
+      // - https://github.com/ome/ome-zarr-py/pull/261
+      const { channels } = spatialDataChannels;
+      channelObjects = channels.map((channel, i) => ({
+        selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: i }),
+        slider: [0, 255],
+        color: [255, 255, 255],
+      }));
+      channelLabels = channels.map(c => c.label);
+    } else {
+      const { rdefs, channels } = omero;
+      if (typeof rdefs.defaultT === 'number') {
+        initialTargetT = rdefs.defaultT;
+      }
+      if (typeof rdefs.defaultZ === 'number') {
+        initialTargetZ = rdefs.defaultZ;
+      }
+      channelObjects = channels.map((channel, i) => ({
+        selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: i }),
+        slider: [channel.window.start, channel.window.end],
+        color: hexToRgb(channel.color),
+      }));
+      channelLabels = channels.map(c => c.label);
+    }
+
     const imagesWithLoaderCreators = [
       {
-        name: omeroName || 'Image',
-        channels: channels.map((channel, i) => ({
-          selection: filterSelection({ z, t, c: i }),
-          slider: [channel.window.start, channel.window.end],
-          color: hexToRgb(channel.color),
-        })),
+        name: imageName || 'Image',
+        channels: channelObjects,
         ...(transformMatrix ? {
           metadata: {
             transform: {
@@ -90,7 +134,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
             },
           },
         } : {}),
-        loaderCreator: async () => ({ ...loader, channels: channels.map(c => c.label) }),
+        loaderCreator: async () => ({ ...loader, channels: channelLabels }),
       },
     ];
 

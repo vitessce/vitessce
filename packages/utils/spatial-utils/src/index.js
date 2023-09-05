@@ -19,6 +19,7 @@ export {
   hexToRgb,
   getStatsForResolution,
   canLoadResolution,
+  normalizeCoordinateTransformations,
 } from './spatial.js';
 export {
   toRgbUIString,
