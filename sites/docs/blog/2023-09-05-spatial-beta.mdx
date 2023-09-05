@@ -1,0 +1,38 @@
+---
+slug: spatial-beta
+title: Next-generation spatial views
+author: Mark Keller
+author_title: Gehlenborg Lab
+author_url: http://gehlenborglab.org/team/members/mark-keller/
+tags: [spatial]
+---
+
+The next generation of spatial and layerController views in Vitessce is ready for testing.
+There are several motivations for re-implementing these views:
+
+<!--truncate-->
+
+- Support a more flexible coordination model
+- Support multi-channel segmentation bitmasks
+- Support per-[obsType](../obs-by-feature-update/) segmentation bitmasks
+- Use semantically-meaningful data types for points and spots
+- Unify the visualization properties for polygon and bitmask segmentations
+
+These views are available as `spatialBeta` and `layerControllerBeta`.
+Note: automatic initialization of the coordination space is not yet supported, so usage will require some manual initialization.
+We suggest using the object-oriented `VitessceConfig` API (specifically `VitessceConfig.linkViewsByObject`).
+
+## Flexible coordination model
+
+Previously, the spatial view used two coordination types `spatialSegmentationLayer` and `spatialImageLayer` which required an array of nested objects as values.
+Usage of nested objects as coordination values prevents coordination of a subset of those values.
+For example, this prevented coordination of channel colors while referencing different channel indices or vice-versa.
+
+In contrast, `spatialBeta` and `layerControllerBeta` use multi-level- and meta- coordination.
+
+
+## Multi-channel, per-obsType segmentation bitmasks
+
+## obsPoints and obsSpots data types
+
+## Unified visualization properties for segmentations
