@@ -97,7 +97,10 @@ export default class SelectionLayer extends CompositeLayer {
       // Clear the array before checking each new layer.
       const pickingInfos = [];
 
-      obsQuadTree.visit((node, x0, y0, x1, y1) => {
+      // It is possible for a layer to not have an obsQuadTree,
+      // for example if the layer is a segmentation bitmask without associated
+      // obsLocations.
+      obsQuadTree?.visit((node, x0, y0, x1, y1) => {
         const nodePoints = [[[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]];
         const nodePolygon = turfPolygon(nodePoints);
 

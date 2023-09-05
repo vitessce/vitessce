@@ -5,13 +5,14 @@ import { Texture2D, isWebGL2 } from '@luma.gl/core';
 import { XRLayer } from '@hms-dbmi/viv';
 import { fromEntries } from '@vitessce/utils';
 import { range } from 'lodash-es';
-import { extent } from 'd3-array';
 import { fs, vs } from './bitmask-layer-beta-shaders.js';
 import {
   GLSL_COLORMAPS,
   GLSL_COLORMAP_DEFAULT,
   COLORMAP_SHADER_PLACEHOLDER,
 } from './constants.js';
+import { multiSetsToTextureData } from './bitmask-utils.js';
+
 
 const MAX_CHANNELS = 7;
 const MULTI_FEATURE_TEX_SIZE = 2048;
@@ -28,14 +29,6 @@ function getColor(arr) {
   return arr ? arr.map(v => v / 255) : [0, 0, 0];
 }
 
-function normalize(arr) {
-  const [min, max] = extent(arr);
-  const ratio = 255 / (max - min);
-  const data = new Uint8Array(
-    arr.map(i => Math.floor((i - min) * ratio)),
-  );
-  return data;
-}
 
 const defaultProps = {
   channelStrokeWidths: { type: 'array', value: null, compare: true },
@@ -299,68 +292,19 @@ export default class BitmaskLayer extends XRLayer {
   multiSetsToTexture(multiFeatureValues, setColorValues, channelIsSetColorMode) {
     const isWebGL2On = isWebGL2(this.context.gl);
 
-    let totalValuesLength = 0;
-    let totalColorsLength = 0;
-
-    channelIsSetColorMode.forEach((isSetColorMode, channelIndex) => {
-      if (isSetColorMode) {
-        totalValuesLength += setColorValues[channelIndex]?.obsIndex?.length || 0;
-        totalColorsLength += (setColorValues[channelIndex]?.setColors?.length || 0) * 3;
-      } else {
-        totalValuesLength += multiFeatureValues[channelIndex]?.length || 0;
-      }
-    });
-
-    const valueTexHeight = Math.max(2, Math.ceil(totalValuesLength / MULTI_FEATURE_TEX_SIZE));
-    const colorTexHeight = Math.max(2, Math.ceil(totalColorsLength / MULTI_FEATURE_TEX_SIZE));
-
-    if (valueTexHeight > MULTI_FEATURE_TEX_SIZE) {
-      console.error('Error: length of concatenated quantitative feature values larger than maximum texture size');
-    }
-    if (colorTexHeight > MULTI_FEATURE_TEX_SIZE) {
-      console.error('Error: length of concatenated quantitative feature values larger than maximum texture size');
-    }
-    // Array for texture containing color indices.
-    const totalData = new Uint8Array(MULTI_FEATURE_TEX_SIZE * valueTexHeight);
-    // Array for texture containing color RGB values.
-    const totalColors = new Uint8Array(MULTI_FEATURE_TEX_SIZE * colorTexHeight);
-
-    // Per-channel offsets into the texture arrays.
-    const indicesOffsets = [];
-    const colorsOffsets = []; // Color offsets need to be multiplied by 3 in the shader.
-    let indexOffset = 0;
-    let colorOffset = 0;
-    // Iterate over the data for each channel.
-    channelIsSetColorMode.forEach((isSetColorMode, channelIndex) => {
-      if (isSetColorMode) {
-        const { setColorIndices, setColors, obsIndex } = setColorValues[channelIndex] || {};
-        if (setColorIndices && setColors && obsIndex) {
-          for (let i = 0; i < obsIndex.length; i++) {
-            // We add one here to account for i being 0-based but the pixel values being 1-based
-            // (to account for zero indicating the background of the segmentation bitmask).
-            const colorIndex = setColorIndices.get(String(i + 1));
-            // Add one to the color index, so that we can use zero to indicate a "null" set color.
-            totalData[indexOffset + i] = colorIndex === undefined ? 0 : colorIndex + 1;
-          }
-          for (let i = 0; i < setColors.length; i++) {
-            const { color: [r, g, b] } = setColors[i];
-            totalColors[(colorOffset + i) * 3 + 0] = r;
-            totalColors[(colorOffset + i) * 3 + 1] = g;
-            totalColors[(colorOffset + i) * 3 + 2] = b;
-          }
-        }
-        indicesOffsets.push(indexOffset);
-        colorsOffsets.push(colorOffset);
-        indexOffset += (obsIndex?.length || 0);
-        colorOffset += (setColors?.length || 0);
-      } else {
-        const featureArr = multiFeatureValues[channelIndex];
-        // TODO: use normalized values
-        totalData.set(normalize(featureArr), indexOffset);
-        indicesOffsets.push(indexOffset);
-        indexOffset += featureArr.length;
-      }
-    });
+    const [
+      totalData,
+      valueTexHeight,
+      indicesOffsets,
+      totalColors,
+      colorTexHeight,
+      colorsOffsets,
+    ] = multiSetsToTextureData(
+      multiFeatureValues,
+      setColorValues,
+      channelIsSetColorMode,
+      MULTI_FEATURE_TEX_SIZE,
+    );
 
     return [
       // Color indices texture
