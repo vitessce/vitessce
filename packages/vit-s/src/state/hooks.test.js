@@ -53,12 +53,7 @@ describe('vit-s/state/hooks.js', () => {
         {
           obsType: 'A',
         },
-        {
-          obsType: {
-            A: 'cell',
-            B: 'molecule',
-          },
-        },
+        null,
       )).toEqual({
         obsType: 'A',
       });
@@ -71,14 +66,8 @@ describe('vit-s/state/hooks.js', () => {
           obsType: 'A',
         },
         {
-          obsType: {
-            A: 'cell',
-            B: 'molecule',
-          },
-          metaCoordinationScopes: {
-            metaA: {
-              obsType: 'B',
-            },
+          metaA: {
+            obsType: 'B',
           },
         },
       )).toEqual({
@@ -95,17 +84,11 @@ describe('vit-s/state/hooks.js', () => {
           obsType: 'A',
         },
         {
-          obsType: {
-            A: 'cell',
-            B: 'molecule',
+          metaA: {
+            featureType: 'D',
           },
-          metaCoordinationScopes: {
-            metaA: {
-              featureType: 'D',
-            },
-            metaB: {
-              obsType: 'C',
-            },
+          metaB: {
+            obsType: 'C',
           },
         },
       )).toEqual({
@@ -132,21 +115,11 @@ describe('vit-s/state/hooks.js', () => {
           },
         },
         {
-          spatialSegmentationLayer: {
-            glomerulus: 'glomerulus',
-            tubule: 'tubule',
-          },
-          spatialTargetC: {
-            A: 1,
-            B: 2,
-          },
-          metaCoordinationScopesBy: {
-            metaA: {
-              spatialSegmentationLayer: {
-                spatialTargetC: {
-                  glomerulus: 'A',
-                  tubule: 'B',
-                },
+          metaA: {
+            spatialSegmentationLayer: {
+              spatialTargetC: {
+                glomerulus: 'A',
+                tubule: 'B',
               },
             },
           },
@@ -175,29 +148,19 @@ describe('vit-s/state/hooks.js', () => {
           },
         },
         {
-          spatialSegmentationLayer: {
-            glomerulus: 'glomerulus',
-            tubule: 'tubule',
-          },
-          spatialTargetC: {
-            A: 1,
-            B: 2,
-          },
-          metaCoordinationScopesBy: {
-            metaA: {
-              spatialSegmentationLayer: {
-                spatialLayerOpacity: {
-                  glomerulus: 'C',
-                  tubule: 'D',
-                },
+          metaA: {
+            spatialSegmentationLayer: {
+              spatialLayerOpacity: {
+                glomerulus: 'C',
+                tubule: 'D',
               },
             },
-            metaB: {
-              spatialSegmentationLayer: {
-                spatialTargetC: {
-                  glomerulus: 'A',
-                  tubule: 'B',
-                },
+          },
+          metaB: {
+            spatialSegmentationLayer: {
+              spatialTargetC: {
+                glomerulus: 'A',
+                tubule: 'B',
               },
             },
           },

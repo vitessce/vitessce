@@ -39,13 +39,12 @@ export const useAuxiliaryStore = useAuxiliaryStoreLocal;
  * @param {*} coordinationSpace The coordinationSpace for a config.
  * @returns {string|undefined} The coordinationScopesBy after meta-coordination.
  */
-export function getScopes(coordinationScopes, coordinationSpace) {
+export function getScopes(coordinationScopes, metaSpace) {
   let result = { ...coordinationScopes };
   // Check if there is a matching meta-scope.
-  if (coordinationSpace) {
+  if (metaSpace) {
     // Determine if there is a meta-scope that would take precedence.
     const metaScopes = coordinationScopes[CoordinationType.META_COORDINATION_SCOPES];
-    const metaSpace = coordinationSpace[CoordinationType.META_COORDINATION_SCOPES];
     if (metaScopes && metaSpace) {
       // The view.coordinationScopes.metaCoordinationScopes might be an array or a string.
       // Convert to an array.
@@ -68,13 +67,12 @@ export function getScopes(coordinationScopes, coordinationSpace) {
  * @param {*} coordinationSpace The coordinationSpace for a config.
  * @returns {string|undefined} The coordinationScopesBy after meta-coordination.
  */
-export function getScopesBy(coordinationScopes, coordinationScopesBy, coordinationSpace) {
+export function getScopesBy(coordinationScopes, coordinationScopesBy, metaSpaceBy) {
   let result = { ...coordinationScopesBy };
   // Check if there is a matching meta-scope.
-  if (coordinationSpace) {
+  if (metaSpaceBy) {
     // Determine if there is a meta-scope that would take precedence.
     const metaScopesBy = coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY];
-    const metaSpaceBy = coordinationSpace[CoordinationType.META_COORDINATION_SCOPES_BY];
     if (metaSpaceBy && metaScopesBy) {
       // The view.coordinationScopes.metaCoordinationScopes might be an array or a string.
       // Convert to an array.
@@ -626,16 +624,19 @@ export function useComplexCoordination(
  * @returns {object} The coordinationScopes after filling in with meta-coordinationScopes.
  */
 export function useCoordinationScopes(coordinationScopes) {
-  const vals = useViewConfigStore((state) => {
+  const metaSpace = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
+    return coordinationSpace?.[CoordinationType.META_COORDINATION_SCOPES];
+  }, shallow);
+  const vals = useMemo(() => {
     const scopes = getScopes(
       coordinationScopes,
-      coordinationSpace,
+      metaSpace,
     );
     // Prevent infinite loop, delete metaCoordinationScopes now that they are computed.
     delete scopes[CoordinationType.META_COORDINATION_SCOPES];
     return scopes;
-  }, shallow);
+  }, [coordinationScopes, metaSpace]);
   return vals;
 }
 
@@ -647,15 +648,18 @@ export function useCoordinationScopes(coordinationScopes) {
  * @returns {object} The coordinationScopesBy after filling in with meta-coordinationScopesBy.
  */
 export function useCoordinationScopesBy(coordinationScopes, coordinationScopesBy) {
-  const vals = useViewConfigStore((state) => {
+  const metaSpaceBy = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
+    return coordinationSpace?.[CoordinationType.META_COORDINATION_SCOPES_BY];
+  }, shallow);
+  const vals = useMemo(() => {
     const scopesBy = getScopesBy(
       coordinationScopes,
       coordinationScopesBy,
-      coordinationSpace,
+      metaSpaceBy,
     );
     return scopesBy;
-  }, shallow);
+  }, [coordinationScopes, coordinationScopesBy, metaSpaceBy]);
   return vals;
 }
 
