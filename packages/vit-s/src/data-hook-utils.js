@@ -224,9 +224,11 @@ export function useDataTypeMulti(
   // Convert data to object keyed by scopeKey.
   const data = useMemo(() => fromEntries(
     matchOnEntries.map(([scopeKey], i) => ([scopeKey, dataQueries[i].data?.data])),
-  // Deliberate dependency omissions: matchOnEntries, since dataQueries depends on it.
+  // Deliberate dependency omissions: dataQueries and matchOnEntries,
+  // since dataQueries changes every re-render. We use the in-direct
+  // dependency of matchOnObj and the derived primitive value dataStatus.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  ), [dataQueries]);
+  ), [matchOnObj, dataStatus]);
 
   // Convert data to object keyed by scopeKey.
   const urls = useMemo(() => fromEntries(

@@ -402,18 +402,21 @@ export function useMultiCoordinationScopesNonNull(parameter, coordinationScopes)
 
   // Return array of coordination scopes,
   // but filter out any whose value is null / falsey.
-  const nonNullScopes = useViewConfigStore((state) => {
+  const parameterSpace = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
+    return coordinationSpace?.[parameter];
+  }, shallow);
+  const nonNullScopes = useMemo(() => {
     // Convert a single scope to an array of scopes to be consistent.
     const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
     return scopesArr.filter((scope) => {
-      if (coordinationSpace && coordinationSpace[parameter]) {
-        const value = coordinationSpace[parameter][scope];
+      if (parameterSpace) {
+        const value = parameterSpace[scope];
         return value !== null;
       }
       return false;
     });
-  }, shallow);
+  }, [parameter, coordinationScopes, scopes, parameterSpace]);
   return nonNullScopes;
 }
 
@@ -451,13 +454,22 @@ export function useMultiCoordinationScopesSecondaryNonNull(
   parameter, byType, coordinationScopes, coordinationScopesBy,
 ) {
   const scopes = getParameterScope(byType, coordinationScopes);
-  return useViewConfigStore((state) => {
+
+  const parameterSpace = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
+    return coordinationSpace?.[parameter];
+  }, shallow);
+  const byTypeSpace = useViewConfigStore((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    return coordinationSpace?.[byType];
+  }, shallow);
+
+  return useMemo(() => {
     if (scopes && coordinationScopesBy?.[byType]?.[parameter]) {
       const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
       const scopesNonNull = scopesArr.filter((scope) => {
-        if (coordinationSpace && coordinationSpace[byType]) {
-          const value = coordinationSpace[byType][scope];
+        if (byTypeSpace) {
+          const value = byTypeSpace[scope];
           return value !== null;
         }
         return false;
@@ -468,8 +480,8 @@ export function useMultiCoordinationScopesSecondaryNonNull(
           ? secondaryScopes
           : [secondaryScopes];
         const secondaryScopesNonNull = secondaryScopesArr.filter((innerScope) => {
-          if (coordinationSpace && coordinationSpace[parameter]) {
-            const value = coordinationSpace[parameter][innerScope];
+          if (parameterSpace) {
+            const value = parameterSpace[innerScope];
             return value !== null;
           }
           return false;
@@ -481,8 +493,8 @@ export function useMultiCoordinationScopesSecondaryNonNull(
     if (scopes && !coordinationScopesBy?.[byType]?.[parameter] && coordinationScopes?.[parameter]) {
       const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
       const scopesNonNull = scopesArr.filter((scope) => {
-        if (coordinationSpace && coordinationSpace[byType]) {
-          const value = coordinationSpace[byType][scope];
+        if (byTypeSpace) {
+          const value = byTypeSpace[scope];
           return value !== null;
         }
         return false;
@@ -493,8 +505,8 @@ export function useMultiCoordinationScopesSecondaryNonNull(
           ? secondaryScopes
           : [secondaryScopes];
         const secondaryScopesNonNull = secondaryScopesArr.filter((innerScope) => {
-          if (coordinationSpace && coordinationSpace[parameter]) {
-            const value = coordinationSpace[parameter][innerScope];
+          if (parameterSpace) {
+            const value = parameterSpace[innerScope];
             return value !== null;
           }
           return false;
@@ -503,7 +515,7 @@ export function useMultiCoordinationScopesSecondaryNonNull(
       }))];
     }
     return [[], {}];
-  }, shallow);
+  }, [parameter, byType, scopes, coordinationScopes, coordinationScopesBy, parameterSpace, byTypeSpace]);
 }
 
 export function useMultiCoordinationValues(parameter, coordinationScopes) {
