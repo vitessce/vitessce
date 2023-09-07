@@ -100,3 +100,23 @@ We have configured several examples which make use of the `spatialBeta` and `lay
 - [Bitmask-based obsSegmentations for functional tissue units](#todo)
 - [Bitmask-based obsSegmentations for cells and nuclei](../../#?dataset=codex-2023)
 
+## Usage from Python
+
+We have implemented the object-oriented API for the multi-level coordination model in both JavaScript and Python.
+The equivalent of the JS linkViewsByObject function is the Python link_views_by_dict function.
+This enables initialization of the coordination space using the same patterns in both languages.
+Jupyter notebooks demonstrating usage of the Python API are available in the documentation website for the vitessce Python package:
+
+<!--- todo --->
+
+
+
+
+ 
+## Next steps
+
+There are some remaining features to implement, including a mechanism for automatic initialization of the multi-level coordination values based on the data configuration.
+If testing goes smoothly, we plan to replace the current spatial and layercontroller views with their Beta counterparts. 
+This would be a non-breaking change with automatic upgrade functions to internally convert previously-configured visualizations (in the same way we have implemented upgrade functions for all prior introductions of new config schema versions).
+
+
