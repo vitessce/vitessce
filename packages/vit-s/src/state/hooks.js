@@ -567,16 +567,20 @@ export function useComplexCoordination(
 ) {
   const setCoordinationValue = useViewConfigStore(state => state.setCoordinationValue);
 
-  const values = useViewConfigStore((state) => {
+  const parameterSpaces = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
+    return parameters.map(parameter => coordinationSpace[parameter]);
+  }, shallow);
+
+  const values = useMemo(() => {
     const typeScopes = getParameterScope(byType, coordinationScopes);
     if (typeScopes) {
       // Convert a single scope to an array of scopes to be consistent.
       const typeScopesArr = Array.isArray(typeScopes) ? typeScopes : [typeScopes];
       return fromEntries(typeScopesArr.map((datasetScope) => {
-        const datasetValues = fromEntries(parameters.map((parameter) => {
-          if (coordinationSpace && coordinationSpace[parameter]) {
-            const parameterSpace = coordinationSpace[parameter];
+        const datasetValues = fromEntries(parameters.map((parameter, i) => {
+          if (parameterSpaces[i]) {
+            const parameterSpace = parameterSpaces[i];
             const parameterScope = getParameterScopeBy(
               parameter,
               byType,
@@ -599,7 +603,7 @@ export function useComplexCoordination(
       }));
     }
     return {};
-  }, shallow);
+  }, [byType, coordinationScopes, coordinationScopesBy, parameterSpaces]);
 
   const setters = useMemo(() => {
     const typeScopes = getParameterScope(byType, coordinationScopes);
@@ -624,7 +628,8 @@ export function useComplexCoordination(
     }
     return {};
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [parameters, coordinationScopes]);
+  // parameters is assumed to be a constant array.
+  }, [coordinationScopes]);
 
   return [values, setters];
 }
@@ -704,34 +709,53 @@ export function useComplexCoordinationSecondary(
     // Finally, fall back to empty array.
     return { [secondaryType]: [] };
   }, [coordinationScopesBy, primaryType, secondaryType]);
-  const flatResult = useComplexCoordination(
+  const [flatValues, flatSetters] = useComplexCoordination(
     parameters, coordinationScopesFake, coordinationScopesBy, secondaryType,
   );
-  // Re-nest
-  const result = [{}, {}];
-  if (coordinationScopesBy?.[primaryType]?.[secondaryType]) {
-    Object.entries(coordinationScopesBy[primaryType][secondaryType])
-      .forEach(([layerScope, channelScopes]) => {
-        result[0][layerScope] = {};
-        result[1][layerScope] = {};
-        channelScopes.forEach((channelScope) => {
-          result[0][layerScope][channelScope] = flatResult[0][channelScope];
-          result[1][layerScope][channelScope] = flatResult[1][channelScope];
+  const nestedValues = useMemo(() => {
+    // Re-nest
+    const result = {};
+    if (coordinationScopesBy?.[primaryType]?.[secondaryType]) {
+      Object.entries(coordinationScopesBy[primaryType][secondaryType])
+        .forEach(([layerScope, channelScopes]) => {
+          result[layerScope] = {};
+          channelScopes.forEach((channelScope) => {
+            result[layerScope][channelScope] = flatValues[channelScope];
+          });
         });
+    } else if (coordinationScopes?.[secondaryType] && Array.isArray(coordinationScopes[secondaryType])) {
+      // Re-nesting for fallback case.
+      const layerScopes = coordinationScopes[primaryType];
+      layerScopes.forEach((layerScope) => {
+        // eslint-disable-next-line prefer-destructuring
+        result[layerScope] = flatValues;
       });
-  } else if (coordinationScopes?.[secondaryType] && Array.isArray(coordinationScopes[secondaryType])) {
-    // Re-nesting for fallback case.
-    const layerScopes = coordinationScopes[primaryType];
-    layerScopes.forEach((layerScope) => {
-      // eslint-disable-next-line prefer-destructuring
-      result[0][layerScope] = flatResult[0];
-      // eslint-disable-next-line prefer-destructuring
-      result[1][layerScope] = flatResult[1];
-    });
-  }
+    }
+    return result;
+  }, [flatValues]);
+  const nestedSetters = useMemo(() => {
+    // Re-nest
+    const result = {};
+    if (coordinationScopesBy?.[primaryType]?.[secondaryType]) {
+      Object.entries(coordinationScopesBy[primaryType][secondaryType])
+        .forEach(([layerScope, channelScopes]) => {
+          result[layerScope] = {};
+          channelScopes.forEach((channelScope) => {
+            result[layerScope][channelScope] = flatSetters[channelScope];
+          });
+        });
+    } else if (coordinationScopes?.[secondaryType] && Array.isArray(coordinationScopes[secondaryType])) {
+      // Re-nesting for fallback case.
+      const layerScopes = coordinationScopes[primaryType];
+      layerScopes.forEach((layerScope) => {
+        // eslint-disable-next-line prefer-destructuring
+        result[layerScope] = flatSetters;
+      });
+    }
+    return result;
+  }, [flatSetters]);
 
-
-  return result;
+  return [nestedValues, nestedSetters];
 }
 
 

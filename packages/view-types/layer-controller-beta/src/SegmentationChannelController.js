@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable no-unused-vars */
 // eslint gets confused by the "id" being within MUI's inputProps.
-import React, { useState, useId } from 'react';
+import React, { useState, useMemo, useCallback, useId } from 'react';
 import {
   makeStyles,
   Grid,
@@ -166,7 +166,11 @@ export default function SegmentationChannelController(props) {
   } = props;
 
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
-  const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
+  const Visibility = useMemo(() => (
+    visibleSetting
+      ? VisibilityIcon
+      : VisibilityOffIcon
+  ), [visibleSetting]);
 
   const isStaticColor = obsColorEncoding === 'spatialChannelColor';
 
@@ -174,10 +178,12 @@ export default function SegmentationChannelController(props) {
   const lcClasses = useControllerSectionStyles();
   const menuClasses = useEllipsisMenuStyles();
 
-  function handleVisibleChange() {
+  const handleVisibleChange = useCallback(() => {
     const nextVisible = typeof visible === 'boolean' ? !visible : false;
     setVisible(nextVisible);
-  }
+  }, [visible, setVisible]);
+
+  const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
 
   return (
     <Grid item className={lcClasses.layerControllerGrid}>
@@ -213,7 +219,7 @@ export default function SegmentationChannelController(props) {
               min={0}
               max={1}
               step={0.001}
-              onChange={(e, v) => setOpacity(v)}
+              onChange={handleOpacityChange}
               className={menuClasses.imageLayerOpacitySlider}
               orientation="horizontal"
             />

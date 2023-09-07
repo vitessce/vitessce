@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 // eslint gets confused by the "id" being within MUI's inputProps.
-import React, { useState, useId } from 'react';
+import React, { useState, useMemo, useCallback, useId } from 'react';
 import {
   makeStyles,
   Grid,
@@ -267,23 +267,30 @@ export default function ImageLayerController(props) {
   const addChannel = useAddImageChannelInMetaCoordinationScopes();
 
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
-  const Visibility = visibleSetting ? VisibilityIcon : VisibilityOffIcon;
+  const Visibility = useMemo(() => (
+    visibleSetting
+      ? VisibilityIcon
+      : VisibilityOffIcon
+  ), [visibleSetting]);
 
   const label = image?.getName();
   const imageNumChannels = image?.getNumChannels();
   const is3dMode = spatialRenderingMode === '3D';
 
-  function handleChannelAdd() {
+  const handleChannelAdd = useCallback(() => {
     addChannel(
       coordinationScopesRaw,
       layerScope,
     );
-  }
+  }, [addChannel, coordinationScopesRaw, layerScope]);
 
-  function handleVisibleChange() {
+  const handleVisibleChange = useCallback(() => {
     const nextVisible = typeof visible === 'boolean' ? !visible : false;
     setVisible(nextVisible);
-  }
+  }, [visible, setVisible]);
+
+  const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
+  const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
 
   const classes = useStyles();
   const menuClasses = useEllipsisMenuStyles();
@@ -313,7 +320,7 @@ export default function ImageLayerController(props) {
               min={0}
               max={1}
               step={0.001}
-              onChange={(e, v) => setOpacity(v)}
+              onChange={handleOpacityChange}
               className={menuClasses.imageLayerOpacitySlider}
               orientation="horizontal"
             />
@@ -339,7 +346,7 @@ export default function ImageLayerController(props) {
             <ImageIcon className={classes.layerTypeImageIcon} />
             {isMultiChannel ? (
               <Button
-                onClick={() => setOpen(prev => !prev)}
+                onClick={handleOpenChange}
                 className={classes.channelExpansionButton}
               >
                 {open ? <ExpandLess /> : <ExpandMore />}
