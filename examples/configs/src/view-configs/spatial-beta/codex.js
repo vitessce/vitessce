@@ -10,7 +10,7 @@ import {
 function generateCodexConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'My config',
+    name: 'HBM634.MSKL.575',
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
@@ -134,14 +134,14 @@ function generateCodexConfig() {
         imageChannel: CL([
           {
             spatialTargetC: 0,
-            spatialChannelColor: [255, 0, 0],
+            spatialChannelColor: [255, 255, 255],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1.0,
             spatialChannelWindow: null,
           },
           {
             spatialTargetC: 1,
-            spatialChannelColor: [0, 255, 0],
+            spatialChannelColor: [255, 0, 255],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1.0,
             spatialChannelWindow: null,
@@ -174,10 +174,10 @@ function generateCodexConfig() {
             obsType: 'nucleus',
             spatialTargetC: 1,
             spatialChannelColor: [91, 181, 231],
-            spatialChannelOpacity: 1.0,
+            spatialChannelOpacity: 0.8,
             featureType: 'gene',
             featureValueType: 'expression',
-            spatialChannelVisible: false,
+            spatialChannelVisible: true,
             obsColorEncoding: 'spatialChannelColor',
             spatialSegmentationFilled: true,
             spatialSegmentationStrokeWidth: 1,

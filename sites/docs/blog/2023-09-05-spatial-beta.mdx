@@ -18,9 +18,11 @@ There are several motivations for re-implementing these views:
 - Use semantically-meaningful data types for points and spots
 - Unify the visualization properties for polygon and bitmask segmentations
 
-These views are available as `spatialBeta` and `layerControllerBeta`.
-Note: automatic initialization of the coordination space is not yet supported, so usage will require some manual initialization.
-We suggest using the object-oriented `VitessceConfig` API (specifically `VitessceConfig.linkViewsByObject`).
+These views are available in JS package v3.2.0 as `spatialBeta` and `layerControllerBeta`.
+
+
+Note: automatic initialization of the coordination space is not yet supported.
+We suggest using the object-oriented `VitessceConfig` API (and the new [linkViewsByObject](../../docs/view-config-js/#linkviewsbyobjectviews-obj-metatrue) method) to manually initialize the values.
 
 ## Flexible coordination model
 
@@ -35,6 +37,10 @@ Multi-level coordination extends this model by allowing each coordination scope 
 
 For example, it allows each image layer coordination scope to be mapped to its own coordinated properties such as opacity and visibility.
 Meanwhile, the opacity and visibility properties remain primitive numeric and boolean values, respectively, which are agnostic to the existence of the image layer.
+
+Other benefits:
+- Ability to configure global Z/T/C indices for coordination of spatial/temporal/channel selections across data types, datasets, or views
+- 
 
 ## Multi-channel, per-obsType segmentation bitmasks
 
@@ -76,4 +82,21 @@ The new spatial view implementation supports on-the-fly `stroked: true/false` fo
 Using multi-level coordination, the same visual properties can be configured for both polygons and bitmasks.
 The boundaries of bitmask observations are computed on the GPU using a custom DeckGL layer.
 
-Note: parts of bitmask boundaries that are close to image tile boundaries have the potential to be under-drawn.
+Note: the GPU-based boundary visualization is based on a heuristic and is not perfect.
+Parts of bitmask boundaries that are close to image tile boundaries have the potential to be under-drawn (because the shader only has access to the data for one tile at a time).
+Boundaries that are concave may also be under-drawn.
+However, the boundary will never be over-drawn (i.e., pixels will not be rendered that would lie outside of the boundary if it had been rendered perfectly).
+The imperfections are more noticible at higher zoom levels.
+In the future, strategies such as multi-pass rendering of staggered tiles could resolve these limitations.
+
+## Demos
+
+We have configured several examples which make use of the `spatialBeta` and `layerControllerBeta` views:
+- [RGB image](../../#?dataset=visium-2023-image-only)
+- [Multiplex + 3D image](../../#?dataset=blin-2019-2)
+- [Comparison of volumetric rendering algorithms](../../#?dataset=blin-2019-3)
+- [Visium with obsSpots data type](../../#?dataset=visium-2023)
+- [osmFISH with obsPoints data type](../../#?dataset=codeluppi-2018-2)
+- [Bitmask-based obsSegmentations for functional tissue units](#todo)
+- [Bitmask-based obsSegmentations for cells and nuclei](../../#?dataset=codex-2023)
+

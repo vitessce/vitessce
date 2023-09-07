@@ -30,17 +30,21 @@ import { meta2022azimuth } from './view-configs/meta_2022_azimuth.js';
 import { rgbOmeTiff } from './view-configs/rgb-ome-tiff.js';
 import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
 import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
+import { blinOop2019, blinSideBySide2019 } from './view-configs/spatial-beta/blin.js';
+import { codexOop2023 } from './view-configs/spatial-beta/codex.js';
+import { visiumImageOop2023 } from './view-configs/spatial-beta/visium-image.js';
+import { visiumSpotsOop2023 } from './view-configs/spatial-beta/visium-spots.js';
+import { codeluppiOop2018 } from './view-configs/spatial-beta/codeluppi.js';
+
+// TODO(spatialBeta):
 import { kpmp2023 } from './view-configs/kpmp.js';
 import { kpmpOop2023 } from './view-configs/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/kpmp-auto-init.js';
 import { imsAlgorithmComparison } from './view-configs/ims-algorithm-comparison.js';
 import { neumanOop2023 } from './view-configs/neumann-oop.js';
-import { codexOop2023 } from './view-configs/codex-oop.js';
 import { lightsheetOop2023 } from './view-configs/lightsheet-oop.js';
-import { visiumSpotsOop2023 } from './view-configs/visium-spots-oop.js';
 import { visiumPolygonsOop2023 } from './view-configs/visium-polygons-oop.js';
-import { codeluppiOop2018 } from './view-configs/codeluppi-oop.js';
-import { blinOop2019, blinSideBySide2019 } from './view-configs/blin-oop.js';
+
 
 
 export const coordinationTypeConfigs = {
@@ -79,7 +83,6 @@ export const configs = {
   'ome-ngff-v0.1': omeNgffLegacy,
   'rgb-ome-tiff': rgbOmeTiff,
   'segmentations-ome-tiff': segmentationsOmeTiff,
-  'codeluppi-2018-oop': codeluppiOop2018,
   // Keys which enable backwards compatibility with old links.
   'linnarsson-2018': codeluppi2018,
   'visium-spatial-viewer': visiumSpatialViewer,
@@ -87,20 +90,23 @@ export const configs = {
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
 
-  // Object-oriented / multi-level coordination:
+  // Multi-level coordination with spatialBeta view:
+  'blin-2019-2': blinOop2019,
+  'blin-2019-3': blinSideBySide2019,
+  'codex-2023': codexOop2023,
+  'visium-2023-image-only': visiumImageOop2023,
+  'visium-2023': visiumSpotsOop2023,
+  'codeluppi-2018-2': codeluppiOop2018,
+
+  // TODO(spatialBeta): clean up
   'kpmp-2023': kpmp2023,
   'kpmp-oop-2023': kpmpOop2023,
   'ims-algorithm-comparison': imsAlgorithmComparison,
   'neumann-oop-2023': neumanOop2023,
-  'codex-oop-2023': codexOop2023,
   'lightsheet-oop-2023': lightsheetOop2023,
-  'visium-spots-oop-2023': visiumSpotsOop2023,
   'visium-polygons-oop-2023': visiumPolygonsOop2023,
   'kpmp-auto-init': kpmpAutoInit2023,
-  'codeluppi-2018-via-json': codeluppi2018,
-  'blin-oop-2019': blinOop2019,
-  'blin-two-2019': blinSideBySide2019,
-
+  
   // For documentation of coordination types:
   ...coordinationTypeConfigs,
 };

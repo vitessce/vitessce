@@ -68,6 +68,7 @@ function generateVisiumConfig() {
       spatialLayerVisible: true,
       spatialLayerOpacity: 0.5,
       spatialSpotRadius: 10.0,
+      featureValueColormapRange: [0, 1],
     }),
   });
 
