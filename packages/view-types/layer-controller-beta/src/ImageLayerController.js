@@ -339,7 +339,7 @@ export default function ImageLayerController(props) {
     setSpatialSliceX,
     setSpatialSliceY,
     setSpatialSliceZ,
-    setTooltipsVisible: setTooltipsVisible,
+    setTooltipsVisible,
     setSpatialChannelLabelsVisible: setChannelLabelsVisible,
     setSpatialChannelLabelsOrientation: setChannelLabelsOrientation,
     setSpatialChannelLabelSize: setChannelLabelSize,

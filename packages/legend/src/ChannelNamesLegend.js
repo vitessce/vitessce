@@ -98,7 +98,7 @@ export default function ChannelNamesLegend(props) {
               ) : null;
             })}
           </div>
-        ) : null);
+          ) : null);
       }) : null}
     </div>
   );
