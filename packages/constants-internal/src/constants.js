@@ -36,6 +36,7 @@ export const DataType = {
 export const FileType = {
   // Joint file types
   ANNDATA_ZARR: 'anndata.zarr',
+  SPATIALDATA_ZARR: 'spatialdata.zarr',
   // Atomic file types
   OBS_EMBEDDING_CSV: 'obsEmbedding.csv',
   OBS_LOCATIONS_CSV: 'obsLocations.csv',
@@ -54,6 +55,14 @@ export const FileType = {
   OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
   OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
   FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
+  // SpatialData
+  IMAGE_SPATIALDATA_ZARR: 'image.spatialdata.zarr',
+  OBS_SEGMENTATIONS_SPATIALDATA_ZARR: 'obsSegmentations.spatialdata.zarr',
+  OBS_FEATURE_MATRIX_SPATIALDATA_ZARR: 'obsFeatureMatrix.spatialdata.zarr',
+  OBS_SETS_SPATIALDATA_ZARR: 'obsSets.spatialdata.zarr',
+  OBS_LOCATIONS_SPATIALDATA_ZARR: 'obsLocations.spatialdata.zarr',
+  // OBS_POINTS_SPATIALDATA_ZARR: 'obsPoints.spatialdata.zarr',
+  // OBS_SPOTS_SPATIALDATA_ZARR: 'obsSpots.spatialdata.zarr',
   // MuData
   OBS_FEATURE_MATRIX_MUDATA_ZARR: 'obsFeatureMatrix.mudata.zarr',
   OBS_SETS_MUDATA_ZARR: 'obsSets.mudata.zarr',

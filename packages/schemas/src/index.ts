@@ -19,6 +19,11 @@ export {
   anndataZarrSchema,
   imageOmeZarrSchema,
   imageOmeTiffSchema,
+  imageSpatialdataSchema,
+  obsSegmentationsSpatialdataSchema,
+  obsFeatureMatrixSpatialdataSchema,
+  obsLocationsSpatialdataSchema,
+  obsSetsSpatialdataSchema,
 } from './file-def-options.js';
 export {
   anndataCellsZarrSchema,

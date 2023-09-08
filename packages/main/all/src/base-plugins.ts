@@ -39,6 +39,11 @@ import {
   cellsJsonSchema,
   imageOmeZarrSchema,
   imageOmeTiffSchema,
+  imageSpatialdataSchema,
+  obsSegmentationsSpatialdataSchema,
+  obsFeatureMatrixSpatialdataSchema,
+  obsLocationsSpatialdataSchema,
+  obsSetsSpatialdataSchema,
   obsSetPath,
   rgbArray,
   obsSetsSchema,
@@ -194,6 +199,12 @@ export const baseFileTypes = [
   makeFileType(FileType.IMAGE_OME_ZARR, DataType.IMAGE, OmeZarrLoader, ZarrDataSource, imageOmeZarrSchema),
   makeFileType(FileType.IMAGE_OME_TIFF, DataType.IMAGE, OmeTiffLoader, OmeTiffSource, imageOmeTiffSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, imageOmeZarrSchema),
+  // SpatialData file types
+  makeFileType(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, OmeZarrLoader, ZarrDataSource, imageSpatialdataSchema),
+  makeFileType(FileType.OBS_SEGMENTATIONS_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, AnnDataSource, obsSegmentationsSpatialdataSchema),
+  makeFileType(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, AnnDataSource, obsFeatureMatrixSpatialdataSchema),
+  makeFileType(FileType.OBS_LOCATIONS_SPATIALDATA_ZARR, DataType.OBS_LOCATIONS, ObsLocationsAnndataLoader, AnnDataSource, obsLocationsSpatialdataSchema),
+  makeFileType(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, AnnDataSource, obsSetsSpatialdataSchema),
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
   makeFileType(FileType.IMAGE_RASTER_JSON, DataType.IMAGE, RasterJsonAsImageLoader, JsonSource, rasterJsonSchema),
@@ -213,6 +224,7 @@ export const baseFileTypes = [
 
 export const baseJointFileTypes = [
   new PluginJointFileType(FileType.ANNDATA_ZARR, expandAnndataZarr, anndataZarrSchema),
+  // new PluginJointFileType(FileType.SPATIALDATA_ZARR, expandSpatialdataZarr, spatialdataZarrSchema),
   // For legacy file types:
   new PluginJointFileType(FileType.ANNDATA_CELLS_ZARR, expandAnndataCellsZarr, anndataCellsZarrSchema),
   new PluginJointFileType(FileType.ANNDATA_CELL_SETS_ZARR, expandAnndataCellSetsZarr, anndataCellSetsZarrSchema),

@@ -91,6 +91,28 @@ export const imageOmeZarrSchema = z.object({
     .optional(),
 });
 
+// SpatialData
+// TODO: properties to specify target coordinate system name?
+export const imageSpatialdataSchema = z.object({
+  path: z.string(),
+});
+export const obsSegmentationsSpatialdataSchema = z.object({
+  path: z.string(),
+});
+export const obsLocationsSpatialdataSchema = z.object({
+  path: z.string(),
+});
+export const obsFeatureMatrixSpatialdataSchema = annDataObsFeatureMatrix.extend({
+  region: z.string()
+    .describe('The name of a region to use to filter instances (i.e., rows) in the table')
+    .optional(),
+});
+export const obsSetsSpatialdataSchema = z.object({
+  region: z.string()
+    .describe('The name of a region to use to filter instances (i.e., rows) in the table')
+    .optional(),
+  obsSets: annDataObsSets,
+});
 
 /**
  * Options schemas for atomic file types.
