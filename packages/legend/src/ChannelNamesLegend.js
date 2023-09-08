@@ -1,14 +1,24 @@
 import React, { useMemo } from 'react';
+import clsx from 'clsx';
 import { makeStyles, Typography } from '@material-ui/core';
 import { colorArrayToString } from '@vitessce/sets-utils';
 
 const useStyles = makeStyles(() => ({
-  channelNamesLegend: {
+  channelNamesLegendContainer: {
     position: 'absolute',
     bottom: '0px',
     left: '0px',
     paddingLeft: '10px',
     paddingBottom: '10px',
+  },
+  channelNamesLegendLayer: {
+    display: 'flex',
+  },
+  channelNamesRow: {
+    flexDirection: 'column',
+  },
+  channelNamesCol: {
+    flexDirection: 'row',
   },
 }));
 
@@ -29,9 +39,9 @@ export default function ChannelNamesLegend(props) {
   ), [imageLayerScopes]);
 
   return (
-    <div className={classes.channelNamesLegend}>
+    <div className={classes.channelNamesLegendContainer}>
       {/* Images */}
-      {imageLayerScopes ? reversedImageLayerScopes.flatMap((layerScope) => {
+      {imageLayerScopes ? reversedImageLayerScopes.map((layerScope) => {
         const layerCoordination = imageLayerCoordination[0][layerScope];
         const channelScopes = imageChannelScopesByLayer[layerScope];
         const channelCoordination = imageChannelCoordination[0][layerScope];
@@ -39,41 +49,56 @@ export default function ChannelNamesLegend(props) {
         const {
           spatialLayerVisible,
           photometricInterpretation,
-          // TODO: new coordination types for channel name:
-          // - visibility
-          // - text size
-          // - orientation
+          spatialChannelLabelsVisible,
+          spatialChannelLabelsOrientation,
+          spatialChannelLabelSize,
         } = layerCoordination;
+
+        const isHorizontal = spatialChannelLabelsOrientation === 'horizontal';
 
 
         return ((
           photometricInterpretation !== 'RGB'
           && channelCoordination
           && channelScopes
-        ) ? channelScopes.map((cScope) => {
-            const {
-              spatialTargetC,
-              spatialChannelVisible,
-              spatialChannelColor,
-            } = channelCoordination[cScope];
+        ) ? (
+          <div
+            className={clsx(
+              classes.channelNamesLegendLayer,
+              {
+                [classes.channelNamesCol]: isHorizontal,
+                [classes.channelNamesRow]: !isHorizontal,
+              },
+            )}
+            key={layerScope}
+          >
+            {channelScopes.map((cScope) => {
+              const {
+                spatialTargetC,
+                spatialChannelVisible,
+                spatialChannelColor,
+              } = channelCoordination[cScope];
 
-            const rgbColor = colorArrayToString(spatialChannelColor);
-            const channelNames = images?.[layerScope]?.image?.instance.getChannelNames();
-            const channelName = channelNames?.[spatialTargetC];
+              const rgbColor = colorArrayToString(spatialChannelColor);
+              const channelNames = images?.[layerScope]?.image?.instance.getChannelNames();
+              const channelName = channelNames?.[spatialTargetC];
 
-            return spatialLayerVisible && spatialChannelVisible ? (
-              <Typography
-                variant="h6"
-                key={`${layerScope}-${cScope}-${spatialTargetC}-${rgbColor}`}
-                style={{
-                  color: rgbColor,
-                  fontSize: '14px',
-                }}
-              >
-                {channelName}
-              </Typography>
-            ) : null;
-          }) : null);
+              return spatialLayerVisible && spatialChannelVisible && spatialChannelLabelsVisible ? (
+                <Typography
+                  variant="h6"
+                  key={`${layerScope}-${cScope}-${spatialTargetC}-${rgbColor}`}
+                  style={{
+                    color: rgbColor,
+                    fontSize: `${spatialChannelLabelSize}px`,
+                    marginRight: '10px',
+                  }}
+                >
+                  {channelName}
+                </Typography>
+              ) : null;
+            })}
+          </div>
+        ) : null);
       }) : null}
     </div>
   );

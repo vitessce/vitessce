@@ -44,6 +44,9 @@ export default function SegmentationLayerController(props) {
           featureSelection,
           featureValueColormap,
           featureValueColormapRange,
+          tooltipsVisible,
+          tooltipCrosshairsVisible,
+          legendVisible,
         } = channelCoordination[cScope];
         const {
           setSpatialChannelVisible,
@@ -54,6 +57,9 @@ export default function SegmentationLayerController(props) {
           setObsColorEncoding,
           setFeatureValueColormap,
           setFeatureValueColormapRange,
+          setTooltipsVisible,
+          setTooltipCrosshairsVisible,
+          setLegendVisible,
         } = setChannelCoordination[cScope];
 
         const obsTypeName = obsType;
@@ -77,7 +83,6 @@ export default function SegmentationLayerController(props) {
             setFilled={setFilled}
             strokeWidth={strokeWidth}
             setStrokeWidth={setStrokeWidth}
-
             obsColorEncoding={obsColorEncoding}
             featureSelection={featureSelection}
             featureValueColormap={featureValueColormap}
@@ -85,6 +90,12 @@ export default function SegmentationLayerController(props) {
             setObsColorEncoding={setObsColorEncoding}
             setFeatureValueColormap={setFeatureValueColormap}
             setFeatureValueColormapRange={setFeatureValueColormapRange}
+            tooltipsVisible={tooltipsVisible}
+            setTooltipsVisible={setTooltipsVisible}
+            tooltipCrosshairsVisible={tooltipCrosshairsVisible}
+            setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
+            legendVisible={legendVisible}
+            setLegendVisible={setLegendVisible}
           />
         );
       })}

@@ -54,12 +54,13 @@ export default function MultiLegend(props) {
           featureType,
           featureValueType,
           spatialLayerColor,
+          legendVisible,
         } = layerCoordination;
 
         const isStaticColor = obsColorEncoding === 'spatialLayerColor';
         const height = isStaticColor ? 20 : 36;
 
-        return spatialLayerVisible ? (
+        return spatialLayerVisible && legendVisible ? (
           <Legend
             key={layerScope}
             positionRelative
@@ -95,6 +96,7 @@ export default function MultiLegend(props) {
           featureValueType,
           featureSelection,
           spatialLayerColor,
+          legendVisible,
         } = layerCoordination;
 
         const expressionExtents = spotMultiExpressionExtents?.[layerScope];
@@ -105,7 +107,7 @@ export default function MultiLegend(props) {
         const isStaticColor = obsColorEncoding === 'spatialLayerColor';
         const height = isStaticColor ? 20 : 36;
 
-        return spatialLayerVisible ? (
+        return spatialLayerVisible && legendVisible ? (
           <Legend
             key={layerScope}
             positionRelative
@@ -150,6 +152,7 @@ export default function MultiLegend(props) {
             featureType,
             featureValueType,
             featureSelection,
+            legendVisible,
           } = channelCoordination[cScope];
           const expressionExtents = segmentationMultiExpressionExtents?.[layerScope]?.[cScope];
           // There can potentially be multiple features/genes selected, but we
@@ -158,7 +161,7 @@ export default function MultiLegend(props) {
           const isStaticColor = obsColorEncoding === 'spatialChannelColor';
           const height = isStaticColor ? 20 : 36;
 
-          return spatialLayerVisible && spatialChannelVisible ? (
+          return spatialLayerVisible && spatialChannelVisible && legendVisible ? (
             <Legend
               key={`${layerScope}-${cScope}`}
               positionRelative

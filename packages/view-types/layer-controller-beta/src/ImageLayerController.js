@@ -84,6 +84,14 @@ function ImageLayerEllipsisMenu(props) {
     spatialRenderingMode,
     image,
     channelScopes,
+    tooltipsVisible,
+    setTooltipsVisible,
+    channelLabelsVisible,
+    setChannelLabelsVisible,
+    channelLabelsOrientation,
+    setChannelLabelsOrientation,
+    channelLabelSize,
+    setChannelLabelSize,
   } = props;
   const [open, setOpen] = useState(false);
   const selectClasses = useSelectStyles();
@@ -111,11 +119,19 @@ function ImageLayerEllipsisMenu(props) {
     );
   }
 
+  function handleChannelLabelsOrientationChange(event) {
+    setChannelLabelsOrientation(event.target.value);
+  }
+
   const colormapId = useId();
   const interpretationId = useId();
   const transparentId = useId();
   const volumetricId = useId();
   const resolutionId = useId();
+  const tooltipsVisibleId = useId();
+  const channelLabelsVisibleId = useId();
+  const channelLabelsOrientationId = useId();
+  const channelLabelSizeId = useId();
 
   return (
     <PopperMenu
@@ -217,6 +233,62 @@ function ImageLayerEllipsisMenu(props) {
             ) : null)) : null}
         </Select>
       </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={tooltipsVisibleId}>
+          Tooltips Visible:&nbsp;
+        </label>
+        <Checkbox
+          color="primary"
+          checked={tooltipsVisible}
+          onChange={(e, v) => setTooltipsVisible(v)}
+          inputProps={{ id: tooltipsVisibleId, 'aria-label': 'Render pixel value tooltips' }}
+        />
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={channelLabelsVisibleId}>
+          Channel Labels Visible:&nbsp;
+        </label>
+        <Checkbox
+          disabled={photometricInterpretation === 'RGB'}
+          color="primary"
+          checked={channelLabelsVisible}
+          onChange={(e, v) => setChannelLabelsVisible(v)}
+          inputProps={{ id: channelLabelsVisibleId, 'aria-label': 'Render channel labels' }}
+        />
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={channelLabelsOrientationId}>
+          Channel Labels Orientation:&nbsp;
+        </label>
+        <Select
+          native
+          disabled={photometricInterpretation === 'RGB'}
+          onChange={handleChannelLabelsOrientationChange}
+          value={channelLabelsOrientation}
+          inputProps={{ id: channelLabelsOrientationId, 'aria-label': 'Channel labels orientation selector' }}
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          <option aria-label="Vertical" value="vertical">Vertical</option>
+          <option aria-label="Horizontal" value="horizontal">Horizontal</option>
+        </Select>
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={channelLabelSizeId}>
+          Channel Labels Size:&nbsp;
+        </label>
+        <Slider
+          disabled={photometricInterpretation === 'RGB'}
+          value={channelLabelSize}
+          min={8}
+          max={36}
+          step={1}
+          onChange={(e, v) => setChannelLabelSize(v)}
+          className={menuClasses.menuItemSlider}
+          orientation="horizontal"
+          id={channelLabelSizeId}
+          aria-label="Channel labels text size slider"
+        />
+      </MenuItem>
     </PopperMenu>
   );
 }
@@ -251,6 +323,10 @@ export default function ImageLayerController(props) {
     spatialSliceX,
     spatialSliceY,
     spatialSliceZ,
+    tooltipsVisible,
+    spatialChannelLabelsVisible: channelLabelsVisible,
+    spatialChannelLabelsOrientation: channelLabelsOrientation,
+    spatialChannelLabelSize: channelLabelSize,
   } = layerCoordination;
   const {
     setSpatialLayerVisible: setVisible,
@@ -263,6 +339,10 @@ export default function ImageLayerController(props) {
     setSpatialSliceX,
     setSpatialSliceY,
     setSpatialSliceZ,
+    setTooltipsVisible: setTooltipsVisible,
+    setSpatialChannelLabelsVisible: setChannelLabelsVisible,
+    setSpatialChannelLabelsOrientation: setChannelLabelsOrientation,
+    setSpatialChannelLabelSize: setChannelLabelSize,
   } = setLayerCoordination;
 
   const addChannel = useAddImageChannelInMetaCoordinationScopes();
@@ -343,6 +423,14 @@ export default function ImageLayerController(props) {
               spatialRenderingMode={spatialRenderingMode}
               image={image}
               channelScopes={channelScopes}
+              tooltipsVisible={tooltipsVisible}
+              setTooltipsVisible={setTooltipsVisible}
+              channelLabelsVisible={channelLabelsVisible}
+              setChannelLabelsVisible={setChannelLabelsVisible}
+              channelLabelsOrientation={channelLabelsOrientation}
+              setChannelLabelsOrientation={setChannelLabelsOrientation}
+              channelLabelSize={channelLabelSize}
+              setChannelLabelSize={setChannelLabelSize}
             />
           </Grid>
           <Grid item xs={1} container direction="row">

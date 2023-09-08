@@ -11,6 +11,7 @@ import {
   MenuItem,
   Button,
   Select,
+  Checkbox,
 } from '@material-ui/core';
 import {
   MoreVert as MoreVertIcon,
@@ -45,6 +46,12 @@ function PointLayerEllipsisMenu(props) {
     setObsColorEncoding,
     featureValueColormapRange,
     setFeatureValueColormapRange,
+    tooltipsVisible,
+    setTooltipsVisible,
+    tooltipCrosshairsVisible,
+    setTooltipCrosshairsVisible,
+    legendVisible,
+    setLegendVisible,
   } = props;
   const [open, setOpen] = useState(false);
   const selectClasses = useSelectStyles();
@@ -52,6 +59,9 @@ function PointLayerEllipsisMenu(props) {
 
   const quantitativeColormapId = useId();
   const colormapRangeId = useId();
+  const tooltipsVisibleId = useId();
+  const crosshairsVisibleId = useId();
+  const legendVisibleId = useId();
 
   return (
     <PopperMenu
@@ -95,6 +105,39 @@ function PointLayerEllipsisMenu(props) {
           getAriaLabel={index => (index === 0 ? 'Low value colormap range slider' : 'High value colormap range slider')}
         />
       </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={tooltipsVisibleId}>
+          Tooltips Visible:&nbsp;
+        </label>
+        <Checkbox
+          color="primary"
+          checked={tooltipsVisible}
+          onChange={(e, v) => setTooltipsVisible(v)}
+          inputProps={{ id: tooltipsVisibleId, 'aria-label': 'Toggle tooltip visibility' }}
+        />
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={crosshairsVisibleId}>
+          Tooltip Crosshairs Visible:&nbsp;
+        </label>
+        <Checkbox
+          color="primary"
+          checked={tooltipCrosshairsVisible}
+          onChange={(e, v) => setTooltipCrosshairsVisible(v)}
+          inputProps={{ id: crosshairsVisibleId, 'aria-label': 'Toggle tooltip crosshair visibility' }}
+        />
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={legendVisibleId}>
+          Legend Visible:&nbsp;
+        </label>
+        <Checkbox
+          color="primary"
+          checked={legendVisible}
+          onChange={(e, v) => setLegendVisible(v)}
+          inputProps={{ id: legendVisibleId, 'aria-label': 'Toggle legend visibility' }}
+        />
+      </MenuItem>
     </PopperMenu>
   );
 }
@@ -117,6 +160,9 @@ export default function PointLayerController(props) {
     featureValueColormap,
     featureValueColormapRange,
     spatialLayerColor: color,
+    tooltipsVisible,
+    tooltipCrosshairsVisible,
+    legendVisible,
   } = layerCoordination;
   const {
     setSpatialLayerVisible: setVisible,
@@ -126,6 +172,9 @@ export default function PointLayerController(props) {
     setFeatureValueColormap,
     setFeatureValueColormapRange,
     setSpatialLayerColor: setColor,
+    setTooltipsVisible,
+    setTooltipCrosshairsVisible,
+    setLegendVisible,
   } = setLayerCoordination;
 
   const label = capitalize(obsType);
@@ -198,6 +247,12 @@ export default function PointLayerController(props) {
               setObsColorEncoding={setObsColorEncoding}
               featureValueColormapRange={featureValueColormapRange}
               setFeatureValueColormapRange={setFeatureValueColormapRange}
+              tooltipsVisible={tooltipsVisible}
+              setTooltipsVisible={setTooltipsVisible}
+              tooltipCrosshairsVisible={tooltipCrosshairsVisible}
+              setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
+              legendVisible={legendVisible}
+              setLegendVisible={setLegendVisible}
             />
           </Grid>
           <Grid item xs={1}>

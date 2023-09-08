@@ -268,6 +268,15 @@ export const kpmp2023 = {
       ifta: 1,
       ptc: 1,
     },
+    obsHighlight: {
+      ci: null,
+      ngsg: null,
+      gsg: null,
+      t: null,
+      a: null,
+      ifta: null,
+      ptc: null,
+    },
     spatialTargetX: {
       A: 19375.01239458,
     },
@@ -467,6 +476,15 @@ export const kpmp2023 = {
             ptc: 'ptc',
           },
           spatialSegmentationStrokeWidth: {
+            ci: 'ci',
+            ngsg: 'ngsg',
+            gsg: 'gsg',
+            t: 't',
+            a: 'a',
+            ifta: 'ifta',
+            ptc: 'ptc',
+          },
+          obsHighlight: {
             ci: 'ci',
             ngsg: 'ngsg',
             gsg: 'gsg',

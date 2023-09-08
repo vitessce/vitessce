@@ -216,6 +216,11 @@ export const CoordinationType = {
   SPATIAL_SPOT_STROKE_WIDTH: 'spatialSpotStrokeWidth',
   SPATIAL_LAYER_COLOR: 'spatialLayerColor',
   PIXEL_HIGHLIGHT: 'pixelHighlight', // Per-image-layer
+  TOOLTIP_CROSSHAIRS_VISIBLE: 'tooltipCrosshairsVisible',
+  LEGEND_VISIBLE: 'legendVisible',
+  SPATIAL_CHANNEL_LABELS_VISIBLE: 'spatialChannelLabelsVisible',
+  SPATIAL_CHANNEL_LABELS_ORIENTATION: 'spatialChannelLabelsOrientation',
+  SPATIAL_CHANNEL_LABEL_SIZE: 'spatialChannelLabelSize',
 };
 
 export const STATUS = {

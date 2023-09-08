@@ -5,9 +5,19 @@ import { useComponentHover, useComponentViewInfo } from '@vitessce/vit-s';
 import { capitalize } from '@vitessce/utils';
 
 function TooltipChild(props) {
-  const { x, y, parentUuid, sourceUuid, width, height, info } = props;
+  const {
+    x, y,
+    parentUuid,
+    sourceUuid,
+    width, height,
+    info,
+    tooltipsVisible,
+    tooltipCrosshairsVisible,
+  } = props;
 
-  return (
+  const visible = parentUuid === sourceUuid ? tooltipsVisible : tooltipCrosshairsVisible;
+
+  return (visible ? (
     <Tooltip2D
       x={x}
       y={y}
@@ -18,7 +28,7 @@ function TooltipChild(props) {
     >
       <TooltipContent info={info} />
     </Tooltip2D>
-  );
+  ) : null);
 }
 
 function getXY(
@@ -80,8 +90,10 @@ export default function SpatialTooltipSubscriber(props) {
   return (
     <>
       {projectedHoverCoord && imageLayerScopes?.map((layerScope) => {
-        const { pixelHighlight } = imageLayerCoordination?.[0]?.[layerScope] || {};
-        return (pixelHighlight ? (
+        const {
+          pixelHighlight, tooltipsVisible, spatialLayerVisible,
+        } = imageLayerCoordination?.[0]?.[layerScope] || {};
+        return (tooltipsVisible && pixelHighlight && spatialLayerVisible ? (
           <TooltipChild
             key={layerScope}
             parentUuid={parentUuid}
@@ -98,9 +110,11 @@ export default function SpatialTooltipSubscriber(props) {
       })}
       {segmentationLayerScopes?.flatMap(layerScope => (
         segmentationChannelScopesByLayer?.[layerScope]?.map((channelScope) => {
-          const { obsType, obsHighlight } = segmentationChannelCoordination?.[0]
+          const {
+            obsType, obsHighlight, tooltipsVisible, tooltipCrosshairsVisible, spatialChannelVisible,
+          } = segmentationChannelCoordination?.[0]
             ?.[layerScope]?.[channelScope] || {};
-          if (!obsHighlight) return null;
+          if (!obsHighlight || (!tooltipsVisible && !tooltipCrosshairsVisible) || !spatialChannelVisible) return null;
           const { obsIndex, obsLocations } = obsSegmentationsLocations
             ?.[layerScope]?.[channelScope] || {};
           const xy = getXY(
@@ -114,6 +128,8 @@ export default function SpatialTooltipSubscriber(props) {
               key={`${layerScope}-${channelScope}`}
               parentUuid={parentUuid}
               sourceUuid={sourceUuid}
+              tooltipsVisible={tooltipsVisible}
+            tooltipCrosshairsVisible={tooltipCrosshairsVisible}
               width={width}
               height={height}
               info={{
@@ -126,8 +142,10 @@ export default function SpatialTooltipSubscriber(props) {
         })
       ))}
       {spotLayerScopes?.map((layerScope) => {
-        const { obsType, obsHighlight } = spotLayerCoordination?.[0]?.[layerScope] || {};
-        if (!obsHighlight) return null;
+        const {
+          obsType, obsHighlight, tooltipsVisible, tooltipCrosshairsVisible, spatialLayerVisible,
+        } = spotLayerCoordination?.[0]?.[layerScope] || {};
+        if (!obsHighlight || (!tooltipsVisible && !tooltipCrosshairsVisible) || !spatialLayerVisible) return null;
         const { obsIndex, obsSpots: obsLocations } = obsSpots?.[layerScope] || {};
         const xy = getXY(
           obsHighlight, viewInfo, obsIndex, obsLocations,
@@ -140,6 +158,8 @@ export default function SpatialTooltipSubscriber(props) {
             key={layerScope}
             parentUuid={parentUuid}
             sourceUuid={sourceUuid}
+            tooltipsVisible={tooltipsVisible}
+            tooltipCrosshairsVisible={tooltipCrosshairsVisible}
             width={width}
             height={height}
             info={{
@@ -151,8 +171,10 @@ export default function SpatialTooltipSubscriber(props) {
         );
       })}
       {pointLayerScopes?.map((layerScope) => {
-        const { obsType, obsHighlight } = pointLayerCoordination?.[0]?.[layerScope] || {};
-        if (!obsHighlight) return null;
+        const {
+          obsType, obsHighlight, tooltipsVisible, tooltipCrosshairsVisible, spatialLayerVisible,
+        } = pointLayerCoordination?.[0]?.[layerScope] || {};
+        if (!obsHighlight || (!tooltipsVisible && !tooltipCrosshairsVisible) || !spatialLayerVisible) return null;
         const { obsIndex, obsPoints: obsLocations } = obsPoints?.[layerScope] || {};
         const xy = getXY(
           obsHighlight, viewInfo, obsIndex, obsLocations,
@@ -165,6 +187,8 @@ export default function SpatialTooltipSubscriber(props) {
             key={layerScope}
             parentUuid={parentUuid}
             sourceUuid={sourceUuid}
+            tooltipsVisible={tooltipsVisible}
+            tooltipCrosshairsVisible={tooltipCrosshairsVisible}
             width={width}
             height={height}
             info={{

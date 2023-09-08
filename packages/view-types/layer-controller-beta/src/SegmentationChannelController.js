@@ -54,6 +54,12 @@ function SegmentationChannelEllipsisMenu(props) {
     setObsColorEncoding,
     featureValueColormapRange,
     setFeatureValueColormapRange,
+    tooltipsVisible,
+    setTooltipsVisible,
+    tooltipCrosshairsVisible,
+    setTooltipCrosshairsVisible,
+    legendVisible,
+    setLegendVisible,
   } = props;
   const [open, setOpen] = useState(false);
   const classes = useStyles();
@@ -64,6 +70,9 @@ function SegmentationChannelEllipsisMenu(props) {
   const strokeWidthId = useId();
   const quantitativeColormapId = useId();
   const colormapRangeId = useId();
+  const tooltipsVisibleId = useId();
+  const crosshairsVisibleId = useId();
+  const legendVisibleId = useId();
 
   return (
     <PopperMenu
@@ -136,6 +145,39 @@ function SegmentationChannelEllipsisMenu(props) {
           getAriaLabel={index => (index === 0 ? 'Low value colormap range slider' : 'High value colormap range slider')}
         />
       </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={tooltipsVisibleId}>
+          Tooltips Visible:&nbsp;
+        </label>
+        <Checkbox
+          color="primary"
+          checked={tooltipsVisible}
+          onChange={(e, v) => setTooltipsVisible(v)}
+          inputProps={{ id: tooltipsVisibleId, 'aria-label': 'Toggle tooltip visibility' }}
+        />
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={crosshairsVisibleId}>
+          Tooltip Crosshairs Visible:&nbsp;
+        </label>
+        <Checkbox
+          color="primary"
+          checked={tooltipCrosshairsVisible}
+          onChange={(e, v) => setTooltipCrosshairsVisible(v)}
+          inputProps={{ id: crosshairsVisibleId, 'aria-label': 'Toggle tooltip crosshair visibility' }}
+        />
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={legendVisibleId}>
+          Legend Visible:&nbsp;
+        </label>
+        <Checkbox
+          color="primary"
+          checked={legendVisible}
+          onChange={(e, v) => setLegendVisible(v)}
+          inputProps={{ id: legendVisibleId, 'aria-label': 'Toggle legend visibility' }}
+        />
+      </MenuItem>
     </PopperMenu>
   );
 }
@@ -166,6 +208,12 @@ export default function SegmentationChannelController(props) {
     setObsColorEncoding,
     // setFeatureValueColormap, // TODO
     setFeatureValueColormapRange,
+    tooltipsVisible,
+    setTooltipsVisible,
+    tooltipCrosshairsVisible,
+    setTooltipCrosshairsVisible,
+    legendVisible,
+    setLegendVisible,
   } = props;
 
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
@@ -243,6 +291,12 @@ export default function SegmentationChannelController(props) {
               setObsColorEncoding={setObsColorEncoding}
               featureValueColormapRange={featureValueColormapRange}
               setFeatureValueColormapRange={setFeatureValueColormapRange}
+              tooltipsVisible={tooltipsVisible}
+              setTooltipsVisible={setTooltipsVisible}
+              tooltipCrosshairsVisible={tooltipCrosshairsVisible}
+              setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
+              legendVisible={legendVisible}
+              setLegendVisible={setLegendVisible}
             />
           </Grid>
           <Grid item xs={1}>
