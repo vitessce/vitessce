@@ -89,6 +89,7 @@ export default function ChannelColorPickerMenu(props) {
       }
       buttonClassName={classes.colorIconButton}
       withPaper={false}
+      aria-label="Open color picker menu"
     >
       <TwitterPicker
         className={classes.colorPicker}

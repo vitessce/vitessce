@@ -73,6 +73,7 @@ function SegmentationChannelEllipsisMenu(props) {
       buttonClassName={menuClasses.imageLayerMenuButton}
       containerClassName={menuClasses.imageLayerPopperContainer}
       withPaper
+      aria-label="Open segmentation channel options menu"
     >
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={filledId}>
@@ -82,7 +83,7 @@ function SegmentationChannelEllipsisMenu(props) {
           color="primary"
           checked={filled}
           onChange={(e, v) => setFilled(v)}
-          inputProps={{ id: filledId }}
+          inputProps={{ id: filledId, 'aria-label': 'Toggle between filled and stroked segmentations' }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -99,6 +100,7 @@ function SegmentationChannelEllipsisMenu(props) {
           className={menuClasses.menuItemSlider}
           orientation="horizontal"
           id={strokeWidthId}
+          aria-label="Stroke width slider"
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -109,7 +111,7 @@ function SegmentationChannelEllipsisMenu(props) {
           native
           onChange={e => setObsColorEncoding(e.target.value)}
           value={obsColorEncoding}
-          inputProps={{ id: quantitativeColormapId }}
+          inputProps={{ id: quantitativeColormapId, 'aria-label': 'Color encoding selector' }}
           classes={{ root: selectClasses.selectRoot }}
         >
           <option value="spatialChannelColor">Static Color</option>
@@ -131,6 +133,7 @@ function SegmentationChannelEllipsisMenu(props) {
           className={menuClasses.menuItemSlider}
           orientation="horizontal"
           id={colormapRangeId}
+          getAriaLabel={index => (index === 0 ? 'Low value colormap range slider' : 'High value colormap range slider')}
         />
       </MenuItem>
     </PopperMenu>
@@ -193,6 +196,7 @@ export default function SegmentationChannelController(props) {
             <Button
               onClick={handleVisibleChange}
               className={menuClasses.imageLayerVisibleButton}
+              aria-label="Toggle channel visibility"
             >
               <Visibility />
             </Button>
@@ -222,6 +226,7 @@ export default function SegmentationChannelController(props) {
               onChange={handleOpacityChange}
               className={menuClasses.imageLayerOpacitySlider}
               orientation="horizontal"
+              aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
           <Grid item xs={1}>

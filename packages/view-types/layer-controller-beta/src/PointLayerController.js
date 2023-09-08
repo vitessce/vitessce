@@ -61,6 +61,7 @@ function PointLayerEllipsisMenu(props) {
       buttonClassName={menuClasses.imageLayerMenuButton}
       containerClassName={menuClasses.imageLayerPopperContainer}
       withPaper
+      aria-label="Open point layer options menu"
     >
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
@@ -70,7 +71,7 @@ function PointLayerEllipsisMenu(props) {
           native
           onChange={e => setObsColorEncoding(e.target.value)}
           value={obsColorEncoding}
-          inputProps={{ id: quantitativeColormapId }}
+          inputProps={{ id: quantitativeColormapId, 'aria-label': 'Color encoding selector' }}
           classes={{ root: selectClasses.selectRoot }}
         >
           <option value="spatialLayerColor">Static Color</option>
@@ -91,6 +92,7 @@ function PointLayerEllipsisMenu(props) {
           className={menuClasses.menuItemSlider}
           orientation="horizontal"
           id={colormapRangeId}
+          getAriaLabel={index => (index === 0 ? 'Low value colormap range slider' : 'High value colormap range slider')}
         />
       </MenuItem>
     </PopperMenu>
@@ -157,6 +159,7 @@ export default function PointLayerController(props) {
             <Button
               onClick={handleVisibleChange}
               className={menuClasses.imageLayerVisibleButton}
+              aria-label="Toggle layer visibility"
             >
               <Visibility />
             </Button>
@@ -185,6 +188,7 @@ export default function PointLayerController(props) {
               onChange={handleOpacityChange}
               className={menuClasses.imageLayerOpacitySlider}
               orientation="horizontal"
+              aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
           <Grid item xs={1}>

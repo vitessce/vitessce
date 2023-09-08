@@ -67,7 +67,11 @@ export default function ChannelSlider(props) {
       valueLabelFormat={abbreviateNumber}
       onChange={(e, v) => handleChangeDebounced(v)}
       valueLabelDisplay="auto"
-      getAriaLabel={() => `${rgbColor}-${window}`}
+      getAriaLabel={(index) => {
+        const labelPrefix = index === 0 ? 'Low value slider' : 'High value slider';
+        return `${labelPrefix} for ${rgbColor} colormap channel`;
+      }}
+      getAriaValueText={() => `Current colormap values: ${rgbColor}-${window}`}
       min={min}
       max={max}
       step={step}

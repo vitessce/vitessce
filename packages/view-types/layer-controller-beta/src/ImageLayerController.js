@@ -125,6 +125,7 @@ function ImageLayerEllipsisMenu(props) {
       buttonClassName={menuClasses.imageLayerMenuButton}
       containerClassName={menuClasses.imageLayerPopperContainer}
       withPaper
+      aria-label="Open image layer options menu"
     >
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapId}>
@@ -135,7 +136,7 @@ function ImageLayerEllipsisMenu(props) {
           disabled={photometricInterpretation === 'RGB'}
           onChange={handleColormapChange}
           value={colormap === null ? '' : colormap}
-          inputProps={{ id: colormapId }}
+          inputProps={{ id: colormapId, 'aria-label': 'Colormap selector' }}
           classes={{ root: selectClasses.selectRoot }}
         >
           <option aria-label="None" value="">None</option>
@@ -154,7 +155,7 @@ function ImageLayerEllipsisMenu(props) {
           native
           onChange={handleInterpretationChange}
           value={photometricInterpretation}
-          inputProps={{ id: interpretationId }}
+          inputProps={{ id: interpretationId, 'aria-label': 'Photometric interpretation selector' }}
           classes={{ root: selectClasses.selectRoot }}
         >
           <option aria-label="RGB" value="RGB">RGB</option>
@@ -171,7 +172,7 @@ function ImageLayerEllipsisMenu(props) {
           color="primary"
           checked={spatialLayerTransparentColor !== null}
           onChange={(e, v) => setSpatialLayerTransparentColor(v ? ([0, 0, 0]) : null)}
-          inputProps={{ id: transparentId }}
+          inputProps={{ id: transparentId, 'aria-label': 'Render zero-value pixels as transparent' }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -182,7 +183,7 @@ function ImageLayerEllipsisMenu(props) {
           native
           onChange={handleVolumetricChange}
           value={volumetricRenderingAlgorithm}
-          inputProps={{ id: volumetricId }}
+          inputProps={{ id: volumetricId, 'aria-label': 'Volumetric rendering algorithm selector' }}
           classes={{ root: selectClasses.selectRoot }}
           disabled={!is3dMode}
         >
@@ -199,7 +200,7 @@ function ImageLayerEllipsisMenu(props) {
           disabled={!is3dMode || !isMultiResolution}
           onChange={handleResolutionChange}
           value={spatialTargetResolution === null ? 'auto' : spatialTargetResolution}
-          inputProps={{ id: resolutionId }}
+          inputProps={{ id: resolutionId, 'aria-label': 'Volumetric resolution selector' }}
           classes={{ root: selectClasses.selectRoot }}
         >
           <option value="auto">Auto</option>
@@ -304,6 +305,7 @@ export default function ImageLayerController(props) {
             <Button
               className={menuClasses.imageLayerVisibleButton}
               onClick={handleVisibleChange}
+              aria-label="Toggle layer visibility"
             >
               <Visibility />
             </Button>
@@ -323,6 +325,7 @@ export default function ImageLayerController(props) {
               onChange={handleOpacityChange}
               className={menuClasses.imageLayerOpacitySlider}
               orientation="horizontal"
+              aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
           <Grid item xs={1}>
@@ -348,6 +351,7 @@ export default function ImageLayerController(props) {
               <Button
                 onClick={handleOpenChange}
                 className={classes.channelExpansionButton}
+                aria-label="Expand or collapse channel controls"
               >
                 {open ? <ExpandLess /> : <ExpandMore />}
               </Button>
@@ -414,6 +418,7 @@ export default function ImageLayerController(props) {
               className={classes.imageLayerButton}
               startIcon={<AddIcon />}
               size="small"
+              aria-label="Add a channel to this layer"
             >
               Add Channel
             </Button>

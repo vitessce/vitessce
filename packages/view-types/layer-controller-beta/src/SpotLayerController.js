@@ -69,6 +69,7 @@ function SpotLayerEllipsisMenu(props) {
       buttonClassName={menuClasses.imageLayerMenuButton}
       containerClassName={menuClasses.imageLayerPopperContainer}
       withPaper
+      aria-label="Open spot layer options menu"
     >
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={filledId}>
@@ -78,7 +79,7 @@ function SpotLayerEllipsisMenu(props) {
           color="primary"
           checked={filled}
           onChange={(e, v) => setFilled(v)}
-          inputProps={{ id: filledId }}
+          inputProps={{ id: filledId, 'aria-label': 'Toggle between filled and stroked spots' }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -95,6 +96,7 @@ function SpotLayerEllipsisMenu(props) {
           className={menuClasses.menuItemSlider}
           orientation="horizontal"
           id={strokeWidthId}
+          aria-label="Stroke width slider"
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -105,7 +107,7 @@ function SpotLayerEllipsisMenu(props) {
           native
           onChange={e => setObsColorEncoding(e.target.value)}
           value={obsColorEncoding}
-          inputProps={{ id: quantitativeColormapId }}
+          inputProps={{ id: quantitativeColormapId, 'aria-label': 'Color encoding selector' }}
           classes={{ root: selectClasses.selectRoot }}
         >
           <option value="spatialLayerColor">Static Color</option>
@@ -127,6 +129,7 @@ function SpotLayerEllipsisMenu(props) {
           className={menuClasses.menuItemSlider}
           orientation="horizontal"
           id={colormapRangeId}
+          getAriaLabel={index => (index === 0 ? 'Low value colormap range slider' : 'High value colormap range slider')}
         />
       </MenuItem>
     </PopperMenu>
@@ -199,6 +202,7 @@ export default function SpotLayerController(props) {
             <Button
               onClick={handleVisibleChange}
               className={menuClasses.imageLayerVisibleButton}
+              aria-label="Toggle spot layer visibility"
             >
               <Visibility />
             </Button>
@@ -227,6 +231,7 @@ export default function SpotLayerController(props) {
               onChange={handleOpacityChange}
               className={menuClasses.imageLayerOpacitySlider}
               orientation="horizontal"
+              aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
           <Grid item xs={1}>

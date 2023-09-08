@@ -84,6 +84,7 @@ export default function GlobalDimensionSlider(props) {
               valueLabelDisplay="auto"
               orientation="horizontal"
               disabled={spatialRenderingMode === '3D'}
+              aria-label={`${label}-slice slider`}
             />
           </Grid>
           <Grid item xs={2}>

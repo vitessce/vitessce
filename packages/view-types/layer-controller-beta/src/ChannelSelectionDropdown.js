@@ -42,6 +42,7 @@ export default function ChannelSelectionDropdown(props) {
       className={classes.oneLineChannelSelect}
       value={targetC === null ? '' : targetC}
       onChange={handleChange}
+      inputProps={{ 'aria-label': 'Channel selector' }}
     >
       {featureIndex.map((channelName, channelIndex) => (
         <option disabled={disabled} key={channelName} value={channelIndex}>

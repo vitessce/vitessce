@@ -54,6 +54,7 @@ export default function ChannelOptions(props) {
       containerClassName={menuClasses.imageLayerPopperContainer}
       placement="bottom-end"
       withPaper
+      aria-label="Open channel options menu"
     >
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={domainTypeId}>
@@ -63,7 +64,7 @@ export default function ChannelOptions(props) {
           native
           onChange={handleDomainTypeChange}
           value={showValueExtent ? 'Value Min/Max' : 'Dtype Min/Max'}
-          inputProps={{ id: domainTypeId }}
+          inputProps={{ id: domainTypeId, 'aria-label': 'Slider extent selector' }}
           classes={{ root: selectClasses.selectRoot }}
         >
           <option value="Value Min/Max">Value Min/Max</option>
@@ -76,6 +77,7 @@ export default function ChannelOptions(props) {
         component="button"
         onClick={onResetWindowUsingIQR}
         className={classes.menuItemButton}
+        aria-label="Click to use IQR for channel"
       >
         Reset window using IQR
       </MenuItem>
@@ -85,6 +87,7 @@ export default function ChannelOptions(props) {
         component="button"
         onClick={handleRemove}
         className={classes.menuItemButton}
+        aria-label="Click to remove channel"
       >
         Remove channel
       </MenuItem>
