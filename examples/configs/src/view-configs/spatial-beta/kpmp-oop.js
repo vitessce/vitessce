@@ -12,7 +12,8 @@ const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/kpmp-f2f-marc
 function generateKpmpConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'My config',
+    name: 'Multi-obsType segmentations',
+    description: 'Example of coordinated opacity values for multiple segmentation types',
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'obsSegmentations.ome-tiff',

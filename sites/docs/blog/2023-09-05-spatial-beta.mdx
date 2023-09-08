@@ -2,7 +2,7 @@
 slug: spatial-beta
 title: Next-generation spatial views
 author: Mark Keller
-author_title: Gehlenborg Lab
+author_title: HIDIVE Lab
 author_url: http://gehlenborglab.org/team/members/mark-keller/
 tags: [spatial]
 ---
@@ -28,7 +28,7 @@ We suggest using the object-oriented `VitessceConfig` API (and the new [linkView
 
 Previously, the spatial view used two coordination types `spatialSegmentationLayer` and `spatialImageLayer` which required an array of nested objects as values.
 Usage of nested objects as coordination values prevents coordination of a subset of those values.
-For example, this prevented coordination of channel colors while referencing different channel indices or vice-versa.
+For example, this prevented coordinating channel colors while not coordinating other properties such as channel intensity windows.
 
 In contrast, `spatialBeta` and `layerControllerBeta` are more flexible because they use multi-level- and meta- coordination to achieve the configuration of hierarchical properties including image layers and channels.
 
@@ -36,7 +36,7 @@ In the base case of the single-level coordination model, each view can be mapped
 Multi-level coordination extends this model by allowing each coordination scope to itself have its own set of coordination scope mapping, generating a new "level" of coordination.
 
 For example, it allows each image layer coordination scope to be mapped to its own coordinated properties such as opacity and visibility.
-Meanwhile, the opacity and visibility properties remain primitive numeric and boolean values, respectively, which are agnostic to the existence of the image layer.
+Meanwhile, the opacity and visibility properties remain primitive numeric and boolean values, respectively, which are agnostic to the existence of any image layer.
 
 Other benefits:
 - Ability to configure global Z/T/C indices for coordination of spatial/temporal/channel selections across data types, datasets, or views
