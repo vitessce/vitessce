@@ -32,6 +32,7 @@
   "dependencies": {
     "@material-ui/core": "~4.12.3",
     "@vitessce/utils": "workspace:*",
+    "@vitessce/sets-utils": "workspace:*",
     "clsx": "^1.1.1",
     "colormap": "^2.3.2",
     "d3-axis": "^3.0.0",
