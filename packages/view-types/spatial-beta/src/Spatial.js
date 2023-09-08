@@ -377,16 +377,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     const getMoleculeColor = (object, { data, index, target }) => {
       const obsId = data.src.obsIndex[index];
-      if (data.src.obsLabelsMap && data.src.uniqueObsLabels) {
+      if (data.src.obsLabelsMap && data.src.uniqueObsLabels && data.src.PALETTE) {
         const obsLabel = data.src.obsLabelsMap.get(obsId);
         const labelIndex = data.src.uniqueObsLabels.indexOf(obsLabel);
 
         // eslint-disable-next-line no-param-reassign, prefer-destructuring
-        target[0] = data.src.PALETTE[labelIndex % data.src.PALETTE.length][0];
+        target[0] = data.src.PALETTE[labelIndex % data.src.PALETTE.length]?.[0];
         // eslint-disable-next-line no-param-reassign, prefer-destructuring
-        target[1] = data.src.PALETTE[labelIndex % data.src.PALETTE.length][1];
+        target[1] = data.src.PALETTE[labelIndex % data.src.PALETTE.length]?.[1];
         // eslint-disable-next-line no-param-reassign, prefer-destructuring
-        target[2] = data.src.PALETTE[labelIndex % data.src.PALETTE.length][2];
+        target[2] = data.src.PALETTE[labelIndex % data.src.PALETTE.length]?.[2];
       }
       return target;
     };
@@ -1277,13 +1277,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
         src: {
           obsIndex,
           obsPoints: layerObsPoints,
+          obsLabelsMap: null,
+          uniqueObsLabels: null,
+          PALETTE: null,
         },
         length: layerObsPoints.shape[1],
       };
 
       if (obsLabels) {
         const obsLabelsMap = new Map(obsLabelsIndex.map((key, i) => ([key, obsLabels[i]])));
-        const uniqueObsLabels = [...new Set(obsLabels)];
+        const uniqueObsLabels = Array.from(new Set(obsLabels));
         this.obsPointsData[layerScope].src.obsLabelsMap = obsLabelsMap;
         this.obsPointsData[layerScope].src.uniqueObsLabels = uniqueObsLabels;
         this.obsPointsData[layerScope].src.PALETTE = PALETTE;

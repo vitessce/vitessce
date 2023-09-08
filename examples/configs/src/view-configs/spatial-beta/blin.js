@@ -8,7 +8,7 @@ import {
 function generateBlinConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'My config',
+    name: 'Blin et al., PLoS Biol 2019',
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-zarr',
@@ -18,7 +18,10 @@ function generateBlinConfig() {
     },
   });
 
-  const imageScopes = config.addCoordinationByObject({
+  const spatialView = config.addView(dataset, 'spatialBeta');
+  const lcView = config.addView(dataset, 'layerControllerBeta');
+
+  config.linkViewsByObject([spatialView, lcView], {
     spatialTargetZ: 0,
     spatialTargetT: 0,
     imageLayer: CL([
@@ -48,20 +51,7 @@ function generateBlinConfig() {
     ]),
   });
 
-  const metaCoordinationScope = config.addMetaCoordination();
-  metaCoordinationScope.useCoordinationByObject(imageScopes);
-
-
-  const spatialViewSimple = config.addView(dataset, 'spatialBeta');
-
-  const lcViewSimple = config.addView(dataset, 'layerControllerBeta');
-
-
-  spatialViewSimple.useMetaCoordination(metaCoordinationScope);
-  lcViewSimple.useMetaCoordination(metaCoordinationScope);
-
-
-  config.layout(hconcat(spatialViewSimple, lcViewSimple));
+  config.layout(hconcat(spatialView, lcView));
 
   const configJSON = config.toJSON();
   return configJSON;
@@ -70,7 +60,7 @@ function generateBlinConfig() {
 function generateSideBySideConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'My config',
+    name: 'Comparison of volumetric rendering algorithms. Blin et al., PLoS Biol 2019',
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-zarr',
@@ -80,14 +70,13 @@ function generateSideBySideConfig() {
     },
   });
 
-  const additiveScopes = config.addCoordinationByObject({
-    volumetricRenderingAlgorithm: 'additive',
-  });
-  const mipScopes = config.addCoordinationByObject({
-    volumetricRenderingAlgorithm: 'maximumIntensityProjection',
-  });
+  const spatialLeft = config.addView(dataset, 'spatialBeta')
+    .setProps({ title: 'Additive' });
+  const spatialRight = config.addView(dataset, 'spatialBeta')
+    .setProps({ title: 'MIP' });
+  const lcView = config.addView(dataset, 'layerControllerBeta');
 
-  const imageScopes = config.addCoordinationByObject({
+  config.linkViewsByObject([spatialLeft, spatialRight, lcView], {
     spatialTargetZ: 0,
     spatialTargetT: 0,
     spatialRenderingMode: '3D',
@@ -118,26 +107,18 @@ function generateSideBySideConfig() {
     ]),
   });
 
-  const metaCoordinationScope = config.addMetaCoordination();
-  metaCoordinationScope.useCoordinationByObject(imageScopes);
+  const additiveScopes = config.addCoordinationByObject({
+    volumetricRenderingAlgorithm: 'additive',
+  });
+  const mipScopes = config.addCoordinationByObject({
+    volumetricRenderingAlgorithm: 'maximumIntensityProjection',
+  });
 
   const metaCoordinationScopeAdditive = config.addMetaCoordination();
   metaCoordinationScopeAdditive.useCoordinationByObject(additiveScopes);
 
   const metaCoordinationScopeMip = config.addMetaCoordination();
   metaCoordinationScopeMip.useCoordinationByObject(mipScopes);
-
-
-  const spatialLeft = config.addView(dataset, 'spatialBeta')
-    .setProps({ title: 'Additive' });
-  const spatialRight = config.addView(dataset, 'spatialBeta')
-    .setProps({ title: 'MIP' });
-  const lcView = config.addView(dataset, 'layerControllerBeta');
-
-
-  spatialLeft.useMetaCoordination(metaCoordinationScope);
-  spatialRight.useMetaCoordination(metaCoordinationScope);
-  lcView.useMetaCoordination(metaCoordinationScope);
 
   spatialLeft.useMetaCoordination(metaCoordinationScopeAdditive);
   spatialRight.useMetaCoordination(metaCoordinationScopeMip);
