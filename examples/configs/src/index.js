@@ -35,16 +35,15 @@ import { codexOop2023 } from './view-configs/spatial-beta/codex.js';
 import { visiumImageOop2023 } from './view-configs/spatial-beta/visium-image.js';
 import { visiumSpotsOop2023 } from './view-configs/spatial-beta/visium-spots.js';
 import { codeluppiOop2018 } from './view-configs/spatial-beta/codeluppi.js';
+import { kpmp2023 } from './view-configs/spatial-beta/kpmp.js';
 
 // TODO(spatialBeta):
-import { kpmp2023 } from './view-configs/kpmp.js';
-import { kpmpOop2023 } from './view-configs/kpmp-oop.js';
-import { kpmpAutoInit2023 } from './view-configs/kpmp-auto-init.js';
-import { imsAlgorithmComparison } from './view-configs/ims-algorithm-comparison.js';
-import { neumanOop2023 } from './view-configs/neumann-oop.js';
-import { lightsheetOop2023 } from './view-configs/lightsheet-oop.js';
-import { visiumPolygonsOop2023 } from './view-configs/visium-polygons-oop.js';
-
+import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
+import { kpmpAutoInit2023 } from './view-configs/spatial-beta/kpmp-auto-init.js';
+import { imsAlgorithmComparison } from './view-configs/spatial-beta/ims-algorithm-comparison.js';
+import { neumanOop2023 } from './view-configs/spatial-beta/neumann-oop.js';
+import { lightsheetOop2023 } from './view-configs/spatial-beta/lightsheet-oop.js';
+import { visiumPolygonsOop2023 } from './view-configs/spatial-beta/visium-polygons-oop.js';
 
 
 export const coordinationTypeConfigs = {
@@ -97,16 +96,16 @@ export const configs = {
   'visium-2023-image-only': visiumImageOop2023,
   'visium-2023': visiumSpotsOop2023,
   'codeluppi-2018-2': codeluppiOop2018,
+  'kpmp-2023': kpmp2023,
+  'kpmp-2023-2': kpmpOop2023,
 
   // TODO(spatialBeta): clean up
-  'kpmp-2023': kpmp2023,
-  'kpmp-oop-2023': kpmpOop2023,
   'ims-algorithm-comparison': imsAlgorithmComparison,
-  'neumann-oop-2023': neumanOop2023,
-  'lightsheet-oop-2023': lightsheetOop2023,
-  'visium-polygons-oop-2023': visiumPolygonsOop2023,
+  'neumann-2020-2': neumanOop2023,
+  'lightsheet-2023': lightsheetOop2023,
+  'visium-2023-polygons': visiumPolygonsOop2023,
   'kpmp-auto-init': kpmpAutoInit2023,
-  
+
   // For documentation of coordination types:
   ...coordinationTypeConfigs,
 };

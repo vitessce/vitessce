@@ -40,7 +40,20 @@ Meanwhile, the opacity and visibility properties remain primitive numeric and bo
 
 Other benefits:
 - Ability to configure global Z/T/C indices for coordination of spatial/temporal/channel selections across data types, datasets, or views
-- 
+- Ability to configure 3D vs. 2D mode globally (i.e., per-view, as opposed to per-image layer).
+- Ability to fall back to coordination values in the previous level (if not initialized in the subsequent level).
+
+A disadvantage of this more flexible coordination model is that it requires a more complex JSON representation that is tedious to write and reason about.
+To address this, we have extended our object-oriented configuration APIs:
+- [VitessceConfig.linkViewsByObject](../../docs/view-config-js/#linkviewsbyobjectviews-obj-metatrue)
+- [VitessceConfig.addCoordinationByObject](../../docs/view-config-js/#addcoordinationbyobjectobj)
+- [VitessceConfig.addMetaCoordination](../../docs/view-config-js/#addmetacoordination)
+- [VitessceConfigView.useCoordinationByObject](../../docs/view-config-js/#usecoordinationbyobjectobj)
+- [VitessceConfigView.useMetaCoordination](../../docs/view-config-js/#usemetacoordinationmetascope)
+- [VitessceConfigMetaCoordinationScope](../../docs/view-config-js/#vitessceconfigmetacoordinationscope)
+- [CoordinationLevel](../../docs/view-config-js/#coordinationlevel)
+
+The resulting `VitessceConfig` instance can be converted [to JSON](../../docs/view-config-js/#tojson).
 
 ## Multi-channel, per-obsType segmentation bitmasks
 
@@ -74,7 +87,7 @@ Previously, these different types of segmentations had to be configured differen
 while bitmask segmentations supported same nested array of image properties as the `image` data type.
 In addition to exposing details about the internal implementations of the visualizations, these different configurations added complexity to the controls for segmentations, making them dependent on knowledge of the segmentation type.
 In part, these differences were related to the fact that the previous spatial view did not support a `stroked: true/false` property for bitmask-based segmentations.
-This limitation led to the need to pre-compute and redundantly store both filled and stroked segmentations.
+This limitation led to the need to pre-compute and redundantly store both filled and stroked segmentations:
 
 ![Filled and stroked ("boundaries") cell segmentations](/img/blog/segmentation_boundaries.png)
 
@@ -97,26 +110,25 @@ We have configured several examples which make use of the `spatialBeta` and `lay
 - [Comparison of volumetric rendering algorithms](../../#?dataset=blin-2019-3)
 - [Visium with obsSpots data type](../../#?dataset=visium-2023)
 - [osmFISH with obsPoints data type](../../#?dataset=codeluppi-2018-2)
-- [Bitmask-based obsSegmentations for functional tissue units](#todo)
 - [Bitmask-based obsSegmentations for cells and nuclei](../../#?dataset=codex-2023)
+- [Bitmask-based obsSegmentations for functional tissue units](../../#?dataset=kpmp-2023)
+- [Bitmask-based obsSegmentations for functional tissue units with coordinated opacity](../../#?dataset=kpmp-2023-2)
+
 
 ## Usage from Python
 
-We have implemented the object-oriented API for the multi-level coordination model in both JavaScript and Python.
-The equivalent of the JS linkViewsByObject function is the Python link_views_by_dict function.
+We have implemented object-oriented APIs for the multi-level coordination model in both JavaScript and Python.
+The equivalent of the `linkViewsByObject` function from JS is the `link_views_by_dict` function in Python.
 This enables initialization of the coordination space using the same patterns in both languages.
-Jupyter notebooks demonstrating usage of the Python API are available in the documentation website for the vitessce Python package:
+Jupyter notebooks demonstrating usage of the Python API are available in the documentation website for the vitessce Python package.
 
-<!--- todo --->
-
-
-
+<!-- TODO: add links -->
 
  
 ## Next steps
 
 There are some remaining features to implement, including a mechanism for automatic initialization of the multi-level coordination values based on the data configuration.
-If testing goes smoothly, we plan to replace the current spatial and layercontroller views with their Beta counterparts. 
-This would be a non-breaking change with automatic upgrade functions to internally convert previously-configured visualizations (in the same way we have implemented upgrade functions for all prior introductions of new config schema versions).
+If testing goes smoothly, we plan to replace the current `spatial` and `layerController` views with their Beta counterparts. 
+We would do this in a new major version due to the UI differences, but this would be implemented as a non-breaking change with automatic upgrade functions to internally convert previously-configured visualizations (in the same way we have implemented upgrade functions for all prior introductions of new config schema versions).
 
 

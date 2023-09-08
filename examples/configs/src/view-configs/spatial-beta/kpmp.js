@@ -6,8 +6,8 @@ const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/kpmp-f2f-marc
 
 export const kpmp2023 = {
   version: '1.0.16',
-  name: 'KPMP',
-  description: 'multi-obsType segmentations',
+  name: 'Multi-obsType segmentations',
+  description: 'Segmentations of functional tissue units in the kidney with associated quantitative features',
   datasets: [
     {
       uid: 'S-1905-017737',

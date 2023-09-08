@@ -380,7 +380,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       if (data.src.obsLabelsMap && data.src.uniqueObsLabels && data.src.PALETTE) {
         const obsLabel = data.src.obsLabelsMap.get(obsId);
         const labelIndex = data.src.uniqueObsLabels.indexOf(obsLabel);
-        
+
         // eslint-disable-next-line no-param-reassign, prefer-destructuring
         target[0] = data.src.PALETTE[labelIndex % data.src.PALETTE.length]?.[0];
         // eslint-disable-next-line no-param-reassign, prefer-destructuring
