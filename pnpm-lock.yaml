@@ -1114,6 +1114,9 @@ importers:
       '@vitessce/layer-controller':
         specifier: workspace:*
         version: link:../layer-controller
+      '@vitessce/legend':
+        specifier: workspace:*
+        version: link:../../legend
       '@vitessce/sets-utils':
         specifier: workspace:*
         version: link:../../utils/sets-utils

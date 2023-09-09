@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React, { useState } from 'react';
 import {
   makeStyles,
@@ -6,6 +7,7 @@ import { PopperMenu } from '@vitessce/vit-s';
 import { TwitterPicker } from 'react-color-with-lodash';
 import { colorArrayToString } from '@vitessce/sets-utils';
 import { PATHOLOGY_PALETTE, getDefaultColor } from '@vitessce/utils';
+import { getXlinkHref } from '@vitessce/legend';
 
 
 const useStyles = makeStyles(() => ({
@@ -53,6 +55,8 @@ export default function ChannelColorPickerMenu(props) {
     setColor,
     palette = null,
     isStaticColor,
+    isColormap,
+    featureValueColormap,
     visible,
   } = props;
 
@@ -77,14 +81,29 @@ export default function ChannelColorPickerMenu(props) {
 
   return (
     <PopperMenu
-      open={open}
+      open={isStaticColor && visible ? open : false}
       setOpen={setOpen}
       buttonIcon={
         isStaticColor && visible ? (
           <div className={classes.colorIcon} style={{ backgroundColor: currentColor }} />
         ) : (
-          // TODO: show quantitative colormap in color box when (visible && !isStaticColor)
-          <div className={classes.colorIcon} />
+          isColormap && visible ? (
+            <div className={classes.colorIcon}>
+              <svg width="18" height="18">
+                <image
+                  x={0}
+                  y={0}
+                  width={18}
+                  height={18}
+                  preserveAspectRatio="none"
+                  href={getXlinkHref(featureValueColormap)}
+                  clipPath="inset(0% round 4px)"
+                />
+              </svg>
+            </div>
+          ) : (
+            <div className={classes.colorIcon} />
+          )
         )
       }
       buttonClassName={classes.colorIconButton}

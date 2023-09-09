@@ -52,6 +52,7 @@ export default function ChannelNamesLegend(props) {
           spatialChannelLabelsVisible,
           spatialChannelLabelsOrientation,
           spatialChannelLabelSize,
+          spatialLayerColormap,
         } = layerCoordination;
 
         const isHorizontal = spatialChannelLabelsOrientation === 'horizontal';
@@ -59,6 +60,7 @@ export default function ChannelNamesLegend(props) {
 
         return ((
           photometricInterpretation !== 'RGB'
+          && spatialLayerColormap === null
           && channelCoordination
           && channelScopes
         ) ? (

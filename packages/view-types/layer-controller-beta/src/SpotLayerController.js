@@ -230,6 +230,7 @@ export default function SpotLayerController(props) {
   ), [visibleSetting]);
 
   const isStaticColor = obsColorEncoding === 'spatialLayerColor';
+  const isColormap = obsColorEncoding === 'geneSelection';
 
   const classes = useStyles();
   const lcClasses = useControllerSectionStyles();
@@ -262,6 +263,8 @@ export default function SpotLayerController(props) {
               setColor={setColor}
               palette={palette}
               isStaticColor={isStaticColor}
+              isColormap={isColormap}
+              featureValueColormap={featureValueColormap}
               visible={visible}
             />
           </Grid>

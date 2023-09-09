@@ -203,7 +203,7 @@ export default function SegmentationChannelController(props) {
 
     featureSelection,
     obsColorEncoding,
-    // featureValueColormap, // TODO
+    featureValueColormap,
     featureValueColormapRange,
     setObsColorEncoding,
     // setFeatureValueColormap, // TODO
@@ -224,6 +224,7 @@ export default function SegmentationChannelController(props) {
   ), [visibleSetting]);
 
   const isStaticColor = obsColorEncoding === 'spatialChannelColor';
+  const isColormap = obsColorEncoding === 'geneSelection';
 
   const classes = useStyles();
   const lcClasses = useControllerSectionStyles();
@@ -256,6 +257,8 @@ export default function SegmentationChannelController(props) {
               setColor={setColor}
               palette={palette}
               isStaticColor={isStaticColor}
+              isColormap={isColormap}
+              featureValueColormap={featureValueColormap}
               visible={visible}
             />
           </Grid>
