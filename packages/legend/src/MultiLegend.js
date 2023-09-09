@@ -97,6 +97,8 @@ export default function MultiLegend(props) {
           featureSelection,
           spatialLayerColor,
           legendVisible,
+          obsSetSelection,
+          obsSetColor,
         } = layerCoordination;
 
         const expressionExtents = spotMultiExpressionExtents?.[layerScope];
@@ -126,6 +128,8 @@ export default function MultiLegend(props) {
             featureValueColormapRange={featureValueColormapRange}
             extent={firstExpressionExtent}
             height={height}
+            obsSetSelection={obsSetSelection}
+            obsSetColor={obsSetColor}
           />
         ) : null;
       }) : null}
@@ -153,6 +157,8 @@ export default function MultiLegend(props) {
             featureValueType,
             featureSelection,
             legendVisible,
+            obsSetSelection,
+            obsSetColor,
           } = channelCoordination[cScope];
           const expressionExtents = segmentationMultiExpressionExtents?.[layerScope]?.[cScope];
           // There can potentially be multiple features/genes selected, but we
@@ -181,6 +187,8 @@ export default function MultiLegend(props) {
               height={height}
 
               spatialChannelColor={spatialChannelColor}
+              obsSetSelection={obsSetSelection}
+              obsSetColor={obsSetColor}
             />
           ) : null;
         }) : null);

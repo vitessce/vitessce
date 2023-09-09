@@ -1,10 +1,11 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core';
 import { capitalize, getDefaultColor } from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
+import { isEqual } from 'lodash-es';
 import { getXlinkHref } from './legend-utils.js';
 
 
@@ -47,6 +48,8 @@ const useStyles = makeStyles(() => ({
 
 const titleHeight = 10;
 const rectHeight = 8;
+const rectMarginY = 2;
+const rectMarginX = 2;
 
 export default function Legend(props) {
   const {
@@ -63,6 +66,8 @@ export default function Legend(props) {
     featureValueColormapRange,
     spatialChannelColor,
     spatialLayerColor,
+    obsSetSelection,
+    obsSetColor,
     extent,
     width = 100,
     height = 36,
@@ -75,6 +80,7 @@ export default function Legend(props) {
 
   const isDarkTheme = theme === 'dark';
   const isStaticColor = obsColorEncoding === 'spatialChannelColor' || obsColorEncoding === 'spatialLayerColor';
+  const isSetColor = obsColorEncoding === 'cellSetSelection';
   const layerColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
     ? spatialLayerColor
     : getDefaultColor(theme);
@@ -92,8 +98,26 @@ export default function Legend(props) {
         && featureSelection.length === 1
       )
     )
+    || (
+      isSetColor
+      && obsSetSelection?.length > 0
+      && obsSetColor?.length > 0
+    )
     || isStaticColor
+
   ));
+
+  // Get the list of set group names which can be used to
+  // compute the height of the legend in isSetColor mode.
+  const levelZeroNames = useMemo(() => Array.from(
+    new Set(obsSetSelection?.map(setPath => setPath[0]) || []),
+  ), [obsSetSelection]);
+
+  // Determine the height of the legend when in isSetColor mode.
+  // TODO: for nested sets, account for the height of the intermediate nodes?
+  const dynamicHeight = isSetColor
+    ? levelZeroNames.length * titleHeight + obsSetSelection?.length * (rectHeight + rectMarginY)
+    : height;
 
   useEffect(() => {
     const domElement = svgRef.current;
@@ -107,12 +131,12 @@ export default function Legend(props) {
     svg.selectAll('g').remove();
     svg
       .attr('width', width)
-      .attr('height', height);
+      .attr('height', dynamicHeight);
 
     const g = svg
       .append('g')
       .attr('width', width)
-      .attr('height', height);
+      .attr('height', dynamicHeight);
 
 
     if (!considerSelections || obsColorEncoding === 'geneSelection') {
@@ -159,6 +183,52 @@ export default function Legend(props) {
         .attr('height', rectHeight)
         .attr('fill', `rgb(${staticColor[0]},${staticColor[1]},${staticColor[2]})`);
     }
+    if (isSetColor && obsSetSelection && obsSetColor) {
+      const obsSetSelectionByLevelZero = {};
+      obsSetSelection.forEach((setPath) => {
+        const levelZeroName = setPath[0];
+        if (!obsSetSelectionByLevelZero[levelZeroName]) {
+          obsSetSelectionByLevelZero[levelZeroName] = [];
+        }
+        obsSetSelectionByLevelZero[levelZeroName].push(setPath);
+      });
+
+      let y = 0;
+      Object.entries(obsSetSelectionByLevelZero).forEach(([levelZeroName, setPaths]) => {
+        g.append('text')
+          .attr('text-anchor', 'start')
+          .attr('dominant-baseline', 'hanging')
+          .attr('x', 0)
+          .attr('y', y)
+          .text(levelZeroName)
+          .style('font-size', '9px')
+          .style('fill', foregroundColor);
+        y += titleHeight;
+
+        setPaths.forEach((setPath) => {
+          const setColor = obsSetColor.find(d => isEqual(d.path, setPath)).color;
+
+          // TODO: for nested sets, render the intermediate nodes in the legend?
+
+          g.append('rect')
+            .attr('x', 0)
+            .attr('y', y)
+            .attr('width', rectHeight)
+            .attr('height', rectHeight)
+            .attr('fill', `rgb(${setColor[0]},${setColor[1]},${setColor[2]})`);
+          g.append('text')
+            .attr('text-anchor', 'start')
+            .attr('dominant-baseline', 'hanging')
+            .attr('x', rectHeight + rectMarginX)
+            .attr('y', y)
+            .text(setPath.at(-1))
+            .style('font-size', '9px')
+            .style('fill', foregroundColor);
+
+          y += (rectHeight + rectMarginY);
+        });
+      });
+    }
 
     const featureSelectionLabel = (
       featureSelection
@@ -182,15 +252,17 @@ export default function Legend(props) {
     const subLabel = showObsLabel ? featureLabel : null;
     const hasSubLabel = subLabel !== null;
 
-    g
-      .append('text')
-      .attr('text-anchor', hasSubLabel ? 'start' : 'end')
-      .attr('dominant-baseline', 'hanging')
-      .attr('x', hasSubLabel ? 0 : width)
-      .attr('y', 0)
-      .text(mainLabel)
-      .style('font-size', '10px')
-      .style('fill', foregroundColor);
+    if (!isSetColor) {
+      g
+        .append('text')
+        .attr('text-anchor', hasSubLabel ? 'start' : 'end')
+        .attr('dominant-baseline', 'hanging')
+        .attr('x', hasSubLabel ? 0 : width)
+        .attr('y', 0)
+        .text(mainLabel)
+        .style('font-size', '10px')
+        .style('fill', foregroundColor);
+    }
 
     if (hasSubLabel) {
       g
@@ -205,7 +277,7 @@ export default function Legend(props) {
     }
   }, [width, height, featureValueColormap, featureValueColormapRange, considerSelections,
     obsType, obsColorEncoding, featureSelection, isDarkTheme, featureValueType, extent,
-    featureLabelsMap, spatialChannelColor,
+    featureLabelsMap, spatialChannelColor, obsSetColor, obsSetSelection, isSetColor,
   ]);
 
   return (
@@ -222,7 +294,7 @@ export default function Legend(props) {
         ref={svgRef}
         style={{
           width: `${width}px`,
-          height: `${height}px`,
+          height: `${dynamicHeight}px`,
         }}
       />
     </div>

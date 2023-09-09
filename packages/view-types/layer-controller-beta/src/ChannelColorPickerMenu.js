@@ -87,7 +87,7 @@ export default function ChannelColorPickerMenu(props) {
         isStaticColor && visible ? (
           <div className={classes.colorIcon} style={{ backgroundColor: currentColor }} />
         ) : (
-          isColormap && visible ? (
+          isColormap && visible && featureValueColormap ? (
             <div className={classes.colorIcon}>
               <svg width="18" height="18">
                 <image
