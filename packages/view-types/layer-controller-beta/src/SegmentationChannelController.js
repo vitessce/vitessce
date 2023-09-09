@@ -97,7 +97,7 @@ function SegmentationChannelEllipsisMenu(props) {
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={strokeWidthId}>
-          Stroke width:
+          Stroke Width:
         </label>
         <Slider
           disabled={filled}

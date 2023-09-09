@@ -20,6 +20,9 @@ const useStyles = makeStyles(() => ({
   channelNamesCol: {
     flexDirection: 'row',
   },
+  channelNameText: {
+    marginRight: '10px',
+  },
 }));
 
 export default function ChannelNamesLegend(props) {
@@ -89,10 +92,10 @@ export default function ChannelNamesLegend(props) {
                 <Typography
                   variant="h6"
                   key={`${layerScope}-${cScope}-${spatialTargetC}-${rgbColor}`}
+                  className={classes.channelNameText}
                   style={{
                     color: rgbColor,
                     fontSize: `${spatialChannelLabelSize}px`,
-                    marginRight: '10px',
                   }}
                 >
                   {channelName}

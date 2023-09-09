@@ -89,11 +89,13 @@ In addition to exposing details about the internal implementations of the visual
 In part, these differences were related to the fact that the previous spatial view did not support a `stroked: true/false` property for bitmask-based segmentations.
 This limitation led to the need to pre-compute and redundantly store both filled and stroked segmentations:
 
-![Filled and stroked ("boundaries") cell segmentations](/img/blog/segmentation_boundaries.png)
+![Filled and stroked ("boundaries") cell segmentations](/img/blog/segmentation_boundaries_old.png)
 
 The new spatial view implementation supports on-the-fly `stroked: true/false` for bitmask-based segmentations, with configurable stroke width.
 Using multi-level coordination, the same visual properties can be configured for both polygons and bitmasks.
 The boundaries of bitmask observations are computed on the GPU using a custom DeckGL layer.
+
+![Filled and stroked ("boundaries") cell segmentations](/img/blog/segmentation_boundaries_new.png)
 
 Note: the GPU-based boundary visualization is based on a heuristic and is not perfect.
 Parts of bitmask boundaries that are close to image tile boundaries have the potential to be under-drawn (because the shader only has access to the data for one tile at a time).
