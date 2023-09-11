@@ -93,7 +93,7 @@ export const imageOmeZarrSchema = z.object({
 
 // SpatialData
 // TODO: properties to specify target coordinate system name?
-export const imageSpatialdataSchema = z.object({
+export const imageSpatialdataSchema = imageOmeZarrSchema.extend({
   path: z.string(),
 });
 export const obsSegmentationsSpatialdataSchema = z.object({
