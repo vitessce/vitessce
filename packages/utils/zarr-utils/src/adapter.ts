@@ -39,6 +39,8 @@ export function createZarrArrayAdapter(arr: zarr.Array<zarr.DataType>): any {
         );
       }
       if (prop === 'getRawChunk') {
+        // TODO: match zarr.js handling of dimension ordering
+        // Reference: https://github.com/hms-dbmi/vizarr/pull/172#issuecomment-1714497516
         return (
           selection: number[], options: { storeOptions: RequestInit },
         ) => target.getChunk(selection, options.storeOptions);

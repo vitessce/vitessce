@@ -1,3 +1,4 @@
+// Adapted from https://github.com/hms-dbmi/vizarr/blob/5c44612bfe41bfe621f3d9016e0a9d352331d345/src/lru-store.ts
 import type { Readable } from '@zarrita/storage';
 import QuickLRU from 'quick-lru';
 
