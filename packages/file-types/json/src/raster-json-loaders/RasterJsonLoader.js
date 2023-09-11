@@ -5,6 +5,7 @@ import {
   getNgffAxes,
   loadOmeZarr,
   guessTileSize,
+  ZarritaPixelSource,
 } from '@vitessce/spatial-utils';
 import { open as zarrOpen } from '@zarrita/core';
 import { openLru, createZarrArrayAdapter } from '@vitessce/zarr-utils';
@@ -35,18 +36,14 @@ async function initLoader(imageData) {
           .filter(metaKey => metaKey.includes('.zarray'))
           .map(arrMetaKeys => arrMetaKeys.slice(0, -7));
         const data = await Promise.all(
-          paths.map(path => zarrOpen(root.resolve(path.substring(0, 1)), { kind: "array" })),
+          paths.map(path => zarrOpen(root.resolve(path.substring(0, 1)), { kind: 'array' })),
         );
-        const [yChunk, xChunk] = data[0].chunks.slice(-2);
-        const size = Math.min(yChunk, xChunk);
-        // deck.gl requirement for power-of-two tile size.
-        const tileSize = 2 ** Math.floor(Math.log2(size));
-        console.log(data, labels, tileSize);
-        source = data.map(d => new viv.ZarrPixelSource(createZarrArrayAdapter(d), labels, tileSize));
+        const tileSize = guessTileSize(data[0]);
+        source = data.map(d => new ZarritaPixelSource(createZarrArrayAdapter(d), labels, tileSize));
       } else {
-        const data = await zarrOpen(root, { kind: "array" });
+        const data = await zarrOpen(root, { kind: 'array' });
         const tileSize = guessTileSize(data);
-        source = new viv.ZarrPixelSource(createZarrArrayAdapter(data), labels, tileSize);
+        source = new ZarritaPixelSource(createZarrArrayAdapter(data), labels, tileSize);
       }
       return { data: source, metadata: { dimensions, transform }, channels: (dimensions.find(d => d.field === 'channel') || dimensions[0]).values };
     }
@@ -85,7 +82,6 @@ async function initLoader(imageData) {
       const { coordinateTransformations: coordinateTransformationsFromOptions } = metadata || {};
 
       const loader = await loadOmeZarr(url, requestInit);
-      console.log(loader);
       const { metadata: loaderMetadata } = loader;
 
       const { omero, multiscales } = loaderMetadata;

@@ -1,48 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 import { open as zarrOpen } from '@zarrita/core';
 import { get as zarrGet } from '@zarrita/indexing';
-import { range } from 'lodash-es';
 import { dirname } from './utils.js';
 import ZarrDataSource from './ZarrDataSource.js';
-
-const readFloat32FromUint8 = (bytes) => {
-  if (bytes.length !== 4) {
-    throw new Error('readFloat32 only takes in length 4 byte buffers');
-  }
-  return new Int32Array(bytes.buffer)[0];
-};
-
-const HEADER_LENGTH = 4;
-
-/**
-   * Method for decoding text arrays from zarr.
-   * Largerly a port of https://github.com/zarr-developers/numcodecs/blob/2c1aff98e965c3c4747d9881d8b8d4aad91adb3a/numcodecs/vlen.pyx#L135-L178
-   * @returns {string[]} An array of strings.
-   */
-function parseVlenUtf8(buffer) {
-  const decoder = new TextDecoder();
-  let data = 0;
-  const dataEnd = data + buffer.length;
-  const length = readFloat32FromUint8(buffer.slice(data, HEADER_LENGTH));
-  if (buffer.length < HEADER_LENGTH) {
-    throw new Error('corrupt buffer, missing or truncated header');
-  }
-  data += HEADER_LENGTH;
-  const output = new Array(length);
-  for (let i = 0; i < length; i += 1) {
-    if (data + 4 > dataEnd) {
-      throw new Error('corrupt buffer, data seem truncated');
-    }
-    const l = readFloat32FromUint8(buffer.slice(data, data + 4));
-    data += 4;
-    if (data + l > dataEnd) {
-      throw new Error('corrupt buffer, data seem truncated');
-    }
-    output[i] = decoder.decode(buffer.slice(data, data + l));
-    data += l;
-  }
-  return output;
-}
 
 /**
  * A base AnnData loader which has all shared methods for more comlpex laoders,
@@ -122,7 +82,7 @@ export default class AnnDataSource extends ZarrDataSource {
         return this.getFlatArrDecompressed(path);
       }
     }
-    const arr = await zarrOpen((await storeRoot).resolve(codes || path), { kind: "array"});
+    const arr = await zarrOpen((await storeRoot).resolve(codes || path), { kind: 'array' });
     const values = await zarrGet(arr, [null]);
     const { data } = values;
     const mappedValues = Array.from(data).map(
@@ -139,7 +99,7 @@ export default class AnnDataSource extends ZarrDataSource {
   loadNumeric(path) {
     const { storeRoot } = this;
     return storeRoot
-      .then(root => zarrOpen(root.resolve(path), { kind: "array"}))
+      .then(root => zarrOpen(root.resolve(path), { kind: 'array' }))
       .then(arr => zarrGet(arr, arr.shape.map(() => null)));
   }
 
@@ -151,7 +111,7 @@ export default class AnnDataSource extends ZarrDataSource {
    */
   loadNumericForDims(path, dims) {
     const { storeRoot } = this;
-    const arr = storeRoot.then(root => zarrOpen(root.resolve(path), { kind: "array"}));
+    const arr = storeRoot.then(root => zarrOpen(root.resolve(path), { kind: 'array' }));
     return Promise.all(
       dims.map(dim => arr.then(
         loadedArr => zarrGet(loadedArr, [null, dim]),
@@ -170,58 +130,10 @@ export default class AnnDataSource extends ZarrDataSource {
    */
   async getFlatArrDecompressed(path) {
     const { storeRoot } = this;
-    const arr = await zarrOpen((await storeRoot).resolve(path), { kind: "array"});
+    const arr = await zarrOpen((await storeRoot).resolve(path), { kind: 'array' });
+    // Zarrita supports decoding vlen-utf8-encoded string arrays.
     const data = await zarrGet(arr, [null]);
     return data.data;
-    
-    return storeRoot.then(root => zarrOpen(root.resolve(path), { kind: "array"})).then(async (z) => {
-      console.log(z);
-      let data;
-      const parseAndMergeTextBytes = (dbytes) => {
-        const text = parseVlenUtf8(dbytes);
-        if (!data) {
-          data = text;
-        } else {
-          data = data.concat(text);
-        }
-      };
-      const mergeBytes = (dbytes) => {
-        if (!data) {
-          data = dbytes;
-        } else {
-          const tmp = new Uint8Array(
-            dbytes.buffer.byteLength + data.buffer.byteLength,
-          );
-          tmp.set(new Uint8Array(data.buffer), 0);
-          tmp.set(dbytes, data.buffer.byteLength);
-          data = tmp;
-        }
-      };
-      const numRequests = Math.ceil(z.shape[0] / z.chunks[0]);
-      const requests = range(numRequests).map(async item => store
-        .getItem(`${z.keyPrefix}${String(item)}`)
-        .then(buf => z.compressor.then(compressor => compressor.decode(buf))));
-      const dbytesArr = await Promise.all(requests);
-      dbytesArr.forEach((dbytes) => {
-        // Use vlenutf-8 decoding if necessary and merge `data` as a normal array.
-        if (
-          Array.isArray(z.meta.filters)
-          && z.meta.filters[0].id === 'vlen-utf8'
-        ) {
-          parseAndMergeTextBytes(dbytes);
-          // Otherwise just merge the bytes as a typed array.
-        } else {
-          mergeBytes(dbytes);
-        }
-      });
-      const {
-        meta: {
-          shape: [length],
-        },
-      } = z;
-      // truncate the filled in values
-      return data.slice(0, length);
-    });
   }
 
   /**

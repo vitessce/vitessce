@@ -20,7 +20,6 @@ export function guessTileSize(arr) {
   const interleaved = isInterleaved(arr.shape);
   const [yChunk, xChunk] = arr.chunks.slice(interleaved ? -3 : -2);
   const size = Math.min(yChunk, xChunk);
-  console.log(arr.shape, arr.chunks, size, prevPowerOf2(size));
   // deck.gl requirement for power-of-two tile size.
   return prevPowerOf2(size);
 }
@@ -47,22 +46,42 @@ async function loadMultiscales(root) {
     }
   }
 
-  const data = paths.map(path => zarrOpen(root.resolve(path), { kind: "array" }));
-  console.log(data);
+  const data = paths
+    .map(path => zarrOpen(root.resolve(path), { kind: 'array' }));
   return {
     data: (await Promise.all(data)),
     rootAttrs,
-    labels
+    labels,
   };
 }
+
+// We use our own loadOmeZarr function (instead of viv.loadOmeZarr)
+// to bypass usage of zarr.js which is used in Viv's version.
 export async function loadOmeZarr(url, requestInit) {
   const root = await openLru(url, requestInit);
   const { data, rootAttrs, labels } = await loadMultiscales(root);
   const tileSize = guessTileSize(data[0]);
-  const pyramid = data.map(arr => new viv.ZarrPixelSource(createZarrArrayAdapter(arr), labels, tileSize));
+  const pyramid = data
+    .map(arr => new viv.ZarrPixelSource(
+      createZarrArrayAdapter(arr),
+      labels,
+      tileSize,
+    ));
   return {
     data: pyramid,
-    metadata: rootAttrs
+    metadata: rootAttrs,
   };
+}
 
+export class ZarritaPixelSource extends viv.ZarrPixelSource {
+  constructor(arr, labels, tileSize) {
+    super(arr, labels, tileSize);
+    // We prevent reading chunks directly, since Zarrita does not
+    // handle x/y chunk differences the same as zarr.js.
+    // TODO: fix this once fixed in either zarrita getChunk or
+    // in createZarrArrayAdapter.
+    // Reference: https://github.com/hms-dbmi/vizarr/pull/172#issuecomment-1714497516
+    // eslint-disable-next-line no-underscore-dangle
+    this._readChunks = false;
+  }
 }

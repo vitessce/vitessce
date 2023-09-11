@@ -17,4 +17,8 @@ export {
   coordinateTransformationsToMatrix,
   normalizeCoordinateTransformations,
 } from './spatial.js';
-export { loadOmeZarr, guessTileSize } from './load-ome-zarr.js';
+export {
+  loadOmeZarr,
+  guessTileSize,
+  ZarritaPixelSource,
+} from './load-ome-zarr.js';

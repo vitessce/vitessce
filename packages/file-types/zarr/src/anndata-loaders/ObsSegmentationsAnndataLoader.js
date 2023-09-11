@@ -24,13 +24,13 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
       // TODO: use the strided format directly, since more efficient
       // to pass to DeckGL.
       const { stride, shape, data } = arr;
-      let result = [];
+      const result = [];
       let i = 0;
-      for(let polyI = 0; polyI < shape[0]; polyI++) {
+      for (let polyI = 0; polyI < shape[0]; polyI++) {
         const poly = [];
-        for(let vertexI = 0; vertexI < shape[1]; vertexI++) {
+        for (let vertexI = 0; vertexI < shape[1]; vertexI++) {
           i = polyI * stride[0] + vertexI * stride[1];
-          poly.push([data[i], data[i+1]]);
+          poly.push([data[i], data[i + 1]]);
         }
         result.push(poly);
       }

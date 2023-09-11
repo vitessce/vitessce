@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { open as zarrOpen } from '@zarrita/core';
-import { get as zarrGet, slice } from "@zarrita/indexing";
+import { get as zarrGet, slice } from '@zarrita/indexing';
 import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
@@ -112,7 +112,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       return this.sparseArrays;
     }
     this.sparseArrays = Promise.all(
-      ['indptr', 'indices', 'data'].map(name => storeRoot.then(root => zarrOpen(root.resolve(`${matrix}/${name}`), { kind: "array" }))),
+      ['indptr', 'indices', 'data'].map(name => storeRoot.then(root => zarrOpen(root.resolve(`${matrix}/${name}`), { kind: 'array' }))),
     );
     return this.sparseArrays;
   }
@@ -263,9 +263,11 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
         this.cellXGene = this._loadCSCSparseCellXGene().then(data => toObject(data));
       } else {
         if (!this.arr) {
-          this.arr = zarrOpen((await storeRoot).resolve(matrix), { kind: "array" });
+          this.arr = zarrOpen((await storeRoot).resolve(matrix), { kind: 'array' });
         }
-        this.cellXGene = this.arr.then(z => createZarrArrayAdapter(z).getRaw(null).then(({ data }) => toObject(data)));
+        this.cellXGene = this.arr
+          .then(z => createZarrArrayAdapter(z).getRaw(null))
+          .then(({ data }) => toObject(data));
       }
     } else if (encodingType === 'csr_matrix') {
       this.cellXGene = this._loadCSRSparseCellXGene().then(
@@ -316,12 +318,14 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       genes = await this._loadCSRGeneSelection(selection);
     } else {
       if (!this.arr) {
-        this.arr = zarrOpen((await storeRoot).resolve(matrix), { kind: "array" });
+        this.arr = zarrOpen((await storeRoot).resolve(matrix), { kind: 'array' });
       }
       const indices = await this._getGeneIndices(selection);
       // We can index directly into a normal dense array zarr store via `get`.
       genes = await Promise.all(
-        indices.map(index => this.arr.then(z => zarrGet(z, [null, index])).then(({ data }) => data)),
+        indices.map(index => this.arr
+          .then(z => zarrGet(z, [null, index]))
+          .then(({ data }) => data)),
       );
     }
     return { data: genes.map(i => (shouldNormalize ? toObject(i).data : i)), url: null };

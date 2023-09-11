@@ -28,24 +28,20 @@ export function createZarrArrayAdapter(arr: zarr.Array<zarr.DataType>): any {
   return new Proxy(arr, {
     get(target, prop) {
       if (prop === 'getRaw') {
-        return (selection: Selection) => {
-          console.log(selection);
-          return get(
-            target,
-            selection ? selection.map((s) => {
-              if (typeof s === 'object' && s !== null) {
-                return slice(s.start, s.stop, s.step);
-              }
-              return s;
-            }) : target.shape.map(() => null)
-          );
-        };
+        return (selection: Selection) => get(
+          target,
+          selection ? selection.map((s) => {
+            if (typeof s === 'object' && s !== null) {
+              return slice(s.start, s.stop, s.step);
+            }
+            return s;
+          }) : target.shape.map(() => null),
+        );
       }
       if (prop === 'getRawChunk') {
-        return (selection: number[], options: { storeOptions: RequestInit }) => {
-          console.log(selection);
-          return target.getChunk(selection, options.storeOptions);
-        };
+        return (
+          selection: number[], options: { storeOptions: RequestInit },
+        ) => target.getChunk(selection, options.storeOptions);
       }
       if (prop === 'dtype') {
         return getV2DataType(target.dtype);

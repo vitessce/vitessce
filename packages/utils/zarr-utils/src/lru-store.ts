@@ -1,4 +1,3 @@
-// Adapted from https://github.com/hms-dbmi/vizarr/blob/5b0e3ea6fbb42d19d0e38e60e49bb73d1aca0693/src/lru-store.ts
 import type { Readable } from '@zarrita/storage';
 import QuickLRU from 'quick-lru';
 
@@ -17,7 +16,7 @@ function normalizeKey(key: string, range?: RangeQuery) {
   return `${key}:${range.offset}:${range.offset + range.length - 1}`;
 }
 
-export function lru<S extends Readable>(store: S, maxSize: number = 100) {
+export function lru<S extends Readable>(store: S, maxSize = 100) {
   const cache = new QuickLRU<string, Promise<Uint8Array | undefined>>({ maxSize });
   let getRange = store.getRange ? store.getRange.bind(store) : undefined;
   function get(...args: Parameters<S['get']>) {
@@ -33,12 +32,14 @@ export function lru<S extends Readable>(store: S, maxSize: number = 100) {
     return result;
   }
   if (getRange) {
+    // eslint-disable-next-line no-underscore-dangle
+    const _getRange = getRange;
     getRange = (...args: Parameters<NonNullable<S['getRange']>>) => {
       const [key, range, opts] = args;
       const cacheKey = normalizeKey(key, range);
       const cached = cache.get(cacheKey);
       if (cached) return cached;
-      const result = Promise.resolve(getRange!(key, range, opts)).catch((err) => {
+      const result = Promise.resolve(_getRange!(key, range, opts)).catch((err) => {
         cache.delete(cacheKey);
         throw err;
       });

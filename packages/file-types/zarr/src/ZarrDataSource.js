@@ -21,7 +21,7 @@ export default class ZarrDataSource {
     const { storeRoot } = this;
 
     let dirKey = key;
-    if(key.endsWith(".zattrs") || key.endsWith(".zarray") || key.endsWith(".zgroup")) {
+    if (key.endsWith('.zattrs') || key.endsWith('.zarray') || key.endsWith('.zgroup')) {
       dirKey = key.substring(0, key.length - 8);
     }
     return (await zarrOpen((await storeRoot).resolve(dirKey))).attrs;
