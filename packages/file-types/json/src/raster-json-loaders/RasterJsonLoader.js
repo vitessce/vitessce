@@ -4,7 +4,7 @@ import {
   coordinateTransformationsToMatrix,
   getNgffAxes,
 } from '@vitessce/spatial-utils';
-import { openArray } from 'zarr';
+import * as zarr from 'zarrita';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import { rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
 import JsonLoader from '../json-loaders/JsonLoader.js';
@@ -20,6 +20,7 @@ async function initLoader(imageData) {
       } = metadata || {};
       const labels = dimensions.map(d => d.field);
       let source;
+      const root = zarr.root(new zarr.FetchStore(url, requestInit));
       if (isPyramid) {
         const metadataUrl = `${url}${
           url.slice(-1) === '/' ? '' : '/'
@@ -30,7 +31,7 @@ async function initLoader(imageData) {
           .filter(metaKey => metaKey.includes('.zarray'))
           .map(arrMetaKeys => arrMetaKeys.slice(0, -7));
         const data = await Promise.all(
-          paths.map(path => openArray({ store: url, path })),
+          paths.map(path => zarr.open(root.resolve(path), { kind: "array" })),
         );
         const [yChunk, xChunk] = data[0].chunks.slice(-2);
         const size = Math.min(yChunk, xChunk);
@@ -38,7 +39,7 @@ async function initLoader(imageData) {
         const tileSize = 2 ** Math.floor(Math.log2(size));
         source = data.map(d => new viv.ZarrPixelSource(d, labels, tileSize));
       } else {
-        const data = await openArray({ store: url });
+        const data = await zarr.open(root.resolve(path), { kind: "array" });
         source = new viv.ZarrPixelSource(data, labels);
       }
       return { data: source, metadata: { dimensions, transform }, channels: (dimensions.find(d => d.field === 'channel') || dimensions[0]).values };
