@@ -1,4 +1,5 @@
-import { openArray } from 'zarr';
+import { open as zarrOpen } from '@zarrita/core';
+import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
 import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/vit-s';
 
 export default class MatrixZarrAsObsFeatureMatrixLoader extends AbstractTwoStepLoader {
@@ -14,12 +15,12 @@ export default class MatrixZarrAsObsFeatureMatrixLoader extends AbstractTwoStepL
   }
 
   loadArr() {
-    const { store } = this.dataSource;
+    const { storeRoot } = this.dataSource;
     if (this.arr) {
       return this.arr;
     }
-    this.arr = openArray({ store, path: '/', mode: 'r' }).then(z => new Promise((resolve) => {
-      z.getRaw([null, null])
+    this.arr = zarrOpen(storeRoot.resolve('/'), { kind: 'array' }).then(z => new Promise((resolve) => {
+      createZarrArrayAdapter(z).getRaw([null, null])
         .then(resolve);
     }));
     return this.arr;

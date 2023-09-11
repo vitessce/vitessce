@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
-import { openArray } from 'zarr';
+import { open as zarrOpen } from '@zarrita/core';
+import { get as zarrGet } from '@zarrita/indexing';
 import { range } from 'lodash-es';
 import { dirname } from './utils.js';
 import ZarrDataSource from './ZarrDataSource.js';
@@ -95,7 +96,7 @@ export default class AnnDataSource extends ZarrDataSource {
   }
 
   async _loadColumn(path) {
-    const { store } = this;
+    const { storeRoot } = this;
     const prefix = dirname(path);
     const { categories, 'encoding-type': encodingType } = await this.getJson(`${path}/.zattrs`);
     let categoriesValues;
@@ -121,8 +122,8 @@ export default class AnnDataSource extends ZarrDataSource {
         return this.getFlatArrDecompressed(path);
       }
     }
-    const arr = await openArray({ store, path: codes || path, mode: 'r' });
-    const values = await arr.get();
+    const arr = await zarrOpen((await storeRoot).resolve(codes || path), { kind: "array"});
+    const values = await zarrGet(arr, [null]);
     const { data } = values;
     const mappedValues = Array.from(data).map(
       i => (!categoriesValues ? String(i) : categoriesValues[i]),
@@ -136,12 +137,10 @@ export default class AnnDataSource extends ZarrDataSource {
    * @returns {Promise} A promise for a zarr array containing the data.
    */
   loadNumeric(path) {
-    const { store } = this;
-    return openArray({
-      store,
-      path,
-      mode: 'r',
-    }).then(arr => arr.get());
+    const { storeRoot } = this;
+    return storeRoot
+      .then(root => zarrOpen(root.resolve(path), { kind: "array"}))
+      .then(arr => zarrGet(arr, arr.shape.map(() => null)));
   }
 
   /**
@@ -151,15 +150,11 @@ export default class AnnDataSource extends ZarrDataSource {
    * @returns {Promise} A promise for a zarr array containing the data.
    */
   loadNumericForDims(path, dims) {
-    const { store } = this;
-    const arr = openArray({
-      store,
-      path,
-      mode: 'r',
-    });
+    const { storeRoot } = this;
+    const arr = storeRoot.then(root => zarrOpen(root.resolve(path), { kind: "array"}));
     return Promise.all(
       dims.map(dim => arr.then(
-        loadedArr => loadedArr.get([null, dim]),
+        loadedArr => zarrGet(loadedArr, [null, dim]),
       )),
     ).then(cols => ({
       data: cols.map(col => col.data),
@@ -173,13 +168,14 @@ export default class AnnDataSource extends ZarrDataSource {
    * @param {string} path A path to a flat array location, like obs/_index
    * @returns {Array} The data from the zarr array.
    */
-  getFlatArrDecompressed(path) {
-    const { store } = this;
-    return openArray({
-      store,
-      path,
-      mode: 'r',
-    }).then(async (z) => {
+  async getFlatArrDecompressed(path) {
+    const { storeRoot } = this;
+    const arr = await zarrOpen((await storeRoot).resolve(path), { kind: "array"});
+    const data = await zarrGet(arr, [null]);
+    return data.data;
+    
+    return storeRoot.then(root => zarrOpen(root.resolve(path), { kind: "array"})).then(async (z) => {
+      console.log(z);
       let data;
       const parseAndMergeTextBytes = (dbytes) => {
         const text = parseVlenUtf8(dbytes);
@@ -201,7 +197,7 @@ export default class AnnDataSource extends ZarrDataSource {
           data = tmp;
         }
       };
-      const numRequests = Math.ceil(z.meta.shape[0] / z.meta.chunks[0]);
+      const numRequests = Math.ceil(z.shape[0] / z.chunks[0]);
       const requests = range(numRequests).map(async item => store
         .getItem(`${z.keyPrefix}${String(item)}`)
         .then(buf => z.compressor.then(compressor => compressor.decode(buf))));

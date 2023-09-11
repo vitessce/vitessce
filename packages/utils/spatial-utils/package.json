@@ -32,7 +32,9 @@
   "dependencies": {
     "@vitessce/gl": "workspace:*",
     "@vitessce/utils": "workspace:*",
+    "@vitessce/zarr-utils": "workspace:*",
     "lodash-es": "^4.17.21",
+    "@zarrita/core": "^0.0.3",
     "math.gl": "^3.5.6",
     "mathjs": "^9.2.0"
   }

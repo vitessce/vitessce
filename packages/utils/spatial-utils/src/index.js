@@ -17,3 +17,4 @@ export {
   coordinateTransformationsToMatrix,
   normalizeCoordinateTransformations,
 } from './spatial.js';
+export { loadOmeZarr, guessTileSize } from './load-ome-zarr.js';

@@ -241,15 +241,24 @@ importers:
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s
+      '@vitessce/zarr-utils':
+        specifier: workspace:*
+        version: link:../../utils/zarr-utils
+      '@zarrita/core':
+        specifier: ^0.0.3
+        version: 0.0.3
+      '@zarrita/indexing':
+        specifier: ^0.0.3
+        version: 0.0.3
+      '@zarrita/storage':
+        specifier: ^0.0.2
+        version: 0.0.2
       d3-array:
         specifier: ^2.4.0
         version: 2.12.1
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
-      zarrita:
-        specifier: 0.4.0-next.2
-        version: 0.4.0-next.2
       zod:
         specifier: ^3.21.4
         version: 3.21.4
@@ -304,15 +313,24 @@ importers:
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s
+      '@vitessce/zarr-utils':
+        specifier: workspace:*
+        version: link:../../utils/zarr-utils
+      '@zarrita/core':
+        specifier: ^0.0.3
+        version: 0.0.3
+      '@zarrita/indexing':
+        specifier: ^0.0.3
+        version: 0.0.3
+      '@zarrita/storage':
+        specifier: ^0.0.2
+        version: 0.0.2
       d3-array:
         specifier: ^2.4.0
         version: 2.12.1
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
-      zarrita:
-        specifier: 0.4.0-next.2
-        version: 0.4.0-next.2
 
   packages/gl:
     dependencies:
@@ -798,6 +816,12 @@ importers:
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../other-utils
+      '@vitessce/zarr-utils':
+        specifier: workspace:*
+        version: link:../zarr-utils
+      '@zarrita/core':
+        specifier: ^0.0.3
+        version: 0.0.3
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -807,6 +831,21 @@ importers:
       mathjs:
         specifier: ^9.2.0
         version: 9.5.2
+
+  packages/utils/zarr-utils:
+    dependencies:
+      '@zarrita/core':
+        specifier: ^0.0.3
+        version: 0.0.3
+      '@zarrita/indexing':
+        specifier: ^0.0.3
+        version: 0.0.3
+      '@zarrita/storage':
+        specifier: ^0.0.2
+        version: 0.0.2
+      quick-lru:
+        specifier: ^6.0.0
+        version: 6.1.1
 
   packages/vega:
     dependencies:
@@ -8939,31 +8978,31 @@ packages:
   /@xtuc/long@4.2.2:
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
 
-  /@zarrita/core@0.1.0-next.1:
-    resolution: {integrity: sha512-099McC3ZBG+rmPK4AeisUGbbgg75Dl6G1Yjq18cMBoXzP6JYjBebozyFWZ2bacyCyr9jbLotWHyTi1k+BbmurQ==}
+  /@zarrita/core@0.0.3:
+    resolution: {integrity: sha512-fWv51b+xbYnws1pkNDPwJQoDa76aojxplHyMup82u11UAiet3gURMsrrkhM6YbeTgSY1A8oGxDOrvar3SiZpLA==}
     dependencies:
-      '@zarrita/storage': 0.1.0-next.1
-      '@zarrita/typedarray': 0.1.0-next.1
+      '@zarrita/storage': 0.0.2
+      '@zarrita/typedarray': 0.0.1
       numcodecs: 0.2.2
     dev: false
 
-  /@zarrita/indexing@0.1.0-next.2:
-    resolution: {integrity: sha512-XMqB1ucXcY8yqdycRGD/8WoxvZKIm5oI423ki6Urt6nnTf4LO2De+44R84LCblwTHGSig25dFfvwLbf4/QSFDQ==}
+  /@zarrita/indexing@0.0.3:
+    resolution: {integrity: sha512-Q61d9MYX6dsK1DLltEpwx4mJWCZHj0TXiaEN4QpxNDtToa/EoyytP/pYHPypO4GXBscZooJ6eZkKT5FMx9PVfg==}
     dependencies:
-      '@zarrita/core': 0.1.0-next.1
-      '@zarrita/storage': 0.1.0-next.1
-      '@zarrita/typedarray': 0.1.0-next.1
+      '@zarrita/core': 0.0.3
+      '@zarrita/storage': 0.0.2
+      '@zarrita/typedarray': 0.0.1
     dev: false
 
-  /@zarrita/storage@0.1.0-next.1:
-    resolution: {integrity: sha512-Xbo/I6hXIsFP7rQyS8yEaLt9lto2eDsMcCo5uLDfrsHw+cMNhfzV4DLyqSqgp/Q6HLkyAp+1Qv5rEnF+T7yVHA==}
+  /@zarrita/storage@0.0.2:
+    resolution: {integrity: sha512-uFt4abAoiOYLroalNDAnVaQxA17zGKrQ0waYKmTVm+bNonz8ggKZP+0FqMhgUZITGChqoANHuYTazbuU5AFXWA==}
     dependencies:
       reference-spec-reader: 0.2.0
       unzipit: 1.4.3
     dev: false
 
-  /@zarrita/typedarray@0.1.0-next.1:
-    resolution: {integrity: sha512-R0dluIJ6Tk83EPinwxR1LuLX+B4Jk1mVaXQoWIrayYOu+saIjqYw0Cey1m+eBH9f5GLZV5SriBgsuaP4wsIfhA==}
+  /@zarrita/typedarray@0.0.1:
+    resolution: {integrity: sha512-ZdvNjYP1bEuQXoSTVkemV99w42jHYrJ3nh9golCLd4MVBlrVbfZo4wWgBslU4JZUaDikhFSH+GWMDgAq/rI32g==}
     dev: false
 
   /@zkochan/which@2.0.3:
@@ -23524,14 +23563,6 @@ packages:
     dependencies:
       numcodecs: 0.2.2
       p-queue: 6.2.0
-    dev: false
-
-  /zarrita@0.4.0-next.2:
-    resolution: {integrity: sha512-h2KhRE/0251gd1X0YXSpedxI1RWoFMeKLiJ/bnQMvjGwuy7y22vGsG4vYQQKeE/1HKqXo71slcrvwY8jd4BKAA==}
-    dependencies:
-      '@zarrita/core': 0.1.0-next.1
-      '@zarrita/indexing': 0.1.0-next.2
-      '@zarrita/storage': 0.1.0-next.1
     dev: false
 
   /zod-to-json-schema@3.21.1(zod@3.21.4):

@@ -1,9 +1,9 @@
-import { viv } from '@vitessce/gl';
 import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,
   getNgffAxes,
   normalizeCoordinateTransformations,
+  loadOmeZarr,
 } from '@vitessce/spatial-utils';
 import {
   AbstractLoaderError,
@@ -29,7 +29,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
 
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
-    const loader = await viv.loadOmeZarr(this.url, { fetchOptions: this.requestInit, type: 'multiscales' });
+    const loader = await loadOmeZarr(this.url, this.requestInit);
     const { metadata, data } = loader;
 
     const { omero, multiscales, channels_metadata: spatialDataChannels } = metadata;

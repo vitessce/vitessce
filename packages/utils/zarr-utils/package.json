@@ -1,5 +1,5 @@
 {
-  "name": "@vitessce/zarr",
+  "name": "@vitessce/zarr-utils",
   "version": "3.1.2",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
@@ -30,17 +30,9 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/gl": "workspace:*",
-    "@vitessce/sets-utils": "workspace:*",
-    "@vitessce/spatial-utils": "workspace:*",
-    "@vitessce/utils": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
-    "@vitessce/zarr-utils": "workspace:*",
-    "d3-array": "^2.4.0",
-    "lodash-es": "^4.17.21",
     "@zarrita/core": "^0.0.3",
     "@zarrita/indexing": "^0.0.3",
-    "@zarrita/storage": "^0.0.2"
+    "@zarrita/storage": "^0.0.2",
+    "quick-lru": "^6.0.0"
   }
 }
