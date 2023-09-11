@@ -14,15 +14,13 @@ export default class MatrixZarrAsObsFeatureMatrixLoader extends AbstractTwoStepL
     return this.attrs;
   }
 
-  loadArr() {
+  async loadArr() {
     const { storeRoot } = this.dataSource;
     if (this.arr) {
       return this.arr;
     }
-    this.arr = zarrOpen(storeRoot.resolve('/'), { kind: 'array' }).then(z => new Promise((resolve) => {
-      createZarrArrayAdapter(z).getRaw([null, null])
-        .then(resolve);
-    }));
+    const z = await zarrOpen((await storeRoot), { kind: 'array' });
+    this.arr = await createZarrArrayAdapter(z).getRaw([null, null]);
     return this.arr;
   }
 
