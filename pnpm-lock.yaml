@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 overrides:
   zarr: 0.5.1
   jest-canvas-mock: 2.5.0
@@ -243,9 +247,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
-      zarr:
-        specifier: 0.5.1
-        version: 0.5.1
+      zarrita:
+        specifier: 0.4.0-next.2
+        version: 0.4.0-next.2
       zod:
         specifier: ^3.21.4
         version: 3.21.4
@@ -306,9 +310,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
-      zarr:
-        specifier: 0.5.1
-        version: 0.5.1
+      zarrita:
+        specifier: 0.4.0-next.2
+        version: 0.4.0-next.2
 
   packages/gl:
     dependencies:
@@ -8934,6 +8938,33 @@ packages:
 
   /@xtuc/long@4.2.2:
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
+
+  /@zarrita/core@0.1.0-next.1:
+    resolution: {integrity: sha512-099McC3ZBG+rmPK4AeisUGbbgg75Dl6G1Yjq18cMBoXzP6JYjBebozyFWZ2bacyCyr9jbLotWHyTi1k+BbmurQ==}
+    dependencies:
+      '@zarrita/storage': 0.1.0-next.1
+      '@zarrita/typedarray': 0.1.0-next.1
+      numcodecs: 0.2.2
+    dev: false
+
+  /@zarrita/indexing@0.1.0-next.2:
+    resolution: {integrity: sha512-XMqB1ucXcY8yqdycRGD/8WoxvZKIm5oI423ki6Urt6nnTf4LO2De+44R84LCblwTHGSig25dFfvwLbf4/QSFDQ==}
+    dependencies:
+      '@zarrita/core': 0.1.0-next.1
+      '@zarrita/storage': 0.1.0-next.1
+      '@zarrita/typedarray': 0.1.0-next.1
+    dev: false
+
+  /@zarrita/storage@0.1.0-next.1:
+    resolution: {integrity: sha512-Xbo/I6hXIsFP7rQyS8yEaLt9lto2eDsMcCo5uLDfrsHw+cMNhfzV4DLyqSqgp/Q6HLkyAp+1Qv5rEnF+T7yVHA==}
+    dependencies:
+      reference-spec-reader: 0.2.0
+      unzipit: 1.4.3
+    dev: false
+
+  /@zarrita/typedarray@0.1.0-next.1:
+    resolution: {integrity: sha512-R0dluIJ6Tk83EPinwxR1LuLX+B4Jk1mVaXQoWIrayYOu+saIjqYw0Cey1m+eBH9f5GLZV5SriBgsuaP4wsIfhA==}
+    dev: false
 
   /@zkochan/which@2.0.3:
     resolution: {integrity: sha512-C1ReN7vt2/2O0fyTsx5xnbQuxBrmG5NMSbcIkPKCCfCTJgpZBsuRYzFXHj3nVq8vTfK7vxHUmzfCpSHgO7j4rg==}
@@ -19729,6 +19760,10 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
+  /reference-spec-reader@0.2.0:
+    resolution: {integrity: sha512-q0mfCi5yZSSHXpCyxjgQeaORq3tvDsxDyzaadA/5+AbAUwRyRuuTh0aRQuE/vAOt/qzzxidJ5iDeu1cLHaNBlQ==}
+    dev: false
+
   /reflect.ownkeys@0.2.0:
     resolution: {integrity: sha512-qOLsBKHCpSOFKK1NUOCGC5VyeufB6lEsFe92AL2bhIJsacZS1qdoOZSbPk3MYKuT2cFlRDnulKXuuElIrMjGUg==}
     dev: false
@@ -21988,6 +22023,13 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /unzipit@1.4.3:
+    resolution: {integrity: sha512-gsq2PdJIWWGhx5kcdWStvNWit9FVdTewm4SEG7gFskWs+XCVaULt9+BwuoBtJiRE8eo3L1IPAOrbByNLtLtIlg==}
+    engines: {node: '>=12'}
+    dependencies:
+      uzip-module: 1.0.3
+    dev: false
+
   /upath@1.2.0:
     resolution: {integrity: sha512-aZwGpamFO61g3OlfT7OQCHqhGnW43ieH9WZeP7QxN/G/jS4jfqUkZxoryvJgVPEcrl5NL/ggHsSmLMHuH64Lhg==}
     engines: {node: '>=4'}
@@ -22196,6 +22238,10 @@ packages:
   /uuid@9.0.0:
     resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
     hasBin: true
+    dev: false
+
+  /uzip-module@1.0.3:
+    resolution: {integrity: sha512-AMqwWZaknLM77G+VPYNZLEruMGWGzyigPK3/Whg99B3S6vGHuqsyl5ZrOv1UUF3paGK1U6PM0cnayioaryg/fA==}
     dev: false
 
   /v8-compile-cache@2.3.0:
@@ -23480,6 +23526,14 @@ packages:
       p-queue: 6.2.0
     dev: false
 
+  /zarrita@0.4.0-next.2:
+    resolution: {integrity: sha512-h2KhRE/0251gd1X0YXSpedxI1RWoFMeKLiJ/bnQMvjGwuy7y22vGsG4vYQQKeE/1HKqXo71slcrvwY8jd4BKAA==}
+    dependencies:
+      '@zarrita/core': 0.1.0-next.1
+      '@zarrita/indexing': 0.1.0-next.2
+      '@zarrita/storage': 0.1.0-next.1
+    dev: false
+
   /zod-to-json-schema@3.21.1(zod@3.21.4):
     resolution: {integrity: sha512-y5g0MPxDq+YG/T+cHGPYH4PcBpyCqwK6wxeJ76MR563y0gk/14HKfebq8xHiItY7lkc9GDFygCnkvNDTvAhYAg==}
     peerDependencies:
@@ -23505,7 +23559,3 @@ packages:
   /zwitch@1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: false
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false

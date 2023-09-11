@@ -39,7 +39,7 @@
     "@vitessce/vit-s": "workspace:*",
     "d3-array": "^2.4.0",
     "lodash-es": "^4.17.21",
-    "zarr": "0.5.1",
+    "zarrita": "0.4.0-next.2",
     "zod": "^3.21.4"
   }
 }

@@ -17,6 +17,7 @@ const OTHER_VERSIONS = {
   "internmap": "^2.0.3",
   "uuid": "^9.0.0",
   "zarr": "0.5.1",
+  "zarrita": "0.4.0-next.2",
   "zustand": "^3.5.10",
   "@hms-dbmi/viv": "~0.13.7",
   "clsx": "^1.1.1",
