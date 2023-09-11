@@ -8,7 +8,12 @@ describe('sources/AnnDataSource', () => {
         url: 'http://localhost:4204/@fixtures/zarr/anndata-0.7/anndata-dense.zarr',
       });
       const zAttrs = await dataSource.getJson('obs/.zattrs');
-      expect(zAttrs['column-ordering'][0]).toEqual('leiden');
+      expect(Object.keys(zAttrs)).toEqual([
+        '_index',
+        'column-order',
+        'encoding-type',
+        'encoding-version',
+      ]);
     });
 
     it('loadObsColumns returns ids for location in store', async () => {
