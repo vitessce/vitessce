@@ -62,23 +62,23 @@ export default class AnnDataSource extends ZarrDataSource {
     let categoriesValues;
     let codes;
     if (categories) {
-      const { dtype } = await this.getJson(`/${prefix}/${categories}/.zarray`);
-      if (dtype === '|O') {
+      const { dtype } = await zarrOpen((await storeRoot).resolve(`/${prefix}/${categories}`));
+      if (dtype === 'v2:object') {
         categoriesValues = await this.getFlatArrDecompressed(
           `/${prefix}/${categories}`,
         );
       }
     } else if (encodingType === 'categorical') {
-      const { dtype } = await this.getJson(`/${path}/categories/.zarray`);
-      if (dtype === '|O') {
+      const { dtype } = await zarrOpen((await storeRoot).resolve(`/${path}/categories`));
+      if (dtype === 'v2:object') {
         categoriesValues = await this.getFlatArrDecompressed(
           `/${path}/categories`,
         );
       }
       codes = `/${path}/codes`;
     } else {
-      const { dtype } = await this.getJson(`/${path}/.zarray`);
-      if (dtype === '|O') {
+      const { dtype } = await zarrOpen((await storeRoot).resolve(`/${path}`));
+      if (dtype === 'v2:object') {
         return this.getFlatArrDecompressed(path);
       }
     }
