@@ -10,10 +10,11 @@ export const blin2019 = {
       uid: 'idr0062-blin-nuclearsegmentation/6001240',
       name: 'idr0062-blin-nuclearsegmentation/6001240',
       files: [
-        /*{
+        {
           fileType: 'image.ome-zarr',
           url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr',
-        },*/
+        },
+        /*
         {
           fileType: 'image.raster.json',
           options: {
@@ -28,6 +29,7 @@ export const blin2019 = {
             ]
           }
         }
+        */
       ],
     },
   ],
