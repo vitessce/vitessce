@@ -125,7 +125,7 @@ function withDefaults(
  */
 export function createLoaders(datasets, configDescription, fileTypes, coordinationTypes) {
   const result = {};
-  const dataSources = {};
+  const dataSources = new InternMap([], JSON.stringify);
   const defaultCoordinationValues = fromEntries(
     coordinationTypes.map(ct => ([ct.name, ct.defaultValue])),
   );
@@ -152,12 +152,16 @@ export function createLoaders(datasets, configDescription, fileTypes, coordinati
         defaultCoordinationValues,
       );
       const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(fileType, fileTypes);
-      // Create _one_ DataSourceClass instance per URL. Derived loaders share this object.
+      // Create _one_ DataSourceClass instance per (URL, DataSource class name) pair.
+      // Derived loaders share this object.
       const fileId = url || JSON.stringify(options);
-      if (!(fileId in dataSources)) {
-        dataSources[fileId] = new DataSourceClass({ url, requestInit });
+      const dataSourceName = DataSourceClass.prototype.constructor.name;
+      const dataSourceKey = [fileId, dataSourceName];
+      console.log(dataSourceKey);
+      if (!dataSources.has(dataSourceKey)) {
+        dataSources.set(dataSourceKey, new DataSourceClass({ url, requestInit }));
       }
-      const loader = new LoaderClass(dataSources[fileId], file);
+      const loader = new LoaderClass(dataSources.get(dataSourceKey), file);
       if (datasetLoaders.loaders[dataType]) {
         datasetLoaders.loaders[dataType].set(coordinationValuesWithDefaults, loader);
       } else {
