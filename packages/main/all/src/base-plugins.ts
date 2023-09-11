@@ -115,6 +115,7 @@ import {
   OmeZarrLoader,
   // SpatialData
   SpatialDataTableSource,
+  SpatialDataShapesSource,
   SpatialDataImageLoader,
   // Legacy
   ZarrDataSource,
@@ -204,9 +205,13 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, imageOmeZarrSchema),
   // SpatialData file types
   makeFileType(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),
-  makeFileType(FileType.OBS_SEGMENTATIONS_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, AnnDataSource, obsSegmentationsSpatialdataSchema),
+  // TODO: create a new loader for labels that returns obsSegmentations with obsSegmentationsType: 'bitmask'
+  makeFileType(FileType.LABELS_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataImageLoader, ZarrDataSource, obsSegmentationsSpatialdataSchema),
+  // TODO: create a new loader for shapes that returns obsSegmentations with obsSegmentationsType: 'polygon' (or switch this to 'shape' everywhere?)
+  // TODO: create a new source for GeoPandas tables?
+  makeFileType(FileType.SHAPES_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, SpatialDataShapesSource, obsSegmentationsSpatialdataSchema),
+  makeFileType(FileType.OBS_LOCATIONS_SPATIALDATA_ZARR, DataType.OBS_LOCATIONS, ObsLocationsAnndataLoader, SpatialDataShapesSource, obsLocationsSpatialdataSchema),
   makeFileType(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
-  makeFileType(FileType.OBS_LOCATIONS_SPATIALDATA_ZARR, DataType.OBS_LOCATIONS, ObsLocationsAnndataLoader, AnnDataSource, obsLocationsSpatialdataSchema),
   makeFileType(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),

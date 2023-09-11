@@ -155,9 +155,10 @@ export function createLoaders(datasets, configDescription, fileTypes, coordinati
       // Create _one_ DataSourceClass instance per (URL, DataSource class name) pair.
       // Derived loaders share this object.
       const fileId = url || JSON.stringify(options);
+      // The class name might be minified but that should not matter;
+      // we just need a string that is unique to the class for the key.
       const dataSourceName = DataSourceClass.prototype.constructor.name;
       const dataSourceKey = [fileId, dataSourceName];
-      console.log(dataSourceKey);
       if (!dataSources.has(dataSourceKey)) {
         dataSources.set(dataSourceKey, new DataSourceClass({ url, requestInit }));
       }
