@@ -36,14 +36,13 @@ async function initLoader(imageData) {
           .filter(metaKey => metaKey.includes('.zarray'))
           .map(arrMetaKeys => arrMetaKeys.slice(0, -7));
         const data = await Promise.all(
-          paths.map(path => zarrOpen(root.resolve(path.substring(0, 1)), { kind: 'array' })),
+          paths.map(path => zarrOpen(root.resolve(path), { kind: 'array' })),
         );
         const tileSize = guessTileSize(data[0]);
         source = data.map(d => new ZarritaPixelSource(createZarrArrayAdapter(d), labels, tileSize));
       } else {
         const data = await zarrOpen(root, { kind: 'array' });
-        const tileSize = guessTileSize(data);
-        source = new ZarritaPixelSource(createZarrArrayAdapter(data), labels, tileSize);
+        source = new ZarritaPixelSource(createZarrArrayAdapter(data), labels);
       }
       return { data: source, metadata: { dimensions, transform }, channels: (dimensions.find(d => d.field === 'channel') || dimensions[0]).values };
     }
