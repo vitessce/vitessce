@@ -1,4 +1,11 @@
 
+## 3.2.0
+
+### Minor Changes
+
+- Added spatialBeta and layerControllerBeta views to support multi-obsType segmentations (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`, `@vitessce/vit-s`, `@vitessce/gl`) ([#1581](https://github.com/vitessce/vitessce/pull/1581))
+
+
 ## 3.1.3
 
 ### Patch Changes
