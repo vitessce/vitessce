@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { toRgbUIString } from './utils.js';
+import { toRgbUIString } from './layer-controller.js';
 
 const GREY = [220, 220, 220];
 

@@ -5,6 +5,9 @@ import {
   coordinateTransformationsToMatrix,
   getNgffAxesForTiff,
 } from '@vitessce/spatial-utils';
+import {
+  ImageWrapper,
+} from '@vitessce/image-utils';
 import OmeTiffLoader from './OmeTiffLoader.js';
 
 export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
@@ -13,6 +16,7 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
+    const imageWrapper = new ImageWrapper(loader, this.options);
     const {
       Name: imageName,
       Pixels: {
@@ -88,7 +92,11 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
       return new LoaderResult(
         {
           obsSegmentationsType: 'bitmask',
-          obsSegmentations: { loaders: imageLayerLoaders, meta: imageLayerMeta },
+          obsSegmentations: {
+            loaders: imageLayerLoaders, // TODO: replace with imageWrapper
+            meta: imageLayerMeta, // TODO: replace with imageWrapper
+            instance: imageWrapper, // TODO: make this the root value of LoaderResult.image.
+          },
         },
         urls,
         coordinationValues,

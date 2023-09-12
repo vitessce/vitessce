@@ -8,6 +8,8 @@ import { FileType, DataType, CoordinationType } from './constants.js';
 export const FILE_TYPE_DATA_TYPE_MAPPING = {
   // For new file types
   [FileType.OBS_EMBEDDING_CSV]: DataType.OBS_EMBEDDING,
+  [FileType.OBS_SPOTS_CSV]: DataType.OBS_SPOTS,
+  [FileType.OBS_POINTS_CSV]: DataType.OBS_POINTS,
   [FileType.OBS_LOCATIONS_CSV]: DataType.OBS_LOCATIONS,
   [FileType.OBS_LABELS_CSV]: DataType.OBS_LABELS,
   [FileType.FEATURE_LABELS_CSV]: DataType.FEATURE_LABELS,
@@ -19,6 +21,8 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: DataType.OBS_FEATURE_MATRIX,
   [FileType.OBS_SETS_ANNDATA_ZARR]: DataType.OBS_SETS,
   [FileType.OBS_EMBEDDING_ANNDATA_ZARR]: DataType.OBS_EMBEDDING,
+  [FileType.OBS_SPOTS_ANNDATA_ZARR]: DataType.OBS_SPOTS,
+  [FileType.OBS_POINTS_ANNDATA_ZARR]: DataType.OBS_POINTS,
   [FileType.OBS_LOCATIONS_ANNDATA_ZARR]: DataType.OBS_LOCATIONS,
   [FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_LABELS_ANNDATA_ZARR]: DataType.OBS_LABELS,
@@ -28,6 +32,8 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_FEATURE_MATRIX_MUDATA_ZARR]: DataType.OBS_FEATURE_MATRIX,
   [FileType.OBS_SETS_MUDATA_ZARR]: DataType.OBS_SETS,
   [FileType.OBS_EMBEDDING_MUDATA_ZARR]: DataType.OBS_EMBEDDING,
+  [FileType.OBS_SPOTS_MUDATA_ZARR]: DataType.OBS_SPOTS,
+  [FileType.OBS_POINTS_MUDATA_ZARR]: DataType.OBS_POINTS,
   [FileType.OBS_LOCATIONS_MUDATA_ZARR]: DataType.OBS_LOCATIONS,
   [FileType.OBS_SEGMENTATIONS_MUDATA_ZARR]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_LABELS_MUDATA_ZARR]: DataType.OBS_LABELS,
@@ -62,6 +68,12 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
   [DataType.OBS_EMBEDDING]: [
     CoordinationType.OBS_TYPE,
     CoordinationType.EMBEDDING_TYPE,
+  ],
+  [DataType.OBS_SPOTS]: [
+    CoordinationType.OBS_TYPE,
+  ],
+  [DataType.OBS_POINTS]: [
+    CoordinationType.OBS_TYPE,
   ],
   [DataType.OBS_LOCATIONS]: [
     CoordinationType.OBS_TYPE,
