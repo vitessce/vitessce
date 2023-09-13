@@ -102,6 +102,9 @@ jobs:
   
   test-e2e-html:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        react: ['--react-16', '--react-17', '--react-18']
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -119,7 +122,7 @@ jobs:
       - run: pnpm run build:ci && pnpm run bundle:ci
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
-      - run: ./scripts/consumer-install.sh
+      - run: ./scripts/consumer-install.sh ${{ matrix.react }}
         shell: bash
       - name: Cypress PNPM Patch
         run: cp pnpm-lock.yaml ./sites/html/package-lock.json
@@ -137,76 +140,3 @@ jobs:
           browser: chrome
           headed: false
 
-  test-e2e-html-react-16:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-      - uses: pnpm/action-setup@v2.2.4
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 8
-          run_install: true
-      - id: get-options
-        run: . ./scripts/set-node-options.sh --action
-        shell: bash
-      - run: pnpm run build:ci && pnpm run bundle:ci
-        env:
-          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
-      - run: ./scripts/consumer-install.sh --react-16
-        shell: bash
-      - name: Cypress PNPM Patch
-        run: cp pnpm-lock.yaml ./sites/html/package-lock.json
-      
-      - name: Cypress
-        uses: cypress-io/github-action@v4
-        env:
-          DEBUG: '@cypress/github-action'
-        with:
-          working-directory: ./sites/html
-          install-command: echo
-          start: pnpm run start-html
-          wait-on: 'http://localhost:3003'
-          wait-on-timeout: 240
-          browser: chrome
-          headed: false
-  
-  test-e2e-html-react-17:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-      - uses: pnpm/action-setup@v2.2.4
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 8
-          run_install: true
-      - id: get-options
-        run: . ./scripts/set-node-options.sh --action
-        shell: bash
-      - run: pnpm run build:ci && pnpm run bundle:ci
-        env:
-          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
-      - run: ./scripts/consumer-install.sh --react-17
-        shell: bash
-      - name: Cypress PNPM Patch
-        run: cp pnpm-lock.yaml ./sites/html/package-lock.json
-      
-      - name: Cypress
-        uses: cypress-io/github-action@v4
-        env:
-          DEBUG: '@cypress/github-action'
-        with:
-          working-directory: ./sites/html
-          install-command: echo
-          start: pnpm run start-html
-          wait-on: 'http://localhost:3003'
-          wait-on-timeout: 240
-          browser: chrome
-          headed: false
