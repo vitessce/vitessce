@@ -1,6 +1,6 @@
-import React, { useCallback, useId } from 'react';
+import React, { useCallback } from 'react';
+import { useId } from 'react-aria';
 import { debounce } from 'lodash-es';
-
 import {
   Checkbox,
   TableCell,

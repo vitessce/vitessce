@@ -1,7 +1,8 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable no-unused-vars */
 // eslint gets confused by the "id" being within MUI's inputProps.
-import React, { useState, useMemo, useCallback, useId } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
+import { useId } from 'react-aria';
 import {
   makeStyles,
   Grid,
