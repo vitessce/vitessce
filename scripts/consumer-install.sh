@@ -28,6 +28,7 @@ cd -
 pnpm -r exec pnpm pack --pack-destination $(pwd)/consumer/
 
 
+# Support testing different versions of React using the first argument.
 if [[ "$1" == "--react-16" ]]; then
   REACT_VERSION="^16.14.0"
 elif [[ "$1" == "--react-17" ]]; then
@@ -45,8 +46,10 @@ npm install $(ls ./vitessce-*.tgz)
 # Run Vite build to bundle the consumer HTML/JS.
 npm exec vite build
 
-
-echo "Done vite build. Starting NextJS build."
-npm install next@13
-# Run NextJS build to bundle the consumer HTML/JS.
-npm exec next build
+# Only run the NextJS build if we are testing React v18+.
+if [[ "$REACT_VERSION" == "^18.2.0" ]]; then
+    echo "Done vite build. Starting NextJS build."
+    npm install next@13
+    # Run NextJS build to bundle the consumer HTML/JS.
+    npm exec next build
+fi
