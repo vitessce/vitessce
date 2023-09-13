@@ -267,4 +267,58 @@ export default class AnnDataSource extends ZarrDataSource {
     );
     return this.varAlias;
   }
+
+  async _loadAttrs(path) {
+    return this.getJson(`${path}/.zattrs`);
+  }
+
+  async _loadString(path) {
+    const { store } = this;
+    const { 'encoding-type': encodingType, 'encoding-version': encodingVersion } = await this._loadAttrs(path);
+
+    if(encodingType === "string" && encodingVersion === '0.2.0') {
+      const arr = await openArray({
+        store,
+        path,
+        mode: 'r',
+      });
+      // TODO: seems like zarr.js does not support zero-dimensional array access.
+      console.log(await arr.get([]));
+      return arr;
+    }
+    throw new Error(`Unsupported encoding type ${encodingType} and version ${encodingVersion} in AnnDataSource._loadString`);
+  }
+
+  async _loadStringArray(path) {
+    const { 'encoding-type': encodingType, 'encoding-version': encodingVersion } = await this._loadAttrs(path);
+
+    if(encodingType === "string-array" && encodingVersion === '0.2.0') {
+      return this.getFlatArrDecompressed(path);
+    }
+    throw new Error(`Unsupported encoding type ${encodingType} and version ${encodingVersion} in AnnDataSource._loadStringArray`);
+  }
+
+
+  async _loadElement(path) {
+    const { 'encoding-type': encodingType } = await this._loadAttrs(path);
+    if(encodingType === "string") {
+      return this._loadString(path);
+    } else if(encodingType === "string-array") {
+      return this._loadStringArray(path);
+    }
+  }
+
+  async _loadDict(path, keys) {
+    const { 'encoding-type': encodingType, 'encoding-version': encodingVersion } = await this._loadAttrs(path);
+
+    if(encodingType === "dict" && encodingVersion === '0.1.0') {
+      const result = {};
+      keys.forEach(async (key) => {
+        const val = await this._loadElement(`${path}/${key}`);
+        result[key] = val;
+      });
+      return result;
+    }
+    throw new Error(`Unsupported encoding type ${encodingType} and version ${encodingVersion} in AnnDataSource._loadDict`);
+  }
 }

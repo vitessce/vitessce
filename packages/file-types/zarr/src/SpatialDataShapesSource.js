@@ -24,6 +24,13 @@ export function getVarPath(arrPath) {
 
 
 export default class SpatialDataShapesSource extends AnnDataSource {
+
+  async loadSpatialDataAttrs(tablePath) {
+    const attrs = await this._loadDict(`${tablePath}/uns/spatialdata_attrs`, ['instance_key', 'region', 'region_key']);
+    console.log(attrs);
+    return attrs;
+  }
+
   /**
    * Class method for loading the obs index.
    * @returns {Promise} An promise for a zarr array containing the indices.
@@ -38,6 +45,8 @@ export default class SpatialDataShapesSource extends AnnDataSource {
       const obsPath = `${tablePath}/obs`;
       const { _index } = await this.getJson(`${obsPath}/.zattrs`);
       indexPath = `${obsPath}/${_index}`;
+
+      const attrs = this.loadSpatialDataAttrs(tablePath);
       // TODO: filter table index by region and element type.
     }
     if (this.obsIndex[indexPath]) {
