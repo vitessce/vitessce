@@ -1,4 +1,11 @@
 
+## 3.2.1
+
+### Patch Changes
+
+- Use react-aria's useId hook to support React v17. (`@vitessce/layer-controller-beta`, `@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/layer-controller`, `@vitessce/feature-list`, `@vitessce/scatterplot`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/vit-s`) ([#1687](https://github.com/vitessce/vitessce/pull/1687))
+
+
 ## 3.2.0
 
 ### Minor Changes
