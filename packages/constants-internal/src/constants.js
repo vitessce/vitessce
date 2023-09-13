@@ -69,9 +69,10 @@ export const FileType = {
   SHAPES_SPATIALDATA_ZARR: 'shapes.spatialdata.zarr',
   OBS_FEATURE_MATRIX_SPATIALDATA_ZARR: 'obsFeatureMatrix.spatialdata.zarr',
   OBS_SETS_SPATIALDATA_ZARR: 'obsSets.spatialdata.zarr',
-  OBS_LOCATIONS_SPATIALDATA_ZARR: 'obsLocations.spatialdata.zarr',
+  OBS_SPOTS_SPATIALDATA_ZARR: 'obsSpots.spatialdata.zarr',
+  // TODO:
   // OBS_POINTS_SPATIALDATA_ZARR: 'obsPoints.spatialdata.zarr',
-  // OBS_SPOTS_SPATIALDATA_ZARR: 'obsSpots.spatialdata.zarr',
+  // OBS_LOCATIONS_SPATIALDATA_ZARR: 'obsLocations.spatialdata.zarr',
   // MuData
   OBS_FEATURE_MATRIX_MUDATA_ZARR: 'obsFeatureMatrix.mudata.zarr',
   OBS_SETS_MUDATA_ZARR: 'obsSets.mudata.zarr',

@@ -104,6 +104,9 @@ export const obsSegmentationsSpatialdataSchema = z.object({
 export const obsLocationsSpatialdataSchema = z.object({
   path: z.string(),
 });
+export const obsSpotsSpatialdataSchema = z.object({
+  path: z.string(),
+});
 export const obsFeatureMatrixSpatialdataSchema = annDataObsFeatureMatrix.extend({
   region: z.string()
     .describe('The name of a region to use to filter instances (i.e., rows) in the table')

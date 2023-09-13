@@ -46,7 +46,7 @@ import {
   imageSpatialdataSchema,
   obsSegmentationsSpatialdataSchema,
   obsFeatureMatrixSpatialdataSchema,
-  obsLocationsSpatialdataSchema,
+  obsSpotsSpatialdataSchema,
   obsSetsSpatialdataSchema,
   obsSetPath,
   rgbArray,
@@ -228,7 +228,7 @@ export const baseFileTypes = [
   // TODO: create a new loader for shapes that returns obsSegmentations with obsSegmentationsType: 'polygon' (or switch this to 'shape' everywhere?)
   // TODO: create a new source for GeoPandas tables?
   makeFileType(FileType.SHAPES_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, SpatialDataShapesSource, obsSegmentationsSpatialdataSchema),
-  makeFileType(FileType.OBS_LOCATIONS_SPATIALDATA_ZARR, DataType.OBS_LOCATIONS, ObsLocationsAnndataLoader, SpatialDataShapesSource, obsLocationsSpatialdataSchema),
+  makeFileType(FileType.OBS_SPOTS_SPATIALDATA_ZARR, DataType.OBS_SPOTS, ObsSpotsAnndataLoader, SpatialDataShapesSource, obsSpotsSpatialdataSchema),
   makeFileType(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
   makeFileType(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
   // All legacy file types

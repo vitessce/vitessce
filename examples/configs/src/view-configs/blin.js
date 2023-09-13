@@ -25,9 +25,10 @@ export const blin2019 = {
           },
         },
         {
-          fileType: 'obsLocations.spatialdata.zarr',
+          fileType: 'obsSpots.spatialdata.zarr',
           url: 'http://localhost:8000/visium.zarr',
           options: {
+            // TODO: should '/coords' suffix be appended internally?
             path: 'shapes/ST8059048_shapes/coords',
           },
         },
