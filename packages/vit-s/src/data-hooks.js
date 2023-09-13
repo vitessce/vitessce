@@ -3,9 +3,10 @@ import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal
 import { fromEntries } from '@vitessce/utils';
 import { useQuery, useQueries } from '@tanstack/react-query';
 import {
-  getMatchingLoader,
   useMultiCoordinationValues,
+  useComplexCoordination,
   useSetWarning,
+  getMatchingLoader,
 } from './state/hooks.js';
 import {
   LoaderNotFoundError,
@@ -71,6 +72,28 @@ export function useObsEmbeddingData(
 ) {
   return useDataType(
     DataType.OBS_EMBEDDING,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+export function useObsSpotsData(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_SPOTS,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+export function useObsPointsData(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_POINTS,
     loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
@@ -214,7 +237,7 @@ export function useFeatureSelection(
             const payload = await loader.loadGeneSelection({ selection: [featureId] });
             if (!payload) return null;
             const { data } = payload;
-            return { data: data[0], dataKey: selection };
+            return { data: data[0], dataKey: featureId };
           }
           // Loader does not implement loadGeneSelection.
           const payload = await loader.load();
@@ -288,7 +311,9 @@ export function useObsFeatureMatrixIndices(
     placeholderData: placeholderObject,
     // Include the hook name in the queryKey to prevent the case in which an identical queryKey
     // in a different hook would cause an accidental cache hit.
-    queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn, 'useObsFeatureMatrixIndices'],
+    // Note: this uses the same key structure/suffix as
+    // getMatrixIndicesQueryKeyScopeTuplesAux for shared caching.
+    queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn, isRequired, 'useObsFeatureMatrixIndices'],
     // Query function should return an object
     // { data, dataKey } where dataKey is the loaded gene selection.
     // TODO: use TypeScript to type the return value?
@@ -350,6 +375,78 @@ export function useObsFeatureMatrixIndices(
   return [loadedData, dataStatus, urls];
 }
 
+export function useMultiObsPoints(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const obsTypeCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.POINT_LAYER,
+  );
+  const matchOnObj = useMemo(() => obsTypeCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useDataTypeMulti(
+    DataType.OBS_POINTS, loaders, dataset,
+    false, {}, {},
+    matchOnObj,
+  );
+  return [obsPointsData, obsPointsDataStatus, obsPointsUrls];
+}
+
+export function useMultiObsSpots(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const obsTypeCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPOT_LAYER,
+  );
+  const matchOnObj = useMemo(() => obsTypeCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useDataTypeMulti(
+    DataType.OBS_SPOTS, loaders, dataset,
+    false, {}, {},
+    matchOnObj,
+  );
+  return [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls];
+}
+
+export function useSpotMultiObsSets(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const obsTypeCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPOT_LAYER,
+  );
+  const matchOnObj = useMemo(() => obsTypeCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [obsSetsData, obsSetsDataStatus, obsSetsUrls] = useDataTypeMulti(
+    DataType.OBS_SETS, loaders, dataset,
+    false, {}, {},
+    matchOnObj,
+  );
+  return [obsSetsData, obsSetsDataStatus, obsSetsUrls];
+}
+
 export function useMultiObsLabels(
   coordinationScopes, obsType, loaders, dataset,
 ) {
@@ -363,11 +460,64 @@ export function useMultiObsLabels(
       { obsLabelsType, obsType },
     ])),
   ), [obsLabelsTypes, obsType]);
-  const [obsLabelsData, obsLabelsDataStatus] = useDataTypeMulti(
+  const [obsLabelsData, obsLabelsDataStatus, obsLabelsUrls] = useDataTypeMulti(
     DataType.OBS_LABELS, loaders, dataset,
     false, {}, {},
     obsLabelsMatchOnObj,
   );
-  const urls = null; // TODO?
-  return [obsLabelsTypes, obsLabelsData, obsLabelsDataStatus, urls];
+  return [obsLabelsTypes, obsLabelsData, obsLabelsDataStatus, obsLabelsUrls];
+}
+
+export function useMultiObsSegmentations(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const imageCoordination = useComplexCoordination(
+    [
+      CoordinationType.FILE_UID,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SEGMENTATION_LAYER,
+  );
+  const matchOnObj = useMemo(() => imageCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [
+    obsSegmentationsData,
+    obsSegmentationsDataStatus,
+    obsSegmentationsUrls,
+  ] = useDataTypeMulti(
+    DataType.OBS_SEGMENTATIONS, loaders, dataset,
+    false, {}, {},
+    matchOnObj,
+  );
+  return [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls];
+}
+
+export function useMultiImages(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  // TODO: delegate the generation of matchOnObj to a different hoook and pass as a parameter?
+  // (in all of the useMulti data hooks)?
+  const imageCoordination = useComplexCoordination(
+    [
+      CoordinationType.FILE_UID,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.IMAGE_LAYER,
+  );
+  const matchOnObj = useMemo(() => imageCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [imageData, imageDataStatus, imageUrls] = useDataTypeMulti(
+    DataType.IMAGE, loaders, dataset,
+    false, {}, {},
+    matchOnObj,
+  );
+  return [imageData, imageDataStatus, imageUrls];
 }

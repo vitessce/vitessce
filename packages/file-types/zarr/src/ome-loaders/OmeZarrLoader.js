@@ -2,23 +2,19 @@ import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,
   getNgffAxes,
+  hexToRgb,
   normalizeCoordinateTransformations,
   loadOmeZarr,
 } from '@vitessce/spatial-utils';
+import {
+  ImageWrapper,
+} from '@vitessce/image-utils';
 import {
   AbstractLoaderError,
   LoaderResult,
   AbstractTwoStepLoader,
 } from '@vitessce/vit-s';
 
-function hexToRgb(hex) {
-  const result = /^#?([A-F\d]{2})([A-F\d]{2})([A-F\d]{2})$/i.exec(hex);
-  return [
-    parseInt(result[1].toLowerCase(), 16),
-    parseInt(result[2].toLowerCase(), 16),
-    parseInt(result[3].toLowerCase(), 16),
-  ];
-}
 
 export default class OmeZarrLoader extends AbstractTwoStepLoader {
   async load() {
@@ -30,8 +26,9 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
     const loader = await loadOmeZarr(this.url, this.requestInit);
+    const imageWrapper = new ImageWrapper(loader, this.options);
+  
     const { metadata, data } = loader;
-
     const { omero, multiscales, channels_metadata: spatialDataChannels } = metadata;
 
     // Crude way to check if this is a SpatialData OME-NGFF.
@@ -151,7 +148,14 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       spatialImageLayer: autoImageLayers,
     };
     return Promise.resolve(new LoaderResult(
-      { image: { loaders: imageLayerLoaders, meta: imageLayerMeta } },
+      {
+        image: {
+          loaders: imageLayerLoaders, // TODO: replace with imageWrapper
+          meta: imageLayerMeta, // TODO: replace with imageWrapper
+          instance: imageWrapper, // TODO: make this the root value of LoaderResult.image.
+        },
+        featureIndex: imageWrapper.getChannelNames(),
+      },
       [],
       coordinationValues,
     ));

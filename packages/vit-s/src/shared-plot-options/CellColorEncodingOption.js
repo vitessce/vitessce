@@ -1,4 +1,5 @@
-import React, { useId } from 'react';
+import React from 'react';
+import { useId } from 'react-aria';
 import { TableCell, TableRow } from '@material-ui/core';
 import { capitalize } from '@vitessce/utils';
 import OptionSelect from './OptionSelect.js';

@@ -1,7 +1,13 @@
-import React, { useState, useRef, useEffect, useId } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useId } from 'react-aria';
 import { viv } from '@vitessce/gl';
 import {
-  GLOBAL_LABELS, getSourceFromLoader, isRgb,
+  GLOBAL_LABELS,
+  getSourceFromLoader,
+  isRgb,
+  getMultiSelectionStats,
+  DOMAINS,
+  canLoadResolution,
 } from '@vitessce/spatial-utils';
 
 import {
@@ -15,8 +21,6 @@ import {
   VisibilityOff as VisibilityOffIcon,
 } from '@material-ui/icons';
 
-
-import { canLoadResolution } from '@vitessce/utils';
 import LayerOptions from './LayerOptions.js';
 import VolumeOptions from './VolumeOptions.js';
 import {
@@ -25,9 +29,7 @@ import {
   useOverflowEllipsisGridStyles,
   useAccordionStyles,
 } from './styles.js';
-import { getMultiSelectionStats } from './utils.js';
 
-import { DOMAINS } from './constants.js';
 
 function TabPanel(props) {
   const {

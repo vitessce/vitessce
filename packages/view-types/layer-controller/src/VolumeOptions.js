@@ -12,7 +12,7 @@ import {
   Slider,
 } from '@material-ui/core';
 import { viv } from '@vitessce/gl';
-import { abbreviateNumber, getBoundingCube } from './utils.js';
+import { abbreviateNumber, getBoundingCube } from '@vitessce/spatial-utils';
 import { useSelectStyles } from './styles.js';
 
 const useSlicerStyles = makeStyles(theme => createStyles({

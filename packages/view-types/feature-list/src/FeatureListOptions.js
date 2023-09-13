@@ -1,4 +1,5 @@
-import React, { useId } from 'react';
+import React from 'react';
+import { useId } from 'react-aria';
 import { OptionsContainer, OptionSelect, usePlotOptionsStyles } from '@vitessce/vit-s';
 import { TableCell, TableRow, Checkbox } from '@material-ui/core';
 import { FEATURELIST_SORT_OPTIONS, ALT_COLNAME } from './constants.js';

@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/legend",
-  "version": "3.1.2",
+  "version": "3.2.1",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -32,6 +32,9 @@
   "dependencies": {
     "@material-ui/core": "~4.12.3",
     "@vitessce/utils": "workspace:*",
+    "@vitessce/sets-utils": "workspace:*",
+    "clsx": "^1.1.1",
+    "lodash-es": "^4.17.21",
     "colormap": "^2.3.2",
     "d3-axis": "^3.0.0",
     "d3-color": "^1.4.0",

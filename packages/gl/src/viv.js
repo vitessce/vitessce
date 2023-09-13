@@ -1,4 +1,5 @@
 export {
+  TiffPixelSource,
   ZarrPixelSource,
   loadOmeTiff,
   XRLayer,

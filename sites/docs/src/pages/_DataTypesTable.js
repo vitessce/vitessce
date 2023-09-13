@@ -38,10 +38,79 @@ export default function DataTypesTable() {
         </tr>
         <tr>
           <td>
-            <code>obsLocations</code>
-            <br /> Spatially-resolved 2D coordinates.
+            <code>obsPoints</code>
+            <br /> Spatially-resolved 2D coordinates without a specified size.
             For example, individual RNA molecule x-y coordinates
-            measured by FISH, or cell segmentation centroid coordinates.
+            measured by FISH.
+            (Supported by <code>spatialBeta</code> view.)
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obspointscsv')}><code>obsPoints.csv</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obspointsanndatazarr')}><code>obsPoints.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obspointsmudatazarr')}><code>obsPoints.mudata.zarr</code></a></li>
+              {anndataConvenienceFileType}
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>obsSpots</code>
+            <br /> Spatially-resolved 2D coordinates with a specified size.
+            For example, spot-based or bead-based spatial transcriptomics such as from 10x Visium.
+            (Supported by <code>spatialBeta</code> view.)
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsspotscsv')}><code>obsSpots.csv</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsspotsanndatazarr')}><code>obsSpots.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsspotsmudatazarr')}><code>obsSpots.mudata.zarr</code></a></li>
+              {anndataConvenienceFileType}
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>obsSegmentations</code>
+            <br /> Per-observation segmentation polygons or bitmasks.
+            For example, cell or organelle segmentations.
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsome-tiff')}><code>obsSegmentations.ome-tiff</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsjson')}><code>obsSegmentations.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsanndatazarr')}><code>obsSegmentations.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsmudatazarr')}><code>obsSegmentations.mudata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsrasterjson')}><code>obsSegmentations.raster.json</code></a></li>
+              {anndataConvenienceFileType}
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>obsLocations</code>
+            <br /> 2D coordinates representing
+            precise locations corresponding to segmentations.
+            For example, cell segmentation centroid coordinates to
+            support lasso selection interactions.
           </td>
           <td>
             <ul>
@@ -160,29 +229,6 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#featurelabelscsv')}><code>featureLabels.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#featurelabelsanndatazarr')}><code>featureLabels.anndata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#featurelabelsmudatazarr')}><code>featureLabels.mudata.zarr</code></a></li>
-              {anndataConvenienceFileType}
-            </ul>
-          </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
-            </ul>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <code>obsSegmentations</code>
-            <br /> Per-observation segmentation polygons or bitmasks.
-            Typically used to store cell or organelle segmentations.
-          </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsome-tiff')}><code>obsSegmentations.ome-tiff</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsjson')}><code>obsSegmentations.json</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsanndatazarr')}><code>obsSegmentations.anndata.zarr</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsmudatazarr')}><code>obsSegmentations.mudata.zarr</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsrasterjson')}><code>obsSegmentations.raster.json</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>

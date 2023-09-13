@@ -1,20 +1,25 @@
-import React, { useId } from 'react';
+import React from 'react';
+import { useId } from 'react-aria';
 import { range } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
 import { Grid, Slider, InputLabel, Select, Checkbox } from '@material-ui/core';
 import { viv } from '@vitessce/gl';
-import { DEFAULT_RASTER_DOMAIN_TYPE } from '@vitessce/spatial-utils';
+import {
+  getBoundingCube,
+  getMultiSelectionStats,
+  DEFAULT_RASTER_DOMAIN_TYPE,
+  canLoadResolution,
+  getStatsForResolution,
+} from '@vitessce/spatial-utils';
 import {
   COLORMAP_OPTIONS,
-  canLoadResolution,
   formatBytes,
-  getStatsForResolution,
 } from '@vitessce/utils';
 import {
-  getBoundingCube, getMultiSelectionStats,
-} from './utils.js';
-
-import { useSelectionSliderStyles, useSelectStyles, useChannelSliderStyles } from './styles.js';
+  useSelectionSliderStyles,
+  useSelectStyles,
+  useChannelSliderStyles,
+} from './styles.js';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
 

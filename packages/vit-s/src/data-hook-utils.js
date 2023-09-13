@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
+import { useQuery, useQueries } from '@tanstack/react-query';
 import { capitalize, fromEntries } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
-import { useQuery, useQueries } from '@tanstack/react-query';
 import {
   getMatchingLoader,
   useMatchingLoader,
@@ -54,7 +54,7 @@ export function initCoordinationSpace(values, setters, initialValues) {
 }
 
 
-async function dataQueryFn(ctx) {
+export async function dataQueryFn(ctx) {
   const { placeholderObject, loaders } = ctx.meta;
   // This ordering of the queryKey must match.
   const [dataset, dataType, matchOn, isRequired] = ctx.queryKey;
@@ -112,6 +112,9 @@ export function useDataType(
     placeholderData: placeholderObject,
     // Include the hook name in the queryKey to prevent the case in which an identical queryKey
     // in a different hook would cause an accidental cache hit.
+    // Note: same key structure/suffix as
+    // useDataTypeMulti() and getQueryKeyScopeTuplesAux()
+    // for shared caching.
     queryKey: [dataset, dataType, matchOn, isRequired, 'useDataType'],
     // Query function should return an object
     // { data, dataKey } where dataKey is the loaded gene selection.
@@ -178,6 +181,9 @@ export function useDataTypeMulti(
       placeholderData: placeholderObject,
       // Query key should match useDataType for shared cacheing
       // and correctness of dataQueryFn.
+      // Note: same key structure/suffix as
+      // useDataType() and getQueryKeyScopeTuplesAux()
+      // for shared caching.
       queryKey: [dataset, dataType, matchOn, isRequired, 'useDataType'],
       // Query function should return an object
       // { data, dataKey } where dataKey is the loaded gene selection.
@@ -218,10 +224,20 @@ export function useDataTypeMulti(
   // Convert data to object keyed by scopeKey.
   const data = useMemo(() => fromEntries(
     matchOnEntries.map(([scopeKey], i) => ([scopeKey, dataQueries[i].data?.data])),
+  // Deliberate dependency omissions: dataQueries and matchOnEntries,
+  // since dataQueries changes every re-render. We use the in-direct
+  // dependency of matchOnObj and the derived primitive value dataStatus.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ), [matchOnObj, dataStatus]);
+
+  // Convert data to object keyed by scopeKey.
+  const urls = useMemo(() => fromEntries(
+    matchOnEntries.map(([scopeKey], i) => ([scopeKey, dataQueries[i].data?.urls])),
   // Deliberate dependency omissions: matchOnEntries, since dataQueries depends on it.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   ), [dataQueries]);
-  return [data, dataStatus];
+
+  return [data, dataStatus, urls];
 }
 
 export function useHasLoader(loaders, dataset, dataType, matchOn) {

@@ -37,9 +37,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    */
   onViewStateChange({ viewState: nextViewState }) {
     const {
-      setViewState, viewState, layers, spatialAxisFixed,
+      setViewState, viewState, spatialAxisFixed,
     } = this.props;
-    const use3d = layers?.some(l => l.use3d);
+    const use3d = this.use3d();
     setViewState({
       ...nextViewState,
       // If the axis is fixed, just use the current target in state i.e don't change target.
@@ -92,6 +92,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     return [];
   }
 
+  // TODO: remove this method and use the layer-level onHover instead.
+  // (e.g., see delegateHover in spatial-beta/SpatialSubscriber.js).
   // eslint-disable-next-line consistent-return
   onHover(info) {
     const {
@@ -234,7 +236,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    */
   render() {
     const {
-      deckRef, viewState, uuid, hideTools,
+      deckRef, viewState, uuid, hideTools, orbitAxis,
     } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
@@ -268,7 +270,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           ref={deckRef}
           views={[
             use3d
-              ? new deck.OrbitView({ id: 'orbit', controller: true, orbitAxis: 'Y' })
+              ? new deck.OrbitView({ id: 'orbit', controller: true, orbitAxis })
               : new deck.OrthographicView({
                 id: 'ortho',
               }),

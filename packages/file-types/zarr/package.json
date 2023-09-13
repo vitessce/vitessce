@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/zarr",
-  "version": "3.1.2",
+  "version": "3.2.1",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -34,6 +34,7 @@
     "@vitessce/gl": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/spatial-utils": "workspace:*",
+    "@vitessce/image-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/zarr-utils": "workspace:*",
