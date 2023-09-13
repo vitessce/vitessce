@@ -37,6 +37,7 @@ import {
       options: {
         // TODO: should '/coords' suffix be appended internally?
         path: 'shapes/ST8059048_shapes/coords',
+        tablePath: 'table/table',
       },
       coordinationValues: {
         obsType: 'spot',
