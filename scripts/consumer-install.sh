@@ -28,9 +28,18 @@ cd -
 pnpm -r exec pnpm pack --pack-destination $(pwd)/consumer/
 
 
+if [[ "$1" == "--react-16" ]]; then
+  REACT_VERSION="^16.14.0"
+elif [[ "$1" == "--react-17" ]]; then
+  REACT_VERSION="^17.0.2"
+else
+  REACT_VERSION="^18.2.0"
+fi
+
+
 # Install packed tgz
 cd consumer
-npm install react react-dom
+npm install react@$REACT_VERSION react-dom@$REACT_VERSION
 npm install --save-dev vite@3.0.0
 npm install $(ls ./vitessce-*.tgz)
 # Run Vite build to bundle the consumer HTML/JS.
