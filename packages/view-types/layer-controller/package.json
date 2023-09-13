@@ -38,7 +38,8 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "lodash-es": "^4.17.21",
-    "math.gl": "^3.5.6"
+    "math.gl": "^3.5.6",
+    "react-aria": "^3.28.0"
   },
   "devDependencies": {
     "react": "^18.0.0",

@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, useId } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useId } from 'react-aria';
 import { viv } from '@vitessce/gl';
 import {
   GLOBAL_LABELS,
