@@ -269,7 +269,7 @@ describe('src/api/VitessceConfig.js', () => {
         schemaVersion: '1.0.16',
         name: 'My config',
       });
-      config.addComplexCoordination({
+      config.addCoordinationByObject({
         spatialImageLayer: CL([
           {
             image: 'S-1905-017737_bf',
@@ -342,7 +342,14 @@ describe('src/api/VitessceConfig.js', () => {
       });
       const dataset = config.addDataset('My dataset');
 
-      const scopes = config.addComplexCoordination({
+      // Coordinate all segmentation channels on the same color,
+      // to test out the use of a coordination scope instance as a value.
+      const [colorScope] = config.addCoordination(
+        'spatialChannelColor',
+      );
+      colorScope.setValue([255, 0, 0]);
+
+      const scopes = config.addCoordinationByObject({
         spatialImageLayer: CL([
           {
             image: 'S-1905-017737_bf',
@@ -351,11 +358,11 @@ describe('src/api/VitessceConfig.js', () => {
             spatialImageChannel: CL([
               {
                 spatialTargetC: 0,
-                spatialChannelColor: [255, 0, 0],
+                spatialChannelColor: [0, 255, 0],
               },
               {
                 spatialTargetC: 1,
-                spatialChannelColor: [0, 255, 0],
+                spatialChannelColor: [0, 0, 255],
               },
             ]),
           },
@@ -369,17 +376,17 @@ describe('src/api/VitessceConfig.js', () => {
               {
                 obsType: 'Cortical Interstitia',
                 spatialTargetC: 0,
-                spatialChannelColor: [255, 0, 0],
+                spatialChannelColor: colorScope,
               },
               {
                 obsType: 'Non-Globally Sclerotic Glomeruli',
                 spatialTargetC: 1,
-                spatialChannelColor: [255, 0, 0],
+                spatialChannelColor: colorScope,
               },
               {
                 obsType: 'Globally Sclerotic Glomeruli',
                 spatialTargetC: 2,
-                spatialChannelColor: [255, 0, 0],
+                spatialChannelColor: colorScope,
               },
             ]),
           },
@@ -387,7 +394,7 @@ describe('src/api/VitessceConfig.js', () => {
       });
 
       const spatialView = config.addView(dataset, 'spatial');
-      spatialView.useComplexCoordination(scopes);
+      spatialView.useCoordinationByObject(scopes);
 
       const configJSON = config.toJSON();
       expect(configJSON).toEqual({
@@ -407,9 +414,7 @@ describe('src/api/VitessceConfig.js', () => {
           spatialChannelColor: {
             A: [255, 0, 0],
             B: [0, 255, 0],
-            C: [255, 0, 0],
-            D: [255, 0, 0],
-            E: [255, 0, 0],
+            C: [0, 0, 255],
           },
           spatialSegmentationLayer: { A: '__dummy__' },
           spatialSegmentationChannel: { A: '__dummy__', B: '__dummy__', C: '__dummy__' },
@@ -435,7 +440,7 @@ describe('src/api/VitessceConfig.js', () => {
             },
             spatialImageChannel: {
               spatialTargetC: { A: 'A', B: 'B' },
-              spatialChannelColor: { A: 'A', B: 'B' },
+              spatialChannelColor: { A: 'B', B: 'C' },
             },
             spatialSegmentationLayer: {
               image: { A: 'B' },
@@ -446,7 +451,7 @@ describe('src/api/VitessceConfig.js', () => {
             spatialSegmentationChannel: {
               obsType: { A: 'A', B: 'B', C: 'C' },
               spatialTargetC: { A: 'C', B: 'D', C: 'E' },
-              spatialChannelColor: { A: 'C', B: 'D', C: 'E' },
+              spatialChannelColor: { A: 'A', B: 'A', C: 'A' },
             },
           },
           x: 0,
@@ -465,7 +470,7 @@ describe('src/api/VitessceConfig.js', () => {
       });
       const dataset = config.addDataset('My dataset');
 
-      const scopes = config.addComplexCoordination({
+      const scopes = config.addCoordinationByObject({
         spatialImageLayer: CL([
           {
             image: 'S-1905-017737_bf',
@@ -510,12 +515,150 @@ describe('src/api/VitessceConfig.js', () => {
       });
 
       const metaCoordinationScope = config.addMetaCoordination();
-      metaCoordinationScope.useComplexCoordination(scopes);
+      metaCoordinationScope.useCoordinationByObject(scopes);
 
       const spatialView = config.addView(dataset, 'spatial');
       const lcView = config.addView(dataset, 'layerController');
       spatialView.useMetaCoordination(metaCoordinationScope);
       lcView.useMetaCoordination(metaCoordinationScope);
+
+      const configJSON = config.toJSON();
+      expect(configJSON).toEqual({
+        version: '1.0.16',
+        name: 'My config',
+        datasets: [{ uid: 'A', name: 'My dataset', files: [] }],
+        coordinationSpace: {
+          dataset: { A: 'A' },
+          spatialImageLayer: { A: '__dummy__' },
+          image: { A: 'S-1905-017737_bf', B: 'S-1905-017737' },
+          spatialLayerVisible: { A: true, B: true },
+          spatialLayerOpacity: { A: 1, B: 1 },
+          spatialImageChannel: { A: '__dummy__', B: '__dummy__' },
+          spatialTargetC: {
+            A: 0, B: 1, C: 0, D: 1, E: 2,
+          },
+          spatialChannelColor: {
+            A: [255, 0, 0],
+            B: [0, 255, 0],
+            C: [255, 0, 0],
+            D: [255, 0, 0],
+            E: [255, 0, 0],
+          },
+          spatialSegmentationLayer: { A: '__dummy__' },
+          spatialSegmentationChannel: { A: '__dummy__', B: '__dummy__', C: '__dummy__' },
+          obsType: {
+            A: 'Cortical Interstitia',
+            B: 'Non-Globally Sclerotic Glomeruli',
+            C: 'Globally Sclerotic Glomeruli',
+          },
+          metaCoordinationScopes: {
+            A: {
+              spatialImageLayer: ['A'],
+              spatialSegmentationLayer: ['A'],
+            },
+          },
+          metaCoordinationScopesBy: {
+            A: {
+              spatialImageLayer: {
+                image: { A: 'A' },
+                spatialLayerVisible: { A: 'A' },
+                spatialLayerOpacity: { A: 'A' },
+                spatialImageChannel: { A: ['A', 'B'] },
+              },
+              spatialImageChannel: {
+                spatialTargetC: { A: 'A', B: 'B' },
+                spatialChannelColor: { A: 'A', B: 'B' },
+              },
+              spatialSegmentationLayer: {
+                image: { A: 'B' },
+                spatialLayerVisible: { A: 'B' },
+                spatialLayerOpacity: { A: 'B' },
+                spatialSegmentationChannel: { A: ['A', 'B', 'C'] },
+              },
+              spatialSegmentationChannel: {
+                obsType: { A: 'A', B: 'B', C: 'C' },
+                spatialTargetC: { A: 'C', B: 'D', C: 'E' },
+                spatialChannelColor: { A: 'C', B: 'D', C: 'E' },
+              },
+            },
+          },
+        },
+        layout: [{
+          component: 'spatial',
+          coordinationScopes: {
+            dataset: 'A',
+            metaCoordinationScopes: ['A'],
+            metaCoordinationScopesBy: ['A'],
+          },
+          // eslint-disable-next-line object-property-newline
+          x: 0, y: 0, w: 1, h: 1,
+        }, {
+          component: 'layerController',
+          coordinationScopes: {
+            dataset: 'A',
+            metaCoordinationScopes: ['A'],
+            metaCoordinationScopesBy: ['A'],
+          },
+          // eslint-disable-next-line object-property-newline
+          x: 0, y: 0, w: 1, h: 1,
+        }],
+        initStrategy: 'auto',
+      });
+    });
+
+    it('can use _meta_ complex coordination via the linkViewsByObject convenience function', () => {
+      const config = new VitessceConfig({
+        schemaVersion: '1.0.16',
+        name: 'My config',
+      });
+      const dataset = config.addDataset('My dataset');
+
+      const spatialView = config.addView(dataset, 'spatial');
+      const lcView = config.addView(dataset, 'layerController');
+
+      config.linkViewsByObject([spatialView, lcView], {
+        spatialImageLayer: CL([
+          {
+            image: 'S-1905-017737_bf',
+            spatialLayerVisible: true,
+            spatialLayerOpacity: 1,
+            spatialImageChannel: CL([
+              {
+                spatialTargetC: 0,
+                spatialChannelColor: [255, 0, 0],
+              },
+              {
+                spatialTargetC: 1,
+                spatialChannelColor: [0, 255, 0],
+              },
+            ]),
+          },
+        ]),
+        spatialSegmentationLayer: CL([
+          {
+            image: 'S-1905-017737',
+            spatialLayerVisible: true,
+            spatialLayerOpacity: 1,
+            spatialSegmentationChannel: CL([
+              {
+                obsType: 'Cortical Interstitia',
+                spatialTargetC: 0,
+                spatialChannelColor: [255, 0, 0],
+              },
+              {
+                obsType: 'Non-Globally Sclerotic Glomeruli',
+                spatialTargetC: 1,
+                spatialChannelColor: [255, 0, 0],
+              },
+              {
+                obsType: 'Globally Sclerotic Glomeruli',
+                spatialTargetC: 2,
+                spatialChannelColor: [255, 0, 0],
+              },
+            ]),
+          },
+        ]),
+      });
 
       const configJSON = config.toJSON();
       expect(configJSON).toEqual({

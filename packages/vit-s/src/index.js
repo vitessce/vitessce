@@ -17,9 +17,16 @@ export {
   useGridItemSize,
 } from './hooks.js';
 export {
+  useCoordinationScopes,
+  useCoordinationScopesBy,
   useInitialCoordination,
   useCoordination,
   useComplexCoordination,
+  useComplexCoordinationSecondary,
+  useMultiCoordinationScopes,
+  useMultiCoordinationScopesNonNull,
+  useMultiCoordinationScopesSecondary,
+  useMultiCoordinationScopesSecondaryNonNull,
   useMultiCoordinationValues,
   useMultiDatasetCoordination,
   useDatasetUids,
@@ -35,6 +42,8 @@ export {
   useSetWarning,
   useAuxiliaryCoordination,
   useComponentLayout,
+  useRemoveImageChannelInMetaCoordinationScopes,
+  useAddImageChannelInMetaCoordinationScopes,
 } from './state/hooks.js';
 export {
   useDescription,
@@ -44,7 +53,14 @@ export {
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useMultiObsLabels,
+  useMultiObsSpots,
+  useMultiObsPoints,
+  useSpotMultiObsSets,
+  useMultiObsSegmentations,
+  useMultiImages,
 
+  useObsSpotsData,
+  useObsPointsData,
   useObsLocationsData,
   useObsSegmentationsData,
   useNeighborhoodsData,
@@ -54,6 +70,15 @@ export {
   useFeatureLabelsData,
   useGenomicProfilesData,
 } from './data-hooks.js';
+export {
+  usePointMultiObsLabels,
+  useSpotMultiFeatureSelection,
+  useSpotMultiObsFeatureMatrixIndices,
+  useSegmentationMultiFeatureSelection,
+  useSegmentationMultiObsFeatureMatrixIndices,
+  useSegmentationMultiObsLocations,
+  useSegmentationMultiObsSets,
+} from './data-hooks-multilevel.js';
 export {
   useHasLoader,
 } from './data-hook-utils.js';

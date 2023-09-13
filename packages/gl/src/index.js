@@ -1,5 +1,5 @@
 // Selection Layers
-export { getSelectionLayers } from './selection-utils.js';
+export { getSelectionLayer } from './selection-utils.js';
 
 // Heatmap Layers
 export { default as HeatmapBitmapLayer } from './HeatmapBitmapLayer.js';
@@ -15,6 +15,8 @@ export {
 export { default as ScaledExpressionExtension } from './ScaledExpressionExtension/index.js';
 export { default as SelectionExtension } from './SelectionExtension/index.js';
 export { default as BitmaskLayer } from './BitmaskLayer.js';
+export { default as BitmaskLayerBeta } from './BitmaskLayerBeta.js';
+
 
 export {
   TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,

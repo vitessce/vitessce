@@ -24,8 +24,13 @@ import {
   useAuxiliaryCoordination,
   useHasLoader,
 } from '@vitessce/vit-s';
-import { setObsSelection, mergeObsSets, colorArrayToString } from '@vitessce/sets-utils';
-import { canLoadResolution, getCellColors } from '@vitessce/utils';
+import {
+  setObsSelection,
+  mergeObsSets,
+  colorArrayToString,
+} from '@vitessce/sets-utils';
+import { getCellColors } from '@vitessce/utils';
+import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS } from '@vitessce/constants-internal';
 import { Typography } from '@material-ui/core';

@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core';
 
-const useSpanStyles = makeStyles(() => ({
+export const useSpanStyles = makeStyles(() => ({
   span: {
     width: '70px',
     textAlign: 'center',
@@ -19,35 +19,31 @@ export const useChannelSliderStyles = makeStyles(theme => ({
   },
 }));
 
-export function MuiSpan(props) {
-  const { children } = props;
-  const classes = useSpanStyles();
-  return <span className={classes.span}>{children}</span>;
-}
-
 export const useSelectStyles = makeStyles(() => ({
   selectRoot: {
     padding: 0,
     height: 'auto',
     margin: '4px 0',
+    fontSize: '14px',
+    width: '100%',
   },
 }));
 
-const sharedControllerStyles = {
-  width: '100%',
-  flexDirection: 'column',
-};
-
 export const useControllerSectionStyles = makeStyles(() => ({
   layerControllerRoot: {
-    ...sharedControllerStyles,
+    width: '100%',
+    flexDirection: 'column',
     padding: '0px 8px',
+  },
+  layerControllerGrid: {
+    marginTop: '10px',
   },
 }));
 
 export const useAccordionStyles = makeStyles(theme => ({
   accordionDetailsRoot: {
-    ...sharedControllerStyles,
+    width: '100%',
+    flexDirection: 'column',
     padding: '8px 8px 24px 8px',
   },
   accordionSummaryRoot: {

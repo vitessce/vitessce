@@ -1,4 +1,18 @@
 
+## 3.2.0
+
+### Minor Changes
+
+- Added spatialBeta and layerControllerBeta views to support multi-obsType segmentations (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`, `@vitessce/vit-s`, `@vitessce/gl`) ([#1581](https://github.com/vitessce/vitessce/pull/1581))
+
+
+## 3.1.3
+
+### Patch Changes
+
+- Added support for SpatialData image elements by supporting proposed OME-NGFF new coordinateTransformations spec and using the temporary channels_metadata property. (`@vitessce/spatial-utils`, `@vitessce/zarr`) ([#1664](https://github.com/vitessce/vitessce/pull/1664))
+
+
 ## 3.1.2
 
 ### Patch Changes

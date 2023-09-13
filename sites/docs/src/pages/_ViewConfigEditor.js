@@ -6,7 +6,12 @@ import {
   LiveProvider, LiveContext, LiveError, LivePreview,
 } from 'react-live';
 import {
-  VitessceConfig, generateConfig, getHintOptions, hconcat, vconcat,
+  VitessceConfig,
+  generateConfig,
+  getHintOptions,
+  hconcat,
+  vconcat,
+  CoordinationLevel,
 } from '@vitessce/config';
 import {
   CoordinationType, ViewType, DataType, FileType,
@@ -49,6 +54,8 @@ const scope = {
   dt: DataType,
   ft: FileType,
   ct: CoordinationType,
+  CoordinationLevel,
+  CL: CoordinationLevel,
   Highlight: JsonHighlight,
 };
 

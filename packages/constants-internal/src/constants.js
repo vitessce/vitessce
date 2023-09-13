@@ -8,8 +8,10 @@ export const ViewType = {
   STATUS: 'status',
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
+  SPATIAL_BETA: 'spatialBeta',
   HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
+  LAYER_CONTROLLER_BETA: 'layerControllerBeta',
   GENOMIC_PROFILES: 'genomicProfiles',
   GATING: 'gating',
   FEATURE_LIST: 'featureList',
@@ -22,7 +24,6 @@ export const ViewType = {
 export const DataType = {
   OBS_LABELS: 'obsLabels',
   OBS_EMBEDDING: 'obsEmbedding',
-  OBS_LOCATIONS: 'obsLocations',
   OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
   OBS_SETS: 'obsSets',
   FEATURE_LABELS: 'featureLabels',
@@ -30,6 +31,9 @@ export const DataType = {
   OBS_SEGMENTATIONS: 'obsSegmentations',
   NEIGHBORHOODS: 'neighborhoods',
   GENOMIC_PROFILES: 'genomic-profiles',
+  OBS_SPOTS: 'obsSpots',
+  OBS_POINTS: 'obsPoints',
+  OBS_LOCATIONS: 'obsLocations',
 };
 
 
@@ -39,6 +43,8 @@ export const FileType = {
   SPATIALDATA_ZARR: 'spatialdata.zarr',
   // Atomic file types
   OBS_EMBEDDING_CSV: 'obsEmbedding.csv',
+  OBS_SPOTS_CSV: 'obsSpots.csv',
+  OBS_POINTS_CSV: 'obsPoints.csv',
   OBS_LOCATIONS_CSV: 'obsLocations.csv',
   OBS_LABELS_CSV: 'obsLabels.csv',
   FEATURE_LABELS_CSV: 'featureLabels.csv',
@@ -51,6 +57,8 @@ export const FileType = {
   OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
   OBS_SETS_ANNDATA_ZARR: 'obsSets.anndata.zarr',
   OBS_EMBEDDING_ANNDATA_ZARR: 'obsEmbedding.anndata.zarr',
+  OBS_SPOTS_ANNDATA_ZARR: 'obsSpots.anndata.zarr',
+  OBS_POINTS_ANNDATA_ZARR: 'obsPoints.anndata.zarr',
   OBS_LOCATIONS_ANNDATA_ZARR: 'obsLocations.anndata.zarr',
   OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
   OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
@@ -68,6 +76,8 @@ export const FileType = {
   OBS_FEATURE_MATRIX_MUDATA_ZARR: 'obsFeatureMatrix.mudata.zarr',
   OBS_SETS_MUDATA_ZARR: 'obsSets.mudata.zarr',
   OBS_EMBEDDING_MUDATA_ZARR: 'obsEmbedding.mudata.zarr',
+  OBS_SPOTS_MUDATA_ZARR: 'obsSpots.mudata.zarr',
+  OBS_POINTS_MUDATA_ZARR: 'obsPoints.mudata.zarr',
   OBS_LOCATIONS_MUDATA_ZARR: 'obsLocations.mudata.zarr',
   OBS_SEGMENTATIONS_MUDATA_ZARR: 'obsSegmentations.mudata.zarr',
   OBS_LABELS_MUDATA_ZARR: 'obsLabels.mudata.zarr',
@@ -116,10 +126,8 @@ export const FileType = {
  * to help prevent typos.
  */
 export const CoordinationType = {
-  // Meta coordination scopes
   META_COORDINATION_SCOPES: 'metaCoordinationScopes',
   META_COORDINATION_SCOPES_BY: 'metaCoordinationScopesBy',
-  // Other coordination scopes
   DATASET: 'dataset',
   // Entity types
   OBS_TYPE: 'obsType',
@@ -145,6 +153,7 @@ export const CoordinationType = {
   SPATIAL_TARGET_X: 'spatialTargetX',
   SPATIAL_TARGET_Y: 'spatialTargetY',
   SPATIAL_TARGET_Z: 'spatialTargetZ',
+  SPATIAL_TARGET_T: 'spatialTargetT',
   SPATIAL_ROTATION_X: 'spatialRotationX',
   SPATIAL_ROTATION_Y: 'spatialRotationY',
   SPATIAL_ROTATION_Z: 'spatialRotationZ',
@@ -183,6 +192,45 @@ export const CoordinationType = {
   GATING_FEATURE_SELECTION_Y: 'gatingFeatureSelectionY',
   FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'featureValueTransformCoefficient',
   TOOLTIPS_VISIBLE: 'tooltipsVisible',
+  FILE_UID: 'fileUid',
+  IMAGE_LAYER: 'imageLayer',
+  IMAGE_CHANNEL: 'imageChannel',
+  SEGMENTATION_LAYER: 'segmentationLayer',
+  SEGMENTATION_CHANNEL: 'segmentationChannel',
+  SPATIAL_TARGET_C: 'spatialTargetC',
+  SPATIAL_LAYER_VISIBLE: 'spatialLayerVisible',
+  SPATIAL_LAYER_OPACITY: 'spatialLayerOpacity',
+  SPATIAL_LAYER_COLORMAP: 'spatialLayerColormap',
+  SPATIAL_LAYER_TRANSPARENT_COLOR: 'spatialLayerTransparentColor',
+  SPATIAL_LAYER_MODEL_MATRIX: 'spatialLayerModelMatrix',
+  SPATIAL_SEGMENTATION_FILLED: 'spatialSegmentationFilled',
+  SPATIAL_SEGMENTATION_STROKE_WIDTH: 'spatialSegmentationStrokeWidth',
+  SPATIAL_CHANNEL_COLOR: 'spatialChannelColor',
+  SPATIAL_CHANNEL_VISIBLE: 'spatialChannelVisible',
+  SPATIAL_CHANNEL_OPACITY: 'spatialChannelOpacity',
+  SPATIAL_CHANNEL_WINDOW: 'spatialChannelWindow',
+  PHOTOMETRIC_INTERPRETATION: 'photometricInterpretation',
+  // For 3D volume rendering
+  SPATIAL_RENDERING_MODE: 'spatialRenderingMode', // For whole spatial view
+  VOLUMETRIC_RENDERING_ALGORITHM: 'volumetricRenderingAlgorithm', // Could be per-image-layer
+  SPATIAL_TARGET_RESOLUTION: 'spatialTargetResolution', // Per-spatial-layer
+  // For clipping plane sliders
+  SPATIAL_SLICE_X: 'spatialSliceX',
+  SPATIAL_SLICE_Y: 'spatialSliceY',
+  SPATIAL_SLICE_Z: 'spatialSliceZ',
+  // For spatial spot and point layers
+  SPOT_LAYER: 'spotLayer',
+  POINT_LAYER: 'pointLayer',
+  SPATIAL_SPOT_RADIUS: 'spatialSpotRadius', // In micrometers?
+  SPATIAL_SPOT_FILLED: 'spatialSpotFilled',
+  SPATIAL_SPOT_STROKE_WIDTH: 'spatialSpotStrokeWidth',
+  SPATIAL_LAYER_COLOR: 'spatialLayerColor',
+  PIXEL_HIGHLIGHT: 'pixelHighlight', // Per-image-layer
+  TOOLTIP_CROSSHAIRS_VISIBLE: 'tooltipCrosshairsVisible',
+  LEGEND_VISIBLE: 'legendVisible',
+  SPATIAL_CHANNEL_LABELS_VISIBLE: 'spatialChannelLabelsVisible',
+  SPATIAL_CHANNEL_LABELS_ORIENTATION: 'spatialChannelLabelsOrientation',
+  SPATIAL_CHANNEL_LABEL_SIZE: 'spatialChannelLabelSize',
 };
 
 export const STATUS = {

@@ -56,6 +56,8 @@ const annDataObsSets = z.array(
   }),
 );
 
+const annDataObsSpots = annDataObsm;
+const annDataObsPoints = annDataObsm;
 const annDataObsLocations = annDataObsm;
 const annDataObsEmbedding = annDataObsm;
 const annDataObsSegmentations = annDataObs;
@@ -119,6 +121,8 @@ export const obsSetsSpatialdataSchema = z.object({
  */
 // AnnData
 export const obsEmbeddingAnndataSchema = annDataObsEmbedding;
+export const obsSpotsAnndataSchema = annDataObsLocations;
+export const obsPointsAnndataSchema = annDataObsLocations;
 export const obsLocationsAnndataSchema = annDataObsLocations;
 export const obsSegmentationsAnndataSchema = annDataObsSegmentations;
 export const obsSetsAnndataSchema = annDataObsSets;
@@ -129,11 +133,19 @@ export const featureLabelsAnndataSchema = annDataFeatureLabels;
 // CSV
 export const obsEmbeddingCsvSchema = z.object({
   obsIndex: z.string(),
-  obsEmbedding: z.array(z.string()).length(2),
+  obsEmbedding: z.array(z.string()).length(2), // TODO: support 3D?
+});
+export const obsSpotsCsvSchema = z.object({
+  obsIndex: z.string(),
+  obsSpots: z.array(z.string()).length(2), // TODO: support 3D?
+});
+export const obsPointsCsvSchema = z.object({
+  obsIndex: z.string(),
+  obsPoints: z.array(z.string()).length(3),
 });
 export const obsLocationsCsvSchema = z.object({
   obsIndex: z.string(),
-  obsLocations: z.array(z.string()).length(2),
+  obsLocations: z.array(z.string()).length(2), // TODO: support 3D?
 });
 export const obsLabelsCsvSchema = z.object({
   obsIndex: z.string(),
@@ -171,6 +183,8 @@ export const anndataZarrSchema = z.object({
   ]),
   obsFeatureMatrix: annDataObsFeatureMatrix,
   obsSets: annDataObsSets,
+  obsSpots: annDataObsSpots,
+  obsPoints: annDataObsPoints,
   obsLocations: annDataObsLocations,
   obsSegmentations: annDataObsSegmentations,
   obsEmbedding: z.union([
