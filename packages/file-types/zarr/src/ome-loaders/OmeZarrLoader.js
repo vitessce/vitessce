@@ -27,7 +27,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
 
     const loader = await loadOmeZarr(this.url, this.requestInit);
     const imageWrapper = new ImageWrapper(loader, this.options);
-  
+
     const { metadata, data } = loader;
     const { omero, multiscales, channels_metadata: spatialDataChannels } = metadata;
 
