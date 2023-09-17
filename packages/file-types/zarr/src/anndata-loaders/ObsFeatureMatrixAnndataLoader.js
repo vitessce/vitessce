@@ -1,5 +1,7 @@
 /* eslint-disable no-underscore-dangle */
-import { openArray, slice } from 'zarr';
+import { open as zarrOpen } from '@zarrita/core';
+import { get as zarrGet, slice } from '@zarrita/indexing';
+import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
@@ -105,12 +107,12 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    */
   async _openSparseArrays() {
     const { path: matrix } = this.getOptions();
-    const { store } = this.dataSource;
+    const { storeRoot } = this.dataSource;
     if (this.sparseArrays) {
       return this.sparseArrays;
     }
     this.sparseArrays = Promise.all(
-      ['indptr', 'indices', 'data'].map(name => openArray({ store, path: `${matrix}/${name}`, mode: 'r' })),
+      ['indptr', 'indices', 'data'].map(name => storeRoot.then(root => zarrOpen(root.resolve(`${matrix}/${name}`), { kind: 'array' }))),
     );
     return this.sparseArrays;
   }
@@ -124,7 +126,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     const indices = await this._getGeneIndices(selection);
     const [indptrArr, indexArr, cellXGeneArr] = await this._openSparseArrays();
     const numCells = await this._getNumCells();
-    const { data: cols } = await indptrArr.getRaw(null);
+    const { data: cols } = await createZarrArrayAdapter(indptrArr).getRaw(null);
     // If there is not change in the column indexer, then the data is all zeros
     return Promise.all(
       indices.map(async (index) => {
@@ -135,10 +137,10 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
         if (isColumnAllZeros) {
           return geneData;
         }
-        const { data: rowIndices } = await indexArr.get([
+        const { data: rowIndices } = await zarrGet(indexArr, [
           slice(startRowIndex, endRowIndex),
         ]);
-        const { data: cellXGeneData } = await cellXGeneArr.get([
+        const { data: cellXGeneData } = await zarrGet(cellXGeneArr, [
           slice(startRowIndex, endRowIndex),
         ]);
         for (let rowIndex = 0; rowIndex < rowIndices.length; rowIndex += 1) {
@@ -182,7 +184,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       const { shape } = await this.dataSource.getJson(`${matrix}/.zattrs`);
       const [rows, cols, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
-          const { data } = await arr.getRaw(null);
+          const { data } = await createZarrArrayAdapter(arr).getRaw(null);
           return data;
         }),
       );
@@ -216,7 +218,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       const { shape } = await this.dataSource.getJson(`${matrix}/.zattrs`);
       const [cols, rows, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
-          const { data } = await arr.getRaw(null);
+          const { data } = await createZarrArrayAdapter(arr).getRaw(null);
           return data;
         }),
       );
@@ -242,7 +244,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    * @returns {Promise} A promise for the zarr array contianing the cell x gene data.
    */
   async loadCellXGene() {
-    const { store } = this.dataSource;
+    const { storeRoot } = this.dataSource;
     if (this.cellXGene) {
       return this.cellXGene;
     }
@@ -261,9 +263,11 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
         this.cellXGene = this._loadCSCSparseCellXGene().then(data => toObject(data));
       } else {
         if (!this.arr) {
-          this.arr = openArray({ store, path: matrix, mode: 'r' });
+          this.arr = zarrOpen((await storeRoot).resolve(matrix), { kind: 'array' });
         }
-        this.cellXGene = this.arr.then(z => z.getRaw(null).then(({ data }) => toObject(data)));
+        this.cellXGene = this.arr
+          .then(z => createZarrArrayAdapter(z).getRaw(null))
+          .then(({ data }) => toObject(data));
       }
     } else if (encodingType === 'csr_matrix') {
       this.cellXGene = this._loadCSRSparseCellXGene().then(
@@ -302,7 +306,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    */
   async loadGeneSelection({ selection, shouldNormalize = true }) {
     const { path: matrix } = this.getOptions();
-    const { store } = this.dataSource;
+    const { storeRoot } = this.dataSource;
     if (!this._matrixZattrs) {
       this._matrixZattrs = await this.dataSource.getJson(`${matrix}/.zattrs`);
     }
@@ -314,12 +318,14 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       genes = await this._loadCSRGeneSelection(selection);
     } else {
       if (!this.arr) {
-        this.arr = openArray({ store, path: matrix, mode: 'r' });
+        this.arr = zarrOpen((await storeRoot).resolve(matrix), { kind: 'array' });
       }
       const indices = await this._getGeneIndices(selection);
       // We can index directly into a normal dense array zarr store via `get`.
       genes = await Promise.all(
-        indices.map(index => this.arr.then(z => z.get([null, index])).then(({ data }) => data)),
+        indices.map(index => this.arr
+          .then(z => zarrGet(z, [null, index]))
+          .then(({ data }) => data)),
       );
     }
     return { data: genes.map(i => (shouldNormalize ? toObject(i).data : i)), url: null };

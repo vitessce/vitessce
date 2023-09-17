@@ -7,8 +7,13 @@ describe('sources/AnnDataSource', () => {
       const dataSource = new AnnDataSource({
         url: 'http://localhost:4204/@fixtures/zarr/anndata-0.7/anndata-dense.zarr',
       });
-      const zGroup = await dataSource.getJson('.zgroup');
-      expect(zGroup.zarr_format).toEqual(2);
+      const zAttrs = await dataSource.getJson('obs/.zattrs');
+      expect(Object.keys(zAttrs)).toEqual([
+        '_index',
+        'column-order',
+        'encoding-type',
+        'encoding-version',
+      ]);
     });
 
     it('loadObsColumns returns ids for location in store', async () => {
@@ -33,8 +38,13 @@ describe('sources/AnnDataSource', () => {
       const dataSource = new AnnDataSource({
         url: 'http://localhost:4204/@fixtures/zarr/anndata-0.8/anndata-dense.zarr',
       });
-      const zGroup = await dataSource.getJson('.zgroup');
-      expect(zGroup.zarr_format).toEqual(2);
+      const zAttrs = await dataSource.getJson('obs/.zattrs');
+      expect(Object.keys(zAttrs)).toEqual([
+        '_index',
+        'column-order',
+        'encoding-type',
+        'encoding-version',
+      ]);
     });
 
     it('loadObsColumns returns ids for location in store', async () => {

@@ -1,4 +1,5 @@
-import { HTTPStore, KeyError } from 'zarr';
+import { openLru } from '@vitessce/zarr-utils';
+import { open as zarrOpen } from '@zarrita/core';
 
 /**
  * A loader ancestor class containing a default constructor
@@ -6,12 +7,7 @@ import { HTTPStore, KeyError } from 'zarr';
  */
 export default class ZarrDataSource {
   constructor({ url, requestInit }) {
-    // TODO: We should probably add a way of allowing HEAD requests as well:
-    // https://github.com/gzuidhof/zarr.js/blob/375ce0c299469a970da6bb5653513564e25806bb/docs/getting-started/remote-data.md#stores
-    const supportedMethods = ['GET'];
-    this.store = new HTTPStore(url, {
-      supportedMethods, fetchOptions: requestInit,
-    });
+    this.storeRoot = openLru(url, requestInit);
   }
 
   /**
@@ -22,15 +18,12 @@ export default class ZarrDataSource {
    * @throws This may throw an error.
    */
   async getJson(key) {
-    try {
-      const buf = await this.store.getItem(key);
-      const text = new TextDecoder('utf-8').decode(buf);
-      return JSON.parse(text);
-    } catch (err) {
-      if (err instanceof KeyError) {
-        return {};
-      }
-      throw err;
+    const { storeRoot } = this;
+
+    let dirKey = key;
+    if (key.endsWith('.zattrs') || key.endsWith('.zarray') || key.endsWith('.zgroup')) {
+      dirKey = key.substring(0, key.length - 8);
     }
+    return (await zarrOpen((await storeRoot).resolve(dirKey))).attrs;
   }
 }

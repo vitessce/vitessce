@@ -3,8 +3,12 @@ import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,
   getNgffAxes,
+  loadOmeZarr,
+  guessTileSize,
+  ZarritaPixelSource,
 } from '@vitessce/spatial-utils';
-import { openArray } from 'zarr';
+import { open as zarrOpen } from '@zarrita/core';
+import { openLru, createZarrArrayAdapter } from '@vitessce/zarr-utils';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import { rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
 import JsonLoader from '../json-loaders/JsonLoader.js';
@@ -15,11 +19,13 @@ async function initLoader(imageData) {
   } = imageData;
   switch (type) {
     case ('zarr'): {
+      // Bioformats-Zarr case
       const {
         dimensions, isPyramid, transform,
       } = metadata || {};
       const labels = dimensions.map(d => d.field);
       let source;
+      const root = await openLru(url, requestInit);
       if (isPyramid) {
         const metadataUrl = `${url}${
           url.slice(-1) === '/' ? '' : '/'
@@ -30,16 +36,13 @@ async function initLoader(imageData) {
           .filter(metaKey => metaKey.includes('.zarray'))
           .map(arrMetaKeys => arrMetaKeys.slice(0, -7));
         const data = await Promise.all(
-          paths.map(path => openArray({ store: url, path })),
+          paths.map(path => zarrOpen(root.resolve(path), { kind: 'array' })),
         );
-        const [yChunk, xChunk] = data[0].chunks.slice(-2);
-        const size = Math.min(yChunk, xChunk);
-        // deck.gl requirement for power-of-two tile size.
-        const tileSize = 2 ** Math.floor(Math.log2(size));
-        source = data.map(d => new viv.ZarrPixelSource(d, labels, tileSize));
+        const tileSize = guessTileSize(data[0]);
+        source = data.map(d => new ZarritaPixelSource(createZarrArrayAdapter(d), labels, tileSize));
       } else {
-        const data = await openArray({ store: url });
-        source = new viv.ZarrPixelSource(data, labels);
+        const data = await zarrOpen(root, { kind: 'array' });
+        source = new ZarritaPixelSource(createZarrArrayAdapter(data), labels);
       }
       return { data: source, metadata: { dimensions, transform }, channels: (dimensions.find(d => d.field === 'channel') || dimensions[0]).values };
     }
@@ -71,12 +74,13 @@ async function initLoader(imageData) {
       return { ...loader, channels };
     }
     case ('ome-zarr'): {
+      // OME-NGFF case
       // Reference: https://github.com/vitessce/vitessce-python/issues/242#issuecomment-1517930964
       // Most of the following has been copied from OmeZarrLoader.js.
       // Reference: https://github.com/vitessce/vitessce/blob/fb0e7f/packages/file-types/zarr/src/ome-loaders/OmeZarrLoader.js#L29
       const { coordinateTransformations: coordinateTransformationsFromOptions } = metadata || {};
 
-      const loader = await viv.loadOmeZarr(url, { fetchOptions: requestInit, type: 'multiscales' });
+      const loader = await loadOmeZarr(url, requestInit);
       const { metadata: loaderMetadata } = loader;
 
       const { omero, multiscales } = loaderMetadata;

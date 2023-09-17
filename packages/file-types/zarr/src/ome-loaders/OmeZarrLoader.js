@@ -1,10 +1,10 @@
-import { viv } from '@vitessce/gl';
 import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,
   getNgffAxes,
   hexToRgb,
   normalizeCoordinateTransformations,
+  loadOmeZarr,
 } from '@vitessce/spatial-utils';
 import {
   ImageWrapper,
@@ -25,12 +25,10 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
 
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
-    const loader = await viv.loadOmeZarr(this.url, { fetchOptions: this.requestInit, type: 'multiscales' });
-
+    const loader = await loadOmeZarr(this.url, this.requestInit);
     const imageWrapper = new ImageWrapper(loader, this.options);
 
     const { metadata, data } = loader;
-
     const { omero, multiscales, channels_metadata: spatialDataChannels } = metadata;
 
     // Crude way to check if this is a SpatialData OME-NGFF.

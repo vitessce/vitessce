@@ -22,6 +22,11 @@ export {
   normalizeCoordinateTransformations,
 } from './spatial.js';
 export {
+  loadOmeZarr,
+  guessTileSize,
+  ZarritaPixelSource,
+} from './load-ome-zarr.js';
+export {
   toRgbUIString,
   getSingleSelectionStats,
   getMultiSelectionStats,

@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 // eslint gets confused by the "id" being within MUI's inputProps.
-import React, { useState, useId } from 'react';
+import React, { useState } from 'react';
+import { useId } from 'react-aria';
 import { makeStyles, MenuItem, Select } from '@material-ui/core';
 import { MoreVert as MoreVertIcon } from '@material-ui/icons';
 import { PopperMenu } from '@vitessce/vit-s';
