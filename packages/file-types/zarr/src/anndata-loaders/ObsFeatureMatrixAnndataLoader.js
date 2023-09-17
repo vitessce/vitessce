@@ -338,7 +338,6 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    */
   loadAttrs() {
     const { path } = this.getOptions();
-    console.log(this.dataSource);
     return Promise.all([this.dataSource.loadObsIndex(path), this.loadFilteredGeneNames()])
       .then((d) => {
         const [cellNames, geneNames] = d;

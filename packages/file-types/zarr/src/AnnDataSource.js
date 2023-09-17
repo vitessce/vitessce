@@ -181,18 +181,15 @@ export default class AnnDataSource extends ZarrDataSource {
   }
 
   async _loadString(path) {
-    const { store } = this;
+    const { storeRoot } = this;
     const { 'encoding-type': encodingType, 'encoding-version': encodingVersion } = await this._loadAttrs(path);
 
     if(encodingType === "string" && encodingVersion === '0.2.0') {
-      const arr = await openArray({
-        store,
-        path,
-        mode: 'r',
-      });
-      // TODO: seems like zarr.js does not support zero-dimensional array access.
-      console.log(await arr.get([]));
-      return arr;
+      const root = await storeRoot;
+      const arr = await zarrOpen(root.resolve(path), { kind: 'array' });
+      // TODO: Use zarrGet once it supports zero-dimensional array access.
+      const { data } = await arr.getChunk([]);
+      return data.get(0);
     }
     throw new Error(`Unsupported encoding type ${encodingType} and version ${encodingVersion} in AnnDataSource._loadString`);
   }
@@ -221,10 +218,10 @@ export default class AnnDataSource extends ZarrDataSource {
 
     if(encodingType === "dict" && encodingVersion === '0.1.0') {
       const result = {};
-      keys.forEach(async (key) => {
+      await Promise.all(keys.map(async (key) => {
         const val = await this._loadElement(`${path}/${key}`);
         result[key] = val;
-      });
+      }));
       return result;
     }
     throw new Error(`Unsupported encoding type ${encodingType} and version ${encodingVersion} in AnnDataSource._loadDict`);

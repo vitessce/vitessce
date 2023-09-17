@@ -26,9 +26,7 @@ export function getVarPath(arrPath) {
 export default class SpatialDataShapesSource extends AnnDataSource {
 
   async loadSpatialDataAttrs(tablePath) {
-    const attrs = await this._loadDict(`${tablePath}/uns/spatialdata_attrs`, ['instance_key', 'region', 'region_key']);
-    console.log(attrs);
-    return attrs;
+    return await this._loadDict(`${tablePath}/uns/spatialdata_attrs`, ['instance_key', 'region', 'region_key']);
   }
 
   /**
@@ -42,12 +40,22 @@ export default class SpatialDataShapesSource extends AnnDataSource {
 
     let indexPath = getIndexPath(path);
     if(tablePath) {
+      // TODO: given a path to the shapes,
+      // is there a better way to know which table annotates it
+      // (without the manually-specified table path)?
+      // Reference: https://github.com/scverse/spatialdata/issues/298#issuecomment-1718161329
       const obsPath = `${tablePath}/obs`;
       const { _index } = await this.getJson(`${obsPath}/.zattrs`);
       indexPath = `${obsPath}/${_index}`;
 
-      const attrs = this.loadSpatialDataAttrs(tablePath);
+      const {
+        instance_key: instanceKey,
+        region_key: regionKey,
+        region,
+      } = await this.loadSpatialDataAttrs(tablePath);
       // TODO: filter table index by region and element type.
+
+      indexPath = `${obsPath}/${instanceKey}`;
     }
     if (this.obsIndex[indexPath]) {
       return this.obsIndex[indexPath];
