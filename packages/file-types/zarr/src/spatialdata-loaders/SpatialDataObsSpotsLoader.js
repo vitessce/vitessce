@@ -1,41 +1,40 @@
 import {
-    LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-  } from '@vitessce/vit-s';
-  
-  /**
+  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
+} from '@vitessce/vit-s';
+
+/**
    * Loader for embedding arrays located in anndata.zarr stores.
    */
-  export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
-    /**
+export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
+  /**
      * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
      * @returns {Promise} A promise for an array of columns.
      */
-    loadSpots() {
-      const { path, dims = [0, 1] } = this.options;
-      if (this.locations) {
-        return this.locations;
-      }
-      if (!this.locations) {
-        this.locations = this.dataSource.loadNumericForDims(path, dims);
-        return this.locations;
-      }
-      this.locations = Promise.resolve(null);
+  loadSpots() {
+    const { path, dims = [0, 1] } = this.options;
+    if (this.locations) {
       return this.locations;
     }
-  
-    async load() {
-      const { path, tablePath } = this.options;
-      const superResult = await super.load().catch(reason => Promise.resolve(reason));
-      if (superResult instanceof AbstractLoaderError) {
-        return Promise.reject(superResult);
-      }
-      return Promise.all([
-        this.dataSource.loadObsIndex(path, tablePath),
-        this.loadSpots(),
-      ]).then(([obsIndex, obsSpots]) => Promise.resolve(new LoaderResult(
-        { obsIndex, obsSpots },
-        null,
-      )));
+    if (!this.locations) {
+      this.locations = this.dataSource.loadNumericForDims(path, dims);
+      return this.locations;
     }
+    this.locations = Promise.resolve(null);
+    return this.locations;
   }
-  
+
+  async load() {
+    const { path, tablePath } = this.options;
+    const superResult = await super.load().catch(reason => Promise.resolve(reason));
+    if (superResult instanceof AbstractLoaderError) {
+      return Promise.reject(superResult);
+    }
+    return Promise.all([
+      this.dataSource.loadObsIndex(path, tablePath),
+      this.loadSpots(),
+    ]).then(([obsIndex, obsSpots]) => Promise.resolve(new LoaderResult(
+      { obsIndex, obsSpots },
+      null,
+    )));
+  }
+}

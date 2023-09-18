@@ -1,4 +1,4 @@
-import { OmeZarrLoader } from "../ome-loaders/index.js";
+import { OmeZarrLoader } from '../ome-loaders/index.js';
 
 export default class SpatialDataImageLoader extends OmeZarrLoader {
   constructor(dataSource, params) {

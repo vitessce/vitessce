@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import AnnDataSource from './AnnDataSource.js';
 
 // If the array path starts with table/something/rest
@@ -22,11 +23,9 @@ export function getVarPath(arrPath) {
 }
 
 
-
 export default class SpatialDataShapesSource extends AnnDataSource {
-
   async loadSpatialDataAttrs(tablePath) {
-    return await this._loadDict(`${tablePath}/uns/spatialdata_attrs`, ['instance_key', 'region', 'region_key']);
+    return this._loadDict(`${tablePath}/uns/spatialdata_attrs`, ['instance_key', 'region', 'region_key']);
   }
 
   /**
@@ -39,7 +38,7 @@ export default class SpatialDataShapesSource extends AnnDataSource {
     }
 
     let indexPath = getIndexPath(path);
-    if(tablePath) {
+    if (tablePath) {
       // TODO: given a path to the shapes,
       // is there a better way to know which table annotates it
       // (without the manually-specified table path)?
@@ -50,10 +49,11 @@ export default class SpatialDataShapesSource extends AnnDataSource {
 
       const {
         instance_key: instanceKey,
-        region_key: regionKey,
-        region,
+        // TODO: filter table index by region and element type.
+        // region_key: regionKey,
+        // region,
       } = await this.loadSpatialDataAttrs(tablePath);
-      // TODO: filter table index by region and element type.
+
 
       indexPath = `${obsPath}/${instanceKey}`;
     }

@@ -184,7 +184,7 @@ export default class AnnDataSource extends ZarrDataSource {
     const { storeRoot } = this;
     const { 'encoding-type': encodingType, 'encoding-version': encodingVersion } = await this._loadAttrs(path);
 
-    if(encodingType === "string" && encodingVersion === '0.2.0') {
+    if (encodingType === 'string' && encodingVersion === '0.2.0') {
       const root = await storeRoot;
       const arr = await zarrOpen(root.resolve(path), { kind: 'array' });
       // TODO: Use zarrGet once it supports zero-dimensional array access.
@@ -197,7 +197,7 @@ export default class AnnDataSource extends ZarrDataSource {
   async _loadStringArray(path) {
     const { 'encoding-type': encodingType, 'encoding-version': encodingVersion } = await this._loadAttrs(path);
 
-    if(encodingType === "string-array" && encodingVersion === '0.2.0') {
+    if (encodingType === 'string-array' && encodingVersion === '0.2.0') {
       return this.getFlatArrDecompressed(path);
     }
     throw new Error(`Unsupported encoding type ${encodingType} and version ${encodingVersion} in AnnDataSource._loadStringArray`);
@@ -206,17 +206,19 @@ export default class AnnDataSource extends ZarrDataSource {
 
   async _loadElement(path) {
     const { 'encoding-type': encodingType } = await this._loadAttrs(path);
-    if(encodingType === "string") {
+    if (encodingType === 'string') {
       return this._loadString(path);
-    } else if(encodingType === "string-array") {
+    } if (encodingType === 'string-array') {
       return this._loadStringArray(path);
     }
+    // TODO: support more elements
+    return null;
   }
 
   async _loadDict(path, keys) {
     const { 'encoding-type': encodingType, 'encoding-version': encodingVersion } = await this._loadAttrs(path);
 
-    if(encodingType === "dict" && encodingVersion === '0.1.0') {
+    if (encodingType === 'dict' && encodingVersion === '0.1.0') {
       const result = {};
       await Promise.all(keys.map(async (key) => {
         const val = await this._loadElement(`${path}/${key}`);
