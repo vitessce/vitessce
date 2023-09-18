@@ -7,7 +7,7 @@ import {
   guessTileSize,
   ZarritaPixelSource,
 } from '@vitessce/spatial-utils';
-import { open as zarrOpen } from '@zarrita/core';
+import { open as zarrOpen } from 'zarrita';
 import { openLru, createZarrArrayAdapter } from '@vitessce/zarr-utils';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import { rasterJsonSchema as rasterSchema } from '@vitessce/schemas';

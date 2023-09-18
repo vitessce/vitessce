@@ -1,5 +1,5 @@
 import { viv } from '@vitessce/gl';
-import { open as zarrOpen } from '@zarrita/core';
+import { open as zarrOpen } from 'zarrita';
 import { openLru, createZarrArrayAdapter } from '@vitessce/zarr-utils';
 
 function prevPowerOf2(x) {

@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { open as zarrOpen } from '@zarrita/core';
-import { get as zarrGet } from '@zarrita/indexing';
+import { open as zarrOpen, get as zarrGet } from 'zarrita';
 import { dirname } from './utils.js';
 import ZarrDataSource from './ZarrDataSource.js';
 

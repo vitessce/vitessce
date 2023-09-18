@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { open as zarrOpen } from '@zarrita/core';
-import { get as zarrGet, slice } from '@zarrita/indexing';
+import { open as zarrOpen, get as zarrGet, slice } from 'zarrita';
 import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,

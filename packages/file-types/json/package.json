@@ -40,9 +40,7 @@
     "@vitessce/zarr-utils": "workspace:*",
     "d3-array": "^2.4.0",
     "lodash-es": "^4.17.21",
-    "@zarrita/core": "^0.0.3",
-    "@zarrita/indexing": "^0.0.3",
-    "@zarrita/storage": "^0.0.2",
+    "zarrita": "0.4.0-next.2",
     "zod": "^3.21.4"
   }
 }

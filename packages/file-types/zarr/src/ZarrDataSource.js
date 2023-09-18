@@ -1,5 +1,5 @@
 import { openLru } from '@vitessce/zarr-utils';
-import { open as zarrOpen } from '@zarrita/core';
+import { open as zarrOpen } from 'zarrita';
 
 /**
  * A loader ancestor class containing a default constructor
