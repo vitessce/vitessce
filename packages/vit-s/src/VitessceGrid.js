@@ -20,6 +20,7 @@ import {
 } from './hooks.js';
 import { useVitessceContainerStyles } from './shared-mui/container.js';
 import { useTitleStyles } from './title-styles.js';
+import { getAltText } from './generate-alt-text.js';
 
 const padding = 10;
 const margin = 5;
@@ -57,6 +58,8 @@ export default function VitessceGrid(props) {
 
   const classes = useVitessceContainerStyles();
   const titleClasses = useTitleStyles();
+
+  const altText = getAltText(config);
 
   // When the row height has changed, publish a GRID_RESIZE event.
   useEffect(() => {
@@ -101,6 +104,8 @@ export default function VitessceGrid(props) {
     <div
       ref={containerRef}
       className={clsx(VITESSCE_CONTAINER, classes.vitessceContainer)}
+      aria-role='group'
+      aria-labelledby={altText}
     >
       {layout ? (
         <VitessceGridLayout
