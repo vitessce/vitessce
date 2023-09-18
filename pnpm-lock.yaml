@@ -1016,8 +1016,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       higlass-zarr-datafetchers:
-        specifier: ^0.2.1
-        version: 0.2.1
+        specifier: 0.3.0-next.1
+        version: 0.3.0-next.1
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -16307,10 +16307,12 @@ packages:
     resolution: {integrity: sha512-D4I+ATxFuTn+Q6p8Y9rUa+X3b3cqMqhu9Tya6uHtvgV5cs39Mk7i6Z+7PMA8YuwQd5gLMSxCm2lCyWmxRVBQsQ==}
     dev: false
 
-  /higlass-zarr-datafetchers@0.2.1:
-    resolution: {integrity: sha512-co/WtJ+K1RI2n4Okf2qUobkRGnM/YjqNdbXOGb01ogci21fjQbDWlltDxpZssGgVZJu786WQGQIAuHbJjwQOEQ==}
+  /higlass-zarr-datafetchers@0.3.0-next.1:
+    resolution: {integrity: sha512-HU6DGiWZ6YDKS/4p5eBBskeHUukyJ3rrBOBmaviYeZkAvCno6ahbD9WDeGaGkcZErUEwMArtPQDBgTk2/8uJVQ==}
     dependencies:
-      zarr: 0.5.1
+      higlass-register: 0.3.0
+      slugid: 3.2.0
+      zarrita: 0.4.0-next.2
     dev: false
 
   /history@4.10.1:
@@ -22563,6 +22565,13 @@ packages:
     resolution: {integrity: sha512-sgB+DBlsDW4wjLLulp5GsyY0s1C2E9G9DbhYxEDIgqo63g8n6JKweBew6bH8f9+ZPQvqZeR/GJYO//mSmrC2Hg==}
     dependencies:
       uuid: 2.0.3
+    dev: false
+
+  /slugid@3.2.0:
+    resolution: {integrity: sha512-f0vZb6VyjUdZG5kaxd9CNpfhy+eUUTC8RnbDolC3ZLjYa7n5AdPkQnqnIjmoZYoPS9dWMOXQdoBREAGQqdZb9A==}
+    engines: {node: '>=6.0'}
+    dependencies:
+      uuid: 8.3.2
     dev: false
 
   /smartwrap@2.0.2:
