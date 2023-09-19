@@ -550,6 +550,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       id: 'scalebar-layer',
       unit: 'um',
       size: 1,
+      snap: true,
       viewState: { ...viewState, width, height },
     });
   }

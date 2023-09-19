@@ -344,8 +344,8 @@ importers:
         specifier: ~8.8.6
         version: 8.8.20(@deck.gl/core@8.8.20)(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
       '@hms-dbmi/viv':
-        specifier: ~0.13.7
-        version: 0.13.7(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@deck.gl/react@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)(react@18.2.0)
+        specifier: ~0.13.8
+        version: 0.13.8(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@deck.gl/react@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)(react@18.2.0)
       '@loaders.gl/3d-tiles':
         specifier: ^3.0.0
         version: 3.2.10(@loaders.gl/core@3.2.10)
@@ -763,8 +763,8 @@ importers:
   packages/utils/image-utils:
     dependencies:
       '@hms-dbmi/viv':
-        specifier: ~0.13.7
-        version: 0.13.7(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@deck.gl/react@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)(react@18.2.0)
+        specifier: ~0.13.8
+        version: 0.13.8(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@deck.gl/react@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)(react@18.2.0)
       '@vitessce/spatial-utils':
         specifier: workspace:*
         version: link:../spatial-utils
@@ -6061,16 +6061,16 @@ packages:
       '@hapi/hoek': 9.3.0
     dev: false
 
-  /@hms-dbmi/viv@0.13.7(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@deck.gl/react@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)(react@18.2.0):
-    resolution: {integrity: sha512-uaDCnZCBNCM4yud013h368TesMyId9c7DME9ijh0tbvE8kI6m7VqviYyJ+uTWOUiu/sZTBiHWQsz44M+LVBtbw==}
+  /@hms-dbmi/viv@0.13.8(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@deck.gl/react@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)(react@18.2.0):
+    resolution: {integrity: sha512-6t5CvkkSwu6aUBSJGdHFAVRLZL5NRfmlRat1Ucpx/dWX32xzu9Hf8NV8d2+xAKIp4FN6fGeJC2ZdkkSisVUEtA==}
     dependencies:
-      '@vivjs/constants': 0.13.7
-      '@vivjs/extensions': 0.13.7(@deck.gl/core@8.8.20)
-      '@vivjs/layers': 0.13.7(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)
-      '@vivjs/loaders': 0.13.7
-      '@vivjs/types': 0.13.7
-      '@vivjs/viewers': 0.13.7(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@deck.gl/react@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)(react@18.2.0)
-      '@vivjs/views': 0.13.7(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)
+      '@vivjs/constants': 0.13.8
+      '@vivjs/extensions': 0.13.8(@deck.gl/core@8.8.20)
+      '@vivjs/layers': 0.13.8(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)
+      '@vivjs/loaders': 0.13.8
+      '@vivjs/types': 0.13.8
+      '@vivjs/viewers': 0.13.8(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@deck.gl/react@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)(react@18.2.0)
+      '@vivjs/views': 0.13.8(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)
     transitivePeerDependencies:
       - '@deck.gl/core'
       - '@deck.gl/geo-layers'
@@ -10127,23 +10127,23 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
-  /@vivjs/constants@0.13.7:
-    resolution: {integrity: sha512-YX3XkDZoHuiFFg9MwpaEMZCQR7jfB8dXwsiUbwfXLq7dcIoBlVaVnJDO3nb8gdwN+w2B3M2BiuK6aKF7BNw+zA==}
+  /@vivjs/constants@0.13.8:
+    resolution: {integrity: sha512-0XN4lUl6vG7x6KCTu7TdzmBIz8fmKaKLasuqNio18erafFvkxYJ6hnAGXClVVwbj26uKvmOzwO/hqEIUTIWLRg==}
     dependencies:
       '@luma.gl/constants': 8.5.18
     dev: false
 
-  /@vivjs/extensions@0.13.7(@deck.gl/core@8.8.20):
-    resolution: {integrity: sha512-xHtpECEeoaEFibsOgHmOTGayZbuQI5v8PAe4qgJZ4gkpRNRAPerZC3oPXuFkUFcBx4aYqQso8XuQMoIWxCIHag==}
+  /@vivjs/extensions@0.13.8(@deck.gl/core@8.8.20):
+    resolution: {integrity: sha512-7leQexk/5VXQrRZ+n3yOHx/FpH5uIA6HhMJnDRD+2PlSj/TLouSmPLz0Fr3+K2a8zBv+0qyGYROmzDZdru6FOw==}
     peerDependencies:
       '@deck.gl/core': ~8.8.6
     dependencies:
       '@deck.gl/core': 8.8.20
-      '@vivjs/constants': 0.13.7
+      '@vivjs/constants': 0.13.8
     dev: false
 
-  /@vivjs/layers@0.13.7(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16):
-    resolution: {integrity: sha512-LOFxhnExK9nVa7429MYUbtEmSeZBUXY6G4OAP0AG91blAyDna6nLp14S1a9RYOumMli+PdVefYk4kbi7yX1OBQ==}
+  /@vivjs/layers@0.13.8(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16):
+    resolution: {integrity: sha512-h66rWozTZS6d1pyHQuept5lOiEsCeOImwV0zfhVPvtagieE6tOyKFiGSpD/VP8zUjZUoNhanLOFpvoDXdJ6ytA==}
     peerDependencies:
       '@deck.gl/core': ~8.8.6
       '@deck.gl/geo-layers': ~8.8.6
@@ -10162,16 +10162,16 @@ packages:
       '@luma.gl/webgl': 8.5.16
       '@math.gl/core': 3.6.3
       '@math.gl/culling': 3.6.3
-      '@vivjs/constants': 0.13.7
-      '@vivjs/extensions': 0.13.7(@deck.gl/core@8.8.20)
-      '@vivjs/loaders': 0.13.7
-      '@vivjs/types': 0.13.7
+      '@vivjs/constants': 0.13.8
+      '@vivjs/extensions': 0.13.8(@deck.gl/core@8.8.20)
+      '@vivjs/loaders': 0.13.8
+      '@vivjs/types': 0.13.8
     dev: false
 
-  /@vivjs/loaders@0.13.7:
-    resolution: {integrity: sha512-POzRu02oUFzWyR1sJqEZ8du6MnKqjy06bAxKvmlv/zVuIkf/w7Vgd8VFtPeoJPuR0NikWLFZOZ+M0fG+/PaweQ==}
+  /@vivjs/loaders@0.13.8:
+    resolution: {integrity: sha512-qeJ5LPb12nlV2FBnf9BtuTLg3hIjYsWK5FIIqy2hE7v5i4fxcr1RMFQ3NP8C77i0+1hzHVUkoS/Dq/F1OSJJLQ==}
     dependencies:
-      '@vivjs/types': 0.13.7
+      '@vivjs/types': 0.13.8
       fast-xml-parser: 3.21.1
       geotiff: 2.0.5
       lzw-tiff-decoder: 0.1.1
@@ -10179,23 +10179,23 @@ packages:
       zarr: 0.5.1
     dev: false
 
-  /@vivjs/types@0.13.7:
-    resolution: {integrity: sha512-F0t80B49L8NbEG9eHW4iswSE1tUPASQM5VNVkWLqeSffGKg7YI9e4pDikx9KkwpWfNxOs673QJWzTzz6ze4YPA==}
+  /@vivjs/types@0.13.8:
+    resolution: {integrity: sha512-D4g9jxNJ4wc/N/S4GuLcZJQu9j89UowhDH8IKswyK0yXlIfUpVngqxCw3wQCKcMeu7yLbDQgI+2gytB6jCV+rQ==}
     dependencies:
-      '@vivjs/constants': 0.13.7
+      '@vivjs/constants': 0.13.8
       math.gl: 3.6.3
     dev: false
 
-  /@vivjs/viewers@0.13.7(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@deck.gl/react@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)(react@18.2.0):
-    resolution: {integrity: sha512-yyoxwnDLxsUSM1IPQ4NFZIfXR7U+UOeKpRcYgoX69Mh7ADbUoBNJilsbwU0Z8Y52qeI7PN3d5aPW3qoJsow3Jg==}
+  /@vivjs/viewers@0.13.8(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@deck.gl/react@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)(react@18.2.0):
+    resolution: {integrity: sha512-TK7GyZ4iwXyfaKLSiwMccFystTxuOyckwRzOr7dEcsZvQnEKdJNqz30htIoSBtGtYpuaUPTbT/bsSg1F26nECQ==}
     peerDependencies:
       '@deck.gl/react': ~8.8.6
       react: ^16.8.0 || ^17.0.0 || 18
     dependencies:
       '@deck.gl/react': 8.8.20(@deck.gl/core@8.8.20)(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
-      '@vivjs/constants': 0.13.7
-      '@vivjs/extensions': 0.13.7(@deck.gl/core@8.8.20)
-      '@vivjs/views': 0.13.7(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)
+      '@vivjs/constants': 0.13.8
+      '@vivjs/extensions': 0.13.8(@deck.gl/core@8.8.20)
+      '@vivjs/views': 0.13.8(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)
       fast-deep-equal: 3.1.3
       react: 18.2.0
     transitivePeerDependencies:
@@ -10208,8 +10208,8 @@ packages:
       - '@luma.gl/webgl'
     dev: false
 
-  /@vivjs/views@0.13.7(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16):
-    resolution: {integrity: sha512-dUqUA/4Zqo+JiEqKcZrAuKK3NOcjQL1H9i+xlqwiMi7CLy59KV7DlS7LfcIIm4potXNZfd4945AUR96ceTSLBA==}
+  /@vivjs/views@0.13.8(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16):
+    resolution: {integrity: sha512-qGay7rj3cUHpwmhng5JskoUqjbm6CG99PK3GWjfl23REubOIvqNfLdoqlIEFIElqXuz+99wgHyL6/fj5FSbN+A==}
     peerDependencies:
       '@deck.gl/core': ~8.8.6
       '@deck.gl/layers': ~8.8.6
@@ -10217,8 +10217,8 @@ packages:
       '@deck.gl/core': 8.8.20
       '@deck.gl/layers': 8.8.20(@deck.gl/core@8.8.20)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.16)
       '@math.gl/core': 3.6.3
-      '@vivjs/layers': 0.13.7(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)
-      '@vivjs/loaders': 0.13.7
+      '@vivjs/layers': 0.13.8(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)
+      '@vivjs/loaders': 0.13.8
       math.gl: 3.6.3
     transitivePeerDependencies:
       - '@deck.gl/geo-layers'
