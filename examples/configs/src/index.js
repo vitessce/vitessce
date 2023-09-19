@@ -37,6 +37,7 @@ import { visiumSpotsOop2023 } from './view-configs/spatial-beta/visium-spots.js'
 import { codeluppiOop2018 } from './view-configs/spatial-beta/codeluppi.js';
 import { kpmp2023 } from './view-configs/spatial-beta/kpmp.js';
 import { visiumSpatialdata2023 } from './view-configs/spatial-beta/visium-spatialdata.js';
+import { fromTong2023 } from './view-configs/spatial-beta/tong-spatialdata.js';
 
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
@@ -87,6 +88,7 @@ export const configs = {
   'linnarsson-2018': codeluppi2018,
   'visium-spatial-viewer': visiumSpatialViewer,
   'visium-spatialdata': visiumSpatialdata2023,
+  'from-tong': fromTong2023,
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
