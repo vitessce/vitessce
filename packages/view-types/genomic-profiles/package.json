@@ -37,7 +37,7 @@
     "d3-array": "^2.4.0",
     "higlass-no-github-deps": "1.11.13",
     "higlass-register": "^0.3.0",
-    "higlass-zarr-datafetchers": "0.3.0-next.1",
+    "higlass-zarr-datafetchers": "^0.2.1",
     "lodash-es": "^4.17.21"
   },
   "devDependencies": {

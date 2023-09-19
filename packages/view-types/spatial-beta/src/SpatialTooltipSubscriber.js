@@ -42,7 +42,7 @@ function getXY(
   if (useHoverInfoForTooltip) {
     return [projectedHoverCoord?.[0], projectedHoverCoord?.[1]];
   }
-  const obsCoord = [obsLocations?.data[0][obsI], obsLocations?.data[1][obsI], 0];
+  const obsCoord = [obsLocations?.data[0][obsI] || 0, obsLocations?.data[1][obsI] || 0, 0];
   const projectedObsCoord = viewInfo?.project(obsCoord);
   return [projectedObsCoord?.[0], projectedObsCoord?.[1]];
 }
