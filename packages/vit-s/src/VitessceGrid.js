@@ -1,6 +1,7 @@
 import React, {
   useEffect,
   useCallback,
+  useMemo
 } from 'react';
 import clsx from 'clsx';
 import { VITESSCE_CONTAINER } from './classNames.js';
@@ -59,7 +60,7 @@ export default function VitessceGrid(props) {
   const classes = useVitessceContainerStyles();
   const titleClasses = useTitleStyles();
 
-  const altText = getAltText(config);
+  const altText = useMemo(() => getAltText(config), [configKey]);
 
   // When the row height has changed, publish a GRID_RESIZE event.
   useEffect(() => {
