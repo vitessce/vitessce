@@ -64,7 +64,6 @@ export function getViewTypesMap() {
    * @returns {string} Natural language sentence describing config (alt-text).
    */
 export function getAltText(config) {
-  console.log(config)
   const componentList = config.layout.map(c => c.component);
   const viewTypeToTextMap = getViewTypesMap();
   const altText = `Vitessce grid with ${componentList.length} views, including ${arrayToString(componentList.map(c => viewTypeToTextMap.get(c)))}.`;

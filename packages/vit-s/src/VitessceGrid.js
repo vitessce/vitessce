@@ -1,7 +1,7 @@
 import React, {
   useEffect,
   useCallback,
-  useMemo
+  useMemo,
 } from 'react';
 import clsx from 'clsx';
 import { VITESSCE_CONTAINER } from './classNames.js';
