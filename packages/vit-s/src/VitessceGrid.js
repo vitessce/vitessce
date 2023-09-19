@@ -104,12 +104,12 @@ export default function VitessceGrid(props) {
     <div
       ref={containerRef}
       className={clsx(VITESSCE_CONTAINER, classes.vitessceContainer)}
-      role='group'
+      role="group"
       aria-label={altText}
     >
       {layout ? (
         <VitessceGridLayout
-          role='group'
+          role="group"
           layout={layout}
           height={height}
           rowHeight={rowHeight}
