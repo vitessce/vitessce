@@ -229,6 +229,21 @@ export default class ImageWrapper<S extends string[]> {
       } = this.vivLoader.metadata;
       return channels.length;
     }
+    // SpatialData case: should be temporary code path,
+    // References:
+    // - https://github.com/ome/ngff/issues/192
+    // - https://github.com/ome/ome-zarr-py/pull/261
+    if ('channels_metadata' in this.vivLoader.metadata) {
+      const {
+        channels_metadata: channelsMetadata,
+      } = this.vivLoader.metadata;
+      return channelsMetadata?.channels.length || 0;
+    }
+    if('image-label' in this.vivLoader.metadata) {
+      // As far as I can tell, SpatialData labels
+      // are always single-channel bitmasks (as of 2023-09-20).
+      return 1;
+    }
     return 0;
   }
 
@@ -248,6 +263,14 @@ export default class ImageWrapper<S extends string[]> {
         },
       } = this.vivLoader.metadata;
       return channels.map((channel, i) => channel.label || `Channel ${i}`);
+    }
+    if('channels_metadata' in this.vivLoader.metadata) {
+      const {
+        channels_metadata: channelsMetadata,
+      } = this.vivLoader.metadata;
+      if(channelsMetadata && Array.isArray(channelsMetadata?.channels)) {
+        return channelsMetadata.channels.map((channel) => `Channel ${channel.label}`);
+      }
     }
     return [];
   }
@@ -285,6 +308,19 @@ export default class ImageWrapper<S extends string[]> {
         defaultWindow: undefined, // TODO: does OME-TIFF support this?
         autoDefaultColor: VIEWER_PALETTE[i % VIEWER_PALETTE.length],
       }));
+    }
+    if('channels_metadata' in this.vivLoader.metadata) {
+      const {
+        channels_metadata: channelsMetadata,
+      } = this.vivLoader.metadata;
+      if(channelsMetadata && Array.isArray(channelsMetadata?.channels)) {
+        return channelsMetadata.channels.map((channel, i) => ({
+          name: `Channel ${channel.label}`,
+          defaultColor: undefined,
+          defaultWindow: undefined,
+          autoDefaultColor: VIEWER_PALETTE[i % VIEWER_PALETTE.length],
+        }));
+      }
     }
     return [];
   }

@@ -36,7 +36,6 @@ import {
       url: 'http://localhost:8000/from-tong/lowerlimb.zarr',
       options: {
         path: 'labels/region_label_image',
-        tablePath: 'table/table',
       },
       coordinationValues: {
         fileUid: 'bitmask-image',

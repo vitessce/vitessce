@@ -36,8 +36,9 @@ import { visiumImageOop2023 } from './view-configs/spatial-beta/visium-image.js'
 import { visiumSpotsOop2023 } from './view-configs/spatial-beta/visium-spots.js';
 import { codeluppiOop2018 } from './view-configs/spatial-beta/codeluppi.js';
 import { kpmp2023 } from './view-configs/spatial-beta/kpmp.js';
-import { visiumSpatialdata2023 } from './view-configs/spatial-beta/visium-spatialdata.js';
-import { fromTong2023 } from './view-configs/spatial-beta/tong-spatialdata.js';
+import { visiumSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium.js';
+import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium_io.js';
+import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
 
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
@@ -87,8 +88,9 @@ export const configs = {
   // Keys which enable backwards compatibility with old links.
   'linnarsson-2018': codeluppi2018,
   'visium-spatial-viewer': visiumSpatialViewer,
-  'visium-spatialdata': visiumSpatialdata2023,
-  'from-tong': fromTong2023,
+  'spatialdata-visium': visiumSpatialdata2023,
+  'spatialdata-visium_io': visiumIoSpatialdata2023,
+  'spatialdata-mcmicro_io': mcmicroIoSpatialdata2023,
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,

@@ -327,7 +327,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
           .then(({ data }) => data)),
       );
     }
-    return { data: genes.map(i => (shouldNormalize ? toObject(i).data : i)), url: null };
+    return { data: genes, url: null };
   }
 
   /**
