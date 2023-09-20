@@ -41,17 +41,18 @@ function generateMcmicroIoConfig() {
       fileUid: 'cell-bitmask',
       obsType: 'cell',
     },
-  }).addFile({
-    fileType: 'labels.spatialdata.zarr',
-    url: 'http://localhost:8000/mcmicro_io.zarr',
-    options: {
-      path: 'labels/exemplar-001_nuclei',
-    },
-    coordinationValues: {
-      fileUid: 'nucleus-bitmask',
-      obsType: 'nucleus',
-    },
-  });
+  })
+    .addFile({
+      fileType: 'labels.spatialdata.zarr',
+      url: 'http://localhost:8000/mcmicro_io.zarr',
+      options: {
+        path: 'labels/exemplar-001_nuclei',
+      },
+      coordinationValues: {
+        fileUid: 'nucleus-bitmask',
+        obsType: 'nucleus',
+      },
+    });
 
   const spatialView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta');
@@ -60,7 +61,7 @@ function generateMcmicroIoConfig() {
   const featureList = config.addView(dataset, 'featureList');
 
   const [featureSelectionScope] = config.addCoordination('featureSelection');
-  featureSelectionScope.setValue(['DNA_6'])
+  featureSelectionScope.setValue(['DNA_6']);
 
   config.linkViewsByObject([spatialView, lcView], {
     spatialTargetZ: 0,

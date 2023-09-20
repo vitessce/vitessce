@@ -290,7 +290,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       );
     } else {
       const genes = await this._getFilteredGenes(matrixGeneFilter);
-      this.cellXGene = this.loadGeneSelection({ selection: genes, shouldNormalize: false })
+      this.cellXGene = this.loadGeneSelection({ selection: genes })
         .then(({ data }) => (toObject(concatenateColumnVectors(data))));
     }
     return this.cellXGene;
@@ -300,10 +300,9 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    * Class method for loading a gene selection.
    * @param {Object} args
    * @param {Array} args.selection A list of gene names whose data should be fetched.
-   * @param {Boolean} args.shouldNormalize A list of gene names whose data should be fetched.
    * @returns {Object} { data } containing an array of gene expression data.
    */
-  async loadGeneSelection({ selection, shouldNormalize = true }) {
+  async loadGeneSelection({ selection }) {
     const { path: matrix } = this.getOptions();
     const { storeRoot } = this.dataSource;
     if (!this._matrixZattrs) {

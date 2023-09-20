@@ -86,4 +86,3 @@ export async function loadOmeZarr(url, requestInit) {
     metadata: rootAttrs,
   };
 }
-

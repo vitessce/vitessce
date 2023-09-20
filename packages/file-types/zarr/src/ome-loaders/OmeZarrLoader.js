@@ -99,7 +99,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       // References:
       // - https://github.com/ome/ngff/issues/192
       // - https://github.com/ome/ome-zarr-py/pull/261
-      if(isLabels) {
+      if (isLabels) {
         channelObjects = [{
           selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: 0 }),
           slider: [0, 255],

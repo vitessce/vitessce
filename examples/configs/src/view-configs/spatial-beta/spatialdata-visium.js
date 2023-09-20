@@ -54,7 +54,7 @@ function generateVisiumConfig() {
   const featureList = config.addView(dataset1, 'featureList');
 
   const [featureSelectionScope] = config.addCoordination('featureSelection');
-  featureSelectionScope.setValue(['Slc25a4'])
+  featureSelectionScope.setValue(['Slc25a4']);
 
   config.linkViewsByObject([spatialView, lcView], {
     spatialTargetZ: 0,

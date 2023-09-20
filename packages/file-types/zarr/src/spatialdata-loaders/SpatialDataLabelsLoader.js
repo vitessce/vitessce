@@ -9,7 +9,7 @@ export default class SpatialDataLabelsLoader extends SpatialDataImageLoader {
     if (result instanceof AbstractLoaderError) {
       return Promise.reject(result);
     }
-    
+
     result.data = {
       obsSegmentations: result.data.image,
       obsSegmentationsType: 'bitmask',

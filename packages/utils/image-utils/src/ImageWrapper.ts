@@ -239,7 +239,7 @@ export default class ImageWrapper<S extends string[]> {
       } = this.vivLoader.metadata;
       return channelsMetadata?.channels.length || 0;
     }
-    if('image-label' in this.vivLoader.metadata) {
+    if ('image-label' in this.vivLoader.metadata) {
       // As far as I can tell, SpatialData labels
       // are always single-channel bitmasks (as of 2023-09-20).
       return 1;
@@ -264,12 +264,12 @@ export default class ImageWrapper<S extends string[]> {
       } = this.vivLoader.metadata;
       return channels.map((channel, i) => channel.label || `Channel ${i}`);
     }
-    if('channels_metadata' in this.vivLoader.metadata) {
+    if ('channels_metadata' in this.vivLoader.metadata) {
       const {
         channels_metadata: channelsMetadata,
       } = this.vivLoader.metadata;
-      if(channelsMetadata && Array.isArray(channelsMetadata?.channels)) {
-        return channelsMetadata.channels.map((channel) => `Channel ${channel.label}`);
+      if (channelsMetadata && Array.isArray(channelsMetadata?.channels)) {
+        return channelsMetadata.channels.map(channel => `Channel ${channel.label}`);
       }
     }
     return [];
@@ -309,11 +309,11 @@ export default class ImageWrapper<S extends string[]> {
         autoDefaultColor: VIEWER_PALETTE[i % VIEWER_PALETTE.length],
       }));
     }
-    if('channels_metadata' in this.vivLoader.metadata) {
+    if ('channels_metadata' in this.vivLoader.metadata) {
       const {
         channels_metadata: channelsMetadata,
       } = this.vivLoader.metadata;
-      if(channelsMetadata && Array.isArray(channelsMetadata?.channels)) {
+      if (channelsMetadata && Array.isArray(channelsMetadata?.channels)) {
         return channelsMetadata.channels.map((channel, i) => ({
           name: `Channel ${channel.label}`,
           defaultColor: undefined,
