@@ -55,24 +55,6 @@ async function loadMultiscales(root) {
   };
 }
 
-// We use our own loadOmeZarr function (instead of viv.loadOmeZarr)
-// to bypass usage of zarr.js which is used in Viv's version.
-export async function loadOmeZarr(url, requestInit) {
-  const root = await openLru(url, requestInit);
-  const { data, rootAttrs, labels } = await loadMultiscales(root);
-  const tileSize = guessTileSize(data[0]);
-  const pyramid = data
-    .map(arr => new viv.ZarrPixelSource(
-      createZarrArrayAdapter(arr),
-      labels,
-      tileSize,
-    ));
-  return {
-    data: pyramid,
-    metadata: rootAttrs,
-  };
-}
-
 export class ZarritaPixelSource extends viv.ZarrPixelSource {
   constructor(arr, labels, tileSize) {
     super(arr, labels, tileSize);
@@ -85,3 +67,23 @@ export class ZarritaPixelSource extends viv.ZarrPixelSource {
     this._readChunks = false;
   }
 }
+
+
+// We use our own loadOmeZarr function (instead of viv.loadOmeZarr)
+// to bypass usage of zarr.js which is used in Viv's version.
+export async function loadOmeZarr(url, requestInit) {
+  const root = await openLru(url, requestInit);
+  const { data, rootAttrs, labels } = await loadMultiscales(root);
+  const tileSize = guessTileSize(data[0]);
+  const pyramid = data
+    .map(arr => new ZarritaPixelSource(
+      createZarrArrayAdapter(arr),
+      labels,
+      tileSize,
+    ));
+  return {
+    data: pyramid,
+    metadata: rootAttrs,
+  };
+}
+
