@@ -13,9 +13,10 @@ function generateVisiumConfig() {
     schemaVersion: '1.0.16',
     name: 'Visium OOP',
   });
+  const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/spatialdata-september-2023/visium.zarr';
   const dataset1 = config.addDataset('D1').addFile({
     fileType: 'image.spatialdata.zarr',
-    url: 'http://localhost:8000/visium.zarr',
+    url: baseUrl,
     options: {
       path: 'images/ST8059049_image',
     },
@@ -24,7 +25,7 @@ function generateVisiumConfig() {
     },
   }).addFile({
     fileType: 'obsFeatureMatrix.spatialdata.zarr',
-    url: 'http://localhost:8000/visium.zarr',
+    url: baseUrl,
     options: {
       path: 'table/table/X',
       region: 'ST8059049_shapes',
@@ -34,10 +35,9 @@ function generateVisiumConfig() {
     },
   }).addFile({
     fileType: 'obsSpots.spatialdata.zarr',
-    url: 'http://localhost:8000/visium.zarr',
+    url: baseUrl,
     options: {
-      // TODO: should '/coords' suffix be appended internally?
-      path: 'shapes/ST8059049_shapes/coords',
+      path: 'shapes/ST8059049_shapes',
       tablePath: 'table/table',
       region: 'ST8059049_shapes',
     },

@@ -975,6 +975,96 @@ coordinationValues={`{
 }`}
 />
 
+## SpatialData
+
+[SpatialData](https://spatialdata.scverse.org/) is a data structure for spatial omics data.
+It uses a Zarr-based on-disk format which is a container for [AnnData-Zarr](#anndata-zarr) tables and [OME-Zarr](#imageome-zarr) images.
+
+The on-disk format is relatively stable but still in the early days, so we will be following any changes to the on-disk representation closely so that we can support the most up-to-date version in Vitessce.
+For example, support for multiple tables is [currently under discussion](https://github.com/scverse/spatialdata/issues/298),
+coordinate transformations use a [proposed format](https://github.com/ome/ngff/pull/138) that is not yet incorporated into OME-NGFF,
+and channel metadata is temporarily using a [non-NGFF property](https://github.com/ome/ngff/issues/192).
+
+SpatialData defines several spatial elements: `points`, `shapes`, `labels`, `images`, and `tables`. These can be mapped to Vitessce data types:
+
+| SpatialData SpatialElement | Vitessce DataType |
+|------|-----|
+| points | obsPoints |
+| shapes (circles) | obsSpots |
+| shapes (polygons) | obsSegmentations |
+| labels | obsSegmentations |
+| images | image |
+| tables | obsFeatureMatrix<br/>obsSets<br/>obsLabels<br/>obsEmbedding |
+
+### `obsSpots.spatialdata.zarr`
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="obsSpots.spatialdata.zarr"
+fileConst="OBS_SPOTS_SPATIALDATA_ZARR"
+options={`{
+  // Should point to the table containing the circular shape coordinates.
+  "path": "shapes/some_region_shapes",
+  // Should point to the table which annotates the specified shapes. Optional.
+  "tablePath": "table/table",
+  // Region value to use for filtering the rows of the table.
+  "region": "some_region_shapes"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+### `labels.spatialdata.zarr`
+
+SpatialData label images represent segmentation bitmasks for observations.
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="labels.spatialdata.zarr"
+fileConst="LABELS_SPATIALDATA_ZARR"
+options={`{
+  // Should point to a label image.
+  "path": "labels/my_cell_bitmask"
+}`}
+coordinationValues={`{
+  "fileUid": "cell-bitmask",
+  "obsType": "cell"
+}`}
+/>
+
+### `image.spatialdata.zarr`
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="image.spatialdata.zarr"
+fileConst="IMAGE_SPATIALDATA_ZARR"
+options={`{
+  // Should point to an image.
+  "path": "images/some_image"
+}`}
+coordinationValues={`{
+  "fileUid": "histology-image"
+}`}
+/>
+
+### `obsFeatureMatrix.spatialdata.zarr`
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="obsFeatureMatrix.spatialdata.zarr"
+fileConst="OBS_FEATURE_MATRIX_SPATIALDATA_ZARR"
+options={`{
+  // Should point to a 2D array within the AnnData table object.
+  "path": "table/table/X"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+
+
 ## JSON
 
 ### `obsSets.json`

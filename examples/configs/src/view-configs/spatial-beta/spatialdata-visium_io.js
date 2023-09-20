@@ -13,9 +13,10 @@ function generateVisiumIoConfig() {
     schemaVersion: '1.0.16',
     name: 'Visium OOP',
   });
+  const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/spatialdata-september-2023/visium_io.zarr';
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.spatialdata.zarr',
-    url: 'http://localhost:8000/visium_io.zarr',
+    url: baseUrl,
     options: {
       path: 'images/Visium_Mouse_Olfactory_Bulb_full_image',
     },
@@ -24,7 +25,7 @@ function generateVisiumIoConfig() {
     },
   }).addFile({
     fileType: 'obsFeatureMatrix.spatialdata.zarr',
-    url: 'http://localhost:8000/visium_io.zarr',
+    url: baseUrl,
     options: {
       path: 'table/table/X',
     },
@@ -33,10 +34,9 @@ function generateVisiumIoConfig() {
     },
   }).addFile({
     fileType: 'obsSpots.spatialdata.zarr',
-    url: 'http://localhost:8000/visium_io.zarr',
+    url: baseUrl,
     options: {
-      // TODO: should '/coords' suffix be appended internally?
-      path: 'shapes/Visium_Mouse_Olfactory_Bulb/coords',
+      path: 'shapes/Visium_Mouse_Olfactory_Bulb',
       tablePath: 'table/table',
     },
     coordinationValues: {

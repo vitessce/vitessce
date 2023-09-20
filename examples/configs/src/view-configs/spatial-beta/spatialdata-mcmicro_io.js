@@ -13,9 +13,10 @@ function generateMcmicroIoConfig() {
     schemaVersion: '1.0.16',
     name: 'Visium OOP',
   });
+  const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/spatialdata-september-2023/mcmicro_io.zarr';
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.spatialdata.zarr',
-    url: 'http://localhost:8000/mcmicro_io.zarr',
+    url: baseUrl,
     options: {
       path: 'images/exemplar-001_image',
     },
@@ -24,7 +25,7 @@ function generateMcmicroIoConfig() {
     },
   }).addFile({
     fileType: 'obsFeatureMatrix.spatialdata.zarr',
-    url: 'http://localhost:8000/mcmicro_io.zarr',
+    url: baseUrl,
     options: {
       path: 'table/table/X',
     },
@@ -33,7 +34,7 @@ function generateMcmicroIoConfig() {
     },
   }).addFile({
     fileType: 'labels.spatialdata.zarr',
-    url: 'http://localhost:8000/mcmicro_io.zarr',
+    url: baseUrl,
     options: {
       path: 'labels/exemplar-001_cells',
     },
@@ -44,7 +45,7 @@ function generateMcmicroIoConfig() {
   })
     .addFile({
       fileType: 'labels.spatialdata.zarr',
-      url: 'http://localhost:8000/mcmicro_io.zarr',
+      url: baseUrl,
       options: {
         path: 'labels/exemplar-001_nuclei',
       },
@@ -116,6 +117,7 @@ function generateMcmicroIoConfig() {
             spatialSegmentationStrokeWidth: 0.01,
             obsHighlight: null,
             featureSelection: featureSelectionScope,
+            featureValueColormapRange: [0, 0.5],
           },
         ]),
       },

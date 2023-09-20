@@ -2,6 +2,10 @@ import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
 
+function getCoordsPath(path) {
+  return `${path}/coords`;
+}
+
 /**
    * Loader for embedding arrays located in anndata.zarr stores.
    */
@@ -16,7 +20,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       return this.locations;
     }
     if (!this.locations) {
-      this.locations = this.dataSource.loadNumericForDims(path, dims);
+      this.locations = this.dataSource.loadNumericForDims(getCoordsPath(path), dims);
       return this.locations;
     }
     this.locations = Promise.resolve(null);
@@ -30,7 +34,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       return Promise.reject(superResult);
     }
     return Promise.all([
-      this.dataSource.loadObsIndex(path, tablePath),
+      this.dataSource.loadObsIndex(getCoordsPath(path), tablePath),
       this.loadSpots(),
     ]).then(([obsIndex, obsSpots]) => Promise.resolve(new LoaderResult(
       { obsIndex, obsSpots },
