@@ -11,7 +11,7 @@ import {
 function generateVisiumConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'Visium OOP',
+    name: 'SpatialData example dataset: visium.zarr',
   });
   const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/spatialdata-september-2023/visium.zarr';
   const dataset1 = config.addDataset('D1').addFile({

@@ -12,7 +12,9 @@ function getTablePrefix(arrPath) {
       return `table/${matches[1]}/`;
     }
   }
-  return '';
+  // TODO: what to do here when there are multiple tables?
+  // ObsSetsAnndataLoader will need to pass a path to loadObsIndex().
+  return 'table/table/';
 }
 export function getObsPath(arrPath) {
   return `${getTablePrefix(arrPath)}obs`;

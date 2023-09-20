@@ -11,7 +11,7 @@ import {
 function generateMcmicroIoConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'Visium OOP',
+    name: 'SpatialData example dataset: mcmicro_io.zarr',
   });
   const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/spatialdata-september-2023/mcmicro_io.zarr';
   const dataset = config.addDataset('My dataset').addFile({

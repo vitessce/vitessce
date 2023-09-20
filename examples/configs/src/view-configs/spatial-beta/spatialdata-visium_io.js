@@ -11,7 +11,7 @@ import {
 function generateVisiumIoConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'Visium OOP',
+    name: 'SpatialData example dataset: visium_io.zarr',
   });
   const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/spatialdata-september-2023/visium_io.zarr';
   const dataset = config.addDataset('My dataset').addFile({
@@ -42,16 +42,33 @@ function generateVisiumIoConfig() {
     coordinationValues: {
       obsType: 'spot',
     },
+  }).addFile({
+    fileType: 'obsSets.spatialdata.zarr',
+    url: baseUrl,
+    options: {
+      obsSets: [
+        {
+          name: 'Region',
+          path: 'table/table/obs/region',
+        }
+      ],
+    },
+    coordinationValues: {
+      obsType: 'spot',
+    },
   });
 
   const spatialView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const heatmap = config.addView(dataset, 'heatmap');
-  // const obsSets = config.addView(dataset, 'obsSets');
+  const obsSets = config.addView(dataset, 'obsSets');
   const featureList = config.addView(dataset, 'featureList');
 
   const [featureSelectionScope] = config.addCoordination('featureSelection');
   featureSelectionScope.setValue(['Atp1b1']);
+
+  const [obsColorEncodingScope] = config.addCoordination('obsColorEncoding');
+  obsColorEncodingScope.setValue('geneSelection');
 
   config.linkViewsByObject([spatialView, lcView], {
     spatialTargetZ: 0,
@@ -70,17 +87,21 @@ function generateVisiumIoConfig() {
       spatialLayerOpacity: 0.5,
       spatialSpotRadius: 50.0,
       featureValueColormapRange: [0, 0.5],
-      obsColorEncoding: 'geneSelection',
+      obsColorEncoding: obsColorEncodingScope,
       featureSelection: featureSelectionScope,
     }),
   });
 
-  config.linkViews([featureList, heatmap], ['obsType'], ['spot']);
+  config.linkViews([featureList, heatmap, obsSets], ['obsType'], ['spot']);
 
   featureList.useCoordination(featureSelectionScope);
   heatmap.useCoordination(featureSelectionScope);
 
-  config.layout(hconcat(vconcat(spatialView, heatmap), vconcat(lcView, featureList)));
+  featureList.useCoordination(obsColorEncodingScope);
+  heatmap.useCoordination(obsColorEncodingScope);
+  obsSets.useCoordination(obsColorEncodingScope);
+
+  config.layout(hconcat(vconcat(spatialView, heatmap), vconcat(lcView, hconcat(featureList, obsSets))));
 
   const configJSON = config.toJSON();
   return configJSON;
