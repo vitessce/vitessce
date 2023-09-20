@@ -42,21 +42,22 @@ function generateVisiumIoConfig() {
     coordinationValues: {
       obsType: 'spot',
     },
-  }).addFile({
-    fileType: 'obsSets.spatialdata.zarr',
-    url: baseUrl,
-    options: {
-      obsSets: [
-        {
-          name: 'Region',
-          path: 'table/table/obs/region',
-        }
-      ],
-    },
-    coordinationValues: {
-      obsType: 'spot',
-    },
-  });
+  })
+    .addFile({
+      fileType: 'obsSets.spatialdata.zarr',
+      url: baseUrl,
+      options: {
+        obsSets: [
+          {
+            name: 'Region',
+            path: 'table/table/obs/region',
+          },
+        ],
+      },
+      coordinationValues: {
+        obsType: 'spot',
+      },
+    });
 
   const spatialView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta');
