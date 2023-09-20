@@ -77,18 +77,21 @@ function generateMcmicroIoConfig() {
         {
           spatialTargetC: 0,
           spatialChannelColor: [255, 255, 255],
+          spatialChannelWindow: null,
           spatialChannelVisible: true,
           spatialChannelOpacity: 1,
         },
         {
           spatialTargetC: 1,
           spatialChannelColor: [0, 255, 0],
+          spatialChannelWindow: null,
           spatialChannelVisible: false,
           spatialChannelOpacity: 1,
         },
         {
           spatialTargetC: 2,
           spatialChannelColor: [255, 0, 255],
+          spatialChannelWindow: null,
           spatialChannelVisible: false,
           spatialChannelOpacity: 1,
         },

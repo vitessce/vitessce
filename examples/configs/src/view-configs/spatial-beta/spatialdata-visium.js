@@ -72,7 +72,7 @@ function generateVisiumConfig() {
       spatialLayerVisible: true,
       spatialLayerOpacity: 0.5,
       spatialSpotRadius: 100.0,
-      featureValueColormapRange: [0, 1],
+      featureValueColormapRange: [0, 0.5],
       obsColorEncoding: 'geneSelection',
       featureSelection: featureSelectionScope,
     }),
