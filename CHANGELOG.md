@@ -1,4 +1,15 @@
 
+## 3.2.2
+
+### Patch Changes
+
+- Implement a workaround to allow for plugin zod schemas to be used. (`@vitessce/schemas`) ([#1696](https://github.com/vitessce/vitessce/pull/1696))
+
+- Upgrade Viv to get snapping scale bar. (`@vitessce/spatial-beta`, `@vitessce/spatial`, `@vitessce/image-utils`, `@vitessce/gl`) ([#1691](https://github.com/vitessce/vitessce/pull/1691))
+
+- Generate alt text based on existing view-types in config, add this to the VitessceGrid. (`@vitessce/vit-s`) ([#1695](https://github.com/vitessce/vitessce/pull/1695))
+
+
 ## 3.2.1
 
 ### Patch Changes
