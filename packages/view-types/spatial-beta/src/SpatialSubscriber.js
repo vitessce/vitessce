@@ -369,12 +369,6 @@ export function SpatialSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
-  // TODO: figure out how the indices are related.
-  if (obsSpotsData?.A?.obsIndex) {
-    obsSpotsData.A.obsIndex = spotMultiIndicesData?.A?.obsIndex;
-  }
-
-
   // Segmentations data
   const [obsSegmentationsLocationsData, obsSegmentationsLocationsDataStatus] = useSegmentationMultiObsLocations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
