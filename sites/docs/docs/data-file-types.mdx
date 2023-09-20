@@ -1063,6 +1063,55 @@ coordinationValues={`{
 }`}
 />
 
+### `obsSets.spatialdata.zarr`
+
+Maps each observation to membership in one or more sets.
+Typically used to assign cells to cell type labels or cell cluster IDs.
+To allow for multiple groups of sets to be be specified, `options.obsSets` takes an array.
+
+If a group of sets is organized as a flat list, then `"path"` points to a column containing string labels.
+Alternatively, if organized as a hierarchy, then `"path"` can point to an array of columns, progressing from coarser to finer labels.
+
+For example, the contents of `sdata.table.obs` might look like:
+
+| index | leiden | cell_type_coarse | cell_type_fine | pred_cell_type | pred_score |
+| ----- | ----- | ----- | ----- | ----- | ----- |
+| cell_1 | 1 | Immune | B cell | B cell | 0.81 |
+| cell_2 | 2 | Immune | T cell | T cell | 0.99 |
+| cell_3 | 2 | Immune | T cell | Macrophage | 0.21 |
+| cell_4 | 3 | Neuron | Excitatory neuron | Inhibitory neuron | 0.25 |
+| ... | ... | ... | ... | ... | ... |
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="obsSets.spatialdata.zarr"
+fileConst="OBS_SETS_SPATIALDATA_ZARR"
+options={`{
+  // Array of { name, path, ... } objects specifying columns containing set values.
+  "obsSets": [
+    {
+      "name": "Leiden Clustering",
+      "path": "table/table/obs/leiden"
+    },
+    {
+      "name": "Cell Type Annotations",
+      "path": ["table/table/obs/cell_type_coarse", "table/table/obs/cell_type_fine"]
+    },
+    {
+      "name": "Predicted Cell Types",
+      "path": "table/table/obs/pred_cell_type",
+      "scorePath": "table/table/obs/pred_score"
+    }
+  ],
+  // Region value to filter the rows of the table. Optional.
+  "region": "some_region",
+  // Path to table containing the index that is aligned to the set columns. Optional.
+  "tablePath": "table/table"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
 
 
 ## JSON

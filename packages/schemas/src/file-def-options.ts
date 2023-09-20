@@ -119,6 +119,9 @@ export const obsSetsSpatialdataSchema = z.object({
   region: z.string()
     .describe('The name of a region to use to filter instances (i.e., rows) in the table')
     .optional(),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which contains the index for the set values.'),
   obsSets: annDataObsSets,
 });
 

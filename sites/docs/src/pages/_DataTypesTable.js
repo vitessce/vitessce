@@ -141,6 +141,7 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#obssetscsv')}><code>obsSets.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssetsanndatazarr')}><code>obsSets.anndata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssetsmudatazarr')}><code>obsSets.mudata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssetsspatialdatazarr')}><code>obsSets.spatialdata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
