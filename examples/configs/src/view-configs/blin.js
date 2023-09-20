@@ -11,43 +11,9 @@ export const blin2019 = {
       name: 'idr0062-blin-nuclearsegmentation/6001240',
       files: [
         {
-          fileType: 'image.spatialdata.zarr',
-          url: 'http://localhost:8000/visium.zarr',
-          options: {
-            path: 'images/ST8059048_image',
-          },
+          fileType: 'image.ome-zarr',
+          url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr',
         },
-        {
-          fileType: 'obsFeatureMatrix.spatialdata.zarr',
-          url: 'http://localhost:8000/visium.zarr',
-          options: {
-            path: 'table/table/X',
-          },
-        },
-        {
-          fileType: 'obsSpots.spatialdata.zarr',
-          url: 'http://localhost:8000/visium.zarr',
-          options: {
-            // TODO: should '/coords' suffix be appended internally?
-            path: 'shapes/ST8059048_shapes/coords',
-          },
-        },
-        /*
-        {
-          fileType: 'image.raster.json',
-          options: {
-            schemaVersion: '0.0.2',
-            renderLayers: ['Image 1'],
-            images: [
-              {
-                name: 'Image 1',
-                type: 'ome-zarr',
-                url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr',
-              },
-            ]
-          }
-        }
-        */
       ],
     },
   ],
@@ -71,7 +37,7 @@ export const blin2019 = {
       h: 6,
     },
     {
-      component: 'featureList',
+      component: 'description',
       x: 8,
       y: 6,
       w: 4,
