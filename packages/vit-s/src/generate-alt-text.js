@@ -20,42 +20,23 @@ export function arrayToString(arr) {
 /**
    * Mapping of ViewType to natural language description of ViewType.
    */
-const ViewTypeToText = {
-  DESCRIPTION: 'description',
-  STATUS: 'status view for debugging',
-  SCATTERPLOT: 'scatterplot with embeddings',
-  SPATIAL: 'spatial view',
-  SPATIAL_BETA: 'spatial view',
-  HEATMAP: 'cell by gene heatmap',
-  LAYER_CONTROLLER: 'layer controller',
-  LAYER_CONTROLLER_BETA: 'layer controller',
-  GENOMIC_PROFILES: 'genome browser tracks with bar plots',
-  GATING: 'scatterplot of gated gene expression data',
-  FEATURE_LIST: 'interactive list of features',
-  OBS_SETS: 'list of potential observation sets',
-  OBS_SET_SIZES: 'sizes of selected observation sets',
-  OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'violin plot with values',
-  FEATURE_VALUE_HISTOGRAM: 'distribution of values',
-};
-
-/**
-   * Method for getting the mapping of the constants assigned to view types to natural language.
-   * In constants-internal, the ViewType 'OBS_SETS' might be assigned to 'obsSets'.
-   * In generate-alt-text, the ViewType 'OBS_SETS' might be described as
-   * 'list of potential observation sets'.
-   * This method then returns a mapping including ['obsSets', 'list of potential observation sets'].
-   * @returns {Map} Mapping of constants to natural language.
-   */
-export function getViewTypesMap() {
-  const ViewTypeMap = new Map(Object.entries(ViewType));
-  const KeyTextMap = new Map(Object.entries(ViewTypeToText));
-
-  let viewTypeToTextMap = Array.from(KeyTextMap, ([key, value]) => [ViewTypeMap.get(key), value]);
-  viewTypeToTextMap = viewTypeToTextMap.filter(item => item[0] !== undefined);
-  viewTypeToTextMap = new Map(viewTypeToTextMap);
-
-  return viewTypeToTextMap;
-}
+export const ViewTypesToText = new Map([
+  [ViewType.DESCRIPTION, 'description'],
+  [ViewType.STATUS, 'status view for debugging'],
+  [ViewType.SCATTERPLOT, 'scatterplot with embeddings'],
+  [ViewType.SPATIAL, 'spatial view'],
+  [ViewType.SPATIAL_BETA, 'spatial view'],
+  [ViewType.HEATMAP, 'cell by gene heatmap'],
+  [ViewType.LAYER_CONTROLLER, 'layer controller'],
+  [ViewType.LAYER_CONTROLLER_BETA, 'layer controller'],
+  [ViewType.GENOMIC_PROFILES, 'genome browser tracks with bar plots'],
+  [ViewType.GATING, 'scatterplot of gated gene expression data'],
+  [ViewType.FEATURE_LIST, 'interactive list of features'],
+  [ViewType.OBS_SETS, 'list of potential observation sets'],
+  [ViewType.OBS_SET_SIZES, 'sizes of selected observation sets'],
+  [ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION, 'violin plot with values'],
+  [ViewType.FEATURE_VALUE_HISTOGRAM, 'distribution of values'],
+]);
 
 /**
    * Method for converting an array with strings to a natural sentence,
@@ -65,7 +46,6 @@ export function getViewTypesMap() {
    */
 export function getAltText(config) {
   const componentList = config.layout.map(c => c.component);
-  const viewTypeToTextMap = getViewTypesMap();
-  const altText = `Vitessce grid with ${componentList.length} views, including ${arrayToString(componentList.map(c => viewTypeToTextMap.get(c)))}.`;
+  const altText = `Vitessce grid with ${componentList.length} views, including ${arrayToString(componentList.map(c => ViewTypesToText.get(c) || 'plugin view'))}.`;
   return altText;
 }
