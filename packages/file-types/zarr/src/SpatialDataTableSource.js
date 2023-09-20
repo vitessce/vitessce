@@ -22,21 +22,36 @@ export function getVarPath(arrPath) {
 }
 
 export default class SpatialDataTableSource extends AnnDataSource {
+  async loadSpatialDataAttrs(tablePath) {
+    return this._loadDict(`${tablePath}uns/spatialdata_attrs`, ['instance_key', 'region', 'region_key']);
+  }
+
   /**
    * Class method for loading the obs index.
    * @returns {Promise} An promise for a zarr array containing the indices.
    */
-  loadObsIndex(path = null) {
+  async loadObsIndex(path = null) {
     if (!this.obsIndex) {
       this.obsIndex = {};
     }
     const obsPath = getObsPath(path);
-    if (this.obsIndex[obsPath]) {
-      return this.obsIndex[obsPath];
+    const { _index } = await this.getJson(`${obsPath}/.zattrs`);
+    let indexPath = `${obsPath}/${_index}`;
+
+    const {
+      instance_key: instanceKey,
+      // TODO: filter table index by region and element type.
+      // region_key: regionKey,
+      // region,
+    } = await this.loadSpatialDataAttrs(getTablePrefix(path));
+
+    indexPath = `${obsPath}/${instanceKey}`;
+
+    if (this.obsIndex[indexPath]) {
+      return this.obsIndex[indexPath];
     }
-    this.obsIndex[obsPath] = this.getJson(`${obsPath}/.zattrs`)
-      .then(({ _index }) => this.getFlatArrDecompressed(`${obsPath}/${_index}`));
-    return this.obsIndex[obsPath];
+    this.obsIndex[indexPath] = this._loadColumn(indexPath);
+    return this.obsIndex[indexPath];
   }
 
   /**

@@ -127,6 +127,7 @@ import {
   SpatialDataTableSource,
   SpatialDataShapesSource,
   SpatialDataImageLoader,
+  SpatialDataLabelsLoader,
   SpatialDataObsSpotsLoader,
   // Legacy
   ZarrDataSource,
@@ -225,7 +226,7 @@ export const baseFileTypes = [
   // SpatialData file types
   makeFileType(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),
   // TODO: create a new loader for labels that returns obsSegmentations with obsSegmentationsType: 'bitmask'
-  makeFileType(FileType.LABELS_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataImageLoader, ZarrDataSource, obsSegmentationsSpatialdataSchema),
+  makeFileType(FileType.LABELS_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataLabelsLoader, ZarrDataSource, obsSegmentationsSpatialdataSchema),
   // TODO: create a new loader for shapes that returns obsSegmentations with obsSegmentationsType: 'polygon' (or switch this to 'shape' everywhere?)
   // TODO: create a new source for GeoPandas tables?
   makeFileType(FileType.SHAPES_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, SpatialDataShapesSource, obsSegmentationsSpatialdataSchema),

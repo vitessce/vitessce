@@ -63,10 +63,10 @@ import {
         imageChannel: CL([
           {
             spatialTargetC: 0,
-            spatialChannelColor: [255, 0, 0],
+            spatialChannelColor: [255, 255, 255],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1,
-            spatialChannelWindow: [0, 255],
+            spatialChannelWindow: [0, 1000],
           },
         ]),
       }),
