@@ -6,12 +6,15 @@ import {
   vconcat,
 } from '@vitessce/config';
 
-// Reference: https://portal.hubmapconsortium.org/browse/dataset/8d86e6c899e80d0f5f95604eb4ad492e
+// References:
+// - https://mcmicro.org/datasets/
+// - https://www.synapse.org/#!Synapse:syn22345748/wiki/609239
 
 function generateMcmicroIoConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'SpatialData example dataset: mcmicro_io.zarr',
+    name: 'Schapiro et al., Nature Methods 2022',
+    description: 'Small lung adenocarcinoma specimen from a tissue microarray (TMA), imaged using CyCIF.',
   });
   const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/spatialdata-september-2023/mcmicro_io.zarr';
   const dataset = config.addDataset('My dataset').addFile({

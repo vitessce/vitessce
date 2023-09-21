@@ -6,12 +6,14 @@ import {
   vconcat,
 } from '@vitessce/config';
 
-// Reference: https://portal.hubmapconsortium.org/browse/dataset/8d86e6c899e80d0f5f95604eb4ad492e
+// Reference: https://github.com/giovp/spatialdata-sandbox/blob/3da0af016d3ddd85f1d63a9c03a67b240b012bd0/visium_io/download.py#L15
+
 
 function generateVisiumIoConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'SpatialData example dataset: visium_io.zarr',
+    name: 'Adult mouse olfactory bulb, 10x Genomics',
+    description: 'Visium Spatial Gene Expression data from 10x Genomics',
   });
   const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/spatialdata-september-2023/visium_io.zarr';
   const dataset = config.addDataset('My dataset').addFile({

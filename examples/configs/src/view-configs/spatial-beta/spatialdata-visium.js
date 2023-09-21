@@ -6,12 +6,14 @@ import {
   vconcat,
 } from '@vitessce/config';
 
-// Reference: https://portal.hubmapconsortium.org/browse/dataset/8d86e6c899e80d0f5f95604eb4ad492e
+// Sample ST8059049 from E-MTAB-11114
+// Reference: https://github.com/giovp/spatialdata-sandbox/blob/3da0af016d3ddd85f1d63a9c03a67b240b012bd0/visium/README.md
 
 function generateVisiumConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'SpatialData example dataset: visium.zarr',
+    name: 'Kleshchevnikov et al., Nature Biotechnology 2022',
+    description: 'Mouse brain section profiled by 10x Visium and converted to SpatialData by Marconato et al., bioRxiv 2023.',
   });
   const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/spatialdata-september-2023/visium.zarr';
   const dataset1 = config.addDataset('D1').addFile({
