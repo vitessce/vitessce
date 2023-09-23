@@ -1171,6 +1171,9 @@ importers:
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s
+      clsx:
+        specifier: ^1.1.1
+        version: 1.2.1
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21

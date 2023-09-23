@@ -13,8 +13,9 @@ const useStyles = makeStyles(() => ({
 }));
 
 function getCheckboxColor(colormapOn, color, theme) {
-  if(theme === 'light' && isEqual(color, [255, 255, 255])) {
-    return toRgbUIString(colormapOn, [132, 132, 132], theme); // Use gray instead of white on white background.
+  if (theme === 'light' && isEqual(color, [255, 255, 255])) {
+    // Use gray instead of white on white background.
+    return toRgbUIString(colormapOn, [132, 132, 132], theme);
   }
   return toRgbUIString(colormapOn, color, theme);
 }
@@ -33,7 +34,7 @@ export default function ChannelVisibilityCheckbox(props) {
     colormapOn,
   } = props;
   const rgbColor = getCheckboxColor(colormapOn, color, theme);
-  
+
   const classes = useStyles();
   return (
     <Checkbox

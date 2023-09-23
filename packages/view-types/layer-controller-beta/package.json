@@ -46,7 +46,8 @@
     "plur": "^5.1.0",
     "react-color-with-lodash": "^2.19.5",
     "@tanstack/react-query": "^4.29.12",
-    "react-aria": "^3.28.0"
+    "react-aria": "^3.28.0",
+    "clsx": "^1.1.1"
   },
   "devDependencies": {
     "react": "^18.0.0",
