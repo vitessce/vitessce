@@ -9,7 +9,9 @@ describe('Vitessce Data URIs', () => {
   beforeEach(() => {
     // Any request we do not explicitly route will return 404,
     // so we won't end up depending on outside resources by accident.
-    cy.server({ force404: true });
+    // Removed in Cypress v12
+    // Reference: https://github.com/cypress-io/cypress/issues/9358#issuecomment-750231567
+    // cy.server({ force404: true });
   });
 
   it('loads valid data URI', () => {
