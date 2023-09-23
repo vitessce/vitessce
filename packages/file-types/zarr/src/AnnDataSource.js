@@ -98,7 +98,7 @@ export default class AnnDataSource extends ZarrDataSource {
   loadNumeric(path) {
     const { storeRoot } = this;
     return zarrOpen(storeRoot.resolve(path), { kind: 'array' })
-      .then(arr => zarrGet(arr, arr.shape.map(() => null)));
+      .then(arr => zarrGet(arr));
   }
 
   /**
