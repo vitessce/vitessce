@@ -61,14 +61,14 @@ export default class AnnDataSource extends ZarrDataSource {
     let categoriesValues;
     let codes;
     if (categories) {
-      const { dtype } = await zarrOpen((await storeRoot).resolve(`/${prefix}/${categories}`));
+      const { dtype } = await zarrOpen(storeRoot.resolve(`/${prefix}/${categories}`));
       if (dtype === 'v2:object') {
         categoriesValues = await this.getFlatArrDecompressed(
           `/${prefix}/${categories}`,
         );
       }
     } else if (encodingType === 'categorical') {
-      const { dtype } = await zarrOpen((await storeRoot).resolve(`/${path}/categories`));
+      const { dtype } = await zarrOpen(storeRoot.resolve(`/${path}/categories`));
       if (dtype === 'v2:object') {
         categoriesValues = await this.getFlatArrDecompressed(
           `/${path}/categories`,
@@ -76,12 +76,12 @@ export default class AnnDataSource extends ZarrDataSource {
       }
       codes = `/${path}/codes`;
     } else {
-      const { dtype } = await zarrOpen((await storeRoot).resolve(`/${path}`));
+      const { dtype } = await zarrOpen(storeRoot.resolve(`/${path}`));
       if (dtype === 'v2:object') {
         return this.getFlatArrDecompressed(path);
       }
     }
-    const arr = await zarrOpen((await storeRoot).resolve(codes || path), { kind: 'array' });
+    const arr = await zarrOpen(storeRoot.resolve(codes || path), { kind: 'array' });
     const values = await zarrGet(arr, [null]);
     const { data } = values;
     const mappedValues = Array.from(data).map(
@@ -97,8 +97,7 @@ export default class AnnDataSource extends ZarrDataSource {
    */
   loadNumeric(path) {
     const { storeRoot } = this;
-    return storeRoot
-      .then(root => zarrOpen(root.resolve(path), { kind: 'array' }))
+    return zarrOpen(storeRoot.resolve(path), { kind: 'array' })
       .then(arr => zarrGet(arr, arr.shape.map(() => null)));
   }
 
@@ -110,7 +109,7 @@ export default class AnnDataSource extends ZarrDataSource {
    */
   loadNumericForDims(path, dims) {
     const { storeRoot } = this;
-    const arr = storeRoot.then(root => zarrOpen(root.resolve(path), { kind: 'array' }));
+    const arr = zarrOpen(storeRoot.resolve(path), { kind: 'array' });
     return Promise.all(
       dims.map(dim => arr.then(
         loadedArr => zarrGet(loadedArr, [null, dim]),
@@ -129,7 +128,7 @@ export default class AnnDataSource extends ZarrDataSource {
    */
   async getFlatArrDecompressed(path) {
     const { storeRoot } = this;
-    const arr = await zarrOpen((await storeRoot).resolve(path), { kind: 'array' });
+    const arr = await zarrOpen(storeRoot.resolve(path), { kind: 'array' });
     // Zarrita supports decoding vlen-utf8-encoded string arrays.
     const data = await zarrGet(arr, [null]);
     return data.data;
@@ -184,8 +183,7 @@ export default class AnnDataSource extends ZarrDataSource {
     const { 'encoding-type': encodingType, 'encoding-version': encodingVersion } = await this._loadAttrs(path);
 
     if (encodingType === 'string' && encodingVersion === '0.2.0') {
-      const root = await storeRoot;
-      const arr = await zarrOpen(root.resolve(path), { kind: 'array' });
+      const arr = await zarrOpen(storeRoot.resolve(path), { kind: 'array' });
       // TODO: Use zarrGet once it supports zero-dimensional array access.
       const { data } = await arr.getChunk([]);
       return data.get(0);

@@ -117,13 +117,14 @@ function withDefaults(
  * Create a mapping from dataset ID to loader objects by data type.
  * @param {object[]} datasets The datasets array from the view config.
  * @param {string} configDescription The top-level description in the
+ * view config.
  * @param {PluginFileType[]} fileTypes
  * @param {PluginCoordinationType[]} coordinationTypes
- * view config.
+ * @param {object} stores Optional mapping from URLs to Zarrita stores.
  * @returns {object} Mapping from dataset ID to data type to loader
  * instance.
  */
-export function createLoaders(datasets, configDescription, fileTypes, coordinationTypes) {
+export function createLoaders(datasets, configDescription, fileTypes, coordinationTypes, stores) {
   const result = {};
   const dataSources = new InternMap([], JSON.stringify);
   const defaultCoordinationValues = fromEntries(
@@ -160,7 +161,13 @@ export function createLoaders(datasets, configDescription, fileTypes, coordinati
       const dataSourceName = DataSourceClass.prototype.constructor.name;
       const dataSourceKey = [fileId, dataSourceName];
       if (!dataSources.has(dataSourceKey)) {
-        dataSources.set(dataSourceKey, new DataSourceClass({ url, requestInit }));
+        dataSources.set(dataSourceKey, new DataSourceClass({
+          url,
+          requestInit,
+          // Optionally, pass a Zarrita store to the data source,
+          // if one was mapped to this URL.
+          store: stores?.[url],
+        }));
       }
       const loader = new LoaderClass(dataSources.get(dataSourceKey), file);
       if (datasetLoaders.loaders[dataType]) {

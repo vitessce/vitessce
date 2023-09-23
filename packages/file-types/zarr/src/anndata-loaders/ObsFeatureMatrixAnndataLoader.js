@@ -111,7 +111,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       return this.sparseArrays;
     }
     this.sparseArrays = Promise.all(
-      ['indptr', 'indices', 'data'].map(name => storeRoot.then(root => zarrOpen(root.resolve(`${matrix}/${name}`), { kind: 'array' }))),
+      ['indptr', 'indices', 'data'].map(name => zarrOpen(storeRoot.resolve(`${matrix}/${name}`), { kind: 'array' })),
     );
     return this.sparseArrays;
   }
@@ -262,7 +262,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
         this.cellXGene = this._loadCSCSparseCellXGene().then(data => toObject(data));
       } else {
         if (!this.arr) {
-          this.arr = zarrOpen((await storeRoot).resolve(matrix), { kind: 'array' });
+          this.arr = zarrOpen(storeRoot.resolve(matrix), { kind: 'array' });
         }
         this.cellXGene = this.arr
           .then(z => createZarrArrayAdapter(z).getRaw(null))
@@ -316,7 +316,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       genes = await this._loadCSRGeneSelection(selection);
     } else {
       if (!this.arr) {
-        this.arr = zarrOpen((await storeRoot).resolve(matrix), { kind: 'array' });
+        this.arr = zarrOpen(storeRoot.resolve(matrix), { kind: 'array' });
       }
       const indices = await this._getGeneIndices(selection);
       // We can index directly into a normal dense array zarr store via `get`.

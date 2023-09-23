@@ -19,7 +19,7 @@ export default class MatrixZarrAsObsFeatureMatrixLoader extends AbstractTwoStepL
     if (this.arr) {
       return this.arr;
     }
-    const z = await zarrOpen((await storeRoot), { kind: 'array' });
+    const z = await zarrOpen(storeRoot, { kind: 'array' });
     this.arr = await createZarrArrayAdapter(z).getRaw([null, null]);
     return this.arr;
   }

@@ -4,7 +4,7 @@ import { root as zarrRoot, FetchStore } from 'zarrita';
 import { lru } from './lru-store.js';
 
 
-export async function openLru(url: string, requestInit: RequestInit) {
+export function openLru(url: string, requestInit: RequestInit) {
   const store: Readable = new FetchStore(url, { overrides: requestInit });
 
   // Wrap remote stores in a cache
