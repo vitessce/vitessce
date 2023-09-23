@@ -3,6 +3,7 @@ import {
   Checkbox,
   makeStyles,
 } from '@material-ui/core';
+import { isEqual } from 'lodash-es';
 import { toRgbUIString } from '@vitessce/spatial-utils';
 
 const useStyles = makeStyles(() => ({
@@ -10,6 +11,13 @@ const useStyles = makeStyles(() => ({
     padding: '8px 0',
   },
 }));
+
+function getCheckboxColor(colormapOn, color, theme) {
+  if(theme === 'light' && isEqual(color, [255, 255, 255])) {
+    return toRgbUIString(colormapOn, [132, 132, 132], theme); // Use gray instead of white on white background.
+  }
+  return toRgbUIString(colormapOn, color, theme);
+}
 
 /**
  * Checkbox for toggling on/off of a channel.
@@ -24,7 +32,8 @@ export default function ChannelVisibilityCheckbox(props) {
     theme,
     colormapOn,
   } = props;
-  const rgbColor = toRgbUIString(colormapOn, color, theme);
+  const rgbColor = getCheckboxColor(colormapOn, color, theme);
+  
   const classes = useStyles();
   return (
     <Checkbox

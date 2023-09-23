@@ -64,8 +64,9 @@ function generateMcmicroIoConfig() {
   // const obsSets = config.addView(dataset, 'obsSets');
   const featureList = config.addView(dataset, 'featureList');
 
-  const [featureSelectionScope] = config.addCoordination('featureSelection');
+  const [featureSelectionScope, colormapScope] = config.addCoordination('featureSelection', 'featureValueColormap');
   featureSelectionScope.setValue(['DNA_6']);
+  colormapScope.setValue('plasma');
 
   config.linkViewsByObject([spatialView, lcView], {
     spatialTargetZ: 0,
@@ -120,6 +121,7 @@ function generateMcmicroIoConfig() {
             spatialSegmentationStrokeWidth: 0.01,
             obsHighlight: null,
             featureSelection: featureSelectionScope,
+            featureValueColormap: colormapScope,
             featureValueColormapRange: [0, 0.5],
           },
         ]),
@@ -153,6 +155,7 @@ function generateMcmicroIoConfig() {
 
   featureList.useCoordination(featureSelectionScope);
   heatmap.useCoordination(featureSelectionScope);
+  heatmap.useCoordination(colormapScope);
 
   config.layout(hconcat(vconcat(spatialView, heatmap), vconcat(lcView, /* obsSets, */ featureList)));
 
