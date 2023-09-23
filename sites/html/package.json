@@ -13,7 +13,7 @@
     "vitessce": "workspace:*"
   },
   "devDependencies": {
-    "cypress": "^10.10.0",
+    "cypress": "^12.15.0",
     "http-server": "^14.0.0"
   },
   "license": "MIT"
