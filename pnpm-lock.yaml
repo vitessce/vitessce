@@ -325,10 +325,6 @@ importers:
       zarrita:
         specifier: 0.4.0-next.2
         version: 0.4.0-next.2
-    devDependencies:
-      '@zarrita/storage':
-        specifier: 0.0.2
-        version: 0.0.2
 
   packages/gl:
     dependencies:
@@ -10526,6 +10522,7 @@ packages:
     dependencies:
       reference-spec-reader: 0.2.0
       unzipit: 1.4.3
+    dev: false
 
   /@zarrita/storage@0.1.0-next.1:
     resolution: {integrity: sha512-Xbo/I6hXIsFP7rQyS8yEaLt9lto2eDsMcCo5uLDfrsHw+cMNhfzV4DLyqSqgp/Q6HLkyAp+1Qv5rEnF+T7yVHA==}
@@ -21609,6 +21606,7 @@ packages:
 
   /reference-spec-reader@0.2.0:
     resolution: {integrity: sha512-q0mfCi5yZSSHXpCyxjgQeaORq3tvDsxDyzaadA/5+AbAUwRyRuuTh0aRQuE/vAOt/qzzxidJ5iDeu1cLHaNBlQ==}
+    dev: false
 
   /reflect.ownkeys@0.2.0:
     resolution: {integrity: sha512-qOLsBKHCpSOFKK1NUOCGC5VyeufB6lEsFe92AL2bhIJsacZS1qdoOZSbPk3MYKuT2cFlRDnulKXuuElIrMjGUg==}
@@ -23890,6 +23888,7 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       uzip-module: 1.0.3
+    dev: false
 
   /upath@1.2.0:
     resolution: {integrity: sha512-aZwGpamFO61g3OlfT7OQCHqhGnW43ieH9WZeP7QxN/G/jS4jfqUkZxoryvJgVPEcrl5NL/ggHsSmLMHuH64Lhg==}
@@ -24103,6 +24102,7 @@ packages:
 
   /uzip-module@1.0.3:
     resolution: {integrity: sha512-AMqwWZaknLM77G+VPYNZLEruMGWGzyigPK3/Whg99B3S6vGHuqsyl5ZrOv1UUF3paGK1U6PM0cnayioaryg/fA==}
+    dev: false
 
   /v8-compile-cache@2.3.0:
     resolution: {integrity: sha512-l8lCEmLcLYZh4nbunNZvQCJc5pv7+RCwa8q/LdUx8u7lsWvPDKmpodJAJNwkAhJC//dFY48KuIEmjtd4RViDrA==}
