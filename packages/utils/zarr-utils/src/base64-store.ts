@@ -1,5 +1,8 @@
-
 function base64Decode(encoded: string) {
+  // We do not want to use Buffer.from(encoded, 'base64') because
+  // Buffer is not available in the browser and we do not want
+  // to add a dependency on a polyfill if we dont have to.
+  // Reference: https://stackoverflow.com/a/41106346
   return Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
 }
 

@@ -5,6 +5,8 @@
 // Usage:
 // node scripts/directory-to-memory-store.mjs ./path/to/something.zarr ./path/to/output.json
 
+// To read this store, see code in packages/utils/zarr-utils/base64-store.ts
+
 import { join } from 'node:path';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 
