@@ -9,9 +9,10 @@ const defaultPoolSize = typeof navigator !== 'undefined' ? navigator.hardwareCon
  * This is a line-for-line copy of GeoTIFFs old implementation: https://github.com/geotiffjs/geotiff.js/blob/v1.0.0-beta.6/src/pool.js
  */
 export default class Pool {
-
   workers: Worker[];
+
   idleWorkers: Worker[];
+
   waitQueue: { resolve?: (worker: Worker) => void }[];
 
   /**

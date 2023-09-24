@@ -103,7 +103,9 @@ export function getCellColors(params: GetCellColorsParams): Map<string, number[]
   } = params;
   if (cellSetSelection && cellSets) {
     // TODO(ts): fix typing here once better typing in sets-utils.
-    return treeToCellColorsBySetNames(cellSets, cellSetSelection, cellSetColor as object[], theme as string);
+    return treeToCellColorsBySetNames(
+      cellSets, cellSetSelection, cellSetColor as object[], theme as string,
+    );
   }
   if (obsIndex && theme) {
     return new Map(obsIndex.map(o => ([o, getDefaultColor(theme)])));
