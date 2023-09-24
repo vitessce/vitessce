@@ -13,18 +13,18 @@ export const VALUE_TRANSFORM_OPTIONS = [
  * as a parameter and returns the transformed number
  * (or the original number in the identity case).
  */
-export function getValueTransformFunction(featureValueTransform, coefficient) {
+export function getValueTransformFunction(featureValueTransform: 'log1p' | 'arcsinh' | null, coefficient: number) {
   // Set transform function
   let transformFunction;
   switch (featureValueTransform) {
     case 'log1p':
-      transformFunction = v => Math.log(1 + v * coefficient);
+      transformFunction = (v: number) => Math.log(1 + v * coefficient);
       break;
     case 'arcsinh':
-      transformFunction = v => Math.asinh(v * coefficient);
+      transformFunction = (v: number) => Math.asinh(v * coefficient);
       break;
     default:
-      transformFunction = v => v;
+      transformFunction = (v: number) => v;
   }
   return transformFunction;
 }

@@ -6,12 +6,12 @@ plur.addPluralRule('glomerulus', 'glomeruli');
 plur.addPluralRule('interstitium', 'interstitia');
 
 // Adapted from https://github.com/feross/fromentries/blob/29b52a850bb3a47c390937631c2638edf3443942/index.js
-export function fromEntries(iterable) {
+export function fromEntries(iterable: [string, any][]): { [key: string]: any } {
   return [...iterable]
     .reduce((obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }), {});
 }
 
-export function commaNumber(n) {
+export function commaNumber(n: number) {
   const nf = new Intl.NumberFormat('en-US');
   return nf.format(n);
 }
@@ -21,7 +21,7 @@ export function commaNumber(n) {
  * @param {string} word A string to capitalize.
  * @returns {string} The word parameter with the first letter capitalized.
  */
-export function capitalize(word) {
+export function capitalize(word: string | null) {
   return word ? word.charAt(0).toUpperCase() + word.slice(1) : '';
 }
 
@@ -30,7 +30,7 @@ export function capitalize(word) {
  * @param {string} word A string to capitalize.
  * @returns {string} The word parameter with the first letter capitalized.
  */
-export function pluralize(word, count = null) {
+export function pluralize(word: string, count: number | null = null) {
   return plur(word, count);
 }
 
@@ -39,7 +39,7 @@ export function pluralize(word, count = null) {
  * @param {string[]} strings The array of strings.
  * @returns The longest string.
  */
-export function getLongestString(strings) {
+export function getLongestString(strings: string[]) {
   return strings.reduce(
     (prevLongest, currentValue) => (
       prevLongest.length > currentValue.length ? prevLongest : currentValue
@@ -57,7 +57,7 @@ export function getLongestString(strings) {
  * @param {string[]} prevScopes Previous scope names.
  * @returns {string} The new scope name.
  */
-export function getNextScope(prevScopes) {
+export function getNextScope(prevScopes: string[]) {
   // Keep an ordered list of valid characters.
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   // Store the value of the next character for each position
@@ -69,7 +69,7 @@ export function getNextScope(prevScopes) {
   // potentially conflicting with an existing name.
   // Reference: https://stackoverflow.com/a/12504061
   function next() {
-    const r = [];
+    const r: string[] = [];
     nextCharIndices.forEach((charIndex) => {
       r.unshift(chars[charIndex]);
     });

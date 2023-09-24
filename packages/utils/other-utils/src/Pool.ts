@@ -2,22 +2,27 @@
 // We need to give a different way of getting this for safari, so 4 is probably a safe bet
 // for parallel processing in the meantime.  More can't really hurt since they'll just block
 // each other and not the UI thread, which is the real benefit.
-const defaultPoolSize = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency || 4 : null;
+const defaultPoolSize = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency || 4 : 1;
 
 /**
  * Pool for workers to decode chunks of the images.
  * This is a line-for-line copy of GeoTIFFs old implementation: https://github.com/geotiffjs/geotiff.js/blob/v1.0.0-beta.6/src/pool.js
  */
 export default class Pool {
+  workers: Worker[];
+
+  idleWorkers: Worker[];
+
+  waitQueue: { resolve?: (worker: Worker) => void }[];
+
   /**
    * @constructor
    * @param {object} Worker The worker class to be used for processing.
    */
-  constructor(createWorker) {
+  constructor(createWorker: () => Worker) {
     this.workers = [];
     this.idleWorkers = [];
     this.waitQueue = [];
-    this.decoder = null;
 
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < defaultPoolSize; ++i) {
@@ -37,7 +42,7 @@ export default class Pool {
     if (idleWorker) {
       return idleWorker;
     }
-    const waiter = {};
+    const waiter: { resolve?: (worker: Worker) => void } = {};
     const promise = new Promise((resolve) => {
       waiter.resolve = resolve;
     });
@@ -46,9 +51,9 @@ export default class Pool {
     return promise;
   }
 
-  async finishTask(currentWorker) {
+  async finishTask(currentWorker: Worker) {
     const waiter = this.waitQueue.pop();
-    if (waiter) {
+    if (waiter && waiter.resolve) {
       waiter.resolve(currentWorker);
     } else {
       this.idleWorkers.push(currentWorker);
