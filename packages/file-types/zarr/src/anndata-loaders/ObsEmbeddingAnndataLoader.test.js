@@ -1,11 +1,16 @@
-/* eslint-disable func-names */
+/* eslint-disable func-names, camelcase */
 import { describe, it, expect } from 'vitest';
 import { LoaderResult } from '@vitessce/vit-s';
+import { createStoreFromMapContents } from '@vitessce/zarr-utils';
 import ObsEmbeddingAnndataLoader from './ObsEmbeddingAnndataLoader.js';
 import AnnDataSource from '../AnnDataSource.js';
 import MuDataSource from '../MuDataSource.js';
+import anndata_0_7_DenseFixture from '../json-fixtures/anndata-0.7/anndata-dense.json';
+import mudata_0_2_DenseFixture from '../json-fixtures/mudata-0.2/mudata-dense.json';
+import mudata_0_2_DenseUpdatedFixture from '../json-fixtures/mudata-0.2/mudata-dense-updated.json';
 
-const createAnndataLoader = (url) => {
+const createAnndataLoader = (url, mapContents) => {
+  const store = createStoreFromMapContents(mapContents);
   const config = {
     url,
     fileType: 'obsEmbedding.anndata.zarr',
@@ -16,11 +21,12 @@ const createAnndataLoader = (url) => {
       embeddingType: 'UMAP',
     },
   };
-  const source = new AnnDataSource(config);
+  const source = new AnnDataSource({ ...config, store });
   return new ObsEmbeddingAnndataLoader(source, config);
 };
 
-const createMudataLoader = (url) => {
+const createMudataLoader = (url, mapContents) => {
+  const store = createStoreFromMapContents(mapContents);
   const config = {
     url,
     fileType: 'obsEmbedding.mudata.zarr',
@@ -31,14 +37,15 @@ const createMudataLoader = (url) => {
       embeddingType: 'UMAP',
     },
   };
-  const source = new MuDataSource(config);
+  const source = new MuDataSource({ ...config, store });
   return new ObsEmbeddingAnndataLoader(source, config);
 };
 
 describe('loaders/ObsEmbeddingAnndataLoader for AnnData', () => {
   it('load returns obsIndex and obsEmbedding', async () => {
     const loader = createAnndataLoader(
-      'http://localhost:4204/@fixtures/zarr/anndata-0.7/anndata-dense.zarr',
+      '@fixtures/zarr/anndata-0.7/anndata-dense.zarr',
+      anndata_0_7_DenseFixture,
     );
     const result = await loader.load();
     expect(result).toBeInstanceOf(LoaderResult);
@@ -52,7 +59,8 @@ describe('loaders/ObsEmbeddingAnndataLoader for AnnData', () => {
 
   it('load returns obsIndex and obsEmbedding for MuData', async () => {
     const loader = createMudataLoader(
-      'http://localhost:4204/@fixtures/zarr/mudata-0.2/mudata-dense.zarr',
+      '@fixtures/zarr/mudata-0.2/mudata-dense.zarr',
+      mudata_0_2_DenseFixture,
     );
     const result = await loader.load();
     expect(result).toBeInstanceOf(LoaderResult);
@@ -66,7 +74,8 @@ describe('loaders/ObsEmbeddingAnndataLoader for AnnData', () => {
 
   it('load returns obsIndex and obsEmbedding for updated MuData', async () => {
     const loader = createMudataLoader(
-      'http://localhost:4204/@fixtures/zarr/mudata-0.2/mudata-dense-updated.zarr',
+      '@fixtures/zarr/mudata-0.2/mudata-dense-updated.zarr',
+      mudata_0_2_DenseUpdatedFixture,
     );
     const result = await loader.load();
     expect(result).toBeInstanceOf(LoaderResult);
