@@ -41,5 +41,8 @@
     "d3-array": "^2.4.0",
     "lodash-es": "^4.17.21",
     "zarrita": "0.4.0-next.2"
+  },
+  "devDependencies": {
+    "@zarrita/storage": "0.0.2"
   }
 }
