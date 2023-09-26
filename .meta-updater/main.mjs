@@ -16,7 +16,7 @@ const OTHER_VERSIONS = {
   'react-grid-layout-with-lodash': '^1.3.5',
   "internmap": "^2.0.3",
   "uuid": "^9.0.0",
-  "zarrita": "0.4.0-next.2",
+  "zarrita": "0.4.0-next.4",
   "@zarrita/core": "0.0.3",
   "@zarrita/indexing": "0.0.3",
   "@zarrita/storage": "0.0.2",

@@ -1,4 +1,4 @@
-import { openLru } from '@vitessce/zarr-utils';
+import { zarrOpenRoot } from '@vitessce/zarr-utils';
 import { open as zarrOpen, root as zarrRoot } from 'zarrita';
 
 /**
@@ -11,7 +11,7 @@ export default class ZarrDataSource {
       // TODO: check here that it is a valid Zarrita Readable?
       this.storeRoot = zarrRoot(store);
     } else {
-      this.storeRoot = openLru(url, requestInit);
+      this.storeRoot = zarrOpenRoot(url, requestInit);
     }
   }
 

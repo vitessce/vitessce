@@ -8,7 +8,7 @@ import {
   ZarritaPixelSource,
 } from '@vitessce/spatial-utils';
 import { open as zarrOpen } from 'zarrita';
-import { openLru, createZarrArrayAdapter } from '@vitessce/zarr-utils';
+import { zarrOpenRoot, createZarrArrayAdapter } from '@vitessce/zarr-utils';
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import { rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
 import JsonLoader from '../json-loaders/JsonLoader.js';
@@ -25,7 +25,7 @@ async function initLoader(imageData) {
       } = metadata || {};
       const labels = dimensions.map(d => d.field);
       let source;
-      const root = await openLru(url, requestInit);
+      const root = await zarrOpenRoot(url, requestInit);
       if (isPyramid) {
         const metadataUrl = `${url}${
           url.slice(-1) === '/' ? '' : '/'
