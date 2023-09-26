@@ -53,12 +53,12 @@ type BoundingCube = [
  * A wrapper around the Viv loader, to provide a common interface for
  * all image file types.
  */
-export default class ImageWrapper<S extends string[]> {
-  vivLoader: VivLoaderType<S>;
+export default class ImageWrapper {
+  vivLoader: VivLoaderType<string[]>;
 
   options: ImageOptions;
 
-  constructor(vivLoader: VivLoaderType<S>, options: ImageOptions) {
+  constructor(vivLoader: VivLoaderType<string[]>, options: ImageOptions) {
     this.options = options || {};
     this.vivLoader = vivLoader;
   }
@@ -96,7 +96,7 @@ export default class ImageWrapper<S extends string[]> {
     return true;
   }
 
-  getData(): VivLoaderDataType<S> {
+  getData(): VivLoaderDataType<string[]> {
     return this.vivLoader.data;
   }
 
