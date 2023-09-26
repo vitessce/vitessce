@@ -2,7 +2,7 @@
 export const DEFAULT_DARK_COLOR = [50, 50, 50];
 export const DEFAULT_LIGHT_COLOR = [200, 200, 200];
 
-export function getDefaultColor(theme) {
+export function getDefaultColor(theme: 'dark' | 'light') {
   return theme === 'dark' ? DEFAULT_DARK_COLOR : DEFAULT_LIGHT_COLOR;
 }
 
@@ -75,31 +75,32 @@ export const COLORMAP_OPTIONS = [
 
 export const DEFAULT_GL_OPTIONS = { webgl2: true };
 
-export function createDefaultUpdateStatus(componentName) {
-  return message => console.warn(`${componentName} updateStatus: ${message}`);
+export function createDefaultUpdateStatus(componentName: string) {
+  return (message: string) => console.warn(`${componentName} updateStatus: ${message}`);
 }
 
-export function createDefaultUpdateCellsSelection(componentName) {
-  return cellsSelection => console.warn(`${componentName} updateCellsSelection: ${cellsSelection}`);
+export function createDefaultUpdateCellsSelection(componentName: string) {
+  return (cellsSelection: any) => console.warn(`${componentName} updateCellsSelection: ${cellsSelection}`);
 }
 
-export function createDefaultUpdateCellsHover(componentName) {
-  return hoverInfo => console.warn(`${componentName} updateCellsHover: ${hoverInfo.cellId}`);
+export function createDefaultUpdateCellsHover(componentName: string) {
+  return (hoverInfo: { cellId: string }) => console.warn(`${componentName} updateCellsHover: ${hoverInfo.cellId}`);
 }
 
-export function createDefaultUpdateGenesHover(componentName) {
-  return hoverInfo => console.warn(`${componentName} updateGenesHover: ${hoverInfo.geneId}`);
+export function createDefaultUpdateGenesHover(componentName: string) {
+  return (hoverInfo: { geneId: string }) => console.warn(`${componentName} updateGenesHover: ${hoverInfo.geneId}`);
 }
 
-export function createDefaultUpdateTracksHover(componentName) {
-  return hoverInfo => console.warn(`${componentName} updateTracksHover: ${hoverInfo}`);
+export function createDefaultUpdateTracksHover(componentName: string) {
+  return (hoverInfo: any) => console.warn(`${componentName} updateTracksHover: ${hoverInfo}`);
 }
 
-export function createDefaultUpdateViewInfo(componentName) {
-  return viewInfo => console.warn(`${componentName} updateViewInfo: ${viewInfo}`);
+export function createDefaultUpdateViewInfo(componentName: string) {
+  return (viewInfo: any) => console.warn(`${componentName} updateViewInfo: ${viewInfo}`);
 }
 
 export function createDefaultClearPleaseWait() {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   return () => {};
 }
 
@@ -109,14 +110,14 @@ export function createDefaultClearPleaseWait() {
  * @param {Uint8Array} arr The typed array to be copied.
  * @returns {Uint8Array} The copied array.
  */
-export function copyUint8Array(arr) {
+export function copyUint8Array(arr: Uint8Array) {
   const newBuffer = new ArrayBuffer(arr.buffer.byteLength);
   const newArr = new Uint8Array(newBuffer);
   newArr.set(arr);
   return newArr;
 }
 
-export function asEsModule(component) {
+export function asEsModule(component: any) {
   return {
     __esModule: true,
     default: component,
@@ -124,7 +125,7 @@ export function asEsModule(component) {
 }
 
 
-export function formatBytes(bytes, decimals = 2) {
+export function formatBytes(bytes: number, decimals = 2) {
   if (bytes === 0) return '0 Bytes';
 
   const k = 1024;
