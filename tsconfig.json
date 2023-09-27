@@ -20,6 +20,7 @@
     "declarationMap": true
   },
   "references": [
+    { "path": "packages/types" },
     { "path": "examples/configs" },
     { "path": "examples/plugins" },
     { "path": "packages/config" },

@@ -751,6 +751,18 @@ importers:
         specifier: ^0.32.2
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
 
+  packages/types:
+    devDependencies:
+      '@types/react':
+        specifier: ^18.0.28
+        version: 18.2.7
+      vite:
+        specifier: ^4.3.0
+        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+      vitest:
+        specifier: ^0.32.2
+        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+
   packages/utils/export-utils:
     dependencies:
       bowser:
