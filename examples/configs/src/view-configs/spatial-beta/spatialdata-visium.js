@@ -15,36 +15,15 @@ function generateVisiumConfig() {
     name: 'Kleshchevnikov et al., Nature Biotechnology 2022',
     description: 'Mouse brain section profiled by 10x Visium and converted to SpatialData by Marconato et al., bioRxiv 2023.',
   });
-  const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/spatialdata-september-2023/visium.zarr';
+  const baseUrl = 'http://localhost:8000/from-tong/lowerlimb.zarr';
   const dataset1 = config.addDataset('D1').addFile({
     fileType: 'image.spatialdata.zarr',
     url: baseUrl,
     options: {
-      path: 'images/ST8059049_image',
+      path: 'images/region_raw_image',
     },
     coordinationValues: {
       fileUid: 'ST8059049',
-    },
-  }).addFile({
-    fileType: 'obsFeatureMatrix.spatialdata.zarr',
-    url: baseUrl,
-    options: {
-      path: 'table/table/X',
-      region: 'ST8059049_shapes',
-    },
-    coordinationValues: {
-      obsType: 'spot',
-    },
-  }).addFile({
-    fileType: 'obsSpots.spatialdata.zarr',
-    url: baseUrl,
-    options: {
-      path: 'shapes/ST8059049_shapes',
-      tablePath: 'table/table',
-      region: 'ST8059049_shapes',
-    },
-    coordinationValues: {
-      obsType: 'spot',
     },
   });
   // TODO: add second image in second dataset.
@@ -67,16 +46,16 @@ function generateVisiumConfig() {
       fileUid: 'ST8059049',
       spatialLayerOpacity: 1,
       spatialLayerVisible: true,
-      photometricInterpretation: 'RGB',
-    }),
-    spotLayer: CL({
-      obsType: 'spot',
-      spatialLayerVisible: true,
-      spatialLayerOpacity: 0.5,
-      spatialSpotRadius: 100.0,
-      featureValueColormapRange: [0, 0.5],
-      obsColorEncoding: 'geneSelection',
-      featureSelection: featureSelectionScope,
+      photometricInterpretation: 'BlackIsZero',
+      imageChannel: CL([
+        {
+          spatialTargetC: 0,
+          spatialChannelColor: [255, 255, 255],
+          spatialChannelWindow: [0, 2000],
+          spatialChannelVisible: true,
+          spatialChannelOpacity: 1,
+        },
+      ]),
     }),
   });
 

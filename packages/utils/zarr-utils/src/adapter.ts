@@ -1,7 +1,7 @@
 // Adapted from https://github.com/hms-dbmi/vizarr/blob/5b0e3ea6fbb42d19d0e38e60e49bb73d1aca0693/src/utils.ts#L308
 import type { Slice } from '@zarrita/indexing';
 import type { Array as ZarrArray, DataType as ZarrDataType } from '@zarrita/core';
-import { slice, get } from 'zarrita';
+import { slice, get as zarrGet } from 'zarrita';
 
 function getV2DataType(dtype: string) {
   const mapping: Record<string, string> = {
@@ -28,15 +28,32 @@ export function createZarrArrayAdapter(arr: ZarrArray<ZarrDataType>): any {
   return new Proxy(arr, {
     get(target, prop) {
       if (prop === 'getRaw') {
-        return (selection: Selection) => get(
-          target as any,
-          selection ? selection.map((s) => {
-            if (typeof s === 'object' && s !== null) {
-              return slice(s.start, s.stop, s.step);
+        return (selection: Selection) => {
+          const arrPromise = zarrGet(
+            target as any,
+            selection ? selection.map((s) => {
+              if (typeof s === 'object' && s !== null) {
+                return slice(s.start, s.stop, s.step);
+              }
+              return s;
+            }) : target.shape.map(() => null),
+          );
+          return arrPromise.then((arr) => {
+            if(arr.shape[0] !== arr.shape[1] && arr.shape[0] * arr.shape[1] > 0) {
+              const { shape, stride, data } = arr;
+              console.log(selection, shape, stride, data);
+
+              let newData = new Uint16Array(data.length);
+              newData.fill(500);
+
+              return { shape, stride, data: newData };
+            } else {
+              return arr;
             }
-            return s;
-          }) : target.shape.map(() => null),
-        );
+          });
+
+          // return arrPromise;
+        };
       }
       if (prop === 'getRawChunk') {
         throw new Error('getRawChunk should not have been called');
