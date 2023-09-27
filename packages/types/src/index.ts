@@ -1,3 +1,4 @@
+// This is a type-only sub-package.
 type MatrixResult = {
   data: number[] | Float32Array[];
   shape: number[];
@@ -69,3 +70,5 @@ export type ObsSetsData = {
   obsSets: SetsTree;
   obsSetsMembership: Map<string, string[][]>;
 };
+  
+export {};
