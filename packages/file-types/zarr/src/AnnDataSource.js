@@ -130,7 +130,10 @@ export default class AnnDataSource extends ZarrDataSource {
     const { storeRoot } = this;
     const arr = await zarrOpen(storeRoot.resolve(path), { kind: 'array' });
     // Zarrita supports decoding vlen-utf8-encoded string arrays.
-    const data = await zarrGet(arr, [null]);
+    const data = await zarrGet(arr);
+    if (data.data?.[Symbol.iterator]) {
+      return Array.from(data.data);
+    }
     return data.data;
   }
 
