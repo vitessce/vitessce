@@ -70,5 +70,5 @@ export type ObsSetsData = {
   obsSets: SetsTree;
   obsSetsMembership: Map<string, string[][]>;
 };
-  
+
 export {};
