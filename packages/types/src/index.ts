@@ -1,2 +1,0 @@
-// Types only package
-export {};
