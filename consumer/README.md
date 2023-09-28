@@ -39,6 +39,7 @@ pnpm run bundle
 ./scripts/consumer-install.sh
 
 cd ../portal-ui
+conda activate portal-ui # may need to be created the first time
 nvm use `cat .nvmrc` # may need to nvm install `cat .nvmrc`
 cd context
 npm install
