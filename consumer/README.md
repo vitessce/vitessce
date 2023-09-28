@@ -43,9 +43,7 @@ nvm use `cat .nvmrc` # may need to nvm install `cat .nvmrc`
 cd context
 npm install
 
-# comment out `npm install` line in ./etc/dev/dev-start.sh
-
 npm install $(ls ../../vitessce/consumer/vitessce-*.tgz)
 cd ..
-./etc/dev/dev-start.sh # open http://localhost:5001
+./etc/dev/dev-start.sh --no-npm-install # open http://localhost:5001
 ```
