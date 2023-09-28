@@ -38,8 +38,9 @@ pnpm run build
 pnpm run bundle
 ./scripts/consumer-install.sh
 
-cd ../portal-ui/context
-nvm use 16
+cd ../portal-ui
+nvm use `cat .nvmrc` # may need to nvm install `cat .nvmrc`
+cd context
 npm install
 
 # comment out `npm install` line in ./etc/dev/dev-start.sh
