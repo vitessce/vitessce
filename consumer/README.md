@@ -39,6 +39,7 @@ pnpm run bundle
 ./scripts/consumer-install.sh
 
 cd ../portal-ui/context
+nvm use 16
 npm install
 
 # comment out `npm install` line in ./etc/dev/dev-start.sh
