@@ -1,9 +1,9 @@
 ---
-"@vitessce/spatial-utils": patch
-"@vitessce/zarr-utils": patch
-"@vitessce/json": patch
-"@vitessce/zarr": patch
-"@vitessce/gl": patch
+"@vitessce/spatial-utils": minor
+"@vitessce/zarr-utils": minor
+"@vitessce/json": minor
+"@vitessce/zarr": minor
+"@vitessce/gl": minor
 ---
 
-Use zarrita rather than zarr.js to load Zarr data.
+Use Zarrita.js rather than ZarrJS to load Zarr data. (This change is needed to support Zarr features that are required for SpatialData but are not available in ZarrJS.)
