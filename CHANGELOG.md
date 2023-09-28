@@ -1,4 +1,21 @@
 
+## 3.3.0
+
+### Minor Changes
+
+- Use Zarrita.js rather than ZarrJS to load Zarr data. (This change is needed to support Zarr features that are required for SpatialData but are not available in ZarrJS.) (`@vitessce/spatial-utils`, `@vitessce/zarr-utils`, `@vitessce/json`, `@vitessce/zarr`, `@vitessce/gl`) ([#1693](https://github.com/vitessce/vitessce/pull/1693))
+
+### Patch Changes
+
+- Types-only package. (`@vitessce/types`) ([#1708](https://github.com/vitessce/vitessce/pull/1708))
+
+- TypeScript types for @vitessce/utils sub-package. (`@vitessce/utils`) ([#1706](https://github.com/vitessce/vitessce/pull/1706))
+
+- Upgrade cypress to fix https://github.com/cypress-io/cypress/issues/27804. (`demo`, `html`) ([#1703](https://github.com/vitessce/vitessce/pull/1703))
+
+- Convert @vitessce/constants-internal to TypeScript by changing file extensions. (`@vitessce/constants-internal`) ([#1701](https://github.com/vitessce/vitessce/pull/1701))
+
+
 ## 3.2.2
 
 ### Patch Changes

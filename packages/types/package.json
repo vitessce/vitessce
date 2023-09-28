@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/types",
-  "version": "3.2.2",
+  "version": "3.3.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -29,9 +29,7 @@
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
     "test": "pnpm exec vitest --run"
   },
-  "dependencies": {
-    
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/react": "^18.0.28",
     "vite": "^4.3.0",
