@@ -22,6 +22,7 @@ export function Vitessce(props: any) {
     pluginFileTypes: pluginFileTypesProp,
     pluginCoordinationTypes: pluginCoordinationTypesProp,
     pluginJointFileTypes: pluginJointFileTypesProp,
+    stores,
   } = props;
 
   // If config.uid exists, then use it for hook dependencies to detect changes

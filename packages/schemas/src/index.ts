@@ -23,6 +23,12 @@ export {
   anndataZarrSchema,
   imageOmeZarrSchema,
   imageOmeTiffSchema,
+  imageSpatialdataSchema,
+  obsSegmentationsSpatialdataSchema,
+  obsFeatureMatrixSpatialdataSchema,
+  obsSpotsSpatialdataSchema,
+  obsLocationsSpatialdataSchema,
+  obsSetsSpatialdataSchema,
 } from './file-def-options.js';
 export {
   anndataCellsZarrSchema,

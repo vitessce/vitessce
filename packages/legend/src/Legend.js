@@ -262,18 +262,18 @@ export default function Legend(props) {
         .text(mainLabel)
         .style('font-size', '10px')
         .style('fill', foregroundColor);
-    }
 
-    if (hasSubLabel) {
-      g
-        .append('text')
-        .attr('text-anchor', 'end')
-        .attr('dominant-baseline', 'hanging')
-        .attr('x', width)
-        .attr('y', titleHeight)
-        .text(subLabel)
-        .style('font-size', '9px')
-        .style('fill', foregroundColor);
+      if (hasSubLabel) {
+        g
+          .append('text')
+          .attr('text-anchor', 'end')
+          .attr('dominant-baseline', 'hanging')
+          .attr('x', width)
+          .attr('y', titleHeight)
+          .text(subLabel)
+          .style('font-size', '9px')
+          .style('fill', foregroundColor);
+      }
     }
   }, [width, height, featureValueColormap, featureValueColormapRange, considerSelections,
     obsType, obsColorEncoding, featureSelection, isDarkTheme, featureValueType, extent,

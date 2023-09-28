@@ -36,10 +36,17 @@ type Multiscale = {
   coordinateTransformations?: object[]; // TODO: stricter type
 }
 
+type SpatialDataTempAttrs = {
+  channels_metadata?: {
+    channels: { label: number }[];
+  }
+  'image-label'?: { version: string };
+}
+
 type RootAttrs = {
   omero: Omero;
   multiscales: Multiscale[];
-}
+} | SpatialDataTempAttrs;
 
 export type LoadOmeZarrReturnValue<S extends string[]> = {
   data: ZarrPixelSource<S>[];

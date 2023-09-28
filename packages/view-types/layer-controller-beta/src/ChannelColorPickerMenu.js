@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import {
   makeStyles,
 } from '@material-ui/core';
+import clsx from 'clsx';
+import { isEqual } from 'lodash-es';
 import { PopperMenu } from '@vitessce/vit-s';
 import { TwitterPicker } from 'react-color-with-lodash';
 import { colorArrayToString } from '@vitessce/sets-utils';
@@ -20,6 +22,9 @@ const useStyles = makeStyles(() => ({
     float: 'left',
     borderRadius: '4px',
     margin: '8px',
+  },
+  colorIconOutline: {
+    border: '1px solid silver',
   },
   colorIconButton: {
     height: '100%',
@@ -44,6 +49,9 @@ const useStyles = makeStyles(() => ({
     '& > div > span > div': {
       width: '18px !important',
       height: '18px !important',
+    },
+    '& > div > span > div[title="#ffffff"]': {
+      border: '1px solid silver',
     },
   },
 }));
@@ -85,7 +93,15 @@ export default function ChannelColorPickerMenu(props) {
       setOpen={setOpen}
       buttonIcon={
         isStaticColor && visible ? (
-          <div className={classes.colorIcon} style={{ backgroundColor: currentColor }} />
+          <div
+            className={clsx(
+              classes.colorIcon,
+              {
+                [classes.colorIconOutline]: theme === 'light' && isEqual(color, [255, 255, 255]),
+              },
+            )}
+            style={{ backgroundColor: currentColor }}
+          />
         ) : (
           isColormap && visible && featureValueColormap ? (
             <div className={classes.colorIcon}>

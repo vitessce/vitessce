@@ -37,9 +37,10 @@
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
+    "@vitessce/zarr-utils": "workspace:*",
     "d3-array": "^2.4.0",
     "lodash-es": "^4.17.21",
-    "zarr": "0.5.1",
+    "zarrita": "0.4.0-next.4",
     "zod": "^3.21.4"
   }
 }

@@ -71,6 +71,7 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#obsspotscsv')}><code>obsSpots.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsspotsanndatazarr')}><code>obsSpots.anndata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsspotsmudatazarr')}><code>obsSpots.mudata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsspotsspatialdatazarr')}><code>obsSpots.spatialdata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
@@ -94,6 +95,7 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsanndatazarr')}><code>obsSegmentations.anndata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsmudatazarr')}><code>obsSegmentations.mudata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsrasterjson')}><code>obsSegmentations.raster.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#labelsspatialdatazarr')}><code>labels.spatialdata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
@@ -139,6 +141,7 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#obssetscsv')}><code>obsSets.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssetsanndatazarr')}><code>obsSets.anndata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssetsmudatazarr')}><code>obsSets.mudata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssetsspatialdatazarr')}><code>obsSets.spatialdata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
@@ -178,16 +181,9 @@ export default function DataTypesTable() {
           </td>
           <td>
             <ul>
-              <li>
-                <a href={useBaseUrl('/docs/data-file-types/#imageome-zarr')}>
-                  <code>image.ome-zarr</code>
-                </a>
-              </li>
-              <li>
-                <a href={useBaseUrl('/docs/data-file-types/#imageome-tiff')}>
-                  <code>image.ome-tiff</code>
-                </a>
-              </li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#imageome-zarr')}><code>image.ome-zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#imageome-tiff')}><code>image.ome-tiff</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#imagespatialdatazarr')}><code>image.spatialdata.zarr</code></a></li>
             </ul>
           </td>
           <td>
@@ -208,6 +204,7 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixcsv')}><code>obsFeatureMatrix.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixanndatazarr')}><code>obsFeatureMatrix.anndata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixmudatazarr')}><code>obsFeatureMatrix.mudata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixspatialdatazarr')}><code>obsFeatureMatrix.spatialdata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>

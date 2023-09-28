@@ -1,10 +1,10 @@
-import { viv } from '@vitessce/gl';
 import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,
   getNgffAxes,
   hexToRgb,
   normalizeCoordinateTransformations,
+  loadOmeZarr,
 } from '@vitessce/spatial-utils';
 import {
   ImageWrapper,
@@ -25,16 +25,15 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
 
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
-    const loader = await viv.loadOmeZarr(this.url, { fetchOptions: this.requestInit, type: 'multiscales' });
-
+    const loader = await loadOmeZarr(this.url, this.requestInit);
     const imageWrapper = new ImageWrapper(loader, this.options);
 
     const { metadata, data } = loader;
-
-    const { omero, multiscales, channels_metadata: spatialDataChannels } = metadata;
+    const { omero, multiscales, channels_metadata: spatialDataChannels, 'image-label': imageLabel } = metadata;
 
     // Crude way to check if this is a SpatialData OME-NGFF.
-    const isSpatialData = !!spatialDataChannels;
+    const isSpatialData = !!spatialDataChannels || !!imageLabel;
+    const isLabels = !!imageLabel;
 
     if (!isSpatialData && !omero) {
       console.error('image.ome-zarr must have omero metadata in attributes.');
@@ -100,13 +99,22 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       // References:
       // - https://github.com/ome/ngff/issues/192
       // - https://github.com/ome/ome-zarr-py/pull/261
-      const { channels } = spatialDataChannels;
-      channelObjects = channels.map((channel, i) => ({
-        selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: i }),
-        slider: [0, 255],
-        color: [255, 255, 255],
-      }));
-      channelLabels = channels.map(c => c.label);
+      if (isLabels) {
+        channelObjects = [{
+          selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: 0 }),
+          slider: [0, 255],
+          color: [255, 255, 255],
+        }];
+        channelLabels = ['labels'];
+      } else {
+        const { channels } = spatialDataChannels;
+        channelObjects = channels.map((channel, i) => ({
+          selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: i }),
+          slider: [0, 255],
+          color: [255, 255, 255],
+        }));
+        channelLabels = channels.map(c => c.label);
+      }
     } else {
       const { rdefs, channels } = omero;
       if (typeof rdefs.defaultT === 'number') {
@@ -149,6 +157,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     const coordinationValues = {
       spatialImageLayer: autoImageLayers,
     };
+
     return Promise.resolve(new LoaderResult(
       {
         image: {

@@ -117,8 +117,7 @@ export default function LayerController(props) {
       {imageLayerScopes && reversedImageLayerScopes.map(layerScope => (
         <ImageLayerController
           key={layerScope}
-          // Fix to dark theme due to black background of spatial plot.
-          theme="dark"
+          theme={theme}
           coordinationScopesRaw={coordinationScopesRaw}
           layerScope={layerScope}
           layerCoordination={imageLayerCoordination[0][layerScope]}
