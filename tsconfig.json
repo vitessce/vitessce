@@ -20,29 +20,35 @@
     "declarationMap": true
   },
   "references": [
-    { "path": "packages/types" },
     { "path": "examples/configs" },
     { "path": "examples/plugins" },
+    // Base packages (do not depend on other internal packages):
+    { "path": "packages/types" },
+    { "path": "packages/constants-internal" },
     { "path": "packages/config" },
     { "path": "packages/constants" },
-    { "path": "packages/constants-internal" },
+    { "path": "packages/plugins" },
+    // Packages which have some internal dependencies:
+    { "path": "packages/utils/export-utils" },
+    { "path": "packages/utils/sets-utils" },
+    { "path": "packages/utils/other-utils" },
+    { "path": "packages/utils/spatial-utils" },
+    { "path": "packages/utils/image-utils" },
+    { "path": "packages/utils/zarr-utils" },
+    { "path": "packages/gl" },
+
+    { "path": "packages/schemas" },
+    { "path": "packages/vit-s" },
+
     { "path": "packages/file-types/csv" },
     { "path": "packages/file-types/json" },
     { "path": "packages/file-types/ome-tiff" },
     { "path": "packages/file-types/zarr" },
-    { "path": "packages/gl" },
+    
     { "path": "packages/legend" },
-    { "path": "packages/plugins" },
-    { "path": "packages/utils/other-utils" },
-    { "path": "packages/schemas" },
     { "path": "packages/tooltip" },
-    { "path": "packages/utils/export-utils" },
-    { "path": "packages/utils/sets-utils" },
-    { "path": "packages/utils/spatial-utils" },
-    { "path": "packages/utils/image-utils" },
-    { "path": "packages/utils/zarr-utils" },
+    
     { "path": "packages/vega" },
-    { "path": "packages/vit-s" },
     { "path": "packages/view-types/description" },
     { "path": "packages/view-types/feature-list" },
     { "path": "packages/view-types/genomic-profiles" },
@@ -57,6 +63,7 @@
     { "path": "packages/view-types/spatial-beta" },
     { "path": "packages/view-types/statistical-plots" },
     { "path": "packages/view-types/status" },
+    // Packages which have the most internal dependencies:
     { "path": "packages/main/all" },
     { "path": "packages/main/dev" },
     { "path": "packages/main/prod" }
