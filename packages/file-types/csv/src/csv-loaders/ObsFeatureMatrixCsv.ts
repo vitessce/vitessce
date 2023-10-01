@@ -1,10 +1,15 @@
+import type { ObsFeatureMatrixData } from '@vitessce/types';
 import CsvLoader from './CsvLoader.js';
 
-export default class ObsFeatureMatrixCsvLoader extends CsvLoader {
-  loadFromCache(data) {
+export default class ObsFeatureMatrixCsvLoader extends CsvLoader<ObsFeatureMatrixData, undefined> {
+
+  cachedResult: ObsFeatureMatrixData | undefined;
+
+  async loadFromCache() {
     if (this.cachedResult) {
       return this.cachedResult;
     }
+    const data = await this.dataSource.getData();
     const obsIndex = data.map(d => String(d[data.columns[0]]));
     const featureIndex = [...data.columns];
     featureIndex.shift(); // Remove first element which is index colname.
@@ -19,7 +24,7 @@ export default class ObsFeatureMatrixCsvLoader extends CsvLoader {
         obsI * shape[1],
       );
     });
-    const obsFeatureMatrix = { data: out };
+    const obsFeatureMatrix = { data: out, shape };
     this.cachedResult = { obsIndex, featureIndex, obsFeatureMatrix };
     return this.cachedResult;
   }

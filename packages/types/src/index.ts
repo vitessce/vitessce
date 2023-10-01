@@ -14,6 +14,7 @@ export type {
   ObsSegmentationsData,
   ImageData,
   LoaderResult,
+  ObsFeatureMatrixAttrsLoader,
 } from './data-types.js';
 export type {
   AbstractImageWrapper,
@@ -35,5 +36,5 @@ export type {
 export {
   Loader,
   TwoStepLoader,
-  ObsFeatureMatrixLoader,
+  DataSource,
 } from './data-types.js';

@@ -205,6 +205,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
+      '@vitessce/schemas':
+        specifier: workspace:*
+        version: link:../../schemas
       '@vitessce/sets-utils':
         specifier: workspace:*
         version: link:../../utils/sets-utils
@@ -220,6 +223,10 @@ importers:
       d3-dsv:
         specifier: ^1.1.1
         version: 1.2.0
+    devDependencies:
+      '@types/d3-dsv':
+        specifier: ^3.0.4
+        version: 3.0.4
 
   packages/file-types/json:
     dependencies:
@@ -765,6 +772,9 @@ importers:
       '@hms-dbmi/viv':
         specifier: ~0.13.8
         version: 0.13.8(@deck.gl/core@8.8.20)(@deck.gl/geo-layers@8.8.20)(@deck.gl/layers@8.8.20)(@deck.gl/react@8.8.20)(@luma.gl/constants@8.5.18)(@luma.gl/core@8.5.16)(@luma.gl/engine@8.5.16)(@luma.gl/webgl@8.5.16)(react@18.2.0)
+      '@zarrita/storage':
+        specifier: 0.0.2
+        version: 0.0.2
     devDependencies:
       '@types/react':
         specifier: ^18.0.28
@@ -9541,6 +9551,10 @@ packages:
     dependencies:
       '@types/node': 18.8.5
     dev: false
+
+  /@types/d3-dsv@3.0.4:
+    resolution: {integrity: sha512-YxfUVJ55HxR8oq88136w09mBMPNhgH7PZjteq72onWXWOohGif/cLQnQv8V4A5lEGjXF04LhwSTpmzpY9wyVyA==}
+    dev: true
 
   /@types/eslint-scope@3.7.4:
     resolution: {integrity: sha512-9K4zoImiZc3HlIp6AVUDE4CWYx22a+lhSZMYNpbjW04+YF0KWj4pJXnEMjdnFTiQibFFmElcsasJXDbdI/EPhA==}
