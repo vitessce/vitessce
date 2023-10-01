@@ -208,9 +208,6 @@ importers:
       '@vitessce/sets-utils':
         specifier: workspace:*
         version: link:../../utils/sets-utils
-      '@vitessce/types':
-        specifier: workspace:*
-        version: link:../../types
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s
