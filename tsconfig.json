@@ -22,13 +22,13 @@
   "references": [
     { "path": "examples/configs" },
     { "path": "examples/plugins" },
-    // Base packages (do not depend on other internal packages):
+
     { "path": "packages/types" },
     { "path": "packages/constants-internal" },
     { "path": "packages/config" },
     { "path": "packages/constants" },
     { "path": "packages/plugins" },
-    // Packages which have some internal dependencies:
+
     { "path": "packages/utils/export-utils" },
     { "path": "packages/utils/sets-utils" },
     { "path": "packages/utils/other-utils" },
@@ -63,7 +63,7 @@
     { "path": "packages/view-types/spatial-beta" },
     { "path": "packages/view-types/statistical-plots" },
     { "path": "packages/view-types/status" },
-    // Packages which have the most internal dependencies:
+
     { "path": "packages/main/all" },
     { "path": "packages/main/dev" },
     { "path": "packages/main/prod" }
