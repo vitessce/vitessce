@@ -11,7 +11,6 @@ interface DSVParsedArray<T> extends Array<T> {
 }
 
 export default class CsvSource extends DataSource {
-
   _data: ReturnType<typeof csvParse> | undefined;
 
   async getData() {

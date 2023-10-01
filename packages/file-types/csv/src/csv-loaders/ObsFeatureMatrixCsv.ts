@@ -2,7 +2,6 @@ import type { ObsFeatureMatrixData } from '@vitessce/types';
 import CsvLoader from './CsvLoader.js';
 
 export default class ObsFeatureMatrixCsvLoader extends CsvLoader<ObsFeatureMatrixData, undefined> {
-
   cachedResult: ObsFeatureMatrixData | undefined;
 
   async loadFromCache() {

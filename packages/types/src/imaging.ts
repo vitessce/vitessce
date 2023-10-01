@@ -37,7 +37,7 @@ export type BoundingCube = [
 ];
 
 export interface AbstractImageWrapper {
-  
+
   getType(): 'ome-tiff' | 'ome-zarr';
 
   hasPhysicalSize(): boolean;
@@ -83,4 +83,4 @@ export interface AbstractImageWrapper {
   getBoundingCube(): BoundingCube;
 
   isInterleaved(): boolean;
-};
+}

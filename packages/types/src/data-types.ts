@@ -66,7 +66,7 @@ export type ObsSegmentationsPolygons = {
 };
 
 export type ObsSegmentationsBitmask = {
-  obsSegmentations: { 
+  obsSegmentations: {
     instance: AbstractImageWrapper;
     image?: any;
     metadata?: any;
@@ -77,7 +77,7 @@ export type ObsSegmentationsBitmask = {
 export type ObsSegmentationsData = ObsSegmentationsPolygons | ObsSegmentationsBitmask;
 
 export type ImageData = {
-  image: { 
+  image: {
     instance: AbstractImageWrapper;
     image?: any;
     metadata?: any;
@@ -89,7 +89,7 @@ export interface LoaderResult<DataType> {
   data: DataType;
   url?: string | { url: string, name: string}[];
   coordinationValues?: { [key: string]: any };
-};
+}
 
 type LoaderParams<OptionsType> = {
   type: string, fileType: string,
@@ -99,10 +99,15 @@ type LoaderParams<OptionsType> = {
 
 export abstract class Loader<DataType, OptionsType> {
   fileType: string;
+
   type: string;
+
   url?: string;
+
   requestInit?: RequestInit;
+
   options?: OptionsType;
+
   coordinationValues?: { [key: string]: any };
 
   constructor({
@@ -119,7 +124,7 @@ export abstract class Loader<DataType, OptionsType> {
   }
 
   abstract load(): Promise<LoaderResult<DataType>>;
-};
+}
 
 type DataSourceParams = {
   url?: string, requestInit?: RequestInit, store?: Readable,
@@ -127,7 +132,9 @@ type DataSourceParams = {
 
 export abstract class DataSource {
   url?: string;
+
   requestInit?: RequestInit;
+
   store?: Readable;
 
   constructor({ url, requestInit, store }: DataSourceParams) {
@@ -137,15 +144,17 @@ export abstract class DataSource {
   }
 }
 
-export abstract class TwoStepLoader<DataType, DataSourceType extends DataSource, OptionsType> extends Loader<DataType, OptionsType> {
+export abstract class TwoStepLoader<
+  DataType, DataSourceType extends DataSource, OptionsType
+> extends Loader<DataType, OptionsType> {
   dataSource: DataSourceType;
 
   constructor(dataSource: DataSourceType, params: LoaderParams<OptionsType>) {
     super(params);
     this.dataSource = dataSource;
   }
-};
+}
 
 export interface ObsFeatureMatrixAttrsLoader {
   loadAttrs?(): Promise<LoaderResult<ObsFeatureMatrixAttrs>>;
-};
+}

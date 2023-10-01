@@ -3,14 +3,13 @@ import type { z, obsPointsCsvSchema } from '@vitessce/schemas';
 import CsvLoader from './CsvLoader.js';
 
 export default class ObsPointsCsvLoader extends CsvLoader<ObsPointsData, z.infer<typeof obsPointsCsvSchema>> {
-
   cachedResult: ObsPointsData | undefined;
 
   async loadFromCache() {
     if (this.cachedResult) {
       return this.cachedResult;
     }
-    if(!this.options) throw new Error('options not defined');
+    if (!this.options) throw new Error('options not defined');
     const { obsIndex: indexCol, obsPoints: [xCol, yCol] } = this.options;
     const data = await this.dataSource.getData();
     const obsIndex = data.map((d: { [key: string]: any }) => String(d[indexCol]));

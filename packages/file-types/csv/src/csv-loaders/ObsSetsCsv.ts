@@ -4,14 +4,13 @@ import { initializeCellSetColor, treeToMembershipMap, dataToCellSetsTree } from 
 import CsvLoader from './CsvLoader.js';
 
 export default class ObsSetsCsvLoader extends CsvLoader<ObsSetsData, z.infer<typeof obsSetsCsvSchema>> {
-
   cachedResult: ObsSetsData | undefined;
 
   async loadFromCache() {
     if (this.cachedResult) {
       return this.cachedResult;
     }
-    if(!this.options) throw new Error('options not defined');
+    if (!this.options) throw new Error('options not defined');
     const { obsIndex: indexCol, obsSets: setsArr } = this.options;
     const data = await this.dataSource.getData();
     const obsIndex = data.map((d: { [key: string]: any }) => String(d[indexCol]));
