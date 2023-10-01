@@ -2,7 +2,9 @@ import type { ObsPointsData } from '@vitessce/types';
 import type { z, obsPointsCsvSchema } from '@vitessce/schemas';
 import CsvLoader from './CsvLoader.js';
 
-export default class ObsPointsCsvLoader extends CsvLoader<ObsPointsData, z.infer<typeof obsPointsCsvSchema>> {
+export default class ObsPointsCsvLoader extends CsvLoader<
+  ObsPointsData, z.infer<typeof obsPointsCsvSchema>
+> {
   cachedResult: ObsPointsData | undefined;
 
   async loadFromCache() {

@@ -2,7 +2,9 @@ import type { FeatureLabelsData } from '@vitessce/types';
 import type { z, featureLabelsCsvSchema } from '@vitessce/schemas';
 import CsvLoader from './CsvLoader.js';
 
-export default class FeatureLabelsCsvLoader extends CsvLoader<FeatureLabelsData, z.infer<typeof featureLabelsCsvSchema>> {
+export default class FeatureLabelsCsvLoader extends CsvLoader<
+  FeatureLabelsData, z.infer<typeof featureLabelsCsvSchema>
+> {
   cachedResult: FeatureLabelsData | undefined;
 
   async loadFromCache() {

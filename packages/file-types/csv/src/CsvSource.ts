@@ -3,13 +3,6 @@ import { DataSource } from '@vitessce/types';
 import { csvParse } from 'd3-dsv';
 import { DataSourceFetchError } from '@vitessce/vit-s';
 
-interface DSVParsedArray<T> extends Array<T> {
-  /**
-   * List of column names.
-   */
-  columns: Array<keyof T>;
-}
-
 export default class CsvSource extends DataSource {
   _data: ReturnType<typeof csvParse> | undefined;
 

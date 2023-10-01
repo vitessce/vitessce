@@ -3,7 +3,25 @@ import type { z, obsSetsCsvSchema } from '@vitessce/schemas';
 import { initializeCellSetColor, treeToMembershipMap, dataToCellSetsTree } from '@vitessce/sets-utils';
 import CsvLoader from './CsvLoader.js';
 
-export default class ObsSetsCsvLoader extends CsvLoader<ObsSetsData, z.infer<typeof obsSetsCsvSchema>> {
+function getCoordinationValues(data: ObsSetsData) {
+  const coordinationValues: { [key: string]: any } = {};
+  const { tree } = data.obsSets;
+  const newAutoSetSelectionParentName = tree[0].name;
+  // Create a list of set paths to initally select.
+  const newAutoSetSelections = tree[0].children.map(node => [
+    newAutoSetSelectionParentName,
+    node.name,
+  ]);
+  // Create a list of cell set objects with color mappings.
+  const newAutoSetColors = initializeCellSetColor(data.obsSets, []);
+  coordinationValues.obsSetSelection = newAutoSetSelections;
+  coordinationValues.obsSetColor = newAutoSetColors;
+  return coordinationValues;
+}
+
+export default class ObsSetsCsvLoader extends CsvLoader<
+  ObsSetsData, z.infer<typeof obsSetsCsvSchema>
+> {
   cachedResult: ObsSetsData | undefined;
 
   async loadFromCache() {
@@ -37,26 +55,10 @@ export default class ObsSetsCsvLoader extends CsvLoader<ObsSetsData, z.infer<typ
     return this.cachedResult;
   }
 
-  getCoordinationValues(data: ObsSetsData) {
-    const coordinationValues: { [key: string]: any } = {};
-    const { tree } = data.obsSets;
-    const newAutoSetSelectionParentName = tree[0].name;
-    // Create a list of set paths to initally select.
-    const newAutoSetSelections = tree[0].children.map(node => [
-      newAutoSetSelectionParentName,
-      node.name,
-    ]);
-    // Create a list of cell set objects with color mappings.
-    const newAutoSetColors = initializeCellSetColor(data.obsSets, []);
-    coordinationValues.obsSetSelection = newAutoSetSelections;
-    coordinationValues.obsSetColor = newAutoSetColors;
-    return coordinationValues;
-  }
-
   async load() {
     const { url } = this;
     const result = await this.loadFromCache();
-    const coordinationValues = this.getCoordinationValues(result);
+    const coordinationValues = getCoordinationValues(result);
     return {
       data: result,
       url,

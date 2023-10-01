@@ -2,7 +2,9 @@ import type { ObsEmbeddingData } from '@vitessce/types';
 import type { z, obsEmbeddingCsvSchema } from '@vitessce/schemas';
 import CsvLoader from './CsvLoader.js';
 
-export default class ObsEmbeddingCsvLoader extends CsvLoader<ObsEmbeddingData, z.infer<typeof obsEmbeddingCsvSchema>> {
+export default class ObsEmbeddingCsvLoader extends CsvLoader<
+  ObsEmbeddingData, z.infer<typeof obsEmbeddingCsvSchema>
+> {
   cachedResult: ObsEmbeddingData | undefined;
 
   async loadFromCache() {

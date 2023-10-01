@@ -2,7 +2,9 @@ import type { ObsLabelsData } from '@vitessce/types';
 import type { z, obsLabelsCsvSchema } from '@vitessce/schemas';
 import CsvLoader from './CsvLoader.js';
 
-export default class ObsLabelsCsvLoader extends CsvLoader<ObsLabelsData, z.infer<typeof obsLabelsCsvSchema>> {
+export default class ObsLabelsCsvLoader extends CsvLoader<
+  ObsLabelsData, z.infer<typeof obsLabelsCsvSchema>
+> {
   cachedResult: ObsLabelsData | undefined;
 
   async loadFromCache() {
