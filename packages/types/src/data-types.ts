@@ -60,7 +60,7 @@ export type ObsSegmentationsPolygons = {
 };
 
 export type ObsSegmentationsBitmask = {
-  obsSegmentations: { 
+  obsSegmentations: {
     instance: AbstractImageWrapper;
     image?: any;
     metadata?: any;
@@ -71,7 +71,7 @@ export type ObsSegmentationsBitmask = {
 export type ObsSegmentationsData = ObsSegmentationsPolygons | ObsSegmentationsBitmask;
 
 export type ImageData = {
-  image: { 
+  image: {
     instance: AbstractImageWrapper;
     image?: any;
     metadata?: any;
@@ -83,7 +83,7 @@ export interface LoaderResult<DataType> {
   data: DataType;
   url?: string | { url: string, name: string}[];
   coordinationValues?: { [key: string]: any };
-};
+}
 
 type LoaderParams = {
   type: string, fileType: string,
@@ -93,10 +93,15 @@ type LoaderParams = {
 
 export abstract class Loader<DataType> {
   fileType: string;
+
   type: string;
+
   url?: string;
+
   requestInit?: RequestInit;
+
   options?: any;
+
   coordinationValues?: { [key: string]: any };
 
   constructor({
@@ -113,7 +118,7 @@ export abstract class Loader<DataType> {
   }
 
   abstract load(): Promise<LoaderResult<DataType>>;
-};
+}
 
 export abstract class TwoStepLoader<DataType, DataSourceType> extends Loader<DataType> {
   dataSource: DataSourceType;
@@ -122,8 +127,8 @@ export abstract class TwoStepLoader<DataType, DataSourceType> extends Loader<Dat
     super(params);
     this.dataSource = dataSource;
   }
-};
+}
 
 export abstract class ObsFeatureMatrixLoader extends Loader<ObsFeatureMatrixData> {
   abstract loadAttrs?(): Promise<LoaderResult<ObsFeatureMatrixAttrs>>;
-};
+}
