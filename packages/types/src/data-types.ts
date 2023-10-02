@@ -1,3 +1,4 @@
+import type { Readable } from '@zarrita/storage';
 import type { AbstractImageWrapper } from './imaging.js';
 import type { SetsTree } from './sets.js';
 
@@ -6,10 +7,15 @@ export type MatrixResult = {
   shape: number[];
 };
 
+export type StridedMatrixResult = {
+  data: Float32Array;
+  shape: number[];
+};
+
 export type ObsFeatureMatrixData = {
   obsIndex: string[];
   featureIndex: string[];
-  obsFeatureMatrix: MatrixResult;
+  obsFeatureMatrix: StridedMatrixResult;
 };
 
 export type ObsFeatureMatrixAttrs = {
@@ -85,13 +91,13 @@ export interface LoaderResult<DataType> {
   coordinationValues?: { [key: string]: any };
 }
 
-type LoaderParams = {
+type LoaderParams<OptionsType> = {
   type: string, fileType: string,
   url?: string, requestInit?: RequestInit,
-  options?: any, coordinationValues?: { [key: string]: any },
+  options?: OptionsType, coordinationValues?: { [key: string]: any },
 };
 
-export abstract class Loader<DataType> {
+export abstract class Loader<DataType, OptionsType> {
   fileType: string;
 
   type: string;
@@ -100,7 +106,7 @@ export abstract class Loader<DataType> {
 
   requestInit?: RequestInit;
 
-  options?: any;
+  options?: OptionsType;
 
   coordinationValues?: { [key: string]: any };
 
@@ -108,7 +114,7 @@ export abstract class Loader<DataType> {
     type, fileType,
     url, requestInit,
     options, coordinationValues,
-  }: LoaderParams) {
+  }: LoaderParams<OptionsType>) {
     this.fileType = fileType;
     this.type = type;
     this.url = url;
@@ -120,15 +126,35 @@ export abstract class Loader<DataType> {
   abstract load(): Promise<LoaderResult<DataType>>;
 }
 
-export abstract class TwoStepLoader<DataType, DataSourceType> extends Loader<DataType> {
+type DataSourceParams = {
+  url?: string, requestInit?: RequestInit, store?: Readable,
+};
+
+export abstract class DataSource {
+  url?: string;
+
+  requestInit?: RequestInit;
+
+  store?: Readable;
+
+  constructor({ url, requestInit, store }: DataSourceParams) {
+    this.url = url;
+    this.requestInit = requestInit;
+    this.store = store;
+  }
+}
+
+export abstract class TwoStepLoader<
+  DataType, DataSourceType extends DataSource, OptionsType
+> extends Loader<DataType, OptionsType> {
   dataSource: DataSourceType;
 
-  constructor(dataSource: DataSourceType, params: LoaderParams) {
+  constructor(dataSource: DataSourceType, params: LoaderParams<OptionsType>) {
     super(params);
     this.dataSource = dataSource;
   }
 }
 
-export abstract class ObsFeatureMatrixLoader extends Loader<ObsFeatureMatrixData> {
-  abstract loadAttrs?(): Promise<LoaderResult<ObsFeatureMatrixAttrs>>;
+export interface ObsFeatureMatrixAttrsLoader {
+  loadAttrs?(): Promise<LoaderResult<ObsFeatureMatrixAttrs>>;
 }
