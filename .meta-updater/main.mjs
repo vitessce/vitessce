@@ -8,7 +8,7 @@ const isVersionOnly = process.env.META_UPDATER_MODE === 'versiononly';
 
 const LUMAGL_VERSION = '~8.5.20';
 const LOADERSGL_VERSION = "^3.0.0";
-const DECKGL_VERSION = '~8.8.6';
+const DECKGL_VERSION = '~8.9.22';
 const TURF_VERSION = "^6.5.0";
 const NEBULAGL_VERSION = "0.23.8";
 const OTHER_VERSIONS = {
