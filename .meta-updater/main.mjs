@@ -6,9 +6,9 @@ import { cloneDeep } from 'lodash-es';
 const isDryrun = process.env.META_UPDATER_MODE === 'dryrun';
 const isVersionOnly = process.env.META_UPDATER_MODE === 'versiononly';
 
-const LUMAGL_VERSION = '~8.5.20';
+const LUMAGL_VERSION = '~8.5.21';
 const LOADERSGL_VERSION = "^3.0.0";
-const DECKGL_VERSION = '~8.9.22';
+const DECKGL_VERSION = '~8.9.30';
 const TURF_VERSION = "^6.5.0";
 const NEBULAGL_VERSION = "0.23.8";
 const OTHER_VERSIONS = {

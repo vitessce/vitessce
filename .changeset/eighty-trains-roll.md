@@ -7,4 +7,4 @@
 "html": patch
 ---
 
-Bump luma.gl version to 8.5.20
+Bump luma.gl version to 8.5.21, deck.gl version to 
