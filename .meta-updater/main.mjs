@@ -7,7 +7,7 @@ const isDryrun = process.env.META_UPDATER_MODE === 'dryrun';
 const isVersionOnly = process.env.META_UPDATER_MODE === 'versiononly';
 
 const LUMAGL_VERSION = '~8.5.21';
-const LOADERSGL_VERSION = "^3.0.0";
+const LOADERSGL_VERSION = "^3.4.13";
 const DECKGL_VERSION = '~8.9.30';
 const TURF_VERSION = "^6.5.0";
 const NEBULAGL_VERSION = "0.23.8";
