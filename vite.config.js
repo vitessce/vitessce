@@ -65,6 +65,10 @@ export default defineConfig({
     setupFiles: [resolve(__dirname, './vitest.setup.js')],
     deps: {
       inline: ['vitest-canvas-mock'],
+      // This is required in order for the deck.gl esm code in node_modules to be loaded
+      // via Vitest when it runs tests in Node, since it uses extension-less imports,
+      // so we need to tell Vitest to use Node's --experimental-specifier-resolution=node.
+      registerNodeLoader: true,
     },
     environmentOptions: {
       jsdom: {
@@ -74,24 +78,22 @@ export default defineConfig({
     // Only run test files that are within src/
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     // Coverage
-    coverage: {
-      enabled: true,
-      reporter: ['text', 'json-summary', 'json', 'html'],
-      provider: 'v8',
-      include: [
-        // Do not include hits from dist-tsc/ files
-        // (e.g., from sibling sub-packages) in the coverage report.
-        '**/src/**',
-      ],
-      exclude: [
-        // Exclude test fixtures.
-        '**/*.{test,spec}.fixtures.?(c|m)[jt]s?(x)'
-      ]
-    },
+    /*
+    server: {
+      deps: {
+        inline: ['@mapbox/tiny-sdf', 'deck.gl', '@deck.gl/layers', '@deck.gl/core'],
+      }
+    }*/
   },
+  /*alias: [
+    { find: /^deck.gl$/, replacement: "deck.gl/dist/esm" },
+    { find: /^@deck.gl\/layers$/, replacement: "@deck.gl/layers/dist/esm" },
+    { find: /^@deck.gl\/core$/, replacement: "@deck.gl/core/dist/esm" }
+  ],*/
   // To enable .js files that contain JSX to be imported by Vitest tests.
   // Reference: https://github.com/vitest-dev/vitest/issues/1564
   esbuild: {
+    //target: 'esnext',
     loader: 'tsx',
     include: /src\/.*\.[tj]sx?$/,
     exclude: [],
