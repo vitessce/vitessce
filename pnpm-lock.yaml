@@ -30,11 +30,14 @@ patchedDependencies:
   '@deck.gl/react@8.9.30':
     hash: u64ejelpoixavznvpa5g6sp3f4
     path: patches/@deck.gl__react@8.9.30.patch
+  '@nebula.gl/layers@1.1.0-alpha.5':
+    hash: 3qgxfrecrbgk63aakab5ctm3ee
+    path: patches/@nebula.gl__layers@1.1.0-alpha.5.patch
   deck.gl@8.9.30:
     hash: 2sip7jstlhsbb47ri5thrtcn7m
     path: patches/deck.gl@8.9.30.patch
   nebula.gl@1.1.0-alpha.5:
-    hash: yk7atatdvsjl7axggqamnagdxy
+    hash: qpd46tu57qcxlf63v3epgc4tb4
     path: patches/nebula.gl@1.1.0-alpha.5.patch
 
 importers:
@@ -422,7 +425,7 @@ importers:
         version: 1.1.0-alpha.5
       '@nebula.gl/layers':
         specifier: 1.1.0-alpha.5
-        version: 1.1.0-alpha.5(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
+        version: 1.1.0-alpha.5(patch_hash=3qgxfrecrbgk63aakab5ctm3ee)(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
       '@turf/area':
         specifier: ^6.5.0
         version: 6.5.0
@@ -467,7 +470,7 @@ importers:
         version: 9.5.2
       nebula.gl:
         specifier: 1.1.0-alpha.5
-        version: 1.1.0-alpha.5(patch_hash=yk7atatdvsjl7axggqamnagdxy)(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
+        version: 1.1.0-alpha.5(patch_hash=qpd46tu57qcxlf63v3epgc4tb4)(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
     devDependencies:
       glsl-colormap:
         specifier: ^1.0.1
@@ -7141,7 +7144,7 @@ packages:
       viewport-mercator-project: 7.0.4
     dev: false
 
-  /@nebula.gl/layers@1.1.0-alpha.5(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21):
+  /@nebula.gl/layers@1.1.0-alpha.5(patch_hash=3qgxfrecrbgk63aakab5ctm3ee)(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21):
     resolution: {integrity: sha512-3QCcHuSmL/lJeAI1y1hN8NSlf1ootB8kK1KK8ePdj9h96aHbPMJ1KorhgSYuTBd71mn16G9k9mGPNj9eje48EQ==}
     peerDependencies:
       '@deck.gl/core': ^8.8.23
@@ -7188,6 +7191,7 @@ packages:
       h3-js: 3.7.2
       viewport-mercator-project: 7.0.4
     dev: false
+    patched: true
 
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -18986,7 +18990,7 @@ packages:
       randexp: 0.4.6
     dev: false
 
-  /nebula.gl@1.1.0-alpha.5(patch_hash=yk7atatdvsjl7axggqamnagdxy)(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21):
+  /nebula.gl@1.1.0-alpha.5(patch_hash=qpd46tu57qcxlf63v3epgc4tb4)(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21):
     resolution: {integrity: sha512-4N+v32puN3dp3+jQPyS+O+bBl2e6PJIvnIfvzNPOB01TGDhlDVAAflHrnjcoi6wPdzYX6QsewAgt/QhgQuHo2A==}
     peerDependencies:
       '@deck.gl/core': ^8.8.23
@@ -19002,7 +19006,7 @@ packages:
       '@deck.gl/layers': 8.9.30(patch_hash=7dwlm4xbs4zzdl637leqgcnzt4)(@deck.gl/core@8.9.30)(@loaders.gl/core@3.4.14)(@luma.gl/core@8.5.21)
       '@luma.gl/constants': 8.5.21
       '@luma.gl/core': 8.5.21
-      '@nebula.gl/layers': 1.1.0-alpha.5(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
+      '@nebula.gl/layers': 1.1.0-alpha.5(patch_hash=3qgxfrecrbgk63aakab5ctm3ee)(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
       '@turf/bbox': 6.5.0
       '@turf/bbox-polygon': 6.5.0
       '@turf/bearing': 6.5.0

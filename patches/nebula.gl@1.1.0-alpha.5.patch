@@ -1,3 +1,16 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 6688f906cfca007c6d811f8a0cd375807c52092f..f04a1eb17ee52edde459a3f1d83b461eba0bc7a3 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -10,7 +10,7 @@ import { v4 as F } from "uuid";
+ import { JunctionScatterplotLayer as G, PathMarkerLayer as E } from "@nebula.gl/layers";
+ import { EditableGeoJsonLayer as me, ElevatedEditHandleLayer as Pe, PathMarkerLayer as be, PathOutlineLayer as Le, SelectionLayer as Me } from "@nebula.gl/layers";
+ import Y from "@luma.gl/constants";
+-import { WebMercatorViewport as C } from "@deck.gl/core/typed";
++import { WebMercatorViewport as C } from "@deck.gl/core";
+ import { CompositeMode as ke, Draw90DegreePolygonMode as Ee, DrawCircleByDiameterMode as Ce, DrawCircleFromCenterMode as De, DrawEllipseByBoundingBoxMode as _e, DrawEllipseUsingThreePointsMode as Oe, DrawLineStringMode as Re, DrawPointMode as xe, DrawPolygonByDraggingMode as je, DrawPolygonMode as Ie, DrawRectangleFromCenterMode as ve, DrawRectangleMode as Se, DrawRectangleUsingThreePointsMode as Ae, DrawSquareFromCenterMode as Te, DrawSquareMode as Ne, DuplicateMode as Be, ElevationMode as Fe, ExtendLineStringMode as Ge, ExtrudeMode as Ye, GeoJsonEditMode as Ue, ImmutableFeatureCollection as We, MeasureAngleMode as He, MeasureAreaMode as Je, MeasureDistanceMode as Xe, ModifyMode as ze, ResizeCircleMode as Ve, RotateMode as qe, ScaleMode as Ke, SnappableMode as $e, SplitPolygonMode as Ze, TransformMode as Qe, TranslateMode as et, ViewMode as tt } from "@nebula.gl/edit-modes";
+ const p = {
+   NONE: 0,
 diff --git a/package.json b/package.json
 index 21dc07fbb9f059d974e09930c2532a1bd19c7e87..cd6ebb662b2c3bb0e3e82901c9bf21137bc95ab1 100644
 --- a/package.json
