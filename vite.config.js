@@ -27,9 +27,6 @@ export function serveTestFixtures() {
   return {
     name: 'serve-test-fixtures-dir',
     configureServer(server) {
-
-
-
       server.middlewares.use((req, res, next) => {
         if (/^\/@fixtures\/zarr\//.test(req.url)) {
           req.url = req.url.replace('/@fixtures/zarr/', '');
