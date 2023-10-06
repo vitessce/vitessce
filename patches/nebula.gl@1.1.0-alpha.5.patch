@@ -1,5 +1,5 @@
 diff --git a/package.json b/package.json
-index 28ea5d2a07fdb68a3a29fc5a2b78636dde02d4d9..ff1a5660e14066341334c10cdb4764a191acc524 100644
+index 21dc07fbb9f059d974e09930c2532a1bd19c7e87..cd6ebb662b2c3bb0e3e82901c9bf21137bc95ab1 100644
 --- a/package.json
 +++ b/package.json
 @@ -14,6 +14,8 @@
@@ -7,7 +7,7 @@ index 28ea5d2a07fdb68a3a29fc5a2b78636dde02d4d9..ff1a5660e14066341334c10cdb4764a1
      "layer"
    ],
 +  "type": "module",
-+  "exports": "./dist-es6/index.js",
++  "exports": "./dist/index.mjs",
    "main": "dist/index.js",
-   "module": "dist-es6/index.js",
+   "module": "dist/index.mjs",
    "files": [

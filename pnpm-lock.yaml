@@ -33,9 +33,9 @@ patchedDependencies:
   deck.gl@8.9.30:
     hash: 2sip7jstlhsbb47ri5thrtcn7m
     path: patches/deck.gl@8.9.30.patch
-  nebula.gl@0.23.8:
-    hash: ult4zer6qsu7v32s2dwtdrqlqy
-    path: patches/nebula.gl@0.23.8.patch
+  nebula.gl@1.1.0-alpha.5:
+    hash: yk7atatdvsjl7axggqamnagdxy
+    path: patches/nebula.gl@1.1.0-alpha.5.patch
 
 importers:
 
@@ -418,11 +418,11 @@ importers:
         specifier: ^3.5.6
         version: 3.6.3
       '@nebula.gl/edit-modes':
-        specifier: 0.23.8
-        version: 0.23.8
+        specifier: 1.1.0-alpha.5
+        version: 1.1.0-alpha.5
       '@nebula.gl/layers':
-        specifier: 0.23.8
-        version: 0.23.8(@deck.gl/core@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
+        specifier: 1.1.0-alpha.5
+        version: 1.1.0-alpha.5(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
       '@turf/area':
         specifier: ^6.5.0
         version: 6.5.0
@@ -466,8 +466,8 @@ importers:
         specifier: ^9.2.0
         version: 9.5.2
       nebula.gl:
-        specifier: 0.23.8
-        version: 0.23.8(patch_hash=ult4zer6qsu7v32s2dwtdrqlqy)(@deck.gl/core@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
+        specifier: 1.1.0-alpha.5
+        version: 1.1.0-alpha.5(patch_hash=yk7atatdvsjl7axggqamnagdxy)(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
     devDependencies:
       glsl-colormap:
         specifier: ^1.0.1
@@ -4802,15 +4802,6 @@ packages:
       - supports-color
     dev: true
 
-  /@danmarshall/deckgl-typings@3.5.0:
-    resolution: {integrity: sha512-YDwHoWxAUQdgSkxdqSp+CFUlzrnat9rEeRKucA8zE78iwUVkmOVCRjOrtVf1CjQuBRWhQbs/7/2V3N9wFc9rtw==}
-    requiresBuild: true
-    dependencies:
-      '@types/hammerjs': 2.0.41
-      '@types/react': 18.2.7
-      indefinitely-typed: 1.1.0
-    dev: false
-
   /@deck.gl/aggregation-layers@8.9.30(patch_hash=ykwjnmh6npjz46g52sxtzhlesm)(@deck.gl/core@8.9.30)(@deck.gl/layers@8.9.30)(@luma.gl/core@8.5.21):
     resolution: {integrity: sha512-yB77uOeVVnntk4PNRGzVV+luFapTpVvdtcESLBq1sk7VJzQluaIHHTI2Mr2EZlVXi2IVSRDpAkg6QwrQa0zf/A==}
     peerDependencies:
@@ -7116,8 +7107,8 @@ packages:
     resolution: {integrity: sha512-H1rQc1ZOHANWBvPcW+JpGwr+juXSxM8Q8YCkm3GhZd8REu1fHR3z99CErO1p9pkcfcxZnMdIZdIsXkOHY0NilA==}
     dev: false
 
-  /@nebula.gl/edit-modes@0.23.8:
-    resolution: {integrity: sha512-2zzQKXx1/KCA4JePWynWfVfAt/9Idvr/ffCSq0NxyYkQOPJODEXT9h4EH0PBRvjf8MLgGsxgCVZ92LaASEi77Q==}
+  /@nebula.gl/edit-modes@1.1.0-alpha.5:
+    resolution: {integrity: sha512-qjMEXM+PNRUKgA/DlaThpS0Mf1x68VUa7YJq3srQtzPvGqDoEidIa2rTeBANymPyApBOH4GFpkI4l0/hjLB2BA==}
     dependencies:
       '@turf/along': 6.5.0
       '@turf/area': 6.5.0
@@ -7136,6 +7127,7 @@ packages:
       '@turf/helpers': 6.5.0
       '@turf/intersect': 6.5.0
       '@turf/line-intersect': 6.5.0
+      '@turf/midpoint': 6.5.0
       '@turf/nearest-point-on-line': 6.5.0
       '@turf/point-to-line-distance': 6.5.0
       '@turf/polygon-to-line': 6.5.0
@@ -7149,24 +7141,25 @@ packages:
       viewport-mercator-project: 7.0.4
     dev: false
 
-  /@nebula.gl/layers@0.23.8(@deck.gl/core@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21):
-    resolution: {integrity: sha512-29xzYyE2uMmZsBb4/io6SzNS8Mxfr1L4PeL1B4WV1fx83phbZa22qb8ktQ/tOkLnwVwm0Zk3QRiLfrrQGD1V4g==}
+  /@nebula.gl/layers@1.1.0-alpha.5(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21):
+    resolution: {integrity: sha512-3QCcHuSmL/lJeAI1y1hN8NSlf1ootB8kK1KK8ePdj9h96aHbPMJ1KorhgSYuTBd71mn16G9k9mGPNj9eje48EQ==}
     peerDependencies:
-      '@deck.gl/core': ^8.4.6
-      '@deck.gl/geo-layers': ^8.4.6
-      '@deck.gl/layers': ^8.4.6
-      '@deck.gl/mesh-layers': ^8.4.6
-      '@luma.gl/constants': ^8.4.3
-      '@luma.gl/core': ^8.4.3
+      '@deck.gl/core': ^8.8.23
+      '@deck.gl/extensions': ^8.8.23
+      '@deck.gl/geo-layers': ^8.8.23
+      '@deck.gl/layers': ^8.8.23
+      '@deck.gl/mesh-layers': ^8.8.23
+      '@luma.gl/constants': ^8.5.18
+      '@luma.gl/core': ^8.5.18
     dependencies:
-      '@danmarshall/deckgl-typings': 3.5.0
       '@deck.gl/core': 8.9.30(patch_hash=m3w2bsh3hynziqtpzly5i2bujm)
+      '@deck.gl/extensions': 8.9.30(patch_hash=urxkjdq3fvnuf74rrdzqrki7aq)(@deck.gl/core@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@math.gl/core@3.6.3)(@math.gl/web-mercator@3.6.3)(gl-matrix@3.4.3)
       '@deck.gl/geo-layers': 8.9.30(patch_hash=hdg422afjphevhgs3suyaikr4u)(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@loaders.gl/core@3.4.14)(@loaders.gl/gltf@3.4.14)(@loaders.gl/images@3.4.14)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21)
       '@deck.gl/layers': 8.9.30(patch_hash=7dwlm4xbs4zzdl637leqgcnzt4)(@deck.gl/core@8.9.30)(@loaders.gl/core@3.4.14)(@luma.gl/core@8.5.21)
       '@deck.gl/mesh-layers': 8.9.30(patch_hash=hmyoxas2ujkw3fvwk5riiwe3fe)(@deck.gl/core@8.9.30)(@loaders.gl/images@3.4.14)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21)
       '@luma.gl/constants': 8.5.21
       '@luma.gl/core': 8.5.21
-      '@nebula.gl/edit-modes': 0.23.8
+      '@nebula.gl/edit-modes': 1.1.0-alpha.5
       '@turf/bbox': 6.5.0
       '@turf/bbox-polygon': 6.5.0
       '@turf/bearing': 6.5.0
@@ -9641,6 +9634,15 @@ packages:
   /@turf/meta@6.5.0:
     resolution: {integrity: sha512-RrArvtsV0vdsCBegoBtOalgdSOfkBrTJ07VkpiCnq/491W67hnMWmDu7e6Ztw0C3WldRYTXkg3SumfdzZxLBHA==}
     dependencies:
+      '@turf/helpers': 6.5.0
+    dev: false
+
+  /@turf/midpoint@6.5.0:
+    resolution: {integrity: sha512-MyTzV44IwmVI6ec9fB2OgZ53JGNlgOpaYl9ArKoF49rXpL84F9rNATndbe0+MQIhdkw8IlzA6xVP4lZzfMNVCw==}
+    dependencies:
+      '@turf/bearing': 6.5.0
+      '@turf/destination': 6.5.0
+      '@turf/distance': 6.5.0
       '@turf/helpers': 6.5.0
     dev: false
 
@@ -15310,6 +15312,10 @@ packages:
   /eventemitter3@4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
 
+  /eventemitter3@5.0.1:
+    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
+    dev: false
+
   /events@3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
@@ -15949,6 +15955,7 @@ packages:
       graceful-fs: 4.2.10
       jsonfile: 4.0.0
       universalify: 0.1.2
+    dev: true
 
   /fs-extra@8.1.0:
     resolution: {integrity: sha512-yhlQgA6mnOJUKOsRUFsgJdQCvkKhcz8tlZG5HBQfReYZy46OwLcY+Zia0mtdHsOo9y/hP+CxMN0TU9QxoOtG4g==}
@@ -17003,14 +17010,6 @@ packages:
     resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==}
     engines: {node: '>=0.8.19'}
 
-  /indefinitely-typed@1.1.0:
-    resolution: {integrity: sha512-giaI0hCj+wWZIZZLsmWHI+LrM4Hwc+rEZ/VrgCafKePcnE42fLnQTFt4xspqLin8fCjI5WnQr2fep/0EFqjaxw==}
-    hasBin: true
-    dependencies:
-      fs-extra: 7.0.1
-      minimist: 1.2.8
-    dev: false
-
   /indent-string@4.0.0:
     resolution: {integrity: sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg==}
     engines: {node: '>=8'}
@@ -17891,6 +17890,7 @@ packages:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
     optionalDependencies:
       graceful-fs: 4.2.10
+    dev: true
 
   /jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
@@ -18986,21 +18986,23 @@ packages:
       randexp: 0.4.6
     dev: false
 
-  /nebula.gl@0.23.8(patch_hash=ult4zer6qsu7v32s2dwtdrqlqy)(@deck.gl/core@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21):
-    resolution: {integrity: sha512-c/McY/c2kOw0IJAqqfE3I3ZNsd+3TJLWDDSM3tdjyFMIcSiS5bhiKTrbBxbRpPeuDet0CjJcxz2bwwYBF1EUcA==}
+  /nebula.gl@1.1.0-alpha.5(patch_hash=yk7atatdvsjl7axggqamnagdxy)(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21):
+    resolution: {integrity: sha512-4N+v32puN3dp3+jQPyS+O+bBl2e6PJIvnIfvzNPOB01TGDhlDVAAflHrnjcoi6wPdzYX6QsewAgt/QhgQuHo2A==}
     peerDependencies:
-      '@deck.gl/core': ^8.4.6
-      '@deck.gl/geo-layers': ^8.4.6
-      '@deck.gl/layers': ^8.4.6
-      '@luma.gl/constants': ^8.4.3
-      '@luma.gl/core': ^8.4.3
+      '@deck.gl/core': ^8.8.23
+      '@deck.gl/extensions': ^8.8.23
+      '@deck.gl/geo-layers': ^8.8.23
+      '@deck.gl/layers': ^8.8.23
+      '@luma.gl/constants': ^8.5.18
+      '@luma.gl/core': ^8.5.18
     dependencies:
       '@deck.gl/core': 8.9.30(patch_hash=m3w2bsh3hynziqtpzly5i2bujm)
+      '@deck.gl/extensions': 8.9.30(patch_hash=urxkjdq3fvnuf74rrdzqrki7aq)(@deck.gl/core@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@math.gl/core@3.6.3)(@math.gl/web-mercator@3.6.3)(gl-matrix@3.4.3)
       '@deck.gl/geo-layers': 8.9.30(patch_hash=hdg422afjphevhgs3suyaikr4u)(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@loaders.gl/core@3.4.14)(@loaders.gl/gltf@3.4.14)(@loaders.gl/images@3.4.14)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21)
       '@deck.gl/layers': 8.9.30(patch_hash=7dwlm4xbs4zzdl637leqgcnzt4)(@deck.gl/core@8.9.30)(@loaders.gl/core@3.4.14)(@luma.gl/core@8.5.21)
       '@luma.gl/constants': 8.5.21
       '@luma.gl/core': 8.5.21
-      '@nebula.gl/layers': 0.23.8(@deck.gl/core@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
+      '@nebula.gl/layers': 1.1.0-alpha.5(@deck.gl/core@8.9.30)(@deck.gl/extensions@8.9.30)(@deck.gl/geo-layers@8.9.30)(@deck.gl/layers@8.9.30)(@deck.gl/mesh-layers@8.9.30)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
       '@turf/bbox': 6.5.0
       '@turf/bbox-polygon': 6.5.0
       '@turf/bearing': 6.5.0
@@ -19024,9 +19026,9 @@ packages:
       '@turf/transform-translate': 6.5.0
       '@turf/union': 6.5.0
       cubic-hermite-spline: 1.0.1
+      eventemitter3: 5.0.1
       geojson-types: 2.0.1
-      global: 4.4.0
-      uuid: 7.0.3
+      uuid: 9.0.0
       viewport-mercator-project: 7.0.4
     transitivePeerDependencies:
       - '@deck.gl/mesh-layers'
@@ -24175,6 +24177,7 @@ packages:
   /universalify@0.1.2:
     resolution: {integrity: sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg==}
     engines: {node: '>= 4.0.0'}
+    dev: true
 
   /universalify@0.2.0:
     resolution: {integrity: sha512-CJ1QgKmNg3CwvAv/kOFmtnEN05f0D/cn9QntgNOQlQF9dgvVTHj3t+8JPdjqawCHk7V/KA+fbUqzZ9XWhcqPUg==}
@@ -24413,11 +24416,6 @@ packages:
   /uuid@2.0.3:
     resolution: {integrity: sha512-FULf7fayPdpASncVy4DLh3xydlXEJJpvIELjYjNeQWYUZ9pclcpvCZSr2gkmN2FrrGcI7G/cJsIEwk5/8vfXpg==}
     deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
-    dev: false
-
-  /uuid@7.0.3:
-    resolution: {integrity: sha512-DPSke0pXhTZgoF/d+WSt2QaKMCFSfx7QegxEWT+JOuHF5aWrKEn0G+ztjuJg/gG8/ItK+rbPCD/yNv8yyih6Cg==}
-    hasBin: true
     dev: false
 
   /uuid@8.3.2:

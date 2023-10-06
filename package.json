@@ -98,7 +98,7 @@
       "@deck.gl/extensions@8.9.30": "patches/@deck.gl__extensions@8.9.30.patch",
       "@deck.gl/mesh-layers@8.9.30": "patches/@deck.gl__mesh-layers@8.9.30.patch",
       "@deck.gl/react@8.9.30": "patches/@deck.gl__react@8.9.30.patch",
-      "nebula.gl@0.23.8": "patches/nebula.gl@0.23.8.patch"
+      "nebula.gl@1.1.0-alpha.5": "patches/nebula.gl@1.1.0-alpha.5.patch"
     }
   },
   "license": "MIT"
