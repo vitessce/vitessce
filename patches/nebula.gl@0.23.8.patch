@@ -1,0 +1,13 @@
+diff --git a/package.json b/package.json
+index 28ea5d2a07fdb68a3a29fc5a2b78636dde02d4d9..ff1a5660e14066341334c10cdb4764a191acc524 100644
+--- a/package.json
++++ b/package.json
+@@ -14,6 +14,8 @@
+     "overlay",
+     "layer"
+   ],
++  "type": "module",
++  "exports": "./dist-es6/index.js",
+   "main": "dist/index.js",
+   "module": "dist-es6/index.js",
+   "files": [

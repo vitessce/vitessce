@@ -1,0 +1,13 @@
+diff --git a/package.json b/package.json
+index bc9f4be2202fc854a3a62f6e4db1eb787fc330c8..ea9c4109932bfde979316a6e48be35aed63c2511 100644
+--- a/package.json
++++ b/package.json
+@@ -16,6 +16,8 @@
+     "type": "git",
+     "url": "https://github.com/visgl/deck.gl.git"
+   },
++  "type": "module",
++  "exports": "./dist/esm/index.js",
+   "main": "dist/es5/index.js",
+   "module": "dist/esm/index.js",
+   "files": [
