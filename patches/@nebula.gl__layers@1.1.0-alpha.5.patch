@@ -1,0 +1,26 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index c6668b6ffb9305a1078ffd87c61475102398433e..d981a66dadb68972cdd017430e191999a568a9ed 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -1,6 +1,6 @@
+-import { PathLayer as A, GeoJsonLayer as F, IconLayer as oe, ScatterplotLayer as M, TextLayer as ae, LineLayer as le } from "@deck.gl/layers/typed";
++import { PathLayer as A, GeoJsonLayer as F, IconLayer as oe, ScatterplotLayer as M, TextLayer as ae, LineLayer as le } from "@deck.gl/layers";
+ import { ViewMode as k, ModifyMode as ce, SnappableMode as H, TranslateMode as de, TransformMode as he, ScaleMode as ue, RotateMode as pe, DuplicateMode as ge, SplitPolygonMode as fe, ExtrudeMode as Ee, ElevationMode as ye, DrawPointMode as Le, DrawLineStringMode as Se, DrawPolygonMode as b, DrawRectangleMode as Y, DrawSquareMode as me, DrawRectangleFromCenterMode as Pe, DrawSquareFromCenterMode as Me, DrawCircleFromCenterMode as xe, DrawCircleByDiameterMode as ve, DrawEllipseByBoundingBoxMode as Te, DrawRectangleUsingThreePointsMode as _e, DrawEllipseUsingThreePointsMode as Ce, Draw90DegreePolygonMode as we, DrawPolygonByDraggingMode as Ie } from "@nebula.gl/edit-modes";
+-import { CompositeLayer as v, COORDINATE_SYSTEM as U } from "@deck.gl/core/typed";
++import { CompositeLayer as v, COORDINATE_SYSTEM as U } from "@deck.gl/core";
+ import "@turf/destination";
+ import "@turf/bearing";
+ import "@turf/point-to-line-distance";
+diff --git a/package.json b/package.json
+index 3025ebda39fe99c5af88dfaf90940d3c5e20c3c6..fb395bb5e465843c739811d7a2e57d75c150ff24 100644
+--- a/package.json
++++ b/package.json
+@@ -14,6 +14,8 @@
+     "overlay",
+     "layer"
+   ],
++  "type": "module",
++  "exports": "./dist/index.mjs",
+   "main": "dist/index.js",
+   "module": "dist/index.mjs",
+   "files": [

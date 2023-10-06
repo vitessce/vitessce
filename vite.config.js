@@ -27,9 +27,6 @@ export function serveTestFixtures() {
   return {
     name: 'serve-test-fixtures-dir',
     configureServer(server) {
-
-
-
       server.middlewares.use((req, res, next) => {
         if (/^\/@fixtures\/zarr\//.test(req.url)) {
           req.url = req.url.replace('/@fixtures/zarr/', '');
@@ -65,6 +62,10 @@ export default defineConfig({
     setupFiles: [resolve(__dirname, './vitest.setup.js')],
     deps: {
       inline: ['vitest-canvas-mock'],
+      // This is required in order for the deck.gl esm code in node_modules to be loaded
+      // via Vitest when it runs tests in Node, since it uses extension-less imports,
+      // so we need to tell Vitest to use Node's --experimental-specifier-resolution=node.
+      registerNodeLoader: true,
     },
     environmentOptions: {
       jsdom: {
