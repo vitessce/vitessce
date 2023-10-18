@@ -34,6 +34,7 @@ export const DataType = {
   OBS_SPOTS: 'obsSpots',
   OBS_POINTS: 'obsPoints',
   OBS_LOCATIONS: 'obsLocations',
+  TERM_EDGES: 'termEdges',
 };
 
 
@@ -88,6 +89,7 @@ export const FileType = {
   // OME-TIFF
   IMAGE_OME_TIFF: 'image.ome-tiff',
   OBS_SEGMENTATIONS_OME_TIFF: 'obsSegmentations.ome-tiff',
+  TERM_EDGES_JSON: 'termEdges.json',
   // New file types to support old file types:
   // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
