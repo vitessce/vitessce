@@ -45,6 +45,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_SPOTS_SPATIALDATA_ZARR]: DataType.OBS_SPOTS,
   [FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR]: DataType.OBS_FEATURE_MATRIX,
   [FileType.OBS_SETS_SPATIALDATA_ZARR]: DataType.OBS_SETS,
+  [FileType.POINTS_ZARR]: DataType.OBS_POINTS,
 
   // For new file types to support old file types
   [FileType.OBS_EMBEDDING_CELLS_JSON]: DataType.OBS_EMBEDDING,

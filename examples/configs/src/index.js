@@ -39,6 +39,7 @@ import { kpmp2023 } from './view-configs/spatial-beta/kpmp.js';
 import { visiumSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium.js';
 import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium_io.js';
 import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
+import { pointCloudOop } from './view-configs/spatial-beta/point-cloud.js';
 
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
@@ -104,6 +105,7 @@ export const configs = {
   'codeluppi-2018-2': codeluppiOop2018,
   'kpmp-2023': kpmp2023,
   'kpmp-2023-2': kpmpOop2023,
+  'point-cloud': pointCloudOop,
 
   // TODO(spatialBeta): clean up
   'ims-algorithm-comparison': imsAlgorithmComparison,
