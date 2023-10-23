@@ -99,6 +99,8 @@ export const imageSpatialdataSchema = imageOmeZarrSchema.extend({
   path: z.string(),
 });
 export const obsSegmentationsSpatialdataSchema = z.object({
+  // TODO: should this also extend the imageOmeZarrSchema?
+  // TODO: should this be renamed labelsSpatialdataSchema?
   path: z.string(),
 });
 export const obsLocationsSpatialdataSchema = z.object({
@@ -200,4 +202,13 @@ export const anndataZarrSchema = z.object({
     annDataObsEmbedding,
     z.array(annDataConvenienceObsEmbeddingItem),
   ]),
+}).partial();
+
+export const spatialdataZarrSchema = z.object({
+  image: imageSpatialdataSchema, // TODO: should this be a special schema to allow specifying fileUid (like for embeddingType)?
+  labels: obsSegmentationsSpatialdataSchema, // TODO: should this be a special schema to allow specifying fileUid (like for embeddingType)?
+  obsFeatureMatrix: obsFeatureMatrixSpatialdataSchema,
+  obsSpots: obsSpotsSpatialdataSchema,
+  obsLocations: obsLocationsSpatialdataSchema,
+  obsSets: obsSetsSpatialdataSchema,
 }).partial();

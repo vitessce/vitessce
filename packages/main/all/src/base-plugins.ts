@@ -37,6 +37,7 @@ import {
   featureLabelsAnndataSchema,
   rasterJsonSchema,
   anndataZarrSchema,
+  spatialdataZarrSchema,
   anndataCellsZarrSchema,
   anndataCellSetsZarrSchema,
   anndataExpressionMatrixZarrSchema,
@@ -144,6 +145,7 @@ import {
 // Joint file types
 import {
   expandAnndataZarr,
+  expandSpatialdataZarr,
 } from './joint-file-types.js';
 import {
   expandAnndataCellSetsZarr,
@@ -253,7 +255,7 @@ export const baseFileTypes = [
 
 export const baseJointFileTypes = [
   new PluginJointFileType(FileType.ANNDATA_ZARR, expandAnndataZarr, anndataZarrSchema),
-  // new PluginJointFileType(FileType.SPATIALDATA_ZARR, expandSpatialdataZarr, spatialdataZarrSchema),
+  new PluginJointFileType(FileType.SPATIALDATA_ZARR, expandSpatialdataZarr, spatialdataZarrSchema),
   // For legacy file types:
   new PluginJointFileType(FileType.ANNDATA_CELLS_ZARR, expandAnndataCellsZarr, anndataCellsZarrSchema),
   new PluginJointFileType(FileType.ANNDATA_CELL_SETS_ZARR, expandAnndataCellSetsZarr, anndataCellSetsZarrSchema),
