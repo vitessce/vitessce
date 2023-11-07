@@ -3,6 +3,7 @@ import React, { forwardRef } from 'react';
 import { forceSimulation } from 'd3-force';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
+  ContourLayer,
 } from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
 import {
@@ -84,10 +85,79 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.cellSetsLabelPrevZoom = null;
     this.cellSetsLayers = [];
 
+    this.contourLayer = null;
+
     // Initialize data and layers.
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();
     this.onUpdateCellSetsLayers();
+  }
+
+  createContourLayer() {
+    const {
+      obsEmbeddingIndex: obsIndex,
+      theme,
+      cellRadius = 1.0,
+      cellOpacity = 1.0,
+      // cellFilter,
+      cellSelection,
+      setCellHighlight,
+      setComponentHover,
+      getCellIsSelected,
+      cellColors,
+      getCellColor = makeDefaultGetCellColors(cellColors, obsIndex, theme),
+      getExpressionValue,
+      onCellClick,
+      geneExpressionColormap,
+      geneExpressionColormapRange = [0.0, 1.0],
+      cellColorEncoding,
+    } = this.props;
+
+    const baseOpacity = false ? 0.5 * 255 : 255;
+
+    // TODO: return a separate contour layer for each cell set?
+    // TODO: use real `group` object.
+    const group = {
+      name: 'test',
+      color: [255, 0, 0],
+      indices: obsIndex.map((x, i) => i), 
+    }
+    const { name, color: groupColor, indices } = group;
+
+    const color = (true ? groupColor : [180, 180, 180]);
+    const [r, g, b, a] = color;
+
+    return new ContourLayer({
+      id: `contour`,
+      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+      data: {
+        src: { indices, embedding: this.cellsData.src.obsEmbedding.data },
+        length: indices.length
+      },
+      visible: true,
+      pickable: false,
+      autoHighlight: false,
+      filled: true,
+      getPolygonOffset: () => ([0, 20]),
+      // cellSize: 0.5,
+      // contours: [
+      //   { threshold: 10, color: [r, g, b, 0.9 * baseOpacity], strokeWidth: 2 },
+      //   { threshold: [10, 1000], color: [r, g, b, 0.7 * baseOpacity] },
+      cellSize: 0.8,
+      contours: [
+        { threshold: 40, color: [r, g, b, 0.9 * baseOpacity], strokeWidth: 2 },
+        { threshold: [40, 1000], color: [r, g, b, 0.7 * baseOpacity] },
+      ],
+      getPosition: (object, { index, data, target }) => {
+        target[0] = data.src.embedding[0][data.src.indices[index]];
+        target[1] = -data.src.embedding[1][data.src.indices[index]];
+        target[2] = 0;
+        return target;
+      },
+      pattern: true,
+      getFillPattern: () => "hatch-cross",
+      getFillPatternScale: 350,
+    });
   }
 
   createCellsLayer() {
@@ -255,8 +325,10 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const {
       cellsLayer,
       cellSetsLayers,
+      contourLayer,
     } = this;
     return [
+      contourLayer,
       cellsLayer,
       ...cellSetsLayers,
       this.createSelectionLayer(),
@@ -281,8 +353,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const { obsEmbeddingIndex, obsEmbedding } = this.props;
     if (obsEmbeddingIndex && obsEmbedding) {
       this.cellsLayer = this.createCellsLayer();
+      // TODO: create contour layer separately, only if enabled
+      this.contourLayer = this.createContourLayer();
     } else {
       this.cellsLayer = null;
+      this.contourLayer = null;
     }
   }
 

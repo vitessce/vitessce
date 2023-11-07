@@ -47,6 +47,7 @@ import { imsAlgorithmComparison } from './view-configs/spatial-beta/ims-algorith
 import { neumanOop2023 } from './view-configs/spatial-beta/neumann-oop.js';
 import { lightsheetOop2023 } from './view-configs/spatial-beta/lightsheet-oop.js';
 import { visiumPolygonsOop2023 } from './view-configs/spatial-beta/visium-polygons-oop.js';
+import { lake2023 } from './view-configs/lake_2023_nature.js';
 
 
 export const coordinationTypeConfigs = {
@@ -94,6 +95,7 @@ export const configs = {
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
+  'lake-2023': lake2023,
 
   // Multi-level coordination with spatialBeta view:
   'blin-2019-2': blinOop2019,
