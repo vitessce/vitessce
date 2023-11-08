@@ -27,6 +27,32 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
     cy.contains('HiGlass');
     cy.get('.higlass .tiled-plot-div', { timeout: 5000 });
   });
+  it('Works when loaded in same page as CCF UI components', () => {
+    // Tests for vitessce display
+    cy.visit('/sites/html/src/ccf-ui.html');
+    cy.contains('Demo of Vitessce');
+    cy.contains('Scatterplot (UMAP)');
+    cy.contains('523 cells'); // Not public; requires "show=all".
+    cy.contains('Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH');
+    // Labels inside the CCF UI Deck.GL viewer
+    cy.contains('Left');
+    cy.contains('Right');
+    cy.contains('Male');
+    cy.contains('Female');
+    // Various metadata displayed next to CCF UI
+    cy.contains('Tissue Data Providers');
+    cy.contains('Donors');
+    cy.contains('Tissue Blocks');
+    cy.contains('Tissue Sections');
+    cy.contains('Tissue Datasets');
+    // Actions/links next to CCF UI
+    cy.contains('Register Tissue');
+    cy.contains('Explore Tissue');
+    cy.contains('ASCT+B Reporter');
+    cy.contains('HRA Portal');
+    cy.contains('Online Course');
+    cy.contains('Paper');
+  });
   // Controlled component tests
   it('Renders when used as a controlled component', () => {
     cy.visit('/sites/html/src/controlled-component.html');
