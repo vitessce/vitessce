@@ -350,8 +350,8 @@ importers:
         specifier: 8.8.27
         version: 8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
       '@hms-dbmi/viv':
-        specifier: ~0.13.8
-        version: 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
+        specifier: ~0.14.0
+        version: 0.14.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
       '@loaders.gl/3d-tiles':
         specifier: ^3.0.0
         version: 3.2.10(@loaders.gl/core@3.2.10)
@@ -469,7 +469,7 @@ importers:
         version: link:../schemas
       zod-to-json-schema:
         specifier: ^3.20.4
-        version: 3.21.1(zod@3.21.4)
+        version: 3.21.1(zod@3.22.4)
 
   packages/legend:
     dependencies:
@@ -781,8 +781,8 @@ importers:
   packages/utils/image-utils:
     dependencies:
       '@hms-dbmi/viv':
-        specifier: ~0.13.8
-        version: 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
+        specifier: ~0.14.0
+        version: 0.14.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
       '@vitessce/spatial-utils':
         specifier: workspace:*
         version: link:../spatial-utils
@@ -6085,16 +6085,16 @@ packages:
       '@hapi/hoek': 9.3.0
     dev: false
 
-  /@hms-dbmi/viv@0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0):
-    resolution: {integrity: sha512-6t5CvkkSwu6aUBSJGdHFAVRLZL5NRfmlRat1Ucpx/dWX32xzu9Hf8NV8d2+xAKIp4FN6fGeJC2ZdkkSisVUEtA==}
+  /@hms-dbmi/viv@0.14.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0):
+    resolution: {integrity: sha512-PgDlJj96EF9AIgXyFaMJHzr4j3EBPh190KGBqTKNpP9smBK1LvnzUrb/zrodB5/1JmSftTLt42hzmh6LtcWDKg==}
     dependencies:
-      '@vivjs/constants': 0.13.8
-      '@vivjs/extensions': 0.13.8(@deck.gl/core@8.8.27)
-      '@vivjs/layers': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
-      '@vivjs/loaders': 0.13.8
-      '@vivjs/types': 0.13.8
-      '@vivjs/viewers': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
-      '@vivjs/views': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
+      '@vivjs/constants': 0.14.0
+      '@vivjs/extensions': 0.14.0(@deck.gl/core@8.8.27)
+      '@vivjs/layers': 0.14.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
+      '@vivjs/loaders': 0.14.0
+      '@vivjs/types': 0.14.0
+      '@vivjs/viewers': 0.14.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
+      '@vivjs/views': 0.14.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
     transitivePeerDependencies:
       - '@deck.gl/core'
       - '@deck.gl/geo-layers'
@@ -10147,23 +10147,23 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
-  /@vivjs/constants@0.13.8:
-    resolution: {integrity: sha512-0XN4lUl6vG7x6KCTu7TdzmBIz8fmKaKLasuqNio18erafFvkxYJ6hnAGXClVVwbj26uKvmOzwO/hqEIUTIWLRg==}
+  /@vivjs/constants@0.14.0:
+    resolution: {integrity: sha512-0Dug3EnjDZz246/6edCrua2HcP8cdMvbFLriqbSqOhdwYje2mzkZ0Clr0raFhGNayHYThgVwYcjqty917EZGCg==}
     dependencies:
       '@luma.gl/constants': 8.5.21
     dev: false
 
-  /@vivjs/extensions@0.13.8(@deck.gl/core@8.8.27):
-    resolution: {integrity: sha512-7leQexk/5VXQrRZ+n3yOHx/FpH5uIA6HhMJnDRD+2PlSj/TLouSmPLz0Fr3+K2a8zBv+0qyGYROmzDZdru6FOw==}
+  /@vivjs/extensions@0.14.0(@deck.gl/core@8.8.27):
+    resolution: {integrity: sha512-L9p96uZsOWYRAReiuzzb8BeYycZbvE2blmvla/mQx2oN7uMKlKa7joVy1Cmt/sWk/T//9CwkWeKIg4pLR1J3Uw==}
     peerDependencies:
       '@deck.gl/core': ~8.8.6
     dependencies:
       '@deck.gl/core': 8.8.27
-      '@vivjs/constants': 0.13.8
+      '@vivjs/constants': 0.14.0
     dev: false
 
-  /@vivjs/layers@0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21):
-    resolution: {integrity: sha512-h66rWozTZS6d1pyHQuept5lOiEsCeOImwV0zfhVPvtagieE6tOyKFiGSpD/VP8zUjZUoNhanLOFpvoDXdJ6ytA==}
+  /@vivjs/layers@0.14.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21):
+    resolution: {integrity: sha512-MRAD4i2CUZgX6OaoLy5Bks0ntOsNAFz/Z5BZzd0nUTcBxhJoYUdGRJZaCrhoZQKo+dLsguveP5R8hrfzGh9wMg==}
     peerDependencies:
       '@deck.gl/core': ~8.8.6
       '@deck.gl/geo-layers': ~8.8.6
@@ -10182,40 +10182,40 @@ packages:
       '@luma.gl/webgl': 8.5.21
       '@math.gl/core': 3.6.3
       '@math.gl/culling': 3.6.3
-      '@vivjs/constants': 0.13.8
-      '@vivjs/extensions': 0.13.8(@deck.gl/core@8.8.27)
-      '@vivjs/loaders': 0.13.8
-      '@vivjs/types': 0.13.8
+      '@vivjs/constants': 0.14.0
+      '@vivjs/extensions': 0.14.0(@deck.gl/core@8.8.27)
+      '@vivjs/loaders': 0.14.0
+      '@vivjs/types': 0.14.0
     dev: false
 
-  /@vivjs/loaders@0.13.8:
-    resolution: {integrity: sha512-qeJ5LPb12nlV2FBnf9BtuTLg3hIjYsWK5FIIqy2hE7v5i4fxcr1RMFQ3NP8C77i0+1hzHVUkoS/Dq/F1OSJJLQ==}
+  /@vivjs/loaders@0.14.0:
+    resolution: {integrity: sha512-ClunQNXRZ50KmIbUirSbba3FZN0G1viiihv+gCS9q0P7pIqW5/q3zgl3Dh56/j+TxsNUF8ZPnlOTNP1HLqWcZA==}
     dependencies:
-      '@vivjs/types': 0.13.8
-      fast-xml-parser: 3.21.1
+      '@vivjs/types': 0.14.0
       geotiff: 2.0.5
       lzw-tiff-decoder: 0.1.1
       quickselect: 2.0.0
       zarr: 0.5.1
+      zod: 3.22.4
     dev: false
 
-  /@vivjs/types@0.13.8:
-    resolution: {integrity: sha512-D4g9jxNJ4wc/N/S4GuLcZJQu9j89UowhDH8IKswyK0yXlIfUpVngqxCw3wQCKcMeu7yLbDQgI+2gytB6jCV+rQ==}
+  /@vivjs/types@0.14.0:
+    resolution: {integrity: sha512-f1QONOl/qXB7ak4/QdfKnt1wuzniKMUlKxH423jS01Jc06gxsElBuIVd0ZWN1IlkKycR9GgEJVT/a0MsRT/4EQ==}
     dependencies:
-      '@vivjs/constants': 0.13.8
+      '@vivjs/constants': 0.14.0
       math.gl: 3.6.3
     dev: false
 
-  /@vivjs/viewers@0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0):
-    resolution: {integrity: sha512-TK7GyZ4iwXyfaKLSiwMccFystTxuOyckwRzOr7dEcsZvQnEKdJNqz30htIoSBtGtYpuaUPTbT/bsSg1F26nECQ==}
+  /@vivjs/viewers@0.14.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0):
+    resolution: {integrity: sha512-oE2bMq/yXsLJB/I7srjrBulFWL2ikl/Bno0l6anwntoiz05iqK7SaWnKacYk08GIhQUsj/WC8DCEBWQXwGm/qA==}
     peerDependencies:
       '@deck.gl/react': ~8.8.6
       react: ^16.8.0 || ^17.0.0 || 18
     dependencies:
       '@deck.gl/react': 8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
-      '@vivjs/constants': 0.13.8
-      '@vivjs/extensions': 0.13.8(@deck.gl/core@8.8.27)
-      '@vivjs/views': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
+      '@vivjs/constants': 0.14.0
+      '@vivjs/extensions': 0.14.0(@deck.gl/core@8.8.27)
+      '@vivjs/views': 0.14.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
       fast-deep-equal: 3.1.3
       react: 18.2.0
     transitivePeerDependencies:
@@ -10228,8 +10228,8 @@ packages:
       - '@luma.gl/webgl'
     dev: false
 
-  /@vivjs/views@0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21):
-    resolution: {integrity: sha512-qGay7rj3cUHpwmhng5JskoUqjbm6CG99PK3GWjfl23REubOIvqNfLdoqlIEFIElqXuz+99wgHyL6/fj5FSbN+A==}
+  /@vivjs/views@0.14.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21):
+    resolution: {integrity: sha512-8DMbJEkiniKZLhBTUQYTpox0Lr0V6eMBdwcHGj+KSQoc5P6ybPlIUUxv7HMNIMXwaYybbUIG1Q58Dvhukx468Q==}
     peerDependencies:
       '@deck.gl/core': ~8.8.6
       '@deck.gl/layers': ~8.8.6
@@ -10237,8 +10237,8 @@ packages:
       '@deck.gl/core': 8.8.27
       '@deck.gl/layers': 8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21)
       '@math.gl/core': 3.6.3
-      '@vivjs/layers': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
-      '@vivjs/loaders': 0.13.8
+      '@vivjs/layers': 0.14.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
+      '@vivjs/loaders': 0.14.0
       math.gl: 3.6.3
     transitivePeerDependencies:
       - '@deck.gl/geo-layers'
@@ -14968,13 +14968,6 @@ packages:
     resolution: {integrity: sha512-5jOCVXADYNuRkKFzNJ0dCCewsZiYo0dz8QNYljkOpFC6r2U4OBmKtvm/Tsuh4w1YYdDqDb31a8TVhBJ2OJKdqQ==}
     dependencies:
       punycode: 1.4.1
-    dev: false
-
-  /fast-xml-parser@3.21.1:
-    resolution: {integrity: sha512-FTFVjYoBOZTJekiUsawGsSYV9QL0A+zDYCRj7y34IO6Jg+2IMYEtQa+bbictpdpV8dHxXywqU7C0gRDEOFtBFg==}
-    hasBin: true
-    dependencies:
-      strnum: 1.0.5
     dev: false
 
   /fastq@1.13.0:
@@ -22861,10 +22854,6 @@ packages:
       acorn: 8.9.0
     dev: true
 
-  /strnum@1.0.5:
-    resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
-    dev: false
-
   /style-to-object@0.3.0:
     resolution: {integrity: sha512-CzFnRRXhzWIdItT3OmF8SQfWyahHhjq3HwcMNCNLn+N7klOOqPjMeG/4JSu77D7ypZdGvSzvkrbyeTMizz2VrA==}
     dependencies:
@@ -25189,9 +25178,22 @@ packages:
       zod: ^3.21.4
     dependencies:
       zod: 3.21.4
+    dev: true
+
+  /zod-to-json-schema@3.21.1(zod@3.22.4):
+    resolution: {integrity: sha512-y5g0MPxDq+YG/T+cHGPYH4PcBpyCqwK6wxeJ76MR563y0gk/14HKfebq8xHiItY7lkc9GDFygCnkvNDTvAhYAg==}
+    peerDependencies:
+      zod: ^3.21.4
+    dependencies:
+      zod: 3.22.4
+    dev: false
 
   /zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
+
+  /zod@3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
+    dev: false
 
   /zustand@3.7.2(react@18.2.0):
     resolution: {integrity: sha512-PIJDIZKtokhof+9+60cpockVOq05sJzHCriyvaLBmEJixseQ1a5Kdov6fWZfWOu5SK9c+FhH1jU0tntLxRJYMA==}
