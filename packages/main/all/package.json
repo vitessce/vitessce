@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/all",
-  "version": "3.1.1",
+  "version": "3.3.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -41,6 +41,7 @@
     "@vitessce/heatmap": "workspace:*",
     "@vitessce/json": "workspace:*",
     "@vitessce/layer-controller": "workspace:*",
+    "@vitessce/layer-controller-beta": "workspace:*",
     "@vitessce/obs-sets-manager": "workspace:*",
     "@vitessce/ome-tiff": "workspace:*",
     "@vitessce/plugins": "workspace:*",
@@ -48,6 +49,7 @@
     "@vitessce/scatterplot-gating": "workspace:*",
     "@vitessce/schemas": "workspace:*",
     "@vitessce/spatial": "workspace:*",
+    "@vitessce/spatial-beta": "workspace:*",
     "@vitessce/statistical-plots": "workspace:*",
     "@vitessce/status": "workspace:*",
     "@vitessce/vit-s": "workspace:*",

@@ -12,7 +12,7 @@ import {
   Slider,
 } from '@material-ui/core';
 import { viv } from '@vitessce/gl';
-import { abbreviateNumber, getBoundingCube } from './utils.js';
+import { abbreviateNumber, getBoundingCube } from '@vitessce/spatial-utils';
 import { useSelectStyles } from './styles.js';
 
 const useSlicerStyles = makeStyles(theme => createStyles({
@@ -60,6 +60,7 @@ const Slicer = ({
       zSliceInit,
     ],
   ];
+
   const classes = useSlicerStyles();
   const Slicers = sliceValuesAndSetSliceFunctions.map(
     ([val, setVal, label, [min, max]]) => (
@@ -74,6 +75,7 @@ const Slicer = ({
           <Typography
             className={!use3d ? classes.disabled : classes.enabled}
             style={{ marginBottom: 0 }}
+            variant="h2"
           >
             {label}:
           </Typography>
@@ -86,7 +88,7 @@ const Slicer = ({
             onChange={(e, v) => setVal(v)}
             valueLabelDisplay="auto"
             valueLabelFormat={v => abbreviateNumber(v)}
-            getAriaLabel={() => `${label} slider`}
+            aria-label={`Volume options ${label} slider`}
             min={min}
             max={max}
             step={0.005}
@@ -101,6 +103,7 @@ const Slicer = ({
       <Typography
         className={!use3d ? classes.disabled : classes.enabled}
         style={{ marginTop: 16, marginBottom: 0 }}
+        variant="h2"
       >
         Clipping Planes:{' '}
       </Typography>{' '}
@@ -129,6 +132,7 @@ function RenderingModeSelect({
         inputProps={{
           name: 'rendering-mode',
           id: 'rendering-mode-select',
+          'aria-label': 'Select rendering mode option',
         }}
         disabled={!use3d}
         classes={{ root: classes.selectRoot }}

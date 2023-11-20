@@ -140,3 +140,6 @@ Note that the S3 URLs contain the git hash, if you want to relate this to an exa
 - 2023-06-05: [release-v3.0.0](https://s3.amazonaws.com/vitessce-data/demos/2023-06-05/74d01aab/index.html)
 - 2023-06-30: [release-v3.0.1](https://s3.amazonaws.com/vitessce-data/demos/2023-06-30/8014e94f/index.html)
 - 2023-08-02: [changeset-release/main](https://s3.amazonaws.com/vitessce-data/demos/2023-08-02/f6dc3407/index.html)
+- 2023-09-01: [changeset-release/main](https://s3.amazonaws.com/vitessce-data/demos/2023-09-01/43f04746/index.html)
+- 2023-09-20: [keller-mark/zarrita-spatialdata](https://s3.amazonaws.com/vitessce-data/demos/2023-09-20/eb4917e0/index.html)
+- 2023-09-29: [main](https://s3.amazonaws.com/vitessce-data/demos/2023-09-29/2ea38a03/index.html)

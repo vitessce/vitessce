@@ -20,6 +20,9 @@ const configAttrs = {
   'kuppe-2022': ['mosaic', 'imaging', 'Zarr', 'AnnData'],
   'combat-2022': ['multi-modal', 'Zarr', 'AnnData', 'scalability'],
   'meta-2022-azimuth': ['Zarr', 'AnnData', 'scalability'],
+  'spatialdata-visium': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
+  'spatialdata-visium_io': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
+  'spatialdata-mcmicro_io': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
 };
 
 function cleanAttr(attrVal) {
@@ -49,6 +52,9 @@ function DemoList(props) {
       'kuppe-2022',
       'combat-2022',
       'meta-2022-azimuth',
+      'spatialdata-visium',
+      'spatialdata-visium_io',
+      'spatialdata-mcmicro_io',
     ],
   } = props;
 

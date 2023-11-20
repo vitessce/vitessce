@@ -6,9 +6,9 @@ import { cloneDeep } from 'lodash-es';
 const isDryrun = process.env.META_UPDATER_MODE === 'dryrun';
 const isVersionOnly = process.env.META_UPDATER_MODE === 'versiononly';
 
-const LUMAGL_VERSION = '~8.5.16';
+const LUMAGL_VERSION = '8.5.21';
 const LOADERSGL_VERSION = "^3.0.0";
-const DECKGL_VERSION = '~8.8.6';
+const DECKGL_VERSION = '8.8.27';
 const TURF_VERSION = "^6.5.0";
 const NEBULAGL_VERSION = "0.23.8";
 const OTHER_VERSIONS = {
@@ -16,9 +16,12 @@ const OTHER_VERSIONS = {
   'react-grid-layout-with-lodash': '^1.3.5',
   "internmap": "^2.0.3",
   "uuid": "^9.0.0",
-  "zarr": "0.5.1",
+  "zarrita": "0.4.0-next.4",
+  "@zarrita/core": "0.0.3",
+  "@zarrita/indexing": "0.0.3",
+  "@zarrita/storage": "0.0.2",
   "zustand": "^3.5.10",
-  "@hms-dbmi/viv": "~0.13.7",
+  "@hms-dbmi/viv": "~0.13.8",
   "clsx": "^1.1.1",
   "d3-array": "^2.4.0",
   "d3-dsv": "^1.1.1",
@@ -32,6 +35,7 @@ const OTHER_VERSIONS = {
   "@math.gl/core": "^3.5.6",
   "mathjs": "^9.2.0",
   "zod": "^3.21.4",
+  "react-aria": "^3.28.0",
   "semver": "^7.3.8",
   "vite": "^4.3.0",
   "@vitejs/plugin-react": "^4.0.0",

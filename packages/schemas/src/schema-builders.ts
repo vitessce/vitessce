@@ -8,7 +8,6 @@ import {
 } from '@vitessce/plugins';
 import {
   requestInit,
-  coordinationScopeName,
   componentCoordinationScopes,
   componentCoordinationScopesBy,
 } from './shared.js';
@@ -133,7 +132,10 @@ export function buildConfigSchema<
           .map(ct => ([
             ct.name,
             z.record(
-              coordinationScopeName,
+              // For now, assume the key type is string (though it would be
+              // slightly nicer if we could use the coordinationScopeName schema here).
+              // Once https://github.com/colinhacks/zod/issues/2746 gets resolved
+              // then we can try that approach again, but it should not be a big deal.
               ct.valueSchema.optional(),
             ).optional(),
           ])),

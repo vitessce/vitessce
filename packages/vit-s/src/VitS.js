@@ -63,6 +63,7 @@ import { createGenerateClassName } from './mui-utils.js';
 export function VitS(props) {
   const {
     config,
+    stores,
     rowHeight,
     height,
     theme,
@@ -197,6 +198,7 @@ export function VitS(props) {
         configOrWarning.description,
         fileTypes,
         coordinationTypes,
+        stores,
       );
       return createViewConfigStore(loaders, configOrWarning);
     }

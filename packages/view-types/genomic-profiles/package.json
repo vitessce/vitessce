@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/genomic-profiles",
-  "version": "3.1.1",
+  "version": "3.3.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -37,7 +37,7 @@
     "d3-array": "^2.4.0",
     "higlass-no-github-deps": "1.11.13",
     "higlass-register": "^0.3.0",
-    "higlass-zarr-datafetchers": "^0.2.1",
+    "higlass-zarr-datafetchers": "0.3.0-next.2",
     "lodash-es": "^4.17.21"
   },
   "devDependencies": {

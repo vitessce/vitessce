@@ -6,11 +6,15 @@ export { rasterJsonSchema } from './raster-json.js';
 export {
   obsEmbeddingCsvSchema,
   obsSetsCsvSchema,
+  obsSpotsCsvSchema,
+  obsPointsCsvSchema,
   obsLocationsCsvSchema,
   obsLabelsCsvSchema,
   featureLabelsCsvSchema,
   obsSetsAnndataSchema,
   obsEmbeddingAnndataSchema,
+  obsSpotsAnndataSchema,
+  obsPointsAnndataSchema,
   obsLocationsAnndataSchema,
   obsLabelsAnndataSchema,
   obsFeatureMatrixAnndataSchema,
@@ -19,6 +23,12 @@ export {
   anndataZarrSchema,
   imageOmeZarrSchema,
   imageOmeTiffSchema,
+  imageSpatialdataSchema,
+  obsSegmentationsSpatialdataSchema,
+  obsFeatureMatrixSpatialdataSchema,
+  obsSpotsSpatialdataSchema,
+  obsLocationsSpatialdataSchema,
+  obsSetsSpatialdataSchema,
 } from './file-def-options.js';
 export {
   anndataCellsZarrSchema,

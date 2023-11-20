@@ -56,6 +56,8 @@ const annDataObsSets = z.array(
   }),
 );
 
+const annDataObsSpots = annDataObsm;
+const annDataObsPoints = annDataObsm;
 const annDataObsLocations = annDataObsm;
 const annDataObsEmbedding = annDataObsm;
 const annDataObsSegmentations = annDataObs;
@@ -91,12 +93,45 @@ export const imageOmeZarrSchema = z.object({
     .optional(),
 });
 
+// SpatialData
+// TODO: properties to specify target coordinate system name?
+export const imageSpatialdataSchema = imageOmeZarrSchema.extend({
+  path: z.string(),
+});
+export const obsSegmentationsSpatialdataSchema = z.object({
+  path: z.string(),
+});
+export const obsLocationsSpatialdataSchema = z.object({
+  path: z.string(),
+});
+export const obsSpotsSpatialdataSchema = z.object({
+  path: z.string(),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which annotates the spots. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
+});
+export const obsFeatureMatrixSpatialdataSchema = annDataObsFeatureMatrix.extend({
+  region: z.string()
+    .describe('The name of a region to use to filter instances (i.e., rows) in the table')
+    .optional(),
+});
+export const obsSetsSpatialdataSchema = z.object({
+  region: z.string()
+    .describe('The name of a region to use to filter instances (i.e., rows) in the table')
+    .optional(),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which contains the index for the set values.'),
+  obsSets: annDataObsSets,
+});
 
 /**
  * Options schemas for atomic file types.
  */
 // AnnData
 export const obsEmbeddingAnndataSchema = annDataObsEmbedding;
+export const obsSpotsAnndataSchema = annDataObsLocations;
+export const obsPointsAnndataSchema = annDataObsLocations;
 export const obsLocationsAnndataSchema = annDataObsLocations;
 export const obsSegmentationsAnndataSchema = annDataObsSegmentations;
 export const obsSetsAnndataSchema = annDataObsSets;
@@ -107,11 +142,19 @@ export const featureLabelsAnndataSchema = annDataFeatureLabels;
 // CSV
 export const obsEmbeddingCsvSchema = z.object({
   obsIndex: z.string(),
-  obsEmbedding: z.array(z.string()).length(2),
+  obsEmbedding: z.array(z.string()).length(2), // TODO: support 3D?
+});
+export const obsSpotsCsvSchema = z.object({
+  obsIndex: z.string(),
+  obsSpots: z.array(z.string()).length(2), // TODO: support 3D?
+});
+export const obsPointsCsvSchema = z.object({
+  obsIndex: z.string(),
+  obsPoints: z.array(z.string()).length(3),
 });
 export const obsLocationsCsvSchema = z.object({
   obsIndex: z.string(),
-  obsLocations: z.array(z.string()).length(2),
+  obsLocations: z.array(z.string()).length(2), // TODO: support 3D?
 });
 export const obsLabelsCsvSchema = z.object({
   obsIndex: z.string(),
@@ -149,6 +192,8 @@ export const anndataZarrSchema = z.object({
   ]),
   obsFeatureMatrix: annDataObsFeatureMatrix,
   obsSets: annDataObsSets,
+  obsSpots: annDataObsSpots,
+  obsPoints: annDataObsPoints,
   obsLocations: annDataObsLocations,
   obsSegmentations: annDataObsSegmentations,
   obsEmbedding: z.union([

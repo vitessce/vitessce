@@ -1,17 +1,18 @@
-import { HTTPStore, KeyError } from 'zarr';
+import { zarrOpenRoot } from '@vitessce/zarr-utils';
+import { open as zarrOpen, root as zarrRoot } from 'zarrita';
 
 /**
  * A loader ancestor class containing a default constructor
  * and a stub for the required load() method.
  */
 export default class ZarrDataSource {
-  constructor({ url, requestInit }) {
-    // TODO: We should probably add a way of allowing HEAD requests as well:
-    // https://github.com/gzuidhof/zarr.js/blob/375ce0c299469a970da6bb5653513564e25806bb/docs/getting-started/remote-data.md#stores
-    const supportedMethods = ['GET'];
-    this.store = new HTTPStore(url, {
-      supportedMethods, fetchOptions: requestInit,
-    });
+  constructor({ url, requestInit, store }) {
+    if (store) {
+      // TODO: check here that it is a valid Zarrita Readable?
+      this.storeRoot = zarrRoot(store);
+    } else {
+      this.storeRoot = zarrOpenRoot(url, requestInit);
+    }
   }
 
   /**
@@ -22,15 +23,13 @@ export default class ZarrDataSource {
    * @throws This may throw an error.
    */
   async getJson(key) {
-    try {
-      const buf = await this.store.getItem(key);
-      const text = new TextDecoder('utf-8').decode(buf);
-      return JSON.parse(text);
-    } catch (err) {
-      if (err instanceof KeyError) {
-        return {};
-      }
-      throw err;
+    const { storeRoot } = this;
+
+    let dirKey = key;
+    // TODO: update calls to not include these file names in the first place.
+    if (key.endsWith('.zattrs') || key.endsWith('.zarray') || key.endsWith('.zgroup')) {
+      dirKey = key.substring(0, key.length - 8);
     }
+    return (await zarrOpen(storeRoot.resolve(dirKey))).attrs;
   }
 }

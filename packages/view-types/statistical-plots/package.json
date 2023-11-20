@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/statistical-plots",
-  "version": "3.1.1",
+  "version": "3.3.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -37,7 +37,8 @@
     "@vitessce/vega": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "d3-array": "^2.4.0",
-    "lodash-es": "^4.17.21"
+    "lodash-es": "^4.17.21",
+    "react-aria": "^3.28.0"
   },
   "devDependencies": {
     "react": "^18.0.0",

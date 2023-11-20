@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/ome-tiff",
-  "version": "3.1.1",
+  "version": "3.3.0",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -34,6 +34,7 @@
     "@vitessce/gl": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/spatial-utils": "workspace:*",
+    "@vitessce/image-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "ajv": "^6.10.0",

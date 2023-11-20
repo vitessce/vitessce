@@ -15,4 +15,26 @@ export {
   getNgffAxes,
   getNgffAxesForTiff,
   coordinateTransformationsToMatrix,
+  physicalSizeToMatrix,
+  hexToRgb,
+  getStatsForResolution,
+  canLoadResolution,
+  normalizeCoordinateTransformations,
 } from './spatial.js';
+export {
+  loadOmeZarr,
+  guessTileSize,
+  ZarritaPixelSource,
+} from './load-ome-zarr.js';
+export {
+  toRgbUIString,
+  getSingleSelectionStats,
+  getMultiSelectionStats,
+  getPhysicalSizeScalingMatrix,
+  getBoundingCube,
+  abbreviateNumber,
+  filterSelection,
+} from './layer-controller.js';
+export {
+  DOMAINS,
+} from './constants.js';

@@ -417,3 +417,6 @@
 .demoGridItem .demoGridItemPill._3d {
   background-color: rgb(161, 185, 84);
 }
+.demoGridItem .demoGridItemPill.spatialdata {
+  background-color: rgb(99, 215, 177);
+}

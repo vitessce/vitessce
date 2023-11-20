@@ -24,10 +24,16 @@ import {
   useAuxiliaryCoordination,
   useHasLoader,
 } from '@vitessce/vit-s';
-import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
-import { canLoadResolution, getCellColors } from '@vitessce/utils';
+import {
+  setObsSelection,
+  mergeObsSets,
+  colorArrayToString,
+} from '@vitessce/sets-utils';
+import { getCellColors } from '@vitessce/utils';
+import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
-import { COMPONENT_COORDINATION_TYPES, ViewType, DataType } from '@vitessce/constants-internal';
+import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS } from '@vitessce/constants-internal';
+import { Typography } from '@material-ui/core';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
@@ -55,6 +61,7 @@ export function SpatialSubscriber(props) {
     disable3d,
     globalDisable3d,
     useFullResolutionImage = {},
+    channelNamesVisible = false,
   } = props;
 
   const loaders = useLoaders();
@@ -150,7 +157,7 @@ export function SpatialSubscriber(props) {
     { obsType, featureType, featureValueType },
     // TODO: get per-spatialLayerType expression data once #1240 is merged.
   );
-  const hasSegmentationsData = useHasLoader(
+  const hasSegmentationsLoader = useHasLoader(
     loaders, dataset, DataType.OBS_SEGMENTATIONS,
     { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
   );
@@ -194,6 +201,15 @@ export function SpatialSubscriber(props) {
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
     { obsType }, // TODO: use obsType in matchOn once #1240 is merged.
+  );
+  // In the case of obsSegmentations.raster.json files that have been
+  // auto-upgraded from raster.json in older config versions,
+  // it is possible to have an obsSegmentations file type in the dataset,
+  // but one that returns `null` if all of the raster layers end up being
+  // images rather than segmentation bitmasks.
+  const hasSegmentationsData = hasSegmentationsLoader && !(
+    obsSegmentationsStatus === STATUS.SUCCESS
+    && !(obsSegmentations || obsSegmentationsType)
   );
   const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
     loaders, dataset, false,
@@ -492,6 +508,34 @@ export function SpatialSubscriber(props) {
     return imageLayerLoaders.map((ll, index) => (shouldUseFullData(ll, index) ? { ...ll, data: ll.data[0] } : ll));
   }, [imageLayerLoaders, useFullResolutionImage, meta]);
 
+  const [channelNames, channelColors] = useMemo(() => {
+    let names = [];
+    let colors = [];
+
+    if (
+      imageLayers && imageLayers.length > 0
+      && imageLayerLoaders && imageLayerLoaders.length > 0
+    ) {
+      const firstImageLayer = imageLayers[0];
+      const firstImageLayerLoader = imageLayerLoaders?.[firstImageLayer?.index];
+      if (
+        firstImageLayer && !firstImageLayer.colormap && firstImageLayer.channels
+        && firstImageLayerLoader
+      ) {
+        const allChannels = firstImageLayerLoader.channels;
+        // Bioformats-Zarr uses selection.channel but OME-TIFF and OME-Zarr use selection.c
+        names = firstImageLayer.channels
+          .map(c => allChannels[
+            c.selection.channel === undefined ? c.selection.c : c.selection.channel
+          ]);
+        colors = firstImageLayer
+          .channels.map(c => c.color);
+      }
+    }
+
+    return [names, colors];
+  }, [imageLayers, imageLayerLoaders]);
+
   return (
     <TitleInfo
       title={title}
@@ -503,6 +547,26 @@ export function SpatialSubscriber(props) {
       isReady={isReady}
       options={options}
     >
+      <div style={{
+        position: 'absolute',
+        bottom: '5px',
+        left: '5px',
+        zIndex: 6,
+      }}
+      >
+        {channelNamesVisible && channelNames ? channelNames.map((name, i) => (
+          <Typography
+            variant="h6"
+            key={`${name}-${colorArrayToString(channelColors[i])}`}
+            style={{
+              color: colorArrayToString(channelColors[i]),
+              fontSize: '14px',
+            }}
+          >
+            {name}
+          </Typography>
+        )) : null}
+      </div>
       <Spatial
         ref={deckRef}
         uuid={uuid}

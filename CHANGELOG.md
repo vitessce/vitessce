@@ -1,4 +1,70 @@
 
+## 3.3.0
+
+### Minor Changes
+
+- Use Zarrita.js rather than ZarrJS to load Zarr data. (This change is needed to support Zarr features that are required for SpatialData but are not available in ZarrJS.) (`@vitessce/spatial-utils`, `@vitessce/zarr-utils`, `@vitessce/json`, `@vitessce/zarr`, `@vitessce/gl`) ([#1693](https://github.com/vitessce/vitessce/pull/1693))
+
+### Patch Changes
+
+- Types-only package. (`@vitessce/types`) ([#1708](https://github.com/vitessce/vitessce/pull/1708))
+
+- TypeScript types for @vitessce/utils sub-package. (`@vitessce/utils`) ([#1706](https://github.com/vitessce/vitessce/pull/1706))
+
+- Upgrade cypress to fix https://github.com/cypress-io/cypress/issues/27804. (`demo`, `html`) ([#1703](https://github.com/vitessce/vitessce/pull/1703))
+
+- Convert @vitessce/constants-internal to TypeScript by changing file extensions. (`@vitessce/constants-internal`) ([#1701](https://github.com/vitessce/vitessce/pull/1701))
+
+
+## 3.2.2
+
+### Patch Changes
+
+- Implement a workaround to allow for plugin zod schemas to be used. (`@vitessce/schemas`) ([#1696](https://github.com/vitessce/vitessce/pull/1696))
+
+- Upgrade Viv to get snapping scale bar. (`@vitessce/spatial-beta`, `@vitessce/spatial`, `@vitessce/image-utils`, `@vitessce/gl`) ([#1691](https://github.com/vitessce/vitessce/pull/1691))
+
+- Generate alt text based on existing view-types in config, add this to the VitessceGrid. (`@vitessce/vit-s`) ([#1695](https://github.com/vitessce/vitessce/pull/1695))
+
+
+## 3.2.1
+
+### Patch Changes
+
+- Use react-aria's useId hook to support React v17. (`@vitessce/layer-controller-beta`, `@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/layer-controller`, `@vitessce/feature-list`, `@vitessce/scatterplot`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/vit-s`) ([#1687](https://github.com/vitessce/vitessce/pull/1687))
+
+
+## 3.2.0
+
+### Minor Changes
+
+- Added spatialBeta and layerControllerBeta views to support multi-obsType segmentations (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`, `@vitessce/vit-s`, `@vitessce/gl`) ([#1581](https://github.com/vitessce/vitessce/pull/1581))
+
+
+## 3.1.3
+
+### Patch Changes
+
+- Added support for SpatialData image elements by supporting proposed OME-NGFF new coordinateTransformations spec and using the temporary channels_metadata property. (`@vitessce/spatial-utils`, `@vitessce/zarr`) ([#1664](https://github.com/vitessce/vitessce/pull/1664))
+
+
+## 3.1.2
+
+### Patch Changes
+
+- Use pluralize instead of plur package for pluralization. Wrap in @vitessce/utils. (`@vitessce/utils`) ([#1638](https://github.com/vitessce/vitessce/pull/1638))
+
+- Fix bug causing crash of Vitessce upon gene selection when earlier configs with both raster.json and expression data are used with pseudo-segmentation diamonds in the spatial view. (`@vitessce/spatial`) ([#1669](https://github.com/vitessce/vitessce/pull/1669))
+
+- Display the image channel names in Spatial plot (`@vitessce/spatial`) ([#1647](https://github.com/vitessce/vitessce/pull/1647))
+
+- Implemented expand/collapse button for vitessce.io (`docs`) ([#1651](https://github.com/vitessce/vitessce/pull/1651))
+
+- Improved accessibility of React components (`@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/layer-controller`, `@vitessce/feature-list`, `@vitessce/scatterplot`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/tooltip`, `@vitessce/vit-s`) ([#1612](https://github.com/vitessce/vitessce/pull/1612))
+
+- Fix bug causing crash during image channel name/color mapping for text rendering. (`@vitessce/spatial`) ([#1670](https://github.com/vitessce/vitessce/pull/1670))
+
+
 ## 3.1.1
 
 ### Patch Changes
