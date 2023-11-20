@@ -9,8 +9,8 @@ export const threeDemoConfig = {
       name: 'idr0062-blin-nuclearsegmentation/6001240',
       files: [
         {
-          fileType: 'image.ome-zarr',
-          url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr',
+          fileType: 'image.ome-tiff',
+          url: 'https://viv-demo.storage.googleapis.com/idr0106.pyramid.ome.tif',
         },
       ],
     },
