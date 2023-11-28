@@ -1606,6 +1606,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'imageChannelCoordination',
       ].some(shallowDiff)
     ) {
+      console.log(this.props.imageChannelCoordination) //TODO ERIC REMOVE
       // Image layers changed.
       this.onUpdateImages();
       forceUpdate = true;

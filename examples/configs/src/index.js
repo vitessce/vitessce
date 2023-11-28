@@ -30,6 +30,7 @@ import { meta2022azimuth } from './view-configs/meta_2022_azimuth.js';
 import { rgbOmeTiff } from './view-configs/rgb-ome-tiff.js';
 import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
 import { threeDemoConfig } from './view-configs/three.js';
+import { blinOop2019Three } from './view-configs/3D-maps/3DvolumeRenderThree.js';
 import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
 import { blinOop2019, blinSideBySide2019 } from './view-configs/spatial-beta/blin.js';
 import { codexOop2023 } from './view-configs/spatial-beta/codex.js';
@@ -94,7 +95,10 @@ export const configs = {
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
+
+  //3D Maps ThreeJS
   'three-demo': threeDemoConfig,
+  'blin-2019-three': blinOop2019Three,
 
   // Multi-level coordination with spatialBeta view:
   'blin-2019-2': blinOop2019,
