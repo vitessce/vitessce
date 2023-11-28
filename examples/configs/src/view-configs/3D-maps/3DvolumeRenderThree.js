@@ -18,7 +18,7 @@ function generateBlinConfig() {
     },
   });
 
-  const spatialView = config.addView(dataset, 'spatialBeta');
+  const spatialView = config.addView(dataset, 'spatialThree');
   const lcView = config.addView(dataset, 'layerControllerBeta');
 
   config.linkViewsByObject([spatialView, lcView], {
