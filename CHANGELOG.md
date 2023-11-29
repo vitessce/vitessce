@@ -1,4 +1,11 @@
 
+## 3.3.1
+
+### Patch Changes
+
+- Update Deck.gl to 8.8.27 and Luma.gl to 8.5.21 (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`, `@vitessce/gl`, `demo`, `docs`, `html`) ([#1724](https://github.com/vitessce/vitessce/pull/1724))
+
+
 ## 3.3.0
 
 ### Minor Changes
