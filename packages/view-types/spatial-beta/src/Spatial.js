@@ -809,6 +809,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       imageChannelScopesByLayer,
       imageChannelCoordination,
     } = this.props;
+    console.log(imageLayerScopes);
     return imageLayerScopes.map(layerScope => this.createImageLayer(
       layerScope,
       imageLayerCoordination[0][layerScope],

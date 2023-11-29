@@ -31,6 +31,9 @@
   },
   "dependencies": {
     "@material-ui/core": "~4.12.3",
+    "@react-three/fiber":"^8.15.11",
+    "@react-three/drei": "~9.89.0",
+    "@types/three": "^0.158.3",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/gl": "workspace:*",
     "@vitessce/legend": "workspace:*",
