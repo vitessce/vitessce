@@ -53,6 +53,7 @@ export function SpatialSubscriber(props) {
   const {
     uuid,
     coordinationScopes,
+    closeButtonVisible,
     removeGridComponent,
     observationsLabelOverride,
     subobservationsLabelOverride: subobservationsLabel = 'molecule',
@@ -543,6 +544,7 @@ export function SpatialSubscriber(props) {
       isSpatial
       urls={urls}
       theme={theme}
+      closeButtonVisible={closeButtonVisible}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       options={options}

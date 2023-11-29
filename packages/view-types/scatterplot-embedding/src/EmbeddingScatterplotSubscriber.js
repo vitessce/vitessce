@@ -49,6 +49,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   const {
     uuid,
     coordinationScopes,
+    closeButtonVisible,
     removeGridComponent,
     theme,
     observationsLabelOverride,
@@ -316,6 +317,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     <TitleInfo
       title={title}
       info={`${commaNumber(cellsCount)} ${plur(observationsLabel, cellsCount)}`}
+      closeButtonVisible={closeButtonVisible}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}

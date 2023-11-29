@@ -20,6 +20,7 @@ import Status from './Status.js';
 export function StatusSubscriber(props) {
   const {
     coordinationScopes,
+    closeButtonVisible,
     removeGridComponent,
     theme,
     title = 'Status',
@@ -54,6 +55,7 @@ export function StatusSubscriber(props) {
     <TitleInfo
       title={title}
       theme={theme}
+      closeButtonVisible={closeButtonVisible}
       removeGridComponent={removeGridComponent}
       isScroll
       isReady

@@ -43,6 +43,7 @@ export function LayerControllerSubscriber(props) {
   const {
     coordinationScopes: coordinationScopesRaw,
     coordinationScopesBy: coordinationScopesByRaw,
+    closeButtonVisible,
     removeGridComponent,
     theme,
     title = 'Spatial Layers',
@@ -270,6 +271,7 @@ export function LayerControllerSubscriber(props) {
     <TitleInfo
       title={title}
       isScroll
+      closeButtonVisible={closeButtonVisible}
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}
