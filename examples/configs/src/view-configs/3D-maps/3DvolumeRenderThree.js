@@ -18,10 +18,10 @@ function generateBlinConfig() {
     },
   });
 
-  const spatialView = config.addView(dataset, 'spatialThree');
+  const spatialThreeView = config.addView(dataset, 'spatialThree');
   const lcView = config.addView(dataset, 'layerControllerBeta');
 
-  config.linkViewsByObject([spatialView, lcView], {
+  config.linkViewsByObject([spatialThreeView, lcView], {
     spatialTargetZ: 0,
     spatialTargetT: 0,
     imageLayer: CL([
@@ -51,7 +51,7 @@ function generateBlinConfig() {
     ]),
   });
 
-  config.layout(hconcat(spatialView, lcView));
+  config.layout(hconcat(spatialThreeView, lcView));
 
   const configJSON = config.toJSON();
   return configJSON;

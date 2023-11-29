@@ -32,18 +32,18 @@ const VIV_RENDERING_MODES = {
 // Default getter function props.
 const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { index }) => {
   const [r, g, b, a] = (
-    cellColors && obsIndex && cellColors.get(obsIndex[index])
+      cellColors && obsIndex && cellColors.get(obsIndex[index])
   ) || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
 const makeDefaultGetCellColorsFromIndices = (
-  setColorObj, obsIndex, theme,
+    setColorObj, obsIndex, theme,
 ) => (object, { index }) => {
   // setColorIndices is a JS Map() from cell ID to color index.
   // setColors is an array of { path, color: [r, g, b] }.
   const { setColorIndices, setColors } = setColorObj || {};
   const [r, g, b, a] = (
-    setColorIndices && obsIndex && setColors?.[setColorIndices?.get(obsIndex[index])]?.color
+      setColorIndices && obsIndex && setColors?.[setColorIndices?.get(obsIndex[index])]?.color
   ) || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
 };
@@ -164,7 +164,7 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     // 2048 is best for performance and for stability (4096 texture size is not always supported).
     this.randomColorData = {
       data: new Uint8Array(2048 * 2048 * 3)
-        .map((_, j) => (j < 4 ? 0 : Math.round(255 * Math.random()))),
+          .map((_, j) => (j < 4 ? 0 : Math.round(255 * Math.random()))),
       // This buffer should be able to hold colors for 2048 x 2048 ~ 4 million cells.
       height: 2048,
       width: 2048,
@@ -195,8 +195,8 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
   }
 
   createPolygonSegmentationLayer(
-    layerScope, layerCoordination, channelScopes, channelCoordinations,
-    layerObsSegmentations, layerFeatureValues,
+      layerScope, layerCoordination, channelScopes, channelCoordinations,
+      layerObsSegmentations, layerFeatureValues,
   ) {
     const { theme, delegateHover } = this.props;
     const layerVisible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
@@ -234,8 +234,8 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
 
     const isStaticColor = obsColorEncoding === 'spatialChannelColor';
     const staticColor = Array.isArray(spatialChannelColor) && spatialChannelColor.length === 3
-      ? spatialChannelColor
-      : getDefaultColor(theme);
+        ? spatialChannelColor
+        : getDefaultColor(theme);
 
     const getCellColor = makeDefaultGetCellColorsFromIndices(layerColors, obsIndex, theme);
     const getPolygon = (object, { index, data }) => data.src.obsSegmentations.data[index];
@@ -313,8 +313,8 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
 
     const isStaticColor = obsColorEncoding === 'spatialLayerColor';
     const staticColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
-      ? spatialLayerColor
-      : getDefaultColor(theme);
+        ? spatialLayerColor
+        : getDefaultColor(theme);
 
     return new deck.ScatterplotLayer({
       id: `${SPOT_LAYER_PREFIX}${layerScope}`,
@@ -372,8 +372,8 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
 
     const isStaticColor = obsColorEncoding === 'spatialLayerColor';
     const staticColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
-      ? spatialLayerColor
-      : getDefaultColor(theme);
+        ? spatialLayerColor
+        : getDefaultColor(theme);
 
     const getMoleculeColor = (object, { data, index, target }) => {
       const obsId = data.src.obsIndex[index];
@@ -449,90 +449,90 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     //  to decide which layers or `obsType`s to be selected?
     // (before or after selection?)
     return getSelectionLayer(
-      tool,
-      viewState.zoom,
-      'nothing',
-      [
-        ...pointLayerScopes
-          .filter(layerScope => (
-            pointLayerCoordination?.[0]
-              ?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE]
-          ))
-          .map(layerScope => ({
-            getObsCoords: makeDefaultGetObsCoords(obsPoints?.[layerScope]?.obsPoints),
-            obsIndex: obsPoints?.[layerScope]?.obsIndex,
-            obsQuadTree: this.obsPointsQuadTree?.[layerScope],
-            // eslint-disable-next-line no-unused-vars
-            onSelect: (obsIds) => {
-              // TODO: should points be selectable?
-              // console.log('point', layerScope, obsIds)
-            },
-          })),
-        ...spotLayerScopes
-          .filter(layerScope => (
-            spotLayerCoordination?.[0]
-              ?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE]
-          ))
-          .map(layerScope => ({
-            getObsCoords: makeDefaultGetObsCoords(obsSpots?.[layerScope]?.obsSpots),
-            obsIndex: obsSpots?.[layerScope]?.obsIndex,
-            obsQuadTree: this.obsSpotsQuadTree?.[layerScope],
-            onSelect: (obsIds) => {
-              const {
-                obsSetColor,
-                additionalObsSets,
-              } = spotLayerCoordination?.[0]?.[layerScope] || {};
-              const {
-                setObsSetSelection,
-                setObsColorEncoding,
-                setObsSetColor,
-                setAdditionalObsSets,
-              } = spotLayerCoordination?.[1]?.[layerScope] || {};
+        tool,
+        viewState.zoom,
+        'nothing',
+        [
+          ...pointLayerScopes
+              .filter(layerScope => (
+                  pointLayerCoordination?.[0]
+                      ?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE]
+              ))
+              .map(layerScope => ({
+                getObsCoords: makeDefaultGetObsCoords(obsPoints?.[layerScope]?.obsPoints),
+                obsIndex: obsPoints?.[layerScope]?.obsIndex,
+                obsQuadTree: this.obsPointsQuadTree?.[layerScope],
+                // eslint-disable-next-line no-unused-vars
+                onSelect: (obsIds) => {
+                  // TODO: should points be selectable?
+                  // console.log('point', layerScope, obsIds)
+                },
+              })),
+          ...spotLayerScopes
+              .filter(layerScope => (
+                  spotLayerCoordination?.[0]
+                      ?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE]
+              ))
+              .map(layerScope => ({
+                getObsCoords: makeDefaultGetObsCoords(obsSpots?.[layerScope]?.obsSpots),
+                obsIndex: obsSpots?.[layerScope]?.obsIndex,
+                obsQuadTree: this.obsSpotsQuadTree?.[layerScope],
+                onSelect: (obsIds) => {
+                  const {
+                    obsSetColor,
+                    additionalObsSets,
+                  } = spotLayerCoordination?.[0]?.[layerScope] || {};
+                  const {
+                    setObsSetSelection,
+                    setObsColorEncoding,
+                    setObsSetColor,
+                    setAdditionalObsSets,
+                  } = spotLayerCoordination?.[1]?.[layerScope] || {};
 
-              setObsSelectionHelper(
-                obsIds, additionalObsSets, obsSetColor,
-                setObsSetSelection, setAdditionalObsSets, setObsSetColor,
-                setObsColorEncoding,
-              );
-            },
-          })),
-        ...segmentationLayerScopes
-          .filter(layerScope => (
-            segmentationLayerCoordination?.[0]
-              ?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE]
-          ))
-          .flatMap(layerScope => segmentationChannelScopesByLayer[layerScope]
-            .filter(channelScope => (
-              segmentationChannelCoordination?.[0]
-                ?.[layerScope]?.[channelScope]?.[CoordinationType.SPATIAL_CHANNEL_VISIBLE]
-              && obsSegmentationsLocations?.[layerScope]?.[channelScope]
-            ))
-            .map(channelScope => ({
-              getObsCoords: makeDefaultGetObsCoords(
-                obsSegmentationsLocations?.[layerScope]?.[channelScope]?.obsLocations,
-              ),
-              obsIndex: obsSegmentationsLocations?.[layerScope]?.[channelScope]?.obsIndex,
-              obsQuadTree: this.obsSegmentationsQuadTree?.[layerScope]?.[channelScope],
-              onSelect: (obsIds) => {
-                const {
-                  obsSetColor,
-                  additionalObsSets,
-                } = segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope] || {};
-                const {
-                  setObsSetSelection,
-                  setObsColorEncoding,
-                  setObsSetColor,
-                  setAdditionalObsSets,
-                } = segmentationChannelCoordination?.[1]?.[layerScope]?.[channelScope] || {};
+                  setObsSelectionHelper(
+                      obsIds, additionalObsSets, obsSetColor,
+                      setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+                      setObsColorEncoding,
+                  );
+                },
+              })),
+          ...segmentationLayerScopes
+              .filter(layerScope => (
+                  segmentationLayerCoordination?.[0]
+                      ?.[layerScope]?.[CoordinationType.SPATIAL_LAYER_VISIBLE]
+              ))
+              .flatMap(layerScope => segmentationChannelScopesByLayer[layerScope]
+                  .filter(channelScope => (
+                      segmentationChannelCoordination?.[0]
+                          ?.[layerScope]?.[channelScope]?.[CoordinationType.SPATIAL_CHANNEL_VISIBLE]
+                      && obsSegmentationsLocations?.[layerScope]?.[channelScope]
+                  ))
+                  .map(channelScope => ({
+                    getObsCoords: makeDefaultGetObsCoords(
+                        obsSegmentationsLocations?.[layerScope]?.[channelScope]?.obsLocations,
+                    ),
+                    obsIndex: obsSegmentationsLocations?.[layerScope]?.[channelScope]?.obsIndex,
+                    obsQuadTree: this.obsSegmentationsQuadTree?.[layerScope]?.[channelScope],
+                    onSelect: (obsIds) => {
+                      const {
+                        obsSetColor,
+                        additionalObsSets,
+                      } = segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope] || {};
+                      const {
+                        setObsSetSelection,
+                        setObsColorEncoding,
+                        setObsSetColor,
+                        setAdditionalObsSets,
+                      } = segmentationChannelCoordination?.[1]?.[layerScope]?.[channelScope] || {};
 
-                setObsSelectionHelper(
-                  obsIds, additionalObsSets, obsSetColor,
-                  setObsSetSelection, setAdditionalObsSets, setObsSetColor,
-                  setObsColorEncoding,
-                );
-              },
-            }))),
-      ],
+                      setObsSelectionHelper(
+                          obsIds, additionalObsSets, obsSetColor,
+                          setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+                          setObsColorEncoding,
+                      );
+                    },
+                  }))),
+        ],
     );
   }
 
@@ -564,8 +564,8 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
 
   // New createImageLayer function.
   createBitmaskSegmentationLayer(
-    layerScope, layerCoordination, channelScopes, channelCoordination,
-    image, layerFeatureValues,
+      layerScope, layerCoordination, channelScopes, channelCoordination,
+      image, layerFeatureValues,
   ) {
     const {
       delegateHover,
@@ -589,11 +589,11 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
     let selections;
     const nextLoaderSelection = channelScopes
-      .map(cScope => filterSelection(data, {
-        z: targetZ,
-        t: targetT,
-        c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
-      }));
+        .map(cScope => filterSelection(data, {
+          z: targetZ,
+          t: targetT,
+          c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+        }));
     const prevLoaderSelection = this.segmentationLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
       selections = prevLoaderSelection;
@@ -608,39 +608,39 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
       // https://github.com/vitessce/vitessce/pull/927/files#diff-9cab35a2ca0c5b6d9754b177810d25079a30ca91efa062d5795181360bc3ff2cR111
       id: `${SEGMENTATION_LAYER_PREFIX}${layerScope}`,
       channelsVisible: channelScopes
-        .map(cScope => (
-          // Layer visible AND channel visible
-          visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]
-        )),
+          .map(cScope => (
+              // Layer visible AND channel visible
+              visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]
+          )),
       channelOpacities: channelScopes
-        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_OPACITY]),
+          .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_OPACITY]),
       channelsFilled: channelScopes
-        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_SEGMENTATION_FILLED]),
+          .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_SEGMENTATION_FILLED]),
       opacity: layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY],
       channelColors: channelScopes
-        .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]),
+          .map(cScope => channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]),
       channelStrokeWidths: channelScopes
-        .map(cScope => (
-          channelCoordination[cScope][CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH]
-        )),
+          .map(cScope => (
+              channelCoordination[cScope][CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH]
+          )),
       channelFeatureValueColormaps: channelScopes
-        .map(cScope => channelCoordination[cScope][CoordinationType.FEATURE_VALUE_COLORMAP]),
+          .map(cScope => channelCoordination[cScope][CoordinationType.FEATURE_VALUE_COLORMAP]),
       channelFeatureValueColormapRanges: channelScopes
-        .map(cScope => channelCoordination[cScope][CoordinationType.FEATURE_VALUE_COLORMAP_RANGE]),
+          .map(cScope => channelCoordination[cScope][CoordinationType.FEATURE_VALUE_COLORMAP_RANGE]),
       channelIsStaticColorMode: channelScopes
-        .map(cScope => (
-          channelCoordination[cScope][CoordinationType.OBS_COLOR_ENCODING] === 'spatialChannelColor'
-        )),
+          .map(cScope => (
+              channelCoordination[cScope][CoordinationType.OBS_COLOR_ENCODING] === 'spatialChannelColor'
+          )),
       channelIsSetColorMode: channelScopes
-        .map(cScope => (
-          channelCoordination[cScope][CoordinationType.OBS_COLOR_ENCODING] === 'cellSetSelection'
-        )),
+          .map(cScope => (
+              channelCoordination[cScope][CoordinationType.OBS_COLOR_ENCODING] === 'cellSetSelection'
+          )),
       modelMatrix: layerDefModelMatrix,
       // hoveredCell: Number(this.props.cellHighlight),
       multiFeatureValues: channelScopes
-        .map(cScope => (layerFeatureValues?.[cScope]?.[0] || [])),
+          .map(cScope => (layerFeatureValues?.[cScope]?.[0] || [])),
       setColorValues: channelScopes
-        .map(cScope => (this.segmentationColors?.[layerScope]?.[cScope] || [])),
+          .map(cScope => (this.segmentationColors?.[layerScope]?.[cScope] || [])),
       renderSubLayers: renderSubBitmaskLayers,
       loader: data,
       selections,
@@ -667,8 +667,9 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
 
   // New createImageLayer function.
   createImageLayer(
-    layerScope, layerCoordination, channelScopes, channelCoordination, image,
+      layerScope, layerCoordination, channelScopes, channelCoordination, image,
   ) {
+    console.log("Creating Image Layer")
     const {
       delegateHover,
       targetT,
@@ -696,7 +697,7 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
 
 
     const extensions = getVivLayerExtensions(
-      is3dMode, colormap, renderingMode,
+        is3dMode, colormap, renderingMode,
     );
 
     // Safer to only use this prop when we have an interleaved image i.e not multiple channels.
@@ -715,16 +716,16 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     let selections;
     // If RGB, we ignore the channelScopes and use RGB channels (R=0, G=1, B=2).
     const nextLoaderSelection = isRgb ? ([0, 1, 2])
-      .map(targetC => filterSelection(data, {
-        z: targetZ,
-        t: targetT,
-        c: targetC,
-      })) : channelScopes
-      .map(cScope => filterSelection(data, {
-        z: targetZ,
-        t: targetT,
-        c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
-      }));
+        .map(targetC => filterSelection(data, {
+          z: targetZ,
+          t: targetT,
+          c: targetC,
+        })) : channelScopes
+        .map(cScope => filterSelection(data, {
+          z: targetZ,
+          t: targetT,
+          c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+        }));
     const prevLoaderSelection = this.imageLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
       selections = prevLoaderSelection;
@@ -738,7 +739,7 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
       [0, 255, 0],
       [0, 0, 255],
     ]) : channelScopes.map(cScope => (
-      channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]
+        channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]
     ));
     // TODO: figure out how to initialize the channel windows in the loader.
     // TODO: is [0, 255] the right fallback?
@@ -747,8 +748,8 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
       [0, 255],
       [0, 255],
     ]) : channelScopes.map(cScope => (
-      channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_WINDOW]
-      || ([0, 255])
+        channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_WINDOW]
+        || ([0, 255])
     ));
 
     const channelsVisible = isRgb ? ([
@@ -757,8 +758,8 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
       visible && true,
       visible && true,
     ]) : channelScopes.map(cScope => (
-      // Layer visible AND channel visible
-      visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]
+        // Layer visible AND channel visible
+        visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]
     ));
 
     const autoTargetResolution = imageWrapperInstance.getAutoTargetResolution();
@@ -809,12 +810,13 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
       imageChannelScopesByLayer,
       imageChannelCoordination,
     } = this.props;
+    console.log("Creating Image Layers");
     return imageLayerScopes.map(layerScope => this.createImageLayer(
-      layerScope,
-      imageLayerCoordination[0][layerScope],
-      imageChannelScopesByLayer[layerScope],
-      imageChannelCoordination[0][layerScope],
-      images[layerScope],
+        layerScope,
+        imageLayerCoordination[0][layerScope],
+        imageChannelScopesByLayer[layerScope],
+        imageChannelCoordination[0][layerScope],
+        images[layerScope],
     ));
   }
 
@@ -829,10 +831,10 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     return spotLayerScopes.map((layerScope) => {
       if (obsSpots[layerScope]) {
         return this.createSpotLayer(
-          layerScope,
-          spotLayerCoordination[0][layerScope],
-          obsSpots[layerScope],
-          spotMultiExpressionData?.[layerScope],
+            layerScope,
+            spotLayerCoordination[0][layerScope],
+            obsSpots[layerScope],
+            spotMultiExpressionData?.[layerScope],
         );
       }
       return null;
@@ -848,9 +850,9 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     return pointLayerScopes.map((layerScope) => {
       if (obsPoints[layerScope]) {
         return this.createPointLayer(
-          layerScope,
-          pointLayerCoordination[0][layerScope],
-          obsPoints[layerScope],
+            layerScope,
+            pointLayerCoordination[0][layerScope],
+            obsPoints[layerScope],
         );
       }
       return null;
@@ -875,22 +877,22 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
         const { obsSegmentationsType } = obsSegmentations[layerScope];
         if (obsSegmentationsType === 'bitmask') {
           return this.createBitmaskSegmentationLayer(
-            layerScope,
-            segmentationLayerCoordination[0][layerScope],
-            segmentationChannelScopesByLayer[layerScope],
-            segmentationChannelCoordination[0][layerScope],
-            obsSegmentations[layerScope],
-            segmentationMultiExpressionData?.[layerScope],
+              layerScope,
+              segmentationLayerCoordination[0][layerScope],
+              segmentationChannelScopesByLayer[layerScope],
+              segmentationChannelCoordination[0][layerScope],
+              obsSegmentations[layerScope],
+              segmentationMultiExpressionData?.[layerScope],
           );
         }
         if (obsSegmentationsType === 'polygon') {
           return this.createPolygonSegmentationLayer(
-            layerScope,
-            segmentationLayerCoordination[0][layerScope],
-            segmentationChannelScopesByLayer[layerScope],
-            segmentationChannelCoordination[0][layerScope],
-            obsSegmentations[layerScope],
-            segmentationMultiExpressionData?.[layerScope],
+              layerScope,
+              segmentationLayerCoordination[0][layerScope],
+              segmentationChannelScopesByLayer[layerScope],
+              segmentationChannelCoordination[0][layerScope],
+              obsSegmentations[layerScope],
+              segmentationMultiExpressionData?.[layerScope],
           );
         }
       }
@@ -1065,7 +1067,7 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
       theme,
     } = this.props;
     const { obsSets: layerSets, obsIndex: layerIndex } = obsSegmentationsSets
-      ?.[layerScope]?.[channelScope] || {};
+        ?.[layerScope]?.[channelScope] || {};
     if (layerSets && layerIndex) {
       const {
         obsSetColor,
@@ -1081,9 +1083,9 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
         // To make the values optimized and able to be passed to the WebGL shader,
         // we use the color indices array.
         const obsColorIndices = treeToCellSetColorIndicesBySetNames(
-          mergedLayerSets,
-          obsSetSelection,
-          obsSetColor,
+            mergedLayerSets,
+            obsSetSelection,
+            obsSetColor,
         );
         // Initialize layer-level objects if necessary.
         if (!this.segmentationColors[layerScope]) {
@@ -1126,7 +1128,7 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     } = this.props;
     const { obsIndex: instanceObsIndex } = obsSegmentations?.[layerScope] || {};
     const { obsIndex: matrixObsIndex } = segmentationMatrixIndices
-      ?.[layerScope]?.[channelScope] || {};
+        ?.[layerScope]?.[channelScope] || {};
 
     // Get a mapping from cell ID to row index in the gene expression matrix.
     // Since the two obsIndices (instanceObsIndex = the obsIndex from obsEmbedding)
@@ -1141,7 +1143,7 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
         this.segmentationToMatrixIndexMap[layerScope] = {};
       }
       this.segmentationToMatrixIndexMap[layerScope][channelScope] = instanceObsIndex
-        .map(key => matrixIndexMap.get(key));
+          .map(key => matrixIndexMap.get(key));
     }
   }
 
@@ -1200,9 +1202,9 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
       obsSegmentationsLocations,
     } = this.props;
     const { obsSegmentations: layerObsSegmentations, obsSegmentationsType } = obsSegmentations
-      ?.[layerScope] || {};
+        ?.[layerScope] || {};
     const { obsLocations: layerObsLocations } = obsSegmentationsLocations
-      ?.[layerScope]?.[channelScope] || {};
+        ?.[layerScope]?.[channelScope] || {};
     if (layerObsSegmentations && obsSegmentationsType === 'polygon') {
       if (layerObsLocations && layerObsLocations.shape[1] === layerObsSegmentations.shape[0]) {
         // If we have per-observation locations (e.g., centroids of each cell), we can use
@@ -1213,7 +1215,7 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
           this.obsSegmentationsQuadTree[layerScope] = {};
         }
         this.obsSegmentationsQuadTree[layerScope][channelScope] = createQuadTree(
-          layerObsLocations, getCellCoords,
+            layerObsLocations, getCellCoords,
         );
       }
     }
@@ -1236,7 +1238,7 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
       obsSegmentations,
     } = this.props;
     const { obsSegmentations: layerObsSegmentations, obsSegmentationsType } = obsSegmentations
-      ?.[layerScope] || {};
+        ?.[layerScope] || {};
     if (layerObsSegmentations && obsSegmentationsType === 'polygon') {
       this.obsSegmentationsData[layerScope] = {
         src: {
@@ -1326,15 +1328,16 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
   */
 
   onUpdateImages() {
+    console.log("On Update Images")
     this.imageLayers = this.createImageLayers();
   }
 
   viewInfoDidUpdate() {
     // TODO: remove extra parameters from parent once no longer used by Spatial/Scatterplot.
     super.viewInfoDidUpdate(
-      null,
-      null,
-      makeDefaultGetObsCoords,
+        null,
+        null,
+        makeDefaultGetObsCoords,
     );
   }
 
@@ -1359,19 +1362,19 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
 
     const shallowDiff = propName => prevProps[propName] !== this.props[propName];
     const shallowDiffByLayer = (propName, scopeName) => (
-      prevProps?.[propName]?.[scopeName] !== this.props?.[propName]?.[scopeName]
+        prevProps?.[propName]?.[scopeName] !== this.props?.[propName]?.[scopeName]
     );
     const shallowDiffByChannel = (propName, firstName, secondName) => (
-      prevProps?.[propName]?.[firstName]?.[secondName]
-      !== this.props?.[propName]?.[firstName]?.[secondName]
+        prevProps?.[propName]?.[firstName]?.[secondName]
+        !== this.props?.[propName]?.[firstName]?.[secondName]
     );
     const shallowDiffByLayerCoordination = (propName, layerScope) => (
-      prevProps?.[propName]?.[0]?.[layerScope]
-      !== this.props?.[propName]?.[0]?.[layerScope]
+        prevProps?.[propName]?.[0]?.[layerScope]
+        !== this.props?.[propName]?.[0]?.[layerScope]
     );
     const shallowDiffByChannelCoordination = (propName, layerScope, channelScope) => (
-      prevProps?.[propName]?.[0]?.[layerScope]?.[channelScope]
-      !== this.props?.[propName]?.[0]?.[layerScope]?.[channelScope]
+        prevProps?.[propName]?.[0]?.[layerScope]?.[channelScope]
+        !== this.props?.[propName]?.[0]?.[layerScope]?.[channelScope]
     );
     let forceUpdate = false;
 
@@ -1384,7 +1387,7 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     } else {
       this.props.segmentationLayerScopes?.forEach((layerScope) => {
         if (
-          shallowDiffByLayer('obsSegmentations', layerScope)
+            shallowDiffByLayer('obsSegmentations', layerScope)
         ) {
           this.onUpdateSegmentationsData(layerScope);
           forceUpdate = true;
@@ -1401,7 +1404,7 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
       this.props.segmentationLayerScopes?.forEach((layerScope) => {
         this.props.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
           if (
-            shallowDiffByChannel('obsSegmentationsLocations', layerScope, channelScope)
+              shallowDiffByChannel('obsSegmentationsLocations', layerScope, channelScope)
           ) {
             this.onUpdateSegmentationsLocationsData(layerScope, channelScope);
             forceUpdate = true;
@@ -1419,8 +1422,8 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
       this.props.segmentationLayerScopes?.forEach((layerScope) => {
         this.props.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
           if (
-            shallowDiffByChannel('obsSegmentationsSets', layerScope, channelScope)
-            || shallowDiffByChannelCoordination('segmentationChannelCoordination', layerScope, channelScope)
+              shallowDiffByChannel('obsSegmentationsSets', layerScope, channelScope)
+              || shallowDiffByChannelCoordination('segmentationChannelCoordination', layerScope, channelScope)
           ) {
             this.onUpdateSegmentationsSetsData(layerScope, channelScope);
             forceUpdate = true;
@@ -1438,7 +1441,7 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
       this.props.segmentationLayerScopes?.forEach((layerScope) => {
         this.props.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
           if (
-            shallowDiffByChannel('segmentationMatrixIndices', layerScope, channelScope)
+              shallowDiffByChannel('segmentationMatrixIndices', layerScope, channelScope)
           ) {
             this.onUpdateSegmentationsIndexData(layerScope, channelScope);
             forceUpdate = true;
@@ -1456,8 +1459,8 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
       this.props.segmentationLayerScopes.forEach((layerScope) => {
         this.props.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
           if (
-            shallowDiffByChannel('segmentationMatrixIndices', layerScope, channelScope)
-            || shallowDiffByChannel('segmentationMultiExpressionData', layerScope, channelScope)
+              shallowDiffByChannel('segmentationMatrixIndices', layerScope, channelScope)
+              || shallowDiffByChannel('segmentationMultiExpressionData', layerScope, channelScope)
           ) {
             this.onUpdateSegmentationsExpressionData(layerScope, channelScope);
             forceUpdate = true;
@@ -1468,14 +1471,14 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
 
 
     if (
-      [
-        // 'cellFilter',
-        // 'cellSelection',
-        'segmentationLayerScopes',
-        'segmentationLayerCoordination',
-        'segmentationChannelScopesByLayer',
-        'segmentationChannelCoordination',
-      ].some(shallowDiff)
+        [
+          // 'cellFilter',
+          // 'cellSelection',
+          'segmentationLayerScopes',
+          'segmentationLayerCoordination',
+          'segmentationChannelScopesByLayer',
+          'segmentationChannelCoordination',
+        ].some(shallowDiff)
     ) {
       // Cells layer props changed.
       this.onUpdateSegmentationsLayer();
@@ -1491,7 +1494,7 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     } else {
       this.props.spotLayerScopes.forEach((layerScope) => {
         if (
-          shallowDiffByLayer('obsSpots', layerScope)
+            shallowDiffByLayer('obsSpots', layerScope)
         ) {
           this.onUpdateSpotsData(layerScope);
           forceUpdate = true;
@@ -1507,9 +1510,9 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     } else {
       this.props.spotLayerScopes.forEach((layerScope) => {
         if (
-          shallowDiffByLayer('obsSpotsSets', layerScope)
-          || shallowDiffByLayer('obsSpots', layerScope)
-          || shallowDiffByLayerCoordination('spotLayerCoordination', layerScope)
+            shallowDiffByLayer('obsSpotsSets', layerScope)
+            || shallowDiffByLayer('obsSpots', layerScope)
+            || shallowDiffByLayerCoordination('spotLayerCoordination', layerScope)
         ) {
           this.onUpdateSpotsSetsData(layerScope);
           forceUpdate = true;
@@ -1525,8 +1528,8 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     } else {
       this.props.spotLayerScopes.forEach((layerScope) => {
         if (
-          shallowDiffByLayer('spotMatrixIndices', layerScope)
-          || shallowDiffByLayer('obsSpots', layerScope)
+            shallowDiffByLayer('spotMatrixIndices', layerScope)
+            || shallowDiffByLayer('obsSpots', layerScope)
         ) {
           this.onUpdateSpotsIndexData(layerScope);
           forceUpdate = true;
@@ -1542,9 +1545,9 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     } else {
       this.props.spotLayerScopes.forEach((layerScope) => {
         if (
-          shallowDiffByLayer('spotMatrixIndices', layerScope)
-          || shallowDiffByLayer('obsSpots', layerScope)
-          || shallowDiffByLayer('spotMultiExpressionData', layerScope)
+            shallowDiffByLayer('spotMatrixIndices', layerScope)
+            || shallowDiffByLayer('obsSpots', layerScope)
+            || shallowDiffByLayer('spotMultiExpressionData', layerScope)
         ) {
           this.onUpdateSpotsExpressionData(layerScope);
           forceUpdate = true;
@@ -1553,12 +1556,12 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     }
 
     if (
-      [
-        'obsSpots',
-        'spotLayerScopes',
-        'spotLayerCoordination',
-        'spotMultiExpressionData',
-      ].some(shallowDiff)
+        [
+          'obsSpots',
+          'spotLayerScopes',
+          'spotLayerCoordination',
+          'spotMultiExpressionData',
+        ].some(shallowDiff)
     ) {
       // Expression data prop changed.
       // Must come before onUpdateSegmentationsLayer
@@ -1575,8 +1578,8 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     } else {
       this.props.pointLayerScopes.forEach((layerScope) => {
         if (
-          shallowDiffByLayer('obsPoints', layerScope)
-          || shallowDiffByLayer('pointMultiObsLabels', layerScope)
+            shallowDiffByLayer('obsPoints', layerScope)
+            || shallowDiffByLayer('pointMultiObsLabels', layerScope)
         ) {
           this.onUpdatePointsData(layerScope);
           forceUpdate = true;
@@ -1585,28 +1588,28 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
     }
 
     if (
-      [
-        'obsPoints',
-        'pointLayerScopes',
-        'pointLayerCoordination',
-        'pointMultiObsLabels',
-      ].some(shallowDiff)
+        [
+          'obsPoints',
+          'pointLayerScopes',
+          'pointLayerCoordination',
+          'pointMultiObsLabels',
+        ].some(shallowDiff)
     ) {
       this.onUpdatePointsLayer();
       forceUpdate = true;
     }
 
     if (
-      [
-        'images',
-        'imageLayerScopes',
-        'imageLayerCoordination',
+        [
+          'images',
+          'imageLayerScopes',
+          'imageLayerCoordination',
 
-        'imageChannelScopesByLayer',
-        'imageChannelCoordination',
-      ].some(shallowDiff)
+          'imageChannelScopesByLayer',
+          'imageChannelCoordination',
+        ].some(shallowDiff)
     ) {
-      console.log(this.props.imageChannelCoordination) //TODO ERIC REMOVE
+      console.log("Image Layers Shallow Update")
       // Image layers changed.
       this.onUpdateImages();
       forceUpdate = true;
@@ -1626,7 +1629,7 @@ class SpatialThree extends AbstractSpatialOrScatterplot {
  * access the grandchild DeckGL ref,
  * but we are using a class component.
  */
-const SpatialThreeWrapper = forwardRef((props, deckRef) => (
-  <SpatialThree {...props} deckRef={deckRef} />
+const SpatialWrapper = forwardRef((props, deckRef) => (
+    <SpatialThree {...props} deckRef={deckRef} />
 ));
-export default SpatialThreeWrapper;
+export default SpatialWrapper;

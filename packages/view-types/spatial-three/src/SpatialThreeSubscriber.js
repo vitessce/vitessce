@@ -74,8 +74,8 @@ function getHoverData(hoverInfo, layerType) {
           // Tiled layer needs a custom layerZoomScale.
           // The zoomed out layer needs to use the fixed zoom at which it is rendered.
           const layerZoomScale = Math.max(
-            1,
-            2 ** Math.round(-z),
+              1,
+              2 ** Math.round(-z),
           );
           const dataCoords = [
             Math.floor((coordinate[0] - bounds[0]) / layerZoomScale),
@@ -163,162 +163,162 @@ export function SpatialThreeSubscriber(props) {
     spatialTargetY: initialTargetY,
     spatialTargetZ: initialTargetZ,
   } = useInitialCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes,
+      COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes,
   );
 
   const observationsLabel = observationsLabelOverride || obsType;
 
   const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
-    CoordinationType.SEGMENTATION_CHANNEL,
-    CoordinationType.SEGMENTATION_LAYER,
-    coordinationScopes,
-    coordinationScopesBy,
+      CoordinationType.SEGMENTATION_CHANNEL,
+      CoordinationType.SEGMENTATION_LAYER,
+      coordinationScopes,
+      coordinationScopesBy,
   );
 
   const [imageLayerScopes, imageChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
-    CoordinationType.IMAGE_CHANNEL,
-    CoordinationType.IMAGE_LAYER,
-    coordinationScopes,
-    coordinationScopesBy,
+      CoordinationType.IMAGE_CHANNEL,
+      CoordinationType.IMAGE_LAYER,
+      coordinationScopes,
+      coordinationScopesBy,
   );
 
   const spotLayerScopes = useMultiCoordinationScopesNonNull(
-    CoordinationType.SPOT_LAYER,
-    coordinationScopes,
+      CoordinationType.SPOT_LAYER,
+      coordinationScopes,
   );
 
   const pointLayerScopes = useMultiCoordinationScopesNonNull(
-    CoordinationType.POINT_LAYER,
-    coordinationScopes,
+      CoordinationType.POINT_LAYER,
+      coordinationScopes,
   );
 
   // Object keys are coordination scope names for spatialSegmentationLayer.
   const segmentationLayerCoordination = useComplexCoordination(
-    [
-      CoordinationType.FILE_UID,
-      CoordinationType.SEGMENTATION_CHANNEL,
-      CoordinationType.SPATIAL_LAYER_VISIBLE,
-      CoordinationType.SPATIAL_LAYER_OPACITY,
-    ],
-    coordinationScopes,
-    coordinationScopesBy,
-    CoordinationType.SEGMENTATION_LAYER,
+      [
+        CoordinationType.FILE_UID,
+        CoordinationType.SEGMENTATION_CHANNEL,
+        CoordinationType.SPATIAL_LAYER_VISIBLE,
+        CoordinationType.SPATIAL_LAYER_OPACITY,
+      ],
+      coordinationScopes,
+      coordinationScopesBy,
+      CoordinationType.SEGMENTATION_LAYER,
   );
 
   // Object keys are coordination scope names for spatialSegmentationChannel.
   const segmentationChannelCoordination = useComplexCoordinationSecondary(
-    [
-      CoordinationType.OBS_TYPE,
-      CoordinationType.SPATIAL_TARGET_C,
-      CoordinationType.SPATIAL_CHANNEL_VISIBLE,
-      CoordinationType.SPATIAL_CHANNEL_OPACITY,
-      CoordinationType.SPATIAL_CHANNEL_COLOR,
-      CoordinationType.SPATIAL_SEGMENTATION_FILLED,
-      CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
-      CoordinationType.OBS_COLOR_ENCODING,
-      CoordinationType.FEATURE_SELECTION,
-      CoordinationType.FEATURE_VALUE_COLORMAP,
-      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
-      CoordinationType.OBS_SET_COLOR,
-      CoordinationType.OBS_SET_SELECTION,
-      CoordinationType.ADDITIONAL_OBS_SETS,
-      CoordinationType.OBS_HIGHLIGHT,
-      CoordinationType.TOOLTIPS_VISIBLE,
-      CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
-      CoordinationType.LEGEND_VISIBLE,
-    ],
-    coordinationScopes,
-    coordinationScopesBy,
-    CoordinationType.SEGMENTATION_LAYER,
-    CoordinationType.SEGMENTATION_CHANNEL,
+      [
+        CoordinationType.OBS_TYPE,
+        CoordinationType.SPATIAL_TARGET_C,
+        CoordinationType.SPATIAL_CHANNEL_VISIBLE,
+        CoordinationType.SPATIAL_CHANNEL_OPACITY,
+        CoordinationType.SPATIAL_CHANNEL_COLOR,
+        CoordinationType.SPATIAL_SEGMENTATION_FILLED,
+        CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
+        CoordinationType.OBS_COLOR_ENCODING,
+        CoordinationType.FEATURE_SELECTION,
+        CoordinationType.FEATURE_VALUE_COLORMAP,
+        CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+        CoordinationType.OBS_SET_COLOR,
+        CoordinationType.OBS_SET_SELECTION,
+        CoordinationType.ADDITIONAL_OBS_SETS,
+        CoordinationType.OBS_HIGHLIGHT,
+        CoordinationType.TOOLTIPS_VISIBLE,
+        CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
+        CoordinationType.LEGEND_VISIBLE,
+      ],
+      coordinationScopes,
+      coordinationScopesBy,
+      CoordinationType.SEGMENTATION_LAYER,
+      CoordinationType.SEGMENTATION_CHANNEL,
   );
 
   const imageLayerCoordination = useComplexCoordination(
-    [
-      CoordinationType.FILE_UID,
-      CoordinationType.IMAGE_CHANNEL,
-      CoordinationType.SPATIAL_LAYER_VISIBLE,
-      CoordinationType.SPATIAL_LAYER_OPACITY,
-      CoordinationType.SPATIAL_LAYER_COLORMAP,
-      CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR,
-      CoordinationType.SPATIAL_LAYER_MODEL_MATRIX,
-      CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM,
-      CoordinationType.SPATIAL_TARGET_RESOLUTION,
-      CoordinationType.SPATIAL_SLICE_X,
-      CoordinationType.SPATIAL_SLICE_Y,
-      CoordinationType.SPATIAL_SLICE_Z,
-      CoordinationType.PHOTOMETRIC_INTERPRETATION,
-      CoordinationType.PIXEL_HIGHLIGHT,
-      CoordinationType.TOOLTIPS_VISIBLE,
-      CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE,
-      CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
-      CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
-    ],
-    coordinationScopes,
-    coordinationScopesBy,
-    CoordinationType.IMAGE_LAYER,
+      [
+        CoordinationType.FILE_UID,
+        CoordinationType.IMAGE_CHANNEL,
+        CoordinationType.SPATIAL_LAYER_VISIBLE,
+        CoordinationType.SPATIAL_LAYER_OPACITY,
+        CoordinationType.SPATIAL_LAYER_COLORMAP,
+        CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR,
+        CoordinationType.SPATIAL_LAYER_MODEL_MATRIX,
+        CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM,
+        CoordinationType.SPATIAL_TARGET_RESOLUTION,
+        CoordinationType.SPATIAL_SLICE_X,
+        CoordinationType.SPATIAL_SLICE_Y,
+        CoordinationType.SPATIAL_SLICE_Z,
+        CoordinationType.PHOTOMETRIC_INTERPRETATION,
+        CoordinationType.PIXEL_HIGHLIGHT,
+        CoordinationType.TOOLTIPS_VISIBLE,
+        CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE,
+        CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
+        CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
+      ],
+      coordinationScopes,
+      coordinationScopesBy,
+      CoordinationType.IMAGE_LAYER,
   );
 
   // Object keys are coordination scope names for spatialImageChannel.
   const imageChannelCoordination = useComplexCoordinationSecondary(
-    [
-      CoordinationType.SPATIAL_TARGET_C,
-      CoordinationType.SPATIAL_CHANNEL_VISIBLE,
-      CoordinationType.SPATIAL_CHANNEL_COLOR,
-      CoordinationType.SPATIAL_CHANNEL_WINDOW,
-    ],
-    coordinationScopes,
-    coordinationScopesBy,
-    CoordinationType.IMAGE_LAYER,
-    CoordinationType.IMAGE_CHANNEL,
+      [
+        CoordinationType.SPATIAL_TARGET_C,
+        CoordinationType.SPATIAL_CHANNEL_VISIBLE,
+        CoordinationType.SPATIAL_CHANNEL_COLOR,
+        CoordinationType.SPATIAL_CHANNEL_WINDOW,
+      ],
+      coordinationScopes,
+      coordinationScopesBy,
+      CoordinationType.IMAGE_LAYER,
+      CoordinationType.IMAGE_CHANNEL,
   );
 
   // Spot layer
   const spotLayerCoordination = useComplexCoordination(
-    [
-      CoordinationType.OBS_TYPE,
-      CoordinationType.SPATIAL_LAYER_VISIBLE,
-      CoordinationType.SPATIAL_LAYER_OPACITY,
-      CoordinationType.SPATIAL_SPOT_RADIUS,
-      CoordinationType.SPATIAL_SPOT_FILLED,
-      CoordinationType.SPATIAL_SPOT_STROKE_WIDTH,
-      CoordinationType.OBS_COLOR_ENCODING,
-      CoordinationType.FEATURE_SELECTION,
-      CoordinationType.FEATURE_VALUE_COLORMAP,
-      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
-      CoordinationType.OBS_SET_COLOR,
-      CoordinationType.OBS_SET_SELECTION,
-      CoordinationType.ADDITIONAL_OBS_SETS,
-      CoordinationType.SPATIAL_LAYER_COLOR,
-      CoordinationType.OBS_HIGHLIGHT,
-      CoordinationType.TOOLTIPS_VISIBLE,
-      CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
-      CoordinationType.LEGEND_VISIBLE,
-    ],
-    coordinationScopes,
-    coordinationScopesBy,
-    CoordinationType.SPOT_LAYER,
+      [
+        CoordinationType.OBS_TYPE,
+        CoordinationType.SPATIAL_LAYER_VISIBLE,
+        CoordinationType.SPATIAL_LAYER_OPACITY,
+        CoordinationType.SPATIAL_SPOT_RADIUS,
+        CoordinationType.SPATIAL_SPOT_FILLED,
+        CoordinationType.SPATIAL_SPOT_STROKE_WIDTH,
+        CoordinationType.OBS_COLOR_ENCODING,
+        CoordinationType.FEATURE_SELECTION,
+        CoordinationType.FEATURE_VALUE_COLORMAP,
+        CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+        CoordinationType.OBS_SET_COLOR,
+        CoordinationType.OBS_SET_SELECTION,
+        CoordinationType.ADDITIONAL_OBS_SETS,
+        CoordinationType.SPATIAL_LAYER_COLOR,
+        CoordinationType.OBS_HIGHLIGHT,
+        CoordinationType.TOOLTIPS_VISIBLE,
+        CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
+        CoordinationType.LEGEND_VISIBLE,
+      ],
+      coordinationScopes,
+      coordinationScopesBy,
+      CoordinationType.SPOT_LAYER,
   );
 
   // Point layer
   const pointLayerCoordination = useComplexCoordination(
-    [
-      CoordinationType.OBS_TYPE,
-      CoordinationType.SPATIAL_LAYER_VISIBLE,
-      CoordinationType.SPATIAL_LAYER_OPACITY,
-      CoordinationType.OBS_COLOR_ENCODING,
-      CoordinationType.FEATURE_SELECTION,
-      CoordinationType.FEATURE_VALUE_COLORMAP,
-      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
-      CoordinationType.SPATIAL_LAYER_COLOR,
-      CoordinationType.OBS_HIGHLIGHT,
-      CoordinationType.TOOLTIPS_VISIBLE,
-      CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
-      CoordinationType.LEGEND_VISIBLE,
-    ],
-    coordinationScopes,
-    coordinationScopesBy,
-    CoordinationType.POINT_LAYER,
+      [
+        CoordinationType.OBS_TYPE,
+        CoordinationType.SPATIAL_LAYER_VISIBLE,
+        CoordinationType.SPATIAL_LAYER_OPACITY,
+        CoordinationType.OBS_COLOR_ENCODING,
+        CoordinationType.FEATURE_SELECTION,
+        CoordinationType.FEATURE_VALUE_COLORMAP,
+        CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+        CoordinationType.SPATIAL_LAYER_COLOR,
+        CoordinationType.OBS_HIGHLIGHT,
+        CoordinationType.TOOLTIPS_VISIBLE,
+        CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
+        CoordinationType.LEGEND_VISIBLE,
+      ],
+      coordinationScopes,
+      coordinationScopesBy,
+      CoordinationType.POINT_LAYER,
   );
 
   /*
@@ -339,20 +339,20 @@ export function SpatialThreeSubscriber(props) {
 
   // Points data
   const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useMultiObsPoints(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
+      coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   const [pointMultiObsLabelsData, pointMultiObsLabelsDataStatus] = usePointMultiObsLabels(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
+      coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   // Spots data
   const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useMultiObsSpots(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
+      coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   const [obsSpotsSetsData, obsSpotsSetsDataStatus] = useSpotMultiObsSets(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
+      coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   const [
@@ -362,24 +362,24 @@ export function SpatialThreeSubscriber(props) {
     spotMultiExpressionNormData,
     spotMultiFeatureSelectionStatus,
   ] = useSpotMultiFeatureSelection(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
+      coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   const [spotMultiIndicesData, spotMultiIndicesDataStatus] = useSpotMultiObsFeatureMatrixIndices(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
+      coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   // Segmentations data
   const [obsSegmentationsLocationsData, obsSegmentationsLocationsDataStatus] = useSegmentationMultiObsLocations(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
+      coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls] = useMultiObsSegmentations(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
+      coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   const [obsSegmentationsSetsData, obsSegmentationsSetsDataStatus] = useSegmentationMultiObsSets(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
+      coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   const [
@@ -389,16 +389,16 @@ export function SpatialThreeSubscriber(props) {
     segmentationMultiExpressionNormData,
     segmentationMultiFeatureSelectionStatus,
   ] = useSegmentationMultiFeatureSelection(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
+      coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   const [segmentationMultiIndicesData, segmentationMultiIndicesDataStatus] = useSegmentationMultiObsFeatureMatrixIndices(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
+      coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   // Image data
   const [imageData, imageDataStatus, imageUrls] = useMultiImages(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
+      coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
 
@@ -460,25 +460,25 @@ export function SpatialThreeSubscriber(props) {
     initialTargetX: defaultTargetX, initialTargetY: defaultTargetY,
     initialTargetZ: defaultTargetZ, initialZoom: defaultZoom,
   } = useMemo(() => getInitialSpatialTargets({
-    width,
-    height,
-    obsPoints: obsPointsData,
-    obsSpots: obsSpotsData,
-    obsSegmentations: obsSegmentationsData,
-    obsSegmentationsLocations: obsSegmentationsLocationsData,
-    segmentationChannelScopesByLayer,
-    images: imageData,
-    is3dMode,
-    isReady: isReadyToComputeInitialViewState,
-  }),
-  // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
-  // an indirect dependency instead.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  [imageData, is3dMode, obsSegmentationsData,
-    width, height, obsSpotsData, isReadyToComputeInitialViewState,
-    obsSegmentationsLocationsData, obsPointsData,
-    segmentationChannelScopesByLayer,
-  ]);
+        width,
+        height,
+        obsPoints: obsPointsData,
+        obsSpots: obsSpotsData,
+        obsSegmentations: obsSegmentationsData,
+        obsSegmentationsLocations: obsSegmentationsLocationsData,
+        segmentationChannelScopesByLayer,
+        images: imageData,
+        is3dMode,
+        isReady: isReadyToComputeInitialViewState,
+      }),
+      // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
+      // an indirect dependency instead.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [imageData, is3dMode, obsSegmentationsData,
+        width, height, obsSpotsData, isReadyToComputeInitialViewState,
+        obsSegmentationsLocationsData, obsPointsData,
+        segmentationChannelScopesByLayer,
+      ]);
 
   useEffect(() => {
     // If it has not already been set, set the initial view state using
@@ -494,7 +494,7 @@ export function SpatialThreeSubscriber(props) {
           setZoom(defaultZoom);
         }
         setOriginalViewState(
-          { target: [defaultTargetX, defaultTargetY, defaultTargetZ], zoom: defaultZoom },
+            { target: [defaultTargetX, defaultTargetY, defaultTargetZ], zoom: defaultZoom },
         );
       } else if (!originalViewState) {
         // originalViewState has not yet been set and
@@ -513,11 +513,11 @@ export function SpatialThreeSubscriber(props) {
 
 
   const setViewState = ({
-    zoom: newZoom,
-    target,
-    rotationX: newRotationX,
-    rotationOrbit: newRotationOrbit,
-  }) => {
+                          zoom: newZoom,
+                          target,
+                          rotationX: newRotationX,
+                          rotationOrbit: newRotationOrbit,
+                        }) => {
     setZoom(newZoom);
     setTargetX(target[0]);
     setTargetY(target[1]);
@@ -533,24 +533,24 @@ export function SpatialThreeSubscriber(props) {
   // Make subtitle text based on the aggregate number of items in each type of spatial layer.
   const subtitle = useMemo(() => {
     const totalNumPoints = Object.values(obsPointsData || {})
-      .reduce((a, h) => a + (h?.obsIndex?.length || 0), 0);
+        .reduce((a, h) => a + (h?.obsIndex?.length || 0), 0);
     const totalNumSpots = Object.values(obsSpotsData || {})
-      .reduce((a, h) => a + (h?.obsIndex?.length || 0), 0);
+        .reduce((a, h) => a + (h?.obsIndex?.length || 0), 0);
     const totalNumSegmentations = segmentationLayerScopes
-      .map(layerScope => segmentationChannelScopesByLayer[layerScope]
-        .map(channelScope => ([layerScope, channelScope])))
-      .flat(1)
-      .map(([layerScope, channelScope]) => {
-        let obsIndex = obsSegmentationsLocationsData?.[layerScope]?.[channelScope]?.obsIndex;
-        if (!obsIndex) {
-          obsIndex = obsSegmentationsSetsData?.[layerScope]?.[channelScope]?.obsIndex;
+        .map(layerScope => segmentationChannelScopesByLayer[layerScope]
+            .map(channelScope => ([layerScope, channelScope])))
+        .flat(1)
+        .map(([layerScope, channelScope]) => {
+          let obsIndex = obsSegmentationsLocationsData?.[layerScope]?.[channelScope]?.obsIndex;
           if (!obsIndex) {
-            obsIndex = segmentationMultiIndicesData?.[layerScope]?.[channelScope]?.obsIndex;
+            obsIndex = obsSegmentationsSetsData?.[layerScope]?.[channelScope]?.obsIndex;
+            if (!obsIndex) {
+              obsIndex = segmentationMultiIndicesData?.[layerScope]?.[channelScope]?.obsIndex;
+            }
           }
-        }
-        return obsIndex;
-      })
-      .reduce((a, h) => a + (h?.length || 0), 0);
+          return obsIndex;
+        })
+        .reduce((a, h) => a + (h?.length || 0), 0);
     const totalNumImages = imageLayerScopes?.length || 0;
 
     return [
@@ -559,9 +559,9 @@ export function SpatialThreeSubscriber(props) {
       [totalNumSegmentations, 'segmentation'],
       [totalNumImages, 'image'],
     ]
-      .filter(([numItems]) => numItems > 0)
-      .map(([numItems, layerType]) => `${commaNumber(numItems)} ${pluralize(layerType, numItems)}`)
-      .join(', ');
+        .filter(([numItems]) => numItems > 0)
+        .map(([numItems, layerType]) => `${commaNumber(numItems)} ${pluralize(layerType, numItems)}`)
+        .join(', ');
   }, [
     obsPointsData,
     obsSpotsData,
@@ -589,11 +589,11 @@ export function SpatialThreeSubscriber(props) {
   // Passing an invalid viewState (e.g., with null values) will cause DeckGL
   // to throw a mercator projection assertion error (in 3D mode / when using OrbitView).
   const isValidViewState = is3dMode
-    ? (
-      zoom !== null && targetX !== null && targetY !== null && targetZ !== null
-      && rotationX !== null && rotationOrbit !== null && orbitAxis !== null
-    )
-    : zoom !== null && targetX !== null && targetY !== null;
+      ? (
+          zoom !== null && targetX !== null && targetY !== null && targetZ !== null
+          && rotationX !== null && rotationOrbit !== null && orbitAxis !== null
+      )
+      : zoom !== null && targetX !== null && targetY !== null;
 
   /**
    * @param {object} hoverInfo The hoverInfo object passed to the DeckGL layer's onHover callback.
@@ -706,143 +706,143 @@ export function SpatialThreeSubscriber(props) {
   });
 
   const isSelectable = (
-    spotLayerScopes.length > 0
-    || pointLayerScopes.length > 0
-    || segmentationLayerScopes
-      .flatMap(layerScope => segmentationChannelScopesByLayer[layerScope]
-        .map(channelScope => obsSegmentationsLocationsData?.[layerScope]?.[channelScope])).length > 0
+      spotLayerScopes.length > 0
+      || pointLayerScopes.length > 0
+      || segmentationLayerScopes
+          .flatMap(layerScope => segmentationChannelScopesByLayer[layerScope]
+              .map(channelScope => obsSegmentationsLocationsData?.[layerScope]?.[channelScope])).length > 0
   );
 
   return (
-    <TitleInfo
-      title={title}
-      info={subtitle}
-      isSpatial
-      urls={urls}
-      theme={theme}
-      removeGridComponent={removeGridComponent}
-      isReady={isReady}
-    >
-      <SpatialThree
-        ref={deckRef}
-        uuid={uuid}
-        width={width}
-        height={height}
-        theme={theme}
-        hideTools={!isSelectable}
-        // Global view state
-        targetT={targetT}
-        targetZ={targetZ}
-        viewState={isValidViewState ? ({
-          zoom,
-          target: [targetX, targetY, targetZ],
-          rotationX,
-          rotationOrbit,
-        }) : DEFAULT_VIEW_STATE}
-        orbitAxis={orbitAxis}
-        spatialAxisFixed={spatialAxisFixed}
-        setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
-        originalViewState={originalViewState}
-        spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
-        updateViewInfo={setComponentViewInfo}
+      <TitleInfo
+          title={title}
+          info={subtitle}
+          isSpatial
+          urls={urls}
+          theme={theme}
+          removeGridComponent={removeGridComponent}
+          isReady={isReady}
+      >
+        <SpatialThree
+            ref={deckRef}
+            uuid={uuid}
+            width={width}
+            height={height}
+            theme={theme}
+            hideTools={!isSelectable}
+            // Global view state
+            targetT={targetT}
+            targetZ={targetZ}
+            viewState={isValidViewState ? ({
+              zoom,
+              target: [targetX, targetY, targetZ],
+              rotationX,
+              rotationOrbit,
+            }) : DEFAULT_VIEW_STATE}
+            orbitAxis={orbitAxis}
+            spatialAxisFixed={spatialAxisFixed}
+            setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
+            originalViewState={originalViewState}
+            spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
+            updateViewInfo={setComponentViewInfo}
 
-        delegateHover={delegateHover}
+            delegateHover={delegateHover}
 
-        // Points
-        obsPoints={obsPointsData}
-        pointLayerScopes={pointLayerScopes}
-        pointLayerCoordination={pointLayerCoordination}
+            // Points
+            obsPoints={obsPointsData}
+            pointLayerScopes={pointLayerScopes}
+            pointLayerCoordination={pointLayerCoordination}
 
-        pointMultiObsLabels={pointMultiObsLabelsData}
+            pointMultiObsLabels={pointMultiObsLabelsData}
 
-        // Spots
-        obsSpots={obsSpotsData}
-        spotLayerScopes={spotLayerScopes}
-        spotLayerCoordination={spotLayerCoordination}
-        obsSpotsSets={obsSpotsSetsData}
+            // Spots
+            obsSpots={obsSpotsData}
+            spotLayerScopes={spotLayerScopes}
+            spotLayerCoordination={spotLayerCoordination}
+            obsSpotsSets={obsSpotsSetsData}
 
-        spotMatrixIndices={spotMultiIndicesData}
-        spotMultiExpressionData={spotMultiExpressionNormData}
+            spotMatrixIndices={spotMultiIndicesData}
+            spotMultiExpressionData={spotMultiExpressionNormData}
 
-        // Segmentations
-        segmentationLayerScopes={segmentationLayerScopes}
-        segmentationLayerCoordination={segmentationLayerCoordination}
-        segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
-        segmentationChannelCoordination={segmentationChannelCoordination}
+            // Segmentations
+            segmentationLayerScopes={segmentationLayerScopes}
+            segmentationLayerCoordination={segmentationLayerCoordination}
+            segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+            segmentationChannelCoordination={segmentationChannelCoordination}
 
-        obsSegmentations={obsSegmentationsData}
-        obsSegmentationsLocations={obsSegmentationsLocationsData}
-        obsSegmentationsSets={obsSegmentationsSetsData}
-        segmentationMatrixIndices={segmentationMultiIndicesData}
-        segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+            obsSegmentations={obsSegmentationsData}
+            obsSegmentationsLocations={obsSegmentationsLocationsData}
+            obsSegmentationsSets={obsSegmentationsSetsData}
+            segmentationMatrixIndices={segmentationMultiIndicesData}
+            segmentationMultiExpressionData={segmentationMultiExpressionNormData}
 
-        // Images
-        images={imageData}
-        imageLayerScopes={imageLayerScopes}
-        imageLayerCoordination={imageLayerCoordination}
+            // Images
+            images={imageData}
+            imageLayerScopes={imageLayerScopes}
+            imageLayerCoordination={imageLayerCoordination}
 
-        imageChannelScopesByLayer={imageChannelScopesByLayer}
-        imageChannelCoordination={imageChannelCoordination}
+            imageChannelScopesByLayer={imageChannelScopesByLayer}
+            imageChannelCoordination={imageChannelCoordination}
 
-        // TODO: useFullResolutionImage={useFullResolutionImage}
-      />
-      {!disableTooltip && (
-        <SpatialThreeTooltipSubscriber
-          parentUuid={uuid}
-          width={width}
-          height={height}
-          hoverCoord={hoverCoord}
-
-          // Points
-          obsPoints={obsPointsData}
-          pointLayerScopes={pointLayerScopes}
-          pointLayerCoordination={pointLayerCoordination}
-
-          // Spots
-          obsSpots={obsSpotsData}
-          spotLayerScopes={spotLayerScopes}
-          spotLayerCoordination={spotLayerCoordination}
-
-          // Segmentations
-          obsSegmentationsLocations={obsSegmentationsLocationsData}
-          segmentationLayerScopes={segmentationLayerScopes}
-          segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
-          segmentationChannelCoordination={segmentationChannelCoordination}
-
-          // Images
-          imageLayerScopes={imageLayerScopes}
-          imageLayerCoordination={imageLayerCoordination}
+            // TODO: useFullResolutionImage={useFullResolutionImage}
         />
-      )}
-      <MultiLegend
-        // Fix to dark theme due to black background of spatial plot.
-        theme="dark"
+        {!disableTooltip && (
+            <SpatialThreeTooltipSubscriber
+                parentUuid={uuid}
+                width={width}
+                height={height}
+                hoverCoord={hoverCoord}
 
-        // Segmentations
-        segmentationLayerScopes={segmentationLayerScopes}
-        segmentationLayerCoordination={segmentationLayerCoordination}
-        segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
-        segmentationChannelCoordination={segmentationChannelCoordination}
-        segmentationMultiExpressionExtents={segmentationMultiExpressionExtents}
+                // Points
+                obsPoints={obsPointsData}
+                pointLayerScopes={pointLayerScopes}
+                pointLayerCoordination={pointLayerCoordination}
 
-        // Spots
-        spotLayerScopes={spotLayerScopes}
-        spotLayerCoordination={spotLayerCoordination}
-        spotMultiExpressionExtents={spotMultiExpressionExtents}
+                // Spots
+                obsSpots={obsSpotsData}
+                spotLayerScopes={spotLayerScopes}
+                spotLayerCoordination={spotLayerCoordination}
 
-        // Points
-        pointLayerScopes={pointLayerScopes}
-        pointLayerCoordination={pointLayerCoordination}
-      />
-      <ChannelNamesLegend
-        // Images
-        images={imageData}
-        imageLayerScopes={imageLayerScopes}
-        imageLayerCoordination={imageLayerCoordination}
+                // Segmentations
+                obsSegmentationsLocations={obsSegmentationsLocationsData}
+                segmentationLayerScopes={segmentationLayerScopes}
+                segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+                segmentationChannelCoordination={segmentationChannelCoordination}
 
-        imageChannelScopesByLayer={imageChannelScopesByLayer}
-        imageChannelCoordination={imageChannelCoordination}
-      />
-    </TitleInfo>
+                // Images
+                imageLayerScopes={imageLayerScopes}
+                imageLayerCoordination={imageLayerCoordination}
+            />
+        )}
+        <MultiLegend
+            // Fix to dark theme due to black background of spatial plot.
+            theme="dark"
+
+            // Segmentations
+            segmentationLayerScopes={segmentationLayerScopes}
+            segmentationLayerCoordination={segmentationLayerCoordination}
+            segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+            segmentationChannelCoordination={segmentationChannelCoordination}
+            segmentationMultiExpressionExtents={segmentationMultiExpressionExtents}
+
+            // Spots
+            spotLayerScopes={spotLayerScopes}
+            spotLayerCoordination={spotLayerCoordination}
+            spotMultiExpressionExtents={spotMultiExpressionExtents}
+
+            // Points
+            pointLayerScopes={pointLayerScopes}
+            pointLayerCoordination={pointLayerCoordination}
+        />
+        <ChannelNamesLegend
+            // Images
+            images={imageData}
+            imageLayerScopes={imageLayerScopes}
+            imageLayerCoordination={imageLayerCoordination}
+
+            imageChannelScopesByLayer={imageChannelScopesByLayer}
+            imageChannelCoordination={imageChannelCoordination}
+        />
+      </TitleInfo>
   );
 }
