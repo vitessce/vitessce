@@ -1,15 +1,11 @@
 /* eslint-disable no-unused-vars */
-import React, {forwardRef} from 'react';
+import React, {useRef, useState, forwardRef} from 'react';
 import {isEqual} from 'lodash-es';
 import {filterSelection} from '@vitessce/spatial-utils';
 import {CoordinationType} from '@vitessce/constants-internal';
 import {getLayerLoaderTuple} from './utils.js';
 
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useGLTF, MeshTransmissionMaterial, Environment, Lightformer } from '@react-three/drei'
-import { CuboidCollider, BallCollider, Physics, RigidBody } from '@react-three/rapier'
-import { EffectComposer, N8AO } from '@react-three/postprocessing'
-import { easing } from 'maath'
 
 const IMAGE_LAYER_PREFIX = 'image-layer-';
 const VOLUME_LAYER_PREFIX = 'volume-layer-';
@@ -20,7 +16,6 @@ class SpatialThree extends React.PureComponent {
         this.imageLayerLoaderSelections = {};
         this.textures = [];
         this.volumes = [];
-
         this.onUpdateImages();
     }
 
@@ -42,7 +37,7 @@ class SpatialThree extends React.PureComponent {
         const is3dMode = spatialRenderingMode === '3D';
         if (!is3dMode) {
             this.container = document.getElementById("ThreeJs");
-            this.container.innerHTML = "Only for 3D view";
+            // this.container.innerHTML = "Only for 3D view";
             return;
         } else {
             this.container = document.getElementById("ThreeJs");
@@ -190,7 +185,7 @@ class SpatialThree extends React.PureComponent {
         const shallowDiff = propName => prevProps[propName] !== this.props[propName];
         let forceUpdate = false;
         if (
-            [
+            [ //TODO Eric: Differentiate between loading a new Volume level and "just" changing settings
                 'images',
                 'imageLayerScopes',
                 'imageLayerCoordination',
@@ -201,38 +196,48 @@ class SpatialThree extends React.PureComponent {
             this.onUpdateImages();
             forceUpdate = true;
         }
-        if (forceUpdate) {
-            this.forceUpdate();
+        //
+        if (forceUpdate) { //TODO Only force a full update if fundamental things get changed
+            this.forceUpdate(); // Is it needed here?
         }
     }
 
-    // viewInfoDidUpdate() {
-    //     const {updateViewInfo, uuid} = this.props;
-    //     const {viewport} = this;
-    //     if (updateViewInfo && viewport) {
-    //         updateViewInfo({
-    //             uuid,
-    //             project: viewport.project,
-    //             projectFromId: (obsId) => {
-    //                 try {
-    //                     if (obsIndex && obsLocations) {
-    //                         const getObsCoords = makeGetObsCoords(obsLocations);
-    //                         const obsIdx = obsIndex.indexOf(obsId);
-    //                         const obsCoord = getObsCoords(obsIdx);
-    //                         return viewport.project(obsCoord);
-    //                     }
-    //                     return [null, null];
-    //                 } catch (e) {
-    //                     return [null, null];
-    //                 }
-    //             },
-    //         });
-    //     }
-    // }
+
+    Box(props) {
+        // This reference will give us direct access to the mesh
+        const meshRef = useRef()
+        // Set up state for the hovered and active state
+        const [hovered, setHover] = useState(false)
+        const [active, setActive] = useState(false)
+        // Subscribe this component to the render-loop, rotate the mesh every frame
+        // useFrame((state, delta) => (meshRef.current.rotation.x += delta))
+        // Return view, these are regular three.js elements expressed in JSX
+        return (
+            <mesh
+                {...props}
+                ref={meshRef}
+                scale={active ? 1.5 : 1}
+                onClick={(event) => setActive(!active)}
+                onPointerOver={(event) => setHover(true)}
+                onPointerOut={(event) => setHover(false)}>
+                <boxGeometry args={[1, 1, 1]} />
+                <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
+            </mesh>
+        )
+    }
+
 
     render() {
+        console.log("Here")
         return (
-            <div id="ThreeJs"></div>
+            <div id="ThreeJs">
+                <Canvas>
+                    <ambientLight/>
+                    <pointLight position={[10, 10, 10]} />
+                    <this.Box position={[-1.2, 0, 0]} />
+                    <this.Box position={[1.2, 0, 0]} />
+                </Canvas>,
+            </div>
         );
     }
 }
