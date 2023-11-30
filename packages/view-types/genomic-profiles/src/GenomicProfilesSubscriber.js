@@ -56,6 +56,7 @@ export function GenomicProfilesSubscriber(props) {
     coordinationScopes,
     theme,
     closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     profileTrackUidKey = 'path',
     profileTrackNameKey = null,
@@ -231,6 +232,7 @@ export function GenomicProfilesSubscriber(props) {
       <TitleInfo
         title={title}
         closeButtonVisible={closeButtonVisible}
+        downloadButtonVisible={downloadButtonVisible}
         removeGridComponent={removeGridComponent}
         theme={theme}
         isReady={isReady}

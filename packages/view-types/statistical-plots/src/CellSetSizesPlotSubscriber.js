@@ -29,6 +29,7 @@ export function CellSetSizesPlotSubscriber(props) {
   const {
     coordinationScopes,
     closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     theme,
     title: titleOverride,
@@ -131,6 +132,7 @@ export function CellSetSizesPlotSubscriber(props) {
     <TitleInfo
       title={title}
       closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}

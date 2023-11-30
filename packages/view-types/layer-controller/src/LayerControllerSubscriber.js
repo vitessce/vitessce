@@ -34,6 +34,7 @@ const LayerControllerMemoized = React.memo(
     const {
       title,
       closeButtonVisible,
+      downloadButtonVisible,
       removeGridComponent,
       theme,
       isReady,
@@ -88,6 +89,7 @@ const LayerControllerMemoized = React.memo(
         title={title}
         isScroll
         closeButtonVisible={closeButtonVisible}
+        downloadButtonVisible={downloadButtonVisible}
         removeGridComponent={removeGridComponent}
         theme={theme}
         isReady={isReady}
@@ -309,6 +311,7 @@ export function LayerControllerSubscriber(props) {
   const {
     coordinationScopes,
     closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     theme,
     title = 'Spatial Layers',
@@ -454,6 +457,7 @@ export function LayerControllerSubscriber(props) {
       ref={layerControllerRef}
       title={title}
       closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}

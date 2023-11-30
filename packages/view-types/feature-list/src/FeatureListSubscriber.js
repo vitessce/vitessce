@@ -44,6 +44,7 @@ export function FeatureListSubscriber(props) {
     sort = 'alphabetical',
     sortKey = null,
     closeButtonVisible,
+    downloadButtonVisible,
   } = props;
 
   const loaders = useLoaders();
@@ -110,6 +111,7 @@ export function FeatureListSubscriber(props) {
       // scroll css (SelectableTable is virtual scroll).
       isScroll
       closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       urls={urls}
