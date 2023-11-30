@@ -70,6 +70,7 @@ export function ObsSetsManagerSubscriber(props) {
   const {
     coordinationScopes,
     closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     theme,
     title: titleOverride,
@@ -651,6 +652,7 @@ export function ObsSetsManagerSubscriber(props) {
       title={title}
       isScroll
       closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}

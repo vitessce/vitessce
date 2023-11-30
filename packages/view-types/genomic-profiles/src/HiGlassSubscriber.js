@@ -22,6 +22,7 @@ export function HiGlassSubscriber(props) {
     theme,
     hgViewConfig,
     closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
   } = props;
 
@@ -34,6 +35,7 @@ export function HiGlassSubscriber(props) {
       <TitleInfo
         title="HiGlass"
         closeButtonVisible={closeButtonVisible}
+        downloadButtonVisible={downloadButtonVisible}
         removeGridComponent={removeGridComponent}
         theme={theme}
         isReady

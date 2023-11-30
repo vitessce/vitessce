@@ -50,6 +50,7 @@ export function GatingSubscriber(props) {
     uuid,
     coordinationScopes,
     closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     theme,
     disableTooltip = false,
@@ -354,6 +355,7 @@ export function GatingSubscriber(props) {
       title={title}
       info={`${commaNumber(cellsCount)} ${plur(obsType, cellsCount)}`}
       closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}

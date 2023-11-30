@@ -123,7 +123,7 @@ function ClosePaneButton(props) {
 export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
-    isReady, options, closeButtonVisible = true,
+    isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
   } = props;
 
   const classes = useTitleStyles();
@@ -142,9 +142,11 @@ export function TitleInfo(props) {
           <PlotOptions
             options={options}
           />
-          <DownloadOptions
-            urls={urls}
-          />
+          {downloadButtonVisible ? (
+            <DownloadOptions
+              urls={urls}
+            />
+          ) : null}
           {closeButtonVisible ? (
             <ClosePaneButton
               removeGridComponent={removeGridComponent}

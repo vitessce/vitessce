@@ -109,6 +109,7 @@ export function CellSetExpressionPlotSubscriber(props) {
   const {
     coordinationScopes,
     closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     theme,
   } = props;
@@ -190,6 +191,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     <TitleInfo
       title={`Expression by ${capitalize(obsType)} Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
       closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
