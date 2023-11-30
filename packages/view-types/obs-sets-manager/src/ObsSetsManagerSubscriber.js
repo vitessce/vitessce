@@ -69,6 +69,7 @@ const packageJson = { name: 'vitessce' };
 export function ObsSetsManagerSubscriber(props) {
   const {
     coordinationScopes,
+    closeButtonVisible,
     removeGridComponent,
     theme,
     title: titleOverride,
@@ -649,6 +650,7 @@ export function ObsSetsManagerSubscriber(props) {
     <TitleInfo
       title={title}
       isScroll
+      closeButtonVisible={closeButtonVisible}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}

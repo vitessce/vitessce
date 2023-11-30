@@ -43,6 +43,7 @@ export function FeatureListSubscriber(props) {
     showTable = false,
     sort = 'alphabetical',
     sortKey = null,
+    closeButtonVisible,
   } = props;
 
   const loaders = useLoaders();
@@ -108,6 +109,7 @@ export function FeatureListSubscriber(props) {
       // even though this no longer uses the TitleInfo component's
       // scroll css (SelectableTable is virtual scroll).
       isScroll
+      closeButtonVisible={closeButtonVisible}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       urls={urls}

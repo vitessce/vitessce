@@ -28,6 +28,7 @@ import { useStyles } from './styles.js';
 export function CellSetSizesPlotSubscriber(props) {
   const {
     coordinationScopes,
+    closeButtonVisible,
     removeGridComponent,
     theme,
     title: titleOverride,
@@ -129,6 +130,7 @@ export function CellSetSizesPlotSubscriber(props) {
   return (
     <TitleInfo
       title={title}
+      closeButtonVisible={closeButtonVisible}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}

@@ -25,6 +25,7 @@ import { useStyles } from './styles.js';
 export function ExpressionHistogramSubscriber(props) {
   const {
     coordinationScopes,
+    closeButtonVisible,
     removeGridComponent,
     theme,
   } = props;
@@ -120,6 +121,7 @@ export function ExpressionHistogramSubscriber(props) {
   return (
     <TitleInfo
       title={`Expression Histogram${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      closeButtonVisible={closeButtonVisible}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
