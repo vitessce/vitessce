@@ -2,6 +2,7 @@
 import React, {useRef, useState, forwardRef, useEffect} from 'react';
 import {Canvas, useFrame} from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
+import { VRButton, ARButton, XR, Controllers, Hands } from '@react-three/xr'
 
 import {isEqual} from 'lodash-es';
 import {filterSelection} from '@vitessce/spatial-utils';
@@ -11,7 +12,7 @@ import {re} from "mathjs";
 import {asyncIteratorReturn} from "jsdom/lib/jsdom/living/generated/utils.js";
 
 const SpatialThree = (props) => {
-    const prevProps = useRef({ props }).current;
+    // const prevProps = useRef({ props }).current;
     const {
         images = {},
         imageLayerScopes,
@@ -32,29 +33,17 @@ const SpatialThree = (props) => {
         channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]
     ));
     console.log(colors);
-
-
-    // // ERIC: Ask Mark what the Layer Scope is doing in 3D?
-    // imageLayerScopes.map(layerScope => create3DRendering(
-    //     layerScope,
-    //     imageLayerCoordination[0][layerScope],
-    //     imageChannelScopesByLayer[layerScope],
-    //     imageChannelCoordination[0][layerScope],
-    //     images[layerScope],
-    //     props
-    // ));
-    // useEffect(() => {
-    //     console.log("props updated")
-    // }, [props]);
-
     return (
         <div id="ThreeJs" style={{width: "100%",height:"100%"}}>
+            <ARButton/>
             <Canvas>
-                <ambientLight/>
-                <pointLight position={[10, 10, 10]}/>
-                <Box position={[-1.2, 0, 0]} color={rgbToHex(colors[0])}/>
-                <Box position={[1.2, 0, 0]} color={rgbToHex(colors[1])}/>
-                <OrbitControls/>
+                <XR>
+                    <ambientLight/>
+                    <pointLight position={[10, 10, 10]}/>
+                    <Box position={[-1.2, 0, 0]} color={rgbToHex(colors[0])}/>
+                    <Box position={[1.2, 0, 0]} color={rgbToHex(colors[1])}/>
+                    <OrbitControls/>
+                </XR>
             </Canvas>
         </div>
     );

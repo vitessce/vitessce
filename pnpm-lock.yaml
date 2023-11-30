@@ -1532,6 +1532,9 @@ importers:
       '@react-three/fiber':
         specifier: ^8.15.11
         version: 8.15.11(react-dom@18.2.0)(react@18.2.0)(three@0.154.0)
+      '@react-three/xr':
+        specifier: ^5.7.1
+        version: 5.7.1(@react-three/fiber@8.15.11)(react@18.2.0)(three@0.154.0)
       '@types/three':
         specifier: ^0.158.3
         version: 0.158.3
@@ -1778,6 +1781,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/main/prod
     devDependencies:
+      '@vitejs/plugin-basic-ssl':
+        specifier: ^1.0.2
+        version: 1.0.2(vite@4.3.9)
       '@vitejs/plugin-react':
         specifier: ^4.0.0
         version: 4.0.0(vite@4.3.9)
@@ -8741,6 +8747,21 @@ packages:
       zustand: 3.7.2(react@18.2.0)
     dev: false
 
+  /@react-three/xr@5.7.1(@react-three/fiber@8.15.11)(react@18.2.0)(three@0.154.0):
+    resolution: {integrity: sha512-GaRUSA+lE8VJF/NrXq7QQByZ4UGHbQQ4rs3QCphZs9fVidK86hGrMOQ0kL79gZc5pa3V5uFGlOhNcUdsTYE3Bg==}
+    peerDependencies:
+      '@react-three/fiber': '>=8.0.0'
+      react: '>=18.0 || 18'
+      three: '>=0.141'
+    dependencies:
+      '@react-three/fiber': 8.15.11(react-dom@18.2.0)(react@18.2.0)(three@0.154.0)
+      '@types/webxr': 0.5.10
+      react: 18.2.0
+      three: 0.154.0
+      three-stdlib: 2.28.7(three@0.154.0)
+      zustand: 3.7.2(react@18.2.0)
+    dev: false
+
   /@react-types/breadcrumbs@3.6.2(react@18.2.0):
     resolution: {integrity: sha512-CI4j7m15X3C7qznPZpXV8z6EyqCvIV2arfb+FH+Odu4AvcMCUrOKSolEtTl1tmv3uOTAwbd81jVxsUD6aJ6SCw==}
     peerDependencies:
@@ -10322,6 +10343,15 @@ packages:
       '@use-gesture/core': 10.3.0
       react: 18.2.0
     dev: false
+
+  /@vitejs/plugin-basic-ssl@1.0.2(vite@4.3.9):
+    resolution: {integrity: sha512-DKHKVtpI+eA5fvObVgQ3QtTGU70CcCnedalzqmGSR050AzKZMdUzgC8KmlOneHWH8dF2hJ3wkC9+8FDVAaDRCw==}
+    engines: {node: '>=14.6.0'}
+    peerDependencies:
+      vite: ^3.0.0 || ^4.0.0 || ^5.0.0
+    dependencies:
+      vite: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+    dev: true
 
   /@vitejs/plugin-react@4.0.0(vite@4.3.9):
     resolution: {integrity: sha512-HX0XzMjL3hhOYm+0s95pb0Z7F8O81G7joUHgfDd/9J/ZZf5k4xX6QAMFkKsHFxaHlf6X7GD7+XuaZ66ULiJuhQ==}
