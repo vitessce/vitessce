@@ -1,4 +1,15 @@
 
+## 3.3.2
+
+### Patch Changes
+
+- Add the prop closeButtonVisible to all views, passed down to TitleInfo, to allow hiding the close buttons on each view by setting this prop in the config. (`@vitessce/vit-s`) ([#1740](https://github.com/vitessce/vitessce/pull/1740))
+
+- Memoize button icons in TitleInfo to prevent unnecessary re-renders" (`@vitessce/vit-s`) ([#1736](https://github.com/vitessce/vitessce/pull/1736))
+
+- Added a prop to hide download buttons and dropdowns. (`@vitessce/vit-s`) ([#1743](https://github.com/vitessce/vitessce/pull/1743))
+
+
 ## 3.3.1
 
 ### Patch Changes
