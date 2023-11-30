@@ -64,28 +64,6 @@ export const codeluppiViaCsv = {
           },
         },
         {
-          fileType: 'obsLocations.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.molecules.csv',
-          options: {
-            obsIndex: 'molecule_id',
-            obsLocations: ['X', 'Y'],
-          },
-          coordinationValues: {
-            obsType: 'molecule',
-          },
-        },
-        {
-          fileType: 'obsLabels.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.molecules.csv',
-          options: {
-            obsIndex: 'molecule_id',
-            obsLabels: 'Gene',
-          },
-          coordinationValues: {
-            obsType: 'molecule',
-          },
-        },
-        {
           fileType: 'obsFeatureMatrix.csv',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.matrix.csv',
           coordinationValues: {
@@ -141,6 +119,10 @@ export const codeluppiViaCsv = {
     },
   ],
   coordinationSpace: {
+    obsType: {
+      cell: 'cell',
+      enhancer: 'enhancer',
+    },
     embeddingZoom: {
       PCA: 0,
       TSNE: 0.75,
@@ -165,38 +147,23 @@ export const codeluppiViaCsv = {
     },
     spatialPointLayer: {
       A: {
-        opacity: 1, radius: 20, visible: true,
+        opacity: 1, radius: 20, visible: false,
       },
     },
   },
   layout: [
     {
-      component: 'description',
-      props: {
-        description: 'Codeluppi et al., Nature Methods 2018: Spatial organization of the somatosensory cortex revealed by osmFISH',
-      },
-      x: 0,
-      y: 0,
-      w: 2,
-      h: 1,
+      // Cell by gene
+      component: 'heatmap',
+      x: 0, y: 0, h: 6, w: 6,
     },
     {
-      component: 'layerController',
+      // Enhancer by gene
+      component: 'heatmap',
       coordinationScopes: {
-        spatialSegmentationLayer: 'A',
-        spatialPointLayer: 'A',
+        obsType: 'enhancer',
       },
-      x: 0,
-      y: 1,
-      w: 2,
-      h: 4,
-    },
-    {
-      component: 'status',
-      x: 0,
-      y: 5,
-      w: 2,
-      h: 1,
+      x: 0, y: 6, h: 6, w: 6,
     },
     {
       component: 'spatial',
@@ -210,52 +177,7 @@ export const codeluppiViaCsv = {
       props: {
         channelNamesVisible: true,
       },
-      x: 2,
-      y: 0,
-      w: 4,
-      h: 4,
-    },
-    {
-      component: 'featureList',
-      x: 9,
-      y: 0,
-      w: 3,
-      h: 2,
-    },
-    {
-      component: 'obsSets',
-      x: 9,
-      y: 3,
-      w: 3,
-      h: 2,
-    },
-    {
-      component: 'heatmap',
-      props: {
-        transpose: true,
-      },
-      x: 2,
-      y: 4,
-      w: 5,
-      h: 2,
-    },
-    {
-      component: 'obsSetFeatureValueDistribution',
-      x: 7,
-      y: 4,
-      w: 5,
-      h: 2,
-    },
-    {
-      component: 'scatterplot',
-      coordinationScopes: {
-        embeddingType: 'PCA',
-        embeddingZoom: 'PCA',
-      },
-      x: 6,
-      y: 0,
-      w: 3,
-      h: 2,
+      x: 6, y: 0, h: 6, w: 6,
     },
     {
       component: 'scatterplot',
@@ -263,10 +185,11 @@ export const codeluppiViaCsv = {
         embeddingType: 'TSNE',
         embeddingZoom: 'TSNE',
       },
-      x: 6,
-      y: 2,
-      w: 3,
-      h: 2,
+      x: 6, y: 6, h: 6, w: 3,
+    },
+    {
+      component: 'featureList',
+      x: 9, y: 6, h: 6, w: 3,
     },
   ],
 };
