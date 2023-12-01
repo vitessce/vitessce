@@ -116,6 +116,8 @@ export function SpatialSubscriber(props) {
     uuid,
     coordinationScopes: coordinationScopesRaw,
     coordinationScopesBy: coordinationScopesByRaw,
+    closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     observationsLabelOverride,
     subobservationsLabelOverride: subobservationsLabel = 'molecule',
@@ -720,6 +722,8 @@ export function SpatialSubscriber(props) {
       isSpatial
       urls={urls}
       theme={theme}
+      closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
     >

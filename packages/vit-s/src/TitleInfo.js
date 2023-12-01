@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import clsx from 'clsx';
 import { makeStyles, MenuItem, IconButton, Link } from '@material-ui/core';
 import {
@@ -57,11 +57,13 @@ function PlotOptions(props) {
   const { options } = props;
   const [open, setOpen] = useState(false);
   const classes = useStyles();
+
+  const buttonIcon = useMemo(() => (<SettingsIconWithArrow open={open} />), [open]);
   return (options ? (
     <PopperMenu
       open={open}
       setOpen={setOpen}
-      buttonIcon={<SettingsIconWithArrow open={open} />}
+      buttonIcon={buttonIcon}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
       aria-label="Open plot options menu"
@@ -84,17 +86,18 @@ function DownloadOptions(props) {
   const { urls } = props;
   const [open, setOpen] = useState(false);
   const classes = useStyles();
+  const buttonIcon = useMemo(() => (<CloudDownloadIconWithArrow open={open} />), [open]);
   return (urls && urls.length ? (
     <PopperMenu
       open={open}
       setOpen={setOpen}
-      buttonIcon={<CloudDownloadIconWithArrow open={open} />}
+      buttonIcon={buttonIcon}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
       aria-label="Open download options menu"
     >
       {urls.map(({ url, name }) => (
-        <MenuItem dense key={`${url}_${name}`} getArialLabel={() => `Click to download ${name}`}>
+        <MenuItem dense key={`${url}_${name}`} aria-label={`Click to download ${name}`}>
           <Link underline="always" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
             Download {name}
           </Link>
@@ -123,7 +126,7 @@ function ClosePaneButton(props) {
 export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
-    isReady, options,
+    isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
   } = props;
 
   const classes = useTitleStyles();
@@ -142,12 +145,16 @@ export function TitleInfo(props) {
           <PlotOptions
             options={options}
           />
-          <DownloadOptions
-            urls={urls}
-          />
-          <ClosePaneButton
-            removeGridComponent={removeGridComponent}
-          />
+          {downloadButtonVisible ? (
+            <DownloadOptions
+              urls={urls}
+            />
+          ) : null}
+          {closeButtonVisible ? (
+            <ClosePaneButton
+              removeGridComponent={removeGridComponent}
+            />
+          ) : null}
         </div>
       </div>
       <div

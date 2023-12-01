@@ -55,6 +55,8 @@ export function GenomicProfilesSubscriber(props) {
   const {
     coordinationScopes,
     theme,
+    closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     profileTrackUidKey = 'path',
     profileTrackNameKey = null,
@@ -229,6 +231,8 @@ export function GenomicProfilesSubscriber(props) {
     <div className={classes.higlassTitleWrapper}>
       <TitleInfo
         title={title}
+        closeButtonVisible={closeButtonVisible}
+        downloadButtonVisible={downloadButtonVisible}
         removeGridComponent={removeGridComponent}
         theme={theme}
         isReady={isReady}
