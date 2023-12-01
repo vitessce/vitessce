@@ -13,6 +13,8 @@ import * as THREE from "three";
 import cmViridisTextureUrl from "../textures/cm_viridis.png";
 import cmGrayTextureUrl from "../textures/cm_gray.png";
 import {VolumeRenderShaderPerspective} from "../jsm/shaders/VolumeShaderPerspective.js";
+import {asciiWhitespaceRe} from "jsdom/lib/jsdom/living/helpers/strings.js";
+import reorder from "lodash-es/_reorder.js";
 // import DVRMaterial from "./DVRMaterial.js";
 
 const SpatialThree = (props) => {
@@ -22,9 +24,16 @@ const SpatialThree = (props) => {
         uniforms: null, shader: null, meshScale: null,
         geometrySize: null
     });
-    const [volumeData, setVolumeData] = useState(null);
+    const [volumeData, setVolumeData] = useState({
+        volumes: new Map(),
+        textures: new Map(),
+        volumeMinMax: new Map(),
+        scale: null,
+    });
     const [volumeSettings, setVolumeSettings] = useState({
         channelsVisible: [],
+        allChannels: [],
+        channelTargetC: [],
         resolution: null,
         data: null,
         colors: [],
@@ -38,15 +47,15 @@ const SpatialThree = (props) => {
         imageChannelCoordination,
     } = props;
     const imageLayerLoaderSelections = useRef({});
-
     let layerScope = imageLayerScopes[0];
     let channelScopes = imageChannelScopesByLayer[layerScope];
     let layerCoordination = imageLayerCoordination[0][layerScope];
     let channelCoordination = imageChannelCoordination[0][layerScope];
-
     // Get the relevant information out of the Props
     const {
         channelsVisible,
+        allChannels,
+        channelTargetC,
         resolution,
         data,
         colors,
@@ -54,23 +63,27 @@ const SpatialThree = (props) => {
     } = extractInformationFromProps(layerScope, layerCoordination, channelScopes,
         channelCoordination, images[layerScope], props, imageLayerLoaderSelections.current)
     // TODO: Find a better and more efficient way to compare the Strings here
-    if (volumeSettings == null ||
-        (channelsVisible !== null &&
-            (volumeSettings.channelsVisible.toString() !== channelsVisible.toString() ||
-                volumeSettings.colors.toString() !== colors.toString() ||
-                volumeSettings.contrastLimits.toString() !== contrastLimits.toString()
-            )
-        )
-    ) {
-        console.log("Set Volume Settings")
-        setVolumeSettings({
-            channelsVisible,
-            resolution,
-            data,
-            colors,
-            contrastLimits
-        });
+
+    if (channelTargetC !== null) {
+        if (volumeSettings.channelTargetC.length !== 0 &&
+            (volumeSettings.channelTargetC.toString() !== channelTargetC.toString() ||
+                volumeSettings.resolution.toString() !== resolution.toString())) {
+            if (!dataReady) setDataReady(true);
+        } else if ((volumeSettings.channelsVisible.toString() !== channelsVisible.toString() ||
+            volumeSettings.colors.toString() !== colors.toString() ||
+            volumeSettings.contrastLimits.toString() !== contrastLimits.toString())) {
+            setVolumeSettings({
+                channelsVisible,
+                allChannels,
+                channelTargetC,
+                resolution,
+                data,
+                colors,
+                contrastLimits
+            });
+        }
     }
+
 
     // 1st Rendering Pass Load the Data in the given resolution OR Resolution Changed
     let dataToCheck = images[layerScope]?.image?.instance?.getData();
@@ -81,45 +94,78 @@ const SpatialThree = (props) => {
     useEffect(() => {
         let fetchRendering = async () => {
             console.log("Loading the data")
-            const loadingResult = await initialDataLoading(channelsVisible, resolution, data);
-            setVolumeData({
-                volumes: loadingResult[0],
-                textures: loadingResult[1],
-                volumeMinMax: loadingResult[2],
-                scale: loadingResult[3]
-            });
-            console.log("Create the 3D rendering")
-            const rendering = create3DRendering(loadingResult[0], channelsVisible, colors,
-                loadingResult[1], contrastLimits, loadingResult[2], loadingResult[3])
-            if (rendering !== null) {
-                setRenderingSettings({
-                    uniforms: rendering[0], shader: rendering[1], meshScale: rendering[2],
-                    geometrySize: rendering[3]
+            const loadingResult = await initialDataLoading(channelTargetC, resolution, data,
+                volumeData.volumes, volumeData.textures, volumeData.volumeMinMax);
+            if (loadingResult[0] !== null) {
+                setVolumeData({
+                    volumes: loadingResult[0],
+                    textures: loadingResult[1],
+                    volumeMinMax: loadingResult[2],
+                    scale: loadingResult[3]
                 });
+                if (renderingSettings.uniforms === undefined || renderingSettings.uniforms === null ||
+                    renderingSettings.shader === undefined || renderingSettings.shader === null) {
+                    const rendering = create3DRendering(loadingResult[0], channelTargetC, channelsVisible, colors,
+                        loadingResult[1], contrastLimits, loadingResult[2], loadingResult[3])
+                    if (rendering !== null) {
+                        setRenderingSettings({
+                            uniforms: rendering[0], shader: rendering[1], meshScale: rendering[2],
+                            geometrySize: rendering[3]
+                        });
+                    }
+                } else {
+                    console.log("reloading data and now resetting things")
+                    setVolumeSettings({
+                        channelsVisible,
+                        allChannels,
+                        channelTargetC,
+                        resolution,
+                        data,
+                        colors,
+                        contrastLimits
+                    });
+                }
             }
+            setDataReady(false);
         }
-        if (dataReady) fetchRendering();
+        if (dataReady) {
+            fetchRendering();
+        }
     }, [dataReady]);
 
-    // 2nd Rendering Pass Check if the Props Changed (except the resolution)
+
+// 2nd Rendering Pass Check if the Props Changed (except the resolution)
     useEffect(() => {
-        if (renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
-            renderingSettings.shader !== undefined && renderingSettings.shader !== null) {
-            console.log("Adapting the renderer")
-            const rendering = create3DRendering(volumeData.volumes, volumeSettings.channelsVisible, volumeSettings.colors,
-                volumeData.textures, volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale)
+        if (((renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
+            renderingSettings.shader !== undefined && renderingSettings.shader !== null))) {
+            const rendering = create3DRendering(volumeData.volumes, volumeSettings.channelTargetC,
+                volumeSettings.channelsVisible, volumeSettings.colors, volumeData.textures,
+                volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale)
             if (rendering !== null) {
-                let newSettings = {
-                    uniforms: rendering[0], shader: rendering[1], meshScale: rendering[2],
-                    geometrySize: rendering[3]
-                };
-                setRenderingSettings(newSettings);
-                materialRef.current.material.uniforms.u_clim.value = renderingSettings.uniforms["u_clim"].value;
-                materialRef.current.material.needsUpdate = true;
+                //Set the material uniforms
+                materialRef.current.material.uniforms.u_clim.value = rendering[0]["u_clim"].value;
+                materialRef.current.material.uniforms.u_clim2.value = rendering[0]["u_clim2"].value;
+                materialRef.current.material.uniforms.u_clim3.value = rendering[0]["u_clim3"].value;
+                materialRef.current.material.uniforms.u_clim4.value = rendering[0]["u_clim4"].value;
+                materialRef.current.material.uniforms.u_clim5.value = rendering[0]["u_clim5"].value;
+                materialRef.current.material.uniforms.u_clim6.value = rendering[0]["u_clim6"].value;
+                materialRef.current.material.uniforms.u_color.value = rendering[0]["u_color"].value;
+                materialRef.current.material.uniforms.u_color2.value = rendering[0]["u_color2"].value;
+                materialRef.current.material.uniforms.u_color3.value = rendering[0]["u_color3"].value;
+                materialRef.current.material.uniforms.u_color4.value = rendering[0]["u_color4"].value;
+                materialRef.current.material.uniforms.u_color5.value = rendering[0]["u_color5"].value;
+                materialRef.current.material.uniforms.u_color6.value = rendering[0]["u_color6"].value;
+                materialRef.current.material.uniforms.volumeTex.value = rendering[0]["volumeTex"].value;
+                materialRef.current.material.uniforms.volumeTex2.value = rendering[0]["volumeTex2"].value;
+                materialRef.current.material.uniforms.volumeTex3.value = rendering[0]["volumeTex3"].value;
+                materialRef.current.material.uniforms.volumeTex4.value = rendering[0]["volumeTex4"].value;
+                materialRef.current.material.uniforms.volumeTex5.value = rendering[0]["volumeTex5"].value;
+                materialRef.current.material.uniforms.volumeTex6.value = rendering[0]["volumeTex6"].value;
             }
         }
-    }, [volumeSettings])
+    }, [volumeSettings]);
 
+// TODO: adapt the camera settings depending on the data
     return (
         <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
             <ARButton/>
@@ -158,7 +204,13 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
     const data = image?.image?.instance?.getData();
     if (!data) {
         return {
-            channelsVisible: null, resolution: null, data: null, colors: null, contrastLimits: null
+            channelsVisible: null,
+            resolution: null,
+            data: null,
+            colors: null,
+            contrastLimits: null,
+            allChannels: null,
+            channelTargetC: null
         };
     }
     const imageWrapperInstance = image.image.instance;
@@ -226,21 +278,33 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
         // Layer visible AND channel visible
         visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]
     ));
+
+    // CHANNEL VISIBILITY
+    const channelTargetC = isRgb ? ([
+        // Layer visible AND channel visible
+        visible && true,
+        visible && true,
+        visible && true,
+    ]) : channelScopes.map(cScope => (
+        // Layer visible AND channel visible
+        visible && channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C]
+    ));
     const autoTargetResolution = imageWrapperInstance.getAutoTargetResolution();
     const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION];
     let resolution = (targetResolution === null || isNaN(targetResolution)) ? autoTargetResolution : targetResolution;
-
-    return {channelsVisible, resolution, data, colors, contrastLimits};
+    let allChannels = image.image.loaders[0].channels;
+    return {channelsVisible, allChannels, channelTargetC, resolution, data, colors, contrastLimits};
 }
 
-function create3DRendering(volumes, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale) {
+function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale) {
     let texturesList = [];
     let colorsSave = [];
     let contrastLimitsList = [];
     let volume = null;
-    for (let channelStr in channelsVisible) {    // load on demand new channels or load all there are?? - Check VIV for it
-        let channel = parseInt(channelStr);
-        if (channelsVisible[channel]) {         // check if the channel has been loaded already or if there should be a new load
+    for (let channelStr in channelTargetC) {    // load on demand new channels or load all there are?? - Check VIV for it
+        let channel = channelTargetC[parseInt(channelStr)];
+        let visChannel = channelTargetC.indexOf(channel);
+        if (channelsVisible[visChannel]) {         // check if the channel has been loaded already or if there should be a new load
             volume = volumes.get(channel);
             // set textures, set volume, contrastLimits, colors
             texturesList.push(textures.get(channel)) //Could be done better but for now we try this
@@ -273,23 +337,21 @@ function create3DRendering(volumes, channelsVisible, colors, textures, contrastL
     return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2].size / scale[0].size], [volume.xLength, volume.yLength, volume.zLength]];
 }
 
-async function initialDataLoading(channelsVisible, resolution, data) {
+async function initialDataLoading(channelTargetC, resolution, data, volumes, textures, volumeMinMax) {
     let volume = null;
-    //Save the volume data in a map
-    let volumes = new Map();
-    let textures = new Map();
-    let volumeMinMax = new Map();
     let scale = null;
-    for (let channelStr in channelsVisible) {    // load on demand new channels or load all there are?? - Check VIV for it
-        let channel = parseInt(channelStr);
-        let volumeOrigin = await getVolumeByChannel(channel, resolution, data);
-        volume = getVolumeFromOrigin(volumeOrigin);
-        let minMax = volume.computeMinMax();
-        volume.data = minMaxVolume(volume);           // Have the data between 0 and 1
-        volumes.set(channel, volume);
-        textures.set(channel, getData3DTexture(volume))
-        volumeMinMax.set(channel, minMax);
-        scale = getPhysicalSizeScalingMatrix(data[resolution]);
+    for (let channelStr in channelTargetC) {    // load on demand new channels or load all there are?? - Check VIV for it
+        let channel = channelTargetC[parseInt(channelStr)];
+        if (!volumes.has(channel)) {
+            let volumeOrigin = await getVolumeByChannel(channel, resolution, data);
+            volume = getVolumeFromOrigin(volumeOrigin);
+            let minMax = volume.computeMinMax();
+            volume.data = minMaxVolume(volume);           // Have the data between 0 and 1
+            volumes.set(channel, volume);
+            textures.set(channel, getData3DTexture(volume))
+            volumeMinMax.set(channel, minMax);
+            scale = getPhysicalSizeScalingMatrix(data[resolution]);
+        }
     }
     return [volumes, textures, volumeMinMax, scale];
 }
