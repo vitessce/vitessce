@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, {useRef, useState, forwardRef, useEffect} from 'react';
-import {Canvas, extend, useFrame, invalidate} from '@react-three/fiber'
+import {Canvas, extend, useFrame} from '@react-three/fiber'
 import {OrbitControls, useTexture, shaderMaterial, PerspectiveCamera} from '@react-three/drei'
 import {VRButton, ARButton, XR, Controllers, Hands} from '@react-three/xr'
 import {isEqual} from 'lodash-es';
@@ -16,6 +16,7 @@ import {VolumeRenderShaderPerspective} from "../jsm/shaders/VolumeShaderPerspect
 // import DVRMaterial from "./DVRMaterial.js";
 
 const SpatialThree = (props) => {
+    const materialRef = useRef(null);
     const [dataReady, setDataReady] = useState(false);
     const [renderingSettings, setRenderingSettings] = useState({
         uniforms: null, shader: null, meshScale: null,
@@ -93,11 +94,9 @@ const SpatialThree = (props) => {
             if (rendering !== null) {
                 setRenderingSettings({
                     uniforms: rendering[0], shader: rendering[1], meshScale: rendering[2],
-                    geometrySize: [3]
+                    geometrySize: rendering[3]
                 });
             }
-            // console.log("Done")
-            // invalidate();
         }
         if (dataReady) fetchRendering();
     }, [dataReady]);
@@ -110,11 +109,13 @@ const SpatialThree = (props) => {
             const rendering = create3DRendering(volumeData.volumes, volumeSettings.channelsVisible, volumeSettings.colors,
                 volumeData.textures, volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale)
             if (rendering !== null) {
-                console.log(rendering[0])
-                setRenderingSettings({
+                let newSettings = {
                     uniforms: rendering[0], shader: rendering[1], meshScale: rendering[2],
-                    geometrySize: [3]
-                });
+                    geometrySize: rendering[3]
+                };
+                setRenderingSettings(newSettings);
+                materialRef.current.material.uniforms.u_clim.value = renderingSettings.uniforms["u_clim"].value;
+                materialRef.current.material.needsUpdate = true;
             }
         }
     }, [volumeSettings])
@@ -122,12 +123,11 @@ const SpatialThree = (props) => {
     return (
         <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
             <ARButton/>
-            <Canvas>
+            <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -500], near: 0.01, far: 10000}}>
                 <XR>
-                    <PerspectiveCamera fov={45} position={[0, 0, 0]} up={[0, 1, 0]} near={0.01} far={100000}/>
                     {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
-                        renderingSettings.shader !== undefined && renderingSettings.shader !== null) ?
-                        <mesh scale={renderingSettings.meshScale}>
+                            renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
+                        <mesh scale={renderingSettings.meshScale} ref={materialRef}>
                             <boxGeometry args={renderingSettings.geometrySize}/>
                             <shaderMaterial
                                 customProgramCacheKey={() => {
@@ -139,10 +139,8 @@ const SpatialThree = (props) => {
                                 vertexShader={renderingSettings.shader.vertexShader}
                                 fragmentShader={renderingSettings.shader.fragmentShader}
                             />
-                        </mesh> : <Box position={[0, 0, 0]}/>
+                        </mesh>
                     }
-                    <ambientLight/>
-                    <pointLight position={[10, 10, 10]}/>
                     <OrbitControls/>
                 </XR>
             </Canvas>
@@ -247,16 +245,15 @@ function create3DRendering(volumes, channelsVisible, colors, textures, contrastL
             // set textures, set volume, contrastLimits, colors
             texturesList.push(textures.get(channel)) //Could be done better but for now we try this
             colorsSave.push([colors[channel][0] / 255, colors[channel][1] / 255, colors[channel][2] / 255]);
-            if(contrastLimits[channel][0] === 0 && contrastLimits[channel][1] === 255){ //Initial State TODO change??
+            if (contrastLimits[channel][0] === 0 && contrastLimits[channel][1] === 255) { //Initial State TODO change??
                 contrastLimitsList.push([getMinMaxValue(volumeMinMax.get(channel)[0], volumeMinMax.get(channel)),
                     getMinMaxValue(volumeMinMax.get(channel)[1], volumeMinMax.get(channel))]);
-            }else{
+            } else {
                 contrastLimitsList.push([getMinMaxValue(contrastLimits[channel][0], volumeMinMax.get(channel)),
                     getMinMaxValue(contrastLimits[channel][1], volumeMinMax.get(channel))]);
             }
         }
     }
-    console.log(contrastLimitsList)
     let volconfig = {
         clim1: 0.01,
         clim2: 0.7,
