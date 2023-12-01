@@ -30,6 +30,7 @@ const SpatialThree = (props) => {
         textures: new Map(),
         volumeMinMax: new Map(),
         scale: null,
+        resolution: null,
     });
     const [volumeSettings, setVolumeSettings] = useState({
         channelsVisible: [],
@@ -38,7 +39,8 @@ const SpatialThree = (props) => {
         resolution: null,
         data: null,
         colors: [],
-        contrastLimits: []
+        contrastLimits: [],
+        is3dMode: false
     });
     const {
         images = {},
@@ -60,7 +62,8 @@ const SpatialThree = (props) => {
         resolution,
         data,
         colors,
-        contrastLimits
+        contrastLimits,
+        is3dMode
     } = extractInformationFromProps(layerScope, layerCoordination, channelScopes,
         channelCoordination, images[layerScope], props, imageLayerLoaderSelections.current)
     // TODO: Find a better and more efficient way to compare the Strings here
@@ -71,6 +74,7 @@ const SpatialThree = (props) => {
             if (!dataReady) setDataReady(true);
         } else if ((volumeSettings.channelsVisible.toString() !== channelsVisible.toString() ||
             volumeSettings.colors.toString() !== colors.toString() ||
+            volumeSettings.is3dMode !== is3dMode ||
             volumeSettings.contrastLimits.toString() !== contrastLimits.toString())) {
             setVolumeSettings({
                 channelsVisible,
@@ -79,7 +83,8 @@ const SpatialThree = (props) => {
                 resolution,
                 data,
                 colors,
-                contrastLimits
+                contrastLimits,
+                is3dMode
             });
             setDataReady(false);
         }
@@ -89,7 +94,8 @@ const SpatialThree = (props) => {
     // 1st Rendering Pass Load the Data in the given resolution OR Resolution Changed
     let dataToCheck = images[layerScope]?.image?.instance?.getData();
     if (dataToCheck !== undefined && !dataReady && !initialStartup &&
-        contrastLimits !== null && contrastLimits[0][1] !== 255) {
+        contrastLimits !== null && contrastLimits[0][1] !== 255 && is3dMode) {
+        console.log("Loading Data")
         setDataReady(true);
         setInitialStartup(true);
     }
@@ -98,9 +104,10 @@ const SpatialThree = (props) => {
     useEffect(() => {
         let fetchRendering = async () => {
             const loadingResult = await initialDataLoading(channelTargetC, resolution, data,
-                volumeData.volumes, volumeData.textures, volumeData.volumeMinMax);
+                volumeData.volumes, volumeData.textures, volumeData.volumeMinMax, volumeData.resolution);
             if (loadingResult[0] !== null) { // New Data has been loaded
                 setVolumeData({
+                    resolution: resolution,
                     volumes: loadingResult[0],
                     textures: loadingResult[1],
                     volumeMinMax: loadingResult[2],
@@ -125,7 +132,8 @@ const SpatialThree = (props) => {
                         resolution,
                         data,
                         colors,
-                        contrastLimits
+                        contrastLimits,
+                        is3dMode
                     });
                 }
             }
@@ -173,7 +181,22 @@ const SpatialThree = (props) => {
         }
     }, [volumeSettings]);
 
-// TODO: adapt the camera settings depending on the data
+
+    if (!volumeSettings.is3dMode) {
+        return (
+            <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
+                <div>Only in 3D Mode</div>
+            </div>);
+    }
+
+    if (volumeSettings.is3dMode &&
+        (renderingSettings.uniforms === undefined || renderingSettings.uniforms === null ||
+        renderingSettings.shader === undefined || renderingSettings.shader === null)) {
+        return (
+            <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
+                <div>Loading</div>
+            </div>);
+    }
     return (
         <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
             <ARButton/>
@@ -181,6 +204,7 @@ const SpatialThree = (props) => {
                 <XR>
                     {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
                             renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
+
                         <mesh scale={renderingSettings.meshScale} ref={materialRef}>
                             <boxGeometry args={renderingSettings.geometrySize}/>
                             <shaderMaterial
@@ -301,7 +325,7 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
     const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION];
     let resolution = (targetResolution === null || isNaN(targetResolution)) ? autoTargetResolution : targetResolution;
     let allChannels = image.image.loaders[0].channels;
-    return {channelsVisible, allChannels, channelTargetC, resolution, data, colors, contrastLimits};
+    return {channelsVisible, allChannels, channelTargetC, resolution, data, colors, contrastLimits, is3dMode};
 }
 
 /**
@@ -356,12 +380,12 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
     return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2].size / scale[0].size], [volume.xLength, volume.yLength, volume.zLength]];
 }
 
-async function initialDataLoading(channelTargetC, resolution, data, volumes, textures, volumeMinMax) {
+async function initialDataLoading(channelTargetC, resolution, data, volumes, textures, volumeMinMax, oldResolution) {
     let volume = null;
     let scale = null;
     for (let channelStr in channelTargetC) {    // load on demand new channels or load all there are?? - Check VIV for it
         let channel = channelTargetC[parseInt(channelStr)];
-        if (!volumes.has(channel)) {
+        if (!volumes.has(channel) || resolution !== oldResolution) {
             let volumeOrigin = await getVolumeByChannel(channel, resolution, data);
             volume = getVolumeFromOrigin(volumeOrigin);
             let minMax = volume.computeMinMax();

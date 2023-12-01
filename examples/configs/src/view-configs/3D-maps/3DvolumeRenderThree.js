@@ -12,7 +12,7 @@ function generateBlinConfig() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://viv-demo.storage.googleapis.com/idr0106.pyramid.ome.tif',
+    url: 'https://assets.hubmapconsortium.org/30bc1823e0c19be58557fb979499bac2/ometiff-pyramids/data/3D_image_stack.ome.tif?token=',
     coordinationValues: {
       fileUid: 'idr0062-blin-nuclearsegmentation',
     },
