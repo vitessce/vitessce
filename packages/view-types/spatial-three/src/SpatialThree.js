@@ -71,8 +71,10 @@ const SpatialThree = (props) => {
         if (volumeSettings.channelTargetC.length !== 0 &&
             (volumeSettings.channelTargetC.toString() !== channelTargetC.toString() ||
                 volumeSettings.resolution.toString() !== resolution.toString())) {
+            console.log("Reloading the data due to channel or resolution change " + dataReady)
             if (!dataReady) setDataReady(true);
-        } else if ((volumeSettings.channelsVisible.toString() !== channelsVisible.toString() ||
+        } else if (
+            (volumeSettings.channelsVisible.toString() !== channelsVisible.toString() ||
             volumeSettings.colors.toString() !== colors.toString() ||
             volumeSettings.is3dMode !== is3dMode ||
             volumeSettings.contrastLimits.toString() !== contrastLimits.toString())) {
@@ -139,6 +141,10 @@ const SpatialThree = (props) => {
             }
         }
         if (dataReady) {
+            if (resolution !== volumeSettings.resolution) {
+                materialRef.current.material.uniforms.volumeCount.value = 0;
+                materialRef.current.material.uniforms.volumeTex.value = null;
+            }
             fetchRendering();
             setDataReady(false);
         }
@@ -157,6 +163,7 @@ const SpatialThree = (props) => {
                 for (let elem in volumeSettings.channelsVisible) {
                     if (volumeSettings.channelsVisible[elem]) volumeCount++;
                 }
+                setDataReady(false);
                 //Set the material uniforms
                 materialRef.current.material.uniforms.u_clim.value = rendering[0]["u_clim"].value;
                 materialRef.current.material.uniforms.u_clim2.value = rendering[0]["u_clim2"].value;
@@ -177,6 +184,9 @@ const SpatialThree = (props) => {
                 materialRef.current.material.uniforms.volumeTex5.value = rendering[0]["volumeTex5"].value;
                 materialRef.current.material.uniforms.volumeTex6.value = rendering[0]["volumeTex6"].value;
                 materialRef.current.material.uniforms.volumeCount.value = volumeCount;
+            } else {
+                materialRef.current.material.uniforms.volumeCount.value = 0;
+                materialRef.current.material.uniforms.volumeTex.value = null;
             }
         }
     }, [volumeSettings]);
@@ -191,12 +201,14 @@ const SpatialThree = (props) => {
 
     if (volumeSettings.is3dMode &&
         (renderingSettings.uniforms === undefined || renderingSettings.uniforms === null ||
-        renderingSettings.shader === undefined || renderingSettings.shader === null)) {
+            renderingSettings.shader === undefined || renderingSettings.shader === null)
+    ) {
         return (
             <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
                 <div>Loading</div>
             </div>);
     }
+
     return (
         <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
             <ARButton/>
@@ -360,6 +372,9 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
                     getMinMaxValue(contrastLimits[id][1], volumeMinMax.get(channel))]);
             }
         }
+    }
+    if (volume === null) {
+        return null;
     }
     let volconfig = {
         clim1: 0.01,
