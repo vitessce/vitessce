@@ -88,8 +88,8 @@ const SpatialThree = (props) => {
 
     // 1st Rendering Pass Load the Data in the given resolution OR Resolution Changed
     let dataToCheck = images[layerScope]?.image?.instance?.getData();
-    if (dataToCheck !== undefined && !dataReady && !initialStartup) {
-        console.log("Setting Ready to True")
+    if (dataToCheck !== undefined && !dataReady && !initialStartup &&
+        contrastLimits !== null && contrastLimits[0][1] !== 255) {
         setDataReady(true);
         setInitialStartup(true);
     }
@@ -97,7 +97,6 @@ const SpatialThree = (props) => {
     // Only reload the mesh if the imageLayer changes (new data / new resolution, ...)
     useEffect(() => {
         let fetchRendering = async () => {
-            console.log("Loading the data")
             const loadingResult = await initialDataLoading(channelTargetC, resolution, data,
                 volumeData.volumes, volumeData.textures, volumeData.volumeMinMax);
             if (loadingResult[0] !== null) { // New Data has been loaded
@@ -133,6 +132,7 @@ const SpatialThree = (props) => {
         }
         if (dataReady) {
             fetchRendering();
+            setDataReady(false);
         }
     }, [dataReady]);
 
@@ -169,7 +169,6 @@ const SpatialThree = (props) => {
                 materialRef.current.material.uniforms.volumeTex5.value = rendering[0]["volumeTex5"].value;
                 materialRef.current.material.uniforms.volumeTex6.value = rendering[0]["volumeTex6"].value;
                 materialRef.current.material.uniforms.volumeCount.value = volumeCount;
-                console.log(materialRef.current.material.uniforms)
             }
         }
     }, [volumeSettings]);
@@ -317,7 +316,6 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
  * @param scale            ... from Store
  */
 function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale) {
-    console.log(colors);
     let texturesList = [];
     let colorsSave = [];
     let contrastLimitsList = [];
@@ -399,7 +397,6 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig) 
 }
 
 function setUniformsTextureSettings(uniforms, contrastLimits, colors) {
-    console.log(colors)
     uniforms["u_clim"].value.set(contrastLimits.length > 0 ? contrastLimits[0][0] : null, contrastLimits.length > 0 ? contrastLimits[0][1] : null);
     uniforms["u_clim2"].value.set(contrastLimits.length > 1 ? contrastLimits[1][0] : null, contrastLimits.length > 1 ? contrastLimits[1][1] : null);
     uniforms["u_clim3"].value.set(contrastLimits.length > 2 ? contrastLimits[2][0] : null, contrastLimits.length > 2 ? contrastLimits[2][1] : null);
