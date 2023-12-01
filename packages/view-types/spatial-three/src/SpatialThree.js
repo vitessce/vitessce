@@ -247,11 +247,13 @@ function create3DRendering(volumes, channelsVisible, colors, textures, contrastL
             // set textures, set volume, contrastLimits, colors
             texturesList.push(textures.get(channel)) //Could be done better but for now we try this
             colorsSave.push([colors[channel][0] / 255, colors[channel][1] / 255, colors[channel][2] / 255]);
-            if(contrastLimits[channel][0] === 0 && contrastLimits[channel][0] === 255){ //Initial State TODO change??
-                contrastLimits[channel][0] = volumeMinMax.get(channel);
+            if(contrastLimits[channel][0] === 0 && contrastLimits[channel][1] === 255){ //Initial State TODO change??
+                contrastLimitsList.push([getMinMaxValue(volumeMinMax.get(channel)[0], volumeMinMax.get(channel)),
+                    getMinMaxValue(volumeMinMax.get(channel)[1], volumeMinMax.get(channel))]);
+            }else{
+                contrastLimitsList.push([getMinMaxValue(contrastLimits[channel][0], volumeMinMax.get(channel)),
+                    getMinMaxValue(contrastLimits[channel][1], volumeMinMax.get(channel))]);
             }
-            contrastLimitsList.push([getMinMaxValue(contrastLimits[channel][0], volumeMinMax.get(channel)),
-                getMinMaxValue(contrastLimits[channel][1], volumeMinMax.get(channel))]);
         }
     }
     console.log(contrastLimitsList)
@@ -292,7 +294,6 @@ async function initialDataLoading(channelsVisible, resolution, data) {
         volumeMinMax.set(channel, minMax);
         scale = getPhysicalSizeScalingMatrix(data[resolution]);
     }
-    console.log(volumeMinMax)
     return [volumes, textures, volumeMinMax, scale];
 }
 
