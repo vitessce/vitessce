@@ -11,8 +11,8 @@ function generateBlinConfig() {
     name: 'Blin et al., PLoS Biol 2019',
   });
   const dataset = config.addDataset('My dataset').addFile({
-    fileType: 'image.ome-zarr',
-    url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr',
+    fileType: 'image.ome-tiff',
+    url: 'https://viv-demo.storage.googleapis.com/idr0106.pyramid.ome.tif',
     coordinationValues: {
       fileUid: 'idr0062-blin-nuclearsegmentation',
     },

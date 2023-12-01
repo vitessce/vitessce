@@ -232,6 +232,7 @@ class ThreeJsViewWrapper extends React.PureComponent {
         this.camera = new THREE.PerspectiveCamera(45, this.container.offsetWidth / this.container.offsetHeight, 0.01, 100000);
         this.camera.position.set(0, 0, 500);
         this.camera.up.set(0, 1, 0);
+
         let volconfig = {
             clim1: 0.01,
             clim2: 0.7,
