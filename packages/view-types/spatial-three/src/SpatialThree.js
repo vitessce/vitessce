@@ -19,6 +19,7 @@ import reorder from "lodash-es/_reorder.js";
 
 const SpatialThree = (props) => {
     const materialRef = useRef(null);
+    const [initialStartup, setInitialStartup] = useState(false);
     const [dataReady, setDataReady] = useState(false);
     const [renderingSettings, setRenderingSettings] = useState({
         uniforms: null, shader: null, meshScale: null,
@@ -63,7 +64,6 @@ const SpatialThree = (props) => {
     } = extractInformationFromProps(layerScope, layerCoordination, channelScopes,
         channelCoordination, images[layerScope], props, imageLayerLoaderSelections.current)
     // TODO: Find a better and more efficient way to compare the Strings here
-
     if (channelTargetC !== null) {
         if (volumeSettings.channelTargetC.length !== 0 &&
             (volumeSettings.channelTargetC.toString() !== channelTargetC.toString() ||
@@ -81,30 +81,35 @@ const SpatialThree = (props) => {
                 colors,
                 contrastLimits
             });
+            setDataReady(false);
         }
     }
 
 
     // 1st Rendering Pass Load the Data in the given resolution OR Resolution Changed
     let dataToCheck = images[layerScope]?.image?.instance?.getData();
-    if (dataToCheck !== undefined && !dataReady) {
+    if (dataToCheck !== undefined && !dataReady && !initialStartup) {
+        console.log("Setting Ready to True")
         setDataReady(true);
+        setInitialStartup(true);
     }
+
     // Only reload the mesh if the imageLayer changes (new data / new resolution, ...)
     useEffect(() => {
         let fetchRendering = async () => {
             console.log("Loading the data")
             const loadingResult = await initialDataLoading(channelTargetC, resolution, data,
                 volumeData.volumes, volumeData.textures, volumeData.volumeMinMax);
-            if (loadingResult[0] !== null) {
+            if (loadingResult[0] !== null) { // New Data has been loaded
                 setVolumeData({
                     volumes: loadingResult[0],
                     textures: loadingResult[1],
                     volumeMinMax: loadingResult[2],
-                    scale: loadingResult[3]
+                    scale: loadingResult[3] !== null ? loadingResult[3] : volumeData.scale
                 });
                 if (renderingSettings.uniforms === undefined || renderingSettings.uniforms === null ||
                     renderingSettings.shader === undefined || renderingSettings.shader === null) {
+                    // JUST FOR THE INITIAL RENDERING
                     const rendering = create3DRendering(loadingResult[0], channelTargetC, channelsVisible, colors,
                         loadingResult[1], contrastLimits, loadingResult[2], loadingResult[3])
                     if (rendering !== null) {
@@ -114,7 +119,6 @@ const SpatialThree = (props) => {
                         });
                     }
                 } else {
-                    console.log("reloading data and now resetting things")
                     setVolumeSettings({
                         channelsVisible,
                         allChannels,
@@ -126,7 +130,6 @@ const SpatialThree = (props) => {
                     });
                 }
             }
-            setDataReady(false);
         }
         if (dataReady) {
             fetchRendering();
@@ -142,6 +145,10 @@ const SpatialThree = (props) => {
                 volumeSettings.channelsVisible, volumeSettings.colors, volumeData.textures,
                 volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale)
             if (rendering !== null) {
+                let volumeCount = 0;
+                for (let elem in volumeSettings.channelsVisible) {
+                    if (volumeSettings.channelsVisible[elem]) volumeCount++;
+                }
                 //Set the material uniforms
                 materialRef.current.material.uniforms.u_clim.value = rendering[0]["u_clim"].value;
                 materialRef.current.material.uniforms.u_clim2.value = rendering[0]["u_clim2"].value;
@@ -161,6 +168,8 @@ const SpatialThree = (props) => {
                 materialRef.current.material.uniforms.volumeTex4.value = rendering[0]["volumeTex4"].value;
                 materialRef.current.material.uniforms.volumeTex5.value = rendering[0]["volumeTex5"].value;
                 materialRef.current.material.uniforms.volumeTex6.value = rendering[0]["volumeTex6"].value;
+                materialRef.current.material.uniforms.volumeCount.value = volumeCount;
+                console.log(materialRef.current.material.uniforms)
             }
         }
     }, [volumeSettings]);
@@ -296,25 +305,37 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
     return {channelsVisible, allChannels, channelTargetC, resolution, data, colors, contrastLimits};
 }
 
+/**
+ *
+ * @param volumes          ... from Store
+ * @param channelTargetC   ... given by UI
+ * @param channelsVisible  ... given by UI
+ * @param colors           ... given by UI
+ * @param textures         ... from Store
+ * @param contrastLimits   ... given by UI
+ * @param volumeMinMax     ... from Store
+ * @param scale            ... from Store
+ */
 function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale) {
+    console.log(colors);
     let texturesList = [];
     let colorsSave = [];
     let contrastLimitsList = [];
     let volume = null;
     for (let channelStr in channelTargetC) {    // load on demand new channels or load all there are?? - Check VIV for it
+        let id = parseInt(channelStr);
         let channel = channelTargetC[parseInt(channelStr)];
-        let visChannel = channelTargetC.indexOf(channel);
-        if (channelsVisible[visChannel]) {         // check if the channel has been loaded already or if there should be a new load
+        if (channelsVisible[id]) {         // check if the channel has been loaded already or if there should be a new load
             volume = volumes.get(channel);
             // set textures, set volume, contrastLimits, colors
             texturesList.push(textures.get(channel)) //Could be done better but for now we try this
-            colorsSave.push([colors[channel][0] / 255, colors[channel][1] / 255, colors[channel][2] / 255]);
-            if (contrastLimits[channel][0] === 0 && contrastLimits[channel][1] === 255) { //Initial State TODO change??
+            colorsSave.push([colors[id][0] / 255, colors[id][1] / 255, colors[id][2] / 255]);
+            if (contrastLimits[id][0] === 0 && contrastLimits[id][1] === 255) { //Initial State TODO change??
                 contrastLimitsList.push([getMinMaxValue(volumeMinMax.get(channel)[0], volumeMinMax.get(channel)),
                     getMinMaxValue(volumeMinMax.get(channel)[1], volumeMinMax.get(channel))]);
             } else {
-                contrastLimitsList.push([getMinMaxValue(contrastLimits[channel][0], volumeMinMax.get(channel)),
-                    getMinMaxValue(contrastLimits[channel][1], volumeMinMax.get(channel))]);
+                contrastLimitsList.push([getMinMaxValue(contrastLimits[id][0], volumeMinMax.get(channel)),
+                    getMinMaxValue(contrastLimits[id][1], volumeMinMax.get(channel))]);
             }
         }
     }
@@ -378,6 +399,7 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig) 
 }
 
 function setUniformsTextureSettings(uniforms, contrastLimits, colors) {
+    console.log(colors)
     uniforms["u_clim"].value.set(contrastLimits.length > 0 ? contrastLimits[0][0] : null, contrastLimits.length > 0 ? contrastLimits[0][1] : null);
     uniforms["u_clim2"].value.set(contrastLimits.length > 1 ? contrastLimits[1][0] : null, contrastLimits.length > 1 ? contrastLimits[1][1] : null);
     uniforms["u_clim3"].value.set(contrastLimits.length > 2 ? contrastLimits[2][0] : null, contrastLimits.length > 2 ? contrastLimits[2][1] : null);
