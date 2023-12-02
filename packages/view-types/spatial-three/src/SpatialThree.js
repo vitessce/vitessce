@@ -40,7 +40,8 @@ const SpatialThree = (props) => {
         data: null,
         colors: [],
         contrastLimits: [],
-        is3dMode: false
+        is3dMode: false,
+        renderingMode: null,
     });
     const {
         images = {},
@@ -63,7 +64,8 @@ const SpatialThree = (props) => {
         data,
         colors,
         contrastLimits,
-        is3dMode
+        is3dMode,
+        renderingMode
     } = extractInformationFromProps(layerScope, layerCoordination, channelScopes,
         channelCoordination, images[layerScope], props, imageLayerLoaderSelections.current)
     // TODO: Find a better and more efficient way to compare the Strings here
@@ -75,9 +77,11 @@ const SpatialThree = (props) => {
             if (!dataReady) setDataReady(true);
         } else if (
             (volumeSettings.channelsVisible.toString() !== channelsVisible.toString() ||
-            volumeSettings.colors.toString() !== colors.toString() ||
-            volumeSettings.is3dMode !== is3dMode ||
-            volumeSettings.contrastLimits.toString() !== contrastLimits.toString())) {
+                volumeSettings.colors.toString() !== colors.toString() ||
+                volumeSettings.is3dMode !== is3dMode ||
+                volumeSettings.contrastLimits.toString() !== contrastLimits.toString() ||
+                volumeSettings.renderingMode.toString() !== renderingMode.toString()
+            )) {
             setVolumeSettings({
                 channelsVisible,
                 allChannels,
@@ -86,7 +90,8 @@ const SpatialThree = (props) => {
                 data,
                 colors,
                 contrastLimits,
-                is3dMode
+                is3dMode,
+                renderingMode
             });
             setDataReady(false);
         }
@@ -119,7 +124,7 @@ const SpatialThree = (props) => {
                     renderingSettings.shader === undefined || renderingSettings.shader === null) {
                     // JUST FOR THE INITIAL RENDERING
                     const rendering = create3DRendering(loadingResult[0], channelTargetC, channelsVisible, colors,
-                        loadingResult[1], contrastLimits, loadingResult[2], loadingResult[3])
+                        loadingResult[1], contrastLimits, loadingResult[2], loadingResult[3], renderingMode)
                     if (rendering !== null) {
                         setRenderingSettings({
                             uniforms: rendering[0], shader: rendering[1], meshScale: rendering[2],
@@ -135,7 +140,8 @@ const SpatialThree = (props) => {
                         data,
                         colors,
                         contrastLimits,
-                        is3dMode
+                        is3dMode,
+                        renderingMode
                     });
                 }
             }
@@ -157,7 +163,7 @@ const SpatialThree = (props) => {
             renderingSettings.shader !== undefined && renderingSettings.shader !== null))) {
             const rendering = create3DRendering(volumeData.volumes, volumeSettings.channelTargetC,
                 volumeSettings.channelsVisible, volumeSettings.colors, volumeData.textures,
-                volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale)
+                volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale, volumeSettings.renderingMode)
             if (rendering !== null) {
                 let volumeCount = 0;
                 for (let elem in volumeSettings.channelsVisible) {
@@ -171,6 +177,7 @@ const SpatialThree = (props) => {
                 materialRef.current.material.uniforms.u_clim4.value = rendering[0]["u_clim4"].value;
                 materialRef.current.material.uniforms.u_clim5.value = rendering[0]["u_clim5"].value;
                 materialRef.current.material.uniforms.u_clim6.value = rendering[0]["u_clim6"].value;
+
                 materialRef.current.material.uniforms.u_color.value = rendering[0]["u_color"].value;
                 materialRef.current.material.uniforms.u_color2.value = rendering[0]["u_color2"].value;
                 materialRef.current.material.uniforms.u_color3.value = rendering[0]["u_color3"].value;
@@ -184,6 +191,7 @@ const SpatialThree = (props) => {
                 materialRef.current.material.uniforms.volumeTex5.value = rendering[0]["volumeTex5"].value;
                 materialRef.current.material.uniforms.volumeTex6.value = rendering[0]["volumeTex6"].value;
                 materialRef.current.material.uniforms.volumeCount.value = volumeCount;
+                materialRef.current.material.uniforms.u_renderstyle.value = volumeSettings.renderingMode;
             } else {
                 materialRef.current.material.uniforms.volumeCount.value = 0;
                 materialRef.current.material.uniforms.volumeTex.value = null;
@@ -211,28 +219,28 @@ const SpatialThree = (props) => {
 
     return (
         <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
-            <ARButton/>
+            {/*<ARButton/>*/}
             <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -500], near: 0.01, far: 10000}}>
-                <XR>
-                    {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
-                            renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
+                {/*<XR>*/}
+                {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
+                        renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
 
-                        <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                            <boxGeometry args={renderingSettings.geometrySize}/>
-                            <shaderMaterial
-                                customProgramCacheKey={() => {
-                                    return '1'
-                                }}
-                                side={THREE.BackSide}
-                                uniforms={renderingSettings.uniforms}
-                                needsUpdate={true}
-                                vertexShader={renderingSettings.shader.vertexShader}
-                                fragmentShader={renderingSettings.shader.fragmentShader}
-                            />
-                        </mesh>
-                    }
-                    <OrbitControls/>
-                </XR>
+                    <mesh scale={renderingSettings.meshScale} ref={materialRef}>
+                        <boxGeometry args={renderingSettings.geometrySize}/>
+                        <shaderMaterial
+                            customProgramCacheKey={() => {
+                                return '1'
+                            }}
+                            side={THREE.BackSide}
+                            uniforms={renderingSettings.uniforms}
+                            needsUpdate={true}
+                            vertexShader={renderingSettings.shader.vertexShader}
+                            fragmentShader={renderingSettings.shader.fragmentShader}
+                        />
+                    </mesh>
+                }
+                <OrbitControls/>
+                {/*</XR>*/}
             </Canvas>
         </div>
     );
@@ -262,7 +270,8 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
     const isRgb = layerCoordination[CoordinationType.PHOTOMETRIC_INTERPRETATION] === 'RGB';
     const [Layer, layerLoader] = getLayerLoaderTuple(data, is3dMode);
     const colormap = isRgb ? null : layerCoordination[CoordinationType.SPATIAL_LAYER_COLORMAP];
-    const renderingMode = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM];
+    let renderingMode = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM];
+    renderingMode = renderingMode === "maximumIntensityProjection" ? 0 : renderingMode === "minimumIntensityProjection" ? 1 : 2;
     const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
     const transparentColor = layerCoordination[CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR];
     const useTransparentColor = Array.isArray(transparentColor) && transparentColor.length === 3;
@@ -337,7 +346,17 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
     const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION];
     let resolution = (targetResolution === null || isNaN(targetResolution)) ? autoTargetResolution : targetResolution;
     let allChannels = image.image.loaders[0].channels;
-    return {channelsVisible, allChannels, channelTargetC, resolution, data, colors, contrastLimits, is3dMode};
+    return {
+        channelsVisible,
+        allChannels,
+        channelTargetC,
+        resolution,
+        data,
+        colors,
+        contrastLimits,
+        is3dMode,
+        renderingMode
+    };
 }
 
 /**
@@ -351,7 +370,7 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
  * @param volumeMinMax     ... from Store
  * @param scale            ... from Store
  */
-function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale) {
+function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale, renderstyle) {
     let texturesList = [];
     let colorsSave = [];
     let contrastLimitsList = [];
@@ -379,7 +398,6 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
     let volconfig = {
         clim1: 0.01,
         clim2: 0.7,
-        renderstyle: 'dvr',
         isothreshold: 0.15,
         opacity: 1.0,
         colormap: 'gray'
@@ -390,8 +408,7 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
     };
     var shader = VolumeRenderShaderPerspective;
     var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-    setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig);
-    setUniformsTextureSettings(uniforms, contrastLimitsList, colorsSave);
+    setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig, renderstyle, contrastLimitsList, colorsSave);
     return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2].size / scale[0].size], [volume.xLength, volume.yLength, volume.zLength]];
 }
 
@@ -414,7 +431,7 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
     return [volumes, textures, volumeMinMax, scale];
 }
 
-function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig) {
+function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors) {
     uniforms["boxSize"].value.set(volume.xLength, volume.yLength, volume.zLength);
     //can be done better
     uniforms["volumeTex"].value = textures.length > 0 ? textures[0] : null;
@@ -433,9 +450,8 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig) 
     uniforms["volumeCount"].value = textures.length;
     uniforms["u_size"].value.set(volume.xLength, volume.yLength, volume.zLength);
     uniforms["u_cmdata"].value = cmTextures[volConfig.colormap];
-}
+    uniforms["u_renderstyle"].value = renderstyle;
 
-function setUniformsTextureSettings(uniforms, contrastLimits, colors) {
     uniforms["u_clim"].value.set(contrastLimits.length > 0 ? contrastLimits[0][0] : null, contrastLimits.length > 0 ? contrastLimits[0][1] : null);
     uniforms["u_clim2"].value.set(contrastLimits.length > 1 ? contrastLimits[1][0] : null, contrastLimits.length > 1 ? contrastLimits[1][1] : null);
     uniforms["u_clim3"].value.set(contrastLimits.length > 2 ? contrastLimits[2][0] : null, contrastLimits.length > 2 ? contrastLimits[2][1] : null);
