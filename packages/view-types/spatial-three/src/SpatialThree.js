@@ -73,7 +73,7 @@ const SpatialThree = (props) => {
         if (volumeSettings.channelTargetC.length !== 0 &&
             (volumeSettings.channelTargetC.toString() !== channelTargetC.toString() ||
                 volumeSettings.resolution.toString() !== resolution.toString())) {
-            console.log("Reloading the data due to channel or resolution change " + dataReady)
+            // console.log("Reloading the data due to channel or resolution change " + dataReady)
             if (!dataReady) setDataReady(true);
         } else if (
             (volumeSettings.channelsVisible.toString() !== channelsVisible.toString() ||
@@ -102,7 +102,7 @@ const SpatialThree = (props) => {
     let dataToCheck = images[layerScope]?.image?.instance?.getData();
     if (dataToCheck !== undefined && !dataReady && !initialStartup &&
         contrastLimits !== null && contrastLimits[0][1] !== 255 && is3dMode) {
-        console.log("Loading Data")
+        // console.log("Loading Data")
         setDataReady(true);
         setInitialStartup(true);
     }
@@ -224,7 +224,6 @@ const SpatialThree = (props) => {
                 {/*<XR>*/}
                 {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
                         renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
-
                     <mesh scale={renderingSettings.meshScale} ref={materialRef}>
                         <boxGeometry args={renderingSettings.geometrySize}/>
                         <shaderMaterial
