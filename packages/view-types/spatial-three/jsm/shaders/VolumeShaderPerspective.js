@@ -157,6 +157,7 @@ var VolumeRenderShaderPerspective = {
     "  int max_i = 30000;",
     "  int i = 0;",
     "  for (float t = t_hit.x; t < t_hit.y; t += dt) {",
+      // USE the Clipping Planes here (VIV Shader use canShow with Planes and Normals)
     "      float val = texture(volumeTex, p.xyz).r;",
     "      if(val > max_val){",
     "         max_val = val;",

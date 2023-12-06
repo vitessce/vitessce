@@ -61,6 +61,17 @@ export default class ImageWrapper<S extends string[]> {
   constructor(vivLoader: VivLoaderType<S>, options: ImageOptions) {
     this.options = options || {};
     this.vivLoader = vivLoader;
+
+    this.vivLoader.data.forEach((data: any) => {
+      const oldIndexer = data._indexer;
+      data._indexer = async (selection: any) => {
+        const image = await oldIndexer(selection);
+        image.fileDirectory.SampleFormat = Uint16Array.from([1]);
+        image.fileDirectory.BitsPerSample = Uint16Array.from([16]);
+        return image;
+      };
+    });
+
   }
 
   getType(): 'ome-tiff' | 'ome-zarr' {

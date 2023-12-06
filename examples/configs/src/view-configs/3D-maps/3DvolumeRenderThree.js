@@ -12,7 +12,10 @@ function generateBlinConfig() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://assets.hubmapconsortium.org/30bc1823e0c19be58557fb979499bac2/ometiff-pyramids/data/3D_image_stack.ome.tif?token=',
+    url: "http://127.0.0.1:8080/kidney.ome.tiff",
+    options: {
+      offsetsUrl: "http://127.0.0.1:8080/kidney.offsets.json"
+    },
     coordinationValues: {
       fileUid: 'idr0062-blin-nuclearsegmentation',
     },
@@ -28,7 +31,6 @@ function generateBlinConfig() {
       {
         fileUid: 'idr0062-blin-nuclearsegmentation',
         spatialLayerOpacity: 1,
-        spatialLayerVisible: true,
         photometricInterpretation: 'BlackIsZero',
         spatialTargetResolution: null,
         imageChannel: CL([

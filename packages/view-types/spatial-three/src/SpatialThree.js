@@ -13,14 +13,17 @@ import * as THREE from "three";
 import cmViridisTextureUrl from "../textures/cm_viridis.png";
 import cmGrayTextureUrl from "../textures/cm_gray.png";
 import {VolumeRenderShaderPerspective} from "../jsm/shaders/VolumeShaderPerspective.js";
-import {asciiWhitespaceRe} from "jsdom/lib/jsdom/living/helpers/strings.js";
-import reorder from "lodash-es/_reorder.js";
-// import DVRMaterial from "./DVRMaterial.js";
+import {useGLTF} from '@react-three/drei'
+// import {GLTFLoader} from 'https://unpkg.com/three/examples/jsm/loaders/GLTFLoader.js';
+// import {DRACOLoader} from 'https://unpkg.com/three/examples/jsm/loaders/DRACOLoader.js';
 
 const SpatialThree = (props) => {
     const materialRef = useRef(null);
     const [initialStartup, setInitialStartup] = useState(false);
     const [dataReady, setDataReady] = useState(false);
+
+    const [segmentationGroup, setSegmentationGroup] = useState(null);
+
     const [renderingSettings, setRenderingSettings] = useState({
         uniforms: null, shader: null, meshScale: null,
         geometrySize: null
@@ -199,6 +202,27 @@ const SpatialThree = (props) => {
         }
     }, [volumeSettings]);
 
+    // useEffect(() => {
+    //     let getGLTFModel = async () => {
+    //         try {
+    //             const {scene} = await useGLTF('http://127.0.0.1:8080/glom_surface_export_reduced_draco.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+    //             console.log("Here " + scene)
+    //             setSegmentationGroup(scene);
+    //         } catch (e) {
+    //             console.log(e)
+    //         }
+    //     }
+    //     getGLTFModel()
+    // }, []);
+    if (segmentationGroup != null) {
+        const {scene} = useGLTF('http://127.0.0.1:8080/glom_surface_export_reduced_draco.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+        for(let child in scene.children){
+            scene.children[child].material.transparent = true
+            scene.children[child].material.opacity = 0.5
+            scene.children[child].material.needsUpdate = true;
+        }
+        setSegmentationGroup(scene);
+    }
 
     if (!volumeSettings.is3dMode) {
         return (
@@ -219,27 +243,36 @@ const SpatialThree = (props) => {
 
     return (
         <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
-            {/*<ARButton/>*/}
+            <ARButton/>
             <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -500], near: 0.01, far: 10000}}>
-                {/*<XR>*/}
-                {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
-                        renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
-                    <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                        <boxGeometry args={renderingSettings.geometrySize}/>
-                        <shaderMaterial
-                            customProgramCacheKey={() => {
-                                return '1'
-                            }}
-                            side={THREE.BackSide}
-                            uniforms={renderingSettings.uniforms}
-                            needsUpdate={true}
-                            vertexShader={renderingSettings.shader.vertexShader}
-                            fragmentShader={renderingSettings.shader.fragmentShader}
-                        />
-                    </mesh>
-                }
-                <OrbitControls/>
-                {/*</XR>*/}
+                <XR>
+                    <Controllers/>
+                    <Hands/>
+                    {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
+                            renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
+                        <mesh scale={renderingSettings.meshScale} ref={materialRef}>
+                            <boxGeometry args={renderingSettings.geometrySize}/>
+                            <shaderMaterial
+                                customProgramCacheKey={() => {
+                                    return '1'
+                                }}
+                                side={THREE.BackSide}
+                                uniforms={renderingSettings.uniforms}
+                                needsUpdate={true}
+                                vertexShader={renderingSettings.shader.vertexShader}
+                                fragmentShader={renderingSettings.shader.fragmentShader}
+                            />
+                        </mesh>
+                    }
+                    {segmentationGroup !== null &&
+                        <group>
+                            <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
+                            <directionalLight color={0xFFFFFF} position={[0,6,0]}/>
+                            <primitive object={segmentationGroup} scale={[0.25,0.25,0.25]} position={[100,-100,100]}/>
+                        </group>
+                    }
+                    <OrbitControls/>
+                </XR>
             </Canvas>
         </div>
     );
