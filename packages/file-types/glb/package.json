@@ -37,6 +37,7 @@
     "@vitessce/image-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
+    "@react-three/drei": "~9.89.0",
     "ajv": "^6.10.0",
     "d3-array": "^2.4.0",
     "lodash-es": "^4.17.21"

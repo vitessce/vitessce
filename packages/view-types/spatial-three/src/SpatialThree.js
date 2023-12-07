@@ -50,7 +50,8 @@ const SpatialThree = (props) => {
     const [segmentationSettings, setSegmentationSettings] = useState({
         visible: true,
         color: [1, 1, 1],
-        opacity: 1
+        opacity: 1,
+        data: null
     })
     const {
         images = {},
@@ -109,13 +110,16 @@ const SpatialThree = (props) => {
     //Segmentation: //TODO get the Loader to get the URL
     const {
         obsSegmentations,
-        obsSegmentationsData,
-        segmentationLayerScopes,
-        segmentationLayerCoordination,
-        segmentationChannelScopesByLayer,
         segmentationChannelCoordination,
-        segmentationMultiExpressionData,
     } = props;
+    if(obsSegmentations[layerScope] !== undefined && segmentationGroup == null){
+        let scene = obsSegmentations[layerScope].scene
+        for (let child in scene.children) {
+            scene.children[child].material.transparent = true
+            scene.children[child].material.needsUpdate = true;
+        }
+        setSegmentationGroup(scene);
+    }
     let segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope]
     if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString() ||
         segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity ||
@@ -123,7 +127,8 @@ const SpatialThree = (props) => {
         setSegmentationSettings({
             color: segmentationLayerProps.spatialChannelColor,
             opacity: segmentationLayerProps.spatialChannelOpacity,
-            visible: segmentationLayerProps.spatialChannelVisible
+            visible: segmentationLayerProps.spatialChannelVisible,
+            data: obsSegmentations
         })
     }
     useEffect(() => {
@@ -136,7 +141,7 @@ const SpatialThree = (props) => {
                 segmentationGroup.children[child].material.needsUpdate = true;
             }
         }
-    }, [segmentationSettings])
+    }, [segmentationSettings, segmentationGroup])
 
 
     // 1st Rendering Pass Load the Data in the given resolution OR Resolution Changed
@@ -240,22 +245,11 @@ const SpatialThree = (props) => {
         }
     }, [volumeSettings]);
 
-    // Load the GLTF TODO Change URL from Config
-    if (segmentationGroup == null) {
-        const {scene} = useGLTF('url',
-            'https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-        for (let child in scene.children) {
-            scene.children[child].material.transparent = true
-            scene.children[child].material.needsUpdate = true;
-        }
-        setSegmentationGroup(scene);
-    }
-
     // -----------------------------------------------------------------
     //                          XR
     // -----------------------------------------------------------------
     if (canvasRef !== null) {
-        console.log(canvasRef)
+        // console.log(canvasRef)
         if (canvasRef.current !== null) {
             console.log(canvasRef.current)
             console.log(canvasRef.current.camera)

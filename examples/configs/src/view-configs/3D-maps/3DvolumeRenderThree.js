@@ -21,7 +21,7 @@ function generateBlinConfig() {
         },
     }).addFile({
         fileType: 'segmentation.glb',
-        url: 'http://127.0.0.1:8080/glom_surface_export_reduced_draco.glb',
+        url: 'url',
         coordinationValues: {
             fileUid: 'gloms',
         }
