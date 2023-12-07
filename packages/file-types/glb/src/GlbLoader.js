@@ -1,4 +1,4 @@
-import { AbstractTwoStepLoader, AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/vit-s';
 
 export default class GlbLoader extends AbstractTwoStepLoader {
     getSourceData() {
