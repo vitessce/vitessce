@@ -12,9 +12,9 @@ function generateBlinConfig() {
     });
     const dataset = config.addDataset('My dataset').addFile({
         fileType: 'image.ome-tiff',
-        url: "http://127.0.0.1:8080/kidney.ome.tiff",
+        url: "url",
         options: {
-            offsetsUrl: "http://127.0.0.1:8080/kidney.offsets.json"
+            offsetsUrl: "offset"
         },
         coordinationValues: {
             fileUid: 'kidney',
@@ -68,8 +68,8 @@ function generateBlinConfig() {
                     {
                         obsType: 'gloms',
                         spatialTargetC: 0,
-                        spatialChannelColor: [255, 255, 255],
-                        spatialChannelOpacity: 1.0,
+                        spatialChannelColor: [202, 122, 166],
+                        spatialChannelOpacity: 0.5,
                         featureType: 'gloms',
                         featureValueType: 'expression',
                         spatialChannelVisible: true,

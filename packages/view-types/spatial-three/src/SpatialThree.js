@@ -107,16 +107,27 @@ const SpatialThree = (props) => {
 
     //Segmentation: //TODO get the Loader to get the URL
     const {
+        obsSegmentations,
+        obsSegmentationsData,
+        segmentationLayerScopes,
+        segmentationLayerCoordination,
+        segmentationChannelScopesByLayer,
         segmentationChannelCoordination,
+        segmentationMultiExpressionData,
     } = props;
     let segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope]
     if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString() ||
         segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity ||
         segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible) {
-        console.log("Changed Segemntation Layer Props")
+        setSegmentationSettings({
+            color: segmentationLayerProps.spatialChannelColor,
+            opacity: segmentationLayerProps.spatialChannelOpacity,
+            visible: segmentationLayerProps.spatialChannelVisible
+        })
+    }
+    useEffect(() => {
         if (segmentationGroup !== null) {
             for (let child in segmentationGroup.children) {
-                console.log(segmentationGroup.children[child].material)
                 segmentationGroup.children[child].material.color.r = segmentationLayerProps.spatialChannelColor[0]/255
                 segmentationGroup.children[child].material.color.g = segmentationLayerProps.spatialChannelColor[1]/255
                 segmentationGroup.children[child].material.color.b = segmentationLayerProps.spatialChannelColor[2]/255
@@ -124,12 +135,7 @@ const SpatialThree = (props) => {
                 segmentationGroup.children[child].material.needsUpdate = true;
             }
         }
-        setSegmentationSettings({
-            color: segmentationLayerProps.spatialChannelColor,
-            opacity: segmentationLayerProps.spatialChannelOpacity,
-            visible: segmentationLayerProps.spatialChannelVisible
-        })
-    }
+    }, [segmentationSettings])
 
 
     // 1st Rendering Pass Load the Data in the given resolution OR Resolution Changed
@@ -233,16 +239,10 @@ const SpatialThree = (props) => {
         }
     }, [volumeSettings]);
 
+    // Load the GLTF TODO Change URL from Config
     if (segmentationGroup == null) {
-        const {scene} = useGLTF('http://127.0.0.1:8080/glom_surface_export_reduced_draco.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-        for (let child in scene.children) {
-            scene.children[child].material.transparent = true
-            scene.children[child].material.opacity = segmentationSettings.opacity
-            scene.children[child].material.color.r = segmentationSettings.color[0]
-            scene.children[child].material.color.g = segmentationSettings.color[1]
-            scene.children[child].material.color.b = segmentationSettings.color[2]
-            scene.children[child].material.needsUpdate = true;
-        }
+        const {scene} = useGLTF('https://hdv-spatial-data.s3.us-east-1.amazonaws.com/washu-kidney/Lighsheet_test_data/Sample_SK2_FOV_5_Example_Surface_with_Stats_Masks_Images/glom_surface_export_reduced_draco.glb?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDEaCXVzLWVhc3QtMSJGMEQCIEcRyLNFxy4ZkgG3Crnq3%2FERmWmurq159pJK3vQH1zFgAiApDNjtjBAfUzFrA0ZUMaEz0QeoKmrTMoNnhAZ6PX9gpCr0Awia%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F8BEAEaDDEzNjU3NjUyMjA0OCIM3uYFzQ7bnWcZtq%2BqKsgDGgXNjs2vJdOGedTTS1qYHKoEPAUhosuqdnvRI%2F7XWYnch9aKJot4MZTAKP2lYBKzz6QAiOq22F4FrvmW4ZRTYH3x8iZXiMb6cpM7F7BCggqNBBU2nErlfM5m14bMxVNnvquB2cnE9h3kspaC2VH6rqplV%2FaHbHvifHccTePDx%2Buw72gQqUDMYoFC2U93BRu7KPTf%2F09xbv1gfK6KX3Nx%2FRMTlLLVjAM4iooSHxIXyG1T9G1h%2BF1JRMWtgabBVYP0HTpmQCigvKPqLmnyxIv5fJROJ1An3MBYaQKON%2FV5KBFOTLAQ6m7shyPqXpe2DzWK%2Bsk%2Fap%2BUalH9CYgdJ5w3glKW0C5r8L8WrsIvOE4YQ9u9y9ADOEVG%2BR7TEyCfvi4TVxGdY9lw7i%2FdYvrKFOeti3brYT5ZPSltrftxgKNxt5Z7UHtFbryTe0nGaOOYqTnfpSXfRVbDUecCo7cEJ1h3qvw%2FKInNm4pPScfKwqoFKDA9qj6tyYM0R35P%2Blg9ntfbZL62chwlq%2FBG%2Fpqac4wLm05t0xlNGJ2ix8VAtLijIoDtEfSUTnrkl6ImqTB7aE2m4IWjh552PjREEYR65oN80xifY5bj43o0MI%2BuxKsGOpUC6kq6aKSefuG%2BbKGGMrTZbnKjQ8DeqO7OsSmD8iasJ8prXjeiaXoc6%2BStWSXt0%2FWNTKMAAlUF6gFEuDbd6eDclhV0ChzMakODRNHYNI9ZZa8BE6NWjN%2Fb7bVIyrJa%2F6kioqBImDKtxlKWplKC03E5ugD9gh9Y%2FSPuYyvgiTOS67paiLioRM6TemPQ2jFaB2cYzIEizibAUUOUIRENSLQSsWbDiDPrGsX65GvZZ62uIQora5qgz2weVGeLwAzgNfBhy29Xn9NekkBeVsIk72SeJpuoIHFZIxWxw7gnuf7WygJ%2Bin1WwluLjWcFoVlvVsnAdNLr9VTrzAF2N1kWpsThwX6phRZDEuCXH2Dl83VaCgvi4YWhvw%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20231207T005712Z&X-Amz-SignedHeaders=host&X-Amz-Expires=39600&X-Amz-Credential=ASIAR7TEYK5AJYRFSP2P%2F20231207%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=3c80645beb5dda8a765e45110bb971550d352cfd9cec5e01e596d549ebc0ade7',
+            'https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
         setSegmentationGroup(scene);
     }
 
@@ -291,7 +291,7 @@ const SpatialThree = (props) => {
                             <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                             <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
                             <primitive object={segmentationGroup} scale={[0.25, 0.25, 0.25]}
-                                       position={[0, 0, 0]}/>
+                                       position={[100, -100, 100]}/>
                         </group>
                     }
                     <OrbitControls/>
@@ -301,7 +301,8 @@ const SpatialThree = (props) => {
     );
 }
 
-function extractInformationFromProps(layerScope, layerCoordination, channelScopes, channelCoordination, image, props, imageLayerLoaderSelection) {
+function extractInformationFromProps(layerScope, layerCoordination, channelScopes, channelCoordination,
+                                     image, props, imageLayerLoaderSelection) {
     // Getting all the information out of the provided props
     const {
         targetT,

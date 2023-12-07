@@ -863,12 +863,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsSegmentations = {},
       segmentationLayerScopes,
       segmentationLayerCoordination,
-
       segmentationChannelScopesByLayer,
       segmentationChannelCoordination,
-
       segmentationLayerCallbacks = [],
-
       segmentationMultiExpressionData,
     } = this.props;
     return segmentationLayerScopes.map((layerScope) => {
