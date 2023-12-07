@@ -30,7 +30,6 @@ export const DataType = {
   FEATURE_LABELS: 'featureLabels',
   IMAGE: 'image',
   OBS_SEGMENTATIONS: 'obsSegmentations',
-  MESH_SEGMENTATION: 'meshSegmentation',
   NEIGHBORHOODS: 'neighborhoods',
   GENOMIC_PROFILES: 'genomic-profiles',
   OBS_SPOTS: 'obsSpots',

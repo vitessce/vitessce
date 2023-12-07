@@ -38,7 +38,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_SEGMENTATIONS_MUDATA_ZARR]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_LABELS_MUDATA_ZARR]: DataType.OBS_LABELS,
   [FileType.FEATURE_LABELS_MUDATA_ZARR]: DataType.FEATURE_LABELS,
-  [FileType.MESH_SEGMENTATION]: DataType.MESH_SEGMENTATION,
+  [FileType.MESH_SEGMENTATION]: DataType.OBS_SEGMENTATIONS,
 
   [FileType.IMAGE_SPATIALDATA_ZARR]: DataType.IMAGE,
   [FileType.LABELS_SPATIALDATA_ZARR]: DataType.OBS_SEGMENTATIONS,
@@ -71,9 +71,6 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
  * This enables inferring default values, simplifying view config writing.
  */
 export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
-  [DataType.MESH_SEGMENTATION]: [
-    CoordinationType.OBS_TYPE, //TODO change?
-  ],
   [DataType.OBS_SEGMENTATIONS]: [
     CoordinationType.OBS_TYPE,
   ],
