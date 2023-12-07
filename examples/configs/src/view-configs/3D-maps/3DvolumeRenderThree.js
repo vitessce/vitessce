@@ -14,13 +14,13 @@ function generateBlinConfig() {
         fileType: 'image.ome-tiff',
         url: "url",
         options: {
-            offsetsUrl: "offset"
+            offsetsUrl: "url"
         },
         coordinationValues: {
             fileUid: 'kidney',
         },
     }).addFile({
-        fileType: 'meshSegmentation.glb',
+        fileType: 'segmentation.glb',
         url: 'http://127.0.0.1:8080/glom_surface_export_reduced_draco.glb',
         coordinationValues: {
             fileUid: 'gloms',

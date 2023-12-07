@@ -90,6 +90,8 @@ export const FileType = {
   // OME-TIFF
   IMAGE_OME_TIFF: 'image.ome-tiff',
   OBS_SEGMENTATIONS_OME_TIFF: 'obsSegmentations.ome-tiff',
+  // GLB
+  MESH_SEGMENTATION:'segmentation.glb',
   // New file types to support old file types:
   // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
@@ -110,8 +112,6 @@ export const FileType = {
   // - molecules.json
   OBS_LOCATIONS_MOLECULES_JSON: 'obsLocations.molecules.json',
   OBS_LABELS_MOLECULES_JSON: 'obsLabels.molecules.json',
-  // MESH
-  MESH_SEGMENTATION:'meshSegmentation.glb',
   // Legacy joint file types
   CELLS_JSON: 'cells.json',
   CELL_SETS_JSON: 'cell-sets.json',

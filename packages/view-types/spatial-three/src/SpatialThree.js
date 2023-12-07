@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 import React, {useRef, useState, forwardRef, useEffect} from 'react';
-import {Canvas, extend, useFrame} from '@react-three/fiber'
+import {Canvas, extend, useFrame, useThree} from '@react-three/fiber'
 import {OrbitControls, useTexture, shaderMaterial, PerspectiveCamera} from '@react-three/drei'
-import {VRButton, ARButton, XR, Controllers, Hands} from '@react-three/xr'
+import {useXR, RayGrab, Interactive, VRButton, ARButton, XR, Controllers, Hands} from '@react-three/xr'
 import {isEqual} from 'lodash-es';
 import {filterSelection} from '@vitessce/spatial-utils';
 import {CoordinationType} from '@vitessce/constants-internal';
@@ -19,6 +19,7 @@ import {useGLTF} from '@react-three/drei'
 
 const SpatialThree = (props) => {
     const materialRef = useRef(null);
+    const canvasRef = useRef(null);
     const [initialStartup, setInitialStartup] = useState(false);
     const [dataReady, setDataReady] = useState(false);
 
@@ -115,27 +116,23 @@ const SpatialThree = (props) => {
         segmentationChannelCoordination,
         segmentationMultiExpressionData,
     } = props;
-    if (segmentationChannelCoordination[0][layerScope] !== undefined) {
-        let segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope]
-        if (segmentationLayerProps !== undefined) {
-            if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString() ||
-                segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity ||
-                segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible) {
-                setSegmentationSettings({
-                    color: segmentationLayerProps.spatialChannelColor,
-                    opacity: segmentationLayerProps.spatialChannelOpacity,
-                    visible: segmentationLayerProps.spatialChannelVisible
-                })
-            }
-        }
+    let segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope]
+    if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString() ||
+        segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity ||
+        segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible) {
+        setSegmentationSettings({
+            color: segmentationLayerProps.spatialChannelColor,
+            opacity: segmentationLayerProps.spatialChannelOpacity,
+            visible: segmentationLayerProps.spatialChannelVisible
+        })
     }
     useEffect(() => {
         if (segmentationGroup !== null) {
             for (let child in segmentationGroup.children) {
-                segmentationGroup.children[child].material.color.r = segmentationSettings.color[0] / 255;
-                segmentationGroup.children[child].material.color.g = segmentationSettings.color[1] / 255;
-                segmentationGroup.children[child].material.color.b = segmentationSettings.color[2] / 255;
-                segmentationGroup.children[child].material.opacity = segmentationSettings.opacity;
+                segmentationGroup.children[child].material.color.r = segmentationSettings.color[0] / 255
+                segmentationGroup.children[child].material.color.g = segmentationSettings.color[1] / 255
+                segmentationGroup.children[child].material.color.b = segmentationSettings.color[2] / 255
+                segmentationGroup.children[child].material.opacity = segmentationSettings.opacity
                 segmentationGroup.children[child].material.needsUpdate = true;
             }
         }
@@ -247,8 +244,30 @@ const SpatialThree = (props) => {
     if (segmentationGroup == null) {
         const {scene} = useGLTF('url',
             'https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+        for (let child in scene.children) {
+            scene.children[child].material.transparent = true
+            scene.children[child].material.needsUpdate = true;
+        }
         setSegmentationGroup(scene);
     }
+
+    // -----------------------------------------------------------------
+    //                          XR
+    // -----------------------------------------------------------------
+    if (canvasRef !== null) {
+        console.log(canvasRef)
+        if (canvasRef.current !== null) {
+            console.log(canvasRef.current)
+            console.log(canvasRef.current.camera)
+        }
+    }
+    //const controller = renderer.xr.getController(0);
+    //controller.addEventListener( 'connected', (e) => {
+    //    controller.gamepad = e.data.gamepad
+    //});
+    // -----------------------------------------------------------------
+    // -----------------------------------------------------------------
+
 
     if (!volumeSettings.is3dMode) {
         return (
@@ -270,34 +289,40 @@ const SpatialThree = (props) => {
     return (
         <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
             <VRButton/>
-            <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -500], near: 0.01, far: 10000}}>
+            <Canvas ref={canvasRef} camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -500], near: 0.01, far: 10000}}>
                 <XR>
                     <Controllers/>
                     <Hands/>
-                    {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
-                            renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
-                        <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                            <boxGeometry args={renderingSettings.geometrySize}/>
-                            <shaderMaterial
-                                customProgramCacheKey={() => {
-                                    return '1'
-                                }}
-                                side={THREE.BackSide}
-                                uniforms={renderingSettings.uniforms}
-                                needsUpdate={true}
-                                vertexShader={renderingSettings.shader.vertexShader}
-                                fragmentShader={renderingSettings.shader.fragmentShader}
-                            />
-                        </mesh>
-                    }
-                    {segmentationGroup !== null && segmentationSettings.visible &&
+                    <RayGrab>
                         <group>
-                            <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
-                            <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
-                            <primitive object={segmentationGroup} scale={[0.25, 0.25, 0.25]}
-                                       position={[100, -100, 100]}/>
+                            {segmentationGroup !== null && segmentationSettings.visible &&
+                                <group>
+                                    <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
+                                    <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
+                                    <Interactive>
+                                        <primitive object={segmentationGroup} scale={[0.25, 0.25, 0.25]}
+                                                   position={[100, -100, 100]}/>
+                                    </Interactive>
+                                </group>
+                            }
+                            {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
+                                    renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
+                                <mesh scale={renderingSettings.meshScale} ref={materialRef}>
+                                    <boxGeometry args={renderingSettings.geometrySize}/>
+                                    <shaderMaterial
+                                        customProgramCacheKey={() => {
+                                            return '1'
+                                        }}
+                                        side={THREE.BackSide}
+                                        uniforms={renderingSettings.uniforms}
+                                        needsUpdate={true}
+                                        vertexShader={renderingSettings.shader.vertexShader}
+                                        fragmentShader={renderingSettings.shader.fragmentShader}
+                                    />
+                                </mesh>
+                            }
                         </group>
-                    }
+                    </RayGrab>
                     <OrbitControls/>
                 </XR>
             </Canvas>
