@@ -39,6 +39,7 @@
     "@vitessce/feature-list": "workspace:*",
     "@vitessce/genomic-profiles": "workspace:*",
     "@vitessce/heatmap": "workspace:*",
+    "@vitessce/glb": "workspace:*",
     "@vitessce/json": "workspace:*",
     "@vitessce/layer-controller": "workspace:*",
     "@vitessce/layer-controller-beta": "workspace:*",

@@ -30,6 +30,7 @@ export const DataType = {
   FEATURE_LABELS: 'featureLabels',
   IMAGE: 'image',
   OBS_SEGMENTATIONS: 'obsSegmentations',
+  MESH_SEGMENTATION: 'meshSegmentation',
   NEIGHBORHOODS: 'neighborhoods',
   GENOMIC_PROFILES: 'genomic-profiles',
   OBS_SPOTS: 'obsSpots',
@@ -109,6 +110,8 @@ export const FileType = {
   // - molecules.json
   OBS_LOCATIONS_MOLECULES_JSON: 'obsLocations.molecules.json',
   OBS_LABELS_MOLECULES_JSON: 'obsLabels.molecules.json',
+  // MESH
+  MESH_SEGMENTATION:'meshSegmentation.glb',
   // Legacy joint file types
   CELLS_JSON: 'cells.json',
   CELL_SETS_JSON: 'cell-sets.json',

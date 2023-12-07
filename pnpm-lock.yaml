@@ -218,6 +218,39 @@ importers:
         specifier: ^1.1.1
         version: 1.2.0
 
+  packages/file-types/glb:
+    dependencies:
+      '@vitessce/constants-internal':
+        specifier: workspace:*
+        version: link:../../constants-internal
+      '@vitessce/gl':
+        specifier: workspace:*
+        version: link:../../gl
+      '@vitessce/image-utils':
+        specifier: workspace:*
+        version: link:../../utils/image-utils
+      '@vitessce/sets-utils':
+        specifier: workspace:*
+        version: link:../../utils/sets-utils
+      '@vitessce/spatial-utils':
+        specifier: workspace:*
+        version: link:../../utils/spatial-utils
+      '@vitessce/utils':
+        specifier: workspace:*
+        version: link:../../utils/other-utils
+      '@vitessce/vit-s':
+        specifier: workspace:*
+        version: link:../../vit-s
+      ajv:
+        specifier: ^6.10.0
+        version: 6.12.6
+      d3-array:
+        specifier: ^2.4.0
+        version: 2.12.1
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
+
   packages/file-types/json:
     dependencies:
       '@vitessce/constants-internal':
@@ -537,6 +570,9 @@ importers:
       '@vitessce/genomic-profiles':
         specifier: workspace:*
         version: link:../../view-types/genomic-profiles
+      '@vitessce/glb':
+        specifier: workspace:*
+        version: link:../../file-types/glb
       '@vitessce/heatmap':
         specifier: workspace:*
         version: link:../../view-types/heatmap

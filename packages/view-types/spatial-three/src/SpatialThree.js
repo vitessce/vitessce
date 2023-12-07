@@ -46,6 +46,11 @@ const SpatialThree = (props) => {
         is3dMode: false,
         renderingMode: null,
     });
+    const [segmentationSettings, setSegmentationSettings] = useState({
+        visible: true,
+        color: [1, 1, 1],
+        opacity: 1
+    })
     const {
         images = {},
         imageLayerScopes,
@@ -98,6 +103,32 @@ const SpatialThree = (props) => {
             });
             setDataReady(false);
         }
+    }
+
+    //Segmentation: //TODO get the Loader to get the URL
+    const {
+        segmentationChannelCoordination,
+    } = props;
+    let segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope]
+    if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString() ||
+        segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity ||
+        segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible) {
+        console.log("Changed Segemntation Layer Props")
+        if (segmentationGroup !== null) {
+            for (let child in segmentationGroup.children) {
+                console.log(segmentationGroup.children[child].material)
+                segmentationGroup.children[child].material.color.r = segmentationLayerProps.spatialChannelColor[0]/255
+                segmentationGroup.children[child].material.color.g = segmentationLayerProps.spatialChannelColor[1]/255
+                segmentationGroup.children[child].material.color.b = segmentationLayerProps.spatialChannelColor[2]/255
+                segmentationGroup.children[child].material.opacity = segmentationLayerProps.spatialChannelOpacity
+                segmentationGroup.children[child].material.needsUpdate = true;
+            }
+        }
+        setSegmentationSettings({
+            color: segmentationLayerProps.spatialChannelColor,
+            opacity: segmentationLayerProps.spatialChannelOpacity,
+            visible: segmentationLayerProps.spatialChannelVisible
+        })
     }
 
 
@@ -202,23 +233,14 @@ const SpatialThree = (props) => {
         }
     }, [volumeSettings]);
 
-    // useEffect(() => {
-    //     let getGLTFModel = async () => {
-    //         try {
-    //             const {scene} = await useGLTF('http://127.0.0.1:8080/glom_surface_export_reduced_draco.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-    //             console.log("Here " + scene)
-    //             setSegmentationGroup(scene);
-    //         } catch (e) {
-    //             console.log(e)
-    //         }
-    //     }
-    //     getGLTFModel()
-    // }, []);
-    if (segmentationGroup != null) {
+    if (segmentationGroup == null) {
         const {scene} = useGLTF('http://127.0.0.1:8080/glom_surface_export_reduced_draco.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-        for(let child in scene.children){
+        for (let child in scene.children) {
             scene.children[child].material.transparent = true
-            scene.children[child].material.opacity = 0.5
+            scene.children[child].material.opacity = segmentationSettings.opacity
+            scene.children[child].material.color.r = segmentationSettings.color[0]
+            scene.children[child].material.color.g = segmentationSettings.color[1]
+            scene.children[child].material.color.b = segmentationSettings.color[2]
             scene.children[child].material.needsUpdate = true;
         }
         setSegmentationGroup(scene);
@@ -264,11 +286,12 @@ const SpatialThree = (props) => {
                             />
                         </mesh>
                     }
-                    {segmentationGroup !== null &&
+                    {segmentationGroup !== null && segmentationSettings.visible &&
                         <group>
                             <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
-                            <directionalLight color={0xFFFFFF} position={[0,6,0]}/>
-                            <primitive object={segmentationGroup} scale={[0.25,0.25,0.25]} position={[100,-100,100]}/>
+                            <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
+                            <primitive object={segmentationGroup} scale={[0.25, 0.25, 0.25]}
+                                       position={[0, 0, 0]}/>
                         </group>
                     }
                     <OrbitControls/>
