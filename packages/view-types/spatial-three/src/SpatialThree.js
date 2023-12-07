@@ -265,7 +265,7 @@ const SpatialThree = (props) => {
 
     return (
         <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
-            <ARButton/>
+            <VRButton/>
             <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -500], near: 0.01, far: 10000}}>
                 <XR>
                     <Controllers/>
