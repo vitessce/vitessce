@@ -10,7 +10,11 @@ export default class GlbLoader extends AbstractTwoStepLoader {
 
     async load() {
         return Promise.resolve(new LoaderResult(
-            null,
+            {
+                obsIndex: [],
+                obsSegmentations: `Something here from ${this.url}`,
+                obsSegmentationsType: 'mesh',
+            },
             this.url,
         ));
     }

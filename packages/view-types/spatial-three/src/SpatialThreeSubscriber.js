@@ -377,7 +377,7 @@ export function SpatialThreeSubscriber(props) {
   const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls] = useMultiObsSegmentations(
       coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
-
+  
   console.log(obsSegmentationsData);
 
   const [obsSegmentationsSetsData, obsSegmentationsSetsDataStatus] = useSegmentationMultiObsSets(
