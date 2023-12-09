@@ -123,7 +123,7 @@ The following commands can be helpful in case the local environment gets into a 
 Before running any of the deployment scripts, confirm that you have installed the AWS CLI and are in the appropriate AWS account:
 ```
 $ aws iam list-account-aliases --query 'AccountAliases[0]'
-"gehlenborglab"
+"hdv-vitessce"
 ```
 
 ### Staging
