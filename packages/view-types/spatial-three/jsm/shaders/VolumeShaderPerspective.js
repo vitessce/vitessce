@@ -218,9 +218,12 @@ var VolumeRenderShaderPerspective = {
     "           gl_FragColor.rgb += (1.0 - gl_FragColor.a) * val_color.a * val_color.rgb;",
     "           gl_FragColor.a += (1.0 - gl_FragColor.a) * val_color.a;",
     "           if (gl_FragColor.a >= 0.95) {",
+    // "               gl_FragDepth = min(1.0, max(0.0, t));",
+    "               gl_FragDepth = 0.0;",
     "               break;",
-    "           }" +
+    "           }",
     "       }",
+      "    gl_FragDepth = 1.0;",
     "       p += step;",
     "  }",
     "       if(u_renderstyle == 0 && (max_val <  u_clim[0] && max_val2 < u_clim2[0] && max_val3 < u_clim3[0] &&" +
@@ -246,6 +249,7 @@ var VolumeRenderShaderPerspective = {
     "           if(volumeCount > 5.0) color = color +  u_color6 * max_val6;",
     "           vec3 colorCorrected = vec3(min(color[0], 1.0), min(color[1],1.0), min(color[2],1.0));",
     " 	        gl_FragColor = vec4(color,1.0);",
+    // "           gl_FragDepth = 1.0;",
     "       }",
     "    }",
     "    gl_FragColor.r = linear_to_srgb(gl_FragColor.r);",

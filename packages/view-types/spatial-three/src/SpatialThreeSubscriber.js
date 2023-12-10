@@ -378,6 +378,10 @@ export function SpatialThreeSubscriber(props) {
       coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+  // console.log(obsSegmentationsData);
+  // console.log(obsSegmentationsDataStatus);
+  // console.log(obsSegmentationsUrls);
+
   const [obsSegmentationsSetsData, obsSegmentationsSetsDataStatus] = useSegmentationMultiObsSets(
       coordinationScopes, coordinationScopesBy, loaders, dataset,
   );

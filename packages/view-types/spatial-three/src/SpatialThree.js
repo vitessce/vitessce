@@ -19,7 +19,7 @@ import {useGLTF} from '@react-three/drei'
 
 const SpatialThree = (props) => {
     const materialRef = useRef(null);
-    const canvasRef = useRef(null);
+    const controllerRef = useRef(null);
     const [initialStartup, setInitialStartup] = useState(false);
     const [dataReady, setDataReady] = useState(false);
 
@@ -248,13 +248,9 @@ const SpatialThree = (props) => {
     // -----------------------------------------------------------------
     //                          XR
     // -----------------------------------------------------------------
-    if (canvasRef !== null) {
-        // console.log(canvasRef)
-        if (canvasRef.current !== null) {
-            console.log(canvasRef.current)
-            console.log(canvasRef.current.camera)
-        }
-    }
+    // if(controllerRef !== null){
+    //     console.log(controllerRef)
+    // }
     //const controller = renderer.xr.getController(0);
     //controller.addEventListener( 'connected', (e) => {
     //    controller.gamepad = e.data.gamepad
@@ -283,7 +279,7 @@ const SpatialThree = (props) => {
     return (
         <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
             <VRButton/>
-            <Canvas ref={canvasRef} camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -500], near: 0.01, far: 10000}}>
+            <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -500], near: 0.01, far: 10000}}>
                 <XR>
                     <Controllers/>
                     <Hands/>
@@ -294,8 +290,7 @@ const SpatialThree = (props) => {
                                     <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                                     <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
                                     <Interactive>
-                                        <primitive object={segmentationGroup} scale={[0.25, 0.25, 0.25]}
-                                                   position={[100, -100, 100]}/>
+                                        <primitive object={segmentationGroup} scale={[0.25, 0.25, 0.25]} position={[100, -100, 100]}/>
                                     </Interactive>
                                 </group>
                             }

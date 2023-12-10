@@ -1,4 +1,4 @@
-import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/vit-s';
+import {AbstractTwoStepLoader, LoaderResult} from '@vitessce/vit-s';
 import {useGLTF} from '@react-three/drei'
 
 export default class GlbLoader extends AbstractTwoStepLoader {
@@ -10,6 +10,7 @@ export default class GlbLoader extends AbstractTwoStepLoader {
     }
 
     async load() {
+        // return Promise.resolve(() => {
         const {scene} = useGLTF(this.url,
             'https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
         return new LoaderResult(
@@ -22,7 +23,8 @@ export default class GlbLoader extends AbstractTwoStepLoader {
                 obsIndex: [],
                 obsSegmentations: `Something here from ${this.url}`,
                 obsSegmentationsType: 'mesh',
-            }
-        );
+            });
     }
+    // );
+    // }
 }

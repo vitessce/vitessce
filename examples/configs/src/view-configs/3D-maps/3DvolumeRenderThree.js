@@ -12,16 +12,13 @@ function generateBlinConfig() {
     });
     const dataset = config.addDataset('My dataset').addFile({
         fileType: 'image.ome-tiff',
-        url: "url",
-        options: {
-            offsetsUrl: "url"
-        },
+        url: "https://viv-demo.storage.googleapis.com/idr0106.pyramid.ome.tif",
         coordinationValues: {
             fileUid: 'kidney',
         },
     }).addFile({
         fileType: 'segmentation.glb',
-        url: 'url',
+        url: '',
         coordinationValues: {
             fileUid: 'gloms',
         }
