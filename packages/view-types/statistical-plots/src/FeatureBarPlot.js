@@ -21,43 +21,8 @@ import { capitalize } from '@vitessce/utils';
 
 const scaleBand = vega_scale('band');
 
-const GROUP_KEY = 'set';
+const GROUP_KEY = 'obsId';
 const VALUE_KEY = 'value';
-
-// Reference: https://github.com/d3/d3-array/issues/180#issuecomment-851378012
-function summarize(iterable, keepZeros) {
-  const values = d3_map(iterable, d => d[VALUE_KEY])
-    .filter(d => keepZeros || d !== 0.0)
-    .sort(d3_ascending);
-  const minVal = values[0];
-  const maxVal = values[values.length - 1];
-  const q1 = quantileSorted(values, 0.25);
-  const q2 = quantileSorted(values, 0.5);
-  const q3 = quantileSorted(values, 0.75);
-  const iqr = q3 - q1; // interquartile range
-  const r0 = Math.max(minVal, q1 - iqr * 1.5);
-  const r1 = Math.min(maxVal, q3 + iqr * 1.5);
-  let i = -1;
-  while (values[++i] < r0);
-  const w0 = values[i];
-  while (values[++i] <= r1);
-  const w1 = values[i - 1];
-
-  // Chauvenet
-  // Reference: https://en.wikipedia.org/wiki/Chauvenet%27s_criterion
-  const mean = d3_mean(values);
-  const stdv = d3_deviation(values);
-  const c0 = mean - 3 * stdv;
-  const c1 = mean + 3 * stdv;
-
-  return {
-    quartiles: [q1, q2, q3],
-    range: [r0, r1],
-    whiskers: [w0, w1],
-    chauvenetRange: [c0, c1],
-    nonOutliers: values.filter(v => c0 <= v && v <= c1),
-  };
-}
 
 /**
  * Gene expression histogram displayed as a bar chart,
@@ -83,6 +48,7 @@ function summarize(iterable, keepZeros) {
 export default function FeatureBarPlot(props) {
   const {
     yMin,
+    yMax,
     yUnits,
     jitter,
     colors,
@@ -98,6 +64,7 @@ export default function FeatureBarPlot(props) {
     featureType,
     featureValueType,
     featureValueTransformName,
+    featureName,
   } = props;
 
   const svgRef = useRef();
@@ -116,9 +83,9 @@ export default function FeatureBarPlot(props) {
       ? `${featureValueTransformName}-Transformed `
       : '';
     const unitSuffix = yUnits ? ` (${yUnits})` : '';
-    const yTitle = `${transformPrefix}${capitalize(featureValueType)}${unitSuffix}`;
+    const yTitle = `${transformPrefix}${capitalize(featureName)}${unitSuffix}`;
 
-    const xTitle = `${capitalize(obsType)} Set`;
+    const xTitle = `${capitalize(obsType)}`;
 
     // Use a square-root term because the angle of the labels is 45 degrees (see below)
     // so the perpendicular distance to the bottom of the labels is proportional to the
@@ -140,116 +107,43 @@ export default function FeatureBarPlot(props) {
       .attr('width', width)
       .attr('height', height);
 
-    const groupNames = colors.map(d => d.name);
-
-    // Manually set the color scale so that Vega-Lite does
-    // not choose the colors automatically.
-    const colorScale = {
-      domain: colors.map(d => d.name),
-      range: colors.map(d => colorArrayToString(d.color)),
-    };
-
-    // Remove outliers on a per-group basis.
-    const groupedSummaries = Array.from(
-      d3_rollup(data, groupData => summarize(groupData, true), d => d[GROUP_KEY]),
-      ([key, value]) => ({ key, value }),
-    );
-    const groupedData = groupedSummaries
-      .map(({ key, value }) => ({ key, value: value.nonOutliers }));
-    const trimmedData = groupedData.map(kv => kv.value).flat();
+    console.log(data);
 
     const innerWidth = width - marginLeft;
     const innerHeight = height - autoMarginBottom;
 
-    const xGroup = scaleBand()
+
+    const xScale = scaleBand()
       .range([marginLeft, width - marginRight])
-      .domain(groupNames)
+      .domain(data.map(d => d.obsId))
       .padding(0.1);
 
     // For the y domain, use the yMin prop
     // to support a use case such as 'Aspect Ratio',
     // where the domain minimum should be 1 rather than 0.
-    const y = scaleLinear()
-      .domain([yMin, max(trimmedData)])
+    const yScale = scaleLinear()
+      .domain([yMin, yMax])
       .range([innerHeight, marginTop]);
 
-    const histogram = bin()
-      .thresholds(y.ticks(16))
-      .domain(y.domain());
 
-    const groupBins = groupedData.map(kv => ({ key: kv.key, value: histogram(kv.value) }));
-
-    const groupBinsMax = max(groupBins.flatMap(d => d.value.map(v => v.length)));
-
-    const x = scaleLinear()
-      .domain([-groupBinsMax, groupBinsMax])
-      .range([0, xGroup.bandwidth()]);
-
-    const area = d3_area()
-      .x0(d => (jitter ? x(0) : x(-d.length)))
-      .x1(d => x(d.length))
-      .y(d => y(d.x0))
-      .curve(curveBasis);
-
-    // Violin areas
+    // Bar areas
     g
-      .selectAll('violin')
-      .data(groupBins)
+      .selectAll('bar')
+      .data(data)
       .enter()
-        .append('g')
-          .attr('transform', d => `translate(${xGroup(d.key)},0)`)
-          .style('fill', d => colorScale.range[groupNames.indexOf(d.key)])
-        .append('path')
-          .datum(d => d.value)
-          .style('stroke', 'none')
-          .attr('d', d => area(d));
-
-    // Whiskers
-    const whiskerGroups = g.selectAll('whiskers')
-      .data(groupedSummaries)
-      .enter()
-        .append('g')
-          .attr('transform', d => `translate(${xGroup(d.key)},0)`);
-    whiskerGroups.append('line')
-      .datum(d => d.value)
-      .attr('stroke', rectColor)
-      .attr('x1', xGroup.bandwidth() / 2)
-      .attr('x2', xGroup.bandwidth() / 2)
-      .attr('y1', d => y(d.quartiles[0]))
-      .attr('y2', d => y(d.quartiles[2]))
-      .attr('stroke-width', 2);
-    whiskerGroups.append('line')
-      .datum(d => d.value)
-      .attr('stroke', rectColor)
-      .attr('x1', xGroup.bandwidth() / 2 - (jitter ? 0 : 4))
-      .attr('x2', xGroup.bandwidth() / 2 + 4)
-      .attr('y1', d => y(d.quartiles[1]))
-      .attr('y2', d => y(d.quartiles[1]))
-      .attr('stroke-width', 2);
-
-    // Jittered points
-    if (jitter) {
-      groupedData.forEach(({ key, value }) => {
-        const groupG = g.append('g');
-        groupG.selectAll('point')
-          .data(value)
-          .enter()
-          .append('circle')
-            .attr('transform', `translate(${xGroup(key)},0)`)
-            .style('stroke', 'none')
-            .style('fill', 'silver')
-            .style('opacity', '0.1')
-            .attr('cx', () => 5 + Math.random() * ((xGroup.bandwidth() / 2) - 10))
-            .attr('cy', d => y(d))
-            .attr('r', 2);
-      });
-    }
+        .append('rect')
+          .attr('x', d => xScale(d.obsId))
+          .attr('y', d => yScale(d.value))
+          .attr('width', xScale.bandwidth())
+          .attr('height', d => innerHeight - yScale(d.value))
+          .style('fill', rectColor);
+    
 
     // Y-axis ticks
     g
       .append('g')
         .attr('transform', `translate(${marginLeft},0)`)
-      .call(axisLeft(y))
+      .call(axisLeft(yScale))
       .selectAll('text')
         .style('font-size', '11px');
 
@@ -258,7 +152,7 @@ export default function FeatureBarPlot(props) {
       .append('g')
         .attr('transform', `translate(0,${innerHeight})`)
         .style('font-size', '14px')
-      .call(axisBottom(xGroup))
+      .call(axisBottom(xScale))
       .selectAll('text')
         .style('font-size', '11px')
         .attr('dx', '-6px')
@@ -289,7 +183,7 @@ export default function FeatureBarPlot(props) {
   }, [width, height, data, marginLeft, marginBottom, colors,
     jitter, theme, yMin, marginTop, marginRight, featureType,
     featureValueType, featureValueTransformName, yUnits, obsType,
-    maxCharactersForLabel,
+    maxCharactersForLabel, yMax, featureName,
   ]);
 
   return (
