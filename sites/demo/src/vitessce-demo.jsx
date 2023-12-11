@@ -88,7 +88,7 @@ function checkResponse(response, theme, debug) {
  * @returns {string} A valid theme name.
  */
 function validateTheme(theme) {
-  return (['light', 'dark'].includes(theme) ? theme : 'dark');
+  return (['light', 'dark'].includes(theme) ? theme : 'light');
 }
 
 export function VitessceDemo() {

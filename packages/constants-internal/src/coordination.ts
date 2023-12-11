@@ -33,11 +33,6 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
    */
 export const COMPONENT_COORDINATION_TYPES = {
   [ViewType.GENE_INFO]: [
-    CoordinationType.DATASET,
-    CoordinationType.OBS_HIGHLIGHT,
-    CoordinationType.OBS_TYPE,
-    CoordinationType.FEATURE_TYPE,
-    CoordinationType.FEATURE_VALUE_TYPE,
     CoordinationType.FEATURE_HIGHLIGHT,
   ],
   [ViewType.SCATTERPLOT]: [

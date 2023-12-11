@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
-import clsx from 'clsx';
-import { makeStyles, MenuItem, IconButton, Link } from '@material-ui/core';
+import { Link, makeStyles, MenuItem } from '@material-ui/core';
 import {
-  CloudDownload as CloudDownloadIcon,
   ArrowDropDown as ArrowDropDownIcon,
   ArrowDropUp as ArrowDropUpIcon,
+  CloudDownload as CloudDownloadIcon,
   Settings as SettingsIcon,
-  Close as CloseIcon,
 } from '@material-ui/icons';
+import clsx from 'clsx';
+import { useState } from 'react';
 
 import { TOOLTIP_ANCESTOR } from './classNames.js';
 import LoadingIndicator from './LoadingIndicator.js';
@@ -104,25 +103,10 @@ function DownloadOptions(props) {
   ) : null);
 }
 
-function ClosePaneButton(props) {
-  const { removeGridComponent } = props;
-  const classes = useStyles();
-  return (
-    <IconButton
-      onClick={removeGridComponent}
-      size="small"
-      className={classes.iconButton}
-      title="close"
-      aria-label="Close panel button"
-    >
-      <CloseIcon />
-    </IconButton>
-  );
-}
 
 export function TitleInfo(props) {
   const {
-    title, info, children, isScroll, isSpatial, removeGridComponent, urls,
+    title, info, children, isScroll, isSpatial, urls,
     isReady, options,
   } = props;
 
@@ -144,9 +128,6 @@ export function TitleInfo(props) {
           />
           <DownloadOptions
             urls={urls}
-          />
-          <ClosePaneButton
-            removeGridComponent={removeGridComponent}
           />
         </div>
       </div>
