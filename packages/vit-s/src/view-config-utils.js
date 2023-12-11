@@ -132,7 +132,6 @@ function coordinateComponentsIndependent(config, coordinationType, scopeValue, v
 function initializeAuto(config, coordinationTypeObjs, viewTypeObjs) {
   let newConfig = config;
   const { layout, datasets } = newConfig;
-
   const componentCoordinationTypes = fromEntries(
     viewTypeObjs.map(vt => ([vt.name, vt.coordinationTypes])),
   );

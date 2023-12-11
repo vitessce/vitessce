@@ -4,6 +4,7 @@
  * with a corresponding log message.
  */
 export const ViewType = {
+  GENE_INFO: 'geneInfo',
   DESCRIPTION: 'description',
   STATUS: 'status',
   SCATTERPLOT: 'scatterplot',

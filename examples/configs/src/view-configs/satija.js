@@ -128,10 +128,22 @@ export const satija2020 = {
     },
     {
       component: 'description',
-      h: 4,
+      h: 2,
       w: 2,
       x: 10,
       y: 4,
+    },
+    {
+      component: 'geneInfo',
+      coordinationScopes: {
+        obsLabelsType: [
+          'A',
+        ],
+      },
+      h: 2,
+      w: 2,
+      x: 10,
+      y: 6,
     },
   ],
 };
