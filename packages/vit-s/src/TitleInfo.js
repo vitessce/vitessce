@@ -1,7 +1,5 @@
 import { Link, makeStyles, MenuItem } from '@material-ui/core';
 import {
-  ArrowDropDown as ArrowDropDownIcon,
-  ArrowDropUp as ArrowDropUpIcon,
   CloudDownload as CloudDownloadIcon,
   Settings as SettingsIcon,
 } from '@material-ui/icons';
@@ -44,11 +42,10 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function SettingsIconWithArrow({ open }) {
+function SettingsIconWithArrow() {
   return (
     <>
       <SettingsIcon />
-      {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
     </>
   );
 }
@@ -71,11 +68,10 @@ function PlotOptions(props) {
   ) : null);
 }
 
-function CloudDownloadIconWithArrow({ open }) {
+function CloudDownloadIconWithArrow() {
   return (
     <>
       <CloudDownloadIcon />
-      {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
     </>
   );
 }
