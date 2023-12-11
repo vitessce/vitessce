@@ -10,7 +10,7 @@ const useStyles = makeStyles(() => ({
     width: '100%',
     height: '100%',
     borderRadius: '4px',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: '#f2f7f8',
   },
   loadingIndicatorContainer: {
     display: 'grid',
@@ -34,7 +34,7 @@ export default function LoadingIndicator() {
   return (
     <div className={classes.loadingIndicatorBackdrop}>
       <div className={classes.loadingIndicatorContainer} role="status" aria-live="polite">
-        <CircularProgress />
+        <CircularProgress color="secondary" />
         <span className={classes.visuallyHidden}>Loading...</span>
       </div>
     </div>

@@ -40,6 +40,7 @@ const useStyles = makeStyles(theme => ({
   },
   downloadLink: {
     color: theme.palette.primaryForeground,
+    textDecoration: 'none',
   },
 }));
 
