@@ -24,6 +24,7 @@ export function GeneInfoSubscriber(props) {
     theme,
     title = 'Gene Info',
   } = props;
+
   const [{
     featureHighlight,
   },

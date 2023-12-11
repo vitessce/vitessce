@@ -3,12 +3,11 @@ import { capitalize } from '@vitessce/utils';
 import {
   TitleInfo,
   useCoordination,
-  useFeatureLabelsData,
   useLoaders,
   useObsFeatureMatrixIndices,
   useReady, useUrls,
 } from '@vitessce/vit-s';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import IntelliList from './IntelliList.js';
 
@@ -21,15 +20,15 @@ export function IntelliListSubscriber(props) {
     title: titleOverride,
   } = props;
 
-  const [option, setOption] = useState(null);
-
-
   const loaders = useLoaders();
 
   const [{
     dataset,
     obsType,
     featureType,
+    featureSelection: geneSelection,
+  }, {
+    setFeatureSelection: setGeneSelection,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_LIST], coordinationScopes);
 
   const variablesLabel = variablesLabelOverride || featureType;
@@ -47,14 +46,8 @@ export function IntelliListSubscriber(props) {
     obsFeatureMatrixUrls,
   ]);
 
-  useEffect(() => {
-    if (isReady) {
-      setOption(featureIndex[0]);
-    }
-  }, [isReady, featureIndex]);
 
   const options = featureIndex || [];
-
 
   return (
     <TitleInfo
@@ -65,8 +58,8 @@ export function IntelliListSubscriber(props) {
       urls={urls}
     >
       <IntelliList
-        onOptionChange={e => setOption(e.target.value)}
-        option={option}
+        onOptionChange={e => setGeneSelection(e.target.value)}
+        option={geneSelection}
         options={options}
       />
     </TitleInfo>
