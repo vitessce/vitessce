@@ -5,6 +5,7 @@
  */
 export const ViewType = {
   GENE_INFO: 'geneInfo',
+  INTELLI_LIST: 'intelliList',
   DESCRIPTION: 'description',
   STATUS: 'status',
   SCATTERPLOT: 'scatterplot',

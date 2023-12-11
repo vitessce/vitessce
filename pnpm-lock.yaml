@@ -543,6 +543,9 @@ importers:
       '@vitessce/heatmap':
         specifier: workspace:*
         version: link:../../view-types/heatmap
+      '@vitessce/intelli-list':
+        specifier: workspace:*
+        version: link:../../view-types/intelli-list
       '@vitessce/json':
         specifier: workspace:*
         version: link:../../file-types/json

@@ -1,5 +1,3 @@
-
-
 export const satija2020 = {
   version: '1.0.15',
   name: 'HBM336.FWTN.636',
@@ -127,7 +125,7 @@ export const satija2020 = {
       },
     },
     {
-      component: 'description',
+      component: 'intelliList',
       h: 2,
       w: 2,
       x: 10,

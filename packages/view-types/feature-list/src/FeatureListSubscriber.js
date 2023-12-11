@@ -64,7 +64,7 @@ export function FeatureListSubscriber(props) {
 
   const variablesLabel = variablesLabelOverride || featureType;
 
-  const title = titleOverride || `${capitalize(variablesLabel)} List`;
+  const title = titleOverride || `${capitalize(variablesLabel)}`;
 
   // Get data from loaders using the data hooks.
   // TODO: support multiple feature labels using featureLabelsType coordination values.

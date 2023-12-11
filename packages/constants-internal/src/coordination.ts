@@ -32,6 +32,17 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
    * Keys here are the component registry keys.
    */
 export const COMPONENT_COORDINATION_TYPES = {
+  [ViewType.INTELLI_LIST]: [
+    CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
+    CoordinationType.FEATURE_FILTER,
+    CoordinationType.FEATURE_HIGHLIGHT,
+    CoordinationType.FEATURE_SELECTION,
+    CoordinationType.OBS_COLOR_ENCODING,
+    CoordinationType.OBS_SET_SELECTION,
+  ],
   [ViewType.GENE_INFO]: [
     CoordinationType.FEATURE_HIGHLIGHT,
   ],

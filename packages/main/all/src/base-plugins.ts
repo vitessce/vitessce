@@ -67,6 +67,7 @@ import { SpatialBetaSubscriber } from '@vitessce/spatial-beta';
 import { HeatmapSubscriber } from '@vitessce/heatmap';
 import { FeatureListSubscriber } from '@vitessce/feature-list';
 import { GeneInfoSubscriber } from '@vitessce/gene-info';
+import { IntelliListSubscriber } from '@vitessce/intelli-list';
 import { LayerControllerSubscriber } from '@vitessce/layer-controller';
 import { LayerControllerBetaSubscriber } from '@vitessce/layer-controller-beta';
 import { StatusSubscriber } from '@vitessce/status';
@@ -171,6 +172,7 @@ function makeFileType<T1 extends DataLoader, T2 extends DataSource>(name: string
 
 export const baseViewTypes = [
   makeViewType(ViewType.GENE_INFO, GeneInfoSubscriber),
+  makeViewType(ViewType.INTELLI_LIST, IntelliListSubscriber),
   makeViewType(ViewType.DESCRIPTION, DescriptionSubscriber),
   makeViewType(ViewType.OBS_SETS, ObsSetsManagerSubscriber),
   makeViewType(ViewType.SCATTERPLOT, EmbeddingScatterplotSubscriber),

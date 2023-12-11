@@ -37,6 +37,7 @@
     "@vitessce/csv": "workspace:*",
     "@vitessce/description": "workspace:*",
     "@vitessce/gene-info": "workspace:*",
+    "@vitessce/intelli-list": "workspace:*",
     "@vitessce/feature-list": "workspace:*",
     "@vitessce/genomic-profiles": "workspace:*",
     "@vitessce/heatmap": "workspace:*",
