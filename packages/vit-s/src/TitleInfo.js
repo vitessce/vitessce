@@ -1,4 +1,3 @@
-import { makeStyles } from '@mui/styles';
 import { Link, MenuItem } from '@mui/material';
 import {
   CloudDownload as CloudDownloadIcon,
@@ -12,36 +11,36 @@ import LoadingIndicator from './LoadingIndicator.js';
 import { PopperMenu } from './shared-mui/components.js';
 import { useTitleStyles } from './title-styles.js';
 
-const useStyles = makeStyles(theme => ({
-  iconButton: {
-    border: 'none',
-    marginLeft: 0,
-    background: 'none',
-    color: theme.palette.primaryForeground,
-    paddingLeft: '0.25em',
-    paddingRight: '0.25em',
-    borderRadius: '2px',
-    '&:hover': {
-      backgroundColor: theme.palette.primaryBackgroundLight,
-    },
-    '&:first-child': {
-      marginLeft: '0.25em',
-    },
-    '&:last-child': {
-      marginRight: '0.25em',
-    },
-    '& svg': {
-      width: '0.7em',
-      height: '0.7em',
-      verticalAlign: 'middle',
-      overflow: 'visible',
-    },
-  },
-  downloadLink: {
-    color: theme.palette.primaryForeground,
-    textDecoration: 'none',
-  },
-}));
+// const useStyles = makeStyles(theme => ({
+//   iconButton: {
+//     border: 'none',
+//     marginLeft: 0,
+//     background: 'none',
+//     color: theme.palette.primaryForeground,
+//     paddingLeft: '0.25em',
+//     paddingRight: '0.25em',
+//     borderRadius: '2px',
+//     '&:hover': {
+//       backgroundColor: theme.palette.primaryBackgroundLight,
+//     },
+//     '&:first-child': {
+//       marginLeft: '0.25em',
+//     },
+//     '&:last-child': {
+//       marginRight: '0.25em',
+//     },
+//     '& svg': {
+//       width: '0.7em',
+//       height: '0.7em',
+//       verticalAlign: 'middle',
+//       overflow: 'visible',
+//     },
+//   },
+//   downloadLink: {
+//     color: theme.palette.primaryForeground,
+//     textDecoration: 'none',
+//   },
+// }));
 
 function SettingsIconWithArrow() {
   return (
@@ -54,13 +53,12 @@ function SettingsIconWithArrow() {
 function PlotOptions(props) {
   const { options } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
+
   return (options ? (
     <PopperMenu
       open={open}
       setOpen={setOpen}
       buttonIcon={<SettingsIconWithArrow open={open} />}
-      buttonClassName={classes.iconButton}
       placement="bottom-end"
       aria-label="Open plot options menu"
     >
@@ -80,19 +78,17 @@ function CloudDownloadIconWithArrow() {
 function DownloadOptions(props) {
   const { urls } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
   return (urls && urls.length ? (
     <PopperMenu
       open={open}
       setOpen={setOpen}
       buttonIcon={<CloudDownloadIconWithArrow open={open} />}
-      buttonClassName={classes.iconButton}
       placement="bottom-end"
       aria-label="Open download options menu"
     >
       {urls.map(({ url, name }) => (
         <MenuItem dense key={`${url}_${name}`} getArialLabel={() => `Click to download ${name}`}>
-          <Link underline="always" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
+          <Link underline="always" href={url} target="_blank" rel="noopener">
             Download {name}
           </Link>
         </MenuItem>

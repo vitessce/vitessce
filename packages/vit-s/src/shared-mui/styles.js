@@ -1,113 +1,379 @@
-import { colors, createTheme } from '@mui/material';
+import { createTheme } from '@mui/material';
 
-const { grey } = colors;
+export const COLOR_HOVER = '#bdd7e1';
+export const COLOR_PRIMARY = '#050b26';
+export const COLOR_PRIMARY_LIGHT = '#5C5D73';
+export const COLOR_LOGO_LIGHT = '#24bfd3';
+export const COLOR_SECONDARY = '#0e7d9f';
+export const COLOR_SECONDARY_LIGHT = '#FFF';
+export const COLOR_HIGHLIGHT = '#B6D8E2';
+export const COLOR_GRAY = '#f2f7f8';
 
-const globalColors = {
-  white: '#FFFFFF',
-  grayLight: '#D3D3D3',
-  grayMid: '#808080',
-  grayDark: '#555555',
-  black: '#050b26',
-  grayDarkL5: 'rgb(98, 98, 98)', // lighten(map-get($global-colors, "gray-dark"), 5%);
-  grayDarkD15: 'rgb(47, 47, 47)', // darken(map-get($global-colors, "gray-dark"), 15%);
-  grayMidL10: 'rgb(154, 154, 154)', // lighten(map-get($global-colors, "gray-mid"), 10%);
-  grayLightL10: 'rgb(237, 237, 237)', // lighten(map-get($global-colors, "gray-light"), 10%);
-};
+export const Light = createTheme({
+  components: {
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: COLOR_PRIMARY,
+          boxShadow: 'none',
+        },
+      },
+    },
+    MuiBackdrop: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'rgba(255, 255,255, 0)',
+          // backdropFilter: 'blur(2px)',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          border: 'none',
+          backgroundColor: COLOR_GRAY,
+        },
+      },
+    },
+    MuiListItemText: {
+      styleOverrides: {
+        primary: {
+          fontSize: '0.8rem',
+          color: COLOR_PRIMARY,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        },
+        secondary: {
+          fontSize: '0.8rem',
+          color: COLOR_PRIMARY_LIGHT,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        },
+      },
+    },
+    MuiListItemAvatar: {
+      styleOverrides: {
+        root: {
+          color: COLOR_SECONDARY,
+          minWidth: '40px',
+        },
+      },
+    },
+    MuiListItemIcon: {
+      styleOverrides: {
+        root: {
+          minWidth: 0,
+          fontSize: 'small',
+          marginRight: '.8rem',
+        },
+      },
+    },
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          background: COLOR_SECONDARY,
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          paddingLeft: 0,
+          cursor: 'pointer',
+        },
+      },
+      defaultProps: {
+        sx: {
+          pl: 4,
+        },
+      },
+    },
+    MuiRadio: {
+      defaultProps: {
+        size: 'small',
+      },
+    },
+    MuiCheckbox: {
+      defaultProps: {
+        size: 'small',
+      },
+    },
 
-const sharedThemeOptions = {
-  // Use px instead of rem, so that sizing is consistent despite the root element font-size.
-  // Reference: https://github.com/mui/material-ui/blob/627c08fc/src/styles/createTypography.js
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          fontSize: '.8rem',
+        },
+        filledPrimary: {
+          justifyContent: 'left',
+          borderRadius: '3px',
+          border: '0px solid',
+          color: COLOR_PRIMARY,
+          background: 'rgba(255,255,255,0)',
+          ':focus': {
+            background: COLOR_HIGHLIGHT,
+          },
+          ':hover': {
+            background: COLOR_HIGHLIGHT,
+          },
+        },
+        filledSecondary: {
+          color: COLOR_PRIMARY,
+          border: '0px solid',
+          pt: 1,
+          pb: 1,
+          background: '#FFF',
+          ':focus': {
+            background: COLOR_HIGHLIGHT,
+          },
+          ':hover': {
+            background: COLOR_HIGHLIGHT,
+          },
+        },
+        iconColorSecondary: {
+          color: COLOR_SECONDARY,
+          fontSize: '1.2rem',
+        },
+        iconColorPrimary: {
+          color: COLOR_SECONDARY,
+        },
+        deleteIconFilledColorPrimary: {
+          color: COLOR_SECONDARY,
+          ':hover': {
+            color: COLOR_SECONDARY,
+          },
+        },
+        deleteIconFilledColorSecondary: {
+          color: COLOR_SECONDARY,
+          ':hover': {
+            color: COLOR_SECONDARY,
+          },
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          height: '5px',
+          paddingLeft: '0.25em',
+          paddingRight: '0.25em',
+        },
+      },
+      defaultProps: {
+        color: 'secondary',
+        size: 'small',
+      },
+    },
+    MuiToggleButtonGroup: {
+      styleOverrides: {
+        root: {
+          border: 'none',
+          borderWidth: '0px',
+          borderRadius: '3px',
+          // backgroundColor: '#FFF',
+        },
+      },
+    },
+
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          fontSize: '.8rem',
+          textTransform: 'none',
+          cursor: 'pointer',
+          color: '#000',
+          // backgroundColor: COLOR_SECONDARY_LIGHT,
+          borderWidth: '0px',
+          '&.Mui-hover': {
+            backgroundColor: COLOR_HOVER,
+          },
+          '&.Mui-selected': {
+            color: COLOR_SECONDARY,
+            backgroundColor: '#FFF',
+
+          },
+
+        },
+
+      },
+
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          fontSize: '12.8px',
+          textTransform: 'none',
+          fontWeight: 400,
+          cursor: 'pointer',
+          color: COLOR_PRIMARY,
+        },
+
+        startIcon: {
+          color: COLOR_SECONDARY,
+        },
+        containedPrimary: {
+          color: '#FFF',
+        },
+        containedSecondary: {
+          color: '#FFF',
+        },
+      },
+    },
+    MuiBreadcrumbs: {
+      styleOverrides: {
+        li: {
+          root: {
+
+            fontWeight: 600,
+            fontSize: '1rem',
+            lineHeight: 1.2,
+            letterSpacing: '0em',
+          },
+        },
+      },
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          fontSize: '.8rem',
+          backgroundColor: '#FFFFFF',
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderColor: 'green',
+          borderWidth: 4,
+
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        root: {
+          zIndex: 1199,
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          height: '28px',
+        },
+      },
+    },
+    MuiSelect: {
+      defaultProps: {
+        fullWidth: true,
+        size: 'small',
+      },
+    },
+    MuiTextField: {
+      defaultProps: {
+        fullWidth: true,
+        size: 'small',
+      },
+    },
+    MuiDataGrid: {
+      styleOverrides: {
+        root: {
+        },
+        row: {
+          ':hover': {
+            background: COLOR_HIGHLIGHT,
+          },
+        },
+        cell: {
+          color: COLOR_PRIMARY,
+          ':focus': { outline: 0, background: COLOR_HIGHLIGHT },
+        },
+        columnHeader: {
+          borderColor: COLOR_GRAY,
+          color: COLOR_SECONDARY,
+          fontWeight: 'normal',
+          ':focus': { outline: 0, background: COLOR_HIGHLIGHT },
+        },
+      },
+    },
+  },
+  palette: {
+    primary: {
+      main: COLOR_PRIMARY,
+      light: COLOR_PRIMARY_LIGHT,
+    },
+    secondary: {
+      main: COLOR_SECONDARY,
+      light: COLOR_SECONDARY_LIGHT,
+    },
+    warning: {
+      main: '#7D2D65',
+    },
+    background: {
+      default: '#FFFFFF',
+    },
+    divider: COLOR_PRIMARY_LIGHT,
+  },
   typography: {
-    pxToRem: size => `${size}px`,
-    display4: {
-      fontSize: '112px',
-    },
-    display3: {
-      fontSize: '56px',
-    },
-    display2: {
-      fontSize: '45px',
-    },
-    display1: {
-      fontSize: '34px',
-    },
-    headline: {
-      fontSize: '24px',
-    },
-    title: {
-      fontSize: '21px',
-    },
-    subheading: {
-      fontSize: '16px',
+    fontFamily: 'Inter, "-apple-system", "BlinkMacSystemFont", sans-serif',
+    fontSize: 18,
+    fontWeightRegular: 400,
+    fontWeightBold: 800,
+    body1: {
+      fontSize: '.8rem',
+      lineHeight: 1.5,
+      letterSpacing: '0',
+      color: COLOR_PRIMARY,
     },
     body2: {
-      fontSize: '14px',
+      fontSize: '.8rem',
+      lineHeight: 1.5,
+      letterSpacing: '0',
+      color: COLOR_PRIMARY_LIGHT,
     },
-    body1: {
-      fontSize: '14px',
+    h1: {
+      fontFamily: '"DM Serif Display", serif',
+      lineHeight: 1.2,
+      letterSpacing: 1.5,
+      color: COLOR_PRIMARY,
+      mb: 3,
+    },
+    h2: {
+      fontFamily: '"DM Serif Display", serif',
+      fontSize: '68px',
+      lineHeight: 1.2,
+      letterSpacing: '0em',
+      color: COLOR_PRIMARY,
+    },
+    h3: {
+      fontSize: '1.2rem',
+      lineHeight: 1.2,
+      letterSpacing: '0em',
+      color: COLOR_SECONDARY,
+    },
+    h4: {
+      fontSize: '1rem',
+      lineHeight: 1.5,
+      letterSpacing: '0em',
+      color: COLOR_SECONDARY,
+    },
+    h5: {
+      fontSize: '.8rem',
+      lineHeight: 1,
+      letterSpacing: '0em',
+      color: COLOR_SECONDARY,
+    },
+    h6: {
+      fontSize: '.8rem',
+      lineHeight: 1.2,
+      letterSpacing: '0em',
+      color: COLOR_PRIMARY,
+    },
+    subtitle2: {
+      fontSize: '.8rem',
     },
     caption: {
-      fontSize: '12px',
+      fontSize: '.8rem',
     },
   },
-  props: {
-    MuiButtonBase: {
-      disableRipple: true,
-    },
-  },
-};
-
-export const muiTheme = {
-  dark: createTheme({
-    palette: {
-      type: 'dark',
-      primary: grey,
-      secondary: grey,
-      primaryBackground: '#222222',
-      primaryBackgroundHighlight: '#000000',
-      primaryBackgroundInput: '#D3D3D3',
-      primaryBackgroundDim: '#0e7d9f',
-      primaryBackgroundLight: '#757575',
-      primaryForeground: '#D3D3D3',
-      primaryForegroundL5: 'rgb(224, 224, 224)',
-      primaryForegroundL10: 'rgb(237, 237, 237)',
-      primaryForegroundD15: 'rgb(173, 173, 173)',
-      primaryForegroundDim: '#000000',
-      primaryForegroundActive: '#9bb7d6',
-      secondaryBackground: '#000000',
-      secondaryBackgroundDim: '#444444',
-      secondaryForeground: '#D3D3D3',
-      gridLayoutBackground: '#0e7d9f',
-      cardBorder: 'rgba(0, 0, 0, 0.125)',
-      tooltipText: '#FFFFFF',
-      ...globalColors,
-    },
-    ...sharedThemeOptions,
-  }),
-  light: createTheme({
-    palette: {
-      type: 'light',
-      primary: grey,
-      secondary: grey,
-      primaryBackground: '#f2f7f8',
-      primaryBackgroundHighlight: '#FFFFFF',
-      primaryBackgroundInput: '#FFFFFF',
-      primaryBackgroundDim: '#8A8A8A',
-      primaryBackgroundLight: '#e0e0e0',
-      primaryForeground: '#0e7d9f',
-      primaryForegroundL5: 'rgb(64, 64, 64)', // lighten(map-get($theme-colors, "primary-foreground"), 5%);
-      primaryForegroundL10: 'rgb(77, 77, 77)', // lighten(map-get($theme-colors, "primary-foreground"), 10%);
-      primaryForegroundD15: 'rgb(13, 13, 13)', // darken(map-get($theme-colors, "primary-foreground"), 15%);
-      primaryForegroundDim: '#808080',
-      primaryForegroundActive: '#0074D9',
-      secondaryBackground: '#f2f7f8',
-      secondaryBackgroundDim: '#C0C0C0',
-      secondaryForeground: '#000',
-      gridLayoutBackground: '#FFFFFF',
-      cardBorder: 'rgba(241, 241, 241, 0.0)',
-      tooltipText: 'rgba(0, 0, 0, 0.87)',
-      ...globalColors,
-    },
-    ...sharedThemeOptions,
-  }),
-};
+});

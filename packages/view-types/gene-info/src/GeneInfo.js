@@ -8,15 +8,13 @@ const useDebounce = (callback, delay) => {
     ref.current = callback;
   }, [callback]);
 
-  const debouncedCallback = useMemo(() => {
+  return useMemo(() => {
     const func = (...args) => {
       ref.current?.(...args);
     };
 
     return debounce(func, delay);
   }, [delay]);
-
-  return debouncedCallback;
 };
 
 export default function GeneInfo({ gene }) {

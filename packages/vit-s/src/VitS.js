@@ -10,7 +10,7 @@ import {
 } from '@tanstack/react-query';
 import { isEqual } from 'lodash-es';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
-import { muiTheme } from './shared-mui/styles.js';
+import { Light } from './shared-mui/styles.js';
 import {
   ViewConfigProvider,
   createViewConfigStore,
@@ -208,7 +208,7 @@ export function VitS(props) {
   }, [success, configKey]);
 
   return success ? (
-    <ThemeProvider theme={muiTheme[theme]}>
+    <ThemeProvider theme={Light}>
       <QueryClientProvider client={queryClient}>
         <ViewConfigProvider key={configKey} createStore={createViewConfigStoreClosure}>
           <AuxiliaryProvider createStore={createAuxiliaryStore}>
