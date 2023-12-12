@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { SELECTION_TYPE } from '@vitessce/gl';
 import { PointerIconSVG, SelectLassoIconSVG } from '@vitessce/icons';
-import { makeStyles } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import { CenterFocusStrong } from '@mui/icons-material';
 
 const useStyles = makeStyles(() => ({

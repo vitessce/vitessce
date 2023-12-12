@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
-
-import { Slider, makeStyles } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { Slider } from '@mui/material';
 import { debounce } from 'lodash-es';
 import {
   abbreviateNumber,

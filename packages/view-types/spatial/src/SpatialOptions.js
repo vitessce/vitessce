@@ -6,8 +6,8 @@ import {
   TableCell,
   TableRow,
   Slider,
-  makeStyles,
 } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import {
   usePlotOptionsStyles, OptionsContainer, CellColorEncodingOption, OptionSelect,
 } from '@vitessce/vit-s';

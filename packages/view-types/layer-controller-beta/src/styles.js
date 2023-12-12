@@ -1,4 +1,4 @@
-import { makeStyles } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 
 export const useEllipsisMenuStyles = makeStyles(() => ({
   imageLayerMenuLabel: {

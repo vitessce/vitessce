@@ -1,8 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import React, { useState } from 'react';
-import {
-  makeStyles,
-} from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import clsx from 'clsx';
 import { isEqual } from 'lodash-es';
 import { PopperMenu } from '@vitessce/vit-s';

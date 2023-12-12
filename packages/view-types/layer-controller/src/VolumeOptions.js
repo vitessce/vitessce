@@ -4,13 +4,13 @@ import {
   Grid,
   Typography,
   Button,
-  makeStyles,
   createStyles,
   FormControl,
   Select,
   InputLabel,
   Slider,
 } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import { viv } from '@vitessce/gl';
 import { abbreviateNumber, getBoundingCube } from '@vitessce/spatial-utils';
 import { useSelectStyles } from './styles.js';

@@ -30,6 +30,7 @@
     "@mdx-js/react": "^1.6.21",
     "@mui/icons-material": "^5.14.19",
     "@mui/material": "^5.14.20",
+    "@mui/styles": "^5.14.20",
     "@vitessce/config": "workspace:*",
     "@vitessce/constants": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { makeStyles } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import Legend from './Legend.js';
 
 

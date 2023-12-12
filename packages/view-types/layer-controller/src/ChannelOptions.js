@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { makeStyles, MenuItem } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { MenuItem } from '@mui/material';
 import { MoreVert } from '@mui/icons-material';
 import { PopperMenu } from '@vitessce/vit-s';
 import { useSpanStyles } from './styles.js';

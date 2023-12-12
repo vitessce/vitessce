@@ -6,8 +6,8 @@ import {
   MenuList,
   Paper,
   Popper,
-  makeStyles,
 } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import clsx from 'clsx';
 import { useVitessceContainer } from '../hooks.js';
 

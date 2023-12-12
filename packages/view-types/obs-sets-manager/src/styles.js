@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { makeStyles } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 
 const nodeHeight = 32;
 

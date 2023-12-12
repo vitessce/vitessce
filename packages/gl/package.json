@@ -55,6 +55,7 @@
     "@math.gl/core": "^3.5.6",
     "@mui/icons-material": "^5.14.19",
     "@mui/material": "^5.14.20",
+    "@mui/styles": "^5.14.20",
     "@nebula.gl/edit-modes": "0.23.8",
     "@nebula.gl/layers": "0.23.8",
     "@turf/area": "^6.5.0",

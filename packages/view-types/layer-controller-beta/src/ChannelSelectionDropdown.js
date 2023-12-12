@@ -1,8 +1,6 @@
 import React from 'react';
-import {
-  makeStyles,
-  Select,
-} from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { Select } from '@mui/material';
 import { useSelectStyles } from './styles.js';
 
 

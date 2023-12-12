@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { makeStyles } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import { VITESSCE_CONTAINER } from './classNames.js';
 
 const useStyles = makeStyles(theme => ({

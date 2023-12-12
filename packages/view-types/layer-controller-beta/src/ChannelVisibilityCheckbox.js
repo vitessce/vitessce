@@ -1,8 +1,6 @@
 import React from 'react';
-import {
-  Checkbox,
-  makeStyles,
-} from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { Checkbox } from '@mui/material';
 import { isEqual } from 'lodash-es';
 import { toRgbUIString } from '@vitessce/spatial-utils';
 

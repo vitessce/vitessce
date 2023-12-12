@@ -3,8 +3,8 @@
 // eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState, useMemo, useCallback } from 'react';
 import { useId } from 'react-aria';
+import { makeStyles } from '@mui/styles';
 import {
-  makeStyles,
   Grid,
   Paper,
   Typography,

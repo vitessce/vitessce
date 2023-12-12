@@ -1,5 +1,6 @@
 import React from 'react';
-import { IconButton, makeStyles } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { IconButton } from '@mui/material';
 import { Lens as LensIcon } from '@mui/icons-material';
 import { VIEWER_PALETTE } from '@vitessce/utils';
 

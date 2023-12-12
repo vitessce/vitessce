@@ -1,4 +1,5 @@
-import { Link, makeStyles, MenuItem } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { Link, MenuItem } from '@mui/material';
 import {
   CloudDownload as CloudDownloadIcon,
   Settings as SettingsIcon,
