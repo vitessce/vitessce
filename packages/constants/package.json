@@ -29,6 +29,11 @@
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js"
   },
   "dependencies": {
-    "@vitessce/constants-internal": "workspace:*"
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
+    "@vitessce/constants-internal": "workspace:*",
+    "styles": "link:@mui/material/styles"
   }
 }

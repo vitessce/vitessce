@@ -30,17 +30,21 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@material-ui/core": "~4.12.3",
-    "@vitessce/utils": "workspace:*",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
     "@vitessce/sets-utils": "workspace:*",
+    "@vitessce/utils": "workspace:*",
     "clsx": "^1.1.1",
-    "lodash-es": "^4.17.21",
     "colormap": "^2.3.2",
     "d3-axis": "^3.0.0",
     "d3-color": "^1.4.0",
     "d3-interpolate": "^2.0.1",
     "d3-scale": "^3.2.3",
-    "d3-selection": "^3.0.0"
+    "d3-selection": "^3.0.0",
+    "lodash-es": "^4.17.21",
+    "styles": "link:@mui/material/styles"
   },
   "devDependencies": {
     "react": "^18.0.0",

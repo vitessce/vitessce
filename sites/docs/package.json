@@ -12,7 +12,6 @@
     "clear": "docusaurus clear"
   },
   "dependencies": {
-    "@material-ui/core": "~4.12.3",
     "@babel/preset-env": "^7.0.0",
     "@docusaurus/core": "2.3.1",
     "@docusaurus/mdx-loader": "2.3.1",
@@ -26,7 +25,11 @@
     "@docusaurus/utils": "2.3.1",
     "@docusaurus/utils-common": "2.3.1",
     "@docusaurus/utils-validation": "2.3.1",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@mdx-js/react": "^1.6.21",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
     "@vitessce/config": "workspace:*",
     "@vitessce/constants": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
@@ -47,6 +50,7 @@
     "react-live": "^2.2.3",
     "react-loadable": "^5.5.0",
     "react-monaco-editor": "^0.43.0",
+    "styles": "link:@mui/material/styles",
     "use-query-params": "^1.1.9",
     "vitessce": "workspace:*"
   },

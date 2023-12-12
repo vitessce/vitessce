@@ -1,33 +1,38 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useId } from 'react-aria';
 import { viv } from '@vitessce/gl';
 import {
+  DOMAINS,
   GLOBAL_LABELS,
+  canLoadResolution,
+  getMultiSelectionStats,
   getSourceFromLoader,
   isRgb,
-  getMultiSelectionStats,
-  DOMAINS,
-  canLoadResolution,
 } from '@vitessce/spatial-utils';
+import { useEffect, useRef, useState } from 'react';
+import { useId } from 'react-aria';
 
-import {
-  Grid, Button, Slider, Tabs, Tab, InputLabel,
-  Accordion, AccordionDetails, AccordionSummary,
-} from '@material-ui/core';
 import {
   Add as AddIcon,
   ExpandMore as ExpandMoreIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
+import {
+  Accordion, AccordionDetails, AccordionSummary,
+  Button,
+  Grid,
+  InputLabel,
+  Slider,
+  Tab,
+  Tabs,
+} from '@mui/material';
 
 import LayerOptions from './LayerOptions.js';
 import VolumeOptions from './VolumeOptions.js';
 import {
+  useAccordionStyles,
   useControllerSectionStyles,
   useInputLabelStyles,
   useOverflowEllipsisGridStyles,
-  useAccordionStyles,
 } from './styles.js';
 
 

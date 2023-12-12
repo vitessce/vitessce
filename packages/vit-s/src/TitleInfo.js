@@ -1,8 +1,8 @@
-import { Link, makeStyles, MenuItem } from '@material-ui/core';
+import { Link, makeStyles, MenuItem } from '@mui/material';
 import {
   CloudDownload as CloudDownloadIcon,
   Settings as SettingsIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import clsx from 'clsx';
 import { useState } from 'react';
 

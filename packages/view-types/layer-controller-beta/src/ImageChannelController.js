@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Grid,
-} from '@material-ui/core';
+} from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import {
   getMultiSelectionStats,

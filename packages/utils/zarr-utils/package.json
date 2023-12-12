@@ -30,9 +30,14 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "zarrita": "0.4.0-next.4",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
     "@zarrita/core": "0.0.3",
     "@zarrita/indexing": "0.0.3",
-    "@zarrita/storage": "0.0.2"
+    "@zarrita/storage": "0.0.2",
+    "styles": "link:@mui/material/styles",
+    "zarrita": "0.4.0-next.4"
   }
 }

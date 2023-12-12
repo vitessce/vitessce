@@ -30,6 +30,10 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
     "@types/lodash": "^4.14.191",
     "@types/lodash-es": "^4.17.7",
     "@types/semver": "^7.3.13",
@@ -40,6 +44,7 @@
     "@vitessce/utils": "workspace:*",
     "lodash-es": "^4.17.21",
     "semver": "^7.3.8",
+    "styles": "link:@mui/material/styles",
     "uuid": "^9.0.0",
     "zod": "^3.21.4"
   },

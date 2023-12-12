@@ -32,10 +32,15 @@
     "build-lib:dev": "cross-env APP_ENV=development vite build --mode lib"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
     "@vitessce/all": "workspace:*",
     "@vitessce/config": "workspace:*",
     "@vitessce/constants": "workspace:*",
-    "@vitessce/export-utils": "workspace:*"
+    "@vitessce/export-utils": "workspace:*",
+    "styles": "link:@mui/material/styles"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",

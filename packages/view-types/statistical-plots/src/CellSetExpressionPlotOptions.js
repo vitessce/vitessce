@@ -1,6 +1,6 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { TableCell, TableRow, TextField } from '@material-ui/core';
+import { TableCell, TableRow, TextField } from '@mui/material';
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 
 export default function CellSetExpressionPlotOptions(props) {

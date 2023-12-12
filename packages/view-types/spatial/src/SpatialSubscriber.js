@@ -33,7 +33,7 @@ import { getCellColors } from '@vitessce/utils';
 import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS } from '@vitessce/constants-internal';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';

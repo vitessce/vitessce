@@ -7,7 +7,6 @@ import {
   useObsFeatureMatrixIndices,
   useReady, useUrls,
 } from '@vitessce/vit-s';
-import { useState } from 'react';
 
 import IntelliList from './IntelliList.js';
 

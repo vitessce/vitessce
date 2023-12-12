@@ -30,10 +30,14 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@material-ui/core": "~4.12.3",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
     "@vitessce/tooltip": "workspace:*",
     "clsx": "^1.1.1",
     "react-vega": "^7.4.4",
+    "styles": "link:@mui/material/styles",
     "vega": "^5.21.0",
     "vega-lite": "^5.1.1",
     "vega-tooltip": "^0.27.0"

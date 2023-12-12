@@ -25,7 +25,12 @@
     "build-lib": "rollup --config rollup.config.js"
   },
   "dependencies": {
-    "lodash-es": "^4.17.21"
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
+    "lodash-es": "^4.17.21",
+    "styles": "link:@mui/material/styles"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^23.0.0",

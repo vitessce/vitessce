@@ -30,6 +30,10 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
     "@turf/centroid": "^6.5.0",
     "@turf/helpers": "^6.5.0",
     "@vitessce/schemas": "workspace:*",
@@ -39,6 +43,7 @@
     "internmap": "^2.0.3",
     "json2csv": "^5.0.0",
     "lodash-es": "^4.17.21",
+    "styles": "link:@mui/material/styles",
     "tinycolor2": "^1.4.1",
     "uuid": "^9.0.0"
   }

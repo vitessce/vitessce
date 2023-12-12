@@ -1,6 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import React from 'react';
-import { Slider } from '@material-ui/core';
+import { Slider } from '@mui/material';
+
+
 import {
   TitleInfo,
   useCoordination,

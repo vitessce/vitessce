@@ -1,13 +1,13 @@
 import React, { useRef } from 'react';
 import {
-  makeStyles,
-  Paper,
-  Popper,
-  IconButton,
-  MenuList,
   ClickAwayListener,
   Fade,
-} from '@material-ui/core';
+  IconButton,
+  MenuList,
+  Paper,
+  Popper,
+  makeStyles,
+} from '@mui/material';
 import clsx from 'clsx';
 import { useVitessceContainer } from '../hooks.js';
 

@@ -1,13 +1,12 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@mui/material';
 import { capitalize, getDefaultColor } from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
 import { isEqual } from 'lodash-es';
 import { getXlinkHref } from './legend-utils.js';
-
 
 const useStyles = makeStyles(() => ({
   legend: {

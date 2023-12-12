@@ -30,16 +30,21 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/gl": "workspace:*",
+    "@vitessce/image-utils": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/spatial-utils": "workspace:*",
-    "@vitessce/image-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "ajv": "^6.10.0",
     "d3-array": "^2.4.0",
-    "lodash-es": "^4.17.21"
+    "lodash-es": "^4.17.21",
+    "styles": "link:@mui/material/styles"
   },
   "devDependencies": {
     "ajv": "^6.10.0"

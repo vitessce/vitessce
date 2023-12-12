@@ -30,7 +30,12 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
     "bowser": "^2.11.0",
-    "lz-string": "^1.4.4"
+    "lz-string": "^1.4.4",
+    "styles": "link:@mui/material/styles"
   }
 }

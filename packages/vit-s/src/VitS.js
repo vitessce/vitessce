@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useCallback } from 'react';
-import {
-  ThemeProvider,
-  StylesProvider,
-} from '@material-ui/core';
+// import {
+//   ThemeProvider,
+//   StylesProvider,
+// } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import {
   QueryClient,
   QueryClientProvider,
@@ -25,7 +26,7 @@ import {
   logConfig,
 } from './view-config-utils.js';
 import { createLoaders } from './vitessce-grid-utils.js';
-import { createGenerateClassName } from './mui-utils.js';
+// import { createGenerateClassName } from './mui-utils.js';
 
 
 /**
@@ -73,7 +74,6 @@ export function VitS(props) {
     validateConfig = true,
     validateOnConfigChange = false,
     isBounded = false,
-    uid = null,
     viewTypes: viewTypesProp,
     fileTypes: fileTypesProp,
     jointFileTypes: jointFileTypesProp,
@@ -92,7 +92,7 @@ export function VitS(props) {
     [coordinationTypesProp],
   );
 
-  const generateClassName = useMemo(() => createGenerateClassName(uid), [uid]);
+  // const generateClassName = useMemo(() => createGenerateClassName(uid), [uid]);
 
   const configVersion = config?.version;
 
@@ -208,40 +208,37 @@ export function VitS(props) {
   }, [success, configKey]);
 
   return success ? (
-    <StylesProvider generateClassName={generateClassName}>
-      <ThemeProvider theme={muiTheme[theme]}>
-        <QueryClientProvider client={queryClient}>
-          <ViewConfigProvider key={configKey} createStore={createViewConfigStoreClosure}>
-            <AuxiliaryProvider createStore={createAuxiliaryStore}>
-              <VitessceGrid
-                success={success}
-                configKey={configKey}
-                viewTypes={viewTypes}
-                fileTypes={fileTypes}
-                coordinationTypes={coordinationTypes}
-                config={configOrWarning}
-                rowHeight={rowHeight}
-                height={height}
-                theme={theme}
-                isBounded={isBounded}
-              />
-              <CallbackPublisher
-                onWarn={onWarn}
-                onConfigChange={onConfigChange}
-                onLoaderChange={onLoaderChange}
-                validateOnConfigChange={validateOnConfigChange}
-                pluginSpecificConfigSchema={pluginSpecificConfigSchema}
-              />
-            </AuxiliaryProvider>
-          </ViewConfigProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
-    </StylesProvider>
+    <ThemeProvider theme={muiTheme[theme]}>
+      <QueryClientProvider client={queryClient}>
+        <ViewConfigProvider key={configKey} createStore={createViewConfigStoreClosure}>
+          <AuxiliaryProvider createStore={createAuxiliaryStore}>
+            <VitessceGrid
+              success={success}
+              configKey={configKey}
+              viewTypes={viewTypes}
+              fileTypes={fileTypes}
+              coordinationTypes={coordinationTypes}
+              config={configOrWarning}
+              rowHeight={rowHeight}
+              height={height}
+              theme={theme}
+              isBounded={isBounded}
+            />
+            <CallbackPublisher
+              onWarn={onWarn}
+              onConfigChange={onConfigChange}
+              onLoaderChange={onLoaderChange}
+              validateOnConfigChange={validateOnConfigChange}
+              pluginSpecificConfigSchema={pluginSpecificConfigSchema}
+            />
+          </AuxiliaryProvider>
+        </ViewConfigProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+
   ) : (
-    <StylesProvider generateClassName={generateClassName}>
-      <ThemeProvider theme={muiTheme[theme]}>
-        <Warning {...configOrWarning} />
-      </ThemeProvider>
-    </StylesProvider>
+    <ThemeProvider theme={muiTheme[theme]}>
+      <Warning {...configOrWarning} />
+    </ThemeProvider>
   );
 }

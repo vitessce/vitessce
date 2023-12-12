@@ -1,6 +1,6 @@
 import React from 'react';
-import { RemoveCircle as RemoveCircleIcon } from '@material-ui/icons';
-import { IconButton, Grid } from '@material-ui/core';
+import { RemoveCircle as RemoveCircleIcon } from '@mui/icons-material';
+import { IconButton, Grid } from '@mui/material';
 import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './shared-channel-controls.js';
 
 /**

@@ -30,6 +30,10 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/gl": "workspace:*",
     "@vitessce/schemas": "workspace:*",
@@ -40,6 +44,7 @@
     "@vitessce/zarr-utils": "workspace:*",
     "d3-array": "^2.4.0",
     "lodash-es": "^4.17.21",
+    "styles": "link:@mui/material/styles",
     "zarrita": "0.4.0-next.4",
     "zod": "^3.21.4"
   }

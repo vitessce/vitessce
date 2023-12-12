@@ -30,7 +30,10 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@material-ui/core": "~4.12.3",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/gl": "workspace:*",
     "@vitessce/legend": "workspace:*",
@@ -40,8 +43,9 @@
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/workers": "workspace:*",
     "lodash-es": "^4.17.21",
-    "uuid": "^9.0.0",
-    "react-aria": "^3.28.0"
+    "react-aria": "^3.28.0",
+    "styles": "link:@mui/material/styles",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",

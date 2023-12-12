@@ -1,6 +1,6 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { TableCell, TableRow } from '@material-ui/core';
+import { TableCell, TableRow } from '@mui/material';
 import { usePlotOptionsStyles, OptionSelect } from '@vitessce/vit-s';
 
 export default function EmbeddingScatterplotOptions(props) {

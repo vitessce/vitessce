@@ -29,7 +29,13 @@
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
     "test": "pnpm exec vitest --run"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
+    "styles": "link:@mui/material/styles"
+  },
   "devDependencies": {
     "@types/react": "^18.0.28",
     "vite": "^4.3.0",

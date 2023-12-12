@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import {
   makeStyles,
-} from '@material-ui/core';
+} from '@mui/material';
 import clsx from 'clsx';
 import { isEqual } from 'lodash-es';
 import { PopperMenu } from '@vitessce/vit-s';
