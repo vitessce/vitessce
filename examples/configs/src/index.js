@@ -47,6 +47,7 @@ import { imsAlgorithmComparison } from './view-configs/spatial-beta/ims-algorith
 import { neumanOop2023 } from './view-configs/spatial-beta/neumann-oop.js';
 import { lightsheetOop2023 } from './view-configs/spatial-beta/lightsheet-oop.js';
 import { visiumPolygonsOop2023 } from './view-configs/spatial-beta/visium-polygons-oop.js';
+import { washuVolume2023 } from './view-configs/spatial-beta/washu.js';
 
 
 export const coordinationTypeConfigs = {
@@ -104,6 +105,7 @@ export const configs = {
   'codeluppi-2018-2': codeluppiOop2018,
   'kpmp-2023': kpmp2023,
   'kpmp-2023-2': kpmpOop2023,
+  'washu-2023': washuVolume2023,
 
   // TODO(spatialBeta): clean up
   'ims-algorithm-comparison': imsAlgorithmComparison,
