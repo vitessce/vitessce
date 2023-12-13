@@ -14,8 +14,6 @@ import cmViridisTextureUrl from "../textures/cm_viridis.png";
 import cmGrayTextureUrl from "../textures/cm_gray.png";
 import {VolumeRenderShaderPerspective} from "../jsm/shaders/VolumeShaderPerspective.js";
 import {useGLTF} from '@react-three/drei'
-// import {GLTFLoader} from 'https://unpkg.com/three/examples/jsm/loaders/GLTFLoader.js';
-// import {DRACOLoader} from 'https://unpkg.com/three/examples/jsm/loaders/DRACOLoader.js';
 
 const SpatialThree = (props) => {
     const materialRef = useRef(null);
@@ -60,6 +58,7 @@ const SpatialThree = (props) => {
         imageChannelScopesByLayer,
         imageChannelCoordination,
     } = props;
+    console.log(props)
     const imageLayerLoaderSelections = useRef({});
     let layerScope = imageLayerScopes[0];
     let channelScopes = imageChannelScopesByLayer[layerScope];
@@ -112,7 +111,7 @@ const SpatialThree = (props) => {
         obsSegmentations,
         segmentationChannelCoordination,
     } = props;
-    if(obsSegmentations[layerScope] !== undefined && segmentationGroup == null){
+    if (obsSegmentations[layerScope] !== undefined && segmentationGroup == null) {
         let scene = obsSegmentations[layerScope].scene
         for (let child in scene.children) {
             scene.children[child].material.transparent = true
@@ -248,22 +247,18 @@ const SpatialThree = (props) => {
     // -----------------------------------------------------------------
     //                          XR
     // -----------------------------------------------------------------
-    // if(controllerRef !== null){
-    //     console.log(controllerRef)
-    // }
-    //const controller = renderer.xr.getController(0);
-    //controller.addEventListener( 'connected', (e) => {
-    //    controller.gamepad = e.data.gamepad
-    //});
+    let xrState = useXR();
+    //console.log(xrState)
     // -----------------------------------------------------------------
     // -----------------------------------------------------------------
-
-
     if (!volumeSettings.is3dMode) {
         return (
-            <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
-                <div>Only in 3D Mode</div>
-            </div>);
+            <group>
+                <ambientLight/>
+                <pointLight position={[10, 10, 10]}/>
+                <Box position={[0, 0, 0]} color={"red"}/>
+            </group>
+        );
     }
 
     if (volumeSettings.is3dMode &&
@@ -271,51 +266,67 @@ const SpatialThree = (props) => {
             renderingSettings.shader === undefined || renderingSettings.shader === null)
     ) {
         return (
-            <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
-                <div>Loading</div>
-            </div>);
+            <group>
+                <ambientLight/>
+                <pointLight position={[10, 10, 10]}/>
+                <Box position={[0, 0, 0]} color={"green"}/>
+            </group>);
+    }
+
+    const geometryAndMeshProps = {
+        segmentationGroup: segmentationGroup,
+        segmentationSettings: segmentationSettings,
+        renderingSettings: renderingSettings,
+        materialRef: materialRef
     }
 
     return (
-        <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
-            <VRButton/>
-            <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -500], near: 0.01, far: 10000}}>
-                <XR>
-                    <Controllers/>
-                    <Hands/>
-                    <RayGrab>
-                        <group>
-                            {segmentationGroup !== null && segmentationSettings.visible &&
-                                <group>
-                                    <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
-                                    <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
-                                    <Interactive>
-                                        <primitive object={segmentationGroup} scale={[0.25, 0.25, 0.25]} position={[100, -100, 100]}/>
-                                    </Interactive>
-                                </group>
-                            }
-                            {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
-                                    renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
-                                <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                                    <boxGeometry args={renderingSettings.geometrySize}/>
-                                    <shaderMaterial
-                                        customProgramCacheKey={() => {
-                                            return '1'
-                                        }}
-                                        side={THREE.BackSide}
-                                        uniforms={renderingSettings.uniforms}
-                                        needsUpdate={true}
-                                        vertexShader={renderingSettings.shader.vertexShader}
-                                        fragmentShader={renderingSettings.shader.fragmentShader}
-                                    />
-                                </mesh>
-                            }
-                        </group>
-                    </RayGrab>
-                    <OrbitControls/>
-                </XR>
-            </Canvas>
-        </div>
+        <group>
+            <Controllers/>
+            <Hands/>
+            <RayGrab>
+                <GeometryAndMesh {...geometryAndMeshProps} ></GeometryAndMesh>
+            </RayGrab>
+            <OrbitControls/>
+        </group>
+    );
+}
+
+// Only cares about rendering the gemoetry and the mesh together in one scene
+function GeometryAndMesh(props) {
+    const {
+        segmentationGroup, segmentationSettings,
+        renderingSettings, materialRef
+    } = props;
+    return (
+        <group>
+            {segmentationGroup !== null && segmentationSettings.visible &&
+                <group>
+                    <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
+                    <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
+                    <Interactive>
+                        <primitive object={segmentationGroup} scale={[0.25, 0.25, 0.25]}
+                                   position={[100, -100, 100]}/>
+                    </Interactive>
+                </group>
+            }
+            {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
+                    renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
+                <mesh scale={renderingSettings.meshScale} ref={materialRef}>
+                    <boxGeometry args={renderingSettings.geometrySize}/>
+                    <shaderMaterial
+                        customProgramCacheKey={() => {
+                            return '1'
+                        }}
+                        side={THREE.BackSide}
+                        uniforms={renderingSettings.uniforms}
+                        needsUpdate={true}
+                        vertexShader={renderingSettings.shader.vertexShader}
+                        fragmentShader={renderingSettings.shader.fragmentShader}
+                    />
+                </mesh>
+            }
+        </group>
     );
 }
 
@@ -657,6 +668,7 @@ async function getVolumeIntern({
     };
 }
 
+// Used as Loading indicator
 function Box(props) {
     // This reference gives us direct access to the THREE.Mesh object
     const ref = useRef()
@@ -664,8 +676,11 @@ function Box(props) {
     const [hovered, hover] = useState(false)
     const [clicked, click] = useState(false)
     // Subscribe this component to the render-loop, rotate the mesh every frame
-    useFrame((state, delta) => (ref.current.rotation.x += delta))
-    // Return the view, these are regular Threejs elements expressed in JSX
+    useFrame((state, delta) => {
+        ref.current.rotation.x += delta;
+        ref.current.rotation.y += delta;
+        ref.current.rotation.z += delta;
+    })
     return (
         <mesh
             {...props}
@@ -674,14 +689,21 @@ function Box(props) {
             onClick={(event) => click(!clicked)}
             onPointerOver={(event) => (event.stopPropagation(), hover(true))}
             onPointerOut={(event) => hover(false)}>
-            <boxGeometry args={[1, 1, 1]}/>
-            <meshPhongMaterial color={"red"} opacity={0.5} transparent/>
+            <boxGeometry args={[50, 50, 50]}/>
+            <meshPhongMaterial color={props.color} opacity={0.5} transparent/>
         </mesh>
     )
 }
 
 
 const SpatialWrapper = forwardRef((props, deckRef) => (
-    <SpatialThree {...props} deckRef={deckRef}/>
+    <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
+        <VRButton/>
+        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -500], near: 0.01, far: 10000}}>
+            <XR>
+                <SpatialThree {...props} deckRef={deckRef}/>
+            </XR>
+        </Canvas>
+    </div>
 ));
 export default SpatialWrapper;
