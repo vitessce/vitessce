@@ -1630,6 +1630,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
+      mm-cmv:
+        specifier: ^3.3.3
+        version: 3.3.3(react-dom@18.2.0)(react@18.2.0)
       react-aria:
         specifier: ^3.28.0
         version: 3.28.0(react-dom@18.2.0)(react@18.2.0)
@@ -6861,6 +6864,59 @@ packages:
 
   /@mdx-js/util@1.6.22:
     resolution: {integrity: sha512-H1rQc1ZOHANWBvPcW+JpGwr+juXSxM8Q8YCkm3GhZd8REu1fHR3z99CErO1p9pkcfcxZnMdIZdIsXkOHY0NilA==}
+    dev: false
+
+  /@mm-cmv/all@3.3.3(react@18.2.0):
+    resolution: {integrity: sha512-HRc54Nz6WmY5rQiNKdLvxaeVBCKHtWObdhDYmJVN7FCrzasRqiXu60Z2iLJhG7fgWxACSh1IVP/M/R9SqpCnZg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
+    dependencies:
+      '@mm-cmv/config': 3.3.3
+      '@mm-cmv/constants-internal': 3.3.3
+      '@mm-cmv/provider': 3.3.3(react@18.2.0)
+      '@mm-cmv/schemas': 3.3.3
+      '@mm-cmv/utils': 3.3.3
+      react: 18.2.0
+    dev: false
+
+  /@mm-cmv/config@3.3.3:
+    resolution: {integrity: sha512-SWtFafPsZ2iF3lx3Hgbgnl4yoreR3bulXP1/NW2BcPUVa3FS+5wAqRz7aFVTuCFUYN2rzTOLXycVmU16kRcFGw==}
+    dependencies:
+      '@mm-cmv/constants-internal': 3.3.3
+      '@mm-cmv/utils': 3.3.3
+    dev: false
+
+  /@mm-cmv/constants-internal@3.3.3:
+    resolution: {integrity: sha512-mxlEL3mNGSP1ArGVTU1CJQ7LSaVS5uUDMMDEAZ5VMQ4FAOJI9PrYaNFSVhDB5+X9uPHJZ2ZnFHpT8HokEUqDfg==}
+    dev: false
+
+  /@mm-cmv/provider@3.3.3(react@18.2.0):
+    resolution: {integrity: sha512-RJmweR8ro3E13KEuB3G0vAS3eFwtZjZGYh8iWJSu03xCTL/OVhVd8cjrl4hQaljp+zG8qQH9RrZkYyxKUWlpGg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
+    dependencies:
+      '@mm-cmv/constants-internal': 3.3.3
+      '@mm-cmv/schemas': 3.3.3
+      '@mm-cmv/utils': 3.3.3
+      lodash-es: 4.17.21
+      react: 18.2.0
+      zod: 3.21.4
+      zustand: 3.7.2(react@18.2.0)
+    dev: false
+
+  /@mm-cmv/schemas@3.3.3:
+    resolution: {integrity: sha512-3a+SmFzFpcJpxtghExHnDrFr/gOHaiU6zHNQ9PhVf4FWzJXsi/OVssZ8rliN5QK57fEEYzPIiETbsUb9CS9Lng==}
+    dependencies:
+      '@mm-cmv/constants-internal': 3.3.3
+      '@mm-cmv/utils': 3.3.3
+      '@types/lodash': 4.14.195
+      '@types/lodash-es': 4.17.7
+      lodash-es: 4.17.21
+      zod: 3.21.4
+    dev: false
+
+  /@mm-cmv/utils@3.3.3:
+    resolution: {integrity: sha512-08PzO0mZG+cq2j2Bs2b9wEKX4qksGL6lbS7KoVtxsBU3GnZ7qJRWP9VYPw8gYfsMqeAGUw+5NGu9sCDqCZfTKg==}
     dev: false
 
   /@nebula.gl/edit-modes@0.23.8:
@@ -15042,6 +15098,7 @@ packages:
 
   /figgy-pudding@3.5.2:
     resolution: {integrity: sha512-0btnI/H8f2pavGMN8w40mlSKOfTK2SVJmBfBeVIj3kNw0swwgzyRq0d5TJVOwodFmtvpPeWPN/MCcfuWF0Ezbw==}
+    deprecated: This module is no longer supported.
     dev: false
 
   /figures@3.2.0:
@@ -18265,6 +18322,17 @@ packages:
       pkg-types: 1.0.3
       ufo: 1.1.2
     dev: true
+
+  /mm-cmv@3.3.3(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-6gXxasGIWyt7F1gpSIEsVhBVu4lst3pa3OvYvHO4cg+1Jsmv8B21kCxPsuDLTlPz0tgx4HUpzI9ggvDCV+NmAw==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
+    dependencies:
+      '@mm-cmv/all': 3.3.3(react@18.2.0)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /moment-timezone@0.5.39:
     resolution: {integrity: sha512-hoB6suq4ISDj7BDgctiOy6zljBsdYT0++0ZzZm9rtxIvJhIbQ3nmbgSWe7dNFGurl6/7b1OUkHlmN9JWgXVz7w==}

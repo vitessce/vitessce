@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { extent } from 'd3-array';
 import { isEqual } from 'lodash-es';
+import { useCoordination, useInitialCoordination } from 'mm-cmv';
 import {
   TitleInfo,
   useReady, useUrls,
@@ -16,11 +17,9 @@ import {
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
   useMultiObsLabels,
-  useCoordination,
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
-  useInitialCoordination,
 } from '@vitessce/vit-s';
 import { setObsSelection, mergeObsSets, getCellSetPolygons } from '@vitessce/sets-utils';
 import { pluralize as plur, getCellColors, commaNumber } from '@vitessce/utils';
@@ -112,14 +111,15 @@ export function EmbeddingScatterplotSubscriber(props) {
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setTooltipsVisible,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
+  }] = useCoordination(uuid, COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT]);
 
   const {
     embeddingZoom: initialZoom,
     embeddingTargetX: initialTargetX,
     embeddingTargetY: initialTargetY,
   } = useInitialCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
+    uuid,
+    COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT],
   );
 
   const observationsLabel = observationsLabelOverride || obsType;

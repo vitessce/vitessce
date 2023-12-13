@@ -1,10 +1,13 @@
 import React, { useMemo } from 'react';
 import { isEqual } from 'lodash-es';
 import { sum } from 'd3-array';
+import { useCoordination } from 'mm-cmv';
 import {
   TitleInfo,
-  useReady, useUrls, useGridItemSize,
-  useCoordination, useLoaders,
+  useReady,
+  useUrls,
+  useGridItemSize,
+  useLoaders,
   useGenomicProfilesData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
@@ -53,6 +56,7 @@ const REFERENCE_TILESETS = {
  */
 export function GenomicProfilesSubscriber(props) {
   const {
+    uuid,
     coordinationScopes,
     theme,
     closeButtonVisible,
@@ -75,8 +79,8 @@ export function GenomicProfilesSubscriber(props) {
     obsSetColor: cellSetColor,
     obsSetSelection: cellSetSelection,
   }] = useCoordination(
+    uuid,
     COMPONENT_COORDINATION_TYPES[ViewType.GENOMIC_PROFILES],
-    coordinationScopes,
   );
 
   const [genomicProfilesAttrs, genomicProfilesStatus, genomicProfilesUrls] = useGenomicProfilesData(
@@ -241,7 +245,7 @@ export function GenomicProfilesSubscriber(props) {
         <div className={classes.higlassLazyWrapper} ref={containerRef}>
           {hgViewConfig ? (
             <HiGlassLazy
-              coordinationScopes={coordinationScopes}
+              uuid={uuid}
               theme={theme}
               hgViewConfig={hgViewConfig}
               height={height}

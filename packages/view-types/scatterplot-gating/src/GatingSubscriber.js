@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { extent } from 'd3-array';
 import { isEqual } from 'lodash-es';
+import { useCoordination } from 'mm-cmv';
 import {
   pluralize as plur,
   capitalize, commaNumber,
@@ -17,7 +18,6 @@ import {
   useObsSetsData,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
-  useCoordination,
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
@@ -48,7 +48,6 @@ import GatingScatterplotOptions from './GatingScatterplotOptions.js';
 export function GatingSubscriber(props) {
   const {
     uuid,
-    coordinationScopes,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -118,8 +117,8 @@ export function GatingSubscriber(props) {
     setGatingFeatureSelectionX,
     setGatingFeatureSelectionY,
   }] = useCoordination(
+    uuid,
     COMPONENT_COORDINATION_TYPES[ViewType.GATING],
-    coordinationScopes,
   );
 
   const [width, height, deckRef] = useDeckCanvasSize();

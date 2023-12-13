@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { useCoordination } from 'mm-cmv';
 import { pluralize as plur, capitalize, commaNumber } from '@vitessce/utils';
 import {
   TitleInfo,
   useReady, useUrls,
   useFeatureLabelsData, useObsFeatureMatrixIndices,
-  useCoordination, useLoaders,
+  useLoaders,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import FeatureList from './FeatureList.js';
@@ -34,7 +35,7 @@ import FeatureListOptions from './FeatureListOptions.js';
  */
 export function FeatureListSubscriber(props) {
   const {
-    coordinationScopes,
+    uuid,
     removeGridComponent,
     variablesLabelOverride,
     theme,
@@ -62,7 +63,7 @@ export function FeatureListSubscriber(props) {
     setFeatureFilter: setGeneFilter,
     setFeatureHighlight: setGeneHighlight,
     setObsColorEncoding: setCellColorEncoding,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_LIST], coordinationScopes);
+  }] = useCoordination(uuid, COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_LIST]);
 
   const variablesLabel = variablesLabelOverride || featureType;
 

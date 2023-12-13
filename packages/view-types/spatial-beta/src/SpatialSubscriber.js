@@ -3,6 +3,15 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import {
+  useViewMapping,
+  _useInitialCoordination,
+  _useCoordination,
+  _useCoordinationL1,
+  _useCoordinationL2,
+  _useCoordinationScopesL1,
+  _useCoordinationScopesL2,
+} from 'mm-cmv';
+import {
   TitleInfo,
   useDeckCanvasSize,
   useReady,
@@ -19,18 +28,9 @@ import {
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsLocations,
   useSegmentationMultiObsSets,
-  useInitialCoordination,
-  useCoordination,
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
-  useAuxiliaryCoordination,
-  useComplexCoordination,
-  useMultiCoordinationScopesNonNull,
-  useMultiCoordinationScopesSecondaryNonNull,
-  useComplexCoordinationSecondary,
-  useCoordinationScopes,
-  useCoordinationScopesBy,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
@@ -114,8 +114,6 @@ function getHoverData(hoverInfo, layerType) {
 export function SpatialSubscriber(props) {
   const {
     uuid,
-    coordinationScopes: coordinationScopesRaw,
-    coordinationScopesBy: coordinationScopesByRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -130,9 +128,7 @@ export function SpatialSubscriber(props) {
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
-  // Acccount for possible meta-coordination.
-  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
-  const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
+  const [coordinationScopes, coordinationScopesBy] = useViewMapping(uuid);
 
   // Get "props" from the coordination space.
   const [{
@@ -157,58 +153,63 @@ export function SpatialSubscriber(props) {
     setSpatialTargetZ: setTargetZ,
     setSpatialRotationX: setRotationX,
     setSpatialRotationOrbit: setRotationOrbit,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
+  }] = _useCoordination(coordinationScopes, COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA]);
 
   const {
     spatialZoom: initialZoom,
     spatialTargetX: initialTargetX,
     spatialTargetY: initialTargetY,
     spatialTargetZ: initialTargetZ,
-  } = useInitialCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes,
+  } = _useInitialCoordination(
+    coordinationScopes,
+    COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA],
   );
 
   const observationsLabel = observationsLabelOverride || obsType;
 
-  const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
-    CoordinationType.SEGMENTATION_CHANNEL,
+  const [segmentationLayerScopes, segmentationChannelScopesByLayer] = _useCoordinationScopesL2(
+    coordinationScopes,
+    coordinationScopesBy,
     CoordinationType.SEGMENTATION_LAYER,
-    coordinationScopes,
-    coordinationScopesBy,
+    CoordinationType.SEGMENTATION_CHANNEL,
   );
 
-  const [imageLayerScopes, imageChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
-    CoordinationType.IMAGE_CHANNEL,
+  const [imageLayerScopes, imageChannelScopesByLayer] = _useCoordinationScopesL2(
+    coordinationScopes,
+    coordinationScopesBy,
     CoordinationType.IMAGE_LAYER,
-    coordinationScopes,
-    coordinationScopesBy,
+    CoordinationType.IMAGE_CHANNEL,
   );
 
-  const spotLayerScopes = useMultiCoordinationScopesNonNull(
+  const spotLayerScopes = _useCoordinationScopesL1(
+    coordinationScopes,
     CoordinationType.SPOT_LAYER,
-    coordinationScopes,
   );
 
-  const pointLayerScopes = useMultiCoordinationScopesNonNull(
-    CoordinationType.POINT_LAYER,
+  const pointLayerScopes = _useCoordinationScopesL1(
     coordinationScopes,
+    CoordinationType.POINT_LAYER,
   );
 
   // Object keys are coordination scope names for spatialSegmentationLayer.
-  const segmentationLayerCoordination = useComplexCoordination(
+  const segmentationLayerCoordination = _useCoordinationL1(
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SEGMENTATION_LAYER,
     [
       CoordinationType.FILE_UID,
       CoordinationType.SEGMENTATION_CHANNEL,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
     ],
-    coordinationScopes,
-    coordinationScopesBy,
-    CoordinationType.SEGMENTATION_LAYER,
   );
 
   // Object keys are coordination scope names for spatialSegmentationChannel.
-  const segmentationChannelCoordination = useComplexCoordinationSecondary(
+  const segmentationChannelCoordination = _useCoordinationL2(
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SEGMENTATION_LAYER,
+    CoordinationType.SEGMENTATION_CHANNEL,
     [
       CoordinationType.OBS_TYPE,
       CoordinationType.SPATIAL_TARGET_C,
@@ -229,13 +230,12 @@ export function SpatialSubscriber(props) {
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
     ],
-    coordinationScopes,
-    coordinationScopesBy,
-    CoordinationType.SEGMENTATION_LAYER,
-    CoordinationType.SEGMENTATION_CHANNEL,
   );
 
-  const imageLayerCoordination = useComplexCoordination(
+  const imageLayerCoordination = _useCoordinationL1(
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.IMAGE_LAYER,
     [
       CoordinationType.FILE_UID,
       CoordinationType.IMAGE_CHANNEL,
@@ -256,27 +256,27 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
       CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
     ],
-    coordinationScopes,
-    coordinationScopesBy,
-    CoordinationType.IMAGE_LAYER,
   );
 
   // Object keys are coordination scope names for spatialImageChannel.
-  const imageChannelCoordination = useComplexCoordinationSecondary(
+  const imageChannelCoordination = _useCoordinationL2(
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.IMAGE_LAYER,
+    CoordinationType.IMAGE_CHANNEL,
     [
       CoordinationType.SPATIAL_TARGET_C,
       CoordinationType.SPATIAL_CHANNEL_VISIBLE,
       CoordinationType.SPATIAL_CHANNEL_COLOR,
       CoordinationType.SPATIAL_CHANNEL_WINDOW,
     ],
-    coordinationScopes,
-    coordinationScopesBy,
-    CoordinationType.IMAGE_LAYER,
-    CoordinationType.IMAGE_CHANNEL,
   );
 
   // Spot layer
-  const spotLayerCoordination = useComplexCoordination(
+  const spotLayerCoordination = _useCoordinationL1(
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPOT_LAYER,
     [
       CoordinationType.OBS_TYPE,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
@@ -297,13 +297,13 @@ export function SpatialSubscriber(props) {
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
     ],
-    coordinationScopes,
-    coordinationScopesBy,
-    CoordinationType.SPOT_LAYER,
   );
 
   // Point layer
-  const pointLayerCoordination = useComplexCoordination(
+  const pointLayerCoordination = _useCoordinationL1(
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.POINT_LAYER,
     [
       CoordinationType.OBS_TYPE,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
@@ -318,9 +318,6 @@ export function SpatialSubscriber(props) {
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
     ],
-    coordinationScopes,
-    coordinationScopesBy,
-    CoordinationType.POINT_LAYER,
   );
 
   /*

@@ -24,7 +24,7 @@ import {
 } from '@material-ui/icons';
 import { viv } from '@vitessce/gl';
 import {
-  useAddImageChannelInMetaCoordinationScopes,
+  useAddImageChannelInMetaCoordinationScopes, // TODO: mm-cmv
   PopperMenu,
 } from '@vitessce/vit-s';
 import { COLORMAP_OPTIONS, formatBytes } from '@vitessce/utils';

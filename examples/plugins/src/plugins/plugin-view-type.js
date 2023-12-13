@@ -1,9 +1,9 @@
 /* eslint-disable react/button-has-type */
 /* eslint-disable react-refresh/only-export-components */
 import React from 'react';
+import { useCoordination } from 'mm-cmv';
 import {
   TitleInfo,
-  useCoordination,
 } from '@vitessce/vit-s';
 import {
   CoordinationType,
@@ -35,7 +35,7 @@ function MyPluginView(props) {
 
 function MyPluginViewSubscriber(props) {
   const {
-    coordinationScopes,
+    uuid,
     removeGridComponent,
     theme,
     title = 'My plugin view',
@@ -47,11 +47,11 @@ function MyPluginViewSubscriber(props) {
   }, {
     setSpatialZoom,
   }] = useCoordination(
+    uuid,
     [
       CoordinationType.DATASET,
       CoordinationType.SPATIAL_ZOOM,
     ],
-    coordinationScopes,
   );
 
   return (

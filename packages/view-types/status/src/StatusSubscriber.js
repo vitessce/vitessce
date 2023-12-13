@@ -1,6 +1,7 @@
 import React from 'react';
+import { useCoordination } from 'mm-cmv';
 import {
-  TitleInfo, useCoordination, useWarning,
+  TitleInfo, useWarning,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import Status from './Status.js';
@@ -19,7 +20,7 @@ import Status from './Status.js';
  */
 export function StatusSubscriber(props) {
   const {
-    coordinationScopes,
+    uuid,
     closeButtonVisible,
     removeGridComponent,
     theme,
@@ -31,7 +32,7 @@ export function StatusSubscriber(props) {
     obsHighlight: cellHighlight,
     featureHighlight: geneHighlight,
     moleculeHighlight,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.STATUS], coordinationScopes);
+  }] = useCoordination(uuid, COMPONENT_COORDINATION_TYPES[ViewType.STATUS]);
 
   const warn = useWarning();
 

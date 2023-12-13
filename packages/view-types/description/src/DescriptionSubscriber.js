@@ -1,9 +1,11 @@
 import React, { useMemo } from 'react';
+import { useCoordination } from 'mm-cmv';
 import {
   TitleInfo,
   useReady,
-  useCoordination, useLoaders,
-  useDescription, useImageData,
+  useLoaders,
+  useDescription,
+  useImageData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import Description from './Description.js';
@@ -21,7 +23,7 @@ import Description from './Description.js';
  */
 export function DescriptionSubscriber(props) {
   const {
-    coordinationScopes,
+    uuid,
     description: descriptionOverride,
     removeGridComponent,
     theme,
@@ -35,7 +37,7 @@ export function DescriptionSubscriber(props) {
   const [{
     dataset,
     spatialImageLayer: rasterLayers,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.DESCRIPTION], coordinationScopes);
+  }] = useCoordination(uuid, COMPONENT_COORDINATION_TYPES[ViewType.DESCRIPTION]);
 
   // Get data from loaders using the data hooks.
   const [description] = useDescription(loaders, dataset);

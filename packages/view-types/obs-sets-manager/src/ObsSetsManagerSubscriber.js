@@ -4,8 +4,8 @@ import React, {
   useCallback,
 } from 'react';
 import { isEqual } from 'lodash-es';
+import { useCoordination } from 'mm-cmv';
 import {
-  useCoordination,
   useLoaders,
   useSetWarning,
   TitleInfo,
@@ -68,7 +68,7 @@ const packageJson = { name: 'vitessce' };
  */
 export function ObsSetsManagerSubscriber(props) {
   const {
-    coordinationScopes,
+    uuid,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -94,7 +94,7 @@ export function ObsSetsManagerSubscriber(props) {
     setObsSetColor: setCellSetColor,
     setObsSetExpansion: setCellSetExpansion,
     setAdditionalObsSets: setAdditionalCellSets,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.OBS_SETS], coordinationScopes);
+  }] = useCoordination(uuid, COMPONENT_COORDINATION_TYPES[ViewType.OBS_SETS]);
 
   const title = titleOverride || `${capitalize(obsType)} Sets`;
 

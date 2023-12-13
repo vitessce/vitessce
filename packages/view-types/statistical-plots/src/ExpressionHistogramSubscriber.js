@@ -2,9 +2,10 @@ import React, {
   useMemo, useCallback,
 } from 'react';
 import { sum } from 'd3-array';
+import { useCoordination } from 'mm-cmv';
 import {
   TitleInfo,
-  useCoordination, useLoaders,
+  useLoaders,
   useUrls, useReady, useGridItemSize,
   useObsFeatureMatrixData, useFeatureSelection,
 } from '@vitessce/vit-s';
@@ -24,7 +25,7 @@ import { useStyles } from './styles.js';
  */
 export function ExpressionHistogramSubscriber(props) {
   const {
-    coordinationScopes,
+    uuid,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -49,8 +50,8 @@ export function ExpressionHistogramSubscriber(props) {
     setObsColorEncoding: setCellColorEncoding,
     setObsSetSelection: setCellSetSelection,
   }] = useCoordination(
+    uuid,
     COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_VALUE_HISTOGRAM],
-    coordinationScopes,
   );
 
   const [width, height, containerRef] = useGridItemSize();

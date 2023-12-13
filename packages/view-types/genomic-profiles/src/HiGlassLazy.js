@@ -3,7 +3,8 @@ import React, {
 } from 'react';
 import register from 'higlass-register';
 import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
-import { useGridItemSize, useCoordination } from '@vitessce/vit-s';
+import { useCoordination } from 'mm-cmv';
+import { useGridItemSize } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { useStyles } from './styles.js';
 
@@ -52,7 +53,7 @@ const HG_SIZE = 800;
    */
 export default function HiGlassLazy(props) {
   const {
-    coordinationScopes,
+    uuid,
     theme,
     hgViewConfig: hgViewConfigProp,
     hgOptions: hgOptionsProp,
@@ -71,7 +72,7 @@ export default function HiGlassLazy(props) {
     setGenomicZoomY,
     setGenomicTargetX,
     setGenomicTargetY,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES.higlass, coordinationScopes);
+  }] = useCoordination(uuid, COMPONENT_COORDINATION_TYPES.higlass);
 
   // eslint-disable-next-line no-unused-vars
   const [width, computedHeight, containerRef] = useGridItemSize();

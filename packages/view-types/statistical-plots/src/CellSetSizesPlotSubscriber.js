@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
+import { useCoordination } from 'mm-cmv';
 import {
   TitleInfo,
-  useCoordination, useLoaders,
+  useLoaders,
   useUrls, useReady, useGridItemSize,
   useObsSetsData,
 } from '@vitessce/vit-s';
@@ -27,7 +28,7 @@ import { useStyles } from './styles.js';
  */
 export function CellSetSizesPlotSubscriber(props) {
   const {
-    coordinationScopes,
+    uuid,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -50,7 +51,7 @@ export function CellSetSizesPlotSubscriber(props) {
   }, {
     setObsSetSelection: setCellSetSelection,
     setObsSetColor: setCellSetColor,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_SIZES], coordinationScopes);
+  }] = useCoordination(uuid, COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_SIZES]);
 
   const title = titleOverride || `${capitalize(obsType)} Set Sizes`;
 

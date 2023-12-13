@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
+import { useCoordination } from 'mm-cmv';
 import {
   TitleInfo,
-  useCoordination, useLoaders,
+  useLoaders,
   useUrls, useReady, useGridItemSize,
   useFeatureSelection, useObsSetsData,
   useObsFeatureMatrixIndices,
@@ -107,7 +108,7 @@ function useExpressionByCellSet(
  */
 export function CellSetExpressionPlotSubscriber(props) {
   const {
-    coordinationScopes,
+    uuid,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -133,8 +134,8 @@ export function CellSetExpressionPlotSubscriber(props) {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
   }] = useCoordination(
+    uuid,
     COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION],
-    coordinationScopes,
   );
 
   const [width, height, containerRef] = useGridItemSize();

@@ -4,6 +4,7 @@ import React, {
   useCallback, useRef, forwardRef,
 } from 'react';
 import { Grid } from '@material-ui/core';
+import { useCoordination } from 'mm-cmv';
 import {
   TitleInfo,
   useReady,
@@ -11,7 +12,6 @@ import {
   useImageData,
   useObsLocationsData,
   useObsSegmentationsData,
-  useCoordination,
   useLoaders,
   useAuxiliaryCoordination,
   useComponentLayout,
@@ -309,6 +309,7 @@ const LayerControllerMemoized = React.memo(
  */
 export function LayerControllerSubscriber(props) {
   const {
+    uuid,
     coordinationScopes,
     closeButtonVisible,
     downloadButtonVisible,
@@ -344,8 +345,8 @@ export function LayerControllerSubscriber(props) {
       setSpatialZoom: setZoom,
     },
   ] = useCoordination(
+    uuid,
     COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER],
-    coordinationScopes,
   );
 
   const [

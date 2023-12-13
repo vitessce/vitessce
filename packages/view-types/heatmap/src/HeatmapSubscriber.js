@@ -1,6 +1,7 @@
 import React, {
   useState, useCallback, useMemo,
 } from 'react';
+import { useCoordination } from 'mm-cmv';
 import {
   TitleInfo,
   useDeckCanvasSize,
@@ -13,8 +14,9 @@ import {
   useUint8ObsFeatureMatrix,
   useMultiObsLabels,
   useFeatureLabelsData,
-  useCoordination, useLoaders,
-  useSetComponentHover, useSetComponentViewInfo,
+  useLoaders,
+  useSetComponentHover,
+  useSetComponentViewInfo,
 } from '@vitessce/vit-s';
 import { pluralize as plur, capitalize, commaNumber, getCellColors } from '@vitessce/utils';
 import { mergeObsSets, findLongestCommonPath } from '@vitessce/sets-utils';
@@ -86,7 +88,7 @@ export function HeatmapSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setFeatureValueColormap: setGeneExpressionColormap,
     setTooltipsVisible,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.HEATMAP], coordinationScopes);
+  }] = useCoordination(uuid, COMPONENT_COORDINATION_TYPES[ViewType.HEATMAP]);
 
   const observationsLabel = observationsLabelOverride || obsType;
   const observationsPluralLabel = plur(observationsLabel);

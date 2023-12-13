@@ -8,7 +8,9 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query';
 import { isEqual } from 'lodash-es';
+import { CmvProvider } from 'mm-cmv';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
+import { fromEntries } from '@vitessce/utils';
 import { muiTheme } from './shared-mui/styles.js';
 import {
   ViewConfigProvider,
@@ -207,31 +209,57 @@ export function VitS(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success, configKey]);
 
+  const cmvConfig = useMemo(() => {
+    if(success) {
+      return {
+        key: configOrWarning.uid,
+        coordinationSpace: configOrWarning.coordinationSpace,
+        viewCoordination: fromEntries(configOrWarning.layout.map(v => (
+          [v.uid, {
+            coordinationScopes: v.coordinationScopes,
+            coordinationScopesBy: v.coordinationScopesBy,
+          }]
+        ))),
+      }
+    }
+    return {};
+  }, [success, configKey]);
+
+  function onCmvConfigChange(newCmvConfig) {
+    // TODO: update via onConfigChange
+    //console.log(newCmvConfig);
+  }
+
   return success ? (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
         <QueryClientProvider client={queryClient}>
           <ViewConfigProvider key={configKey} createStore={createViewConfigStoreClosure}>
             <AuxiliaryProvider createStore={createAuxiliaryStore}>
-              <VitessceGrid
-                success={success}
-                configKey={configKey}
-                viewTypes={viewTypes}
-                fileTypes={fileTypes}
-                coordinationTypes={coordinationTypes}
-                config={configOrWarning}
-                rowHeight={rowHeight}
-                height={height}
-                theme={theme}
-                isBounded={isBounded}
-              />
-              <CallbackPublisher
-                onWarn={onWarn}
-                onConfigChange={onConfigChange}
-                onLoaderChange={onLoaderChange}
-                validateOnConfigChange={validateOnConfigChange}
-                pluginSpecificConfigSchema={pluginSpecificConfigSchema}
-              />
+              <CmvProvider
+                config={cmvConfig}
+                onConfigChange={onCmvConfigChange}
+              >
+                <VitessceGrid
+                  success={success}
+                  configKey={configKey}
+                  viewTypes={viewTypes}
+                  fileTypes={fileTypes}
+                  coordinationTypes={coordinationTypes}
+                  config={configOrWarning}
+                  rowHeight={rowHeight}
+                  height={height}
+                  theme={theme}
+                  isBounded={isBounded}
+                />
+                <CallbackPublisher
+                  onWarn={onWarn}
+                  onConfigChange={onConfigChange}
+                  onLoaderChange={onLoaderChange}
+                  validateOnConfigChange={validateOnConfigChange}
+                  pluginSpecificConfigSchema={pluginSpecificConfigSchema}
+                />
+              </CmvProvider>
             </AuxiliaryProvider>
           </ViewConfigProvider>
         </QueryClientProvider>

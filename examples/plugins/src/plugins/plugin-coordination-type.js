@@ -1,9 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
 import React from 'react';
 import { Slider } from '@material-ui/core';
+import { useCoordination } from 'mm-cmv';
 import {
   TitleInfo,
-  useCoordination,
 } from '@vitessce/vit-s';
 import {
   CoordinationType,
@@ -40,7 +40,7 @@ function MyPluginSlider(props) {
 
 function MyPluginSliderSubscriber(props) {
   const {
-    coordinationScopes,
+    uuid,
     removeGridComponent,
     theme,
     title = 'My plugin slider',
@@ -52,11 +52,11 @@ function MyPluginSliderSubscriber(props) {
   }, {
     setMyCustomCoordinationType,
   }] = useCoordination(
+    uuid,
     [
       CoordinationType.DATASET,
       'myCustomCoordinationType',
     ],
-    coordinationScopes,
   );
 
   return (
