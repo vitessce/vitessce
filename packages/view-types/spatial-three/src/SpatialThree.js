@@ -18,6 +18,7 @@ import {useGLTF} from '@react-three/drei'
 
 const SpatialThree = (props) => {
     const materialRef = useRef(null);
+    const orbitRef = useRef(null);
     const controllerRef = useRef(null);
     const [initialStartup, setInitialStartup] = useState(false);
     const [dataReady, setDataReady] = useState(false);
@@ -251,22 +252,13 @@ const SpatialThree = (props) => {
     // -----------------------------------------------------------------
     //                          XR
     // -----------------------------------------------------------------
-    // let rootState = useThree();
-    // let xrState = useXR();
-    // console.log(rootState.camera.position)
-    // if(xrState.session !== null){
-    //     console.log("Adapting the camera")
-    //     console.log(rootState.camera.position)
-    //     rootState.camera.position.set(0,0,-500);
-    //     rootState.camera.updateProjectionMatrix();
-    // }
-
     const {isPresenting, player} = useXR()
     useEffect(() => {
-        if (isPresenting) {
-            player.position.x = 0
-            player.position.y = 0
-            player.position.z = 50
+        if (isPresenting && materialRef.current !== null) {
+            console.log(materialRef.current)
+            materialRef.current.position.z = materialRef.current.position.z - 800;
+        } else if (!isPresenting && materialRef.current !== null){
+            materialRef.current.position.z = materialRef.current.position.z + 800;
         }
     }, [isPresenting])
 
@@ -311,7 +303,7 @@ const SpatialThree = (props) => {
             <Controllers/>
             <Hands/>
             <GeometryAndMesh {...geometryAndMeshProps} ></GeometryAndMesh>
-            <OrbitControls/>
+            <OrbitControls ref={orbitRef}/>
         </group>
     );
 }
@@ -718,8 +710,8 @@ function Box(props) {
 const SpatialWrapper = forwardRef((props, deckRef) => (
     <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
-        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -500], near: 0.01, far: 10000}}>
-            <XR>
+        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 10000}}>
+            <XR camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 10000}}>
                 <SpatialThree {...props} deckRef={deckRef}/>
             </XR>
         </Canvas>
