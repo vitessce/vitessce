@@ -1,8 +1,9 @@
 /* eslint-disable no-unused-vars */
 import React, {useRef, useState, forwardRef, useEffect} from 'react';
 import {Canvas, extend, useFrame, useThree} from '@react-three/fiber'
-import {OrbitControls, useTexture, shaderMaterial, PerspectiveCamera} from '@react-three/drei'
+import {OrbitControls, useTexture, shaderMaterial, PerspectiveCamera, TorusKnot} from '@react-three/drei'
 import {useXR, RayGrab, Interactive, VRButton, ARButton, XR, Controllers, Hands} from '@react-three/xr'
+import {EnhancedRayGrab} from "./TwoHandScale.js";
 import {isEqual} from 'lodash-es';
 import {filterSelection} from '@vitessce/spatial-utils';
 import {CoordinationType} from '@vitessce/constants-internal';
@@ -20,7 +21,6 @@ const SpatialThree = (props) => {
     const controllerRef = useRef(null);
     const [initialStartup, setInitialStartup] = useState(false);
     const [dataReady, setDataReady] = useState(false);
-
     const [segmentationGroup, setSegmentationGroup] = useState(null);
 
     const [renderingSettings, setRenderingSettings] = useState({
@@ -58,7 +58,7 @@ const SpatialThree = (props) => {
         imageChannelScopesByLayer,
         imageChannelCoordination,
     } = props;
-    console.log(props)
+    //console.log(props)
     const imageLayerLoaderSelections = useRef({});
     let layerScope = imageLayerScopes[0];
     let channelScopes = imageChannelScopesByLayer[layerScope];
@@ -113,22 +113,26 @@ const SpatialThree = (props) => {
     } = props;
     if (obsSegmentations[layerScope] !== undefined && segmentationGroup == null) {
         let scene = obsSegmentations[layerScope].scene
-        for (let child in scene.children) {
-            scene.children[child].material.transparent = true
-            scene.children[child].material.needsUpdate = true;
+        if (scene !== null && scene !== undefined) {
+            for (let child in scene.children) {
+                scene.children[child].material.transparent = true
+                scene.children[child].material.needsUpdate = true;
+            }
+            setSegmentationGroup(scene);
         }
-        setSegmentationGroup(scene);
     }
-    let segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope]
-    if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString() ||
-        segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity ||
-        segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible) {
-        setSegmentationSettings({
-            color: segmentationLayerProps.spatialChannelColor,
-            opacity: segmentationLayerProps.spatialChannelOpacity,
-            visible: segmentationLayerProps.spatialChannelVisible,
-            data: obsSegmentations
-        })
+    if (segmentationChannelCoordination[0] !== undefined && segmentationChannelCoordination[0][layerScope] !== undefined) {
+        let segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope]
+        if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString() ||
+            segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity ||
+            segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible) {
+            setSegmentationSettings({
+                color: segmentationLayerProps.spatialChannelColor,
+                opacity: segmentationLayerProps.spatialChannelOpacity,
+                visible: segmentationLayerProps.spatialChannelVisible,
+                data: obsSegmentations
+            })
+        }
     }
     useEffect(() => {
         if (segmentationGroup !== null) {
@@ -247,8 +251,26 @@ const SpatialThree = (props) => {
     // -----------------------------------------------------------------
     //                          XR
     // -----------------------------------------------------------------
-    let xrState = useXR();
-    //console.log(xrState)
+    // let rootState = useThree();
+    // let xrState = useXR();
+    // console.log(rootState.camera.position)
+    // if(xrState.session !== null){
+    //     console.log("Adapting the camera")
+    //     console.log(rootState.camera.position)
+    //     rootState.camera.position.set(0,0,-500);
+    //     rootState.camera.updateProjectionMatrix();
+    // }
+
+    const {isPresenting, player} = useXR()
+    useEffect(() => {
+        if (isPresenting) {
+            player.position.x = 0
+            player.position.y = 0
+            player.position.z = 50
+        }
+    }, [isPresenting])
+
+
     // -----------------------------------------------------------------
     // -----------------------------------------------------------------
     if (!volumeSettings.is3dMode) {
@@ -256,7 +278,11 @@ const SpatialThree = (props) => {
             <group>
                 <ambientLight/>
                 <pointLight position={[10, 10, 10]}/>
-                <Box position={[0, 0, 0]} color={"red"}/>
+                <Hands/>
+                <Controllers/>
+                <RayGrab>
+                    <Box position={[0, 0, 0]} color={"blue"} moving={false}/>
+                </RayGrab>
             </group>
         );
     }
@@ -269,7 +295,7 @@ const SpatialThree = (props) => {
             <group>
                 <ambientLight/>
                 <pointLight position={[10, 10, 10]}/>
-                <Box position={[0, 0, 0]} color={"green"}/>
+                <Box position={[0, 0, 0]} color={"green"} moving={true}/>
             </group>);
     }
 
@@ -284,9 +310,7 @@ const SpatialThree = (props) => {
         <group>
             <Controllers/>
             <Hands/>
-            <RayGrab>
-                <GeometryAndMesh {...geometryAndMeshProps} ></GeometryAndMesh>
-            </RayGrab>
+            <GeometryAndMesh {...geometryAndMeshProps} ></GeometryAndMesh>
             <OrbitControls/>
         </group>
     );
@@ -312,19 +336,21 @@ function GeometryAndMesh(props) {
             }
             {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
                     renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
-                <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                    <boxGeometry args={renderingSettings.geometrySize}/>
-                    <shaderMaterial
-                        customProgramCacheKey={() => {
-                            return '1'
-                        }}
-                        side={THREE.BackSide}
-                        uniforms={renderingSettings.uniforms}
-                        needsUpdate={true}
-                        vertexShader={renderingSettings.shader.vertexShader}
-                        fragmentShader={renderingSettings.shader.fragmentShader}
-                    />
-                </mesh>
+                <EnhancedRayGrab>
+                    <mesh scale={renderingSettings.meshScale} ref={materialRef}>
+                        <boxGeometry args={renderingSettings.geometrySize}/>
+                        <shaderMaterial
+                            customProgramCacheKey={() => {
+                                return '1'
+                            }}
+                            side={THREE.BackSide}
+                            uniforms={renderingSettings.uniforms}
+                            needsUpdate={true}
+                            vertexShader={renderingSettings.shader.vertexShader}
+                            fragmentShader={renderingSettings.shader.fragmentShader}
+                        />
+                    </mesh>
+                </EnhancedRayGrab>
             }
         </group>
     );
@@ -670,35 +696,28 @@ async function getVolumeIntern({
 
 // Used as Loading indicator
 function Box(props) {
-    // This reference gives us direct access to the THREE.Mesh object
     const ref = useRef()
-    // Hold state for hovered and clicked events
-    const [hovered, hover] = useState(false)
-    const [clicked, click] = useState(false)
     // Subscribe this component to the render-loop, rotate the mesh every frame
     useFrame((state, delta) => {
-        ref.current.rotation.x += delta;
-        ref.current.rotation.y += delta;
-        ref.current.rotation.z += delta;
+        if (props.moving) {
+            ref.current.rotation.x += delta;
+            ref.current.rotation.y += delta;
+        }
     })
     return (
         <mesh
             {...props}
-            ref={ref}
-            scale={clicked ? 1.5 : 1}
-            onClick={(event) => click(!clicked)}
-            onPointerOver={(event) => (event.stopPropagation(), hover(true))}
-            onPointerOut={(event) => hover(false)}>
-            <boxGeometry args={[50, 50, 50]}/>
-            <meshPhongMaterial color={props.color} opacity={0.5} transparent/>
+            ref={ref}>
+            <torusKnotGeometry args={[14, 6, 176, 16]}/>
+            <meshPhongMaterial color={props.color}/>
         </mesh>
-    )
+    );
 }
 
 
 const SpatialWrapper = forwardRef((props, deckRef) => (
     <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
-        <VRButton/>
+        <ARButton/>
         <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -500], near: 0.01, far: 10000}}>
             <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>

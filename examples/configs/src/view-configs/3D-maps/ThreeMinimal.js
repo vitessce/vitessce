@@ -5,33 +5,21 @@ import {
 } from '@vitessce/config';
 
 
-function generateBlinConfig() {
+function generateThreeMinimalConfiguration() {
     const config = new VitessceConfig({
         schemaVersion: '1.0.16',
         name: 'Blin et al., PLoS Biol 2019',
     });
     const dataset = config.addDataset('My dataset').addFile({
         fileType: 'image.ome-tiff',
-        url: "url",
-        options: {
-            offsetsUrl: "url"
-        },
+        url: "https://assets.hubmapconsortium.org/30bc1823e0c19be58557fb979499bac2/ometiff-pyramids/data/3D_image_stack.ome.tif?token=",
         coordinationValues: {
             fileUid: 'kidney',
         },
-    }).addFile({
-        fileType: 'segmentation.glb',
-        url: 'url',
-        coordinationValues: {
-            fileUid: 'gloms',
-        }
     });
 
     const spatialThreeView = config.addView(dataset, 'spatialThree');
     const lcView = config.addView(dataset, 'layerControllerBeta');
-    // const obsSetsView = config.addView(dataset, 'obsSets');
-    const [selectionScope, colorScope] = config.addCoordination('obsSetSelection', 'obsSetColor');
-
     config.linkViewsByObject([spatialThreeView, lcView], {
         spatialTargetZ: 0,
         spatialTargetT: 0,
@@ -58,30 +46,6 @@ function generateBlinConfig() {
                     },
                 ]),
             },
-        ]),
-        segmentationLayer: CL([
-            {
-                fileUid: 'gloms',
-                spatialLayerVisible: true,
-                spatialLayerOpacity: 1,
-                segmentationChannel: CL([
-                    {
-                        obsType: 'gloms',
-                        spatialTargetC: 0,
-                        spatialChannelColor: [202, 122, 166],
-                        spatialChannelOpacity: 0.5,
-                        featureType: 'gloms',
-                        featureValueType: 'expression',
-                        spatialChannelVisible: true,
-                        obsColorEncoding: 'spatialChannelColor',
-                        spatialSegmentationFilled: false,
-                        spatialSegmentationStrokeWidth: 0.01,
-                        obsHighlight: null,
-                        obsSetSelection: selectionScope,
-                        obsSetColor: colorScope,
-                    }
-                ])
-            }
         ])
     });
 
@@ -91,4 +55,4 @@ function generateBlinConfig() {
     return configJSON;
 }
 
-export const blinOop2019Three = generateBlinConfig();
+export const threeMinimal = generateThreeMinimalConfiguration();
