@@ -47,14 +47,27 @@ function generateBlinConfig() {
         colorScope,
         highlightScope,
         colorEncodingScope,
+        glomsObsTypeScope,
+        glomsFeatureTypeScope,
+        glomsFeatureValueTypeScope,
+        glomsFeatureSelectionScope,
     ] = config.addCoordination(
         'obsSetSelection',
         'obsSetColor',
         'obsHighlight',
         'obsColorEncoding',
+        'obsType',
+        'featureType',
+        'featureValueType',
+        'featureSelection',
     );
 
     colorEncodingScope.setValue('spatialChannelColor');
+
+    glomsObsTypeScope.setValue('gloms');
+    glomsFeatureTypeScope.setValue('feature');
+    glomsFeatureValueTypeScope.setValue('value');
+    glomsFeatureSelectionScope.setValue(['Volume']);
 
     config.linkViewsByObject([spatialThreeView, lcView], {
         spatialTargetZ: 0,
@@ -90,12 +103,13 @@ function generateBlinConfig() {
                 spatialLayerOpacity: 1,
                 segmentationChannel: CL([
                     {
-                        obsType: 'gloms',
+                        obsType: glomsObsTypeScope,
+                        featureType: glomsFeatureTypeScope,
+                        featureValueType: glomsFeatureValueTypeScope,
+                        featureSelection: glomsFeatureSelectionScope,
                         spatialTargetC: 0,
                         spatialChannelColor: [202, 122, 166],
                         spatialChannelOpacity: 0.5,
-                        featureType: 'gloms',
-                        featureValueType: 'value',
                         spatialChannelVisible: true,
                         obsColorEncoding: colorEncodingScope,
                         spatialSegmentationFilled: false,
@@ -109,10 +123,10 @@ function generateBlinConfig() {
         ])
     });
     config.linkViewsByObject([barPlot], {
-        obsType: 'gloms',
-        featureType: 'feature',
-        featureValueType: 'value',
-        featureSelection: ["Volume"],
+        obsType: glomsObsTypeScope,
+        featureType: glomsFeatureTypeScope,
+        featureValueType: glomsFeatureValueTypeScope,
+        featureSelection: glomsFeatureSelectionScope,
         obsHighlight: highlightScope,
         obsSetSelection: selectionScope,
         obsSetColor: colorScope,
