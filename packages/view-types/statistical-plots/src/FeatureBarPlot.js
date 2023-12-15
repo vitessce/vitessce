@@ -4,19 +4,7 @@ import React, { useMemo, useEffect, useRef } from 'react';
 import { scaleLinear } from 'd3-scale';
 import { scale as vega_scale } from 'vega-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
-import {
-  bin,
-  max,
-  rollup as d3_rollup,
-  mean as d3_mean,
-  deviation as d3_deviation,
-  ascending as d3_ascending,
-  map as d3_map,
-  quantileSorted,
-} from 'd3-array';
-import { area as d3_area, curveBasis } from 'd3-shape';
 import { select } from 'd3-selection';
-import { colorArrayToString } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
 
 const scaleBand = vega_scale('band');
@@ -24,27 +12,6 @@ const scaleBand = vega_scale('band');
 const OBS_KEY = 'obsId';
 const FEATURE_KEY = 'value';
 
-/**
- * Gene expression histogram displayed as a bar chart,
- * implemented with the VegaPlot component.
- * @param {object} props
- * @param {object[]} props.data The expression data, an array
- * of objects with properties `value`, `gene`, and `set`.
- * @param {number} props.domainMax The maximum gene expression value.
- * @param {object[]} props.colors An object for each
- * cell set, with properties `name` and `color`.
- * @param {string} props.theme The name of the current Vitessce theme.
- * @param {number} props.width The container width.
- * @param {number} props.height The container height.
- * @param {number} props.marginRight The size of the margin
- * on the right side of the plot, to account for the vega menu button.
- * By default, 90.
- * @param {number} props.marginBottom The size of the margin
- * on the bottom of the plot, to account for long x-axis labels.
- * Default is allowing the component to automatically determine the margin.
- * @param {string|null} props.featureValueTransformName A name
- * for the feature value transformation function.
- */
 export default function FeatureBarPlot(props) {
   const {
     yMin,
@@ -63,7 +30,6 @@ export default function FeatureBarPlot(props) {
     obsType,
     featureType,
     featureValueType,
-    featureValueTransformName,
     featureName,
     onBarSelect,
     onBarHighlight,
@@ -81,11 +47,8 @@ export default function FeatureBarPlot(props) {
   useEffect(() => {
     const domElement = svgRef.current;
 
-    const transformPrefix = (featureValueTransformName && featureValueTransformName !== 'None')
-      ? `${featureValueTransformName}-Transformed `
-      : '';
     const unitSuffix = yUnits ? ` (${yUnits})` : '';
-    const yTitle = `${transformPrefix}${capitalize(featureName)}${unitSuffix}`;
+    const yTitle = `${capitalize(featureName)}${unitSuffix}`;
 
     const xTitle = `${capitalize(obsType)}`;
 
@@ -191,7 +154,7 @@ export default function FeatureBarPlot(props) {
       .style('fill', foregroundColor);
   }, [width, height, data, marginLeft, marginBottom, colors,
     jitter, theme, yMin, marginTop, marginRight, featureType,
-    featureValueType, featureValueTransformName, yUnits, obsType,
+    featureValueType, yUnits, obsType,
     maxCharactersForLabel, yMax, featureName, onBarSelect, onBarHighlight,
   ]);
 

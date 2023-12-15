@@ -1,15 +1,17 @@
 import React, { useMemo, useCallback } from 'react';
 import {
   TitleInfo,
-  useCoordination, useLoaders,
-  useUrls, useReady, useGridItemSize,
-  useFeatureSelection, useObsSetsData,
+  useCoordination,
+  useLoaders,
+  useUrls,
+  useReady,
+  useGridItemSize,
+  useFeatureSelection,
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { VALUE_TRANSFORM_OPTIONS, getValueTransformFunction } from '@vitessce/utils';
-import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
+import { setObsSelection } from '@vitessce/sets-utils';
 import FeatureBarPlot from './FeatureBarPlot.js';
 import { useStyles } from './styles.js';
 
@@ -39,7 +41,6 @@ export function FeatureBarPlotSubscriber(props) {
     additionalObsSets: additionalCellSets,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
-    obsColorEncoding: cellColorEncoding,
   }, {
     setObsSetSelection: setCellSetSelection,
     setObsHighlight: setCellHighlight,
@@ -52,8 +53,6 @@ export function FeatureBarPlotSubscriber(props) {
   );
 
   const [width, height, containerRef] = useGridItemSize();
-
-  const transformOptions = VALUE_TRANSFORM_OPTIONS;
 
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
@@ -72,12 +71,6 @@ export function FeatureBarPlotSubscriber(props) {
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
-    loaders, dataset, false,
-    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
-    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
-    { obsType },
-  );
   const isReady = useReady([
     featureSelectionStatus,
     matrixIndicesStatus,
@@ -87,10 +80,6 @@ export function FeatureBarPlotSubscriber(props) {
     featureLabelsUrls,
     matrixIndicesUrls,
   ]);
-
-  const mergedCellSets = useMemo(() => mergeObsSets(
-    cellSets, additionalCellSets,
-  ), [cellSets, additionalCellSets]);
 
   const onBarSelect = useCallback((obsId) => {
     const obsIdsToSelect = [obsId];
@@ -119,13 +108,8 @@ export function FeatureBarPlotSubscriber(props) {
       }
       const exprValues = obsIndex.map((obsId, cellIndex) => {
         const value = expressionData[0][cellIndex];
-        const normValue = value * 100 / 255;
-        const transformFunction = getValueTransformFunction(
-          featureValueTransform, featureValueTransformCoefficient,
-        );
-        const transformedValue = transformFunction(normValue);
-        exprMax = Math.max(transformedValue, exprMax);
-        return { value: transformedValue, feature: firstGeneSelected, obsId };
+        exprMax = Math.max(value, exprMax);
+        return { obsId, value, feature: firstGeneSelected };
       });
       return [exprValues, exprMax];
     }
@@ -133,12 +117,6 @@ export function FeatureBarPlotSubscriber(props) {
   }, [expressionData, obsIndex, geneSelection, theme,
     featureValueTransform, featureValueTransformCoefficient,
   ]);
-
-  
-  const selectedTransformName = transformOptions.find(
-    o => o.value === featureValueTransform,
-  )?.name;
-
 
   return (
     <TitleInfo
@@ -161,7 +139,6 @@ export function FeatureBarPlotSubscriber(props) {
             obsType={obsType}
             featureType={featureType}
             featureValueType={featureValueType}
-            featureValueTransformName={selectedTransformName}
             featureName={firstGeneSelected}
             onBarSelect={onBarSelect}
             onBarHighlight={onBarHighlight}
