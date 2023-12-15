@@ -25,12 +25,36 @@ function generateBlinConfig() {
         coordinationValues: {
             fileUid: 'gloms',
         }
-    });
+    }).addFile({
+        fileType: 'obsFeatureMatrix.csv',
+        url: 'url',
+        coordinationValues: {
+            obsType: 'gloms',
+            featureType: 'feature',
+            featureValueType: 'value',
+        },
+    })
 
     const spatialThreeView = config.addView(dataset, 'spatialThree');
     const lcView = config.addView(dataset, 'layerControllerBeta');
+    const barPlot = config.addView(dataset, 'featureBarPlot').setProps({
+        yUnits: 'microns cubed'
+    });
+
     // const obsSetsView = config.addView(dataset, 'obsSets');
-    const [selectionScope, colorScope] = config.addCoordination('obsSetSelection', 'obsSetColor');
+    const [
+        selectionScope,
+        colorScope,
+        highlightScope,
+        colorEncodingScope,
+    ] = config.addCoordination(
+        'obsSetSelection',
+        'obsSetColor',
+        'obsHighlight',
+        'obsColorEncoding',
+    );
+
+    colorEncodingScope.setValue('spatialChannelColor');
 
     config.linkViewsByObject([spatialThreeView, lcView], {
         spatialTargetZ: 0,
@@ -71,12 +95,12 @@ function generateBlinConfig() {
                         spatialChannelColor: [202, 122, 166],
                         spatialChannelOpacity: 0.5,
                         featureType: 'gloms',
-                        featureValueType: 'expression',
+                        featureValueType: 'value',
                         spatialChannelVisible: true,
-                        obsColorEncoding: 'spatialChannelColor',
+                        obsColorEncoding: colorEncodingScope,
                         spatialSegmentationFilled: false,
                         spatialSegmentationStrokeWidth: 0.01,
-                        obsHighlight: null,
+                        obsHighlight: highlightScope,
                         obsSetSelection: selectionScope,
                         obsSetColor: colorScope,
                     }
@@ -84,8 +108,18 @@ function generateBlinConfig() {
             }
         ])
     });
+    config.linkViewsByObject([barPlot], {
+        obsType: 'gloms',
+        featureType: 'feature',
+        featureValueType: 'value',
+        featureSelection: ["Volume"],
+        obsHighlight: highlightScope,
+        obsSetSelection: selectionScope,
+        obsSetColor: colorScope,
+        obsColorEncoding: colorEncodingScope,
+    }, false);
 
-    config.layout(hconcat(spatialThreeView, lcView));
+    config.layout(hconcat(spatialThreeView, vconcat(lcView, barPlot)));
 
     const configJSON = config.toJSON();
     return configJSON;

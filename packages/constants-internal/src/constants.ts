@@ -20,6 +20,7 @@ export const ViewType = {
   OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'obsSetFeatureValueDistribution',
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
   SPATIAL_THREE: 'spatialThree',
+  FEATURE_BAR_PLOT: 'featureBarPlot',
 };
 
 export const DataType = {
