@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
   TitleInfo,
   useCoordination, useLoaders,
@@ -9,6 +9,7 @@ import {
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS, getValueTransformFunction } from '@vitessce/utils';
+import { setObsSelection, mergeObsSets } from '@vitessce/sets-utils';
 import FeatureBarPlot from './FeatureBarPlot.js';
 import { useStyles } from './styles.js';
 
@@ -34,6 +35,17 @@ export function FeatureBarPlotSubscriber(props) {
     featureSelection: geneSelection,
     featureValueTransform,
     featureValueTransformCoefficient,
+    obsHighlight: cellHighlight,
+    additionalObsSets: additionalCellSets,
+    obsSetSelection: cellSetSelection,
+    obsSetColor: cellSetColor,
+    obsColorEncoding: cellColorEncoding,
+  }, {
+    setObsSetSelection: setCellSetSelection,
+    setObsHighlight: setCellHighlight,
+    setObsSetColor: setCellSetColor,
+    setObsColorEncoding: setCellColorEncoding,
+    setAdditionalObsSets: setAdditionalCellSets,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_BAR_PLOT],
     coordinationScopes,
@@ -60,6 +72,12 @@ export function FeatureBarPlotSubscriber(props) {
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
+  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+    loaders, dataset, false,
+    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
+    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
+    { obsType },
+  );
   const isReady = useReady([
     featureSelectionStatus,
     matrixIndicesStatus,
@@ -69,6 +87,24 @@ export function FeatureBarPlotSubscriber(props) {
     featureLabelsUrls,
     matrixIndicesUrls,
   ]);
+
+  const mergedCellSets = useMemo(() => mergeObsSets(
+    cellSets, additionalCellSets,
+  ), [cellSets, additionalCellSets]);
+
+  const onBarSelect = useCallback((obsId) => {
+    const obsIdsToSelect = [obsId];
+    setObsSelection(
+      obsIdsToSelect, additionalCellSets, cellSetColor,
+      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      setCellColorEncoding,
+    );
+  }, [additionalCellSets, cellSetColor, setCellColorEncoding,
+    setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
+
+  const onBarHighlight = useCallback((obsId) => {
+    setCellHighlight(obsId);
+  });
   
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
     ? (featureLabelsMap?.get(geneSelection[0]) || geneSelection[0])
@@ -127,6 +163,8 @@ export function FeatureBarPlotSubscriber(props) {
             featureValueType={featureValueType}
             featureValueTransformName={selectedTransformName}
             featureName={firstGeneSelected}
+            onBarSelect={onBarSelect}
+            onBarHighlight={onBarHighlight}
           />
         ) : (
           <span>Select a {featureType}.</span>

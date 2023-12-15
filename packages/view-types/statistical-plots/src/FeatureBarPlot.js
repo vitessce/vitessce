@@ -21,8 +21,8 @@ import { capitalize } from '@vitessce/utils';
 
 const scaleBand = vega_scale('band');
 
-const GROUP_KEY = 'obsId';
-const VALUE_KEY = 'value';
+const OBS_KEY = 'obsId';
+const FEATURE_KEY = 'value';
 
 /**
  * Gene expression histogram displayed as a bar chart,
@@ -65,6 +65,8 @@ export default function FeatureBarPlot(props) {
     featureValueType,
     featureValueTransformName,
     featureName,
+    onBarSelect,
+    onBarHighlight,
   } = props;
 
   const svgRef = useRef();
@@ -72,7 +74,7 @@ export default function FeatureBarPlot(props) {
   // Get the max characters in an axis label for autsizing the bottom margin.
   const maxCharactersForLabel = useMemo(() => data.reduce((acc, val) => {
     // eslint-disable-next-line no-param-reassign
-    acc = acc === undefined || val[GROUP_KEY].length > acc ? val[GROUP_KEY].length : acc;
+    acc = acc === undefined || val[OBS_KEY].length > acc ? val[OBS_KEY].length : acc;
     return acc;
   }, 0), [data]);
 
@@ -94,7 +96,8 @@ export default function FeatureBarPlot(props) {
     const autoMarginBottom = marginBottom
       || 30 + Math.sqrt(maxCharactersForLabel / 2) * 30;
 
-    const rectColor = (theme === 'dark' ? 'white' : 'black');
+    const foregroundColor = (theme === 'dark' ? 'white' : 'black');
+    
 
     const svg = select(domElement);
     svg.selectAll('g').remove();
@@ -107,15 +110,12 @@ export default function FeatureBarPlot(props) {
       .attr('width', width)
       .attr('height', height);
 
-    console.log(data);
-
     const innerWidth = width - marginLeft;
     const innerHeight = height - autoMarginBottom;
 
-
     const xScale = scaleBand()
       .range([marginLeft, width - marginRight])
-      .domain(data.map(d => d.obsId))
+      .domain(data.map(d => d[OBS_KEY]))
       .padding(0.1);
 
     // For the y domain, use the yMin prop
@@ -132,13 +132,22 @@ export default function FeatureBarPlot(props) {
       .data(data)
       .enter()
         .append('rect')
-          .attr('x', d => xScale(d.obsId))
-          .attr('y', d => yScale(d.value))
+          .attr('x', d => xScale(d[OBS_KEY]))
+          .attr('y', d => yScale(d[FEATURE_KEY]))
           .attr('width', xScale.bandwidth())
-          .attr('height', d => innerHeight - yScale(d.value))
-          .style('fill', rectColor);
+          .attr('height', d => innerHeight - yScale(d[FEATURE_KEY]))
+          .style('fill', foregroundColor)
+          .style('cursor', 'pointer')
+          .on('click', (event, d) => {
+            onBarSelect(d[OBS_KEY]);
+          })
+          .on('mouseover', (event, d) => {
+            onBarHighlight(d[OBS_KEY]);
+          })
+          .on('mouseout', (event, d) => {
+            onBarHighlight(null);
+          });
     
-
     // Y-axis ticks
     g
       .append('g')
@@ -169,7 +178,7 @@ export default function FeatureBarPlot(props) {
       .attr('transform', 'rotate(-90)')
       .text(yTitle)
       .style('font-size', '12px')
-      .style('fill', 'white');
+      .style('fill', foregroundColor);
 
     // X-axis title
     g
@@ -179,11 +188,11 @@ export default function FeatureBarPlot(props) {
       .attr('y', height - 10)
       .text(xTitle)
       .style('font-size', '12px')
-      .style('fill', 'white');
+      .style('fill', foregroundColor);
   }, [width, height, data, marginLeft, marginBottom, colors,
     jitter, theme, yMin, marginTop, marginRight, featureType,
     featureValueType, featureValueTransformName, yUnits, obsType,
-    maxCharactersForLabel, yMax, featureName,
+    maxCharactersForLabel, yMax, featureName, onBarSelect, onBarHighlight,
   ]);
 
   return (
