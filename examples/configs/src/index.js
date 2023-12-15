@@ -100,7 +100,7 @@ export const configs = {
   //3D Maps ThreeJS
   'three-demo': threeDemoConfig,
   'blin-2019-three': blinOop2019Three,
-  'three-mininmal': threeMinimal,
+  'three-minimal': threeMinimal,
 
   // Multi-level coordination with spatialBeta view:
   'blin-2019-2': blinOop2019,

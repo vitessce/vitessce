@@ -256,9 +256,10 @@ const SpatialThree = (props) => {
     useEffect(() => {
         if (isPresenting && materialRef.current !== null) {
             console.log(materialRef.current)
-            materialRef.current.position.z = materialRef.current.position.z - 800;
+            //materialRef.current.position.z = materialRef.current.position.z - 1200;
+            player.position.z = 400
         } else if (!isPresenting && materialRef.current !== null){
-            materialRef.current.position.z = materialRef.current.position.z + 800;
+           // materialRef.current.position.z = materialRef.current.position.z + 800;
         }
     }, [isPresenting])
 
@@ -328,7 +329,7 @@ function GeometryAndMesh(props) {
             }
             {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
                     renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
-                <EnhancedRayGrab>
+                <RayGrab>
                     <mesh scale={renderingSettings.meshScale} ref={materialRef}>
                         <boxGeometry args={renderingSettings.geometrySize}/>
                         <shaderMaterial
@@ -342,7 +343,7 @@ function GeometryAndMesh(props) {
                             fragmentShader={renderingSettings.shader.fragmentShader}
                         />
                     </mesh>
-                </EnhancedRayGrab>
+                </RayGrab>
             }
         </group>
     );
@@ -711,7 +712,7 @@ const SpatialWrapper = forwardRef((props, deckRef) => (
     <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
         <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 10000}}>
-            <XR camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 10000}}>
+            <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>
             </XR>
         </Canvas>

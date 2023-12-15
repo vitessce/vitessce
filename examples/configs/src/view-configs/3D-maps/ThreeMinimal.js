@@ -8,11 +8,11 @@ import {
 function generateThreeMinimalConfiguration() {
     const config = new VitessceConfig({
         schemaVersion: '1.0.16',
-        name: 'Blin et al., PLoS Biol 2019',
+        name: 'Minimal Three',
     });
     const dataset = config.addDataset('My dataset').addFile({
         fileType: 'image.ome-tiff',
-        url: "https://assets.hubmapconsortium.org/30bc1823e0c19be58557fb979499bac2/ometiff-pyramids/data/3D_image_stack.ome.tif?token=",
+        url: "https://viv-demo.storage.googleapis.com/idr0106.pyramid.ome.tif",
         coordinationValues: {
             fileUid: 'kidney',
         },
