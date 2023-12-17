@@ -1,33 +1,29 @@
-import { MenuItem, Select } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { ListItem, ListItemText, Stack } from '@mui/material';
+import { FixedSizeList } from 'react-window';
 
 
 export default function IntelliList({ option, options, onOptionChange }) {
-  const [opts, setOpts] = useState(['']);
-  useEffect(() => {
-    setOpts(options.map(o => o.toString()));
-  }, [options]);
+  const renderRow = ({ index, style }) => (
+    <ListItem style={style} key={index} onClick={() => onOptionChange(options[index])}>
+      <ListItemText primary={options[index]} />
+    </ListItem>
+  );
+
+  if (!options) {
+    return null;
+  }
 
   return (
-    <Select
-      value={option ? option.toString() : ''}
-      onChange={onOptionChange}
-      inputProps={{
-        name: 'gene',
-        id: 'gene-select',
-      }}
-    >
-      {opts.map(o => <MenuItem key={o} value={o}>{o}</MenuItem>)}
-    </Select>
+    <Stack>
+      {option}
+      <FixedSizeList
+        height={400}
+        width={300}
+        itemSize={20}
+        itemCount={options.length}
+      >
+        {renderRow}
+      </FixedSizeList>
+    </Stack>
   );
 }
-
-
-// <Autocomplete
-//   disablePortal
-//   value={option ? option.toString() : ''}
-//   getOptionLabel={o => o}
-//   onChange={onOptionChange}
-//   options={opts}
-//   renderInput={params => <TextField {...params} label="Gene" />}
-// />

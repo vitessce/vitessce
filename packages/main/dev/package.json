@@ -41,6 +41,7 @@
     "@vitessce/config": "workspace:*",
     "@vitessce/constants": "workspace:*",
     "@vitessce/export-utils": "workspace:*",
+    "react-window": "^1.8.10",
     "styles": "link:@mui/material/styles"
   },
   "devDependencies": {

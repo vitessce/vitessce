@@ -23,6 +23,7 @@
     "@mui/styles": "^5.14.20",
     "@vitessce/config": "workspace:*",
     "@vitessce/constants": "workspace:*",
+    "react-window": "^1.8.10",
     "styles": "link:@mui/material/styles"
   }
 }

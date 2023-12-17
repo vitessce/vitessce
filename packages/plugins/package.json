@@ -35,6 +35,7 @@
     "@mui/icons-material": "^5.14.19",
     "@mui/material": "^5.14.20",
     "@mui/styles": "^5.14.20",
+    "react-window": "^1.8.10",
     "styles": "link:@mui/material/styles",
     "zod": "^3.21.4"
   },

@@ -11,6 +11,7 @@ export default function Tooltip(props) {
     parentHeight,
     children,
   } = props;
+  
   const ref = useRef();
   const classes = styles();
   const [placementX, setPlacementX] = useState('start');

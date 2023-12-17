@@ -20,6 +20,7 @@
     "@vitessce/example-plugins": "workspace:*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "react-window": "^1.8.10",
     "styles": "link:@mui/material/styles",
     "vitessce": "workspace:*"
   },

@@ -12,6 +12,7 @@ export const styles = makeStyles(theme => ({
     opacity: 0.9,
     padding: '5px',
     pointerEvents: 'none',
+    position: 'absolute',
     backgroundColor: theme.palette.gridLayoutBackground,
     '& table > tbody > tr > th, & table > tbody > tr > td': {
       border: 'none',

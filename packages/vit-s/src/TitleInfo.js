@@ -1,51 +1,21 @@
-import { Link, MenuItem } from '@mui/material';
 import {
   CloudDownload as CloudDownloadIcon,
   Settings as SettingsIcon,
 } from '@mui/icons-material';
+import { Link, MenuItem, Stack, Typography } from '@mui/material';
 import clsx from 'clsx';
 import { useState } from 'react';
 
-import { TOOLTIP_ANCESTOR } from './classNames.js';
 import LoadingIndicator from './LoadingIndicator.js';
+import { TOOLTIP_ANCESTOR } from './classNames.js';
 import { PopperMenu } from './shared-mui/components.js';
+import { COLOR_GRAY } from './shared-mui/styles.js';
 import { useTitleStyles } from './title-styles.js';
-
-// const useStyles = makeStyles(theme => ({
-//   iconButton: {
-//     border: 'none',
-//     marginLeft: 0,
-//     background: 'none',
-//     color: theme.palette.primaryForeground,
-//     paddingLeft: '0.25em',
-//     paddingRight: '0.25em',
-//     borderRadius: '2px',
-//     '&:hover': {
-//       backgroundColor: theme.palette.primaryBackgroundLight,
-//     },
-//     '&:first-child': {
-//       marginLeft: '0.25em',
-//     },
-//     '&:last-child': {
-//       marginRight: '0.25em',
-//     },
-//     '& svg': {
-//       width: '0.7em',
-//       height: '0.7em',
-//       verticalAlign: 'middle',
-//       overflow: 'visible',
-//     },
-//   },
-//   downloadLink: {
-//     color: theme.palette.primaryForeground,
-//     textDecoration: 'none',
-//   },
-// }));
 
 function SettingsIconWithArrow() {
   return (
     <>
-      <SettingsIcon />
+      <SettingsIcon sx={{ width: '22px' }} />
     </>
   );
 }
@@ -70,7 +40,7 @@ function PlotOptions(props) {
 function CloudDownloadIconWithArrow() {
   return (
     <>
-      <CloudDownloadIcon />
+      <CloudDownloadIcon sx={{ width: '22px' }} />
     </>
   );
 }
@@ -109,22 +79,20 @@ export function TitleInfo(props) {
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
     <>
-      <div className={classes.title} role="banner">
-        <div className={classes.titleLeft} role="heading" aria-level="1">
-          {title}
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <div style={{ height: '50px' }}>
+          <Typography variant="h3" sx={{ pt: info ? 0 : 2 }}>{title}</Typography>
+          {info && <Typography variant="body1" sx={{ lineHeight: '22px' }}>{info}</Typography>}
         </div>
-        <div className={classes.titleInfo} title={info} role="note">
-          {info}
-        </div>
-        <div className={classes.titleButtons} role="toolbar" aria-label="Plot options and controls">
+        <Stack direction="row" alignItems="center">
           <PlotOptions
             options={options}
           />
           <DownloadOptions
             urls={urls}
           />
-        </div>
-      </div>
+        </Stack>
+      </Stack>
       <div
         className={clsx(
           TOOLTIP_ANCESTOR,
@@ -135,6 +103,7 @@ export function TitleInfo(props) {
             [classes.noScrollCard]: !isScroll && !isSpatial,
           },
         )}
+        style={{ background: COLOR_GRAY }}
         aria-busy={!isReady}
         role="main"
       >

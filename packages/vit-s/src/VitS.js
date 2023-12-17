@@ -1,8 +1,4 @@
 import React, { useEffect, useMemo, useCallback } from 'react';
-// import {
-//   ThemeProvider,
-//   StylesProvider,
-// } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import {
   QueryClient,
@@ -237,7 +233,7 @@ export function VitS(props) {
     </ThemeProvider>
 
   ) : (
-    <ThemeProvider theme={muiTheme[theme]}>
+    <ThemeProvider theme={Light}>
       <Warning {...configOrWarning} />
     </ThemeProvider>
   );

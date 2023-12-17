@@ -22,7 +22,7 @@ export function GeneInfoSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    title = 'Gene Info',
+    title,
   } = props;
 
   const [{
@@ -30,14 +30,14 @@ export function GeneInfoSubscriber(props) {
   },
   ] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.GENE_INFO], coordinationScopes);
 
-  const isReady = useReady(true);
+  const isReady = useReady([true]);
 
   return (
     <TitleInfo
       title={title}
-      removeGridComponent={removeGridComponent}
       isScroll
       theme={theme}
+      removeGridComponent={removeGridComponent}
       isReady={isReady}
     >
       <GeneInfo

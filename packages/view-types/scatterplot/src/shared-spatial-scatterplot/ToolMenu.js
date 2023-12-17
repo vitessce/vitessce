@@ -1,7 +1,7 @@
-import { CenterFocusStrong, FilterCenterFocusOutlined, PanToolOutlined } from '@mui/icons-material';
+import { FilterCenterFocusOutlined, PanToolOutlined } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { SELECTION_TYPE } from '@vitessce/gl';
-import { PointerIconSVG, SelectLassoIconSVG } from '@vitessce/icons';
+import { SelectLassoIconSVG } from '@vitessce/icons';
 
 
 export default function ToolMenu(props) {

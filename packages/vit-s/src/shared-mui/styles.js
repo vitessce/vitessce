@@ -1,5 +1,4 @@
 import { createTheme } from '@mui/material';
-
 export const COLOR_HOVER = '#bdd7e1';
 export const COLOR_PRIMARY = '#050b26';
 export const COLOR_PRIMARY_LIGHT = '#5C5D73';
@@ -154,7 +153,6 @@ export const Light = createTheme({
     MuiIconButton: {
       styleOverrides: {
         root: {
-          height: '5px',
           paddingLeft: '0.25em',
           paddingRight: '0.25em',
         },

@@ -21,6 +21,7 @@
     "@mui/material": "^5.14.20",
     "@mui/styles": "^5.14.20",
     "@vitessce/schemas": "workspace:*",
+    "react-window": "^1.8.10",
     "styles": "link:@mui/material/styles",
     "zod-to-json-schema": "^3.20.4"
   }

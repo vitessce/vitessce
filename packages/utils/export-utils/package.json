@@ -37,6 +37,7 @@
     "@mui/styles": "^5.14.20",
     "bowser": "^2.11.0",
     "lz-string": "^1.4.4",
+    "react-window": "^1.8.10",
     "styles": "link:@mui/material/styles"
   }
 }

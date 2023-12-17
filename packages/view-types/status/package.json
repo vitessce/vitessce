@@ -38,6 +38,7 @@
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "clsx": "^1.1.1",
+    "react-window": "^1.8.10",
     "styles": "link:@mui/material/styles"
   },
   "devDependencies": {

@@ -44,6 +44,7 @@
     "@vitessce/plugins": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "lodash-es": "^4.17.21",
+    "react-window": "^1.8.10",
     "semver": "^7.3.8",
     "styles": "link:@mui/material/styles",
     "uuid": "^9.0.0",

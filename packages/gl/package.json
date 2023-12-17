@@ -73,6 +73,7 @@
     "math.gl": "^3.5.6",
     "mathjs": "^9.2.0",
     "nebula.gl": "0.23.8",
+    "react-window": "^1.8.10",
     "styles": "link:@mui/material/styles"
   },
   "devDependencies": {

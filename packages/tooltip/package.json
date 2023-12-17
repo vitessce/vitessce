@@ -36,6 +36,7 @@
     "@mui/material": "^5.14.20",
     "@mui/styles": "^5.14.20",
     "@vitessce/vit-s": "workspace:*",
+    "react-window": "^1.8.10",
     "styles": "link:@mui/material/styles"
   },
   "devDependencies": {

@@ -45,6 +45,7 @@
     "@vitessce/workers": "workspace:*",
     "lodash-es": "^4.17.21",
     "react-aria": "^3.28.0",
+    "react-window": "^1.8.10",
     "styles": "link:@mui/material/styles",
     "uuid": "^9.0.0"
   },

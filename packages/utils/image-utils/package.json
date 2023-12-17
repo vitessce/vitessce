@@ -38,6 +38,7 @@
     "@mui/styles": "^5.14.20",
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
+    "react-window": "^1.8.10",
     "styles": "link:@mui/material/styles"
   },
   "devDependencies": {

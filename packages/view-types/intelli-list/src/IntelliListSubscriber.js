@@ -28,11 +28,11 @@ export function IntelliListSubscriber(props) {
     featureSelection: geneSelection,
   }, {
     setFeatureSelection: setGeneSelection,
+    setObsColorEncoding: setCellColorEncoding,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_LIST], coordinationScopes);
 
   const variablesLabel = variablesLabelOverride || featureType;
   const title = titleOverride || `${capitalize(variablesLabel)} List`;
-
 
   const [{ featureIndex }, matrixIndicesStatus, obsFeatureMatrixUrls] = useObsFeatureMatrixIndices(
     loaders, dataset, true,
@@ -45,6 +45,10 @@ export function IntelliListSubscriber(props) {
     obsFeatureMatrixUrls,
   ]);
 
+  const onOptionChange = (value) => {
+    setGeneSelection([value]);
+    setCellColorEncoding('geneSelection');
+  };
 
   const options = featureIndex || [];
 
@@ -57,7 +61,7 @@ export function IntelliListSubscriber(props) {
       urls={urls}
     >
       <IntelliList
-        onOptionChange={e => setGeneSelection(e.target.value)}
+        onOptionChange={onOptionChange}
         option={geneSelection}
         options={options}
       />

@@ -45,6 +45,7 @@
     "rc-tooltip": "^5.2.2",
     "rc-tree": "2.1.0",
     "react-color-with-lodash": "^2.19.5",
+    "react-window": "^1.8.10",
     "styles": "link:@mui/material/styles"
   },
   "devDependencies": {
