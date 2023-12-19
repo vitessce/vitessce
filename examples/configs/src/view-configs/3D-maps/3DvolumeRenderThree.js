@@ -37,11 +37,11 @@ function generateBlinConfig() {
 
     const spatialThreeView = config.addView(dataset, 'spatialThree');
     const lcView = config.addView(dataset, 'layerControllerBeta');
+    const obsSetsView = config.addView(dataset, 'obsSets');
     const barPlot = config.addView(dataset, 'featureBarPlot').setProps({
         yUnits: 'microns cubed'
     });
 
-    // const obsSetsView = config.addView(dataset, 'obsSets');
     const [
         selectionScope,
         colorScope,
@@ -68,6 +68,9 @@ function generateBlinConfig() {
     glomsFeatureTypeScope.setValue('feature');
     glomsFeatureValueTypeScope.setValue('value');
     glomsFeatureSelectionScope.setValue(['Volume']);
+
+    //const [selectionScope, colorScope] = config.addCoordination('obsSetSelection', 'obsSetColor');
+    obsSetsView.useCoordination(selectionScope, colorScope);
 
     config.linkViewsByObject([spatialThreeView, lcView], {
         spatialTargetZ: 0,
@@ -133,7 +136,7 @@ function generateBlinConfig() {
         obsColorEncoding: colorEncodingScope,
     }, false);
 
-    config.layout(hconcat(spatialThreeView, vconcat(lcView, barPlot)));
+    config.layout(hconcat(spatialThreeView, vconcat(lcView,obsSetsView, barPlot)));
 
     const configJSON = config.toJSON();
     return configJSON;

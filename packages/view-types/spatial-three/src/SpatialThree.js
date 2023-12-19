@@ -53,7 +53,8 @@ const SpatialThree = (props) => {
         visible: true,
         color: [1, 1, 1],
         opacity: 1,
-        data: null
+        data: null,
+        obsSets: [],
     })
     const {
         images = {},
@@ -68,6 +69,8 @@ const SpatialThree = (props) => {
     let channelScopes = imageChannelScopesByLayer[layerScope];
     let layerCoordination = imageLayerCoordination[0][layerScope];
     let channelCoordination = imageChannelCoordination[0][layerScope];
+
+
     // Get the relevant information out of the Props
     const {
         channelsVisible,
@@ -113,37 +116,93 @@ const SpatialThree = (props) => {
     //Segmentation: //TODO get the Loader to get the URL
     const {
         obsSegmentations,
+        obsSegmentationsSets,
+        segmentationLayerCoordination,
         segmentationChannelCoordination,
+        featureValueColormap,
+        featureValueColormapRange,
     } = props;
+    let segmentationOBSSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
+    let sets = segmentationChannelCoordination[0][layerScope][layerScope].additionalObsSets;
+    let setsSave = [];
+    if (sets !== null) {
+        for (let index in segmentationOBSSetLayerProps.obsSetSelection) {
+            let info = {name: "", id: "", color: []}
+
+            let selectedElement = segmentationOBSSetLayerProps.obsSetSelection[index][1];
+            info.name = selectedElement
+            //console.log(sets.tree[0].children);
+            for (let subIndex in sets.tree[0].children) {
+                let child = sets.tree[0].children[subIndex]
+                if (child.name === selectedElement) {
+                    info.id = child.set[0][0];
+                    break;
+                }
+            }
+            for (let subIndex in segmentationOBSSetLayerProps.obsSetColor) {
+                let color = segmentationOBSSetLayerProps.obsSetColor[subIndex]
+                if(color.path[1] === selectedElement) {
+                    info.color = color.color;
+                    break;
+                }
+            }
+            setsSave.push(info);
+        }
+    }
     if (obsSegmentations[layerScope] !== undefined && segmentationGroup == null) {
         let scene = obsSegmentations[layerScope].scene
         if (scene !== null && scene !== undefined) {
-            //for (let child in scene.children) {
-                //scene.children[child].material.transparent = true
-                //scene.children[child].material.needsUpdate = true;
-           // }
+            for (let child in scene.children) {
+                scene.children[child].material.transparent = true
+                scene.children[child].material.needsUpdate = true;
+            }
             setSegmentationGroup(scene);
         }
     }
     if (segmentationChannelCoordination[0] !== undefined && segmentationChannelCoordination[0][layerScope] !== undefined) {
         let segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope]
+
+        let setsSaveString = ""
+        for(let child in setsSave){
+            setsSaveString+=setsSave[child].id + ";" +setsSave[child].color.toString()  + ";" +setsSave[child].name;
+        }
+        let settingsSaveString = ""
+        for(let child in segmentationSettings.obsSets){
+            settingsSaveString+=segmentationSettings.obsSets[child].id + ";"
+                +segmentationSettings.obsSets[child].color.toString()  + ";"
+                +segmentationSettings.obsSets[child].name;
+        }
         if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString() ||
             segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity ||
-            segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible) {
+            segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible ||
+            setsSaveString !== settingsSaveString
+        ) {
             setSegmentationSettings({
                 color: segmentationLayerProps.spatialChannelColor,
                 opacity: segmentationLayerProps.spatialChannelOpacity,
                 visible: segmentationLayerProps.spatialChannelVisible,
-                data: obsSegmentations
+                data: obsSegmentations,
+                obsSets: setsSave,
             })
         }
     }
     useEffect(() => {
         if (segmentationGroup !== null) {
+            console.log()
             for (let child in segmentationGroup.children) {
-                segmentationGroup.children[child].material.color.r = segmentationSettings.color[0] / 255
-                segmentationGroup.children[child].material.color.g = segmentationSettings.color[1] / 255
-                segmentationGroup.children[child].material.color.b = segmentationSettings.color[2] / 255
+                let color = segmentationSettings.color;
+                let id = segmentationGroup.children[child].userData.name
+                for(let index in segmentationSettings.obsSets){
+                    if(segmentationSettings.obsSets[index].id === id){
+                        color = segmentationSettings.obsSets[index].color
+                    }
+                }
+                //TODO check if in a Set selection
+                //adapt the color
+
+                segmentationGroup.children[child].material.color.r = color[0] / 255
+                segmentationGroup.children[child].material.color.g = color[1] / 255
+                segmentationGroup.children[child].material.color.b = color[2] / 255
                 segmentationGroup.children[child].material.opacity = segmentationSettings.opacity
                 segmentationGroup.children[child].material.needsUpdate = true;
             }
@@ -155,7 +214,7 @@ const SpatialThree = (props) => {
     let dataToCheck = images[layerScope]?.image?.instance?.getData();
     if (dataToCheck !== undefined && !dataReady && !initialStartup &&
         contrastLimits !== null && contrastLimits[0][1] !== 255 && is3dMode) {
-        // console.log("Loading Data")
+
         setDataReady(true);
         setInitialStartup(true);
     }
@@ -306,7 +365,7 @@ const SpatialThree = (props) => {
         <group>
             <Controllers/>
             <Hands/>
-            <GeometryAndMesh {...geometryAndMeshProps} ></GeometryAndMesh>
+            <GeometryAndMeshOld {...geometryAndMeshProps} ></GeometryAndMeshOld>
             <OrbitControls ref={orbitRef}/>
         </group>
     );
@@ -325,7 +384,7 @@ function GeometryAndMesh(props) {
     let camera = useThree().camera;
     let renderer = useThree().gl
 
-    if (materialRef.current !== undefined){
+    if (materialRef.current !== undefined) {
         // Setting up the Initial Scene to get the Stop Positions
         let shaderFirstPass = VolumeShaderFirstPass;
         let uniformsFirstPassA = THREE.UniformsUtils.clone(shaderFirstPass.uniforms);
@@ -384,8 +443,8 @@ function GeometryAndMesh(props) {
             renderer.render(segmentationGroup, camera);
 
             // 2. - render second pass: volume rendering and geometry
-            renderer.setRenderTarget( null );
-            renderer.setClearColor(new THREE.Color(0, 0,0), 0.0);
+            renderer.setRenderTarget(null);
+            renderer.setClearColor(new THREE.Color(0, 0, 0), 0.0);
             renderer.clear();
             // 2a. render geometry onto screen
             let shaderGeom = VolumeShaderGeom;
@@ -424,7 +483,7 @@ function GeometryAndMesh(props) {
                     renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
                 <RayGrab>
                     <mesh ref={materialRef}>
-                        <boxGeometry args={[1,1,1]}/>
+                        <boxGeometry args={[1, 1, 1]}/>
                         <shaderMaterial
                             customProgramCacheKey={() => {
                                 return '1'
@@ -443,6 +502,45 @@ function GeometryAndMesh(props) {
 }
 
 
+// Only cares about rendering the gemoetry and the mesh together in one scene
+function GeometryAndMeshOld(props) {
+    const {
+        segmentationGroup, segmentationSettings,
+        renderingSettings, materialRef
+    } = props;
+    return (
+        <group>
+            {segmentationGroup !== null && segmentationSettings.visible &&
+                <group>
+                    <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
+                    <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
+                    <Interactive>
+                        <primitive object={segmentationGroup} scale={[0.25, 0.25, 0.25]}
+                                   position={[100, -100, 100]}/>
+                    </Interactive>
+                </group>
+            }
+            {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
+                    renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
+                <EnhancedRayGrab>
+                    <mesh scale={renderingSettings.meshScale} ref={materialRef}>
+                        <boxGeometry args={renderingSettings.geometrySize}/>
+                        <shaderMaterial
+                            customProgramCacheKey={() => {
+                                return '1'
+                            }}
+                            side={THREE.BackSide}
+                            uniforms={renderingSettings.uniforms}
+                            needsUpdate={true}
+                            vertexShader={renderingSettings.shader.vertexShader}
+                            fragmentShader={renderingSettings.shader.fragmentShader}
+                        />
+                    </mesh>
+                </EnhancedRayGrab>
+            }
+        </group>
+    );
+}
 
 
 function extractInformationFromProps(layerScope, layerCoordination, channelScopes, channelCoordination,
@@ -606,7 +704,8 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
         viridis: new THREE.TextureLoader().load(cmViridisTextureUrl),
         gray: new THREE.TextureLoader().load(cmGrayTextureUrl)
     };
-    var shader = VolumeShaderNew;
+    //var shader = VolumeShaderNew;
+    var shader = VolumeRenderShaderPerspective;
     var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
     setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig, renderstyle, contrastLimitsList, colorsSave);
     return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2].size / scale[0].size], [volume.xLength, volume.yLength, volume.zLength]];
@@ -810,7 +909,7 @@ function Box(props) {
 const SpatialWrapper = forwardRef((props, deckRef) => (
     <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
-        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -10], near: 0.01, far: 3000}}>
+        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 3000}}>
             <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>
             </XR>
