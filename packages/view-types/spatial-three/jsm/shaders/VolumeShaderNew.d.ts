@@ -2,9 +2,10 @@ import {
   Uniform
 } from '../../node_modules/three/build/three.module.js';
 
-export const VolumeRenderShaderPerspective: {
+export const VolumeShaderNew: {
   uniforms: {
     u_size: Uniform;
+    u_vol_scale: Uniform;
     volumeTex: Uniform;
     volumeTex2: Uniform;
     volumeTex3: Uniform;

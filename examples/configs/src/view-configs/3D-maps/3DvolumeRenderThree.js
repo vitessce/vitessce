@@ -12,22 +12,22 @@ function generateBlinConfig() {
     });
     const dataset = config.addDataset('My dataset').addFile({
         fileType: 'image.ome-tiff',
-        url: "url",
+        url: "http://127.0.0.1:8080/kidney.ome.tiff",
         options: {
-            offsetsUrl: "url"
+            offsetsUrl: "http://127.0.0.1:8080/kidney.offsets.json"
         },
         coordinationValues: {
             fileUid: 'kidney',
         },
     }).addFile({
         fileType: 'segmentation.glb',
-        url: 'url',
+        url: 'http://127.0.0.1:8080/glom_surface_export_reduced_draco.glb',
         coordinationValues: {
             fileUid: 'gloms',
         }
     }).addFile({
         fileType: 'obsFeatureMatrix.csv',
-        url: 'url',
+        url: 'http://127.0.0.1:8080/statistics.csv',
         coordinationValues: {
             obsType: 'gloms',
             featureType: 'feature',
