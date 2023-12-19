@@ -422,6 +422,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,
+    CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.FEATURE_SELECTION,
     CoordinationType.FEATURE_VALUE_COLORMAP,

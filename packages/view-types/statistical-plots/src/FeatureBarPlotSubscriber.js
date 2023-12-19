@@ -94,7 +94,7 @@ export function FeatureBarPlotSubscriber(props) {
   const onBarHighlight = useCallback((obsId) => {
     setCellHighlight(obsId);
   });
-  
+
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
     ? (featureLabelsMap?.get(geneSelection[0]) || geneSelection[0])
     : null;

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, {useRef, useState, forwardRef, useEffect} from 'react';
+import React, {useRef, useState, forwardRef, useEffect, useCallback} from 'react';
 import {Canvas, extend, useFrame, useThree} from '@react-three/fiber'
 import {OrbitControls, useTexture, shaderMaterial, PerspectiveCamera, TorusKnot} from '@react-three/drei'
 import {useXR, RayGrab, Interactive, VRButton, ARButton, XR, Controllers, Hands} from '@react-three/xr'
@@ -18,6 +18,7 @@ import {VolumeShaderNew} from "../jsm/shaders/VolumeShaderNew.js";
 import {VolumeShaderFirstPass} from "../jsm/shaders/VolumeShaderFirstPass.js";
 import {VolumeShaderGeom} from "../jsm/shaders/VolumeShaderGeom.js";
 import {useGLTF} from '@react-three/drei'
+import { setObsSelection } from '@vitessce/sets-utils';
 
 const SpatialThree = (props) => {
     const materialRef = useRef(null);
@@ -70,7 +71,6 @@ const SpatialThree = (props) => {
     let layerCoordination = imageLayerCoordination[0][layerScope];
     let channelCoordination = imageChannelCoordination[0][layerScope];
 
-
     // Get the relevant information out of the Props
     const {
         channelsVisible,
@@ -121,8 +121,10 @@ const SpatialThree = (props) => {
         segmentationChannelCoordination,
         featureValueColormap,
         featureValueColormapRange,
+        onGlomSelected
     } = props;
     let segmentationOBSSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
+    const { setObsHighlight } = segmentationChannelCoordination[1][layerScope][layerScope];
     let sets = segmentationChannelCoordination[0][layerScope][layerScope].additionalObsSets;
     let setsSave = [];
     if (sets !== null) {
@@ -141,7 +143,7 @@ const SpatialThree = (props) => {
             }
             for (let subIndex in segmentationOBSSetLayerProps.obsSetColor) {
                 let color = segmentationOBSSetLayerProps.obsSetColor[subIndex]
-                if(color.path[1] === selectedElement) {
+                if (color.path[1] === selectedElement) {
                     info.color = color.color;
                     break;
                 }
@@ -163,14 +165,14 @@ const SpatialThree = (props) => {
         let segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope]
 
         let setsSaveString = ""
-        for(let child in setsSave){
-            setsSaveString+=setsSave[child].id + ";" +setsSave[child].color.toString()  + ";" +setsSave[child].name;
+        for (let child in setsSave) {
+            setsSaveString += setsSave[child].id + ";" + setsSave[child].color.toString() + ";" + setsSave[child].name;
         }
         let settingsSaveString = ""
-        for(let child in segmentationSettings.obsSets){
-            settingsSaveString+=segmentationSettings.obsSets[child].id + ";"
-                +segmentationSettings.obsSets[child].color.toString()  + ";"
-                +segmentationSettings.obsSets[child].name;
+        for (let child in segmentationSettings.obsSets) {
+            settingsSaveString += segmentationSettings.obsSets[child].id + ";"
+                + segmentationSettings.obsSets[child].color.toString() + ";"
+                + segmentationSettings.obsSets[child].name;
         }
         if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString() ||
             segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity ||
@@ -188,12 +190,11 @@ const SpatialThree = (props) => {
     }
     useEffect(() => {
         if (segmentationGroup !== null) {
-            console.log()
             for (let child in segmentationGroup.children) {
                 let color = segmentationSettings.color;
                 let id = segmentationGroup.children[child].userData.name
-                for(let index in segmentationSettings.obsSets){
-                    if(segmentationSettings.obsSets[index].id === id){
+                for (let index in segmentationSettings.obsSets) {
+                    if (segmentationSettings.obsSets[index].id === id) {
                         color = segmentationSettings.obsSets[index].color
                     }
                 }
@@ -358,7 +359,8 @@ const SpatialThree = (props) => {
         segmentationGroup: segmentationGroup,
         segmentationSettings: segmentationSettings,
         renderingSettings: renderingSettings,
-        materialRef: materialRef
+        materialRef: materialRef,
+        highlightGlom: onGlomSelected
     }
 
     return (
@@ -506,7 +508,7 @@ function GeometryAndMesh(props) {
 function GeometryAndMeshOld(props) {
     const {
         segmentationGroup, segmentationSettings,
-        renderingSettings, materialRef
+        renderingSettings, materialRef, highlightGlom
     } = props;
     return (
         <group>
@@ -516,7 +518,11 @@ function GeometryAndMeshOld(props) {
                     <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
                     <Interactive>
                         <primitive object={segmentationGroup} scale={[0.25, 0.25, 0.25]}
-                                   position={[100, -100, 100]}/>
+                                   position={[100, -100, 100]} onClick={(e) => {
+                            console.log("you clicked me" + e.object.name)
+                            highlightGlom(e.object.name);
+                        }}
+                        />
                     </Interactive>
                 </group>
             }
