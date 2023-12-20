@@ -221,11 +221,11 @@ var VolumeRenderShaderPerspective = {
         "           gl_FragColor.a += (1.0 - gl_FragColor.a) * val_color.a;",
         "           if (gl_FragColor.a >= 0.95) {",
         // "               gl_FragDepth = min(1.0, max(0.0, t));",
-        "               gl_FragDepth = 0.0;",
+        //"               gl_FragDepth = 0.0;",
         "               break;",
         "           }",
         "       }",
-        "    gl_FragDepth = 1.0;",
+        //"       gl_FragDepth = 1.0;",
         "       p += step;",
         "  }",
         "       if(u_renderstyle == 0 && (max_val <  u_clim[0] && max_val2 < u_clim2[0] && max_val3 < u_clim3[0] &&" +

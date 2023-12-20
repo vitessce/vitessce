@@ -517,11 +517,11 @@ function GeometryAndMeshOld(props) {
                     <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                     <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
                     <Interactive>
-                        <primitive object={segmentationGroup} scale={[0.25, 0.25, 0.25]}
-                                   position={[100, -100, 100]} onClick={(e) => {
+                        <primitive object={segmentationGroup} scale={[0.25 / 2, 0.25 / 2, -0.25 /2]}
+                                   position={[50, -50, -50]} onClick={(e) => {
                             console.log("you clicked me" + e.object.name)
                             highlightGlom(e.object.name);
-                        }}
+                        }} onPointerOver={e => console.log('hover' + e.object.name)}
                         />
                     </Interactive>
                 </group>
@@ -905,7 +905,7 @@ function Box(props) {
         <mesh
             {...props}
             ref={ref}>
-            <torusKnotGeometry args={[0.5, 0.2, 150, 8]}/>
+            <torusKnotGeometry args={[14, 6, 176, 16]}/>
             <meshPhongMaterial color={props.color}/>
         </mesh>
     );
@@ -914,7 +914,7 @@ function Box(props) {
 
 const SpatialWrapper = forwardRef((props, deckRef) => (
     <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
-        <ARButton/>
+        {/*<ARButton/>*/}
         <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 3000}}>
             <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>

@@ -36,6 +36,7 @@ function generateBlinConfig() {
     })
 
     const spatialThreeView = config.addView(dataset, 'spatialThree');
+   // const spatialVolumeView = config.addView(dataset, 'spatialBeta').setProps({ title: 'MIP' });
     const lcView = config.addView(dataset, 'layerControllerBeta');
     const obsSetsView = config.addView(dataset, 'obsSets');
     const barPlot = config.addView(dataset, 'featureBarPlot').setProps({
@@ -72,6 +73,7 @@ function generateBlinConfig() {
     //const [selectionScope, colorScope] = config.addCoordination('obsSetSelection', 'obsSetColor');
     obsSetsView.useCoordination(selectionScope, colorScope);
 
+    //config.linkViewsByObject([spatialThreeView,spatialVolumeView, lcView], {
     config.linkViewsByObject([spatialThreeView, lcView], {
         spatialTargetZ: 0,
         spatialTargetT: 0,
@@ -136,6 +138,7 @@ function generateBlinConfig() {
         obsColorEncoding: colorEncodingScope,
     }, false);
 
+   // config.layout(hconcat(vconcat(spatialThreeView,spatialVolumeView), vconcat(lcView,obsSetsView, barPlot)));
     config.layout(hconcat(spatialThreeView, vconcat(lcView,obsSetsView, barPlot)));
 
     const configJSON = config.toJSON();
