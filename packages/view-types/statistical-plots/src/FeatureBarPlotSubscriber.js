@@ -51,7 +51,7 @@ export function FeatureBarPlotSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_BAR_PLOT],
     coordinationScopes,
   );
-
+  //console.log("BarPlot: " + cellHighlight)
   const [width, height, containerRef] = useGridItemSize();
 
   // Get data from loaders using the data hooks.
@@ -137,6 +137,10 @@ export function FeatureBarPlotSubscriber(props) {
             width={width}
             height={height}
             obsType={obsType}
+            cellHighlight={cellHighlight}
+            cellSetSelection={cellSetSelection}
+            additionalCellSets={additionalCellSets}
+            cellSetColor={cellSetColor}
             featureType={featureType}
             featureValueType={featureValueType}
             featureName={firstGeneSelected}

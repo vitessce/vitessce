@@ -18,7 +18,7 @@ import {VolumeShaderNew} from "../jsm/shaders/VolumeShaderNew.js";
 import {VolumeShaderFirstPass} from "../jsm/shaders/VolumeShaderFirstPass.js";
 import {VolumeShaderGeom} from "../jsm/shaders/VolumeShaderGeom.js";
 import {useGLTF} from '@react-three/drei'
-import { setObsSelection } from '@vitessce/sets-utils';
+import {setObsSelection} from '@vitessce/sets-utils';
 
 const SpatialThree = (props) => {
     const materialRef = useRef(null);
@@ -121,34 +121,43 @@ const SpatialThree = (props) => {
         segmentationChannelCoordination,
         featureValueColormap,
         featureValueColormapRange,
-        onGlomSelected
+        onGlomSelected,
+        delegateHover
     } = props;
-    let segmentationOBSSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
-    const { setObsHighlight } = segmentationChannelCoordination[1][layerScope][layerScope];
-    let sets = segmentationChannelCoordination[0][layerScope][layerScope].additionalObsSets;
+    let setObsHighlightFct = (id) => {};
     let setsSave = [];
-    if (sets !== null) {
-        for (let index in segmentationOBSSetLayerProps.obsSetSelection) {
-            let info = {name: "", id: "", color: []}
+    if (segmentationChannelCoordination[0][layerScope] !== undefined) {
+        let segmentationOBSSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
+        //console.log(segmentationOBSSetLayerProps)
+        const {setObsHighlight} = segmentationChannelCoordination[1][layerScope][layerScope];
+        setObsHighlightFct = setObsHighlight;
+        let sets = segmentationChannelCoordination[0][layerScope][layerScope].additionalObsSets;
+        if (sets !== null) {
+            for (let index in segmentationOBSSetLayerProps.obsSetSelection) {
+                let info = {name: "", id: "", color: []}
 
-            let selectedElement = segmentationOBSSetLayerProps.obsSetSelection[index][1];
-            info.name = selectedElement
-            //console.log(sets.tree[0].children);
-            for (let subIndex in sets.tree[0].children) {
-                let child = sets.tree[0].children[subIndex]
-                if (child.name === selectedElement) {
-                    info.id = child.set[0][0];
-                    break;
+                let selectedElement = segmentationOBSSetLayerProps.obsSetSelection[index][1];
+                info.name = selectedElement
+                //console.log(sets.tree[0].children);
+                for (let subIndex in sets.tree[0].children) {
+                    let child = sets.tree[0].children[subIndex]
+                    if (child.name === selectedElement) {
+                        info.id = child.set[0][0];
+                        break;
+                    }
                 }
-            }
-            for (let subIndex in segmentationOBSSetLayerProps.obsSetColor) {
-                let color = segmentationOBSSetLayerProps.obsSetColor[subIndex]
-                if (color.path[1] === selectedElement) {
-                    info.color = color.color;
-                    break;
+                for (let subIndex in segmentationOBSSetLayerProps.obsSetColor) {
+                    let color = segmentationOBSSetLayerProps.obsSetColor[subIndex]
+                    if (color.path[1] === selectedElement) {
+                        info.color = color.color;
+                        break;
+                    }
                 }
+                setsSave.push(info);
             }
-            setsSave.push(info);
+        }
+        if (segmentationOBSSetLayerProps.obsHighlight !== null) {
+            setsSave.push({name: "", id: segmentationOBSSetLayerProps.obsHighlight, color: [160, 32, 240]});
         }
     }
     if (obsSegmentations[layerScope] !== undefined && segmentationGroup == null) {
@@ -320,7 +329,7 @@ const SpatialThree = (props) => {
         if (isPresenting && materialRef.current !== null) {
             //console.log(materialRef.current)
             //materialRef.current.position.z = materialRef.current.position.z - 1200;
-            player.position.z = 400
+            player.position.z = 600
         } else if (!isPresenting && materialRef.current !== null) {
             // materialRef.current.position.z = materialRef.current.position.z + 800;
         }
@@ -360,7 +369,8 @@ const SpatialThree = (props) => {
         segmentationSettings: segmentationSettings,
         renderingSettings: renderingSettings,
         materialRef: materialRef,
-        highlightGlom: onGlomSelected
+        highlightGlom: onGlomSelected,
+        setObsHighlight: setObsHighlightFct,
     }
 
     return (
@@ -508,8 +518,11 @@ function GeometryAndMesh(props) {
 function GeometryAndMeshOld(props) {
     const {
         segmentationGroup, segmentationSettings,
-        renderingSettings, materialRef, highlightGlom
+        renderingSettings, materialRef, highlightGlom, setObsHighlight
     } = props;
+
+    // FOR Hovering add this to the Primitive
+    //
     return (
         <group>
             {segmentationGroup !== null && segmentationSettings.visible &&
@@ -517,11 +530,13 @@ function GeometryAndMeshOld(props) {
                     <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                     <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
                     <Interactive>
-                        <primitive object={segmentationGroup} scale={[0.25 / 2, 0.25 / 2, -0.25 /2]}
-                                   position={[50, -50, -50]} onClick={(e) => {
-                            console.log("you clicked me" + e.object.name)
+                        <primitive object={segmentationGroup} scale={[-0.25 / 2, -0.25 / 2, -0.25 / 2]}
+                                   position={[-50, 50, -65]} onClick={(e) => {
+                            //console.log("you clicked me" + e.object.name)
                             highlightGlom(e.object.name);
-                        }} onPointerOver={e => console.log('hover' + e.object.name)}
+                        }}
+                                   onPointerOver={e => setObsHighlight(e.object.name)}
+                                   onPointerOut={e => setObsHighlight(null)}
                         />
                     </Interactive>
                 </group>
@@ -914,7 +929,7 @@ function Box(props) {
 
 const SpatialWrapper = forwardRef((props, deckRef) => (
     <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
-        {/*<ARButton/>*/}
+        <ARButton/>
         <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 3000}}>
             <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>
