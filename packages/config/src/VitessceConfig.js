@@ -55,10 +55,10 @@ export function getCoordinationSpaceAndScopes(partialCoordinationValues, scopePr
   const coordinationScopesPrefixed = prefixCoordinationScopes(coordinationScopes, scopePrefix);
   const coordinationScopesByPrefixed = prefixCoordinationScopesBy(coordinationScopesBy, scopePrefix);
   const coordinationSpacePrefixed = fromEntries(
-    Object.entries(coordinationSpace).map(([cType, cSpace]) => [
+    Object.entries(coordinationSpace).map(([cType, cObj]) => [
       cType,
       fromEntries(
-        Object.entries(cSpace).map(([cScope, cValue]) => [
+        Object.entries(cObj).map(([cScope, cValue]) => [
           `${scopePrefix}${cScope}`,
           prefixCoordinationValue(cType, cValue, scopePrefix),
         ]),

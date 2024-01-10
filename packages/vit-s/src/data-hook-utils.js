@@ -170,6 +170,7 @@ export function useDataType(
 export function useDataTypeMulti(
   dataType, loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOnObj,
+  mergeCoordination, viewUid,
 ) {
   const placeholderObject = useMemo(() => ({}), []);
   const setWarning = useSetWarning();
@@ -204,11 +205,17 @@ export function useDataTypeMulti(
       .map(q => q.data?.coordinationValues)
       .filter(v => Boolean(v))
       .forEach((coordinationValues) => {
-        initCoordinationSpace(
-          coordinationValues,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
+        if(mergeCoordination) {
+          mergeCoordination(
+            coordinationValues, `init_${dataset}_${dataType}_`, viewUid,
+          );
+        } else {
+          initCoordinationSpace(
+            coordinationValues,
+            coordinationSetters,
+            initialCoordinationValues,
+          );
+        }
       });
   // Deliberate dependency omissions: use indirect dependencies for efficiency.
   // eslint-disable-next-line react-hooks/exhaustive-deps

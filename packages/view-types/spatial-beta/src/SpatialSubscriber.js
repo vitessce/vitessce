@@ -22,6 +22,7 @@ import {
   useInitialCoordination,
   useCoordination,
   useLoaders,
+  useMergeCoordination,
   useSetComponentHover,
   useSetComponentViewInfo,
   useAuxiliaryCoordination,
@@ -129,6 +130,7 @@ export function SpatialSubscriber(props) {
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
+  const mergeCoordination = useMergeCoordination();
 
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
@@ -401,6 +403,7 @@ export function SpatialSubscriber(props) {
   // Image data
   const [imageData, imageDataStatus, imageUrls] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
 
 

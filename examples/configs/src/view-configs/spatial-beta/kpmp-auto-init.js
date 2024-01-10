@@ -119,11 +119,8 @@ export const kpmpAutoInit2023 = {
     },
     {
       component: 'layerControllerBeta',
-      props: {
-        disableChannelsIfRgbDetected: true,
-      },
       coordinationScopes: {
-
+        
       },
       x: 8,
       y: 0,

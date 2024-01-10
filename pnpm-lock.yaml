@@ -1603,6 +1603,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^4.29.12
         version: 4.29.12(react-dom@18.2.0)(react@18.2.0)
+      '@vitessce/config':
+        specifier: workspace:*
+        version: link:../config
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../constants-internal

@@ -7,6 +7,7 @@ import shallow from 'zustand/shallow';
 import { isMatch, merge, cloneDeep } from 'lodash-es';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { fromEntries, capitalize } from '@vitessce/utils';
+import { getCoordinationSpaceAndScopes } from '@vitessce/config';
 import {
   removeImageChannelInMetaCoordinationScopesHelper,
   addImageChannelInMetaCoordinationScopesHelper,
@@ -171,6 +172,51 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
           },
         },
       },
+    };
+  }),
+  mergeCoordination: (newCoordinationValues, scopePrefix, viewUid) => set((state) => {
+    const { coordinationSpace, layout } = state.viewConfig;
+    const {
+      coordinationSpace: newCoordinationSpace,
+      coordinationScopes,
+      coordinationScopesBy,
+    } = getCoordinationSpaceAndScopes(newCoordinationValues, scopePrefix);
+    // Merge coordination objects in coordination space
+    Object.entries(newCoordinationSpace).forEach(([coordinationType, coordinationObj]) => {
+      coordinationSpace[coordinationType] = {
+        ...(coordinationSpace[coordinationType] || {}),
+        ...coordinationObj,
+      };
+    });
+
+    const newViewConfig = {
+      ...state.viewConfig,
+      coordinationSpace: {
+        ...coordinationSpace,
+      },
+      layout: layout.map((viewObj) => {
+        if(viewObj.uid === viewUid) {
+          // Merge coordination scopes for views
+          return {
+            ...viewObj,
+            coordinationScopes: {
+              ...viewObj.coordinationScopes,
+              [CoordinationType.META_COORDINATION_SCOPES]: [
+                ...(coordinationScopes[CoordinationType.META_COORDINATION_SCOPES] || []),
+                ...(viewObj.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES] || []),
+              ],
+              [CoordinationType.META_COORDINATION_SCOPES_BY]: [
+                ...(coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY] || []),
+                ...(viewObj.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY] || []),
+              ]
+            }
+          }
+        }
+        return viewObj;
+      }),
+    };    
+    return {
+      viewConfig: newViewConfig,
     };
   }),
   removeImageChannelInMetaCoordinationScopes: (coordinationScopesRaw, layerScope, channelScope) => set((state) => {
@@ -587,7 +633,7 @@ export function useComplexCoordination(
               datasetScope,
               coordinationScopes,
               coordinationScopesBy,
-            );
+            ); 
             if (parameterScope) {
               const value = parameterSpace[parameterScope];
               return [parameter, value];
@@ -967,6 +1013,16 @@ export function useChangeLayout() {
  */
 export function useSetLoaders() {
   return useViewConfigStore(state => state.setLoaders);
+}
+
+/**
+ * Obtain the loaders setter function from
+ * the global app state.
+ * @returns {function} The loaders setter function
+ * in the `useViewConfigStore` store.
+ */
+export function useMergeCoordination() {
+  return useViewConfigStore(state => state.mergeCoordination);
 }
 
 /**

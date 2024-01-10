@@ -90,7 +90,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       spatialTargetT: imageWrapper.getDefaultTargetT(),
       imageLayer: CL([
         {
-          fileUid: this.coordinationValues?.fileUid,
+          fileUid: this.coordinationValues?.fileUid || null,
           spatialLayerOpacity: 1.0,
           spatialLayerVisible: true,
           photometricInterpretation: imageWrapper.getPhotometricInterpretation(),
@@ -100,10 +100,10 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
         },
       ]),
     };
-    console.log(coordinationValues);
+    //console.log(coordinationValues);
 
     // Merge into the coordination space.
-    console.log(getCoordinationSpaceAndScopes(coordinationValues, "init_"));
+    //console.log(getCoordinationSpaceAndScopes(coordinationValues, "init_"));
 
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = [
