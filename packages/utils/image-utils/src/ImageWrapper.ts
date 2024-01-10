@@ -432,4 +432,36 @@ export default class ImageWrapper<S extends string[]> {
     const { shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
     return isInterleavedUtil(shape);
   }
+
+  getPhotometricInterpretation() : 'RGB' | 'BlackIsZero' {
+    const loader = this.vivLoader;
+    if ('Pixels' in loader.metadata) {
+      // OME-TIFF case
+      const source = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+      if ('meta' in source) {
+        const { meta } = source;
+        if (meta && 'photometricInterpretation' in meta) {
+          const numericValue = meta.photometricInterpretation;
+          if (numericValue === 2) {
+            return 'RGB';
+          }
+          // We use BlackIsZero as default but should ideally be specified by a value of 1.
+        }
+      }
+    }
+    if ('omero' in loader.metadata) {
+      // This is the OME-Zarr case.
+      const {
+        omero: {
+          rdefs: {
+            model,
+          },
+        },
+      } = loader.metadata;
+      if (model === 'color') {
+        return 'RGB';
+      }
+    }
+    return 'BlackIsZero';
+  }
 }

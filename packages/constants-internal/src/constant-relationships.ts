@@ -71,6 +71,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
  */
 export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
   [DataType.OBS_SEGMENTATIONS]: [
+    CoordinationType.FILE_UID,
     CoordinationType.OBS_TYPE,
   ],
   [DataType.OBS_EMBEDDING]: [
@@ -102,6 +103,8 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
     CoordinationType.FEATURE_VALUE_TYPE,
   ],
   [DataType.GENOMIC_PROFILES]: [],
-  [DataType.IMAGE]: [],
+  [DataType.IMAGE]: [
+    CoordinationType.FILE_UID,
+  ],
   [DataType.NEIGHBORHOODS]: [],
 };

@@ -20,7 +20,7 @@ export const kpmpAutoInit2023 = {
             offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2.offsets.json`,
           },
           coordinationValues: {
-            image: 'S-1905-017737',
+            fileUid: 'S-1905-017737',
           },
         },
         {
@@ -28,9 +28,6 @@ export const kpmpAutoInit2023 = {
           url: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2_bf.ome.tif`,
           options: {
             offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2_bf.offsets.json`,
-          },
-          coordinationValues: {
-            image: 'S-1905-017737_bf',
           },
         },
         {

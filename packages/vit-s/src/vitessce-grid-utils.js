@@ -97,7 +97,7 @@ function withDefaults(
   const defaultKeys = DATA_TYPE_COORDINATION_VALUE_USAGE[dataType]
     .filter(k => (
       Object.keys(defaultCoordinationValues).includes(k)
-      && defaultCoordinationValues[k]
+      //&& defaultCoordinationValues[k]
       && !Object.keys(coordinationValues).includes(k)
     ));
   const defaultValues = pick(defaultCoordinationValues, defaultKeys);

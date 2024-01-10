@@ -2,6 +2,76 @@
 import { CoordinationType } from '@vitessce/constants-internal';
 import { fromEntries, getNextScope } from '@vitessce/utils';
 
+function prefixCoordinationScopes(coordinationScopes, scopePrefix) {
+  return fromEntries(
+    Object.entries(coordinationScopes).map(([cType, cScope]) => [
+      cType,
+      (Array.isArray(cScope) ? cScope.map(v => `${scopePrefix}${v}`) : `${scopePrefix}${cScope}`),
+    ]),
+  );
+}
+
+function prefixCoordinationScopesBy(coordinationScopesBy, scopePrefix) {
+  return coordinationScopesBy ? fromEntries(
+    Object.entries(coordinationScopesBy).map(([cTypePrimary, primaryObj]) => [
+      cTypePrimary,
+      fromEntries(
+        Object.entries(primaryObj).map(([cTypeSecondary, secondaryObj]) => [
+          cTypeSecondary,
+          fromEntries(
+            Object.entries(secondaryObj).map(([cScopePrimary, cScopeSecondary]) => [
+              `${scopePrefix}${cScopePrimary}`,
+              (Array.isArray(cScopeSecondary) ? cScopeSecondary.map(v => `${scopePrefix}${v}`) : `${scopePrefix}${cScopeSecondary}`),
+            ]),
+          ),
+        ]),
+      )
+    ]),
+  ) : null;
+}
+
+function prefixCoordinationValue(cType, cValue, scopePrefix) {
+  if (cType === CoordinationType.META_COORDINATION_SCOPES) {
+    return prefixCoordinationScopes(cValue, scopePrefix);
+  }
+  if (cType === CoordinationType.META_COORDINATION_SCOPES_BY) {
+    return prefixCoordinationScopesBy(cValue, scopePrefix);
+  }
+  return cValue;
+}
+
+// For usage within loader classes.
+export function getCoordinationSpaceAndScopes(partialCoordinationValues, scopePrefix) {
+  const vc = new VitessceConfig({ schemaVersion: "1.0.16", name: "__dummy__" });
+  const dataset = vc.addDataset("__dummy__");
+  const v1 = vc.addView(dataset, "__dummy__");
+  vc.linkViewsByObject([v1], partialCoordinationValues, true);
+  const vcJson = vc.toJSON();
+  const coordinationSpace = vcJson.coordinationSpace;
+  const coordinationScopes = vcJson.layout[0].coordinationScopes;
+  const coordinationScopesBy = vcJson.layout[0].coordinationScopesBy;
+
+  // Prepend prefix to all coordination scope names.
+  const coordinationScopesPrefixed = prefixCoordinationScopes(coordinationScopes, scopePrefix);
+  const coordinationScopesByPrefixed = prefixCoordinationScopesBy(coordinationScopesBy, scopePrefix);
+  const coordinationSpacePrefixed = fromEntries(
+    Object.entries(coordinationSpace).map(([cType, cSpace]) => [
+      cType,
+      fromEntries(
+        Object.entries(cSpace).map(([cScope, cValue]) => [
+          `${scopePrefix}${cScope}`,
+          prefixCoordinationValue(cType, cValue, scopePrefix),
+        ]),
+      ),
+    ]),
+  );
+  return {
+    coordinationSpace: coordinationSpacePrefixed,
+    coordinationScopes: coordinationScopesPrefixed,
+    coordinationScopesBy: coordinationScopesByPrefixed,
+  };
+}
+
 /**
  * Class representing a file within a Vitessce config dataset.
  */

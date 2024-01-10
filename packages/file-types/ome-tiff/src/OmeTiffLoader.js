@@ -6,6 +6,7 @@ import {
 } from '@vitessce/spatial-utils';
 import { ImageWrapper } from '@vitessce/image-utils';
 import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/vit-s';
+import { CoordinationLevel as CL, getCoordinationSpaceAndScopes } from '@vitessce/config';
 
 export default class OmeTiffLoader extends AbstractTwoStepLoader {
   async loadOffsets() {
@@ -74,6 +75,36 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       { url, name: image.name },
     ];
 
+    const channelObjects = imageWrapper.getChannelObjects();
+    const channelCoordination = channelObjects.slice(0, 7).map((channelObj, i) => ({
+      spatialTargetC: i,
+      spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
+      spatialChannelVisible: true,
+      spatialChannelOpacity: 1.0,
+      spatialChannelWindow: channelObj.defaultWindow || null,
+    }));
+
+
+    const coordinationValues = {
+      spatialTargetZ: imageWrapper.getDefaultTargetZ(),
+      spatialTargetT: imageWrapper.getDefaultTargetT(),
+      imageLayer: CL([
+        {
+          fileUid: this.coordinationValues?.fileUid,
+          spatialLayerOpacity: 1.0,
+          spatialLayerVisible: true,
+          photometricInterpretation: imageWrapper.getPhotometricInterpretation(),
+          volumetricRenderingAlgorithm: 'maximumIntensityProjection',
+          spatialTargetResolution: null,
+          imageChannel: CL(channelCoordination),
+        },
+      ]),
+    };
+    console.log(coordinationValues);
+
+    // Merge into the coordination space.
+    console.log(getCoordinationSpaceAndScopes(coordinationValues, "init_"));
+
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = [
       {
@@ -96,10 +127,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
     return this.autoImageCache.then((autoImages) => {
       const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = autoImages;
-
-      const coordinationValues = {
-        spatialImageLayer: autoImageLayers,
-      };
+      
       return new LoaderResult(
         {
           image: {
