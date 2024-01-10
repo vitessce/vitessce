@@ -106,11 +106,49 @@ export const kpmpAutoInit2023 = {
     },
   ],
   initStrategy: 'auto',
+  coordinationSpace: {
+    photometricInterpretation: {
+      A: 'RGB'
+    },
+    imageLayer: {
+      A: 'dummy'
+    },
+    imageChannel: {
+      R: 'dummy',
+      G: 'dummy',
+      B: 'dummy'
+    },
+    spatialChannelColor: {
+      A: [255, 0, 0],
+      default: [0, 255, 0],
+    },
+    spatialChannelVisible: {
+      A: true,
+    },
+    metaCoordinationScopes: {
+      A: {
+        imageLayer: ['A'],
+        //spatialChannelColor: 'default',
+      }
+    },
+    metaCoordinationScopesBy: {
+      A: {
+        imageLayer: {
+          imageChannel: { A: ['R', 'G', 'B']}
+        },
+        imageChannel: {
+          spatialChannelColor: { R: 'A' },
+          spatialChannelVisible: { R: 'A' }
+        },
+      }
+    }
+  },
   layout: [
     {
       component: 'spatialBeta',
       coordinationScopes: {
-
+        metaCoordinationScopes: ['A'],
+        metaCoordinationScopesBy: ['A'],
       },
       x: 0,
       y: 0,
@@ -120,7 +158,8 @@ export const kpmpAutoInit2023 = {
     {
       component: 'layerControllerBeta',
       coordinationScopes: {
-        
+        metaCoordinationScopes: ['A'],
+        metaCoordinationScopesBy: ['A'],
       },
       x: 8,
       y: 0,

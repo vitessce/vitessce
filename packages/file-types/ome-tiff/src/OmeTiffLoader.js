@@ -100,7 +100,6 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
         },
       ]),
     };
-    //console.log(coordinationValues);
 
     // Merge into the coordination space.
     //console.log(getCoordinationSpaceAndScopes(coordinationValues, "init_"));

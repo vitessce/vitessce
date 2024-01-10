@@ -426,7 +426,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_OPACITY, 1.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_WINDOW, null, z.array(z.number()).length(2).nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_COLOR, null, z.array(z.number()).length(3).nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_COLOR, [255, 255, 255], z.array(z.number()).length(3).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SEGMENTATION_FILLED, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH, 1.0, z.number()),
   // Reference: https://www.awaresystems.be/imaging/tiff/tifftags/photometricinterpretation.html
