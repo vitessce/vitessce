@@ -295,6 +295,9 @@ importers:
 
   packages/file-types/zarr:
     dependencies:
+      '@vitessce/config':
+        specifier: workspace:*
+        version: link:../../config
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal

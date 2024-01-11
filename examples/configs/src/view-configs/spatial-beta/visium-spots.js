@@ -16,9 +16,6 @@ function generateVisiumConfig() {
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-zarr',
     url: 'https://vitessce-data.storage.googleapis.com/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.ome.zarr',
-    coordinationValues: {
-      fileUid: 'histology-image',
-    },
   }).addFile({
     fileType: 'anndata.zarr',
     url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr',
@@ -52,6 +49,7 @@ function generateVisiumConfig() {
     },
   });
 
+  /*
   const scopes = config.addCoordinationByObject({
     spatialTargetZ: 0,
     spatialTargetT: 0,
@@ -71,20 +69,23 @@ function generateVisiumConfig() {
       featureValueColormapRange: [0, 1],
     }),
   });
+  
 
   const metaCoordinationScope = config.addMetaCoordination();
   metaCoordinationScope.useCoordinationByObject(scopes);
-
+  */
 
   const spatialViewSimple = config.addView(dataset, 'spatialBeta');
   const lcViewSimple = config.addView(dataset, 'layerControllerBeta');
   const obsSets = config.addView(dataset, 'obsSets');
   const featureList = config.addView(dataset, 'featureList');
 
+  /*
   spatialViewSimple.useMetaCoordination(metaCoordinationScope);
   lcViewSimple.useMetaCoordination(metaCoordinationScope);
+  */
 
-  config.linkViews([obsSets, featureList], ['obsType'], ['spot']);
+  config.linkViews([obsSets, featureList, spatialViewSimple, lcViewSimple], ['obsType'], ['spot']);
 
   config.layout(hconcat(spatialViewSimple, vconcat(lcViewSimple, obsSets, featureList)));
 

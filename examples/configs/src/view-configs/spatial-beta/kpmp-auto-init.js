@@ -26,7 +26,6 @@ export const kpmpAutoInit2023 = {
           options: {
             offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2_bf.offsets.json`,
           },
-          coordinationScopePrefix: 'MY_IMAGE_',
         },
         {
           fileType: 'obsFeatureMatrix.anndata.zarr',

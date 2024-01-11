@@ -377,6 +377,7 @@ export function useObsFeatureMatrixIndices(
 
 export function useMultiObsPoints(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
+  mergeCoordination, viewUid,
 ) {
   const obsTypeCoordination = useComplexCoordination(
     [
@@ -394,13 +395,14 @@ export function useMultiObsPoints(
   const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useDataTypeMulti(
     DataType.OBS_POINTS, loaders, dataset,
     false, {}, {},
-    matchOnObj,
+    matchOnObj, mergeCoordination, viewUid,
   );
   return [obsPointsData, obsPointsDataStatus, obsPointsUrls];
 }
 
 export function useMultiObsSpots(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
+  mergeCoordination, viewUid,
 ) {
   const obsTypeCoordination = useComplexCoordination(
     [
@@ -418,7 +420,7 @@ export function useMultiObsSpots(
   const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useDataTypeMulti(
     DataType.OBS_SPOTS, loaders, dataset,
     false, {}, {},
-    matchOnObj,
+    matchOnObj, mergeCoordination, viewUid,
   );
   return [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls];
 }

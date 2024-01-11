@@ -262,9 +262,11 @@ export function LayerControllerSubscriber(props) {
   );
   const [obsSpotsData, obsSpotsDataStatus] = useMultiObsSpots(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
   const [obsPointsData, obsPointsDataStatus] = useMultiObsPoints(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
 
   const isReady = useReady([

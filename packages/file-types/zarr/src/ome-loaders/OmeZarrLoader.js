@@ -14,10 +14,11 @@ import {
   LoaderResult,
   AbstractTwoStepLoader,
 } from '@vitessce/vit-s';
-
+import { CoordinationLevel as CL } from '@vitessce/config';
 
 export default class OmeZarrLoader extends AbstractTwoStepLoader {
   async load() {
+    const { coordinationScopePrefix } = this;
     const payload = await this.dataSource.getJson('.zattrs').catch(reason => Promise.resolve(reason));
     if (payload instanceof AbstractLoaderError) {
       return Promise.reject(payload);
@@ -154,8 +155,30 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       imagesWithLoaderCreators, undefined,
     );
 
+    const channelObjects2 = imageWrapper.getChannelObjects();
+    const channelCoordination = channelObjects2.slice(0, 7).map((channelObj, i) => ({
+      spatialTargetC: i,
+      spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
+      spatialChannelVisible: true,
+      spatialChannelOpacity: 1.0,
+      spatialChannelWindow: channelObj.defaultWindow || null,
+    }));
+
+
     const coordinationValues = {
-      spatialImageLayer: autoImageLayers,
+      spatialTargetZ: imageWrapper.getDefaultTargetZ(),
+      spatialTargetT: imageWrapper.getDefaultTargetT(),
+      imageLayer: CL([
+        {
+          fileUid: this.coordinationValues?.fileUid || null,
+          spatialLayerOpacity: 1.0,
+          spatialLayerVisible: true,
+          photometricInterpretation: imageWrapper.getPhotometricInterpretation(),
+          volumetricRenderingAlgorithm: 'maximumIntensityProjection',
+          spatialTargetResolution: null,
+          imageChannel: CL(channelCoordination),
+        },
+      ]),
     };
 
     return Promise.resolve(new LoaderResult(
@@ -167,8 +190,9 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
         },
         featureIndex: imageWrapper.getChannelNames(),
       },
-      [],
+      null,
       coordinationValues,
+      coordinationScopePrefix,
     ));
   }
 }

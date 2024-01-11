@@ -344,6 +344,7 @@ export function SpatialSubscriber(props) {
   // Points data
   const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useMultiObsPoints(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
 
   const [pointMultiObsLabelsData, pointMultiObsLabelsDataStatus] = usePointMultiObsLabels(
@@ -353,6 +354,7 @@ export function SpatialSubscriber(props) {
   // Spots data
   const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useMultiObsSpots(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
 
   const [obsSpotsSetsData, obsSpotsSetsDataStatus] = useSpotMultiObsSets(
