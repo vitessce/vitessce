@@ -380,6 +380,7 @@ export function SpatialSubscriber(props) {
 
   const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
 
   const [obsSegmentationsSetsData, obsSegmentationsSetsDataStatus] = useSegmentationMultiObsSets(

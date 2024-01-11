@@ -8,11 +8,12 @@ import {
 import {
   ImageWrapper,
 } from '@vitessce/image-utils';
+import { CoordinationLevel as CL } from '@vitessce/config';
 import OmeTiffLoader from './OmeTiffLoader.js';
 
 export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
   async load() {
-    const { url, requestInit } = this;
+    const { url, requestInit, coordinationScopePrefix } = this;
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
@@ -58,6 +59,36 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
     // Get image name and URL tuples.
     const urls = [{ url, name: image.name }];
 
+    const channelObjects = imageWrapper.getChannelObjects();
+    const channelCoordination = channelObjects.slice(0, 7).map((channelObj, i) => ({
+      spatialTargetC: i,
+      obsType: channelObj.name,
+      spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
+      spatialChannelVisible: true,
+      spatialChannelOpacity: 1.0,
+      spatialChannelWindow: channelObj.defaultWindow || null,
+      // featureType: 'feature',
+      // featureValueType: 'value',
+      obsColorEncoding: 'spatialChannelColor',
+      spatialSegmentationFilled: true,
+      spatialSegmentationStrokeWidth: 1.0,
+      obsHighlight: null,
+    }));
+
+
+    const coordinationValues = {
+      // spatialTargetZ: imageWrapper.getDefaultTargetZ(),
+      // spatialTargetT: imageWrapper.getDefaultTargetT(),
+      segmentationLayer: CL([
+        {
+          fileUid: this.coordinationValues?.fileUid || null,
+          spatialLayerOpacity: 1.0,
+          spatialLayerVisible: true,
+          segmentationChannel: CL(channelCoordination),
+        },
+      ]),
+    };
+
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = [
       {
@@ -86,9 +117,6 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
     return this.autoImageCache.then((autoImages) => {
       const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = autoImages;
 
-      const coordinationValues = {
-        spatialSegmentationLayer: autoImageLayers,
-      };
       return new LoaderResult(
         {
           obsSegmentationsType: 'bitmask',
@@ -100,6 +128,7 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
         },
         urls,
         coordinationValues,
+        coordinationScopePrefix,
       );
     });
   }

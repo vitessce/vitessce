@@ -275,6 +275,7 @@ export default class ImageWrapper<S extends string[]> {
     return [];
   }
 
+  // TODO: support passing a custom color palette array.
   getChannelObjects(): ChannelObject[] {
     if ('omero' in this.vivLoader.metadata) {
       // This is the OME-Zarr case.

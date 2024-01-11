@@ -6,7 +6,7 @@ import {
 } from '@vitessce/spatial-utils';
 import { ImageWrapper } from '@vitessce/image-utils';
 import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/vit-s';
-import { CoordinationLevel as CL, getCoordinationSpaceAndScopes } from '@vitessce/config';
+import { CoordinationLevel as CL } from '@vitessce/config';
 
 export default class OmeTiffLoader extends AbstractTwoStepLoader {
   async loadOffsets() {

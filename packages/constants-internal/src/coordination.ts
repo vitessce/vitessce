@@ -341,6 +341,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.IMAGE_CHANNEL,
     CoordinationType.IMAGE_LAYER,
     CoordinationType.SEGMENTATION_CHANNEL,
+    CoordinationType.SEGMENTATION_LAYER,
     CoordinationType.SPATIAL_CHANNEL_VISIBLE,
     CoordinationType.SPATIAL_CHANNEL_OPACITY,
     CoordinationType.SPATIAL_CHANNEL_WINDOW,

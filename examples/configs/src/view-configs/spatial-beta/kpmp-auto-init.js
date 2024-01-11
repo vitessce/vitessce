@@ -19,9 +19,6 @@ export const kpmpAutoInit2023 = {
           options: {
             offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2.offsets.json`,
           },
-          coordinationValues: {
-            fileUid: 'S-1905-017737',
-          },
         },
         {
           fileType: 'image.ome-tiff',
@@ -107,58 +104,9 @@ export const kpmpAutoInit2023 = {
     },
   ],
   initStrategy: 'auto',
-  coordinationSpace: {
-    photometricInterpretation: {
-      A: 'RGB'
-    },
-    imageLayer: {
-      A: 'dummy'
-    },
-    imageChannel: {
-      R: 'dummy',
-      G: 'dummy',
-      B: 'dummy'
-    },
-    spatialChannelColor: {
-      A: [255, 0, 0],
-      default: [0, 255, 0],
-    },
-    spatialChannelVisible: {
-      A: true,
-    },
-    photometricInterpretation: {
-      A: 'RGB'
-    },
-    metaCoordinationScopes: {
-      A: {
-        //imageLayer: ['A'],
-        //spatialChannelColor: 'default',
-      }
-    },
-    metaCoordinationScopesBy: {
-      A: {
-        imageLayer: {
-          /*
-          photometricInterpretation: {
-            'MY_IMAGE_0': 'A'
-          },*/
-          imageChannel: {
-            'MY_IMAGE_0': ['MY_IMAGE_0', 'MY_IMAGE_1'],
-          }
-        },
-        imageChannel: {
-          spatialChannelColor: { 'MY_IMAGE_0': 'A' },
-        },
-      }
-    }
-  },
   layout: [
     {
       component: 'spatialBeta',
-      coordinationScopes: {
-        metaCoordinationScopes: ['A'],
-        metaCoordinationScopesBy: ['A'],
-      },
       x: 0,
       y: 0,
       w: 8,
@@ -166,10 +114,6 @@ export const kpmpAutoInit2023 = {
     },
     {
       component: 'layerControllerBeta',
-      coordinationScopes: {
-        metaCoordinationScopes: ['A'],
-        metaCoordinationScopesBy: ['A'],
-      },
       x: 8,
       y: 0,
       w: 4,

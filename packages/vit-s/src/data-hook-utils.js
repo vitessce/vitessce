@@ -60,6 +60,7 @@ export async function dataQueryFn(ctx) {
   // This ordering of the queryKey must match.
   const [dataset, dataType, matchOn, isRequired] = ctx.queryKey;
   const loader = getMatchingLoader(loaders, dataset, dataType, matchOn);
+  console.log('dataQueryFn', ctx.queryKey, loaders, loader);
   if (loader) {
     // TODO: can cacheing logic be removed from all loaders?
     const payload = await loader.load();

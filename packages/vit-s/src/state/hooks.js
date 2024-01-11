@@ -54,7 +54,7 @@ export function getScopes(coordinationScopes, metaSpace) {
         // Merge the original coordinationScopes with the matching meta-coordinationScopes
         // from the coordinationSpace.
         let o1 = result;
-        const o2 = metaSpace[metaScope];
+        const o2 = metaSpace[metaScope] || {};
         Object.entries(o2).forEach(([cType, cScope]) => {
           o1 = {
             ...o1,
@@ -90,7 +90,7 @@ export function getScopesBy(coordinationScopes, coordinationScopesBy, metaSpaceB
         // Merge the original coordinationScopesBy with the matching meta-coordinationScopesBy
         // from the coordinationSpace.
         let o1 = result;
-        const o2 = metaSpaceBy[metaScope];
+        const o2 = metaSpaceBy[metaScope] || {};
         // Cannot simply use lodash merge(o1, o2)
         // because we do not want to merge (objects/arrays) at the leaf
         // (i.e., secondaryScopeVal) level.
@@ -247,6 +247,7 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
         return viewObj;
       }),
     };
+    console.log('newViewConfig', newViewConfig);
     return {
       viewConfig: newViewConfig,
     };

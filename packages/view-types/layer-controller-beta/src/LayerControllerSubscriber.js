@@ -254,6 +254,7 @@ export function LayerControllerSubscriber(props) {
 
   const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
   const [imageData, imageDataStatus] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
