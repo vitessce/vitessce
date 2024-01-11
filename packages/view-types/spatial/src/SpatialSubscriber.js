@@ -259,7 +259,6 @@ export function SpatialSubscriber(props) {
     neighborhoodsStatus,
     featureLabelsStatus,
   ]);
-  console.log(matrixIndicesUrls)
   const urls = useUrls([
     obsLocationsUrls,
     obsLabelsUrls,
