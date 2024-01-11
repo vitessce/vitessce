@@ -41,7 +41,6 @@ export function initCoordinationSpace(values, setters, initialValues) {
   if (!values || !setters) {
     return;
   }
-  console.log('initCoordinationSpace', values, setters, initialValues);
   Object.entries(values).forEach(([coordinationType, value]) => {
     const setterName = `set${capitalize(coordinationType)}`;
     const setterFunc = setters[setterName];

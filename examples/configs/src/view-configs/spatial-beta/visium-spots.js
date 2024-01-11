@@ -86,6 +86,14 @@ function generateVisiumConfig() {
   */
 
   config.linkViews([obsSets, featureList, spatialViewSimple, lcViewSimple], ['obsType'], ['spot']);
+  
+  // TODO: define a function that returns the string 'init_A_image_0' to prevent confusion.
+  // e.g., getScopeName(dataset, 'image') - assumes _0
+  // or    getScopeName(dataset, 'image', N)
+
+  config.setCoordinationValue('photometricInterpretation', 'init_A_image_0', 'RGB');
+
+  // Other option is to define all supported coordination values for the multi-level coordination.
 
   config.layout(hconcat(spatialViewSimple, vconcat(lcViewSimple, obsSets, featureList)));
 

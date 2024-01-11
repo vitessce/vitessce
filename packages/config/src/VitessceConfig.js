@@ -450,11 +450,12 @@ export class VitessceConfigCoordinationScope {
    * Construct a new coordination scope instance.
    * @param {string} cType The coordination type for this coordination scope.
    * @param {string} cScope The name of the coordination scope.
+   * @param {[any]} cValue Optional. The coordination value of the coordination scope.
    */
-  constructor(cType, cScope) {
+  constructor(cType, cScope, cValue = null) {
     this.cType = cType;
     this.cScope = cScope;
-    this.cValue = null;
+    this.cValue = cValue;
   }
 
   /**
@@ -898,6 +899,24 @@ export class VitessceConfig {
       });
     }
     return this;
+  }
+
+  /**
+   * Set the value for a coordination scope.
+   * If a coordination object for the coordination type does not yet exist
+   * in the coordination space, it will be created.
+   * @param {string} cType The coordination type.
+   * @param {string} cScope The coordination scope.
+   * @param {any} cValue The initial value for the coordination scope.
+   * @returns {VitessceConfigCoordinationScope} A coordination scope instance.
+   */
+  setCoordinationValue(cType, cScope, cValue) {
+    const scope = new VitessceConfigCoordinationScope(cType, cScope, cValue);
+    if(!this.config.coordinationSpace[scope.cType]) {
+      this.config.coordinationSpace[scope.cType] = {}
+    }
+    this.config.coordinationSpace[scope.cType][scope.cScope] = scope;
+    return scope;
   }
 
   /**
