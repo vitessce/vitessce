@@ -184,8 +184,10 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
     // Merge coordination objects in coordination space
     Object.entries(newCoordinationSpace).forEach(([coordinationType, coordinationObj]) => {
       coordinationSpace[coordinationType] = {
-        ...(coordinationSpace[coordinationType] || {}),
         ...coordinationObj,
+        // Existing coordination values should be preserved,
+        // so that user-defined values take precedence over auto-initialization values.
+        ...(coordinationSpace[coordinationType] || {}),
       };
     });
 
