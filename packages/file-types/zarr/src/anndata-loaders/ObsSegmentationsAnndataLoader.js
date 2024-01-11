@@ -65,6 +65,7 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
         obsSegmentations,
         obsSegmentationsType: 'polygon',
       },
+      null,
       coordinationValues,
     )));
   }
