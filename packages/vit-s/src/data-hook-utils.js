@@ -64,11 +64,16 @@ export async function dataQueryFn(ctx) {
     // TODO: can cacheing logic be removed from all loaders?
     const payload = await loader.load();
     if (!payload) return placeholderObject; // TODO: throw error instead?
-    const { data, url, coordinationValues } = payload;
+    const { data, url, coordinationValues, coordinationScopePrefix } = payload;
     // Status: success
     // Array of objects like  { url, name }.
     const urls = Array.isArray(url) ? url : [{ url, name: dataType }];
-    return { data, coordinationValues, urls };
+    return {
+      data,
+      coordinationValues,
+      urls,
+      coordinationScopePrefix,
+    };
   }
   // No loader was found.
   if (isRequired) {
@@ -202,12 +207,16 @@ export function useDataTypeMulti(
 
   useEffect(() => {
     dataQueries
-      .map(q => q.data?.coordinationValues)
-      .filter(v => Boolean(v))
-      .forEach((coordinationValues) => {
+      .filter(q => Boolean(q.data?.coordinationValues))
+      .forEach((q) => {
+        const { coordinationValues, coordinationScopePrefix } = q.data;
         if(mergeCoordination) {
           mergeCoordination(
-            coordinationValues, `init_${dataset}_${dataType}_`, viewUid,
+            coordinationValues,
+            // Use prefix from LoaderResult if available.
+            // Otherwise, auto-generate based on the dataset and data type.
+            (coordinationScopePrefix || `init_${dataset}_${dataType}_`),
+            viewUid,
           );
         } else {
           initCoordinationSpace(

@@ -7,6 +7,7 @@ export default class AbstractLoader {
     type, fileType,
     url, requestInit,
     options, coordinationValues,
+    coordinationScopePrefix,
   }) {
     this.fileType = fileType;
     this.type = type;
@@ -14,6 +15,7 @@ export default class AbstractLoader {
     this.requestInit = requestInit;
     this.options = options;
     this.coordinationValues = coordinationValues;
+    this.coordinationScopePrefix = coordinationScopePrefix;
   }
 
   // eslint-disable-next-line class-methods-use-this

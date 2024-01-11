@@ -1,74 +1,24 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { CoordinationType } from '@vitessce/constants-internal';
-import { fromEntries, getNextScope } from '@vitessce/utils';
-
-function prefixCoordinationScopes(coordinationScopes, scopePrefix) {
-  return fromEntries(
-    Object.entries(coordinationScopes).map(([cType, cScope]) => [
-      cType,
-      (Array.isArray(cScope) ? cScope.map(v => `${scopePrefix}${v}`) : `${scopePrefix}${cScope}`),
-    ]),
-  );
-}
-
-function prefixCoordinationScopesBy(coordinationScopesBy, scopePrefix) {
-  return coordinationScopesBy ? fromEntries(
-    Object.entries(coordinationScopesBy).map(([cTypePrimary, primaryObj]) => [
-      cTypePrimary,
-      fromEntries(
-        Object.entries(primaryObj).map(([cTypeSecondary, secondaryObj]) => [
-          cTypeSecondary,
-          fromEntries(
-            Object.entries(secondaryObj).map(([cScopePrimary, cScopeSecondary]) => [
-              `${scopePrefix}${cScopePrimary}`,
-              (Array.isArray(cScopeSecondary) ? cScopeSecondary.map(v => `${scopePrefix}${v}`) : `${scopePrefix}${cScopeSecondary}`),
-            ]),
-          ),
-        ]),
-      )
-    ]),
-  ) : null;
-}
-
-function prefixCoordinationValue(cType, cValue, scopePrefix) {
-  if (cType === CoordinationType.META_COORDINATION_SCOPES) {
-    return prefixCoordinationScopes(cValue, scopePrefix);
-  }
-  if (cType === CoordinationType.META_COORDINATION_SCOPES_BY) {
-    return prefixCoordinationScopesBy(cValue, scopePrefix);
-  }
-  return cValue;
-}
+import { fromEntries, getNextScope, createPrefixedGetNextScopeNumeric } from '@vitessce/utils';
 
 // For usage within loader classes.
 export function getCoordinationSpaceAndScopes(partialCoordinationValues, scopePrefix) {
   const vc = new VitessceConfig({ schemaVersion: "1.0.16", name: "__dummy__" });
+  vc.getNextScope = createPrefixedGetNextScopeNumeric(scopePrefix);
   const dataset = vc.addDataset("__dummy__");
   const v1 = vc.addView(dataset, "__dummy__");
   vc.linkViewsByObject([v1], partialCoordinationValues, true);
   const vcJson = vc.toJSON();
+  // TODO: remove the "dataset" coordination type from these objects.
   const coordinationSpace = vcJson.coordinationSpace;
   const coordinationScopes = vcJson.layout[0].coordinationScopes;
   const coordinationScopesBy = vcJson.layout[0].coordinationScopesBy;
 
-  // Prepend prefix to all coordination scope names.
-  const coordinationScopesPrefixed = prefixCoordinationScopes(coordinationScopes, scopePrefix);
-  const coordinationScopesByPrefixed = prefixCoordinationScopesBy(coordinationScopesBy, scopePrefix);
-  const coordinationSpacePrefixed = fromEntries(
-    Object.entries(coordinationSpace).map(([cType, cObj]) => [
-      cType,
-      fromEntries(
-        Object.entries(cObj).map(([cScope, cValue]) => [
-          `${scopePrefix}${cScope}`,
-          prefixCoordinationValue(cType, cValue, scopePrefix),
-        ]),
-      ),
-    ]),
-  );
   return {
-    coordinationSpace: coordinationSpacePrefixed,
-    coordinationScopes: coordinationScopesPrefixed,
-    coordinationScopesBy: coordinationScopesByPrefixed,
+    coordinationSpace,
+    coordinationScopes,
+    coordinationScopesBy,
   };
 }
 
@@ -625,6 +575,7 @@ export class VitessceConfig {
       layout: [],
       initStrategy: 'auto',
     };
+    this.getNextScope = getNextScope;
   }
 
   /**
@@ -639,7 +590,7 @@ export class VitessceConfig {
   addDataset(name = undefined, description = undefined, options = undefined) {
     const { uid } = options || {};
     const prevDatasetUids = this.config.datasets.map(d => d.dataset.uid);
-    const nextUid = (uid || getNextScope(prevDatasetUids));
+    const nextUid = (uid || this.getNextScope(prevDatasetUids));
     const newDataset = new VitessceConfigDataset(nextUid, name, description);
     this.config.datasets.push(newDataset);
     const [newScope] = this.addCoordination(CoordinationType.DATASET);
@@ -711,7 +662,7 @@ export class VitessceConfig {
           ? Object.keys(this.config.coordinationSpace[cType])
           : []
       );
-      const scope = new VitessceConfigCoordinationScope(cType, getNextScope(prevScopes));
+      const scope = new VitessceConfigCoordinationScope(cType, this.getNextScope(prevScopes));
       if (!this.config.coordinationSpace[scope.cType]) {
         this.config.coordinationSpace[scope.cType] = {};
       }
@@ -738,8 +689,8 @@ export class VitessceConfig {
         : []
     );
     const metaContainer = new VitessceConfigMetaCoordinationScope(
-      getNextScope(prevMetaScopes),
-      getNextScope(prevMetaByScopes),
+      this.getNextScope(prevMetaScopes),
+      this.getNextScope(prevMetaByScopes),
     );
     if (!this.config.coordinationSpace[CoordinationType.META_COORDINATION_SCOPES]) {
       this.config.coordinationSpace[CoordinationType.META_COORDINATION_SCOPES] = {};

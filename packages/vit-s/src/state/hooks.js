@@ -53,7 +53,15 @@ export function getScopes(coordinationScopes, metaSpace) {
       metaScopesArr.forEach((metaScope) => {
         // Merge the original coordinationScopes with the matching meta-coordinationScopes
         // from the coordinationSpace.
-        result = merge(result, metaSpace[metaScope]);
+        let o1 = result;
+        const o2 = metaSpace[metaScope];
+        Object.entries(o2).forEach(([cType, cScope]) => {
+          o1 = {
+            ...o1,
+            [cType]: cScope,
+          };
+        });
+        result = o1;
       });
     }
   }
@@ -81,7 +89,29 @@ export function getScopesBy(coordinationScopes, coordinationScopesBy, metaSpaceB
       metaScopesArr.forEach((metaScope) => {
         // Merge the original coordinationScopesBy with the matching meta-coordinationScopesBy
         // from the coordinationSpace.
-        result = merge(result, metaSpaceBy[metaScope]);
+        let o1 = result;
+        const o2 = metaSpaceBy[metaScope];
+        // Cannot simply use lodash merge(o1, o2)
+        // because we do not want to merge (objects/arrays) at the leaf
+        // (i.e., secondaryScopeVal) level.
+        // We want the values in o2 to take precedence over the values in o1.
+        Object.entries(o2).forEach(([primaryType, primaryObj]) => {
+          Object.entries(primaryObj).forEach(([secondaryType, secondaryObj]) => {
+            Object.entries(secondaryObj).forEach(([primaryScope, secondaryScopeVal]) => {
+              o1 = {
+                ...o1,
+                [primaryType]: {
+                  ...(o1?.[primaryType] || {}),
+                  [secondaryType]: {
+                    ...(o1?.[primaryType]?.[secondaryType] || {}),
+                    [primaryScope]: secondaryScopeVal,
+                  },
+                },
+              };
+            });
+          });
+        });
+        result = o1;
       });
     }
   }
@@ -216,7 +246,7 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
         }
         return viewObj;
       }),
-    };    
+    };
     return {
       viewConfig: newViewConfig,
     };

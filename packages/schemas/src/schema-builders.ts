@@ -53,6 +53,11 @@ function buildFileDefSchema<T extends z.ZodTypeAny>(fileType: string, options: T
         'Keys are coordination types. Values are coordination values. Used for matching views to files.',
       )
       .optional(),
+    coordinationScopePrefix: z.string()
+      .describe(
+        'Prefix to use for auto-generated coordination scope names during data-derived initialization.'
+      )
+      .optional(),
   });
 }
 

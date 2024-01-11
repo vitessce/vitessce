@@ -29,6 +29,7 @@ export const kpmpAutoInit2023 = {
           options: {
             offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2_bf.offsets.json`,
           },
+          coordinationScopePrefix: 'MY_IMAGE_',
         },
         {
           fileType: 'obsFeatureMatrix.anndata.zarr',
@@ -125,20 +126,28 @@ export const kpmpAutoInit2023 = {
     spatialChannelVisible: {
       A: true,
     },
+    photometricInterpretation: {
+      A: 'RGB'
+    },
     metaCoordinationScopes: {
       A: {
-        imageLayer: ['A'],
+        //imageLayer: ['A'],
         //spatialChannelColor: 'default',
       }
     },
     metaCoordinationScopesBy: {
       A: {
         imageLayer: {
-          imageChannel: { A: ['R', 'G', 'B']}
+          /*
+          photometricInterpretation: {
+            'MY_IMAGE_0': 'A'
+          },*/
+          imageChannel: {
+            'MY_IMAGE_0': ['MY_IMAGE_0', 'MY_IMAGE_1'],
+          }
         },
         imageChannel: {
-          spatialChannelColor: { R: 'A' },
-          spatialChannelVisible: { R: 'A' }
+          spatialChannelColor: { 'MY_IMAGE_0': 'A' },
         },
       }
     }

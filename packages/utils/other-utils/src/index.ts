@@ -6,6 +6,8 @@ export {
   pluralize,
   getLongestString,
   getNextScope,
+  getNextScopeNumeric,
+  createPrefixedGetNextScopeNumeric,
 } from './root.js';
 // eslint-disable-next-line react-refresh/only-export-components
 export {

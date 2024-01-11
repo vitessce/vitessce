@@ -23,7 +23,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const { url, requestInit } = this;
+    const { url, requestInit, coordinationScopePrefix } = this;
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
     const offsets = await this.loadOffsets();
@@ -138,6 +138,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
         },
         urls,
         coordinationValues,
+        coordinationScopePrefix,
       );
     });
   }
