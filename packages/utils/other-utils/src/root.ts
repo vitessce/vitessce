@@ -101,8 +101,7 @@ export function getNextScope(prevScopes: string[]) {
  * conflict / overlap with a previous scope name.
  * Really these just need to be unique within the coordination object.
  * So in theory they could be String(Math.random()) or uuidv4() or something.
- * However it may be good to make them more human-readable and memorable
- * since eventually we will want to expose a UI to update the coordination.
+ * In this version we use an incrementing integer starting from 0.
  * @param {string[]} prevScopes Previous scope names.
  * @returns {string} The new scope name.
  */
@@ -116,6 +115,11 @@ export function getNextScopeNumeric(prevScopes: string[]) {
   return nextScopeStr;
 }
 
+/**
+ * Generate a getNextScopeNumeric function which includes a prefix.
+ * @param {string} prefix The prefix to use.
+ * @returns {Function} The getNextScope function.
+ */
 export function createPrefixedGetNextScopeNumeric(prefix: string) {
   return (prevScopes: string[]) => {
     let nextScopeInt = 0;

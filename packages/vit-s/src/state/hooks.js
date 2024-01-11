@@ -4,7 +4,7 @@ import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
 import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
-import { isMatch, merge, cloneDeep } from 'lodash-es';
+import { isMatch, cloneDeep } from 'lodash-es';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { fromEntries, capitalize } from '@vitessce/utils';
 import { getCoordinationSpaceAndScopes } from '@vitessce/config';
