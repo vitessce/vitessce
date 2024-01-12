@@ -211,6 +211,7 @@ export function useDataTypeMulti(
       .forEach((q) => {
         const { coordinationValues, coordinationScopePrefix } = q.data;
         if(mergeCoordination) {
+          console.log('mergeCoordination', coordinationValues, dataType)
           mergeCoordination(
             coordinationValues,
             // Use prefix from LoaderResult if available.

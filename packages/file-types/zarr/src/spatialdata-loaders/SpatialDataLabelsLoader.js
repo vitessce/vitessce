@@ -1,6 +1,7 @@
 import {
   AbstractLoaderError,
 } from '@vitessce/vit-s';
+import { CoordinationLevel as CL } from '@vitessce/config';
 import SpatialDataImageLoader from './SpatialDataImageLoader.js';
 
 export default class SpatialDataLabelsLoader extends SpatialDataImageLoader {
@@ -14,6 +15,41 @@ export default class SpatialDataLabelsLoader extends SpatialDataImageLoader {
       obsSegmentations: result.data.image,
       obsSegmentationsType: 'bitmask',
     };
+
+    const imageWrapper = result.data.obsSegmentations.instance;
+    const channelObjects = imageWrapper.getChannelObjects();
+    console.log('channelObjects', channelObjects);
+    const channelCoordination = channelObjects.slice(0, 5).map((channelObj, i) => ({
+      spatialTargetC: i,
+      obsType: channelObj.name,
+      spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
+      spatialChannelVisible: true,
+      spatialChannelOpacity: 1.0,
+      spatialChannelWindow: channelObj.defaultWindow || null,
+      // featureType: 'feature',
+      // featureValueType: 'value',
+      obsColorEncoding: 'spatialChannelColor',
+      spatialSegmentationFilled: true,
+      spatialSegmentationStrokeWidth: 1.0,
+      obsHighlight: null,
+    }));
+
+
+    const coordinationValues = {
+      spatialTargetZ: imageWrapper.getDefaultTargetZ(),
+      spatialTargetT: imageWrapper.getDefaultTargetT(),
+      segmentationLayer: CL([
+        {
+          fileUid: this.coordinationValues?.fileUid || null,
+          spatialLayerOpacity: 1.0,
+          spatialLayerVisible: true,
+          segmentationChannel: CL(channelCoordination),
+        },
+      ]),
+    };
+
+    result.coordinationValues = coordinationValues;
+
     return Promise.resolve(result);
   }
 }

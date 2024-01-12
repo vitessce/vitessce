@@ -76,7 +76,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
     ];
 
     const channelObjects = imageWrapper.getChannelObjects();
-    const channelCoordination = channelObjects.slice(0, 7).map((channelObj, i) => ({
+    const channelCoordination = channelObjects.slice(0, 5).map((channelObj, i) => ({
       spatialTargetC: i,
       spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
       spatialChannelVisible: true,

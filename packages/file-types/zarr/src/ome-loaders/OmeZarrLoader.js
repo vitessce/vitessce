@@ -88,6 +88,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       return sel;
     };
 
+    // TODO: move this logic into ImageWrapper class.
     let channelObjects;
     let channelLabels = [];
     let initialTargetT = 0;
@@ -156,7 +157,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     );
 
     const channelObjects2 = imageWrapper.getChannelObjects();
-    const channelCoordination = channelObjects2.slice(0, 7).map((channelObj, i) => ({
+    const channelCoordination = channelObjects2.slice(0, 5).map((channelObj, i) => ({
       spatialTargetC: i,
       spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
       spatialChannelVisible: true,
