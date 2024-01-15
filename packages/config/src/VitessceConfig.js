@@ -884,7 +884,10 @@ export class VitessceConfig {
    * @param {boolean} meta Should meta-coordination be used? Optional. By default, true.
    * @returns {VitessceConfig} This, to allow chaining.
    */
-  linkViewsByObject(views, input, meta = true) {
+  linkViewsByObject(views, input, meta = true, scopePrefix = null) {
+    if (scopePrefix) {
+      this.getNextScope = createPrefixedGetNextScopeNumeric(scopePrefix);
+    }
     const scopes = this.addCoordinationByObject(input);
     if (meta) {
       const metaScope = this.addMetaCoordination();
@@ -897,6 +900,9 @@ export class VitessceConfig {
       views.forEach((view) => {
         view.useCoordinationByObject(scopes);
       });
+    }
+    if (scopePrefix) {
+      this.getNextScope = getNextScope;
     }
     return this;
   }

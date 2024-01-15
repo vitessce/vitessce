@@ -213,13 +213,20 @@ export default class ImageWrapper<S extends string[]> {
   }
 
   getNumChannels(): number {
-    if ('Pixels' in this.vivLoader.metadata) {
+    // SpatialData case: should be temporary code path,
+    // References:
+    // - https://github.com/ome/ngff/issues/192
+    // - https://github.com/ome/ome-zarr-py/pull/261
+    if ('image-label' in this.vivLoader.metadata) {
+      // As far as I can tell, SpatialData labels
+      // are always single-channel bitmasks (as of 2023-09-20).
+      return 1;
+    }
+    if ('channels_metadata' in this.vivLoader.metadata) {
       const {
-        Pixels: {
-          Channels,
-        },
+        channels_metadata: channelsMetadata,
       } = this.vivLoader.metadata;
-      return Channels.length;
+      return channelsMetadata?.channels.length || 0;
     }
     if ('omero' in this.vivLoader.metadata) {
       const {
@@ -229,20 +236,13 @@ export default class ImageWrapper<S extends string[]> {
       } = this.vivLoader.metadata;
       return channels.length;
     }
-    // SpatialData case: should be temporary code path,
-    // References:
-    // - https://github.com/ome/ngff/issues/192
-    // - https://github.com/ome/ome-zarr-py/pull/261
-    if ('channels_metadata' in this.vivLoader.metadata) {
+    if ('Pixels' in this.vivLoader.metadata) {
       const {
-        channels_metadata: channelsMetadata,
+        Pixels: {
+          Channels,
+        },
       } = this.vivLoader.metadata;
-      return channelsMetadata?.channels.length || 0;
-    }
-    if ('image-label' in this.vivLoader.metadata) {
-      // As far as I can tell, SpatialData labels
-      // are always single-channel bitmasks (as of 2023-09-20).
-      return 1;
+      return Channels.length;
     }
     return 0;
   }
@@ -256,13 +256,8 @@ export default class ImageWrapper<S extends string[]> {
       } = this.vivLoader.metadata;
       return Channels.map((channel, i) => channel.Name || `Channel ${i}`);
     }
-    if ('omero' in this.vivLoader.metadata) {
-      const {
-        omero: {
-          channels,
-        },
-      } = this.vivLoader.metadata;
-      return channels.map((channel, i) => channel.label || `Channel ${i}`);
+    if('image-label' in this.vivLoader.metadata) {
+      return ['labels'];
     }
     if ('channels_metadata' in this.vivLoader.metadata) {
       const {
@@ -272,11 +267,41 @@ export default class ImageWrapper<S extends string[]> {
         return channelsMetadata.channels.map(channel => `Channel ${channel.label}`);
       }
     }
+    if ('omero' in this.vivLoader.metadata) {
+      const {
+        omero: {
+          channels,
+        },
+      } = this.vivLoader.metadata;
+      return channels.map((channel, i) => channel.label || `Channel ${i}`);
+    }
     return [];
   }
 
   // TODO: support passing a custom color palette array.
   getChannelObjects(): ChannelObject[] {
+    if('image-label' in this.vivLoader.metadata) {
+      return [{
+        name: 'labels',
+        defaultColor: [255, 255, 255],
+        defaultWindow: [0, 255],
+        autoDefaultColor: [0, 0, 0],
+      }];
+    }
+    if ('channels_metadata' in this.vivLoader.metadata) {
+      // Temporary code path for SpatialData.
+      const {
+        channels_metadata: channelsMetadata,
+      } = this.vivLoader.metadata;
+      if (channelsMetadata && Array.isArray(channelsMetadata?.channels)) {
+        return channelsMetadata.channels.map((channel, i) => ({
+          name: `Channel ${channel.label}`,
+          defaultColor: undefined,
+          defaultWindow: undefined,
+          autoDefaultColor: VIEWER_PALETTE[i % VIEWER_PALETTE.length],
+        }));
+      }
+    }
     if ('omero' in this.vivLoader.metadata) {
       // This is the OME-Zarr case.
       const {
@@ -309,19 +334,6 @@ export default class ImageWrapper<S extends string[]> {
         defaultWindow: undefined, // TODO: does OME-TIFF support this?
         autoDefaultColor: VIEWER_PALETTE[i % VIEWER_PALETTE.length],
       }));
-    }
-    if ('channels_metadata' in this.vivLoader.metadata) {
-      const {
-        channels_metadata: channelsMetadata,
-      } = this.vivLoader.metadata;
-      if (channelsMetadata && Array.isArray(channelsMetadata?.channels)) {
-        return channelsMetadata.channels.map((channel, i) => ({
-          name: `Channel ${channel.label}`,
-          defaultColor: undefined,
-          defaultWindow: undefined,
-          autoDefaultColor: VIEWER_PALETTE[i % VIEWER_PALETTE.length],
-        }));
-      }
     }
     return [];
   }

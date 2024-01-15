@@ -62,7 +62,7 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
     const channelObjects = imageWrapper.getChannelObjects();
     const channelCoordination = channelObjects.slice(0, 5).map((channelObj, i) => ({
       spatialTargetC: i,
-      obsType: channelObj.name,
+      // obsType: channelObj.name,
       spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
       spatialChannelVisible: true,
       spatialChannelOpacity: 1.0,
@@ -77,8 +77,8 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
 
 
     const coordinationValues = {
-      // spatialTargetZ: imageWrapper.getDefaultTargetZ(),
-      // spatialTargetT: imageWrapper.getDefaultTargetT(),
+      spatialTargetZ: imageWrapper.getDefaultTargetZ(),
+      spatialTargetT: imageWrapper.getDefaultTargetT(),
       segmentationLayer: CL([
         {
           fileUid: this.coordinationValues?.fileUid || null,

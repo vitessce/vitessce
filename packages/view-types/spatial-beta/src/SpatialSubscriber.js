@@ -161,6 +161,8 @@ export function SpatialSubscriber(props) {
     setSpatialRotationOrbit: setRotationOrbit,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
 
+  console.log('obsType', obsType);
+
   const {
     spatialZoom: initialZoom,
     spatialTargetX: initialTargetX,

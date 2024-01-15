@@ -213,12 +213,46 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
     } = getCoordinationSpaceAndScopes(newCoordinationValues, scopePrefix);
     // Merge coordination objects in coordination space
     Object.entries(newCoordinationSpace).forEach(([coordinationType, coordinationObj]) => {
-      coordinationSpace[coordinationType] = {
-        ...coordinationObj,
-        // Existing coordination values should be preserved,
-        // so that user-defined values take precedence over auto-initialization values.
-        ...(coordinationSpace[coordinationType] || {}),
-      };
+      if(coordinationType === CoordinationType.META_COORDINATION_SCOPES) {
+        // Perform an extra level of merging for meta-coordination scopes.
+        Object.entries(coordinationObj).forEach(([coordinationScope, coordinationValue]) => {
+          coordinationSpace[coordinationType] = {
+            ...coordinationSpace[coordinationType],
+            [coordinationScope]: {
+              ...coordinationValue,
+              ...(coordinationSpace[coordinationType]?.[coordinationScope] || {}),
+            },
+          };
+        });
+      } else if (coordinationType === CoordinationType.META_COORDINATION_SCOPES_BY) {
+        // Perform two extra levels of merging for meta-coordination scopesBy.
+        Object.entries(coordinationObj).forEach(([coordinationScope, coordinationValue]) => {
+          Object.entries(coordinationValue).forEach(([primaryType, primaryObj]) => {
+            Object.entries(primaryObj).forEach(([secondaryType, secondaryObj]) => {
+              coordinationSpace[coordinationType] = {
+                ...coordinationSpace[coordinationType],
+                [coordinationScope]: {
+                  ...(coordinationSpace[coordinationType]?.[coordinationScope] || {}),
+                  [primaryType]: {
+                    ...(coordinationSpace[coordinationType]?.[coordinationScope]?.[primaryType] || {}),
+                    [secondaryType]: {
+                      ...secondaryObj,
+                      ...(coordinationSpace[coordinationType]?.[coordinationScope]?.[primaryType]?.[secondaryType] || {}),
+                    },
+                  },
+                },
+              };
+            });
+          });
+        });
+      } else {
+        coordinationSpace[coordinationType] = {
+          ...coordinationObj,
+          // Existing coordination values should be preserved,
+          // so that user-defined values take precedence over auto-initialization values.
+          ...(coordinationSpace[coordinationType] || {}),
+        };
+      }
     });
 
     const newViewConfig = {

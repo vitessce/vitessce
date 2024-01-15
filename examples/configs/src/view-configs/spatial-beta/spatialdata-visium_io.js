@@ -22,9 +22,6 @@ function generateVisiumIoConfig() {
     options: {
       path: 'images/Visium_Mouse_Olfactory_Bulb_full_image',
     },
-    coordinationValues: {
-      fileUid: 'histology-image',
-    },
   }).addFile({
     fileType: 'obsFeatureMatrix.spatialdata.zarr',
     url: baseUrl,
@@ -74,28 +71,14 @@ function generateVisiumIoConfig() {
   obsColorEncodingScope.setValue('geneSelection');
 
   config.linkViewsByObject([spatialView, lcView], {
-    spatialTargetZ: 0,
-    spatialTargetT: 0,
-    obsType: 'spot', // TODO: remove this after auto-initialization is supported per-layer/per-layer-channel.
-    // For now, cheating by allowing the spotLayer to fall back to the auto-initialized values for the view.
-    imageLayer: CL({
-      fileUid: 'histology-image',
-      spatialLayerOpacity: 1,
-      spatialLayerVisible: true,
-      photometricInterpretation: 'RGB',
-    }),
     spotLayer: CL({
-      obsType: 'spot',
-      spatialLayerVisible: true,
-      spatialLayerOpacity: 0.5,
-      spatialSpotRadius: 50.0,
       featureValueColormapRange: [0, 0.5],
       obsColorEncoding: obsColorEncodingScope,
       featureSelection: featureSelectionScope,
     }),
-  });
+  }, true, 'init_A_obsSpots_');
 
-  config.linkViews([featureList, heatmap, obsSets], ['obsType'], ['spot']);
+  config.linkViews([featureList, heatmap, obsSets, spatialView, lcView], ['obsType'], ['spot']);
 
   featureList.useCoordination(featureSelectionScope);
   heatmap.useCoordination(featureSelectionScope);

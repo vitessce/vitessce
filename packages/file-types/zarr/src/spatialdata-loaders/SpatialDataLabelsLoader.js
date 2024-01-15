@@ -18,10 +18,9 @@ export default class SpatialDataLabelsLoader extends SpatialDataImageLoader {
 
     const imageWrapper = result.data.obsSegmentations.instance;
     const channelObjects = imageWrapper.getChannelObjects();
-    console.log('channelObjects', channelObjects);
     const channelCoordination = channelObjects.slice(0, 5).map((channelObj, i) => ({
       spatialTargetC: i,
-      obsType: channelObj.name,
+      // obsType: channelObj.name,
       spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
       spatialChannelVisible: true,
       spatialChannelOpacity: 1.0,
@@ -33,7 +32,6 @@ export default class SpatialDataLabelsLoader extends SpatialDataImageLoader {
       spatialSegmentationStrokeWidth: 1.0,
       obsHighlight: null,
     }));
-
 
     const coordinationValues = {
       spatialTargetZ: imageWrapper.getDefaultTargetZ(),

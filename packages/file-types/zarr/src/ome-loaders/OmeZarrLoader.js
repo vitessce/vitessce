@@ -88,7 +88,6 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       return sel;
     };
 
-    // TODO: move this logic into ImageWrapper class.
     let channelObjects;
     let channelLabels = [];
     let initialTargetT = 0;
