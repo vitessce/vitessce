@@ -503,16 +503,16 @@ function GeometryAndMesh(props) {
 
     return (
         <group>
-            {/*{segmentationGroup !== null && segmentationSettings.visible &&*/}
-            {/*    <group>*/}
-            {/*        <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>*/}
-            {/*        <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>*/}
-            {/*        <Interactive>*/}
-            {/*            <primitive object={segmentationGroup} scale={[0.25, 0.25, 0.25]}*/}
-            {/*                       position={[100, -100, 100]}/>*/}
-            {/*        </Interactive>*/}
-            {/*    </group>*/}
-            {/*}*/}
+            {segmentationGroup !== null && segmentationSettings.visible &&
+                <group>
+                    <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
+                    <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
+                    <Interactive>
+                        <primitive object={segmentationGroup} scale={[0.25, 0.25, 0.25]}
+                                   position={[100, -100, 100]}/>
+                    </Interactive>
+                </group>
+            }
             {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
                     renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
                 <RayGrab>
@@ -568,9 +568,22 @@ function GeometryAndMeshOld(props) {
             {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
                     renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
                 <EnhancedRayGrab>
-                    {/*<mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]} scale={[0.001, 0.001, 0.002]}*/}
-                    {/*      ref={materialRef}>*/}
-                    {/*    <boxGeometry args={[400, 400, 400]}/>*/}
+                    {useXR().isPresenting ?
+                    <mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]} scale={[0.001, 0.001, 0.002]}
+                          ref={materialRef}>
+                        <boxGeometry args={[400, 400, 400]}/>
+                        <shaderMaterial
+                            customProgramCacheKey={() => {
+                                return '1'
+                            }}
+                            side={THREE.BackSide}
+                            uniforms={renderingSettings.uniforms}
+                            needsUpdate={true}
+                            vertexShader={renderingSettings.shader.vertexShader}
+                            fragmentShader={renderingSettings.shader.fragmentShader}
+                        />
+                    </mesh>
+                        :
                     <mesh scale={renderingSettings.meshScale} ref={materialRef}>
                         <boxGeometry args={renderingSettings.geometrySize}/>
                         <shaderMaterial
@@ -583,7 +596,7 @@ function GeometryAndMeshOld(props) {
                             vertexShader={renderingSettings.shader.vertexShader}
                             fragmentShader={renderingSettings.shader.fragmentShader}
                         />
-                    </mesh>
+                    </mesh>}
                 </EnhancedRayGrab>
             }
         </group>
