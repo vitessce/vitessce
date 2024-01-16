@@ -1619,6 +1619,9 @@ importers:
       plur:
         specifier: ^5.1.0
         version: 5.1.0
+      react-use-websocket:
+        specifier: 4.5.0
+        version: 4.5.0(react-dom@18.2.0)(react@18.2.0)
       short-number:
         specifier: ^1.0.6
         version: 1.0.7
@@ -21702,6 +21705,16 @@ packages:
       react-dom: '>=16.13 || 18'
     dependencies:
       debounce: 1.2.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /react-use-websocket@4.5.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-oxYVLWM3Lv0InCfjW7hG/Hk0hkE0P1SiLd5/I3d5x0W4riAnDUkD4VEu7qNVAqxNjBF3nU7k0jLMOetLXpwfsA==}
+    peerDependencies:
+      react: '>= 18.0.0 || 18'
+      react-dom: '>= 18.0.0 || 18'
+    dependencies:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false

@@ -19,8 +19,13 @@ import {VolumeShaderFirstPass} from "../jsm/shaders/VolumeShaderFirstPass.js";
 import {VolumeShaderGeom} from "../jsm/shaders/VolumeShaderGeom.js";
 import {useGLTF} from '@react-three/drei'
 import {setObsSelection} from '@vitessce/sets-utils';
+import {setPowerset} from "mathjs";
+
+const ws = import.meta.hot;
+export const WS_EVENT = "click:event";
 
 const SpatialThree = (props) => {
+    // console.log(props)
     const materialRef = useRef(null);
     const orbitRef = useRef(null);
     const controllerRef = useRef(null);
@@ -57,61 +62,12 @@ const SpatialThree = (props) => {
         data: null,
         obsSets: [],
     })
-    const {
-        images = {},
-        imageLayerScopes,
-        imageLayerCoordination,
-        imageChannelScopesByLayer,
-        imageChannelCoordination,
-    } = props;
-    //console.log(props)
-    const imageLayerLoaderSelections = useRef({});
-    let layerScope = imageLayerScopes[0];
-    let channelScopes = imageChannelScopesByLayer[layerScope];
-    let layerCoordination = imageLayerCoordination[0][layerScope];
-    let channelCoordination = imageChannelCoordination[0][layerScope];
 
-    // Get the relevant information out of the Props
+
     const {
-        channelsVisible,
-        allChannels,
-        channelTargetC,
-        resolution,
-        data,
-        colors,
-        contrastLimits,
-        is3dMode,
-        renderingMode
-    } = extractInformationFromProps(layerScope, layerCoordination, channelScopes,
-        channelCoordination, images[layerScope], props, imageLayerLoaderSelections.current)
-    // TODO: Find a better and more efficient way to compare the Strings here
-    if (channelTargetC !== null) {
-        if (volumeSettings.channelTargetC.length !== 0 &&
-            (volumeSettings.channelTargetC.toString() !== channelTargetC.toString() ||
-                volumeSettings.resolution.toString() !== resolution.toString())) {
-            // console.log("Reloading the data due to channel or resolution change " + dataReady)
-            if (!dataReady) setDataReady(true);
-        } else if (
-            (volumeSettings.channelsVisible.toString() !== channelsVisible.toString() ||
-                volumeSettings.colors.toString() !== colors.toString() ||
-                volumeSettings.is3dMode !== is3dMode ||
-                volumeSettings.contrastLimits.toString() !== contrastLimits.toString() ||
-                volumeSettings.renderingMode.toString() !== renderingMode.toString()
-            )) {
-            setVolumeSettings({
-                channelsVisible,
-                allChannels,
-                channelTargetC,
-                resolution,
-                data,
-                colors,
-                contrastLimits,
-                is3dMode,
-                renderingMode
-            });
-            setDataReady(false);
-        }
-    }
+        layerScope, images, contrastLimits, is3dMode, resolution,
+        channelTargetC, data, channelsVisible, allChannels, renderingMode, colors
+    } = getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady)
 
     //Segmentation: //TODO get the Loader to get the URL
     const {
@@ -124,11 +80,11 @@ const SpatialThree = (props) => {
         onGlomSelected,
         delegateHover
     } = props;
-    let setObsHighlightFct = (id) => {};
+    let setObsHighlightFct = (id) => {
+    };
     let setsSave = [];
     if (segmentationChannelCoordination[0][layerScope] !== undefined) {
         let segmentationOBSSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
-        //console.log(segmentationOBSSetLayerProps)
         const {setObsHighlight} = segmentationChannelCoordination[1][layerScope][layerScope];
         setObsHighlightFct = setObsHighlight;
         let sets = segmentationChannelCoordination[0][layerScope][layerScope].additionalObsSets;
@@ -138,7 +94,6 @@ const SpatialThree = (props) => {
 
                 let selectedElement = segmentationOBSSetLayerProps.obsSetSelection[index][1];
                 info.name = selectedElement
-                //console.log(sets.tree[0].children);
                 for (let subIndex in sets.tree[0].children) {
                     let child = sets.tree[0].children[subIndex]
                     if (child.name === selectedElement) {
@@ -279,7 +234,7 @@ const SpatialThree = (props) => {
     }, [dataReady]);
 
 
-// 2nd Rendering Pass Check if the Props Changed (except the resolution)
+    // 2nd Rendering Pass Check if the Props Changed (except the resolution)
     useEffect(() => {
         if (((renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
             renderingSettings.shader !== undefined && renderingSettings.shader !== null))) {
@@ -329,7 +284,7 @@ const SpatialThree = (props) => {
         if (isPresenting && materialRef.current !== null) {
             //console.log(materialRef.current)
             //materialRef.current.position.z = materialRef.current.position.z - 1200;
-            player.position.z = 600
+            // player.position.z = 600
         } else if (!isPresenting && materialRef.current !== null) {
             // materialRef.current.position.z = materialRef.current.position.z + 800;
         }
@@ -381,6 +336,73 @@ const SpatialThree = (props) => {
             <OrbitControls ref={orbitRef}/>
         </group>
     );
+}
+
+function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady) {
+    //Everything that is props based should be useEffect with props as dependent so we can sideload the props
+    const {
+        images = {},
+        imageLayerScopes,
+        imageLayerCoordination,
+        imageChannelScopesByLayer,
+        imageChannelCoordination,
+        imageChannelCoordinationNEW,
+    } = props;
+    //console.log(props)
+    const imageLayerLoaderSelections = useRef({});
+    let layerScope = imageLayerScopes[0];
+    let channelScopes = imageChannelScopesByLayer[layerScope];
+    let layerCoordination = imageLayerCoordination[0][layerScope];
+    // console.log(imageChannelCoordinationNEW);
+    // console.log(imageChannelCoordination);
+    let channelCoordination = imageChannelCoordinationNEW !== undefined ? imageChannelCoordinationNEW[0][layerScope]
+        : imageChannelCoordination[0][layerScope];
+
+    // Get the relevant information out of the Props
+    const {
+        channelsVisible,
+        allChannels,
+        channelTargetC,
+        resolution,
+        data,
+        colors,
+        contrastLimits,
+        is3dMode,
+        renderingMode
+    } = extractInformationFromProps(layerScope, layerCoordination, channelScopes,
+        channelCoordination, images[layerScope], props, imageLayerLoaderSelections.current)
+    // TODO: Find a better and more efficient way to compare the Strings here
+    if (channelTargetC !== null) {
+        if (volumeSettings.channelTargetC.length !== 0 &&
+            (volumeSettings.channelTargetC.toString() !== channelTargetC.toString() ||
+                volumeSettings.resolution.toString() !== resolution.toString())) {
+            // console.log("Reloading the data due to channel or resolution change " + dataReady)
+            if (!dataReady) setDataReady(true);
+        } else if (
+            (volumeSettings.channelsVisible.toString() !== channelsVisible.toString() ||
+                volumeSettings.colors.toString() !== colors.toString() ||
+                volumeSettings.is3dMode !== is3dMode ||
+                volumeSettings.contrastLimits.toString() !== contrastLimits.toString() ||
+                volumeSettings.renderingMode.toString() !== renderingMode.toString()
+            )) {
+            setVolumeSettings({
+                channelsVisible,
+                allChannels,
+                channelTargetC,
+                resolution,
+                data,
+                colors,
+                contrastLimits,
+                is3dMode,
+                renderingMode
+            });
+            setDataReady(false);
+        }
+    }
+    return {
+        layerScope, images, contrastLimits, is3dMode, resolution, channelTargetC, data, channelsVisible,
+        allChannels, renderingMode, colors
+    };
 }
 
 // Only cares about rendering the gemoetry and the mesh together in one scene
@@ -523,6 +545,8 @@ function GeometryAndMeshOld(props) {
 
     // FOR Hovering add this to the Primitive
     //
+
+
     return (
         <group>
             {segmentationGroup !== null && segmentationSettings.visible &&
@@ -544,6 +568,9 @@ function GeometryAndMeshOld(props) {
             {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
                     renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
                 <EnhancedRayGrab>
+                    {/*<mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]} scale={[0.001, 0.001, 0.002]}*/}
+                    {/*      ref={materialRef}>*/}
+                    {/*    <boxGeometry args={[400, 400, 400]}/>*/}
                     <mesh scale={renderingSettings.meshScale} ref={materialRef}>
                         <boxGeometry args={renderingSettings.geometrySize}/>
                         <shaderMaterial
@@ -927,14 +954,33 @@ function Box(props) {
 }
 
 
-const SpatialWrapper = forwardRef((props, deckRef) => (
-    <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
+const SpatialWrapper = forwardRef((props, deckRef) => {
+    const [propsToUse, setPropsToUse] = useState(props);
+    const [imageChannelCoordinationSave, setImageChannelCoordiangionSave] = useState(undefined);
+    useEffect(() => {
+        ws?.on(WS_EVENT, (input) => {
+            console.log("Websocket Event")
+            console.log(input.data.imageChannelCoordination);
+            setImageChannelCoordiangionSave(input.data.imageChannelCoordination);
+        })
+    }, [ws])
+    useEffect(() => {
+        console.log("SaveProps")
+        setPropsToUse(props);
+        setImageChannelCoordiangionSave(props.imageChannelCoordination)
+        ws?.send(WS_EVENT, {
+            type: "selectStart",
+            data: props
+        });
+    }, [props])
+    return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
         <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 3000}}>
             <XR>
-                <SpatialThree {...props} deckRef={deckRef}/>
+                <SpatialThree {...propsToUse} imageChannelCoordinationNEW={imageChannelCoordinationSave}
+                              deckRef={deckRef}/> :
             </XR>
         </Canvas>
     </div>
-));
+});
 export default SpatialWrapper;
