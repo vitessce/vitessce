@@ -65,8 +65,21 @@ const SpatialThree = (props) => {
 
 
     const {
-        layerScope, images, contrastLimits, is3dMode, resolution,
-        channelTargetC, data, channelsVisible, allChannels, renderingMode, colors
+        images ,
+        layerScope,
+        imageLayerScopes,
+        imageLayerCoordination,
+        imageChannelScopesByLayer,
+        imageChannelCoordination,
+        channelsVisible,
+        allChannels,
+        channelTargetC,
+        resolution,
+        data,
+        colors,
+        contrastLimits,
+        is3dMode,
+        renderingMode
     } = getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady)
 
     //Segmentation: //TODO get the Loader to get the URL
@@ -80,8 +93,7 @@ const SpatialThree = (props) => {
         onGlomSelected,
         delegateHover
     } = props;
-    let setObsHighlightFct = (id) => {
-    };
+    let setObsHighlightFct = (id) => {};
     let setsSave = [];
     if (segmentationChannelCoordination[0][layerScope] !== undefined) {
         let segmentationOBSSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
@@ -400,8 +412,21 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
         }
     }
     return {
-        layerScope, images, contrastLimits, is3dMode, resolution, channelTargetC, data, channelsVisible,
-        allChannels, renderingMode, colors
+        images,
+        layerScope,
+        imageLayerScopes,
+        imageLayerCoordination,
+        imageChannelScopesByLayer,
+        imageChannelCoordination,
+        channelsVisible,
+        allChannels,
+        channelTargetC,
+        resolution,
+        data,
+        colors,
+        contrastLimits,
+        is3dMode,
+        renderingMode
     };
 }
 
@@ -970,28 +995,29 @@ function Box(props) {
 const SpatialWrapper = forwardRef((props, deckRef) => {
     const [propsToUse, setPropsToUse] = useState(props);
     const [imageChannelCoordinationSave, setImageChannelCoordiangionSave] = useState(undefined);
-    useEffect(() => {
-        ws?.on(WS_EVENT, (input) => {
-            console.log("Websocket Event")
-            console.log(input.data.imageChannelCoordination);
-            setImageChannelCoordiangionSave(input.data.imageChannelCoordination);
-        })
-    }, [ws])
-    useEffect(() => {
-        console.log("SaveProps")
-        setPropsToUse(props);
-        setImageChannelCoordiangionSave(props.imageChannelCoordination)
-        ws?.send(WS_EVENT, {
-            type: "selectStart",
-            data: props
-        });
-    }, [props])
+    // useEffect(() => {
+    //     ws?.on(WS_EVENT, (input) => {
+    //         console.log("Websocket Event")
+    //         console.log(input.data.imageChannelCoordination);
+    //         setImageChannelCoordiangionSave(input.data.imageChannelCoordination);
+    //     })
+    // }, [ws])
+    // useEffect(() => {
+    //     console.log("SaveProps")
+    //     setPropsToUse(props);
+    //     setImageChannelCoordiangionSave(props.imageChannelCoordination)
+    //     ws?.send(WS_EVENT, {
+    //         type: "selectStart",
+    //         data: props
+    //     });
+    // }, [props])
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
         <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 3000}}>
             <XR>
-                <SpatialThree {...propsToUse} imageChannelCoordinationNEW={imageChannelCoordinationSave}
-                              deckRef={deckRef}/> :
+                {/*<SpatialThree {...propsToUse} imageChannelCoordinationNEW={imageChannelCoordinationSave}*/}
+                {/*              deckRef={deckRef}/>*/}
+                <SpatialThree {...propsToUse} deckRef={deckRef}/>
             </XR>
         </Canvas>
     </div>
