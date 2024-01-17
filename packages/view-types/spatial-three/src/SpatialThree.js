@@ -65,7 +65,7 @@ const SpatialThree = (props) => {
 
 
     const {
-        images ,
+        images,
         layerScope,
         imageLayerScopes,
         imageLayerCoordination,
@@ -86,14 +86,22 @@ const SpatialThree = (props) => {
     const {
         obsSegmentations,
         obsSegmentationsSets,
-        segmentationLayerCoordination,
-        segmentationChannelCoordination,
         featureValueColormap,
         featureValueColormapRange,
         onGlomSelected,
+        propsToShare,
         delegateHover
     } = props;
-    let setObsHighlightFct = (id) => {};
+    let segmentationLayerCoordination,segmentationChannelCoordination;
+    if (propsToShare !== undefined) {
+        segmentationLayerCoordination = propsToShare.segmentationLayerCoordination;
+        segmentationChannelCoordination = propsToShare.segmentationChannelCoordination;
+    } else {
+        segmentationLayerCoordination = props.segmentationLayerCoordination;
+        segmentationChannelCoordination = props.segmentationChannelCoordination;
+    }
+    let setObsHighlightFct = (id) => {
+    };
     let setsSave = [];
     if (segmentationChannelCoordination[0][layerScope] !== undefined) {
         let segmentationOBSSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
@@ -132,6 +140,9 @@ const SpatialThree = (props) => {
         if (scene !== null && scene !== undefined) {
             for (let child in scene.children) {
                 scene.children[child].material.transparent = true
+                scene.children[child].material.writeDepthTexture = true
+                scene.children[child].material.depthTest = true
+                scene.children[child].material.depthWrite = true
                 scene.children[child].material.needsUpdate = true;
             }
             setSegmentationGroup(scene);
@@ -358,16 +369,14 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
         imageLayerCoordination,
         imageChannelScopesByLayer,
         imageChannelCoordination,
-        imageChannelCoordinationNEW,
+        propsToShare,
     } = props;
     //console.log(props)
     const imageLayerLoaderSelections = useRef({});
     let layerScope = imageLayerScopes[0];
     let channelScopes = imageChannelScopesByLayer[layerScope];
-    let layerCoordination = imageLayerCoordination[0][layerScope];
-    // console.log(imageChannelCoordinationNEW);
-    // console.log(imageChannelCoordination);
-    let channelCoordination = imageChannelCoordinationNEW !== undefined ? imageChannelCoordinationNEW[0][layerScope]
+    let layerCoordination = propsToShare !== undefined ? propsToShare.imageLayerCoordination[0][layerScope] : imageLayerCoordination[0][layerScope];
+    let channelCoordination = propsToShare !== undefined ? propsToShare.imageChannelCoordination[0][layerScope]
         : imageChannelCoordination[0][layerScope];
 
     // Get the relevant information out of the Props
@@ -571,16 +580,54 @@ function GeometryAndMeshOld(props) {
     // FOR Hovering add this to the Primitive
     //
 
+    // First Positon: Left (+) Right (-)
+    // Second Position: Up (+) Down (-)
+    // Third Position: Front (-) Back (+)
 
     return (
         <group>
+            {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
+                    renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
+                <EnhancedRayGrab>
+                    {useXR().isPresenting ?
+                        <mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]}
+                              scale={[0.001, 0.001, 0.002]}
+                              ref={materialRef}>
+                            <boxGeometry args={[400, 400, 400]}/>
+                            <shaderMaterial
+                                customProgramCacheKey={() => {
+                                    return '1'
+                                }}
+                                side={THREE.BackSide}
+                                uniforms={renderingSettings.uniforms}
+                                needsUpdate={true}
+                                vertexShader={renderingSettings.shader.vertexShader}
+                                fragmentShader={renderingSettings.shader.fragmentShader}
+                            />
+                        </mesh>
+                        :
+                        <mesh scale={renderingSettings.meshScale} ref={materialRef}>
+                            <boxGeometry args={renderingSettings.geometrySize}/>
+                            <shaderMaterial
+                                customProgramCacheKey={() => {
+                                    return '1'
+                                }}
+                                side={THREE.BackSide}
+                                uniforms={renderingSettings.uniforms}
+                                needsUpdate={true}
+                                vertexShader={renderingSettings.shader.vertexShader}
+                                fragmentShader={renderingSettings.shader.fragmentShader}
+                            />
+                        </mesh>}
+                </EnhancedRayGrab>
+            }
             {segmentationGroup !== null && segmentationSettings.visible &&
                 <group>
                     <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                     <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
                     <Interactive>
-                        <primitive object={segmentationGroup} scale={[-0.25 / 2, -0.25 / 2, -0.25 / 2]}
-                                   position={[-50, 50, -65]} onClick={(e) => {
+                        <primitive object={segmentationGroup} scale={[-0.25, -0.25, -0.25]}
+                                   position={[-100, 110, -140]} onClick={(e) => {
                             //console.log("you clicked me" + e.object.name)
                             highlightGlom(e.object.name);
                         }}
@@ -589,40 +636,6 @@ function GeometryAndMeshOld(props) {
                         />
                     </Interactive>
                 </group>
-            }
-            {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
-                    renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
-                <EnhancedRayGrab>
-                    {useXR().isPresenting ?
-                    <mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]} scale={[0.001, 0.001, 0.002]}
-                          ref={materialRef}>
-                        <boxGeometry args={[400, 400, 400]}/>
-                        <shaderMaterial
-                            customProgramCacheKey={() => {
-                                return '1'
-                            }}
-                            side={THREE.BackSide}
-                            uniforms={renderingSettings.uniforms}
-                            needsUpdate={true}
-                            vertexShader={renderingSettings.shader.vertexShader}
-                            fragmentShader={renderingSettings.shader.fragmentShader}
-                        />
-                    </mesh>
-                        :
-                    <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                        <boxGeometry args={renderingSettings.geometrySize}/>
-                        <shaderMaterial
-                            customProgramCacheKey={() => {
-                                return '1'
-                            }}
-                            side={THREE.BackSide}
-                            uniforms={renderingSettings.uniforms}
-                            needsUpdate={true}
-                            vertexShader={renderingSettings.shader.vertexShader}
-                            fragmentShader={renderingSettings.shader.fragmentShader}
-                        />
-                    </mesh>}
-                </EnhancedRayGrab>
             }
         </group>
     );
@@ -992,32 +1005,42 @@ function Box(props) {
 }
 
 
+function getPropsToShare(props) {
+    return {
+        imageChannelCoordination: props.imageChannelCoordination,
+        imageLayerCoordination: props.imageLayerCoordination,
+        segmentationLayerCoordination: props.segmentationLayerCoordination,
+        segmentationChannelCoordination: props.segmentationChannelCoordination
+        // cellSetsSelected: props.cellSetsSelected,
+    }
+}
+
+
 const SpatialWrapper = forwardRef((props, deckRef) => {
     const [propsToUse, setPropsToUse] = useState(props);
-    const [imageChannelCoordinationSave, setImageChannelCoordiangionSave] = useState(undefined);
-    // useEffect(() => {
-    //     ws?.on(WS_EVENT, (input) => {
-    //         console.log("Websocket Event")
-    //         console.log(input.data.imageChannelCoordination);
-    //         setImageChannelCoordiangionSave(input.data.imageChannelCoordination);
-    //     })
-    // }, [ws])
-    // useEffect(() => {
-    //     console.log("SaveProps")
-    //     setPropsToUse(props);
-    //     setImageChannelCoordiangionSave(props.imageChannelCoordination)
-    //     ws?.send(WS_EVENT, {
-    //         type: "selectStart",
-    //         data: props
-    //     });
-    // }, [props])
+    const [propsToShare, setPropsToShare] = useState(undefined);
+    useEffect(() => {
+        ws?.on(WS_EVENT, (input) => {
+            console.log("Websocket Event")
+            setPropsToShare(input.data)
+        })
+    }, [ws])
+    useEffect(() => {
+        console.log("SaveProps")
+        console.log(props)
+        setPropsToUse(props);
+        setPropsToShare(getPropsToShare(props))
+        ws?.send(WS_EVENT, {
+            type: "selectStart",
+            data: getPropsToShare(props)
+        });
+    }, [props])
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
         <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 3000}}>
             <XR>
-                {/*<SpatialThree {...propsToUse} imageChannelCoordinationNEW={imageChannelCoordinationSave}*/}
-                {/*              deckRef={deckRef}/>*/}
-                <SpatialThree {...propsToUse} deckRef={deckRef}/>
+                <SpatialThree {...propsToUse} propsToShare={propsToShare}
+                              deckRef={deckRef}/>
             </XR>
         </Canvas>
     </div>

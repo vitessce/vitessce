@@ -50,9 +50,9 @@ export default function FeatureBarPlot(props) {
         onBarHighlight,
     } = props;
 
-    console.log(cellSetSelection)
-    console.log(additionalCellSets)
-    console.log(cellSetColor)
+    // console.log(cellSetSelection)
+    // console.log(additionalCellSets)
+    // console.log(cellSetColor)
     let setsSave = new Map();
     let info = {name: "", id: "", color: []}
     for (let index in cellSetSelection) {
@@ -77,7 +77,7 @@ export default function FeatureBarPlot(props) {
         }
         setsSave.set(info.id, info);
     }
-    console.log(setsSave)
+    // console.log(setsSave)
 
 
     const svgRef = useRef();
