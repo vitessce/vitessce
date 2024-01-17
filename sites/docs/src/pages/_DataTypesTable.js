@@ -91,6 +91,7 @@ export default function DataTypesTable() {
           <td>
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsome-tiff')}><code>obsSegmentations.ome-tiff</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsome-zarr')}><code>obsSegmentations.ome-zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsjson')}><code>obsSegmentations.json</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsanndatazarr')}><code>obsSegmentations.anndata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsmudatazarr')}><code>obsSegmentations.mudata.zarr</code></a></li>

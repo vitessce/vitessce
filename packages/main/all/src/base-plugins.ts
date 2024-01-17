@@ -44,6 +44,8 @@ import {
   imageOmeZarrSchema,
   imageOmeTiffSchema,
   imageSpatialdataSchema,
+  obsSegmentationsOmeTiffSchema,
+  obsSegmentationsOmeZarrSchema,
   obsSegmentationsSpatialdataSchema,
   obsFeatureMatrixSpatialdataSchema,
   obsSpotsSpatialdataSchema,
@@ -123,6 +125,7 @@ import {
   MuDataSource,
   // OME
   OmeZarrLoader,
+  OmeZarrAsObsSegmentationsLoader,
   // SpatialData
   SpatialDataTableSource,
   SpatialDataShapesSource,
@@ -223,7 +226,8 @@ export const baseFileTypes = [
   // All OME file types
   makeFileType(FileType.IMAGE_OME_ZARR, DataType.IMAGE, OmeZarrLoader, ZarrDataSource, imageOmeZarrSchema),
   makeFileType(FileType.IMAGE_OME_TIFF, DataType.IMAGE, OmeTiffLoader, OmeTiffSource, imageOmeTiffSchema),
-  makeFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, imageOmeZarrSchema),
+  makeFileType(FileType.OBS_SEGMENTATIONS_OME_ZARR, DataType.OBS_SEGMENTATIONS, OmeZarrAsObsSegmentationsLoader, ZarrDataSource, obsSegmentationsOmeZarrSchema),
+  makeFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, obsSegmentationsOmeTiffSchema),
   // SpatialData file types
   makeFileType(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),
   // TODO: create a new loader for labels that returns obsSegmentations with obsSegmentationsType: 'bitmask'

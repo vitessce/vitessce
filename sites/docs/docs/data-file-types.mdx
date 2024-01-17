@@ -1224,6 +1224,17 @@ fileType="image.ome-tiff"
 fileConst="IMAGE_OME_TIFF"
 />
 
+## `obsSegmentations.ome-zarr`
+
+Points to a label image ("bitmask") in OME-NGFF format.
+Pixel values are integers that correspond to segmented observations, with `0` representing background.
+
+<FileDefTabs
+fileName="my_cell_segmentations.ome.zarr"
+fileType="obsSegmentations.ome-zarr"
+fileConst="OBS_SEGMENTATIONS_OME_ZARR"
+/>
+
 ## `image.ome-zarr`
 
 Points to an image in OME-NGFF format that has been saved to a Zarr store.

@@ -14,7 +14,10 @@ import OmeTiffLoader from './OmeTiffLoader.js';
 export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
   async load() {
     const { url, requestInit } = this;
-    const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
+    const {
+      coordinateTransformations: coordinateTransformationsFromOptions,
+      obsTypesFromChannelNames,
+    } = this.options || {};
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
     const imageWrapper = new ImageWrapper(loader, this.options);
@@ -62,7 +65,6 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
     const channelObjects = imageWrapper.getChannelObjects();
     const channelCoordination = channelObjects.slice(0, 5).map((channelObj, i) => ({
       spatialTargetC: i,
-      // obsType: channelObj.name,
       spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
       spatialChannelVisible: true,
       spatialChannelOpacity: 1.0,
@@ -73,6 +75,7 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
       spatialSegmentationFilled: true,
       spatialSegmentationStrokeWidth: 1.0,
       obsHighlight: null,
+      ...(obsTypesFromChannelNames ? { obsType: channelObj.name } : {}),
     }));
 
     // Add a loaderCreator function for each image layer.

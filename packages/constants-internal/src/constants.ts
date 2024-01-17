@@ -52,7 +52,9 @@ export const FileType = {
   OBS_SEGMENTATIONS_JSON: 'obsSegmentations.json',
   OBS_SETS_CSV: 'obsSets.csv',
   OBS_SETS_JSON: 'obsSets.json',
+  // OME-Zarr
   IMAGE_OME_ZARR: 'image.ome-zarr',
+  OBS_SEGMENTATIONS_OME_ZARR: 'obsSegmentations.ome-zarr',
   // AnnData
   OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
   OBS_SETS_ANNDATA_ZARR: 'obsSets.anndata.zarr',
