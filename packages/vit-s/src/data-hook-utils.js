@@ -70,12 +70,8 @@ export async function dataQueryFn(ctx) {
     const { data, url, coordinationValues } = payload;
     // Status: success
     // Array of objects like  { url, name }.
-    const urls = Array.isArray(url) ? url : [{ url, name: dataType }];
-    return {
-      data,
-      coordinationValues,
-      urls,
-    };
+    const urls = (Array.isArray(url) ? url : [{ url, name: dataType }]).filter(d => d.url);
+    return { data, coordinationValues, urls };
   }
   // No loader was found.
   if (isRequired) {

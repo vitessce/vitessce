@@ -334,7 +334,7 @@ export function useObsFeatureMatrixIndices(
               obsIndex: payloadData.rows,
               featureIndex: payloadData.cols,
             },
-            urls: [{ url, name: DataType.OBS_FEATURE_MATRIX }],
+            urls: (url ? [{ url, name: DataType.OBS_FEATURE_MATRIX }] : null),
           };
         }
         // No loadAttrs function.
