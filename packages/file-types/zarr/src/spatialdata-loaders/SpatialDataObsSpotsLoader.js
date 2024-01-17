@@ -78,7 +78,6 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
         })
       };
 
-
       return Promise.resolve(new LoaderResult(
         { obsIndex, obsSpots },
         null,

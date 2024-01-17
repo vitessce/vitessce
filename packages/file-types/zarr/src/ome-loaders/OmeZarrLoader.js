@@ -165,6 +165,9 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
 
 
     const coordinationValues = {
+      // Old
+      spatialImageLayer: autoImageLayers,
+      // New
       spatialTargetZ: imageWrapper.getDefaultTargetZ(),
       spatialTargetT: imageWrapper.getDefaultTargetT(),
       imageLayer: CL([
