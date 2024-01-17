@@ -290,7 +290,7 @@ export default class BitmaskLayer extends XRLayer {
     });
   }
 
-  multiSetsToTexture(multiFeatureValues, setColorValues, channelIsSetColorMode) {
+  multiSetsToTexture(multiFeatureValues, multiMatrixObsIndex, setColorValues, channelIsSetColorMode) {
     const isWebGL2On = isWebGL2(this.context.gl);
 
     const [
@@ -302,6 +302,7 @@ export default class BitmaskLayer extends XRLayer {
       colorsOffsets,
     ] = multiSetsToTextureData(
       multiFeatureValues,
+      multiMatrixObsIndex,
       setColorValues,
       channelIsSetColorMode,
       MULTI_FEATURE_TEX_SIZE,

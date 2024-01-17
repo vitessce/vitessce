@@ -23,7 +23,6 @@ function normalize(arr) {
 export function multiSetsToTextureData(
   multiFeatureValues, multiMatrixObsIndex, setColorValues, channelIsSetColorMode, texSize,
 ) {
-  console.log(multiMatrixObsIndex);
   let totalValuesLength = 0;
   let totalColorsLength = 0;
 
@@ -47,8 +46,11 @@ export function multiSetsToTextureData(
   }
   // Array for texture containing color indices.
   const totalData = new Uint8Array(texSize * valueTexHeight);
+  // Assume there are the same number of items in each matrixObsIndex as in the corresponding data.
+  const totalIndices = new Uint8Array(texSize * valueTexHeight);
   // Array for texture containing color RGB values.
   const totalColors = new Uint8Array(texSize * colorTexHeight);
+
 
   // Per-channel offsets into the texture arrays.
   const indicesOffsets = [];
@@ -57,6 +59,14 @@ export function multiSetsToTextureData(
   let colorOffset = 0;
   // Iterate over the data for each channel.
   channelIsSetColorMode.forEach((isSetColorMode, channelIndex) => {
+    const matrixObsIndex = multiMatrixObsIndex[channelIndex];
+    // Assume the bitmask values correspond to the values in the matrixObsIndex (off by one).
+    const bitmaskValueIsIndex = matrixObsIndex === null;
+    if(!bitmaskValueIsIndex) {
+      // We cannot assume that the values in the bitmask correspond to the values in the matrixObsIndex.
+      // We instead need to use the bitmask values to look up the index of the corresponding ID in the matrixObsIndex or the setColorValues[].obsIndex.
+
+    }
     if (isSetColorMode) {
       const { setColorIndices, setColors, obsIndex } = setColorValues[channelIndex] || {};
       if (setColorIndices && setColors && obsIndex) {
@@ -80,6 +90,7 @@ export function multiSetsToTextureData(
       colorOffset += (setColors?.length || 0);
     } else {
       const featureArr = multiFeatureValues[channelIndex];
+      
       // TODO: are these values always already normalized?
       totalData.set(normalize(featureArr), indexOffset);
       // TODO: also need to pass in a texture which contains an (implicit) mapping from obsId to obsI (the index in the matrixObsIndex),
