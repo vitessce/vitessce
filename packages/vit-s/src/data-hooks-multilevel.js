@@ -56,13 +56,14 @@ export function useSegmentationMultiFeatureSelection(
   [coordinationScopes, coordinationScopesBy,
     // We need to ensure there are always the same number of
     // entries in the full dependency array.
-    ...(useMemoDependency.length > 0 ? useMemoDependency : [null]),
+    JSON.stringify(useMemoDependency.length > 0 ? useMemoDependency : [null]),
   ]);
   const [
     featureData, loadedSelections, extents, normData, featureStatus,
   ] = useFeatureSelectionMultiLevel(
     loaders, dataset, false, matchOnObj, selections, 2,
   );
+  console.log(featureData);
   return [featureData, loadedSelections, extents, normData, featureStatus];
 }
 

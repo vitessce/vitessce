@@ -21,8 +21,9 @@ function normalize(arr) {
  * @returns
  */
 export function multiSetsToTextureData(
-  multiFeatureValues, setColorValues, channelIsSetColorMode, texSize,
+  multiFeatureValues, multiMatrixObsIndex, setColorValues, channelIsSetColorMode, texSize,
 ) {
+  console.log(multiMatrixObsIndex);
   let totalValuesLength = 0;
   let totalColorsLength = 0;
 
@@ -81,6 +82,9 @@ export function multiSetsToTextureData(
       const featureArr = multiFeatureValues[channelIndex];
       // TODO: are these values always already normalized?
       totalData.set(normalize(featureArr), indexOffset);
+      // TODO: also need to pass in a texture which contains an (implicit) mapping from obsId to obsI (the index in the matrixObsIndex),
+      // since the pixel values may not correspond directly to the obsI.
+      // TODO: Also need to pass in the flag indicating whether to use this texture or not since it will reduce performance.
       indicesOffsets.push(indexOffset);
       indexOffset += featureArr.length;
       // Add a color offset so that the number of offsets still equals the number of channels.

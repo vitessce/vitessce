@@ -151,6 +151,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.prevSpotSetSelection = {}; // Keys: spotLayer scopes. Used for diffing.
 
     this.segmentationToMatrixIndexMap = {}; // Keys: segmentationLayer.segmentationChannel scopes
+    this.segmentationToMatrixIndexArr = {}; // Keys: segmentationLayer.segmentationChannel scopes
     this.segmentationColors = {}; // Keys: segmentationLayer.segmentationChannel scopes
     this.segmentationExpressionGetters = {}; // Keys: segmentationLayer.segmentationChannel scopes
     this.prevSegmentationSetColor = {}; // Keys: segmentationLayer.segmentationChannel scopes
@@ -565,7 +566,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   // New createImageLayer function.
   createBitmaskSegmentationLayer(
     layerScope, layerCoordination, channelScopes, channelCoordination,
-    image, layerFeatureValues,
+    image, layerFeatureValues, layerMatrixObsIndices, bitmaskValueIsIndex,
   ) {
     const {
       delegateHover,
@@ -639,6 +640,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // hoveredCell: Number(this.props.cellHighlight),
       multiFeatureValues: channelScopes
         .map(cScope => (layerFeatureValues?.[cScope]?.[0] || [])),
+      // Pass in the matrixObsIndex to account for the fact that the obsIndex of the obsFeatureMatrix
+      // may not be ["1", "2", "3", "4", ... "N"] and instead may be ["3", "20", "4", "6"].
+      multiMatrixObsIndex: channelScopes
+        .map(cScope => (bitmaskValueIsIndex ? null : (layerMatrixObsIndices?.[cScope] || null))),
       setColorValues: channelScopes
         .map(cScope => (this.segmentationColors?.[layerScope]?.[cScope] || [])),
       renderSubLayers: renderSubBitmaskLayers,
@@ -869,6 +874,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       segmentationLayerCallbacks = [],
 
       segmentationMultiExpressionData,
+      bitmaskValueIsIndex,
     } = this.props;
     return segmentationLayerScopes.map((layerScope) => {
       if (obsSegmentations[layerScope]) {
@@ -881,6 +887,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
             segmentationChannelCoordination[0][layerScope],
             obsSegmentations[layerScope],
             segmentationMultiExpressionData?.[layerScope],
+            this.segmentationToMatrixIndexArr?.[layerScope],
+            // TODO: get this from the layer coordination.
+            bitmaskValueIsIndex,
           );
         }
         if (obsSegmentationsType === 'polygon') {
@@ -1127,7 +1136,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const { obsIndex: instanceObsIndex } = obsSegmentations?.[layerScope] || {};
     const { obsIndex: matrixObsIndex } = segmentationMatrixIndices
       ?.[layerScope]?.[channelScope] || {};
-
     // Get a mapping from cell ID to row index in the gene expression matrix.
     // Since the two obsIndices (instanceObsIndex = the obsIndex from obsEmbedding)
     // may be ordered differently (matrixObsIndex = the obsIndex from obsFeatureMatrix),
@@ -1142,6 +1150,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
       }
       this.segmentationToMatrixIndexMap[layerScope][channelScope] = instanceObsIndex
         .map(key => matrixIndexMap.get(key));
+    }
+
+    if (matrixObsIndex) {
+      if(!this.segmentationToMatrixIndexArr[layerScope]) {
+        this.segmentationToMatrixIndexArr[layerScope] = {};
+      }
+      this.segmentationToMatrixIndexArr[layerScope][channelScope] = matrixObsIndex;
     }
   }
 
@@ -1168,7 +1183,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // Set up a getter function for gene expression values, to be used
     // by the DeckGL layer to obtain values for instanced attributes.
     const getExpressionValue = (entry, { index: instanceIndex }) => {
-      if (toMatrixIndexMap && expressionData && expressionData[0]) {
+      if (expressionData && expressionData[0]) {
         const rowIndex = toMatrixIndexMap[instanceIndex];
         const val = expressionData[0][rowIndex];
         return val;

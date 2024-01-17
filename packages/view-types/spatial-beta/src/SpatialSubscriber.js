@@ -125,6 +125,7 @@ export function SpatialSubscriber(props) {
     theme,
     disableTooltip = false,
     title = 'Spatial',
+    bitmaskValueIsIndex = false, // TODO: move to coordination type
   } = props;
 
   const loaders = useLoaders();
@@ -640,7 +641,7 @@ export function SpatialSubscriber(props) {
               const { obsIndex } = segmentationMultiIndicesData?.[segmentationLayerScope]?.[channelScope] || {};
               // We subtract one because we use 0 to represent background.
               obsI -= 1;
-              if (obsIndex) {
+              if (obsIndex && bitmaskValueIsIndex) {
                 obsId = obsIndex?.[obsI];
               } else {
                 // When there is not a corresponding obsIndex to use,
@@ -786,6 +787,8 @@ export function SpatialSubscriber(props) {
         obsSegmentationsSets={obsSegmentationsSetsData}
         segmentationMatrixIndices={segmentationMultiIndicesData}
         segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+
+        bitmaskValueIsIndex={bitmaskValueIsIndex}
 
         // Images
         images={imageData}

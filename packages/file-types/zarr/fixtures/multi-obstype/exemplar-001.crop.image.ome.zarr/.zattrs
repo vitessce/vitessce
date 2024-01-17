@@ -1,0 +1,136 @@
+{
+    "multiscales": [
+        {
+            "axes": [
+                {
+                    "name": "c",
+                    "type": "channel"
+                },
+                {
+                    "name": "y",
+                    "type": "space"
+                },
+                {
+                    "name": "x",
+                    "type": "space"
+                }
+            ],
+            "datasets": [
+                {
+                    "coordinateTransformations": [
+                        {
+                            "scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            "type": "scale"
+                        }
+                    ],
+                    "path": "0"
+                },
+                {
+                    "coordinateTransformations": [
+                        {
+                            "scale": [
+                                1.0,
+                                2.0,
+                                2.0
+                            ],
+                            "type": "scale"
+                        }
+                    ],
+                    "path": "1"
+                },
+                {
+                    "coordinateTransformations": [
+                        {
+                            "scale": [
+                                1.0,
+                                4.032258064516129,
+                                4.032258064516129
+                            ],
+                            "type": "scale"
+                        }
+                    ],
+                    "path": "2"
+                },
+                {
+                    "coordinateTransformations": [
+                        {
+                            "scale": [
+                                1.0,
+                                8.064516129032258,
+                                8.064516129032258
+                            ],
+                            "type": "scale"
+                        }
+                    ],
+                    "path": "3"
+                },
+                {
+                    "coordinateTransformations": [
+                        {
+                            "scale": [
+                                1.0,
+                                16.666666666666668,
+                                16.666666666666668
+                            ],
+                            "type": "scale"
+                        }
+                    ],
+                    "path": "4"
+                }
+            ],
+            "name": "/",
+            "version": "0.4"
+        }
+    ],
+    "omero": {
+        "channels": [
+            {
+                "color": "FFFFFF",
+                "label": "DNA",
+                "window": {
+                    "end": 65535,
+                    "max": 65535,
+                    "min": 0,
+                    "start": 0
+                }
+            },
+            {
+                "color": "FFFFFF",
+                "label": "FDX1",
+                "window": {
+                    "end": 65535,
+                    "max": 65535,
+                    "min": 0,
+                    "start": 0
+                }
+            },
+            {
+                "color": "FFFFFF",
+                "label": "CD1D",
+                "window": {
+                    "end": 65535,
+                    "max": 65535,
+                    "min": 0,
+                    "start": 0
+                }
+            },
+            {
+                "color": "FFFFFF",
+                "label": "CD357",
+                "window": {
+                    "end": 65535,
+                    "max": 65535,
+                    "min": 0,
+                    "start": 0
+                }
+            }
+        ],
+        "name": "Image",
+        "rdefs": {},
+        "version": "0.3"
+    }
+}

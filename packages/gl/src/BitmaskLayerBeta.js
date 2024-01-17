@@ -106,7 +106,7 @@ export default class BitmaskLayer extends XRLayer {
       || props.setColorValues !== oldProps.setColorValues
       || props.channelIsSetColorMode !== oldProps.channelIsSetColorMode
     ) {
-      const { multiFeatureValues, setColorValues, channelIsSetColorMode } = this.props;
+      const { multiFeatureValues, multiMatrixObsIndex, setColorValues, channelIsSetColorMode } = this.props;
       // Use one expressionTex for all channels,
       // using an offset mechanism.
       const [
@@ -118,6 +118,7 @@ export default class BitmaskLayer extends XRLayer {
         colorTexHeight,
       ] = this.multiSetsToTexture(
         multiFeatureValues,
+        multiMatrixObsIndex,
         setColorValues,
         channelIsSetColorMode,
       );
