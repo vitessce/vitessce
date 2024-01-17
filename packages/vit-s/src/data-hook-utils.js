@@ -1,6 +1,10 @@
 import { useEffect, useMemo } from 'react';
 import { useQuery, useQueries } from '@tanstack/react-query';
-import { capitalize, fromEntries } from '@vitessce/utils';
+import {
+  capitalize,
+  fromEntries,
+  getInitialCoordinationScopePrefix,
+} from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
 import {
   getMatchingLoader,
@@ -59,12 +63,11 @@ export async function dataQueryFn(ctx) {
   // This ordering of the queryKey must match.
   const [dataset, dataType, matchOn, isRequired] = ctx.queryKey;
   const loader = getMatchingLoader(loaders, dataset, dataType, matchOn);
-  console.log('dataQueryFn', ctx.queryKey, loaders, loader);
   if (loader) {
     // TODO: can cacheing logic be removed from all loaders?
     const payload = await loader.load();
     if (!payload) return placeholderObject; // TODO: throw error instead?
-    const { data, url, coordinationValues, coordinationScopePrefix } = payload;
+    const { data, url, coordinationValues } = payload;
     // Status: success
     // Array of objects like  { url, name }.
     const urls = Array.isArray(url) ? url : [{ url, name: dataType }];
@@ -72,7 +75,6 @@ export async function dataQueryFn(ctx) {
       data,
       coordinationValues,
       urls,
-      coordinationScopePrefix,
     };
   }
   // No loader was found.
@@ -209,14 +211,12 @@ export function useDataTypeMulti(
     dataQueries
       .filter(q => Boolean(q.data?.coordinationValues))
       .forEach((q) => {
-        const { coordinationValues, coordinationScopePrefix } = q.data;
+        const { coordinationValues } = q.data;
         if(mergeCoordination) {
-          console.log('mergeCoordination', coordinationValues, dataType)
           mergeCoordination(
             coordinationValues,
-            // Use prefix from LoaderResult if available.
-            // Otherwise, auto-generate based on the dataset and data type.
-            (coordinationScopePrefix || `init_${dataset}_${dataType}_`),
+            // Auto-generate based on the dataset and data type.
+            getInitialCoordinationScopePrefix(dataset, dataType),
             viewUid,
           );
         } else {

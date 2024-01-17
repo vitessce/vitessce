@@ -25,7 +25,6 @@ export default class ObsPointsAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const { coordinationScopePrefix } = this;
     const { path } = this.options;
     const superResult = await super.load().catch(reason => Promise.resolve(reason));
     if (superResult instanceof AbstractLoaderError) {
@@ -56,7 +55,6 @@ export default class ObsPointsAnndataLoader extends AbstractTwoStepLoader {
       { obsIndex, obsPoints },
       null,
       coordinationValues,
-      coordinationScopePrefix,
     )));
   }
 }

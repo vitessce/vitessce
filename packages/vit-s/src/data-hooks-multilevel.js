@@ -42,6 +42,8 @@ export function useSegmentationMultiFeatureSelection(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
+  const useMemoDependency = Object.values(featureSelectionCoordination[0] || {})
+    .flatMap(layerVal => Object.values(layerVal).map(cVal => cVal.featureSelection));
   const selections = useMemo(() => fromEntries(Object.entries(featureSelectionCoordination[0])
     .map(([layerScope, layerVal]) => ([
       layerScope,
@@ -52,8 +54,9 @@ export function useSegmentationMultiFeatureSelection(
     ]))),
   // Need to execute this more frequently, whenever the featureSelections update.
   [coordinationScopes, coordinationScopesBy,
-    ...Object.values(featureSelectionCoordination[0] || {})
-      .flatMap(layerVal => Object.values(layerVal).map(cVal => cVal.featureSelection)),
+    // We need to ensure there are always the same number of
+    // entries in the full dependency array.
+    ...(useMemoDependency.length > 0 ? useMemoDependency : [null]),
   ]);
   const [
     featureData, loadedSelections, extents, normData, featureStatus,

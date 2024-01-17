@@ -18,7 +18,6 @@ import { CoordinationLevel as CL } from '@vitessce/config';
 
 export default class OmeZarrLoader extends AbstractTwoStepLoader {
   async load() {
-    const { coordinationScopePrefix } = this;
     const payload = await this.dataSource.getJson('.zattrs').catch(reason => Promise.resolve(reason));
     if (payload instanceof AbstractLoaderError) {
       return Promise.reject(payload);
@@ -192,7 +191,6 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       },
       null,
       coordinationValues,
-      coordinationScopePrefix,
     ));
   }
 }

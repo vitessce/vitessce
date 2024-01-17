@@ -23,7 +23,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const { url, requestInit, coordinationScopePrefix } = this;
+    const { url, requestInit } = this;
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
     const offsets = await this.loadOffsets();
@@ -101,9 +101,6 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       ]),
     };
 
-    // Merge into the coordination space.
-    //console.log(getCoordinationSpaceAndScopes(coordinationValues, "init_"));
-
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = [
       {
@@ -138,7 +135,6 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
         },
         urls,
         coordinationValues,
-        coordinationScopePrefix,
       );
     });
   }

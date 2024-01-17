@@ -4,6 +4,7 @@ import {
   CoordinationLevel as CL,
   hconcat,
   vconcat,
+  getInitialCoordinationScopeName,
 } from '@vitessce/config';
 
 // Reference: https://portal.hubmapconsortium.org/browse/dataset/8d86e6c899e80d0f5f95604eb4ad492e
@@ -87,11 +88,11 @@ function generateVisiumConfig() {
 
   config.linkViews([obsSets, featureList, spatialViewSimple, lcViewSimple], ['obsType'], ['spot']);
   
-  // TODO: define a function that returns the string 'init_A_image_0' to prevent confusion.
-  // e.g., getScopeName(dataset, 'image') - assumes _0
-  // or    getScopeName(dataset, 'image', N)
+  // getInitialCoordinationScopeName is a function that returns the string 'init_A_image_0' to prevent confusion.
+  // e.g., getInitialCoordinationScopeName(dataset, 'image') - assumes _0
+  // or    getInitialCoordinationScopeName(dataset, 'image', N)
 
-  config.setCoordinationValue('photometricInterpretation', 'init_A_image_0', 'RGB');
+  config.setCoordinationValue('photometricInterpretation', getInitialCoordinationScopeName('A', 'obsSpots'), 'RGB');
 
   // Other option is to define all supported coordination values for the multi-level coordination.
 

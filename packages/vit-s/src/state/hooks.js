@@ -281,7 +281,7 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
         return viewObj;
       }),
     };
-    console.log('newViewConfig', newViewConfig);
+    // console.log('newViewConfig', newViewConfig);
     return {
       viewConfig: newViewConfig,
     };

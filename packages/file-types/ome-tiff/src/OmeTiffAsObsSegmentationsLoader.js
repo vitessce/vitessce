@@ -13,7 +13,7 @@ import OmeTiffLoader from './OmeTiffLoader.js';
 
 export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
   async load() {
-    const { url, requestInit, coordinationScopePrefix } = this;
+    const { url, requestInit } = this;
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
@@ -128,7 +128,6 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
         },
         urls,
         coordinationValues,
-        coordinationScopePrefix,
       );
     });
   }
