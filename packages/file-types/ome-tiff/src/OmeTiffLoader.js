@@ -84,23 +84,6 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       spatialChannelWindow: channelObj.defaultWindow || null,
     }));
 
-
-    const coordinationValues = {
-      spatialTargetZ: imageWrapper.getDefaultTargetZ(),
-      spatialTargetT: imageWrapper.getDefaultTargetT(),
-      imageLayer: CL([
-        {
-          fileUid: this.coordinationValues?.fileUid || null,
-          spatialLayerOpacity: 1.0,
-          spatialLayerVisible: true,
-          photometricInterpretation: imageWrapper.getPhotometricInterpretation(),
-          volumetricRenderingAlgorithm: 'maximumIntensityProjection',
-          spatialTargetResolution: null,
-          imageChannel: CL(channelCoordination),
-        },
-      ]),
-    };
-
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = [
       {
@@ -123,6 +106,25 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
     return this.autoImageCache.then((autoImages) => {
       const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = autoImages;
+
+      const coordinationValues = {
+        // Old
+        spatialImageLayer: autoImageLayers,
+        // New
+        spatialTargetZ: imageWrapper.getDefaultTargetZ(),
+        spatialTargetT: imageWrapper.getDefaultTargetT(),
+        imageLayer: CL([
+          {
+            fileUid: this.coordinationValues?.fileUid || null,
+            spatialLayerOpacity: 1.0,
+            spatialLayerVisible: true,
+            photometricInterpretation: imageWrapper.getPhotometricInterpretation(),
+            volumetricRenderingAlgorithm: 'maximumIntensityProjection',
+            spatialTargetResolution: null,
+            imageChannel: CL(channelCoordination),
+          },
+        ]),
+      };
       
       return new LoaderResult(
         {

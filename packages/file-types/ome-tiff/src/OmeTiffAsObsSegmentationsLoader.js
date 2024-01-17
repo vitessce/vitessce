@@ -75,20 +75,6 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
       obsHighlight: null,
     }));
 
-
-    const coordinationValues = {
-      spatialTargetZ: imageWrapper.getDefaultTargetZ(),
-      spatialTargetT: imageWrapper.getDefaultTargetT(),
-      segmentationLayer: CL([
-        {
-          fileUid: this.coordinationValues?.fileUid || null,
-          spatialLayerOpacity: 1.0,
-          spatialLayerVisible: true,
-          segmentationChannel: CL(channelCoordination),
-        },
-      ]),
-    };
-
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = [
       {
@@ -116,6 +102,22 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
 
     return this.autoImageCache.then((autoImages) => {
       const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = autoImages;
+
+      const coordinationValues = {
+        // Old
+        spatialSegmentationLayer: autoImageLayers,
+        // New
+        spatialTargetZ: imageWrapper.getDefaultTargetZ(),
+        spatialTargetT: imageWrapper.getDefaultTargetT(),
+        segmentationLayer: CL([
+          {
+            fileUid: this.coordinationValues?.fileUid || null,
+            spatialLayerOpacity: 1.0,
+            spatialLayerVisible: true,
+            segmentationChannel: CL(channelCoordination),
+          },
+        ]),
+      };
 
       return new LoaderResult(
         {
