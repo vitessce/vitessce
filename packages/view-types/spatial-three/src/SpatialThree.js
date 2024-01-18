@@ -92,7 +92,7 @@ const SpatialThree = (props) => {
         propsToShare,
         delegateHover
     } = props;
-    let segmentationLayerCoordination,segmentationChannelCoordination;
+    let segmentationLayerCoordination, segmentationChannelCoordination;
     if (propsToShare !== undefined) {
         segmentationLayerCoordination = propsToShare.segmentationLayerCoordination;
         segmentationChannelCoordination = propsToShare.segmentationChannelCoordination;
@@ -138,14 +138,23 @@ const SpatialThree = (props) => {
     if (obsSegmentations[layerScope] !== undefined && segmentationGroup == null) {
         let scene = obsSegmentations[layerScope].scene
         if (scene !== null && scene !== undefined) {
+            //console.log(scene.children)
+            let newScene = new THREE.Scene();
             for (let child in scene.children) {
                 scene.children[child].material.transparent = true
                 scene.children[child].material.writeDepthTexture = true
                 scene.children[child].material.depthTest = true
                 scene.children[child].material.depthWrite = true
                 scene.children[child].material.needsUpdate = true;
+                scene.children[child].material.side = THREE.FrontSide;
+                // scene.children[child].material.renderOrder = 100;
+                let simplified = scene.children[child].clone();
+                // Do some mesh simplification
+                newScene.add(simplified)
+                // break;
             }
-            setSegmentationGroup(scene);
+            //console.log(newScene.children)
+            setSegmentationGroup(newScene);
         }
     }
     if (segmentationChannelCoordination[0] !== undefined && segmentationChannelCoordination[0][layerScope] !== undefined) {
@@ -374,7 +383,7 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
     //console.log(props)
     const imageLayerLoaderSelections = useRef({});
     let layerScope = imageLayerScopes[0];
-    let channelScopes = imageChannelScopesByLayer[layerScope];
+    let channelScopes = propsToShare !== undefined ? propsToShare.imageChannelScopesByLayer[layerScope] : imageChannelScopesByLayer[layerScope];
     let layerCoordination = propsToShare !== undefined ? propsToShare.imageLayerCoordination[0][layerScope] : imageLayerCoordination[0][layerScope];
     let channelCoordination = propsToShare !== undefined ? propsToShare.imageChannelCoordination[0][layerScope]
         : imageChannelCoordination[0][layerScope];
@@ -579,13 +588,42 @@ function GeometryAndMeshOld(props) {
 
     // FOR Hovering add this to the Primitive
     //
-
+    let renderer = useThree().gl
+    renderer.sortObjects = true;
     // First Positon: Left (+) Right (-)
     // Second Position: Up (+) Down (-)
     // Third Position: Front (-) Back (+)
 
+    // console.log(renderingSettings.meshScale)
+
     return (
         <group>
+            {segmentationGroup !== null && segmentationSettings.visible &&
+                <group>
+                    <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
+                    <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
+                    <Interactive>
+                        {useXR().isPresenting ?
+                            <primitive object={segmentationGroup} scale={[-0.25 / 1000, -0.25 / 1000, -0.25 / 1000]}
+                                       position={[-0.18 - 100 / 1000, 1.13 + 110 / 1000, -1 - 140 / 1000]}
+                                       onClick={(e) => {
+                                           //console.log("you clicked me" + e.object.name)
+                                           highlightGlom(e.object.name);
+                                       }}
+                                       onPointerOver={e => setObsHighlight(e.object.name)}
+                                       onPointerOut={e => setObsHighlight(null)}/>
+                            :
+                            <primitive object={segmentationGroup} scale={[-0.25, -0.25, -0.25]}
+                                       position={[-100, 110, -140]} onClick={(e) => {
+                                //console.log("you clicked me" + e.object.name)
+                                highlightGlom(e.object.name);
+                            }}
+                                       onPointerOver={e => setObsHighlight(e.object.name)}
+                                       onPointerOut={e => setObsHighlight(null)}
+                            />}
+                    </Interactive>
+                </group>
+            }
             {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
                     renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
                 <EnhancedRayGrab>
@@ -620,22 +658,6 @@ function GeometryAndMeshOld(props) {
                             />
                         </mesh>}
                 </EnhancedRayGrab>
-            }
-            {segmentationGroup !== null && segmentationSettings.visible &&
-                <group>
-                    <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
-                    <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
-                    <Interactive>
-                        <primitive object={segmentationGroup} scale={[-0.25, -0.25, -0.25]}
-                                   position={[-100, 110, -140]} onClick={(e) => {
-                            //console.log("you clicked me" + e.object.name)
-                            highlightGlom(e.object.name);
-                        }}
-                                   onPointerOver={e => setObsHighlight(e.object.name)}
-                                   onPointerOut={e => setObsHighlight(null)}
-                        />
-                    </Interactive>
-                </group>
             }
         </group>
     );
@@ -1009,6 +1031,7 @@ function getPropsToShare(props) {
     return {
         imageChannelCoordination: props.imageChannelCoordination,
         imageLayerCoordination: props.imageLayerCoordination,
+        imageChannelScopesByLayer: props.imageChannelScopesByLayer,
         segmentationLayerCoordination: props.segmentationLayerCoordination,
         segmentationChannelCoordination: props.segmentationChannelCoordination
         // cellSetsSelected: props.cellSetsSelected,
@@ -1021,13 +1044,13 @@ const SpatialWrapper = forwardRef((props, deckRef) => {
     const [propsToShare, setPropsToShare] = useState(undefined);
     useEffect(() => {
         ws?.on(WS_EVENT, (input) => {
-            console.log("Websocket Event")
+            // console.log("Websocket Event")
             setPropsToShare(input.data)
         })
     }, [ws])
     useEffect(() => {
-        console.log("SaveProps")
-        console.log(props)
+        // console.log("SaveProps")
+        //console.log(props)
         setPropsToUse(props);
         setPropsToShare(getPropsToShare(props))
         ws?.send(WS_EVENT, {
