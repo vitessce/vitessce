@@ -63,7 +63,6 @@ export function useSegmentationMultiFeatureSelection(
   ] = useFeatureSelectionMultiLevel(
     loaders, dataset, false, matchOnObj, selections, 2,
   );
-  console.log(featureData);
   return [featureData, loadedSelections, extents, normData, featureStatus];
 }
 

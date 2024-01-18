@@ -129,8 +129,6 @@ export function multiSetsToTextureData(
     }
   });
 
-  console.log(totalData);
-
   return [
     totalData,
     valueTexHeight,

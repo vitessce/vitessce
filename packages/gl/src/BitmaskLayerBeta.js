@@ -29,6 +29,22 @@ function getColor(arr) {
   return arr ? arr.map(v => v / 255) : [0, 0, 0];
 }
 
+function isEqualShallow(prevArr, nextArr) {
+  if(prevArr === nextArr) {
+    return true;
+  }
+  if(Array.isArray(prevArr) && Array.isArray(nextArr)) {
+    if(prevArr.length === nextArr.length) {
+      return !prevArr.some((v, i) => (v !== nextArr[i] && (
+        (!Array.isArray(v) && !Array.isArray(nextArr[i]))
+        || (v.length > 0 || nextArr[i].length > 0)
+        )
+      ));
+    }
+  }
+  return prevArr === nextArr;
+}
+
 
 const defaultProps = {
   channelStrokeWidths: { type: 'array', value: null, compare: true },
@@ -103,9 +119,10 @@ export default class BitmaskLayer extends XRLayer {
   updateState({ props, oldProps, changeFlags }) {
     super.updateState({ props, oldProps, changeFlags });
     if (
-      props.multiFeatureValues !== oldProps.multiFeatureValues
-      || props.setColorValues !== oldProps.setColorValues
-      || props.channelIsSetColorMode !== oldProps.channelIsSetColorMode
+      !isEqualShallow(props.multiFeatureValues, oldProps.multiFeatureValues)
+      || !isEqualShallow(props.multiMatrixObsIndex, oldProps.multiMatrixObsIndex)
+      || !isEqualShallow(props.setColorValues, oldProps.setColorValues)
+      || !isEqualShallow(props.channelIsSetColorMode, oldProps.channelIsSetColorMode)
     ) {
       const { multiFeatureValues, multiMatrixObsIndex, setColorValues, channelIsSetColorMode } = this.props;
       // Use one expressionTex for all channels,
