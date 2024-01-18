@@ -1,4 +1,4 @@
-import { extent } from 'd3-array';
+import { extent, max } from 'd3-array';
 
 
 function normalize(arr) {
@@ -28,10 +28,26 @@ export function multiSetsToTextureData(
 
   channelIsSetColorMode.forEach((isSetColorMode, channelIndex) => {
     if (isSetColorMode) {
-      totalValuesLength += setColorValues[channelIndex]?.obsIndex?.length || 0;
+      //totalValuesLength += setColorValues[channelIndex]?.obsIndex?.length || 0;
       totalColorsLength += (setColorValues[channelIndex]?.setColors?.length || 0) * 3;
+
+      // TODO: if we can assume values are monotonically increasing,
+      // we can just use the final array value arr[-1] directly as the max.
+      totalValuesLength += (
+        setColorValues[channelIndex]?.obsIndex
+          ? max(setColorValues[channelIndex].obsIndex.map(d => parseInt(d)))
+          : 0
+      );
     } else {
-      totalValuesLength += multiFeatureValues[channelIndex]?.length || 0;
+      //totalValuesLength += multiFeatureValues[channelIndex]?.length || 0;
+
+      // TODO: if we can assume values are monotonically increasing,
+      // we can just use the final array value arr[-1] directly as the max.
+      totalValuesLength += (
+        multiMatrixObsIndex[channelIndex]
+          ? max(multiMatrixObsIndex[channelIndex].map(d => parseInt(d)))
+          : (multiFeatureValues[channelIndex]?.length || 0)
+      );
     }
   });
 
@@ -46,11 +62,8 @@ export function multiSetsToTextureData(
   }
   // Array for texture containing color indices.
   const totalData = new Uint8Array(texSize * valueTexHeight);
-  // Assume there are the same number of items in each matrixObsIndex as in the corresponding data.
-  const totalIndices = new Uint8Array(texSize * valueTexHeight);
   // Array for texture containing color RGB values.
   const totalColors = new Uint8Array(texSize * colorTexHeight);
-
 
   // Per-channel offsets into the texture arrays.
   const indicesOffsets = [];
@@ -62,20 +75,23 @@ export function multiSetsToTextureData(
     const matrixObsIndex = multiMatrixObsIndex[channelIndex];
     // Assume the bitmask values correspond to the values in the matrixObsIndex (off by one).
     const bitmaskValueIsIndex = matrixObsIndex === null;
-    if(!bitmaskValueIsIndex) {
-      // We cannot assume that the values in the bitmask correspond to the values in the matrixObsIndex.
-      // We instead need to use the bitmask values to look up the index of the corresponding ID in the matrixObsIndex or the setColorValues[].obsIndex.
-
-    }
     if (isSetColorMode) {
       const { setColorIndices, setColors, obsIndex } = setColorValues[channelIndex] || {};
       if (setColorIndices && setColors && obsIndex) {
         for (let i = 0; i < obsIndex.length; i++) {
+          let obsId = String(i + 1);
+          let obsI = i;
+          // TODO: this uses the matrixObsIndex to determine the value of the flag, is that correct?
+          if(!bitmaskValueIsIndex) {
+            // We cannot assume that the values in the bitmask correspond to the values in the matrixObsIndex.
+            obsId = obsIndex[i];
+            obsI = parseInt(obsId) - 1;
+          }
           // We add one here to account for i being 0-based but the pixel values being 1-based
           // (to account for zero indicating the background of the segmentation bitmask).
-          const colorIndex = setColorIndices.get(String(i + 1));
+          const colorIndex = setColorIndices.get(obsId);
           // Add one to the color index, so that we can use zero to indicate a "null" set color.
-          totalData[indexOffset + i] = colorIndex === undefined ? 0 : colorIndex + 1;
+          totalData[indexOffset + obsI] = colorIndex === undefined ? 0 : colorIndex + 1;
         }
         for (let i = 0; i < setColors.length; i++) {
           const { color: [r, g, b] } = setColors[i];
@@ -90,9 +106,19 @@ export function multiSetsToTextureData(
       colorOffset += (setColors?.length || 0);
     } else {
       const featureArr = multiFeatureValues[channelIndex];
-      
-      // TODO: are these values always already normalized?
-      totalData.set(normalize(featureArr), indexOffset);
+      const normalizedFeatureArr = normalize(featureArr);
+
+      if(!bitmaskValueIsIndex && matrixObsIndex) {
+        // We cannot assume that the values in the bitmask correspond to the values in the matrixObsIndex.
+        for (let i = 0; i < matrixObsIndex.length; i++) {
+          const obsId = matrixObsIndex[i];
+          const obsI = parseInt(obsId) - 1;
+          totalData[indexOffset + obsI] = normalizedFeatureArr[i];
+        }
+      } else {
+        // TODO: are these values always already normalized?
+        totalData.set(normalizedFeatureArr, indexOffset);
+      }
       // TODO: also need to pass in a texture which contains an (implicit) mapping from obsId to obsI (the index in the matrixObsIndex),
       // since the pixel values may not correspond directly to the obsI.
       // TODO: Also need to pass in the flag indicating whether to use this texture or not since it will reduce performance.
@@ -102,6 +128,8 @@ export function multiSetsToTextureData(
       colorsOffsets.push(colorOffset);
     }
   });
+
+  console.log(totalData);
 
   return [
     totalData,

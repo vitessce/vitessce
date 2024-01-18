@@ -39,6 +39,7 @@ const defaultProps = {
   colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
   expressionData: { type: 'object', value: null, compare: true },
   multiFeatureValues: { type: 'array', value: null, compare: true },
+  multiMatrixObsIndex: { type: 'array', value: null, compare: true },
   setColorValues: { type: 'array', value: null, compare: true },
   channelFeatureValueColormaps: { type: 'array', value: null, compare: true },
   channelFeatureValueColormapRanges: { type: 'array', value: null, compare: true },
