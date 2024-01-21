@@ -34,6 +34,7 @@ import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
 import { blinOop2019, blinSideBySide2019 } from './view-configs/spatial-beta/blin.js';
 import { blinOop2019Three } from './view-configs/3D-maps/3DvolumeRenderThree.js';
 import { threeMinimal } from './view-configs/3D-maps/ThreeMinimal.js';
+import { threeMinimalLight } from './view-configs/3D-maps/ThreeMinimalLight.js';
 import { codexOop2023 } from './view-configs/spatial-beta/codex.js';
 import { visiumImageOop2023 } from './view-configs/spatial-beta/visium-image.js';
 import { visiumSpotsOop2023 } from './view-configs/spatial-beta/visium-spots.js';
@@ -101,6 +102,7 @@ export const configs = {
   'three-demo': threeDemoConfig,
   'blin-2019-three': blinOop2019Three,
   'three-minimal': threeMinimal,
+  'three-minimal-light': threeMinimalLight,
 
   // Multi-level coordination with spatialBeta view:
   'blin-2019-2': blinOop2019,

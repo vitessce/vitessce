@@ -12,7 +12,7 @@ function generateThreeMinimalConfiguration() {
     });
     const dataset = config.addDataset('My dataset').addFile({
         fileType: 'image.ome-tiff',
-        url: "https://viv-demo.storage.googleapis.com/idr0106.pyramid.ome.tif",
+        url: "https://assets.hubmapconsortium.org/30bc1823e0c19be58557fb979499bac2/ometiff-pyramids/data/3D_image_stack.ome.tif?token=",
         coordinationValues: {
             fileUid: 'kidney',
         },
@@ -27,19 +27,18 @@ function generateThreeMinimalConfiguration() {
             {
                 fileUid: 'kidney',
                 spatialLayerOpacity: 1,
-                photometricInterpretation: 'BlackIsZero',
                 spatialTargetResolution: null,
                 imageChannel: CL([
                     {
-                        spatialTargetC: 0,
-                        spatialChannelColor: [255, 0, 0],
+                        spatialTargetC: 1,
+                        spatialChannelColor: [0, 255, 0],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,
                         spatialChannelWindow: null,
                     },
                     {
-                        spatialTargetC: 1,
-                        spatialChannelColor: [0, 255, 0],
+                        spatialTargetC: 20,
+                        spatialChannelColor: [255, 0, 255],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,
                         spatialChannelWindow: null,

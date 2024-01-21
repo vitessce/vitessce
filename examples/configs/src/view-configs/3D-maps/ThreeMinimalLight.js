@@ -8,11 +8,11 @@ import {
 function generateThreeMinimalConfiguration() {
     const config = new VitessceConfig({
         schemaVersion: '1.0.16',
-        name: 'Minimal Three',
+        name: 'Minimal Three Lightsheet',
     });
     const dataset = config.addDataset('My dataset').addFile({
         fileType: 'image.ome-tiff',
-        url: "https://assets.hubmapconsortium.org/30bc1823e0c19be58557fb979499bac2/ometiff-pyramids/data/3D_image_stack.ome.tif?token=",
+        url: "https://assets.hubmapconsortium.org/1f99c0bc4fd3a60bb569410878e4a817/ometiff-pyramids/Level0/Channel1/UFL0006-LY09-1-1.ome.tif?token=",
         coordinationValues: {
             fileUid: 'kidney',
         },
@@ -54,4 +54,4 @@ function generateThreeMinimalConfiguration() {
     return configJSON;
 }
 
-export const threeMinimal = generateThreeMinimalConfiguration();
+export const threeMinimalLight = generateThreeMinimalConfiguration();
