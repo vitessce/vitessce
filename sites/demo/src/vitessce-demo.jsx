@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { Vitessce } from 'vitessce';
 
-import { getConfig, listConfigs, getPlugins } from './api.js';
+import { getConfig, listConfigs, getPlugins, getStores } from './api.js';
 import { Welcome } from './welcome.jsx';
 import { Warning } from './warning.jsx';
 
@@ -108,6 +108,7 @@ export function VitessceDemo() {
     if (datasetId) {
       const config = getConfig(datasetId);
       const pluginProps = getPlugins(datasetId);
+      const stores = getStores(datasetId);
       return (
         <ContainerComponent>
           <Vitessce
@@ -118,6 +119,7 @@ export function VitessceDemo() {
             onConfigUpgrade={debug ? logConfigUpgrade : undefined}
             validateOnConfigChange={debug}
             isBounded={isBounded}
+            stores={stores}
             {...pluginProps}
           />
         </ContainerComponent>

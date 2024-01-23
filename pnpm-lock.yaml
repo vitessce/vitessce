@@ -1707,6 +1707,9 @@ importers:
       '@vitessce/example-plugins':
         specifier: workspace:*
         version: link:../../examples/plugins
+      '@vitessce/zarr-utils':
+        specifier: workspace:*
+        version: link:../../packages/utils/zarr-utils
       react:
         specifier: ^18.0.0
         version: 18.2.0

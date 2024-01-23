@@ -20,16 +20,16 @@ function generateExemplarSmallConfig() {
   const baseUrl = 'http://localhost:8000';
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-zarr',
-    url: `${baseUrl}/exemplar-001.crop.image.ome.zarr`,
+    url: 'exemplar-001.crop.image.ome.zarr',
   }).addFile({
     fileType: 'obsSegmentations.ome-zarr',
-    url: `${baseUrl}/exemplar-001.crop.segmentations.ome.zarr`,
+    url: 'exemplar-001.crop.segmentations.ome.zarr',
     options: {
       obsTypesFromChannelNames: true,
     },
   }).addFile({
     fileType: 'anndata.zarr',
-    url: `${baseUrl}/exemplar-001.crop.cells.adata.zarr`,
+    url: 'exemplar-001.crop.cells.adata.zarr',
     options: {
       obsFeatureMatrix: {
         path: 'X'

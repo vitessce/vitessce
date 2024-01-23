@@ -25,7 +25,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
 
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
-    const loader = await loadOmeZarr(this.url, this.requestInit);
+    const loader = await loadOmeZarr(this.dataSource.storeRoot);
     const imageWrapper = new ImageWrapper(loader, this.options);
 
     const { metadata, data } = loader;
