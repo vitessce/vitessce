@@ -1,9 +1,9 @@
 import { configs, publicConfigs } from '@vitessce/example-configs';
 import { configsWithPlugins as pluginConfigs, pluginProps } from '@vitessce/example-plugins';
 import { createStoreFromMapContents } from '@vitessce/zarr-utils';
-import exemplarSmallCellsAdata from './json-fixtures/multi-obstype/exemplar-001.crop.cells.adata.json';
-import exemplarSmallImageOmeZarr from './json-fixtures/multi-obstype/exemplar-001.crop.image.ome.json';
-import exemplarSmallSegmentationsOmeZarr from './json-fixtures/multi-obstype/exemplar-001.crop.segmentations.ome.json';
+import exemplarSmallCellsAdata from './json-fixtures/exemplar-small/exemplar-001.crop.cells.adata.json';
+import exemplarSmallImageOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.image.ome.json';
+import exemplarSmallSegmentationsOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.segmentations.ome.json';
 
 
 const configsWithPlugins = {
