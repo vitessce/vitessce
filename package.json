@@ -76,7 +76,8 @@
     "lodash-es": "^4.17.21",
     "publint": "^0.1.11",
     "@ast-grep/cli": "^0.6.3",
-    "isomorphic-git": "^1.24.5"
+    "isomorphic-git": "^1.24.5",
+    "@playwright/test": "^1.40.1"
   },
   "pnpm": {
     "overrides": {
