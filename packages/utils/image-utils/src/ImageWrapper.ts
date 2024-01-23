@@ -256,7 +256,9 @@ export default class ImageWrapper<S extends string[]> {
       } = this.vivLoader.metadata;
       return Channels.map((channel, i) => channel.Name || `Channel ${i}`);
     }
-    if('image-label' in this.vivLoader.metadata) {
+    // SpatialData cases (image-label and channels_metadata)
+    // need to take precedence over general OME-NGFF omero metadata.
+    if ('image-label' in this.vivLoader.metadata) {
       return ['labels'];
     }
     if ('channels_metadata' in this.vivLoader.metadata) {
@@ -280,7 +282,9 @@ export default class ImageWrapper<S extends string[]> {
 
   // TODO: support passing a custom color palette array.
   getChannelObjects(): ChannelObject[] {
-    if('image-label' in this.vivLoader.metadata) {
+    // SpatialData cases (image-label and channels_metadata)
+    // need to take precedence over general OME-NGFF omero metadata.
+    if ('image-label' in this.vivLoader.metadata) {
       return [{
         name: 'labels',
         defaultColor: [255, 255, 255],

@@ -1,4 +1,6 @@
-import { extent, max } from 'd3-array';
+/* eslint-disable radix */
+/* eslint-disable-next-line camelcase */
+import { extent, max as d3_max } from 'd3-array';
 
 
 function normalize(arr) {
@@ -28,24 +30,24 @@ export function multiSetsToTextureData(
 
   channelIsSetColorMode.forEach((isSetColorMode, channelIndex) => {
     if (isSetColorMode) {
-      //totalValuesLength += setColorValues[channelIndex]?.obsIndex?.length || 0;
+      // totalValuesLength += setColorValues[channelIndex]?.obsIndex?.length || 0;
       totalColorsLength += (setColorValues[channelIndex]?.setColors?.length || 0) * 3;
 
       // TODO: if we can assume values are monotonically increasing,
       // we can just use the final array value arr[-1] directly as the max.
       totalValuesLength += (
         setColorValues[channelIndex]?.obsIndex
-          ? max(setColorValues[channelIndex].obsIndex.map(d => parseInt(d)))
+          ? d3_max(setColorValues[channelIndex].obsIndex.map(d => parseInt(d)))
           : 0
       );
     } else {
-      //totalValuesLength += multiFeatureValues[channelIndex]?.length || 0;
+      // totalValuesLength += multiFeatureValues[channelIndex]?.length || 0;
 
       // TODO: if we can assume values are monotonically increasing,
       // we can just use the final array value arr[-1] directly as the max.
       totalValuesLength += (
         multiMatrixObsIndex[channelIndex]
-          ? max(multiMatrixObsIndex[channelIndex].map(d => parseInt(d)))
+          ? d3_max(multiMatrixObsIndex[channelIndex].map(d => parseInt(d)))
           : (multiFeatureValues[channelIndex]?.length || 0)
       );
     }
@@ -82,8 +84,9 @@ export function multiSetsToTextureData(
           let obsId = String(i + 1);
           let obsI = i;
           // TODO: this uses the matrixObsIndex to determine the value of the flag, is that correct?
-          if(!bitmaskValueIsIndex) {
-            // We cannot assume that the values in the bitmask correspond to the values in the matrixObsIndex.
+          if (!bitmaskValueIsIndex) {
+            // We cannot assume that the values in the bitmask
+            // correspond to the values in the matrixObsIndex.
             obsId = obsIndex[i];
             obsI = parseInt(obsId) - 1;
           }
@@ -108,8 +111,9 @@ export function multiSetsToTextureData(
       const featureArr = multiFeatureValues[channelIndex];
       const normalizedFeatureArr = normalize(featureArr);
 
-      if(!bitmaskValueIsIndex && matrixObsIndex) {
-        // We cannot assume that the values in the bitmask correspond to the values in the matrixObsIndex.
+      if (!bitmaskValueIsIndex && matrixObsIndex) {
+        // We cannot assume that the values in the bitmask
+        // correspond to the values in the matrixObsIndex.
         for (let i = 0; i < matrixObsIndex.length; i++) {
           const obsId = matrixObsIndex[i];
           const obsI = parseInt(obsId) - 1;
@@ -119,9 +123,6 @@ export function multiSetsToTextureData(
         // TODO: are these values always already normalized?
         totalData.set(normalizedFeatureArr, indexOffset);
       }
-      // TODO: also need to pass in a texture which contains an (implicit) mapping from obsId to obsI (the index in the matrixObsIndex),
-      // since the pixel values may not correspond directly to the obsI.
-      // TODO: Also need to pass in the flag indicating whether to use this texture or not since it will reduce performance.
       indicesOffsets.push(indexOffset);
       indexOffset += featureArr.length;
       // Add a color offset so that the number of offsets still equals the number of channels.

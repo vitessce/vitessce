@@ -209,11 +209,10 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
     const {
       coordinationSpace: newCoordinationSpace,
       coordinationScopes,
-      coordinationScopesBy,
     } = getCoordinationSpaceAndScopes(newCoordinationValues, scopePrefix);
     // Merge coordination objects in coordination space
     Object.entries(newCoordinationSpace).forEach(([coordinationType, coordinationObj]) => {
-      if(coordinationType === CoordinationType.META_COORDINATION_SCOPES) {
+      if (coordinationType === CoordinationType.META_COORDINATION_SCOPES) {
         // Perform an extra level of merging for meta-coordination scopes.
         Object.entries(coordinationObj).forEach(([coordinationScope, coordinationValue]) => {
           coordinationSpace[coordinationType] = {
@@ -261,7 +260,7 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
         ...coordinationSpace,
       },
       layout: layout.map((viewObj) => {
-        if(viewObj.uid === viewUid) {
+        if (viewObj.uid === viewUid) {
           // Merge coordination scopes for views
           return {
             ...viewObj,
@@ -274,9 +273,9 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
               [CoordinationType.META_COORDINATION_SCOPES_BY]: [
                 ...(coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY] || []),
                 ...(viewObj.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY] || []),
-              ]
-            }
-          }
+              ],
+            },
+          };
         }
         return viewObj;
       }),
@@ -700,7 +699,7 @@ export function useComplexCoordination(
               datasetScope,
               coordinationScopes,
               coordinationScopesBy,
-            ); 
+            );
             if (parameterScope) {
               const value = parameterSpace[parameterScope];
               return [parameter, value];

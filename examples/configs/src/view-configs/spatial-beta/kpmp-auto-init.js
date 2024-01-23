@@ -18,6 +18,7 @@ export const kpmpAutoInit2023 = {
           url: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2.ome.tif`,
           options: {
             offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2.offsets.json`,
+            // obsTypesFromChannelNames: true,
           },
         },
         {

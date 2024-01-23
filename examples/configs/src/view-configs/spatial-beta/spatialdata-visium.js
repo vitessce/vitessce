@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import {
   VitessceConfig,
+  // eslint-disable-next-line no-unused-vars
   CoordinationLevel as CL,
   hconcat,
   vconcat,
@@ -80,8 +81,8 @@ function generateVisiumConfig() {
 
   config.linkViews([featureList, heatmap, spatialView, lcView], ['obsType'], ['spot']);
 
-  /*featureList.useCoordination(featureSelectionScope);
-  heatmap.useCoordination(featureSelectionScope);*/
+  /* featureList.useCoordination(featureSelectionScope);
+  heatmap.useCoordination(featureSelectionScope); */
 
   config.layout(hconcat(vconcat(spatialView, heatmap), vconcat(lcView, featureList)));
 

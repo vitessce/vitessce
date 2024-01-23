@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import {
   VitessceConfig,
+  // eslint-disable-next-line no-unused-vars
   CoordinationLevel as CL,
   hconcat,
   vconcat,
@@ -70,7 +71,7 @@ function generateVisiumConfig() {
       featureValueColormapRange: [0, 1],
     }),
   });
-  
+
 
   const metaCoordinationScope = config.addMetaCoordination();
   metaCoordinationScope.useCoordinationByObject(scopes);
@@ -87,7 +88,7 @@ function generateVisiumConfig() {
   */
 
   config.linkViews([obsSets, featureList, spatialViewSimple, lcViewSimple], ['obsType'], ['spot']);
-  
+
   // getInitialCoordinationScopeName is a function that returns the string 'init_A_image_0' to prevent confusion.
   // e.g., getInitialCoordinationScopeName(dataset, 'image') - assumes _0
   // or    getInitialCoordinationScopeName(dataset, 'image', N)

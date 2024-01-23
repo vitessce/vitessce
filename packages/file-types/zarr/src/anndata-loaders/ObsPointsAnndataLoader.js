@@ -45,7 +45,7 @@ export default class ObsPointsAnndataLoader extends AbstractTwoStepLoader {
         // obsSetSelection: null,
         // additionalObsSets: null,
         // obsLabelsType: null,
-      })
+      }),
     };
 
     return Promise.all([

@@ -1,4 +1,5 @@
 import { CoordinationLevel as CL } from '@vitessce/config';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
 import CsvLoader from './CsvLoader.js';
 
 export default class ObsSpotsCsvLoader extends CsvLoader {
@@ -39,7 +40,7 @@ export default class ObsSpotsCsvLoader extends CsvLoader {
         // obsSetColor: null,
         // obsSetSelection: null,
         // additionalObsSets: null,
-      })
+      }),
     };
 
     const { data, url } = payload;

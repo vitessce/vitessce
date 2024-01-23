@@ -1,15 +1,14 @@
 /* eslint-disable max-len */
 import {
   VitessceConfig,
-  CoordinationLevel as CL,
   hconcat,
   vconcat,
 } from '@vitessce/config';
-  
+
 // References:
 // - https://mcmicro.org/datasets/
 // - https://www.synapse.org/#!Synapse:syn22345748/wiki/609239
-  
+
 function generateExemplarSmallConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
@@ -17,7 +16,6 @@ function generateExemplarSmallConfig() {
     description: 'Small lung adenocarcinoma specimen from a tissue microarray (TMA), imaged using CyCIF.',
   });
   // const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/spatialdata-september-2023/mcmicro_io.zarr';
-  const baseUrl = 'http://localhost:8000';
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-zarr',
     url: 'exemplar-001.crop.image.ome.zarr',
@@ -32,14 +30,14 @@ function generateExemplarSmallConfig() {
     url: 'exemplar-001.crop.cells.adata.zarr',
     options: {
       obsFeatureMatrix: {
-        path: 'X'
+        path: 'X',
       },
     },
     coordinationValues: {
       obsType: 'cell',
     },
   });
-  /*.addFile({
+  /* .addFile({
     fileType: 'anndata.zarr',
     url: `${baseUrl}/exemplar-001.crop.circles.adata.zarr`,
     options: {
@@ -50,7 +48,7 @@ function generateExemplarSmallConfig() {
     coordinationValues: {
       obsType: 'circle',
     },
-  });*/
+  }); */
   /*
     .addFile({
       fileType: 'labels.spatialdata.zarr',

@@ -1,6 +1,6 @@
 import { viv } from '@vitessce/gl';
 import { open as zarrOpen } from 'zarrita';
-import { zarrOpenRoot, createZarrArrayAdapter } from '@vitessce/zarr-utils';
+import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
 
 function prevPowerOf2(x) {
   return 2 ** Math.floor(Math.log2(x));

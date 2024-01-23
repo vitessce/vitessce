@@ -30,15 +30,15 @@ function getColor(arr) {
 }
 
 function isEqualShallow(prevArr, nextArr) {
-  if(prevArr === nextArr) {
+  if (prevArr === nextArr) {
     return true;
   }
-  if(Array.isArray(prevArr) && Array.isArray(nextArr)) {
-    if(prevArr.length === nextArr.length) {
+  if (Array.isArray(prevArr) && Array.isArray(nextArr)) {
+    if (prevArr.length === nextArr.length) {
       return !prevArr.some((v, i) => (v !== nextArr[i] && (
         (!Array.isArray(v) && !Array.isArray(nextArr[i]))
         || (v.length > 0 || nextArr[i].length > 0)
-        )
+      )
       ));
     }
   }
@@ -124,7 +124,9 @@ export default class BitmaskLayer extends XRLayer {
       || !isEqualShallow(props.setColorValues, oldProps.setColorValues)
       || !isEqualShallow(props.channelIsSetColorMode, oldProps.channelIsSetColorMode)
     ) {
-      const { multiFeatureValues, multiMatrixObsIndex, setColorValues, channelIsSetColorMode } = this.props;
+      const {
+        multiFeatureValues, multiMatrixObsIndex, setColorValues, channelIsSetColorMode,
+      } = this.props;
       // Use one expressionTex for all channels,
       // using an offset mechanism.
       const [
@@ -308,7 +310,12 @@ export default class BitmaskLayer extends XRLayer {
     });
   }
 
-  multiSetsToTexture(multiFeatureValues, multiMatrixObsIndex, setColorValues, channelIsSetColorMode) {
+  multiSetsToTexture(
+    multiFeatureValues,
+    multiMatrixObsIndex,
+    setColorValues,
+    channelIsSetColorMode,
+  ) {
     const isWebGL2On = isWebGL2(this.context.gl);
 
     const [

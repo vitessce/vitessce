@@ -57,7 +57,6 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       this.loadSpots(),
       this.loadRadius(),
     ]).then(([obsIndex, obsSpots, obsRadius]) => {
-
       const spatialSpotRadius = obsRadius?.data?.[0];
 
       const coordinationValues = {
@@ -67,7 +66,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
           // spatialLayerColor: [255, 255, 255],
           spatialLayerVisible: true,
           spatialLayerOpacity: 1.0,
-          spatialSpotRadius: spatialSpotRadius,
+          spatialSpotRadius,
           // TODO: spatialSpotRadiusUnit: 'µm' or 'um'
           // after resolving https://github.com/vitessce/vitessce/issues/1760
           // featureValueColormapRange: [0, 1],
@@ -75,7 +74,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
           // obsSetColor: null,
           // obsSetSelection: null,
           // additionalObsSets: null,
-        })
+        }),
       };
 
       return Promise.resolve(new LoaderResult(

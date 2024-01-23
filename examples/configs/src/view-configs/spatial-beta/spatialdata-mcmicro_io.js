@@ -1,7 +1,6 @@
 /* eslint-disable max-len */
 import {
   VitessceConfig,
-  CoordinationLevel as CL,
   hconcat,
   vconcat,
 } from '@vitessce/config';
@@ -33,12 +32,9 @@ function generateMcmicroIoConfig() {
       obsType: 'cell',
     },
   }).addFile({
-    fileType: 'labels.spatialdata.zarr',
-    url: baseUrl,
-    options: {
-      path: 'labels/exemplar-001_cells',
-    },
-  })
+    fileType: 'obsSegmentations.ome-zarr',
+    url: `${baseUrl}/labels/exemplar-001_cells`,
+  });
   /*
     .addFile({
       fileType: 'labels.spatialdata.zarr',
@@ -64,6 +60,5 @@ function generateMcmicroIoConfig() {
   const configJSON = config.toJSON();
   return configJSON;
 }
-
 
 export const mcmicroIoSpatialdata2023 = generateMcmicroIoConfig();

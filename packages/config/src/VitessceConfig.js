@@ -2,26 +2,6 @@
 import { CoordinationType } from '@vitessce/constants-internal';
 import { fromEntries, getNextScope, createPrefixedGetNextScopeNumeric } from '@vitessce/utils';
 
-// For usage within loader classes.
-export function getCoordinationSpaceAndScopes(partialCoordinationValues, scopePrefix) {
-  const vc = new VitessceConfig({ schemaVersion: "1.0.16", name: "__dummy__" });
-  vc.getNextScope = createPrefixedGetNextScopeNumeric(scopePrefix);
-  const dataset = vc.addDataset("__dummy__");
-  const v1 = vc.addView(dataset, "__dummy__");
-  vc.linkViewsByObject([v1], partialCoordinationValues, true);
-  const vcJson = vc.toJSON();
-  // TODO: remove the "dataset" coordination type from these objects.
-  const coordinationSpace = vcJson.coordinationSpace;
-  const coordinationScopes = vcJson.layout[0].coordinationScopes;
-  const coordinationScopesBy = vcJson.layout[0].coordinationScopesBy;
-
-  return {
-    coordinationSpace,
-    coordinationScopes,
-    coordinationScopesBy,
-  };
-}
-
 /**
  * Class representing a file within a Vitessce config dataset.
  */
@@ -918,8 +898,8 @@ export class VitessceConfig {
    */
   setCoordinationValue(cType, cScope, cValue) {
     const scope = new VitessceConfigCoordinationScope(cType, cScope, cValue);
-    if(!this.config.coordinationSpace[scope.cType]) {
-      this.config.coordinationSpace[scope.cType] = {}
+    if (!this.config.coordinationSpace[scope.cType]) {
+      this.config.coordinationSpace[scope.cType] = {};
     }
     this.config.coordinationSpace[scope.cType][scope.cScope] = scope;
     return scope;
@@ -1018,4 +998,24 @@ export class VitessceConfig {
     });
     return vc;
   }
+}
+
+// For usage during auto-initialization.
+export function getCoordinationSpaceAndScopes(partialCoordinationValues, scopePrefix) {
+  const vc = new VitessceConfig({ schemaVersion: '1.0.16', name: '__dummy__' });
+  vc.getNextScope = createPrefixedGetNextScopeNumeric(scopePrefix);
+  const dataset = vc.addDataset('__dummy__');
+  const v1 = vc.addView(dataset, '__dummy__');
+  vc.linkViewsByObject([v1], partialCoordinationValues, true);
+  const vcJson = vc.toJSON();
+  // TODO: remove the "dataset" coordination type from these objects.
+  const { coordinationSpace } = vcJson;
+  const { coordinationScopes } = vcJson.layout[0];
+  const { coordinationScopesBy } = vcJson.layout[0];
+
+  return {
+    coordinationSpace,
+    coordinationScopes,
+    coordinationScopesBy,
+  };
 }

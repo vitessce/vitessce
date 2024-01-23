@@ -46,7 +46,7 @@ export default class ObsSpotsAnndataLoader extends AbstractTwoStepLoader {
         // obsSetColor: null,
         // obsSetSelection: null,
         // additionalObsSets: null,
-      })
+      }),
     };
 
     return Promise.all([

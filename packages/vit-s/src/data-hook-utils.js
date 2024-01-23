@@ -208,7 +208,7 @@ export function useDataTypeMulti(
       .filter(q => Boolean(q.data?.coordinationValues))
       .forEach((q) => {
         const { coordinationValues } = q.data;
-        if(mergeCoordination) {
+        if (mergeCoordination) {
           mergeCoordination(
             coordinationValues,
             // Auto-generate based on the dataset and data type.

@@ -640,12 +640,19 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // hoveredCell: Number(this.props.cellHighlight),
       multiFeatureValues: channelScopes
         .map(cScope => (layerFeatureValues?.[cScope]?.[0] || [])),
-      // Pass in the matrixObsIndex to account for the fact that the obsIndex of the obsFeatureMatrix
-      // may not be ["1", "2", "3", "4", ... "N"] and instead may be ["3", "20", "4", "6"].
+      // Pass in the matrixObsIndex to account for the fact that
+      // the obsIndex of the obsFeatureMatrix
+      // may not be ["1", "2", "3", "4", ... "N"] and
+      // instead may be ["3", "20", "4", "6"].
       multiMatrixObsIndex: channelScopes
-        .map(cScope => (bitmaskValueIsIndex ? null : (layerMatrixObsIndices?.[cScope] || null))),
+        .map(cScope => (bitmaskValueIsIndex
+          ? null
+          : (layerMatrixObsIndices?.[cScope] || null)
+        )),
       setColorValues: channelScopes
-        .map(cScope => (this.segmentationColors?.[layerScope]?.[cScope] || [])),
+        .map(cScope => (
+          this.segmentationColors?.[layerScope]?.[cScope] || []
+        )),
       renderSubLayers: renderSubBitmaskLayers,
       loader: data,
       selections,
@@ -1153,7 +1160,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
 
     if (matrixObsIndex) {
-      if(!this.segmentationToMatrixIndexArr[layerScope]) {
+      if (!this.segmentationToMatrixIndexArr[layerScope]) {
         this.segmentationToMatrixIndexArr[layerScope] = {};
       }
       this.segmentationToMatrixIndexArr[layerScope][channelScope] = matrixObsIndex;

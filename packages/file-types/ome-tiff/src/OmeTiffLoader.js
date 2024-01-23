@@ -125,7 +125,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
           },
         ]),
       };
-      
+
       return new LoaderResult(
         {
           image: {

@@ -2,6 +2,6 @@ export { VitessceConfig, vconcat, hconcat, CL as CoordinationLevel, getCoordinat
 export { generateConfig, getHintOptions } from './VitessceAutoConfig.js';
 export { HINTS_CONFIG, HINT_TYPE_TO_FILE_TYPE_MAP } from './constants.js';
 export {
-    getInitialCoordinationScopePrefix,
-    getInitialCoordinationScopeName,
+  getInitialCoordinationScopePrefix,
+  getInitialCoordinationScopeName,
 } from '@vitessce/utils';

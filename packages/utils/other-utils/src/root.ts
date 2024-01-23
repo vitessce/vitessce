@@ -135,20 +135,30 @@ export function createPrefixedGetNextScopeNumeric(prefix: string) {
 /**
  * Get the prefix for an automatically-initialized coordination scope.
  * @param datasetUid The dataset UID.
- * @param dataType The dataType corresponding to the fileType whose loader defines the initial coordination values.
- * @returns The prefix for the initial coordination scope like "init_<datasetUid>_<dataType>_".
+ * @param dataType The dataType corresponding to the fileType
+ * whose loader defines the initial coordination values.
+ * @returns The prefix for the initial coordination scope
+ * like "init_<datasetUid>_<dataType>_".
  */
-export function getInitialCoordinationScopePrefix(datasetUid: string, dataType: string) {
+export function getInitialCoordinationScopePrefix(
+  datasetUid: string, dataType: string,
+) {
   return `init_${datasetUid}_${dataType}_`;
 }
 
 /**
  * Get the name for an automatically-initialized coordination scope.
  * @param datasetUid The dataset UID.
- * @param dataType The dataType corresponding to the fileType whose loader defines the initial coordination values.
- * @param i Optional. If null, the initial coordination scope name will be "init_<datasetUid>_<dataType>_0".
- * @returns The name for the initial coordination scope like "init_<datasetUid>_<dataType>_<i>".
+ * @param dataType The dataType corresponding to the fileType
+ * whose loader defines the initial coordination values.
+ * @param i Optional. If null, the initial coordination scope
+ * name will be "init_<datasetUid>_<dataType>_0".
+ * @returns The name for the initial coordination scope
+ * like "init_<datasetUid>_<dataType>_<i>".
  */
-export function getInitialCoordinationScopeName(datasetUid: string, dataType: string, i: number | null=null) {
-  return `${getInitialCoordinationScopePrefix(datasetUid, dataType)}${i === null ? 0 : i}`;
+export function getInitialCoordinationScopeName(
+  datasetUid: string, dataType: string, i: number | null = null,
+) {
+  const prefix = getInitialCoordinationScopePrefix(datasetUid, dataType);
+  return `${prefix}${i === null ? 0 : i}`;
 }

@@ -4,6 +4,7 @@ import {
   CoordinationLevel as CL,
   hconcat,
   vconcat,
+  getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
 // Reference: https://github.com/giovp/spatialdata-sandbox/blob/3da0af016d3ddd85f1d63a9c03a67b240b012bd0/visium_io/download.py#L15
@@ -64,24 +65,25 @@ function generateVisiumIoConfig() {
   const obsSets = config.addView(dataset, 'obsSets');
   const featureList = config.addView(dataset, 'featureList');
 
-  const [featureSelectionScope] = config.addCoordination('featureSelection');
-  featureSelectionScope.setValue(['Atp1b1']);
+  // const [featureSelectionScope] = config.addCoordination('featureSelection');
+  // featureSelectionScope.setValue(['Atp1b1']);
 
   const [obsColorEncodingScope] = config.addCoordination('obsColorEncoding');
   obsColorEncodingScope.setValue('geneSelection');
 
   config.linkViewsByObject([spatialView, lcView], {
     spotLayer: CL({
-      featureValueColormapRange: [0, 0.5],
+      // featureValueColormapRange: [0, 0.5],
       obsColorEncoding: obsColorEncodingScope,
-      featureSelection: featureSelectionScope,
+      // featureSelection: featureSelectionScope,
     }),
-  }, true, 'init_A_obsSpots_');
+  }, true, getInitialCoordinationScopePrefix('A', 'obsSpots'));
+  // or
 
   config.linkViews([featureList, heatmap, obsSets, spatialView, lcView], ['obsType'], ['spot']);
 
-  featureList.useCoordination(featureSelectionScope);
-  heatmap.useCoordination(featureSelectionScope);
+  // featureList.useCoordination(featureSelectionScope);
+  // heatmap.useCoordination(featureSelectionScope);
 
   featureList.useCoordination(obsColorEncodingScope);
   heatmap.useCoordination(obsColorEncodingScope);

@@ -36,7 +36,7 @@ export default class OmeZarrAsObsSegmentationsLoader extends OmeZarrLoader {
         },
       ]),
     };
-    
+
     return Promise.resolve(new LoaderResult(
       {
         obsSegmentationsType: 'bitmask',
