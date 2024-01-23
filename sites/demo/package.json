@@ -13,7 +13,6 @@
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/example-configs": "workspace:*",
     "@vitessce/example-plugins": "workspace:*",
-    "@vitessce/zarr-utils": "workspace:*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "vitessce": "workspace:*"

@@ -1,3 +1,4 @@
+import { createStoreFromMapContents } from '@vitessce/zarr-utils';
 import { vapi } from './utils.js';
 import {
   justScatter, justScatterExpression, justSpatial,
@@ -48,6 +49,10 @@ import { imsAlgorithmComparison } from './view-configs/spatial-beta/ims-algorith
 import { neumanOop2023 } from './view-configs/spatial-beta/neumann-oop.js';
 import { lightsheetOop2023 } from './view-configs/spatial-beta/lightsheet-oop.js';
 import { visiumPolygonsOop2023 } from './view-configs/spatial-beta/visium-polygons-oop.js';
+
+import exemplarSmallCellsAdata from './json-fixtures/exemplar-small/exemplar-001.crop.cells.adata.json';
+import exemplarSmallImageOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.image.ome.json';
+import exemplarSmallSegmentationsOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.segmentations.ome.json';
 
 
 export const coordinationTypeConfigs = {
@@ -131,3 +136,11 @@ export const publicConfigs = [
   'rgb-ome-tiff',
   'segmentations-ome-tiff',
 ];
+
+export const configStores = {
+  'exemplar-small': {
+    'exemplar-001.crop.cells.adata.zarr': createStoreFromMapContents(exemplarSmallCellsAdata),
+    'exemplar-001.crop.image.ome.zarr': createStoreFromMapContents(exemplarSmallImageOmeZarr),
+    'exemplar-001.crop.segmentations.ome.zarr': createStoreFromMapContents(exemplarSmallSegmentationsOmeZarr),
+  },
+};
