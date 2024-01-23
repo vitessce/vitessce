@@ -224,6 +224,7 @@ export function VitS(props) {
                 height={height}
                 theme={theme}
                 isBounded={isBounded}
+                stores={stores}
               />
               <CallbackPublisher
                 onWarn={onWarn}

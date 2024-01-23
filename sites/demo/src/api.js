@@ -1,5 +1,6 @@
-import { configs, publicConfigs } from '@vitessce/example-configs';
+import { configs, publicConfigs, configStores } from '@vitessce/example-configs';
 import { configsWithPlugins as pluginConfigs, pluginProps } from '@vitessce/example-plugins';
+
 
 const configsWithPlugins = {
   ...configs,
@@ -24,4 +25,11 @@ export function getConfig(id) {
 
 export function getPlugins(id) {
   return pluginProps[id] || {};
+}
+
+export function getStores(id) {
+  if (configStores[id]) {
+    return configStores[id];
+  }
+  return null;
 }

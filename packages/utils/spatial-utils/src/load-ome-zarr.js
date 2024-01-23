@@ -71,8 +71,7 @@ export class ZarritaPixelSource extends viv.ZarrPixelSource {
 
 // We use our own loadOmeZarr function (instead of viv.loadOmeZarr)
 // to bypass usage of zarr.js which is used in Viv's version.
-export async function loadOmeZarr(url, requestInit) {
-  const root = await zarrOpenRoot(url, requestInit);
+export async function loadOmeZarr(root) {
   const { data, rootAttrs, labels } = await loadMultiscales(root);
   const tileSize = guessTileSize(data[0]);
   const pyramid = data

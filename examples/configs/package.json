@@ -17,6 +17,7 @@
   "scripts": {},
   "dependencies": {
     "@vitessce/config": "workspace:*",
-    "@vitessce/constants": "workspace:*"
+    "@vitessce/constants": "workspace:*",
+    "@vitessce/zarr-utils": "workspace:*"
   }
 }
