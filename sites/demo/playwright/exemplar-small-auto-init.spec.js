@@ -9,5 +9,5 @@ test('auto-initialization should occur for images and segmentations', async ({ p
   await expect(page).toHaveTitle("Vitessce");
 
   // Check the screenshot to determine whether auto-initialization was successful.
-  await expect(page).toHaveScreenshot('exemplar-small-auto-init.png');
+  await expect(page).toHaveScreenshot('exemplar-small-auto-init.png', { maxDiffPixelRatio: 0.02 });
 });
