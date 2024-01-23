@@ -31,18 +31,11 @@ function generateThreeMinimalConfiguration() {
                 imageChannel: CL([
                     {
                         spatialTargetC: 0,
-                        spatialChannelColor: [255, 0, 0],
+                        spatialChannelColor: [255, 255, 255],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,
                         spatialChannelWindow: null,
-                    },
-                    {
-                        spatialTargetC: 1,
-                        spatialChannelColor: [0, 255, 0],
-                        spatialChannelVisible: true,
-                        spatialChannelOpacity: 1.0,
-                        spatialChannelWindow: null,
-                    },
+                    }
                 ]),
             },
         ])
