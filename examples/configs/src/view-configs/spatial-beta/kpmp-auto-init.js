@@ -18,7 +18,7 @@ export const kpmpAutoInit2023 = {
           url: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2.ome.tif`,
           options: {
             offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2.offsets.json`,
-            // obsTypesFromChannelNames: true,
+            obsTypesFromChannelNames: true,
           },
         },
         {
@@ -103,6 +103,19 @@ export const kpmpAutoInit2023 = {
       ],
     },
   ],
+  coordinationSpace: {
+    photometricInterpretation: {
+      'init_S-1905-017737_image_0': 'RGB'
+    },
+    obsType: {
+      'init_S-1905-017737_obsSegmentations_0': 'Cortical Interstitia',
+      'init_S-1905-017737_obsSegmentations_1': 'Non-Globally Sclerotic Glomeruli',
+      'init_S-1905-017737_obsSegmentations_2': 'Globally Sclerotic Glomeruli',
+      'init_S-1905-017737_obsSegmentations_3': 'Tubules',
+      'init_S-1905-017737_obsSegmentations_4': 'Arteries/Arterioles',
+      'init_S-1905-017737_obsSegmentations_5': 'Peritubular Capillaries',
+    },
+  },
   initStrategy: 'auto',
   layout: [
     {

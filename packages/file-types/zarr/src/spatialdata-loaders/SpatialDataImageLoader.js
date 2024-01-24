@@ -2,13 +2,10 @@ import { OmeZarrLoader } from '../ome-loaders/index.js';
 
 export default class SpatialDataImageLoader extends OmeZarrLoader {
   constructor(dataSource, params) {
-    // Re-use the OmeZarrLoader, but change the url to point
+    super(dataSource, params);
+    
+    // Re-use the OmeZarrLoader, but change the store root to point
     // to the specified OME-NGFF image within the SpatialData store.
-    const newParams = {
-      ...params,
-      url: `${params.url}/${params.options.path}`,
-    };
-    super(dataSource, newParams);
-    this.dataSource = dataSource;
+    this.storeRoot = this.dataSource.getStoreRoot(params.options.path);
   }
 }

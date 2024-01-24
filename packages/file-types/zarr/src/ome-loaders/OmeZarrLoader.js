@@ -16,16 +16,24 @@ import {
 } from '@vitessce/vit-s';
 import { CoordinationLevel as CL } from '@vitessce/config';
 
+
 export default class OmeZarrLoader extends AbstractTwoStepLoader {
+  constructor(dataSource, params) {
+    super(dataSource, params);
+    this.storeRoot = this.dataSource.storeRoot;
+  }
   async load() {
-    const payload = await this.dataSource.getJson('.zattrs').catch(reason => Promise.resolve(reason));
+    const payload = await this.dataSource.getJson('.zattrs', this.storeRoot).catch(reason => Promise.resolve(reason));
     if (payload instanceof AbstractLoaderError) {
       return Promise.reject(payload);
     }
 
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
-    const loader = await loadOmeZarr(this.dataSource.storeRoot);
+    // Here, we use this.storeRoot as opposed to this.dataSource.storeRoot.
+    // Loader sub-classes may override this.storeRoot in their constructor
+    // if their OME-Zarr image is not at the root of the store.
+    const loader = await loadOmeZarr(this.storeRoot);
     const imageWrapper = new ImageWrapper(loader, this.options);
 
     const { metadata, data } = loader;

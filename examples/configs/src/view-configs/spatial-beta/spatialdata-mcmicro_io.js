@@ -32,8 +32,11 @@ function generateMcmicroIoConfig() {
       obsType: 'cell',
     },
   }).addFile({
-    fileType: 'obsSegmentations.ome-zarr',
-    url: `${baseUrl}/labels/exemplar-001_cells`,
+    fileType: 'labels.spatialdata.zarr',
+    url: baseUrl,
+    options: {
+      path: 'labels/exemplar-001_cells',
+    },
   });
   /*
     .addFile({

@@ -109,6 +109,7 @@ export const imageSpatialdataSchema = imageOmeZarrSchema.extend({
   path: z.string(),
 });
 export const obsSegmentationsSpatialdataSchema = z.object({
+  // TODO: support obsTypesFromChannelNames?
   path: z.string(),
 });
 export const obsLocationsSpatialdataSchema = z.object({
