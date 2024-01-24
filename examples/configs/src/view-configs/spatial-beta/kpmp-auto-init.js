@@ -105,7 +105,7 @@ export const kpmpAutoInit2023 = {
   ],
   coordinationSpace: {
     photometricInterpretation: {
-      'init_S-1905-017737_image_0': 'RGB'
+      'init_S-1905-017737_image_0': 'RGB',
     },
     obsType: {
       'init_S-1905-017737_obsSegmentations_0': 'Cortical Interstitia',

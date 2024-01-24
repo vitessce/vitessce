@@ -22,6 +22,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     super(dataSource, params);
     this.storeRoot = this.dataSource.storeRoot;
   }
+
   async load() {
     const payload = await this.dataSource.getJson('.zattrs', this.storeRoot).catch(reason => Promise.resolve(reason));
     if (payload instanceof AbstractLoaderError) {
