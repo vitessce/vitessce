@@ -779,6 +779,9 @@ export class VitessceConfig {
     */
     const processLevel = (level) => {
       const result = {};
+      if(level === null) {
+        return result;
+      }
       Object.entries(level).forEach(([cType, nextLevelOrInitialValue]) => {
         // Check if value of object is instanceof CoordinationLevel
         // (otherwise assume it is the coordination value).
