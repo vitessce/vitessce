@@ -779,7 +779,7 @@ export class VitessceConfig {
     */
     const processLevel = (level) => {
       const result = {};
-      if(level === null) {
+      if (level === null) {
         return result;
       }
       Object.entries(level).forEach(([cType, nextLevelOrInitialValue]) => {
