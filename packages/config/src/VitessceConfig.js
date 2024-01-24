@@ -861,10 +861,16 @@ export class VitessceConfig {
    * instance, or a `CoordinationLevel` instance.
    * The CL function takes an array of objects as its argument, and returns a CoordinationLevel
    * instance, to support nesting.
-   * @param {boolean} meta Should meta-coordination be used? Optional. By default, true.
+   * @param {object|null} options
+   * @param {bool} options.meta Should meta-coordination be used? Optional.
+   * By default, true.
+   * @param {string|null} options.scopePrefix A prefix to add to all
+   * coordination scope names. Optional.
    * @returns {VitessceConfig} This, to allow chaining.
    */
-  linkViewsByObject(views, input, meta = true, scopePrefix = null) {
+  linkViewsByObject(views, input, options = null) {
+    const { meta = true, scopePrefix = null } = options || {};
+
     if (scopePrefix) {
       this.getNextScope = createPrefixedGetNextScopeNumeric(scopePrefix);
     }
@@ -1006,7 +1012,7 @@ export function getCoordinationSpaceAndScopes(partialCoordinationValues, scopePr
   vc.getNextScope = createPrefixedGetNextScopeNumeric(scopePrefix);
   const dataset = vc.addDataset('__dummy__');
   const v1 = vc.addView(dataset, '__dummy__');
-  vc.linkViewsByObject([v1], partialCoordinationValues, true);
+  vc.linkViewsByObject([v1], partialCoordinationValues, { meta: true });
   const vcJson = vc.toJSON();
   // TODO: remove the "dataset" coordination type from these objects.
   const { coordinationSpace } = vcJson;

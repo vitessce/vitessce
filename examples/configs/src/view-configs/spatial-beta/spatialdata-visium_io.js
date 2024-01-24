@@ -77,7 +77,7 @@ function generateVisiumIoConfig() {
       obsColorEncoding: obsColorEncodingScope,
       // featureSelection: featureSelectionScope,
     }),
-  }, true, getInitialCoordinationScopePrefix('A', 'obsSpots'));
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSpots') });
   // or
 
   config.linkViews([featureList, heatmap, obsSets, spatialView, lcView], ['obsType'], ['spot']);
