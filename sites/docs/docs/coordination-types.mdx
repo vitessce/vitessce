@@ -56,21 +56,21 @@ This will be automatically expanded into:
 ```js
 {
     primaryCoordinationType: {
-        '{datasetUid}_{dataType}_0': '',
+        'init_{datasetUid}_{dataType}_0': '',
     },
     secondaryCoordinationType: {
-        '{datasetUid}_{dataType}_0': 'someInitialValue',
+        'init_{datasetUid}_{dataType}_0': 'someInitialValue',
     },
     metaCoordinationScopes: {
-        '{datasetUid}_{dataType}_0': {
-            primaryCoordinationType: ['{datasetUid}_{dataType}_0'],
+        'init_{datasetUid}_{dataType}_0': {
+            primaryCoordinationType: ['init_{datasetUid}_{dataType}_0'],
         },
     },
     metaCoordinationScopesBy: {
-        '{datasetUid}_{dataType}_0': {
+        'init_{datasetUid}_{dataType}_0': {
             primaryCoordinationType: {
                 secondaryCoordinationType: {
-                    '{datasetUid}_{dataType}_0': '{datasetUid}_{dataType}_0',
+                    'init_{datasetUid}_{dataType}_0': 'init_{datasetUid}_{dataType}_0',
                 },
             },
         },
@@ -88,3 +88,88 @@ However, it is recommended to define all values when possible.
 In some cases, the initial value may be partially data-dependent.
 Data loader classes may use values from the `options` property of a file definition to define the values in the `coordinationValues` object.
 Whether this pattern is supported (and how) will depend on the implementation of each data loader class.
+
+## Multi-level coordination
+
+The `spatialBeta` and `layerControllerBeta` views support multi-level coordination. They support the following hierarchies of coordination types:
+
+
+- `imageLayer`
+    - `fileUid`
+    - `spatialLayerVisible`
+    - `spatialLayerOpacity`
+    - `spatialLayerColormap`
+    - `spatialLayerTransparentColor`
+    - `spatialLayerModelMatrix`
+    - `volumetricRenderingAlgorithm`
+    - `spatialTargetResolution`
+    - `spatialSliceX`
+    - `spatialSliceY`
+    - `spatialSliceZ`
+    - `photometricInterpretation`
+    - `pixelHighlight`
+    - `tooltipsVisible`
+    - `spatialChannelLabelsVisible`
+    - `spatialChannelLabelsOrientation`
+    - `spatialChannelLabelSize`
+    - `imageChannel`
+        - `spatialTargetC`
+        - `spatialChannelVisible`
+        - `spatialChannelColor`
+        - `spatialChannelWindow`
+- `segmentationLayer`
+    - `fileUid`
+    - `spatialLayerVisible`
+    - `spatialLayerOpacity`
+    - `segmentationChannel`
+        - `obsType`
+        - `spatialTargetC`
+        - `spatialChannelVisible`
+        - `spatialChannelOpacity`
+        - `spatialChannelColor`
+        - `spatialSegmentationFilled`
+        - `spatialSegmentationStrokeWidth`
+        - `obsColorEncoding`
+        - `featureSelection`
+        - `featureValueColormap`
+        - `featureValueColormapRange`
+        - `obsSetColor`
+        - `obsSetSelection`
+        - `additionalObsSets`
+        - `obsHighlight`
+        - `tooltipsVisible`
+        - `tooltipCrosshairsVisible`
+        - `legendVisible`
+- `spotLayer`
+    - `obsType`
+    - `spatialLayerVisible`
+    - `spatialLayerOpacity`
+    - `spatialSpotRadius`
+    - `spatialSpotFilled`
+    - `spatialSpotStrokeWidth`
+    - `obsColorEncoding`
+    - `featureSelection`
+    - `featureValueColormap`
+    - `featureValueColormapRange`
+    - `obsSetColor`
+    - `obsSetSelection`
+    - `additionalObsSets`
+    - `spatialLayerColor`
+    - `obsHighlight`
+    - `tooltipsVisible`
+    - `tooltipCrosshairsVisible`
+    - `legendVisible`
+- `pointLayer`
+    - `obsType`
+    - `spatialLayerVisible`
+    - `spatialLayerOpacity`
+    - `obsColorEncoding`
+    - `featureSelection`
+    - `featureValueColormap`
+    - `featureValueColormapRange`
+    - `spatialLayerColor`
+    - `obsHighlight`
+    - `tooltipsVisible`
+    - `tooltipCrosshairsVisible`
+    - `legendVisible`
+
