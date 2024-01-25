@@ -1,7 +1,7 @@
 {
   "name": "vitessce-monorepo",
   "private": true,
-  "version": "3.3.2",
+  "version": "3.3.3",
   "description": "Vitessce app and React component library",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io/",
