@@ -234,6 +234,7 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
         obsType: baseFileDef.coordinationValues.obsType,
       },
     }] : []),
+    // TODO: obsPoints?
     // TODO: obsLocations?
     // image
     ...(options.image ? [{

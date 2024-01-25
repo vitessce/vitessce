@@ -216,10 +216,15 @@ export const anndataZarrSchema = z.object({
 }).partial();
 
 export const spatialdataZarrSchema = z.object({
-  image: imageSpatialdataSchema, // TODO: should this be a special schema to allow specifying fileUid (like for embeddingType)?
-  labels: obsSegmentationsSpatialdataSchema, // TODO: should this be a special schema to allow specifying fileUid (like for embeddingType)?
+  // TODO: should `image` be a special schema
+  // to allow specifying fileUid (like for embeddingType)?
+  image: imageSpatialdataSchema,
+  // TODO: should this be a special schema
+  // to allow specifying fileUid (like for embeddingType)?
+  labels: obsSegmentationsSpatialdataSchema,
   obsFeatureMatrix: obsFeatureMatrixSpatialdataSchema,
   obsSpots: obsSpotsSpatialdataSchema,
-  obsLocations: obsLocationsSpatialdataSchema,
+  // TODO: obsPoints
+  // TODO: obsLocations
   obsSets: obsSetsSpatialdataSchema,
 }).partial();
