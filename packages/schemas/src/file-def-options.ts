@@ -87,9 +87,19 @@ export const imageOmeTiffSchema = z.object({
     .optional(),
 });
 
+export const obsSegmentationsOmeTiffSchema = imageOmeTiffSchema.extend({
+  obsTypesFromChannelNames: z.boolean()
+    .optional(),
+});
+
 // OME-Zarr (NGFF)
 export const imageOmeZarrSchema = z.object({
   coordinateTransformations: omeCoordinateTransformations
+    .optional(),
+});
+
+export const obsSegmentationsOmeZarrSchema = imageOmeZarrSchema.extend({
+  obsTypesFromChannelNames: z.boolean()
     .optional(),
 });
 
@@ -99,6 +109,7 @@ export const imageSpatialdataSchema = imageOmeZarrSchema.extend({
   path: z.string(),
 });
 export const obsSegmentationsSpatialdataSchema = z.object({
+  // TODO: support obsTypesFromChannelNames?
   path: z.string(),
 });
 export const obsLocationsSpatialdataSchema = z.object({

@@ -18,6 +18,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_SETS_CSV]: DataType.OBS_SETS,
   [FileType.OBS_SETS_JSON]: DataType.OBS_SETS,
   [FileType.IMAGE_OME_ZARR]: DataType.IMAGE,
+  [FileType.OBS_SEGMENTATIONS_OME_ZARR]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: DataType.OBS_FEATURE_MATRIX,
   [FileType.OBS_SETS_ANNDATA_ZARR]: DataType.OBS_SETS,
   [FileType.OBS_EMBEDDING_ANNDATA_ZARR]: DataType.OBS_EMBEDDING,
@@ -71,6 +72,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
  */
 export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
   [DataType.OBS_SEGMENTATIONS]: [
+    CoordinationType.FILE_UID,
     CoordinationType.OBS_TYPE,
   ],
   [DataType.OBS_EMBEDDING]: [
@@ -102,6 +104,8 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
     CoordinationType.FEATURE_VALUE_TYPE,
   ],
   [DataType.GENOMIC_PROFILES]: [],
-  [DataType.IMAGE]: [],
+  [DataType.IMAGE]: [
+    CoordinationType.FILE_UID,
+  ],
   [DataType.NEIGHBORHOODS]: [],
 };

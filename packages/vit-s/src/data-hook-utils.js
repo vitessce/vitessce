@@ -1,6 +1,10 @@
 import { useEffect, useMemo } from 'react';
 import { useQuery, useQueries } from '@tanstack/react-query';
-import { capitalize, fromEntries } from '@vitessce/utils';
+import {
+  capitalize,
+  fromEntries,
+  getInitialCoordinationScopePrefix,
+} from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
 import {
   getMatchingLoader,
@@ -169,6 +173,7 @@ export function useDataType(
 export function useDataTypeMulti(
   dataType, loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOnObj,
+  mergeCoordination, viewUid,
 ) {
   const placeholderObject = useMemo(() => ({}), []);
   const setWarning = useSetWarning();
@@ -200,14 +205,23 @@ export function useDataTypeMulti(
 
   useEffect(() => {
     dataQueries
-      .map(q => q.data?.coordinationValues)
-      .filter(v => Boolean(v))
-      .forEach((coordinationValues) => {
-        initCoordinationSpace(
-          coordinationValues,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
+      .filter(q => Boolean(q.data?.coordinationValues))
+      .forEach((q) => {
+        const { coordinationValues } = q.data;
+        if (mergeCoordination) {
+          mergeCoordination(
+            coordinationValues,
+            // Auto-generate based on the dataset and data type.
+            getInitialCoordinationScopePrefix(dataset, dataType),
+            viewUid,
+          );
+        } else {
+          initCoordinationSpace(
+            coordinationValues,
+            coordinationSetters,
+            initialCoordinationValues,
+          );
+        }
       });
   // Deliberate dependency omissions: use indirect dependencies for efficiency.
   // eslint-disable-next-line react-hooks/exhaustive-deps

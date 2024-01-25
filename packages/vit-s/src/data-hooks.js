@@ -377,6 +377,7 @@ export function useObsFeatureMatrixIndices(
 
 export function useMultiObsPoints(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
+  mergeCoordination, viewUid,
 ) {
   const obsTypeCoordination = useComplexCoordination(
     [
@@ -394,13 +395,14 @@ export function useMultiObsPoints(
   const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useDataTypeMulti(
     DataType.OBS_POINTS, loaders, dataset,
     false, {}, {},
-    matchOnObj,
+    matchOnObj, mergeCoordination, viewUid,
   );
   return [obsPointsData, obsPointsDataStatus, obsPointsUrls];
 }
 
 export function useMultiObsSpots(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
+  mergeCoordination, viewUid,
 ) {
   const obsTypeCoordination = useComplexCoordination(
     [
@@ -418,7 +420,7 @@ export function useMultiObsSpots(
   const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useDataTypeMulti(
     DataType.OBS_SPOTS, loaders, dataset,
     false, {}, {},
-    matchOnObj,
+    matchOnObj, mergeCoordination, viewUid,
   );
   return [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls];
 }
@@ -470,6 +472,7 @@ export function useMultiObsLabels(
 
 export function useMultiObsSegmentations(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
+  mergeCoordination, viewUid,
 ) {
   const imageCoordination = useComplexCoordination(
     [
@@ -491,13 +494,14 @@ export function useMultiObsSegmentations(
   ] = useDataTypeMulti(
     DataType.OBS_SEGMENTATIONS, loaders, dataset,
     false, {}, {},
-    matchOnObj,
+    matchOnObj, mergeCoordination, viewUid,
   );
   return [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls];
 }
 
 export function useMultiImages(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
+  mergeCoordination, viewUid,
 ) {
   // TODO: delegate the generation of matchOnObj to a different hoook and pass as a parameter?
   // (in all of the useMulti data hooks)?
@@ -517,7 +521,7 @@ export function useMultiImages(
   const [imageData, imageDataStatus, imageUrls] = useDataTypeMulti(
     DataType.IMAGE, loaders, dataset,
     false, {}, {},
-    matchOnObj,
+    matchOnObj, mergeCoordination, viewUid,
   );
   return [imageData, imageDataStatus, imageUrls];
 }

@@ -24,6 +24,8 @@ export {
   imageOmeZarrSchema,
   imageOmeTiffSchema,
   imageSpatialdataSchema,
+  obsSegmentationsOmeTiffSchema,
+  obsSegmentationsOmeZarrSchema,
   obsSegmentationsSpatialdataSchema,
   obsFeatureMatrixSpatialdataSchema,
   obsSpotsSpatialdataSchema,

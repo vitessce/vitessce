@@ -6,6 +6,10 @@ export {
   pluralize,
   getLongestString,
   getNextScope,
+  getNextScopeNumeric,
+  createPrefixedGetNextScopeNumeric,
+  getInitialCoordinationScopePrefix,
+  getInitialCoordinationScopeName,
 } from './root.js';
 // eslint-disable-next-line react-refresh/only-export-components
 export {

@@ -1,4 +1,6 @@
-import { extent } from 'd3-array';
+/* eslint-disable radix */
+/* eslint-disable-next-line camelcase */
+import { extent, max as d3_max } from 'd3-array';
 
 
 function normalize(arr) {
@@ -21,17 +23,33 @@ function normalize(arr) {
  * @returns
  */
 export function multiSetsToTextureData(
-  multiFeatureValues, setColorValues, channelIsSetColorMode, texSize,
+  multiFeatureValues, multiMatrixObsIndex, setColorValues, channelIsSetColorMode, texSize,
 ) {
   let totalValuesLength = 0;
   let totalColorsLength = 0;
 
   channelIsSetColorMode.forEach((isSetColorMode, channelIndex) => {
     if (isSetColorMode) {
-      totalValuesLength += setColorValues[channelIndex]?.obsIndex?.length || 0;
+      // totalValuesLength += setColorValues[channelIndex]?.obsIndex?.length || 0;
       totalColorsLength += (setColorValues[channelIndex]?.setColors?.length || 0) * 3;
+
+      // TODO: if we can assume values are monotonically increasing,
+      // we can just use the final array value arr[-1] directly as the max.
+      totalValuesLength += (
+        setColorValues[channelIndex]?.obsIndex
+          ? d3_max(setColorValues[channelIndex].obsIndex.map(d => parseInt(d)))
+          : 0
+      );
     } else {
-      totalValuesLength += multiFeatureValues[channelIndex]?.length || 0;
+      // totalValuesLength += multiFeatureValues[channelIndex]?.length || 0;
+
+      // TODO: if we can assume values are monotonically increasing,
+      // we can just use the final array value arr[-1] directly as the max.
+      totalValuesLength += (
+        multiMatrixObsIndex[channelIndex]
+          ? d3_max(multiMatrixObsIndex[channelIndex].map(d => parseInt(d)))
+          : (multiFeatureValues[channelIndex]?.length || 0)
+      );
     }
   });
 
@@ -56,15 +74,27 @@ export function multiSetsToTextureData(
   let colorOffset = 0;
   // Iterate over the data for each channel.
   channelIsSetColorMode.forEach((isSetColorMode, channelIndex) => {
+    const matrixObsIndex = multiMatrixObsIndex[channelIndex];
+    // Assume the bitmask values correspond to the values in the matrixObsIndex (off by one).
+    const bitmaskValueIsIndex = matrixObsIndex === null;
     if (isSetColorMode) {
       const { setColorIndices, setColors, obsIndex } = setColorValues[channelIndex] || {};
       if (setColorIndices && setColors && obsIndex) {
         for (let i = 0; i < obsIndex.length; i++) {
+          let obsId = String(i + 1);
+          let obsI = i;
+          // TODO: this uses the matrixObsIndex to determine the value of the flag, is that correct?
+          if (!bitmaskValueIsIndex) {
+            // We cannot assume that the values in the bitmask
+            // correspond to the values in the matrixObsIndex.
+            obsId = obsIndex[i];
+            obsI = parseInt(obsId) - 1;
+          }
           // We add one here to account for i being 0-based but the pixel values being 1-based
           // (to account for zero indicating the background of the segmentation bitmask).
-          const colorIndex = setColorIndices.get(String(i + 1));
+          const colorIndex = setColorIndices.get(obsId);
           // Add one to the color index, so that we can use zero to indicate a "null" set color.
-          totalData[indexOffset + i] = colorIndex === undefined ? 0 : colorIndex + 1;
+          totalData[indexOffset + obsI] = colorIndex === undefined ? 0 : colorIndex + 1;
         }
         for (let i = 0; i < setColors.length; i++) {
           const { color: [r, g, b] } = setColors[i];
@@ -79,8 +109,20 @@ export function multiSetsToTextureData(
       colorOffset += (setColors?.length || 0);
     } else {
       const featureArr = multiFeatureValues[channelIndex];
-      // TODO: are these values always already normalized?
-      totalData.set(normalize(featureArr), indexOffset);
+      const normalizedFeatureArr = normalize(featureArr);
+
+      if (!bitmaskValueIsIndex && matrixObsIndex) {
+        // We cannot assume that the values in the bitmask
+        // correspond to the values in the matrixObsIndex.
+        for (let i = 0; i < matrixObsIndex.length; i++) {
+          const obsId = matrixObsIndex[i];
+          const obsI = parseInt(obsId) - 1;
+          totalData[indexOffset + obsI] = normalizedFeatureArr[i];
+        }
+      } else {
+        // TODO: are these values always already normalized?
+        totalData.set(normalizedFeatureArr, indexOffset);
+      }
       indicesOffsets.push(indexOffset);
       indexOffset += featureArr.length;
       // Add a color offset so that the number of offsets still equals the number of channels.

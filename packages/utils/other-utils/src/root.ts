@@ -95,3 +95,70 @@ export function getNextScope(prevScopes: string[]) {
   } while (prevScopes.includes(nextScope));
   return nextScope;
 }
+
+/**
+ * Generate a new scope name which does not
+ * conflict / overlap with a previous scope name.
+ * Really these just need to be unique within the coordination object.
+ * So in theory they could be String(Math.random()) or uuidv4() or something.
+ * In this version we use an incrementing integer starting from 0.
+ * @param {string[]} prevScopes Previous scope names.
+ * @returns {string} The new scope name.
+ */
+export function getNextScopeNumeric(prevScopes: string[]) {
+  let nextScopeInt = 0;
+  let nextScopeStr: string;
+  do {
+    nextScopeStr = `${nextScopeInt}`;
+    nextScopeInt += 1;
+  } while (prevScopes.includes(nextScopeStr));
+  return nextScopeStr;
+}
+
+/**
+ * Generate a getNextScopeNumeric function which includes a prefix.
+ * @param {string} prefix The prefix to use.
+ * @returns {Function} The getNextScope function.
+ */
+export function createPrefixedGetNextScopeNumeric(prefix: string) {
+  return (prevScopes: string[]) => {
+    let nextScopeInt = 0;
+    let nextScopeStr: string;
+    do {
+      nextScopeStr = `${prefix}${nextScopeInt}`;
+      nextScopeInt += 1;
+    } while (prevScopes.includes(nextScopeStr));
+    return nextScopeStr;
+  };
+}
+
+/**
+ * Get the prefix for an automatically-initialized coordination scope.
+ * @param datasetUid The dataset UID.
+ * @param dataType The dataType corresponding to the fileType
+ * whose loader defines the initial coordination values.
+ * @returns The prefix for the initial coordination scope
+ * like "init_<datasetUid>_<dataType>_".
+ */
+export function getInitialCoordinationScopePrefix(
+  datasetUid: string, dataType: string,
+) {
+  return `init_${datasetUid}_${dataType}_`;
+}
+
+/**
+ * Get the name for an automatically-initialized coordination scope.
+ * @param datasetUid The dataset UID.
+ * @param dataType The dataType corresponding to the fileType
+ * whose loader defines the initial coordination values.
+ * @param i Optional. If null, the initial coordination scope
+ * name will be "init_<datasetUid>_<dataType>_0".
+ * @returns The name for the initial coordination scope
+ * like "init_<datasetUid>_<dataType>_<i>".
+ */
+export function getInitialCoordinationScopeName(
+  datasetUid: string, dataType: string, i: number | null = null,
+) {
+  const prefix = getInitialCoordinationScopePrefix(datasetUid, dataType);
+  return `${prefix}${i === null ? 0 : i}`;
+}

@@ -235,7 +235,7 @@ v1.useMetaCoordination(metaCoordinationScope);
 v2.useMetaCoordination(metaCoordinationScope);
 ```
 
-### `linkViewsByObject(views, obj, meta=true)`
+### `linkViewsByObject(views, obj, [options])`
 
 Convenience function to simultaneously set up the initial values for multi-level coordination in the coordination space
 and link an array of views on the resulting coordination scopes.
@@ -248,7 +248,9 @@ instance, or a `CoordinationLevel` instance.
 The `CL` function takes an array of objects as its argument, and returns a `CoordinationLevel`
 instance, to support nesting.
 Internally, this will be passed to `VitessceConfig.addCoordinationByObject`.
-- `meta` (`boolean`) - Whether or not to use meta-coordination. Optional. By default, `true`.
+- `options` (`object|null`) - An optional parameter to supply an object containing additional options.
+- `options.meta` (`boolean`) - Whether or not to use meta-coordination. Optional. By default, `true`.
+- `options.scopePrefix` (`string|null`) - A prefix to prepend to coordination scope names that are added by this function. Optional.
 
 #### Returns:
 - Type: `VitessceConfig`

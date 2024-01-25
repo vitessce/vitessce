@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import {
   VitessceConfig,
+  // eslint-disable-next-line no-unused-vars
   CoordinationLevel as CL,
   hconcat,
   vconcat,
@@ -21,9 +22,6 @@ function generateVisiumConfig() {
     url: baseUrl,
     options: {
       path: 'images/ST8059049_image',
-    },
-    coordinationValues: {
-      fileUid: 'ST8059049',
     },
   }).addFile({
     fileType: 'obsFeatureMatrix.spatialdata.zarr',
@@ -54,7 +52,7 @@ function generateVisiumConfig() {
   const heatmap = config.addView(dataset1, 'heatmap');
   // const obsSets = config.addView(dataset, 'obsSets');
   const featureList = config.addView(dataset1, 'featureList');
-
+  /*
   const [featureSelectionScope] = config.addCoordination('featureSelection');
   featureSelectionScope.setValue(['Slc25a4']);
 
@@ -79,11 +77,12 @@ function generateVisiumConfig() {
       featureSelection: featureSelectionScope,
     }),
   });
+  */
 
-  config.linkViews([featureList, heatmap], ['obsType'], ['spot']);
+  config.linkViews([featureList, heatmap, spatialView, lcView], ['obsType'], ['spot']);
 
-  featureList.useCoordination(featureSelectionScope);
-  heatmap.useCoordination(featureSelectionScope);
+  /* featureList.useCoordination(featureSelectionScope);
+  heatmap.useCoordination(featureSelectionScope); */
 
   config.layout(hconcat(vconcat(spatialView, heatmap), vconcat(lcView, featureList)));
 

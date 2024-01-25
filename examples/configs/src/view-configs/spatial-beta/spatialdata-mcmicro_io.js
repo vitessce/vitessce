@@ -1,7 +1,6 @@
 /* eslint-disable max-len */
 import {
   VitessceConfig,
-  CoordinationLevel as CL,
   hconcat,
   vconcat,
 } from '@vitessce/config';
@@ -23,9 +22,6 @@ function generateMcmicroIoConfig() {
     options: {
       path: 'images/exemplar-001_image',
     },
-    coordinationValues: {
-      fileUid: 'exemplar-image',
-    },
   }).addFile({
     fileType: 'obsFeatureMatrix.spatialdata.zarr',
     url: baseUrl,
@@ -41,11 +37,8 @@ function generateMcmicroIoConfig() {
     options: {
       path: 'labels/exemplar-001_cells',
     },
-    coordinationValues: {
-      fileUid: 'cell-bitmask',
-      obsType: 'cell',
-    },
-  })
+  });
+  /*
     .addFile({
       fileType: 'labels.spatialdata.zarr',
       url: baseUrl,
@@ -57,6 +50,7 @@ function generateMcmicroIoConfig() {
         obsType: 'nucleus',
       },
     });
+    */
 
   const spatialView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta');
@@ -64,104 +58,10 @@ function generateMcmicroIoConfig() {
   // const obsSets = config.addView(dataset, 'obsSets');
   const featureList = config.addView(dataset, 'featureList');
 
-  const [featureSelectionScope, colormapScope] = config.addCoordination('featureSelection', 'featureValueColormap');
-  featureSelectionScope.setValue(['DNA_6']);
-  colormapScope.setValue('plasma');
-
-  config.linkViewsByObject([spatialView, lcView], {
-    spatialTargetZ: 0,
-    spatialTargetT: 0,
-    obsType: 'cell', // TODO: remove this after auto-initialization is supported per-layer/per-layer-channel.
-    // For now, cheating by allowing the spotLayer to fall back to the auto-initialized values for the view.
-    imageLayer: CL({
-      fileUid: 'exemplar-image',
-      spatialLayerOpacity: 1,
-      spatialLayerVisible: true,
-      photometricInterpretation: 'BlackIsZero',
-      imageChannel: CL([
-        {
-          spatialTargetC: 0,
-          spatialChannelColor: [255, 255, 255],
-          spatialChannelWindow: null,
-          spatialChannelVisible: true,
-          spatialChannelOpacity: 1,
-        },
-        {
-          spatialTargetC: 1,
-          spatialChannelColor: [0, 255, 0],
-          spatialChannelWindow: null,
-          spatialChannelVisible: false,
-          spatialChannelOpacity: 1,
-        },
-        {
-          spatialTargetC: 2,
-          spatialChannelColor: [255, 0, 255],
-          spatialChannelWindow: null,
-          spatialChannelVisible: false,
-          spatialChannelOpacity: 1,
-        },
-      ]),
-    }),
-    segmentationLayer: CL([
-      {
-        fileUid: 'cell-bitmask',
-        spatialLayerVisible: true,
-        spatialLayerOpacity: 1,
-        segmentationChannel: CL([
-          {
-            obsType: 'cell',
-            spatialTargetC: 0,
-            spatialChannelColor: [255, 0, 0],
-            spatialChannelOpacity: 0.9,
-            featureType: 'gene',
-            featureValueType: 'expression',
-            spatialChannelVisible: true,
-            obsColorEncoding: 'geneSelection',
-            spatialSegmentationFilled: false,
-            spatialSegmentationStrokeWidth: 0.01,
-            obsHighlight: null,
-            featureSelection: featureSelectionScope,
-            featureValueColormap: colormapScope,
-            featureValueColormapRange: [0, 0.5],
-          },
-        ]),
-      },
-      /*
-      {
-        fileUid: 'nucleus-bitmask',
-        spatialLayerVisible: true,
-        spatialLayerOpacity: 1,
-        segmentationChannel: CL([
-          {
-            obsType: 'nucleus',
-            spatialTargetC: 0,
-            spatialChannelColor: [0, 255, 0],
-            spatialChannelOpacity: 0.1,
-            featureType: 'gene',
-            featureValueType: 'expression',
-            spatialChannelVisible: true,
-            obsColorEncoding: 'spatialChannelColor',
-            spatialSegmentationFilled: true,
-            spatialSegmentationStrokeWidth: 1.0,
-            obsHighlight: null,
-          },
-        ]),
-      },
-      */
-    ]),
-  });
-
-  config.linkViews([/* obsSets, */featureList, heatmap], ['obsType'], ['cell']);
-
-  featureList.useCoordination(featureSelectionScope);
-  heatmap.useCoordination(featureSelectionScope);
-  heatmap.useCoordination(colormapScope);
-
   config.layout(hconcat(vconcat(spatialView, heatmap), vconcat(lcView, /* obsSets, */ featureList)));
 
   const configJSON = config.toJSON();
   return configJSON;
 }
-
 
 export const mcmicroIoSpatialdata2023 = generateMcmicroIoConfig();
