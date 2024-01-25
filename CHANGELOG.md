@@ -1,4 +1,17 @@
 
+## 3.3.3
+
+### Patch Changes
+
+- Prevent URLs from being included in download dropdown for Zarr file types. (`@vitessce/spatial`, `@vitessce/zarr`, `@vitessce/vit-s`) ([#1759](https://github.com/vitessce/vitessce/pull/1759))
+
+- SpatialData file type. (`@vitessce/schemas`) ([#1728](https://github.com/vitessce/vitessce/pull/1728))
+
+- Support bitmask segmentations with gaps and irregular orderings. Enable usage of JSON-based Zarr stores in demos for tests. (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`, `@vitessce/ome-tiff`, `@vitessce/spatial-utils`, `@vitessce/constants-internal`, `@vitessce/image-utils`, `@vitessce/utils`, `@vitessce/json`, `@vitessce/zarr`, `@vitessce/csv`, `@vitessce/all`, `@vitessce/example-configs`, `@vitessce/schemas`, `@vitessce/config`, `@vitessce/vit-s`, `@vitessce/gl`) ([#1758](https://github.com/vitessce/vitessce/pull/1758))
+
+- Fix volume control text sizing bug in layerController. (`@vitessce/layer-controller`) ([#1746](https://github.com/vitessce/vitessce/pull/1746))
+
+
 ## 3.3.2
 
 ### Patch Changes
