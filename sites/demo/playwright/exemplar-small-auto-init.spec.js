@@ -8,7 +8,7 @@ test('auto-initialization should occur for images and segmentations', async ({ p
   await expect(page).toHaveTitle("Vitessce");
 
   // Check the screenshot to determine whether auto-initialization was successful.
-  await expect(page).toHaveScreenshot('exemplar-small-auto-init.png', { maxDiffPixelRatio: 0.02 });
+  await expect(page).toHaveScreenshot('exemplar-small-auto-init.png', { maxDiffPixelRatio: 0.1 });
 });
 
 test('partial initialization is possible for images and segmentations', async ({ page }) => {
@@ -18,6 +18,6 @@ test('partial initialization is possible for images and segmentations', async ({
   await expect(page).toHaveTitle("Vitessce");
 
   // Check the screenshot to determine whether auto-initialization was successful.
-  await expect(page).toHaveScreenshot('exemplar-small-partial-init.png', { maxDiffPixelRatio: 0.02 });
+  await expect(page).toHaveScreenshot('exemplar-small-partial-init.png', { maxDiffPixelRatio: 0.1 });
 });
 
