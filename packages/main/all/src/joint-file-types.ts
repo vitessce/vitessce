@@ -182,3 +182,81 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
     ) : []),
   ];
 }
+
+export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchema>) {
+  const baseFileDef: BaseFileDef = {
+    url: fileDef.url,
+    requestInit: fileDef.requestInit,
+    coordinationValues: {
+      ...fileDef.coordinationValues,
+      obsType: fileDef.coordinationValues?.obsType || 'cell',
+      featureType: fileDef.coordinationValues?.featureType || 'gene',
+      featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
+    },
+  };
+  const extraCoordinationValues: Record<string, any> = {};
+  Object.entries(baseFileDef.coordinationValues).forEach(([key, value]) => {
+    if (!expectedCoordinationTypes.includes(key)) {
+      extraCoordinationValues[key] = value;
+    }
+  });
+  const { options = {} } = fileDef;
+  return [
+    // obsFeatureMatrix
+    ...(options.obsFeatureMatrix ? [{
+      ...baseFileDef,
+      fileType: FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR,
+      options: options.obsFeatureMatrix,
+      coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+        featureType: baseFileDef.coordinationValues.featureType,
+        featureValueType: baseFileDef.coordinationValues.featureValueType,
+      },
+    }] : []),
+    // obsSets
+    ...(options.obsSets ? [{
+      ...baseFileDef,
+      fileType: FileType.OBS_SETS_SPATIALDATA_ZARR,
+      options: options.obsSets,
+      coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
+    }] : []),
+    // obsSpots
+    ...(options.obsSpots ? [{
+      ...baseFileDef,
+      fileType: FileType.OBS_SPOTS_SPATIALDATA_ZARR,
+      options: options.obsSpots,
+      coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
+    }] : []),
+    // TODO: obsPoints?
+    // TODO: obsLocations?
+    // image
+    ...(options.image ? [{
+      ...baseFileDef,
+      fileType: FileType.IMAGE_SPATIALDATA_ZARR,
+      options: options.image,
+      coordinationValues: {
+        ...extraCoordinationValues,
+        featureType: baseFileDef.coordinationValues.featureType,
+        // TODO: fileUid?
+      },
+    }] : []),
+    // labels
+    ...(options.labels ? [{
+      ...baseFileDef,
+      fileType: FileType.LABELS_SPATIALDATA_ZARR,
+      options: options.labels,
+      coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+        // TODO: fileUid?
+      },
+    }] : []),
+  ];
+}

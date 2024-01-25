@@ -21,6 +21,7 @@ export {
   obsSegmentationsAnndataSchema,
   featureLabelsAnndataSchema,
   anndataZarrSchema,
+  spatialdataZarrSchema,
   imageOmeZarrSchema,
   imageOmeTiffSchema,
   imageSpatialdataSchema,
