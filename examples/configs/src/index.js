@@ -1,3 +1,4 @@
+import { createStoreFromMapContents } from '@vitessce/zarr-utils';
 import { vapi } from './utils.js';
 import {
   justScatter, justScatterExpression, justSpatial,
@@ -39,6 +40,7 @@ import { kpmp2023 } from './view-configs/spatial-beta/kpmp.js';
 import { visiumSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium.js';
 import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium_io.js';
 import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
+import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
@@ -47,6 +49,10 @@ import { imsAlgorithmComparison } from './view-configs/spatial-beta/ims-algorith
 import { neumanOop2023 } from './view-configs/spatial-beta/neumann-oop.js';
 import { lightsheetOop2023 } from './view-configs/spatial-beta/lightsheet-oop.js';
 import { visiumPolygonsOop2023 } from './view-configs/spatial-beta/visium-polygons-oop.js';
+
+import exemplarSmallCellsAdata from './json-fixtures/exemplar-small/exemplar-001.crop.cells.adata.json';
+import exemplarSmallImageOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.image.ome.json';
+import exemplarSmallSegmentationsOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.segmentations.ome.json';
 
 
 export const coordinationTypeConfigs = {
@@ -104,6 +110,8 @@ export const configs = {
   'codeluppi-2018-2': codeluppiOop2018,
   'kpmp-2023': kpmp2023,
   'kpmp-2023-2': kpmpOop2023,
+  'exemplar-small': exemplarSmall2024,
+  'exemplar-small-partial-init': exemplarSmallPartialInit,
 
   // TODO(spatialBeta): clean up
   'ims-algorithm-comparison': imsAlgorithmComparison,
@@ -129,3 +137,14 @@ export const publicConfigs = [
   'rgb-ome-tiff',
   'segmentations-ome-tiff',
 ];
+
+const exemplarSmallStores = {
+  'exemplar-001.crop.cells.adata.zarr': createStoreFromMapContents(exemplarSmallCellsAdata),
+  'exemplar-001.crop.image.ome.zarr': createStoreFromMapContents(exemplarSmallImageOmeZarr),
+  'exemplar-001.crop.segmentations.ome.zarr': createStoreFromMapContents(exemplarSmallSegmentationsOmeZarr),
+};
+
+export const configStores = {
+  'exemplar-small': exemplarSmallStores,
+  'exemplar-small-partial-init': exemplarSmallStores,
+};

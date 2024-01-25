@@ -15,6 +15,7 @@ import {
   useMultiObsPoints,
   useMultiObsSegmentations,
   useMultiImages,
+  useMergeCoordination,
   useComplexCoordination,
   useMultiCoordinationScopesNonNull,
   useMultiCoordinationScopesSecondaryNonNull,
@@ -43,12 +44,16 @@ export function LayerControllerSubscriber(props) {
   const {
     coordinationScopes: coordinationScopesRaw,
     coordinationScopesBy: coordinationScopesByRaw,
+    closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     theme,
     title = 'Spatial Layers',
+    uuid,
   } = props;
 
   const loaders = useLoaders();
+  const mergeCoordination = useMergeCoordination();
 
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
@@ -90,6 +95,7 @@ export function LayerControllerSubscriber(props) {
     coordinationScopes,
     coordinationScopesBy,
   );
+
 
   const spotLayerScopes = useMultiCoordinationScopesNonNull(
     CoordinationType.SPOT_LAYER,
@@ -248,15 +254,19 @@ export function LayerControllerSubscriber(props) {
 
   const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
   const [imageData, imageDataStatus] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
   const [obsSpotsData, obsSpotsDataStatus] = useMultiObsSpots(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
   const [obsPointsData, obsPointsDataStatus] = useMultiObsPoints(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
 
   const isReady = useReady([
@@ -270,6 +280,8 @@ export function LayerControllerSubscriber(props) {
     <TitleInfo
       title={title}
       isScroll
+      closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}

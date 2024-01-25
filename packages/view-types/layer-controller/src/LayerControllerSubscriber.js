@@ -33,6 +33,8 @@ const LayerControllerMemoized = React.memo(
   forwardRef((props, ref) => {
     const {
       title,
+      closeButtonVisible,
+      downloadButtonVisible,
       removeGridComponent,
       theme,
       isReady,
@@ -86,6 +88,8 @@ const LayerControllerMemoized = React.memo(
       <TitleInfo
         title={title}
         isScroll
+        closeButtonVisible={closeButtonVisible}
+        downloadButtonVisible={downloadButtonVisible}
         removeGridComponent={removeGridComponent}
         theme={theme}
         isReady={isReady}
@@ -306,6 +310,8 @@ const LayerControllerMemoized = React.memo(
 export function LayerControllerSubscriber(props) {
   const {
     coordinationScopes,
+    closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     theme,
     title = 'Spatial Layers',
@@ -450,6 +456,8 @@ export function LayerControllerSubscriber(props) {
     <LayerControllerMemoized
       ref={layerControllerRef}
       title={title}
+      closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}

@@ -15,6 +15,10 @@ export default class ZarrDataSource {
     }
   }
 
+  getStoreRoot(path) {
+    return this.storeRoot.resolve(path);
+  }
+
   /**
    * Class method for decoding json from the store.
    * @param {string} key A path to the item.
@@ -22,14 +26,16 @@ export default class ZarrDataSource {
    * that resolves to the parsed JSON if successful.
    * @throws This may throw an error.
    */
-  async getJson(key) {
+  async getJson(key, storeRootParam = null) {
     const { storeRoot } = this;
+
+    const storeRootToUse = storeRootParam || storeRoot;
 
     let dirKey = key;
     // TODO: update calls to not include these file names in the first place.
     if (key.endsWith('.zattrs') || key.endsWith('.zarray') || key.endsWith('.zgroup')) {
       dirKey = key.substring(0, key.length - 8);
     }
-    return (await zarrOpen(storeRoot.resolve(dirKey))).attrs;
+    return (await zarrOpen(storeRootToUse.resolve(dirKey))).attrs;
   }
 }

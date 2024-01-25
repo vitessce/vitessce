@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/ome-tiff",
-  "version": "3.3.0",
+  "version": "3.3.2",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/config": "workspace:*",
     "@vitessce/gl": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/spatial-utils": "workspace:*",
