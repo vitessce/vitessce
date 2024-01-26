@@ -189,7 +189,6 @@ const SpatialThree = (props) => {
                 }
                 //TODO check if in a Set selection
                 //adapt the color
-
                 segmentationGroup.children[child].material.color.r = color[0] / 255
                 segmentationGroup.children[child].material.color.g = color[1] / 255
                 segmentationGroup.children[child].material.color.b = color[2] / 255
@@ -272,28 +271,30 @@ const SpatialThree = (props) => {
                     if (volumeSettings.channelsVisible[elem]) volumeCount++;
                 }
                 setDataReady(false);
-                //Set the material uniforms
-                materialRef.current.material.uniforms.u_clim.value = rendering[0]["u_clim"].value;
-                materialRef.current.material.uniforms.u_clim2.value = rendering[0]["u_clim2"].value;
-                materialRef.current.material.uniforms.u_clim3.value = rendering[0]["u_clim3"].value;
-                materialRef.current.material.uniforms.u_clim4.value = rendering[0]["u_clim4"].value;
-                materialRef.current.material.uniforms.u_clim5.value = rendering[0]["u_clim5"].value;
-                materialRef.current.material.uniforms.u_clim6.value = rendering[0]["u_clim6"].value;
+                if (materialRef !== undefined && materialRef.current !== null) {
+                    //Set the material uniforms
+                    materialRef.current.material.uniforms.u_clim.value = rendering[0]["u_clim"].value;
+                    materialRef.current.material.uniforms.u_clim2.value = rendering[0]["u_clim2"].value;
+                    materialRef.current.material.uniforms.u_clim3.value = rendering[0]["u_clim3"].value;
+                    materialRef.current.material.uniforms.u_clim4.value = rendering[0]["u_clim4"].value;
+                    materialRef.current.material.uniforms.u_clim5.value = rendering[0]["u_clim5"].value;
+                    materialRef.current.material.uniforms.u_clim6.value = rendering[0]["u_clim6"].value;
 
-                materialRef.current.material.uniforms.u_color.value = rendering[0]["u_color"].value;
-                materialRef.current.material.uniforms.u_color2.value = rendering[0]["u_color2"].value;
-                materialRef.current.material.uniforms.u_color3.value = rendering[0]["u_color3"].value;
-                materialRef.current.material.uniforms.u_color4.value = rendering[0]["u_color4"].value;
-                materialRef.current.material.uniforms.u_color5.value = rendering[0]["u_color5"].value;
-                materialRef.current.material.uniforms.u_color6.value = rendering[0]["u_color6"].value;
-                materialRef.current.material.uniforms.volumeTex.value = rendering[0]["volumeTex"].value;
-                materialRef.current.material.uniforms.volumeTex2.value = rendering[0]["volumeTex2"].value;
-                materialRef.current.material.uniforms.volumeTex3.value = rendering[0]["volumeTex3"].value;
-                materialRef.current.material.uniforms.volumeTex4.value = rendering[0]["volumeTex4"].value;
-                materialRef.current.material.uniforms.volumeTex5.value = rendering[0]["volumeTex5"].value;
-                materialRef.current.material.uniforms.volumeTex6.value = rendering[0]["volumeTex6"].value;
-                materialRef.current.material.uniforms.volumeCount.value = volumeCount;
-                materialRef.current.material.uniforms.u_renderstyle.value = volumeSettings.renderingMode;
+                    materialRef.current.material.uniforms.u_color.value = rendering[0]["u_color"].value;
+                    materialRef.current.material.uniforms.u_color2.value = rendering[0]["u_color2"].value;
+                    materialRef.current.material.uniforms.u_color3.value = rendering[0]["u_color3"].value;
+                    materialRef.current.material.uniforms.u_color4.value = rendering[0]["u_color4"].value;
+                    materialRef.current.material.uniforms.u_color5.value = rendering[0]["u_color5"].value;
+                    materialRef.current.material.uniforms.u_color6.value = rendering[0]["u_color6"].value;
+                    materialRef.current.material.uniforms.volumeTex.value = rendering[0]["volumeTex"].value;
+                    materialRef.current.material.uniforms.volumeTex2.value = rendering[0]["volumeTex2"].value;
+                    materialRef.current.material.uniforms.volumeTex3.value = rendering[0]["volumeTex3"].value;
+                    materialRef.current.material.uniforms.volumeTex4.value = rendering[0]["volumeTex4"].value;
+                    materialRef.current.material.uniforms.volumeTex5.value = rendering[0]["volumeTex5"].value;
+                    materialRef.current.material.uniforms.volumeTex6.value = rendering[0]["volumeTex6"].value;
+                    materialRef.current.material.uniforms.volumeCount.value = volumeCount;
+                    materialRef.current.material.uniforms.u_renderstyle.value = volumeSettings.renderingMode;
+                }
             } else {
                 materialRef.current.material.uniforms.volumeCount.value = 0;
                 materialRef.current.material.uniforms.volumeTex.value = null;
@@ -375,7 +376,7 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
     //console.log(props)
     const imageLayerLoaderSelections = useRef({});
     let layerScope = imageLayerScopes[0];
-    let channelScopes =  imageChannelScopesByLayer[layerScope];
+    let channelScopes = imageChannelScopesByLayer[layerScope];
     let layerCoordination = imageLayerCoordination[0][layerScope];
     let channelCoordination = imageChannelCoordination[0][layerScope];
 

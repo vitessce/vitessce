@@ -99,39 +99,44 @@ export function VitessceDemo() {
     const [channel, setChannel] = useState(undefined);
     const [config, setConfig] = useState(undefined);
 
-    
-    useEffect(() => {
-        if (ws === undefined) {
-            var username = "user_" + (Math.floor(Math.random() * 1000));
-            let socket = new PieSocket({
-                clusterId: "free.blr2",
-                apiKey: "JE1kNFP6QZ3c0oRaHorrFlKj16UQeTpohVZDEKuv",
-                notifySelf: false,
-                userId: username,
-            });
-            setWS(socket);
-        }
-    }, [ws])
+    const urlParams = new URLSearchParams(window.location.search);
+    const websocket = urlParams.get('ws') === 'true';
+    const channelID = urlParams.get('channel');
 
-    useEffect(() => {
-        ws?.subscribe("4567").then((chan) => {
-            console.log("Channel is ready")
-            chan.listen("new_message", (data, meta) => {
-                console.log(data.sender,ws?.options.userId)
-                if (data.sender !== ws?.options.userId) {
-                    console.log("New Message:", data);
-                    setConfig({...data.config, uid: "id"+(Math.floor(Math.random() * 1000))});
-                }
+    if (websocket) {
+        useEffect(() => {
+            if (ws === undefined) {
+                var username = "user_" + (Math.floor(Math.random() * 1000));
+                let socket = new PieSocket({
+                    clusterId: "free.blr2",
+                    apiKey: "JE1kNFP6QZ3c0oRaHorrFlKj16UQeTpohVZDEKuv",
+                    notifySelf: false,
+                    userId: username,
+                });
+                setWS(socket);
+            }
+        }, [ws])
+
+        useEffect(() => {
+            ws?.subscribe(channelID).then((chan) => {
+                console.log("Channel is ready")
+                chan.listen("new_message", (data, meta) => {
+                    console.log(data.sender, ws?.options.userId)
+                    if (data.sender !== ws?.options.userId) {
+                        console.log("New Message:", data);
+                        setConfig({...data.config, uid: "id" + (Math.floor(Math.random() * 1000))});
+                    }
+                })
+                chan.listen("system:member_joined", function (data) {
+                    if (data.member.user === ws?.options.userId) {
+                        data.member.user = "<b>You</b>";
+                    }
+                    console.log("New member joined the chat " + data.member.user);
+                })
+                setChannel(chan);
             })
-            chan.listen("system:member_joined", function (data) {
-                if (data.member.user === ws?.options.userId) {
-                    data.member.user = "<b>You</b>";
-                }
-                console.log("New member joined the chat " + data.member.user);
-            })
-            setChannel(chan);
-        })
-    },[channel,ws])
+        }, [channel, ws])
+    }
 
     const result = useMemo(() => {
         const {rowHeight = null} = {};
@@ -143,7 +148,6 @@ export function VitessceDemo() {
         const theme = validateTheme(urlParams.get('theme'));
         const isBounded = urlParams.get('isBounded') === 'true';
         const strictMode = urlParams.get('strictMode') === 'true';
-
 
         const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
@@ -161,8 +165,7 @@ export function VitessceDemo() {
                         rowHeight={rowHeight}
                         theme={theme}
                         onConfigChange={(configValue) => {
-                            // console.log("Change of Config inside:", config);
-                            //setConfig(configValue);
+                            console.log("Change of Config inside:", configValue);
                             channel?.publish("new_message", {
                                 sender: ws?.options.userId,
                                 config: configValue
