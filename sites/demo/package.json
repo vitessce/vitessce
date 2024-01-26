@@ -13,6 +13,7 @@
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/example-configs": "workspace:*",
     "@vitessce/example-plugins": "workspace:*",
+    "piesocket-js": "^5.0.17",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "vitessce": "workspace:*"

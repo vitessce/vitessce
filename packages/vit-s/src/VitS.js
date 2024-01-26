@@ -211,7 +211,7 @@ export function VitS(props) {
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
         <QueryClientProvider client={queryClient}>
-          <ViewConfigProvider key={configKey} createStore={createViewConfigStoreClosure}>
+          <ViewConfigProvider createStore={createViewConfigStoreClosure}>
             <AuxiliaryProvider createStore={createAuxiliaryStore}>
               <VitessceGrid
                 success={success}

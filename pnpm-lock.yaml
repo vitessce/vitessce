@@ -1616,9 +1616,6 @@ importers:
       mathjs:
         specifier: ^9.2.0
         version: 9.5.2
-      mesh-simplifier:
-        specifier: ^1.0.1
-        version: 1.0.1(three@0.154.0)
       plur:
         specifier: ^5.1.0
         version: 5.1.0
@@ -1837,6 +1834,9 @@ importers:
       '@vitessce/example-plugins':
         specifier: workspace:*
         version: link:../../examples/plugins
+      piesocket-js:
+        specifier: ^5.0.17
+        version: 5.0.17
       react:
         specifier: ^18.0.0
         version: 18.2.0
@@ -18541,14 +18541,6 @@ packages:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
 
-  /mesh-simplifier@1.0.1(three@0.154.0):
-    resolution: {integrity: sha512-QMRF3+nbiNGH1khh8DZSoHijq1M5HUEZb3vRhsC95M/jPqY7swKOp0vGa7tlLw7n/+LbZOBStwKQi7rFYbtcnw==}
-    peerDependencies:
-      three: ^0.134.0
-    dependencies:
-      three: 0.154.0
-    dev: false
-
   /meshline@3.1.7(three@0.154.0):
     resolution: {integrity: sha512-uf9fPI9wy0Ie0kZjvKuIkf2n7gi3ih0wdTeb/kmSvmzpPyEL5d9lFohg9+JV9VC4sQUBOZDgxu6fnjn57goSHg==}
     peerDependencies:
@@ -19739,6 +19731,12 @@ packages:
   /picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
+
+  /piesocket-js@5.0.17:
+    resolution: {integrity: sha512-qzpFVzwmIFhE81rC6KTV38HcafYimGSm8GPrY4+Td1khLf8LicHsVQ4rGYMBf78348tNLP9v7OuUs0EAuHDURg==}
+    dependencies:
+      uuid: 8.3.2
+    dev: false
 
   /pify@2.3.0:
     resolution: {integrity: sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==}
