@@ -1834,6 +1834,9 @@ importers:
       '@vitessce/example-plugins':
         specifier: workspace:*
         version: link:../../examples/plugins
+      piesocket-js:
+        specifier: ^5.0.17
+        version: 5.0.17
       react:
         specifier: ^18.0.0
         version: 18.2.0
@@ -19590,6 +19593,12 @@ packages:
   /picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
+
+  /piesocket-js@5.0.17:
+    resolution: {integrity: sha512-qzpFVzwmIFhE81rC6KTV38HcafYimGSm8GPrY4+Td1khLf8LicHsVQ4rGYMBf78348tNLP9v7OuUs0EAuHDURg==}
+    dependencies:
+      uuid: 8.3.2
+    dev: false
 
   /pify@2.3.0:
     resolution: {integrity: sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==}

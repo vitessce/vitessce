@@ -21,7 +21,6 @@ import {useGLTF} from '@react-three/drei'
 import {setObsSelection} from '@vitessce/sets-utils';
 import {setPowerset} from "mathjs";
 
-const ws = import.meta.hot;
 export const WS_EVENT = "click:event";
 
 const SpatialThree = (props) => {
@@ -89,17 +88,11 @@ const SpatialThree = (props) => {
         featureValueColormap,
         featureValueColormapRange,
         onGlomSelected,
-        propsToShare,
         delegateHover
     } = props;
     let segmentationLayerCoordination, segmentationChannelCoordination;
-    if (propsToShare !== undefined) {
-        segmentationLayerCoordination = propsToShare.segmentationLayerCoordination;
-        segmentationChannelCoordination = propsToShare.segmentationChannelCoordination;
-    } else {
-        segmentationLayerCoordination = props.segmentationLayerCoordination;
-        segmentationChannelCoordination = props.segmentationChannelCoordination;
-    }
+    segmentationLayerCoordination = props.segmentationLayerCoordination;
+    segmentationChannelCoordination = props.segmentationChannelCoordination;
     let setObsHighlightFct = (id) => {
     };
     let setsSave = [];
@@ -378,15 +371,13 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
         imageLayerCoordination,
         imageChannelScopesByLayer,
         imageChannelCoordination,
-        propsToShare,
     } = props;
     //console.log(props)
     const imageLayerLoaderSelections = useRef({});
     let layerScope = imageLayerScopes[0];
-    let channelScopes = propsToShare !== undefined ? propsToShare.imageChannelScopesByLayer[layerScope] : imageChannelScopesByLayer[layerScope];
-    let layerCoordination = propsToShare !== undefined ? propsToShare.imageLayerCoordination[0][layerScope] : imageLayerCoordination[0][layerScope];
-    let channelCoordination = propsToShare !== undefined ? propsToShare.imageChannelCoordination[0][layerScope]
-        : imageChannelCoordination[0][layerScope];
+    let channelScopes =  imageChannelScopesByLayer[layerScope];
+    let layerCoordination = imageLayerCoordination[0][layerScope];
+    let channelCoordination = imageChannelCoordination[0][layerScope];
 
     // Get the relevant information out of the Props
     const {
@@ -1026,44 +1017,12 @@ function Box(props) {
     );
 }
 
-
-function getPropsToShare(props) {
-    return {
-        imageChannelCoordination: props.imageChannelCoordination,
-        imageLayerCoordination: props.imageLayerCoordination,
-        imageChannelScopesByLayer: props.imageChannelScopesByLayer,
-        segmentationLayerCoordination: props.segmentationLayerCoordination,
-        segmentationChannelCoordination: props.segmentationChannelCoordination
-        // cellSetsSelected: props.cellSetsSelected,
-    }
-}
-
-
 const SpatialWrapper = forwardRef((props, deckRef) => {
-    const [propsToUse, setPropsToUse] = useState(props);
-    const [propsToShare, setPropsToShare] = useState(undefined);
-    useEffect(() => {
-        ws?.on(WS_EVENT, (input) => {
-            // console.log("Websocket Event")
-            setPropsToShare(input.data)
-        })
-    }, [ws])
-    useEffect(() => {
-        // console.log("SaveProps")
-        //console.log(props)
-        setPropsToUse(props);
-        setPropsToShare(getPropsToShare(props))
-        ws?.send(WS_EVENT, {
-            type: "selectStart",
-            data: getPropsToShare(props)
-        });
-    }, [props])
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
         <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 3000}}>
             <XR>
-                <SpatialThree {...propsToUse} propsToShare={propsToShare}
-                              deckRef={deckRef}/>
+                <SpatialThree {...props} deckRef={deckRef}/>
             </XR>
         </Canvas>
     </div>
