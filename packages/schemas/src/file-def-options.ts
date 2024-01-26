@@ -87,9 +87,19 @@ export const imageOmeTiffSchema = z.object({
     .optional(),
 });
 
+export const obsSegmentationsOmeTiffSchema = imageOmeTiffSchema.extend({
+  obsTypesFromChannelNames: z.boolean()
+    .optional(),
+});
+
 // OME-Zarr (NGFF)
 export const imageOmeZarrSchema = z.object({
   coordinateTransformations: omeCoordinateTransformations
+    .optional(),
+});
+
+export const obsSegmentationsOmeZarrSchema = imageOmeZarrSchema.extend({
+  obsTypesFromChannelNames: z.boolean()
     .optional(),
 });
 
@@ -99,6 +109,9 @@ export const imageSpatialdataSchema = imageOmeZarrSchema.extend({
   path: z.string(),
 });
 export const obsSegmentationsSpatialdataSchema = z.object({
+  // TODO: should this also extend the imageOmeZarrSchema?
+  // TODO: should this be renamed labelsSpatialdataSchema?
+  // TODO: support obsTypesFromChannelNames?
   path: z.string(),
 });
 export const obsLocationsSpatialdataSchema = z.object({
@@ -200,4 +213,18 @@ export const anndataZarrSchema = z.object({
     annDataObsEmbedding,
     z.array(annDataConvenienceObsEmbeddingItem),
   ]),
+}).partial();
+
+export const spatialdataZarrSchema = z.object({
+  // TODO: should `image` be a special schema
+  // to allow specifying fileUid (like for embeddingType)?
+  image: imageSpatialdataSchema,
+  // TODO: should this be a special schema
+  // to allow specifying fileUid (like for embeddingType)?
+  labels: obsSegmentationsSpatialdataSchema,
+  obsFeatureMatrix: obsFeatureMatrixSpatialdataSchema,
+  obsSpots: obsSpotsSpatialdataSchema,
+  // TODO: obsPoints
+  // TODO: obsLocations
+  obsSets: obsSetsSpatialdataSchema,
 }).partial();

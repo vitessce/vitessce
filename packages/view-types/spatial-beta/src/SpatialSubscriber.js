@@ -22,6 +22,7 @@ import {
   useInitialCoordination,
   useCoordination,
   useLoaders,
+  useMergeCoordination,
   useSetComponentHover,
   useSetComponentViewInfo,
   useAuxiliaryCoordination,
@@ -116,17 +117,21 @@ export function SpatialSubscriber(props) {
     uuid,
     coordinationScopes: coordinationScopesRaw,
     coordinationScopesBy: coordinationScopesByRaw,
+    closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     observationsLabelOverride,
     subobservationsLabelOverride: subobservationsLabel = 'molecule',
     theme,
     disableTooltip = false,
     title = 'Spatial',
+    bitmaskValueIsIndex = false, // TODO: move to coordination type
   } = props;
 
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
+  const mergeCoordination = useMergeCoordination();
 
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
@@ -156,6 +161,7 @@ export function SpatialSubscriber(props) {
     setSpatialRotationX: setRotationX,
     setSpatialRotationOrbit: setRotationOrbit,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
+
 
   const {
     spatialZoom: initialZoom,
@@ -340,6 +346,7 @@ export function SpatialSubscriber(props) {
   // Points data
   const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useMultiObsPoints(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
 
   const [pointMultiObsLabelsData, pointMultiObsLabelsDataStatus] = usePointMultiObsLabels(
@@ -349,6 +356,7 @@ export function SpatialSubscriber(props) {
   // Spots data
   const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useMultiObsSpots(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
 
   const [obsSpotsSetsData, obsSpotsSetsDataStatus] = useSpotMultiObsSets(
@@ -376,6 +384,7 @@ export function SpatialSubscriber(props) {
 
   const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
 
   const [obsSegmentationsSetsData, obsSegmentationsSetsDataStatus] = useSegmentationMultiObsSets(
@@ -399,6 +408,7 @@ export function SpatialSubscriber(props) {
   // Image data
   const [imageData, imageDataStatus, imageUrls] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
 
 
@@ -631,7 +641,7 @@ export function SpatialSubscriber(props) {
               const { obsIndex } = segmentationMultiIndicesData?.[segmentationLayerScope]?.[channelScope] || {};
               // We subtract one because we use 0 to represent background.
               obsI -= 1;
-              if (obsIndex) {
+              if (obsIndex && bitmaskValueIsIndex) {
                 obsId = obsIndex?.[obsI];
               } else {
                 // When there is not a corresponding obsIndex to use,
@@ -720,6 +730,8 @@ export function SpatialSubscriber(props) {
       isSpatial
       urls={urls}
       theme={theme}
+      closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
     >
@@ -775,6 +787,8 @@ export function SpatialSubscriber(props) {
         obsSegmentationsSets={obsSegmentationsSetsData}
         segmentationMatrixIndices={segmentationMultiIndicesData}
         segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+
+        bitmaskValueIsIndex={bitmaskValueIsIndex}
 
         // Images
         images={imageData}

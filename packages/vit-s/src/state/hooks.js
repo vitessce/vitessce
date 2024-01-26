@@ -4,9 +4,10 @@ import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
 import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
-import { isMatch, merge, cloneDeep } from 'lodash-es';
+import { isMatch, cloneDeep } from 'lodash-es';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { fromEntries, capitalize } from '@vitessce/utils';
+import { getCoordinationSpaceAndScopes } from '@vitessce/config';
 import {
   removeImageChannelInMetaCoordinationScopesHelper,
   addImageChannelInMetaCoordinationScopesHelper,
@@ -52,7 +53,15 @@ export function getScopes(coordinationScopes, metaSpace) {
       metaScopesArr.forEach((metaScope) => {
         // Merge the original coordinationScopes with the matching meta-coordinationScopes
         // from the coordinationSpace.
-        result = merge(result, metaSpace[metaScope]);
+        let o1 = result;
+        const o2 = metaSpace[metaScope] || {};
+        Object.entries(o2).forEach(([cType, cScope]) => {
+          o1 = {
+            ...o1,
+            [cType]: cScope,
+          };
+        });
+        result = o1;
       });
     }
   }
@@ -80,7 +89,29 @@ export function getScopesBy(coordinationScopes, coordinationScopesBy, metaSpaceB
       metaScopesArr.forEach((metaScope) => {
         // Merge the original coordinationScopesBy with the matching meta-coordinationScopesBy
         // from the coordinationSpace.
-        result = merge(result, metaSpaceBy[metaScope]);
+        let o1 = result;
+        const o2 = metaSpaceBy[metaScope] || {};
+        // Cannot simply use lodash merge(o1, o2)
+        // because we do not want to merge (objects/arrays) at the leaf
+        // (i.e., secondaryScopeVal) level.
+        // We want the values in o2 to take precedence over the values in o1.
+        Object.entries(o2).forEach(([primaryType, primaryObj]) => {
+          Object.entries(primaryObj).forEach(([secondaryType, secondaryObj]) => {
+            Object.entries(secondaryObj).forEach(([primaryScope, secondaryScopeVal]) => {
+              o1 = {
+                ...o1,
+                [primaryType]: {
+                  ...(o1?.[primaryType] || {}),
+                  [secondaryType]: {
+                    ...(o1?.[primaryType]?.[secondaryType] || {}),
+                    [primaryScope]: secondaryScopeVal,
+                  },
+                },
+              };
+            });
+          });
+        });
+        result = o1;
       });
     }
   }
@@ -171,6 +202,87 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
           },
         },
       },
+    };
+  }),
+  mergeCoordination: (newCoordinationValues, scopePrefix, viewUid) => set((state) => {
+    const { coordinationSpace, layout } = state.viewConfig;
+    const {
+      coordinationSpace: newCoordinationSpace,
+      coordinationScopes,
+    } = getCoordinationSpaceAndScopes(newCoordinationValues, scopePrefix);
+    // Merge coordination objects in coordination space
+    Object.entries(newCoordinationSpace).forEach(([coordinationType, coordinationObj]) => {
+      if (coordinationType === CoordinationType.META_COORDINATION_SCOPES) {
+        // Perform an extra level of merging for meta-coordination scopes.
+        Object.entries(coordinationObj).forEach(([coordinationScope, coordinationValue]) => {
+          coordinationSpace[coordinationType] = {
+            ...coordinationSpace[coordinationType],
+            [coordinationScope]: {
+              ...coordinationValue,
+              ...(coordinationSpace[coordinationType]?.[coordinationScope] || {}),
+            },
+          };
+        });
+      } else if (coordinationType === CoordinationType.META_COORDINATION_SCOPES_BY) {
+        // Perform two extra levels of merging for meta-coordination scopesBy.
+        Object.entries(coordinationObj).forEach(([coordinationScope, coordinationValue]) => {
+          Object.entries(coordinationValue).forEach(([primaryType, primaryObj]) => {
+            Object.entries(primaryObj).forEach(([secondaryType, secondaryObj]) => {
+              coordinationSpace[coordinationType] = {
+                ...coordinationSpace[coordinationType],
+                [coordinationScope]: {
+                  ...(coordinationSpace[coordinationType]?.[coordinationScope] || {}),
+                  [primaryType]: {
+                    ...(coordinationSpace[coordinationType]?.[coordinationScope]?.[primaryType] || {}),
+                    [secondaryType]: {
+                      ...secondaryObj,
+                      ...(coordinationSpace[coordinationType]?.[coordinationScope]?.[primaryType]?.[secondaryType] || {}),
+                    },
+                  },
+                },
+              };
+            });
+          });
+        });
+      } else {
+        coordinationSpace[coordinationType] = {
+          ...coordinationObj,
+          // Existing coordination values should be preserved,
+          // so that user-defined values take precedence over auto-initialization values.
+          ...(coordinationSpace[coordinationType] || {}),
+        };
+      }
+    });
+
+    const newViewConfig = {
+      ...state.viewConfig,
+      coordinationSpace: {
+        ...coordinationSpace,
+      },
+      layout: layout.map((viewObj) => {
+        if (viewObj.uid === viewUid) {
+          // Merge coordination scopes for views
+          return {
+            ...viewObj,
+            coordinationScopes: {
+              ...viewObj.coordinationScopes,
+              [CoordinationType.META_COORDINATION_SCOPES]: [
+                ...(coordinationScopes[CoordinationType.META_COORDINATION_SCOPES] || []),
+                ...(viewObj.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES] || []),
+              ],
+              [CoordinationType.META_COORDINATION_SCOPES_BY]: [
+                ...(coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY] || []),
+                ...(viewObj.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY] || []),
+              ],
+            },
+          };
+        }
+        return viewObj;
+      }),
+    };
+    // console.log('newViewConfig', newViewConfig);
+    return {
+      viewConfig: newViewConfig,
     };
   }),
   removeImageChannelInMetaCoordinationScopes: (coordinationScopesRaw, layerScope, channelScope) => set((state) => {
@@ -967,6 +1079,16 @@ export function useChangeLayout() {
  */
 export function useSetLoaders() {
   return useViewConfigStore(state => state.setLoaders);
+}
+
+/**
+ * Obtain the loaders setter function from
+ * the global app state.
+ * @returns {function} The loaders setter function
+ * in the `useViewConfigStore` store.
+ */
+export function useMergeCoordination() {
+  return useViewConfigStore(state => state.mergeCoordination);
 }
 
 /**

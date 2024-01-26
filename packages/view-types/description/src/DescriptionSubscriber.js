@@ -26,6 +26,7 @@ export function DescriptionSubscriber(props) {
     removeGridComponent,
     theme,
     title = 'Description',
+    closeButtonVisible,
   } = props;
 
   const loaders = useLoaders();
@@ -66,6 +67,7 @@ export function DescriptionSubscriber(props) {
   return (
     <TitleInfo
       title={title}
+      closeButtonVisible={closeButtonVisible}
       removeGridComponent={removeGridComponent}
       isScroll
       theme={theme}

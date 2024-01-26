@@ -40,6 +40,8 @@ export function HeatmapSubscriber(props) {
   const {
     uuid,
     coordinationScopes,
+    closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     theme,
     transpose,
@@ -201,6 +203,8 @@ export function HeatmapSubscriber(props) {
              with ${commaNumber(selectedCount)} ${plur(observationsLabel, selectedCount)} selected`}
       urls={urls}
       theme={theme}
+      closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       isReady={isReady && !isRendering}
       options={(

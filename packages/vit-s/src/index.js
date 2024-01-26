@@ -31,6 +31,7 @@ export {
   useMultiDatasetCoordination,
   useDatasetUids,
   useLoaders,
+  useMergeCoordination,
   useMatchingLoader,
   useViewConfigStore,
   useViewConfigStoreApi,

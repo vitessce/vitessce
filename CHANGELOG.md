@@ -1,4 +1,35 @@
 
+## 3.3.3
+
+### Patch Changes
+
+- Prevent URLs from being included in download dropdown for Zarr file types. (`@vitessce/spatial`, `@vitessce/zarr`, `@vitessce/vit-s`) ([#1759](https://github.com/vitessce/vitessce/pull/1759))
+
+- SpatialData file type. (`@vitessce/schemas`) ([#1728](https://github.com/vitessce/vitessce/pull/1728))
+
+- Support bitmask segmentations with gaps and irregular orderings. Enable usage of JSON-based Zarr stores in demos for tests. (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`, `@vitessce/ome-tiff`, `@vitessce/spatial-utils`, `@vitessce/constants-internal`, `@vitessce/image-utils`, `@vitessce/utils`, `@vitessce/json`, `@vitessce/zarr`, `@vitessce/csv`, `@vitessce/all`, `@vitessce/example-configs`, `@vitessce/schemas`, `@vitessce/config`, `@vitessce/vit-s`, `@vitessce/gl`) ([#1758](https://github.com/vitessce/vitessce/pull/1758))
+
+- Fix volume control text sizing bug in layerController. (`@vitessce/layer-controller`) ([#1746](https://github.com/vitessce/vitessce/pull/1746))
+
+
+## 3.3.2
+
+### Patch Changes
+
+- Add the prop closeButtonVisible to all views, passed down to TitleInfo, to allow hiding the close buttons on each view by setting this prop in the config. (`@vitessce/vit-s`) ([#1740](https://github.com/vitessce/vitessce/pull/1740))
+
+- Memoize button icons in TitleInfo to prevent unnecessary re-renders" (`@vitessce/vit-s`) ([#1736](https://github.com/vitessce/vitessce/pull/1736))
+
+- Added a prop to hide download buttons and dropdowns. (`@vitessce/vit-s`) ([#1743](https://github.com/vitessce/vitessce/pull/1743))
+
+
+## 3.3.1
+
+### Patch Changes
+
+- Update Deck.gl to 8.8.27 and Luma.gl to 8.5.21 (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`, `@vitessce/gl`, `demo`, `docs`, `html`) ([#1724](https://github.com/vitessce/vitessce/pull/1724))
+
+
 ## 3.3.0
 
 ### Minor Changes

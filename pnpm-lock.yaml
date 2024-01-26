@@ -21,6 +21,9 @@ importers:
       '@changesets/get-github-info':
         specifier: ^0.5.2
         version: 0.5.2
+      '@playwright/test':
+        specifier: ^1.40.1
+        version: 1.40.1
       '@pnpm/meta-updater':
         specifier: ^0.0.6
         version: 0.0.6
@@ -147,6 +150,9 @@ importers:
       '@vitessce/constants':
         specifier: workspace:*
         version: link:../../packages/constants
+      '@vitessce/zarr-utils':
+        specifier: workspace:*
+        version: link:../../packages/utils/zarr-utils
 
   examples/plugins:
     dependencies:
@@ -202,6 +208,9 @@ importers:
 
   packages/file-types/csv:
     dependencies:
+      '@vitessce/config':
+        specifier: workspace:*
+        version: link:../../config
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -220,6 +229,9 @@ importers:
 
   packages/file-types/json:
     dependencies:
+      '@vitessce/config':
+        specifier: workspace:*
+        version: link:../../config
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -259,6 +271,9 @@ importers:
 
   packages/file-types/ome-tiff:
     dependencies:
+      '@vitessce/config':
+        specifier: workspace:*
+        version: link:../../config
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -292,6 +307,9 @@ importers:
 
   packages/file-types/zarr:
     dependencies:
+      '@vitessce/config':
+        specifier: workspace:*
+        version: link:../../config
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -1600,6 +1618,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^4.29.12
         version: 4.29.12(react-dom@18.2.0)(react@18.2.0)
+      '@vitessce/config':
+        specifier: workspace:*
+        version: link:../config
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../constants-internal
@@ -7257,6 +7278,14 @@ packages:
       eventemitter3: 3.1.2
       url: 0.11.0
     dev: false
+
+  /@playwright/test@1.40.1:
+    resolution: {integrity: sha512-EaaawMTOeEItCRvfmkI9v6rBkF1svM8wjl/YPRrg2N2Wmp+4qJYkWtJsbew1szfKKDm6fPLy4YAanBhIlf9dWw==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dependencies:
+      playwright: 1.40.1
+    dev: true
 
   /@pnpm/cli-meta@2.0.3:
     resolution: {integrity: sha512-VPekfwCV39lF2dShE2+eHFrzU8Qxbqo+TEevU5BEoZG0K1zXxhfw6VyBbIC2+C1YbutJXQPYDVJQCGPhyRtNqA==}
@@ -15035,6 +15064,7 @@ packages:
 
   /figgy-pudding@3.5.2:
     resolution: {integrity: sha512-0btnI/H8f2pavGMN8w40mlSKOfTK2SVJmBfBeVIj3kNw0swwgzyRq0d5TJVOwodFmtvpPeWPN/MCcfuWF0Ezbw==}
+    deprecated: This module is no longer supported.
     dev: false
 
   /figures@3.2.0:
@@ -16568,6 +16598,7 @@ packages:
   /is-accessor-descriptor@0.1.6:
     resolution: {integrity: sha512-e1BM1qnDbMRG3ll2U9dSK0UMHuWOs3pY3AtcFsmvwPtKL3MML/Q86i+GilLfvqEs4GW+ExB91tQ3Ig9noDIZ+A==}
     engines: {node: '>=0.10.0'}
+    deprecated: Please upgrade to v0.1.7
     dependencies:
       kind-of: 3.2.2
     dev: false
@@ -16575,6 +16606,7 @@ packages:
   /is-accessor-descriptor@1.0.0:
     resolution: {integrity: sha512-m5hnHTkcVsPfqx3AKlyttIPb7J+XykHvJP2B9bZDjlhLIoEq4XoK64Vg7boZlVWYK6LUY94dYPEE7Lh0ZkZKcQ==}
     engines: {node: '>=0.10.0'}
+    deprecated: Please upgrade to v1.0.1
     dependencies:
       kind-of: 6.0.3
     dev: false
@@ -16679,6 +16711,7 @@ packages:
   /is-data-descriptor@0.1.4:
     resolution: {integrity: sha512-+w9D5ulSoBNlmw9OHn3U2v51SyoCd0he+bB3xMl62oijhrspxowjU+AIcDY0N3iEJbUEkB15IlMASQsxYigvXg==}
     engines: {node: '>=0.10.0'}
+    deprecated: Please upgrade to v0.1.5
     dependencies:
       kind-of: 3.2.2
     dev: false
@@ -16686,6 +16719,7 @@ packages:
   /is-data-descriptor@1.0.0:
     resolution: {integrity: sha512-jbRXy1FmtAoCjQkVmIVYwuuqDFUbaOeDjmed1tOGPrsMhtJA4rD9tkgA0F1qJ3gRFRXcHYVkdeaP50Q5rE/jLQ==}
     engines: {node: '>=0.10.0'}
+    deprecated: Please upgrade to v1.0.1
     dependencies:
       kind-of: 6.0.3
     dev: false
@@ -19326,6 +19360,22 @@ packages:
     dependencies:
       find-up: 3.0.0
     dev: false
+
+  /playwright-core@1.40.1:
+    resolution: {integrity: sha512-+hkOycxPiV534c4HhpfX6yrlawqVUzITRKwHAmYfmsVreltEl6fAZJ3DPfLMOODw0H3s1Itd6MDCWmP1fl/QvQ==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dev: true
+
+  /playwright@1.40.1:
+    resolution: {integrity: sha512-2eHI7IioIpQ0bS1Ovg/HszsN/XKNwEG1kbzSDDmADpclKc7CyqkHw7Mg2JCz/bbCxg25QUPcjksoMW7JcIFQmw==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dependencies:
+      playwright-core: 1.40.1
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
 
   /plur@5.1.0:
     resolution: {integrity: sha512-VP/72JeXqak2KiOzjgKtQen5y3IZHn+9GOuLDafPv0eXa47xq0At93XahYBs26MsifCQ4enGKwbjBTKgb9QJXg==}
