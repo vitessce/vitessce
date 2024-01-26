@@ -21,7 +21,7 @@ const OTHER_VERSIONS = {
   "@zarrita/indexing": "0.0.3",
   "@zarrita/storage": "0.0.2",
   "zustand": "^3.5.10",
-  "@hms-dbmi/viv": "~0.14.1",
+  "@hms-dbmi/viv": "~0.16.0",
   "clsx": "^1.1.1",
   "d3-array": "^2.4.0",
   "d3-dsv": "^1.1.1",
