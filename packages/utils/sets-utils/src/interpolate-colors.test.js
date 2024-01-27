@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { interpolateRdBu, interpolatePlasma } from './interpolate-colors.js';
 
-const expectRgb = ([testR, testG, testB]/*: number[]*/, [r, g, b]/*: number[]*/) => ([
+const expectRgb = ([testR, testG, testB]/* : number[] */, [r, g, b]/* : number[] */) => ([
   expect(testR).toBeCloseTo(r),
   expect(testG).toBeCloseTo(g),
   expect(testB).toBeCloseTo(b),
