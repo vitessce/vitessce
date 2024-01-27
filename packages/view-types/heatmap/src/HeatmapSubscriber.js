@@ -16,8 +16,8 @@ import {
   useCoordination, useLoaders,
   useSetComponentHover, useSetComponentViewInfo,
 } from '@vitessce/vit-s';
-import { pluralize as plur, capitalize, commaNumber, getCellColors } from '@vitessce/utils';
-import { mergeObsSets, findLongestCommonPath } from '@vitessce/sets-utils';
+import { pluralize as plur, capitalize, commaNumber } from '@vitessce/utils';
+import { mergeObsSets, findLongestCommonPath, getCellColors } from '@vitessce/sets-utils';
 import { COMPONENT_COORDINATION_TYPES, ViewType } from '@vitessce/constants-internal';
 import { Legend } from '@vitessce/legend';
 import Heatmap from './Heatmap.js';

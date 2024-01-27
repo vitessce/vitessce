@@ -37,7 +37,4 @@ export {
   getValueTransformFunction,
   VALUE_TRANSFORM_OPTIONS,
 } from './gating.js';
-export {
-  getCellColors,
-} from './interpolate-colors.js';
 export { default as Pool } from './Pool.js';
