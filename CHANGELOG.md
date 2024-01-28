@@ -1,4 +1,11 @@
 
+## 3.3.4
+
+### Patch Changes
+
+- Fix circular dependencies between @vitessce/utils and @vitessce/sets-utils. (`@vitessce/utils`, `@vitessce/sets-utils`) ([#1787](https://github.com/vitessce/vitessce/pull/1787))
+
+
 ## 3.3.3
 
 ### Patch Changes
