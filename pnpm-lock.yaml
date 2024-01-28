@@ -817,9 +817,6 @@ importers:
 
   packages/utils/other-utils:
     dependencies:
-      '@vitessce/sets-utils':
-        specifier: workspace:*
-        version: link:../sets-utils
       bowser:
         specifier: ^2.11.0
         version: 2.11.0

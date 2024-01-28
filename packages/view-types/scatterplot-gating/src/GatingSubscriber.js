@@ -6,7 +6,6 @@ import { isEqual } from 'lodash-es';
 import {
   pluralize as plur,
   capitalize, commaNumber,
-  getCellColors,
   getValueTransformFunction, VALUE_TRANSFORM_OPTIONS,
 } from '@vitessce/utils';
 import {
@@ -22,7 +21,9 @@ import {
   useSetComponentHover,
   useSetComponentViewInfo,
 } from '@vitessce/vit-s';
-import { getCellSetPolygons, mergeObsSets, setObsSelection } from '@vitessce/sets-utils';
+import {
+  getCellSetPolygons, mergeObsSets, setObsSelection, getCellColors,
+} from '@vitessce/sets-utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
   getPointSizeDevicePixels,

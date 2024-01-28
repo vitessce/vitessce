@@ -5,11 +5,12 @@ import {
   deck, viv, getSelectionLayer, ScaledExpressionExtension,
 } from '@vitessce/gl';
 import { filterSelection } from '@vitessce/spatial-utils';
-import { PALETTE, getCellColors, getDefaultColor } from '@vitessce/utils';
+import { PALETTE, getDefaultColor } from '@vitessce/utils';
 import {
   setObsSelection as setObsSelectionHelper,
   treeToCellSetColorIndicesBySetNames,
   mergeObsSets,
+  getCellColors,
 } from '@vitessce/sets-utils';
 import { AbstractSpatialOrScatterplot, createQuadTree } from '@vitessce/scatterplot';
 import { CoordinationType } from '@vitessce/constants-internal';
