@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash-es';
 import { sum } from 'd3-array';
 import {
   TitleInfo,
@@ -8,8 +8,8 @@ import {
   useGenomicProfilesData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import HiGlassLazy from './HiGlassLazy';
-import { useStyles } from './styles';
+import HiGlassLazy from './HiGlassLazy.js';
+import { useStyles } from './styles.js';
 
 const REFERENCE_TILESETS = {
   hg38: {
@@ -55,6 +55,8 @@ export function GenomicProfilesSubscriber(props) {
   const {
     coordinationScopes,
     theme,
+    closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     profileTrackUidKey = 'path',
     profileTrackNameKey = null,
@@ -77,13 +79,12 @@ export function GenomicProfilesSubscriber(props) {
     coordinationScopes,
   );
 
-  const [urls, addUrl] = useUrls(loaders, dataset);
-
-  const [genomicProfilesAttrs, genomicProfilesStatus] = useGenomicProfilesData(
-    loaders, dataset, addUrl, true, {}, {},
+  const [genomicProfilesAttrs, genomicProfilesStatus, genomicProfilesUrls] = useGenomicProfilesData(
+    loaders, dataset, true, {}, {},
     {},
   );
   const isReady = useReady([genomicProfilesStatus]);
+  const urls = useUrls([genomicProfilesUrls]);
 
   const hgViewConfig = useMemo(() => {
     if (!genomicProfilesAttrs || urls.length !== 1) {
@@ -230,6 +231,8 @@ export function GenomicProfilesSubscriber(props) {
     <div className={classes.higlassTitleWrapper}>
       <TitleInfo
         title={title}
+        closeButtonVisible={closeButtonVisible}
+        downloadButtonVisible={downloadButtonVisible}
         removeGridComponent={removeGridComponent}
         theme={theme}
         isReady={isReady}

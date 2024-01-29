@@ -1,6 +1,6 @@
 import { COORDINATE_SYSTEM } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { DataFilterExtension } from '@deck.gl/extensions'; // eslint-disable-line import/no-extraneous-dependencies
-import SelectionLayer from './SelectionLayer';
+import SelectionLayer from './SelectionLayer.js';
 
 /**
  * Convert a DeckGL layer ID to a "base" layer ID for selection.
@@ -20,23 +20,23 @@ function getSelectedLayerId(layerId) {
   return `selected-${layerId}`;
 }
 
+// eslint-disable-next-line no-unused-vars
+const onSelectNoop = ({ pickingInfos }) => {};
+
 /**
  * Construct DeckGL selection layers.
  * @param {string} tool
  * @param {number} zoom
  * @param {string} cellBaseLayerId
- * @param {function} getCellCoords
- * @param {function} updateCellsSelection
+ * @param {object[]} obsLayers Objects with properties
+ * getObsCoords, obsIndex, obsQuadTree, onSelect.
  * @returns {object[]} The array of DeckGL selection layers.
  */
-export function getSelectionLayers(
+export function getSelectionLayer(
   tool,
   zoom,
   layerId,
-  getCellCoords,
-  obsIndex,
-  updateCellsSelection,
-  cellsQuadTree,
+  obsLayers,
   flipY = false,
 ) {
   if (!tool) {
@@ -46,19 +46,15 @@ export function getSelectionLayers(
   const cellBaseLayerId = getBaseLayerId(layerId);
   const editHandlePointRadius = 5 / (zoom + 16);
 
-  return [new SelectionLayer({
+  return new SelectionLayer({
     id: 'selection',
     flipY,
-    cellsQuadTree,
-    getCellCoords,
+    obsLayers,
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     selectionType: tool,
-    onSelect: ({ pickingInfos }) => {
-      const cellIds = pickingInfos.map(i => obsIndex[i]);
-      if (updateCellsSelection) {
-        updateCellsSelection(cellIds);
-      }
-    },
+    // This onSelect is no longer used since
+    // the obsLayers each have their own onSelect.
+    onSelect: onSelectNoop,
     layerIds: [cellBaseLayerId],
     getTentativeFillColor: () => [255, 255, 255, 95],
     getTentativeLineColor: () => [143, 143, 143, 255],
@@ -70,7 +66,7 @@ export function getSelectionLayers(
     editHandlePointRadiusScale: 1,
     editHandlePointRadiusMinPixels: editHandlePointRadius,
     editHandlePointRadiusMaxPixels: 2 * editHandlePointRadius,
-  })];
+  });
 }
 
 /**

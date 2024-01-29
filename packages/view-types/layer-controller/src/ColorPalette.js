@@ -1,11 +1,10 @@
 import React from 'react';
-import IconButton from '@material-ui/core/IconButton';
-import LensIcon from '@material-ui/icons/Lens';
-import { makeStyles } from '@material-ui/core/styles';
+import { IconButton, makeStyles } from '@material-ui/core';
+import { Lens as LensIcon } from '@material-ui/icons';
 import { VIEWER_PALETTE } from '@vitessce/utils';
 
 const useStyles = makeStyles(theme => ({
-  container: {
+  paletteContainer: {
     width: '70px',
     height: '40px',
     display: 'flex',
@@ -28,12 +27,13 @@ const useStyles = makeStyles(theme => ({
 const ColorPalette = ({ handleChange }) => {
   const classes = useStyles();
   return (
-    <div className={classes.container} aria-label="color-swatch">
+    <div className={classes.paletteContainer} aria-label="Color swatch">
       {VIEWER_PALETTE.map(color => (
         <IconButton
           className={classes.button}
           key={color}
           onClick={() => handleChange(color)}
+          aria-label={`Change color to ${color}`}
         >
           <LensIcon
             fontSize="small"

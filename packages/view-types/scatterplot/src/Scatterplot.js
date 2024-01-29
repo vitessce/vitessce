@@ -2,12 +2,12 @@
 import React, { forwardRef } from 'react';
 import { forceSimulation } from 'd3-force';
 import {
-  deck, getSelectionLayers, ScaledExpressionExtension, SelectionExtension,
+  deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
 } from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
 import {
   AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback,
-} from './shared-spatial-scatterplot';
+} from './shared-spatial-scatterplot/index.js';
 
 const CELLS_LAYER_ID = 'scatterplot';
 const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
@@ -64,8 +64,10 @@ const getPosition = (object, { index, data, target }) => {
  * @param {function} props.setCellHighlight
  * @param {function} props.updateViewInfo
  * @param {function} props.onToolChange Callback for tool changes
- * (lasso/pan/rectangle selection tools).
+ * (lasso/pan selection tools).
  * @param {function} props.onCellClick Getter function for cell layer onClick.
+ * @param {object} props.originalViewState A viewState object to pass to
+ * setViewState upon clicking the recenter button.
  */
 class Scatterplot extends AbstractSpatialOrScatterplot {
   constructor(props) {
@@ -220,7 +222,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     return result;
   }
 
-  createSelectionLayers() {
+  createSelectionLayer() {
     const {
       obsEmbeddingIndex: obsIndex,
       obsEmbedding,
@@ -231,14 +233,20 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const { cellsQuadTree } = this;
     const flipYTooltip = true;
     const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
-    return getSelectionLayers(
+    return getSelectionLayer(
       tool,
       viewState.zoom,
       CELLS_LAYER_ID,
-      getCellCoords,
-      obsIndex,
-      setCellSelection,
-      cellsQuadTree,
+      [
+        {
+          getObsCoords: getCellCoords,
+          obsIndex,
+          obsQuadTree: cellsQuadTree,
+          onSelect: (obsIds) => {
+            setCellSelection(obsIds);
+          },
+        },
+      ],
       flipYTooltip,
     );
   }
@@ -251,7 +259,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     return [
       cellsLayer,
       ...cellSetsLayers,
-      ...this.createSelectionLayers(),
+      this.createSelectionLayer(),
     ];
   }
 
@@ -343,6 +351,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       'obsEmbeddingIndex', 'obsEmbedding', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
+      'getExpressionValue',
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
@@ -366,6 +375,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     }
   }
 
+  recenter() {
+    const { originalViewState, setViewState } = this.props;
+    if (Array.isArray(originalViewState?.target) && typeof originalViewState?.zoom === 'number') {
+      setViewState(originalViewState);
+    }
+  }
+
   // render() is implemented in the abstract parent class.
 }
 
@@ -382,4 +398,5 @@ const ScatterplotWrapper = forwardRef((props, deckRef) => (
     deckRef={deckRef}
   />
 ));
+ScatterplotWrapper.displayName = 'ScatterplotWrapper';
 export default ScatterplotWrapper;

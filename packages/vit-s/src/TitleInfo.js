@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
-import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
-import MenuItem from '@material-ui/core/MenuItem';
-import IconButton from '@material-ui/core/IconButton';
-import Link from '@material-ui/core/Link';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
-import SettingsIcon from '@material-ui/icons/Settings';
-import CloseIcon from '@material-ui/icons/Close';
+import { makeStyles, MenuItem, IconButton, Link } from '@material-ui/core';
+import {
+  CloudDownload as CloudDownloadIcon,
+  ArrowDropDown as ArrowDropDownIcon,
+  ArrowDropUp as ArrowDropUpIcon,
+  Settings as SettingsIcon,
+  Close as CloseIcon,
+} from '@material-ui/icons';
 
-import { TOOLTIP_ANCESTOR } from './classNames';
-import LoadingIndicator from './LoadingIndicator';
-import { PopperMenu } from './shared-mui/components';
-import { useTitleStyles } from './title-styles';
+import { TOOLTIP_ANCESTOR } from './classNames.js';
+import LoadingIndicator from './LoadingIndicator.js';
+import { PopperMenu } from './shared-mui/components.js';
+import { useTitleStyles } from './title-styles.js';
 
 const useStyles = makeStyles(theme => ({
   iconButton: {
@@ -58,13 +57,16 @@ function PlotOptions(props) {
   const { options } = props;
   const [open, setOpen] = useState(false);
   const classes = useStyles();
+
+  const buttonIcon = useMemo(() => (<SettingsIconWithArrow open={open} />), [open]);
   return (options ? (
     <PopperMenu
       open={open}
       setOpen={setOpen}
-      buttonIcon={<SettingsIconWithArrow open={open} />}
+      buttonIcon={buttonIcon}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      aria-label="Open plot options menu"
     >
       {options}
     </PopperMenu>
@@ -84,17 +86,19 @@ function DownloadOptions(props) {
   const { urls } = props;
   const [open, setOpen] = useState(false);
   const classes = useStyles();
+  const buttonIcon = useMemo(() => (<CloudDownloadIconWithArrow open={open} />), [open]);
   return (urls && urls.length ? (
     <PopperMenu
       open={open}
       setOpen={setOpen}
-      buttonIcon={<CloudDownloadIconWithArrow open={open} />}
+      buttonIcon={buttonIcon}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      aria-label="Open download options menu"
     >
       {urls.map(({ url, name }) => (
-        <MenuItem dense key={`${url}_${name}`}>
-          <Link underline="none" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
+        <MenuItem dense key={`${url}_${name}`} aria-label={`Click to download ${name}`}>
+          <Link underline="always" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
             Download {name}
           </Link>
         </MenuItem>
@@ -112,6 +116,7 @@ function ClosePaneButton(props) {
       size="small"
       className={classes.iconButton}
       title="close"
+      aria-label="Close panel button"
     >
       <CloseIcon />
     </IconButton>
@@ -121,7 +126,7 @@ function ClosePaneButton(props) {
 export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
-    isReady, options,
+    isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
   } = props;
 
   const classes = useTitleStyles();
@@ -129,23 +134,27 @@ export function TitleInfo(props) {
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
     <>
-      <div className={classes.title}>
-        <div className={classes.titleLeft}>
+      <div className={classes.title} role="banner">
+        <div className={classes.titleLeft} role="heading" aria-level="1">
           {title}
         </div>
-        <div className={classes.titleInfo} title={info}>
+        <div className={classes.titleInfo} title={info} role="note">
           {info}
         </div>
-        <div className={classes.titleButtons}>
+        <div className={classes.titleButtons} role="toolbar" aria-label="Plot options and controls">
           <PlotOptions
             options={options}
           />
-          <DownloadOptions
-            urls={urls}
-          />
-          <ClosePaneButton
-            removeGridComponent={removeGridComponent}
-          />
+          {downloadButtonVisible ? (
+            <DownloadOptions
+              urls={urls}
+            />
+          ) : null}
+          {closeButtonVisible ? (
+            <ClosePaneButton
+              removeGridComponent={removeGridComponent}
+            />
+          ) : null}
         </div>
       </div>
       <div
@@ -158,6 +167,8 @@ export function TitleInfo(props) {
             [classes.noScrollCard]: !isScroll && !isSpatial,
           },
         )}
+        aria-busy={!isReady}
+        role="main"
       >
         { !isReady && <LoadingIndicator /> }
         {children}

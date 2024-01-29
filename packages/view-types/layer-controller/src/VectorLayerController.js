@@ -1,11 +1,7 @@
 import React from 'react';
 
-import Grid from '@material-ui/core/Grid';
-import Checkbox from '@material-ui/core/Checkbox';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import Slider from '@material-ui/core/Slider';
-import { useControllerSectionStyles } from './styles';
+import { Grid, Checkbox, Paper, Typography, Slider } from '@material-ui/core';
+import { useControllerSectionStyles } from './styles.js';
 
 export default function VectorLayerController(props) {
   const {
@@ -34,7 +30,7 @@ export default function VectorLayerController(props) {
   const classes = useControllerSectionStyles();
   return (
     <Grid item style={{ marginTop: '10px' }}>
-      <Paper className={classes.root}>
+      <Paper className={classes.layerControllerRoot}>
         <Typography
           style={{
             padding: '15px 8px 0px 8px',
@@ -45,7 +41,12 @@ export default function VectorLayerController(props) {
         </Typography>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={2}>
-            <Checkbox color="primary" checked={isOn} onChange={(e, v) => handleCheckBoxChange(v)} />
+            <Checkbox
+              color="primary"
+              checked={isOn}
+              onChange={(e, v) => handleCheckBoxChange(v)}
+              inputProps={{ 'aria-label': 'Show or hide vector layer' }}
+            />
           </Grid>
           <Grid item xs={9} style={{ paddingRight: '8px' }}>
             <Slider
@@ -56,6 +57,10 @@ export default function VectorLayerController(props) {
               onChange={(e, v) => handleSliderChange(v)}
               style={{ marginTop: '7px' }}
               orientation="horizontal"
+              getAriaLabel={(index) => {
+                const labelPrefix = index === 0 ? 'Low value slider' : 'High value slider';
+                return `${labelPrefix} for ${label} layer controller`;
+              }}
             />
           </Grid>
         </Grid>

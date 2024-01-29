@@ -1,8 +1,9 @@
+import { describe, it, expect } from 'vitest';
 import { LoaderResult } from '@vitessce/vit-s';
-import CellsJsonAsObsEmbeddingLoader from './CellsJsonAsObsEmbedding';
-import CellsJsonAsObsLabelsLoader from './CellsJsonAsObsLabels';
-import CellsJsonAsObsSegmentationsLoader from './CellsJsonAsObsSegmentations';
-import JsonSource from '../JsonSource';
+import CellsJsonAsObsEmbeddingLoader from './CellsJsonAsObsEmbedding.js';
+import CellsJsonAsObsLabelsLoader from './CellsJsonAsObsLabels.js';
+import CellsJsonAsObsSegmentationsLoader from './CellsJsonAsObsSegmentations.js';
+import JsonSource from '../JsonSource.js';
 
 const createLoader = (ClassDef, config, url) => {
   const configWithUrl = {
@@ -21,7 +22,7 @@ describe('loaders/cells-json-loaders', () => {
         coordinationValues: {
           embeddingType: 'PCA',
         },
-      }, 'http://localhost:51204/@fixtures/json-legacy/cells.good.json');
+      }, 'http://localhost:4204/@fixtures/json-legacy/cells.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;
@@ -38,7 +39,7 @@ describe('loaders/cells-json-loaders', () => {
         coordinationValues: {
           obsLabelsType: 'cluster',
         },
-      }, 'http://localhost:51204/@fixtures/json-legacy/cells.good.json');
+      }, 'http://localhost:4204/@fixtures/json-legacy/cells.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;
@@ -51,7 +52,7 @@ describe('loaders/cells-json-loaders', () => {
     it('can load obsSegmentations', async () => {
       const loader = createLoader(CellsJsonAsObsSegmentationsLoader, {
         fileType: 'obsSegmentations.cells.json',
-      }, 'http://localhost:51204/@fixtures/json-legacy/cells.good.json');
+      }, 'http://localhost:4204/@fixtures/json-legacy/cells.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;

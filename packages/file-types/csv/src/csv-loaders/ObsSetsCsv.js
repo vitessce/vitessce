@@ -1,14 +1,8 @@
-import { obsSetsCsvSchema, LoaderResult, AbstractLoaderError } from '@vitessce/vit-s';
+import { LoaderResult, AbstractLoaderError } from '@vitessce/vit-s';
 import { initializeCellSetColor, treeToMembershipMap, dataToCellSetsTree } from '@vitessce/sets-utils';
-import CsvLoader from './CsvLoader';
+import CsvLoader from './CsvLoader.js';
 
 export default class ObsSetsCsvLoader extends CsvLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-
-    this.optionsSchema = obsSetsCsvSchema;
-  }
-
   loadFromCache(data) {
     if (this.cachedResult) {
       return this.cachedResult;

@@ -1,7 +1,7 @@
 import {
   makeDatasetNameToJsonFiles,
   getS3Url, vapi,
-} from '../utils';
+} from '../utils.js';
 
 
 const linnarssonDataTypes = [

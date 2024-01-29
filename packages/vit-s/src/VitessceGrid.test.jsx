@@ -1,15 +1,17 @@
+import { describe, it, expect, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
-import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react';
 
-import VitessceGrid from './VitessceGrid';
+import React from 'react';
+import { PluginViewType } from '@vitessce/plugins';
+import VitessceGrid from './VitessceGrid.js';
 import {
   ViewConfigProvider, createViewConfigStore,
   AuxiliaryProvider, createAuxiliaryStore,
-} from './state/hooks';
+} from './state/hooks.js';
 
 afterEach(() => {
-  cleanup()
+  cleanup();
 });
 
 describe('VitessceGrid.js', () => {
@@ -31,14 +33,27 @@ describe('VitessceGrid.js', () => {
         ],
       };
 
+      function createViewConfigStoreClosure() {
+        return createViewConfigStore(null, config);
+      }
+
       function FakeComponent() {
         return <p>FakeComponent!</p>;
       }
-      const getComponent = () => FakeComponent;
+      const viewTypes = [new PluginViewType('FakeComponent', FakeComponent, [])];
+      const fileTypes = [];
+      const coordinationTypes = [];
       render(
-        <ViewConfigProvider createStore={createViewConfigStore}>
+        <ViewConfigProvider createStore={createViewConfigStoreClosure}>
           <AuxiliaryProvider createStore={createAuxiliaryStore}>
-            <VitessceGrid config={config} getComponent={getComponent} />
+            <VitessceGrid
+              success
+              configKey={null}
+              config={config}
+              viewTypes={viewTypes}
+              fileTypes={fileTypes}
+              coordinationTypes={coordinationTypes}
+            />
           </AuxiliaryProvider>
         </ViewConfigProvider>,
       );

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import AddIcon from '@material-ui/icons/Add';
-import MenuItem from '@material-ui/core/MenuItem';
+import { makeStyles, MenuItem } from '@material-ui/core';
+import { Add as AddIcon } from '@material-ui/icons';
 import { PopperMenu } from '@vitessce/vit-s';
 
 const useStyles = makeStyles(() => ({
@@ -38,6 +37,7 @@ function ImageAddButton({ imageOptions, handleImageAdd }) {
       buttonIcon={<ImageAddIcon />}
       buttonClassName={classes.addButton}
       placement="bottom-start"
+      aria-label="Add image menu"
     >
       {imageOptions.map((imgData, i) => (
         <MenuItem dense key={imgData.name} onClick={() => handleAdd(i)}>

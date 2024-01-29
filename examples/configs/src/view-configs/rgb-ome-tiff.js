@@ -15,17 +15,22 @@ export const rgbOmeTiff = {
       ],
     },
   ],
+  coordinationSpace: {
+    photometricInterpretation: {
+      'init_HBM836.VTFP.364_image_0': 'RGB',
+    },
+  },
   initStrategy: 'auto',
   layout: [
     {
-      component: 'spatial',
+      component: 'spatialBeta',
       x: 0,
       y: 0,
       w: 8,
       h: 12,
     },
     {
-      component: 'layerController',
+      component: 'layerControllerBeta',
       props: {
         disableChannelsIfRgbDetected: true,
       },

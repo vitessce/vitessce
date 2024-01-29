@@ -44,12 +44,12 @@ For more details, please visit the [documentation](http://vitessce.io/docs/js-ov
 
 ## Development
 
-First install [PNPM](https://pnpm.io/installation) v7. We develop and test against NodeJS `v18.6.0` and NPM `8.13.2`.
+First install [PNPM](https://pnpm.io/installation) v8. We develop and test against NodeJS `v18.6.0` and NPM `8.13.2`.
 
 > **Note**
 > NodeJS may require the [`max_old_space_size`](https://stackoverflow.com/a/59572966) value to be increased.
   ```sh
-  . ./set-node-options.sh
+  . ./scripts/set-node-options.sh
   ```
 
 Checkout the project, `cd`, and then:
@@ -61,6 +61,25 @@ pnpm run start-demo
 ```
 
 The development server will refresh the browser as you edit the code.
+
+Further details for internal developers can be found within [dev-docs](./dev-docs/).
+
+
+### Changesets
+
+We use [changesets](https://github.com/changesets/changesets) to manage the changelog.
+Therefore, when making code changes, do not edit `CHANGELOG.md` directly.
+Instead, run `pnpm changeset`, follow the prompts, and commit the resulting markdown files along with the code changes.
+
+### Branches
+
+Please use one of the following naming conventions for new branches:
+- `{github-username}/{feature-name}`
+- `{github-username}/fix-{issue-num}`
+
+### Pull requests
+
+We use squash merging for pull requests.
 
 ### Monorepo organization
 
@@ -78,9 +97,26 @@ For the end-to-end tests, they depend on
 pnpm run build-demo
 ```
 
-- To run all the tests, both unit and e2e: `./test.sh`
+- To run all the tests, both unit and e2e: `./scripts/test.sh`
 - To run just the unit tests: `pnpm run test`
 
+### Linting
+
+```sh
+pnpm run lint
+```
+
+To allow the linter to perform automated fixes during linting: `pnpm run lint-fix`
+
+### Troubleshooting
+
+The following commands can be helpful in case the local environment gets into a broken state:
+
+- `pnpm install`
+- `pnpm run clean`: removes build/bundle directories and all `tsconfig.tsbuildinfo` files (used by TypeScript's Project References). 
+  - `pnpm run build`: need to re-build subpackages after this type of cleanup.
+- `pnpm run clean-deps`: removes all `node_modules` directories, including those nested inside subpackages.
+  - `pnpm install`: need to re-install dependencies after this type of cleanup.
 
 ## Deployment
 
@@ -94,25 +130,10 @@ $ aws iam list-account-aliases --query 'AccountAliases[0]'
 
 To build the current branch and push the "minimal" demo and docs sites to S3, run this script:
 ```sh
-./push-demos.sh
+./scripts/push-demos.sh
 ```
 
 This will build the demo and docs, push both to S3, and finally open the docs deployment in your browser.
-
-### Release
-
-To make a release of the dev site, docs site, and NPM package:
-
-```sh
-./create-release.sh patch
-```
-
-This script does the following:
-- Checks out a new branch for the release
-- Runs `npm version (major | minor | patch)` (depending on the first argument passed to the script)
-- Pushes staging demos via `./push-demos.sh`
-- Updates the CHANGELOG.md
-- Makes a pull request using the GitHub CLI `gh pr create`
 
 #### Publish staged development site
 
@@ -120,7 +141,7 @@ After doing a [manual test](TESTING.md) of the deployment of the dev site,
 if it looks good, copy it to dev.vitessce.io:
 
 ```sh
-./copy-dev.sh https://{url returned by create-release.sh or push-demos.sh}
+./scripts/copy-dev.sh https://{url returned by scripts/deploy-release.sh or scripts/push-demos.sh}
 ```
 
 Note: if you need to obtain this URL later:
@@ -135,7 +156,7 @@ After doing a manual test of the deployment of the docs,
 if it looks good, copy it to vitessce.io:
 
 ```sh
-./copy-docs.sh https://{url returned by create-release.sh or push-demos.sh}
+./scripts/copy-docs.sh https://{url returned by scripts/deploy-release.sh or scripts/push-demos.sh}
 ```
 
 Note: if you need to obtain this URL later:
@@ -144,18 +165,34 @@ Note: if you need to obtain this URL later:
 Copy docs to https://s3.amazonaws.com/vitessce-data/docs-root/$DATE/$HASH/index.html
 ```
 
-#### Publish the NPM package
+## Release
 
-From GitHub Actions:
+Releasing refers to publishing all sub-packages to NPM and creating a corresponding GitHub release.
 
-- The `vitessce` package is published to the NPM registry by GitHub Actions when the version in `package.json` has been updated and pushed to the `main` branch. To perform this update, make a pull request to merge from the release branch into `main`.
+Note: releasing does not currently result in automatic deployment of the documentation or development sites (see the [Deployment](#deployment) section above).
 
-From local machine:
+### From GitHub Actions
 
-  ```sh
-  pnpm run build
-  pnpm publish --filter='./packages/**' --no-git-checks --tag beta --access public --dry-run
-  ```
+When there are changesets on the `main` branch, the [`changesets/action`](https://github.com/changesets/action) bot will run `./scripts/changeset-version.sh --action` and make a pull request titled "Create release".
+
+- This pull request remains open until ready to make a release. The bot will update the pull request as new changesets are added to `main`.
+
+Once this "Create release" pull request is merged, the next time `release.yml` is executed on GitHub Actions, the following will occur:
+- [`changesets/action`](https://github.com/changesets/action) will run `./scripts/changeset-publish.sh --action`, which:
+  - publishes to NPM
+  - creates a new git tag for the release
+- [`softprops/action-gh-release`](https://github.com/softprops/action-gh-release) will generate a GitHub release based on the git tag, using the latest changelog entries for the release notes.
+
+### From local machine
+
+```sh
+pnpm run build
+pnpm run bundle
+pnpm run build-json-schema
+
+./scripts/changeset-version.sh
+./scripts/changeset-publish.sh # runs pnpm publish internally
+```
 
 ## Version bumps
 
@@ -213,3 +250,31 @@ Changes to the directory structure or filenames in the `dist/` directory that co
 - [May 2019: Harvard IT Summit](https://docs.google.com/presentation/d/1eYDMedzhQtcClB2cIBo17hlaSSAu_-vzkG4LY_mGGQ8/edit#slide=id.p)
 - [May 2019: Misc. tools](https://docs.google.com/presentation/d/1TaC68-r6bosnwi05BZ5bNh9tzeXsxyqmBo1gFZDxhGM/edit#slide=id.p)
 - [April 2019: Software engineering](https://docs.google.com/presentation/d/1uW3J83LYaa67M9ZKe15AQw_h06QiFJBzpBickbRFcCY/edit#slide=id.p)
+
+## Citation
+
+To cite Vitessce in your work, please use:
+
+```bibtex
+@article{keller2021vitessce,
+  title = {{Vitessce: a framework for integrative visualization of multi-modal and spatially-resolved single-cell data}},
+  author = {Keller, Mark S. and Gold, Ilan and McCallum, Chuck and Manz, Trevor and Kharchenko, Peter V. and Gehlenborg, Nils},
+  journal = {OSF Preprints},
+  year = {2021},
+  month = oct,
+  doi = {10.31219/osf.io/y8thv}
+}
+```
+
+If you use the image rendering functionality, please additionally cite Viv:
+
+```bibtex
+@article{manz2022viv,
+  title = {{Viv: multiscale visualization of high-resolution multiplexed bioimaging data on the web}},
+  author = {Manz, Trevor and Gold, Ilan and Patterson, Nathan Heath and McCallum, Chuck and Keller, Mark S. and Herr, II, Bruce W. and Börner, Kay and Spraggins, Jeffrey M. and Gehlenborg, Nils},
+  journal = {Nature Methods},
+  year = {2022},
+  month = may,
+  doi = {10.1038/s41592-022-01482-7}
+}
+```

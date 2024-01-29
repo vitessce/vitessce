@@ -1,8 +1,7 @@
 import React from 'react';
 
-import Checkbox from '@material-ui/core/Checkbox';
-import Select from '@material-ui/core/Select';
-import { useSelectStyles } from './styles';
+import { Checkbox, Select } from '@material-ui/core';
+import { useSelectStyles } from './styles.js';
 
 /**
  * Dropdown for selecting a channel.
@@ -24,6 +23,7 @@ export function ChannelSelectionDropdown({
       native
       value={selectionIndex}
       onChange={e => handleChange(Number(e.target.value))}
+      inputProps={{ 'aria-label': 'Select a channel' }}
     >
       {channelOptions.map((opt, i) => (
         <option disabled={disabled} key={opt} value={i}>
@@ -50,6 +50,7 @@ export function ChannelVisibilityCheckbox({
       checked={checked}
       disabled={disabled}
       style={{ color, '&$checked': { color } }}
+      inputProps={{ 'aria-label': 'Toggle on or off a channel' }}
     />
   );
 }

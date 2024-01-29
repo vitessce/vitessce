@@ -1,14 +1,17 @@
+import { describe, it, expect, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
-import { cleanup, findByText, render, screen } from '@testing-library/react'
+import {
+  cleanup, render, screen,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach } from 'vitest'
+import React from 'react';
+
+import SelectableTable from './SelectableTable.js';
 
 const user = userEvent.setup();
 
-import SelectableTable from './SelectableTable';
-
 afterEach(() => {
-  cleanup()
+  cleanup();
 });
 
 const tableData = [
@@ -34,6 +37,7 @@ const tableColumns = [
   'Y',
   'Name',
 ];
+const columnLabels = ['Label 1', 'Label 2', 'Name'];
 
 describe('SelectableTable.js', () => {
   describe('<SelectableTable />', () => {
@@ -42,11 +46,14 @@ describe('SelectableTable.js', () => {
         <SelectableTable
           data={tableData}
           columns={tableColumns}
+          columnLabels={columnLabels}
           idKey={tableIdKey}
           testHeight={500}
           testWidth={500}
         />,
       );
+      expect(await screen.findByText('Label 1'));
+      expect(await screen.findByText('Label 2'));
       expect(await screen.findByText('Name'));
       // Since the button (although hidden) is also a table-cell, it has a blank string.
       expect(await screen.findAllByText('X1'));
@@ -55,11 +62,12 @@ describe('SelectableTable.js', () => {
     });
 
     it('emits single selected object when allowMultiple is false', async () => {
-      const p = new Promise((resolve, reject) => {
+      const p = new Promise((resolve) => {
         render(
           <SelectableTable
             data={tableData}
             columns={tableColumns}
+            columnLabels={columnLabels}
             idKey={tableIdKey}
             onChange={(selection) => {
               expect(Array.isArray(selection)).toBe(false);
@@ -78,11 +86,12 @@ describe('SelectableTable.js', () => {
     });
 
     it('emits an array of selected objects when allowMultiple is true', async () => {
-      const p = new Promise((resolve, reject) => {
+      const p = new Promise((resolve) => {
         render(
           <SelectableTable
             data={tableData}
             columns={tableColumns}
+            columnLabels={columnLabels}
             idKey={tableIdKey}
             allowMultiple
             onChange={(selection) => {
@@ -100,6 +109,37 @@ describe('SelectableTable.js', () => {
         });
       });
       await p;
+    });
+
+    it('renders single column values', async () => {
+      const customTableColumns = [
+        'Name',
+      ];
+      const customColumnLabels = ['Name'];
+
+      render(
+        <SelectableTable
+          data={tableData}
+          columns={customTableColumns}
+          columnLabels={customColumnLabels}
+          idKey={tableIdKey}
+          testHeight={500}
+          testWidth={500}
+        />,
+      );
+      // write an expect statement to check that Label 1 is not rendered
+      const label1 = screen.queryByText('Label 1');
+      const label2 = screen.queryByText('Label 2');
+      const X1 = screen.queryByText('X1');
+      const Y2 = screen.queryByText('Y2');
+
+      expect(label1).toBeNull();
+      expect(label2).toBeNull();
+      expect(X1).toBeNull();
+      expect(Y2).toBeNull();
+
+      expect(await screen.findByText('Tile 3'));
+      expect(await screen.findByText('Name'));
     });
   });
 });

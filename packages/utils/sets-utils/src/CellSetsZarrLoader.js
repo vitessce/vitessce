@@ -2,10 +2,10 @@ import { InternMap } from 'internmap';
 import {
   treeInitialize,
   nodeAppendChild,
-} from './cell-set-utils';
+} from './cell-set-utils.js';
 import {
   SETS_DATATYPE_OBS,
-} from './constants';
+} from './constants.js';
 
 export function dataToCellSetsTree(data, options) {
   // obsIndex is an array of all cell IDs, for the purposes of set complement operations only.

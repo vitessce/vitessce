@@ -1,7 +1,7 @@
 export {
+  TiffPixelSource,
   ZarrPixelSource,
   loadOmeTiff,
-  loadOmeZarr,
   XRLayer,
   getChannelStats,
   RENDERING_MODES,

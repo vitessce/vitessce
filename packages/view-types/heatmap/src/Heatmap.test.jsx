@@ -1,17 +1,18 @@
 /* eslint-disable func-names */
+import { describe, it, expect, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
-import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach } from 'vitest'
+import { cleanup, render } from '@testing-library/react';
+import React from 'react';
 
-import Heatmap from './Heatmap';
-import { expressionMatrix, cellColors } from './Heatmap.test.fixtures';
+import Heatmap from './Heatmap.js';
+import { expressionMatrix, cellColors } from './Heatmap.test.fixtures.js';
 
 afterEach(() => {
-  cleanup()
+  cleanup();
 });
 
 describe('<Heatmap/>', () => {
-  it('renders a DeckGL element', function () {
+  it('renders a DeckGL element', () => {
     const { container } = render(
       <Heatmap
         uuid="heatmap-0"

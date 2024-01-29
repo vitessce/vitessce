@@ -2,20 +2,23 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable max-len */
 import React, { useEffect, useCallback, useState } from 'react';
-import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
-import Table from 'react-virtualized/dist/commonjs/Table';
-import uuidv4 from 'uuid/v4';
-import union from 'lodash/union';
-import difference from 'lodash/difference';
-import isEqual from 'lodash/isEqual';
+// The CommonJS imports for react-virtualized are needed
+// because the ESM version is broken.
+// Reference: https://github.com/bvaughn/react-virtualized/issues/1632
+import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer/index.js';
+import { Table } from 'react-virtualized/dist/commonjs/Table/index.js';
+import { v4 as uuidv4 } from 'uuid';
+import { union, difference, isEqual } from 'lodash-es';
 import clsx from 'clsx';
-import { useStyles } from './styles';
+import { useStyles } from './styles.js';
 
 const SHIFT_KEYCODE = 16;
 
 /**
  * A table with "selectable" rows.
  * @prop {string[]} columns An array of column names, corresponding to data object properties.
+ * @prop {string[]} columnLabels An array of labels to be used for the columns, corresponding to `columns`.
+ * columnLabels.length must be equal to columns.length.
  * @prop {object[]} data An array of data objects used to populate table rows.
  * @prop {function} onChange Callback function,
  * passed a selection object when `allowMultiple` is false (and `null` if `allowUncheck` is true),
@@ -34,6 +37,7 @@ export default function SelectableTable(props) {
   const {
     hasColorEncoding,
     columns,
+    columnLabels,
     data,
     onChange,
     idKey = 'id',
@@ -169,7 +173,7 @@ export default function SelectableTable(props) {
           <input
             id={`${inputUuid}_${data[index][idKey]}`}
             type="checkbox"
-            className={clsx(classes.radioOrCheckbox, isCheckingMultiple ? classes.checkbox : classes.radio)}
+            className={clsx(classes.radioOrCheckbox, isCheckingMultiple ? classes.tableCheckbox : classes.tableRadio)}
             name={inputUuid}
             value={data[index][idKey]}
             onChange={handleInputChange}
@@ -189,10 +193,8 @@ export default function SelectableTable(props) {
   );
 
   const headerRowRenderer = ({ style }) => (
-    <div className={clsx({ [classes.hiddenInputColumn]: !showTableInputs }, classes.tableRow)} style={style}>
-      {columns.map(column => (
-        <div key={column}>{column}</div>
-      ))}
+    <div className={classes.tableRow} style={style}>
+      {columnLabels.map(columnLabel => (<div key={columnLabel} className={classes.tableCell} style={{ fontWeight: 'bold' }}>{columnLabel}</div>))}
     </div>
   );
 

@@ -1,7 +1,7 @@
 {
   "name": "html",
   "private": true,
-  "version": "2.0.3",
+  "version": "3.3.4",
   "scripts": {
     "start-html": "http-server --cors='*' --port 3003 ../../",
     "cypress:open": "cypress open",
@@ -13,7 +13,7 @@
     "vitessce": "workspace:*"
   },
   "devDependencies": {
-    "cypress": "^10.10.0",
+    "cypress": "^12.15.0",
     "http-server": "^14.0.0"
   },
   "license": "MIT"

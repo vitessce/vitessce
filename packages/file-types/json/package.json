@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/json",
-  "version": "2.0.3",
+  "version": "3.3.4",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -8,31 +8,40 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
+  "type": "module",
   "main": "dist-tsc/index.js",
   "publishConfig": {
-    "main": "dist/index.mjs"
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
   },
   "files": [
+    "src",
     "dist",
-    "src"
+    "dist-tsc"
   ],
   "scripts": {
     "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
-    "test": "pnpm exec vitest --run -r ../../../ --dir ."
+    "test": "pnpm exec vitest --run"
   },
   "dependencies": {
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/gl": "workspace:*",
+    "@vitessce/schemas": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
-    "ajv": "^6.10.0",
+    "@vitessce/zarr-utils": "workspace:*",
+    "@vitessce/config": "workspace:*",
     "d3-array": "^2.4.0",
-    "lodash": "^4.17.21",
-    "zarr": "0.5.1"
-  },
-  "devDependencies": {
-    "ajv": "^6.10.0"
+    "lodash-es": "^4.17.21",
+    "zarrita": "0.4.0-next.4",
+    "zod": "^3.21.4"
   }
 }

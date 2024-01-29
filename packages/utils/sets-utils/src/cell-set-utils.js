@@ -1,16 +1,14 @@
 /* eslint-disable no-underscore-dangle */
-import uuidv4 from 'uuid/v4';
-import isNil from 'lodash/isNil';
-import isEqual from 'lodash/isEqual';
-import range from 'lodash/range';
+import { v4 as uuidv4 } from 'uuid';
+import { isNil, isEqual, range } from 'lodash-es';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
 import centroid from '@turf/centroid';
 import concaveman from 'concaveman';
 import { getDefaultColor, PALETTE } from '@vitessce/utils';
 import {
   HIERARCHICAL_SCHEMAS,
-} from './constants';
-import { pathToKey } from './utils';
+} from './constants.js';
+import { pathToKey } from './utils.js';
 
 /**
  * Alias for the uuidv4 function to make code more readable.
@@ -291,7 +289,7 @@ export function nodeToLevelDescendantNamePaths(node, level, prevPath, stopEarly 
  */
 export function treeExport(currTree, datatype) {
   return {
-    version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
+    version: HIERARCHICAL_SCHEMAS.latestVersion,
     datatype,
     tree: currTree.tree,
   };
@@ -346,7 +344,7 @@ export function treeExportSet(currTree, nodePath) {
  */
 export function treeInitialize(datatype) {
   return {
-    version: HIERARCHICAL_SCHEMAS[datatype].latestVersion,
+    version: HIERARCHICAL_SCHEMAS.latestVersion,
     datatype,
     tree: [],
   };
@@ -419,6 +417,37 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
         ...nodeSet.map(([cellId, prob]) => [
           cellId,
           (isNil(prob) ? nodeColor : colorMixWithUncertainty(nodeColor, prob)),
+        ]),
+      ];
+    }
+  });
+  return new Map(cellColorsArray);
+}
+
+/**
+ * Given a tree with state, get a mapping from cell ID to cell set color index,
+ * based on the nodes currently marked as "visible".
+ * @param {object} currTree A tree object.
+ *  @param {array} selectedNamePaths Array of arrays of strings,
+ * representing set "paths".
+ * @param {object[]} cellSetColor Array of objects with the
+ * properties `path` and `color`.
+ * @returns {array} Tuple of [cellIds, cellColors]
+ * where cellIds is an array of strings,
+ * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
+ */
+export function treeToCellSetColorIndicesBySetNames(currTree, selectedNamePaths, cellSetColor) {
+  let cellColorsArray = [];
+  selectedNamePaths?.forEach((setNamePath) => {
+    const node = treeFindNodeByNamePath(currTree, setNamePath);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      const nodeColorIndex = cellSetColor?.findIndex(d => isEqual(d.path, setNamePath));
+      cellColorsArray = [
+        ...cellColorsArray,
+        ...nodeSet.map(([cellId]) => [
+          cellId,
+          nodeColorIndex,
         ]),
       ];
     }
@@ -509,8 +538,9 @@ export function treeToCellPolygonsBySetNames(
  * Given a tree with state, get the sizes of the
  * sets currently marked as "visible".
  * @param {object} currTree A tree object.
+ * @param {array} allNamePaths Array of all paths.
  * @param {array} selectedNamePaths Array of arrays of strings,
- * representing set "paths".
+ * representing selected paths.
  * @param {object[]} setColor Array of objects with the
  * properties `path` and `color`.
  * @param {string} theme "light" or "dark" for the vitessce theme
@@ -518,20 +548,38 @@ export function treeToCellPolygonsBySetNames(
  * with the properties `name`, `size`, `key`,
  * and `color`.
  */
-export function treeToSetSizesBySetNames(currTree, selectedNamePaths, setColor, theme) {
+export function treeToSetSizesBySetNames(
+  currTree, allNamePaths, selectedNamePaths, setColor, theme,
+) {
   const sizes = [];
-  selectedNamePaths.forEach((setNamePath) => {
-    const node = treeFindNodeByNamePath(currTree, setNamePath);
+
+  /**
+   * Checks if a path is contained in an array of paths.
+   * @param {array} path Array of strings, which compose the path.
+   * @param {array} paths Array of arrays of strings, which compose paths.
+  * */
+  const contains = (path, paths) => paths.some(p => isEqual(p, path));
+
+  allNamePaths.forEach((clusterPath) => {
+    const node = treeFindNodeByNamePath(currTree, clusterPath);
     if (node) {
       const nodeSet = nodeToSet(node);
-      const nodeColor = setColor?.find(d => isEqual(d.path, setNamePath))?.color
-        || getDefaultColor(theme);
-      sizes.push({
+      const nodeColor = setColor?.find(d => isEqual(d.path, clusterPath))?.color
+          || getDefaultColor(theme);
+      const nodeProps = {
         key: generateKey(),
         name: node.name,
         size: nodeSet.length,
         color: nodeColor,
-      });
+        setNamePath: clusterPath,
+        // used by the CellSetSizesPlot to determine if the bar should be grayed out
+        isGrayedOut: true,
+      };
+      // if the current path is selected, we need to show it
+      if (contains(clusterPath, selectedNamePaths)) {
+        nodeProps.isGrayedOut = false;
+      }
+      sizes.push(nodeProps);
     }
   });
   return sizes;

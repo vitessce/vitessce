@@ -1,5 +1,5 @@
 import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
-import RasterLoader from './RasterJsonLoader';
+import RasterLoader from './RasterJsonLoader.js';
 
 export default class RasterJsonAsObsSegmentationsLoader extends RasterLoader {
   async load() {
@@ -26,10 +26,10 @@ export default class RasterJsonAsObsSegmentationsLoader extends RasterLoader {
     }
 
     return new LoaderResult(
-      {
+      (loaders.length > 0 && meta.length > 0 ? ({
         obsSegmentationsType: 'bitmask',
-        obsSegmentations: (loaders.length > 0 && meta.length > 0 ? { loaders, meta } : null),
-      },
+        obsSegmentations: { loaders, meta },
+      }) : null),
       urls,
       {
         // Filter coordinationValues, keeping only bitmask layers.

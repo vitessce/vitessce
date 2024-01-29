@@ -6,9 +6,7 @@ import {
   useDescription, useImageData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import Description from './Description';
-
-const addUrl = () => {}; // noop
+import Description from './Description.js';
 
 /**
  * A subscriber component for a text description component.
@@ -28,6 +26,7 @@ export function DescriptionSubscriber(props) {
     removeGridComponent,
     theme,
     title = 'Description',
+    closeButtonVisible,
   } = props;
 
   const loaders = useLoaders();
@@ -41,7 +40,7 @@ export function DescriptionSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [description] = useDescription(loaders, dataset);
   const [{ image }, imageStatus] = useImageData(
-    loaders, dataset, addUrl, false, {}, {},
+    loaders, dataset, false, {}, {},
     {}, // TODO: which properties to match on. Revisit after #830.
   );
   const { loaders: imageLayerLoaders = [], meta: imageLayerMeta = [] } = image || {};
@@ -68,6 +67,7 @@ export function DescriptionSubscriber(props) {
   return (
     <TitleInfo
       title={title}
+      closeButtonVisible={closeButtonVisible}
       removeGridComponent={removeGridComponent}
       isScroll
       theme={theme}

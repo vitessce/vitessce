@@ -1,11 +1,6 @@
-import { makeStyles, withStyles } from '@material-ui/core/styles';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import InputLabel from '@material-ui/core/InputLabel';
-import Slider from '@material-ui/core/Slider';
-import Grid from '@material-ui/core/Grid';
+import { makeStyles } from '@material-ui/core';
 
-const useSpanStyles = makeStyles(() => ({
+export const useSpanStyles = makeStyles(() => ({
   span: {
     width: '70px',
     textAlign: 'center',
@@ -14,63 +9,44 @@ const useSpanStyles = makeStyles(() => ({
   },
 }));
 
-export function MuiSpan(props) {
-  const { children } = props;
-  const classes = useSpanStyles();
-  return <span className={classes.span}>{children}</span>;
-}
+export const useChannelSliderStyles = makeStyles(theme => ({
+  valueLabel: {
+    marginTop: '7px',
+    '& span': {
+      color: theme.palette.secondaryForeground, // Change color here
+      backgroundColor: theme.palette.secondaryBackgroundDim, // Change color here
+    },
+  },
+}));
 
 export const useSelectStyles = makeStyles(() => ({
   selectRoot: {
     padding: 0,
     height: 'auto',
     margin: '4px 0',
+    fontSize: '14px',
+    width: '100%',
   },
 }));
-
-export const useOptionStyles = withStyles(theme => ({
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-  },
-  span: {
-    width: '70px',
-    textAlign: 'center',
-    paddingLeft: '2px',
-    paddingRight: '2px',
-  },
-  colors: {
-    '&:hover': {
-      backgroundColor: 'transparent',
-    },
-    paddingLeft: '2px',
-    paddingRight: '2px',
-  },
-  popper: {
-    zIndex: 4,
-  },
-}));
-
-const sharedControllerStyles = {
-  width: '100%',
-  flexDirection: 'column',
-};
 
 export const useControllerSectionStyles = makeStyles(() => ({
-  root: {
-    ...sharedControllerStyles,
+  layerControllerRoot: {
+    width: '100%',
+    flexDirection: 'column',
     padding: '0px 8px',
+  },
+  layerControllerGrid: {
+    marginTop: '10px',
   },
 }));
 
-export const StyledAccordionDetails = withStyles(() => ({
-  root: {
-    ...sharedControllerStyles,
+export const useAccordionStyles = makeStyles(theme => ({
+  accordionDetailsRoot: {
+    width: '100%',
+    flexDirection: 'column',
     padding: '8px 8px 24px 8px',
   },
-}))(AccordionDetails);
-
-export const StyledAccordionSummary = withStyles(theme => ({
-  root: {
+  accordionSummaryRoot: {
     padding: '0px 8px',
   },
   content: {
@@ -86,28 +62,28 @@ export const StyledAccordionSummary = withStyles(theme => ({
       top: theme.spacing(-1.3),
     },
   },
-}))(AccordionSummary);
+}));
 
-export const StyledInputLabel = withStyles(() => ({
-  root: {
+export const useInputLabelStyles = makeStyles(() => ({
+  inputLabelRoot: {
     fontSize: '14px',
   },
-}))(InputLabel);
+}));
 
-export const OverflowEllipsisGrid = withStyles(() => ({
+export const useOverflowEllipsisGridStyles = makeStyles(() => ({
   item: {
     width: '100%',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
   },
-}))(Grid);
+}));
 
-export const StyledSelectionSlider = withStyles(() => ({
-  root: {
+export const useSelectionSliderStyles = makeStyles(() => ({
+  selectionSliderRoot: {
     marginTop: '7px',
   },
   markActive: {
     backgroundColor: 'rgba(128, 128, 128, 0.7)',
   },
-}))(Slider);
+}));

@@ -20,6 +20,7 @@
   --ifm-code-font-size: 95%;
 
   --ifm-navbar-height: 3.0rem;
+  --ifm-vitessce-toolbar-height: 28px;
 
   --vit-input-foreground: #0451a5;
   --vit-input-background: #ffffff;
@@ -29,6 +30,7 @@
   --hero-banner-background: #49a5b7;
 
   font-family: 'Inter', sans-serif;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 
 }
 
@@ -39,6 +41,7 @@
   --vit-input-foreground: #9cdcfe;
   --dropzone: #5f5f60;
   --code-block-background: rgb(40, 42, 54);
+  --docusaurus-highlighted-code-line-bg: rgba(66, 66, 66, 0.35);
 }
 
 .table-of-contents a code {
@@ -52,28 +55,72 @@
   padding: inherit;
 }
 
-.docusaurus-highlight-code-line {
-  background-color: #DDDFE1;
-  display: block;
-  margin: 0 calc(-1 * var(--ifm-pre-padding));
-  padding: 0 var(--ifm-pre-padding);
+.demo-header.vitessce-expanded {
+  display: none;
 }
 
-/* If you have a different syntax highlighting theme for dark mode. */
-html[data-theme='dark'] .docusaurus-highlight-code-line {
-  background-color: #1C1D26; /* Color which works with dark mode syntax highlighting theme */
+.vitessce-and-toolbar {
+  position: relative;
+  right: 0;
+  width: 100%;
+  height: calc(800px + var(--ifm-vitessce-toolbar-height));
 }
 
+.vitessce-and-toolbar.vitessce-expanded {
+  position: absolute;
+  top: var(--ifm-navbar-height);
+  left: 0;
+  width: 100%;
+  height: calc(100vh - var(--ifm-navbar-height));
+}
 
+.vitessce-toolbar {
+  position: relative;
+  width: 100%;
+  height: var(--ifm-vitessce-toolbar-height);
+}
+
+.vitessce-toolbar-buttons {
+  position: absolute;
+  right: calc(10% + 10px);
+  display: inline-block;
+  width: auto;
+}
+
+.vitessce-toolbar-buttons.vitessce-expanded {
+  right: 10px;
+}
+
+.vitessce-toolbar-buttons > button {
+  border: 2px solid var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+  background-color: transparent;
+  line-height: 1.2em;
+  text-decoration: none !important;
+  text-transform: uppercase;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 1px 5px;
+  margin: 5px;
+  cursor: pointer;
+}
 
 .vitessce-app {
   flex: 1;
+  position: relative;
 }
 
 .vitessce-app .vitessce-container {
-  height: calc(100vh - var(--ifm-navbar-height));
+  width: 80%;
+  left: 10%
+}
+
+.vitessce-app.vitessce-expanded .vitessce-container {
+  position: relative;
   width: 100%;
-  overflow: hidden;
+  left: 0;
+  height: calc(100vh - var(--ifm-navbar-height) - var(--ifm-vitessce-toolbar-height));
 }
 
 .vitessce-container.vitessce-theme-light .card {

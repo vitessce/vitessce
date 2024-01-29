@@ -1,4 +1,5 @@
-import { getPointSizeDevicePixels, getPointOpacity } from './dynamic-opacity';
+import { describe, it, expect } from 'vitest';
+import { getPointSizeDevicePixels, getPointOpacity } from './dynamic-opacity.js';
 
 describe('dynamic-opacity.js', () => {
   describe('getPointSizeDevicePixels', () => {

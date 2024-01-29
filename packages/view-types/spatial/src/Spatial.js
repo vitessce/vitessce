@@ -1,13 +1,13 @@
 import React, { forwardRef } from 'react';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash-es';
 import {
-  deck, viv, getSelectionLayers, ScaledExpressionExtension,
+  deck, viv, getSelectionLayer, ScaledExpressionExtension,
 } from '@vitessce/gl';
 import { getSourceFromLoader, isInterleaved } from '@vitessce/spatial-utils';
 import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
-import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils';
+import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils.js';
 
 const CELLS_LAYER_ID = 'cells-layer';
 const MOLECULES_LAYER_ID = 'molecules-layer';
@@ -300,7 +300,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     });
   }
 
-  createSelectionLayers() {
+  createSelectionLayer() {
     const { obsCentroidsIndex, obsCentroids } = this.props;
     const {
       viewState,
@@ -309,14 +309,20 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const { tool } = this.state;
     const { obsSegmentationsQuadTree } = this;
     const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
-    return getSelectionLayers(
+    return getSelectionLayer(
       tool,
       viewState.zoom,
       CELLS_LAYER_ID,
-      getCellCoords,
-      obsCentroidsIndex,
-      setCellSelection,
-      obsSegmentationsQuadTree,
+      [
+        {
+          getObsCoords: getCellCoords,
+          obsIndex: obsCentroidsIndex,
+          obsQuadTree: obsSegmentationsQuadTree,
+          onSelect: (obsIds) => {
+            setCellSelection(obsIds);
+          },
+        },
+      ],
     );
   }
 
@@ -346,6 +352,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           id: 'scalebar-layer',
           unit,
           size,
+          snap: true,
           viewState: { ...viewState, width, height },
         });
       }
@@ -543,7 +550,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       neighborhoodsLayer,
       obsLocationsLayer,
       this.createScaleBarLayer(),
-      ...this.createSelectionLayers(),
+      this.createSelectionLayer(),
     ];
   }
 
@@ -701,6 +708,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     );
   }
 
+  recenter() {
+    const { originalViewState, setViewState } = this.props;
+    if (Array.isArray(originalViewState?.target) && typeof originalViewState?.zoom === 'number') {
+      setViewState(originalViewState);
+    }
+  }
+
   /**
    * Here, asynchronously check whether props have
    * updated which require re-computing memoized variables,
@@ -754,8 +768,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'hasSegmentations',
         'cellFilter',
         'cellSelection',
-        'cellColors',
         'geneExpressionColormapRange',
+        'expressionData',
         'cellColorEncoding',
         'geneExpressionColormap',
         'segmentationLayerCallbacks',
@@ -828,6 +842,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   // render() is implemented in the abstract parent class.
 }
 
+
 /**
  * Need this wrapper function here,
  * since we want to pass a forwardRef
@@ -838,4 +853,5 @@ class Spatial extends AbstractSpatialOrScatterplot {
 const SpatialWrapper = forwardRef((props, deckRef) => (
   <Spatial {...props} deckRef={deckRef} />
 ));
+SpatialWrapper.displayName = 'SpatialWrapper';
 export default SpatialWrapper;

@@ -1,16 +1,279 @@
 
+## 3.3.4
+
+### Patch Changes
+
+- Fix circular dependencies between @vitessce/utils and @vitessce/sets-utils. (`@vitessce/utils`, `@vitessce/sets-utils`) ([#1787](https://github.com/vitessce/vitessce/pull/1787))
+
+
+## 3.3.3
+
+### Patch Changes
+
+- Prevent URLs from being included in download dropdown for Zarr file types. (`@vitessce/spatial`, `@vitessce/zarr`, `@vitessce/vit-s`) ([#1759](https://github.com/vitessce/vitessce/pull/1759))
+
+- SpatialData file type. (`@vitessce/schemas`) ([#1728](https://github.com/vitessce/vitessce/pull/1728))
+
+- Support bitmask segmentations with gaps and irregular orderings. Enable usage of JSON-based Zarr stores in demos for tests. (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`, `@vitessce/ome-tiff`, `@vitessce/spatial-utils`, `@vitessce/constants-internal`, `@vitessce/image-utils`, `@vitessce/utils`, `@vitessce/json`, `@vitessce/zarr`, `@vitessce/csv`, `@vitessce/all`, `@vitessce/example-configs`, `@vitessce/schemas`, `@vitessce/config`, `@vitessce/vit-s`, `@vitessce/gl`) ([#1758](https://github.com/vitessce/vitessce/pull/1758))
+
+- Fix volume control text sizing bug in layerController. (`@vitessce/layer-controller`) ([#1746](https://github.com/vitessce/vitessce/pull/1746))
+
+
+## 3.3.2
+
+### Patch Changes
+
+- Add the prop closeButtonVisible to all views, passed down to TitleInfo, to allow hiding the close buttons on each view by setting this prop in the config. (`@vitessce/vit-s`) ([#1740](https://github.com/vitessce/vitessce/pull/1740))
+
+- Memoize button icons in TitleInfo to prevent unnecessary re-renders" (`@vitessce/vit-s`) ([#1736](https://github.com/vitessce/vitessce/pull/1736))
+
+- Added a prop to hide download buttons and dropdowns. (`@vitessce/vit-s`) ([#1743](https://github.com/vitessce/vitessce/pull/1743))
+
+
+## 3.3.1
+
+### Patch Changes
+
+- Update Deck.gl to 8.8.27 and Luma.gl to 8.5.21 (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`, `@vitessce/gl`, `demo`, `docs`, `html`) ([#1724](https://github.com/vitessce/vitessce/pull/1724))
+
+
+## 3.3.0
+
+### Minor Changes
+
+- Use Zarrita.js rather than ZarrJS to load Zarr data. (This change is needed to support Zarr features that are required for SpatialData but are not available in ZarrJS.) (`@vitessce/spatial-utils`, `@vitessce/zarr-utils`, `@vitessce/json`, `@vitessce/zarr`, `@vitessce/gl`) ([#1693](https://github.com/vitessce/vitessce/pull/1693))
+
+### Patch Changes
+
+- Types-only package. (`@vitessce/types`) ([#1708](https://github.com/vitessce/vitessce/pull/1708))
+
+- TypeScript types for @vitessce/utils sub-package. (`@vitessce/utils`) ([#1706](https://github.com/vitessce/vitessce/pull/1706))
+
+- Upgrade cypress to fix https://github.com/cypress-io/cypress/issues/27804. (`demo`, `html`) ([#1703](https://github.com/vitessce/vitessce/pull/1703))
+
+- Convert @vitessce/constants-internal to TypeScript by changing file extensions. (`@vitessce/constants-internal`) ([#1701](https://github.com/vitessce/vitessce/pull/1701))
+
+
+## 3.2.2
+
+### Patch Changes
+
+- Implement a workaround to allow for plugin zod schemas to be used. (`@vitessce/schemas`) ([#1696](https://github.com/vitessce/vitessce/pull/1696))
+
+- Upgrade Viv to get snapping scale bar. (`@vitessce/spatial-beta`, `@vitessce/spatial`, `@vitessce/image-utils`, `@vitessce/gl`) ([#1691](https://github.com/vitessce/vitessce/pull/1691))
+
+- Generate alt text based on existing view-types in config, add this to the VitessceGrid. (`@vitessce/vit-s`) ([#1695](https://github.com/vitessce/vitessce/pull/1695))
+
+
+## 3.2.1
+
+### Patch Changes
+
+- Use react-aria's useId hook to support React v17. (`@vitessce/layer-controller-beta`, `@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/layer-controller`, `@vitessce/feature-list`, `@vitessce/scatterplot`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/vit-s`) ([#1687](https://github.com/vitessce/vitessce/pull/1687))
+
+
+## 3.2.0
+
+### Minor Changes
+
+- Added spatialBeta and layerControllerBeta views to support multi-obsType segmentations (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`, `@vitessce/vit-s`, `@vitessce/gl`) ([#1581](https://github.com/vitessce/vitessce/pull/1581))
+
+
+## 3.1.3
+
+### Patch Changes
+
+- Added support for SpatialData image elements by supporting proposed OME-NGFF new coordinateTransformations spec and using the temporary channels_metadata property. (`@vitessce/spatial-utils`, `@vitessce/zarr`) ([#1664](https://github.com/vitessce/vitessce/pull/1664))
+
+
+## 3.1.2
+
+### Patch Changes
+
+- Use pluralize instead of plur package for pluralization. Wrap in @vitessce/utils. (`@vitessce/utils`) ([#1638](https://github.com/vitessce/vitessce/pull/1638))
+
+- Fix bug causing crash of Vitessce upon gene selection when earlier configs with both raster.json and expression data are used with pseudo-segmentation diamonds in the spatial view. (`@vitessce/spatial`) ([#1669](https://github.com/vitessce/vitessce/pull/1669))
+
+- Display the image channel names in Spatial plot (`@vitessce/spatial`) ([#1647](https://github.com/vitessce/vitessce/pull/1647))
+
+- Implemented expand/collapse button for vitessce.io (`docs`) ([#1651](https://github.com/vitessce/vitessce/pull/1651))
+
+- Improved accessibility of React components (`@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/layer-controller`, `@vitessce/feature-list`, `@vitessce/scatterplot`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/tooltip`, `@vitessce/vit-s`) ([#1612](https://github.com/vitessce/vitessce/pull/1612))
+
+- Fix bug causing crash during image channel name/color mapping for text rendering. (`@vitessce/spatial`) ([#1670](https://github.com/vitessce/vitessce/pull/1670))
+
+
+## 3.1.1
+
+### Patch Changes
+
+- Updated changeset version script to write the version.json file containing the new package version. (`@vitessce/constants-internal`) ([#1625](https://github.com/vitessce/vitessce/pull/1625))
+
+- Fix formatting of config.uid view-config-json docs. (`docs`) ([#1626](https://github.com/vitessce/vitessce/pull/1626))
+
+- Remove extra version.json update now that it is done via changeset-version script. (`vitessce`) ([#1630](https://github.com/vitessce/vitessce/pull/1630))
+
+- Stringify passed config object to use as key when uid is missing (`@vitessce/vit-s`) ([#1629](https://github.com/vitessce/vitessce/pull/1629))
+
+
+## 3.1.0
+
+### Minor Changes
+
+- Regenerate View Config store on configKey change (`@vitessce/vit-s`) ([#1617](https://github.com/vitessce/vitessce/pull/1617))
+
+### Patch Changes
+
+- When there is not per-observation centroids, fall back to using the mouse position for tooltips in the spatial view. (`@vitessce/spatial`) ([#1458](https://github.com/vitessce/vitessce/pull/1458))
+
+- Fix duplicate URLs appearing in download dropdown by filtering based on names. (`@vitessce/vit-s`) ([#1458](https://github.com/vitessce/vitessce/pull/1458))
+
+- Added functions to the `VitessceConfig` object-oriented configuration APIs to support multi-level and meta (i.e., complex) coordination. (`@vitessce/config`) ([#1561](https://github.com/vitessce/vitessce/pull/1561))
+
+- Implement hints for zero config mode. (`@vitessce/config`, `docs`) ([#1597](https://github.com/vitessce/vitessce/pull/1597))
+
+  - Added a list of hints that user will select from, when using the zero config mode feature.
+  - Modified the user interface, defined in `_ViewConfigEditor.js`:
+    - Defined a list of hints, which depend on the types of the files the user pastes URLs for.
+    - Removed the `Generate Config` button. Now each hint is a button that generates the view config when pressed.
+  - Created a new file `constants.js` in `packages/config` that defines the range of supported hints, along with the name and coordinates of the desired layers.
+  - Modified `VitessceAutoConfig.js`:
+    - Added a function to return the type of files the user pasted the URLs for. The function is used in `_ViewConfigEditor.js` to determine what set of hints to display.
+    - Adapted the existing code to take selected hint into an account, when creating the view config.
+
+- Update styling of UI for auto-config layout hints in App page of docs. (`docs`) ([#1597](https://github.com/vitessce/vitessce/pull/1597))
+
+- Make example packages private to prevent changesets from publishing to NPM (`@vitessce/example-configs`, `@vitessce/example-plugins`) ([#1496](https://github.com/vitessce/vitessce/pull/1496))
+
+
+
+
+## [3.0.1](https://www.npmjs.com/package/vitessce/v/3.0.1) - 2023-06-30
+
+### Added
+- Add a URL param option to the demo site to wrap `<Vitessce/>` in `<React.StrictMode/>`
+- Added a dropdown in `FeatureList` that allows the user to:
+  - select between `alphabetical` and `original` ordering for the feature list.
+  - show two columns in the feature list if the feature has a second identifier associated.
+- Add initial config logging in `<Vitessce/>` for the pre-upgrade view config.
+- Added support for generating view-config for Anndata-Zarr files that don't have .zmetadata file in the folder.
+- Turn on unit test coverage in Vitest config.
+- Add `useInitialCoordination` hook to get the values of the coordination space from the initial config, which can be used for viewState reset buttons.
+- Use `config` object reference as hook dependency when no `config.uid` is present (to support both controlled and un-controlled component cases).
+- Initialize Zustand store using closure over `createViewConfigStore` function, rather than via `useEffect`.
+- Implement basic solution for multi `ome-zarr` images via `image.raster.json`
+
+### Changed
+- Fix Material UI import statement.
+- Implemented the functionality required to re-order the feature list, based on the selection from the dropdown:
+  - added state variables `featureListSort` and `showFeatureTable`.
+  - hooked the state variables to `FeatureListOptions` and to `FeatureList`.
+- Fix Heatmap bug causing incorrect positioning of tooltip when using `featureLabels` mapping.
+- Modified the `AnndataZarrAutoConfig` class:
+  - added a parser function that generates metadata summary without reading `.zmetadata` file.
+  - the class calls the parser function if no `.zmetadata` file is present in the given URL.
+- Implement custom createGenerateClassName without random numbers involved to ensure deterministic class names.
+  - Rename `makeStyles` keys to be more specific to avoid conflicts.
+- Only generate ESM builds for `vitessce` and `@vitessce/dev`.
+- Use `@tanstack/react-query` for data fetching.
+- Fixed a bug in SetManager popover menu, where the text is not visible in vitessce.io in dark mode.
+
+## [3.0.0](https://www.npmjs.com/package/vitessce/v/3.0.0) - 2023-05-24
+
 ### Added
 - Added a legend for quantitative color scales in the `SpatialSubscriber` and `EmbeddingScatterplotSubscriber` views.
+- Support for automatic view config generation for OME-TIFF, Anndata-Zarr and OME-ZARR file formats.
 - Added a speaker icon to the documentation nav bar for using the International Phonetic Alphabet (IPA) notation to demonstrate how to pronounce Vitessce.
 - Added `image.ome-tiff` and `obsSegmentations.ome-tiff` file types.
 - Added `coordinateTransformation` file type options for `image.ome-tiff` and `image.ome-zarr`.
+- Modified the styling of the Vega-lite tooltips, so that it matches the scatterplot/spatial/heatmap tooltips.
+- Fixed a small bug with the path configuration for the `obsSets` component when using zero config mode.
+- Add notes about branch naming conventions and pull request merge process to README
+- Added bidirectional interactions for the `CellSetSizesPlot` vega-lite plot to allow the Vitessce view to update and show the selected cluster on bar click.
+- Implemented a "select-only" option for the `CellSetSizesPlot` on shift+click. 
+- Implemented ability to select a gene by clicking on the heatmap rows for a given gene.
+- Added developer troubleshooting instructions to README.
+- Add `useFullResolutionImage` to `Spatial` to allow for loading only full resolution image from pyramid.
+- Implemented ability to select an area on the Expression Histogram. On select, a new obs set selection is created. The new selection contains the ids of all obs that belong to the selected bars.
+- Add integration test for consumer site built with NextJS.
+- Implemented ability to show two columns in the feature-list view when each feature has a second identifer associated.
+- Add `CITATION.cff`
+- Added a button to recenter and rescale data to default for Scatterplot and Spatial views. 
+- Removed the Select Rectangle button from Scatterplot and Spatial views.
+- Added option to disable tooltips on Heatmap and Scatterplot components. The option is available from the options control dropdown.
+- Added an option to skip sorting features alphabetically in feature list.
+- Add GitHub Action workflow to report bundle size in PRs.
 
 ### Changed
 - Fix hot module reloading by refactoring JS files that export React components (the component needs to be the only export for HMR to work). Add react-refresh eslint plugin to check for this moving forward.
 - Fixes Go to Definition support in vscode (see https://github.com/microsoft/TypeScript/issues/49003#issuecomment-1164659854).
+- Refactor `obsFeatureMatrix` normalization logic out of data loader classes and into custom hooks that can be used in view implementations as-needed.
+- Fixed syntax highlighting for code examples and editor in documentation.
+- Added a new file `VitessceAutoConfig.js` with methods and classes that can generate view config, given a list of dataset URLs.
+- Added a new documentation page: `default-config.md` that describes the auto config generation functionality and how to use it.
+- Small changes to the layout of `_ViewConfigEditor.js` to accomodate the new functionality: added a space for pasting links and a "Generate Config" button.
 - Update Vitest configuration to only include test files contained within `src` directories.
-- Re-implement `CellSetExpressionPlot` (violin plots) using plain D3. Add a rainfall (half violin + jitter) plot option.
-
+- Added signals tracking and handling in the vega-lite schema for `CellSetSizesPlot` component.
+- Modified the `treeToSetSizesBySetNames` function to return the `setNamePath`, so we can track which hierarchy the cluster represented by the clicked bar belongs to.
+- Modified the `CellSetSizesPlotSubscriber` component to reset `cellSetSelection` to equal `setNamePath` when user clicks on a bar in the `CellSetSizesPlot` component.
+- Changed `VegaPlot.js` to accept prop called `setName` and overwrite the default tooltip style of vega-tooltip.
+- Added a new `styles.js` file that defines the style of the vega-tooltips.
+- Changed `CellSetSizesPlot.js` and `CellSetExpressionPlot.js` to pass in `setName` as props when calling `VegaPlot`.
+- Added more complex logic in `CellSetSizesPlotSubscriber.js` to determine which bars should be displayed in `CellSetSizesPlot.js`.
+- Added a new `set-path-utils` file with the functions containing the more complex logic around choosing which hierarchy to display on the `CellSetSizesPlot`.
+- Added one more prop under `data` in `CellSetSizesPlot`, called `isGrayedOut` and made vega-lite to color in gray bars where this property is set to true.
+- Added `obsSetExpansion` to coordination scope and started using it in `CellSetSizesPlotSubscriber.js`.
+- Added handling for the `onClick` function in the `Heatmap` component. The `Heatmap` component calls the `onHeatmapClick` function, defined in the `HeatmapSubscriber`, every time a user clicks on the heatmap. The `onHeatmapClick` function sets the currently selected gene to be equal to the gene the user clicked at. It also sets the cell color encoding to `geneSelection`.
+- Upgrade `Viv` to `0.13.7`
+- Fix physical size scaling for non-square 2D pixels.
+- Removes logic for `tsconfig.json` from the meta-updater script
+- Update issue template.
+- Update documentation: fix broken links to source code, move Showcase to its own page from About page, replace Roadmap page with link to GitHub project.
+- Updated how TypedArrays are diff-ed in `BitmaskLayer` to reduce memory usage.
+- Changed the `ExpressionHistogramSubscriber` component:
+  - Added ADDITIONAL_OBS_SETS, OBS_SET_COLOR, OBS_COLOR_ENCODING and OBS_SET_SELECTION coordination types to the Feature Histogram.
+  - Added a new function called `onSelect`, passed as props to `ExpressionHistogram`. On selection on `ExpressionHistogram`, the function computes what cell ids belong to that selection. Then calls the pre-existing `setObsSelection` function to create a new cell set with the cell ids.
+- Added a signal to `ExpressionHistogram` component, which calls `onSelect`, after 1 minute of debounce.
+- Replace Ajv with Zod.
+  - Add generic config schema.
+  - Add builder function for generating plugin-specific config schema.
+  - Reimplement config version upgrades.
+- Provide plugins as React props rather than registering them globally on `window`.
+- Use hooks in `ObsSetsManagerSubscriber` to improve controlled-component performance.
+- Revert change that removed `airbnb` eslint config.
+- Only set `additionalObsSets` in coordination space when upgrade was necessary to prevent infinite loop.
+- Fix bug causing cell set hierarchy created via `Create hierarchy` button to contain the string `undefined` (e.g., `My hierarchy 1undefined`)
+- Fix bug in `CellSetSizesPlotSubscriber` causing page to crash when no `obsSets` view is present (due to expectation of initialized `obsSetSelection` and `obsSetExpansion` coordination values).
+- Fix bug causing incorrect gene selection upon heatmap click when `featureLabels` are used (such as in the case of gene aliases used in the HuBMAP data portal view configs).
+- Added a new prop to `FeatureListSubscriber` to read in `showTable`, having it false by default.
+- Modified the `FeatureList` component to pass in 2 columns and 2 column labels if `showTable` is true, otherwise just 1 column and 1 columnLabel if `showTable` is false.
+- Modified the `SelectableTable` component and the table styles to handle showing 2 cells per row.
+- Use `es2019` in Vite bundle targets for `packages/main/prod` and `packages/main/dev` to support HuBMAP portal-ui.
+- Changes in `ToolMenu`:
+  - Added a new button that calls `onRecenterButtonCLick` function on click.
+  - Added css for the new button and introduced differentiation between a button and a tool.
+- Added a new function `recenter` to `AbstractSpatialOrScatterplot` that gets overriden by descendants.
+  - Added an implementation of that function in `Spatial` and `Scatterplot`.
+  - The function is passed to `ToolMenu` as prop by `AbstractSpatialOrScatterplot` and called on click.
+- Removed the `select rectangle` tool and all references to it.
+- Added a state variable called `originalViewState` in `SpatialSubscriber` and `EmbeddingScatterplotSubscriber`.
+  - `originalViewState` holds the value of the initial position of the view and is used for recentering.
+- Fix bug preventing correct view sizing upon `config` prop change when `<Vitessce/>` used as a controlled component.
+- Modified `HeatmapOptions`, `SpatialOptions` and `ScatterplotOptions` components - added a checkbox for making the tooltip not visible.
+- Added a `tooltipsVisible` to the coordination scope for `Heatmap`, `Spatial` and `Scatterplot` coordination types. Its default value is true. Modified the components to hide the tooltip if `tooltipVsisible` is false.
+- Removed `disableTooltip` from `props`.
+- Fix bug that may cause `originalViewState.target` to not be an array as expected.
+- Adjust the code in `onHover` in `Heatmap.js` to track cell position also for cells that are on the cell set bar.
+- Add function `useGetObsMembership` in `hooks.js` to get the full path of the cell that was clicked.
+- Adjusted the `onHeatmapClick` function in `HeatmapSubscriber.js` to distinguish between clicks on the heatmap and clicks on the cell set bar and take according actions.
+- Added a prop `sort` in `FeatureListSubscriber`, with default value equal to `alphabetical`.
+- Modified component `FeatureList` so that if sort is not equal to `alphabetical`, then sorting of data is skipped and the order of feature listis the same as original.
+- Fixed equality check when creating default model matrices for `sizes`
+- Split useEffect into useMemo + useEffect in SpatialSubscriber to fix infinite loop for `neumann-2020` demo on the docs site.
+- Delay computing the initial view state longer in EmbeddingScatterplotSubscriber to ensure the view width/height is finished animating.
+- Made the cursor type to `pointer` when the user is hovering over the heatmap.
+- Fixed a bug in `CellSetSizesPlotSubscriber` plot causing rending of empty `CellSetSizesPlot` when there is no `obsSets` view (due to expectation of initialised `cellSetExpanded` coordination value).
+- Created `FeatureListOptions` component, which allows the user to change the sorting order of the feature list.
 
 ## [2.0.3](https://www.npmjs.com/package/vitessce/v/2.0.3) - 2023-02-01
 
@@ -619,6 +882,8 @@
 - Use a random `uuid` when upgrading `v0.1.0` view configs to `v1.0.0` to enable the data hook `dataset` dependency to detect dataset updates resulting from passing new view configs.
 - Fixed bug in `Status` component in which `cellHighlight` and `geneHighlight` were incorrectly expected to be objects.
 - Fix `Spatial` initialization bug.
+- Remove dead code from Rollup config in `packages/workers`.
+- Remove Showcase section from `About` page now that we have a standalone Showcase documentation page.
 
 ## [0.2.5](https://www.npmjs.com/package/vitessce/v/0.2.5) - 2020-08-31
 

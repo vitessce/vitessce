@@ -10,9 +10,9 @@ import {
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS, capitalize, getValueTransformFunction } from '@vitessce/utils';
 import { treeToObjectsBySetNames, treeToSetSizesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
-import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
-import CellSetExpressionPlot from './CellSetExpressionPlot';
-import { useStyles } from './styles';
+import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions.js';
+import CellSetExpressionPlot from './CellSetExpressionPlot.js';
+import { useStyles } from './styles.js';
 
 /**
  * Get expression data for the cells
@@ -67,11 +67,10 @@ function useExpressionByCellSet(
       const exprValues = cellObjects.map((cell) => {
         const cellIndex = cellIndices[cell.obsId];
         const value = expressionData[0][cellIndex];
-        const normValue = value * 100 / 255;
         const transformFunction = getValueTransformFunction(
           featureValueTransform, featureValueTransformCoefficient,
         );
-        const transformedValue = transformFunction(normValue);
+        const transformedValue = transformFunction(value);
         exprMax = Math.max(transformedValue, exprMax);
         return { value: transformedValue, gene: firstGeneSelected, set: cell.name };
       });
@@ -86,7 +85,9 @@ function useExpressionByCellSet(
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
   const setArr = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
-    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme)
+    ? treeToSetSizesBySetNames(
+      mergedCellSets, cellSetSelection, cellSetSelection, cellSetColor, theme,
+    )
     : []
   ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
 
@@ -107,6 +108,8 @@ function useExpressionByCellSet(
 export function CellSetExpressionPlotSubscriber(props) {
   const {
     coordinationScopes,
+    closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     theme,
     jitter = false,
@@ -138,7 +141,6 @@ export function CellSetExpressionPlotSubscriber(props) {
   );
 
   const [width, height, containerRef] = useGridItemSize();
-  const [urls, addUrl] = useUrls(loaders, dataset);
 
   const transformOptions = VALUE_TRANSFORM_OPTIONS;
 
@@ -149,16 +151,16 @@ export function CellSetExpressionPlotSubscriber(props) {
     { obsType, featureType, featureValueType },
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
-    loaders, dataset, addUrl, false, {}, {},
+  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+    loaders, dataset, false, {}, {},
     { featureType },
   );
-  const [{ obsIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
-    loaders, dataset, addUrl, false,
+  const [{ obsIndex }, matrixIndicesStatus, matrixIndicesUrls] = useObsFeatureMatrixIndices(
+    loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
-    loaders, dataset, addUrl, true, {}, {},
+  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+    loaders, dataset, true, {}, {},
     { obsType },
   );
   const isReady = useReady([
@@ -166,6 +168,11 @@ export function CellSetExpressionPlotSubscriber(props) {
     matrixIndicesStatus,
     obsSetsStatus,
     featureLabelsStatus,
+  ]);
+  const urls = useUrls([
+    featureLabelsUrls,
+    matrixIndicesUrls,
+    obsSetsUrls,
   ]);
 
   const [expressionArr, setArr] = useExpressionByCellSet(
@@ -186,6 +193,8 @@ export function CellSetExpressionPlotSubscriber(props) {
   return (
     <TitleInfo
       title={`Expression by ${capitalize(obsType)} Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}

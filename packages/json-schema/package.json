@@ -1,0 +1,21 @@
+{
+  "name": "@vitessce/json-schema",
+  "version": "3.3.4",
+  "author": "Gehlenborg Lab",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build-json-schema": "node scripts/convert-schemas.mjs"
+  },
+  "dependencies": {
+    "@vitessce/schemas": "workspace:*",
+    "zod-to-json-schema": "^3.20.4"
+  }
+}

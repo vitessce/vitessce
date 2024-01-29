@@ -1,10 +1,10 @@
+import { describe, it, expect } from 'vitest';
 import {
   handleImportJSON, handleExportJSON, handleImportTabular, handleExportTabular,
-} from './io';
+} from './io.js';
 
 const treeV012 = {
   version: '0.1.2',
-  datatype: 'cell',
   tree: [
     {
       name: 'Clustering Algorithm',
@@ -20,7 +20,6 @@ const treeV012 = {
 };
 const treeV013 = {
   version: '0.1.3',
-  datatype: 'cell',
   tree: [
     {
       name: 'Clustering Algorithm',
@@ -42,7 +41,6 @@ const treeV013 = {
 
 const treeV013WithPredictionScores = {
   version: '0.1.3',
-  datatype: 'cell',
   tree: [
     {
       name: 'Clustering Algorithm',

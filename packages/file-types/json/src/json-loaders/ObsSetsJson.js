@@ -4,8 +4,9 @@ import {
   nodeToSet,
   treeToMembershipMap,
 } from '@vitessce/sets-utils';
-import { obsSetsSchema, AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
-import JsonLoader from './JsonLoader';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { obsSetsSchema } from '@vitessce/schemas';
+import JsonLoader from './JsonLoader.js';
 
 export default class ObsSetsJsonLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -21,7 +22,7 @@ export default class ObsSetsJsonLoader extends JsonLoader {
     }
     const { data: rawData, url } = payload;
     const datatype = this.fileType.endsWith('cell-sets.json') ? 'cell' : 'obs';
-    const upgradedData = tryUpgradeTreeToLatestSchema(rawData, datatype);
+    const [upgradedData] = tryUpgradeTreeToLatestSchema(rawData, datatype);
     let obsIndex = [];
     const coordinationValues = {
       obsSetSelection: [],

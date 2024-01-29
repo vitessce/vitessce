@@ -1,8 +1,8 @@
-import React from 'react';
-import clamp from 'lodash/clamp';
+import React, { useCallback } from 'react';
+import { clamp } from 'lodash-es';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 import { colorArrayToString } from '@vitessce/sets-utils';
-import { capitalize } from '@vitessce/utils';
+import { capitalize, getDefaultColor } from '@vitessce/utils';
 
 /**
  * Cell set sizes displayed as a bar chart,
@@ -33,6 +33,7 @@ export default function CellSetSizesPlot(props) {
     marginBottom = 120,
     keyLength = 36,
     obsType,
+    onBarSelect,
   } = props;
 
   // Add a property `keyName` which concatenates the key and the name,
@@ -46,18 +47,53 @@ export default function CellSetSizesPlot(props) {
     colorString: colorArrayToString(d.color),
   }));
 
-  // Manually set the color scale so that Vega-Lite does
-  // not choose the colors automatically.
-  const colors = {
-    domain: data.map(d => d.key),
-    range: data.map(d => d.colorString),
-  };
-
   // Get an array of keys for sorting purposes.
   const keys = data.map(d => d.keyName);
 
+  const colorScale = {
+    // Manually set the color scale so that Vega-Lite does
+    // not choose the colors automatically.
+    domain: data.map(d => d.key),
+    range: data.map((d) => {
+      const [r, g, b] = !d.isGrayedOut ? d.color : getDefaultColor(theme);
+      return `rgba(${r}, ${g}, ${b}, 1)`;
+    }),
+  };
+  const captializedObsType = capitalize(obsType);
+
   const spec = {
-    mark: { type: 'bar' },
+    mark: { type: 'bar', stroke: 'black', cursor: 'pointer' },
+    params: [
+      {
+        name: 'highlight',
+        select: {
+          type: 'point',
+          on: 'mouseover',
+        },
+      },
+      {
+        name: 'select',
+        select: 'point',
+      },
+      {
+        name: 'bar_select',
+        select: {
+          type: 'point',
+          on: 'click[event.shiftKey === false]',
+          fields: ['setNamePath', 'isGrayedOut'],
+          empty: 'none',
+        },
+      },
+      {
+        name: 'shift_bar_select',
+        select: {
+          type: 'point',
+          on: 'click[event.shiftKey]',
+          fields: ['setNamePath', 'isGrayedOut'],
+          empty: 'none',
+        },
+      },
+    ],
     encoding: {
       x: {
         field: 'keyName',
@@ -69,17 +105,39 @@ export default function CellSetSizesPlot(props) {
       y: {
         field: 'size',
         type: 'quantitative',
-        title: `${capitalize(obsType)} Set Size`,
+        title: `${captializedObsType} Set Size`,
       },
       color: {
         field: 'key',
         type: 'nominal',
-        scale: colors,
+        scale: colorScale,
         legend: null,
       },
       tooltip: {
         field: 'size',
         type: 'quantitative',
+      },
+      fillOpacity: {
+        condition: {
+          param: 'select',
+          value: 1,
+        },
+        value: 0.3,
+      },
+      strokeWidth: {
+        condition: [
+          {
+            param: 'select',
+            empty: false,
+            value: 1,
+          },
+          {
+            param: 'highlight',
+            empty: false,
+            value: 2,
+          },
+        ],
+        value: 0,
       },
     },
     width: clamp(width - marginRight, 10, Infinity),
@@ -87,10 +145,29 @@ export default function CellSetSizesPlot(props) {
     config: VEGA_THEMES[theme],
   };
 
+  const handleSignal = (name, value) => {
+    if (name === 'bar_select') {
+      onBarSelect(value.setNamePath, value.isGrayedOut[0]);
+    } else if (name === 'shift_bar_select') {
+      const isGrayedOut = false;
+      const selectOnlyEnabled = true;
+      onBarSelect(value.setNamePath, isGrayedOut, selectOnlyEnabled);
+    }
+  };
+
+  const signalListeners = { bar_select: handleSignal, shift_bar_select: handleSignal };
+  const getTooltipText = useCallback(item => ({
+    [`${captializedObsType} Set`]: item.datum.name,
+    [`${captializedObsType} Set Size`]: item.datum.size,
+  }
+  ), [captializedObsType]);
+
   return (
     <VegaPlot
       data={data}
       spec={spec}
+      signalListeners={signalListeners}
+      getTooltipText={getTooltipText}
     />
   );
 }

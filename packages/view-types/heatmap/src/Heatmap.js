@@ -2,7 +2,7 @@
 import React, {
   useRef, useState, useCallback, useMemo, useEffect, useReducer, forwardRef,
 } from 'react';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import {
   deck, luma,
   HeatmapCompositeTextLayer,
@@ -17,9 +17,7 @@ import {
   DATA_TEXTURE_SIZE,
   PIXELATED_TEXTURE_PARAMETERS,
 } from '@vitessce/gl';
-import range from 'lodash/range';
-import clamp from 'lodash/clamp';
-import isEqual from 'lodash/isEqual';
+import { range, clamp, isEqual } from 'lodash-es';
 import {
   getLongestString,
   DEFAULT_GL_OPTIONS,
@@ -38,8 +36,8 @@ import {
   mouseToHeatmapPosition,
   heatmapToMousePosition,
   mouseToCellColorPosition,
-} from './utils';
-import HeatmapWorkerPool from './HeatmapWorkerPool';
+} from './utils.js';
+import HeatmapWorkerPool from './HeatmapWorkerPool.js';
 // Only allocate the memory once for the container
 const paddedExpressionContainer = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE);
 
@@ -67,22 +65,22 @@ function shouldUsePaddedImplementation(dataLength) {
  * for DeckGL.
  * @param {number} props.width The width of the canvas.
  * @param {number} props.height The height of the canvas.
- * @param {object} props.expressionMatrix An object { rows, cols, matrix },
- * where matrix is a flat Uint8Array, rows is a list of cell ID strings,
- * and cols is a list of gene ID strings.
+ * @param {null|Uint8Array} props.uint8ObsFeatureMatrix A flat Uint8Array
+ * containing the expression data.
  * @param {Map} props.cellColors Map of cell ID to color. Optional.
  * If defined, the key ordering is used to order the cell axis of the heatmap.
  * @param {array} props.cellColorLabels array of labels to place beside cell color
  * tracks. Only works for transpose=true.
- * @param {function} props.clearPleaseWait The clear please wait callback,
- * called when the expression matrix has loaded (is not null).
  * @param {function} props.setCellHighlight Callback function called on
  * hover with the cell ID. Optional.
  * @param {function} props.setGeneHighlight Callback function called on
  * hover with the gene ID. Optional.
  * @param {function} props.updateViewInfo Callback function that gets called with an
- * object { uuid, project() } where project is a function that maps (cellId, geneId)
- * to canvas (x,y) coordinates. Used to show tooltips. Optional.
+ * object { uuid, project(), projectFromId() } where
+ * project is the DeckGL Viewport.project function, and
+ * projectFromId is a wrapper around project that
+ * takes (cellId, geneId) as parameters and returns
+ * canvas (x,y) pixel coordinates. Used to show tooltips. Optional.
  * @param {boolean} props.transpose By default, false.
  * @param {string} props.variablesTitle By default, 'Genes'.
  * @param {string} props.observationsTitle By default, 'Cells'.
@@ -93,6 +91,9 @@ function shouldUsePaddedImplementation(dataLength) {
  * @param {string} props.colormap The name of the colormap function to use.
  * @param {array} props.colormapRange A tuple [lower, upper] to adjust the color scale.
  * @param {function} props.setColormapRange The setter function for colormapRange.
+ * @param {string[]} props.obsIndex The cell ID list.
+ * @param {string[]} props.featureIndex The gene ID list.
+ * @param {null|Map<string,string>} props.featureLabelsMap A map of featureIndex to featureLabel.
  */
 const Heatmap = forwardRef((props, deckRef) => {
   const {
@@ -102,12 +103,11 @@ const Heatmap = forwardRef((props, deckRef) => {
     setViewState,
     width: viewWidth,
     height: viewHeight,
-    expressionMatrix: expression,
+    uint8ObsFeatureMatrix,
     cellColors,
     cellColorLabels = [''],
     colormap,
     colormapRange,
-    clearPleaseWait,
     setComponentHover,
     setCellHighlight = createDefaultUpdateCellsHover('Heatmap'),
     setGeneHighlight = createDefaultUpdateGenesHover('Heatmap'),
@@ -122,6 +122,11 @@ const Heatmap = forwardRef((props, deckRef) => {
     useDevicePixels = 1,
     hideObservationLabels = false,
     hideVariableLabels = false,
+    onHeatmapClick,
+    setColorEncoding,
+    obsIndex,
+    featureIndex,
+    featureLabelsMap,
   } = props;
 
   const viewState = {
@@ -135,17 +140,12 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   const workerPool = useMemo(() => new HeatmapWorkerPool(), []);
 
-  useEffect(() => {
-    if (clearPleaseWait && expression) {
-      clearPleaseWait('expression-matrix');
-    }
-  }, [clearPleaseWait, expression]);
-
   const tilesRef = useRef();
   const dataRef = useRef();
   const [axisLeftLabels, setAxisLeftLabels] = useState([]);
   const [axisTopLabels, setAxisTopLabels] = useState([]);
   const [numCellColorTracks, setNumCellColorTracks] = useState([]);
+  const [cursorType, setCursorType] = useState('default');
 
 
   // Since we are storing the tile data in a ref,
@@ -162,23 +162,23 @@ const Heatmap = forwardRef((props, deckRef) => {
   // it back and forth from the worker thread.
   useEffect(() => {
     // Store the expression matrix Uint8Array in the dataRef.
-    if (expression && expression.matrix
-      && !shouldUsePaddedImplementation(expression.matrix.length)
+    if (uint8ObsFeatureMatrix
+      && !shouldUsePaddedImplementation(uint8ObsFeatureMatrix.length)
     ) {
-      dataRef.current = copyUint8Array(expression.matrix);
+      dataRef.current = copyUint8Array(uint8ObsFeatureMatrix);
     }
-  }, [dataRef, expression]);
+  }, [dataRef, uint8ObsFeatureMatrix]);
 
   // Check if the ordering of axis labels needs to be changed,
   // for example if the cells "selected" (technically just colored)
   // have changed.
   useEffect(() => {
-    if (!expression) {
+    if (!obsIndex) {
       return;
     }
 
     const newCellOrdering = (!cellColors || cellColors.size === 0
-      ? expression.rows
+      ? obsIndex
       : Array.from(cellColors.keys())
     );
 
@@ -191,41 +191,41 @@ const Heatmap = forwardRef((props, deckRef) => {
         setAxisLeftLabels(newCellOrdering);
       }
     }
-  }, [expression, cellColors, axisTopLabels, axisLeftLabels, transpose]);
+  }, [obsIndex, cellColors, axisTopLabels, axisLeftLabels, transpose]);
 
   // Set the genes ordering.
   useEffect(() => {
-    if (!expression) {
+    if (!featureIndex) {
       return;
     }
     if (transpose) {
-      setAxisLeftLabels(expression.cols);
+      setAxisLeftLabels(featureIndex);
     } else {
-      setAxisTopLabels(expression.cols);
+      setAxisTopLabels(featureIndex);
     }
-  }, [expression, transpose]);
+  }, [featureIndex, transpose]);
 
   const [longestCellLabel, longestGeneLabel] = useMemo(() => {
-    if (!expression) {
+    if (!obsIndex || !featureIndex) {
       return ['', ''];
     }
 
     return [
-      getLongestString(expression.rows),
-      getLongestString([...expression.cols, ...cellColorLabels]),
+      getLongestString(obsIndex),
+      getLongestString([...featureIndex, ...cellColorLabels]),
     ];
-  }, [expression, cellColorLabels]);
+  }, [featureIndex, cellColorLabels, obsIndex]);
 
   // Creating a look up dictionary once is faster than calling indexOf many times
   // i.e when cell ordering changes.
   const expressionRowLookUp = useMemo(() => {
     const lookUp = new Map();
-    if (expression?.rows) {
+    if (obsIndex) {
       // eslint-disable-next-line no-return-assign
-      expression.rows.forEach((cell, j) => (lookUp.set(cell, j)));
+      obsIndex.forEach((cell, j) => (lookUp.set(cell, j)));
     }
     return lookUp;
-  }, [expression]);
+  }, [obsIndex]);
 
   const width = axisTopLabels.length;
   const height = axisLeftLabels.length;
@@ -272,7 +272,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   useEffect(() => {
     updateViewInfo({
       uuid,
-      project: (cellId, geneId) => {
+      projectFromId: (cellId, geneId) => {
         const colI = transpose ? axisTopLabels.indexOf(cellId) : axisTopLabels.indexOf(geneId);
         const rowI = transpose ? axisLeftLabels.indexOf(geneId) : axisLeftLabels.indexOf(cellId);
         return heatmapToMousePosition(
@@ -322,7 +322,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   // then new tiles need to be generated,
   // so add a new task to the backlog.
   useEffect(() => {
-    if (!expression || !expression.matrix || expression.matrix.length < DATA_TEXTURE_SIZE ** 2) {
+    if (!uint8ObsFeatureMatrix || uint8ObsFeatureMatrix.length < DATA_TEXTURE_SIZE ** 2) {
       return;
     }
     // Use a uuid to give the task a unique ID,
@@ -334,7 +334,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     ) {
       setBacklog(prev => [...prev, uuidv4()]);
     }
-  }, [dataRef, expression, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
+  }, [dataRef, uint8ObsFeatureMatrix, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
 
   // When the backlog has updated, a new worker job can be submitted if:
   // - the backlog has length >= 1 (at least one job is waiting), and
@@ -347,16 +347,15 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (dataRef.current
       && dataRef.current.buffer.byteLength && expressionRowLookUp.size > 0
       && !shouldUsePaddedImplementation(dataRef.current.length)) {
-      const { cols, matrix } = expression;
       const promises = range(yTiles).map(i => range(xTiles).map(async j => workerPool.process({
         curr,
         tileI: i,
         tileJ: j,
         tileSize: TILE_SIZE,
         cellOrdering: transpose ? axisTopLabels : axisLeftLabels,
-        cols,
+        cols: featureIndex,
         transpose,
-        data: matrix.buffer.slice(),
+        data: uint8ObsFeatureMatrix.buffer.slice(),
         expressionRowLookUp,
       })));
       const process = async () => {
@@ -372,8 +371,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       };
       process();
     }
-  }, [axisLeftLabels, axisTopLabels, backlog, expression, transpose,
-    xTiles, yTiles, workerPool, expressionRowLookUp]);
+  }, [axisLeftLabels, axisTopLabels, backlog, uint8ObsFeatureMatrix, transpose,
+    xTiles, yTiles, workerPool, expressionRowLookUp, featureIndex]);
 
   useEffect(() => {
     setIsRendering(backlog.length > 0);
@@ -382,8 +381,8 @@ const Heatmap = forwardRef((props, deckRef) => {
   // Create the padded expression matrix for holding data which can then be bound to the GPU.
   const paddedExpressions = useMemo(() => {
     const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
-    if (expression?.matrix && cellOrdering.length
-      && gl && shouldUsePaddedImplementation(expression.matrix.length)) {
+    if (uint8ObsFeatureMatrix && cellOrdering.length
+      && gl && shouldUsePaddedImplementation(uint8ObsFeatureMatrix.length)) {
       let newIndex = 0;
       for (
         let cellOrderingIndex = 0;
@@ -395,13 +394,13 @@ const Heatmap = forwardRef((props, deckRef) => {
         const cellIndex = expressionRowLookUp.get(cell);
         for (
           let geneIndex = 0;
-          geneIndex < expression.cols.length;
+          geneIndex < featureIndex.length;
           geneIndex += 1
         ) {
-          const index = cellIndex * expression.cols.length + geneIndex;
+          const index = cellIndex * featureIndex.length + geneIndex;
           paddedExpressionContainer[
             newIndex % (DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE)
-          ] = expression.matrix[index];
+          ] = uint8ObsFeatureMatrix[index];
           newIndex = transpose ? newIndex + cellOrdering.length : newIndex + 1;
         }
       }
@@ -423,8 +422,9 @@ const Heatmap = forwardRef((props, deckRef) => {
     transpose,
     axisTopLabels,
     axisLeftLabels,
-    expression,
+    uint8ObsFeatureMatrix,
     expressionRowLookUp,
+    featureIndex,
     gl,
   ]);
 
@@ -434,8 +434,8 @@ const Heatmap = forwardRef((props, deckRef) => {
   // - the `aggSizeX` or `aggSizeY` have changed, or
   // - the cell ordering has changed.
   const heatmapLayers = useMemo(() => {
-    const usePaddedExpressions = expression?.matrix
-      && shouldUsePaddedImplementation(expression?.matrix.length);
+    const usePaddedExpressions = uint8ObsFeatureMatrix
+      && shouldUsePaddedImplementation(uint8ObsFeatureMatrix.length);
     if ((!tilesRef.current || backlog.length) && !usePaddedExpressions) {
       return [];
     }
@@ -443,7 +443,6 @@ const Heatmap = forwardRef((props, deckRef) => {
       const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
       // eslint-disable-next-line no-inner-declarations, no-shadow
       function getLayer(i, j) {
-        const { cols } = expression;
         return new PaddedExpressionHeatmapBitmapLayer({
           id: `heatmapLayer-${i}-${j}`,
           image: paddedExpressions,
@@ -458,8 +457,8 @@ const Heatmap = forwardRef((props, deckRef) => {
           numXTiles: xTiles,
           numYTiles: yTiles,
           origDataSize: transpose
-            ? [cols.length, cellOrdering.length]
-            : [cellOrdering.length, cols.length],
+            ? [featureIndex.length, cellOrdering.length]
+            : [cellOrdering.length, featureIndex.length],
           aggSizeX,
           aggSizeY,
           colormap,
@@ -501,16 +500,24 @@ const Heatmap = forwardRef((props, deckRef) => {
       (tile, index) => getLayer(Math.floor(index / xTiles), index % xTiles, tile),
     );
     return layers;
-  }, [expression, backlog.length, transpose, axisTopLabels, axisLeftLabels, yTiles, xTiles,
-    paddedExpressions, matrixLeft, tileWidth, matrixTop, tileHeight,
-    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration]);
+  }, [uint8ObsFeatureMatrix, backlog.length, transpose, axisTopLabels, axisLeftLabels,
+    paddedExpressions, matrixLeft, tileWidth, matrixTop, tileHeight, yTiles, xTiles,
+    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration, featureIndex]);
   const axisLeftDashes = (transpose ? variablesDashes : observationsDashes);
   const axisTopDashes = (transpose ? observationsDashes : variablesDashes);
 
   // Map cell and gene names to arrays with indices,
   // to prepare to render the names in TextLayers.
-  const axisTopLabelData = useMemo(() => axisTopLabels.map((d, i) => [i, (axisTopDashes ? `- ${d}` : d)]), [axisTopLabels, axisTopDashes]);
-  const axisLeftLabelData = useMemo(() => axisLeftLabels.map((d, i) => [i, (axisLeftDashes ? `${d} -` : d)]), [axisLeftLabels, axisLeftDashes]);
+  // We do the mapping with featureLabelsMap here at one of the final steps before rendering
+  // since it is for presentational purposes.
+  const axisTopLabelData = useMemo(() => (!transpose && featureLabelsMap
+    ? axisTopLabels.map(d => featureLabelsMap.get(d) || d)
+    : axisTopLabels
+  ).map((d, i) => [i, (axisTopDashes ? `- ${d}` : d)]), [axisTopLabels, axisTopDashes, transpose, featureLabelsMap]);
+  const axisLeftLabelData = useMemo(() => (transpose && featureLabelsMap
+    ? axisLeftLabels.map(d => featureLabelsMap.get(d) || d)
+    : axisLeftLabels
+  ).map((d, i) => [i, (axisLeftDashes ? `${d} -` : d)]), [axisLeftLabels, axisLeftDashes, transpose, featureLabelsMap]);
   const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d && (transpose ? `${d} -` : `- ${d}`)]), [cellColorLabels, transpose]);
 
   const hideTopLabels = (transpose ? hideObservationLabels : hideVariableLabels);
@@ -688,15 +695,19 @@ const Heatmap = forwardRef((props, deckRef) => {
     matrixWidth, tileWidth, tileHeight, transpose]);
 
 
+  const showText = width > 0 && height > 0;
   const layers = heatmapLayers
-    .concat(textLayers)
+    .concat(showText ? textLayers : [])
     .concat(...cellColorsLayersList);
 
   // Set up the onHover function.
   function onHover(info, event) {
-    if (!expression) {
+    if (!uint8ObsFeatureMatrix) {
       return;
     }
+
+    let highlightedCell = null;
+    let highlightedGene = null;
 
     const { x: mouseX, y: mouseY } = event.offsetCenter;
 
@@ -717,13 +728,18 @@ const Heatmap = forwardRef((props, deckRef) => {
       numCols: width,
     });
 
+    // we are hovering over a gene colored track
     if (trackI === null || trackColI === null) {
       setTrackHighlight(null);
-    } else {
-      const obsI = expression.rows.indexOf(axisTopLabels[trackColI]);
-      const cellIndex = expression.rows[obsI];
-
+      setColorEncoding('geneSelection');
+    } else { // we are hovering over a cell colored track
+      const obsI = obsIndex.indexOf(transpose
+        ? axisTopLabels[trackColI]
+        : axisLeftLabels[trackColI]);
+      const cellIndex = obsIndex[obsI];
       setTrackHighlight([cellIndex, trackI, mouseX, mouseY]);
+      highlightedCell = cellIndex;
+      setColorEncoding('cellSelection');
     }
 
     const [colI, rowI] = mouseToHeatmapPosition(mouseX, mouseY, {
@@ -738,37 +754,40 @@ const Heatmap = forwardRef((props, deckRef) => {
       numCols: width,
     });
 
-    if (colI === null) {
-      if (transpose) {
-        setCellHighlight(null);
-      } else {
-        setGeneHighlight(null);
-      }
-    }
-
-    if (rowI === null) {
-      if (transpose) {
-        setGeneHighlight(null);
-      } else {
-        setCellHighlight(null);
-      }
-    }
-
-    const obsI = expression.rows.indexOf(transpose
+    const obsI = obsIndex.indexOf(transpose
       ? axisTopLabels[colI]
       : axisLeftLabels[rowI]);
-    const varI = expression.cols.indexOf(transpose
+    const varI = featureIndex.indexOf(transpose
       ? axisLeftLabels[rowI]
       : axisTopLabels[colI]);
 
-    const obsId = expression.rows[obsI];
-    const varId = expression.cols[varI];
+    const obsId = obsIndex[obsI];
+
+    // We need to use featureIndex here,
+    // because featureIndex may be mapped to
+    // use featureLabels (if those were available in the dataset).
+    // Highlights and selections are assumed to be in terms of
+    // obsIndex/featureIndex (as opposed to obsLabels/featureLabels).
+    const varId = featureIndex[varI];
 
     if (setComponentHover) {
       setComponentHover();
     }
-    setCellHighlight(obsId || null);
-    setGeneHighlight(varId || null);
+
+    if (obsId) {
+      highlightedCell = obsId;
+    }
+    if (varId) {
+      highlightedGene = varId;
+    }
+
+    setCellHighlight(highlightedCell);
+    setGeneHighlight(highlightedGene);
+    if (highlightedCell !== null || highlightedGene !== null) {
+      setCursorType('pointer');
+    } else {
+      setCursorType('default');
+    }
   }
 
   const cellColorsViews = useMemo(() => {
@@ -844,12 +863,13 @@ const Heatmap = forwardRef((props, deckRef) => {
       ]}
       layers={layers}
       layerFilter={layerFilter}
-      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : 'default')}
+      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : cursorType)}
       glOptions={DEFAULT_GL_OPTIONS}
       onViewStateChange={onViewStateChange}
       viewState={viewState}
       onHover={onHover}
       useDevicePixels={useDevicePixels}
+      onClick={onHeatmapClick}
     />
   );
 });

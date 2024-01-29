@@ -4,13 +4,13 @@ title: 'Tutorial: Develop a plugin coordination type'
 sidebar_label: Plugin Coordination Type
 ---
 
-See the [plugin coordination type development](/docs/dev-plugins/#plugin-coordination-types) documentation for more details.
+See the [plugin coordination type development](https://github.com/vitessce/vitessce/blob/main/dev-docs/plugin-view-types.md) documentation for more details.
 
 ### Minimal example
 
 ```js
 import React from 'react';
-import Slider from '@material-ui/core/Slider';
+import { Slider } from '@material-ui/core';
 import {
   Vitessce,
   CoordinationType,
@@ -40,6 +40,7 @@ function MyPluginSlider(props) {
         min={0.0}
         max={1.0}
         step={0.005}
+        aria-label="Custom coordination type slider"
       />
     </div>
   );

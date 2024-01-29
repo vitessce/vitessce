@@ -1,5 +1,5 @@
 import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsSetsAnndataSchema,
+  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
 import {
   initializeCellSetColor,
@@ -12,11 +12,6 @@ import {
  * Loader for converting zarr into the cell sets json schema.
  */
 export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-    this.optionsSchema = obsSetsAnndataSchema;
-  }
-
   loadObsIndices() {
     const { options } = this;
     const obsIndexPromises = options

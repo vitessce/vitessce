@@ -1,6 +1,6 @@
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
-import { VITESSCE_CONTAINER } from './classNames';
+import { makeStyles } from '@material-ui/core';
+import { VITESSCE_CONTAINER } from './classNames.js';
 
 const useStyles = makeStyles(theme => ({
   warningLayout: {
@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
   row: {
     flexGrow: '1',
   },
-  card: {
+  warningCard: {
     border: `1px solid ${theme.palette.cardBorder}`,
     flex: '1 1 auto',
     minHeight: '1px',
@@ -50,7 +50,7 @@ export function Warning(props) {
     <div className={VITESSCE_CONTAINER}>
       <div className={clsx(classes.warningLayout, classes.containerFluid)}>
         <div className={classes.row}>
-          <div className={classes.card}>
+          <div className={classes.warningCard}>
             <h1>{title}</h1>
             {preformatted ? (<pre>{preformatted}</pre>) : null}
             <p>{unformatted}</p>

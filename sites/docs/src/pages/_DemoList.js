@@ -20,6 +20,9 @@ const configAttrs = {
   'kuppe-2022': ['mosaic', 'imaging', 'Zarr', 'AnnData'],
   'combat-2022': ['multi-modal', 'Zarr', 'AnnData', 'scalability'],
   'meta-2022-azimuth': ['Zarr', 'AnnData', 'scalability'],
+  'spatialdata-visium': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
+  'spatialdata-visium_io': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
+  'spatialdata-mcmicro_io': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
 };
 
 function cleanAttr(attrVal) {
@@ -49,6 +52,9 @@ function DemoList(props) {
       'kuppe-2022',
       'combat-2022',
       'meta-2022-azimuth',
+      'spatialdata-visium',
+      'spatialdata-visium_io',
+      'spatialdata-mcmicro_io',
     ],
   } = props;
 
@@ -66,7 +72,7 @@ function DemoList(props) {
             <a href={baseUrl + key} className={styles.demoGridItemLink}>{d.name}</a>
             <p className={styles.demoGridItemDescription}>{d.description}</p>
             {configAttrs[key] ? configAttrs[key].map(attrVal => (
-              <span className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])}>
+              <span key={`${key}-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])}>
                 {attrVal}
               </span>
             )) : null}

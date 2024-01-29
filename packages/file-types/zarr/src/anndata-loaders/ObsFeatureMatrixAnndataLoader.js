@@ -1,18 +1,14 @@
 /* eslint-disable no-underscore-dangle */
-import { openArray, slice } from 'zarr';
-import { extent } from 'd3-array';
+import { open as zarrOpen, get as zarrGet, slice } from 'zarrita';
+import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
 import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError, obsFeatureMatrixAnndataSchema,
+  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
 
-const normalize = (arr) => {
-  const [min, max] = extent(arr);
-  const ratio = 255 / (max - min);
-  const data = new Uint8Array(
-    arr.map(i => Math.floor((i - min) * ratio)),
-  );
-  return { data };
-};
+// Put array of data into an object,
+// to match the expected format of the
+// value returned from the load function.
+const toObject = data => ({ data });
 
 const concatenateColumnVectors = (arr) => {
   const numCols = arr.length;
@@ -33,11 +29,6 @@ const concatenateColumnVectors = (arr) => {
  * Loader for converting zarr into the a cell x gene matrix for use in Genes/Heatmap components.
  */
 export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-    this.optionsSchema = obsFeatureMatrixAnndataSchema;
-  }
-
   getOptions() {
     return this.options;
   }
@@ -115,12 +106,12 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    */
   async _openSparseArrays() {
     const { path: matrix } = this.getOptions();
-    const { store } = this.dataSource;
+    const { storeRoot } = this.dataSource;
     if (this.sparseArrays) {
       return this.sparseArrays;
     }
     this.sparseArrays = Promise.all(
-      ['indptr', 'indices', 'data'].map(name => openArray({ store, path: `${matrix}/${name}`, mode: 'r' })),
+      ['indptr', 'indices', 'data'].map(name => zarrOpen(storeRoot.resolve(`${matrix}/${name}`), { kind: 'array' })),
     );
     return this.sparseArrays;
   }
@@ -134,7 +125,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     const indices = await this._getGeneIndices(selection);
     const [indptrArr, indexArr, cellXGeneArr] = await this._openSparseArrays();
     const numCells = await this._getNumCells();
-    const { data: cols } = await indptrArr.getRaw(null);
+    const { data: cols } = await createZarrArrayAdapter(indptrArr).getRaw(null);
     // If there is not change in the column indexer, then the data is all zeros
     return Promise.all(
       indices.map(async (index) => {
@@ -145,10 +136,10 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
         if (isColumnAllZeros) {
           return geneData;
         }
-        const { data: rowIndices } = await indexArr.get([
+        const { data: rowIndices } = await zarrGet(indexArr, [
           slice(startRowIndex, endRowIndex),
         ]);
-        const { data: cellXGeneData } = await cellXGeneArr.get([
+        const { data: cellXGeneData } = await zarrGet(cellXGeneArr, [
           slice(startRowIndex, endRowIndex),
         ]);
         for (let rowIndex = 0; rowIndex < rowIndices.length; rowIndex += 1) {
@@ -192,7 +183,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       const { shape } = await this.dataSource.getJson(`${matrix}/.zattrs`);
       const [rows, cols, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
-          const { data } = await arr.getRaw(null);
+          const { data } = await createZarrArrayAdapter(arr).getRaw(null);
           return data;
         }),
       );
@@ -226,7 +217,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       const { shape } = await this.dataSource.getJson(`${matrix}/.zattrs`);
       const [cols, rows, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
-          const { data } = await arr.getRaw(null);
+          const { data } = await createZarrArrayAdapter(arr).getRaw(null);
           return data;
         }),
       );
@@ -252,7 +243,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    * @returns {Promise} A promise for the zarr array contianing the cell x gene data.
    */
   async loadCellXGene() {
-    const { store } = this.dataSource;
+    const { storeRoot } = this.dataSource;
     if (this.cellXGene) {
       return this.cellXGene;
     }
@@ -266,14 +257,16 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     const encodingType = this._matrixZattrs['encoding-type'];
     if (!matrixGeneFilter) {
       if (encodingType === 'csr_matrix') {
-        this.cellXGene = this._loadCSRSparseCellXGene().then(data => normalize(data));
+        this.cellXGene = this._loadCSRSparseCellXGene().then(data => toObject(data));
       } else if (encodingType === 'csc_matrix') {
-        this.cellXGene = this._loadCSCSparseCellXGene().then(data => normalize(data));
+        this.cellXGene = this._loadCSCSparseCellXGene().then(data => toObject(data));
       } else {
         if (!this.arr) {
-          this.arr = openArray({ store, path: matrix, mode: 'r' });
+          this.arr = zarrOpen(storeRoot.resolve(matrix), { kind: 'array' });
         }
-        this.cellXGene = this.arr.then(z => z.getRaw(null).then(({ data }) => normalize(data)));
+        this.cellXGene = this.arr
+          .then(z => createZarrArrayAdapter(z).getRaw(null))
+          .then(({ data }) => toObject(data));
       }
     } else if (encodingType === 'csr_matrix') {
       this.cellXGene = this._loadCSRSparseCellXGene().then(
@@ -292,13 +285,13 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
               cellXGeneMatrixFiltered[j * numGenesFiltered + i] = cellXGene[j * numGenes + index];
             }
           }
-          return normalize(cellXGeneMatrixFiltered);
+          return toObject(cellXGeneMatrixFiltered);
         },
       );
     } else {
       const genes = await this._getFilteredGenes(matrixGeneFilter);
-      this.cellXGene = this.loadGeneSelection({ selection: genes, shouldNormalize: false })
-        .then(({ data }) => (normalize(concatenateColumnVectors(data))));
+      this.cellXGene = this.loadGeneSelection({ selection: genes })
+        .then(({ data }) => (toObject(concatenateColumnVectors(data))));
     }
     return this.cellXGene;
   }
@@ -307,12 +300,11 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    * Class method for loading a gene selection.
    * @param {Object} args
    * @param {Array} args.selection A list of gene names whose data should be fetched.
-   * @param {Boolean} args.shouldNormalize A list of gene names whose data should be fetched.
    * @returns {Object} { data } containing an array of gene expression data.
    */
-  async loadGeneSelection({ selection, shouldNormalize = true }) {
+  async loadGeneSelection({ selection }) {
     const { path: matrix } = this.getOptions();
-    const { store } = this.dataSource;
+    const { storeRoot } = this.dataSource;
     if (!this._matrixZattrs) {
       this._matrixZattrs = await this.dataSource.getJson(`${matrix}/.zattrs`);
     }
@@ -324,15 +316,17 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       genes = await this._loadCSRGeneSelection(selection);
     } else {
       if (!this.arr) {
-        this.arr = openArray({ store, path: matrix, mode: 'r' });
+        this.arr = zarrOpen(storeRoot.resolve(matrix), { kind: 'array' });
       }
       const indices = await this._getGeneIndices(selection);
       // We can index directly into a normal dense array zarr store via `get`.
       genes = await Promise.all(
-        indices.map(index => this.arr.then(z => z.get([null, index])).then(({ data }) => data)),
+        indices.map(index => this.arr
+          .then(z => zarrGet(z, [null, index]))
+          .then(({ data }) => data)),
       );
     }
-    return { data: genes.map(i => (shouldNormalize ? normalize(i).data : i)), url: null };
+    return { data: genes, url: null };
   }
 
   /**

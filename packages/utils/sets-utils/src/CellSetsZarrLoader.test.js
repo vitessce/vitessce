@@ -1,4 +1,5 @@
-import { dataToCellSetsTree } from './CellSetsZarrLoader';
+import { describe, it, expect } from 'vitest';
+import { dataToCellSetsTree } from './CellSetsZarrLoader.js';
 
 describe('loaders/CellSetsZarrLoader', () => {
   it('dataToCellSetsTree constructs a hierarchy from an array of columns', async () => {

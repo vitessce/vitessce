@@ -1,1 +1,1 @@
-export { VitessceGridLayout } from './VitessceGridLayout';
+export { VitessceGridLayout } from './VitessceGridLayout.js';

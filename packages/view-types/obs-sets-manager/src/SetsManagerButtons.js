@@ -7,8 +7,8 @@ import {
   MIME_TYPE_TABULAR,
 } from '@vitessce/sets-utils';
 import { SetUnionSVG, SetIntersectionSVG, SetComplementSVG } from '@vitessce/icons';
-import PopoverMenu from './PopoverMenu';
-import { useStyles } from './styles';
+import PopoverMenu from './PopoverMenu.js';
+import { useStyles } from './styles.js';
 
 /**
  * A plus button for creating or importing set hierarchies.

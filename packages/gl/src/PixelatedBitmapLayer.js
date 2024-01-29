@@ -1,6 +1,6 @@
 import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
 import { CompositeLayer } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
-import { PIXELATED_TEXTURE_PARAMETERS } from './heatmap-constants';
+import { PIXELATED_TEXTURE_PARAMETERS } from './heatmap-constants.js';
 
 
 // These are the same defaultProps as for BitmapLayer.

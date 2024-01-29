@@ -1,3 +1,2 @@
-export { StatusSubscriber } from './StatusSubscriber';
-export { default as Status } from './Status';
-export { register } from './register';
+export { StatusSubscriber } from './StatusSubscriber.js';
+export { default as Status } from './Status.js';

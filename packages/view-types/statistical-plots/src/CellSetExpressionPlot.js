@@ -16,6 +16,9 @@ import {
 } from 'd3-array';
 import { area as d3_area, curveBasis } from 'd3-shape';
 import { select } from 'd3-selection';
+import React from 'react';
+import { clamp } from 'lodash-es';
+import { VegaPlot, VEGA_THEMES, DATASET_NAME } from '@vitessce/vega';
 import { colorArrayToString } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
 

@@ -1,12 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useMemo } from 'react';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash-es';
 import { nodeToRenderProps, pathToKey } from '@vitessce/sets-utils';
 import { getDefaultColor } from '@vitessce/utils';
-import Tree from './Tree';
-import TreeNode from './TreeNode';
-import { PlusButton, SetOperationButtons } from './SetsManagerButtons';
-import { useStyles } from './styles';
+import Tree from './Tree.js';
+import TreeNode from './TreeNode.js';
+import { PlusButton, SetOperationButtons } from './SetsManagerButtons.js';
+import { useStyles } from './styles.js';
 
 function processNode(node, prevPath, setColor, theme) {
   const nodePath = [...prevPath, node.name];

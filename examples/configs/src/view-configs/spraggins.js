@@ -1,4 +1,4 @@
-import { urlPrefix } from '../utils';
+import { urlPrefix } from '../utils.js';
 
 const vanderbiltDescription = 'High bit depth (uint16) multiplex immunofluorescence images of the kidney by the BIOmolecular Multimodal Imaging Center (BIOMIC) at Vanderbilt University';
 const vanderbiltBase = {

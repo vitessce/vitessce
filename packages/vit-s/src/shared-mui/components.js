@@ -1,12 +1,15 @@
 import React, { useRef } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Popper from '@material-ui/core/Popper';
-import IconButton from '@material-ui/core/IconButton';
-import MenuList from '@material-ui/core/MenuList';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import Fade from '@material-ui/core/Fade';
-import { useVitessceContainer } from '../hooks';
+import {
+  makeStyles,
+  Paper,
+  Popper,
+  IconButton,
+  MenuList,
+  ClickAwayListener,
+  Fade,
+} from '@material-ui/core';
+import clsx from 'clsx';
+import { useVitessceContainer } from '../hooks.js';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -28,6 +31,9 @@ export function PopperMenu(props) {
     children,
     buttonClassName,
     placement = 'bottom-end',
+    withPaper = true,
+    containerClassName,
+    'aria-label': ariaLabel,
   } = props;
   const classes = useStyles();
 
@@ -46,12 +52,14 @@ export function PopperMenu(props) {
   const getTooltipContainer = useVitessceContainer(anchorRef);
 
   return (
-    <div ref={anchorRef} className={classes.container}>
+    <div ref={anchorRef} className={clsx(classes.container, containerClassName)}>
       <IconButton
         aria-describedby={id}
         onClick={handleClick}
+        onTouchEnd={handleClick}
         size="small"
         className={buttonClassName}
+        aria-label={ariaLabel}
       >
         {buttonIcon}
       </IconButton>
@@ -67,9 +75,11 @@ export function PopperMenu(props) {
         {({ TransitionProps }) => (
           <ClickAwayListener onClickAway={handleClose}>
             <Fade {...TransitionProps} timeout={100}>
-              <Paper elevation={4} className={classes.paper}>
-                <MenuList>{children}</MenuList>
-              </Paper>
+              {withPaper ? (
+                <Paper elevation={4} className={classes.paper}>
+                  <MenuList>{children}</MenuList>
+                </Paper>
+              ) : children}
             </Fade>
           </ClickAwayListener>
         )}

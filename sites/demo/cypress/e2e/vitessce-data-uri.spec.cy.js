@@ -9,7 +9,9 @@ describe('Vitessce Data URIs', () => {
   beforeEach(() => {
     // Any request we do not explicitly route will return 404,
     // so we won't end up depending on outside resources by accident.
-    cy.server({ force404: true });
+    // Removed in Cypress v12
+    // Reference: https://github.com/cypress-io/cypress/issues/9358#issuecomment-750231567
+    // cy.server({ force404: true });
   });
 
   it('loads valid data URI', () => {
@@ -69,21 +71,26 @@ describe('Vitessce Data URIs', () => {
       ]
     };
     loadConfig(config);
+    cy.intercept('https://example.com/bad-url.json').as('badUrl');
+    // Wait for initial request by react-query
+    cy.wait('@badUrl');
+    // We use a retry: 2 and the default exponential backoff function,
+    // so we wait 1s here for that second request to be triggered
+    // after which the error will be rendered.
+    cy.wait(1000);
     cy.contains('JsonSource Error HTTP Status fetching from https://example.com/bad-url.json');
   });
 
   it('handles errors from bad view config v0.1.0', () => {
     const config = {'bad': 'config', 'version': '0.1.0'};
     loadConfig(config);
-    cy.contains('Config validation failed');
-    cy.contains('"additionalProperty": "bad"');
+    cy.contains('Config validation or upgrade failed');
   });
 
   it('handles errors from bad view config v1.0.0', () => {
     const config = {'bad': 'config', 'version': '1.0.0'};
     loadConfig(config);
-    cy.contains('Config validation failed');
-    cy.contains('"additionalProperty": "bad"');
+    cy.contains('Config validation or upgrade failed');
   });
 
   it('handles errors from bad view config missing version', () => {
