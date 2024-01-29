@@ -113,7 +113,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     removeGridComponent,
     theme,
     jitter = false,
-    yMin = 0,
+    yMin = null,
     yUnits = null,
   } = props;
 

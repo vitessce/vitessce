@@ -41,6 +41,7 @@ import { visiumSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-v
 import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium_io.js';
 import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
+import { lake2023 } from './view-configs/multi-sample.js';
 
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
@@ -100,6 +101,7 @@ export const configs = {
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
+  'lake-2023': lake2023,
 
   // Multi-level coordination with spatialBeta view:
   'blin-2019-2': blinOop2019,
