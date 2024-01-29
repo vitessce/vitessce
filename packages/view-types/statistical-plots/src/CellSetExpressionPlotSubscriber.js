@@ -167,11 +167,13 @@ export function CellSetExpressionPlotSubscriber(props) {
     { obsType },
   );
 
+  // eslint-disable-next-line no-unused-vars
   const [{ sampleSets }, sampleSetsStatus, sampleSetsUrls] = useSampleSetsData(
     loaders, dataset, false, {}, {},
     { sampleType },
   );
 
+  // eslint-disable-next-line no-unused-vars
   const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrls] = useSampleEdgesData(
     loaders, dataset, false, {}, {},
     { obsType, sampleType },
