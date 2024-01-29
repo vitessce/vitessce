@@ -1556,12 +1556,27 @@ importers:
       d3-array:
         specifier: ^2.4.0
         version: 2.12.1
+      d3-axis:
+        specifier: ^3.0.0
+        version: 3.0.0
+      d3-scale:
+        specifier: ^4.0.0
+        version: 4.0.2
+      d3-selection:
+        specifier: ^3.0.0
+        version: 3.0.0
+      d3-shape:
+        specifier: ^3.2.0
+        version: 3.2.0
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
       react-aria:
         specifier: ^3.28.0
         version: 3.28.0(react-dom@18.2.0)(react@18.2.0)
+      vega-scale:
+        specifier: ^6.0.0
+        version: 6.0.0
     devDependencies:
       react:
         specifier: ^18.0.0
@@ -2018,13 +2033,6 @@ packages:
       '@algolia/requester-common': 4.14.2
     dev: false
 
-  /@ampproject/remapping@2.2.0:
-    resolution: {integrity: sha512-qRmjj8nj9qmLTQXXmaR1cck3UXSRMPrbsLJAasZpF+t3riI71BXed5ebIOYwQntykeZuhjsdweEc9BxH5Jc26w==}
-    engines: {node: '>=6.0.0'}
-    dependencies:
-      '@jridgewell/gen-mapping': 0.1.1
-      '@jridgewell/trace-mapping': 0.3.16
-
   /@ampproject/remapping@2.2.1:
     resolution: {integrity: sha512-lFMjJTrFL3j7L9yBxwYfCq2k6qqwHyzuUl/XBnif78PWTJYyL/dfowQHWE3sp6U6ZzqWiiIZnpTMO96zhkjwtg==}
     engines: {node: '>=6.0.0'}
@@ -2163,7 +2171,7 @@ packages:
     resolution: {integrity: sha512-D58mjF+Y+89UfbMJpV57UTCg+JRQIFgvROPfH7mmIfBcoFVMkwiiiJyzPyW3onN9kg9noDg7MVyI+Yt64bnfQQ==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@ampproject/remapping': 2.2.0
+      '@ampproject/remapping': 2.2.1
       '@babel/code-frame': 7.21.4
       '@babel/generator': 7.22.0
       '@babel/helper-compilation-targets': 7.21.5(@babel/core@7.22.0)
@@ -6207,13 +6215,6 @@ packages:
       '@types/yargs': 17.0.13
       chalk: 4.1.2
 
-  /@jridgewell/gen-mapping@0.1.1:
-    resolution: {integrity: sha512-sQXCasFk+U8lWYEe66WxRDOE9PjVz4vSM51fTu3Hw+ClTpUSQb718772vH3pyS5pShp6lvQM7SxgIDXXXmOX7w==}
-    engines: {node: '>=6.0.0'}
-    dependencies:
-      '@jridgewell/set-array': 1.1.2
-      '@jridgewell/sourcemap-codec': 1.4.14
-
   /@jridgewell/gen-mapping@0.3.2:
     resolution: {integrity: sha512-mh65xKQAzI6iBcFzwv28KVWSmCkdRBWoOh+bYQGW3+6OZvbbN3TqMGo5hqYxQniRcH9F2VZIoJCm4pa3BPDK/A==}
     engines: {node: '>=6.0.0'}
@@ -6238,12 +6239,6 @@ packages:
 
   /@jridgewell/sourcemap-codec@1.4.14:
     resolution: {integrity: sha512-XPSJHWmi394fuUuzDnGz1wiKqWfo1yXecHQMRf2l6hztTO+nPru658AyDngaBe7isIxEkRsPR3FZh+s7iVa4Uw==}
-
-  /@jridgewell/trace-mapping@0.3.16:
-    resolution: {integrity: sha512-LCQ+NeThyJ4k1W2d+vIKdxuSt9R3pQSZ4P92m7EakaYuXcVWbHuT5bjNcqLd4Rdgi6xYWYDvBJZJLZSLanjDcA==}
-    dependencies:
-      '@jridgewell/resolve-uri': 3.1.0
-      '@jridgewell/sourcemap-codec': 1.4.14
 
   /@jridgewell/trace-mapping@0.3.18:
     resolution: {integrity: sha512-w+niJYzMHdd7USdiH2U6869nqhD2nbfZXND5Yp93qIbEmnDNk7PD48o+YchRVpzMU7M6jVCbenTR7PA1FLQ9pA==}
@@ -13139,11 +13134,11 @@ packages:
     resolution: {integrity: sha512-3bYs1rOD33uo8aqJfKP3JWPAibgw8Zm2+L9vBKEHJ2Rg+viTR7o5Mmv5mZcieN+FRYaAOWX5SJATX6k1PWz72g==}
     engines: {node: '>=12'}
     dependencies:
-      d3-color: 3.1.0
+      d3-color: 1.4.1
     dev: false
 
-  /d3-path@3.0.1:
-    resolution: {integrity: sha512-gq6gZom9AFZby0YLduxT1qmrp4xpBA1YZr19OI717WIdKE2OM5ETq5qrHLb301IgxhLwcuxvGZVLeeWc/k1I6w==}
+  /d3-path@3.1.0:
+    resolution: {integrity: sha512-p3KP5HCf/bvjBSSKuXid6Zqijx7wIfNW+J/maPs+iwR35at5JCbLUT0LzF1cnjbCHWhqzQTIN2Jpe8pRebIEFQ==}
     engines: {node: '>=12'}
     dev: false
 
@@ -13197,7 +13192,7 @@ packages:
     dependencies:
       d3-array: 2.12.1
       d3-format: 3.1.0
-      d3-interpolate: 3.0.1
+      d3-interpolate: 2.0.1
       d3-time: 3.0.0
       d3-time-format: 4.1.0
     dev: false
@@ -13211,11 +13206,11 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /d3-shape@3.1.0:
-    resolution: {integrity: sha512-tGDh1Muf8kWjEDT/LswZJ8WF85yDZLvVJpYU9Nq+8+yW1Z5enxrmXOhTArlkaElU+CTn0OTVNli+/i+HP45QEQ==}
+  /d3-shape@3.2.0:
+    resolution: {integrity: sha512-SaLBuwGm3MOViRq2ABk3eLoxwZELpH6zhl3FbAoJ7Vm1gofKx6El1Ib5z23NUEhF9AsGl7y+dzLe5Cw2AArGTA==}
     engines: {node: '>=12'}
     dependencies:
-      d3-path: 3.0.1
+      d3-path: 3.1.0
     dev: false
 
   /d3-time-format@2.3.0:
@@ -21227,7 +21222,7 @@ packages:
       react: '>=16.6.0 || 18'
       react-dom: '>=16.6.0 || 18'
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
@@ -24185,6 +24180,15 @@ packages:
       - encoding
     dev: false
 
+  /vega-scale@6.0.0:
+    resolution: {integrity: sha512-uNJ5LC+s+XLxdO2iXC36/TLen3mMNv0wzhMZMNXa8h+Ih10geJ57sHbYYA8Z8403JC9AYTaWUe7m0H9CHgV9NA==}
+    dependencies:
+      d3-array: 2.12.1
+      d3-interpolate: 1.4.0
+      d3-scale: 3.3.0
+      vega-util: 1.17.0
+    dev: false
+
   /vega-scale@7.2.0:
     resolution: {integrity: sha512-QYltO/otrZHLrCGGf06Y99XtPtqWXITr6rw7rO9oL+l3d9o5RFl9sjHrVxiM7v+vGoZVWbBd5IPbFhPsXZ6+TA==}
     dependencies:
@@ -24198,8 +24202,8 @@ packages:
   /vega-scenegraph@4.10.1:
     resolution: {integrity: sha512-takIpkmNxYHhJYALOYzhTin3EDzbys6U4g+l1yJZVlXG9YTdiCMuEVAdtaQOCqF9/7qytD6pCrMxJY2HaoN0qQ==}
     dependencies:
-      d3-path: 3.0.1
-      d3-shape: 3.1.0
+      d3-path: 3.1.0
+      d3-shape: 3.2.0
       vega-canvas: 1.2.6
       vega-loader: 4.5.0
       vega-scale: 7.2.0

@@ -112,6 +112,9 @@ export function CellSetExpressionPlotSubscriber(props) {
     downloadButtonVisible,
     removeGridComponent,
     theme,
+    jitter = false,
+    yMin = 0,
+    yUnits = null,
   } = props;
 
   const classes = useStyles();
@@ -172,7 +175,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     obsSetsUrls,
   ]);
 
-  const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
+  const [expressionArr, setArr] = useExpressionByCellSet(
     expressionData, obsIndex, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
@@ -209,13 +212,16 @@ export function CellSetExpressionPlotSubscriber(props) {
       <div ref={containerRef} className={classes.vegaContainer}>
         {expressionArr ? (
           <CellSetExpressionPlot
-            domainMax={expressionMax}
+            yMin={yMin}
+            yUnits={yUnits}
+            jitter={jitter}
             colors={setArr}
             data={expressionArr}
             theme={theme}
             width={width}
             height={height}
             obsType={obsType}
+            featureType={featureType}
             featureValueType={featureValueType}
             featureValueTransformName={selectedTransformName}
           />
