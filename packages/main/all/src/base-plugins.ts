@@ -98,6 +98,7 @@ import {
   JsonLoader,
   ObsSegmentationsJsonLoader,
   ObsSetsJsonLoader,
+  TermEdgesJsonLoader,
   // Legacy
   RasterJsonAsImageLoader,
   RasterJsonAsObsSegmentationsLoader,
@@ -205,6 +206,7 @@ export const baseFileTypes = [
   // All JSON file types
   makeFileType(FileType.OBS_SEGMENTATIONS_JSON, DataType.OBS_SEGMENTATIONS, ObsSegmentationsJsonLoader, JsonSource, z.null()),
   makeFileType(FileType.OBS_SETS_JSON, DataType.OBS_SETS, ObsSetsJsonLoader, JsonSource, z.null()),
+  makeFileType(FileType.TERM_EDGES_JSON, DataType.TERM_EDGES, TermEdgesJsonLoader, JsonSource, z.null()),
   // All AnnData file types
   makeFileType(FileType.OBS_SETS_ANNDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, AnnDataSource, obsSetsAnndataSchema),
   makeFileType(FileType.OBS_EMBEDDING_ANNDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, AnnDataSource, obsEmbeddingAnndataSchema),
