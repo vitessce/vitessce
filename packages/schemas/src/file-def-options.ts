@@ -30,6 +30,7 @@ const annDataConvenienceObsEmbeddingItem = z.object({
 
 const annDataObsLabels = annDataObs;
 const annDataFeatureLabels = annDataObs;
+const annDataSampleEdges = annDataObs;
 const annDataObsFeatureMatrix = z.object({
   path: z.string(),
   featureFilterPath: z.string()
@@ -151,6 +152,7 @@ export const obsSetsAnndataSchema = annDataObsSets;
 export const obsFeatureMatrixAnndataSchema = annDataObsFeatureMatrix;
 export const obsLabelsAnndataSchema = annDataObsLabels;
 export const featureLabelsAnndataSchema = annDataFeatureLabels;
+export const sampleEdgesAnndataSchema = annDataSampleEdges;
 
 // CSV
 export const obsEmbeddingCsvSchema = z.object({
@@ -180,6 +182,19 @@ export const featureLabelsCsvSchema = z.object({
 export const obsSetsCsvSchema = z.object({
   obsIndex: z.string(),
   obsSets: z.array(
+    z.object({
+      name: z.string(),
+      column: z.union([
+        z.string(),
+        z.array(z.string()),
+      ]),
+      scoreColumn: z.string().optional(),
+    }),
+  ),
+});
+export const sampleSetsCsvSchema = z.object({
+  sampleIndex: z.string(),
+  sampleSets: z.array(
     z.object({
       name: z.string(),
       column: z.union([
