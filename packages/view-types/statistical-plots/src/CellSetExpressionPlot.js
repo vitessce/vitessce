@@ -6,6 +6,7 @@ import { scale as vega_scale } from 'vega-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
 import {
   bin,
+  min,
   max,
   rollup as d3_rollup,
   mean as d3_mean,
@@ -82,7 +83,7 @@ function summarize(iterable, keepZeros) {
  */
 export default function CellSetExpressionPlot(props) {
   const {
-    yMin,
+    yMin: yMinProp,
     yUnits,
     jitter,
     colors,
@@ -165,6 +166,8 @@ export default function CellSetExpressionPlot(props) {
       .range([marginLeft, width - marginRight])
       .domain(groupNames)
       .padding(0.1);
+
+    const yMin = (yMinProp === null ? Math.min(0, min(trimmedData)) : yMinProp);
 
     // For the y domain, use the yMin prop
     // to support a use case such as 'Aspect Ratio',
@@ -287,7 +290,7 @@ export default function CellSetExpressionPlot(props) {
       .style('font-size', '12px')
       .style('fill', 'white');
   }, [width, height, data, marginLeft, marginBottom, colors,
-    jitter, theme, yMin, marginTop, marginRight, featureType,
+    jitter, theme, yMinProp, marginTop, marginRight, featureType,
     featureValueType, featureValueTransformName, yUnits, obsType,
     maxCharactersForLabel,
   ]);
