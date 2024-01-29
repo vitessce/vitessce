@@ -108,4 +108,11 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
     CoordinationType.FILE_UID,
   ],
   [DataType.NEIGHBORHOODS]: [],
+  [DataType.SAMPLE_SETS]: [
+    CoordinationType.SAMPLE_TYPE,
+  ],
+  [DataType.SAMPLE_EDGES]: [
+    CoordinationType.OBS_TYPE,
+    CoordinationType.SAMPLE_TYPE,
+  ],
 };

@@ -34,6 +34,8 @@ export const DataType = {
   OBS_SPOTS: 'obsSpots',
   OBS_POINTS: 'obsPoints',
   OBS_LOCATIONS: 'obsLocations',
+  SAMPLE_SETS: 'sampleSets',
+  SAMPLE_EDGES: 'sampleEdges',
 };
 
 
@@ -234,6 +236,9 @@ export const CoordinationType = {
   SPATIAL_CHANNEL_LABELS_VISIBLE: 'spatialChannelLabelsVisible',
   SPATIAL_CHANNEL_LABELS_ORIENTATION: 'spatialChannelLabelsOrientation',
   SPATIAL_CHANNEL_LABEL_SIZE: 'spatialChannelLabelSize',
+  // Multi-sample / comparative
+  SAMPLE_TYPE: 'sampleType',
+  SAMPLE_SET_SELECTION: 'sampleSetSelection',
 };
 
 export const STATUS = {

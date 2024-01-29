@@ -143,6 +143,28 @@ export function useObsSetsData(
   );
 }
 
+export function useSampleSetsData(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.SAMPLE_SETS,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+export function useSampleEdgesData(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.SAMPLE_EDGES,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
 export function useObsFeatureMatrixData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
