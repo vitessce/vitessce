@@ -112,6 +112,7 @@ export function VitessceDemo() {
                     apiKey: "JE1kNFP6QZ3c0oRaHorrFlKj16UQeTpohVZDEKuv",
                     notifySelf: false,
                     userId: username,
+                    presence: true,
                 });
                 setWS(socket);
             }
@@ -128,9 +129,15 @@ export function VitessceDemo() {
                     }
                 })
                 chan.listen("system:member_joined", function (data) {
-                    if (data.member.user === ws?.options.userId) {
-                        data.member.user = "<b>You</b>";
-                    }
+                    // if (data.member.user === ws?.options.userId) {
+                    //     console.log("Yourself")
+                    // }else {
+                    //     console.log("Someone new has joined the ChatRoom")
+                    //     channel?.publish("new_message", {
+                    //         sender: ws?.options.userId,
+                    //         config: config
+                    //     })
+                    // }
                     console.log("New member joined the chat " + data.member.user);
                 })
                 setChannel(chan);

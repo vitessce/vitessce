@@ -147,6 +147,8 @@ export function SpatialThreeSubscriber(props) {
         spatialTargetT: targetT,
         spatialRenderingMode,
         spatialRotationX: rotationX,
+        spatialRotationY: rotationY,
+        spatialRotationZ: rotationZ,
         spatialRotationOrbit: rotationOrbit,
         spatialOrbitAxis: orbitAxis,
         spatialAxisFixed,
@@ -156,6 +158,8 @@ export function SpatialThreeSubscriber(props) {
         setSpatialTargetY: setTargetY,
         setSpatialTargetZ: setTargetZ,
         setSpatialRotationX: setRotationX,
+        setSpatialRotationY: setRotationY,
+        setSpatialRotationZ: setRotationZ,
         setSpatialRotationOrbit: setRotationOrbit,
     }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
 
@@ -757,6 +761,12 @@ export function SpatialThreeSubscriber(props) {
                 height={height}
                 theme={theme}
                 hideTools={!isSelectable}
+
+                rotation={[rotationX,rotationY,rotationZ]}
+                setRotationX={setRotationX}
+                setRotationY={setRotationY}
+                setRotationZ={setRotationZ}
+
                 // Global view state
                 targetT={targetT}
                 targetZ={targetZ}
