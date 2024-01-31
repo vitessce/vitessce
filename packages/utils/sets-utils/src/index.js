@@ -1,4 +1,5 @@
 export {
+  treeToSelectedSetMap,
   treeToCellColorsBySetNames,
   treeToCellSetColorIndicesBySetNames,
   treeToSetSizesBySetNames,

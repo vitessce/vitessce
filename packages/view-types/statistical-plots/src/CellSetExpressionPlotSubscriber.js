@@ -11,7 +11,12 @@ import {
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS, capitalize, getValueTransformFunction } from '@vitessce/utils';
-import { treeToObjectsBySetNames, treeToSetSizesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
+import {
+  treeToSelectedSetMap,
+  treeToObjectsBySetNames,
+  treeToSetSizesBySetNames,
+  mergeObsSets,
+} from '@vitessce/sets-utils';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions.js';
 import CellSetExpressionPlot from './CellSetExpressionPlot.js';
 import { useStyles } from './styles.js';
@@ -38,6 +43,7 @@ import { useStyles } from './styles.js';
  * `path` and `color`.
  */
 function useExpressionByCellSet(
+  sampleEdges, sampleSets, sampleSetSelection,
   expressionData, obsIndex, cellSets, additionalCellSets,
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
@@ -55,6 +61,9 @@ function useExpressionByCellSet(
         && geneSelection && geneSelection.length >= 1
         && expressionData
     ) {
+      const sampleIdToSetMap = sampleSets && sampleSetSelection
+        ? treeToSelectedSetMap(sampleSets, sampleSetSelection)
+        : null;
       const cellObjects = treeToObjectsBySetNames(
         mergedCellSets, cellSetSelection, cellSetColor, theme,
       );
@@ -68,13 +77,15 @@ function useExpressionByCellSet(
       }
       const exprValues = cellObjects.map((cell) => {
         const cellIndex = cellIndices[cell.obsId];
+        const sampleId = sampleEdges?.get(cell.obsId);
+        const sampleSet = sampleId ? sampleIdToSetMap?.get(sampleId) : null;
         const value = expressionData[0][cellIndex];
         const transformFunction = getValueTransformFunction(
           featureValueTransform, featureValueTransformCoefficient,
         );
         const transformedValue = transformFunction(value);
         exprMax = Math.max(transformedValue, exprMax);
-        return { value: transformedValue, gene: firstGeneSelected, set: cell.name };
+        return { value: transformedValue, gene: firstGeneSelected, set: cell.name, sampleSet };
       });
       return [exprValues, exprMax];
     }
@@ -95,7 +106,6 @@ function useExpressionByCellSet(
 
   return [expressionArr, setArr, expressionMax];
 }
-
 
 /**
  * A subscriber component for `CellSetExpressionPlot`,
@@ -135,6 +145,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
     sampleType,
+    sampleSetSelection,
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
@@ -196,6 +207,7 @@ export function CellSetExpressionPlotSubscriber(props) {
   ]);
 
   const [expressionArr, setArr] = useExpressionByCellSet(
+    sampleEdges, sampleSets, sampleSetSelection,
     expressionData, obsIndex, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
@@ -235,6 +247,7 @@ export function CellSetExpressionPlotSubscriber(props) {
             yMin={yMin}
             yUnits={yUnits}
             jitter={jitter}
+            sampleSetSelection={sampleSetSelection}
             colors={setArr}
             data={expressionArr}
             theme={theme}

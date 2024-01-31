@@ -34,9 +34,12 @@ export default class SampleEdgesAnndataLoader extends AbstractTwoStepLoader {
     return Promise.all([
       this.dataSource.loadObsIndex(path),
       this.loadLabels(),
-    ]).then(([obsIndex, sampleIds]) => Promise.resolve(new LoaderResult(
-      { obsIndex, sampleIds },
-      null,
-    )));
+    ]).then(([obsIndex, sampleIds]) => {
+      const sampleEdges = new Map(obsIndex.map((obsId, i) => ([obsId, sampleIds[i]])));
+      return Promise.resolve(new LoaderResult(
+        { sampleEdges },
+        null,
+      ))
+    });
   }
 }

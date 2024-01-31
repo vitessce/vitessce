@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 /* eslint-disable camelcase */
 import React, { useMemo, useEffect, useRef } from 'react';
-import { scaleLinear } from 'd3-scale';
+import { scaleLinear, scaleOrdinal } from 'd3-scale';
 import { scale as vega_scale } from 'vega-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
 import {
@@ -22,6 +22,7 @@ import { capitalize } from '@vitessce/utils';
 
 const scaleBand = vega_scale('band');
 
+const STRATIFICATION_KEY = 'sampleSet';
 const GROUP_KEY = 'set';
 const VALUE_KEY = 'value';
 
@@ -86,6 +87,7 @@ export default function CellSetExpressionPlot(props) {
     yMin: yMinProp,
     yUnits,
     jitter,
+    sampleSetSelection,
     colors,
     data,
     theme,
@@ -109,6 +111,8 @@ export default function CellSetExpressionPlot(props) {
     acc = acc === undefined || val[GROUP_KEY].length > acc ? val[GROUP_KEY].length : acc;
     return acc;
   }, 0), [data]);
+
+  const isStratified = (Array.isArray(sampleSetSelection) && sampleSetSelection.length == 2);
 
   useEffect(() => {
     const domElement = svgRef.current;
@@ -143,6 +147,9 @@ export default function CellSetExpressionPlot(props) {
 
     const groupNames = colors.map(d => d.name);
 
+    // TODO: cache all size-independent operations (data processing that does not depend on width/height).
+    const filteredData = (isStratified ? data.filter(d => d[STRATIFICATION_KEY]) : data);
+
     // Manually set the color scale so that Vega-Lite does
     // not choose the colors automatically.
     const colorScale = {
@@ -150,14 +157,31 @@ export default function CellSetExpressionPlot(props) {
       range: colors.map(d => colorArrayToString(d.color)),
     };
 
+    const sampleSetNames = sampleSetSelection?.map(path => path.at(-1));
+    
+
+    let stratificationSide;
+    let stratificationColor;
+    if(isStratified) {
+      stratificationSide = scaleOrdinal()
+        .domain(sampleSetNames)
+        .range(['left', 'right']);
+      stratificationColor = scaleOrdinal()
+        .domain(sampleSetNames)
+        .range(['gray', 'orange']);
+    };
+
     // Remove outliers on a per-group basis.
     const groupedSummaries = Array.from(
-      d3_rollup(data, groupData => summarize(groupData, true), d => d[GROUP_KEY]),
-      ([key, value]) => ({ key, value }),
+      d3_rollup(filteredData, groupData => summarize(groupData, true), d => d[GROUP_KEY], d => d[STRATIFICATION_KEY]),
+      ([key, value]) => ({ key, value: Array.from(value, ([subKey, subValue]) => ({ key: subKey, value: subValue })) }),
     );
     const groupedData = groupedSummaries
-      .map(({ key, value }) => ({ key, value: value.nonOutliers }));
-    const trimmedData = groupedData.map(kv => kv.value).flat();
+      .map(({ key, value }) => ({
+        key,
+        value: value.map(({ key: subKey, value: subValue}) => ({ key: subKey, value: subValue.nonOutliers })),
+      }));
+    const trimmedData = groupedData.map(kv => kv.value.map(subKv => subKv.value).flat()).flat();
 
     const innerWidth = width - marginLeft;
     const innerHeight = height - autoMarginBottom;
@@ -180,9 +204,8 @@ export default function CellSetExpressionPlot(props) {
       .thresholds(y.ticks(16))
       .domain(y.domain());
 
-    const groupBins = groupedData.map(kv => ({ key: kv.key, value: histogram(kv.value) }));
-
-    const groupBinsMax = max(groupBins.flatMap(d => d.value.map(v => v.length)));
+    const groupBins = groupedData.map(kv => ({ key: kv.key, value: kv.value.map(subKv => ({ key: subKv.key, value: histogram(subKv.value) })) }));
+    const groupBinsMax = max(groupBins.flatMap(d => d.value.flatMap(subKv => subKv.value.map(v => v.length))));
 
     const x = scaleLinear()
       .domain([-groupBinsMax, groupBinsMax])
@@ -193,58 +216,145 @@ export default function CellSetExpressionPlot(props) {
       .x1(d => x(d.length))
       .y(d => y(d.x0))
       .curve(curveBasis);
+    
+    const leftArea = d3_area()
+      .x0(d => x(-d.length))
+      .x1(d => x(0))
+      .y(d => y(d.x0))
+      .curve(curveBasis);
+    
+    const rightArea = d3_area()
+      .x0(d => x(0))
+      .x1(d => x(d.length))
+      .y(d => y(d.x0))
+      .curve(curveBasis);
 
+    const sideToAreaFunc = {
+      left: leftArea,
+      right: rightArea,
+    };
+    
     // Violin areas
-    g
-      .selectAll('violin')
-      .data(groupBins)
-      .enter()
-        .append('g')
-          .attr('transform', d => `translate(${xGroup(d.key)},0)`)
-          .style('fill', d => colorScale.range[groupNames.indexOf(d.key)])
-        .append('path')
-          .datum(d => d.value)
-          .style('stroke', 'none')
-          .attr('d', d => area(d));
-
+    if(isStratified) {
+      const violinG = g
+        .selectAll('violin')
+        .data(groupBins)
+        .enter()
+          .append('g')
+            .attr('transform', d => `translate(${xGroup(d.key)},0)`);
+      violinG.append('path')
+        .datum(d => d.value[0])
+        .style('stroke', 'none')
+        .style('fill', d => stratificationColor(d.key))
+        .attr('d', d => sideToAreaFunc[stratificationSide(d.key)](d.value));
+      violinG.append('path')
+        .datum(d => d.value[1])
+        .style('stroke', 'none')
+        .style('fill', d => stratificationColor(d.key))
+        .attr('d', d => sideToAreaFunc[stratificationSide(d.key)](d.value));
+    } else {
+      g
+        .selectAll('violin')
+        .data(groupBins)
+        .enter()
+          .append('g')
+            .attr('transform', d => `translate(${xGroup(d.key)},0)`)
+            .style('fill', d => colorScale.range[groupNames.indexOf(d.key)])
+          .append('path')
+            .datum(d => d.value[0])
+            .style('stroke', 'none')
+            .attr('d', d => area(d.value));
+    }
+    
     // Whiskers
     const whiskerGroups = g.selectAll('whiskers')
       .data(groupedSummaries)
       .enter()
         .append('g')
           .attr('transform', d => `translate(${xGroup(d.key)},0)`);
-    whiskerGroups.append('line')
-      .datum(d => d.value)
-      .attr('stroke', rectColor)
-      .attr('x1', xGroup.bandwidth() / 2)
-      .attr('x2', xGroup.bandwidth() / 2)
-      .attr('y1', d => y(d.quartiles[0]))
-      .attr('y2', d => y(d.quartiles[2]))
-      .attr('stroke-width', 2);
-    whiskerGroups.append('line')
-      .datum(d => d.value)
-      .attr('stroke', rectColor)
-      .attr('x1', xGroup.bandwidth() / 2 - (jitter ? 0 : 4))
-      .attr('x2', xGroup.bandwidth() / 2 + 4)
-      .attr('y1', d => y(d.quartiles[1]))
-      .attr('y2', d => y(d.quartiles[1]))
-      .attr('stroke-width', 2);
+    
+    if(isStratified) {
+      // Vertical line
+      whiskerGroups.append('line')
+        .datum(d => d.value[0])
+        .attr('stroke', rectColor)
+        .attr('x1', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -1.5 : 1.5))
+        .attr('x2', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -1.5 : 1.5))
+        .attr('y1', d => y(d.value.quartiles[0]))
+        .attr('y2', d => y(d.value.quartiles[2]))
+        .attr('stroke-width', 2);
+      
+      whiskerGroups.append('line')
+        .datum(d => d.value[1])
+        .attr('stroke', rectColor)
+        .attr('x1', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -1.5 : 1.5))
+        .attr('x2', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -1.5 : 1.5))
+        .attr('y1', d => y(d.value.quartiles[0]))
+        .attr('y2', d => y(d.value.quartiles[2]))
+        .attr('stroke-width', 2);
+      
+      // Horizontal line
+      whiskerGroups.append('line')
+        .datum(d => d.value[0])
+        .attr('stroke', rectColor)
+        .attr('x1', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -5.5 : 1.5))
+        .attr('x2', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -1.5 : 5.5))
+        .attr('y1', d => y(d.value.quartiles[1]))
+        .attr('y2', d => y(d.value.quartiles[1]))
+        .attr('stroke-width', 2);
+      
+      whiskerGroups.append('line')
+        .datum(d => d.value[1])
+        .attr('stroke', rectColor)
+        .attr('x1', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -5.5 : 1.5))
+        .attr('x2', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -1.5 : 5.5))
+        .attr('y1', d => y(d.value.quartiles[1]))
+        .attr('y2', d => y(d.value.quartiles[1]))
+        .attr('stroke-width', 2);
 
+    } else {
+      // Vertical line
+      whiskerGroups.append('line')
+        .datum(d => d.value[0].value)
+        .attr('stroke', rectColor)
+        .attr('x1', xGroup.bandwidth() / 2)
+        .attr('x2', xGroup.bandwidth() / 2)
+        .attr('y1', d => y(d.quartiles[0]))
+        .attr('y2', d => y(d.quartiles[2]))
+        .attr('stroke-width', 2);
+      
+      // Horizontal line
+      whiskerGroups.append('line')
+        .datum(d => d.value[0].value)
+        .attr('stroke', rectColor)
+        .attr('x1', xGroup.bandwidth() / 2 - (jitter ? 0 : 4))
+        .attr('x2', xGroup.bandwidth() / 2 + 4)
+        .attr('y1', d => y(d.quartiles[1]))
+        .attr('y2', d => y(d.quartiles[1]))
+        .attr('stroke-width', 2);
+    }
+    
     // Jittered points
     if (jitter) {
       groupedData.forEach(({ key, value }) => {
-        const groupG = g.append('g');
-        groupG.selectAll('point')
-          .data(value)
-          .enter()
-          .append('circle')
-            .attr('transform', `translate(${xGroup(key)},0)`)
-            .style('stroke', 'none')
-            .style('fill', 'silver')
-            .style('opacity', '0.1')
-            .attr('cx', () => 5 + Math.random() * ((xGroup.bandwidth() / 2) - 10))
-            .attr('cy', d => y(d))
-            .attr('r', 2);
+        value.forEach(({ key: subKey, value: subValue }) => {
+          if(isStratified) {
+            // TODO
+          } else {
+            const groupG = g.append('g');
+            groupG.selectAll('point')
+              .data(subValue)
+              .enter()
+              .append('circle')
+                .attr('transform', `translate(${xGroup(key)},0)`)
+                .style('stroke', 'none')
+                .style('fill', 'silver')
+                .style('opacity', '0.1')
+                .attr('cx', () => 5 + Math.random() * ((xGroup.bandwidth() / 2) - 10))
+                .attr('cy', d => y(d))
+                .attr('r', 2);
+          }
+        });
       });
     }
 
@@ -289,10 +399,55 @@ export default function CellSetExpressionPlot(props) {
       .text(xTitle)
       .style('font-size', '12px')
       .style('fill', 'white');
+    
+    // Legend
+    if(isStratified) {
+      const legendG = g
+        .append('g')
+          .attr('transform', `translate(${marginLeft + innerWidth - 150},${marginTop})`);
+        legendG.append('rect')
+          .attr('width', 150)
+          .attr('height', 56)
+          .attr('x', 0)
+          .attr('y', 0)
+          .style('fill', 'rgba(215, 215, 215, 0.2)')
+          .attr('rx', 4);
+        legendG.append('text')
+          .text('Sample Group')
+          .style('font-size', '11px')
+          .style('line-height', 20)
+          .attr('x', 4)
+          .attr('y', 14)
+          .style('fill', 'white');
+        legendG.append('rect')
+          .attr('width', 10)
+          .attr('height', 10)
+          .attr('x', 5)
+          .attr('y', 23)
+          .style('fill', stratificationColor(sampleSetNames[0]));
+        legendG.append('text')
+          .text(sampleSetNames[0])
+          .style('font-size', '11px')
+          .attr('x', 20)
+          .attr('y', 32)
+          .style('fill', 'white');
+        legendG.append('rect')
+          .attr('width', 10)
+          .attr('height', 10)
+          .attr('x', 5)
+          .attr('y', 39)
+          .style('fill', stratificationColor(sampleSetNames[1]));
+        legendG.append('text')
+          .text(sampleSetNames[1])
+          .style('font-size', '11px')
+          .attr('x', 20)
+          .attr('y', 48)
+          .style('fill', 'white');
+    }
   }, [width, height, data, marginLeft, marginBottom, colors,
     jitter, theme, yMinProp, marginTop, marginRight, featureType,
     featureValueType, featureValueTransformName, yUnits, obsType,
-    maxCharactersForLabel,
+    maxCharactersForLabel, sampleSetSelection,
   ]);
 
   return (
