@@ -621,6 +621,36 @@ export function treeToSetSizesBySetNames(
 }
 
 /**
+ * Given a tree with state, get the indices of observations
+ * contained in each selected obs set.
+ * @param {object} currTree A tree object.
+ * @param {array} selectedNamePaths Array of arrays of strings,
+ * representing set "paths".
+ * @param {object[]} obsIndex The observation index.
+ * @returns {object[]} Array of objects
+ * with the properties `name`, `size`, `key`,
+ * and `color`.
+ */
+export function treeToObsIndicesBySetNames(currTree, selectedNamePaths, obsIndexMap) {
+  const indices = [];
+  selectedNamePaths.forEach((setNamePath) => {
+    const node = treeFindNodeByNamePath(currTree, setNamePath);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      indices.push({
+        key: generateKey(),
+        name: node.name,
+        size: nodeSet.length,
+        // TODO: handle the case where the ID is in the set but missing
+        // from the obsIndexMap
+        indices: nodeSet.map(([obsId]) => obsIndexMap[obsId]),
+      });
+    }
+  });
+  return indices;
+}
+
+/**
  * Find and remove a node from the descendants of the current node.
  * @param {object} node A node to search on.
  * @param {array} prevPath Path of the current node to be searched.

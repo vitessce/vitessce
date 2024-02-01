@@ -79,6 +79,7 @@ import {
   CellSetExpressionPlotSubscriber,
   CellSetSizesPlotSubscriber,
   ExpressionHistogramSubscriber,
+  DotPlotSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
@@ -194,6 +195,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.FEATURE_VALUE_HISTOGRAM, ExpressionHistogramSubscriber),
   makeViewType('higlass', HiGlassSubscriber),
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
+  makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
 ];
 
 export const baseFileTypes = [
@@ -389,6 +391,11 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(
     CoordinationType.FEATURE_VALUE_TRANSFORM_COEFFICIENT,
     1,
+    z.number(),
+  ),
+  new PluginCoordinationType(
+    CoordinationType.FEATURE_VALUE_POSITIVITY_THRESHOLD,
+    0,
     z.number(),
   ),
   new PluginCoordinationType(

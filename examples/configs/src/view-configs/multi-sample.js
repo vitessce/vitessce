@@ -83,16 +83,16 @@ function generateLake2023Config() {
   const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
   const featureList = vc.addView(dataset, 'featureList');
   const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution');
-
+  const dotPlot = vc.addView(dataset, 'dotPlot');
 
 
   vc.linkViews([scatterplot], ['embeddingType'], ['UMAP']);
-  vc.linkViews([scatterplot, obsSets, obsSetSizes, featureList, violinPlots], ['sampleType', 'sampleSetSelection'], ['sample', [
+  vc.linkViews([scatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType', 'sampleSetSelection'], ['sample', [
     ['Tissue Type', 'Healthy Reference'],
     ['Tissue Type', 'CKD'],
   ]]);
 
-  vc.linkViewsByObject([scatterplot, violinPlots, featureList], {
+  vc.linkViewsByObject([scatterplot, violinPlots, featureList, dotPlot], {
     featureSelection: ['ENSG00000169344'],
     obsColorEncoding: 'geneSelection',
     featureValueColormapRange: [0, 0.25],
@@ -107,7 +107,7 @@ function generateLake2023Config() {
       ),
     ),
     vconcat(
-      featureList,
+      vconcat(featureList, dotPlot),
       violinPlots,
     ),
   ));

@@ -4,6 +4,7 @@ export {
   treeToCellSetColorIndicesBySetNames,
   treeToSetSizesBySetNames,
   treeToObjectsBySetNames,
+  treeToObsIndicesBySetNames,
   treeExportLevelZeroNode,
   treeExportSet,
   treeToExpectedCheckedLevel,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { TableCell, TableRow, TextField } from '@material-ui/core';
+import { TableCell, TableRow, TextField, Slider } from '@material-ui/core';
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 
 export default function CellSetExpressionPlotOptions(props) {
@@ -10,6 +10,8 @@ export default function CellSetExpressionPlotOptions(props) {
     featureValueTransformCoefficient,
     setFeatureValueTransformCoefficient,
     transformOptions,
+    featureValuePositivityThreshold,
+    setFeatureValuePositivityThreshold,
   } = props;
 
   const cellSetExpressionPlotOptionsId = useId();
@@ -19,6 +21,10 @@ export default function CellSetExpressionPlotOptions(props) {
   const handleTransformChange = (event) => {
     setFeatureValueTransform(event.target.value === '' ? null : event.target.value);
   };
+
+  function handlePositivityThresholdChange(event, value) {
+    setFeatureValuePositivityThreshold(value);
+  }
 
   // Feels a little hacky, but I think this is the best way to handle
   // the limitations of the v4 material-ui number input.
@@ -82,6 +88,25 @@ export default function CellSetExpressionPlotOptions(props) {
           />
         </TableCell>
       </TableRow>
+      {setFeatureValuePositivityThreshold ? (
+        <TableRow key="transform-coefficient-option-row">
+          <TableCell className={classes.labelCell}>
+            Positivity Threshold
+          </TableCell>
+          <TableCell className={classes.inputCell}>
+            <Slider
+              classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+              value={featureValuePositivityThreshold}
+              onChange={handlePositivityThresholdChange}
+              aria-labelledby="pos-threshold-slider"
+              valueLabelDisplay="auto"
+              step={1.0}
+              min={0.0}
+              max={100.0}
+            />
+          </TableCell>
+        </TableRow>
+      ) : null}
     </OptionsContainer>
   );
 }

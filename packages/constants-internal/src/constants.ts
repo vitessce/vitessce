@@ -19,6 +19,7 @@ export const ViewType = {
   OBS_SET_SIZES: 'obsSetSizes',
   OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'obsSetFeatureValueDistribution',
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
+  DOT_PLOT: 'dotPlot',
 };
 
 export const DataType = {
@@ -198,6 +199,7 @@ export const CoordinationType = {
   GATING_FEATURE_SELECTION_X: 'gatingFeatureSelectionX',
   GATING_FEATURE_SELECTION_Y: 'gatingFeatureSelectionY',
   FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'featureValueTransformCoefficient',
+  FEATURE_VALUE_POSITIVITY_THRESHOLD: 'featureValuePositivityThreshold',
   TOOLTIPS_VISIBLE: 'tooltipsVisible',
   FILE_UID: 'fileUid',
   IMAGE_LAYER: 'imageLayer',
