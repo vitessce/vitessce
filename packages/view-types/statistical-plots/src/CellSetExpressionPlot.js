@@ -26,40 +26,6 @@ const STRATIFICATION_KEY = 'sampleSet';
 const GROUP_KEY = 'set';
 const VALUE_KEY = 'value';
 
-// Reference: https://github.com/d3/d3-array/issues/180#issuecomment-851378012
-function summarize(iterable, keepZeros) {
-  const values = d3_map(iterable, d => d[VALUE_KEY])
-    .filter(d => keepZeros || d !== 0.0)
-    .sort(d3_ascending);
-  const minVal = values[0];
-  const maxVal = values[values.length - 1];
-  const q1 = quantileSorted(values, 0.25);
-  const q2 = quantileSorted(values, 0.5);
-  const q3 = quantileSorted(values, 0.75);
-  const iqr = q3 - q1; // interquartile range
-  const r0 = Math.max(minVal, q1 - iqr * 1.5);
-  const r1 = Math.min(maxVal, q3 + iqr * 1.5);
-  let i = -1;
-  while (values[++i] < r0);
-  const w0 = values[i];
-  while (values[++i] <= r1);
-  const w1 = values[i - 1];
-
-  // Chauvenet
-  // Reference: https://en.wikipedia.org/wiki/Chauvenet%27s_criterion
-  const mean = d3_mean(values);
-  const stdv = d3_deviation(values);
-  const c0 = mean - 3 * stdv;
-  const c1 = mean + 3 * stdv;
-
-  return {
-    quartiles: [q1, q2, q3],
-    range: [r0, r1],
-    whiskers: [w0, w1],
-    chauvenetRange: [c0, c1],
-    nonOutliers: values.filter(v => c0 <= v && v <= c1),
-  };
-}
 
 /**
  * Gene expression histogram displayed as a bar chart,
@@ -87,6 +53,7 @@ export default function CellSetExpressionPlot(props) {
     yMin: yMinProp,
     yUnits,
     jitter,
+    cellSetSelection,
     sampleSetSelection,
     colors,
     data,
@@ -106,11 +73,17 @@ export default function CellSetExpressionPlot(props) {
   const svgRef = useRef();
 
   // Get the max characters in an axis label for autsizing the bottom margin.
-  const maxCharactersForLabel = useMemo(() => data.reduce((acc, val) => {
-    // eslint-disable-next-line no-param-reassign
-    acc = acc === undefined || val[GROUP_KEY].length > acc ? val[GROUP_KEY].length : acc;
-    return acc;
-  }, 0), [data]);
+  const maxCharactersForLabel = useMemo(() => {
+    if(!cellSetSelection) {
+      return 0;
+    }
+    const cellSetNames = cellSetSelection.map(d => d.at(-1));
+    return cellSetNames.reduce((acc, name) => {
+      // eslint-disable-next-line no-param-reassign
+      acc = acc === undefined || name.length > acc ? name.length : acc;
+      return acc;
+    }, 0)
+  }, [cellSetSelection]);
 
   const isStratified = (Array.isArray(sampleSetSelection) && sampleSetSelection.length == 2);
 
@@ -147,19 +120,14 @@ export default function CellSetExpressionPlot(props) {
 
     const groupNames = colors.map(d => d.name);
 
-    // TODO: cache all size-independent operations (data processing that does not depend on width/height).
-    const filteredData = (isStratified ? data.filter(d => d[STRATIFICATION_KEY]) : data);
-
     // Manually set the color scale so that Vega-Lite does
     // not choose the colors automatically.
-    const colorScale = {
-      domain: colors.map(d => d.name),
-      range: colors.map(d => colorArrayToString(d.color)),
-    };
+    const colorScale = scaleOrdinal()
+      .domain(colors.map(d => d.setNamePath))
+      .range(colors.map(d => colorArrayToString(d.color)))
 
     const sampleSetNames = sampleSetSelection?.map(path => path.at(-1));
     
-
     let stratificationSide;
     let stratificationColor;
     if(isStratified) {
@@ -169,43 +137,30 @@ export default function CellSetExpressionPlot(props) {
       stratificationColor = scaleOrdinal()
         .domain(sampleSetNames)
         .range(['gray', 'orange']);
-    };
+    }
 
     // Remove outliers on a per-group basis.
-    const groupedSummaries = Array.from(
-      d3_rollup(filteredData, groupData => summarize(groupData, true), d => d[GROUP_KEY], d => d[STRATIFICATION_KEY]),
-      ([key, value]) => ({ key, value: Array.from(value, ([subKey, subValue]) => ({ key: subKey, value: subValue })) }),
-    );
-    const groupedData = groupedSummaries
-      .map(({ key, value }) => ({
-        key,
-        value: value.map(({ key: subKey, value: subValue}) => ({ key: subKey, value: subValue.nonOutliers })),
-      }));
-    const trimmedData = groupedData.map(kv => kv.value.map(subKv => subKv.value).flat()).flat();
+    const {
+      groupSummaries: groupedSummaries,
+      groupData: groupedData,
+      groupBins, // Array of [{ key, value: [{ key, value: histogram(nonOutliers) }] }]
+      groupBinsMax, // Number
+    } = data;
+    let y = data.y;
 
     const innerWidth = width - marginLeft;
     const innerHeight = height - autoMarginBottom;
 
     const xGroup = scaleBand()
       .range([marginLeft, width - marginRight])
-      .domain(groupNames)
+      .domain(cellSetSelection)
       .padding(0.1);
 
-    const yMin = (yMinProp === null ? Math.min(0, min(trimmedData)) : yMinProp);
 
     // For the y domain, use the yMin prop
     // to support a use case such as 'Aspect Ratio',
     // where the domain minimum should be 1 rather than 0.
-    const y = scaleLinear()
-      .domain([yMin, max(trimmedData)])
-      .range([innerHeight, marginTop]);
-
-    const histogram = bin()
-      .thresholds(y.ticks(16))
-      .domain(y.domain());
-
-    const groupBins = groupedData.map(kv => ({ key: kv.key, value: kv.value.map(subKv => ({ key: subKv.key, value: histogram(subKv.value) })) }));
-    const groupBinsMax = max(groupBins.flatMap(d => d.value.flatMap(subKv => subKv.value.map(v => v.length))));
+    y = y.range([innerHeight, marginTop]);
 
     const x = scaleLinear()
       .domain([-groupBinsMax, groupBinsMax])
@@ -259,7 +214,7 @@ export default function CellSetExpressionPlot(props) {
         .enter()
           .append('g')
             .attr('transform', d => `translate(${xGroup(d.key)},0)`)
-            .style('fill', d => colorScale.range[groupNames.indexOf(d.key)])
+            .style('fill', d => colorScale(d.key))
           .append('path')
             .datum(d => d.value[0])
             .style('stroke', 'none')
@@ -371,7 +326,7 @@ export default function CellSetExpressionPlot(props) {
       .append('g')
         .attr('transform', `translate(0,${innerHeight})`)
         .style('font-size', '14px')
-      .call(axisBottom(xGroup))
+      .call(axisBottom(xGroup).tickFormat(d => d.at(-1)))
       .selectAll('text')
         .style('font-size', '11px')
         .attr('dx', '-6px')
@@ -447,7 +402,7 @@ export default function CellSetExpressionPlot(props) {
   }, [width, height, data, marginLeft, marginBottom, colors,
     jitter, theme, yMinProp, marginTop, marginRight, featureType,
     featureValueType, featureValueTransformName, yUnits, obsType,
-    maxCharactersForLabel, sampleSetSelection,
+    maxCharactersForLabel, sampleSetSelection, 
   ]);
 
   return (

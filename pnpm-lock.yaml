@@ -1538,6 +1538,9 @@ importers:
       '@material-ui/core':
         specifier: ~4.12.3
         version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/react-query':
+        specifier: ^4.29.12
+        version: 4.29.12(react-dom@18.2.0)(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -1568,12 +1571,18 @@ importers:
       d3-shape:
         specifier: ^3.2.0
         version: 3.2.0
+      internmap:
+        specifier: ^2.0.3
+        version: 2.0.3
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
       react-aria:
         specifier: ^3.28.0
         version: 3.28.0(react-dom@18.2.0)(react@18.2.0)
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.0
       vega-scale:
         specifier: ^6.0.0
         version: 6.0.0

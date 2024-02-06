@@ -451,7 +451,7 @@ export function treeToSelectedSetMap(currTree, selectedNamePaths) {
           // (rather than only the node name)?
           // Or the index of the selected set
           // with respect to the selectedNamePaths array?
-          node.name,
+          setNamePath,
         ]),
       ];
     }

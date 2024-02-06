@@ -20,6 +20,13 @@ import {
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions.js';
 import CellSetExpressionPlot from './CellSetExpressionPlot.js';
 import { useStyles } from './styles.js';
+import {
+  stratifyExpressionData,
+  aggregateStratifiedExpressionData,
+  summarizeStratifiedExpressionData,
+  histogramStratifiedExpressionData,
+  dotStratifiedExpressionData,
+} from './expr-hooks.js';
 
 /**
  * Get expression data for the cells
@@ -47,7 +54,7 @@ function useExpressionByCellSet(
   expressionData, obsIndex, cellSets, additionalCellSets,
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
-  theme,
+  theme, yMinProp,
 ) {
   const mergedCellSets = useMemo(
     () => mergeObsSets(cellSets, additionalCellSets),
@@ -57,42 +64,30 @@ function useExpressionByCellSet(
   // From the expression matrix and the list of selected genes / cell sets,
   // generate the array of data points for the plot.
   const [expressionArr, expressionMax] = useMemo(() => {
-    if (mergedCellSets && cellSetSelection
-        && geneSelection && geneSelection.length >= 1
-        && expressionData
-    ) {
-      const sampleIdToSetMap = sampleSets && sampleSetSelection
-        ? treeToSelectedSetMap(sampleSets, sampleSetSelection)
-        : null;
-      const cellObjects = treeToObjectsBySetNames(
-        mergedCellSets, cellSetSelection, cellSetColor, theme,
+    const [stratifiedData, exprMax] = stratifyExpressionData(
+      sampleEdges, sampleSets, sampleSetSelection,
+      expressionData, obsIndex, mergedCellSets,
+      geneSelection, cellSetSelection, cellSetColor,
+      featureValueTransform, featureValueTransformCoefficient,
+      theme,
+    );
+    if(stratifiedData) {
+      const aggregateData = aggregateStratifiedExpressionData(
+        stratifiedData, geneSelection,
       );
-
-      const firstGeneSelected = geneSelection[0];
-      // Create new cellColors map based on the selected gene.
-      let exprMax = -Infinity;
-      const cellIndices = {};
-      for (let i = 0; i < obsIndex.length; i += 1) {
-        cellIndices[obsIndex[i]] = i;
-      }
-      const exprValues = cellObjects.map((cell) => {
-        const cellIndex = cellIndices[cell.obsId];
-        const sampleId = sampleEdges?.get(cell.obsId);
-        const sampleSet = sampleId ? sampleIdToSetMap?.get(sampleId) : null;
-        const value = expressionData[0][cellIndex];
-        const transformFunction = getValueTransformFunction(
-          featureValueTransform, featureValueTransformCoefficient,
-        );
-        const transformedValue = transformFunction(value);
-        exprMax = Math.max(transformedValue, exprMax);
-        return { value: transformedValue, gene: firstGeneSelected, set: cell.name, sampleSet };
-      });
-      return [exprValues, exprMax];
+      const summarizedData = summarizeStratifiedExpressionData(
+        aggregateData, true,
+      );
+      const histogramData = histogramStratifiedExpressionData(
+        summarizedData, 16, yMinProp,
+      );
+      return [histogramData, exprMax];
     }
     return [null, null];
   }, [expressionData, obsIndex, geneSelection, theme,
     mergedCellSets, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
+    yMinProp,
   ]);
 
   // From the cell sets hierarchy and the list of selected cell sets,
@@ -206,12 +201,12 @@ export function CellSetExpressionPlotSubscriber(props) {
     sampleEdgesUrls,
   ]);
 
-  const [expressionArr, setArr] = useExpressionByCellSet(
+  const [histogramData, setArr, exprMax] = useExpressionByCellSet(
     sampleEdges, sampleSets, sampleSetSelection,
     expressionData, obsIndex, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
-    theme,
+    theme, yMin,
   );
 
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
@@ -242,14 +237,16 @@ export function CellSetExpressionPlotSubscriber(props) {
       )}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
-        {expressionArr ? (
+        {histogramData ? (
           <CellSetExpressionPlot
             yMin={yMin}
             yUnits={yUnits}
             jitter={jitter}
+            cellSetSelection={cellSetSelection}
             sampleSetSelection={sampleSetSelection}
             colors={setArr}
-            data={expressionArr}
+            data={histogramData}
+            exprMax={exprMax}
             theme={theme}
             width={width}
             height={height}

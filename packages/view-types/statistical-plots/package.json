@@ -36,6 +36,7 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vega": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
+    "@tanstack/react-query": "^4.29.12",
     "d3-array": "^2.4.0",
     "d3-scale": "^4.0.0",
     "d3-shape": "^3.2.0",
@@ -43,7 +44,9 @@
     "d3-selection": "^3.0.0",
     "vega-scale": "^6.0.0",
     "lodash-es": "^4.17.21",
-    "react-aria": "^3.28.0"
+    "react-aria": "^3.28.0",
+    "internmap": "^2.0.3",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "react": "^18.0.0",
