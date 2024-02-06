@@ -107,6 +107,8 @@ export default function CellSetExpressionPlot(props) {
 
     const rectColor = (theme === 'dark' ? 'white' : 'black');
 
+    const fgColor = (theme === 'dark' ? 'white' : 'black');
+
     const svg = select(domElement);
     svg.selectAll('g').remove();
     svg
@@ -343,7 +345,7 @@ export default function CellSetExpressionPlot(props) {
       .attr('transform', 'rotate(-90)')
       .text(yTitle)
       .style('font-size', '12px')
-      .style('fill', 'white');
+      .style('fill', fgColor);
 
     // X-axis title
     g
@@ -353,7 +355,7 @@ export default function CellSetExpressionPlot(props) {
       .attr('y', height - 10)
       .text(xTitle)
       .style('font-size', '12px')
-      .style('fill', 'white');
+      .style('fill', fgColor);
     
     // Legend
     if(isStratified) {
@@ -373,7 +375,7 @@ export default function CellSetExpressionPlot(props) {
           .style('line-height', 20)
           .attr('x', 4)
           .attr('y', 14)
-          .style('fill', 'white');
+          .style('fill', fgColor);
         legendG.append('rect')
           .attr('width', 10)
           .attr('height', 10)
@@ -385,7 +387,7 @@ export default function CellSetExpressionPlot(props) {
           .style('font-size', '11px')
           .attr('x', 20)
           .attr('y', 32)
-          .style('fill', 'white');
+          .style('fill', fgColor);
         legendG.append('rect')
           .attr('width', 10)
           .attr('height', 10)
@@ -397,7 +399,7 @@ export default function CellSetExpressionPlot(props) {
           .style('font-size', '11px')
           .attr('x', 20)
           .attr('y', 48)
-          .style('fill', 'white');
+          .style('fill', fgColor);
     }
   }, [width, height, data, marginLeft, marginBottom, colors,
     jitter, theme, yMinProp, marginTop, marginRight, featureType,

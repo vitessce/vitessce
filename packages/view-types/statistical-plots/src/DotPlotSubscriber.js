@@ -6,15 +6,22 @@ import {
   useFeatureSelection, useObsSetsData,
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
+  useSampleSetsData,
+  useSampleEdgesData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS, getValueTransformFunction } from '@vitessce/utils';
 import { treeToObsIndicesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
 import { mean } from 'd3-array';
+import { InternMap } from 'internmap';
 import { v4 as uuidv4 } from 'uuid';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions.js';
 import DotPlot from './DotPlot.js';
 import { useStyles } from './styles.js';
+import {
+  stratifyExpressionData,
+  dotStratifiedExpressionData,
+} from './expr-hooks.js';
 
 /**
  * Get expression data for the cells
@@ -38,6 +45,7 @@ import { useStyles } from './styles.js';
  * `path` and `color`.
  */
 export function useExpressionSummaries(
+  sampleEdges, sampleSets, sampleSetSelection,
   expressionData, obsIndex, cellSets, additionalCellSets,
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
@@ -51,49 +59,50 @@ export function useExpressionSummaries(
   // From the expression matrix and the list of selected genes / cell sets,
   // generate the array of data points for the plot.
   const [resultArr, meanExpressionMax] = useMemo(() => {
-    if (mergedCellSets && cellSetSelection
-        && geneSelection && geneSelection.length >= 1
-        && expressionData && expressionData.length === geneSelection.length
-    ) {
-      let exprMax = -Infinity;
-      const result = [];
-      const cellIndices = {};
-      for (let i = 0; i < obsIndex.length; i += 1) {
-        cellIndices[obsIndex[i]] = i;
-      }
-      const setObjects = treeToObsIndicesBySetNames(
-        mergedCellSets, cellSetSelection, cellIndices,
+    const [stratifiedData, exprMax] = stratifyExpressionData(
+      sampleEdges, sampleSets, sampleSetSelection,
+      expressionData, obsIndex, mergedCellSets,
+      geneSelection, cellSetSelection, cellSetColor,
+      featureValueTransform, featureValueTransformCoefficient,
+      'light',
+    );
+    if(stratifiedData) {
+      const dotData = dotStratifiedExpressionData(
+        stratifiedData, posThreshold,
       );
-      geneSelection.forEach((featureName, featureI) => {
-        const featureKey = uuidv4();
-        setObjects.forEach((setObj) => {
-          let numPos = 0;
-          const exprValues = setObj.indices.map((cellIndex) => {
-            const value = expressionData[featureI][cellIndex];
-            const normValue = value * 100 / 255;
-            const transformFunction = getValueTransformFunction(
-              featureValueTransform, featureValueTransformCoefficient,
-            );
-            const transformedValue = transformFunction(normValue);
-            if (transformedValue > posThreshold) {
-              numPos += 1;
-            }
-            return transformedValue;
+
+      const geneToUuid = new Map(geneSelection?.map((gene) => [gene, uuidv4()]));
+      const cellSetToUuid = new InternMap(cellSetSelection?.map((sampleSet) => ([sampleSet, uuidv4()])), JSON.stringify);
+      const sampleSetToUuid = new InternMap(sampleSetSelection?.map((sampleSet) => ([sampleSet, uuidv4()])), JSON.stringify);
+
+      const result = [];
+      ([...dotData.keys()]).forEach((cellSetKey) => {
+        ([...dotData.get(cellSetKey).keys()]).forEach((sampleSetKey) => {
+          ([...dotData.get(cellSetKey).get(sampleSetKey).keys()]).forEach((geneKey) => {
+            const dotObj = dotData.get(cellSetKey).get(sampleSetKey).get(geneKey);
+            const featureName = geneKey;
+            result.push({
+              key: uuidv4(), // Unique key for this dot.
+
+              featureKey: geneToUuid.get(geneKey),
+              feature: featureLabelsMap?.get(featureName) || featureName,
+              
+              groupKey: cellSetToUuid.get(cellSetKey),
+              group: cellSetKey.at(-1),
+
+              secondaryGroup: sampleSetKey?.at(-1),
+              secondaryGroupKey: sampleSetToUuid.get(sampleSetKey),
+
+              meanExpInGroup: dotObj.meanExpInGroup,
+              fracPosInGroup: dotObj.fracPosInGroup,
+            })
           });
-          const exprMean = mean(exprValues);
-          const fracPos = numPos / setObj.size;
-          result.push({
-            key: uuidv4(),
-            featureKey,
-            groupKey: setObj.key,
-            group: setObj.name,
-            feature: featureLabelsMap?.get(featureName) || featureName,
-            meanExpInGroup: exprMean,
-            fracPosInGroup: fracPos,
-          });
-          exprMax = Math.max(exprMean, exprMax);
         });
       });
+
+      // TODO: reduce unnecessary re-renders
+      console.log(result);
+      
       return [result, exprMax];
     }
     return [null, null];
@@ -101,6 +110,7 @@ export function useExpressionSummaries(
     mergedCellSets, cellSetSelection,
     featureValueTransform, featureValueTransformCoefficient,
     posThreshold, featureLabelsMap,
+    sampleEdges, sampleSets, sampleSetSelection,
   ]);
 
   return [resultArr, meanExpressionMax];
@@ -140,6 +150,8 @@ export function DotPlotSubscriber(props) {
     additionalObsSets: additionalCellSets,
     featureValuePositivityThreshold: posThreshold,
     // TODO: coordination type for mean expression colormap
+    sampleType,
+    sampleSetSelection,
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
@@ -172,23 +184,40 @@ export function DotPlotSubscriber(props) {
     loaders, dataset, true, {}, {},
     { obsType },
   );
+
+  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrl] = useSampleSetsData(
+    loaders, dataset, false, {}, {},
+    { sampleType },
+  );
+
+  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrl] = useSampleEdgesData(
+    loaders, dataset, false, {}, {},
+    { obsType, sampleType },
+  );
+
   const isReady = useReady([
     featureSelectionStatus,
     matrixIndicesStatus,
     obsSetsStatus,
     featureLabelsStatus,
+    sampleSetsStatus,
+    sampleEdgesStatus,
   ]);
   const urls = useUrls([
     featureLabelsUrl,
     matrixIndicesUrl,
     obsSetsUrl,
+    sampleSetsUrl,
+    sampleEdgesUrl,
   ]);
 
   const [resultArr, meanExpressionMax] = useExpressionSummaries(
+    sampleEdges, sampleSets, sampleSetSelection,
     expressionData, obsIndex, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
     posThreshold, featureLabelsMap,
+
   );
   const selectedTransformName = transformOptions.find(
     o => o.value === featureValueTransform,
@@ -226,6 +255,7 @@ export function DotPlotSubscriber(props) {
             featureType={featureType}
             featureValueType={featureValueType}
             featureValueTransformName={selectedTransformName}
+            cellSetSelection={cellSetSelection}
           />
         ) : (
           <span>Select at least one {featureType}.</span>

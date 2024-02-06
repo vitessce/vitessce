@@ -34,6 +34,7 @@ export default function DotPlot(props) {
     featureType,
     featureValueType,
     featureValueTransformName,
+    cellSetSelection,
   } = props;
 
   // Add a property `keyGroup` and `keyFeature` which concatenates the key and the name,
@@ -43,6 +44,7 @@ export default function DotPlot(props) {
     ...d,
     keyGroup: d.groupKey + d.group,
     keyFeature: d.featureKey + d.feature,
+    keyGroupSecondary: d.secondaryGroupKey + d.secondaryGroup,
   }));
 
   // Get the max characters in an axis label for autsizing the bottom margin.
@@ -56,6 +58,13 @@ export default function DotPlot(props) {
     acc = acc === undefined || val.feature.length > acc ? val.feature.length : acc;
     return acc;
   }, 0);
+  const maxCharactersForSampleSet = data.reduce((acc, val) => {
+    // eslint-disable-next-line no-param-reassign
+    acc = acc === undefined || val.secondaryGroup.length > acc ? val.secondaryGroup.length : acc;
+    return acc;
+  }, 0);
+
+
   // Use a square-root term because the angle of the labels is 45 degrees (see below)
   // so the perpendicular distance to the bottom of the labels is proportional to the
   // square root of the length of the labels along the imaginary hypotenuse.
@@ -64,13 +73,21 @@ export default function DotPlot(props) {
     || 30 + Math.sqrt(maxCharactersForFeature / 2) * 30;
   const autoMarginHorizontal = marginRight
     || 30 + Math.sqrt(maxCharactersForGroup / 2) * 30;
+  const autoMarginHorizontal2 = marginRight
+    || 30 + Math.sqrt(maxCharactersForSampleSet / 2) * 30;
 
-  const plotWidth = clamp(width - autoMarginHorizontal - 120, 10, Infinity);
-  const plotHeight = clamp(height - autoMarginVertical, 10, Infinity);
+  const totalRowMargin = 2 * (cellSetSelection?.length || 1);
+
+  const plotWidth = clamp(width - autoMarginHorizontal - autoMarginHorizontal2 - 120 - 80, 10, Infinity);
+  const plotHeight = clamp((height - autoMarginVertical - totalRowMargin), 10, Infinity) / (cellSetSelection?.length || 1);
 
   // Get an array of keys for sorting purposes.
   const groupKeys = data.map(d => d.keyGroup);
   const featureKeys = data.map(d => d.keyFeature);
+  const groupSecondaryKeys = data.map(d => d.keyGroupSecondary);
+  
+
+  
 
   const meanTransform = (featureValueTransformName && featureValueTransformName !== 'None')
     // Mean Log-Transformed Normalized Expression
@@ -88,12 +105,13 @@ export default function DotPlot(props) {
         title: capitalize(featureType),
         sort: featureKeys,
       },
-      y: {
+      row: {
         field: 'keyGroup',
         type: 'nominal',
-        axis: { labelExpr: `substring(datum.label, ${keyLength})` },
+        header: { labelExpr: `substring(datum.label, ${keyLength})`, labelAngle: 0, labelAlign: 'left' },
         title: `${capitalize(obsType)} Set`,
         sort: groupKeys,
+        spacing: 0,
       },
       color: {
         field: 'meanExpInGroup',
@@ -106,6 +124,13 @@ export default function DotPlot(props) {
           direction: 'horizontal',
           tickCount: 2,
         },
+      },
+      y: {
+        field: 'keyGroupSecondary',
+        type: 'nominal',
+        axis: { labelExpr: `substring(datum.label, ${keyLength})` },
+        title: null, // TODO: use sampleType
+        sort: groupSecondaryKeys,
       },
       size: {
         field: 'fracPosInGroup',
