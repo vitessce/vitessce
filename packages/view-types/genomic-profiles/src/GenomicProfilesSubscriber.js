@@ -30,6 +30,25 @@ const REFERENCE_TILESETS = {
   },
 };
 
+const REFERENCE_STATIC_FILES = {
+  hg38: {
+    chromosomes: 'https://raw.githubusercontent.com/keller-mark/negspy/master/negspy/data/hg38/chromSizes.tsv',
+    genes: 'P0PLbQMwTYGy-5uPIQid7A',
+  },
+  hg19: {
+    chromosomes: 'https://raw.githubusercontent.com/keller-mark/negspy/master/negspy/data/hg19/chromSizes.tsv',
+    genes: 'OHJakQICQD6gTD7skx4EWA',
+  },
+  mm9: {
+    chromosomes: 'https://raw.githubusercontent.com/keller-mark/negspy/master/negspy/data/mm9/chromSizes.tsv',
+    genes: 'GUm5aBiLRCyz2PsBea7Yzg',
+  },
+  mm10: {
+    chromosomes: 'https://raw.githubusercontent.com/keller-mark/negspy/master/negspy/data/mm10/chromSizes.tsv',
+    genes: 'QDutvmyiSrec5nX4pA5WGQ',
+  },
+};
+
 /**
  * A component for visualization of genomic profiles
  * with genome-wide bar plots.
@@ -63,6 +82,7 @@ export function GenomicProfilesSubscriber(props) {
     higlassServer = 'https://higlass.io/api/v1',
     assembly = 'hg38',
     title = 'Genomic Profiles',
+    showGeneAnnotations = true,
   } = props;
 
   // eslint-disable-next-line no-unused-vars
@@ -103,7 +123,7 @@ export function GenomicProfilesSubscriber(props) {
       {
         type: 'horizontal-chromosome-labels',
         server: higlassServer,
-        tilesetUid: REFERENCE_TILESETS[assembly].chromosomes,
+        chromInfoPath: REFERENCE_STATIC_FILES[assembly].chromosomes,
         uid: 'chromosome-labels',
         options: {
           color: foregroundColor,
@@ -199,6 +219,7 @@ export function GenomicProfilesSubscriber(props) {
     // The HiGlassLazy component will fill in the fields 'uid',
     // 'initialXDomain', and 'initialYDomain'.
     const hgView = {
+      chromInfoPath: REFERENCE_STATIC_FILES[assembly].chromosomes,
       tracks: {
         top: [
           ...referenceTracks,
