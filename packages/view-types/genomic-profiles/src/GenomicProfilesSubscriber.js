@@ -82,7 +82,6 @@ export function GenomicProfilesSubscriber(props) {
     higlassServer = 'https://higlass.io/api/v1',
     assembly = 'hg38',
     title = 'Genomic Profiles',
-    showGeneAnnotations = true,
   } = props;
 
   // eslint-disable-next-line no-unused-vars
