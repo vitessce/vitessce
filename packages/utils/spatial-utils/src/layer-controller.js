@@ -5,7 +5,7 @@ import { Matrix4 } from 'math.gl';
 // Returns an rgb string for display, and changes the color (arr)
 // to use a grey for light theme + white color or if the colormap is on.
 export const toRgbUIString = (on, arr, theme) => {
-  const color = on || (theme === 'light' && arr?.every(i => i === 255))
+  const color = on || (theme !== 'dark' && arr?.every(i => i === 255))
     ? [220, 220, 220]
     : arr;
   return `rgb(${color})`;

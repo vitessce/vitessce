@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React, { useMemo } from 'react';
 import { isEqual } from 'lodash-es';
 import { sum } from 'd3-array';
@@ -95,7 +96,9 @@ export function GenomicProfilesSubscriber(props) {
 
     // Set up the colors to use in the HiGlass view config based on the current theme.
     const foregroundColor = (theme === 'dark' ? '#C0C0C0' : '#000000');
-    const backgroundColor = (theme === 'dark' ? '#000000' : '#f1f1f1');
+    const backgroundColor = (theme === 'dark' ? '#000000' : (
+      theme === 'light' ? '#f1f1f1' : '#ffffff'
+    ));
     const dimColor = (theme === 'dark' ? 'dimgray' : 'silver');
 
     // Define the "reference tracks" for chromosome labels and gene annotations.
