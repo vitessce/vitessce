@@ -172,7 +172,7 @@ export function VitessceDemo() {
                         rowHeight={rowHeight}
                         theme={theme}
                         onConfigChange={(configValue) => {
-                            console.log("Change of Config inside:", configValue);
+                            // console.log("Change of Config inside:", configValue);
                             channel?.publish("new_message", {
                                 sender: ws?.options.userId,
                                 config: configValue
