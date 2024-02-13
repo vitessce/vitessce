@@ -109,26 +109,7 @@ export const muiTheme = {
   }),
   light: createTheme({
     palette: {
-      type: 'light',
-      primary: grey,
-      secondary: grey,
-      primaryBackground: '#F1F1F1',
-      primaryBackgroundHighlight: '#FFFFFF',
-      primaryBackgroundInput: '#FFFFFF',
-      primaryBackgroundDim: '#8A8A8A',
-      primaryBackgroundLight: '#e0e0e0',
-      primaryForeground: '#333333',
-      primaryForegroundL5: 'rgb(64, 64, 64)', // lighten(map-get($theme-colors, "primary-foreground"), 5%);
-      primaryForegroundL10: 'rgb(77, 77, 77)', // lighten(map-get($theme-colors, "primary-foreground"), 10%);
-      primaryForegroundD15: 'rgb(13, 13, 13)', // darken(map-get($theme-colors, "primary-foreground"), 15%);
-      primaryForegroundDim: '#808080',
-      primaryForegroundActive: '#0074D9',
-      secondaryBackground: '#F1F1F1',
-      secondaryBackgroundDim: '#C0C0C0',
-      secondaryForeground: '#222222',
-      gridLayoutBackground: '#FFFFFF',
-      cardBorder: 'rgba(241, 241, 241, 0.125)',
-      tooltipText: 'rgba(0, 0, 0, 0.87)',
+      ...lightPalette,
       ...globalColors,
     },
     ...sharedThemeOptions,
