@@ -131,6 +131,7 @@ export function DotPlotSubscriber(props) {
     removeGridComponent,
     theme,
     title = 'Dot Plot',
+    transpose = true,
   } = props;
 
   const classes = useStyles();
@@ -246,6 +247,7 @@ export function DotPlotSubscriber(props) {
       <div ref={containerRef} className={classes.vegaContainer}>
         {resultArr ? (
           <DotPlot
+            transpose={transpose}
             domainMax={meanExpressionMax}
             data={resultArr}
             theme={theme}

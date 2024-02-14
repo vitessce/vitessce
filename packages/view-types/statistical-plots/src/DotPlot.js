@@ -23,6 +23,7 @@ import { capitalize, pluralize as plur } from '@vitessce/utils';
  */
 export default function DotPlot(props) {
   const {
+    transpose,
     data: rawData,
     theme,
     width,
@@ -69,24 +70,24 @@ export default function DotPlot(props) {
   // so the perpendicular distance to the bottom of the labels is proportional to the
   // square root of the length of the labels along the imaginary hypotenuse.
   // 30 is an estimate of the pixel size of a given character and seems to work well.
-  const autoMarginVertical = marginBottom
+  const autoMarginForFeature = marginBottom
     || 30 + Math.sqrt(maxCharactersForFeature / 2) * 30;
-  const autoMarginHorizontal = marginRight
+  const autoMarginForGroup = marginRight
     || 30 + Math.sqrt(maxCharactersForGroup / 2) * 30;
-  const autoMarginHorizontal2 = marginRight
+  const autoMarginForSampleSet = marginRight
     || 30 + Math.sqrt(maxCharactersForSampleSet / 2) * 30;
 
-  const totalRowMargin = 2 * (cellSetSelection?.length || 1);
-
-  const plotWidth = clamp(width - autoMarginHorizontal - autoMarginHorizontal2 - 120 - 80, 10, Infinity);
-  const plotHeight = clamp((height - autoMarginVertical - totalRowMargin), 10, Infinity) / (cellSetSelection?.length || 1);
+  const plotWidth = transpose
+    ? clamp(width - autoMarginForFeature - 180, 10, Infinity) / (cellSetSelection?.length || 1)
+    : clamp(width - autoMarginForGroup - autoMarginForSampleSet - 200, 10, Infinity);
+  const plotHeight = transpose
+    ? clamp((height - autoMarginForGroup - autoMarginForSampleSet - 50), 10, Infinity)
+    : clamp((height - autoMarginForFeature - 80), 10, Infinity) / (cellSetSelection?.length || 1);
 
   // Get an array of keys for sorting purposes.
   const groupKeys = data.map(d => d.keyGroup);
   const featureKeys = data.map(d => d.keyFeature);
   const groupSecondaryKeys = data.map(d => d.keyGroupSecondary);
-  
-
   
 
   const meanTransform = (featureValueTransformName && featureValueTransformName !== 'None')
@@ -98,17 +99,19 @@ export default function DotPlot(props) {
   const spec = {
     mark: { type: 'circle' },
     encoding: {
-      x: {
+      [(transpose ? 'y' : 'x')]: {
         field: 'keyFeature',
         type: 'nominal',
         axis: { labelExpr: `substring(datum.label, ${keyLength})` },
         title: capitalize(featureType),
         sort: featureKeys,
       },
-      row: {
+      [(transpose ? 'column' : 'row')]: {
         field: 'keyGroup',
         type: 'nominal',
-        header: { labelExpr: `substring(datum.label, ${keyLength})`, labelAngle: 0, labelAlign: 'left' },
+        header: transpose
+          ? { labelExpr: `substring(datum.label, ${keyLength})`, labelAngle: -60, labelAlign: 'right', titleOrient: "bottom", labelOrient: "bottom" }
+          : { labelExpr: `substring(datum.label, ${keyLength})`, labelAngle: 0, labelAlign: 'left' },
         title: `${capitalize(obsType)} Set`,
         sort: groupKeys,
         spacing: 0,
@@ -125,7 +128,7 @@ export default function DotPlot(props) {
           tickCount: 2,
         },
       },
-      y: {
+      [(transpose ? 'x' : 'y')]: {
         field: 'keyGroupSecondary',
         type: 'nominal',
         axis: { labelExpr: `substring(datum.label, ${keyLength})` },
