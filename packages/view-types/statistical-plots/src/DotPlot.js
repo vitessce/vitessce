@@ -136,9 +136,9 @@ export default function DotPlot(props) {
         sort: groupSecondaryKeys,
       },
       size: {
-        field: 'fracPosInGroup',
+        field: 'pctPosInGroup',
         type: 'quantitative',
-        title: [`Fraction of ${plur(obsType, 2)}`, 'in set'],
+        title: [`Percentage of ${plur(obsType, 2)}`, 'in set'],
         legend: {
           symbolFillColor: 'white',
         },

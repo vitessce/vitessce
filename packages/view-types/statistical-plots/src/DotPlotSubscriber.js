@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import {
   TitleInfo,
   useCoordination, useLoaders,
@@ -95,13 +95,11 @@ export function useExpressionSummaries(
 
               meanExpInGroup: dotObj.meanExpInGroup,
               fracPosInGroup: dotObj.fracPosInGroup,
+              pctPosInGroup: dotObj.fracPosInGroup * 100.0,
             })
           });
         });
       });
-
-      // TODO: reduce unnecessary re-renders
-      console.log(result);
       
       return [result, exprMax];
     }
@@ -223,7 +221,6 @@ export function DotPlotSubscriber(props) {
   const selectedTransformName = transformOptions.find(
     o => o.value === featureValueTransform,
   )?.name;
-
 
   return (
     <TitleInfo

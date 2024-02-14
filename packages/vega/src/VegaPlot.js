@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo } from 'react';
+import React, { Suspense, useMemo, useEffect } from 'react';
 import { Handler } from 'vega-tooltip';
 import clsx from 'clsx';
 import { useTooltipStyles } from '@vitessce/tooltip';
@@ -105,6 +105,10 @@ export function VegaPlot(props) {
       tooltip={tooltipHandler}
       renderer="canvas"
       scaleFactor={3}
+      // We need to force a re-render when the spec
+      // is the same except for changed width/height
+      // (to support responsive plots).
+      key={JSON.stringify({ width: spec.width, height: spec.height })}
     />
   ), [spec, data, signalListeners, tooltipHandler]);
 
