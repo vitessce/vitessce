@@ -32,16 +32,16 @@ const REFERENCE_TILESETS = {
 
 const REFERENCE_STATIC_FILES = {
   hg38: {
-    chromosomes: 'https://raw.githubusercontent.com/keller-mark/negspy/master/negspy/data/hg38/chromSizes.tsv',
+    chromosomes: 'https://raw.githubusercontent.com/vitessce/negspy/master/negspy/data/hg38/chromSizes.tsv',
   },
   hg19: {
-    chromosomes: 'https://raw.githubusercontent.com/keller-mark/negspy/master/negspy/data/hg19/chromSizes.tsv',
+    chromosomes: 'https://raw.githubusercontent.com/vitessce/negspy/master/negspy/data/hg19/chromSizes.tsv',
   },
   mm9: {
-    chromosomes: 'https://raw.githubusercontent.com/keller-mark/negspy/master/negspy/data/mm9/chromSizes.tsv',
+    chromosomes: 'https://raw.githubusercontent.com/vitessce/negspy/master/negspy/data/mm9/chromSizes.tsv',
   },
   mm10: {
-    chromosomes: 'https://raw.githubusercontent.com/keller-mark/negspy/master/negspy/data/mm10/chromSizes.tsv',
+    chromosomes: 'https://raw.githubusercontent.com/vitessce/negspy/master/negspy/data/mm10/chromSizes.tsv',
   },
 };
 
