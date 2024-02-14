@@ -33,19 +33,15 @@ const REFERENCE_TILESETS = {
 const REFERENCE_STATIC_FILES = {
   hg38: {
     chromosomes: 'https://raw.githubusercontent.com/keller-mark/negspy/master/negspy/data/hg38/chromSizes.tsv',
-    genes: 'P0PLbQMwTYGy-5uPIQid7A',
   },
   hg19: {
     chromosomes: 'https://raw.githubusercontent.com/keller-mark/negspy/master/negspy/data/hg19/chromSizes.tsv',
-    genes: 'OHJakQICQD6gTD7skx4EWA',
   },
   mm9: {
     chromosomes: 'https://raw.githubusercontent.com/keller-mark/negspy/master/negspy/data/mm9/chromSizes.tsv',
-    genes: 'GUm5aBiLRCyz2PsBea7Yzg',
   },
   mm10: {
     chromosomes: 'https://raw.githubusercontent.com/keller-mark/negspy/master/negspy/data/mm10/chromSizes.tsv',
-    genes: 'QDutvmyiSrec5nX4pA5WGQ',
   },
 };
 
@@ -82,6 +78,7 @@ export function GenomicProfilesSubscriber(props) {
     higlassServer = 'https://higlass.io/api/v1',
     assembly = 'hg38',
     title = 'Genomic Profiles',
+    showGeneAnnotations = true,
   } = props;
 
   // eslint-disable-next-line no-unused-vars
@@ -133,34 +130,38 @@ export function GenomicProfilesSubscriber(props) {
         },
         height: 30,
       },
-      {
-        type: 'horizontal-gene-annotations',
-        server: higlassServer,
-        tilesetUid: REFERENCE_TILESETS[assembly].genes,
-        uid: 'gene-annotations',
-        options: {
-          name: 'Gene Annotations (hg38)',
-          fontSize: 10,
-          labelPosition: 'hidden',
-          labelLeftMargin: 0,
-          labelRightMargin: 0,
-          labelTopMargin: 0,
-          labelBottomMargin: 0,
-          minHeight: 24,
-          geneAnnotationHeight: 16,
-          geneLabelPosition: 'outside',
-          geneStrandSpacing: 4,
-          showMousePosition: true,
-          mousePositionColor: foregroundColor,
-          plusStrandColor: foregroundColor,
-          minusStrandColor: foregroundColor,
-          labelColor: 'black',
-          labelBackgroundColor: backgroundColor,
-          trackBorderWidth: 0,
-          trackBorderColor: 'black',
-        },
-        height: 70,
-      },
+      ...(showGeneAnnotations
+        ? [
+          {
+            type: 'horizontal-gene-annotations',
+            server: higlassServer,
+            tilesetUid: REFERENCE_TILESETS[assembly].genes,
+            uid: 'gene-annotations',
+            options: {
+              name: 'Gene Annotations (hg38)',
+              fontSize: 10,
+              labelPosition: 'hidden',
+              labelLeftMargin: 0,
+              labelRightMargin: 0,
+              labelTopMargin: 0,
+              labelBottomMargin: 0,
+              minHeight: 24,
+              geneAnnotationHeight: 16,
+              geneLabelPosition: 'outside',
+              geneStrandSpacing: 4,
+              showMousePosition: true,
+              mousePositionColor: foregroundColor,
+              plusStrandColor: foregroundColor,
+              minusStrandColor: foregroundColor,
+              labelColor: 'black',
+              labelBackgroundColor: backgroundColor,
+              trackBorderWidth: 0,
+              trackBorderColor: 'black',
+            },
+            height: 70,
+          },
+        ] : []
+      ),
     ];
     // Determine the heights of each profile track by subtracting the
     // reference track heights from the component height, then
