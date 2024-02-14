@@ -23,6 +23,7 @@ import { capitalize, pluralize as plur } from '@vitessce/utils';
  */
 export default function DotPlot(props) {
   const {
+    isStratified,
     transpose,
     data: rawData,
     theme,
@@ -59,11 +60,11 @@ export default function DotPlot(props) {
     acc = acc === undefined || val.feature.length > acc ? val.feature.length : acc;
     return acc;
   }, 0);
-  const maxCharactersForSampleSet = data.reduce((acc, val) => {
+  const maxCharactersForSampleSet = isStratified ? data.reduce((acc, val) => {
     // eslint-disable-next-line no-param-reassign
     acc = acc === undefined || val.secondaryGroup.length > acc ? val.secondaryGroup.length : acc;
     return acc;
-  }, 0);
+  }, 0) : 0;
 
 
   // Use a square-root term because the angle of the labels is 45 degrees (see below)
@@ -146,7 +147,16 @@ export default function DotPlot(props) {
     },
     width: plotWidth,
     height: plotHeight,
-    config: VEGA_THEMES[theme],
+    config: {
+      ...VEGA_THEMES[theme],
+      ...(!isStratified ? {
+        // Remove the row/column outlines when 
+        // not stratified by sample set.
+        view: {
+          stroke: 'transparent',
+        },
+      } : {}),
+    }
   };
 
   return (

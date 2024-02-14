@@ -25,7 +25,6 @@ import {
   aggregateStratifiedExpressionData,
   summarizeStratifiedExpressionData,
   histogramStratifiedExpressionData,
-  dotStratifiedExpressionData,
 } from './expr-hooks.js';
 
 /**

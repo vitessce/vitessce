@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import {
   TitleInfo,
   useCoordination, useLoaders,
@@ -12,7 +12,6 @@ import {
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS, getValueTransformFunction } from '@vitessce/utils';
 import { treeToObsIndicesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
-import { mean } from 'd3-array';
 import { InternMap } from 'internmap';
 import { v4 as uuidv4 } from 'uuid';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions.js';
@@ -163,6 +162,7 @@ export function DotPlotSubscriber(props) {
   const [width, height, containerRef] = useGridItemSize();
 
   const transformOptions = VALUE_TRANSFORM_OPTIONS;
+  const isStratified = Array.isArray(sampleSetSelection) && sampleSetSelection.length > 1;
 
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
@@ -244,6 +244,7 @@ export function DotPlotSubscriber(props) {
       <div ref={containerRef} className={classes.vegaContainer}>
         {resultArr ? (
           <DotPlot
+            isStratified={isStratified}
             transpose={transpose}
             domainMax={meanExpressionMax}
             data={resultArr}

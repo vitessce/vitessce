@@ -4,28 +4,12 @@ import React, { useMemo, useEffect, useRef } from 'react';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
 import { scale as vega_scale } from 'vega-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
-import {
-  bin,
-  min,
-  max,
-  rollup as d3_rollup,
-  mean as d3_mean,
-  deviation as d3_deviation,
-  ascending as d3_ascending,
-  map as d3_map,
-  quantileSorted,
-} from 'd3-array';
 import { area as d3_area, curveBasis } from 'd3-shape';
 import { select } from 'd3-selection';
 import { colorArrayToString } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
 
 const scaleBand = vega_scale('band');
-
-const STRATIFICATION_KEY = 'sampleSet';
-const GROUP_KEY = 'set';
-const VALUE_KEY = 'value';
-
 
 /**
  * Gene expression histogram displayed as a bar chart,
