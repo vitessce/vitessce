@@ -86,8 +86,7 @@ export function ExpressionHistogramSubscriber(props) {
       return obsIndex.map((cellId, cellIndex) => {
         const value = expressionData[0][cellIndex];
         // Create new cellColors map based on the selected gene.
-        const normValue = value * 100 / 255;
-        const newItem = { value: normValue, gene: firstGeneSelected, cellId };
+        const newItem = { value, gene: firstGeneSelected, cellId };
         return newItem;
       });
     }
@@ -121,7 +120,7 @@ export function ExpressionHistogramSubscriber(props) {
 
   return (
     <TitleInfo
-      title={`Expression Histogram${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      title={`Histogram${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
