@@ -20,7 +20,7 @@ export default class ObsFeatureColumnsAnndataLoader extends AbstractTwoStepLoade
       const colPaths = options.map(({ path }) => path);
       const firstPath = colPaths[0];
       const obsIndex = await this.dataSource.loadObsIndex(firstPath);
-      const featureIndex = colPaths.map((colPath) => basename(colPath));
+      const featureIndex = colPaths.map(colPath => basename(colPath));
       const shape = [obsIndex.length, featureIndex.length];
       const out = new Float32Array(shape[0] * shape[1]);
 
@@ -32,16 +32,16 @@ export default class ObsFeatureColumnsAnndataLoader extends AbstractTwoStepLoade
           out[obsI * shape[1] + featureI] = colData.data[obsI];
         });
       });
-      const obsFeatureMatrix = { data: out };      
+      const obsFeatureMatrix = { data: out };
       this.obsFeatureColumns = { obsIndex, featureIndex, obsFeatureMatrix };
-      
+
       return this.obsFeatureColumns;
     }
     this.obsFeatureColumns = Promise.resolve(null);
     return this.obsFeatureColumns;
   }
 
-  async load() {    
+  async load() {
     const superResult = await super.load().catch(reason => Promise.resolve(reason));
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
