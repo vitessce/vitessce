@@ -95,7 +95,7 @@ export function ExpressionHistogramSubscriber(props) {
       return obsIndex.map((cellId, cellIndex) => {
         const values = obsFeatureMatrix.data
           .subarray(cellIndex * numGenes, (cellIndex + 1) * numGenes);
-        const sumValue = sum(values) * 100 / 255;
+        const sumValue = sum(values);
         const newItem = { value: sumValue, gene: null, cellId };
         return newItem;
       });
@@ -131,6 +131,9 @@ export function ExpressionHistogramSubscriber(props) {
       <div ref={containerRef} className={classes.vegaContainer}>
         <ExpressionHistogram
           geneSelection={geneSelection}
+          obsType={obsType}
+          featureType={featureType}
+          featureValueType={featureValueType}
           onSelect={onSelect}
           data={data}
           theme={theme}

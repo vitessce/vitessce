@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { clamp, debounce } from 'lodash-es';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
+import { capitalize, pluralize } from '@vitessce/utils';
 
 /**
  * We use debounce, so that onSelect is called only after the user has finished the selection.
@@ -30,6 +31,9 @@ import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 export default function ExpressionHistogram(props) {
   const {
     geneSelection,
+    obsType,
+    featureType,
+    featureValueType,
     data,
     theme,
     width,
@@ -41,9 +45,12 @@ export default function ExpressionHistogram(props) {
 
   const [selectedRanges, setSelectedRanges] = useState([]);
 
+  const isExpression = (
+    featureType === 'gene' && featureValueType === 'expression'
+  );
   const xTitle = geneSelection && geneSelection.length >= 1
-    ? 'Normalized Expression Value'
-    : 'Total Normalized Transcript Count';
+    ? (isExpression ? `Expression Value (${geneSelection[0]})` : `${geneSelection[0]}`)
+    : (isExpression ? 'Total Transcript Count' : 'Sum of Feature Values');
 
   const spec = {
     data: { values: data },
@@ -58,7 +65,7 @@ export default function ExpressionHistogram(props) {
       y: {
         type: 'quantitative',
         aggregate: 'count',
-        title: 'Number of Cells',
+        title: `Number of ${capitalize(pluralize(obsType, 2))}`,
       },
       color: { value: 'gray' },
       opacity: {
