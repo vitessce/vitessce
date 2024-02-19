@@ -48,6 +48,7 @@ export default function ExpressionHistogram(props) {
   const isExpression = (
     featureType === 'gene' && featureValueType === 'expression'
   );
+  // eslint-disable-next-line no-nested-ternary
   const xTitle = geneSelection && geneSelection.length >= 1
     ? (isExpression ? `Expression Value (${geneSelection[0]})` : `${geneSelection[0]}`)
     : (isExpression ? 'Total Transcript Count' : 'Sum of Feature Values');
