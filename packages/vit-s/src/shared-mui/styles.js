@@ -106,6 +106,7 @@ export const muiTheme = {
       ...globalColors,
     },
     ...sharedThemeOptions,
+    cardBorderSize: '1px',
   }),
   light: createTheme({
     palette: {
@@ -113,6 +114,7 @@ export const muiTheme = {
       ...globalColors,
     },
     ...sharedThemeOptions,
+    cardBorderSize: '1px',
   }),
   light2: createTheme({
     palette: {
@@ -121,9 +123,11 @@ export const muiTheme = {
       primaryBackgroundHighlight: '#F1F1F1',
       primaryBackgroundInput: '#F1F1F1',
       secondaryBackground: '#FFFFFF',
-      gridLayoutBackground: '#F1F1F1',
+      gridLayoutBackground: '#FFFFFF',
+      cardBorder: '#ccc',
       ...globalColors,
     },
     ...sharedThemeOptions,
+    cardBorderSize: '2px',
   }),
 };
