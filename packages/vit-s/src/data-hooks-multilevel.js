@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { CoordinationType } from '@vitessce/constants-internal';
-import { fromEntries } from '@vitessce/utils';
 import {
   useComplexCoordination,
   useComplexCoordinationSecondary,
@@ -44,10 +43,10 @@ export function useSegmentationMultiFeatureSelection(
     [coordinationScopes, coordinationScopesBy]);
   const useMemoDependency = Object.values(featureSelectionCoordination[0] || {})
     .flatMap(layerVal => Object.values(layerVal).map(cVal => cVal.featureSelection));
-  const selections = useMemo(() => fromEntries(Object.entries(featureSelectionCoordination[0])
+  const selections = useMemo(() => Object.fromEntries(Object.entries(featureSelectionCoordination[0])
     .map(([layerScope, layerVal]) => ([
       layerScope,
-      fromEntries(
+      Object.fromEntries(
         Object.entries(layerVal)
           .map(([cScope, cVal]) => ([cScope, cVal.featureSelection])),
       ),
@@ -92,7 +91,7 @@ export function useSpotMultiFeatureSelection(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const selections = useMemo(() => fromEntries(Object.entries(featureSelectionCoordination[0])
+  const selections = useMemo(() => Object.fromEntries(Object.entries(featureSelectionCoordination[0])
     .map(([layerScope, layerVal]) => ([
       layerScope,
       layerVal.featureSelection,

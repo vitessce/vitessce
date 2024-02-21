@@ -3,7 +3,7 @@ import {
 } from 'react';
 import { debounce, every } from 'lodash-es';
 import { extent } from 'd3-array';
-import { capitalize, fromEntries } from '@vitessce/utils';
+import { capitalize } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
 import { useGridResize, useEmitGridResize } from './state/hooks.js';
 import { VITESSCE_CONTAINER } from './classNames.js';
@@ -290,11 +290,11 @@ export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMem
       const obsMembership = obsSetsMembership?.get(obsId) || [];
       return {
         [`${capitalize(obsType)} ID`]: obsId,
-        ...fromEntries(obsMembership.flatMap(path => path.slice(1).map((pathEl, elLevel) => ([
+        ...Object.fromEntries(obsMembership.flatMap(path => path.slice(1).map((pathEl, elLevel) => ([
           `${path[0]}${path.length > 2 ? ` L${elLevel + 1}` : ''}`,
           pathEl,
         ])))),
-        ...fromEntries(Object.entries(obsLabelsTypes).map(([scopeKey, obsLabelsType]) => ([
+        ...Object.fromEntries(Object.entries(obsLabelsTypes).map(([scopeKey, obsLabelsType]) => ([
           obsLabelsType,
           obsLabelsData?.[scopeKey]?.obsLabels?.[
             // TODO: Maybe all loaders that return obsIndex should also return an obsIndexMap

@@ -1,7 +1,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable camelcase */
 import { cloneDeep } from 'lodash-es';
-import { fromEntries, getNextScope } from '@vitessce/utils';
+import { getNextScope } from '@vitessce/utils';
 import {
   AUTO_INDEPENDENT_COORDINATION_TYPES,
   META_VERSION,
@@ -39,7 +39,7 @@ export function getExistingScopesForCoordinationType(config, coordinationType) {
  * @returns {object} The new view config.
  */
 function coordinateComponentsTogether(config, coordinationType, scopeValue, viewTypes) {
-  const componentCoordinationTypes = fromEntries(
+  const componentCoordinationTypes = Object.fromEntries(
     viewTypes.map(vt => ([vt.name, vt.coordinationTypes])),
   );
   const scopeName = getNextScope(getExistingScopesForCoordinationType(config, coordinationType));
@@ -83,7 +83,7 @@ function coordinateComponentsTogether(config, coordinationType, scopeValue, view
  * @returns {object} The new view config.
  */
 function coordinateComponentsIndependent(config, coordinationType, scopeValue, viewTypes) {
-  const componentCoordinationTypes = fromEntries(
+  const componentCoordinationTypes = Object.fromEntries(
     viewTypes.map(vt => ([vt.name, vt.coordinationTypes])),
   );
   const newConfig = {
@@ -133,10 +133,10 @@ function initializeAuto(config, coordinationTypeObjs, viewTypeObjs) {
   let newConfig = config;
   const { layout, datasets } = newConfig;
 
-  const componentCoordinationTypes = fromEntries(
+  const componentCoordinationTypes = Object.fromEntries(
     viewTypeObjs.map(vt => ([vt.name, vt.coordinationTypes])),
   );
-  const defaultCoordinationValues = fromEntries(
+  const defaultCoordinationValues = Object.fromEntries(
     coordinationTypeObjs.map(ct => ([ct.name, ct.defaultValue])),
   );
   const coordinationTypes = coordinationTypeObjs.map(ct => ct.name);
@@ -215,7 +215,7 @@ function assignViewUids(config) {
  * @returns The view config containing expanded minimal file types.
  */
 function expandConvenienceFileDefs(config, jointFileTypes) {
-  const convenienceFileTypes = fromEntries(
+  const convenienceFileTypes = Object.fromEntries(
     jointFileTypes.map(ft => ([ft.name, ft.expandFunction])),
   );
   const { datasets: currDatasets } = config;
