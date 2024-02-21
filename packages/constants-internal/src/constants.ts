@@ -57,6 +57,7 @@ export const FileType = {
   OBS_SEGMENTATIONS_OME_ZARR: 'obsSegmentations.ome-zarr',
   // AnnData
   OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
+  OBS_FEATURE_COLUMNS_ANNDATA_ZARR: 'obsFeatureColumns.anndata.zarr',
   OBS_SETS_ANNDATA_ZARR: 'obsSets.anndata.zarr',
   OBS_EMBEDDING_ANNDATA_ZARR: 'obsEmbedding.anndata.zarr',
   OBS_SPOTS_ANNDATA_ZARR: 'obsSpots.anndata.zarr',

@@ -33,6 +33,7 @@ import {
   obsLocationsAnndataSchema,
   obsLabelsAnndataSchema,
   obsFeatureMatrixAnndataSchema,
+  obsFeatureColumnsAnndataSchema,
   obsSegmentationsAnndataSchema,
   featureLabelsAnndataSchema,
   rasterJsonSchema,
@@ -114,6 +115,7 @@ import {
   // AnnData
   AnnDataSource,
   ObsFeatureMatrixAnndataLoader,
+  ObsFeatureColumnsAnndataLoader,
   ObsEmbeddingAnndataLoader,
   ObsSpotsAnndataLoader,
   ObsPointsAnndataLoader,
@@ -213,6 +215,7 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_LOCATIONS_ANNDATA_ZARR, DataType.OBS_LOCATIONS, ObsLocationsAnndataLoader, AnnDataSource, obsLocationsAnndataSchema),
   makeFileType(FileType.OBS_LABELS_ANNDATA_ZARR, DataType.OBS_LABELS, ObsLabelsAnndataLoader, AnnDataSource, obsLabelsAnndataSchema),
   makeFileType(FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, AnnDataSource, obsFeatureMatrixAnndataSchema),
+  makeFileType(FileType.OBS_FEATURE_COLUMNS_ANNDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureColumnsAnndataLoader, AnnDataSource, obsFeatureColumnsAnndataSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, AnnDataSource, obsSegmentationsAnndataSchema),
   makeFileType(FileType.FEATURE_LABELS_ANNDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, AnnDataSource, featureLabelsAnndataSchema),
   // All MuData file types
