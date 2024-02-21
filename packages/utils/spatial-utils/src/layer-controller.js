@@ -1,5 +1,4 @@
 import { viv } from '@vitessce/gl';
-import { fromEntries } from '@vitessce/utils';
 import { Matrix4 } from 'math.gl';
 
 // Returns an rgb string for display, and changes the color (arr)
@@ -25,7 +24,7 @@ export function filterSelection(loader, selection) {
   }
   const data = Array.isArray(loader) ? loader[loader.length - 1] : loader;
   const { labels } = data;
-  return fromEntries(Object.entries(selection).filter(([key]) => labels.includes(key)));
+  return Object.fromEntries(Object.entries(selection).filter(([key]) => labels.includes(key)));
 }
 
 async function getSingleSelectionStats2D({ loader, selection }) {

@@ -2,7 +2,6 @@
 import { z } from 'zod';
 import { gte as semverGte } from 'semver';
 import { OldCoordinationType } from '@vitessce/constants';
-import { fromEntries } from '@vitessce/utils';
 import { SCHEMA_HANDLERS, latestConfigSchema, AnyVersionConfig } from './previous-config-meta.js';
 
 export function configSchemaToVersion<T extends z.ZodTypeAny>(zodSchema: T): string {
@@ -11,7 +10,7 @@ export function configSchemaToVersion<T extends z.ZodTypeAny>(zodSchema: T): str
 }
 
 export const VERSIONED_CONFIG_SCHEMAS: Record<string, z.ZodTypeAny> = {
-  ...fromEntries(SCHEMA_HANDLERS.map(([zodSchema]) => {
+  ...Object.fromEntries(SCHEMA_HANDLERS.map(([zodSchema]) => {
     // eslint-disable-next-line no-underscore-dangle
     const version = configSchemaToVersion(zodSchema);
     return [version, zodSchema];
