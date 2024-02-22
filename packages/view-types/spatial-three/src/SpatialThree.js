@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, {useRef, useState, forwardRef, useEffect, useCallback} from 'react';
 import {Canvas, extend, useFrame, useThree} from '@react-three/fiber'
-import {OrbitControls, useTexture, shaderMaterial, PerspectiveCamera, TorusKnot} from '@react-three/drei'
+import {OrbitControls, useTexture, shaderMaterial, PerspectiveCamera, TorusKnot, TransformControls} from '@react-three/drei'
 import {useXR, RayGrab, Interactive, VRButton, ARButton, XR, Controllers, Hands} from '@react-three/xr'
 import {EnhancedRayGrab} from "./TwoHandScale.js";
 import {isEqual} from 'lodash-es';
@@ -14,6 +14,9 @@ import * as THREE from "three";
 import cmViridisTextureUrl from "../textures/cm_viridis.png";
 import cmGrayTextureUrl from "../textures/cm_gray.png";
 import {VolumeRenderShaderPerspective} from "../jsm/shaders/VolumeShaderPerspective.js";
+import {VolumeShaderGeom} from "../jsm/shaders/VolumeShaderGeom.js";
+import {VolumeShaderNew} from "../jsm/shaders/VolumeShaderNew.js";
+import {VolumeShaderFirstPass} from "../jsm/shaders/VolumeShaderFirstPass.js";
 import {useGLTF} from '@react-three/drei'
 import {setObsSelection} from '@vitessce/sets-utils';
 import {setPowerset} from "mathjs";
@@ -57,7 +60,6 @@ const SpatialThree = (props) => {
         data: null,
         obsSets: [],
     })
-
 
     const {
         images,
@@ -127,26 +129,52 @@ const SpatialThree = (props) => {
     if (obsSegmentations[layerScope] !== undefined && segmentationGroup == null) {
         let scene = obsSegmentations[layerScope].scene
         if (scene !== null && scene !== undefined) {
-            //console.log(scene.children)
             let newScene = new THREE.Scene();
-            for (let child in scene.children) {
-                if (scene.children[child].material !== undefined) {
-                   scene.children[child].material.transparent = false
-                   //  scene.children[child].material.writeDepthTexture = true
-                   //  scene.children[child].material.depthTest = true
-                   //  scene.children[child].material.depthWrite = true
-                    scene.children[child].material.needsUpdate = true;
-                    scene.children[child].material.side = THREE.FrontSide;
-
-                    // scene.children[child].material.renderOrder = 100;
-                    let simplified = scene.children[child].clone();
-                    // Do some mesh simplification
-                    newScene.add(simplified)
-                }
+            //
+            // let shader = VolumeShaderGeom;
+            // let uniforms = THREE.UniformsUtils.clone( shader.uniforms );
+            // let geoMaterial = new THREE.ShaderMaterial({
+            //     uniforms: uniforms,
+            //     vertexShader: shader.vertexShader,
+            //     fragmentShader: shader.fragmentShader,
+            //     side: THREE.FrontSide,
+            // });
+            console.log(scene)
+            // for (let child in scene.children) {
+            //     if (scene.children[child].material !== undefined) {
+            //         scene.children[child].material.transparent = false
+            //         scene.children[child].material.writeDepthTexture = true
+            //         scene.children[child].material.depthTest = true
+            //         scene.children[child].material.depthWrite = true
+            //         scene.children[child].material.needsUpdate = true;
+            //         scene.children[child].material.side = THREE.FrontSide;
+            //         console.log(scene.children[child])
+            //         //position={[0.48743713578299863, 0.4162331615868373, -0.604996763080179]}
+            //         //scale={[0.001043358213954914 ,-0.0007880919935126668 ,-0.0012802805207355783]}
+            //         // scene.children[child].material = geoMaterial;
+            //         // scene.children[child].material.renderOrder = 100;
+            //         let simplified = scene.children[child].clone();
+            //         simplified.position.set(0,0,0);
+            //        // simplified.quaternation.set(0,0,0,0);
+            //         simplified.rotation.set(0,0,0);
+            //         simplified.updateMatrix();
+            //         // Do some mesh simplification
+            //         newScene.add(simplified)
+            //         break;
+            //     }
                 // break;
-            }
-            //console.log(newScene.children)
+            //}
+            const geometry = new THREE.SphereGeometry( 0.1, 32, 16 );
+            const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+            const sphere = new THREE.Mesh( geometry, material ); scene.add( sphere );
+            newScene.add(sphere);
+             //console.log(newScene)
+            // newScene.position.set(scene.position.x,scene.position.y,scene.position.z)
+            // newScene.scale.set(-1,-1,-1);
+            // newScene.position.set(-100,100,-100);
+            // console.log(newScene);
             setSegmentationGroup(newScene);
+            // setSegmentationGroup(scene);
         }
     }
     if (segmentationChannelCoordination[0] !== undefined && segmentationChannelCoordination[0][layerScope] !== undefined) {
@@ -187,13 +215,14 @@ const SpatialThree = (props) => {
                     }
                 }
                 //TODO check if in a Set selection
-                //adapt the color
-                segmentationGroup.children[child].material.color.r = color[0] / 255
-                segmentationGroup.children[child].material.color.g = color[1] / 255
-                segmentationGroup.children[child].material.color.b = color[2] / 255
+                // adapt the color
+               // segmentationGroup.children[child].material.color.r = color[0] / 255
+              //  segmentationGroup.children[child].material.color.g = color[1] / 255
+              //  segmentationGroup.children[child].material.color.b = color[2] / 255
                 segmentationGroup.children[child].material.opacity = segmentationSettings.opacity
                 segmentationGroup.children[child].material.needsUpdate = true;
             }
+            //console.log(segmentationGroup.children)
         }
     }, [segmentationSettings, segmentationGroup])
 
@@ -278,7 +307,6 @@ const SpatialThree = (props) => {
                     materialRef.current.material.uniforms.u_clim4.value = rendering[0]["u_clim4"].value;
                     materialRef.current.material.uniforms.u_clim5.value = rendering[0]["u_clim5"].value;
                     materialRef.current.material.uniforms.u_clim6.value = rendering[0]["u_clim6"].value;
-
                     materialRef.current.material.uniforms.u_color.value = rendering[0]["u_color"].value;
                     materialRef.current.material.uniforms.u_color2.value = rendering[0]["u_color2"].value;
                     materialRef.current.material.uniforms.u_color3.value = rendering[0]["u_color3"].value;
@@ -358,7 +386,7 @@ const SpatialThree = (props) => {
             <Controllers/>
             <Hands/>
             <GeometryAndMesh {...geometryAndMeshProps} ></GeometryAndMesh>
-            <OrbitControls ref={orbitRef}/>
+            <OrbitControls ref={orbitRef} makeDefault/>
         </group>
     );
 }
@@ -445,66 +473,145 @@ function GeometryAndMesh(props) {
         segmentationGroup, segmentationSettings,
         renderingSettings, materialRef, highlightGlom, setObsHighlight
     } = props;
-    const gl = useThree();
-    const geoTexture = new THREE.WebGLRenderTarget(gl.size.width, gl.size.height);
-    geoTexture.depthTexture = new THREE.DepthTexture(gl.size.width, gl.size.height);
+    const controls = useRef();
+
+    const glRoot = useThree();
+    //const geoTexture = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
+    //geoTexture.depthTexture = new THREE.DepthTexture(glRoot.size.width, glRoot.sze.height);
+    const geoTexture = new THREE.WebGLRenderTarget( glRoot.size.width*window.devicePixelRatio,
+        glRoot.size.width*window.devicePixelRatio,
+        { 	minFilter: THREE.LinearFilter,
+            magFilter: THREE.LinearFilter,
+            wrapS:  THREE.ClampToEdgeWrapping,
+            wrapT:  THREE.ClampToEdgeWrapping,
+            format: THREE.RGBAFormat,
+            type: THREE.FloatType,
+            generateMipmaps: false} );
+
     const model = useRef();
+
+    let shader = VolumeShaderFirstPass;
+    let uniformsShader = THREE.UniformsUtils.clone( shader.uniforms );
+    uniformsShader['u_vol_scale'].value.set(renderingSettings.uniforms.u_vol_scale.value.x,
+        renderingSettings.uniforms.u_vol_scale.value.y,renderingSettings.uniforms.u_vol_scale.value.z);
+    let firstPassVolume = new THREE.ShaderMaterial({
+        uniforms: uniformsShader,
+        vertexShader: shader.vertexShader,
+        fragmentShader: shader.fragmentShader,
+        side: THREE.BackSide,
+    });
+    let uniformsShaderGeom = THREE.UniformsUtils.clone( shader.uniforms );
+    let firstPassGeom = new THREE.ShaderMaterial({
+        uniforms: uniformsShaderGeom,
+        vertexShader: shader.vertexShader,
+        fragmentShader: shader.fragmentShader,
+        side: THREE.FrontSide,
+    });
+    //
+    // let shaderGeom = VolumeShaderGeom;
+    // let uniformsGeom = THREE.UniformsUtils.clone( shaderGeom.uniforms );
+    // uniformsGeom['u_vol_scale'].value.set(renderingSettings.uniforms.u_vol_scale.value.x,
+    //     renderingSettings.uniforms.u_vol_scale.value.y,renderingSettings.uniforms.u_vol_scale.value.z);
+    // let materialGeom = new THREE.ShaderMaterial({
+    //     uniforms: uniformsGeom,
+    //     vertexShader: shaderGeom.vertexShader,
+    //     fragmentShader: shaderGeom.fragmentShader,
+    //     side: THREE.FrontSide,
+    // });
 
     // First Positon: Left (+) Right (-)
     // Second Position: Up (+) Down (-)
     // Third Position: Front (-) Back (+)
-
-
-
     // SETTING UP THE DEPTH BUFFER AND MIXED RENDERING
     useFrame((state) => {
         const {gl, scene, camera} = state;
         // 1st Render the Meshes into a Text to get the depth buffer
-        if(model.current === undefined){
+        if(model.current === undefined || materialRef.current === undefined){
             return;
         }
-        model.current.visible = true;
-        materialRef.current.visible = false;
         gl.setRenderTarget(geoTexture);
         gl.clear();
-        gl.render(scene, camera);
-        materialRef.current.material.uniforms.u_geo_color.value = geoTexture.texture;
-        materialRef.current.material.uniforms.u_geo_depth.value = geoTexture.depthTexture;
-        gl.setRenderTarget(null);
-        gl.clear();
+        const materialSave = materialRef.current.material;
+        materialRef.current.material = firstPassVolume;
         model.current.visible = false;
         materialRef.current.visible = true;
         gl.render(scene, camera);
-    });
+        model.current.overrideMaterial = firstPassGeom;
+        gl.autoClear = false;
+        model.current.visible = true;
+        console.log(model.current)
+        gl.render(model.current, camera);
+        // 2nd Run
+     //   return;
 
+        gl.setRenderTarget(null);
+        gl.setClearColor(new THREE.Color(0, 0,0), 0.0);
+        gl.clear();
+        // model.current.overrideMaterial = materialGeom;
+        // model.current.visible = true;
+        // gl.render(model.current, camera);
+        // gl.autoClear = false;
+
+        materialRef.current.material = materialSave;
+        materialRef.current.material.uniforms.u_geo_color.value = geoTexture.texture;
+        materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glRoot.size.width*window.devicePixelRatio,
+            glRoot.size.height*window.devicePixelRatio);
+        materialRef.current.visible = true;
+        model.current.visible = true;
+        gl.render(scene, camera);
+
+    },1);
+
+    window.addEventListener('keydown', function (event) {
+        switch (event.code) {
+            case 'KeyG':
+                controls.current.setMode('translate')
+                break
+            case 'KeyR':
+                controls.current.setMode('rotate')
+                break
+            case 'KeyS':
+                controls.current.setMode('scale')
+                break
+            case 'KeyP':
+                console.log("Position:",model.current.position," Scale: ",model.current.scale)
+                break;
+        }
+    })
 
     return (
         <group>
             {segmentationGroup !== null && segmentationSettings.visible &&
                 <group>
-                    <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
+                    {/*<hemisphereLight skyColor={0x808080} groundColor={0x606060}/>*/}
                     <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
-                    <Interactive>
-                        {useXR().isPresenting ?
-                            <primitive ref={model} object={segmentationGroup}
-                                       scale={[-0.25 / 1000, -0.25 / 1000, -0.25 / 1000]}
-                                       position={[-0.18 - 100 / 1000, 1.13 + 110 / 1000, -1 - 140 / 1000]}
-                                       onClick={(e) => {
-                                           //console.log("you clicked me" + e.object.name)
-                                           highlightGlom(e.object.name);
-                                       }}
-                                       onPointerOver={e => setObsHighlight(e.object.name)}
-                                       onPointerOut={e => setObsHighlight(null)}/>
-                            :
-                            <primitive ref={model} object={segmentationGroup} scale={[-0.25, -0.25, -0.25]}
-                                       position={[-100, 110, -140]} onClick={(e) => {
-                                //console.log("you clicked me" + e.object.name)
-                                highlightGlom(e.object.name);
-                            }}
-                                       onPointerOver={e => setObsHighlight(e.object.name)}
-                                       onPointerOut={e => setObsHighlight(null)}
-                            />}
-                    </Interactive>
+                    {/*<primitive ref={model} object={segmentationGroup}/>*/}
+                    <primitive ref={model} object={segmentationGroup} position={[0,0,0]} scale={[1,1,1]}/>
+                    {/*<primitive ref={model} object={segmentationGroup}/>*/}
+                    <TransformControls object={model} mode="translate" ref={controls} />
+                        {/*<Interactive>*/}
+                    {/*    {useXR().isPresenting ?*/}
+                    {/*        <primitive ref={model} object={segmentationGroup}*/}
+                    {/*                   scale={[-0.25 / 1000, -0.25 / 1000, -0.25 / 1000]}*/}
+                    {/*                   position={[-0.18 - 100 / 1000, 1.13 + 110 / 1000, -1 - 140 / 1000]}*/}
+                    {/*                   onClick={(e) => {*/}
+                    {/*                       //console.log("you clicked me" + e.object.name)*/}
+                    {/*                       highlightGlom(e.object.name);*/}
+                    {/*                   }}*/}
+                    {/*                   onPointerOver={e => setObsHighlight(e.object.name)}*/}
+                    {/*                   onPointerOut={e => setObsHighlight(null)}/>*/}
+                    {/*        :*/}
+                    {/*        // <primitive ref={model} object={segmentationGroup} scale={[-0.25, -0.25, -0.25]}*/}
+                    {/*        //            position={[-100, 110, -140]} onClick={(e) => {*/}
+                    {/*            //console.log("you clicked me" + e.object.name)*/}
+                    {/*        <primitive ref={model} object={segmentationGroup} scale={[100, 100, 100]}*/}
+                    {/*                       position={[0,0,0]} onClick={(e) => {*/}
+                    {/*            highlightGlom(e.object.name);*/}
+                    {/*        }}*/}
+                    {/*                   onPointerOver={e => setObsHighlight(e.object.name)}*/}
+                    {/*                   onPointerOut={e => setObsHighlight(null)}*/}
+                    {/*        />}*/}
+                    {/*</Interactive>*/}
                 </group>
             }
             {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
@@ -528,16 +635,18 @@ function GeometryAndMesh(props) {
                             />
                         </mesh>
                         :
-                        <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                            <boxGeometry args={renderingSettings.geometrySize}/>
+                        // <mesh scale={renderingSettings.meshScale} ref={materialRef}>
+                        //     <boxGeometry args={renderingSettings.geometrySize}/>
+                        <mesh scale={[1.0,1.0,1.0]} ref={materialRef}>
+                            <boxGeometry args={[1.0,1.0,1.0]}/>
                             <shaderMaterial
                                 customProgramCacheKey={() => {
                                     return '1'
                                 }}
                                 side={THREE.FrontSide}
-                                uniforms={renderingSettings.uniforms}
                                 needsUpdate={true}
                                 transparent={true}
+                                uniforms={renderingSettings.uniforms}
                                 vertexShader={renderingSettings.shader.vertexShader}
                                 fragmentShader={renderingSettings.shader.fragmentShader}
                             />
@@ -710,10 +819,11 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
         viridis: new THREE.TextureLoader().load(cmViridisTextureUrl),
         gray: new THREE.TextureLoader().load(cmGrayTextureUrl)
     };
-    var shader = VolumeRenderShaderPerspective;
+    var shader = VolumeShaderNew;
     var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-    setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig, renderstyle, contrastLimitsList, colorsSave, div);
-    return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2].size / scale[0].size], [volume.xLength, volume.yLength, volume.zLength]];
+    let returnScale = [1, scale[1].size / scale[0].size, scale[2].size / scale[0].size];
+    setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig, renderstyle, contrastLimitsList, colorsSave, div, returnScale);
+    return [uniforms, shader, returnScale, [volume.xLength, volume.yLength, volume.zLength]];
 }
 
 async function initialDataLoading(channelTargetC, resolution, data, volumes, textures, volumeMinMax, oldResolution) {
@@ -735,7 +845,7 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
     return [volumes, textures, volumeMinMax, scale];
 }
 
-function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors, div) {
+function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors, div, scale) {
     uniforms["boxSize"].value.set(volume.xLength, volume.yLength, volume.zLength);
     //can be done better
     uniforms["volumeTex"].value = textures.length > 0 ? textures[0] : null;
@@ -745,10 +855,10 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["volumeTex5"].value = textures.length > 4 ? textures[4] : null;
     uniforms["volumeTex6"].value = textures.length > 5 ? textures[5] : null;
     //
-    uniforms["near"].value = 0.01;
-    uniforms["far"].value = 3000;
+    uniforms["near"].value = 0.1;
+    uniforms["far"].value = 100000;
     uniforms["alphaScale"].value = 1.0;
-    uniforms["dtScale"].value = 1;
+    uniforms["dt_scale"].value = 1.0;
     uniforms["finalGamma"].value = 4.5;
     uniforms["useVolumeMirrorX"].value = false;
     uniforms["volumeCount"].value = textures.length;
@@ -756,8 +866,8 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["u_cmdata"].value = cmTextures[volConfig.colormap];
     uniforms["u_geo_depth"].value = null;
     uniforms["u_geo_color"].value = null;
-    uniforms["u_window_size"].value.set(div.current.clientWidth, div.current.clientHeight);
-    uniforms["u_vol_scale"].value.set(0, 0, 0);
+    uniforms["u_window_size"].value.set(window.innerWidth, window.innerHeight);
+    uniforms["u_vol_scale"].value.set(volume.xLength/volume.xLength, volume.yLength/volume.xLength, volume.zLength/volume.xLength * scale[2]);
     uniforms["u_renderstyle"].value = renderstyle;
 
     uniforms["u_clim"].value.set(contrastLimits.length > 0 ? contrastLimits[0][0] : null, contrastLimits.length > 0 ? contrastLimits[0][1] : null);
@@ -915,8 +1025,9 @@ const SpatialWrapper = forwardRef((props, deckRef) => {
     const divRef = useRef(null);
 
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}} ref={divRef}>
-        <VRButton/>
-        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 3000}}>
+        <ARButton/>
+        <Canvas camera={{fov: 40, up: [0, 1, 0], position: [0, 0, 2.0], near: 0.001, far: 3000.0}}>
+            {/*<Canvas >*/}
             <XR>
                 <SpatialThree {...props} deckRef={deckRef} parent={divRef}/>
             </XR>
