@@ -15,7 +15,7 @@ export default class MatrixZarrAsObsFeatureMatrixLoader extends AbstractTwoStepL
   }
 
   async loadArr() {
-    const { storeRoot } = this.dataSource;
+    const storeRoot = await this.dataSource.storeRoot;
     if (this.arr) {
       return this.arr;
     }

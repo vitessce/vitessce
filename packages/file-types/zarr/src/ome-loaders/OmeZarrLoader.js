@@ -24,7 +24,8 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const payload = await this.dataSource.getJson('.zattrs', this.storeRoot).catch(reason => Promise.resolve(reason));
+    const storeRoot = await this.storeRoot;
+    const payload = await this.dataSource.getJson('.zattrs', storeRoot).catch(reason => Promise.resolve(reason));
     if (payload instanceof AbstractLoaderError) {
       return Promise.reject(payload);
     }
@@ -34,7 +35,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     // Here, we use this.storeRoot as opposed to this.dataSource.storeRoot.
     // Loader sub-classes may override this.storeRoot in their constructor
     // if their OME-Zarr image is not at the root of the store.
-    const loader = await loadOmeZarr(this.storeRoot);
+    const loader = await loadOmeZarr(storeRoot);
     const imageWrapper = new ImageWrapper(loader, this.options);
 
     const { metadata, data } = loader;
