@@ -25,7 +25,7 @@ async function initLoader(imageData) {
       } = metadata || {};
       const labels = dimensions.map(d => d.field);
       let source;
-      const root = await zarrOpenRoot(url, requestInit);
+      const root = await zarrOpenRoot(url, { requestInit });
       if (isPyramid) {
         const metadataUrl = `${url}${
           url.slice(-1) === '/' ? '' : '/'
@@ -80,7 +80,7 @@ async function initLoader(imageData) {
       // Reference: https://github.com/vitessce/vitessce/blob/fb0e7f/packages/file-types/zarr/src/ome-loaders/OmeZarrLoader.js#L29
       const { coordinateTransformations: coordinateTransformationsFromOptions } = metadata || {};
 
-      const root = await zarrOpenRoot(url, requestInit);
+      const root = await zarrOpenRoot(url, { requestInit });
       const loader = await loadOmeZarr(root);
       const { metadata: loaderMetadata } = loader;
 

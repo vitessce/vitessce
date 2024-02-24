@@ -3,16 +3,21 @@ import type { Readable } from '@zarrita/storage';
 import { root as zarrRoot, FetchStore } from 'zarrita';
 import { ZipFileStore, ReferenceStore } from '@zarrita/storage';
 
-export async function zarrOpenRoot(url: string, requestInit: RequestInit) {
+type ZarrOpenRootOptions = {
+  requestInit?: RequestInit,
+  refSpecUrl?: string,
+};
+
+export async function zarrOpenRoot(url: string, opts?: ZarrOpenRootOptions) {
   let store: Readable;
   if(url.endsWith('.zip')) {
     store = ZipFileStore.fromUrl(url);
-  } else if(url.endsWith('.json')) {
-    const referenceRes = await fetch(url);
+  } else if(url.endsWith('.h5ad') && opts?.refSpecUrl) {
+    const referenceRes = await fetch(opts?.refSpecUrl);
     const referenceSpec = await referenceRes.json();
-    store = await ReferenceStore.fromSpec(referenceSpec);
+    store = await ReferenceStore.fromSpec(referenceSpec, { target: url });
   } else {
-    store = new FetchStore(url, { overrides: requestInit });
+    store = new FetchStore(url, { overrides: opts?.requestInit });
   }
 
   // Wrap remote stores in a cache

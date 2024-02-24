@@ -163,6 +163,7 @@ export function createLoaders(datasets, configDescription, fileTypes, coordinati
         dataSources.set(dataSourceKey, new DataSourceClass({
           url,
           requestInit,
+          refSpecUrl: options?.refSpecUrl,
           // Optionally, pass a Zarrita store to the data source,
           // if one was mapped to this URL.
           store: stores?.[url],
