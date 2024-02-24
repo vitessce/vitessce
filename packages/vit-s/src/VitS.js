@@ -214,7 +214,10 @@ export function VitS(props) {
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
         <QueryClientProvider client={queryClient}>
-          <ViewConfigProvider createStore={createViewConfigStoreClosure} {...(remountOnUidChange ? ({ key: configKey }) : {})}>
+          <ViewConfigProvider
+            createStore={createViewConfigStoreClosure}
+            {...(remountOnUidChange ? ({ key: configKey }) : {})}
+          >
             <AuxiliaryProvider createStore={createAuxiliaryStore}>
               <VitessceGrid
                 success={success}
