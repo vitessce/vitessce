@@ -1,6 +1,6 @@
 // Originally in src/components/utils.js
 export const DEFAULT_DARK_COLOR = [50, 50, 50];
-export const DEFAULT_LIGHT_COLOR = [200, 200, 200];
+export const DEFAULT_LIGHT_COLOR = [235, 235, 235];
 
 export function getDefaultColor(theme: 'dark' | 'light' | 'light2') {
   return theme === 'dark' ? DEFAULT_DARK_COLOR : DEFAULT_LIGHT_COLOR;
