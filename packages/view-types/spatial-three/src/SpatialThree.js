@@ -52,6 +52,7 @@ const SpatialThree = (props) => {
         contrastLimits: [],
         is3dMode: false,
         renderingMode: null,
+        layerTransparency: 1.0,
     });
     const [segmentationSettings, setSegmentationSettings] = useState({
         visible: true,
@@ -76,10 +77,11 @@ const SpatialThree = (props) => {
         colors,
         contrastLimits,
         is3dMode,
-        renderingMode
+        renderingMode,
+        layerTransparency
     } = getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady)
 
-    //Segmentation: //TODO get the Loader to get the URL
+    //Segmentation:
     const {
         obsSegmentations,
         obsSegmentationsSets,
@@ -130,7 +132,52 @@ const SpatialThree = (props) => {
         let scene = obsSegmentations[layerScope].scene
         if (scene !== null && scene !== undefined) {
             let newScene = new THREE.Scene();
+            for(let child in scene.children) {
+                scene.children[child].material.transparent = false;
+               scene.children[child].material.writeDepthTexture = true
+               scene.children[child].material.depthTest = true
+               scene.children[child].material.depthWrite = true
+               scene.children[child].material.needsUpdate = true;
+                let newChild = scene.children[child].clone();
+                newChild.geometry = scene.children[child].geometry.clone();
+                newChild.material = scene.children[child].material.clone();
+                // The order in the geometry is x, z, y
+                newChild.geometry.translate(-464,-287,463)
+                //newChild.geometry.translate(-490,-37,550)
+                newChild.geometry.scale(1.0/928*1.1, 1.0/928 *1.1, -1.0/928 * 1.1)
+                //newChild.geometry.scale(1.0/137, -1.0/137, -1.0/137)  // That is correct! Blood Vessel Dataset
+                newChild.geometry.rotateX(Math.PI / 2.0)              // Transformation from Imaris System
+                newChild.geometry.translate(0.05,-0.07,-0.29)
+                newChild.rotation.set(0,0,0)
+                newChild.position.set(0,0,0)
+                newChild.scale.set(1.0,1.0,1.0)                     // Transformation from Imaris System
+                //newChild.scale.set(1.0,1.0,-1.0)                     // Transformation from Imaris System //Blood Vessel Dataset
+                newChild.updateWorldMatrix()
+                newScene.add(newChild);
+
+            }
+            setSegmentationGroup(newScene);
+
+            // let box = new THREE.Box3( ).setFromObject( newScene );
+            // let c = box.getCenter( new THREE.Vector3( ) );
+            // let size = box.getSize( new THREE.Vector3( ) );
+            // console.log(c, size)
+            // newScene.scale.set(1.0/size.x, 1.0/size.y,1.0/size.z /2.0)
+            //  box = new THREE.Box3( ).setFromObject( newScene );
+            //  c = box.getCenter( new THREE.Vector3( ) );
+            // newScene.translateX(-c.x)
+            // newScene.translateY(-c.y)
+            // newScene.translateZ(-c.z)
+            // newScene.updateMatrix()
+            // newScene.updateMatrixWorld()
+           // newScene.scale.set(-1.0/1099.0,1.0/980.0,-1.0/148.0);
+            // box = new THREE.Box3( ).setFromObject( newScene );
+            // c = box.getCenter( new THREE.Vector3( ) );
+            // size = box.getSize( new THREE.Vector3( ) );
+            // console.log(c, size)
+         //   let newScene = new THREE.Scene();
             //
+
             // let shader = VolumeShaderGeom;
             // let uniforms = THREE.UniformsUtils.clone( shader.uniforms );
             // let geoMaterial = new THREE.ShaderMaterial({
@@ -139,9 +186,11 @@ const SpatialThree = (props) => {
             //     fragmentShader: shader.fragmentShader,
             //     side: THREE.FrontSide,
             // });
-            console.log(scene)
+
+            // console.log(scene)
             // for (let child in scene.children) {
-            //     if (scene.children[child].material !== undefined) {
+            //     let cildInstance = scene.children[child];
+            //     if (cildInstance.material !== undefined) {
             //         scene.children[child].material.transparent = false
             //         scene.children[child].material.writeDepthTexture = true
             //         scene.children[child].material.depthTest = true
@@ -149,31 +198,45 @@ const SpatialThree = (props) => {
             //         scene.children[child].material.needsUpdate = true;
             //         scene.children[child].material.side = THREE.FrontSide;
             //         console.log(scene.children[child])
-            //         //position={[0.48743713578299863, 0.4162331615868373, -0.604996763080179]}
+                     //position={[0.48743713578299863, 0.4162331615868373, -0.604996763080179]}
             //         //scale={[0.001043358213954914 ,-0.0007880919935126668 ,-0.0012802805207355783]}
             //         // scene.children[child].material = geoMaterial;
             //         // scene.children[child].material.renderOrder = 100;
-            //         let simplified = scene.children[child].clone();
-            //         simplified.position.set(0,0,0);
+            //         let simplified = cildInstance.clone();
+            //         console.log(simplified);
+            //         simplified.geometry.translate(cildInstance.geometry.boundingBox.min.x*-1.0 + 1.0,
+            //             simplified.geometry.boundingBox.min.y*-1.0 + 1.0,
+            //             simplified.geometry.boundingBox.min.z*-1.0 + 1.0);
+            //         simplified.geometry.scale(1.0/cildInstance.geometry.boundingBox.max.x /2.0,
+            //             1.0/cildInstance.geometry.boundingBox.max.y /2.0,
+            //             1.0/cildInstance.geometry.boundingBox.max.z /2.0);
+            //         console.log(simplified);
+                    //simplified.geometry.translate(-445,-1677,-117);
+                   // simplified.geometry.scale(1.0/172.0,1.0/256.0,1.0/72.0);
             //        // simplified.quaternation.set(0,0,0,0);
             //         simplified.rotation.set(0,0,0);
             //         simplified.updateMatrix();
             //         // Do some mesh simplification
-            //         newScene.add(simplified)
-            //         break;
-            //     }
+             //       newScene.add(simplified)
+             //       break;
+            //    }
                 // break;
             //}
-            const geometry = new THREE.SphereGeometry( 0.1, 32, 16 );
-            const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
-            const sphere = new THREE.Mesh( geometry, material ); scene.add( sphere );
-            newScene.add(sphere);
+            //   const geometry = new THREE.SphereGeometry( 0.1, 32, 16 );
+            // geometry.translate(-0.5,0,0);
+            //   const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+            //   const sphere = new THREE.Mesh( geometry, material );
+            //   newScene.add(sphere);
+            //
+            // const geometrynew = new THREE.SphereGeometry( 0.1, 32, 16 );
+            // geometrynew.translate(0.5,0,0);
+            // const spherenew = new THREE.Mesh( geometrynew, material );
+            // newScene.add(spherenew);
              //console.log(newScene)
             // newScene.position.set(scene.position.x,scene.position.y,scene.position.z)
             // newScene.scale.set(-1,-1,-1);
             // newScene.position.set(-100,100,-100);
             // console.log(newScene);
-            setSegmentationGroup(newScene);
             // setSegmentationGroup(scene);
         }
     }
@@ -216,9 +279,9 @@ const SpatialThree = (props) => {
                 }
                 //TODO check if in a Set selection
                 // adapt the color
-               // segmentationGroup.children[child].material.color.r = color[0] / 255
-              //  segmentationGroup.children[child].material.color.g = color[1] / 255
-              //  segmentationGroup.children[child].material.color.b = color[2] / 255
+                segmentationGroup.children[child].material.color.r = color[0] / 255
+                segmentationGroup.children[child].material.color.g = color[1] / 255
+                segmentationGroup.children[child].material.color.b = color[2] / 255
                 segmentationGroup.children[child].material.opacity = segmentationSettings.opacity
                 segmentationGroup.children[child].material.needsUpdate = true;
             }
@@ -253,7 +316,8 @@ const SpatialThree = (props) => {
                     renderingSettings.shader === undefined || renderingSettings.shader === null) {
                     // JUST FOR THE INITIAL RENDERING
                     const rendering = create3DRendering(loadingResult[0], channelTargetC, channelsVisible, colors,
-                        loadingResult[1], contrastLimits, loadingResult[2], loadingResult[3], renderingMode, props.parent)
+                        loadingResult[1], contrastLimits, loadingResult[2], loadingResult[3], renderingMode, props.parent,
+                        layerTransparency)
                     if (rendering !== null) {
                         setRenderingSettings({
                             uniforms: rendering[0], shader: rendering[1], meshScale: rendering[2],
@@ -270,7 +334,8 @@ const SpatialThree = (props) => {
                         colors,
                         contrastLimits,
                         is3dMode,
-                        renderingMode
+                        renderingMode,
+                        layerTransparency
                     });
                 }
             }
@@ -292,7 +357,8 @@ const SpatialThree = (props) => {
             renderingSettings.shader !== undefined && renderingSettings.shader !== null))) {
             const rendering = create3DRendering(volumeData.volumes, volumeSettings.channelTargetC,
                 volumeSettings.channelsVisible, volumeSettings.colors, volumeData.textures,
-                volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale, volumeSettings.renderingMode, props.parent)
+                volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale, volumeSettings.renderingMode, props.parent,
+                volumeSettings.layerTransparency)
             if (rendering !== null) {
                 let volumeCount = 0;
                 for (let elem in volumeSettings.channelsVisible) {
@@ -301,6 +367,8 @@ const SpatialThree = (props) => {
                 setDataReady(false);
                 if (materialRef !== undefined && materialRef.current !== null) {
                     //Set the material uniforms
+                    console.log(rendering[0]["dt_scale"].value)
+                    materialRef.current.material.uniforms.dt_scale.value = rendering[0]["dt_scale"].value;
                     materialRef.current.material.uniforms.u_clim.value = rendering[0]["u_clim"].value;
                     materialRef.current.material.uniforms.u_clim2.value = rendering[0]["u_clim2"].value;
                     materialRef.current.material.uniforms.u_clim3.value = rendering[0]["u_clim3"].value;
@@ -350,7 +418,7 @@ const SpatialThree = (props) => {
         return (
             <group>
                 <ambientLight/>
-                <pointLight position={[10, 10, 10]}/>
+                <pointLight position={[10,10,10]}/>
                 <Hands/>
                 <Controllers/>
                 <RayGrab>
@@ -417,7 +485,8 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
         colors,
         contrastLimits,
         is3dMode,
-        renderingMode
+        renderingMode,
+        layerTransparency
     } = extractInformationFromProps(layerScope, layerCoordination, channelScopes,
         channelCoordination, images[layerScope], props, imageLayerLoaderSelections.current)
     // TODO: Find a better and more efficient way to compare the Strings here
@@ -432,7 +501,8 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
                 volumeSettings.colors.toString() !== colors.toString() ||
                 volumeSettings.is3dMode !== is3dMode ||
                 volumeSettings.contrastLimits.toString() !== contrastLimits.toString() ||
-                volumeSettings.renderingMode.toString() !== renderingMode.toString()
+                volumeSettings.renderingMode.toString() !== renderingMode.toString() ||
+                volumeSettings.layerTransparency.toString() !== layerTransparency.toString()
             )) {
             setVolumeSettings({
                 channelsVisible,
@@ -443,7 +513,8 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
                 colors,
                 contrastLimits,
                 is3dMode,
-                renderingMode
+                renderingMode,
+                layerTransparency
             });
             setDataReady(false);
         }
@@ -463,7 +534,8 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
         colors,
         contrastLimits,
         is3dMode,
-        renderingMode
+        renderingMode,
+        layerTransparency
     };
 }
 
@@ -507,22 +579,6 @@ function GeometryAndMesh(props) {
         fragmentShader: shader.fragmentShader,
         side: THREE.FrontSide,
     });
-    //
-    // let shaderGeom = VolumeShaderGeom;
-    // let uniformsGeom = THREE.UniformsUtils.clone( shaderGeom.uniforms );
-    // uniformsGeom['u_vol_scale'].value.set(renderingSettings.uniforms.u_vol_scale.value.x,
-    //     renderingSettings.uniforms.u_vol_scale.value.y,renderingSettings.uniforms.u_vol_scale.value.z);
-    // let materialGeom = new THREE.ShaderMaterial({
-    //     uniforms: uniformsGeom,
-    //     vertexShader: shaderGeom.vertexShader,
-    //     fragmentShader: shaderGeom.fragmentShader,
-    //     side: THREE.FrontSide,
-    // });
-
-    // First Positon: Left (+) Right (-)
-    // Second Position: Up (+) Down (-)
-    // Third Position: Front (-) Back (+)
-    // SETTING UP THE DEPTH BUFFER AND MIXED RENDERING
     useFrame((state) => {
         const {gl, scene, camera} = state;
         // 1st Render the Meshes into a Text to get the depth buffer
@@ -539,15 +595,15 @@ function GeometryAndMesh(props) {
         model.current.overrideMaterial = firstPassGeom;
         gl.autoClear = false;
         model.current.visible = true;
-        console.log(model.current)
         gl.render(model.current, camera);
+       // return;
         // 2nd Run
-     //   return;
 
         gl.setRenderTarget(null);
         gl.setClearColor(new THREE.Color(0, 0,0), 0.0);
         gl.clear();
-        // model.current.overrideMaterial = materialGeom;
+        //
+        // model.current.overrideMaterial = null;
         // model.current.visible = true;
         // gl.render(model.current, camera);
         // gl.autoClear = false;
@@ -583,12 +639,12 @@ function GeometryAndMesh(props) {
         <group>
             {segmentationGroup !== null && segmentationSettings.visible &&
                 <group>
-                    {/*<hemisphereLight skyColor={0x808080} groundColor={0x606060}/>*/}
-                    <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
+                    <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
+                    {/*<directionalLight color={0xFFFFFF} position={[0, 0, 2]}/>*/}
                     {/*<primitive ref={model} object={segmentationGroup}/>*/}
-                    <primitive ref={model} object={segmentationGroup} position={[0,0,0]} scale={[1,1,1]}/>
+                    <primitive ref={model} object={segmentationGroup}/>
                     {/*<primitive ref={model} object={segmentationGroup}/>*/}
-                    <TransformControls object={model} mode="translate" ref={controls} />
+                    {/*<TransformControls object={model} mode="translate" ref={controls} />*/}
                         {/*<Interactive>*/}
                     {/*    {useXR().isPresenting ?*/}
                     {/*        <primitive ref={model} object={segmentationGroup}*/}
@@ -688,6 +744,7 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
     const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
     const transparentColor = layerCoordination[CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR];
     const useTransparentColor = Array.isArray(transparentColor) && transparentColor.length === 3;
+    const layerTransparency = layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY];
     const rgbInterleavedProps = {};
     if (imageWrapperInstance.isInterleaved()) {
         rgbInterleavedProps.visible = visible;
@@ -768,7 +825,8 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
         colors,
         contrastLimits,
         is3dMode,
-        renderingMode
+        renderingMode,
+        layerTransparency
     };
 }
 
@@ -783,7 +841,7 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
  * @param volumeMinMax     ... from Store
  * @param scale            ... from Store
  */
-function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale, renderstyle, div) {
+function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale, renderstyle, div,layerTransparency) {
     let texturesList = [];
     let colorsSave = [];
     let contrastLimitsList = [];
@@ -822,7 +880,8 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
     var shader = VolumeShaderNew;
     var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
     let returnScale = [1, scale[1].size / scale[0].size, scale[2].size / scale[0].size];
-    setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig, renderstyle, contrastLimitsList, colorsSave, div, returnScale);
+    setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig, renderstyle, contrastLimitsList, colorsSave, div, returnScale,
+        layerTransparency);
     return [uniforms, shader, returnScale, [volume.xLength, volume.yLength, volume.zLength]];
 }
 
@@ -845,7 +904,8 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
     return [volumes, textures, volumeMinMax, scale];
 }
 
-function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors, div, scale) {
+function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors, div, scale,
+                             layerTransparency) {
     uniforms["boxSize"].value.set(volume.xLength, volume.yLength, volume.zLength);
     //can be done better
     uniforms["volumeTex"].value = textures.length > 0 ? textures[0] : null;
@@ -858,7 +918,7 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["near"].value = 0.1;
     uniforms["far"].value = 100000;
     uniforms["alphaScale"].value = 1.0;
-    uniforms["dt_scale"].value = 1.0;
+    uniforms["dt_scale"].value = layerTransparency;
     uniforms["finalGamma"].value = 4.5;
     uniforms["useVolumeMirrorX"].value = false;
     uniforms["volumeCount"].value = textures.length;
@@ -867,7 +927,13 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["u_geo_depth"].value = null;
     uniforms["u_geo_color"].value = null;
     uniforms["u_window_size"].value.set(window.innerWidth, window.innerHeight);
-    uniforms["u_vol_scale"].value.set(volume.xLength/volume.xLength, volume.yLength/volume.xLength, volume.zLength/volume.xLength * scale[2]);
+    //Get the max length
+    let max = volume.xLength > volume.yLength ?
+                volume.xLength > volume.zLength ?
+                volume.xLength : volume.yLength > volume.zLength ?
+                volume.yLength : volume.zLength : volume.yLength > volume.zLength ?
+                volume.yLength : volume.zLength;
+    uniforms["u_vol_scale"].value.set(volume.xLength/max, volume.yLength/max, volume.zLength/max * scale[2]);
     uniforms["u_renderstyle"].value = renderstyle;
 
     uniforms["u_clim"].value.set(contrastLimits.length > 0 ? contrastLimits[0][0] : null, contrastLimits.length > 0 ? contrastLimits[0][1] : null);
@@ -1015,7 +1081,7 @@ function Box(props) {
         <mesh
             {...props}
             ref={ref}>
-            <torusKnotGeometry args={[14, 6, 176, 16]}/>
+            <torusKnotGeometry args={[0.05, 0.02, 100, 16]}/>
             <meshPhongMaterial color={props.color}/>
         </mesh>
     );
@@ -1026,7 +1092,7 @@ const SpatialWrapper = forwardRef((props, deckRef) => {
 
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}} ref={divRef}>
         <ARButton/>
-        <Canvas camera={{fov: 40, up: [0, 1, 0], position: [0, 0, 2.0], near: 0.001, far: 3000.0}}>
+        <Canvas camera={{fov: 40, up: [0, 1, 0], position: [0, 0, 2.0], near: 0.00001, far: 3000.0}}>
             {/*<Canvas >*/}
             <XR>
                 <SpatialThree {...props} deckRef={deckRef} parent={divRef}/>
