@@ -1,7 +1,14 @@
 /* eslint-disable no-unused-vars */
 import React, {useRef, useState, forwardRef, useEffect, useCallback} from 'react';
 import {Canvas, extend, useFrame, useThree} from '@react-three/fiber'
-import {OrbitControls, useTexture, shaderMaterial, PerspectiveCamera, TorusKnot, TransformControls} from '@react-three/drei'
+import {
+    OrbitControls,
+    useTexture,
+    shaderMaterial,
+    PerspectiveCamera,
+    TorusKnot,
+    TransformControls
+} from '@react-three/drei'
 import {useXR, RayGrab, Interactive, VRButton, ARButton, XR, Controllers, Hands} from '@react-three/xr'
 import {EnhancedRayGrab} from "./TwoHandScale.js";
 import {isEqual} from 'lodash-es';
@@ -132,111 +139,44 @@ const SpatialThree = (props) => {
         let scene = obsSegmentations[layerScope].scene
         if (scene !== null && scene !== undefined) {
             let newScene = new THREE.Scene();
-            for(let child in scene.children) {
-                scene.children[child].material.transparent = false;
-               scene.children[child].material.writeDepthTexture = true
-               scene.children[child].material.depthTest = true
-               scene.children[child].material.depthWrite = true
-               scene.children[child].material.needsUpdate = true;
-                let newChild = scene.children[child].clone();
-                newChild.geometry = scene.children[child].geometry.clone();
-                newChild.material = scene.children[child].material.clone();
+            for (let child in scene.children) {
+                let childElement = scene.children[child]
+                console.log(childElement)
+                if (childElement.material === undefined) {
+                    childElement = scene.children[child].children[0];
+                    childElement.name = scene.children[child].name.replace("glb", "");
+                    childElement.userData.name = scene.children[child].userData.name.replace(".glb", "");
+                }
+                console.log(childElement)
+                childElement.material.transparent = false;
+                // childElement.material.writeDepthTexture = true
+                childElement.material.depthTest = true
+                childElement.material.depthWrite = true
+                childElement.material.needsUpdate = true;
+                let newChild = childElement.clone();
+                newChild.geometry = childElement.geometry.clone();
+                newChild.material = childElement.material.clone();
                 // The order in the geometry is x, z, y
-                newChild.geometry.translate(-464,-287,463)
-                //newChild.geometry.translate(-490,-37,550)
-                newChild.geometry.scale(1.0/928*1.1, 1.0/928 *1.1, -1.0/928 * 1.1)
-                //newChild.geometry.scale(1.0/137, -1.0/137, -1.0/137)  // That is correct! Blood Vessel Dataset
+                // Gloms
+                // newChild.geometry.translate(-464, -287, 463)
+                // newChild.geometry.scale(1.0 / 928 * 1.1, 1.0 / 928 * 1.1, -1.0 / 928 * 1.1)
+                // newChild.geometry.rotateX(Math.PI / 2.0)              // Transformation from Imaris System
+                // newChild.geometry.translate(0.05, -0.07, -0.29)
+                //Blood Vessel
+                newChild.geometry.translate(-490,-37,550)            //Blood Vessel
+                newChild.geometry.scale(1.0/137, -1.0/137, -1.0/137)  // That is correct! Blood Vessel Dataset
                 newChild.geometry.rotateX(Math.PI / 2.0)              // Transformation from Imaris System
-                newChild.geometry.translate(0.05,-0.07,-0.29)
-                newChild.rotation.set(0,0,0)
-                newChild.position.set(0,0,0)
-                newChild.scale.set(1.0,1.0,1.0)                     // Transformation from Imaris System
-                //newChild.scale.set(1.0,1.0,-1.0)                     // Transformation from Imaris System //Blood Vessel Dataset
+                newChild.geometry.translate(0.65,0.25,0.0)              //Blood vessel
+                newChild.geometry.computeVertexNormals();
+                // newChild.geometry.translate(0.65,0.25,0.0)            //For the Blood Vessels
+                newChild.rotation.set(0, 0, 0)
+                newChild.position.set(0, 0, 0)
+                // newChild.scale.set(1.0, 1.0, 1.0)                     // Transformation from Imaris System
+                newChild.scale.set(1.0,1.0,-1.0)                     // Transformation from Imaris System //Blood Vessel Dataset
                 newChild.updateWorldMatrix()
                 newScene.add(newChild);
-
             }
             setSegmentationGroup(newScene);
-            // let box = new THREE.Box3( ).setFromObject( newScene );
-            // let c = box.getCenter( new THREE.Vector3( ) );
-            // let size = box.getSize( new THREE.Vector3( ) );
-            // console.log(c, size)
-            // newScene.scale.set(1.0/size.x, 1.0/size.y,1.0/size.z /2.0)
-            //  box = new THREE.Box3( ).setFromObject( newScene );
-            //  c = box.getCenter( new THREE.Vector3( ) );
-            // newScene.translateX(-c.x)
-            // newScene.translateY(-c.y)
-            // newScene.translateZ(-c.z)
-            // newScene.updateMatrix()
-            // newScene.updateMatrixWorld()
-           // newScene.scale.set(-1.0/1099.0,1.0/980.0,-1.0/148.0);
-            // box = new THREE.Box3( ).setFromObject( newScene );
-            // c = box.getCenter( new THREE.Vector3( ) );
-            // size = box.getSize( new THREE.Vector3( ) );
-            // console.log(c, size)
-         //   let newScene = new THREE.Scene();
-            //
-
-            // let shader = VolumeShaderGeom;
-            // let uniforms = THREE.UniformsUtils.clone( shader.uniforms );
-            // let geoMaterial = new THREE.ShaderMaterial({
-            //     uniforms: uniforms,
-            //     vertexShader: shader.vertexShader,
-            //     fragmentShader: shader.fragmentShader,
-            //     side: THREE.FrontSide,
-            // });
-
-            // console.log(scene)
-            // for (let child in scene.children) {
-            //     let cildInstance = scene.children[child];
-            //     if (cildInstance.material !== undefined) {
-            //         scene.children[child].material.transparent = false
-            //         scene.children[child].material.writeDepthTexture = true
-            //         scene.children[child].material.depthTest = true
-            //         scene.children[child].material.depthWrite = true
-            //         scene.children[child].material.needsUpdate = true;
-            //         scene.children[child].material.side = THREE.FrontSide;
-            //         console.log(scene.children[child])
-                     //position={[0.48743713578299863, 0.4162331615868373, -0.604996763080179]}
-            //         //scale={[0.001043358213954914 ,-0.0007880919935126668 ,-0.0012802805207355783]}
-            //         // scene.children[child].material = geoMaterial;
-            //         // scene.children[child].material.renderOrder = 100;
-            //         let simplified = cildInstance.clone();
-            //         console.log(simplified);
-            //         simplified.geometry.translate(cildInstance.geometry.boundingBox.min.x*-1.0 + 1.0,
-            //             simplified.geometry.boundingBox.min.y*-1.0 + 1.0,
-            //             simplified.geometry.boundingBox.min.z*-1.0 + 1.0);
-            //         simplified.geometry.scale(1.0/cildInstance.geometry.boundingBox.max.x /2.0,
-            //             1.0/cildInstance.geometry.boundingBox.max.y /2.0,
-            //             1.0/cildInstance.geometry.boundingBox.max.z /2.0);
-            //         console.log(simplified);
-                    //simplified.geometry.translate(-445,-1677,-117);
-                   // simplified.geometry.scale(1.0/172.0,1.0/256.0,1.0/72.0);
-            //        // simplified.quaternation.set(0,0,0,0);
-            //         simplified.rotation.set(0,0,0);
-            //         simplified.updateMatrix();
-            //         // Do some mesh simplification
-             //       newScene.add(simplified)
-             //       break;
-            //    }
-                // break;
-            //}
-            //   const geometry = new THREE.SphereGeometry( 0.1, 32, 16 );
-            // geometry.translate(-0.5,0,0);
-            //   const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
-            //   const sphere = new THREE.Mesh( geometry, material );
-            //   newScene.add(sphere);
-            //
-            // const geometrynew = new THREE.SphereGeometry( 0.1, 32, 16 );
-            // geometrynew.translate(0.5,0,0);
-            // const spherenew = new THREE.Mesh( geometrynew, material );
-            // newScene.add(spherenew);
-             //console.log(newScene)
-            // newScene.position.set(scene.position.x,scene.position.y,scene.position.z)
-            // newScene.scale.set(-1,-1,-1);
-            // newScene.position.set(-100,100,-100);
-            // console.log(newScene);
-            // setSegmentationGroup(scene);
         }
     }
     if (segmentationChannelCoordination[0] !== undefined && segmentationChannelCoordination[0][layerScope] !== undefined) {
@@ -276,18 +216,15 @@ const SpatialThree = (props) => {
                         color = segmentationSettings.obsSets[index].color
                     }
                 }
-                //TODO check if in a Set selection
-                // adapt the color
-                segmentationGroup.children[child].material.color.r = color[0] / 255
-                segmentationGroup.children[child].material.color.g = color[1] / 255
-                segmentationGroup.children[child].material.color.b = color[2] / 255
+               // segmentationGroup.children[child].material.color.r = color[0] / 255
+               // segmentationGroup.children[child].material.color.g = color[1] / 255
+               // segmentationGroup.children[child].material.color.b = color[2] / 255
                 segmentationGroup.children[child].material.opacity = segmentationSettings.opacity
                 segmentationGroup.children[child].material.needsUpdate = true;
             }
             //console.log(segmentationGroup.children)
         }
     }, [segmentationSettings, segmentationGroup])
-
 
     // 1st Rendering Pass Load the Data in the given resolution OR Resolution Changed
     let dataToCheck = images[layerScope]?.image?.instance?.getData();
@@ -366,7 +303,6 @@ const SpatialThree = (props) => {
                 setDataReady(false);
                 if (materialRef !== undefined && materialRef.current !== null) {
                     //Set the material uniforms
-                    console.log(rendering[0]["dt_scale"].value)
                     materialRef.current.material.uniforms.dt_scale.value = rendering[0]["dt_scale"].value;
                     materialRef.current.material.uniforms.u_clim.value = rendering[0]["u_clim"].value;
                     materialRef.current.material.uniforms.u_clim2.value = rendering[0]["u_clim2"].value;
@@ -417,7 +353,7 @@ const SpatialThree = (props) => {
         return (
             <group>
                 <ambientLight/>
-                <pointLight position={[10,10,10]}/>
+                <pointLight position={[10, 10, 10]}/>
                 <Hands/>
                 <Controllers/>
                 <RayGrab>
@@ -549,29 +485,31 @@ function GeometryAndMesh(props) {
     const glRoot = useThree();
     //const geoTexture = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
     //geoTexture.depthTexture = new THREE.DepthTexture(glRoot.size.width, glRoot.sze.height);
-    const geoTexture = new THREE.WebGLRenderTarget( glRoot.size.width*window.devicePixelRatio,
-        glRoot.size.width*window.devicePixelRatio,
-        { 	minFilter: THREE.LinearFilter,
+    const geoTexture = new THREE.WebGLRenderTarget(glRoot.size.width * window.devicePixelRatio,
+        glRoot.size.width * window.devicePixelRatio,
+        {
+            minFilter: THREE.LinearFilter,
             magFilter: THREE.LinearFilter,
-            wrapS:  THREE.WrapAroundEnding,
-            wrapT:  THREE.ClampToEdgeWrapping,
+            wrapS: THREE.WrapAroundEnding,
+            wrapT: THREE.ClampToEdgeWrapping,
             format: THREE.RGBAFormat,
             type: THREE.FloatType,
-            generateMipmaps: false} );
+            generateMipmaps: false
+        });
 
     const model = useRef();
 
     let shader = VolumeShaderFirstPass;
-    let uniformsShader = THREE.UniformsUtils.clone( shader.uniforms );
+    let uniformsShader = THREE.UniformsUtils.clone(shader.uniforms);
     uniformsShader['u_vol_scale'].value.set(renderingSettings.uniforms.u_vol_scale.value.x,
-        renderingSettings.uniforms.u_vol_scale.value.y,renderingSettings.uniforms.u_vol_scale.value.z);
+        renderingSettings.uniforms.u_vol_scale.value.y, renderingSettings.uniforms.u_vol_scale.value.z);
     let firstPassVolume = new THREE.ShaderMaterial({
         uniforms: uniformsShader,
         vertexShader: shader.vertexShader,
         fragmentShader: shader.fragmentShader,
         side: THREE.BackSide,
     });
-    let uniformsShaderGeom = THREE.UniformsUtils.clone( shader.uniforms );
+    let uniformsShaderGeom = THREE.UniformsUtils.clone(shader.uniforms);
     let firstPassGeom = new THREE.ShaderMaterial({
         uniforms: uniformsShaderGeom,
         vertexShader: shader.vertexShader,
@@ -581,7 +519,7 @@ function GeometryAndMesh(props) {
     useFrame((state) => {
         const {gl, scene, camera} = state;
         // 1st Render the Meshes into a Text to get the depth buffer
-        if(model.current === undefined || materialRef.current === undefined){
+        if (model.current === undefined || materialRef.current === undefined) {
             return;
         }
         gl.setRenderTarget(geoTexture);
@@ -595,11 +533,11 @@ function GeometryAndMesh(props) {
         gl.autoClear = false;
         model.current.visible = true;
         gl.render(model.current, camera);
-       // return;
+        // return;
         // 2nd Run
 
         gl.setRenderTarget(null);
-        gl.setClearColor(new THREE.Color(0, 0,0), 0.0);
+        gl.setClearColor(new THREE.Color(0, 0, 0), 0.0);
         gl.clear();
         //
         // model.current.overrideMaterial = null;
@@ -609,13 +547,13 @@ function GeometryAndMesh(props) {
 
         materialRef.current.material = materialSave;
         materialRef.current.material.uniforms.u_geo_color.value = geoTexture.texture;
-        materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glRoot.size.width*window.devicePixelRatio,
-            glRoot.size.height*window.devicePixelRatio);
+        materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glRoot.size.width * window.devicePixelRatio,
+            glRoot.size.height * window.devicePixelRatio);
         materialRef.current.visible = true;
         model.current.visible = true;
         gl.render(scene, camera);
 
-    },1);
+    }, 1);
 
     window.addEventListener('keydown', function (event) {
         switch (event.code) {
@@ -629,7 +567,7 @@ function GeometryAndMesh(props) {
                 controls.current.setMode('scale')
                 break
             case 'KeyP':
-                console.log("Position:",model.current.position," Scale: ",model.current.scale)
+                console.log("Position:", model.current.position, " Scale: ", model.current.scale)
                 break;
         }
     })
@@ -639,73 +577,35 @@ function GeometryAndMesh(props) {
             {segmentationGroup !== null && segmentationSettings.visible &&
                 <group>
                     <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
-                    {/*<directionalLight color={0xFFFFFF} position={[0, 0, 2]}/>*/}
-                    {/*<primitive ref={model} object={segmentationGroup}/>*/}
-                    <primitive ref={model} object={segmentationGroup}/>
-                    {/*<primitive ref={model} object={segmentationGroup}/>*/}
-                    {/*<TransformControls object={model} mode="translate" ref={controls} />*/}
-                        {/*<Interactive>*/}
-                    {/*    {useXR().isPresenting ?*/}
-                    {/*        <primitive ref={model} object={segmentationGroup}*/}
-                    {/*                   scale={[-0.25 / 1000, -0.25 / 1000, -0.25 / 1000]}*/}
-                    {/*                   position={[-0.18 - 100 / 1000, 1.13 + 110 / 1000, -1 - 140 / 1000]}*/}
-                    {/*                   onClick={(e) => {*/}
-                    {/*                       //console.log("you clicked me" + e.object.name)*/}
-                    {/*                       highlightGlom(e.object.name);*/}
-                    {/*                   }}*/}
-                    {/*                   onPointerOver={e => setObsHighlight(e.object.name)}*/}
-                    {/*                   onPointerOut={e => setObsHighlight(null)}/>*/}
-                    {/*        :*/}
-                    {/*        // <primitive ref={model} object={segmentationGroup} scale={[-0.25, -0.25, -0.25]}*/}
-                    {/*        //            position={[-100, 110, -140]} onClick={(e) => {*/}
-                    {/*            //console.log("you clicked me" + e.object.name)*/}
-                    {/*        <primitive ref={model} object={segmentationGroup} scale={[100, 100, 100]}*/}
-                    {/*                       position={[0,0,0]} onClick={(e) => {*/}
-                    {/*            highlightGlom(e.object.name);*/}
-                    {/*        }}*/}
-                    {/*                   onPointerOver={e => setObsHighlight(e.object.name)}*/}
-                    {/*                   onPointerOut={e => setObsHighlight(null)}*/}
-                    {/*        />}*/}
-                    {/*</Interactive>*/}
+                    {useXR().isPresenting ?
+                        <primitive ref={model} object={segmentationGroup}/>
+                        :
+                        <primitive ref={model} object={segmentationGroup} onClick={(e) => {
+                            highlightGlom(e.object.name);
+                        }}
+                                   onPointerOver={e => setObsHighlight(e.object.name)}
+                                   onPointerOut={e => setObsHighlight(null)}
+                        />
+                    }
                 </group>
             }
             {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
                     renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
                 <EnhancedRayGrab>
-                    {useXR().isPresenting ?
-                        <mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]}
-                              scale={[0.001, 0.001, 0.002]}
-                              ref={materialRef}>
-                            <boxGeometry args={[400, 400, 400]}/>
-                            <shaderMaterial
-                                customProgramCacheKey={() => {
-                                    return '1'
-                                }}
-                                side={THREE.FrontSide}
-                                uniforms={renderingSettings.uniforms}
-                                needsUpdate={true}
-                                transparent={true}
-                                vertexShader={renderingSettings.shader.vertexShader}
-                                fragmentShader={renderingSettings.shader.fragmentShader}
-                            />
-                        </mesh>
-                        :
-                        // <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                        //     <boxGeometry args={renderingSettings.geometrySize}/>
-                        <mesh scale={[1.0,1.0,1.0]} ref={materialRef}>
-                            <boxGeometry args={[1.0,1.0,1.0]}/>
-                            <shaderMaterial
-                                customProgramCacheKey={() => {
-                                    return '1'
-                                }}
-                                side={THREE.FrontSide}
-                                needsUpdate={true}
-                                transparent={true}
-                                uniforms={renderingSettings.uniforms}
-                                vertexShader={renderingSettings.shader.vertexShader}
-                                fragmentShader={renderingSettings.shader.fragmentShader}
-                            />
-                        </mesh>}
+                    <mesh scale={[1.0, 1.0, 1.0]} ref={materialRef}>
+                        <boxGeometry args={[1.0, 1.0, 1.0]}/>
+                        <shaderMaterial
+                            customProgramCacheKey={() => {
+                                return '1'
+                            }}
+                            side={THREE.FrontSide}
+                            needsUpdate={true}
+                            transparent={true}
+                            uniforms={renderingSettings.uniforms}
+                            vertexShader={renderingSettings.shader.vertexShader}
+                            fragmentShader={renderingSettings.shader.fragmentShader}
+                        />
+                    </mesh>
                 </EnhancedRayGrab>
             }
         </group>
@@ -840,7 +740,7 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
  * @param volumeMinMax     ... from Store
  * @param scale            ... from Store
  */
-function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale, renderstyle, div,layerTransparency) {
+function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale, renderstyle, div, layerTransparency) {
     let texturesList = [];
     let colorsSave = [];
     let contrastLimitsList = [];
@@ -928,11 +828,11 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["u_window_size"].value.set(window.innerWidth, window.innerHeight);
     //Get the max length
     let max = volume.xLength > volume.yLength ?
-                volume.xLength > volume.zLength ?
-                volume.xLength : volume.yLength > volume.zLength ?
+        volume.xLength > volume.zLength ?
+            volume.xLength : volume.yLength > volume.zLength ?
                 volume.yLength : volume.zLength : volume.yLength > volume.zLength ?
-                volume.yLength : volume.zLength;
-    uniforms["u_vol_scale"].value.set(volume.xLength/max, volume.yLength/max, volume.zLength/max * scale[2]);
+            volume.yLength : volume.zLength;
+    uniforms["u_vol_scale"].value.set(volume.xLength / max, volume.yLength / max, volume.zLength / max * scale[2]);
     uniforms["u_renderstyle"].value = renderstyle;
 
     uniforms["u_clim"].value.set(contrastLimits.length > 0 ? contrastLimits[0][0] : null, contrastLimits.length > 0 ? contrastLimits[0][1] : null);
