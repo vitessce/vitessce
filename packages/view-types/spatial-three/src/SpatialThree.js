@@ -134,14 +134,20 @@ const SpatialThree = (props) => {
             //console.log(scene.children)
             let newScene = new THREE.Scene();
             for (let child in scene.children) {
-                scene.children[child].material.transparent = true
-                scene.children[child].material.writeDepthTexture = true
-                scene.children[child].material.depthTest = true
-                scene.children[child].material.depthWrite = true
-                scene.children[child].material.needsUpdate = true;
-                scene.children[child].material.side = THREE.FrontSide;
-                // scene.children[child].material.renderOrder = 100;
-                let simplified = scene.children[child].clone();
+                let childElement = scene.children[child]
+                if (childElement.material === undefined) {
+                    childElement = scene.children[child].children[0];
+                    childElement.name = scene.children[child].name.replace("glb", "");
+                    childElement.userData.name = scene.children[child].userData.name.replace(".glb", "");
+                }
+                childElement.material.transparent = true
+                childElement.material.writeDepthTexture = true
+                childElement.material.depthTest = true
+                childElement.material.depthWrite = true
+                childElement.material.needsUpdate = true;
+                childElement.material.side = THREE.FrontSide;
+                // childElement.material.renderOrder = 100;
+                let simplified = childElement.clone();
                 // Do some mesh simplification
                 newScene.add(simplified)
                 // break;
@@ -589,69 +595,71 @@ function GeometryAndMeshOld(props) {
     // console.log(renderingSettings.meshScale)
 
     return (
-        <group>
-            {segmentationGroup !== null && segmentationSettings.visible &&
-                <group>
-                    <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
-                    <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
-                    <Interactive>
+        <RayGrab>
+            <group>
+                {segmentationGroup !== null && segmentationSettings.visible &&
+                    <group>
+                        <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
+                        <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
+                        {/*<Interactive>*/}
+                            {useXR().isPresenting ?
+                                <primitive object={segmentationGroup} scale={[-0.25 / 1000, -0.25 / 1000, -0.25 / 1000]}
+                                           position={[-0.18 + 100 / 1000, 1.13 + 120 / 1000, -1 - 140 / 1000]}
+                                           onClick={(e) => {
+                                               //console.log("you clicked me" + e.object.name)
+                                               highlightGlom(e.object.name);
+                                           }}
+                                           onPointerOver={e => setObsHighlight(e.object.name)}
+                                           onPointerOut={e => setObsHighlight(null)}/>
+                                :
+                                <primitive object={segmentationGroup} scale={[-0.25, -0.25, -0.25]}
+                                           position={[100, 120, -140]} onClick={(e) => {
+                                    //console.log("you clicked me" + e.object.name)
+                                    highlightGlom(e.object.name);
+                                }}
+                                           onPointerOver={e => setObsHighlight(e.object.name)}
+                                           onPointerOut={e => setObsHighlight(null)}
+                                />}
+                        {/*</Interactive>*/}
+                    </group>
+                }
+                {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
+                        renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
+                    <group>
                         {useXR().isPresenting ?
-                            <primitive object={segmentationGroup} scale={[-0.25 / 1000, -0.25 / 1000, -0.25 / 1000]}
-                                       position={[-0.18 - 100 / 1000, 1.13 + 110 / 1000, -1 - 140 / 1000]}
-                                       onClick={(e) => {
-                                           //console.log("you clicked me" + e.object.name)
-                                           highlightGlom(e.object.name);
-                                       }}
-                                       onPointerOver={e => setObsHighlight(e.object.name)}
-                                       onPointerOut={e => setObsHighlight(null)}/>
+                            <mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]}
+                                  scale={[0.001, 0.001, 0.002]}
+                                  ref={materialRef}>
+                                <boxGeometry args={[400, 400, 400]}/>
+                                <shaderMaterial
+                                    customProgramCacheKey={() => {
+                                        return '1'
+                                    }}
+                                    side={THREE.BackSide}
+                                    uniforms={renderingSettings.uniforms}
+                                    needsUpdate={true}
+                                    vertexShader={renderingSettings.shader.vertexShader}
+                                    fragmentShader={renderingSettings.shader.fragmentShader}
+                                />
+                            </mesh>
                             :
-                            <primitive object={segmentationGroup} scale={[-0.25, -0.25, -0.25]}
-                                       position={[-100, 110, -140]} onClick={(e) => {
-                                //console.log("you clicked me" + e.object.name)
-                                highlightGlom(e.object.name);
-                            }}
-                                       onPointerOver={e => setObsHighlight(e.object.name)}
-                                       onPointerOut={e => setObsHighlight(null)}
-                            />}
-                    </Interactive>
-                </group>
-            }
-            {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
-                    renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
-                <EnhancedRayGrab>
-                    {useXR().isPresenting ?
-                        <mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]}
-                              scale={[0.001, 0.001, 0.002]}
-                              ref={materialRef}>
-                            <boxGeometry args={[400, 400, 400]}/>
-                            <shaderMaterial
-                                customProgramCacheKey={() => {
-                                    return '1'
-                                }}
-                                side={THREE.BackSide}
-                                uniforms={renderingSettings.uniforms}
-                                needsUpdate={true}
-                                vertexShader={renderingSettings.shader.vertexShader}
-                                fragmentShader={renderingSettings.shader.fragmentShader}
-                            />
-                        </mesh>
-                        :
-                        <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                            <boxGeometry args={renderingSettings.geometrySize}/>
-                            <shaderMaterial
-                                customProgramCacheKey={() => {
-                                    return '1'
-                                }}
-                                side={THREE.BackSide}
-                                uniforms={renderingSettings.uniforms}
-                                needsUpdate={true}
-                                vertexShader={renderingSettings.shader.vertexShader}
-                                fragmentShader={renderingSettings.shader.fragmentShader}
-                            />
-                        </mesh>}
-                </EnhancedRayGrab>
-            }
-        </group>
+                            <mesh scale={renderingSettings.meshScale} ref={materialRef}>
+                                <boxGeometry args={renderingSettings.geometrySize}/>
+                                <shaderMaterial
+                                    customProgramCacheKey={() => {
+                                        return '1'
+                                    }}
+                                    side={THREE.BackSide}
+                                    uniforms={renderingSettings.uniforms}
+                                    needsUpdate={true}
+                                    vertexShader={renderingSettings.shader.vertexShader}
+                                    fragmentShader={renderingSettings.shader.fragmentShader}
+                                />
+                            </mesh>}
+                    </group>
+                }
+            </group>
+        </RayGrab>
     );
 }
 

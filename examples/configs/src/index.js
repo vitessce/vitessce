@@ -32,7 +32,7 @@ import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
 import { threeDemoConfig } from './view-configs/three.js';
 import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
 import { blinOop2019, blinSideBySide2019 } from './view-configs/spatial-beta/blin.js';
-import { blinOop2019Three } from './view-configs/3D-maps/3DvolumeRenderThree.js';
+import { jainkidney} from './view-configs/3D-maps/3DvolumeRenderThree.js';
 import { threeMinimal } from './view-configs/3D-maps/ThreeMinimal.js';
 import { threeMinimalLight } from './view-configs/3D-maps/ThreeMinimalLight.js';
 import { codexOop2023 } from './view-configs/spatial-beta/codex.js';
@@ -100,7 +100,7 @@ export const configs = {
 
   //3D Maps ThreeJS
   'three-demo': threeDemoConfig,
-  'blin-2019-three': blinOop2019Three,
+  'jain-2024': jainkidney,
   'three-minimal': threeMinimal,
   'three-minimal-light': threeMinimalLight,
 
