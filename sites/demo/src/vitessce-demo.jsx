@@ -109,7 +109,7 @@ export function VitessceDemo() {
                 var username = "user_" + (Math.floor(Math.random() * 1000));
                 let socket = new PieSocket({
                     clusterId: "free.blr2",
-                    apiKey: "JE1kNFP6QZ3c0oRaHorrFlKj16UQeTpohVZDEKuv",
+                    apiKey: "kYfhHSxTm7c8LWQn0HzJBYKK5UKxa0RD7VdZkJjv",
                     notifySelf: false,
                     userId: username,
                     presence: true,
