@@ -157,7 +157,6 @@ const SpatialThree = (props) => {
 
             }
             setSegmentationGroup(newScene);
-
             // let box = new THREE.Box3( ).setFromObject( newScene );
             // let c = box.getCenter( new THREE.Vector3( ) );
             // let size = box.getSize( new THREE.Vector3( ) );
@@ -554,7 +553,7 @@ function GeometryAndMesh(props) {
         glRoot.size.width*window.devicePixelRatio,
         { 	minFilter: THREE.LinearFilter,
             magFilter: THREE.LinearFilter,
-            wrapS:  THREE.ClampToEdgeWrapping,
+            wrapS:  THREE.WrapAroundEnding,
             wrapT:  THREE.ClampToEdgeWrapping,
             format: THREE.RGBAFormat,
             type: THREE.FloatType,
