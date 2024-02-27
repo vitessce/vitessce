@@ -159,14 +159,14 @@ const SpatialThree = (props) => {
                 childElement.material.depthTest = true
                 childElement.material.depthWrite = true
                 childElement.material.needsUpdate = true;
-                childElement.material.side = THREE.FrontSide;
+                childElement.material.side = THREE.BackSide;
                 // childElement.material.renderOrder = 100;
                 let simplified = childElement.clone();
                 simplified.geometry = childElement.geometry.clone();
                 simplified.material = firstPassVolume;
                 simplified.geometry.translate(-403, -32, 582);
-                simplified.geometry.scale(-1.75,1.75/2.0,1.75);
-                simplified.geometry.rotateX(Math.PI/2);
+                simplified.geometry.scale(-1.75, 1.75 / 2.0, 1.75);
+                simplified.geometry.rotateX(Math.PI / 2);
                 simplified.geometry.rotateZ(Math.PI);
                 // Do some mesh simplification
 
@@ -179,8 +179,8 @@ const SpatialThree = (props) => {
             }
             newScene.add(firstPass);
             newScene.add(finalPass);
-            newScene.scale.set(-1.0,-2.0,1.0);
-            newScene.rotateX(Math.PI/2)
+            newScene.scale.set(-1.0, -2.0, 1.0);
+            newScene.rotateX(Math.PI / 2)
             //console.log(newScene.children)
             setSegmentationGroup(newScene);
         }
@@ -216,7 +216,7 @@ const SpatialThree = (props) => {
     useEffect(() => {
         if (segmentationGroup !== null) {
             for (let group in segmentationGroup.children) {
-                if(segmentationGroup.children[group].userData.name == "finalPass"){
+                if (segmentationGroup.children[group].userData.name == "finalPass") {
                     for (let child in segmentationGroup.children[group].children) {
                         let color = segmentationSettings.color;
                         let id = segmentationGroup.children[group].children[child].userData.name
@@ -507,62 +507,65 @@ function GeometryAndMesh(props) {
         if (model.current === undefined || materialRef.current === undefined) {
             return;
         }
-        model.current.overrideMaterial = firstPassVolume;
-        gl.setRenderTarget(stopTexture);
-        gl.clear();
-        model.current.visible = true;
-        model.current.children[0].visible = true;
-        model.current.children[1].visible = false;
-        materialRef.current.visible = false;
-        gl.render(scene, camera);
+
+        if (segmentationSettings.visible) {
+            gl.setRenderTarget(stopTexture);
+            gl.clear();
+            model.current.visible = true;
+            model.current.children[0].visible = true;
+            model.current.children[1].visible = false;
+            materialRef.current.visible = false;
+            gl.render(scene, camera);
+            // return;
+
+            gl.setRenderTarget(null);
+            gl.clear();
+            model.current.visible = true;
+            model.current.children[0].visible = false;
+            model.current.children[1].visible = true;
+            materialRef.current.visible = false;
+            gl.render(scene, camera);
+            gl.autoClear = false;
+        }
         // return;
-        gl.setRenderTarget(finalTexture);
-        gl.clear();
+        //  gl.setRenderTarget(null);
+        //  gl.clear();
+        materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
+        // materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
+        materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width, glThree.size.height);
         model.current.visible = true;
         model.current.children[0].visible = false;
-        model.current.children[1].visible = true;
-        materialRef.current.visible = false;
-        gl.render(scene, camera);
-
-       // return;
-        gl.setRenderTarget(null);
-        gl.clear();
-        materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
-        materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
-        materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width, glThree.size.height);
-
-        model.current.visible = false;
-        model.current.children[0].visible = false;
-        // model.current.children[1].visible = false;
+        model.current.children[1].visible = false;
         materialRef.current.visible = true;
         gl.render(scene, camera);
-    },1)
+    }, 1)
     return (
         <RayGrab>
             <group>
-                {segmentationGroup !== null && segmentationSettings.visible &&
+                {segmentationGroup !== null &&
                     <group>
                         <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                         <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
                         {/*<Interactive>*/}
-                            {useXR().isPresenting ?
-                                <primitive ref={model} object={segmentationGroup} scale={[-0.25 / 1000, -0.25 / 1000, -0.25 / 1000]}
-                                           position={[-0.18 + 100 / 1000, 1.13 + 120 / 1000, -1 - 140 / 1000]}
-                                           onClick={(e) => {
-                                               //console.log("you clicked me" + e.object.name)
-                                               highlightGlom(e.object.name);
-                                           }}
-                                           onPointerOver={e => setObsHighlight(e.object.name)}
-                                           onPointerOut={e => setObsHighlight(null)}/>
-                                :
-                                <primitive ref={model} object={segmentationGroup} position={[0,0,0]}
-                                           onClick={(e) => {
-                                    //console.log("you clicked me" + e.object.name)
-                                    highlightGlom(e.object.name);
-                                }}
-                                           onPointerOver={e => setObsHighlight(e.object.name)}
-                                           onPointerOut={e => setObsHighlight(null)}
-                                />}
+                        {useXR().isPresenting ?
+                            <primitive ref={model} object={segmentationGroup}
+                                       scale={[-0.25 / 1000, -0.25 / 1000, -0.25 / 1000]}
+                                       position={[-0.18 + 100 / 1000, 1.13 + 120 / 1000, -1 - 140 / 1000]}
+                                       onClick={(e) => {
+                                           //console.log("you clicked me" + e.object.name)
+                                           highlightGlom(e.object.name);
+                                       }}
+                                       onPointerOver={e => setObsHighlight(e.object.name)}
+                                       onPointerOut={e => setObsHighlight(null)}/>
+                            :
+                            <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
+                                       onClick={(e) => {
+                                           //console.log("you clicked me" + e.object.name)
+                                           highlightGlom(e.object.name);
+                                       }}
+                                       onPointerOver={e => setObsHighlight(e.object.name)}
+                                       onPointerOut={e => setObsHighlight(null)}
+                            />}
                         {/*</Interactive>*/}
                     </group>
                 }
@@ -573,7 +576,7 @@ function GeometryAndMesh(props) {
                             <mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]}
                                   scale={[0.001, 0.001, 0.002]}
                                   ref={materialRef}>
-                                <boxGeometry args={[400,400,400]}/>
+                                <boxGeometry args={[400, 400, 400]}/>
                                 <shaderMaterial
                                     customProgramCacheKey={() => {
                                         return '1'
@@ -774,7 +777,7 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
     var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
     setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig, renderstyle, contrastLimitsList, colorsSave);
     return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2].size / scale[0].size], [volume.xLength, volume.yLength, volume.zLength],
-        [1.0, volume.yLength/volume.xLength, volume.zLength/volume.xLength]];
+        [1.0, volume.yLength / volume.xLength, volume.zLength / volume.xLength]];
 }
 
 async function initialDataLoading(channelTargetC, resolution, data, volumes, textures, volumeMinMax, oldResolution) {
@@ -797,8 +800,8 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
 }
 
 function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors) {
-    uniforms["boxSize"].value.set(volume.xLength, volume.yLength,  volume.zLength);
-    console.log(volume.xLength, volume.yLength,  volume.zLength)
+    uniforms["boxSize"].value.set(volume.xLength, volume.yLength, volume.zLength);
+    console.log(volume.xLength, volume.yLength, volume.zLength)
     //can be done better
     uniforms["volumeTex"].value = textures.length > 0 ? textures[0] : null;
     uniforms["volumeTex2"].value = textures.length > 1 ? textures[1] : null;
@@ -818,7 +821,7 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["u_stop_geom"].value = null;
     uniforms["u_window_size"].value.set(0, 0);
     //Normalize by the largest side and then address the phsyical dimension TODO change
-    uniforms["u_vol_scale"].value.set(1.0/volume.xLength, 1.0/volume.yLength, 1.0/volume.zLength * 2.0);
+    uniforms["u_vol_scale"].value.set(1.0 / volume.xLength, 1.0 / volume.yLength, 1.0 / volume.zLength * 2.0);
     uniforms["u_renderstyle"].value = renderstyle;
 
     uniforms["u_clim"].value.set(contrastLimits.length > 0 ? contrastLimits[0][0] : null, contrastLimits.length > 0 ? contrastLimits[0][1] : null);
