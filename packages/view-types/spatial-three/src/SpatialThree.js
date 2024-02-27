@@ -512,9 +512,10 @@ function GeometryAndMesh(props) {
         fragmentShader: shader.fragmentShader,
         side: THREE.FrontSide,
     });
-
-    const stopTexture = new THREE.WebGLRenderTarget(glThree.size.width, glThree.size.height);
-    const finalTexture = new THREE.WebGLRenderTarget(glThree.size.width, glThree.size.height);
+    //glRoot.size.width * window.devicePixelRatio,
+    //glRoot.size.width * window.devicePixelRatio
+    const stopTexture = new THREE.WebGLRenderTarget(glThree.size.width* window.devicePixelRatio, glThree.size.height* window.devicePixelRatio);
+    const finalTexture = new THREE.WebGLRenderTarget(glThree.size.width* window.devicePixelRatio, glThree.size.height* window.devicePixelRatio);
 
     useFrame((state) => {
         const {gl, scene, camera} = state;
@@ -542,7 +543,8 @@ function GeometryAndMesh(props) {
         }
         materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
         materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
-        materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width, glThree.size.height);
+        materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width*window.devicePixelRatio,
+            glThree.size.height*window.devicePixelRatio);
         model.current.visible = false;
         model.current.children[0].visible = false;
         model.current.children[1].visible = false;
