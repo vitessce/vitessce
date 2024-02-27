@@ -53,6 +53,7 @@ const SpatialThree = (props) => {
         contrastLimits: [],
         is3dMode: false,
         renderingMode: null,
+        layerTransparency: 1.0,
     });
     const [segmentationSettings, setSegmentationSettings] = useState({
         visible: true,
@@ -78,7 +79,8 @@ const SpatialThree = (props) => {
         colors,
         contrastLimits,
         is3dMode,
-        renderingMode
+        renderingMode,
+        layerTransparency
     } = getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady)
 
     //Segmentation: //TODO get the Loader to get the URL
@@ -266,7 +268,8 @@ const SpatialThree = (props) => {
                     renderingSettings.shader === undefined || renderingSettings.shader === null) {
                     // JUST FOR THE INITIAL RENDERING
                     const rendering = create3DRendering(loadingResult[0], channelTargetC, channelsVisible, colors,
-                        loadingResult[1], contrastLimits, loadingResult[2], loadingResult[3], renderingMode)
+                        loadingResult[1], contrastLimits, loadingResult[2], loadingResult[3], renderingMode,
+                        layerTransparency)
                     if (rendering !== null) {
                         setRenderingSettings({
                             uniforms: rendering[0], shader: rendering[1], meshScale: rendering[2],
@@ -283,7 +286,8 @@ const SpatialThree = (props) => {
                         colors,
                         contrastLimits,
                         is3dMode,
-                        renderingMode
+                        renderingMode,
+                        layerTransparency
                     });
                 }
             }
@@ -305,7 +309,8 @@ const SpatialThree = (props) => {
             renderingSettings.shader !== undefined && renderingSettings.shader !== null))) {
             const rendering = create3DRendering(volumeData.volumes, volumeSettings.channelTargetC,
                 volumeSettings.channelsVisible, volumeSettings.colors, volumeData.textures,
-                volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale, volumeSettings.renderingMode)
+                volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale, volumeSettings.renderingMode,
+                volumeSettings.layerTransparency)
             if (rendering !== null) {
                 let volumeCount = 0;
                 for (let elem in volumeSettings.channelsVisible) {
@@ -320,7 +325,6 @@ const SpatialThree = (props) => {
                     materialRef.current.material.uniforms.u_clim4.value = rendering[0]["u_clim4"].value;
                     materialRef.current.material.uniforms.u_clim5.value = rendering[0]["u_clim5"].value;
                     materialRef.current.material.uniforms.u_clim6.value = rendering[0]["u_clim6"].value;
-
                     materialRef.current.material.uniforms.u_color.value = rendering[0]["u_color"].value;
                     materialRef.current.material.uniforms.u_color2.value = rendering[0]["u_color2"].value;
                     materialRef.current.material.uniforms.u_color3.value = rendering[0]["u_color3"].value;
@@ -335,6 +339,7 @@ const SpatialThree = (props) => {
                     materialRef.current.material.uniforms.volumeTex6.value = rendering[0]["volumeTex6"].value;
                     materialRef.current.material.uniforms.volumeCount.value = volumeCount;
                     materialRef.current.material.uniforms.u_renderstyle.value = volumeSettings.renderingMode;
+                    materialRef.current.material.uniforms.dtScale.value = volumeSettings.layerTransparency;
                 }
             } else {
                 materialRef.current.material.uniforms.volumeCount.value = 0;
@@ -431,7 +436,8 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
         colors,
         contrastLimits,
         is3dMode,
-        renderingMode
+        renderingMode,
+        layerTransparency
     } = extractInformationFromProps(layerScope, layerCoordination, channelScopes,
         channelCoordination, images[layerScope], props, imageLayerLoaderSelections.current)
     // TODO: Find a better and more efficient way to compare the Strings here
@@ -446,7 +452,8 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
                 volumeSettings.colors.toString() !== colors.toString() ||
                 volumeSettings.is3dMode !== is3dMode ||
                 volumeSettings.contrastLimits.toString() !== contrastLimits.toString() ||
-                volumeSettings.renderingMode.toString() !== renderingMode.toString()
+                volumeSettings.renderingMode.toString() !== renderingMode.toString() ||
+                volumeSettings.layerTransparency.toString() !== layerTransparency.toString()
             )) {
             setVolumeSettings({
                 channelsVisible,
@@ -457,7 +464,8 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
                 colors,
                 contrastLimits,
                 is3dMode,
-                renderingMode
+                renderingMode,
+                layerTransparency
             });
             setDataReady(false);
         }
@@ -477,7 +485,8 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
         colors,
         contrastLimits,
         is3dMode,
-        renderingMode
+        renderingMode,
+        layerTransparency
     };
 }
 
@@ -641,6 +650,7 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
     const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
     const transparentColor = layerCoordination[CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR];
     const useTransparentColor = Array.isArray(transparentColor) && transparentColor.length === 3;
+    const layerTransparency = layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY];
     const rgbInterleavedProps = {};
     if (imageWrapperInstance.isInterleaved()) {
         rgbInterleavedProps.visible = visible;
@@ -721,7 +731,8 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
         colors,
         contrastLimits,
         is3dMode,
-        renderingMode
+        renderingMode,
+        layerTransparency
     };
 }
 
@@ -736,7 +747,7 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
  * @param volumeMinMax     ... from Store
  * @param scale            ... from Store
  */
-function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale, renderstyle) {
+function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale, renderstyle, layerTransparency) {
     let texturesList = [];
     let colorsSave = [];
     let contrastLimitsList = [];
@@ -775,7 +786,7 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
     //var shader = VolumeShaderNew;
     var shader = VolumeRenderShaderPerspective;
     var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-    setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig, renderstyle, contrastLimitsList, colorsSave);
+    setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig, renderstyle, contrastLimitsList, colorsSave, layerTransparency);
     return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2].size / scale[0].size], [volume.xLength, volume.yLength, volume.zLength],
         [1.0, volume.yLength / volume.xLength, volume.zLength / volume.xLength]];
 }
@@ -799,9 +810,8 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
     return [volumes, textures, volumeMinMax, scale];
 }
 
-function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors) {
+function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors, layerTransparency) {
     uniforms["boxSize"].value.set(volume.xLength, volume.yLength, volume.zLength);
-    console.log(volume.xLength, volume.yLength, volume.zLength)
     //can be done better
     uniforms["volumeTex"].value = textures.length > 0 ? textures[0] : null;
     uniforms["volumeTex2"].value = textures.length > 1 ? textures[1] : null;
@@ -813,7 +823,7 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["near"].value = 0.1;
     uniforms["far"].value = 3000;
     uniforms["alphaScale"].value = 1.0;
-    uniforms["dtScale"].value = 0.5;
+    uniforms["dtScale"].value = layerTransparency;
     uniforms["finalGamma"].value = 4.5;
     uniforms["volumeCount"].value = textures.length;
     uniforms["u_size"].value.set(volume.xLength, volume.yLength, volume.zLength);
