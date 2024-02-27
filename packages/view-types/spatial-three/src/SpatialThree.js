@@ -549,9 +549,7 @@ function GeometryAndMesh(props) {
         materialRef.current.visible = true;
         gl.render(scene, camera);
     }, 1)
-
     // console.log(renderingSettings.meshScale, renderingSettings.geometrySize)
-
     return (
         <RayGrab>
             <group>
@@ -565,7 +563,7 @@ function GeometryAndMesh(props) {
                                        scale={[-0.25 / 1000, -0.25 / 1000, -0.25 / 1000]}
                                        position={[-0.18 + 100 / 1000, 1.13 + 120 / 1000, -1 - 140 / 1000]}
                                        onClick={(e) => {
-                                           //console.log("you clicked me" + e.object.name)
+                                           // console.log("you clicked me" + e.object.name)
                                            highlightGlom(e.object.name);
                                        }}
                                        onPointerOver={e => setObsHighlight(e.object.name)}
@@ -573,8 +571,11 @@ function GeometryAndMesh(props) {
                             :
                             <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
                                        onClick={(e) => {
-                                           //console.log("you clicked me" + e.object.name)
-                                           highlightGlom(e.object.name);
+                                           if(e.object.parent.userData.name == "finalPass") {
+                                               console.log("you clicked me" + e.object.name)
+                                               console.log(e.object)
+                                               highlightGlom(e.object.name);
+                                           }
                                        }}
                                        onPointerOver={e => setObsHighlight(e.object.name)}
                                        onPointerOut={e => setObsHighlight(null)}

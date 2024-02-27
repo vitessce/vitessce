@@ -721,29 +721,37 @@ export function SpatialThreeSubscriber(props) {
 
 
     // Get "props" from the coordination space.
-    const [{
-        additionalObsSets: additionalCellSets,
-        obsSetColor: cellSetColor,
-    }, {
-        setObsSetSelection: setCellSetSelection,
-        setObsSetColor: setCellSetColor,
-        setObsColorEncoding: setCellColorEncoding,
-        setAdditionalObsSets: setAdditionalCellSets,
-    }] = useCoordination(
-        COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_THREE],
-        coordinationScopes,
-    );
+    // const [{
+    //     additionalObsSets: additionalCellSets,
+    //     obsSetColor: cellSetColor,
+    // }, {
+    //     setObsSetSelection: setCellSetSelection,
+    //     setObsSetColor: setCellSetColor,
+    //     setObsColorEncoding: setCellColorEncoding,
+    //     setAdditionalObsSets: setAdditionalCellSets,
+    // }] = useCoordination(
+    //     COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_THREE],
+    //     coordinationScopes,
+    // );
+    let layerScope = segmentationLayerScopes[0];
+    let channelScope = segmentationChannelScopesByLayer[layerScope][0]
+    const {
+        additionalObsSets, obsSetColor, obsColorEncoding, obsSetSelection,
+    } = segmentationChannelCoordination[0][layerScope][channelScope];
+    const {
+        setObsSetColor, setAdditionalObsSets, setObsColorEncoding, setObsSetSelection,
+    } = segmentationChannelCoordination[1][layerScope][channelScope];
 
     const onGlomSelected = useCallback((obsId) => {
         const obsIdsToSelect = [obsId];
-        console.log(cellSetColor, additionalCellSets);
+        console.log(obsSetColor, additionalObsSets);
         setObsSelection(
-            obsIdsToSelect, additionalCellSets, cellSetColor,
-            setCellSetSelection, setAdditionalCellSets, setCellSetColor,
-            setCellColorEncoding,
+            obsIdsToSelect, additionalObsSets, obsSetColor,
+            setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+            setObsColorEncoding,
         );
-    }, [additionalCellSets, cellSetColor, setCellColorEncoding,
-        setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
+    }, [additionalObsSets, obsSetColor, setObsColorEncoding,
+        setAdditionalObsSets, setObsSetColor, setObsSetSelection]);
 
 
     return (
@@ -764,7 +772,7 @@ export function SpatialThreeSubscriber(props) {
                 theme={theme}
                 hideTools={!isSelectable}
 
-                rotation={[rotationX,rotationY,rotationZ]}
+                rotation={[rotationX, rotationY, rotationZ]}
                 setRotationX={setRotationX}
                 setRotationY={setRotationY}
                 setRotationZ={setRotationZ}
