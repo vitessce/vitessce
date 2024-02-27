@@ -12,11 +12,11 @@ function generateThreeMinimalConfiguration() {
     });
     const dataset = config.addDataset('My dataset').addFile({
         fileType: 'image.ome-tiff',
-        //
-        //
-        //url: "http://127.0.0.1:8080/VAN0038-LK-4-preAF-MxIF-3d-registered.companion.ome",
-        //url: "https://viv-demo.storage.googleapis.com/2018-12-18_ASY_H2B_bud_05_3D_8_angles.ome.tif",
-        url: "https://assets.hubmapconsortium.org/30bc1823e0c19be58557fb979499bac2/ometiff-pyramids/data/3D_image_stack.ome.tif?token=",
+        //url: "https://assets.hubmapconsortium.org/30bc1823e0c19be58557fb979499bac2/ometiff-pyramids/data/3D_image_stack.ome.tif?token=",
+        url: "https://vitessce-data-v2.s3.amazonaws.com/data/redBloodCell.ome.tiff",
+        options: {
+               offsetsUrl: "https://vitessce-data-v2.s3.amazonaws.com/data/redBloodCell.offsets.json",
+        },
         coordinationValues: {
             fileUid: 'kidney',
         },

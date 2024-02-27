@@ -34,7 +34,7 @@ const SpatialThree = (props) => {
 
     const [renderingSettings, setRenderingSettings] = useState({
         uniforms: null, shader: null, meshScale: null,
-        geometrySize: null
+        geometrySize: null, boxSize: null
     });
     const [volumeData, setVolumeData] = useState({
         volumes: new Map(),
@@ -183,6 +183,7 @@ const SpatialThree = (props) => {
             })
         }
     }
+
     useEffect(() => {
         if (segmentationGroup !== null) {
             for (let child in segmentationGroup.children) {
@@ -235,7 +236,7 @@ const SpatialThree = (props) => {
                     if (rendering !== null) {
                         setRenderingSettings({
                             uniforms: rendering[0], shader: rendering[1], meshScale: rendering[2],
-                            geometrySize: rendering[3]
+                            geometrySize: rendering[3], boxSize: rendering[4]
                         });
                     }
                 } else {
@@ -364,7 +365,7 @@ const SpatialThree = (props) => {
         <group>
             <Controllers/>
             <Hands/>
-            <GeometryAndMeshOld {...geometryAndMeshProps} ></GeometryAndMeshOld>
+            <GeometryAndMesh {...geometryAndMeshProps} ></GeometryAndMesh>
             <OrbitControls ref={orbitRef}/>
         </group>
     );
@@ -450,137 +451,6 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
 function GeometryAndMesh(props) {
     const {
         segmentationGroup, segmentationSettings,
-        renderingSettings, materialRef
-    } = props;
-
-    if (segmentationGroup == null)
-        return null;
-
-    let camera = useThree().camera;
-    let renderer = useThree().gl
-
-    if (materialRef.current !== undefined) {
-        // Setting up the Initial Scene to get the Stop Positions
-        let shaderFirstPass = VolumeShaderFirstPass;
-        let uniformsFirstPassA = THREE.UniformsUtils.clone(shaderFirstPass.uniforms);
-        //Norm between 0 adn 1
-        let longestAxis = renderingSettings.geometrySize[2]; // TODO find the longest one - for this example it is Z
-        let volSize = [renderingSettings.geometrySize[0] / renderingSettings.geometrySize[2],
-            renderingSettings.geometrySize[1] / renderingSettings.geometrySize[2],
-            renderingSettings.geometrySize[2] / renderingSettings.geometrySize[2],]
-        let volScale = [volSize[0] * renderingSettings.meshScale[0],
-            volSize[1] * renderingSettings.meshScale[1],
-            volSize[2] * renderingSettings.meshScale[2]];
-        uniformsFirstPassA['u_vol_scale'].value = new THREE.Vector3(volScale[0], volScale[1], volScale[2]);
-        const materialFirstPassA = new THREE.ShaderMaterial({
-            uniforms: uniformsFirstPassA,
-            vertexShader: shaderFirstPass.vertexShader,
-            fragmentShader: shaderFirstPass.fragmentShader,
-            side: THREE.BackSide,
-        });
-        const geometry = new THREE.BoxGeometry(1.0, 1.0, 1.0);
-        const meshFirstPass = new THREE.Mesh(geometry, materialFirstPassA);
-        let sceneFirstPass = new THREE.Scene();
-        sceneFirstPass.background = new THREE.Color('black');
-        sceneFirstPass.add(meshFirstPass);
-
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        let rtTexture = new THREE.WebGLRenderTarget(width, height,
-            {
-                minFilter: THREE.LinearFilter,
-                magFilter: THREE.LinearFilter,
-                wrapS: THREE.ClampToEdgeWrapping,
-                wrapT: THREE.ClampToEdgeWrapping,
-                format: THREE.RGBAFormat,
-                type: THREE.FloatType,
-                generateMipmaps: false
-            });
-
-        let uniformsFirstPass = THREE.UniformsUtils.clone(shaderFirstPass.uniforms);
-        uniformsFirstPass['u_vol_scale'].value = new THREE.Vector3(volScale[0], volScale[1], volScale[2]);
-        const materialFirstPass = new THREE.ShaderMaterial({
-            uniforms: uniformsFirstPass,
-            vertexShader: shaderFirstPass.vertexShader,
-            fragmentShader: shaderFirstPass.fragmentShader,
-            side: THREE.FrontSide,
-        });
-        // FOR Every Frame (check what can be moved out of there)
-        useFrame(() => {
-            // 1. - render first pass: render ray stop positions into texture
-            renderer.setRenderTarget(rtTexture);   //ERIC: Output Texture to capture the informatio
-            renderer.clear();
-            // 1a. render bounding box backside
-            renderer.render(sceneFirstPass, camera);  //Scene first pass is a general scene
-            // 1b. render geometry front side on top of bounding box backsides
-            renderer.autoClear = false;
-            segmentationGroup.overrideMaterial = materialFirstPass;
-            renderer.render(segmentationGroup, camera);
-
-            // 2. - render second pass: volume rendering and geometry
-            renderer.setRenderTarget(null);
-            renderer.setClearColor(new THREE.Color(0, 0, 0), 0.0);
-            renderer.clear();
-            // 2a. render geometry onto screen
-            let shaderGeom = VolumeShaderGeom;
-            let uniformsGeom = THREE.UniformsUtils.clone(shaderGeom.uniforms);
-            uniformsGeom['u_vol_scale'].value.set(volScale[0], volScale[1], volScale[2]);
-            uniformsGeom['u_color'].value.set(1.0, 1.0, 1.0);
-            const materialGeom = new THREE.ShaderMaterial({
-                uniforms: uniformsGeom,
-                vertexShader: shaderGeom.vertexShader,
-                fragmentShader: shaderGeom.fragmentShader,
-                side: THREE.FrontSide,
-            });
-            segmentationGroup.overrideMaterial = materialGeom;
-            renderer.render(segmentationGroup, camera);   //Geometric Scene is the Gloms
-
-            // 2b. volume render (using stop positions from texture)
-            renderer.autoClear = false;
-            materialRef.current.material.uniforms.u_stop_geom.value = rtTexture.texture;
-            materialRef.current.material.uniforms.u_vol_scale.value = volScale;
-        })
-    }
-
-    return (
-        <group>
-            {segmentationGroup !== null && segmentationSettings.visible &&
-                <group>
-                    <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
-                    <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
-                    <Interactive>
-                        <primitive object={segmentationGroup} scale={[0.25, 0.25, 0.25]}
-                                   position={[100, -100, 100]}/>
-                    </Interactive>
-                </group>
-            }
-            {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
-                    renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
-                <RayGrab>
-                    <mesh ref={materialRef}>
-                        <boxGeometry args={[1, 1, 1]}/>
-                        <shaderMaterial
-                            customProgramCacheKey={() => {
-                                return '1'
-                            }}
-                            side={THREE.FrontSide}
-                            uniforms={renderingSettings.uniforms}
-                            needsUpdate={true}
-                            vertexShader={renderingSettings.shader.vertexShader}
-                            fragmentShader={renderingSettings.shader.fragmentShader}
-                        />
-                    </mesh>
-                </RayGrab>
-            }
-        </group>
-    );
-}
-
-
-// Only cares about rendering the gemoetry and the mesh together in one scene
-function GeometryAndMeshOld(props) {
-    const {
-        segmentationGroup, segmentationSettings,
         renderingSettings, materialRef, highlightGlom, setObsHighlight
     } = props;
 
@@ -592,7 +462,7 @@ function GeometryAndMeshOld(props) {
     // Second Position: Up (+) Down (-)
     // Third Position: Front (-) Back (+)
 
-    // console.log(renderingSettings.meshScale)
+    console.log(renderingSettings)
 
     return (
         <RayGrab>
@@ -644,7 +514,7 @@ function GeometryAndMeshOld(props) {
                             </mesh>
                             :
                             <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                                <boxGeometry args={renderingSettings.geometrySize}/>
+                                <boxGeometry args={renderingSettings.boxSize}/>
                                 <shaderMaterial
                                     customProgramCacheKey={() => {
                                         return '1'
@@ -829,7 +699,8 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
     var shader = VolumeRenderShaderPerspective;
     var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
     setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig, renderstyle, contrastLimitsList, colorsSave);
-    return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2].size / scale[0].size], [volume.xLength, volume.yLength, volume.zLength]];
+    return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2].size / scale[0].size], [volume.xLength, volume.yLength, volume.zLength],
+        [1.0, volume.yLength/volume.xLength, volume.zLength/volume.xLength]];
 }
 
 async function initialDataLoading(channelTargetC, resolution, data, volumes, textures, volumeMinMax, oldResolution) {
@@ -852,7 +723,7 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
 }
 
 function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors) {
-    uniforms["boxSize"].value.set(volume.xLength, volume.yLength, volume.zLength);
+    uniforms["boxSize"].value.set(1.0, volume.yLength/volume.xLength, volume.zLength/volume.xLength);
     //can be done better
     uniforms["volumeTex"].value = textures.length > 0 ? textures[0] : null;
     uniforms["volumeTex2"].value = textures.length > 1 ? textures[1] : null;
@@ -866,13 +737,13 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["alphaScale"].value = 1.0;
     uniforms["dtScale"].value = 1;
     uniforms["finalGamma"].value = 4.5;
-    uniforms["useVolumeMirrorX"].value = false;
     uniforms["volumeCount"].value = textures.length;
     uniforms["u_size"].value.set(volume.xLength, volume.yLength, volume.zLength);
     uniforms["u_cmdata"].value = cmTextures[volConfig.colormap];
     uniforms["u_stop_geom"].value = null;
     uniforms["u_window_size"].value.set(0, 0);
-    uniforms["u_vol_scale"].value.set(0, 0, 0);
+    //Normalize by the largest side and then address the phsyical dimension TODO change
+    uniforms["u_vol_scale"].value.set(1.0/volume.xLength, 1.0/volume.yLength, 1.0/volume.zLength * 2.0);
     uniforms["u_renderstyle"].value = renderstyle;
 
     uniforms["u_clim"].value.set(contrastLimits.length > 0 ? contrastLimits[0][0] : null, contrastLimits.length > 0 ? contrastLimits[0][1] : null);
@@ -1020,7 +891,7 @@ function Box(props) {
         <mesh
             {...props}
             ref={ref}>
-            <torusKnotGeometry args={[14, 6, 176, 16]}/>
+            <torusKnotGeometry args={[0.04, 0.02, 176, 16]}/>
             <meshPhongMaterial color={props.color}/>
         </mesh>
     );
@@ -1029,7 +900,7 @@ function Box(props) {
 const SpatialWrapper = forwardRef((props, deckRef) => {
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
-        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 3000}}>
+        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, 3], near: 0.01, far: 3000}}>
             <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>
             </XR>
