@@ -148,10 +148,18 @@ const SpatialThree = (props) => {
                 childElement.material.side = THREE.FrontSide;
                 // childElement.material.renderOrder = 100;
                 let simplified = childElement.clone();
+                simplified.geometry = childElement.geometry.clone();
+                simplified.material = childElement.material.clone();
+                simplified.geometry.translate(-403, -32, 582);
+                simplified.geometry.scale(-1.75,1.75,1.75);
+                simplified.geometry.rotateX(Math.PI/2);
+                simplified.geometry.rotateZ(Math.PI);
                 // Do some mesh simplification
                 newScene.add(simplified)
                 // break;
             }
+            newScene.scale.set(-1.0,-1.0,1.0);
+            newScene.rotateX(Math.PI/2)
             //console.log(newScene.children)
             setSegmentationGroup(newScene);
         }
@@ -196,9 +204,9 @@ const SpatialThree = (props) => {
                 }
                 //TODO check if in a Set selection
                 //adapt the color
-                segmentationGroup.children[child].material.color.r = color[0] / 255
-                segmentationGroup.children[child].material.color.g = color[1] / 255
-                segmentationGroup.children[child].material.color.b = color[2] / 255
+              //  segmentationGroup.children[child].material.color.r = color[0] / 255
+              //  segmentationGroup.children[child].material.color.g = color[1] / 255
+              //  segmentationGroup.children[child].material.color.b = color[2] / 255
                 segmentationGroup.children[child].material.opacity = segmentationSettings.opacity
                 segmentationGroup.children[child].material.needsUpdate = true;
             }
@@ -453,16 +461,30 @@ function GeometryAndMesh(props) {
         segmentationGroup, segmentationSettings,
         renderingSettings, materialRef, highlightGlom, setObsHighlight
     } = props;
+    let model = useRef();
+    const glThree = useThree();
+    const geoTexture = new THREE.WebGLRenderTarget(glThree.size.width, glThree.size.height);
+    geoTexture.depthTexture = new THREE.DepthTexture(glThree.size.width, glThree.size.height);
+    useFrame((state) => {
+        const {gl, scene, camera} = state;
+        if (model.current === undefined || materialRef.current === undefined) {
+            return;
+        }
+        model.current.visible = true;
+        materialRef.current.visible = false;
+        gl.setRenderTarget(geoTexture);
+        gl.clear();
+        gl.render(scene, camera);
+        materialRef.current.material.uniforms.u_stop_geom.value = geoTexture.depthTexture;
+        materialRef.current.material.uniforms.u_geo_color.value = geoTexture.texture;
+        materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width, glThree.size.height);
 
-    // FOR Hovering add this to the Primitive
-    //
-    let renderer = useThree().gl
-    renderer.sortObjects = true;
-    // First Positon: Left (+) Right (-)
-    // Second Position: Up (+) Down (-)
-    // Third Position: Front (-) Back (+)
-
-    console.log(renderingSettings)
+        gl.setRenderTarget(null);
+        gl.clear();
+        model.current.visible = false;
+        materialRef.current.visible = true;
+        gl.render(scene, camera);
+    },1)
 
     return (
         <RayGrab>
@@ -473,7 +495,7 @@ function GeometryAndMesh(props) {
                         <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
                         {/*<Interactive>*/}
                             {useXR().isPresenting ?
-                                <primitive object={segmentationGroup} scale={[-0.25 / 1000, -0.25 / 1000, -0.25 / 1000]}
+                                <primitive ref={model} object={segmentationGroup} scale={[-0.25 / 1000, -0.25 / 1000, -0.25 / 1000]}
                                            position={[-0.18 + 100 / 1000, 1.13 + 120 / 1000, -1 - 140 / 1000]}
                                            onClick={(e) => {
                                                //console.log("you clicked me" + e.object.name)
@@ -482,8 +504,8 @@ function GeometryAndMesh(props) {
                                            onPointerOver={e => setObsHighlight(e.object.name)}
                                            onPointerOut={e => setObsHighlight(null)}/>
                                 :
-                                <primitive object={segmentationGroup} scale={[-0.25, -0.25, -0.25]}
-                                           position={[100, 120, -140]} onClick={(e) => {
+                                <primitive ref={model} object={segmentationGroup} position={[0,0,0]}
+                                           onClick={(e) => {
                                     //console.log("you clicked me" + e.object.name)
                                     highlightGlom(e.object.name);
                                 }}
@@ -505,7 +527,7 @@ function GeometryAndMesh(props) {
                                     customProgramCacheKey={() => {
                                         return '1'
                                     }}
-                                    side={THREE.BackSide}
+                                    side={THREE.FrontSide}
                                     uniforms={renderingSettings.uniforms}
                                     needsUpdate={true}
                                     vertexShader={renderingSettings.shader.vertexShader}
@@ -514,12 +536,12 @@ function GeometryAndMesh(props) {
                             </mesh>
                             :
                             <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                                <boxGeometry args={renderingSettings.boxSize}/>
+                                <boxGeometry args={renderingSettings.geometrySize}/>
                                 <shaderMaterial
                                     customProgramCacheKey={() => {
                                         return '1'
                                     }}
-                                    side={THREE.BackSide}
+                                    side={THREE.FrontSide}
                                     uniforms={renderingSettings.uniforms}
                                     needsUpdate={true}
                                     vertexShader={renderingSettings.shader.vertexShader}
@@ -532,7 +554,6 @@ function GeometryAndMesh(props) {
         </RayGrab>
     );
 }
-
 
 function extractInformationFromProps(layerScope, layerCoordination, channelScopes, channelCoordination,
                                      image, props, imageLayerLoaderSelection) {
@@ -723,7 +744,7 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
 }
 
 function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors) {
-    uniforms["boxSize"].value.set(1.0, volume.yLength/volume.xLength, volume.zLength/volume.xLength);
+    uniforms["boxSize"].value.set(volume.xLength, volume.yLength,  volume.zLength);
     //can be done better
     uniforms["volumeTex"].value = textures.length > 0 ? textures[0] : null;
     uniforms["volumeTex2"].value = textures.length > 1 ? textures[1] : null;
@@ -733,7 +754,7 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["volumeTex6"].value = textures.length > 5 ? textures[5] : null;
     //
     uniforms["near"].value = 0.01;
-    uniforms["far"].value = 100000;
+    uniforms["far"].value = 3000;
     uniforms["alphaScale"].value = 1.0;
     uniforms["dtScale"].value = 1;
     uniforms["finalGamma"].value = 4.5;
@@ -891,7 +912,7 @@ function Box(props) {
         <mesh
             {...props}
             ref={ref}>
-            <torusKnotGeometry args={[0.04, 0.02, 176, 16]}/>
+            <torusKnotGeometry args={[14, 6, 176, 16]}/>
             <meshPhongMaterial color={props.color}/>
         </mesh>
     );
@@ -900,7 +921,7 @@ function Box(props) {
 const SpatialWrapper = forwardRef((props, deckRef) => {
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
-        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, 3], near: 0.01, far: 3000}}>
+        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 3000}}>
             <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>
             </XR>

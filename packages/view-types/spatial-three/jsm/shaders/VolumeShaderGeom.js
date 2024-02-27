@@ -4,24 +4,20 @@ import {
 
 var VolumeShaderGeom = {
     uniforms: {
-        "u_color": {value: new Vector3(1, 1, 1)},
-        'u_vol_scale': {value: new Vector3(1.0, 1.0, 1.0)},
     },
     vertexShader: [
-        "uniform vec3 u_vol_scale;",
         "varying vec3 worldSpaceCoords;",
         "void main()",
         "{",
-        "  worldSpaceCoords = position + vec3(0.5, 0.5, 0.5); //move it from [-0.5;0.5] to [0,1]",
-        "  gl_Position = projectionMatrix * modelViewMatrix * vec4( position * u_vol_scale , 1.0 );",
+        "   worldSpaceCoords = position + vec3(0.5, 0.5, 0.5); //move it from [-0.5;0.5] to [0,1]",
+        "   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
         "}"
     ].join("\n"),
     fragmentShader: [
-        "uniform vec3 u_color;",
-        "",
+        "varying vec3 worldSpaceCoords;",
         "    void main()",
         "    {",
-        "        gl_FragColor = vec4( u_color, 1.0 );",
+        "       gl_FragColor = vec4( worldSpaceCoords.x , worldSpaceCoords.y, worldSpaceCoords.z, 1.0 );",
         "    }",
     ].join("\n")
 };
