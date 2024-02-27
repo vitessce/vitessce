@@ -129,6 +129,16 @@ const SpatialThree = (props) => {
         }
     }
     if (obsSegmentations[layerScope] !== undefined && segmentationGroup == null) {
+        let shader = VolumeShaderFirstPass;
+        let uniformsShader = THREE.UniformsUtils.clone(shader.uniforms);
+        let firstPassVolume = new THREE.ShaderMaterial({
+            uniforms: uniformsShader,
+            vertexShader: shader.vertexShader,
+            fragmentShader: shader.fragmentShader,
+            side: THREE.FrontSide,
+        });
+
+
         let scene = obsSegmentations[layerScope].scene
         if (scene !== null && scene !== undefined) {
             //console.log(scene.children)
@@ -149,7 +159,7 @@ const SpatialThree = (props) => {
                 // childElement.material.renderOrder = 100;
                 let simplified = childElement.clone();
                 simplified.geometry = childElement.geometry.clone();
-                simplified.material = childElement.material.clone();
+                simplified.material = firstPassVolume;
                 simplified.geometry.translate(-403, -32, 582);
                 simplified.geometry.scale(-1.75,1.75,1.75);
                 simplified.geometry.rotateX(Math.PI/2);
@@ -463,6 +473,16 @@ function GeometryAndMesh(props) {
     } = props;
     let model = useRef();
     const glThree = useThree();
+
+    let shader = VolumeShaderFirstPass;
+    let uniformsShader = THREE.UniformsUtils.clone(shader.uniforms);
+    let firstPassVolume = new THREE.ShaderMaterial({
+        uniforms: uniformsShader,
+        vertexShader: shader.vertexShader,
+        fragmentShader: shader.fragmentShader,
+        side: THREE.FrontSide,
+    });
+
     const geoTexture = new THREE.WebGLRenderTarget(glThree.size.width, glThree.size.height);
     geoTexture.depthTexture = new THREE.DepthTexture(glThree.size.width, glThree.size.height);
     useFrame((state) => {
@@ -470,22 +490,22 @@ function GeometryAndMesh(props) {
         if (model.current === undefined || materialRef.current === undefined) {
             return;
         }
+        // model.current.overrideMaterial = firstPassVolume;
         model.current.visible = true;
         materialRef.current.visible = false;
         gl.setRenderTarget(geoTexture);
         gl.clear();
         gl.render(scene, camera);
+      //  return;
+       gl.setRenderTarget(null);
+        gl.clear();
         materialRef.current.material.uniforms.u_stop_geom.value = geoTexture.depthTexture;
         materialRef.current.material.uniforms.u_geo_color.value = geoTexture.texture;
         materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width, glThree.size.height);
-
-        gl.setRenderTarget(null);
-        gl.clear();
         model.current.visible = false;
         materialRef.current.visible = true;
         gl.render(scene, camera);
     },1)
-
     return (
         <RayGrab>
             <group>
@@ -530,6 +550,7 @@ function GeometryAndMesh(props) {
                                     side={THREE.FrontSide}
                                     uniforms={renderingSettings.uniforms}
                                     needsUpdate={true}
+                                    transparent={true}
                                     vertexShader={renderingSettings.shader.vertexShader}
                                     fragmentShader={renderingSettings.shader.fragmentShader}
                                 />
@@ -544,6 +565,7 @@ function GeometryAndMesh(props) {
                                     side={THREE.FrontSide}
                                     uniforms={renderingSettings.uniforms}
                                     needsUpdate={true}
+                                    transparent={true}
                                     vertexShader={renderingSettings.shader.vertexShader}
                                     fragmentShader={renderingSettings.shader.fragmentShader}
                                 />
@@ -745,6 +767,7 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
 
 function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors) {
     uniforms["boxSize"].value.set(volume.xLength, volume.yLength,  volume.zLength);
+    console.log(volume.xLength, volume.yLength,  volume.zLength)
     //can be done better
     uniforms["volumeTex"].value = textures.length > 0 ? textures[0] : null;
     uniforms["volumeTex2"].value = textures.length > 1 ? textures[1] : null;
@@ -753,7 +776,7 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["volumeTex5"].value = textures.length > 4 ? textures[4] : null;
     uniforms["volumeTex6"].value = textures.length > 5 ? textures[5] : null;
     //
-    uniforms["near"].value = 0.01;
+    uniforms["near"].value = 0.1;
     uniforms["far"].value = 3000;
     uniforms["alphaScale"].value = 1.0;
     uniforms["dtScale"].value = 1;
@@ -921,7 +944,7 @@ function Box(props) {
 const SpatialWrapper = forwardRef((props, deckRef) => {
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
-        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 3000}}>
+        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.1, far: 3000}}>
             <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>
             </XR>
