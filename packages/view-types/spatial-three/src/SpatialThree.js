@@ -143,6 +143,10 @@ const SpatialThree = (props) => {
         if (scene !== null && scene !== undefined) {
             //console.log(scene.children)
             let newScene = new THREE.Scene();
+            let firstPass = new THREE.Group();
+            firstPass.userData.name = "firstPass";
+            let finalPass = new THREE.Group();
+            finalPass.userData.name = "finalPass";
             for (let child in scene.children) {
                 let childElement = scene.children[child]
                 if (childElement.material === undefined) {
@@ -151,7 +155,7 @@ const SpatialThree = (props) => {
                     childElement.userData.name = scene.children[child].userData.name.replace(".glb", "");
                 }
                 childElement.material.transparent = true
-                childElement.material.writeDepthTexture = true
+                // childElement.material.writeDepthTexture = true
                 childElement.material.depthTest = true
                 childElement.material.depthWrite = true
                 childElement.material.needsUpdate = true;
@@ -161,14 +165,21 @@ const SpatialThree = (props) => {
                 simplified.geometry = childElement.geometry.clone();
                 simplified.material = firstPassVolume;
                 simplified.geometry.translate(-403, -32, 582);
-                simplified.geometry.scale(-1.75,1.75,1.75);
+                simplified.geometry.scale(-1.75,1.75/2.0,1.75);
                 simplified.geometry.rotateX(Math.PI/2);
                 simplified.geometry.rotateZ(Math.PI);
                 // Do some mesh simplification
-                newScene.add(simplified)
+
+                let finalPassChild = childElement.clone()
+                finalPassChild.material = childElement.material.clone();
+                finalPassChild.geometry = simplified.geometry.clone();
+                firstPass.add(simplified)
+                finalPass.add(finalPassChild)
                 // break;
             }
-            newScene.scale.set(-1.0,-1.0,1.0);
+            newScene.add(firstPass);
+            newScene.add(finalPass);
+            newScene.scale.set(-1.0,-2.0,1.0);
             newScene.rotateX(Math.PI/2)
             //console.log(newScene.children)
             setSegmentationGroup(newScene);
@@ -204,21 +215,26 @@ const SpatialThree = (props) => {
 
     useEffect(() => {
         if (segmentationGroup !== null) {
-            for (let child in segmentationGroup.children) {
-                let color = segmentationSettings.color;
-                let id = segmentationGroup.children[child].userData.name
-                for (let index in segmentationSettings.obsSets) {
-                    if (segmentationSettings.obsSets[index].id === id) {
-                        color = segmentationSettings.obsSets[index].color
+            for (let group in segmentationGroup.children) {
+                if(segmentationGroup.children[group].userData.name == "finalPass"){
+                    for (let child in segmentationGroup.children[group].children) {
+                        let color = segmentationSettings.color;
+                        let id = segmentationGroup.children[group].children[child].userData.name
+                        for (let index in segmentationSettings.obsSets) {
+                            if (segmentationSettings.obsSets[index].id === id) {
+                                color = segmentationSettings.obsSets[index].color
+                            }
+                        }
+                        //TODO check if in a Set selection
+                        //adapt the color
+                        //  segmentationGroup.children[group].children[child].material.color.r = color[0] / 255
+                        //  segmentationGroup.children[group].children[child].material.color.g = color[1] / 255
+                        //  segmentationGroup.children[group].children[child].material.color.b = color[2] / 255
+                        //Select the FinalPass Group
+                        segmentationGroup.children[group].children[child].material.opacity = segmentationSettings.opacity
+                        segmentationGroup.children[group].children[child].material.needsUpdate = true;
                     }
                 }
-                //TODO check if in a Set selection
-                //adapt the color
-              //  segmentationGroup.children[child].material.color.r = color[0] / 255
-              //  segmentationGroup.children[child].material.color.g = color[1] / 255
-              //  segmentationGroup.children[child].material.color.b = color[2] / 255
-                segmentationGroup.children[child].material.opacity = segmentationSettings.opacity
-                segmentationGroup.children[child].material.needsUpdate = true;
             }
         }
     }, [segmentationSettings, segmentationGroup])
@@ -483,26 +499,41 @@ function GeometryAndMesh(props) {
         side: THREE.FrontSide,
     });
 
-    const geoTexture = new THREE.WebGLRenderTarget(glThree.size.width, glThree.size.height);
-    geoTexture.depthTexture = new THREE.DepthTexture(glThree.size.width, glThree.size.height);
+    const stopTexture = new THREE.WebGLRenderTarget(glThree.size.width, glThree.size.height);
+    const finalTexture = new THREE.WebGLRenderTarget(glThree.size.width, glThree.size.height);
+
     useFrame((state) => {
         const {gl, scene, camera} = state;
         if (model.current === undefined || materialRef.current === undefined) {
             return;
         }
-        // model.current.overrideMaterial = firstPassVolume;
+        model.current.overrideMaterial = firstPassVolume;
+        gl.setRenderTarget(stopTexture);
+        gl.clear();
         model.current.visible = true;
+        model.current.children[0].visible = true;
+        model.current.children[1].visible = false;
         materialRef.current.visible = false;
-        gl.setRenderTarget(geoTexture);
-        gl.clear();
         gl.render(scene, camera);
-      //  return;
-       gl.setRenderTarget(null);
+        // return;
+        gl.setRenderTarget(finalTexture);
         gl.clear();
-        materialRef.current.material.uniforms.u_stop_geom.value = geoTexture.depthTexture;
-        materialRef.current.material.uniforms.u_geo_color.value = geoTexture.texture;
+        model.current.visible = true;
+        model.current.children[0].visible = false;
+        model.current.children[1].visible = true;
+        materialRef.current.visible = false;
+        gl.render(scene, camera);
+
+       // return;
+        gl.setRenderTarget(null);
+        gl.clear();
+        materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
+        materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
         materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width, glThree.size.height);
+
         model.current.visible = false;
+        model.current.children[0].visible = false;
+        // model.current.children[1].visible = false;
         materialRef.current.visible = true;
         gl.render(scene, camera);
     },1)
@@ -779,7 +810,7 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["near"].value = 0.1;
     uniforms["far"].value = 3000;
     uniforms["alphaScale"].value = 1.0;
-    uniforms["dtScale"].value = 1;
+    uniforms["dtScale"].value = 0.5;
     uniforms["finalGamma"].value = 4.5;
     uniforms["volumeCount"].value = textures.length;
     uniforms["u_size"].value.set(volume.xLength, volume.yLength, volume.zLength);
