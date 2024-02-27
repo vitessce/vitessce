@@ -83,6 +83,7 @@ export function FeatureBarPlotSubscriber(props) {
 
   const onBarSelect = useCallback((obsId) => {
     const obsIdsToSelect = [obsId];
+    console.log(cellSetColor, additionalCellSets);
     setObsSelection(
       obsIdsToSelect, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,

@@ -167,7 +167,7 @@ const SpatialThree = (props) => {
                 simplified.geometry = childElement.geometry.clone();
                 simplified.material = firstPassVolume;
                 // X, Z (depth + is back), Y (height  - is up) -- for the gloms
-                simplified.geometry.translate(-420,-510,420);          //gloms
+                simplified.geometry.translate(-420,-530,420);          //gloms
                 simplified.geometry.scale(0.275, 0.275/8.0, -0.275);     //gloms
 
                 // simplified.geometry.translate(-403, -32, 582);          //Blood Vessel

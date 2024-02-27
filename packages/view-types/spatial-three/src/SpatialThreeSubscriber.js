@@ -736,6 +736,7 @@ export function SpatialThreeSubscriber(props) {
 
     const onGlomSelected = useCallback((obsId) => {
         const obsIdsToSelect = [obsId];
+        console.log(cellSetColor, additionalCellSets);
         setObsSelection(
             obsIdsToSelect, additionalCellSets, cellSetColor,
             setCellSetSelection, setAdditionalCellSets, setCellSetColor,
@@ -743,6 +744,7 @@ export function SpatialThreeSubscriber(props) {
         );
     }, [additionalCellSets, cellSetColor, setCellColorEncoding,
         setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
+
 
     return (
         <TitleInfo
