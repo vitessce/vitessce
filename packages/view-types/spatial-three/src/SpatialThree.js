@@ -573,7 +573,7 @@ function GeometryAndMesh(props) {
                             <mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]}
                                   scale={[0.001, 0.001, 0.002]}
                                   ref={materialRef}>
-                                <boxGeometry args={[400, 400, 400]}/>
+                                <boxGeometry args={[400,400,400]}/>
                                 <shaderMaterial
                                     customProgramCacheKey={() => {
                                         return '1'
