@@ -40,6 +40,7 @@ export const DataType = {
 export const FileType = {
   // Joint file types
   ANNDATA_ZARR: 'anndata.zarr',
+  ANNDATA_ZARR_ZIP: 'anndata.zarr.zip',
   SPATIALDATA_ZARR: 'spatialdata.zarr',
   // Atomic file types
   OBS_EMBEDDING_CSV: 'obsEmbedding.csv',
@@ -66,6 +67,17 @@ export const FileType = {
   OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
   OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
   FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
+  // AnnData - zipped
+  OBS_FEATURE_MATRIX_ANNDATA_ZARR_ZIP: 'obsFeatureMatrix.anndata.zarr.zip',
+  OBS_FEATURE_COLUMNS_ANNDATA_ZARR_ZIP: 'obsFeatureColumns.anndata.zarr.zip',
+  OBS_SETS_ANNDATA_ZARR_ZIP: 'obsSets.anndata.zarr.zip',
+  OBS_EMBEDDING_ANNDATA_ZARR_ZIP: 'obsEmbedding.anndata.zarr.zip',
+  OBS_SPOTS_ANNDATA_ZARR_ZIP: 'obsSpots.anndata.zarr.zip',
+  OBS_POINTS_ANNDATA_ZARR_ZIP: 'obsPoints.anndata.zarr.zip',
+  OBS_LOCATIONS_ANNDATA_ZARR_ZIP: 'obsLocations.anndata.zarr.zip',
+  OBS_SEGMENTATIONS_ANNDATA_ZARR_ZIP: 'obsSegmentations.anndata.zarr.zip',
+  OBS_LABELS_ANNDATA_ZARR_ZIP: 'obsLabels.anndata.zarr.zip',
+  FEATURE_LABELS_ANNDATA_ZARR_ZIP: 'featureLabels.anndata.zarr.zip',
   // SpatialData
   IMAGE_SPATIALDATA_ZARR: 'image.spatialdata.zarr',
   LABELS_SPATIALDATA_ZARR: 'labels.spatialdata.zarr',

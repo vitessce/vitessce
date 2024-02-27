@@ -6,12 +6,12 @@ import { open as zarrOpen, root as zarrRoot } from 'zarrita';
  * and a stub for the required load() method.
  */
 export default class ZarrDataSource {
-  constructor({ url, requestInit, store }) {
+  constructor({ url, requestInit, store, fileType }) {
     if (store) {
       // TODO: check here that it is a valid Zarrita Readable?
       this.storeRoot = zarrRoot(store);
     } else {
-      this.storeRoot = zarrOpenRoot(url, requestInit);
+      this.storeRoot = zarrOpenRoot(url, fileType, requestInit);
     }
   }
 
