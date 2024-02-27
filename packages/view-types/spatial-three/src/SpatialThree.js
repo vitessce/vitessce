@@ -161,15 +161,19 @@ const SpatialThree = (props) => {
                 childElement.material.depthTest = true
                 childElement.material.depthWrite = true
                 childElement.material.needsUpdate = true;
-                childElement.material.side = THREE.BackSide;
+                childElement.material.side = THREE.BackSide;        //Blood Vessel && Gloms
                 // childElement.material.renderOrder = 100;
                 let simplified = childElement.clone();
                 simplified.geometry = childElement.geometry.clone();
                 simplified.material = firstPassVolume;
-                simplified.geometry.translate(-403, -32, 582);
-                simplified.geometry.scale(-1.75, 1.75 / 2.0, 1.75);
-                simplified.geometry.rotateX(Math.PI / 2);
-                simplified.geometry.rotateZ(Math.PI);
+                // X, Z (depth + is back), Y (height  - is up) -- for the gloms
+                simplified.geometry.translate(-420,-510,420);          //gloms
+                simplified.geometry.scale(0.275, 0.275/8.0, -0.275);     //gloms
+
+                // simplified.geometry.translate(-403, -32, 582);          //Blood Vessel
+                // simplified.geometry.scale(-1.75, 1.75 / 2.0, 1.75);     //Blood Vessel
+                simplified.geometry.rotateX(Math.PI / 2);               //Blood Vessel & Gloms
+                // simplified.geometry.rotateZ(Math.PI);                   //Blood Vessel
                 // Do some mesh simplification
 
                 let finalPassChild = childElement.clone()
@@ -181,9 +185,10 @@ const SpatialThree = (props) => {
             }
             newScene.add(firstPass);
             newScene.add(finalPass);
-            newScene.scale.set(-1.0, -2.0, 1.0);
-            newScene.rotateX(Math.PI / 2)
-            //console.log(newScene.children)
+            newScene.scale.set(-1.0, -8.0, 1.0);          //Gloms
+            // newScene.scale.set(-1.0, -2.0, 1.0);                   // Blood Vessel
+            newScene.rotateX(Math.PI / 2)                     // Blood Vessel & Gloms
+            // console.log(newScene.children)
             setSegmentationGroup(newScene);
         }
     }
@@ -229,9 +234,9 @@ const SpatialThree = (props) => {
                         }
                         //TODO check if in a Set selection
                         //adapt the color
-                        //  segmentationGroup.children[group].children[child].material.color.r = color[0] / 255
-                        //  segmentationGroup.children[group].children[child].material.color.g = color[1] / 255
-                        //  segmentationGroup.children[group].children[child].material.color.b = color[2] / 255
+                         segmentationGroup.children[group].children[child].material.color.r = color[0] / 255
+                         segmentationGroup.children[group].children[child].material.color.g = color[1] / 255
+                         segmentationGroup.children[group].children[child].material.color.b = color[2] / 255
                         //Select the FinalPass Group
                         segmentationGroup.children[group].children[child].material.opacity = segmentationSettings.opacity
                         segmentationGroup.children[group].children[child].material.needsUpdate = true;
@@ -516,9 +521,8 @@ function GeometryAndMesh(props) {
         if (model.current === undefined || materialRef.current === undefined) {
             return;
         }
-
         if (segmentationSettings.visible) {
-            gl.setRenderTarget(stopTexture);
+           gl.setRenderTarget(stopTexture);
             gl.clear();
             model.current.visible = true;
             model.current.children[0].visible = true;
@@ -536,18 +540,18 @@ function GeometryAndMesh(props) {
             gl.render(scene, camera);
             gl.autoClear = false;
         }
-        // return;
-        //  gl.setRenderTarget(null);
-        //  gl.clear();
         materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
-        // materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
+        materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
         materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width, glThree.size.height);
-        model.current.visible = true;
+        model.current.visible = false;
         model.current.children[0].visible = false;
         model.current.children[1].visible = false;
         materialRef.current.visible = true;
         gl.render(scene, camera);
     }, 1)
+
+    // console.log(renderingSettings.meshScale, renderingSettings.geometrySize)
+
     return (
         <RayGrab>
             <group>

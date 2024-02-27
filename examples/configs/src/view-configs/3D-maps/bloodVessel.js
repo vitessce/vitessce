@@ -21,8 +21,8 @@ function generateBloodVesselConfig() {
         },
     }).addFile({
         fileType: 'segmentation.glb',
-        // url: 'https://vitessce-data-v2.s3.amazonaws.com/data/bloodVessel.glb',
-        url: 'http://127.0.0.1:8081/bloodVEssel.glb',
+        url: 'https://vitessce-data-v2.s3.amazonaws.com/data/bloodVessel.glb',
+        // url: 'http://127.0.0.1:8081/bloodVEssel.glb',
         coordinationValues: {
             fileUid: 'Cells',
         }

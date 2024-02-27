@@ -137,6 +137,10 @@ var VolumeRenderShaderPerspective = {
         "   return 1.055f * pow(x, 1.f / 2.4f) - 0.055f;",
         "}",
         "void main(void) {",
+        // For finding the settings for the MESH
+        // "  gl_FragColor = vec4(worldSpaceCoords.x,worldSpaceCoords.y,worldSpaceCoords.z,1.0);",
+        // "  return;",
+        //
         "  //STEP 1: Normalize the view Ray",
         "  vec3 rayDir = normalize(rayDirUnnorm);",
         "  //STEP 2: Intersect the ray with the volume bounds to find the interval along the ray overlapped by the volume",
