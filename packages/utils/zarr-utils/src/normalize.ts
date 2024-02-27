@@ -5,10 +5,10 @@ import { ZipFileStore } from '@zarrita/storage';
 
 
 export function zarrOpenRoot(
-  url: string, fileType: null | string, requestInit: RequestInit
+  url: string, fileType: null | string, requestInit: RequestInit,
 ) {
   let store: Readable;
-  if(fileType && fileType.endsWith('.zip')) {
+  if (fileType && fileType.endsWith('.zip')) {
     store = ZipFileStore.fromUrl(url, { overrides: requestInit });
   } else {
     store = new FetchStore(url, { overrides: requestInit });

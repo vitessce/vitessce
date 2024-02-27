@@ -18,11 +18,11 @@ const expectedCoordinationTypes = [
 function createGetFileType(jointFileType: string) {
   // Based on the jointFileType, return the appropriate fileType.
   return (fileType: string) => {
-    if(jointFileType.endsWith('.zip') && ALT_ZARR_STORE_TYPES[fileType]?.zip) {
+    if (jointFileType.endsWith('.zip') && ALT_ZARR_STORE_TYPES[fileType]?.zip) {
       return ALT_ZARR_STORE_TYPES[fileType].zip;
     }
     return fileType;
-  }
+  };
 }
 
 export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) {

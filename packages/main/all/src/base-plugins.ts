@@ -180,7 +180,7 @@ function makeZarrFileTypes<T1 extends DataLoader, T2 extends DataSource>(name: s
   const altFileTypes = Object.values(ALT_ZARR_STORE_TYPES[name]);
   return [
     new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema),
-    ...altFileTypes.map((n) => new PluginFileType(n, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema)),
+    ...altFileTypes.map(n => new PluginFileType(n, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema)),
   ];
 }
 
@@ -222,7 +222,7 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.OBS_SPOTS_ANNDATA_ZARR, DataType.OBS_SPOTS, ObsSpotsAnndataLoader, AnnDataSource, obsSpotsAnndataSchema),
   ...makeZarrFileTypes(FileType.OBS_POINTS_ANNDATA_ZARR, DataType.OBS_POINTS, ObsPointsAnndataLoader, AnnDataSource, obsPointsAnndataSchema),
   ...makeZarrFileTypes(FileType.OBS_LOCATIONS_ANNDATA_ZARR, DataType.OBS_LOCATIONS, ObsLocationsAnndataLoader, AnnDataSource, obsLocationsAnndataSchema),
-  ...makeZarrFileTypes(FileType.OBS_LABELS_ANNDATA_ZARR,DataType.OBS_LABELS, ObsLabelsAnndataLoader, AnnDataSource, obsLabelsAnndataSchema),
+  ...makeZarrFileTypes(FileType.OBS_LABELS_ANNDATA_ZARR, DataType.OBS_LABELS, ObsLabelsAnndataLoader, AnnDataSource, obsLabelsAnndataSchema),
   ...makeZarrFileTypes(FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, AnnDataSource, obsFeatureMatrixAnndataSchema),
   ...makeZarrFileTypes(FileType.OBS_FEATURE_COLUMNS_ANNDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureColumnsAnndataLoader, AnnDataSource, obsFeatureColumnsAnndataSchema),
   ...makeZarrFileTypes(FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, AnnDataSource, obsSegmentationsAnndataSchema),

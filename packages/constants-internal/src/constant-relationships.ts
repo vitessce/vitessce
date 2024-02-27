@@ -145,4 +145,4 @@ export const ALT_ZARR_STORE_TYPES = {
   [FileType.FEATURE_LABELS_ANNDATA_ZARR]: {
     zip: FileType.FEATURE_LABELS_ANNDATA_ZARR_ZIP,
   },
-}
+};

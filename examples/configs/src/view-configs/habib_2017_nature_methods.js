@@ -2,7 +2,7 @@
 function createHabib2017(storeType) {
   let adataUrl = 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.processed.h5ad.zarr';
   let fileType = 'anndata.zarr';
-  if(storeType === 'zip') {
+  if (storeType === 'zip') {
     adataUrl = 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.processed.h5ad.zarr.zip';
     fileType = 'anndata.zarr.zip';
   }
