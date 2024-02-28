@@ -39,6 +39,7 @@ import SpatialThree from './SpatialThree.js';
 import SpatialThreeTooltipSubscriber from './SpatialThreeTooltipSubscriber.js';
 import {getInitialSpatialTargets} from './utils.js';
 import {setObsSelection} from "@vitessce/sets-utils";
+import {defineWorkspace} from "vitest/config";
 
 
 // Reference: https://deck.gl/docs/api-reference/core/orbit-view#view-state
@@ -739,13 +740,21 @@ export function SpatialThreeSubscriber(props) {
     if (layerScope !== undefined) {
         let channelScope = segmentationChannelScopesByLayer[layerScope][0]
         if (channelScope !== undefined) {
-            [
-                additionalObsSets, obsSetColor, obsColorEncoding, obsSetSelection
-            ]
+            const {
+                newAdditionalObsSets, newObsSetColor, newObsColorEncoding, newObsSetSelection
+            }
                 = segmentationChannelCoordination[0][layerScope][channelScope];
-            [
-                setObsSetColor, setAdditionalObsSets, setObsColorEncoding, setObsSetSelection,
-            ] = segmentationChannelCoordination[1][layerScope][channelScope];
+            const{
+                newSetObsSetColor, newSetAdditionalObsSets, newSetObsColorEncoding, newSetObsSetSelection,
+            } = segmentationChannelCoordination[1][layerScope][channelScope];
+            additionalObsSets = newAdditionalObsSets;
+            obsSetColor = newObsSetColor;
+            obsColorEncoding = newObsColorEncoding;
+            obsSetSelection = newObsSetSelection;
+            setObsSetSelection = newSetObsSetSelection;
+            setObsSetColor = newSetObsSetColor;
+            setObsColorEncoding = newSetObsColorEncoding;
+            setAdditionalObsSets = newSetAdditionalObsSets;
         }
     }
 
