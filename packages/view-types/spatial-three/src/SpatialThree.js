@@ -514,6 +514,7 @@ function GeometryAndMesh(props) {
     });
     //glRoot.size.width * window.devicePixelRatio,
     //glRoot.size.width * window.devicePixelRatio
+    //  TODO Maybe have to adapt the pixel ratio of the renderer and the textures when it changes (e.g. zooming in on the pc)
     const stopTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
     const finalTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
 
@@ -523,7 +524,6 @@ function GeometryAndMesh(props) {
             return;
         }
         if (segmentationSettings.visible && model.current !== undefined && segmentationSettings.opacity > 0.1) {
-            console.log("here")
             gl.setRenderTarget(stopTexture);
             gl.clear();
             model.current.visible = true;
@@ -541,17 +541,18 @@ function GeometryAndMesh(props) {
             materialRef.current.visible = false;
             gl.render(scene, camera);
             gl.autoClear = false;
+            gl.clearDepth()
+            // return;
 
             materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
             materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
+            gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
             materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width * window.devicePixelRatio,
                 glThree.size.height * window.devicePixelRatio);
-
             model.current.visible = false;
             model.current.children[0].visible = false;
             model.current.children[1].visible = false;
-        }else{
-            console.log("there")
+        } else {
             materialRef.current.material.uniforms.u_stop_geom.value = null;
             materialRef.current.material.uniforms.u_geo_color.value = null;
         }
@@ -559,6 +560,7 @@ function GeometryAndMesh(props) {
         gl.render(scene, camera);
     }, 1)
     // console.log(renderingSettings.meshScale, renderingSettings.geometrySize)
+
     return (
         <RayGrab>
             <group>
@@ -1002,7 +1004,8 @@ function Box(props) {
 const SpatialWrapper = forwardRef((props, deckRef) => {
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
-        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.001, far: 3000}}>
+        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.001, far: 3000}}
+                gl={{antialias:true, logarithmicDepthBuffer:true}}>
             <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>
             </XR>
