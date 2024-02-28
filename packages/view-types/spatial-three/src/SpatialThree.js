@@ -523,6 +523,7 @@ function GeometryAndMesh(props) {
             return;
         }
         if (segmentationSettings.visible && model.current !== undefined && segmentationSettings.opacity > 0.1) {
+            console.log("here")
             gl.setRenderTarget(stopTexture);
             gl.clear();
             model.current.visible = true;
@@ -550,6 +551,7 @@ function GeometryAndMesh(props) {
             model.current.children[0].visible = false;
             model.current.children[1].visible = false;
         }else{
+            console.log("there")
             materialRef.current.material.uniforms.u_stop_geom.value = null;
             materialRef.current.material.uniforms.u_geo_color.value = null;
         }
@@ -832,7 +834,7 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["volumeTex5"].value = textures.length > 4 ? textures[4] : null;
     uniforms["volumeTex6"].value = textures.length > 5 ? textures[5] : null;
     //
-    uniforms["near"].value = 0.01;
+    uniforms["near"].value = 0.001;
     uniforms["far"].value = 3000;
     uniforms["alphaScale"].value = 1.0;
     uniforms["dtScale"].value = layerTransparency;
@@ -1000,7 +1002,7 @@ function Box(props) {
 const SpatialWrapper = forwardRef((props, deckRef) => {
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
-        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 3000}}>
+        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.001, far: 3000}}>
             <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>
             </XR>
