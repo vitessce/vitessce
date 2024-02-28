@@ -721,26 +721,34 @@ export function SpatialThreeSubscriber(props) {
 
 
     // Get "props" from the coordination space.
-    // const [{
-    //     additionalObsSets: additionalCellSets,
-    //     obsSetColor: cellSetColor,
-    // }, {
-    //     setObsSetSelection: setCellSetSelection,
-    //     setObsSetColor: setCellSetColor,
-    //     setObsColorEncoding: setCellColorEncoding,
-    //     setAdditionalObsSets: setAdditionalCellSets,
-    // }] = useCoordination(
-    //     COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_THREE],
-    //     coordinationScopes,
-    // );
+    let [{
+        additionalObsSets: additionalObsSets,
+        obsSetColor: obsSetColor,
+        obsColorEncoding: obsColorEncoding,
+        obsSetSelection: obsSetSelection
+    }, {
+        setObsSetSelection: setObsSetSelection,
+        setObsSetColor: setObsSetColor,
+        setObsColorEncoding: setObsColorEncoding,
+        setAdditionalObsSets: setAdditionalObsSets,
+    }] = useCoordination(
+        COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_THREE],
+        coordinationScopes,
+    );
     let layerScope = segmentationLayerScopes[0];
-    let channelScope = segmentationChannelScopesByLayer[layerScope][0]
-    const {
-        additionalObsSets, obsSetColor, obsColorEncoding, obsSetSelection,
-    } = segmentationChannelCoordination[0][layerScope][channelScope];
-    const {
-        setObsSetColor, setAdditionalObsSets, setObsColorEncoding, setObsSetSelection,
-    } = segmentationChannelCoordination[1][layerScope][channelScope];
+    if (layerScope !== undefined) {
+        let channelScope = segmentationChannelScopesByLayer[layerScope][0]
+        if (channelScope !== undefined) {
+            [
+                additionalObsSets, obsSetColor, obsColorEncoding, obsSetSelection
+            ]
+                = segmentationChannelCoordination[0][layerScope][channelScope];
+            [
+                setObsSetColor, setAdditionalObsSets, setObsColorEncoding, setObsSetSelection,
+            ] = segmentationChannelCoordination[1][layerScope][channelScope];
+        }
+    }
+
 
     const onGlomSelected = useCallback((obsId) => {
         const obsIdsToSelect = [obsId];

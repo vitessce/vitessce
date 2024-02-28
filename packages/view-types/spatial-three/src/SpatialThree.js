@@ -409,7 +409,7 @@ const SpatialThree = (props) => {
             <Controllers/>
             <Hands/>
             <GeometryAndMesh {...geometryAndMeshProps} ></GeometryAndMesh>
-            <OrbitControls ref={orbitRef}/>
+            <OrbitControls ref={orbitRef} enableDamping={false} dampingFactor={0.0}/>
         </group>
     );
 }
