@@ -409,7 +409,8 @@ const SpatialThree = (props) => {
             <Controllers/>
             <Hands/>
             <GeometryAndMesh {...geometryAndMeshProps} ></GeometryAndMesh>
-            <OrbitControls ref={orbitRef} enableDamping={false} dampingFactor={0.0}/>
+            <OrbitControls ref={orbitRef} enableDamping={false} dampingFactor={0.0}
+                           zoomDampingFactor={0.0} smoothZoom={false}/>
         </group>
     );
 }
@@ -521,7 +522,7 @@ function GeometryAndMesh(props) {
         if (materialRef.current === undefined) {
             return;
         }
-        if (segmentationSettings.visible && model.current !== undefined) {
+        if (segmentationSettings.visible && model.current !== undefined && segmentationSettings.opacity > 0.1) {
             gl.setRenderTarget(stopTexture);
             gl.clear();
             model.current.visible = true;
