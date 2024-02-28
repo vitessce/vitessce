@@ -40,7 +40,8 @@
     "@react-three/drei": "~9.89.0",
     "ajv": "^6.10.0",
     "d3-array": "^2.4.0",
-    "lodash-es": "^4.17.21"
+    "lodash-es": "^4.17.21",
+    "three": "^0.154.0"
   },
   "devDependencies": {
     "ajv": "^6.10.0"

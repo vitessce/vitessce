@@ -162,18 +162,17 @@ const SpatialThree = (props) => {
                 childElement.material.depthWrite = true
                 childElement.material.needsUpdate = true;
                 childElement.material.side = THREE.BackSide;        //Blood Vessel && Gloms
-                // childElement.material.renderOrder = 100;
                 let simplified = childElement.clone();
                 simplified.geometry = childElement.geometry.clone();
                 simplified.material = firstPassVolume;
                 // X, Z (depth + is back), Y (height  - is up) -- for the gloms
-                simplified.geometry.translate(-420,-530,420);          //gloms
-                simplified.geometry.scale(0.275, 0.275/8.0, -0.275);     //gloms
+                // simplified.geometry.translate(-420,-530,420);          //gloms
+                // simplified.geometry.scale(0.275, 0.275/8.0, -0.275);     //gloms
 
-                // simplified.geometry.translate(-403, -32, 582);          //Blood Vessel
-                // simplified.geometry.scale(-1.75, 1.75 / 2.0, 1.75);     //Blood Vessel
+                simplified.geometry.translate(-403, -32, 582);          //Blood Vessel
+                simplified.geometry.scale(-1.75, 1.75 / 2.0, 1.75);     //Blood Vessel
                 simplified.geometry.rotateX(Math.PI / 2);               //Blood Vessel & Gloms
-                // simplified.geometry.rotateZ(Math.PI);                   //Blood Vessel
+                simplified.geometry.rotateZ(Math.PI);                   //Blood Vessel
                 // Do some mesh simplification
 
                 let finalPassChild = childElement.clone()
@@ -185,8 +184,8 @@ const SpatialThree = (props) => {
             }
             newScene.add(firstPass);
             newScene.add(finalPass);
-            newScene.scale.set(-1.0, -8.0, 1.0);          //Gloms
-            // newScene.scale.set(-1.0, -2.0, 1.0);                   // Blood Vessel
+            //  newScene.scale.set(-1.0, -8.0, 1.0);          //Gloms
+            newScene.scale.set(-1.0, -2.0, 1.0);                   // Blood Vessel
             newScene.rotateX(Math.PI / 2)                     // Blood Vessel & Gloms
             // console.log(newScene.children)
             setSegmentationGroup(newScene);
@@ -233,10 +232,10 @@ const SpatialThree = (props) => {
                             }
                         }
                         //TODO check if in a Set selection
-                        //adapt the color
-                         segmentationGroup.children[group].children[child].material.color.r = color[0] / 255
-                         segmentationGroup.children[group].children[child].material.color.g = color[1] / 255
-                         segmentationGroup.children[group].children[child].material.color.b = color[2] / 255
+                        //adapt the color  //Make this a setting (some files need to have individual settings for each entity) TODO
+                        //segmentationGroup.children[group].children[child].material.color.r = color[0] / 255
+                        // segmentationGroup.children[group].children[child].material.color.g = color[1] / 255
+                        // segmentationGroup.children[group].children[child].material.color.b = color[2] / 255
                         //Select the FinalPass Group
                         segmentationGroup.children[group].children[child].material.opacity = segmentationSettings.opacity
                         segmentationGroup.children[group].children[child].material.needsUpdate = true;
@@ -514,16 +513,16 @@ function GeometryAndMesh(props) {
     });
     //glRoot.size.width * window.devicePixelRatio,
     //glRoot.size.width * window.devicePixelRatio
-    const stopTexture = new THREE.WebGLRenderTarget(glThree.size.width* window.devicePixelRatio, glThree.size.height* window.devicePixelRatio);
-    const finalTexture = new THREE.WebGLRenderTarget(glThree.size.width* window.devicePixelRatio, glThree.size.height* window.devicePixelRatio);
+    const stopTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
+    const finalTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
 
     useFrame((state) => {
         const {gl, scene, camera} = state;
-        if (model.current === undefined || materialRef.current === undefined) {
+        if (materialRef.current === undefined) {
             return;
         }
-        if (segmentationSettings.visible) {
-           gl.setRenderTarget(stopTexture);
+        if (segmentationSettings.visible && model.current !== undefined) {
+            gl.setRenderTarget(stopTexture);
             gl.clear();
             model.current.visible = true;
             model.current.children[0].visible = true;
@@ -540,14 +539,19 @@ function GeometryAndMesh(props) {
             materialRef.current.visible = false;
             gl.render(scene, camera);
             gl.autoClear = false;
+
+            materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
+            materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
+            materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width * window.devicePixelRatio,
+                glThree.size.height * window.devicePixelRatio);
+
+            model.current.visible = false;
+            model.current.children[0].visible = false;
+            model.current.children[1].visible = false;
+        }else{
+            materialRef.current.material.uniforms.u_stop_geom.value = null;
+            materialRef.current.material.uniforms.u_geo_color.value = null;
         }
-        materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
-        materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
-        materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width*window.devicePixelRatio,
-            glThree.size.height*window.devicePixelRatio);
-        model.current.visible = false;
-        model.current.children[0].visible = false;
-        model.current.children[1].visible = false;
         materialRef.current.visible = true;
         gl.render(scene, camera);
     }, 1)
@@ -573,7 +577,7 @@ function GeometryAndMesh(props) {
                             :
                             <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
                                        onClick={(e) => {
-                                           if(e.object.parent.userData.name == "finalPass") {
+                                           if (e.object.parent.userData.name == "finalPass") {
                                                console.log("you clicked me" + e.object.name)
                                                console.log(e.object)
                                                highlightGlom(e.object.name);
@@ -827,7 +831,7 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["volumeTex5"].value = textures.length > 4 ? textures[4] : null;
     uniforms["volumeTex6"].value = textures.length > 5 ? textures[5] : null;
     //
-    uniforms["near"].value = 0.1;
+    uniforms["near"].value = 0.01;
     uniforms["far"].value = 3000;
     uniforms["alphaScale"].value = 1.0;
     uniforms["dtScale"].value = layerTransparency;
@@ -995,7 +999,7 @@ function Box(props) {
 const SpatialWrapper = forwardRef((props, deckRef) => {
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
-        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.1, far: 3000}}>
+        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.01, far: 3000}}>
             <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>
             </XR>
