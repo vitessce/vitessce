@@ -22,6 +22,7 @@ function generateBloodVesselConfig() {
     }).addFile({
         fileType: 'segmentation.glb',
         url: 'https://vitessce-data-v2.s3.amazonaws.com/data/bloodVessel.glb',
+        // url: 'http://127.0.0.1:8080/untitled.glb',
         // url: 'http://127.0.0.1:8081/bloodVEssel.glb',
         coordinationValues: {
             fileUid: 'Cells',
@@ -115,6 +116,19 @@ function generateBloodVesselConfig() {
                 fileUid: 'Cells',
                 spatialLayerVisible: true,
                 spatialLayerOpacity: 1,
+                spatialTargetX: -403,
+                spatialTargetY: -32,
+                spatialTargetZ: 582,
+                spatialScaleX: -1.75,
+                spatialScaleY: 0.875,
+                spatialScaleZ: 1.75,
+                spatialRotationX: 1.57079632679,
+                spatialRotationZ: 3.14159265359,
+                spatialSceneScaleX: -1.0,
+                spatialSceneScaleY: -2.0,
+                spatialSceneScaleZ: 1.0,
+                spatialSceneRotationX: 1.57079632679,
+                spatialMaterialBackside: true,
                 segmentationChannel: CL([
                     {
                         //obsType: glomsObsTypeScope,

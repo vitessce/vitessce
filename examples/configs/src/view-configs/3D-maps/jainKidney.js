@@ -106,6 +106,18 @@ function generateJainKidneyConfig() {
                 fileUid: 'gloms',
                 spatialLayerVisible: true,
                 spatialLayerOpacity: 1,
+                spatialTargetX: -420,
+                spatialTargetY: -530,
+                spatialTargetZ: 420,
+                spatialScaleX: 0.275,
+                spatialScaleY: 0.034375,
+                spatialScaleZ: -0.275,
+                spatialRotationX: 1.57079632679,
+                spatialSceneScaleX: -1.0,
+                spatialSceneScaleY: -8.0,
+                spatialSceneScaleZ: -1.0,
+                spatialSceneRotationX: 1.57079632679,
+                spatialMaterialBackside: true,
                 segmentationChannel: CL([
                     {
                         obsType: glomsObsTypeScope,

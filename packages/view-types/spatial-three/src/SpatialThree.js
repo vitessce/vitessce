@@ -161,39 +161,44 @@ const SpatialThree = (props) => {
                 childElement.material.depthTest = true
                 childElement.material.depthWrite = true
                 childElement.material.needsUpdate = true;
-                childElement.material.side = THREE.BackSide;        //Blood Vessel && Gloms
+                console.log(segmentationLayerCoordination[0][layerScope])
+                childElement.material.side =
+                    segmentationLayerCoordination[0][layerScope].spatialMaterialBackside ?
+                        THREE.BackSide : THREE.FrontSide;
                 let simplified = childElement.clone();
                 simplified.geometry = childElement.geometry.clone();
                 simplified.material = firstPassVolume;
-                // X, Z (depth + is back), Y (height  - is up) -- for the gloms
-                // simplified.geometry.translate(-420,-530,420);          //gloms
-                // simplified.geometry.scale(0.275, 0.275/8.0, -0.275);     //gloms
-
-                simplified.geometry.translate(-403, -32, 582);          //Blood Vessel
-                simplified.geometry.scale(-1.75, 1.75 / 2.0, 1.75);     //Blood Vessel
-                simplified.geometry.rotateX(Math.PI / 2);               //Blood Vessel & Gloms
-                simplified.geometry.rotateZ(Math.PI);                   //Blood Vessel
-                // Do some mesh simplification
+                simplified.geometry.translate(segmentationLayerCoordination[0][layerScope].spatialTargetX ?? 0,
+                    segmentationLayerCoordination[0][layerScope].spatialTargetY ?? 0,
+                    segmentationLayerCoordination[0][layerScope].spatialTargetZ ?? 0);
+                simplified.geometry.scale(
+                    segmentationLayerCoordination[0][layerScope].spatialScaleX ?? 1.0,
+                    segmentationLayerCoordination[0][layerScope].spatialScaleY ?? 1.0,
+                    segmentationLayerCoordination[0][layerScope].spatialScaleZ ?? 1.0)
+                simplified.geometry.rotateX(segmentationLayerCoordination[0][layerScope].spatialRotationX ?? 0)
+                simplified.geometry.rotateY(segmentationLayerCoordination[0][layerScope].spatialRotationY ?? 0)
+                simplified.geometry.rotateZ(segmentationLayerCoordination[0][layerScope].spatialRotationZ ?? 0)
 
                 let finalPassChild = childElement.clone()
                 finalPassChild.material = childElement.material.clone();
                 finalPassChild.geometry = simplified.geometry.clone();
                 firstPass.add(simplified)
                 finalPass.add(finalPassChild)
-                // break;
             }
             newScene.add(firstPass);
             newScene.add(finalPass);
-            //  newScene.scale.set(-1.0, -8.0, 1.0);          //Gloms
-            newScene.scale.set(-1.0, -2.0, 1.0);                   // Blood Vessel
-            newScene.rotateX(Math.PI / 2)                     // Blood Vessel & Gloms
-            // console.log(newScene.children)
+            newScene.scale.set(
+                segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
+                segmentationLayerCoordination[0][layerScope].spatialSceneScaleY ?? 1.0,
+                segmentationLayerCoordination[0][layerScope].spatialSceneScaleZ ?? 1.0);
+            newScene.rotateX(segmentationLayerCoordination[0][layerScope].spatialSceneRotationX ?? 0.0)
+            newScene.rotateY(segmentationLayerCoordination[0][layerScope].spatialSceneRotationY ?? 0.0)
+            newScene.rotateZ(segmentationLayerCoordination[0][layerScope].spatialSceneRotationZ ?? 0.0)
             setSegmentationGroup(newScene);
         }
     }
     if (segmentationChannelCoordination[0] !== undefined && segmentationChannelCoordination[0][layerScope] !== undefined) {
         let segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope]
-
         let setsSaveString = ""
         for (let child in setsSave) {
             setsSaveString += setsSave[child].id + ";" + setsSave[child].color.toString() + ";" + setsSave[child].name;

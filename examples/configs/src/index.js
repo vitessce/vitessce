@@ -32,7 +32,7 @@ import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
 import { threeDemoConfig } from './view-configs/three.js';
 import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
 import { blinOop2019, blinSideBySide2019 } from './view-configs/spatial-beta/blin.js';
-import { jainkidney} from './view-configs/3D-maps/3DvolumeRenderThree.js';
+import { jainkidney} from './view-configs/3D-maps/jainKidney.js';
 import { xrDevExample} from './view-configs/3D-maps/XRDevExample.js';
 import { bloodVessel} from './view-configs/3D-maps/bloodVessel.js';
 import { threeMinimal } from './view-configs/3D-maps/ThreeMinimal.js';
