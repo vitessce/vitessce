@@ -642,8 +642,8 @@ function GeometryAndMesh(props) {
                         {/*<Interactive>*/}
                         {useXR().isPresenting ?
                             <primitive ref={model} object={segmentationGroup}
-                                       scale={[-0.25 / 1000, -0.25 / 1000, -0.25 / 1000]}
-                                       position={[-0.18 + 100 / 1000, 1.13 + 120 / 1000, -1 - 140 / 1000]}
+                                       scale={[1.0/ 1000, 1.0/ 1000, 1.0/ 1000]}
+                                       position={[-0.18 / 1000, 1.13 / 1000, -1 / 1000]}
                                        onClick={(e) => {
                                            // console.log("you clicked me" + e.object.name)
                                            highlightGlom(e.object.name);
@@ -670,9 +670,9 @@ function GeometryAndMesh(props) {
                     <group>
                         {useXR().isPresenting ?
                             <mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]}
-                                  scale={[0.001, 0.001, 0.002]}
+                                  scale={renderingSettings.meshScale*0.001}
                                   ref={materialRef}>
-                                <boxGeometry args={[400, 400, 400]}/>
+                                <boxGeometry args={renderingSettings.geometrySize}/>
                                 <shaderMaterial
                                     customProgramCacheKey={() => {
                                         return '1'
