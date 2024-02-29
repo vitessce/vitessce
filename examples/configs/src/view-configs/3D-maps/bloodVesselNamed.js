@@ -21,9 +21,7 @@ function generateBloodVesselConfig() {
         },
     }).addFile({
         fileType: 'segmentation.glb',
-        // url: 'https://vitessce-data-v2.s3.amazonaws.com/data/bloodVessel.glb',
-        url: 'http://127.0.0.1:8080/bloodVesselNamed.glb',
-        // url: 'http://127.0.0.1:8081/bloodVEssel.glb',
+        url: 'https://vitessce-data-v2.s3.amazonaws.com/data/bloodVesselNamed.glb',
         coordinationValues: {
             fileUid: 'Cells',
         }
@@ -74,40 +72,12 @@ function generateBloodVesselConfig() {
                 spatialTargetResolution: null,
                 imageChannel: CL([
                     {
-                        spatialTargetC: 2,
+                        spatialTargetC: 1,
                         spatialChannelColor: [0, 0, 255],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,
                         spatialChannelWindow: [1048, 5060],
                     },
-                    // {
-                    //     spatialTargetC: 1,
-                    //     spatialChannelColor: [0, 255, 0],
-                    //     spatialChannelVisible: true,
-                    //     spatialChannelOpacity: 1.0,
-                    //     spatialChannelWindow: [325,721],
-                    // },
-                    // {
-                    //     spatialTargetC: 2,
-                    //     spatialChannelColor: [255, 0, 255],
-                    //     spatialChannelVisible: true,
-                    //     spatialChannelOpacity: 1.0,
-                    //     spatialChannelWindow: [463,680],
-                    // },
-                    // {
-                    //     spatialTargetC: 9,
-                    //     spatialChannelColor: [255, 0, 0],
-                    //     spatialChannelVisible: true,
-                    //     spatialChannelOpacity: 1.0,
-                    //     spatialChannelWindow: [643,810],
-                    // },
-                    // {
-                    //     spatialTargetC: 4,
-                    //     spatialChannelColor: [255, 255, 255],
-                    //     spatialChannelVisible: true,
-                    //     spatialChannelOpacity: 1.0,
-                    //     spatialChannelWindow: [419,2175],
-                    // },
                 ]),
             },
         ]),

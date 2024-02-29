@@ -59,6 +59,9 @@ const SpatialThree = (props) => {
         visible: true,
         color: [1, 1, 1],
         opacity: 1,
+        multiVisible: "",
+        multiOpacity: "",
+        multiColor: "",
         data: null,
         obsSets: [],
     })
@@ -209,47 +212,105 @@ const SpatialThree = (props) => {
                 + segmentationSettings.obsSets[child].color.toString() + ";"
                 + segmentationSettings.obsSets[child].name;
         }
-        if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString() ||
-            segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity ||
-            segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible ||
-            setsSaveString !== settingsSaveString
-        ) {
-            setSegmentationSettings({
-                color: segmentationLayerProps.spatialChannelColor,
-                opacity: segmentationLayerProps.spatialChannelOpacity,
-                visible: segmentationLayerProps.spatialChannelVisible,
-                data: obsSegmentations,
-                obsSets: setsSave,
-            })
+
+        // Check the MultiChannel Setting - combine all channels and see if something changed
+        if (props.segmentationChannelScopesByLayer[layerScope].length > 1) {
+            let color = "";
+            let opacity = "";
+            let visible = "";
+            let visibleCombined = false;
+            let opacityCombined = 0.0;
+            for (let scope in props.segmentationChannelScopesByLayer[layerScope]) {
+                let channelScope = props.segmentationChannelScopesByLayer[layerScope][scope];
+                let channelSet = segmentationChannelCoordination[0][layerScope][channelScope];
+                color += channelSet.spatialChannelColor.toString() + ";"
+                opacity += channelSet.spatialChannelOpacity + ";"
+                visible += channelSet.spatialChannelVisible + ";"
+                visibleCombined |= channelSet.spatialChannelVisible;
+                opacityCombined += channelSet.spatialChannelOpacity;
+            }
+            console.log(color, opacity, visible)
+            if (color !== segmentationSettings.multiColor ||
+                opacity !== segmentationSettings.multiOpacity ||
+                visible !== segmentationSettings.multiVisible) {
+                setSegmentationSettings({
+                    color: segmentationLayerProps.spatialChannelColor,
+                    opacity: opacityCombined,
+                    visible: visibleCombined,
+                    multiColor: color,
+                    multiVisible: visible,
+                    multiOpacity: opacity,
+                    data: obsSegmentations,
+                    obsSets: setsSave,
+                });
+            }
+        } else {
+            if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString() ||
+                segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible ||
+                segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity ||
+                setsSaveString !== settingsSaveString
+            ) {
+                setSegmentationSettings({
+                    color: segmentationLayerProps.spatialChannelColor,
+                    opacity: segmentationLayerProps.spatialChannelOpacity,
+                    visible: segmentationLayerProps.spatialChannelVisible,
+                    multiColor: "",
+                    multiVisible: "",
+                    multiOpacity: "",
+                    data: obsSegmentations,
+                    obsSets: setsSave,
+                })
+            }
         }
     }
 
     useEffect(() => {
         if (segmentationGroup !== null) {
+            let firstGroup = 0;
+            let finalGroup = 0;
             for (let group in segmentationGroup.children) {
                 if (segmentationGroup.children[group].userData.name == "finalPass") {
-                    for (let child in segmentationGroup.children[group].children) {
-                        let color = segmentationSettings.color;
-                        let id = segmentationGroup.children[group].children[child].userData.name
+                    finalGroup = group;
+                } else {
+                    firstGroup = group;
+                }
+            }
 
-                        // SET SELECTION
-                        for (let index in segmentationSettings.obsSets) {
-                            if (segmentationSettings.obsSets[index].id === id) {
-                                color = segmentationSettings.obsSets[index].color
-                            }
-                        }
+            for (let child in segmentationGroup.children[finalGroup].children) {
+                let color = segmentationSettings.color;
+                let id = segmentationGroup.children[finalGroup].children[child].userData.name
 
-                        // CHECK IF Multiple Scopes:
-                        if(props.segmentationChannelScopesByLayer[layerScope].length > 1){
-                            //segmentationChannelCoordination[0][layerScope]
-                        }else {
-                            segmentationGroup.children[group].children[child].material.color.r = color[0] / 255
-                            segmentationGroup.children[group].children[child].material.color.g = color[1] / 255
-                            segmentationGroup.children[group].children[child].material.color.b = color[2] / 255
-                            segmentationGroup.children[group].children[child].material.opacity = segmentationSettings.opacity
-                            segmentationGroup.children[group].children[child].material.needsUpdate = true;
+                // SET SELECTION
+                for (let index in segmentationSettings.obsSets) {
+                    if (segmentationSettings.obsSets[index].id === id) {
+                        color = segmentationSettings.obsSets[index].color
+                    }
+                }
+                // console.log(id)
+                // CHECK IF Multiple Scopes:
+                if (props.segmentationChannelScopesByLayer[layerScope].length > 1) {
+                    for (let scope in props.segmentationChannelScopesByLayer[layerScope]) {
+                        let channelScope = props.segmentationChannelScopesByLayer[layerScope][scope];
+                        let channelSet = segmentationChannelCoordination[0][layerScope][channelScope];
+                        // console.log(channelSet)
+                        if (channelSet.obsType == id) {
+                            console.log(id)
+                            segmentationGroup.children[finalGroup].children[child].material.color.r = channelSet.spatialChannelColor[0] / 255;
+                            segmentationGroup.children[finalGroup].children[child].material.color.g = channelSet.spatialChannelColor[1] / 255;
+                            segmentationGroup.children[finalGroup].children[child].material.color.b = channelSet.spatialChannelColor[2] / 255;
+                            segmentationGroup.children[finalGroup].children[child].material.opacity = channelSet.spatialChannelOpacity;
+                            segmentationGroup.children[finalGroup].children[child].visible = channelSet.spatialChannelVisible;
+                            segmentationGroup.children[firstGroup].children[child].visible = channelSet.spatialChannelVisible;
+                            segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
+                            segmentationGroup.children[firstGroup].children[child].material.needsUpdate = true;
                         }
                     }
+                } else {
+                    segmentationGroup.children[finalGroup].children[child].material.color.r = color[0] / 255;
+                    segmentationGroup.children[finalGroup].children[child].material.color.g = color[1] / 255;
+                    segmentationGroup.children[finalGroup].children[child].material.color.b = color[2] / 255;
+                    segmentationGroup.children[finalGroup].children[child].material.opacity = segmentationSettings.opacity;
+                    segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
                 }
             }
         }
@@ -1015,7 +1076,7 @@ const SpatialWrapper = forwardRef((props, deckRef) => {
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
         <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.1, far: 3000}}
-                gl={{antialias:true, logarithmicDepthBuffer:true}}>
+                gl={{antialias: true, logarithmicDepthBuffer: true}}>
             <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>
             </XR>
