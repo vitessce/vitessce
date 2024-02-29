@@ -161,7 +161,7 @@ const SpatialThree = (props) => {
                 childElement.material.depthTest = true
                 childElement.material.depthWrite = true
                 childElement.material.needsUpdate = true;
-                console.log(segmentationLayerCoordination[0][layerScope])
+                // console.log(segmentationLayerCoordination[0][layerScope])
                 childElement.material.side =
                     segmentationLayerCoordination[0][layerScope].spatialMaterialBackside ?
                         THREE.BackSide : THREE.FrontSide;
@@ -231,19 +231,24 @@ const SpatialThree = (props) => {
                     for (let child in segmentationGroup.children[group].children) {
                         let color = segmentationSettings.color;
                         let id = segmentationGroup.children[group].children[child].userData.name
+
+                        // SET SELECTION
                         for (let index in segmentationSettings.obsSets) {
                             if (segmentationSettings.obsSets[index].id === id) {
                                 color = segmentationSettings.obsSets[index].color
                             }
                         }
-                        //TODO check if in a Set selection
-                        //adapt the color  //Make this a setting (some files need to have individual settings for each entity) TODO
-                        //segmentationGroup.children[group].children[child].material.color.r = color[0] / 255
-                        // segmentationGroup.children[group].children[child].material.color.g = color[1] / 255
-                        // segmentationGroup.children[group].children[child].material.color.b = color[2] / 255
-                        //Select the FinalPass Group
-                        segmentationGroup.children[group].children[child].material.opacity = segmentationSettings.opacity
-                        segmentationGroup.children[group].children[child].material.needsUpdate = true;
+
+                        // CHECK IF Multiple Scopes:
+                        if(props.segmentationChannelScopesByLayer[layerScope].length > 1){
+                            //segmentationChannelCoordination[0][layerScope]
+                        }else {
+                            segmentationGroup.children[group].children[child].material.color.r = color[0] / 255
+                            segmentationGroup.children[group].children[child].material.color.g = color[1] / 255
+                            segmentationGroup.children[group].children[child].material.color.b = color[2] / 255
+                            segmentationGroup.children[group].children[child].material.opacity = segmentationSettings.opacity
+                            segmentationGroup.children[group].children[child].material.needsUpdate = true;
+                        }
                     }
                 }
             }
@@ -588,8 +593,8 @@ function GeometryAndMesh(props) {
                             <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
                                        onClick={(e) => {
                                            if (e.object.parent.userData.name == "finalPass") {
-                                               console.log("you clicked me" + e.object.name)
-                                               console.log(e.object)
+                                               // console.log("you clicked me" + e.object.name)
+                                               // console.log(e.object)
                                                highlightGlom(e.object.name);
                                            }
                                        }}
@@ -841,7 +846,7 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["volumeTex5"].value = textures.length > 4 ? textures[4] : null;
     uniforms["volumeTex6"].value = textures.length > 5 ? textures[5] : null;
     //
-    uniforms["near"].value = 0.001;
+    uniforms["near"].value = 0.01;
     uniforms["far"].value = 3000;
     uniforms["alphaScale"].value = 1.0;
     uniforms["dtScale"].value = layerTransparency;
@@ -1009,7 +1014,7 @@ function Box(props) {
 const SpatialWrapper = forwardRef((props, deckRef) => {
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         <ARButton/>
-        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.001, far: 3000}}
+        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.1, far: 3000}}
                 gl={{antialias:true, logarithmicDepthBuffer:true}}>
             <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>

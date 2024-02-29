@@ -35,6 +35,7 @@ import { blinOop2019, blinSideBySide2019 } from './view-configs/spatial-beta/bli
 import { jainkidney} from './view-configs/3D-maps/jainKidney.js';
 import { xrDevExample} from './view-configs/3D-maps/XRDevExample.js';
 import { bloodVessel} from './view-configs/3D-maps/bloodVessel.js';
+import { bloodVesselNamed} from './view-configs/3D-maps/bloodVesselNamed.js';
 import { threeMinimal } from './view-configs/3D-maps/ThreeMinimal.js';
 import { threeMinimalLight } from './view-configs/3D-maps/ThreeMinimalLight.js';
 import { codexOop2023 } from './view-configs/spatial-beta/codex.js';
@@ -105,6 +106,7 @@ export const configs = {
   'jain-2024': jainkidney,
   'xrdev': xrDevExample,
   'bloodVessel': bloodVessel,
+  'bloodVesselNamed': bloodVesselNamed,
   'three-minimal': threeMinimal,
   'three-minimal-light': threeMinimalLight,
 

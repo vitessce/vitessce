@@ -21,8 +21,8 @@ function generateBloodVesselConfig() {
         },
     }).addFile({
         fileType: 'segmentation.glb',
-        url: 'https://vitessce-data-v2.s3.amazonaws.com/data/bloodVessel.glb',
-        // url: 'http://127.0.0.1:8080/untitled.glb',
+        // url: 'https://vitessce-data-v2.s3.amazonaws.com/data/bloodVessel.glb',
+        url: 'http://127.0.0.1:8080/bloodVesselNamed.glb',
         // url: 'http://127.0.0.1:8081/bloodVEssel.glb',
         coordinationValues: {
             fileUid: 'Cells',
@@ -74,7 +74,7 @@ function generateBloodVesselConfig() {
                 spatialTargetResolution: null,
                 imageChannel: CL([
                     {
-                        spatialTargetC: 0,
+                        spatialTargetC: 2,
                         spatialChannelColor: [0, 0, 255],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,
@@ -116,34 +116,69 @@ function generateBloodVesselConfig() {
                 fileUid: 'Cells',
                 spatialLayerVisible: true,
                 spatialLayerOpacity: 1,
-                spatialTargetX: -403,
-                spatialTargetY: -32,
-                spatialTargetZ: 582,
-                spatialScaleX: -1.75,
-                spatialScaleY: 0.875,
-                spatialScaleZ: 1.75,
-                spatialRotationX: 1.57079632679,
+                spatialTargetX: 403,
+                spatialTargetY: -582,
+                spatialTargetZ: 33,
+                spatialScaleX: 1.75,
+                spatialScaleY: 1.75,
+                spatialScaleZ: -1.75/3.0,
+                // spatialRotationX: 1.57079632679,
                 spatialRotationZ: 3.14159265359,
-                spatialSceneScaleX: -1.0,
-                spatialSceneScaleY: -2.0,
-                spatialSceneScaleZ: 1.0,
-                spatialSceneRotationX: 1.57079632679,
+                spatialSceneScaleX: 1.0,
+                spatialSceneScaleY: 1.0,
+                spatialSceneScaleZ: 3.0,
+                // spatialSceneRotationX: 1.57079632679,
                 spatialMaterialBackside: true,
                 segmentationChannel: CL([
                     {
                         //obsType: glomsObsTypeScope,
-                        obsType: 'Cells',
-                        featureType: glomsFeatureTypeScope,
-                        featureValueType: glomsFeatureValueTypeScope,
-                        featureSelection: glomsFeatureSelectionScope,
+                        obsType: 'B-Cell',
                         spatialTargetC: 0,
-                        spatialChannelColor: [202, 122, 166],
+                        spatialChannelColor: [240, 252, 3],
+                        spatialChannelOpacity: 0.5,
+                        obsColorEncoding: colorEncodingScope,
+                        spatialChannelVisible: true,
+                    },
+                    {
+                        obsType: 'Red Blood Cell',
+                        spatialTargetC: 1,
+                        spatialChannelColor: [252, 15, 3],
+                        obsColorEncoding: colorEncodingScope,
                         spatialChannelOpacity: 0.5,
                         spatialChannelVisible: true,
-                        obsColorEncoding: colorEncodingScope,
-                        spatialSegmentationFilled: false,
-                        spatialSegmentationStrokeWidth: 0.01,
                     },
+                    {
+                        obsType: 'CD11B+ Cell',
+                        spatialTargetC: 2,
+                        spatialChannelColor: [252, 3, 252],
+                        obsColorEncoding: colorEncodingScope,
+                        spatialChannelOpacity: 0.5,
+                        spatialChannelVisible: true,
+                    },
+                    {
+                        obsType: 'Vessel',
+                        spatialTargetC: 3,
+                        spatialChannelColor: [3,252,82],
+                        obsColorEncoding: colorEncodingScope,
+                        spatialChannelOpacity: 0.5,
+                        spatialChannelVisible: true,
+                    },
+                    {
+                        obsType: 'β-Catenin',
+                        spatialTargetC: 4,
+                        spatialChannelColor: [3, 7, 252],
+                        obsColorEncoding: colorEncodingScope,
+                        spatialChannelOpacity: 0.5,
+                        spatialChannelVisible: true,
+                    },
+                    {
+                        obsType: 'Vimentin',
+                        spatialTargetC: 5,
+                        spatialChannelColor: [232, 232, 232],
+                        obsColorEncoding: colorEncodingScope,
+                        spatialChannelOpacity: 0.5,
+                        spatialChannelVisible: true,
+                    }
                 ])
             }
         ])
@@ -156,4 +191,4 @@ function generateBloodVesselConfig() {
     return configJSON;
 }
 
-export const bloodVessel = generateBloodVesselConfig();
+export const bloodVesselNamed = generateBloodVesselConfig();
