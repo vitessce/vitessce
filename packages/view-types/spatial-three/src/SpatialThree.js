@@ -617,7 +617,7 @@ function GeometryAndMesh(props) {
 
             materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
             materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
-            gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
+            if(!glThree.xr)gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
             materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width * window.devicePixelRatio,
                 glThree.size.height * window.devicePixelRatio);
             model.current.visible = false;
@@ -642,8 +642,7 @@ function GeometryAndMesh(props) {
                         {/*<Interactive>*/}
                         {useXR().isPresenting ?
                             <primitive ref={model} object={segmentationGroup}
-                                       scale={[1.0/ 1000, 1.0/ 1000, 1.0/ 1000]}
-                                       position={[-0.18 / 1000, 1.13 / 1000, -1 / 1000]}
+                                       position={[-0.18, 1.13, -1]}
                                        onClick={(e) => {
                                            // console.log("you clicked me" + e.object.name)
                                            highlightGlom(e.object.name);
@@ -670,7 +669,10 @@ function GeometryAndMesh(props) {
                     <group>
                         {useXR().isPresenting ?
                             <mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]}
-                                  scale={renderingSettings.meshScale*0.001}
+                                  scale={[0.001 * renderingSettings.meshScale[0],
+                                      0.001 * renderingSettings.meshScale[1],
+                                      0.001 * renderingSettings.meshScale[2]]
+                                  }
                                   ref={materialRef}>
                                 <boxGeometry args={renderingSettings.geometrySize}/>
                                 <shaderMaterial
