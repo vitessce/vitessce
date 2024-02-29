@@ -588,10 +588,6 @@ function GeometryAndMeshOld(props) {
     //
     let renderer = useThree().gl
     renderer.sortObjects = true;
-    // First Positon: Left (+) Right (-)
-    // Second Position: Up (+) Down (-)
-    // Third Position: Front (-) Back (+)
-
     // console.log(renderingSettings.meshScale)
 
     return (
@@ -628,9 +624,11 @@ function GeometryAndMeshOld(props) {
                     <group>
                         {useXR().isPresenting ?
                             <mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]}
-                                  scale={[0.001, 0.001, 0.002]}
+                                  scale={[0.001 * renderingSettings.meshScale[0],
+                                      0.001 * renderingSettings.meshScale[1],
+                                      0.001 * renderingSettings.meshScale[2]]}
                                   ref={materialRef}>
-                                <boxGeometry args={[400, 400, 400]}/>
+                                <boxGeometry args={renderingSettings.geometrySize}/>
                                 <shaderMaterial
                                     customProgramCacheKey={() => {
                                         return '1'
