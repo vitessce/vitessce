@@ -65,8 +65,8 @@ function generateVisiumIoConfig() {
   const obsSets = config.addView(dataset, 'obsSets');
   const featureList = config.addView(dataset, 'featureList');
 
-  // const [featureSelectionScope] = config.addCoordination('featureSelection');
-  // featureSelectionScope.setValue(['Atp1b1']);
+  const [featureSelectionScope] = config.addCoordination('featureSelection');
+  featureSelectionScope.setValue(['Atp1b1']);
 
   const [obsColorEncodingScope] = config.addCoordination('obsColorEncoding');
   obsColorEncodingScope.setValue('geneSelection');
@@ -75,15 +75,23 @@ function generateVisiumIoConfig() {
     spotLayer: CL({
       // featureValueColormapRange: [0, 0.5],
       obsColorEncoding: obsColorEncodingScope,
-      // featureSelection: featureSelectionScope,
+      featureSelection: featureSelectionScope,
     }),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSpots') });
+
+  config.linkViewsByObject([spatialView, lcView], {
+    imageLayer: CL({
+      // featureValueColormapRange: [0, 0.5],
+      photometricInterpretation: "RGB",
+      // featureSelection: featureSelectionScope,
+    }),
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
   // or
 
   config.linkViews([featureList, heatmap, obsSets, spatialView, lcView], ['obsType'], ['spot']);
 
-  // featureList.useCoordination(featureSelectionScope);
-  // heatmap.useCoordination(featureSelectionScope);
+  featureList.useCoordination(featureSelectionScope);
+  heatmap.useCoordination(featureSelectionScope);
 
   featureList.useCoordination(obsColorEncodingScope);
   heatmap.useCoordination(obsColorEncodingScope);
