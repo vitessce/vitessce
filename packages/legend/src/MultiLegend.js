@@ -30,8 +30,6 @@ export default function MultiLegend(props) {
     pointLayerCoordination,
   } = props;
 
-  console.log(spotMultiFeatureLabels);
-
   const classes = useStyles();
 
   const reversedSegmentationLayerScopes = useMemo(() => (

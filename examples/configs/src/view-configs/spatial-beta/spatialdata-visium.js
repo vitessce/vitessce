@@ -57,11 +57,11 @@ function generateVisiumConfig() {
   const [featureSelectionScope, obsColorEncodingScope] = config.addCoordination('featureSelection', 'obsColorEncoding');
   featureSelectionScope.setValue(['Slc25a4']);
   obsColorEncodingScope.setValue('geneSelection');
-  
+
 
   config.linkViewsByObject([spatialView, lcView], {
     imageLayer: CL({
-      photometricInterpretation: "RGB",
+      photometricInterpretation: 'RGB',
     }),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
   config.linkViewsByObject([spatialView, lcView], {
@@ -75,7 +75,7 @@ function generateVisiumConfig() {
   featureList.useCoordination(featureSelectionScope);
   featureList.useCoordination(obsColorEncodingScope);
 
-  
+
   config.linkViews([featureList, heatmap, spatialView, lcView], ['obsType'], ['spot']);
 
   /* featureList.useCoordination(featureSelectionScope);

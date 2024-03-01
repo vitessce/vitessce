@@ -82,7 +82,7 @@ function generateVisiumIoConfig() {
   config.linkViewsByObject([spatialView, lcView], {
     imageLayer: CL({
       // featureValueColormapRange: [0, 0.5],
-      photometricInterpretation: "RGB",
+      photometricInterpretation: 'RGB',
       // featureSelection: featureSelectionScope,
     }),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
