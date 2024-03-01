@@ -57,6 +57,7 @@ export {
   useMultiObsSpots,
   useMultiObsPoints,
   useSpotMultiObsSets,
+  useSpotMultiFeatureLabels,
   useMultiObsSegmentations,
   useMultiImages,
 

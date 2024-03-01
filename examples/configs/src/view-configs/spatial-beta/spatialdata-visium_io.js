@@ -86,7 +86,6 @@ function generateVisiumIoConfig() {
       // featureSelection: featureSelectionScope,
     }),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
-  // or
 
   config.linkViews([featureList, heatmap, obsSets, spatialView, lcView], ['obsType'], ['spot']);
 

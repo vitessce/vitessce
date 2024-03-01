@@ -32,6 +32,7 @@ import {
   useComplexCoordinationSecondary,
   useCoordinationScopes,
   useCoordinationScopesBy,
+  useSpotMultiFeatureLabels,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
@@ -360,6 +361,10 @@ export function SpatialSubscriber(props) {
   );
 
   const [obsSpotsSetsData, obsSpotsSetsDataStatus] = useSpotMultiObsSets(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [obsSpotsFeatureLabelsData, obsSpotsFeatureLabelsDataStatus] = useSpotMultiFeatureLabels(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -843,6 +848,7 @@ export function SpatialSubscriber(props) {
         spotLayerScopes={spotLayerScopes}
         spotLayerCoordination={spotLayerCoordination}
         spotMultiExpressionExtents={spotMultiExpressionExtents}
+        spotMultiFeatureLabels={obsSpotsFeatureLabelsData}
 
         // Points
         pointLayerScopes={pointLayerScopes}
