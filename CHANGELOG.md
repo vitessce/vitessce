@@ -1,4 +1,34 @@
 
+## 3.3.6
+
+### Patch Changes
+
+- Make light theme un-selected color lighter. (`@vitessce/utils`) ([#1814](https://github.com/vitessce/vitessce/pull/1814))
+
+- Export useCoordination from main vitessce package. Implement remountOnUidChange prop. (`@vitessce/all`, `@vitessce/vit-s`) ([#1812](https://github.com/vitessce/vitessce/pull/1812))
+
+
+## 3.3.5
+
+### Patch Changes
+
+- Update light2 theme styles to use border rather than grid background. (`@vitessce/vit-s`, `docs`) ([#1809](https://github.com/vitessce/vitessce/pull/1809))
+
+- Add 'light2' theme in which views have a white background. (`@vitessce/layer-controller-beta`, `@vitessce/genomic-profiles`, `@vitessce/spatial-utils`, `@vitessce/utils`, `@vitessce/vit-s`, `@vitessce/vega`, `@vitessce/gl`, `demo`) ([#1800](https://github.com/vitessce/vitessce/pull/1800))
+
+- Do not rely on a higlass server to load chromosome sizes. (`@vitessce/genomic-profiles`) ([#1797](https://github.com/vitessce/vitessce/pull/1797))
+
+- Implement violin plot via D3 (rather than Vega-Lite). (`@vitessce/statistical-plots`) ([#1440](https://github.com/vitessce/vitessce/pull/1440))
+
+- Add Salcher et al., Cancer Cell 2022 demo config. (`@vitessce/example-configs`) ([#1807](https://github.com/vitessce/vitessce/pull/1807))
+
+- Add Lake et al. 2023 config. Fix y-axis min for violin plot. (`@vitessce/statistical-plots`, `@vitessce/example-configs`) ([#1790](https://github.com/vitessce/vitessce/pull/1790))
+
+- Support loading AnnData.obs columns as an obsFeatureMatrix data type. (`@vitessce/statistical-plots`, `@vitessce/zarr`, `@vitessce/schemas`) ([#1806](https://github.com/vitessce/vitessce/pull/1806))
+
+- Use built-in Object.fromEntries. (`@vitessce/spatial-utils`, `@vitessce/utils`, `@vitessce/schemas`, `@vitessce/config`, `@vitessce/vit-s`, `@vitessce/gl`) ([#1808](https://github.com/vitessce/vitessce/pull/1808))
+
+
 ## 3.3.4
 
 ### Patch Changes

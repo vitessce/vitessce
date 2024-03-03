@@ -3,7 +3,6 @@ import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous
 import { project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { Texture2D, isWebGL2 } from '@luma.gl/core';
 import { XRLayer } from '@hms-dbmi/viv';
-import { fromEntries } from '@vitessce/utils';
 import { range } from 'lodash-es';
 import { fs, vs } from './bitmask-layer-beta-shaders.js';
 import {
@@ -200,7 +199,7 @@ export default class BitmaskLayer extends XRLayer {
     // Render the image
     if (textures && model) {
       const scaleFactor = 1 / (2 ** (maxZoom - zoom));
-      const colors = fromEntries(range(MAX_CHANNELS).map(i => ([`color${i}`, getColor(channelColors[i])])));
+      const colors = Object.fromEntries(range(MAX_CHANNELS).map(i => ([`color${i}`, getColor(channelColors[i])])));
       model
         .setUniforms(
           Object.assign({}, uniforms, {

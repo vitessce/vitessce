@@ -6,7 +6,7 @@ import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
 import { isMatch, cloneDeep } from 'lodash-es';
 import { CoordinationType } from '@vitessce/constants-internal';
-import { fromEntries, capitalize } from '@vitessce/utils';
+import { capitalize } from '@vitessce/utils';
 import { getCoordinationSpaceAndScopes } from '@vitessce/config';
 import {
   removeImageChannelInMetaCoordinationScopesHelper,
@@ -444,7 +444,7 @@ const useGridSizeStore = create(set => ({
 export function useInitialCoordination(parameters, coordinationScopes) {
   const values = useViewConfigStore((state) => {
     const { coordinationSpace } = state.initialViewConfig;
-    return fromEntries(parameters.map((parameter) => {
+    return Object.fromEntries(parameters.map((parameter) => {
       if (coordinationSpace && coordinationSpace[parameter]) {
         const value = coordinationSpace[parameter][coordinationScopes[parameter]];
         return [parameter, value];
@@ -476,7 +476,7 @@ export function useCoordination(parameters, coordinationScopes) {
 
   const values = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
-    return fromEntries(parameters.map((parameter) => {
+    return Object.fromEntries(parameters.map((parameter) => {
       if (coordinationSpace) {
         const parameterScope = getParameterScope(parameter, coordinationScopes);
         if (coordinationSpace && coordinationSpace[parameter]) {
@@ -488,7 +488,7 @@ export function useCoordination(parameters, coordinationScopes) {
     }));
   }, shallow);
 
-  const setters = useMemo(() => fromEntries(parameters.map((parameter) => {
+  const setters = useMemo(() => Object.fromEntries(parameters.map((parameter) => {
     const setterName = `set${capitalize(parameter)}`;
     const setterFunc = value => setCoordinationValue({
       parameter,
@@ -539,7 +539,7 @@ export function useMultiCoordinationScopesSecondary(
     const scopes = getParameterScope(byType, coordinationScopes);
     if (scopes && coordinationScopesBy?.[byType]?.[parameter]) {
       const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
-      return [scopesArr, fromEntries(scopesArr.map((scope) => {
+      return [scopesArr, Object.fromEntries(scopesArr.map((scope) => {
         const secondaryScopes = coordinationScopesBy[byType][parameter][scope];
         const secondaryScopesArr = Array.isArray(secondaryScopes)
           ? secondaryScopes
@@ -550,7 +550,7 @@ export function useMultiCoordinationScopesSecondary(
     // Fallback from fine-grained to coarse-grained.
     if (scopes && !coordinationScopesBy?.[byType]?.[parameter] && coordinationScopes?.[parameter]) {
       const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
-      return [scopesArr, fromEntries(scopesArr.map((scope) => {
+      return [scopesArr, Object.fromEntries(scopesArr.map((scope) => {
         const secondaryScopes = coordinationScopes?.[parameter];
         const secondaryScopesArr = Array.isArray(secondaryScopes)
           ? secondaryScopes
@@ -586,7 +586,7 @@ export function useMultiCoordinationScopesSecondaryNonNull(
         }
         return false;
       });
-      return [scopesNonNull, fromEntries(scopesNonNull.map((scope) => {
+      return [scopesNonNull, Object.fromEntries(scopesNonNull.map((scope) => {
         const secondaryScopes = coordinationScopesBy[byType][parameter][scope];
         const secondaryScopesArr = Array.isArray(secondaryScopes)
           ? secondaryScopes
@@ -611,7 +611,7 @@ export function useMultiCoordinationScopesSecondaryNonNull(
         }
         return false;
       });
-      return [scopesNonNull, fromEntries(scopesNonNull.map((scope) => {
+      return [scopesNonNull, Object.fromEntries(scopesNonNull.map((scope) => {
         const secondaryScopes = coordinationScopes?.[parameter];
         const secondaryScopesArr = Array.isArray(secondaryScopes)
           ? secondaryScopes
@@ -638,7 +638,7 @@ export function useMultiCoordinationValues(parameter, coordinationScopes) {
     const { coordinationSpace } = state.viewConfig;
     // Convert a single scope to an array of scopes to be consistent.
     const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
-    return fromEntries(scopesArr.map((scope) => {
+    return Object.fromEntries(scopesArr.map((scope) => {
       if (coordinationSpace && coordinationSpace[parameter]) {
         const value = coordinationSpace[parameter][scope];
         return [scope, value];
@@ -689,8 +689,8 @@ export function useComplexCoordination(
     if (typeScopes) {
       // Convert a single scope to an array of scopes to be consistent.
       const typeScopesArr = Array.isArray(typeScopes) ? typeScopes : [typeScopes];
-      return fromEntries(typeScopesArr.map((datasetScope) => {
-        const datasetValues = fromEntries(parameters.map((parameter, i) => {
+      return Object.fromEntries(typeScopesArr.map((datasetScope) => {
+        const datasetValues = Object.fromEntries(parameters.map((parameter, i) => {
           if (parameterSpaces[i]) {
             const parameterSpace = parameterSpaces[i];
             const parameterScope = getParameterScopeBy(
@@ -722,8 +722,8 @@ export function useComplexCoordination(
     if (typeScopes) {
       // Convert a single scope to an array of scopes to be consistent.
       const typeScopesArr = Array.isArray(typeScopes) ? typeScopes : [typeScopes];
-      return fromEntries(typeScopesArr.map((datasetScope) => {
-        const datasetSetters = fromEntries(parameters.map((parameter) => {
+      return Object.fromEntries(typeScopesArr.map((datasetScope) => {
+        const datasetSetters = Object.fromEntries(parameters.map((parameter) => {
           const setterName = `set${capitalize(parameter)}`;
           const setterFunc = value => setCoordinationValue({
             parameter,
@@ -939,7 +939,7 @@ export function useAuxiliaryCoordination(parameters, coordinationScopes) {
   const mappedParameters = mapParameters(parameters);
   const values = useAuxiliaryStore((state) => {
     const { auxiliaryStore } = state;
-    return fromEntries(mappedParameters.map((parameter) => {
+    return Object.fromEntries(mappedParameters.map((parameter) => {
       if (auxiliaryStore && auxiliaryStore[parameter]) {
         const value = auxiliaryStore[parameter][mappedCoordinationScopes[parameter]];
         return [parameter, value];
@@ -947,7 +947,7 @@ export function useAuxiliaryCoordination(parameters, coordinationScopes) {
       return [parameter, undefined];
     }));
   }, shallow);
-  const setters = useMemo(() => fromEntries(mappedParameters.map((parameter) => {
+  const setters = useMemo(() => Object.fromEntries(mappedParameters.map((parameter) => {
     const setterName = `set${capitalize(parameter)}`;
     const setterFunc = value => setCoordinationValue({
       parameter,

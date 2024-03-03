@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal';
-import { fromEntries } from '@vitessce/utils';
 import { useQuery, useQueries } from '@tanstack/react-query';
 import {
   useMultiCoordinationValues,
@@ -478,7 +477,7 @@ export function useMultiObsLabels(
     CoordinationType.OBS_LABELS_TYPE,
     coordinationScopes,
   );
-  const obsLabelsMatchOnObj = useMemo(() => fromEntries(
+  const obsLabelsMatchOnObj = useMemo(() => Object.fromEntries(
     Object.entries(obsLabelsTypes).map(([scope, obsLabelsType]) => ([
       scope,
       { obsLabelsType, obsType },

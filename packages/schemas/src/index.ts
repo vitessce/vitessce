@@ -19,6 +19,7 @@ export {
   obsLocationsAnndataSchema,
   obsLabelsAnndataSchema,
   obsFeatureMatrixAnndataSchema,
+  obsFeatureColumnsAnndataSchema,
   obsSegmentationsAnndataSchema,
   featureLabelsAnndataSchema,
   sampleEdgesAnndataSchema,

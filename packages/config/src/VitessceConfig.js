@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { CoordinationType } from '@vitessce/constants-internal';
-import { fromEntries, getNextScope, createPrefixedGetNextScopeNumeric } from '@vitessce/utils';
+import { getNextScope, createPrefixedGetNextScopeNumeric } from '@vitessce/utils';
 
 /**
  * Class representing a file within a Vitessce config dataset.
@@ -954,10 +954,10 @@ export class VitessceConfig {
     return {
       ...this.config,
       datasets: this.config.datasets.map(d => d.toJSON()),
-      coordinationSpace: fromEntries(
+      coordinationSpace: Object.fromEntries(
         Object.entries(this.config.coordinationSpace).map(([cType, cScopes]) => ([
           cType,
-          fromEntries(
+          Object.fromEntries(
             Object.entries(cScopes).map(([cScopeName, cScope]) => ([
               cScopeName,
               cScope.cValue,
