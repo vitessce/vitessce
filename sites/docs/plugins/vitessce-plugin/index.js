@@ -12,6 +12,7 @@ module.exports = function(context, options) {
         resolve: {
           fallback: {
             fs: false,
+            path: false,
           },
         },
         plugins: [
