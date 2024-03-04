@@ -119,3 +119,42 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
     CoordinationType.SAMPLE_TYPE,
   ],
 };
+
+// For Zarr-based file types, we keep a mapping to file types
+// corresponding to alternative store implementations,
+// to avoid having to rely on file extensions.
+export const ALT_ZARR_STORE_TYPES = {
+  [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: {
+    zip: FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_FEATURE_COLUMNS_ANNDATA_ZARR]: {
+    zip: FileType.OBS_FEATURE_COLUMNS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_SETS_ANNDATA_ZARR]: {
+    zip: FileType.OBS_SETS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_EMBEDDING_ANNDATA_ZARR]: {
+    zip: FileType.OBS_EMBEDDING_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_SPOTS_ANNDATA_ZARR]: {
+    zip: FileType.OBS_SPOTS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_POINTS_ANNDATA_ZARR]: {
+    zip: FileType.OBS_POINTS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_LOCATIONS_ANNDATA_ZARR]: {
+    zip: FileType.OBS_LOCATIONS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR]: {
+    zip: FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_LABELS_ANNDATA_ZARR]: {
+    zip: FileType.OBS_LABELS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.FEATURE_LABELS_ANNDATA_ZARR]: {
+    zip: FileType.FEATURE_LABELS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.SAMPLE_EDGES_ANNDATA_ZARR]: {
+    zip: FileType.SAMPLE_EDGES_ANNDATA_ZARR_ZIP,
+  },
+};
