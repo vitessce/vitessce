@@ -82,7 +82,7 @@ export const FileType = {
   OBS_SEGMENTATIONS_ANNDATA_ZARR_ZIP: 'obsSegmentations.anndata.zarr.zip',
   OBS_LABELS_ANNDATA_ZARR_ZIP: 'obsLabels.anndata.zarr.zip',
   FEATURE_LABELS_ANNDATA_ZARR_ZIP: 'featureLabels.anndata.zarr.zip',
-  // TODO: sampleEdges - zipped
+  SAMPLE_EDGES_ANNDATA_ZARR_ZIP: 'sampleEdges.anndata.zarr.zip',
   // SpatialData
   IMAGE_SPATIALDATA_ZARR: 'image.spatialdata.zarr',
   LABELS_SPATIALDATA_ZARR: 'labels.spatialdata.zarr',
