@@ -41,6 +41,9 @@ const annDataObsFeatureMatrix = z.object({
     .describe('If only a subset of the matrix should be loaded initially, put a boolean column along the feature axis here (analogous to the previous matrixGeneFilter option). e.g., var/highly_variable'),
 });
 
+// TODO: need to nest this within an object
+// to allow for additional properties like `refSpecUrl`.
+// Will require a new view config version and upgrade function.
 const annDataObsSets = z.array(
   z.object({
     name: z.string()
@@ -236,6 +239,10 @@ export const anndataZarrSchema = z.object({
     z.array(annDataConvenienceObsEmbeddingItem),
   ]),
 }).partial();
+
+export const anndataH5adSchema = anndataZarrSchema.extend({
+  refSpecUrl: z.string(),
+});
 
 export const spatialdataZarrSchema = z.object({
   // TODO: should `image` be a special schema

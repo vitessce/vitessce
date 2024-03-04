@@ -5,6 +5,9 @@ function createHabib2017(storeType) {
   if (storeType === 'zip') {
     adataUrl = 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.processed.h5ad.zarr.zip';
     fileType = 'anndata.zarr.zip';
+  } else if (storeType === 'h5ad') {
+    adataUrl = 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.processed.h5ad';
+    fileType = 'anndata.h5ad';
   }
   return {
     version: '1.0.15',
@@ -289,3 +292,4 @@ export const habib2017withQualityMetrics = {
 
 export const habib2017natureMethods = createHabib2017(null);
 export const habib2017natureMethodsZip = createHabib2017('zip');
+export const habib2017natureMethodsH5ad = createHabib2017('h5ad');
