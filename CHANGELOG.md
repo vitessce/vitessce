@@ -1,4 +1,15 @@
 
+## 3.3.7
+
+### Patch Changes
+
+- Add support for Zarr ZipFileStores for AnnData file types. (`@vitessce/constants-internal`, `@vitessce/zarr-utils`, `@vitessce/zarr`) ([#1810](https://github.com/vitessce/vitessce/pull/1810))
+
+- Add sampleSets and sampleEdges data types, with file types for CSV and AnnData, respectively. (`@vitessce/constants-internal`, `@vitessce/zarr`, `@vitessce/csv`, `@vitessce/schemas`) ([#1791](https://github.com/vitessce/vitessce/pull/1791))
+
+- Support featureLabels data type in spatialBeta legend. Add Maynard 2021 Visium example config. (`@vitessce/spatial-beta`, `@vitessce/constants-internal`, `@vitessce/example-configs`, `@vitessce/legend`, `@vitessce/vit-s`) ([#1815](https://github.com/vitessce/vitessce/pull/1815))
+
+
 ## 3.3.6
 
 ### Patch Changes
