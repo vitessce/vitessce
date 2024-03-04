@@ -34,6 +34,8 @@ export const DataType = {
   OBS_SPOTS: 'obsSpots',
   OBS_POINTS: 'obsPoints',
   OBS_LOCATIONS: 'obsLocations',
+  SAMPLE_SETS: 'sampleSets',
+  SAMPLE_EDGES: 'sampleEdges',
 };
 
 
@@ -52,6 +54,7 @@ export const FileType = {
   OBS_SEGMENTATIONS_JSON: 'obsSegmentations.json',
   OBS_SETS_CSV: 'obsSets.csv',
   OBS_SETS_JSON: 'obsSets.json',
+  SAMPLE_SETS_CSV: 'sampleSets.csv',
   // OME-Zarr
   IMAGE_OME_ZARR: 'image.ome-zarr',
   OBS_SEGMENTATIONS_OME_ZARR: 'obsSegmentations.ome-zarr',
@@ -66,6 +69,7 @@ export const FileType = {
   OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
   OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
   FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
+  SAMPLE_EDGES_ANNDATA_ZARR: 'sampleEdges.anndata.zarr',
   // SpatialData
   IMAGE_SPATIALDATA_ZARR: 'image.spatialdata.zarr',
   LABELS_SPATIALDATA_ZARR: 'labels.spatialdata.zarr',
@@ -235,6 +239,9 @@ export const CoordinationType = {
   SPATIAL_CHANNEL_LABELS_VISIBLE: 'spatialChannelLabelsVisible',
   SPATIAL_CHANNEL_LABELS_ORIENTATION: 'spatialChannelLabelsOrientation',
   SPATIAL_CHANNEL_LABEL_SIZE: 'spatialChannelLabelSize',
+  // Multi-sample / comparative
+  SAMPLE_TYPE: 'sampleType',
+  SAMPLE_SET_SELECTION: 'sampleSetSelection',
 };
 
 export const STATUS = {

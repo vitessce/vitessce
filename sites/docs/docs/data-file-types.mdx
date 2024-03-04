@@ -268,6 +268,41 @@ coordinationValues={`{
 }`}
 />
 
+### `sampleSets.csv`
+
+Maps each sample to membership in one or more sets.
+
+If a group of sets is organized as a flat list, then `"column"` points to a column containing string labels.
+Alternatively, if organized as a hierarchy, then `"column"` can point to an array of columns, progressing from coarser to finer labels.
+
+For example, the file contents might look like:
+
+| donor_id | disease_state |
+| ----- | ----- |
+| donor_1 | Healthy reference |
+| donor_2 | Diabetes |
+| donor_3 | Diabetes |
+| donor_4 | Healthy reference |
+| ... | ... |
+
+<FileDefTabs
+fileName="my_sample_set_membership.csv"
+fileType="sampleSets.csv"
+fileConst="SAMPLE_SETS_CSV"
+options={`{
+  "sampleIndex": "donor_id",
+  "sampleSets": [
+    {
+      "name": "Disease state",
+      "column": "disease_state"
+    }
+  ]
+}`}
+coordinationValues={`{
+  "sampleType": "donor"
+}`}
+/>
+
 ## AnnData-Zarr
 
 While [Zarr](https://zarr.readthedocs.io/en/stable/) is an efficient format for storing multidimensional arrays,
@@ -641,6 +676,31 @@ coordinationValues={`{
 }`}
 />
 
+### `sampleEdges.anndata.zarr`
+
+A column containing string labels along the `obs` axis, which maps observations to samples.
+For example, the contents of `adata.obs['donor_id']` might look like:
+
+```
+index
+cell_1     donor_1
+cell_2     donor_1
+cell_3     donor_2
+Name: donor_id, dtype: object
+```
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="sampleEdges.anndata.zarr"
+fileConst="SAMPLE_EDGES_ANNDATA_ZARR"
+options={`{
+  "path": "obs/donor_id"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "sampleType": "donor"
+}`}
+/>
 
 ### `anndata.zarr`
 

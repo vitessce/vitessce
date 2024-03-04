@@ -26,6 +26,7 @@ import {
   obsLocationsCsvSchema,
   obsLabelsCsvSchema,
   featureLabelsCsvSchema,
+  sampleSetsCsvSchema,
   obsSetsAnndataSchema,
   obsEmbeddingAnndataSchema,
   obsSpotsAnndataSchema,
@@ -36,6 +37,7 @@ import {
   obsFeatureColumnsAnndataSchema,
   obsSegmentationsAnndataSchema,
   featureLabelsAnndataSchema,
+  sampleEdgesAnndataSchema,
   rasterJsonSchema,
   anndataZarrSchema,
   spatialdataZarrSchema,
@@ -92,6 +94,7 @@ import {
   ObsLabelsCsvLoader,
   ObsFeatureMatrixCsvLoader,
   FeatureLabelsCsvLoader,
+  SampleSetsCsvLoader,
 } from '@vitessce/csv';
 import {
   // JSON
@@ -124,6 +127,7 @@ import {
   ObsSetsAnndataLoader,
   ObsLabelsAnndataLoader,
   FeatureLabelsAnndataLoader,
+  SampleEdgesAnndataLoader,
   // MuData
   MuDataSource,
   // OME
@@ -204,6 +208,7 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_LABELS_CSV, DataType.OBS_LABELS, ObsLabelsCsvLoader, CsvSource, obsLabelsCsvSchema),
   makeFileType(FileType.OBS_FEATURE_MATRIX_CSV, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixCsvLoader, CsvSource, z.null()),
   makeFileType(FileType.FEATURE_LABELS_CSV, DataType.FEATURE_LABELS, FeatureLabelsCsvLoader, CsvSource, featureLabelsCsvSchema),
+  makeFileType(FileType.SAMPLE_SETS_CSV, DataType.SAMPLE_SETS, SampleSetsCsvLoader, CsvSource, sampleSetsCsvSchema),
   // All JSON file types
   makeFileType(FileType.OBS_SEGMENTATIONS_JSON, DataType.OBS_SEGMENTATIONS, ObsSegmentationsJsonLoader, JsonSource, z.null()),
   makeFileType(FileType.OBS_SETS_JSON, DataType.OBS_SETS, ObsSetsJsonLoader, JsonSource, z.null()),
@@ -218,6 +223,7 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_FEATURE_COLUMNS_ANNDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureColumnsAnndataLoader, AnnDataSource, obsFeatureColumnsAnndataSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, AnnDataSource, obsSegmentationsAnndataSchema),
   makeFileType(FileType.FEATURE_LABELS_ANNDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, AnnDataSource, featureLabelsAnndataSchema),
+  makeFileType(FileType.SAMPLE_EDGES_ANNDATA_ZARR, DataType.SAMPLE_EDGES, SampleEdgesAnndataLoader, AnnDataSource, sampleEdgesAnndataSchema),
   // All MuData file types
   makeFileType(FileType.OBS_SETS_MUDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, MuDataSource, obsSetsAnndataSchema),
   makeFileType(FileType.OBS_EMBEDDING_MUDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, MuDataSource, obsEmbeddingAnndataSchema),
@@ -458,4 +464,6 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION, 'vertical', z.enum(['vertical', 'horizontal'])),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE, 14, z.number()),
+  new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.string()).nullable()),
 ];

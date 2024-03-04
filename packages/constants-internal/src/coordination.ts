@@ -278,6 +278,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.ADDITIONAL_OBS_SETS,
+    CoordinationType.SAMPLE_TYPE,
+    CoordinationType.SAMPLE_SET_SELECTION,
   ],
   [ViewType.FEATURE_VALUE_HISTOGRAM]: [
     CoordinationType.DATASET,
