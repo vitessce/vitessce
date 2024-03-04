@@ -162,6 +162,7 @@ export function createLoaders(datasets, configDescription, fileTypes, coordinati
       if (!dataSources.has(dataSourceKey)) {
         dataSources.set(dataSourceKey, new DataSourceClass({
           url,
+          fileType,
           requestInit,
           refSpecUrl: options?.refSpecUrl,
           // Optionally, pass a Zarrita store to the data source,

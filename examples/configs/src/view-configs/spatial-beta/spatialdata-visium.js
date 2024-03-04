@@ -5,6 +5,7 @@ import {
   CoordinationLevel as CL,
   hconcat,
   vconcat,
+  getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
 // Sample ST8059049 from E-MTAB-11114
@@ -52,32 +53,28 @@ function generateVisiumConfig() {
   const heatmap = config.addView(dataset1, 'heatmap');
   // const obsSets = config.addView(dataset, 'obsSets');
   const featureList = config.addView(dataset1, 'featureList');
-  /*
-  const [featureSelectionScope] = config.addCoordination('featureSelection');
+
+  const [featureSelectionScope, obsColorEncodingScope] = config.addCoordination('featureSelection', 'obsColorEncoding');
   featureSelectionScope.setValue(['Slc25a4']);
+  obsColorEncodingScope.setValue('geneSelection');
+
 
   config.linkViewsByObject([spatialView, lcView], {
-    spatialTargetZ: 0,
-    spatialTargetT: 0,
-    obsType: 'spot', // TODO: remove this after auto-initialization is supported per-layer/per-layer-channel.
-    // For now, cheating by allowing the spotLayer to fall back to the auto-initialized values for the view.
     imageLayer: CL({
-      fileUid: 'ST8059049',
-      spatialLayerOpacity: 1,
-      spatialLayerVisible: true,
       photometricInterpretation: 'RGB',
     }),
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
+  config.linkViewsByObject([spatialView, lcView], {
     spotLayer: CL({
-      obsType: 'spot',
-      spatialLayerVisible: true,
-      spatialLayerOpacity: 0.5,
-      spatialSpotRadius: 100.0,
-      featureValueColormapRange: [0, 0.5],
-      obsColorEncoding: 'geneSelection',
       featureSelection: featureSelectionScope,
+      obsColorEncoding: obsColorEncodingScope,
+      spatialSpotRadius: 100,
     }),
-  });
-  */
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
+
+  featureList.useCoordination(featureSelectionScope);
+  featureList.useCoordination(obsColorEncodingScope);
+
 
   config.linkViews([featureList, heatmap, spatialView, lcView], ['obsType'], ['spot']);
 

@@ -53,10 +53,13 @@ export {
   useObsEmbeddingData,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
+  useSampleSetsData,
+  useSampleEdgesData,
   useMultiObsLabels,
   useMultiObsSpots,
   useMultiObsPoints,
   useSpotMultiObsSets,
+  useSpotMultiFeatureLabels,
   useMultiObsSegmentations,
   useMultiImages,
 

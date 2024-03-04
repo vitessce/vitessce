@@ -142,6 +142,28 @@ export function useObsSetsData(
   );
 }
 
+export function useSampleSetsData(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.SAMPLE_SETS,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+export function useSampleEdgesData(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.SAMPLE_EDGES,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
 export function useObsFeatureMatrixData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -447,6 +469,32 @@ export function useSpotMultiObsSets(
   );
   return [obsSetsData, obsSetsDataStatus, obsSetsUrls];
 }
+
+
+export function useSpotMultiFeatureLabels(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const featureTypeCoordination = useComplexCoordination(
+    [
+      CoordinationType.FEATURE_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPOT_LAYER,
+  );
+  const matchOnObj = useMemo(() => featureTypeCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [featureLabelsData, featureLabelsStatus, featureLabelsUrls] = useDataTypeMulti(
+    DataType.FEATURE_LABELS, loaders, dataset,
+    false, {}, {},
+    matchOnObj,
+  );
+  return [featureLabelsData, featureLabelsStatus, featureLabelsUrls];
+}
+
 
 export function useMultiObsLabels(
   coordinationScopes, obsType, loaders, dataset,
