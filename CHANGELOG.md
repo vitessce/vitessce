@@ -1,4 +1,13 @@
 
+## 3.3.6
+
+### Patch Changes
+
+- Make light theme un-selected color lighter. (`@vitessce/utils`) ([#1814](https://github.com/vitessce/vitessce/pull/1814))
+
+- Export useCoordination from main vitessce package. Implement remountOnUidChange prop. (`@vitessce/all`, `@vitessce/vit-s`) ([#1812](https://github.com/vitessce/vitessce/pull/1812))
+
+
 ## 3.3.5
 
 ### Patch Changes
