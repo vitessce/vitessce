@@ -247,11 +247,15 @@ export default function DataTypesTable() {
           </td>
         </tr>
         <tr>
-          <td><code>sampleEdges</code><br /> Tuples of (observationId, sampleId) to map observations to samples.</td>
+          <td>
+            <code>sampleEdges</code>
+            <br />
+            Tuples of (observationId, sampleId) to map observations to samples.
+          </td>
           <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#sampleedgesanndatazarr')}><code>sampleEdges.anndata.zarr</code></a></li></ul></td>
           <td>
             <ul>
-            <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
             </ul>
           </td>
         </tr>
@@ -260,7 +264,7 @@ export default function DataTypesTable() {
           <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#samplesetscsv')}><code>sampleSets.csv</code></a></li></ul></td>
           <td>
             <ul>
-            <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
             </ul>
           </td>
         </tr>
