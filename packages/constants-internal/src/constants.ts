@@ -34,12 +34,15 @@ export const DataType = {
   OBS_SPOTS: 'obsSpots',
   OBS_POINTS: 'obsPoints',
   OBS_LOCATIONS: 'obsLocations',
+  SAMPLE_SETS: 'sampleSets',
+  SAMPLE_EDGES: 'sampleEdges',
 };
 
 
 export const FileType = {
   // Joint file types
   ANNDATA_ZARR: 'anndata.zarr',
+  ANNDATA_ZARR_ZIP: 'anndata.zarr.zip',
   SPATIALDATA_ZARR: 'spatialdata.zarr',
   // Atomic file types
   OBS_EMBEDDING_CSV: 'obsEmbedding.csv',
@@ -52,6 +55,7 @@ export const FileType = {
   OBS_SEGMENTATIONS_JSON: 'obsSegmentations.json',
   OBS_SETS_CSV: 'obsSets.csv',
   OBS_SETS_JSON: 'obsSets.json',
+  SAMPLE_SETS_CSV: 'sampleSets.csv',
   // OME-Zarr
   IMAGE_OME_ZARR: 'image.ome-zarr',
   OBS_SEGMENTATIONS_OME_ZARR: 'obsSegmentations.ome-zarr',
@@ -66,6 +70,19 @@ export const FileType = {
   OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
   OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
   FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
+  SAMPLE_EDGES_ANNDATA_ZARR: 'sampleEdges.anndata.zarr',
+  // AnnData - zipped
+  OBS_FEATURE_MATRIX_ANNDATA_ZARR_ZIP: 'obsFeatureMatrix.anndata.zarr.zip',
+  OBS_FEATURE_COLUMNS_ANNDATA_ZARR_ZIP: 'obsFeatureColumns.anndata.zarr.zip',
+  OBS_SETS_ANNDATA_ZARR_ZIP: 'obsSets.anndata.zarr.zip',
+  OBS_EMBEDDING_ANNDATA_ZARR_ZIP: 'obsEmbedding.anndata.zarr.zip',
+  OBS_SPOTS_ANNDATA_ZARR_ZIP: 'obsSpots.anndata.zarr.zip',
+  OBS_POINTS_ANNDATA_ZARR_ZIP: 'obsPoints.anndata.zarr.zip',
+  OBS_LOCATIONS_ANNDATA_ZARR_ZIP: 'obsLocations.anndata.zarr.zip',
+  OBS_SEGMENTATIONS_ANNDATA_ZARR_ZIP: 'obsSegmentations.anndata.zarr.zip',
+  OBS_LABELS_ANNDATA_ZARR_ZIP: 'obsLabels.anndata.zarr.zip',
+  FEATURE_LABELS_ANNDATA_ZARR_ZIP: 'featureLabels.anndata.zarr.zip',
+  SAMPLE_EDGES_ANNDATA_ZARR_ZIP: 'sampleEdges.anndata.zarr.zip',
   // SpatialData
   IMAGE_SPATIALDATA_ZARR: 'image.spatialdata.zarr',
   LABELS_SPATIALDATA_ZARR: 'labels.spatialdata.zarr',
@@ -236,6 +253,9 @@ export const CoordinationType = {
   SPATIAL_CHANNEL_LABELS_VISIBLE: 'spatialChannelLabelsVisible',
   SPATIAL_CHANNEL_LABELS_ORIENTATION: 'spatialChannelLabelsOrientation',
   SPATIAL_CHANNEL_LABEL_SIZE: 'spatialChannelLabelSize',
+  // Multi-sample / comparative
+  SAMPLE_TYPE: 'sampleType',
+  SAMPLE_SET_SELECTION: 'sampleSetSelection',
 };
 
 export const STATUS = {

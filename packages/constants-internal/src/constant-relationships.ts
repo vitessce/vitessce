@@ -13,6 +13,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_LOCATIONS_CSV]: DataType.OBS_LOCATIONS,
   [FileType.OBS_LABELS_CSV]: DataType.OBS_LABELS,
   [FileType.FEATURE_LABELS_CSV]: DataType.FEATURE_LABELS,
+  [FileType.SAMPLE_SETS_CSV]: DataType.SAMPLE_SETS,
   [FileType.OBS_FEATURE_MATRIX_CSV]: DataType.OBS_FEATURE_MATRIX,
   [FileType.OBS_SEGMENTATIONS_JSON]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_SETS_CSV]: DataType.OBS_SETS,
@@ -29,6 +30,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_LABELS_ANNDATA_ZARR]: DataType.OBS_LABELS,
   [FileType.FEATURE_LABELS_ANNDATA_ZARR]: DataType.FEATURE_LABELS,
+  [FileType.SAMPLE_EDGES_ANNDATA_ZARR]: DataType.SAMPLE_EDGES,
   [FileType.IMAGE_OME_TIFF]: DataType.IMAGE,
   [FileType.OBS_SEGMENTATIONS_OME_TIFF]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_FEATURE_MATRIX_MUDATA_ZARR]: DataType.OBS_FEATURE_MATRIX,
@@ -110,4 +112,50 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
     CoordinationType.FILE_UID,
   ],
   [DataType.NEIGHBORHOODS]: [],
+  [DataType.SAMPLE_SETS]: [
+    CoordinationType.SAMPLE_TYPE,
+  ],
+  [DataType.SAMPLE_EDGES]: [
+    CoordinationType.OBS_TYPE,
+    CoordinationType.SAMPLE_TYPE,
+  ],
+};
+
+// For Zarr-based file types, we keep a mapping to file types
+// corresponding to alternative store implementations,
+// to avoid having to rely on file extensions.
+export const ALT_ZARR_STORE_TYPES = {
+  [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: {
+    zip: FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_FEATURE_COLUMNS_ANNDATA_ZARR]: {
+    zip: FileType.OBS_FEATURE_COLUMNS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_SETS_ANNDATA_ZARR]: {
+    zip: FileType.OBS_SETS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_EMBEDDING_ANNDATA_ZARR]: {
+    zip: FileType.OBS_EMBEDDING_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_SPOTS_ANNDATA_ZARR]: {
+    zip: FileType.OBS_SPOTS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_POINTS_ANNDATA_ZARR]: {
+    zip: FileType.OBS_POINTS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_LOCATIONS_ANNDATA_ZARR]: {
+    zip: FileType.OBS_LOCATIONS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR]: {
+    zip: FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_LABELS_ANNDATA_ZARR]: {
+    zip: FileType.OBS_LABELS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.FEATURE_LABELS_ANNDATA_ZARR]: {
+    zip: FileType.FEATURE_LABELS_ANNDATA_ZARR_ZIP,
+  },
+  [FileType.SAMPLE_EDGES_ANNDATA_ZARR]: {
+    zip: FileType.SAMPLE_EDGES_ANNDATA_ZARR_ZIP,
+  },
 };
