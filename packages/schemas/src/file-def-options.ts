@@ -41,10 +41,7 @@ const annDataObsFeatureMatrix = z.object({
     .describe('If only a subset of the matrix should be loaded initially, put a boolean column along the feature axis here (analogous to the previous matrixGeneFilter option). e.g., var/highly_variable'),
 });
 
-// TODO: need to nest this within an object
-// to allow for additional properties like `refSpecUrl`.
-// Will require a new view config version and upgrade function.
-const annDataObsSets = z.array(
+const annDataObsSetsArr = z.array(
   z.object({
     name: z.string()
       .describe("The display name for the set, like 'Cell Type' or 'Louvain.'"),
@@ -60,11 +57,27 @@ const annDataObsSets = z.array(
   }),
 );
 
-const annDataObsFeatureColumns = z.array(
+// Need to nest this within an object
+// to allow for additional properties like `refSpecUrl`.
+// TODO: Will require a new view config version and upgrade function.
+// TODO: Will require updates within the loader class (options.obsSets rather than options).
+const annDataObsSets = z.object({
+  obsSets: annDataObsSetsArr,
+});
+
+const annDataObsFeatureColumnsArr = z.array(
   z.object({
     path: z.string(),
   }),
 );
+
+// Need to nest this within an object
+// to allow for additional properties like `refSpecUrl`.
+// TODO: Will require a new view config version and upgrade function.
+// TODO: Will require updates within the loader class (options.obsFeatureColumns rather than options).
+const annDataObsFeatureColumns = z.object({
+  obsFeatureColumns: annDataObsFeatureColumnsArr,
+});
 
 const annDataObsSpots = annDataObsm;
 const annDataObsPoints = annDataObsm;
@@ -229,7 +242,7 @@ export const anndataZarrSchema = z.object({
     z.array(annDataConvenienceFeatureLabelsItem),
   ]),
   obsFeatureMatrix: annDataObsFeatureMatrix,
-  obsSets: annDataObsSets,
+  obsSets: annDataObsSetsArr,
   obsSpots: annDataObsSpots,
   obsPoints: annDataObsPoints,
   obsLocations: annDataObsLocations,

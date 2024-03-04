@@ -49,7 +49,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
   const { options = {} } = fileDef;
   const sharedOptions: { refSpecUrl?: string } = {};
   if (fileDef.fileType.endsWith('.h5ad')) {
-    sharedOptions.refSpecUrl = fileDef.refSpecUrl;
+    sharedOptions.refSpecUrl = options?.refSpecUrl;
   }
   return [
     // obsFeatureMatrix
