@@ -24,6 +24,7 @@ export default function MultiLegend(props) {
     spotLayerScopes,
     spotLayerCoordination,
     spotMultiExpressionExtents,
+    spotMultiFeatureLabels,
     // Points
     pointLayerScopes,
     pointLayerCoordination,
@@ -109,6 +110,8 @@ export default function MultiLegend(props) {
         const isStaticColor = obsColorEncoding === 'spatialLayerColor';
         const height = isStaticColor ? 20 : 36;
 
+        const featureLabelsMap = spotMultiFeatureLabels?.[layerScope]?.featureLabelsMap;
+
         return spatialLayerVisible && legendVisible ? (
           <Legend
             key={layerScope}
@@ -123,7 +126,7 @@ export default function MultiLegend(props) {
             obsColorEncoding={obsColorEncoding}
             spatialLayerColor={spatialLayerColor}
             featureSelection={featureSelection}
-            // featureLabelsMap={featureLabelsMap} // TODO
+            featureLabelsMap={featureLabelsMap}
             featureValueColormap={featureValueColormap}
             featureValueColormapRange={featureValueColormapRange}
             extent={firstExpressionExtent}

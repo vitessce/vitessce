@@ -51,6 +51,7 @@ import { imsAlgorithmComparison } from './view-configs/spatial-beta/ims-algorith
 import { neumanOop2023 } from './view-configs/spatial-beta/neumann-oop.js';
 import { lightsheetOop2023 } from './view-configs/spatial-beta/lightsheet-oop.js';
 import { visiumPolygonsOop2023 } from './view-configs/spatial-beta/visium-polygons-oop.js';
+import { maynard2021 } from './view-configs/spatial-beta/spatialdata-maynard_2021.js';
 
 import exemplarSmallCellsAdata from './json-fixtures/exemplar-small/exemplar-001.crop.cells.adata.json';
 import exemplarSmallImageOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.image.ome.json';
@@ -106,6 +107,7 @@ export const configs = {
   'dries-2019': eng2019,
   'lake-2023': lake2023,
   'salcher-2022': salcher2022,
+  'maynard-2021': maynard2021,
 
   // Multi-level coordination with spatialBeta view:
   'blin-2019-2': blinOop2019,

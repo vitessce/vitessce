@@ -24,6 +24,7 @@ const configAttrs = {
   'spatialdata-visium': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
   'spatialdata-visium_io': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
   'spatialdata-mcmicro_io': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
+  'maynard-2021': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
 };
 
 function cleanAttr(attrVal) {
@@ -57,6 +58,7 @@ function DemoList(props) {
       'spatialdata-visium',
       'spatialdata-visium_io',
       'spatialdata-mcmicro_io',
+      'maynard-2021',
     ],
   } = props;
 

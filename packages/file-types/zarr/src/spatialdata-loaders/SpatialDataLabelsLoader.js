@@ -18,7 +18,7 @@ export default class SpatialDataLabelsLoader extends SpatialDataImageLoader {
 
     const imageWrapper = result.data.obsSegmentations.instance;
     const channelObjects = imageWrapper.getChannelObjects();
-    const channelCoordination = channelObjects.slice(0, 5).map((channelObj, i) => ({
+    const channelCoordination = channelObjects.slice(0, 7).map((channelObj, i) => ({
       spatialTargetC: i,
       // obsType: channelObj.name,
       spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),

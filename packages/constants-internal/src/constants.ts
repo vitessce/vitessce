@@ -90,6 +90,7 @@ export const FileType = {
   OBS_FEATURE_MATRIX_SPATIALDATA_ZARR: 'obsFeatureMatrix.spatialdata.zarr',
   OBS_SETS_SPATIALDATA_ZARR: 'obsSets.spatialdata.zarr',
   OBS_SPOTS_SPATIALDATA_ZARR: 'obsSpots.spatialdata.zarr',
+  FEATURE_LABELS_SPATIALDATA_ZARR: 'featureLabels.spatialdata.zarr',
   // TODO:
   // OBS_POINTS_SPATIALDATA_ZARR: 'obsPoints.spatialdata.zarr',
   // OBS_LOCATIONS_SPATIALDATA_ZARR: 'obsLocations.spatialdata.zarr',
