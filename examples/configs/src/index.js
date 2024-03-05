@@ -33,6 +33,7 @@ import { threeDemoConfig } from './view-configs/three.js';
 import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
 import { blinOop2019, blinSideBySide2019 } from './view-configs/spatial-beta/blin.js';
 import { jainkidney} from './view-configs/3D-maps/jainKidney.js';
+import { kruse2024} from './view-configs/3D-maps/kruse.js';
 import { xrDevExample} from './view-configs/3D-maps/XRDevExample.js';
 import { bloodVessel} from './view-configs/3D-maps/bloodVessel.js';
 import { bloodVesselNamed} from './view-configs/3D-maps/bloodVesselNamed.js';
@@ -108,6 +109,7 @@ export const configs = {
   'bloodVessel': bloodVessel,
   'bloodVesselNamed': bloodVesselNamed,
   'three-minimal': threeMinimal,
+  'kruse-2024': kruse2024,
   'three-minimal-light': threeMinimalLight,
 
   // Multi-level coordination with spatialBeta view:

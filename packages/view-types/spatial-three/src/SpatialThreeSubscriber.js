@@ -736,56 +736,53 @@ export function SpatialThreeSubscriber(props) {
                 .map(channelScope => obsSegmentationsLocationsData?.[layerScope]?.[channelScope])).length > 0
     );
 
+    let onEntitySelected = useCallback( (obsId) => {});
 
-    // Get "props" from the coordination space.
-    let [{
-        additionalObsSets: additionalObsSets,
-        obsSetColor: obsSetColor,
-        obsColorEncoding: obsColorEncoding,
-        obsSetSelection: obsSetSelection
-    }, {
-        setObsSetSelection: setObsSetSelection,
-        setObsSetColor: setObsSetColor,
-        setObsColorEncoding: setObsColorEncoding,
-        setAdditionalObsSets: setAdditionalObsSets,
-    }] = useCoordination(
-        COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_THREE],
-        coordinationScopes,
-    );
     let layerScope = segmentationLayerScopes[0];
-    if (layerScope !== undefined) {
+    if (layerScope !== undefined && segmentationChannelScopesByLayer[layerScope][0] !== undefined) {
         let channelScope = segmentationChannelScopesByLayer[layerScope][0]
-        if (channelScope !== undefined) {
-            const {
-                newAdditionalObsSets, newObsSetColor, newObsColorEncoding, newObsSetSelection
-            }
-                = segmentationChannelCoordination[0][layerScope][channelScope];
-            const{
-                newSetObsSetColor, newSetAdditionalObsSets, newSetObsColorEncoding, newSetObsSetSelection,
-            } = segmentationChannelCoordination[1][layerScope][channelScope];
-            additionalObsSets = newAdditionalObsSets;
-            obsSetColor = newObsSetColor;
-            obsColorEncoding = newObsColorEncoding;
-            obsSetSelection = newObsSetSelection;
-            setObsSetSelection = newSetObsSetSelection;
-            setObsSetColor = newSetObsSetColor;
-            setObsColorEncoding = newSetObsColorEncoding;
-            setAdditionalObsSets = newSetAdditionalObsSets;
-        }
-    }
+        let {
+            additionalObsSets, obsSetColor, obsColorEncoding, obsSetSelection
+        } = segmentationChannelCoordination[0][layerScope][channelScope];
+        let {
+            setObsSetColor, setAdditionalObsSets, setObsColorEncoding, setObsSetSelection,
+        } = segmentationChannelCoordination[1][layerScope][channelScope];
 
-
-    const onGlomSelected = useCallback((obsId) => {
-        const obsIdsToSelect = [obsId];
-        console.log(obsSetColor, additionalObsSets);
-        setObsSelection(
-            obsIdsToSelect, additionalObsSets, obsSetColor,
-            setObsSetSelection, setAdditionalObsSets, setObsSetColor,
-            setObsColorEncoding,
+        onEntitySelected = useCallback((obsId) => {
+            const obsIdsToSelect = [obsId];
+            setObsSelection(
+                obsIdsToSelect, additionalObsSets, obsSetColor,
+                setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+                setObsColorEncoding,
+            );
+        }, [additionalObsSets, obsSetColor, setObsColorEncoding,
+            setAdditionalObsSets, setObsSetColor, setObsSetSelection]);
+    }else{
+        // Get "props" from the coordination space.
+        let [{
+            additionalObsSets: additionalObsSets,
+            obsSetColor: obsSetColor,
+            obsColorEncoding: obsColorEncoding,
+            obsSetSelection: obsSetSelection
+        }, {
+            setObsSetSelection: setObsSetSelection,
+            setObsSetColor: setObsSetColor,
+            setObsColorEncoding: setObsColorEncoding,
+            setAdditionalObsSets: setAdditionalObsSets,
+        }] = useCoordination(
+            COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_THREE],
+            coordinationScopes,
         );
-    }, [additionalObsSets, obsSetColor, setObsColorEncoding,
-        setAdditionalObsSets, setObsSetColor, setObsSetSelection]);
-
+        onEntitySelected = useCallback((obsId) => {
+            const obsIdsToSelect = [obsId];
+            setObsSelection(
+                obsIdsToSelect, additionalObsSets, obsSetColor,
+                setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+                setObsColorEncoding,
+            );
+        }, [additionalObsSets, obsSetColor, setObsColorEncoding,
+            setAdditionalObsSets, setObsSetColor, setObsSetSelection]);
+    }
 
     return (
         <TitleInfo
@@ -827,7 +824,7 @@ export function SpatialThreeSubscriber(props) {
                 updateViewInfo={setComponentViewInfo}
 
                 delegateHover={delegateHover}
-                onGlomSelected={onGlomSelected}
+                onGlomSelected={onEntitySelected}
 
                 // Points
                 obsPoints={obsPointsData}

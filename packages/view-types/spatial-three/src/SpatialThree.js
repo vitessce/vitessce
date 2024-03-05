@@ -103,6 +103,7 @@ const SpatialThree = (props) => {
     let setsSave = [];
     if (segmentationChannelCoordination[0][layerScope] !== undefined) {
         let segmentationOBSSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
+        console.log(segmentationOBSSetLayerProps)
         const {setObsHighlight} = segmentationChannelCoordination[1][layerScope][layerScope];
         setObsHighlightFct = setObsHighlight;
         let sets = segmentationChannelCoordination[0][layerScope][layerScope].additionalObsSets;
