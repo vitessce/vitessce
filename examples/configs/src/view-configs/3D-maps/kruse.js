@@ -22,7 +22,8 @@ function generateKruse2024Configuration() {
     }).addFile({
         fileType: 'segmentation.glb',
         // url: 'https://hdv-spatial-data.s3.us-east-1.amazonaws.com/kruse/kruse.glb?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEJ7%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQCyrPCrd4%2FIKiUnkIn2VyW8hj9icaG2IixMXSP3MbYWiwIhAJf8%2BhjtCgz3gcrAwEG5aCQnigVKpAF%2FtISKwJNt8sJqKvUDCJf%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQARoMMTM2NTc2NTIyMDQ4Igxcs%2FaZpHSlCSfS2GkqyQO4YA%2B0pF9LkDFaAGlxY2Hh2gUKvrlGGpW7zF%2BSQGybTkKrKx3kL6M0iOto4J7DZED%2BVT%2BGqJCj%2FcE9tuWF57qRnWrk4cu3FiZu664YbFG0vut%2FASWS%2FKsWI0taLIBvdD%2BsZcIH0Vfoi64m4Zg8I9ZznDXTxDjsW3aYmfF1Uw0QtPsS4BEnhpmALjFKD60fUNN6b5UFJJVa1dUM1pVSmUUTIfO2yw3vamD8htAVkXJ%2BZNbKXOjfs14alPpbTehGF5O%2Bqwd85anQgaNCAJvHWqo1V89ROG9LqmjqoP9hf%2B4qMD0ilXSK%2FW1lUeq9Tdd7Gn3tfQU8PMrXqKIE89Fgk%2BhK0xPWzCJ2VtznlvDGbTKiyR9B%2BdyjN5tN5fRiqbVt9sYXym7t4rryhAQhgp4EyFk29ewxIW2%2BApsUR9LgjnXfx3PFD%2Fde7dQKYVHzNypk0AQmkYj8rSA%2FJX4TsnJuUry8p8t%2BNGG3028J7jX8SB7aGVQH78YmMI4W9p%2BrtoujKehu6EHhYkNSwucf%2BE%2BRBqNghZY82Yi3DCr%2BQAXozDgq0YOc2GvCXdWYMMmM422i9Pgy0%2FZ8hcEg0wOFb9PRo3KyZ3%2BEEsSaHCyzMPOanq8GOpMC%2FhrR42A13Oqzd4Ys89%2BWYruklR8naVQ0mv6FpMFjfW4%2Bm8JFf1vjXnIPTEqVDyDFv2cUdJlBe8EfcElS%2FqOW1O%2FFHUyD3HgKuis1f9YIGP2o079luLOqKRVUxX7jv%2FMAxbEaALAxAnOSo%2FEOjeclHJ8RvtNuVqOX9NqZMx6c5sWGLweNZTV5CgUqEW9F4EL1H4QoVDqiyXVG0n5oA2RcjvMEJ3PFLhBzN4t86j8ZR2zqLXsvXk9S7PDTd5W6uQz1s%2FUOqBbq05RWJqp5u%2Fakh5UDazwT3om2UoKddIGYo%2BMnkgjqE%2BIIMrULF5Ob2M981CTgncZlsjDp6wOjYsBZUdK0muv5VMxwsx%2BrbsOuFK0nPaY%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20240305T212421Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Credential=ASIAR7TEYK5AOQ2BGXMM%2F20240305%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=5d00b0df74f11fbbc40f2e2b0f57ad9ce0d16261a185734c98c9b2926ace419c',
-        url: 'http://127.0.0.1:808/kruse_full.glb',
+        //url: 'http://127.0.0.1:808/kruse_full.glb',
+        url: 'https://hdv-spatial-data.s3.us-east-1.amazonaws.com/kruse/kruse_one.glb?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEKH%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQC2ej8JI7WZRpMOFmDA9%2B%2FtOSPT3440e3zGgRWNs3VRhQIhAIkC3NcpXBF73sspcjYmiSA9lDlWqWR0FZdrMDoe3JlBKvUDCJr%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQARoMMTM2NTc2NTIyMDQ4IgxlMZ920b6isYfWFD4qyQOAeAh8tg4vItdzjS6z1I0B690keN4%2Bej6xmUXYjEKFDf6zX6iBNavMBazL3vS0wMv6gf20uI40KiA3xjh00NcYIMc66fBDPjpqHZmCWkfh7vmlBiMsLZU1KMks3GtY0l0q3W9wVF%2BudOLRi%2FpN6rSNDC7r7ixW80LpYRMfjUiTvcRI4mCJfU2%2FXH8c%2FSeVR6MStds%2BcgDom89sWZbhMMbcJYsxw%2FLKY9MXfs3gq%2BuS6Eo%2B3rCIGljGA0brRmOZbqfGdF2XXRA4awiFdSN%2BLWu70eiPrcfktF7kcNVrAnZ1rHnmXwi%2BjjZPSbZZzeLG4F7rM0WRX44hmIcPiyFXm217Umdi%2Fop6OrOHaDiqhDU5au5LHqidulIvZV%2BpFFv%2FawU6nbV4UmWQERXyPQbdVIQ%2FWxiq98XvkKriDty0HOs79%2B9LJ4s%2ByjKhNv7mS1vVcd2%2BYPwuKhR9Ezm4JXHnLW%2FFOM9KF1UYR%2BIyna0%2BFHhsYyfZD7MjIa5MwMyRRouah1f1mpdZAzMG4X1CKSgei%2BZ7%2F8bpEEqNmeK5dGiG6J6%2BPALJP60QBOEAgaMW8GOhxrZMAb6GfurgS0eFkQlpXcHJOhjS9pD9odprMMz%2Bnq8GOpMC4VNuAMe0SxURtxRzbgVW8dTfZamxIAzgGh9RqtlktvVmQ6Era8dpidIOm08TfJwrH%2FCQleUqHfl1h5iZ0RM8zZZ8sWwFfL5S0ZePHUjJp5%2Bf2pn6oh3L6vAWDieyCMwQaWPTCLRK4sqAQKJIulVqKt6vE2z%2F9dJ80S%2B%2BIeAcZxmZktw512SCM069%2F8iluFRaUIx0E6IPNV%2Fj9y7s1viAaG2fT3zglGdgdInZN64PjtX%2B1TDLCA7A0dIZc2x%2FyFn3EWutiNEjCdAu%2Bq2V7gXhx3vxhwvEqmiqhPouGGacOgTcPnnh6TUXqtBV63oyLe6eGpbvLQNyfAy9%2B82dK8N8T2mxZzX%2BeyrI4bsLDZ%2Fu6RSaCxc%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20240306T005924Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Credential=ASIAR7TEYK5APPJQSJWN%2F20240306%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=00b5a196d907804137076b66df38e4d095de2bfcaef64b96e883c5c00355f58a',
         coordinationValues: {
             fileUid: 'gloms',
         }
@@ -88,11 +89,11 @@ function generateKruse2024Configuration() {
                 spatialLayerVisible: true,
                 spatialLayerOpacity: 1,
                 spatialTargetX: -270,
-                spatialTargetY: -950,
-                spatialTargetZ: -950,
+                spatialTargetY: -950/2.0,
+                spatialTargetZ: -950/2.0,
                 spatialScaleX: -0.095361611229783,
-                spatialScaleY: 0.125,
-                spatialScaleZ: -0.125,
+                spatialScaleY: 0.125*2,
+                spatialScaleZ: -0.125*2,
                 spatialRotationZ: 3.14159265359,
                 spatialRotationY: 1.57079632679,
                 spatialSceneScaleX: 1.0,

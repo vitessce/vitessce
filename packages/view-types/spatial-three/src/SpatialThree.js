@@ -649,18 +649,19 @@ function GeometryAndMesh(props) {
                                            highlightGlom(e.object.name);
                                        }}
                                        onPointerOver={e => setObsHighlight(e.object.name)}
-                                       onPointerOut={e => setObsHighlight(null)}/>
+                                       onPointerOut={e => setObsHighlight(null)}
+                            />
                             :
                             <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
-                                       onClick={(e) => {
-                                           if (e.object.parent.userData.name == "finalPass") {
-                                               // console.log("you clicked me" + e.object.name)
-                                               // console.log(e.object)
-                                               highlightGlom(e.object.name);
-                                           }
-                                       }}
-                                       onPointerOver={e => setObsHighlight(e.object.name)}
-                                       onPointerOut={e => setObsHighlight(null)}
+                                       // onClick={(e) => {
+                                       //     if (e.object.parent.userData.name == "finalPass") {
+                                       //         // console.log("you clicked me" + e.object.name)
+                                       //         // console.log(e.object)
+                                       //         highlightGlom(e.object.name);
+                                       //     }
+                                       // }}
+                                       // onPointerOver={e => setObsHighlight(e.object.name)}
+                                       // onPointerOut={e => setObsHighlight(null)}
                             />}
                         {/*</Interactive>*/}
                     </group>
