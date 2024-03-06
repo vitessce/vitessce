@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, {useRef, useState, forwardRef, useEffect, useCallback} from 'react';
 import {Canvas, extend, useFrame, useThree} from '@react-three/fiber'
-import {OrbitControls, useTexture, shaderMaterial, PerspectiveCamera, TorusKnot} from '@react-three/drei'
+import {OrbitControls, useTexture, shaderMaterial, PerspectiveCamera, TorusKnot, Bvh} from '@react-three/drei'
 import {useXR, RayGrab, Interactive, VRButton, ARButton, XR, Controllers, Hands} from '@react-three/xr'
 import {EnhancedRayGrab} from "./TwoHandScale.js";
 import {isEqual} from 'lodash-es';
@@ -103,7 +103,7 @@ const SpatialThree = (props) => {
     let setsSave = [];
     if (segmentationChannelCoordination[0][layerScope] !== undefined) {
         let segmentationOBSSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
-        console.log(segmentationOBSSetLayerProps)
+        //console.log(segmentationOBSSetLayerProps)
         const {setObsHighlight} = segmentationChannelCoordination[1][layerScope][layerScope];
         setObsHighlightFct = setObsHighlight;
         let sets = segmentationChannelCoordination[0][layerScope][layerScope].additionalObsSets;
@@ -230,7 +230,7 @@ const SpatialThree = (props) => {
                 visibleCombined |= channelSet.spatialChannelVisible;
                 opacityCombined += channelSet.spatialChannelOpacity;
             }
-            console.log(color, opacity, visible)
+            //console.log(color, opacity, visible)
             if (color !== segmentationSettings.multiColor ||
                 opacity !== segmentationSettings.multiOpacity ||
                 visible !== segmentationSettings.multiVisible) {
@@ -295,7 +295,7 @@ const SpatialThree = (props) => {
                         let channelSet = segmentationChannelCoordination[0][layerScope][channelScope];
                         // console.log(channelSet)
                         if (channelSet.obsType == id) {
-                            console.log(id)
+                            //console.log(id)
                             segmentationGroup.children[finalGroup].children[child].material.color.r = channelSet.spatialChannelColor[0] / 255;
                             segmentationGroup.children[finalGroup].children[child].material.color.g = channelSet.spatialChannelColor[1] / 255;
                             segmentationGroup.children[finalGroup].children[child].material.color.b = channelSet.spatialChannelColor[2] / 255;
@@ -618,7 +618,7 @@ function GeometryAndMesh(props) {
 
             materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
             materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
-            if(!glThree.xr)gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
+            if (!glThree.xr) gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
             materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width * window.devicePixelRatio,
                 glThree.size.height * window.devicePixelRatio);
             model.current.visible = false;
@@ -637,34 +637,39 @@ function GeometryAndMesh(props) {
         <RayGrab>
             <group>
                 {segmentationGroup !== null &&
-                    <group>
-                        <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
-                        <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
-                        {/*<Interactive>*/}
-                        {useXR().isPresenting ?
-                            <primitive ref={model} object={segmentationGroup}
-                                       position={[-0.18, 1.13, -1]}
-                                       onClick={(e) => {
-                                           // console.log("you clicked me" + e.object.name)
-                                           highlightGlom(e.object.name);
-                                       }}
-                                       onPointerOver={e => setObsHighlight(e.object.name)}
-                                       onPointerOut={e => setObsHighlight(null)}
-                            />
-                            :
-                            <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
-                                       // onClick={(e) => {
-                                       //     if (e.object.parent.userData.name == "finalPass") {
-                                       //         // console.log("you clicked me" + e.object.name)
-                                       //         // console.log(e.object)
-                                       //         highlightGlom(e.object.name);
-                                       //     }
-                                       // }}
-                                       // onPointerOver={e => setObsHighlight(e.object.name)}
-                                       // onPointerOut={e => setObsHighlight(null)}
-                            />}
-                        {/*</Interactive>*/}
-                    </group>
+                    <Bvh firstHitOnly>
+                        <group>
+                            <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
+                            <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
+                            {/*<Interactive>*/}
+                            {useXR().isPresenting ?
+                                <primitive ref={model} object={segmentationGroup}
+                                           position={[-0.18, 1.13, -1]}
+                                           onClick={(e) => {
+                                               // console.log("you clicked me" + e.object.name)
+                                               highlightGlom(e.object.name);
+                                           }}
+                                           onPointerOver={e => setObsHighlight(e.object.name)}
+                                           onPointerOut={e => setObsHighlight(null)}
+                                />
+                                :
+                                <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
+                                    onClick={(e) => {
+                                        if (e.object.parent.userData.name == "finalPass") {
+                                            // console.log("you clicked me" + e.object.name)
+                                            // console.log(e.object)
+                                            // highlightGlom(e.object.name);
+                                        }
+                                    }}
+                                    onPointerOver={e => {
+                                        console.log(e.object.name)
+                                        setObsHighlight(e.object.name)
+                                    }}
+                                    onPointerOut={e => setObsHighlight(null)}
+                                />}
+                            {/*</Interactive>*/}
+                        </group>
+                    </Bvh>
                 }
                 {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
                         renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
