@@ -66,6 +66,7 @@ function generateBloodVesselConfig() {
     config.linkViewsByObject([spatialThreeView, lcView], {
         spatialTargetZ: 0,
         spatialTargetT: 0,
+        // spatialRenderingMode:'3D',
         imageLayer: CL([
             {
                 fileUid: 'kidney',

@@ -446,11 +446,7 @@ const SpatialThree = (props) => {
             <group>
                 <ambientLight/>
                 <pointLight position={[10, 10, 10]}/>
-                <Hands/>
-                <Controllers/>
-                <RayGrab>
-                    <Box position={[0, 0, 0]} color={"blue"} moving={false}/>
-                </RayGrab>
+                <Box position={[0, 0, 0]} color={"blue"} moving={false}/>
             </group>
         );
     }
@@ -480,11 +476,41 @@ const SpatialThree = (props) => {
         <group>
             <Controllers/>
             <Hands/>
+            <HandDecorate/>
             <GeometryAndMesh {...geometryAndMeshProps} ></GeometryAndMesh>
             <OrbitControls ref={orbitRef} enableDamping={false} dampingFactor={0.0}
                            zoomDampingFactor={0.0} smoothZoom={false}/>
         </group>
     );
+}
+
+function HandDecorate() {
+    const { controllers } = useXR();
+
+    useFrame(() => {
+        if (controllers && controllers[0] && controllers[1]) {
+            if (controllers[0].hand) {
+                if (controllers[0].hand.children[25]) {
+                    if (controllers[0].hand.children[25].children[0]) {
+                        if (controllers[0].hand.children[25].children[0].children[0]) {
+                            controllers[0].hand.children[25].children[0].children[0].material.transparent = true;
+                            controllers[0].hand.children[25].children[0].children[0].material.opacity = 0.5;
+                        }
+                    }
+                }
+            }
+            if (controllers[1].hand) {
+                if (controllers[1].hand.children[25]) {
+                    if (controllers[1].hand.children[25].children[0]) {
+                        if (controllers[1].hand.children[25].children[0].children[0]) {
+                            controllers[1].hand.children[25].children[0].children[0].material.transparent = true;
+                            controllers[1].hand.children[25].children[0].children[0].material.opacity = 0.5;
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
 
 function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady) {
@@ -630,19 +656,17 @@ function GeometryAndMesh(props) {
         }
         materialRef.current.visible = true;
         gl.render(scene, camera);
-    }, 1)
-    // console.log(renderingSettings.meshScale, renderingSettings.geometrySize)
+    })
 
     return (
-        <RayGrab>
+        <EnhancedRayGrab>
             <group>
                 {segmentationGroup !== null &&
-                    <Bvh firstHitOnly>
-                        <group>
-                            <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
-                            <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
-                            {/*<Interactive>*/}
-                            {useXR().isPresenting ?
+                    <group>
+                        <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
+                        <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
+                        {useXR().isPresenting ?
+                            <Interactive>
                                 <primitive ref={model} object={segmentationGroup}
                                            position={[-0.18, 1.13, -1]}
                                            onClick={(e) => {
@@ -652,34 +676,35 @@ function GeometryAndMesh(props) {
                                            onPointerOver={e => setObsHighlight(e.object.name)}
                                            onPointerOut={e => setObsHighlight(null)}
                                 />
-                                :
+                            </Interactive>
+                            :
+                            <Bvh firstHitOnly>
                                 <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
-                                    onClick={(e) => {
-                                        if (e.object.parent.userData.name == "finalPass") {
-                                            // console.log("you clicked me" + e.object.name)
-                                            // console.log(e.object)
-                                            // highlightGlom(e.object.name);
-                                        }
-                                    }}
-                                    onPointerOver={e => {
-                                        console.log(e.object.name)
-                                        setObsHighlight(e.object.name)
-                                    }}
-                                    onPointerOut={e => setObsHighlight(null)}
-                                />}
-                            {/*</Interactive>*/}
-                        </group>
-                    </Bvh>
+                                           onClick={(e) => {
+                                               if (e.object.parent.userData.name == "finalPass") {
+                                                   // console.log("you clicked me" + e.object.name)
+                                                   // console.log(e.object)
+                                                   // highlightGlom(e.object.name);
+                                               }
+                                           }}
+                                           onPointerOver={e => {
+                                               console.log(e.object.name)
+                                               setObsHighlight(e.object.name)
+                                           }}
+                                           onPointerOut={e => setObsHighlight(null)}
+                                />
+                            </Bvh>
+                        }
+                    </group>
                 }
                 {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
                         renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
                     <group>
                         {useXR().isPresenting ?
                             <mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]}
-                                  scale={[0.001 * renderingSettings.meshScale[0],
-                                      0.001 * renderingSettings.meshScale[1],
-                                      0.001 * renderingSettings.meshScale[2]]
-                                  }
+                                  scale={[0.002 * renderingSettings.meshScale[0],
+                                      0.002 * renderingSettings.meshScale[1],
+                                      0.002 * renderingSettings.meshScale[2]]}
                                   ref={materialRef}>
                                 <boxGeometry args={renderingSettings.geometrySize}/>
                                 <shaderMaterial
@@ -712,7 +737,7 @@ function GeometryAndMesh(props) {
                     </group>
                 }
             </group>
-        </RayGrab>
+        </EnhancedRayGrab>
     );
 }
 
