@@ -157,8 +157,11 @@ const SpatialThree = (props) => {
                 let childElement = scene.children[child]
                 if (childElement.material === undefined) {
                     childElement = scene.children[child].children[0];
-                    childElement.name = scene.children[child].name.replace("glb", "");
-                    childElement.userData.name = scene.children[child].userData.name.replace(".glb", "");
+                    childElement.name = scene.children[child].name.replace("glb", "").replace("_dec","");
+                    childElement.userData.name = scene.children[child].userData.name.replace(".glb", "").replace("_dec","");
+                }
+                if(childElement.material instanceof THREE.MeshPhysicalMaterial){
+                    childElement.material = new THREE.MeshStandardMaterial();
                 }
                 childElement.material.transparent = true
                 // childElement.material.writeDepthTexture = true
@@ -169,6 +172,7 @@ const SpatialThree = (props) => {
                 childElement.material.side =
                     segmentationLayerCoordination[0][layerScope].spatialMaterialBackside ?
                         THREE.BackSide : THREE.FrontSide;
+
                 let simplified = childElement.clone();
                 simplified.geometry = childElement.geometry.clone();
                 simplified.material = firstPassVolume;
@@ -485,7 +489,7 @@ const SpatialThree = (props) => {
 }
 
 function HandDecorate() {
-    const { controllers } = useXR();
+    const {controllers} = useXR();
 
     useFrame(() => {
         if (controllers && controllers[0] && controllers[1]) {
@@ -621,6 +625,11 @@ function GeometryAndMesh(props) {
         if (materialRef.current === undefined) {
             return;
         }
+        if(gl.xr.isPresenting){
+            model.current.children[0].visible = false;
+            gl.render(scene, camera);
+            return;
+        }
         if (segmentationSettings.visible && model.current !== undefined && segmentationSettings.opacity > 0.1) {
             gl.setRenderTarget(stopTexture);
             gl.clear();
@@ -644,7 +653,9 @@ function GeometryAndMesh(props) {
 
             materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
             materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
-            if (!glThree.xr) gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
+            if (!gl.xr.isPresenting) {
+                gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
+            }
             materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width * window.devicePixelRatio,
                 glThree.size.height * window.devicePixelRatio);
             model.current.visible = false;
@@ -659,41 +670,45 @@ function GeometryAndMesh(props) {
     })
 
     return (
-        <EnhancedRayGrab>
+        <RayGrab>
             <group>
                 {segmentationGroup !== null &&
                     <group>
+                        {/*<ambientLight/>*/}
                         <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
-                        <directionalLight color={0xFFFFFF} position={[0, 6, 0]}/>
+                        <directionalLight color={0xFFFFFF} position={[0, 0, -800]}/>
                         {useXR().isPresenting ?
                             <Interactive>
                                 <primitive ref={model} object={segmentationGroup}
                                            position={[-0.18, 1.13, -1]}
-                                           onClick={(e) => {
-                                               // console.log("you clicked me" + e.object.name)
-                                               highlightGlom(e.object.name);
-                                           }}
-                                           onPointerOver={e => setObsHighlight(e.object.name)}
-                                           onPointerOut={e => setObsHighlight(null)}
+                                           scale={[0.002 * renderingSettings.meshScale[0],
+                                               0.002 * renderingSettings.meshScale[1],
+                                               0.002 * renderingSettings.meshScale[2]]}
+                                           // onClick={(e) => {
+                                           //     // console.log("you clicked me" + e.object.name)
+                                           //     highlightGlom(e.object.name);
+                                           // }}
+                                           // onPointerOver={e => setObsHighlight(e.object.name)}
+                                           // onPointerOut={e => setObsHighlight(null)}
                                 />
                             </Interactive>
                             :
-                            <Bvh firstHitOnly>
+                            // <Bvh firstHitOnly>
                                 <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
-                                           onClick={(e) => {
-                                               if (e.object.parent.userData.name == "finalPass") {
-                                                   // console.log("you clicked me" + e.object.name)
-                                                   // console.log(e.object)
-                                                   // highlightGlom(e.object.name);
-                                               }
-                                           }}
-                                           onPointerOver={e => {
-                                               console.log(e.object.name)
-                                               setObsHighlight(e.object.name)
-                                           }}
-                                           onPointerOut={e => setObsHighlight(null)}
+                                           // onClick={(e) => {
+                                           //     if (e.object.parent.userData.name == "finalPass") {
+                                           //         // console.log("you clicked me" + e.object.name)
+                                           //         // console.log(e.object)
+                                           //         // highlightGlom(e.object.name);
+                                           //     }
+                                           // }}
+                                           // onPointerOver={e => {
+                                           //     console.log(e.object.name)
+                                           //     setObsHighlight(e.object.name)
+                                           // }}
+                                           // onPointerOut={e => setObsHighlight(null)}
                                 />
-                            </Bvh>
+                            // </Bvh>
                         }
                     </group>
                 }
@@ -737,7 +752,7 @@ function GeometryAndMesh(props) {
                     </group>
                 }
             </group>
-        </EnhancedRayGrab>
+        </RayGrab>
     );
 }
 
@@ -1108,7 +1123,7 @@ function Box(props) {
 
 const SpatialWrapper = forwardRef((props, deckRef) => {
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
-        <ARButton/>
+        <ARButton sessionInit={{optionalFeatures: ["hand-tracking"]}}/>
         <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.1, far: 3000}}
                 gl={{antialias: true, logarithmicDepthBuffer: true}}>
             <XR>

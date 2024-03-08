@@ -129,7 +129,7 @@ var VolumeRenderShaderPerspective = {
         "}",
         "void main(void) {",
         // For finding the settings for the MESH
-        // "  gl_FragColor = vec4(worldSpaceCoords.x,worldSpaceCoords.y,worldSpaceCoords.z,1.0);",
+        // "  gl_FragColor = vec4(worldSpaceCoords.x,worldSpaceCoords.y,worldSpaceCoords.z,0.5);",
         // "  return;",
         //
         "  //STEP 1: Normalize the view Ray",
