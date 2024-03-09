@@ -19,26 +19,26 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
      * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
      * @returns {Promise} A promise for an array of columns.
      */
-  loadSpots() {
+  async loadSpots() {
     const { path, dims = [0, 1] } = this.options;
     if (this.locations) {
       return this.locations;
     }
     if (!this.locations) {
-      this.locations = this.dataSource.loadNumericForDims(getCoordsPath(path), dims);
+      this.locations = await this.dataSource.loadNumericForDims(getCoordsPath(path), dims);
       return this.locations;
     }
     this.locations = Promise.resolve(null);
     return this.locations;
   }
 
-  loadRadius() {
+  async loadRadius() {
     const { path } = this.options;
     if (this.radius) {
       return this.radius;
     }
     if (!this.radius) {
-      this.radius = this.dataSource.loadNumeric(getRadiusPath(path));
+      this.radius = await this.dataSource.loadNumeric(getRadiusPath(path));
       return this.radius;
     }
     this.radius = Promise.resolve(null);

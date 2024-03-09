@@ -6,17 +6,18 @@ import { open as zarrOpen, root as zarrRoot } from 'zarrita';
  * and a stub for the required load() method.
  */
 export default class ZarrDataSource {
-  constructor({ url, requestInit, store, fileType }) {
+  constructor({ url, requestInit, refSpecUrl, store, fileType }) {
     if (store) {
       // TODO: check here that it is a valid Zarrita Readable?
       this.storeRoot = zarrRoot(store);
     } else {
-      this.storeRoot = zarrOpenRoot(url, fileType, requestInit);
+      this.storeRoot = zarrOpenRoot(url, fileType, { requestInit, refSpecUrl });
     }
   }
 
-  getStoreRoot(path) {
-    return this.storeRoot.resolve(path);
+  async getStoreRoot(path) {
+    const storeRoot = await this.storeRoot;
+    return storeRoot.resolve(path);
   }
 
   /**
@@ -29,7 +30,7 @@ export default class ZarrDataSource {
   async getJson(key, storeRootParam = null) {
     const { storeRoot } = this;
 
-    const storeRootToUse = storeRootParam || storeRoot;
+    const storeRootToUse = await (storeRootParam || storeRoot);
 
     let dirKey = key;
     // TODO: update calls to not include these file names in the first place.

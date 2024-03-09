@@ -55,7 +55,7 @@ export default class AnnDataSource extends ZarrDataSource {
   }
 
   async _loadColumn(path) {
-    const { storeRoot } = this;
+    const storeRoot = await this.storeRoot;
     const prefix = dirname(path);
     const { categories, 'encoding-type': encodingType } = await this.getJson(`${path}/.zattrs`);
     let categoriesValues;
@@ -95,10 +95,10 @@ export default class AnnDataSource extends ZarrDataSource {
    * @param {string} path A string like obsm.X_pca.
    * @returns {Promise} A promise for a zarr array containing the data.
    */
-  loadNumeric(path) {
-    const { storeRoot } = this;
-    return zarrOpen(storeRoot.resolve(path), { kind: 'array' })
-      .then(arr => zarrGet(arr));
+  async loadNumeric(path) {
+    const storeRoot = await this.storeRoot;
+    const arr = await zarrOpen(storeRoot.resolve(path), { kind: 'array' });
+    return zarrGet(arr);
   }
 
   /**
@@ -107,8 +107,8 @@ export default class AnnDataSource extends ZarrDataSource {
    * @param {number[]} dims The column indices to load.
    * @returns {Promise} A promise for a zarr array containing the data.
    */
-  loadNumericForDims(path, dims) {
-    const { storeRoot } = this;
+  async loadNumericForDims(path, dims) {
+    const storeRoot = await this.storeRoot;
     const arr = zarrOpen(storeRoot.resolve(path), { kind: 'array' });
     return Promise.all(
       dims.map(dim => arr.then(
@@ -127,7 +127,7 @@ export default class AnnDataSource extends ZarrDataSource {
    * @returns {Array} The data from the zarr array.
    */
   async getFlatArrDecompressed(path) {
-    const { storeRoot } = this;
+    const storeRoot = await this.storeRoot;
     const arr = await zarrOpen(storeRoot.resolve(path), { kind: 'array' });
     // Zarrita supports decoding vlen-utf8-encoded string arrays.
     const data = await zarrGet(arr);
@@ -182,7 +182,7 @@ export default class AnnDataSource extends ZarrDataSource {
   }
 
   async _loadString(path) {
-    const { storeRoot } = this;
+    const storeRoot = await this.storeRoot;
     const { 'encoding-type': encodingType, 'encoding-version': encodingVersion } = await this._loadAttrs(path);
 
     if (encodingType === 'string' && encodingVersion === '0.2.0') {
