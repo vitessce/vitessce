@@ -108,8 +108,8 @@ export function VitessceDemo() {
             if (ws === undefined) {
                 var username = "user_" + (Math.floor(Math.random() * 1000));
                 let socket = new PieSocket({
-                    clusterId: "free.blr2",
-                    apiKey: "kYfhHSxTm7c8LWQn0HzJBYKK5UKxa0RD7VdZkJjv",
+                    clusterId: "s12099.nyc1",
+                    apiKey: "vAs6XEQY09uijiPR1GZNPm2qUnqB0VgBEkAFJLoJ",
                     notifySelf: false,
                     userId: username,
                     presence: true,
@@ -120,24 +120,15 @@ export function VitessceDemo() {
 
         useEffect(() => {
             ws?.subscribe(channelID).then((chan) => {
-                console.log("Channel is ready")
+                // console.log("Channel is ready")
                 chan.listen("new_message", (data, meta) => {
                     console.log(data.sender, ws?.options.userId)
                     if (data.sender !== ws?.options.userId) {
                         console.log("New Message:", data);
-                        setConfig({...data.config, uid: "id" + (Math.floor(Math.random() * 1000))});
+                        setConfig({...data.message, uid: "id" + (Math.floor(Math.random() * 1000))});
                     }
                 })
                 chan.listen("system:member_joined", function (data) {
-                    // if (data.member.user === ws?.options.userId) {
-                    //     console.log("Yourself")
-                    // }else {
-                    //     console.log("Someone new has joined the ChatRoom")
-                    //     channel?.publish("new_message", {
-                    //         sender: ws?.options.userId,
-                    //         config: config
-                    //     })
-                    // }
                     console.log("New member joined the chat " + data.member.user);
                 })
                 setChannel(chan);
@@ -164,7 +155,7 @@ export function VitessceDemo() {
                 setConfig(configFromDataSetId);
             }
             const pluginProps = getPlugins(datasetId);
-            console.log("Getting in with a new Config ", config)
+            // console.log("Getting in with a new Config ", config)
             return (
                 <ContainerComponent>
                     <Vitessce
@@ -172,10 +163,10 @@ export function VitessceDemo() {
                         rowHeight={rowHeight}
                         theme={theme}
                         onConfigChange={(configValue) => {
-                            //console.log("Change of Config inside:", configValue);
+                            console.log("Sending Config after Inside Change:", configValue);
                             channel?.publish("new_message", {
-                                sender: ws?.options.userId,
-                                config: configValue
+                                sender: ws ? ws.options.userId : 0,
+                                message: configValue,
                             })
                         }}
                         onConfigUpgrade={(configValue) => {

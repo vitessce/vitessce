@@ -157,13 +157,13 @@ const SpatialThree = (props) => {
                 let childElement = scene.children[child]
                 if (childElement.material === undefined) {
                     childElement = scene.children[child].children[0];
-                    childElement.name = scene.children[child].name.replace("glb", "").replace("_dec","");
-                    childElement.userData.name = scene.children[child].userData.name.replace(".glb", "").replace("_dec","");
+                    childElement.name = scene.children[child].name.replace("glb", "").replace("_dec", "");
+                    childElement.userData.name = scene.children[child].userData.name.replace(".glb", "").replace("_dec", "");
                 }
-                if(childElement.material instanceof THREE.MeshPhysicalMaterial){
+                if (childElement.material instanceof THREE.MeshPhysicalMaterial) {
                     childElement.material = new THREE.MeshStandardMaterial();
                 }
-                childElement.material.transparent = true
+                childElement.material.transparent = false
                 // childElement.material.writeDepthTexture = true
                 childElement.material.depthTest = true
                 childElement.material.depthWrite = true
@@ -429,21 +429,6 @@ const SpatialThree = (props) => {
     }, [volumeSettings]);
 
     // -----------------------------------------------------------------
-    //                          XR
-    // -----------------------------------------------------------------
-    const {isPresenting, player} = useXR()
-    useEffect(() => {
-        if (isPresenting && materialRef.current !== null) {
-            //console.log(materialRef.current)
-            //materialRef.current.position.z = materialRef.current.position.z - 1200;
-            // player.position.z = 600
-        } else if (!isPresenting && materialRef.current !== null) {
-            // materialRef.current.position.z = materialRef.current.position.z + 800;
-        }
-    }, [isPresenting])
-
-
-    // -----------------------------------------------------------------
     // -----------------------------------------------------------------
     if (!volumeSettings.is3dMode) {
         return (
@@ -490,31 +475,35 @@ const SpatialThree = (props) => {
 
 function HandDecorate() {
     const {controllers} = useXR();
+    const [handDecorated, setHandDecorated] = useState(null);
 
-    useFrame(() => {
-        if (controllers && controllers[0] && controllers[1]) {
-            if (controllers[0].hand) {
-                if (controllers[0].hand.children[25]) {
-                    if (controllers[0].hand.children[25].children[0]) {
-                        if (controllers[0].hand.children[25].children[0].children[0]) {
-                            controllers[0].hand.children[25].children[0].children[0].material.transparent = true;
-                            controllers[0].hand.children[25].children[0].children[0].material.opacity = 0.5;
+    useEffect(() => {
+        if (handDecorated == null) {
+            if (controllers && controllers[0] && controllers[1]) {
+                if (controllers[0].hand) {
+                    if (controllers[0].hand.children[25]) {
+                        if (controllers[0].hand.children[25].children[0]) {
+                            if (controllers[0].hand.children[25].children[0].children[0]) {
+                                controllers[0].hand.children[25].children[0].children[0].material.transparent = false;
+                                // controllers[0].hand.children[25].children[0].children[0].material.opacity = 0.5;
+                            }
                         }
                     }
                 }
-            }
-            if (controllers[1].hand) {
-                if (controllers[1].hand.children[25]) {
-                    if (controllers[1].hand.children[25].children[0]) {
-                        if (controllers[1].hand.children[25].children[0].children[0]) {
-                            controllers[1].hand.children[25].children[0].children[0].material.transparent = true;
-                            controllers[1].hand.children[25].children[0].children[0].material.opacity = 0.5;
+                if (controllers[1].hand) {
+                    if (controllers[1].hand.children[25]) {
+                        if (controllers[1].hand.children[25].children[0]) {
+                            if (controllers[1].hand.children[25].children[0].children[0]) {
+                                controllers[1].hand.children[25].children[0].children[0].material.transparent = false;
+                                // controllers[1].hand.children[25].children[0].children[0].material.opacity = 0.5;
+                            }
                         }
                     }
                 }
             }
         }
-    });
+        setHandDecorated(true)
+    }, [handDecorated]);
 }
 
 function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady) {
@@ -625,11 +614,6 @@ function GeometryAndMesh(props) {
         if (materialRef.current === undefined) {
             return;
         }
-        if(gl.xr.isPresenting){
-            model.current.children[0].visible = false;
-            gl.render(scene, camera);
-            return;
-        }
         if (segmentationSettings.visible && model.current !== undefined && segmentationSettings.opacity > 0.1) {
             gl.setRenderTarget(stopTexture);
             gl.clear();
@@ -649,8 +633,8 @@ function GeometryAndMesh(props) {
             gl.render(scene, camera);
             gl.autoClear = false;
             gl.clearDepth()
-            // return;
-
+            //         return;
+            //
             materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
             materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
             if (!gl.xr.isPresenting) {
@@ -667,7 +651,22 @@ function GeometryAndMesh(props) {
         }
         materialRef.current.visible = true;
         gl.render(scene, camera);
-    })
+    }, 1)
+
+    // -----------------------------------------------------------------
+    //                          XR
+    // -----------------------------------------------------------------
+    const {isPresenting, player} = useXR()
+    useEffect(() => {
+        if (isPresenting && model !== undefined && model.current !== null) {
+            // model.current.scale.set(0.002,0.002,0.016)
+            // model.current.position.set(0,0,0)
+            console.log(model.current)
+            console.log(materialRef.current)
+        } else if (!isPresenting && model !== undefined && model.current !== null) {
+            // model.current.scale.set(1.0,1.0,8.0)
+        }
+    }, [isPresenting])
 
     return (
         <RayGrab>
@@ -678,36 +677,32 @@ function GeometryAndMesh(props) {
                         <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                         <directionalLight color={0xFFFFFF} position={[0, 0, -800]}/>
                         {useXR().isPresenting ?
-                            <Interactive>
-                                <primitive ref={model} object={segmentationGroup}
-                                           position={[-0.18, 1.13, -1]}
-                                           scale={[0.002 * renderingSettings.meshScale[0],
-                                               0.002 * renderingSettings.meshScale[1],
-                                               0.002 * renderingSettings.meshScale[2]]}
-                                           // onClick={(e) => {
-                                           //     // console.log("you clicked me" + e.object.name)
-                                           //     highlightGlom(e.object.name);
-                                           // }}
-                                           // onPointerOver={e => setObsHighlight(e.object.name)}
-                                           // onPointerOut={e => setObsHighlight(null)}
-                                />
-                            </Interactive>
+                            <primitive ref={model} object={segmentationGroup}
+                                       position={[-0.18, 1.13, -1]}
+                                       scale={[0.002, 0.002, 0.016]}
+                                // onClick={(e) => {
+                                //     // console.log("you clicked me" + e.object.name)
+                                //     highlightGlom(e.object.name);
+                                // }}
+                                // onPointerOver={e => setObsHighlight(e.object.name)}
+                                // onPointerOut={e => setObsHighlight(null)}
+                            />
                             :
                             // <Bvh firstHitOnly>
-                                <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
-                                           // onClick={(e) => {
-                                           //     if (e.object.parent.userData.name == "finalPass") {
-                                           //         // console.log("you clicked me" + e.object.name)
-                                           //         // console.log(e.object)
-                                           //         // highlightGlom(e.object.name);
-                                           //     }
-                                           // }}
-                                           // onPointerOver={e => {
-                                           //     console.log(e.object.name)
-                                           //     setObsHighlight(e.object.name)
-                                           // }}
-                                           // onPointerOut={e => setObsHighlight(null)}
-                                />
+                            <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
+                                // onClick={(e) => {
+                                //     if (e.object.parent.userData.name == "finalPass") {
+                                //         // console.log("you clicked me" + e.object.name)
+                                //         // console.log(e.object)
+                                //         // highlightGlom(e.object.name);
+                                //     }
+                                // }}
+                                // onPointerOver={e => {
+                                //     console.log(e.object.name)
+                                //     setObsHighlight(e.object.name)
+                                // }}
+                                // onPointerOut={e => setObsHighlight(null)}
+                            />
                             // </Bvh>
                         }
                     </group>
@@ -1123,7 +1118,7 @@ function Box(props) {
 
 const SpatialWrapper = forwardRef((props, deckRef) => {
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
-        <ARButton sessionInit={{optionalFeatures: ["hand-tracking"]}}/>
+        <VRButton sessionInit={{optionalFeatures: ["hand-tracking"]}}/>
         <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.1, far: 3000}}
                 gl={{antialias: true, logarithmicDepthBuffer: true}}>
             <XR>

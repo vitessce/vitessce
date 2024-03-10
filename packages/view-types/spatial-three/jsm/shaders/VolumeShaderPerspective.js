@@ -173,6 +173,8 @@ var VolumeRenderShaderPerspective = {
         "  float x = gl_FragCoord.x/u_window_size.x;",
         "  float y = gl_FragCoord.y/u_window_size.y;",
         "  vec3 meshPos = texture2D(u_stop_geom, vec2(x,y)).xyz;",
+        //"  gl_FragColor = vec4(meshPos,1.0);",
+        //"  return;",
         "  float dist = 1000.0;",
         "  for (float t = t_hit.x; t < t_hit.y; t += dt) {",
         "       if(meshPos != vec3(0.0))" +
