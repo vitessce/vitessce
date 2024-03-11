@@ -195,7 +195,7 @@ const SpatialThree = (props) => {
                 firstPass.add(simplified)
                 finalPass.add(finalPassChild)
             }
-            //newScene.add(firstPass);
+            newScene.add(firstPass);
             newScene.add(finalPass);
             newScene.scale.set(
                 segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
@@ -632,56 +632,56 @@ function GeometryAndMesh(props) {
 
 
     // TODO RENDERING MIXED - CANNOT BE USED IN XR RIGHT NOW
-    // useFrame((state) => {
-    //     const {gl, scene, camera} = state;
-    //     if (materialRef.current === undefined) {
-    //         return;
-    //     }
-    //     if (segmentationSettings.visible && model.current !== undefined && segmentationSettings.opacity > 0.1) {
-    //         //console.log(camera.uuid)
-    //         var currentTarget = gl.getRenderTarget();
-    //         var currentXrEnabled = gl.xr.enabled;
-    //        // if(currentXrEnabled){
-    //        //     if (gl.xr.cameraAutoUpdate === true )  gl.xr.updateCamera( camera );
-    //        // }
-    //         gl.xr.enabled = false;
-    //         gl.setRenderTarget(stopTexture);
-    //         gl.clear();
-    //         model.current.visible = true;
-    //         model.current.children[0].visible = true;
-    //         model.current.children[1].visible = false;
-    //         materialRef.current.visible = false;
-    //         gl.render(scene, camera);
-    //         // return;
-    //         gl.xr.enabled = currentXrEnabled;
-    //         gl.setRenderTarget(currentTarget);
-    //         gl.clear();
-    //         model.current.visible = true;
-    //         model.current.children[0].visible = false;
-    //         model.current.children[1].visible = true;
-    //         materialRef.current.visible = false;
-    //         gl.render(scene, camera);
-    //         gl.autoClear = false;
-    //         gl.clearDepth()
-    //         //         return;
-    //         //
-    //         materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
-    //         materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
-    //         if (!gl.xr.isPresenting) {
-    //             gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
-    //         }
-    //         materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width * window.devicePixelRatio,
-    //             glThree.size.height * window.devicePixelRatio);
-    //         model.current.visible = false;
-    //         model.current.children[0].visible = false;
-    //         model.current.children[1].visible = false;
-    //     } else {
-    //         materialRef.current.material.uniforms.u_stop_geom.value = null;
-    //         materialRef.current.material.uniforms.u_geo_color.value = null;
-    //     }
-    //     materialRef.current.visible = true;
-    //     gl.render(scene, camera);
-    // }, 1)
+    useFrame((state) => {
+        const {gl, scene, camera} = state;
+        if (materialRef.current === undefined) {
+            return;
+        }
+        if (segmentationSettings.visible && model.current !== undefined && segmentationSettings.opacity > 0.1) {
+            //console.log(camera.uuid)
+            var currentTarget = gl.getRenderTarget();
+            var currentXrEnabled = gl.xr.enabled;
+           // if(currentXrEnabled){
+           //     if (gl.xr.cameraAutoUpdate === true )  gl.xr.updateCamera( camera );
+           // }
+            gl.xr.enabled = false;
+            gl.setRenderTarget(stopTexture);
+            gl.clear();
+            model.current.visible = true;
+            model.current.children[0].visible = true;
+            model.current.children[1].visible = false;
+            materialRef.current.visible = false;
+            gl.render(scene, camera);
+            // return;
+            gl.xr.enabled = currentXrEnabled;
+            gl.setRenderTarget(currentTarget);
+            gl.clear();
+            model.current.visible = true;
+            model.current.children[0].visible = false;
+            model.current.children[1].visible = true;
+            materialRef.current.visible = false;
+            gl.render(scene, camera);
+            gl.autoClear = false;
+            gl.clearDepth()
+            //         return;
+            //
+            materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
+            materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
+            if (!gl.xr.isPresenting) {
+                gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
+            }
+            materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width * window.devicePixelRatio,
+                glThree.size.height * window.devicePixelRatio);
+            model.current.visible = false;
+            model.current.children[0].visible = false;
+            model.current.children[1].visible = false;
+        } else {
+            materialRef.current.material.uniforms.u_stop_geom.value = null;
+            materialRef.current.material.uniforms.u_geo_color.value = null;
+        }
+        materialRef.current.visible = true;
+        gl.render(scene, camera);
+    }, 1)
 
     // -----------------------------------------------------------------
     //                          XR

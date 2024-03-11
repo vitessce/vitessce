@@ -98,11 +98,11 @@ export function ObsSetsManagerSubscriber(props) {
 
   const title = titleOverride || `${capitalize(obsType)} Sets`;
 
-  // Reset file URLs and loader progress when the dataset has changed.
-  useEffect(() => {
-    setCellSetExpansion([]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
+  // // Reset file URLs and loader progress when the dataset has changed.
+  // useEffect(() => {
+  //   setCellSetExpansion([]);
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
   const [{ obsIndex, obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
