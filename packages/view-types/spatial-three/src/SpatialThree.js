@@ -157,8 +157,10 @@ const SpatialThree = (props) => {
                 let childElement = scene.children[child]
                 if (childElement.material === undefined) {
                     childElement = scene.children[child].children[0];
-                    childElement.name = scene.children[child].name.replace("glb", "").replace("_dec", "");
-                    childElement.userData.name = scene.children[child].userData.name.replace(".glb", "").replace("_dec", "");
+                    childElement.name = scene.children[child].name.replace("glb", "").replace("_dec", "")
+                        .replace("_Decobj", "").replace("obj", "").replace("_Dec.","").replace(".","");
+                    childElement.userData.name = scene.children[child].userData.name.replace(".glb", "")
+                        .replace("_dec", "").replace("_Decobj", "").replace("obj", "").replace("_Dec.","").replace(".","");
                 }
                 if (childElement.material instanceof THREE.MeshPhysicalMaterial) {
                     childElement.material = new THREE.MeshStandardMaterial();
@@ -311,11 +313,29 @@ const SpatialThree = (props) => {
                         }
                     }
                 } else {
-                    segmentationGroup.children[finalGroup].children[child].material.color.r = color[0] / 255;
-                    segmentationGroup.children[finalGroup].children[child].material.color.g = color[1] / 255;
-                    segmentationGroup.children[finalGroup].children[child].material.color.b = color[2] / 255;
-                    segmentationGroup.children[finalGroup].children[child].material.opacity = segmentationSettings.opacity;
-                    segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
+                    for (let child in segmentationGroup.children[finalGroup].children) {
+                        let color = segmentationSettings.color;
+                        let id = segmentationGroup.children[finalGroup].children[child].userData.name
+                        console.log(id)
+                        for (let index in segmentationSettings.obsSets) {
+                            if (segmentationSettings.obsSets[index].id === id) {
+                                color = segmentationSettings.obsSets[index].color
+                            }
+                        }
+                        //TODO check if in a Set selection
+                        //adapt the color
+                        segmentationGroup.children[finalGroup].children[child].material.color.r = color[0] / 255
+                        segmentationGroup.children[finalGroup].children[child].material.color.g = color[1] / 255
+                        segmentationGroup.children[finalGroup].children[child].material.color.b = color[2] / 255
+                        //Select the FinalPass Group
+                        segmentationGroup.children[finalGroup].children[child].material.opacity = segmentationSettings.opacity
+                        segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
+                    }
+                    // segmentationGroup.children[finalGroup].children[child].material.color.r = color[0] / 255;
+                    // segmentationGroup.children[finalGroup].children[child].material.color.g = color[1] / 255;
+                    // segmentationGroup.children[finalGroup].children[child].material.color.b = color[2] / 255;
+                    // segmentationGroup.children[finalGroup].children[child].material.opacity = segmentationSettings.opacity;
+                    // segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
                 }
             }
         }
@@ -609,6 +629,8 @@ function GeometryAndMesh(props) {
     const stopTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
     const finalTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
 
+
+    // TODO RENDERING MIXED - CANNOT BE USED IN XR RIGHT NOW
     // useFrame((state) => {
     //     const {gl, scene, camera} = state;
     //     if (materialRef.current === undefined) {
@@ -688,30 +710,30 @@ function GeometryAndMesh(props) {
                             <primitive ref={model} object={segmentationGroup}
                                        position={[-0.18, 1.13, -1]}
                                        scale={[0.002, 0.002, 0.016]}
-                                // onClick={(e) => {
-                                //     // console.log("you clicked me" + e.object.name)
-                                //     highlightGlom(e.object.name);
-                                // }}
-                                // onPointerOver={e => setObsHighlight(e.object.name)}
-                                // onPointerOut={e => setObsHighlight(null)}
+                                       onClick={(e) => {
+                                           // console.log("you clicked me" + e.object.name)
+                                           highlightGlom(e.object.name);
+                                       }}
+                                       onPointerOver={e => setObsHighlight(e.object.name)}
+                                       onPointerOut={e => setObsHighlight(null)}
                             />
                             :
-                            // <Bvh firstHitOnly>
-                            <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
-                                // onClick={(e) => {
-                                //     if (e.object.parent.userData.name == "finalPass") {
-                                //         // console.log("you clicked me" + e.object.name)
-                                //         // console.log(e.object)
-                                //         // highlightGlom(e.object.name);
-                                //     }
-                                // }}
-                                // onPointerOver={e => {
-                                //     console.log(e.object.name)
-                                //     setObsHighlight(e.object.name)
-                                // }}
-                                // onPointerOut={e => setObsHighlight(null)}
-                            />
-                            // </Bvh>
+                            <Bvh firstHitOnly>
+                                <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
+                                           onClick={(e) => {
+                                               if (e.object.parent.userData.name == "finalPass") {
+                                                   // console.log("you clicked me" + e.object.name)
+                                                   // console.log(e.object)
+                                                   highlightGlom(e.object.name);
+                                               }
+                                           }}
+                                           onPointerOver={e => {
+                                               console.log(e.object.name)
+                                               setObsHighlight(e.object.name)
+                                           }}
+                                           onPointerOut={e => setObsHighlight(null)}
+                                />
+                            </Bvh>
                         }
                     </group>
                 }

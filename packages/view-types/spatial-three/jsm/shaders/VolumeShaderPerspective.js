@@ -257,7 +257,7 @@ var VolumeRenderShaderPerspective = {
         "       }",
         "       p += step;",
         "  }",
-        "   gl_FragDepth = 0.8;",
+        "   gl_FragDepth =  0.8;",
         "   if(u_renderstyle == 0 && (max_val <  u_clim[0] && max_val2 < u_clim2[0] && max_val3 < u_clim3[0] &&" +
         "   max_val4 <  u_clim4[0] && max_val5 <  u_clim5[0] && max_val6 <  u_clim6[0])){",
         "	    gl_FragColor = vec4(0,0,0,0);",
