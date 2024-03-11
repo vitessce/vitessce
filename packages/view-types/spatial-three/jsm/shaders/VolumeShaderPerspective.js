@@ -48,6 +48,7 @@ var VolumeRenderShaderPerspective = {
         "uniform vec3 u_size;",
         "varying vec3 worldSpaceCoords;",
         "varying vec2 vUv;",
+        "varying vec4 glPosition;",
         "uniform highp vec3 boxSize;",
         "void main()",
         "{",
@@ -55,6 +56,8 @@ var VolumeRenderShaderPerspective = {
         "   cameraCorrected = (inverse(modelMatrix) * vec4(cameraPosition, 1.)).xyz;",
         "   rayDirUnnorm = position - cameraCorrected;",
         "   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
+        "   glPosition = gl_Position;",
+        "   vUv = uv;",
         "}"
     ].join("\n"),
     fragmentShader: [
@@ -96,6 +99,7 @@ var VolumeRenderShaderPerspective = {
         "uniform vec3 u_vol_scale;",
         "uniform float near;",
         "varying vec2 vUv;",
+        "varying vec4 glPosition;",
         "uniform float far;",
         "varying vec3 worldSpaceCoords;",
         "vec2 intersect_hit(vec3 orig, vec3 dir) {",
@@ -129,7 +133,7 @@ var VolumeRenderShaderPerspective = {
         "}",
         "void main(void) {",
         // For finding the settings for the MESH
-        // "  gl_FragColor = vec4(worldSpaceCoords.x,worldSpaceCoords.y,worldSpaceCoords.z,0.5);",
+        //"  gl_FragColor = vec4(worldSpaceCoords.x,worldSpaceCoords.y,worldSpaceCoords.z,0.5);",
         // "  return;",
         //
         "  //STEP 1: Normalize the view Ray",
@@ -173,8 +177,9 @@ var VolumeRenderShaderPerspective = {
         "  float x = gl_FragCoord.x/u_window_size.x;",
         "  float y = gl_FragCoord.y/u_window_size.y;",
         "  vec3 meshPos = texture2D(u_stop_geom, vec2(x,y)).xyz;",
-        //"  gl_FragColor = vec4(meshPos,1.0);",
-        //"  return;",
+        //"  vec3 meshPos = texture2D(u_stop_geom, vec2(gl_FragCoord.x,gl_FragCoord.y)).xyz;",
+      //  "  gl_FragColor = vec4(meshPos,1.0);",
+      //  "  return;",
         "  float dist = 1000.0;",
         "  for (float t = t_hit.x; t < t_hit.y; t += dt) {",
         "       if(meshPos != vec3(0.0))" +
@@ -252,6 +257,7 @@ var VolumeRenderShaderPerspective = {
         "       }",
         "       p += step;",
         "  }",
+        "   gl_FragDepth = 0.8;",
         "   if(u_renderstyle == 0 && (max_val <  u_clim[0] && max_val2 < u_clim2[0] && max_val3 < u_clim3[0] &&" +
         "   max_val4 <  u_clim4[0] && max_val5 <  u_clim5[0] && max_val6 <  u_clim6[0])){",
         "	    gl_FragColor = vec4(0,0,0,0);",

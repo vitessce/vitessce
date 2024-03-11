@@ -15,8 +15,8 @@ function generateThreeMinimalConfiguration() {
         // url: "https://assets.hubmapconsortium.org/30bc1823e0c19be58557fb979499bac2/ometiff-pyramids/data/3D_image_stack.ome.tif?token=",
         // url: "https://vitessce-data-v2.s3.amazonaws.com/data/kiemenetal/5xHE.ome.tiff",
         // url: "http://127.0.0.1:8080/cell_community.ome.tif",
-       // url: "https://vitessce-data-v2.s3.amazonaws.com/data/redBloodCell.ome.tiff",
-        url: "https://vitessce-data-v2.s3.amazonaws.com/data/sorger/f8ii.ome.tiff",
+        url: "https://vitessce-data-v2.s3.amazonaws.com/data/redBloodCell.ome.tiff",
+       // url: "https://vitessce-data-v2.s3.amazonaws.com/data/sorger/f8ii.ome.tiff",
         // options: {
         //        offsetsUrl: "https://vitessce-data-v2.s3.amazonaws.com/data/kiemenetal/5xHE.offsets.json",
         // },
