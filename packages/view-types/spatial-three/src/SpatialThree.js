@@ -158,9 +158,9 @@ const SpatialThree = (props) => {
                 if (childElement.material === undefined) {
                     childElement = scene.children[child].children[0];
                     childElement.name = scene.children[child].name.replace("glb", "").replace("_dec", "")
-                        .replace("_Decobj", "").replace("obj", "").replace("_Dec.","").replace(".","");
+                        .replace("_Decobj", "").replace("obj", "").replace("_DEc", "").replace(".", "").replace("_Dec", "");
                     childElement.userData.name = scene.children[child].userData.name.replace(".glb", "")
-                        .replace("_dec", "").replace("_Decobj", "").replace("obj", "").replace("_Dec.","").replace(".","");
+                        .replace("_dec", "").replace("_Decobj", "").replace("obj", "").replace("_DEc", "").replace(".", "").replace("_Dec", "");
                 }
                 if (childElement.material instanceof THREE.MeshPhysicalMaterial) {
                     childElement.material = new THREE.MeshStandardMaterial();
@@ -272,6 +272,7 @@ const SpatialThree = (props) => {
     }
 
     useEffect(() => {
+        console.log("Update in SegmentationGroup")
         if (segmentationGroup !== null) {
             let firstGroup = 0;
             let finalGroup = 0;
@@ -316,7 +317,7 @@ const SpatialThree = (props) => {
                     for (let child in segmentationGroup.children[finalGroup].children) {
                         let color = segmentationSettings.color;
                         let id = segmentationGroup.children[finalGroup].children[child].userData.name
-                        console.log(id)
+                        //console.log(id)
                         for (let index in segmentationSettings.obsSets) {
                             if (segmentationSettings.obsSets[index].id === id) {
                                 color = segmentationSettings.obsSets[index].color
@@ -707,16 +708,20 @@ function GeometryAndMesh(props) {
                         <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                         <directionalLight color={0xFFFFFF} position={[0, 0, -800]}/>
                         {useXR().isPresenting ?
-                            <primitive ref={model} object={segmentationGroup}
-                                       position={[-0.18, 1.13, -1]}
-                                       scale={[0.002, 0.002, 0.016]}
-                                       onClick={(e) => {
-                                           // console.log("you clicked me" + e.object.name)
-                                           highlightGlom(e.object.name);
-                                       }}
-                                       onPointerOver={e => setObsHighlight(e.object.name)}
-                                       onPointerOut={e => setObsHighlight(null)}
-                            />
+                            <Interactive
+                                onClick={(e) => {
+                                    // console.log("you clicked me" + e.object.name)
+                                    highlightGlom(e.object.name);
+                                }}
+                                onPointerOver={e => setObsHighlight(e.object.name)}
+                                onPointerOut={e => setObsHighlight(null)}>
+
+                                <primitive ref={model} object={segmentationGroup}
+                                           position={[-0.18, 1.13, -1]}
+                                           scale={[0.002, 0.002, 0.016]}
+
+                                />
+                            </Interactive>
                             :
                             <Bvh firstHitOnly>
                                 <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
@@ -1148,7 +1153,7 @@ function Box(props) {
 
 const SpatialWrapper = forwardRef((props, deckRef) => {
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
-        <VRButton sessionInit={{optionalFeatures: ["hand-tracking"]}}/>
+        <ARButton sessionInit={{optionalFeatures: ["hand-tracking"]}}/>
         <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.1, far: 3000}}
                 gl={{antialias: true, logarithmicDepthBuffer: true}}>
             <XR>

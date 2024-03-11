@@ -102,6 +102,7 @@ export function VitessceDemo() {
     const urlParams = new URLSearchParams(window.location.search);
     const websocket = urlParams.get('ws') === 'true';
     const channelID = urlParams.get('channel');
+    const send = urlParams.get('send') === 'true';
 
     if (websocket) {
         useEffect(() => {
@@ -163,11 +164,13 @@ export function VitessceDemo() {
                         rowHeight={rowHeight}
                         theme={theme}
                         onConfigChange={(configValue) => {
-                            console.log("Sending Config after Inside Change:", configValue);
-                            channel?.publish("new_message", {
-                                sender: ws ? ws.options.userId : 0,
-                                message: configValue,
-                            })
+                            if(send) {
+                                console.log("Sending Config after Inside Change:", configValue);
+                                channel?.publish("new_message", {
+                                    sender: ws ? ws.options.userId : 0,
+                                    message: configValue,
+                                })
+                            }
                         }}
                         onConfigUpgrade={(configValue) => {
                             //console.log("Upgrade of Config inside:", configValue)
