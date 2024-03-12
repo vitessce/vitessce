@@ -123,9 +123,9 @@ export function VitessceDemo() {
             ws?.subscribe(channelID).then((chan) => {
                 // console.log("Channel is ready")
                 chan.listen("new_message", (data, meta) => {
-                    console.log(data.sender, ws?.options.userId)
+                    // console.log(data.sender, ws?.options.userId)
                     if (data.sender !== ws?.options.userId) {
-                        console.log("New Message:", data);
+                        // console.log("New Message:", data);
                         setConfig({...data.message, uid: "id" + (Math.floor(Math.random() * 1000))});
                     }
                 })
@@ -165,7 +165,7 @@ export function VitessceDemo() {
                         theme={theme}
                         onConfigChange={(configValue) => {
                             if(send) {
-                                console.log("Sending Config after Inside Change:", configValue);
+                                // console.log("Sending Config after Inside Change:", configValue);
                                 channel?.publish("new_message", {
                                     sender: ws ? ws.options.userId : 0,
                                     message: configValue,

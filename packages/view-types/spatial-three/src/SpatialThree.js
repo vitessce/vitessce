@@ -706,13 +706,14 @@ function GeometryAndMesh(props) {
             let leftTipBB = new THREE.Box3().setFromObject(leftTipBbox);
             let rightTipBB = new THREE.Box3().setFromObject(rightTipBbox);
 
-            for (let childID in model.current.children) {
-                let child = model.current.children[childID];
+            for (let childID in model.current.children[0].children) {
+                let child = model.current.children[0].children[childID];
                 let currentObjectBB = new THREE.Box3().setFromObject(child);
                 let intersectsLeftTip = leftTipBB.intersectsBox(currentObjectBB);
                 let intersectsRightTip = rightTipBB.intersectsBox(currentObjectBB);
                 if (intersectsLeftTip || intersectsRightTip) {
                     // Highlighting Glom
+                    // console.log(child)
                     setObsHighlight(child.name)
                 }
             }
@@ -728,19 +729,16 @@ function GeometryAndMesh(props) {
                         <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                         <directionalLight color={0xFFFFFF} position={[0, 0, -800]}/>
                         {useXR().isPresenting ?
-                            <Interactive
-                                onClick={(e) => {
-                                    // console.log("you clicked me" + e.object.name)
-                                    highlightGlom(e.object.name);
-                                }}
-                                onPointerOver={e => setObsHighlight(e.object.name)}
-                                onPointerOut={e => setObsHighlight(null)}>
-
+                            <Interactive>
+                                 {/*onClick={(e) => {*/}
+                                {/*//     // console.log("you clicked me" + e.object.name)*/}
+                                {/*//     highlightGlom(e.object.name);*/}
+                                {/*// }}*/}
+                                {/*// onPointerOver={e => setObsHighlight(e.object.name)}*/}
+                                {/*// onPointerOut={e => setObsHighlight(null)}>*/}
                                 <primitive ref={model} object={segmentationGroup}
                                            position={[-0.18, 1.13, -1]}
-                                           scale={[0.002, 0.002, 0.016]}
-
-                                />
+                                           scale={[0.002, 0.002, 0.016]}/>
                             </Interactive>
                             :
                             <Bvh firstHitOnly>
