@@ -11,6 +11,7 @@ import {getLayerLoaderTuple} from './utils.js';
 import {Volume} from "../jsm/misc/Volume.js";
 import {getImageSize} from '@hms-dbmi/viv';
 import * as THREE from "three";
+import {HandBbox} from "./xr/HandBbox.js"
 import cmViridisTextureUrl from "../textures/cm_viridis.png";
 import cmGrayTextureUrl from "../textures/cm_gray.png";
 import {VolumeRenderShaderPerspective} from "../jsm/shaders/VolumeShaderPerspective.js";
@@ -195,7 +196,7 @@ const SpatialThree = (props) => {
                 firstPass.add(simplified)
                 finalPass.add(finalPassChild)
             }
-            newScene.add(firstPass);
+            // newScene.add(firstPass);
             newScene.add(finalPass);
             newScene.scale.set(
                 segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
@@ -486,6 +487,7 @@ const SpatialThree = (props) => {
         <group>
             <Controllers/>
             <Hands/>
+            <HandBbox/>
             <HandDecorate/>
             <GeometryAndMesh {...geometryAndMeshProps} ></GeometryAndMesh>
             <OrbitControls ref={orbitRef} enableDamping={false} dampingFactor={0.0}
@@ -496,17 +498,15 @@ const SpatialThree = (props) => {
 
 function HandDecorate() {
     const {controllers} = useXR();
-    const [handDecorated, setHandDecorated] = useState(null);
-
-    useEffect(() => {
+    useFrame(() => {
         if (handDecorated == null) {
             if (controllers && controllers[0] && controllers[1]) {
                 if (controllers[0].hand) {
                     if (controllers[0].hand.children[25]) {
                         if (controllers[0].hand.children[25].children[0]) {
                             if (controllers[0].hand.children[25].children[0].children[0]) {
-                                controllers[0].hand.children[25].children[0].children[0].material.transparent = false;
-                                // controllers[0].hand.children[25].children[0].children[0].material.opacity = 0.5;
+                                controllers[0].hand.children[25].children[0].children[0].material.transparent = true;
+                                controllers[0].hand.children[25].children[0].children[0].material.opacity = 0.5;
                             }
                         }
                     }
@@ -515,16 +515,15 @@ function HandDecorate() {
                     if (controllers[1].hand.children[25]) {
                         if (controllers[1].hand.children[25].children[0]) {
                             if (controllers[1].hand.children[25].children[0].children[0]) {
-                                controllers[1].hand.children[25].children[0].children[0].material.transparent = false;
-                                // controllers[1].hand.children[25].children[0].children[0].material.opacity = 0.5;
+                                controllers[1].hand.children[25].children[0].children[0].material.transparent = true;
+                                controllers[1].hand.children[25].children[0].children[0].material.opacity = 0.5;
                             }
                         }
                     }
                 }
             }
         }
-        setHandDecorated(true)
-    }, [handDecorated]);
+    });
 }
 
 function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady) {
@@ -632,56 +631,56 @@ function GeometryAndMesh(props) {
 
 
     // TODO RENDERING MIXED - CANNOT BE USED IN XR RIGHT NOW
-    useFrame((state) => {
-        const {gl, scene, camera} = state;
-        if (materialRef.current === undefined) {
-            return;
-        }
-        if (segmentationSettings.visible && model.current !== undefined && segmentationSettings.opacity > 0.1) {
-            //console.log(camera.uuid)
-            var currentTarget = gl.getRenderTarget();
-            var currentXrEnabled = gl.xr.enabled;
-           // if(currentXrEnabled){
-           //     if (gl.xr.cameraAutoUpdate === true )  gl.xr.updateCamera( camera );
-           // }
-            gl.xr.enabled = false;
-            gl.setRenderTarget(stopTexture);
-            gl.clear();
-            model.current.visible = true;
-            model.current.children[0].visible = true;
-            model.current.children[1].visible = false;
-            materialRef.current.visible = false;
-            gl.render(scene, camera);
-            // return;
-            gl.xr.enabled = currentXrEnabled;
-            gl.setRenderTarget(currentTarget);
-            gl.clear();
-            model.current.visible = true;
-            model.current.children[0].visible = false;
-            model.current.children[1].visible = true;
-            materialRef.current.visible = false;
-            gl.render(scene, camera);
-            gl.autoClear = false;
-            gl.clearDepth()
-            //         return;
-            //
-            materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
-            materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
-            if (!gl.xr.isPresenting) {
-                gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
-            }
-            materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width * window.devicePixelRatio,
-                glThree.size.height * window.devicePixelRatio);
-            model.current.visible = false;
-            model.current.children[0].visible = false;
-            model.current.children[1].visible = false;
-        } else {
-            materialRef.current.material.uniforms.u_stop_geom.value = null;
-            materialRef.current.material.uniforms.u_geo_color.value = null;
-        }
-        materialRef.current.visible = true;
-        gl.render(scene, camera);
-    }, 1)
+    // useFrame((state) => {
+    //     const {gl, scene, camera} = state;
+    //     if (materialRef.current === undefined) {
+    //         return;
+    //     }
+    //     if (segmentationSettings.visible && model.current !== undefined && segmentationSettings.opacity > 0.1) {
+    //         //console.log(camera.uuid)
+    //         var currentTarget = gl.getRenderTarget();
+    //         var currentXrEnabled = gl.xr.enabled;
+    //        // if(currentXrEnabled){
+    //        //     if (gl.xr.cameraAutoUpdate === true )  gl.xr.updateCamera( camera );
+    //        // }
+    //         gl.xr.enabled = false;
+    //         gl.setRenderTarget(stopTexture);
+    //         gl.clear();
+    //         model.current.visible = true;
+    //         model.current.children[0].visible = true;
+    //         model.current.children[1].visible = false;
+    //         materialRef.current.visible = false;
+    //         gl.render(scene, camera);
+    //         // return;
+    //         gl.xr.enabled = currentXrEnabled;
+    //         gl.setRenderTarget(currentTarget);
+    //         gl.clear();
+    //         model.current.visible = true;
+    //         model.current.children[0].visible = false;
+    //         model.current.children[1].visible = true;
+    //         materialRef.current.visible = false;
+    //         gl.render(scene, camera);
+    //         gl.autoClear = false;
+    //         gl.clearDepth()
+    //         //         return;
+    //         //
+    //         materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
+    //         materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
+    //         if (!gl.xr.isPresenting) {
+    //             gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
+    //         }
+    //         materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width * window.devicePixelRatio,
+    //             glThree.size.height * window.devicePixelRatio);
+    //         model.current.visible = false;
+    //         model.current.children[0].visible = false;
+    //         model.current.children[1].visible = false;
+    //     } else {
+    //         materialRef.current.material.uniforms.u_stop_geom.value = null;
+    //         materialRef.current.material.uniforms.u_geo_color.value = null;
+    //     }
+    //     materialRef.current.visible = true;
+    //     gl.render(scene, camera);
+    // }, 1)
 
     // -----------------------------------------------------------------
     //                          XR
