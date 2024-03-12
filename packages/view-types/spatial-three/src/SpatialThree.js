@@ -499,7 +499,6 @@ const SpatialThree = (props) => {
 function HandDecorate() {
     const {controllers} = useXR();
     useFrame(() => {
-
         if (controllers && controllers[0] && controllers[1]) {
             if (controllers[0].hand) {
                 if (controllers[0].hand.children[25]) {
@@ -699,6 +698,7 @@ function GeometryAndMesh(props) {
 
     const {scene} = useThree();
     const {controllers} = useXR();
+    const [measureState, setMeasureState] = useState(false);
     useFrame(() => {
         // Could first Intersect with Bounding Box of the Model to make the calculation faster
         if (model != null && model.current !== null && isPresenting) {
@@ -707,33 +707,59 @@ function GeometryAndMesh(props) {
             let leftTipBB = new THREE.Box3().setFromObject(leftTipBbox);
             let rightTipBB = new THREE.Box3().setFromObject(rightTipBbox);
             let intersected = false;
-            for (let childID in model.current.children[0].children) {
-                let child = model.current.children[0].children[childID];
-                let currentObjectBB = new THREE.Box3().setFromObject(child);
-                let intersectsLeftTip = leftTipBB.intersectsBox(currentObjectBB);
-                let intersectsRightTip = rightTipBB.intersectsBox(currentObjectBB);
-                if (intersectsLeftTip || intersectsRightTip) {
-                    intersected = true;
-                    // Highlighting Glom
-                    // console.log(child.name)
-                    setObsHighlight(child.name)
-                    if (intersectsLeftTip && controllers[1].hand.inputState.pinching == true) {
-                        intersected = false;
-                        highlightGlom(child.name);
-                        controllers[1].hand.inputState.pinching = false;
+
+            const volumeBox = null;
+            if (materialRef !== null && materialRef.current !== undefined) {
+                const volumeBox = new THREE.Box3().setFromObject(materialRef)
+            }
+
+            if (leftTipBB.intersectsBox(rightTipBB) && leftTipBB.max.x !== -rightTipBB.min.x) {
+                setMeasureState(!measureState)
+            }
+            if (measureState) {
+                console.log("Start Measure State")
+                if (controllers[0].hand.inputState.pinching === true) {
+                    // right hand set mesaure point
+                    console.log("Right Hand Set Measure Point")
+                }
+                if (controllers[1].hand.inputState.pinching === true) {
+                    // left hand set measure point
+                    console.log("Left Hand Set Measure Point")
+                }
+            } else {
+                if ((volumeBox !== null && leftTipBB.intersectsBox(volumeBox) || rightTipBB.intersectsBox(volumeBox)) ||
+                    volumeBox == null) {
+                    for (let childID in model.current.children[0].children) {
+                        let child = model.current.children[0].children[childID];
+                        let currentObjectBB = new THREE.Box3().setFromObject(child);
+                        let intersectsLeftTip = leftTipBB.intersectsBox(currentObjectBB);
+                        let intersectsRightTip = rightTipBB.intersectsBox(currentObjectBB);
+                        if (intersectsLeftTip || intersectsRightTip) {
+                            intersected = true;
+                            // Highlighting Glom
+                            // console.log(child.name)
+                            setObsHighlight(child.name)
+                            if (intersectsLeftTip && controllers[1].hand.inputState.pinching == true) {
+                                intersected = false;
+                                highlightGlom(child.name);
+                                controllers[1].hand.inputState.pinching = false;
+                            }
+                            if (intersectsRightTip && controllers[0].hand.inputState.pinching == true) {
+                                intersected = false;
+                                highlightGlom(child.name)
+                                controllers[0].hand.inputState.pinching = false;
+                            }
+                        }
                     }
-                    if (intersectsRightTip && controllers[0].hand.inputState.pinching == true) {
-                        intersected = false;
-                        highlightGlom(child.name)
-                        controllers[0].hand.inputState.pinching = false;
+                    if (!intersected) {
+                        setObsHighlight(null);
                     }
+                }else {
+                    setObsHighlight(null);
                 }
             }
-            if (!intersected) {
-                setObsHighlight(null)
-            }
         }
-    })
+    }, [measureState])
 
     return (
         <RayGrab>
@@ -744,17 +770,9 @@ function GeometryAndMesh(props) {
                         <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                         <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
                         {useXR().isPresenting ?
-                            <Interactive>
-                                {/*onClick={(e) => {*/}
-                                {/*//     // console.log("you clicked me" + e.object.name)*/}
-                                {/*//     highlightGlom(e.object.name);*/}
-                                {/*// }}*/}
-                                {/*// onPointerOver={e => setObsHighlight(e.object.name)}*/}
-                                {/*// onPointerOut={e => setObsHighlight(null)}>*/}
-                                <primitive ref={model} object={segmentationGroup}
-                                           position={[-0.18, 1.13, -1]}
-                                           scale={[0.002, 0.002, 0.016]}/>
-                            </Interactive>
+                            <primitive ref={model} object={segmentationGroup}
+                                       position={[-0.18, 1.13, -1]}
+                                       scale={[0.002, 0.002, 0.016]}/>
                             :
                             <Bvh firstHitOnly>
                                 <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
