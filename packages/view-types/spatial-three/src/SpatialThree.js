@@ -273,7 +273,7 @@ const SpatialThree = (props) => {
     }
 
     useEffect(() => {
-        console.log("Update in SegmentationGroup")
+        // console.log("Update in SegmentationGroup")
         if (segmentationGroup !== null) {
             let firstGroup = 0;
             let finalGroup = 0;
@@ -689,11 +689,11 @@ function GeometryAndMesh(props) {
         if (isPresenting && model !== undefined && model.current !== null) {
             // model.current.scale.set(0.002,0.002,0.016)
             // model.current.position.set(0,0,0)
-            console.log(glThree);
-            console.log(window.devicePixelRatio)
+            // console.log(glThree);
+            // console.log(window.devicePixelRatio)
         } else if (!isPresenting && model !== undefined && model.current !== null) {
             // model.current.scale.set(1.0,1.0,8.0)
-            console.log(window.devicePixelRatio)
+            // console.log(window.devicePixelRatio)
         }
     }, [isPresenting])
 
@@ -703,11 +703,12 @@ function GeometryAndMesh(props) {
         if (model != null && model.current !== null && isPresenting) {
             let rightTipBbox = scene.getObjectByName("rightTipBbox");
             let leftTipBbox = scene.getObjectByName("leftTipBbox");
-            leftTipBB = new THREE.Box3().setFromObject(leftTipBbox);
-            rightTipBB = new THREE.Box3().setFromObject(rightTipBbox);
+            let leftTipBB = new THREE.Box3().setFromObject(leftTipBbox);
+            let rightTipBB = new THREE.Box3().setFromObject(rightTipBbox);
 
-            for (child in model.current.children) {
-                bboxBB = new THREE.Box3().setFromObject(child);
+            for (let childID in model.current.children) {
+                let child = model.current.children[childID];
+                let currentObjectBB = new THREE.Box3().setFromObject(child);
                 let intersectsLeftTip = leftTipBB.intersectsBox(currentObjectBB);
                 let intersectsRightTip = rightTipBB.intersectsBox(currentObjectBB);
                 if (intersectsLeftTip || intersectsRightTip) {
@@ -752,7 +753,7 @@ function GeometryAndMesh(props) {
                                                }
                                            }}
                                            onPointerOver={e => {
-                                               console.log(e.object.name)
+                                               // console.log(e.object.name)
                                                setObsHighlight(e.object.name)
                                            }}
                                            onPointerOut={e => setObsHighlight(null)}
