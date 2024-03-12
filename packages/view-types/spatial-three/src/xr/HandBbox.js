@@ -23,12 +23,10 @@ export const HandBbox = () => {
 					controllers[1].hand.joints["index-finger-tip"].position;
 				leftTipRef.current.position.copy(leftTipPosition);
 			}
-
-			let rightTipBbox = scene.getObjectByName("rightTipBbox");
-			let leftTipBbox = scene.getObjectByName("leftTipBbox");
-
-			leftTipBB = new Box3().setFromObject(leftTipBbox);
-			rightTipBB = new Box3().setFromObject(rightTipBbox);
+			// let rightTipBbox = scene.getObjectByName("rightTipBbox");
+			// let leftTipBbox = scene.getObjectByName("leftTipBbox");
+			// leftTipBB = new Box3().setFromObject(leftTipBbox);
+			// rightTipBB = new Box3().setFromObject(rightTipBbox);
 		}
 	});
 

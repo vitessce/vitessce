@@ -158,15 +158,15 @@ const SpatialThree = (props) => {
                 let childElement = scene.children[child]
                 if (childElement.material === undefined) {
                     childElement = scene.children[child].children[0];
-                    childElement.name = scene.children[child].name.replace("glb", "").replace("_dec", "")
+                    let name = scene.children[child].name.replace("glb", "").replace("_dec", "").replace("_1", "")
                         .replace("_Decobj", "").replace("obj", "").replace("_DEc", "").replace(".", "").replace("_Dec", "");
-                    childElement.userData.name = scene.children[child].userData.name.replace(".glb", "")
-                        .replace("_dec", "").replace("_Decobj", "").replace("obj", "").replace("_DEc", "").replace(".", "").replace("_Dec", "");
+                    childElement.name = name;
+                    childElement.userData.name = name;
                 }
                 if (childElement.material instanceof THREE.MeshPhysicalMaterial) {
                     childElement.material = new THREE.MeshStandardMaterial();
                 }
-                childElement.material.transparent = true
+                childElement.material.transparent = false
                 childElement.material.writeDepthTexture = true
                 childElement.material.depthTest = true
                 childElement.material.depthWrite = true
@@ -698,6 +698,7 @@ function GeometryAndMesh(props) {
     }, [isPresenting])
 
     const {scene} = useThree();
+    const {controllers} = useXR();
     useFrame(() => {
         // Could first Intersect with Bounding Box of the Model to make the calculation faster
         if (model != null && model.current !== null && isPresenting) {
@@ -705,17 +706,31 @@ function GeometryAndMesh(props) {
             let leftTipBbox = scene.getObjectByName("leftTipBbox");
             let leftTipBB = new THREE.Box3().setFromObject(leftTipBbox);
             let rightTipBB = new THREE.Box3().setFromObject(rightTipBbox);
-
+            let intersected = false;
             for (let childID in model.current.children[0].children) {
                 let child = model.current.children[0].children[childID];
                 let currentObjectBB = new THREE.Box3().setFromObject(child);
                 let intersectsLeftTip = leftTipBB.intersectsBox(currentObjectBB);
                 let intersectsRightTip = rightTipBB.intersectsBox(currentObjectBB);
                 if (intersectsLeftTip || intersectsRightTip) {
+                    intersected = true;
                     // Highlighting Glom
-                    // console.log(child)
+                    // console.log(child.name)
                     setObsHighlight(child.name)
+                    if (intersectsLeftTip && controllers[1].hand.inputState.pinching == true) {
+                        intersected = false;
+                        highlightGlom(child.name);
+                        controllers[1].hand.inputState.pinching = false;
+                    }
+                    if (intersectsRightTip && controllers[0].hand.inputState.pinching == true) {
+                        intersected = false;
+                        highlightGlom(child.name)
+                        controllers[0].hand.inputState.pinching = false;
+                    }
                 }
+            }
+            if (!intersected) {
+                setObsHighlight(null)
             }
         }
     })
@@ -727,10 +742,10 @@ function GeometryAndMesh(props) {
                     <group>
                         {/*<ambientLight/>*/}
                         <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
-                        <directionalLight color={0xFFFFFF} position={[0, 0, -800]}/>
+                        <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
                         {useXR().isPresenting ?
                             <Interactive>
-                                 {/*onClick={(e) => {*/}
+                                {/*onClick={(e) => {*/}
                                 {/*//     // console.log("you clicked me" + e.object.name)*/}
                                 {/*//     highlightGlom(e.object.name);*/}
                                 {/*// }}*/}
