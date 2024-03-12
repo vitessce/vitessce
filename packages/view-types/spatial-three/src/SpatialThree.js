@@ -499,25 +499,24 @@ const SpatialThree = (props) => {
 function HandDecorate() {
     const {controllers} = useXR();
     useFrame(() => {
-        if (handDecorated == null) {
-            if (controllers && controllers[0] && controllers[1]) {
-                if (controllers[0].hand) {
-                    if (controllers[0].hand.children[25]) {
-                        if (controllers[0].hand.children[25].children[0]) {
-                            if (controllers[0].hand.children[25].children[0].children[0]) {
-                                controllers[0].hand.children[25].children[0].children[0].material.transparent = true;
-                                controllers[0].hand.children[25].children[0].children[0].material.opacity = 0.5;
-                            }
+
+        if (controllers && controllers[0] && controllers[1]) {
+            if (controllers[0].hand) {
+                if (controllers[0].hand.children[25]) {
+                    if (controllers[0].hand.children[25].children[0]) {
+                        if (controllers[0].hand.children[25].children[0].children[0]) {
+                            controllers[0].hand.children[25].children[0].children[0].material.transparent = true;
+                            controllers[0].hand.children[25].children[0].children[0].material.opacity = 0.5;
                         }
                     }
                 }
-                if (controllers[1].hand) {
-                    if (controllers[1].hand.children[25]) {
-                        if (controllers[1].hand.children[25].children[0]) {
-                            if (controllers[1].hand.children[25].children[0].children[0]) {
-                                controllers[1].hand.children[25].children[0].children[0].material.transparent = true;
-                                controllers[1].hand.children[25].children[0].children[0].material.opacity = 0.5;
-                            }
+            }
+            if (controllers[1].hand) {
+                if (controllers[1].hand.children[25]) {
+                    if (controllers[1].hand.children[25].children[0]) {
+                        if (controllers[1].hand.children[25].children[0].children[0]) {
+                            controllers[1].hand.children[25].children[0].children[0].material.transparent = true;
+                            controllers[1].hand.children[25].children[0].children[0].material.opacity = 0.5;
                         }
                     }
                 }
@@ -697,6 +696,27 @@ function GeometryAndMesh(props) {
             console.log(window.devicePixelRatio)
         }
     }, [isPresenting])
+
+    const {scene} = useThree();
+    useFrame(() => {
+        // Could first Intersect with Bounding Box of the Model to make the calculation faster
+        if (model != null && model.current !== null && isPresenting) {
+            let rightTipBbox = scene.getObjectByName("rightTipBbox");
+            let leftTipBbox = scene.getObjectByName("leftTipBbox");
+            leftTipBB = new THREE.Box3().setFromObject(leftTipBbox);
+            rightTipBB = new THREE.Box3().setFromObject(rightTipBbox);
+
+            for (child in model.current.children) {
+                bboxBB = new THREE.Box3().setFromObject(child);
+                let intersectsLeftTip = leftTipBB.intersectsBox(currentObjectBB);
+                let intersectsRightTip = rightTipBB.intersectsBox(currentObjectBB);
+                if (intersectsLeftTip || intersectsRightTip) {
+                    // Highlighting Glom
+                    setObsHighlight(child.name)
+                }
+            }
+        }
+    })
 
     return (
         <RayGrab>
