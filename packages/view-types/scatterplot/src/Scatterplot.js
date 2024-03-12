@@ -3,11 +3,13 @@ import React, { forwardRef } from 'react';
 import { forceSimulation } from 'd3-force';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
+  ContourLayer,
 } from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
 import {
   AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback,
 } from './shared-spatial-scatterplot/index.js';
+import { interpolateRdBu } from '@vitessce/sets-utils';
 
 const CELLS_LAYER_ID = 'scatterplot';
 const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
@@ -36,6 +38,8 @@ const getPosition = (object, { index, data, target }) => {
   target[2] = 0;
   return target;
 };
+
+console.log(interpolateRdBu(0.5));
 
 /**
  * React component which renders a scatterplot from cell data.
@@ -84,10 +88,161 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.cellSetsLabelPrevZoom = null;
     this.cellSetsLayers = [];
 
+    this.contourLayer = null;
+
     // Initialize data and layers.
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();
     this.onUpdateCellSetsLayers();
+  }
+
+  createHeatmapLayer() {
+    const {
+      obsEmbeddingIndex: obsIndex,
+      theme,
+      cellRadius = 1.0,
+      cellOpacity = 1.0,
+      // cellFilter,
+      cellSelection,
+      setCellHighlight,
+      setComponentHover,
+      getCellIsSelected,
+      cellColors,
+      getCellColor = makeDefaultGetCellColors(cellColors, obsIndex, theme),
+      getExpressionValue,
+      onCellClick,
+      geneExpressionColormap,
+      geneExpressionColormapRange = [0.0, 1.0],
+      cellColorEncoding,
+    } = this.props;
+
+    // TODO: return a separate heatmap layer for each cell set?
+    // TODO: use real `group` object.
+    const group = {
+      name: 'test',
+      color: [255, 0, 0],
+      indices: obsIndex.map((x, i) => i), 
+    }
+    const { name, color: groupColor, indices } = group;
+
+    return new deck.ScatterplotHeatmapLayer({
+      id: 'heatmap',
+      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+      data: {
+        src: { indices, embedding: this.cellsData.src.obsEmbedding.data },
+        length: indices.length
+      },
+      visible: true,
+      pickable: true,
+      autoHighlight: true,
+      filled: true,
+      radiusPixels: 40,
+      radiusScale: cellRadius,
+      radiusMinPixels: 1,
+      radiusMaxPixels: 30,
+      colorRange: [
+        [241, 241, 241, 255],
+        [217, 217, 217, 255],
+        [217, 217, 217, 255],
+        [217, 217, 217, 255],
+        [217, 217, 217, 255],
+      ],
+      getPolygonOffset: () => ([0, 20]),
+      //modelMatrix: new Matrix4().makeTranslation(0, 0, 1),
+      // Our radius pixel setters measure in pixels.
+      radiusUnits: 'pixels',
+      lineWidthUnits: 'pixels',
+      getPosition: (object, { index, data, target }) => {
+        target[0] = data.src.embedding[0][data.src.indices[index]];
+        target[1] = -data.src.embedding[1][data.src.indices[index]];
+        target[2] = 0;
+        return target;
+      },
+      getFillColor: getCellColor,
+      getLineColor: getCellColor,
+      getPointRadius: 1,
+      getExpressionValue,
+      getLineWidth: 0,
+      colorScaleLo: geneExpressionColormapRange[0],
+      colorScaleHi: geneExpressionColormapRange[1],
+      isExpressionMode: (cellColorEncoding === 'geneSelection'),
+      colormap: geneExpressionColormap,
+      updateTriggers: {
+        getExpressionValue,
+        getFillColor: [cellColorEncoding, cellSelection, cellColors],
+        getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        getCellIsSelected,
+      },
+    });
+  }
+
+  createContourLayer() {
+    const {
+      obsEmbeddingIndex: obsIndex,
+      theme,
+      cellRadius = 1.0,
+      cellOpacity = 1.0,
+      // cellFilter,
+      cellSelection,
+      setCellHighlight,
+      setComponentHover,
+      getCellIsSelected,
+      cellColors,
+      getCellColor = makeDefaultGetCellColors(cellColors, obsIndex, theme),
+      getExpressionValue,
+      onCellClick,
+      geneExpressionColormap,
+      geneExpressionColormapRange = [0.0, 1.0],
+      cellColorEncoding,
+    } = this.props;
+
+    const baseOpacity = false ? 0.5 * 255 : 255;
+
+    // TODO: return a separate contour layer for each cell set?
+    // TODO: use real `group` object.
+    const group = {
+      name: 'test',
+      color: [255, 0, 0],
+      indices: obsIndex.map((x, i) => i), 
+    }
+    const { name, color: groupColor, indices } = group;
+
+    const color = (true ? groupColor : [180, 180, 180]);
+    const [r, g, b, a] = color;
+
+    return new ContourLayer({
+      id: `contour`,
+      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+      data: {
+        src: { indices, embedding: this.cellsData.src.obsEmbedding.data },
+        length: indices.length
+      },
+      visible: true,
+      pickable: false,
+      autoHighlight: false,
+      filled: true,
+      getPolygonOffset: () => ([0, 20]),
+      // cellSize: 0.5,
+      // contours: [
+      //   { threshold: 10, color: [r, g, b, 0.9 * baseOpacity], strokeWidth: 2 },
+      //   { threshold: [10, 1000], color: [r, g, b, 0.7 * baseOpacity] },
+      cellSize: 0.8,
+      contours: [
+        { threshold: 40, color: [r, g, b, 0.1 * baseOpacity], strokeWidth: 2 },
+        { threshold: 100, color: [r, g, b, 0.2 * baseOpacity], strokeWidth: 2 },
+        { threshold: 500, color: [r, g, b, 0.5 * baseOpacity], strokeWidth: 2 },
+        { threshold: 1000, color: [r, g, b, 0.9 * baseOpacity] },
+      ],
+      getPosition: (object, { index, data, target }) => {
+        target[0] = data.src.embedding[0][data.src.indices[index]];
+        target[1] = -data.src.embedding[1][data.src.indices[index]];
+        target[2] = 0;
+        return target;
+      },
+      pattern: false,
+      getFillPattern: () => "hatch-cross",
+      getFillPatternScale: 350,
+    });
   }
 
   createCellsLayer() {
@@ -255,9 +410,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const {
       cellsLayer,
       cellSetsLayers,
+      contourLayer,
     } = this;
     return [
-      cellsLayer,
+      contourLayer,
+      //cellsLayer,
       ...cellSetsLayers,
       this.createSelectionLayer(),
     ];
@@ -281,6 +438,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const { obsEmbeddingIndex, obsEmbedding } = this.props;
     if (obsEmbeddingIndex && obsEmbedding) {
       this.cellsLayer = this.createCellsLayer();
+      // TODO: create contour layer separately, only if enabled
+      this.contourLayer = this.createHeatmapLayer();
     } else {
       this.cellsLayer = null;
     }
