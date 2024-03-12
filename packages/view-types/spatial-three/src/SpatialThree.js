@@ -7,6 +7,7 @@ import {EnhancedRayGrab} from "./TwoHandScale.js";
 import {isEqual} from 'lodash-es';
 import {filterSelection} from '@vitessce/spatial-utils';
 import {CoordinationType} from '@vitessce/constants-internal';
+import {getLayerLoaderTuple} from './utils.js';
 import {Volume} from "../jsm/misc/Volume.js";
 import {getImageSize} from '@hms-dbmi/viv';
 import * as THREE from "three";

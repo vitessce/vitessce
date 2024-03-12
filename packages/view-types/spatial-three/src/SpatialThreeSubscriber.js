@@ -37,6 +37,7 @@ import {commaNumber, pluralize} from '@vitessce/utils';
 import {MultiLegend, ChannelNamesLegend} from '@vitessce/legend';
 import SpatialThree from './SpatialThree.js';
 import SpatialThreeTooltipSubscriber from './SpatialThreeTooltipSubscriber.js';
+import {getInitialSpatialTargets} from './utils.js';
 import {setObsSelection} from "@vitessce/sets-utils";
 import {defineWorkspace} from "vitest/config";
 
