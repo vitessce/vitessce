@@ -483,10 +483,6 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION, 'vertical', z.enum(['vertical', 'horizontal'])),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE, 14, z.number()),
   new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, null, z.string().nullable()),
-<<<<<<< HEAD
   // TODO: remove one array level and use multi-coordination for sampleSetSelection?
   new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.array(z.string())).nullable()),
-=======
-  new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.string()).nullable()),
->>>>>>> e9ded44248fa50118be3de4c7848d2fc937ef37c
 ];
