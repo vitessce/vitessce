@@ -143,17 +143,18 @@ export function DotPlotSubscriber(props) {
     featureSelection: geneSelection,
     featureValueTransform,
     featureValueTransformCoefficient,
+    featureValuePositivityThreshold: posThreshold,
+    featureValueColormap,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
-    featureValuePositivityThreshold: posThreshold,
-    // TODO: coordination type for mean expression colormap
     sampleType,
     sampleSetSelection,
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
     setFeatureValuePositivityThreshold: setPosThreshold,
+    setFeatureValueColormap,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.DOT_PLOT],
     coordinationScopes,
@@ -255,6 +256,7 @@ export function DotPlotSubscriber(props) {
             featureType={featureType}
             featureValueType={featureValueType}
             featureValueTransformName={selectedTransformName}
+            featureValueColormap={featureValueColormap}
             cellSetSelection={cellSetSelection}
           />
         ) : (

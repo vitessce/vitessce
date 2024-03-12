@@ -910,6 +910,9 @@ importers:
       '@material-ui/core':
         specifier: ~4.12.3
         version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
+      '@vitessce/legend':
+        specifier: workspace:*
+        version: link:../legend
       '@vitessce/tooltip':
         specifier: workspace:*
         version: link:../tooltip

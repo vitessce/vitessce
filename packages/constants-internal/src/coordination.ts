@@ -403,6 +403,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_VALUE_TRANSFORM,
     CoordinationType.FEATURE_VALUE_TRANSFORM_COEFFICIENT,
     CoordinationType.FEATURE_VALUE_POSITIVITY_THRESHOLD,
+    CoordinationType.FEATURE_VALUE_COLORMAP,
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,

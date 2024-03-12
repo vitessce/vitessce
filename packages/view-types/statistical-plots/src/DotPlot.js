@@ -36,6 +36,7 @@ export default function DotPlot(props) {
     featureType,
     featureValueType,
     featureValueTransformName,
+    featureValueColormap,
     cellSetSelection,
   } = props;
 
@@ -98,7 +99,13 @@ export default function DotPlot(props) {
     : ['Mean normalized', `${featureValueType} in set`];
 
   const spec = {
-    mark: { type: 'circle' },
+    mark: {
+      type: 'circle',
+      // The Vega-Lite default opacity is 0.7 for point, tick, circle,
+      // or square marks.
+      // Reference: https://vega.github.io/vega-lite/docs/mark.html
+      opacity: 1.0,
+    },
     encoding: {
       [(transpose ? 'y' : 'x')]: {
         field: 'keyFeature',
@@ -122,7 +129,7 @@ export default function DotPlot(props) {
         type: 'quantitative',
         title: meanTransform,
         scale: {
-          scheme: 'darkred',
+          scheme: featureValueColormap,
         },
         legend: {
           direction: 'horizontal',
