@@ -3,7 +3,6 @@ import {
 } from 'react';
 import { InternMap } from 'internmap';
 import { isEqual, pick } from 'lodash-es';
-import { fromEntries } from '@vitessce/utils';
 import { DATA_TYPE_COORDINATION_VALUE_USAGE } from '@vitessce/constants-internal';
 import { getSourceAndLoaderFromFileType, getDataTypeFromFileType } from './data/loader-registry.js';
 
@@ -127,7 +126,7 @@ function withDefaults(
 export function createLoaders(datasets, configDescription, fileTypes, coordinationTypes, stores) {
   const result = {};
   const dataSources = new InternMap([], JSON.stringify);
-  const defaultCoordinationValues = fromEntries(
+  const defaultCoordinationValues = Object.fromEntries(
     coordinationTypes.map(ct => ([ct.name, ct.defaultValue])),
   );
   datasets.forEach((dataset) => {
@@ -163,6 +162,7 @@ export function createLoaders(datasets, configDescription, fileTypes, coordinati
       if (!dataSources.has(dataSourceKey)) {
         dataSources.set(dataSourceKey, new DataSourceClass({
           url,
+          fileType,
           requestInit,
           // Optionally, pass a Zarrita store to the data source,
           // if one was mapped to this URL.

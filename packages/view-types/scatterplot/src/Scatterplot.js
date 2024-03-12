@@ -195,7 +195,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
       const collisionForce = this.cellSetsForceSimulation
         .size(d => ([
-          cellSetLabelSize * 1 / (2 ** zoom) * 4 * d.label.length,
+          cellSetLabelSize * 1 / (2 ** zoom) * 4 * d?.label?.length,
           cellSetLabelSize * 1 / (2 ** zoom) * 1.5,
         ]));
 

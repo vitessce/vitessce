@@ -2,7 +2,6 @@ import { useEffect, useMemo } from 'react';
 import { useQuery, useQueries } from '@tanstack/react-query';
 import {
   capitalize,
-  fromEntries,
   getInitialCoordinationScopePrefix,
 } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
@@ -236,7 +235,7 @@ export function useDataTypeMulti(
   }, [anyError, setWarning]);
 
   // Convert data to object keyed by scopeKey.
-  const data = useMemo(() => fromEntries(
+  const data = useMemo(() => Object.fromEntries(
     matchOnEntries.map(([scopeKey], i) => ([scopeKey, dataQueries[i].data?.data])),
   // Deliberate dependency omissions: dataQueries and matchOnEntries,
   // since dataQueries changes every re-render. We use the in-direct
@@ -245,7 +244,7 @@ export function useDataTypeMulti(
   ), [matchOnObj, dataStatus]);
 
   // Convert data to object keyed by scopeKey.
-  const urls = useMemo(() => fromEntries(
+  const urls = useMemo(() => Object.fromEntries(
     matchOnEntries.map(([scopeKey], i) => ([scopeKey, dataQueries[i].data?.urls])),
   // Deliberate dependency omissions: matchOnEntries, since dataQueries depends on it.
   // eslint-disable-next-line react-hooks/exhaustive-deps

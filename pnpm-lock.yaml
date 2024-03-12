@@ -263,8 +263,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       zarrita:
-        specifier: 0.4.0-next.4
-        version: 0.4.0-next.4
+        specifier: 0.4.0-next.10
+        version: 0.4.0-next.10
       zod:
         specifier: ^3.21.4
         version: 3.21.4
@@ -341,8 +341,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       zarrita:
-        specifier: 0.4.0-next.4
-        version: 0.4.0-next.4
+        specifier: 0.4.0-next.10
+        version: 0.4.0-next.10
 
   packages/gl:
     dependencies:
@@ -887,23 +887,23 @@ importers:
         specifier: ^9.2.0
         version: 9.5.2
       zarrita:
-        specifier: 0.4.0-next.4
-        version: 0.4.0-next.4
+        specifier: 0.4.0-next.10
+        version: 0.4.0-next.10
 
   packages/utils/zarr-utils:
     dependencies:
       '@zarrita/core':
-        specifier: 0.0.3
-        version: 0.0.3
+        specifier: 0.1.0-next.8
+        version: 0.1.0-next.8
       '@zarrita/indexing':
-        specifier: 0.0.3
-        version: 0.0.3
+        specifier: 0.1.0-next.10
+        version: 0.1.0-next.10
       '@zarrita/storage':
-        specifier: 0.0.2
-        version: 0.0.2
+        specifier: 0.1.0-next.4
+        version: 0.1.0-next.4
       zarrita:
-        specifier: 0.4.0-next.4
-        version: 0.4.0-next.4
+        specifier: 0.4.0-next.10
+        version: 0.4.0-next.10
 
   packages/vega:
     dependencies:
@@ -10502,58 +10502,31 @@ packages:
   /@xtuc/long@4.2.2:
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
 
-  /@zarrita/core@0.0.3:
-    resolution: {integrity: sha512-fWv51b+xbYnws1pkNDPwJQoDa76aojxplHyMup82u11UAiet3gURMsrrkhM6YbeTgSY1A8oGxDOrvar3SiZpLA==}
+  /@zarrita/core@0.1.0-next.8:
+    resolution: {integrity: sha512-WdpTxX4JLVfpP1LAt4aAoQsC/dkgpZzhFTHKykPOGSQ7tkLRfn3ON4T7dxYVcD9uQkRE+ZTTBjhkAFnVQkNasQ==}
     dependencies:
-      '@zarrita/storage': 0.0.2
-      '@zarrita/typedarray': 0.0.1
-      numcodecs: 0.2.2
+      '@zarrita/storage': 0.1.0-next.4
+      '@zarrita/typedarray': 0.1.0-next.2
+      numcodecs: 0.3.1
     dev: false
 
-  /@zarrita/core@0.1.0-next.3:
-    resolution: {integrity: sha512-TMqT5WPWgO/khOtu8qYXf2dopCLHoRjVz6PlMQg3o0WOsF3qg47Rp5s6CySuH4HavnIuP+pEyIef0CAgJsSWxg==}
+  /@zarrita/indexing@0.1.0-next.10:
+    resolution: {integrity: sha512-WOquXdNUNBf22Kl3qkdJmWnzMDLKxpyrgdC87HNR8Y8imQMTdRjejFiI7FvOrY/7HqViDgrckYsyxRrkbLUHjg==}
     dependencies:
-      '@zarrita/storage': 0.1.0-next.3
-      '@zarrita/typedarray': 0.1.0-next.1
-      numcodecs: 0.2.2
+      '@zarrita/core': 0.1.0-next.8
+      '@zarrita/storage': 0.1.0-next.4
+      '@zarrita/typedarray': 0.1.0-next.2
     dev: false
 
-  /@zarrita/indexing@0.0.3:
-    resolution: {integrity: sha512-Q61d9MYX6dsK1DLltEpwx4mJWCZHj0TXiaEN4QpxNDtToa/EoyytP/pYHPypO4GXBscZooJ6eZkKT5FMx9PVfg==}
-    dependencies:
-      '@zarrita/core': 0.0.3
-      '@zarrita/storage': 0.0.2
-      '@zarrita/typedarray': 0.0.1
-    dev: false
-
-  /@zarrita/indexing@0.1.0-next.4:
-    resolution: {integrity: sha512-t/o9YWXAlY3SBZRWK2uX50PNJiOwyeluf73EF45pPFTVlPv6d0L/Vk0738WQCsVoASF8X1h4MUztBnK5uDT2rw==}
-    dependencies:
-      '@zarrita/core': 0.1.0-next.3
-      '@zarrita/storage': 0.1.0-next.3
-      '@zarrita/typedarray': 0.1.0-next.1
-    dev: false
-
-  /@zarrita/storage@0.0.2:
-    resolution: {integrity: sha512-uFt4abAoiOYLroalNDAnVaQxA17zGKrQ0waYKmTVm+bNonz8ggKZP+0FqMhgUZITGChqoANHuYTazbuU5AFXWA==}
+  /@zarrita/storage@0.1.0-next.4:
+    resolution: {integrity: sha512-+Gqaw/dA3VD53gLdXfQs3UKZmchE5CL0N35A1mXrT/QS9dxGQrcp9q7Tcdx9VlqU1eirh8cPVM0z+xPFLiYYyw==}
     dependencies:
       reference-spec-reader: 0.2.0
       unzipit: 1.4.3
     dev: false
 
-  /@zarrita/storage@0.1.0-next.3:
-    resolution: {integrity: sha512-vqmTmwbumd/hLiDZn/xMnv+QN/ygDifHPlRWXi+sPdIdNIQ3h0uur4qMYltmOSqEhvNiuuRjsY5ECWiiBpM92Q==}
-    dependencies:
-      reference-spec-reader: 0.2.0
-      unzipit: 1.4.3
-    dev: false
-
-  /@zarrita/typedarray@0.0.1:
-    resolution: {integrity: sha512-ZdvNjYP1bEuQXoSTVkemV99w42jHYrJ3nh9golCLd4MVBlrVbfZo4wWgBslU4JZUaDikhFSH+GWMDgAq/rI32g==}
-    dev: false
-
-  /@zarrita/typedarray@0.1.0-next.1:
-    resolution: {integrity: sha512-R0dluIJ6Tk83EPinwxR1LuLX+B4Jk1mVaXQoWIrayYOu+saIjqYw0Cey1m+eBH9f5GLZV5SriBgsuaP4wsIfhA==}
+  /@zarrita/typedarray@0.1.0-next.2:
+    resolution: {integrity: sha512-utFKMocqLk5j4GXCKkuZQr3mAakskjq77GoUV5B55HJh0leXH9idDIelzpUszEsLpSIkFwO2Id/NHuClhCuzSw==}
     dev: false
 
   /@zkochan/which@2.0.3:
@@ -15070,6 +15043,10 @@ packages:
     resolution: {integrity: sha512-5u2V/CDW15QM1XbbgS+0DfPxVB+jUKhWEKuuFuHncbk3tEEqzmoXL+2KyOFuKGqOnmdIy0/davWF1CkuwtibCw==}
     dev: true
 
+  /fflate@0.8.2:
+    resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
+    dev: false
+
   /figgy-pudding@3.5.2:
     resolution: {integrity: sha512-0btnI/H8f2pavGMN8w40mlSKOfTK2SVJmBfBeVIj3kNw0swwgzyRq0d5TJVOwodFmtvpPeWPN/MCcfuWF0Ezbw==}
     deprecated: This module is no longer supported.
@@ -18674,6 +18651,12 @@ packages:
   /numcodecs@0.2.2:
     resolution: {integrity: sha512-Y5K8mv80yb4MgVpcElBkUeMZqeE4TrovxRit/dTZvoRl6YkB6WEjY+fiUjGCblITnt3T3fmrDg8yRWu0gOLjhQ==}
     engines: {node: '>=12'}
+    dev: false
+
+  /numcodecs@0.3.1:
+    resolution: {integrity: sha512-ywIyGpJ+c6Ojktq9a8jsWSy12ZSUcW/W+I3jlH0q0zv9aR/ZiMsN7IrWaNq9YV2FRdLu6r/M6lp35jMA6fug/A==}
+    dependencies:
+      fflate: 0.8.2
     dev: false
 
   /nwsapi@2.2.2:
@@ -25235,12 +25218,20 @@ packages:
       p-queue: 6.2.0
     dev: false
 
+  /zarrita@0.4.0-next.10:
+    resolution: {integrity: sha512-S9SODuy40xuv4jSYP0AtfdItWOetKTyEGGRCO0uv7NQ+JY66Q/k4kvGxuM040sxVIIboKkjuA7V+pT3uyPtgLA==}
+    dependencies:
+      '@zarrita/core': 0.1.0-next.8
+      '@zarrita/indexing': 0.1.0-next.10
+      '@zarrita/storage': 0.1.0-next.4
+    dev: false
+
   /zarrita@0.4.0-next.4:
     resolution: {integrity: sha512-IcSzNKUzkjFpFYozpjUsdK7nTjzGQbXJC0cSJj/uUxlv48dFRCc75UERblwRDi+BflcSBopWm3fY5V+ZgEjrZQ==}
     dependencies:
-      '@zarrita/core': 0.1.0-next.3
-      '@zarrita/indexing': 0.1.0-next.4
-      '@zarrita/storage': 0.1.0-next.3
+      '@zarrita/core': 0.1.0-next.8
+      '@zarrita/indexing': 0.1.0-next.10
+      '@zarrita/storage': 0.1.0-next.4
     dev: false
 
   /zod-to-json-schema@3.21.1(zod@3.21.4):

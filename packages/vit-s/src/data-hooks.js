@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal';
-import { fromEntries } from '@vitessce/utils';
 import { useQuery, useQueries } from '@tanstack/react-query';
 import {
   useMultiCoordinationValues,
@@ -475,6 +474,32 @@ export function useSpotMultiObsSets(
   return [obsSetsData, obsSetsDataStatus, obsSetsUrls];
 }
 
+
+export function useSpotMultiFeatureLabels(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const featureTypeCoordination = useComplexCoordination(
+    [
+      CoordinationType.FEATURE_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPOT_LAYER,
+  );
+  const matchOnObj = useMemo(() => featureTypeCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [featureLabelsData, featureLabelsStatus, featureLabelsUrls] = useDataTypeMulti(
+    DataType.FEATURE_LABELS, loaders, dataset,
+    false, {}, {},
+    matchOnObj,
+  );
+  return [featureLabelsData, featureLabelsStatus, featureLabelsUrls];
+}
+
+
 export function useMultiObsLabels(
   coordinationScopes, obsType, loaders, dataset,
 ) {
@@ -482,7 +507,7 @@ export function useMultiObsLabels(
     CoordinationType.OBS_LABELS_TYPE,
     coordinationScopes,
   );
-  const obsLabelsMatchOnObj = useMemo(() => fromEntries(
+  const obsLabelsMatchOnObj = useMemo(() => Object.fromEntries(
     Object.entries(obsLabelsTypes).map(([scope, obsLabelsType]) => ([
       scope,
       { obsLabelsType, obsType },

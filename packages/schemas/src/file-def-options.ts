@@ -57,6 +57,12 @@ const annDataObsSets = z.array(
   }),
 );
 
+const annDataObsFeatureColumns = z.array(
+  z.object({
+    path: z.string(),
+  }),
+);
+
 const annDataObsSpots = annDataObsm;
 const annDataObsPoints = annDataObsm;
 const annDataObsLocations = annDataObsm;
@@ -152,6 +158,7 @@ export const obsSetsAnndataSchema = annDataObsSets;
 export const obsFeatureMatrixAnndataSchema = annDataObsFeatureMatrix;
 export const obsLabelsAnndataSchema = annDataObsLabels;
 export const featureLabelsAnndataSchema = annDataFeatureLabels;
+export const obsFeatureColumnsAnndataSchema = annDataObsFeatureColumns;
 export const sampleEdgesAnndataSchema = annDataSampleEdges;
 
 // CSV

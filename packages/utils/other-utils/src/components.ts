@@ -1,9 +1,13 @@
 // Originally in src/components/utils.js
 export const DEFAULT_DARK_COLOR = [50, 50, 50];
 export const DEFAULT_LIGHT_COLOR = [200, 200, 200];
+export const DEFAULT_LIGHT2_COLOR = [235, 235, 235];
 
-export function getDefaultColor(theme: 'dark' | 'light') {
-  return theme === 'dark' ? DEFAULT_DARK_COLOR : DEFAULT_LIGHT_COLOR;
+export function getDefaultColor(theme: 'dark' | 'light' | 'light2') {
+  // eslint-disable-next-line no-nested-ternary
+  return theme === 'dark'
+    ? DEFAULT_DARK_COLOR
+    : (theme === 'light' ? DEFAULT_LIGHT_COLOR : DEFAULT_LIGHT2_COLOR);
 }
 
 // From https://personal.sron.nl/~pault/#sec:qualitative
