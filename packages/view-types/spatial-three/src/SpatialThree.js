@@ -22,6 +22,7 @@ import {Volume} from "../jsm/misc/Volume.js";
 import {getImageSize} from '@hms-dbmi/viv';
 import * as THREE from "three";
 import {HandBbox} from "./xr/HandBbox.js"
+import {MeasureLine} from "./MeasureLine.js"
 import cmViridisTextureUrl from "../textures/cm_viridis.png";
 import cmGrayTextureUrl from "../textures/cm_gray.png";
 import {VolumeRenderShaderPerspective} from "../jsm/shaders/VolumeShaderPerspective.js";
@@ -695,11 +696,17 @@ function GeometryAndMesh(props) {
     const {controllers} = useXR();
     const [measureState, setMeasureState] = useState(false);
     const [highlighted, setHighlighted] = useState(false);
-    let [startPoint, setStartPoint] = useState(new THREE.Vector3());
-    let [endPoint, setEndPoint] = useState(new THREE.Vector3());
     let [showLine, setShowLine] = useState(false);
-    let [startPointSet, setStartPointSet] = useState(false);
-    let [endPointSet, setEndPointSet] = useState(false);
+    let [currentLine, setCurrentLine] = useState({
+        startPoint: new THREE.Vector3(),
+        midPoint: new THREE.Vector3(),
+        endPoint: new THREE.Vector3(),
+        setStartPoint: false,
+        setEndPoint: false
+    })
+    let [lines, setLines] = useState([])
+
+
     useFrame(() => {
         // Could first Intersect with Bounding Box of the Model to make the calculation faster
         if (model != null && model.current !== null && model.current !== undefined && isPresenting) {
@@ -717,32 +724,60 @@ function GeometryAndMesh(props) {
             if (leftTipBB.intersectsBox(rightTipBB) && leftTipBB.max.x !== -rightTipBB.min.x) {
                 setMeasureState(true)
                 setShowLine(true);
-                setStartPointSet(false);
-                setEndPointSet(false);
+                setCurrentLine({
+                    startPoint: new THREE.Vector3(),
+                    midPoint: new THREE.Vector3(),
+                    endPoint: new THREE.Vector3(),
+                    setStartPoint: false,
+                    setEndPoint: false
+                })
             }
             if (measureState) {
                 let leftFingerPosition = controllers[1].hand.joints["index-finger-tip"].position.clone();
                 let rightFingerPosition = controllers[0].hand.joints["index-finger-tip"].position.clone();
                 leftFingerPosition = leftFingerPosition.applyMatrix4(rayGrabGroup.current.matrixWorld.clone().invert());
                 rightFingerPosition = rightFingerPosition.applyMatrix4(rayGrabGroup.current.matrixWorld.clone().invert());
-                if (!startPointSet) {
-                    setStartPoint(leftFingerPosition.clone());
+                let currentStart = leftFingerPosition.clone();
+                let currentEnd = rightFingerPosition.clone();
+                if (currentLine.setStartPoint) {
+                    currentStart = currentLine.startPoint
                 }
-                if (!endPointSet) {
-                    setEndPoint(rightFingerPosition.clone());
+                if (currentLine.setEndPoint) {
+                    currentEnd = currentLine.endPoint
                 }
-                console.log("Start Measure State")
+                setCurrentLine({
+                    startPoint: currentStart,
+                    midPoint: new THREE.Vector3().addVectors(currentStart,currentEnd).multiplyScalar(0.5),
+                    endPoint: currentEnd,
+                    setStartPoint: currentLine.setStartPoint,
+                    setEndPoint: currentLine.setEndPoint
+                })
                 if (controllers[0].hand.inputState.pinching === true) {
                     // right hand set mesaure point
                     console.log("Right Hand Set Measure Point")
-                    setEndPointSet(true)
+                    setCurrentLine({
+                        startPoint: currentLine.startPoint,
+                        midPoint: currentLine.midPoint,
+                        endPoint: currentLine.endPoint,
+                        setStartPoint: currentLine.setStartPoint,
+                        setEndPoint: true
+                    })
                 }
                 if (controllers[1].hand.inputState.pinching === true) {
                     // left hand set measure point
                     console.log("Left Hand Set Measure Point")
-                    setStartPointSet(true)
+                    setCurrentLine({
+                        startPoint: currentLine.startPoint,
+                        midPoint: currentLine.midPoint,
+                        endPoint: currentLine.endPoint,
+                        setStartPoint: true,
+                        setEndPoint: currentLine.setEndPoint
+                    })
                 }
-                if (endPointSet && startPointSet) {
+                if (currentLine.setStartPoint && currentLine.setEndPoint) {
+                    lines.push(currentLine)
+                    setLines(lines)
+                    // setShowLine(false); //Transition over to the collection
                     setMeasureState(false)
                 }
             } else {
@@ -777,10 +812,8 @@ function GeometryAndMesh(props) {
                 }
             }
         }
-    }, [measureState, highlighted, startPointSet, startPoint, endPoint, endPointSet, showLine])
-    const midPoint = new THREE.Vector3()
-        .addVectors(startPoint, endPoint)
-        .multiplyScalar(0.5);
+    }, [measureState, highlighted, currentLine, lines, showLine])
+
     // TODO: IF we want to have a ZoomGrab than it needs to adapt the 0.002 value
     // TODO: The measurement from time to time intersects with the rayGrab (maybe "tell it" that we are in measurement mode)
     return (
@@ -826,28 +859,13 @@ function GeometryAndMesh(props) {
                             </group>
                         }
                     </group>
-                    <group name="distance" ref={distanceRef}>
+                    <group name="currentLine" ref={distanceRef}>
                         {showLine && (
-                            <Center
-                                bottom
-                                right
-                                position={[midPoint.x, midPoint.y, midPoint.z]}
-                                rotation={[0, 0, 0]}
-                            >
-                                <Text color="gray" scale={0.05}>
-                                    {`${length.toFixed(2)} e^-2`}
-                                </Text>
-                            </Center>
+                            <MeasureLine currentLine={currentLine}></MeasureLine>
                         )}
-                        {showLine && (
-                            <Line
-                                points={[startPoint, endPoint]}
-                                color="white" // Default
-                                lineWidth={5} // In pixels (default)
-                                dashed={false} // Default
-                                segments
-                            />
-                        )}
+                    </group>
+                    <group name="lines">
+                        {lines.map((object, i) => <MeasureLine currentLine={object} />)}
                     </group>
                 </RayGrab>
                 :
@@ -895,26 +913,11 @@ function GeometryAndMesh(props) {
                     </group>
                     <group name="distance" ref={distanceRef}>
                         {showLine && (
-                            <Center
-                                bottom
-                                right
-                                position={[midPoint.x, midPoint.y, midPoint.z]}
-                                rotation={[0, 0, 0]}
-                            >
-                                <Text color="gray" scale={0.05}>
-                                    {`${length.toFixed(2)} e^-2`}
-                                </Text>
-                            </Center>
+                            <MeasureLine currentLine={currentLine}></MeasureLine>
                         )}
-                        {showLine && (
-                            <Line
-                                points={[startPoint, endPoint]}
-                                color="white" // Default
-                                lineWidth={5} // In pixels (default)
-                                dashed={false} // Default
-                                segments
-                            />
-                        )}
+                    </group>
+                    <group name="lines">
+                        {lines.map((object, i) => <MeasureLine currentLine={object} />)}
                     </group>
                 </group>
             }
