@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, {useRef, useState, forwardRef, useEffect, useCallback} from 'react';
 import {Canvas, extend, useFrame, useThree} from '@react-three/fiber'
-import {OrbitControls, useTexture, shaderMaterial, PerspectiveCamera, TorusKnot, Bvh} from '@react-three/drei'
+import {OrbitControls, useTexture, shaderMaterial, PerspectiveCamera, TorusKnot, Bvh, Center,Line, Text} from '@react-three/drei'
 import {useXR, RayGrab, Interactive, VRButton, ARButton, XR, Controllers, Hands, Ray} from '@react-three/xr'
 import {EnhancedRayGrab} from "./TwoHandScale.js";
 import {isEqual} from 'lodash-es';
@@ -643,6 +643,7 @@ function GeometryAndMesh(props) {
         renderingSettings, materialRef, highlightGlom, setObsHighlight
     } = props;
     let model = useRef();
+    let distanceRef = useRef();
     const glThree = useThree();
 
     let shader = VolumeShaderFirstPass;
@@ -653,11 +654,6 @@ function GeometryAndMesh(props) {
         fragmentShader: shader.fragmentShader,
         side: THREE.FrontSide,
     });
-    //glRoot.size.width * window.devicePixelRatio,
-    //glRoot.size.width * window.devicePixelRatio
-    //  TODO Maybe have to adapt the pixel ratio of the renderer and the textures when it changes (e.g. zooming in on the pc)
-    // const stopTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
-    // const finalTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
 
     // console.log(window.devicePixelRatio);
     if (materialRef.current !== undefined && materialRef.current !== null){
@@ -667,58 +663,6 @@ function GeometryAndMesh(props) {
             materialRef.current.material.uniforms.u_physical_Pixel.vale = 2.0
         }
     }
-
-    // TODO RENDERING MIXED - CANNOT BE USED IN XR RIGHT NOW
-    // useFrame((state) => {
-    //     const {gl, scene, camera} = state;
-    //     if (materialRef.current === undefined) {
-    //         return;
-    //     }
-    //     if (segmentationSettings.visible && model.current !== undefined && segmentationSettings.opacity > 0.1) {
-    //         //console.log(camera.uuid)
-    //         var currentTarget = gl.getRenderTarget();
-    //         var currentXrEnabled = gl.xr.enabled;
-    //        // if(currentXrEnabled){
-    //        //     if (gl.xr.cameraAutoUpdate === true )  gl.xr.updateCamera( camera );
-    //        // }
-    //         gl.xr.enabled = false;
-    //         gl.setRenderTarget(stopTexture);
-    //         gl.clear();
-    //         model.current.visible = true;
-    //         model.current.children[0].visible = true;
-    //         model.current.children[1].visible = false;
-    //         materialRef.current.visible = false;
-    //         gl.render(scene, camera);
-    //         // return;
-    //         gl.xr.enabled = currentXrEnabled;
-    //         gl.setRenderTarget(currentTarget);
-    //         gl.clear();
-    //         model.current.visible = true;
-    //         model.current.children[0].visible = false;
-    //         model.current.children[1].visible = true;
-    //         materialRef.current.visible = false;
-    //         gl.render(scene, camera);
-    //         gl.autoClear = false;
-    //         gl.clearDepth()
-    //         //         return;
-    //         //
-    //         materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
-    //         materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
-    //         if (!gl.xr.isPresenting) {
-    //             gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
-    //         }
-    //         materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width * window.devicePixelRatio,
-    //             glThree.size.height * window.devicePixelRatio);
-    //         model.current.visible = false;
-    //         model.current.children[0].visible = false;
-    //         model.current.children[1].visible = false;
-    //     } else {
-    //         materialRef.current.material.uniforms.u_stop_geom.value = null;
-    //         materialRef.current.material.uniforms.u_geo_color.value = null;
-    //     }
-    //     materialRef.current.visible = true;
-    //     gl.render(scene, camera);
-    // }, 1)
 
     // -----------------------------------------------------------------
     //                          XR
@@ -740,6 +684,11 @@ function GeometryAndMesh(props) {
     const {controllers} = useXR();
     const [measureState, setMeasureState] = useState(false);
     const [highlighted, setHighlighted] = useState(false);
+    let [startPoint, setStartPoint] = useState(new THREE.Vector3());
+    let [endPoint, setEndPoint] = useState(new THREE.Vector3());
+    let [showLine, setShowLine] = useState(false);
+    let [startPointSet, setStartPointSet] = useState(false);
+    let [endPointSet, setEndPointSet] = useState(false);
     useFrame(() => {
         // Could first Intersect with Bounding Box of the Model to make the calculation faster
         if (model != null && model.current !== null && model.current !== undefined && isPresenting) {
@@ -748,24 +697,40 @@ function GeometryAndMesh(props) {
             let leftTipBB = new THREE.Box3().setFromObject(leftTipBbox);
             let rightTipBB = new THREE.Box3().setFromObject(rightTipBbox);
             let intersected = false;
-
             const volumeBox = null;
+
             if (materialRef !== null && materialRef.current !== undefined) {
                 const volumeBox = new THREE.Box3().setFromObject(materialRef.current)
             }
 
             if (leftTipBB.intersectsBox(rightTipBB) && leftTipBB.max.x !== -rightTipBB.min.x) {
-                setMeasureState(!measureState)
+                setMeasureState(true)
             }
             if (measureState) {
+                setShowLine(true);
+                let leftFingerPosition = new THREE.Vector3()
+                leftTipBB.getCenter(leftFingerPosition);
+                let rightFingerPosition = new THREE.Vector3()
+                rightTipBB.getCenter(rightFingerPosition);
+                if (!startPointSet) {
+                    setStartPoint(leftFingerPosition);
+                }
+                if(!endPointSet){
+                    setEndPoint(rightFingerPosition);
+                }
                 console.log("Start Measure State")
                 if (controllers[0].hand.inputState.pinching === true) {
                     // right hand set mesaure point
                     console.log("Right Hand Set Measure Point")
+                    setEndPointSet(true)
                 }
                 if (controllers[1].hand.inputState.pinching === true) {
                     // left hand set measure point
                     console.log("Left Hand Set Measure Point")
+                    setStartPointSet(true)
+                }
+                if(endPointSet && startPointSet){
+                    setMeasureState(false)
                 }
             } else {
                 if ((volumeBox !== null && (leftTipBB.intersectsBox(volumeBox) || rightTipBB.intersectsBox(volumeBox))) ||
@@ -799,10 +764,10 @@ function GeometryAndMesh(props) {
                 }
             }
         }
-    }, [measureState, highlighted])
-
-
-    console.log(segmentationSceneScale)
+    }, [measureState, highlighted, startPointSet, startPoint, endPoint, endPointSet, showLine])
+    const midPoint = new THREE.Vector3()
+        .addVectors(startPoint, endPoint)
+        .multiplyScalar(0.5);
     // TODO: IF we want to have a ZoomGrab than it needs to adapt the 0.002 value
     return (
         <RayGrab>
@@ -817,7 +782,8 @@ function GeometryAndMesh(props) {
                                        position={[-0.18, 1.13, -1]}
                                        scale={[0.002 * segmentationSceneScale[0],
                                            0.002 * segmentationSceneScale[1],
-                                           0.002 * segmentationSceneScale[2]]}/>
+                                           0.002 * segmentationSceneScale[2]]}
+                            />
                             :
                             <Bvh firstHitOnly>
                                 <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
@@ -874,6 +840,29 @@ function GeometryAndMesh(props) {
                             </mesh>}
                     </group>
                 }
+            </group>
+            <group name="distance" ref={distanceRef}>
+                {showLine && (
+                    <Center
+                        bottom
+                        right
+                        position={[midPoint.x, midPoint.y, midPoint.z]}
+                        rotation={[0, 0, 0]}
+                    >
+                        <Text color="gray" scale={0.05}>
+                            {`${length.toFixed(2)} e^-2`}
+                        </Text>
+                    </Center>
+                )}
+                {showLine && (
+                    <Line
+                        points={[startPoint, endPoint]}
+                        color="white" // Default
+                        lineWidth={5} // In pixels (default)
+                        dashed={false} // Default
+                        segments
+                    />
+                )}
             </group>
         </RayGrab>
     );
