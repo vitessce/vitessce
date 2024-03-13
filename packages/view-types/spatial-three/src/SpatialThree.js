@@ -701,7 +701,8 @@ function GeometryAndMesh(props) {
     const [measureState, setMeasureState] = useState(false);
     useFrame(() => {
         // Could first Intersect with Bounding Box of the Model to make the calculation faster
-        if (model != null && model.current !== null && isPresenting) {
+        if (model != null && model.current !== null && model.current !== undefined && isPresenting) {
+            console.log(model.current)
             let rightTipBbox = scene.getObjectByName("rightTipBbox");
             let leftTipBbox = scene.getObjectByName("leftTipBbox");
             let leftTipBB = new THREE.Box3().setFromObject(leftTipBbox);
@@ -710,7 +711,7 @@ function GeometryAndMesh(props) {
 
             const volumeBox = null;
             if (materialRef !== null && materialRef.current !== undefined) {
-                const volumeBox = new THREE.Box3().setFromObject(materialRef)
+                const volumeBox = new THREE.Box3().setFromObject(materialRef.current)
             }
 
             if (leftTipBB.intersectsBox(rightTipBB) && leftTipBB.max.x !== -rightTipBB.min.x) {
@@ -727,7 +728,7 @@ function GeometryAndMesh(props) {
                     console.log("Left Hand Set Measure Point")
                 }
             } else {
-                if ((volumeBox !== null && leftTipBB.intersectsBox(volumeBox) || rightTipBB.intersectsBox(volumeBox)) ||
+                if ((volumeBox !== null && (leftTipBB.intersectsBox(volumeBox) || rightTipBB.intersectsBox(volumeBox))) ||
                     volumeBox == null) {
                     for (let childID in model.current.children[0].children) {
                         let child = model.current.children[0].children[childID];

@@ -34,11 +34,11 @@ export const HandBbox = () => {
 		<>
 			<mesh name="leftTipBbox" ref={leftTipRef}>
 				<boxGeometry args={[0.02, 0.02, 0.02]} />
-				<meshStandardMaterial color={"blue"} transparent={true} opacity={0.5} />
+				<meshStandardMaterial color={"blue"} transparent={true} opacity={0} />
 			</mesh>
 			<mesh name="rightTipBbox" ref={rightTipRef}>
 				<boxGeometry args={[0.02, 0.02, 0.02]} />
-				<meshStandardMaterial color={"orange"} transparent={true} opacity={0.5} />
+				<meshStandardMaterial color={"orange"} transparent={true} opacity={0} />
 			</mesh>
 		</>
 	);
