@@ -861,11 +861,11 @@ function GeometryAndMesh(props) {
                     </group>
                     <group name="currentLine" ref={distanceRef}>
                         {showLine && (
-                            <MeasureLine currentLine={currentLine}></MeasureLine>
+                            <MeasureLine currentLine={currentLine} scale={(1/0.002)*0.4}></MeasureLine>
                         )}
                     </group>
                     <group name="lines">
-                        {lines.map((object, i) => <MeasureLine currentLine={object} />)}
+                        {lines.map((object, i) => <MeasureLine currentLine={object} scale={(1/0.002)*0.4} />)}
                     </group>
                 </RayGrab>
                 :
@@ -911,13 +911,8 @@ function GeometryAndMesh(props) {
                             </group>
                         }
                     </group>
-                    <group name="distance" ref={distanceRef}>
-                        {showLine && (
-                            <MeasureLine currentLine={currentLine}></MeasureLine>
-                        )}
-                    </group>
                     <group name="lines">
-                        {lines.map((object, i) => <MeasureLine currentLine={object} />)}
+                        {lines.map((object, i) => <MeasureLine currentLine={object} scale={1} />)}
                     </group>
                 </group>
             }
@@ -1134,6 +1129,8 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
 
 function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors, layerTransparency,
                              xSlice, ySlice, zSlice, meshScale, originalScale) {
+    console.log(originalScale)
+    console.log(meshScale)
     uniforms["boxSize"].value.set(volume.xLength, volume.yLength, volume.zLength);
     //can be done better
     uniforms["volumeTex"].value = textures.length > 0 ? textures[0] : null;

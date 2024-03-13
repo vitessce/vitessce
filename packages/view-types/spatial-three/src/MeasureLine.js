@@ -1,11 +1,13 @@
 import React from "react";
 import {Center, Line, Text} from "@react-three/drei";
+import {useThree} from "@react-three/fiber";
 
 export const MeasureLine = (props) => {
+    const glThree = useThree();
     const {
-        currentLine
+        currentLine,
+        scale
     } = props;
-    // console.log(currentLine)
     return (
         <group>
             <Center
@@ -15,7 +17,7 @@ export const MeasureLine = (props) => {
                 rotation={[0, 0, 0]}
             >
                 <Text color="gray" scale={0.05}>
-                    {`${length.toFixed(2)} e^-2`}
+                    {`${(currentLine.startPoint.distanceTo(currentLine.endPoint)*scale).toFixed(2)} µm`}
                 </Text>
             </Center>
             <Line
