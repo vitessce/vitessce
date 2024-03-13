@@ -43,6 +43,7 @@ const SpatialThree = (props) => {
         volumeMinMax: new Map(),
         scale: null,
         resolution: null,
+        originalScale: null
     });
     const [volumeSettings, setVolumeSettings] = useState({
         channelsVisible: [],
@@ -84,7 +85,10 @@ const SpatialThree = (props) => {
         contrastLimits,
         is3dMode,
         renderingMode,
-        layerTransparency
+        layerTransparency,
+        xSlice,
+        ySlice,
+        zSlice
     } = getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady)
 
     //Segmentation: //TODO get the Loader to get the URL
@@ -166,7 +170,7 @@ const SpatialThree = (props) => {
                 if (childElement.material instanceof THREE.MeshPhysicalMaterial) {
                     childElement.material = new THREE.MeshStandardMaterial();
                 }
-                childElement.material.transparent = false
+                childElement.material.transparent = true
                 childElement.material.writeDepthTexture = true
                 childElement.material.depthTest = true
                 childElement.material.depthWrite = true
@@ -364,14 +368,15 @@ const SpatialThree = (props) => {
                     volumes: loadingResult[0],
                     textures: loadingResult[1],
                     volumeMinMax: loadingResult[2],
-                    scale: loadingResult[3] !== null ? loadingResult[3] : volumeData.scale
+                    scale: loadingResult[3] !== null ? loadingResult[3] : volumeData.scale,
+                    originalScale: loadingResult[4]
                 });
                 if (renderingSettings.uniforms === undefined || renderingSettings.uniforms === null ||
                     renderingSettings.shader === undefined || renderingSettings.shader === null) {
                     // JUST FOR THE INITIAL RENDERING
                     const rendering = create3DRendering(loadingResult[0], channelTargetC, channelsVisible, colors,
                         loadingResult[1], contrastLimits, loadingResult[2], loadingResult[3], renderingMode,
-                        layerTransparency)
+                        layerTransparency, xSlice, ySlice, zSlice, loadingResult[4])
                     if (rendering !== null) {
                         setRenderingSettings({
                             uniforms: rendering[0], shader: rendering[1], meshScale: rendering[2],
@@ -389,7 +394,10 @@ const SpatialThree = (props) => {
                         contrastLimits,
                         is3dMode,
                         renderingMode,
-                        layerTransparency
+                        layerTransparency,
+                        xSlice,
+                        ySlice,
+                        zSlice
                     });
                 }
             }
@@ -412,7 +420,8 @@ const SpatialThree = (props) => {
             const rendering = create3DRendering(volumeData.volumes, volumeSettings.channelTargetC,
                 volumeSettings.channelsVisible, volumeSettings.colors, volumeData.textures,
                 volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale, volumeSettings.renderingMode,
-                volumeSettings.layerTransparency)
+                volumeSettings.layerTransparency, volumeSettings.xSlice, volumeSettings.ySlice, volumeSettings.zSlice,
+                volumeData.originalScale)
             if (rendering !== null) {
                 let volumeCount = 0;
                 for (let elem in volumeSettings.channelsVisible) {
@@ -427,6 +436,11 @@ const SpatialThree = (props) => {
                     materialRef.current.material.uniforms.u_clim4.value = rendering[0]["u_clim4"].value;
                     materialRef.current.material.uniforms.u_clim5.value = rendering[0]["u_clim5"].value;
                     materialRef.current.material.uniforms.u_clim6.value = rendering[0]["u_clim6"].value;
+
+                    materialRef.current.material.uniforms.u_xClip.value = rendering[0]["u_xClip"].value;
+                    materialRef.current.material.uniforms.u_yClip.value = rendering[0]["u_yClip"].value;
+                    materialRef.current.material.uniforms.u_zClip.value = rendering[0]["u_zClip"].value;
+
                     materialRef.current.material.uniforms.u_color.value = rendering[0]["u_color"].value;
                     materialRef.current.material.uniforms.u_color2.value = rendering[0]["u_color2"].value;
                     materialRef.current.material.uniforms.u_color3.value = rendering[0]["u_color3"].value;
@@ -482,6 +496,7 @@ const SpatialThree = (props) => {
         highlightGlom: onGlomSelected,
         setObsHighlight: setObsHighlightFct,
     }
+    // console.log(volumeSettings)
 
     return (
         <group>
@@ -551,7 +566,10 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
         contrastLimits,
         is3dMode,
         renderingMode,
-        layerTransparency
+        layerTransparency,
+        xSlice,
+        ySlice,
+        zSlice
     } = extractInformationFromProps(layerScope, layerCoordination, channelScopes,
         channelCoordination, images[layerScope], props, imageLayerLoaderSelections.current)
     // TODO: Find a better and more efficient way to compare the Strings here
@@ -559,7 +577,6 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
         if (volumeSettings.channelTargetC.length !== 0 &&
             (volumeSettings.channelTargetC.toString() !== channelTargetC.toString() ||
                 volumeSettings.resolution.toString() !== resolution.toString())) {
-            // console.log("Reloading the data due to channel or resolution change " + dataReady)
             if (!dataReady) setDataReady(true);
         } else if (
             (volumeSettings.channelsVisible.toString() !== channelsVisible.toString() ||
@@ -567,7 +584,10 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
                 volumeSettings.is3dMode !== is3dMode ||
                 volumeSettings.contrastLimits.toString() !== contrastLimits.toString() ||
                 volumeSettings.renderingMode.toString() !== renderingMode.toString() ||
-                volumeSettings.layerTransparency.toString() !== layerTransparency.toString()
+                volumeSettings.layerTransparency.toString() !== layerTransparency.toString() ||
+                volumeSettings.xSlice.toString() !== xSlice.toString() ||
+                volumeSettings.ySlice.toString() !== ySlice.toString() ||
+                volumeSettings.zSlice.toString() !== zSlice.toString()
             )) {
             setVolumeSettings({
                 channelsVisible,
@@ -579,7 +599,10 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
                 contrastLimits,
                 is3dMode,
                 renderingMode,
-                layerTransparency
+                layerTransparency,
+                xSlice,
+                ySlice,
+                zSlice
             });
             setDataReady(false);
         }
@@ -600,7 +623,10 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
         contrastLimits,
         is3dMode,
         renderingMode,
-        layerTransparency
+        layerTransparency,
+        xSlice,
+        ySlice,
+        zSlice
     };
 }
 
@@ -702,7 +728,6 @@ function GeometryAndMesh(props) {
     useFrame(() => {
         // Could first Intersect with Bounding Box of the Model to make the calculation faster
         if (model != null && model.current !== null && model.current !== undefined && isPresenting) {
-            console.log(model.current)
             let rightTipBbox = scene.getObjectByName("rightTipBbox");
             let leftTipBbox = scene.getObjectByName("leftTipBbox");
             let leftTipBB = new THREE.Box3().setFromObject(leftTipBbox);
@@ -738,7 +763,6 @@ function GeometryAndMesh(props) {
                         if (intersectsLeftTip || intersectsRightTip) {
                             intersected = true;
                             // Highlighting Glom
-                            // console.log(child.name)
                             setObsHighlight(child.name)
                             if (intersectsLeftTip && controllers[1].hand.inputState.pinching == true) {
                                 intersected = false;
@@ -755,7 +779,7 @@ function GeometryAndMesh(props) {
                     if (!intersected) {
                         setObsHighlight(null);
                     }
-                }else {
+                } else {
                     setObsHighlight(null);
                 }
             }
@@ -779,13 +803,10 @@ function GeometryAndMesh(props) {
                                 <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
                                            onClick={(e) => {
                                                if (e.object.parent.userData.name == "finalPass") {
-                                                   // console.log("you clicked me" + e.object.name)
-                                                   // console.log(e.object)
                                                    highlightGlom(e.object.name);
                                                }
                                            }}
                                            onPointerOver={e => {
-                                               // console.log(e.object.name)
                                                setObsHighlight(e.object.name)
                                            }}
                                            onPointerOut={e => setObsHighlight(null)}
@@ -940,6 +961,16 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
     const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION];
     let resolution = (targetResolution === null || isNaN(targetResolution)) ? autoTargetResolution : targetResolution;
     let allChannels = image.image.loaders[0].channels;
+
+    // Get the Clipping Planes
+    let xSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_X]
+    let ySlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Y]
+    let zSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Z]
+
+    xSlice = xSlice !== null ? xSlice : new THREE.Vector2(-1, 100000)
+    ySlice = ySlice !== null ? ySlice : new THREE.Vector2(-1, 100000)
+    zSlice = zSlice !== null ? zSlice : new THREE.Vector2(-1, 100000)
+
     return {
         channelsVisible,
         allChannels,
@@ -950,7 +981,10 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
         contrastLimits,
         is3dMode,
         renderingMode,
-        layerTransparency
+        layerTransparency,
+        xSlice,
+        ySlice,
+        zSlice
     };
 }
 
@@ -965,7 +999,8 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
  * @param volumeMinMax     ... from Store
  * @param scale            ... from Store
  */
-function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale, renderstyle, layerTransparency) {
+function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale, renderstyle, layerTransparency,
+                           xSlice, ySlice, zSlice, originalScale) {
     let texturesList = [];
     let colorsSave = [];
     let contrastLimitsList = [];
@@ -1004,7 +1039,8 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
     //var shader = VolumeShaderNew;
     var shader = VolumeRenderShaderPerspective;
     var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-    setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig, renderstyle, contrastLimitsList, colorsSave, layerTransparency);
+    setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig, renderstyle, contrastLimitsList, colorsSave, layerTransparency,
+        xSlice, ySlice, zSlice, [scale[0].size, scale[1].size, scale[2].size], originalScale);
     return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2].size / scale[0].size], [volume.xLength, volume.yLength, volume.zLength],
         [1.0, volume.yLength / volume.xLength, volume.zLength / volume.xLength]];
 }
@@ -1012,6 +1048,7 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
 async function initialDataLoading(channelTargetC, resolution, data, volumes, textures, volumeMinMax, oldResolution) {
     let volume = null;
     let scale = null;
+    const {shape, labels} = data[0];
     for (let channelStr in channelTargetC) {    // load on demand new channels or load all there are?? - Check VIV for it
         let channel = channelTargetC[parseInt(channelStr)];
         if (!volumes.has(channel) || resolution !== oldResolution) {
@@ -1025,10 +1062,12 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
             scale = getPhysicalSizeScalingMatrix(data[resolution]);
         }
     }
-    return [volumes, textures, volumeMinMax, scale];
+    return [volumes, textures, volumeMinMax, scale,
+        [shape[labels.indexOf('x')], shape[labels.indexOf('y')], shape[labels.indexOf('z')]]];
 }
 
-function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors, layerTransparency) {
+function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors, layerTransparency,
+                             xSlice, ySlice, zSlice, meshScale, originalScale) {
     uniforms["boxSize"].value.set(volume.xLength, volume.yLength, volume.zLength);
     //can be done better
     uniforms["volumeTex"].value = textures.length > 0 ? textures[0] : null;
@@ -1058,6 +1097,15 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["u_clim4"].value.set(contrastLimits.length > 3 ? contrastLimits[3][0] : null, contrastLimits.length > 3 ? contrastLimits[3][1] : null);
     uniforms["u_clim5"].value.set(contrastLimits.length > 4 ? contrastLimits[4][0] : null, contrastLimits.length > 4 ? contrastLimits[4][1] : null);
     uniforms["u_clim6"].value.set(contrastLimits.length > 5 ? contrastLimits[5][0] : null, contrastLimits.length > 5 ? contrastLimits[5][1] : null);
+
+    // console.log(xSlice[0], xSlice[1])
+    uniforms["u_xClip"].value.set(xSlice[0]*(1.0/meshScale[0]) / originalScale[0] * volume.xLength,
+        xSlice[1]*(1.0/meshScale[0]) / originalScale[0]*volume.xLength);
+    uniforms["u_yClip"].value.set(ySlice[0]*(1.0/meshScale[1]) / originalScale[1]*volume.yLength,
+        ySlice[1]*(1.0/meshScale[1]) / originalScale[1] * volume.yLength);
+    uniforms["u_zClip"].value.set(zSlice[0]*(1.0/meshScale[2]) / originalScale[2]*volume.zLength,
+    zSlice[1]*(1.0/meshScale[1]) / originalScale[2]* volume.zLength);
+
     uniforms["u_color"].value.set(colors.length > 0 ? colors[0][0] : null,
         colors.length > 0 ? colors[0][1] : null,
         colors.length > 0 ? colors[0][2] : null);
