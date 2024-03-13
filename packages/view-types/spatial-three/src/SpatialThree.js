@@ -32,6 +32,7 @@ const SpatialThree = (props) => {
     const [initialStartup, setInitialStartup] = useState(false);
     const [dataReady, setDataReady] = useState(false);
     const [segmentationGroup, setSegmentationGroup] = useState(null);
+    const [segmentationSceneScale, setSegmentationSceneScale] = useState([1.0,1.0,1.0])
 
     const [renderingSettings, setRenderingSettings] = useState({
         uniforms: null, shader: null, meshScale: null,
@@ -150,7 +151,7 @@ const SpatialThree = (props) => {
         });
 
 
-        let scene = obsSegmentations[layerScope].scene
+        let scene = obsSegmentations[layerScope].scene;
         if (scene !== null && scene !== undefined) {
             //console.log(scene.children)
             let newScene = new THREE.Scene();
@@ -206,6 +207,10 @@ const SpatialThree = (props) => {
                 segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
                 segmentationLayerCoordination[0][layerScope].spatialSceneScaleY ?? 1.0,
                 segmentationLayerCoordination[0][layerScope].spatialSceneScaleZ ?? 1.0);
+            let sceneScale = [segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
+                segmentationLayerCoordination[0][layerScope].spatialSceneScaleY ?? 1.0,
+                segmentationLayerCoordination[0][layerScope].spatialSceneScaleZ ?? 1.0]
+            setSegmentationSceneScale(sceneScale);
             newScene.rotateX(segmentationLayerCoordination[0][layerScope].spatialSceneRotationX ?? 0.0)
             newScene.rotateY(segmentationLayerCoordination[0][layerScope].spatialSceneRotationY ?? 0.0)
             newScene.rotateZ(segmentationLayerCoordination[0][layerScope].spatialSceneRotationZ ?? 0.0)
@@ -491,6 +496,7 @@ const SpatialThree = (props) => {
     const geometryAndMeshProps = {
         segmentationGroup: segmentationGroup,
         segmentationSettings: segmentationSettings,
+        segmentationSceneScale: segmentationSceneScale,
         renderingSettings: renderingSettings,
         materialRef: materialRef,
         highlightGlom: onGlomSelected,
@@ -633,7 +639,7 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
 // Only cares about rendering the gemoetry and the mesh together in one scene
 function GeometryAndMesh(props) {
     const {
-        segmentationGroup, segmentationSettings,
+        segmentationGroup, segmentationSettings, segmentationSceneScale,
         renderingSettings, materialRef, highlightGlom, setObsHighlight
     } = props;
     let model = useRef();
@@ -650,8 +656,8 @@ function GeometryAndMesh(props) {
     //glRoot.size.width * window.devicePixelRatio,
     //glRoot.size.width * window.devicePixelRatio
     //  TODO Maybe have to adapt the pixel ratio of the renderer and the textures when it changes (e.g. zooming in on the pc)
-    const stopTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
-    const finalTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
+    // const stopTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
+    // const finalTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
 
     // console.log(window.devicePixelRatio);
     if (materialRef.current !== undefined && materialRef.current !== null){
@@ -795,6 +801,9 @@ function GeometryAndMesh(props) {
         }
     }, [measureState, highlighted])
 
+
+    console.log(segmentationSceneScale)
+    // TODO: IF we want to have a ZoomGrab than it needs to adapt the 0.002 value
     return (
         <RayGrab>
             <group>
@@ -806,7 +815,9 @@ function GeometryAndMesh(props) {
                         {useXR().isPresenting ?
                             <primitive ref={model} object={segmentationGroup}
                                        position={[-0.18, 1.13, -1]}
-                                       scale={[0.002, 0.002, 0.016]}/>
+                                       scale={[0.002 * segmentationSceneScale[0],
+                                           0.002 * segmentationSceneScale[1],
+                                           0.002 * segmentationSceneScale[2]]}/>
                             :
                             <Bvh firstHitOnly>
                                 <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
