@@ -8,6 +8,7 @@ export function EnhancedRayGrab(
 ) {
     const controller1Ref = useRef();
     const controller2Ref = useRef();
+    const groupRef = useRef();
 
     const initialDistance = useRef(0);
     const previousTransform = useMemo(() => new Matrix4(), [])
@@ -16,7 +17,8 @@ export function EnhancedRayGrab(
         const controller1 = controller1Ref.current;
         const controller2 = controller2Ref.current;
 
-        const obj = intersectedObj.current;
+        // const obj = intersectedObj.current;
+        const obj = groupRef.current;
         if (!obj) return
         if (!controller1) return
 
@@ -40,7 +42,7 @@ export function EnhancedRayGrab(
         }
     });
 
-    const intersectedObj = useRef();
+    // const intersectedObj = useRef();
     const initialScale = useRef();
     const handleSelectStart = (e) => {
         console.debug('handleSelectStart')
@@ -50,8 +52,7 @@ export function EnhancedRayGrab(
         if (!controller1Ref.current) {
             controller1Ref.current = controller.controller;
             previousTransform.copy(controller.controller.matrixWorld).invert();
-            intersectedObj.current = e.intersection?.object
-            initialScale.current = intersectedObj.current?.scale.clone()
+            initialScale.current = groupRef.current?.scale.clone()
             onSelectStart?.(e);
         } else if (!controller2Ref.current && controller1Ref.current !== controller.controller) {
             controller2Ref.current = controller.controller;
@@ -65,7 +66,6 @@ export function EnhancedRayGrab(
         console.log("handleSelectEnd", controller.controller)
         if (controller1Ref.current === controller.controller) {
             controller1Ref.current = undefined
-            intersectedObj.current = undefined
             initialScale.current = undefined
         } else if (controller2Ref.current === controller.controller) {
             controller2Ref.current = undefined
@@ -75,6 +75,7 @@ export function EnhancedRayGrab(
 
     return (
         <Interactive
+            ref={groupRef}
             onSelectStart={handleSelectStart}
             onBlur={handleSelectEnd}
             onSelectEnd={handleSelectEnd}

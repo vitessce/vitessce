@@ -2,7 +2,7 @@
 import React, {useRef, useState, forwardRef, useEffect, useCallback} from 'react';
 import {Canvas, extend, useFrame, useThree} from '@react-three/fiber'
 import {OrbitControls, useTexture, shaderMaterial, PerspectiveCamera, TorusKnot, Bvh} from '@react-three/drei'
-import {useXR, RayGrab, Interactive, VRButton, ARButton, XR, Controllers, Hands} from '@react-three/xr'
+import {useXR, RayGrab, Interactive, VRButton, ARButton, XR, Controllers, Hands, Ray} from '@react-three/xr'
 import {EnhancedRayGrab} from "./TwoHandScale.js";
 import {isEqual} from 'lodash-es';
 import {filterSelection} from '@vitessce/spatial-utils';
@@ -653,6 +653,14 @@ function GeometryAndMesh(props) {
     const stopTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
     const finalTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
 
+    // console.log(window.devicePixelRatio);
+    if (materialRef.current !== undefined && materialRef.current !== null){
+        if (glThree.xr.isPresenting) {
+            materialRef.current.material.uniforms.u_physical_Pixel.value = 1.0
+        } else {
+            materialRef.current.material.uniforms.u_physical_Pixel.vale = 2.0
+        }
+    }
 
     // TODO RENDERING MIXED - CANNOT BE USED IN XR RIGHT NOW
     // useFrame((state) => {
@@ -725,6 +733,7 @@ function GeometryAndMesh(props) {
     const {scene} = useThree();
     const {controllers} = useXR();
     const [measureState, setMeasureState] = useState(false);
+    const [highlighted, setHighlighted] = useState(false);
     useFrame(() => {
         // Could first Intersect with Bounding Box of the Model to make the calculation faster
         if (model != null && model.current !== null && model.current !== undefined && isPresenting) {
@@ -764,6 +773,7 @@ function GeometryAndMesh(props) {
                             intersected = true;
                             // Highlighting Glom
                             setObsHighlight(child.name)
+                            setHighlighted(true)
                             if (intersectsLeftTip && controllers[1].hand.inputState.pinching == true) {
                                 intersected = false;
                                 highlightGlom(child.name);
@@ -776,15 +786,14 @@ function GeometryAndMesh(props) {
                             }
                         }
                     }
-                    if (!intersected) {
+                    if (!intersected && highlighted) {
                         setObsHighlight(null);
+                        setHighlighted(false);
                     }
-                } else {
-                    setObsHighlight(null);
                 }
             }
         }
-    }, [measureState])
+    }, [measureState, highlighted])
 
     return (
         <RayGrab>
