@@ -1,7 +1,17 @@
 /* eslint-disable no-unused-vars */
 import React, {useRef, useState, forwardRef, useEffect, useCallback} from 'react';
 import {Canvas, extend, useFrame, useThree} from '@react-three/fiber'
-import {OrbitControls, useTexture, shaderMaterial, PerspectiveCamera, TorusKnot, Bvh, Center,Line, Text} from '@react-three/drei'
+import {
+    OrbitControls,
+    useTexture,
+    shaderMaterial,
+    PerspectiveCamera,
+    TorusKnot,
+    Bvh,
+    Center,
+    Line,
+    Text
+} from '@react-three/drei'
 import {useXR, RayGrab, Interactive, VRButton, ARButton, XR, Controllers, Hands, Ray} from '@react-three/xr'
 import {EnhancedRayGrab} from "./TwoHandScale.js";
 import {isEqual} from 'lodash-es';
@@ -32,7 +42,7 @@ const SpatialThree = (props) => {
     const [initialStartup, setInitialStartup] = useState(false);
     const [dataReady, setDataReady] = useState(false);
     const [segmentationGroup, setSegmentationGroup] = useState(null);
-    const [segmentationSceneScale, setSegmentationSceneScale] = useState([1.0,1.0,1.0])
+    const [segmentationSceneScale, setSegmentationSceneScale] = useState([1.0, 1.0, 1.0])
 
     const [renderingSettings, setRenderingSettings] = useState({
         uniforms: null, shader: null, meshScale: null,
@@ -644,6 +654,7 @@ function GeometryAndMesh(props) {
     } = props;
     let model = useRef();
     let distanceRef = useRef();
+    let rayGrabGroup = useRef();
     const glThree = useThree();
 
     let shader = VolumeShaderFirstPass;
@@ -656,7 +667,7 @@ function GeometryAndMesh(props) {
     });
 
     // console.log(window.devicePixelRatio);
-    if (materialRef.current !== undefined && materialRef.current !== null){
+    if (materialRef.current !== undefined && materialRef.current !== null) {
         if (glThree.xr.isPresenting) {
             materialRef.current.material.uniforms.u_physical_Pixel.value = 1.0
         } else {
@@ -705,18 +716,20 @@ function GeometryAndMesh(props) {
 
             if (leftTipBB.intersectsBox(rightTipBB) && leftTipBB.max.x !== -rightTipBB.min.x) {
                 setMeasureState(true)
+                setShowLine(true);
+                setStartPointSet(false);
+                setEndPointSet(false);
             }
             if (measureState) {
-                setShowLine(true);
-                let leftFingerPosition = new THREE.Vector3()
-                leftTipBB.getCenter(leftFingerPosition);
-                let rightFingerPosition = new THREE.Vector3()
-                rightTipBB.getCenter(rightFingerPosition);
+                let leftFingerPosition = controllers[1].hand.joints["index-finger-tip"].position.clone();
+                let rightFingerPosition = controllers[0].hand.joints["index-finger-tip"].position.clone();
+                leftFingerPosition = leftFingerPosition.applyMatrix4(rayGrabGroup.current.matrixWorld.clone().invert());
+                rightFingerPosition = rightFingerPosition.applyMatrix4(rayGrabGroup.current.matrixWorld.clone().invert());
                 if (!startPointSet) {
-                    setStartPoint(leftFingerPosition);
+                    setStartPoint(leftFingerPosition.clone());
                 }
-                if(!endPointSet){
-                    setEndPoint(rightFingerPosition);
+                if (!endPointSet) {
+                    setEndPoint(rightFingerPosition.clone());
                 }
                 console.log("Start Measure State")
                 if (controllers[0].hand.inputState.pinching === true) {
@@ -729,7 +742,7 @@ function GeometryAndMesh(props) {
                     console.log("Left Hand Set Measure Point")
                     setStartPointSet(true)
                 }
-                if(endPointSet && startPointSet){
+                if (endPointSet && startPointSet) {
                     setMeasureState(false)
                 }
             } else {
@@ -769,102 +782,143 @@ function GeometryAndMesh(props) {
         .addVectors(startPoint, endPoint)
         .multiplyScalar(0.5);
     // TODO: IF we want to have a ZoomGrab than it needs to adapt the 0.002 value
+    // TODO: The measurement from time to time intersects with the rayGrab (maybe "tell it" that we are in measurement mode)
     return (
-        <RayGrab>
-            <group>
-                {segmentationGroup !== null &&
-                    <group>
-                        {/*<ambientLight/>*/}
-                        <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
-                        <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
-                        {useXR().isPresenting ?
-                            <primitive ref={model} object={segmentationGroup}
-                                       position={[-0.18, 1.13, -1]}
-                                       scale={[0.002 * segmentationSceneScale[0],
-                                           0.002 * segmentationSceneScale[1],
-                                           0.002 * segmentationSceneScale[2]]}
-                            />
-                            :
-                            <Bvh firstHitOnly>
-                                <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
-                                           onClick={(e) => {
-                                               if (e.object.parent.userData.name == "finalPass") {
-                                                   highlightGlom(e.object.name);
-                                               }
-                                           }}
-                                           onPointerOver={e => {
-                                               setObsHighlight(e.object.name)
-                                           }}
-                                           onPointerOut={e => setObsHighlight(null)}
+        <group>
+            {useXR().isPresenting ?
+                <RayGrab>
+                    <group ref={rayGrabGroup}>
+                        {segmentationGroup !== null &&
+                            <group>
+                                {/*<ambientLight/>*/}
+                                <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
+                                <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
+
+                                <primitive ref={model} object={segmentationGroup}
+                                           position={[-0.18, 1.13, -1]}
+                                           scale={[0.002 * segmentationSceneScale[0],
+                                               0.002 * segmentationSceneScale[1],
+                                               0.002 * segmentationSceneScale[2]]}
                                 />
-                            </Bvh>
+                            </group>
+                        }
+                        {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
+                                renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
+                            <group>
+                                <mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]}
+                                      scale={[0.002 * renderingSettings.meshScale[0],
+                                          0.002 * renderingSettings.meshScale[1],
+                                          0.002 * renderingSettings.meshScale[2]]}
+                                      ref={materialRef}>
+                                    <boxGeometry args={renderingSettings.geometrySize}/>
+                                    <shaderMaterial
+                                        customProgramCacheKey={() => {
+                                            return '1'
+                                        }}
+                                        side={THREE.FrontSide}
+                                        uniforms={renderingSettings.uniforms}
+                                        needsUpdate={true}
+                                        transparent={true}
+                                        vertexShader={renderingSettings.shader.vertexShader}
+                                        fragmentShader={renderingSettings.shader.fragmentShader}
+                                    />
+                                </mesh>
+                            </group>
                         }
                     </group>
-                }
-                {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
-                        renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
-                    <group>
-                        {useXR().isPresenting ?
-                            <mesh name="cube" position={[-0.18, 1.13, -1]} rotation={[0, 0, 0]}
-                                  scale={[0.002 * renderingSettings.meshScale[0],
-                                      0.002 * renderingSettings.meshScale[1],
-                                      0.002 * renderingSettings.meshScale[2]]}
-                                  ref={materialRef}>
-                                <boxGeometry args={renderingSettings.geometrySize}/>
-                                <shaderMaterial
-                                    customProgramCacheKey={() => {
-                                        return '1'
-                                    }}
-                                    side={THREE.FrontSide}
-                                    uniforms={renderingSettings.uniforms}
-                                    needsUpdate={true}
-                                    transparent={true}
-                                    vertexShader={renderingSettings.shader.vertexShader}
-                                    fragmentShader={renderingSettings.shader.fragmentShader}
-                                />
-                            </mesh>
-                            :
-                            <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                                <boxGeometry args={renderingSettings.geometrySize}/>
-                                <shaderMaterial
-                                    customProgramCacheKey={() => {
-                                        return '1'
-                                    }}
-                                    side={THREE.FrontSide}
-                                    uniforms={renderingSettings.uniforms}
-                                    needsUpdate={true}
-                                    transparent={true}
-                                    vertexShader={renderingSettings.shader.vertexShader}
-                                    fragmentShader={renderingSettings.shader.fragmentShader}
-                                />
-                            </mesh>}
+                    <group name="distance" ref={distanceRef}>
+                        {showLine && (
+                            <Center
+                                bottom
+                                right
+                                position={[midPoint.x, midPoint.y, midPoint.z]}
+                                rotation={[0, 0, 0]}
+                            >
+                                <Text color="gray" scale={0.05}>
+                                    {`${length.toFixed(2)} e^-2`}
+                                </Text>
+                            </Center>
+                        )}
+                        {showLine && (
+                            <Line
+                                points={[startPoint, endPoint]}
+                                color="white" // Default
+                                lineWidth={5} // In pixels (default)
+                                dashed={false} // Default
+                                segments
+                            />
+                        )}
                     </group>
-                }
-            </group>
-            <group name="distance" ref={distanceRef}>
-                {showLine && (
-                    <Center
-                        bottom
-                        right
-                        position={[midPoint.x, midPoint.y, midPoint.z]}
-                        rotation={[0, 0, 0]}
-                    >
-                        <Text color="gray" scale={0.05}>
-                            {`${length.toFixed(2)} e^-2`}
-                        </Text>
-                    </Center>
-                )}
-                {showLine && (
-                    <Line
-                        points={[startPoint, endPoint]}
-                        color="white" // Default
-                        lineWidth={5} // In pixels (default)
-                        dashed={false} // Default
-                        segments
-                    />
-                )}
-            </group>
-        </RayGrab>
+                </RayGrab>
+                :
+                <group>
+                    <group>
+                        {segmentationGroup !== null &&
+                            <group>
+                                {/*<ambientLight/>*/}
+                                <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
+                                <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
+                                <Bvh firstHitOnly>
+                                    <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
+                                               onClick={(e) => {
+                                                   if (e.object.parent.userData.name == "finalPass") {
+                                                       highlightGlom(e.object.name);
+                                                   }
+                                               }}
+                                               onPointerOver={e => {
+                                                   setObsHighlight(e.object.name)
+                                               }}
+                                               onPointerOut={e => setObsHighlight(null)}
+                                    />
+                                </Bvh>
+                            </group>
+                        }
+                        {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
+                                renderingSettings.shader !== undefined && renderingSettings.shader !== null) &&
+                            <group>
+                                <mesh scale={renderingSettings.meshScale} ref={materialRef}>
+                                    <boxGeometry args={renderingSettings.geometrySize}/>
+                                    <shaderMaterial
+                                        customProgramCacheKey={() => {
+                                            return '1'
+                                        }}
+                                        side={THREE.FrontSide}
+                                        uniforms={renderingSettings.uniforms}
+                                        needsUpdate={true}
+                                        transparent={true}
+                                        vertexShader={renderingSettings.shader.vertexShader}
+                                        fragmentShader={renderingSettings.shader.fragmentShader}
+                                    />
+                                </mesh>
+                            </group>
+                        }
+                    </group>
+                    <group name="distance" ref={distanceRef}>
+                        {showLine && (
+                            <Center
+                                bottom
+                                right
+                                position={[midPoint.x, midPoint.y, midPoint.z]}
+                                rotation={[0, 0, 0]}
+                            >
+                                <Text color="gray" scale={0.05}>
+                                    {`${length.toFixed(2)} e^-2`}
+                                </Text>
+                            </Center>
+                        )}
+                        {showLine && (
+                            <Line
+                                points={[startPoint, endPoint]}
+                                color="white" // Default
+                                lineWidth={5} // In pixels (default)
+                                dashed={false} // Default
+                                segments
+                            />
+                        )}
+                    </group>
+                </group>
+            }
+        </group>
     );
 }
 
@@ -1108,12 +1162,12 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["u_clim6"].value.set(contrastLimits.length > 5 ? contrastLimits[5][0] : null, contrastLimits.length > 5 ? contrastLimits[5][1] : null);
 
     // console.log(xSlice[0], xSlice[1])
-    uniforms["u_xClip"].value.set(xSlice[0]*(1.0/meshScale[0]) / originalScale[0] * volume.xLength,
-        xSlice[1]*(1.0/meshScale[0]) / originalScale[0]*volume.xLength);
-    uniforms["u_yClip"].value.set(ySlice[0]*(1.0/meshScale[1]) / originalScale[1]*volume.yLength,
-        ySlice[1]*(1.0/meshScale[1]) / originalScale[1] * volume.yLength);
-    uniforms["u_zClip"].value.set(zSlice[0]*(1.0/meshScale[2]) / originalScale[2]*volume.zLength,
-    zSlice[1]*(1.0/meshScale[1]) / originalScale[2]* volume.zLength);
+    uniforms["u_xClip"].value.set(xSlice[0] * (1.0 / meshScale[0]) / originalScale[0] * volume.xLength,
+        xSlice[1] * (1.0 / meshScale[0]) / originalScale[0] * volume.xLength);
+    uniforms["u_yClip"].value.set(ySlice[0] * (1.0 / meshScale[1]) / originalScale[1] * volume.yLength,
+        ySlice[1] * (1.0 / meshScale[1]) / originalScale[1] * volume.yLength);
+    uniforms["u_zClip"].value.set(zSlice[0] * (1.0 / meshScale[2]) / originalScale[2] * volume.zLength,
+        zSlice[1] * (1.0 / meshScale[1]) / originalScale[2] * volume.zLength);
 
     uniforms["u_color"].value.set(colors.length > 0 ? colors[0][0] : null,
         colors.length > 0 ? colors[0][1] : null,
