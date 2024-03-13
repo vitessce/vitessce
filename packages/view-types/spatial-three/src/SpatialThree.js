@@ -44,7 +44,6 @@ const SpatialThree = (props) => {
     const [dataReady, setDataReady] = useState(false);
     const [segmentationGroup, setSegmentationGroup] = useState(null);
     const [segmentationSceneScale, setSegmentationSceneScale] = useState([1.0, 1.0, 1.0])
-
     const [renderingSettings, setRenderingSettings] = useState({
         uniforms: null, shader: null, meshScale: null,
         geometrySize: null, boxSize: null
@@ -182,7 +181,7 @@ const SpatialThree = (props) => {
                 if (childElement.material instanceof THREE.MeshPhysicalMaterial) {
                     childElement.material = new THREE.MeshStandardMaterial();
                 }
-                childElement.material.transparent = true
+                childElement.material.transparent = false
                 childElement.material.writeDepthTexture = true
                 childElement.material.depthTest = true
                 childElement.material.depthWrite = true
@@ -682,14 +681,17 @@ function GeometryAndMesh(props) {
     const {isPresenting, player} = useXR()
     useEffect(() => {
         if (isPresenting && model !== undefined && model.current !== null) {
-            // model.current.scale.set(0.002,0.002,0.016)
-            // model.current.position.set(0,0,0)
-            // console.log(glThree);
-            // console.log(window.devicePixelRatio)
-        } else if (!isPresenting && model !== undefined && model.current !== null) {
-            // TODO reset the scales and positions of model and volume so it is alright in the normal view
-            // model.current.scale.set(1.0,1.0,8.0)
-            // console.log(window.devicePixelRatio)
+            console.log("Entering the XR")
+        } else if (!isPresenting) {
+            //TODO fix to get the view back
+            if (model !== undefined && model.current !== undefined) {
+                model.current.scale.set(segmentationSceneScale[0], segmentationSceneScale[1], segmentationSceneScale[2])
+                model.current.position.set(0, 0, 0)
+            }
+            if (materialRef !== undefined && materialRef.current !== undefined) {
+                materialRef.current.position.set(0, 0, 0)
+                materialRef.current.scale.set(renderingSettings.meshScale[0], renderingSettings.meshScale[1], renderingSettings.meshScale[2])
+            }
         }
     }, [isPresenting])
 
@@ -706,111 +708,114 @@ function GeometryAndMesh(props) {
         setEndPoint: false
     })
     let [lines, setLines] = useState([])
-
+    let [debounce, setDebounce] = useState(0)
 
     useFrame(() => {
-        // Could first Intersect with Bounding Box of the Model to make the calculation faster
-        let rightTipBbox = scene.getObjectByName("rightTipBbox");
-        let leftTipBbox = scene.getObjectByName("leftTipBbox");
-        let leftTipBB = new THREE.Box3().setFromObject(leftTipBbox);
-        let rightTipBB = new THREE.Box3().setFromObject(rightTipBbox);
-        let intersected = false;
-        const volumeBox = null;
-
-        if (materialRef !== null && materialRef.current !== undefined) {
-            const volumeBox = new THREE.Box3().setFromObject(materialRef.current)
-        }
-
-        if (leftTipBB.intersectsBox(rightTipBB) && leftTipBB.max.x !== -rightTipBB.min.x) {
-            setMeasureState(true)
-            setShowLine(true);
-            setCurrentLine({
-                startPoint: new THREE.Vector3(),
-                midPoint: new THREE.Vector3(),
-                endPoint: new THREE.Vector3(),
-                setStartPoint: false,
-                setEndPoint: false
-            })
-        }
-        if (measureState) {
-            let leftFingerPosition = controllers[1].hand.joints["index-finger-tip"].position.clone();
-            let rightFingerPosition = controllers[0].hand.joints["index-finger-tip"].position.clone();
-            leftFingerPosition = leftFingerPosition.applyMatrix4(rayGrabGroup.current.matrixWorld.clone().invert());
-            rightFingerPosition = rightFingerPosition.applyMatrix4(rayGrabGroup.current.matrixWorld.clone().invert());
-            let currentStart = leftFingerPosition.clone();
-            let currentEnd = rightFingerPosition.clone();
-            if (currentLine.setStartPoint) {
-                currentStart = currentLine.startPoint
+        if (isPresenting) {
+            // Could first Intersect with Bounding Box of the Model to make the calculation faster
+            let rightTipBbox = scene.getObjectByName("rightTipBbox");
+            let leftTipBbox = scene.getObjectByName("leftTipBbox");
+            let leftTipBB = new THREE.Box3().setFromObject(leftTipBbox);
+            let rightTipBB = new THREE.Box3().setFromObject(rightTipBbox);
+            let intersected = false;
+            const volumeBox = null;
+            setDebounce(debounce - 1.0)
+            if (materialRef !== null && materialRef.current !== undefined) {
+                const volumeBox = new THREE.Box3().setFromObject(materialRef.current)
             }
-            if (currentLine.setEndPoint) {
-                currentEnd = currentLine.endPoint
-            }
-            setCurrentLine({
-                startPoint: currentStart,
-                midPoint: new THREE.Vector3().addVectors(currentStart, currentEnd).multiplyScalar(0.5),
-                endPoint: currentEnd,
-                setStartPoint: currentLine.setStartPoint,
-                setEndPoint: currentLine.setEndPoint
-            })
-            if (controllers[0].hand.inputState.pinching === true) {
-                // right hand set mesaure point
-                console.log("Right Hand Set Measure Point")
+
+            if (leftTipBB.intersectsBox(rightTipBB) && leftTipBB.max.x !== -rightTipBB.min.x) {
+                setMeasureState(true)
+                setShowLine(true);
                 setCurrentLine({
-                    startPoint: currentLine.startPoint,
-                    midPoint: currentLine.midPoint,
-                    endPoint: currentLine.endPoint,
-                    setStartPoint: currentLine.setStartPoint,
-                    setEndPoint: true
+                    startPoint: new THREE.Vector3(),
+                    midPoint: new THREE.Vector3(),
+                    endPoint: new THREE.Vector3(),
+                    setStartPoint: false,
+                    setEndPoint: false
                 })
             }
-            if (controllers[1].hand.inputState.pinching === true) {
-                // left hand set measure point
-                console.log("Left Hand Set Measure Point")
+            if (measureState) {
+                let leftFingerPosition = controllers[1].hand.joints["index-finger-tip"].position.clone();
+                let rightFingerPosition = controllers[0].hand.joints["index-finger-tip"].position.clone();
+                leftFingerPosition = leftFingerPosition.applyMatrix4(rayGrabGroup.current.matrixWorld.clone().invert());
+                rightFingerPosition = rightFingerPosition.applyMatrix4(rayGrabGroup.current.matrixWorld.clone().invert());
+                let currentStart = leftFingerPosition.clone();
+                let currentEnd = rightFingerPosition.clone();
+                if (currentLine.setStartPoint) {
+                    currentStart = currentLine.startPoint
+                }
+                if (currentLine.setEndPoint) {
+                    currentEnd = currentLine.endPoint
+                }
                 setCurrentLine({
-                    startPoint: currentLine.startPoint,
-                    midPoint: currentLine.midPoint,
-                    endPoint: currentLine.endPoint,
-                    setStartPoint: true,
+                    startPoint: currentStart,
+                    midPoint: new THREE.Vector3().addVectors(currentStart, currentEnd).multiplyScalar(0.5),
+                    endPoint: currentEnd,
+                    setStartPoint: currentLine.setStartPoint,
                     setEndPoint: currentLine.setEndPoint
                 })
-            }
-            if (currentLine.setStartPoint && currentLine.setEndPoint) {
-                lines.push(currentLine)
-                setLines(lines)
-                // setShowLine(false); //Transition over to the collection
-                setMeasureState(false)
-            }
-        } else if (model != null && model.current !== null && model.current !== undefined && isPresenting &&
-            ((volumeBox !== null && (leftTipBB.intersectsBox(volumeBox) || rightTipBB.intersectsBox(volumeBox))) ||
-                volumeBox == null)) {
-            for (let childID in model.current.children[0].children) {
-                let child = model.current.children[0].children[childID];
-                let currentObjectBB = new THREE.Box3().setFromObject(child);
-                let intersectsLeftTip = leftTipBB.intersectsBox(currentObjectBB);
-                let intersectsRightTip = rightTipBB.intersectsBox(currentObjectBB);
-                if (intersectsLeftTip || intersectsRightTip) {
-                    intersected = true;
-                    // Highlighting Glom
-                    setObsHighlight(child.name)
-                    setHighlighted(true)
-                    if (intersectsLeftTip && controllers[1].hand.inputState.pinching == true) {
-                        intersected = false;
-                        highlightGlom(child.name);
-                        controllers[1].hand.inputState.pinching = false;
-                    }
-                    if (intersectsRightTip && controllers[0].hand.inputState.pinching == true) {
-                        intersected = false;
-                        highlightGlom(child.name)
-                        controllers[0].hand.inputState.pinching = false;
+                if (controllers[0].hand.inputState.pinching === true) {
+                    // right hand set mesaure point
+                    console.log("Right Hand Set Measure Point")
+                    setCurrentLine({
+                        startPoint: currentLine.startPoint,
+                        midPoint: currentLine.midPoint,
+                        endPoint: currentLine.endPoint,
+                        setStartPoint: currentLine.setStartPoint,
+                        setEndPoint: true
+                    })
+                }
+                if (controllers[1].hand.inputState.pinching === true) {
+                    // left hand set measure point
+                    console.log("Left Hand Set Measure Point")
+                    setCurrentLine({
+                        startPoint: currentLine.startPoint,
+                        midPoint: currentLine.midPoint,
+                        endPoint: currentLine.endPoint,
+                        setStartPoint: true,
+                        setEndPoint: currentLine.setEndPoint
+                    })
+                }
+                if (currentLine.setStartPoint && currentLine.setEndPoint) {
+                    lines.push(currentLine)
+                    setLines(lines)
+                    setShowLine(false); //Transition over to the collection
+                    setMeasureState(false)
+                    setDebounce(8)
+                }
+            } else if (debounce <= 0 && model != null && model.current !== null && model.current !== undefined && isPresenting &&
+                ((volumeBox !== null && (leftTipBB.intersectsBox(volumeBox) || rightTipBB.intersectsBox(volumeBox))) ||
+                    volumeBox == null)) {
+                for (let childID in model.current.children[0].children) {
+                    let child = model.current.children[0].children[childID];
+                    let currentObjectBB = new THREE.Box3().setFromObject(child);
+                    let intersectsLeftTip = leftTipBB.intersectsBox(currentObjectBB);
+                    let intersectsRightTip = rightTipBB.intersectsBox(currentObjectBB);
+                    if (intersectsLeftTip || intersectsRightTip) {
+                        intersected = true;
+                        // Highlighting Glom
+                        setObsHighlight(child.name)
+                        setHighlighted(true)
+                        if (intersectsLeftTip && controllers[1].hand.inputState.pinching == true) {
+                            intersected = false;
+                            highlightGlom(child.name);
+                            controllers[1].hand.inputState.pinching = false;
+                        }
+                        if (intersectsRightTip && controllers[0].hand.inputState.pinching == true) {
+                            intersected = false;
+                            highlightGlom(child.name)
+                            controllers[0].hand.inputState.pinching = false;
+                        }
                     }
                 }
-            }
-            if (!intersected && highlighted) {
-                setObsHighlight(null);
-                setHighlighted(false);
+                if (!intersected && highlighted) {
+                    setObsHighlight(null);
+                    setHighlighted(false);
+                }
             }
         }
-    }, [measureState, highlighted, currentLine, lines, showLine])
+    }, [measureState, highlighted, currentLine, lines, showLine, debounce, isPresenting])
 
     // TODO: IF we want to have a ZoomGrab than it needs to adapt the 0.002 value
     // TODO: The measurement from time to time intersects with the rayGrab (maybe "tell it" that we are in measurement mode)
@@ -821,10 +826,8 @@ function GeometryAndMesh(props) {
                     <group ref={rayGrabGroup}>
                         {segmentationGroup !== null &&
                             <group>
-                                {/*<ambientLight/>*/}
                                 <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                                 <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
-
                                 <primitive ref={model} object={segmentationGroup}
                                            position={[-0.18, 1.13, -1]}
                                            scale={[0.002 * segmentationSceneScale[0],
@@ -871,7 +874,6 @@ function GeometryAndMesh(props) {
                     <group>
                         {segmentationGroup !== null &&
                             <group>
-                                {/*<ambientLight/>*/}
                                 <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                                 <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
                                 <Bvh firstHitOnly>
