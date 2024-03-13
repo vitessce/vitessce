@@ -1,13 +1,27 @@
-import React from "react";
+import React, {useRef} from "react";
 import {Center, Line, Text} from "@react-three/drei";
-import {useThree} from "@react-three/fiber";
+import {useFrame, useThree} from "@react-three/fiber";
+import {useXR} from "@react-three/xr";
 
 export const MeasureLine = (props) => {
     const glThree = useThree();
+    const textRef = useRef();
     const {
         currentLine,
         scale
     } = props;
+    //TODO: let the text always face the player/camera
+    // useFrame((state) => {
+    //     const {gl, scene, camera} = state;
+    //     if(textRef.current !== null){
+    //         if(gl.xr.isPresenting){
+    //             console.log(gl)
+    //             textRef.current.lookAt = gl.xr.getCamera().position;
+    //         }else{
+    //             textRef.current.lookAt = camera.position;
+    //         }
+    //     }
+    // })
     return (
         <group>
             <Center
@@ -16,7 +30,7 @@ export const MeasureLine = (props) => {
                 position={[currentLine.midPoint.x, currentLine.midPoint.y, currentLine.midPoint.z]}
                 rotation={[0, 0, 0]}
             >
-                <Text color="gray" scale={0.05}>
+                <Text color="gray" scale={0.05} ref={textRef}>
                     {`${(currentLine.startPoint.distanceTo(currentLine.endPoint)*scale).toFixed(2)} µm`}
                 </Text>
             </Center>
