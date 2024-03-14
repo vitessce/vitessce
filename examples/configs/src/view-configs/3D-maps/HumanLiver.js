@@ -8,7 +8,7 @@ import {
 function generateThreeMinimalConfiguration() {
     const config = new VitessceConfig({
         schemaVersion: '1.0.16',
-        name: 'Minimal Three',
+        name: 'Human Liver',
     });
     const dataset = config.addDataset('My dataset').addFile({
         fileType: 'image.ome-tiff',
@@ -40,10 +40,31 @@ function generateThreeMinimalConfiguration() {
                 imageChannel: CL([
                     {
                         spatialTargetC: 0,
+                        spatialChannelColor: [0, 0, 255],
+                        spatialChannelVisible: true,
+                        spatialChannelOpacity: 1.0,
+                        spatialChannelWindow: [0.314,1.570],
+                    },
+                    {
+                        spatialTargetC: 1,
                         spatialChannelColor: [0, 255, 0],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,
-                        spatialChannelWindow: null,
+                        spatialChannelWindow: [0.44,1.57],
+                    },
+                    {
+                        spatialTargetC: 2,
+                        spatialChannelColor: [255, 0, 255],
+                        spatialChannelVisible: true,
+                        spatialChannelOpacity: 1.0,
+                        spatialChannelWindow: [0.5,1.57],
+                    },
+                    {
+                        spatialTargetC: 3,
+                        spatialChannelColor: [255, 255, 0],
+                        spatialChannelVisible: true,
+                        spatialChannelOpacity: 1.0,
+                        spatialChannelWindow: [0.86,1.57],
                     }
                 ]),
             },
@@ -56,4 +77,4 @@ function generateThreeMinimalConfiguration() {
     return configJSON;
 }
 
-export const threeMinimal = generateThreeMinimalConfiguration();
+export const humanLiver = generateThreeMinimalConfiguration();

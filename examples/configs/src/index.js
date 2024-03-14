@@ -36,6 +36,7 @@ import { jainkidney} from './view-configs/3D-maps/jainKidney.js';
 import { jainkidneyDecimated} from './view-configs/3D-maps/jainKidneyDecimated.js';
 import { kruse2024} from './view-configs/3D-maps/kruse.js';
 import { xrDevExample} from './view-configs/3D-maps/XRDevExample.js';
+import { humanLiver } from './view-configs/3D-maps/HumanLiver.js';
 import { bloodVessel} from './view-configs/3D-maps/bloodVessel.js';
 import { bloodVesselNamed} from './view-configs/3D-maps/bloodVesselNamed.js';
 import { sorgerNeigbour} from './view-configs/3D-maps/sorgerBigger.js';
@@ -110,6 +111,7 @@ export const configs = {
   'jain-2024': jainkidney,
   'jain-dec-2024': jainkidneyDecimated,
   'xrdev': xrDevExample,
+  'human-liver': humanLiver,
   'bloodVessel': bloodVessel,
   'bloodVesselNamed': bloodVesselNamed,
   'sorger-2024': sorgerNeigbour,

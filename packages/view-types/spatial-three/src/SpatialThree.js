@@ -674,7 +674,7 @@ function GeometryAndMesh(props) {
         if (isPresenting && model !== undefined && model.current !== null) {
             console.log("Entering the XR")
             if (materialRef !== null) {
-                materialRef.current.material.uniforms.u_physical_Pixel.value = 0.5
+                materialRef.current.material.uniforms.u_physical_Pixel.value = 0.02
                 console.log(materialRef.current.material.uniforms)
             }
         } else if (!isPresenting) {
@@ -797,11 +797,13 @@ function GeometryAndMesh(props) {
                         setObsHighlight(child.name)
                         setHighlighted(true)
                         if (controllers[1] !== undefined && intersectsLeftTip && controllers[1].hand.inputState.pinching == true) {
+                            setDebounce(10)
                             intersected = false;
                             highlightGlom(child.name);
                             controllers[1].hand.inputState.pinching = false;
                         }
                         if (controllers[0] !== undefined && intersectsRightTip && controllers[0].hand.inputState.pinching == true) {
+                            setDebounce(10)
                             intersected = false;
                             highlightGlom(child.name)
                             controllers[0].hand.inputState.pinching = false;
