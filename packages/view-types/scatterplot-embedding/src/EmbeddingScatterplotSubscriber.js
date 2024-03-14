@@ -394,6 +394,9 @@ export function EmbeddingScatterplotSubscriber(props) {
     instanceObsIndex: obsEmbeddingIndex,
     matrixObsIndex,
     expressionData: uint8ExpressionData,
+    sampleEdges,
+    sampleSets,
+    sampleSetSelection,
   });
 
   const setViewState = ({ zoom: newZoom, target }) => {

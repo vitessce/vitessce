@@ -1660,6 +1660,9 @@ importers:
       '@vitessce/schemas':
         specifier: workspace:*
         version: link:../schemas
+      '@vitessce/sets-utils':
+        specifier: workspace:*
+        version: link:../utils/sets-utils
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../utils/other-utils

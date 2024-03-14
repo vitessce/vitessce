@@ -406,8 +406,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       contourLayer,
     } = this;
     return [
+      cellsLayer,
       contourLayer,
-      //cellsLayer,
       ...cellSetsLayers,
       this.createSelectionLayer(),
     ];

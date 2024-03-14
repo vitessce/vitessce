@@ -33,7 +33,7 @@ const defaultProps = {
   getPosition: {type: 'accessor', value: x => x.position},
   getWeight: {type: 'accessor', value: 1},
   gpuAggregation: true,
-  aggregation: 'SUM', // TODO: use MEAN so that point density does not result in misleading contours.
+  aggregation: 'MEAN', // TODO: use MEAN so that point density does not result in misleading contours.
 
   // contour lines
   contours: [{threshold: DEFAULT_THRESHOLD}],
@@ -72,6 +72,8 @@ export default class ContourPatternLayer extends ContourLayer {
       weightValues[i] = weights[i*weightSize];
     }*/
 
+    // TODO: investigate whether d3 is taking the SUM or the MEAN.
+    // If it's taking the SUM, then we should figure out a way to switch it to take the MEAN.
     const contours = contourDensity()
       .x((d, i) => positions[i*positionSize + 0])
       .y((d, i) => positions[i*positionSize + 1])
@@ -100,12 +102,12 @@ export default class ContourPatternLayer extends ContourLayer {
       console.log(thresholds);
       const contours = [
         {
-          threshold: 10,
+          threshold: 1,
           color: [0, 0, 0, (1/(thresholds.length)) * 255],
           strokeWidth: 2,
         },
         ...thresholds.map((threshold, i) => ({
-          threshold: threshold,
+          threshold: threshold / 300, // TODO: remove this scaling - see d3-contour comment above
           color: [0, 0, 0, ((i+1)/(thresholds.length)) * 255],
           strokeWidth: 2,
         }))
