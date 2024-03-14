@@ -666,15 +666,6 @@ function GeometryAndMesh(props) {
         side: THREE.FrontSide,
     });
 
-    // console.log(window.devicePixelRatio);
-    if (materialRef.current !== undefined && materialRef.current !== null) {
-        if (glThree.xr.isPresenting) {
-            materialRef.current.material.uniforms.u_physical_Pixel.value = 1.0
-        } else {
-            materialRef.current.material.uniforms.u_physical_Pixel.vale = 2.0
-        }
-    }
-
     // -----------------------------------------------------------------
     //                          XR
     // -----------------------------------------------------------------
@@ -682,7 +673,15 @@ function GeometryAndMesh(props) {
     useEffect(() => {
         if (isPresenting && model !== undefined && model.current !== null) {
             console.log("Entering the XR")
+            if (materialRef !== null) {
+                materialRef.current.material.uniforms.u_physical_Pixel.value = 0.5
+                console.log(materialRef.current.material.uniforms)
+            }
         } else if (!isPresenting) {
+            if (materialRef !== null) {
+                materialRef.current.material.uniforms.u_physical_Pixel.value = 2.0
+                console.log(materialRef.current.material.uniforms)
+            }
             //TODO fix to get the view back
             if (model !== undefined && model.current !== undefined) {
                 model.current.scale.set(segmentationSceneScale[0], segmentationSceneScale[1], segmentationSceneScale[2])
@@ -797,12 +796,12 @@ function GeometryAndMesh(props) {
                         // Highlighting Glom
                         setObsHighlight(child.name)
                         setHighlighted(true)
-                        if (intersectsLeftTip && controllers[1].hand.inputState.pinching == true) {
+                        if (controllers[1] !== undefined && intersectsLeftTip && controllers[1].hand.inputState.pinching == true) {
                             intersected = false;
                             highlightGlom(child.name);
                             controllers[1].hand.inputState.pinching = false;
                         }
-                        if (intersectsRightTip && controllers[0].hand.inputState.pinching == true) {
+                        if (controllers[0] !== undefined && intersectsRightTip && controllers[0].hand.inputState.pinching == true) {
                             intersected = false;
                             highlightGlom(child.name)
                             controllers[0].hand.inputState.pinching = false;
