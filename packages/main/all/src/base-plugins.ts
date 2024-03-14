@@ -81,6 +81,7 @@ import {
   CellSetExpressionPlotSubscriber,
   CellSetSizesPlotSubscriber,
   ExpressionHistogramSubscriber,
+  FeatureBarPlotSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
@@ -203,6 +204,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION, CellSetExpressionPlotSubscriber),
   makeViewType(ViewType.OBS_SET_SIZES, CellSetSizesPlotSubscriber),
   makeViewType(ViewType.FEATURE_VALUE_HISTOGRAM, ExpressionHistogramSubscriber),
+  makeViewType(ViewType.FEATURE_BAR_PLOT, FeatureBarPlotSubscriber),
   makeViewType('higlass', HiGlassSubscriber),
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
 ];

@@ -64,28 +64,6 @@ export const codeluppiViaCsv = {
           },
         },
         {
-          fileType: 'obsLocations.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.molecules.csv',
-          options: {
-            obsIndex: 'molecule_id',
-            obsLocations: ['X', 'Y'],
-          },
-          coordinationValues: {
-            obsType: 'molecule',
-          },
-        },
-        {
-          fileType: 'obsLabels.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.molecules.csv',
-          options: {
-            obsIndex: 'molecule_id',
-            obsLabels: 'Gene',
-          },
-          coordinationValues: {
-            obsType: 'molecule',
-          },
-        },
-        {
           fileType: 'obsFeatureMatrix.csv',
           url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.matrix.csv',
           coordinationValues: {
@@ -240,7 +218,7 @@ export const codeluppiViaCsv = {
       h: 2,
     },
     {
-      component: 'obsSetFeatureValueDistribution',
+      component: 'featureBarPlot',
       x: 7,
       y: 4,
       w: 5,

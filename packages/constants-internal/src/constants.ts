@@ -19,6 +19,7 @@ export const ViewType = {
   OBS_SET_SIZES: 'obsSetSizes',
   OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'obsSetFeatureValueDistribution',
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
+  FEATURE_BAR_PLOT: 'featureBarPlot',
 };
 
 export const DataType = {
