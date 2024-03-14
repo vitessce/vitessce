@@ -21,6 +21,7 @@
 import { LineLayer, SolidPolygonLayer } from '@deck.gl/layers';
 import { FillStyleExtension } from '@deck.gl/extensions';
 import { ContourLayer } from '@deck.gl/aggregation-layers';
+import { contourDensity } from 'd3-contour';
 
 const DEFAULT_COLOR = [255, 255, 255, 255];
 const DEFAULT_STROKE_WIDTH = 1;
@@ -32,7 +33,7 @@ const defaultProps = {
   getPosition: {type: 'accessor', value: x => x.position},
   getWeight: {type: 'accessor', value: 1},
   gpuAggregation: true,
-  aggregation: 'SUM',
+  aggregation: 'SUM', // TODO: use MEAN so that point density does not result in misleading contours.
 
   // contour lines
   contours: [{threshold: DEFAULT_THRESHOLD}],
@@ -45,6 +46,76 @@ const defaultProps = {
 };
 
 export default class ContourPatternLayer extends ContourLayer {
+
+  getThresholds() {
+    // How to convert positions to XY coordinates
+    // Reference: https://github.com/visgl/deck.gl/blob/89189f4e9ecb2f1b9b619f9a66c246690948fd19/modules/aggregation-layers/src/cpu-grid-layer/grid-aggregator.ts#L173
+    
+    // How to get weights
+    // Reference: https://github.com/visgl/deck.gl/blob/89189f4e9ecb2f1b9b619f9a66c246690948fd19/modules/aggregation-layers/src/contour-layer/contour-layer.ts#L349
+    
+    const attributes = this.getAttributes();
+    const positions = attributes.positions.value;
+    const { size: positionSize } = attributes.positions.getAccessor();
+
+    const weights = attributes.count.value;
+    const { size: weightSize } = attributes.count.getAccessor();
+
+    const numInstances = this.props.data.length;
+
+    const { viewport } = this.context;
+    const { width, height } = viewport;
+
+    const weightValues = new Float32Array(numInstances);
+
+    /*for (let i = 0; i < numInstances; i++) {
+      weightValues[i] = weights[i*weightSize];
+    }*/
+
+    const contours = contourDensity()
+      .x((d, i) => positions[i*positionSize + 0])
+      .y((d, i) => positions[i*positionSize + 1])
+      .weight((d, i) => weights[i*weightSize])
+      .cellSize(1)
+      .size([width, height]) // TODO: use value extents instead (for all cells, not just this cell type)?
+      .bandwidth(2)
+      (weightValues);
+
+    return contours.map(c => c.value);
+  }
+
+  updateState(opts) {
+    super.updateState(opts);
+    const { oldProps, props } = opts;
+
+    if(
+      oldProps.width !== props.width
+      || oldProps.height !== props.height
+      || oldProps.cellSize !== props.cellSize
+      || oldProps.getPosition !== props.getPosition
+      || oldProps.getWeight !== props.getWeight
+      || oldProps.data !== props.data
+    ) {
+      const thresholds = this.getThresholds();
+      console.log(thresholds);
+      const contours = [
+        {
+          threshold: 10,
+          color: [0, 0, 0, (1/(thresholds.length)) * 255],
+          strokeWidth: 2,
+        },
+        ...thresholds.map((threshold, i) => ({
+          threshold: threshold,
+          color: [0, 0, 0, ((i+1)/(thresholds.length)) * 255],
+          strokeWidth: 2,
+        }))
+      ];
+      super._updateThresholdData({ contours, zOffset: props.zOffset });
+      super._generateContours();
+      console.log(this.state.thresholdData);
+    }
+    
+  }
   
   renderLayers() {
     const {

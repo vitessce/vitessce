@@ -9,7 +9,6 @@ import { getDefaultColor } from '@vitessce/utils';
 import {
   AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback,
 } from './shared-spatial-scatterplot/index.js';
-import { interpolateRdBu } from '@vitessce/sets-utils';
 
 const CELLS_LAYER_ID = 'scatterplot';
 const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
@@ -38,8 +37,6 @@ const getPosition = (object, { index, data, target }) => {
   target[2] = 0;
   return target;
 };
-
-console.log(interpolateRdBu(0.5));
 
 /**
  * React component which renders a scatterplot from cell data.
@@ -141,11 +138,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       radiusMinPixels: 1,
       radiusMaxPixels: 30,
       colorRange: [
-        [241, 241, 241, 255],
-        [217, 217, 217, 255],
-        [217, 217, 217, 255],
-        [217, 217, 217, 255],
-        [217, 217, 217, 255],
+        [251, 215, 196, 255],
+        [241, 163, 133, 255],
+        [213, 96, 80, 255],
+        [172, 32, 47, 255],
+        [103, 0, 31, 255],
       ],
       getPolygonOffset: () => ([0, 20]),
       //modelMatrix: new Matrix4().makeTranslation(0, 0, 1),
@@ -226,19 +223,15 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       // contours: [
       //   { threshold: 10, color: [r, g, b, 0.9 * baseOpacity], strokeWidth: 2 },
       //   { threshold: [10, 1000], color: [r, g, b, 0.7 * baseOpacity] },
-      cellSize: 0.8,
-      contours: [
-        { threshold: 40, color: [r, g, b, 0.1 * baseOpacity], strokeWidth: 2 },
-        { threshold: 100, color: [r, g, b, 0.2 * baseOpacity], strokeWidth: 2 },
-        { threshold: 500, color: [r, g, b, 0.5 * baseOpacity], strokeWidth: 2 },
-        { threshold: 1000, color: [r, g, b, 0.9 * baseOpacity] },
-      ],
+      cellSize: 0.5,
+      contours: [],
       getPosition: (object, { index, data, target }) => {
         target[0] = data.src.embedding[0][data.src.indices[index]];
         target[1] = -data.src.embedding[1][data.src.indices[index]];
         target[2] = 0;
         return target;
       },
+      getWeight: getExpressionValue,
       pattern: false,
       getFillPattern: () => "hatch-cross",
       getFillPatternScale: 350,
@@ -439,7 +432,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     if (obsEmbeddingIndex && obsEmbedding) {
       this.cellsLayer = this.createCellsLayer();
       // TODO: create contour layer separately, only if enabled
-      this.contourLayer = this.createHeatmapLayer();
+      this.contourLayer = this.createContourLayer();
     } else {
       this.cellsLayer = null;
     }

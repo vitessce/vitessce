@@ -16,6 +16,8 @@ import {
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
   useMultiObsLabels,
+  useSampleSetsData,
+  useSampleEdgesData,
   useCoordination,
   useLoaders,
   useSetComponentHover,
@@ -33,6 +35,64 @@ import {
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { stratifyExpressionData } from '@vitessce/statistical-plots';
+
+
+/**
+ * Get expression data for the cells
+ * in the selected cell sets.
+ * @param {object} expressionMatrix
+ * @param {string[]} expressionMatrix.rows Cell IDs.
+ * @param {string[]} expressionMatrix.cols Gene names.
+ * @param {Uint8Array} expressionMatrix.matrix The
+ * flattened expression matrix as a typed array.
+ * @param {object} cellSets The cell sets from the dataset.
+ * @param {object} additionalCellSets The user-defined cell sets
+ * from the coordination space.
+ * @param {array} geneSelection Array of selected genes.
+ * @param {array} cellSetSelection Array of selected cell set paths.
+ * @param {object[]} cellSetColor Array of objects with properties
+ * @param {string|null} featureValueTransform The name of the
+ * feature value transform function.
+ * @param {number} featureValueTransformCoefficient A coefficient
+ * to be used in the transform function.
+ * @param {string} theme "light" or "dark" for the vitessce theme
+ * `path` and `color`.
+ */
+export function useExpressionSummaries(
+  sampleEdges, sampleSets, sampleSetSelection,
+  expressionData, obsIndex, mergedCellSets,
+  geneSelection, cellSetSelection, cellSetColor,
+  featureValueTransform, featureValueTransformCoefficient,
+  featureLabelsMap,
+) {
+  // TODO: stratify both expression data and embedding coordinates.
+
+  // From the expression matrix and the list of selected genes / cell sets,
+  // generate the array of data points for the plot.
+  const [resultArr, meanExpressionMax] = useMemo(() => {
+    const [stratifiedData, exprMax] = stratifyExpressionData(
+      sampleEdges, sampleSets, sampleSetSelection,
+      expressionData, obsIndex, mergedCellSets,
+      geneSelection, cellSetSelection, cellSetColor,
+      featureValueTransform, featureValueTransformCoefficient,
+      'light',
+    );
+    if(stratifiedData) {
+      console.log(stratifiedData)
+      return [null, null];
+    }
+    return [null, null];
+  }, [expressionData, obsIndex, geneSelection,
+    mergedCellSets, cellSetSelection,
+    featureValueTransform, featureValueTransformCoefficient,
+    featureLabelsMap,
+    sampleEdges, sampleSets, sampleSetSelection,
+  ]);
+
+  return [resultArr, meanExpressionMax];
+}
+
 
 /**
  * A subscriber component for the scatterplot.
@@ -71,6 +131,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     obsType,
     featureType,
     featureValueType,
+    sampleType,
     embeddingZoom: zoom,
     embeddingTargetX: targetX,
     embeddingTargetY: targetY,
@@ -93,6 +154,9 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
+    sampleSetSelection,
+    featureValueTransform,
+    featureValueTransformCoefficient,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -164,18 +228,32 @@ export function EmbeddingScatterplotSubscriber(props) {
     { featureType },
   );
 
+  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrl] = useSampleSetsData(
+    loaders, dataset, false, {}, {},
+    { sampleType },
+  );
+
+  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrl] = useSampleEdgesData(
+    loaders, dataset, false, {}, {},
+    { obsType, sampleType },
+  );
+
   const isReady = useReady([
     obsEmbeddingStatus,
     obsSetsStatus,
     featureSelectionStatus,
     featureLabelsStatus,
     matrixIndicesStatus,
+    sampleSetsStatus,
+    sampleEdgesStatus,
   ]);
   const urls = useUrls([
     obsEmbeddingUrls,
     obsSetsUrls,
     matrixIndicesUrls,
     featureLabelsUrls,
+    sampleSetsUrl,
+    sampleEdgesUrl,
   ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
@@ -204,6 +282,15 @@ export function EmbeddingScatterplotSubscriber(props) {
     theme,
   }), [mergedCellSets, theme,
     cellSetSelection, cellSetColor, matrixObsIndex]);
+
+  const [resultArr, meanExpressionMax] = useExpressionSummaries(
+    sampleEdges, sampleSets, sampleSetSelection,
+    expressionData, matrixObsIndex, mergedCellSets,
+    geneSelection, cellSetSelection, cellSetColor,
+    featureValueTransform, featureValueTransformCoefficient,
+    featureLabelsMap,
+
+  );
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
