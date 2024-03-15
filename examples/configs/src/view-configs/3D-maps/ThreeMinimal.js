@@ -17,10 +17,10 @@ function generateThreeMinimalConfiguration() {
         // url: "http://127.0.0.1:8080/cell_community.ome.tif",
         // url: "https://vitessce-data-v2.s3.amazonaws.com/data/redBloodCell.ome.tiff",
         //url: "https://vitessce-data-v2.s3.amazonaws.com/data/sorger/f8ii.ome.tiff",
-        url: "https://storage.googleapis.com/vitessce-data/0.0.31/master_release/tian/human_3d.raster.pyramid.ome.tiff",
-        // options: {
-        //        offsetsUrl: "https://vitessce-data-v2.s3.amazonaws.com/data/kiemenetal/5xHE.offsets.json",
-        // },
+        url: "http://localhost:8080/pyramid=6/project/Untitled.ome.tif",
+     //    options: {
+     //           offsetsUrl: "https://vitessce-data-v2.s3.amazonaws.com/data/kiemenetal/5xHE.offsets.json",
+     //    },
         coordinationValues: {
             fileUid: 'kidney',
         },
