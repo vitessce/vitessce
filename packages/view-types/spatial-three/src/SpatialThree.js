@@ -783,9 +783,7 @@ function GeometryAndMesh(props) {
                     setMeasureState(false)
                     setDebounce(8)
                 }
-            } else if (debounce <= 0 && model != null && model.current !== null && model.current !== undefined && isPresenting &&
-                ((volumeBox !== null && (leftTipBB.intersectsBox(volumeBox) || rightTipBB.intersectsBox(volumeBox))) ||
-                    volumeBox == null)) {
+            } else if (debounce <= 0 && model.current !== null && undefined !== model.current && isPresenting) {
                 for (let childID in model.current.children[0].children) {
                     let child = model.current.children[0].children[childID];
                     let currentObjectBB = new THREE.Box3().setFromObject(child);
