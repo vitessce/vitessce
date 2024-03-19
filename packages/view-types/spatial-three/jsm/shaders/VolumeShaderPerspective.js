@@ -159,7 +159,7 @@ var VolumeRenderShaderPerspective = {
         "}",
         "void main(void) {",
         // For finding the settings for the MESH
-        //"  gl_FragColor = vec4(worldSpaceCoords.x,worldSpaceCoords.y,worldSpaceCoords.z,0.5);",
+        // "  gl_FragColor = vec4(worldSpaceCoords.x,worldSpaceCoords.y,worldSpaceCoords.z,0.5);",
         // "  return;",
         //
         "  //STEP 1: Normalize the view Ray",
@@ -265,7 +265,7 @@ var VolumeRenderShaderPerspective = {
         // "       }",
         "       p += step;",
         "  }",
-        "   gl_FragDepth = distance(worldSpaceCoords,p)*u_physical_Pixel;",
+        // "   gl_FragDepth = distance(worldSpaceCoords,p)*u_physical_Pixel;",
         // "   gl_FragColor = vec4(gl_FragDepth,gl_FragDepth,gl_FragDepth,1.0);",
         // "   return;",
         "   if(u_renderstyle == 0 && (max_val <  u_clim[0] && max_val2 < u_clim2[0] && max_val3 < u_clim3[0] &&" +

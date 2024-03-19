@@ -160,10 +160,8 @@ const SpatialThree = (props) => {
             side: THREE.FrontSide,
         });
 
-
         let scene = obsSegmentations[layerScope].scene;
         if (scene !== null && scene !== undefined) {
-            //console.log(scene.children)
             let newScene = new THREE.Scene();
             let firstPass = new THREE.Group();
             firstPass.userData.name = "firstPass";
@@ -178,10 +176,11 @@ const SpatialThree = (props) => {
                     childElement.name = name;
                     childElement.userData.name = name;
                 }
-                if (childElement.material instanceof THREE.MeshPhysicalMaterial) {
+                if (childElement.material instanceof THREE.MeshPhysicalMaterial
+                    || childElement.material instanceof THREE.MeshBasicMaterial) {
                     childElement.material = new THREE.MeshStandardMaterial();
                 }
-                childElement.material.transparent = false
+                childElement.material.transparent = true
                 childElement.material.writeDepthTexture = true
                 childElement.material.depthTest = true
                 childElement.material.depthWrite = true
@@ -211,7 +210,7 @@ const SpatialThree = (props) => {
                 firstPass.add(simplified)
                 finalPass.add(finalPassChild)
             }
-            // newScene.add(firstPass);
+            newScene.add(firstPass);
             newScene.add(finalPass);
             newScene.scale.set(
                 segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
@@ -675,12 +674,12 @@ function GeometryAndMesh(props) {
             console.log("Entering the XR")
             if (materialRef !== null) {
                 materialRef.current.material.uniforms.u_physical_Pixel.value = 0.02
-                console.log(materialRef.current.material.uniforms)
+                // console.log(materialRef.current.material.uniforms)
             }
         } else if (!isPresenting) {
             if (materialRef !== null) {
                 materialRef.current.material.uniforms.u_physical_Pixel.value = 2.0
-                console.log(materialRef.current.material.uniforms)
+                // console.log(materialRef.current.material.uniforms)
             }
             //TODO fix to get the view back
             if (model !== undefined && model.current !== undefined) {
@@ -756,7 +755,7 @@ function GeometryAndMesh(props) {
                 })
                 if (controllers[0].hand.inputState.pinching === true) {
                     // right hand set mesaure point
-                    console.log("Right Hand Set Measure Point")
+                    // console.log("Right Hand Set Measure Point")
                     setCurrentLine({
                         startPoint: currentLine.startPoint,
                         midPoint: currentLine.midPoint,
@@ -767,7 +766,7 @@ function GeometryAndMesh(props) {
                 }
                 if (controllers[1].hand.inputState.pinching === true) {
                     // left hand set measure point
-                    console.log("Left Hand Set Measure Point")
+                    // console.log("Left Hand Set Measure Point")
                     setCurrentLine({
                         startPoint: currentLine.startPoint,
                         midPoint: currentLine.midPoint,
@@ -815,6 +814,61 @@ function GeometryAndMesh(props) {
             }
         }
     }, [measureState, highlighted, currentLine, lines, showLine, debounce, isPresenting])
+
+
+    //glRoot.size.width * window.devicePixelRatio,
+    //glRoot.size.width * window.devicePixelRatio
+    //  TODO Maybe have to adapt the pixel ratio of the renderer and the textures when it changes (e.g. zooming in on the pc)
+    const stopTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
+    const finalTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
+    useFrame((state) => {
+        const {gl, scene, camera} = state;
+        if (materialRef.current === undefined) {
+            return;
+        }
+        if(gl.xr.isPresenting){
+            model.current.children[0].visible = false;
+            gl.render(scene, camera);
+            return;
+        }
+        if (segmentationSettings.visible && model.current !== undefined && segmentationSettings.opacity > 0.1) {
+            gl.setRenderTarget(stopTexture);
+            gl.clear();
+            model.current.visible = true;
+            model.current.children[0].visible = true;
+            model.current.children[1].visible = false;
+            materialRef.current.visible = false;
+            gl.render(scene, camera);
+            // return;
+
+            gl.setRenderTarget(null);
+            gl.clear();
+            model.current.visible = true;
+            model.current.children[0].visible = false;
+            model.current.children[1].visible = true;
+            materialRef.current.visible = false;
+            gl.render(scene, camera);
+            gl.autoClear = false;
+            gl.clearDepth()
+            // return;
+
+            materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
+            materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
+            if (!gl.xr.isPresenting) {
+                gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
+            }
+            materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width * window.devicePixelRatio,
+                glThree.size.height * window.devicePixelRatio);
+            model.current.visible = false;
+            model.current.children[0].visible = false;
+            model.current.children[1].visible = false;
+        } else {
+            materialRef.current.material.uniforms.u_stop_geom.value = null;
+            materialRef.current.material.uniforms.u_geo_color.value = null;
+        }
+        materialRef.current.visible = true;
+        gl.render(scene, camera);
+    })
 
     // TODO: IF we want to have a ZoomGrab than it needs to adapt the 0.002 value
     // TODO: The measurement from time to time intersects with the rayGrab (maybe "tell it" that we are in measurement mode)
@@ -875,6 +929,7 @@ function GeometryAndMesh(props) {
                             <group>
                                 <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                                 <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
+                                <directionalLight color={0xFFFFFF} position={[0, 800, 0]}/>
                                 <Bvh firstHitOnly>
                                     <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
                                                onClick={(e) => {
@@ -1128,8 +1183,8 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
 
 function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, renderstyle, contrastLimits, colors, layerTransparency,
                              xSlice, ySlice, zSlice, meshScale, originalScale) {
-    console.log(originalScale)
-    console.log(meshScale)
+    // console.log(originalScale)
+    // console.log(meshScale)
     uniforms["boxSize"].value.set(volume.xLength, volume.yLength, volume.zLength);
     //can be done better
     uniforms["volumeTex"].value = textures.length > 0 ? textures[0] : null;

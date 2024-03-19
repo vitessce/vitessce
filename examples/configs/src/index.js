@@ -40,6 +40,7 @@ import { humanLiver } from './view-configs/3D-maps/HumanLiver.js';
 import { bloodVessel} from './view-configs/3D-maps/bloodVessel.js';
 import { bloodVesselNamed} from './view-configs/3D-maps/bloodVesselNamed.js';
 import { sorgerNeigbour} from './view-configs/3D-maps/sorgerBigger.js';
+import { cellNeighborhood} from './view-configs/3D-maps/cellNeighborhoodNamed.js';
 import { threeMinimal } from './view-configs/3D-maps/ThreeMinimal.js';
 import { threeMinimalLight } from './view-configs/3D-maps/ThreeMinimalLight.js';
 import { codexOop2023 } from './view-configs/spatial-beta/codex.js';
@@ -59,6 +60,7 @@ import { neumanOop2023 } from './view-configs/spatial-beta/neumann-oop.js';
 import { lightsheetOop2023 } from './view-configs/spatial-beta/lightsheet-oop.js';
 import { visiumPolygonsOop2023 } from './view-configs/spatial-beta/visium-polygons-oop.js';
 import {sorgerNeigbour} from "./view-configs/3D-maps/sorgerBigger";
+import {cellNeighborhood} from "./view-configs/3D-maps/cellNeighborhoodNamed";
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -115,6 +117,7 @@ export const configs = {
   'bloodVessel': bloodVessel,
   'bloodVesselNamed': bloodVesselNamed,
   'sorger-2024': sorgerNeigbour,
+  'cellNeighborhood': cellNeighborhood,
   'three-minimal': threeMinimal,
   'kruse-2024': kruse2024,
   'three-minimal-light': threeMinimalLight,
