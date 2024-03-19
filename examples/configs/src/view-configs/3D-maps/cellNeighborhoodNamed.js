@@ -88,12 +88,12 @@ function generateCellNeighborhoodConfig() {
                 fileUid: 'Cells',
                 spatialLayerVisible: true,
                 spatialLayerOpacity: 1,
-                spatialTargetX: -1466.5,
-                spatialTargetY: -90,
-                spatialTargetZ: -23,
+                spatialTargetX: -1467,
+                spatialTargetY: -89,
+                spatialTargetZ: -24,
                 spatialScaleX: 4.0,    //4
                 spatialScaleY: 8.0,    //4
-                spatialScaleZ: -4.0/4.0,   //3
+                spatialScaleZ: -3.75/4.0,   //3
                 spatialRotationX: Math.PI/2.0 + Math.PI/2.0,
                 // spatialRotationX: 3*Math.PI/4,
                 // spatialRotationZ: Math.PI,

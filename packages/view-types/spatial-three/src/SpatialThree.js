@@ -171,15 +171,19 @@ const SpatialThree = (props) => {
                 let childElement = scene.children[child]
                 if (childElement.material === undefined) {
                     childElement = scene.children[child].children[0];
-                    let name = scene.children[child].name.replace("glb", "").replace("_dec", "").replace("_1", "")
-                        .replace("_Decobj", "").replace("obj", "").replace("_DEc", "").replace(".", "").replace("_Dec", "");
-                    childElement.name = name;
-                    childElement.userData.name = name;
                 }
                 if (childElement.material instanceof THREE.MeshPhysicalMaterial
                     || childElement.material instanceof THREE.MeshBasicMaterial) {
                     childElement.material = new THREE.MeshStandardMaterial();
                 }
+                let name = childElement.name.replace("glb", "").replace("_dec", "").replace("_1", "")
+                    .replace("_Decobj", "").replace("obj", "").replace("_DEc", "").replace(".", "").replace("_Dec", "");
+                if (name.includes("_")) {
+                    name = name.split("_")[0]
+                }
+                console.log(name)
+                childElement.name = name;
+                childElement.userData.name = name;
                 childElement.material.transparent = true
                 childElement.material.writeDepthTexture = true
                 childElement.material.depthTest = true
@@ -826,7 +830,7 @@ function GeometryAndMesh(props) {
         if (materialRef.current === undefined) {
             return;
         }
-        if(gl.xr.isPresenting){
+        if (gl.xr.isPresenting) {
             model.current.children[0].visible = false;
             gl.render(scene, camera);
             return;
