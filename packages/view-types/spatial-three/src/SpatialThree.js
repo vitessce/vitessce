@@ -872,6 +872,8 @@ function GeometryAndMesh(props) {
 
     // TODO: IF we want to have a ZoomGrab than it needs to adapt the 0.002 value
     // TODO: The measurement from time to time intersects with the rayGrab (maybe "tell it" that we are in measurement mode)
+    // console.log(renderingSettings.geometrySize)
+    // console.log(renderingSettings.meshScale)
     return (
         <group>
             {useXR().isPresenting ?

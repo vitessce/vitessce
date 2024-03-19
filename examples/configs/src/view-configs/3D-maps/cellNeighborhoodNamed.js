@@ -22,8 +22,8 @@ function generateCellNeighborhoodConfig() {
     }).addFile({
         fileType: 'segmentation.glb',
         // url: 'https://vitessce-data-v2.s3.amazonaws.com/data/sorger/SceneNew.glb',
-        // url: 'http://127.0.0.1:8080/Scene%20(1).glb',
-        url: 'http://127.0.0.1:8080/scene.glb',
+        url: 'http://127.0.0.1:8080/cells_from_wrl_named.glb',
+        // url: 'http://127.0.0.1:8080/scene.glb',
         coordinationValues: {
             fileUid: 'Cells',
         }
@@ -88,19 +88,24 @@ function generateCellNeighborhoodConfig() {
                 fileUid: 'Cells',
                 spatialLayerVisible: true,
                 spatialLayerOpacity: 1,
-                spatialTargetX: -1467,
-                spatialTargetY: -22,
-                spatialTargetZ: 90,
-                spatialScaleX: 4.0,
-                spatialScaleY: 2.75,
-                spatialScaleZ: 4.0,
-                // spatialRotationX: 1.57079632679,
-                spatialRotationX: 1.57079632679,
+                spatialTargetX: -1466.5,
+                spatialTargetY: -90,
+                spatialTargetZ: -23,
+                spatialScaleX: 4.0,    //4
+                spatialScaleY: 8.0,    //4
+                spatialScaleZ: -4.0/4.0,   //3
+                spatialRotationX: Math.PI/2.0 + Math.PI/2.0,
+                // spatialRotationX: 3*Math.PI/4,
+                // spatialRotationZ: Math.PI,
+                // spatialRotationY: Math.PI,
+                // spatialRotationX: Math.PI,
+
                 spatialSceneScaleX: 1.0,
-                spatialSceneScaleY: -1.0,
-                spatialSceneScaleZ: 1.0,
-                // spatialSceneRotationX: 1.57079632679,
-                spatialMaterialBackside: false,
+                spatialSceneScaleY: 4.0,
+                spatialSceneScaleZ: 0.5,
+                spatialSceneRotationX: -Math.PI/2.0,
+                spatialSceneRotationZ: Math.PI,
+                spatialMaterialBackside: true,
                 segmentationChannel: CL([
                     {
                         //obsType: glomsObsTypeScope,
