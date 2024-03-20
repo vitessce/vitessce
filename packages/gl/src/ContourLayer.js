@@ -68,12 +68,8 @@ export default class ContourPatternLayer extends ContourLayer {
 
     const weightValues = new Float32Array(numInstances);
 
-    /*for (let i = 0; i < numInstances; i++) {
-      weightValues[i] = weights[i*weightSize];
-    }*/
-
-    // TODO: investigate whether d3 is taking the SUM or the MEAN.
-    // If it's taking the SUM, then we should figure out a way to switch it to take the MEAN.
+    // Note: could potentially use a <1 cellSize
+    // Reference: https://github.com/d3/d3-contour/issues/63#issuecomment-1224930141
     const contours = contourDensity()
       .x((d, i) => positions[i*positionSize + 0])
       .y((d, i) => positions[i*positionSize + 1])
@@ -81,6 +77,8 @@ export default class ContourPatternLayer extends ContourLayer {
       .cellSize(1)
       .size([width, height]) // TODO: use value extents instead (for all cells, not just this cell type)?
       .bandwidth(2)
+      .thresholds(3)
+      .aggregation('MEAN')
       (weightValues);
 
     return contours.map(c => c.value);
@@ -107,7 +105,7 @@ export default class ContourPatternLayer extends ContourLayer {
           strokeWidth: 2,
         },
         ...thresholds.map((threshold, i) => ({
-          threshold: threshold / 300, // TODO: remove this scaling - see d3-contour comment above
+          threshold: threshold * 3,
           color: [0, 0, 0, ((i+1)/(thresholds.length)) * 255],
           strokeWidth: 2,
         }))

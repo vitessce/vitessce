@@ -223,7 +223,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       // contours: [
       //   { threshold: 10, color: [r, g, b, 0.9 * baseOpacity], strokeWidth: 2 },
       //   { threshold: [10, 1000], color: [r, g, b, 0.7 * baseOpacity] },
-      cellSize: 0.5,
+      cellSize: 0.25,
       contours: [],
       getPosition: (object, { index, data, target }) => {
         target[0] = data.src.embedding[0][data.src.indices[index]];
