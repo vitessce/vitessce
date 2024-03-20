@@ -1200,7 +1200,7 @@ function setUniformsTextures(uniforms, textures, volume, cmTextures, volConfig, 
     uniforms["volumeTex5"].value = textures.length > 4 ? textures[4] : null;
     uniforms["volumeTex6"].value = textures.length > 5 ? textures[5] : null;
     //
-    uniforms["near"].value = 0.01;
+    uniforms["near"].value = 0.1;
     uniforms["far"].value = 3000;
     uniforms["alphaScale"].value = 1.0;
     uniforms["dtScale"].value = layerTransparency;

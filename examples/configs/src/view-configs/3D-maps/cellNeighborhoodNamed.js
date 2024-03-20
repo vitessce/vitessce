@@ -21,9 +21,7 @@ function generateCellNeighborhoodConfig() {
         },
     }).addFile({
         fileType: 'segmentation.glb',
-        // url: 'https://vitessce-data-v2.s3.amazonaws.com/data/sorger/SceneNew.glb',
-        url: 'http://127.0.0.1:8080/cells_from_wrl_named.glb',
-        // url: 'http://127.0.0.1:8080/scene.glb',
+        url: 'https://vitessce-data-v2.s3.amazonaws.com/data/sorger/cells_from_wrl_named.glb',
         coordinationValues: {
             fileUid: 'Cells',
         }
