@@ -1,4 +1,13 @@
 
+## 3.3.8
+
+### Patch Changes
+
+- Redirect to beta-xr.vitessce.io (`docs`) ([#1825](https://github.com/vitessce/vitessce/pull/1825))
+
+- Add webpack plugin for docusaurus site to support importing from @zarrita/storage. (`docs`) ([#1819](https://github.com/vitessce/vitessce/pull/1819))
+
+
 ## 3.3.7
 
 ### Patch Changes
