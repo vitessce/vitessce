@@ -8,7 +8,7 @@ import {
 function generateCellNeighborhoodConfig() {
     const config = new VitessceConfig({
         schemaVersion: '1.0.16',
-        name: 'Peter Sorger Blood Vessel',
+        name: 'Figure6n_cell_community',
     });
     const dataset = config.addDataset('My dataset').addFile({
         fileType: 'image.ome-tiff',
@@ -17,7 +17,7 @@ function generateCellNeighborhoodConfig() {
             offsetsUrl: "https://vitessce-data-v2.s3.amazonaws.com/data/sorger/cell_community_new.offsets.json",
         },
         coordinationValues: {
-            fileUid: 'kidney',
+            fileUid: 'melanoma',
         },
     }).addFile({
         fileType: 'segmentation.glb',
@@ -66,13 +66,13 @@ function generateCellNeighborhoodConfig() {
         spatialTargetT: 0,
         imageLayer: CL([
             {
-                fileUid: 'kidney',
-                spatialLayerOpacity: 1,
+                fileUid: 'melanoma',
+                spatialLayerOpacity: 0.0,
                 photometricInterpretation: 'BlackIsZero',
                 spatialTargetResolution: null,
                 imageChannel: CL([
                     {
-                        spatialTargetC: 7,
+                        spatialTargetC: 0,
                         spatialChannelColor: [255, 255, 0],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,

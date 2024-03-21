@@ -176,7 +176,7 @@ const SpatialThree = (props) => {
                     || childElement.material instanceof THREE.MeshBasicMaterial) {
                     childElement.material = new THREE.MeshStandardMaterial();
                 }
-                let name = childElement.name.replace("glb", "").replace("_dec", "").replace("_1", "")
+                let name = childElement.name.replace("mesh_","").replace("mesh","").replace("glb", "").replace("_dec", "")
                     .replace("_Decobj", "").replace("obj", "").replace("_DEc", "").replace(".", "").replace("_Dec", "");
                 if (name.includes("_")) {
                     name = name.split("_")[0]
@@ -342,6 +342,7 @@ const SpatialThree = (props) => {
                         let id = segmentationGroup.children[finalGroup].children[child].userData.name
                         //console.log(id)
                         for (let index in segmentationSettings.obsSets) {
+                            console.log(segmentationSettings.obsSets[index].id)
                             if (segmentationSettings.obsSets[index].id === id) {
                                 color = segmentationSettings.obsSets[index].color
                             }
@@ -936,19 +937,20 @@ function GeometryAndMesh(props) {
                                 <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                                 <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
                                 <directionalLight color={0xFFFFFF} position={[0, 800, 0]}/>
-                                <Bvh firstHitOnly>
+                                {/*<Bvh firstHitOnly>*/}
                                     <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
-                                               onClick={(e) => {
-                                                   if (e.object.parent.userData.name == "finalPass") {
-                                                       highlightGlom(e.object.name);
-                                                   }
-                                               }}
-                                               onPointerOver={e => {
-                                                   setObsHighlight(e.object.name)
-                                               }}
-                                               onPointerOut={e => setObsHighlight(null)}
+                                               // onClick={(e) => {
+                                               //     if (e.object.parent.userData.name == "finalPass") {
+                                               //         highlightGlom(e.object.name);
+                                               //     }
+                                               // }}
+                                               // onPointerOver={e => {
+                                               //     console.log(e.object.name)
+                                               //     setObsHighlight(e.object.name)
+                                               // }}
+                                               // onPointerOut={e => setObsHighlight(null)}
                                     />
-                                </Bvh>
+                                {/*</Bvh>*/}
                             </group>
                         }
                         {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
@@ -1161,8 +1163,8 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
     var shader = VolumeRenderShaderPerspective;
     var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
     setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig, renderstyle, contrastLimitsList, colorsSave, layerTransparency,
-        xSlice, ySlice, zSlice, [scale[0].size, scale[1].size, scale[2].size], originalScale);
-    return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2].size / scale[0].size], [volume.xLength, volume.yLength, volume.zLength],
+        xSlice, ySlice, zSlice, [scale[0].size, scale[1].size, scale[2]? scale[2].size : 1.0], originalScale);
+    return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2]? scale[2].size / scale[0].size : 1.0], [volume.xLength, volume.yLength, volume.zLength],
         [1.0, volume.yLength / volume.xLength, volume.zLength / volume.xLength]];
 }
 
@@ -1376,9 +1378,10 @@ function Box(props) {
 
 const SpatialWrapper = forwardRef((props, deckRef) => {
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
-        <ARButton sessionInit={{optionalFeatures: ["hand-tracking"]}}/>
+        {/*<ARButton sessionInit={{optionalFeatures: ["hand-tracking"]}}/>*/}
         <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.1, far: 3000}}
                 gl={{antialias: true, logarithmicDepthBuffer: true}}>
+            {/*style={{ background: "white" }}*/}
             <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>
             </XR>

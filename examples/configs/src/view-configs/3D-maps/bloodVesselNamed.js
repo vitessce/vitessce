@@ -8,7 +8,7 @@ import {
 function generateBloodVesselConfig() {
     const config = new VitessceConfig({
         schemaVersion: '1.0.16',
-        name: 'Peter Sorger Blood Vessel',
+        name: 'Figure3d_tumor_cytoskeleton',
     });
     const dataset = config.addDataset('My dataset').addFile({
         fileType: 'image.ome-tiff',
@@ -17,13 +17,13 @@ function generateBloodVesselConfig() {
             offsetsUrl: "https://vitessce-data-v2.s3.amazonaws.com/data/redBloodCell.offsets.json",
         },
         coordinationValues: {
-            fileUid: 'kidney',
+            fileUid: 'melanoma',
         },
     }).addFile({
         fileType: 'segmentation.glb',
         url: 'https://vitessce-data-v2.s3.amazonaws.com/data/bloodVesselNamed.glb',
         coordinationValues: {
-            fileUid: 'Cells',
+            fileUid: 'skeleton',
         }
     })
 
@@ -66,24 +66,24 @@ function generateBloodVesselConfig() {
         spatialTargetT: 0,
         imageLayer: CL([
             {
-                fileUid: 'kidney',
+                fileUid: 'melanoma',
                 spatialLayerOpacity: 1,
                 photometricInterpretation: 'BlackIsZero',
                 spatialTargetResolution: null,
                 imageChannel: CL([
                     {
-                        spatialTargetC: 1,
-                        spatialChannelColor: [0, 0, 255],
+                        spatialTargetC: 11,
+                        spatialChannelColor: [255, 255, 0],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,
-                        spatialChannelWindow: [1048, 5060],
+                        spatialChannelWindow: [5, 51],
                     },
                 ]),
             },
         ]),
         segmentationLayer: CL([
             {
-                fileUid: 'Cells',
+                fileUid: 'skeleton',
                 spatialLayerVisible: true,
                 spatialLayerOpacity: 1,
                 spatialTargetX: 403,
@@ -108,7 +108,7 @@ function generateBloodVesselConfig() {
                         featureValueType: glomsFeatureValueTypeScope,
                         featureSelection: glomsFeatureSelectionScope,
                         spatialChannelColor: [240, 252, 3],
-                        spatialChannelOpacity: 0.5,
+                        spatialChannelOpacity: 1.0,
                         obsColorEncoding: colorEncodingScope,
                         spatialChannelVisible: true,
                         obsSetSelection: selectionScope,
@@ -121,7 +121,7 @@ function generateBloodVesselConfig() {
                         featureSelection: glomsFeatureSelectionScope,
                         spatialChannelColor: [252, 15, 3],
                         obsColorEncoding: colorEncodingScope,
-                        spatialChannelOpacity: 0.5,
+                        spatialChannelOpacity: 1.0,
                         spatialChannelVisible: true,
                         obsSetSelection: selectionScope,
                     },
@@ -133,7 +133,7 @@ function generateBloodVesselConfig() {
                         featureSelection: glomsFeatureSelectionScope,
                         spatialChannelColor: [252, 3, 252],
                         obsColorEncoding: colorEncodingScope,
-                        spatialChannelOpacity: 0.5,
+                        spatialChannelOpacity: 1.0,
                         spatialChannelVisible: true,
                         obsSetSelection: selectionScope,
                     },
@@ -145,7 +145,7 @@ function generateBloodVesselConfig() {
                         featureSelection: glomsFeatureSelectionScope,
                         spatialChannelColor: [3,252,82],
                         obsColorEncoding: colorEncodingScope,
-                        spatialChannelOpacity: 0.5,
+                        spatialChannelOpacity: 1.0,
                         spatialChannelVisible: true,
                         obsSetSelection: selectionScope,
                     },
@@ -157,7 +157,7 @@ function generateBloodVesselConfig() {
                         featureSelection: glomsFeatureSelectionScope,
                         spatialChannelColor: [3, 7, 252],
                         obsColorEncoding: colorEncodingScope,
-                        spatialChannelOpacity: 0.5,
+                        spatialChannelOpacity: 1.0,
                         spatialChannelVisible: true,
                         obsSetSelection: selectionScope,
                     },
@@ -169,7 +169,7 @@ function generateBloodVesselConfig() {
                         featureSelection: glomsFeatureSelectionScope,
                         spatialChannelColor: [232, 232, 232],
                         obsColorEncoding: colorEncodingScope,
-                        spatialChannelOpacity: 0.5,
+                        spatialChannelOpacity: 1.0,
                         spatialChannelVisible: true,
                         obsSetSelection: selectionScope,
                     }

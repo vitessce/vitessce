@@ -22,11 +22,21 @@ function generateThreeMinimalConfiguration() {
         //   options: {
         //          offsetsUrl: "https://hdv-spatial-data.s3.us-east-1.amazonaws.com/spraggings/pyramid.offsets.json?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjENj%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCIEnllXjNsAfToEF%2BC5M5eHCQmF6YDhL9AE9%2Fv4wf6PccAiEAyCnA4BJLseCKVc4CohnLn5ITOvFrIvxJe9bTLqRCOuEq9QMI4f%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARABGgwxMzY1NzY1MjIwNDgiDIDZ%2FSEDvjddwnrIwSrJA9lrXR6QsLUYy1Gp%2FCAZkH3GB%2B882ZNn7F0Sf%2FC%2Fjf7%2BjPzo67c1t6MAw%2BUAae8zHx4L3wp83hZ1HHynf4KOWnYL3saBwe%2F9bf5el3XndTriZN%2BfqFfXnVy%2FNXRmoEYZeBklIlu6RQR0tAeJMYmV4IcUxoYbriGEdYPnZEeA%2BOKMJ1mfZD5V8uGI66EjT%2BwNQ2MW9eNFLQnmvgOi5dlXzi4OaQwZnv79DnCbJbsO9hV%2BzPPu3lhXkgRXXOXul6t%2FBD3NDl8Sj9HCMGx6WYvNWp7vTN288Xr3Zq5t0G2hOpWGcd4p%2FNHQTIoPUqjbzpHokoVnZezQALyikn8InKYtMthJkYcbGRRMH4Wu3t0F1ZIKAFbJPnHPcNT74zhB1dPXRxpdjdKDYdwI6e6cxf6ujxV9hREOL4JWEQAYaAoIIjPmHhHeuonvhADuSwd8HP0dIoc9kDi0jcUGiAM6%2BsFb%2BUffjQsufpAGBeV9xECcnA7lWSLvdPkXR1trSiCLAoUoRdJAm%2BWvoDgcGQs5vf9ALCxF%2Bx0BVYuOeps3IE%2Bj8FvjTpJlbkQvExt%2BP6ofOmGRGYxko%2FKG3N1xhx8z78FjDiZ3zT0CzIizRvIwlKXjrwY6lAInueTTGriaMdMq5MvAL2xP%2BwwxgoUP1V3vlU0b8BP09iIp%2F3QWm6m%2FMWElKTsuiHh5ByzZ8yaQhTtNwjHJZ0qRRbK3F0h2oeYGk6tD%2B0px9wkR3F%2Bur8IwELox3FUKd9Z%2FQAJeWmT9ESVWt0Lo%2BxBNCU09f2hsmIr1hs70%2FhSG9iz8EbRY8xwx20s9mYBSTPyz897VRSNUPqztC8GsnZIBbWfYCJs85XnPS9AT75xJnhnxdnd7gl6M0mDWbRTYEUEHjbD0Y0i60mC%2FHpDdRjxhKspfW7CI1n2KawdxssX9Nvd2qoAutIiMvoT5OSV72x%2Fder4LLaX5%2FwJ2oONOgy7hcdcDUnbsavlEq4ideQ14elO2mCY%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20240319T022259Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Credential=ASIAR7TEYK5AN4C4PMUK%2F20240319%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=8f9fb846e2a104aa02667a2d887a5aca0a524dc63760036741078fb079e30e0c",
         //   },
-        url:'http://127.0.0.1:8080/pyramid.ome.tiff',
+        // url:'https://hdv-spatial-data.s3.us-east-1.amazonaws.com/spraggings/kidney_out.ome.tiff?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEAUaCXVzLWVhc3QtMSJHMEUCIQDJ2OyUI%2BhajSeW5YhP0iOGY5HWAFOjNshstMkufe6Z7gIgFzhHl9gUzMj4jrX%2BJwVVvNeFc0o9pV3XL%2Fg5GyQriAMq7AMIHhABGgwxMzY1NzY1MjIwNDgiDOaqQBYgmcsZrbUVNCrJAwC1mAk9JPU%2FyIRORY%2Bf3witBWMbYQEzJXAbto7ACJLsu9UvcvIjNF86FoYqyA0MP7XMu0Ur4Jbpypiq4swOrUeG0gyjuWBpWpiHumtEk74C6%2B2Wwt3o8l7SPeHfNsHy5w8%2FFHD7xrjCtrjboKElZfoQ5LiT4S3q%2Bm8SsIHicKG3fKFKZKFIvR%2B6npkGFs8ou3X5%2F0%2B0MQgNvMt8nCU7o7W43O6LyYxDKqUw5MwMAHsO0M%2BNUsQkSpvCIAClfSf%2BlJFcE7f6Um%2Bc%2BX9GZKK%2FHjJpnmQWW3g4IFw03tQ89Ph1oZuzj3lQCRXg0L0IwJUB2VTtoFe1AKnQfNKZUViMjy7eqWEw%2FzgHQ98SJIXgKQMxcfWEqK7rG7zBcdhRbVPs9pGVsUXz4PwA2ZMiZ9Wv3fIoibJueqv3BO2CwNPnQ3sqFdbLz9a0WxGdin01gcB6PymiDCM8QTD9RcZ9AlHDVPP0xp74GBcNyPDhZucMFK7dE6fyMDOxJfD%2BrbzLItF%2BOaVlf%2BQnzq8eJBGLvfyx0BDrIGPGUoQa%2BgIYmKtg1rLNBYL1nA4XoSB6Sk37nYZEOcxwCOC7AjFm%2Bz61fAnzYkmItLQLk0%2Fdvu8w%2F5jtrwY6lAKSsG7BdyhIhIFvzTEQSi3lgnCz1XQ2b5c3oXCfTgWEuszdHi4juykYd%2FckIBNgt08i4MwpG3OxgNjkhZAyiiqiXVp4stO0YReMxRKK6eg0YyJI7XWF7apcxnUDNWxAIBb2yAA70QAJuxVIwbluxjRwT1rLZ7IdUP1b2DdYnaytKuH5BhE7b8T7gZg4hOOz1CmGdznPzOTOYvF7yfjkofSYm6xCcO59KS4UcMNPqg6lV8B34XSSsEqkMyBvdJm8586vfYz0hQURUOZI1kowURq1Q%2BN%2FkqrwgwHY5MChDBjho%2FO7xkWIY12X04QXLk2FHrWvqeutcViwqW1izz4V0cnjvk5B41EeLDRi1otXlQH3oTP9Xcg%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20240320T220437Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Credential=ASIAR7TEYK5ACG3DSSX3%2F20240320%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=b69c7e2001214151f905d87e482207a83f8f3290b683a0d4becee0ac1375083d',
+        //   options: {
+        //          offsetsUrl: "https://hdv-spatial-data.s3.us-east-1.amazonaws.com/spraggings/kidney_out.offsets.json?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEAUaCXVzLWVhc3QtMSJHMEUCIQDJ2OyUI%2BhajSeW5YhP0iOGY5HWAFOjNshstMkufe6Z7gIgFzhHl9gUzMj4jrX%2BJwVVvNeFc0o9pV3XL%2Fg5GyQriAMq7AMIHhABGgwxMzY1NzY1MjIwNDgiDOaqQBYgmcsZrbUVNCrJAwC1mAk9JPU%2FyIRORY%2Bf3witBWMbYQEzJXAbto7ACJLsu9UvcvIjNF86FoYqyA0MP7XMu0Ur4Jbpypiq4swOrUeG0gyjuWBpWpiHumtEk74C6%2B2Wwt3o8l7SPeHfNsHy5w8%2FFHD7xrjCtrjboKElZfoQ5LiT4S3q%2Bm8SsIHicKG3fKFKZKFIvR%2B6npkGFs8ou3X5%2F0%2B0MQgNvMt8nCU7o7W43O6LyYxDKqUw5MwMAHsO0M%2BNUsQkSpvCIAClfSf%2BlJFcE7f6Um%2Bc%2BX9GZKK%2FHjJpnmQWW3g4IFw03tQ89Ph1oZuzj3lQCRXg0L0IwJUB2VTtoFe1AKnQfNKZUViMjy7eqWEw%2FzgHQ98SJIXgKQMxcfWEqK7rG7zBcdhRbVPs9pGVsUXz4PwA2ZMiZ9Wv3fIoibJueqv3BO2CwNPnQ3sqFdbLz9a0WxGdin01gcB6PymiDCM8QTD9RcZ9AlHDVPP0xp74GBcNyPDhZucMFK7dE6fyMDOxJfD%2BrbzLItF%2BOaVlf%2BQnzq8eJBGLvfyx0BDrIGPGUoQa%2BgIYmKtg1rLNBYL1nA4XoSB6Sk37nYZEOcxwCOC7AjFm%2Bz61fAnzYkmItLQLk0%2Fdvu8w%2F5jtrwY6lAKSsG7BdyhIhIFvzTEQSi3lgnCz1XQ2b5c3oXCfTgWEuszdHi4juykYd%2FckIBNgt08i4MwpG3OxgNjkhZAyiiqiXVp4stO0YReMxRKK6eg0YyJI7XWF7apcxnUDNWxAIBb2yAA70QAJuxVIwbluxjRwT1rLZ7IdUP1b2DdYnaytKuH5BhE7b8T7gZg4hOOz1CmGdznPzOTOYvF7yfjkofSYm6xCcO59KS4UcMNPqg6lV8B34XSSsEqkMyBvdJm8586vfYz0hQURUOZI1kowURq1Q%2BN%2FkqrwgwHY5MChDBjho%2FO7xkWIY12X04QXLk2FHrWvqeutcViwqW1izz4V0cnjvk5B41EeLDRi1otXlQH3oTP9Xcg%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20240320T220430Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Credential=ASIAR7TEYK5ACG3DSSX3%2F20240320%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=16eb8f5e7fbd8e15e966a8748913c7cfed38eb3008fbabe4ab5993d9847a4dd1",
+        //   },
+        url:'https://vitessce-data-v2.s3.amazonaws.com/data/sorger/img_0002.ome.tiff',
+        options: {
+            offsetsUrl: "https://vitessce-data-v2.s3.amazonaws.com/data/sorger/img_0002.offsets.json",
+        },
          coordinationValues: {
              fileUid: 'kidney',
          },
     })
+
+
+
 
     const spatialThreeView = config.addView(dataset, 'spatialThree');
     const lcView = config.addView(dataset, 'layerControllerBeta');
@@ -41,26 +51,26 @@ function generateThreeMinimalConfiguration() {
                 spatialTargetResolution: null,
                 imageChannel: CL([
                     {
-                        spatialTargetC: 1,
+                        spatialTargetC: 0,
                         spatialChannelColor: [0, 255, 0],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,
                         spatialChannelWindow: null,
                     },
-                    {
-                        spatialTargetC: 2,
-                        spatialChannelColor: [0, 0, 255],
-                        spatialChannelVisible: true,
-                        spatialChannelOpacity: 1.0,
-                        spatialChannelWindow: null,
-                    },
-                    {
-                        spatialTargetC: 0,
-                        spatialChannelColor: [255, 0, 0],
-                        spatialChannelVisible: true,
-                        spatialChannelOpacity: 1.0,
-                        spatialChannelWindow: null,
-                    },
+                    // {
+                    //     spatialTargetC: 2,
+                    //     spatialChannelColor: [0, 0, 255],
+                    //     spatialChannelVisible: true,
+                    //     spatialChannelOpacity: 1.0,
+                    //     spatialChannelWindow: null,
+                    // },
+                    // {
+                    //     spatialTargetC: 0,
+                    //     spatialChannelColor: [255, 0, 0],
+                    //     spatialChannelVisible: true,
+                    //     spatialChannelOpacity: 1.0,
+                    //     spatialChannelWindow: null,
+                    // },
                 ]),
             },
         ])
