@@ -91,7 +91,7 @@ function IndexWithHashParams() {
   }
 
   const isDemo = demo && Object.keys(configs).includes(demo);
-  
+
   // TODO: remove this when ThreeJS-based XR spatial view is on main branch.
   const isBetaXrDemo = demo && betaXrKeys.includes(demo);
   // End TODO
@@ -106,7 +106,7 @@ function IndexWithHashParams() {
 
   // TODO: remove this useEffect when ThreeJS-based XR spatial view is on main branch.
   useEffect(() => {
-    if(isBetaXrDemo) {
+    if (isBetaXrDemo) {
       window.location.href = `http://beta-xr.vitessce.io/?dataset=${demo}`;
     }
   }, [isBetaXrDemo]);
