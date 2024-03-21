@@ -10,21 +10,16 @@ import {
   useSampleEdgesData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { VALUE_TRANSFORM_OPTIONS, capitalize, getValueTransformFunction } from '@vitessce/utils';
-import {
-  treeToSelectedSetMap,
-  treeToObjectsBySetNames,
-  treeToSetSizesBySetNames,
-  mergeObsSets,
-} from '@vitessce/sets-utils';
+import { VALUE_TRANSFORM_OPTIONS, getValueTransformFunction } from '@vitessce/utils';
+import { treeToObsIndicesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
+import { InternMap } from 'internmap';
+import { v4 as uuidv4 } from 'uuid';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions.js';
-import CellSetExpressionPlot from './CellSetExpressionPlot.js';
+import DotPlot from './DotPlot.js';
 import { useStyles } from './styles.js';
 import {
   stratifyExpressionData,
-  aggregateStratifiedExpressionData,
-  summarizeStratifiedExpressionData,
-  histogramStratifiedExpressionData,
+  dotStratifiedExpressionData,
 } from './expr-hooks.js';
 
 /**
@@ -48,12 +43,12 @@ import {
  * @param {string} theme "light" or "dark" for the vitessce theme
  * `path` and `color`.
  */
-function useExpressionByCellSet(
+export function useExpressionSummaries(
   sampleEdges, sampleSets, sampleSetSelection,
   expressionData, obsIndex, cellSets, additionalCellSets,
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
-  theme, yMinProp,
+  posThreshold, featureLabelsMap,
 ) {
   const mergedCellSets = useMemo(
     () => mergeObsSets(cellSets, additionalCellSets),
@@ -62,65 +57,78 @@ function useExpressionByCellSet(
 
   // From the expression matrix and the list of selected genes / cell sets,
   // generate the array of data points for the plot.
-  const [expressionArr, expressionMax] = useMemo(() => {
+  const [resultArr, meanExpressionMax] = useMemo(() => {
     const [stratifiedData, exprMax] = stratifyExpressionData(
       sampleEdges, sampleSets, sampleSetSelection,
       expressionData, obsIndex, mergedCellSets,
       geneSelection, cellSetSelection, cellSetColor,
       featureValueTransform, featureValueTransformCoefficient,
-      theme,
+      'light',
     );
     if(stratifiedData) {
-      const aggregateData = aggregateStratifiedExpressionData(
-        stratifiedData, geneSelection,
+      const dotData = dotStratifiedExpressionData(
+        stratifiedData, posThreshold,
       );
-      const summarizedData = summarizeStratifiedExpressionData(
-        aggregateData, true,
-      );
-      const histogramData = histogramStratifiedExpressionData(
-        summarizedData, 16, yMinProp,
-      );
-      return [histogramData, exprMax];
+
+      const geneToUuid = new Map(geneSelection?.map((gene) => [gene, uuidv4()]));
+      const cellSetToUuid = new InternMap(cellSetSelection?.map((sampleSet) => ([sampleSet, uuidv4()])), JSON.stringify);
+      const sampleSetToUuid = new InternMap(sampleSetSelection?.map((sampleSet) => ([sampleSet, uuidv4()])), JSON.stringify);
+
+      const result = [];
+      ([...dotData.keys()]).forEach((cellSetKey) => {
+        ([...dotData.get(cellSetKey).keys()]).forEach((sampleSetKey) => {
+          ([...dotData.get(cellSetKey).get(sampleSetKey).keys()]).forEach((geneKey) => {
+            const dotObj = dotData.get(cellSetKey).get(sampleSetKey).get(geneKey);
+            const featureName = geneKey;
+            result.push({
+              key: uuidv4(), // Unique key for this dot.
+
+              featureKey: geneToUuid.get(geneKey),
+              feature: featureLabelsMap?.get(featureName) || featureName,
+              
+              groupKey: cellSetToUuid.get(cellSetKey),
+              group: cellSetKey.at(-1),
+
+              secondaryGroup: sampleSetKey?.at(-1),
+              secondaryGroupKey: sampleSetToUuid.get(sampleSetKey),
+
+              meanExpInGroup: dotObj.meanExpInGroup,
+              fracPosInGroup: dotObj.fracPosInGroup,
+              pctPosInGroup: dotObj.fracPosInGroup * 100.0,
+            })
+          });
+        });
+      });
+      
+      return [result, exprMax];
     }
     return [null, null];
-  }, [expressionData, obsIndex, geneSelection, theme,
-    mergedCellSets, cellSetSelection, cellSetColor,
+  }, [expressionData, obsIndex, geneSelection,
+    mergedCellSets, cellSetSelection,
     featureValueTransform, featureValueTransformCoefficient,
-    yMinProp, sampleEdges, sampleSets, sampleSetSelection,
+    posThreshold, featureLabelsMap,
+    sampleEdges, sampleSets, sampleSetSelection,
   ]);
 
-  // From the cell sets hierarchy and the list of selected cell sets,
-  // generate the array of set sizes data points for the bar plot.
-  const setArr = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
-    ? treeToSetSizesBySetNames(
-      mergedCellSets, cellSetSelection, cellSetSelection, cellSetColor, theme,
-    )
-    : []
-  ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
-
-  return [expressionArr, setArr, expressionMax];
+  return [resultArr, meanExpressionMax];
 }
 
+
 /**
- * A subscriber component for `CellSetExpressionPlot`,
- * which listens for gene selection updates and
- * `GRID_RESIZE` events.
+ * A subscriber component for DotPlot.
  * @param {object} props
  * @param {function} props.removeGridComponent The grid component removal function.
  * @param {object} props.coordinationScopes An object mapping coordination
  * types to coordination scopes.
  * @param {string} props.theme The name of the current Vitessce theme.
  */
-export function CellSetExpressionPlotSubscriber(props) {
+export function DotPlotSubscriber(props) {
   const {
     coordinationScopes,
-    closeButtonVisible,
-    downloadButtonVisible,
     removeGridComponent,
     theme,
-    jitter = false,
-    yMin = null,
-    yUnits = null,
+    title = 'Dot Plot',
+    transpose = true,
   } = props;
 
   const classes = useStyles();
@@ -135,6 +143,8 @@ export function CellSetExpressionPlotSubscriber(props) {
     featureSelection: geneSelection,
     featureValueTransform,
     featureValueTransformCoefficient,
+    featureValuePositivityThreshold: posThreshold,
+    featureValueColormap,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
@@ -143,14 +153,17 @@ export function CellSetExpressionPlotSubscriber(props) {
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
+    setFeatureValuePositivityThreshold: setPosThreshold,
+    setFeatureValueColormap,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION],
+    COMPONENT_COORDINATION_TYPES[ViewType.DOT_PLOT],
     coordinationScopes,
   );
 
   const [width, height, containerRef] = useGridItemSize();
 
   const transformOptions = VALUE_TRANSFORM_OPTIONS;
+  const isStratified = Array.isArray(sampleSetSelection) && sampleSetSelection.length > 1;
 
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
@@ -159,25 +172,25 @@ export function CellSetExpressionPlotSubscriber(props) {
     { obsType, featureType, featureValueType },
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrl] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
-  const [{ obsIndex }, matrixIndicesStatus, matrixIndicesUrls] = useObsFeatureMatrixIndices(
+  const [{ obsIndex }, matrixIndicesStatus, matrixIndicesUrl] = useObsFeatureMatrixIndices(
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrl] = useObsSetsData(
     loaders, dataset, true, {}, {},
     { obsType },
   );
 
-  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrls] = useSampleSetsData(
+  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrl] = useSampleSetsData(
     loaders, dataset, false, {}, {},
     { sampleType },
   );
 
-  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrls] = useSampleEdgesData(
+  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrl] = useSampleEdgesData(
     loaders, dataset, false, {}, {},
     { obsType, sampleType },
   );
@@ -191,34 +204,28 @@ export function CellSetExpressionPlotSubscriber(props) {
     sampleEdgesStatus,
   ]);
   const urls = useUrls([
-    featureLabelsUrls,
-    matrixIndicesUrls,
-    obsSetsUrls,
-    sampleSetsUrls,
-    sampleEdgesUrls,
+    featureLabelsUrl,
+    matrixIndicesUrl,
+    obsSetsUrl,
+    sampleSetsUrl,
+    sampleEdgesUrl,
   ]);
 
-  const [histogramData, setArr, exprMax] = useExpressionByCellSet(
+  const [resultArr, meanExpressionMax] = useExpressionSummaries(
     sampleEdges, sampleSets, sampleSetSelection,
     expressionData, obsIndex, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
-    theme, yMin,
-  );
+    posThreshold, featureLabelsMap,
 
-  const firstGeneSelected = geneSelection && geneSelection.length >= 1
-    ? (featureLabelsMap?.get(geneSelection[0]) || geneSelection[0])
-    : null;
+  );
   const selectedTransformName = transformOptions.find(
     o => o.value === featureValueTransform,
   )?.name;
 
-
   return (
     <TitleInfo
-      title={`Expression by ${capitalize(obsType)} Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
-      closeButtonVisible={closeButtonVisible}
-      downloadButtonVisible={downloadButtonVisible}
+      title={title}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
@@ -230,20 +237,18 @@ export function CellSetExpressionPlotSubscriber(props) {
           featureValueTransformCoefficient={featureValueTransformCoefficient}
           setFeatureValueTransformCoefficient={setFeatureValueTransformCoefficient}
           transformOptions={transformOptions}
+          featureValuePositivityThreshold={posThreshold}
+          setFeatureValuePositivityThreshold={setPosThreshold}
         />
       )}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
-        {histogramData ? (
-          <CellSetExpressionPlot
-            yMin={yMin}
-            yUnits={yUnits}
-            jitter={jitter}
-            cellSetSelection={cellSetSelection}
-            sampleSetSelection={sampleSetSelection}
-            colors={setArr}
-            data={histogramData}
-            exprMax={exprMax}
+        {resultArr ? (
+          <DotPlot
+            isStratified={isStratified}
+            transpose={transpose}
+            domainMax={meanExpressionMax}
+            data={resultArr}
             theme={theme}
             width={width}
             height={height}
@@ -251,9 +256,11 @@ export function CellSetExpressionPlotSubscriber(props) {
             featureType={featureType}
             featureValueType={featureValueType}
             featureValueTransformName={selectedTransformName}
+            featureValueColormap={featureValueColormap}
+            cellSetSelection={cellSetSelection}
           />
         ) : (
-          <span>Select a {featureType}.</span>
+          <span>Select at least one {featureType}.</span>
         )}
       </div>
     </TitleInfo>

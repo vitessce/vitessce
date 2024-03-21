@@ -47,6 +47,35 @@ function generateLake2023Config() {
         path: 'var/feature_name',
       },
     },
+  }).addFile({
+    fileType: 'sampleSets.csv',
+    url: 'https://storage.googleapis.com/vitessce-demo-data/scmd-analysis-october-2023/20231129_OpenAccessClinicalData.csv',
+    options: {
+      sampleIndex: 'Participant ID',
+      sampleSets: [
+        {
+          name: 'Tissue Type',
+          column: 'Tissue Type',
+        },
+        {
+          name: 'Hypertension',
+          column: 'Hypertension',
+        },
+      ],
+    },
+    coordinationValues: {
+      sampleType: 'sample',
+    },
+  }).addFile({
+    fileType: 'sampleEdges.anndata.zarr',
+    url: 'https://storage.googleapis.com/vitessce-demo-data/scmd-analysis-october-2023/lake_et_al.2.h5ad.zarr',
+    options: {
+      path: 'obs/donor_id'
+    },
+    coordinationValues: {
+      sampleType: 'sample',
+      obsType: 'cell',
+    },
   });
 
   const scatterplot = vc.addView(dataset, 'scatterplot');
@@ -54,11 +83,17 @@ function generateLake2023Config() {
   const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
   const featureList = vc.addView(dataset, 'featureList');
   const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution');
+  const dotPlot = vc.addView(dataset, 'dotPlot');
+
 
   vc.linkViews([scatterplot], ['embeddingType'], ['UMAP']);
+  vc.linkViews([scatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType', 'sampleSetSelection'], ['sample', [
+    ['Tissue Type', 'Healthy Reference'],
+    ['Tissue Type', 'CKD'],
+  ]]);
 
-  vc.linkViewsByObject([scatterplot, violinPlots, featureList], {
-    featureSelection: ['ENSG00000169344'],
+  vc.linkViewsByObject([scatterplot, violinPlots, featureList, dotPlot], {
+    featureSelection: ['ENSG00000169344', 'ENSG00000074803', 'ENSG00000164825'],
     obsColorEncoding: 'geneSelection',
     featureValueColormapRange: [0, 0.25],
   }, { meta: false });
@@ -72,7 +107,7 @@ function generateLake2023Config() {
       ),
     ),
     vconcat(
-      featureList,
+      vconcat(featureList, dotPlot),
       violinPlots,
     ),
   ));

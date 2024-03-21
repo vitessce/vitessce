@@ -1,8 +1,10 @@
 export {
+  treeToSelectedSetMap,
   treeToCellColorsBySetNames,
   treeToCellSetColorIndicesBySetNames,
   treeToSetSizesBySetNames,
   treeToObjectsBySetNames,
+  treeToObsIndicesBySetNames,
   treeExportLevelZeroNode,
   treeExportSet,
   treeToExpectedCheckedLevel,
