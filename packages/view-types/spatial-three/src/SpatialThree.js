@@ -10,7 +10,7 @@ import {
     Bvh,
     Center,
     Line,
-    Text
+    Text, Box, Edges
 } from '@react-three/drei'
 import {useXR, RayGrab, Interactive, VRButton, ARButton, XR, Controllers, Hands, Ray} from '@react-three/xr'
 import {EnhancedRayGrab} from "./TwoHandScale.js";
@@ -490,7 +490,7 @@ const SpatialThree = (props) => {
             <group>
                 <ambientLight/>
                 <pointLight position={[10, 10, 10]}/>
-                <Box position={[0, 0, 0]} color={"blue"} moving={false}/>
+                <LoadingIndicator position={[0, 0, 0]} color={"blue"} moving={false}/>
             </group>
         );
     }
@@ -503,7 +503,7 @@ const SpatialThree = (props) => {
             <group>
                 <ambientLight/>
                 <pointLight position={[10, 10, 10]}/>
-                <Box position={[0, 0, 0]} color={"green"} moving={true}/>
+                <LoadingIndicator position={[0, 0, 0]} color={"green"} moving={true}/>
             </group>);
     }
 
@@ -526,7 +526,7 @@ const SpatialThree = (props) => {
             <HandDecorate/>
             <GeometryAndMesh {...geometryAndMeshProps} ></GeometryAndMesh>
             <OrbitControls ref={orbitRef} enableDamping={false} dampingFactor={0.0}
-                           zoomDampingFactor={0.0} smoothZoom={false}/>
+                           zoomDampingFactor={0.0} smoothZoom={false} rotation={[0.0,Math.PI,0.0]}/>
         </group>
     );
 }
@@ -715,7 +715,7 @@ function GeometryAndMesh(props) {
 
     useFrame(() => {
         if (isPresenting) {
-            // Could first Intersect with Bounding Box of the Model to make the calculation faster
+            // Could first Intersect with Bounding LoadingIndicator of the Model to make the calculation faster
             let rightTipBbox = scene.getObjectByName("rightTipBbox");
             let leftTipBbox = scene.getObjectByName("leftTipBbox");
             let leftTipBB = new THREE.Box3().setFromObject(leftTipBbox);
@@ -969,6 +969,11 @@ function GeometryAndMesh(props) {
                                         vertexShader={renderingSettings.shader.vertexShader}
                                         fragmentShader={renderingSettings.shader.fragmentShader}
                                     />
+                                </mesh>
+                                <mesh scale={renderingSettings.meshScale}>
+                                    <boxGeometry BackSide args={renderingSettings.geometrySize}/>
+                                    <meshStandardMaterial color="white" transparent opacity={0.0} />
+                                    <Edges name="bboxEdges" color={"black"} />
                                 </mesh>
                             </group>
                         }
@@ -1357,7 +1362,7 @@ async function getVolumeIntern({
 }
 
 // Used as Loading indicator
-function Box(props) {
+function LoadingIndicator(props) {
     const ref = useRef()
     // Subscribe this component to the render-loop, rotate the mesh every frame
     useFrame((state, delta) => {
@@ -1379,7 +1384,7 @@ function Box(props) {
 const SpatialWrapper = forwardRef((props, deckRef) => {
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
         {/*<ARButton sessionInit={{optionalFeatures: ["hand-tracking"]}}/>*/}
-        <Canvas camera={{fov: 45, up: [0, 1, 0], position: [0, 0, -800], near: 0.1, far: 3000}}
+        <Canvas camera={{fov: 50, up: [0, 1, 0], position: [0, 0, -800], near: 0.1, far: 3000}}
                 gl={{antialias: true, logarithmicDepthBuffer: true}}>
             {/*style={{ background: "white" }}*/}
             <XR>
