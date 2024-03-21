@@ -14,6 +14,13 @@ import ThemedVitessce from './_ThemedVitessce.js';
 import ViewConfigEditor from './_ViewConfigEditor.js';
 import { baseJs, baseJson } from './_live-editor-examples.js';
 
+// TODO: remove this when ThreeJS-based XR spatial view is on main branch.
+const betaXrKeys = [
+  'Figure3d_tumor_cytoskeleton',
+  'Figure6n_cell_community',
+];
+// End TODO
+
 
 function logConfigUpgrade(prevConfig, nextConfig) {
   // eslint-disable-next-line no-console
@@ -84,6 +91,11 @@ function IndexWithHashParams() {
   }
 
   const isDemo = demo && Object.keys(configs).includes(demo);
+  
+  // TODO: remove this when ThreeJS-based XR spatial view is on main branch.
+  const isBetaXrDemo = demo && betaXrKeys.includes(demo);
+  // End TODO
+
   // Initialize to collapsed if this is a demo.
   // Otherwise, initialize to expanded.
   const [isExpanded, setIsExpanded] = useState(false);
@@ -91,6 +103,14 @@ function IndexWithHashParams() {
   useEffect(() => {
     setIsExpanded(!isDemo);
   }, [isDemo]);
+
+  // TODO: remove this useEffect when ThreeJS-based XR spatial view is on main branch.
+  useEffect(() => {
+    if(isBetaXrDemo) {
+      window.location.href = `http://beta-xr.vitessce.io/?dataset=${demo}`;
+    }
+  }, [isBetaXrDemo]);
+  // End TODO
 
   useEffect(() => {
     window.dispatchEvent(new Event('resize'));
