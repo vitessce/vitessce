@@ -783,36 +783,38 @@ function GeometryAndMesh(props) {
                     setMeasureState(false)
                     setDebounce(8)
                 }
-            } else if (debounce <= 0 && model.current !== null && undefined !== model.current && isPresenting) {
-                for (let childID in model.current.children[0].children) {
-                    let child = model.current.children[0].children[childID];
-                    let currentObjectBB = new THREE.Box3().setFromObject(child);
-                    let intersectsLeftTip = leftTipBB.intersectsBox(currentObjectBB);
-                    let intersectsRightTip = rightTipBB.intersectsBox(currentObjectBB);
-                    if (intersectsLeftTip || intersectsRightTip) {
-                        intersected = true;
-                        // Highlighting Glom
-                        setObsHighlight(child.name)
-                        setHighlighted(true)
-                        if (controllers[1] !== undefined && intersectsLeftTip && controllers[1].hand.inputState.pinching == true) {
-                            setDebounce(10)
-                            intersected = false;
-                            highlightGlom(child.name);
-                            controllers[1].hand.inputState.pinching = false;
-                        }
-                        if (controllers[0] !== undefined && intersectsRightTip && controllers[0].hand.inputState.pinching == true) {
-                            setDebounce(10)
-                            intersected = false;
-                            highlightGlom(child.name)
-                            controllers[0].hand.inputState.pinching = false;
-                        }
-                    }
-                }
-                if (!intersected && highlighted) {
-                    setObsHighlight(null);
-                    setHighlighted(false);
-                }
             }
+
+            // else if (debounce <= 0 && model.current !== null && undefined !== model.current && isPresenting) {
+            //     for (let childID in model.current.children[0].children) {
+            //         let child = model.current.children[0].children[childID];
+            //         let currentObjectBB = new THREE.Box3().setFromObject(child);
+            //         let intersectsLeftTip = leftTipBB.intersectsBox(currentObjectBB);
+            //         let intersectsRightTip = rightTipBB.intersectsBox(currentObjectBB);
+            //         if (intersectsLeftTip || intersectsRightTip) {
+            //             intersected = true;
+            //             // Highlighting Glom
+            //             setObsHighlight(child.name)
+            //             setHighlighted(true)
+            //             if (controllers[1] !== undefined && intersectsLeftTip && controllers[1].hand.inputState.pinching == true) {
+            //                 setDebounce(10)
+            //                 intersected = false;
+            //                 highlightGlom(child.name);
+            //                 controllers[1].hand.inputState.pinching = false;
+            //             }
+            //             if (controllers[0] !== undefined && intersectsRightTip && controllers[0].hand.inputState.pinching == true) {
+            //                 setDebounce(10)
+            //                 intersected = false;
+            //                 highlightGlom(child.name)
+            //                 controllers[0].hand.inputState.pinching = false;
+            //             }
+            //         }
+            //     }
+            //     if (!intersected && highlighted) {
+            //         setObsHighlight(null);
+            //         setHighlighted(false);
+            //     }
+            // }
         }
     }, [measureState, highlighted, currentLine, lines, showLine, debounce, isPresenting])
 
@@ -875,19 +877,19 @@ function GeometryAndMesh(props) {
                             <group>
                                 <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                                 <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
-                                <Bvh firstHitOnly>
+                                {/*<Bvh firstHitOnly>*/}
                                     <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
-                                               onClick={(e) => {
-                                                   if (e.object.parent.userData.name == "finalPass") {
-                                                       highlightGlom(e.object.name);
-                                                   }
-                                               }}
-                                               onPointerOver={e => {
-                                                   setObsHighlight(e.object.name)
-                                               }}
-                                               onPointerOut={e => setObsHighlight(null)}
+                                               // onClick={(e) => {
+                                               //     if (e.object.parent.userData.name == "finalPass") {
+                                               //         highlightGlom(e.object.name);
+                                               //     }
+                                               // }}
+                                               // onPointerOver={e => {
+                                               //     setObsHighlight(e.object.name)
+                                               // }}
+                                               // onPointerOut={e => setObsHighlight(null)}
                                     />
-                                </Bvh>
+                                {/*</Bvh>*/}
                             </group>
                         }
                         {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&

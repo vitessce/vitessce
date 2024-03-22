@@ -72,11 +72,11 @@ function generateBloodVesselConfig() {
                 spatialTargetResolution: null,
                 imageChannel: CL([
                     {
-                        spatialTargetC: 1,
-                        spatialChannelColor: [0, 0, 255],
+                        spatialTargetC: 11,
+                        spatialChannelColor: [255, 255, 0],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,
-                        spatialChannelWindow: [1048, 5060],
+                        spatialChannelWindow: [5, 51],
                     },
                 ]),
             },
