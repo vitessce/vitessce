@@ -30,27 +30,27 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
+    "@duckdb/react-duckdb": "file:../../../duckdb-wasm/packages/react-duckdb/duckdb-react-duckdb-1.11.0.tgz",
     "@material-ui/core": "~4.12.3",
     "@material-ui/icons": "~4.11.2",
     "@tanstack/react-query": "^4.29.12",
+    "@vitessce/config": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/plugins": "workspace:*",
     "@vitessce/schemas": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@vitessce/config": "workspace:*",
+    "apache-arrow": "^15.0.2",
     "clsx": "^1.1.1",
     "d3-array": "^2.4.0",
     "fast-deep-equal": "^3.1.3",
     "internmap": "^2.0.3",
     "jss-plugin-global": "^10.9.2",
     "lodash-es": "^4.17.21",
+    "react-aria": "^3.28.0",
     "react-grid-layout-with-lodash": "^1.3.5",
     "uuid": "^9.0.0",
-    "zustand": "^3.5.10",
-    "react-aria": "^3.28.0",
-    "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
-    "@duckdb/react-duckdb": "^1.28.1-dev106.0",
-    "apache-arrow": "^15.0.2"
+    "zustand": "^3.5.10"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",

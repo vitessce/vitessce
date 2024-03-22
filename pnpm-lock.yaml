@@ -1625,8 +1625,8 @@ importers:
         specifier: ^1.28.1-dev106.0
         version: 1.28.1-dev106.0
       '@duckdb/react-duckdb':
-        specifier: ^1.28.1-dev106.0
-        version: 1.28.1-dev106.0
+        specifier: file:../../../duckdb-wasm/packages/react-duckdb/duckdb-react-duckdb-1.11.0.tgz
+        version: file:../duckdb-wasm/packages/react-duckdb/duckdb-react-duckdb-1.11.0.tgz(react-dom@18.2.0)(react@18.2.0)
       '@material-ui/core':
         specifier: ~4.12.3
         version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
@@ -5854,10 +5854,6 @@ packages:
     resolution: {integrity: sha512-HcA9q/Yq1t8nAIg2rl8DmOTjKy1tAHSdBGHlCcWAm5StsfAjcm+f0STBEH3hmWPk0qEtOJF30OR+GfeyUOP+hA==}
     dependencies:
       apache-arrow: 14.0.2
-    dev: false
-
-  /@duckdb/react-duckdb@1.28.1-dev106.0:
-    resolution: {integrity: sha512-DSoNFFTaGE9YU1SWxk5pu+TR/VpJKu23EHLxumUmc1gkqPvCMHjvcDoGKknSfSfQ7LTgIHCtMm9gGvGXVD5GdA==}
     dev: false
 
   /@emotion/hash@0.8.0:
@@ -16547,6 +16543,10 @@ packages:
   /immutable@4.1.0:
     resolution: {integrity: sha512-oNkuqVTA8jqG1Q6c+UglTOD1xhC1BtjKI7XkCXRkZHrN5m18/XsnUp8Q89GkQO/z+0WjonSvl0FLhDYftp46nQ==}
 
+  /immutable@4.3.5:
+    resolution: {integrity: sha512-8eabxkth9gZatlwl5TBuJnCsoTADlL6ftEr7A4qgdaTsPyreilDSnUk57SO+jfKcNtxPa22U5KK6DSeAYhpBJw==}
+    dev: false
+
   /import-fresh@3.3.0:
     resolution: {integrity: sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw==}
     engines: {node: '>=6'}
@@ -25413,4 +25413,19 @@ packages:
 
   /zwitch@1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
+    dev: false
+
+  file:../duckdb-wasm/packages/react-duckdb/duckdb-react-duckdb-1.11.0.tgz(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-h8W6eeQlNtKo/w6R2z3xNq+yicALxU7LUzYMrWpZjMieCmZVvC/u32OuDa+t+BQh7zYwk0e/bsV8MuvQS4Npzw==, tarball: file:../duckdb-wasm/packages/react-duckdb/duckdb-react-duckdb-1.11.0.tgz}
+    id: file:../duckdb-wasm/packages/react-duckdb/duckdb-react-duckdb-1.11.0.tgz
+    name: '@duckdb/react-duckdb'
+    version: 1.11.0
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || 18
+    dependencies:
+      '@duckdb/duckdb-wasm': 1.28.1-dev106.0
+      immutable: 4.3.5
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false

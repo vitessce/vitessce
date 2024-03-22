@@ -33,3 +33,5 @@ export function DbProvider(props) {
         </DuckDBPlatform>
     );
 }
+
+console.log(DuckDBConnectionProvider);
