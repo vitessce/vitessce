@@ -26,6 +26,7 @@ import {
 } from './view-config-utils.js';
 import { createLoaders } from './vitessce-grid-utils.js';
 import { createGenerateClassName } from './mui-utils.js';
+import { DbProvider } from './duckdb.js';
 
 
 /**
@@ -214,33 +215,35 @@ export function VitS(props) {
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
         <QueryClientProvider client={queryClient}>
-          <ViewConfigProvider
-            createStore={createViewConfigStoreClosure}
-            {...(remountOnUidChange ? ({ key: configKey }) : {})}
-          >
-            <AuxiliaryProvider createStore={createAuxiliaryStore}>
-              <VitessceGrid
-                success={success}
-                configKey={configKey}
-                viewTypes={viewTypes}
-                fileTypes={fileTypes}
-                coordinationTypes={coordinationTypes}
-                config={configOrWarning}
-                rowHeight={rowHeight}
-                height={height}
-                theme={theme}
-                isBounded={isBounded}
-                stores={stores}
-              />
-              <CallbackPublisher
-                onWarn={onWarn}
-                onConfigChange={onConfigChange}
-                onLoaderChange={onLoaderChange}
-                validateOnConfigChange={validateOnConfigChange}
-                pluginSpecificConfigSchema={pluginSpecificConfigSchema}
-              />
-            </AuxiliaryProvider>
-          </ViewConfigProvider>
+          <DbProvider>
+            <ViewConfigProvider
+              createStore={createViewConfigStoreClosure}
+              {...(remountOnUidChange ? ({ key: configKey }) : {})}
+            >
+              <AuxiliaryProvider createStore={createAuxiliaryStore}>
+                <VitessceGrid
+                  success={success}
+                  configKey={configKey}
+                  viewTypes={viewTypes}
+                  fileTypes={fileTypes}
+                  coordinationTypes={coordinationTypes}
+                  config={configOrWarning}
+                  rowHeight={rowHeight}
+                  height={height}
+                  theme={theme}
+                  isBounded={isBounded}
+                  stores={stores}
+                />
+                <CallbackPublisher
+                  onWarn={onWarn}
+                  onConfigChange={onConfigChange}
+                  onLoaderChange={onLoaderChange}
+                  validateOnConfigChange={validateOnConfigChange}
+                  pluginSpecificConfigSchema={pluginSpecificConfigSchema}
+                />
+              </AuxiliaryProvider>
+            </ViewConfigProvider>
+          </DbProvider>
         </QueryClientProvider>
       </ThemeProvider>
     </StylesProvider>

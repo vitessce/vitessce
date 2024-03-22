@@ -1624,6 +1624,9 @@ importers:
       '@duckdb/duckdb-wasm':
         specifier: ^1.28.1-dev106.0
         version: 1.28.1-dev106.0
+      '@jetblack/duckdb-react':
+        specifier: ^0.5.1
+        version: 0.5.1(react-dom@18.2.0)(react@18.2.0)
       '@material-ui/core':
         specifier: ~4.12.3
         version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
@@ -6234,6 +6237,17 @@ packages:
       '@types/node': 20.11.30
       '@types/yargs': 17.0.13
       chalk: 4.1.2
+
+  /@jetblack/duckdb-react@0.5.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-859z0ovVkd+up59rJScX90QiEapgcFwa/iBuYoaDyARgH8fj7wAyLiP3OLTCRO4t2xoZ6G/1oMPfJV+c2ew4ww==}
+    peerDependencies:
+      react: ^18.2.0 || 18
+      react-dom: ^18.2.0 || 18
+    dependencies:
+      '@duckdb/duckdb-wasm': 1.28.1-dev106.0
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /@jridgewell/gen-mapping@0.3.2:
     resolution: {integrity: sha512-mh65xKQAzI6iBcFzwv28KVWSmCkdRBWoOh+bYQGW3+6OZvbbN3TqMGo5hqYxQniRcH9F2VZIoJCm4pa3BPDK/A==}
@@ -10930,7 +10944,7 @@ packages:
       json-bignum: 0.0.3
       pad-left: 2.1.0
       text-encoding-utf-8: 1.0.2
-      tslib: 2.4.0
+      tslib: 2.6.2
     dev: false
 
   /aproba@1.2.0:

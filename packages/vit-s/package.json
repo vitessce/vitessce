@@ -49,6 +49,7 @@
     "zustand": "^3.5.10",
     "react-aria": "^3.28.0",
     "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
+    "@jetblack/duckdb-react": "^0.5.1",
     "apache-arrow": "^15.0.2"
   },
   "devDependencies": {
