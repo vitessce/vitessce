@@ -16,6 +16,7 @@ import { baseJs, baseJson } from './_live-editor-examples.js';
 
 // TODO: remove this when ThreeJS-based XR spatial view is on main branch.
 const betaXrKeys = [
+  'Figure3a_blood_vessel',
   'Figure3d_tumor_cytoskeleton',
   'Figure6n_cell_community',
 ];
@@ -107,7 +108,7 @@ function IndexWithHashParams() {
   // TODO: remove this useEffect when ThreeJS-based XR spatial view is on main branch.
   useEffect(() => {
     if (isBetaXrDemo) {
-      window.location.href = `http://beta-xr.vitessce.io/?dataset=${demo}`;
+      window.location.href = `http://beta-3d.vitessce.io/?dataset=${demo}`;
     }
   }, [isBetaXrDemo]);
   // End TODO
