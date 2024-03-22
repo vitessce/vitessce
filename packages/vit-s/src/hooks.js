@@ -277,7 +277,7 @@ export function useExpressionValueGetter(
     return null;
   }, [instanceObsIndex, matrixObsIndex]);
 
-  console.log(sampleEdges);
+  //console.log(sampleEdges);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
@@ -290,7 +290,7 @@ export function useExpressionValueGetter(
       const sampleId = sampleEdges?.get(obsId);
       const sampleSet = sampleId ? sampleIdToSetMap?.get(sampleId) : null;
       //console.log(obsId, sampleId, sampleSet);
-      if(sampleSet?.[1] === 'Healthy Reference') {
+      if(sampleSet?.[1] === 'CKD') {
         const val = expressionData[0][rowIndex];
         return val;
       }

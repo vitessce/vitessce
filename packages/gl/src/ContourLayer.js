@@ -21,7 +21,7 @@
 import { LineLayer, SolidPolygonLayer } from '@deck.gl/layers';
 import { FillStyleExtension } from '@deck.gl/extensions';
 import { ContourLayer } from '@deck.gl/aggregation-layers';
-import { contourDensity } from 'd3-contour';
+import { quantile } from 'd3-array';
 
 const DEFAULT_COLOR = [255, 255, 255, 255];
 const DEFAULT_STROKE_WIDTH = 1;
@@ -70,18 +70,11 @@ export default class ContourPatternLayer extends ContourLayer {
 
     // Note: could potentially use a <1 cellSize
     // Reference: https://github.com/d3/d3-contour/issues/63#issuecomment-1224930141
-    const contours = contourDensity()
-      .x((d, i) => positions[i*positionSize + 0])
-      .y((d, i) => positions[i*positionSize + 1])
-      .weight((d, i) => weights[i*weightSize])
-      .cellSize(32)
-      .size([width, height]) // TODO: use value extents instead (for all cells, not just this cell type)?
-      //.bandwidth(2)
-      //.thresholds(3)
-      .aggregation('MEAN')
-      (weightValues);
 
-    return contours.map(c => c.value);
+    const thresholds = [0.09, 0.9, 0.99, 0.999].map(p => quantile(weights, p))
+      .map((t) => Math.max(t, 1.0))
+      .filter((t, i) => i === 0 || t > 1.0);
+    return thresholds;
   }
 
   updateState(opts) {
@@ -98,18 +91,11 @@ export default class ContourPatternLayer extends ContourLayer {
     ) {
       const thresholds = this.getThresholds();
       console.log(thresholds);
-      const contours = [
-        {
-          threshold: 1,
-          color: [0, 0, 0, (1/(thresholds.length)) * 255],
-          strokeWidth: 2,
-        },
-        ...thresholds.map((threshold, i) => ({
-          threshold: threshold,
-          color: [0, 0, 0, ((i+1)/(thresholds.length)) * 255],
-          strokeWidth: 2,
-        }))
-      ];
+      const contours = thresholds.map((threshold, i) => ({
+        threshold: threshold,
+        color: [0, 0, 0, ((i+1)/(thresholds.length)) * 255],
+        strokeWidth: 2,
+      }));
       super._updateThresholdData({ contours, zOffset: props.zOffset });
       super._generateContours();
       console.log(this.state.thresholdData);
