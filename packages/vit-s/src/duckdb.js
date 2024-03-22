@@ -19,7 +19,7 @@ const BUNDLES = {
 export function DbProvider(props) {
   const { children } = props;
   return (
-    <DuckDB bundles={BUNDLES}>
+    <DuckDB>
       {children}
     </DuckDB>
   );

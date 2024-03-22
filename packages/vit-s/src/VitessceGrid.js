@@ -22,7 +22,6 @@ import {
 import { useVitessceContainerStyles } from './shared-mui/container.js';
 import { useTitleStyles } from './title-styles.js';
 import { getAltText } from './generate-alt-text.js';
-import { useDuckDB } from '@jetblack/duckdb-react';
 
 const padding = 10;
 const margin = 5;
@@ -53,9 +52,6 @@ export default function VitessceGrid(props) {
     coordinationTypes,
     stores,
   } = props;
-
-  const { db, loading, error } = useDuckDB();
-  console.log(db, loading, error);
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
   const onResize = useEmitGridResize();
