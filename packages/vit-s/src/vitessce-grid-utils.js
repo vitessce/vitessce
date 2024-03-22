@@ -125,7 +125,6 @@ function withDefaults(
  * instance.
  */
 export function createLoaders(datasets, configDescription, fileTypes, coordinationTypes, stores) {
-  initDatabase().then(db => console.log(db));
   const result = {};
   const dataSources = new InternMap([], JSON.stringify);
   const defaultCoordinationValues = Object.fromEntries(

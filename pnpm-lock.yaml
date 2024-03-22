@@ -1624,6 +1624,9 @@ importers:
       '@duckdb/duckdb-wasm':
         specifier: ^1.28.1-dev106.0
         version: 1.28.1-dev106.0
+      '@duckdb/react-duckdb':
+        specifier: ^1.28.1-dev106.0
+        version: 1.28.1-dev106.0
       '@material-ui/core':
         specifier: ~4.12.3
         version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
@@ -5851,6 +5854,10 @@ packages:
     resolution: {integrity: sha512-HcA9q/Yq1t8nAIg2rl8DmOTjKy1tAHSdBGHlCcWAm5StsfAjcm+f0STBEH3hmWPk0qEtOJF30OR+GfeyUOP+hA==}
     dependencies:
       apache-arrow: 14.0.2
+    dev: false
+
+  /@duckdb/react-duckdb@1.28.1-dev106.0:
+    resolution: {integrity: sha512-DSoNFFTaGE9YU1SWxk5pu+TR/VpJKu23EHLxumUmc1gkqPvCMHjvcDoGKknSfSfQ7LTgIHCtMm9gGvGXVD5GdA==}
     dev: false
 
   /@emotion/hash@0.8.0:
