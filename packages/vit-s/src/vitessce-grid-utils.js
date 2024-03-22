@@ -5,6 +5,7 @@ import { InternMap } from 'internmap';
 import { isEqual, pick } from 'lodash-es';
 import { DATA_TYPE_COORDINATION_VALUE_USAGE } from '@vitessce/constants-internal';
 import { getSourceAndLoaderFromFileType, getDataTypeFromFileType } from './data/loader-registry.js';
+import { initDatabase } from './duckdb.js';
 
 /**
  * Return the bottom coordinate of the layout.
@@ -124,6 +125,7 @@ function withDefaults(
  * instance.
  */
 export function createLoaders(datasets, configDescription, fileTypes, coordinationTypes, stores) {
+  initDatabase().then(db => console.log(db));
   const result = {};
   const dataSources = new InternMap([], JSON.stringify);
   const defaultCoordinationValues = Object.fromEntries(
