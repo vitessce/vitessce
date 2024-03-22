@@ -1,4 +1,11 @@
 
+## 3.3.9
+
+### Patch Changes
+
+- Update beta URL redirects for 3D paper. (`docs`) ([#1826](https://github.com/vitessce/vitessce/pull/1826))
+
+
 ## 3.3.8
 
 ### Patch Changes
