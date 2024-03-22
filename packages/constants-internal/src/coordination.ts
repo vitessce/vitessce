@@ -63,6 +63,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.TOOLTIPS_VISIBLE,
+    CoordinationType.SAMPLE_TYPE,
+    CoordinationType.SAMPLE_SET_SELECTION,
   ],
   [ViewType.GATING]: [
     CoordinationType.DATASET,

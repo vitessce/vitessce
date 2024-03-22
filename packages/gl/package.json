@@ -62,6 +62,7 @@
     "@turf/helpers": "^6.5.0",
     "@vitessce/utils": "workspace:*",
     "d3-array": "^2.4.0",
+    "d3-contour": "^4.0.2",
     "deck.gl": "8.8.27",
     "glslify": "^7.0.0",
     "lodash-es": "^4.17.21",
