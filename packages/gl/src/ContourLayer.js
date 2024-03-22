@@ -74,10 +74,10 @@ export default class ContourPatternLayer extends ContourLayer {
       .x((d, i) => positions[i*positionSize + 0])
       .y((d, i) => positions[i*positionSize + 1])
       .weight((d, i) => weights[i*weightSize])
-      .cellSize(1)
+      .cellSize(32)
       .size([width, height]) // TODO: use value extents instead (for all cells, not just this cell type)?
-      .bandwidth(2)
-      .thresholds(3)
+      //.bandwidth(2)
+      //.thresholds(3)
       .aggregation('MEAN')
       (weightValues);
 
@@ -105,7 +105,7 @@ export default class ContourPatternLayer extends ContourLayer {
           strokeWidth: 2,
         },
         ...thresholds.map((threshold, i) => ({
-          threshold: threshold * 3,
+          threshold: threshold,
           color: [0, 0, 0, ((i+1)/(thresholds.length)) * 255],
           strokeWidth: 2,
         }))
