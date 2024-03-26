@@ -313,6 +313,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
+      '@vitessce/db-utils':
+        specifier: workspace:*
+        version: link:../../utils/db-utils
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl
@@ -786,6 +789,18 @@ importers:
       vitest:
         specifier: ^0.32.2
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+
+  packages/utils/db-utils:
+    dependencies:
+      '@duckdb/duckdb-wasm':
+        specifier: ^1.28.1-dev106.0
+        version: 1.28.1-dev106.0
+      '@jetblack/duckdb-react':
+        specifier: ^0.5.1
+        version: 0.5.1(react-dom@18.2.0)(react@18.2.0)
+      apache-arrow:
+        specifier: ^15.0.2
+        version: 15.0.2
 
   packages/utils/export-utils:
     dependencies:

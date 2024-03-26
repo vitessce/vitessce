@@ -1,5 +1,5 @@
 {
-  "name": "@vitessce/zarr",
+  "name": "@vitessce/db-utils",
   "version": "3.3.9",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
@@ -30,18 +30,8 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/gl": "workspace:*",
-    "@vitessce/sets-utils": "workspace:*",
-    "@vitessce/spatial-utils": "workspace:*",
-    "@vitessce/image-utils": "workspace:*",
-    "@vitessce/utils": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
-    "@vitessce/zarr-utils": "workspace:*",
-    "@vitessce/db-utils": "workspace:*",
-    "@vitessce/config": "workspace:*",
-    "d3-array": "^2.4.0",
-    "lodash-es": "^4.17.21",
-    "zarrita": "0.4.0-next.10"
+    "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
+    "@jetblack/duckdb-react": "^0.5.1",
+    "apache-arrow": "^15.0.2"
   }
 }

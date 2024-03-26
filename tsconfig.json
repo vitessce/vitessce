@@ -41,6 +41,7 @@
     { "path": "packages/utils/spatial-utils" },
     { "path": "packages/utils/image-utils" },
     { "path": "packages/utils/zarr-utils" },
+    { "path": "packages/utils/db-utils" },
     { "path": "packages/vega" },
     { "path": "packages/vit-s" },
     { "path": "packages/view-types/description" },
