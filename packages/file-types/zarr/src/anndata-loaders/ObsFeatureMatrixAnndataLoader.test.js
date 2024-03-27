@@ -20,7 +20,7 @@ import mudata_0_2_CscFixture from '../json-fixtures/mudata-0.2/mudata-csc.json';
 import mudata_0_2_CsrFixture from '../json-fixtures/mudata-0.2/mudata-csr.json';
 import mudata_0_2_DenseFixture from '../json-fixtures/mudata-0.2/mudata-dense.json';
 
-const toArray = (typedArr) => Array.from(typedArr).map(Number)
+const toArray = typedArr => Array.from(typedArr).map(Number);
 
 function createAnndataLoader(url, mapContents, path = 'X') {
   const store = createStoreFromMapContents(mapContents);
@@ -48,11 +48,11 @@ const createMudataLoader = (url, mapContents) => {
 };
 
 describe('loaders/ObsFeatureMatrixAnndataLoader', () => {
-  Object.entries({ '0.7': [anndata_0_7_DenseFixture, anndata_0_7_CsrFixture, anndata_0_7_CscFixture], '0.8': [anndata_0_8_DenseFixture, anndata_0_8_CsrFixture, anndata_0_8_CscFixture], '0.9': [anndata_0_9_DenseFixture, anndata_0_9_CsrFixture, anndata_0_9_CscFixture], '0.10': [anndata_0_10_DenseFixture, anndata_0_10_CsrFixture, anndata_0_10_CscFixture] }).forEach(([version, fixtures]) => {
+  Object.entries({ 0.7: [anndata_0_7_DenseFixture, anndata_0_7_CsrFixture, anndata_0_7_CscFixture], 0.8: [anndata_0_8_DenseFixture, anndata_0_8_CsrFixture, anndata_0_8_CscFixture], 0.9: [anndata_0_9_DenseFixture, anndata_0_9_CsrFixture, anndata_0_9_CscFixture], '0.10': [anndata_0_10_DenseFixture, anndata_0_10_CsrFixture, anndata_0_10_CscFixture] }).forEach(([version, fixtures]) => {
     describe(`AnnData v${version}`, () => {
       const [denseFixture, csrFixture, cscFixture] = fixtures;
       const loaderCsr = createAnndataLoader(
-        `@fixtures/zarr/anndata-${version}/anndata-csr${version != '0.7' ? '.adata' : ''}.zarr`,
+        `@fixtures/zarr/anndata-${version}/anndata-csr${version !== '0.7' ? '.adata' : ''}.zarr`,
         csrFixture,
       );
       const loaderDense = createAnndataLoader(
@@ -90,40 +90,39 @@ describe('loaders/ObsFeatureMatrixAnndataLoader', () => {
         const cscMatrix = await loaderCsc.loadCellXGene();
         const getDataFromDtype = async (dtype) => {
           const loaderCsrDtype = createAnndataLoader(
-            `@fixtures/zarr/anndata-${version}/anndata-csr${version != '0.7' ? '.adata' : ''}.zarr`,
+            `@fixtures/zarr/anndata-${version}/anndata-csr${version !== '0.7' ? '.adata' : ''}.zarr`,
             csrFixture,
-            `layers/${dtype}`
+            `layers/${dtype}`,
           );
           const loaderDenseDtype = createAnndataLoader(
             `@fixtures/zarr/anndata-${version}/anndata-dense.zarr`,
             denseFixture,
-            `layers/${dtype}`
+            `layers/${dtype}`,
           );
           const loaderCscDtype = createAnndataLoader(
             `@fixtures/zarr/anndata-${version}/anndata-csc.zarr`,
             cscFixture,
-            `layers/${dtype}`
+            `layers/${dtype}`,
           );
-          const csrMatrix = await loaderCsrDtype.loadCellXGene();
-          const denseMatrix = await loaderDenseDtype.loadCellXGene();
-          const cscMatrix = await loaderCscDtype.loadCellXGene();
+          const csrMatrixDtype = await loaderCsrDtype.loadCellXGene();
+          const denseMatrixDtype = await loaderDenseDtype.loadCellXGene();
+          const cscMatrixDtype = await loaderCscDtype.loadCellXGene();
           return {
-            csrMatrix,
-            denseMatrix,
-            cscMatrix,
-          }
-        }
-        const dataInt32 = await getDataFromDtype('int32')
-        const dataInt64 = await getDataFromDtype('int64')
+            csrMatrix: csrMatrixDtype,
+            denseMatrix: denseMatrixDtype,
+            cscMatrix: cscMatrixDtype,
+          };
+        };
+        const dataInt32 = await getDataFromDtype('int32');
+        const dataInt64 = await getDataFromDtype('int64');
 
 
-        expect(toArray(cscMatrix)).toEqual(toArray(dataInt32['cscMatrix']));
-        expect(toArray(csrMatrix)).toEqual(toArray(dataInt32['csrMatrix']));
-        expect(toArray(denseMatrix)).toEqual(toArray(dataInt32['denseMatrix']))
-        expect(toArray(cscMatrix)).toEqual(toArray(dataInt64['cscMatrix']));
-        expect(toArray(csrMatrix)).toEqual(toArray(dataInt64['csrMatrix']));
-        expect(toArray(denseMatrix)).toEqual(toArray(dataInt64['denseMatrix']));
-
+        expect(toArray(cscMatrix)).toEqual(toArray(dataInt32.cscMatrix));
+        expect(toArray(csrMatrix)).toEqual(toArray(dataInt32.csrMatrix));
+        expect(toArray(denseMatrix)).toEqual(toArray(dataInt32.denseMatrix));
+        expect(toArray(cscMatrix)).toEqual(toArray(dataInt64.cscMatrix));
+        expect(toArray(csrMatrix)).toEqual(toArray(dataInt64.csrMatrix));
+        expect(toArray(denseMatrix)).toEqual(toArray(dataInt64.denseMatrix));
       });
 
       it('loadCellXGeneSelection matches across dtypes', async () => {
@@ -133,43 +132,42 @@ describe('loaders/ObsFeatureMatrixAnndataLoader', () => {
         const cscMatrix = await loaderCsc.loadGeneSelection(selection);
         const getDataFromDtype = async (dtype) => {
           const loaderCsrDtype = createAnndataLoader(
-            `@fixtures/zarr/anndata-${version}/anndata-csr${version != '0.7' ? '.adata' : ''}.zarr`,
+            `@fixtures/zarr/anndata-${version}/anndata-csr${version !== '0.7' ? '.adata' : ''}.zarr`,
             csrFixture,
-            `layers/${dtype}`
+            `layers/${dtype}`,
           );
           const loaderDenseDtype = createAnndataLoader(
             `@fixtures/zarr/anndata-${version}/anndata-dense.zarr`,
             denseFixture,
-            `layers/${dtype}`
+            `layers/${dtype}`,
           );
           const loaderCscDtype = createAnndataLoader(
             `@fixtures/zarr/anndata-${version}/anndata-csc.zarr`,
             cscFixture,
-            `layers/${dtype}`
+            `layers/${dtype}`,
           );
-          const csrMatrix = await loaderCsrDtype.loadGeneSelection(selection);
-          const denseMatrix = await loaderDenseDtype.loadGeneSelection(selection);
-          const cscMatrix = await loaderCscDtype.loadGeneSelection(selection);
+          const csrMatrixDtype = await loaderCsrDtype.loadGeneSelection(selection);
+          const denseMatrixDtype = await loaderDenseDtype.loadGeneSelection(selection);
+          const cscMatrixDtype = await loaderCscDtype.loadGeneSelection(selection);
           return {
-            csrMatrix,
-            denseMatrix,
-            cscMatrix,
-          }
-        }
-        const dataInt32 = await getDataFromDtype('int32')
-        const dataInt64 = await getDataFromDtype('int64')
+            csrMatrix: csrMatrixDtype,
+            denseMatrix: denseMatrixDtype,
+            cscMatrix: cscMatrixDtype,
+          };
+        };
+        const dataInt32 = await getDataFromDtype('int32');
+        const dataInt64 = await getDataFromDtype('int64');
 
 
-        expect(toArray(cscMatrix)).toEqual(toArray(dataInt32['cscMatrix']));
-        expect(toArray(csrMatrix)).toEqual(toArray(dataInt32['csrMatrix']));
-        expect(toArray(denseMatrix)).toEqual(toArray(dataInt32['denseMatrix']))
-        expect(toArray(cscMatrix)).toEqual(toArray(dataInt64['cscMatrix']));
-        expect(toArray(csrMatrix)).toEqual(toArray(dataInt64['csrMatrix']));
-        expect(toArray(denseMatrix)).toEqual(toArray(dataInt64['denseMatrix']));
-
+        expect(toArray(cscMatrix)).toEqual(toArray(dataInt32.cscMatrix));
+        expect(toArray(csrMatrix)).toEqual(toArray(dataInt32.csrMatrix));
+        expect(toArray(denseMatrix)).toEqual(toArray(dataInt32.denseMatrix));
+        expect(toArray(cscMatrix)).toEqual(toArray(dataInt64.cscMatrix));
+        expect(toArray(csrMatrix)).toEqual(toArray(dataInt64.csrMatrix));
+        expect(toArray(denseMatrix)).toEqual(toArray(dataInt64.denseMatrix));
       });
     });
-  })
+  });
 
   describe('MuData v0.2', () => {
     it('loadFilteredGeneNames returns gene names', async () => {
