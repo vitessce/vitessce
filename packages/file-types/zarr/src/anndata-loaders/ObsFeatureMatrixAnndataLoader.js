@@ -10,6 +10,19 @@ import {
 // value returned from the load function.
 const toObject = data => ({ data });
 
+const filterOutEveryOther = (arr) => {
+  const filtered = new arr.constructor(arr.length / 2);
+  for (let i = 0; i < (arr.length / 2); i++) {
+    filtered[i] = arr[i * 2];
+  }
+  return filtered;
+};
+
+// eslint-disable-next-line no-undef
+const maybeDowncastInt64 = data => (data.constructor === BigInt64Array
+  ? filterOutEveryOther(new Int32Array(data.buffer))
+  : data);
+
 const concatenateColumnVectors = (arr) => {
   const numCols = arr.length;
   const numRows = arr[0].length;
@@ -139,9 +152,10 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
         const { data: rowIndices } = await zarrGet(indexArr, [
           slice(startRowIndex, endRowIndex),
         ]);
-        const { data: cellXGeneData } = await zarrGet(cellXGeneArr, [
+        let { data: cellXGeneData } = await zarrGet(cellXGeneArr, [
           slice(startRowIndex, endRowIndex),
         ]);
+        cellXGeneData = maybeDowncastInt64(cellXGeneData);
         for (let rowIndex = 0; rowIndex < rowIndices.length; rowIndex += 1) {
           geneData[rowIndices[rowIndex]] = cellXGeneData[rowIndex];
         }
@@ -181,12 +195,14 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     this._sparseMatrix = this._openSparseArrays().then(async (sparseArrays) => {
       const { path: matrix } = this.getOptions();
       const { shape } = await this.dataSource.getJson(`${matrix}/.zattrs`);
-      const [rows, cols, cellXGene] = await Promise.all(
+      // eslint-disable-next-line prefer-const
+      let [rows, cols, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
           const { data } = await createZarrArrayAdapter(arr).getRaw(null);
           return data;
         }),
       );
+      cellXGene = maybeDowncastInt64(cellXGene);
       const cellXGeneMatrix = new Float32Array(shape[0] * shape[1]).fill(0);
       let row = 0;
       rows.forEach((_, index) => {
@@ -215,12 +231,14 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     this._sparseMatrix = this._openSparseArrays().then(async (sparseArrays) => {
       const { path: matrix } = this.getOptions();
       const { shape } = await this.dataSource.getJson(`${matrix}/.zattrs`);
-      const [cols, rows, cellXGene] = await Promise.all(
+      // eslint-disable-next-line prefer-const
+      let [cols, rows, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
           const { data } = await createZarrArrayAdapter(arr).getRaw(null);
           return data;
         }),
       );
+      cellXGene = maybeDowncastInt64(cellXGene);
       const cellXGeneMatrix = new Float32Array(shape[0] * shape[1]).fill(0);
       let col = 0;
       cols.forEach((_, index) => {
@@ -266,7 +284,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
         }
         this.cellXGene = this.arr
           .then(z => createZarrArrayAdapter(z).getRaw(null))
-          .then(({ data }) => toObject(data));
+          .then(({ data }) => toObject(maybeDowncastInt64(data)));
       }
     } else if (encodingType === 'csr_matrix') {
       this.cellXGene = this._loadCSRSparseCellXGene().then(
@@ -323,7 +341,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       genes = await Promise.all(
         indices.map(index => this.arr
           .then(z => zarrGet(z, [null, index]))
-          .then(({ data }) => data)),
+          .then(({ data }) => maybeDowncastInt64(data))),
       );
     }
     return { data: genes, url: null };
