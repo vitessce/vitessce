@@ -18,16 +18,6 @@ const filterOutEveryOther = (arr) => {
   return filtered;
 };
 
-const castByBuffer = (arr) => {
-  const buffer = new ArrayBuffer(arr.length * 4)
-  const filtered = new DataView();
-  const viewOfArr = new DataView(arr.buffer)
-  for (let i = 0; i < arr.length; i++) {
-    filtered.setInt32(i * 4, viewOfArr.getInt32(i * 8, True));
-  }
-  return new Int32Array(buffer);
-};
-
 // eslint-disable-next-line no-undef
 const maybeDowncastInt64 = data => (data.constructor === BigInt64Array
   ? filterOutEveryOther(new Int32Array(data.buffer))
