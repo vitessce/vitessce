@@ -11,7 +11,7 @@ import {
 const toObject = data => ({ data });
 
 // eslint-disable-next-line no-undef
-const maybeDownCastInt64 = data => (data.constructor === BigInt64Array
+const maybeDowncastInt64 = data => (data.constructor === BigInt64Array
   ? new Int32Array(data.buffer).filter((_, i) => (i + 1) % 2)
   : data);
 
@@ -147,7 +147,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
         let { data: cellXGeneData } = await zarrGet(cellXGeneArr, [
           slice(startRowIndex, endRowIndex),
         ]);
-        cellXGeneData = maybeDownCastInt64(cellXGeneData);
+        cellXGeneData = maybeDowncastInt64(cellXGeneData);
         for (let rowIndex = 0; rowIndex < rowIndices.length; rowIndex += 1) {
           geneData[rowIndices[rowIndex]] = cellXGeneData[rowIndex];
         }
@@ -194,7 +194,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
           return data;
         }),
       );
-      cellXGene = maybeDownCastInt64(cellXGene);
+      cellXGene = maybeDowncastInt64(cellXGene);
       const cellXGeneMatrix = new Float32Array(shape[0] * shape[1]).fill(0);
       let row = 0;
       rows.forEach((_, index) => {
@@ -230,7 +230,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
           return data;
         }),
       );
-      cellXGene = maybeDownCastInt64(cellXGene);
+      cellXGene = maybeDowncastInt64(cellXGene);
       const cellXGeneMatrix = new Float32Array(shape[0] * shape[1]).fill(0);
       let col = 0;
       cols.forEach((_, index) => {
@@ -276,7 +276,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
         }
         this.cellXGene = this.arr
           .then(z => createZarrArrayAdapter(z).getRaw(null))
-          .then(({ data }) => toObject(maybeDownCastInt64(data)));
+          .then(({ data }) => toObject(maybeDowncastInt64(data)));
       }
     } else if (encodingType === 'csr_matrix') {
       this.cellXGene = this._loadCSRSparseCellXGene().then(
@@ -334,7 +334,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
         indices.map(index => this.arr
           .then(z => zarrGet(z, [null, index]))
           // typeof data is object :(
-          .then(({ data }) => maybeDownCastInt64(data))),
+          .then(({ data }) => maybeDowncastInt64(data))),
       );
     }
     return { data: genes, url: null };
