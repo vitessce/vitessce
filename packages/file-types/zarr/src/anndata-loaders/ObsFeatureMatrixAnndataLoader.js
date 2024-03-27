@@ -10,7 +10,7 @@ import {
 // value returned from the load function.
 const toObject = data => ({ data });
 
-const filterMod2 = (arr) => {
+const filterOutEveryOther = (arr) => {
   const filtered = new arr.constructor(arr.length / 2);
   for (let i = 0; i < (arr.length / 2); i++) {
     filtered[i] = arr[i * 2];
@@ -19,7 +19,7 @@ const filterMod2 = (arr) => {
 };
 // eslint-disable-next-line no-undef
 const maybeDowncastInt64 = data => (data.constructor === BigInt64Array
-  ? filterMod2(new Int32Array(data.buffer))
+  ? filterOutEveryOther(new Int32Array(data.buffer))
   : data);
 
 const concatenateColumnVectors = (arr) => {
