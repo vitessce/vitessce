@@ -56,7 +56,7 @@ Checkout the project, `cd`, and then:
 
 ```sh
 pnpm install
-pnpm run build # for @vitessce/icons and @vitessce/workers
+pnpm run build
 pnpm run start-demo
 ```
 
