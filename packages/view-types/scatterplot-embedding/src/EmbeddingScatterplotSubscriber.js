@@ -37,6 +37,7 @@ import {
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { deck } from '@vitessce/gl';
 
 /**
  * A subscriber component for the scatterplot.
@@ -144,11 +145,62 @@ export function EmbeddingScatterplotSubscriber(props) {
     ORDER BY obsIndex ASC
   `);
 
-  console.log(insertionStatus, queryStatus, queryResult);
+  const isReady = useReady([insertionStatus, queryStatus]);
+
+  //console.log(insertionStatus, queryStatus, queryResult, queryResult?.getChild('obsIndex'), queryResult?.getChild('x').get(13000));
+
+
+  const deckData = useMemo(() => {
+    return ({
+      src: {
+        x: queryResult?.getChild('x').toArray(),
+        y: queryResult?.getChild('y').toArray(),
+      },
+      length: queryResult?.numRows,
+    });
+  }, [queryResult]);
+
+  const layers = useMemo(() => ([
+    new deck.ScatterplotLayer({
+      id: 'scatterplot',
+      data: deckData,
+      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+      radiusScale: 0.01,
+      getPosition: (object, { index, data, target }) => {
+        target[0] = data.src.x[index];
+        target[1] = data.src.y[index];
+        target[2] = 0;
+        return target;
+      },
+      getFillColor: [255, 0, 0],
+      getRadius: 1,
+    }),
+  ]), [deckData]);
+
+  const views = useMemo(() => ([
+    new deck.OrthographicView({ id: 'ortho' })
+  ]), []);
 
   return (
-    <p>DuckDb testing</p>
+    <TitleInfo
+      title={title}
+      closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
+      removeGridComponent={removeGridComponent}
+      theme={theme}
+      isReady={isReady}
+    >
+      <deck.DeckGL
+        ref={deckRef}
+        initialViewState={{ zoom: 5, target: [0, 0, 0] }}
+        layers={layers}
+        views={views}
+        controller={true}
+      />
+    </TitleInfo>
   );
+  
+  /*
 
 
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
@@ -432,4 +484,5 @@ export function EmbeddingScatterplotSubscriber(props) {
       />
     </TitleInfo>
   );
+  */
 }
