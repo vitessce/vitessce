@@ -257,7 +257,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       lineWidthUnits: 'pixels',
       getPosition: (object, { index, data, target }) => {
         target[0] = data.src.x[index];
-        target[1] = data.src.y[index];
+        target[1] = -data.src.y[index];
         target[2] = 0;
         return target;
       },

@@ -16,7 +16,6 @@ import {
   useDataTypeMulti,
 } from './data-hook-utils.js';
 
-
 /**
  * Get the dataset description string.
  * @param {object} loaders The object mapping
