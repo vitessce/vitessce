@@ -69,7 +69,6 @@ export async function dataQueryFn(ctx) {
     const payload = await loader.load();
     if (!payload) return placeholderObject; // TODO: throw error instead?
     const { data, url, coordinationValues } = payload;
-
     // Status: success
     // Array of objects like  { url, name }.
     const urls = (Array.isArray(url) ? url : [{ url, name: dataType }]).filter(d => d.url);
@@ -195,11 +194,7 @@ export function useDataType(
 ) {
   const setWarning = useSetWarning();
   const placeholderObject = useMemo(() => ({}), []);
-
-  const duckdb = useDuckDB();
-
   const dataQuery = useQuery({
-    enabled: !duckdb.loading,
     // TODO: only enable when loaders has been initialized?
     structuralSharing: false,
     placeholderData: placeholderObject,
@@ -212,7 +207,7 @@ export function useDataType(
     // Query function should return an object
     // { data, dataKey } where dataKey is the loaded gene selection.
     queryFn: dataQueryFn,
-    meta: { loaders, placeholderObject, duckdb },
+    meta: { loaders, placeholderObject },
   });
   const { data, status, isFetching, error } = dataQuery;
   const loadedData = data?.data || placeholderObject;
