@@ -147,7 +147,7 @@ const SpatialThree = (props) => {
             }
         }
         if (segmentationOBSSetLayerProps.obsHighlight !== null) {
-            setsSave.push({name: "", id: segmentationOBSSetLayerProps.obsHighlight, color: [160, 32, 240]});
+            setsSave.push({name: "", id: segmentationOBSSetLayerProps.obsHighlight, color: [255,34,0]});
         }
     }
     if (obsSegmentations[layerScope] !== undefined && segmentationGroup == null) {

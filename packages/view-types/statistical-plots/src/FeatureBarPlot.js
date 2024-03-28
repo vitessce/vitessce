@@ -147,9 +147,9 @@ export default function FeatureBarPlot(props) {
             .attr('width', xScale.bandwidth())
             .attr('height', d => innerHeight - yScale(d[FEATURE_KEY]))
             .style('fill', d => {
-                if(d[OBS_KEY] === cellHighlight)
-                    return "purple"
-                if(setsSave.has(d[OBS_KEY])){
+                if (d[OBS_KEY] === cellHighlight)
+                    return "orange"
+                if (setsSave.has(d[OBS_KEY])) {
                     let color = setsSave.get(d[OBS_KEY]).color;
                     return rgbToHex(color)
                 }
