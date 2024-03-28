@@ -176,7 +176,7 @@ const SpatialThree = (props) => {
                     || childElement.material instanceof THREE.MeshBasicMaterial) {
                     childElement.material = new THREE.MeshStandardMaterial();
                 }
-                let name = childElement.name.replace("mesh_","").replace("mesh","").replace("glb", "").replace("_dec", "")
+                let name = childElement.name.replace("mesh_", "").replace("mesh", "").replace("glb", "").replace("_dec", "")
                     .replace("_Decobj", "").replace("obj", "").replace("_DEc", "").replace(".", "").replace("_Dec", "");
                 if (name.includes("_")) {
                     name = name.split("_")[0]
@@ -184,7 +184,7 @@ const SpatialThree = (props) => {
                 console.log(name)
                 childElement.name = name;
                 childElement.userData.name = name;
-                childElement.material.transparent = true
+                childElement.material.transparent = false
                 childElement.material.writeDepthTexture = true
                 childElement.material.depthTest = true
                 childElement.material.depthWrite = true
@@ -526,7 +526,7 @@ const SpatialThree = (props) => {
             <HandDecorate/>
             <GeometryAndMesh {...geometryAndMeshProps} ></GeometryAndMesh>
             <OrbitControls ref={orbitRef} enableDamping={false} dampingFactor={0.0}
-                           zoomDampingFactor={0.0} smoothZoom={false} rotation={[0.0,Math.PI,0.0]}/>
+                           zoomDampingFactor={0.0} smoothZoom={false} rotation={[0.0, Math.PI, 0.0]}/>
         </group>
     );
 }
@@ -877,8 +877,8 @@ function GeometryAndMesh(props) {
 
     // TODO: IF we want to have a ZoomGrab than it needs to adapt the 0.002 value
     // TODO: The measurement from time to time intersects with the rayGrab (maybe "tell it" that we are in measurement mode)
-    // console.log(renderingSettings.geometrySize)
-    // console.log(renderingSettings.meshScale)
+    //console.log(renderingSettings.geometrySize)
+    //console.log(renderingSettings.meshScale)
     return (
         <group>
             {useXR().isPresenting ?
@@ -937,20 +937,20 @@ function GeometryAndMesh(props) {
                                 <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                                 <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
                                 <directionalLight color={0xFFFFFF} position={[0, 800, 0]}/>
-                                {/*<Bvh firstHitOnly>*/}
+                                <Bvh firstHitOnly>
                                     <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
-                                               // onClick={(e) => {
-                                               //     if (e.object.parent.userData.name == "finalPass") {
-                                               //         highlightGlom(e.object.name);
-                                               //     }
-                                               // }}
-                                               // onPointerOver={e => {
-                                               //     console.log(e.object.name)
-                                               //     setObsHighlight(e.object.name)
-                                               // }}
-                                               // onPointerOut={e => setObsHighlight(null)}
+                                               onClick={(e) => {
+                                                   if (e.object.parent.userData.name == "finalPass") {
+                                                       highlightGlom(e.object.name);
+                                                   }
+                                               }}
+                                               onPointerOver={e => {
+                                                   console.log(e.object.name)
+                                                   setObsHighlight(e.object.name)
+                                               }}
+                                               onPointerOut={e => setObsHighlight(null)}
                                     />
-                                {/*</Bvh>*/}
+                                </Bvh>
                             </group>
                         }
                         {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null &&
@@ -970,11 +970,11 @@ function GeometryAndMesh(props) {
                                         fragmentShader={renderingSettings.shader.fragmentShader}
                                     />
                                 </mesh>
-                                <mesh scale={renderingSettings.meshScale}>
-                                    <boxGeometry BackSide args={renderingSettings.geometrySize}/>
-                                    <meshStandardMaterial color="white" transparent opacity={0.0} />
-                                    <Edges name="bboxEdges" color={"black"} />
-                                </mesh>
+                                {/*<mesh scale={renderingSettings.meshScale}>*/}
+                                {/*    <boxGeometry BackSide args={renderingSettings.geometrySize}/>*/}
+                                {/*    <meshStandardMaterial color="white" transparent opacity={0.0} />*/}
+                                {/*    <Edges name="bboxEdges" color={"black"} />*/}
+                                {/*</mesh>*/}
                             </group>
                         }
                     </group>
@@ -1168,8 +1168,8 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
     var shader = VolumeRenderShaderPerspective;
     var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
     setUniformsTextures(uniforms, texturesList, volume, cmtextures, volconfig, renderstyle, contrastLimitsList, colorsSave, layerTransparency,
-        xSlice, ySlice, zSlice, [scale[0].size, scale[1].size, scale[2]? scale[2].size : 1.0], originalScale);
-    return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2]? scale[2].size / scale[0].size : 1.0], [volume.xLength, volume.yLength, volume.zLength],
+        xSlice, ySlice, zSlice, [scale[0].size, scale[1].size, scale[2] ? scale[2].size : 1.0], originalScale);
+    return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2] ? scale[2].size / scale[0].size : 1.0], [volume.xLength, volume.yLength, volume.zLength],
         [1.0, volume.yLength / volume.xLength, volume.zLength / volume.xLength]];
 }
 
@@ -1188,6 +1188,7 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
             textures.set(channel, getData3DTexture(volume))
             volumeMinMax.set(channel, minMax);
             scale = getPhysicalSizeScalingMatrix(data[resolution]);
+            console.log(scale)
         }
     }
     return [volumes, textures, volumeMinMax, scale,

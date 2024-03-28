@@ -5,21 +5,17 @@ import {
 } from '@vitessce/config';
 
 
-function generateSorgerBiggerNeighborhood() {
+function generateBloodVesselNeighborhood() {
     const config = new VitessceConfig({
         schemaVersion: '1.0.16',
-        name: 'Figure3d_tumor_cytoskeleton',
+        name: 'Blood Vessel Neighborhood',
     });
     const dataset = config.addDataset('My dataset').addFile({
         fileType: 'image.ome-tiff',
-        // url: "https://assets.hubmapconsortium.org/30bc1823e0c19be58557fb979499bac2/ometiff-pyramids/data/3D_image_stack.ome.tif?token=",
-        // url: "https://vitessce-data-v2.s3.amazonaws.com/data/kiemenetal/5xHE.ome.tiff",
-        // url: "http://127.0.0.1:8080/cell_community.ome.tif",
-        // url: "https://vitessce-data-v2.s3.amazonaws.com/data/redBloodCell.ome.tiff",
-        url: "https://vitessce-data-v2.s3.amazonaws.com/data/sorger/f8ii.ome.tiff",
-        // options: {
-        //        offsetsUrl: "https://vitessce-data-v2.s3.amazonaws.com/data/kiemenetal/5xHE.offsets.json",
-        // },
+        url: 'https://vitessce-data-v2.s3.amazonaws.com/data/sorger/bloodVessel_bigger.ome.tiff',
+        options: {
+            offsetsUrl: "https://vitessce-data-v2.s3.amazonaws.com/data/sorger/bloodVessel_bigger.offsets.json",
+        },
         coordinationValues: {
             fileUid: 'melanoma',
         },
@@ -38,46 +34,46 @@ function generateSorgerBiggerNeighborhood() {
                 spatialTargetResolution: null,
                 imageChannel: CL([
                     {
-                        spatialTargetC: 2,
-                        spatialChannelColor: [0, 255, 255],
+                        spatialTargetC: 0,
+                        spatialChannelColor: [0, 0, 255],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,
-                        spatialChannelWindow: [725,10246],
+                        spatialChannelWindow: [3389,33551],
                     },
                     {
-                        spatialTargetC: 10,
+                        spatialTargetC: 3,
+                        spatialChannelColor: [255, 0, 0],
+                        spatialChannelVisible: true,
+                        spatialChannelOpacity: 1.0,
+                        spatialChannelWindow: [1245,26447],
+                    },
+                    {
+                        spatialTargetC: 13,
                         spatialChannelColor: [255, 255, 0],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,
-                        spatialChannelWindow: [725,10246],
+                        spatialChannelWindow: [2,53],
                     },
                     {
-                        spatialTargetC: 9,
-                        spatialChannelColor: [255, 0, 255],
+                        spatialTargetC: 4,
+                        spatialChannelColor: [0, 255, 255],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,
-                        spatialChannelWindow: [720,8403],
+                        spatialChannelWindow: [525,5863],
                     },
                     {
                         spatialTargetC: 8,
                         spatialChannelColor: [255, 0, 255],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,
-                        spatialChannelWindow: [525,5863],
+                        spatialChannelWindow: [134,24050],
                     },
                     {
-                        spatialTargetC: 1,
-                        spatialChannelColor: [0, 0, 255],
+                        spatialTargetC: 5,
+                        spatialChannelColor: [0, 255, 0],
                         spatialChannelVisible: true,
                         spatialChannelOpacity: 1.0,
-                        spatialChannelWindow: [2063,10029],
-                    },
-                    {
-                        spatialTargetC: 11,
-                        spatialChannelColor: [255, 255, 0],
-                        spatialChannelVisible: true,
-                        spatialChannelOpacity: 1.0,
-                        spatialChannelWindow: [2851,16127],
+                        spatialChannelWindow: [457,20591],
                     }
                 ]),
             },
@@ -90,4 +86,4 @@ function generateSorgerBiggerNeighborhood() {
     return configJSON;
 }
 
-export const sorgerBiggerNeighborhood = generateSorgerBiggerNeighborhood();
+export const bloodVesselNeighborhood = generateBloodVesselNeighborhood();

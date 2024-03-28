@@ -8,7 +8,7 @@ import {
 function generateBloodVesselConfig() {
     const config = new VitessceConfig({
         schemaVersion: '1.0.16',
-        name: 'Figure3d_tumor_cytoskeleton',
+        name: 'Figure3a_blood_vessel',
     });
     const dataset = config.addDataset('My dataset').addFile({
         fileType: 'image.ome-tiff',
