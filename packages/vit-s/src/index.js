@@ -85,6 +85,9 @@ export {
 } from './data-hooks-multilevel.js';
 export {
   useHasLoader,
+  useSqlInsert,
+  useSql,
+  getTableName,
 } from './data-hook-utils.js';
 export {
   AbstractLoader,
