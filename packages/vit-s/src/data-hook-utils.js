@@ -140,20 +140,24 @@ export function useSqlInsert(loaders, dataToInsert) {
   return [isSuccess];
 }
 
-export function useSql(insertionStatus, queryString) {
+export function useSql(insertionStatus, queryString, options) {
   // TODO: parameters for invalidation?
   const duckdb = useDuckDB();
 
   const sqlQuery = useQuery({
     enabled: insertionStatus,
-    meta: { duckdb },
+    meta: { duckdb, options },
     queryKey: [queryString, 'sql-query'],
     queryFn: async (ctx) => {
-      const { duckdb } = ctx.meta;
+      const { duckdb, options } = ctx.meta;
       const [queryString] = ctx.queryKey;
+      const { singleRow } = options || {}
       const conn = await duckdb.db.connect();
       const result = await conn.query(queryString);
       await conn.close();
+      if(singleRow) {
+        return result.toArray()[0];
+      }
       return result;
     },
   });
