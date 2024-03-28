@@ -1,6 +1,7 @@
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
+import { tableFromArrays } from 'apache-arrow';
 
 /**
  * Loader for embedding arrays located in anndata.zarr stores.
@@ -42,7 +43,14 @@ export default class ObsEmbeddingAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async loadArrow() {
-    const { path } = this.options;
-    
+    const result = await this.load();
+    const { obsIndex, obsEmbedding } = result.data;
+
+    // TODO: optimize by creating table from vectors
+    return tableFromArrays({
+      obsIndex,
+      x: obsEmbedding.data[0],
+      y: obsEmbedding.data[1],
+    });
   }
 }

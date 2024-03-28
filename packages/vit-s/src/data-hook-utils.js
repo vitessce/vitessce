@@ -15,6 +15,7 @@ import {
   AbstractLoaderError,
   LoaderNotFoundError,
 } from './errors/index.js';
+import { tableToIPC } from 'apache-arrow';
 
 /**
  * Warn via publishing to the console
@@ -59,7 +60,7 @@ export function initCoordinationSpace(values, setters, initialValues) {
 
 
 export async function dataQueryFn(ctx) {
-  const { placeholderObject, loaders, duckdb } = ctx.meta;
+  const { placeholderObject, loaders } = ctx.meta;
   // This ordering of the queryKey must match.
   const [dataset, dataType, matchOn, isRequired] = ctx.queryKey;
   const loader = getMatchingLoader(loaders, dataset, dataType, matchOn);
@@ -68,12 +69,6 @@ export async function dataQueryFn(ctx) {
     const payload = await loader.load();
     if (!payload) return placeholderObject; // TODO: throw error instead?
     const { data, url, coordinationValues } = payload;
-
-    const conn = await duckdb.db.connect();
-    console.log(conn);
-    await conn.close();
-
-    //console.log(data, duckdb.db)
 
     // Status: success
     // Array of objects like  { url, name }.
@@ -88,6 +83,85 @@ export async function dataQueryFn(ctx) {
     // Status: success
     return { data: placeholderObject };
   }
+}
+
+
+export function getTableName({ dataset, dataType, matchOn }) {
+  const matchOnStr = Object.keys(matchOn)
+    .toSorted()
+    .map((key) => `${key}_${matchOn[key]}`)
+    .join('_');
+  return `${dataType}_${dataset}_${matchOnStr}`.replaceAll('-', ''); // TODO: figure out better alternative
+}
+
+
+export function useSqlInsert(loaders, dataToInsert) {
+  const duckdb = useDuckDB();
+
+  const insertQueries = useQueries({
+    queries: dataToInsert.map(({ dataType, dataset, matchOn }) => ({
+      enabled: !duckdb.loading && !duckdb.error,
+      meta: { duckdb, loaders },
+      queryKey: [dataType, dataset, matchOn, 'sql-insert'],
+      // TODO: Update queryKey to support appending to same table / multiple insertions.
+      queryFn: async (ctx) => {
+        const [dataType, dataset, matchOn] = ctx.queryKey;
+        const { loaders, duckdb } = ctx.meta;
+        const loader = getMatchingLoader(loaders, dataset, dataType, matchOn);
+
+        if(loader) {
+          const implementsLoadArrow = typeof loader.loadArrow === 'function';
+          if(implementsLoadArrow) {
+            const arrowTable = await loader.loadArrow();
+            const conn = await duckdb.db.connect();
+            // TODO: convert to IPC first?
+            // Reference: https://github.com/observablehq/feedback/issues/623
+            const arrowBuffer = tableToIPC(arrowTable, 'stream');
+            await conn.insertArrowFromIPCStream(arrowBuffer, {
+              create: true, // TODO: determine when to insert vs. create
+              name: getTableName({ dataset, dataType, matchOn }),
+              // TODO: what does the 'schema' option do?
+            });
+            await conn.close();
+            return true;
+          }
+        }
+        return false
+      },
+    })),
+  });
+  
+  const anyLoading = insertQueries.some(q => q.isFetching || q.isLoading);
+  const anyError = insertQueries.some(q => q.isError);
+  // eslint-disable-next-line no-nested-ternary
+  const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
+  const isSuccess = dataStatus === STATUS.SUCCESS;
+
+  return [isSuccess];
+}
+
+export function useSql(insertionStatus, queryString) {
+  // TODO: parameters for invalidation?
+  const duckdb = useDuckDB();
+
+  const sqlQuery = useQuery({
+    enabled: insertionStatus,
+    meta: { duckdb },
+    queryKey: [queryString, 'sql-query'],
+    queryFn: async (ctx) => {
+      const { duckdb } = ctx.meta;
+      const [queryString] = ctx.queryKey;
+      const conn = await duckdb.db.connect();
+      const result = await conn.query(queryString);
+      await conn.close();
+      return result;
+    },
+  });
+
+  const { data: queryResult, status, isFetching, error } = sqlQuery;
+
+  const dataStatus = isFetching ? STATUS.LOADING : status;
+  return [queryResult, dataStatus];
 }
 
 /**

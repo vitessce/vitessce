@@ -21,6 +21,10 @@ import {
   useSetComponentHover,
   useSetComponentViewInfo,
   useInitialCoordination,
+
+  useSqlInsert,
+  useSql,
+  getTableName,
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
@@ -130,6 +134,23 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const title = titleOverride || `Scatterplot (${mapping})`;
 
+  const [insertionStatus] = useSqlInsert(loaders, [
+    { dataType: 'obsEmbedding', dataset, matchOn: { obsType, embeddingType: mapping } },
+  ]);
+
+  const [queryResult, queryStatus] = useSql(insertionStatus, `
+    SELECT obsIndex, x, y
+    FROM ${getTableName({ dataType: 'obsEmbedding', dataset, matchOn: { obsType, embeddingType: mapping } })}
+    ORDER BY obsIndex ASC
+  `);
+
+  console.log(insertionStatus, queryStatus, queryResult);
+
+  return (
+    <p>DuckDb testing</p>
+  );
+
+
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
     coordinationScopes, obsType, loaders, dataset,
   );
@@ -141,6 +162,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     loaders, dataset, true, {}, {},
     { obsType, embeddingType: mapping },
   );
+
   const cellsCount = obsEmbeddingIndex?.length || 0;
   const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
     loaders, dataset, false,

@@ -337,6 +337,9 @@ importers:
       '@vitessce/zarr-utils':
         specifier: workspace:*
         version: link:../../utils/zarr-utils
+      apache-arrow:
+        specifier: ^15.0.2
+        version: 15.0.2
       d3-array:
         specifier: ^2.4.0
         version: 2.12.1
@@ -801,6 +804,9 @@ importers:
       apache-arrow:
         specifier: ^15.0.2
         version: 15.0.2
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
 
   packages/utils/export-utils:
     dependencies:
@@ -1657,6 +1663,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../constants-internal
+      '@vitessce/db-utils':
+        specifier: workspace:*
+        version: link:../utils/db-utils
       '@vitessce/plugins':
         specifier: workspace:*
         version: link:../plugins
