@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useQuery, useQueries } from '@tanstack/react-query';
+import { useDuckDB } from '@jetblack/duckdb-react';
 import {
   capitalize,
   getInitialCoordinationScopePrefix,
@@ -14,6 +15,7 @@ import {
   AbstractLoaderError,
   LoaderNotFoundError,
 } from './errors/index.js';
+import { tableToIPC } from 'apache-arrow';
 
 /**
  * Warn via publishing to the console
@@ -80,6 +82,95 @@ export async function dataQueryFn(ctx) {
     // Status: success
     return { data: placeholderObject };
   }
+}
+
+
+export function getTableName({ dataset, dataType, matchOn }) {
+  const matchOnStr = Object.keys(matchOn)
+    .toSorted()
+    .map((key) => `${key}_${matchOn[key]}`)
+    .join('_');
+  return `${dataType}_${dataset}_${matchOnStr}`
+    .replaceAll('-', '')
+    .replaceAll(' ', '')
+    .replaceAll('(', '')
+    .replaceAll(')', ''); // TODO: figure out better alternative
+}
+
+
+export function useSqlInsert(loaders, dataToInsert) {
+  const duckdb = useDuckDB();
+
+  const insertQueries = useQueries({
+    queries: dataToInsert.map(({ dataType, dataset, matchOn }) => ({
+      enabled: !duckdb.loading && !duckdb.error,
+      meta: { duckdb, loaders },
+      queryKey: [dataType, dataset, matchOn, 'sql-insert'],
+      // TODO: Update queryKey to support appending to same table / multiple insertions.
+      queryFn: async (ctx) => {
+        const [dataType, dataset, matchOn] = ctx.queryKey;
+        const { loaders, duckdb } = ctx.meta;
+        const loader = getMatchingLoader(loaders, dataset, dataType, matchOn);
+        if(loader) {
+          const implementsLoadArrow = typeof loader.loadArrow === 'function';
+          if(implementsLoadArrow) {
+            const arrowTable = await loader.loadArrow();
+            console.log('start insert for', dataType)
+            const conn = await duckdb.db.connect();
+            // TODO: convert to IPC first?
+            // Reference: https://github.com/observablehq/feedback/issues/623
+            const arrowBuffer = tableToIPC(arrowTable, 'stream');
+            console.log(arrowBuffer.byteLength);
+            await conn.insertArrowFromIPCStream(arrowBuffer, {
+              create: true, // TODO: determine when to insert vs. create
+              name: getTableName({ dataset, dataType, matchOn }),
+              // TODO: what does the 'schema' option do?
+            });
+            await conn.close();
+            console.log('end insert for', dataType)
+            return true;
+          }
+        }
+        return false
+      },
+    })),
+  });
+  
+  const anyLoading = insertQueries.some(q => q.isFetching || q.isLoading);
+  const anyError = insertQueries.some(q => q.isError);
+  // eslint-disable-next-line no-nested-ternary
+  const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
+  const isSuccess = dataStatus === STATUS.SUCCESS;
+
+  return [isSuccess];
+}
+
+export function useSql(insertionStatus, queryString, options) {
+  // TODO: parameters for invalidation?
+  const duckdb = useDuckDB();
+
+  const sqlQuery = useQuery({
+    enabled: insertionStatus,
+    meta: { duckdb, options },
+    queryKey: [queryString, 'sql-query'],
+    queryFn: async (ctx) => {
+      const { duckdb, options } = ctx.meta;
+      const [queryString] = ctx.queryKey;
+      const { singleRow } = options || {}
+      const conn = await duckdb.db.connect();
+      const result = await conn.query(queryString);
+      await conn.close();
+      if(singleRow) {
+        return result.toArray()[0];
+      }
+      return result;
+    },
+  });
+
+  const { data: queryResult, status, isFetching, error } = sqlQuery;
+
+  const dataStatus = isFetching ? STATUS.LOADING : status;
+  return [queryResult, dataStatus];
 }
 
 /**

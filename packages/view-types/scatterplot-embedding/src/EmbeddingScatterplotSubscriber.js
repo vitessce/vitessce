@@ -21,6 +21,10 @@ import {
   useSetComponentHover,
   useSetComponentViewInfo,
   useInitialCoordination,
+
+  useSqlInsert,
+  useSql,
+  getTableName,
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
@@ -33,6 +37,7 @@ import {
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { deck } from '@vitessce/gl';
 
 /**
  * A subscriber component for the scatterplot.
@@ -130,6 +135,177 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const title = titleOverride || `Scatterplot (${mapping})`;
 
+  const [insertionStatus] = useSqlInsert(loaders, [
+    { dataType: 'obsEmbedding', dataset, matchOn: { obsType, embeddingType: mapping } },
+    { dataType: 'obsSets', dataset, matchOn: { obsType } },
+  ]);
+
+
+  const [queryResult, queryStatus] = useSql(insertionStatus, `
+    SELECT oet.obsIndex, oet.x, oet.y, ost.setName
+    FROM ${getTableName({ dataType: 'obsEmbedding', dataset, matchOn: { obsType, embeddingType: mapping } })} oet
+    JOIN ${getTableName({ dataType: 'obsSets', dataset, matchOn: { obsType } })} ost
+    ON (oet.obsIndex = ost.obsIndex)
+    WHERE ost.setGroup = '${'Cell Type'}'
+  `);
+
+  const [extentQueryResult, extentQueryStatus] = useSql(insertionStatus, `
+    SELECT
+      min(x) as minX,
+      max(x) as maxX,
+      min(y) as minY,
+      max(y) as maxY
+    FROM ${getTableName({ dataType: 'obsEmbedding', dataset, matchOn: { obsType, embeddingType: mapping } })}
+  `, { singleRow: true });
+
+  const [distinctQueryResult, distinctQueryStatus] = useSql(insertionStatus, `
+    SELECT DISTINCT setName
+    FROM ${getTableName({ dataType: 'obsSets', dataset, matchOn: { obsType } })}
+    WHERE setGroup = '${'Cell Type'}'
+  `);
+  //console.log(distinctQueryResult?.toArray().map(row => row.setName));
+  console.log(queryResult)
+  
+
+  const isReady = useReady([
+    insertionStatus,
+    queryStatus,
+    extentQueryStatus,
+    distinctQueryStatus,
+  ]);
+
+  const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
+  const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
+
+  const [originalViewState, setOriginalViewState] = useState(null);
+
+  const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
+    if (queryResult && extentQueryResult) {
+      const xE = [extentQueryResult.minX, extentQueryResult.maxX];
+      const yE = [extentQueryResult.minY, extentQueryResult.maxY];
+      const xR = xE[1] - xE[0];
+      const yR = yE[1] - yE[0];
+      const cellCount = queryResult.numRows;
+      return [xR, yR, xE, yE, cellCount];
+    }
+    return [null, null, null, null, null];
+  }, [queryResult, extentQueryResult]);
+
+  // After cells have loaded or changed,
+  // compute the cell radius scale based on the
+  // extents of the cell coordinates on the x/y axes.
+  useEffect(() => {
+    if (xRange && yRange) {
+      const pointSizeDevicePixels = getPointSizeDevicePixels(
+        window.devicePixelRatio, zoom, xRange, yRange, width, height,
+      );
+      setDynamicCellRadius(pointSizeDevicePixels);
+
+      const nextCellOpacityScale = getPointOpacity(
+        zoom, xRange, yRange, width, height, numCells, averageFillDensity,
+      );
+      setDynamicCellOpacity(nextCellOpacityScale);
+
+      if (typeof initialTargetX !== 'number' || typeof initialTargetY !== 'number') {
+        // The view config did not define an initial viewState so
+        // we calculate one based on the data and set it.
+        const newTargetX = xExtent[0] + xRange / 2;
+        const newTargetY = yExtent[0] + yRange / 2;
+        const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
+        const notYetInitialized = (typeof targetX !== 'number' || typeof targetY !== 'number');
+        const stillDefaultInitialized = (targetX === newTargetX && targetY === -newTargetY);
+        if (notYetInitialized || stillDefaultInitialized) {
+          setTargetX(newTargetX);
+          // Graphics rendering has the y-axis going south so we need to multiply by negative one.
+          setTargetY(-newTargetY);
+          setZoom(newZoom);
+        }
+        setOriginalViewState({ target: [newTargetX, -newTargetY, 0], zoom: newZoom });
+      } else if (!originalViewState) {
+        // originalViewState has not yet been set and
+        // the view config defined an initial viewState.
+        setOriginalViewState({ target: [initialTargetX, initialTargetY, 0], zoom: initialZoom });
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [xRange, yRange, xExtent, yExtent, numCells,
+    width, height, initialZoom, zoom, initialTargetX, initialTargetY, averageFillDensity]);
+
+  const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
+  const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
+
+
+
+  const onViewStateChange = useCallback(({ viewState }) => {
+    const { zoom: newZoom, target: newTarget } = viewState;
+    setZoom(newZoom);
+    setTargetX(newTarget[0]);
+    setTargetY(newTarget[1]);
+    setTargetZ(newTarget[2] || 0);
+  }, [setZoom, setTargetX, setTargetY, setTargetZ]);
+
+
+  const deckData = useMemo(() => {
+    return ({
+      src: {
+        x: queryResult?.getChild('x').toArray(),
+        y: queryResult?.getChild('y').toArray(),
+      },
+      length: queryResult?.numRows,
+    });
+  }, [queryResult]);
+
+  const layers = useMemo(() => ([
+    new deck.ScatterplotLayer({
+      id: 'scatterplot',
+      data: deckData,
+      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+      radiusScale: 0.01,
+      opacity: cellOpacity,
+      radiusScale: cellRadius,
+      radiusMinPixels: 1,
+      radiusMaxPixels: 30,
+      // Our radius pixel setters measure in pixels.
+      radiusUnits: 'pixels',
+      lineWidthUnits: 'pixels',
+      getPosition: (object, { index, data, target }) => {
+        target[0] = data.src.x[index];
+        target[1] = -data.src.y[index];
+        target[2] = 0;
+        return target;
+      },
+      getFillColor: [255, 255, 255],
+      getRadius: 1,
+    }),
+  ]), [deckData, cellRadius, cellOpacity]);
+
+  const views = useMemo(() => ([
+    new deck.OrthographicView({ id: 'ortho' })
+  ]), []);
+
+  return (
+    <TitleInfo
+      title={title}
+      closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
+      removeGridComponent={removeGridComponent}
+      theme={theme}
+      isReady={isReady}
+    >
+      <deck.DeckGL
+        ref={deckRef}
+        viewState={{ zoom: zoom, target: [targetX, targetY, 0] }}
+        onViewStateChange={onViewStateChange}
+        layers={layers}
+        views={views}
+        controller={true}
+      />
+    </TitleInfo>
+  );
+  
+  /*
+
+
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
     coordinationScopes, obsType, loaders, dataset,
   );
@@ -141,6 +317,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     loaders, dataset, true, {}, {},
     { obsType, embeddingType: mapping },
   );
+
   const cellsCount = obsEmbeddingIndex?.length || 0;
   const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
     loaders, dataset, false,
@@ -410,4 +587,5 @@ export function EmbeddingScatterplotSubscriber(props) {
       />
     </TitleInfo>
   );
+  */
 }
