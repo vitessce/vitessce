@@ -30,6 +30,14 @@ export const salcher2022 = {
                 name: 'Cell Type',
                 path: 'obs/cell_type',
               },
+              {
+                name: 'Cell Type Major',
+                path: 'obs/cell_type_major',
+              },
+              {
+                name: 'Disease',
+                path: 'obs/disease',
+              },
             ],
             featureLabels: {
               path: 'var/feature_name',
@@ -63,7 +71,7 @@ export const salcher2022 = {
     },
   },
   layout: [
-    {
+    /*{
       component: 'obsSets',
       coordinationScopes: {
         dataset: 'A',
@@ -86,7 +94,7 @@ export const salcher2022 = {
       y: 1,
       w: 4,
       h: 6,
-    },
+    },*/
     {
       component: 'scatterplot',
       coordinationScopes: {
@@ -104,7 +112,7 @@ export const salcher2022 = {
       w: 8,
       h: 12,
     },
-    {
+    /*{
       component: 'featureList',
       coordinationScopes: {
         dataset: 'A',
@@ -115,7 +123,7 @@ export const salcher2022 = {
       y: 6,
       w: 2,
       h: 6,
-    },
+    },*/
   ],
   initStrategy: 'auto',
 };

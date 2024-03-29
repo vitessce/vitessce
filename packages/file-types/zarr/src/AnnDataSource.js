@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { open as zarrOpen, get as zarrGet } from 'zarrita';
+import { makeVector, vectorFromArray, Dictionary as arrowDictionary, Uint8 as arrowUint8, Utf8 as arrowUtf8 } from "apache-arrow";
 import { dirname } from './utils.js';
 import ZarrDataSource from './ZarrDataSource.js';
 
@@ -14,8 +15,8 @@ export default class AnnDataSource extends ZarrDataSource {
     this.promises = new Map();
   }
 
-  loadObsColumns(paths) {
-    return this._loadColumns(paths);
+  loadObsColumns(paths, asVector = false) {
+    return this._loadColumns(paths, asVector);
   }
 
   loadVarColumns(paths) {
@@ -29,11 +30,14 @@ export default class AnnDataSource extends ZarrDataSource {
    * @param {string[]} paths An array of strings like "obs/leiden" or "obs/bulk_labels."
    * @returns {Promise} A promise for an array of ids with one per cell.
    */
-  _loadColumns(paths) {
+  _loadColumns(paths, asVector = false) {
     const promises = paths.map((path) => {
       const getCol = (col) => {
         if (!this.promises.has(col)) {
-          const obsPromise = this._loadColumn(col).catch((err) => {
+          const obsPromise = (asVector
+              ? this._loadColumnAsVector(col)
+              : this._loadColumn(col)
+            ).catch((err) => {
             // clear from cache if promise rejects
             this.promises.delete(col);
             // propagate error
@@ -54,7 +58,25 @@ export default class AnnDataSource extends ZarrDataSource {
     return Promise.all(promises);
   }
 
-  async _loadColumn(path) {
+  async _loadColumnAsVector(path) {
+    const [codes, categories] = await this._loadColumnAsCategories(path);
+
+    if(categories) {
+      const categoriesVector = vectorFromArray(categories, new arrowUtf8);
+      return makeVector({
+        data: codes, // indexes into the dictionary
+        dictionary: categoriesVector,
+        type: new arrowDictionary(new arrowUtf8, new arrowUint8),
+      });
+    } else {
+      return vectorFromArray(
+        Array.from(codes).map(i => String(i)),
+        new arrowUtf8,
+      );
+    }
+  }
+
+  async _loadColumnAsCategories(path) {
     const { storeRoot } = this;
     const prefix = dirname(path);
     const { categories, 'encoding-type': encodingType } = await this.getJson(`${path}/.zattrs`);
@@ -84,6 +106,12 @@ export default class AnnDataSource extends ZarrDataSource {
     const arr = await zarrOpen(storeRoot.resolve(codes || path), { kind: 'array' });
     const values = await zarrGet(arr, [null]);
     const { data } = values;
+    return [data, categoriesValues];
+  }
+
+  async _loadColumn(path) {
+    const [data, categoriesValues] = await this._loadColumnAsCategories(path);
+
     const mappedValues = Array.from(data).map(
       i => (!categoriesValues ? String(i) : categoriesValues[i]),
     );

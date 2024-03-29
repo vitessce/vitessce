@@ -90,7 +90,11 @@ export function getTableName({ dataset, dataType, matchOn }) {
     .toSorted()
     .map((key) => `${key}_${matchOn[key]}`)
     .join('_');
-  return `${dataType}_${dataset}_${matchOnStr}`.replaceAll('-', ''); // TODO: figure out better alternative
+  return `${dataType}_${dataset}_${matchOnStr}`
+    .replaceAll('-', '')
+    .replaceAll(' ', '')
+    .replaceAll('(', '')
+    .replaceAll(')', ''); // TODO: figure out better alternative
 }
 
 
@@ -107,21 +111,23 @@ export function useSqlInsert(loaders, dataToInsert) {
         const [dataType, dataset, matchOn] = ctx.queryKey;
         const { loaders, duckdb } = ctx.meta;
         const loader = getMatchingLoader(loaders, dataset, dataType, matchOn);
-
         if(loader) {
           const implementsLoadArrow = typeof loader.loadArrow === 'function';
           if(implementsLoadArrow) {
             const arrowTable = await loader.loadArrow();
+            console.log('start insert for', dataType)
             const conn = await duckdb.db.connect();
             // TODO: convert to IPC first?
             // Reference: https://github.com/observablehq/feedback/issues/623
             const arrowBuffer = tableToIPC(arrowTable, 'stream');
+            console.log(arrowBuffer.byteLength);
             await conn.insertArrowFromIPCStream(arrowBuffer, {
               create: true, // TODO: determine when to insert vs. create
               name: getTableName({ dataset, dataType, matchOn }),
               // TODO: what does the 'schema' option do?
             });
             await conn.close();
+            console.log('end insert for', dataType)
             return true;
           }
         }

@@ -1,7 +1,8 @@
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
-import { tableFromArrays } from 'apache-arrow';
+import { makeTable, vectorFromArray, makeVector, Utf8 as arrowUtf8 } from 'apache-arrow';
+
 
 /**
  * Loader for embedding arrays located in anndata.zarr stores.
@@ -46,11 +47,10 @@ export default class ObsEmbeddingAnndataLoader extends AbstractTwoStepLoader {
     const result = await this.load();
     const { obsIndex, obsEmbedding } = result.data;
 
-    // TODO: optimize by creating table from vectors
-    return tableFromArrays({
-      obsIndex,
-      x: obsEmbedding.data[0],
-      y: obsEmbedding.data[1],
+    return makeTable({
+      obsIndex: vectorFromArray(obsIndex, new arrowUtf8()),
+      x: makeVector(obsEmbedding.data[0]),
+      y: makeVector(obsEmbedding.data[1]),
     });
   }
 }

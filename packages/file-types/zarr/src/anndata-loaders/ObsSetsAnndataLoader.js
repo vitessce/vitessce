@@ -6,7 +6,15 @@ import {
   treeToMembershipMap,
   dataToCellSetsTree,
 } from '@vitessce/sets-utils';
+import { vectorFromArray, makeTable, Dictionary as arrowDictionary, Utf8 as arrowUtf8, Uint8 as arrowUint8, Uint32 as arrowUint32 } from 'apache-arrow';
+import { range } from 'lodash-es';
 
+export function repeatString(val, numRows) {
+  return vectorFromArray(
+    Array.from({ length: numRows }).fill(val),
+    new arrowDictionary(new arrowUtf8, new arrowUint8),
+  )
+}
 
 /**
  * Loader for converting zarr into the cell sets json schema.
@@ -31,10 +39,10 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
     return Promise.all(obsIndexPromises);
   }
 
-  loadCellSetIds() {
+  loadCellSetIds(asVector = false) {
     const { options } = this;
     const cellSetZarrLocation = options.map(({ path }) => path);
-    return this.dataSource.loadObsColumns(cellSetZarrLocation);
+    return this.dataSource.loadObsColumns(cellSetZarrLocation, asVector);
   }
 
   loadCellSetScores() {
@@ -74,5 +82,25 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
     return Promise.resolve(
       new LoaderResult({ obsIndex, obsSets, obsSetsMembership }, null, coordinationValues),
     );
+  }
+
+  async loadArrow() {
+    const { options } = this;
+    const asVector = true;
+    const [obsIndex, obsSetsCols] = await Promise.all([
+      this.dataSource.loadObsIndex(),
+      this.loadCellSetIds(asVector),
+    ]);
+    const colTables = obsSetsCols.map((colVector, j) => {
+      const { name } = options[j];
+      return makeTable({
+        obsIndex: vectorFromArray(obsIndex, new arrowUtf8),
+        setGroup: repeatString(name, obsIndex.length),
+        setName: colVector,
+      })
+    });
+    const arrowTable = colTables
+      .reduce((acc, table) => acc.concat(table), colTables[0]);
+    return arrowTable;
   }
 }

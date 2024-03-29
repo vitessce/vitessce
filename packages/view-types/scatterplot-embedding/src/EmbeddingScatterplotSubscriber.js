@@ -137,12 +137,16 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const [insertionStatus] = useSqlInsert(loaders, [
     { dataType: 'obsEmbedding', dataset, matchOn: { obsType, embeddingType: mapping } },
+    { dataType: 'obsSets', dataset, matchOn: { obsType } },
   ]);
 
+
   const [queryResult, queryStatus] = useSql(insertionStatus, `
-    SELECT obsIndex, x, y
-    FROM ${getTableName({ dataType: 'obsEmbedding', dataset, matchOn: { obsType, embeddingType: mapping } })}
-    ORDER BY obsIndex ASC
+    SELECT oet.obsIndex, oet.x, oet.y, ost.setName
+    FROM ${getTableName({ dataType: 'obsEmbedding', dataset, matchOn: { obsType, embeddingType: mapping } })} oet
+    JOIN ${getTableName({ dataType: 'obsSets', dataset, matchOn: { obsType } })} ost
+    ON (oet.obsIndex = ost.obsIndex)
+    WHERE ost.setGroup = '${'Cell Type'}'
   `);
 
   const [extentQueryResult, extentQueryStatus] = useSql(insertionStatus, `
@@ -153,12 +157,21 @@ export function EmbeddingScatterplotSubscriber(props) {
       max(y) as maxY
     FROM ${getTableName({ dataType: 'obsEmbedding', dataset, matchOn: { obsType, embeddingType: mapping } })}
   `, { singleRow: true });
+
+  const [distinctQueryResult, distinctQueryStatus] = useSql(insertionStatus, `
+    SELECT DISTINCT setName
+    FROM ${getTableName({ dataType: 'obsSets', dataset, matchOn: { obsType } })}
+    WHERE setGroup = '${'Cell Type'}'
+  `);
+  //console.log(distinctQueryResult?.toArray().map(row => row.setName));
+  console.log(queryResult)
   
 
   const isReady = useReady([
     insertionStatus,
     queryStatus,
     extentQueryStatus,
+    distinctQueryStatus,
   ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
