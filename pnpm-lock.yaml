@@ -334,6 +334,12 @@ importers:
       '@vitessce/zarr-utils':
         specifier: workspace:*
         version: link:../../utils/zarr-utils
+      '@zarrita/core':
+        specifier: 0.1.0-next.8
+        version: 0.1.0-next.8
+      '@zarrita/storage':
+        specifier: 0.1.0-next.4
+        version: 0.1.0-next.4
       d3-array:
         specifier: ^2.4.0
         version: 2.12.1

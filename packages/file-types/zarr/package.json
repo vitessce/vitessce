@@ -41,6 +41,8 @@
     "@vitessce/config": "workspace:*",
     "d3-array": "^2.4.0",
     "lodash-es": "^4.17.21",
-    "zarrita": "0.4.0-next.10"
+    "zarrita": "0.4.0-next.10",
+    "@zarrita/core": "0.1.0-next.8",
+    "@zarrita/storage": "0.1.0-next.4"
   }
 }
