@@ -227,7 +227,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
       } = this.vivLoader.metadata;
       return Channels.map((channel, i) => channel.Name || `Channel ${i}`);
     }
-// SpatialData cases (image-label and channels_metadata)
+    // SpatialData cases (image-label and channels_metadata)
     // need to take precedence over general OME-NGFF omero metadata.
     if ('image-label' in this.vivLoader.metadata) {
       return ['labels'];
@@ -248,7 +248,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
       } = this.vivLoader.metadata;
       return channels.map((channel, i) => channel.label || `Channel ${i}`);
     }
-return [];
+    return [];
   }
 
   // TODO: support passing a custom color palette array.
@@ -264,7 +264,7 @@ return [];
       }];
     }
     if ('channels_metadata' in this.vivLoader.metadata) {
-// Temporary code path for SpatialData.
+      // Temporary code path for SpatialData.
       const {
         channels_metadata: channelsMetadata,
       } = this.vivLoader.metadata;
