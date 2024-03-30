@@ -776,6 +776,10 @@ importers:
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/types:
+    dependencies:
+      '@hms-dbmi/viv':
+        specifier: ~0.13.8
+        version: 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
     devDependencies:
       '@types/react':
         specifier: ^18.0.28
@@ -804,6 +808,9 @@ importers:
       '@vitessce/spatial-utils':
         specifier: workspace:*
         version: link:../spatial-utils
+      '@vitessce/types':
+        specifier: workspace:*
+        version: link:../../types
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../other-utils

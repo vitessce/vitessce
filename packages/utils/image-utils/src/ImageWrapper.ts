@@ -1,3 +1,12 @@
+import type {
+  AbstractImageWrapper,
+  VivLoaderType,
+  VivLoaderDataType,
+  ImageOptions,
+  ChannelObject,
+  ResolutionObject,
+  BoundingCube,
+} from '@vitessce/types';
 import {
   coordinateTransformationsToMatrix,
   getNgffAxes,
@@ -7,58 +16,20 @@ import {
   getSourceFromLoader,
   canLoadResolution,
   getStatsForResolution,
-  getBoundingCube,
   isInterleaved as isInterleavedUtil,
 } from '@vitessce/spatial-utils';
 import { VIEWER_PALETTE } from '@vitessce/utils';
-import type { LoadOmeTiffReturnValue } from './ome-tiff-types.js';
-import type { LoadOmeZarrReturnValue } from './ome-zarr-types.js';
-
-
-type VivLoaderType<S extends string[]> = LoadOmeTiffReturnValue<S> | LoadOmeZarrReturnValue<S>;
-type VivLoaderDataType<S extends string[]> = VivLoaderType<S>['data'];
-type ImageOptions = {
-  coordinateTransformations?: object[]; // TODO: stricter type
-  offsetsUrl?: string;
-};
-
-type ChannelObject = {
-  name: string;
-  // Defaults that originate from image file contents
-  // (takes precedence over automatic defaults below)
-  defaultColor?: number[];
-  defaultWindow?: [number, number];
-  // Defaults for automatic initialization
-  // (if defaults above are null or not provided).
-  // TODO: should autoDefaultColor be exposed as a separate value?
-  // or just set as the value of defaultColor when applicable?
-  autoDefaultColor?: number[];
-};
-
-type ResolutionObject = {
-  height: number;
-  width: number;
-  depthDownsampled: number;
-  totalBytes: number;
-  canLoad: boolean;
-};
-
-type BoundingCube = [
-  [number, number],
-  [number, number],
-  [number, number]
-];
 
 /**
  * A wrapper around the Viv loader, to provide a common interface for
  * all image file types.
  */
-export default class ImageWrapper<S extends string[]> {
-  vivLoader: VivLoaderType<S>;
+export default class ImageWrapper implements AbstractImageWrapper {
+  vivLoader: VivLoaderType;
 
   options: ImageOptions;
 
-  constructor(vivLoader: VivLoaderType<S>, options: ImageOptions) {
+  constructor(vivLoader: VivLoaderType, options: ImageOptions) {
     this.options = options || {};
     this.vivLoader = vivLoader;
   }
@@ -96,7 +67,7 @@ export default class ImageWrapper<S extends string[]> {
     return true;
   }
 
-  getData(): VivLoaderDataType<S> {
+  getData(): VivLoaderDataType {
     return this.vivLoader.data;
   }
 
@@ -256,7 +227,7 @@ export default class ImageWrapper<S extends string[]> {
       } = this.vivLoader.metadata;
       return Channels.map((channel, i) => channel.Name || `Channel ${i}`);
     }
-    // SpatialData cases (image-label and channels_metadata)
+// SpatialData cases (image-label and channels_metadata)
     // need to take precedence over general OME-NGFF omero metadata.
     if ('image-label' in this.vivLoader.metadata) {
       return ['labels'];
@@ -277,7 +248,7 @@ export default class ImageWrapper<S extends string[]> {
       } = this.vivLoader.metadata;
       return channels.map((channel, i) => channel.label || `Channel ${i}`);
     }
-    return [];
+return [];
   }
 
   // TODO: support passing a custom color palette array.
@@ -293,7 +264,7 @@ export default class ImageWrapper<S extends string[]> {
       }];
     }
     if ('channels_metadata' in this.vivLoader.metadata) {
-      // Temporary code path for SpatialData.
+// Temporary code path for SpatialData.
       const {
         channels_metadata: channelsMetadata,
       } = this.vivLoader.metadata;
