@@ -11,7 +11,7 @@ import { open as zarrOpen, root as zarrRoot } from 'zarrita';
  */
 export default class ZarrDataSource {
   /**
-   * 
+   *
    * @param {object} params The parameters object.
    * @param {string|undefined} params.url The URLto the root of the store.
    * @param {RequestInit|undefined} params.requestInit Options to pass to fetch calls.
@@ -22,7 +22,7 @@ export default class ZarrDataSource {
     if (store) {
       // TODO: check here that it is a valid Zarrita Readable?
       this.storeRoot = zarrRoot(store);
-    } else if(url) {
+    } else if (url) {
       this.storeRoot = zarrOpenRoot(url, fileType, requestInit);
     } else {
       throw new Error('Either a store or a URL must be provided to the ZarrDataSource constructor.');
@@ -30,8 +30,8 @@ export default class ZarrDataSource {
   }
 
   /**
-   * 
-   * @param {string} path 
+   *
+   * @param {string} path
    * @returns {ZarrLocation<Readable>}
    */
   getStoreRoot(path) {
