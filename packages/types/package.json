@@ -29,7 +29,10 @@
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
     "test": "pnpm exec vitest --run"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@hms-dbmi/viv": "~0.13.8",
+    "@zarrita/storage": "0.1.0-next.4"
+  },
   "devDependencies": {
     "@types/react": "^18.0.28",
     "vite": "^4.3.0",
