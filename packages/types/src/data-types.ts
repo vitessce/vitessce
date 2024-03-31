@@ -81,11 +81,13 @@ export type ImageData = {
   featureIndex: string[];
 };
 
+/*
 export interface LoaderResult<DataType> {
   data: DataType;
   url?: string | { url: string, name: string}[];
   coordinationValues?: { [key: string]: any };
 }
+*/
 
 export type LoaderParams = {
   type: string,
@@ -96,6 +98,7 @@ export type LoaderParams = {
   coordinationValues?: { [key: string]: any },
 };
 
+/*
 export abstract class Loader<DataType> {
   fileType: string;
 
@@ -137,3 +140,4 @@ export abstract class TwoStepLoader<DataType, DataSourceType> extends Loader<Dat
 export abstract class ObsFeatureMatrixLoader extends Loader<ObsFeatureMatrixData> {
   abstract loadAttrs?(): Promise<LoaderResult<ObsFeatureMatrixAttrs>>;
 }
+*/
