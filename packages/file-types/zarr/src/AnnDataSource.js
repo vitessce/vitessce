@@ -219,9 +219,14 @@ export default class AnnDataSource extends ZarrDataSource {
   /**
    * Class method for loading the var alias.
    * @param {string} varPath
+   * @param {string|undefined} matrixPath
    * @returns {Promise<string[]>} An promise for a zarr array containing the aliased names.
    */
-  async loadVarAlias(varPath) {
+  async loadVarAlias(
+    varPath,
+    // eslint-disable-next-line no-unused-vars
+    matrixPath = undefined,
+  ) {
     if (this.varAlias) {
       return this.varAlias;
     }
