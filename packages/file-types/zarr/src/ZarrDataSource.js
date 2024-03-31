@@ -4,6 +4,7 @@ import { open as zarrOpen, root as zarrRoot } from 'zarrita';
 
 /** @import { Location as ZarrLocation } from '@zarrita/core' */
 /** @import { Readable } from '@zarrita/storage' */
+/** @import { DataSourceParams } from '@vitessce/types' */
 
 /**
  * A loader ancestor class containing a default constructor
@@ -11,12 +12,7 @@ import { open as zarrOpen, root as zarrRoot } from 'zarrita';
  */
 export default class ZarrDataSource {
   /**
-   *
-   * @param {object} params The parameters object.
-   * @param {string|undefined} params.url The URLto the root of the store.
-   * @param {RequestInit|undefined} params.requestInit Options to pass to fetch calls.
-   * @param {Readable|undefined} params.store A Zarrita store object.
-   * @param {string} params.fileType The file type.
+   * @param {DataSourceParams} params The parameters object.
    */
   constructor({ url, requestInit, store, fileType }) {
     if (store) {

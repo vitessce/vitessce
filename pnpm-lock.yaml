@@ -325,6 +325,9 @@ importers:
       '@vitessce/spatial-utils':
         specifier: workspace:*
         version: link:../../utils/spatial-utils
+      '@vitessce/types':
+        specifier: workspace:*
+        version: link:../../types
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../../utils/other-utils
@@ -340,6 +343,9 @@ importers:
       '@zarrita/storage':
         specifier: 0.1.0-next.4
         version: 0.1.0-next.4
+      '@zarrita/typedarray':
+        specifier: 0.1.0-next.2
+        version: 0.1.0-next.2
       d3-array:
         specifier: ^2.4.0
         version: 2.12.1
@@ -786,6 +792,9 @@ importers:
       '@hms-dbmi/viv':
         specifier: ~0.13.8
         version: 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
+      '@zarrita/storage':
+        specifier: 0.1.0-next.4
+        version: 0.1.0-next.4
     devDependencies:
       '@types/react':
         specifier: ^18.0.28

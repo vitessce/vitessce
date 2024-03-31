@@ -16,6 +16,9 @@ export type {
   LoaderResult,
 } from './data-types.js';
 export type {
+  DataSourceParams,
+} from './data-sources.js';
+export type {
   AbstractImageWrapper,
   VivLoaderType,
   VivLoaderDataType,
