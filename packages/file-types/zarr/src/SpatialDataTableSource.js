@@ -111,7 +111,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
   /**
    * Class method for loading the var alias.
    * @param {string} varPath
-   * @param {string|undefined} matrixPath
+   * @param {string} matrixPath
    * @returns {Promise<string[]>} An promise for a zarr array containing the aliased names.
    */
   async loadVarAlias(varPath, matrixPath) {
