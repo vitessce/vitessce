@@ -40,11 +40,13 @@ export type ObsSpotsData = {
 export type FeatureLabelsData = {
   featureIndex: string[];
   featureLabels: string[];
+  featureLabelsMap: Map<string, string>;
 };
 
 export type ObsLabelsData = {
   obsIndex: string[];
   obsLabels: string[];
+  obsLabelsMap: Map<string, string>;
 };
 
 export type ObsSetsData = {
@@ -85,10 +87,13 @@ export interface LoaderResult<DataType> {
   coordinationValues?: { [key: string]: any };
 }
 
-type LoaderParams = {
-  type: string, fileType: string,
-  url?: string, requestInit?: RequestInit,
-  options?: any, coordinationValues?: { [key: string]: any },
+export type LoaderParams = {
+  type: string,
+  fileType: string,
+  url?: string,
+  requestInit?: RequestInit,
+  options?: any,
+  coordinationValues?: { [key: string]: any },
 };
 
 export abstract class Loader<DataType> {

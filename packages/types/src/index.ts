@@ -14,6 +14,7 @@ export type {
   ObsSegmentationsData,
   ImageData,
   LoaderResult,
+  LoaderParams,
 } from './data-types.js';
 export type {
   DataSourceParams,

@@ -1664,6 +1664,9 @@ importers:
       '@vitessce/schemas':
         specifier: workspace:*
         version: link:../schemas
+      '@vitessce/types':
+        specifier: workspace:*
+        version: link:../types
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../utils/other-utils

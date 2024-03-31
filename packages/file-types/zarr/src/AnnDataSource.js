@@ -191,10 +191,14 @@ export default class AnnDataSource extends ZarrDataSource {
 
   /**
    * Class method for loading the obs index.
+   * @param {string|undefined} path Used by subclasses.
    * @returns {Promise<string[]>} An promise for a zarr array
    * containing the indices.
    */
-  loadObsIndex() {
+  loadObsIndex(
+    // eslint-disable-next-line no-unused-vars
+    path = undefined,
+  ) {
     if (this.obsIndex) {
       return this.obsIndex;
     }
@@ -205,9 +209,13 @@ export default class AnnDataSource extends ZarrDataSource {
 
   /**
    * Class method for loading the var index.
+   * @param {string|undefined} path Used by subclasses.
    * @returns {Promise<string[]>} An promise for a zarr array containing the indices.
    */
-  loadVarIndex() {
+  loadVarIndex(
+    // eslint-disable-next-line no-unused-vars
+    path = undefined,
+  ) {
     if (this.varIndex) {
       return this.varIndex;
     }
