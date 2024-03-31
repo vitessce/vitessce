@@ -40,11 +40,13 @@ export type ObsSpotsData = {
 export type FeatureLabelsData = {
   featureIndex: string[];
   featureLabels: string[];
+  featureLabelsMap: Map<string, string>;
 };
 
 export type ObsLabelsData = {
   obsIndex: string[];
   obsLabels: string[];
+  obsLabelsMap: Map<string, string>;
 };
 
 export type ObsSetsData = {
@@ -79,18 +81,24 @@ export type ImageData = {
   featureIndex: string[];
 };
 
+/*
 export interface LoaderResult<DataType> {
   data: DataType;
   url?: string | { url: string, name: string}[];
   coordinationValues?: { [key: string]: any };
 }
+*/
 
-type LoaderParams = {
-  type: string, fileType: string,
-  url?: string, requestInit?: RequestInit,
-  options?: any, coordinationValues?: { [key: string]: any },
+export type LoaderParams = {
+  type: string,
+  fileType: string,
+  url?: string,
+  requestInit?: RequestInit,
+  options?: any,
+  coordinationValues?: { [key: string]: any },
 };
 
+/*
 export abstract class Loader<DataType> {
   fileType: string;
 
@@ -132,3 +140,4 @@ export abstract class TwoStepLoader<DataType, DataSourceType> extends Loader<Dat
 export abstract class ObsFeatureMatrixLoader extends Loader<ObsFeatureMatrixData> {
   abstract loadAttrs?(): Promise<LoaderResult<ObsFeatureMatrixAttrs>>;
 }
+*/

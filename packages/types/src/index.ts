@@ -13,8 +13,11 @@ export type {
   ObsSegmentationsBitmask,
   ObsSegmentationsData,
   ImageData,
-  LoaderResult,
+  LoaderParams,
 } from './data-types.js';
+export type {
+  DataSourceParams,
+} from './data-sources.js';
 export type {
   AbstractImageWrapper,
   VivLoaderType,
@@ -30,10 +33,5 @@ export type {
   SetsTree,
 } from './sets.js';
 
-// This is a types-only package,
-// but we also have define some abstract classes here...
-export {
-  Loader,
-  TwoStepLoader,
-  ObsFeatureMatrixLoader,
-} from './data-types.js';
+// This is a types-only package.
+export {};
