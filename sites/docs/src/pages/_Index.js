@@ -23,12 +23,11 @@ const betaXrKeys = [
 // End TODO
 
 // TODO: temporary until paper reviews are complete.
-const betaMr = {
-  D1: 'D1&ws=true&send=true',
-  D2: 'D2&ws=true&send=true',
-  123: '123',
-};
-const betaMrKeys = Object.keys(betaMr);
+const betaMrKeys = [
+  'D1',
+  'D2',
+  '123',
+];
 // End TODO
 
 
@@ -82,11 +81,11 @@ function DemoStyles() {
 
 function IndexWithHashParams() {
   const setHashParams = useSetHashParams();
+  const [wsCode] = useHashParam('code', undefined, 'string');
   const [demo] = useHashParam('dataset', undefined, 'string');
   const [debug] = useHashParam('debug', false, 'boolean');
   const [url] = useHashParam('url', undefined, 'string');
   const [edit] = useHashParam('edit', false, 'boolean');
-  const [wsCode] = useHashParam('code', false, 'string');
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -127,13 +126,11 @@ function IndexWithHashParams() {
   // TODO: remove this useEffect when ThreeJS-based XR spatial view is on main branch.
   useEffect(() => {
     if (isBetaMrDemo) {
-      let codeParam = '';
-      if (wsCode && wsCode.length > 0) {
-        codeParam = `&code=${wsCode}`;
+      if (wsCode) {
+        window.location.href = `http://beta-mr.vitessce.io/?dataset=${demo}&code=${wsCode}&ws=true&send=true`;
       }
-      window.location.href = `http://beta-mr.vitessce.io/?dataset=${betaMr[demo]}${codeParam}`;
     }
-  }, [isBetaMrDemo]);
+  }, [isBetaMrDemo, wsCode]);
   // End TODO
 
   useEffect(() => {
@@ -299,12 +296,13 @@ function IndexWithQueryParamRedirect() {
   // Reference: https://github.com/vitessce/vitessce/pull/810#discussion_r745842290
   const baseUrl = useBaseUrl('/#?');
   const [demo] = useQueryParam('dataset', StringParam);
+  const [wsCode] = useQueryParam('code', StringParam);
   const [url] = useQueryParam('url', StringParam);
 
   useEffect(() => {
     const hasQueryParams = demo || url;
     if (hasQueryParams) {
-      const params = (demo ? `dataset=${demo}` : `url=${url}`);
+      const params = (demo ? `dataset=${demo}${(wsCode ? `&code=${wsCode}` : '')}` : `url=${url}`);
       window.location.href = baseUrl + params;
     }
   }, [baseUrl, demo, url]);
