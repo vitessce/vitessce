@@ -1,4 +1,13 @@
 
+## 3.3.10
+
+### Patch Changes
+
+- Add data-types types, refactor other types, refactor image-utils types. (`@vitessce/image-utils`, `@vitessce/types`) ([#1831](https://github.com/vitessce/vitessce/pull/1831))
+
+- Set up redirects for MR demos for paper (at least until reviews complete). (`docs`) ([#1839](https://github.com/vitessce/vitessce/pull/1839))
+
+
 ## 3.3.9
 
 ### Patch Changes
