@@ -127,7 +127,11 @@ function IndexWithHashParams() {
   // TODO: remove this useEffect when ThreeJS-based XR spatial view is on main branch.
   useEffect(() => {
     if (isBetaMrDemo) {
-      window.location.href = `http://beta-mr.vitessce.io/?dataset=${betaMr[demo]}&code=${wsCode}`;
+      let codeParam = '';
+      if (wsCode && wsCode.length > 0) {
+        codeParam = `&code=${wsCode}`;
+      }
+      window.location.href = `http://beta-mr.vitessce.io/?dataset=${betaMr[demo]}${codeParam}`;
     }
   }, [isBetaMrDemo]);
   // End TODO
