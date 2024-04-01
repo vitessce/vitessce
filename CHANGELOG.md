@@ -1,4 +1,11 @@
 
+## 3.3.11
+
+### Patch Changes
+
+- Support both hash and query params for MR demos. (`docs`) ([#1841](https://github.com/vitessce/vitessce/pull/1841))
+
+
 ## 3.3.10
 
 ### Patch Changes
