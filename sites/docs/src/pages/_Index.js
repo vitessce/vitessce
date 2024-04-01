@@ -22,6 +22,15 @@ const betaXrKeys = [
 ];
 // End TODO
 
+// TODO: temporary until paper reviews are complete.
+const betaMr = {
+  D1: 'D1&ws=true&send=true',
+  D2: 'D2&ws=true&send=true',
+  123: '123',
+};
+const betaMrKeys = Object.keys(betaMr);
+// End TODO
+
 
 function logConfigUpgrade(prevConfig, nextConfig) {
   // eslint-disable-next-line no-console
@@ -77,6 +86,7 @@ function IndexWithHashParams() {
   const [debug] = useHashParam('debug', false, 'boolean');
   const [url] = useHashParam('url', undefined, 'string');
   const [edit] = useHashParam('edit', false, 'boolean');
+  const [wsCode] = useHashParam('code', false, 'string');
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -95,6 +105,7 @@ function IndexWithHashParams() {
 
   // TODO: remove this when ThreeJS-based XR spatial view is on main branch.
   const isBetaXrDemo = demo && betaXrKeys.includes(demo);
+  const isBetaMrDemo = demo && betaMrKeys.includes(demo);
   // End TODO
 
   // Initialize to collapsed if this is a demo.
@@ -111,6 +122,18 @@ function IndexWithHashParams() {
       window.location.href = `http://beta-3d.vitessce.io/?dataset=${demo}`;
     }
   }, [isBetaXrDemo]);
+  // End TODO
+
+  // TODO: remove this useEffect when ThreeJS-based XR spatial view is on main branch.
+  useEffect(() => {
+    if (isBetaMrDemo) {
+      let codeParam = '';
+      if (wsCode && wsCode.length > 0) {
+        codeParam = `&code=${wsCode}`;
+      }
+      window.location.href = `http://beta-mr.vitessce.io/?dataset=${betaMr[demo]}${codeParam}`;
+    }
+  }, [isBetaMrDemo]);
   // End TODO
 
   useEffect(() => {
