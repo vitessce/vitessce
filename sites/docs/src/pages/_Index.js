@@ -24,9 +24,9 @@ const betaXrKeys = [
 
 // TODO: temporary until paper reviews are complete.
 const betaMr = {
-  'D1': 'D1&ws=true&send=true',
-  'D2': 'D2&ws=true&send=true',
-  '123': '123',
+  D1: 'D1&ws=true&send=true',
+  D2: 'D2&ws=true&send=true',
+  123: '123',
 };
 const betaMrKeys = Object.keys(betaMr);
 // End TODO
