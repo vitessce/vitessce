@@ -4,39 +4,12 @@ import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
+import { maybeDowncastInt64, concatenateColumnVectors } from './utils.js';
 
 // Put array of data into an object,
 // to match the expected format of the
 // value returned from the load function.
 const toObject = data => ({ data });
-
-const filterOutEveryOther = (arr) => {
-  const filtered = new arr.constructor(arr.length / 2);
-  for (let i = 0; i < (arr.length / 2); i++) {
-    filtered[i] = arr[i * 2];
-  }
-  return filtered;
-};
-
-// eslint-disable-next-line no-undef
-const maybeDowncastInt64 = data => (data.constructor === BigInt64Array
-  ? filterOutEveryOther(new Int32Array(data.buffer))
-  : data);
-
-const concatenateColumnVectors = (arr) => {
-  const numCols = arr.length;
-  const numRows = arr[0].length;
-  const { BYTES_PER_ELEMENT } = arr[0];
-  const view = new DataView(new ArrayBuffer(numCols * numRows * BYTES_PER_ELEMENT));
-  const TypedArray = arr[0].constructor;
-  const dtype = TypedArray.name.replace('Array', '');
-  for (let i = 0; i < numCols; i += 1) {
-    for (let j = 0; j < numRows; j += 1) {
-      view[`set${dtype}`](BYTES_PER_ELEMENT * (j * numCols + i), arr[i][j], true);
-    }
-  }
-  return new TypedArray(view.buffer);
-};
 
 /**
  * Loader for converting zarr into the a cell x gene matrix for use in Genes/Heatmap components.
