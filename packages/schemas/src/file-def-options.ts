@@ -129,6 +129,9 @@ export const obsSpotsSpatialdataSchema = z.object({
   tablePath: z.string()
     .optional()
     .describe('The path to a table which annotates the spots. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the spot locations. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsFeatureMatrixSpatialdataSchema = annDataObsFeatureMatrix.extend({
   region: z.string()
