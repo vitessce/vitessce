@@ -22,72 +22,99 @@ function getAttrsPath(path) {
 
 const DEFAULT_AXES = [
   {
-    name: "x",
-    type: "space",
-    unit: "unit"
+    name: 'x',
+    type: 'space',
+    unit: 'unit',
   },
   {
-    name: "y",
-    type: "space",
-    unit: "unit"
-  }
+    name: 'y',
+    type: 'space',
+    unit: 'unit',
+  },
 ];
 const DEFAULT_COORDINATE_TRANSFORMATIONS = [
   {
-    "input": {
-      "axes": [
+    input: {
+      axes: [
         {
-          "name": "x",
-          "type": "space",
-          "unit": "unit"
+          name: 'x',
+          type: 'space',
+          unit: 'unit',
         },
         {
-          "name": "y",
-          "type": "space",
-          "unit": "unit"
-        }
+          name: 'y',
+          type: 'space',
+          unit: 'unit',
+        },
       ],
-      "name": "xy"
+      name: 'xy',
     },
-    "output": {
-      "axes": [
+    output: {
+      axes: [
         {
-          "name": "x",
-          "type": "space",
-          "unit": "unit"
+          name: 'x',
+          type: 'space',
+          unit: 'unit',
         },
         {
-          "name": "y",
-          "type": "space",
-          "unit": "unit"
-        }
+          name: 'y',
+          type: 'space',
+          unit: 'unit',
+        },
       ],
-      "name": "global"
+      name: 'global',
     },
-    "type": "identity"
-  }
+    type: 'identity',
+  },
 ];
 
 /**
    * Loader for embedding arrays located in anndata.zarr stores.
    */
 export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
-
+  
   async loadModelMatrix() {
-    const { path, coordinateSystem } = this.options;
+    const { path, coordinateSystem = "global" } = this.options;
     if (this.modelMatrix) {
       return this.modelMatrix;
     }
     // Load the transformations from the .zattrs for the shapes
     const zattrs = await this.dataSource.getJson(getAttrsPath(path));
-    // Convert the coordinate transformations to a modelMatrix
+
+    const {
+      "encoding-type": encodingType,
+      "spatialdata_attrs": {
+        geos: { name: geosName, type: geosType },
+        version: attrsVersion,
+      },
+    } = zattrs;
+    const hasExpectedAttrs = (
+      encodingType === 'ngff:shapes'
+      && geosName === 'POINT'
+      && geosType === 0
+      && attrsVersion === "0.1"
+    );
+    if (!hasExpectedAttrs) {
+      throw new AbstractLoaderError(
+        'Unexpected values for encoding-type or spatialdata_attrs for SpatialData shapes',
+      );
+    }
+    // Convert the coordinate transformations to a modelMatrix.
+    // For attrsVersion === "0.1", we can assume that there is always a
+    // coordinate system which maps from the input "xy" to the specified
+    // output coordinate system.
+
+    // TODO: In a future version of the shapes transformation on-disk format,
+    // the SpatialData team plans to relax this so that it will
+    // become necessary to create a full tree
+    // of coordinate transformations, and traverse the tree from
+    // the node corresponding to the output coordinate system of interest
+    // back to the root node, applying each transformation along the way.
     const coordinateTransformationsFromFile = (
       zattrs?.coordinateTransformations || DEFAULT_COORDINATE_TRANSFORMATIONS
-    ).filter(({ output: { name: outputName } }) => {
-      // TODO: Traverse full tree of coordinate transformations to produce
-      // list that goes from input: "xy" to output: coordinateSystem.
-      return outputName === coordinateSystem;
-    });
+    ).filter(({ input: { name: inputName }, output: { name: outputName } }) => (
+      inputName === "xy" && outputName === coordinateSystem
+    ));
     const axes = zattrs?.axes || DEFAULT_AXES;
     // This new spec is very flexible,
     // so here we will attempt to convert it back to the old spec.
@@ -117,7 +144,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       // Apply transformation matrix to the coordinates
       // TODO: instead of applying here, pass matrix all the way down to WebGL shader
       // (or DeckGL layer)
-      for(let i = 0; i < this.locations.shape[1]; i++) {
+      for (let i = 0; i < this.locations.shape[1]; i++) {
         const xCoord = this.locations.data[0][i];
         const yCoord = this.locations.data[1][i];
         const transformed = new math.Vector2(xCoord, yCoord)
@@ -142,11 +169,11 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       const scaleFactors = modelMatrix.getScale();
       const xScaleFactor = scaleFactors[0];
       const yScaleFactor = scaleFactors[1];
-      if(xScaleFactor !== yScaleFactor) {
-        console.warn("Using x-axis scale factor for transformation of obsSpots, but x and y scale factors are not equal");
+      if (xScaleFactor !== yScaleFactor) {
+        console.warn('Using x-axis scale factor for transformation of obsSpots, but x and y scale factors are not equal');
       }
       // Apply the scale factor to the radius column
-      for(let i = 0; i < this.radius.shape[0]; i++) {
+      for (let i = 0; i < this.radius.shape[0]; i++) {
         this.radius.data[i] *= xScaleFactor;
       }
       return this.radius;
