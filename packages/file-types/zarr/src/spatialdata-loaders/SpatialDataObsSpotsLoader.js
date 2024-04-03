@@ -74,8 +74,7 @@ const DEFAULT_COORDINATE_TRANSFORMATIONS = [
 export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
 
   async loadModelMatrix() {
-    // TODO: remove hardcoded coordinateSystem
-    const { path, coordinateSystem = "downscaled_hires" } = this.options;
+    const { path, coordinateSystem } = this.options;
     if (this.modelMatrix) {
       return this.modelMatrix;
     }
