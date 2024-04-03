@@ -240,7 +240,10 @@ export const anndataZarrSchema = z.object({
 export const spatialdataZarrSchema = z.object({
   // TODO: should `image` be a special schema
   // to allow specifying fileUid (like for embeddingType)?
-  image: imageSpatialdataSchema,
+  image: z.union([
+    imageSpatialdataSchema,
+    z.array(imageSpatialdataSchema),
+  ]),
   // TODO: should this be a special schema
   // to allow specifying fileUid (like for embeddingType)?
   labels: obsSegmentationsSpatialdataSchema,
