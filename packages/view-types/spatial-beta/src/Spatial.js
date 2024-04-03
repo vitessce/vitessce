@@ -300,7 +300,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const getExpressionValue = this.spotExpressionGetters[layerScope];
     const obsIndex = layerObsSpots?.obsIndex;
 
-    const getSpotColor = makeDefaultGetCellColors(cellColors, obsIndex, theme);
+    const getSpotColor = makeDefaultGetCellColorsFromIndices(cellColors, obsIndex, theme);
+    console.log(cellColors)
     const {
       spatialLayerVisible,
       spatialLayerOpacity,
@@ -318,15 +319,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ? spatialLayerColor
       : getDefaultColor(theme);
 
-    return new deck.ScatterplotLayer({
+    return new deck.SolidPolygonLayer({
       id: `${SPOT_LAYER_PREFIX}${layerScope}`,
       data: this.obsSpotsData[layerScope],
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
       autoHighlight: AUTO_HIGHLIGHT,
       opacity: spatialLayerOpacity,
-      filled: spatialSpotFilled,
-      stroked: !spatialSpotFilled,
+      filled: true,
+      stroked: false,
       getLineWidth: !spatialSpotFilled ? spatialSpotStrokeWidth : 0,
       visible: spatialLayerVisible,
       getRadius: spatialSpotRadius,
@@ -339,8 +340,19 @@ class Spatial extends AbstractSpatialOrScatterplot {
         target[2] = 0;
         return target;
       },
+      getPolygon: (object, { index, data }) => {
+        const [x, y] = [data.src.obsSpots.data[0][index], data.src.obsSpots.data[1][index]];
+        return [
+          [x - spatialSpotRadius, y - spatialSpotRadius],
+          [x + spatialSpotRadius, y - spatialSpotRadius],
+          [x + spatialSpotRadius, y + spatialSpotRadius],
+          [x - spatialSpotRadius, y + spatialSpotRadius],
+          [x - spatialSpotRadius, y - spatialSpotRadius],
+        ];
+      },
       getLineColor: isStaticColor ? staticColor : getSpotColor,
       getFillColor: isStaticColor ? staticColor : getSpotColor,
+      getLineWidth: 0,
       onHover: info => delegateHover(info, 'spot', layerScope),
       // Expression color mapping extension props
       extensions: [new ScaledExpressionExtension()],
