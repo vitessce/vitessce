@@ -301,7 +301,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const obsIndex = layerObsSpots?.obsIndex;
 
     const getSpotColor = makeDefaultGetCellColorsFromIndices(cellColors, obsIndex, theme);
-    console.log(cellColors)
     const {
       spatialLayerVisible,
       spatialLayerOpacity,
