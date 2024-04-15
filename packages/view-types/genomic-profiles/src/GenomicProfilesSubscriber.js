@@ -189,6 +189,10 @@ export function GenomicProfilesSubscriber(props) {
       const setColor = isPath ? cellSetColor?.find(s => isEqual(s.path, trackUid))?.color : null;
       // Get the track UID as a string before passing to HiGlass.
       const trackUidString = isPath ? trackUid.join('__') : trackUid;
+      // Get the requestInit object from the current loader, if it exists.
+      const currentLoader = loaders[dataset]?.loaders?.['genomic-profiles'].entries().next().value[1];
+      const requestInit = currentLoader?.requestInit;
+      const options = requestInit ? {overrides: requestInit} : undefined;
       // Create the HiGlass track definition for this profile.
       const track = {
         type: 'horizontal-bar',
@@ -196,6 +200,7 @@ export function GenomicProfilesSubscriber(props) {
         data: {
           type: 'zarr-multivec',
           url,
+          options,
           row: i,
         },
         options: {

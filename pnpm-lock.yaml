@@ -1063,8 +1063,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       higlass-zarr-datafetchers:
-        specifier: 0.3.0-next.2
-        version: 0.3.0-next.2
+        specifier: 0.3.0-next.3
+        version: 0.3.0-next.3
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -16116,12 +16116,12 @@ packages:
     resolution: {integrity: sha512-D4I+ATxFuTn+Q6p8Y9rUa+X3b3cqMqhu9Tya6uHtvgV5cs39Mk7i6Z+7PMA8YuwQd5gLMSxCm2lCyWmxRVBQsQ==}
     dev: false
 
-  /higlass-zarr-datafetchers@0.3.0-next.2:
-    resolution: {integrity: sha512-04CACWOZOLSRzqtr8jHGPNccTvrVPXVc2IAbBDyQHsiEKHmtiDNCR+CY5me8DjLNwG3ET5PSnRGvNC5j1X2kwQ==}
+  /higlass-zarr-datafetchers@0.3.0-next.3:
+    resolution: {integrity: sha512-OKhf3a5IcSTvF1PmN6i5TQaNXDU9nlwzgDcErAU+QVqMBH+TIQYegxJiIgrMVfULt4kggPaM7LF5OgiQ2i27HQ==}
     dependencies:
       higlass-register: 0.3.0
       slugid: 3.2.0
-      zarrita: 0.4.0-next.4
+      zarrita: 0.4.0-next.10
     dev: false
 
   /history@4.10.1:
@@ -25245,14 +25245,6 @@ packages:
 
   /zarrita@0.4.0-next.10:
     resolution: {integrity: sha512-S9SODuy40xuv4jSYP0AtfdItWOetKTyEGGRCO0uv7NQ+JY66Q/k4kvGxuM040sxVIIboKkjuA7V+pT3uyPtgLA==}
-    dependencies:
-      '@zarrita/core': 0.1.0-next.8
-      '@zarrita/indexing': 0.1.0-next.10
-      '@zarrita/storage': 0.1.0-next.4
-    dev: false
-
-  /zarrita@0.4.0-next.4:
-    resolution: {integrity: sha512-IcSzNKUzkjFpFYozpjUsdK7nTjzGQbXJC0cSJj/uUxlv48dFRCc75UERblwRDi+BflcSBopWm3fY5V+ZgEjrZQ==}
     dependencies:
       '@zarrita/core': 0.1.0-next.8
       '@zarrita/indexing': 0.1.0-next.10
