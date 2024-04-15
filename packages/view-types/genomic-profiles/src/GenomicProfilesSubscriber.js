@@ -96,7 +96,10 @@ export function GenomicProfilesSubscriber(props) {
     coordinationScopes,
   );
 
-  const [genomicProfilesAttrs, genomicProfilesStatus, genomicProfilesUrls] = useGenomicProfilesData(
+  const [
+    genomicProfilesAttrs, genomicProfilesStatus,
+    genomicProfilesUrls, genomicProfilesRequestInit,
+  ] = useGenomicProfilesData(
     loaders, dataset, true, {}, {},
     {},
   );
@@ -190,9 +193,9 @@ export function GenomicProfilesSubscriber(props) {
       // Get the track UID as a string before passing to HiGlass.
       const trackUidString = isPath ? trackUid.join('__') : trackUid;
       // Get the requestInit object from the current loader, if it exists.
-      const currentLoader = loaders[dataset]?.loaders?.['genomic-profiles'].entries().next().value[1];
-      const requestInit = currentLoader?.requestInit;
-      const options = requestInit ? { overrides: requestInit } : undefined;
+      const options = genomicProfilesRequestInit
+        ? { overrides: genomicProfilesRequestInit }
+        : undefined;
       // Create the HiGlass track definition for this profile.
       const track = {
         type: 'horizontal-bar',
