@@ -192,7 +192,7 @@ export function GenomicProfilesSubscriber(props) {
       // Get the requestInit object from the current loader, if it exists.
       const currentLoader = loaders[dataset]?.loaders?.['genomic-profiles'].entries().next().value[1];
       const requestInit = currentLoader?.requestInit;
-      const options = requestInit ? {overrides: requestInit} : undefined;
+      const options = requestInit ? { overrides: requestInit } : undefined;
       // Create the HiGlass track definition for this profile.
       const track = {
         type: 'horizontal-bar',
