@@ -1,4 +1,17 @@
 
+## 3.3.12
+
+### Patch Changes
+
+- Added support for providing requestInit options to genomic profiles requests (`@vitessce/genomic-profiles`) ([#1854](https://github.com/vitessce/vitessce/pull/1854))
+
+- Add documentation about spatialdata.zarr file type options. (`docs`) ([#1847](https://github.com/vitessce/vitessce/pull/1847))
+
+- (feat): add support for int64 data types (+ testing for anndata 0.9-10) (`@vitessce/zarr`) ([#1830](https://github.com/vitessce/vitessce/pull/1830))
+
+- Update table path regex for SpatialDataTableSource to support both table/ and tables/. (`@vitessce/zarr`) ([#1850](https://github.com/vitessce/vitessce/pull/1850))
+
+
 ## 3.3.11
 
 ### Patch Changes
