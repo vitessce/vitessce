@@ -18,9 +18,7 @@ export const kpmpAutoInit2023 = {
           url: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2.ome.tif`,
           options: {
             offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2.offsets.json`,
-          },
-          coordinationValues: {
-            image: 'S-1905-017737',
+            obsTypesFromChannelNames: true,
           },
         },
         {
@@ -28,9 +26,6 @@ export const kpmpAutoInit2023 = {
           url: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2_bf.ome.tif`,
           options: {
             offsetsUrl: `${baseUrl}/S-1905-017737/S-1905-017737_PAS_2of2_bf.offsets.json`,
-          },
-          coordinationValues: {
-            image: 'S-1905-017737_bf',
           },
         },
         {
@@ -108,13 +103,23 @@ export const kpmpAutoInit2023 = {
       ],
     },
   ],
+  coordinationSpace: {
+    photometricInterpretation: {
+      'init_S-1905-017737_image_0': 'RGB',
+    },
+    obsType: {
+      'init_S-1905-017737_obsSegmentations_0': 'Cortical Interstitia',
+      'init_S-1905-017737_obsSegmentations_1': 'Non-Globally Sclerotic Glomeruli',
+      'init_S-1905-017737_obsSegmentations_2': 'Globally Sclerotic Glomeruli',
+      'init_S-1905-017737_obsSegmentations_3': 'Tubules',
+      'init_S-1905-017737_obsSegmentations_4': 'Arteries/Arterioles',
+      'init_S-1905-017737_obsSegmentations_5': 'Peritubular Capillaries',
+    },
+  },
   initStrategy: 'auto',
   layout: [
     {
       component: 'spatialBeta',
-      coordinationScopes: {
-
-      },
       x: 0,
       y: 0,
       w: 8,
@@ -122,12 +127,6 @@ export const kpmpAutoInit2023 = {
     },
     {
       component: 'layerControllerBeta',
-      props: {
-        disableChannelsIfRgbDetected: true,
-      },
-      coordinationScopes: {
-
-      },
       x: 8,
       y: 0,
       w: 4,

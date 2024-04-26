@@ -10,6 +10,16 @@ node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/ann
 node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/anndata-0.8/anndata-csr.adata.zarr packages/file-types/zarr/src/json-fixtures/anndata-0.8/anndata-csr.adata.json
 node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/anndata-0.8/anndata-dense.zarr packages/file-types/zarr/src/json-fixtures/anndata-0.8/anndata-dense.json
 
+# anndata-0.9
+node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/anndata-0.9/anndata-csc.zarr packages/file-types/zarr/src/json-fixtures/anndata-0.9/anndata-csc.json
+node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/anndata-0.9/anndata-csr.adata.zarr packages/file-types/zarr/src/json-fixtures/anndata-0.9/anndata-csr.adata.json
+node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/anndata-0.9/anndata-dense.zarr packages/file-types/zarr/src/json-fixtures/anndata-0.9/anndata-dense.json
+
+# anndata-0.10
+node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/anndata-0.10/anndata-csc.zarr packages/file-types/zarr/src/json-fixtures/anndata-0.10/anndata-csc.json
+node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/anndata-0.10/anndata-csr.adata.zarr packages/file-types/zarr/src/json-fixtures/anndata-0.10/anndata-csr.adata.json
+node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/anndata-0.10/anndata-dense.zarr packages/file-types/zarr/src/json-fixtures/anndata-0.10/anndata-dense.json
+
 # mudata-0.2
 node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/mudata-0.2/mudata-csc.zarr packages/file-types/zarr/src/json-fixtures/mudata-0.2/mudata-csc.json
 node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/mudata-0.2/mudata-csr.zarr packages/file-types/zarr/src/json-fixtures/mudata-0.2/mudata-csr.json

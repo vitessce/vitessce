@@ -1,14 +1,20 @@
+// @ts-check
 import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError } from '@vitessce/vit-s';
+
+/** @import AnnDataSource from '../AnnDataSource.js' */
+/** @import { FeatureLabelsData } from '@vitessce/types' */
 
 /**
  * Loader for string arrays located in anndata.zarr stores.
+ * @template {AnnDataSource} DataSourceType
+ * @extends {AbstractTwoStepLoader<DataSourceType>}
  */
 export default class FeatureLabelsAnndataLoader extends AbstractTwoStepLoader {
   /**
    * Class method for loading feature string labels.
-   * @returns {Promise} A promise for the array.
+   * @returns {Promise<string[]>} A promise for the array.
    */
-  loadLabels() {
+  async loadLabels() {
     const { path } = this.options;
     if (this.labels) {
       return this.labels;
@@ -18,10 +24,13 @@ export default class FeatureLabelsAnndataLoader extends AbstractTwoStepLoader {
       this.labels = this.dataSource._loadColumn(path);
       return this.labels;
     }
-    this.labels = Promise.resolve(null);
     return this.labels;
   }
 
+  /**
+   *
+   * @returns {Promise<LoaderResult<FeatureLabelsData>>}
+   */
   async load() {
     const { path } = this.options;
     const superResult = await super.load().catch(reason => Promise.resolve(reason));
@@ -38,7 +47,7 @@ export default class FeatureLabelsAnndataLoader extends AbstractTwoStepLoader {
       {
         featureIndex,
         featureLabels,
-        featureLabelsMap: new Map(featureIndex.map((key, i) => ([key, featureLabels[i]]))),
+        featureLabelsMap: new Map(featureIndex.map((key, i) => ([key, featureLabels?.[i]]))),
       },
       null,
     )));

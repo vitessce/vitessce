@@ -1,19 +1,12 @@
 /* eslint-disable no-unused-vars */
 import React, {useRef, useState, forwardRef, useEffect, useCallback} from 'react';
-import {Canvas, extend, useFrame, useThree} from '@react-three/fiber'
+import {Canvas, useFrame, useThree} from '@react-three/fiber'
 import {
     OrbitControls,
-    useTexture,
     shaderMaterial,
-    PerspectiveCamera,
-    TorusKnot,
     Bvh,
-    Center,
-    Line,
-    Text, Box, Edges
 } from '@react-three/drei'
-import {useXR, RayGrab, Interactive, VRButton, ARButton, XR, Controllers, Hands, Ray} from '@react-three/xr'
-import {EnhancedRayGrab} from "./TwoHandScale.js";
+import {useXR, RayGrab, ARButton, XR, Controllers, Hands, Ray} from '@react-three/xr'
 import {isEqual} from 'lodash-es';
 import {filterSelection} from '@vitessce/spatial-utils';
 import {CoordinationType} from '@vitessce/constants-internal';
@@ -23,24 +16,15 @@ import {getImageSize} from '@hms-dbmi/viv';
 import * as THREE from "three";
 import {HandBbox} from "./xr/HandBbox.js"
 import {MeasureLine} from "./MeasureLine.js"
-import {EnhancedRayGrab} from "./TwoHandScale.js"
 import cmViridisTextureUrl from "../textures/cm_viridis.png";
 import cmGrayTextureUrl from "../textures/cm_gray.png";
 import {VolumeRenderShaderPerspective} from "../jsm/shaders/VolumeShaderPerspective.js";
-import {VolumeShaderNew} from "../jsm/shaders/VolumeShaderNew.js";
 import {VolumeShaderFirstPass} from "../jsm/shaders/VolumeShaderFirstPass.js";
-import {VolumeShaderGeom} from "../jsm/shaders/VolumeShaderGeom.js";
-import {useGLTF} from '@react-three/drei'
-import {setObsSelection} from '@vitessce/sets-utils';
-import {setPowerset} from "mathjs";
-
-export const WS_EVENT = "click:event";
 
 const SpatialThree = (props) => {
     // console.log(props)
     const materialRef = useRef(null);
     const orbitRef = useRef(null);
-    const controllerRef = useRef(null);
     const [initialStartup, setInitialStartup] = useState(false);
     const [dataReady, setDataReady] = useState(false);
     const [segmentationGroup, setSegmentationGroup] = useState(null);
