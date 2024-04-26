@@ -21,9 +21,11 @@ function generateBloodVesselNeighborhood() {
         },
     })
 
-    const spatialThreeView = config.addView(dataset, 'spatialThree');
-    const lcView = config.addView(dataset, 'layerControllerBeta');
-    config.linkViewsByObject([spatialThreeView, lcView], {
+    const spatialThreeView = config.addView(dataset, 'spatialThree',{ x: 0, y: 0, w: 8, h: 8 });
+    const description = config.addView(dataset,'description', { x: 8, y: 1, w: 4, h: 2 })
+        .setProps({ description: "To connect your mixed reality headset to this instance, navigate the web browser of your headset to: http://vitessce.link. Enter this 4 digit code: 8976. Next, move any slider in the channel controller. This will link the two sessions. As soon as the data is loaded (loading indicator disappears) in the headset, toggle the 3D button (top right of the channel controller, if it's not on yet). As soon as the dataset has loaded in the spatial view, you can select the \"Enter AR\" button." })
+    const lcView = config.addView(dataset, 'layerControllerBeta',{ x: 8, y: 0, w: 4, h: 6 });
+    config.linkViewsByObject([spatialThreeView, lcView,description], {
         spatialTargetZ: 0,
         spatialTargetT: 0,
         spatialRenderingMode:'3D',
@@ -33,20 +35,6 @@ function generateBloodVesselNeighborhood() {
                 spatialLayerOpacity: 1,
                 spatialTargetResolution: null,
                 imageChannel: CL([
-                    {
-                        spatialTargetC: 0,
-                        spatialChannelColor: [0, 0, 255],
-                        spatialChannelVisible: true,
-                        spatialChannelOpacity: 1.0,
-                        spatialChannelWindow: [3389,33551],
-                    },
-                    {
-                        spatialTargetC: 3,
-                        spatialChannelColor: [255, 0, 0],
-                        spatialChannelVisible: true,
-                        spatialChannelOpacity: 1.0,
-                        spatialChannelWindow: [1245,26447],
-                    },
                     {
                         spatialTargetC: 13,
                         spatialChannelColor: [255, 255, 0],
@@ -79,8 +67,7 @@ function generateBloodVesselNeighborhood() {
             },
         ])
     });
-
-    config.layout(hconcat(spatialThreeView, lcView));
+    //config.layout(hconcat(spatialThreeView, vconcat(lcView,description)));
 
     const configJSON = config.toJSON();
     return configJSON;

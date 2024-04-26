@@ -27,10 +27,15 @@ function generateBloodVesselConfig() {
         }
     })
 
-    const spatialThreeView = config.addView(dataset, 'spatialThree');
+    const spatialThreeView = config.addView(dataset, 'spatialThree', {x: 0, y: 0, w: 8, h: 8});
     // const spatialVolumeView = config.addView(dataset, 'spatialBeta').setProps({ title: 'MIP' });
-    const lcView = config.addView(dataset, 'layerControllerBeta');
-
+    const lcView = config.addView(dataset, 'layerControllerBeta', {x: 8, y: 0, w: 4, h: 6});
+    const description = config.addView(dataset, 'description', {
+        x: 8,
+        y: 1,
+        w: 4,
+        h: 2
+    }).setProps({description: 'To connect your mixed reality headset to this instance, navigate the web browser of your headset to: http://vitessce.link. Enter this 4 digit code: 7566. Next, move any slider in the channel controller. This will link the two sessions. As soon as the data is loaded (loading indicator disappears) in the headset, toggle the 3D button (top right of the channel controller). As soon as the dataset has loaded in the spatial view, you can select the "Enter AR" button.'})
     const [
         selectionScope,
         colorScope,
@@ -61,7 +66,7 @@ function generateBloodVesselConfig() {
     //const [selectionScope, colorScope] = config.addCoordination('obsSetSelection', 'obsSetColor');
 
     //config.linkViewsByObject([spatialThreeView,spatialVolumeView, lcView], {
-    config.linkViewsByObject([spatialThreeView, lcView], {
+    config.linkViewsByObject([spatialThreeView, lcView,description], {
         spatialTargetZ: 0,
         spatialTargetT: 0,
         imageLayer: CL([
@@ -91,7 +96,7 @@ function generateBloodVesselConfig() {
                 spatialTargetZ: 33,
                 spatialScaleX: 1.75,
                 spatialScaleY: 1.75,
-                spatialScaleZ: -1.75/3.0,
+                spatialScaleZ: -1.75 / 3.0,
                 // spatialRotationX: 1.57079632679,
                 spatialRotationZ: 3.14159265359,
                 spatialSceneScaleX: 1.0,
@@ -143,7 +148,7 @@ function generateBloodVesselConfig() {
                         featureType: glomsFeatureTypeScope,
                         featureValueType: glomsFeatureValueTypeScope,
                         featureSelection: glomsFeatureSelectionScope,
-                        spatialChannelColor: [3,252,82],
+                        spatialChannelColor: [3, 252, 82],
                         obsColorEncoding: colorEncodingScope,
                         spatialChannelOpacity: 1.0,
                         spatialChannelVisible: true,
@@ -179,7 +184,7 @@ function generateBloodVesselConfig() {
     });
 
     // config.layout(hconcat(vconcat(spatialThreeView,spatialVolumeView), vconcat(lcView,obsSetsView, barPlot)));
-    config.layout(hconcat(spatialThreeView, vconcat(lcView)));
+   // config.layout(hconcat(spatialThreeView, vconcat(lcView, description)));
 
     const configJSON = config.toJSON();
     return configJSON;

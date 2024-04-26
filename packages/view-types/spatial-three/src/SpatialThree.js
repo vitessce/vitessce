@@ -23,6 +23,7 @@ import {getImageSize} from '@hms-dbmi/viv';
 import * as THREE from "three";
 import {HandBbox} from "./xr/HandBbox.js"
 import {MeasureLine} from "./MeasureLine.js"
+import {EnhancedRayGrab} from "./TwoHandScale.js"
 import cmViridisTextureUrl from "../textures/cm_viridis.png";
 import cmGrayTextureUrl from "../textures/cm_gray.png";
 import {VolumeRenderShaderPerspective} from "../jsm/shaders/VolumeShaderPerspective.js";
@@ -147,7 +148,7 @@ const SpatialThree = (props) => {
             }
         }
         if (segmentationOBSSetLayerProps.obsHighlight !== null) {
-            setsSave.push({name: "", id: segmentationOBSSetLayerProps.obsHighlight, color: [255,34,0]});
+            setsSave.push({name: "", id: segmentationOBSSetLayerProps.obsHighlight, color: [255, 34, 0]});
         }
     }
     if (obsSegmentations[layerScope] !== undefined && segmentationGroup == null) {
@@ -184,7 +185,7 @@ const SpatialThree = (props) => {
                 console.log(name)
                 childElement.name = name;
                 childElement.userData.name = name;
-                childElement.material.transparent = false
+                childElement.material.transparent = true
                 childElement.material.writeDepthTexture = true
                 childElement.material.depthTest = true
                 childElement.material.depthWrite = true
@@ -214,7 +215,7 @@ const SpatialThree = (props) => {
                 firstPass.add(simplified)
                 finalPass.add(finalPassChild)
             }
-            newScene.add(firstPass);
+            // newScene.add(firstPass);
             newScene.add(finalPass);
             newScene.scale.set(
                 segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
@@ -331,7 +332,6 @@ const SpatialThree = (props) => {
                             segmentationGroup.children[finalGroup].children[child].material.color.b = channelSet.spatialChannelColor[2] / 255;
                             segmentationGroup.children[finalGroup].children[child].material.opacity = channelSet.spatialChannelOpacity;
                             segmentationGroup.children[finalGroup].children[child].visible = channelSet.spatialChannelVisible;
-                            segmentationGroup.children[firstGroup].children[child].visible = channelSet.spatialChannelVisible;
                             segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
                             segmentationGroup.children[firstGroup].children[child].material.needsUpdate = true;
                         }
@@ -354,6 +354,7 @@ const SpatialThree = (props) => {
                         segmentationGroup.children[finalGroup].children[child].material.color.b = color[2] / 255
                         //Select the FinalPass Group
                         segmentationGroup.children[finalGroup].children[child].material.opacity = segmentationSettings.opacity
+                        segmentationGroup.children[finalGroup].children[child].material.visible = segmentationSettings.visible
                         segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
                     }
                     // segmentationGroup.children[finalGroup].children[child].material.color.r = color[0] / 255;
@@ -526,7 +527,7 @@ const SpatialThree = (props) => {
             <HandDecorate/>
             <GeometryAndMesh {...geometryAndMeshProps} ></GeometryAndMesh>
             <OrbitControls ref={orbitRef} enableDamping={false} dampingFactor={0.0}
-                           zoomDampingFactor={0.0} smoothZoom={false} rotation={[0.0, Math.PI, 0.0]}/>
+                           zoomDampingFactor={0.0} smoothZoom={false}/>
         </group>
     );
 }
@@ -678,7 +679,7 @@ function GeometryAndMesh(props) {
         if (isPresenting && model !== undefined && model.current !== null) {
             console.log("Entering the XR")
             if (materialRef !== null) {
-                materialRef.current.material.uniforms.u_physical_Pixel.value = 0.02
+                materialRef.current.material.uniforms.u_physical_Pixel.value = 0.2
                 // console.log(materialRef.current.material.uniforms)
             }
         } else if (!isPresenting) {
@@ -687,18 +688,18 @@ function GeometryAndMesh(props) {
                 // console.log(materialRef.current.material.uniforms)
             }
             //TODO fix to get the view back
-            if (model !== undefined && model.current !== undefined) {
-                model.current.scale.set(segmentationSceneScale[0], segmentationSceneScale[1], segmentationSceneScale[2])
-                model.current.position.set(0, 0, 0)
-            }
-            if (materialRef !== undefined && materialRef.current !== undefined) {
-                materialRef.current.position.set(0, 0, 0)
-                materialRef.current.scale.set(renderingSettings.meshScale[0], renderingSettings.meshScale[1], renderingSettings.meshScale[2])
-            }
+            // if (model !== undefined && model.current !== undefined) {
+            //     model.current.scale.set(segmentationSceneScale[0], segmentationSceneScale[1], segmentationSceneScale[2])
+            //     model.current.position.set(0, 0, 0)
+            // }
+            // if (materialRef !== undefined && materialRef.current !== undefined) {
+            //     materialRef.current.position.set(0, 0, 0)
+            //     materialRef.current.scale.set(renderingSettings.meshScale[0], renderingSettings.meshScale[1], renderingSettings.meshScale[2])
+            // }
         }
     }, [isPresenting])
 
-    const {scene} = useThree();
+    const {scene, gl} = useThree();
     const {controllers} = useXR();
     const [measureState, setMeasureState] = useState(false);
     const [highlighted, setHighlighted] = useState(false);
@@ -801,13 +802,13 @@ function GeometryAndMesh(props) {
                         if (controllers[1] !== undefined && intersectsLeftTip && controllers[1].hand.inputState.pinching == true) {
                             setDebounce(10)
                             intersected = false;
-                            highlightGlom(child.name);
+                            // highlightGlom(child.name);
                             controllers[1].hand.inputState.pinching = false;
                         }
                         if (controllers[0] !== undefined && intersectsRightTip && controllers[0].hand.inputState.pinching == true) {
                             setDebounce(10)
                             intersected = false;
-                            highlightGlom(child.name)
+                            //   highlightGlom(child.name)
                             controllers[0].hand.inputState.pinching = false;
                         }
                     }
@@ -826,54 +827,54 @@ function GeometryAndMesh(props) {
     //  TODO Maybe have to adapt the pixel ratio of the renderer and the textures when it changes (e.g. zooming in on the pc)
     const stopTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
     const finalTexture = new THREE.WebGLRenderTarget(glThree.size.width * window.devicePixelRatio, glThree.size.height * window.devicePixelRatio);
-    useFrame((state) => {
-        const {gl, scene, camera} = state;
-        if (materialRef.current === undefined) {
-            return;
-        }
-        if (gl.xr.isPresenting) {
-            model.current.children[0].visible = false;
-            gl.render(scene, camera);
-            return;
-        }
-        if (segmentationSettings.visible && model.current !== undefined && segmentationSettings.opacity > 0.1) {
-            gl.setRenderTarget(stopTexture);
-            gl.clear();
-            model.current.visible = true;
-            model.current.children[0].visible = true;
-            model.current.children[1].visible = false;
-            materialRef.current.visible = false;
-            gl.render(scene, camera);
-            // return;
-
-            gl.setRenderTarget(null);
-            gl.clear();
-            model.current.visible = true;
-            model.current.children[0].visible = false;
-            model.current.children[1].visible = true;
-            materialRef.current.visible = false;
-            gl.render(scene, camera);
-            gl.autoClear = false;
-            gl.clearDepth()
-            // return;
-
-            materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
-            materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
-            if (!gl.xr.isPresenting) {
-                gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
-            }
-            materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width * window.devicePixelRatio,
-                glThree.size.height * window.devicePixelRatio);
-            model.current.visible = false;
-            model.current.children[0].visible = false;
-            model.current.children[1].visible = false;
-        } else {
-            materialRef.current.material.uniforms.u_stop_geom.value = null;
-            materialRef.current.material.uniforms.u_geo_color.value = null;
-        }
-        materialRef.current.visible = true;
-        gl.render(scene, camera);
-    })
+    // useFrame((state) => {
+    //     const {gl, scene, camera} = state;
+    //     if (materialRef.current === undefined) {
+    //         return;
+    //     }
+    //     if (gl.xr.isPresenting) {
+    //         model.current.children[0].visible = false;
+    //         gl.render(scene, camera);
+    //         return;
+    //     }
+    //     if (segmentationSettings.visible && model.current !== undefined && segmentationSettings.opacity > 0.1) {
+    //         gl.setRenderTarget(stopTexture);
+    //         gl.clear();
+    //         model.current.visible = true;
+    //         model.current.children[0].visible = true;
+    //         model.current.children[1].visible = false;
+    //         materialRef.current.visible = false;
+    //         gl.render(scene, camera);
+    //         // return;
+    //
+    //         gl.setRenderTarget(null);
+    //         gl.clear();
+    //         model.current.visible = true;
+    //         model.current.children[0].visible = false;
+    //         model.current.children[1].visible = true;
+    //         materialRef.current.visible = false;
+    //         gl.render(scene, camera);
+    //         gl.autoClear = false;
+    //         gl.clearDepth()
+    //         // return;
+    //
+    //         materialRef.current.material.uniforms.u_stop_geom.value = stopTexture.texture;
+    //         materialRef.current.material.uniforms.u_geo_color.value = finalTexture.texture;
+    //         if (!gl.xr.isPresenting) {
+    //             gl.setPixelRatio(window.devicePixelRatio); //TODO: would be better to do this only one time
+    //         }
+    //         materialRef.current.material.uniforms.u_window_size.value = new THREE.Vector2(glThree.size.width * window.devicePixelRatio,
+    //             glThree.size.height * window.devicePixelRatio);
+    //         model.current.visible = false;
+    //         model.current.children[0].visible = false;
+    //         model.current.children[1].visible = false;
+    //     } else {
+    //         materialRef.current.material.uniforms.u_stop_geom.value = null;
+    //         materialRef.current.material.uniforms.u_geo_color.value = null;
+    //     }
+    //     materialRef.current.visible = true;
+    //     gl.render(scene, camera);
+    // })
 
     // TODO: IF we want to have a ZoomGrab than it needs to adapt the 0.002 value
     // TODO: The measurement from time to time intersects with the rayGrab (maybe "tell it" that we are in measurement mode)
@@ -884,7 +885,7 @@ function GeometryAndMesh(props) {
             {useXR().isPresenting ?
                 <RayGrab>
                     <group ref={rayGrabGroup}>
-                        {segmentationGroup !== null &&
+                        {segmentationGroup !== null && segmentationGroup.visible &&
                             <group>
                                 <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                                 <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
@@ -932,7 +933,7 @@ function GeometryAndMesh(props) {
                 :
                 <group>
                     <group>
-                        {segmentationGroup !== null &&
+                        {segmentationGroup !== null && segmentationGroup.visible &&
                             <group>
                                 <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                                 <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
@@ -941,7 +942,7 @@ function GeometryAndMesh(props) {
                                     <primitive ref={model} object={segmentationGroup} position={[0, 0, 0]}
                                                onClick={(e) => {
                                                    if (e.object.parent.userData.name == "finalPass") {
-                                                       highlightGlom(e.object.name);
+                                                       //highlightGlom(e.object.name);
                                                    }
                                                }}
                                                onPointerOver={e => {
@@ -1384,9 +1385,9 @@ function LoadingIndicator(props) {
 
 const SpatialWrapper = forwardRef((props, deckRef) => {
     return <div id="ThreeJs" style={{width: "100%", height: "100%"}}>
-        {/*<ARButton sessionInit={{optionalFeatures: ["hand-tracking"]}}/>*/}
+        <ARButton sessionInit={{optionalFeatures: ["hand-tracking"]}}/>
         <Canvas camera={{fov: 50, up: [0, 1, 0], position: [0, 0, -800], near: 0.1, far: 3000}}
-                gl={{antialias: true, logarithmicDepthBuffer: true}}>
+                gl={{antialias: true, logarithmicDepthBuffer: false}}>
             {/*style={{ background: "white" }}*/}
             <XR>
                 <SpatialThree {...props} deckRef={deckRef}/>

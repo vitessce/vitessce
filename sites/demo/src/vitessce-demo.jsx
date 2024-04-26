@@ -101,7 +101,7 @@ export function VitessceDemo() {
 
     const urlParams = new URLSearchParams(window.location.search);
     const websocket = urlParams.get('ws') === 'true';
-    const channelID = urlParams.get('channel');
+    const channelID = urlParams.get('code');
     const send = urlParams.get('send') === 'true';
 
     if (websocket) {
