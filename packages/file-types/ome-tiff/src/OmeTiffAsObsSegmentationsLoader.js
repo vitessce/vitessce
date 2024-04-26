@@ -8,16 +8,12 @@ import {
 import {
   ImageWrapper,
 } from '@vitessce/image-utils';
-import { CoordinationLevel as CL } from '@vitessce/config';
 import OmeTiffLoader from './OmeTiffLoader.js';
 
 export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
   async load() {
     const { url, requestInit } = this;
-    const {
-      coordinateTransformations: coordinateTransformationsFromOptions,
-      obsTypesFromChannelNames,
-    } = this.options || {};
+    const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
     const imageWrapper = new ImageWrapper(loader, this.options);
@@ -62,22 +58,6 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
     // Get image name and URL tuples.
     const urls = [{ url, name: image.name }];
 
-    const channelObjects = imageWrapper.getChannelObjects();
-    const channelCoordination = channelObjects.slice(0, 5).map((channelObj, i) => ({
-      spatialTargetC: i,
-      spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
-      spatialChannelVisible: true,
-      spatialChannelOpacity: 1.0,
-      spatialChannelWindow: channelObj.defaultWindow || null,
-      // featureType: 'feature',
-      // featureValueType: 'value',
-      obsColorEncoding: 'spatialChannelColor',
-      spatialSegmentationFilled: true,
-      spatialSegmentationStrokeWidth: 1.0,
-      obsHighlight: null,
-      ...(obsTypesFromChannelNames ? { obsType: channelObj.name } : {}),
-    }));
-
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = [
       {
@@ -107,21 +87,8 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
       const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = autoImages;
 
       const coordinationValues = {
-        // Old
         spatialSegmentationLayer: autoImageLayers,
-        // New
-        spatialTargetZ: imageWrapper.getDefaultTargetZ(),
-        spatialTargetT: imageWrapper.getDefaultTargetT(),
-        segmentationLayer: CL([
-          {
-            fileUid: this.coordinationValues?.fileUid || null,
-            spatialLayerOpacity: 1.0,
-            spatialLayerVisible: true,
-            segmentationChannel: CL(channelCoordination),
-          },
-        ]),
       };
-
       return new LoaderResult(
         {
           obsSegmentationsType: 'bitmask',

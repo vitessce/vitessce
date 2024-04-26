@@ -22,10 +22,8 @@ import {
   useSetComponentViewInfo,
   useInitialCoordination,
 } from '@vitessce/vit-s';
-import {
-  setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
-} from '@vitessce/sets-utils';
-import { pluralize as plur, commaNumber } from '@vitessce/utils';
+import { setObsSelection, mergeObsSets, getCellSetPolygons } from '@vitessce/sets-utils';
+import { pluralize as plur, getCellColors, commaNumber } from '@vitessce/utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
   getPointSizeDevicePixels,

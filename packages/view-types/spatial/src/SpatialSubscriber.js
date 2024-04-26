@@ -28,8 +28,8 @@ import {
   setObsSelection,
   mergeObsSets,
   colorArrayToString,
-  getCellColors,
 } from '@vitessce/sets-utils';
+import { getCellColors } from '@vitessce/utils';
 import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS } from '@vitessce/constants-internal';

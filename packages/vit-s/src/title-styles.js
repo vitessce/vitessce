@@ -37,7 +37,7 @@ export const useTitleStyles = makeStyles(theme => ({
     },
   },
   card: {
-    border: `${theme.cardBorderSize} solid ${theme.palette.cardBorder}`,
+    border: `1px solid ${theme.palette.cardBorder}`,
     flex: '1 1 auto',
     minHeight: '1px',
     padding: '12px',

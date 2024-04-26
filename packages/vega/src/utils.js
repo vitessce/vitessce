@@ -26,10 +26,6 @@ export const VEGA_THEMES = {
     // The default vega theme.
     background: null,
   },
-  light2: {
-    // The default vega theme.
-    background: null,
-  },
 };
 
 export const DATASET_NAME = 'table';

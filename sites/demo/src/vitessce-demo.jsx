@@ -8,11 +8,6 @@ import {getConfig, listConfigs, getPlugins} from './api.js';
 import {Welcome} from './welcome.jsx';
 import {Warning} from './warning.jsx';
 import PieSocket from 'piesocket-js';
-import { Vitessce } from 'vitessce';
-
-import { getConfig, listConfigs, getPlugins, getStores } from './api.js';
-import { Welcome } from './welcome.jsx';
-import { Warning } from './warning.jsx';
 
 import './index.scss';
 import {setConfig} from "isomorphic-git";
@@ -95,7 +90,7 @@ function checkResponse(response, theme, debug) {
  * @returns {string} A valid theme name.
  */
 function validateTheme(theme) {
-  return (['light', 'dark', 'light2'].includes(theme) ? theme : 'dark');
+    return (['light', 'dark'].includes(theme) ? theme : 'dark');
 }
 
 export function VitessceDemo() {
@@ -161,7 +156,6 @@ export function VitessceDemo() {
                 setConfig(configFromDataSetId);
             }
             const pluginProps = getPlugins(datasetId);
-            const stores = getStores(datasetId);
             // console.log("Getting in with a new Config ", config)
             return (
                 <ContainerComponent>
@@ -183,7 +177,6 @@ export function VitessceDemo() {
                         }}
                         validateOnConfigChange={debug}
                         isBounded={isBounded}
-                        stores={stores}
                         {...pluginProps}
                     />
                 </ContainerComponent>

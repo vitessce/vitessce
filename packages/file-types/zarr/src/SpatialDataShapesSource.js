@@ -1,18 +1,10 @@
-// @ts-check
 /* eslint-disable no-underscore-dangle */
 import AnnDataSource from './AnnDataSource.js';
-
-/** @import { DataSourceParams } from '@vitessce/types' */
 
 // If the array path starts with table/something/rest
 // capture table/something.
 const regex = /^shapes\/([^/]*)\/(.*)$/;
 
-/**
- *
- * @param {string|undefined} arrPath
- * @returns
- */
 function getShapesPrefix(arrPath) {
   if (arrPath) {
     const matches = arrPath.match(regex);
@@ -22,57 +14,29 @@ function getShapesPrefix(arrPath) {
   }
   return '';
 }
-
-/**
- *
- * @param {string|undefined} arrPath
- * @returns
- */
 export function getIndexPath(arrPath) {
   return `${getShapesPrefix(arrPath)}Index`;
 }
 
-/**
- *
- * @param {string|undefined} arrPath
- * @returns
- */
 export function getVarPath(arrPath) {
   return `${getShapesPrefix(arrPath)}var`;
 }
 
 
 export default class SpatialDataShapesSource extends AnnDataSource {
-  /**
-   *
-   * @param {DataSourceParams} params
-   */
-  constructor(params) {
-    super(params);
-    /** @type {{ [k: string]: Promise<string[]> }} */
-    this.obsIndices = {};
-    /** @type {{ [k: string]: Promise<string[]> }} */
-    this.varIndices = {};
-    /** @type {{ [k: string]: string[] }} */
-    this.varAliases = {};
-  }
-
-  /**
-   *
-   * @param {string} tablePath
-   * @returns
-   */
   async loadSpatialDataAttrs(tablePath) {
     return this._loadDict(`${tablePath}/uns/spatialdata_attrs`, ['instance_key', 'region', 'region_key']);
   }
 
   /**
    * Class method for loading the obs index.
-   * @param {string|undefined} path
-   * @param {string|undefined} tablePath
-   * @returns {Promise<string[]>} An promise for a zarr array containing the indices.
+   * @returns {Promise} An promise for a zarr array containing the indices.
    */
-  async loadObsIndex(path = undefined, tablePath = undefined) {
+  async loadObsIndex(path = null, tablePath = null) {
+    if (!this.obsIndex) {
+      this.obsIndex = {};
+    }
+
     let indexPath = getIndexPath(path);
     if (tablePath) {
       // TODO: given a path to the shapes,
@@ -93,44 +57,47 @@ export default class SpatialDataShapesSource extends AnnDataSource {
 
       indexPath = `${obsPath}/${instanceKey}`;
     }
-    if (indexPath in this.obsIndices) {
-      return this.obsIndices[indexPath];
+    if (this.obsIndex[indexPath]) {
+      return this.obsIndex[indexPath];
     }
-    this.obsIndices[indexPath] = this._loadColumn(indexPath);
-    return this.obsIndices[indexPath];
+    this.obsIndex[indexPath] = this._loadColumn(indexPath);
+    return this.obsIndex[indexPath];
   }
 
   /**
    * Class method for loading the var index.
-   * @param {string|undefined} path
-   * @returns {Promise<string[]>} An promise for a zarr array containing the indices.
+   * @returns {Promise} An promise for a zarr array containing the indices.
    */
-  loadVarIndex(path = undefined) {
-    const varPath = getVarPath(path);
-    if (varPath in this.varIndices) {
-      return this.varIndices[varPath];
+  loadVarIndex(path = null) {
+    if (!this.varIndex) {
+      this.varIndex = {};
     }
-    this.varIndices[varPath] = this.getJson(`${varPath}/.zattrs`)
+    const varPath = getVarPath(path);
+    if (this.varIndex[varPath]) {
+      return this.varIndex[varPath];
+    }
+    this.varIndex[varPath] = this.getJson(`${varPath}/.zattrs`)
       .then(({ _index }) => this.getFlatArrDecompressed(`${varPath}/${_index}`));
-    return this.varIndices[varPath];
+    return this.varIndex[varPath];
   }
 
   /**
    * Class method for loading the var alias.
-   * @param {string} varPath
-   * @param {string} matrixPath
-   * @returns {Promise<string[]>} An promise for a zarr array containing the aliased names.
+   * @returns {Promise} An promise for a zarr array containing the aliased names.
    */
   async loadVarAlias(varPath, matrixPath) {
-    if (varPath in this.varAliases) {
-      return this.varAliases[varPath];
+    if (!this.varAlias) {
+      this.varAlias = {};
+    }
+    if (this.varAlias[varPath]) {
+      return this.varAlias[varPath];
     }
     const [varAliasData] = await this.loadVarColumns([varPath]);
-    this.varAliases[varPath] = /** @type {string[]} */ (varAliasData);
+    this.varAlias[varPath] = varAliasData;
     const index = await this.loadVarIndex(matrixPath);
-    this.varAliases[varPath] = this.varAliases[varPath].map(
+    this.varAlias[varPath] = this.varAlias[varPath].map(
       (val, ind) => (val ? val.concat(` (${index[ind]})`) : index[ind]),
     );
-    return this.varAliases[varPath];
+    return this.varAlias[varPath];
   }
 }

@@ -97,7 +97,7 @@ export default function ChannelColorPickerMenu(props) {
             className={clsx(
               classes.colorIcon,
               {
-                [classes.colorIconOutline]: theme !== 'dark' && isEqual(color, [255, 255, 255]),
+                [classes.colorIconOutline]: theme === 'light' && isEqual(color, [255, 255, 255]),
               },
             )}
             style={{ backgroundColor: currentColor }}

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { fromEntries } from '@vitessce/utils';
 import {
   PluginViewType,
   PluginCoordinationType,
@@ -126,7 +127,7 @@ export function buildConfigSchema<
     // Merge with coordination type schemas.
     coordinationSpace: z.object(
       // Wrap each value schema in z.record()
-      Object.fromEntries(
+      fromEntries(
         pluginCoordinationTypes
           .map(ct => ([
             ct.name,

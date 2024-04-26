@@ -6,7 +6,6 @@ import {
 } from '@vitessce/spatial-utils';
 import { ImageWrapper } from '@vitessce/image-utils';
 import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/vit-s';
-import { CoordinationLevel as CL } from '@vitessce/config';
 
 export default class OmeTiffLoader extends AbstractTwoStepLoader {
   async loadOffsets() {
@@ -75,15 +74,6 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       { url, name: image.name },
     ];
 
-    const channelObjects = imageWrapper.getChannelObjects();
-    const channelCoordination = channelObjects.slice(0, 5).map((channelObj, i) => ({
-      spatialTargetC: i,
-      spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
-      spatialChannelVisible: true,
-      spatialChannelOpacity: 1.0,
-      spatialChannelWindow: channelObj.defaultWindow || null,
-    }));
-
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = [
       {
@@ -108,24 +98,8 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       const [autoImageLayers, imageLayerLoaders, imageLayerMeta] = autoImages;
 
       const coordinationValues = {
-        // Old
         spatialImageLayer: autoImageLayers,
-        // New
-        spatialTargetZ: imageWrapper.getDefaultTargetZ(),
-        spatialTargetT: imageWrapper.getDefaultTargetT(),
-        imageLayer: CL([
-          {
-            fileUid: this.coordinationValues?.fileUid || null,
-            spatialLayerOpacity: 1.0,
-            spatialLayerVisible: true,
-            photometricInterpretation: imageWrapper.getPhotometricInterpretation(),
-            volumetricRenderingAlgorithm: 'maximumIntensityProjection',
-            spatialTargetResolution: null,
-            imageChannel: CL(channelCoordination),
-          },
-        ]),
       };
-
       return new LoaderResult(
         {
           image: {

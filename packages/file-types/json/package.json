@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/json",
-  "version": "3.3.12",
+  "version": "3.3.2",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -38,10 +38,9 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/zarr-utils": "workspace:*",
-    "@vitessce/config": "workspace:*",
     "d3-array": "^2.4.0",
     "lodash-es": "^4.17.21",
-    "zarrita": "0.4.0-next.10",
+    "zarrita": "0.4.0-next.4",
     "zod": "^3.21.4"
   }
 }

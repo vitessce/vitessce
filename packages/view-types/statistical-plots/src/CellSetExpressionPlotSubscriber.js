@@ -6,8 +6,6 @@ import {
   useFeatureSelection, useObsSetsData,
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
-  useSampleSetsData,
-  useSampleEdgesData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS, capitalize, getValueTransformFunction } from '@vitessce/utils';
@@ -114,9 +112,6 @@ export function CellSetExpressionPlotSubscriber(props) {
     downloadButtonVisible,
     removeGridComponent,
     theme,
-    jitter = false,
-    yMin = null,
-    yUnits = null,
   } = props;
 
   const classes = useStyles();
@@ -134,7 +129,6 @@ export function CellSetExpressionPlotSubscriber(props) {
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
-    sampleType,
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
@@ -166,36 +160,19 @@ export function CellSetExpressionPlotSubscriber(props) {
     loaders, dataset, true, {}, {},
     { obsType },
   );
-
-  // eslint-disable-next-line no-unused-vars
-  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrls] = useSampleSetsData(
-    loaders, dataset, false, {}, {},
-    { sampleType },
-  );
-
-  // eslint-disable-next-line no-unused-vars
-  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrls] = useSampleEdgesData(
-    loaders, dataset, false, {}, {},
-    { obsType, sampleType },
-  );
-
   const isReady = useReady([
     featureSelectionStatus,
     matrixIndicesStatus,
     obsSetsStatus,
     featureLabelsStatus,
-    sampleSetsStatus,
-    sampleEdgesStatus,
   ]);
   const urls = useUrls([
     featureLabelsUrls,
     matrixIndicesUrls,
     obsSetsUrls,
-    sampleSetsUrls,
-    sampleEdgesUrls,
   ]);
 
-  const [expressionArr, setArr] = useExpressionByCellSet(
+  const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
     expressionData, obsIndex, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
@@ -232,16 +209,13 @@ export function CellSetExpressionPlotSubscriber(props) {
       <div ref={containerRef} className={classes.vegaContainer}>
         {expressionArr ? (
           <CellSetExpressionPlot
-            yMin={yMin}
-            yUnits={yUnits}
-            jitter={jitter}
+            domainMax={expressionMax}
             colors={setArr}
             data={expressionArr}
             theme={theme}
             width={width}
             height={height}
             obsType={obsType}
-            featureType={featureType}
             featureValueType={featureValueType}
             featureValueTransformName={selectedTransformName}
           />

@@ -1,64 +1,8 @@
-/* eslint-disable indent */
-/* eslint-disable camelcase */
-import React, { useMemo, useEffect, useRef } from 'react';
-import { scaleLinear } from 'd3-scale';
-import { scale as vega_scale } from 'vega-scale';
-import { axisBottom, axisLeft } from 'd3-axis';
-import {
-  bin,
-  min,
-  max,
-  rollup as d3_rollup,
-  mean as d3_mean,
-  deviation as d3_deviation,
-  ascending as d3_ascending,
-  map as d3_map,
-  quantileSorted,
-} from 'd3-array';
-import { area as d3_area, curveBasis } from 'd3-shape';
-import { select } from 'd3-selection';
+import React from 'react';
+import { clamp } from 'lodash-es';
+import { VegaPlot, VEGA_THEMES, DATASET_NAME } from '@vitessce/vega';
 import { colorArrayToString } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
-
-const scaleBand = vega_scale('band');
-
-const GROUP_KEY = 'set';
-const VALUE_KEY = 'value';
-
-// Reference: https://github.com/d3/d3-array/issues/180#issuecomment-851378012
-function summarize(iterable, keepZeros) {
-  const values = d3_map(iterable, d => d[VALUE_KEY])
-    .filter(d => keepZeros || d !== 0.0)
-    .sort(d3_ascending);
-  const minVal = values[0];
-  const maxVal = values[values.length - 1];
-  const q1 = quantileSorted(values, 0.25);
-  const q2 = quantileSorted(values, 0.5);
-  const q3 = quantileSorted(values, 0.75);
-  const iqr = q3 - q1; // interquartile range
-  const r0 = Math.max(minVal, q1 - iqr * 1.5);
-  const r1 = Math.min(maxVal, q3 + iqr * 1.5);
-  let i = -1;
-  while (values[++i] < r0);
-  const w0 = values[i];
-  while (values[++i] <= r1);
-  const w1 = values[i - 1];
-
-  // Chauvenet
-  // Reference: https://en.wikipedia.org/wiki/Chauvenet%27s_criterion
-  const mean = d3_mean(values);
-  const stdv = d3_deviation(values);
-  const c0 = mean - 3 * stdv;
-  const c1 = mean + 3 * stdv;
-
-  return {
-    quartiles: [q1, q2, q3],
-    range: [r0, r1],
-    whiskers: [w0, w1],
-    chauvenetRange: [c0, c1],
-    nonOutliers: values.filter(v => c0 <= v && v <= c1),
-  };
-}
 
 /**
  * Gene expression histogram displayed as a bar chart,
@@ -83,228 +27,252 @@ function summarize(iterable, keepZeros) {
  */
 export default function CellSetExpressionPlot(props) {
   const {
-    yMin: yMinProp,
-    yUnits,
-    jitter,
+    domainMax = 100,
     colors,
     data,
     theme,
     width,
     height,
-    marginTop = 5,
-    marginRight = 5,
-    marginLeft = 50,
+    marginRight = 90,
     marginBottom,
     obsType,
-    featureType,
     featureValueType,
     featureValueTransformName,
   } = props;
-
-  const svgRef = useRef();
-
   // Get the max characters in an axis label for autsizing the bottom margin.
-  const maxCharactersForLabel = useMemo(() => data.reduce((acc, val) => {
+  const maxCharactersForLabel = data.reduce((acc, val) => {
     // eslint-disable-next-line no-param-reassign
-    acc = acc === undefined || val[GROUP_KEY].length > acc ? val[GROUP_KEY].length : acc;
+    acc = acc === undefined || val.set.length > acc ? val.set.length : acc;
     return acc;
-  }, 0), [data]);
+  }, 0);
+  // Use a square-root term because the angle of the labels is 45 degrees (see below)
+  // so the perpendicular distance to the bottom of the labels is proportional to the
+  // square root of the length of the labels along the imaginary hypotenuse.
+  // 30 is an estimate of the pixel size of a given character and seems to work well.
+  const autoMarginBottom = marginBottom
+    || 30 + Math.sqrt(maxCharactersForLabel / 2) * 30;
+  // Manually set the color scale so that Vega-Lite does
+  // not choose the colors automatically.
+  const colorScale = {
+    domain: colors.map(d => d.name),
+    range: colors.map(d => colorArrayToString(d.color)),
+  };
 
-  useEffect(() => {
-    const domElement = svgRef.current;
+  const plotWidth = clamp(width - marginRight, 10, Infinity);
+  const plotHeight = clamp(height - autoMarginBottom, 10, Infinity);
 
-    const transformPrefix = (featureValueTransformName && featureValueTransformName !== 'None')
-      ? `${featureValueTransformName}-Transformed `
-      : '';
-    const unitSuffix = yUnits ? ` (${yUnits})` : '';
-    const yTitle = `${transformPrefix}${capitalize(featureValueType)}${unitSuffix}`;
+  const numBands = colors.length;
+  const bandWidth = plotWidth / numBands;
 
-    const xTitle = `${capitalize(obsType)} Set`;
+  const rectColor = (theme === 'dark' ? 'white' : 'black');
 
-    // Use a square-root term because the angle of the labels is 45 degrees (see below)
-    // so the perpendicular distance to the bottom of the labels is proportional to the
-    // square root of the length of the labels along the imaginary hypotenuse.
-    // 30 is an estimate of the pixel size of a given character and seems to work well.
-    const autoMarginBottom = marginBottom
-      || 30 + Math.sqrt(maxCharactersForLabel / 2) * 30;
+  const spec = {
+    $schema: 'https://vega.github.io/schema/vega/v5.json',
+    description: `A violin plot showing distributions of expression levels for selected ${obsType} sets.`,
+    width: plotWidth,
+    height: plotHeight,
+    config: {
+      ...VEGA_THEMES[theme],
+      axisBand: {
+        bandPosition: 1,
+        tickExtra: true,
+        tickOffset: 0,
+      },
+    },
 
-    const rectColor = (theme === 'dark' ? 'white' : 'black');
+    signals: [
+      { name: 'bandWidth', value: bandWidth },
+      { name: 'width', value: plotWidth },
+      { name: 'height', value: plotHeight },
+      { name: 'trim', value: true },
+    ],
 
-    const svg = select(domElement);
-    svg.selectAll('g').remove();
-    svg
-      .attr('width', width)
-      .attr('height', height);
+    data: [
+      {
+        name: 'density',
+        source: DATASET_NAME,
+        transform: [
+          {
+            type: 'kde',
+            field: 'value',
+            groupby: ['set'],
+            bandwidth: 0,
+            extent: [0, domainMax],
+          },
+        ],
+      },
+      {
+        name: 'stats',
+        source: DATASET_NAME,
+        transform: [
+          {
+            type: 'aggregate',
+            groupby: ['set'],
+            fields: ['value', 'value', 'value'],
+            ops: ['q1', 'median', 'q3'],
+            as: ['q1', 'median', 'q3'],
+          },
+        ],
+      },
+    ],
 
-    const g = svg
-      .append('g')
-      .attr('width', width)
-      .attr('height', height);
+    scales: [
+      {
+        name: 'layout',
+        type: 'band',
+        range: 'width',
+        domain: { data: DATASET_NAME, field: 'set' },
+      },
+      {
+        name: 'yscale',
+        type: 'linear',
+        range: 'height',
+        domain: [0, domainMax],
+      },
+      {
+        name: 'wscale',
+        type: 'linear',
+        range: [0, { signal: 'bandWidth' }],
+        domain: { data: 'density', field: 'density' },
+      },
+      {
+        name: 'wscaleReversed',
+        type: 'linear',
+        reverse: true,
+        range: [0, { signal: 'bandWidth' }],
+        domain: { data: 'density', field: 'density' },
+      },
+      {
+        name: 'color',
+        type: 'ordinal',
+        ...colorScale,
+      },
+    ],
 
-    const groupNames = colors.map(d => d.name);
+    axes: [
+      {
+        orient: 'left',
+        scale: 'yscale',
+        zindex: 1,
+        title: (featureValueTransformName && featureValueTransformName !== 'None')
+          ? [`${featureValueTransformName}-Transformed`, `${capitalize(featureValueType)} Values`]
+          : `${capitalize(featureValueType)} Values`,
+      },
+      {
+        orient: 'bottom',
+        scale: 'layout',
+        tickCount: 5,
+        zindex: 1,
+        title: `${capitalize(obsType)} Set`,
+        labelAngle: -45,
+        labelAlign: 'right',
+      },
+    ],
 
-    // Manually set the color scale so that Vega-Lite does
-    // not choose the colors automatically.
-    const colorScale = {
-      domain: colors.map(d => d.name),
-      range: colors.map(d => colorArrayToString(d.color)),
-    };
+    marks: [
+      {
+        type: 'group',
+        from: {
+          facet: {
+            data: 'density',
+            name: 'violin',
+            groupby: 'set',
+          },
+        },
 
-    // Remove outliers on a per-group basis.
-    const groupedSummaries = Array.from(
-      d3_rollup(data, groupData => summarize(groupData, true), d => d[GROUP_KEY]),
-      ([key, value]) => ({ key, value }),
-    );
-    const groupedData = groupedSummaries
-      .map(({ key, value }) => ({ key, value: value.nonOutliers }));
-    const trimmedData = groupedData.map(kv => kv.value).flat();
+        encode: {
+          enter: {
+            xc: { scale: 'layout', field: 'set', band: 0.5 },
+            width: { signal: 'bandWidth' },
+            height: { signal: 'height' },
+          },
+        },
 
-    const innerWidth = width - marginLeft;
-    const innerHeight = height - autoMarginBottom;
+        data: [
+          {
+            name: 'summary',
+            source: 'stats',
+            transform: [
+              {
+                type: 'filter',
+                expr: 'datum.set === parent.set',
+              },
+            ],
+          },
+        ],
 
-    const xGroup = scaleBand()
-      .range([marginLeft, width - marginRight])
-      .domain(groupNames)
-      .padding(0.1);
-
-    const yMin = (yMinProp === null ? Math.min(0, min(trimmedData)) : yMinProp);
-
-    // For the y domain, use the yMin prop
-    // to support a use case such as 'Aspect Ratio',
-    // where the domain minimum should be 1 rather than 0.
-    const y = scaleLinear()
-      .domain([yMin, max(trimmedData)])
-      .range([innerHeight, marginTop]);
-
-    const histogram = bin()
-      .thresholds(y.ticks(16))
-      .domain(y.domain());
-
-    const groupBins = groupedData.map(kv => ({ key: kv.key, value: histogram(kv.value) }));
-
-    const groupBinsMax = max(groupBins.flatMap(d => d.value.map(v => v.length)));
-
-    const x = scaleLinear()
-      .domain([-groupBinsMax, groupBinsMax])
-      .range([0, xGroup.bandwidth()]);
-
-    const area = d3_area()
-      .x0(d => (jitter ? x(0) : x(-d.length)))
-      .x1(d => x(d.length))
-      .y(d => y(d.x0))
-      .curve(curveBasis);
-
-    // Violin areas
-    g
-      .selectAll('violin')
-      .data(groupBins)
-      .enter()
-        .append('g')
-          .attr('transform', d => `translate(${xGroup(d.key)},0)`)
-          .style('fill', d => colorScale.range[groupNames.indexOf(d.key)])
-        .append('path')
-          .datum(d => d.value)
-          .style('stroke', 'none')
-          .attr('d', d => area(d));
-
-    // Whiskers
-    const whiskerGroups = g.selectAll('whiskers')
-      .data(groupedSummaries)
-      .enter()
-        .append('g')
-          .attr('transform', d => `translate(${xGroup(d.key)},0)`);
-    whiskerGroups.append('line')
-      .datum(d => d.value)
-      .attr('stroke', rectColor)
-      .attr('x1', xGroup.bandwidth() / 2)
-      .attr('x2', xGroup.bandwidth() / 2)
-      .attr('y1', d => y(d.quartiles[0]))
-      .attr('y2', d => y(d.quartiles[2]))
-      .attr('stroke-width', 2);
-    whiskerGroups.append('line')
-      .datum(d => d.value)
-      .attr('stroke', rectColor)
-      .attr('x1', xGroup.bandwidth() / 2 - (jitter ? 0 : 4))
-      .attr('x2', xGroup.bandwidth() / 2 + 4)
-      .attr('y1', d => y(d.quartiles[1]))
-      .attr('y2', d => y(d.quartiles[1]))
-      .attr('stroke-width', 2);
-
-    // Jittered points
-    if (jitter) {
-      groupedData.forEach(({ key, value }) => {
-        const groupG = g.append('g');
-        groupG.selectAll('point')
-          .data(value)
-          .enter()
-          .append('circle')
-            .attr('transform', `translate(${xGroup(key)},0)`)
-            .style('stroke', 'none')
-            .style('fill', 'silver')
-            .style('opacity', '0.1')
-            .attr('cx', () => 5 + Math.random() * ((xGroup.bandwidth() / 2) - 10))
-            .attr('cy', d => y(d))
-            .attr('r', 2);
-      });
-    }
-
-    // Y-axis ticks
-    g
-      .append('g')
-        .attr('transform', `translate(${marginLeft},0)`)
-      .call(axisLeft(y))
-      .selectAll('text')
-        .style('font-size', '11px');
-
-    // X-axis ticks
-    g
-      .append('g')
-        .attr('transform', `translate(0,${innerHeight})`)
-        .style('font-size', '14px')
-      .call(axisBottom(xGroup))
-      .selectAll('text')
-        .style('font-size', '11px')
-        .attr('dx', '-6px')
-        .attr('dy', '6px')
-        .attr('transform', 'rotate(-45)')
-        .style('text-anchor', 'end');
-
-    // Y-axis title
-    g
-      .append('text')
-      .attr('text-anchor', 'middle')
-      .attr('x', -innerHeight / 2)
-      .attr('y', 15)
-      .attr('transform', 'rotate(-90)')
-      .text(yTitle)
-      .style('font-size', '12px')
-      .style('fill', 'white');
-
-    // X-axis title
-    g
-      .append('text')
-      .attr('text-anchor', 'middle')
-      .attr('x', marginLeft + innerWidth / 2)
-      .attr('y', height - 10)
-      .text(xTitle)
-      .style('font-size', '12px')
-      .style('fill', 'white');
-  }, [width, height, data, marginLeft, marginBottom, colors,
-    jitter, theme, yMinProp, marginTop, marginRight, featureType,
-    featureValueType, featureValueTransformName, yUnits, obsType,
-    maxCharactersForLabel,
-  ]);
+        marks: [
+          {
+            type: 'area',
+            orient: 'vertical',
+            from: { data: 'violin' },
+            encode: {
+              enter: {
+                fill: { scale: 'color', field: { parent: 'set' } },
+              },
+              update: {
+                width: { scale: 'wscale', field: 'density' },
+                xc: { signal: 'bandWidth / 2' },
+                y2: { scale: 'yscale', field: 'value' },
+                y: { scale: 'yscale', value: 0 },
+              },
+            },
+          },
+          {
+            type: 'area',
+            orient: 'vertical',
+            from: { data: 'violin' },
+            encode: {
+              enter: {
+                fill: { scale: 'color', field: { parent: 'set' } },
+              },
+              update: {
+                width: { scale: 'wscaleReversed', field: 'density' },
+                xc: { signal: 'bandWidth' },
+                y2: { scale: 'yscale', field: 'value' },
+                y: { scale: 'yscale', value: 0 },
+              },
+            },
+          },
+          {
+            type: 'rect',
+            from: { data: 'summary' },
+            encode: {
+              enter: {
+                fill: { value: rectColor },
+                width: { value: 2 },
+              },
+              update: {
+                y: { scale: 'yscale', field: 'q1' },
+                y2: { scale: 'yscale', field: 'q3' },
+                xc: { signal: 'bandWidth / 2' },
+              },
+            },
+          },
+          {
+            type: 'rect',
+            from: { data: 'summary' },
+            encode: {
+              enter: {
+                fill: { value: rectColor },
+                height: { value: 2 },
+                width: { value: 8 },
+              },
+              update: {
+                y: { scale: 'yscale', field: 'median' },
+                xc: { signal: 'bandWidth / 2' },
+              },
+            },
+          },
+        ],
+      },
+    ],
+  };
 
   return (
-    <svg
-      ref={svgRef}
-      style={{
-        top: 0,
-        left: 0,
-        width: `${width}px`,
-        height: `${height}px`,
-        position: 'relative',
-      }}
+    <VegaPlot
+      data={data}
+      spec={spec}
     />
   );
 }

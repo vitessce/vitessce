@@ -1,37 +1,28 @@
-// @ts-check
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
 
-/** @import AnnDataSource from '../AnnDataSource.js' */
-/** @import { ObsEmbeddingData, MatrixResult } from '@vitessce/types' */
-
 /**
  * Loader for embedding arrays located in anndata.zarr stores.
- * @template {AnnDataSource} DataSourceType
- * @extends {AbstractTwoStepLoader<DataSourceType>}
  */
 export default class ObsEmbeddingAnndataLoader extends AbstractTwoStepLoader {
   /**
    * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
-   * @returns {Promise<MatrixResult>} A promise for an array of columns.
+   * @returns {Promise} A promise for an array of columns.
    */
-  async loadEmbedding() {
+  loadEmbedding() {
     const { path, dims = [0, 1] } = this.options;
     if (this.embedding) {
-      return /** @type {Promise<MatrixResult>} */ (this.embedding);
+      return this.embedding;
     }
     if (!this.embedding) {
       this.embedding = this.dataSource.loadNumericForDims(path, dims);
-      return /** @type {Promise<MatrixResult>} */ (this.embedding);
+      return this.embedding;
     }
+    this.embedding = Promise.resolve(null);
     return this.embedding;
   }
 
-  /**
-   *
-   * @returns {Promise<LoaderResult<ObsEmbeddingData>>}
-   */
   async load() {
     const { path } = this.options;
     const superResult = await super.load().catch(reason => Promise.resolve(reason));

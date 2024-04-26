@@ -11,6 +11,7 @@ See the [file type implementation](/docs/dev-add-loader/) and [plugin file type 
 
 ```js
 import { range } from 'lodash-es';
+import fromEntries from 'object.fromentries';
 import {
   Vitessce,
   registerPluginFileType,
@@ -27,7 +28,7 @@ const numGenes = 90;
 class InMemoryCellsLoader extends JsonLoader {
   // eslint-disable-next-line class-methods-use-this
   async load() {
-    const data = Object.fromEntries(range(numCells).map(i => ([`cell_${i}`, {
+    const data = fromEntries(range(numCells).map(i => ([`cell_${i}`, {
       mappings: {
         random: [
           Math.random(),

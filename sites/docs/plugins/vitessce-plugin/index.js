@@ -1,25 +1,47 @@
-const webpack = require('webpack');
+const path = require('path');
 
-// We need to make a custom Docusaurus plugin so that we can support
-// the "node:fs" imports within the @zarrita/storage package.
-// Reference: https://github.com/vercel/next.js/issues/28774#issuecomment-1264555395
-// Reference: https://github.com/manzt/zarrita.js/blob/fba5325bb83949aa5a5f036841653e183efc4ee1/packages/storage/src/fs.ts#L1
+const SRC_DIR = path.resolve('../../src');
+
+// We need to make a custom Docusaurus plugin to be able to configure webpack.
+// Reference: https://v2.docusaurus.io/docs/using-plugins#creating-plugins
+// Reference: https://v2.docusaurus.io/docs/lifecycle-apis#configurewebpackconfig-isserver-utils
 module.exports = function(context, options) {
   return {
     name: 'vitessce-docusaurus-plugin',
     configureWebpack(config, isServer, utils) {
       return {
-        resolve: {
-          fallback: {
-            fs: false,
-            path: false,
-          },
+        mergeStrategy: {
+          'module.rules': 'prepend',
         },
-        plugins: [
-          new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
-            resource.request = resource.request.replace(/^node:/, "");
-          }),
-        ],
+        module: {
+          rules: [
+            // First, run the linter.
+            // It's important to do this before Babel processes the JS.
+            {
+              test: /\.(js|mjs|jsx|ts|tsx)$/,
+              enforce: 'pre',
+              use: [
+                {
+                  options: {
+                    cache: true,
+                    formatter: 'stylish',
+                    eslintPath: require.resolve('eslint'),
+                    resolvePluginsRelativeTo: __dirname,
+                  },
+                  loader: require.resolve('eslint-loader'),
+                },
+              ],
+              include: SRC_DIR,
+            },
+            // For the ESM build of vitessce, we need to allow imports both with and without the .js suffix
+            {
+              test: /\.m?js/,
+              resolve: {
+                fullySpecified: false
+              }
+            }
+          ]
+        },
       };
     },
   };

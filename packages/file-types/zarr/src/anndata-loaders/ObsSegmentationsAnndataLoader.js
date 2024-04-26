@@ -2,7 +2,6 @@ import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
 import { DEFAULT_CELLS_LAYER } from '@vitessce/spatial-utils';
-import { CoordinationLevel as CL } from '@vitessce/config';
 
 
 /**
@@ -54,37 +53,9 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
-
-    const channelCoordination = [{
-      // obsType: null,
-      spatialChannelColor: [255, 255, 255],
-      spatialChannelVisible: true,
-      spatialChannelOpacity: 1.0,
-      spatialChannelWindow: null,
-      // featureType: 'feature',
-      // featureValueType: 'value',
-      obsColorEncoding: 'spatialChannelColor',
-      spatialSegmentationFilled: true,
-      spatialSegmentationStrokeWidth: 1.0,
-      obsHighlight: null,
-    }];
-
     const coordinationValues = {
-      // Old
       spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
-      // New
-      // spatialTargetZ: imageWrapper.getDefaultTargetZ(),
-      // spatialTargetT: imageWrapper.getDefaultTargetT(),
-      segmentationLayer: CL([
-        {
-          fileUid: this.coordinationValues?.fileUid || null,
-          spatialLayerOpacity: 1.0,
-          spatialLayerVisible: true,
-          segmentationChannel: CL(channelCoordination),
-        },
-      ]),
     };
-
     return Promise.all([
       this.dataSource.loadObsIndex(path),
       this.loadSegmentations(),
@@ -94,7 +65,6 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
         obsSegmentations,
         obsSegmentationsType: 'polygon',
       },
-      null,
       coordinationValues,
     )));
   }

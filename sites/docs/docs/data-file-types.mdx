@@ -268,41 +268,6 @@ coordinationValues={`{
 }`}
 />
 
-### `sampleSets.csv`
-
-Maps each sample to membership in one or more sets.
-
-If a group of sets is organized as a flat list, then `"column"` points to a column containing string labels.
-Alternatively, if organized as a hierarchy, then `"column"` can point to an array of columns, progressing from coarser to finer labels.
-
-For example, the file contents might look like:
-
-| donor_id | disease_state |
-| ----- | ----- |
-| donor_1 | Healthy reference |
-| donor_2 | Diabetes |
-| donor_3 | Diabetes |
-| donor_4 | Healthy reference |
-| ... | ... |
-
-<FileDefTabs
-fileName="my_sample_set_membership.csv"
-fileType="sampleSets.csv"
-fileConst="SAMPLE_SETS_CSV"
-options={`{
-  "sampleIndex": "donor_id",
-  "sampleSets": [
-    {
-      "name": "Disease state",
-      "column": "disease_state"
-    }
-  ]
-}`}
-coordinationValues={`{
-  "sampleType": "donor"
-}`}
-/>
-
 ## AnnData-Zarr
 
 While [Zarr](https://zarr.readthedocs.io/en/stable/) is an efficient format for storing multidimensional arrays,
@@ -676,31 +641,6 @@ coordinationValues={`{
 }`}
 />
 
-### `sampleEdges.anndata.zarr`
-
-A column containing string labels along the `obs` axis, which maps observations to samples.
-For example, the contents of `adata.obs['donor_id']` might look like:
-
-```
-index
-cell_1     donor_1
-cell_2     donor_1
-cell_3     donor_2
-Name: donor_id, dtype: object
-```
-
-<FileDefTabs
-fileName="my_adata.zarr"
-fileType="sampleEdges.anndata.zarr"
-fileConst="SAMPLE_EDGES_ANNDATA_ZARR"
-options={`{
-  "path": "obs/donor_id"
-}`}
-coordinationValues={`{
-  "obsType": "cell",
-  "sampleType": "donor"
-}`}
-/>
 
 ### `anndata.zarr`
 
@@ -1173,49 +1113,6 @@ coordinationValues={`{
 }`}
 />
 
-### `spatialdata.zarr`
-
-Defines an SpatialData object that has been written to a Zarr store. This is a [joint](/docs/data-types-file-types/#joint-file-types) file type.
-
-<FileDefTabs
-fileName="my_sdata.zarr"
-fileType="spatialdata.zarr"
-fileConst="SPATIALDATA_ZARR"
-options={`{
-  "image": {
-    // Accepts the same options as image.spatialdata.zarr
-    "path": "images/visium_151673_full_image"
-  },
-  "labels": {
-    // Accepts the same options as labels.spatialdata.zarr
-    "path": "images/visium_151673_annotations"
-  },
-  "obsFeatureMatrix": {
-    // Accepts the same options as obsFeatureMatrix.spatialdata.zarr
-    "path": "table/table/X"
-  }
-  "obsSpots": {
-    // Accepts the same options as obsSpots.spatialdata.zarr
-    "path": "shapes/visium_151673",
-  },
-  "obsSets": {
-    // Accepts the same options as obsSets.spatialdata.zarr
-    "obsSets": [
-      // Accepts the same options as obsSets.anndata.zarr
-      {
-        "name": "Cell Type Annotations",
-        "path": ["obs/cell_type_coarse", "obs/cell_type_fine"]
-      }
-    ],
-  }
-}`}
-coordinationValues={`{
-  "obsType": "cell",
-  "featureType": "gene",
-  "featureValueType": "expression"
-}`}
-/>
-
 
 ## JSON
 
@@ -1325,17 +1222,6 @@ The dimensions of these transformations must correspond to the `DimensionOrder` 
 fileName="my_image.ome.tif"
 fileType="image.ome-tiff"
 fileConst="IMAGE_OME_TIFF"
-/>
-
-## `obsSegmentations.ome-zarr`
-
-Points to a label image ("bitmask") in OME-NGFF format.
-Pixel values are integers that correspond to segmented observations, with `0` representing background.
-
-<FileDefTabs
-fileName="my_cell_segmentations.ome.zarr"
-fileType="obsSegmentations.ome-zarr"
-fileConst="OBS_SEGMENTATIONS_OME_ZARR"
 />
 
 ## `image.ome-zarr`

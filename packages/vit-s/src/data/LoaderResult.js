@@ -1,19 +1,13 @@
-// @ts-check
 
-/**
- * @template {any} LoaderDataType
- */
 export default class LoaderResult {
   /**
-   * @param {LoaderDataType} data
+   * @param {*} data
    * @param {object[]|string|null} url Single URL or array of { url, name } objects.
-   * @param {object|null} coordinationValues
-   * @param {RequestInit|null} requestInit
+   * @param {object} coordinationValues
    */
-  constructor(data, url, coordinationValues = null, requestInit = null) {
+  constructor(data, url, coordinationValues = null) {
     this.data = data;
     this.url = url;
     this.coordinationValues = coordinationValues;
-    this.requestInit = requestInit;
   }
 }

@@ -7,4 +7,3 @@ export { default as ObsSpotsCsvLoader } from './ObsSpotsCsv.js';
 export { default as ObsPointsCsvLoader } from './ObsPointsCsv.js';
 export { default as ObsLocationsCsvLoader } from './ObsLocationsCsv.js';
 export { default as ObsSetsCsvLoader } from './ObsSetsCsv.js';
-export { default as SampleSetsCsvLoader } from './SampleSetsCsv.js';

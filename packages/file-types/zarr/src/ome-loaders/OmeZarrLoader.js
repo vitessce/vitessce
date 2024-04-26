@@ -14,27 +14,18 @@ import {
   LoaderResult,
   AbstractTwoStepLoader,
 } from '@vitessce/vit-s';
-import { CoordinationLevel as CL } from '@vitessce/config';
 
 
 export default class OmeZarrLoader extends AbstractTwoStepLoader {
-  constructor(dataSource, params) {
-    super(dataSource, params);
-    this.storeRoot = this.dataSource.storeRoot;
-  }
-
   async load() {
-    const payload = await this.dataSource.getJson('.zattrs', this.storeRoot).catch(reason => Promise.resolve(reason));
+    const payload = await this.dataSource.getJson('.zattrs').catch(reason => Promise.resolve(reason));
     if (payload instanceof AbstractLoaderError) {
       return Promise.reject(payload);
     }
 
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
-    // Here, we use this.storeRoot as opposed to this.dataSource.storeRoot.
-    // Loader sub-classes may override this.storeRoot in their constructor
-    // if their OME-Zarr image is not at the root of the store.
-    const loader = await loadOmeZarr(this.storeRoot);
+    const loader = await loadOmeZarr(this.url, this.requestInit);
     const imageWrapper = new ImageWrapper(loader, this.options);
 
     const { metadata, data } = loader;
@@ -163,33 +154,8 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       imagesWithLoaderCreators, undefined,
     );
 
-    const channelObjects2 = imageWrapper.getChannelObjects();
-    const channelCoordination = channelObjects2.slice(0, 5).map((channelObj, i) => ({
-      spatialTargetC: i,
-      spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
-      spatialChannelVisible: true,
-      spatialChannelOpacity: 1.0,
-      spatialChannelWindow: channelObj.defaultWindow || null,
-    }));
-
-
     const coordinationValues = {
-      // Old
       spatialImageLayer: autoImageLayers,
-      // New
-      spatialTargetZ: imageWrapper.getDefaultTargetZ(),
-      spatialTargetT: imageWrapper.getDefaultTargetT(),
-      imageLayer: CL([
-        {
-          fileUid: this.coordinationValues?.fileUid || null,
-          spatialLayerOpacity: 1.0,
-          spatialLayerVisible: true,
-          photometricInterpretation: imageWrapper.getPhotometricInterpretation(),
-          volumetricRenderingAlgorithm: 'maximumIntensityProjection',
-          spatialTargetResolution: null,
-          imageChannel: CL(channelCoordination),
-        },
-      ]),
     };
 
     return Promise.resolve(new LoaderResult(
@@ -201,7 +167,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
         },
         featureIndex: imageWrapper.getChannelNames(),
       },
-      null,
+      [],
       coordinationValues,
     ));
   }

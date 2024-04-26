@@ -13,7 +13,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 function getCheckboxColor(colormapOn, color, theme) {
-  if (theme !== 'dark' && isEqual(color, [255, 255, 255])) {
+  if (theme === 'light' && isEqual(color, [255, 255, 255])) {
     // Use gray instead of white on white background.
     return toRgbUIString(colormapOn, [132, 132, 132], theme);
   }

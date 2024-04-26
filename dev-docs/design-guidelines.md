@@ -33,8 +33,6 @@ An evolving set of guidelines to ensure that features remain maintainable, scala
 ### TypeScript
 
 - Implement new sub-packages using TypeScript to avoid creating tech debt.
-- Prefer [TypeScript-via-JSDoc](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html) now that JSDoc supports [`@import` syntax](https://github.com/microsoft/TypeScript/pull/57207).
-- Consider incremental type annotations via prepending `// @ts-check` to JS files.
 
 ### JSX
 - Prefer ternary with explicit null case `return (someCondition ? (<SomeComponent/>) : null)` over `return (someCondition && <SomeComponent/>)`.

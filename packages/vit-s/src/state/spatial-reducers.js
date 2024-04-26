@@ -25,7 +25,7 @@ export function getMetaScope(coordinationScopes, coordinationSpace, parameter) {
       metaScopesArr.forEach((metaScope) => {
         // Merge the original coordinationScopes with the matching meta-coordinationScopes
         // from the coordinationSpace.
-        if (metaSpace[metaScope]?.[parameter]) {
+        if (metaSpace[metaScope][parameter]) {
           latestMetaScope = metaScope;
         }
       });

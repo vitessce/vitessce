@@ -60,6 +60,3 @@ export {
 export {
   dataToCellSetsTree,
 } from './CellSetsZarrLoader.js';
-export {
-  getCellColors,
-} from './interpolate-colors.js';

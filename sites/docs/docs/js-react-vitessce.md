@@ -71,11 +71,6 @@ If set to `true` then users cannot resize or move components beyond the initial 
 
 A unique ID string which can be used to ensure that dynamically-generated CSS class names are unique for a given `<Vitessce/>` component. By default, `null`.
 
-### `remountOnUidChange`
-- Type: `boolean`
-
-Whether to remount the coordination provider upon changes to config.uid. By default, `true`.
-
 ### `pluginViewTypes`
 - Type: `PluginViewType[]`
 
@@ -97,11 +92,6 @@ Define additional coordination types. See [plugin development](/docs/dev-plugins
 - Type: `PluginJointFileType[]`
 
 Define additional [joint file type](docs/data-types-file-types/#joint-file-types) expansion functions. See [plugin development](/docs/dev-plugins) for more information.
-
-### `stores`
-- Type: `{ [string]: Readable }`
-
-Mapping from file URLs (that appear in `config.datasets[].files[].url`) to Zarr stores implementing the [Readable](https://zarrita.dev/packages/storage.html#what-is-a-store) interface.
 
 
 ## Lazy loading

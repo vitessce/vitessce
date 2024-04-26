@@ -1,12 +1,3 @@
-import type {
-  AbstractImageWrapper,
-  VivLoaderType,
-  VivLoaderDataType,
-  ImageOptions,
-  ChannelObject,
-  ResolutionObject,
-  BoundingCube,
-} from '@vitessce/types';
 import {
   coordinateTransformationsToMatrix,
   getNgffAxes,
@@ -16,20 +7,58 @@ import {
   getSourceFromLoader,
   canLoadResolution,
   getStatsForResolution,
+  getBoundingCube,
   isInterleaved as isInterleavedUtil,
 } from '@vitessce/spatial-utils';
 import { VIEWER_PALETTE } from '@vitessce/utils';
+import type { LoadOmeTiffReturnValue } from './ome-tiff-types.js';
+import type { LoadOmeZarrReturnValue } from './ome-zarr-types.js';
+
+
+type VivLoaderType<S extends string[]> = LoadOmeTiffReturnValue<S> | LoadOmeZarrReturnValue<S>;
+type VivLoaderDataType<S extends string[]> = VivLoaderType<S>['data'];
+type ImageOptions = {
+  coordinateTransformations?: object[]; // TODO: stricter type
+  offsetsUrl?: string;
+};
+
+type ChannelObject = {
+  name: string;
+  // Defaults that originate from image file contents
+  // (takes precedence over automatic defaults below)
+  defaultColor?: number[];
+  defaultWindow?: [number, number];
+  // Defaults for automatic initialization
+  // (if defaults above are null or not provided).
+  // TODO: should autoDefaultColor be exposed as a separate value?
+  // or just set as the value of defaultColor when applicable?
+  autoDefaultColor?: number[];
+};
+
+type ResolutionObject = {
+  height: number;
+  width: number;
+  depthDownsampled: number;
+  totalBytes: number;
+  canLoad: boolean;
+};
+
+type BoundingCube = [
+  [number, number],
+  [number, number],
+  [number, number]
+];
 
 /**
  * A wrapper around the Viv loader, to provide a common interface for
  * all image file types.
  */
-export default class ImageWrapper implements AbstractImageWrapper {
-  vivLoader: VivLoaderType;
+export default class ImageWrapper<S extends string[]> {
+  vivLoader: VivLoaderType<S>;
 
   options: ImageOptions;
 
-  constructor(vivLoader: VivLoaderType, options: ImageOptions) {
+  constructor(vivLoader: VivLoaderType<S>, options: ImageOptions) {
     this.options = options || {};
     this.vivLoader = vivLoader;
     //
@@ -78,7 +107,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
     return true;
   }
 
-  getData(): VivLoaderDataType {
+  getData(): VivLoaderDataType<S> {
     return this.vivLoader.data;
   }
 
@@ -195,20 +224,13 @@ export default class ImageWrapper implements AbstractImageWrapper {
   }
 
   getNumChannels(): number {
-    // SpatialData case: should be temporary code path,
-    // References:
-    // - https://github.com/ome/ngff/issues/192
-    // - https://github.com/ome/ome-zarr-py/pull/261
-    if ('image-label' in this.vivLoader.metadata) {
-      // As far as I can tell, SpatialData labels
-      // are always single-channel bitmasks (as of 2023-09-20).
-      return 1;
-    }
-    if ('channels_metadata' in this.vivLoader.metadata) {
+    if ('Pixels' in this.vivLoader.metadata) {
       const {
-        channels_metadata: channelsMetadata,
+        Pixels: {
+          Channels,
+        },
       } = this.vivLoader.metadata;
-      return channelsMetadata?.channels.length || 0;
+      return Channels.length;
     }
     if ('omero' in this.vivLoader.metadata) {
       const {
@@ -218,13 +240,20 @@ export default class ImageWrapper implements AbstractImageWrapper {
       } = this.vivLoader.metadata;
       return channels.length;
     }
-    if ('Pixels' in this.vivLoader.metadata) {
+    // SpatialData case: should be temporary code path,
+    // References:
+    // - https://github.com/ome/ngff/issues/192
+    // - https://github.com/ome/ome-zarr-py/pull/261
+    if ('channels_metadata' in this.vivLoader.metadata) {
       const {
-        Pixels: {
-          Channels,
-        },
+        channels_metadata: channelsMetadata,
       } = this.vivLoader.metadata;
-      return Channels.length;
+      return channelsMetadata?.channels.length || 0;
+    }
+    if ('image-label' in this.vivLoader.metadata) {
+      // As far as I can tell, SpatialData labels
+      // are always single-channel bitmasks (as of 2023-09-20).
+      return 1;
     }
     return 0;
   }
@@ -238,10 +267,13 @@ export default class ImageWrapper implements AbstractImageWrapper {
       } = this.vivLoader.metadata;
       return Channels.map((channel, i) => channel.Name || `Channel ${i}`);
     }
-    // SpatialData cases (image-label and channels_metadata)
-    // need to take precedence over general OME-NGFF omero metadata.
-    if ('image-label' in this.vivLoader.metadata) {
-      return ['labels'];
+    if ('omero' in this.vivLoader.metadata) {
+      const {
+        omero: {
+          channels,
+        },
+      } = this.vivLoader.metadata;
+      return channels.map((channel, i) => channel.label || `Channel ${i}`);
     }
     if ('channels_metadata' in this.vivLoader.metadata) {
       const {
@@ -251,43 +283,10 @@ export default class ImageWrapper implements AbstractImageWrapper {
         return channelsMetadata.channels.map(channel => `Channel ${channel.label}`);
       }
     }
-    if ('omero' in this.vivLoader.metadata) {
-      const {
-        omero: {
-          channels,
-        },
-      } = this.vivLoader.metadata;
-      return channels.map((channel, i) => channel.label || `Channel ${i}`);
-    }
     return [];
   }
 
-  // TODO: support passing a custom color palette array.
   getChannelObjects(): ChannelObject[] {
-    // SpatialData cases (image-label and channels_metadata)
-    // need to take precedence over general OME-NGFF omero metadata.
-    if ('image-label' in this.vivLoader.metadata) {
-      return [{
-        name: 'labels',
-        defaultColor: [255, 255, 255],
-        defaultWindow: [0, 255],
-        autoDefaultColor: [0, 0, 0],
-      }];
-    }
-    if ('channels_metadata' in this.vivLoader.metadata) {
-      // Temporary code path for SpatialData.
-      const {
-        channels_metadata: channelsMetadata,
-      } = this.vivLoader.metadata;
-      if (channelsMetadata && Array.isArray(channelsMetadata?.channels)) {
-        return channelsMetadata.channels.map((channel, i) => ({
-          name: `Channel ${channel.label}`,
-          defaultColor: undefined,
-          defaultWindow: undefined,
-          autoDefaultColor: VIEWER_PALETTE[i % VIEWER_PALETTE.length],
-        }));
-      }
-    }
     if ('omero' in this.vivLoader.metadata) {
       // This is the OME-Zarr case.
       const {
@@ -320,6 +319,19 @@ export default class ImageWrapper implements AbstractImageWrapper {
         defaultWindow: undefined, // TODO: does OME-TIFF support this?
         autoDefaultColor: VIEWER_PALETTE[i % VIEWER_PALETTE.length],
       }));
+    }
+    if ('channels_metadata' in this.vivLoader.metadata) {
+      const {
+        channels_metadata: channelsMetadata,
+      } = this.vivLoader.metadata;
+      if (channelsMetadata && Array.isArray(channelsMetadata?.channels)) {
+        return channelsMetadata.channels.map((channel, i) => ({
+          name: `Channel ${channel.label}`,
+          defaultColor: undefined,
+          defaultWindow: undefined,
+          autoDefaultColor: VIEWER_PALETTE[i % VIEWER_PALETTE.length],
+        }));
+      }
     }
     return [];
   }
@@ -430,37 +442,5 @@ export default class ImageWrapper implements AbstractImageWrapper {
     const loader = this.vivLoader;
     const { shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
     return isInterleavedUtil(shape);
-  }
-
-  getPhotometricInterpretation() : 'RGB' | 'BlackIsZero' {
-    const loader = this.vivLoader;
-    if ('Pixels' in loader.metadata) {
-      // OME-TIFF case
-      const source = Array.isArray(loader.data) ? loader.data[0] : loader.data;
-      if ('meta' in source) {
-        const { meta } = source;
-        if (meta && 'photometricInterpretation' in meta) {
-          const numericValue = meta.photometricInterpretation;
-          if (numericValue === 2) {
-            return 'RGB';
-          }
-          // We use BlackIsZero as default but should ideally be specified by a value of 1.
-        }
-      }
-    }
-    if ('omero' in loader.metadata) {
-      // This is the OME-Zarr case.
-      const {
-        omero: {
-          rdefs: {
-            model,
-          },
-        },
-      } = loader.metadata;
-      if (model === 'color') {
-        return 'RGB';
-      }
-    }
-    return 'BlackIsZero';
   }
 }

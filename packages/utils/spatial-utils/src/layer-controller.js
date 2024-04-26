@@ -1,10 +1,11 @@
 import { viv } from '@vitessce/gl';
+import { fromEntries } from '@vitessce/utils';
 import { Matrix4 } from 'math.gl';
 
 // Returns an rgb string for display, and changes the color (arr)
 // to use a grey for light theme + white color or if the colormap is on.
 export const toRgbUIString = (on, arr, theme) => {
-  const color = on || (theme !== 'dark' && arr?.every(i => i === 255))
+  const color = on || (theme === 'light' && arr?.every(i => i === 255))
     ? [220, 220, 220]
     : arr;
   return `rgb(${color})`;
@@ -24,7 +25,7 @@ export function filterSelection(loader, selection) {
   }
   const data = Array.isArray(loader) ? loader[loader.length - 1] : loader;
   const { labels } = data;
-  return Object.fromEntries(Object.entries(selection).filter(([key]) => labels.includes(key)));
+  return fromEntries(Object.entries(selection).filter(([key]) => labels.includes(key)));
 }
 
 async function getSingleSelectionStats2D({ loader, selection }) {

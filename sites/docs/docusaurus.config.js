@@ -158,7 +158,6 @@ module.exports = {
     ],
   ],
   plugins: [
-    './plugins/vitessce-plugin',
     './plugins/monaco-editor-plugin',
     //path.resolve(__dirname, 'plugins', 'vitessce-plugin'),
   ],

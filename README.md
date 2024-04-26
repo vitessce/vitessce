@@ -56,7 +56,7 @@ Checkout the project, `cd`, and then:
 
 ```sh
 pnpm install
-pnpm run build
+pnpm run build # for @vitessce/icons and @vitessce/workers
 pnpm run start-demo
 ```
 
@@ -64,10 +64,6 @@ The development server will refresh the browser as you edit the code.
 
 Further details for internal developers can be found within [dev-docs](./dev-docs/).
 
-> **VSCode Note**
-> We are currently using a nightly version of TypeScript which supports `@import` statements in JSDoc comments.
-> To use VSCode features like jump-to-implementation with this syntax, install the [TypeScript Nightly extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-typescript-next).
-<!-- TODO: Remove this note once TS v5.5 has been released -->
 
 ### Changesets
 

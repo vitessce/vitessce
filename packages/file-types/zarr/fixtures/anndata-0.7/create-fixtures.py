@@ -6,7 +6,7 @@ from random import randint
 from anndata import AnnData
 import zarr
 import numpy as np
-import pandas as pd
+from pandas import DataFrame
 from scipy import sparse
 
 X = np.array(
@@ -14,23 +14,13 @@ X = np.array(
 )
 
 def create_zarr_anndata(output_dir, **kwargs):
-    dtypes = ['int32', 'int64', 'float32']
-    layers = dict(
-        zip(
-            dtypes, [
-                np.array(
-                    [np.arange(0, 15), np.arange(0, 15), np.arange(0, 15)], dtype=dtype
-                ) for dtype in dtypes
-            ]
-        )
-    )
+    print(X)
     adata = AnnData(
         # Generate a fairly sparse matrix
-        X=layers['float32'],
-        obs=pd.DataFrame(index=["CTG", "GCA", "CTG"], data={"leiden": pd.Categorical(["1", "1", "2"])}),
-        var=pd.DataFrame(index=[f"gene_{i}" for i in range(15)]),
+        X=X,
+        obs=DataFrame(index=["CTG", "GCA", "CTG"], data={"leiden": ["1", "1", "2"]}),
+        var=DataFrame(index=[f"gene_{i}" for i in range(15)]),
         obsm={"X_umap": np.array([[-1, -1], [0, 0], [1, 1]], dtype=np.dtype('<i4'))},
-        layers=layers
     )
     is_sprase = kwargs["is_sparse"]
     if is_sprase:

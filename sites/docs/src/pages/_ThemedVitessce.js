@@ -9,7 +9,7 @@ export default function ThemedVitessce(props) {
   return (
     <>
       <Vitessce
-        theme={isDarkTheme ? 'dark' : 'light2'}
+        theme={isDarkTheme ? 'dark' : 'light'}
         {...props}
       />
     </>

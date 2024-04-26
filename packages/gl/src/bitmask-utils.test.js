@@ -11,11 +11,6 @@ describe('bitmask utils', () => {
         [10, 20, 30], // 3 expression values, one per glomerulus
       ];
 
-      const multiObsIndex = [
-        ['1', '2', '3', '4', '5'], // 5 cells
-        ['1', '2', '3'], // 3 glomeruli
-      ];
-
       const setColorValues = [
         {
           setColorIndices: (new Map([
@@ -59,7 +54,6 @@ describe('bitmask utils', () => {
         colorsOffsets,
       ] = multiSetsToTextureData(
         multiFeatureValues,
-        multiObsIndex,
         setColorValues,
         channelIsSetColorMode,
         10,

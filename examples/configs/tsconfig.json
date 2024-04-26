@@ -3,9 +3,7 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "dist-tsc",
-    "rootDir": "src",
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true
+    "rootDir": "src"
   },
-  "include": ["src", "src/**/*.json"]
+  "include": ["src"]
 }

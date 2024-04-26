@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/image-utils",
-  "version": "3.3.12",
+  "version": "3.3.2",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -30,7 +30,6 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@vitessce/types": "workspace:*",
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@hms-dbmi/viv": "~0.16.0"

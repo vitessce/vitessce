@@ -1,6 +1,6 @@
 import { viv } from '@vitessce/gl';
 import { open as zarrOpen } from 'zarrita';
-import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
+import { zarrOpenRoot, createZarrArrayAdapter } from '@vitessce/zarr-utils';
 
 function prevPowerOf2(x) {
   return 2 ** Math.floor(Math.log2(x));
@@ -71,7 +71,8 @@ export class ZarritaPixelSource extends viv.ZarrPixelSource {
 
 // We use our own loadOmeZarr function (instead of viv.loadOmeZarr)
 // to bypass usage of zarr.js which is used in Viv's version.
-export async function loadOmeZarr(root) {
+export async function loadOmeZarr(url, requestInit) {
+  const root = await zarrOpenRoot(url, requestInit);
   const { data, rootAttrs, labels } = await loadMultiscales(root);
   const tileSize = guessTileSize(data[0]);
   const pyramid = data
