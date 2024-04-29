@@ -49,15 +49,10 @@ export default function FeatureBarPlot(props) {
         onBarSelect,
         onBarHighlight,
     } = props;
-
-    // console.log(cellSetSelection)
-    // console.log(additionalCellSets)
-    // console.log(cellSetColor)
     let setsSave = new Map();
     let info = {name: "", id: "", color: []}
     for (let index in cellSetSelection) {
         let selectedElement = cellSetSelection[index][1];
-        //console.log(sets.tree[0].children);
         for (let subIndex in additionalCellSets.tree[0].children) {
             let child = additionalCellSets.tree[0].children[subIndex]
             if (child.name === selectedElement) {
@@ -77,11 +72,7 @@ export default function FeatureBarPlot(props) {
         }
 
     }
-    // console.log(setsSave)
-
-
     const svgRef = useRef();
-
     // Get the max characters in an axis label for autsizing the bottom margin.
     const maxCharactersForLabel = useMemo(() => data.reduce((acc, val) => {
         // eslint-disable-next-line no-param-reassign

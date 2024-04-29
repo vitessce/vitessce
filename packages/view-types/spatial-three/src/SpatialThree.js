@@ -94,17 +94,14 @@ const SpatialThree = (props) => {
         let segmentationOBSSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
         const {setObsHighlight} = segmentationChannelCoordination[1][layerScope][layerScope];
         setObsHighlightFct = setObsHighlight;
-        // console.log(segmentationChannelCoordination[0][layerScope][layerScope])
         let sets = segmentationChannelCoordination[0][layerScope][layerScope].additionalObsSets;
         if (sets !== null) {
             for (let index in segmentationOBSSetLayerProps.obsSetSelection) {
                 let selectedElement = segmentationOBSSetLayerProps.obsSetSelection[index][1];
                 for (let subIndex in sets.tree[0].children) {
                     let child = sets.tree[0].children[subIndex]
-                    // console.log(child.set)
                     if (child.name === selectedElement) {
                         for (let elem in child.set) {
-                            // console.log(child.set[elem])
                             let info = {name: "", id: "", color: []}
                             info.name = selectedElement
                             info.id = child.set[elem][0];
@@ -293,7 +290,6 @@ const SpatialThree = (props) => {
                     for (let child in segmentationGroup.children[finalGroup].children) {
                         let color = segmentationSettings.color;
                         let id = segmentationGroup.children[finalGroup].children[child].userData.name
-                        // console.log(segmentationSettings.obsSets)
                         for (let index in segmentationSettings.obsSets) {
                             if (segmentationSettings.obsSets[index].id === id) {
                                 color = segmentationSettings.obsSets[index].color
