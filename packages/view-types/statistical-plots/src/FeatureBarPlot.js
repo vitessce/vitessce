@@ -56,26 +56,26 @@ export default function FeatureBarPlot(props) {
     let setsSave = new Map();
     let info = {name: "", id: "", color: []}
     for (let index in cellSetSelection) {
-        let info = {name: "", id: "", color: []}
-
         let selectedElement = cellSetSelection[index][1];
-        info.name = selectedElement
         //console.log(sets.tree[0].children);
         for (let subIndex in additionalCellSets.tree[0].children) {
             let child = additionalCellSets.tree[0].children[subIndex]
             if (child.name === selectedElement) {
-                info.id = child.set[0][0];
-                break;
+                for (let elem in child.set) {
+                    let info = {name: "", id: "", color: []}
+                    info.name = selectedElement
+                    info.id = child.set[elem][0];
+                    for (let subIndex in cellSetColor) {
+                        let color = cellSetColor[subIndex]
+                        if (color.path[1] === selectedElement) {
+                            info.color = color.color;
+                        }
+                    }
+                    setsSave.set(info.id, info);
+                }
             }
         }
-        for (let subIndex in cellSetColor) {
-            let color = cellSetColor[subIndex]
-            if (color.path[1] === selectedElement) {
-                info.color = color.color;
-                break;
-            }
-        }
-        setsSave.set(info.id, info);
+
     }
     // console.log(setsSave)
 
