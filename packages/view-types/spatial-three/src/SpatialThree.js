@@ -19,6 +19,33 @@ import {HandBbox} from "./xr/HandBbox.js"
 import {MeasureLine} from "./MeasureLine.js"
 import {VolumeRenderShaderPerspective} from "../jsm/shaders/VolumeShaderPerspective.js";
 
+/**
+ * React component which expresses the spatial relationships between cells and molecules using ThreeJS
+ * @param {object} props
+ * @param {string} props.uuid A unique identifier for this component,
+ * used to determine when to show tooltips vs. crosshairs.
+ * @param {number} props.height Height of the canvas, used when
+ * rendering the scale bar layer.
+ * @param {number} props.width Width of the canvas, used when
+ * rendering the scale bar layer.
+ * @param {object} props.molecules Molecules data.
+ * @param {object} props.cells Cells data.
+ * @param {object} props.neighborhoods Neighborhoods data.
+ * @param {number} props.lineWidthScale Width of cell border in view space (deck.gl).
+ * @param {number} props.lineWidthMaxPixels Max width of the cell border in pixels (deck.gl).
+ * @param {object} props.cellColors Map from cell IDs to colors [r, g, b].
+ * @param {function} props.getCellCoords Getter function for cell coordinates
+ * (used by the selection layer).
+ * @param {function} props.getCellColor Getter function for cell color as [r, g, b] array.
+ * @param {function} props.getCellPolygon Getter function for cell polygons.
+ * @param {function} props.getCellIsSelected Getter function for cell layer isSelected.
+ * @param {function} props.getMoleculeColor
+ * @param {function} props.getMoleculePosition
+ * @param {function} props.getNeighborhoodPolygon
+ * @param {function} props.updateViewInfo Handler for viewport updates, used when rendering tooltips and crosshairs.
+ * @param {function} props.onCellClick Getter function for cell layer onClick.
+ * @param {string} props.theme "light" or "dark" for the vitessce theme
+ */
 const SpatialThree = (props) => {
     const materialRef = useRef(null);
     const orbitRef = useRef(null);
@@ -26,10 +53,12 @@ const SpatialThree = (props) => {
     const [dataReady, setDataReady] = useState(false);
     const [segmentationGroup, setSegmentationGroup] = useState(null);
     const [segmentationSceneScale, setSegmentationSceneScale] = useState([1.0, 1.0, 1.0])
+    // Storing rendering settings
     const [renderingSettings, setRenderingSettings] = useState({
         uniforms: null, shader: null, meshScale: null,
         geometrySize: null, boxSize: null
     });
+    // Capturing the volumetric data to reuse when only settings are changing
     const [volumeData, setVolumeData] = useState({
         volumes: new Map(),
         textures: new Map(),
@@ -38,6 +67,7 @@ const SpatialThree = (props) => {
         resolution: null,
         originalScale: null
     });
+    //Storing Volume Settings to compare them to a settings state change
     const [volumeSettings, setVolumeSettings] = useState({
         channelsVisible: [],
         allChannels: [],
@@ -50,6 +80,7 @@ const SpatialThree = (props) => {
         renderingMode: null,
         layerTransparency: 1.0,
     });
+    //Storing Segmentation Settings to compare them to a settings state change
     const [segmentationSettings, setSegmentationSettings] = useState({
         visible: true,
         color: [1, 1, 1],
@@ -60,7 +91,6 @@ const SpatialThree = (props) => {
         data: null,
         obsSets: [],
     })
-
 
     const {
         images,
@@ -500,6 +530,20 @@ function HandDecorate() {
     });
 }
 
+/**
+ * Retrieving the volumetric settings from the props, comparing them to the prior settings
+ * @param props
+ * @param volumeSettings
+ * @param setVolumeSettings
+ * @param dataReady
+ * @param setDataReady
+ * @returns {{images: {}, data: (null|*), imageChannelCoordination,
+ * channelTargetC: (null|(*|boolean)[]|*),
+ * ySlice: *, contrastLimits: (null|number[][]|*),
+ * is3dMode: boolean, zSlice: *, resolution: (null|*), colors: (null|number[][]|*),
+ * allChannels: (null|*), layerTransparency: *, renderingMode: *, xSlice: *, layerScope: *,
+ * imageChannelScopesByLayer, imageLayerCoordination, imageLayerScopes, channelsVisible: (null|(*|boolean)[]|*)}}
+ */
 function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady) {
     //Everything that is props based should be useEffect with props as dependent so we can sideload the props
     const {
@@ -590,7 +634,7 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
     };
 }
 
-// Only cares about rendering the gemoetry and the mesh together in one scene
+// Rendering a combination of a volume dataset and segmentations (meshes)
 function GeometryAndMesh(props) {
     const {
         segmentationGroup, segmentationSettings, segmentationSceneScale,
@@ -632,6 +676,7 @@ function GeometryAndMesh(props) {
     let [lines, setLines] = useState([])
     let [debounce, setDebounce] = useState(0)
 
+    // This Block is used to handle Hande Interactions in XR to create measurements
     useFrame(() => {
         if (isPresenting) {
             let rightTipBbox = scene.getObjectByName("rightTipBbox");
@@ -838,6 +883,20 @@ function GeometryAndMesh(props) {
     );
 }
 
+/**
+ * Extracting relevant information from the properties for creating the ThreeJS Volume Viewer
+ * @param layerScope
+ * @param layerCoordination
+ * @param channelScopes
+ * @param channelCoordination
+ * @param image
+ * @param props
+ * @param imageLayerLoaderSelection
+ * @returns {{data: *, channelTargetC: ((*|boolean)[]|*), ySlice: (*|Vector2), contrastLimits: (number[][]|*),
+ * is3dMode: boolean, zSlice: (*|Vector2), resolution: *, colors: (number[][]|*), allChannels: *, layerTransparency: *,
+ * renderingMode: (number), xSlice: (*|Vector2), channelsVisible: ((*|boolean)[]|*)}|{allChannels: null, data: null,
+ * channelTargetC: null, contrastLimits: null, resolution: null, colors: null, channelsVisible: null}}
+ */
 function extractInformationFromProps(layerScope, layerCoordination, channelScopes, channelCoordination,
                                      image, props, imageLayerLoaderSelection) {
     // Getting all the information out of the provided props
@@ -968,7 +1027,7 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
 }
 
 /**
- *
+ * Creates the initial volume rendering settings based on the given data
  * @param volumes          ... from Store
  * @param channelTargetC   ... given by UI
  * @param channelsVisible  ... given by UI
@@ -978,7 +1037,8 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
  * @param volumeMinMax     ... from Store
  * @param scale            ... from Store
  */
-function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures, contrastLimits, volumeMinMax, scale, renderstyle, layerTransparency,
+function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures,
+                           contrastLimits, volumeMinMax, scale, renderstyle, layerTransparency,
                            xSlice, ySlice, zSlice, originalScale) {
     let texturesList = [];
     let colorsSave = [];
@@ -1019,6 +1079,17 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
         [1.0, volume.yLength / volume.xLength, volume.zLength / volume.xLength]];
 }
 
+/**
+ * Function to load the volumetric data from the given data source
+ * @param channelTargetC
+ * @param resolution
+ * @param data
+ * @param volumes
+ * @param textures
+ * @param volumeMinMax
+ * @param oldResolution
+ * @returns {Promise<(*|*[])[]>}
+ */
 async function initialDataLoading(channelTargetC, resolution, data, volumes, textures, volumeMinMax, oldResolution) {
     let volume = null;
     let scale = null;
@@ -1040,6 +1111,22 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
         [shape[labels.indexOf('x')], shape[labels.indexOf('y')], shape[labels.indexOf('z')]]];
 }
 
+/**
+ * Setting the uniform data for the volumetric rendering
+ * @param uniforms
+ * @param textures
+ * @param volume
+ * @param volConfig
+ * @param renderstyle
+ * @param contrastLimits
+ * @param colors
+ * @param layerTransparency
+ * @param xSlice
+ * @param ySlice
+ * @param zSlice
+ * @param meshScale
+ * @param originalScale
+ */
 function setUniformsTextures(uniforms, textures, volume, volConfig, renderstyle, contrastLimits, colors, layerTransparency,
                              xSlice, ySlice, zSlice, meshScale, originalScale) {
     uniforms["boxSize"].value.set(volume.xLength, volume.yLength, volume.zLength);
