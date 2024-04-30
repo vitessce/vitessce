@@ -290,7 +290,8 @@ export const COMPONENT_COORDINATION_TYPES = {
         CoordinationType.OBS_COLOR_ENCODING,
         CoordinationType.OBS_SET_SELECTION,
     ],
-    [ViewType.LINK_CONTROLLER]: [],
+    [ViewType.LINK_CONTROLLER]: [
+    ],
     [ViewType.LAYER_CONTROLLER]: [
         CoordinationType.DATASET,
         CoordinationType.OBS_TYPE,

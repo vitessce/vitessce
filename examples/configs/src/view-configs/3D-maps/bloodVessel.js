@@ -32,7 +32,8 @@ function generateBloodVesselConfig() {
     const spatialThreeView = config.addView(dataset, 'spatialThree');
     // const spatialVolumeView = config.addView(dataset, 'spatialBeta').setProps({ title: 'MIP' });
     const lcView = config.addView(dataset, 'layerControllerBeta');
-    const linkController = config.addView(dataset, 'linkController');
+    const linkController = config.addView(dataset, 'linkController')
+        .setProps({code:'1234'})
 
     const [
         selectionScope,

@@ -4,20 +4,22 @@ import React, {
     useCallback, useRef, forwardRef,
 } from 'react';
 import {Grid} from '@material-ui/core';
-import {TitleInfo, useGridItemSize} from "@vitessce/vit-s";
+import {TitleInfo, useGridItemSize, useReady} from "@vitessce/vit-s";
 import LinkController from "./LinkController.js";
 
 export function LinkControllerSubscriber(props) {
     const {
         removeGridComponent,
+        code,
         theme,
     } = props;
+
     const [containerRef] = useGridItemSize();
     return (
         <TitleInfo title={"Link Controller"} removeGridComponent={removeGridComponent}
-                   theme={theme}>
+                   theme={theme} isReady={true}>
             <div ref={containerRef}>
-                <LinkController></LinkController>
+                <LinkController code={code}></LinkController>
             </div>
         </TitleInfo>);
 }

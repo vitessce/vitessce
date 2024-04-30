@@ -66,7 +66,7 @@ function generateBloodVesselConfig() {
     //const [selectionScope, colorScope] = config.addCoordination('obsSetSelection', 'obsSetColor');
 
     //config.linkViewsByObject([spatialThreeView,spatialVolumeView, lcView], {
-    config.linkViewsByObject([spatialThreeView, lcView,description], {
+    config.linkViewsByObject([spatialThreeView, lcView, description], {
         spatialTargetZ: 0,
         spatialTargetT: 0,
         imageLayer: CL([
@@ -184,7 +184,7 @@ function generateBloodVesselConfig() {
     });
 
     // config.layout(hconcat(vconcat(spatialThreeView,spatialVolumeView), vconcat(lcView,obsSetsView, barPlot)));
-   // config.layout(hconcat(spatialThreeView, vconcat(lcView, description)));
+    // config.layout(hconcat(spatialThreeView, vconcat(lcView, description)));
 
     const configJSON = config.toJSON();
     return configJSON;

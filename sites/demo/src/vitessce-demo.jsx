@@ -119,12 +119,20 @@ export function VitessceDemo() {
 
             // Use the config information to start the Websockets Service and use the code given in the config
             // In the intermediate version we allow for configuring the websocket EITHER via URL parameters
-            // OR via the configuration
             const urlParams = new URLSearchParams(window.location.search);
-            const websocket = urlParams.get('ws') === 'true';
-            const channelID = urlParams.get('channel');
-            const send = urlParams.get('send') === 'true';
-
+            let websocket = urlParams.get('ws') === 'true';
+            let channelID = urlParams.get('code');
+            let send = urlParams.get('send') === 'true';
+            // OR via the configuration
+            if (config) {
+                for (let component in config.layout) {
+                    if(config.layout[component].component === "linkController"){
+                        websocket = true;
+                        send = true;
+                        channelID = config.layout[component].props.code;
+                    }
+                }
+            }
             if (websocket) {
                 if (ws === undefined) {
                     var username = "user_" + (Math.floor(Math.random() * 1000));
