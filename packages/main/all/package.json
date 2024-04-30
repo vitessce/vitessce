@@ -41,6 +41,7 @@
     "@vitessce/heatmap": "workspace:*",
     "@vitessce/glb": "workspace:*",
     "@vitessce/json": "workspace:*",
+    "@vitessce/link-controller": "workspace:*",
     "@vitessce/layer-controller": "workspace:*",
     "@vitessce/layer-controller-beta": "workspace:*",
     "@vitessce/obs-sets-manager": "workspace:*",

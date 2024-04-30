@@ -48,6 +48,7 @@
     { "path": "packages/view-types/feature-list" },
     { "path": "packages/view-types/genomic-profiles" },
     { "path": "packages/view-types/heatmap" },
+    { "path": "packages/view-types/link-controller" },
     { "path": "packages/view-types/layer-controller" },
     { "path": "packages/view-types/layer-controller-beta" },
     { "path": "packages/view-types/obs-sets-manager" },

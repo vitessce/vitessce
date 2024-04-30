@@ -98,45 +98,6 @@ export function VitessceDemo() {
     const [ws, setWS] = useState(undefined);
     const [channel, setChannel] = useState(undefined);
     const [config, setConfig] = useState(undefined);
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const websocket = urlParams.get('ws') === 'true';
-    const channelID = urlParams.get('channel');
-    const send = urlParams.get('send') === 'true';
-
-    if (websocket) {
-        useEffect(() => {
-            if (ws === undefined) {
-                var username = "user_" + (Math.floor(Math.random() * 1000));
-                let socket = new PieSocket({
-                    clusterId: "s12099.nyc1",
-                    apiKey: "vAs6XEQY09uijiPR1GZNPm2qUnqB0VgBEkAFJLoJ",
-                    notifySelf: false,
-                    userId: username,
-                    presence: true,
-                });
-                setWS(socket);
-            }
-        }, [ws])
-
-        useEffect(() => {
-            ws?.subscribe(channelID).then((chan) => {
-                // console.log("Channel is ready")
-                chan.listen("new_message", (data, meta) => {
-                    // console.log(data.sender, ws?.options.userId)
-                    if (data.sender !== ws?.options.userId) {
-                        // console.log("New Message:", data);
-                        setConfig({...data.message, uid: "id" + (Math.floor(Math.random() * 1000))});
-                    }
-                })
-                chan.listen("system:member_joined", function (data) {
-                    console.log("New member joined the chat " + data.member.user);
-                })
-                setChannel(chan);
-            })
-        }, [channel, ws])
-    }
-
     const result = useMemo(() => {
         const {rowHeight = null} = {};
         const urlParams = new URLSearchParams(window.location.search);
@@ -155,6 +116,44 @@ export function VitessceDemo() {
             if (config === undefined) {
                 setConfig(configFromDataSetId);
             }
+
+            // Use the config information to start the Websockets Service and use the code given in the config
+            // In the intermediate version we allow for configuring the websocket EITHER via URL parameters
+            // OR via the configuration
+            const urlParams = new URLSearchParams(window.location.search);
+            const websocket = urlParams.get('ws') === 'true';
+            const channelID = urlParams.get('channel');
+            const send = urlParams.get('send') === 'true';
+
+            if (websocket) {
+                if (ws === undefined) {
+                    var username = "user_" + (Math.floor(Math.random() * 1000));
+                    let socket = new PieSocket({
+                        clusterId: "s12099.nyc1",
+                        apiKey: "vAs6XEQY09uijiPR1GZNPm2qUnqB0VgBEkAFJLoJ",
+                        notifySelf: false,
+                        userId: username,
+                        presence: true,
+                    });
+                    setWS(socket);
+                }
+                ws?.subscribe(channelID).then((chan) => {
+                    // console.log("Channel is ready")
+                    chan.listen("new_message", (data, meta) => {
+                        // console.log(data.sender, ws?.options.userId)
+                        if (data.sender !== ws?.options.userId) {
+                            // console.log("New Message:", data);
+                            setConfig({...data.message, uid: "id" + (Math.floor(Math.random() * 1000))});
+                        }
+                    })
+                    chan.listen("system:member_joined", function (data) {
+                        console.log("New member joined the chat " + data.member.user);
+                    })
+                    setChannel(chan);
+                })
+            }
+            //
+
             const pluginProps = getPlugins(datasetId);
             // console.log("Getting in with a new Config ", config)
             return (
@@ -164,7 +163,7 @@ export function VitessceDemo() {
                         rowHeight={rowHeight}
                         theme={theme}
                         onConfigChange={(configValue) => {
-                            if(send) {
+                            if (send) {
                                 // console.log("Sending Config after Inside Change:", configValue);
                                 channel?.publish("new_message", {
                                     sender: ws ? ws.options.userId : 0,

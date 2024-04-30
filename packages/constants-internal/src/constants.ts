@@ -10,6 +10,7 @@ export const ViewType = {
   SPATIAL: 'spatial',
   SPATIAL_BETA: 'spatialBeta',
   HEATMAP: 'heatmap',
+  LINK_CONTROLLER: 'linkController',
   LAYER_CONTROLLER: 'layerController',
   LAYER_CONTROLLER_BETA: 'layerControllerBeta',
   GENOMIC_PROFILES: 'genomicProfiles',

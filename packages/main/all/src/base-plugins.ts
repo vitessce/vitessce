@@ -67,6 +67,7 @@ import { SpatialThreeSubscriber } from '@vitessce/spatial-three';
 import { SpatialBetaSubscriber } from '@vitessce/spatial-beta';
 import { HeatmapSubscriber } from '@vitessce/heatmap';
 import { FeatureListSubscriber } from '@vitessce/feature-list';
+import { LinkControllerSubscriber } from '@vitessce/link-controller';
 import { LayerControllerSubscriber } from '@vitessce/layer-controller';
 import { LayerControllerBetaSubscriber } from '@vitessce/layer-controller-beta';
 import { StatusSubscriber } from '@vitessce/status';
@@ -184,6 +185,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.SPATIAL_BETA, SpatialBetaSubscriber),
   makeViewType(ViewType.HEATMAP, HeatmapSubscriber),
   makeViewType(ViewType.FEATURE_LIST, FeatureListSubscriber),
+  makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
   makeViewType(ViewType.LAYER_CONTROLLER, LayerControllerSubscriber),
   makeViewType(ViewType.LAYER_CONTROLLER_BETA, LayerControllerBetaSubscriber),
   makeViewType(ViewType.STATUS, StatusSubscriber),
