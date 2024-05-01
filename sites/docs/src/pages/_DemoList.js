@@ -27,12 +27,28 @@ const configAttrs = {
   'maynard-2021': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
 };
 
+const configAttrsUnique = Array.from(new Set(Object.values(configAttrs).flat().map(attrVal => cleanAttr(attrVal))));
+
 function cleanAttr(attrVal) {
   if (attrVal.match(/^\d/)) {
     // eslint-disable-next-line no-param-reassign
     attrVal = `_${attrVal}`;
   }
   return attrVal.toLowerCase().replace('-', '');
+}
+
+function searchAttr(event) {
+  const input = document.getElementById('searchbar').value;
+  if (input === "") {
+    return configAttrsUnique;
+  }
+  const showAttr = []
+  for (const attr of configAttrsUnique) {
+    if (attr.toLowerCase().includes(input.toLowerCase())) {
+      showAttr.push(attr);
+    }
+  }
+  return showAttr;
 }
 
 function DemoList(props) {
@@ -70,6 +86,29 @@ function DemoList(props) {
       <p className={clsx(styles.demoDescription, { [styles.demoDescriptionSmall]: small })}>
         The demos compiled here showcase the core features of Vitessce.
       </p>
+
+      <div className="searchbarcontainer">
+        <div key="tags" className={styles.demoGridItem}>
+
+          <div>
+            <input id="searchbar"
+              onKeyUp={() => {
+                showAttr = searchAttr();
+                console.log('here', showAttr)
+              }}
+              type="text"
+              name="search"
+              placeholder="filter by tags"/>
+          </div>
+
+         {configAttrsUnique.map(attrVal => (
+            <span key={`tags-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])} onClick={(event) => selectTag(event)}>
+              {attrVal}
+            </span>
+          ))}
+
+        </div>
+      </div>
       <div className={clsx(styles.demoGridContainer, { [styles.demoGridContainerSmall]: small })}>
         {demos.map(([key, d]) => (
           <div key={key} className={styles.demoGridItem}>
