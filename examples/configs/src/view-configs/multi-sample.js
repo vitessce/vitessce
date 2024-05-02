@@ -14,7 +14,7 @@ function generateLake2023Config() {
       obsType: 'cell',
       featureType: 'gene',
       featureValueType: 'expression',
-      embeddingType: 'UMAP',
+      embeddingType: 'densMAP',
     },
     options: {
       obsFeatureMatrix: {
@@ -23,7 +23,7 @@ function generateLake2023Config() {
         // "path": "layers/counts"
       },
       obsEmbedding: {
-        path: 'obsm/X_umap',
+        path: 'obsm/X_densmap',
       },
       obsSets: [
         {
@@ -86,7 +86,7 @@ function generateLake2023Config() {
   const dotPlot = vc.addView(dataset, 'dotPlot');
 
 
-  vc.linkViews([scatterplot], ['embeddingType'], ['UMAP']);
+  vc.linkViews([scatterplot], ['embeddingType'], ['densMAP']);
   vc.linkViews([scatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType', 'sampleSetSelection'], ['sample', [
     ['Tissue Type', 'Healthy Reference'],
     ['Tissue Type', 'CKD'],
