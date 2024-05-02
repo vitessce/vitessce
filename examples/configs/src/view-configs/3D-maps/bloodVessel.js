@@ -32,8 +32,7 @@ function generateBloodVesselConfig() {
     const spatialThreeView = config.addView(dataset, 'spatialThree');
     // const spatialVolumeView = config.addView(dataset, 'spatialBeta').setProps({ title: 'MIP' });
     const lcView = config.addView(dataset, 'layerControllerBeta');
-    const linkController = config.addView(dataset, 'linkController')
-        .setProps({code:'1234'})
+   //const linkController = config.addView(dataset, 'linkController').setProps({code:'1234'})
 
     const [
         selectionScope,
@@ -153,7 +152,8 @@ function generateBloodVesselConfig() {
     });
 
     // config.layout(hconcat(vconcat(spatialThreeView,spatialVolumeView), vconcat(lcView,obsSetsView, barPlot)));
-    config.layout(hconcat(spatialThreeView, vconcat(lcView, linkController)));
+    //config.layout(hconcat(spatialThreeView, vconcat(lcView, linkController)));
+    config.layout(hconcat(spatialThreeView, lcView));
 
     const configJSON = config.toJSON();
     return configJSON;
