@@ -68,6 +68,10 @@ function DemoList(props) {
   let [attrsFilter, setAttrsFilter] = useState(configAttrsUnique);
   let [attrsSelected, setAttrsSelected] = useState([]);
 
+  /**
+   * Get overlap between searchbar value and list of unique attributes and set this to attrsFilter.
+   * If the searchbar is empty, set attrsFilter to the full list of unique attributes.
+   */
   function searchAttr() {
     const input = document.getElementById('searchbar').value;
     if (input === "") {
@@ -87,7 +91,7 @@ function DemoList(props) {
   const demos = subset.map(key => ([key, configs[key]]));
 
   /**
-   * Checks if two arrays have at least 1 item that is the same
+   * Checks if two arrays have at least 1 item that is the same.
    */
   function hasOverlap(arr1, arr2) {
     return arr2.filter(item => new Set(arr1).has(item)).length > 0;
@@ -106,10 +110,21 @@ function DemoList(props) {
   }
 
 
+  /**
+   * Add attr from click event to attrsSelected.
+   */
   function selectAttr(event) {
-    // console.log(event)
-    const newAttrs = Array.from(attrsSelected)
+    const newAttrs = Array.from(attrsSelected);
     newAttrs.push(event.target.innerText);
+    setAttrsSelected(newAttrs);
+  }
+
+  /**
+   * Remove attr from click event to attrsSelected.
+   */
+  function removeAttr(event) {
+    let newAttrs = Array.from(attrsSelected);
+    newAttrs = newAttrs.filter(attr => attr !== event.target.innerText);
     setAttrsSelected(newAttrs);
   }
 
@@ -139,7 +154,7 @@ function DemoList(props) {
           <div>
             Selected: {(attrsSelected && attrsSelected.length) > 0 ? 
               attrsSelected.map(attrVal => (
-                <span key={`tags-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])}>
+                <span key={`tags-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])} onClick={(event) => removeAttr(event)}>
                   {attrVal}
                 </span>
               )) : null 
@@ -147,7 +162,7 @@ function DemoList(props) {
           </div>
 
           <button onClick={() => setAttrsSelected([])}>Reset tags</button>
-          
+
         </div>
       </div>
       <div className={clsx(styles.demoGridContainer, { [styles.demoGridContainerSmall]: small })}>
