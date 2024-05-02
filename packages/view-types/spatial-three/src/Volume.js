@@ -23,33 +23,33 @@ export class Volume {
    */
   constructor(xLength, yLength, zLength, type, arrayBuffer) {
     /**
-		 * @member {Array}  spacing Spacing to apply to the
+     * @member {Array}  spacing Spacing to apply to the
      * volume from IJK to RAS coordinate system
-		 */
+    */
     this.spacing = [1, 1, 1];
 
     /**
-		 * @member {Array}  offset Offset of the volume in the RAS coordinate system
-		 */
+     * @member {Array}  offset Offset of the volume in the RAS coordinate system
+     */
     this.offset = [0, 0, 0];
 
     /**
-		 * @member {Martrix3} matrix The IJK to RAS matrix
-		 */
+     * @member {Martrix3} matrix The IJK to RAS matrix
+     */
     this.matrix = new Matrix3();
     this.matrix.identity();
 
     /**
-		 * @member {Array} sliceList The list of all the slices associated to this volume
-		 */
+     * @member {Array} sliceList The list of all the slices associated to this volume
+     */
     this.sliceList = [];
 
     /**
-		 * @member {number} lowerThresholdValue The voxels with values under this
+     * @member {number} lowerThresholdValue The voxels with values under this
      * threshold won't appear in the slices.
-		 * If changed, geometryNeedsUpdate is automatically set to true on all
+     * If changed, geometryNeedsUpdate is automatically set to true on all
      * the slices associated to this volume
-		 */
+     */
     this.lowerThresholdValue = -Infinity;
 
     /**
@@ -63,23 +63,23 @@ export class Volume {
 
     if (arguments.length > 0) {
       /**
-			 * @member {number} xLength Width of the volume in the IJK coordinate system
-			 */
+       * @member {number} xLength Width of the volume in the IJK coordinate system
+       */
       this.xLength = Number(xLength) || 1;
 
       /**
-			 * @member {number} yLength Height of the volume in the IJK coordinate system
-			 */
+       * @member {number} yLength Height of the volume in the IJK coordinate system
+       */
       this.yLength = Number(yLength) || 1;
 
       /**
-			 * @member {number} zLength Depth of the volume in the IJK coordinate system
-			 */
+       * @member {number} zLength Depth of the volume in the IJK coordinate system
+     */
       this.zLength = Number(zLength) || 1;
 
       /**
-			 * @member {TypedArray} data Data of the volume
-			 */
+       * @member {TypedArray} data Data of the volume
+       */
       switch (type) {
         case 'Uint8':
         case 'uint8':
@@ -183,34 +183,34 @@ export class Volume {
   }
 
   /**
-	 * Shortcut for data[access(i,j,k)]
-	 * @param {number} i    First coordinate
-	 * @param {number} j    Second coordinate
-	 * @param {number} k    Third coordinate
-	 * @returns {number}  value in the data array
-	 */
+   * Shortcut for data[access(i,j,k)]
+   * @param {number} i    First coordinate
+   * @param {number} j    Second coordinate
+   * @param {number} k    Third coordinate
+   * @returns {number}  value in the data array
+   */
   getData(i, j, k) {
     return this.data[k * this.xLength * this.yLength + j * this.xLength + i];
   }
 
   /**
-	 * Compute the index in the data
+   * Compute the index in the data
    * array corresponding to the given coordinates in IJK system
-	 * @param {number} i    First coordinate
-	 * @param {number} j    Second coordinate
-	 * @param {number} k    Third coordinate
-	 * @returns {number}  index
-	 */
+   * @param {number} i    First coordinate
+   * @param {number} j    Second coordinate
+   * @param {number} k    Third coordinate
+   * @returns {number}  index
+   */
   access(i, j, k) {
     return k * this.xLength * this.yLength + j * this.xLength + i;
   }
 
   /**
-	 * Retrieve the IJK coordinates of the voxel
+   * Retrieve the IJK coordinates of the voxel
    * corresponding of the given index in the data
-	 * @param {number} index index of the voxel
-	 * @returns {Array}  [x,y,z]
-	 */
+   * @param {number} index index of the voxel
+   * @returns {Array}  [x,y,z]
+   */
   reverseAccess(index) {
     const z = Math.floor(index / (this.yLength * this.xLength));
     const y = Math.floor(
@@ -222,20 +222,20 @@ export class Volume {
   }
 
   /**
-	 * Apply a function to all the voxels, be careful,
+   * Apply a function to all the voxels, be careful,
    * the value will be replaced
-	 * @param {Function} functionToMap A function to apply to every voxel,
+   * @param {Function} functionToMap A function to apply to every voxel,
    * will be called with the following parameters:
    * - value of the voxel
    * - index of the voxel
    * - the data (TypedArray)
-	 * @param {Object} context  You can specify a context in which call the function,
+   * @param {Object} context  You can specify a context in which call the function,
    * default if this Volume
-	 * @returns {Volume} this
-	 */
-  map(functionToMap, context) {
+   * @returns {Volume} this
+   */
+  map(functionToMap, contextParam) {
     const { length } = this.data;
-    context = context || this;
+    const context = contextParam || this;
 
     for (let i = 0; i < length; i++) {
       this.data[i] = functionToMap.call(context, this.data[i], i, this.data);
@@ -244,28 +244,22 @@ export class Volume {
   }
 
   /**
-	 * Compute the orientation
+   * Compute the orientation
    * of the slice and returns all the information relative to the
    * geometry such as sliceAccess,
    * the plane matrix (orientation and position in RAS coordinate)
    * and the dimensions of the plane in both coordinate system.
-	 * @param {string} axis  the normal axis to the slice 'x' 'y' or 'z'
-	 * @param {number} index the index of the slice
-	 * @returns {Object} an object containing all the usefull information
+   * @param {string} axis  the normal axis to the slice 'x' 'y' or 'z'
+   * @param {number} index the index of the slice
+   * @returns {Object} an object containing all the usefull information
    * on the geometry of the slice
-	 */
+   */
   extractPerpendicularPlane(axis, RASIndex) {
-    let iLength;
-    let jLength;
-    let sliceAccess;
     const planeMatrix = (new Matrix4()).identity();
     const volume = this;
-    let planeWidth;
-    let planeHeight;
     let firstSpacing;
     let secondSpacing;
     let positionOffset;
-    let IJKIndex;
 
     const axisInIJK = new Vector3();
     const firstDirection = new Vector3();
@@ -278,9 +272,10 @@ export class Volume {
         axisInIJK.set(1, 0, 0);
         firstDirection.set(0, 0, -1);
         secondDirection.set(0, -1, 0);
+        // eslint-disable-next-line prefer-destructuring
         firstSpacing = this.spacing[2];
+        // eslint-disable-next-line prefer-destructuring
         secondSpacing = this.spacing[1];
-        IJKIndex = new Vector3(RASIndex, 0, 0);
 
         planeMatrix.multiply((new Matrix4()).makeRotationY(Math.PI / 2));
         positionOffset = (volume.RASDimensions[0] - 1) / 2;
@@ -290,9 +285,10 @@ export class Volume {
         axisInIJK.set(0, 1, 0);
         firstDirection.set(1, 0, 0);
         secondDirection.set(0, 0, 1);
+        // eslint-disable-next-line prefer-destructuring
         firstSpacing = this.spacing[0];
+        // eslint-disable-next-line prefer-destructuring
         secondSpacing = this.spacing[2];
-        IJKIndex = new Vector3(0, RASIndex, 0);
 
         planeMatrix.multiply((new Matrix4()).makeRotationX(-Math.PI / 2));
         positionOffset = (volume.RASDimensions[1] - 1) / 2;
@@ -303,9 +299,10 @@ export class Volume {
         axisInIJK.set(0, 0, 1);
         firstDirection.set(1, 0, 0);
         secondDirection.set(0, -1, 0);
+        // eslint-disable-next-line prefer-destructuring
         firstSpacing = this.spacing[0];
+        // eslint-disable-next-line prefer-destructuring
         secondSpacing = this.spacing[1];
-        IJKIndex = new Vector3(0, 0, RASIndex);
 
         positionOffset = (volume.RASDimensions[2] - 1) / 2;
         planeMatrix.setPosition(new Vector3(0, 0, RASIndex - positionOffset));
@@ -317,14 +314,12 @@ export class Volume {
     secondDirection.applyMatrix4(volume.inverseMatrix).normalize();
     secondDirection.argVar = 'j';
     axisInIJK.applyMatrix4(volume.inverseMatrix).normalize();
-    iLength = Math.floor(Math.abs(firstDirection.dot(dimensions)));
-    jLength = Math.floor(Math.abs(secondDirection.dot(dimensions)));
-    planeWidth = Math.abs(iLength * firstSpacing);
-    planeHeight = Math.abs(jLength * secondSpacing);
+    const iLength = Math.floor(Math.abs(firstDirection.dot(dimensions)));
+    const jLength = Math.floor(Math.abs(secondDirection.dot(dimensions)));
+    const planeWidth = Math.abs(iLength * firstSpacing);
+    const planeHeight = Math.abs(jLength * secondSpacing);
 
-    IJKIndex = Math.abs(
-      Math.round(IJKIndex.applyMatrix4(volume.inverseMatrix).dot(axisInIJK)),
-    );
+
     const base = [new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1)];
     const iDirection = [firstDirection, secondDirection, axisInIJK]
       .find(x => Math.abs(x.dot(base[0])) > 0.9);
@@ -345,7 +340,7 @@ export class Volume {
         : direction.argVar
     ));
     const argString = argArray.join(',');
-    sliceAccess = eval(
+    const sliceAccess = eval(
       `(function sliceAccess (i,j) {return volume.access( ${argString});})`,
     );
 
@@ -360,10 +355,10 @@ export class Volume {
   }
 
   /**
-	 * Compute the minimum
+   * Compute the minimum
    * and the maximum of the data in the volume
-	 * @returns {Array} [min,max]
-	 */
+   * @returns {Array} [min,max]
+   */
   computeMinMax() {
     let min = Infinity;
     let max = -Infinity;
@@ -373,7 +368,7 @@ export class Volume {
 
     let i = 0;
     for (i = 0; i < datasize; i++) {
-      if (!isNaN(this.data[i])) {
+      if (!Number.isNaN(this.data[i])) {
         const value = this.data[i];
         min = Math.min(min, value);
         max = Math.max(max, value);

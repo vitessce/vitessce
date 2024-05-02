@@ -1,14 +1,14 @@
 import {
   VitessceConfig,
   CoordinationLevel as CL,
-  hconcat, vconcat,
+  hconcat,
 } from '@vitessce/config';
 
 
-function generateSpraggingsMxIF() {
+function generateSpragginsMxIF() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'Spraggings Kidney MxIF',
+    name: 'Spraggins Kidney MxIF',
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
@@ -66,4 +66,4 @@ function generateSpraggingsMxIF() {
   return configJSON;
 }
 
-export const spraggingsMxIF = generateSpraggingsMxIF();
+export const spragginsMxIF = generateSpragginsMxIF();

@@ -1,7 +1,7 @@
 import {
   VitessceConfig,
   CoordinationLevel as CL,
-  hconcat, vconcat,
+  hconcat,
 } from '@vitessce/config';
 
 

@@ -32,18 +32,12 @@ function generateCellNeighborhoodConfig() {
   const lcView = config.addView(dataset, 'layerControllerBeta');
 
   const [
-    selectionScope,
-    colorScope,
-    highlightScope,
     colorEncodingScope,
     glomsObsTypeScope,
     glomsFeatureTypeScope,
     glomsFeatureValueTypeScope,
     glomsFeatureSelectionScope,
   ] = config.addCoordination(
-    'obsSetSelection',
-    'obsSetColor',
-    'obsHighlight',
     'obsColorEncoding',
     'obsType',
     'featureType',
@@ -58,9 +52,6 @@ function generateCellNeighborhoodConfig() {
   glomsFeatureValueTypeScope.setValue('value');
   glomsFeatureSelectionScope.setValue(['Volume']);
 
-  // const [selectionScope, colorScope] = config.addCoordination('obsSetSelection', 'obsSetColor');
-
-  // config.linkViewsByObject([spatialThreeView,spatialVolumeView, lcView], {
   config.linkViewsByObject([spatialThreeView, lcView], {
     spatialTargetZ: 0,
     spatialTargetT: 0,
@@ -167,7 +158,12 @@ function generateCellNeighborhoodConfig() {
     ]),
   });
 
-  // config.layout(hconcat(vconcat(spatialThreeView,spatialVolumeView), vconcat(lcView,obsSetsView, barPlot)));
+  /*
+    config.layout(
+      hconcat(vconcat(spatialThreeView,spatialVolumeView),
+      vconcat(lcView,obsSetsView, barPlot))
+    );
+  */
   config.layout(hconcat(spatialThreeView, vconcat(lcView)));
 
   const configJSON = config.toJSON();

@@ -1,5 +1,7 @@
 import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/vit-s';
+// eslint-disable-next-line import/no-unresolved
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+// eslint-disable-next-line import/no-unresolved
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 export default class GlbDataLoader extends AbstractTwoStepLoader {
@@ -15,25 +17,26 @@ export default class GlbDataLoader extends AbstractTwoStepLoader {
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
     loader.setDRACOLoader(dracoLoader);
-    return new Promise((resolve, onError) => {
-      loader.load(this.url, (gltf) => {
-        const { scene } = gltf;
-        resolve(new LoaderResult(
-          {
-            scene,
-            url: this.url,
-          },
-          this.url,
-          {
-            obsIndex: [],
-            obsSegmentations: `Something here from ${this.url}`,
-            obsSegmentationsType: 'mesh',
-          },
-        ));
-      }),
-      (xhr) => {
-      },
-      error => console.log('An error happened', error);
+    return new Promise((resolve, reject) => {
+      loader.load(
+        this.url,
+        // onLoad
+        (gltf) => {
+          const { scene } = gltf;
+          resolve(new LoaderResult(
+            {
+              obsIndex: null,
+              obsSegmentations: { scene },
+              obsSegmentationsType: 'mesh',
+            },
+            this.url,
+          ));
+        },
+        // onProgress
+        () => {},
+        // onError
+        error => reject(error),
+      );
     });
   }
 }

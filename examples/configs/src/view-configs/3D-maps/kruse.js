@@ -1,7 +1,7 @@
 import {
   VitessceConfig,
   CoordinationLevel as CL,
-  hconcat, vconcat,
+  hconcat,
 } from '@vitessce/config';
 
 
@@ -30,18 +30,12 @@ function generateKruse2024Configuration() {
   });
 
   const [
-    selectionScope,
-    colorScope,
-    highlightScope,
     colorEncodingScope,
     glomsObsTypeScope,
     glomsFeatureTypeScope,
     glomsFeatureValueTypeScope,
     glomsFeatureSelectionScope,
   ] = config.addCoordination(
-    'obsSetSelection',
-    'obsSetColor',
-    'obsHighlight',
     'obsColorEncoding',
     'obsType',
     'featureType',

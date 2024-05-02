@@ -267,7 +267,7 @@ export const VolumeRenderShaderPerspective = {
     // "   return;",
     '   if(u_renderstyle == 0 && (max_val <  u_clim[0] && max_val2 < u_clim2[0] && max_val3 < u_clim3[0] &&'
         + '   max_val4 <  u_clim4[0] && max_val5 <  u_clim5[0] && max_val6 <  u_clim6[0])){',
-    '	    gl_FragColor = vec4(0,0,0,0);',
+    '        gl_FragColor = vec4(0,0,0,0);',
     '   }else if(u_renderstyle == 0){',
     '       max_val = (max_val - u_clim[0]) / (u_clim[1] - u_clim[0]);',
     '       max_val2 = (max_val2 - u_clim2[0]) / (u_clim2[1] - u_clim2[0]);',
@@ -282,7 +282,7 @@ export const VolumeRenderShaderPerspective = {
     '       if(volumeCount > 4.0) color = color +  u_color5 * max_val5;',
     '       if(volumeCount > 5.0) color = color +  u_color6 * max_val6;',
     '       vec3 colorCorrected = vec3(min(color[0], 1.0), min(color[1],1.0), min(color[2],1.0));',
-    ' 	    gl_FragColor = vec4(color,1.0);',
+    '        gl_FragColor = vec4(color,1.0);',
     '    }',
     '    gl_FragColor.r = linear_to_srgb(gl_FragColor.r);',
     '    gl_FragColor.g = linear_to_srgb(gl_FragColor.g);',

@@ -3,7 +3,7 @@ import { useXR } from '@react-three/xr';
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 
-export const HandBbox = () => {
+export function HandBbox() {
   const { controllers } = useXR();
   const rightTipRef = useRef();
   const leftTipRef = useRef();
@@ -33,4 +33,4 @@ export const HandBbox = () => {
       </mesh>
     </>
   );
-};
+}

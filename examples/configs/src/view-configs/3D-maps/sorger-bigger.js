@@ -1,14 +1,14 @@
 import {
   VitessceConfig,
   CoordinationLevel as CL,
-  hconcat, vconcat,
+  hconcat,
 } from '@vitessce/config';
 
 
-function generateThreeMinimalConfiguration() {
+function generateSorgerBiggerNeighborhood() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'Human Liver',
+    name: 'Figure3d_tumor_cytoskeleton',
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
@@ -16,13 +16,12 @@ function generateThreeMinimalConfiguration() {
     // url: "https://vitessce-data-v2.s3.amazonaws.com/data/kiemenetal/5xHE.ome.tiff",
     // url: "http://127.0.0.1:8080/cell_community.ome.tif",
     // url: "https://vitessce-data-v2.s3.amazonaws.com/data/redBloodCell.ome.tiff",
-    // url: "https://vitessce-data-v2.s3.amazonaws.com/data/sorger/f8ii.ome.tiff",
-    url: 'https://storage.googleapis.com/vitessce-data/0.0.31/master_release/tian/human_3d.raster.pyramid.ome.tiff',
+    url: 'https://vitessce-data-v2.s3.amazonaws.com/data/sorger/f8ii.ome.tiff',
     // options: {
     //        offsetsUrl: "https://vitessce-data-v2.s3.amazonaws.com/data/kiemenetal/5xHE.offsets.json",
     // },
     coordinationValues: {
-      fileUid: 'kidney',
+      fileUid: 'melanoma',
     },
   });
 
@@ -34,37 +33,51 @@ function generateThreeMinimalConfiguration() {
     spatialRenderingMode: '3D',
     imageLayer: CL([
       {
-        fileUid: 'kidney',
+        fileUid: 'melanoma',
         spatialLayerOpacity: 1,
         spatialTargetResolution: null,
         imageChannel: CL([
           {
-            spatialTargetC: 0,
-            spatialChannelColor: [0, 0, 255],
-            spatialChannelVisible: true,
-            spatialChannelOpacity: 1.0,
-            spatialChannelWindow: [0.314, 1.570],
-          },
-          {
-            spatialTargetC: 1,
-            spatialChannelColor: [0, 255, 0],
-            spatialChannelVisible: true,
-            spatialChannelOpacity: 1.0,
-            spatialChannelWindow: [0.44, 1.57],
-          },
-          {
             spatialTargetC: 2,
-            spatialChannelColor: [255, 0, 255],
+            spatialChannelColor: [0, 255, 255],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1.0,
-            spatialChannelWindow: [0.5, 1.57],
+            spatialChannelWindow: [725, 10246],
           },
           {
-            spatialTargetC: 3,
+            spatialTargetC: 10,
             spatialChannelColor: [255, 255, 0],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1.0,
-            spatialChannelWindow: [0.86, 1.57],
+            spatialChannelWindow: [725, 10246],
+          },
+          {
+            spatialTargetC: 9,
+            spatialChannelColor: [255, 0, 255],
+            spatialChannelVisible: true,
+            spatialChannelOpacity: 1.0,
+            spatialChannelWindow: [720, 8403],
+          },
+          {
+            spatialTargetC: 8,
+            spatialChannelColor: [255, 0, 255],
+            spatialChannelVisible: true,
+            spatialChannelOpacity: 1.0,
+            spatialChannelWindow: [525, 5863],
+          },
+          {
+            spatialTargetC: 1,
+            spatialChannelColor: [0, 0, 255],
+            spatialChannelVisible: true,
+            spatialChannelOpacity: 1.0,
+            spatialChannelWindow: [2063, 10029],
+          },
+          {
+            spatialTargetC: 11,
+            spatialChannelColor: [255, 255, 0],
+            spatialChannelVisible: true,
+            spatialChannelOpacity: 1.0,
+            spatialChannelWindow: [2851, 16127],
           },
         ]),
       },
@@ -77,4 +90,4 @@ function generateThreeMinimalConfiguration() {
   return configJSON;
 }
 
-export const humanLiver = generateThreeMinimalConfiguration();
+export const sorgerBiggerNeighborhood = generateSorgerBiggerNeighborhood();

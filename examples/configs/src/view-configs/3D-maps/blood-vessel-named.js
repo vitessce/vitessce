@@ -1,7 +1,6 @@
 import {
   VitessceConfig,
   CoordinationLevel as CL,
-  hconcat, vconcat,
 } from '@vitessce/config';
 
 
@@ -38,8 +37,6 @@ function generateBloodVesselConfig() {
   }).setProps({ description: 'To connect your mixed reality headset to this instance, navigate the web browser of your headset to: http://vitessce.link. Enter this 4 digit code: 7566. Next, move any slider in the channel controller. This will link the two sessions. As soon as the data is loaded (loading indicator disappears) in the headset, toggle the 3D button (top right of the channel controller). As soon as the dataset has loaded in the spatial view, you can select the "Enter AR" button.' });
   const [
     selectionScope,
-    colorScope,
-    highlightScope,
     colorEncodingScope,
     glomsObsTypeScope,
     glomsFeatureTypeScope,
@@ -47,8 +44,6 @@ function generateBloodVesselConfig() {
     glomsFeatureSelectionScope,
   ] = config.addCoordination(
     'obsSetSelection',
-    'obsSetColor',
-    'obsHighlight',
     'obsColorEncoding',
     'obsType',
     'featureType',
@@ -63,9 +58,7 @@ function generateBloodVesselConfig() {
   glomsFeatureValueTypeScope.setValue('value');
   glomsFeatureSelectionScope.setValue(['Volume']);
 
-  // const [selectionScope, colorScope] = config.addCoordination('obsSetSelection', 'obsSetColor');
 
-  // config.linkViewsByObject([spatialThreeView,spatialVolumeView, lcView], {
   config.linkViewsByObject([spatialThreeView, lcView, description], {
     spatialTargetZ: 0,
     spatialTargetT: 0,
@@ -183,7 +176,12 @@ function generateBloodVesselConfig() {
     ]),
   });
 
-  // config.layout(hconcat(vconcat(spatialThreeView,spatialVolumeView), vconcat(lcView,obsSetsView, barPlot)));
+  /*
+    config.layout(
+      hconcat(vconcat(spatialThreeView,spatialVolumeView),
+      vconcat(lcView,obsSetsView, barPlot))
+    );
+  */
   // config.layout(hconcat(spatialThreeView, vconcat(lcView, description)));
 
   const configJSON = config.toJSON();

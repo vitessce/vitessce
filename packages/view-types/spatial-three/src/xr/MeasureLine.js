@@ -1,24 +1,24 @@
 import React, { useRef } from 'react';
 import { Center, Line, Text } from '@react-three/drei';
 
-export const MeasureLine = (props) => {
-  const textRef = useRef();
+export function MeasureLine(props) {
   const {
     currentLine,
     scale,
   } = props;
-    // TODO: let the text always face the player/camera
-    // useFrame((state) => {
-    //     const {gl, scene, camera} = state;
-    //     if(textRef.current !== null){
-    //         if(gl.xr.isPresenting){
-    //             console.log(gl)
-    //             textRef.current.lookAt = gl.xr.getCamera().position;
-    //         }else{
-    //             textRef.current.lookAt = camera.position;
-    //         }
-    //     }
-    // })
+  const textRef = useRef();
+  // TODO: let the text always face the player/camera
+  // useFrame((state) => {
+  //     const {gl, scene, camera} = state;
+  //     if(textRef.current !== null){
+  //         if(gl.xr.isPresenting){
+  //             console.log(gl)
+  //             textRef.current.lookAt = gl.xr.getCamera().position;
+  //         }else{
+  //             textRef.current.lookAt = camera.position;
+  //         }
+  //     }
+  // })
   return (
     <group>
       <Center
@@ -40,4 +40,4 @@ export const MeasureLine = (props) => {
       />
     </group>
   );
-};
+}

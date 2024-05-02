@@ -1,7 +1,7 @@
 import {
   VitessceConfig,
   CoordinationLevel as CL,
-  hconcat, vconcat,
+  hconcat,
 } from '@vitessce/config';
 
 
@@ -35,18 +35,12 @@ function generateBloodVesselConfig() {
   // const linkController = config.addView(dataset, 'linkController').setProps({code:'1234'})
 
   const [
-    selectionScope,
-    colorScope,
-    highlightScope,
     colorEncodingScope,
     glomsObsTypeScope,
     glomsFeatureTypeScope,
     glomsFeatureValueTypeScope,
     glomsFeatureSelectionScope,
   ] = config.addCoordination(
-    'obsSetSelection',
-    'obsSetColor',
-    'obsHighlight',
     'obsColorEncoding',
     'obsType',
     'featureType',
@@ -63,7 +57,6 @@ function generateBloodVesselConfig() {
 
   // const [selectionScope, colorScope] = config.addCoordination('obsSetSelection', 'obsSetColor');
 
-  // config.linkViewsByObject([spatialThreeView,spatialVolumeView, lcView], {
   config.linkViewsByObject([spatialThreeView, lcView], {
     spatialTargetZ: 0,
     spatialTargetT: 0,
@@ -151,7 +144,12 @@ function generateBloodVesselConfig() {
     ]),
   });
 
-  // config.layout(hconcat(vconcat(spatialThreeView,spatialVolumeView), vconcat(lcView,obsSetsView, barPlot)));
+  /*
+    config.layout(
+      hconcat(vconcat(spatialThreeView,spatialVolumeView),
+      vconcat(lcView,obsSetsView, barPlot))
+    );
+  */
   // config.layout(hconcat(spatialThreeView, vconcat(lcView, linkController)));
   config.layout(hconcat(spatialThreeView, lcView));
 
