@@ -58,20 +58,20 @@ import exemplarSmallImageOmeZarr from './json-fixtures/exemplar-small/exemplar-0
 import exemplarSmallSegmentationsOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.segmentations.ome.json';
 
 // 3D Maps
-import {threeDemoConfig} from './view-configs/three.js';
-import {jainkidney} from './view-configs/3D-maps/jainKidney.js';
-import {jainkidneyDecimated} from './view-configs/3D-maps/jainKidneyDecimated.js';
-import {kruse2024} from './view-configs/3D-maps/kruse.js';
-import {xrDevExample} from './view-configs/3D-maps/XRDevExample.js';
-import {humanLiver} from './view-configs/3D-maps/HumanLiver.js';
-import {bloodVessel} from './view-configs/3D-maps/bloodVessel.js';
-import {bloodVesselNamed} from './view-configs/3D-maps/bloodVesselNamed.js';
-import {bloodVesselNeighborhood} from './view-configs/3D-maps/bloodVessel_neighborhood.js';
-import {sorgerBiggerNeighborhood } from './view-configs/3D-maps/sorgerBigger.js';
-import {cellNeighborhood} from './view-configs/3D-maps/cellNeighborhoodNamed.js';
-import {spraggingsMxIF} from './view-configs/3D-maps/spraggings_mxif.js';
-import {threeMinimal} from './view-configs/3D-maps/ThreeMinimal.js';
-import {threeMinimalLight} from './view-configs/3D-maps/ThreeMinimalLight.js';
+import { threeDemoConfig } from './view-configs/three.js';
+import { jainkidney } from './view-configs/3D-maps/jainKidney.js';
+import { jainkidneyDecimated } from './view-configs/3D-maps/jainKidneyDecimated.js';
+import { kruse2024 } from './view-configs/3D-maps/kruse.js';
+import { xrDevExample } from './view-configs/3D-maps/XRDevExample.js';
+import { humanLiver } from './view-configs/3D-maps/HumanLiver.js';
+import { bloodVessel } from './view-configs/3D-maps/bloodVessel.js';
+import { bloodVesselNamed } from './view-configs/3D-maps/bloodVesselNamed.js';
+import { bloodVesselNeighborhood } from './view-configs/3D-maps/bloodVessel_neighborhood.js';
+import { sorgerBiggerNeighborhood } from './view-configs/3D-maps/sorgerBigger.js';
+import { cellNeighborhood } from './view-configs/3D-maps/cellNeighborhoodNamed.js';
+import { spraggingsMxIF } from './view-configs/3D-maps/spraggings_mxif.js';
+import { threeMinimal } from './view-configs/3D-maps/ThreeMinimal.js';
+import { threeMinimalLight } from './view-configs/3D-maps/ThreeMinimalLight.js';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -147,14 +147,14 @@ export const configs = {
   'three-demo': threeDemoConfig,
   'jain-2024': jainkidney,
   'jain-dec-2024': jainkidneyDecimated,
-  'xrdev': xrDevExample,
+  xrdev: xrDevExample,
   'human-liver': humanLiver,
-  'bloodVessel': bloodVessel,
-  'D2': bloodVesselNamed,
-  'Figure3d_tumor_cytoskeleton': sorgerBiggerNeighborhood,
-  'D1': bloodVesselNeighborhood,
-  'Figure6n_cell_community': cellNeighborhood,
-  'spraggingsMxIF': spraggingsMxIF,
+  bloodVessel,
+  D2: bloodVesselNamed,
+  Figure3d_tumor_cytoskeleton: sorgerBiggerNeighborhood,
+  D1: bloodVesselNeighborhood,
+  Figure6n_cell_community: cellNeighborhood,
+  spraggingsMxIF,
   'three-minimal': threeMinimal,
   'kruse-2024': kruse2024,
   'three-minimal-light': threeMinimalLight,

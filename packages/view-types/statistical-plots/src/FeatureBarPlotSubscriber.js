@@ -51,7 +51,7 @@ export function FeatureBarPlotSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_BAR_PLOT],
     coordinationScopes,
   );
-  //console.log("BarPlot: " + cellHighlight)
+  // console.log("BarPlot: " + cellHighlight)
   const [width, height, containerRef] = useGridItemSize();
 
   // Get data from loaders using the data hooks.
@@ -83,7 +83,6 @@ export function FeatureBarPlotSubscriber(props) {
 
   const onBarSelect = useCallback((obsId) => {
     const obsIdsToSelect = [obsId];
-    console.log(cellSetColor, additionalCellSets);
     setObsSelection(
       obsIdsToSelect, additionalCellSets, cellSetColor,
       setCellSetSelection, setAdditionalCellSets, setCellSetColor,
@@ -94,7 +93,7 @@ export function FeatureBarPlotSubscriber(props) {
 
   const onBarHighlight = useCallback((obsId) => {
     setCellHighlight(obsId);
-  });
+  }, []);
 
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
     ? (featureLabelsMap?.get(geneSelection[0]) || geneSelection[0])
@@ -117,6 +116,7 @@ export function FeatureBarPlotSubscriber(props) {
     return [null, null];
   }, [expressionData, obsIndex, geneSelection, theme,
     featureValueTransform, featureValueTransformCoefficient,
+    firstGeneSelected,
   ]);
 
   return (

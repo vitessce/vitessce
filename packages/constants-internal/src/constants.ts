@@ -113,7 +113,7 @@ export const FileType = {
   IMAGE_OME_TIFF: 'image.ome-tiff',
   OBS_SEGMENTATIONS_OME_TIFF: 'obsSegmentations.ome-tiff',
   // GLB
-  MESH_SEGMENTATION:'segmentation.glb',
+  MESH_SEGMENTATION: 'segmentation.glb',
   // New file types to support old file types:
   // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',

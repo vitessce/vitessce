@@ -1,13 +1,13 @@
-import React, {useRef} from "react";
-import {Center, Line, Text} from "@react-three/drei";
+import React, { useRef } from 'react';
+import { Center, Line, Text } from '@react-three/drei';
 
 export const MeasureLine = (props) => {
-    const textRef = useRef();
-    const {
-        currentLine,
-        scale
-    } = props;
-    //TODO: let the text always face the player/camera
+  const textRef = useRef();
+  const {
+    currentLine,
+    scale,
+  } = props;
+    // TODO: let the text always face the player/camera
     // useFrame((state) => {
     //     const {gl, scene, camera} = state;
     //     if(textRef.current !== null){
@@ -19,25 +19,25 @@ export const MeasureLine = (props) => {
     //         }
     //     }
     // })
-    return (
-        <group>
-            <Center
-                bottom
-                right
-                position={[currentLine.midPoint.x, currentLine.midPoint.y, currentLine.midPoint.z]}
-                rotation={[0, 0, 0]}
-            >
-                <Text color="gray" scale={0.05} ref={textRef}>
-                    {`${(currentLine.startPoint.distanceTo(currentLine.endPoint)*scale).toFixed(2)} µm`}
-                </Text>
-            </Center>
-            <Line
-                points={[currentLine.startPoint, currentLine.endPoint]}
-                color="white" // Default
-                lineWidth={2} // In pixels (default)
-                dashed={false} // Default
-                segments
-            />
-        </group>
-    );
+  return (
+    <group>
+      <Center
+        bottom
+        right
+        position={[currentLine.midPoint.x, currentLine.midPoint.y, currentLine.midPoint.z]}
+        rotation={[0, 0, 0]}
+      >
+        <Text color="gray" scale={0.05} ref={textRef}>
+          {`${(currentLine.startPoint.distanceTo(currentLine.endPoint) * scale).toFixed(2)} µm`}
+        </Text>
+      </Center>
+      <Line
+        points={[currentLine.startPoint, currentLine.endPoint]}
+        color="white" // Default
+        lineWidth={2} // In pixels (default)
+        dashed={false} // Default
+        segments
+      />
+    </group>
+  );
 };

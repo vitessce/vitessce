@@ -1,13 +1,12 @@
 /* eslint-disable indent */
 /* eslint-disable camelcase */
-import React, {useMemo, useEffect, useRef} from 'react';
-import {scaleLinear} from 'd3-scale';
-import {scale as vega_scale} from 'vega-scale';
-import {axisBottom, axisLeft} from 'd3-axis';
-import {format} from 'd3-format';
-import {ascending} from 'd3-array';
-import {select} from 'd3-selection';
-import {capitalize} from '@vitessce/utils';
+import React, { useMemo, useEffect, useRef } from 'react';
+import { scaleLinear } from 'd3-scale';
+import { scale as vega_scale } from 'vega-scale';
+import { axisBottom, axisLeft } from 'd3-axis';
+import { ascending } from 'd3-array';
+import { select } from 'd3-selection';
+import { capitalize } from '@vitessce/utils';
 
 const scaleBand = vega_scale('band');
 
@@ -15,12 +14,12 @@ const OBS_KEY = 'obsId';
 const FEATURE_KEY = 'value';
 
 function componentToHex(c) {
-    var hex = c.toString(16);
-    return hex.length == 1 ? "0" + hex : hex;
+    const hex = c.toString(16);
+    return hex.length === 1 ? `0${hex}` : hex;
 }
 
 function rgbToHex(color) {
-    return "#" + componentToHex(color[0]) + componentToHex(color[1]) + componentToHex(color[2]);
+    return `#${componentToHex(color[0])}${componentToHex(color[1])}${componentToHex(color[2])}`;
 }
 
 export default function FeatureBarPlot(props) {
@@ -49,19 +48,18 @@ export default function FeatureBarPlot(props) {
         onBarSelect,
         onBarHighlight,
     } = props;
-    let setsSave = new Map();
-    let info = {name: "", id: "", color: []}
-    for (let index in cellSetSelection) {
-        let selectedElement = cellSetSelection[index][1];
-        for (let subIndex in additionalCellSets.tree[0].children) {
-            let child = additionalCellSets.tree[0].children[subIndex]
+    const setsSave = new Map();
+    for (const index in cellSetSelection) {
+        const selectedElement = cellSetSelection[index][1];
+        for (const subIndex in additionalCellSets.tree[0].children) {
+            const child = additionalCellSets.tree[0].children[subIndex];
             if (child.name === selectedElement) {
-                for (let elem in child.set) {
-                    let info = {name: "", id: "", color: []}
-                    info.name = selectedElement
+                for (const elem in child.set) {
+                    const info = { name: '', id: '', color: [] };
+                    info.name = selectedElement;
                     info.id = child.set[elem][0];
-                    for (let subIndex in cellSetColor) {
-                        let color = cellSetColor[subIndex]
+                    for (const subIndex in cellSetColor) {
+                        const color = cellSetColor[subIndex];
                         if (color.path[1] === selectedElement) {
                             info.color = color.color;
                         }
@@ -70,7 +68,6 @@ export default function FeatureBarPlot(props) {
                 }
             }
         }
-
     }
     const svgRef = useRef();
     // Get the max characters in an axis label for autsizing the bottom margin.
@@ -97,9 +94,7 @@ export default function FeatureBarPlot(props) {
 
         const foregroundColor = (theme === 'dark' ? 'lightgray' : 'black');
 
-        data.sort(function (a, b) {
-            return ascending(a[FEATURE_KEY], b[FEATURE_KEY])
-        });
+        data.sort((a, b) => ascending(a[FEATURE_KEY], b[FEATURE_KEY]));
 
         const svg = select(domElement);
         svg.selectAll('g').remove();
@@ -125,7 +120,7 @@ export default function FeatureBarPlot(props) {
         // where the domain minimum should be 1 rather than 0.
         const yScale = scaleLinear()
             .domain([yMin, yMax])
-            .range([innerHeight, marginTop])
+            .range([innerHeight, marginTop]);
 
         // Bar areas
         g
@@ -137,31 +132,30 @@ export default function FeatureBarPlot(props) {
             .attr('y', d => yScale(d[FEATURE_KEY]))
             .attr('width', xScale.bandwidth())
             .attr('height', d => innerHeight - yScale(d[FEATURE_KEY]))
-            .style('fill', d => {
-                if (d[OBS_KEY] === cellHighlight)
-                    return "orange"
+            .style('fill', (d) => {
+                if (d[OBS_KEY] === cellHighlight) return 'orange';
                 if (setsSave.has(d[OBS_KEY])) {
-                    let color = setsSave.get(d[OBS_KEY]).color;
-                    return rgbToHex(color)
+                    const { color } = setsSave.get(d[OBS_KEY]);
+                    return rgbToHex(color);
                 }
-                return foregroundColor
+                return foregroundColor;
             })
             .style('cursor', 'pointer')
+            // eslint-disable-next-line no-unused-vars
             .on('click', (event, d) => {
                 onBarSelect(d[OBS_KEY]);
             })
+            // eslint-disable-next-line no-unused-vars
             .on('mouseover', (event, d) => {
                 onBarHighlight(d[OBS_KEY]);
             })
-            .on('mouseout', (event, d) => {
+            .on('mouseout', () => {
                 onBarHighlight(null);
             });
 
 
-        let axis = axisLeft(yScale);
-        axis.tickFormat(function (d) {
-            return Math.round(d * 10000000) + " µm";
-        });
+        const axis = axisLeft(yScale);
+        axis.tickFormat(d => `${Math.round(d * 10000000)} µm`);
         // Y-axis ticks
         g
             .append('g')
@@ -207,18 +201,19 @@ export default function FeatureBarPlot(props) {
         jitter, theme, yMin, marginTop, marginRight, featureType,
         featureValueType, yUnits, obsType,
         maxCharactersForLabel, yMax, featureName, onBarSelect, onBarHighlight,
+        cellHighlight, setsSave,
     ]);
 
     return (
-        <svg
-            ref={svgRef}
-            style={{
+      <svg
+        ref={svgRef}
+        style={{
                 top: 0,
                 left: 0,
                 width: `${width}px`,
                 height: `${height}px`,
                 position: 'relative',
             }}
-        />
+      />
     );
 }

@@ -473,8 +473,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE,
     CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
     CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
-],
-[ViewType.FEATURE_BAR_PLOT]: [
+  ],
+  [ViewType.FEATURE_BAR_PLOT]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
@@ -488,5 +488,5 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
-],
+  ],
 };

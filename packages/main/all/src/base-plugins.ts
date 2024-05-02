@@ -155,7 +155,7 @@ import {
 } from '@vitessce/ome-tiff';
 import {
   GlbSource,
-  GlbLoader
+  GlbLoader,
 } from '@vitessce/glb';
 
 // Joint file types
