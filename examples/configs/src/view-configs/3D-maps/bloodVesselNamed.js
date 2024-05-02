@@ -155,7 +155,7 @@ function generateBloodVesselConfig() {
                         obsSetSelection: selectionScope,
                     },
                     {
-                        obsType: 'β-Catenin',
+                        obsType: 'beta-Catenin',
                         spatialTargetC: 4,
                         featureType: glomsFeatureTypeScope,
                         featureValueType: glomsFeatureValueTypeScope,

@@ -160,7 +160,7 @@ export default function FeatureBarPlot(props) {
 
         let axis = axisLeft(yScale);
         axis.tickFormat(function (d) {
-            return Math.round(d * 10000000) + " µm";
+            return Math.round(d * 10000000) + " um";
         });
         // Y-axis ticks
         g

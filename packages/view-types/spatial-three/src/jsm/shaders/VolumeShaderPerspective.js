@@ -1,9 +1,7 @@
-import {
-    Vector2,
-    Vector3
-} from "../../node_modules/three/build/three.module.js";
+import { Vector2, Vector3 } from "three";
 
-var VolumeRenderShaderPerspective = {
+
+export const VolumeRenderShaderPerspective = {
     uniforms: {
         "u_size": {value: new Vector3(1, 1, 1)},
         "u_renderstyle": {value: 0},
@@ -294,5 +292,3 @@ var VolumeRenderShaderPerspective = {
 
     ].join("\n")
 };
-
-export {VolumeRenderShaderPerspective};

@@ -1,7 +1,7 @@
 import {useRef, useMemo} from 'react';
-import {Object3D, Matrix4, Vector3} from 'three';
+import { Matrix4 } from 'three';
 import {useFrame} from '@react-three/fiber';
-import {Interactive, InteractiveProps, XRController, XRInteractionHandler} from '@react-three/xr';
+import {Interactive } from '@react-three/xr';
 
 export function EnhancedRayGrab(
     {onSelectStart, onSelectEnd, children, ...rest}

@@ -1,10 +1,7 @@
 import React, {useRef} from "react";
 import {Center, Line, Text} from "@react-three/drei";
-import {useFrame, useThree} from "@react-three/fiber";
-import {useXR} from "@react-three/xr";
 
 export const MeasureLine = (props) => {
-    const glThree = useThree();
     const textRef = useRef();
     const {
         currentLine,

@@ -1,6 +1,6 @@
 import {
   Uniform
-} from '../../node_modules/three/build/three.module.js';
+} from 'three';
 
 export const VolumeRenderShaderPerspective: {
   uniforms: {

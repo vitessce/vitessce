@@ -1,14 +1,15 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { serveTestFixtures } from '../../vite.config';
-import basicSsl from '@vitejs/plugin-basic-ssl';
+//import basicSsl from '@vitejs/plugin-basic-ssl';
 
 export default defineConfig({
   base: './',
-  server: { host: true, https: true, port: 3000 },
+  //server: { host: true, https: true, port: 3000 },
   plugins: [
-    basicSsl(),
-    rtcMessaging(), clickMessaging(),
+    //basicSsl(),
+    //rtcMessaging(),
+    //clickMessaging(),
     react({
       jsxRuntime: 'classic',
     }),

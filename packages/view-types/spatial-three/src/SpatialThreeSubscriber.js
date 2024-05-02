@@ -24,7 +24,6 @@ import {
     useLoaders,
     useSetComponentHover,
     useSetComponentViewInfo,
-    useAuxiliaryCoordination,
     useComplexCoordination,
     useMultiCoordinationScopesNonNull,
     useMultiCoordinationScopesSecondaryNonNull,
@@ -39,7 +38,6 @@ import SpatialThree from './SpatialThree.js';
 import SpatialThreeTooltipSubscriber from './SpatialThreeTooltipSubscriber.js';
 import {getInitialSpatialTargets} from './utils.js';
 import {setObsSelection} from "@vitessce/sets-utils";
-import {defineWorkspace} from "vitest/config";
 
 
 // Reference: https://deck.gl/docs/api-reference/core/orbit-view#view-state

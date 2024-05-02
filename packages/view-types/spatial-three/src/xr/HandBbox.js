@@ -1,15 +1,14 @@
 import { useXR } from "@react-three/xr";
-import { useRef, useState } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
-import { Box3 } from "three";
+import { useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 
 export const HandBbox = () => {
 	const { controllers } = useXR();
-	const { scene } = useThree();
+	// const { scene } = useThree();
 	const rightTipRef = useRef();
 	const leftTipRef = useRef();
-	let leftTipBB = useState();
-	let rightTipBB = useState();
+	// let leftTipBB = useState();
+	// let rightTipBB = useState();
 
 	useFrame(() => {
 		if (controllers && controllers[0] && controllers[1]) {

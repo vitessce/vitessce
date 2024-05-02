@@ -3,7 +3,6 @@ import React, {useRef, useState, forwardRef, useEffect, useCallback} from 'react
 import {Canvas, useFrame, useThree} from '@react-three/fiber'
 import {
     OrbitControls,
-    shaderMaterial,
     Bvh,
     Text
 } from '@react-three/drei'
@@ -12,12 +11,12 @@ import {isEqual} from 'lodash-es';
 import {filterSelection} from '@vitessce/spatial-utils';
 import {CoordinationType} from '@vitessce/constants-internal';
 import {getLayerLoaderTuple} from './utils.js';
-import {Volume} from "../jsm/misc/Volume.js";
+import {Volume} from "./jsm/misc/Volume.js";
 import {getImageSize} from '@hms-dbmi/viv';
 import * as THREE from "three";
 import {HandBbox} from "./xr/HandBbox.js"
-import {MeasureLine} from "./MeasureLine.js"
-import {VolumeRenderShaderPerspective} from "../jsm/shaders/VolumeShaderPerspective.js";
+import {MeasureLine} from "./xr/MeasureLine.js"
+import {VolumeRenderShaderPerspective} from "./jsm/shaders/VolumeShaderPerspective.js";
 
 /**
  * React component which expresses the spatial relationships between cells and molecules using ThreeJS

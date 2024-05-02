@@ -622,9 +622,6 @@ importers:
       '@vitessce/layer-controller-beta':
         specifier: workspace:*
         version: link:../../view-types/layer-controller-beta
-      '@vitessce/link-controller':
-        specifier: workspace:*
-        version: link:../../view-types/link-controller
       '@vitessce/obs-sets-manager':
         specifier: workspace:*
         version: link:../../view-types/obs-sets-manager
@@ -1295,37 +1292,6 @@ importers:
         specifier: ^0.32.2
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
 
-  packages/view-types/link-controller:
-    dependencies:
-      '@material-ui/core':
-        specifier: ~4.12.3
-        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
-      '@vitessce/constants-internal':
-        specifier: workspace:*
-        version: link:../../constants-internal
-      '@vitessce/icons':
-        specifier: workspace:*
-        version: link:../../icons
-      '@vitessce/sets-utils':
-        specifier: workspace:*
-        version: link:../../utils/sets-utils
-      '@vitessce/utils':
-        specifier: workspace:*
-        version: link:../../utils/other-utils
-      '@vitessce/vit-s':
-        specifier: workspace:*
-        version: link:../../vit-s
-    devDependencies:
-      react:
-        specifier: ^18.0.0
-        version: 18.2.0
-      vite:
-        specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
-      vitest:
-        specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
-
   packages/view-types/obs-sets-manager:
     dependencies:
       '@material-ui/core':
@@ -1743,12 +1709,9 @@ importers:
       d3-axis:
         specifier: ^3.0.0
         version: 3.0.0
-<<<<<<< HEAD
       d3-format:
         specifier: ^3.1.0
         version: 3.1.0
-=======
->>>>>>> 6d8314c4baec6eb64c65b2afaa69ce00a6930bff
       d3-scale:
         specifier: ^4.0.0
         version: 4.0.2
@@ -1918,9 +1881,6 @@ importers:
       '@vitessce/example-plugins':
         specifier: workspace:*
         version: link:../../examples/plugins
-      piesocket-js:
-        specifier: ^5.0.17
-        version: 5.0.17
       react:
         specifier: ^18.0.0
         version: 18.2.0
@@ -6304,6 +6264,28 @@ packages:
       '@hapi/hoek': 9.3.0
     dev: false
 
+  /@hms-dbmi/viv@0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0):
+    resolution: {integrity: sha512-6t5CvkkSwu6aUBSJGdHFAVRLZL5NRfmlRat1Ucpx/dWX32xzu9Hf8NV8d2+xAKIp4FN6fGeJC2ZdkkSisVUEtA==}
+    dependencies:
+      '@vivjs/constants': 0.13.8
+      '@vivjs/extensions': 0.13.8(@deck.gl/core@8.8.27)
+      '@vivjs/layers': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
+      '@vivjs/loaders': 0.13.8
+      '@vivjs/types': 0.13.8
+      '@vivjs/viewers': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
+      '@vivjs/views': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
+    transitivePeerDependencies:
+      - '@deck.gl/core'
+      - '@deck.gl/geo-layers'
+      - '@deck.gl/layers'
+      - '@deck.gl/react'
+      - '@luma.gl/constants'
+      - '@luma.gl/core'
+      - '@luma.gl/engine'
+      - '@luma.gl/webgl'
+      - react
+    dev: false
+
   /@hms-dbmi/viv@0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0):
     resolution: {integrity: sha512-cYLo2Vnmy7AnxljuLR1KsivGuXaYPooRAIncTenXXrWqygPYvyCYcWgJ+PUnSsB6KbEnibyRjOKjJ6ZGkMXccw==}
     dependencies:
@@ -10580,10 +10562,25 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
+  /@vivjs/constants@0.13.8:
+    resolution: {integrity: sha512-0XN4lUl6vG7x6KCTu7TdzmBIz8fmKaKLasuqNio18erafFvkxYJ6hnAGXClVVwbj26uKvmOzwO/hqEIUTIWLRg==}
+    dependencies:
+      '@luma.gl/constants': 8.5.21
+    dev: false
+
   /@vivjs/constants@0.16.0:
     resolution: {integrity: sha512-PqGSlLzwE51CPXt9qOm8AF3rJKdsUv45Sw/ab7NNcXt9IBMrbS3lsh15hN+U7tP4a1uHWwqP0qRl/C3U9Dq76g==}
     dependencies:
       '@luma.gl/constants': 8.5.21
+
+  /@vivjs/extensions@0.13.8(@deck.gl/core@8.8.27):
+    resolution: {integrity: sha512-7leQexk/5VXQrRZ+n3yOHx/FpH5uIA6HhMJnDRD+2PlSj/TLouSmPLz0Fr3+K2a8zBv+0qyGYROmzDZdru6FOw==}
+    peerDependencies:
+      '@deck.gl/core': ~8.8.6
+    dependencies:
+      '@deck.gl/core': 8.8.27
+      '@vivjs/constants': 0.13.8
+    dev: false
 
   /@vivjs/extensions@0.16.0(@deck.gl/core@8.8.27):
     resolution: {integrity: sha512-otZXgaBCigKLkRgMkv8N3DR1AzRqDffXNk3J6N9i0njL1zYxwx/EcWbZTGx2sIOtAXNTaUKNISoXgS9fltNMaA==}
@@ -10592,6 +10589,32 @@ packages:
     dependencies:
       '@deck.gl/core': 8.8.27
       '@vivjs/constants': 0.16.0
+
+  /@vivjs/layers@0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21):
+    resolution: {integrity: sha512-h66rWozTZS6d1pyHQuept5lOiEsCeOImwV0zfhVPvtagieE6tOyKFiGSpD/VP8zUjZUoNhanLOFpvoDXdJ6ytA==}
+    peerDependencies:
+      '@deck.gl/core': ~8.8.6
+      '@deck.gl/geo-layers': ~8.8.6
+      '@deck.gl/layers': ~8.8.6
+      '@luma.gl/constants': ~8.5.16
+      '@luma.gl/core': ~8.5.16
+      '@luma.gl/engine': ~8.5.16
+      '@luma.gl/webgl': ~8.5.16
+    dependencies:
+      '@deck.gl/core': 8.8.27
+      '@deck.gl/geo-layers': 8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/mesh-layers@8.8.27)(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21)
+      '@deck.gl/layers': 8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21)
+      '@luma.gl/constants': 8.5.21
+      '@luma.gl/core': 8.5.21
+      '@luma.gl/engine': 8.5.21
+      '@luma.gl/webgl': 8.5.21
+      '@math.gl/core': 3.6.3
+      '@math.gl/culling': 3.6.3
+      '@vivjs/constants': 0.13.8
+      '@vivjs/extensions': 0.13.8(@deck.gl/core@8.8.27)
+      '@vivjs/loaders': 0.13.8
+      '@vivjs/types': 0.13.8
+    dev: false
 
   /@vivjs/layers@0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21):
     resolution: {integrity: sha512-aD3D4qdvfMPKXUHZa+NiL1XOOZcOeCINsoSR+SbK584U8ZUmDj2lWOnyU4VUGL39qdParwEUURsw7xUuTs/Yug==}
@@ -10618,6 +10641,17 @@ packages:
       '@vivjs/loaders': 0.16.0
       '@vivjs/types': 0.16.0
 
+  /@vivjs/loaders@0.13.8:
+    resolution: {integrity: sha512-qeJ5LPb12nlV2FBnf9BtuTLg3hIjYsWK5FIIqy2hE7v5i4fxcr1RMFQ3NP8C77i0+1hzHVUkoS/Dq/F1OSJJLQ==}
+    dependencies:
+      '@vivjs/types': 0.13.8
+      fast-xml-parser: 3.21.1
+      geotiff: 2.0.5
+      lzw-tiff-decoder: 0.1.1
+      quickselect: 2.0.0
+      zarr: 0.5.1
+    dev: false
+
   /@vivjs/loaders@0.16.0:
     resolution: {integrity: sha512-FU6XrMOJ94b4Ep2P0eRuJOFGEVkDT1tIRMiYjCq9LitGRKUiS8tHF8xzYkUrbzHXa1WwH/9PyIw5eeyMndc9Vw==}
     dependencies:
@@ -10628,11 +10662,40 @@ packages:
       zarr: 0.5.1
       zod: 3.22.4
 
+  /@vivjs/types@0.13.8:
+    resolution: {integrity: sha512-D4g9jxNJ4wc/N/S4GuLcZJQu9j89UowhDH8IKswyK0yXlIfUpVngqxCw3wQCKcMeu7yLbDQgI+2gytB6jCV+rQ==}
+    dependencies:
+      '@vivjs/constants': 0.13.8
+      math.gl: 3.6.3
+    dev: false
+
   /@vivjs/types@0.16.0:
     resolution: {integrity: sha512-n898DVFlHmDbvBsCG1SdSoPv9sgUDfCYedFp9A1msoHn/SVJhA5e6oTvVbgKGAxuTXKa3baXz7fIGvduVytZ3Q==}
     dependencies:
       '@vivjs/constants': 0.16.0
       math.gl: 3.6.3
+
+  /@vivjs/viewers@0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0):
+    resolution: {integrity: sha512-TK7GyZ4iwXyfaKLSiwMccFystTxuOyckwRzOr7dEcsZvQnEKdJNqz30htIoSBtGtYpuaUPTbT/bsSg1F26nECQ==}
+    peerDependencies:
+      '@deck.gl/react': ~8.8.6
+      react: ^16.8.0 || ^17.0.0 || 18
+    dependencies:
+      '@deck.gl/react': 8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+      '@vivjs/constants': 0.13.8
+      '@vivjs/extensions': 0.13.8(@deck.gl/core@8.8.27)
+      '@vivjs/views': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
+      fast-deep-equal: 3.1.3
+      react: 18.2.0
+    transitivePeerDependencies:
+      - '@deck.gl/core'
+      - '@deck.gl/geo-layers'
+      - '@deck.gl/layers'
+      - '@luma.gl/constants'
+      - '@luma.gl/core'
+      - '@luma.gl/engine'
+      - '@luma.gl/webgl'
+    dev: false
 
   /@vivjs/viewers@0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@deck.gl/react@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0):
     resolution: {integrity: sha512-ih872YZS9H7JrPDYlZqZ2qDiXPWXT8fVx6cA0OouFO2bDOw8q1E2MN36lhN2pUYjL2aC2NmLgS1yq2zN0bblXQ==}
@@ -10654,6 +10717,26 @@ packages:
       - '@luma.gl/core'
       - '@luma.gl/engine'
       - '@luma.gl/webgl'
+
+  /@vivjs/views@0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21):
+    resolution: {integrity: sha512-qGay7rj3cUHpwmhng5JskoUqjbm6CG99PK3GWjfl23REubOIvqNfLdoqlIEFIElqXuz+99wgHyL6/fj5FSbN+A==}
+    peerDependencies:
+      '@deck.gl/core': ~8.8.6
+      '@deck.gl/layers': ~8.8.6
+    dependencies:
+      '@deck.gl/core': 8.8.27
+      '@deck.gl/layers': 8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21)
+      '@math.gl/core': 3.6.3
+      '@vivjs/layers': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
+      '@vivjs/loaders': 0.13.8
+      math.gl: 3.6.3
+    transitivePeerDependencies:
+      - '@deck.gl/geo-layers'
+      - '@luma.gl/constants'
+      - '@luma.gl/core'
+      - '@luma.gl/engine'
+      - '@luma.gl/webgl'
+    dev: false
 
   /@vivjs/views@0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27)(@deck.gl/layers@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21):
     resolution: {integrity: sha512-OQ4/3X5DLcu2yKVFeopmWW6iZ+hfTgkle84wfNPwPvvhtV3b1vEeUMzyBt5p1RSvpTzKGKv8CR5R4SdTunkUEQ==}
@@ -15388,6 +15471,13 @@ packages:
       punycode: 1.4.1
     dev: false
 
+  /fast-xml-parser@3.21.1:
+    resolution: {integrity: sha512-FTFVjYoBOZTJekiUsawGsSYV9QL0A+zDYCRj7y34IO6Jg+2IMYEtQa+bbictpdpV8dHxXywqU7C0gRDEOFtBFg==}
+    hasBin: true
+    dependencies:
+      strnum: 1.0.5
+    dev: false
+
   /fastq@1.13.0:
     resolution: {integrity: sha512-YpkpUnK8od0o1hmeSc7UUs/eB/vIPWJYjKck2QKIzAf71Vm1AAQ3EbuZB3g2JIy+pg+ERD0vqI79KyZiB2e2Nw==}
     dependencies:
@@ -19702,12 +19792,6 @@ packages:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
 
-  /piesocket-js@5.0.17:
-    resolution: {integrity: sha512-qzpFVzwmIFhE81rC6KTV38HcafYimGSm8GPrY4+Td1khLf8LicHsVQ4rGYMBf78348tNLP9v7OuUs0EAuHDURg==}
-    dependencies:
-      uuid: 8.3.2
-    dev: false
-
   /pify@2.3.0:
     resolution: {integrity: sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==}
     engines: {node: '>=0.10.0'}
@@ -23405,6 +23489,10 @@ packages:
     dependencies:
       acorn: 8.9.0
     dev: true
+
+  /strnum@1.0.5:
+    resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
+    dev: false
 
   /style-to-object@0.3.0:
     resolution: {integrity: sha512-CzFnRRXhzWIdItT3OmF8SQfWyahHhjq3HwcMNCNLn+N7klOOqPjMeG/4JSu77D7ypZdGvSzvkrbyeTMizz2VrA==}
