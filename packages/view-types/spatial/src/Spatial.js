@@ -101,8 +101,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
   constructor(props) {
     super(props);
 
-    console.log(this.props)
-
     // To avoid storing large arrays/objects
     // in React state, this component
     // uses instance variables.

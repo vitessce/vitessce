@@ -1,7 +1,7 @@
 {
   "name": "vitessce-monorepo",
   "private": true,
-  "version": "3.3.2",
+  "version": "3.3.12",
   "description": "Vitessce app and React component library",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io/",
@@ -61,7 +61,7 @@
     "sass": "^1.55.0",
     "serve-static": "^1.15.0",
     "terser": "^5.15.0",
-    "typescript": "^4.7.4",
+    "typescript": "5.5.0-dev.20240330",
     "vite": "^4.3.0",
     "vitest": "^0.32.2",
     "cross-env": "^7.0.0",
@@ -76,7 +76,8 @@
     "lodash-es": "^4.17.21",
     "publint": "^0.1.11",
     "@ast-grep/cli": "^0.6.3",
-    "isomorphic-git": "^1.24.5"
+    "isomorphic-git": "^1.24.5",
+    "@playwright/test": "^1.40.1"
   },
   "pnpm": {
     "overrides": {

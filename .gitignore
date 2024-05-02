@@ -17,3 +17,5 @@ sites/**/CHANGELOG.md
 examples/**/CHANGELOG.md
 RELEASE_NOTES.md
 coverage/
+.idea/
+.vscode/
