@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
@@ -27,7 +27,7 @@ const configAttrs = {
   'maynard-2021': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
 };
 
-const configAttrsUnique = Array.from(new Set(Object.values(configAttrs).flat().map(attrVal => cleanAttr(attrVal))));
+const configAttrsUnique = Array.from(new Set(Object.values(configAttrs).flat()));
 
 function cleanAttr(attrVal) {
   if (attrVal.match(/^\d/)) {
@@ -37,19 +37,6 @@ function cleanAttr(attrVal) {
   return attrVal.toLowerCase().replace('-', '');
 }
 
-function searchAttr(event) {
-  const input = document.getElementById('searchbar').value;
-  if (input === "") {
-    return configAttrsUnique;
-  }
-  const showAttr = []
-  for (const attr of configAttrsUnique) {
-    if (attr.toLowerCase().includes(input.toLowerCase())) {
-      showAttr.push(attr);
-    }
-  }
-  return showAttr;
-}
 
 function DemoList(props) {
   const {
@@ -78,6 +65,23 @@ function DemoList(props) {
     ],
   } = props;
 
+  let [attrsFilter, setAttrsFilter] = useState(configAttrsUnique);
+  let [attrsSelected, setAttrsSelected] = useState();
+
+  function searchAttr() {
+    const input = document.getElementById('searchbar').value;
+    if (input === "") {
+      setAttrsFilter(configAttrsUnique);
+    }
+    const showAttr = []
+    for (const attr of configAttrsUnique) {
+      if (attr.toLowerCase().includes(input.toLowerCase())) {
+        showAttr.push(attr);
+      }
+    }
+    setAttrsFilter(showAttr);
+  }
+
   const baseUrl = useBaseUrl('/#?dataset=');
 
   const demos = subset.map(key => ([key, configs[key]]));
@@ -101,12 +105,21 @@ function DemoList(props) {
               placeholder="filter by tags"/>
           </div>
 
-         {configAttrsUnique.map(attrVal => (
-            <span key={`tags-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])} onClick={(event) => selectTag(event)}>
+         {attrsFilter.map(attrVal => (
+            <span key={`tags-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])} onClick={() => selectTag()}>
               {attrVal}
             </span>
           ))}
 
+          <div>
+            Selected: {(attrsSelected && attrsSelected.length) > 0 ? 
+              attrsSelected.map(attrVal => (
+                <span key={`tags-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])}>
+                  {attrVal}
+                </span>
+              )) : null 
+            }
+          </div>
         </div>
       </div>
       <div className={clsx(styles.demoGridContainer, { [styles.demoGridContainerSmall]: small })}>
