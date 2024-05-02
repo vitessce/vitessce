@@ -108,6 +108,7 @@ function DemoList(props) {
 
   /**
    * Add attr from click event to attrsSelected, if it isn't yet in there.
+   * Clears the searchbox when an item is selected.
    */
   function selectAttr(event) {
     const newAttrs = Array.from(attrsSelected);
@@ -115,6 +116,8 @@ function DemoList(props) {
       newAttrs.push(event.target.innerText);
       setAttrsSelected(newAttrs);
     }
+    document.getElementById('searchbar').value = "";
+    setAttrsFilter(configAttrsUnique);
   }
 
   /**
