@@ -22,6 +22,7 @@ import {
   useInitialCoordination,
   useCoordination,
   useLoaders,
+  useMergeCoordination,
   useSetComponentHover,
   useSetComponentViewInfo,
   useAuxiliaryCoordination,
@@ -31,6 +32,7 @@ import {
   useComplexCoordinationSecondary,
   useCoordinationScopes,
   useCoordinationScopesBy,
+  useSpotMultiFeatureLabels,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
@@ -124,11 +126,13 @@ export function SpatialSubscriber(props) {
     theme,
     disableTooltip = false,
     title = 'Spatial',
+    bitmaskValueIsIndex = false, // TODO: move to coordination type
   } = props;
 
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
+  const mergeCoordination = useMergeCoordination();
 
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
@@ -158,6 +162,7 @@ export function SpatialSubscriber(props) {
     setSpatialRotationX: setRotationX,
     setSpatialRotationOrbit: setRotationOrbit,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
+
 
   const {
     spatialZoom: initialZoom,
@@ -342,6 +347,7 @@ export function SpatialSubscriber(props) {
   // Points data
   const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useMultiObsPoints(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
 
   const [pointMultiObsLabelsData, pointMultiObsLabelsDataStatus] = usePointMultiObsLabels(
@@ -351,9 +357,14 @@ export function SpatialSubscriber(props) {
   // Spots data
   const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useMultiObsSpots(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
 
   const [obsSpotsSetsData, obsSpotsSetsDataStatus] = useSpotMultiObsSets(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [obsSpotsFeatureLabelsData, obsSpotsFeatureLabelsDataStatus] = useSpotMultiFeatureLabels(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -378,6 +389,7 @@ export function SpatialSubscriber(props) {
 
   const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
 
   const [obsSegmentationsSetsData, obsSegmentationsSetsDataStatus] = useSegmentationMultiObsSets(
@@ -401,6 +413,7 @@ export function SpatialSubscriber(props) {
   // Image data
   const [imageData, imageDataStatus, imageUrls] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
   );
 
 
@@ -633,7 +646,7 @@ export function SpatialSubscriber(props) {
               const { obsIndex } = segmentationMultiIndicesData?.[segmentationLayerScope]?.[channelScope] || {};
               // We subtract one because we use 0 to represent background.
               obsI -= 1;
-              if (obsIndex) {
+              if (obsIndex && bitmaskValueIsIndex) {
                 obsId = obsIndex?.[obsI];
               } else {
                 // When there is not a corresponding obsIndex to use,
@@ -780,6 +793,8 @@ export function SpatialSubscriber(props) {
         segmentationMatrixIndices={segmentationMultiIndicesData}
         segmentationMultiExpressionData={segmentationMultiExpressionNormData}
 
+        bitmaskValueIsIndex={bitmaskValueIsIndex}
+
         // Images
         images={imageData}
         imageLayerScopes={imageLayerScopes}
@@ -833,6 +848,7 @@ export function SpatialSubscriber(props) {
         spotLayerScopes={spotLayerScopes}
         spotLayerCoordination={spotLayerCoordination}
         spotMultiExpressionExtents={spotMultiExpressionExtents}
+        spotMultiFeatureLabels={obsSpotsFeatureLabelsData}
 
         // Points
         pointLayerScopes={pointLayerScopes}

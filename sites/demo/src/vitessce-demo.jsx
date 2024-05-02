@@ -1,35 +1,33 @@
 /* eslint-disable no-console */
 import React, {
-    useEffect, useRef, useState, useMemo,
+  useEffect, useRef, useState, useMemo,
 } from 'react';
-import {Vitessce} from 'vitessce';
+import { Vitessce } from 'vitessce';
 
-import {getConfig, listConfigs, getPlugins} from './api.js';
-import {Welcome} from './welcome.jsx';
-import {Warning} from './warning.jsx';
-import PieSocket from 'piesocket-js';
+import { getConfig, listConfigs, getPlugins, getStores } from './api.js';
+import { Welcome } from './welcome.jsx';
+import { Warning } from './warning.jsx';
 
 import './index.scss';
-import {setConfig} from "isomorphic-git";
 
 function AwaitResponse(props) {
-    const {
-        response,
-        theme,
-    } = props;
-    const [isLoading, setIsLoading] = useState(true);
-    const responseRef = useRef();
-    useEffect(() => {
-        response.then((c) => {
-            responseRef.current = c;
-            setIsLoading(false);
-        });
-    }, [response]);
-    return (!isLoading ? React.createElement(responseRef.current) : <Warning title="Loading..." theme={theme}/>);
+  const {
+    response,
+    theme,
+  } = props;
+  const [isLoading, setIsLoading] = useState(true);
+  const responseRef = useRef();
+  useEffect(() => {
+    response.then((c) => {
+      responseRef.current = c;
+      setIsLoading(false);
+    });
+  }, [response]);
+  return (!isLoading ? React.createElement(responseRef.current) : <Warning title="Loading..." theme={theme} />);
 }
 
 function preformattedDetails(response) {
-    return `
+  return `
     ok: ${response.ok}
     status: ${response.status}
     statusText: ${response.statusText}
@@ -39,49 +37,49 @@ function preformattedDetails(response) {
 }
 
 function logConfigUpgrade(prevConfig, nextConfig) {
-    // eslint-disable-next-line no-console
-    console.log(`Upgrade view config schema from ${prevConfig.version} to ${nextConfig.version}`);
-    // eslint-disable-next-line no-console
-    console.log(prevConfig);
-    // eslint-disable-next-line no-console
-    console.log(nextConfig);
+  // eslint-disable-next-line no-console
+  console.log(`Upgrade view config schema from ${prevConfig.version} to ${nextConfig.version}`);
+  // eslint-disable-next-line no-console
+  console.log(prevConfig);
+  // eslint-disable-next-line no-console
+  console.log(nextConfig);
 }
 
 function checkResponse(response, theme, debug) {
-    if (!response.ok) {
-        return Promise.resolve(
-            () => (
-                <Warning
-                    title="Fetch response not OK"
-                    preformatted={preformattedDetails(response)}
-                    theme={theme}
-                />
-            ),
-        );
+  if (!response.ok) {
+    return Promise.resolve(
+      () => (
+        <Warning
+          title="Fetch response not OK"
+          preformatted={preformattedDetails(response)}
+          theme={theme}
+        />
+      ),
+    );
+  }
+  return response.text().then((text) => {
+    try {
+      const config = JSON.parse(text);
+      return Promise.resolve(() => (
+        <Vitessce
+          config={config}
+          theme={theme}
+          onConfigChange={debug ? console.log : undefined}
+          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+          validateOnConfigChange={debug}
+        />
+      ));
+    } catch (e) {
+      return Promise.resolve(() => (
+        <Warning
+          title="Error parsing JSON"
+          preformatted={preformattedDetails(response)}
+          unformatted={`${e.message}: ${text}`}
+          theme={theme}
+        />
+      ));
     }
-    return response.text().then((text) => {
-        try {
-            const config = JSON.parse(text);
-            return Promise.resolve(() => (
-                <Vitessce
-                    config={config}
-                    theme={theme}
-                    onConfigChange={debug ? console.log : undefined}
-                    onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-                    validateOnConfigChange={debug}
-                />
-            ));
-        } catch (e) {
-            return Promise.resolve(() => (
-                <Warning
-                    title="Error parsing JSON"
-                    preformatted={preformattedDetails(response)}
-                    unformatted={`${e.message}: ${text}`}
-                    theme={theme}
-                />
-            ));
-        }
-    });
+  });
 }
 
 /**
@@ -90,127 +88,65 @@ function checkResponse(response, theme, debug) {
  * @returns {string} A valid theme name.
  */
 function validateTheme(theme) {
-    return (['light', 'dark'].includes(theme) ? theme : 'dark');
+  return (['light', 'dark', 'light2'].includes(theme) ? theme : 'dark');
 }
 
 export function VitessceDemo() {
-    //Saving Config and sharing Via Websockets
-    const [ws, setWS] = useState(undefined);
-    const [channel, setChannel] = useState(undefined);
-    const [config, setConfig] = useState(undefined);
-    const result = useMemo(() => {
-        const {rowHeight = null} = {};
-        const urlParams = new URLSearchParams(window.location.search);
-        const datasetId = urlParams.get('dataset');
-        const debug = urlParams.get('debug') === 'true';
-        const datasetUrl = urlParams.get('url');
-        const showAll = urlParams.get('show') === 'all';
-        const theme = validateTheme(urlParams.get('theme'));
-        const isBounded = urlParams.get('isBounded') === 'true';
-        const strictMode = urlParams.get('strictMode') === 'true';
+  const result = useMemo(() => {
+    const { rowHeight = null } = {};
+    const urlParams = new URLSearchParams(window.location.search);
+    const datasetId = urlParams.get('dataset');
+    const debug = urlParams.get('debug') === 'true';
+    const datasetUrl = urlParams.get('url');
+    const showAll = urlParams.get('show') === 'all';
+    const theme = validateTheme(urlParams.get('theme'));
+    const isBounded = urlParams.get('isBounded') === 'true';
+    const strictMode = urlParams.get('strictMode') === 'true';
 
-        const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
+    const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
-        if (datasetId) {
-            const configFromDataSetId = getConfig(datasetId);
-            if (config === undefined) {
-                setConfig(configFromDataSetId);
-            }
-
-            // Use the config information to start the Websockets Service and use the code given in the config
-            // In the intermediate version we allow for configuring the websocket EITHER via URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            let websocket = urlParams.get('ws') === 'true';
-            let channelID = urlParams.get('code');
-            let send = urlParams.get('send') === 'true';
-            // OR via the configuration
-            if (config) {
-                for (let component in config.layout) {
-                    if(config.layout[component].component === "linkController"){
-                        websocket = true;
-                        send = true;
-                        channelID = config.layout[component].props.code;
-                    }
-                }
-            }
-            if (websocket) {
-                if (ws === undefined) {
-                    var username = "user_" + (Math.floor(Math.random() * 1000));
-                    let socket = new PieSocket({
-                        clusterId: "s12099.nyc1",
-                        apiKey: "vAs6XEQY09uijiPR1GZNPm2qUnqB0VgBEkAFJLoJ",
-                        notifySelf: false,
-                        userId: username,
-                        presence: true,
-                    });
-                    setWS(socket);
-                }
-                ws?.subscribe(channelID).then((chan) => {
-                    // console.log("Channel is ready")
-                    chan.listen("new_message", (data, meta) => {
-                        // console.log(data.sender, ws?.options.userId)
-                        if (data.sender !== ws?.options.userId) {
-                            // console.log("New Message:", data);
-                            setConfig({...data.message, uid: "id" + (Math.floor(Math.random() * 1000))});
-                        }
-                    })
-                    chan.listen("system:member_joined", function (data) {
-                        console.log("New member joined the chat " + data.member.user);
-                    })
-                    setChannel(chan);
-                })
-            }
-            //
-
-            const pluginProps = getPlugins(datasetId);
-            // console.log("Getting in with a new Config ", config)
-            return (
-                <ContainerComponent>
-                    <Vitessce
-                        config={config !== undefined ? config : configFromDataSetId}
-                        rowHeight={rowHeight}
-                        theme={theme}
-                        onConfigChange={(configValue) => {
-                            if (send) {
-                                // console.log("Sending Config after Inside Change:", configValue);
-                                channel?.publish("new_message", {
-                                    sender: ws ? ws.options.userId : 0,
-                                    message: configValue,
-                                })
-                            }
-                        }}
-                        onConfigUpgrade={(configValue) => {
-                            //console.log("Upgrade of Config inside:", configValue)
-                        }}
-                        validateOnConfigChange={debug}
-                        isBounded={isBounded}
-                        {...pluginProps}
-                    />
-                </ContainerComponent>
-            );
-        }
-        if (datasetUrl) {
-            const responsePromise = fetch(datasetUrl)
-                .then(response => checkResponse(response, theme, debug))
-                .catch(error => Promise.resolve(() => (
-                    <Warning
-                        title="Error fetching"
-                        unformatted={error.message}
-                        theme={theme}
-                    />
-                )));
-            return (
-                <ContainerComponent>
-                    <AwaitResponse response={responsePromise} theme={theme}/>
-                </ContainerComponent>
-            );
-        }
-        const configs = listConfigs(showAll);
-        return (<Welcome configs={configs} theme={theme}/>);
-    }, [window.location.search, channel, config, ws]);
-    return (
-        <>
-            <style>{`
+    if (datasetId) {
+      const config = getConfig(datasetId);
+      const pluginProps = getPlugins(datasetId);
+      const stores = getStores(datasetId);
+      return (
+        <ContainerComponent>
+          <Vitessce
+            config={config}
+            rowHeight={rowHeight}
+            theme={theme}
+            onConfigChange={debug ? console.log : undefined}
+            onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+            validateOnConfigChange={debug}
+            isBounded={isBounded}
+            stores={stores}
+            {...pluginProps}
+          />
+        </ContainerComponent>
+      );
+    }
+    if (datasetUrl) {
+      const responsePromise = fetch(datasetUrl)
+        .then(response => checkResponse(response, theme, debug))
+        .catch(error => Promise.resolve(() => (
+          <Warning
+            title="Error fetching"
+            unformatted={error.message}
+            theme={theme}
+          />
+        )));
+      return (
+        <ContainerComponent>
+          <AwaitResponse response={responsePromise} theme={theme} />
+        </ContainerComponent>
+      );
+    }
+    const configs = listConfigs(showAll);
+    return (<Welcome configs={configs} theme={theme} />);
+  }, [window.location.search]);
+  return (
+    <>
+      <style>{`
       html, body {
         height: 100%;
       }
@@ -234,8 +170,8 @@ export function VitessceDemo() {
         overflow: hidden;
       }
       `}
-            </style>
-            {result}
-        </>
-    );
+      </style>
+      {result}
+    </>
+  );
 }

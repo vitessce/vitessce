@@ -1,6 +1,9 @@
 import { useEffect, useMemo } from 'react';
 import { useQuery, useQueries } from '@tanstack/react-query';
-import { capitalize, fromEntries } from '@vitessce/utils';
+import {
+  capitalize,
+  getInitialCoordinationScopePrefix,
+} from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
 import {
   getMatchingLoader,
@@ -63,11 +66,11 @@ export async function dataQueryFn(ctx) {
     // TODO: can cacheing logic be removed from all loaders?
     const payload = await loader.load();
     if (!payload) return placeholderObject; // TODO: throw error instead?
-    const { data, url, coordinationValues } = payload;
+    const { data, url, requestInit, coordinationValues } = payload;
     // Status: success
     // Array of objects like  { url, name }.
-    const urls = Array.isArray(url) ? url : [{ url, name: dataType }];
-    return { data, coordinationValues, urls };
+    const urls = (Array.isArray(url) ? url : [{ url, name: dataType }]).filter(d => d.url);
+    return { data, coordinationValues, urls, requestInit };
   }
   // No loader was found.
   if (isRequired) {
@@ -126,6 +129,8 @@ export function useDataType(
 
   const coordinationValues = data?.coordinationValues;
   const urls = data?.urls;
+  const requestInit = data?.requestInit;
+
 
   useEffect(() => {
     initCoordinationSpace(
@@ -142,7 +147,7 @@ export function useDataType(
   }, [error, setWarning]);
 
   const dataStatus = isFetching ? STATUS.LOADING : status;
-  return [loadedData, dataStatus, urls];
+  return [loadedData, dataStatus, urls, requestInit];
 }
 
 /**
@@ -169,6 +174,7 @@ export function useDataType(
 export function useDataTypeMulti(
   dataType, loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOnObj,
+  mergeCoordination, viewUid,
 ) {
   const placeholderObject = useMemo(() => ({}), []);
   const setWarning = useSetWarning();
@@ -200,14 +206,23 @@ export function useDataTypeMulti(
 
   useEffect(() => {
     dataQueries
-      .map(q => q.data?.coordinationValues)
-      .filter(v => Boolean(v))
-      .forEach((coordinationValues) => {
-        initCoordinationSpace(
-          coordinationValues,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
+      .filter(q => Boolean(q.data?.coordinationValues))
+      .forEach((q) => {
+        const { coordinationValues } = q.data;
+        if (mergeCoordination) {
+          mergeCoordination(
+            coordinationValues,
+            // Auto-generate based on the dataset and data type.
+            getInitialCoordinationScopePrefix(dataset, dataType),
+            viewUid,
+          );
+        } else {
+          initCoordinationSpace(
+            coordinationValues,
+            coordinationSetters,
+            initialCoordinationValues,
+          );
+        }
       });
   // Deliberate dependency omissions: use indirect dependencies for efficiency.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -222,7 +237,7 @@ export function useDataTypeMulti(
   }, [anyError, setWarning]);
 
   // Convert data to object keyed by scopeKey.
-  const data = useMemo(() => fromEntries(
+  const data = useMemo(() => Object.fromEntries(
     matchOnEntries.map(([scopeKey], i) => ([scopeKey, dataQueries[i].data?.data])),
   // Deliberate dependency omissions: dataQueries and matchOnEntries,
   // since dataQueries changes every re-render. We use the in-direct
@@ -231,7 +246,7 @@ export function useDataTypeMulti(
   ), [matchOnObj, dataStatus]);
 
   // Convert data to object keyed by scopeKey.
-  const urls = useMemo(() => fromEntries(
+  const urls = useMemo(() => Object.fromEntries(
     matchOnEntries.map(([scopeKey], i) => ([scopeKey, dataQueries[i].data?.urls])),
   // Deliberate dependency omissions: matchOnEntries, since dataQueries depends on it.
   // eslint-disable-next-line react-hooks/exhaustive-deps

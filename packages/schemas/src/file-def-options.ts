@@ -30,6 +30,7 @@ const annDataConvenienceObsEmbeddingItem = z.object({
 
 const annDataObsLabels = annDataObs;
 const annDataFeatureLabels = annDataObs;
+const annDataSampleEdges = annDataObs;
 const annDataObsFeatureMatrix = z.object({
   path: z.string(),
   featureFilterPath: z.string()
@@ -53,6 +54,12 @@ const annDataObsSets = z.array(
     scorePath: z.string()
       .optional()
       .describe("The location in the AnnData store for the set confidence scores, like 'obs/celltype_prediction_score.'"),
+  }),
+);
+
+const annDataObsFeatureColumns = z.array(
+  z.object({
+    path: z.string(),
   }),
 );
 
@@ -87,9 +94,19 @@ export const imageOmeTiffSchema = z.object({
     .optional(),
 });
 
+export const obsSegmentationsOmeTiffSchema = imageOmeTiffSchema.extend({
+  obsTypesFromChannelNames: z.boolean()
+    .optional(),
+});
+
 // OME-Zarr (NGFF)
 export const imageOmeZarrSchema = z.object({
   coordinateTransformations: omeCoordinateTransformations
+    .optional(),
+});
+
+export const obsSegmentationsOmeZarrSchema = imageOmeZarrSchema.extend({
+  obsTypesFromChannelNames: z.boolean()
     .optional(),
 });
 
@@ -99,6 +116,9 @@ export const imageSpatialdataSchema = imageOmeZarrSchema.extend({
   path: z.string(),
 });
 export const obsSegmentationsSpatialdataSchema = z.object({
+  // TODO: should this also extend the imageOmeZarrSchema?
+  // TODO: should this be renamed labelsSpatialdataSchema?
+  // TODO: support obsTypesFromChannelNames?
   path: z.string(),
 });
 export const obsLocationsSpatialdataSchema = z.object({
@@ -138,6 +158,8 @@ export const obsSetsAnndataSchema = annDataObsSets;
 export const obsFeatureMatrixAnndataSchema = annDataObsFeatureMatrix;
 export const obsLabelsAnndataSchema = annDataObsLabels;
 export const featureLabelsAnndataSchema = annDataFeatureLabels;
+export const obsFeatureColumnsAnndataSchema = annDataObsFeatureColumns;
+export const sampleEdgesAnndataSchema = annDataSampleEdges;
 
 // CSV
 export const obsEmbeddingCsvSchema = z.object({
@@ -177,6 +199,19 @@ export const obsSetsCsvSchema = z.object({
     }),
   ),
 });
+export const sampleSetsCsvSchema = z.object({
+  sampleIndex: z.string(),
+  sampleSets: z.array(
+    z.object({
+      name: z.string(),
+      column: z.union([
+        z.string(),
+        z.array(z.string()),
+      ]),
+      scoreColumn: z.string().optional(),
+    }),
+  ),
+});
 
 /**
  * Options schemas for joint file types.
@@ -200,4 +235,18 @@ export const anndataZarrSchema = z.object({
     annDataObsEmbedding,
     z.array(annDataConvenienceObsEmbeddingItem),
   ]),
+}).partial();
+
+export const spatialdataZarrSchema = z.object({
+  // TODO: should `image` be a special schema
+  // to allow specifying fileUid (like for embeddingType)?
+  image: imageSpatialdataSchema,
+  // TODO: should this be a special schema
+  // to allow specifying fileUid (like for embeddingType)?
+  labels: obsSegmentationsSpatialdataSchema,
+  obsFeatureMatrix: obsFeatureMatrixSpatialdataSchema,
+  obsSpots: obsSpotsSpatialdataSchema,
+  // TODO: obsPoints
+  // TODO: obsLocations
+  obsSets: obsSetsSpatialdataSchema,
 }).partial();

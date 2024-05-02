@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 import type { latestFileDefSchema } from '@vitessce/schemas';
-import { FileType } from '@vitessce/constants-internal';
+import { FileType, ALT_ZARR_STORE_TYPES } from '@vitessce/constants-internal';
 
 type BaseFileDef = {
   url?: string;
@@ -14,7 +14,19 @@ const expectedCoordinationTypes = [
   'embeddingType',
 ];
 
+
+function createGetFileType(jointFileType: string) {
+  // Based on the jointFileType, return the appropriate fileType.
+  return (fileType: string) => {
+    if (jointFileType.endsWith('.zip') && ALT_ZARR_STORE_TYPES[fileType]?.zip) {
+      return ALT_ZARR_STORE_TYPES[fileType].zip;
+    }
+    return fileType;
+  };
+}
+
 export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) {
+  const getFileType = createGetFileType(fileDef.fileType);
   const baseFileDef: BaseFileDef = {
     url: fileDef.url,
     requestInit: fileDef.requestInit,
@@ -36,7 +48,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
     // obsFeatureMatrix
     ...(options.obsFeatureMatrix ? [{
       ...baseFileDef,
-      fileType: FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR,
+      fileType: getFileType(FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR),
       options: options.obsFeatureMatrix,
       coordinationValues: {
         ...extraCoordinationValues,
@@ -48,7 +60,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
     // obsSets
     ...(options.obsSets ? [{
       ...baseFileDef,
-      fileType: FileType.OBS_SETS_ANNDATA_ZARR,
+      fileType: getFileType(FileType.OBS_SETS_ANNDATA_ZARR),
       options: options.obsSets,
       coordinationValues: {
         ...extraCoordinationValues,
@@ -58,7 +70,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
     // obsSpots
     ...(options.obsSpots ? [{
       ...baseFileDef,
-      fileType: FileType.OBS_SPOTS_ANNDATA_ZARR,
+      fileType: getFileType(FileType.OBS_SPOTS_ANNDATA_ZARR),
       options: options.obsSpots,
       coordinationValues: {
         ...extraCoordinationValues,
@@ -68,7 +80,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
     // obsPoints
     ...(options.obsPoints ? [{
       ...baseFileDef,
-      fileType: FileType.OBS_POINTS_ANNDATA_ZARR,
+      fileType: getFileType(FileType.OBS_POINTS_ANNDATA_ZARR),
       options: options.obsPoints,
       coordinationValues: {
         ...extraCoordinationValues,
@@ -78,7 +90,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
     // obsLocations
     ...(options.obsLocations ? [{
       ...baseFileDef,
-      fileType: FileType.OBS_LOCATIONS_ANNDATA_ZARR,
+      fileType: getFileType(FileType.OBS_LOCATIONS_ANNDATA_ZARR),
       options: options.obsLocations,
       coordinationValues: {
         ...extraCoordinationValues,
@@ -88,7 +100,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
     // obsSegmentations
     ...(options.obsSegmentations ? [{
       ...baseFileDef,
-      fileType: FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR,
+      fileType: getFileType(FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR),
       options: options.obsSegmentations,
       coordinationValues: {
         ...extraCoordinationValues,
@@ -101,7 +113,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
       Array.isArray(options.obsEmbedding) ? options.obsEmbedding.map((oe: any) => ({
         // obsEmbedding was an array, process each element.
         ...baseFileDef,
-        fileType: FileType.OBS_EMBEDDING_ANNDATA_ZARR,
+        fileType: getFileType(FileType.OBS_EMBEDDING_ANNDATA_ZARR),
         options: {
           path: oe.path,
           dims: oe.dims,
@@ -115,7 +127,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
       })) : [{
         // obsEmbedding was an object.
         ...baseFileDef,
-        fileType: FileType.OBS_EMBEDDING_ANNDATA_ZARR,
+        fileType: getFileType(FileType.OBS_EMBEDDING_ANNDATA_ZARR),
         options: options.obsEmbedding,
         coordinationValues: {
           ...extraCoordinationValues,
@@ -130,7 +142,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
       Array.isArray(options.obsLabels) ? options.obsLabels.map((ol: any) => ({
         // obsLabels was an array, process each element.
         ...baseFileDef,
-        fileType: FileType.OBS_LABELS_ANNDATA_ZARR,
+        fileType: getFileType(FileType.OBS_LABELS_ANNDATA_ZARR),
         options: {
           path: ol.path,
         },
@@ -143,7 +155,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
       })) : [{
         // obsLabels was an object.
         ...baseFileDef,
-        fileType: FileType.OBS_LABELS_ANNDATA_ZARR,
+        fileType: getFileType(FileType.OBS_LABELS_ANNDATA_ZARR),
         options: options.obsLabels,
         coordinationValues: {
           ...extraCoordinationValues,
@@ -158,7 +170,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
       Array.isArray(options.featureLabels) ? options.featureLabels.map((fl: any) => ({
         // featureLabels was an array, process each element.
         ...baseFileDef,
-        fileType: FileType.FEATURE_LABELS_ANNDATA_ZARR,
+        fileType: getFileType(FileType.FEATURE_LABELS_ANNDATA_ZARR),
         options: {
           path: fl.path,
         },
@@ -171,7 +183,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
       })) : [{
         // featureLabels was an object.
         ...baseFileDef,
-        fileType: FileType.FEATURE_LABELS_ANNDATA_ZARR,
+        fileType: getFileType(FileType.FEATURE_LABELS_ANNDATA_ZARR),
         options: options.featureLabels,
         coordinationValues: {
           ...extraCoordinationValues,
@@ -180,5 +192,83 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
         },
       }]
     ) : []),
+  ];
+}
+
+export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchema>) {
+  const baseFileDef: BaseFileDef = {
+    url: fileDef.url,
+    requestInit: fileDef.requestInit,
+    coordinationValues: {
+      ...fileDef.coordinationValues,
+      obsType: fileDef.coordinationValues?.obsType || 'cell',
+      featureType: fileDef.coordinationValues?.featureType || 'gene',
+      featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
+    },
+  };
+  const extraCoordinationValues: Record<string, any> = {};
+  Object.entries(baseFileDef.coordinationValues).forEach(([key, value]) => {
+    if (!expectedCoordinationTypes.includes(key)) {
+      extraCoordinationValues[key] = value;
+    }
+  });
+  const { options = {} } = fileDef;
+  return [
+    // obsFeatureMatrix
+    ...(options.obsFeatureMatrix ? [{
+      ...baseFileDef,
+      fileType: FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR,
+      options: options.obsFeatureMatrix,
+      coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+        featureType: baseFileDef.coordinationValues.featureType,
+        featureValueType: baseFileDef.coordinationValues.featureValueType,
+      },
+    }] : []),
+    // obsSets
+    ...(options.obsSets ? [{
+      ...baseFileDef,
+      fileType: FileType.OBS_SETS_SPATIALDATA_ZARR,
+      options: options.obsSets,
+      coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
+    }] : []),
+    // obsSpots
+    ...(options.obsSpots ? [{
+      ...baseFileDef,
+      fileType: FileType.OBS_SPOTS_SPATIALDATA_ZARR,
+      options: options.obsSpots,
+      coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
+    }] : []),
+    // TODO: obsPoints?
+    // TODO: obsLocations?
+    // image
+    ...(options.image ? [{
+      ...baseFileDef,
+      fileType: FileType.IMAGE_SPATIALDATA_ZARR,
+      options: options.image,
+      coordinationValues: {
+        ...extraCoordinationValues,
+        featureType: baseFileDef.coordinationValues.featureType,
+        // TODO: fileUid?
+      },
+    }] : []),
+    // labels
+    ...(options.labels ? [{
+      ...baseFileDef,
+      fileType: FileType.LABELS_SPATIALDATA_ZARR,
+      options: options.labels,
+      coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+        // TODO: fileUid?
+      },
+    }] : []),
   ];
 }

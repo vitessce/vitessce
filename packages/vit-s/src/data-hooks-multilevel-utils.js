@@ -388,7 +388,7 @@ export function useFeatureSelectionMultiLevel(
   // (i.e., a single number, despite possibly different numbers of queries).
   // Reference: https://github.com/TanStack/query/issues/3049#issuecomment-1253201068
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [featureQueries.reduce((a, h) => a + h.dataUpdatedAt, 0)]);
+  }, [featureQueries.reduce((a, h) => a + h.dataUpdatedAt, 0), queryKeyScopeTuples]);
 
   return [geneData, loadedGeneName, extents, normData, dataStatus];
 }
@@ -479,8 +479,10 @@ export function useObsFeatureMatrixIndicesMultiLevel(
   // We use .reduce to ensure the number of dependencies is stable
   // (i.e., a single number, despite possibly different numbers of queries).
   // Reference: https://github.com/TanStack/query/issues/3049#issuecomment-1253201068
+  // We also want to re-compute if any of the keys within the matchOnObj change,
+  // so we also use queryKeyScopeTuples as a dependency.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [indicesQueries.reduce((a, h) => a + h.dataUpdatedAt, 0)]);
+  }, [indicesQueries.reduce((a, h) => a + h.dataUpdatedAt, 0), queryKeyScopeTuples]);
 
   return [indicesData, dataStatus];
 }
@@ -535,7 +537,7 @@ function useDataTypeMultiLevel(
   // (i.e., a single number, despite possibly different numbers of queries).
   // Reference: https://github.com/TanStack/query/issues/3049#issuecomment-1253201068
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locationsQueries.reduce((a, h) => a + h.dataUpdatedAt, 0)]);
+  }, [locationsQueries.reduce((a, h) => a + h.dataUpdatedAt, 0), queryKeyScopeTuples]);
 
   return [locationsData, dataStatus];
 }

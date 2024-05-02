@@ -4,6 +4,7 @@ import {
   CoordinationLevel as CL,
   hconcat,
   vconcat,
+  getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
 // Reference: https://github.com/giovp/spatialdata-sandbox/blob/3da0af016d3ddd85f1d63a9c03a67b240b012bd0/visium_io/download.py#L15
@@ -21,9 +22,6 @@ function generateVisiumIoConfig() {
     url: baseUrl,
     options: {
       path: 'images/Visium_Mouse_Olfactory_Bulb_full_image',
-    },
-    coordinationValues: {
-      fileUid: 'histology-image',
     },
   }).addFile({
     fileType: 'obsFeatureMatrix.spatialdata.zarr',
@@ -74,28 +72,22 @@ function generateVisiumIoConfig() {
   obsColorEncodingScope.setValue('geneSelection');
 
   config.linkViewsByObject([spatialView, lcView], {
-    spatialTargetZ: 0,
-    spatialTargetT: 0,
-    obsType: 'spot', // TODO: remove this after auto-initialization is supported per-layer/per-layer-channel.
-    // For now, cheating by allowing the spotLayer to fall back to the auto-initialized values for the view.
-    imageLayer: CL({
-      fileUid: 'histology-image',
-      spatialLayerOpacity: 1,
-      spatialLayerVisible: true,
-      photometricInterpretation: 'RGB',
-    }),
     spotLayer: CL({
-      obsType: 'spot',
-      spatialLayerVisible: true,
-      spatialLayerOpacity: 0.5,
-      spatialSpotRadius: 50.0,
-      featureValueColormapRange: [0, 0.5],
+      // featureValueColormapRange: [0, 0.5],
       obsColorEncoding: obsColorEncodingScope,
       featureSelection: featureSelectionScope,
     }),
-  });
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSpots') });
 
-  config.linkViews([featureList, heatmap, obsSets], ['obsType'], ['spot']);
+  config.linkViewsByObject([spatialView, lcView], {
+    imageLayer: CL({
+      // featureValueColormapRange: [0, 0.5],
+      photometricInterpretation: 'RGB',
+      // featureSelection: featureSelectionScope,
+    }),
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
+
+  config.linkViews([featureList, heatmap, obsSets, spatialView, lcView], ['obsType'], ['spot']);
 
   featureList.useCoordination(featureSelectionScope);
   heatmap.useCoordination(featureSelectionScope);

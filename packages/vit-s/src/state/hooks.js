@@ -4,9 +4,10 @@ import { useRef, useCallback, useMemo } from 'react';
 import create from 'zustand';
 import createContext from 'zustand/context';
 import shallow from 'zustand/shallow';
-import { isMatch, merge, cloneDeep } from 'lodash-es';
+import { isMatch, cloneDeep } from 'lodash-es';
 import { CoordinationType } from '@vitessce/constants-internal';
-import { fromEntries, capitalize } from '@vitessce/utils';
+import { capitalize } from '@vitessce/utils';
+import { getCoordinationSpaceAndScopes } from '@vitessce/config';
 import {
   removeImageChannelInMetaCoordinationScopesHelper,
   addImageChannelInMetaCoordinationScopesHelper,
@@ -52,7 +53,15 @@ export function getScopes(coordinationScopes, metaSpace) {
       metaScopesArr.forEach((metaScope) => {
         // Merge the original coordinationScopes with the matching meta-coordinationScopes
         // from the coordinationSpace.
-        result = merge(result, metaSpace[metaScope]);
+        let o1 = result;
+        const o2 = metaSpace[metaScope] || {};
+        Object.entries(o2).forEach(([cType, cScope]) => {
+          o1 = {
+            ...o1,
+            [cType]: cScope,
+          };
+        });
+        result = o1;
       });
     }
   }
@@ -80,7 +89,29 @@ export function getScopesBy(coordinationScopes, coordinationScopesBy, metaSpaceB
       metaScopesArr.forEach((metaScope) => {
         // Merge the original coordinationScopesBy with the matching meta-coordinationScopesBy
         // from the coordinationSpace.
-        result = merge(result, metaSpaceBy[metaScope]);
+        let o1 = result;
+        const o2 = metaSpaceBy[metaScope] || {};
+        // Cannot simply use lodash merge(o1, o2)
+        // because we do not want to merge (objects/arrays) at the leaf
+        // (i.e., secondaryScopeVal) level.
+        // We want the values in o2 to take precedence over the values in o1.
+        Object.entries(o2).forEach(([primaryType, primaryObj]) => {
+          Object.entries(primaryObj).forEach(([secondaryType, secondaryObj]) => {
+            Object.entries(secondaryObj).forEach(([primaryScope, secondaryScopeVal]) => {
+              o1 = {
+                ...o1,
+                [primaryType]: {
+                  ...(o1?.[primaryType] || {}),
+                  [secondaryType]: {
+                    ...(o1?.[primaryType]?.[secondaryType] || {}),
+                    [primaryScope]: secondaryScopeVal,
+                  },
+                },
+              };
+            });
+          });
+        });
+        result = o1;
       });
     }
   }
@@ -171,6 +202,87 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
           },
         },
       },
+    };
+  }),
+  mergeCoordination: (newCoordinationValues, scopePrefix, viewUid) => set((state) => {
+    const { coordinationSpace, layout } = state.viewConfig;
+    const {
+      coordinationSpace: newCoordinationSpace,
+      coordinationScopes,
+    } = getCoordinationSpaceAndScopes(newCoordinationValues, scopePrefix);
+    // Merge coordination objects in coordination space
+    Object.entries(newCoordinationSpace).forEach(([coordinationType, coordinationObj]) => {
+      if (coordinationType === CoordinationType.META_COORDINATION_SCOPES) {
+        // Perform an extra level of merging for meta-coordination scopes.
+        Object.entries(coordinationObj).forEach(([coordinationScope, coordinationValue]) => {
+          coordinationSpace[coordinationType] = {
+            ...coordinationSpace[coordinationType],
+            [coordinationScope]: {
+              ...coordinationValue,
+              ...(coordinationSpace[coordinationType]?.[coordinationScope] || {}),
+            },
+          };
+        });
+      } else if (coordinationType === CoordinationType.META_COORDINATION_SCOPES_BY) {
+        // Perform two extra levels of merging for meta-coordination scopesBy.
+        Object.entries(coordinationObj).forEach(([coordinationScope, coordinationValue]) => {
+          Object.entries(coordinationValue).forEach(([primaryType, primaryObj]) => {
+            Object.entries(primaryObj).forEach(([secondaryType, secondaryObj]) => {
+              coordinationSpace[coordinationType] = {
+                ...coordinationSpace[coordinationType],
+                [coordinationScope]: {
+                  ...(coordinationSpace[coordinationType]?.[coordinationScope] || {}),
+                  [primaryType]: {
+                    ...(coordinationSpace[coordinationType]?.[coordinationScope]?.[primaryType] || {}),
+                    [secondaryType]: {
+                      ...secondaryObj,
+                      ...(coordinationSpace[coordinationType]?.[coordinationScope]?.[primaryType]?.[secondaryType] || {}),
+                    },
+                  },
+                },
+              };
+            });
+          });
+        });
+      } else {
+        coordinationSpace[coordinationType] = {
+          ...coordinationObj,
+          // Existing coordination values should be preserved,
+          // so that user-defined values take precedence over auto-initialization values.
+          ...(coordinationSpace[coordinationType] || {}),
+        };
+      }
+    });
+
+    const newViewConfig = {
+      ...state.viewConfig,
+      coordinationSpace: {
+        ...coordinationSpace,
+      },
+      layout: layout.map((viewObj) => {
+        if (viewObj.uid === viewUid) {
+          // Merge coordination scopes for views
+          return {
+            ...viewObj,
+            coordinationScopes: {
+              ...viewObj.coordinationScopes,
+              [CoordinationType.META_COORDINATION_SCOPES]: [
+                ...(coordinationScopes[CoordinationType.META_COORDINATION_SCOPES] || []),
+                ...(viewObj.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES] || []),
+              ],
+              [CoordinationType.META_COORDINATION_SCOPES_BY]: [
+                ...(coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY] || []),
+                ...(viewObj.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY] || []),
+              ],
+            },
+          };
+        }
+        return viewObj;
+      }),
+    };
+    // console.log('newViewConfig', newViewConfig);
+    return {
+      viewConfig: newViewConfig,
     };
   }),
   removeImageChannelInMetaCoordinationScopes: (coordinationScopesRaw, layerScope, channelScope) => set((state) => {
@@ -332,7 +444,7 @@ const useGridSizeStore = create(set => ({
 export function useInitialCoordination(parameters, coordinationScopes) {
   const values = useViewConfigStore((state) => {
     const { coordinationSpace } = state.initialViewConfig;
-    return fromEntries(parameters.map((parameter) => {
+    return Object.fromEntries(parameters.map((parameter) => {
       if (coordinationSpace && coordinationSpace[parameter]) {
         const value = coordinationSpace[parameter][coordinationScopes[parameter]];
         return [parameter, value];
@@ -364,7 +476,7 @@ export function useCoordination(parameters, coordinationScopes) {
 
   const values = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
-    return fromEntries(parameters.map((parameter) => {
+    return Object.fromEntries(parameters.map((parameter) => {
       if (coordinationSpace) {
         const parameterScope = getParameterScope(parameter, coordinationScopes);
         if (coordinationSpace && coordinationSpace[parameter]) {
@@ -376,7 +488,7 @@ export function useCoordination(parameters, coordinationScopes) {
     }));
   }, shallow);
 
-  const setters = useMemo(() => fromEntries(parameters.map((parameter) => {
+  const setters = useMemo(() => Object.fromEntries(parameters.map((parameter) => {
     const setterName = `set${capitalize(parameter)}`;
     const setterFunc = value => setCoordinationValue({
       parameter,
@@ -427,7 +539,7 @@ export function useMultiCoordinationScopesSecondary(
     const scopes = getParameterScope(byType, coordinationScopes);
     if (scopes && coordinationScopesBy?.[byType]?.[parameter]) {
       const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
-      return [scopesArr, fromEntries(scopesArr.map((scope) => {
+      return [scopesArr, Object.fromEntries(scopesArr.map((scope) => {
         const secondaryScopes = coordinationScopesBy[byType][parameter][scope];
         const secondaryScopesArr = Array.isArray(secondaryScopes)
           ? secondaryScopes
@@ -438,7 +550,7 @@ export function useMultiCoordinationScopesSecondary(
     // Fallback from fine-grained to coarse-grained.
     if (scopes && !coordinationScopesBy?.[byType]?.[parameter] && coordinationScopes?.[parameter]) {
       const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
-      return [scopesArr, fromEntries(scopesArr.map((scope) => {
+      return [scopesArr, Object.fromEntries(scopesArr.map((scope) => {
         const secondaryScopes = coordinationScopes?.[parameter];
         const secondaryScopesArr = Array.isArray(secondaryScopes)
           ? secondaryScopes
@@ -474,7 +586,7 @@ export function useMultiCoordinationScopesSecondaryNonNull(
         }
         return false;
       });
-      return [scopesNonNull, fromEntries(scopesNonNull.map((scope) => {
+      return [scopesNonNull, Object.fromEntries(scopesNonNull.map((scope) => {
         const secondaryScopes = coordinationScopesBy[byType][parameter][scope];
         const secondaryScopesArr = Array.isArray(secondaryScopes)
           ? secondaryScopes
@@ -499,7 +611,7 @@ export function useMultiCoordinationScopesSecondaryNonNull(
         }
         return false;
       });
-      return [scopesNonNull, fromEntries(scopesNonNull.map((scope) => {
+      return [scopesNonNull, Object.fromEntries(scopesNonNull.map((scope) => {
         const secondaryScopes = coordinationScopes?.[parameter];
         const secondaryScopesArr = Array.isArray(secondaryScopes)
           ? secondaryScopes
@@ -526,7 +638,7 @@ export function useMultiCoordinationValues(parameter, coordinationScopes) {
     const { coordinationSpace } = state.viewConfig;
     // Convert a single scope to an array of scopes to be consistent.
     const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
-    return fromEntries(scopesArr.map((scope) => {
+    return Object.fromEntries(scopesArr.map((scope) => {
       if (coordinationSpace && coordinationSpace[parameter]) {
         const value = coordinationSpace[parameter][scope];
         return [scope, value];
@@ -577,8 +689,8 @@ export function useComplexCoordination(
     if (typeScopes) {
       // Convert a single scope to an array of scopes to be consistent.
       const typeScopesArr = Array.isArray(typeScopes) ? typeScopes : [typeScopes];
-      return fromEntries(typeScopesArr.map((datasetScope) => {
-        const datasetValues = fromEntries(parameters.map((parameter, i) => {
+      return Object.fromEntries(typeScopesArr.map((datasetScope) => {
+        const datasetValues = Object.fromEntries(parameters.map((parameter, i) => {
           if (parameterSpaces[i]) {
             const parameterSpace = parameterSpaces[i];
             const parameterScope = getParameterScopeBy(
@@ -610,8 +722,8 @@ export function useComplexCoordination(
     if (typeScopes) {
       // Convert a single scope to an array of scopes to be consistent.
       const typeScopesArr = Array.isArray(typeScopes) ? typeScopes : [typeScopes];
-      return fromEntries(typeScopesArr.map((datasetScope) => {
-        const datasetSetters = fromEntries(parameters.map((parameter) => {
+      return Object.fromEntries(typeScopesArr.map((datasetScope) => {
+        const datasetSetters = Object.fromEntries(parameters.map((parameter) => {
           const setterName = `set${capitalize(parameter)}`;
           const setterFunc = value => setCoordinationValue({
             parameter,
@@ -827,7 +939,7 @@ export function useAuxiliaryCoordination(parameters, coordinationScopes) {
   const mappedParameters = mapParameters(parameters);
   const values = useAuxiliaryStore((state) => {
     const { auxiliaryStore } = state;
-    return fromEntries(mappedParameters.map((parameter) => {
+    return Object.fromEntries(mappedParameters.map((parameter) => {
       if (auxiliaryStore && auxiliaryStore[parameter]) {
         const value = auxiliaryStore[parameter][mappedCoordinationScopes[parameter]];
         return [parameter, value];
@@ -835,7 +947,7 @@ export function useAuxiliaryCoordination(parameters, coordinationScopes) {
       return [parameter, undefined];
     }));
   }, shallow);
-  const setters = useMemo(() => fromEntries(mappedParameters.map((parameter) => {
+  const setters = useMemo(() => Object.fromEntries(mappedParameters.map((parameter) => {
     const setterName = `set${capitalize(parameter)}`;
     const setterFunc = value => setCoordinationValue({
       parameter,
@@ -967,6 +1079,16 @@ export function useChangeLayout() {
  */
 export function useSetLoaders() {
   return useViewConfigStore(state => state.setLoaders);
+}
+
+/**
+ * Obtain the loaders setter function from
+ * the global app state.
+ * @returns {function} The loaders setter function
+ * in the `useViewConfigStore` store.
+ */
+export function useMergeCoordination() {
+  return useViewConfigStore(state => state.mergeCoordination);
 }
 
 /**
