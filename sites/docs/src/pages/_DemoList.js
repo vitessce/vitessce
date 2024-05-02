@@ -65,8 +65,8 @@ function DemoList(props) {
     ],
   } = props;
 
-  let [attrsFilter, setAttrsFilter] = useState(configAttrsUnique);
-  let [attrsSelected, setAttrsSelected] = useState([]);
+  const [attrsFilter, setAttrsFilter] = useState(configAttrsUnique);
+  const [attrsSelected, setAttrsSelected] = useState([]);
 
   /**
    * Get overlap between searchbar value and list of unique attributes and set this to attrsFilter.
@@ -74,15 +74,12 @@ function DemoList(props) {
    */
   function searchAttr() {
     const input = document.getElementById('searchbar').value;
-    if (input === "") {
+    if (input === '') {
       setAttrsFilter(configAttrsUnique);
     }
-    const showAttr = []
-    for (const attr of configAttrsUnique) {
-      if (attr.toLowerCase().includes(input.toLowerCase())) {
-        showAttr.push(attr);
-      }
-    }
+    const showAttr = configAttrsUnique.filter(
+      attr => attr.toLowerCase().includes(input.toLowerCase()),
+    );
     setAttrsFilter(showAttr);
   }
 
@@ -101,12 +98,11 @@ function DemoList(props) {
    * Filters demos with attrsSelected if attrsSelected exists and has at least 1 entry.
    * Keeps demo if any of the attrs overlap.
    */
-  function filterDemos(demos, attrsSelected) {
+  function filterDemos() {
     if (attrsSelected && attrsSelected.length > 0) {
       return demos.filter(demo => hasOverlap(configAttrs[demo[0]], attrsSelected));
-    } else {
-      return demos;
     }
+    return demos;
   }
 
 
@@ -134,36 +130,31 @@ function DemoList(props) {
         The demos compiled here showcase the core features of Vitessce.
       </p>
 
-      <div className="searchbarcontainer">
-        <div key="tags" className={styles.demoGridItem}>
+      <div key="tags" className={clsx(styles.searchbarContainer, styles.demoGridItem)}>
+        <input
+          id="searchbar"
+          onKeyUp={() => searchAttr()}
+          type="text"
+          name="search"
+          placeholder="filter by tags"
+        />
 
-          <div>
-            <input id="searchbar"
-              onKeyUp={() => searchAttr()}
-              type="text"
-              name="search"
-              placeholder="filter by tags"/>
-          </div>
+        {attrsFilter.map(attrVal => (
+          <button type="button" key={`tags-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])} onClick={event => selectAttr(event)}>
+            {attrVal}
+          </button>
+        ))}
 
-         {attrsFilter.map(attrVal => (
-            <span key={`tags-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])} onClick={(event) => selectAttr(event)}>
+        <div>
+          Selected:
+          {(attrsSelected && attrsSelected.length) > 0 ? attrsSelected.map(attrVal => (
+            <button type="button" key={`tags-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])} onClick={event => removeAttr(event)}>
               {attrVal}
-            </span>
-          ))}
-
-          <div>
-            Selected: {(attrsSelected && attrsSelected.length) > 0 ? 
-              attrsSelected.map(attrVal => (
-                <span key={`tags-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])} onClick={(event) => removeAttr(event)}>
-                  {attrVal}
-                </span>
-              )) : null 
-            }
-          </div>
-
-          <button onClick={() => setAttrsSelected([])}>Reset tags</button>
-
+            </button>
+          )) : null}
         </div>
+
+        <button type="button" onClick={() => setAttrsSelected([])}>Reset tags</button>
       </div>
       <div className={clsx(styles.demoGridContainer, { [styles.demoGridContainerSmall]: small })}>
         {filterDemos(demos, attrsSelected).map(([key, d]) => (
