@@ -107,12 +107,14 @@ function DemoList(props) {
 
 
   /**
-   * Add attr from click event to attrsSelected.
+   * Add attr from click event to attrsSelected, if it isn't yet in there.
    */
   function selectAttr(event) {
     const newAttrs = Array.from(attrsSelected);
-    newAttrs.push(event.target.innerText);
-    setAttrsSelected(newAttrs);
+    if (!newAttrs.includes(event.target.innerText)) {
+      newAttrs.push(event.target.innerText);
+      setAttrsSelected(newAttrs);
+    }
   }
 
   /**
