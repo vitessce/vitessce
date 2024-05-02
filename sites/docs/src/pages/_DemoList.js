@@ -66,7 +66,7 @@ function DemoList(props) {
   } = props;
 
   let [attrsFilter, setAttrsFilter] = useState(configAttrsUnique);
-  let [attrsSelected, setAttrsSelected] = useState();
+  let [attrsSelected, setAttrsSelected] = useState([]);
 
   function searchAttr() {
     const input = document.getElementById('searchbar').value;
@@ -85,6 +85,34 @@ function DemoList(props) {
   const baseUrl = useBaseUrl('/#?dataset=');
 
   const demos = subset.map(key => ([key, configs[key]]));
+
+  /**
+   * Checks if two arrays have at least 1 item that is the same
+   */
+  function hasOverlap(arr1, arr2) {
+    return arr2.filter(item => new Set(arr1).has(item)).length > 0;
+  }
+
+  /**
+   * Filters demos with attrsSelected if attrsSelected exists and has at least 1 entry.
+   * Keeps demo if any of the attrs overlap.
+   */
+  function filterDemos(demos, attrsSelected) {
+    if (attrsSelected && attrsSelected.length > 0) {
+      return demos.filter(demo => hasOverlap(configAttrs[demo[0]], attrsSelected));
+    } else {
+      return demos;
+    }
+  }
+
+
+  function selectAttr(event) {
+    // console.log(event)
+    const newAttrs = Array.from(attrsSelected)
+    newAttrs.push(event.target.innerText);
+    setAttrsSelected(newAttrs);
+  }
+
   return (
     <>
       <p className={clsx(styles.demoDescription, { [styles.demoDescriptionSmall]: small })}>
@@ -96,17 +124,14 @@ function DemoList(props) {
 
           <div>
             <input id="searchbar"
-              onKeyUp={() => {
-                showAttr = searchAttr();
-                console.log('here', showAttr)
-              }}
+              onKeyUp={() => searchAttr()}
               type="text"
               name="search"
               placeholder="filter by tags"/>
           </div>
 
          {attrsFilter.map(attrVal => (
-            <span key={`tags-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])} onClick={() => selectTag()}>
+            <span key={`tags-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])} onClick={(event) => selectAttr(event)}>
               {attrVal}
             </span>
           ))}
@@ -120,10 +145,13 @@ function DemoList(props) {
               )) : null 
             }
           </div>
+
+          <button onClick={() => setAttrsSelected([])}>Reset tags</button>
+          
         </div>
       </div>
       <div className={clsx(styles.demoGridContainer, { [styles.demoGridContainerSmall]: small })}>
-        {demos.map(([key, d]) => (
+        {filterDemos(demos, attrsSelected).map(([key, d]) => (
           <div key={key} className={styles.demoGridItem}>
             <a href={baseUrl + key} className={styles.demoGridItemLink}>{d.name}</a>
             <p className={styles.demoGridItemDescription}>{d.description}</p>
