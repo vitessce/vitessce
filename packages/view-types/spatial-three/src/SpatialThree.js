@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
-import React, { useRef, useState, forwardRef, useEffect } from 'react';
+/* eslint-disable react/no-unknown-property */
+import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   OrbitControls,
@@ -315,7 +316,7 @@ const SpatialThree = (props) => {
       });
 
       // TODO: Adapt so it can also work with union sets
-     segmentationGroup.children[finalGroup].children.forEach((child) => {
+      segmentationGroup.children[finalGroup].children.forEach((child) => {
         let { color } = segmentationSettings;
         const id = segmentationGroup.children[finalGroup].children[child].userData.name;
 
