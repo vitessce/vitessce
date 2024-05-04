@@ -1,39 +1,24 @@
 /* eslint-disable no-unused-vars */
-/* eslint-disable react/no-unknown-property */
-import React, { useRef, useState, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+/* eslint-disable max-len */
+import React, { useRef, useState, forwardRef, useEffect } from 'react';
+import { Canvas, } from '@react-three/fiber';
 import {
   OrbitControls,
   Bvh,
   Text,
 } from '@react-three/drei';
-import { useXR, RayGrab, XRButton, XR, Controllers, Hands } from '@react-three/xr';
+import { XRButton, XR, Controllers, Hands } from '@react-three/xr';
 import { isEqual } from 'lodash-es';
 import { filterSelection } from '@vitessce/spatial-utils';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { viv } from '@vitessce/gl';
-import {
-  Scene,
-  Group,
-  MeshPhysicalMaterial,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  BackSide,
-  FrontSide,
-  Vector2,
-  Vector3,
-  Box3,
-  UniformsUtils,
-  Data3DTexture,
-  RedFormat,
-  FloatType,
-  LinearFilter,
-} from 'three';
+import * as THREE from 'three';
 import { getLayerLoaderTuple } from './utils.js';
 import { Volume } from './Volume.js';
 import { VolumeRenderShaderPerspective } from './VolumeShaderPerspective.js';
 import { HandBbox } from './xr/HandBbox.js';
-import { MeasureLine } from './xr/MeasureLine.js';
+import { GeometryAndMesh } from './GeometryAndMesh.js';
+import { HandDecorate } from './xr/HandDecorate.js';
 
 /**
  * React component which expresses the spatial relationships between cells and molecules using ThreeJS
@@ -62,7 +47,7 @@ import { MeasureLine } from './xr/MeasureLine.js';
  * @param {function} props.onCellClick Getter function for cell layer onClick.
  * @param {string} props.theme "light" or "dark" for the vitessce theme
  */
-const SpatialThree = (props) => {
+function SpatialThree(props) {
   const materialRef = useRef(null);
   const orbitRef = useRef(null);
   const [initialStartup, setInitialStartup] = useState(false);
@@ -127,66 +112,64 @@ const SpatialThree = (props) => {
     xSlice,
     ySlice,
     zSlice,
-  } = getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady);
+  } = useVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady);
 
   const {
     obsSegmentations,
     onGlomSelected,
-    segmentationLayerCoordination,
-    segmentationChannelCoordination,
-    segmentationChannelScopesByLayer,
   } = props;
-  let setObsHighlightFct = (id) => {};
+  let segmentationLayerCoordination; let
+    segmentationChannelCoordination;
+  segmentationLayerCoordination = props.segmentationLayerCoordination;
+  segmentationChannelCoordination = props.segmentationChannelCoordination;
+  let setObsHighlightFct = (id) => {
+  };
   const setsSave = [];
   if (segmentationChannelCoordination[0][layerScope] !== undefined) {
-    const segmentationObsSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
+    const segmentationOBSSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
     const { setObsHighlight } = segmentationChannelCoordination[1][layerScope][layerScope];
     setObsHighlightFct = setObsHighlight;
     const sets = segmentationChannelCoordination[0][layerScope][layerScope].additionalObsSets;
     if (sets !== null) {
-      segmentationObsSetLayerProps.obsSetSelection.forEach((index) => {
-        const selectedElement = segmentationObsSetLayerProps.obsSetSelection[index][1];
-        sets.tree[0].children.forEach((subIndex) => {
+      for (const index in segmentationOBSSetLayerProps.obsSetSelection) {
+        const selectedElement = segmentationOBSSetLayerProps.obsSetSelection[index][1];
+        for (const subIndex in sets.tree[0].children) {
           const child = sets.tree[0].children[subIndex];
           if (child.name === selectedElement) {
-            child.set.forEach((elem) => {
+            for (const elem in child.set) {
               const info = { name: '', id: '', color: [] };
               info.name = selectedElement;
               info.id = child.set[elem][0];
-              segmentationObsSetLayerProps.obsSetColor.forEach((subIndexColor) => {
-                const color = segmentationObsSetLayerProps.obsSetColor[subIndexColor];
+              for (const subIndexColor in segmentationOBSSetLayerProps.obsSetColor) {
+                const color = segmentationOBSSetLayerProps.obsSetColor[subIndexColor];
                 if (color.path[1] === selectedElement) {
                   info.color = color.color;
                 }
-              });
+              }
               setsSave.push(info);
-            });
+            }
           }
-        });
-      });
+        }
+      }
     }
-    if (segmentationObsSetLayerProps.obsHighlight !== null) {
-      setsSave.push({ name: '', id: segmentationObsSetLayerProps.obsHighlight, color: [255, 34, 0] });
+    if (segmentationOBSSetLayerProps.obsHighlight !== null) {
+      setsSave.push({ name: '', id: segmentationOBSSetLayerProps.obsHighlight, color: [255, 34, 0] });
     }
   }
-  if (obsSegmentations[layerScope]?.obsSegmentations && segmentationGroup == null) {
-    if (obsSegmentations[layerScope].obsSegmentationsType !== 'mesh') {
-      console.log(obsSegmentations[layerScope]);
-      throw new Error('Only mesh segmentations are supported by the SpatialThree view.');
-    }
+  if (obsSegmentations[layerScope] !== undefined && segmentationGroup == null) {
     const { scene } = obsSegmentations[layerScope].obsSegmentations;
     if (scene !== null && scene !== undefined) {
-      const newScene = new Scene();
-      const finalPass = new Group();
+      const newScene = new THREE.Scene();
+      const finalPass = new THREE.Group();
       finalPass.userData.name = 'finalPass';
-      scene.children.forEach((child) => {
+      for (const child in scene.children) {
         let childElement = scene.children[child];
         if (childElement.material === undefined) {
           childElement = scene.children[child].children[0];
         }
-        if (childElement.material instanceof MeshPhysicalMaterial
-                    || childElement.material instanceof MeshBasicMaterial) {
-          childElement.material = new MeshStandardMaterial();
+        if (childElement.material instanceof THREE.MeshPhysicalMaterial
+                    || childElement.material instanceof THREE.MeshBasicMaterial) {
+          childElement.material = new THREE.MeshStandardMaterial();
         }
         let name = childElement.name.replace('mesh_', '').replace('mesh', '').replace('glb', '').replace('_dec', '')
           .replace('_Decobj', '')
@@ -205,7 +188,7 @@ const SpatialThree = (props) => {
         childElement.material.depthWrite = true;
         childElement.material.needsUpdate = true;
         childElement.material.side = segmentationLayerCoordination[0][layerScope].spatialMaterialBackside
-          ? BackSide : FrontSide;
+          ? THREE.BackSide : THREE.FrontSide;
 
         const simplified = childElement.clone();
         simplified.geometry = childElement.geometry.clone();
@@ -225,7 +208,7 @@ const SpatialThree = (props) => {
         finalPassChild.material = childElement.material.clone();
         finalPassChild.geometry = simplified.geometry.clone();
         finalPass.add(finalPassChild);
-      });
+      }
       newScene.add(finalPass);
       newScene.scale.set(
         segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
@@ -245,32 +228,32 @@ const SpatialThree = (props) => {
   if (segmentationChannelCoordination[0] !== undefined && segmentationChannelCoordination[0][layerScope] !== undefined) {
     const segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
     let setsSaveString = '';
-    setsSave.forEach((child) => {
+    for (const child in setsSave) {
       setsSaveString += `${setsSave[child].id};${setsSave[child].color.toString()};${setsSave[child].name}`;
-    });
+    }
     let settingsSaveString = '';
-    segmentationSettings.obsSets.forEach((child) => {
+    for (const child in segmentationSettings.obsSets) {
       settingsSaveString += `${segmentationSettings.obsSets[child].id};${
         segmentationSettings.obsSets[child].color.toString()};${
         segmentationSettings.obsSets[child].name}`;
-    });
+    }
 
     // Check the MultiChannel Setting - combine all channels and see if something changed
-    if (segmentationChannelScopesByLayer[layerScope].length > 1) {
+    if (props.segmentationChannelScopesByLayer[layerScope].length > 1) {
       let color = '';
       let opacity = '';
       let visible = '';
       let visibleCombined = false;
       let opacityCombined = 0.0;
-      segmentationChannelScopesByLayer[layerScope].forEach((scope) => {
-        const channelScope = segmentationChannelScopesByLayer[layerScope][scope];
+      for (const scope in props.segmentationChannelScopesByLayer[layerScope]) {
+        const channelScope = props.segmentationChannelScopesByLayer[layerScope][scope];
         const channelSet = segmentationChannelCoordination[0][layerScope][channelScope];
         color += `${channelSet.spatialChannelColor.toString()};`;
         opacity += `${channelSet.spatialChannelOpacity};`;
         visible += `${channelSet.spatialChannelVisible};`;
         visibleCombined |= channelSet.spatialChannelVisible;
         opacityCombined += channelSet.spatialChannelOpacity;
-      });
+      }
       if (color !== segmentationSettings.multiColor
                 || opacity !== segmentationSettings.multiOpacity
                 || visible !== segmentationSettings.multiVisible) {
@@ -307,29 +290,29 @@ const SpatialThree = (props) => {
     if (segmentationGroup !== null) {
       let firstGroup = 0;
       let finalGroup = 0;
-      segmentationGroup.children.forEach((group) => {
+      for (const group in segmentationGroup.children) {
         if (segmentationGroup.children[group].userData.name === 'finalPass') {
           finalGroup = group;
         } else {
           firstGroup = group;
         }
-      });
+      }
 
       // TODO: Adapt so it can also work with union sets
-      segmentationGroup.children[finalGroup].children.forEach((child) => {
+      for (const child in segmentationGroup.children[finalGroup].children) {
         let { color } = segmentationSettings;
         const id = segmentationGroup.children[finalGroup].children[child].userData.name;
 
         // SET SELECTION
-        segmentationSettings.obsSets.forEach((index) => {
+        for (const index in segmentationSettings.obsSets) {
           if (segmentationSettings.obsSets[index].id === id) {
             color = segmentationSettings.obsSets[index].color;
           }
-        });
+        }
         // CHECK IF Multiple Scopes:
-        if (segmentationChannelScopesByLayer[layerScope].length > 1) {
-          segmentationChannelScopesByLayer[layerScope].forEach((scope) => {
-            const channelScope = segmentationChannelScopesByLayer[layerScope][scope];
+        if (props.segmentationChannelScopesByLayer[layerScope].length > 1) {
+          for (const scope in props.segmentationChannelScopesByLayer[layerScope]) {
+            const channelScope = props.segmentationChannelScopesByLayer[layerScope][scope];
             const channelSet = segmentationChannelCoordination[0][layerScope][channelScope];
             if (channelSet.obsType === id) {
               segmentationGroup.children[finalGroup].children[child].material.color.r = channelSet.spatialChannelColor[0] / 255;
@@ -340,16 +323,16 @@ const SpatialThree = (props) => {
               segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
               segmentationGroup.children[firstGroup].children[child].material.needsUpdate = true;
             }
-          });
+          }
         } else {
-          segmentationGroup.children[finalGroup].children.forEach((child) => {
+          for (const child in segmentationGroup.children[finalGroup].children) {
             let { color } = segmentationSettings;
             const id = segmentationGroup.children[finalGroup].children[child].userData.name;
-            segmentationSettings.obsSets.forEach((index) => {
+            for (const index in segmentationSettings.obsSets) {
               if (segmentationSettings.obsSets[index].id === id) {
                 color = segmentationSettings.obsSets[index].color;
               }
-            });
+            }
             // adapt the color
             segmentationGroup.children[finalGroup].children[child].material.color.r = color[0] / 255;
             segmentationGroup.children[finalGroup].children[child].material.color.g = color[1] / 255;
@@ -358,9 +341,9 @@ const SpatialThree = (props) => {
             segmentationGroup.children[finalGroup].children[child].material.opacity = segmentationSettings.opacity;
             segmentationGroup.children[finalGroup].children[child].material.visible = segmentationSettings.visible;
             segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
-          });
+          }
         }
-      });
+      }
     }
   }, [segmentationSettings, segmentationGroup]);
 
@@ -443,9 +426,9 @@ const SpatialThree = (props) => {
         volumeData.originalScale);
       if (rendering !== null) {
         let volumeCount = 0;
-        volumeSettings.channelsVisible.forEach((elem) => {
+        for (const elem in volumeSettings.channelsVisible) {
           if (volumeSettings.channelsVisible[elem]) volumeCount++;
-        });
+        }
         setDataReady(false);
         if (materialRef !== undefined && materialRef.current !== null) {
           // Set the material uniforms
@@ -535,34 +518,6 @@ const SpatialThree = (props) => {
   );
 };
 
-function HandDecorate() {
-  const { controllers } = useXR();
-  useFrame(() => {
-    if (controllers && controllers[0] && controllers[1]) {
-      if (controllers[0].hand) {
-        if (controllers[0].hand.children[25]) {
-          if (controllers[0].hand.children[25].children[0]) {
-            if (controllers[0].hand.children[25].children[0].children[0]) {
-              controllers[0].hand.children[25].children[0].children[0].material.transparent = true;
-              controllers[0].hand.children[25].children[0].children[0].material.opacity = 0.5;
-            }
-          }
-        }
-      }
-      if (controllers[1].hand) {
-        if (controllers[1].hand.children[25]) {
-          if (controllers[1].hand.children[25].children[0]) {
-            if (controllers[1].hand.children[25].children[0].children[0]) {
-              controllers[1].hand.children[25].children[0].children[0].material.transparent = true;
-              controllers[1].hand.children[25].children[0].children[0].material.opacity = 0.5;
-            }
-          }
-        }
-      }
-    }
-  });
-}
-
 /**
  * Retrieving the volumetric settings from the props, comparing them to the prior settings
  * @param props
@@ -577,7 +532,7 @@ function HandDecorate() {
  * allChannels: (null|*), layerTransparency: *, renderingMode: *, xSlice: *, layerScope: *,
  * imageChannelScopesByLayer, imageLayerCoordination, imageLayerScopes, channelsVisible: (null|(*|boolean)[]|*)}}
  */
-function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady) {
+function useVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady) {
   // Everything that is props based should be useEffect with props as dependent so we can sideload the props
   const {
     images = {},
@@ -667,270 +622,7 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
   };
 }
 
-// Rendering a combination of a volume dataset and segmentations (meshes)
-function GeometryAndMesh(props) {
-  const {
-    segmentationGroup, segmentationSettings, segmentationSceneScale,
-    renderingSettings, materialRef, highlightGlom, setObsHighlight,
-  } = props;
-  const model = useRef();
-  const distanceRef = useRef();
-  const rayGrabGroup = useRef();
-  // -----------------------------------------------------------------
-  //                          XR
-  // -----------------------------------------------------------------
-  const { isPresenting, player } = useXR();
-  useEffect(() => {
-    if (isPresenting && model !== undefined && model.current !== null) {
-      // Needed to get the Fragment Depth Value Right
-      if (materialRef !== null) {
-        materialRef.current.material.uniforms.u_physical_Pixel.value = 0.2;
-      }
-    } else if (!isPresenting) {
-      // Needed to get the Fragment Depth Value Right
-      if (materialRef !== null) {
-        materialRef.current.material.uniforms.u_physical_Pixel.value = 2.0;
-      }
-    }
-  }, [isPresenting]);
 
-  const { scene } = useThree();
-  const { controllers } = useXR();
-  const [measureState, setMeasureState] = useState(false);
-  const [highlighted, setHighlighted] = useState(false);
-  const [showLine, setShowLine] = useState(false);
-  const [currentLine, setCurrentLine] = useState({
-    startPoint: new Vector3(),
-    midPoint: new Vector3(),
-    endPoint: new Vector3(),
-    setStartPoint: false,
-    setEndPoint: false,
-  });
-  const [lines, setLines] = useState([]);
-  const [debounce, setDebounce] = useState(0);
-
-  // This Block is used to handle Hande Interactions in XR to create measurements
-  useFrame(() => {
-    if (isPresenting) {
-      const rightTipBbox = scene.getObjectByName('rightTipBbox');
-      const leftTipBbox = scene.getObjectByName('leftTipBbox');
-      const leftTipBB = new Box3().setFromObject(leftTipBbox);
-      const rightTipBB = new Box3().setFromObject(rightTipBbox);
-      let intersected = false;
-      const volumeBox = null;
-      setDebounce(debounce - 1.0);
-      if (materialRef !== null && materialRef.current !== undefined) {
-        const volumeBox = new Box3().setFromObject(materialRef.current);
-      }
-
-      if (leftTipBB.intersectsBox(rightTipBB) && leftTipBB.max.x !== -rightTipBB.min.x) {
-        setMeasureState(true);
-        setShowLine(true);
-        setCurrentLine({
-          startPoint: new Vector3(),
-          midPoint: new Vector3(),
-          endPoint: new Vector3(),
-          setStartPoint: false,
-          setEndPoint: false,
-        });
-      }
-      if (measureState) {
-        let leftFingerPosition = controllers[1].hand.joints['index-finger-tip'].position.clone();
-        let rightFingerPosition = controllers[0].hand.joints['index-finger-tip'].position.clone();
-        leftFingerPosition = leftFingerPosition.applyMatrix4(rayGrabGroup.current.matrixWorld.clone().invert());
-        rightFingerPosition = rightFingerPosition.applyMatrix4(rayGrabGroup.current.matrixWorld.clone().invert());
-        let currentStart = leftFingerPosition.clone();
-        let currentEnd = rightFingerPosition.clone();
-        if (currentLine.setStartPoint) {
-          currentStart = currentLine.startPoint;
-        }
-        if (currentLine.setEndPoint) {
-          currentEnd = currentLine.endPoint;
-        }
-        setCurrentLine({
-          startPoint: currentStart,
-          midPoint: new Vector3().addVectors(currentStart, currentEnd).multiplyScalar(0.5),
-          endPoint: currentEnd,
-          setStartPoint: currentLine.setStartPoint,
-          setEndPoint: currentLine.setEndPoint,
-        });
-        if (controllers[0].hand.inputState.pinching === true) {
-          // right hand set measure point
-          setCurrentLine({
-            startPoint: currentLine.startPoint,
-            midPoint: currentLine.midPoint,
-            endPoint: currentLine.endPoint,
-            setStartPoint: currentLine.setStartPoint,
-            setEndPoint: true,
-          });
-        }
-        if (controllers[1].hand.inputState.pinching === true) {
-          // left hand set measure point
-          setCurrentLine({
-            startPoint: currentLine.startPoint,
-            midPoint: currentLine.midPoint,
-            endPoint: currentLine.endPoint,
-            setStartPoint: true,
-            setEndPoint: currentLine.setEndPoint,
-          });
-        }
-        if (currentLine.setStartPoint && currentLine.setEndPoint) {
-          lines.push(currentLine);
-          setLines(lines);
-          setShowLine(false);
-          setMeasureState(false);
-          setDebounce(8);
-        }
-      } else if (debounce <= 0 && model.current !== null && undefined !== model.current && isPresenting) {
-        model.current.children[0].children.forEach((childID) => {
-          const child = model.current.children[0].children[childID];
-          const currentObjectBB = new Box3().setFromObject(child);
-          const intersectsLeftTip = leftTipBB.intersectsBox(currentObjectBB);
-          const intersectsRightTip = rightTipBB.intersectsBox(currentObjectBB);
-          if (intersectsLeftTip || intersectsRightTip) {
-            intersected = true;
-            // Highlighting Glom
-            setObsHighlight(child.name);
-            setHighlighted(true);
-            if (controllers[1] !== undefined && intersectsLeftTip && controllers[1].hand.inputState.pinching === true) {
-              setDebounce(10);
-              intersected = false;
-              controllers[1].hand.inputState.pinching = false;
-            }
-            if (controllers[0] !== undefined && intersectsRightTip && controllers[0].hand.inputState.pinching === true) {
-              setDebounce(10);
-              intersected = false;
-              controllers[0].hand.inputState.pinching = false;
-            }
-          }
-        });
-        if (!intersected && highlighted) {
-          setObsHighlight(null);
-          setHighlighted(false);
-        }
-      }
-    }
-  }, [measureState, highlighted, currentLine, lines, showLine, debounce, isPresenting]);
-
-  // TODO: IF we want to have a ZoomGrab than it needs to adapt the 0.002 value
-  // TODO: The measurement from time to time intersects with the rayGrab (maybe "tell it" that we are in measurement mode)
-  return (
-    <group>
-      {useXR().isPresenting
-        ? (
-          <RayGrab>
-            <group ref={rayGrabGroup}>
-              {segmentationGroup !== null && segmentationGroup.visible
-                            && (
-                            <group>
-                              <hemisphereLight skyColor={0x808080} groundColor={0x606060} />
-                              <directionalLight color={0xFFFFFF} position={[0, -800, 0]} />
-                              <primitive
-                                ref={model}
-                                object={segmentationGroup}
-                                position={[-0.18, 1.13, -1]}
-                                scale={[0.002 * segmentationSceneScale[0],
-                                  0.002 * segmentationSceneScale[1],
-                                  0.002 * segmentationSceneScale[2]]}
-                              />
-                            </group>
-                            )
-                        }
-              {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null
-                                && renderingSettings.shader !== undefined && renderingSettings.shader !== null)
-                            && (
-                            <group>
-                              <mesh
-                                name="cube"
-                                position={[-0.18, 1.13, -1]}
-                                rotation={[0, 0, 0]}
-                                scale={[0.002 * renderingSettings.meshScale[0],
-                                  0.002 * renderingSettings.meshScale[1],
-                                  0.002 * renderingSettings.meshScale[2]]}
-                                ref={materialRef}
-                              >
-                                <boxGeometry args={renderingSettings.geometrySize} />
-                                <shaderMaterial
-                                  customProgramCacheKey={() => '1'}
-                                  side={FrontSide}
-                                  uniforms={renderingSettings.uniforms}
-                                  needsUpdate
-                                  transparent
-                                  vertexShader={renderingSettings.shader.vertexShader}
-                                  fragmentShader={renderingSettings.shader.fragmentShader}
-                                />
-                              </mesh>
-                            </group>
-                            )
-                        }
-            </group>
-            <group name="currentLine" ref={distanceRef}>
-              {showLine && (
-              <MeasureLine currentLine={currentLine} scale={(1 / 0.002) * 0.4} />
-              )}
-            </group>
-            <group name="lines">
-              {lines.map((object, i) => <MeasureLine currentLine={object} scale={(1 / 0.002) * 0.4} />)}
-            </group>
-          </RayGrab>
-        )
-        : (
-          <group>
-            <group>
-              {segmentationGroup !== null && segmentationGroup.visible
-                            && (
-                            <group>
-                              <hemisphereLight skyColor={0x808080} groundColor={0x606060} />
-                              <directionalLight color={0xFFFFFF} position={[0, -800, 0]} />
-                              <directionalLight color={0xFFFFFF} position={[0, 800, 0]} />
-                              <Bvh firstHitOnly>
-                                <primitive
-                                  ref={model}
-                                  object={segmentationGroup}
-                                  position={[0, 0, 0]}
-                                  onClick={(e) => {
-                                    if (e.object.parent.userData.name === 'finalPass') {
-                                      highlightGlom(e.object.name);
-                                    }
-                                  }}
-                                  onPointerOver={(e) => {
-                                    setObsHighlight(e.object.name);
-                                  }}
-                                  onPointerOut={e => setObsHighlight(null)}
-                                />
-                              </Bvh>
-                            </group>
-                            )
-                        }
-              {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null
-                                && renderingSettings.shader !== undefined && renderingSettings.shader !== null)
-                            && (
-                            <group>
-                              <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                                <boxGeometry args={renderingSettings.geometrySize} />
-                                <shaderMaterial
-                                  customProgramCacheKey={() => '1'}
-                                  side={FrontSide}
-                                  uniforms={renderingSettings.uniforms}
-                                  needsUpdate
-                                  transparent
-                                  vertexShader={renderingSettings.shader.vertexShader}
-                                  fragmentShader={renderingSettings.shader.fragmentShader}
-                                />
-                              </mesh>
-                            </group>
-                            )
-                        }
-            </group>
-            <group name="lines">
-              {lines.map((object, i) => <MeasureLine currentLine={object} scale={1} />)}
-            </group>
-          </group>
-        )
-            }
-    </group>
-  );
-}
 
 /**
  * Extracting relevant information from the properties for creating the ThreeJS Volume Viewer
@@ -1054,9 +746,9 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
   let ySlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Y];
   let zSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Z];
 
-  xSlice = xSlice !== null ? xSlice : new Vector2(-1, 100000);
-  ySlice = ySlice !== null ? ySlice : new Vector2(-1, 100000);
-  zSlice = zSlice !== null ? zSlice : new Vector2(-1, 100000);
+  xSlice = xSlice !== null ? xSlice : new THREE.Vector2(-1, 100000);
+  ySlice = ySlice !== null ? ySlice : new THREE.Vector2(-1, 100000);
+  zSlice = zSlice !== null ? zSlice : new THREE.Vector2(-1, 100000);
 
   return {
     channelsVisible,
@@ -1093,9 +785,7 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
   const colorsSave = [];
   const contrastLimitsList = [];
   let volume = null;
-  channelTargetC.forEach((channelStr) => { // load on demand new channels or load all there are?? - Check VIV for it
-    const id = parseInt(channelStr);
-    const channel = channelTargetC[parseInt(channelStr)];
+  channelTargetC.forEach((channel, id) => { // load on demand new channels or load all there are?? - Check VIV for it
     if (channelsVisible[id]) { // check if the channel has been loaded already or if there should be a new load
       volume = volumes.get(channel);
       // set textures, set volume, contrastLimits, colors
@@ -1121,7 +811,7 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
     colormap: 'gray',
   };
   const shader = VolumeRenderShaderPerspective;
-  const uniforms = UniformsUtils.clone(shader.uniforms);
+  const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
   setUniformsTextures(uniforms, texturesList, volume, volconfig, renderstyle, contrastLimitsList, colorsSave, layerTransparency,
     xSlice, ySlice, zSlice, [scale[0].size, scale[1].size, scale[2] ? scale[2].size : 1.0], originalScale);
   return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2] ? scale[2].size / scale[0].size : 1.0], [volume.xLength, volume.yLength, volume.zLength],
@@ -1143,8 +833,7 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
   let volume = null;
   let scale = null;
   const { shape, labels } = data[0];
-  for (const channelStr of channelTargetC) { // load on demand new channels or load all there are?? - Check VIV for it
-    const channel = channelTargetC[parseInt(channelStr)];
+  for(const channel of channelTargetC) { // load on demand new channels or load all there are?? - Check VIV for it
     if (!volumes.has(channel) || resolution !== oldResolution) {
       const volumeOrigin = await getVolumeByChannel(channel, resolution, data);
       volume = getVolumeFromOrigin(volumeOrigin);
@@ -1254,7 +943,9 @@ async function getVolumeByChannel(channel, resolution, loader) {
 
 function minMaxVolume(volume) {
   // get the min and max intensities
-  const [min, max] = volume.computeMinMax();
+  const min_max = volume.computeMinMax();
+  const min = min_max[0];
+  const max = min_max[1];
 
   const dataASFloat32 = new Float32Array(volume.data.length);
   for (let i = 0; i < volume.data.length; i++) {
@@ -1279,33 +970,22 @@ function getMinMaxValue(value, minMax) {
 }
 
 function getData3DTexture(volume) {
-  const texture = new Data3DTexture(volume.data, volume.xLength, volume.yLength, volume.zLength);
-  texture.format = RedFormat;
-  texture.type = FloatType;
+  const texture = new THREE.Data3DTexture(volume.data, volume.xLength, volume.yLength, volume.zLength);
+  texture.format = THREE.RedFormat;
+  texture.type = THREE.FloatType;
   texture.generateMipmaps = false;
-  texture.minFilter = LinearFilter;
-  texture.magFilter = LinearFilter;
+  texture.minFilter = texture.magFilter = THREE.LinearFilter;
   // texture.unpackAlignment = 1;
   texture.needsUpdate = true;
   return texture;
 }
 
-const dtypeToTypedArray = {
-  Uint8: Uint8Array,
-  Uint16: Uint16Array,
-  Uint32: Uint32Array,
-  Int8: Int8Array,
-  Int16: Int16Array,
-  Int32: Int32Array,
-  Float32: Float32Array,
-  Float64: Float64Array,
-};
-
 // TODO: Use the imported function from VIV: Ask Trevor how to get there
 async function getVolumeIntern({
   source,
   selection,
-  onUpdate = () => {},
+  onUpdate = () => {
+  },
   downsampleDepth = 1,
   signal,
 }) {
@@ -1314,8 +994,9 @@ async function getVolumeIntern({
   const depth = shape[labels.indexOf('z')];
   const depthDownsampled = Math.max(1, Math.floor(depth / downsampleDepth));
   const rasterSize = height * width;
-  const TypedArrayClass = dtypeToTypedArray[dtype];
-  const volumeData = new TypedArrayClass(rasterSize * depthDownsampled);
+  const name = `${dtype}Array`;
+  const TypedArray = globalThis[name];
+  const volumeData = new TypedArray(rasterSize * depthDownsampled);
   await Promise.all(
     new Array(depthDownsampled).fill(0).map(async (_, z) => {
       const depthSelection = {
@@ -1347,45 +1028,45 @@ async function getVolumeIntern({
   };
 }
 
-export default function SpatialWrapper(props) {
-  return (
-    <div style={{ width: '100%', height: '100%' }}>
-      <XRButton
-        mode="AR"
-        sessionInit={{ optionalFeatures: ['hand-tracking'] }}
-        style={{
-          border: 'none',
-          background: 'rgba(0, 0, 0, 0.0)',
-        }}
-      >
-        {(status) => {
-          if (status === 'unsupported') {
-            return '';
-          }
-          return (
-            <div style={{
-              border: '1px solid white',
-              padding: '12px 24px',
-              borderRadius: '4px',
-              background: 'rgba(0, 0, 0, 0.1)',
-              color: 'white',
-              font: 'normal 0.8125rem sans-serif',
-              outline: 'none',
-              cursor: 'pointer',
-            }}
-            >{(status === 'entered' ? 'Exit AR' : 'Enter AR')}
-            </div>
-          );
-        }}
-      </XRButton>
-      <Canvas
-        camera={{ fov: 50, up: [0, 1, 0], position: [0, 0, 800], near: 0.1, far: 3000 }}
-        gl={{ antialias: true, logarithmicDepthBuffer: false }}
-      >
-        <XR>
-          <SpatialThree {...props} />
-        </XR>
-      </Canvas>
-    </div>
-  );
-}
+const SpatialWrapper = forwardRef((props, deckRef) => (
+  <div id="ThreeJs" style={{ width: '100%', height: '100%' }}>
+    <XRButton
+      mode="AR"
+      sessionInit={{ optionalFeatures: ['hand-tracking'] }}
+      style={{
+        border: 'none',
+        background: 'rgba(0, 0, 0, 0.0)',
+      }}
+    >
+      {(status) => {
+        if (status === 'unsupported') {
+          return '';
+        }
+        return (
+          <div style={{
+            border: '1px solid white',
+            padding: '12px 24px',
+            borderRadius: '4px',
+            background: 'rgba(0, 0, 0, 0.1)',
+            color: 'white',
+            font: 'normal 0.8125rem sans-serif',
+            outline: 'none',
+            cursor: 'pointer',
+          }}
+          >{(status === 'entered' ? 'Exit AR' : 'Enter AR')}
+          </div>
+        );
+      }
+            }
+    </XRButton>
+    <Canvas
+      camera={{ fov: 50, up: [0, 1, 0], position: [0, 0, 800], near: 0.1, far: 3000 }}
+      gl={{ antialias: true, logarithmicDepthBuffer: false }}
+    >
+      <XR>
+        <SpatialThree {...props} deckRef={deckRef} />
+      </XR>
+    </Canvas>
+  </div>
+));
+export default SpatialWrapper;
