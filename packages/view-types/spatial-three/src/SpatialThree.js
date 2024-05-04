@@ -1,13 +1,10 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unknown-property */
+/* eslint-disable max-len */
 import React, { useRef, useState, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import {
-  OrbitControls,
-  Bvh,
-  Text,
-} from '@react-three/drei';
-import { useXR, RayGrab, XRButton, XR, Controllers, Hands } from '@react-three/xr';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Text } from '@react-three/drei';
+import { XRButton, XR, Controllers, Hands } from '@react-three/xr';
 import { isEqual } from 'lodash-es';
 import { filterSelection } from '@vitessce/spatial-utils';
 import { CoordinationType } from '@vitessce/constants-internal';
@@ -21,8 +18,6 @@ import {
   BackSide,
   FrontSide,
   Vector2,
-  Vector3,
-  Box3,
   UniformsUtils,
   Data3DTexture,
   RedFormat,
@@ -32,536 +27,9 @@ import {
 import { getLayerLoaderTuple } from './utils.js';
 import { Volume } from './Volume.js';
 import { VolumeRenderShaderPerspective } from './VolumeShaderPerspective.js';
+import { GeometryAndMesh } from './GeometryAndMesh.js';
 import { HandBbox } from './xr/HandBbox.js';
-import { MeasureLine } from './xr/MeasureLine.js';
-
-/**
- * React component which expresses the spatial relationships between cells and molecules using ThreeJS
- * @param {object} props
- * @param {string} props.uuid A unique identifier for this component,
- * used to determine when to show tooltips vs. crosshairs.
- * @param {number} props.height Height of the canvas, used when
- * rendering the scale bar layer.
- * @param {number} props.width Width of the canvas, used when
- * rendering the scale bar layer.
- * @param {object} props.molecules Molecules data.
- * @param {object} props.cells Cells data.
- * @param {object} props.neighborhoods Neighborhoods data.
- * @param {number} props.lineWidthScale Width of cell border in view space (deck.gl).
- * @param {number} props.lineWidthMaxPixels Max width of the cell border in pixels (deck.gl).
- * @param {object} props.cellColors Map from cell IDs to colors [r, g, b].
- * @param {function} props.getCellCoords Getter function for cell coordinates
- * (used by the selection layer).
- * @param {function} props.getCellColor Getter function for cell color as [r, g, b] array.
- * @param {function} props.getCellPolygon Getter function for cell polygons.
- * @param {function} props.getCellIsSelected Getter function for cell layer isSelected.
- * @param {function} props.getMoleculeColor
- * @param {function} props.getMoleculePosition
- * @param {function} props.getNeighborhoodPolygon
- * @param {function} props.updateViewInfo Handler for viewport updates, used when rendering tooltips and crosshairs.
- * @param {function} props.onCellClick Getter function for cell layer onClick.
- * @param {string} props.theme "light" or "dark" for the vitessce theme
- */
-const SpatialThree = (props) => {
-  const materialRef = useRef(null);
-  const orbitRef = useRef(null);
-  const [initialStartup, setInitialStartup] = useState(false);
-  const [dataReady, setDataReady] = useState(false);
-  const [segmentationGroup, setSegmentationGroup] = useState(null);
-  const [segmentationSceneScale, setSegmentationSceneScale] = useState([1.0, 1.0, 1.0]);
-  // Storing rendering settings
-  const [renderingSettings, setRenderingSettings] = useState({
-    uniforms: null,
-    shader: null,
-    meshScale: null,
-    geometrySize: null,
-    boxSize: null,
-  });
-    // Capturing the volumetric data to reuse when only settings are changing
-  const [volumeData, setVolumeData] = useState({
-    volumes: new Map(),
-    textures: new Map(),
-    volumeMinMax: new Map(),
-    scale: null,
-    resolution: null,
-    originalScale: null,
-  });
-    // Storing Volume Settings to compare them to a settings state change
-  const [volumeSettings, setVolumeSettings] = useState({
-    channelsVisible: [],
-    allChannels: [],
-    channelTargetC: [],
-    resolution: null,
-    data: null,
-    colors: [],
-    contrastLimits: [],
-    is3dMode: false,
-    renderingMode: null,
-    layerTransparency: 1.0,
-  });
-    // Storing Segmentation Settings to compare them to a settings state change
-  const [segmentationSettings, setSegmentationSettings] = useState({
-    visible: true,
-    color: [1, 1, 1],
-    opacity: 1,
-    multiVisible: '',
-    multiOpacity: '',
-    multiColor: '',
-    data: null,
-    obsSets: [],
-  });
-
-  const {
-    images,
-    layerScope,
-    channelsVisible,
-    allChannels,
-    channelTargetC,
-    resolution,
-    data,
-    colors,
-    contrastLimits,
-    is3dMode,
-    renderingMode,
-    layerTransparency,
-    xSlice,
-    ySlice,
-    zSlice,
-  } = getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady);
-
-  const {
-    obsSegmentations,
-    onGlomSelected,
-    segmentationLayerCoordination,
-    segmentationChannelCoordination,
-    segmentationChannelScopesByLayer,
-  } = props;
-  let setObsHighlightFct = (id) => {};
-  const setsSave = [];
-  if (segmentationChannelCoordination[0][layerScope] !== undefined) {
-    const segmentationObsSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
-    const { setObsHighlight } = segmentationChannelCoordination[1][layerScope][layerScope];
-    setObsHighlightFct = setObsHighlight;
-    const sets = segmentationChannelCoordination[0][layerScope][layerScope].additionalObsSets;
-    if (sets !== null) {
-      segmentationObsSetLayerProps.obsSetSelection.forEach((index) => {
-        const selectedElement = segmentationObsSetLayerProps.obsSetSelection[index][1];
-        sets.tree[0].children.forEach((subIndex) => {
-          const child = sets.tree[0].children[subIndex];
-          if (child.name === selectedElement) {
-            child.set.forEach((elem) => {
-              const info = { name: '', id: '', color: [] };
-              info.name = selectedElement;
-              info.id = child.set[elem][0];
-              segmentationObsSetLayerProps.obsSetColor.forEach((subIndexColor) => {
-                const color = segmentationObsSetLayerProps.obsSetColor[subIndexColor];
-                if (color.path[1] === selectedElement) {
-                  info.color = color.color;
-                }
-              });
-              setsSave.push(info);
-            });
-          }
-        });
-      });
-    }
-    if (segmentationObsSetLayerProps.obsHighlight !== null) {
-      setsSave.push({ name: '', id: segmentationObsSetLayerProps.obsHighlight, color: [255, 34, 0] });
-    }
-  }
-  if (obsSegmentations[layerScope]?.obsSegmentations && segmentationGroup == null) {
-    if (obsSegmentations[layerScope].obsSegmentationsType !== 'mesh') {
-      console.log(obsSegmentations[layerScope]);
-      throw new Error('Only mesh segmentations are supported by the SpatialThree view.');
-    }
-    const { scene } = obsSegmentations[layerScope].obsSegmentations;
-    if (scene !== null && scene !== undefined) {
-      const newScene = new Scene();
-      const finalPass = new Group();
-      finalPass.userData.name = 'finalPass';
-      scene.children.forEach((child) => {
-        let childElement = scene.children[child];
-        if (childElement.material === undefined) {
-          childElement = scene.children[child].children[0];
-        }
-        if (childElement.material instanceof MeshPhysicalMaterial
-                    || childElement.material instanceof MeshBasicMaterial) {
-          childElement.material = new MeshStandardMaterial();
-        }
-        let name = childElement.name.replace('mesh_', '').replace('mesh', '').replace('glb', '').replace('_dec', '')
-          .replace('_Decobj', '')
-          .replace('obj', '')
-          .replace('_DEc', '')
-          .replace('.', '')
-          .replace('_Dec', '');
-        if (name.includes('_')) {
-          name = name.split('_')[0];
-        }
-        childElement.name = name;
-        childElement.userData.name = name;
-        childElement.material.transparent = true;
-        childElement.material.writeDepthTexture = true;
-        childElement.material.depthTest = true;
-        childElement.material.depthWrite = true;
-        childElement.material.needsUpdate = true;
-        childElement.material.side = segmentationLayerCoordination[0][layerScope].spatialMaterialBackside
-          ? BackSide : FrontSide;
-
-        const simplified = childElement.clone();
-        simplified.geometry = childElement.geometry.clone();
-        simplified.geometry.translate(segmentationLayerCoordination[0][layerScope].spatialTargetX ?? 0,
-          segmentationLayerCoordination[0][layerScope].spatialTargetY ?? 0,
-          segmentationLayerCoordination[0][layerScope].spatialTargetZ ?? 0);
-        simplified.geometry.scale(
-          segmentationLayerCoordination[0][layerScope].spatialScaleX ?? 1.0,
-          segmentationLayerCoordination[0][layerScope].spatialScaleY ?? 1.0,
-          segmentationLayerCoordination[0][layerScope].spatialScaleZ ?? 1.0,
-        );
-        simplified.geometry.rotateX(segmentationLayerCoordination[0][layerScope].spatialRotationX ?? 0);
-        simplified.geometry.rotateY(segmentationLayerCoordination[0][layerScope].spatialRotationY ?? 0);
-        simplified.geometry.rotateZ(segmentationLayerCoordination[0][layerScope].spatialRotationZ ?? 0);
-
-        const finalPassChild = childElement.clone();
-        finalPassChild.material = childElement.material.clone();
-        finalPassChild.geometry = simplified.geometry.clone();
-        finalPass.add(finalPassChild);
-      });
-      newScene.add(finalPass);
-      newScene.scale.set(
-        segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
-        segmentationLayerCoordination[0][layerScope].spatialSceneScaleY ?? 1.0,
-        segmentationLayerCoordination[0][layerScope].spatialSceneScaleZ ?? 1.0,
-      );
-      const sceneScale = [segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
-        segmentationLayerCoordination[0][layerScope].spatialSceneScaleY ?? 1.0,
-        segmentationLayerCoordination[0][layerScope].spatialSceneScaleZ ?? 1.0];
-      setSegmentationSceneScale(sceneScale);
-      newScene.rotateX(segmentationLayerCoordination[0][layerScope].spatialSceneRotationX ?? 0.0);
-      newScene.rotateY(segmentationLayerCoordination[0][layerScope].spatialSceneRotationY ?? 0.0);
-      newScene.rotateZ(segmentationLayerCoordination[0][layerScope].spatialSceneRotationZ ?? 0.0);
-      setSegmentationGroup(newScene);
-    }
-  }
-  if (segmentationChannelCoordination[0] !== undefined && segmentationChannelCoordination[0][layerScope] !== undefined) {
-    const segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
-    let setsSaveString = '';
-    setsSave.forEach((child) => {
-      setsSaveString += `${setsSave[child].id};${setsSave[child].color.toString()};${setsSave[child].name}`;
-    });
-    let settingsSaveString = '';
-    segmentationSettings.obsSets.forEach((child) => {
-      settingsSaveString += `${segmentationSettings.obsSets[child].id};${
-        segmentationSettings.obsSets[child].color.toString()};${
-        segmentationSettings.obsSets[child].name}`;
-    });
-
-    // Check the MultiChannel Setting - combine all channels and see if something changed
-    if (segmentationChannelScopesByLayer[layerScope].length > 1) {
-      let color = '';
-      let opacity = '';
-      let visible = '';
-      let visibleCombined = false;
-      let opacityCombined = 0.0;
-      segmentationChannelScopesByLayer[layerScope].forEach((scope) => {
-        const channelScope = segmentationChannelScopesByLayer[layerScope][scope];
-        const channelSet = segmentationChannelCoordination[0][layerScope][channelScope];
-        color += `${channelSet.spatialChannelColor.toString()};`;
-        opacity += `${channelSet.spatialChannelOpacity};`;
-        visible += `${channelSet.spatialChannelVisible};`;
-        visibleCombined |= channelSet.spatialChannelVisible;
-        opacityCombined += channelSet.spatialChannelOpacity;
-      });
-      if (color !== segmentationSettings.multiColor
-                || opacity !== segmentationSettings.multiOpacity
-                || visible !== segmentationSettings.multiVisible) {
-        setSegmentationSettings({
-          color: segmentationLayerProps.spatialChannelColor,
-          opacity: opacityCombined,
-          visible: visibleCombined,
-          multiColor: color,
-          multiVisible: visible,
-          multiOpacity: opacity,
-          data: obsSegmentations,
-          obsSets: setsSave,
-        });
-      }
-    } else if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString()
-                || segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible
-                || segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity
-                || setsSaveString !== settingsSaveString
-    ) {
-      setSegmentationSettings({
-        color: segmentationLayerProps.spatialChannelColor,
-        opacity: segmentationLayerProps.spatialChannelOpacity,
-        visible: segmentationLayerProps.spatialChannelVisible,
-        multiColor: '',
-        multiVisible: '',
-        multiOpacity: '',
-        data: obsSegmentations,
-        obsSets: setsSave,
-      });
-    }
-  }
-
-  useEffect(() => {
-    if (segmentationGroup !== null) {
-      let firstGroup = 0;
-      let finalGroup = 0;
-      segmentationGroup.children.forEach((group) => {
-        if (segmentationGroup.children[group].userData.name === 'finalPass') {
-          finalGroup = group;
-        } else {
-          firstGroup = group;
-        }
-      });
-
-      // TODO: Adapt so it can also work with union sets
-      segmentationGroup.children[finalGroup].children.forEach((child) => {
-        let { color } = segmentationSettings;
-        const id = segmentationGroup.children[finalGroup].children[child].userData.name;
-
-        // SET SELECTION
-        segmentationSettings.obsSets.forEach((index) => {
-          if (segmentationSettings.obsSets[index].id === id) {
-            color = segmentationSettings.obsSets[index].color;
-          }
-        });
-        // CHECK IF Multiple Scopes:
-        if (segmentationChannelScopesByLayer[layerScope].length > 1) {
-          segmentationChannelScopesByLayer[layerScope].forEach((scope) => {
-            const channelScope = segmentationChannelScopesByLayer[layerScope][scope];
-            const channelSet = segmentationChannelCoordination[0][layerScope][channelScope];
-            if (channelSet.obsType === id) {
-              segmentationGroup.children[finalGroup].children[child].material.color.r = channelSet.spatialChannelColor[0] / 255;
-              segmentationGroup.children[finalGroup].children[child].material.color.g = channelSet.spatialChannelColor[1] / 255;
-              segmentationGroup.children[finalGroup].children[child].material.color.b = channelSet.spatialChannelColor[2] / 255;
-              segmentationGroup.children[finalGroup].children[child].material.opacity = channelSet.spatialChannelOpacity;
-              segmentationGroup.children[finalGroup].children[child].visible = channelSet.spatialChannelVisible;
-              segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
-              segmentationGroup.children[firstGroup].children[child].material.needsUpdate = true;
-            }
-          });
-        } else {
-          segmentationGroup.children[finalGroup].children.forEach((child) => {
-            let { color } = segmentationSettings;
-            const id = segmentationGroup.children[finalGroup].children[child].userData.name;
-            segmentationSettings.obsSets.forEach((index) => {
-              if (segmentationSettings.obsSets[index].id === id) {
-                color = segmentationSettings.obsSets[index].color;
-              }
-            });
-            // adapt the color
-            segmentationGroup.children[finalGroup].children[child].material.color.r = color[0] / 255;
-            segmentationGroup.children[finalGroup].children[child].material.color.g = color[1] / 255;
-            segmentationGroup.children[finalGroup].children[child].material.color.b = color[2] / 255;
-            // Select the FinalPass Group
-            segmentationGroup.children[finalGroup].children[child].material.opacity = segmentationSettings.opacity;
-            segmentationGroup.children[finalGroup].children[child].material.visible = segmentationSettings.visible;
-            segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
-          });
-        }
-      });
-    }
-  }, [segmentationSettings, segmentationGroup]);
-
-
-  // 1st Rendering Pass Load the Data in the given resolution OR Resolution Changed
-  const dataToCheck = images[layerScope]?.image?.instance?.getData();
-  if (dataToCheck !== undefined && !dataReady && !initialStartup
-        && contrastLimits !== null && contrastLimits[0][1] !== 255 && is3dMode) {
-    setDataReady(true);
-    setInitialStartup(true);
-  }
-
-  // Only reload the mesh if the imageLayer changes (new data / new resolution, ...)
-  useEffect(() => {
-    const fetchRendering = async () => {
-      const loadingResult = await initialDataLoading(channelTargetC, resolution, data,
-        volumeData.volumes, volumeData.textures, volumeData.volumeMinMax, volumeData.resolution);
-      if (loadingResult[0] !== null) { // New Data has been loaded
-        setVolumeData({
-          resolution,
-          volumes: loadingResult[0],
-          textures: loadingResult[1],
-          volumeMinMax: loadingResult[2],
-          scale: loadingResult[3] !== null ? loadingResult[3] : volumeData.scale,
-          originalScale: loadingResult[4],
-        });
-        if (renderingSettings.uniforms === undefined || renderingSettings.uniforms === null
-                    || renderingSettings.shader === undefined || renderingSettings.shader === null) {
-          // JUST FOR THE INITIAL RENDERING
-          const rendering = create3DRendering(loadingResult[0], channelTargetC, channelsVisible, colors,
-            loadingResult[1], contrastLimits, loadingResult[2], loadingResult[3], renderingMode,
-            layerTransparency, xSlice, ySlice, zSlice, loadingResult[4]);
-          if (rendering !== null) {
-            setRenderingSettings({
-              uniforms: rendering[0],
-              shader: rendering[1],
-              meshScale: rendering[2],
-              geometrySize: rendering[3],
-              boxSize: rendering[4],
-            });
-          }
-        } else {
-          setVolumeSettings({
-            channelsVisible,
-            allChannels,
-            channelTargetC,
-            resolution,
-            data,
-            colors,
-            contrastLimits,
-            is3dMode,
-            renderingMode,
-            layerTransparency,
-            xSlice,
-            ySlice,
-            zSlice,
-          });
-        }
-      }
-    };
-    if (dataReady) {
-      if (resolution !== volumeSettings.resolution) {
-        materialRef.current.material.uniforms.volumeCount.value = 0;
-        materialRef.current.material.uniforms.volumeTex.value = null;
-      }
-      fetchRendering();
-      setDataReady(false);
-    }
-  }, [dataReady]);
-
-
-  // 2nd Rendering Pass Check if the Props Changed (except the resolution)
-  useEffect(() => {
-    if (((renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null
-            && renderingSettings.shader !== undefined && renderingSettings.shader !== null))) {
-      const rendering = create3DRendering(volumeData.volumes, volumeSettings.channelTargetC,
-        volumeSettings.channelsVisible, volumeSettings.colors, volumeData.textures,
-        volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale, volumeSettings.renderingMode,
-        volumeSettings.layerTransparency, volumeSettings.xSlice, volumeSettings.ySlice, volumeSettings.zSlice,
-        volumeData.originalScale);
-      if (rendering !== null) {
-        let volumeCount = 0;
-        volumeSettings.channelsVisible.forEach((elem) => {
-          if (volumeSettings.channelsVisible[elem]) volumeCount++;
-        });
-        setDataReady(false);
-        if (materialRef !== undefined && materialRef.current !== null) {
-          // Set the material uniforms
-          materialRef.current.material.uniforms.u_clim.value = rendering[0].u_clim.value;
-          materialRef.current.material.uniforms.u_clim2.value = rendering[0].u_clim2.value;
-          materialRef.current.material.uniforms.u_clim3.value = rendering[0].u_clim3.value;
-          materialRef.current.material.uniforms.u_clim4.value = rendering[0].u_clim4.value;
-          materialRef.current.material.uniforms.u_clim5.value = rendering[0].u_clim5.value;
-          materialRef.current.material.uniforms.u_clim6.value = rendering[0].u_clim6.value;
-
-          materialRef.current.material.uniforms.u_xClip.value = rendering[0].u_xClip.value;
-          materialRef.current.material.uniforms.u_yClip.value = rendering[0].u_yClip.value;
-          materialRef.current.material.uniforms.u_zClip.value = rendering[0].u_zClip.value;
-
-          materialRef.current.material.uniforms.u_color.value = rendering[0].u_color.value;
-          materialRef.current.material.uniforms.u_color2.value = rendering[0].u_color2.value;
-          materialRef.current.material.uniforms.u_color3.value = rendering[0].u_color3.value;
-          materialRef.current.material.uniforms.u_color4.value = rendering[0].u_color4.value;
-          materialRef.current.material.uniforms.u_color5.value = rendering[0].u_color5.value;
-          materialRef.current.material.uniforms.u_color6.value = rendering[0].u_color6.value;
-          materialRef.current.material.uniforms.volumeTex.value = rendering[0].volumeTex.value;
-          materialRef.current.material.uniforms.volumeTex2.value = rendering[0].volumeTex2.value;
-          materialRef.current.material.uniforms.volumeTex3.value = rendering[0].volumeTex3.value;
-          materialRef.current.material.uniforms.volumeTex4.value = rendering[0].volumeTex4.value;
-          materialRef.current.material.uniforms.volumeTex5.value = rendering[0].volumeTex5.value;
-          materialRef.current.material.uniforms.volumeTex6.value = rendering[0].volumeTex6.value;
-          materialRef.current.material.uniforms.volumeCount.value = volumeCount;
-          materialRef.current.material.uniforms.u_renderstyle.value = volumeSettings.renderingMode;
-          materialRef.current.material.uniforms.dtScale.value = volumeSettings.layerTransparency;
-        }
-      } else {
-        materialRef.current.material.uniforms.volumeCount.value = 0;
-        materialRef.current.material.uniforms.volumeTex.value = null;
-      }
-    }
-  }, [volumeSettings]);
-
-  // -----------------------------------------------------------------
-  // -----------------------------------------------------------------
-  if (!volumeSettings.is3dMode) {
-    return (
-      <group>
-        <ambientLight />
-        <pointLight position={[10, 10, 10]} />
-        <Text color="white" scale={20} fontWeight={1000}>Only in 3D Mode</Text>
-      </group>
-    );
-  }
-
-  if (volumeSettings.is3dMode
-        && (renderingSettings.uniforms === undefined || renderingSettings.uniforms === null
-            || renderingSettings.shader === undefined || renderingSettings.shader === null)
-  ) {
-    return (
-      <group>
-        <ambientLight />
-        <pointLight position={[10, 10, 10]} />
-        <Text color="white" scale={20} fontWeight={1000}>Loading ...</Text>
-      </group>
-    );
-  }
-
-  const geometryAndMeshProps = {
-    segmentationGroup,
-    segmentationSettings,
-    segmentationSceneScale,
-    renderingSettings,
-    materialRef,
-    highlightGlom: onGlomSelected,
-    setObsHighlight: setObsHighlightFct,
-  };
-  return (
-    <group>
-      <Controllers />
-      <Hands />
-      <HandBbox />
-      <HandDecorate />
-      <GeometryAndMesh {...geometryAndMeshProps} />
-      <OrbitControls
-        ref={orbitRef}
-        enableDamping={false}
-        dampingFactor={0.0}
-        zoomDampingFactor={0.0}
-        smoothZoom={false}
-      />
-    </group>
-  );
-};
-
-function HandDecorate() {
-  const { controllers } = useXR();
-  useFrame(() => {
-    if (controllers && controllers[0] && controllers[1]) {
-      if (controllers[0].hand) {
-        if (controllers[0].hand.children[25]) {
-          if (controllers[0].hand.children[25].children[0]) {
-            if (controllers[0].hand.children[25].children[0].children[0]) {
-              controllers[0].hand.children[25].children[0].children[0].material.transparent = true;
-              controllers[0].hand.children[25].children[0].children[0].material.opacity = 0.5;
-            }
-          }
-        }
-      }
-      if (controllers[1].hand) {
-        if (controllers[1].hand.children[25]) {
-          if (controllers[1].hand.children[25].children[0]) {
-            if (controllers[1].hand.children[25].children[0].children[0]) {
-              controllers[1].hand.children[25].children[0].children[0].material.transparent = true;
-              controllers[1].hand.children[25].children[0].children[0].material.opacity = 0.5;
-            }
-          }
-        }
-      }
-    }
-  });
-}
+import { HandDecorate } from './xr/HandDecorate.js';
 
 /**
  * Retrieving the volumetric settings from the props, comparing them to the prior settings
@@ -577,7 +45,7 @@ function HandDecorate() {
  * allChannels: (null|*), layerTransparency: *, renderingMode: *, xSlice: *, layerScope: *,
  * imageChannelScopesByLayer, imageLayerCoordination, imageLayerScopes, channelsVisible: (null|(*|boolean)[]|*)}}
  */
-function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady) {
+function useVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady) {
   // Everything that is props based should be useEffect with props as dependent so we can sideload the props
   const {
     images = {},
@@ -665,271 +133,6 @@ function getVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
     ySlice,
     zSlice,
   };
-}
-
-// Rendering a combination of a volume dataset and segmentations (meshes)
-function GeometryAndMesh(props) {
-  const {
-    segmentationGroup, segmentationSettings, segmentationSceneScale,
-    renderingSettings, materialRef, highlightGlom, setObsHighlight,
-  } = props;
-  const model = useRef();
-  const distanceRef = useRef();
-  const rayGrabGroup = useRef();
-  // -----------------------------------------------------------------
-  //                          XR
-  // -----------------------------------------------------------------
-  const { isPresenting, player } = useXR();
-  useEffect(() => {
-    if (isPresenting && model !== undefined && model.current !== null) {
-      // Needed to get the Fragment Depth Value Right
-      if (materialRef !== null) {
-        materialRef.current.material.uniforms.u_physical_Pixel.value = 0.2;
-      }
-    } else if (!isPresenting) {
-      // Needed to get the Fragment Depth Value Right
-      if (materialRef !== null) {
-        materialRef.current.material.uniforms.u_physical_Pixel.value = 2.0;
-      }
-    }
-  }, [isPresenting]);
-
-  const { scene } = useThree();
-  const { controllers } = useXR();
-  const [measureState, setMeasureState] = useState(false);
-  const [highlighted, setHighlighted] = useState(false);
-  const [showLine, setShowLine] = useState(false);
-  const [currentLine, setCurrentLine] = useState({
-    startPoint: new Vector3(),
-    midPoint: new Vector3(),
-    endPoint: new Vector3(),
-    setStartPoint: false,
-    setEndPoint: false,
-  });
-  const [lines, setLines] = useState([]);
-  const [debounce, setDebounce] = useState(0);
-
-  // This Block is used to handle Hande Interactions in XR to create measurements
-  useFrame(() => {
-    if (isPresenting) {
-      const rightTipBbox = scene.getObjectByName('rightTipBbox');
-      const leftTipBbox = scene.getObjectByName('leftTipBbox');
-      const leftTipBB = new Box3().setFromObject(leftTipBbox);
-      const rightTipBB = new Box3().setFromObject(rightTipBbox);
-      let intersected = false;
-      const volumeBox = null;
-      setDebounce(debounce - 1.0);
-      if (materialRef !== null && materialRef.current !== undefined) {
-        const volumeBox = new Box3().setFromObject(materialRef.current);
-      }
-
-      if (leftTipBB.intersectsBox(rightTipBB) && leftTipBB.max.x !== -rightTipBB.min.x) {
-        setMeasureState(true);
-        setShowLine(true);
-        setCurrentLine({
-          startPoint: new Vector3(),
-          midPoint: new Vector3(),
-          endPoint: new Vector3(),
-          setStartPoint: false,
-          setEndPoint: false,
-        });
-      }
-      if (measureState) {
-        let leftFingerPosition = controllers[1].hand.joints['index-finger-tip'].position.clone();
-        let rightFingerPosition = controllers[0].hand.joints['index-finger-tip'].position.clone();
-        leftFingerPosition = leftFingerPosition.applyMatrix4(rayGrabGroup.current.matrixWorld.clone().invert());
-        rightFingerPosition = rightFingerPosition.applyMatrix4(rayGrabGroup.current.matrixWorld.clone().invert());
-        let currentStart = leftFingerPosition.clone();
-        let currentEnd = rightFingerPosition.clone();
-        if (currentLine.setStartPoint) {
-          currentStart = currentLine.startPoint;
-        }
-        if (currentLine.setEndPoint) {
-          currentEnd = currentLine.endPoint;
-        }
-        setCurrentLine({
-          startPoint: currentStart,
-          midPoint: new Vector3().addVectors(currentStart, currentEnd).multiplyScalar(0.5),
-          endPoint: currentEnd,
-          setStartPoint: currentLine.setStartPoint,
-          setEndPoint: currentLine.setEndPoint,
-        });
-        if (controllers[0].hand.inputState.pinching === true) {
-          // right hand set measure point
-          setCurrentLine({
-            startPoint: currentLine.startPoint,
-            midPoint: currentLine.midPoint,
-            endPoint: currentLine.endPoint,
-            setStartPoint: currentLine.setStartPoint,
-            setEndPoint: true,
-          });
-        }
-        if (controllers[1].hand.inputState.pinching === true) {
-          // left hand set measure point
-          setCurrentLine({
-            startPoint: currentLine.startPoint,
-            midPoint: currentLine.midPoint,
-            endPoint: currentLine.endPoint,
-            setStartPoint: true,
-            setEndPoint: currentLine.setEndPoint,
-          });
-        }
-        if (currentLine.setStartPoint && currentLine.setEndPoint) {
-          lines.push(currentLine);
-          setLines(lines);
-          setShowLine(false);
-          setMeasureState(false);
-          setDebounce(8);
-        }
-      } else if (debounce <= 0 && model.current !== null && undefined !== model.current && isPresenting) {
-        model.current.children[0].children.forEach((childID) => {
-          const child = model.current.children[0].children[childID];
-          const currentObjectBB = new Box3().setFromObject(child);
-          const intersectsLeftTip = leftTipBB.intersectsBox(currentObjectBB);
-          const intersectsRightTip = rightTipBB.intersectsBox(currentObjectBB);
-          if (intersectsLeftTip || intersectsRightTip) {
-            intersected = true;
-            // Highlighting Glom
-            setObsHighlight(child.name);
-            setHighlighted(true);
-            if (controllers[1] !== undefined && intersectsLeftTip && controllers[1].hand.inputState.pinching === true) {
-              setDebounce(10);
-              intersected = false;
-              controllers[1].hand.inputState.pinching = false;
-            }
-            if (controllers[0] !== undefined && intersectsRightTip && controllers[0].hand.inputState.pinching === true) {
-              setDebounce(10);
-              intersected = false;
-              controllers[0].hand.inputState.pinching = false;
-            }
-          }
-        });
-        if (!intersected && highlighted) {
-          setObsHighlight(null);
-          setHighlighted(false);
-        }
-      }
-    }
-  }, [measureState, highlighted, currentLine, lines, showLine, debounce, isPresenting]);
-
-  // TODO: IF we want to have a ZoomGrab than it needs to adapt the 0.002 value
-  // TODO: The measurement from time to time intersects with the rayGrab (maybe "tell it" that we are in measurement mode)
-  return (
-    <group>
-      {useXR().isPresenting
-        ? (
-          <RayGrab>
-            <group ref={rayGrabGroup}>
-              {segmentationGroup !== null && segmentationGroup.visible
-                            && (
-                            <group>
-                              <hemisphereLight skyColor={0x808080} groundColor={0x606060} />
-                              <directionalLight color={0xFFFFFF} position={[0, -800, 0]} />
-                              <primitive
-                                ref={model}
-                                object={segmentationGroup}
-                                position={[-0.18, 1.13, -1]}
-                                scale={[0.002 * segmentationSceneScale[0],
-                                  0.002 * segmentationSceneScale[1],
-                                  0.002 * segmentationSceneScale[2]]}
-                              />
-                            </group>
-                            )
-                        }
-              {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null
-                                && renderingSettings.shader !== undefined && renderingSettings.shader !== null)
-                            && (
-                            <group>
-                              <mesh
-                                name="cube"
-                                position={[-0.18, 1.13, -1]}
-                                rotation={[0, 0, 0]}
-                                scale={[0.002 * renderingSettings.meshScale[0],
-                                  0.002 * renderingSettings.meshScale[1],
-                                  0.002 * renderingSettings.meshScale[2]]}
-                                ref={materialRef}
-                              >
-                                <boxGeometry args={renderingSettings.geometrySize} />
-                                <shaderMaterial
-                                  customProgramCacheKey={() => '1'}
-                                  side={FrontSide}
-                                  uniforms={renderingSettings.uniforms}
-                                  needsUpdate
-                                  transparent
-                                  vertexShader={renderingSettings.shader.vertexShader}
-                                  fragmentShader={renderingSettings.shader.fragmentShader}
-                                />
-                              </mesh>
-                            </group>
-                            )
-                        }
-            </group>
-            <group name="currentLine" ref={distanceRef}>
-              {showLine && (
-              <MeasureLine currentLine={currentLine} scale={(1 / 0.002) * 0.4} />
-              )}
-            </group>
-            <group name="lines">
-              {lines.map((object, i) => <MeasureLine currentLine={object} scale={(1 / 0.002) * 0.4} />)}
-            </group>
-          </RayGrab>
-        )
-        : (
-          <group>
-            <group>
-              {segmentationGroup !== null && segmentationGroup.visible
-                            && (
-                            <group>
-                              <hemisphereLight skyColor={0x808080} groundColor={0x606060} />
-                              <directionalLight color={0xFFFFFF} position={[0, -800, 0]} />
-                              <directionalLight color={0xFFFFFF} position={[0, 800, 0]} />
-                              <Bvh firstHitOnly>
-                                <primitive
-                                  ref={model}
-                                  object={segmentationGroup}
-                                  position={[0, 0, 0]}
-                                  onClick={(e) => {
-                                    if (e.object.parent.userData.name === 'finalPass') {
-                                      highlightGlom(e.object.name);
-                                    }
-                                  }}
-                                  onPointerOver={(e) => {
-                                    setObsHighlight(e.object.name);
-                                  }}
-                                  onPointerOut={e => setObsHighlight(null)}
-                                />
-                              </Bvh>
-                            </group>
-                            )
-                        }
-              {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null
-                                && renderingSettings.shader !== undefined && renderingSettings.shader !== null)
-                            && (
-                            <group>
-                              <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                                <boxGeometry args={renderingSettings.geometrySize} />
-                                <shaderMaterial
-                                  customProgramCacheKey={() => '1'}
-                                  side={FrontSide}
-                                  uniforms={renderingSettings.uniforms}
-                                  needsUpdate
-                                  transparent
-                                  vertexShader={renderingSettings.shader.vertexShader}
-                                  fragmentShader={renderingSettings.shader.fragmentShader}
-                                />
-                              </mesh>
-                            </group>
-                            )
-                        }
-            </group>
-            <group name="lines">
-              {lines.map((object, i) => <MeasureLine currentLine={object} scale={1} />)}
-            </group>
-          </group>
-        )
-            }
-    </group>
-  );
 }
 
 /**
@@ -1046,7 +249,7 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
   ));
   const autoTargetResolution = imageWrapperInstance.getAutoTargetResolution();
   const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION];
-  const resolution = (targetResolution === null || isNaN(targetResolution)) ? autoTargetResolution : targetResolution;
+  const resolution = (targetResolution === null || Number.isNaN(targetResolution)) ? autoTargetResolution : targetResolution;
   const allChannels = image.image.loaders[0].channels;
 
   // Get the Clipping Planes
@@ -1093,7 +296,8 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
   const colorsSave = [];
   const contrastLimitsList = [];
   let volume = null;
-  channelTargetC.forEach((channelStr) => { // load on demand new channels or load all there are?? - Check VIV for it
+  console.log(channelTargetC);
+  channelTargetC.forEach((channelVal, channelStr) => { // load on demand new channels or load all there are?? - Check VIV for it
     const id = parseInt(channelStr);
     const channel = channelTargetC[parseInt(channelStr)];
     if (channelsVisible[id]) { // check if the channel has been loaded already or if there should be a new load
@@ -1345,6 +549,508 @@ async function getVolumeIntern({
     width,
     depth: depthDownsampled,
   };
+}
+
+/**
+ * React component which expresses the spatial relationships between cells and molecules using ThreeJS
+ * @param {object} props
+ * @param {string} props.uuid A unique identifier for this component,
+ * used to determine when to show tooltips vs. crosshairs.
+ * @param {number} props.height Height of the canvas, used when
+ * rendering the scale bar layer.
+ * @param {number} props.width Width of the canvas, used when
+ * rendering the scale bar layer.
+ * @param {object} props.molecules Molecules data.
+ * @param {object} props.cells Cells data.
+ * @param {object} props.neighborhoods Neighborhoods data.
+ * @param {number} props.lineWidthScale Width of cell border in view space (deck.gl).
+ * @param {number} props.lineWidthMaxPixels Max width of the cell border in pixels (deck.gl).
+ * @param {object} props.cellColors Map from cell IDs to colors [r, g, b].
+ * @param {function} props.getCellCoords Getter function for cell coordinates
+ * (used by the selection layer).
+ * @param {function} props.getCellColor Getter function for cell color as [r, g, b] array.
+ * @param {function} props.getCellPolygon Getter function for cell polygons.
+ * @param {function} props.getCellIsSelected Getter function for cell layer isSelected.
+ * @param {function} props.getMoleculeColor
+ * @param {function} props.getMoleculePosition
+ * @param {function} props.getNeighborhoodPolygon
+ * @param {function} props.updateViewInfo Handler for viewport updates, used when rendering tooltips and crosshairs.
+ * @param {function} props.onCellClick Getter function for cell layer onClick.
+ * @param {string} props.theme "light" or "dark" for the vitessce theme
+ */
+function SpatialThree(props) {
+  const materialRef = useRef(null);
+  const orbitRef = useRef(null);
+  const [initialStartup, setInitialStartup] = useState(false);
+  const [dataReady, setDataReady] = useState(false);
+  const [segmentationGroup, setSegmentationGroup] = useState(null);
+  const [segmentationSceneScale, setSegmentationSceneScale] = useState([1.0, 1.0, 1.0]);
+  // Storing rendering settings
+  const [renderingSettings, setRenderingSettings] = useState({
+    uniforms: null,
+    shader: null,
+    meshScale: null,
+    geometrySize: null,
+    boxSize: null,
+  });
+    // Capturing the volumetric data to reuse when only settings are changing
+  const [volumeData, setVolumeData] = useState({
+    volumes: new Map(),
+    textures: new Map(),
+    volumeMinMax: new Map(),
+    scale: null,
+    resolution: null,
+    originalScale: null,
+  });
+    // Storing Volume Settings to compare them to a settings state change
+  const [volumeSettings, setVolumeSettings] = useState({
+    channelsVisible: [],
+    allChannels: [],
+    channelTargetC: [],
+    resolution: null,
+    data: null,
+    colors: [],
+    contrastLimits: [],
+    is3dMode: false,
+    renderingMode: null,
+    layerTransparency: 1.0,
+  });
+    // Storing Segmentation Settings to compare them to a settings state change
+  const [segmentationSettings, setSegmentationSettings] = useState({
+    visible: true,
+    color: [1, 1, 1],
+    opacity: 1,
+    multiVisible: '',
+    multiOpacity: '',
+    multiColor: '',
+    data: null,
+    obsSets: [],
+  });
+
+  const {
+    images,
+    layerScope,
+    channelsVisible,
+    allChannels,
+    channelTargetC,
+    resolution,
+    data,
+    colors,
+    contrastLimits,
+    is3dMode,
+    renderingMode,
+    layerTransparency,
+    xSlice,
+    ySlice,
+    zSlice,
+  } = useVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady);
+
+  const {
+    obsSegmentations,
+    onGlomSelected,
+    segmentationLayerCoordination,
+    segmentationChannelCoordination,
+    segmentationChannelScopesByLayer,
+  } = props;
+  let setObsHighlightFct = () => {};
+  const setsSave = [];
+  if (segmentationChannelCoordination[0][layerScope] !== undefined) {
+    const segmentationObsSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
+    const { setObsHighlight } = segmentationChannelCoordination[1][layerScope][layerScope];
+    setObsHighlightFct = setObsHighlight;
+    const sets = segmentationChannelCoordination[0][layerScope][layerScope].additionalObsSets;
+    if (sets !== null) {
+      segmentationObsSetLayerProps.obsSetSelection.forEach((setVal, index) => {
+        const selectedElement = segmentationObsSetLayerProps.obsSetSelection[index][1];
+        sets.tree[0].children.forEach((subVal, subIndex) => {
+          const child = sets.tree[0].children[subIndex];
+          if (child.name === selectedElement) {
+            child.set.forEach((elemVal, elem) => {
+              const info = { name: '', id: '', color: [] };
+              info.name = selectedElement;
+              info.id = child.set[elem][0];
+              segmentationObsSetLayerProps.obsSetColor.forEach((colorVal, subIndexColor) => {
+                const color = segmentationObsSetLayerProps.obsSetColor[subIndexColor];
+                if (color.path[1] === selectedElement) {
+                  info.color = color.color;
+                }
+              });
+              setsSave.push(info);
+            });
+          }
+        });
+      });
+    }
+    if (segmentationObsSetLayerProps.obsHighlight !== null) {
+      setsSave.push({ name: '', id: segmentationObsSetLayerProps.obsHighlight, color: [255, 34, 0] });
+    }
+  }
+  if (obsSegmentations[layerScope]?.obsSegmentations && segmentationGroup == null) {
+    if (obsSegmentations[layerScope].obsSegmentationsType !== 'mesh') {
+      console.log(obsSegmentations[layerScope]);
+      throw new Error('Only mesh segmentations are supported by the SpatialThree view.');
+    }
+    const { scene } = obsSegmentations[layerScope].obsSegmentations;
+    if (scene?.children) {
+      const newScene = new Scene();
+      const finalPass = new Group();
+      finalPass.userData.name = 'finalPass';
+      scene.children.forEach((child) => {
+        let childElement = child;
+        if (childElement.material === undefined) {
+          childElement = child.children[0];
+        }
+        if (
+          childElement.material instanceof MeshPhysicalMaterial
+          || childElement.material instanceof MeshBasicMaterial
+        ) {
+          childElement.material = new MeshStandardMaterial();
+        }
+        let name = childElement.name.replace('mesh_', '').replace('mesh', '').replace('glb', '').replace('_dec', '')
+          .replace('_Decobj', '')
+          .replace('obj', '')
+          .replace('_DEc', '')
+          .replace('.', '')
+          .replace('_Dec', '');
+        if (name.includes('_')) {
+          name = name.split('_')[0];
+        }
+        childElement.name = name;
+        childElement.userData.name = name;
+        childElement.material.transparent = true;
+        childElement.material.writeDepthTexture = true;
+        childElement.material.depthTest = true;
+        childElement.material.depthWrite = true;
+        childElement.material.needsUpdate = true;
+        childElement.material.side = segmentationLayerCoordination[0][layerScope].spatialMaterialBackside
+          ? BackSide : FrontSide;
+
+        const simplified = childElement.clone();
+        simplified.geometry = childElement.geometry.clone();
+        simplified.geometry.translate(segmentationLayerCoordination[0][layerScope].spatialTargetX ?? 0,
+          segmentationLayerCoordination[0][layerScope].spatialTargetY ?? 0,
+          segmentationLayerCoordination[0][layerScope].spatialTargetZ ?? 0);
+        simplified.geometry.scale(
+          segmentationLayerCoordination[0][layerScope].spatialScaleX ?? 1.0,
+          segmentationLayerCoordination[0][layerScope].spatialScaleY ?? 1.0,
+          segmentationLayerCoordination[0][layerScope].spatialScaleZ ?? 1.0,
+        );
+        simplified.geometry.rotateX(segmentationLayerCoordination[0][layerScope].spatialRotationX ?? 0);
+        simplified.geometry.rotateY(segmentationLayerCoordination[0][layerScope].spatialRotationY ?? 0);
+        simplified.geometry.rotateZ(segmentationLayerCoordination[0][layerScope].spatialRotationZ ?? 0);
+
+        const finalPassChild = childElement.clone();
+        finalPassChild.material = childElement.material.clone();
+        finalPassChild.geometry = simplified.geometry.clone();
+        finalPass.add(finalPassChild);
+      });
+      newScene.add(finalPass);
+      newScene.scale.set(
+        segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
+        segmentationLayerCoordination[0][layerScope].spatialSceneScaleY ?? 1.0,
+        segmentationLayerCoordination[0][layerScope].spatialSceneScaleZ ?? 1.0,
+      );
+      const sceneScale = [segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
+        segmentationLayerCoordination[0][layerScope].spatialSceneScaleY ?? 1.0,
+        segmentationLayerCoordination[0][layerScope].spatialSceneScaleZ ?? 1.0];
+      setSegmentationSceneScale(sceneScale);
+      newScene.rotateX(segmentationLayerCoordination[0][layerScope].spatialSceneRotationX ?? 0.0);
+      newScene.rotateY(segmentationLayerCoordination[0][layerScope].spatialSceneRotationY ?? 0.0);
+      newScene.rotateZ(segmentationLayerCoordination[0][layerScope].spatialSceneRotationZ ?? 0.0);
+      setSegmentationGroup(newScene);
+    }
+  }
+  if (segmentationChannelCoordination[0] !== undefined && segmentationChannelCoordination[0][layerScope] !== undefined) {
+    const segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
+    let setsSaveString = '';
+    setsSave.forEach((childVal, child) => {
+      setsSaveString += `${setsSave[child].id};${setsSave[child].color.toString()};${setsSave[child].name}`;
+    });
+    let settingsSaveString = '';
+    segmentationSettings.obsSets.forEach((childVal, child) => {
+      settingsSaveString += `${segmentationSettings.obsSets[child].id};${
+        segmentationSettings.obsSets[child].color.toString()};${
+        segmentationSettings.obsSets[child].name}`;
+    });
+
+    // Check the MultiChannel Setting - combine all channels and see if something changed
+    if (segmentationChannelScopesByLayer[layerScope].length > 1) {
+      let color = '';
+      let opacity = '';
+      let visible = '';
+      let visibleCombined = false;
+      let opacityCombined = 0.0;
+      segmentationChannelScopesByLayer[layerScope].forEach((scopeVal, scope) => {
+        const channelScope = segmentationChannelScopesByLayer[layerScope][scope];
+        const channelSet = segmentationChannelCoordination[0][layerScope][channelScope];
+        color += `${channelSet.spatialChannelColor.toString()};`;
+        opacity += `${channelSet.spatialChannelOpacity};`;
+        visible += `${channelSet.spatialChannelVisible};`;
+        visibleCombined |= channelSet.spatialChannelVisible;
+        opacityCombined += channelSet.spatialChannelOpacity;
+      });
+      if (color !== segmentationSettings.multiColor
+                || opacity !== segmentationSettings.multiOpacity
+                || visible !== segmentationSettings.multiVisible) {
+        setSegmentationSettings({
+          color: segmentationLayerProps.spatialChannelColor,
+          opacity: opacityCombined,
+          visible: visibleCombined,
+          multiColor: color,
+          multiVisible: visible,
+          multiOpacity: opacity,
+          data: obsSegmentations,
+          obsSets: setsSave,
+        });
+      }
+    } else if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString()
+                || segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible
+                || segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity
+                || setsSaveString !== settingsSaveString
+    ) {
+      setSegmentationSettings({
+        color: segmentationLayerProps.spatialChannelColor,
+        opacity: segmentationLayerProps.spatialChannelOpacity,
+        visible: segmentationLayerProps.spatialChannelVisible,
+        multiColor: '',
+        multiVisible: '',
+        multiOpacity: '',
+        data: obsSegmentations,
+        obsSets: setsSave,
+      });
+    }
+  }
+
+  useEffect(() => {
+    if (segmentationGroup !== null) {
+      let firstGroup = 0;
+      let finalGroup = 0;
+      segmentationGroup.children.forEach((groupVal, group) => {
+        if (segmentationGroup.children[group].userData.name === 'finalPass') {
+          finalGroup = group;
+        } else {
+          firstGroup = group;
+        }
+      });
+
+      // TODO: Adapt so it can also work with union sets
+      segmentationGroup.children[finalGroup].children.forEach((childVal, child) => {
+        let { color } = segmentationSettings;
+        const id = segmentationGroup.children[finalGroup].children[child].userData.name;
+
+        // SET SELECTION
+        segmentationSettings.obsSets.forEach((setVal, index) => {
+          if (segmentationSettings.obsSets[index].id === id) {
+            color = segmentationSettings.obsSets[index].color;
+          }
+        });
+        // CHECK IF Multiple Scopes:
+        if (segmentationChannelScopesByLayer[layerScope].length > 1) {
+          segmentationChannelScopesByLayer[layerScope].forEach((scopeVal, scope) => {
+            const channelScope = segmentationChannelScopesByLayer[layerScope][scope];
+            const channelSet = segmentationChannelCoordination[0][layerScope][channelScope];
+            if (channelSet.obsType === id) {
+              segmentationGroup.children[finalGroup].children[child].material.color.r = channelSet.spatialChannelColor[0] / 255;
+              segmentationGroup.children[finalGroup].children[child].material.color.g = channelSet.spatialChannelColor[1] / 255;
+              segmentationGroup.children[finalGroup].children[child].material.color.b = channelSet.spatialChannelColor[2] / 255;
+              segmentationGroup.children[finalGroup].children[child].material.opacity = channelSet.spatialChannelOpacity;
+              segmentationGroup.children[finalGroup].children[child].visible = channelSet.spatialChannelVisible;
+              segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
+              segmentationGroup.children[firstGroup].children[child].material.needsUpdate = true;
+            }
+          });
+        } else {
+          segmentationGroup.children[finalGroup].children.forEach((childVal, child) => {
+            let { color } = segmentationSettings;
+            const id = segmentationGroup.children[finalGroup].children[child].userData.name;
+            segmentationSettings.obsSets.forEach((setVal, index) => {
+              if (segmentationSettings.obsSets[index].id === id) {
+                color = segmentationSettings.obsSets[index].color;
+              }
+            });
+            // adapt the color
+            segmentationGroup.children[finalGroup].children[child].material.color.r = color[0] / 255;
+            segmentationGroup.children[finalGroup].children[child].material.color.g = color[1] / 255;
+            segmentationGroup.children[finalGroup].children[child].material.color.b = color[2] / 255;
+            // Select the FinalPass Group
+            segmentationGroup.children[finalGroup].children[child].material.opacity = segmentationSettings.opacity;
+            segmentationGroup.children[finalGroup].children[child].material.visible = segmentationSettings.visible;
+            segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
+          });
+        }
+      });
+    }
+  }, [segmentationSettings, segmentationGroup]);
+
+
+  // 1st Rendering Pass Load the Data in the given resolution OR Resolution Changed
+  const dataToCheck = images[layerScope]?.image?.instance?.getData();
+  if (dataToCheck !== undefined && !dataReady && !initialStartup
+        && contrastLimits !== null && contrastLimits[0][1] !== 255 && is3dMode) {
+    setDataReady(true);
+    setInitialStartup(true);
+  }
+
+  // Only reload the mesh if the imageLayer changes (new data / new resolution, ...)
+  useEffect(() => {
+    const fetchRendering = async () => {
+      const loadingResult = await initialDataLoading(channelTargetC, resolution, data,
+        volumeData.volumes, volumeData.textures, volumeData.volumeMinMax, volumeData.resolution);
+      if (loadingResult[0] !== null) { // New Data has been loaded
+        setVolumeData({
+          resolution,
+          volumes: loadingResult[0],
+          textures: loadingResult[1],
+          volumeMinMax: loadingResult[2],
+          scale: loadingResult[3] !== null ? loadingResult[3] : volumeData.scale,
+          originalScale: loadingResult[4],
+        });
+        if (renderingSettings.uniforms === undefined || renderingSettings.uniforms === null
+                    || renderingSettings.shader === undefined || renderingSettings.shader === null) {
+          // JUST FOR THE INITIAL RENDERING
+          const rendering = create3DRendering(loadingResult[0], channelTargetC, channelsVisible, colors,
+            loadingResult[1], contrastLimits, loadingResult[2], loadingResult[3], renderingMode,
+            layerTransparency, xSlice, ySlice, zSlice, loadingResult[4]);
+          if (rendering !== null) {
+            setRenderingSettings({
+              uniforms: rendering[0],
+              shader: rendering[1],
+              meshScale: rendering[2],
+              geometrySize: rendering[3],
+              boxSize: rendering[4],
+            });
+          }
+        } else {
+          setVolumeSettings({
+            channelsVisible,
+            allChannels,
+            channelTargetC,
+            resolution,
+            data,
+            colors,
+            contrastLimits,
+            is3dMode,
+            renderingMode,
+            layerTransparency,
+            xSlice,
+            ySlice,
+            zSlice,
+          });
+        }
+      }
+    };
+    if (dataReady) {
+      if (resolution !== volumeSettings.resolution) {
+        materialRef.current.material.uniforms.volumeCount.value = 0;
+        materialRef.current.material.uniforms.volumeTex.value = null;
+      }
+      fetchRendering();
+      setDataReady(false);
+    }
+  }, [dataReady]);
+
+
+  // 2nd Rendering Pass Check if the Props Changed (except the resolution)
+  useEffect(() => {
+    if (((renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null
+            && renderingSettings.shader !== undefined && renderingSettings.shader !== null))) {
+      const rendering = create3DRendering(volumeData.volumes, volumeSettings.channelTargetC,
+        volumeSettings.channelsVisible, volumeSettings.colors, volumeData.textures,
+        volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale, volumeSettings.renderingMode,
+        volumeSettings.layerTransparency, volumeSettings.xSlice, volumeSettings.ySlice, volumeSettings.zSlice,
+        volumeData.originalScale);
+      if (rendering !== null) {
+        let volumeCount = 0;
+        volumeSettings.channelsVisible.forEach((elemVal, elem) => {
+          if (volumeSettings.channelsVisible[elem]) volumeCount++;
+        });
+        setDataReady(false);
+        if (materialRef !== undefined && materialRef.current !== null) {
+          // Set the material uniforms
+          materialRef.current.material.uniforms.u_clim.value = rendering[0].u_clim.value;
+          materialRef.current.material.uniforms.u_clim2.value = rendering[0].u_clim2.value;
+          materialRef.current.material.uniforms.u_clim3.value = rendering[0].u_clim3.value;
+          materialRef.current.material.uniforms.u_clim4.value = rendering[0].u_clim4.value;
+          materialRef.current.material.uniforms.u_clim5.value = rendering[0].u_clim5.value;
+          materialRef.current.material.uniforms.u_clim6.value = rendering[0].u_clim6.value;
+
+          materialRef.current.material.uniforms.u_xClip.value = rendering[0].u_xClip.value;
+          materialRef.current.material.uniforms.u_yClip.value = rendering[0].u_yClip.value;
+          materialRef.current.material.uniforms.u_zClip.value = rendering[0].u_zClip.value;
+
+          materialRef.current.material.uniforms.u_color.value = rendering[0].u_color.value;
+          materialRef.current.material.uniforms.u_color2.value = rendering[0].u_color2.value;
+          materialRef.current.material.uniforms.u_color3.value = rendering[0].u_color3.value;
+          materialRef.current.material.uniforms.u_color4.value = rendering[0].u_color4.value;
+          materialRef.current.material.uniforms.u_color5.value = rendering[0].u_color5.value;
+          materialRef.current.material.uniforms.u_color6.value = rendering[0].u_color6.value;
+          materialRef.current.material.uniforms.volumeTex.value = rendering[0].volumeTex.value;
+          materialRef.current.material.uniforms.volumeTex2.value = rendering[0].volumeTex2.value;
+          materialRef.current.material.uniforms.volumeTex3.value = rendering[0].volumeTex3.value;
+          materialRef.current.material.uniforms.volumeTex4.value = rendering[0].volumeTex4.value;
+          materialRef.current.material.uniforms.volumeTex5.value = rendering[0].volumeTex5.value;
+          materialRef.current.material.uniforms.volumeTex6.value = rendering[0].volumeTex6.value;
+          materialRef.current.material.uniforms.volumeCount.value = volumeCount;
+          materialRef.current.material.uniforms.u_renderstyle.value = volumeSettings.renderingMode;
+          materialRef.current.material.uniforms.dtScale.value = volumeSettings.layerTransparency;
+        }
+      } else {
+        materialRef.current.material.uniforms.volumeCount.value = 0;
+        materialRef.current.material.uniforms.volumeTex.value = null;
+      }
+    }
+  }, [volumeSettings]);
+
+  // -----------------------------------------------------------------
+  // -----------------------------------------------------------------
+  if (!volumeSettings.is3dMode) {
+    return (
+      <group>
+        <ambientLight />
+        <pointLight position={[10, 10, 10]} />
+        <Text color="white" scale={20} fontWeight={1000}>Only in 3D Mode</Text>
+      </group>
+    );
+  }
+
+  if (volumeSettings.is3dMode
+        && (renderingSettings.uniforms === undefined || renderingSettings.uniforms === null
+            || renderingSettings.shader === undefined || renderingSettings.shader === null)
+  ) {
+    return (
+      <group>
+        <ambientLight />
+        <pointLight position={[10, 10, 10]} />
+        <Text color="white" scale={20} fontWeight={1000}>Loading ...</Text>
+      </group>
+    );
+  }
+
+  const geometryAndMeshProps = {
+    segmentationGroup,
+    segmentationSettings,
+    segmentationSceneScale,
+    renderingSettings,
+    materialRef,
+    highlightGlom: onGlomSelected,
+    setObsHighlight: setObsHighlightFct,
+  };
+  return (
+    <group>
+      <Controllers />
+      <Hands />
+      <HandBbox />
+      <HandDecorate />
+      <GeometryAndMesh {...geometryAndMeshProps} />
+      <OrbitControls
+        ref={orbitRef}
+        enableDamping={false}
+        dampingFactor={0.0}
+        zoomDampingFactor={0.0}
+        smoothZoom={false}
+      />
+    </group>
+  );
 }
 
 export default function SpatialWrapper(props) {
