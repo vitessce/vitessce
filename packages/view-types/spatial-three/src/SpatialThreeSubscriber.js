@@ -787,6 +787,7 @@ export function SpatialThreeSubscriber(props) {
       isReady={isReady}
     >
       <SpatialThree
+        ref={deckRef}
         uuid={uuid}
         width={width}
         height={height}
