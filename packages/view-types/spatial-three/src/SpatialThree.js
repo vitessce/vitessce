@@ -1,4 +1,5 @@
 /* eslint-disable max-len */
+/* eslint-disable no-bitwise */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unknown-property */
 import React, { useRef, useState, forwardRef, useEffect } from 'react';
@@ -31,6 +32,12 @@ import { HandBbox } from './xr/HandBbox.js';
 import { GeometryAndMesh } from './GeometryAndMesh.js';
 import { HandDecorate } from './xr/HandDecorate.js';
 
+const renderingModeMap = {
+  'maximumIntensityProjection': 0,
+  'minimumIntensityProjection': 1,
+  'additive': 2,
+};
+
 /**
 * Extracting relevant information from the properties for creating the ThreeJS Volume Viewer
 * @param layerScope
@@ -39,7 +46,6 @@ import { HandDecorate } from './xr/HandDecorate.js';
 * @param channelCoordination
 * @param image
 * @param props
-* @param imageLayerLoaderSelection
 * @returns {{data: *, channelTargetC: ((*|boolean)[]|*), ySlice: (*|Vector2), contrastLimits: (number[][]|*),
   * is3dMode: boolean, zSlice: (*|Vector2), resolution: *, colors: (number[][]|*), allChannels: *, layerTransparency: *,
   * renderingMode: (number), xSlice: (*|Vector2), channelsVisible: ((*|boolean)[]|*)}|{allChannels: null, data: null,
@@ -48,7 +54,7 @@ import { HandDecorate } from './xr/HandDecorate.js';
 function extractInformationFromProps(
   layerScope, layerCoordination,
   channelScopes, channelCoordination,
-  image, props, imageLayerLoaderSelection,
+  image, props,
 ) {
   // Getting all the information out of the provided props
   const {
@@ -73,8 +79,8 @@ function extractInformationFromProps(
   const isRgb = layerCoordination[CoordinationType.PHOTOMETRIC_INTERPRETATION] === 'RGB';
   const [Layer, layerLoader] = getLayerLoaderTuple(data, is3dMode);
   const colormap = isRgb ? null : layerCoordination[CoordinationType.SPATIAL_LAYER_COLORMAP];
-  let renderingMode = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM];
-  renderingMode = renderingMode === 'maximumIntensityProjection' ? 0 : renderingMode === 'minimumIntensityProjection' ? 1 : 2;
+  const renderingModeStr = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM];
+  const renderingMode = renderingModeMap[renderingModeStr];
   const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
   const transparentColor = layerCoordination[CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR];
   const useTransparentColor = Array.isArray(transparentColor) && transparentColor.length === 3;
@@ -82,26 +88,6 @@ function extractInformationFromProps(
   const rgbInterleavedProps = {};
   if (imageWrapperInstance.isInterleaved()) {
     rgbInterleavedProps.visible = visible;
-  }
-  const layerDefModelMatrix = image?.image?.instance?.getModelMatrix() || {};
-  let selections;
-  const nextLoaderSelection = isRgb ? ([0, 1, 2])
-    .map(targetC => filterSelection(data, {
-      z: targetZ,
-      t: targetT,
-      c: targetC,
-    })) : channelScopes
-    .map(cScope => filterSelection(data, {
-      z: targetZ,
-      t: targetT,
-      c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
-    }));
-  const prevLoaderSelection = imageLayerLoaderSelection[layerScope];
-  if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
-    selections = prevLoaderSelection;
-  } else {
-    selections = nextLoaderSelection;
-    imageLayerLoaderSelection[layerScope] = nextLoaderSelection;
   }
 
   // COLORS TO BE USED
@@ -200,7 +186,6 @@ function useVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
     imageChannelScopesByLayer,
     imageChannelCoordination,
   } = props;
-  const imageLayerLoaderSelections = useRef({});
   const layerScope = imageLayerScopes[0];
   const channelScopes = imageChannelScopesByLayer[layerScope];
   const layerCoordination = imageLayerCoordination[0][layerScope];
@@ -222,7 +207,7 @@ function useVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
     ySlice,
     zSlice,
   } = extractInformationFromProps(layerScope, layerCoordination, channelScopes,
-    channelCoordination, images[layerScope], props, imageLayerLoaderSelections.current);
+    channelCoordination, images[layerScope], props);
   // TODO: Find a better and more efficient way to compare the Strings here
   if (channelTargetC !== null) {
     if (volumeSettings.channelTargetC.length !== 0
@@ -283,7 +268,7 @@ function useVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
 
 function getMinMaxValue(value, minMax) {
   const [min, max] = minMax;
-  return (value - min) / Math.sqrt(max**2 - min**2);
+  return (value - min) / Math.sqrt((max ** 2) - (min ** 2));
 }
 
 /**
@@ -431,87 +416,6 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
     [1.0, volume.yLength / volume.xLength, volume.zLength / volume.xLength]];
 }
 
-function getVolumeByChannel(channel, resolution, loader) {
-  return getVolumeIntern({
-    source: loader[resolution],
-    selection: { t: 0, c: channel }, // corresponds to the first channel of the first timepoint
-    downsampleDepth: 2 ** resolution,
-  });
-}
-
-function getVolumeFromOrigin(volumeOrigin) {
-  const volume = new Volume();
-  volume.xLength = volumeOrigin.width;
-  volume.yLength = volumeOrigin.height;
-  volume.zLength = volumeOrigin.depth;
-  volume.data = volumeOrigin.data;
-  return volume;
-}
-
-function getData3DTexture(volume) {
-  const texture = new Data3DTexture(volume.data, volume.xLength, volume.yLength, volume.zLength);
-  texture.format = RedFormat;
-  texture.type = FloatType;
-  texture.generateMipmaps = false;
-  texture.minFilter = LinearFilter;
-  texture.magFilter = LinearFilter;
-  // texture.unpackAlignment = 1;
-  texture.needsUpdate = true;
-  return texture;
-}
-
-/**
-* Get physical size scaling Matrix4
-* @param {Object} loader PixelSource
-*/
-function getPhysicalSizeScalingMatrix(loader) {
-  const { x, y, z } = loader?.meta?.physicalSizes ?? {};
-  return [x, y, z];
-}
-
-
-function minMaxVolume(volume) {
-  // get the min and max intensities
-  const [min, max] = volume.computeMinMax();
-
-  const dataASFloat32 = new Float32Array(volume.data.length);
-  for (let i = 0; i < volume.data.length; i++) {
-    dataASFloat32[i] = (volume.data[i] - min) / Math.sqrt(max**2 - min**2);
-  }
-  return dataASFloat32;
-}
-
-/**
-* Function to load the volumetric data from the given data source
-* @param channelTargetC
-* @param resolution
-* @param data
-* @param volumes
-* @param textures
-* @param volumeMinMax
-* @param oldResolution
-* @returns {Promise<(*|*[])[]>}
-*/
-async function initialDataLoading(channelTargetC, resolution, data, volumes, textures, volumeMinMax, oldResolution) {
-  let volume = null;
-  let scale = null;
-  const { shape, labels } = data[0];
-  for (const channel of channelTargetC) { // load on demand new channels or load all there are?? - Check VIV for it
-    if (!volumes.has(channel) || resolution !== oldResolution) {
-      const volumeOrigin = await getVolumeByChannel(channel, resolution, data);
-      volume = getVolumeFromOrigin(volumeOrigin);
-      const minMax = volume.computeMinMax();
-      volume.data = minMaxVolume(volume); // Have the data between 0 and 1
-      volumes.set(channel, volume);
-      textures.set(channel, getData3DTexture(volume));
-      volumeMinMax.set(channel, minMax);
-      scale = getPhysicalSizeScalingMatrix(data[resolution]);
-    }
-  }
-  return [volumes, textures, volumeMinMax, scale,
-    [shape[labels.indexOf('x')], shape[labels.indexOf('y')], shape[labels.indexOf('z')]]];
-}
-
 const dtypeToTypedArray = {
   Uint8: Uint8Array,
   Uint16: Uint16Array,
@@ -568,6 +472,88 @@ async function getVolumeIntern({
     width,
     depth: depthDownsampled,
   };
+}
+
+
+function getVolumeByChannel(channel, resolution, loader) {
+  return getVolumeIntern({
+    source: loader[resolution],
+    selection: { t: 0, c: channel }, // corresponds to the first channel of the first timepoint
+    downsampleDepth: 2 ** resolution,
+  });
+}
+
+function getVolumeFromOrigin(volumeOrigin) {
+  const volume = new Volume();
+  volume.xLength = volumeOrigin.width;
+  volume.yLength = volumeOrigin.height;
+  volume.zLength = volumeOrigin.depth;
+  volume.data = volumeOrigin.data;
+  return volume;
+}
+
+function getData3DTexture(volume) {
+  const texture = new Data3DTexture(volume.data, volume.xLength, volume.yLength, volume.zLength);
+  texture.format = RedFormat;
+  texture.type = FloatType;
+  texture.generateMipmaps = false;
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+  // texture.unpackAlignment = 1;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+/**
+* Get physical size scaling Matrix4
+* @param {Object} loader PixelSource
+*/
+function getPhysicalSizeScalingMatrix(loader) {
+  const { x, y, z } = loader?.meta?.physicalSizes ?? {};
+  return [x, y, z];
+}
+
+
+function minMaxVolume(volume) {
+  // get the min and max intensities
+  const [min, max] = volume.computeMinMax();
+
+  const dataASFloat32 = new Float32Array(volume.data.length);
+  for (let i = 0; i < volume.data.length; i++) {
+    dataASFloat32[i] = (volume.data[i] - min) / Math.sqrt((max ** 2) - (min ** 2));
+  }
+  return dataASFloat32;
+}
+
+/**
+* Function to load the volumetric data from the given data source
+* @param channelTargetC
+* @param resolution
+* @param data
+* @param volumes
+* @param textures
+* @param volumeMinMax
+* @param oldResolution
+* @returns {Promise<(*|*[])[]>}
+*/
+async function initialDataLoading(channelTargetC, resolution, data, volumes, textures, volumeMinMax, oldResolution) {
+  let volume = null;
+  let scale = null;
+  const { shape, labels } = data[0];
+  for (const channel of channelTargetC) { // load on demand new channels or load all there are?? - Check VIV for it
+    if (!volumes.has(channel) || resolution !== oldResolution) {
+      const volumeOrigin = await getVolumeByChannel(channel, resolution, data);
+      volume = getVolumeFromOrigin(volumeOrigin);
+      const minMax = volume.computeMinMax();
+      volume.data = minMaxVolume(volume); // Have the data between 0 and 1
+      volumes.set(channel, volume);
+      textures.set(channel, getData3DTexture(volume));
+      volumeMinMax.set(channel, minMax);
+      scale = getPhysicalSizeScalingMatrix(data[resolution]);
+    }
+  }
+  return [volumes, textures, volumeMinMax, scale,
+    [shape[labels.indexOf('x')], shape[labels.indexOf('y')], shape[labels.indexOf('z')]]];
 }
 
 /**
@@ -875,23 +861,14 @@ function SpatialThree(props) {
             }
           }
         } else {
-          for (const child in segmentationGroup.children[finalGroup].children) {
-            let { color } = segmentationSettings;
-            const id = segmentationGroup.children[finalGroup].children[child].userData.name;
-            for (const index in segmentationSettings.obsSets) {
-              if (segmentationSettings.obsSets[index].id === id) {
-                color = segmentationSettings.obsSets[index].color;
-              }
-            }
-            // adapt the color
-            segmentationGroup.children[finalGroup].children[child].material.color.r = color[0] / 255;
-            segmentationGroup.children[finalGroup].children[child].material.color.g = color[1] / 255;
-            segmentationGroup.children[finalGroup].children[child].material.color.b = color[2] / 255;
-            // Select the FinalPass Group
-            segmentationGroup.children[finalGroup].children[child].material.opacity = segmentationSettings.opacity;
-            segmentationGroup.children[finalGroup].children[child].material.visible = segmentationSettings.visible;
-            segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
-          }
+          // adapt the color
+          segmentationGroup.children[finalGroup].children[child].material.color.r = color[0] / 255;
+          segmentationGroup.children[finalGroup].children[child].material.color.g = color[1] / 255;
+          segmentationGroup.children[finalGroup].children[child].material.color.b = color[2] / 255;
+          // Select the FinalPass Group
+          segmentationGroup.children[finalGroup].children[child].material.opacity = segmentationSettings.opacity;
+          segmentationGroup.children[finalGroup].children[child].material.visible = segmentationSettings.visible;
+          segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
         }
       }
     }
@@ -1007,11 +984,9 @@ function SpatialThree(props) {
           materialRef.current.material.uniforms.u_renderstyle.value = volumeSettings.renderingMode;
           materialRef.current.material.uniforms.dtScale.value = volumeSettings.layerTransparency;
         }
-      } else {
-        if (materialRef?.current?.material?.uniforms) {
-          materialRef.current.material.uniforms.volumeCount.value = 0;
-          materialRef.current.material.uniforms.volumeTex.value = null;
-        }
+      } else if (materialRef?.current?.material?.uniforms) {
+        materialRef.current.material.uniforms.volumeCount.value = 0;
+        materialRef.current.material.uniforms.volumeTex.value = null;
       }
     }
   }, [volumeSettings]);
