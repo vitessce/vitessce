@@ -3,17 +3,27 @@
 /* eslint-disable react/no-unknown-property */
 import React, { useRef, useState, forwardRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import {
-  OrbitControls,
-  Bvh,
-  Text,
-} from '@react-three/drei';
+import { OrbitControls, Text } from '@react-three/drei';
 import { XRButton, XR, Controllers, Hands } from '@react-three/xr';
 import { isEqual } from 'lodash-es';
 import { filterSelection } from '@vitessce/spatial-utils';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { viv } from '@vitessce/gl';
-import * as THREE from 'three';
+import {
+  Vector2,
+  UniformsUtils,
+  Data3DTexture,
+  RedFormat,
+  FloatType,
+  LinearFilter,
+  Scene,
+  Group,
+  MeshPhysicalMaterial,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  BackSide,
+  FrontSide,
+} from 'three';
 import { getLayerLoaderTuple } from './utils.js';
 import { Volume } from './Volume.js';
 import { VolumeRenderShaderPerspective } from './VolumeShaderPerspective.js';
@@ -35,8 +45,11 @@ import { HandDecorate } from './xr/HandDecorate.js';
   * renderingMode: (number), xSlice: (*|Vector2), channelsVisible: ((*|boolean)[]|*)}|{allChannels: null, data: null,
   * channelTargetC: null, contrastLimits: null, resolution: null, colors: null, channelsVisible: null}}
   */
-function extractInformationFromProps(layerScope, layerCoordination, channelScopes, channelCoordination,
-  image, props, imageLayerLoaderSelection) {
+function extractInformationFromProps(
+  layerScope, layerCoordination,
+  channelScopes, channelCoordination,
+  image, props, imageLayerLoaderSelection,
+) {
   // Getting all the information out of the provided props
   const {
     targetT,
@@ -143,9 +156,9 @@ function extractInformationFromProps(layerScope, layerCoordination, channelScope
   let ySlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Y];
   let zSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Z];
 
-  xSlice = xSlice !== null ? xSlice : new THREE.Vector2(-1, 100000);
-  ySlice = ySlice !== null ? ySlice : new THREE.Vector2(-1, 100000);
-  zSlice = zSlice !== null ? zSlice : new THREE.Vector2(-1, 100000);
+  xSlice = xSlice !== null ? xSlice : new Vector2(-1, 100000);
+  ySlice = ySlice !== null ? ySlice : new Vector2(-1, 100000);
+  zSlice = zSlice !== null ? zSlice : new Vector2(-1, 100000);
 
   return {
     channelsVisible,
@@ -270,7 +283,7 @@ function useVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, 
 
 function getMinMaxValue(value, minMax) {
   const [min, max] = minMax;
-  return (value - min) / Math.sqrt(Math.pow(max, 2) - Math.pow(min, 2));
+  return (value - min) / Math.sqrt(max**2 - min**2);
 }
 
 /**
@@ -411,14 +424,14 @@ function create3DRendering(volumes, channelTargetC, channelsVisible, colors, tex
     colormap: 'gray',
   };
   const shader = VolumeRenderShaderPerspective;
-  const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+  const uniforms = UniformsUtils.clone(shader.uniforms);
   setUniformsTextures(uniforms, texturesList, volume, volconfig, renderstyle, contrastLimitsList, colorsSave, layerTransparency,
     xSlice, ySlice, zSlice, [scale[0].size, scale[1].size, scale[2] ? scale[2].size : 1.0], originalScale);
   return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2] ? scale[2].size / scale[0].size : 1.0], [volume.xLength, volume.yLength, volume.zLength],
     [1.0, volume.yLength / volume.xLength, volume.zLength / volume.xLength]];
 }
 
-async function getVolumeByChannel(channel, resolution, loader) {
+function getVolumeByChannel(channel, resolution, loader) {
   return getVolumeIntern({
     source: loader[resolution],
     selection: { t: 0, c: channel }, // corresponds to the first channel of the first timepoint
@@ -436,12 +449,12 @@ function getVolumeFromOrigin(volumeOrigin) {
 }
 
 function getData3DTexture(volume) {
-  const texture = new THREE.Data3DTexture(volume.data, volume.xLength, volume.yLength, volume.zLength);
-  texture.format = THREE.RedFormat;
-  texture.type = THREE.FloatType;
+  const texture = new Data3DTexture(volume.data, volume.xLength, volume.yLength, volume.zLength);
+  texture.format = RedFormat;
+  texture.type = FloatType;
   texture.generateMipmaps = false;
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
   // texture.unpackAlignment = 1;
   texture.needsUpdate = true;
   return texture;
@@ -454,6 +467,18 @@ function getData3DTexture(volume) {
 function getPhysicalSizeScalingMatrix(loader) {
   const { x, y, z } = loader?.meta?.physicalSizes ?? {};
   return [x, y, z];
+}
+
+
+function minMaxVolume(volume) {
+  // get the min and max intensities
+  const [min, max] = volume.computeMinMax();
+
+  const dataASFloat32 = new Float32Array(volume.data.length);
+  for (let i = 0; i < volume.data.length; i++) {
+    dataASFloat32[i] = (volume.data[i] - min) / Math.sqrt(max**2 - min**2);
+  }
+  return dataASFloat32;
 }
 
 /**
@@ -486,27 +511,6 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
   return [volumes, textures, volumeMinMax, scale,
     [shape[labels.indexOf('x')], shape[labels.indexOf('y')], shape[labels.indexOf('z')]]];
 }
-
-function minMaxVolume(volume) {
-  // get the min and max intensities
-  const [min, max] = volume.computeMinMax();
-
-  const dataASFloat32 = new Float32Array(volume.data.length);
-  for (let i = 0; i < volume.data.length; i++) {
-    dataASFloat32[i] = (volume.data[i] - min) / Math.sqrt(Math.pow(max, 2) - Math.pow(min, 2));
-  }
-  return dataASFloat32;
-}
-
-function getVolumeFromOrigin(volumeOrigin) {
-  const volume = new Volume();
-  volume.xLength = volumeOrigin.width;
-  volume.yLength = volumeOrigin.height;
-  volume.zLength = volumeOrigin.depth;
-  volume.data = volumeOrigin.data;
-  return volume;
-}
-
 
 const dtypeToTypedArray = {
   Uint8: Uint8Array,
@@ -702,9 +706,9 @@ function SpatialThree(props) {
   }
   if (obsSegmentations[layerScope] !== undefined && segmentationGroup == null) {
     const { scene } = obsSegmentations[layerScope].obsSegmentations;
-    if (scene !== null && scene !== undefined) {
-      const newScene = new THREE.Scene();
-      const finalPass = new THREE.Group();
+    if (scene?.children) {
+      const newScene = new Scene();
+      const finalPass = new Group();
       finalPass.userData.name = 'finalPass';
       for (const child in scene.children) {
         let childElement = scene.children[child];
@@ -712,10 +716,10 @@ function SpatialThree(props) {
           childElement = scene.children[child].children[0];
         }
         if (
-          childElement.material instanceof THREE.MeshPhysicalMaterial
-          || childElement.material instanceof THREE.MeshBasicMaterial
+          childElement.material instanceof MeshPhysicalMaterial
+          || childElement.material instanceof MeshBasicMaterial
         ) {
-          childElement.material = new THREE.MeshStandardMaterial();
+          childElement.material = new MeshStandardMaterial();
         }
         let name = childElement.name.replace('mesh_', '').replace('mesh', '').replace('glb', '').replace('_dec', '')
           .replace('_Decobj', '')
@@ -734,7 +738,7 @@ function SpatialThree(props) {
         childElement.material.depthWrite = true;
         childElement.material.needsUpdate = true;
         childElement.material.side = segmentationLayerCoordination[0][layerScope].spatialMaterialBackside
-          ? THREE.BackSide : THREE.FrontSide;
+          ? BackSide : FrontSide;
 
         const simplified = childElement.clone();
         simplified.geometry = childElement.geometry.clone();
@@ -916,8 +920,7 @@ function SpatialThree(props) {
           scale: loadingResult[3] !== null ? loadingResult[3] : volumeData.scale,
           originalScale: loadingResult[4],
         });
-        if (renderingSettings.uniforms === undefined || renderingSettings.uniforms === null
-                    || renderingSettings.shader === undefined || renderingSettings.shader === null) {
+        if (!renderingSettings.uniforms || !renderingSettings.shader) {
           // JUST FOR THE INITIAL RENDERING
           const rendering = create3DRendering(loadingResult[0], channelTargetC, channelsVisible, colors,
             loadingResult[1], contrastLimits, loadingResult[2], loadingResult[3], renderingMode,
@@ -951,7 +954,7 @@ function SpatialThree(props) {
       }
     };
     if (dataReady) {
-      if (resolution !== volumeSettings.resolution) {
+      if (resolution !== volumeSettings.resolution && materialRef.current) {
         materialRef.current.material.uniforms.volumeCount.value = 0;
         materialRef.current.material.uniforms.volumeTex.value = null;
       }
@@ -963,8 +966,7 @@ function SpatialThree(props) {
 
   // 2nd Rendering Pass Check if the Props Changed (except the resolution)
   useEffect(() => {
-    if (((renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null
-            && renderingSettings.shader !== undefined && renderingSettings.shader !== null))) {
+    if (renderingSettings.uniforms && renderingSettings.shader) {
       const rendering = create3DRendering(volumeData.volumes, volumeSettings.channelTargetC,
         volumeSettings.channelsVisible, volumeSettings.colors, volumeData.textures,
         volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale, volumeSettings.renderingMode,
@@ -976,7 +978,7 @@ function SpatialThree(props) {
           if (volumeSettings.channelsVisible[elem]) volumeCount++;
         }
         setDataReady(false);
-        if (materialRef !== undefined && materialRef.current !== null) {
+        if (materialRef?.current?.material?.uniforms) {
           // Set the material uniforms
           materialRef.current.material.uniforms.u_clim.value = rendering[0].u_clim.value;
           materialRef.current.material.uniforms.u_clim2.value = rendering[0].u_clim2.value;
@@ -1006,8 +1008,10 @@ function SpatialThree(props) {
           materialRef.current.material.uniforms.dtScale.value = volumeSettings.layerTransparency;
         }
       } else {
-        materialRef.current.material.uniforms.volumeCount.value = 0;
-        materialRef.current.material.uniforms.volumeTex.value = null;
+        if (materialRef?.current?.material?.uniforms) {
+          materialRef.current.material.uniforms.volumeCount.value = 0;
+          materialRef.current.material.uniforms.volumeTex.value = null;
+        }
       }
     }
   }, [volumeSettings]);
@@ -1024,10 +1028,7 @@ function SpatialThree(props) {
     );
   }
 
-  if (volumeSettings.is3dMode
-        && (renderingSettings.uniforms === undefined || renderingSettings.uniforms === null
-            || renderingSettings.shader === undefined || renderingSettings.shader === null)
-  ) {
+  if (volumeSettings.is3dMode && (!renderingSettings.uniforms || !renderingSettings.shader)) {
     return (
       <group>
         <ambientLight />
@@ -1064,8 +1065,8 @@ function SpatialThree(props) {
   );
 }
 
-const SpatialWrapper = forwardRef((props, deckRef) => (
-  <div id="ThreeJs" style={{ width: '100%', height: '100%' }}>
+const SpatialWrapper = forwardRef((props, canvasRef) => (
+  <div style={{ width: '100%', height: '100%' }}>
     <XRButton
       mode="AR"
       sessionInit={{ optionalFeatures: ['hand-tracking'] }}
@@ -1096,11 +1097,13 @@ const SpatialWrapper = forwardRef((props, deckRef) => (
             }
     </XRButton>
     <Canvas
+      style={{ position: 'absolute', top: 0, left: 0 }}
       camera={{ fov: 50, up: [0, 1, 0], position: [0, 0, 800], near: 0.1, far: 3000 }}
       gl={{ antialias: true, logarithmicDepthBuffer: false }}
+      ref={canvasRef}
     >
       <XR>
-        <SpatialThree {...props} deckRef={deckRef} />
+        <SpatialThree {...props} />
       </XR>
     </Canvas>
   </div>

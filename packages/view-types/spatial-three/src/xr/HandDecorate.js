@@ -5,26 +5,14 @@ import { useXR } from '@react-three/xr';
 export function HandDecorate() {
   const { controllers } = useXR();
   useFrame(() => {
-    if (controllers && controllers[0] && controllers[1]) {
-      if (controllers[0].hand) {
-        if (controllers[0].hand.children[25]) {
-          if (controllers[0].hand.children[25].children[0]) {
-            if (controllers[0].hand.children[25].children[0].children[0]) {
-              controllers[0].hand.children[25].children[0].children[0].material.transparent = true;
-              controllers[0].hand.children[25].children[0].children[0].material.opacity = 0.5;
-            }
-          }
-        }
+    if (controllers?.[0] && controllers?.[1]) {
+      if (controllers[0]?.hand?.children?.[25]?.children?.[0]?.children?.[0]) {
+        controllers[0].hand.children[25].children[0].children[0].material.transparent = true;
+        controllers[0].hand.children[25].children[0].children[0].material.opacity = 0.5;
       }
-      if (controllers[1].hand) {
-        if (controllers[1].hand.children[25]) {
-          if (controllers[1].hand.children[25].children[0]) {
-            if (controllers[1].hand.children[25].children[0].children[0]) {
-              controllers[1].hand.children[25].children[0].children[0].material.transparent = true;
-              controllers[1].hand.children[25].children[0].children[0].material.opacity = 0.5;
-            }
-          }
-        }
+      if (controllers[1]?.hand?.children?.[25]?.children?.[0]?.children?.[0]) {
+        controllers[1].hand.children[25].children[0].children[0].material.transparent = true;
+        controllers[1].hand.children[25].children[0].children[0].material.opacity = 0.5;
       }
     }
   });
