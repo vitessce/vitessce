@@ -33,9 +33,9 @@ import { GeometryAndMesh } from './GeometryAndMesh.js';
 import { HandDecorate } from './xr/HandDecorate.js';
 
 const renderingModeMap = {
-  'maximumIntensityProjection': 0,
-  'minimumIntensityProjection': 1,
-  'additive': 2,
+  maximumIntensityProjection: 0,
+  minimumIntensityProjection: 1,
+  additive: 2,
 };
 
 /**
@@ -540,18 +540,23 @@ async function initialDataLoading(channelTargetC, resolution, data, volumes, tex
   let volume = null;
   let scale = null;
   const { shape, labels } = data[0];
-  for (const channel of channelTargetC) { // load on demand new channels or load all there are?? - Check VIV for it
-    if (!volumes.has(channel) || resolution !== oldResolution) {
-      const volumeOrigin = await getVolumeByChannel(channel, resolution, data);
-      volume = getVolumeFromOrigin(volumeOrigin);
-      const minMax = volume.computeMinMax();
-      volume.data = minMaxVolume(volume); // Have the data between 0 and 1
-      volumes.set(channel, volume);
-      textures.set(channel, getData3DTexture(volume));
-      volumeMinMax.set(channel, minMax);
-      scale = getPhysicalSizeScalingMatrix(data[resolution]);
-    }
-  }
+  const channelsToLoad = channelTargetC
+    .filter(channel => !volumes.has(channel) || resolution !== oldResolution);
+  const volumeOrigins = await Promise.all(
+    channelsToLoad
+      .map(channel => getVolumeByChannel(channel, resolution, data)),
+  );
+  // load on demand new channels or load all there are?? - Check VIV for it
+  channelsToLoad.forEach((channel, channelIndex) => {
+    const volumeOrigin = volumeOrigins[channelIndex];
+    volume = getVolumeFromOrigin(volumeOrigin);
+    const minMax = volume.computeMinMax();
+    volume.data = minMaxVolume(volume); // Have the data between 0 and 1
+    volumes.set(channel, volume);
+    textures.set(channel, getData3DTexture(volume));
+    volumeMinMax.set(channel, minMax);
+    scale = getPhysicalSizeScalingMatrix(data[resolution]);
+  });
   return [volumes, textures, volumeMinMax, scale,
     [shape[labels.indexOf('x')], shape[labels.indexOf('y')], shape[labels.indexOf('z')]]];
 }
@@ -660,13 +665,13 @@ function SpatialThree(props) {
   let setObsHighlightFct = () => {}; // no-op
   const setsSave = [];
   if (segmentationChannelCoordination[0][layerScope] !== undefined) {
-    const segmentationOBSSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
+    const segmentationObsSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
     const { setObsHighlight } = segmentationChannelCoordination[1][layerScope][layerScope];
     setObsHighlightFct = setObsHighlight;
     const sets = segmentationChannelCoordination[0][layerScope][layerScope].additionalObsSets;
     if (sets !== null) {
-      for (const index in segmentationOBSSetLayerProps.obsSetSelection) {
-        const selectedElement = segmentationOBSSetLayerProps.obsSetSelection[index][1];
+      for (const index in segmentationObsSetLayerProps.obsSetSelection) {
+        const selectedElement = segmentationObsSetLayerProps.obsSetSelection[index][1];
         for (const subIndex in sets.tree[0].children) {
           const child = sets.tree[0].children[subIndex];
           if (child.name === selectedElement) {
@@ -674,8 +679,8 @@ function SpatialThree(props) {
               const info = { name: '', id: '', color: [] };
               info.name = selectedElement;
               info.id = child.set[elem][0];
-              for (const subIndexColor in segmentationOBSSetLayerProps.obsSetColor) {
-                const color = segmentationOBSSetLayerProps.obsSetColor[subIndexColor];
+              for (const subIndexColor in segmentationObsSetLayerProps.obsSetColor) {
+                const color = segmentationObsSetLayerProps.obsSetColor[subIndexColor];
                 if (color.path[1] === selectedElement) {
                   info.color = color.color;
                 }
@@ -686,11 +691,11 @@ function SpatialThree(props) {
         }
       }
     }
-    if (segmentationOBSSetLayerProps.obsHighlight !== null) {
-      setsSave.push({ name: '', id: segmentationOBSSetLayerProps.obsHighlight, color: [255, 34, 0] });
+    if (segmentationObsSetLayerProps.obsHighlight !== null) {
+      setsSave.push({ name: '', id: segmentationObsSetLayerProps.obsHighlight, color: [255, 34, 0] });
     }
   }
-  if (obsSegmentations[layerScope] !== undefined && segmentationGroup == null) {
+  if (obsSegmentations?.[layerScope]?.obsSegmentations && segmentationGroup == null) {
     const { scene } = obsSegmentations[layerScope].obsSegmentations;
     if (scene?.children) {
       const newScene = new Scene();

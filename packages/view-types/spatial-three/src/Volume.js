@@ -260,6 +260,7 @@ export class Volume {
     let firstSpacing;
     let secondSpacing;
     let positionOffset;
+    let IJKIndex;
 
     const axisInIJK = new Vector3();
     const firstDirection = new Vector3();
@@ -276,6 +277,7 @@ export class Volume {
         firstSpacing = this.spacing[2];
         // eslint-disable-next-line prefer-destructuring
         secondSpacing = this.spacing[1];
+        IJKIndex = new Vector3(RASIndex, 0, 0);
 
         planeMatrix.multiply((new Matrix4()).makeRotationY(Math.PI / 2));
         positionOffset = (volume.RASDimensions[0] - 1) / 2;
@@ -289,6 +291,7 @@ export class Volume {
         firstSpacing = this.spacing[0];
         // eslint-disable-next-line prefer-destructuring
         secondSpacing = this.spacing[2];
+        IJKIndex = new Vector3(0, RASIndex, 0);
 
         planeMatrix.multiply((new Matrix4()).makeRotationX(-Math.PI / 2));
         positionOffset = (volume.RASDimensions[1] - 1) / 2;
@@ -303,6 +306,7 @@ export class Volume {
         firstSpacing = this.spacing[0];
         // eslint-disable-next-line prefer-destructuring
         secondSpacing = this.spacing[1];
+        IJKIndex = new Vector3(0, 0, RASIndex);
 
         positionOffset = (volume.RASDimensions[2] - 1) / 2;
         planeMatrix.setPosition(new Vector3(0, 0, RASIndex - positionOffset));
@@ -319,7 +323,9 @@ export class Volume {
     const planeWidth = Math.abs(iLength * firstSpacing);
     const planeHeight = Math.abs(jLength * secondSpacing);
 
-
+    IJKIndex = Math.abs(
+      Math.round(IJKIndex.applyMatrix4(volume.inverseMatrix).dot(axisInIJK)),
+    );
     const base = [new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1)];
     const iDirection = [firstDirection, secondDirection, axisInIJK]
       .find(x => Math.abs(x.dot(base[0])) > 0.9);
@@ -327,22 +333,29 @@ export class Volume {
       .find(x => Math.abs(x.dot(base[1])) > 0.9);
     const kDirection = [firstDirection, secondDirection, axisInIJK]
       .find(x => Math.abs(x.dot(base[2])) > 0.9);
-    const argumentsWithInversion = [
-      'volume.xLength-1-', 'volume.yLength-1-', 'volume.zLength-1-',
-    ];
-    const argArray = [iDirection, jDirection, kDirection].map((direction, n) => (
-      direction.dot(base[n]) > 0
-        ? ''
-        : argumentsWithInversion[n]
-    ) + (
-      direction === axisInIJK
-        ? 'IJKIndex'
-        : direction.argVar
-    ));
-    const argString = argArray.join(',');
-    const sliceAccess = eval(
-      `(function sliceAccess (i,j) {return volume.access( ${argString});})`,
-    );
+
+    // Reference: https://github.com/pmndrs/three-stdlib/blob/0a5de570f8f0f61ea2603b6fc99d73c7b59070a7/src/misc/Volume.js#L322
+    function sliceAccess(i, j) {
+      // eslint-disable-next-line no-nested-ternary
+      const si = iDirection === axisInIJK
+        ? IJKIndex : iDirection.arglet === 'i' ? i : j;
+      // eslint-disable-next-line no-nested-ternary
+      const sj = jDirection === axisInIJK
+        ? IJKIndex : jDirection.arglet === 'i' ? i : j;
+      // eslint-disable-next-line no-nested-ternary
+      const sk = kDirection === axisInIJK
+        ? IJKIndex : kDirection.arglet === 'i' ? i : j;
+
+      // invert indices if necessary
+      const accessI = iDirection.dot(base[0]) > 0
+        ? si : volume.xLength - 1 - si;
+      const accessJ = jDirection.dot(base[1]) > 0
+        ? sj : volume.yLength - 1 - sj;
+      const accessK = kDirection.dot(base[2]) > 0
+        ? sk : volume.zLength - 1 - sk;
+
+      return volume.access(accessI, accessJ, accessK);
+    }
 
     return {
       iLength,
