@@ -1,8 +1,7 @@
-import React from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useXR } from '@react-three/xr';
 
-// TODO: can this just be a hook?
+// TODO: can this just be a hook (since it does not return any JSX)?
 export function HandDecorate() {
   const { controllers } = useXR();
   useFrame(() => {

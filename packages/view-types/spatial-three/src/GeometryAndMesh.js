@@ -1,6 +1,6 @@
+/* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unknown-property */
-/* eslint-disable max-len */
 import React, { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Bvh } from '@react-three/drei';
