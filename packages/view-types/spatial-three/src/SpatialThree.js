@@ -22,7 +22,7 @@ import {
   useVolumeSettings,
   create3DRendering,
   initialDataLoading,
-} from './more-utils.js';
+} from './three-utils.js';
 
 
 /**
