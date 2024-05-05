@@ -18,7 +18,10 @@ export const threeDemoConfig = {
   initStrategy: 'auto',
   layout: [
     {
-      component: 'spatialThree',
+      component: 'spatialBeta',
+      props: {
+        threeFor3d: true,
+      },
       x: 0,
       y: 0,
       w: 8,

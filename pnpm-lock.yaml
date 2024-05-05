@@ -1560,6 +1560,9 @@ importers:
       '@vitessce/sets-utils':
         specifier: workspace:*
         version: link:../../utils/sets-utils
+      '@vitessce/spatial-three':
+        specifier: workspace:*
+        version: link:../spatial-three
       '@vitessce/spatial-utils':
         specifier: workspace:*
         version: link:../../utils/spatial-utils

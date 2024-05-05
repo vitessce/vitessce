@@ -19,7 +19,7 @@ function generateJainKidneyDecimatedConfig() {
       fileUid: 'kidney',
     },
   }).addFile({
-    fileType: 'segmentation.glb',
+    fileType: 'obsSegmentations.glb',
     url: 'https://hdv-spatial-data.s3.us-east-1.amazonaws.com/washu-kidney/Lighsheet_test_data/Sample_SK2_FOV_5_Example_Surface_with_Stats_Masks_Images/decimated.glb?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEMb%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJGMEQCIGwbkepqkQYVHCt8w9%2BYan1pdeIndceC6SdLUYl5hg3rAiAcxgWKHQHpw8YDMJhfPOjbcpMTRkXrhyQ8TRNwB%2FwxBirsAwgfEAEaDDEzNjU3NjUyMjA0OCIMk9a5Zl0J1p9ZY6bsKskDnxX%2Fqnf98hH%2FDHq9psEVXTLJqaz%2FwFsgyANO7L2gCT4jPf%2BfP%2Fy9g42ETpUKMUWXkleOIXbCFyRm1ASkt8hvyqMYEVisutHwzfGbYEmJDhMN88fjQpuIge6EXNbr7xyhKEO3bc3z6ymCUhM5uTxXY5IlY3HmeqHpcjsYISBXBHvFkSwaEiWO5dOY2xzoij2OZGbHetfUSfSGp2FRdAEGQF0XH9FARRIBQRw%2FSAxjckcSwQKWmx9E%2B2I3e6BGGUEOB%2FaCNHs1LNuRmKXB81Pqq18%2BveeUFLk4c%2FrfHQQ27PwgPfHRVKvrvGW1a7pQvD635VD%2BxlpwhI1M1e5QGoYHjl9G7123skdogRwVOqnYxsYyjBHjR6UfOELNs8LIXX00cdg71dm7ImzjgN5T31o1TP6yZ0RJrh1cONcokN6QSQfoAToeqcmj0YEG0o3VNxN1BUqXS57lhCuxi0xJBu42nu45fLeqEWYpr685AeFGqMsSQjTk64h2ZsBg7mjThKxYHXYGlGjbBBEn1E2FmCazidzuCR2y%2FPlK34Y7%2B20w0mr2fejCIHd%2FPofquiayc9VkaL1zQ4ki%2BZINVialnh5%2BW%2Flm7lcJ8FRszzDupMCxBjqVAsuS2LmfjtsscvUOabNQnSXOgmaAgcnKa3A8xWmbbafbZ4U86b%2FaGzfq3o%2Fr1dyQRc5PZwuwptKr4pj6h9GMD9d8MpzL8I%2B7tKxfQHZpHkAMuremRWkw9dUFbLgdL8%2BX5wkQaNzJdOOQiGOINVlfvDNJkJd0wjVYAZw0xqIhlHLOhIVPvdiUNCzdEeoSi5fWLCt4TmDUIlG%2BwOH04ylCFP4MlWHthsHgrafdJKe7orgtNq5INScEPDuZb46XVBPb12iLGM8wM5cNBh5DIwHszEX8pa3%2FDSropvacNEyDeG%2BXN5wd8fVpbbsX8AkTetYwSuBXQXY%2BAQOJpkjdRU0LlKKZBffbidxeDKV%2BANx7%2B54Ve006GRY%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20240429T213540Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Credential=ASIAR7TEYK5AMDYIIXMD%2F20240429%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=2e252f32a30982baa6ba214021cc583ccc766771e14bbb0c0900d146cb4147ce',
     coordinationValues: {
       fileUid: 'gloms',
@@ -34,7 +34,7 @@ function generateJainKidneyDecimatedConfig() {
     },
   });
 
-  const spatialThreeView = config.addView(dataset, 'spatialThree');
+  const spatialThreeView = config.addView(dataset, 'spatialBeta').setProps({ threeFor3d: true });
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const obsSetsView = config.addView(dataset, 'obsSets');
   const barPlot = config.addView(dataset, 'featureBarPlot').setProps({
@@ -71,7 +71,6 @@ function generateJainKidneyDecimatedConfig() {
   // const [selectionScope, colorScope] = config.addCoordination('obsSetSelection', 'obsSetColor');
   obsSetsView.useCoordination(selectionScope, colorScope);
 
-  // config.linkViewsByObject([spatialThreeView,spatialVolumeView, lcView], {
   config.linkViewsByObject([spatialThreeView, lcView], {
     spatialTargetZ: 0,
     spatialTargetT: 0,

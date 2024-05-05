@@ -20,7 +20,8 @@ function generateBloodVesselNeighborhood() {
     },
   });
 
-  const spatialThreeView = config.addView(dataset, 'spatialThree', { x: 0, y: 0, w: 8, h: 8 });
+  const spatialThreeView = config.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 8 })
+    .setProps({ threeFor3d: true });
   const description = config.addView(dataset, 'description', { x: 8, y: 1, w: 4, h: 2 })
     .setProps({ description: "To connect your mixed reality headset to this instance, navigate the web browser of your headset to: http://vitessce.link. Enter this 4 digit code: 8976. Next, move any slider in the channel controller. This will link the two sessions. As soon as the data is loaded (loading indicator disappears) in the headset, toggle the 3D button (top right of the channel controller, if it's not on yet). As soon as the dataset has loaded in the spatial view, you can select the \"Enter AR\" button." });
   const lcView = config.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 6 });

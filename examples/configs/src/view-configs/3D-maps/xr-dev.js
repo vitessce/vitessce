@@ -16,7 +16,7 @@ function generateXRDevExample() {
       fileUid: 'kidney',
     },
   }).addFile({
-    fileType: 'segmentation.glb',
+    fileType: 'obsSegmentations.glb',
     url: 'https://192.168.0.24:8081/decimated_gloms_compressed.glb',
     coordinationValues: {
       fileUid: 'gloms',
@@ -31,8 +31,8 @@ function generateXRDevExample() {
     },
   });
 
-  const spatialThreeView = config.addView(dataset, 'spatialThree');
-  // const spatialVolumeView = config.addView(dataset, 'spatialBeta').setProps({ title: 'MIP' });
+  const spatialThreeView = config.addView(dataset, 'spatialBeta')
+    .setProps({ threeFor3d: true });
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const obsSetsView = config.addView(dataset, 'obsSets');
   const barPlot = config.addView(dataset, 'featureBarPlot').setProps({

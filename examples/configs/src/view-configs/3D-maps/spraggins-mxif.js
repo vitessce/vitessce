@@ -22,7 +22,8 @@ function generateSpragginsMxIF() {
   });
 
 
-  const spatialThreeView = config.addView(dataset, 'spatialThree');
+  const spatialThreeView = config.addView(dataset, 'spatialBeta')
+    .setProps({ threeFor3d: true });
   const lcView = config.addView(dataset, 'layerControllerBeta');
   config.linkViewsByObject([spatialThreeView, lcView], {
     spatialTargetZ: 0,

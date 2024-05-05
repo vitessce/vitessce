@@ -70,7 +70,6 @@ import { ObsSetsManagerSubscriber } from '@vitessce/obs-sets-manager';
 import { EmbeddingScatterplotSubscriber } from '@vitessce/scatterplot-embedding';
 import { GatingSubscriber } from '@vitessce/scatterplot-gating';
 import { SpatialSubscriber } from '@vitessce/spatial';
-import { SpatialThreeSubscriber } from '@vitessce/spatial-three';
 import { SpatialBetaSubscriber } from '@vitessce/spatial-beta';
 import { HeatmapSubscriber } from '@vitessce/heatmap';
 import { FeatureListSubscriber } from '@vitessce/feature-list';
@@ -200,7 +199,6 @@ export const baseViewTypes = [
   makeViewType(ViewType.SCATTERPLOT, EmbeddingScatterplotSubscriber),
   makeViewType(ViewType.GATING, GatingSubscriber),
   makeViewType(ViewType.SPATIAL, SpatialSubscriber),
-  makeViewType(ViewType.SPATIAL_THREE, SpatialThreeSubscriber),
   makeViewType(ViewType.SPATIAL_BETA, SpatialBetaSubscriber),
   makeViewType(ViewType.HEATMAP, HeatmapSubscriber),
   makeViewType(ViewType.FEATURE_LIST, FeatureListSubscriber),
@@ -267,7 +265,7 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
   makeFileType(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, SpatialDataObsSetsLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
 
-  makeFileType(FileType.MESH_SEGMENTATION, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, z.null()),
+  makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, z.null()),
   makeFileType(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
@@ -341,9 +339,9 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.EMBEDDING_OBS_OPACITY_MODE, 'auto', z.enum(['manual', 'auto'])),
   new PluginCoordinationType(CoordinationType.SPATIAL_ZOOM, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_ROTATION, 0, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_X, 0, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_Y, 0, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_Z, 0, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_X, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_Y, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_Z, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_ROTATION_X, 0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_ROTATION_Y, 0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_ROTATION_Z, 0, z.number().nullable()),

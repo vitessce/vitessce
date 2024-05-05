@@ -20,15 +20,15 @@ function generateCellNeighborhoodConfig() {
       fileUid: 'melanoma',
     },
   }).addFile({
-    fileType: 'segmentation.glb',
+    fileType: 'obsSegmentations.glb',
     url: 'https://vitessce-data-v2.s3.amazonaws.com/data/sorger/cells_from_wrl_named.glb',
     coordinationValues: {
       fileUid: 'Cells',
     },
   });
 
-  const spatialThreeView = config.addView(dataset, 'spatialThree');
-  // const spatialVolumeView = config.addView(dataset, 'spatialBeta').setProps({ title: 'MIP' });
+  const spatialThreeView = config.addView(dataset, 'spatialBeta')
+    .setProps({ threeFor3d: true });
   const lcView = config.addView(dataset, 'layerControllerBeta');
 
   const [
@@ -159,10 +159,10 @@ function generateCellNeighborhoodConfig() {
   });
 
   /*
-    config.layout(
-      hconcat(vconcat(spatialThreeView,spatialVolumeView),
-      vconcat(lcView,obsSetsView, barPlot))
-    );
+    config.layout(hconcat(
+      vconcat(spatialThreeView,spatialVolumeView),
+      vconcat(lcView,obsSetsView, barPlot)
+    ));
   */
   config.layout(hconcat(spatialThreeView, vconcat(lcView)));
 

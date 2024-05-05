@@ -20,7 +20,7 @@ function generateBloodVesselConfig() {
       fileUid: 'kidney',
     },
   }).addFile({
-    fileType: 'segmentation.glb',
+    fileType: 'obsSegmentations.glb',
     url: 'https://vitessce-data-v2.s3.amazonaws.com/data/bloodVessel.glb',
     // url: 'http://127.0.0.1:8080/untitled.glb',
     // url: 'http://127.0.0.1:8081/bloodVEssel.glb',
@@ -29,8 +29,8 @@ function generateBloodVesselConfig() {
     },
   });
 
-  const spatialThreeView = config.addView(dataset, 'spatialThree');
-  // const spatialVolumeView = config.addView(dataset, 'spatialBeta').setProps({ title: 'MIP' });
+  const spatialThreeView = config.addView(dataset, 'spatialBeta')
+    .setProps({ threeFor3d: true });
   const lcView = config.addView(dataset, 'layerControllerBeta');
   // const linkController = config.addView(dataset, 'linkController').setProps({code:'1234'})
 
@@ -60,6 +60,7 @@ function generateBloodVesselConfig() {
   config.linkViewsByObject([spatialThreeView, lcView], {
     spatialTargetZ: 0,
     spatialTargetT: 0,
+    spatialRenderingMode: '3D',
     // spatialRenderingMode:'3D',
     imageLayer: CL([
       {
@@ -145,10 +146,10 @@ function generateBloodVesselConfig() {
   });
 
   /*
-    config.layout(
-      hconcat(vconcat(spatialThreeView,spatialVolumeView),
-      vconcat(lcView,obsSetsView, barPlot))
-    );
+    config.layout(hconcat(
+      vconcat(spatialThreeView,spatialVolumeView),
+      vconcat(lcView,obsSetsView, barPlot)
+    ));
   */
   // config.layout(hconcat(spatialThreeView, vconcat(lcView, linkController)));
   config.layout(hconcat(spatialThreeView, lcView));

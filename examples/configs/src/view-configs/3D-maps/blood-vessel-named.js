@@ -19,16 +19,15 @@ function generateBloodVesselConfig() {
       fileUid: 'melanoma',
     },
   }).addFile({
-    fileType: 'segmentation.glb',
+    fileType: 'obsSegmentations.glb',
     url: 'https://vitessce-data-v2.s3.amazonaws.com/data/bloodVesselNamed.glb',
     coordinationValues: {
       fileUid: 'skeleton',
     },
   });
 
-  const spatialThreeView = config.addView(dataset, 'spatialThree', { x: 0, y: 0, w: 8, h: 8 });
-  // const spatialVolumeView = config.addView(dataset, 'spatialBeta').setProps({ title: 'MIP' });
-  const lcView = config.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 6 });
+  const spatialThreeView = config.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 8 })
+    .setProps({ threeFor3d: true });
   const description = config.addView(dataset, 'description', {
     x: 8,
     y: 1,
@@ -177,10 +176,10 @@ function generateBloodVesselConfig() {
   });
 
   /*
-    config.layout(
-      hconcat(vconcat(spatialThreeView,spatialVolumeView),
-      vconcat(lcView,obsSetsView, barPlot))
-    );
+    config.layout(hconcat(
+      vconcat(spatialThreeView,spatialVolumeView),
+      vconcat(lcView,obsSetsView, barPlot)
+    ));
   */
   // config.layout(hconcat(spatialThreeView, vconcat(lcView, description)));
 

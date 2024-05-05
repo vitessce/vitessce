@@ -25,7 +25,6 @@ import {
   useMergeCoordination,
   useSetComponentHover,
   useSetComponentViewInfo,
-  useAuxiliaryCoordination,
   useComplexCoordination,
   useMultiCoordinationScopesNonNull,
   useMultiCoordinationScopesSecondaryNonNull,
@@ -33,6 +32,7 @@ import {
   useCoordinationScopes,
   useCoordinationScopesBy,
   useSpotMultiFeatureLabels,
+  useGridItemSize,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
@@ -40,6 +40,7 @@ import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { getInitialSpatialTargets } from './utils.js';
+import { SpatialThreeAdapter } from './SpatialThreeAdapter.js';
 
 
 // Reference: https://deck.gl/docs/api-reference/core/orbit-view#view-state
@@ -127,6 +128,7 @@ export function SpatialSubscriber(props) {
     disableTooltip = false,
     title = 'Spatial',
     bitmaskValueIsIndex = false, // TODO: move to coordination type
+    threeFor3d = false,
   } = props;
 
   const loaders = useLoaders();
@@ -151,18 +153,33 @@ export function SpatialSubscriber(props) {
     spatialTargetT: targetT,
     spatialRenderingMode,
     spatialRotationX: rotationX,
+    spatialRotationY: rotationY,
+    spatialRotationZ: rotationZ,
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
     spatialAxisFixed,
+
+    // TODO: get obsSets per-layer or per-channel
+    additionalObsSets,
+    obsSetColor,
+    obsColorEncoding,
+    obsSetSelection,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
     setSpatialTargetY: setTargetY,
     setSpatialTargetZ: setTargetZ,
     setSpatialRotationX: setRotationX,
+    setSpatialRotationY: setRotationY,
+    setSpatialRotationZ: setRotationZ,
     setSpatialRotationOrbit: setRotationOrbit,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
 
+    // TODO: get obsSets per-layer or per-channel
+    setAdditionalObsSets,
+    setObsSetColor,
+    setObsColorEncoding,
+    setObsSetSelection,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
 
   const {
     spatialZoom: initialZoom,
@@ -206,6 +223,24 @@ export function SpatialSubscriber(props) {
       CoordinationType.SEGMENTATION_CHANNEL,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
+
+      // For SpatialThree
+      CoordinationType.SPATIAL_TARGET_X,
+      CoordinationType.SPATIAL_TARGET_Y,
+      CoordinationType.SPATIAL_TARGET_Z,
+      CoordinationType.SPATIAL_ROTATION_X,
+      CoordinationType.SPATIAL_ROTATION_Y,
+      CoordinationType.SPATIAL_ROTATION_Z,
+      CoordinationType.SPATIAL_SCALE_X,
+      CoordinationType.SPATIAL_SCALE_Y,
+      CoordinationType.SPATIAL_SCALE_Z,
+      CoordinationType.SPATIAL_SCENE_ROTATION_X,
+      CoordinationType.SPATIAL_SCENE_ROTATION_Y,
+      CoordinationType.SPATIAL_SCENE_ROTATION_Z,
+      CoordinationType.SPATIAL_SCENE_SCALE_X,
+      CoordinationType.SPATIAL_SCENE_SCALE_Y,
+      CoordinationType.SPATIAL_SCENE_SCALE_Z,
+      CoordinationType.SPATIAL_MATERIAL_BACKSIDE,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -341,8 +376,16 @@ export function SpatialSubscriber(props) {
   */
 
   const is3dMode = spatialRenderingMode === '3D';
+  const shouldUseThree = threeFor3d && is3dMode;
 
-  const [width, height, deckRef] = useDeckCanvasSize();
+  const [deckWidth, deckHeight, deckRef] = useDeckCanvasSize();
+  const [threeWidth, threeHeight, threeRef] = useGridItemSize();
+  const width = threeFor3d && deckWidth === undefined
+    ? threeWidth
+    : deckWidth;
+  const height = threeFor3d && deckHeight === undefined
+    ? threeHeight
+    : deckHeight;
 
   // Points data
   const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useMultiObsPoints(
@@ -728,6 +771,43 @@ export function SpatialSubscriber(props) {
         .map(channelScope => obsSegmentationsLocationsData?.[layerScope]?.[channelScope])).length > 0
   );
 
+
+  // For SpatialThree
+  // TODO: change to use per-layer or per-channel obsSets and selections
+  const onEntitySelected = useCallback((obsId) => {
+    const obsIdsToSelect = [obsId];
+
+    const layerScope = segmentationLayerScopes[0];
+    if (layerScope !== undefined && segmentationChannelScopesByLayer[layerScope][0] !== undefined) {
+      const channelScope = segmentationChannelScopesByLayer[layerScope][0];
+      const {
+        additionalObsSets: firstChannelAdditionalObsSets,
+        obsSetColor: firstChannelObsSetColor,
+      } = segmentationChannelCoordination[0][layerScope][channelScope];
+      const {
+        setObsSetColor: firstChannelSetObsSetColor,
+        setAdditionalObsSets: firstChannelSetAdditionalObsSets,
+        setObsColorEncoding: firstChannelSetObsColorEncoding,
+        setObsSetSelection: firstChannelSetObsSetSelection,
+      } = segmentationChannelCoordination[1][layerScope][channelScope];
+
+      setObsSelection(
+        obsIdsToSelect, firstChannelAdditionalObsSets, firstChannelObsSetColor,
+        firstChannelSetObsSetSelection, firstChannelSetAdditionalObsSets, firstChannelSetObsSetColor,
+        firstChannelSetObsColorEncoding,
+      );
+    } else {
+      setObsSelection(
+        obsIdsToSelect, additionalObsSets, obsSetColor,
+        setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+        setObsColorEncoding,
+      );
+    }
+  }, [additionalObsSets, obsSetColor,
+    setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+    setObsColorEncoding, // TODO: more dependencies?
+  ]);
+
   return (
     <TitleInfo
       title={title}
@@ -740,71 +820,147 @@ export function SpatialSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady={isReady}
     >
-      <Spatial
-        ref={deckRef}
-        uuid={uuid}
-        width={width}
-        height={height}
-        theme={theme}
-        hideTools={!isSelectable}
-        // Global view state
-        targetT={targetT}
-        targetZ={targetZ}
-        viewState={isValidViewState ? ({
-          zoom,
-          target: [targetX, targetY, targetZ],
-          rotationX,
-          rotationOrbit,
-        }) : DEFAULT_VIEW_STATE}
-        orbitAxis={orbitAxis}
-        spatialAxisFixed={spatialAxisFixed}
-        setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
-        originalViewState={originalViewState}
-        spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
-        updateViewInfo={setComponentViewInfo}
+      {shouldUseThree ? (
+        <SpatialThreeAdapter
+          ref={threeRef}
+          uuid={uuid}
+          width={width}
+          height={height}
+          theme={theme}
+          hideTools={!isSelectable}
 
-        delegateHover={delegateHover}
+          rotation={[rotationX, rotationY, rotationZ]}
+          setRotationX={setRotationX}
+          setRotationY={setRotationY}
+          setRotationZ={setRotationZ}
 
-        // Points
-        obsPoints={obsPointsData}
-        pointLayerScopes={pointLayerScopes}
-        pointLayerCoordination={pointLayerCoordination}
+          // Global view state
+          targetT={targetT}
+          targetZ={targetZ}
+          viewState={isValidViewState ? ({
+            zoom,
+            target: [targetX, targetY, targetZ],
+            rotationX,
+            rotationOrbit,
+          }) : DEFAULT_VIEW_STATE}
+          orbitAxis={orbitAxis}
+          spatialAxisFixed={spatialAxisFixed}
+          setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
+          originalViewState={originalViewState}
+          spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
+          updateViewInfo={setComponentViewInfo}
 
-        pointMultiObsLabels={pointMultiObsLabelsData}
+          delegateHover={delegateHover}
+          // TODO: do not make this glom-specific. need to generalize
+          onGlomSelected={onEntitySelected}
 
-        // Spots
-        obsSpots={obsSpotsData}
-        spotLayerScopes={spotLayerScopes}
-        spotLayerCoordination={spotLayerCoordination}
-        obsSpotsSets={obsSpotsSetsData}
+          // Points
+          obsPoints={obsPointsData}
+          pointLayerScopes={pointLayerScopes}
+          pointLayerCoordination={pointLayerCoordination}
 
-        spotMatrixIndices={spotMultiIndicesData}
-        spotMultiExpressionData={spotMultiExpressionNormData}
+          pointMultiObsLabels={pointMultiObsLabelsData}
 
-        // Segmentations
-        segmentationLayerScopes={segmentationLayerScopes}
-        segmentationLayerCoordination={segmentationLayerCoordination}
-        segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
-        segmentationChannelCoordination={segmentationChannelCoordination}
+          // Spots
+          obsSpots={obsSpotsData}
+          spotLayerScopes={spotLayerScopes}
+          spotLayerCoordination={spotLayerCoordination}
+          obsSpotsSets={obsSpotsSetsData}
 
-        obsSegmentations={obsSegmentationsData}
-        obsSegmentationsLocations={obsSegmentationsLocationsData}
-        obsSegmentationsSets={obsSegmentationsSetsData}
-        segmentationMatrixIndices={segmentationMultiIndicesData}
-        segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+          spotMatrixIndices={spotMultiIndicesData}
+          spotMultiExpressionData={spotMultiExpressionNormData}
 
-        bitmaskValueIsIndex={bitmaskValueIsIndex}
+          // Segmentations
+          segmentationLayerScopes={segmentationLayerScopes}
+          segmentationLayerCoordination={segmentationLayerCoordination}
+          segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+          segmentationChannelCoordination={segmentationChannelCoordination}
 
-        // Images
-        images={imageData}
-        imageLayerScopes={imageLayerScopes}
-        imageLayerCoordination={imageLayerCoordination}
+          obsSegmentations={obsSegmentationsData}
+          obsSegmentationsLocations={obsSegmentationsLocationsData}
+          obsSegmentationsSets={obsSegmentationsSetsData}
+          segmentationMatrixIndices={segmentationMultiIndicesData}
+          segmentationMultiExpressionData={segmentationMultiExpressionNormData}
 
-        imageChannelScopesByLayer={imageChannelScopesByLayer}
-        imageChannelCoordination={imageChannelCoordination}
+          bitmaskValueIsIndex={bitmaskValueIsIndex}
 
-        // TODO: useFullResolutionImage={useFullResolutionImage}
-      />
+          // Images
+          images={imageData}
+          imageLayerScopes={imageLayerScopes}
+          imageLayerCoordination={imageLayerCoordination}
+
+          imageChannelScopesByLayer={imageChannelScopesByLayer}
+          imageChannelCoordination={imageChannelCoordination}
+
+          // TODO: useFullResolutionImage={useFullResolutionImage}
+        />
+      ) : (
+        <Spatial
+          ref={deckRef}
+          uuid={uuid}
+          width={width}
+          height={height}
+          theme={theme}
+          hideTools={!isSelectable}
+          // Global view state
+          targetT={targetT}
+          targetZ={targetZ}
+          viewState={isValidViewState ? ({
+            zoom,
+            target: [targetX, targetY, targetZ],
+            rotationX,
+            rotationOrbit,
+          }) : DEFAULT_VIEW_STATE}
+          orbitAxis={orbitAxis}
+          spatialAxisFixed={spatialAxisFixed}
+          setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
+          originalViewState={originalViewState}
+          spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
+          updateViewInfo={setComponentViewInfo}
+
+          delegateHover={delegateHover}
+
+          // Points
+          obsPoints={obsPointsData}
+          pointLayerScopes={pointLayerScopes}
+          pointLayerCoordination={pointLayerCoordination}
+
+          pointMultiObsLabels={pointMultiObsLabelsData}
+
+          // Spots
+          obsSpots={obsSpotsData}
+          spotLayerScopes={spotLayerScopes}
+          spotLayerCoordination={spotLayerCoordination}
+          obsSpotsSets={obsSpotsSetsData}
+
+          spotMatrixIndices={spotMultiIndicesData}
+          spotMultiExpressionData={spotMultiExpressionNormData}
+
+          // Segmentations
+          segmentationLayerScopes={segmentationLayerScopes}
+          segmentationLayerCoordination={segmentationLayerCoordination}
+          segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+          segmentationChannelCoordination={segmentationChannelCoordination}
+
+          obsSegmentations={obsSegmentationsData}
+          obsSegmentationsLocations={obsSegmentationsLocationsData}
+          obsSegmentationsSets={obsSegmentationsSetsData}
+          segmentationMatrixIndices={segmentationMultiIndicesData}
+          segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+
+          bitmaskValueIsIndex={bitmaskValueIsIndex}
+
+          // Images
+          images={imageData}
+          imageLayerScopes={imageLayerScopes}
+          imageLayerCoordination={imageLayerCoordination}
+
+          imageChannelScopesByLayer={imageChannelScopesByLayer}
+          imageChannelCoordination={imageChannelCoordination}
+
+          // TODO: useFullResolutionImage={useFullResolutionImage}
+        />
+      )}
       {!disableTooltip && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}

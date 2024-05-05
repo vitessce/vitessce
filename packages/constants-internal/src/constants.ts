@@ -19,7 +19,6 @@ export const ViewType = {
   OBS_SET_SIZES: 'obsSetSizes',
   OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'obsSetFeatureValueDistribution',
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
-  SPATIAL_THREE: 'spatialThree',
   FEATURE_BAR_PLOT: 'featureBarPlot',
 };
 
@@ -31,7 +30,6 @@ export const DataType = {
   FEATURE_LABELS: 'featureLabels',
   IMAGE: 'image',
   OBS_SEGMENTATIONS: 'obsSegmentations',
-  MESH_SEGMENTATION: 'meshSegmentation',
   NEIGHBORHOODS: 'neighborhoods',
   GENOMIC_PROFILES: 'genomic-profiles',
   OBS_SPOTS: 'obsSpots',
@@ -113,7 +111,7 @@ export const FileType = {
   IMAGE_OME_TIFF: 'image.ome-tiff',
   OBS_SEGMENTATIONS_OME_TIFF: 'obsSegmentations.ome-tiff',
   // GLB
-  MESH_SEGMENTATION: 'segmentation.glb',
+  OBS_SEGMENTATIONS_GLB: 'obsSegmentations.glb',
   // New file types to support old file types:
   // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
