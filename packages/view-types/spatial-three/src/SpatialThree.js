@@ -2,10 +2,9 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unknown-property */
-import React, { useRef, useState, forwardRef, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
+import React, { useRef, useState, useEffect } from 'react';
 import { OrbitControls, Text } from '@react-three/drei';
-import { XRButton, XR, Controllers, Hands } from '@react-three/xr';
+import { Controllers, Hands } from '@react-three/xr';
 import {
   Scene,
   Group,
@@ -52,7 +51,7 @@ import {
  * @param {function} props.onCellClick Getter function for cell layer onClick.
  * @param {string} props.theme "light" or "dark" for the vitessce theme
  */
-function SpatialThree(props) {
+export function SpatialThree(props) {
   const materialRef = useRef(null);
   const orbitRef = useRef(null);
   const [initialStartup, setInitialStartup] = useState(false);
@@ -527,46 +526,3 @@ function SpatialThree(props) {
     </group>
   );
 }
-
-export const SpatialWrapper = forwardRef((props, canvasRef) => (
-  <div style={{ width: '100%', height: '100%' }}>
-    <XRButton
-      mode="AR"
-      sessionInit={{ optionalFeatures: ['hand-tracking'] }}
-      style={{
-        border: 'none',
-        background: 'rgba(0, 0, 0, 0.0)',
-      }}
-    >
-      {(status) => {
-        if (status === 'unsupported') {
-          return null;
-        }
-        return (
-          <div style={{
-            border: '1px solid white',
-            padding: '12px 24px',
-            borderRadius: '4px',
-            background: 'rgba(0, 0, 0, 0.1)',
-            color: 'white',
-            font: 'normal 0.8125rem sans-serif',
-            outline: 'none',
-            cursor: 'pointer',
-          }}
-          >{(status === 'entered' ? 'Exit AR' : 'Enter AR')}
-          </div>
-        );
-      }}
-    </XRButton>
-    <Canvas
-      style={{ position: 'absolute', top: 0, left: 0 }}
-      camera={{ fov: 50, up: [0, 1, 0], position: [0, 0, 800], near: 0.1, far: 3000 }}
-      gl={{ antialias: true, logarithmicDepthBuffer: false }}
-      ref={canvasRef}
-    >
-      <XR>
-        <SpatialThree {...props} />
-      </XR>
-    </Canvas>
-  </div>
-));

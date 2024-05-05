@@ -1,1 +1,1 @@
-export { SpatialWrapper } from './SpatialThree.js';
+export { SpatialWrapper } from './SpatialWrapper.js';
