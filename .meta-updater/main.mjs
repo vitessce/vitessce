@@ -76,6 +76,11 @@ const OTHER_VERSIONS = {
   "@loaders.gl/core": LOADERSGL_VERSION,
   "@loaders.gl/images": LOADERSGL_VERSION,
   "@loaders.gl/loader-utils":LOADERSGL_VERSION,
+  // THREE
+  "@react-three/fiber": "^8.15.19",
+  "@react-three/drei": "^9.99.7",
+  "@react-three/xr": "^5.7.1",
+  "three": "^0.154.0",
 };
 
 // Mutates package metadata in place

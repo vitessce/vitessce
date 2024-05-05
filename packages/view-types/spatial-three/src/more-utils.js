@@ -12,7 +12,6 @@ import {
   FloatType,
   LinearFilter,
 } from 'three';
-import { getLayerLoaderTuple } from './utils.js';
 import { Volume } from './Volume.js';
 import { VolumeRenderShaderPerspective } from './VolumeShaderPerspective.js';
 
@@ -42,8 +41,6 @@ function extractInformationFromProps(
 ) {
   // Getting all the information out of the provided props
   const {
-    targetT,
-    targetZ,
     spatialRenderingMode,
   } = props;
   const data = image?.image?.instance?.getData();
@@ -61,13 +58,10 @@ function extractInformationFromProps(
   const imageWrapperInstance = image.image.instance;
   const is3dMode = spatialRenderingMode === '3D';
   const isRgb = layerCoordination[CoordinationType.PHOTOMETRIC_INTERPRETATION] === 'RGB';
-  const [Layer, layerLoader] = getLayerLoaderTuple(data, is3dMode);
-  const colormap = isRgb ? null : layerCoordination[CoordinationType.SPATIAL_LAYER_COLORMAP];
   const renderingModeStr = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM];
   const renderingMode = renderingModeMap[renderingModeStr];
   const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
   const transparentColor = layerCoordination[CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR];
-  const useTransparentColor = Array.isArray(transparentColor) && transparentColor.length === 3;
   const layerTransparency = layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY];
   const rgbInterleavedProps = {};
   if (imageWrapperInstance.isInterleaved()) {
@@ -196,20 +190,20 @@ export function useVolumeSettings(props, volumeSettings, setVolumeSettings, data
   if (channelTargetC !== null) {
     // TODO: stop using string equality for comparisons.
     if (volumeSettings.channelTargetC.length !== 0
-           && (volumeSettings.channelTargetC.toString() !== channelTargetC.toString()
-               || volumeSettings.resolution.toString() !== resolution.toString())) {
+          && (volumeSettings.channelTargetC.toString() !== channelTargetC.toString()
+            || volumeSettings.resolution.toString() !== resolution.toString())) {
       if (!dataReady) setDataReady(true);
       // TODO: stop using string equality for comparisons.
     } else if (
       (volumeSettings.channelsVisible.toString() !== channelsVisible.toString()
-               || volumeSettings.colors.toString() !== colors.toString()
-               || volumeSettings.is3dMode !== is3dMode
-               || volumeSettings.contrastLimits.toString() !== contrastLimits.toString()
-               || volumeSettings.renderingMode.toString() !== renderingMode.toString()
-               || volumeSettings.layerTransparency.toString() !== layerTransparency.toString()
-               || volumeSettings.xSlice.toString() !== xSlice.toString()
-               || volumeSettings.ySlice.toString() !== ySlice.toString()
-               || volumeSettings.zSlice.toString() !== zSlice.toString()
+        || volumeSettings.colors.toString() !== colors.toString()
+        || volumeSettings.is3dMode !== is3dMode
+        || volumeSettings.contrastLimits.toString() !== contrastLimits.toString()
+        || volumeSettings.renderingMode.toString() !== renderingMode.toString()
+        || volumeSettings.layerTransparency.toString() !== layerTransparency.toString()
+        || volumeSettings.xSlice.toString() !== xSlice.toString()
+        || volumeSettings.ySlice.toString() !== ySlice.toString()
+        || volumeSettings.zSlice.toString() !== zSlice.toString()
       )) {
       setVolumeSettings({
         channelsVisible,
@@ -417,8 +411,7 @@ const dtypeToTypedArray = {
 async function getVolumeIntern({
   source,
   selection,
-  onUpdate = () => {
-  },
+  onUpdate = () => {},
   downsampleDepth = 1,
   signal,
 }) {

@@ -1,6 +1,6 @@
 /* eslint-disable no-plusplus */
 import { Matrix4 } from 'math.gl';
-import { viv, BitmaskLayerBeta as BitmaskLayer } from '@vitessce/gl';
+import { viv } from '@vitessce/gl';
 import { extent } from 'd3-array';
 
 
@@ -189,69 +189,4 @@ export function getInitialSpatialTargets({
   return {
     initialTargetX, initialTargetY, initialZoom, initialTargetZ,
   };
-}
-
-/**
- * Make a subtitle for the spatial component.
- * @param {object} data PixelSource | PixelSource[]
- * @returns {Array} [Layer, PixelSource | PixelSource[]] tuple.
- */
-export function getLayerLoaderTuple(data, use3d) {
-  const loader = ((Array.isArray(data) && data.length > 1) || !Array.isArray(data))
-    ? data : data[0];
-  if (use3d) {
-    return [viv.VolumeLayer, Array.isArray(loader) ? loader : [loader]];
-  }
-  const Layer = (Array.isArray(data) && data.length > 1)
-    ? viv.MultiscaleImageLayer
-    : viv.ImageLayer;
-  return [Layer, loader];
-}
-
-export function renderSubBitmaskLayers(props) {
-  const {
-    bbox: {
-      left, top, right, bottom,
-    },
-    index: { x, y, z },
-    zoom,
-  } = props.tile;
-  const {
-    data, id, loader,
-    maxZoom,
-    minZoom,
-    zoomOffset,
-  } = props;
-  // Only render in positive coorinate system
-  if ([left, bottom, right, top].some(v => v < 0) || !data) {
-    return null;
-  }
-  const base = loader[0];
-  const [height, width] = loader[0].shape.slice(-2);
-  // Tiles are exactly fitted to have height and width such that their bounds
-  // match that of the actual image (not some padded version).
-  // Thus the right/bottom given by deck.gl are incorrect since
-  // they assume tiles are of uniform sizes, which is not the case for us.
-  const bounds = [
-    left,
-    data.height < base.tileSize ? height : bottom,
-    data.width < base.tileSize ? width : right,
-    top,
-  ];
-  return new BitmaskLayer(props, {
-    channelData: data,
-    // Uncomment to help debugging - shades the tile being hovered over.
-    // autoHighlight: true,
-    // highlightColor: [80, 80, 80, 50],
-    // Shared props with BitmapLayer:
-    bounds,
-    id: `sub-layer-${bounds}-${id}`,
-    tileId: { x, y, z },
-    // The zoom/maxZoom values are used in the computation
-    // of the scale factor for the stroke width.
-    zoom,
-    minZoom,
-    maxZoom,
-    zoomOffset, // TODO: figure out if this needs to be used or not
-  });
 }
