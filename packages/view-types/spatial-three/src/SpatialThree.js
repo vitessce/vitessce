@@ -528,7 +528,7 @@ function SpatialThree(props) {
   );
 }
 
-const SpatialWrapper = forwardRef((props, canvasRef) => (
+export const SpatialWrapper = forwardRef((props, canvasRef) => (
   <div style={{ width: '100%', height: '100%' }}>
     <XRButton
       mode="AR"
@@ -540,7 +540,7 @@ const SpatialWrapper = forwardRef((props, canvasRef) => (
     >
       {(status) => {
         if (status === 'unsupported') {
-          return '';
+          return null;
         }
         return (
           <div style={{
@@ -556,8 +556,7 @@ const SpatialWrapper = forwardRef((props, canvasRef) => (
           >{(status === 'entered' ? 'Exit AR' : 'Enter AR')}
           </div>
         );
-      }
-            }
+      }}
     </XRButton>
     <Canvas
       style={{ position: 'absolute', top: 0, left: 0 }}
@@ -571,4 +570,3 @@ const SpatialWrapper = forwardRef((props, canvasRef) => (
     </Canvas>
   </div>
 ));
-export default SpatialWrapper;

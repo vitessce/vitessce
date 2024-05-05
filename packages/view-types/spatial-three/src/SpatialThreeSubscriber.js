@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import React, { useEffect, useMemo, useCallback, useState, Suspense } from 'react';
 import {
   TitleInfo,
   useDeckCanvasSize,
@@ -35,10 +35,19 @@ import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vites
 import { commaNumber, pluralize } from '@vitessce/utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
 import { setObsSelection } from '@vitessce/sets-utils';
-import SpatialThree from './SpatialThree.js';
 import SpatialThreeTooltipSubscriber from './SpatialThreeTooltipSubscriber.js';
 import { getInitialSpatialTargets } from './utils.js';
 import { ErrorBoundary } from './ErrorBoundary.js';
+
+// Lazy load the HiGlass React component,
+// using a dynamic import.
+const LazySpatialThree = React.lazy(async () => {
+  // Temporary fix until a new release of HiGlass is made after 1.11.11,
+  // which removes the github.com dependencies in the higlass package.json,
+  // which is causing issues with PNPM install on GitHub Actions.
+  const { SpatialWrapper } = await import('./SpatialThree.js');
+  return { default: SpatialWrapper };
+});
 
 
 // Reference: https://deck.gl/docs/api-reference/core/orbit-view#view-state
@@ -788,73 +797,75 @@ export function SpatialThreeSubscriber(props) {
       isReady={isReady}
     >
       <ErrorBoundary fallback={<p>An error has occurred.</p>}>
-        <SpatialThree
-          uuid={uuid}
-          width={width}
-          height={height}
-          theme={theme}
-          hideTools={!isSelectable}
+        <Suspense fallback={<p>Loading...</p>}>
+          <LazySpatialThree
+            uuid={uuid}
+            width={width}
+            height={height}
+            theme={theme}
+            hideTools={!isSelectable}
 
-          rotation={[rotationX, rotationY, rotationZ]}
-          setRotationX={setRotationX}
-          setRotationY={setRotationY}
-          setRotationZ={setRotationZ}
+            rotation={[rotationX, rotationY, rotationZ]}
+            setRotationX={setRotationX}
+            setRotationY={setRotationY}
+            setRotationZ={setRotationZ}
 
-                  // Global view state
-          targetT={targetT}
-          targetZ={targetZ}
-          viewState={isValidViewState ? ({
-            zoom,
-            target: [targetX, targetY, targetZ],
-            rotationX,
-            rotationOrbit,
-          }) : DEFAULT_VIEW_STATE}
-          orbitAxis={orbitAxis}
-          spatialAxisFixed={spatialAxisFixed}
-          setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
-          originalViewState={originalViewState}
-          spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
-          updateViewInfo={setComponentViewInfo}
+                    // Global view state
+            targetT={targetT}
+            targetZ={targetZ}
+            viewState={isValidViewState ? ({
+              zoom,
+              target: [targetX, targetY, targetZ],
+              rotationX,
+              rotationOrbit,
+            }) : DEFAULT_VIEW_STATE}
+            orbitAxis={orbitAxis}
+            spatialAxisFixed={spatialAxisFixed}
+            setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
+            originalViewState={originalViewState}
+            spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
+            updateViewInfo={setComponentViewInfo}
 
-          delegateHover={delegateHover}
-          onGlomSelected={onEntitySelected}
+            delegateHover={delegateHover}
+            onGlomSelected={onEntitySelected}
 
-                  // Points
-          obsPoints={obsPointsData}
-          pointLayerScopes={pointLayerScopes}
-          pointLayerCoordination={pointLayerCoordination}
+                    // Points
+            obsPoints={obsPointsData}
+            pointLayerScopes={pointLayerScopes}
+            pointLayerCoordination={pointLayerCoordination}
 
-          pointMultiObsLabels={pointMultiObsLabelsData}
+            pointMultiObsLabels={pointMultiObsLabelsData}
 
-                  // Spots
-          obsSpots={obsSpotsData}
-          spotLayerScopes={spotLayerScopes}
-          spotLayerCoordination={spotLayerCoordination}
-          obsSpotsSets={obsSpotsSetsData}
+                    // Spots
+            obsSpots={obsSpotsData}
+            spotLayerScopes={spotLayerScopes}
+            spotLayerCoordination={spotLayerCoordination}
+            obsSpotsSets={obsSpotsSetsData}
 
-          spotMatrixIndices={spotMultiIndicesData}
-          spotMultiExpressionData={spotMultiExpressionNormData}
+            spotMatrixIndices={spotMultiIndicesData}
+            spotMultiExpressionData={spotMultiExpressionNormData}
 
-                  // Segmentations
-          segmentationLayerScopes={segmentationLayerScopes}
-          segmentationLayerCoordination={segmentationLayerCoordination}
-          segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
-          segmentationChannelCoordination={segmentationChannelCoordination}
+                    // Segmentations
+            segmentationLayerScopes={segmentationLayerScopes}
+            segmentationLayerCoordination={segmentationLayerCoordination}
+            segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+            segmentationChannelCoordination={segmentationChannelCoordination}
 
-          obsSegmentations={obsSegmentationsData}
-          obsSegmentationsLocations={obsSegmentationsLocationsData}
-          obsSegmentationsSets={obsSegmentationsSetsData}
-          segmentationMatrixIndices={segmentationMultiIndicesData}
-          segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+            obsSegmentations={obsSegmentationsData}
+            obsSegmentationsLocations={obsSegmentationsLocationsData}
+            obsSegmentationsSets={obsSegmentationsSetsData}
+            segmentationMatrixIndices={segmentationMultiIndicesData}
+            segmentationMultiExpressionData={segmentationMultiExpressionNormData}
 
-                  // Images
-          images={imageData}
-          imageLayerScopes={imageLayerScopes}
-          imageLayerCoordination={imageLayerCoordination}
+                    // Images
+            images={imageData}
+            imageLayerScopes={imageLayerScopes}
+            imageLayerCoordination={imageLayerCoordination}
 
-          imageChannelScopesByLayer={imageChannelScopesByLayer}
-          imageChannelCoordination={imageChannelCoordination}
-        />
+            imageChannelScopesByLayer={imageChannelScopesByLayer}
+            imageChannelCoordination={imageChannelCoordination}
+          />
+        </Suspense>
       </ErrorBoundary>
       {!disableTooltip && (
         <SpatialThreeTooltipSubscriber
