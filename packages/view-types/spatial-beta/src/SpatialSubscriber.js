@@ -36,6 +36,7 @@ import {
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
+import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
@@ -761,7 +762,7 @@ export function SpatialSubscriber(props) {
     // will not bubble up to the onHover callback of the DeckGL canvas."
     // Reference: https://deck.gl/docs/api-reference/core/layer#interaction-properties
     return false;
-  });
+  }, []);
 
   const isSelectable = (
     spotLayerScopes.length > 0

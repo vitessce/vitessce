@@ -11,14 +11,12 @@ const LazySpatialThree = React.lazy(async () => {
   return { default: SpatialWrapper };
 });
 
-export const SpatialThreeAdapter = React.forwardRef((props, ref) => {
-  return (
-    <div ref={ref} style={{ width: '100%', height: '100%' }}>
-      <ErrorBoundary>
-        <Suspense fallback={<div>Loading...</div>}>
-          <LazySpatialThree {...props} />
-        </Suspense>
-      </ErrorBoundary>
-    </div>
-  );
-});
+export const SpatialThreeAdapter = React.forwardRef((props, ref) => (
+  <div ref={ref} style={{ width: '100%', height: '100%' }}>
+    <ErrorBoundary>
+      <Suspense fallback={<div>Loading...</div>}>
+        <LazySpatialThree {...props} />
+      </Suspense>
+    </ErrorBoundary>
+  </div>
+));
