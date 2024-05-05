@@ -127,6 +127,7 @@ function SpatialThree(props) {
     segmentationChannelScopesByLayer,
   } = props;
   let setObsHighlightFct = () => {}; // no-op
+  // TODO: use a more descriptive name.
   const setsSave = [];
   if (segmentationChannelCoordination[0][layerScope] !== undefined) {
     const segmentationObsSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
@@ -138,12 +139,13 @@ function SpatialThree(props) {
         // TODO: this is not considering the full obsSetPath.
         const selectedElement = obsSetPath[1];
         // TODO: this is only considering the first set grouping in the tree.
+        // TODO: use sets-utils to traverse sets tree
         sets.tree[0].children.forEach((child) => {
           if (child.name === selectedElement) {
-            child.set.forEach((elem) => {
+            child.set.forEach(([obsId]) => {
               const info = { name: '', id: '', color: [] };
               info.name = selectedElement;
-              info.id = elem[0];
+              info.id = obsId;
               segmentationObsSetLayerProps.obsSetColor.forEach((color) => {
                 if (color.path[1] === selectedElement) {
                   info.color = color.color;
@@ -165,10 +167,11 @@ function SpatialThree(props) {
       const newScene = new Scene();
       const finalPass = new Group();
       finalPass.userData.name = 'finalPass';
-      for (const child in scene.children) {
-        let childElement = scene.children[child];
+      scene.children.forEach((child) => {
+        let childElement = child;
         if (childElement.material === undefined) {
-          childElement = scene.children[child].children[0];
+          // eslint-disable-next-line prefer-destructuring
+          childElement = child.children[0];
         }
         if (
           childElement.material instanceof MeshPhysicalMaterial
@@ -183,6 +186,7 @@ function SpatialThree(props) {
           .replace('.', '')
           .replace('_Dec', '');
         if (name.includes('_')) {
+          // eslint-disable-next-line prefer-destructuring
           name = name.split('_')[0];
         }
         childElement.name = name;
@@ -213,7 +217,7 @@ function SpatialThree(props) {
         finalPassChild.material = childElement.material.clone();
         finalPassChild.geometry = simplified.geometry.clone();
         finalPass.add(finalPassChild);
-      }
+      });
       newScene.add(finalPass);
       newScene.scale.set(
         segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
@@ -232,16 +236,16 @@ function SpatialThree(props) {
   }
   if (segmentationChannelCoordination[0] !== undefined && segmentationChannelCoordination[0][layerScope] !== undefined) {
     const segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
+    // TODO: stop using string equality for comparisons.
     let setsSaveString = '';
-    for (const child in setsSave) {
-      setsSaveString += `${setsSave[child].id};${setsSave[child].color.toString()};${setsSave[child].name}`;
-    }
+    setsSave.forEach((child) => {
+      setsSaveString += `${child.id};${child.color.toString()};${child.name}`;
+    });
+    // TODO: stop using string equality for comparisons.
     let settingsSaveString = '';
-    for (const child in segmentationSettings.obsSets) {
-      settingsSaveString += `${segmentationSettings.obsSets[child].id};${
-        segmentationSettings.obsSets[child].color.toString()};${
-        segmentationSettings.obsSets[child].name}`;
-    }
+    segmentationSettings.obsSets.forEach((child) => {
+      settingsSaveString += `${child.id};${child.color.toString()};${child.name}`;
+    });
 
     // Check the MultiChannel Setting - combine all channels and see if something changed
     if (segmentationChannelScopesByLayer[layerScope].length > 1) {
@@ -250,15 +254,16 @@ function SpatialThree(props) {
       let visible = '';
       let visibleCombined = false;
       let opacityCombined = 0.0;
-      for (const scope in segmentationChannelScopesByLayer[layerScope]) {
-        const channelScope = segmentationChannelScopesByLayer[layerScope][scope];
+
+      segmentationChannelScopesByLayer[layerScope].forEach((channelScope) => {
         const channelSet = segmentationChannelCoordination[0][layerScope][channelScope];
+        // TODO: stop using string equality for comparisons.
         color += `${channelSet.spatialChannelColor.toString()};`;
         opacity += `${channelSet.spatialChannelOpacity};`;
         visible += `${channelSet.spatialChannelVisible};`;
         visibleCombined |= channelSet.spatialChannelVisible;
         opacityCombined += channelSet.spatialChannelOpacity;
-      }
+      });
       if (color !== segmentationSettings.multiColor
                 || opacity !== segmentationSettings.multiOpacity
                 || visible !== segmentationSettings.multiVisible) {
@@ -273,10 +278,11 @@ function SpatialThree(props) {
           obsSets: setsSave,
         });
       }
+      // TODO: stop using string equality for comparisons.
     } else if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString()
-                || segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible
-                || segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity
-                || setsSaveString !== settingsSaveString
+      || segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible
+      || segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity
+      || setsSaveString !== settingsSaveString
     ) {
       setSegmentationSettings({
         color: segmentationLayerProps.spatialChannelColor,
@@ -293,53 +299,65 @@ function SpatialThree(props) {
 
   useEffect(() => {
     if (segmentationGroup !== null) {
-      let firstGroup = 0;
-      let finalGroup = 0;
-      for (const group in segmentationGroup.children) {
-        if (segmentationGroup.children[group].userData.name === 'finalPass') {
-          finalGroup = group;
+      let firstGroupIndex = 0;
+      let finalGroupIndex = 0;
+      for (let i = 0; i < segmentationGroup.children.length; i++) {
+        if (segmentationGroup.children[i].userData.name === 'finalPass') {
+          finalGroupIndex = i;
         } else {
-          firstGroup = group;
+          firstGroupIndex = i;
         }
       }
 
       // TODO: Adapt so it can also work with union sets
-      for (const child in segmentationGroup.children[finalGroup].children) {
+      segmentationGroup.children[finalGroupIndex].children.forEach((child, childIndex) => {
         let { color } = segmentationSettings;
-        const id = segmentationGroup.children[finalGroup].children[child].userData.name;
+        const id = child.userData.name;
 
         // SET SELECTION
-        for (const index in segmentationSettings.obsSets) {
-          if (segmentationSettings.obsSets[index].id === id) {
-            color = segmentationSettings.obsSets[index].color;
+        segmentationSettings.obsSets.forEach((obsSet) => {
+          if (obsSet.id === id) {
+            // eslint-disable-next-line prefer-destructuring
+            color = obsSet.color;
           }
-        }
+        });
         // CHECK IF Multiple Scopes:
         if (segmentationChannelScopesByLayer[layerScope].length > 1) {
-          for (const scope in segmentationChannelScopesByLayer[layerScope]) {
-            const channelScope = segmentationChannelScopesByLayer[layerScope][scope];
+          segmentationChannelScopesByLayer[layerScope].forEach((channelScope) => {
             const channelSet = segmentationChannelCoordination[0][layerScope][channelScope];
             if (channelSet.obsType === id) {
-              segmentationGroup.children[finalGroup].children[child].material.color.r = channelSet.spatialChannelColor[0] / 255;
-              segmentationGroup.children[finalGroup].children[child].material.color.g = channelSet.spatialChannelColor[1] / 255;
-              segmentationGroup.children[finalGroup].children[child].material.color.b = channelSet.spatialChannelColor[2] / 255;
-              segmentationGroup.children[finalGroup].children[child].material.opacity = channelSet.spatialChannelOpacity;
-              segmentationGroup.children[finalGroup].children[child].visible = channelSet.spatialChannelVisible;
-              segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
-              segmentationGroup.children[firstGroup].children[child].material.needsUpdate = true;
+              // eslint-disable-next-line no-param-reassign
+              child.material.color.r = channelSet.spatialChannelColor[0] / 255;
+              // eslint-disable-next-line no-param-reassign
+              child.material.color.g = channelSet.spatialChannelColor[1] / 255;
+              // eslint-disable-next-line no-param-reassign
+              child.material.color.b = channelSet.spatialChannelColor[2] / 255;
+              // eslint-disable-next-line no-param-reassign
+              child.material.opacity = channelSet.spatialChannelOpacity;
+              // eslint-disable-next-line no-param-reassign
+              child.visible = channelSet.spatialChannelVisible;
+              // eslint-disable-next-line no-param-reassign
+              child.material.needsUpdate = true;
+              segmentationGroup.children[firstGroupIndex].children[childIndex].material.needsUpdate = true;
             }
-          }
+          });
         } else {
           // adapt the color
-          segmentationGroup.children[finalGroup].children[child].material.color.r = color[0] / 255;
-          segmentationGroup.children[finalGroup].children[child].material.color.g = color[1] / 255;
-          segmentationGroup.children[finalGroup].children[child].material.color.b = color[2] / 255;
+          // eslint-disable-next-line no-param-reassign
+          child.material.color.r = color[0] / 255;
+          // eslint-disable-next-line no-param-reassign
+          child.material.color.g = color[1] / 255;
+          // eslint-disable-next-line no-param-reassign
+          child.material.color.b = color[2] / 255;
           // Select the FinalPass Group
-          segmentationGroup.children[finalGroup].children[child].material.opacity = segmentationSettings.opacity;
-          segmentationGroup.children[finalGroup].children[child].material.visible = segmentationSettings.visible;
-          segmentationGroup.children[finalGroup].children[child].material.needsUpdate = true;
+          // eslint-disable-next-line no-param-reassign
+          child.material.opacity = segmentationSettings.opacity;
+          // eslint-disable-next-line no-param-reassign
+          child.material.visible = segmentationSettings.visible;
+          // eslint-disable-next-line no-param-reassign
+          child.material.needsUpdate = true;
         }
-      }
+      });
     }
   }, [segmentationSettings, segmentationGroup]);
 
@@ -420,9 +438,10 @@ function SpatialThree(props) {
         volumeData.originalScale);
       if (rendering !== null) {
         let volumeCount = 0;
-        for (const elem in volumeSettings.channelsVisible) {
-          if (volumeSettings.channelsVisible[elem]) volumeCount++;
-        }
+        // TODO: change to reducer?
+        volumeSettings.channelsVisible.forEach((channelVisible) => {
+          if (channelVisible) volumeCount++;
+        });
         setDataReady(false);
         if (materialRef?.current?.material?.uniforms) {
           // Set the material uniforms

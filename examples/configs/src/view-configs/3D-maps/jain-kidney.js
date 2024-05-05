@@ -150,7 +150,12 @@ function generateJainKidneyConfig() {
     obsColorEncoding: colorEncodingScope,
   }, false);
 
-  // config.layout(hconcat(vconcat(spatialThreeView,spatialVolumeView), vconcat(lcView,obsSetsView, barPlot)));
+  /*
+    config.layout(hconcat(
+      vconcat(spatialThreeView,spatialVolumeView),
+      vconcat(lcView,obsSetsView, barPlot)
+    ));
+  */
   config.layout(hconcat(spatialThreeView, vconcat(lcView, obsSetsView, barPlot)));
 
   const configJSON = config.toJSON();

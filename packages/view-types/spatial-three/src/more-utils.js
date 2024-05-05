@@ -194,10 +194,12 @@ export function useVolumeSettings(props, volumeSettings, setVolumeSettings, data
     channelCoordination, images[layerScope], props);
   // TODO: Find a better and more efficient way to compare the Strings here
   if (channelTargetC !== null) {
+    // TODO: stop using string equality for comparisons.
     if (volumeSettings.channelTargetC.length !== 0
            && (volumeSettings.channelTargetC.toString() !== channelTargetC.toString()
                || volumeSettings.resolution.toString() !== resolution.toString())) {
       if (!dataReady) setDataReady(true);
+      // TODO: stop using string equality for comparisons.
     } else if (
       (volumeSettings.channelsVisible.toString() !== channelsVisible.toString()
                || volumeSettings.colors.toString() !== colors.toString()
