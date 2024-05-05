@@ -20,9 +20,9 @@ export function GeometryAndMesh(props) {
   // -----------------------------------------------------------------
   //                          XR
   // -----------------------------------------------------------------
-  const { isPresenting, player } = useXR();
+  const { isPresenting } = useXR();
   useEffect(() => {
-    if (isPresenting && model !== undefined && model.current !== null) {
+    if (isPresenting && model?.current) {
       // Needed to get the Fragment Depth Value Right
       if (materialRef !== null) {
         materialRef.current.material.uniforms.u_physical_Pixel.value = 0.2;
@@ -118,7 +118,7 @@ export function GeometryAndMesh(props) {
           setMeasureState(false);
           setDebounce(8);
         }
-      } else if (debounce <= 0 && model.current !== null && undefined !== model.current && isPresenting) {
+      } else if (debounce <= 0 && model?.current && isPresenting) {
         model.current.children[0].children.forEach((childVal, childID) => {
           const child = model.current.children[0].children[childID];
           const currentObjectBB = new Box3().setFromObject(child);
@@ -153,118 +153,105 @@ export function GeometryAndMesh(props) {
   // TODO: The measurement from time to time intersects with the rayGrab (maybe "tell it" that we are in measurement mode)
   return (
     <group>
-      {useXR().isPresenting
-        ? (
-          <RayGrab>
-            <group ref={rayGrabGroup}>
-              {segmentationGroup !== null && segmentationGroup.visible
-                            && (
-                            <group>
-                              <hemisphereLight skyColor={0x808080} groundColor={0x606060} />
-                              <directionalLight color={0xFFFFFF} position={[0, -800, 0]} />
-                              <primitive
-                                ref={model}
-                                object={segmentationGroup}
-                                position={[-0.18, 1.13, -1]}
-                                scale={[0.002 * segmentationSceneScale[0],
-                                  0.002 * segmentationSceneScale[1],
-                                  0.002 * segmentationSceneScale[2]]}
-                              />
-                            </group>
-                            )
-                        }
-              {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null
-                                && renderingSettings.shader !== undefined && renderingSettings.shader !== null)
-                            && (
-                            <group>
-                              <mesh
-                                name="cube"
-                                position={[-0.18, 1.13, -1]}
-                                rotation={[0, 0, 0]}
-                                scale={[0.002 * renderingSettings.meshScale[0],
-                                  0.002 * renderingSettings.meshScale[1],
-                                  0.002 * renderingSettings.meshScale[2]]}
-                                ref={materialRef}
-                              >
-                                <boxGeometry args={renderingSettings.geometrySize} />
-                                <shaderMaterial
-                                  customProgramCacheKey={() => '1'}
-                                  side={FrontSide}
-                                  uniforms={renderingSettings.uniforms}
-                                  needsUpdate
-                                  transparent
-                                  vertexShader={renderingSettings.shader.vertexShader}
-                                  fragmentShader={renderingSettings.shader.fragmentShader}
-                                />
-                              </mesh>
-                            </group>
-                            )
-                        }
-            </group>
-            <group name="currentLine" ref={distanceRef}>
-              {showLine && (
-              <MeasureLine currentLine={currentLine} scale={(1 / 0.002) * 0.4} />
-              )}
-            </group>
-            <group name="lines">
-              {lines.map((object, i) => <MeasureLine currentLine={object} scale={(1 / 0.002) * 0.4} />)}
-            </group>
-          </RayGrab>
-        )
-        : (
-          <group>
-            <group>
-              {segmentationGroup !== null && segmentationGroup.visible
-                            && (
-                            <group>
-                              <hemisphereLight skyColor={0x808080} groundColor={0x606060} />
-                              <directionalLight color={0xFFFFFF} position={[0, -800, 0]} />
-                              <directionalLight color={0xFFFFFF} position={[0, 800, 0]} />
-                              <Bvh firstHitOnly>
-                                <primitive
-                                  ref={model}
-                                  object={segmentationGroup}
-                                  position={[0, 0, 0]}
-                                  onClick={(e) => {
-                                    if (e.object.parent.userData.name === 'finalPass') {
-                                      highlightGlom(e.object.name);
-                                    }
-                                  }}
-                                  onPointerOver={(e) => {
-                                    setObsHighlight(e.object.name);
-                                  }}
-                                  onPointerOut={e => setObsHighlight(null)}
-                                />
-                              </Bvh>
-                            </group>
-                            )
-                        }
-              {(renderingSettings.uniforms !== undefined && renderingSettings.uniforms !== null
-                                && renderingSettings.shader !== undefined && renderingSettings.shader !== null)
-                            && (
-                            <group>
-                              <mesh scale={renderingSettings.meshScale} ref={materialRef}>
-                                <boxGeometry args={renderingSettings.geometrySize} />
-                                <shaderMaterial
-                                  customProgramCacheKey={() => '1'}
-                                  side={FrontSide}
-                                  uniforms={renderingSettings.uniforms}
-                                  needsUpdate
-                                  transparent
-                                  vertexShader={renderingSettings.shader.vertexShader}
-                                  fragmentShader={renderingSettings.shader.fragmentShader}
-                                />
-                              </mesh>
-                            </group>
-                            )
-                        }
-            </group>
-            <group name="lines">
-              {lines.map((object, i) => <MeasureLine currentLine={object} scale={1} />)}
-            </group>
+      {useXR().isPresenting ? (
+        <RayGrab>
+          <group ref={rayGrabGroup}>
+            {segmentationGroup?.visible ? (
+              <group>
+                <hemisphereLight skyColor={0x808080} groundColor={0x606060} />
+                <directionalLight color={0xFFFFFF} position={[0, -800, 0]} />
+                <primitive
+                  ref={model}
+                  object={segmentationGroup}
+                  position={[-0.18, 1.13, -1]}
+                  scale={[0.002 * segmentationSceneScale[0],
+                    0.002 * segmentationSceneScale[1],
+                    0.002 * segmentationSceneScale[2]]}
+                />
+              </group>
+            ) : null}
+            {renderingSettings.uniforms && renderingSettings.shader ? (
+              <group>
+                <mesh
+                  name="cube"
+                  position={[-0.18, 1.13, -1]}
+                  rotation={[0, 0, 0]}
+                  scale={[0.002 * renderingSettings.meshScale[0],
+                    0.002 * renderingSettings.meshScale[1],
+                    0.002 * renderingSettings.meshScale[2]]}
+                  ref={materialRef}
+                >
+                  <boxGeometry args={renderingSettings.geometrySize} />
+                  <shaderMaterial
+                    customProgramCacheKey={() => '1'}
+                    side={FrontSide}
+                    uniforms={renderingSettings.uniforms}
+                    needsUpdate
+                    transparent
+                    vertexShader={renderingSettings.shader.vertexShader}
+                    fragmentShader={renderingSettings.shader.fragmentShader}
+                  />
+                </mesh>
+              </group>
+            ) : null}
           </group>
-        )
-            }
+          <group name="currentLine" ref={distanceRef}>
+            {showLine ? (
+              <MeasureLine currentLine={currentLine} scale={(1 / 0.002) * 0.4} />
+            ) : null}
+          </group>
+          <group name="lines">
+            {lines.map((object) => <MeasureLine currentLine={object} scale={(1 / 0.002) * 0.4} />)}
+          </group>
+        </RayGrab>
+      ) : (
+        <group>
+          <group>
+            {segmentationGroup?.visible ? (
+              <group>
+                <hemisphereLight skyColor={0x808080} groundColor={0x606060} />
+                <directionalLight color={0xFFFFFF} position={[0, -800, 0]} />
+                <directionalLight color={0xFFFFFF} position={[0, 800, 0]} />
+                <Bvh firstHitOnly>
+                  <primitive
+                    ref={model}
+                    object={segmentationGroup}
+                    position={[0, 0, 0]}
+                    onClick={(e) => {
+                      if (e.object.parent.userData.name === 'finalPass') {
+                        highlightGlom(e.object.name);
+                      }
+                    }}
+                    onPointerOver={(e) => {
+                      setObsHighlight(e.object.name);
+                    }}
+                    onPointerOut={e => setObsHighlight(null)}
+                  />
+                </Bvh>
+              </group>
+            ) : null}
+            {(renderingSettings.uniforms && renderingSettings.shader) ? (
+              <group>
+                <mesh scale={renderingSettings.meshScale} ref={materialRef}>
+                  <boxGeometry args={renderingSettings.geometrySize} />
+                  <shaderMaterial
+                    customProgramCacheKey={() => '1'}
+                    side={FrontSide}
+                    uniforms={renderingSettings.uniforms}
+                    needsUpdate
+                    transparent
+                    vertexShader={renderingSettings.shader.vertexShader}
+                    fragmentShader={renderingSettings.shader.fragmentShader}
+                  />
+                </mesh>
+              </group>
+            ) : null}
+          </group>
+          <group name="lines">
+            {lines.map((object) => <MeasureLine currentLine={object} scale={1} />)}
+          </group>
+        </group>
+      )}
     </group>
   );
 }

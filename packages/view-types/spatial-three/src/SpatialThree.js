@@ -263,9 +263,11 @@ export function SpatialThree(props) {
         visibleCombined |= channelSet.spatialChannelVisible;
         opacityCombined += channelSet.spatialChannelOpacity;
       });
-      if (color !== segmentationSettings.multiColor
-                || opacity !== segmentationSettings.multiOpacity
-                || visible !== segmentationSettings.multiVisible) {
+      if (
+        color !== segmentationSettings.multiColor
+        || opacity !== segmentationSettings.multiOpacity
+        || visible !== segmentationSettings.multiVisible
+      ) {
         setSegmentationSettings({
           color: segmentationLayerProps.spatialChannelColor,
           opacity: opacityCombined,
@@ -278,7 +280,8 @@ export function SpatialThree(props) {
         });
       }
       // TODO: stop using string equality for comparisons.
-    } else if (segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString()
+    } else if (
+      segmentationLayerProps.spatialChannelColor.toString() !== segmentationSettings.color.toString()
       || segmentationLayerProps.spatialChannelVisible !== segmentationSettings.visible
       || segmentationLayerProps.spatialChannelOpacity !== segmentationSettings.opacity
       || setsSaveString !== settingsSaveString
@@ -363,8 +366,10 @@ export function SpatialThree(props) {
 
   // 1st Rendering Pass Load the Data in the given resolution OR Resolution Changed
   const dataToCheck = images[layerScope]?.image?.instance?.getData();
-  if (dataToCheck !== undefined && !dataReady && !initialStartup
-        && contrastLimits !== null && contrastLimits[0][1] !== 255 && is3dMode) {
+  if (
+    dataToCheck !== undefined && !dataReady && !initialStartup
+    && contrastLimits !== null && contrastLimits[0][1] !== 255 && is3dMode
+  ) {
     setDataReady(true);
     setInitialStartup(true);
   }

@@ -61,7 +61,6 @@ function extractInformationFromProps(
   const renderingModeStr = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM];
   const renderingMode = renderingModeMap[renderingModeStr];
   const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
-  const transparentColor = layerCoordination[CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR];
   const layerTransparency = layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY];
   const rgbInterleavedProps = {};
   if (imageWrapperInstance.isInterleaved()) {
@@ -112,7 +111,9 @@ function extractInformationFromProps(
   ));
   const autoTargetResolution = imageWrapperInstance.getAutoTargetResolution();
   const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION];
-  const resolution = (targetResolution === null || Number.isNaN(targetResolution)) ? autoTargetResolution : targetResolution;
+  const resolution = (targetResolution === null || Number.isNaN(targetResolution))
+    ? autoTargetResolution
+    : targetResolution;
   const allChannels = image.image.loaders[0].channels;
 
   // Get the Clipping Planes
@@ -189,22 +190,26 @@ export function useVolumeSettings(props, volumeSettings, setVolumeSettings, data
   // TODO: Find a better and more efficient way to compare the Strings here
   if (channelTargetC !== null) {
     // TODO: stop using string equality for comparisons.
-    if (volumeSettings.channelTargetC.length !== 0
-          && (volumeSettings.channelTargetC.toString() !== channelTargetC.toString()
-            || volumeSettings.resolution.toString() !== resolution.toString())) {
+    if (
+      volumeSettings.channelTargetC.length !== 0
+      && (
+        volumeSettings.channelTargetC.toString() !== channelTargetC.toString()
+        || volumeSettings.resolution.toString() !== resolution.toString()
+      )
+    ) {
       if (!dataReady) setDataReady(true);
       // TODO: stop using string equality for comparisons.
     } else if (
-      (volumeSettings.channelsVisible.toString() !== channelsVisible.toString()
-        || volumeSettings.colors.toString() !== colors.toString()
-        || volumeSettings.is3dMode !== is3dMode
-        || volumeSettings.contrastLimits.toString() !== contrastLimits.toString()
-        || volumeSettings.renderingMode.toString() !== renderingMode.toString()
-        || volumeSettings.layerTransparency.toString() !== layerTransparency.toString()
-        || volumeSettings.xSlice.toString() !== xSlice.toString()
-        || volumeSettings.ySlice.toString() !== ySlice.toString()
-        || volumeSettings.zSlice.toString() !== zSlice.toString()
-      )) {
+      volumeSettings.channelsVisible.toString() !== channelsVisible.toString()
+      || volumeSettings.colors.toString() !== colors.toString()
+      || volumeSettings.is3dMode !== is3dMode
+      || volumeSettings.contrastLimits.toString() !== contrastLimits.toString()
+      || volumeSettings.renderingMode.toString() !== renderingMode.toString()
+      || volumeSettings.layerTransparency.toString() !== layerTransparency.toString()
+      || volumeSettings.xSlice.toString() !== xSlice.toString()
+      || volumeSettings.ySlice.toString() !== ySlice.toString()
+      || volumeSettings.zSlice.toString() !== zSlice.toString()
+    ) {
       setVolumeSettings({
         channelsVisible,
         allChannels,
@@ -392,8 +397,13 @@ export function create3DRendering(volumes, channelTargetC, channelsVisible, colo
   const uniforms = UniformsUtils.clone(shader.uniforms);
   setUniformsTextures(uniforms, texturesList, volume, volconfig, renderstyle, contrastLimitsList, colorsSave, layerTransparency,
     xSlice, ySlice, zSlice, [scale[0].size, scale[1].size, scale[2] ? scale[2].size : 1.0], originalScale);
-  return [uniforms, shader, [1, scale[1].size / scale[0].size, scale[2] ? scale[2].size / scale[0].size : 1.0], [volume.xLength, volume.yLength, volume.zLength],
-    [1.0, volume.yLength / volume.xLength, volume.zLength / volume.xLength]];
+  return [
+    uniforms,
+    shader,
+    [1, scale[1].size / scale[0].size, scale[2] ? scale[2].size / scale[0].size : 1.0],
+    [volume.xLength, volume.yLength, volume.zLength],
+    [1.0, volume.yLength / volume.xLength, volume.zLength / volume.xLength],
+  ];
 }
 
 const dtypeToTypedArray = {
