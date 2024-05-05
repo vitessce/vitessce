@@ -201,7 +201,7 @@ export function GeometryAndMesh(props) {
             ) : null}
           </group>
           <group name="lines">
-            {lines.map((object) => <MeasureLine currentLine={object} scale={(1 / 0.002) * 0.4} />)}
+            {lines.map(object => <MeasureLine currentLine={object} scale={(1 / 0.002) * 0.4} />)}
           </group>
         </RayGrab>
       ) : (
@@ -248,7 +248,7 @@ export function GeometryAndMesh(props) {
             ) : null}
           </group>
           <group name="lines">
-            {lines.map((object) => <MeasureLine currentLine={object} scale={1} />)}
+            {lines.map(object => <MeasureLine currentLine={object} scale={1} />)}
           </group>
         </group>
       )}
