@@ -100,7 +100,9 @@ export function ObsSetsManagerSubscriber(props) {
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
-    setCellSetExpansion([]);
+    if (cellSetExpansion && cellSetExpansion.length > 0) {
+      setCellSetExpansion([]);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 

@@ -70,7 +70,18 @@ export type ObsSegmentationsBitmask = {
   obsSegmentationsType: 'bitmask';
 };
 
-export type ObsSegmentationsData = ObsSegmentationsPolygons | ObsSegmentationsBitmask;
+export type ObsSegmentationsMesh = {
+  obsSegmentations: {
+    scene: any; // TODO: add type
+  };
+  obsSegmentationsType: 'mesh';
+};
+
+export type ObsSegmentationsData = (
+  ObsSegmentationsPolygons
+  | ObsSegmentationsBitmask
+  | ObsSegmentationsMesh
+);
 
 export type ImageData = {
   image: {

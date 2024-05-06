@@ -33,7 +33,7 @@
     "@vitessce/types": "workspace:*",
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@hms-dbmi/viv": "~0.13.8"
+    "@hms-dbmi/viv": "~0.16.0"
   },
   "devDependencies": {
     "vite": "^4.3.0",
