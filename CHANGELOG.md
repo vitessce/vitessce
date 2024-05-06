@@ -1,4 +1,11 @@
 
+## 3.4.0
+
+### Minor Changes
+
+- Adds a ThreeJS-based spatial view for mesh and volumetric rendering. (`@vitessce/statistical-plots`, `@vitessce/spatial-three`, `@vitessce/glb`, `@vitessce/example-configs`) ([#1861](https://github.com/vitessce/vitessce/pull/1861))
+
+
 ## 3.3.12
 
 ### Patch Changes
