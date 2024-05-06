@@ -30,7 +30,7 @@ function generateBloodVesselConfig() {
   });
 
   const spatialThreeView = config.addView(dataset, 'spatialBeta')
-    .setProps({ threeFor3d: true });
+    .setProps({ three: true });
   const lcView = config.addView(dataset, 'layerControllerBeta');
   // const linkController = config.addView(dataset, 'linkController').setProps({code:'1234'})
 

@@ -27,7 +27,7 @@ function generateBloodVesselConfig() {
   });
 
   const spatialThreeView = config.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 8 })
-    .setProps({ threeFor3d: true });
+    .setProps({ three: true });
   const lcView = config.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 6 });
   const description = config.addView(dataset, 'description', {
     x: 8,

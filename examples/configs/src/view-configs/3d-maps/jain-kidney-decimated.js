@@ -34,7 +34,7 @@ function generateJainKidneyDecimatedConfig() {
     },
   });
 
-  const spatialThreeView = config.addView(dataset, 'spatialBeta').setProps({ threeFor3d: true });
+  const spatialThreeView = config.addView(dataset, 'spatialBeta').setProps({ three: true });
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const obsSetsView = config.addView(dataset, 'obsSets');
   const barPlot = config.addView(dataset, 'featureBarPlot').setProps({

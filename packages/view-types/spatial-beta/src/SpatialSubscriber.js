@@ -129,7 +129,7 @@ export function SpatialSubscriber(props) {
     disableTooltip = false,
     title = 'Spatial',
     bitmaskValueIsIndex = false, // TODO: move to coordination type
-    threeFor3d = false,
+    three: threeFor3d = false,
   } = props;
 
   const loaders = useLoaders();
