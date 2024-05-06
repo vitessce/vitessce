@@ -4,6 +4,7 @@ import {
   hconcat,
 } from '@vitessce/config';
 
+// Reference: https://portal.hubmapconsortium.org/browse/dataset/b6eba6afe660a8a85c2648e368b0cf9f
 
 function generateThreeMinimalConfiguration() {
   const config = new VitessceConfig({

@@ -58,18 +58,13 @@ import exemplarSmallImageOmeZarr from './json-fixtures/exemplar-small/exemplar-0
 import exemplarSmallSegmentationsOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.segmentations.ome.json';
 
 // 3D Maps
-import { threeDemoConfig } from './view-configs/3d-maps/three.js';
-import { jainkidney } from './view-configs/3d-maps/jain-kidney.js';
 import { jainkidneyDecimated } from './view-configs/3d-maps/jain-kidney-decimated.js';
-import { kruse2024 } from './view-configs/3d-maps/kruse.js';
-import { xrDevExample } from './view-configs/3d-maps/xr-dev.js';
 import { humanLiver } from './view-configs/3d-maps/human-liver.js';
 import { bloodVessel } from './view-configs/3d-maps/blood-vessel.js';
 import { bloodVesselNamed } from './view-configs/3d-maps/blood-vessel-named.js';
 import { bloodVesselNeighborhood } from './view-configs/3d-maps/blood-vessel-neighborhood.js';
 import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.js';
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
-import { spragginsMxIF } from './view-configs/3d-maps/spraggins-mxif.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
 
@@ -144,20 +139,15 @@ export const configs = {
   'kpmp-auto-init': kpmpAutoInit2023,
 
   // 3D Maps
-  'three-demo': threeDemoConfig,
-  'jain-2024': jainkidney,
-  'jain-dec-2024': jainkidneyDecimated,
-  xrdev: xrDevExample,
-  'human-liver': humanLiver,
-  bloodVessel,
-  D2: bloodVesselNamed,
-  Figure3d_tumor_cytoskeleton: sorgerBiggerNeighborhood,
-  D1: bloodVesselNeighborhood,
-  Figure6n_cell_community: cellNeighborhood,
-  spragginsMxIF,
-  'three-minimal': threeMinimal,
-  'kruse-2024': kruse2024,
-  'three-minimal-light': threeMinimalLight,
+  'jain-2024': jainkidneyDecimated,
+  'tian-2024': humanLiver,
+  'sorger-2024': bloodVessel,
+  'sorger-2024-2': bloodVesselNamed,
+  'sorger-2024-3': sorgerBiggerNeighborhood,
+  'sorger-2024-4': bloodVesselNeighborhood,
+  'sorger-2024-5': cellNeighborhood,
+  'kiemen-2024': threeMinimal,
+  'hakimian-2021': threeMinimalLight,
 
   // For documentation of coordination types:
   ...coordinationTypeConfigs,

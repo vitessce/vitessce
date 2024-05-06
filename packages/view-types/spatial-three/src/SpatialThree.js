@@ -486,13 +486,7 @@ export function SpatialThree(props) {
   // -----------------------------------------------------------------
   // -----------------------------------------------------------------
   if (!volumeSettings.is3dMode) {
-    return (
-      <group>
-        <ambientLight />
-        <pointLight position={[10, 10, 10]} />
-        <Text color="white" scale={20} fontWeight={1000}>Only in 3D Mode</Text>
-      </group>
-    );
+    return null;
   }
 
   if (volumeSettings.is3dMode && (!renderingSettings.uniforms || !renderingSettings.shader)) {

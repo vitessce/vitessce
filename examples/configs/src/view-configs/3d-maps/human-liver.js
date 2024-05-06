@@ -4,6 +4,7 @@ import {
   hconcat,
 } from '@vitessce/config';
 
+// Reference: https://portal.hubmapconsortium.org/preview/multimodal-mass-spectrometry-imaging-data
 
 function generateThreeMinimalConfiguration() {
   const config = new VitessceConfig({
