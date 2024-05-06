@@ -204,7 +204,7 @@ export function SpatialThree(props) {
         simplified.geometry.translate(
           sceneOptions?.targetX ?? 0,
           sceneOptions?.targetY ?? 0,
-          sceneOptions?.targetZ ?? 0
+          sceneOptions?.targetZ ?? 0,
         );
         simplified.geometry.scale(
           sceneOptions?.scaleX ?? 1.0,

@@ -7,7 +7,6 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 export default class GlbDataLoader extends AbstractTwoStepLoader {
   async load() {
     const { url, options } = this;
-    console.log(options);
     const loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
