@@ -62,6 +62,7 @@ import {
   cellsLayerObj,
   neighborhoodsLayerObj,
   moleculesLayerObj,
+  meshGlbSchema,
 } from '@vitessce/schemas';
 
 // Register view type plugins
@@ -265,7 +266,7 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
   makeFileType(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, SpatialDataObsSetsLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
 
-  makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, z.null()),
+  makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
   makeFileType(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
@@ -345,16 +346,6 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_ROTATION_X, 0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_ROTATION_Y, 0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_ROTATION_Z, 0, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_SCALE_X, 1, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_SCALE_Y, 1, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_SCALE_Z, 1, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_SCENE_ROTATION_X, 0, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_SCENE_ROTATION_Y, 0, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_SCENE_ROTATION_Z, 0, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_SCENE_SCALE_X, 1, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_SCENE_SCALE_Y, 1, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_SCENE_SCALE_Z, 1, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_MATERIAL_BACKSIDE, false, z.boolean().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_ROTATION_ORBIT, 0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_ORBIT_AXIS, 'Y', z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_AXIS_FIXED, false, z.boolean().nullable()),

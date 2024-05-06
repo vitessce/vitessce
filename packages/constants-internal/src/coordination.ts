@@ -203,17 +203,6 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE,
     CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
     CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
-    // For SpatialThree
-    CoordinationType.SPATIAL_SCALE_X,
-    CoordinationType.SPATIAL_SCALE_Y,
-    CoordinationType.SPATIAL_SCALE_Z,
-    CoordinationType.SPATIAL_SCENE_ROTATION_X,
-    CoordinationType.SPATIAL_SCENE_ROTATION_Y,
-    CoordinationType.SPATIAL_SCENE_ROTATION_Z,
-    CoordinationType.SPATIAL_SCENE_SCALE_X,
-    CoordinationType.SPATIAL_SCENE_SCALE_Y,
-    CoordinationType.SPATIAL_SCENE_SCALE_Z,
-    CoordinationType.SPATIAL_MATERIAL_BACKSIDE,
   ],
   [ViewType.HEATMAP]: [
     CoordinationType.DATASET,

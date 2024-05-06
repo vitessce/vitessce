@@ -5,31 +5,26 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 export default class GlbDataLoader extends AbstractTwoStepLoader {
-  getSourceData() {
-    const {
-      url,
-    } = this;
-    return url;
-  }
-
   async load() {
+    const { url, options } = this;
+    console.log(options);
     const loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
     loader.setDRACOLoader(dracoLoader);
     return new Promise((resolve, reject) => {
       loader.load(
-        this.url,
+        url,
         // onLoad
         (gltf) => {
           const { scene } = gltf;
           resolve(new LoaderResult(
             {
               obsIndex: null,
-              obsSegmentations: { scene },
+              obsSegmentations: { scene, sceneOptions: options },
               obsSegmentationsType: 'mesh',
             },
-            this.url,
+            url,
           ));
         },
         // onProgress

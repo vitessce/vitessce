@@ -161,8 +161,9 @@ export function SpatialThree(props) {
     }
   }
   if (obsSegmentations?.[layerScope]?.obsSegmentations && segmentationGroup == null) {
-    const { scene } = obsSegmentations[layerScope].obsSegmentations;
+    const { scene, sceneOptions } = obsSegmentations[layerScope].obsSegmentations;
     if (scene?.children) {
+      // TODO: can all of this scene modification all be moved to the loader?
       const newScene = new Scene();
       const finalPass = new Group();
       finalPass.userData.name = 'finalPass';
@@ -195,22 +196,24 @@ export function SpatialThree(props) {
         childElement.material.depthTest = true;
         childElement.material.depthWrite = true;
         childElement.material.needsUpdate = true;
-        childElement.material.side = segmentationLayerCoordination[0][layerScope].spatialMaterialBackside
+        childElement.material.side = sceneOptions?.materialSide === 'back'
           ? BackSide : FrontSide;
 
         const simplified = childElement.clone();
         simplified.geometry = childElement.geometry.clone();
-        simplified.geometry.translate(segmentationLayerCoordination[0][layerScope].spatialTargetX ?? 0,
-          segmentationLayerCoordination[0][layerScope].spatialTargetY ?? 0,
-          segmentationLayerCoordination[0][layerScope].spatialTargetZ ?? 0);
-        simplified.geometry.scale(
-          segmentationLayerCoordination[0][layerScope].spatialScaleX ?? 1.0,
-          segmentationLayerCoordination[0][layerScope].spatialScaleY ?? 1.0,
-          segmentationLayerCoordination[0][layerScope].spatialScaleZ ?? 1.0,
+        simplified.geometry.translate(
+          sceneOptions?.targetX ?? 0,
+          sceneOptions?.targetY ?? 0,
+          sceneOptions?.targetZ ?? 0
         );
-        simplified.geometry.rotateX(segmentationLayerCoordination[0][layerScope].spatialRotationX ?? 0);
-        simplified.geometry.rotateY(segmentationLayerCoordination[0][layerScope].spatialRotationY ?? 0);
-        simplified.geometry.rotateZ(segmentationLayerCoordination[0][layerScope].spatialRotationZ ?? 0);
+        simplified.geometry.scale(
+          sceneOptions?.scaleX ?? 1.0,
+          sceneOptions?.scaleY ?? 1.0,
+          sceneOptions?.scaleZ ?? 1.0,
+        );
+        simplified.geometry.rotateX(sceneOptions?.rotationX ?? 0);
+        simplified.geometry.rotateY(sceneOptions?.rotationY ?? 0);
+        simplified.geometry.rotateZ(sceneOptions?.rotationZ ?? 0);
 
         const finalPassChild = childElement.clone();
         finalPassChild.material = childElement.material.clone();
@@ -219,17 +222,19 @@ export function SpatialThree(props) {
       });
       newScene.add(finalPass);
       newScene.scale.set(
-        segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
-        segmentationLayerCoordination[0][layerScope].spatialSceneScaleY ?? 1.0,
-        segmentationLayerCoordination[0][layerScope].spatialSceneScaleZ ?? 1.0,
+        sceneOptions?.sceneScaleX ?? 1.0,
+        sceneOptions?.sceneScaleY ?? 1.0,
+        sceneOptions?.sceneScaleZ ?? 1.0,
       );
-      const sceneScale = [segmentationLayerCoordination[0][layerScope].spatialSceneScaleX ?? 1.0,
-        segmentationLayerCoordination[0][layerScope].spatialSceneScaleY ?? 1.0,
-        segmentationLayerCoordination[0][layerScope].spatialSceneScaleZ ?? 1.0];
+      const sceneScale = [
+        sceneOptions?.sceneScaleX ?? 1.0,
+        sceneOptions?.sceneScaleY ?? 1.0,
+        sceneOptions?.sceneScaleZ ?? 1.0,
+      ];
       setSegmentationSceneScale(sceneScale);
-      newScene.rotateX(segmentationLayerCoordination[0][layerScope].spatialSceneRotationX ?? 0.0);
-      newScene.rotateY(segmentationLayerCoordination[0][layerScope].spatialSceneRotationY ?? 0.0);
-      newScene.rotateZ(segmentationLayerCoordination[0][layerScope].spatialSceneRotationZ ?? 0.0);
+      newScene.rotateX(sceneOptions?.sceneRotationX ?? 0.0);
+      newScene.rotateY(sceneOptions?.sceneRotationY ?? 0.0);
+      newScene.rotateZ(sceneOptions?.sceneRotationZ ?? 0.0);
       setSegmentationGroup(newScene);
     }
   }

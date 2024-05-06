@@ -35,6 +35,7 @@ export {
   obsSpotsSpatialdataSchema,
   obsLocationsSpatialdataSchema,
   obsSetsSpatialdataSchema,
+  meshGlbSchema,
 } from './file-def-options.js';
 export {
   anndataCellsZarrSchema,

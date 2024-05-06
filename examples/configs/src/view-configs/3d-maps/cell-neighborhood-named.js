@@ -22,6 +22,26 @@ function generateCellNeighborhoodConfig() {
   }).addFile({
     fileType: 'obsSegmentations.glb',
     url: 'https://vitessce-data-v2.s3.amazonaws.com/data/sorger/cells_from_wrl_named.glb',
+    options: {
+      targetX: -1467,
+      targetY: -89,
+      targetZ: -24,
+      scaleX: 4.0, // 4
+      scaleY: 8.0, // 4
+      scaleZ: -3.75 / 4.0, // 3
+      rotationX: Math.PI / 2.0 + Math.PI / 2.0,
+      // rotationX: 3*Math.PI/4,
+      // rotationZ: Math.PI,
+      // rotationY: Math.PI,
+      // rotationX: Math.PI,
+
+      sceneScaleX: 1.0,
+      sceneScaleY: 4.0,
+      sceneScaleZ: 0.5,
+      sceneRotationX: -Math.PI / 2.0,
+      sceneRotationZ: Math.PI,
+      materialSide: 'back',
+    },
     coordinationValues: {
       fileUid: 'Cells',
     },
@@ -77,24 +97,6 @@ function generateCellNeighborhoodConfig() {
         fileUid: 'Cells',
         spatialLayerVisible: true,
         spatialLayerOpacity: 1,
-        spatialTargetX: -1467,
-        spatialTargetY: -89,
-        spatialTargetZ: -24,
-        spatialScaleX: 4.0, // 4
-        spatialScaleY: 8.0, // 4
-        spatialScaleZ: -3.75 / 4.0, // 3
-        spatialRotationX: Math.PI / 2.0 + Math.PI / 2.0,
-        // spatialRotationX: 3*Math.PI/4,
-        // spatialRotationZ: Math.PI,
-        // spatialRotationY: Math.PI,
-        // spatialRotationX: Math.PI,
-
-        spatialSceneScaleX: 1.0,
-        spatialSceneScaleY: 4.0,
-        spatialSceneScaleZ: 0.5,
-        spatialSceneRotationX: -Math.PI / 2.0,
-        spatialSceneRotationZ: Math.PI,
-        spatialMaterialBackside: true,
         segmentationChannel: CL([
           {
             // obsType: glomsObsTypeScope,
