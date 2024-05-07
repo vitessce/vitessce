@@ -52,12 +52,12 @@ export default function FeatureBarPlot(props) {
   // TODO: use a more descriptive name than setsSave.
   const setsSave = useMemo(() => {
     const result = new Map();
-    cellSetSelection.forEach((obsSetPath) => {
+    cellSetSelection?.forEach((obsSetPath) => {
       // TODO: this does not use the full set path for comparison.
       const selectedElement = obsSetPath[1];
       // TODO: this is only considering the first set grouping in the tree.
       // TODO: use sets-utils to traverse sets tree.
-      additionalCellSets.tree[0].children.forEach((child) => {
+      additionalCellSets?.tree?.[0]?.children?.forEach((child) => {
         if (child.name === selectedElement) {
           child.set.forEach(([obsId]) => {
             const info = { name: '', id: '', color: [] };
@@ -73,6 +73,7 @@ export default function FeatureBarPlot(props) {
         }
       });
     });
+    return result;
   }, [cellSetSelection, additionalCellSets, cellSetColor]);
 
   const svgRef = useRef();
