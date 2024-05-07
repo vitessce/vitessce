@@ -1,7 +1,7 @@
 import { isEqual } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
-import { VIEWER_PALETTE } from '@vitessce/utils';
+import { VIEWER_PALETTE, PALETTE } from '@vitessce/utils';
 import { viv } from '@vitessce/gl';
 import { getMultiSelectionStats } from './layer-controller.js';
 
@@ -273,27 +273,30 @@ export function isInterleaved(shape) {
  * @returns {object[]} An array of selected channels with default
  * domain/slider settings.
  */
-export async function initializeLayerChannels(loader, use3d) {
+export async function initializeLayerChannels(loader, use3d, isBitmask) {
   const result = [];
   const source = getSourceFromLoader(loader);
   // Add channel automatically as the first avaialable value for each dimension.
   let defaultSelection = buildDefaultSelection(source);
   defaultSelection = isInterleaved(source.shape)
     ? [{ ...defaultSelection[0], c: 0 }] : defaultSelection;
-  const stats = await getMultiSelectionStats({
-    loader: loader.data, selections: defaultSelection, use3d,
-  });
-
-  const domains = isRgb(loader, null)
-    ? [[0, 255], [0, 255], [0, 255]]
-    : stats.domains;
-  const colors = isRgb(loader, null)
-    ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]]
-    : null;
-  const sliders = isRgb(loader, null)
-    ? [[0, 255], [0, 255], [0, 255]]
-    : stats.sliders;
-
+  let domains = defaultSelection.map(i => [0, 255])
+  let sliders = defaultSelection.map(i => [0, 255])
+  let colors = defaultSelection.map((_, i) => PALETTE[i])
+  if (!isBitmask) {
+    const stats = await getMultiSelectionStats({
+      loader: loader.data, selections: defaultSelection, use3d,
+    });
+    domains = isRgb(loader, null)
+      ? [[0, 255], [0, 255], [0, 255]]
+      : stats.domains;
+    colors = isRgb(loader, null)
+      ? [[255, 0, 0], [0, 255, 0], [0, 0, 255]]
+      : null;
+    sliders = isRgb(loader, null)
+      ? [[0, 255], [0, 255], [0, 255]]
+      : stats.sliders;
+  }
   defaultSelection.forEach((selection, i) => {
     const domain = domains[i];
     const slider = sliders[i];
@@ -348,9 +351,10 @@ export async function initializeRasterLayersAndChannels(
     // Midpoint of images list as default image to show.
     const layerIndex = Math.floor(rasterLayers.length / 2);
     const loader = nextImageLoaders[layerIndex];
-    const autoImageLayerDefPromise = initializeLayerChannels(loader)
+    const isBitmask = nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask
+    const autoImageLayerDefPromise = initializeLayerChannels(loader, false, isBitmask)
       .then(channels => Promise.resolve({
-        type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
+        type: isBitmask ? 'bitmask' : 'raster',
         index: layerIndex,
         ...DEFAULT_RASTER_LAYER_PROPS,
         channels: channels.map((channel, j) => ({
@@ -369,10 +373,11 @@ export async function initializeRasterLayersAndChannels(
     for (let i = 0; i < globalIndicesOfRenderLayers.length; i++) {
       const layerIndex = globalIndicesOfRenderLayers[i];
       const loader = nextImageLoaders[layerIndex];
-      const autoImageLayerDefPromise = initializeLayerChannels(loader)
+      const isBitmask = nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask
+      const autoImageLayerDefPromise = initializeLayerChannels(loader, false, isBitmask)
         // eslint-disable-next-line no-loop-func
         .then(channels => Promise.resolve({
-          type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
+          type: isBitmask ? 'bitmask' : 'raster',
           index: layerIndex,
           ...DEFAULT_RASTER_LAYER_PROPS,
           channels: channels.map((channel, j) => ({
