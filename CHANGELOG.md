@@ -1,4 +1,11 @@
 
+## 3.4.1
+
+### Patch Changes
+
+- Fix bugs in featureBarPlot. Update jain-2024 file URLs. (`@vitessce/statistical-plots`, `@vitessce/spatial-three`) ([#1865](https://github.com/vitessce/vitessce/pull/1865))
+
+
 ## 3.4.0
 
 ### Minor Changes
