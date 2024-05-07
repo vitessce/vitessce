@@ -30,7 +30,7 @@ export function GeometryAndMesh(props) {
     } else if (!isPresenting) {
       // Needed to get the Fragment Depth Value Right
       if (materialRef !== null) {
-        materialRef.current.material.uniforms.u_physical_Pixel.value = 2.0;
+        materialRef.current.material.uniforms.u_physical_Pixel.value = 2.5;
       }
     }
   }, [isPresenting]);
