@@ -108,7 +108,7 @@ export function ObsSetsManagerSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [{ obsIndex, obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
-    loaders, dataset, true,
+    loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
