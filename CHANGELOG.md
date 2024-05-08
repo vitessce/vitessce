@@ -1,4 +1,11 @@
 
+## 3.4.2
+
+### Patch Changes
+
+- Mark existing obsSets as optional for obs component so users can generate their own observations (`@vitessce/obs-sets-manager`) ([#1868](https://github.com/vitessce/vitessce/pull/1868))
+
+
 ## 3.4.1
 
 ### Patch Changes
