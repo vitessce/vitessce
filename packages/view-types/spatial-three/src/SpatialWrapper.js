@@ -16,7 +16,7 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => (
         position: 'absolute',
       }}
     >
-      {status => (status ? (
+      {status => (status !== 'unsupported' ? (
         <div style={{
           border: '1px solid white',
           padding: '12px 24px',
