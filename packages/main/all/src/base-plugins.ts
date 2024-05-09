@@ -450,7 +450,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.IMAGE_CHANNEL, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SEGMENTATION_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SEGMENTATION_CHANNEL, null, z.string().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_C, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_C, null, z.number().or(z.string()).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_Z, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_T, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_VISIBLE, true, z.boolean()),

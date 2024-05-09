@@ -37,7 +37,7 @@ import {
 import {
   COMPONENT_COORDINATION_TYPES,
   ViewType,
-  CoordinationType
+  CoordinationType,
 } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
 import { setObsSelection } from '@vitessce/sets-utils';
@@ -62,7 +62,7 @@ function getHoverData(hoverInfo, layerType) {
   const {
     coordinate,
     sourceLayer: layer,
-    tile
+    tile,
   } = hoverInfo;
   if (layerType === 'segmentation-bitmask' || layerType === 'image') {
     if (coordinate && layer) {
@@ -77,7 +77,7 @@ function getHoverData(hoverInfo, layerType) {
           const {
             data,
             width,
-            height
+            height,
           } = content;
           const {
             left,
@@ -523,25 +523,25 @@ export function SpatialSubscriber(props) {
     initialTargetZ: defaultTargetZ,
     initialZoom: defaultZoom,
   } = useMemo(() => getInitialSpatialTargets({
-      width,
-      height,
-      obsPoints: obsPointsData,
-      obsSpots: obsSpotsData,
-      obsSegmentations: obsSegmentationsData,
-      obsSegmentationsLocations: obsSegmentationsLocationsData,
-      segmentationChannelScopesByLayer,
-      images: imageData,
-      is3dMode,
-      isReady: isReadyToComputeInitialViewState,
-    }),
-    // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
-    // an indirect dependency instead.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [imageData, is3dMode, obsSegmentationsData,
-      width, height, obsSpotsData, isReadyToComputeInitialViewState,
-      obsSegmentationsLocationsData, obsPointsData,
-      segmentationChannelScopesByLayer,
-    ]);
+    width,
+    height,
+    obsPoints: obsPointsData,
+    obsSpots: obsSpotsData,
+    obsSegmentations: obsSegmentationsData,
+    obsSegmentationsLocations: obsSegmentationsLocationsData,
+    segmentationChannelScopesByLayer,
+    images: imageData,
+    is3dMode,
+    isReady: isReadyToComputeInitialViewState,
+  }),
+  // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
+  // an indirect dependency instead.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [imageData, is3dMode, obsSegmentationsData,
+    width, height, obsSpotsData, isReadyToComputeInitialViewState,
+    obsSegmentationsLocationsData, obsPointsData,
+    segmentationChannelScopesByLayer,
+  ]);
 
   useEffect(() => {
     // If it has not already been set, set the initial view state using
@@ -559,7 +559,7 @@ export function SpatialSubscriber(props) {
         setOriginalViewState(
           {
             target: [defaultTargetX, defaultTargetY, defaultTargetZ],
-            zoom: defaultZoom
+            zoom: defaultZoom,
           },
         );
       } else if (!originalViewState) {
@@ -782,36 +782,28 @@ export function SpatialSubscriber(props) {
 
 
   // For SpatialThree
-  // TODO: change to use per-layer or per-channel obsSets and selections
-
-
   const onEntitySelected = useCallback((obsId, layerScope, channelScope) => {
-    //const layerScope = segmentationLayerScopes[0];
-    //const channelScope = segmentationChannelScopesByLayer[layerScope][0];
-    const {
-      additionalObsSets: firstChannelAdditionalObsSets,
-      obsSetColor: firstChannelObsSetColor,
-    } = segmentationChannelCoordination[0][layerScope][channelScope];
-    const {
-      setObsSetColor: firstChannelSetObsSetColor,
-      setAdditionalObsSets: firstChannelSetAdditionalObsSets,
-      setObsColorEncoding: firstChannelSetObsColorEncoding,
-      setObsSetSelection: firstChannelSetObsSetSelection,
-    } = segmentationChannelCoordination[1][layerScope][channelScope];
-
-    const obsIdsToSelect = [obsId];
-    if (layerScope !== undefined && segmentationChannelScopesByLayer[layerScope][0] !== undefined) {
-      setObsSelection(
-        obsIdsToSelect, firstChannelAdditionalObsSets, firstChannelObsSetColor,
-        firstChannelSetObsSetSelection, firstChannelSetAdditionalObsSets, firstChannelSetObsSetColor,
-        firstChannelSetObsColorEncoding,
-      );
-    } else {
-      setObsSelection(
-        obsIdsToSelect, additionalObsSets, obsSetColor,
-        setObsSetSelection, setAdditionalObsSets, setObsSetColor,
-        setObsColorEncoding,
-      );
+    if (layerScope && channelScope) {
+      const channelCoordinationValues = segmentationChannelCoordination[0][layerScope][channelScope];
+      const channelCoordinationSetters = segmentationChannelCoordination[1][layerScope][channelScope];
+      if (channelCoordinationValues && channelCoordinationSetters) {
+        const {
+          additionalObsSets: channelAdditionalObsSets,
+          obsSetColor: channelObsSetColor,
+        } = channelCoordinationValues;
+        const {
+          setObsSetColor: setChannelObsSetColor,
+          setAdditionalObsSets: setChannelAdditionalObsSets,
+          setObsColorEncoding: setChannelObsColorEncoding,
+          setObsSetSelection: setChannelObsSetSelection,
+        } = channelCoordinationSetters;
+        const obsIdsToSelect = [obsId];
+        setObsSelection(
+          obsIdsToSelect, channelAdditionalObsSets, channelObsSetColor,
+          setChannelObsSetSelection, setChannelAdditionalObsSets, setChannelObsSetColor,
+          setChannelObsColorEncoding,
+        );
+      }
     }
   }, [segmentationChannelCoordination]);
 

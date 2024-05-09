@@ -19,8 +19,8 @@ function componentToHex(c) {
 }
 
 function rgbToHex(color) {
-  return color.length === 0 ? '#FFFFFF' :
-    `#${componentToHex(color[0])}${componentToHex(color[1])}${componentToHex(color[2])}`;
+  return color.length === 0 ? '#FFFFFF'
+    : `#${componentToHex(color[0])}${componentToHex(color[1])}${componentToHex(color[2])}`;
 }
 
 export default function FeatureBarPlot(props) {
@@ -64,7 +64,7 @@ export default function FeatureBarPlot(props) {
             const info = {
               name: '',
               id: '',
-              color: []
+              color: [],
             };
             info.name = selectedElement;
             info.id = obsId;

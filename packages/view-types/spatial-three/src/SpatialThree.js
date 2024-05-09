@@ -142,7 +142,7 @@ export function SpatialThree(props) {
         sets.tree[0].children.forEach((child) => {
           if (child.name === selectedElement) {
             child.set.forEach(([obsId]) => {
-              const info = { name: '', id: '', color: [255,255,255] };
+              const info = { name: '', id: '', color: [255, 255, 255] };
               info.name = selectedElement;
               info.id = obsId;
               segmentationObsSetLayerProps.obsSetColor.forEach((color) => {
@@ -346,12 +346,15 @@ export function SpatialThree(props) {
               child.visible = channelSet.spatialChannelVisible;
               // eslint-disable-next-line no-param-reassign
               child.material.needsUpdate = true;
+              // eslint-disable-next-line no-param-reassign
               child.userData.layerScope = layerScope;
+              // eslint-disable-next-line no-param-reassign
               child.userData.channelScope = channelScope;
               segmentationGroup.children[firstGroupIndex].children[childIndex].material.needsUpdate = true;
             }
           });
         } else {
+          // TODO: is this else clause needed anymore?
           // adapt the color
           // eslint-disable-next-line no-param-reassign
           child.material.color.r = color[0] / 255;
@@ -366,8 +369,11 @@ export function SpatialThree(props) {
           child.material.visible = segmentationSettings.visible;
           // eslint-disable-next-line no-param-reassign
           child.material.needsUpdate = true;
+          // eslint-disable-next-line no-param-reassign
           child.userData.layerScope = layerScope;
-          child.userData.channelScope = Object.keys(segmentationChannelCoordination[0][layerScope])[0];
+          const firstChannelScope = Object.keys(segmentationChannelCoordination[0][layerScope])?.[0];
+          // eslint-disable-next-line no-param-reassign
+          child.userData.channelScope = firstChannelScope;
         }
       });
     }

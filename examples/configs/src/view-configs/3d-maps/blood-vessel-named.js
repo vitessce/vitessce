@@ -51,22 +51,17 @@ function generateBloodVesselConfig() {
     h: 2,
   }).setProps({ description: 'To connect your mixed reality headset to this instance, navigate the web browser of your headset to: http://vitessce.link. Enter this 4 digit code: 7566. Next, move any slider in the channel controller. This will link the two sessions. As soon as the data is loaded (loading indicator disappears) in the headset, toggle the 3D button (top right of the channel controller). As soon as the dataset has loaded in the spatial view, you can select the "Enter AR" button.' });
   const [
-    selectionScope,
-    colorEncodingScope,
     glomsObsTypeScope,
     glomsFeatureTypeScope,
     glomsFeatureValueTypeScope,
     glomsFeatureSelectionScope,
   ] = config.addCoordination(
-    'obsSetSelection',
-    'obsColorEncoding',
     'obsType',
     'featureType',
     'featureValueType',
     'featureSelection',
   );
 
-  colorEncodingScope.setValue('spatialChannelColor');
 
   glomsObsTypeScope.setValue('Cells');
   glomsFeatureTypeScope.setValue('feature');
