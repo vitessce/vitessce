@@ -99,9 +99,8 @@ function generateCellNeighborhoodConfig() {
         spatialLayerOpacity: 1,
         segmentationChannel: CL([
           {
-            // obsType: glomsObsTypeScope,
             obsType: 'MART1',
-            spatialTargetC: 0,
+            spatialTargetC: 'MART1',
             spatialChannelColor: [0, 217, 3],
             spatialChannelOpacity: 1.0,
             obsColorEncoding: colorEncodingScope,
@@ -109,7 +108,7 @@ function generateCellNeighborhoodConfig() {
           },
           {
             obsType: 'PD1',
-            spatialTargetC: 1,
+            spatialTargetC: 'PD1',
             spatialChannelColor: [220, 128, 0],
             obsColorEncoding: colorEncodingScope,
             spatialChannelOpacity: 1.0,
@@ -117,7 +116,7 @@ function generateCellNeighborhoodConfig() {
           },
           {
             obsType: 'FOXP3',
-            spatialTargetC: 2,
+            spatialTargetC: 'FOXP3',
             spatialChannelColor: [187, 0, 0],
             obsColorEncoding: colorEncodingScope,
             spatialChannelOpacity: 1.0,
@@ -125,7 +124,7 @@ function generateCellNeighborhoodConfig() {
           },
           {
             obsType: 'CD8',
-            spatialTargetC: 3,
+            spatialTargetC: 'CD8',
             spatialChannelColor: [226, 0, 226],
             obsColorEncoding: colorEncodingScope,
             spatialChannelOpacity: 1.0,
@@ -133,7 +132,7 @@ function generateCellNeighborhoodConfig() {
           },
           {
             obsType: 'CD11c',
-            spatialTargetC: 4,
+            spatialTargetC: 'CD11c',
             spatialChannelColor: [180, 193, 0],
             obsColorEncoding: colorEncodingScope,
             spatialChannelOpacity: 1.0,
@@ -141,7 +140,7 @@ function generateCellNeighborhoodConfig() {
           },
           {
             obsType: 'CD103',
-            spatialTargetC: 5,
+            spatialTargetC: 'CD103',
             spatialChannelColor: [106, 155, 255],
             obsColorEncoding: colorEncodingScope,
             spatialChannelOpacity: 1.0,
@@ -149,7 +148,7 @@ function generateCellNeighborhoodConfig() {
           },
           {
             obsType: 'CD4',
-            spatialTargetC: 5,
+            spatialTargetC: 'CD4',
             spatialChannelColor: [0, 144, 144],
             obsColorEncoding: colorEncodingScope,
             spatialChannelOpacity: 1.0,

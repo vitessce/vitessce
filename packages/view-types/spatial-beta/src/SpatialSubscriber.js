@@ -756,7 +756,7 @@ export function SpatialSubscriber(props) {
 
 
   // For SpatialThree
-  const onEntitySelected = useCallback((obsId, layerScope, channelScope) => {
+  const onEntitySelected = (obsId, layerScope, channelScope) => {
     if (layerScope && channelScope) {
       const channelCoordinationValues = segmentationChannelCoordination[0][layerScope][channelScope];
       const channelCoordinationSetters = segmentationChannelCoordination[1][layerScope][channelScope];
@@ -779,7 +779,7 @@ export function SpatialSubscriber(props) {
         );
       }
     }
-  }, [segmentationChannelCoordination]);
+  };
 
   return (
     <TitleInfo
