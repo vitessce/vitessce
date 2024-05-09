@@ -206,7 +206,7 @@ export default function Legend(props) {
         y += titleHeight;
 
         setPaths.forEach((setPath) => {
-          const setColor = obsSetColor.find(d => isEqual(d.path, setPath)).color;
+          const setColor = obsSetColor.find(d => isEqual(d.path, setPath))?.color || [255,255,255];
 
           // TODO: for nested sets, render the intermediate nodes in the legend?
 
