@@ -1,4 +1,11 @@
 
+## 3.4.4
+
+### Patch Changes
+
+- Fix bug in colors. (`@vitessce/statistical-plots`) ([#1872](https://github.com/vitessce/vitessce/pull/1872))
+
+
 ## 3.4.3
 
 ### Patch Changes
