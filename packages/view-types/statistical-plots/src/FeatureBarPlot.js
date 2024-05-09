@@ -19,8 +19,7 @@ function componentToHex(c) {
 }
 
 function rgbToHex(color) {
-  return color.length === 0 ? '#FFFFFF'
-    : `#${componentToHex(color[0])}${componentToHex(color[1])}${componentToHex(color[2])}`;
+  return `#${componentToHex(color[0])}${componentToHex(color[1])}${componentToHex(color[2])}`;
 }
 
 export default function FeatureBarPlot(props) {
@@ -61,11 +60,7 @@ export default function FeatureBarPlot(props) {
       additionalCellSets?.tree?.[0]?.children?.forEach((child) => {
         if (child.name === selectedElement) {
           child.set.forEach(([obsId]) => {
-            const info = {
-              name: '',
-              id: '',
-              color: [],
-            };
+            const info = { name: '', id: '', color: [] };
             info.name = selectedElement;
             info.id = obsId;
             cellSetColor.forEach((color) => {
@@ -109,8 +104,7 @@ export default function FeatureBarPlot(props) {
     data.sort((a, b) => ascending(a[FEATURE_KEY], b[FEATURE_KEY]));
 
     const svg = select(domElement);
-    svg.selectAll('g')
-      .remove();
+    svg.selectAll('g').remove();
     svg
       .attr('width', width)
       .attr('height', height);
@@ -146,24 +140,24 @@ export default function FeatureBarPlot(props) {
       .attr('width', xScale.bandwidth())
       .attr('height', d => innerHeight - yScale(d[FEATURE_KEY]))
       .style('fill', (d) => {
-        if (d[OBS_KEY] === cellHighlight) return 'orange';
-        if (setsSave.has(d[OBS_KEY])) {
-          const { color } = setsSave.get(d[OBS_KEY]);
-          return rgbToHex(color);
-        }
-        return foregroundColor;
+          if (d[OBS_KEY] === cellHighlight) return 'orange';
+          if (setsSave.has(d[OBS_KEY])) {
+              const { color } = setsSave.get(d[OBS_KEY]);
+              return rgbToHex(color);
+          }
+          return foregroundColor;
       })
       .style('cursor', 'pointer')
       // eslint-disable-next-line no-unused-vars
       .on('click', (event, d) => {
-        onBarSelect(d[OBS_KEY]);
+          onBarSelect(d[OBS_KEY]);
       })
       // eslint-disable-next-line no-unused-vars
       .on('mouseover', (event, d) => {
-        onBarHighlight(d[OBS_KEY]);
+          onBarHighlight(d[OBS_KEY]);
       })
       .on('mouseout', () => {
-        onBarHighlight(null);
+          onBarHighlight(null);
       });
 
 

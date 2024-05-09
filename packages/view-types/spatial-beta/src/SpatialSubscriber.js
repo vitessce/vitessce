@@ -34,11 +34,7 @@ import {
   useSpotMultiFeatureLabels,
   useGridItemSize,
 } from '@vitessce/vit-s';
-import {
-  COMPONENT_COORDINATION_TYPES,
-  ViewType,
-  CoordinationType,
-} from '@vitessce/constants-internal';
+import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
 import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
@@ -55,15 +51,10 @@ const DEFAULT_VIEW_STATE = {
   rotationX: 0,
   rotationOrbit: 0,
 };
-const SET_VIEW_STATE_NOOP = () => {
-};
+const SET_VIEW_STATE_NOOP = () => {};
 
 function getHoverData(hoverInfo, layerType) {
-  const {
-    coordinate,
-    sourceLayer: layer,
-    tile,
-  } = hoverInfo;
+  const { coordinate, sourceLayer: layer, tile } = hoverInfo;
   if (layerType === 'segmentation-bitmask' || layerType === 'image') {
     if (coordinate && layer) {
       if (layer.id.startsWith('Tiled') && tile) {
@@ -74,16 +65,9 @@ function getHoverData(hoverInfo, layerType) {
           index: { z },
         } = tile;
         if (content) {
+          const { data, width, height } = content;
           const {
-            data,
-            width,
-            height,
-          } = content;
-          const {
-            left,
-            right,
-            top,
-            bottom,
+            left, right, top, bottom,
           } = bbox;
           const bounds = [
             left,
@@ -501,14 +485,10 @@ export function SpatialSubscriber(props) {
     imageDataStatus,
   ]);
   const urls = useUrls([
-    Object.values(obsSpotsUrls || {})
-      .flat(),
-    Object.values(obsPointsUrls || {})
-      .flat(),
-    Object.values(obsSegmentationsUrls || {})
-      .flat(),
-    Object.values(imageUrls || {})
-      .flat(),
+    Object.values(obsSpotsUrls || {}).flat(),
+    Object.values(obsPointsUrls || {}).flat(),
+    Object.values(obsSegmentationsUrls || {}).flat(),
+    Object.values(imageUrls || {}).flat(),
     // TODO: more urls
     // TODO: a bit of memoization
   ]);
@@ -518,10 +498,8 @@ export function SpatialSubscriber(props) {
   // Compute initial viewState values to use if targetX and targetY are not
   // defined in the initial configuration.
   const {
-    initialTargetX: defaultTargetX,
-    initialTargetY: defaultTargetY,
-    initialTargetZ: defaultTargetZ,
-    initialZoom: defaultZoom,
+    initialTargetX: defaultTargetX, initialTargetY: defaultTargetY,
+    initialTargetZ: defaultTargetZ, initialZoom: defaultZoom,
   } = useMemo(() => getInitialSpatialTargets({
     width,
     height,
@@ -557,17 +535,13 @@ export function SpatialSubscriber(props) {
           setZoom(defaultZoom);
         }
         setOriginalViewState(
-          {
-            target: [defaultTargetX, defaultTargetY, defaultTargetZ],
-            zoom: defaultZoom,
-          },
+          { target: [defaultTargetX, defaultTargetY, defaultTargetZ], zoom: defaultZoom },
         );
       } else if (!originalViewState) {
         // originalViewState has not yet been set and
         // the view config defined an initial viewState.
         setOriginalViewState({
-          target: [initialTargetX, initialTargetY, initialTargetZ],
-          zoom: initialZoom,
+          target: [initialTargetX, initialTargetY, initialTargetZ], zoom: initialZoom,
         });
       }
     }
