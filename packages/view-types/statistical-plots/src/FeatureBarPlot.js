@@ -60,7 +60,7 @@ export default function FeatureBarPlot(props) {
       additionalCellSets?.tree?.[0]?.children?.forEach((child) => {
         if (child.name === selectedElement) {
           child.set.forEach(([obsId]) => {
-            const info = { name: '', id: '', color: [] };
+            const info = { name: '', id: '', color: [255, 255, 255] };
             info.name = selectedElement;
             info.id = obsId;
             cellSetColor.forEach((color) => {
