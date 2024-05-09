@@ -1,4 +1,11 @@
 
+## 3.4.5
+
+### Patch Changes
+
+- Fix css for Enter XR button. (`@vitessce/spatial-three`) ([#1874](https://github.com/vitessce/vitessce/pull/1874))
+
+
 ## 3.4.4
 
 ### Patch Changes
