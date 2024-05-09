@@ -120,7 +120,7 @@ export function SpatialThree(props) {
 
   const {
     obsSegmentations,
-    onGlomSelected,
+    onEntitySelected,
     segmentationLayerCoordination,
     segmentationChannelCoordination,
     segmentationChannelScopesByLayer,
@@ -142,7 +142,7 @@ export function SpatialThree(props) {
         sets.tree[0].children.forEach((child) => {
           if (child.name === selectedElement) {
             child.set.forEach(([obsId]) => {
-              const info = { name: '', id: '', color: [] };
+              const info = { name: '', id: '', color: [255, 255, 255] };
               info.name = selectedElement;
               info.id = obsId;
               segmentationObsSetLayerProps.obsSetColor.forEach((color) => {
@@ -191,6 +191,7 @@ export function SpatialThree(props) {
         }
         childElement.name = name;
         childElement.userData.name = name;
+        childElement.userData.layerScope = layerScope;
         childElement.material.transparent = true;
         childElement.material.writeDepthTexture = true;
         childElement.material.depthTest = true;
@@ -332,7 +333,7 @@ export function SpatialThree(props) {
         if (segmentationChannelScopesByLayer[layerScope].length > 1) {
           segmentationChannelScopesByLayer[layerScope].forEach((channelScope) => {
             const channelSet = segmentationChannelCoordination[0][layerScope][channelScope];
-            if (channelSet.obsType === id) {
+            if (channelSet.spatialTargetC === id) {
               // eslint-disable-next-line no-param-reassign
               child.material.color.r = channelSet.spatialChannelColor[0] / 255;
               // eslint-disable-next-line no-param-reassign
@@ -345,10 +346,15 @@ export function SpatialThree(props) {
               child.visible = channelSet.spatialChannelVisible;
               // eslint-disable-next-line no-param-reassign
               child.material.needsUpdate = true;
+              // eslint-disable-next-line no-param-reassign
+              child.userData.layerScope = layerScope;
+              // eslint-disable-next-line no-param-reassign
+              child.userData.channelScope = channelScope;
               segmentationGroup.children[firstGroupIndex].children[childIndex].material.needsUpdate = true;
             }
           });
         } else {
+          // TODO: is this else clause needed anymore?
           // adapt the color
           // eslint-disable-next-line no-param-reassign
           child.material.color.r = color[0] / 255;
@@ -363,6 +369,11 @@ export function SpatialThree(props) {
           child.material.visible = segmentationSettings.visible;
           // eslint-disable-next-line no-param-reassign
           child.material.needsUpdate = true;
+          // eslint-disable-next-line no-param-reassign
+          child.userData.layerScope = layerScope;
+          const firstChannelScope = Object.keys(segmentationChannelCoordination[0][layerScope])?.[0];
+          // eslint-disable-next-line no-param-reassign
+          child.userData.channelScope = firstChannelScope;
         }
       });
     }
@@ -510,7 +521,7 @@ export function SpatialThree(props) {
     segmentationSceneScale,
     renderingSettings,
     materialRef,
-    highlightGlom: onGlomSelected,
+    highlightEntity: onEntitySelected,
     setObsHighlight: setObsHighlightFct,
   };
   return (

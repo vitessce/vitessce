@@ -756,40 +756,30 @@ export function SpatialSubscriber(props) {
 
 
   // For SpatialThree
-  // TODO: change to use per-layer or per-channel obsSets and selections
-  const onEntitySelected = useCallback((obsId) => {
-    const obsIdsToSelect = [obsId];
-
-    const layerScope = segmentationLayerScopes[0];
-    if (layerScope !== undefined && segmentationChannelScopesByLayer[layerScope][0] !== undefined) {
-      const channelScope = segmentationChannelScopesByLayer[layerScope][0];
-      const {
-        additionalObsSets: firstChannelAdditionalObsSets,
-        obsSetColor: firstChannelObsSetColor,
-      } = segmentationChannelCoordination[0][layerScope][channelScope];
-      const {
-        setObsSetColor: firstChannelSetObsSetColor,
-        setAdditionalObsSets: firstChannelSetAdditionalObsSets,
-        setObsColorEncoding: firstChannelSetObsColorEncoding,
-        setObsSetSelection: firstChannelSetObsSetSelection,
-      } = segmentationChannelCoordination[1][layerScope][channelScope];
-
-      setObsSelection(
-        obsIdsToSelect, firstChannelAdditionalObsSets, firstChannelObsSetColor,
-        firstChannelSetObsSetSelection, firstChannelSetAdditionalObsSets, firstChannelSetObsSetColor,
-        firstChannelSetObsColorEncoding,
-      );
-    } else {
-      setObsSelection(
-        obsIdsToSelect, additionalObsSets, obsSetColor,
-        setObsSetSelection, setAdditionalObsSets, setObsSetColor,
-        setObsColorEncoding,
-      );
+  const onEntitySelected = (obsId, layerScope, channelScope) => {
+    if (layerScope && channelScope) {
+      const channelCoordinationValues = segmentationChannelCoordination[0][layerScope][channelScope];
+      const channelCoordinationSetters = segmentationChannelCoordination[1][layerScope][channelScope];
+      if (channelCoordinationValues && channelCoordinationSetters) {
+        const {
+          additionalObsSets: channelAdditionalObsSets,
+          obsSetColor: channelObsSetColor,
+        } = channelCoordinationValues;
+        const {
+          setObsSetColor: setChannelObsSetColor,
+          setAdditionalObsSets: setChannelAdditionalObsSets,
+          setObsColorEncoding: setChannelObsColorEncoding,
+          setObsSetSelection: setChannelObsSetSelection,
+        } = channelCoordinationSetters;
+        const obsIdsToSelect = [obsId];
+        setObsSelection(
+          obsIdsToSelect, channelAdditionalObsSets, channelObsSetColor,
+          setChannelObsSetSelection, setChannelAdditionalObsSets, setChannelObsSetColor,
+          setChannelObsColorEncoding,
+        );
+      }
     }
-  }, [additionalObsSets, obsSetColor,
-    setObsSetSelection, setAdditionalObsSets, setObsSetColor,
-    setObsColorEncoding, // TODO: more dependencies?
-  ]);
+  };
 
   return (
     <TitleInfo
@@ -834,8 +824,7 @@ export function SpatialSubscriber(props) {
           updateViewInfo={setComponentViewInfo}
 
           delegateHover={delegateHover}
-          // TODO: do not make this glom-specific. need to generalize
-          onGlomSelected={onEntitySelected}
+          onEntitySelected={onEntitySelected}
 
           // Points
           obsPoints={obsPointsData}

@@ -122,7 +122,7 @@ function generateJainKidneyDecimatedConfig() {
             featureType: glomsFeatureTypeScope,
             featureValueType: glomsFeatureValueTypeScope,
             featureSelection: glomsFeatureSelectionScope,
-            spatialTargetC: 0,
+            spatialTargetC: 'gloms',
             spatialChannelColor: [253, 174, 107],
             spatialChannelOpacity: 0.5,
             spatialChannelVisible: true,

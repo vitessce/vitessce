@@ -12,7 +12,7 @@ import { MeasureLine } from './xr/MeasureLine.js';
 export function GeometryAndMesh(props) {
   const {
     segmentationGroup, segmentationSettings, segmentationSceneScale,
-    renderingSettings, materialRef, highlightGlom, setObsHighlight,
+    renderingSettings, materialRef, highlightEntity, setObsHighlight,
   } = props;
   const model = useRef();
   const distanceRef = useRef();
@@ -126,7 +126,6 @@ export function GeometryAndMesh(props) {
           const intersectsRightTip = rightTipBB.intersectsBox(currentObjectBB);
           if (intersectsLeftTip || intersectsRightTip) {
             intersected = true;
-            // Highlighting Glom
             setObsHighlight(child.name);
             setHighlighted(true);
             if (controllers[1] !== undefined && intersectsLeftTip && controllers[1].hand.inputState.pinching === true) {
@@ -219,7 +218,7 @@ export function GeometryAndMesh(props) {
                     position={[0, 0, 0]}
                     onClick={(e) => {
                       if (e.object.parent.userData.name === 'finalPass') {
-                        highlightGlom(e.object.name);
+                        highlightEntity(e.object.name, e.object.userData.layerScope, e.object.userData.channelScope);
                       }
                     }}
                     onPointerOver={(e) => {
