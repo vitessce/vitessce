@@ -1,4 +1,11 @@
 
+## 3.4.3
+
+### Patch Changes
+
+- Fix bugs with selecting meshes in spatial-three component. (`@vitessce/spatial-three`, `@vitessce/spatial-beta`) ([#1870](https://github.com/vitessce/vitessce/pull/1870))
+
+
 ## 3.4.2
 
 ### Patch Changes
