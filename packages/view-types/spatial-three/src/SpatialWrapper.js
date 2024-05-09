@@ -16,7 +16,7 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => (
         position: 'absolute',
       }}
     >
-      {(status) => (status ? (
+      {status => (status ? (
         <div style={{
           border: '1px solid white',
           padding: '12px 24px',
@@ -29,7 +29,7 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => (
         }}
         >{(status === 'entered' ? 'Exit AR' : 'Enter AR')}
         </div>
-      ): null)}
+      ) : null)}
     </XRButton>
     <Canvas
       style={{ position: 'absolute', top: 0, left: 0 }}
