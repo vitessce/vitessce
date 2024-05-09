@@ -12,27 +12,24 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => (
       style={{
         border: 'none',
         background: 'rgba(0, 0, 0, 0.0)',
+        zIndex: 1,
+        position: 'absolute',
       }}
     >
-      {(status) => {
-        if (status === 'unsupported') {
-          return null;
-        }
-        return (
-          <div style={{
-            border: '1px solid white',
-            padding: '12px 24px',
-            borderRadius: '4px',
-            background: 'rgba(0, 0, 0, 0.1)',
-            color: 'white',
-            font: 'normal 0.8125rem sans-serif',
-            outline: 'none',
-            cursor: 'pointer',
-          }}
-          >{(status === 'entered' ? 'Exit AR' : 'Enter AR')}
-          </div>
-        );
-      }}
+      {(status) => (status ? (
+        <div style={{
+          border: '1px solid white',
+          padding: '12px 24px',
+          borderRadius: '4px',
+          background: 'rgba(0, 0, 0, 0.1)',
+          color: 'white',
+          font: 'normal 0.8125rem sans-serif',
+          outline: 'none',
+          cursor: 'pointer',
+        }}
+        >{(status === 'entered' ? 'Exit AR' : 'Enter AR')}
+        </div>
+      ): null)}
     </XRButton>
     <Canvas
       style={{ position: 'absolute', top: 0, left: 0 }}
