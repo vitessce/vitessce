@@ -280,8 +280,8 @@ export async function initializeLayerChannels(loader, use3d, isBitmask) {
   let defaultSelection = buildDefaultSelection(source);
   defaultSelection = isInterleaved(source.shape)
     ? [{ ...defaultSelection[0], c: 0 }] : defaultSelection;
-  let domains = defaultSelection.map(_ => [0, 255]);
-  let sliders = defaultSelection.map(_ => [0, 255]);
+  let domains = defaultSelection.map(() => [0, 255]);
+  let sliders = defaultSelection.map(() => [0, 255]);
   let colors = defaultSelection.map((_, i) => PALETTE[i]);
   if (!isBitmask) {
     const stats = await getMultiSelectionStats({
