@@ -280,9 +280,9 @@ export async function initializeLayerChannels(loader, use3d, isBitmask) {
   let defaultSelection = buildDefaultSelection(source);
   defaultSelection = isInterleaved(source.shape)
     ? [{ ...defaultSelection[0], c: 0 }] : defaultSelection;
-  let domains = defaultSelection.map(i => [0, 255])
-  let sliders = defaultSelection.map(i => [0, 255])
-  let colors = defaultSelection.map((_, i) => PALETTE[i])
+  let domains = defaultSelection.map(_ => [0, 255]);
+  let sliders = defaultSelection.map(_ => [0, 255]);
+  let colors = defaultSelection.map((_, i) => PALETTE[i]);
   if (!isBitmask) {
     const stats = await getMultiSelectionStats({
       loader: loader.data, selections: defaultSelection, use3d,
@@ -351,7 +351,7 @@ export async function initializeRasterLayersAndChannels(
     // Midpoint of images list as default image to show.
     const layerIndex = Math.floor(rasterLayers.length / 2);
     const loader = nextImageLoaders[layerIndex];
-    const isBitmask = nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask
+    const isBitmask = nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask;
     const autoImageLayerDefPromise = initializeLayerChannels(loader, false, isBitmask)
       .then(channels => Promise.resolve({
         type: isBitmask ? 'bitmask' : 'raster',
@@ -373,7 +373,7 @@ export async function initializeRasterLayersAndChannels(
     for (let i = 0; i < globalIndicesOfRenderLayers.length; i++) {
       const layerIndex = globalIndicesOfRenderLayers[i];
       const loader = nextImageLoaders[layerIndex];
-      const isBitmask = nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask
+      const isBitmask = nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask;
       const autoImageLayerDefPromise = initializeLayerChannels(loader, false, isBitmask)
         // eslint-disable-next-line no-loop-func
         .then(channels => Promise.resolve({
